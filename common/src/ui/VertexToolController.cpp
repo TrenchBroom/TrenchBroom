@@ -40,7 +40,7 @@ mdl::Hit VertexToolController::findHandleHit(
   using namespace mdl::HitFilters;
 
   if (const auto vertexHit =
-        base.findDraggableHandle(inputState, VertexHandleManager::HandleHitType);
+        base.findDraggableHandle(inputState, mdl::VertexHandleManager::HandleHitType);
       vertexHit.isMatch())
   {
     return vertexHit;
@@ -50,7 +50,7 @@ mdl::Hit VertexToolController::findHandleHit(
     inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
   {
     if (const auto& anyHit = inputState.pickResult().all().front(); anyHit.hasType(
-          EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
+          mdl::EdgeHandleManager::HandleHitType | mdl::FaceHandleManager::HandleHitType))
     {
       return anyHit;
     }
@@ -65,7 +65,7 @@ std::vector<mdl::Hit> VertexToolController::findHandleHits(
 
 
   if (const auto vertexHits =
-        base.findDraggableHandles(inputState, VertexHandleManager::HandleHitType);
+        base.findDraggableHandles(inputState, mdl::VertexHandleManager::HandleHitType);
       !vertexHits.empty())
   {
     return vertexHits;
@@ -75,19 +75,19 @@ std::vector<mdl::Hit> VertexToolController::findHandleHits(
     inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
   {
     const auto& anyHit = inputState.pickResult().all().front();
-    if (anyHit.hasType(EdgeHandleManager::HandleHitType))
+    if (anyHit.hasType(mdl::EdgeHandleManager::HandleHitType))
     {
       if (const auto edgeHits =
-            inputState.pickResult().all(type(EdgeHandleManager::HandleHitType));
+            inputState.pickResult().all(type(mdl::EdgeHandleManager::HandleHitType));
           !edgeHits.empty())
       {
         return edgeHits;
       }
     }
-    else if (anyHit.hasType(FaceHandleManager::HandleHitType))
+    else if (anyHit.hasType(mdl::FaceHandleManager::HandleHitType))
     {
       if (const auto faceHits =
-            inputState.pickResult().all(type(FaceHandleManager::HandleHitType));
+            inputState.pickResult().all(type(mdl::FaceHandleManager::HandleHitType));
           !faceHits.empty())
       {
         return faceHits;
@@ -101,7 +101,7 @@ class VertexToolController::SelectVertexPart : public SelectPartBase<vm::vec3d>
 {
 public:
   explicit SelectVertexPart(VertexTool& tool)
-    : SelectPartBase{tool, VertexHandleManager::HandleHitType}
+    : SelectPartBase{tool, mdl::VertexHandleManager::HandleHitType}
   {
   }
 
@@ -127,7 +127,7 @@ class VertexToolController::MoveVertexPart : public MovePartBase
 {
 public:
   explicit MoveVertexPart(VertexTool& tool)
-    : MovePartBase{tool, VertexHandleManager::HandleHitType}
+    : MovePartBase{tool, mdl::VertexHandleManager::HandleHitType}
   {
   }
 
@@ -140,7 +140,7 @@ private:
       && m_tool.handleManager().selectedHandleCount() == 1)
     {
       if (const auto hit = VertexToolController::findHandleHit(inputState, *this);
-          hit.hasType(VertexHandleManager::HandleHitType))
+          hit.hasType(mdl::VertexHandleManager::HandleHitType))
       {
         const auto sourcePos = m_tool.handleManager().selectedHandles().front();
         const auto targetPos = hit.target<vm::vec3d>();
@@ -185,7 +185,8 @@ private:
     if (!inputState.anyToolDragging())
     {
       if (const auto hit = findDraggableHandle(inputState); hit.hasType(
-            EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
+            mdl::EdgeHandleManager::HandleHitType
+            | mdl::FaceHandleManager::HandleHitType))
       {
         const auto handle = m_tool.getHandlePosition(hit);
         if (inputState.mouseButtonsPressed(MouseButtons::Left))

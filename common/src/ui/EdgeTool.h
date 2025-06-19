@@ -55,8 +55,8 @@ public:
     mdl::PickResult& pickResult) const override;
 
 public:
-  EdgeHandleManager& handleManager() override;
-  const EdgeHandleManager& handleManager() const override;
+  mdl::EdgeHandleManager& handleManager() override;
+  const mdl::EdgeHandleManager& handleManager() const override;
 
 public:
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(

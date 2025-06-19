@@ -46,13 +46,13 @@ void EdgeTool::pick(
   document->edgeHandles().pickCenterHandle(pickRay, camera, pickResult);
 }
 
-EdgeHandleManager& EdgeTool::handleManager()
+mdl::EdgeHandleManager& EdgeTool::handleManager()
 {
   auto document = kdl::mem_lock(m_document);
   return document->edgeHandles();
 }
 
-const EdgeHandleManager& EdgeTool::handleManager() const
+const mdl::EdgeHandleManager& EdgeTool::handleManager() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->edgeHandles();
@@ -64,7 +64,7 @@ std::tuple<vm::vec3d, vm::vec3d> EdgeTool::handlePositionAndHitPoint(
   assert(!hits.empty());
 
   const auto& hit = hits.front();
-  assert(hit.hasType(EdgeHandleManager::HandleHitType));
+  assert(hit.hasType(mdl::EdgeHandleManager::HandleHitType));
 
   return {hit.target<vm::segment3d>().center(), hit.hitPoint()};
 }

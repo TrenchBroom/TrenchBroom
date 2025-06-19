@@ -29,9 +29,9 @@
 #include "mdl/NodeContents.h"
 #include "mdl/PointTrace.h"
 #include "mdl/Selection.h"
+#include "mdl/VertexHandleManager.h"
 #include "ui/Actions.h"
 #include "ui/CachingLogger.h"
-#include "ui/VertexHandleManager.h"
 
 #include "vm/bbox.h"
 #include "vm/ray.h"
@@ -148,9 +148,9 @@ private:
   mutable std::optional<vm::bbox3d> m_cachedSelectionBounds;
   std::optional<vm::bbox3d> m_lastSelectionBounds;
 
-  VertexHandleManager m_vertexHandles;
-  EdgeHandleManager m_edgeHandles;
-  FaceHandleManager m_faceHandles;
+  mdl::VertexHandleManager m_vertexHandles;
+  mdl::EdgeHandleManager m_edgeHandles;
+  mdl::FaceHandleManager m_faceHandles;
 
   std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
 
@@ -355,9 +355,9 @@ public: // portal file management
 public: // selection
   const mdl::Selection& selection() const override;
 
-  VertexHandleManager& vertexHandles();
-  EdgeHandleManager& edgeHandles();
-  FaceHandleManager& faceHandles();
+  mdl::VertexHandleManager& vertexHandles();
+  mdl::EdgeHandleManager& edgeHandles();
+  mdl::FaceHandleManager& faceHandles();
 
   const vm::bbox3d referenceBounds() const override;
   const std::optional<vm::bbox3d>& lastSelectionBounds() const override;

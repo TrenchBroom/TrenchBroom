@@ -30,7 +30,7 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 VertexHandleManagerBase::~VertexHandleManagerBase() = default;
@@ -109,7 +109,7 @@ void EdgeHandleManager::pickGridHandle(
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
           pickResult.addHit(mdl::Hit{
-            HandleHitType, *pointDist, hitPoint, HitType{position, *pointHandle}});
+            HandleHitType, *pointDist, hitPoint, HitData{position, *pointHandle}});
         }
       }
     }
@@ -193,7 +193,7 @@ void FaceHandleManager::pickGridHandle(
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
           pickResult.addHit(mdl::Hit{
-            HandleHitType, *pointDist, hitPoint, HitType{position, pointHandle}});
+            HandleHitType, *pointDist, hitPoint, HitData{position, pointHandle}});
         }
       }
     }
@@ -249,4 +249,4 @@ bool FaceHandleManager::isIncident(
   return brush.hasFace(handle);
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

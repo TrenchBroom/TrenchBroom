@@ -30,7 +30,7 @@ class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3d>
 {
 public:
   explicit SelectEdgePart(EdgeTool& tool)
-    : SelectPartBase{tool, EdgeHandleManager::HandleHitType}
+    : SelectPartBase{tool, mdl::EdgeHandleManager::HandleHitType}
   {
   }
 
@@ -45,7 +45,7 @@ class EdgeToolController::MoveEdgePart : public MovePartBase
 {
 public:
   explicit MoveEdgePart(EdgeTool& tool)
-    : MovePartBase{tool, EdgeHandleManager::HandleHitType}
+    : MovePartBase{tool, mdl::EdgeHandleManager::HandleHitType}
   {
   }
 };

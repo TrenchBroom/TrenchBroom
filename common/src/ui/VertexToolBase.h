@@ -32,13 +32,13 @@
 #include "mdl/SelectionChange.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
 #include "render/RenderBatch.h"
 #include "render/RenderService.h"
 #include "ui/Lasso.h"
 #include "ui/MapDocument.h"
 #include "ui/Tool.h"
-#include "ui/VertexHandleManager.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -220,7 +220,7 @@ public: // Handle selection
   }
 
 public:
-  using HandleManager = VertexHandleManagerBaseT<H>;
+  using HandleManager = mdl::VertexHandleManagerBaseT<H>;
   virtual HandleManager& handleManager() = 0;
   virtual const HandleManager& handleManager() const = 0;
 
@@ -602,7 +602,8 @@ protected:
 
   template <typename HT>
   void addHandles(
-    const std::vector<mdl::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager)
+    const std::vector<mdl::Node*>& nodes,
+    mdl::VertexHandleManagerBaseT<HT>& handleManager)
   {
     for (const auto* node : nodes)
     {
@@ -618,7 +619,8 @@ protected:
 
   template <typename HT>
   void removeHandles(
-    const std::vector<mdl::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager)
+    const std::vector<mdl::Node*>& nodes,
+    mdl::VertexHandleManagerBaseT<HT>& handleManager)
   {
     for (const auto* node : nodes)
     {
