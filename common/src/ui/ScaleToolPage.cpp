@@ -140,7 +140,7 @@ std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
   }
 }
 
-void ScaleToolPage::selectionDidChange(const SelectionChange&)
+void ScaleToolPage::selectionDidChange(const mdl::SelectionChange&)
 {
   updateGui();
 }

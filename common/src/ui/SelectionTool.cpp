@@ -192,7 +192,7 @@ void drillSelection(const InputState& inputState, MapDocument& document)
 
   if (nextNode)
   {
-    auto transaction = Transaction{document, "Drill Selection"};
+    auto transaction = mdl::Transaction{document, "Drill Selection"};
     document.deselectNodes({selectedNode});
     document.selectNodes({nextNode});
     transaction.commit();
@@ -313,7 +313,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
             }
             else
             {
-              auto transaction = Transaction{document, "Select Brush Face"};
+              auto transaction = mdl::Transaction{document, "Select Brush Face"};
               document->convertToFaceSelection();
               document->selectBrushFaces({*faceHandle});
               transaction.commit();
@@ -333,7 +333,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
         }
         else
         {
-          auto transaction = Transaction{document, "Select Brush Face"};
+          auto transaction = mdl::Transaction{document, "Select Brush Face"};
           document->deselectAll();
           document->selectBrushFaces({*faceHandle});
           transaction.commit();
@@ -362,7 +362,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
           }
           else
           {
-            auto transaction = Transaction{document, "Select Object"};
+            auto transaction = mdl::Transaction{document, "Select Object"};
             if (document->selection().hasBrushFaces())
             {
               document->deselectAll();
@@ -373,7 +373,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
         }
         else
         {
-          auto transaction = Transaction{document, "Select Object"};
+          auto transaction = mdl::Transaction{document, "Select Object"};
           document->deselectAll();
           document->selectNodes({node});
           transaction.commit();
@@ -420,7 +420,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
         }
         else
         {
-          auto transaction = Transaction{document, "Select Brush Faces"};
+          auto transaction = mdl::Transaction{document, "Select Brush Faces"};
           document->deselectAll();
           document->selectBrushFaces(mdl::toHandles(brushNode));
           transaction.commit();
@@ -465,7 +465,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
             }
             else
             {
-              auto transaction = Transaction{document, "Select Brushes"};
+              auto transaction = mdl::Transaction{document, "Select Brushes"};
               document->deselectAll();
               document->selectNodes(siblings);
               transaction.commit();
@@ -526,7 +526,7 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
       if (editorContext.selectable(*brushNode, face))
       {
         document->startTransaction(
-          "Drag Select Brush Faces", TransactionScope::LongRunning);
+          "Drag Select Brush Faces", mdl::TransactionScope::LongRunning);
         if (document->selection().hasAny() && !document->selection().hasBrushFaces())
         {
           document->deselectAll();
@@ -552,7 +552,8 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
     auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
     if (editorContext.selectable(*node))
     {
-      document->startTransaction("Drag Select Objects", TransactionScope::LongRunning);
+      document->startTransaction(
+        "Drag Select Objects", mdl::TransactionScope::LongRunning);
       if (document->selection().hasAny() && !document->selection().hasNodes())
       {
         document->deselectAll();

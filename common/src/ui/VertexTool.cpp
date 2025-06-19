@@ -335,7 +335,7 @@ void VertexTool::removeHandles(const std::vector<mdl::Node*>& nodes)
   VertexToolBase::removeHandles(nodes, document->faceHandles());
 }
 
-void VertexTool::addHandles(BrushVertexCommandBase* command)
+void VertexTool::addHandles(mdl::BrushVertexCommandBase* command)
 {
   auto document = kdl::mem_lock(m_document);
 
@@ -344,7 +344,7 @@ void VertexTool::addHandles(BrushVertexCommandBase* command)
   command->addHandles(document->faceHandles());
 }
 
-void VertexTool::removeHandles(BrushVertexCommandBase* command)
+void VertexTool::removeHandles(mdl::BrushVertexCommandBase* command)
 {
   auto document = kdl::mem_lock(m_document);
 

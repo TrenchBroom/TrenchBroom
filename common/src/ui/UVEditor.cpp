@@ -140,7 +140,7 @@ void UVEditor::createGui(GLContextManager& contextManager)
   updateButtons();
 }
 
-void UVEditor::selectionDidChange(const SelectionChange&)
+void UVEditor::selectionDidChange(const mdl::SelectionChange&)
 {
   updateButtons();
 }

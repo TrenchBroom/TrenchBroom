@@ -31,10 +31,6 @@ namespace tb::mdl
 {
 class Node;
 enum class VisibilityState;
-} // namespace tb::mdl
-
-namespace tb::ui
-{
 
 class SetVisibilityCommand : public UndoableCommand
 {
@@ -57,10 +53,10 @@ public:
 private:
   static std::string makeName(Action action);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
   deleteCopyAndMove(SetVisibilityCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

@@ -28,6 +28,11 @@
 
 class QStackedLayout;
 
+namespace tb::mdl
+{
+struct SelectionChange;
+}
+
 namespace tb::ui
 {
 class ClipTool;
@@ -43,7 +48,6 @@ class VertexTool;
 class EdgeTool;
 class FaceTool;
 class MapDocument;
-struct SelectionChange;
 
 class MapViewToolBox : public ToolBox
 {
@@ -130,7 +134,7 @@ private: // notification
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
   void documentWasNewedOrLoaded(MapDocument* document);
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void updateToolPage();
 };

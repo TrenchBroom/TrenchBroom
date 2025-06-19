@@ -26,7 +26,7 @@
 #include <memory>
 #include <string>
 
-namespace tb::ui
+namespace tb::mdl
 {
 class MapDocument;
 
@@ -44,8 +44,8 @@ protected:
 public:
   ~UpdateLinkedGroupsCommandBase() override;
 
-  std::unique_ptr<CommandResult> performDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> performUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> performDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> performUndo(ui::MapDocument& document) override;
 
   bool collateWith(UndoableCommand& command) override;
 
@@ -53,4 +53,4 @@ private:
   deleteCopyAndMove(UpdateLinkedGroupsCommandBase);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

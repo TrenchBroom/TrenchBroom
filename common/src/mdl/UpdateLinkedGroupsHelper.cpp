@@ -37,7 +37,7 @@
 #include <ranges>
 #include <unordered_set>
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
@@ -62,7 +62,7 @@ std::vector<mdl::Node*> collectOldChildren(
 
 auto doReplaceChildren(
   std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>> nodes,
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   auto result =
     std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>{};
@@ -120,13 +120,13 @@ UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(
 
 UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 
-Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(MapDocument& document)
+Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(ui::MapDocument& document)
 {
   return computeLinkedGroupUpdates(document)
          | kdl::transform([&]() { doApplyOrUndoLinkedGroupUpdates(document); });
 }
 
-void UpdateLinkedGroupsHelper::undoLinkedGroupUpdates(MapDocument& document)
+void UpdateLinkedGroupsHelper::undoLinkedGroupUpdates(ui::MapDocument& document)
 {
   doApplyOrUndoLinkedGroupUpdates(document);
 }
@@ -164,7 +164,8 @@ void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other)
   }
 }
 
-Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(MapDocument& document)
+Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
+  ui::MapDocument& document)
 {
   return std::visit(
     kdl::overload(
@@ -181,7 +182,7 @@ Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(MapDocument& do
 
 Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   computeLinkedGroupUpdates(
-    const ChangedLinkedGroups& changedLinkedGroups, MapDocument& document)
+    const ChangedLinkedGroups& changedLinkedGroups, ui::MapDocument& document)
 {
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
@@ -203,7 +204,7 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
            });
 }
 
-void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(MapDocument& document)
+void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(ui::MapDocument& document)
 {
   std::visit(
     kdl::overload(
@@ -214,4 +215,4 @@ void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(MapDocument& docu
     std::move(m_state));
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

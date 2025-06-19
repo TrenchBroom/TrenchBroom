@@ -20,30 +20,37 @@
 #pragma once
 
 #include "Macros.h"
-#include "mdl/UndoableCommand.h"
+#include "mdl/UpdateLinkedGroupsCommandBase.h"
 
+#include <map>
 #include <memory>
+#include <vector>
 
 namespace tb::mdl
 {
 class GroupNode;
+class Node;
 
-class CurrentGroupCommand : public UndoableCommand
+class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase
 {
 private:
-  mdl::GroupNode* m_group = nullptr;
+  std::map<Node*, std::vector<Node*>> m_nodesToAdd;
+  std::map<Node*, std::vector<Node*>> m_nodesToRemove;
 
 public:
-  static std::unique_ptr<CurrentGroupCommand> push(mdl::GroupNode* group);
-  static std::unique_ptr<CurrentGroupCommand> pop();
+  static std::unique_ptr<ReparentNodesCommand> reparent(
+    std::map<Node*, std::vector<Node*>> nodesToAdd,
+    std::map<Node*, std::vector<Node*>> nodesToRemove);
 
-  explicit CurrentGroupCommand(mdl::GroupNode* group);
+  ReparentNodesCommand(
+    std::map<Node*, std::vector<Node*>> nodesToAdd,
+    std::map<Node*, std::vector<Node*>> nodesToRemove);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
-  deleteCopyAndMove(CurrentGroupCommand);
+  deleteCopyAndMove(ReparentNodesCommand);
 };
 
 } // namespace tb::mdl

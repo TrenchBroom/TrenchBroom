@@ -150,7 +150,7 @@ public:
     , m_vAxis{vAxis}
     , m_initialHit{initialHit}
   {
-    m_document.startTransaction("Shear UV", TransactionScope::LongRunning);
+    m_document.startTransaction("Shear UV", mdl::TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override

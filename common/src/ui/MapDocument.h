@@ -61,6 +61,9 @@ class Brush;
 class BrushFace;
 class BrushFaceAttributes;
 class BrushFaceHandle;
+class Command;
+class CommandProcessor;
+class CommandResult;
 class EditorContext;
 class Entity;
 struct EntityDefinition;
@@ -77,27 +80,25 @@ class PointTrace;
 class PortalFile;
 class ResourceId;
 class ResourceManager;
+struct SelectionChange;
 class SmartTag;
 class TagManager;
+enum class TransactionScope;
+class UndoableCommand;
 class UVCoordSystemSnapshot;
 class WorldNode;
 enum class MapFormat;
 enum class WrapStyle;
 struct ProcessContext;
+
 } // namespace tb::mdl
 
 namespace tb::ui
 {
-class Command;
-class CommandProcessor;
-class CommandResult;
 enum class PasteType;
 class RepeatStack;
-struct SelectionChange;
-class UndoableCommand;
 class ViewEffectsService;
 enum class MapTextEncoding;
-enum class TransactionScope;
 class AsyncTaskRunner;
 
 struct PointFile
@@ -165,15 +166,15 @@ private:
    */
   std::unique_ptr<RepeatStack> m_repeatStack;
 
-  std::unique_ptr<CommandProcessor> m_commandProcessor;
+  std::unique_ptr<mdl::CommandProcessor> m_commandProcessor;
 
 public: // notification
-  Notifier<Command&> commandDoNotifier;
-  Notifier<Command&> commandDoneNotifier;
-  Notifier<Command&> commandDoFailedNotifier;
-  Notifier<UndoableCommand&> commandUndoNotifier;
-  Notifier<UndoableCommand&> commandUndoneNotifier;
-  Notifier<UndoableCommand&> commandUndoFailedNotifier;
+  Notifier<mdl::Command&> commandDoNotifier;
+  Notifier<mdl::Command&> commandDoneNotifier;
+  Notifier<mdl::Command&> commandDoFailedNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoneNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoFailedNotifier;
   Notifier<const std::string&> transactionDoneNotifier;
   Notifier<const std::string&> transactionUndoneNotifier;
 
@@ -189,7 +190,7 @@ public: // notification
   Notifier<const std::string&> currentMaterialNameDidChangeNotifier;
 
   Notifier<> selectionWillChangeNotifier;
-  Notifier<const SelectionChange&> selectionDidChangeNotifier;
+  Notifier<const mdl::SelectionChange&> selectionDidChangeNotifier;
 
   Notifier<const std::vector<mdl::Node*>&> nodesWereAddedNotifier;
   Notifier<const std::vector<mdl::Node*>&> nodesWillBeRemovedNotifier;
@@ -611,7 +612,7 @@ public: // command processing
   void clearRepeatableCommands();
 
 public: // transactions
-  void startTransaction(std::string name, TransactionScope scope);
+  void startTransaction(std::string name, mdl::TransactionScope scope);
   void rollbackTransaction();
   bool commitTransaction();
   void cancelTransaction();
@@ -619,9 +620,9 @@ public: // transactions
   bool isCurrentDocumentStateObservable() const;
 
 private:
-  std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
-  std::unique_ptr<CommandResult> executeAndStore(
-    std::unique_ptr<UndoableCommand>&& command);
+  std::unique_ptr<mdl::CommandResult> execute(std::unique_ptr<mdl::Command>&& command);
+  std::unique_ptr<mdl::CommandResult> executeAndStore(
+    std::unique_ptr<mdl::UndoableCommand>&& command);
 
 public: // asset state management
   void processResourcesSync(const mdl::ProcessContext& processContext);
@@ -758,7 +759,7 @@ private: // observers
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void selectionWillChange();
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void materialCollectionsWillChange();
   void materialCollectionsDidChange();
   void entityDefinitionsWillChange();
@@ -766,8 +767,8 @@ private: // observers
   void modsWillChange();
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void commandDone(Command& command);
-  void commandUndone(UndoableCommand& command);
+  void commandDone(mdl::Command& command);
+  void commandUndone(mdl::UndoableCommand& command);
   void transactionDone(const std::string& name);
   void transactionUndone(const std::string& name);
 };

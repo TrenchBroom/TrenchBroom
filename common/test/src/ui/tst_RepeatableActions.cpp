@@ -225,7 +225,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction")
   document->selectNodes({entityNode1});
   CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
 
-  document->startTransaction("", TransactionScope::Oneshot);
+  document->startTransaction("", mdl::TransactionScope::Oneshot);
   document->translate(vm::vec3d(0, 0, 10));
   document->rollbackTransaction();
   document->translate(vm::vec3d(10, 0, 0));
@@ -267,7 +267,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
   {
     document->duplicate();
 
-    document->startTransaction("", TransactionScope::Oneshot);
+    document->startTransaction("", mdl::TransactionScope::Oneshot);
     document->translate(vm::vec3d(0, 0, 10));
     document->rollbackTransaction();
     document->translate(vm::vec3d(10, 0, 0));
@@ -282,7 +282,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
   }
   SECTION("duplicate inside transaction, then standalone movements")
   {
-    document->startTransaction("", TransactionScope::Oneshot);
+    document->startTransaction("", mdl::TransactionScope::Oneshot);
     document->duplicate();
     document->translate(vm::vec3d(2, 0, 0));
     document->translate(vm::vec3d(2, 0, 0));

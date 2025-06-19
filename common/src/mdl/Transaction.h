@@ -25,6 +25,10 @@
 namespace tb::ui
 {
 class MapDocument;
+}
+
+namespace tb::mdl
+{
 
 class Transaction
 {
@@ -37,14 +41,14 @@ public:
   };
 
 private:
-  MapDocument& m_document;
+  ui::MapDocument& m_document;
   std::string m_name;
   State m_state;
 
 public:
-  explicit Transaction(std::weak_ptr<MapDocument> document, std::string name = "");
-  explicit Transaction(std::shared_ptr<MapDocument> document, std::string name = "");
-  explicit Transaction(MapDocument& document, std::string name = "");
+  explicit Transaction(std::weak_ptr<ui::MapDocument> document, std::string name = "");
+  explicit Transaction(std::shared_ptr<ui::MapDocument> document, std::string name = "");
+  explicit Transaction(ui::MapDocument& document, std::string name = "");
   ~Transaction();
 
   State state() const;
@@ -58,4 +62,4 @@ private:
   void begin();
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

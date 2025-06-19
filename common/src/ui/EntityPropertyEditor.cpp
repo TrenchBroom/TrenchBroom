@@ -68,7 +68,7 @@ void EntityPropertyEditor::connectObservers()
     document->nodesDidChangeNotifier.connect(this, &EntityPropertyEditor::nodesDidChange);
 }
 
-void EntityPropertyEditor::selectionDidChange(const SelectionChange&)
+void EntityPropertyEditor::selectionDidChange(const mdl::SelectionChange&)
 {
   updateIfSelectedEntityDefinitionChanged();
 }

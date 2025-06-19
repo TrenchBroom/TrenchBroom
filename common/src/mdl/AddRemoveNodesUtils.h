@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,31 +19,21 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "mdl/UndoableCommand.h"
+#include <map>
+#include <vector>
 
-#include <memory>
+namespace tb::ui
+{
+class MapDocument;
+}
 
 namespace tb::mdl
 {
-class GroupNode;
+class Node;
 
-class CurrentGroupCommand : public UndoableCommand
-{
-private:
-  mdl::GroupNode* m_group = nullptr;
-
-public:
-  static std::unique_ptr<CurrentGroupCommand> push(mdl::GroupNode* group);
-  static std::unique_ptr<CurrentGroupCommand> pop();
-
-  explicit CurrentGroupCommand(mdl::GroupNode* group);
-
-private:
-  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
-
-  deleteCopyAndMove(CurrentGroupCommand);
-};
+void addNodesAndNotify(
+  const std::map<Node*, std::vector<Node*>>& nodes, ui::MapDocument& document);
+void removeNodesAndNotify(
+  const std::map<Node*, std::vector<Node*>>& nodes, ui::MapDocument& document);
 
 } // namespace tb::mdl

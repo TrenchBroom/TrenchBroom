@@ -29,10 +29,6 @@
 namespace tb::mdl
 {
 class Node;
-} // namespace tb::mdl
-
-namespace tb::ui
-{
 
 class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase
 {
@@ -62,13 +58,13 @@ public:
 private:
   static std::string makeName(Action action);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
-  void doAction(MapDocument& document);
-  void undoAction(MapDocument& document);
+  void doAction(ui::MapDocument& document);
+  void undoAction(ui::MapDocument& document);
 
   deleteCopyAndMove(AddRemoveNodesCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

@@ -21,9 +21,9 @@
 
 #include "kdl/reflection_impl.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 kdl_reflect_impl(SelectionChange);
 
-} // namespace tb::ui
+} // namespace tb::mdl

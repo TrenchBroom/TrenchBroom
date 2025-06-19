@@ -406,7 +406,7 @@ MapDocument::MapDocument(kdl::task_manager& taskManager)
   , m_editorContext{std::make_unique<mdl::EditorContext>()}
   , m_grid{std::make_unique<mdl::Grid>(4)}
   , m_repeatStack{std::make_unique<RepeatStack>()}
-  , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
+  , m_commandProcessor{std::make_unique<mdl::CommandProcessor>(*this)}
 {
   connectObservers();
 }
@@ -464,7 +464,7 @@ void MapDocument::setCurrentLayer(mdl::LayerNode* layerNode)
   ensure(currentLayer() != nullptr, "old currentLayer is not null");
   ensure(layerNode != nullptr, "new currentLayer is not null");
 
-  auto transaction = Transaction{*this, "Set Current Layer"};
+  auto transaction = mdl::Transaction{*this, "Set Current Layer"};
 
   while (currentGroup())
   {
@@ -475,7 +475,7 @@ void MapDocument::setCurrentLayer(mdl::LayerNode* layerNode)
   downgradeShownToInherit(descendants);
   downgradeUnlockedToInherit(descendants);
 
-  executeAndStore(SetCurrentLayerCommand::set(layerNode));
+  executeAndStore(mdl::SetCurrentLayerCommand::set(layerNode));
   transaction.commit();
 }
 
@@ -1080,7 +1080,7 @@ bool MapDocument::pasteNodes(const std::vector<mdl::Node*>& nodes)
   fixRecursiveLinkedGroups(nodesToAdd, *this);
   copyAndSetLinkIds(nodesToAdd, *m_world, *this);
 
-  auto transaction = Transaction{*this, "Paste Nodes"};
+  auto transaction = mdl::Transaction{*this, "Paste Nodes"};
 
   const auto addedNodes = addNodes(nodesToAdd);
   if (addedNodes.empty())
@@ -1272,7 +1272,7 @@ void MapDocument::setCurrentMaterialName(const std::string& currentMaterialName)
 
 void MapDocument::selectAllNodes()
 {
-  executeAndStore(SelectionCommand::selectAllNodes());
+  executeAndStore(mdl::SelectionCommand::selectAllNodes());
 }
 
 void MapDocument::selectSiblings()
@@ -1297,7 +1297,7 @@ void MapDocument::selectSiblings()
     }
   }
 
-  auto transaction = Transaction{*this, "Select Siblings"};
+  auto transaction = mdl::Transaction{*this, "Select Siblings"};
   deselectAll();
   selectNodes(nodesToSelect);
   transaction.commit();
@@ -1310,7 +1310,7 @@ void MapDocument::selectTouching(const bool del)
                  [&](const auto* node) { return m_editorContext->selectable(*node); })
                | kdl::to_vector;
 
-  auto transaction = Transaction{*this, "Select Touching"};
+  auto transaction = mdl::Transaction{*this, "Select Touching"};
   if (del)
   {
     remove();
@@ -1330,7 +1330,7 @@ void MapDocument::selectInside(const bool del)
                  [&](const auto* node) { return m_editorContext->selectable(*node); })
                | kdl::to_vector;
 
-  auto transaction = Transaction{*this, "Select Inside"};
+  auto transaction = mdl::Transaction{*this, "Select Inside"};
   if (del)
   {
     remove();
@@ -1378,7 +1378,7 @@ void MapDocument::selectInverse()
     [&](mdl::BrushNode* brushNode) { collectNode(brushNode); },
     [&](mdl::PatchNode* patchNode) { collectNode(patchNode); }));
 
-  auto transaction = Transaction{*this, "Select Inverse"};
+  auto transaction = mdl::Transaction{*this, "Select Inverse"};
   deselectAll();
   selectNodes(nodesToSelect);
   transaction.commit();
@@ -1447,7 +1447,7 @@ void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positio
       }
     }));
 
-  auto transaction = Transaction{*this, "Select by Line Number"};
+  auto transaction = mdl::Transaction{*this, "Select by Line Number"};
   deselectAll();
   selectNodes(nodesToSelect);
   transaction.commit();
@@ -1455,12 +1455,12 @@ void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positio
 
 void MapDocument::selectNodes(const std::vector<mdl::Node*>& nodes)
 {
-  executeAndStore(SelectionCommand::select(nodes));
+  executeAndStore(mdl::SelectionCommand::select(nodes));
 }
 
 void MapDocument::selectBrushFaces(const std::vector<mdl::BrushFaceHandle>& handles)
 {
-  executeAndStore(SelectionCommand::select(handles));
+  executeAndStore(mdl::SelectionCommand::select(handles));
   if (!handles.empty())
   {
     setCurrentMaterialName(handles.back().face().attributes().materialName());
@@ -1469,7 +1469,7 @@ void MapDocument::selectBrushFaces(const std::vector<mdl::BrushFaceHandle>& hand
 
 void MapDocument::convertToFaceSelection()
 {
-  executeAndStore(SelectionCommand::convertToFaces());
+  executeAndStore(mdl::SelectionCommand::convertToFaces());
 }
 
 void MapDocument::selectFacesWithMaterial(const mdl::Material* material)
@@ -1479,7 +1479,7 @@ void MapDocument::selectFacesWithMaterial(const mdl::Material* material)
       std::vector<mdl::Node*>{m_world.get()}, *m_editorContext),
     [&](const auto& faceHandle) { return faceHandle.face().material() == material; });
 
-  auto transaction = Transaction{*this, "Select Faces with Material"};
+  auto transaction = mdl::Transaction{*this, "Select Faces with Material"};
   deselectAll();
   selectBrushFaces(faces);
   transaction.commit();
@@ -1498,7 +1498,7 @@ void MapDocument::selectBrushesWithMaterial(const mdl::Material* material)
       })
     | kdl::to_vector;
 
-  auto transaction = Transaction{*this, "Select Brushes with Material"};
+  auto transaction = mdl::Transaction{*this, "Select Brushes with Material"};
   deselectAll();
   selectNodes(brushes);
   transaction.commit();
@@ -1544,7 +1544,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
     | kdl::fold | kdl::transform([&](const auto& tallBrushes) {
         // delete the original selection brushes before searching for the objects to
         // select
-        auto transaction = Transaction{*this, "Select Tall"};
+        auto transaction = mdl::Transaction{*this, "Select Tall"};
         remove();
 
         const auto nodesToSelect =
@@ -1567,18 +1567,18 @@ void MapDocument::deselectAll()
 {
   if (selection().hasAny())
   {
-    executeAndStore(SelectionCommand::deselectAll());
+    executeAndStore(mdl::SelectionCommand::deselectAll());
   }
 }
 
 void MapDocument::deselectNodes(const std::vector<mdl::Node*>& nodes)
 {
-  executeAndStore(SelectionCommand::deselect(nodes));
+  executeAndStore(mdl::SelectionCommand::deselect(nodes));
 }
 
 void MapDocument::deselectBrushFaces(const std::vector<mdl::BrushFaceHandle>& handles)
 {
-  executeAndStore(SelectionCommand::deselect(handles));
+  executeAndStore(mdl::SelectionCommand::deselect(handles));
 }
 
 /**
@@ -1597,8 +1597,8 @@ std::vector<mdl::Node*> MapDocument::addNodes(
     unused(parent);
   }
 
-  auto transaction = Transaction{*this, "Add Objects"};
-  const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes));
+  auto transaction = mdl::Transaction{*this, "Add Objects"};
+  const auto result = executeAndStore(mdl::AddRemoveNodesCommand::add(nodes));
   if (!result->success())
   {
     transaction.cancel();
@@ -1628,13 +1628,13 @@ void MapDocument::removeNodes(const std::vector<mdl::Node*>& nodes)
 {
   auto removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
 
-  auto transaction = Transaction{*this};
+  auto transaction = mdl::Transaction{*this};
   while (!removableNodes.empty())
   {
     setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(removableNodes)), true);
 
     closeRemovedGroups(removableNodes);
-    executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
+    executeAndStore(mdl::AddRemoveNodesCommand::remove(removableNodes));
 
     removableNodes = collectRemovableParents(removableNodes);
   }
@@ -1768,7 +1768,7 @@ bool MapDocument::reparentNodes(
     return false;
   }
 
-  auto transaction = Transaction{*this, "Reparent Objects"};
+  auto transaction = mdl::Transaction{*this, "Reparent Objects"};
 
   // This handles two main cases:
   // - creating brushes in a hidden layer, and then grouping / ungrouping them keeps
@@ -1789,11 +1789,11 @@ bool MapDocument::reparentNodes(
   }
 
   // Reset link IDs of nodes being reparented, but don't recurse into nested groups
-  executeAndStore(std::make_unique<SetLinkIdsCommand>(
+  executeAndStore(std::make_unique<mdl::SetLinkIdsCommand>(
     "Set Link ID", setLinkIdsForReparentingNodes(nodesToAdd)));
 
   const auto result =
-    executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
+    executeAndStore(mdl::ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
   if (!result->success())
   {
     transaction.cancel();
@@ -1809,7 +1809,7 @@ bool MapDocument::reparentNodes(
       collectContainingGroups(kdl::vec_flatten(kdl::map_values(removableNodes))), true);
 
     closeRemovedGroups(removableNodes);
-    executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
+    executeAndStore(mdl::AddRemoveNodesCommand::remove(removableNodes));
 
     removableNodes = collectRemovableParents(removableNodes);
   }
@@ -1834,7 +1834,7 @@ void MapDocument::remove()
 {
   const auto nodes = selection().nodes;
 
-  auto transaction = Transaction{*this, "Delete Objects"};
+  auto transaction = mdl::Transaction{*this, "Delete Objects"};
   deselectAll();
   removeNodes(nodes);
   assertResult(transaction.commit());
@@ -1929,7 +1929,7 @@ void MapDocument::duplicate()
   copyAndSetLinkIds(nodesToAdd, *m_world, *this);
 
   {
-    auto transaction = Transaction{*this, "Duplicate Objects"};
+    auto transaction = mdl::Transaction{*this, "Duplicate Objects"};
     deselectAll();
 
     if (addNodes(nodesToAdd).empty())
@@ -1968,7 +1968,7 @@ mdl::EntityNode* MapDocument::createPointEntity(
 
   auto* entityNode = new mdl::EntityNode{std::move(entity)};
 
-  auto transaction = Transaction{*this, "Create " + definition.name};
+  auto transaction = mdl::Transaction{*this, "Create " + definition.name};
   deselectAll();
   if (addNodes({{parentForNodes(), {entityNode}}}).empty())
   {
@@ -2021,7 +2021,7 @@ mdl::EntityNode* MapDocument::createBrushEntity(const mdl::EntityDefinition& def
 
   const auto nodes = kdl::vec_static_cast<mdl::Node*>(brushes);
 
-  auto transaction = Transaction{*this, "Create " + definition.name};
+  auto transaction = mdl::Transaction{*this, "Create " + definition.name};
   deselectAll();
   if (addNodes({{parentForNodes(), {entityNode}}}).empty())
   {
@@ -2085,7 +2085,7 @@ mdl::GroupNode* MapDocument::groupSelection(const std::string& name)
 
   auto* group = new mdl::GroupNode{mdl::Group{name}};
 
-  auto transaction = Transaction{*this, "Group Selected Objects"};
+  auto transaction = mdl::Transaction{*this, "Group Selected Objects"};
   deselectAll();
   if (
     addNodes({{parentForNodes(nodes), {group}}}).empty()
@@ -2113,7 +2113,7 @@ void MapDocument::mergeSelectedGroupsWithGroup(mdl::GroupNode* group)
 
   const auto groupsToMerge = selection().groups;
 
-  auto transaction = Transaction{*this, "Merge Groups"};
+  auto transaction = mdl::Transaction{*this, "Merge Groups"};
   deselectAll();
   for (auto groupToMerge : groupsToMerge)
   {
@@ -2139,7 +2139,7 @@ void MapDocument::ungroupSelection()
     return;
   }
 
-  auto transaction = Transaction{*this, "Ungroup"};
+  auto transaction = mdl::Transaction{*this, "Ungroup"};
   separateSelectedLinkedGroups(false);
 
   const auto selectedNodes = selection().nodes;
@@ -2198,7 +2198,7 @@ void MapDocument::renameGroups(const std::string& name)
 
 void MapDocument::openGroup(mdl::GroupNode* group)
 {
-  auto transaction = Transaction{*this, "Open Group"};
+  auto transaction = mdl::Transaction{*this, "Open Group"};
 
   deselectAll();
   auto* previousGroup = m_editorContext->currentGroup();
@@ -2211,19 +2211,19 @@ void MapDocument::openGroup(mdl::GroupNode* group)
     resetLock(std::vector<mdl::Node*>{previousGroup});
   }
   unlock(std::vector<mdl::Node*>{group});
-  executeAndStore(CurrentGroupCommand::push(group));
+  executeAndStore(mdl::CurrentGroupCommand::push(group));
 
   transaction.commit();
 }
 
 void MapDocument::closeGroup()
 {
-  auto transaction = Transaction{*this, "Open Group"};
+  auto transaction = mdl::Transaction{*this, "Open Group"};
 
   deselectAll();
   auto* previousGroup = m_editorContext->currentGroup();
   resetLock(std::vector<mdl::Node*>{previousGroup});
-  executeAndStore(CurrentGroupCommand::pop());
+  executeAndStore(mdl::CurrentGroupCommand::pop());
 
   auto* currentGroup = m_editorContext->currentGroup();
   if (currentGroup != nullptr)
@@ -2245,7 +2245,7 @@ mdl::GroupNode* MapDocument::createLinkedDuplicate()
     return nullptr;
   }
 
-  auto transaction = Transaction{*this, "Create Linked Duplicate"};
+  auto transaction = mdl::Transaction{*this, "Create Linked Duplicate"};
 
   auto* groupNode = selection().groups.front();
   auto* groupNodeClone =
@@ -2284,7 +2284,7 @@ void MapDocument::selectLinkedGroups()
       return mdl::collectNodesWithLinkId({m_world.get()}, linkId);
     }));
 
-  auto transaction = Transaction{*this, "Select Linked Groups"};
+  auto transaction = mdl::Transaction{*this, "Select Linked Groups"};
   deselectAll();
   selectNodes(groupNodesToSelect);
   transaction.commit();
@@ -2322,8 +2322,8 @@ void MapDocument::linkGroups(const std::vector<mdl::GroupNode*>& groupNodes)
               return {std::move(pair)};
             });
 
-          executeAndStore(
-            std::make_unique<SetLinkIdsCommand>("Set Link ID", std::move(linkIdVector)));
+          executeAndStore(std::make_unique<mdl::SetLinkIdsCommand>(
+            "Set Link ID", std::move(linkIdVector)));
         })
       | kdl::transform_error(
         [&](auto e) { error() << "Could not link groups: " << e.msg; });
@@ -2364,12 +2364,12 @@ void MapDocument::unlinkGroups(const std::vector<mdl::GroupNode*>& groupNodes)
     });
 
   executeAndStore(
-    std::make_unique<SetLinkIdsCommand>("Reset Link ID", std::move(linkIds)));
+    std::make_unique<mdl::SetLinkIdsCommand>("Reset Link ID", std::move(linkIds)));
 }
 
 void MapDocument::separateLinkedGroups()
 {
-  auto transaction = Transaction{*this, "Separate Linked Groups"};
+  auto transaction = mdl::Transaction{*this, "Separate Linked Groups"};
   separateSelectedLinkedGroups(true);
   transaction.commit();
 }
@@ -2440,7 +2440,8 @@ bool MapDocument::updateLinkedGroups()
     {
       setHasPendingChanges(allChangedLinkedGroups, false);
 
-      auto command = std::make_unique<UpdateLinkedGroupsCommand>(allChangedLinkedGroups);
+      auto command =
+        std::make_unique<mdl::UpdateLinkedGroupsCommand>(allChangedLinkedGroups);
       const auto result = executeAndStore(std::move(command));
       return result->success();
     }
@@ -2495,7 +2496,7 @@ void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
 
   if (checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
-    auto transaction = Transaction{*this, "Separate Selected Linked Groups"};
+    auto transaction = mdl::Transaction{*this, "Separate Selected Linked Groups"};
 
     unlinkGroups(groupsToUnlink);
     for (const auto& groupNodes : groupsToRelink)
@@ -2567,7 +2568,7 @@ void MapDocument::moveLayer(mdl::LayerNode* layer, const int offset)
 {
   ensure(layer != m_world->defaultLayer(), "attempted to move default layer");
 
-  auto transaction = Transaction{*this, "Move Layer"};
+  auto transaction = mdl::Transaction{*this, "Move Layer"};
 
   const auto direction = (offset > 0) ? MoveDirection::Down : MoveDirection::Up;
   for (int i = 0; i < std::abs(offset); ++i)
@@ -2660,7 +2661,7 @@ void MapDocument::moveSelectionToLayer(mdl::LayerNode* layer)
 
   if (!nodesToMove.empty())
   {
-    auto transaction = Transaction{*this, "Move Nodes to " + layer->name()};
+    auto transaction = mdl::Transaction{*this, "Move Nodes to " + layer->name()};
     deselectAll();
     if (!reparentNodes({{layer, nodesToMove}}))
     {
@@ -2694,7 +2695,7 @@ bool MapDocument::canMoveSelectionToLayer(mdl::LayerNode* layer) const
 
 void MapDocument::hideLayers(const std::vector<mdl::LayerNode*>& layers)
 {
-  auto transaction = Transaction{*this, "Hide Layers"};
+  auto transaction = mdl::Transaction{*this, "Hide Layers"};
   hide(std::vector<mdl::Node*>{std::begin(layers), std::end(layers)});
   transaction.commit();
 }
@@ -2709,7 +2710,7 @@ void MapDocument::isolateLayers(const std::vector<mdl::LayerNode*>& layers)
 {
   const auto allLayers = world()->allLayers();
 
-  auto transaction = Transaction{*this, "Isolate Layers"};
+  auto transaction = mdl::Transaction{*this, "Isolate Layers"};
   hide(std::vector<mdl::Node*>{std::begin(allLayers), std::end(allLayers)});
   show(std::vector<mdl::Node*>{std::begin(layers), std::end(layers)});
   transaction.commit();
@@ -2753,9 +2754,9 @@ void MapDocument::isolate()
     [&](mdl::BrushNode* brush) { collectNode(brush); },
     [&](mdl::PatchNode* patch) { collectNode(patch); }));
 
-  auto transaction = Transaction{*this, "Isolate Objects"};
-  executeAndStore(SetVisibilityCommand::hide(unselectedNodes));
-  executeAndStore(SetVisibilityCommand::show(selectedNodes));
+  auto transaction = mdl::Transaction{*this, "Isolate Objects"};
+  executeAndStore(mdl::SetVisibilityCommand::hide(unselectedNodes));
+  executeAndStore(mdl::SetVisibilityCommand::show(selectedNodes));
   transaction.commit();
 }
 
@@ -2787,7 +2788,7 @@ bool MapDocument::canSelectAllInLayers(
 
 void MapDocument::hide(const std::vector<mdl::Node*> nodes)
 {
-  auto transaction = Transaction{*this, "Hide Objects"};
+  auto transaction = mdl::Transaction{*this, "Hide Objects"};
 
   // Deselect any selected nodes inside `nodes`
   deselectNodes(mdl::collectSelectedNodes(nodes));
@@ -2795,7 +2796,7 @@ void MapDocument::hide(const std::vector<mdl::Node*> nodes)
   // Reset visibility of any forced shown children of `nodes`
   downgradeShownToInherit(mdl::collectDescendants(nodes));
 
-  executeAndStore(SetVisibilityCommand::hide(nodes));
+  executeAndStore(mdl::SetVisibilityCommand::hide(nodes));
   transaction.commit();
 }
 
@@ -2806,7 +2807,7 @@ void MapDocument::hideSelection()
 
 void MapDocument::show(const std::vector<mdl::Node*>& nodes)
 {
-  executeAndStore(SetVisibilityCommand::show(nodes));
+  executeAndStore(mdl::SetVisibilityCommand::show(nodes));
 }
 
 void MapDocument::showAll()
@@ -2816,17 +2817,17 @@ void MapDocument::showAll()
 
 void MapDocument::ensureVisible(const std::vector<mdl::Node*>& nodes)
 {
-  executeAndStore(SetVisibilityCommand::ensureVisible(nodes));
+  executeAndStore(mdl::SetVisibilityCommand::ensureVisible(nodes));
 }
 
 void MapDocument::resetVisibility(const std::vector<mdl::Node*>& nodes)
 {
-  executeAndStore(SetVisibilityCommand::reset(nodes));
+  executeAndStore(mdl::SetVisibilityCommand::reset(nodes));
 }
 
 void MapDocument::lock(const std::vector<mdl::Node*>& nodes)
 {
-  auto transaction = Transaction{*this, "Lock Objects"};
+  auto transaction = mdl::Transaction{*this, "Lock Objects"};
 
   // Deselect any selected nodes or faces inside `nodes`
   deselectNodes(mdl::collectSelectedNodes(nodes));
@@ -2835,13 +2836,13 @@ void MapDocument::lock(const std::vector<mdl::Node*>& nodes)
   // Reset lock state of any forced unlocked children of `nodes`
   downgradeUnlockedToInherit(mdl::collectDescendants(nodes));
 
-  executeAndStore(SetLockStateCommand::lock(nodes));
+  executeAndStore(mdl::SetLockStateCommand::lock(nodes));
   transaction.commit();
 }
 
 void MapDocument::unlock(const std::vector<mdl::Node*>& nodes)
 {
-  executeAndStore(SetLockStateCommand::unlock(nodes));
+  executeAndStore(mdl::SetLockStateCommand::unlock(nodes));
 }
 
 /**
@@ -2859,7 +2860,7 @@ void MapDocument::ensureUnlocked(const std::vector<mdl::Node*>& nodes)
 
 void MapDocument::resetLock(const std::vector<mdl::Node*>& nodes)
 {
-  executeAndStore(SetLockStateCommand::reset(nodes));
+  executeAndStore(mdl::SetLockStateCommand::reset(nodes));
 }
 
 /**
@@ -2900,9 +2901,9 @@ bool MapDocument::swapNodeContents(
     return false;
   }
 
-  auto transaction = Transaction{*this};
+  auto transaction = mdl::Transaction{*this};
   const auto result = executeAndStore(
-    std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap)));
+    std::make_unique<mdl::SwapNodeContentsCommand>(commandName, std::move(nodesToSwap)));
 
   if (!result->success())
   {
@@ -3097,7 +3098,7 @@ bool MapDocument::createBrush(const std::vector<vm::vec3d>& points)
          | kdl::and_then([&](auto b) -> Result<void> {
              auto* brushNode = new mdl::BrushNode{std::move(b)};
 
-             auto transaction = Transaction{*this, "Create Brush"};
+             auto transaction = mdl::Transaction{*this, "Create Brush"};
              deselectAll();
              if (addNodes({{parentForNodes(), {brushNode}}}).empty())
              {
@@ -3181,7 +3182,7 @@ bool MapDocument::csgConvexMerge()
 
              auto* brushNode = new mdl::BrushNode{std::move(b)};
 
-             auto transaction = Transaction{*this, "CSG Convex Merge"};
+             auto transaction = mdl::Transaction{*this, "CSG Convex Merge"};
              deselectAll();
              if (addNodes({{parentNode, {brushNode}}}).empty())
              {
@@ -3204,7 +3205,7 @@ bool MapDocument::csgSubtract()
     return false;
   }
 
-  auto transaction = Transaction{*this, "CSG Subtract"};
+  auto transaction = mdl::Transaction{*this, "CSG Subtract"};
   // Select touching, but don't delete the subtrahends yet
   selectTouching(false);
 
@@ -3281,7 +3282,7 @@ bool MapDocument::csgIntersect()
 
   const auto toRemove = std::vector<mdl::Node*>{std::begin(brushes), std::end(brushes)};
 
-  auto transaction = Transaction{*this, "CSG Intersect"};
+  auto transaction = mdl::Transaction{*this, "CSG Intersect"};
   deselectNodes(toRemove);
 
   if (valid)
@@ -3350,7 +3351,7 @@ bool MapDocument::csgHollow()
     return false;
   }
 
-  auto transaction = Transaction{*this, "CSG Hollow"};
+  auto transaction = mdl::Transaction{*this, "CSG Hollow"};
   deselectAll();
   const auto added = addNodes(toAdd);
   if (added.empty())
@@ -3394,7 +3395,7 @@ bool MapDocument::clipBrushes(
                toAdd[parentNode].push_back(new mdl::BrushNode{std::move(clippedBrush)});
              }
 
-             auto transaction = Transaction{*this, "Clip Brushes"};
+             auto transaction = mdl::Transaction{*this, "Clip Brushes"};
              deselectAll();
              removeNodes(toRemove);
 
@@ -3888,12 +3889,12 @@ MapDocument::TransformVerticesResult MapDocument::transformVertices(
 
     const auto commandName =
       kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = mdl::Transaction{*this, commandName};
 
     const auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
+    const auto result = executeAndStore(std::make_unique<mdl::BrushVertexCommand>(
       commandName,
       std::move(*newNodes),
       std::move(vertexPositions),
@@ -3913,7 +3914,7 @@ MapDocument::TransformVerticesResult MapDocument::transformVertices(
     }
 
     const auto* moveVerticesResult =
-      dynamic_cast<BrushVertexCommandResult*>(result.get());
+      dynamic_cast<mdl::BrushVertexCommandResult*>(result.get());
     ensure(
       moveVerticesResult != nullptr,
       "command processor returned unexpected command result type");
@@ -3968,12 +3969,12 @@ bool MapDocument::transformEdges(
 
     const auto commandName =
       kdl::str_plural(edgePositions.size(), "Move Brush Edge", "Move Brush Edges");
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = mdl::Transaction{*this, commandName};
 
     const auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushEdgeCommand>(
+    const auto result = executeAndStore(std::make_unique<mdl::BrushEdgeCommand>(
       commandName,
       std::move(*newNodes),
       std::move(edgePositions),
@@ -4036,12 +4037,12 @@ bool MapDocument::transformFaces(
 
     const auto commandName =
       kdl::str_plural(facePositions.size(), "Move Brush Face", "Move Brush Faces");
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = mdl::Transaction{*this, commandName};
 
     auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushFaceCommand>(
+    const auto result = executeAndStore(std::make_unique<mdl::BrushFaceCommand>(
       commandName,
       std::move(*newNodes),
       std::move(facePositions),
@@ -4084,12 +4085,12 @@ bool MapDocument::addVertex(const vm::vec3d& vertexPosition)
   if (newNodes)
   {
     const auto commandName = "Add Brush Vertex";
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = mdl::Transaction{*this, commandName};
 
     const auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
+    const auto result = executeAndStore(std::make_unique<mdl::BrushVertexCommand>(
       commandName,
       std::move(*newNodes),
       std::vector<vm::vec3d>{},
@@ -4139,12 +4140,12 @@ bool MapDocument::removeVertices(
 
   if (newNodes)
   {
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = mdl::Transaction{*this, commandName};
 
     auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
+    const auto result = executeAndStore(std::make_unique<mdl::BrushVertexCommand>(
       commandName,
       std::move(*newNodes),
       std::move(vertexPositions),
@@ -4198,7 +4199,7 @@ void MapDocument::printVertices()
 namespace
 {
 
-class ThrowExceptionCommand : public UndoableCommand
+class ThrowExceptionCommand : public mdl::UndoableCommand
 {
 public:
   using Ptr = std::shared_ptr<ThrowExceptionCommand>;
@@ -4210,14 +4211,14 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument&) override
+  std::unique_ptr<mdl::CommandResult> doPerformDo(MapDocument&) override
   {
     throw CommandProcessorException();
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument&) override
+  std::unique_ptr<mdl::CommandResult> doPerformUndo(MapDocument&) override
   {
-    return std::make_unique<CommandResult>(true);
+    return std::make_unique<mdl::CommandResult>(true);
   }
 };
 
@@ -4284,7 +4285,7 @@ void MapDocument::clearRepeatableCommands()
   m_repeatStack->clear();
 }
 
-void MapDocument::startTransaction(std::string name, const TransactionScope scope)
+void MapDocument::startTransaction(std::string name, const mdl::TransactionScope scope)
 {
   debug("Starting transaction '" + name + "'");
   m_commandProcessor->startTransaction(std::move(name), scope);
@@ -4327,13 +4328,14 @@ bool MapDocument::isCurrentDocumentStateObservable() const
   return m_commandProcessor->isCurrentDocumentStateObservable();
 }
 
-std::unique_ptr<CommandResult> MapDocument::execute(std::unique_ptr<Command>&& command)
+std::unique_ptr<mdl::CommandResult> MapDocument::execute(
+  std::unique_ptr<mdl::Command>&& command)
 {
   return m_commandProcessor->execute(std::move(command));
 }
 
-std::unique_ptr<CommandResult> MapDocument::executeAndStore(
-  std::unique_ptr<UndoableCommand>&& command)
+std::unique_ptr<mdl::CommandResult> MapDocument::executeAndStore(
+  std::unique_ptr<mdl::UndoableCommand>&& command)
 {
   return m_commandProcessor->executeAndStore(std::move(command));
 }
@@ -4526,7 +4528,7 @@ void MapDocument::setEnabledMaterialCollections(
       [](const auto& path) { return path.string(); }),
     ";");
 
-  auto transaction = Transaction{*this, "Set enabled material collections"};
+  auto transaction = mdl::Transaction{*this, "Set enabled material collections"};
 
   const auto pushSelection = mdl::PushSelection{this};
   deselectAll();
@@ -5284,7 +5286,7 @@ void MapDocument::selectionWillChange()
   }
 }
 
-void MapDocument::selectionDidChange(const SelectionChange&)
+void MapDocument::selectionDidChange(const mdl::SelectionChange&)
 {
   m_repeatStack->clearOnNextPush();
   m_cachedSelection = std::nullopt;
@@ -5346,12 +5348,12 @@ void MapDocument::preferenceDidChange(const std::filesystem::path& path)
   }
 }
 
-void MapDocument::commandDone(Command& command)
+void MapDocument::commandDone(mdl::Command& command)
 {
   debug() << "Command '" << command.name() << "' executed";
 }
 
-void MapDocument::commandUndone(UndoableCommand& command)
+void MapDocument::commandUndone(mdl::UndoableCommand& command)
 {
   debug() << "Command '" << command.name() << "' undone";
 }

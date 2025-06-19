@@ -61,7 +61,7 @@ bool CreateEntityTool::createEntity(const std::string& classname)
   m_referenceBounds = document->referenceBounds();
 
   document->startTransaction(
-    "Create '" + definition->name + "'", TransactionScope::LongRunning);
+    "Create '" + definition->name + "'", mdl::TransactionScope::LongRunning);
   m_entity = document->createPointEntity(*definition, {0, 0, 0});
 
   return m_entity != nullptr;

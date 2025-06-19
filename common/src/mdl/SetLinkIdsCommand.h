@@ -30,10 +30,6 @@
 namespace tb::mdl
 {
 class Node;
-} // namespace tb::mdl
-
-namespace tb::ui
-{
 
 class SetLinkIdsCommand : public UndoableCommand
 {
@@ -45,12 +41,12 @@ public:
     const std::string& name, std::vector<std::tuple<mdl::Node*, std::string>> linkIds);
   ~SetLinkIdsCommand() override;
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
   bool doCollateWith(UndoableCommand& command) override;
 
   deleteCopyAndMove(SetLinkIdsCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

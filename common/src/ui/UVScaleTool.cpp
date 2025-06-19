@@ -188,7 +188,7 @@ public:
     , m_selector{selector}
     , m_lastHitPoint{initialHitPoint}
   {
-    document.startTransaction("Scale UV", TransactionScope::LongRunning);
+    document.startTransaction("Scale UV", mdl::TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override

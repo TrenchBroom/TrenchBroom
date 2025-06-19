@@ -26,15 +26,15 @@
 #include <variant>
 #include <vector>
 
+namespace tb::ui
+{
+class MapDocument;
+}
+
 namespace tb::mdl
 {
 class GroupNode;
 class Node;
-} // namespace tb::mdl
-
-namespace tb::ui
-{
-class MapDocument;
 
 /**
  * Checks whether the given vector of linked group can be updated consistently.
@@ -66,16 +66,16 @@ public:
   explicit UpdateLinkedGroupsHelper(ChangedLinkedGroups changedLinkedGroups);
   ~UpdateLinkedGroupsHelper();
 
-  Result<void> applyLinkedGroupUpdates(MapDocument& document);
-  void undoLinkedGroupUpdates(MapDocument& document);
+  Result<void> applyLinkedGroupUpdates(ui::MapDocument& document);
+  void undoLinkedGroupUpdates(ui::MapDocument& document);
   void collateWith(UpdateLinkedGroupsHelper& other);
 
 private:
-  Result<void> computeLinkedGroupUpdates(MapDocument& document);
+  Result<void> computeLinkedGroupUpdates(ui::MapDocument& document);
   static Result<LinkedGroupUpdates> computeLinkedGroupUpdates(
-    const ChangedLinkedGroups& changedLinkedGroups, MapDocument& document);
+    const ChangedLinkedGroups& changedLinkedGroups, ui::MapDocument& document);
 
-  void doApplyOrUndoLinkedGroupUpdates(MapDocument& document);
+  void doApplyOrUndoLinkedGroupUpdates(ui::MapDocument& document);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

@@ -266,7 +266,7 @@ void transferFaceAttributes(
                        ? mdl::WrapStyle::Rotation
                        : mdl::WrapStyle::Projection;
 
-  auto transaction = Transaction{document, TransferFaceAttributesTransactionName};
+  auto transaction = mdl::Transaction{document, TransferFaceAttributesTransactionName};
   document.deselectAll();
   document.selectBrushFaces(targetFaceHandlesForLinkedGroups);
 
@@ -375,7 +375,8 @@ std::unique_ptr<GestureTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
     return nullptr;
   }
 
-  document->startTransaction("Drag Apply Face Attributes", TransactionScope::LongRunning);
+  document->startTransaction(
+    "Drag Apply Face Attributes", mdl::TransactionScope::LongRunning);
 
   return std::make_unique<SetBrushFaceAttributesDragTracker>(
     *kdl::mem_lock(m_document), selectedFaces.front());

@@ -29,7 +29,7 @@
 
 #include <ranges>
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
@@ -71,7 +71,7 @@ auto notifySpecialWorldProperties(
 
 void doSwapNodeContents(
   std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap,
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   const auto nodes = nodesToSwap
                      | std::views::transform([](const auto& pair) { return pair.first; })
@@ -143,14 +143,15 @@ SwapNodeContentsCommand::SwapNodeContentsCommand(
 
 SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;
 
-std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(MapDocument& document)
+std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(
+  ui::MapDocument& document)
 {
   doSwapNodeContents(m_nodes, document);
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   doSwapNodeContents(m_nodes, document);
   return std::make_unique<CommandResult>(true);
@@ -174,4 +175,4 @@ bool SwapNodeContentsCommand::doCollateWith(UndoableCommand& command)
   return false;
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

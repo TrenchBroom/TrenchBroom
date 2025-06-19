@@ -236,7 +236,7 @@ void LayerEditor::onAddLayer()
 
     auto* layerNode = new mdl::LayerNode{std::move(layer)};
 
-    auto transaction = Transaction{document, "Create Layer " + layerNode->name()};
+    auto transaction = mdl::Transaction{document, "Create Layer " + layerNode->name()};
     if (document->addNodes({{world, {layerNode}}}).empty())
     {
       transaction.cancel();
@@ -260,7 +260,7 @@ void LayerEditor::onRemoveLayer()
   auto document = kdl::mem_lock(m_document);
   auto* defaultLayer = document->world()->defaultLayer();
 
-  auto transaction = Transaction{document, "Remove Layer " + layer->name()};
+  auto transaction = mdl::Transaction{document, "Remove Layer " + layer->name()};
   document->deselectAll();
   if (layer->hasChildren())
   {

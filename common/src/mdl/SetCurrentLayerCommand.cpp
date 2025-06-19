@@ -22,7 +22,7 @@
 #include "mdl/EditorContext.h"
 #include "ui/MapDocument.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(mdl::LayerNode* layer)
@@ -36,7 +36,8 @@ SetCurrentLayerCommand::SetCurrentLayerCommand(mdl::LayerNode* layer)
 {
 }
 
-std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(MapDocument& document)
+std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(
+  ui::MapDocument& document)
 {
   auto& editorContext = document.editorContext();
   m_oldCurrentLayer = editorContext.currentLayer();
@@ -45,7 +46,7 @@ std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(MapDocument& 
 }
 
 std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformUndo(
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   auto& editorContext = document.editorContext();
   editorContext.setCurrentLayer(m_oldCurrentLayer);
@@ -62,4 +63,4 @@ bool SetCurrentLayerCommand::doCollateWith(UndoableCommand& command)
   return false;
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

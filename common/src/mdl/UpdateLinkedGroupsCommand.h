@@ -27,10 +27,6 @@
 namespace tb::mdl
 {
 class GroupNode;
-} // namespace tb::mdl
-
-namespace tb::ui
-{
 
 class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase
 {
@@ -38,10 +34,10 @@ public:
   explicit UpdateLinkedGroupsCommand(std::vector<mdl::GroupNode*> changedLinkedGroups);
   ~UpdateLinkedGroupsCommand() override;
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
   deleteCopyAndMove(UpdateLinkedGroupsCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

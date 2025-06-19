@@ -37,6 +37,7 @@ namespace tb::mdl
 {
 class EntityNode;
 class Node;
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -44,7 +45,6 @@ namespace tb::ui
 class EntityPropertyModel;
 class EntityPropertyTable;
 class MapDocument;
-struct SelectionChange;
 
 struct PropertyGridSelection
 {
@@ -98,7 +98,7 @@ private:
   void documentWasLoaded(MapDocument* document);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void selectionWillChange();
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void entityDefinitionsOrModsDidChange();
 
 private:

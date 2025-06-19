@@ -26,7 +26,7 @@
 
 #include <string>
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
@@ -41,7 +41,7 @@ UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
 UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() = default;
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   // reimplemented from UndoableCommand::performDo
   auto commandResult = Command::performDo(document);
@@ -64,7 +64,7 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
 }
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   auto commandResult = UndoableCommand::performUndo(document);
   if (commandResult->success())
@@ -101,4 +101,4 @@ bool UpdateLinkedGroupsCommandBase::collateWith(UndoableCommand& command)
   return false;
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

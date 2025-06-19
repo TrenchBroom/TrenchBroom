@@ -205,7 +205,7 @@ void UVView::connectObservers()
     m_camera.cameraDidChangeNotifier.connect(this, &UVView::cameraDidChange);
 }
 
-void UVView::selectionDidChange(const SelectionChange&)
+void UVView::selectionDidChange(const mdl::SelectionChange&)
 {
   auto document = kdl::mem_lock(m_document);
   const auto faces = document->selection().brushFaces;

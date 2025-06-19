@@ -178,7 +178,7 @@ void RotateToolPage::updateGui()
   }
 }
 
-void RotateToolPage::selectionDidChange(const SelectionChange&)
+void RotateToolPage::selectionDidChange(const mdl::SelectionChange&)
 {
   updateGui();
 }

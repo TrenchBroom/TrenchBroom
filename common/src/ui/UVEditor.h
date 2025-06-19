@@ -29,9 +29,13 @@ class QSpinBox;
 class QWidget;
 class QAbstractButton;
 
-namespace tb::ui
+namespace tb::mdl
 {
 struct SelectionChange;
+}
+
+namespace tb::ui
+{
 class GLContextManager;
 class MapDocument;
 class UVView;
@@ -69,7 +73,7 @@ private:
 private:
   void createGui(GLContextManager& contextManager);
 
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void connectObservers();
 

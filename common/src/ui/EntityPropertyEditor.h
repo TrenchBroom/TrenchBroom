@@ -41,13 +41,13 @@ struct PropertyDefinition;
 namespace mdl
 {
 class Node;
-}
+struct SelectionChange;
+} // namespace mdl
 
 namespace ui
 {
 class EntityPropertyGrid;
 class MapDocument;
-struct SelectionChange;
 class SmartPropertyEditorManager;
 
 /**
@@ -77,7 +77,7 @@ private:
 
   void connectObservers();
 
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
 
   void updateIfSelectedEntityDefinitionChanged();

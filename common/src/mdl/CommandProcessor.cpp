@@ -32,7 +32,7 @@
 
 #include <algorithm>
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
@@ -74,7 +74,7 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override
   {
     for (auto& command : m_commands)
     {
@@ -88,7 +88,7 @@ private:
     return std::make_unique<CommandResult>(true);
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override
   {
     for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it)
     {
@@ -161,7 +161,7 @@ struct CommandProcessor::SubmitAndStoreResult
 };
 
 CommandProcessor::CommandProcessor(
-  MapDocument& document, const std::chrono::milliseconds collationInterval)
+  ui::MapDocument& document, const std::chrono::milliseconds collationInterval)
   : m_document{document}
   , m_collationInterval{collationInterval}
   , m_lastCommandTimestamp{std::chrono::time_point<std::chrono::system_clock>{}}
@@ -473,4 +473,4 @@ std::unique_ptr<UndoableCommand> CommandProcessor::popFromRedoStack()
   return kdl::vec_pop_back(m_redoStack);
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

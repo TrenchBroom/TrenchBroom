@@ -35,11 +35,6 @@ class BrushFaceHandle;
 class BrushFaceReference;
 class BrushNode;
 class Node;
-} // namespace tb::mdl
-
-namespace tb::ui
-{
-class MapDocument;
 
 class SelectionCommand : public UndoableCommand
 {
@@ -77,12 +72,12 @@ public:
 private:
   static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
-  Result<void> doSelect(MapDocument& document) const;
+  Result<void> doSelect(ui::MapDocument& document) const;
 
   deleteCopyAndMove(SelectionCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

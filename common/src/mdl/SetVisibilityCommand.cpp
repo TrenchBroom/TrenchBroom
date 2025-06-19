@@ -25,14 +25,15 @@
 
 #include <string>
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
+
 auto setVisibilityState(
   const std::vector<mdl::Node*>& nodes,
   const mdl::VisibilityState visibilityState,
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   auto result = std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>{};
   result.reserve(nodes.size());
@@ -55,7 +56,7 @@ auto setVisibilityState(
   return result;
 }
 
-auto setVisibilityEnsured(const std::vector<mdl::Node*>& nodes, MapDocument& document)
+auto setVisibilityEnsured(const std::vector<mdl::Node*>& nodes, ui::MapDocument& document)
 {
   auto result = std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>{};
   result.reserve(nodes.size());
@@ -80,7 +81,7 @@ auto setVisibilityEnsured(const std::vector<mdl::Node*>& nodes, MapDocument& doc
 
 void restoreVisibilityState(
   const std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>& nodes,
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   auto changedNodes = std::vector<mdl::Node*>{};
   changedNodes.reserve(nodes.size());
@@ -154,7 +155,8 @@ std::string SetVisibilityCommand::makeName(const Action action)
   }
 }
 
-std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(MapDocument& document)
+std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
+  ui::MapDocument& document)
 {
   switch (m_action)
   {
@@ -175,10 +177,11 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(MapDocument& do
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(MapDocument& document)
+std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(
+  ui::MapDocument& document)
 {
   restoreVisibilityState(m_oldState, document);
   return std::make_unique<CommandResult>(true);
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

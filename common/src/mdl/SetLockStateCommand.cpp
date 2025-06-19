@@ -34,14 +34,15 @@
 #include <algorithm>
 #include <string>
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
+
 auto setLockState(
   const std::vector<mdl::Node*>& nodes,
   const mdl::LockState lockState,
-  MapDocument& document)
+  ui::MapDocument& document)
 {
   auto result = std::vector<std::tuple<mdl::Node*, mdl::LockState>>{};
   result.reserve(nodes.size());
@@ -65,7 +66,8 @@ auto setLockState(
 }
 
 void restoreLockState(
-  const std::vector<std::tuple<mdl::Node*, mdl::LockState>>& nodes, MapDocument& document)
+  const std::vector<std::tuple<mdl::Node*, mdl::LockState>>& nodes,
+  ui::MapDocument& document)
 {
   auto changedNodes = std::vector<mdl::Node*>{};
   changedNodes.reserve(nodes.size());
@@ -136,16 +138,17 @@ std::string SetLockStateCommand::makeName(const mdl::LockState state)
   }
 }
 
-std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(MapDocument& document)
+std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(ui::MapDocument& document)
 {
   m_oldLockState = setLockState(m_nodes, m_lockState, document);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(MapDocument& document)
+std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(
+  ui::MapDocument& document)
 {
   restoreLockState(m_oldLockState, document);
   return std::make_unique<CommandResult>(true);
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

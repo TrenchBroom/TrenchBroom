@@ -35,6 +35,10 @@ class MapDocument;
 class VertexHandleManagerBase;
 template <typename H>
 class VertexHandleManagerBaseT;
+} // namespace tb::ui
+
+namespace tb::mdl
+{
 
 class BrushVertexCommandBase : public SwapNodeContentsCommand
 {
@@ -43,27 +47,27 @@ protected:
     std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
   virtual std::unique_ptr<CommandResult> createCommandResult(
     std::unique_ptr<CommandResult> swapResult);
 
 public:
-  void removeHandles(VertexHandleManagerBase& manager);
-  void addHandles(VertexHandleManagerBase& manager);
+  void removeHandles(ui::VertexHandleManagerBase& manager);
+  void addHandles(ui::VertexHandleManagerBase& manager);
 
 public:
   virtual void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::vec3d>& manager) const;
+    ui::VertexHandleManagerBaseT<vm::vec3d>& manager) const;
   virtual void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::vec3d>& manager) const;
+    ui::VertexHandleManagerBaseT<vm::vec3d>& manager) const;
   virtual void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::segment3d>& manager) const;
+    ui::VertexHandleManagerBaseT<vm::segment3d>& manager) const;
   virtual void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::segment3d>& manager) const;
+    ui::VertexHandleManagerBaseT<vm::segment3d>& manager) const;
   virtual void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::polygon3d>& manager) const;
+    ui::VertexHandleManagerBaseT<vm::polygon3d>& manager) const;
   virtual void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::polygon3d>& manager) const;
+    ui::VertexHandleManagerBaseT<vm::polygon3d>& manager) const;
 
   deleteCopyAndMove(BrushVertexCommandBase);
 };
@@ -99,9 +103,9 @@ private:
   bool doCollateWith(UndoableCommand& command) override;
 
   void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::vec3d>& manager) const override;
+    ui::VertexHandleManagerBaseT<vm::vec3d>& manager) const override;
   void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::vec3d>& manager) const override;
+    ui::VertexHandleManagerBaseT<vm::vec3d>& manager) const override;
 
   deleteCopyAndMove(BrushVertexCommand);
 };
@@ -123,9 +127,9 @@ private:
   bool doCollateWith(UndoableCommand& command) override;
 
   void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::segment3d>& manager) const override;
+    ui::VertexHandleManagerBaseT<vm::segment3d>& manager) const override;
   void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::segment3d>& manager) const override;
+    ui::VertexHandleManagerBaseT<vm::segment3d>& manager) const override;
 
   deleteCopyAndMove(BrushEdgeCommand);
 };
@@ -147,11 +151,11 @@ private:
   bool doCollateWith(UndoableCommand& command) override;
 
   void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::polygon3d>& manager) const override;
+    ui::VertexHandleManagerBaseT<vm::polygon3d>& manager) const override;
   void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::polygon3d>& manager) const override;
+    ui::VertexHandleManagerBaseT<vm::polygon3d>& manager) const override;
 
   deleteCopyAndMove(BrushFaceCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

@@ -31,11 +31,10 @@
 #include "ui/MapDocument.h"
 
 #include "kdl/range_to_vector.h"
-#include "kdl/vector_utils.h"
 
 #include <ranges>
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
@@ -72,13 +71,13 @@ SetLinkIdsCommand::SetLinkIdsCommand(
 
 SetLinkIdsCommand::~SetLinkIdsCommand() = default;
 
-std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformDo(MapDocument&)
+std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformDo(ui::MapDocument&)
 {
   m_linkIds = setLinkIds(m_linkIds);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformUndo(MapDocument&)
+std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformUndo(ui::MapDocument&)
 {
   m_linkIds = setLinkIds(m_linkIds);
   return std::make_unique<CommandResult>(true);
@@ -89,4 +88,4 @@ bool SetLinkIdsCommand::doCollateWith(UndoableCommand&)
   return false;
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

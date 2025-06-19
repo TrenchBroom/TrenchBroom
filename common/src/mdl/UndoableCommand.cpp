@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 UndoableCommand::UndoableCommand(std::string name, const bool updateModificationCount)
@@ -34,7 +34,7 @@ UndoableCommand::UndoableCommand(std::string name, const bool updateModification
 
 UndoableCommand::~UndoableCommand() = default;
 
-std::unique_ptr<CommandResult> UndoableCommand::performDo(MapDocument& document)
+std::unique_ptr<CommandResult> UndoableCommand::performDo(ui::MapDocument& document)
 {
   auto result = Command::performDo(document);
   if (result->success())
@@ -44,7 +44,7 @@ std::unique_ptr<CommandResult> UndoableCommand::performDo(MapDocument& document)
   return result;
 }
 
-std::unique_ptr<CommandResult> UndoableCommand::performUndo(MapDocument& document)
+std::unique_ptr<CommandResult> UndoableCommand::performUndo(ui::MapDocument& document)
 {
   m_state = CommandState::Undoing;
   auto result = doPerformUndo(document);
@@ -76,7 +76,7 @@ bool UndoableCommand::doCollateWith(UndoableCommand&)
   return false;
 }
 
-void UndoableCommand::setModificationCount(MapDocument& document) const
+void UndoableCommand::setModificationCount(ui::MapDocument& document) const
 {
   if (m_modificationCount)
   {
@@ -84,9 +84,9 @@ void UndoableCommand::setModificationCount(MapDocument& document) const
   }
 }
 
-void UndoableCommand::resetModificationCount(MapDocument& document) const
+void UndoableCommand::resetModificationCount(ui::MapDocument& document) const
 {
   document.decModificationCount(m_modificationCount);
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

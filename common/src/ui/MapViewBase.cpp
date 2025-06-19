@@ -217,21 +217,21 @@ void MapViewBase::toolChanged(Tool&)
   update();
 }
 
-void MapViewBase::commandDone(Command&)
+void MapViewBase::commandDone(mdl::Command&)
 {
   updateActionStatesDelayed();
   updatePickResult();
   update();
 }
 
-void MapViewBase::commandUndone(UndoableCommand&)
+void MapViewBase::commandUndone(mdl::UndoableCommand&)
 {
   updateActionStatesDelayed();
   updatePickResult();
   update();
 }
 
-void MapViewBase::selectionDidChange(const SelectionChange&)
+void MapViewBase::selectionDidChange(const mdl::SelectionChange&)
 {
   updateActionStatesDelayed();
 }
@@ -410,7 +410,7 @@ void MapViewBase::duplicateObjects()
 
 void MapViewBase::duplicateAndMoveObjects(const vm::direction direction)
 {
-  auto transaction = Transaction{m_document};
+  auto transaction = mdl::Transaction{m_document};
   duplicateObjects();
   moveObjects(direction);
   transaction.commit();
@@ -699,7 +699,7 @@ void MapViewBase::enableTag(const mdl::SmartTag& tag)
   assert(tag.canEnable());
   auto document = kdl::mem_lock(m_document);
 
-  auto transaction = Transaction{document, "Turn Selection into " + tag.name()};
+  auto transaction = mdl::Transaction{document, "Turn Selection into " + tag.name()};
   auto callback = EnableDisableTagCallback{};
   tag.enable(callback, *document);
   transaction.commit();
@@ -709,7 +709,7 @@ void MapViewBase::disableTag(const mdl::SmartTag& tag)
 {
   assert(tag.canDisable());
   auto document = kdl::mem_lock(m_document);
-  auto transaction = Transaction{document, "Turn Selection into non-" + tag.name()};
+  auto transaction = mdl::Transaction{document, "Turn Selection into non-" + tag.name()};
   auto callback = EnableDisableTagCallback{};
   tag.disable(callback, *document);
   transaction.commit();
@@ -731,7 +731,7 @@ void MapViewBase::makeStructural()
     std::back_inserter(toReparent),
     [&](const auto* brushNode) { return brushNode->entity() != document->world(); });
 
-  auto transaction = Transaction{document, "Make Structural"};
+  auto transaction = mdl::Transaction{document, "Make Structural"};
 
   if (!toReparent.empty())
   {
@@ -1466,7 +1466,7 @@ void MapViewBase::addSelectedObjectsToGroup()
   auto* newGroup = findNewGroupForObjects(nodes);
   ensure(newGroup != nullptr, "newGroup is null");
 
-  auto transaction = Transaction{document, "Add Objects to Group"};
+  auto transaction = mdl::Transaction{document, "Add Objects to Group"};
   reparentNodes(nodes, newGroup, true);
   document->deselectAll();
   document->selectNodes({newGroup});
@@ -1480,7 +1480,7 @@ void MapViewBase::removeSelectedObjectsFromGroup()
   auto* currentGroup = document->editorContext().currentGroup();
   ensure(currentGroup != nullptr, "currentGroup is null");
 
-  auto transaction = Transaction{document, "Remove Objects from Group"};
+  auto transaction = mdl::Transaction{document, "Remove Objects from Group"};
   reparentNodes(nodes, document->currentLayer(), true);
 
   while (document->currentGroup() != nullptr)
@@ -1513,7 +1513,7 @@ void MapViewBase::mergeSelectedGroups()
   auto* newGroup = findGroupToMergeGroupsInto(document->selection());
   ensure(newGroup != nullptr, "newGroup is null");
 
-  auto transaction = Transaction{document, "Merge Groups"};
+  auto transaction = mdl::Transaction{document, "Merge Groups"};
   document->mergeSelectedGroupsWithGroup(newGroup);
   transaction.commit();
 }
@@ -1558,8 +1558,8 @@ void MapViewBase::moveSelectedBrushesToEntity()
   auto* newParent = findNewParentEntityForBrushes(nodes);
   ensure(newParent != nullptr, "newParent is null");
 
-  auto transaction =
-    Transaction{document, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
+  auto transaction = mdl::Transaction{
+    document, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
   reparentNodes(nodes, newParent, false);
 
   document->deselectAll();
@@ -1658,7 +1658,7 @@ void MapViewBase::reparentNodes(
                     + kdl::str_plural(reparentableNodes.size(), "Object", "Objects")
                     + " to " + newParent->name();
 
-  auto transaction = Transaction{document, name};
+  auto transaction = mdl::Transaction{document, name};
   document->deselectAll();
   if (!document->reparentNodes({{newParent, reparentableNodes}}))
   {

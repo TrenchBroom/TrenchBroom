@@ -153,7 +153,7 @@ void EntityPropertyGrid::removeSelectedProperties()
   const auto numRows = propertyKeys.size();
   auto document = kdl::mem_lock(m_document);
 
-  auto transaction = Transaction{
+  auto transaction = mdl::Transaction{
     document, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
 
   for (const auto& propertyKey : propertyKeys)
@@ -413,7 +413,7 @@ void EntityPropertyGrid::nodesDidChange(const std::vector<mdl::Node*>&)
 
 void EntityPropertyGrid::selectionWillChange() {}
 
-void EntityPropertyGrid::selectionDidChange(const SelectionChange&)
+void EntityPropertyGrid::selectionDidChange(const mdl::SelectionChange&)
 {
   updateControls();
 }

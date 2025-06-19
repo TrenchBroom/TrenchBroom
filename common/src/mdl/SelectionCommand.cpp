@@ -27,7 +27,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/ModelUtils.h"
-#include "mdl/WorldNode.h"
+#include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/MapDocument.h"
 
 #include "kdl/range_to_vector.h"
@@ -37,11 +37,12 @@
 #include <sstream>
 #include <string>
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
-void doDeselectNodes(const std::vector<mdl::Node*>& nodes, MapDocument& document)
+
+void doDeselectNodes(const std::vector<mdl::Node*>& nodes, ui::MapDocument& document)
 {
   document.selectionWillChangeNotifier();
 
@@ -63,7 +64,7 @@ void doDeselectNodes(const std::vector<mdl::Node*>& nodes, MapDocument& document
 }
 
 void doDeselectBrushFaces(
-  const std::vector<mdl::BrushFaceHandle>& faces, MapDocument& document)
+  const std::vector<mdl::BrushFaceHandle>& faces, ui::MapDocument& document)
 {
   document.selectionWillChangeNotifier();
 
@@ -112,7 +113,7 @@ void doDeselectBrushFaces(
   document.nodeLockingDidChangeNotifier(kdl::vec_static_cast<mdl::Node*>(groupsToUnlock));
 }
 
-void doDeselectAll(MapDocument& document)
+void doDeselectAll(ui::MapDocument& document)
 {
   if (document.selection().hasNodes())
   {
@@ -124,7 +125,7 @@ void doDeselectAll(MapDocument& document)
   }
 }
 
-void doSelectNodes(const std::vector<mdl::Node*>& nodes, MapDocument& document)
+void doSelectNodes(const std::vector<mdl::Node*>& nodes, ui::MapDocument& document)
 {
   document.selectionWillChangeNotifier();
 
@@ -154,7 +155,7 @@ void doSelectNodes(const std::vector<mdl::Node*>& nodes, MapDocument& document)
 }
 
 void doSelectBrushFaces(
-  const std::vector<mdl::BrushFaceHandle>& faces, MapDocument& document)
+  const std::vector<mdl::BrushFaceHandle>& faces, ui::MapDocument& document)
 {
   document.selectionWillChangeNotifier();
 
@@ -188,7 +189,7 @@ void doSelectBrushFaces(
   document.selectionDidChangeNotifier(selectionChange);
 }
 
-void doSelectAllNodes(MapDocument& document)
+void doSelectAllNodes(ui::MapDocument& document)
 {
   doDeselectAll(document);
 
@@ -199,7 +200,7 @@ void doSelectAllNodes(MapDocument& document)
   doSelectNodes(nodesToSelect, document);
 }
 
-void doSelectAllBrushFaces(MapDocument& document)
+void doSelectAllBrushFaces(ui::MapDocument& document)
 {
   doDeselectAll(document);
 
@@ -210,7 +211,7 @@ void doSelectAllBrushFaces(MapDocument& document)
   doSelectBrushFaces(facesToSelect, document);
 }
 
-void doConvertToBrushFaceSelection(MapDocument& document)
+void doConvertToBrushFaceSelection(ui::MapDocument& document)
 {
   const auto facesToSelect = mdl::collectSelectableBrushFaces(
     document.selection().nodes, document.editorContext());
@@ -341,7 +342,7 @@ std::string SelectionCommand::makeName(
   return result.str();
 }
 
-std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(MapDocument& document)
+std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(ui::MapDocument& document)
 {
   m_previouslySelectedNodes = document.selection().nodes;
   m_previouslySelectedFaceRefs = mdl::createRefs(document.selection().brushFaces);
@@ -352,7 +353,7 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(MapDocument& docume
     | kdl::is_success());
 }
 
-std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(MapDocument& document)
+std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(ui::MapDocument& document)
 {
   doDeselectAll(document);
 
@@ -375,7 +376,7 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(MapDocument& docu
   return std::make_unique<CommandResult>(true);
 }
 
-Result<void> SelectionCommand::doSelect(MapDocument& document) const
+Result<void> SelectionCommand::doSelect(ui::MapDocument& document) const
 {
   switch (m_action)
   {
@@ -409,4 +410,4 @@ Result<void> SelectionCommand::doSelect(MapDocument& document) const
   }
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

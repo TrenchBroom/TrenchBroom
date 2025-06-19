@@ -45,6 +45,7 @@ class Grid;
 class Hit;
 class Node;
 class PickResult;
+struct SelectionChange;
 } // namespace mdl
 
 namespace render
@@ -55,7 +56,6 @@ class Camera;
 namespace ui
 {
 class MapDocument;
-struct SelectionChange;
 
 /**
  * Similar to mdl::BrushFaceHandle but caches the Brush state at the beginning of the
@@ -160,7 +160,7 @@ public:
 private:
   void connectObservers();
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
 };
 } // namespace ui
 } // namespace tb

@@ -172,7 +172,7 @@ void ShearTool::startShearWithHit(const mdl::Hit& hit)
   m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
   auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Shear Objects", TransactionScope::LongRunning);
+  document->startTransaction("Shear Objects", mdl::TransactionScope::LongRunning);
   m_resizing = true;
 }
 

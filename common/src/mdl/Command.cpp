@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 CommandResult::CommandResult(const bool success)
@@ -54,7 +54,7 @@ const std::string& Command::name() const
   return m_name;
 }
 
-std::unique_ptr<CommandResult> Command::performDo(MapDocument& document)
+std::unique_ptr<CommandResult> Command::performDo(ui::MapDocument& document)
 {
   m_state = CommandState::Doing;
   auto result = doPerformDo(document);
@@ -62,4 +62,4 @@ std::unique_ptr<CommandResult> Command::performDo(MapDocument& document)
   return result;
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

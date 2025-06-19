@@ -38,6 +38,7 @@ namespace tb::mdl
 {
 class BrushFaceHandle;
 class Node;
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -50,7 +51,6 @@ class RenderContext;
 namespace tb::ui
 {
 class MapDocument;
-struct SelectionChange;
 class UVRotateTool;
 class UVOriginTool;
 class UVScaleTool;
@@ -91,7 +91,7 @@ private:
 
   void connectObservers();
 
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void documentWasCleared(MapDocument* document);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
