@@ -72,6 +72,7 @@ class EntityModelManager;
 class Game;
 class Grid;
 class Issue;
+enum class MapTextEncoding;
 class Material;
 class MaterialManager;
 enum class PasteType;
@@ -97,7 +98,6 @@ namespace tb::ui
 {
 class RepeatStack;
 class ViewEffectsService;
-enum class MapTextEncoding;
 class AsyncTaskRunner;
 
 struct PointFile
@@ -326,7 +326,7 @@ private:
   void clearDocument();
 
 public: // text encoding
-  MapTextEncoding encoding() const;
+  mdl::MapTextEncoding encoding() const;
 
 public: // copy and paste
   std::string serializeSelectedNodes();

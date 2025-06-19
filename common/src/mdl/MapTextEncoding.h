@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 enum class MapTextEncoding
@@ -28,4 +28,4 @@ enum class MapTextEncoding
   Utf8,
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

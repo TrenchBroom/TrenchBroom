@@ -74,6 +74,7 @@
 #include "mdl/LockState.h"
 #include "mdl/LongPropertyKeyValidator.h"
 #include "mdl/LongPropertyValueValidator.h"
+#include "mdl/MapTextEncoding.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/MissingClassnameValidator.h"
@@ -112,7 +113,6 @@
 #include "mdl/WorldBoundsValidator.h"
 #include "mdl/WorldNode.h"
 #include "ui/Actions.h"
-#include "ui/MapTextEncoding.h"
 #include "ui/RepeatStack.h"
 #include "ui/ViewEffectsService.h"
 
@@ -808,9 +808,9 @@ void MapDocument::clearDocument()
   }
 }
 
-MapTextEncoding MapDocument::encoding() const
+mdl::MapTextEncoding MapDocument::encoding() const
 {
-  return MapTextEncoding::Quake;
+  return mdl::MapTextEncoding::Quake;
 }
 
 std::string MapDocument::serializeSelectedNodes()
