@@ -74,6 +74,7 @@ class Grid;
 class Issue;
 class Material;
 class MaterialManager;
+enum class PasteType;
 class PickResult;
 class PointTrace;
 class Portals;
@@ -94,7 +95,6 @@ struct ProcessContext;
 
 namespace tb::ui
 {
-enum class PasteType;
 class RepeatStack;
 class ViewEffectsService;
 enum class MapTextEncoding;
@@ -332,7 +332,7 @@ public: // copy and paste
   std::string serializeSelectedNodes();
   std::string serializeSelectedBrushFaces();
 
-  PasteType paste(const std::string& str);
+  mdl::PasteType paste(const std::string& str);
 
 private:
   bool pasteNodes(const std::vector<mdl::Node*>& nodes);

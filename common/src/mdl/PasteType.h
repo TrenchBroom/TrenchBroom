@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 enum class PasteType
@@ -29,4 +29,4 @@ enum class PasteType
   Failed
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

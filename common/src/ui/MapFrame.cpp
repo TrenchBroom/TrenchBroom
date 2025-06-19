@@ -59,6 +59,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
+#include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Resource.h"
 #include "mdl/WorldNode.h"
@@ -82,7 +83,6 @@
 #include "ui/MapViewBase.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/ObjExportDialog.h"
-#include "ui/PasteType.h"
 #include "ui/QtUtils.h"
 #include "ui/RenderView.h"
 #include "ui/ReplaceMaterialDialog.h"
@@ -1316,7 +1316,7 @@ void MapFrame::pasteAtCursorPosition()
     auto transaction = mdl::Transaction{m_document, "Paste"};
     switch (paste())
     {
-    case PasteType::Node:
+    case mdl::PasteType::Node:
       if (const auto& bounds = m_document->selectionBounds())
       {
         // The pasted objects must be hidden to prevent the picking done in
@@ -1336,10 +1336,10 @@ void MapFrame::pasteAtCursorPosition()
       }
       transaction.commit();
       break;
-    case PasteType::BrushFace:
+    case mdl::PasteType::BrushFace:
       transaction.commit();
       break;
-    case PasteType::Failed:
+    case mdl::PasteType::Failed:
       transaction.cancel();
       break;
     }
@@ -1354,7 +1354,7 @@ void MapFrame::pasteAtOriginalPosition()
   }
 }
 
-PasteType MapFrame::paste()
+mdl::PasteType MapFrame::paste()
 {
   auto* clipboard = QApplication::clipboard();
   const auto qtext = clipboard->text();
@@ -1362,7 +1362,7 @@ PasteType MapFrame::paste()
   if (qtext.isEmpty())
   {
     logger().error("Clipboard is empty");
-    return PasteType::Failed;
+    return mdl::PasteType::Failed;
   }
 
   return m_document->paste(mapStringFromUnicode(m_document->encoding(), qtext));

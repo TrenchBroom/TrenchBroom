@@ -56,6 +56,7 @@ class GroupNode;
 class LayerNode;
 class Material;
 class Node;
+enum class PasteType;
 struct SelectionChange;
 } // namespace tb::mdl
 
@@ -72,7 +73,6 @@ enum class InspectorPage;
 class MapDocument;
 class MapViewBase;
 class ObjExportDialog;
-enum class PasteType;
 class SignalDelayer;
 class SwitchableMapViewContainer;
 class Tool;
@@ -243,7 +243,7 @@ public:
 
   void pasteAtCursorPosition();
   void pasteAtOriginalPosition();
-  PasteType paste();
+  mdl::PasteType paste();
   bool canPaste() const;
 
   void duplicateSelection();
