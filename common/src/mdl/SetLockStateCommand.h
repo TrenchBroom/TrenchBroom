@@ -20,35 +20,42 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/UndoableCommand.h"
+#include "mdl/UndoableCommand.h"
 
 #include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
 
 namespace tb::mdl
 {
-class LayerNode;
-}
+enum class LockState;
+class Node;
+} // namespace tb::mdl
 
 namespace tb::ui
 {
-class SetCurrentLayerCommand : public UndoableCommand
+class SetLockStateCommand : public UndoableCommand
 {
 private:
-  mdl::LayerNode* m_currentLayer = nullptr;
-  mdl::LayerNode* m_oldCurrentLayer = nullptr;
+  std::vector<mdl::Node*> m_nodes;
+  mdl::LockState m_lockState;
+  std::vector<std::tuple<mdl::Node*, mdl::LockState>> m_oldLockState;
 
 public:
-  static std::unique_ptr<SetCurrentLayerCommand> set(mdl::LayerNode* layer);
+  static std::unique_ptr<SetLockStateCommand> lock(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetLockStateCommand> unlock(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetLockStateCommand> reset(std::vector<mdl::Node*> nodes);
 
-  explicit SetCurrentLayerCommand(mdl::LayerNode* layer);
+  SetLockStateCommand(std::vector<mdl::Node*> nodes, mdl::LockState lockState);
 
 private:
+  static std::string makeName(mdl::LockState lockState);
+
   std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
-  bool doCollateWith(UndoableCommand& command) override;
-
-  deleteCopyAndMove(SetCurrentLayerCommand);
+  deleteCopyAndMove(SetLockStateCommand);
 };
 
 } // namespace tb::ui

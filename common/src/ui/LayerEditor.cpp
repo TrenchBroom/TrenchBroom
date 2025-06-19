@@ -29,12 +29,12 @@
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/ModelUtils.h"
+#include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/LayerListBox.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
-#include "ui/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"

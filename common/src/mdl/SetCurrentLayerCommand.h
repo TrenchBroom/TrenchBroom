@@ -20,42 +20,35 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/UpdateLinkedGroupsCommandBase.h"
+#include "mdl/UndoableCommand.h"
 
-#include <map>
 #include <memory>
-#include <vector>
 
 namespace tb::mdl
 {
-class GroupNode;
-class Node;
-} // namespace tb::mdl
+class LayerNode;
+}
 
 namespace tb::ui
 {
-class MapDocument;
-
-class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase
+class SetCurrentLayerCommand : public UndoableCommand
 {
 private:
-  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToAdd;
-  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToRemove;
+  mdl::LayerNode* m_currentLayer = nullptr;
+  mdl::LayerNode* m_oldCurrentLayer = nullptr;
 
 public:
-  static std::unique_ptr<ReparentNodesCommand> reparent(
-    std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToAdd,
-    std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToRemove);
+  static std::unique_ptr<SetCurrentLayerCommand> set(mdl::LayerNode* layer);
 
-  ReparentNodesCommand(
-    std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToAdd,
-    std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToRemove);
+  explicit SetCurrentLayerCommand(mdl::LayerNode* layer);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
-  deleteCopyAndMove(ReparentNodesCommand);
+  bool doCollateWith(UndoableCommand& command) override;
+
+  deleteCopyAndMove(SetCurrentLayerCommand);
 };
 
 } // namespace tb::ui

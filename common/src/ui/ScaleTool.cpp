@@ -26,10 +26,10 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "mdl/TransactionScope.h"
 #include "render/Camera.h"
 #include "ui/MapDocument.h"
 #include "ui/ScaleToolPage.h"
-#include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"

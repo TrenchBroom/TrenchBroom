@@ -21,10 +21,10 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/TransactionScope.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 #include "ui/UVView.h"
 
 #include "kdl/memory_utils.h"

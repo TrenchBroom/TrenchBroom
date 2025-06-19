@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2020 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,47 +20,37 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/UndoableCommand.h"
+#include "mdl/NodeContents.h"
+#include "mdl/UpdateLinkedGroupsCommandBase.h"
 
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
 
 namespace tb::mdl
 {
 class Node;
-enum class VisibilityState;
 } // namespace tb::mdl
 
 namespace tb::ui
 {
 
-class SetVisibilityCommand : public UndoableCommand
+class SwapNodeContentsCommand : public UpdateLinkedGroupsCommandBase
 {
-private:
-  enum class Action;
-
-  std::vector<mdl::Node*> m_nodes;
-  Action m_action;
-  std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>> m_oldState;
+protected:
+  std::vector<std::pair<mdl::Node*, mdl::NodeContents>> m_nodes;
 
 public:
-  static std::unique_ptr<SetVisibilityCommand> show(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetVisibilityCommand> hide(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetVisibilityCommand> ensureVisible(
-    std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetVisibilityCommand> reset(std::vector<mdl::Node*> nodes);
-
-  SetVisibilityCommand(std::vector<mdl::Node*> nodes, Action action);
-
-private:
-  static std::string makeName(Action action);
+  SwapNodeContentsCommand(
+    std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
+  ~SwapNodeContentsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
-  deleteCopyAndMove(SetVisibilityCommand);
+  bool doCollateWith(UndoableCommand& command) override;
+
+  deleteCopyAndMove(SwapNodeContentsCommand);
 };
 
 } // namespace tb::ui

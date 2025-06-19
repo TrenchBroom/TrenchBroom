@@ -20,42 +20,33 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/UndoableCommand.h"
+#include "mdl/UndoableCommand.h"
 
 #include <memory>
-#include <string>
-#include <tuple>
-#include <vector>
 
 namespace tb::mdl
 {
-enum class LockState;
-class Node;
-} // namespace tb::mdl
+class GroupNode;
+}
 
 namespace tb::ui
 {
-class SetLockStateCommand : public UndoableCommand
+class CurrentGroupCommand : public UndoableCommand
 {
 private:
-  std::vector<mdl::Node*> m_nodes;
-  mdl::LockState m_lockState;
-  std::vector<std::tuple<mdl::Node*, mdl::LockState>> m_oldLockState;
+  mdl::GroupNode* m_group = nullptr;
 
 public:
-  static std::unique_ptr<SetLockStateCommand> lock(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetLockStateCommand> unlock(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetLockStateCommand> reset(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<CurrentGroupCommand> push(mdl::GroupNode* group);
+  static std::unique_ptr<CurrentGroupCommand> pop();
 
-  SetLockStateCommand(std::vector<mdl::Node*> nodes, mdl::LockState lockState);
+  explicit CurrentGroupCommand(mdl::GroupNode* group);
 
 private:
-  static std::string makeName(mdl::LockState lockState);
-
   std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
-  deleteCopyAndMove(SetLockStateCommand);
+  deleteCopyAndMove(CurrentGroupCommand);
 };
 
 } // namespace tb::ui

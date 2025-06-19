@@ -23,8 +23,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushNode.h"
+#include "mdl/BrushVertexCommands.h"
 #include "render/RenderBatch.h"
-#include "ui/BrushVertexCommands.h"
 #include "ui/MapDocument.h"
 
 #include "kdl/string_format.h"

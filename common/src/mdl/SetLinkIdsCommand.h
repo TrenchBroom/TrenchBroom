@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2025 Kristian Duske
+ Copyright (C) 2024 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,7 +19,12 @@
 
 #pragma once
 
-#include <map>
+#include "Macros.h"
+#include "mdl/UndoableCommand.h"
+
+#include <memory>
+#include <string>
+#include <tuple>
 #include <vector>
 
 namespace tb::mdl
@@ -29,11 +34,23 @@ class Node;
 
 namespace tb::ui
 {
-class MapDocument;
 
-void addNodesAndNotify(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, MapDocument& document);
-void removeNodesAndNotify(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, MapDocument& document);
+class SetLinkIdsCommand : public UndoableCommand
+{
+protected:
+  std::vector<std::tuple<mdl::Node*, std::string>> m_linkIds;
+
+public:
+  SetLinkIdsCommand(
+    const std::string& name, std::vector<std::tuple<mdl::Node*, std::string>> linkIds);
+  ~SetLinkIdsCommand() override;
+
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+
+  bool doCollateWith(UndoableCommand& command) override;
+
+  deleteCopyAndMove(SetLinkIdsCommand);
+};
 
 } // namespace tb::ui

@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapDocumentTest.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
-#include "ui/Transaction.h"
+#include "mdl/Transaction.h"
+#include "ui/MapDocumentTest.h"
 
 #include "vm/mat_ext.h"
 

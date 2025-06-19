@@ -29,8 +29,8 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/TransactionScope.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"

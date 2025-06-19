@@ -26,10 +26,10 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
+#include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
-#include "ui/Transaction.h"
 
 #include "kdl/result.h"
 

@@ -30,9 +30,9 @@
 #include "mdl/MaterialManager.h"
 #include "mdl/NodeContents.h"
 #include "mdl/PatchNode.h"
+#include "mdl/SwapNodeContentsCommand.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
-#include "ui/SwapNodeContentsCommand.h"
 
 #include <memory>
 

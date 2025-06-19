@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/SwapNodeContentsCommand.h"
+#include "mdl/SwapNodeContentsCommand.h"
 
 #include "vm/polygon.h"
 #include "vm/segment.h"

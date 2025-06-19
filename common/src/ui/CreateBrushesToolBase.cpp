@@ -22,10 +22,10 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushNode.h"
+#include "mdl/Transaction.h"
 #include "render/BrushRenderer.h"
 #include "render/SelectionBoundsRenderer.h"
 #include "ui/MapDocument.h"
-#include "ui/Transaction.h"
 
 #include "kdl/memory_utils.h"
 

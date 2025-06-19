@@ -23,10 +23,10 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
+#include "mdl/TransactionScope.h"
 #include "ui/MapDocument.h"
 #include "ui/RotateHandle.h"
 #include "ui/RotateToolPage.h"
-#include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
 

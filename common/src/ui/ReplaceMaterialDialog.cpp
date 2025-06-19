@@ -29,13 +29,13 @@
 #include "mdl/Material.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PushSelection.h"
+#include "mdl/Transaction.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowser.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
-#include "ui/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"

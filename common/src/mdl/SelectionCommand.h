@@ -21,8 +21,8 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "ui/SelectionChange.h"
-#include "ui/UndoableCommand.h"
+#include "mdl/SelectionChange.h"
+#include "mdl/UndoableCommand.h"
 
 #include <memory>
 #include <string>

@@ -20,9 +20,9 @@
 #include "MoveObjectsTool.h"
 
 #include "mdl/Grid.h"
+#include "mdl/TransactionScope.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
 

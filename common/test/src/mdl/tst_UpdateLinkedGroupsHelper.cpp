@@ -24,10 +24,10 @@
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
-#include "ui/UpdateLinkedGroupsHelper.h"
 
 #include "kdl/overload.h"
 

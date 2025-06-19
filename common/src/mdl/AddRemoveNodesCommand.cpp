@@ -21,8 +21,8 @@
 
 #include "Ensure.h"
 #include "Macros.h"
+#include "mdl/AddRemoveNodesUtils.h"
 #include "mdl/Node.h"
-#include "ui/AddRemoveNodesUtils.h"
 #include "ui/MapDocument.h"
 
 #include "kdl/map_utils.h"

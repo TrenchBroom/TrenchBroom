@@ -30,12 +30,12 @@
 #include "mdl/HitFilter.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/ModelUtils.h"
+#include "mdl/Transaction.h"
+#include "mdl/TransactionScope.h"
 #include "mdl/UVCoordSystem.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/Transaction.h"
-#include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
 
