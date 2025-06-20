@@ -22,7 +22,7 @@
 #include <functional>
 #include <vector>
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 /**
@@ -129,4 +129,4 @@ public: // transactions
   void rollbackTransaction();
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl
