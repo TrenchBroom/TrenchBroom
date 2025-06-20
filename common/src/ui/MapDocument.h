@@ -79,6 +79,7 @@ enum class PasteType;
 class PickResult;
 class PointTrace;
 class Portals;
+class RepeatStack;
 class ResourceId;
 class ResourceManager;
 struct SelectionChange;
@@ -96,7 +97,6 @@ struct ProcessContext;
 
 namespace tb::ui
 {
-class RepeatStack;
 class ViewEffectsService;
 class AsyncTaskRunner;
 
@@ -163,7 +163,7 @@ private:
    * time the current repeat stack can still be repeated after the selection
    * was changed.
    */
-  std::unique_ptr<RepeatStack> m_repeatStack;
+  std::unique_ptr<mdl::RepeatStack> m_repeatStack;
 
   std::unique_ptr<mdl::CommandProcessor> m_commandProcessor;
 

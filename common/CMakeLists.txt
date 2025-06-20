@@ -186,6 +186,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/PushSelection.cpp
         ${COMMON_SOURCE_DIR}/mdl/Quake3Shader.cpp
         ${COMMON_SOURCE_DIR}/mdl/ReparentNodesCommand.cpp
+        ${COMMON_SOURCE_DIR}/mdl/RepeatStack.cpp
         ${COMMON_SOURCE_DIR}/mdl/Selection.cpp
         ${COMMON_SOURCE_DIR}/mdl/SelectionChange.cpp
         ${COMMON_SOURCE_DIR}/mdl/SelectionCommand.cpp
@@ -432,7 +433,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.cpp
         ${COMMON_SOURCE_DIR}/ui/RenderView.cpp
-        ${COMMON_SOURCE_DIR}/ui/RepeatStack.cpp
         ${COMMON_SOURCE_DIR}/ui/ReplaceMaterialDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/RotateHandle.cpp
         ${COMMON_SOURCE_DIR}/ui/RotateTool.cpp
@@ -714,6 +714,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/PushSelection.h
         ${COMMON_SOURCE_DIR}/mdl/Quake3Shader.h
         ${COMMON_SOURCE_DIR}/mdl/ReparentNodesCommand.h
+        ${COMMON_SOURCE_DIR}/mdl/RepeatStack.h
         ${COMMON_SOURCE_DIR}/mdl/Resource.h
         ${COMMON_SOURCE_DIR}/mdl/Selection.h
         ${COMMON_SOURCE_DIR}/mdl/SelectionChange.h
@@ -975,7 +976,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.h
         ${COMMON_SOURCE_DIR}/ui/RenderView.h
-        ${COMMON_SOURCE_DIR}/ui/RepeatStack.h
         ${COMMON_SOURCE_DIR}/ui/ReplaceMaterialDialog.h
         ${COMMON_SOURCE_DIR}/ui/RotateHandle.h
         ${COMMON_SOURCE_DIR}/ui/RotateTool.h

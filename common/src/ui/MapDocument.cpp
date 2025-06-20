@@ -96,6 +96,7 @@
 #include "mdl/PropertyValueWithDoubleQuotationMarksValidator.h"
 #include "mdl/PushSelection.h"
 #include "mdl/ReparentNodesCommand.h"
+#include "mdl/RepeatStack.h"
 #include "mdl/ResourceManager.h"
 #include "mdl/SelectionCommand.h"
 #include "mdl/SetCurrentLayerCommand.h"
@@ -113,7 +114,6 @@
 #include "mdl/WorldBoundsValidator.h"
 #include "mdl/WorldNode.h"
 #include "ui/Actions.h"
-#include "ui/RepeatStack.h"
 #include "ui/ViewEffectsService.h"
 
 #include "kdl/collection_utils.h"
@@ -406,7 +406,7 @@ MapDocument::MapDocument(kdl::task_manager& taskManager)
   , m_tagManager{std::make_unique<mdl::TagManager>()}
   , m_editorContext{std::make_unique<mdl::EditorContext>()}
   , m_grid{std::make_unique<mdl::Grid>(4)}
-  , m_repeatStack{std::make_unique<RepeatStack>()}
+  , m_repeatStack{std::make_unique<mdl::RepeatStack>()}
   , m_commandProcessor{std::make_unique<mdl::CommandProcessor>(*this)}
 {
   connectObservers();

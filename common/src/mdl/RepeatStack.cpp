@@ -26,7 +26,7 @@
 
 #include <cassert>
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 size_t RepeatStack::size() const
@@ -122,4 +122,4 @@ void RepeatStack::rollbackTransaction()
   }
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl
