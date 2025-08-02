@@ -33,6 +33,11 @@ class QListWidget;
 class QWidget;
 class QAbstractButton;
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 class MapDocument;
@@ -66,8 +71,8 @@ private slots:
 private:
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 

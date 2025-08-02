@@ -26,15 +26,11 @@
 #include <string>
 #include <vector>
 
-namespace tb::ui
-{
-class MapDocument;
-}
-
 namespace tb::mdl
 {
 class Command;
 class CommandResult;
+class Map;
 class UndoableCommand;
 enum class TransactionScope;
 
@@ -62,7 +58,9 @@ private:
   /**
    * The document to pass on to commands when they are executed or undone.
    */
-  ui::MapDocument& m_document;
+  Map& m_map;
+
+  bool m_isCollationEnabled;
 
   /**
    * Limits the time after which to succeeding commands can be collated.
@@ -103,7 +101,7 @@ public:
    * @param document the document to pass to commands, may be null
    */
   explicit CommandProcessor(
-    ui::MapDocument& document,
+    Map& map,
     std::chrono::milliseconds collationInterval = std::chrono::milliseconds{1000});
 
   ~CommandProcessor();
@@ -146,6 +144,16 @@ public:
    * Notifies observers when a transaction was undone successfully.
    */
   Notifier<const std::string&> transactionUndoneNotifier;
+
+  /**
+   * Indicates whether command collation is enabled.
+   */
+  bool isCollationEnabled() const;
+
+  /**
+   * Sets whether command collation is enabled.
+   */
+  void setIsCollationEnabled(bool isCollationEnabled);
 
   /**
    * Indicates whether there is any command on the undo stack.

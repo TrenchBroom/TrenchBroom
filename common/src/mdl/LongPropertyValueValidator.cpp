@@ -23,6 +23,7 @@
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
+#include "mdl/Map.h"
 #include "mdl/MapFacade.h"
 #include "mdl/PushSelection.h"
 
@@ -37,8 +38,8 @@ const auto Type = freeIssueType();
 
 IssueQuickFix makeTruncatePropertyValueQuickFix(const size_t maxLength)
 {
-  return {Type, "Truncate Property Values", [=](MapFacade& facade, const Issue& issue) {
-            const auto pushSelection = PushSelection{facade};
+  return {Type, "Truncate Property Values", [=](Map& map, const Issue& issue) {
+            const auto pushSelection = PushSelection{map};
 
             const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
             const auto& propertyName = propIssue.propertyKey();
@@ -48,9 +49,9 @@ IssueQuickFix makeTruncatePropertyValueQuickFix(const size_t maxLength)
             // selected, the removeProperty call will correctly affect worldspawn either
             // way.
 
-            facade.deselectAll();
-            facade.selectNodes({&issue.node()});
-            facade.setProperty(propertyName, propertyValue.substr(0, maxLength));
+            map.deselectAll();
+            map.selectNodes({&issue.node()});
+            map.setEntityProperty(propertyName, propertyValue.substr(0, maxLength));
           }};
 }
 } // namespace

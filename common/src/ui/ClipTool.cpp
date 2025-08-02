@@ -19,12 +19,14 @@
 
 #include "ClipTool.h"
 
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
 #include "mdl/PickResult.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/Transaction.h"
@@ -32,11 +34,9 @@
 #include "render/BrushRenderer.h"
 #include "render/Camera.h"
 #include "render/RenderService.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 
 #include "kdl/map_utils.h"
-#include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
 #include "kdl/overload.h"
 #include "kdl/set_temp.h"
@@ -482,9 +482,9 @@ public:
 
 } // namespace
 
-ClipTool::ClipTool(std::weak_ptr<MapDocument> document)
+ClipTool::ClipTool(mdl::Map& map)
   : Tool{false}
-  , m_document{std::move(document)}
+  , m_map{map}
   , m_remainingBrushRenderer{std::make_unique<render::BrushRenderer>()}
   , m_clippedBrushRenderer{std::make_unique<render::BrushRenderer>()}
 {
@@ -498,7 +498,7 @@ ClipTool::~ClipTool()
 
 const mdl::Grid& ClipTool::grid() const
 {
-  return kdl::mem_lock(m_document)->grid();
+  return m_map.grid();
 }
 
 void ClipTool::toggleSide()
@@ -589,8 +589,8 @@ void ClipTool::renderFeedback(
 
 bool ClipTool::hasBrushes() const
 {
-  const auto document = kdl::mem_lock(m_document);
-  return document->selection().hasBrushes();
+  const auto& map = m_map;
+  return map.selection().hasBrushes();
 }
 
 bool ClipTool::canClip() const
@@ -604,17 +604,17 @@ void ClipTool::performClip()
   {
     const auto ignoreNotifications = kdl::set_temp{m_ignoreNotifications};
 
-    auto document = kdl::mem_lock(m_document);
-    auto transaction = mdl::Transaction{document, "Clip Brushes"};
+    auto& map = m_map;
+    auto transaction = mdl::Transaction{map, "Clip Brushes"};
 
     // need to make a copies here so that we are not affected by the deselection
     const auto toAdd = clipBrushes();
-    const auto toRemove = document->selection().nodes;
-    const auto addedNodes = document->addNodes(toAdd);
+    const auto toRemove = map.selection().nodes;
+    const auto addedNodes = map.addNodes(toAdd);
 
-    document->deselectAll();
-    document->removeNodes(toRemove);
-    document->selectNodes(addedNodes);
+    map.deselectAll();
+    map.removeNodes(toRemove);
+    map.selectNodes(addedNodes);
     transaction.commit();
 
     update();
@@ -656,8 +656,8 @@ std::map<mdl::Node*, std::vector<mdl::Node*>> ClipTool::clipBrushes()
 
 std::optional<vm::vec3d> ClipTool::defaultClipPointPos() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->selectionBounds()
+  auto& map = m_map;
+  return map.selectionBounds()
          | kdl::optional_transform([](const auto& bounds) { return bounds.center(); });
 }
 
@@ -801,10 +801,10 @@ void ClipTool::clearBrushes()
 
 void ClipTool::updateBrushes()
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = m_map;
 
-  const auto& brushNodes = document->selection().brushes;
-  const auto& worldBounds = document->worldBounds();
+  const auto& brushNodes = map.selection().brushes;
+  const auto& worldBounds = map.worldBounds();
 
   const auto clip =
     [&](auto* node, const auto& p1, const auto& p2, const auto& p3, auto& brushMap) {
@@ -813,8 +813,8 @@ void ClipTool::updateBrushes()
         p1,
         p2,
         p3,
-        mdl::BrushFaceAttributes(document->currentMaterialName()),
-        document->world()->mapFormat())
+        mdl::BrushFaceAttributes(map.currentMaterialName()),
+        map.world()->mapFormat())
         | kdl::and_then([&](mdl::BrushFace&& clipFace) {
             setFaceAttributes(brush.faces(), clipFace);
             return brush.clip(worldBounds, std::move(clipFace));
@@ -823,7 +823,7 @@ void ClipTool::updateBrushes()
             brushMap[node->parent()].push_back(new mdl::BrushNode(std::move(brush)));
           })
         | kdl::transform_error(
-          [&](auto e) { document->error() << "Could not clip brush: " << e.msg; });
+          [&](auto e) { map.logger().error() << "Could not clip brush: " << e.msg; });
     };
 
   if (canClip())
@@ -939,8 +939,8 @@ bool ClipTool::keepBackBrushes() const
 
 bool ClipTool::doActivate()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->selection().hasOnlyBrushes())
+  auto& map = m_map;
+  if (!map.selection().hasOnlyBrushes())
   {
     return false;
   }
@@ -968,15 +968,15 @@ bool ClipTool::doRemove()
 
 void ClipTool::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = m_map;
   m_notifierConnection +=
-    document->selectionDidChangeNotifier.connect(this, &ClipTool::selectionDidChange);
+    map.selectionDidChangeNotifier.connect(this, &ClipTool::selectionDidChange);
   m_notifierConnection +=
-    document->nodesWillChangeNotifier.connect(this, &ClipTool::nodesWillChange);
+    map.nodesWillChangeNotifier.connect(this, &ClipTool::nodesWillChange);
   m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &ClipTool::nodesDidChange);
+    map.nodesDidChangeNotifier.connect(this, &ClipTool::nodesDidChange);
   m_notifierConnection +=
-    document->brushFacesDidChangeNotifier.connect(this, &ClipTool::brushFacesDidChange);
+    map.brushFacesDidChangeNotifier.connect(this, &ClipTool::brushFacesDidChange);
 }
 
 void ClipTool::selectionDidChange(const mdl::SelectionChange&)

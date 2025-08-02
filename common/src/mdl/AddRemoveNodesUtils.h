@@ -22,18 +22,12 @@
 #include <map>
 #include <vector>
 
-namespace tb::ui
-{
-class MapDocument;
-}
-
 namespace tb::mdl
 {
+class Map;
 class Node;
 
-void addNodesAndNotify(
-  const std::map<Node*, std::vector<Node*>>& nodes, ui::MapDocument& document);
-void removeNodesAndNotify(
-  const std::map<Node*, std::vector<Node*>>& nodes, ui::MapDocument& document);
+void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map);
+void removeNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map);
 
 } // namespace tb::mdl

@@ -21,7 +21,6 @@
 
 #include "mdl/Validator.h"
 
-#include <memory>
 #include <vector>
 
 namespace tb::mdl
@@ -33,11 +32,11 @@ class Node;
 class SoftMapBoundsValidator : public Validator
 {
 private:
-  std::weak_ptr<Game> m_game;
+  const Game& m_game;
   const WorldNode& m_world;
 
 public:
-  explicit SoftMapBoundsValidator(std::weak_ptr<Game> game, const WorldNode& world);
+  explicit SoftMapBoundsValidator(const Game& game, const WorldNode& world);
 
 private:
   void doValidate(

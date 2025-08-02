@@ -68,10 +68,10 @@ public:
 private:
   static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
 
-  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(Map& map) override;
+  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override;
 
-  Result<void> doSelect(ui::MapDocument& document) const;
+  Result<void> doSelect(Map& map) const;
 
   deleteCopyAndMove(SelectionCommand);
 };

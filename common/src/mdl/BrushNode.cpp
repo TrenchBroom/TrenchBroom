@@ -35,6 +35,7 @@
 #include "mdl/WorldNode.h"
 #include "render/BrushRendererBrushCache.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/overload.h"
 
 #include "vm/intersection.h"
@@ -81,7 +82,7 @@ const EntityNodeBase* BrushNode::entity() const
 
 EntityNodeBase* BrushNode::entity()
 {
-  return const_cast<EntityNodeBase*>(const_cast<const BrushNode*>(this)->entity());
+  return KDL_CONST_OVERLOAD(entity());
 }
 
 const Brush& BrushNode::brush() const

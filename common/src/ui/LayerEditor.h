@@ -56,8 +56,8 @@ private:
 
   void onLayerRightClick(mdl::LayerNode* layer);
 
-  void onMoveSelectionToLayer();
-  bool canMoveSelectionToLayer() const;
+  void onMoveSelectedNodesToLayer();
+  bool canMoveSelectedNodesToLayer() const;
 
   bool canToggleLayerVisible() const;
   void toggleLayerVisible(mdl::LayerNode* layer);

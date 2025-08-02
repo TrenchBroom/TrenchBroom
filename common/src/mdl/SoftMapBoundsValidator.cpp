@@ -28,13 +28,8 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/memory_utils.h"
-
-#include "vm/bbox.h"
-
 #include <optional>
 #include <string>
-#include <utility>
 
 namespace tb::mdl
 {
@@ -43,12 +38,12 @@ namespace
 const auto Type = freeIssueType();
 
 void validateInternal(
-  const std::shared_ptr<Game>& game,
+  const Game& game,
   const WorldNode& worldNode,
   Node& node,
   std::vector<std::unique_ptr<Issue>>& issues)
 {
-  const auto bounds = game->extractSoftMapBounds(worldNode.entity());
+  const auto bounds = game.extractSoftMapBounds(worldNode.entity());
 
   if (bounds.bounds && !bounds.bounds->contains(node.logicalBounds()))
   {
@@ -58,10 +53,9 @@ void validateInternal(
 }
 } // namespace
 
-SoftMapBoundsValidator::SoftMapBoundsValidator(
-  std::weak_ptr<Game> game, const WorldNode& world)
+SoftMapBoundsValidator::SoftMapBoundsValidator(const Game& game, const WorldNode& world)
   : Validator(Type, "Objects out of soft map bounds")
-  , m_game{std::move(game)}
+  , m_game{game}
   , m_world{world}
 {
   addQuickFix(makeDeleteNodesQuickFix());
@@ -70,19 +64,19 @@ SoftMapBoundsValidator::SoftMapBoundsValidator(
 void SoftMapBoundsValidator::doValidate(
   EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
-  validateInternal(kdl::mem_lock(m_game), m_world, entityNode, issues);
+  validateInternal(m_game, m_world, entityNode, issues);
 }
 
 void SoftMapBoundsValidator::doValidate(
   BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
-  validateInternal(kdl::mem_lock(m_game), m_world, brushNode, issues);
+  validateInternal(m_game, m_world, brushNode, issues);
 }
 
 void SoftMapBoundsValidator::doValidate(
   PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
-  validateInternal(kdl::mem_lock(m_game), m_world, patchNode, issues);
+  validateInternal(m_game, m_world, patchNode, issues);
 }
 
 } // namespace tb::mdl

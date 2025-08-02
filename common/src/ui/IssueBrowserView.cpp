@@ -31,6 +31,7 @@
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
@@ -41,6 +42,8 @@
 #include "kdl/overload.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
+
+#include <fmt/format.h>
 
 #include <vector>
 
@@ -110,7 +113,7 @@ void IssueBrowserView::deselectAll()
  */
 void IssueBrowserView::updateSelection()
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
 
   auto nodes = std::vector<mdl::Node*>{};
   for (const auto* issue : collectIssues(getSelection()))
@@ -122,16 +125,16 @@ void IssueBrowserView::updateSelection()
     }
   }
 
-  document->deselectAll();
-  document->selectNodes(nodes);
+  map.deselectAll();
+  map.selectNodes(nodes);
 }
 
 void IssueBrowserView::updateIssues()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (document->world() != nullptr)
+  const auto& map = kdl::mem_lock(m_document)->map();
+  if (auto* worldNode = map.world())
   {
-    const auto validators = document->world()->registeredValidators();
+    const auto validators = worldNode->registeredValidators();
 
     auto issues = std::vector<const mdl::Issue*>{};
     const auto collectIssues = [&](auto* node) {
@@ -146,7 +149,7 @@ void IssueBrowserView::updateIssues()
       }
     };
 
-    document->world()->accept(kdl::overload(
+    worldNode->accept(kdl::overload(
       [&](auto&& thisLambda, mdl::WorldNode* world) {
         collectIssues(world);
         world->visitChildren(thisLambda);
@@ -175,13 +178,13 @@ void IssueBrowserView::updateIssues()
 
 void IssueBrowserView::applyQuickFix(const mdl::IssueQuickFix& quickFix)
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   const auto issues = collectIssues(getSelection());
 
   auto transaction =
-    mdl::Transaction{document, "Apply Quick Fix (" + quickFix.description() + ")"};
+    mdl::Transaction{map, fmt::format("Apply Quick Fix ({})", quickFix.description())};
   updateSelection();
-  quickFix.apply(*document, issues);
+  quickFix.apply(map, issues);
   transaction.commit();
 }
 
@@ -223,9 +226,9 @@ std::vector<const mdl::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
     issueTypes &= issue->type();
   }
 
-  auto document = kdl::mem_lock(m_document);
-  const auto* world = document->world();
-  return world->quickFixes(issueTypes);
+  auto& map = kdl::mem_lock(m_document)->map();
+  const auto* worldNode = map.world();
+  return worldNode->quickFixes(issueTypes);
 }
 
 mdl::IssueType IssueBrowserView::issueTypeMask() const
@@ -240,10 +243,10 @@ mdl::IssueType IssueBrowserView::issueTypeMask() const
 
 void IssueBrowserView::setIssueVisibility(const bool show)
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   for (const auto* issue : collectIssues(getSelection()))
   {
-    document->setIssueHidden(*issue, !show);
+    map.setIssueHidden(*issue, !show);
   }
 
   invalidate();

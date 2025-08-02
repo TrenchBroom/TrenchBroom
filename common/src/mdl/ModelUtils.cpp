@@ -23,8 +23,11 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/EditorContext.h"
+#include "mdl/HitAdapter.h"
 #include "mdl/NodeQueries.h"
 
+#include "kdl/range_to_vector.h"
+#include "kdl/stable_remove_duplicates.h"
 #include "kdl/vector_utils.h"
 
 #include <vector>
@@ -125,6 +128,30 @@ const GroupNode* findOutermostClosedGroup(const Node* node)
   return findOutermostClosedGroup(const_cast<Node*>(node));
 }
 
+Node* findOutermostClosedGroupOrNode(Node* node)
+{
+  if (auto* group = findOutermostClosedGroup(node))
+  {
+    return group;
+  }
+
+  return node;
+}
+
+std::vector<Node*> hitsToNodesWithGroupPicking(const std::vector<Hit>& hits)
+{
+  return kdl::col_stable_remove_duplicates(
+    hits | std::views::transform([](const auto& hit) {
+      return findOutermostClosedGroupOrNode(hitToNode(hit));
+    })
+    | kdl::to_vector);
+}
+
+const Node* findOutermostClosedGroupOrNode(const Node* node)
+{
+  return findOutermostClosedGroupOrNode(const_cast<Node*>(node));
+}
+
 std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes)
 {
   auto result = std::vector<GroupNode*>{};
@@ -145,6 +172,43 @@ std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes)
       [](const BrushNode*) {},
       [](const PatchNode*) {}));
   return result;
+}
+
+
+std::vector<GroupNode*> collectContainingGroups(const std::vector<Node*>& nodes)
+{
+  auto result = std::vector<GroupNode*>{};
+  Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](const WorldNode*) {},
+      [](const LayerNode*) {},
+      [&](GroupNode* groupNode) {
+        if (auto* containingGroupNode = groupNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](EntityNode* entityNode) {
+        if (auto* containingGroupNode = entityNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](BrushNode* brushNode) {
+        if (auto* containingGroupNode = brushNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](PatchNode* patchNode) {
+        if (auto* containingGroupNode = patchNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      }));
+
+  return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
 std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes)

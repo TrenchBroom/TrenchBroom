@@ -61,7 +61,7 @@ public:
   virtual ~MapFacade();
 
 public: // getters
-  virtual std::shared_ptr<Game> game() const = 0;
+  virtual std::unique_ptr<Game> game() const = 0;
 
   virtual LayerNode* currentLayer() const = 0;
   virtual GroupNode* currentGroup() const = 0;

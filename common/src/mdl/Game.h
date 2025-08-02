@@ -56,6 +56,21 @@ class WorldNode;
 struct CompilationConfig;
 struct FlagsConfig;
 
+enum class SoftMapBoundsType
+{
+  Game,
+  Map
+};
+
+struct SoftMapBounds
+{
+  SoftMapBoundsType source;
+  /**
+   * std::nullopt indicates unlimited soft map bounds
+   */
+  std::optional<vm::bbox3d> bounds;
+};
+
 class Game : public io::EntityDefinitionLoader
 {
 public: // game configuration
@@ -73,21 +88,6 @@ public: // game configuration
   using PathErrors = std::map<std::filesystem::path, std::string>;
   virtual PathErrors checkAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths) const = 0;
-
-  enum class SoftMapBoundsType
-  {
-    Game,
-    Map
-  };
-
-  struct SoftMapBounds
-  {
-    SoftMapBoundsType source;
-    /**
-     * std::nullopt indicates unlimited soft map bounds
-     */
-    std::optional<vm::bbox3d> bounds;
-  };
 
   /**
    * Returns the soft map bounds specified in the given World entity, or if unset, the

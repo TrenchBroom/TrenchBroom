@@ -19,6 +19,7 @@
 
 #include "ExtrudeTool.h"
 
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushFace.h"
@@ -27,13 +28,13 @@
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
+#include "mdl/NodeContents.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
-#include "ui/MapDocument.h"
 
 #include "kdl/map_utils.h"
-#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
@@ -80,9 +81,9 @@ kdl_reflect_impl(ExtrudeHitData);
 
 const mdl::HitType::Type ExtrudeTool::ExtrudeHitType = mdl::HitType::freeType();
 
-ExtrudeTool::ExtrudeTool(std::weak_ptr<MapDocument> document)
+ExtrudeTool::ExtrudeTool(mdl::Map& map)
   : Tool{true}
-  , m_document{std::move(document)}
+  , m_map{map}
   , m_dragging{false}
 {
   connectObservers();
@@ -90,13 +91,12 @@ ExtrudeTool::ExtrudeTool(std::weak_ptr<MapDocument> document)
 
 bool ExtrudeTool::applies() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->selection().hasBrushes();
+  return m_map.selection().hasBrushes();
 }
 
 const mdl::Grid& ExtrudeTool::grid() const
 {
-  return kdl::mem_lock(m_document)->grid();
+  return m_map.grid();
 }
 
 namespace
@@ -184,14 +184,13 @@ mdl::Hit ExtrudeTool::pick2D(
 {
   using namespace mdl::HitFilters;
 
-  auto document = kdl::mem_lock(m_document);
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType) && selected());
   if (hit.isMatch())
   {
     return mdl::Hit::NoHit;
   }
 
-  const auto edgeInfo = findClosestHorizonEdge(document->selection().nodes, pickRay);
+  const auto edgeInfo = findClosestHorizonEdge(m_map.selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -225,8 +224,6 @@ mdl::Hit ExtrudeTool::pick3D(
 {
   using namespace mdl::HitFilters;
 
-  auto document = kdl::mem_lock(m_document);
-
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType) && selected());
   if (const auto faceHandle = hitToFaceHandle(hit))
   {
@@ -240,7 +237,7 @@ mdl::Hit ExtrudeTool::pick3D(
         hit.hitPoint()}};
   }
 
-  const auto edgeInfo = findClosestHorizonEdge(document->selection().nodes, pickRay);
+  const auto edgeInfo = findClosestHorizonEdge(m_map.selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -325,18 +322,17 @@ void ExtrudeTool::updateProposedDragHandles(const mdl::PickResult& pickResult)
 {
   using namespace mdl::HitFilters;
 
-  auto document = kdl::mem_lock(m_document);
   if (m_dragging)
   {
     // FIXME: this should be turned into an ensure failure, but it's easy to make it
     // fail currently by spamming drags/modifiers. Indicates a bug in
     // ExtrudeToolController thinking we are not dragging when we actually still are.
-    document->error() << "updateProposedDragHandles called during a drag";
+    m_map.logger().error() << "updateProposedDragHandles called during a drag";
     return;
   }
 
   const auto& hit = pickResult.first(type(ExtrudeHitType));
-  const auto& nodes = document->selection().nodes;
+  const auto& nodes = m_map.selection().nodes;
 
   auto newDragHandles = getDragHandles(nodes, hit);
   if (newDragHandles != m_proposedDragHandles)
@@ -372,8 +368,7 @@ void ExtrudeTool::beginExtrude()
 {
   ensure(!m_dragging, "may not be called during a drag");
   m_dragging = true;
-  kdl::mem_lock(m_document)
-    ->startTransaction("Resize Brushes", mdl::TransactionScope::LongRunning);
+  m_map.startTransaction("Resize Brushes", mdl::TransactionScope::LongRunning);
 }
 
 namespace
@@ -391,9 +386,9 @@ namespace
  * - returns true
  */
 bool splitBrushesOutward(
-  MapDocument& document, const vm::vec3d& delta, ExtrudeDragState& dragState)
+  mdl::Map& map, const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
-  const auto& worldBounds = document.worldBounds();
+  const auto& worldBounds = map.worldBounds();
   const bool lockAlignment = pref(Preferences::AlignmentLock);
 
   // First ensure that the drag can be applied at all. For this, check whether each drag
@@ -443,16 +438,16 @@ bool splitBrushesOutward(
            })
          | kdl::fold | kdl::transform([&]() {
              // Apply the changes calculated above
-             document.rollbackTransaction();
+             map.rollbackTransaction();
 
-             document.deselectAll();
-             const auto addedNodes = document.addNodes(newNodes);
-             document.selectNodes(addedNodes);
+             map.deselectAll();
+             const auto addedNodes = map.addNodes(newNodes);
+             map.selectNodes(addedNodes);
              dragState.currentDragFaces = std::move(newDragFaces);
              dragState.totalDelta = delta;
            })
          | kdl::transform_error([&](auto e) {
-             document.error() << "Could not extrude brush: " << e;
+             map.logger().error() << "Could not extrude brush: " << e;
              kdl::map_clear_and_delete(newNodes);
            })
          | kdl::is_success();
@@ -470,9 +465,9 @@ bool splitBrushesOutward(
  * - returns true
  */
 bool splitBrushesInward(
-  MapDocument& document, const vm::vec3d& delta, ExtrudeDragState& dragState)
+  mdl::Map& map, const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
-  const auto& worldBounds = document.worldBounds();
+  const auto& worldBounds = map.worldBounds();
   const bool lockAlignment = pref(Preferences::AlignmentLock);
 
   // First ensure that the drag can be applied at all. For this, check whether each drag
@@ -506,7 +501,7 @@ bool splitBrushesInward(
 
     if (clipFace.transform(vm::translation_matrix(delta), lockAlignment).is_error())
     {
-      document.error() << "Could not extrude inwards: Error transforming face";
+      map.logger().error() << "Could not extrude inwards: Error transforming face";
       kdl::map_clear_and_delete(newNodes);
       return false;
     }
@@ -517,7 +512,7 @@ bool splitBrushesInward(
     // Front brush should always be valid
     if (frontBrush.clip(worldBounds, clipFaceInverted).is_error())
     {
-      document.error() << "Could not extrude inwards: Front brush is empty";
+      map.logger().error() << "Could not extrude inwards: Front brush is empty";
       kdl::map_clear_and_delete(newNodes);
       return false;
     }
@@ -541,17 +536,17 @@ bool splitBrushesInward(
   // Apply changes calculated above
 
   dragState.currentDragFaces.clear();
-  document.rollbackTransaction();
+  map.rollbackTransaction();
 
   // FIXME: deal with linked group update failure (needed for #3647)
-  const bool success = document.swapNodeContents("Resize Brushes", nodesToUpdate);
+  const bool success = map.updateNodeContents("Resize Brushes", nodesToUpdate);
   unused(success);
 
   // Add the newly split off brushes and select them (keeping the original brushes
   // selected).
   // FIXME: deal with linked group update failure (needed for #3647)
-  const auto addedNodes = document.addNodes(newNodes);
-  document.selectNodes(addedNodes);
+  const auto addedNodes = map.addNodes(newNodes);
+  map.selectNodes(addedNodes);
 
   dragState.currentDragFaces = std::move(newDragFaces);
   dragState.totalDelta = delta;
@@ -571,21 +566,19 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
 {
   ensure(m_dragging, "may only be called during a drag");
 
-  auto document = kdl::mem_lock(m_document);
-
   if (dragState.splitBrushes)
   {
     if (
-      splitBrushesOutward(*document, handleDelta, dragState)
-      || splitBrushesInward(*document, handleDelta, dragState))
+      splitBrushesOutward(m_map, handleDelta, dragState)
+      || splitBrushesInward(m_map, handleDelta, dragState))
     {
       return true;
     }
   }
   else
   {
-    document->rollbackTransaction();
-    if (document->extrudeBrushes(getPolygons(dragState.initialDragHandles), handleDelta))
+    m_map.rollbackTransaction();
+    if (m_map.extrudeBrushes(getPolygons(dragState.initialDragHandles), handleDelta))
     {
       dragState.totalDelta = handleDelta;
     }
@@ -593,7 +586,7 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
     {
       // extrudeBrushes() fails if some brushes were completely clipped away.
       // In that case, restore the last m_totalDelta to be successfully applied.
-      document->extrudeBrushes(
+      m_map.extrudeBrushes(
         getPolygons(dragState.initialDragHandles), dragState.totalDelta);
     }
   }
@@ -607,18 +600,15 @@ void ExtrudeTool::beginMove()
 {
   ensure(!m_dragging, "may not be called during a drag");
   m_dragging = true;
-  kdl::mem_lock(m_document)
-    ->startTransaction("Move Faces", mdl::TransactionScope::LongRunning);
+  m_map.startTransaction("Move Faces", mdl::TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
   ensure(m_dragging, "may only be called during a drag");
 
-  auto document = kdl::mem_lock(m_document);
-
-  document->rollbackTransaction();
-  if (document->transformFaces(
+  m_map.rollbackTransaction();
+  if (m_map.transformFaces(
         getPolygons(dragState.initialDragHandles), vm::translation_matrix(delta)))
   {
     dragState.totalDelta = delta;
@@ -626,7 +616,7 @@ bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
   else
   {
     // restore the last successful position
-    document->transformFaces(
+    m_map.transformFaces(
       getPolygons(dragState.initialDragHandles),
       vm::translation_matrix(dragState.totalDelta));
   }
@@ -640,14 +630,13 @@ void ExtrudeTool::commit(const ExtrudeDragState& dragState)
 {
   ensure(m_dragging, "may only be called during a drag");
 
-  auto document = kdl::mem_lock(m_document);
   if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
-    document->cancelTransaction();
+    m_map.cancelTransaction();
   }
   else
   {
-    document->commitTransaction();
+    m_map.commitTransaction();
   }
   m_proposedDragHandles.clear();
   m_dragging = false;
@@ -657,23 +646,21 @@ void ExtrudeTool::cancel()
 {
   ensure(m_dragging, "may only be called during a drag");
 
-  auto document = kdl::mem_lock(m_document);
-  document->cancelTransaction();
+  m_map.cancelTransaction();
   m_proposedDragHandles.clear();
   m_dragging = false;
 }
 
 void ExtrudeTool::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
   m_notifierConnection +=
-    document->nodesWereAddedNotifier.connect(this, &ExtrudeTool::nodesDidChange);
+    m_map.nodesWereAddedNotifier.connect(this, &ExtrudeTool::nodesDidChange);
   m_notifierConnection +=
-    document->nodesWillChangeNotifier.connect(this, &ExtrudeTool::nodesDidChange);
+    m_map.nodesWillChangeNotifier.connect(this, &ExtrudeTool::nodesDidChange);
   m_notifierConnection +=
-    document->nodesWillBeRemovedNotifier.connect(this, &ExtrudeTool::nodesDidChange);
+    m_map.nodesWillBeRemovedNotifier.connect(this, &ExtrudeTool::nodesDidChange);
   m_notifierConnection +=
-    document->selectionDidChangeNotifier.connect(this, &ExtrudeTool::selectionDidChange);
+    m_map.selectionDidChangeNotifier.connect(this, &ExtrudeTool::selectionDidChange);
 }
 
 void ExtrudeTool::nodesDidChange(const std::vector<mdl::Node*>&)

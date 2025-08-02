@@ -32,6 +32,7 @@ class QListWidget;
 namespace tb::mdl
 {
 class LayerNode;
+class Map;
 class Node;
 } // namespace tb::mdl
 
@@ -102,7 +103,7 @@ private:
 private:
   void connectObservers();
 
-  void documentDidChange(MapDocument* document);
+  void mapDidChange(mdl::Map& map);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void currentLayerDidChange(const mdl::LayerNode* layer);
 

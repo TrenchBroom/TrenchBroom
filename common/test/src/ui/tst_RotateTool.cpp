@@ -17,11 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Logger.h"
+#include "MapFixture.h"
+#include "TestFactory.h"
+#include "TestUtils.h"
 #include "mdl/BrushNode.h" // IWYU pragma: keep
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
-#include "ui/MapDocumentTest.h"
+#include "mdl/Map.h"
 #include "ui/RotateTool.h"
 
 #include "Catch2.h"
@@ -29,9 +33,13 @@
 namespace tb::ui
 {
 
-TEST_CASE_METHOD(MapDocumentTest, "RotateTool")
+TEST_CASE("RotateTool")
 {
-  auto tool = RotateTool{document};
+  auto fixture = mdl::MapFixture{};
+  auto& map = fixture.map();
+  fixture.create();
+
+  auto tool = RotateTool{map};
   tool.activate();
 
   SECTION("resetRotationCenter")
@@ -44,10 +52,9 @@ TEST_CASE_METHOD(MapDocumentTest, "RotateTool")
 
     auto* entityNode1 = new mdl::EntityNode{std::move(entity1)};
     auto* entityNode2 = new mdl::EntityNode{std::move(entity2)};
-    auto* brushNode = createBrushNode();
+    auto* brushNode = createBrushNode(map);
 
-    document->addNodes(
-      {{document->parentForNodes(), {entityNode1, entityNode2, brushNode}}});
+    map.addNodes({{map.parentForNodes(), {entityNode1, entityNode2, brushNode}}});
 
     SECTION("If nothing is selected")
     {
@@ -57,7 +64,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RotateTool")
 
     SECTION("If a single entity is selected")
     {
-      document->selectNodes({entityNode1});
+      map.selectNodes({entityNode1});
 
       tool.resetRotationCenter();
       CHECK(tool.rotationCenter() == vm::vec3d{8, 16, 32});
@@ -65,22 +72,18 @@ TEST_CASE_METHOD(MapDocumentTest, "RotateTool")
 
     SECTION("If multiple entities are selected")
     {
-      document->selectNodes({entityNode1, entityNode2});
+      map.selectNodes({entityNode1, entityNode2});
 
       tool.resetRotationCenter();
-      CHECK(
-        tool.rotationCenter()
-        == document->grid().snap(document->selectionBounds()->center()));
+      CHECK(tool.rotationCenter() == map.grid().snap(map.selectionBounds()->center()));
     }
 
     SECTION("If a mix of nodes is selected")
     {
-      document->selectNodes({entityNode1, brushNode});
+      map.selectNodes({entityNode1, brushNode});
 
       tool.resetRotationCenter();
-      CHECK(
-        tool.rotationCenter()
-        == document->grid().snap(document->selectionBounds()->center()));
+      CHECK(tool.rotationCenter() == map.grid().snap(map.selectionBounds()->center()));
     }
   }
 }

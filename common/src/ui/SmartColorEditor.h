@@ -58,7 +58,7 @@ private:
   void updateColorRange(const std::vector<mdl::EntityNodeBase*>& nodes);
   void updateColorHistory();
 
-  void setColor(const QColor& wxColor) const;
+  void setColor(const QColor& color);
 
   void floatRangeRadioButtonClicked();
   void byteRangeRadioButtonClicked();

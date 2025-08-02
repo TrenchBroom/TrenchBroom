@@ -23,14 +23,12 @@
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
 #include "mdl/PickResult.h"
 #include "render/Camera.h"
 #include "ui/DrawShapeTool.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
-#include "ui/MapDocument.h"
-
-#include "kdl/memory_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/line.h"
@@ -227,10 +225,9 @@ private:
 
 } // namespace
 
-DrawShapeToolController3D::DrawShapeToolController3D(
-  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
+DrawShapeToolController3D::DrawShapeToolController3D(DrawShapeTool& tool, mdl::Map& map)
   : m_tool{tool}
-  , m_document{std::move(document)}
+  , m_map{map}
 {
 }
 
@@ -260,8 +257,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
     return nullptr;
   }
 
-  auto document = kdl::mem_lock(m_document);
-  if (document->selection().hasAny())
+  if (m_map.selection().hasAny())
   {
     return nullptr;
   }
@@ -271,7 +267,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
     hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
 
   return createHandleDragTracker(
-    DrawShapeDragDelegate{m_tool, document->worldBounds()},
+    DrawShapeDragDelegate{m_tool, m_map.worldBounds()},
     inputState,
     initialHandlePosition,
     initialHandlePosition);

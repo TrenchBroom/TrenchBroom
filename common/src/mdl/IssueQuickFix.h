@@ -28,13 +28,13 @@
 namespace tb::mdl
 {
 class Issue;
-class MapFacade;
+class Map;
 
 class IssueQuickFix
 {
 private:
-  using SingleIssueFix = std::function<void(MapFacade&, const Issue&)>;
-  using MultiIssueFix = std::function<void(MapFacade&, const std::vector<const Issue*>&)>;
+  using SingleIssueFix = std::function<void(Map&, const Issue&)>;
+  using MultiIssueFix = std::function<void(Map&, const std::vector<const Issue*>&)>;
 
   std::string m_description;
   MultiIssueFix m_fix;
@@ -46,7 +46,7 @@ public:
 
   const std::string& description() const;
 
-  void apply(MapFacade& facade, const std::vector<const Issue*>& issues) const;
+  void apply(Map& map, const std::vector<const Issue*>& issues) const;
 };
 
 IssueQuickFix makeDeleteNodesQuickFix();

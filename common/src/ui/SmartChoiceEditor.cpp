@@ -26,8 +26,8 @@
 #include <QtGlobal>
 
 #include "mdl/EntityNodeBase.h"
+#include "mdl/Map.h"
 #include "mdl/PropertyDefinition.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -49,17 +49,16 @@ void SmartChoiceEditor::comboBoxActivated(const int /* index */)
   const auto ignoreTextChanged = kdl::set_temp{m_ignoreEditTextChanged};
 
   const auto valueDescStr =
-    mapStringFromUnicode(document()->encoding(), m_comboBox->currentText());
+    mapStringFromUnicode(map().encoding(), m_comboBox->currentText());
   const auto valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
-  document()->setProperty(propertyKey(), valueStr);
+  map().setEntityProperty(propertyKey(), valueStr);
 }
 
 void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text)
 {
   if (!m_ignoreEditTextChanged)
   {
-    document()->setProperty(
-      propertyKey(), mapStringFromUnicode(document()->encoding(), text));
+    map().setEntityProperty(propertyKey(), mapStringFromUnicode(map().encoding(), text));
   }
 }
 
@@ -116,11 +115,11 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& 
       for (const auto& option : options)
       {
         m_comboBox->addItem(mapStringToUnicode(
-          document()->encoding(), option.value + " : " + option.description));
+          map().encoding(), option.value + " : " + option.description));
       }
 
       const auto value = mdl::selectPropertyValue(propertyKey(), nodes);
-      m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
+      m_comboBox->setCurrentText(mapStringToUnicode(map().encoding(), value));
     }
   }
 }

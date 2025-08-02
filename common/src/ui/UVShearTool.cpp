@@ -23,6 +23,7 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "ui/GestureTracker.h"
@@ -128,7 +129,7 @@ vm::vec2f selectShearFactors(const vm::vec2f& factors, const vm::vec2b& selector
 class UVShearDragTracker : public GestureTracker
 {
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   const UVViewHelper& m_helper;
   vm::vec2b m_selector;
   vm::vec3d m_uAxis;
@@ -137,25 +138,25 @@ private:
 
 public:
   UVShearDragTracker(
-    MapDocument& document,
+    mdl::Map& map,
     const UVViewHelper& helper,
     const vm::vec2b& selector,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     const vm::vec2f& initialHit)
-    : m_document{document}
+    : m_map{map}
     , m_helper{helper}
     , m_selector{selector}
     , m_uAxis{uAxis}
     , m_vAxis{vAxis}
     , m_initialHit{initialHit}
   {
-    m_document.startTransaction("Shear UV", mdl::TransactionScope::LongRunning);
+    m_map.startTransaction("Shear UV", mdl::TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override
   {
-    m_document.rollbackTransaction();
+    m_map.rollbackTransaction();
 
     const auto currentHit = getHit(m_helper, m_uAxis, m_vAxis, inputState.pickRay());
     if (!currentHit)
@@ -184,7 +185,7 @@ public:
           vm::vec2f{0, 0}, m_helper.face()->attributes().scale(), true)
         * origin};
 
-      m_document.shearUV(snappedFactors);
+      m_map.shearUV(snappedFactors);
 
       const auto newOriginUV = vm::vec2f{
         m_helper.face()->toUVCoordSystemMatrix(
@@ -195,15 +196,15 @@ public:
 
       auto request = mdl::ChangeBrushFaceAttributesRequest{};
       request.setOffset(newOffset);
-      m_document.setFaceAttributes(request);
+      m_map.setFaceAttributes(request);
     }
 
     return true;
   }
 
-  void end(const InputState&) override { m_document.commitTransaction(); }
+  void end(const InputState&) override { m_map.commitTransaction(); }
 
-  void cancel() override { m_document.cancelTransaction(); }
+  void cancel() override { m_map.cancelTransaction(); }
 };
 
 } // namespace
@@ -283,7 +284,7 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
   }
 
   return std::make_unique<UVShearDragTracker>(
-    *kdl::mem_lock(m_document), m_helper, selector, xAxis, yAxis, *initialHit);
+    kdl::mem_lock(m_document)->map(), m_helper, selector, xAxis, yAxis, *initialHit);
 }
 
 bool UVShearTool::cancel()

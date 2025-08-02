@@ -26,6 +26,7 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/MapFacade.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
@@ -99,9 +100,9 @@ public:
 
 } // namespace
 
-void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const
+void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
 {
-  const auto& materialManager = facade.materialManager();
+  const auto& materialManager = map.materialManager();
   const auto& allMaterials = materialManager.materials();
   auto matchingMaterials = std::vector<const Material*>{};
 
@@ -143,7 +144,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade)
 
   auto request = ChangeBrushFaceAttributesRequest{};
   request.setMaterialName(material->name());
-  facade.setFaceAttributes(request);
+  map.setFaceAttributes(request);
 }
 
 bool MaterialTagMatcher::canEnable() const
@@ -283,7 +284,7 @@ bool FlagsTagMatcher::matches(const Taggable& taggable) const
   return visitor.matches();
 }
 
-void FlagsTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const
+void FlagsTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
 {
   constexpr auto bits = sizeof(decltype(m_flags)) * 8;
 
@@ -307,7 +308,7 @@ void FlagsTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) co
   }
   else
   {
-    const auto options = m_getFlagNames(*facade.game(), m_flags);
+    const auto options = m_getFlagNames(*map.game(), m_flags);
     const auto selectedOptionIndex = callback.selectOption(options);
     if (selectedOptionIndex == options.size())
     {
@@ -334,14 +335,14 @@ void FlagsTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) co
 
   auto request = ChangeBrushFaceAttributesRequest{};
   m_setFlags(request, flagToSet);
-  facade.setFaceAttributes(request);
+  map.setFaceAttributes(request);
 }
 
-void FlagsTagMatcher::disable(TagMatcherCallback& /* callback */, MapFacade& facade) const
+void FlagsTagMatcher::disable(TagMatcherCallback&, Map& map) const
 {
   auto request = ChangeBrushFaceAttributesRequest{};
   m_unsetFlags(request, m_flags);
-  facade.setFaceAttributes(request);
+  map.setFaceAttributes(request);
 }
 
 bool FlagsTagMatcher::canEnable() const
@@ -423,15 +424,14 @@ bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const
   return visitor.matches();
 }
 
-void EntityClassNameTagMatcher::enable(
-  TagMatcherCallback& callback, MapFacade& facade) const
+void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
 {
-  if (!facade.selection().hasOnlyBrushes())
+  if (!map.selection().hasOnlyBrushes())
   {
     return;
   }
 
-  auto matchingDefinitions = facade.entityDefinitionManager().definitions()
+  auto matchingDefinitions = map.entityDefinitionManager().definitions()
                              | std::views::filter([&](const auto& definition) {
                                  return getType(definition) == EntityDefinitionType::Brush
                                         && matchesClassname(definition.name);
@@ -466,22 +466,21 @@ void EntityClassNameTagMatcher::enable(
   }
 
   assert(definition != nullptr);
-  facade.createBrushEntity(*definition);
+  map.createBrushEntity(*definition);
 
   if (!m_material.empty())
   {
     auto request = ChangeBrushFaceAttributesRequest{};
     request.setMaterialName(m_material);
-    facade.setFaceAttributes(request);
+    map.setFaceAttributes(request);
   }
 }
 
-void EntityClassNameTagMatcher::disable(
-  TagMatcherCallback& /* callback */, MapFacade& facade) const
+void EntityClassNameTagMatcher::disable(TagMatcherCallback&, Map& map) const
 {
   // entities will be removed automatically when they become empty
 
-  const auto selectedBrushes = facade.selection().nodes;
+  const auto selectedBrushes = map.selection().nodes;
   auto detailBrushes = std::vector<Node*>{};
   for (auto* brush : selectedBrushes)
   {
@@ -495,10 +494,9 @@ void EntityClassNameTagMatcher::disable(
   {
     return;
   }
-  facade.deselectAll();
-  facade.reparentNodes({{facade.parentForNodes(selectedBrushes), detailBrushes}});
-  facade.selectNodes(
-    std::vector<Node*>(std::begin(detailBrushes), std::end(detailBrushes)));
+  map.deselectAll();
+  map.reparentNodes({{map.parentForNodes(selectedBrushes), detailBrushes}});
+  map.selectNodes(std::vector<Node*>(std::begin(detailBrushes), std::end(detailBrushes)));
 }
 
 bool EntityClassNameTagMatcher::canEnable() const

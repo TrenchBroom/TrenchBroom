@@ -19,6 +19,7 @@
 
 #include "SmartPropertyEditor.h"
 
+#include "mdl/Map.h"
 #include "ui/MapDocument.h"
 
 #include "kdl/memory_utils.h"
@@ -62,9 +63,9 @@ bool SmartPropertyEditor::usesPropertyKey(const std::string& propertyKey) const
   return m_propertyKey == propertyKey;
 }
 
-std::shared_ptr<MapDocument> SmartPropertyEditor::document() const
+mdl::Map& SmartPropertyEditor::map()
 {
-  return kdl::mem_lock(m_document);
+  return kdl::mem_lock(m_document)->map();
 }
 
 const std::string& SmartPropertyEditor::propertyKey() const
@@ -80,7 +81,7 @@ const std::vector<mdl::EntityNodeBase*> SmartPropertyEditor::nodes() const
 void SmartPropertyEditor::addOrUpdateProperty(const std::string& value)
 {
   assert(m_active);
-  document()->setProperty(m_propertyKey, value);
+  map().setEntityProperty(m_propertyKey, value);
 }
 
 } // namespace tb::ui

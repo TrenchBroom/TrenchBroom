@@ -28,7 +28,8 @@
 namespace tb::mdl
 {
 class EntityNodeBase;
-}
+class Map;
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -56,7 +57,7 @@ public:
   void deactivate();
 
 protected:
-  std::shared_ptr<MapDocument> document() const;
+  mdl::Map& map();
   const std::string& propertyKey() const;
   const std::vector<mdl::EntityNodeBase*> nodes() const;
   void addOrUpdateProperty(const std::string& value);

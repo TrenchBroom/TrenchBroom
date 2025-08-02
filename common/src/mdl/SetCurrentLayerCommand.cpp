@@ -20,7 +20,7 @@
 #include "SetCurrentLayerCommand.h"
 
 #include "mdl/EditorContext.h"
-#include "ui/MapDocument.h"
+#include "mdl/Map.h"
 
 namespace tb::mdl
 {
@@ -36,19 +36,17 @@ SetCurrentLayerCommand::SetCurrentLayerCommand(LayerNode* layer)
 {
 }
 
-std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(Map& map)
 {
-  auto& editorContext = document.editorContext();
+  auto& editorContext = map.editorContext();
   m_oldCurrentLayer = editorContext.currentLayer();
   editorContext.setCurrentLayer(m_currentLayer);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformUndo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformUndo(Map& map)
 {
-  auto& editorContext = document.editorContext();
+  auto& editorContext = map.editorContext();
   editorContext.setCurrentLayer(m_oldCurrentLayer);
   return std::make_unique<CommandResult>(true);
 }

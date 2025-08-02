@@ -27,7 +27,9 @@
 #include "mdl/EntityNodeBase.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Selection.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 
@@ -242,16 +244,16 @@ auto collectSelectedLinks(const mdl::Selection& selection, Visitor visitor)
 }
 
 auto getAllLinks(
-  ui::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
+  const mdl::Map& map, const Color& defaultColor, const Color& selectedColor)
 {
   auto links = std::vector<LinkRenderer::LineVertex>{};
 
-  if (document.world())
+  if (map.world())
   {
     auto visitor =
-      CollectAllLinksVisitor{document.editorContext(), defaultColor, selectedColor};
+      CollectAllLinksVisitor{map.editorContext(), defaultColor, selectedColor};
 
-    document.world()->accept(kdl::overload(
+    map.world()->accept(kdl::overload(
       [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
         worldNode->visitChildren(thisLambda);
       },
@@ -270,36 +272,35 @@ auto getAllLinks(
 }
 
 auto getTransitiveSelectedLinks(
-  ui::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
+  const mdl::Map& map, const Color& defaultColor, const Color& selectedColor)
 {
   auto visitor = CollectTransitiveSelectedLinksVisitor{
-    document.editorContext(), defaultColor, selectedColor, {}};
-  return collectSelectedLinks(document.selection(), visitor);
+    map.editorContext(), defaultColor, selectedColor, {}};
+  return collectSelectedLinks(map.selection(), visitor);
 }
 
 auto getDirectSelectedLinks(
-  ui::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
+  const mdl::Map& map, const Color& defaultColor, const Color& selectedColor)
 {
-  auto visitor = CollectDirectSelectedLinksVisitor{
-    document.editorContext(), defaultColor, selectedColor};
-  return collectSelectedLinks(document.selection(), visitor);
+  auto visitor =
+    CollectDirectSelectedLinksVisitor{map.editorContext(), defaultColor, selectedColor};
+  return collectSelectedLinks(map.selection(), visitor);
 }
 
-auto getLinks(
-  ui::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
+auto getLinks(const mdl::Map& map, const Color& defaultColor, const Color& selectedColor)
 {
   const auto entityLinkMode = pref(Preferences::EntityLinkMode);
   if (entityLinkMode == Preferences::entityLinkModeAll())
   {
-    return getAllLinks(document, defaultColor, selectedColor);
+    return getAllLinks(map, defaultColor, selectedColor);
   }
   if (entityLinkMode == Preferences::entityLinkModeTransitive())
   {
-    return getTransitiveSelectedLinks(document, defaultColor, selectedColor);
+    return getTransitiveSelectedLinks(map, defaultColor, selectedColor);
   }
   if (entityLinkMode == Preferences::entityLinkModeDirect())
   {
-    return getDirectSelectedLinks(document, defaultColor, selectedColor);
+    return getDirectSelectedLinks(map, defaultColor, selectedColor);
   }
 
   return std::vector<LinkRenderer::LineVertex>{};
@@ -308,7 +309,8 @@ auto getLinks(
 
 std::vector<LinkRenderer::LineVertex> EntityLinkRenderer::getLinks()
 {
-  return render::getLinks(*kdl::mem_lock(m_document), m_defaultColor, m_selectedColor);
+  return render::getLinks(
+    kdl::mem_lock(m_document)->map(), m_defaultColor, m_selectedColor);
 }
 
 } // namespace tb::render

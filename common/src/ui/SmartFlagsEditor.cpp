@@ -25,9 +25,9 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/Map.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/FlagsEditor.h"
-#include "ui/MapDocument.h"
 #include "ui/ViewUtils.h"
 
 #include "kdl/set_temp.h"
@@ -177,7 +177,7 @@ void SmartFlagsEditor::flagChanged(
   {
     const auto ignoreUpdates = kdl::set_temp{m_ignoreUpdates};
     const auto set = m_flagsEditor->isFlagSet(index);
-    document()->updateSpawnflag(propertyKey(), index, set);
+    map().updateEntitySpawnflag(propertyKey(), index, set);
   }
 }
 

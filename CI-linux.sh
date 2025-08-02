@@ -47,7 +47,6 @@ cd "$BUILD_DIR/lib/upd/test"
 
 cd "$BUILD_DIR/common/test"
 xvfb-run -a ./common-test || exit 1
-xvfb-run -a ./common-regression-test || exit 1
 
 if [[ $TB_DEBUG_BUILD != "true" ]] ; then
     cd "$BUILD_DIR/common/benchmark"

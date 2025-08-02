@@ -17,10 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapDocumentTest.h"
+#include "Logger.h"
+#include "MapFixture.h"
+#include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Grid.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/PasteType.h"
 #include "mdl/WorldNode.h"
 #include "render/PerspectiveCamera.h"
@@ -35,7 +38,7 @@ namespace
 {
 
 void updatePickState(
-  InputState& inputState, const render::Camera& camera, const MapDocument& document)
+  InputState& inputState, const render::Camera& camera, const mdl::Map& map)
 {
   mdl::PickResult pickResult = mdl::PickResult::byDistance();
   const PickRequest pickRequest(
@@ -43,7 +46,7 @@ void updatePickState(
       static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()))),
     camera);
 
-  document.pick(pickRequest.pickRay(), pickResult);
+  map.pick(pickRequest.pickRay(), pickResult);
 
   inputState.setPickRequest(pickRequest);
   inputState.setPickResult(std::move(pickResult));
@@ -51,10 +54,13 @@ void updatePickState(
 
 } // namespace
 
-// https://github.com/TrenchBroom/TrenchBroom/issues/2602
-TEST_CASE_METHOD(
-  ValveMapDocumentTest, "ClipToolControllerTest.testTwoPointsCreateClipPlane")
+TEST_CASE("ClipToolController")
 {
+  auto fixture = mdl::MapFixture{};
+  auto& map = fixture.map();
+  fixture.create();
+
+  // https://github.com/TrenchBroom/TrenchBroom/issues/2602
   const auto data = R"(
 // entity 0
 {
@@ -70,41 +76,41 @@ TEST_CASE_METHOD(
 }
 }
             )";
-  REQUIRE(document->paste(data) == mdl::PasteType::Node);
+  REQUIRE(map.paste(data) == mdl::PasteType::Node);
 
-  ClipTool tool(document);
-  ClipToolController3D controller(tool);
+  auto tool = ClipTool{map};
+  auto controller = ClipToolController3D{tool};
 
   CHECK(tool.activate());
 
-  document->grid().setSize(2); // 2^2, so this sets it to grid 4
+  map.grid().setSize(2); // 2^2, so this sets it to grid 4
 
   const auto viewport = render::Camera::Viewport{0, 0, 1920, 1080};
 
   // Camera at 0 -160 64 looking towards +y
-  render::PerspectiveCamera camera(
+  auto camera = render::PerspectiveCamera{
     90.0f,
     1.0f,
     8000.0f,
     viewport,
-    vm::vec3f(0.0f, -160.0f, 64.0f),
+    vm::vec3f{0, -160, 64},
     vm::vec3f{0, 1, 0},
-    vm::vec3f{0, 0, 1});
+    vm::vec3f{0, 0, 1}};
 
   // The following test places these 2 clip points
-  const auto clipPoint1 = vm::vec3d(-16, -16, 52);
-  const auto clipPoint2 = vm::vec3d(20, -16, 52);
+  const auto clipPoint1 = vm::vec3d{-16, -16, 52};
+  const auto clipPoint2 = vm::vec3d{20, -16, 52};
 
-  auto clipPoint1ScreenSpace = vm::vec2f(camera.project(vm::vec3f(clipPoint1)));
-  auto clipPoint2ScreenSpace = vm::vec2f(camera.project(vm::vec3f(clipPoint2)));
+  auto clipPoint1ScreenSpace = vm::vec2f{camera.project(vm::vec3f{clipPoint1})};
+  auto clipPoint2ScreenSpace = vm::vec2f{camera.project(vm::vec3f{clipPoint2})};
 
   // Transform the points so (0, 0) is in the upper left
-  clipPoint1ScreenSpace = vm::vec2f(
+  clipPoint1ScreenSpace = vm::vec2f{
     clipPoint1ScreenSpace.x(),
-    static_cast<float>(viewport.height) - clipPoint1ScreenSpace.y());
-  clipPoint2ScreenSpace = vm::vec2f(
+    static_cast<float>(viewport.height) - clipPoint1ScreenSpace.y()};
+  clipPoint2ScreenSpace = vm::vec2f{
     clipPoint2ScreenSpace.x(),
-    static_cast<float>(viewport.height) - clipPoint2ScreenSpace.y());
+    static_cast<float>(viewport.height) - clipPoint2ScreenSpace.y()};
 
   CHECK_FALSE(tool.canClip());
   CHECK(tool.canAddPoint(clipPoint1));
@@ -112,8 +118,9 @@ TEST_CASE_METHOD(
   // HACK: bias the points towards the center of the screen a bit
   // There's no way around this unless the clip tool allowed the mouse to be slightly
   // outside of the brush
-  InputState inputState(clipPoint1ScreenSpace.x() + 2.0f, clipPoint1ScreenSpace.y());
-  updatePickState(inputState, camera, *document);
+  auto inputState =
+    InputState{clipPoint1ScreenSpace.x() + 2.0f, clipPoint1ScreenSpace.y()};
+  updatePickState(inputState, camera, map);
   REQUIRE(inputState.pickResult().size() == 1u);
 
   inputState.mouseDown(MouseButtons::Left);
@@ -126,7 +133,7 @@ TEST_CASE_METHOD(
   // HACK: bias the points towards the center of the screen a bit
   inputState.mouseMove(
     clipPoint2ScreenSpace.x() - 2.0f, clipPoint2ScreenSpace.y(), 0.0f, 0.0f);
-  updatePickState(inputState, camera, *document);
+  updatePickState(inputState, camera, map);
   REQUIRE(inputState.pickResult().size() == 1u);
 
   inputState.mouseDown(MouseButtons::Left);
@@ -139,14 +146,13 @@ TEST_CASE_METHOD(
 
   // Check the clip result
   // TODO: would be better to check the clip plane but it's not public
-  const std::vector<mdl::Node*>& objects = document->world()->defaultLayer()->children();
+  const auto& objects = map.world()->defaultLayer()->children();
   REQUIRE(objects.size() == 1u);
 
   auto* brush = dynamic_cast<mdl::BrushNode*>(objects.at(0));
   REQUIRE(brush != nullptr);
 
-  CHECK(
-    brush->logicalBounds() == vm::bbox3d(vm::vec3d(-16, -16, 52), vm::vec3d(20, 16, 72)));
+  CHECK(brush->logicalBounds() == vm::bbox3d{{-16, -16, 52}, {20, 16, 72}});
 }
 
 } // namespace tb::ui

@@ -17,10 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Logger.h"
+#include "MapFixture.h"
+#include "TestUtils.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Map.h"
 #include "mdl/Transaction.h"
-#include "ui/MapDocumentTest.h"
 
 #include "vm/mat_ext.h"
 
@@ -29,22 +32,22 @@
 namespace tb::mdl
 {
 
-TEST_CASE_METHOD(ui::MapDocumentTest, "Transaction")
+TEST_CASE("Transaction")
 {
-  document->selectAllNodes();
-  document->remove();
-  document->selectAllNodes();
+  auto fixture = MapFixture{};
+  auto& map = fixture.map();
+  fixture.create();
 
-  REQUIRE_FALSE(document->selection().hasNodes());
+  REQUIRE_FALSE(map.selection().hasNodes());
 
   auto* entityNode = new EntityNode{Entity{}};
 
-  auto transaction = Transaction{document};
+  auto transaction = Transaction{map};
   CHECK(transaction.state() == Transaction::State::Running);
 
-  document->addNodes({{document->parentForNodes(), {entityNode}}});
-  document->selectNodes({entityNode});
-  document->transform("translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
+  map.addNodes({{map.parentForNodes(), {entityNode}}});
+  map.selectNodes({entityNode});
+  map.transformSelection("translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
 
   REQUIRE(transaction.state() == Transaction::State::Running);
   REQUIRE(entityNode->entity().origin() == vm::vec3d{1, 0, 0});
@@ -56,10 +59,10 @@ TEST_CASE_METHOD(ui::MapDocumentTest, "Transaction")
     CHECK(transaction.state() == Transaction::State::Committed);
     CHECK(entityNode->entity().origin() == vm::vec3d{1, 0, 0});
 
-    document->undoCommand();
-    document->selectAllNodes();
+    map.undoCommand();
+    map.selectAllNodes();
 
-    CHECK_FALSE(document->selection().hasNodes());
+    CHECK_FALSE(map.selection().hasNodes());
   }
 
   SECTION("rollback")
@@ -68,8 +71,8 @@ TEST_CASE_METHOD(ui::MapDocumentTest, "Transaction")
 
     CHECK(transaction.state() == Transaction::State::Running);
 
-    document->selectAllNodes();
-    CHECK_FALSE(document->selection().hasNodes());
+    map.selectAllNodes();
+    CHECK_FALSE(map.selection().hasNodes());
 
     // must commit the transaction in order to destroy it
     transaction.commit();
@@ -81,8 +84,8 @@ TEST_CASE_METHOD(ui::MapDocumentTest, "Transaction")
 
     CHECK(transaction.state() == Transaction::State::Cancelled);
 
-    document->selectAllNodes();
-    CHECK_FALSE(document->selection().hasNodes());
+    map.selectAllNodes();
+    CHECK_FALSE(map.selection().hasNodes());
   }
 }
 

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "mdl/Hit.h"
 #include "mdl/HitType.h"
 
 #include "vm/bbox.h"
@@ -54,7 +55,27 @@ const GroupNode* findContainingGroup(const Node* node);
 GroupNode* findOutermostClosedGroup(Node* node);
 const GroupNode* findOutermostClosedGroup(const Node* node);
 
+/**
+ * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
+ * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is
+ * returned.
+ *
+ * This is used to implement the UI where clicking on a brush inside a group selects the
+ * group.
+ */
+Node* findOutermostClosedGroupOrNode(Node* node);
+
+/**
+ * Applies the group picking logic of findOutermostClosedGroupOrNode() to a list of hits.
+ * The order of the hits is preserved, but if multiple hits map to the same group, that
+ * group will only be listed once in the output.
+ */
+std::vector<mdl::Node*> hitsToNodesWithGroupPicking(const std::vector<Hit>& hits);
+
+const Node* findOutermostClosedGroupOrNode(const Node* node);
+
 std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes);
+std::vector<GroupNode*> collectContainingGroups(const std::vector<Node*>& nodes);
 
 std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
 

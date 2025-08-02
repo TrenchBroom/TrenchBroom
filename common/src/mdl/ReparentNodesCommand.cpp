@@ -41,19 +41,17 @@ ReparentNodesCommand::ReparentNodesCommand(
 {
 }
 
-std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(Map& map)
 {
-  removeNodesAndNotify(m_nodesToRemove, document);
-  addNodesAndNotify(m_nodesToAdd, document);
+  removeNodesAndNotify(m_nodesToRemove, map);
+  addNodesAndNotify(m_nodesToAdd, map);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(Map& map)
 {
-  removeNodesAndNotify(m_nodesToAdd, document);
-  addNodesAndNotify(m_nodesToRemove, document);
+  removeNodesAndNotify(m_nodesToAdd, map);
+  addNodesAndNotify(m_nodesToRemove, map);
   return std::make_unique<CommandResult>(true);
 }
 

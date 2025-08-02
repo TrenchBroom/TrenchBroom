@@ -27,6 +27,7 @@
 
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/Map.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/EntityPropertyGrid.h"
 #include "ui/MapDocument.h"
@@ -61,11 +62,11 @@ void EntityPropertyEditor::OnCurrentRowChanged()
 
 void EntityPropertyEditor::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->selectionDidChangeNotifier.connect(
+  auto& map = kdl::mem_lock(m_document)->map();
+  m_notifierConnection += map.selectionDidChangeNotifier.connect(
     this, &EntityPropertyEditor::selectionDidChange);
   m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &EntityPropertyEditor::nodesDidChange);
+    map.nodesDidChangeNotifier.connect(this, &EntityPropertyEditor::nodesDidChange);
 }
 
 void EntityPropertyEditor::selectionDidChange(const mdl::SelectionChange&)
@@ -80,9 +81,9 @@ void EntityPropertyEditor::nodesDidChange(const std::vector<mdl::Node*>&)
 
 void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()
 {
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
   const auto* entityDefinition =
-    mdl::selectEntityDefinition(document->selection().allEntities());
+    mdl::selectEntityDefinition(map.selection().allEntities());
 
   if (entityDefinition != m_currentDefinition)
   {
@@ -93,10 +94,10 @@ void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()
 
 void EntityPropertyEditor::updateDocumentationAndSmartEditor()
 {
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
   const auto& propertyKey = m_propertyGrid->selectedRowName();
 
-  m_smartEditorManager->switchEditor(propertyKey, document->selection().allEntities());
+  m_smartEditorManager->switchEditor(propertyKey, map.selection().allEntities());
 
   updateDocumentation(propertyKey);
 
@@ -163,10 +164,10 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
 {
   m_documentationText->clear();
 
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
   if (
     const auto* entityDefinition =
-      mdl::selectEntityDefinition(document->selection().allEntities()))
+      mdl::selectEntityDefinition(map.selection().allEntities()))
   {
     auto normalFormat = QTextCharFormat{};
     auto boldFormat = QTextCharFormat{};
@@ -175,7 +176,7 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
     // add property documentation, if available
     if (
       const auto* propertyDefinition =
-        getPropertyDefinition(*entityDefinition, propertyKey))
+        mdl::getPropertyDefinition(*entityDefinition, propertyKey))
     {
       const auto optionsDescription = optionDescriptions(*propertyDefinition);
 

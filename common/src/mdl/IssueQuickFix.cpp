@@ -20,7 +20,7 @@
 #include "IssueQuickFix.h"
 
 #include "mdl/Issue.h"
-#include "mdl/MapFacade.h"
+#include "mdl/Map.h"
 #include "mdl/PushSelection.h"
 
 #include <cassert>
@@ -39,13 +39,12 @@ IssueQuickFix::IssueQuickFix(std::string description, MultiIssueFix fix)
 IssueQuickFix::IssueQuickFix(
   IssueType issueType, std::string description, SingleIssueFix fix)
   : IssueQuickFix{
-      std::move(description),
-      [=](MapFacade& facade, const std::vector<const Issue*>& issues) {
+      std::move(description), [=](Map& map, const std::vector<const Issue*>& issues) {
         for (const auto* issue : issues)
         {
           if (issue->type() == issueType)
           {
-            fix(facade, *issue);
+            fix(map, *issue);
           }
         }
       }}
@@ -59,23 +58,22 @@ const std::string& IssueQuickFix::description() const
   return m_description;
 }
 
-void IssueQuickFix::apply(
-  MapFacade& facade, const std::vector<const Issue*>& issues) const
+void IssueQuickFix::apply(Map& map, const std::vector<const Issue*>& issues) const
 {
-  m_fix(facade, issues);
+  m_fix(map, issues);
 }
 
 IssueQuickFix makeDeleteNodesQuickFix()
 {
-  return {"Delete Objects", [](MapFacade& facade, const std::vector<const Issue*>&) {
-            facade.remove();
+  return {"Delete Objects", [](Map& map, const std::vector<const Issue*>&) {
+            map.removeSelectedNodes();
           }};
 }
 
 IssueQuickFix makeRemoveEntityPropertiesQuickFix(const IssueType type)
 {
-  return {type, "Delete Property", [](MapFacade& facade, const Issue& issue) {
-            const auto pushSelection = PushSelection{facade};
+  return {type, "Delete Property", [](Map& map, const Issue& issue) {
+            const auto pushSelection = PushSelection{map};
 
             const auto& entityPropertyIssue =
               static_cast<const EntityPropertyIssue&>(issue);
@@ -84,9 +82,9 @@ IssueQuickFix makeRemoveEntityPropertiesQuickFix(const IssueType type)
             // selected, the removeProperty call will correctly affect worldspawn
             // either way.
 
-            facade.deselectAll();
-            facade.selectNodes({&issue.node()});
-            facade.removeProperty(entityPropertyIssue.propertyKey());
+            map.deselectAll();
+            map.selectNodes({&issue.node()});
+            map.removeEntityProperty(entityPropertyIssue.propertyKey());
           }};
 }
 
@@ -96,8 +94,8 @@ IssueQuickFix makeTransformEntityPropertiesQuickFix(
   std::function<std::string(const std::string&)> keyTransform,
   std::function<std::string(const std::string&)> valueTransform)
 {
-  return {type, std::move(description), [=](MapFacade& facade, const Issue& issue) {
-            const auto pushSelection = PushSelection{facade};
+  return {type, std::move(description), [=](Map& map, const Issue& issue) {
+            const auto pushSelection = PushSelection{map};
 
             const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
             const auto& oldkey = propIssue.propertyKey();
@@ -109,22 +107,22 @@ IssueQuickFix makeTransformEntityPropertiesQuickFix(
             // selected, the removeProperty call will correctly affect worldspawn
             // either way.
 
-            facade.deselectAll();
-            facade.selectNodes({&issue.node()});
+            map.deselectAll();
+            map.selectNodes({&issue.node()});
 
             if (newKey.empty())
             {
-              facade.removeProperty(propIssue.propertyKey());
+              map.removeEntityProperty(propIssue.propertyKey());
             }
             else
             {
               if (newKey != oldkey)
               {
-                facade.renameProperty(oldkey, newKey);
+                map.renameEntityProperty(oldkey, newKey);
               }
               if (newValue != oldValue)
               {
-                facade.setProperty(newKey, newValue);
+                map.setEntityProperty(newKey, newValue);
               }
             }
           }};

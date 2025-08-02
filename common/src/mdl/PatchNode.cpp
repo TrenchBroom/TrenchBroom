@@ -31,6 +31,7 @@
 #include "mdl/TagVisitor.h"
 #include "mdl/WorldNode.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/zip_iterator.h"
@@ -322,7 +323,7 @@ const EntityNodeBase* PatchNode::entity() const
 
 EntityNodeBase* PatchNode::entity()
 {
-  return const_cast<EntityNodeBase*>(const_cast<const PatchNode*>(this)->entity());
+  return KDL_CONST_OVERLOAD(entity());
 }
 
 const BezierPatch& PatchNode::patch() const

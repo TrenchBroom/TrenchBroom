@@ -34,6 +34,7 @@ class QGridLayout;
 namespace tb::mdl
 {
 class BrushFaceHandle;
+class Map;
 class Node;
 struct SelectionChange;
 } // namespace tb::mdl
@@ -114,8 +115,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map&);
+  void mapWasLoaded(mdl::Map&);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
   void selectionDidChange(const mdl::SelectionChange& selectionChange);

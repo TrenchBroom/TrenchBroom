@@ -25,9 +25,9 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LockState.h"
+#include "mdl/Map.h"
 #include "mdl/Node.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 
 #include "kdl/overload.h"
 
@@ -39,8 +39,7 @@ namespace tb::mdl
 namespace
 {
 
-auto setLockState(
-  const std::vector<Node*>& nodes, const LockState lockState, ui::MapDocument& document)
+auto setLockState(const std::vector<Node*>& nodes, const LockState lockState, Map& map)
 {
   auto result = std::vector<std::tuple<Node*, LockState>>{};
   result.reserve(nodes.size());
@@ -58,13 +57,12 @@ auto setLockState(
     }
   }
 
-  document.nodeLockingDidChangeNotifier(changedNodes);
+  map.nodeLockingDidChangeNotifier(changedNodes);
 
   return result;
 }
 
-void restoreLockState(
-  const std::vector<std::tuple<Node*, LockState>>& nodes, ui::MapDocument& document)
+void restoreLockState(const std::vector<std::tuple<Node*, LockState>>& nodes, Map& map)
 {
   auto changedNodes = std::vector<Node*>{};
   changedNodes.reserve(nodes.size());
@@ -77,7 +75,7 @@ void restoreLockState(
     }
   }
 
-  document.nodeLockingDidChangeNotifier(changedNodes);
+  map.nodeLockingDidChangeNotifier(changedNodes);
 }
 
 } // namespace
@@ -132,16 +130,15 @@ std::string SetLockStateCommand::makeName(const LockState state)
   }
 }
 
-std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(ui::MapDocument& document)
+std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(Map& map)
 {
-  m_oldLockState = setLockState(m_nodes, m_lockState, document);
+  m_oldLockState = setLockState(m_nodes, m_lockState, map);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(Map& map)
 {
-  restoreLockState(m_oldLockState, document);
+  restoreLockState(m_oldLockState, map);
   return std::make_unique<CommandResult>(true);
 }
 

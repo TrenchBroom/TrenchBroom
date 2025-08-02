@@ -56,8 +56,8 @@
 
 namespace tb::mdl
 {
-GameImpl::GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& logger)
-  : m_config{config}
+GameImpl::GameImpl(GameConfig config, std::filesystem::path gamePath, Logger& logger)
+  : m_config{std::move(config)}
   , m_gamePath{std::move(gamePath)}
 {
   initializeFileSystem(logger);
@@ -146,7 +146,7 @@ Game::PathErrors GameImpl::checkAdditionalSearchPaths(
   return result;
 }
 
-Game::SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
+SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
 {
   if (const auto* mapValue = entity.property(EntityPropertyKeys::SoftMapBounds))
   {

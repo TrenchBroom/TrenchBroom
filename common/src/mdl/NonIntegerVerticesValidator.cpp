@@ -23,7 +23,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
-#include "mdl/MapFacade.h"
+#include "mdl/Map.h"
 #include "mdl/Polyhedron.h"
 
 #include <string>
@@ -32,12 +32,14 @@ namespace tb::mdl
 {
 namespace
 {
+
 const auto Type = freeIssueType();
 
 IssueQuickFix makeSnapVerticesQuickFix()
 {
-  return {"Snap Vertices", [](auto& facade, const auto&) { facade.snapVertices(1); }};
+  return {"Snap Vertices", [](auto& map, const auto&) { map.snapVertices(1); }};
 }
+
 } // namespace
 
 NonIntegerVerticesValidator::NonIntegerVerticesValidator()

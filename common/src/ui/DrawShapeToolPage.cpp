@@ -35,11 +35,9 @@ namespace tb::ui
 {
 
 DrawShapeToolPage::DrawShapeToolPage(
-  std::weak_ptr<MapDocument> document,
-  DrawShapeToolExtensionManager& extensionManager,
-  QWidget* parent)
+  mdl::Map& map, DrawShapeToolExtensionManager& extensionManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_map{map}
   , m_extensionManager{extensionManager}
 {
   createGui();

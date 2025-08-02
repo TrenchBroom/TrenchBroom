@@ -28,6 +28,7 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Grid.h" // IWYU pragma: keep
+#include "mdl/Map.h"
 #include "mdl/Tag.h"
 #include "ui/Inspector.h"
 #include "ui/MapDocument.h"
@@ -109,6 +110,16 @@ const MapDocument* ActionExecutionContext::document() const
 {
   assert(hasDocument());
   return m_frame->document().get();
+}
+
+mdl::Map& ActionExecutionContext::map()
+{
+  return document()->map();
+}
+
+const mdl::Map& ActionExecutionContext::map() const
+{
+  return document()->map();
 }
 
 // Action
@@ -1277,7 +1288,7 @@ void ActionManager::createEditMenu()
     QKeySequence{Qt::CTRL | Qt::Key_D},
     [](auto& context) { context.frame()->duplicateSelection(); },
     [](const auto& context) {
-      return context.hasDocument() && context.frame()->canDuplicateSelectino();
+      return context.hasDocument() && context.frame()->canDuplicateSelection();
     },
     std::filesystem::path{"DuplicateObjects.svg"},
   }));
@@ -1406,9 +1417,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Create Linked Duplicate"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_D},
-    [](auto& context) { context.document()->createLinkedDuplicate(); },
+    [](auto& context) { context.map().createLinkedDuplicate(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->canCreateLinkedDuplicate();
+      return context.hasDocument() && context.map().canCreateLinkedDuplicate();
     },
   }));
   editMenu.addItem(addAction(Action{
@@ -1416,9 +1427,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Select Linked Groups"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.document()->selectLinkedGroups(); },
+    [](auto& context) { context.map().selectLinkedGroups(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->canSelectLinkedGroups();
+      return context.hasDocument() && context.map().canSelectLinkedGroups();
     },
   }));
   editMenu.addItem(addAction(Action{
@@ -1426,9 +1437,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Separate Selected Groups"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.document()->separateLinkedGroups(); },
+    [](auto& context) { context.map().separateSelectedLinkedGroups(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->canSeparateLinkedGroups();
+      return context.hasDocument() && context.map().canSeparateSelectedLinkedGroups();
     },
   }));
   editMenu.addItem(addAction(Action{
@@ -1436,9 +1447,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Clear Protected Properties"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.document()->clearProtectedProperties(); },
+    [](auto& context) { context.map().clearProtectedEntityProperties(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->canClearProtectedProperties();
+      return context.hasDocument() && context.map().canClearProtectedEntityProperties();
     },
   }));
   editMenu.addSeparator();
@@ -1710,7 +1721,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->toggleShowGrid(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().visible();
+      return context.hasDocument() && context.map().grid().visible();
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1721,7 +1732,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->toggleSnapToGrid(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().snap();
+      return context.hasDocument() && context.map().grid().snap();
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1753,7 +1764,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(-3); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == -3;
+      return context.hasDocument() && context.map().grid().size() == -3;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1764,7 +1775,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(-2); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == -2;
+      return context.hasDocument() && context.map().grid().size() == -2;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1775,7 +1786,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(-1); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == -1;
+      return context.hasDocument() && context.map().grid().size() == -1;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1786,7 +1797,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(0); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 0;
+      return context.hasDocument() && context.map().grid().size() == 0;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1797,7 +1808,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(1); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 1;
+      return context.hasDocument() && context.map().grid().size() == 1;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1808,7 +1819,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(2); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 2;
+      return context.hasDocument() && context.map().grid().size() == 2;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1819,7 +1830,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(3); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 3;
+      return context.hasDocument() && context.map().grid().size() == 3;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1830,7 +1841,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(4); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 4;
+      return context.hasDocument() && context.map().grid().size() == 4;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1841,7 +1852,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(5); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 5;
+      return context.hasDocument() && context.map().grid().size() == 5;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1852,7 +1863,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(6); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 6;
+      return context.hasDocument() && context.map().grid().size() == 6;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1863,7 +1874,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(7); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 7;
+      return context.hasDocument() && context.map().grid().size() == 7;
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1874,7 +1885,7 @@ void ActionManager::createViewMenu()
     [](auto& context) { context.frame()->setGridSize(8); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.document()->grid().size() == 8;
+      return context.hasDocument() && context.map().grid().size() == 8;
     },
   }));
 

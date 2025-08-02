@@ -19,8 +19,9 @@
 
 #include "UpdateLinkedGroupsCommandBase.h"
 
+#include "Logger.h"
+#include "mdl/Map.h"
 #include "mdl/UpdateLinkedGroupsCommand.h"
-#include "ui/MapDocument.h"
 
 #include "kdl/result.h"
 
@@ -40,36 +41,33 @@ UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
 
 UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() = default;
 
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(Map& map)
 {
   // reimplemented from UndoableCommand::performDo
-  auto commandResult = Command::performDo(document);
+  auto commandResult = Command::performDo(map);
   if (!commandResult->success())
   {
     return commandResult;
   }
 
-  return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(document)
-         | kdl::transform([&]() {
-             setModificationCount(document);
-             return std::move(commandResult);
-           })
+  return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(map) | kdl::transform([&]() {
+           setModificationCount(map);
+           return std::move(commandResult);
+         })
          | kdl::transform_error([&](auto e) {
-             doPerformUndo(document);
-             document.error() << e.msg;
+             doPerformUndo(map);
+             map.logger().error() << e.msg;
              return std::make_unique<CommandResult>(false);
            })
          | kdl::value();
 }
 
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(Map& map)
 {
-  auto commandResult = UndoableCommand::performUndo(document);
+  auto commandResult = UndoableCommand::performUndo(map);
   if (commandResult->success())
   {
-    m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(document);
+    m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(map);
   }
   return commandResult;
 }

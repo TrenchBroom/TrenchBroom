@@ -35,12 +35,10 @@ namespace tb::mdl
 
 VertexHandleManagerBase::~VertexHandleManagerBase() = default;
 
-const mdl::HitType::Type VertexHandleManager::HandleHitType = mdl::HitType::freeType();
+const HitType::Type VertexHandleManager::HandleHitType = HitType::freeType();
 
 void VertexHandleManager::pick(
-  const vm::ray3d& pickRay,
-  const render::Camera& camera,
-  mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
@@ -50,12 +48,12 @@ void VertexHandleManager::pick(
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *distance);
       const auto error = vm::squared_distance(pickRay, position).distance;
-      pickResult.addHit(mdl::Hit(HandleHitType, *distance, hitPoint, position, error));
+      pickResult.addHit(Hit(HandleHitType, *distance, hitPoint, position, error));
     }
   }
 }
 
-void VertexHandleManager::addHandles(const mdl::BrushNode* brushNode)
+void VertexHandleManager::addHandles(const BrushNode* brushNode)
 {
   const auto& brush = brushNode->brush();
   for (const auto* vertex : brush.vertices())
@@ -64,7 +62,7 @@ void VertexHandleManager::addHandles(const mdl::BrushNode* brushNode)
   }
 }
 
-void VertexHandleManager::removeHandles(const mdl::BrushNode* brushNode)
+void VertexHandleManager::removeHandles(const BrushNode* brushNode)
 {
   const auto& brush = brushNode->brush();
   for (const auto* vertex : brush.vertices())
@@ -73,25 +71,25 @@ void VertexHandleManager::removeHandles(const mdl::BrushNode* brushNode)
   }
 }
 
-mdl::HitType::Type VertexHandleManager::hitType() const
+HitType::Type VertexHandleManager::hitType() const
 {
   return HandleHitType;
 }
 
 bool VertexHandleManager::isIncident(
-  const Handle& handle, const mdl::BrushNode* brushNode) const
+  const Handle& handle, const BrushNode* brushNode) const
 {
   const auto& brush = brushNode->brush();
   return brush.hasVertex(handle);
 }
 
-const mdl::HitType::Type EdgeHandleManager::HandleHitType = mdl::HitType::freeType();
+const HitType::Type EdgeHandleManager::HandleHitType = HitType::freeType();
 
 void EdgeHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
-  const mdl::Grid& grid,
-  mdl::PickResult& pickResult) const
+  const Grid& grid,
+  PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
@@ -108,8 +106,8 @@ void EdgeHandleManager::pickGridHandle(
             pickRay, *pointHandle, double(pref(Preferences::HandleRadius))))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-          pickResult.addHit(mdl::Hit{
-            HandleHitType, *pointDist, hitPoint, HitData{position, *pointHandle}});
+          pickResult.addHit(
+            Hit{HandleHitType, *pointDist, hitPoint, HitData{position, *pointHandle}});
         }
       }
     }
@@ -117,9 +115,7 @@ void EdgeHandleManager::pickGridHandle(
 }
 
 void EdgeHandleManager::pickCenterHandle(
-  const vm::ray3d& pickRay,
-  const render::Camera& camera,
-  mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
@@ -130,12 +126,12 @@ void EdgeHandleManager::pickCenterHandle(
         pickRay, pointHandle, double(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-      pickResult.addHit(mdl::Hit{HandleHitType, *pointDist, hitPoint, position});
+      pickResult.addHit(Hit{HandleHitType, *pointDist, hitPoint, position});
     }
   }
 }
 
-void EdgeHandleManager::addHandles(const mdl::BrushNode* brushNode)
+void EdgeHandleManager::addHandles(const BrushNode* brushNode)
 {
   const auto& brush = brushNode->brush();
   for (const auto* edge : brush.edges())
@@ -144,7 +140,7 @@ void EdgeHandleManager::addHandles(const mdl::BrushNode* brushNode)
   }
 }
 
-void EdgeHandleManager::removeHandles(const mdl::BrushNode* brushNode)
+void EdgeHandleManager::removeHandles(const BrushNode* brushNode)
 {
   const auto& brush = brushNode->brush();
   for (const auto* edge : brush.edges())
@@ -154,25 +150,24 @@ void EdgeHandleManager::removeHandles(const mdl::BrushNode* brushNode)
   }
 }
 
-mdl::HitType::Type EdgeHandleManager::hitType() const
+HitType::Type EdgeHandleManager::hitType() const
 {
   return HandleHitType;
 }
 
-bool EdgeHandleManager::isIncident(
-  const Handle& handle, const mdl::BrushNode* brushNode) const
+bool EdgeHandleManager::isIncident(const Handle& handle, const BrushNode* brushNode) const
 {
   const auto& brush = brushNode->brush();
   return brush.hasEdge(handle);
 }
 
-const mdl::HitType::Type FaceHandleManager::HandleHitType = mdl::HitType::freeType();
+const HitType::Type FaceHandleManager::HandleHitType = HitType::freeType();
 
 void FaceHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
-  const mdl::Grid& grid,
-  mdl::PickResult& pickResult) const
+  const Grid& grid,
+  PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
@@ -192,8 +187,8 @@ void FaceHandleManager::pickGridHandle(
             pickRay, pointHandle, double(pref(Preferences::HandleRadius))))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-          pickResult.addHit(mdl::Hit{
-            HandleHitType, *pointDist, hitPoint, HitData{position, pointHandle}});
+          pickResult.addHit(
+            Hit{HandleHitType, *pointDist, hitPoint, HitData{position, pointHandle}});
         }
       }
     }
@@ -201,9 +196,7 @@ void FaceHandleManager::pickGridHandle(
 }
 
 void FaceHandleManager::pickCenterHandle(
-  const vm::ray3d& pickRay,
-  const render::Camera& camera,
-  mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
@@ -214,12 +207,12 @@ void FaceHandleManager::pickCenterHandle(
         pickRay, pointHandle, double(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-      pickResult.addHit(mdl::Hit{HandleHitType, *pointDist, hitPoint, position});
+      pickResult.addHit(Hit{HandleHitType, *pointDist, hitPoint, position});
     }
   }
 }
 
-void FaceHandleManager::addHandles(const mdl::BrushNode* brushNode)
+void FaceHandleManager::addHandles(const BrushNode* brushNode)
 {
   const auto& brush = brushNode->brush();
   for (const auto& face : brush.faces())
@@ -228,7 +221,7 @@ void FaceHandleManager::addHandles(const mdl::BrushNode* brushNode)
   }
 }
 
-void FaceHandleManager::removeHandles(const mdl::BrushNode* brushNode)
+void FaceHandleManager::removeHandles(const BrushNode* brushNode)
 {
   const auto& brush = brushNode->brush();
   for (const auto& face : brush.faces())
@@ -237,13 +230,12 @@ void FaceHandleManager::removeHandles(const mdl::BrushNode* brushNode)
   }
 }
 
-mdl::HitType::Type FaceHandleManager::hitType() const
+HitType::Type FaceHandleManager::hitType() const
 {
   return HandleHitType;
 }
 
-bool FaceHandleManager::isIncident(
-  const Handle& handle, const mdl::BrushNode* brushNode) const
+bool FaceHandleManager::isIncident(const Handle& handle, const BrushNode* brushNode) const
 {
   const auto& brush = brushNode->brush();
   return brush.hasFace(handle);

@@ -49,8 +49,8 @@ public:
 private:
   static std::string makeName(LockState lockState);
 
-  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(Map& map) override;
+  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override;
 
   deleteCopyAndMove(SetLockStateCommand);
 };

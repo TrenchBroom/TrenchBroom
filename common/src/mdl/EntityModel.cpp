@@ -26,6 +26,7 @@
 #include "render/MaterialIndexRangeRenderer.h"
 #include "render/PrimType.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/reflection_impl.h"
 
 #include "vm/bbox.h"
@@ -589,8 +590,7 @@ const EntityModelSurface& EntityModelData::surface(const size_t index) const
 
 EntityModelSurface& EntityModelData::surface(const size_t index)
 {
-  return const_cast<EntityModelSurface&>(
-    const_cast<const EntityModelData&>(*this).surface(index));
+  return KDL_CONST_OVERLOAD(surface(index));
 }
 
 const EntityModelSurface* EntityModelData::surface(const std::string& name) const

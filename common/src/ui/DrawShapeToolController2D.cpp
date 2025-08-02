@@ -20,13 +20,11 @@
 #include "DrawShapeToolController2D.h"
 
 #include "mdl/Grid.h"
+#include "mdl/Map.h"
 #include "render/Camera.h"
 #include "ui/DrawShapeTool.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
-#include "ui/MapDocument.h"
-
-#include "kdl/memory_utils.h"
 
 #include "vm/intersection.h"
 
@@ -199,10 +197,9 @@ private:
 
 } // namespace
 
-DrawShapeToolController2D::DrawShapeToolController2D(
-  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
+DrawShapeToolController2D::DrawShapeToolController2D(DrawShapeTool& tool, mdl::Map& map)
   : m_tool{tool}
-  , m_document{std::move(document)}
+  , m_map{map}
 {
 }
 
@@ -232,13 +229,12 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
     return nullptr;
   }
 
-  auto document = kdl::mem_lock(m_document);
-  if (document->selection().hasAny())
+  if (m_map.selection().hasAny())
   {
     return nullptr;
   }
 
-  const auto& bounds = document->referenceBounds();
+  const auto& bounds = m_map.referenceBounds();
   const auto& camera = inputState.camera();
   const auto plane = vm::plane3d{
     bounds.min, vm::vec3d{vm::get_abs_max_component_axis(camera.direction())}};
@@ -248,7 +244,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
     const auto initialHandlePosition =
       vm::point_at_distance(inputState.pickRay(), *distance);
     return createHandleDragTracker(
-      DrawShapeDragDelegate{m_tool, document->worldBounds(), document->referenceBounds()},
+      DrawShapeDragDelegate{m_tool, m_map.worldBounds(), m_map.referenceBounds()},
       inputState,
       initialHandlePosition,
       initialHandlePosition);

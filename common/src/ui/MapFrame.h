@@ -51,19 +51,22 @@ class Logger;
 
 namespace tb::mdl
 {
+class Autosaver;
 class Game;
 class GroupNode;
 class LayerNode;
+class Map;
 class Material;
 class Node;
+
 enum class PasteType;
+
 struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
 {
 class Action;
-class Autosaver;
 class Console;
 class FrameManager;
 class GLContextManager;
@@ -85,7 +88,7 @@ private:
   std::shared_ptr<MapDocument> m_document;
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
-  std::unique_ptr<Autosaver> m_autosaver;
+  std::unique_ptr<mdl::Autosaver> m_autosaver;
   QTimer* m_autosaveTimer = nullptr;
   QTimer* m_processResourcesTimer = nullptr;
 
@@ -168,9 +171,11 @@ private: // gui creation
 private: // notification handlers
   void connectObservers();
 
-  void documentWasCleared(ui::MapDocument* document);
-  void documentDidChange(ui::MapDocument* document);
-  void documentModificationStateDidChange();
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
+  void mapWasSaved(mdl::Map& map);
+  void mapWasCleared(mdl::Map& map);
+  void mapModificationStateDidChange();
 
   void transactionDone(const std::string&);
   void transactionUndone(const std::string&);
@@ -193,9 +198,9 @@ private: // menu event handlers
   void bindEvents();
 
 public:
-  Result<bool> newDocument(std::shared_ptr<mdl::Game> game, mdl::MapFormat mapFormat);
+  Result<bool> newDocument(std::unique_ptr<mdl::Game> game, mdl::MapFormat mapFormat);
   Result<bool> openDocument(
-    std::shared_ptr<mdl::Game> game,
+    std::unique_ptr<mdl::Game> game,
     mdl::MapFormat mapFormat,
     const std::filesystem::path& path);
   bool saveDocument();
@@ -247,7 +252,7 @@ public:
   bool canPaste() const;
 
   void duplicateSelection();
-  bool canDuplicateSelectino() const;
+  bool canDuplicateSelection() const;
 
   void deleteSelection();
   bool canDeleteSelection() const;

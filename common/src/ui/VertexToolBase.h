@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Logger.h"
 #include "NotifierConnection.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -27,6 +28,7 @@
 #include "mdl/BrushVertexCommands.h"
 #include "mdl/Game.h"
 #include "mdl/Hit.h"
+#include "mdl/Map.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron3.h"
 #include "mdl/SelectionChange.h"
@@ -37,10 +39,8 @@
 #include "render/RenderBatch.h"
 #include "render/RenderService.h"
 #include "ui/Lasso.h"
-#include "ui/MapDocument.h"
 #include "ui/Tool.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/result.h"
 #include "kdl/set_temp.h"
@@ -52,7 +52,6 @@
 
 #include <cassert>
 #include <map>
-#include <memory>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -85,7 +84,7 @@ public:
   };
 
 protected:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
 private:
   size_t m_changeCount = 0;
@@ -97,9 +96,9 @@ protected:
   bool m_dragging = false;
 
 protected:
-  explicit VertexToolBase(std::weak_ptr<MapDocument> document)
+  explicit VertexToolBase(mdl::Map& map)
     : Tool{false}
-    , m_document{std::move(document)}
+    , m_map{map}
   {
   }
 
@@ -107,12 +106,11 @@ public:
   ~VertexToolBase() override = default;
 
 public:
-  const mdl::Grid& grid() const { return kdl::mem_lock(m_document)->grid(); }
+  const mdl::Grid& grid() const { return m_map.grid(); }
 
   const std::vector<mdl::BrushNode*>& selectedBrushes() const
   {
-    auto document = kdl::mem_lock(m_document);
-    return document->selection().brushes;
+    return m_map.selection().brushes;
   }
 
 public:
@@ -254,8 +252,7 @@ public: // performing moves
     }
     refreshViews();
 
-    auto document = kdl::mem_lock(m_document);
-    document->startTransaction(actionName(), mdl::TransactionScope::LongRunning);
+    m_map.startTransaction(actionName(), mdl::TransactionScope::LongRunning);
 
     m_dragHandlePosition = getHandlePosition(hits.front());
     m_dragging = true;
@@ -267,16 +264,14 @@ public: // performing moves
 
   virtual void endMove()
   {
-    auto document = kdl::mem_lock(m_document);
-    document->commitTransaction();
+    m_map.commitTransaction();
     m_dragging = false;
     --m_ignoreChangeNotifications;
   }
 
   virtual void cancelMove()
   {
-    auto document = kdl::mem_lock(m_document);
-    document->cancelTransaction();
+    m_map.cancelTransaction();
     m_dragging = false;
     --m_ignoreChangeNotifications;
   }
@@ -302,25 +297,23 @@ public: // csg convex merge
       return;
     }
 
-    auto document = kdl::mem_lock(m_document);
-    auto game = document->game();
+    auto game = m_map.game();
 
     const auto builder = mdl::BrushBuilder{
-      document->world()->mapFormat(),
-      document->worldBounds(),
+      m_map.world()->mapFormat(),
+      m_map.worldBounds(),
       game->config().faceAttribsConfig.defaults};
-    builder.createBrush(polyhedron, document->currentMaterialName())
+    builder.createBrush(polyhedron, m_map.currentMaterialName())
       | kdl::transform([&](auto b) {
-          for (const auto* selectedBrushNode : document->selection().brushes)
+          for (const auto* selectedBrushNode : m_map.selection().brushes)
           {
             b.cloneFaceAttributesFrom(selectedBrushNode->brush());
           }
 
-          auto* newParent = document->parentForNodes(document->selection().nodes);
-          auto transaction = mdl::Transaction{document, "CSG Convex Merge"};
+          auto* newParent = m_map.parentForNodes(m_map.selection().nodes);
+          auto transaction = mdl::Transaction{m_map, "CSG Convex Merge"};
           deselectAll();
-          if (document->addNodes({{newParent, {new mdl::BrushNode{std::move(b)}}}})
-                .empty())
+          if (m_map.addNodes({{newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
           {
             transaction.cancel();
             return;
@@ -328,7 +321,7 @@ public: // csg convex merge
           transaction.commit();
         })
       | kdl::transform_error(
-        [&](auto e) { document->error() << "Could not create brush: " << e.msg; });
+        [&](auto e) { m_map.logger().error() << "Could not create brush: " << e.msg; });
   }
 
   virtual H getHandlePosition(const mdl::Hit& hit) const
@@ -345,7 +338,7 @@ public:
   {
     const auto ignoreChangeNotifications = kdl::inc_temp{m_ignoreChangeNotifications};
 
-    auto transaction = mdl::Transaction{m_document, actionName()};
+    auto transaction = mdl::Transaction{m_map, actionName()};
     move(delta);
     transaction.commit();
   }
@@ -485,25 +478,24 @@ protected: // Tool interface
 private: // Observers and state management
   void connectObservers()
   {
-    auto document = kdl::mem_lock(m_document);
-    m_notifierConnection += document->selectionDidChangeNotifier.connect(
-      this, &VertexToolBase::selectionDidChange);
     m_notifierConnection +=
-      document->nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
+      m_map.selectionDidChangeNotifier.connect(this, &VertexToolBase::selectionDidChange);
     m_notifierConnection +=
-      document->nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
+      m_map.nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
     m_notifierConnection +=
-      document->commandDoNotifier.connect(this, &VertexToolBase::commandDo);
+      m_map.nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
     m_notifierConnection +=
-      document->commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
+      m_map.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
     m_notifierConnection +=
-      document->commandDoFailedNotifier.connect(this, &VertexToolBase::commandDoFailed);
+      m_map.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
     m_notifierConnection +=
-      document->commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
+      m_map.commandDoFailedNotifier.connect(this, &VertexToolBase::commandDoFailed);
     m_notifierConnection +=
-      document->commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
-    m_notifierConnection += document->commandUndoFailedNotifier.connect(
-      this, &VertexToolBase::commandUndoFailed);
+      m_map.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
+    m_notifierConnection +=
+      m_map.commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
+    m_notifierConnection +=
+      m_map.commandUndoFailedNotifier.connect(this, &VertexToolBase::commandUndoFailed);
   }
 
   void commandDo(mdl::Command& command) { commandDoOrUndo(command); }

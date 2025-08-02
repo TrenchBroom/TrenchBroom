@@ -24,6 +24,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "mdl/Map.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialCollection.h"
 #include "mdl/MaterialManager.h"
@@ -60,10 +61,10 @@ MaterialBrowserView::MaterialBrowserView(
   : CellView{contextManager, scrollBar}
   , m_document{std::move(document_)}
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->materialUsageCountsDidChangeNotifier.connect(
+  auto& map = kdl::mem_lock(m_document)->map();
+  m_notifierConnection += map.materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
-  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+  m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
     this, &MaterialBrowserView::resourcesWereProcessed);
 }
 
@@ -211,11 +212,11 @@ void MaterialBrowserView::addMaterialToLayout(
 
 std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto enabledMaterialCollections = document->enabledMaterialCollections();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto enabledMaterialCollections = map.enabledMaterialCollections();
 
   auto result = std::vector<const mdl::MaterialCollection*>{};
-  for (const auto& collection : document->materialManager().collections())
+  for (const auto& collection : map.materialManager().collections())
   {
     if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
     {
@@ -454,13 +455,13 @@ void MaterialBrowserView::doContextMenu(
   {
     auto menu = QMenu{this};
     menu.addAction(tr("Select Faces"), this, [&, material = &cellData(*cell)]() {
-      auto doc = kdl::mem_lock(m_document);
-      doc->selectFacesWithMaterial(material);
+      auto& map = kdl::mem_lock(m_document)->map();
+      map.selectBrushFacesWithMaterial(material);
     });
 
     menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
-      auto doc = kdl::mem_lock(m_document);
-      doc->selectBrushesWithMaterial(material);
+      auto& map = kdl::mem_lock(m_document)->map();
+      map.selectBrushesWithMaterial(material);
     });
 
     menu.exec(event->globalPos());

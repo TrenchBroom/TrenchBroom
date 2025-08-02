@@ -25,10 +25,10 @@
 #include "mdl/Game.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
+#include "mdl/Map.h"
 #include "mdl/MapFacade.h"
 #include "mdl/PushSelection.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
@@ -36,7 +36,6 @@
 
 #include <cassert>
 #include <filesystem>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -78,22 +77,22 @@ std::vector<std::string> removeMissingMods(
 
 IssueQuickFix makeRemoveModsQuickFix()
 {
-  return {"Remove Mod", [](MapFacade& facade, const std::vector<const Issue*>& issues) {
-            const auto pushSelection = PushSelection{facade};
+  return {"Remove Mod", [](Map& map, const std::vector<const Issue*>& issues) {
+            const auto pushSelection = PushSelection{map};
 
             // If nothing is selected, property changes will affect only world.
-            facade.deselectAll();
+            map.deselectAll();
 
-            const auto oldMods = facade.mods();
+            const auto oldMods = map.mods();
             const auto newMods = removeMissingMods(oldMods, issues);
-            facade.setMods(newMods);
+            map.setMods(newMods);
           }};
 }
 } // namespace
 
-MissingModValidator::MissingModValidator(std::weak_ptr<Game> game)
+MissingModValidator::MissingModValidator(const Game& game)
   : Validator{Type, "Missing mod directory"}
-  , m_game{std::move(game)}
+  , m_game{game}
 {
   addQuickFix(makeRemoveModsQuickFix());
 }
@@ -106,13 +105,7 @@ void MissingModValidator::doValidate(
     return;
   }
 
-  if (kdl::mem_expired(m_game))
-  {
-    return;
-  }
-
-  auto game = kdl::mem_lock(m_game);
-  auto mods = game->extractEnabledMods(entityNode.entity());
+  auto mods = m_game.extractEnabledMods(entityNode.entity());
 
   if (mods == m_lastMods)
   {
@@ -121,7 +114,7 @@ void MissingModValidator::doValidate(
 
   const auto additionalSearchPaths =
     kdl::vec_transform(mods, [](const auto& mod) { return std::filesystem::path{mod}; });
-  const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
+  const auto errors = m_game.checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors)
   {

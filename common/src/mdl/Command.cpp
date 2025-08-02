@@ -54,10 +54,10 @@ const std::string& Command::name() const
   return m_name;
 }
 
-std::unique_ptr<CommandResult> Command::performDo(ui::MapDocument& document)
+std::unique_ptr<CommandResult> Command::performDo(Map& map)
 {
   m_state = CommandState::Doing;
-  auto result = doPerformDo(document);
+  auto result = doPerformDo(map);
   m_state = result->success() ? CommandState::Done : CommandState::Default;
   return result;
 }

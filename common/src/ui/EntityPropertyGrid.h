@@ -36,6 +36,7 @@ class QToolButton;
 namespace tb::mdl
 {
 class EntityNode;
+class Map;
 class Node;
 struct SelectionChange;
 } // namespace tb::mdl
@@ -94,8 +95,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void selectionWillChange();
   void selectionDidChange(const mdl::SelectionChange& selectionChange);

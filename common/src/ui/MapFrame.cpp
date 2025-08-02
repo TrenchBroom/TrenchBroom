@@ -45,6 +45,7 @@
 #include "TrenchBroomApp.h"
 #include "io/ExportOptions.h"
 #include "io/PathQt.h"
+#include "mdl/Autosaver.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
@@ -56,6 +57,7 @@
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -65,7 +67,6 @@
 #include "mdl/WorldNode.h"
 #include "ui/ActionBuilder.h"
 #include "ui/Actions.h"
-#include "ui/Autosaver.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/ClipTool.h"
 #include "ui/ColorButton.h"
@@ -93,6 +94,7 @@
 #include "ui/ViewUtils.h"
 #include "upd/Updater.h"
 
+#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
 #include "kdl/string_format.h"
@@ -118,7 +120,7 @@ MapFrame::MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> docu
   : m_frameManager{frameManager}
   , m_document{std::move(document)}
   , m_lastInputTime{std::chrono::system_clock::now()}
-  , m_autosaver{std::make_unique<Autosaver>(m_document)}
+  , m_autosaver{std::make_unique<mdl::Autosaver>(kdl::mem_lock(m_document)->map())}
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
   , m_contextManager{std::make_unique<GLContextManager>()}
@@ -160,6 +162,9 @@ MapFrame::MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> docu
 
 MapFrame::~MapFrame()
 {
+  // Stop the autosave timer
+  m_autosaveTimer->stop();
+
   // Search for a RenderView (QOpenGLWindow subclass) and make it current in order to
   // allow for calling OpenGL methods in destructors.
   auto* renderView = findChild<RenderView*>();
@@ -187,8 +192,7 @@ MapFrame::~MapFrame()
   qDeleteAll(std::rbegin(children), std::rend(children));
 
   // let's trigger a final autosave before releasing the document
-  auto logger = NullLogger{};
-  m_autosaver->triggerAutosave(logger);
+  m_autosaver->triggerAutosave();
 
   m_document->setViewEffectsService(nullptr);
   m_document.reset();
@@ -236,10 +240,10 @@ QAction* MapFrame::findAction(const std::filesystem::path& path)
 
 void MapFrame::updateTitle()
 {
-  setWindowModified(m_document->modified());
-  setWindowTitle(
-    QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
-  setWindowFilePath(io::pathAsQPath(m_document->path()));
+  const auto& map = m_document->map();
+  setWindowModified(map.modified());
+  setWindowTitle(tr("%1[*] - TrenchBroom").arg(io::pathAsQString(map.filename())));
+  setWindowFilePath(io::pathAsQPath(map.path()));
 }
 
 void MapFrame::updateTitleDelayed()
@@ -295,12 +299,12 @@ void MapFrame::updateActionStateDelayed()
 
 void MapFrame::updateUndoRedoActions()
 {
-  const auto document = kdl::mem_lock(m_document);
+  const auto& map = m_document->map();
   if (m_undoAction)
   {
-    if (document->canUndoCommand())
+    if (map.canUndoCommand())
     {
-      const auto text = "Undo " + document->undoCommandName();
+      const auto text = "Undo " + map.undoCommandName();
       m_undoAction->setText(QString::fromStdString(text));
       m_undoAction->setEnabled(true);
     }
@@ -312,9 +316,9 @@ void MapFrame::updateUndoRedoActions()
   }
   if (m_redoAction)
   {
-    if (document->canRedoCommand())
+    if (map.canRedoCommand())
     {
-      const auto text = "Redo " + document->redoCommandName();
+      const auto text = "Redo " + map.redoCommandName();
       m_redoAction->setText(QString::fromStdString(text));
       m_redoAction->setEnabled(true);
     }
@@ -340,10 +344,12 @@ void MapFrame::removeRecentDocumentsMenu()
 
 void MapFrame::updateRecentDocumentsMenu()
 {
-  if (m_document->path().is_absolute())
+  const auto& map = m_document->map();
+  const auto path = map.path();
+  if (path.is_absolute())
   {
     auto& app = TrenchBroomApp::instance();
-    app.updateRecentDocument(m_document->path());
+    app.updateRecentDocument(path);
   }
 }
 
@@ -441,7 +447,8 @@ void MapFrame::createToolBar()
 
 void MapFrame::updateToolBarWidgets()
 {
-  const auto& grid = m_document->grid();
+  const auto& map = m_document->map();
+  const auto& grid = map.grid();
   const auto sizeIndex = grid.size() - mdl::Grid::MinSize;
   m_gridChoice->setCurrentIndex(sizeIndex);
 }
@@ -490,20 +497,20 @@ std::string numberWithSuffix(
   return std::to_string(count) + " " + kdl::str_plural(count, singular, plural);
 }
 
-QString describeSelection(const MapDocument& document)
+QString describeSelection(const mdl::Map& map)
 {
   const auto Arrow = QString(" ") + QString(QChar(0x203A)) + QString(" ");
 
   auto pipeSeparatedSections = QStringList{};
 
-  pipeSeparatedSections << QString::fromStdString(document.game()->config().name)
+  pipeSeparatedSections << QString::fromStdString(map.game()->config().name)
                         << QString::fromStdString(
-                             mdl::formatName(document.world()->mapFormat()))
-                        << QString::fromStdString(document.currentLayer()->name());
+                             mdl::formatName(map.world()->mapFormat()))
+                        << QString::fromStdString(map.currentLayer()->name());
 
   // open groups
   auto groups = std::vector<mdl::GroupNode*>{};
-  for (auto* group = document.currentGroup(); group != nullptr;
+  for (auto* group = map.currentGroup(); group != nullptr;
        group = group->containingGroup())
   {
     groups.push_back(group);
@@ -528,7 +535,7 @@ QString describeSelection(const MapDocument& document)
   // build a vector of strings describing the things that are selected
   auto tokens = std::vector<std::string>{};
 
-  const auto& selection = document.selection();
+  const auto& selection = map.selection();
 
   // selected brushes
   if (selection.hasBrushes())
@@ -555,10 +562,10 @@ QString describeSelection(const MapDocument& document)
   }
 
   // selected brush faces
-  if (document.selection().hasBrushFaces())
+  if (map.selection().hasBrushFaces())
   {
     const auto token =
-      numberWithSuffix(document.selection().brushFaces.size(), "face", "faces");
+      numberWithSuffix(map.selection().brushFaces.size(), "face", "faces");
     tokens.push_back(token);
   }
 
@@ -608,8 +615,8 @@ QString describeSelection(const MapDocument& document)
   size_t hiddenBrushes = 0u;
   size_t hiddenPatches = 0u;
 
-  const auto& editorContext = document.editorContext();
-  document.world()->accept(kdl::overload(
+  const auto& editorContext = map.editorContext();
+  map.world()->accept(kdl::overload(
     [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       worldNode->visitChildren(thisLambda);
     },
@@ -678,7 +685,7 @@ QString describeSelection(const MapDocument& document)
 
 void MapFrame::updateStatusBar()
 {
-  m_statusBarLabel->setText(QString{describeSelection(*m_document)});
+  m_statusBarLabel->setText(QString{describeSelection(m_document->map())});
 }
 
 void MapFrame::updateStatusBarDelayed()
@@ -692,32 +699,31 @@ void MapFrame::connectObservers()
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &MapFrame::preferenceDidChange);
 
+  auto& map = m_document->map();
   m_notifierConnection +=
-    m_document->documentWasClearedNotifier.connect(this, &MapFrame::documentWasCleared);
+    map.mapWasCreatedNotifier.connect(this, &MapFrame::mapWasCreated);
+  m_notifierConnection += map.mapWasLoadedNotifier.connect(this, &MapFrame::mapWasLoaded);
+  m_notifierConnection += map.mapWasSavedNotifier.connect(this, &MapFrame::mapWasSaved);
   m_notifierConnection +=
-    m_document->documentWasNewedNotifier.connect(this, &MapFrame::documentDidChange);
+    map.mapWasClearedNotifier.connect(this, &MapFrame::mapWasCleared);
+  m_notifierConnection += map.modificationStateDidChangeNotifier.connect(
+    this, &MapFrame::mapModificationStateDidChange);
   m_notifierConnection +=
-    m_document->documentWasLoadedNotifier.connect(this, &MapFrame::documentDidChange);
+    map.transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
   m_notifierConnection +=
-    m_document->documentWasSavedNotifier.connect(this, &MapFrame::documentDidChange);
-  m_notifierConnection += m_document->documentModificationStateDidChangeNotifier.connect(
-    this, &MapFrame::documentModificationStateDidChange);
+    map.transactionUndoneNotifier.connect(this, &MapFrame::transactionUndone);
   m_notifierConnection +=
-    m_document->transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
+    map.selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
   m_notifierConnection +=
-    m_document->transactionUndoneNotifier.connect(this, &MapFrame::transactionUndone);
+    map.currentLayerDidChangeNotifier.connect(this, &MapFrame::currentLayerDidChange);
   m_notifierConnection +=
-    m_document->selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
-  m_notifierConnection += m_document->currentLayerDidChangeNotifier.connect(
-    this, &MapFrame::currentLayerDidChange);
+    map.groupWasOpenedNotifier.connect(this, &MapFrame::groupWasOpened);
   m_notifierConnection +=
-    m_document->groupWasOpenedNotifier.connect(this, &MapFrame::groupWasOpened);
+    map.groupWasClosedNotifier.connect(this, &MapFrame::groupWasClosed);
   m_notifierConnection +=
-    m_document->groupWasClosedNotifier.connect(this, &MapFrame::groupWasClosed);
-  m_notifierConnection += m_document->nodeVisibilityDidChangeNotifier.connect(
-    this, &MapFrame::nodeVisibilityDidChange);
-  m_notifierConnection += m_document->editorContextDidChangeNotifier.connect(
-    this, &MapFrame::editorContextDidChange);
+    map.nodeVisibilityDidChangeNotifier.connect(this, &MapFrame::nodeVisibilityDidChange);
+  m_notifierConnection +=
+    map.editorContextDidChangeNotifier.connect(this, &MapFrame::editorContextDidChange);
   m_notifierConnection +=
     m_document->pointFileWasLoadedNotifier.connect(this, &MapFrame::pointFileDidChange);
   m_notifierConnection +=
@@ -727,7 +733,7 @@ void MapFrame::connectObservers()
   m_notifierConnection += m_document->portalFileWasUnloadedNotifier.connect(
     this, &MapFrame::portalFileDidChange);
 
-  auto& grid = m_document->grid();
+  auto& grid = map.grid();
   m_notifierConnection +=
     grid.gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
 
@@ -740,14 +746,14 @@ void MapFrame::connectObservers()
       this, &MapFrame::toolHandleSelectionChanged);
 }
 
-void MapFrame::documentWasCleared(ui::MapDocument*)
+void MapFrame::mapWasCreated(mdl::Map&)
 {
   updateTitle();
   updateActionState();
   updateUndoRedoActions();
 }
 
-void MapFrame::documentDidChange(ui::MapDocument*)
+void MapFrame::mapWasLoaded(mdl::Map&)
 {
   updateTitle();
   updateActionState();
@@ -755,7 +761,22 @@ void MapFrame::documentDidChange(ui::MapDocument*)
   updateRecentDocumentsMenu();
 }
 
-void MapFrame::documentModificationStateDidChange()
+void MapFrame::mapWasSaved(mdl::Map&)
+{
+  updateTitle();
+  updateActionState();
+  updateUndoRedoActions();
+  updateRecentDocumentsMenu();
+}
+
+void MapFrame::mapWasCleared(mdl::Map&)
+{
+  updateTitle();
+  updateActionState();
+  updateUndoRedoActions();
+}
+
+void MapFrame::mapModificationStateDidChange()
 {
   updateTitleDelayed();
 }
@@ -896,19 +917,20 @@ void MapFrame::bindEvents()
 }
 
 Result<bool> MapFrame::newDocument(
-  std::shared_ptr<mdl::Game> game, const mdl::MapFormat mapFormat)
+  std::unique_ptr<mdl::Game> game, const mdl::MapFormat mapFormat)
 {
   if (!confirmOrDiscardChanges() || !closeCompileDialog())
   {
     return false;
   }
 
-  return m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game)
+  auto& map = m_document->map();
+  return map.create(mapFormat, MapDocument::DefaultWorldBounds, std::move(game))
          | kdl::transform([]() { return true; });
 }
 
 Result<bool> MapFrame::openDocument(
-  std::shared_ptr<mdl::Game> game,
+  std::unique_ptr<mdl::Game> game,
   const mdl::MapFormat mapFormat,
   const std::filesystem::path& path)
 {
@@ -917,12 +939,13 @@ Result<bool> MapFrame::openDocument(
     return false;
   }
 
+  auto& map = m_document->map();
   const auto startTime = std::chrono::high_resolution_clock::now();
-  return m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path)
+  return map.load(mapFormat, MapDocument::DefaultWorldBounds, std::move(game), path)
          | kdl::transform([&]() {
              const auto endTime = std::chrono::high_resolution_clock::now();
 
-             logger().info() << "Loaded " << m_document->path() << " in "
+             logger().info() << "Loaded " << path << " in "
                              << std::chrono::duration_cast<std::chrono::milliseconds>(
                                   endTime - startTime)
                                   .count()
@@ -934,15 +957,17 @@ Result<bool> MapFrame::openDocument(
 
 bool MapFrame::saveDocument()
 {
+  auto& map = m_document->map();
+
   try
   {
-    if (m_document->persistent())
+    if (map.persistent())
     {
       const auto startTime = std::chrono::high_resolution_clock::now();
-      m_document->saveDocument();
+      map.save();
       const auto endTime = std::chrono::high_resolution_clock::now();
 
-      logger().info() << "Saved " << m_document->path() << " in "
+      logger().info() << "Saved " << map.path() << " in "
                       << std::chrono::duration_cast<std::chrono::milliseconds>(
                            endTime - startTime)
                            .count()
@@ -956,8 +981,7 @@ bool MapFrame::saveDocument()
     QMessageBox::critical(
       this,
       "",
-      QString::fromStdString(
-        fmt::format("Unknown error while saving {}", m_document->path())),
+      QString::fromStdString(fmt::format("Unknown error while saving {}", map.path())),
       QMessageBox::Ok);
     return false;
   }
@@ -965,9 +989,11 @@ bool MapFrame::saveDocument()
 
 bool MapFrame::saveDocumentAs()
 {
+  auto& map = m_document->map();
+
   try
   {
-    const auto& originalPath = m_document->path();
+    const auto& originalPath = map.path();
     const auto directory = originalPath.parent_path();
     const auto fileName = originalPath.filename();
 
@@ -981,10 +1007,10 @@ bool MapFrame::saveDocumentAs()
     const auto path = io::pathFromQString(newFileName);
 
     const auto startTime = std::chrono::high_resolution_clock::now();
-    m_document->saveDocumentAs(path);
+    map.saveAs(path);
     const auto endTime = std::chrono::high_resolution_clock::now();
 
-    logger().info() << "Saved " << m_document->path() << " in "
+    logger().info() << "Saved " << map.path() << " in "
                     << std::chrono::duration_cast<std::chrono::milliseconds>(
                          endTime - startTime)
                          .count()
@@ -996,7 +1022,7 @@ bool MapFrame::saveDocumentAs()
     QMessageBox::critical(
       this,
       "",
-      QString::fromStdString("Unknown error while saving " + m_document->filename()),
+      QString::fromStdString("Unknown error while saving " + map.filename()),
       QMessageBox::Ok);
     return false;
   }
@@ -1004,14 +1030,12 @@ bool MapFrame::saveDocumentAs()
 
 void MapFrame::revertDocument()
 {
-  if (m_document->persistent() && confirmRevertDocument())
+  auto& map = m_document->map();
+  if (map.persistent() && confirmRevertDocument())
   {
-    const auto mapFormat = m_document->world()->mapFormat();
-    const auto game = m_document->game();
-    const auto path = m_document->path();
-    m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path)
-      | kdl::transform_error(
-        [&](auto e) { m_document->error() << "Failed to rever document: " << e.msg; });
+    map.reload() | kdl::transform_error([&](auto e) {
+      logger().error() << "Failed to revert document: " << e.msg;
+    });
   }
 }
 
@@ -1029,7 +1053,8 @@ bool MapFrame::exportDocumentAsObj()
 
 bool MapFrame::exportDocumentAsMap()
 {
-  const auto& originalPath = m_document->path();
+  const auto& map = m_document->map();
+  const auto& originalPath = map.path();
 
   const auto newFileName = QFileDialog::getSaveFileName(
     this, tr("Export Map file"), io::pathAsQPath(originalPath), "Map files (*.map)");
@@ -1044,9 +1069,10 @@ bool MapFrame::exportDocumentAsMap()
 
 bool MapFrame::exportDocument(const io::ExportOptions& options)
 {
+  const auto& map = m_document->map();
   const auto exportPath = std::visit([](const auto& o) { return o.exportPath; }, options);
 
-  if (exportPath == m_document->path())
+  if (exportPath == map.path())
   {
     QMessageBox::critical(
       this,
@@ -1057,7 +1083,7 @@ bool MapFrame::exportDocument(const io::ExportOptions& options)
     return false;
   }
 
-  return m_document->exportDocumentAs(options) | kdl::transform([&]() {
+  return map.exportAs(options) | kdl::transform([&]() {
            logger().info() << "Exported " << exportPath;
            return true;
          })
@@ -1074,7 +1100,8 @@ bool MapFrame::exportDocument(const io::ExportOptions& options)
  */
 bool MapFrame::confirmOrDiscardChanges()
 {
-  if (!m_document->modified())
+  const auto& map = m_document->map();
+  if (!map.modified())
   {
     return true;
   }
@@ -1082,8 +1109,8 @@ bool MapFrame::confirmOrDiscardChanges()
   const auto result = QMessageBox::question(
     this,
     "TrenchBroom",
-    QString::fromStdString(
-      m_document->filename() + " has been modified. Do you want to save the changes?"),
+    tr("%1 has been modified. Do you want to save the changes?")
+      .arg(io::pathAsQString(map.filename())),
     QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
   if (result == QMessageBox::Yes)
@@ -1098,7 +1125,8 @@ bool MapFrame::confirmOrDiscardChanges()
  */
 bool MapFrame::confirmRevertDocument()
 {
-  if (!m_document->modified())
+  const auto& map = m_document->map();
+  if (!map.modified())
   {
     return true;
   }
@@ -1107,8 +1135,8 @@ bool MapFrame::confirmRevertDocument()
   messageBox.setWindowTitle("TrenchBroom");
   messageBox.setIcon(QMessageBox::Question);
   messageBox.setText(tr("Revert %1 to %2?")
-                       .arg(QString::fromStdString(m_document->filename()))
-                       .arg(io::pathAsQString(m_document->path())));
+                       .arg(io::pathAsQString(map.filename()))
+                       .arg(io::pathAsQString(map.path())));
   messageBox.setInformativeText(
     tr("This will discard all unsaved changes and reload the document from disk."));
 
@@ -1123,9 +1151,9 @@ bool MapFrame::confirmRevertDocument()
 
 void MapFrame::loadPointFile()
 {
-  const auto defaultDir = !m_document->path().empty()
-                            ? io::pathAsQPath(m_document->path().parent_path())
-                            : QString{};
+  const auto& map = m_document->map();
+  const auto path = map.path();
+  const auto defaultDir = !path.empty() ? io::pathAsQPath(path.parent_path()) : QString{};
 
   const auto fileName = QFileDialog::getOpenFileName(
     this,
@@ -1167,9 +1195,9 @@ bool MapFrame::canReloadPointFile() const
 
 void MapFrame::loadPortalFile()
 {
-  const auto defaultDir = !m_document->path().empty()
-                            ? io::pathAsQPath(m_document->path().parent_path())
-                            : QString{};
+  const auto& map = m_document->map();
+  const auto path = map.path();
+  const auto defaultDir = !path.empty() ? io::pathAsQPath(path.parent_path()) : QString{};
 
   const auto fileName = QFileDialog::getOpenFileName(
     this, tr("Load Portal File"), defaultDir, "Portal files (*.prt);;Any files (*.*)");
@@ -1208,12 +1236,12 @@ bool MapFrame::canReloadPortalFile() const
 
 void MapFrame::reloadMaterialCollections()
 {
-  m_document->reloadMaterialCollections();
+  m_document->map().reloadMaterialCollections();
 }
 
 void MapFrame::reloadEntityDefinitions()
 {
-  m_document->reloadEntityDefinitions();
+  m_document->map().reloadEntityDefinitions();
 }
 
 void MapFrame::closeDocument()
@@ -1225,7 +1253,7 @@ void MapFrame::undo()
 {
   if (canUndo() && !m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag())
   {
-    m_document->undoCommand();
+    m_document->map().undoCommand();
   }
 }
 
@@ -1233,45 +1261,47 @@ void MapFrame::redo()
 {
   if (canRedo())
   {
-    m_document->redoCommand();
+    m_document->map().redoCommand();
   }
 }
 
 bool MapFrame::canUndo() const
 {
-  return m_document->canUndoCommand();
+  return m_document->map().canUndoCommand();
 }
 
 bool MapFrame::canRedo() const
 {
-  return m_document->canRedoCommand();
+  return m_document->map().canRedoCommand();
 }
 
 void MapFrame::repeatLastCommands()
 {
-  m_document->repeatCommands();
+  m_document->map().repeatCommands();
 }
 
 void MapFrame::clearRepeatableCommands()
 {
   if (hasRepeatableCommands())
   {
-    m_document->clearRepeatableCommands();
+    m_document->map().clearRepeatableCommands();
   }
 }
 
 bool MapFrame::hasRepeatableCommands() const
 {
-  return m_document->canRepeatCommands();
+  return m_document->map().canRepeatCommands();
 }
 
 void MapFrame::cutSelection()
 {
   if (canCutSelection())
   {
+    auto& map = m_document->map();
+
     copyToClipboard();
-    auto transaction = mdl::Transaction{m_document, "Cut"};
-    m_document->remove();
+    auto transaction = mdl::Transaction{map, "Cut"};
+    map.removeSelectedNodes();
     transaction.commit();
   }
 }
@@ -1286,49 +1316,55 @@ void MapFrame::copySelection()
 
 void MapFrame::copyToClipboard()
 {
-  const auto str =
-    m_document->selection().hasNodes()        ? m_document->serializeSelectedNodes()
-    : m_document->selection().hasBrushFaces() ? m_document->serializeSelectedBrushFaces()
-                                              : std::string{};
+  auto& map = m_document->map();
+  const auto& selection = map.selection();
+  const auto str = selection.hasNodes()        ? map.serializeSelectedNodes()
+                   : selection.hasBrushFaces() ? map.serializeSelectedBrushFaces()
+                                               : std::string{};
 
   auto* clipboard = QApplication::clipboard();
-  clipboard->setText(mapStringToUnicode(m_document->encoding(), str));
+  clipboard->setText(mapStringToUnicode(map.encoding(), str));
 }
 
 bool MapFrame::canCutSelection() const
 {
-  return widgetOrChildHasFocus(m_mapView) && m_document->selection().hasNodes()
+  const auto& map = m_document->map();
+  const auto& selection = map.selection();
+  return widgetOrChildHasFocus(m_mapView) && selection.hasNodes()
          && !m_mapView->anyModalToolActive();
 }
 
 bool MapFrame::canCopySelection() const
 {
+  const auto& map = m_document->map();
+  const auto& selection = map.selection();
   return widgetOrChildHasFocus(m_mapView)
-         && (m_document->selection().hasNodes() || m_document->selection().hasBrushFaces());
+         && (selection.hasNodes() || selection.hasBrushFaces());
 }
 
 void MapFrame::pasteAtCursorPosition()
 {
   if (canPaste())
   {
-    const auto referenceBounds = m_document->referenceBounds();
+    auto& map = m_document->map();
+    const auto referenceBounds = map.referenceBounds();
 
-    auto transaction = mdl::Transaction{m_document, "Paste"};
+    auto transaction = mdl::Transaction{map, "Paste"};
     switch (paste())
     {
     case mdl::PasteType::Node:
-      if (const auto& bounds = m_document->selectionBounds())
+      if (const auto& bounds = map.selectionBounds())
       {
         // The pasted objects must be hidden to prevent the picking done in
         // pasteObjectsDelta from hitting them
         // (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
-        const auto nodes = m_document->selection().nodes;
+        const auto nodes = map.selection().nodes;
 
-        m_document->hide(nodes);
+        map.hideNodes(nodes);
         const auto delta = m_mapView->pasteObjectsDelta(*bounds, referenceBounds);
-        m_document->show(nodes);
-        m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
-        if (!m_document->translate(delta))
+        map.showNodes(nodes);
+        map.selectNodes(nodes); // Hiding deselected the nodes, so reselect them
+        if (!map.translateSelection(delta))
         {
           transaction.cancel();
           break;
@@ -1365,7 +1401,8 @@ mdl::PasteType MapFrame::paste()
     return mdl::PasteType::Failed;
   }
 
-  return m_document->paste(mapStringFromUnicode(m_document->encoding(), qtext));
+  auto& map = m_document->map();
+  return map.paste(mapStringFromUnicode(map.encoding(), qtext));
 }
 
 /**
@@ -1386,15 +1423,17 @@ bool MapFrame::canPaste() const
 
 void MapFrame::duplicateSelection()
 {
-  if (canDuplicateSelectino())
+  if (canDuplicateSelection())
   {
-    m_document->duplicate();
+    auto& map = m_document->map();
+    map.duplicateSelectedNodes();
   }
 }
 
-bool MapFrame::canDuplicateSelectino() const
+bool MapFrame::canDuplicateSelection() const
 {
-  return m_document->selection().hasNodes();
+  const auto& map = m_document->map();
+  return map.selection().hasNodes();
 }
 
 void MapFrame::deleteSelection()
@@ -1419,7 +1458,8 @@ void MapFrame::deleteSelection()
     }
     else if (!m_mapView->anyModalToolActive())
     {
-      m_document->remove();
+      auto& map = m_document->map();
+      map.removeSelectedNodes();
     }
   }
 }
@@ -1449,7 +1489,8 @@ void MapFrame::selectAll()
 {
   if (canSelect())
   {
-    m_document->selectAllNodes();
+    auto& map = m_document->map();
+    map.selectAllNodes();
   }
 }
 
@@ -1457,7 +1498,8 @@ void MapFrame::selectSiblings()
 {
   if (canSelectSiblings())
   {
-    m_document->selectSiblings();
+    auto& map = m_document->map();
+    map.selectSiblingNodes();
   }
 }
 
@@ -1465,7 +1507,8 @@ void MapFrame::selectTouching()
 {
   if (canSelectByBrush())
   {
-    m_document->selectTouching(true);
+    auto& map = m_document->map();
+    map.selectTouchingNodes(true);
   }
 }
 
@@ -1473,7 +1516,8 @@ void MapFrame::selectInside()
 {
   if (canSelectByBrush())
   {
-    m_document->selectInside(true);
+    auto& map = m_document->map();
+    map.selectContainedNodes(true);
   }
 }
 
@@ -1498,7 +1542,7 @@ void MapFrame::selectByLineNumber()
       auto positions = std::vector<size_t>{};
       for (const auto& token : string.split(QRegularExpression{"[, ]"}))
       {
-        bool ok;
+        auto ok = false;
         const auto position = token.toLong(&ok);
         if (ok && position > 0)
         {
@@ -1506,7 +1550,8 @@ void MapFrame::selectByLineNumber()
         }
       }
 
-      m_document->selectNodesWithFilePosition(positions);
+      auto& map = m_document->map();
+      map.selectNodesWithFilePosition(positions);
     }
   }
 }
@@ -1515,7 +1560,8 @@ void MapFrame::selectInverse()
 {
   if (canSelectInverse())
   {
-    m_document->selectInverse();
+    auto& map = m_document->map();
+    map.invertNodeSelection();
   }
 }
 
@@ -1523,7 +1569,8 @@ void MapFrame::selectNone()
 {
   if (canDeselect())
   {
-    m_document->deselectAll();
+    auto& map = m_document->map();
+    map.deselectAll();
   }
 }
 
@@ -1534,33 +1581,39 @@ bool MapFrame::canSelect() const
 
 bool MapFrame::canSelectSiblings() const
 {
-  return canChangeSelection() && m_document->selection().hasNodes();
+  auto& map = m_document->map();
+  return canChangeSelection() && map.selection().hasNodes();
 }
 
 bool MapFrame::canSelectByBrush() const
 {
-  return canChangeSelection() && m_document->selection().hasOnlyBrushes();
+  auto& map = m_document->map();
+  return canChangeSelection() && map.selection().hasOnlyBrushes();
 }
 
 bool MapFrame::canSelectTall() const
 {
-  return canChangeSelection() && m_document->selection().hasOnlyBrushes()
+  auto& map = m_document->map();
+  return canChangeSelection() && map.selection().hasOnlyBrushes()
          && m_mapView->canSelectTall();
 }
 
 bool MapFrame::canDeselect() const
 {
-  return canChangeSelection() && m_document->selection().hasNodes();
+  auto& map = m_document->map();
+  return canChangeSelection() && map.selection().hasNodes();
 }
 
 bool MapFrame::canChangeSelection() const
 {
-  return m_document->editorContext().canChangeSelection();
+  auto& map = m_document->map();
+  return map.editorContext().canChangeSelection();
 }
 
 bool MapFrame::canSelectInverse() const
 {
-  return m_document->editorContext().canChangeSelection();
+  auto& map = m_document->map();
+  return map.editorContext().canChangeSelection();
 }
 
 void MapFrame::groupSelectedObjects()
@@ -1570,49 +1623,53 @@ void MapFrame::groupSelectedObjects()
     const auto name = queryGroupName(this, "Unnamed");
     if (!name.empty())
     {
-      m_document->groupSelection(name);
+      auto& map = m_document->map();
+      map.groupSelectedNodes(name);
     }
   }
 }
 
 bool MapFrame::canGroupSelectedObjects() const
 {
-  return m_document->selection().hasNodes() && !m_mapView->anyModalToolActive();
+  auto& map = m_document->map();
+  return map.selection().hasNodes() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::ungroupSelectedObjects()
 {
   if (canUngroupSelectedObjects())
   {
-    m_document->ungroupSelection();
+    auto& map = m_document->map();
+    map.ungroupSelectedNodes();
   }
 }
 
 bool MapFrame::canUngroupSelectedObjects() const
 {
-  return m_document->selection().hasGroups() && !m_mapView->anyModalToolActive();
+  auto& map = m_document->map();
+  return map.selection().hasGroups() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::renameSelectedGroups()
 {
   if (canRenameSelectedGroups())
   {
-    auto document = kdl::mem_lock(m_document);
-    assert(document->selection().hasOnlyGroups());
+    auto& map = m_document->map();
+    assert(map.selection().hasOnlyGroups());
 
-    const auto suggestion = document->selection().groups.front()->name();
+    const auto suggestion = map.selection().groups.front()->name();
     const auto name = queryGroupName(this, suggestion);
     if (!name.empty())
     {
-      document->renameGroups(name);
+      map.renameSelectedGroups(name);
     }
   }
 }
 
 bool MapFrame::canRenameSelectedGroups() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->selection().hasOnlyGroups();
+  auto& map = m_document->map();
+  return map.selection().hasOnlyGroups();
 }
 
 void MapFrame::replaceMaterial()
@@ -1635,7 +1692,8 @@ void MapFrame::moveSelectedObjects()
   {
     if (const auto offset = parse<double, 3>(str))
     {
-      m_document->translate(*offset);
+      auto& map = m_document->map();
+      map.translateSelection(*offset);
     }
     else
     {
@@ -1646,7 +1704,8 @@ void MapFrame::moveSelectedObjects()
 
 bool MapFrame::canMoveSelectedObjects() const
 {
-  return m_document->selection().hasNodes() && !m_mapView->anyModalToolActive();
+  auto& map = m_document->map();
+  return map.selection().hasNodes() && !m_mapView->anyModalToolActive();
 }
 
 bool MapFrame::anyModalToolActive() const
@@ -1821,16 +1880,18 @@ void MapFrame::csgConvexMerge()
     }
     else
     {
-      m_document->csgConvexMerge();
+      auto& map = m_document->map();
+      map.csgConvexMerge();
     }
   }
 }
 
 bool MapFrame::canDoCsgConvexMerge() const
 {
-  return (m_document->selection().hasBrushFaces()
-          && m_document->selection().brushFaces.size() > 1)
-         || (m_document->selection().hasOnlyBrushes() && m_document->selection().brushes.size() > 1)
+  const auto& map = m_document->map();
+  const auto& selection = map.selection();
+  return (selection.hasBrushFaces() && selection.brushFaces.size() > 1)
+         || (selection.hasOnlyBrushes() && selection.brushes.size() > 1)
          || (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge())
          || (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge())
          || (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge());
@@ -1840,49 +1901,56 @@ void MapFrame::csgSubtract()
 {
   if (canDoCsgSubtract())
   {
-    m_document->csgSubtract();
+    auto& map = m_document->map();
+    map.csgSubtract();
   }
 }
 
 bool MapFrame::canDoCsgSubtract() const
 {
-  return m_document->selection().hasOnlyBrushes()
-         && m_document->selection().brushes.size() >= 1;
+  const auto& map = m_document->map();
+  const auto& selection = map.selection();
+  return selection.hasOnlyBrushes() && !selection.brushes.empty();
 }
 
 void MapFrame::csgHollow()
 {
   if (canDoCsgHollow())
   {
-    m_document->csgHollow();
+    auto& map = m_document->map();
+    map.csgHollow();
   }
 }
 
 bool MapFrame::canDoCsgHollow() const
 {
-  return m_document->selection().hasOnlyBrushes()
-         && m_document->selection().brushes.size() >= 1;
+  const auto& map = m_document->map();
+  const auto& selection = map.selection();
+  return selection.hasOnlyBrushes() && !selection.brushes.empty();
 }
 
 void MapFrame::csgIntersect()
 {
   if (canDoCsgIntersect())
   {
-    m_document->csgIntersect();
+    auto& map = m_document->map();
+    map.csgIntersect();
   }
 }
 
 bool MapFrame::canDoCsgIntersect() const
 {
-  return m_document->selection().hasOnlyBrushes()
-         && m_document->selection().brushes.size() > 1;
+  const auto& map = m_document->map();
+  const auto& selection = map.selection();
+  return selection.hasOnlyBrushes() && selection.brushes.size() > 1;
 }
 
 void MapFrame::snapVerticesToInteger()
 {
   if (canSnapVertices())
   {
-    m_document->snapVertices(1u);
+    auto& map = m_document->map();
+    map.snapVertices(1u);
   }
 }
 
@@ -1890,13 +1958,16 @@ void MapFrame::snapVerticesToGrid()
 {
   if (canSnapVertices())
   {
-    m_document->snapVertices(m_document->grid().actualSize());
+    auto& map = m_document->map();
+    map.snapVertices(map.grid().actualSize());
   }
 }
 
 bool MapFrame::canSnapVertices() const
 {
-  return !m_document->selection().allBrushes().empty();
+  const auto& map = m_document->map();
+  const auto& selection = map.selection();
+  return !selection.allBrushes().empty();
 }
 
 void MapFrame::toggleAlignmentLock()
@@ -1911,43 +1982,50 @@ void MapFrame::toggleUVLock()
 
 void MapFrame::toggleShowGrid()
 {
-  m_document->grid().toggleVisible();
+  auto& map = m_document->map();
+  map.grid().toggleVisible();
 }
 
 void MapFrame::toggleSnapToGrid()
 {
-  m_document->grid().toggleSnap();
+  auto& map = m_document->map();
+  map.grid().toggleSnap();
 }
 
 void MapFrame::incGridSize()
 {
   if (canIncGridSize())
   {
-    m_document->grid().incSize();
+    auto& map = m_document->map();
+    map.grid().incSize();
   }
 }
 
 bool MapFrame::canIncGridSize() const
 {
-  return m_document->grid().size() < mdl::Grid::MaxSize;
+  const auto& map = m_document->map();
+  return map.grid().size() < mdl::Grid::MaxSize;
 }
 
 void MapFrame::decGridSize()
 {
   if (canDecGridSize())
   {
-    m_document->grid().decSize();
+    auto& map = m_document->map();
+    map.grid().decSize();
   }
 }
 
 bool MapFrame::canDecGridSize() const
 {
-  return m_document->grid().size() > mdl::Grid::MinSize;
+  const auto& map = m_document->map();
+  return map.grid().size() > mdl::Grid::MinSize;
 }
 
 void MapFrame::setGridSize(const int size)
 {
-  m_document->grid().setSize(size);
+  auto& map = m_document->map();
+  map.grid().setSize(size);
 }
 
 void MapFrame::moveCameraToNextPoint()
@@ -1994,7 +2072,8 @@ void MapFrame::focusCameraOnSelection()
 
 bool MapFrame::canFocusCamera() const
 {
-  return m_document->selection().hasNodes();
+  auto& map = m_document->map();
+  return map.selection().hasNodes();
 }
 
 void MapFrame::moveCameraToPosition()
@@ -2020,31 +2099,36 @@ void MapFrame::isolateSelection()
 {
   if (canIsolateSelection())
   {
-    m_document->isolate();
+    auto& map = m_document->map();
+    map.isolateSelectedNodes();
   }
 }
 
 bool MapFrame::canIsolateSelection() const
 {
-  return m_document->selection().hasNodes();
+  const auto& map = m_document->map();
+  return map.selection().hasNodes();
 }
 
 void MapFrame::hideSelection()
 {
   if (canHideSelection())
   {
-    m_document->hideSelection();
+    auto& map = m_document->map();
+    map.hideSelectedNodes();
   }
 }
 
 bool MapFrame::canHideSelection() const
 {
-  return m_document->selection().hasNodes();
+  const auto& map = m_document->map();
+  return map.selection().hasNodes();
 }
 
 void MapFrame::showAll()
 {
-  m_document->showAll();
+  auto& map = m_document->map();
+  map.showAllNodes();
 }
 
 void MapFrame::switchToInspectorPage(const InspectorPage page)
@@ -2127,12 +2211,13 @@ void MapFrame::showLaunchEngineDialog()
 namespace
 {
 
-const mdl::Material* materialToReveal(std::shared_ptr<MapDocument> document)
+const mdl::Material* materialToReveal(const mdl::Map& map)
 {
-  const auto* firstMaterial =
-    document->selection().allBrushFaces().front().face().material();
+  const auto& selection = map.selection();
+
+  const auto* firstMaterial = selection.allBrushFaces().front().face().material();
   const auto allFacesHaveIdenticalMaterial = kdl::all_of(
-    document->selection().allBrushFaces(),
+    selection.allBrushFaces(),
     [&](const auto& face) { return face.face().material() == firstMaterial; });
 
   return allFacesHaveIdenticalMaterial ? firstMaterial : nullptr;
@@ -2142,12 +2227,12 @@ const mdl::Material* materialToReveal(std::shared_ptr<MapDocument> document)
 
 bool MapFrame::canRevealMaterial() const
 {
-  return materialToReveal(m_document) != nullptr;
+  return materialToReveal(m_document->map()) != nullptr;
 }
 
 void MapFrame::revealMaterial()
 {
-  if (const auto material = materialToReveal(m_document))
+  if (const auto* material = materialToReveal(m_document->map()))
   {
     revealMaterial(material);
   }
@@ -2161,7 +2246,35 @@ void MapFrame::revealMaterial(const mdl::Material* material)
 
 void MapFrame::debugPrintVertices()
 {
-  m_document->printVertices();
+  const auto& selection = m_document->map().selection();
+  if (selection.hasBrushFaces())
+  {
+    for (const auto& handle : selection.brushFaces)
+    {
+      auto str = std::stringstream{};
+      str.precision(17);
+      for (const auto* vertex : handle.face().vertices())
+      {
+        str << "(" << vertex->position() << ") ";
+      }
+      logger().info() << str.str();
+    }
+  }
+  else if (selection.hasBrushes())
+  {
+    for (const auto* brushNode : selection.brushes)
+    {
+      const auto& brush = brushNode->brush();
+
+      auto str = std::stringstream{};
+      str.precision(17);
+      for (const auto* vertex : brush.vertices())
+      {
+        str << vertex->position() << " ";
+      }
+      logger().info() << str.str();
+    }
+  }
 }
 
 void MapFrame::debugCreateBrush()
@@ -2178,7 +2291,9 @@ void MapFrame::debugCreateBrush()
   {
     auto positions = std::vector<vm::vec3d>{};
     vm::parse_all<double, 3>(str.toStdString(), std::back_inserter(positions));
-    m_document->createBrush(positions);
+
+    auto& map = m_document->map();
+    map.createBrush(positions);
   }
 }
 
@@ -2192,7 +2307,9 @@ void MapFrame::debugCreateCube()
     const auto size = str.toDouble();
     const auto bounds = vm::bbox3d{size / 2.0};
     const auto positions = bounds.vertices() | kdl::to_vector;
-    m_document->createBrush(positions);
+
+    auto& map = m_document->map();
+    map.createBrush(positions);
   }
 }
 
@@ -2212,7 +2329,8 @@ void MapFrame::debugClipBrush()
     vm::parse_all<double, 3>(str.toStdString(), std::back_inserter(points));
     if (points.size() == 3)
     {
-      m_document->clipBrushes(points[0], points[1], points[2]);
+      auto& map = m_document->map();
+      map.clipBrushes(points[0], points[1], points[2]);
     }
   }
 }
@@ -2262,7 +2380,8 @@ void MapFrame::debugCrash()
 
 void MapFrame::debugThrowExceptionDuringCommand()
 {
-  m_document->throwExceptionDuringCommand();
+  auto& map = m_document->map();
+  map.throwExceptionDuringCommand();
 }
 
 void MapFrame::debugSetWindowSize()
@@ -2311,18 +2430,22 @@ MapViewBase* MapFrame::currentMapViewBase()
 
 bool MapFrame::canCompile() const
 {
-  return m_document->persistent();
+  const auto& map = m_document->map();
+  return map.persistent();
 }
 
 bool MapFrame::canLaunch() const
 {
-  return m_document->persistent();
+  const auto& map = m_document->map();
+  return map.persistent();
 }
 
 void MapFrame::dragEnterEvent(QDragEnterEvent* event)
 {
+  const auto& map = m_document->map();
+  const auto game = map.game();
   if (
-    m_document->game()->config().materialConfig.property && event->mimeData()->hasUrls()
+    game->config().materialConfig.property && event->mimeData()->hasUrls()
     && kdl::all_of(event->mimeData()->urls(), [](const auto& url) {
          if (!url.isLocalFile())
          {
@@ -2345,13 +2468,15 @@ void MapFrame::dropEvent(QDropEvent* event)
     return;
   }
 
-  const auto& wadPropertyKey = m_document->game()->config().materialConfig.property;
+  auto& map = m_document->map();
+  const auto game = map.game();
+  const auto& wadPropertyKey = game->config().materialConfig.property;
   if (!wadPropertyKey)
   {
     return;
   }
 
-  const auto* wadPathsStr = m_document->world()->entity().property(*wadPropertyKey);
+  const auto* wadPathsStr = map.world()->entity().property(*wadPropertyKey);
   auto wadPaths = wadPathsStr ? kdl::vec_transform(
                                   kdl::str_split(*wadPathsStr, ";"),
                                   [](const auto& s) { return std::filesystem::path{s}; })
@@ -2360,8 +2485,8 @@ void MapFrame::dropEvent(QDropEvent* event)
   auto pathDialog = ChoosePathTypeDialog{
     window(),
     io::pathFromQString(urls.front().toLocalFile()),
-    document()->path(),
-    document()->game()->gamePath()};
+    map.path(),
+    game->gamePath()};
 
   const auto result = pathDialog.exec();
   if (result != QDialog::Accepted)
@@ -2373,8 +2498,8 @@ void MapFrame::dropEvent(QDropEvent* event)
     return convertToPathType(
       pathDialog.pathType(),
       io::pathFromQString(url.toLocalFile()),
-      document()->path(),
-      document()->game()->gamePath());
+      map.path(),
+      game->gamePath());
   });
 
   const auto newWadPathsStr = kdl::str_join(
@@ -2382,7 +2507,7 @@ void MapFrame::dropEvent(QDropEvent* event)
       kdl::vec_concat(std::move(wadPaths), std::move(wadPathsToAdd)),
       [](const auto& path) { return path.string(); }),
     ";");
-  document()->setProperty(*wadPropertyKey, newWadPathsStr);
+  map.setEntityProperty(*wadPropertyKey, newWadPathsStr);
 
   event->acceptProposedAction();
 }
@@ -2463,14 +2588,14 @@ void MapFrame::triggerAutosave()
     QGuiApplication::mouseButtons() == Qt::NoButton
     && std::chrono::system_clock::now() - m_lastInputTime > 2s)
   {
-    m_autosaver->triggerAutosave(logger());
+    m_autosaver->triggerAutosave();
   }
 }
 
 void MapFrame::triggerProcessResources()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->processResourcesAsync(mdl::ProcessContext{
+  auto& map = m_document->map();
+  map.processResourcesAsync(mdl::ProcessContext{
     true, [&](const auto&, const auto& error) { logger().error() << error; }});
 }
 

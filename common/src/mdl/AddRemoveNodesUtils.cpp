@@ -20,9 +20,9 @@
 #include "AddRemoveNodesUtils.h"
 
 #include "Notifier.h"
+#include "mdl/Map.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
-#include "ui/MapDocument.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/vector_utils.h"
@@ -30,12 +30,11 @@
 namespace tb::mdl
 {
 
-void addNodesAndNotify(
-  const std::map<Node*, std::vector<Node*>>& nodes, ui::MapDocument& document)
+void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
   const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
   auto notifyParents = NotifyBeforeAndAfter{
-    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
 
   auto addedNodes = std::vector<Node*>{};
   for (const auto& [parent, children] : nodes)
@@ -44,19 +43,18 @@ void addNodesAndNotify(
     addedNodes = kdl::vec_concat(std::move(addedNodes), children);
   }
 
-  document.nodesWereAddedNotifier(addedNodes);
+  map.nodesWereAddedNotifier(addedNodes);
 }
 
-void removeNodesAndNotify(
-  const std::map<Node*, std::vector<Node*>>& nodes, ui::MapDocument& document)
+void removeNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
   const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
   auto notifyParents = NotifyBeforeAndAfter{
-    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
 
   const auto allChildren = kdl::vec_flatten(kdl::map_values(nodes));
   auto notifyChildren = NotifyBeforeAndAfter{
-    document.nodesWillBeRemovedNotifier, document.nodesWereRemovedNotifier, allChildren};
+    map.nodesWillBeRemovedNotifier, map.nodesWereRemovedNotifier, allChildren};
 
   for (const auto& [parent, children] : nodes)
   {

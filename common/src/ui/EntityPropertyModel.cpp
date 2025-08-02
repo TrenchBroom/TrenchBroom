@@ -35,6 +35,7 @@
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityNodeIndex.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
@@ -501,8 +502,8 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
 
     MODEL_LOG(
       qDebug() << "EntityPropertyModel::setRows: one row changed: "
-               << mapStringToUnicode(document->encoding(), oldDeletion.key()) << " -> "
-               << mapStringToUnicode(document->encoding(), newAddition.key()));
+               << mapStringToUnicode(map.encoding(), oldDeletion.key()) << " -> "
+               << mapStringToUnicode(map.encoding(), newAddition.key()));
 
     const auto oldIndex = kdl::index_of(m_rows, oldDeletion);
     ensure(oldIndex, "deleted row must be found");
@@ -654,12 +655,12 @@ std::vector<std::string> EntityPropertyModel::propertyKeys(
 
 std::vector<std::string> EntityPropertyModel::getAllPropertyKeys() const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& index = document->world()->entityNodeIndex();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& index = map.world()->entityNodeIndex();
   auto result = kdl::vector_set<std::string>(index.allKeys());
 
   // also add keys from all loaded entity definitions
-  for (const auto& entityDefinition : document->entityDefinitionManager().definitions())
+  for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
   {
     for (const auto& propertyDefinition : entityDefinition.propertyDefinitions)
     {
@@ -675,8 +676,8 @@ std::vector<std::string> EntityPropertyModel::getAllPropertyKeys() const
 std::vector<std::string> EntityPropertyModel::getAllValuesForPropertyKeys(
   const std::vector<std::string>& propertyKeys) const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& index = document->world()->entityNodeIndex();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& index = map.world()->entityNodeIndex();
 
   auto result = std::vector<std::string>();
   auto resultSet = kdl::wrap_set(result);
@@ -697,14 +698,14 @@ std::vector<std::string> EntityPropertyModel::getAllValuesForPropertyKeys(
 
 std::vector<std::string> EntityPropertyModel::getAllClassnames() const
 {
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
 
   // start with currently used classnames
   auto result = getAllValuesForPropertyKeys({mdl::EntityPropertyKeys::Classname});
   auto resultSet = kdl::wrap_set(result);
 
   // add keys from all loaded entity definitions
-  for (const auto& entityDefinition : document->entityDefinitionManager().definitions())
+  for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
   {
     resultSet.insert(entityDefinition.name);
   }
@@ -726,9 +727,8 @@ void EntityPropertyModel::updateFromMapDocument()
 {
   MODEL_LOG(qDebug() << "updateFromMapDocument");
 
-  auto document = kdl::mem_lock(m_document);
-
-  const auto entityNodes = document->selection().allEntities();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto entityNodes = map.selection().allEntities();
   const auto rowsMap = rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
   setRows(rowsMap);
@@ -799,7 +799,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     return QVariant{};
   }
 
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
   const auto& row = m_rows.at(static_cast<size_t>(index.row()));
 
   if (role == Qt::DecorationRole)
@@ -863,11 +863,11 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   {
     if (index.column() == ColumnKey)
     {
-      return QVariant{mapStringToUnicode(document->encoding(), row.key())};
+      return QVariant{mapStringToUnicode(map.encoding(), row.key())};
     }
     else if (index.column() == ColumnValue)
     {
-      return QVariant{mapStringToUnicode(document->encoding(), row.value())};
+      return QVariant{mapStringToUnicode(map.encoding(), row.value())};
     }
   }
 
@@ -900,7 +900,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     {
       if (!row.tooltip().empty())
       {
-        return QVariant{mapStringToUnicode(document->encoding(), row.tooltip())};
+        return QVariant{mapStringToUnicode(map.encoding(), row.tooltip())};
       }
     }
   }
@@ -919,10 +919,10 @@ bool EntityPropertyModel::setData(
     return false;
   }
 
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
 
   const auto rowIndex = static_cast<size_t>(index.row());
-  const auto nodes = document->selection().allEntities();
+  const auto nodes = map.selection().allEntities();
   if (nodes.empty())
   {
     return false;
@@ -933,10 +933,10 @@ bool EntityPropertyModel::setData(
     // rename key
     MODEL_LOG(
       qDebug() << "tried to rename "
-               << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to "
+               << mapStringToUnicode(map.encoding(), propertyRow.key()) << " to "
                << value.toString());
 
-    const auto newName = mapStringFromUnicode(document->encoding(), value.toString());
+    const auto newName = mapStringFromUnicode(map.encoding(), value.toString());
     if (renameProperty(rowIndex, newName, nodes))
     {
       return true;
@@ -945,12 +945,11 @@ bool EntityPropertyModel::setData(
   else if (index.column() == ColumnValue && role == Qt::EditRole)
   {
     MODEL_LOG(
-      qDebug() << "tried to set "
-               << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to "
-               << value.toString());
+      qDebug() << "tried to set " << mapStringToUnicode(map.encoding(), propertyRow.key())
+               << " to " << value.toString());
 
     if (updateProperty(
-          rowIndex, mapStringFromUnicode(document->encoding(), value.toString()), nodes))
+          rowIndex, mapStringFromUnicode(map.encoding(), value.toString()), nodes))
     {
       return true;
     }
@@ -961,7 +960,7 @@ bool EntityPropertyModel::setData(
     {
       MODEL_LOG(
         qDebug() << "tried to set "
-                 << mapStringToUnicode(document->encoding(), propertyRow.key())
+                 << mapStringToUnicode(map.encoding(), propertyRow.key())
                  << " to protected");
       setProtectedProperty(rowIndex, true);
     }
@@ -969,7 +968,7 @@ bool EntityPropertyModel::setData(
     {
       MODEL_LOG(
         qDebug() << "tried to set "
-                 << mapStringToUnicode(document->encoding(), propertyRow.key())
+                 << mapStringToUnicode(map.encoding(), propertyRow.key())
                  << " to non protected");
       setProtectedProperty(rowIndex, false);
     }
@@ -1040,7 +1039,7 @@ bool EntityPropertyModel::renameProperty(
 {
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   const auto& row = m_rows.at(rowIndex);
   const auto& oldKey = row.key();
 
@@ -1069,7 +1068,7 @@ bool EntityPropertyModel::renameProperty(
     msgBox.setWindowTitle(tr("Error"));
     msgBox.setText(
       tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
-        .arg(mapStringToUnicode(document->encoding(), newKey)));
+        .arg(mapStringToUnicode(map.encoding(), newKey)));
     msgBox.setIcon(QMessageBox::Critical);
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     if (msgBox.exec() == QMessageBox::No)
@@ -1078,7 +1077,7 @@ bool EntityPropertyModel::renameProperty(
     }
   }
 
-  return document->renameProperty(oldKey, newKey);
+  return map.renameEntityProperty(oldKey, newKey);
 }
 
 bool EntityPropertyModel::updateProperty(
@@ -1114,8 +1113,8 @@ bool EntityPropertyModel::updateProperty(
     return true;
   }
 
-  auto document = kdl::mem_lock(m_document);
-  return document->setProperty(key, newValue);
+  auto& map = kdl::mem_lock(m_document)->map();
+  return map.setEntityProperty(key, newValue);
 }
 
 bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool newValue)
@@ -1123,8 +1122,8 @@ bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
   const auto& key = m_rows.at(rowIndex).key();
-  auto document = kdl::mem_lock(m_document);
-  return document->setProtectedProperty(key, newValue);
+  auto& map = kdl::mem_lock(m_document)->map();
+  return map.setProtectedEntityProperty(key, newValue);
 }
 
 bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const

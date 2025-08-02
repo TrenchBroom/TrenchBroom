@@ -31,6 +31,7 @@
 #include "ui/BorderLine.h"
 #include "ui/CompilationTaskListBox.h"
 #include "ui/CompilationVariables.h"
+#include "ui/MapDocument.h"
 #include "ui/MultiCompletionLineEdit.h"
 #include "ui/QtUtils.h"
 #include "ui/VariableStoreModel.h"
@@ -71,7 +72,7 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
   m_nameTxt = new QLineEdit{};
   m_workDirTxt = new MultiCompletionLineEdit{};
 
-  const auto variables = CompilationWorkDirVariables{kdl::mem_lock(m_document)};
+  const auto variables = CompilationWorkDirVariables{kdl::mem_lock(m_document)->map()};
   auto* completer = new QCompleter{new VariableStoreModel{variables}};
   completer->setCaseSensitivity(Qt::CaseInsensitive);
 

@@ -32,8 +32,9 @@ class QAbstractButton;
 
 namespace tb::mdl
 {
+class Map;
 class Node;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -75,7 +76,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewedOrLoaded(MapDocument*);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void materialCollectionsDidChange();
   void modsDidChange();

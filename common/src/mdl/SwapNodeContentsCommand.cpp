@@ -19,10 +19,11 @@
 
 #include "SwapNodeContentsCommand.h"
 
+#include "Notifier.h"
 #include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
-#include "ui/MapDocument.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
@@ -69,7 +70,7 @@ auto notifySpecialWorldProperties(
 }
 
 void doSwapNodeContents(
-  std::vector<std::pair<Node*, NodeContents>>& nodesToSwap, ui::MapDocument& document)
+  std::vector<std::pair<Node*, NodeContents>>& nodesToSwap, Map& map)
 {
   const auto nodes = nodesToSwap
                      | std::views::transform([](const auto& pair) { return pair.first; })
@@ -77,25 +78,25 @@ void doSwapNodeContents(
   const auto parents = collectAncestors(nodes);
   const auto descendants = collectDescendants(nodes);
 
-  auto notifyNodes = NotifyBeforeAndAfter{
-    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, nodes};
+  auto notifyNodes =
+    NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
   auto notifyParents = NotifyBeforeAndAfter{
-    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
   auto notifyDescendants = NotifyBeforeAndAfter{
-    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, descendants};
+    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, descendants};
 
   const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
-    notifySpecialWorldProperties(*document.game(), nodesToSwap);
+    notifySpecialWorldProperties(*map.game(), nodesToSwap);
   auto notifyWads = NotifyBeforeAndAfter{
     notifyWadsChange,
-    document.materialCollectionsWillChangeNotifier,
-    document.materialCollectionsDidChangeNotifier};
+    map.materialCollectionsWillChangeNotifier,
+    map.materialCollectionsDidChangeNotifier};
   auto notifyEntityDefinitions = NotifyBeforeAndAfter{
     notifyEntityDefinitionsChange,
-    document.entityDefinitionsWillChangeNotifier,
-    document.entityDefinitionsDidChangeNotifier};
+    map.entityDefinitionsWillChangeNotifier,
+    map.entityDefinitionsDidChangeNotifier};
   auto notifyMods = NotifyBeforeAndAfter{
-    notifyModsChange, document.modsWillChangeNotifier, document.modsDidChangeNotifier};
+    notifyModsChange, map.modsWillChangeNotifier, map.modsDidChangeNotifier};
 
   for (auto& pair : nodesToSwap)
   {
@@ -136,17 +137,15 @@ SwapNodeContentsCommand::SwapNodeContentsCommand(
 
 SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;
 
-std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(Map& map)
 {
-  doSwapNodeContents(m_nodes, document);
+  doSwapNodeContents(m_nodes, map);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(Map& map)
 {
-  doSwapNodeContents(m_nodes, document);
+  doSwapNodeContents(m_nodes, map);
   return std::make_unique<CommandResult>(true);
 }
 

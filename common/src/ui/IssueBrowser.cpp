@@ -25,6 +25,7 @@
 #include <QVBoxLayout>
 
 #include "mdl/Issue.h"
+#include "mdl/Map.h"
 #include "mdl/Validator.h"
 #include "mdl/WorldNode.h"
 #include "ui/FlagsPopupEditor.h"
@@ -76,30 +77,34 @@ QWidget* IssueBrowser::createTabBarPage(QWidget* parent)
 
 void IssueBrowser::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   m_notifierConnection +=
-    document->documentWasSavedNotifier.connect(this, &IssueBrowser::documentWasSaved);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &IssueBrowser::documentWasNewedOrLoaded);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &IssueBrowser::documentWasNewedOrLoaded);
+    map.mapWasCreatedNotifier.connect(this, &IssueBrowser::mapWasCreated);
   m_notifierConnection +=
-    document->nodesWereAddedNotifier.connect(this, &IssueBrowser::nodesWereAdded);
+    map.mapWasLoadedNotifier.connect(this, &IssueBrowser::mapWasLoaded);
   m_notifierConnection +=
-    document->nodesWereRemovedNotifier.connect(this, &IssueBrowser::nodesWereRemoved);
+    map.mapWasSavedNotifier.connect(this, &IssueBrowser::mapWasSaved);
   m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &IssueBrowser::nodesDidChange);
-  m_notifierConnection += document->brushFacesDidChangeNotifier.connect(
-    this, &IssueBrowser::brushFacesDidChange);
+    map.nodesWereAddedNotifier.connect(this, &IssueBrowser::nodesWereAdded);
+  m_notifierConnection +=
+    map.nodesWereRemovedNotifier.connect(this, &IssueBrowser::nodesWereRemoved);
+  m_notifierConnection +=
+    map.nodesDidChangeNotifier.connect(this, &IssueBrowser::nodesDidChange);
+  m_notifierConnection +=
+    map.brushFacesDidChangeNotifier.connect(this, &IssueBrowser::brushFacesDidChange);
 }
 
-void IssueBrowser::documentWasNewedOrLoaded(MapDocument*)
+void IssueBrowser::mapWasCreated(mdl::Map&)
 {
-  updateFilterFlags();
-  m_view->reload();
+  reload();
 }
 
-void IssueBrowser::documentWasSaved(MapDocument*)
+void IssueBrowser::mapWasLoaded(mdl::Map&)
+{
+  reload();
+}
+
+void IssueBrowser::mapWasSaved(mdl::Map&)
 {
   m_view->update();
 }
@@ -129,10 +134,16 @@ void IssueBrowser::issueIgnoreChanged(mdl::Issue*)
   m_view->update();
 }
 
+void IssueBrowser::reload()
+{
+  updateFilterFlags();
+  m_view->reload();
+}
+
 void IssueBrowser::updateFilterFlags()
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto* world = document->world();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto* world = map.world();
   const auto validators = world->registeredValidators();
 
   auto flags = QList<int>{};

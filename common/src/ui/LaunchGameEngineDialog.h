@@ -36,6 +36,7 @@ struct GameEngineProfile;
 namespace tb::ui
 {
 class GameEngineProfileListBox;
+class MapDocument;
 class MultiCompletionLineEdit;
 
 /**

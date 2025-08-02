@@ -30,8 +30,10 @@ class QStackedLayout;
 
 namespace tb::mdl
 {
+class Map;
+
 struct SelectionChange;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -47,12 +49,11 @@ class ShearTool;
 class VertexTool;
 class EdgeTool;
 class FaceTool;
-class MapDocument;
 
 class MapViewToolBox : public ToolBox
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
   std::unique_ptr<ClipTool> m_clipTool;
   std::unique_ptr<AssembleBrushTool> m_assembleBrushTool;
@@ -70,7 +71,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  MapViewToolBox(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl);
+  MapViewToolBox(mdl::Map& map, QStackedLayout* bookCtrl);
   ~MapViewToolBox() override;
 
 public: // tools
@@ -133,7 +134,8 @@ private: // notification
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
-  void documentWasNewedOrLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void updateToolPage();

@@ -37,7 +37,9 @@ class QWidget;
 namespace tb::mdl
 {
 class BrushFaceHandle;
+class Map;
 class Node;
+
 struct SelectionChange;
 } // namespace tb::mdl
 
@@ -92,7 +94,7 @@ private:
   void connectObservers();
 
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void documentWasCleared(MapDocument* document);
+  void mapWasCleared(mdl::Map& map);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
   void gridDidChange();

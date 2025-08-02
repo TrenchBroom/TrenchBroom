@@ -24,6 +24,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
 #include "ui/MapDocument.h"
 
@@ -46,20 +47,19 @@ static vm::vec3f getLinkAnchorPosition(const mdl::GroupNode& groupNode)
 
 std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
 {
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
   auto links = std::vector<LineVertex>{};
 
-  const auto selectedGroupNodes = document->selection().groups;
+  const auto selectedGroupNodes = map.selection().groups;
 
-  const auto& editorContext = document->editorContext();
+  const auto& editorContext = map.editorContext();
   const auto* groupNode = selectedGroupNodes.size() == 1 ? selectedGroupNodes.front()
                                                          : editorContext.currentGroup();
 
   if (groupNode)
   {
     const auto& linkId = groupNode->linkId();
-    const auto linkedGroupNodes =
-      mdl::collectGroupsWithLinkId({document->world()}, linkId);
+    const auto linkedGroupNodes = mdl::collectGroupsWithLinkId({map.world()}, linkId);
 
     const auto linkColor = pref(Preferences::LinkedGroupColor);
     const auto sourcePosition = getLinkAnchorPosition(*groupNode);
