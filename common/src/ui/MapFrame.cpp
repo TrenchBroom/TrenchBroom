@@ -2161,7 +2161,35 @@ void MapFrame::revealMaterial(const mdl::Material* material)
 
 void MapFrame::debugPrintVertices()
 {
-  m_document->printVertices();
+  const auto& selection = m_document->map().selection();
+  if (selection.hasBrushFaces())
+  {
+    for (const auto& handle : selection.brushFaces)
+    {
+      auto str = std::stringstream{};
+      str.precision(17);
+      for (const auto* vertex : handle.face().vertices())
+      {
+        str << "(" << vertex->position() << ") ";
+      }
+      info() << str.str();
+    }
+  }
+  else if (selection.hasBrushes())
+  {
+    for (const auto* brushNode : selection.brushes)
+    {
+      const auto& brush = brushNode->brush();
+
+      auto str = std::stringstream{};
+      str.precision(17);
+      for (const auto* vertex : brush.vertices())
+      {
+        str << vertex->position() << " ";
+      }
+      info() << str.str();
+    }
+  }
 }
 
 void MapFrame::debugCreateBrush()

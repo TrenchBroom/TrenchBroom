@@ -153,6 +153,26 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/LinkTargetValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/LongPropertyKeyValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/LongPropertyValueValidator.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Assets.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Brushes.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Commands.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_CopyPaste.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Entities.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Geometry.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Groups.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Layers.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_NodeLocking.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Nodes.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_NodeVisibility.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Observers.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Persistence.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Picking.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Resources.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Selection.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Tags.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_Validation.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_World.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapFacade.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapFormat.cpp
         ${COMMON_SOURCE_DIR}/mdl/Material.cpp
@@ -587,6 +607,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/LoggerCache.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
+        ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
         ${COMMON_SOURCE_DIR}/mdl/AssetReference.h
         ${COMMON_SOURCE_DIR}/mdl/AssetUtils.h
         ${COMMON_SOURCE_DIR}/mdl/BezierPatch.h
@@ -661,6 +682,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/LockState.h
         ${COMMON_SOURCE_DIR}/mdl/LongPropertyKeyValidator.h
         ${COMMON_SOURCE_DIR}/mdl/LongPropertyValueValidator.h
+        ${COMMON_SOURCE_DIR}/mdl/Map.h
         ${COMMON_SOURCE_DIR}/mdl/MapFacade.h
         ${COMMON_SOURCE_DIR}/mdl/MapFormat.h
         ${COMMON_SOURCE_DIR}/mdl/Material.h

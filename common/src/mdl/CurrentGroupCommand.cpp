@@ -20,25 +20,25 @@
 #include "CurrentGroupCommand.h"
 
 #include "mdl/EditorContext.h"
-#include "ui/MapDocument.h"
+#include "mdl/Map.h"
 
 namespace tb::mdl
 {
 namespace
 {
 
-void doPushGroup(GroupNode& groupNode, ui::MapDocument& document)
+void doPushGroup(GroupNode& groupNode, Map& map)
 {
-  document.editorContext().pushGroup(groupNode);
-  document.groupWasOpenedNotifier(groupNode);
+  map.editorContext().pushGroup(groupNode);
+  map.groupWasOpenedNotifier(groupNode);
 }
 
-GroupNode& doPopGroup(ui::MapDocument& document)
+GroupNode& doPopGroup(Map& map)
 {
-  auto& editorContext = document.editorContext();
+  auto& editorContext = map.editorContext();
   auto& previousGroup = *editorContext.currentGroup();
   editorContext.popGroup();
-  document.groupWasClosedNotifier(previousGroup);
+  map.groupWasClosedNotifier(previousGroup);
   return previousGroup;
 }
 
@@ -60,24 +60,23 @@ CurrentGroupCommand::CurrentGroupCommand(GroupNode* group)
 {
 }
 
-std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(ui::MapDocument& document)
+std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(Map& map)
 {
   if (m_group)
   {
-    doPushGroup(*m_group, document);
+    doPushGroup(*m_group, map);
     m_group = nullptr;
   }
   else
   {
-    m_group = &doPopGroup(document);
+    m_group = &doPopGroup(map);
   }
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(Map& map)
 {
-  return doPerformDo(document);
+  return doPerformDo(map);
 }
 
 } // namespace tb::mdl

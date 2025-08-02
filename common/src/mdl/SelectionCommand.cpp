@@ -20,15 +20,16 @@
 #include "SelectionCommand.h"
 
 #include "Ensure.h"
+#include "Logger.h"
 #include "Macros.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushFaceReference.h"
 #include "mdl/EditorContext.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
-#include "ui/MapDocument.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -42,9 +43,9 @@ namespace tb::mdl
 namespace
 {
 
-void doDeselectNodes(const std::vector<Node*>& nodes, ui::MapDocument& document)
+void doDeselectNodes(const std::vector<Node*>& nodes, Map& map)
 {
-  document.selectionWillChangeNotifier();
+  map.selectionWillChangeNotifier();
 
   auto deselected = std::vector<Node*>{};
   deselected.reserve(nodes.size());
@@ -60,16 +61,15 @@ void doDeselectNodes(const std::vector<Node*>& nodes, ui::MapDocument& document)
 
   auto selectionChange = SelectionChange{};
   selectionChange.deselectedNodes = deselected;
-  document.selectionDidChangeNotifier(selectionChange);
+  map.selectionDidChangeNotifier(selectionChange);
 }
 
-void doDeselectBrushFaces(
-  const std::vector<BrushFaceHandle>& faces, ui::MapDocument& document)
+void doDeselectBrushFaces(const std::vector<BrushFaceHandle>& faces, Map& map)
 {
-  document.selectionWillChangeNotifier();
+  map.selectionWillChangeNotifier();
 
   const auto implicitlyLockedGroups = kdl::vec_sort(
-    collectGroups({document.world()}) | std::views::filter([](const auto* groupNode) {
+    collectGroups({map.world()}) | std::views::filter([](const auto* groupNode) {
       return groupNode->lockedByOtherSelection();
     })
     | kdl::to_vector);
@@ -90,49 +90,48 @@ void doDeselectBrushFaces(
 
   auto selectionChange = SelectionChange{};
   selectionChange.deselectedBrushFaces = deselected;
-  document.selectionDidChangeNotifier(selectionChange);
+  map.selectionDidChangeNotifier(selectionChange);
 
   // Selection change is done. Next, update implicit locking of linked groups.
   // The strategy is to figure out what needs to be locked given selection().brushFaces,
   // and then un-implicitly-lock all other linked groups.
-  const auto groupsToLock =
-    kdl::vec_sort(faceSelectionWithLinkedGroupConstraints(
-                    *document.world(), document.selection().brushFaces)
-                    .groupsToLock);
+  const auto groupsToLock = kdl::vec_sort(
+    faceSelectionWithLinkedGroupConstraints(*map.world(), map.selection().brushFaces)
+      .groupsToLock);
   for (auto* node : groupsToLock)
   {
     node->setLockedByOtherSelection(true);
   }
-  document.nodeLockingDidChangeNotifier(kdl::vec_static_cast<Node*>(groupsToLock));
+  map.nodeLockingDidChangeNotifier(kdl::vec_static_cast<Node*>(groupsToLock));
 
   const auto groupsToUnlock = kdl::set_difference(implicitlyLockedGroups, groupsToLock);
   for (auto* node : groupsToUnlock)
   {
     node->setLockedByOtherSelection(false);
   }
-  document.nodeLockingDidChangeNotifier(kdl::vec_static_cast<Node*>(groupsToUnlock));
+  map.nodeLockingDidChangeNotifier(kdl::vec_static_cast<Node*>(groupsToUnlock));
 }
 
-void doDeselectAll(ui::MapDocument& document)
+void doDeselectAll(Map& map)
 {
-  if (document.selection().hasNodes())
+  if (map.selection().hasNodes())
   {
-    doDeselectNodes(document.selection().nodes, document);
+    doDeselectNodes(map.selection().nodes, map);
   }
-  if (document.selection().hasBrushFaces())
+  if (map.selection().hasBrushFaces())
   {
-    doDeselectBrushFaces(document.selection().brushFaces, document);
+    doDeselectBrushFaces(map.selection().brushFaces, map);
   }
 }
 
-void doSelectNodes(const std::vector<Node*>& nodes, ui::MapDocument& document)
+void doSelectNodes(const std::vector<Node*>& nodes, Map& map)
 {
-  document.selectionWillChangeNotifier();
+  map.selectionWillChangeNotifier();
 
   auto selected = std::vector<Node*>{};
   selected.reserve(nodes.size());
 
-  const auto& worldNode = *document.world();
+  const auto& worldNode = *map.world();
   for (auto* initialNode : nodes)
   {
     ensure(
@@ -151,28 +150,25 @@ void doSelectNodes(const std::vector<Node*>& nodes, ui::MapDocument& document)
 
   auto selectionChange = SelectionChange{};
   selectionChange.selectedNodes = selected;
-  document.selectionDidChangeNotifier(selectionChange);
+  map.selectionDidChangeNotifier(selectionChange);
 }
 
-void doSelectBrushFaces(
-  const std::vector<BrushFaceHandle>& faces, ui::MapDocument& document)
+void doSelectBrushFaces(const std::vector<BrushFaceHandle>& faces, Map& map)
 {
-  document.selectionWillChangeNotifier();
+  map.selectionWillChangeNotifier();
 
-  const auto constrained =
-    faceSelectionWithLinkedGroupConstraints(*document.world(), faces);
+  const auto constrained = faceSelectionWithLinkedGroupConstraints(*map.world(), faces);
 
   for (auto* node : constrained.groupsToLock)
   {
     node->setLockedByOtherSelection(true);
   }
-  document.nodeLockingDidChangeNotifier(
-    kdl::vec_static_cast<Node*>(constrained.groupsToLock));
+  map.nodeLockingDidChangeNotifier(kdl::vec_static_cast<Node*>(constrained.groupsToLock));
 
   auto selected = std::vector<BrushFaceHandle>{};
   selected.reserve(constrained.facesToSelect.size());
 
-  auto& editorContext = document.editorContext();
+  auto& editorContext = map.editorContext();
   for (const auto& handle : constrained.facesToSelect)
   {
     auto* node = handle.node();
@@ -186,38 +182,38 @@ void doSelectBrushFaces(
 
   auto selectionChange = SelectionChange{};
   selectionChange.selectedBrushFaces = selected;
-  document.selectionDidChangeNotifier(selectionChange);
+  map.selectionDidChangeNotifier(selectionChange);
 }
 
-void doSelectAllNodes(ui::MapDocument& document)
+void doSelectAllNodes(Map& map)
 {
-  doDeselectAll(document);
+  doDeselectAll(map);
 
-  auto* target = document.currentGroupOrWorld();
+  auto* target = map.currentGroupOrWorld();
   const auto nodesToSelect =
-    collectSelectableNodes(target->children(), document.editorContext());
+    collectSelectableNodes(target->children(), map.editorContext());
 
-  doSelectNodes(nodesToSelect, document);
+  doSelectNodes(nodesToSelect, map);
 }
 
-void doSelectAllBrushFaces(ui::MapDocument& document)
+void doSelectAllBrushFaces(Map& map)
 {
-  doDeselectAll(document);
+  doDeselectAll(map);
 
-  auto* target = document.currentGroupOrWorld();
+  auto* target = map.currentGroupOrWorld();
   auto facesToSelect =
-    collectSelectableBrushFaces(std::vector<Node*>{target}, document.editorContext());
+    collectSelectableBrushFaces(std::vector<Node*>{target}, map.editorContext());
 
-  doSelectBrushFaces(facesToSelect, document);
+  doSelectBrushFaces(facesToSelect, map);
 }
 
-void doConvertToBrushFaceSelection(ui::MapDocument& document)
+void doConvertToBrushFaceSelection(Map& map)
 {
   const auto facesToSelect =
-    collectSelectableBrushFaces(document.selection().nodes, document.editorContext());
+    collectSelectableBrushFaces(map.selection().nodes, map.editorContext());
 
-  doDeselectAll(document);
-  doSelectBrushFaces(facesToSelect, document);
+  doDeselectAll(map);
+  doSelectBrushFaces(facesToSelect, map);
 }
 
 } // namespace
@@ -333,69 +329,68 @@ std::string SelectionCommand::makeName(
   return result.str();
 }
 
-std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(ui::MapDocument& document)
+std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(Map& map)
 {
-  m_previouslySelectedNodes = document.selection().nodes;
-  m_previouslySelectedFaceRefs = createRefs(document.selection().brushFaces);
+  m_previouslySelectedNodes = map.selection().nodes;
+  m_previouslySelectedFaceRefs = createRefs(map.selection().brushFaces);
 
   return std::make_unique<CommandResult>(
-    doSelect(document)
-    | kdl::transform_error([&](const auto& e) { document.error() << e.msg; })
+    doSelect(map)
+    | kdl::transform_error([&](const auto& e) { map.logger().error() << e.msg; })
     | kdl::is_success());
 }
 
-std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(ui::MapDocument& document)
+std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(Map& map)
 {
-  doDeselectAll(document);
+  doDeselectAll(map);
 
   if (!m_previouslySelectedNodes.empty())
   {
-    doSelectNodes(m_previouslySelectedNodes, document);
+    doSelectNodes(m_previouslySelectedNodes, map);
   }
 
   if (!m_previouslySelectedFaceRefs.empty())
   {
     return std::make_unique<CommandResult>(
       resolveAllRefs(m_previouslySelectedFaceRefs)
-      | kdl::transform([&](const auto& faceHandles) {
-          return doSelectBrushFaces(faceHandles, document);
-        })
-      | kdl::transform_error([&](const auto& e) { document.error() << e.msg; })
+      | kdl::transform(
+        [&](const auto& faceHandles) { return doSelectBrushFaces(faceHandles, map); })
+      | kdl::transform_error([&](const auto& e) { map.logger().error() << e.msg; })
       | kdl::is_success());
   }
 
   return std::make_unique<CommandResult>(true);
 }
 
-Result<void> SelectionCommand::doSelect(ui::MapDocument& document) const
+Result<void> SelectionCommand::doSelect(Map& map) const
 {
   switch (m_action)
   {
   case Action::SelectNodes:
-    doSelectNodes(m_nodes, document);
+    doSelectNodes(m_nodes, map);
     return Result<void>{};
   case Action::SelectFaces:
     return resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
-             return doSelectBrushFaces(faceHandles, document);
+             return doSelectBrushFaces(faceHandles, map);
            });
   case Action::SelectAllNodes:
-    doSelectAllNodes(document);
+    doSelectAllNodes(map);
     return Result<void>{};
   case Action::SelectAllFaces:
-    doSelectAllBrushFaces(document);
+    doSelectAllBrushFaces(map);
     return Result<void>{};
   case Action::ConvertToFaces:
-    doConvertToBrushFaceSelection(document);
+    doConvertToBrushFaceSelection(map);
     return Result<void>{};
   case Action::DeselectNodes:
-    doDeselectNodes(m_nodes, document);
+    doDeselectNodes(m_nodes, map);
     return Result<void>{};
   case Action::DeselectFaces:
     return resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
-             return doDeselectBrushFaces(faceHandles, document);
+             return doDeselectBrushFaces(faceHandles, map);
            });
   case Action::DeselectAll:
-    doDeselectAll(document);
+    doDeselectAll(map);
     return Result<void>{};
     switchDefault();
   }

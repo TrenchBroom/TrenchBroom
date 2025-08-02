@@ -34,6 +34,7 @@
 
 #include "Macros.h"
 #include "mdl/EntityNodeBase.h" // IWYU pragma: keep
+#include "mdl/Map.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
 #include "ui/BorderLine.h"
@@ -286,15 +287,18 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
   auto* setDefaultPropertiesMenu = new QMenu{this};
   setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [&]() {
     kdl::mem_lock(m_document)
-      ->setDefaultProperties(mdl::SetDefaultPropertyMode::SetExisting);
+      ->map()
+      .setDefaultProperties(mdl::SetDefaultPropertyMode::SetExisting);
   });
   setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [&]() {
     kdl::mem_lock(m_document)
-      ->setDefaultProperties(mdl::SetDefaultPropertyMode::SetMissing);
+      ->map()
+      .setDefaultProperties(mdl::SetDefaultPropertyMode::SetMissing);
   });
   setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
     kdl::mem_lock(m_document)
-      ->setDefaultProperties(mdl::SetDefaultPropertyMode::SetMissing);
+      ->map()
+      .setDefaultProperties(mdl::SetDefaultPropertyMode::SetMissing);
   });
 
   m_setDefaultPropertiesButton =
@@ -383,25 +387,25 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
 
 void EntityPropertyGrid::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &EntityPropertyGrid::documentWasNewed);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &EntityPropertyGrid::documentWasLoaded);
+  auto& map = kdl::mem_lock(m_document)->map();
   m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &EntityPropertyGrid::nodesDidChange);
-  m_notifierConnection += document->selectionWillChangeNotifier.connect(
+    map.mapWasCreatedNotifier.connect(this, &EntityPropertyGrid::documentWasNewed);
+  m_notifierConnection +=
+    map.mapWasLoadedNotifier.connect(this, &EntityPropertyGrid::documentWasLoaded);
+  m_notifierConnection +=
+    map.nodesDidChangeNotifier.connect(this, &EntityPropertyGrid::nodesDidChange);
+  m_notifierConnection += map.selectionWillChangeNotifier.connect(
     this, &EntityPropertyGrid::selectionWillChange);
-  m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &EntityPropertyGrid::selectionDidChange);
+  m_notifierConnection +=
+    map.selectionDidChangeNotifier.connect(this, &EntityPropertyGrid::selectionDidChange);
 }
 
-void EntityPropertyGrid::documentWasNewed(MapDocument*)
+void EntityPropertyGrid::mapWasCreated(mdl::Map&)
 {
   updateControls();
 }
 
-void EntityPropertyGrid::documentWasLoaded(MapDocument*)
+void EntityPropertyGrid::mapWasLoaded(mdl::Map&)
 {
   updateControls();
 }
@@ -449,10 +453,10 @@ void EntityPropertyGrid::ensureSelectionVisible()
 
 void EntityPropertyGrid::updateControlsEnabled()
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto nodes = document->selection().allEntities();
+  auto& map = kdl::mem_lock(m_document)->map();
+  const auto nodes = map.selection().allEntities();
   const auto canUpdateLinkedGroups =
-    document->canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));
+    map.canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));
   m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_addPropertyButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_removePropertiesButton->setEnabled(

@@ -155,4 +155,8 @@ Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
 std::vector<Error> copyAndSetLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
 
+std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodesToAdd,
+  mdl::WorldNode& worldNode);
+
 } // namespace tb::mdl

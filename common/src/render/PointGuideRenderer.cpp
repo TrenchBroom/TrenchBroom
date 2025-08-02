@@ -19,6 +19,8 @@
 
 #include "PointGuideRenderer.h"
 
+#include "ui/MapDocument.h"
+
 #include "kdl/memory_utils.h"
 
 #include "vm/ray.h"
@@ -50,13 +52,13 @@ void PointGuideRenderer::setPosition(const vm::vec3d& position)
   {
     m_spikeRenderer.clear();
 
-    auto document = kdl::mem_lock(m_document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{1, 0, 0}), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{-1, 0, 0}), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{0, 1, 0}), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{0, -1, 0}), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{0, 0, 1}), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{0, 0, -1}), SpikeLength, document);
+    const auto& map = kdl::mem_lock(m_document)->map();
+    m_spikeRenderer.add(vm::ray3d{position, {1, 0, 0}}, SpikeLength, map);
+    m_spikeRenderer.add(vm::ray3d{position, {-1, 0, 0}}, SpikeLength, map);
+    m_spikeRenderer.add(vm::ray3d{position, {0, 1, 0}}, SpikeLength, map);
+    m_spikeRenderer.add(vm::ray3d{position, {0, -1, 0}}, SpikeLength, map);
+    m_spikeRenderer.add(vm::ray3d{position, {0, 0, 1}}, SpikeLength, map);
+    m_spikeRenderer.add(vm::ray3d{position, {0, 0, -1}}, SpikeLength, map);
 
     m_position = position;
   }

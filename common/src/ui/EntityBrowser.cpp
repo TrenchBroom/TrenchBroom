@@ -29,6 +29,8 @@
 #include "PreferenceManager.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityDefinitionUtils.h"
+#include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/WorldNode.h"
 #include "ui/EntityBrowserView.h"
 #include "ui/MapDocument.h"
@@ -54,14 +56,17 @@ EntityBrowser::EntityBrowser(
 
 void EntityBrowser::reload()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (m_view && document->world())
+  const auto& map = kdl::mem_lock(m_document)->map();
+  if (m_view)
   {
-    m_view->setDefaultModelScaleExpression(
-      document->world()->entityPropertyConfig().defaultModelScaleExpression);
+    if (const auto* worldNode = map.world())
+    {
+      m_view->setDefaultModelScaleExpression(
+        worldNode->entityPropertyConfig().defaultModelScaleExpression);
 
-    m_view->invalidate();
-    m_view->update();
+      m_view->invalidate();
+      m_view->update();
+    }
   }
 }
 
@@ -136,18 +141,18 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 
 void EntityBrowser::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   m_notifierConnection +=
-    document->documentWasNewedNotifier.connect(this, &EntityBrowser::documentWasNewed);
+    map.mapWasCreatedNotifier.connect(this, &EntityBrowser::mapWasCreated);
   m_notifierConnection +=
-    document->documentWasLoadedNotifier.connect(this, &EntityBrowser::documentWasLoaded);
+    map.mapWasLoadedNotifier.connect(this, &EntityBrowser::mapWasLoaded);
   m_notifierConnection +=
-    document->modsDidChangeNotifier.connect(this, &EntityBrowser::modsDidChange);
-  m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
+    map.modsDidChangeNotifier.connect(this, &EntityBrowser::modsDidChange);
+  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
     this, &EntityBrowser::entityDefinitionsDidChange);
   m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &EntityBrowser::nodesDidChange);
-  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+    map.nodesDidChangeNotifier.connect(this, &EntityBrowser::nodesDidChange);
+  m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowser::resourcesWereProcessed);
 
   auto& prefs = PreferenceManager::instance();
@@ -155,12 +160,12 @@ void EntityBrowser::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &EntityBrowser::preferenceDidChange);
 }
 
-void EntityBrowser::documentWasNewed(MapDocument*)
+void EntityBrowser::mapWasCreated(mdl::Map&)
 {
   reload();
 }
 
-void EntityBrowser::documentWasLoaded(MapDocument*)
+void EntityBrowser::mapWasLoaded(mdl::Map&)
 {
   reload();
 }
@@ -183,8 +188,8 @@ void EntityBrowser::entityDefinitionsDidChange()
 
 void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (document->isGamePathPreference(path))
+  const auto& map = kdl::mem_lock(m_document)->map();
+  if (map.game()->isGamePathPreference(path))
   {
     reload();
   }

@@ -27,6 +27,7 @@
 #include "mdl/NodeQueries.h"
 
 #include "kdl/grouped_range.h"
+#include "kdl/map_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/task_manager.h"
@@ -757,6 +758,57 @@ std::vector<Error> copyAndSetLinkIds(
     copyLinkIds(sourceGroupNode, targetGroupNodes, GroupRecursionMode::Shallow),
     targetGroupNodes,
     errors);
+  return errors;
+}
+
+std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodesToAdd,
+  mdl::WorldNode& worldNode)
+{
+  // Recursively collect all groups to add
+  const auto groupsToAdd = kdl::vec_sort(
+    mdl::collectGroups(kdl::vec_flatten(kdl::map_values(nodesToAdd))),
+    mdl::compareGroupNodesByLinkId);
+
+  const auto groupsByLinkId = kdl::make_grouped_range(
+    groupsToAdd,
+    [](const auto* lhs, const auto* rhs) { return lhs->linkId() == rhs->linkId(); });
+
+  auto errors = std::vector<Error>{};
+  for (const auto& linkedGroupsToAdd : groupsByLinkId)
+  {
+    const auto& linkId = linkedGroupsToAdd.front()->linkId();
+    const auto existingLinkedNodes = mdl::collectNodesWithLinkId({&worldNode}, linkId);
+
+    if (existingLinkedNodes.size() == 1)
+    {
+      // Unlink the added nodes because we don't want to create linked duplicates
+      mdl::resetLinkIds({linkedGroupsToAdd.front()});
+
+      if (std::next(linkedGroupsToAdd.begin()) != linkedGroupsToAdd.end())
+      {
+        // But keep the added linked groups mutually linked
+        copyAndSetLinkIds(
+          *linkedGroupsToAdd.front(),
+          std::vector(std::next(linkedGroupsToAdd.begin()), linkedGroupsToAdd.end()));
+      }
+    }
+    else if (existingLinkedNodes.size() > 1)
+    {
+      // Keep the pasted nodes linked to their originals, but validate the structure
+      if (
+        auto* existingLinkedGroup =
+          dynamic_cast<mdl::GroupNode*>(existingLinkedNodes.front()))
+      {
+        errors = kdl::vec_concat(
+          std::move(errors),
+          mdl::copyAndSetLinkIds(
+            *existingLinkedGroup,
+            std::vector(linkedGroupsToAdd.begin(), linkedGroupsToAdd.end())));
+      }
+    }
+  }
+
   return errors;
 }
 

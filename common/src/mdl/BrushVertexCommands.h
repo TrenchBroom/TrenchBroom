@@ -29,11 +29,6 @@
 #include <memory>
 #include <vector>
 
-namespace tb::ui
-{
-class MapDocument;
-} // namespace tb::ui
-
 namespace tb::mdl
 {
 class VertexHandleManagerBase;
@@ -47,7 +42,7 @@ protected:
     std::string name, std::vector<std::pair<Node*, NodeContents>> nodes);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(Map& document) override;
   virtual std::unique_ptr<CommandResult> createCommandResult(
     std::unique_ptr<CommandResult> swapResult);
 

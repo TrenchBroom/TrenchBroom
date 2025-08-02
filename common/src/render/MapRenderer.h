@@ -44,6 +44,7 @@ class BrushNode;
 class BrushFaceHandle;
 class GroupNode;
 class LayerNode;
+class Map;
 class Node;
 class ResourceId;
 struct SelectionChange;
@@ -96,7 +97,9 @@ public: // rendering
   void render(RenderContext& renderContext, RenderBatch& renderBatch);
 
 private:
+  void reload();
   void clear();
+
   void setupGL(RenderBatch& renderBatch);
   void renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
@@ -129,8 +132,9 @@ private:
 private: // notification
   void connectObservers();
 
-  void documentWasCleared(ui::MapDocument* document);
-  void documentWasNewedOrLoaded(ui::MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
+  void mapWasCleared(mdl::Map& map);
 
   void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);

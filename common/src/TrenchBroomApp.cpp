@@ -30,6 +30,7 @@
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "ui/AboutDialog.h"
 #include "ui/Actions.h"
@@ -734,8 +735,8 @@ std::string makeCrashReport(const std::string& stacktrace, const std::string& re
 std::filesystem::path savedMapPath()
 {
   const auto document = topDocument();
-  return document && document->path().is_absolute() ? document->path()
-                                                    : std::filesystem::path{};
+  const auto& map = document->map();
+  return document && map.path().is_absolute() ? map.path() : std::filesystem::path{};
 }
 
 std::filesystem::path crashReportBasePath()
@@ -801,10 +802,9 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
     });
 
     // save the map
-    auto doc = topDocument();
-    if (doc.get() && doc->game())
+    if (const auto document = topDocument(); document && document->map().game())
     {
-      doc->saveDocumentTo(mapPath);
+      document->saveDocumentTo(mapPath);
       std::cerr << "wrote map to " << mapPath.string() << std::endl;
     }
     else
