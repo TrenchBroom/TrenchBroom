@@ -30,6 +30,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GameImpl.h"
 #include "mdl/GroupNode.h"
+#include "mdl/Map.h"
 #include "mdl/Material.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
@@ -461,13 +462,13 @@ DocumentGameConfig loadMapDocument(
 {
   auto taskManager = createTestTaskManager();
   auto document = std::make_shared<MapDocument>(*taskManager);
+  auto& map = document->map();
 
   auto [game, gameConfig] = mdl::loadGame(gameName);
-  document->loadDocument(
-    mapFormat, vm::bbox3d{8192.0}, game, std::filesystem::current_path() / mapPath)
+  map.load(mapFormat, vm::bbox3d{8192.0}, game, std::filesystem::current_path() / mapPath)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  document->processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
+  map.processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
 
   return {
     std::move(document), std::move(game), std::move(gameConfig), std::move(taskManager)};
@@ -478,9 +479,10 @@ DocumentGameConfig newMapDocument(
 {
   auto taskManager = createTestTaskManager();
   auto document = std::make_shared<MapDocument>(*taskManager);
+  auto& map = document->map();
 
   auto [game, gameConfig] = mdl::loadGame(gameName);
-  document->newDocument(mapFormat, vm::bbox3d{8192.0}, game)
+  map.create(mapFormat, vm::bbox3d{8192.0}, game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   return {

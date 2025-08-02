@@ -23,6 +23,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "mdl/Map.h"
 #include "mdl/PointTrace.h"
 #include "render/MapRenderer.h"
 #include "ui/FourPaneMapView.h"
@@ -49,7 +50,8 @@ SwitchableMapViewContainer::SwitchableMapViewContainer(
   , m_document{std::move(document)}
   , m_contextManager{contextManager}
   , m_mapViewBar{new MapViewBar(m_document)}
-  , m_toolBox{std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())}
+  , m_toolBox{std::make_unique<MapViewToolBox>(
+      kdl::mem_lock(m_document)->map(), m_mapViewBar->toolBook())}
   , m_mapRenderer{std::make_unique<render::MapRenderer>(m_document)}
   , m_activationTracker{std::make_unique<MapViewActivationTracker>()}
 {
@@ -158,7 +160,8 @@ bool SwitchableMapViewContainer::clipToolActive() const
 
 bool SwitchableMapViewContainer::canToggleClipTool() const
 {
-  return clipToolActive() || kdl::mem_lock(m_document)->selection().hasOnlyBrushes();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return clipToolActive() || map.selection().hasOnlyBrushes();
 }
 
 void SwitchableMapViewContainer::toggleClipTool()
@@ -179,7 +182,8 @@ bool SwitchableMapViewContainer::rotateToolActive() const
 
 bool SwitchableMapViewContainer::canToggleRotateTool() const
 {
-  return rotateToolActive() || kdl::mem_lock(m_document)->selection().hasNodes();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return rotateToolActive() || map.selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleRotateTool()
@@ -200,7 +204,8 @@ bool SwitchableMapViewContainer::shearToolActive() const
 
 bool SwitchableMapViewContainer::canToggleScaleTool() const
 {
-  return scaleToolActive() || kdl::mem_lock(m_document)->selection().hasNodes();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return scaleToolActive() || map.selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleScaleTool()
@@ -211,7 +216,8 @@ void SwitchableMapViewContainer::toggleScaleTool()
 
 bool SwitchableMapViewContainer::canToggleShearTool() const
 {
-  return shearToolActive() || kdl::mem_lock(m_document)->selection().hasNodes();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return shearToolActive() || map.selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleShearTool()
@@ -222,8 +228,9 @@ void SwitchableMapViewContainer::toggleShearTool()
 
 bool SwitchableMapViewContainer::canToggleVertexTools() const
 {
+  const auto& map = kdl::mem_lock(m_document)->map();
   return vertexToolActive() || edgeToolActive() || faceToolActive()
-         || kdl::mem_lock(m_document)->selection().hasOnlyBrushes();
+         || map.selection().hasOnlyBrushes();
 }
 
 bool SwitchableMapViewContainer::anyVertexToolActive() const

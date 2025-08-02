@@ -36,8 +36,9 @@ class QRadioButton;
 
 namespace tb::mdl
 {
+class Map;
 class Node;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -93,8 +94,8 @@ private:
 private:
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void updateGui();
 };

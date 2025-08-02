@@ -33,7 +33,7 @@ class FaceHandleManager;
 class FaceTool : public VertexToolBase<vm::polygon3d>
 {
 public:
-  explicit FaceTool(std::weak_ptr<MapDocument> document);
+  explicit FaceTool(mdl::Map& map);
 
 public:
   std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;

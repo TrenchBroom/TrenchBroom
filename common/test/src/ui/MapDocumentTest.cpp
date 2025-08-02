@@ -24,7 +24,10 @@
 #include "mdl/BrushNode.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/PatchNode.h"
+#include "mdl/TestGame.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 
@@ -49,11 +52,12 @@ void MapDocumentTest::SetUp()
   game->config().forceEmptyNewMap = true;
 
   document = std::make_shared<MapDocument>(*taskManager);
-  document->newDocument(m_mapFormat, vm::bbox3d{8192.0}, game)
+  auto& map = document->map();
+  map.create(m_mapFormat, vm::bbox3d{8192.0}, game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   // create two entity definitions
-  document->setEntityDefinitions({
+  map.setEntityDefinitions({
     {"point_entity",
      Color{},
      "this is a point entity",
@@ -62,7 +66,7 @@ void MapDocumentTest::SetUp()
     {"brush_entity", Color{}, "this is a brush entity", {}},
   });
 
-  const auto& definitions = document->entityDefinitionManager().definitions();
+  const auto& definitions = map.entityDefinitionManager().definitions();
   m_pointEntityDef = &definitions[0];
   m_brushEntityDef = &definitions[1];
 
@@ -80,11 +84,12 @@ mdl::BrushNode* MapDocumentTest::createBrushNode(
   const std::string& materialName,
   const std::function<void(mdl::Brush&)>& brushFunc) const
 {
-  const auto* worldNode = document->world();
+  auto& map = document->map();
+  const auto* worldNode = map.world();
   auto builder = mdl::BrushBuilder{
     worldNode->mapFormat(),
-    document->worldBounds(),
-    document->game()->config().faceAttribsConfig.defaults};
+    map.worldBounds(),
+    map.game()->config().faceAttribsConfig.defaults};
 
   auto brush = builder.createCube(32.0, materialName) | kdl::value();
   brushFunc(brush);

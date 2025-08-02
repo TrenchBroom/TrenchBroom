@@ -58,7 +58,7 @@ private:
   mutable render::PointGuideRenderer m_guideRenderer;
 
 public:
-  explicit VertexTool(std::weak_ptr<MapDocument> document);
+  explicit VertexTool(mdl::Map& map);
 
 public:
   std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::vec3d& handle) const;

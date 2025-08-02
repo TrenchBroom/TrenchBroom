@@ -73,7 +73,7 @@ public:
 
   std::filesystem::path gamePath() const override;
   void setGamePath(const std::filesystem::path& gamePath, Logger& logger) override;
-  Game::SoftMapBounds extractSoftMapBounds(const Entity& entity) const override;
+  SoftMapBounds extractSoftMapBounds(const Entity& entity) const override;
   void setAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger) override;
   PathErrors checkAdditionalSearchPaths(

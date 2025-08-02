@@ -24,28 +24,27 @@
 #include "vm/bbox.h"
 #include "vm/ray.h"
 
-#include <memory>
 #include <string>
 
 namespace tb::mdl
 {
 class EntityNode;
+class Map;
 class PickResult;
 } // namespace tb::mdl
 
 namespace tb::ui
 {
-class MapDocument;
 
 class CreateEntityTool : public Tool
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
   mdl::EntityNode* m_entity = nullptr;
   vm::bbox3d m_referenceBounds;
 
 public:
-  explicit CreateEntityTool(std::weak_ptr<MapDocument> document);
+  explicit CreateEntityTool(mdl::Map& map);
 
   bool createEntity(const std::string& classname);
   void removeEntity();

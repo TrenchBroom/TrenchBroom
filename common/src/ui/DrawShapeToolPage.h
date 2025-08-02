@@ -24,21 +24,23 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 
-#include <memory>
-
 class QStackedLayout;
 class QToolButton;
+
+namespace tb::mdl
+{
+class Map;
+}
 
 namespace tb::ui
 {
 class DrawShapeToolExtensionManager;
-class MapDocument;
 
 class DrawShapeToolPage : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
   DrawShapeToolExtensionManager& m_extensionManager;
 
   QToolButton* m_extensionButton = nullptr;
@@ -50,7 +52,7 @@ public:
   Notifier<> applyParametersNotifier;
 
   explicit DrawShapeToolPage(
-    std::weak_ptr<MapDocument> document,
+    mdl::Map& map,
     DrawShapeToolExtensionManager& extensionManager,
     QWidget* parent = nullptr);
 

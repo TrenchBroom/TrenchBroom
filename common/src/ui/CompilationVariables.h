@@ -21,12 +21,15 @@
 
 #include "el/VariableStore.h"
 
-#include <memory>
 #include <string>
+
+namespace tb::mdl
+{
+class Map;
+}
 
 namespace tb::ui
 {
-class MapDocument;
 
 namespace CompilationVariableNames
 {
@@ -43,31 +46,31 @@ extern const std::string APP_DIR_PATH;
 class CommonVariables : public el::VariableTable
 {
 protected:
-  explicit CommonVariables(std::shared_ptr<MapDocument> document);
+  explicit CommonVariables(const mdl::Map& map);
 };
 
 class CommonCompilationVariables : public CommonVariables
 {
 protected:
-  explicit CommonCompilationVariables(std::shared_ptr<MapDocument> document);
+  explicit CommonCompilationVariables(const mdl::Map& map);
 };
 
 class CompilationWorkDirVariables : public CommonCompilationVariables
 {
 public:
-  explicit CompilationWorkDirVariables(std::shared_ptr<MapDocument> document);
+  explicit CompilationWorkDirVariables(const mdl::Map& map);
 };
 
 class CompilationVariables : public CommonCompilationVariables
 {
 public:
-  CompilationVariables(std::shared_ptr<MapDocument> document, const std::string& workDir);
+  CompilationVariables(const mdl::Map& map, const std::string& workDir);
 };
 
 class LaunchGameEngineVariables : public CommonVariables
 {
 public:
-  explicit LaunchGameEngineVariables(std::shared_ptr<MapDocument> document);
+  explicit LaunchGameEngineVariables(const mdl::Map& map);
 };
 
 } // namespace tb::ui

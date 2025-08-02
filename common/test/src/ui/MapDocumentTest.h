@@ -20,18 +20,20 @@
 #pragma once
 
 #include "mdl/MapFormat.h"
-#include "mdl/TestGame.h"
-#include "ui/MapDocument.h"
-
-#include "kdl/task_manager.h"
 
 #include <functional>
 #include <memory>
 #include <string>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb::mdl
 {
 class Brush;
+class BrushNode;
 struct EntityDefinition;
 class PatchNode;
 class TestGame;
@@ -39,6 +41,8 @@ class TestGame;
 
 namespace tb::ui
 {
+class MapDocument;
+class TestGame;
 
 class MapDocumentTest
 {

@@ -25,6 +25,8 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
+#include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
 #include "ui/ClickableLabel.h"
@@ -265,19 +267,19 @@ void MapPropertiesEditor::createGui()
   connect(m_softBoundsDisabled, &QAbstractButton::clicked, this, [&](const auto checked) {
     if (checked)
     {
-      auto document = kdl::mem_lock(m_document);
-      document->setSoftMapBounds({mdl::Game::SoftMapBoundsType::Map, std::nullopt});
+      auto& map = kdl::mem_lock(m_document)->map();
+      map.setSoftMapBounds({mdl::SoftMapBoundsType::Map, std::nullopt});
     }
   });
   connect(m_softBoundsFromGame, &QAbstractButton::clicked, this, [&](const auto checked) {
     if (checked)
     {
-      auto document = kdl::mem_lock(m_document);
-      document->setSoftMapBounds({mdl::Game::SoftMapBoundsType::Game, std::nullopt});
+      auto& map = kdl::mem_lock(m_document)->map();
+      map.setSoftMapBounds({mdl::SoftMapBoundsType::Game, std::nullopt});
     }
   });
   connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [&](const auto checked) {
-    auto document = kdl::mem_lock(m_document);
+    auto& map = kdl::mem_lock(m_document)->map();
 
     m_softBoundsFromMapMinEdit->setEnabled(true);
     m_softBoundsFromMapMaxEdit->setEnabled(true);
@@ -289,7 +291,7 @@ void MapPropertiesEditor::createGui()
       // text fields have a valid value entered.
       if (const auto parsed = parseLineEdits())
       {
-        document->setSoftMapBounds({mdl::Game::SoftMapBoundsType::Map, *parsed});
+        map.setSoftMapBounds({mdl::SoftMapBoundsType::Map, *parsed});
       }
     }
   });
@@ -303,8 +305,8 @@ void MapPropertiesEditor::createGui()
     {
       if (const auto parsed = parseLineEdits())
       {
-        auto document = kdl::mem_lock(m_document);
-        document->setSoftMapBounds({mdl::Game::SoftMapBoundsType::Map, *parsed});
+        auto& map = kdl::mem_lock(m_document)->map();
+        map.setSoftMapBounds({mdl::SoftMapBoundsType::Map, *parsed});
       }
     }
   };
@@ -318,21 +320,21 @@ void MapPropertiesEditor::createGui()
 
 void MapPropertiesEditor::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &MapPropertiesEditor::documentWasNewed);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &MapPropertiesEditor::documentWasLoaded);
+  auto& map = kdl::mem_lock(m_document)->map();
   m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &MapPropertiesEditor::nodesDidChange);
+    map.mapWasCreatedNotifier.connect(this, &MapPropertiesEditor::mapWasCreated);
+  m_notifierConnection +=
+    map.mapWasLoadedNotifier.connect(this, &MapPropertiesEditor::mapWasLoaded);
+  m_notifierConnection +=
+    map.nodesDidChangeNotifier.connect(this, &MapPropertiesEditor::nodesDidChange);
 }
 
-void MapPropertiesEditor::documentWasNewed(MapDocument*)
+void MapPropertiesEditor::mapWasCreated(mdl::Map&)
 {
   updateGui();
 }
 
-void MapPropertiesEditor::documentWasLoaded(MapDocument*)
+void MapPropertiesEditor::mapWasLoaded(mdl::Map&)
 {
   updateGui();
 }
@@ -341,7 +343,8 @@ void MapPropertiesEditor::nodesDidChange(const std::vector<mdl::Node*>& nodes)
 {
   if (auto document = kdl::mem_lock(m_document))
   {
-    if (kdl::vec_contains(nodes, document->world()))
+    const auto& map = document->map();
+    if (kdl::vec_contains(nodes, map.world()))
     {
       updateGui();
     }
@@ -355,24 +358,25 @@ void MapPropertiesEditor::updateGui()
 {
   const kdl::set_temp flagChange(m_updatingGui, true);
 
-  if (auto document = kdl::mem_lock(m_document))
+  if (const auto document = kdl::mem_lock(m_document))
   {
-    if (auto game = document->game())
+    const auto& map = document->map();
+    if (const auto game = map.game())
     {
       const auto gameBounds = game->config().softMapBounds;
       m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
       m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
 
-      const auto bounds = document->softMapBounds();
+      const auto bounds = map.softMapBounds();
 
-      if (bounds.source == mdl::Game::SoftMapBoundsType::Map && !bounds.bounds)
+      if (bounds.source == mdl::SoftMapBoundsType::Map && !bounds.bounds)
       {
         m_softBoundsDisabled->setChecked(true);
 
         m_softBoundsFromMapMinEdit->setEnabled(false);
         m_softBoundsFromMapMaxEdit->setEnabled(false);
       }
-      else if (bounds.source == mdl::Game::SoftMapBoundsType::Map)
+      else if (bounds.source == mdl::SoftMapBoundsType::Map)
       {
         m_softBoundsFromMap->setChecked(true);
 

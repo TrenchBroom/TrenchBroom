@@ -29,6 +29,7 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
@@ -85,15 +86,15 @@ bool SetBrushFaceAttributesTool::mouseDoubleClick(const InputState& inputState)
     // selected attributes to the whole brush. To make undo/redo more intuitivie, undo the
     // application to the single face now, so that if the double click is later
     // undone/redone, it appears as one atomic action.
-    auto document = kdl::mem_lock(m_document);
+    auto& map = kdl::mem_lock(m_document)->map();
 
     // The last click may not have been handled by this tool, see:
     // https://github.com/TrenchBroom/TrenchBroom/issues/3332
     if (
-      document->canUndoCommand()
-      && document->undoCommandName() == TransferFaceAttributesTransactionName)
+      map.canUndoCommand()
+      && map.undoCommandName() == TransferFaceAttributesTransactionName)
     {
-      document->undoCommand();
+      map.undoCommand();
 
       copyAttributesFromSelection(inputState, true);
       return true;
@@ -253,7 +254,7 @@ auto selectTargetFaceHandlesForLinkedGroups(
 }
 
 void transferFaceAttributes(
-  MapDocument& document,
+  mdl::Map& map,
   const InputState& inputState,
   const mdl::BrushFaceHandle& sourceFaceHandle,
   const std::vector<mdl::BrushFaceHandle>& targetFaceHandles,
@@ -266,23 +267,23 @@ void transferFaceAttributes(
                        ? mdl::WrapStyle::Rotation
                        : mdl::WrapStyle::Projection;
 
-  auto transaction = mdl::Transaction{document, TransferFaceAttributesTransactionName};
-  document.deselectAll();
-  document.selectBrushFaces(targetFaceHandlesForLinkedGroups);
+  auto transaction = mdl::Transaction{map, TransferFaceAttributesTransactionName};
+  map.deselectAll();
+  map.selectBrushFaces(targetFaceHandlesForLinkedGroups);
 
   if (copyMaterialOnlyModifiersDown(inputState))
   {
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setMaterialName(sourceFaceHandle.face().attributes().materialName());
-    document.setFaceAttributes(request);
+    map.setFaceAttributes(request);
   }
   else
   {
     auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot();
-    document.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
+    map.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
     if (snapshot)
     {
-      document.copyUVFromFace(
+      map.copyUVFromFace(
         *snapshot,
         sourceFaceHandle.face().attributes(),
         sourceFaceHandle.face().boundary(),
@@ -290,23 +291,23 @@ void transferFaceAttributes(
     }
   }
 
-  document.deselectAll();
-  document.selectBrushFaces({faceToSelectAfter});
+  map.deselectAll();
+  map.selectBrushFaces({faceToSelectAfter});
   transaction.commit();
 }
 
 class SetBrushFaceAttributesDragTracker : public GestureTracker
 {
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   mdl::BrushFaceHandle m_initialSelectedFaceHandle;
   std::optional<mdl::BrushFaceHandle> m_sourceFaceHandle;
   std::optional<mdl::BrushFaceHandle> m_targetFaceHandle;
 
 public:
   SetBrushFaceAttributesDragTracker(
-    MapDocument& document, mdl::BrushFaceHandle initialSelectedFaceHandle)
-    : m_document{document}
+    mdl::Map& map, mdl::BrushFaceHandle initialSelectedFaceHandle)
+    : m_map{map}
     , m_initialSelectedFaceHandle{std::move(initialSelectedFaceHandle)}
   {
   }
@@ -343,7 +344,7 @@ public:
     }
 
     transferFaceAttributes(
-      m_document,
+      m_map,
       inputState,
       *m_sourceFaceHandle,
       {*m_targetFaceHandle},
@@ -352,9 +353,9 @@ public:
     return true;
   }
 
-  void end(const InputState&) override { m_document.commitTransaction(); }
+  void end(const InputState&) override { m_map.commitTransaction(); }
 
-  void cancel() override { m_document.cancelTransaction(); }
+  void cancel() override { m_map.cancelTransaction(); }
 };
 } // namespace
 
@@ -366,20 +367,17 @@ std::unique_ptr<GestureTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
     return nullptr;
   }
 
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
 
   // Need to have a selected face to start painting alignment
-  const auto& selectedFaces = document->selection().brushFaces;
+  const auto& selectedFaces = map.selection().brushFaces;
   if (selectedFaces.size() != 1)
   {
     return nullptr;
   }
 
-  document->startTransaction(
-    "Drag Apply Face Attributes", mdl::TransactionScope::LongRunning);
-
-  return std::make_unique<SetBrushFaceAttributesDragTracker>(
-    *kdl::mem_lock(m_document), selectedFaces.front());
+  map.startTransaction("Drag Apply Face Attributes", mdl::TransactionScope::LongRunning);
+  return std::make_unique<SetBrushFaceAttributesDragTracker>(map, selectedFaces.front());
 }
 
 bool SetBrushFaceAttributesTool::cancel()
@@ -394,9 +392,9 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
 
   assert(canCopyAttributesFromSelection(inputState));
 
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
 
-  const auto selectedFaces = document->selection().brushFaces;
+  const auto selectedFaces = map.selection().brushFaces;
   assert(!selectedFaces.empty());
 
   const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
@@ -408,7 +406,7 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
                               : std::vector<mdl::BrushFaceHandle>{*targetFaceHandle};
 
     transferFaceAttributes(
-      *document, inputState, sourceFaceHandle, targetList, sourceFaceHandle);
+      map, inputState, sourceFaceHandle, targetList, sourceFaceHandle);
   }
 }
 
@@ -422,9 +420,9 @@ bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(
     return false;
   }
 
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
 
-  const auto selectedFaces = document->selection().brushFaces;
+  const auto selectedFaces = map.selection().brushFaces;
   if (selectedFaces.size() != 1)
   {
     return false;

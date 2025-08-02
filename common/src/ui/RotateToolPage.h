@@ -26,20 +26,19 @@
 
 #include "vm/vec.h"
 
-#include <memory>
-
 class QCheckBox;
 class QComboBox;
 class QPushButton;
 
 namespace tb::mdl
 {
+class Map;
+
 struct SelectionChange;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
-class MapDocument;
 class RotateTool;
 class SpinControl;
 
@@ -47,7 +46,7 @@ class RotateToolPage : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
   RotateTool& m_tool;
 
   QComboBox* m_recentlyUsedCentersList = nullptr;
@@ -63,8 +62,7 @@ private:
   std::vector<vm::vec3d> m_recentlyUsedCenters;
 
 public:
-  RotateToolPage(
-    std::weak_ptr<MapDocument> document, RotateTool& tool, QWidget* parent = nullptr);
+  RotateToolPage(mdl::Map& map, RotateTool& tool, QWidget* parent = nullptr);
 
 private:
   void connectObservers();
@@ -72,8 +70,9 @@ private:
   void createGui();
   void updateGui();
 
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void documentWasNewedOrLoaded(MapDocument* document);
 
   void rotationCenterDidChange(const vm::vec3d& center);
   void rotationCenterWasUsed(const vm::vec3d& center);

@@ -28,12 +28,12 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "el/EvaluationContext.h"
 #include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
+#include "ui/MapDocument.h"
 #include "ui/MultiCompletionLineEdit.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
@@ -111,12 +111,12 @@ void CompilationTaskEditorBase::updateItem()
 
 void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
 {
+  const auto& map = kdl::mem_lock(m_document)->map();
   const auto workDir =
-    el::interpolate(
-      CompilationWorkDirVariables{kdl::mem_lock(m_document)}, m_profile.workDirSpec)
+    el::interpolate(CompilationWorkDirVariables{map}, m_profile.workDirSpec)
     | kdl::value_or(std::string{});
 
-  const auto variables = CompilationVariables{kdl::mem_lock(m_document), workDir};
+  const auto variables = CompilationVariables{map, workDir};
   completer->setModel(new VariableStoreModel{variables});
 }
 

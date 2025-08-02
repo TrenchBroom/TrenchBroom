@@ -27,6 +27,7 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Map.h"
 #include "mdl/Material.h"
 #include "ui/BorderLine.h"
 #include "ui/FaceAttribsEditor.h"
@@ -43,6 +44,18 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+void resetMaterialBrowserInfo(mdl::Map& map, QWidget* materialBrowserInfo)
+{
+  const auto& game = *map.game();
+  const auto& gameConfig = mdl::GameFactory::instance().gameConfig(game.config().name);
+  materialBrowserInfo->setVisible(gameConfig.materialConfig.property != std::nullopt);
+}
+
+} // namespace
+
 FaceInspector::FaceInspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
@@ -156,8 +169,8 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
 
 void FaceInspector::materialSelected(const mdl::Material* material)
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto faces = document->selection().allBrushFaces();
+  auto& map = kdl::mem_lock(m_document)->map();
+  const auto faces = map.selection().allBrushFaces();
 
   if (material)
   {
@@ -172,15 +185,15 @@ void FaceInspector::materialSelected(const mdl::Material* material)
                                        ? material->name()
                                        : mdl::BrushFaceAttributes::NoMaterialName;
 
-      document->setCurrentMaterialName(materialNameToSet);
+      map.setCurrentMaterialName(materialNameToSet);
       auto request = mdl::ChangeBrushFaceAttributesRequest{};
       request.setMaterialName(materialNameToSet);
-      document->setFaceAttributes(request);
+      map.setFaceAttributes(request);
     }
     else
     {
-      document->setCurrentMaterialName(
-        document->currentMaterialName() != material->name()
+      map.setCurrentMaterialName(
+        map.currentMaterialName() != material->name()
           ? material->name()
           : mdl::BrushFaceAttributes::NoMaterialName);
     }
@@ -189,18 +202,21 @@ void FaceInspector::materialSelected(const mdl::Material* material)
 
 void FaceInspector::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &FaceInspector::documentWasNewedOrOpened);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &FaceInspector::documentWasNewedOrOpened);
+  auto& map = kdl::mem_lock(m_document)->map();
+  m_notifierConnection +=
+    map.mapWasCreatedNotifier.connect(this, &FaceInspector::mapWasCreated);
+  m_notifierConnection +=
+    map.mapWasLoadedNotifier.connect(this, &FaceInspector::mapWasLoaded);
 }
 
-void FaceInspector::documentWasNewedOrOpened(MapDocument* document)
+void FaceInspector::mapWasCreated(mdl::Map& map)
 {
-  const auto& game = *document->game();
-  const auto& gameConfig = mdl::GameFactory::instance().gameConfig(game.config().name);
-  m_materialBrowserInfo->setVisible(gameConfig.materialConfig.property != std::nullopt);
+  resetMaterialBrowserInfo(map, m_materialBrowserInfo);
+}
+
+void FaceInspector::mapWasLoaded(mdl::Map& map)
+{
+  resetMaterialBrowserInfo(map, m_materialBrowserInfo);
 }
 
 } // namespace tb::ui

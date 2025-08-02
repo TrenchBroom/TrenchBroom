@@ -32,7 +32,6 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-#include <memory>
 #include <variant>
 #include <vector>
 
@@ -43,6 +42,7 @@ namespace mdl
 class BrushFace;
 class Grid;
 class Hit;
+class Map;
 class Node;
 class PickResult;
 struct SelectionChange;
@@ -55,7 +55,6 @@ class Camera;
 
 namespace ui
 {
-class MapDocument;
 
 /**
  * Similar to mdl::BrushFaceHandle but caches the Brush state at the beginning of the
@@ -113,7 +112,8 @@ public:
   static const mdl::HitType::Type ExtrudeHitType;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
+
   /**
    * Propsed drag handles for the next drag. Should only be accessed when m_dragging is
    * false. This needs to be cached here so that it is shared between multiple views.
@@ -125,7 +125,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ExtrudeTool(std::weak_ptr<MapDocument> document);
+  explicit ExtrudeTool(mdl::Map& map);
 
   bool applies() const;
 

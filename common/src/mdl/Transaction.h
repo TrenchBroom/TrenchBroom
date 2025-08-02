@@ -19,16 +19,11 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
-
-namespace tb::ui
-{
-class MapDocument;
-}
 
 namespace tb::mdl
 {
+class Map;
 
 class Transaction
 {
@@ -41,14 +36,12 @@ public:
   };
 
 private:
-  ui::MapDocument& m_document;
+  Map& m_map;
   std::string m_name;
   State m_state;
 
 public:
-  explicit Transaction(std::weak_ptr<ui::MapDocument> document, std::string name = "");
-  explicit Transaction(std::shared_ptr<ui::MapDocument> document, std::string name = "");
-  explicit Transaction(ui::MapDocument& document, std::string name = "");
+  explicit Transaction(Map& map, std::string name = "");
   ~Transaction();
 
   State state() const;

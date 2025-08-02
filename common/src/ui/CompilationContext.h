@@ -26,14 +26,18 @@
 #include <memory>
 #include <string>
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
-class MapDocument;
 
 class CompilationContext
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  const mdl::Map& m_map;
   std::unique_ptr<el::VariableStore> m_variables;
 
   TextOutputAdapter m_output;
@@ -41,12 +45,12 @@ private:
 
 public:
   CompilationContext(
-    std::weak_ptr<MapDocument> document,
+    const mdl::Map& map,
     const el::VariableStore& variables,
     TextOutputAdapter output,
     bool test);
 
-  std::shared_ptr<MapDocument> document() const;
+  const mdl::Map& map() const;
   bool test() const;
 
   Result<std::string> interpolate(const std::string& input) const;

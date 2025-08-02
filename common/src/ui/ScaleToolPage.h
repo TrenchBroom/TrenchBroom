@@ -25,7 +25,6 @@
 
 #include "vm/vec.h"
 
-#include <memory>
 #include <optional>
 
 class QComboBox;
@@ -36,17 +35,19 @@ class QAbstractButton;
 
 namespace tb::mdl
 {
+class Map;
+
 struct SelectionChange;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
-class MapDocument;
+
 class ScaleToolPage : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
   QStackedLayout* m_book = nullptr;
 
@@ -59,7 +60,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ScaleToolPage(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit ScaleToolPage(mdl::Map& map, QWidget* parent = nullptr);
   void activate();
 
 private:

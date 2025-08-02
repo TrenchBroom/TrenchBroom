@@ -22,13 +22,15 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QtTest/QSignalSpy>
 
 #include "CmdTool.h"
-#include "MapDocumentTest.h"
+#include "Logger.h"
 #include "TestUtils.h"
 #include "TrenchBroomApp.h"
 #include "el/VariableStore.h"
 #include "io/TestEnvironment.h"
+#include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Map.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationRunner.h"
 #include "ui/CompilationVariables.h"
@@ -106,15 +108,19 @@ public:
 
 } // namespace
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
+TEST_CASE("CompilationRunToolTaskRunner")
 {
+  auto taskManager = createTestTaskManager();
+  auto logger = NullLogger{};
+  auto map = mdl::Map{*taskManager, logger};
+
   SECTION("runMissingTool")
   {
     auto variables = el::NullVariableStore{};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{map, variables, outputAdapter, false};
 
     auto task = mdl::CompilationRunTool{true, "", "", false};
     auto runner = CompilationRunToolTaskRunner{context, task};
@@ -144,7 +150,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{map, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task =
@@ -165,7 +171,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{map, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -186,7 +192,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{map, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -207,7 +213,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{map, variables, outputAdapter, false};
 
     auto task = mdl::CompilationRunTool{
       true, CMD_TOOL_PATH, R"(--printArgs 1 2 str "escaped str")", false};
@@ -234,7 +240,7 @@ escaped str)"));
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{map, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -258,7 +264,7 @@ escaped str)"));
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{map, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -283,17 +289,21 @@ escaped str)"));
 
 TEST_CASE("CompilationExportMapTaskRunner")
 {
-  auto [document, game, gameConfig, taskManager] =
-    ui::newMapDocument("Quake", mdl::MapFormat::Standard);
+  auto taskManager = createTestTaskManager();
+  auto logger = NullLogger{};
+  auto [game, gameConfig] = mdl::loadGame("Quake");
+
+  auto map = mdl::Map{*taskManager, logger};
+  REQUIRE(map.create(mdl::MapFormat::Standard, vm::bbox3d{8192.0}, game).is_success());
 
   auto testEnvironment = io::TestEnvironment{};
 
   const auto testWorkDir = testEnvironment.dir().string();
-  auto variables = CompilationVariables{document, testWorkDir};
+  auto variables = CompilationVariables{map, testWorkDir};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+  auto context = CompilationContext{map, variables, outputAdapter, false};
 
   SECTION("exportMap")
   {
@@ -303,7 +313,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
     CAPTURE(exportPath);
 
     auto node = new mdl::EntityNode{mdl::Entity{}};
-    document->addNodes({{document->parentForNodes(), {node}}});
+    map.addNodes({{map.parentForNodes(), {node}}});
 
     auto task = mdl::CompilationExportMap{true, exportPath};
 
@@ -316,7 +326,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
   SECTION("variable interpolation error")
   {
     auto node = new mdl::EntityNode{mdl::Entity{}};
-    document->addNodes({{document->parentForNodes(), {node}}});
+    map.addNodes({{map.parentForNodes(), {node}}});
 
     auto task = mdl::CompilationExportMap{true, "${WORK_DIR_PATH/exported.map"};
 
@@ -327,16 +337,20 @@ TEST_CASE("CompilationExportMapTaskRunner")
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner")
+TEST_CASE("CompilationCopyFilesTaskRunner")
 {
+  auto taskManager = createTestTaskManager();
+  auto logger = NullLogger{};
+  auto map = mdl::Map{*taskManager, logger};
+
   auto testEnvironment = io::TestEnvironment{};
 
   const auto testWorkDir = testEnvironment.dir().string();
-  auto variables = CompilationVariables{document, testWorkDir};
+  auto variables = CompilationVariables{map, testWorkDir};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+  auto context = CompilationContext{map, variables, outputAdapter, false};
 
   SECTION("createTargetDirectories")
   {
@@ -373,16 +387,20 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner")
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner")
+TEST_CASE("CompilationRenameFileTaskRunner")
 {
+  auto taskManager = createTestTaskManager();
+  auto logger = NullLogger{};
+  auto map = mdl::Map{*taskManager, logger};
+
   auto testEnvironment = io::TestEnvironment{};
 
   const auto testWorkDir = testEnvironment.dir().string();
-  auto variables = CompilationVariables{document, testWorkDir};
+  auto variables = CompilationVariables{map, testWorkDir};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+  auto context = CompilationContext{map, variables, outputAdapter, false};
 
   SECTION("renameFile")
   {
@@ -429,13 +447,17 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner")
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner")
+TEST_CASE("CompilationDeleteFilesTaskRunner")
 {
+  auto taskManager = createTestTaskManager();
+  auto logger = NullLogger{};
+  auto map = mdl::Map{*taskManager, logger};
+
   auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+  auto context = CompilationContext{map, variables, outputAdapter, false};
 
   auto testEnvironment = io::TestEnvironment{};
 
@@ -474,17 +496,25 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner")
 
 TEST_CASE("CompilationRunner")
 {
-  auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
-    "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
-    "Quake",
-    mdl::MapFormat::Unknown);
+  auto taskManager = createTestTaskManager();
+  auto logger = NullLogger{};
+  auto map = mdl::Map{*taskManager, logger};
+
+  auto [game, gameConfig] = mdl::loadGame("Quake");
+  REQUIRE(map
+            .load(
+              mdl::MapFormat::Unknown,
+              vm::bbox3d{8192.0},
+              game,
+              "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map")
+            .is_success());
 
   const auto testWorkDir = std::string{"/some/path"};
-  auto variables = CompilationVariables{document, testWorkDir};
+  auto variables = CompilationVariables{map, testWorkDir};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+  auto context = CompilationContext{map, variables, outputAdapter, false};
 
   auto testEnvironment = io::TestEnvironment{};
 
@@ -505,7 +535,7 @@ TEST_CASE("CompilationRunner")
       }};
 
     auto runner = CompilationRunner{
-      CompilationContext{document, variables, outputAdapter, false}, compilationProfile};
+      CompilationContext{map, variables, outputAdapter, false}, compilationProfile};
 
     auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
     auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};
@@ -532,7 +562,7 @@ TEST_CASE("CompilationRunner")
 
     CHECK(
       context.interpolate(toInterpolate)
-      == startSubstr + document->path().parent_path().string() + midSubstr + testWorkDir);
+      == startSubstr + map.path().parent_path().string() + midSubstr + testWorkDir);
   }
 }
 

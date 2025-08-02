@@ -26,6 +26,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Map.h"
 #include "mdl/Material.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PushSelection.h"
@@ -38,10 +39,11 @@
 #include "ui/TitledPanel.h"
 
 #include "kdl/memory_utils.h"
-#include "kdl/vector_utils.h"
+#include "kdl/range_to_vector.h"
 
 #include <fmt/format.h>
 
+#include <ranges>
 #include <vector>
 
 namespace tb::ui
@@ -50,18 +52,18 @@ namespace
 {
 
 void replaceMaterials(
-  MapDocument& document,
+  mdl::Map& map,
   const std::vector<mdl::BrushFaceHandle>& faces,
   const std::string& materialName)
 {
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setMaterialName(materialName);
 
-  const auto pushSelection = mdl::PushSelection{document};
+  const auto pushSelection = mdl::PushSelection{map};
 
-  auto transaction = mdl::Transaction{document, "Replace Materials"};
-  document.selectBrushFaces(faces);
-  if (!document.setFaceAttributes(request))
+  auto transaction = mdl::Transaction{map, "Replace Materials"};
+  map.selectBrushFaces(faces);
+  if (!map.setFaceAttributes(request))
   {
     transaction.cancel();
     return;
@@ -87,27 +89,26 @@ void ReplaceMaterialDialog::accept()
   const auto* replacement = m_replacementBrowser->selectedMaterial();
   ensure(replacement != nullptr, "replacement is null");
 
-  auto document = kdl::mem_lock(m_document);
-  const auto faces = getApplicableFaces();
+  if (const auto faces = getApplicableFaces(); !faces.empty())
+  {
+    auto& map = kdl::mem_lock(m_document)->map();
+    replaceMaterials(map, faces, replacement->name());
 
-  if (faces.empty())
+    const auto msg = fmt::format(
+      "Replaced material '{}' with '{}' on {} faces.",
+      subject->name(),
+      replacement->name(),
+      faces.size());
+
+    QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg));
+  }
+  else
   {
     QMessageBox::warning(
       this,
       tr("Replace Failed"),
       tr("None of the selected faces has the selected material"));
-    return;
   }
-
-  replaceMaterials(*document, faces, replacement->name());
-
-  const auto msg = fmt::format(
-    "Replaced material '{}' with '{}' on {} faces.",
-    subject->name(),
-    replacement->name(),
-    faces.size());
-
-  QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg));
 }
 
 std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() const
@@ -115,15 +116,17 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
   const auto* subject = m_subjectBrowser->selectedMaterial();
   ensure(subject != nullptr, "subject is null");
 
-  auto document = kdl::mem_lock(m_document);
-  auto faces = document->selection().allBrushFaces();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  auto faces = map.selection().allBrushFaces();
   if (faces.empty())
   {
-    faces = mdl::collectBrushFaces({document->world()});
+    faces = mdl::collectBrushFaces({map.world()});
   }
 
-  return kdl::vec_filter(
-    faces, [&](const auto& handle) { return handle.face().material() == subject; });
+  return faces | std::views::filter([&](const auto& handle) {
+           return handle.face().material() == subject;
+         })
+         | kdl::to_vector;
 }
 
 void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)

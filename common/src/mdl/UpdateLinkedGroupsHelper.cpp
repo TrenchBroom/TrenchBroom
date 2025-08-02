@@ -21,10 +21,11 @@
 
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
-#include "ui/MapDocument.h"
 
+#include "kdl/map_utils.h"
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -60,8 +61,7 @@ std::vector<Node*> collectOldChildren(
 }
 
 auto doReplaceChildren(
-  std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>> nodes,
-  ui::MapDocument& document)
+  std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>> nodes, Map& map)
 {
   auto result = std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>{};
 
@@ -72,13 +72,11 @@ auto doReplaceChildren(
 
   const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
   auto notifyParents = NotifyBeforeAndAfter{
-    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
 
   const auto allOldChildren = collectOldChildren(nodes);
   auto notifyChildren = NotifyBeforeAndAfter{
-    document.nodesWillBeRemovedNotifier,
-    document.nodesWereRemovedNotifier,
-    allOldChildren};
+    map.nodesWillBeRemovedNotifier, map.nodesWereRemovedNotifier, allOldChildren};
 
   auto allNewChildren = std::vector<Node*>{};
 
@@ -93,7 +91,7 @@ auto doReplaceChildren(
     result.emplace_back(parent, std::move(oldChildren));
   }
 
-  document.nodesWereAddedNotifier(allNewChildren);
+  map.nodesWereAddedNotifier(allNewChildren);
 
   return result;
 }
@@ -118,15 +116,15 @@ UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(
 
 UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 
-Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(ui::MapDocument& document)
+Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(Map& map)
 {
-  return computeLinkedGroupUpdates(document)
-         | kdl::transform([&]() { doApplyOrUndoLinkedGroupUpdates(document); });
+  return computeLinkedGroupUpdates(map)
+         | kdl::transform([&]() { doApplyOrUndoLinkedGroupUpdates(map); });
 }
 
-void UpdateLinkedGroupsHelper::undoLinkedGroupUpdates(ui::MapDocument& document)
+void UpdateLinkedGroupsHelper::undoLinkedGroupUpdates(Map& map)
 {
-  doApplyOrUndoLinkedGroupUpdates(document);
+  doApplyOrUndoLinkedGroupUpdates(map);
 }
 
 void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other)
@@ -162,13 +160,12 @@ void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other)
   }
 }
 
-Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
-  ui::MapDocument& document)
+Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(Map& map)
 {
   return std::visit(
     kdl::overload(
       [&](const ChangedLinkedGroups& changedLinkedGroups) {
-        return computeLinkedGroupUpdates(changedLinkedGroups, document)
+        return computeLinkedGroupUpdates(changedLinkedGroups, map)
                | kdl::transform([&](auto&& linkedGroupUpdates) {
                    m_state =
                      std::forward<decltype(linkedGroupUpdates)>(linkedGroupUpdates);
@@ -179,21 +176,20 @@ Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
 }
 
 Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
-  computeLinkedGroupUpdates(
-    const ChangedLinkedGroups& changedLinkedGroups, ui::MapDocument& document)
+  computeLinkedGroupUpdates(const ChangedLinkedGroups& changedLinkedGroups, Map& map)
 {
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
     return Error{"Cannot update multiple members of the same link set"};
   }
 
-  const auto& worldBounds = document.worldBounds();
+  const auto& worldBounds = map.worldBounds();
   return changedLinkedGroups | std::views::transform([&](const auto* groupNode) {
            const auto groupNodesToUpdate = kdl::vec_erase(
-             collectGroupsWithLinkId({document.world()}, groupNode->linkId()), groupNode);
+             collectGroupsWithLinkId({map.world()}, groupNode->linkId()), groupNode);
 
            return updateLinkedGroups(
-             *groupNode, groupNodesToUpdate, worldBounds, document.taskManager());
+             *groupNode, groupNodesToUpdate, worldBounds, map.taskManager());
          })
          | kdl::fold
          | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
@@ -201,13 +197,13 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
            });
 }
 
-void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(ui::MapDocument& document)
+void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(Map& map)
 {
   std::visit(
     kdl::overload(
       [](const ChangedLinkedGroups&) {},
       [&](LinkedGroupUpdates&& linkedGroupUpdates) {
-        m_state = doReplaceChildren(std::move(linkedGroupUpdates), document);
+        m_state = doReplaceChildren(std::move(linkedGroupUpdates), map);
       }),
     std::move(m_state));
 }

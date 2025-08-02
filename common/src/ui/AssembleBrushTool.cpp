@@ -20,22 +20,22 @@
 #include "AssembleBrushTool.h"
 
 #include "Error.h" // IWYU pragma: keep
+#include "Logger.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
 namespace tb::ui
 {
 
-AssembleBrushTool::AssembleBrushTool(std::weak_ptr<MapDocument> document)
-  : CreateBrushesToolBase{false, std::move(document)}
+AssembleBrushTool::AssembleBrushTool(mdl::Map& map)
+  : CreateBrushesToolBase{false, map}
   , m_polyhedron{std::make_unique<mdl::Polyhedron3>()}
 {
 }
@@ -50,20 +50,19 @@ void AssembleBrushTool::update(const mdl::Polyhedron3& polyhedron)
   *m_polyhedron = polyhedron;
   if (m_polyhedron->closed())
   {
-    auto document = kdl::mem_lock(m_document);
-    const auto game = document->game();
+    const auto game = m_map.game();
     const auto builder = mdl::BrushBuilder{
-      document->world()->mapFormat(),
-      document->worldBounds(),
+      m_map.world()->mapFormat(),
+      m_map.worldBounds(),
       game->config().faceAttribsConfig.defaults};
 
-    builder.createBrush(*m_polyhedron, document->currentMaterialName())
+    builder.createBrush(*m_polyhedron, m_map.currentMaterialName())
       | kdl::transform([&](auto b) {
           updateBrushes(kdl::vec_from(std::make_unique<mdl::BrushNode>(std::move(b))));
         })
       | kdl::transform_error([&](auto e) {
           clearBrushes();
-          document->error() << "Could not update brush: " << e.msg;
+          m_map.logger().error() << "Could not update brush: " << e.msg;
         });
   }
   else

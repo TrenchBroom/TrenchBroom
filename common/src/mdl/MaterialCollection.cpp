@@ -19,6 +19,7 @@
 
 #include "MaterialCollection.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/reflection_impl.h"
 
 #include <algorithm>
@@ -76,8 +77,7 @@ const Material* MaterialCollection::materialByIndex(const size_t index) const
 
 Material* MaterialCollection::materialByIndex(const size_t index)
 {
-  return const_cast<Material*>(
-    const_cast<const MaterialCollection*>(this)->materialByIndex(index));
+  return KDL_CONST_OVERLOAD(materialByIndex(index));
 }
 
 const Material* MaterialCollection::materialByName(const std::string& name) const
@@ -89,8 +89,7 @@ const Material* MaterialCollection::materialByName(const std::string& name) cons
 
 Material* MaterialCollection::materialByName(const std::string& name)
 {
-  return const_cast<Material*>(
-    const_cast<const MaterialCollection*>(this)->materialByName(name));
+  return KDL_CONST_OVERLOAD(materialByName(name));
 }
 
 } // namespace tb::mdl

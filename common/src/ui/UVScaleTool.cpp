@@ -24,6 +24,7 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "render/EdgeRenderer.h"
@@ -170,25 +171,25 @@ void renderHighlight(
 class UVScaleDragTracker : public GestureTracker
 {
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   const UVViewHelper& m_helper;
   vm::vec2i m_handle;
   vm::vec2b m_selector;
   vm::vec2f m_lastHitPoint; // in non-scaled, non-translated UV coordinates
 public:
   UVScaleDragTracker(
-    MapDocument& document,
+    mdl::Map& map,
     const UVViewHelper& helper,
     const vm::vec2i& handle,
     const vm::vec2b& selector,
     const vm::vec2f& initialHitPoint)
-    : m_document{document}
+    : m_map{map}
     , m_helper{helper}
     , m_handle{handle}
     , m_selector{selector}
     , m_lastHitPoint{initialHitPoint}
   {
-    document.startTransaction("Scale UV", mdl::TransactionScope::LongRunning);
+    m_map.startTransaction("Scale UV", mdl::TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override
@@ -230,14 +231,14 @@ public:
 
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setScale(newScale);
-    m_document.setFaceAttributes(request);
+    m_map.setFaceAttributes(request);
 
     const auto newOriginInUVCoords = vm::correct(m_helper.originInUVCoords(), 4, 0.0f);
     const auto originDelta = originHandlePosUVCoords - newOriginInUVCoords;
 
     request.clear();
     request.addOffset(originDelta);
-    m_document.setFaceAttributes(request);
+    m_map.setFaceAttributes(request);
 
     m_lastHitPoint =
       m_lastHitPoint
@@ -245,9 +246,9 @@ public:
     return true;
   }
 
-  void end(const InputState&) override { m_document.commitTransaction(); }
+  void end(const InputState&) override { m_map.commitTransaction(); }
 
-  void cancel() override { m_document.cancelTransaction(); }
+  void cancel() override { m_map.cancelTransaction(); }
 
   void render(const InputState&, render::RenderContext&, render::RenderBatch& renderBatch)
     const override
@@ -319,7 +320,7 @@ std::unique_ptr<GestureTracker> UVScaleTool::acceptMouseDrag(const InputState& i
   }
 
   return std::make_unique<UVScaleDragTracker>(
-    *kdl::mem_lock(m_document), m_helper, handle, selector, *initialHitPoint);
+    kdl::mem_lock(m_document)->map(), m_helper, handle, selector, *initialHitPoint);
 }
 
 void UVScaleTool::render(

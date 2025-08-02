@@ -23,19 +23,17 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
+#include "mdl/Map.h"
 #include "mdl/TransactionScope.h"
-#include "ui/MapDocument.h"
 #include "ui/RotateHandle.h"
 #include "ui/RotateToolPage.h"
-
-#include "kdl/memory_utils.h"
 
 namespace tb::ui
 {
 
-RotateTool::RotateTool(std::weak_ptr<MapDocument> document)
+RotateTool::RotateTool(mdl::Map& map)
   : Tool{false}
-  , m_document{std::move(document)}
+  , m_map{map}
 {
 }
 
@@ -47,7 +45,7 @@ bool RotateTool::doActivate()
 
 const mdl::Grid& RotateTool::grid() const
 {
-  return kdl::mem_lock(m_document)->grid();
+  return m_map.grid();
 }
 
 void RotateTool::updateToolPageAxis(const RotateHandle::HitArea area)
@@ -79,16 +77,15 @@ void RotateTool::setRotationCenter(const vm::vec3d& position)
 
 void RotateTool::resetRotationCenter()
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& selection = document->selection();
+  const auto& selection = m_map.selection();
   if (selection.hasOnlyEntities() && selection.entities.size() == 1)
   {
     const auto& entityNode = *selection.entities.front();
     setRotationCenter(entityNode.entity().origin());
   }
-  else if (const auto& bounds = document->selectionBounds())
+  else if (const auto& bounds = m_map.selectionBounds())
   {
-    const auto position = document->grid().snap(bounds->center());
+    const auto position = m_map.grid().snap(bounds->center());
     setRotationCenter(position);
   }
 }
@@ -105,35 +102,30 @@ double RotateTool::minorHandleRadius(const render::Camera& camera) const
 
 void RotateTool::beginRotation()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Rotate Objects", mdl::TransactionScope::LongRunning);
+  m_map.startTransaction("Rotate Objects", mdl::TransactionScope::LongRunning);
 }
 
 void RotateTool::commitRotation()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->commitTransaction();
+  m_map.commitTransaction();
   rotationCenterWasUsedNotifier(rotationCenter());
 }
 
 void RotateTool::cancelRotation()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->cancelTransaction();
+  m_map.cancelTransaction();
 }
 
 double RotateTool::snapRotationAngle(const double angle) const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->grid().snapAngle(angle);
+  return m_map.grid().snapAngle(angle);
 }
 
 void RotateTool::applyRotation(
   const vm::vec3d& center, const vm::vec3d& axis, const double angle)
 {
-  auto document = kdl::mem_lock(m_document);
-  document->rollbackTransaction();
-  document->rotate(center, axis, angle);
+  m_map.rollbackTransaction();
+  m_map.rotateSelection(center, axis, angle);
 }
 
 mdl::Hit RotateTool::pick2D(const vm::ray3d& pickRay, const render::Camera& camera)
@@ -180,7 +172,7 @@ void RotateTool::renderHighlight3D(
 
 QWidget* RotateTool::doCreatePage(QWidget* parent)
 {
-  return new RotateToolPage{m_document, *this, parent};
+  return new RotateToolPage{m_map, *this, parent};
 }
 
 } // namespace tb::ui

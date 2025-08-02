@@ -38,6 +38,7 @@
 namespace tb::mdl
 {
 struct EntityDefinition;
+class Map;
 class SmartTag;
 } // namespace tb::mdl
 
@@ -68,6 +69,9 @@ public:
 
   MapDocument* document();
   const MapDocument* document() const;
+
+  mdl::Map& map();
+  const mdl::Map& map() const;
 };
 
 using ExecuteFn = std::function<void(ActionExecutionContext&)>;

@@ -23,17 +23,10 @@
 
 #include <chrono>
 #include <filesystem>
-#include <memory>
 
-namespace tb
+namespace tb::mdl
 {
-class Logger;
-} // namespace tb
-
-namespace tb::ui
-{
-class Command;
-class MapDocument;
+class Map;
 
 io::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename);
 
@@ -42,7 +35,7 @@ class Autosaver
 private:
   using Clock = std::chrono::system_clock;
 
-  std::weak_ptr<MapDocument> m_document;
+  Map& m_map;
 
   /**
    * The time after which a new autosave is attempted, in seconds.
@@ -67,14 +60,14 @@ private:
 
 public:
   explicit Autosaver(
-    std::weak_ptr<MapDocument> document,
+    Map& map,
     std::chrono::milliseconds saveInterval = std::chrono::milliseconds(10 * 60 * 1000),
     size_t maxBackups = 50);
 
-  void triggerAutosave(Logger& logger);
+  void triggerAutosave();
 
 private:
-  void autosave(Logger& logger, std::shared_ptr<ui::MapDocument> document);
+  void autosave();
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

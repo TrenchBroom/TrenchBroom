@@ -147,6 +147,43 @@ std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes)
   return result;
 }
 
+
+std::vector<GroupNode*> collectContainingGroups(const std::vector<Node*>& nodes)
+{
+  auto result = std::vector<GroupNode*>{};
+  Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](const WorldNode*) {},
+      [](const LayerNode*) {},
+      [&](GroupNode* groupNode) {
+        if (auto* containingGroupNode = groupNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](EntityNode* entityNode) {
+        if (auto* containingGroupNode = entityNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](BrushNode* brushNode) {
+        if (auto* containingGroupNode = brushNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](PatchNode* patchNode) {
+        if (auto* containingGroupNode = patchNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      }));
+
+  return kdl::vec_sort_and_remove_duplicates(std::move(result));
+}
+
 std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes)
 {
   std::map<Node*, std::vector<Node*>> result;

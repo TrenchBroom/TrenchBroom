@@ -71,9 +71,9 @@ void TestGame::setGamePath(
 {
 }
 
-Game::SoftMapBounds TestGame::extractSoftMapBounds(const Entity&) const
+SoftMapBounds TestGame::extractSoftMapBounds(const Entity&) const
 {
-  return {Game::SoftMapBoundsType::Game, vm::bbox3d()};
+  return {SoftMapBoundsType::Game, vm::bbox3d()};
 }
 
 void TestGame::setAdditionalSearchPaths(

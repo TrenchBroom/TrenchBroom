@@ -25,8 +25,10 @@
 
 #include "PreferenceManager.h"
 #include "io/PathQt.h"
+#include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/Node.h"
-#include "mdl/WorldNode.h"
+#include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
@@ -65,8 +67,8 @@ void MaterialCollectionEditor::addSelectedMaterialCollections()
 
   enabledCollections = kdl::vec_sort_and_remove_duplicates(std::move(enabledCollections));
 
-  auto document = kdl::mem_lock(m_document);
-  document->setEnabledMaterialCollections(enabledCollections);
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.setEnabledMaterialCollections(enabledCollections);
 }
 
 void MaterialCollectionEditor::removeSelectedMaterialCollections()
@@ -87,14 +89,14 @@ void MaterialCollectionEditor::removeSelectedMaterialCollections()
     enabledCollections = kdl::vec_erase_at(std::move(enabledCollections), index);
   }
 
-  auto document = kdl::mem_lock(m_document);
-  document->setEnabledMaterialCollections(enabledCollections);
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.setEnabledMaterialCollections(enabledCollections);
 }
 
 void MaterialCollectionEditor::reloadMaterialCollections()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->reloadMaterialCollections();
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.reloadMaterialCollections();
 }
 
 void MaterialCollectionEditor::availableMaterialCollectionSelectionChanged()
@@ -227,24 +229,30 @@ void MaterialCollectionEditor::updateButtons()
 
 void MaterialCollectionEditor::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &MaterialCollectionEditor::documentWasNewedOrLoaded);
-  m_notifierConnection += document->nodesDidChangeNotifier.connect(
-    this, &MaterialCollectionEditor::nodesDidChange);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &MaterialCollectionEditor::documentWasNewedOrLoaded);
-  m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
+  auto& map = kdl::mem_lock(m_document)->map();
+  m_notifierConnection +=
+    map.mapWasCreatedNotifier.connect(this, &MaterialCollectionEditor::mapWasCreated);
+  m_notifierConnection +=
+    map.mapWasLoadedNotifier.connect(this, &MaterialCollectionEditor::mapWasLoaded);
+  m_notifierConnection +=
+    map.nodesDidChangeNotifier.connect(this, &MaterialCollectionEditor::nodesDidChange);
+  m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::materialCollectionsDidChange);
-  m_notifierConnection += document->modsDidChangeNotifier.connect(
-    this, &MaterialCollectionEditor::modsDidChange);
+  m_notifierConnection +=
+    map.modsDidChangeNotifier.connect(this, &MaterialCollectionEditor::modsDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::preferenceDidChange);
 }
 
-void MaterialCollectionEditor::documentWasNewedOrLoaded(MapDocument*)
+void MaterialCollectionEditor::mapWasCreated(mdl::Map&)
+{
+  updateAllMaterialCollections();
+  updateButtons();
+}
+
+void MaterialCollectionEditor::mapWasLoaded(mdl::Map&)
 {
   updateAllMaterialCollections();
   updateButtons();
@@ -252,8 +260,8 @@ void MaterialCollectionEditor::documentWasNewedOrLoaded(MapDocument*)
 
 void MaterialCollectionEditor::nodesDidChange(const std::vector<mdl::Node*>& nodes)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (kdl::vec_contains(nodes, document->world()))
+  const auto& map = kdl::mem_lock(m_document)->map();
+  if (kdl::vec_contains(nodes, map.world()))
   {
     updateAllMaterialCollections();
     updateButtons();
@@ -274,8 +282,8 @@ void MaterialCollectionEditor::modsDidChange()
 
 void MaterialCollectionEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (document->isGamePathPreference(path))
+  const auto& map = kdl::mem_lock(m_document)->map();
+  if (map.game()->isGamePathPreference(path))
   {
     updateAllMaterialCollections();
     updateButtons();
@@ -321,15 +329,15 @@ void MaterialCollectionEditor::updateEnabledMaterialCollections()
 std::vector<std::filesystem::path> MaterialCollectionEditor::
   availableMaterialCollections() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->disabledMaterialCollections();
+  auto& map = kdl::mem_lock(m_document)->map();
+  return map.disabledMaterialCollections();
 }
 
 std::vector<std::filesystem::path> MaterialCollectionEditor::enabledMaterialCollections()
   const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->enabledMaterialCollections();
+  auto& map = kdl::mem_lock(m_document)->map();
+  return map.enabledMaterialCollections();
 }
 
 } // namespace tb::ui

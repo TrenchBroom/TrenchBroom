@@ -23,17 +23,15 @@
 
 #include "vm/vec.h"
 
-#include <memory>
-
 namespace tb::mdl
 {
 class Grid;
-}
+class Map;
+} // namespace tb::mdl
 
 namespace tb::ui
 {
 class InputState;
-class MapDocument;
 
 class MoveObjectsTool : public Tool
 {
@@ -46,11 +44,11 @@ public:
   };
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
   bool m_duplicateObjects = false;
 
 public:
-  explicit MoveObjectsTool(std::weak_ptr<MapDocument> document);
+  explicit MoveObjectsTool(mdl::Map& map);
 
 public:
   const mdl::Grid& grid() const;

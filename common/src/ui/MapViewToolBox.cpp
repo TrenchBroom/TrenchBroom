@@ -27,7 +27,6 @@
 #include "ui/EdgeTool.h"
 #include "ui/ExtrudeTool.h"
 #include "ui/FaceTool.h"
-#include "ui/MapDocument.h"
 #include "ui/MoveObjectsTool.h"
 #include "ui/RotateTool.h"
 #include "ui/ScaleTool.h"
@@ -37,9 +36,8 @@
 namespace tb::ui
 {
 
-MapViewToolBox::MapViewToolBox(
-  std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl)
-  : m_document{std::move(document)}
+MapViewToolBox::MapViewToolBox(mdl::Map& map, QStackedLayout* bookCtrl)
+  : m_map{map}
 {
   createTools(bookCtrl);
   connectObservers();
@@ -259,18 +257,18 @@ void MapViewToolBox::moveVertices(const vm::vec3d& delta)
 
 void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
 {
-  m_clipTool = std::make_unique<ClipTool>(m_document);
-  m_assembleBrushTool = std::make_unique<AssembleBrushTool>(m_document);
-  m_createEntityTool = std::make_unique<CreateEntityTool>(m_document);
-  m_drawShapeTool = std::make_unique<DrawShapeTool>(m_document);
-  m_moveObjectsTool = std::make_unique<MoveObjectsTool>(m_document);
-  m_extrudeTool = std::make_unique<ExtrudeTool>(m_document);
-  m_rotateTool = std::make_unique<RotateTool>(m_document);
-  m_scaleTool = std::make_unique<ScaleTool>(m_document);
-  m_shearTool = std::make_unique<ShearTool>(m_document);
-  m_vertexTool = std::make_unique<VertexTool>(m_document);
-  m_edgeTool = std::make_unique<EdgeTool>(m_document);
-  m_faceTool = std::make_unique<FaceTool>(m_document);
+  m_clipTool = std::make_unique<ClipTool>(m_map);
+  m_assembleBrushTool = std::make_unique<AssembleBrushTool>(m_map);
+  m_createEntityTool = std::make_unique<CreateEntityTool>(m_map);
+  m_drawShapeTool = std::make_unique<DrawShapeTool>(m_map);
+  m_moveObjectsTool = std::make_unique<MoveObjectsTool>(m_map);
+  m_extrudeTool = std::make_unique<ExtrudeTool>(m_map);
+  m_rotateTool = std::make_unique<RotateTool>(m_map);
+  m_scaleTool = std::make_unique<ScaleTool>(m_map);
+  m_shearTool = std::make_unique<ShearTool>(m_map);
+  m_vertexTool = std::make_unique<VertexTool>(m_map);
+  m_edgeTool = std::make_unique<EdgeTool>(m_map);
+  m_faceTool = std::make_unique<FaceTool>(m_map);
 
   addExclusiveToolGroup(
     assembleBrushTool(),
@@ -323,13 +321,12 @@ void MapViewToolBox::connectObservers()
   m_notifierConnection +=
     toolDeactivatedNotifier.connect(this, &MapViewToolBox::toolDeactivated);
 
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &MapViewToolBox::documentWasNewedOrLoaded);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &MapViewToolBox::documentWasNewedOrLoaded);
-  m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &MapViewToolBox::selectionDidChange);
+  m_notifierConnection +=
+    m_map.mapWasCreatedNotifier.connect(this, &MapViewToolBox::mapWasCreated);
+  m_notifierConnection +=
+    m_map.mapWasLoadedNotifier.connect(this, &MapViewToolBox::mapWasLoaded);
+  m_notifierConnection +=
+    m_map.selectionDidChangeNotifier.connect(this, &MapViewToolBox::selectionDidChange);
 }
 
 void MapViewToolBox::toolActivated(Tool&)
@@ -346,12 +343,16 @@ void MapViewToolBox::toolDeactivated(Tool&)
 
 void MapViewToolBox::updateEditorContext()
 {
-  auto document = kdl::mem_lock(m_document);
-  mdl::EditorContext& editorContext = document->editorContext();
+  auto& editorContext = m_map.editorContext();
   editorContext.setBlockSelection(assembleBrushToolActive());
 }
 
-void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*)
+void MapViewToolBox::mapWasCreated(mdl::Map&)
+{
+  deactivateAllTools();
+}
+
+void MapViewToolBox::mapWasLoaded(mdl::Map&)
 {
   deactivateAllTools();
 }

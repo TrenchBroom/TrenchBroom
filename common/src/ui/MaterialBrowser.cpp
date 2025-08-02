@@ -28,6 +28,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "ui/MapDocument.h"
@@ -184,22 +186,22 @@ void MaterialBrowser::bindEvents()
 
 void MaterialBrowser::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   m_notifierConnection +=
-    document->documentWasNewedNotifier.connect(this, &MaterialBrowser::documentWasNewed);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &MaterialBrowser::documentWasLoaded);
+    map.mapWasCreatedNotifier.connect(this, &MaterialBrowser::mapWasCreated);
   m_notifierConnection +=
-    document->nodesWereAddedNotifier.connect(this, &MaterialBrowser::nodesWereAdded);
+    map.mapWasLoadedNotifier.connect(this, &MaterialBrowser::mapWasLoaded);
   m_notifierConnection +=
-    document->nodesWereRemovedNotifier.connect(this, &MaterialBrowser::nodesWereRemoved);
+    map.nodesWereAddedNotifier.connect(this, &MaterialBrowser::nodesWereAdded);
   m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &MaterialBrowser::nodesDidChange);
-  m_notifierConnection += document->brushFacesDidChangeNotifier.connect(
-    this, &MaterialBrowser::brushFacesDidChange);
-  m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
+    map.nodesWereRemovedNotifier.connect(this, &MaterialBrowser::nodesWereRemoved);
+  m_notifierConnection +=
+    map.nodesDidChangeNotifier.connect(this, &MaterialBrowser::nodesDidChange);
+  m_notifierConnection +=
+    map.brushFacesDidChangeNotifier.connect(this, &MaterialBrowser::brushFacesDidChange);
+  m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
     this, &MaterialBrowser::materialCollectionsDidChange);
-  m_notifierConnection += document->currentMaterialNameDidChangeNotifier.connect(
+  m_notifierConnection += map.currentMaterialNameDidChangeNotifier.connect(
     this, &MaterialBrowser::currentMaterialNameDidChange);
 
   auto& prefs = PreferenceManager::instance();
@@ -207,12 +209,12 @@ void MaterialBrowser::connectObservers()
     this, &MaterialBrowser::preferenceDidChange);
 }
 
-void MaterialBrowser::documentWasNewed(MapDocument*)
+void MaterialBrowser::mapWasCreated(mdl::Map&)
 {
   reload();
 }
 
-void MaterialBrowser::documentWasLoaded(MapDocument*)
+void MaterialBrowser::mapWasLoaded(mdl::Map&)
 {
   reload();
 }
@@ -249,10 +251,10 @@ void MaterialBrowser::currentMaterialNameDidChange(const std::string& /* materia
 
 void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   if (
     path == Preferences::MaterialBrowserIconSize.path()
-    || document->isGamePathPreference(path))
+    || map.game()->isGamePathPreference(path))
   {
     reload();
   }
@@ -274,9 +276,9 @@ void MaterialBrowser::reload()
 
 void MaterialBrowser::updateSelectedMaterial()
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& materialName = document->currentMaterialName();
-  const auto* material = document->materialManager().material(materialName);
+  auto& map = kdl::mem_lock(m_document)->map();
+  const auto& materialName = map.currentMaterialName();
+  const auto* material = map.materialManager().material(materialName);
   m_view->setSelectedMaterial(material);
 }
 
