@@ -33,6 +33,7 @@ namespace tb::mdl
 {
 class BrushFaceHandle;
 class Issue;
+class Map;
 class Node;
 } // namespace tb::mdl
 
@@ -65,13 +66,16 @@ public:
 
 private:
   void connectObservers();
-  void documentWasNewedOrLoaded(MapDocument* document);
-  void documentWasSaved(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
+  void mapWasSaved(mdl::Map& map);
   void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
   void issueIgnoreChanged(mdl::Issue* issue);
+
+  void reload();
 
   void updateFilterFlags();
 

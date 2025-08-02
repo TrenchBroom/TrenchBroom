@@ -28,6 +28,8 @@
 #include <QToolButton>
 
 #include "mdl/BrushBuilder.h"
+#include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
@@ -64,14 +66,14 @@ DrawShapeToolExtensionPage* DrawShapeToolCuboidExtension::createToolPage(
 Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters&) const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto game = map.game();
   const auto builder = mdl::BrushBuilder{
-    document->world()->mapFormat(),
-    document->worldBounds(),
+    map.world()->mapFormat(),
+    map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
 
-  return builder.createCuboid(bounds, document->currentMaterialName())
+  return builder.createCuboid(bounds, map.currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
@@ -282,11 +284,11 @@ DrawShapeToolExtensionPage* DrawShapeToolCylinderExtension::createToolPage(
 Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto game = map.game();
   const auto builder = mdl::BrushBuilder{
-    document->world()->mapFormat(),
-    document->worldBounds(),
+    map.world()->mapFormat(),
+    map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
   return parameters.hollow()
            ? builder.createHollowCylinder(
@@ -294,13 +296,13 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
                parameters.thickness(),
                parameters.circleShape(),
                parameters.axis(),
-               document->currentMaterialName())
+               map.currentMaterialName())
            : builder
                .createCylinder(
                  bounds,
                  parameters.circleShape(),
                  parameters.axis(),
-                 document->currentMaterialName())
+                 map.currentMaterialName())
                .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
@@ -339,18 +341,15 @@ DrawShapeToolExtensionPage* DrawShapeToolConeExtension::createToolPage(
 Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto game = map.game();
   const auto builder = mdl::BrushBuilder{
-    document->world()->mapFormat(),
-    document->worldBounds(),
+    map.world()->mapFormat(),
+    map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
   return builder
     .createCone(
-      bounds,
-      parameters.circleShape(),
-      parameters.axis(),
-      document->currentMaterialName())
+      bounds, parameters.circleShape(), parameters.axis(), map.currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
@@ -409,15 +408,14 @@ DrawShapeToolExtensionPage* DrawShapeToolIcoSphereExtension::createToolPage(
 Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto game = map.game();
   const auto builder = mdl::BrushBuilder{
-    document->world()->mapFormat(),
-    document->worldBounds(),
+    map.world()->mapFormat(),
+    map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
 
-  return builder
-    .createIcoSphere(bounds, parameters.accuracy(), document->currentMaterialName())
+  return builder.createIcoSphere(bounds, parameters.accuracy(), map.currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
@@ -486,11 +484,11 @@ DrawShapeToolExtensionPage* DrawShapeToolUVSphereExtension::createToolPage(
 Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto game = map.game();
   const auto builder = mdl::BrushBuilder{
-    document->world()->mapFormat(),
-    document->worldBounds(),
+    map.world()->mapFormat(),
+    map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
   return builder
     .createUVSphere(
@@ -498,7 +496,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
       parameters.circleShape(),
       parameters.numRings(),
       parameters.axis(),
-      document->currentMaterialName())
+      map.currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 

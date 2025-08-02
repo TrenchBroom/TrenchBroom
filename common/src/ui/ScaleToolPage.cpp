@@ -27,6 +27,7 @@
 #include <QPushButton>
 #include <QStackedLayout>
 
+#include "mdl/Map.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ScaleTool.h"
@@ -53,15 +54,15 @@ ScaleToolPage::ScaleToolPage(std::weak_ptr<MapDocument> document, QWidget* paren
 
 void ScaleToolPage::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &ScaleToolPage::selectionDidChange);
+  auto& map = kdl::mem_lock(m_document)->map();
+  m_notifierConnection +=
+    map.selectionDidChangeNotifier.connect(this, &ScaleToolPage::selectionDidChange);
 }
 
 void ScaleToolPage::activate()
 {
-  const auto document = kdl::mem_lock(m_document);
-  const auto suggestedSize = document->selectionBounds().value_or(vm::bbox3d{}).size();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto suggestedSize = map.selectionBounds().value_or(vm::bbox3d{}).size();
 
   m_sizeTextBox->setText(toString(suggestedSize));
   m_factorsTextBox->setText(toString(vm::vec3d{1, 1, 1}));
@@ -117,7 +118,8 @@ void ScaleToolPage::updateGui()
 
 bool ScaleToolPage::canScale() const
 {
-  return kdl::mem_lock(m_document)->selection().hasNodes();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return map.selection().hasNodes();
 }
 
 std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
@@ -125,8 +127,8 @@ std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
   switch (m_scaleFactorsOrSize->currentIndex())
   {
   case 0: {
-    auto document = kdl::mem_lock(m_document);
-    if (const auto& selectionBounds = document->selectionBounds())
+    const auto& map = kdl::mem_lock(m_document)->map();
+    if (const auto& selectionBounds = map.selectionBounds())
     {
       if (const auto desiredSize = parse<double, 3>(m_sizeTextBox->text()))
       {
@@ -151,10 +153,10 @@ void ScaleToolPage::applyScale()
   {
     if (const auto scaleFactors = getScaleFactors())
     {
-      auto document = kdl::mem_lock(m_document);
-      if (const auto& selectionBounds = document->selectionBounds())
+      auto& map = kdl::mem_lock(m_document)->map();
+      if (const auto& selectionBounds = map.selectionBounds())
       {
-        document->scale(selectionBounds->center(), *scaleFactors);
+        map.scaleSelection(selectionBounds->center(), *scaleFactors);
       }
     }
   }

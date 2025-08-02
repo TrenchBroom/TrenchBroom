@@ -21,6 +21,7 @@
 
 #include "mdl/Brush.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
+#include "mdl/Map.h"
 #include "mdl/Transaction.h"
 #include "ui/DrawShapeToolExtension.h"
 #include "ui/DrawShapeToolPage.h"
@@ -51,15 +52,15 @@ void DrawShapeTool::update(const vm::bbox3d& bounds)
       | kdl::to_vector);
   }) | kdl::transform_error([&](auto e) {
     clearBrushes();
-    auto document = kdl::mem_lock(m_document);
-    document->error() << "Could not update brushes: " << e;
+    auto& map = kdl::mem_lock(m_document)->map();
+    map.logger().error() << "Could not update brushes: " << e;
   });
 }
 
 bool DrawShapeTool::cancel()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (document->selection().hasAny())
+  auto& map = kdl::mem_lock(m_document)->map();
+  if (map.selection().hasAny())
   {
     // Let the map view deselect before we switch the shapes
     return false;
@@ -72,8 +73,8 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
 {
   auto* page = new DrawShapeToolPage{m_document, m_extensionManager, parent};
   m_notifierConnection += page->applyParametersNotifier.connect([&]() {
-    auto document = kdl::mem_lock(m_document);
-    if (const auto& selectionBounds = document->selectionBounds())
+    auto& map = kdl::mem_lock(m_document)->map();
+    if (const auto& selectionBounds = map.selectionBounds())
     {
       m_extensionManager.createBrushes(*selectionBounds)
         | kdl::transform([](auto brushes) {
@@ -83,21 +84,20 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
                    | kdl::to_vector;
           })
         | kdl::transform([&](auto brushNodes) {
-            auto transaction = mdl::Transaction{document, "Update Brushes"};
+            auto transaction = mdl::Transaction{map, "Update Brushes"};
 
-            document->remove();
-            const auto addedNodes = document->addNodes({
-              {document->parentForNodes(),
-               brushNodes | std::views::transform([](auto& node) {
-                 return static_cast<mdl::Node*>(node.release());
-               }) | kdl::to_vector},
+            map.removeSelectedNodes();
+            const auto addedNodes = map.addNodes({
+              {map.parentForNodes(), brushNodes | std::views::transform([](auto& node) {
+                                       return static_cast<mdl::Node*>(node.release());
+                                     }) | kdl::to_vector},
             });
-            document->selectNodes(addedNodes);
+            map.selectNodes(addedNodes);
 
             transaction.commit();
           })
         | kdl::transform_error(
-          [&](auto e) { document->error() << "Could not update brushes: " << e; });
+          [&](auto e) { map.logger().error() << "Could not update brushes: " << e; });
     }
   });
 

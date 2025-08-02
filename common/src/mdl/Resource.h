@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Macros.h"
+#include "ResourceId.h"
 #include "Result.h"
-#include "Uuid.h"
 
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
@@ -35,16 +35,6 @@
 
 namespace tb::mdl
 {
-
-class ResourceId
-{
-private:
-  std::string m_id = generateUuid();
-
-  kdl_reflect_inline(ResourceId, m_id);
-
-  friend struct std::hash<ResourceId>;
-};
 
 template <typename T>
 using ResourceLoader = std::function<Result<T>()>;
@@ -389,12 +379,3 @@ std::ostream& operator<<(std::ostream& lhs, const std::shared_ptr<Resource<T>>& 
 }
 
 } // namespace tb::mdl
-
-template <>
-struct std::hash<tb::mdl::ResourceId>
-{
-  std::size_t operator()(const tb::mdl::ResourceId& resourceId) const noexcept
-  {
-    return std::hash<std::string>{}(resourceId.m_id);
-  }
-};

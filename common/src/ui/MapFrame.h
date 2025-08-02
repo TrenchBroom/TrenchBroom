@@ -54,6 +54,7 @@ namespace tb::mdl
 class Game;
 class GroupNode;
 class LayerNode;
+class Map;
 class Material;
 class Node;
 enum class PasteType;
@@ -168,9 +169,11 @@ private: // gui creation
 private: // notification handlers
   void connectObservers();
 
-  void documentWasCleared(ui::MapDocument* document);
-  void documentDidChange(ui::MapDocument* document);
-  void documentModificationStateDidChange();
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
+  void mapWasSaved(mdl::Map& map);
+  void mapWasCleared(mdl::Map& map);
+  void mapModificationStateDidChange();
 
   void transactionDone(const std::string&);
   void transactionUndone(const std::string&);
@@ -247,7 +250,7 @@ public:
   bool canPaste() const;
 
   void duplicateSelection();
-  bool canDuplicateSelectino() const;
+  bool canDuplicateSelection() const;
 
   void deleteSelection();
   bool canDeleteSelection() const;

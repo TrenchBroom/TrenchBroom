@@ -25,6 +25,7 @@
 #include "mdl/Game.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
+#include "mdl/Map.h"
 #include "mdl/MapFacade.h"
 #include "mdl/PushSelection.h"
 
@@ -78,15 +79,15 @@ std::vector<std::string> removeMissingMods(
 
 IssueQuickFix makeRemoveModsQuickFix()
 {
-  return {"Remove Mod", [](MapFacade& facade, const std::vector<const Issue*>& issues) {
-            const auto pushSelection = PushSelection{facade};
+  return {"Remove Mod", [](Map& map, const std::vector<const Issue*>& issues) {
+            const auto pushSelection = PushSelection{map};
 
             // If nothing is selected, property changes will affect only world.
-            facade.deselectAll();
+            map.deselectAll();
 
-            const auto oldMods = facade.mods();
+            const auto oldMods = map.mods();
             const auto newMods = removeMissingMods(oldMods, issues);
-            facade.setMods(newMods);
+            map.setMods(newMods);
           }};
 }
 } // namespace

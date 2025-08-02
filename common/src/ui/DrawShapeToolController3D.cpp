@@ -23,6 +23,7 @@
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
 #include "mdl/PickResult.h"
 #include "render/Camera.h"
 #include "ui/DrawShapeTool.h"
@@ -260,8 +261,8 @@ std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
     return nullptr;
   }
 
-  auto document = kdl::mem_lock(m_document);
-  if (document->selection().hasAny())
+  const auto& map = kdl::mem_lock(m_document)->map();
+  if (map.selection().hasAny())
   {
     return nullptr;
   }
@@ -271,7 +272,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
     hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
 
   return createHandleDragTracker(
-    DrawShapeDragDelegate{m_tool, document->worldBounds()},
+    DrawShapeDragDelegate{m_tool, map.worldBounds()},
     inputState,
     initialHandlePosition,
     initialHandlePosition);

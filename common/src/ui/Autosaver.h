@@ -25,10 +25,10 @@
 #include <filesystem>
 #include <memory>
 
-namespace tb
+namespace tb::mdl
 {
-class Logger;
-} // namespace tb
+class Map;
+}
 
 namespace tb::ui
 {
@@ -71,10 +71,10 @@ public:
     std::chrono::milliseconds saveInterval = std::chrono::milliseconds(10 * 60 * 1000),
     size_t maxBackups = 50);
 
-  void triggerAutosave(Logger& logger);
+  void triggerAutosave();
 
 private:
-  void autosave(Logger& logger, std::shared_ptr<ui::MapDocument> document);
+  void autosave(mdl::Map& map);
 };
 
 } // namespace tb::ui

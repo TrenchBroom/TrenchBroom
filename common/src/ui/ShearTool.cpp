@@ -24,6 +24,7 @@
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "render/Camera.h"
@@ -49,13 +50,14 @@ ShearTool::~ShearTool() = default;
 
 const mdl::Grid& ShearTool::grid() const
 {
-  return kdl::mem_lock(m_document)->grid();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return map.grid();
 }
 
 bool ShearTool::applies() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->selection().hasNodes();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return map.selection().hasNodes();
 }
 
 void ShearTool::pickBackSides(
@@ -148,9 +150,9 @@ void ShearTool::pick3D(
 
 vm::bbox3d ShearTool::bounds() const
 {
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
 
-  const auto& bounds = document->selectionBounds();
+  const auto& bounds = map.selectionBounds();
   ensure(bounds, "selection bounds are available");
   return *bounds;
 }
@@ -171,8 +173,8 @@ void ShearTool::startShearWithHit(const mdl::Hit& hit)
   m_dragStartHit = hit;
   m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
-  auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Shear Objects", mdl::TransactionScope::LongRunning);
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.startTransaction("Shear Objects", mdl::TransactionScope::LongRunning);
   m_resizing = true;
 }
 
@@ -180,14 +182,14 @@ void ShearTool::commitShear()
 {
   ensure(m_resizing, "must be resizing already");
 
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
   {
-    document->cancelTransaction();
+    map.cancelTransaction();
   }
   else
   {
-    document->commitTransaction();
+    map.commitTransaction();
   }
   m_resizing = false;
 }
@@ -196,8 +198,8 @@ void ShearTool::cancelShear()
 {
   ensure(m_resizing, "must be resizing already");
 
-  auto document = kdl::mem_lock(m_document);
-  document->cancelTransaction();
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.cancelTransaction();
 
   m_resizing = false;
 }
@@ -208,12 +210,12 @@ void ShearTool::shearByDelta(const vm::vec3d& delta)
 
   m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
     const auto side = m_dragStartHit.target<BBoxSide>();
-    document->shear(bounds(), side.normal, delta);
+    map.shearSelection(bounds(), side.normal, delta);
   }
 }
 

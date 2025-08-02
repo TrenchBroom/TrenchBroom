@@ -19,7 +19,6 @@
 
 #include "BrushVertexCommands.h"
 
-#include "mdl/SwapNodeContentsCommand.h"
 #include "ui/VertexTool.h"
 
 #include "kdl/range_to_vector.h"
@@ -35,8 +34,7 @@ BrushVertexCommandBase::BrushVertexCommandBase(
 {
 }
 
-std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(
-  ui::MapDocument& document)
+std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(Map& document)
 {
   return createCommandResult(SwapNodeContentsCommand::doPerformDo(document));
 }

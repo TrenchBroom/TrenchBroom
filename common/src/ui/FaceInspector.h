@@ -29,8 +29,9 @@ class QWidget;
 
 namespace tb::mdl
 {
+class Map;
 class Material;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -71,7 +72,8 @@ private:
   void materialSelected(const mdl::Material* material);
 
   void connectObservers();
-  void documentWasNewedOrOpened(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
 };
 
 } // namespace tb::ui

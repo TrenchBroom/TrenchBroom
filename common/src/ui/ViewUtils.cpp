@@ -28,6 +28,7 @@
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Map.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/MapDocument.h"
 
@@ -65,18 +66,18 @@ bool loadEntityDefinitionFile(
 }
 
 size_t loadEntityDefinitionFile(
-  std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs)
+  std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs)
 {
   if (pathStrs.empty())
   {
     return 0;
   }
 
-  auto document = kdl::mem_lock(i_document);
-  auto game = document->game();
+  auto& map = kdl::mem_lock(document)->map();
+  auto game = map.game();
   const auto& gameFactory = mdl::GameFactory::instance();
   const auto gamePath = gameFactory.gamePath(game->config().name);
-  const auto docPath = document->path();
+  const auto docPath = map.path();
 
   for (int i = 0; i < pathStrs.size(); ++i)
   {
@@ -91,7 +92,7 @@ size_t loadEntityDefinitionFile(
         const auto path =
           convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
         const auto spec = mdl::EntityDefinitionFileSpec::external(path);
-        document->setEntityDefinitionFile(spec);
+        map.setEntityDefinitionFile(spec);
         return static_cast<size_t>(i);
       }
     }

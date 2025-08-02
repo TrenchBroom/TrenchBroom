@@ -29,6 +29,11 @@ class QPushButton;
 class QListWidget;
 class QLabel;
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 
@@ -75,8 +80,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void entityDefinitionsDidChange();
 
   void updateControls();

@@ -26,21 +26,15 @@
 
 #include "vm/ray.h"
 
-#include <memory>
 #include <vector>
 
 namespace tb
 {
 namespace mdl
 {
+class Map;
 class Picker;
-}
-
-namespace ui
-{
-// FIXME: Renderer should not depend on View
-class MapDocument;
-} // namespace ui
+} // namespace mdl
 
 namespace render
 {
@@ -62,8 +56,7 @@ private:
 
 public:
   void setColor(const Color& color);
-  void add(
-    const vm::ray3d& ray, double length, std::shared_ptr<ui::MapDocument> document);
+  void add(const vm::ray3d& ray, double length, const mdl::Map& map);
   void clear();
 
 private:

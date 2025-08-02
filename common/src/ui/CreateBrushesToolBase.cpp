@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushNode.h"
+#include "mdl/Map.h"
 #include "mdl/Transaction.h"
 #include "render/BrushRenderer.h"
 #include "render/SelectionBoundsRenderer.h"
@@ -44,23 +45,23 @@ CreateBrushesToolBase::~CreateBrushesToolBase() = default;
 
 const mdl::Grid& CreateBrushesToolBase::grid() const
 {
-  return kdl::mem_lock(m_document)->grid();
+  return kdl::mem_lock(m_document)->map().grid();
 }
 
 void CreateBrushesToolBase::createBrushes()
 {
   if (!m_brushNodes.empty())
   {
-    auto document = kdl::mem_lock(m_document);
+    auto& map = kdl::mem_lock(m_document)->map();
     auto nodesToAdd = kdl::vec_transform(std::move(m_brushNodes), [](auto brushNode) {
       return static_cast<mdl::Node*>(brushNode.release());
     });
     clearBrushes();
 
-    auto transaction = mdl::Transaction{document, "Create Brush"};
-    document->deselectAll();
-    auto addedNodes = document->addNodes({{document->parentForNodes(), nodesToAdd}});
-    document->selectNodes(addedNodes);
+    auto transaction = mdl::Transaction{map, "Create Brush"};
+    map.deselectAll();
+    auto addedNodes = map.addNodes({{map.parentForNodes(), nodesToAdd}});
+    map.selectNodes(addedNodes);
     transaction.commit();
 
     doBrushesWereCreated();

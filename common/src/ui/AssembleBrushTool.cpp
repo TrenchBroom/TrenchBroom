@@ -23,6 +23,7 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
@@ -50,20 +51,20 @@ void AssembleBrushTool::update(const mdl::Polyhedron3& polyhedron)
   *m_polyhedron = polyhedron;
   if (m_polyhedron->closed())
   {
-    auto document = kdl::mem_lock(m_document);
-    const auto game = document->game();
+    auto& map = kdl::mem_lock(m_document)->map();
+    const auto game = map.game();
     const auto builder = mdl::BrushBuilder{
-      document->world()->mapFormat(),
-      document->worldBounds(),
+      map.world()->mapFormat(),
+      map.worldBounds(),
       game->config().faceAttribsConfig.defaults};
 
-    builder.createBrush(*m_polyhedron, document->currentMaterialName())
+    builder.createBrush(*m_polyhedron, map.currentMaterialName())
       | kdl::transform([&](auto b) {
           updateBrushes(kdl::vec_from(std::make_unique<mdl::BrushNode>(std::move(b))));
         })
       | kdl::transform_error([&](auto e) {
           clearBrushes();
-          document->error() << "Could not update brush: " << e.msg;
+          map.logger().error() << "Could not update brush: " << e.msg;
         });
   }
   else

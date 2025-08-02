@@ -644,7 +644,7 @@ TEST_CASE("NodeTest.accept")
       const_cast<const WorldNode&>(worldNode).accept(constNodeTestVisitor)
       == Visited::World);
     CHECK(
-      const_cast<const LayerNode&>(layerNode).accept(constNodeTestVisitor)
+      const_cast<const LayerNode&>(lakyerNode).accept(constNodeTestVisitor)
       == Visited::Layer);
     CHECK(
       const_cast<const GroupNode&>(groupNode).accept(constNodeTestVisitor)

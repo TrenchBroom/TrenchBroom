@@ -35,9 +35,11 @@ class QButtonGroup;
 namespace tb::mdl
 {
 class EditorContext;
-struct EntityDefinition;
 class EntityDefinitionManager;
+class Map;
 class SmartTag;
+
+struct EntityDefinition;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -112,7 +114,8 @@ public:
 private:
   void connectObservers();
 
-  void documentWasNewedOrLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void editorContextDidChange();
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);

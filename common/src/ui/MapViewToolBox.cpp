@@ -323,13 +323,13 @@ void MapViewToolBox::connectObservers()
   m_notifierConnection +=
     toolDeactivatedNotifier.connect(this, &MapViewToolBox::toolDeactivated);
 
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &MapViewToolBox::documentWasNewedOrLoaded);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &MapViewToolBox::documentWasNewedOrLoaded);
-  m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &MapViewToolBox::selectionDidChange);
+  auto& map = kdl::mem_lock(m_document)->map();
+  m_notifierConnection +=
+    map.mapWasCreatedNotifier.connect(this, &MapViewToolBox::mapWasCreated);
+  m_notifierConnection +=
+    map.mapWasLoadedNotifier.connect(this, &MapViewToolBox::mapWasLoaded);
+  m_notifierConnection +=
+    map.selectionDidChangeNotifier.connect(this, &MapViewToolBox::selectionDidChange);
 }
 
 void MapViewToolBox::toolActivated(Tool&)
@@ -346,12 +346,17 @@ void MapViewToolBox::toolDeactivated(Tool&)
 
 void MapViewToolBox::updateEditorContext()
 {
-  auto document = kdl::mem_lock(m_document);
-  mdl::EditorContext& editorContext = document->editorContext();
+  auto& map = kdl::mem_lock(m_document)->map();
+  auto& editorContext = map.editorContext();
   editorContext.setBlockSelection(assembleBrushToolActive());
 }
 
-void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*)
+void MapViewToolBox::mapWasCreated(mdl::Map&)
+{
+  deactivateAllTools();
+}
+
+void MapViewToolBox::mapWasLoaded(mdl::Map&)
 {
   deactivateAllTools();
 }

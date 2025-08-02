@@ -230,14 +230,9 @@ TagMatcherCallback::~TagMatcherCallback() = default;
 
 TagMatcher::~TagMatcher() = default;
 
-void TagMatcher::enable(TagMatcherCallback& /* callback */, MapFacade& /* facade */) const
-{
-}
+void TagMatcher::enable(TagMatcherCallback&, Map&) const {}
 
-void TagMatcher::disable(
-  TagMatcherCallback& /* callback */, MapFacade& /* facade */) const
-{
-}
+void TagMatcher::disable(TagMatcherCallback&, Map&) const {}
 
 bool TagMatcher::canEnable() const
 {
@@ -297,14 +292,14 @@ void SmartTag::update(Taggable& taggable) const
   }
 }
 
-void SmartTag::enable(TagMatcherCallback& callback, MapFacade& facade) const
+void SmartTag::enable(TagMatcherCallback& callback, Map& map) const
 {
-  m_matcher->enable(callback, facade);
+  m_matcher->enable(callback, map);
 }
 
-void SmartTag::disable(TagMatcherCallback& callback, MapFacade& facade) const
+void SmartTag::disable(TagMatcherCallback& callback, Map& map) const
 {
-  m_matcher->disable(callback, facade);
+  m_matcher->disable(callback, map);
 }
 
 bool SmartTag::canEnable() const

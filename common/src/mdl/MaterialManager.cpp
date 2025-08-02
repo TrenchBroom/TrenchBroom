@@ -23,8 +23,8 @@
 #include "io/LoadMaterialCollections.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialCollection.h"
-#include "mdl/Resource.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/map_utils.h"
 #include "kdl/result.h"
 #include "kdl/string_format.h"
@@ -99,7 +99,7 @@ const Material* MaterialManager::material(const std::string& name) const
 
 Material* MaterialManager::material(const std::string& name)
 {
-  return const_cast<Material*>(const_cast<const MaterialManager*>(this)->material(name));
+  return KDL_CONST_OVERLOAD(material(name));
 }
 
 const std::vector<const Material*> MaterialManager::findMaterialsByTextureResourceId(

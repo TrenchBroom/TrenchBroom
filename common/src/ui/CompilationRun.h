@@ -35,8 +35,10 @@ class VariableTable;
 
 namespace tb::mdl
 {
+class Map;
+
 struct CompilationProfile;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -55,11 +57,11 @@ public:
   bool running() const;
   Result<void> run(
     const mdl::CompilationProfile& profile,
-    std::shared_ptr<MapDocument> document,
+    const mdl::Map& map,
     QTextEdit* currentOutput);
   Result<void> test(
     const mdl::CompilationProfile& profile,
-    std::shared_ptr<MapDocument> document,
+    const mdl::Map& map,
     QTextEdit* currentOutput);
   void terminate();
 
@@ -67,13 +69,13 @@ private:
   bool doIsRunning() const;
   Result<void> run(
     const mdl::CompilationProfile& profile,
-    std::shared_ptr<MapDocument> document,
+    const mdl::Map& map,
     QTextEdit* currentOutput,
     bool test);
 
 private:
   Result<std::string> buildWorkDir(
-    const mdl::CompilationProfile& profile, std::shared_ptr<MapDocument> document);
+    const mdl::CompilationProfile& profile, const mdl::Map& map);
   void cleanup();
 signals:
   void compilationStarted();

@@ -258,7 +258,7 @@ private:
   virtual void doAcceptTagVisitor(ConstTagVisitor& visitor) const = 0;
 };
 
-class MapFacade;
+class Map;
 
 /**
  * A mechanism to query user input when enabling or disabling a tag matcher.
@@ -292,17 +292,17 @@ public:
    * Modifies the current selection so that this tag matcher would match it.
    *
    * @param callback a callback mechanism to query  user input
-   * @param facade the map facade to issue commands with
+   * @param map the map to issue commands with
    */
-  virtual void enable(TagMatcherCallback& callback, MapFacade& facade) const;
+  virtual void enable(TagMatcherCallback& callback, Map& map) const;
 
   /**
    * Modifies the current selection so that this tag matcher would not match it.
    *
    * @param callback a callback mechanism to query  user input
-   * @param facade the map facade to issue commands with
+   * @param map the map to issue commands with
    */
-  virtual void disable(TagMatcherCallback& callback, MapFacade& facade) const;
+  virtual void disable(TagMatcherCallback& callback, Map& map) const;
 
   /**
    * Indicates whether this tag matcher can modify the selection so that it would match
@@ -378,17 +378,17 @@ public:
    * Modifies the current selection so that this tag would match it.
    *
    * @param callback a callback mechanism to query  user input
-   * @param facade the map facade to issue commands with
+   * @param map the map to issue commands with
    */
-  void enable(TagMatcherCallback& callback, MapFacade& facade) const;
+  void enable(TagMatcherCallback& callback, Map& map) const;
 
   /**
    * Modifies the current selection so that this tag would not match it.
    *
    * @param callback a callback mechanism to query  user input
-   * @param facade the map facade to issue commands with
+   * @param map the map to issue commands with
    */
-  void disable(TagMatcherCallback& callback, MapFacade& facade) const;
+  void disable(TagMatcherCallback& callback, Map& map) const;
 
   /**
    * Indicates whether this tag supports modifying the selection so that it would match

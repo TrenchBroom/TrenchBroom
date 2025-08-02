@@ -25,6 +25,7 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
@@ -180,18 +181,17 @@ private:
 class UVRotateDragTracker : public GestureTracker
 {
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   const UVViewHelper& m_helper;
   float m_initialAngle;
 
 public:
-  UVRotateDragTracker(
-    MapDocument& document, const UVViewHelper& helper, const float initialAngle)
-    : m_document{document}
+  UVRotateDragTracker(mdl::Map& map, const UVViewHelper& helper, const float initialAngle)
+    : m_map{map}
     , m_helper{helper}
     , m_initialAngle{initialAngle}
   {
-    document.startTransaction("Rotate UV", mdl::TransactionScope::LongRunning);
+    m_map.startTransaction("Rotate UV", mdl::TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override
@@ -225,7 +225,7 @@ public:
 
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setRotation(snappedAngle);
-    m_document.setFaceAttributes(request);
+    m_map.setFaceAttributes(request);
 
     // Correct the offsets.
     const auto toFaceNew =
@@ -239,14 +239,14 @@ public:
 
     request.clear();
     request.setOffset(newOffset);
-    m_document.setFaceAttributes(request);
+    m_map.setFaceAttributes(request);
 
     return true;
   }
 
-  void end(const InputState&) override { m_document.commitTransaction(); }
+  void end(const InputState&) override { m_map.commitTransaction(); }
 
-  void cancel() override { m_document.cancelTransaction(); }
+  void cancel() override { m_map.cancelTransaction(); }
 
   void render(const InputState&, render::RenderContext&, render::RenderBatch& renderBatch)
     const override
@@ -375,7 +375,7 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
   }
 
   return std::make_unique<UVRotateDragTracker>(
-    *kdl::mem_lock(m_document), m_helper, *initialAngle);
+    kdl::mem_lock(m_document)->map(), m_helper, *initialAngle);
 }
 
 void UVRotateTool::render(

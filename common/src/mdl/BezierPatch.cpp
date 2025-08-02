@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "mdl/Material.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/reflection_impl.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
@@ -116,7 +117,7 @@ const std::vector<BezierPatch::Point>& BezierPatch::controlPoints() const
 
 BezierPatch::Point& BezierPatch::controlPoint(const size_t row, const size_t col)
 {
-  return const_cast<Point&>(const_cast<const BezierPatch*>(this)->controlPoint(row, col));
+  return KDL_CONST_OVERLOAD(controlPoint(row, col));
 }
 
 const BezierPatch::Point& BezierPatch::controlPoint(

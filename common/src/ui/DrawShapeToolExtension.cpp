@@ -23,6 +23,7 @@
 #include <QPushButton>
 
 #include "Ensure.h"
+#include "mdl/Map.h"
 #include "ui/DrawShapeToolExtensions.h"
 #include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
@@ -58,9 +59,10 @@ void DrawShapeToolExtensionPage::addApplyButton(std::weak_ptr<MapDocument> docum
 
   addWidget(applyButton);
 
-  auto doc = kdl::mem_lock(document);
-  m_notifierConnection += doc->selectionDidChangeNotifier.connect(
-    [=](const auto&) { applyButton->setEnabled(doc->selection().hasNodes()); });
+  auto& map = kdl::mem_lock(document)->map();
+  m_notifierConnection += map.selectionDidChangeNotifier.connect([=](const auto&) {
+    applyButton->setEnabled(kdl::mem_lock(document)->map().selection().hasNodes());
+  });
 }
 
 vm::axis::type ShapeParameters::axis() const

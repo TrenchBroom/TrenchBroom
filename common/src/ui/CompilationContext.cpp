@@ -23,26 +23,24 @@
 #include "el/Interpolate.h"
 #include "el/Types.h"
 
-#include "kdl/memory_utils.h"
-
 namespace tb::ui
 {
 
 CompilationContext::CompilationContext(
-  std::weak_ptr<MapDocument> document,
+  const mdl::Map& map,
   const el::VariableStore& variables,
   TextOutputAdapter output,
   bool test)
-  : m_document{std::move(document)}
+  : m_map{map}
   , m_variables{variables.clone()}
   , m_output{std::move(output)}
   , m_test{test}
 {
 }
 
-std::shared_ptr<MapDocument> CompilationContext::document() const
+const mdl::Map& CompilationContext::map() const
 {
-  return kdl::mem_lock(m_document);
+  return m_map;
 }
 
 bool CompilationContext::test() const

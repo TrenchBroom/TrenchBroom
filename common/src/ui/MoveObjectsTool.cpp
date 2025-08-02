@@ -20,6 +20,7 @@
 #include "MoveObjectsTool.h"
 
 #include "mdl/Grid.h"
+#include "mdl/Map.h"
 #include "mdl/TransactionScope.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
@@ -42,19 +43,20 @@ MoveObjectsTool::MoveObjectsTool(std::weak_ptr<MapDocument> document)
 
 const mdl::Grid& MoveObjectsTool::grid() const
 {
-  return kdl::mem_lock(m_document)->grid();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return map.grid();
 }
 
 bool MoveObjectsTool::startMove(const InputState& inputState)
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
 
-  if (!document->selection().brushFaces.empty())
+  if (!map.selection().brushFaces.empty())
   {
     return false;
   }
 
-  document->startTransaction(
+  map.startTransaction(
     duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects",
     mdl::TransactionScope::LongRunning);
   m_duplicateObjects = duplicateObjects(inputState);
@@ -64,9 +66,9 @@ bool MoveObjectsTool::startMove(const InputState& inputState)
 MoveObjectsTool::MoveResult MoveObjectsTool::move(
   const InputState&, const vm::vec3d& delta)
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& worldBounds = document->worldBounds();
-  const auto bounds = document->selectionBounds();
+  auto& map = kdl::mem_lock(m_document)->map();
+  const auto& worldBounds = map.worldBounds();
+  const auto bounds = map.selectionBounds();
   if (!bounds)
   {
     return MoveResult::Cancel;
@@ -80,22 +82,22 @@ MoveObjectsTool::MoveResult MoveObjectsTool::move(
   if (m_duplicateObjects)
   {
     m_duplicateObjects = false;
-    document->duplicate();
+    map.duplicateSelectedNodes();
   }
 
-  return document->translate(delta) ? MoveResult::Continue : MoveResult::Deny;
+  return map.translateSelection(delta) ? MoveResult::Continue : MoveResult::Deny;
 }
 
 void MoveObjectsTool::endMove(const InputState&)
 {
-  auto document = kdl::mem_lock(m_document);
-  document->commitTransaction();
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.commitTransaction();
 }
 
 void MoveObjectsTool::cancelMove()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->cancelTransaction();
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.cancelTransaction();
 }
 
 bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const

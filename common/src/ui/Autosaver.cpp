@@ -24,13 +24,13 @@
 #include "io/FileSystem.h"
 #include "io/PathInfo.h"
 #include "io/TraversalMode.h"
+#include "mdl/Map.h"
 #include "ui/MapDocument.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/string_compare.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -137,27 +137,27 @@ Autosaver::Autosaver(
   , m_saveInterval{saveInterval}
   , m_maxBackups{maxBackups}
   , m_lastSaveTime{Clock::now()}
-  , m_lastModificationCount{kdl::mem_lock(m_document)->modificationCount()}
+  , m_lastModificationCount{kdl::mem_lock(m_document)->map().modificationCount()}
 {
 }
 
-void Autosaver::triggerAutosave(Logger& logger)
+void Autosaver::triggerAutosave()
 {
   if (!kdl::mem_expired(m_document))
   {
-    auto document = kdl::mem_lock(m_document);
+    auto& map = kdl::mem_lock(m_document)->map();
     if (
-      document->modified() && document->modificationCount() != m_lastModificationCount
-      && Clock::now() - m_lastSaveTime >= m_saveInterval && document->persistent())
+      map.modified() && map.modificationCount() != m_lastModificationCount
+      && Clock::now() - m_lastSaveTime >= m_saveInterval && map.persistent())
     {
-      autosave(logger, document);
+      autosave(map);
     }
   }
 }
 
-void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
+void Autosaver::autosave(mdl::Map& map)
 {
-  const auto& mapPath = document->path();
+  const auto& mapPath = map.path();
   assert(io::Disk::pathInfo(mapPath) == io::PathInfo::File);
 
   const auto mapFilename = mapPath.filename();
@@ -165,7 +165,7 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
 
   createBackupFileSystem(mapPath) | kdl::and_then([&](auto fs) {
     return collectBackups(fs, mapBasename) | kdl::and_then([&](auto backups) {
-             return thinBackups(logger, fs, backups, m_maxBackups);
+             return thinBackups(map.logger(), fs, backups, m_maxBackups);
            })
            | kdl::and_then([&](auto remainingBackups) {
                return cleanBackups(fs, remainingBackups, mapBasename)
@@ -177,12 +177,12 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
              });
   }) | kdl::transform([&](const auto& backupFilePath) {
     m_lastSaveTime = Clock::now();
-    m_lastModificationCount = document->modificationCount();
-    document->saveDocumentTo(backupFilePath);
+    m_lastModificationCount = map.modificationCount();
+    map.saveTo(backupFilePath);
 
-    logger.info() << "Created autosave backup at " << backupFilePath;
+    map.logger().info() << "Created autosave backup at " << backupFilePath;
   }) | kdl::transform_error([&](auto e) {
-    logger.error() << "Aborting autosave: " << e.msg;
+    map.logger().error() << "Aborting autosave: " << e.msg;
   });
 }
 

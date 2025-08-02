@@ -30,8 +30,10 @@ class QStackedLayout;
 
 namespace tb::mdl
 {
+class Map;
+
 struct SelectionChange;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -133,7 +135,8 @@ private: // notification
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
-  void documentWasNewedOrLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void updateToolPage();

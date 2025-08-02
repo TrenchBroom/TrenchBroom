@@ -74,12 +74,12 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override
+  std::unique_ptr<CommandResult> doPerformDo(Map& map) override
   {
     for (auto& command : m_commands)
     {
       notifyCommandIfNotType<TransactionCommand>(m_commandDoNotifier, *command);
-      if (!command->performDo(document))
+      if (!command->performDo(map))
       {
         throw CommandProcessorException{"Partial failure while executing transaction"};
       }
@@ -88,13 +88,13 @@ private:
     return std::make_unique<CommandResult>(true);
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override
+  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override
   {
     for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it)
     {
       auto& command = *it;
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoNotifier, *command);
-      if (!command->performUndo(document))
+      if (!command->performUndo(map))
       {
         throw CommandProcessorException{"Partial failure while undoing transaction"};
       }
@@ -161,8 +161,8 @@ struct CommandProcessor::SubmitAndStoreResult
 };
 
 CommandProcessor::CommandProcessor(
-  ui::MapDocument& document, const std::chrono::milliseconds collationInterval)
-  : m_document{document}
+  Map& map, const std::chrono::milliseconds collationInterval)
+  : m_map{map}
   , m_collationInterval{collationInterval}
   , m_lastCommandTimestamp{std::chrono::time_point<std::chrono::system_clock>{}}
 {
@@ -324,7 +324,7 @@ CommandProcessor::SubmitAndStoreResult CommandProcessor::executeAndStoreCommand(
 std::unique_ptr<CommandResult> CommandProcessor::executeCommand(Command& command)
 {
   notifyCommandIfNotType<TransactionCommand>(commandDoNotifier, command);
-  auto result = command.performDo(m_document);
+  auto result = command.performDo(m_map);
   if (result->success())
   {
     notifyCommandIfNotType<TransactionCommand>(commandDoneNotifier, command);
@@ -343,7 +343,7 @@ std::unique_ptr<CommandResult> CommandProcessor::executeCommand(Command& command
 std::unique_ptr<CommandResult> CommandProcessor::undoCommand(UndoableCommand& command)
 {
   notifyCommandIfNotType<TransactionCommand>(commandUndoNotifier, command);
-  auto result = command.performUndo(m_document);
+  auto result = command.performUndo(m_map);
   if (result->success())
   {
     notifyCommandIfNotType<TransactionCommand>(commandUndoneNotifier, command);

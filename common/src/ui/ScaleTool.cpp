@@ -25,6 +25,7 @@
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "render/Camera.h"
@@ -581,7 +582,8 @@ bool ScaleTool::doActivate()
 
 const mdl::Grid& ScaleTool::grid() const
 {
-  return kdl::mem_lock(m_document)->grid();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return map.grid();
 }
 
 const mdl::Hit& ScaleTool::dragStartHit() const
@@ -591,8 +593,8 @@ const mdl::Hit& ScaleTool::dragStartHit() const
 
 bool ScaleTool::applies() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->selection().hasNodes();
+  const auto& map = kdl::mem_lock(m_document)->map();
+  return map.selection().hasNodes();
 }
 
 BackSide pickBackSideOfBox(
@@ -782,9 +784,9 @@ void ScaleTool::pick3D(
 
 vm::bbox3d ScaleTool::bounds() const
 {
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = kdl::mem_lock(m_document)->map();
 
-  const auto& bounds = document->selectionBounds();
+  const auto& bounds = map.selectionBounds();
   ensure(bounds, "selection bounds are available");
   return *bounds;
 }
@@ -1024,8 +1026,8 @@ void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
   m_dragStartHit = hit;
   m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
-  auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Scale Objects", mdl::TransactionScope::LongRunning);
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.startTransaction("Scale Objects", mdl::TransactionScope::LongRunning);
   m_resizing = true;
 }
 
@@ -1034,8 +1036,6 @@ void ScaleTool::scaleByDelta(const vm::vec3d& delta)
   ensure(m_resizing, "must be resizing already");
 
   m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
-
-  auto document = kdl::mem_lock(m_document);
 
   const auto newBox = moveBBoxForHit(
     m_bboxAtDragStart,
@@ -1046,28 +1046,29 @@ void ScaleTool::scaleByDelta(const vm::vec3d& delta)
 
   if (!newBox.is_empty())
   {
-    document->scale(bounds(), newBox);
+    auto& map = kdl::mem_lock(m_document)->map();
+    map.scaleSelection(bounds(), newBox);
   }
 }
 
 void ScaleTool::commitScale()
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = kdl::mem_lock(m_document)->map();
   if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
   {
-    document->cancelTransaction();
+    map.cancelTransaction();
   }
   else
   {
-    document->commitTransaction();
+    map.commitTransaction();
   }
   m_resizing = false;
 }
 
 void ScaleTool::cancelScale()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->cancelTransaction();
+  auto& map = kdl::mem_lock(m_document)->map();
+  map.cancelTransaction();
   m_resizing = false;
 }
 

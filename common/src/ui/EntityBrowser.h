@@ -34,6 +34,7 @@ class QScrollBar;
 
 namespace tb::mdl
 {
+class Map;
 class Node;
 class ResourceId;
 } // namespace tb::mdl
@@ -71,8 +72,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
 
   void modsDidChange();
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
