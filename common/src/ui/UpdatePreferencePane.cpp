@@ -63,7 +63,7 @@ QWidget* UpdatePreferencePane::createUpdatePreferences()
 To download and install an available update, click on the link labeled "Update available".)")};
 
   m_autoCheckForUpdates = new QCheckBox{};
-  connect(m_autoCheckForUpdates, &QCheckBox::stateChanged, [&](const auto state) {
+  connect(m_autoCheckForUpdates, &QCheckBox::checkStateChanged, [&](const auto state) {
     if (!m_disableNotifiers)
     {
       const auto value = state == Qt::Checked;
@@ -73,7 +73,7 @@ To download and install an available update, click on the link labeled "Update a
   });
 
   m_includePreReleaseUpdates = new QCheckBox{};
-  connect(m_includePreReleaseUpdates, &QCheckBox::stateChanged, [&](const auto state) {
+  connect(m_includePreReleaseUpdates, &QCheckBox::checkStateChanged, [&](const auto state) {
     if (!m_disableNotifiers)
     {
       const auto value = state == Qt::Checked;
