@@ -23,6 +23,8 @@
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
+#include <fmt/format.h>
+
 #include <algorithm>
 #include <string>
 
@@ -42,6 +44,7 @@ kdl_reflect_impl(Choice);
 kdl_reflect_impl(Flag);
 kdl_reflect_impl(Flags);
 kdl_reflect_impl(Origin);
+kdl_reflect_impl(Color);
 kdl_reflect_impl(Unknown);
 
 const Flag* Flags::flag(const int flagValue) const
@@ -54,6 +57,12 @@ const Flag* Flags::flag(const int flagValue) const
 bool Flags::isDefault(const int flagValue) const
 {
   return (defaultValue & flagValue) != 0;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const ColorValue& rhs)
+{
+  std::visit([&](const auto& x) { lhs << x; }, rhs);
+  return lhs;
 }
 
 } // namespace PropertyValueTypes
@@ -99,6 +108,18 @@ std::optional<std::string> PropertyDefinition::defaultValue(
                                        : std::nullopt;
       },
       [](const PropertyValueTypes::Origin& value) { return value.defaultValue; },
+      [](const PropertyValueTypes::Color& value) -> std::optional<std::string> {
+        return value.defaultValue
+               | kdl::optional_transform([](const PropertyValueTypes::ColorValue cv) {
+                   return std::visit(
+                     kdl::overload(
+                       [](const Rgb& rgb) { return rgb.toString(); },
+                       [](const PropertyValueTypes::ColorWithBrightness& c) {
+                         return fmt::format("{} {}", c.rgb.toString(), c.brightness);
+                       }),
+                     cv);
+                 });
+      },
       [](const PropertyValueTypes::Unknown& value) { return value.defaultValue; }),
     definition.valueType);
 }
