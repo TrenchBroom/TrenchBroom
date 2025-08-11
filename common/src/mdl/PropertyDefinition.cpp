@@ -23,6 +23,8 @@
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
+#include <fmt/format.h>
+
 #include <algorithm>
 #include <string>
 
@@ -41,6 +43,7 @@ kdl_reflect_impl(ChoiceOption);
 kdl_reflect_impl(Choice);
 kdl_reflect_impl(Flag);
 kdl_reflect_impl(Flags);
+kdl_reflect_impl(Color);
 kdl_reflect_impl(Unknown);
 
 const Flag* Flags::flag(const int flagValue) const
@@ -53,6 +56,12 @@ const Flag* Flags::flag(const int flagValue) const
 bool Flags::isDefault(const int flagValue) const
 {
   return (defaultValue & flagValue) != 0;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const ColorValue& rhs)
+{
+  std::visit([&](const auto& x) { lhs << x; }, rhs);
+  return lhs;
 }
 
 } // namespace PropertyValueTypes
@@ -96,6 +105,38 @@ std::optional<std::string> PropertyDefinition::defaultValue(
       [](const PropertyValueTypes::Flags& value) {
         return value.defaultValue != 0 ? std::optional{std::to_string(value.defaultValue)}
                                        : std::nullopt;
+      },
+      [](const PropertyValueTypes::Color& value) -> std::optional<std::string> {
+        return value.defaultValue
+               | kdl::optional_transform([](const PropertyValueTypes::ColorValue cv) {
+                   return std::visit(
+                     kdl::overload(
+                       [](const PropertyValueTypes::Color3f& c) {
+                         return fmt::format(
+                           "{} {} {}", c.components[0], c.components[1], c.components[1]);
+                       },
+                       [](const PropertyValueTypes::Color3i& c) {
+                         return fmt::format(
+                           "{} {} {}", c.components[0], c.components[1], c.components[1]);
+                       },
+                       [](const PropertyValueTypes::ColorWithBrightness3f& c) {
+                         return fmt::format(
+                           "{} {} {} {}",
+                           c.color.components[0],
+                           c.color.components[1],
+                           c.color.components[1],
+                           c.brightness);
+                       },
+                       [](const PropertyValueTypes::ColorWithBrightness3i& c) {
+                         return fmt::format(
+                           "{} {} {} {}",
+                           c.color.components[0],
+                           c.color.components[1],
+                           c.color.components[1],
+                           c.brightness);
+                       }),
+                     cv);
+                 });
       },
       [](const PropertyValueTypes::Unknown& value) { return value.defaultValue; }),
     definition.valueType);
