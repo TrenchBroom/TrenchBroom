@@ -22,6 +22,8 @@
 #include "kdl/optional_utils.h"
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <algorithm>
 #include <string>
@@ -41,6 +43,8 @@ kdl_reflect_impl(ChoiceOption);
 kdl_reflect_impl(Choice);
 kdl_reflect_impl(Flag);
 kdl_reflect_impl(Flags);
+kdl_reflect_impl(ColorPropertyValue);
+kdl_reflect_impl(ColorComponent);
 kdl_reflect_impl(Unknown);
 
 const Flag* Flags::flag(const int flagValue) const
@@ -53,6 +57,58 @@ const Flag* Flags::flag(const int flagValue) const
 bool Flags::isDefault(const int flagValue) const
 {
   return (defaultValue & flagValue) != 0;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const ColorValueType rhs)
+{
+  switch (rhs)
+  {
+  case ColorValueType::Any:
+    lhs << "Any";
+    break;
+  case ColorValueType::Float:
+    lhs << "Float";
+    break;
+  case ColorValueType::Byte:
+    lhs << "Byte";
+    break;
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, ColorComponentType rhs)
+{
+  switch (rhs)
+  {
+  case ColorComponentType::Red:
+    lhs << "Red";
+    break;
+  case ColorComponentType::Green:
+    lhs << "Green";
+    break;
+  case ColorComponentType::Blue:
+    lhs << "Blue";
+    break;
+  case ColorComponentType::Alpha:
+    lhs << "Alpha";
+    break;
+  case ColorComponentType::LightBrightness:
+    lhs << "Brightness";
+    break;
+  case ColorComponentType::Other:
+    lhs << "Other";
+    break;
+  }
+  return lhs;
+}
+
+std::vector<std::optional<float>> parseColorPropertyValueOptionalValues(
+  const std::string_view& value, const size_t minimumNumValues)
+{
+  auto parsedValues = kdl::vec_transform(kdl::str_split(value, " "), kdl::str_to_float);
+  if (parsedValues.size() < minimumNumValues)
+    parsedValues.resize(minimumNumValues, std::nullopt);
+  return parsedValues;
 }
 
 } // namespace PropertyValueTypes
@@ -93,6 +149,23 @@ std::optional<std::string> PropertyDefinition::defaultValue(
       [](const Flags& value) {
         return value.defaultValue != 0 ? std::optional{std::to_string(value.defaultValue)}
                                        : std::nullopt;
+      },
+      [](const ColorPropertyValue& value) -> std::optional<std::string> {
+        if (value.components.empty())
+          return std::nullopt;
+        std::string defaultValue;
+        for (const auto& component : value.components)
+        {
+          if (!component.defaultValue.has_value())
+            break;
+          const auto val = component.defaultValue.value();
+          if (defaultValue.empty())
+            defaultValue += " ";
+          defaultValue += std::to_string(val);
+        }
+        if (defaultValue.empty())
+          return std::nullopt;
+        return defaultValue;
       },
       [](const Unknown& value) { return value.defaultValue; }),
     definition.valueType);

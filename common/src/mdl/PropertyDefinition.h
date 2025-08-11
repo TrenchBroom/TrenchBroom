@@ -105,6 +105,46 @@ struct Flags
   kdl_reflect_decl(Flags, defaultValue, flags);
 };
 
+enum class ColorValueType
+{
+  Any,
+  Float,
+  Byte
+};
+
+std::ostream& operator<<(std::ostream& lhs, ColorValueType rhs);
+
+enum class ColorComponentType
+{
+  Red,
+  Green,
+  Blue,
+  Alpha,
+  LightBrightness,
+  Other
+};
+
+std::ostream& operator<<(std::ostream& lhs, ColorComponentType rhs);
+
+struct ColorComponent
+{
+  ColorValueType valueType;
+  ColorComponentType componentType;
+  std::optional<float> defaultValue = std::nullopt;
+
+  kdl_reflect_decl(ColorComponent, valueType, componentType, defaultValue);
+};
+
+struct ColorPropertyValue
+{
+  std::vector<ColorComponent> components;
+
+  kdl_reflect_decl(ColorPropertyValue, components);
+};
+
+std::vector<std::optional<float>> parseColorPropertyValueOptionalValues(
+  const std::string_view& value, const size_t minimumNumValues);
+
 struct Unknown
 {
   std::optional<std::string> defaultValue = std::nullopt;
@@ -123,6 +163,7 @@ using PropertyValueType = std::variant<
   PropertyValueTypes::Float,
   PropertyValueTypes::Choice,
   PropertyValueTypes::Flags,
+  PropertyValueTypes::ColorPropertyValue,
   PropertyValueTypes::Unknown>;
 
 std::ostream& operator<<(std::ostream& lhs, const PropertyValueType& rhs);

@@ -29,6 +29,7 @@
 #include "mdl/PropertyDefinition.h"
 
 #include "kdl/invoke.h"
+#include "kdl/optional_utils.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
@@ -580,6 +581,15 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   }
   if (kdl::ci::str_is_equal(typeName, "string"))
   {
+    // match color names for backward compatibility: color, *_color, *_color2, *_colour
+    if (
+      kdl::ci::str_is_equal(propertyKey, "color")
+      || kdl::ci::str_is_suffix(propertyKey, "_color")
+      || kdl::ci::str_is_suffix(propertyKey, "_color2")
+      || kdl::ci::str_is_suffix(propertyKey, "_colour"))
+    {
+      return parseColorPropertyDefinition(status, typeName, std::move(propertyKey));
+    }
     return parseStringPropertyDefinition(status, std::move(propertyKey));
   }
   if (kdl::ci::str_is_equal(typeName, "integer"))
@@ -597,6 +607,13 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   if (kdl::ci::str_is_equal(typeName, "flags"))
   {
     return parseFlagsPropertyDefinition(std::move(propertyKey));
+  }
+  // supported color type names: color1, color255, lightcolor1, lightcolor255
+  if (
+    kdl::ci::str_is_prefix(typeName, "color")
+    || kdl::ci::str_is_prefix(typeName, "lightcolor"))
+  {
+    return parseColorPropertyDefinition(status, typeName, std::move(propertyKey));
   }
 
   status.debug(
@@ -760,6 +777,103 @@ mdl::PropertyDefinition FgdParser::parseFlagsPropertyDefinition(std::string prop
   }
 
   return {std::move(propertyKey), Flags{std::move(flags), defaultValue}, "", "", false};
+}
+
+namespace
+{
+const auto knownTypeColorAny = ColorPropertyValue{{
+  ColorComponent{ColorValueType::Any, ColorComponentType::Red},
+  ColorComponent{ColorValueType::Any, ColorComponentType::Green},
+  ColorComponent{ColorValueType::Any, ColorComponentType::Blue},
+}};
+const auto knownTypeColor1 = ColorPropertyValue{{
+  ColorComponent{ColorValueType::Float, ColorComponentType::Red},
+  ColorComponent{ColorValueType::Float, ColorComponentType::Green},
+  ColorComponent{ColorValueType::Float, ColorComponentType::Blue},
+}};
+const auto knownTypeColor255 = ColorPropertyValue{{
+  ColorComponent{ColorValueType::Byte, ColorComponentType::Red},
+  ColorComponent{ColorValueType::Byte, ColorComponentType::Green},
+  ColorComponent{ColorValueType::Byte, ColorComponentType::Blue},
+}};
+const auto knownTypeLightColor1 = ColorPropertyValue{{
+  ColorComponent{ColorValueType::Float, ColorComponentType::Red},
+  ColorComponent{ColorValueType::Float, ColorComponentType::Green},
+  ColorComponent{ColorValueType::Float, ColorComponentType::Blue},
+  ColorComponent{ColorValueType::Byte, ColorComponentType::LightBrightness},
+}};
+const auto knownTypeLightColor255 = ColorPropertyValue{{
+  ColorComponent{ColorValueType::Byte, ColorComponentType::Red},
+  ColorComponent{ColorValueType::Byte, ColorComponentType::Green},
+  ColorComponent{ColorValueType::Byte, ColorComponentType::Blue},
+  ColorComponent{ColorValueType::Byte, ColorComponentType::LightBrightness},
+}};
+} // namespace
+
+mdl::PropertyDefinition FgdParser::parseColorPropertyDefinition(
+  ParserStatus& status, const std::string& typeName, std::string propertyKey)
+{
+  const auto readOnly = parseReadOnlyFlag(status);
+  auto shortDescription = parsePropertyDescription();
+  auto defaultValue = parseDefaultStringValue(status);
+  auto longDescription = parsePropertyDescription();
+
+  auto defaultComponentValues =
+    parseColorPropertyValueOptionalValues(defaultValue.value_or(""), 4);
+
+  ColorPropertyValue type;
+
+  if (kdl::ci::str_is_equal(typeName, "color1"))
+  {
+    type = knownTypeColor1;
+  }
+  else if (kdl::ci::str_is_equal(typeName, "color255"))
+  {
+    type = knownTypeColor255;
+  }
+  else if (kdl::ci::str_is_equal(typeName, "lightcolor1"))
+  {
+    type = knownTypeLightColor1;
+  }
+  else if (kdl::ci::str_is_equal(typeName, "lightcolor255"))
+  {
+    type = knownTypeLightColor255;
+  }
+  else
+  {
+    // guess the type based on the default value
+    // only inspect the first 3 values (the rgb component)
+    type = knownTypeColorAny;
+    for (size_t i = 0; i < 3; ++i)
+    {
+      // assume byte if any value is above 1, assume float if any value is (0, 1]
+      // if all values are 0 then we can't guess the type
+      const auto v = defaultComponentValues[i].value_or(0.0f);
+      if (v > 1)
+      {
+        type = knownTypeColor255;
+        break;
+      }
+      else if (v > 0.0f && v <= 1.0f)
+      {
+        type = knownTypeColor1;
+        break;
+      }
+    }
+  }
+
+  defaultComponentValues.resize(type.components.size(), std::nullopt);
+  for (size_t i = 0; i < type.components.size(); ++i)
+  {
+    type.components[i].defaultValue = defaultComponentValues.at(i);
+  }
+
+  return {
+    std::move(propertyKey),
+    type,
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly};
 }
 
 mdl::PropertyDefinition FgdParser::parseUnknownPropertyDefinition(
