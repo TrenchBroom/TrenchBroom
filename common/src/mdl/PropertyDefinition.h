@@ -19,9 +19,12 @@
 
 #pragma once
 
-#include "kdl/reflection_decl.h"
+#include "Color.h"
+
+#include "kdl/reflection_impl.h"
 
 #include <optional>
+#include <ostream>
 #include <string>
 #include <variant>
 #include <vector>
@@ -138,6 +141,16 @@ struct Output
   kdl_reflect_decl(Output, parameterType);
 };
 
+template <typename T>
+struct Color
+{
+  using Type = T;
+
+  std::optional<std::string> defaultValue = std::nullopt;
+
+  kdl_reflect_inline(Color, defaultValue);
+};
+
 struct Unknown
 {
   std::optional<std::string> defaultValue = std::nullopt;
@@ -159,6 +172,9 @@ using PropertyValueType = std::variant<
   PropertyValueTypes::Origin,
   PropertyValueTypes::Input,
   PropertyValueTypes::Output,
+  PropertyValueTypes::Color<RgbF>,
+  PropertyValueTypes::Color<RgbB>,
+  PropertyValueTypes::Color<Rgb>,
   PropertyValueTypes::Unknown>;
 
 std::ostream& operator<<(std::ostream& lhs, const PropertyValueType& rhs);
