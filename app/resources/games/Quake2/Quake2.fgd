@@ -524,7 +524,7 @@
 // set angle for gib direction, otherwise it just drops
 @PointClass base(Appearflags) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": ":models/objects/gibs/arm/tris.md2" }) = misc_gib_arm : "arm gib, use with target_spawner" []
 @PointClass base(Appearflags) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": ":models/objects/gibs/head/tris.md2" }) = misc_gib_head : "head gib, use with target_spawner" []
-@PointClass base(Appearflags) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": ":models/objects/gibs/arm/tris.md2" }) = misc_gib_leg : "leg gib, use with target_spawner" []
+@PointClass base(Appearflags) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": ":models/objects/gibs/leg/tris.md2" }) = misc_gib_leg : "leg gib, use with target_spawner" []
 
 
 
