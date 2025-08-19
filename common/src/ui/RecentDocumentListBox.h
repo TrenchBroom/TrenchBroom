@@ -46,6 +46,7 @@ private:
   QString subtitle(size_t index) const override;
 
   void doubleClicked(size_t index) override;
+  void keyPressEvent(QKeyEvent* event) override;
 signals:
   void loadRecentDocument(const std::filesystem::path& path);
 };
