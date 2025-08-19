@@ -27,7 +27,7 @@
 
 namespace tb::ui
 {
-class MapDocumentCommandFacade;
+class MapDocument;
 
 class UndoableCommand : public Command
 {
@@ -40,19 +40,18 @@ protected:
 public:
   ~UndoableCommand() override;
 
-  std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade& document) override;
-  virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade& document);
+  std::unique_ptr<CommandResult> performDo(MapDocument& document) override;
+  virtual std::unique_ptr<CommandResult> performUndo(MapDocument& document);
 
   virtual bool collateWith(UndoableCommand& command);
 
 protected:
-  virtual std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade& document) = 0;
+  virtual std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) = 0;
 
   virtual bool doCollateWith(UndoableCommand& command);
 
-  void setModificationCount(MapDocumentCommandFacade& document) const;
-  void resetModificationCount(MapDocumentCommandFacade& document) const;
+  void setModificationCount(MapDocument& document) const;
+  void resetModificationCount(MapDocument& document) const;
 
   deleteCopyAndMove(UndoableCommand);
 };

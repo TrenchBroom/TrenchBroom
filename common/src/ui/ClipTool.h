@@ -51,7 +51,7 @@ namespace tb::ui
 {
 class Grid;
 class MapDocument;
-class Selection;
+struct SelectionChange;
 
 class ClipStrategy;
 
@@ -124,7 +124,7 @@ private:
   std::map<mdl::Node*, std::vector<mdl::Node*>> clipBrushes();
 
 public:
-  vm::vec3d defaultClipPointPos() const;
+  std::optional<vm::vec3d> defaultClipPointPos() const;
 
   bool canAddPoint(const vm::vec3d& point) const;
   bool hasPoints() const;
@@ -168,7 +168,7 @@ private:
   bool doRemove();
 
   void connectObservers();
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void nodesWillChange(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& nodes);

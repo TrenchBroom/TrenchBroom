@@ -288,13 +288,13 @@ void EntityRenderer::renderClassnames(
     renderService.setForegroundColor(m_overlayTextColor);
     renderService.setBackgroundColor(m_overlayBackgroundColor);
 
-    for (const auto* entity : m_entities)
+    for (const auto* entityNode : m_entities)
     {
-      if (m_showHiddenEntities || m_editorContext.visible(entity))
+      if (m_showHiddenEntities || m_editorContext.visible(*entityNode))
       {
         if (
-          !entity->containingGroup()
-          || entity->containingGroup() == m_editorContext.currentGroup())
+          !entityNode->containingGroup()
+          || entityNode->containingGroup() == m_editorContext.currentGroup())
         {
           if (m_showOccludedOverlays)
           {
@@ -305,7 +305,8 @@ void EntityRenderer::renderClassnames(
             renderService.setHideOccludedObjects();
           }
 
-          renderService.renderString(entityString(entity), EntityClassnameAnchor{entity});
+          renderService.renderString(
+            entityString(entityNode), EntityClassnameAnchor{entityNode});
         }
       }
     }
@@ -326,7 +327,7 @@ void EntityRenderer::renderAngles(RenderContext& renderContext, RenderBatch& ren
 
     for (const auto* entityNode : m_entities)
     {
-      if (!m_showHiddenEntities && !m_editorContext.visible(entityNode))
+      if (!m_showHiddenEntities && !m_editorContext.visible(*entityNode))
       {
         continue;
       }
@@ -437,7 +438,7 @@ void EntityRenderer::validateBounds()
 
     for (const auto* entityNode : m_entities)
     {
-      if (m_editorContext.visible(entityNode))
+      if (m_editorContext.visible(*entityNode))
       {
         const auto pointEntity = !entityNode->hasChildren();
         if (pointEntity)
@@ -477,7 +478,7 @@ void EntityRenderer::validateBounds()
 
     for (auto* entityNode : m_entities)
     {
-      if (m_editorContext.visible(entityNode))
+      if (m_editorContext.visible(*entityNode))
       {
         const auto isPointEntity = !entityNode->hasChildren();
         if (isPointEntity)

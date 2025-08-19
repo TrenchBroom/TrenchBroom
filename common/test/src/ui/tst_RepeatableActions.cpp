@@ -297,9 +297,9 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
   //  - duplicate
   //  - translate by x = +10
 
-  REQUIRE(document->allSelectedEntityNodes().size() == 1);
+  REQUIRE(document->selection().allEntities().size() == 1);
 
-  auto* entityNode2 = document->allSelectedEntityNodes().at(0);
+  auto* entityNode2 = document->selection().allEntities().at(0);
   CHECK(entityNode2 != entityNode1);
 
   CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
@@ -307,9 +307,9 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
 
   document->repeatCommands();
 
-  REQUIRE(document->allSelectedEntityNodes().size() == 1);
+  REQUIRE(document->selection().allEntities().size() == 1);
 
-  auto* entityNode3 = document->allSelectedEntityNodes().at(0);
+  auto* entityNode3 = document->selection().allEntities().at(0);
   CHECK(entityNode3 != entityNode2);
 
   CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));

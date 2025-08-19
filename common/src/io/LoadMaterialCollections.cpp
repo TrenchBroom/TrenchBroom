@@ -142,7 +142,7 @@ Result<std::filesystem::path> findShaderTexture(
   return fs.find(
            texturePath.parent_path(),
            TraversalMode::Flat,
-           kdl::lift_and(
+           kdl::logical_and(
              makeFilenamePathMatcher(basename + ".*"),
              makeExtensionPathMatcher(materialConfig.extensions)))
          | kdl::and_then([&](auto candidates) -> Result<std::filesystem::path> {

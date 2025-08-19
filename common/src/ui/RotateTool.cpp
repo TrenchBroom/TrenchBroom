@@ -80,16 +80,15 @@ void RotateTool::setRotationCenter(const vm::vec3d& position)
 void RotateTool::resetRotationCenter()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto selectedNodes = document->selectedNodes();
-  if (selectedNodes.nodeCount() == 1 && selectedNodes.entityCount() == 1)
+  const auto& selection = document->selection();
+  if (selection.hasOnlyEntities() && selection.entities.size() == 1)
   {
-    const auto& entityNode = *selectedNodes.entities().front();
+    const auto& entityNode = *selection.entities.front();
     setRotationCenter(entityNode.entity().origin());
   }
-  else
+  else if (const auto& bounds = document->selectionBounds())
   {
-    const auto& bounds = document->selectionBounds();
-    const auto position = document->grid().snap(bounds.center());
+    const auto position = document->grid().snap(bounds->center());
     setRotationCenter(position);
   }
 }

@@ -260,37 +260,41 @@ std::vector<Node*> collectSelectableNodes(
   for (auto* node : nodes)
   {
     node->accept(kdl::overload(
-      [&](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, GroupNode* group) {
-        if (editorContext.selectable(group))
+      [&](auto&& thisLambda, WorldNode* worldNode) {
+        worldNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, LayerNode* layerNode) {
+        layerNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, GroupNode* groupNode) {
+        if (editorContext.selectable(*groupNode))
         {
           // implies that any containing group is opened and that group itself is closed
           // therefore we don't need to visit the group's children
-          result.push_back(group);
+          result.push_back(groupNode);
         }
         else
         {
-          group->visitChildren(thisLambda);
+          groupNode->visitChildren(thisLambda);
         }
       },
-      [&](auto&& thisLambda, EntityNode* entity) {
-        if (editorContext.selectable(entity))
+      [&](auto&& thisLambda, EntityNode* entityNode) {
+        if (editorContext.selectable(*entityNode))
         {
-          result.push_back(entity);
+          result.push_back(entityNode);
         }
-        entity->visitChildren(thisLambda);
+        entityNode->visitChildren(thisLambda);
       },
-      [&](BrushNode* brush) {
-        if (editorContext.selectable(brush))
+      [&](BrushNode* brushNode) {
+        if (editorContext.selectable(*brushNode))
         {
-          result.push_back(brush);
+          result.push_back(brushNode);
         }
       },
-      [&](PatchNode* patch) {
-        if (editorContext.selectable(patch))
+      [&](PatchNode* patchNode) {
+        if (editorContext.selectable(*patchNode))
         {
-          result.push_back(patch);
+          result.push_back(patchNode);
         }
       }));
   }
@@ -310,7 +314,7 @@ std::vector<BrushFaceHandle> collectSelectableBrushFaces(
 {
   return collectBrushFaces(
     nodes, [&](const BrushNode& brushNode, const BrushFace& brushFace) {
-      return editorContext.selectable(&brushNode, brushFace);
+      return editorContext.selectable(brushNode, brushFace);
     });
 }
 

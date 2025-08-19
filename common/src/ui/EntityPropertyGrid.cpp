@@ -115,7 +115,7 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
 {
   auto document = kdl::mem_lock(m_document);
   const auto newPropertyKey =
-    newPropertyKeyForEntityNodes(document->allSelectedEntityNodes());
+    newPropertyKeyForEntityNodes(document->selection().allEntities());
 
   if (!document->setProperty(newPropertyKey, "", defaultToProtected))
   {
@@ -413,7 +413,7 @@ void EntityPropertyGrid::nodesDidChange(const std::vector<mdl::Node*>&)
 
 void EntityPropertyGrid::selectionWillChange() {}
 
-void EntityPropertyGrid::selectionDidChange(const Selection&)
+void EntityPropertyGrid::selectionDidChange(const SelectionChange&)
 {
   updateControls();
 }
@@ -450,7 +450,7 @@ void EntityPropertyGrid::ensureSelectionVisible()
 void EntityPropertyGrid::updateControlsEnabled()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = document->allSelectedEntityNodes();
+  const auto nodes = document->selection().allEntities();
   const auto canUpdateLinkedGroups =
     document->canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));
   m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);

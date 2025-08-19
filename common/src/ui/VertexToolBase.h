@@ -34,7 +34,7 @@
 #include "ui/BrushVertexCommands.h"
 #include "ui/Lasso.h"
 #include "ui/MapDocument.h"
-#include "ui/Selection.h"
+#include "ui/SelectionChange.h"
 #include "ui/Tool.h"
 #include "ui/Transaction.h"
 #include "ui/TransactionScope.h"
@@ -112,7 +112,7 @@ public:
   const std::vector<mdl::BrushNode*>& selectedBrushes() const
   {
     auto document = kdl::mem_lock(m_document);
-    return document->selectedNodes().brushes();
+    return document->selection().brushes;
   }
 
 public:
@@ -311,12 +311,12 @@ public: // csg convex merge
       game->config().faceAttribsConfig.defaults};
     builder.createBrush(polyhedron, document->currentMaterialName())
       | kdl::transform([&](auto b) {
-          for (const auto* selectedBrushNode : document->selectedNodes().brushes())
+          for (const auto* selectedBrushNode : document->selection().brushes)
           {
             b.cloneFaceAttributesFrom(selectedBrushNode->brush());
           }
 
-          auto* newParent = document->parentForNodes(document->selectedNodes().nodes());
+          auto* newParent = document->parentForNodes(document->selection().nodes);
           auto transaction = Transaction{document, "CSG Convex Merge"};
           deselectAll();
           if (document->addNodes({{newParent, {new mdl::BrushNode{std::move(b)}}}})
@@ -548,10 +548,10 @@ private: // Observers and state management
     }
   }
 
-  void selectionDidChange(const Selection& selection)
+  void selectionDidChange(const SelectionChange& selectionChange)
   {
-    addHandles(selection.selectedNodes());
-    removeHandles(selection.deselectedNodes());
+    addHandles(selectionChange.selectedNodes);
+    removeHandles(selectionChange.deselectedNodes);
   }
 
   void nodesWillChange(const std::vector<mdl::Node*>& nodes)

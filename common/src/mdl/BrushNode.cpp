@@ -340,7 +340,7 @@ void BrushNode::doAccept(ConstNodeVisitor& visitor) const
 void BrushNode::doPick(
   const EditorContext& editorContext, const vm::ray3d& ray, PickResult& pickResult)
 {
-  if (editorContext.visible(this))
+  if (editorContext.visible(*this))
   {
     if (const auto hit = findFaceHit(ray))
     {

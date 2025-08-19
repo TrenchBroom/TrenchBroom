@@ -157,7 +157,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
         const auto targetPath = kdl::parse_path(interpolatedTarget);
 
         const auto sourceDirPath = sourcePath.parent_path();
-        const auto sourcePathMatcher = kdl::lift_and(
+        const auto sourcePathMatcher = kdl::logical_and(
           io::makePathInfoPathMatcher({io::PathInfo::File}),
           io::makeFilenamePathMatcher(sourcePath.filename().string()));
 
@@ -252,7 +252,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
     const auto targetPath = kdl::parse_path(interpolated);
 
     const auto targetDirPath = targetPath.parent_path();
-    const auto targetPathMatcher = kdl::lift_and(
+    const auto targetPathMatcher = kdl::logical_and(
       io::makePathInfoPathMatcher({io::PathInfo::File}),
       io::makeFilenamePathMatcher(targetPath.filename().string()));
 

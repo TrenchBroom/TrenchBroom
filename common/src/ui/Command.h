@@ -26,7 +26,7 @@
 
 namespace tb::ui
 {
-class MapDocumentCommandFacade;
+class MapDocument;
 
 class CommandResult
 {
@@ -63,11 +63,10 @@ public:
   CommandState state() const;
   const std::string& name() const;
 
-  virtual std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade& document);
+  virtual std::unique_ptr<CommandResult> performDo(MapDocument& document);
 
 private:
-  virtual std::unique_ptr<CommandResult> doPerformDo(
-    MapDocumentCommandFacade& document) = 0;
+  virtual std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) = 0;
 
   deleteCopyAndMove(Command);
 };
