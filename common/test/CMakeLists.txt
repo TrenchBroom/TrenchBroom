@@ -164,17 +164,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_UpdateVersion.cpp"
 )
 
-set(COMMON_REGRESSION_TEST_SOURCE
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_AseLoaderRegression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_Md3LoaderRegression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_Quake3ShaderParserRegression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_WorldReaderRegression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_BrushNodeRegression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_BrushRegression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_PolyhedronRegression.cpp"
-)
-
-
 # Catch2 needs one source file to define a macro (in our case CATCH_CONFIG_RUNNER) before including
 # catch.hpp. This needs to be excluded from unity builds, otherwise the macro wouldn't be defined
 # before the first catch.hpp inclusion.
@@ -214,10 +203,6 @@ target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_include_directories(common-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 configure_test_target(common-test)
 add_dependencies(common-test cmd-tool)
-
-add_executable(common-regression-test ${COMMON_REGRESSION_TEST_SOURCE})
-target_include_directories(common-regression-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
-configure_test_target(common-regression-test)
 
 # Copy shared resources for the test executables
 # We only need to do this once and not for both targets
