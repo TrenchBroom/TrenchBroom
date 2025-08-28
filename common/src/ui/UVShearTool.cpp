@@ -31,7 +31,6 @@
 #include "ui/MapDocument.h"
 #include "ui/UVViewHelper.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
 #include "kdl/range_to_vector.h"
 
@@ -212,10 +211,10 @@ public:
 const mdl::HitType::Type UVShearTool::XHandleHitType = mdl::HitType::freeType();
 const mdl::HitType::Type UVShearTool::YHandleHitType = mdl::HitType::freeType();
 
-UVShearTool::UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
+UVShearTool::UVShearTool(MapDocument& document, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -284,7 +283,7 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
   }
 
   return std::make_unique<UVShearDragTracker>(
-    kdl::mem_lock(m_document)->map(), m_helper, selector, xAxis, yAxis, *initialHit);
+    m_document.map(), m_helper, selector, xAxis, yAxis, *initialHit);
 }
 
 bool UVShearTool::cancel()

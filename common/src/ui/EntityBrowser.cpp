@@ -37,8 +37,6 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
-
 // for use in QVariant
 Q_DECLARE_METATYPE(tb::mdl::EntityDefinitionSortOrder)
 
@@ -46,9 +44,9 @@ namespace tb::ui
 {
 
 EntityBrowser::EntityBrowser(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui(contextManager);
   connectObservers();
@@ -56,7 +54,7 @@ EntityBrowser::EntityBrowser(
 
 void EntityBrowser::reload()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   if (m_view)
   {
     if (const auto* worldNode = map.world())
@@ -141,7 +139,7 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 
 void EntityBrowser::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.mapWasCreatedNotifier.connect(this, &EntityBrowser::mapWasCreated);
   m_notifierConnection +=
@@ -188,7 +186,7 @@ void EntityBrowser::entityDefinitionsDidChange()
 
 void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   if (map.game()->isGamePathPreference(path))
   {
     reload();

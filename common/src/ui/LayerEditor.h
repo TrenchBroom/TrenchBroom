@@ -21,8 +21,6 @@
 
 #include <QWidget>
 
-#include <memory>
-
 class QAbstractButton;
 
 namespace tb::mdl
@@ -39,7 +37,7 @@ class LayerEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   LayerListBox* m_layerList = nullptr;
 
   QAbstractButton* m_addLayerButton = nullptr;
@@ -48,7 +46,7 @@ private:
   QAbstractButton* m_moveLayerDownButton = nullptr;
 
 public:
-  explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit LayerEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void onSetCurrentLayer(mdl::LayerNode* layer);

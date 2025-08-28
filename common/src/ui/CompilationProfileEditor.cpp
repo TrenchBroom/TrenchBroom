@@ -37,17 +37,15 @@
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
 namespace tb::ui
 {
 
-CompilationProfileEditor::CompilationProfileEditor(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+CompilationProfileEditor::CompilationProfileEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   setBaseWindowColor(this);
 
@@ -72,7 +70,7 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
   m_nameTxt = new QLineEdit{};
   m_workDirTxt = new MultiCompletionLineEdit{};
 
-  const auto variables = CompilationWorkDirVariables{kdl::mem_lock(m_document)->map()};
+  const auto variables = CompilationWorkDirVariables{m_document.map()};
   auto* completer = new QCompleter{new VariableStoreModel{variables}};
   completer->setCaseSensitivity(Qt::CaseInsensitive);
 

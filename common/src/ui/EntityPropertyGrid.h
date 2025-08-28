@@ -23,7 +23,6 @@
 
 #include "NotifierConnection.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -61,7 +60,7 @@ class EntityPropertyGrid : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   EntityPropertyModel* m_model;
   QSortFilterProxyModel* m_proxyModel;
@@ -76,8 +75,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityPropertyGrid(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit EntityPropertyGrid(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void backupSelection();
@@ -91,7 +89,7 @@ private:
   std::vector<int> selectedRowsAndCursorRow() const;
 
 private:
-  void createGui(std::weak_ptr<MapDocument> document);
+  void createGui(MapDocument& document);
 
   void connectObservers();
 

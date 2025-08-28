@@ -38,8 +38,8 @@
 namespace tb::ui
 {
 
-SmartChoiceEditor::SmartChoiceEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor{std::move(document), parent}
+SmartChoiceEditor::SmartChoiceEditor(MapDocument& document, QWidget* parent)
+  : SmartPropertyEditor{document, parent}
 {
   createGui();
 }

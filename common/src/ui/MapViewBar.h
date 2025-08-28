@@ -21,8 +21,6 @@
 
 #include "ui/ContainerBar.h"
 
-#include <memory>
-
 class QStackedLayout;
 class QLabel;
 
@@ -39,11 +37,11 @@ private:
   ViewPopupEditor* m_viewEditor = nullptr;
 
 public:
-  explicit MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit MapViewBar(MapDocument& document, QWidget* parent = nullptr);
 
   QStackedLayout* toolBook();
 
 private:
-  void createGui(std::weak_ptr<MapDocument> document);
+  void createGui(MapDocument& document);
 };
 } // namespace tb::ui

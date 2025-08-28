@@ -98,16 +98,16 @@ namespace
 {
 
 // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
-std::shared_ptr<MapDocument> topDocument()
+MapDocument* topDocument()
 {
   if (const auto* frameManager = TrenchBroomApp::instance().frameManager())
   {
-    if (const auto* frame = frameManager->topFrame())
+    if (auto* frame = frameManager->topFrame())
     {
-      return frame->document();
+      return &frame->document();
     }
   }
-  return {};
+  return nullptr;
 }
 
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(

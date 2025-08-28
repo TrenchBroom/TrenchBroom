@@ -23,12 +23,11 @@
 #include "Macros.h"
 #include "render/LinkRenderer.h"
 
-#include <memory>
 #include <vector>
 
-namespace tb::ui
+namespace tb::mdl
 {
-class MapDocument; // FIXME: Renderer should not depend on View
+class Map;
 }
 
 namespace tb::render
@@ -36,13 +35,13 @@ namespace tb::render
 
 class EntityLinkRenderer : public LinkRenderer
 {
-  std::weak_ptr<ui::MapDocument> m_document;
+  mdl::Map& m_map;
 
   Color m_defaultColor = {0.5f, 1.0f, 0.5f, 1.0f};
   Color m_selectedColor = {1.0f, 0.0f, 0.0f, 1.0f};
 
 public:
-  explicit EntityLinkRenderer(std::weak_ptr<ui::MapDocument> document);
+  explicit EntityLinkRenderer(mdl::Map& map);
 
   void setDefaultColor(const Color& color);
   void setSelectedColor(const Color& color);

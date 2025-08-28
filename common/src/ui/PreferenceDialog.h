@@ -39,14 +39,13 @@ class PreferenceDialog : public QDialog
 private:
   enum class PrefPane;
 
-  std::shared_ptr<MapDocument> m_document;
+  MapDocument* m_document = nullptr;
   QToolBar* m_toolBar = nullptr;
   QStackedWidget* m_stackedWidget = nullptr;
   QDialogButtonBox* m_buttonBox = nullptr;
 
 public:
-  explicit PreferenceDialog(
-    std::shared_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit PreferenceDialog(MapDocument* document, QWidget* parent = nullptr);
 
 protected: // QWidget overrides
   void closeEvent(QCloseEvent* event) override;

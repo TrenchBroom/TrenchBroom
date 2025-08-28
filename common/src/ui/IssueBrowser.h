@@ -22,7 +22,6 @@
 #include "NotifierConnection.h"
 #include "ui/TabBook.h"
 
-#include <memory>
 #include <vector>
 
 class QCheckBox;
@@ -52,7 +51,7 @@ private:
   static const int HideIssuesCommandId = 3;
   static const int FixObjectsBaseId = 4;
 
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   IssueBrowserView* m_view = nullptr;
   QCheckBox* m_showHiddenIssuesCheckBox = nullptr;
   FlagsPopupEditor* m_filterEditor = nullptr;
@@ -60,7 +59,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit IssueBrowser(MapDocument& document, QWidget* parent = nullptr);
 
   QWidget* createTabBarPage(QWidget* parent) override;
 

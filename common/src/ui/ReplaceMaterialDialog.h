@@ -21,7 +21,6 @@
 
 #include <QDialog>
 
-#include <memory>
 #include <vector>
 
 class QPushButton;
@@ -43,7 +42,7 @@ class ReplaceMaterialDialog : public QDialog
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   MaterialBrowser* m_subjectBrowser = nullptr;
   MaterialBrowser* m_replacementBrowser = nullptr;
@@ -51,9 +50,7 @@ private:
 
 public:
   ReplaceMaterialDialog(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
 private:
   void accept() override;

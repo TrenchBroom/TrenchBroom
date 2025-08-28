@@ -45,7 +45,6 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
@@ -57,10 +56,9 @@
 namespace tb::ui
 {
 
-EntityPropertyGrid::EntityPropertyGrid(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+EntityPropertyGrid::EntityPropertyGrid(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui(m_document);
   connectObservers();
@@ -114,7 +112,7 @@ void EntityPropertyGrid::restoreSelection()
 
 void EntityPropertyGrid::addProperty(const bool defaultToProtected)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto newPropertyKey = newPropertyKeyForEntityNodes(map.selection().allEntities());
 
   if (!map.setEntityProperty(newPropertyKey, "", defaultToProtected))
@@ -151,7 +149,7 @@ void EntityPropertyGrid::removeSelectedProperties()
     selectedRows, [&](const auto row) { return m_model->propertyKey(row); });
   const auto numRows = propertyKeys.size();
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   auto transaction = mdl::Transaction{
     map, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
 
@@ -221,7 +219,7 @@ protected:
   }
 };
 
-void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
+void EntityPropertyGrid::createGui(MapDocument& document)
 {
   m_table = new EntityPropertyTable{};
 
@@ -284,19 +282,13 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
 
   auto* setDefaultPropertiesMenu = new QMenu{this};
   setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [&]() {
-    kdl::mem_lock(m_document)
-      ->map()
-      .setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetExisting);
+    m_document.map().setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetExisting);
   });
   setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [&]() {
-    kdl::mem_lock(m_document)
-      ->map()
-      .setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetMissing);
+    m_document.map().setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetMissing);
   });
   setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
-    kdl::mem_lock(m_document)
-      ->map()
-      .setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetMissing);
+    m_document.map().setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetMissing);
   });
 
   m_setDefaultPropertiesButton =
@@ -385,7 +377,7 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
 
 void EntityPropertyGrid::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.mapWasCreatedNotifier.connect(this, &EntityPropertyGrid::mapWasCreated);
   m_notifierConnection +=
@@ -451,7 +443,7 @@ void EntityPropertyGrid::ensureSelectionVisible()
 
 void EntityPropertyGrid::updateControlsEnabled()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto nodes = map.selection().allEntities();
   const auto canUpdateLinkedGroups =
     map.canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));

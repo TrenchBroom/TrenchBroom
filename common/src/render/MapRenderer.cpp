@@ -44,9 +44,7 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
-#include "ui/MapDocument.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
 
@@ -160,10 +158,8 @@ public:
   }
 };
 
-std::unique_ptr<ObjectRenderer> createDefaultRenderer(
-  std::weak_ptr<ui::MapDocument> document)
+std::unique_ptr<ObjectRenderer> createDefaultRenderer(mdl::Map& map)
 {
-  auto& map = kdl::mem_lock(document)->map();
   return std::make_unique<ObjectRenderer>(
     map.logger(),
     map.entityModelManager(),
@@ -171,10 +167,8 @@ std::unique_ptr<ObjectRenderer> createDefaultRenderer(
     UnselectedBrushRendererFilter{map.editorContext()});
 }
 
-std::unique_ptr<ObjectRenderer> createSelectionRenderer(
-  std::weak_ptr<ui::MapDocument> document)
+std::unique_ptr<ObjectRenderer> createSelectionRenderer(mdl::Map& map)
 {
-  auto& map = kdl::mem_lock(document)->map();
   return std::make_unique<ObjectRenderer>(
     map.logger(),
     map.entityModelManager(),
@@ -182,10 +176,8 @@ std::unique_ptr<ObjectRenderer> createSelectionRenderer(
     SelectedBrushRendererFilter{map.editorContext()});
 }
 
-std::unique_ptr<ObjectRenderer> createLockRenderer(
-  std::weak_ptr<ui::MapDocument> document)
+std::unique_ptr<ObjectRenderer> createLockRenderer(mdl::Map& map)
 {
-  auto& map = kdl::mem_lock(document)->map();
   return std::make_unique<ObjectRenderer>(
     map.logger(),
     map.entityModelManager(),
@@ -193,22 +185,21 @@ std::unique_ptr<ObjectRenderer> createLockRenderer(
     LockedBrushRendererFilter{map.editorContext()});
 }
 
-std::unique_ptr<EntityDecalRenderer> createEntityDecalRenderer(
-  std::weak_ptr<ui::MapDocument> document)
+std::unique_ptr<EntityDecalRenderer> createEntityDecalRenderer(mdl::Map& map)
 {
-  return std::make_unique<EntityDecalRenderer>(std::move(document));
+  return std::make_unique<EntityDecalRenderer>(map);
 }
 
 } // namespace
 
-MapRenderer::MapRenderer(std::weak_ptr<ui::MapDocument> document)
-  : m_document{std::move(document)}
-  , m_defaultRenderer{createDefaultRenderer(m_document)}
-  , m_selectionRenderer{createSelectionRenderer(m_document)}
-  , m_lockedRenderer{createLockRenderer(m_document)}
-  , m_entityDecalRenderer{createEntityDecalRenderer(m_document)}
-  , m_entityLinkRenderer{std::make_unique<EntityLinkRenderer>(m_document)}
-  , m_groupLinkRenderer{std::make_unique<GroupLinkRenderer>(m_document)}
+MapRenderer::MapRenderer(mdl::Map& map)
+  : m_map{map}
+  , m_defaultRenderer{createDefaultRenderer(m_map)}
+  , m_selectionRenderer{createSelectionRenderer(m_map)}
+  , m_lockedRenderer{createLockRenderer(m_map)}
+  , m_entityDecalRenderer{createEntityDecalRenderer(m_map)}
+  , m_entityLinkRenderer{std::make_unique<EntityLinkRenderer>(m_map)}
+  , m_groupLinkRenderer{std::make_unique<GroupLinkRenderer>(m_map)}
 {
   connectObservers();
   setupRenderers();
@@ -615,8 +606,7 @@ void MapRenderer::removeNodeRecursive(mdl::Node* node)
  */
 void MapRenderer::updateAllNodes()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
-  updateAndInvalidateNodeRecursive(map.world());
+  updateAndInvalidateNodeRecursive(m_map.world());
 }
 
 /**
@@ -663,42 +653,39 @@ void MapRenderer::reloadEntityModels()
 
 void MapRenderer::connectObservers()
 {
-  assert(!kdl::mem_expired(m_document));
-  auto& map = kdl::mem_lock(m_document)->map();
-
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &MapRenderer::mapWasCreated);
+    m_map.mapWasCreatedNotifier.connect(this, &MapRenderer::mapWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &MapRenderer::mapWasLoaded);
+    m_map.mapWasLoadedNotifier.connect(this, &MapRenderer::mapWasLoaded);
   m_notifierConnection +=
-    map.mapWasClearedNotifier.connect(this, &MapRenderer::mapWasCleared);
+    m_map.mapWasClearedNotifier.connect(this, &MapRenderer::mapWasCleared);
   m_notifierConnection +=
-    map.nodesWereAddedNotifier.connect(this, &MapRenderer::nodesWereAdded);
+    m_map.nodesWereAddedNotifier.connect(this, &MapRenderer::nodesWereAdded);
   m_notifierConnection +=
-    map.nodesWereRemovedNotifier.connect(this, &MapRenderer::nodesWereRemoved);
+    m_map.nodesWereRemovedNotifier.connect(this, &MapRenderer::nodesWereRemoved);
   m_notifierConnection +=
-    map.nodesDidChangeNotifier.connect(this, &MapRenderer::nodesDidChange);
-  m_notifierConnection += map.nodeVisibilityDidChangeNotifier.connect(
+    m_map.nodesDidChangeNotifier.connect(this, &MapRenderer::nodesDidChange);
+  m_notifierConnection += m_map.nodeVisibilityDidChangeNotifier.connect(
     this, &MapRenderer::nodeVisibilityDidChange);
   m_notifierConnection +=
-    map.nodeLockingDidChangeNotifier.connect(this, &MapRenderer::nodeLockingDidChange);
+    m_map.nodeLockingDidChangeNotifier.connect(this, &MapRenderer::nodeLockingDidChange);
   m_notifierConnection +=
-    map.groupWasOpenedNotifier.connect(this, &MapRenderer::groupWasOpened);
+    m_map.groupWasOpenedNotifier.connect(this, &MapRenderer::groupWasOpened);
   m_notifierConnection +=
-    map.groupWasClosedNotifier.connect(this, &MapRenderer::groupWasClosed);
+    m_map.groupWasClosedNotifier.connect(this, &MapRenderer::groupWasClosed);
   m_notifierConnection +=
-    map.brushFacesDidChangeNotifier.connect(this, &MapRenderer::brushFacesDidChange);
+    m_map.brushFacesDidChangeNotifier.connect(this, &MapRenderer::brushFacesDidChange);
   m_notifierConnection +=
-    map.selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
-  m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
+    m_map.selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
+  m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
     this, &MapRenderer::resourcesWereProcessed);
-  m_notifierConnection += map.materialCollectionsWillChangeNotifier.connect(
+  m_notifierConnection += m_map.materialCollectionsWillChangeNotifier.connect(
     this, &MapRenderer::materialCollectionsWillChange);
-  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
+  m_notifierConnection += m_map.entityDefinitionsDidChangeNotifier.connect(
     this, &MapRenderer::entityDefinitionsDidChange);
   m_notifierConnection +=
-    map.modsDidChangeNotifier.connect(this, &MapRenderer::modsDidChange);
-  m_notifierConnection += map.editorContextDidChangeNotifier.connect(
+    m_map.modsDidChangeNotifier.connect(this, &MapRenderer::modsDidChange);
+  m_notifierConnection += m_map.editorContextDidChangeNotifier.connect(
     this, &MapRenderer::editorContextDidChange);
 
   auto& prefs = PreferenceManager::instance();
@@ -823,15 +810,14 @@ void MapRenderer::selectionDidChange(const mdl::SelectionChange& selectionChange
 
 void MapRenderer::resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds)
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
-  const auto& materialManager = map.materialManager();
+  const auto& materialManager = m_map.materialManager();
   const auto materials = materialManager.findMaterialsByTextureResourceId(resourceIds);
 
   m_defaultRenderer->invalidateMaterials(materials);
   m_selectionRenderer->invalidateMaterials(materials);
   m_lockedRenderer->invalidateMaterials(materials);
 
-  const auto& entityModelManager = map.entityModelManager();
+  const auto& entityModelManager = m_map.entityModelManager();
   const auto entityModels =
     entityModelManager.findEntityModelsByTextureResourceId(resourceIds);
   m_defaultRenderer->invalidateEntityModels(entityModels);
@@ -869,8 +855,7 @@ void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
 {
   setupRenderers();
 
-  const auto& map = kdl::mem_lock(m_document)->map();
-  if (map.game()->isGamePathPreference(path))
+  if (m_map.game()->isGamePathPreference(path))
   {
     reloadEntityModels();
     invalidateRenderers(Renderer::All);

@@ -32,13 +32,13 @@ namespace tb::ui
 {
 
 ThreePaneMapView::ThreePaneMapView(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   MapViewToolBox& toolBox,
   render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui(toolBox, mapRenderer, contextManager);
 }

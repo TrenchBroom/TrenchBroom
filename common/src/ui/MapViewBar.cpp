@@ -33,10 +33,10 @@
 namespace tb::ui
 {
 
-MapViewBar::MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent)
+MapViewBar::MapViewBar(MapDocument& document, QWidget* parent)
   : ContainerBar(Sides::BottomSide, parent)
 {
-  createGui(std::move(document));
+  createGui(document);
 }
 
 QStackedLayout* MapViewBar::toolBook()
@@ -44,14 +44,14 @@ QStackedLayout* MapViewBar::toolBook()
   return m_toolBook;
 }
 
-void MapViewBar::createGui(std::weak_ptr<MapDocument> document)
+void MapViewBar::createGui(MapDocument& document)
 {
   setAttribute(Qt::WA_MacSmallSize);
 
   m_toolBook = new QStackedLayout{};
   m_toolBook->setContentsMargins(0, 0, 0, 0);
 
-  m_viewEditor = new ViewPopupEditor{std::move(document)};
+  m_viewEditor = new ViewPopupEditor{document};
 
 #ifdef __APPLE__
   const auto vMargin = pref(Preferences::Theme) == Preferences::darkTheme()

@@ -35,16 +35,13 @@
 #include "ui/SmartPropertyEditorManager.h"
 #include "ui/Splitter.h"
 
-#include "kdl/memory_utils.h"
-
 #include <algorithm>
 
 namespace tb::ui
 {
-EntityPropertyEditor::EntityPropertyEditor(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+EntityPropertyEditor::EntityPropertyEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui(m_document);
   connectObservers();
@@ -62,7 +59,7 @@ void EntityPropertyEditor::OnCurrentRowChanged()
 
 void EntityPropertyEditor::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection += map.selectionDidChangeNotifier.connect(
     this, &EntityPropertyEditor::selectionDidChange);
   m_notifierConnection +=
@@ -81,7 +78,7 @@ void EntityPropertyEditor::nodesDidChange(const std::vector<mdl::Node*>&)
 
 void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto* entityDefinition =
     mdl::selectEntityDefinition(map.selection().allEntities());
 
@@ -94,7 +91,7 @@ void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()
 
 void EntityPropertyEditor::updateDocumentationAndSmartEditor()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& propertyKey = m_propertyGrid->selectedRowName();
 
   m_smartEditorManager->switchEditor(propertyKey, map.selection().allEntities());
@@ -164,7 +161,7 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
 {
   m_documentationText->clear();
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   if (
     const auto* entityDefinition =
       mdl::selectEntityDefinition(map.selection().allEntities()))
@@ -243,7 +240,7 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
   m_documentationText->moveCursor(QTextCursor::MoveOperation::Start);
 }
 
-void EntityPropertyEditor::createGui(std::weak_ptr<MapDocument> document)
+void EntityPropertyEditor::createGui(MapDocument& document)
 {
   m_splitter = new Splitter{Qt::Vertical};
 

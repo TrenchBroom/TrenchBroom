@@ -38,7 +38,6 @@
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
 
 #include <fmt/format.h>
@@ -74,9 +73,9 @@ void replaceMaterials(
 } // namespace
 
 ReplaceMaterialDialog::ReplaceMaterialDialog(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QDialog{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui(contextManager);
 }
@@ -91,7 +90,7 @@ void ReplaceMaterialDialog::accept()
 
   if (const auto faces = getApplicableFaces(); !faces.empty())
   {
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     replaceMaterials(map, faces, replacement->name());
 
     const auto msg = fmt::format(
@@ -116,7 +115,7 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
   const auto* subject = m_subjectBrowser->selectedMaterial();
   ensure(subject != nullptr, "subject is null");
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   auto faces = map.selection().allBrushFaces();
   if (faces.empty())
   {

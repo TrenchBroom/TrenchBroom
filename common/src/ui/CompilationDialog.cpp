@@ -61,9 +61,9 @@ void CompilationDialog::createGui()
   setWindowIconTB(this);
   setWindowTitle("Compile");
 
-  auto document = m_mapFrame->document();
-  auto game = document->map().game();
-  const auto& compilationConfig = game->config().compilationConfig;
+  auto& document = m_mapFrame->document();
+  const auto& game = *document.map().game();
+  const auto& compilationConfig = game.config().compilationConfig;
 
   m_profileManager = new CompilationProfileManager{document, compilationConfig};
 
@@ -190,7 +190,7 @@ void CompilationDialog::startCompilation(const bool test)
 Result<void> CompilationDialog::runProfile(
   const mdl::CompilationProfile& profile, const bool test)
 {
-  const auto& map = m_mapFrame->document()->map();
+  const auto& map = m_mapFrame->document().map();
   return test ? m_run.test(profile, map, m_output) : m_run.run(profile, map, m_output);
 }
 
@@ -254,7 +254,7 @@ void CompilationDialog::profileChanged()
 
 void CompilationDialog::saveProfile()
 {
-  auto& map = m_mapFrame->document()->map();
+  const auto& map = m_mapFrame->document().map();
   const auto& gameName = map.game()->config().name;
   auto& gameFactory = mdl::GameFactory::instance();
   gameFactory.saveCompilationConfig(

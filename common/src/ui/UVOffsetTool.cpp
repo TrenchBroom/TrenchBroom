@@ -28,7 +28,6 @@
 #include "ui/MapDocument.h"
 #include "ui/UVView.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_fold.h"
 
 #include "vm/intersection.h"
@@ -127,11 +126,10 @@ public:
 
 } // namespace
 
-UVOffsetTool::UVOffsetTool(
-  std::weak_ptr<MapDocument> document, const UVViewHelper& helper)
+UVOffsetTool::UVOffsetTool(MapDocument& document, const UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -158,8 +156,7 @@ std::unique_ptr<GestureTracker> UVOffsetTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVOffsetDragTracker>(
-    kdl::mem_lock(m_document)->map(), m_helper, inputState);
+  return std::make_unique<UVOffsetDragTracker>(m_document.map(), m_helper, inputState);
 }
 
 bool UVOffsetTool::cancel()

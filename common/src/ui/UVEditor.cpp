@@ -33,15 +33,13 @@
 #include "ui/UVView.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
-
 namespace tb::ui
 {
 
 UVEditor::UVEditor(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui(contextManager);
   connectObservers();
@@ -54,7 +52,7 @@ bool UVEditor::cancelMouseDrag()
 
 void UVEditor::updateButtons()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const bool enabled = !map.selection().allBrushFaces().empty();
 
   m_resetUVButton->setEnabled(enabled);
@@ -149,7 +147,7 @@ void UVEditor::selectionDidChange(const mdl::SelectionChange&)
 
 void UVEditor::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.selectionDidChangeNotifier.connect(this, &UVEditor::selectionDidChange);
 }
@@ -158,7 +156,7 @@ void UVEditor::resetUVClicked()
 {
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   request.resetAll(map.game()->config().faceAttribsConfig.defaults);
   map.setFaceAttributes(request);
 }
@@ -167,7 +165,7 @@ void UVEditor::resetUVToWorldClicked()
 {
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   request.resetAllToParaxial(map.game()->config().faceAttribsConfig.defaults);
   map.setFaceAttributes(request);
 }
@@ -177,7 +175,7 @@ void UVEditor::flipUVHClicked()
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.mulXScale(-1.0f);
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.setFaceAttributes(request);
 }
 
@@ -186,7 +184,7 @@ void UVEditor::flipUVVClicked()
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.mulYScale(-1.0f);
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.setFaceAttributes(request);
 }
 
@@ -195,7 +193,7 @@ void UVEditor::rotateUVCCWClicked()
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.addRotation(90.0f);
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.setFaceAttributes(request);
 }
 
@@ -204,7 +202,7 @@ void UVEditor::rotateUVCWClicked()
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.addRotation(-90.0f);
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.setFaceAttributes(request);
 }
 

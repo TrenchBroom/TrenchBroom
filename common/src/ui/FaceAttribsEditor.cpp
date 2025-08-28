@@ -47,7 +47,6 @@
 #include "ui/ViewConstants.h"
 #include "ui/ViewUtils.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
@@ -60,9 +59,9 @@ namespace tb::ui
 {
 
 FaceAttribsEditor::FaceAttribsEditor(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_updateControlsSignalDelayer{new SignalDelayer{this}}
 {
   createGui(contextManager);
@@ -78,7 +77,7 @@ bool FaceAttribsEditor::cancelMouseDrag()
 
 void FaceAttribsEditor::xOffsetChanged(const double value)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -94,7 +93,7 @@ void FaceAttribsEditor::xOffsetChanged(const double value)
 
 void FaceAttribsEditor::yOffsetChanged(const double value)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -110,7 +109,7 @@ void FaceAttribsEditor::yOffsetChanged(const double value)
 
 void FaceAttribsEditor::rotationChanged(const double value)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -126,7 +125,7 @@ void FaceAttribsEditor::rotationChanged(const double value)
 
 void FaceAttribsEditor::xScaleChanged(const double value)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -142,7 +141,7 @@ void FaceAttribsEditor::xScaleChanged(const double value)
 
 void FaceAttribsEditor::yScaleChanged(const double value)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -159,7 +158,7 @@ void FaceAttribsEditor::yScaleChanged(const double value)
 void FaceAttribsEditor::surfaceFlagChanged(
   const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -183,7 +182,7 @@ void FaceAttribsEditor::surfaceFlagChanged(
 void FaceAttribsEditor::contentFlagChanged(
   const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -206,7 +205,7 @@ void FaceAttribsEditor::contentFlagChanged(
 
 void FaceAttribsEditor::surfaceValueChanged(const double value)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -222,7 +221,7 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
 
 void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -254,7 +253,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
 
 void FaceAttribsEditor::surfaceFlagsUnset()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -270,7 +269,7 @@ void FaceAttribsEditor::surfaceFlagsUnset()
 
 void FaceAttribsEditor::contentFlagsUnset()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -286,7 +285,7 @@ void FaceAttribsEditor::contentFlagsUnset()
 
 void FaceAttribsEditor::surfaceValueUnset()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -302,7 +301,7 @@ void FaceAttribsEditor::surfaceValueUnset()
 
 void FaceAttribsEditor::colorValueUnset()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
   {
     return;
@@ -318,7 +317,7 @@ void FaceAttribsEditor::colorValueUnset()
 
 void FaceAttribsEditor::updateIncrements()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& grid = map.grid();
 
   m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
@@ -563,7 +562,7 @@ void FaceAttribsEditor::bindEvents()
 
 void FaceAttribsEditor::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.mapWasCreatedNotifier.connect(this, &FaceAttribsEditor::mapWasCreated);
   m_notifierConnection +=
@@ -675,7 +674,7 @@ void FaceAttribsEditor::updateControls()
     hideColorAttribEditor();
   }
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto faceHandles = map.selection().allBrushFaces();
   if (!faceHandles.empty())
   {
@@ -836,14 +835,14 @@ void FaceAttribsEditor::updateControlsDelayed()
 
 bool FaceAttribsEditor::hasSurfaceFlags() const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto game = map.game();
   return !game->config().faceAttribsConfig.surfaceFlags.flags.empty();
 }
 
 bool FaceAttribsEditor::hasContentFlags() const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto game = map.game();
   return !game->config().faceAttribsConfig.contentFlags.flags.empty();
 }
@@ -878,7 +877,7 @@ void FaceAttribsEditor::hideContentFlagsEditor()
 
 bool FaceAttribsEditor::hasColorAttribs() const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   return map.world()->mapFormat() == mdl::MapFormat::Daikatana;
 }
 
@@ -917,7 +916,7 @@ std::tuple<QList<int>, QStringList, QStringList> getFlags(
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFlags()
   const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto game = map.game();
   const auto& surfaceFlags = game->config().faceAttribsConfig.surfaceFlags;
   return getFlags(surfaceFlags.flags);
@@ -926,7 +925,7 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFl
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFlags()
   const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto game = map.game();
   const auto& contentFlags = game->config().faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);

@@ -37,8 +37,6 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
-
 // for use in QVariant
 Q_DECLARE_METATYPE(tb::ui::MaterialSortOrder)
 
@@ -46,9 +44,9 @@ namespace tb::ui
 {
 
 MaterialBrowser::MaterialBrowser(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui(contextManager);
   bindEvents();
@@ -113,8 +111,7 @@ void MaterialBrowser::createGui(GLContextManager& contextManager)
   auto* browserPanel = new QWidget{};
   m_scrollBar = new QScrollBar{Qt::Vertical};
 
-  auto document = kdl::mem_lock(m_document);
-  m_view = new MaterialBrowserView{m_scrollBar, contextManager, document};
+  m_view = new MaterialBrowserView{m_scrollBar, contextManager, m_document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
@@ -186,7 +183,7 @@ void MaterialBrowser::bindEvents()
 
 void MaterialBrowser::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.mapWasCreatedNotifier.connect(this, &MaterialBrowser::mapWasCreated);
   m_notifierConnection +=
@@ -251,7 +248,7 @@ void MaterialBrowser::currentMaterialNameDidChange(const std::string& /* materia
 
 void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (
     path == Preferences::MaterialBrowserIconSize.path()
     || map.game()->isGamePathPreference(path))
@@ -276,7 +273,7 @@ void MaterialBrowser::reload()
 
 void MaterialBrowser::updateSelectedMaterial()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto& materialName = map.currentMaterialName();
   const auto* material = map.materialManager().material(materialName);
   m_view->setSelectedMaterial(material);

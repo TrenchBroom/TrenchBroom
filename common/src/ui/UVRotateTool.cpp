@@ -42,7 +42,6 @@
 #include "ui/MapDocument.h"
 #include "ui/UVViewHelper.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
 
 #include "vm/intersection.h"
@@ -299,10 +298,10 @@ std::optional<float> computeInitialAngle(
 
 const mdl::HitType::Type UVRotateTool::AngleHandleHitType = mdl::HitType::freeType();
 
-UVRotateTool::UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
+UVRotateTool::UVRotateTool(MapDocument& document, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -374,8 +373,7 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVRotateDragTracker>(
-    kdl::mem_lock(m_document)->map(), m_helper, *initialAngle);
+  return std::make_unique<UVRotateDragTracker>(m_document.map(), m_helper, *initialAngle);
 }
 
 void UVRotateTool::render(

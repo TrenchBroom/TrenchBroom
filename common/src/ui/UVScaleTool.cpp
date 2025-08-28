@@ -38,7 +38,6 @@
 #include "ui/UVOriginTool.h"
 #include "ui/UVViewHelper.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
 
 #include "vm/intersection.h"
@@ -262,10 +261,10 @@ public:
 const mdl::HitType::Type UVScaleTool::XHandleHitType = mdl::HitType::freeType();
 const mdl::HitType::Type UVScaleTool::YHandleHitType = mdl::HitType::freeType();
 
-UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
+UVScaleTool::UVScaleTool(MapDocument& document, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -320,7 +319,7 @@ std::unique_ptr<GestureTracker> UVScaleTool::acceptMouseDrag(const InputState& i
   }
 
   return std::make_unique<UVScaleDragTracker>(
-    kdl::mem_lock(m_document)->map(), m_helper, handle, selector, *initialHitPoint);
+    m_document.map(), m_helper, handle, selector, *initialHitPoint);
 }
 
 void UVScaleTool::render(

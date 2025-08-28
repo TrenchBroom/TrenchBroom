@@ -85,7 +85,7 @@ class MapFrame : public QMainWindow
   Q_OBJECT
 private:
   FrameManager& m_frameManager;
-  std::shared_ptr<MapDocument> m_document;
+  std::unique_ptr<MapDocument> m_document;
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
   std::unique_ptr<mdl::Autosaver> m_autosaver;
@@ -131,11 +131,12 @@ private:
   SignalDelayer* m_updateStatusBarSignalDelayer = nullptr;
 
 public:
-  MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> document);
+  MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> document);
   ~MapFrame() override;
 
   void positionOnScreen(QWidget* reference);
-  std::shared_ptr<MapDocument> document() const;
+  const MapDocument& document() const;
+  MapDocument& document();
 
 public: // getters and such
   Logger& logger() const;

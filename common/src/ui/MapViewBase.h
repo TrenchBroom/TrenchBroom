@@ -27,7 +27,6 @@
 #include "ui/ToolBoxConnector.h"
 
 #include <filesystem>
-#include <memory>
 #include <utility>
 #include <vector>
 
@@ -80,7 +79,7 @@ public:
   static const int DefaultCameraAnimationDuration;
 
 protected:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   MapViewToolBox& m_toolBox;
   render::MapRenderer& m_renderer;
 
@@ -105,7 +104,7 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     MapViewToolBox& toolBox,
     render::MapRenderer& renderer,
     GLContextManager& contextManager);

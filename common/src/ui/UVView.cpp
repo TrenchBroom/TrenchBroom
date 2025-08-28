@@ -48,8 +48,6 @@
 #include "ui/UVScaleTool.h"
 #include "ui/UVShearTool.h"
 
-#include "kdl/memory_utils.h"
-
 #include <cassert>
 #include <memory>
 #include <vector>
@@ -147,9 +145,9 @@ private:
 
 const mdl::HitType::Type UVView::FaceHitType = mdl::HitType::freeType();
 
-UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+UVView::UVView(MapDocument& document, GLContextManager& contextManager)
   : RenderView{contextManager}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_helper{m_camera}
 {
   setToolBox(m_toolBox);
@@ -186,7 +184,7 @@ void UVView::createTools()
 
 void UVView::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection += map.mapWasClearedNotifier.connect(this, &UVView::mapWasCleared);
   m_notifierConnection +=
     map.nodesDidChangeNotifier.connect(this, &UVView::nodesDidChange);
@@ -207,7 +205,7 @@ void UVView::connectObservers()
 
 void UVView::selectionDidChange(const mdl::SelectionChange&)
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto faces = map.selection().brushFaces;
   if (faces.size() != 1)
   {

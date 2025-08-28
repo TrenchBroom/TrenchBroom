@@ -34,14 +34,13 @@
 #include "kdl/string_utils.h"
 
 #include <cassert>
-#include <memory>
 #include <vector>
 
 namespace tb::ui
 {
 
-SmartFlagsEditor::SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor{std::move(document), parent}
+SmartFlagsEditor::SmartFlagsEditor(MapDocument& document, QWidget* parent)
+  : SmartPropertyEditor{document, parent}
 {
   createGui();
 }

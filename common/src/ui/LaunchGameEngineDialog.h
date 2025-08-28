@@ -24,8 +24,6 @@
 #include "mdl/GameEngineConfig.h"
 #include "ui/CompilationVariables.h"
 
-#include <memory>
-
 class QPushButton;
 
 namespace tb::mdl
@@ -49,7 +47,7 @@ class MultiCompletionLineEdit;
 class LaunchGameEngineDialog : public QDialog
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   GameEngineProfileListBox* m_gameEngineList{nullptr};
   MultiCompletionLineEdit* m_parameterText{nullptr};
   QPushButton* m_launchButton{nullptr};
@@ -57,8 +55,7 @@ private:
   mdl::GameEngineConfig m_config;
 
 public:
-  explicit LaunchGameEngineDialog(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit LaunchGameEngineDialog(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();

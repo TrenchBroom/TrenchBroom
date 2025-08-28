@@ -50,11 +50,11 @@ public:
   static const mdl::HitType::Type YHandleHitType;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   UVViewHelper& m_helper;
 
 public:
-  UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
+  UVScaleTool(MapDocument& document, UVViewHelper& helper);
 
 private:
   Tool& tool() override;

@@ -44,8 +44,6 @@
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
-
 #include <vector>
 
 namespace tb::ui
@@ -223,16 +221,16 @@ void EntityDefinitionCheckBoxList::createGui()
 
 // ViewEditor
 
-ViewEditor::ViewEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
+ViewEditor::ViewEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   connectObservers();
 }
 
 void ViewEditor::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.mapWasCreatedNotifier.connect(this, &ViewEditor::mapWasCreated);
   m_notifierConnection +=
@@ -299,7 +297,7 @@ QWidget* ViewEditor::createEntityDefinitionsPanel(QWidget* parent)
 {
   auto* panel = new TitledPanel{"Entity Definitions", parent, false};
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   auto& entityDefinitionManager = map.entityDefinitionManager();
   auto& editorContext = map.editorContext();
 
@@ -397,7 +395,7 @@ void ViewEditor::createTagFilter(QWidget* parent)
 {
   m_tagCheckBoxes.clear();
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   if (const auto& tags = map.smartTags(); !tags.empty())
   {
     createTagFilter(parent, tags);
@@ -570,8 +568,6 @@ void ViewEditor::refreshEntityDefinitionsPanel()
 
 void ViewEditor::refreshEntitiesPanel()
 {
-  auto document = kdl::mem_lock(m_document);
-
   m_showEntityClassnamesCheckBox->setChecked(pref(Preferences::ShowEntityClassnames));
   m_showGroupBoundsCheckBox->setChecked(pref(Preferences::ShowGroupBounds));
   m_showBrushEntityBoundsCheckBox->setChecked(pref(Preferences::ShowBrushEntityBounds));
@@ -584,7 +580,7 @@ void ViewEditor::refreshBrushesPanel()
 {
   m_showBrushesCheckBox->setChecked(pref(Preferences::ShowBrushes));
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& editorContext = map.editorContext();
   const auto hiddenTags = editorContext.hiddenTags();
 
@@ -641,7 +637,7 @@ void ViewEditor::showBrushesChanged(const bool checked)
 
 void ViewEditor::showTagChanged(const bool checked, const mdl::TagType::Type tagType)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   auto& editorContext = map.editorContext();
 
   auto hiddenTags = editorContext.hiddenTags();
@@ -733,14 +729,14 @@ void ViewEditor::restoreDefaultsClicked()
   prefs.saveChanges();
 }
 
-ViewPopupEditor::ViewPopupEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
+ViewPopupEditor::ViewPopupEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
 {
   m_button = new PopupButton{tr("View Options")};
   m_button->setToolTip(tr("Click to edit view settings"));
 
   auto* editorContainer = new BorderPanel{};
-  m_editor = new ViewEditor{std::move(document)};
+  m_editor = new ViewEditor{document};
 
   auto* containerSizer = new QVBoxLayout{};
   containerSizer->setContentsMargins(0, 0, 0, 0);

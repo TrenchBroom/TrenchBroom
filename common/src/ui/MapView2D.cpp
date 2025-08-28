@@ -57,20 +57,18 @@
 #include "ui/VertexTool.h"
 #include "ui/VertexToolController.h"
 
-#include "kdl/memory_utils.h"
-
 #include "vm/util.h"
 
 namespace tb::ui
 {
 
 MapView2D::MapView2D(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   MapViewToolBox& toolBox,
   render::MapRenderer& renderer,
   GLContextManager& contextManager,
   ViewPlane viewPlane)
-  : MapViewBase{std::move(document), toolBox, renderer, contextManager}
+  : MapViewBase{document, toolBox, renderer, contextManager}
   , m_camera{std::make_unique<render::OrthographicCamera>()}
 {
   connectObservers();
@@ -96,7 +94,7 @@ MapView2D::MapView2D(
 
 void MapView2D::initializeCamera(const ViewPlane viewPlane)
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto worldBounds = vm::bbox3f{map.worldBounds()};
 
   switch (viewPlane)
@@ -122,7 +120,7 @@ void MapView2D::initializeCamera(const ViewPlane viewPlane)
 
 void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
 
   addToolController(std::make_unique<CameraTool2D>(*m_camera));
   addToolController(
@@ -160,7 +158,7 @@ PickRequest MapView2D::pickRequest(const float x, const float y) const
 
 mdl::PickResult MapView2D::pick(const vm::ray3d& pickRay) const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto axis = vm::find_abs_max_component(pickRay.direction);
 
   auto pickResult = mdl::PickResult::bySize(axis);
@@ -184,7 +182,7 @@ void MapView2D::updateViewport(
 vm::vec3d MapView2D::pasteObjectsDelta(
   const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& grid = map.grid();
   const auto& worldBounds = map.worldBounds();
 
@@ -207,7 +205,7 @@ bool MapView2D::canSelectTall()
 
 void MapView2D::selectTall()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const vm::axis::type cameraAxis = vm::find_abs_max_component(m_camera->direction());
   map.selectTouchingNodes(cameraAxis, true);
 }
@@ -235,7 +233,7 @@ void MapView2D::reset2dCameras(const render::Camera& masterCamera, const bool an
 
 void MapView2D::focusCameraOnSelection(const bool animate)
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto bounds = vm::bbox3f{map.referenceBounds()};
   const auto diff = bounds.center() - m_camera->position();
   const auto delta = vm::dot(diff, m_camera->up()) * m_camera->up()
@@ -274,10 +272,9 @@ void MapView2D::animateCamera(
 
 void MapView2D::moveCameraToCurrentTracePoint()
 {
-  auto document = kdl::mem_lock(m_document);
-  assert(document->isPointFileLoaded());
+  assert(m_document.isPointFileLoaded());
 
-  if (const auto* pointTrace = document->pointTrace())
+  if (const auto* pointTrace = m_document.pointTrace())
   {
     moveCameraToPosition(pointTrace->currentPoint(), true);
   }
@@ -336,7 +333,7 @@ vm::vec3d MapView2D::computePointEntityPosition(const vm::bbox3d& bounds) const
 {
   using namespace mdl::HitFilters;
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
 
   const auto& grid = map.grid();
   const auto& worldBounds = map.worldBounds();
@@ -376,7 +373,7 @@ render::RenderMode MapView2D::renderMode()
 
 void MapView2D::renderGrid(render::RenderContext&, render::RenderBatch& renderBatch)
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   renderBatch.addOneShot(new render::GridRenderer(*m_camera, map.worldBounds()));
 }
 
@@ -387,7 +384,7 @@ void MapView2D::renderMap(
 {
   renderer.render(renderContext, renderBatch);
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   if (const auto& bounds = map.selectionBounds();
       bounds && renderContext.showSelectionGuide())
   {
@@ -409,8 +406,6 @@ void MapView2D::renderSoftWorldBounds(
 {
   if (!renderContext.softMapBounds().is_empty())
   {
-    auto document = kdl::mem_lock(m_document);
-
     auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SoftMapBoundsColor));
     renderService.renderBounds(renderContext.softMapBounds());

@@ -94,6 +94,7 @@
 #include "ui/ViewUtils.h"
 #include "upd/Updater.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
@@ -116,11 +117,11 @@
 namespace tb::ui
 {
 
-MapFrame::MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> document)
+MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> document)
   : m_frameManager{frameManager}
   , m_document{std::move(document)}
   , m_lastInputTime{std::chrono::system_clock::now()}
-  , m_autosaver{std::make_unique<mdl::Autosaver>(kdl::mem_lock(m_document)->map())}
+  , m_autosaver{std::make_unique<mdl::Autosaver>(m_document->map())}
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
   , m_contextManager{std::make_unique<GLContextManager>()}
@@ -212,9 +213,14 @@ void MapFrame::positionOnScreen(QWidget* reference)
   }
 }
 
-std::shared_ptr<MapDocument> MapFrame::document() const
+const MapDocument& MapFrame::document() const
 {
-  return m_document;
+  return *m_document;
+}
+
+MapDocument& MapFrame::document()
+{
+  return KDL_CONST_OVERLOAD(document());
 }
 
 Logger& MapFrame::logger() const
@@ -366,15 +372,15 @@ void MapFrame::createGui()
   m_vSplitter->setChildrenCollapsible(false);
   m_vSplitter->setObjectName("MapFrame_VerticalSplitterSplitter");
 
-  m_infoPanel = new InfoPanel{m_document};
+  m_infoPanel = new InfoPanel{document()};
   m_console = m_infoPanel->console();
 
-  m_mapView = new SwitchableMapViewContainer{m_document, *m_contextManager};
+  m_mapView = new SwitchableMapViewContainer{document(), *m_contextManager};
   m_currentMapView = m_mapView->firstMapViewBase();
   ensure(
     m_currentMapView, "SwitchableMapViewContainer should have constructed a MapViewBase");
 
-  m_inspector = new Inspector{m_document, *m_contextManager};
+  m_inspector = new Inspector{document(), *m_contextManager};
 
   m_mapView->connectTopWidgets(m_inspector);
 
@@ -1674,7 +1680,7 @@ bool MapFrame::canRenameSelectedGroups() const
 
 void MapFrame::replaceMaterial()
 {
-  auto dialog = ReplaceMaterialDialog{m_document, *m_contextManager, this};
+  auto dialog = ReplaceMaterialDialog{document(), *m_contextManager, this};
   dialog.exec();
 }
 
@@ -2204,7 +2210,7 @@ bool MapFrame::closeCompileDialog()
 
 void MapFrame::showLaunchEngineDialog()
 {
-  auto dialog = LaunchGameEngineDialog{m_document, this};
+  auto dialog = LaunchGameEngineDialog{document(), this};
   dialog.exec();
 }
 

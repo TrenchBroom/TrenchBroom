@@ -23,8 +23,6 @@
 
 #include "NotifierConnection.h"
 
-#include <memory>
-
 class QSpinBox;
 class QWidget;
 class QAbstractButton;
@@ -44,7 +42,7 @@ class UVEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   UVView* m_uvView = nullptr;
   QSpinBox* m_xSubDivisionEditor = nullptr;
@@ -61,9 +59,7 @@ private:
 
 public:
   explicit UVEditor(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 

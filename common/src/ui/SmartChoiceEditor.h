@@ -21,7 +21,6 @@
 
 #include "ui/SmartPropertyEditor.h"
 
-#include <memory>
 #include <vector>
 
 class QComboBox;
@@ -46,8 +45,7 @@ private:
   bool m_ignoreEditTextChanged = false;
 
 public:
-  explicit SmartChoiceEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartChoiceEditor(MapDocument& document, QWidget* parent = nullptr);
 
   void comboBoxActivated(int index);
   void comboBoxEditTextChanged(const QString& text);

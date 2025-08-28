@@ -23,8 +23,6 @@
 
 #include "NotifierConnection.h"
 
-#include <memory>
-
 class QPushButton;
 class QListWidget;
 class QLabel;
@@ -61,7 +59,7 @@ class EntityDefinitionFileChooser : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   SingleSelectionListWidget* m_builtin = nullptr;
   QLabel* m_externalLabel = nullptr;
@@ -71,8 +69,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityDefinitionFileChooser(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit EntityDefinitionFileChooser(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();

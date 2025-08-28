@@ -23,7 +23,6 @@
 
 #include "NotifierConnection.h"
 
-#include <memory>
 #include <vector>
 
 class QAbstractButton;
@@ -52,7 +51,7 @@ class FaceAttribsEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   UVEditor* m_uvEditor = nullptr;
   QLabel* m_materialName = nullptr;
@@ -87,9 +86,7 @@ private:
 
 public:
   FaceAttribsEditor(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 

@@ -23,7 +23,6 @@
 #include "NotifierConnection.h"
 
 #include <filesystem>
-#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -31,12 +30,6 @@ namespace tb
 {
 class Color;
 }
-
-namespace tb::ui
-{
-// FIXME: Renderer should not depend on View
-class MapDocument;
-} // namespace tb::ui
 
 namespace tb::mdl
 {
@@ -62,7 +55,7 @@ class RenderContext;
 class MapRenderer
 {
 private:
-  std::weak_ptr<ui::MapDocument> m_document;
+  mdl::Map& m_map;
 
   std::unique_ptr<ObjectRenderer> m_defaultRenderer;
   std::unique_ptr<ObjectRenderer> m_selectionRenderer;
@@ -84,7 +77,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapRenderer(std::weak_ptr<ui::MapDocument> document);
+  explicit MapRenderer(mdl::Map& map);
   ~MapRenderer();
 
   deleteCopyAndMove(MapRenderer);

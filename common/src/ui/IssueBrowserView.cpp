@@ -38,7 +38,6 @@
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
@@ -50,9 +49,9 @@
 namespace tb::ui
 {
 
-IssueBrowserView::IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent)
+IssueBrowserView::IssueBrowserView(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui();
   bindEvents();
@@ -113,7 +112,7 @@ void IssueBrowserView::deselectAll()
  */
 void IssueBrowserView::updateSelection()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
 
   auto nodes = std::vector<mdl::Node*>{};
   for (const auto* issue : collectIssues(getSelection()))
@@ -131,7 +130,7 @@ void IssueBrowserView::updateSelection()
 
 void IssueBrowserView::updateIssues()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   if (auto* worldNode = map.world())
   {
     const auto validators = worldNode->registeredValidators();
@@ -178,7 +177,7 @@ void IssueBrowserView::updateIssues()
 
 void IssueBrowserView::applyQuickFix(const mdl::IssueQuickFix& quickFix)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto issues = collectIssues(getSelection());
 
   auto transaction =
@@ -226,7 +225,7 @@ std::vector<const mdl::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
     issueTypes &= issue->type();
   }
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto* worldNode = map.world();
   return worldNode->quickFixes(issueTypes);
 }
@@ -243,7 +242,7 @@ mdl::IssueType IssueBrowserView::issueTypeMask() const
 
 void IssueBrowserView::setIssueVisibility(const bool show)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   for (const auto* issue : collectIssues(getSelection()))
   {
     map.setIssueHidden(*issue, !show);

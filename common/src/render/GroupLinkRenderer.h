@@ -22,12 +22,11 @@
 #include "Macros.h"
 #include "render/LinkRenderer.h"
 
-#include <memory>
 #include <vector>
 
-namespace tb::ui
+namespace tb::mdl
 {
-class MapDocument; // FIXME: Renderer should not depend on View
+class Map;
 }
 
 namespace tb::render
@@ -35,10 +34,10 @@ namespace tb::render
 
 class GroupLinkRenderer : public LinkRenderer
 {
-  std::weak_ptr<ui::MapDocument> m_document;
+  mdl::Map& m_map;
 
 public:
-  explicit GroupLinkRenderer(std::weak_ptr<ui::MapDocument> document);
+  explicit GroupLinkRenderer(mdl::Map& map);
 
 private:
   std::vector<LinkRenderer::LineVertex> getLinks() override;

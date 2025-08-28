@@ -23,7 +23,6 @@
 
 #include "NotifierConnection.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -58,7 +57,7 @@ class EntityPropertyEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   QSplitter* m_splitter = nullptr;
   EntityPropertyGrid* m_propertyGrid = nullptr;
   SmartPropertyEditorManager* m_smartEditorManager = nullptr;
@@ -68,8 +67,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityPropertyEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit EntityPropertyEditor(MapDocument& document, QWidget* parent = nullptr);
   ~EntityPropertyEditor() override;
 
 private:
@@ -90,7 +88,7 @@ private:
   static QString optionDescriptions(const mdl::PropertyDefinition& definition);
 
   void updateDocumentation(const std::string& propertyKey);
-  void createGui(std::weak_ptr<MapDocument> document);
+  void createGui(MapDocument& document);
 
   void updateMinimumSize();
 };

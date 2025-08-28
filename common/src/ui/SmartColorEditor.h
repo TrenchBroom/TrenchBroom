@@ -21,7 +21,6 @@
 
 #include "ui/SmartPropertyEditor.h"
 
-#include <memory>
 #include <vector>
 
 class QColor;
@@ -48,8 +47,7 @@ private:
   ColorTable* m_colorHistory = nullptr;
 
 public:
-  explicit SmartColorEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartColorEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();

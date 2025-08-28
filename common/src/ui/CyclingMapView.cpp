@@ -34,14 +34,14 @@ namespace tb::ui
 {
 
 CyclingMapView::CyclingMapView(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   MapViewToolBox& toolBox,
   render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   const int views,
   QWidget* parent)
   : MapViewContainer{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   setObjectName("CyclingMapView");
   createGui(toolBox, mapRenderer, contextManager, views);

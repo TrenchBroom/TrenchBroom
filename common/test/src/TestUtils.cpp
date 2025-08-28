@@ -472,7 +472,7 @@ DocumentGameConfig loadMapDocument(
 
   map.processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
 
-  return {std::move(document), std::move(taskManager)};
+  return {document, std::move(taskManager)};
 }
 
 DocumentGameConfig newMapDocument(
@@ -486,7 +486,7 @@ DocumentGameConfig newMapDocument(
   map.create(mapFormat, vm::bbox3d{8192.0}, std::move(game))
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  return {std::move(document), std::move(taskManager)};
+  return {document, std::move(taskManager)};
 }
 } // namespace ui
 

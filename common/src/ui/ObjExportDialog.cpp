@@ -152,7 +152,7 @@ void ObjExportDialog::createGui()
 
 void ObjExportDialog::updateExportPath()
 {
-  const auto& map = m_mapFrame->document()->map();
+  const auto& map = m_mapFrame->document().map();
   const auto& originalPath = map.path();
   const auto objPath = kdl::path_replace_extension(originalPath, ".obj");
   m_exportPathEdit->setText(io::pathAsQString(objPath));

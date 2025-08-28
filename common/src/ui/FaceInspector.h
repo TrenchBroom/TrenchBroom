@@ -22,8 +22,6 @@
 #include "NotifierConnection.h"
 #include "ui/TabBook.h"
 
-#include <memory>
-
 class QSplitter;
 class QWidget;
 
@@ -45,7 +43,7 @@ class FaceInspector : public TabBookPage
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   QSplitter* m_splitter = nullptr;
   FaceAttribsEditor* m_faceAttribsEditor = nullptr;
   MaterialBrowser* m_materialBrowser = nullptr;
@@ -55,9 +53,7 @@ private:
 
 public:
   FaceInspector(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
   ~FaceInspector() override;
 
   bool cancelMouseDrag();

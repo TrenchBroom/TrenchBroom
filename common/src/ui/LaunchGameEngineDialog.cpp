@@ -44,7 +44,6 @@
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_utils.h"
 
 #include <string>
@@ -52,10 +51,9 @@
 namespace tb::ui
 {
 
-LaunchGameEngineDialog::LaunchGameEngineDialog(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+LaunchGameEngineDialog::LaunchGameEngineDialog(MapDocument& document, QWidget* parent)
   : QDialog{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui();
 }
@@ -65,7 +63,7 @@ void LaunchGameEngineDialog::createGui()
   setWindowIconTB(this);
   setWindowTitle("Launch Engine");
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& gameName = map.game()->config().name;
   auto* gameIndicator = new CurrentGameIndicator{gameName};
 
@@ -179,7 +177,7 @@ void LaunchGameEngineDialog::createGui()
 
 void LaunchGameEngineDialog::reloadConfig()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& gameName = map.game()->config().name;
 
   auto& gameFactory = mdl::GameFactory::instance();
@@ -191,7 +189,7 @@ void LaunchGameEngineDialog::reloadConfig()
 
 LaunchGameEngineVariables LaunchGameEngineDialog::variables() const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   return LaunchGameEngineVariables{map};
 }
 
@@ -216,7 +214,7 @@ void LaunchGameEngineDialog::editGameEngines()
 {
   saveConfig();
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   auto dialog = GameEngineDialog{map.game()->config().name, this};
   dialog.exec();
 
@@ -261,7 +259,7 @@ void LaunchGameEngineDialog::done(const int r)
 
 void LaunchGameEngineDialog::saveConfig()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto& gameName = map.game()->config().name;
   auto& gameFactory = mdl::GameFactory::instance();
   gameFactory.saveGameEngineConfig(gameName, m_config, map.logger());

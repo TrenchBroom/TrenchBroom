@@ -44,7 +44,6 @@
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 
@@ -60,18 +59,16 @@ namespace tb::ui
 {
 
 EntityBrowserView::EntityBrowserView(
-  QScrollBar* scrollBar,
-  GLContextManager& contextManager,
-  std::weak_ptr<MapDocument> document)
+  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
   : CellView{contextManager, scrollBar}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_sortOrder{mdl::EntityDefinitionSortOrder::Name}
 {
   const auto hRotation = vm::quatf{vm::vec3f{0, 0, 1}, vm::to_radians(-30.0f)};
   const auto vRotation = vm::quatf{vm::vec3f{0, 1, 0}, vm::to_radians(20.0f)};
   m_rotation = vRotation * hRotation;
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowserView::resourcesWereProcessed);
 }
@@ -144,7 +141,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   assert(fontSize > 0);
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& entityDefinitionManager = map.entityDefinitionManager();
   const auto font = render::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
 
@@ -223,7 +220,7 @@ void EntityBrowserView::addEntityToLayout(
     assert(definition.pointEntityDefinition != std::nullopt);
     const auto& pointEntityDefinition = *definition.pointEntityDefinition;
 
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     const auto& entityModelManager = map.entityModelManager();
 
     const auto maxCellWidth = layout.maxCellWidth();
@@ -369,7 +366,7 @@ void EntityBrowserView::renderModels(
 {
   glAssert(glFrontFace(GL_CW));
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   auto& entityModelManager = map.entityModelManager();
   entityModelManager.prepare(vboManager());
 

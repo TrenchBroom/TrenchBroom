@@ -38,8 +38,6 @@
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
 
-#include "kdl/memory_utils.h"
-
 #include <vector>
 
 namespace tb::ui
@@ -57,9 +55,9 @@ void resetMaterialBrowserInfo(mdl::Map& map, QWidget* materialBrowserInfo)
 } // namespace
 
 FaceInspector::FaceInspector(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui(contextManager);
   connectObservers();
@@ -169,7 +167,7 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
 
 void FaceInspector::materialSelected(const mdl::Material* material)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto faces = map.selection().allBrushFaces();
 
   if (material)
@@ -202,7 +200,7 @@ void FaceInspector::materialSelected(const mdl::Material* material)
 
 void FaceInspector::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.mapWasCreatedNotifier.connect(this, &FaceInspector::mapWasCreated);
   m_notifierConnection +=

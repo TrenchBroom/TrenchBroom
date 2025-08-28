@@ -21,7 +21,6 @@
 
 #include <QWidget>
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -39,15 +38,14 @@ class SmartPropertyEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   std::string m_propertyKey;
   std::vector<mdl::EntityNodeBase*> m_nodes;
   bool m_active = false;
 
 public:
-  explicit SmartPropertyEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartPropertyEditor(MapDocument& document, QWidget* parent = nullptr);
   ~SmartPropertyEditor() override;
 
   bool usesPropertyKey(const std::string& propertyKey) const;

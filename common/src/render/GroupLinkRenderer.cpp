@@ -26,17 +26,12 @@
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
-#include "ui/MapDocument.h"
-
-#include "kdl/memory_utils.h"
-
-#include <utility>
 
 namespace tb::render
 {
 
-GroupLinkRenderer::GroupLinkRenderer(std::weak_ptr<ui::MapDocument> document)
-  : m_document{std::move(document)}
+GroupLinkRenderer::GroupLinkRenderer(mdl::Map& map)
+  : m_map{map}
 {
 }
 
@@ -47,19 +42,18 @@ static vm::vec3f getLinkAnchorPosition(const mdl::GroupNode& groupNode)
 
 std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
   auto links = std::vector<LineVertex>{};
 
-  const auto selectedGroupNodes = map.selection().groups;
+  const auto selectedGroupNodes = m_map.selection().groups;
 
-  const auto& editorContext = map.editorContext();
+  const auto& editorContext = m_map.editorContext();
   const auto* groupNode = selectedGroupNodes.size() == 1 ? selectedGroupNodes.front()
                                                          : editorContext.currentGroup();
 
   if (groupNode)
   {
     const auto& linkId = groupNode->linkId();
-    const auto linkedGroupNodes = mdl::collectGroupsWithLinkId({map.world()}, linkId);
+    const auto linkedGroupNodes = mdl::collectGroupsWithLinkId({m_map.world()}, linkId);
 
     const auto linkColor = pref(Preferences::LinkedGroupColor);
     const auto sourcePosition = getLinkAnchorPosition(*groupNode);

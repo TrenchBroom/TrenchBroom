@@ -39,7 +39,6 @@
 #include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -55,13 +54,11 @@ namespace tb::ui
 {
 
 MaterialBrowserView::MaterialBrowserView(
-  QScrollBar* scrollBar,
-  GLContextManager& contextManager,
-  std::weak_ptr<MapDocument> document_)
+  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
   : CellView{contextManager, scrollBar}
-  , m_document{std::move(document_)}
+  , m_document{document}
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection += map.materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
   m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
@@ -212,7 +209,7 @@ void MaterialBrowserView::addMaterialToLayout(
 
 std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto enabledMaterialCollections = map.enabledMaterialCollections();
 
   auto result = std::vector<const mdl::MaterialCollection*>{};
@@ -235,7 +232,6 @@ std::vector<const mdl::Material*> MaterialBrowserView::getMaterials(
 
 std::vector<const mdl::Material*> MaterialBrowserView::getMaterials() const
 {
-  auto document = kdl::mem_lock(m_document);
   auto materials = std::vector<const mdl::Material*>{};
   for (const auto& collection : getCollections())
   {
@@ -455,12 +451,12 @@ void MaterialBrowserView::doContextMenu(
   {
     auto menu = QMenu{this};
     menu.addAction(tr("Select Faces"), this, [&, material = &cellData(*cell)]() {
-      auto& map = kdl::mem_lock(m_document)->map();
+      auto& map = m_document.map();
       map.selectBrushFacesWithMaterial(material);
     });
 
     menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
-      auto& map = kdl::mem_lock(m_document)->map();
+      auto& map = m_document.map();
       map.selectBrushesWithMaterial(material);
     });
 

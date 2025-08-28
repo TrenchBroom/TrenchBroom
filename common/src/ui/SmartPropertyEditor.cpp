@@ -22,18 +22,14 @@
 #include "mdl/Map.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/memory_utils.h"
-
-#include <memory>
 #include <vector>
 
 namespace tb::ui
 {
 
-SmartPropertyEditor::SmartPropertyEditor(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+SmartPropertyEditor::SmartPropertyEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
 }
 
@@ -65,7 +61,7 @@ bool SmartPropertyEditor::usesPropertyKey(const std::string& propertyKey) const
 
 mdl::Map& SmartPropertyEditor::map()
 {
-  return kdl::mem_lock(m_document)->map();
+  return m_document.map();
 }
 
 const std::string& SmartPropertyEditor::propertyKey() const

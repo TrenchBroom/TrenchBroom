@@ -21,8 +21,6 @@
 
 #include "ui/SmartPropertyEditor.h"
 
-#include <memory>
-
 class QAbstractButton;
 class QListWidget;
 class QWidget;
@@ -44,7 +42,7 @@ private:
   QAbstractButton* m_reloadWadsButton = nullptr;
 
 public:
-  explicit SmartWadEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartWadEditor(MapDocument& document, QWidget* parent = nullptr);
 
   void addWads();
   void removeSelectedWads();

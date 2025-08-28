@@ -31,9 +31,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 
 #include "vm/vec.h"
@@ -44,8 +42,8 @@
 namespace tb::render
 {
 
-EntityLinkRenderer::EntityLinkRenderer(std::weak_ptr<ui::MapDocument> document)
-  : m_document{std::move(document)}
+EntityLinkRenderer::EntityLinkRenderer(mdl::Map& map)
+  : m_map{map}
 {
 }
 
@@ -309,8 +307,7 @@ auto getLinks(const mdl::Map& map, const Color& defaultColor, const Color& selec
 
 std::vector<LinkRenderer::LineVertex> EntityLinkRenderer::getLinks()
 {
-  return render::getLinks(
-    kdl::mem_lock(m_document)->map(), m_defaultColor, m_selectedColor);
+  return render::getLinks(m_map, m_defaultColor, m_selectedColor);
 }
 
 } // namespace tb::render

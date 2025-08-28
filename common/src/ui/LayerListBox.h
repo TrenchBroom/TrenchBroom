@@ -22,7 +22,6 @@
 #include "NotifierConnection.h"
 #include "ui/ControlListBox.h"
 
-#include <memory>
 #include <vector>
 
 class QLabel;
@@ -44,7 +43,7 @@ class LayerListBoxWidget : public ControlListBoxItemRenderer
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   mdl::LayerNode* m_layer = nullptr;
   QAbstractButton* m_activeButton = nullptr;
   QLabel* m_nameText = nullptr;
@@ -55,9 +54,7 @@ private:
 
 public:
   LayerListBoxWidget(
-    std::weak_ptr<MapDocument> document,
-    mdl::LayerNode* layer,
-    QWidget* parent = nullptr);
+    MapDocument& document, mdl::LayerNode* layer, QWidget* parent = nullptr);
 
   void updateItem() override;
 
@@ -82,12 +79,12 @@ class LayerListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit LayerListBox(MapDocument& document, QWidget* parent = nullptr);
 
   mdl::LayerNode* selectedLayer() const;
   void setSelectedLayer(mdl::LayerNode* layer);

@@ -37,7 +37,6 @@
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
 #include <algorithm>
@@ -48,9 +47,9 @@
 namespace tb::ui
 {
 
-LayerEditor::LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
+LayerEditor::LayerEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui();
 
@@ -59,7 +58,7 @@ LayerEditor::LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
 
 void LayerEditor::onSetCurrentLayer(mdl::LayerNode* layerNode)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.setCurrentLayer(layerNode);
 
   updateButtons();
@@ -67,13 +66,13 @@ void LayerEditor::onSetCurrentLayer(mdl::LayerNode* layerNode)
 
 bool LayerEditor::canSetCurrentLayer(mdl::LayerNode* layerNode) const
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   return map.currentLayer() != layerNode;
 }
 
 void LayerEditor::onLayerRightClick(mdl::LayerNode* layerNode)
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
 
   auto popupMenu = QMenu{};
   auto* makeActiveAction = popupMenu.addAction(
@@ -140,7 +139,7 @@ bool LayerEditor::canToggleLayerVisible() const
 void LayerEditor::toggleLayerVisible(mdl::LayerNode* layerNode)
 {
   ensure(layerNode != nullptr, "layer is null");
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!layerNode->hidden())
   {
     map.hideNodes(std::vector<mdl::Node*>{layerNode});
@@ -159,7 +158,7 @@ bool LayerEditor::canToggleLayerLocked() const
 void LayerEditor::toggleLayerLocked(mdl::LayerNode* layerNode)
 {
   ensure(layerNode != nullptr, "layer is null");
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!layerNode->locked())
   {
     map.lockNodes(std::vector<mdl::Node*>{layerNode});
@@ -173,13 +172,13 @@ void LayerEditor::toggleLayerLocked(mdl::LayerNode* layerNode)
 void LayerEditor::toggleOmitLayerFromExport(mdl::LayerNode* layerNode)
 {
   ensure(layerNode != nullptr, "layer is null");
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.setOmitLayerFromExport(layerNode, !layerNode->layer().omitFromExport());
 }
 
 void LayerEditor::isolateLayer(mdl::LayerNode* layer)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.isolateLayers(std::vector<mdl::LayerNode*>{layer});
 }
 
@@ -188,7 +187,7 @@ void LayerEditor::onMoveSelectedNodesToLayer()
   auto* layerNode = m_layerList->selectedLayer();
   ensure(layerNode != nullptr, "layer is null");
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.moveSelectedNodesToLayer(layerNode);
 }
 
@@ -196,7 +195,7 @@ bool LayerEditor::canMoveSelectedNodesToLayer() const
 {
   if (auto* layerNode = m_layerList->selectedLayer())
   {
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     return map.canMoveSelectedNodesToLayer(layerNode);
   }
   return false;
@@ -207,7 +206,7 @@ void LayerEditor::onSelectAllInLayer()
   auto* layerNode = m_layerList->selectedLayer();
   ensure(layerNode != nullptr, "layer is null");
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.selectAllInLayers({layerNode});
 }
 
@@ -215,7 +214,7 @@ bool LayerEditor::canSelectAllInLayer() const
 {
   if (auto* layerNode = m_layerList->selectedLayer())
   {
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     return map.canSelectAllInLayers({layerNode});
   }
   return false;
@@ -226,7 +225,7 @@ void LayerEditor::onAddLayer()
   const auto name = queryLayerName(this, "Unnamed");
   if (!name.empty())
   {
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     auto* worldNode = map.world();
 
     auto layer = mdl::Layer{name};
@@ -259,7 +258,7 @@ void LayerEditor::onRemoveLayer()
   auto* layerNode = m_layerList->selectedLayer();
   ensure(layerNode != nullptr, "layer is null");
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   auto* defaultLayerNode = map.world()->defaultLayer();
 
   auto transaction = mdl::Transaction{map, "Remove Layer " + layerNode->name()};
@@ -290,7 +289,7 @@ bool LayerEditor::canRemoveLayer() const
   if (const auto* layerNode = m_layerList->selectedLayer();
       layerNode && findVisibleAndUnlockedLayer(layerNode))
   {
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     return (layerNode != map.world()->defaultLayer());
   }
 
@@ -301,7 +300,7 @@ void LayerEditor::onRenameLayer()
 {
   if (canRenameLayer())
   {
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     auto* layerNode = m_layerList->selectedLayer();
 
     if (const auto name = queryLayerName(this, layerNode->name()); !name.empty())
@@ -315,7 +314,7 @@ bool LayerEditor::canRenameLayer() const
 {
   if (const auto* layerNode = m_layerList->selectedLayer())
   {
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     return (layerNode != map.world()->defaultLayer());
   }
   return false;
@@ -325,7 +324,7 @@ bool LayerEditor::canMoveLayer(const int direction) const
 {
   if (auto* layerNode = m_layerList->selectedLayer(); layerNode && direction != 0)
   {
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     return map.canMoveLayer(layerNode, direction);
   }
   return false;
@@ -336,21 +335,21 @@ void LayerEditor::moveLayer(mdl::LayerNode* layerNode, int direction)
   if (direction != 0)
   {
     ensure(layerNode != nullptr, "layer is null");
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     map.moveLayer(layerNode, direction);
   }
 }
 
 void LayerEditor::onShowAllLayers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
   map.resetNodeVisibility(kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canShowAllLayers() const
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
   return std::ranges::any_of(
     layers, [](const auto* layerNode) { return !layerNode->visible(); });
@@ -358,42 +357,42 @@ bool LayerEditor::canShowAllLayers() const
 
 void LayerEditor::onHideAllLayers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
   map.hideNodes(kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canHideAllLayers() const
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
   return std::ranges::any_of(layers, [](const auto* layer) { return layer->visible(); });
 }
 
 void LayerEditor::onLockAllLayers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
   map.lockNodes(kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canLockAllLayers() const
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
   return std::ranges::any_of(layers, [](const auto* layer) { return !layer->locked(); });
 }
 
 void LayerEditor::onUnlockAllLayers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
   map.resetNodeLockingState(kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canUnlockAllLayers() const
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
   return std::ranges::any_of(layers, [](const auto* layer) { return layer->locked(); });
 }
@@ -401,7 +400,7 @@ bool LayerEditor::canUnlockAllLayers() const
 mdl::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(
   const mdl::LayerNode* except) const
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   if (!map.world()->defaultLayer()->locked() && !map.world()->defaultLayer()->hidden())
   {
     return map.world()->defaultLayer();

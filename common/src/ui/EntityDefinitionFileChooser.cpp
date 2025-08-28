@@ -36,7 +36,6 @@
 #include "ui/TitledPanel.h"
 #include "ui/ViewUtils.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
@@ -78,9 +77,9 @@ bool SingleSelectionListWidget::allowDeselectAll() const
 // EntityDefinitionFileChooser
 
 EntityDefinitionFileChooser::EntityDefinitionFileChooser(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+  MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui();
   bindEvents();
@@ -151,7 +150,7 @@ void EntityDefinitionFileChooser::bindEvents()
 
 void EntityDefinitionFileChooser::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.mapWasCreatedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasCreated);
   m_notifierConnection +=
@@ -181,7 +180,7 @@ void EntityDefinitionFileChooser::updateControls()
   m_builtin->clear();
   m_builtin->setAllowDeselectAll(false);
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   auto specs = map.allEntityDefinitionFiles();
   specs = kdl::vec_sort(std::move(specs));
 
@@ -240,7 +239,7 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
     auto* item = m_builtin->selectedItems().first();
     auto spec = item->data(Qt::UserRole).value<mdl::EntityDefinitionFileSpec>();
 
-    auto& map = kdl::mem_lock(m_document)->map();
+    auto& map = m_document.map();
     if (map.entityDefinitionFile() != spec)
     {
       map.setEntityDefinitionFile(spec);
@@ -269,7 +268,7 @@ void EntityDefinitionFileChooser::chooseExternalClicked()
 
 void EntityDefinitionFileChooser::reloadExternalClicked()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   map.reloadEntityDefinitions();
 }
 

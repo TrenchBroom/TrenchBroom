@@ -42,7 +42,6 @@
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/string_utils.h"
@@ -387,12 +386,11 @@ kdl_reflect_impl(PropertyRow);
 
 // EntityPropertyModel
 
-EntityPropertyModel::EntityPropertyModel(
-  std::weak_ptr<MapDocument> document, QObject* parent)
+EntityPropertyModel::EntityPropertyModel(MapDocument& document, QObject* parent)
   : QAbstractTableModel{parent}
   , m_showDefaultRows{true}
   , m_shouldShowProtectedProperties{false}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   updateFromMapDocument();
 }
@@ -476,7 +474,6 @@ bool EntityPropertyModel::shouldShowProtectedProperties() const
 
 void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newRowMap)
 {
-  auto document = kdl::mem_lock(m_document);
   const auto oldRowMap = makeKeyToPropertyRowMap(m_rows);
 
   if (newRowMap == oldRowMap)
@@ -655,7 +652,7 @@ std::vector<std::string> EntityPropertyModel::propertyKeys(
 
 std::vector<std::string> EntityPropertyModel::getAllPropertyKeys() const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& index = map.world()->entityNodeIndex();
   auto result = kdl::vector_set<std::string>(index.allKeys());
 
@@ -676,7 +673,7 @@ std::vector<std::string> EntityPropertyModel::getAllPropertyKeys() const
 std::vector<std::string> EntityPropertyModel::getAllValuesForPropertyKeys(
   const std::vector<std::string>& propertyKeys) const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& index = map.world()->entityNodeIndex();
 
   auto result = std::vector<std::string>();
@@ -698,7 +695,7 @@ std::vector<std::string> EntityPropertyModel::getAllValuesForPropertyKeys(
 
 std::vector<std::string> EntityPropertyModel::getAllClassnames() const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
 
   // start with currently used classnames
   auto result = getAllValuesForPropertyKeys({mdl::EntityPropertyKeys::Classname});
@@ -727,7 +724,7 @@ void EntityPropertyModel::updateFromMapDocument()
 {
   MODEL_LOG(qDebug() << "updateFromMapDocument");
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto entityNodes = map.selection().allEntities();
   const auto rowsMap = rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
@@ -799,7 +796,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     return QVariant{};
   }
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& row = m_rows.at(static_cast<size_t>(index.row()));
 
   if (role == Qt::DecorationRole)
@@ -919,7 +916,7 @@ bool EntityPropertyModel::setData(
     return false;
   }
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
 
   const auto rowIndex = static_cast<size_t>(index.row());
   const auto nodes = map.selection().allEntities();
@@ -1039,7 +1036,7 @@ bool EntityPropertyModel::renameProperty(
 {
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   const auto& row = m_rows.at(rowIndex);
   const auto& oldKey = row.key();
 
@@ -1113,7 +1110,7 @@ bool EntityPropertyModel::updateProperty(
     return true;
   }
 
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   return map.setEntityProperty(key, newValue);
 }
 
@@ -1122,7 +1119,7 @@ bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
   const auto& key = m_rows.at(rowIndex).key();
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   return map.setProtectedEntityProperty(key, newValue);
 }
 

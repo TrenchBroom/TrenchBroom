@@ -32,16 +32,14 @@
 #include "ui/IssueBrowserView.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/memory_utils.h"
-
 #include <utility>
 
 namespace tb::ui
 {
 
-IssueBrowser::IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent)
+IssueBrowser::IssueBrowser(MapDocument& document, QWidget* parent)
   : TabBookPage{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_view{new IssueBrowserView{m_document}}
 {
   auto* sizer = new QVBoxLayout{};
@@ -77,7 +75,7 @@ QWidget* IssueBrowser::createTabBarPage(QWidget* parent)
 
 void IssueBrowser::connectObservers()
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
   m_notifierConnection +=
     map.mapWasCreatedNotifier.connect(this, &IssueBrowser::mapWasCreated);
   m_notifierConnection +=
@@ -142,7 +140,7 @@ void IssueBrowser::reload()
 
 void IssueBrowser::updateFilterFlags()
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto* world = map.world();
   const auto validators = world->registeredValidators();
 

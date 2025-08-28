@@ -96,13 +96,13 @@ MapFrame* FrameManager::createOrReuseFrame(kdl::task_manager& taskManager)
   assert(!m_singleFrame || m_frames.size() <= 1);
   if (!m_singleFrame || m_frames.empty())
   {
-    auto document = std::make_shared<MapDocument>(taskManager);
+    auto document = std::make_unique<MapDocument>(taskManager);
     createFrame(std::move(document));
   }
   return topFrame();
 }
 
-MapFrame* FrameManager::createFrame(std::shared_ptr<MapDocument> document)
+MapFrame* FrameManager::createFrame(std::unique_ptr<MapDocument> document)
 {
   auto* frame = new MapFrame{*this, std::move(document)};
   frame->positionOnScreen(topFrame());

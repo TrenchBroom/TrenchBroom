@@ -21,8 +21,6 @@
 
 #include "ui/MultiPaneMapView.h"
 
-#include <memory>
-
 class QSplitter;
 
 namespace tb::render
@@ -42,7 +40,7 @@ class TwoPaneMapView : public MultiPaneMapView
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   QSplitter* m_splitter = nullptr;
   MapView3D* m_mapView3D = nullptr;
@@ -50,7 +48,7 @@ private:
 
 public:
   TwoPaneMapView(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     MapViewToolBox& toolBox,
     render::MapRenderer& mapRenderer,
     GLContextManager& contextManager,

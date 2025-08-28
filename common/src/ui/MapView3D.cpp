@@ -64,7 +64,6 @@
 #include "ui/VertexTool.h"
 #include "ui/VertexToolController.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/set_temp.h"
 
 #include "vm/util.h"
@@ -73,11 +72,11 @@ namespace tb::ui
 {
 
 MapView3D::MapView3D(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   MapViewToolBox& toolBox,
   render::MapRenderer& renderer,
   GLContextManager& contextManager)
-  : MapViewBase{std::move(document), toolBox, renderer, contextManager}
+  : MapViewBase{document, toolBox, renderer, contextManager}
   , m_camera{std::make_unique<render::PerspectiveCamera>()}
   , m_flyModeHelper{std::make_unique<FlyModeHelper>(*m_camera)}
 {
@@ -101,7 +100,7 @@ void MapView3D::initializeCamera()
 
 void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
 {
-  auto& map = kdl::mem_lock(m_document)->map();
+  auto& map = m_document.map();
 
   addToolController(std::make_unique<CameraTool3D>(*m_camera));
   addToolController(
@@ -212,7 +211,7 @@ PickRequest MapView3D::pickRequest(const float x, const float y) const
 
 mdl::PickResult MapView3D::pick(const vm::ray3d& pickRay) const
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   auto pickResult = mdl::PickResult::byDistance();
 
   map.pick(pickRay, pickResult);
@@ -230,7 +229,7 @@ vm::vec3d MapView3D::pasteObjectsDelta(
 {
   using namespace mdl::HitFilters;
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   const auto& grid = map.grid();
 
   const auto pos = QCursor::pos();
@@ -281,7 +280,7 @@ void MapView3D::reset2dCameras(const render::Camera&, const bool)
 
 void MapView3D::focusCameraOnSelection(const bool animate)
 {
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   if (const auto& nodes = map.selection().nodes; !nodes.empty())
   {
     const auto newPosition = focusCameraOnObjectsPosition(nodes);
@@ -437,10 +436,9 @@ void MapView3D::animateCamera(
 
 void MapView3D::moveCameraToCurrentTracePoint()
 {
-  auto document = kdl::mem_lock(m_document);
-  assert(document->isPointFileLoaded());
+  assert(m_document.isPointFileLoaded());
 
-  if (const auto* pointTrace = document->pointTrace())
+  if (const auto* pointTrace = m_document.pointTrace())
   {
     const auto position = pointTrace->currentPoint() + vm::vec3f{0.0f, 0.0f, 16.0f};
     const auto direction = pointTrace->currentDirection();
@@ -504,7 +502,7 @@ vm::vec3d MapView3D::computePointEntityPosition(const vm::bbox3d& bounds) const
 {
   using namespace mdl::HitFilters;
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
 
   const auto& grid = map.grid();
   const auto& worldBounds = map.worldBounds();
@@ -545,14 +543,14 @@ void MapView3D::renderMap(
 {
   renderer.render(renderContext, renderBatch);
 
-  const auto& map = kdl::mem_lock(m_document)->map();
+  const auto& map = m_document.map();
   if (const auto& bounds = map.selectionBounds();
       bounds && renderContext.showSelectionGuide())
   {
     auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
 
-    auto* guideRenderer = new render::BoundsGuideRenderer{m_document};
+    auto* guideRenderer = new render::BoundsGuideRenderer{m_document.map()};
     guideRenderer->setColor(pref(Preferences::SelectionBoundsColor));
     guideRenderer->setBounds(*bounds);
     renderBatch.addOneShot(guideRenderer);

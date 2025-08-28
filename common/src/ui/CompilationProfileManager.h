@@ -23,8 +23,6 @@
 
 #include "mdl/CompilationConfig.h"
 
-#include <memory>
-
 class QAbstractButton;
 class QPoint;
 
@@ -56,9 +54,7 @@ private:
 
 public:
   CompilationProfileManager(
-    std::weak_ptr<MapDocument> document,
-    mdl::CompilationConfig config,
-    QWidget* parent = nullptr);
+    MapDocument& document, mdl::CompilationConfig config, QWidget* parent = nullptr);
 
   const mdl::CompilationProfile* selectedProfile() const;
   const mdl::CompilationConfig& config() const;

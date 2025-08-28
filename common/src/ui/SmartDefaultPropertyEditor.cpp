@@ -25,8 +25,8 @@ namespace tb::ui
 {
 
 SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor{std::move(document), parent}
+  MapDocument& document, QWidget* parent)
+  : SmartPropertyEditor{document, parent}
 {
 }
 
