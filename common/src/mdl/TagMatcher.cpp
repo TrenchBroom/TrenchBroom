@@ -27,7 +27,6 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
-#include "mdl/MapFacade.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/Selection.h"

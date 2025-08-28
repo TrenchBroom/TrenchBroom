@@ -175,7 +175,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/Map_Validation.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_World.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map.cpp
-        ${COMMON_SOURCE_DIR}/mdl/MapFacade.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapFormat.cpp
         ${COMMON_SOURCE_DIR}/mdl/Material.cpp
         ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.cpp
@@ -688,7 +687,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/LongPropertyKeyValidator.h
         ${COMMON_SOURCE_DIR}/mdl/LongPropertyValueValidator.h
         ${COMMON_SOURCE_DIR}/mdl/Map.h
-        ${COMMON_SOURCE_DIR}/mdl/MapFacade.h
         ${COMMON_SOURCE_DIR}/mdl/MapFormat.h
         ${COMMON_SOURCE_DIR}/mdl/Material.h
         ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.h

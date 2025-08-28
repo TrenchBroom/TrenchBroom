@@ -26,7 +26,6 @@
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
-#include "mdl/MapFacade.h"
 #include "mdl/PushSelection.h"
 
 #include "kdl/vector_utils.h"
