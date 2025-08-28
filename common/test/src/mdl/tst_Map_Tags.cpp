@@ -17,13 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
+#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
@@ -59,13 +60,60 @@ public:
 
 TEST_CASE("Map_Tags")
 {
-  auto taskManager = createTestTaskManager();
-  auto logger = NullLogger{};
+  auto fixture = MapFixture{};
+  auto& map = fixture.map();
 
-  auto map = Map{*taskManager, logger};
-  auto game = std::make_shared<TestGame>();
+  const auto materialMatch = std::string{"some_material"};
+  const auto materialPatternMatch = std::string{"*er_material"};
+  const auto singleParamMatch = std::string{"parm2"};
+  const auto multiParamsMatch =
+    kdl::vector_set<std::string>{"some_parm", "parm1", "parm3"};
 
-  REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, game).is_success());
+  auto gameConfig = MockGameConfig{};
+  gameConfig.smartTags = {
+    SmartTag{
+      "material",
+      {},
+      std::make_unique<MaterialNameTagMatcher>(materialMatch),
+    },
+    SmartTag{
+      "materialPattern",
+      {},
+      std::make_unique<MaterialNameTagMatcher>(materialPatternMatch),
+    },
+    SmartTag{
+      "surfaceparm_single",
+      {},
+      std::make_unique<SurfaceParmTagMatcher>(singleParamMatch),
+    },
+    SmartTag{
+      "surfaceparm_multi",
+      {},
+      std::make_unique<SurfaceParmTagMatcher>(multiParamsMatch),
+    },
+    SmartTag{
+      "contentflags",
+      {},
+      std::make_unique<ContentFlagsTagMatcher>(1),
+    },
+    SmartTag{
+      "surfaceflags",
+      {},
+      std::make_unique<SurfaceFlagsTagMatcher>(1),
+    },
+    SmartTag{
+      "entity",
+      {},
+      std::make_unique<EntityClassNameTagMatcher>("brush_entity", ""),
+    }};
+  fixture.create({.game = MockGameFixture{std::move(gameConfig)}});
+
+  map.setEntityDefinitions({
+    {"brush_entity", Color{}, "this is a brush entity", {}},
+  });
+
+  const auto* brushEntityDefinition =
+    map.entityDefinitionManager().definition("brush_entity");
 
   auto& materialManager = map.materialManager();
   {
@@ -91,51 +139,6 @@ TEST_CASE("Map_Tags")
   auto* materialA = materialManager.material("some_material");
   auto* materialB = materialManager.material("other_material");
   auto* materialC = materialManager.material("yet_another_material");
-
-  const auto materialMatch = std::string{"some_material"};
-  const auto materialPatternMatch = std::string{"*er_material"};
-  const auto singleParamMatch = std::string{"parm2"};
-  const auto multiParamsMatch =
-    kdl::vector_set<std::string>{"some_parm", "parm1", "parm3"};
-
-  game->setSmartTags(
-    {SmartTag{
-       "material",
-       {},
-       std::make_unique<MaterialNameTagMatcher>(materialMatch),
-     },
-     SmartTag{
-       "materialPattern",
-       {},
-       std::make_unique<MaterialNameTagMatcher>(materialPatternMatch),
-     },
-     SmartTag{
-       "surfaceparm_single",
-       {},
-       std::make_unique<SurfaceParmTagMatcher>(singleParamMatch),
-     },
-     SmartTag{
-       "surfaceparm_multi",
-       {},
-       std::make_unique<SurfaceParmTagMatcher>(multiParamsMatch),
-     },
-     SmartTag{
-       "contentflags",
-       {},
-       std::make_unique<ContentFlagsTagMatcher>(1),
-     },
-     SmartTag{
-       "surfaceflags",
-       {},
-       std::make_unique<SurfaceFlagsTagMatcher>(1),
-     },
-     SmartTag{
-       "entity",
-       {},
-       std::make_unique<EntityClassNameTagMatcher>("brush_entity", ""),
-     }});
-
-  map.registerSmartTags();
 
   SECTION("registerSmartTags")
   {
@@ -174,7 +177,9 @@ TEST_CASE("Map_Tags")
   SECTION("registerSmartTags checks duplicate tags")
   {
     // https://github.com/TrenchBroom/TrenchBroom/issues/2905
-    game->setSmartTags({
+
+    gameConfig = MockGameConfig{};
+    gameConfig.smartTags = {
       SmartTag{
         "material",
         {},
@@ -185,8 +190,9 @@ TEST_CASE("Map_Tags")
         {},
         std::make_unique<SurfaceParmTagMatcher>("some_other_material"),
       },
-    });
-    CHECK_THROWS_AS(map.registerSmartTags(), std::logic_error);
+    };
+    CHECK_THROWS_AS(
+      fixture.create({.game = MockGameFixture{std::move(gameConfig)}}), std::logic_error);
   }
 
   SECTION("addNodes initializes brush tags")
@@ -195,6 +201,7 @@ TEST_CASE("Map_Tags")
       {"classname", "brush_entity"},
     }}};
     addNodes(map, {{parentForNodes(map), {entityNode}}});
+    REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
     auto* brush = createBrushNode(map, "some_material");
     addNodes(map, {{entityNode, {brush}}});
@@ -211,6 +218,7 @@ TEST_CASE("Map_Tags")
         {"classname", "brush_entity"},
       }}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
+      REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
       auto* brush = createBrushNode(map, "some_material");
       addNodes(map, {{entityNode, {brush}}});
@@ -246,11 +254,12 @@ TEST_CASE("Map_Tags")
         {"classname", "brush_entity"},
       }}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
+      REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
       const auto& tag = map.smartTag("entity");
       CHECK_FALSE(brushNode->hasTag(tag));
 
-      map.reparentNodes({{entityNode, {brushNode}}});
+      reparentNodes(map, {{entityNode, {brushNode}}});
       CHECK(brushNode->hasTag(tag));
     }
 
@@ -263,6 +272,7 @@ TEST_CASE("Map_Tags")
         {"classname", "other"},
       }}};
       addNodes(map, {{parentForNodes(map), {lightEntityNode, otherEntityNode}}});
+      REQUIRE(lightEntityNode->entity().definition() == brushEntityDefinition);
 
       auto* brushNode = createBrushNode(map, "some_material");
       addNodes(map, {{otherEntityNode, {brushNode}}});
@@ -270,7 +280,7 @@ TEST_CASE("Map_Tags")
       const auto& tag = map.smartTag("entity");
       CHECK_FALSE(brushNode->hasTag(tag));
 
-      map.reparentNodes({{lightEntityNode, {brushNode}}});
+      reparentNodes(map, {{lightEntityNode, {brushNode}}});
       CHECK(brushNode->hasTag(tag));
     }
 
@@ -672,12 +682,13 @@ TEST_CASE("Map_Tags")
     {
       auto* brushNode = createBrushNode(map, "asdf");
 
-      auto* oldEntity = new EntityNode{Entity{{
+      auto* oldEntityNode = new EntityNode{Entity{{
         {"classname", "brush_entity"},
       }}};
 
-      addNodes(map, {{parentForNodes(map), {oldEntity}}});
-      addNodes(map, {{oldEntity, {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {oldEntityNode}}});
+      addNodes(map, {{oldEntityNode, {brushNode}}});
+      REQUIRE(oldEntityNode->entity().definition() == brushEntityDefinition);
 
       const auto& tag = map.smartTag("entity");
       CHECK(tag.matches(*brushNode));
