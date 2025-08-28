@@ -27,6 +27,7 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/Selection.h"
@@ -494,7 +495,7 @@ void EntityClassNameTagMatcher::disable(TagMatcherCallback&, Map& map) const
     return;
   }
   map.deselectAll();
-  map.reparentNodes({{map.parentForNodes(selectedBrushes), detailBrushes}});
+  reparentNodes(map, {{parentForNodes(map, selectedBrushes), detailBrushes}});
   map.selectNodes(std::vector<Node*>(std::begin(detailBrushes), std::end(detailBrushes)));
 }
 

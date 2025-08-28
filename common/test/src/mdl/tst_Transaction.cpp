@@ -17,12 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
 #include "MapFixture.h"
-#include "TestUtils.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
 
 #include "vm/mat_ext.h"
@@ -45,7 +44,7 @@ TEST_CASE("Transaction")
   auto transaction = Transaction{map};
   CHECK(transaction.state() == Transaction::State::Running);
 
-  map.addNodes({{map.parentForNodes(), {entityNode}}});
+  addNodes(map, {{parentForNodes(map), {entityNode}}});
   map.selectNodes({entityNode});
   map.transformSelection("translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
 

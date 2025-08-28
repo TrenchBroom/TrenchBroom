@@ -18,7 +18,6 @@
  */
 
 #include "Ensure.h"
-#include "Map.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityColor.h"
@@ -26,6 +25,8 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Game.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
@@ -97,7 +98,7 @@ EntityNode* Map::createPointEntity(
 
   auto transaction = Transaction{*this, "Create " + definition.name};
   deselectAll();
-  if (addNodes({{parentForNodes(), {entityNode}}}).empty())
+  if (addNodes(*this, {{parentForNodes(*this), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;
@@ -150,12 +151,12 @@ EntityNode* Map::createBrushEntity(const EntityDefinition& definition)
 
   auto transaction = Transaction{*this, "Create " + definition.name};
   deselectAll();
-  if (addNodes({{parentForNodes(), {entityNode}}}).empty())
+  if (addNodes(*this, {{parentForNodes(*this), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;
   }
-  if (!reparentNodes({{entityNode, nodes}}))
+  if (!reparentNodes(*this, {{entityNode, nodes}}))
   {
     transaction.cancel();
     return nullptr;

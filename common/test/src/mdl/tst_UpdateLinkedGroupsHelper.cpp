@@ -27,6 +27,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
@@ -131,7 +132,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
     auto* linkedNode =
       static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
 
-    map.addNodes({{map.parentForNodes(), {groupNode, linkedNode}}});
+    addNodes(map, {{parentForNodes(map), {groupNode, linkedNode}}});
 
     SECTION("Helper takes ownership of replaced child nodes")
     {
@@ -184,7 +185,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
         linkedBrushNode->physicalBounds()
         == brushNode->physicalBounds().translate(vm::vec3d(32.0, 0.0, 0.0)));
 
-      map.addNodes({{map.parentForNodes(), {groupNode, linkedGroupNode}}});
+      addNodes(map, {{parentForNodes(map), {groupNode, linkedGroupNode}}});
 
       /*
       world
@@ -266,7 +267,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       innerGroupNode->addChild(brushNode);
       outerGroupNode->addChild(innerGroupNode);
 
-      map.addNodes({{map.parentForNodes(), {outerGroupNode}}});
+      addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
       // create a linked group of the inner group node so that cloning the outer group
       // node will create a linked clone of the inner group node
@@ -275,14 +276,14 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
       REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
-      map.addNodes({{map.parentForNodes(), {linkedInnerGroupNode}}});
+      addNodes(map, {{parentForNodes(map), {linkedInnerGroupNode}}});
 
       auto* linkedOuterGroupNode =
         static_cast<GroupNode*>(outerGroupNode->cloneRecursively(map.worldBounds()));
       setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
       REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
 
-      map.addNodes({{map.parentForNodes(), {linkedOuterGroupNode}}});
+      addNodes(map, {{parentForNodes(map), {linkedOuterGroupNode}}});
 
       auto* nestedLinkedInnerGroupNode =
         static_cast<GroupNode*>(linkedOuterGroupNode->children().front());

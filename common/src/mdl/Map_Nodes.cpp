@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Map_Nodes.h"
+
 #include "Ensure.h"
 #include "Logger.h"
 #include "Map.h"
@@ -234,51 +236,50 @@ auto collectRemovableParents(const std::map<Node*, std::vector<Node*>>& nodes)
 
 } // namespace
 
-Node* Map::parentForNodes(const std::vector<Node*>& nodes) const
+Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes)
 {
   if (nodes.empty())
   {
     // No reference nodes, so return either the current group (if open) or current layer
-    Node* result = currentGroup();
-    if (result == nullptr)
+    auto* result = static_cast<Node*>(map.currentGroup());
+    if (!result)
     {
-      result = currentLayer();
+      result = map.currentLayer();
     }
     return result;
   }
 
-  GroupNode* parentGroup = findContainingGroup(nodes.at(0));
-  if (parentGroup != nullptr)
+  if (auto* parentGroup = findContainingGroup(nodes.at(0)))
   {
     return parentGroup;
   }
 
-  LayerNode* parentLayer = findContainingLayer(nodes.at(0));
+  auto* parentLayer = findContainingLayer(nodes.at(0));
   ensure(parentLayer != nullptr, "no parent layer");
   return parentLayer;
 }
 
-std::vector<Node*> Map::addNodes(const std::map<Node*, std::vector<Node*>>& nodes)
+std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes)
 {
   for (const auto& [parent, children] : nodes)
   {
-    assert(parent == world() || parent->isDescendantOf(world()));
+    assert(parent == map.world() || parent->isDescendantOf(map.world()));
     unused(parent);
   }
 
-  auto transaction = Transaction{*this, "Add Objects"};
-  const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes));
+  auto transaction = Transaction{map, "Add Objects"};
+  const auto result = map.executeAndStore(AddRemoveNodesCommand::add(nodes));
   if (!result->success())
   {
     transaction.cancel();
     return {};
   }
 
-  setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(nodes)), true);
+  map.setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(nodes)), true);
 
   const auto addedNodes = kdl::vec_flatten(kdl::map_values(nodes));
-  ensureNodesVisible(addedNodes);
-  ensureNodesUnlocked(addedNodes);
+  map.ensureNodesVisible(addedNodes);
+  map.ensureNodesUnlocked(addedNodes);
   if (!transaction.commit())
   {
     return {};
@@ -287,16 +288,16 @@ std::vector<Node*> Map::addNodes(const std::map<Node*, std::vector<Node*>>& node
   return addedNodes;
 }
 
-void Map::duplicateSelectedNodes()
+void duplicateSelectedNodes(Map& map)
 {
   auto nodesToAdd = std::map<Node*, std::vector<Node*>>{};
   auto nodesToSelect = std::vector<Node*>{};
   auto newParentMap = std::map<Node*, Node*>{};
 
-  for (auto* original : selection().nodes)
+  for (auto* original : map.selection().nodes)
   {
-    auto* suggestedParent = parentForNodes({original});
-    auto* clone = original->cloneRecursively(worldBounds());
+    auto* suggestedParent = parentForNodes(map, {original});
+    auto* clone = original->cloneRecursively(map.worldBounds());
 
     if (shouldCloneParentWhenCloningNode(original))
     {
@@ -312,7 +313,7 @@ void Map::duplicateSelectedNodes()
       else
       {
         // parent was not cloned yet
-        newParent = originalParent->clone(worldBounds());
+        newParent = originalParent->clone(map.worldBounds());
         newParentMap.emplace(originalParent, newParent);
         nodesToAdd[suggestedParent].push_back(newParent);
       }
@@ -329,29 +330,29 @@ void Map::duplicateSelectedNodes()
   }
 
   resetLinkIdsOfNonGroupedNodes(nodesToAdd);
-  copyAndSetLinkIds(nodesToAdd, *world(), logger());
+  copyAndSetLinkIds(nodesToAdd, *map.world(), map.logger());
 
   {
-    auto transaction = Transaction{*this, "Duplicate Objects"};
-    deselectAll();
+    auto transaction = Transaction{map, "Duplicate Objects"};
+    map.deselectAll();
 
-    if (addNodes(nodesToAdd).empty())
+    if (addNodes(map, nodesToAdd).empty())
     {
       transaction.cancel();
       return;
     }
 
-    selectNodes(nodesToSelect);
+    map.selectNodes(nodesToSelect);
     if (!transaction.commit())
     {
       return;
     }
   }
 
-  pushRepeatableCommand([&]() { duplicateSelectedNodes(); });
+  map.pushRepeatableCommand([&]() { duplicateSelectedNodes(map); });
 }
 
-bool Map::reparentNodes(const std::map<Node*, std::vector<Node*>>& nodesToAdd)
+bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToAdd)
 {
   if (!checkReparenting(nodesToAdd))
   {
@@ -369,7 +370,7 @@ bool Map::reparentNodes(const std::map<Node*, std::vector<Node*>>& nodesToAdd)
     return false;
   }
 
-  auto transaction = mdl::Transaction{*this, "Reparent Objects"};
+  auto transaction = mdl::Transaction{map, "Reparent Objects"};
 
   // This handles two main cases:
   // - creating brushes in a hidden layer, and then grouping / ungrouping them keeps
@@ -384,32 +385,32 @@ bool Map::reparentNodes(const std::map<Node*, std::vector<Node*>>& nodesToAdd)
       nodes,
       [&](mdl::Object* node) { return node->containingLayer() != newParentLayer; });
 
-    downgradeUnlockedToInherit(nodesToDowngrade);
-    downgradeShownToInherit(nodesToDowngrade);
+    map.downgradeUnlockedToInherit(nodesToDowngrade);
+    map.downgradeShownToInherit(nodesToDowngrade);
   }
 
   // Reset link IDs of nodes being reparented, but don't recurse into nested groups
-  executeAndStore(std::make_unique<mdl::SetLinkIdsCommand>(
+  map.executeAndStore(std::make_unique<mdl::SetLinkIdsCommand>(
     "Set Link ID", setLinkIdsForReparentingNodes(nodesToAdd)));
 
   const auto result =
-    executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
+    map.executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
   if (!result->success())
   {
     transaction.cancel();
     return false;
   }
 
-  setHasPendingChanges(changedLinkedGroups, true);
+  map.setHasPendingChanges(changedLinkedGroups, true);
 
   auto removableNodes = collectRemovableParents(nodesToRemove);
   while (!removableNodes.empty())
   {
-    setHasPendingChanges(
+    map.setHasPendingChanges(
       collectContainingGroups(kdl::vec_flatten(kdl::map_values(removableNodes))), true);
 
-    closeRemovedGroups(*this, removableNodes);
-    executeAndStore(mdl::AddRemoveNodesCommand::remove(removableNodes));
+    closeRemovedGroups(map, removableNodes);
+    map.executeAndStore(mdl::AddRemoveNodesCommand::remove(removableNodes));
 
     removableNodes = collectRemovableParents(removableNodes);
   }
@@ -417,17 +418,18 @@ bool Map::reparentNodes(const std::map<Node*, std::vector<Node*>>& nodesToAdd)
   return transaction.commit();
 }
 
-void Map::removeNodes(const std::vector<Node*>& nodes)
+void removeNodes(Map& map, const std::vector<Node*>& nodes)
 {
   auto removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
 
-  auto transaction = Transaction{*this, "Remove Objects"};
+  auto transaction = Transaction{map, "Remove Objects"};
   while (!removableNodes.empty())
   {
-    setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(removableNodes)), true);
+    map.setHasPendingChanges(
+      collectGroupsOrContainers(kdl::map_keys(removableNodes)), true);
 
-    closeRemovedGroups(*this, removableNodes);
-    executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
+    closeRemovedGroups(map, removableNodes);
+    map.executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
 
     removableNodes = collectRemovableParents(removableNodes);
   }
@@ -435,13 +437,13 @@ void Map::removeNodes(const std::vector<Node*>& nodes)
   assertResult(transaction.commit());
 }
 
-void Map::removeSelectedNodes()
+void removeSelectedNodes(Map& map)
 {
-  const auto nodes = selection().nodes;
+  const auto nodes = map.selection().nodes;
 
-  auto transaction = Transaction{*this, "Delete Objects"};
-  deselectAll();
-  removeNodes(nodes);
+  auto transaction = Transaction{map, "Delete Objects"};
+  map.deselectAll();
+  removeNodes(map, nodes);
   assertResult(transaction.commit());
 }
 

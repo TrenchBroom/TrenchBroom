@@ -27,6 +27,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
@@ -52,7 +53,7 @@ TEST_CASE("Map_Picking")
       auto* brushNode1 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
       auto pickResult = PickResult{};
       map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
@@ -74,7 +75,7 @@ TEST_CASE("Map_Picking")
     SECTION("Single entity")
     {
       auto* entityNode1 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
       const auto origin = entityNode1->entity().origin();
       const auto bounds = entityNode1->logicalBounds();
@@ -103,13 +104,13 @@ TEST_CASE("Map_Picking")
       auto* brushNode1 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
       auto* brushNode2 = new BrushNode{
         builder.createCuboid(
           vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode2}}});
+      addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
       map.selectAllNodes();
       auto* group = map.groupSelectedNodes("test");
@@ -175,13 +176,13 @@ TEST_CASE("Map_Picking")
       auto* brushNode1 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
       auto* brushNode2 = new BrushNode{
         builder.createCuboid(
           vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode2}}});
+      addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
       map.selectAllNodes();
       auto* innerGroup = map.groupSelectedNodes("inner");
@@ -191,7 +192,7 @@ TEST_CASE("Map_Picking")
         builder.createCuboid(
           vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 256}), "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode3}}});
+      addNodes(map, {{parentForNodes(map), {brushNode3}}});
 
       map.selectAllNodes();
       auto* outerGroup = map.groupSelectedNodes("outer");
@@ -338,13 +339,13 @@ TEST_CASE("Map_Picking")
       auto* brushNode1 = new mdl::BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
       auto* brushNode2 = new mdl::BrushNode{
         builder.createCuboid(
           vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode2}}});
+      addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
       map.selectAllNodes();
 

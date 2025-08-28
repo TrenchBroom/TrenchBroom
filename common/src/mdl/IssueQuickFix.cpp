@@ -21,6 +21,7 @@
 
 #include "mdl/Issue.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/PushSelection.h"
 
 #include <cassert>
@@ -66,7 +67,7 @@ void IssueQuickFix::apply(Map& map, const std::vector<const Issue*>& issues) con
 IssueQuickFix makeDeleteNodesQuickFix()
 {
   return {"Delete Objects", [](Map& map, const std::vector<const Issue*>&) {
-            map.removeSelectedNodes();
+            removeSelectedNodes(map);
           }};
 }
 

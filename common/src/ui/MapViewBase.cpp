@@ -46,6 +46,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PointTrace.h"
@@ -415,7 +416,7 @@ void MapViewBase::duplicateObjects()
   auto& map = m_document.map();
   if (map.selection().hasNodes())
   {
-    map.duplicateSelectedNodes();
+    duplicateSelectedNodes(map);
   }
 }
 
@@ -749,7 +750,7 @@ void MapViewBase::makeStructural()
 
   if (!toReparent.empty())
   {
-    reparentNodes(toReparent, map.parentForNodes(toReparent), false);
+    reparentNodes(toReparent, parentForNodes(map, toReparent), false);
   }
 
   auto anyTagDisabled = false;
@@ -1673,7 +1674,7 @@ void MapViewBase::reparentNodes(
 
   auto transaction = mdl::Transaction{map, name};
   map.deselectAll();
-  if (!map.reparentNodes({{newParent, reparentableNodes}}))
+  if (!mdl::reparentNodes(map, {{newParent, reparentableNodes}}))
   {
     transaction.cancel();
     return;

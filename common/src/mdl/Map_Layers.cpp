@@ -18,9 +18,10 @@
  */
 
 #include "Ensure.h"
-#include "Map.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/EditorContext.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/SetCurrentLayerCommand.h"
 #include "mdl/Transaction.h"
@@ -185,7 +186,7 @@ void Map::moveSelectedNodesToLayer(LayerNode* layer)
   {
     auto transaction = Transaction{*this, "Move Nodes to " + layer->name()};
     deselectAll();
-    if (!reparentNodes({{layer, nodesToMove}}))
+    if (!reparentNodes(*this, {{layer, nodesToMove}}))
     {
       transaction.cancel();
       return;

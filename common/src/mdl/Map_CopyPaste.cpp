@@ -32,6 +32,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
@@ -212,14 +213,14 @@ void copyAndSetLinkIds(
 
 bool pasteNodes(Map& map, const std::vector<Node*>& nodes)
 {
-  const auto nodesToAdd = extractNodesToPaste(nodes, map.parentForNodes());
+  const auto nodesToAdd = extractNodesToPaste(nodes, parentForNodes(map));
   fixRedundantPersistentIds(nodesToAdd, allPersistentGroupIds(*map.world()));
   fixRecursiveLinkedGroups(nodesToAdd, map.logger());
   copyAndSetLinkIds(nodesToAdd, *map.world(), map.logger());
 
   auto transaction = Transaction{map, "Paste Nodes"};
 
-  const auto addedNodes = map.addNodes(nodesToAdd);
+  const auto addedNodes = addNodes(map, nodesToAdd);
   if (addedNodes.empty())
   {
     transaction.cancel();

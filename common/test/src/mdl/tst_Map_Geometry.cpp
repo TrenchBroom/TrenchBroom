@@ -31,6 +31,7 @@
 #include "mdl/Grid.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
@@ -128,7 +129,7 @@ TEST_CASE("Map_Geometry")
       auto* node = createNode(map);
       CAPTURE(node->name());
 
-      map.addNodes({{map.parentForNodes(), {node}}});
+      addNodes(map, {{parentForNodes(map), {node}}});
 
       const auto originalNode =
         std::unique_ptr<Node>{node->cloneRecursively(map.worldBounds())};
@@ -164,11 +165,11 @@ TEST_CASE("Map_Geometry")
       // https://github.com/TrenchBroom/TrenchBroom/issues/1715
 
       auto* brushNode1 = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
-      map.reparentNodes({{entityNode, {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      reparentNodes(map, {{entityNode, {brushNode1}}});
 
       map.selectNodes({brushNode1});
 
@@ -193,7 +194,7 @@ TEST_CASE("Map_Geometry")
 
       auto* brushNode1 =
         new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
       map.selectNodes({brushNode1});
 
       auto* group = map.groupSelectedNodes("testGroup");
@@ -246,7 +247,7 @@ TEST_CASE("Map_Geometry")
 
       SECTION("two brushes")
       {
-        map.addNodes({{map.parentForNodes(), {brushNode1, brushNode2}}});
+        addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2}}});
         map.selectNodes({brushNode1, brushNode2});
 
         const auto boundsCenter = map.selectionBounds()->center();
@@ -274,8 +275,8 @@ TEST_CASE("Map_Geometry")
           {"angle", "45"},
         }}};
 
-        map.addNodes({{map.parentForNodes(), {entityNode}}});
-        map.addNodes({{entityNode, {brushNode1, brushNode2}}});
+        addNodes(map, {{parentForNodes(map), {entityNode}}});
+        addNodes(map, {{entityNode, {brushNode1, brushNode2}}});
 
         REQUIRE(*entityNode->entity().property("angle") == "45");
 
@@ -319,7 +320,7 @@ TEST_CASE("Map_Geometry")
           vm::bbox3d{{-32.0, -32.0, -32.0}, {32.0, 32.0, 32.0}}, "material")
         | kdl::value()};
 
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto& vertexHandles = map.vertexHandles();
@@ -353,11 +354,11 @@ TEST_CASE("Map_Geometry")
       // https://github.com/TrenchBroom/TrenchBroom/issues/1754
 
       auto* brushNode1 = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
-      map.reparentNodes({{entityNode, {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      reparentNodes(map, {{entityNode, {brushNode1}}});
 
       map.selectNodes({brushNode1});
 
@@ -386,7 +387,7 @@ TEST_CASE("Map_Geometry")
       new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
     const auto& brush = brushNode->brush();
 
-    map.addNodes({{map.parentForNodes(), {brushNode}}});
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
     map.selectNodes({brushNode});
 
     REQUIRE(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
@@ -442,7 +443,7 @@ TEST_CASE("Map_Geometry")
       auto* brushNode =
         new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       CHECK_THAT(
@@ -487,7 +488,7 @@ TEST_CASE("Map_Geometry")
       auto* brushNode =
         new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       CHECK_THAT(
@@ -540,8 +541,8 @@ TEST_CASE("Map_Geometry")
     CHECK(checkBrushIntegral(brushNode1));
     CHECK(checkBrushIntegral(brushNode2));
 
-    map.addNodes({{map.parentForNodes(), {brushNode1}}});
-    map.addNodes({{map.parentForNodes(), {brushNode2}}});
+    addNodes(map, {{parentForNodes(map), {brushNode1}}});
+    addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
     map.selectNodes({brushNode1, brushNode2});
 
@@ -564,7 +565,7 @@ TEST_CASE("Map_Geometry")
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -595,7 +596,7 @@ TEST_CASE("Map_Geometry")
     {
       // see https://github.com/TrenchBroom/TrenchBroom/issues/2244
       map.selectAllNodes();
-      map.removeSelectedNodes();
+      removeSelectedNodes(map);
 
       const auto brush = R"(
 // Game: Quake
@@ -627,7 +628,7 @@ TEST_CASE("Map_Geometry")
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       auto* brushNode1 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
@@ -635,8 +636,8 @@ TEST_CASE("Map_Geometry")
       auto* brushNode2 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{entityNode, {brushNode1}}});
-      map.addNodes({{map.parentForNodes(), {brushNode2}}});
+      addNodes(map, {{entityNode, {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode2}}});
       CHECK(entityNode->children().size() == 1u);
 
       map.selectNodes({brushNode1, brushNode2});
@@ -652,7 +653,7 @@ TEST_CASE("Map_Geometry")
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       auto* brushNode1 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
@@ -660,8 +661,8 @@ TEST_CASE("Map_Geometry")
       auto* brushNode2 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{entityNode, {brushNode1}}});
-      map.addNodes({{map.parentForNodes(), {brushNode2}}});
+      addNodes(map, {{entityNode, {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode2}}});
       CHECK(entityNode->children().size() == 1u);
 
       const auto faceIndex = 0u;
@@ -697,7 +698,7 @@ TEST_CASE("Map_Geometry")
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       auto texAlignment = ParallelUVCoordSystem{{1, 0, 0}, {0, 1, 0}};
       auto texAlignmentSnapshot = texAlignment.takeSnapshot();
@@ -715,8 +716,8 @@ TEST_CASE("Map_Geometry")
       auto* brushNode1 = new BrushNode{std::move(brush1)};
       auto* brushNode2 = new BrushNode{std::move(brush2)};
 
-      map.addNodes({{entityNode, {brushNode1}}});
-      map.addNodes({{entityNode, {brushNode2}}});
+      addNodes(map, {{entityNode, {brushNode1}}});
+      addNodes(map, {{entityNode, {brushNode2}}});
       CHECK(entityNode->children().size() == 2u);
 
       map.selectNodes({brushNode1, brushNode2});
@@ -739,7 +740,7 @@ TEST_CASE("Map_Geometry")
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       auto* minuendNode = new BrushNode{
         builder.createCuboid(
@@ -754,7 +755,7 @@ TEST_CASE("Map_Geometry")
           vm::bbox3d{vm::vec3d{32, 32, 0}, vm::vec3d{64, 64, 64}}, "material")
         | kdl::value()};
 
-      map.addNodes({{entityNode, {minuendNode, subtrahendNode1, subtrahendNode2}}});
+      addNodes(map, {{entityNode, {minuendNode, subtrahendNode1, subtrahendNode2}}});
       CHECK(entityNode->children().size() == 3u);
 
       // we want to compute minuend - {subtrahendNode1, subtrahendNode2}
@@ -784,13 +785,13 @@ TEST_CASE("Map_Geometry")
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       auto* subtrahend1 = new BrushNode{
         builder.createCuboid(
           vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{entityNode, {subtrahend1}}});
+      addNodes(map, {{entityNode, {subtrahend1}}});
 
       map.selectNodes({subtrahend1});
       CHECK(map.csgSubtract());
@@ -812,7 +813,7 @@ TEST_CASE("Map_Geometry")
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       auto texAlignment = ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
       auto texAlignmentSnapshot = texAlignment.takeSnapshot();
@@ -829,8 +830,8 @@ TEST_CASE("Map_Geometry")
       auto* brushNode1 = new BrushNode{std::move(brush1)};
       auto* brushNode2 = new BrushNode{std::move(brush2)};
 
-      map.addNodes({{entityNode, {brushNode1}}});
-      map.addNodes({{entityNode, {brushNode2}}});
+      addNodes(map, {{entityNode, {brushNode1}}});
+      addNodes(map, {{entityNode, {brushNode2}}});
       CHECK(entityNode->children().size() == 2u);
 
       // we want to compute brush1 - brush2

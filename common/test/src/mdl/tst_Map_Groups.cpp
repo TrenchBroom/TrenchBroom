@@ -28,6 +28,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -74,7 +75,7 @@ TEST_CASE("Map_Groups")
         CreateNode{[](const auto&) { return createPatchNode(); }});
 
       auto* node = createNode(map);
-      map.addNodes({{map.parentForNodes(), {node}}});
+      addNodes(map, {{parentForNodes(map), {node}}});
       map.selectNodes({node});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -86,21 +87,21 @@ TEST_CASE("Map_Groups")
 
       map.undoCommand();
       CHECK(groupNode->parent() == nullptr);
-      CHECK(node->parent() == map.parentForNodes());
+      CHECK(node->parent() == parentForNodes(map));
       CHECK(node->selected());
     }
 
     SECTION("Create group with partial brush entity")
     {
       auto* childNode1 = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {childNode1}}});
+      addNodes(map, {{parentForNodes(map), {childNode1}}});
 
       auto* childNode2 = createPatchNode();
-      map.addNodes({{map.parentForNodes(), {childNode2}}});
+      addNodes(map, {{parentForNodes(map), {childNode2}}});
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
-      map.reparentNodes({{entityNode, {childNode1, childNode2}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      reparentNodes(map, {{entityNode, {childNode1, childNode2}}});
 
       map.selectNodes({childNode1});
 
@@ -117,7 +118,7 @@ TEST_CASE("Map_Groups")
       CHECK(groupNode->parent() == nullptr);
       CHECK(childNode1->parent() == entityNode);
       CHECK(childNode2->parent() == entityNode);
-      CHECK(entityNode->parent() == map.parentForNodes());
+      CHECK(entityNode->parent() == parentForNodes(map));
       CHECK_FALSE(groupNode->selected());
       CHECK(childNode1->selected());
     }
@@ -125,14 +126,14 @@ TEST_CASE("Map_Groups")
     SECTION("Create group with full brush entity")
     {
       auto* childNode1 = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {childNode1}}});
+      addNodes(map, {{parentForNodes(map), {childNode1}}});
 
       auto* childNode2 = createPatchNode();
-      map.addNodes({{map.parentForNodes(), {childNode2}}});
+      addNodes(map, {{parentForNodes(map), {childNode2}}});
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
-      map.reparentNodes({{entityNode, {childNode1, childNode2}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      reparentNodes(map, {{entityNode, {childNode1, childNode2}}});
 
       map.selectNodes({childNode1, childNode2});
 
@@ -150,7 +151,7 @@ TEST_CASE("Map_Groups")
       CHECK(groupNode->parent() == nullptr);
       CHECK(childNode1->parent() == entityNode);
       CHECK(childNode2->parent() == entityNode);
-      CHECK(entityNode->parent() == map.parentForNodes());
+      CHECK(entityNode->parent() == parentForNodes(map));
       CHECK_FALSE(groupNode->selected());
       CHECK(childNode1->selected());
       CHECK(childNode2->selected());
@@ -160,8 +161,8 @@ TEST_CASE("Map_Groups")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      map.addNodes({{map.world(), {layerNode1}}});
-      map.addNodes({{map.world(), {layerNode2}}});
+      addNodes(map, {{map.world(), {layerNode1}}});
+      addNodes(map, {{map.world(), {layerNode2}}});
 
       map.setCurrentLayer(layerNode1);
       auto* entityNode = map.createPointEntity(pointEntityDefinition, {0, 0, 0});
@@ -183,7 +184,7 @@ TEST_CASE("Map_Groups")
       auto* nestedBrushNode = createBrushNode(map);
       auto* nestedEntityNode = new EntityNode{Entity{}};
 
-      map.addNodes({{map.parentForNodes(), {nestedBrushNode, nestedEntityNode}}});
+      addNodes(map, {{parentForNodes(map), {nestedBrushNode, nestedEntityNode}}});
       map.selectNodes({nestedBrushNode, nestedEntityNode});
 
       auto* nestedGroupNode = map.groupSelectedNodes("nested");
@@ -198,7 +199,7 @@ TEST_CASE("Map_Groups")
       auto* entityBrushNode = createBrushNode(map);
       entityNode->addChild(entityBrushNode);
 
-      map.addNodes({{map.parentForNodes(), {brushNode, entityNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
 
       map.selectNodes({brushNode, entityNode, nestedGroupNode});
       auto* groupNode = map.groupSelectedNodes("group");
@@ -242,15 +243,15 @@ TEST_CASE("Map_Groups")
       auto* innerEntityNode1 = new EntityNode{Entity{}};
       auto* innerEntityNode2 = new EntityNode{Entity{}};
 
-      map.addNodes({{map.parentForNodes(), {innerEntityNode1}}});
-      map.addNodes({{map.parentForNodes(), {innerEntityNode2}}});
+      addNodes(map, {{parentForNodes(map), {innerEntityNode1}}});
+      addNodes(map, {{parentForNodes(map), {innerEntityNode2}}});
       map.selectNodes({innerEntityNode1, innerEntityNode2});
 
       auto* innerGroupNode = map.groupSelectedNodes("Inner");
 
       map.deselectAll();
-      map.addNodes({{map.parentForNodes(), {outerEntityNode1}}});
-      map.addNodes({{map.parentForNodes(), {outerEntityNode2}}});
+      addNodes(map, {{parentForNodes(map), {outerEntityNode1}}});
+      addNodes(map, {{parentForNodes(map), {outerEntityNode2}}});
       map.selectNodes({innerGroupNode, outerEntityNode1, outerEntityNode2});
 
       auto* outerGroupNode = map.groupSelectedNodes("Outer");
@@ -293,7 +294,7 @@ TEST_CASE("Map_Groups")
     {
       auto* entityNode1 = new EntityNode{Entity{}};
 
-      map.addNodes({{map.parentForNodes(), {entityNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1}}});
       map.selectNodes({entityNode1});
 
       auto* groupNode = map.groupSelectedNodes("Group");
@@ -308,12 +309,12 @@ TEST_CASE("Map_Groups")
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode1 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
       auto* brushNode1 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{entityNode1, {brushNode1}}});
+      addNodes(map, {{entityNode1, {brushNode1}}});
       map.selectNodes({entityNode1});
       CHECK_THAT(map.selection().nodes, Catch::Equals(std::vector<Node*>{brushNode1}));
       CHECK_FALSE(entityNode1->selected());
@@ -338,8 +339,8 @@ TEST_CASE("Map_Groups")
       auto* entityNode1 = new EntityNode{Entity{}};
       auto* entityNode2 = new EntityNode{Entity{}};
 
-      map.addNodes({{map.parentForNodes(), {entityNode1}}});
-      map.addNodes({{map.parentForNodes(), {entityNode2}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode2}}});
       map.selectNodes({entityNode1});
 
       auto* groupNode = map.groupSelectedNodes("Group");
@@ -357,7 +358,7 @@ TEST_CASE("Map_Groups")
     SECTION("Ungrouping linked groups")
     {
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       map.selectNodes({brushNode});
 
@@ -466,13 +467,13 @@ TEST_CASE("Map_Groups")
   SECTION("mergeSelectedGroupsWithGroup")
   {
     auto* entityNode1 = new EntityNode{Entity{}};
-    map.addNodes({{map.parentForNodes(), {entityNode1}}});
+    addNodes(map, {{parentForNodes(map), {entityNode1}}});
     map.deselectAll();
     map.selectNodes({entityNode1});
     auto* groupNode1 = map.groupSelectedNodes("group1");
 
     auto* entityNode2 = new EntityNode{Entity{}};
-    map.addNodes({{map.parentForNodes(), {entityNode2}}});
+    addNodes(map, {{parentForNodes(map), {entityNode2}}});
     map.deselectAll();
     map.selectNodes({entityNode2});
     auto* groupNode2 = map.groupSelectedNodes("group2");
@@ -497,7 +498,7 @@ TEST_CASE("Map_Groups")
   SECTION("renameSelectedGroups")
   {
     auto* brushNode1 = createBrushNode(map);
-    map.addNodes({{map.parentForNodes(), {brushNode1}}});
+    addNodes(map, {{parentForNodes(map), {brushNode1}}});
     map.selectNodes({brushNode1});
 
     auto* groupNode = map.groupSelectedNodes("test");
@@ -515,7 +516,7 @@ TEST_CASE("Map_Groups")
   SECTION("createdLinkedDuplicate")
   {
     auto* brushNode = createBrushNode(map);
-    map.addNodes({{map.parentForNodes(), {brushNode}}});
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
     map.selectNodes({brushNode});
 
     auto* groupNode = map.groupSelectedNodes("test");
@@ -536,7 +537,7 @@ TEST_CASE("Map_Groups")
   SECTION("separateSelectedLinkedGroups")
   {
     auto* brushNode = createBrushNode(map);
-    map.addNodes({{map.parentForNodes(), {brushNode}}});
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
     map.selectNodes({brushNode});
 
     auto* groupNode = map.groupSelectedNodes("test");
@@ -654,7 +655,7 @@ TEST_CASE("Map_Groups")
       auto* nestedGroupNode = new GroupNode{Group{"nestedGroupNode"}};
       auto* nestedEntityNode = new EntityNode{Entity{}};
       nestedGroupNode->addChild(nestedEntityNode);
-      map.addNodes({{groupNode, {nestedGroupNode}}});
+      addNodes(map, {{groupNode, {nestedGroupNode}}});
 
       map.openGroup(groupNode);
       map.deselectAll();
@@ -723,7 +724,7 @@ TEST_CASE("Map_Groups")
     auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"outer"}};
     outerGroupNode->addChildren({innerGroupNode, linkedInnerGroupNode});
 
-    map.addNodes({{map.parentForNodes(), {outerGroupNode}}});
+    addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
     map.selectNodes({outerGroupNode});
 
     const auto entityNodes = map.selection().allEntities();

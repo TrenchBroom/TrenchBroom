@@ -28,6 +28,7 @@
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -61,8 +62,8 @@ TEST_CASE("Map_Layers")
       auto* defaultLayerNode = map.world()->defaultLayer();
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      map.addNodes({{map.world(), {layerNode1}}});
-      map.addNodes({{map.world(), {layerNode2}}});
+      addNodes(map, {{map.world(), {layerNode1}}});
+      addNodes(map, {{map.world(), {layerNode2}}});
       CHECK(map.currentLayer() == defaultLayerNode);
 
       map.setCurrentLayer(layerNode1);
@@ -85,14 +86,14 @@ TEST_CASE("Map_Layers")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      map.addNodes({{map.world(), {layerNode1}}});
-      map.addNodes({{map.world(), {layerNode2}}});
+      addNodes(map, {{map.world(), {layerNode1}}});
+      addNodes(map, {{map.world(), {layerNode2}}});
 
       map.setCurrentLayer(layerNode1);
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
       // Hide layer1. The entity now inherits its visibility state and is hidden
       map.hideLayers({layerNode1});
@@ -103,7 +104,7 @@ TEST_CASE("Map_Layers")
       // Create another entity in layer1. It will be visible, while entity1 will still be
       // hidden.
       auto* entityNode2 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode2}}});
+      addNodes(map, {{parentForNodes(map), {entityNode2}}});
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -135,14 +136,14 @@ TEST_CASE("Map_Layers")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      map.addNodes({{map.world(), {layerNode1}}});
-      map.addNodes({{map.world(), {layerNode2}}});
+      addNodes(map, {{map.world(), {layerNode1}}});
+      addNodes(map, {{map.world(), {layerNode2}}});
 
       map.setCurrentLayer(layerNode1);
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
       map.lockNodes({layerNode1});
 
@@ -152,7 +153,7 @@ TEST_CASE("Map_Layers")
       // Create another entity in layer1. It will be unlocked, while entity1 will still be
       // locked.
       auto* entityNode2 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode2}}});
+      addNodes(map, {{parentForNodes(map), {entityNode2}}});
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -184,7 +185,7 @@ TEST_CASE("Map_Layers")
   SECTION("renameLayer")
   {
     auto* layerNode = new LayerNode{Layer{"test1"}};
-    map.addNodes({{map.world(), {layerNode}}});
+    addNodes(map, {{map.world(), {layerNode}}});
     CHECK(layerNode->name() == "test1");
 
     map.renameLayer(layerNode, "test2");
@@ -204,7 +205,7 @@ TEST_CASE("Map_Layers")
     setLayerSortIndex(*layerNode1, 1);
     setLayerSortIndex(*layerNode2, 2);
 
-    map.addNodes({{map.world(), {layerNode0, layerNode1, layerNode2}}});
+    addNodes(map, {{map.world(), {layerNode0, layerNode1, layerNode2}}});
 
     SECTION("canMoveLayer")
     {
@@ -253,7 +254,7 @@ TEST_CASE("Map_Layers")
   SECTION("moveSelectedNodesToLayer")
   {
     auto* customLayer = new LayerNode{Layer{"layer"}};
-    map.addNodes({{map.world(), {customLayer}}});
+    addNodes(map, {{map.world(), {customLayer}}});
 
     auto* defaultLayer = map.world()->defaultLayer();
 
@@ -271,7 +272,7 @@ TEST_CASE("Map_Layers")
         CreateNode{[](const auto&) { return createPatchNode(); }});
 
       auto* node = createNode(map);
-      map.addNodes({{map.parentForNodes(), {node}}});
+      addNodes(map, {{parentForNodes(map), {node}}});
 
       REQUIRE(findContainingLayer(node) == defaultLayer);
 
@@ -314,7 +315,7 @@ TEST_CASE("Map_Layers")
       auto* childNode2 = createPatchNode();
 
       entityNode->addChildren({childNode1, childNode2});
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       REQUIRE(findContainingLayer(entityNode) == defaultLayer);
 

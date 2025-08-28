@@ -27,6 +27,7 @@
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 
 #include "Catch2.h"
@@ -45,7 +46,7 @@ TEST_CASE("Map_NodeVisibility")
     GIVEN("An unrelated top level node")
     {
       auto* nodeToHide = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {nodeToHide}}});
+      addNodes(map, {{parentForNodes(map), {nodeToHide}}});
 
       REQUIRE(!nodeToHide->hidden());
 
@@ -63,7 +64,7 @@ TEST_CASE("Map_NodeVisibility")
           CreateNode{[](const auto&) { return createPatchNode(); }});
 
         auto* nodeToIsolate = createNode(map);
-        map.addNodes({{map.parentForNodes(), {nodeToIsolate}}});
+        addNodes(map, {{parentForNodes(map), {nodeToIsolate}}});
 
         REQUIRE(!nodeToIsolate->hidden());
 
@@ -105,7 +106,7 @@ TEST_CASE("Map_NodeVisibility")
         auto* entityNode = new EntityNode{Entity{}};
         entityNode->addChildren({childNode1, childNode2});
 
-        map.addNodes({{map.parentForNodes(), {entityNode}}});
+        addNodes(map, {{parentForNodes(map), {entityNode}}});
 
         // Check initial state
         REQUIRE_FALSE(nodeToHide->hidden());

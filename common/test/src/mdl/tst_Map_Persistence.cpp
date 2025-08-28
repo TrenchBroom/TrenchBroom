@@ -23,6 +23,7 @@
 #include "io/TestEnvironment.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/WorldNode.h"
 
 #include "Catch2.h"
@@ -130,7 +131,7 @@ TEST_CASE("Map_Persistence")
         layer.setOmitFromExport(true);
 
         auto* layerNode = new mdl::LayerNode{std::move(layer)};
-        map.addNodes({{map.world(), {layerNode}}});
+        addNodes(map, {{map.world(), {layerNode}}});
 
         REQUIRE(
           map.exportAs(io::MapExportOptions{env.dir() / newDocumentPath}).is_success());

@@ -29,6 +29,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
@@ -238,7 +239,7 @@ void LayerEditor::onAddLayer()
     auto* layerNode = new mdl::LayerNode{std::move(layer)};
 
     auto transaction = mdl::Transaction{map, "Create Layer " + layerNode->name()};
-    if (map.addNodes({{worldNode, {layerNode}}}).empty())
+    if (addNodes(map, {{worldNode, {layerNode}}}).empty())
     {
       transaction.cancel();
       return;
@@ -265,7 +266,7 @@ void LayerEditor::onRemoveLayer()
   map.deselectAll();
   if (layerNode->hasChildren())
   {
-    if (!map.reparentNodes({{defaultLayerNode, layerNode->children()}}))
+    if (!reparentNodes(map, {{defaultLayerNode, layerNode->children()}}))
     {
       transaction.cancel();
       return;
@@ -278,7 +279,7 @@ void LayerEditor::onRemoveLayer()
   }
 
   m_layerList->updateSelectionForRemoval();
-  map.removeNodes({layerNode});
+  removeNodes(map, {layerNode});
   transaction.commit();
 
   updateButtons();

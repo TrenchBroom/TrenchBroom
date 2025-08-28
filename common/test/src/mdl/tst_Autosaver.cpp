@@ -28,6 +28,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/LayerNode.h" // IWYU pragma: keep
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 
 #include "kdl/vector_utils.h"
 
@@ -99,7 +100,7 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 10s};
 
     // modify the map
-    map.addNodes({{map.currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNodes(map, {{map.currentLayer(), {createBrushNode(map, "some_material")}}});
 
     autosaver.triggerAutosave();
 
@@ -115,7 +116,7 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 100ms};
 
     // modify the map
-    map.addNodes({{map.currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNodes(map, {{map.currentLayer(), {createBrushNode(map, "some_material")}}});
 
     std::this_thread::sleep_for(100ms);
     autosaver.triggerAutosave();
@@ -132,7 +133,7 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 100ms};
 
     // modify the map
-    map.addNodes({{map.currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNodes(map, {{map.currentLayer(), {createBrushNode(map, "some_material")}}});
 
     std::this_thread::sleep_for(100ms);
 
@@ -149,7 +150,7 @@ TEST_CASE("Autosaver")
     CHECK_FALSE(env.fileExists("autosave/test.2.map"));
 
     // modify the map
-    map.addNodes({{map.currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNodes(map, {{map.currentLayer(), {createBrushNode(map, "some_material")}}});
 
     autosaver.triggerAutosave();
     CHECK(env.fileExists("autosave/test.2.map"));
@@ -181,7 +182,7 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 0s};
 
     // modify the map
-    map.addNodes({{map.currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNodes(map, {{map.currentLayer(), {createBrushNode(map, "some_material")}}});
 
     autosaver.triggerAutosave();
 
@@ -221,7 +222,7 @@ TEST_CASE("Autosaver")
 
       // modify the map
       auto* entity = new EntityNode{{}};
-      map.addNodes({{map.currentLayer(), {entity}}});
+      addNodes(map, {{map.currentLayer(), {entity}}});
 
       std::this_thread::sleep_for(100ms);
       autosaver.triggerAutosave();
@@ -247,7 +248,7 @@ TEST_CASE("Autosaver")
         });
 
       // modify the map again
-      map.addNodes({{map.currentLayer(), {new EntityNode{{}}}}});
+      addNodes(map, {{map.currentLayer(), {new EntityNode{{}}}}});
 
       std::this_thread::sleep_for(100ms);
       autosaver.triggerAutosave();
@@ -310,7 +311,7 @@ TEST_CASE("Autosaver")
       auto autosaver = Autosaver{map, 100ms, maxBackups};
 
       // modify the map
-      map.addNodes({{map.currentLayer(), {new EntityNode{{}}}}});
+      addNodes(map, {{map.currentLayer(), {new EntityNode{{}}}}});
 
       std::this_thread::sleep_for(100ms);
       autosaver.triggerAutosave();

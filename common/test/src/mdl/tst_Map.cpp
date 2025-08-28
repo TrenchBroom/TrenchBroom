@@ -25,6 +25,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/PasteType.h"
 
 #include "catch/Matchers.h"
@@ -57,7 +58,7 @@ TEST_CASE("Map")
         REQUIRE(map.paste(map.serializeSelectedNodes()) == PasteType::Node);
         break;
       case Mode::Duplicate:
-        map.duplicateSelectedNodes();
+        duplicateSelectedNodes(map);
         break;
         switchDefault();
       }
@@ -71,7 +72,7 @@ TEST_CASE("Map")
       auto* brushNode = createBrushNode(map);
       entityNode->addChild(brushNode);
 
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
       map.selectNodes({entityNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -119,7 +120,7 @@ TEST_CASE("Map")
     SECTION("Linked group")
     {
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -137,7 +138,7 @@ TEST_CASE("Map")
     SECTION("Nodes in a linked group")
     {
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -158,7 +159,7 @@ TEST_CASE("Map")
     SECTION("Groups in a linked group")
     {
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* innerGroupNode = map.groupSelectedNodes("inner");
@@ -185,14 +186,14 @@ TEST_CASE("Map")
     SECTION("Nested groups")
     {
       auto* innerBrushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {innerBrushNode}}});
+      addNodes(map, {{parentForNodes(map), {innerBrushNode}}});
       map.selectNodes({innerBrushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
       REQUIRE(groupNode != nullptr);
 
       auto* outerBrushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {outerBrushNode}}});
+      addNodes(map, {{parentForNodes(map), {outerBrushNode}}});
 
       map.deselectAll();
       map.selectNodes({groupNode, outerBrushNode});
@@ -223,7 +224,7 @@ TEST_CASE("Map")
       */
 
       auto* innerBrushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {innerBrushNode}}});
+      addNodes(map, {{parentForNodes(map), {innerBrushNode}}});
       map.selectNodes({innerBrushNode});
 
       auto* innerGroupNode = map.groupSelectedNodes("inner");
@@ -238,7 +239,7 @@ TEST_CASE("Map")
       const auto linkedInnerBrushNode = getChildAs<BrushNode>(*linkedInnerGroupNode);
 
       auto* outerBrushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {outerBrushNode}}});
+      addNodes(map, {{parentForNodes(map), {outerBrushNode}}});
 
       map.deselectAll();
       map.selectNodes({innerGroupNode, linkedInnerGroupNode, outerBrushNode});

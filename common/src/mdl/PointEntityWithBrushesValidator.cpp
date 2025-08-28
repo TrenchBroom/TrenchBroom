@@ -25,6 +25,7 @@
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 
 #include "kdl/vector_utils.h"
 
@@ -53,7 +54,7 @@ IssueQuickFix makeMoveBrushesToWorldQuickFix()
             }
 
             map.deselectAll();
-            map.reparentNodes(nodesToReparent);
+            reparentNodes(map, nodesToReparent);
             map.selectNodes(affectedNodes);
           }};
 }

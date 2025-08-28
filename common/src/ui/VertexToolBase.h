@@ -29,6 +29,7 @@
 #include "mdl/Game.h"
 #include "mdl/Hit.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron3.h"
 #include "mdl/SelectionChange.h"
@@ -310,10 +311,10 @@ public: // csg convex merge
             b.cloneFaceAttributesFrom(selectedBrushNode->brush());
           }
 
-          auto* newParent = m_map.parentForNodes(m_map.selection().nodes);
+          auto* newParent = parentForNodes(m_map, m_map.selection().nodes);
           auto transaction = mdl::Transaction{m_map, "CSG Convex Merge"};
           deselectAll();
-          if (m_map.addNodes({{newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
+          if (addNodes(m_map, {{newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
           {
             transaction.cancel();
             return;

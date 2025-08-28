@@ -28,6 +28,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
@@ -133,7 +134,7 @@ TEST_CASE("Map_Entities")
     SECTION("Linked group update failure")
     {
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
       map.selectNodes({entityNode});
 
       // move the entity down
@@ -171,7 +172,7 @@ TEST_CASE("Map_Entities")
     SECTION("Brush entity is created and selected")
     {
       auto* brushNode = createBrushNode(map, "some_material");
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       map.selectNodes({brushNode});
       auto* entityNode = map.createBrushEntity(*brushEntityDefinition);
@@ -185,7 +186,7 @@ TEST_CASE("Map_Entities")
       auto* brushNode1 = createBrushNode(map, "some_material");
       auto* brushNode2 = createBrushNode(map, "some_material");
       auto* brushNode3 = createBrushNode(map, "some_material");
-      map.addNodes({{map.parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2, brushNode3}}});
 
       map.selectNodes({brushNode1, brushNode2, brushNode3});
       auto* previousEntityNode = map.createBrushEntity(*brushEntityDefinition);
@@ -222,7 +223,7 @@ TEST_CASE("Map_Entities")
         map.entityDefinitionManager().definitions().front();
 
       auto* brushNode = createBrushNode(map, "some_material");
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       map.selectNodes({brushNode});
       auto* entityNode = map.createBrushEntity(definitionWithDefaults);
@@ -238,7 +239,7 @@ TEST_CASE("Map_Entities")
     SECTION("Linked group update failure")
     {
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
       map.selectNodes({entityNode});
 
       // move the entity down
@@ -267,7 +268,7 @@ TEST_CASE("Map_Entities")
         *brushNode, vm::translation_matrix(vm::vec3d{0, 0, -32}), map.worldBounds());
       REQUIRE(brushNode->physicalBounds() == vm::bbox3d{{-16, -16, -48}, {16, 16, -16}});
 
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.deselectAll();
       map.selectNodes({brushNode});
 
@@ -284,7 +285,7 @@ TEST_CASE("Map_Entities")
     {
       auto* entityNode = new EntityNode(Entity{{{"classname", "large_entity"}}});
 
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
       map.deselectAll();
@@ -309,7 +310,7 @@ TEST_CASE("Map_Entities")
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
       map.selectNodes({entityNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -354,7 +355,7 @@ TEST_CASE("Map_Entities")
     {
       auto* entityNode = new EntityNode(Entity{{{"classname", "large_entity"}}});
 
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
       map.deselectAll();
@@ -392,7 +393,7 @@ TEST_CASE("Map_Entities")
     {
       auto* entityNode = new EntityNode(Entity{{{"classname", "large_entity"}}});
 
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
       map.deselectAll();
@@ -420,7 +421,7 @@ TEST_CASE("Map_Entities")
       auto* brushNode = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       map.selectAllNodes();
 
@@ -441,7 +442,7 @@ TEST_CASE("Map_Entities")
     SECTION("Toggle protected state")
     {
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       map.selectNodes({entityNode});
 
@@ -484,7 +485,7 @@ TEST_CASE("Map_Entities")
     SECTION("Setting protected entity properties restores their values")
     {
       auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       map.selectNodes({entityNode});
       auto* groupNode = map.groupSelectedNodes("test");
@@ -630,7 +631,7 @@ TEST_CASE("Map_Entities")
       {"some_key", "some_value"},
       {"another_key", "another_value"},
     }}};
-    map.addNodes({{map.parentForNodes(), {entityNode}}});
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
 
     CHECK_FALSE(map.canClearProtectedEntityProperties());
 
@@ -780,7 +781,7 @@ TEST_CASE("Map_Entities")
     auto* entityNodeWithoutDefinition = new EntityNode{Entity{{
       {"classname", "some_class"},
     }}};
-    map.addNodes({{map.parentForNodes(), {entityNodeWithoutDefinition}}});
+    addNodes(map, {{parentForNodes(map), {entityNodeWithoutDefinition}}});
     map.selectNodes({entityNodeWithoutDefinition});
     map.setEntityProperty("some_prop", "some_value");
     map.deselectAll();

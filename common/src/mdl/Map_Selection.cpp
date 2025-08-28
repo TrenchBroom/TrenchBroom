@@ -26,6 +26,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
@@ -100,7 +101,7 @@ void Map::selectTouchingNodes(const bool del)
   auto transaction = Transaction{*this, "Select Touching"};
   if (del)
   {
-    removeSelectedNodes();
+    removeSelectedNodes(*this);
   }
   else
   {
@@ -151,7 +152,7 @@ void Map::selectTouchingNodes(const vm::axis::type cameraAxis, const bool del)
         auto transaction = Transaction{*this, "Select Tall"};
         if (del)
         {
-          removeSelectedNodes();
+          removeSelectedNodes(*this);
         }
         else
         {
@@ -184,7 +185,7 @@ void Map::selectContainedNodes(const bool del)
   auto transaction = Transaction{*this, "Select Inside"};
   if (del)
   {
-    removeSelectedNodes();
+    removeSelectedNodes(*this);
   }
   else
   {

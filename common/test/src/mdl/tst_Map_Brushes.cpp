@@ -26,6 +26,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "ui/MapDocument.h"
 
 #include "Catch2.h"
@@ -45,7 +46,7 @@ TEST_CASE("Map_Brushes")
     SECTION("Setting all attributes")
     {
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       const size_t firstFaceIndex = 0u;
       const size_t secondFaceIndex = 1u;
@@ -162,7 +163,7 @@ TEST_CASE("Map_Brushes")
     SECTION("Undo and redo")
     {
       auto* brushNode = createBrushNode(map, "original");
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       for (const auto& face : brushNode->brush().faces())
       {
@@ -256,7 +257,7 @@ TEST_CASE("Map_Brushes")
       fixture.create({.mapFormat = MapFormat::Valve, .game = LoadGameFixture{"Quake"}});
 
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       map.selectNodes({brushNode});
       CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
@@ -282,7 +283,7 @@ TEST_CASE("Map_Brushes")
         {.mapFormat = MapFormat::Valve, .game = MockGameFixture{std::move(gameConfig)}});
 
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       const size_t faceIndex = 0u;
       const auto initialX = brushNode->brush().face(faceIndex).uAxis();
@@ -323,7 +324,7 @@ TEST_CASE("Map_Brushes")
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");

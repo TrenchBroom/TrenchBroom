@@ -23,6 +23,7 @@
 #include "mdl/CurrentGroupCommand.h"
 #include "mdl/GroupNode.h" // IWYU pragma: keep
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/UpdateLinkedGroupsCommand.h"
 
 #include "Catch2.h"
@@ -38,7 +39,7 @@ TEST_CASE("UpdateLinkedGroupsCommand")
 
   const auto createLinkedGroup = [&]() {
     auto brushNode = createBrushNode(map);
-    map.addNodes({{map.parentForNodes(), {brushNode}}});
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
     map.selectNodes({brushNode});
 
     auto* groupNode = map.groupSelectedNodes("group");

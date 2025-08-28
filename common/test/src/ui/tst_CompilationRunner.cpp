@@ -22,9 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QtTest/QSignalSpy>
 
 #include "CmdTool.h"
-#include "Logger.h"
 #include "MapFixture.h"
-#include "TestUtils.h"
 #include "TrenchBroomApp.h"
 #include "el/VariableStore.h"
 #include "io/TestEnvironment.h"
@@ -32,6 +30,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "mdl/CompilationTask.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationRunner.h"
 #include "ui/CompilationVariables.h"
@@ -311,7 +310,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
     CAPTURE(exportPath);
 
     auto node = new mdl::EntityNode{mdl::Entity{}};
-    map.addNodes({{map.parentForNodes(), {node}}});
+    addNodes(map, {{parentForNodes(map), {node}}});
 
     auto task = mdl::CompilationExportMap{true, exportPath};
 
@@ -324,7 +323,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
   SECTION("variable interpolation error")
   {
     auto node = new mdl::EntityNode{mdl::Entity{}};
-    map.addNodes({{map.parentForNodes(), {node}}});
+    addNodes(map, {{parentForNodes(map), {node}}});
 
     auto task = mdl::CompilationExportMap{true, "${WORK_DIR_PATH/exported.map"};
 

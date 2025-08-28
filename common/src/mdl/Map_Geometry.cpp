@@ -34,6 +34,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
@@ -650,19 +651,19 @@ bool Map::csgConvexMerge()
              }
              else
              {
-               parentNode = parentForNodes();
+               parentNode = parentForNodes(*this);
              }
 
              auto* brushNode = new BrushNode{std::move(b)};
 
              auto transaction = Transaction{*this, "CSG Convex Merge"};
              deselectAll();
-             if (addNodes({{parentNode, {brushNode}}}).empty())
+             if (addNodes(*this, {{parentNode, {brushNode}}}).empty())
              {
                transaction.cancel();
                return;
              }
-             removeNodes(toRemove);
+             removeNodes(*this, toRemove);
              selectNodes({brushNode});
              transaction.commit();
            })
@@ -715,8 +716,8 @@ bool Map::csgSubtract()
          })
          | kdl::fold | kdl::transform([&]() {
              deselectAll();
-             const auto added = addNodes(toAdd);
-             removeNodes(toRemove);
+             const auto added = addNodes(*this, toAdd);
+             removeNodes(*this, toRemove);
              selectNodes(added);
 
              return transaction.commit();
@@ -760,17 +761,17 @@ bool Map::csgIntersect()
   if (valid)
   {
     auto* intersectionNode = new BrushNode{std::move(intersection)};
-    if (addNodes({{parentForNodes(toRemove), {intersectionNode}}}).empty())
+    if (addNodes(*this, {{parentForNodes(*this, toRemove), {intersectionNode}}}).empty())
     {
       transaction.cancel();
       return false;
     }
-    removeNodes(toRemove);
+    removeNodes(*this, toRemove);
     selectNodes({intersectionNode});
   }
   else
   {
-    removeNodes(toRemove);
+    removeNodes(*this, toRemove);
   }
 
   return transaction.commit();
@@ -825,13 +826,13 @@ bool Map::csgHollow()
 
   auto transaction = Transaction{*this, "CSG Hollow"};
   deselectAll();
-  const auto added = addNodes(toAdd);
+  const auto added = addNodes(*this, toAdd);
   if (added.empty())
   {
     transaction.cancel();
     return false;
   }
-  removeNodes(toRemove);
+  removeNodes(*this, toRemove);
   selectNodes(added);
 
   return transaction.commit();
@@ -866,9 +867,9 @@ bool Map::clipBrushes(const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d&
 
              auto transaction = Transaction{*this, "Clip Brushes"};
              deselectAll();
-             removeNodes(toRemove);
+             removeNodes(*this, toRemove);
 
-             const auto addedNodes = addNodes(toAdd);
+             const auto addedNodes = addNodes(*this, toAdd);
              if (addedNodes.empty())
              {
                transaction.cancel();

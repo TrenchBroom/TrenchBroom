@@ -18,13 +18,14 @@
  */
 
 #include "Logger.h"
-#include "Map.h"
 #include "Uuid.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/CurrentGroupCommand.h"
 #include "mdl/EditorContext.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/SetLinkIdsCommand.h"
 #include "mdl/Transaction.h"
@@ -184,8 +185,8 @@ GroupNode* Map::groupSelectedNodes(const std::string& name)
   auto transaction = Transaction{*this, "Group Selected Objects"};
   deselectAll();
   if (
-    addNodes({{parentForNodes(nodes), {group}}}).empty()
-    || !reparentNodes({{group, nodes}}))
+    addNodes(*this, {{parentForNodes(*this, nodes), {group}}}).empty()
+    || !reparentNodes(*this, {{group, nodes}}))
   {
     transaction.cancel();
     return nullptr;
@@ -224,7 +225,7 @@ void Map::ungroupSelectedNodes()
       [&](GroupNode* group) {
         auto* parent = group->parent();
         const auto children = group->children();
-        success = success && reparentNodes({{parent, children}});
+        success = success && reparentNodes(*this, {{parent, children}});
         nodesToReselect = kdl::vec_concat(std::move(nodesToReselect), children);
       },
       [&](EntityNode* entity) { nodesToReselect.push_back(entity); },
@@ -258,7 +259,7 @@ void Map::mergeSelectedGroupsWithGroup(GroupNode* group)
     if (groupToMerge != group)
     {
       const auto children = groupToMerge->children();
-      if (!reparentNodes({{group, children}}))
+      if (!reparentNodes(*this, {{group, children}}))
       {
         transaction.cancel();
         return;
@@ -308,10 +309,10 @@ GroupNode* Map::createLinkedDuplicate()
   auto* groupNode = selection().groups.front();
   auto* groupNodeClone =
     static_cast<GroupNode*>(groupNode->cloneRecursively(worldBounds()));
-  auto* suggestedParent = parentForNodes({groupNode});
+  auto* suggestedParent = parentForNodes(*this, {groupNode});
 
   auto transaction = Transaction{*this, "Create Linked Duplicate"};
-  if (addNodes({{suggestedParent, {groupNodeClone}}}).empty())
+  if (addNodes(*this, {{suggestedParent, {groupNodeClone}}}).empty())
   {
     transaction.cancel();
     return nullptr;

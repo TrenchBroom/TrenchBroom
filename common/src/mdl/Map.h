@@ -301,26 +301,6 @@ public: // selection management
   const std::optional<vm::bbox3d>& selectionBounds() const;
 
 public: // node management
-  /**
-   * Suggests a parent to use for new nodes.
-   *
-   * If reference nodes are given, return the parent (either a group, if there is one,
-   * otherwise the layer) of the first node in the given vector.
-   *
-   * Otherwise, returns the current group if one is open, otherwise the current layer.
-   */
-  Node* parentForNodes(
-    const std::vector<Node*>& referenceNodes = std::vector<Node*>()) const;
-
-  std::vector<Node*> addNodes(const std::map<Node*, std::vector<Node*>>& nodes);
-
-  void duplicateSelectedNodes();
-
-  bool reparentNodes(const std::map<Node*, std::vector<Node*>>& nodesToAdd);
-
-  void removeNodes(const std::vector<Node*>& nodes);
-  void removeSelectedNodes();
-
   bool updateNodeContents(
     const std::string& commandName,
     std::vector<std::pair<Node*, NodeContents>> nodesToSwap,
@@ -616,7 +596,6 @@ public: // command processing
 
   bool throwExceptionDuringCommand();
 
-private:
   std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
   std::unique_ptr<CommandResult> executeAndStore(
     std::unique_ptr<UndoableCommand>&& command);

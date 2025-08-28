@@ -26,6 +26,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -245,7 +246,7 @@ common/caulk
 
       auto* brushNode1 =
         new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
       map.selectNodes({brushNode1});
 
       const auto groupName = std::string{"testGroup"};
@@ -275,7 +276,7 @@ common/caulk
 })"};
 
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -328,7 +329,7 @@ common/caulk
     SECTION("Paste resets duplicate group IDs")
     {
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       map.selectNodes({entityNode});
       auto* groupNode = map.groupSelectedNodes("test");
@@ -356,7 +357,7 @@ common/caulk
 
       SECTION("Cut and paste retains persistent group ID")
       {
-        map.removeSelectedNodes();
+        removeSelectedNodes(map);
         map.deselectAll();
         REQUIRE(map.paste(str) == PasteType::Node);
 
@@ -372,7 +373,7 @@ common/caulk
     SECTION("Paste resets duplicate link IDs")
     {
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -422,7 +423,7 @@ common/caulk
         SECTION("Pasting unknown linked group ID")
         {
           map.selectAllNodes();
-          map.removeSelectedNodes();
+          removeSelectedNodes(map);
 
           CHECK(map.paste(data) == PasteType::Node);
           CHECK(map.world()->defaultLayer()->childCount() == 1);
@@ -437,7 +438,7 @@ common/caulk
         SECTION("If only one linked group exists")
         {
           map.selectNodes({linkedGroup});
-          map.removeSelectedNodes();
+          removeSelectedNodes(map);
 
           CHECK(map.paste(data) == PasteType::Node);
           CHECK(map.world()->defaultLayer()->childCount() == 2);
@@ -516,7 +517,7 @@ common/caulk
         SECTION("If only one original group exists")
         {
           map.selectNodes({linkedGroup});
-          map.removeSelectedNodes();
+          removeSelectedNodes(map);
 
           CHECK(map.paste(data) == PasteType::Node);
           CHECK(map.world()->defaultLayer()->childCount() == 3);

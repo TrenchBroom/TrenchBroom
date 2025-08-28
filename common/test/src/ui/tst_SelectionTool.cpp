@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
 #include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/Brush.h"
@@ -31,6 +30,7 @@
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 #include "render/OrthographicCamera.h"
@@ -68,8 +68,8 @@ TEST_CASE("SelectionTool")
       auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
       auto* groupNode = new mdl::GroupNode(mdl::Group{"some_group"});
 
-      map.addNodes({{map.parentForNodes(), {groupNode}}});
-      map.addNodes({{groupNode, {brushNode, entityNode}}});
+      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{groupNode, {brushNode, entityNode}}});
 
       auto camera = render::OrthographicCamera{};
 
@@ -137,7 +137,7 @@ TEST_CASE("SelectionTool")
 
       auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
 
-      map.addNodes({{map.parentForNodes(), {brushNode, entityNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
 
       auto camera = render::OrthographicCamera{};
 
@@ -483,7 +483,7 @@ TEST_CASE("SelectionTool")
       auto* hiddenBrushNode = new mdl::BrushNode{std::move(hiddenBrush)};
       const auto hiddenTopFaceIndex = *hiddenBrushNode->brush().findFace("top_face");
 
-      map.addNodes({{map.parentForNodes(), {visibleBrushNode, hiddenBrushNode}}});
+      addNodes(map, {{parentForNodes(map), {visibleBrushNode, hiddenBrushNode}}});
 
       const auto hiddenTag = mdl::Tag{"hidden", {}};
       auto taggedBrush = hiddenBrushNode->brush();

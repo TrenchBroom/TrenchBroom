@@ -59,6 +59,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/PasteType.h"
@@ -95,7 +96,6 @@
 #include "upd/Updater.h"
 
 #include "kdl/const_overload.h"
-#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
 #include "kdl/string_format.h"
@@ -1307,7 +1307,7 @@ void MapFrame::cutSelection()
 
     copyToClipboard();
     auto transaction = mdl::Transaction{map, "Cut"};
-    map.removeSelectedNodes();
+    removeSelectedNodes(map);
     transaction.commit();
   }
 }
@@ -1431,8 +1431,7 @@ void MapFrame::duplicateSelection()
 {
   if (canDuplicateSelection())
   {
-    auto& map = m_document->map();
-    map.duplicateSelectedNodes();
+    duplicateSelectedNodes(m_document->map());
   }
 }
 
@@ -1465,7 +1464,7 @@ void MapFrame::deleteSelection()
     else if (!m_mapView->anyModalToolActive())
     {
       auto& map = m_document->map();
-      map.removeSelectedNodes();
+      removeSelectedNodes(map);
     }
   }
 }

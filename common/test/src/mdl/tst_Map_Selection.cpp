@@ -28,6 +28,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -62,7 +63,7 @@ TEST_CASE("Map_Selection")
       auto* brushNode = createBrushNode(map);
       CHECK(brushNode->logicalBounds().center() == vm::vec3d{0, 0, 0});
 
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       const auto topFaceIndex = brushNode->brush().findFace(vm::vec3d{0, 0, 1});
       REQUIRE(topFaceIndex);
@@ -127,8 +128,9 @@ TEST_CASE("Map_Selection")
         topLevelBrushEntityNode->addChildren(
           {brushEntityBrushNode, brushEntityPatchNode});
 
-        map.addNodes(
-          {{map.parentForNodes(),
+        addNodes(
+          map,
+          {{parentForNodes(map),
             {topLevelEntityNode,
              topLevelBrushEntityNode,
              topLevelBrushNode,
@@ -297,18 +299,21 @@ TEST_CASE("Map_Selection")
       auto* outerGroupNode = new GroupNode{Group{"outerGroupNode"}};
       auto* innerGroupNode = new GroupNode{Group{"outerGroupNode"}};
 
-      map.addNodes(
+      addNodes(
+        map,
         {{map.world()->defaultLayer(),
           {brushNodeInDefaultLayer, brushEntityNode, pointEntityNode, outerGroupNode}},
          {map.world(), {customLayerNode}}});
 
-      map.addNodes({
-        {customLayerNode, {brushNodeInCustomLayer}},
-        {outerGroupNode, {innerGroupNode, brushNodeInGroup}},
-        {brushEntityNode, {brushNodeInEntity}},
-      });
+      addNodes(
+        map,
+        {
+          {customLayerNode, {brushNodeInCustomLayer}},
+          {outerGroupNode, {innerGroupNode, brushNodeInGroup}},
+          {brushEntityNode, {brushNodeInEntity}},
+        });
 
-      map.addNodes({{innerGroupNode, {brushNodeInNestedGroup}}});
+      addNodes(map, {{innerGroupNode, {brushNodeInNestedGroup}}});
 
       const auto getPath = [&](const Node* node) { return node->pathFrom(*map.world()); };
       const auto resolvePaths = [&](const auto& paths) {
@@ -348,7 +353,7 @@ TEST_CASE("Map_Selection")
     {
       auto* entityNode = new EntityNode{Entity{}};
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode, entityNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -411,8 +416,8 @@ TEST_CASE("Map_Selection")
       builder.createCuboid(box.translate({2, 2, 2}), "material") | kdl::value()};
     auto* patchNode = createPatchNode();
 
-    map.addNodes(
-      {{map.parentForNodes(), {brushNode1, brushNode2, brushNode3, patchNode}}});
+    addNodes(
+      map, {{parentForNodes(map), {brushNode1, brushNode2, brushNode3, patchNode}}});
 
     map.selectNodes({brushNode1, brushNode2});
     map.createBrushEntity(brushEntityDefinition);
@@ -476,7 +481,7 @@ TEST_CASE("Map_Selection")
         vm::translation_matrix(vm::vec3d{100.0, 0.0, 0.0}),
         map.worldBounds());
 
-      map.addNodes({{map.parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2, brushNode3}}});
 
       REQUIRE(brushNode1->intersects(brushNode2));
       REQUIRE(brushNode2->intersects(brushNode1));
@@ -495,22 +500,22 @@ TEST_CASE("Map_Selection")
     SECTION("Select touching group")
     {
       auto* layerNode = new LayerNode{Layer{"Layer 1"}};
-      map.addNodes({{map.world(), {layerNode}}});
+      addNodes(map, {{map.world(), {layerNode}}});
 
       auto* groupNode = new GroupNode{Group{"Unnamed"}};
-      map.addNodes({{layerNode, {groupNode}}});
+      addNodes(map, {{layerNode, {groupNode}}});
 
       const auto brushBounds = vm::bbox3d{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
       auto* brushNode =
         new BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-      map.addNodes({{groupNode, {brushNode}}});
+      addNodes(map, {{groupNode, {brushNode}}});
 
       const auto selectionBounds =
         vm::bbox3d{{-16.0, -16.0, -48.0}, {+16.0, +16.0, +48.0}};
 
       auto* selectionBrush =
         new BrushNode{builder.createCuboid(selectionBounds, "material") | kdl::value()};
-      map.addNodes({{layerNode, {selectionBrush}}});
+      addNodes(map, {{layerNode, {selectionBrush}}});
 
       map.selectNodes({selectionBrush});
       map.selectTouchingNodes(true);
@@ -525,11 +530,11 @@ TEST_CASE("Map_Selection")
 
       auto* brushNode1 =
         new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
       auto* brushNode2 = new BrushNode{
         builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
-      map.addNodes({{map.parentForNodes(), {brushNode2}}});
+      addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
       map.selectAllNodes();
 
@@ -562,9 +567,9 @@ TEST_CASE("Map_Selection")
       auto* outerGroup = new GroupNode{Group{"outerGroup"}};
       auto* innerGroup = new GroupNode{Group{"innerGroup"}};
 
-      map.addNodes({{map.parentForNodes(), {outerGroup}}});
-      map.addNodes({{outerGroup, {innerGroup}}});
-      map.addNodes({{innerGroup, {brushNode1, brushNode2}}});
+      addNodes(map, {{parentForNodes(map), {outerGroup}}});
+      addNodes(map, {{outerGroup, {innerGroup}}});
+      addNodes(map, {{innerGroup, {brushNode1, brushNode2}}});
 
       // worldspawn {
       //   outerGroup {
@@ -603,7 +608,7 @@ TEST_CASE("Map_Selection")
       REQUIRE(!brushNode1->intersects(brushNode2));
       REQUIRE(!brushNode1->intersects(brushNode3));
 
-      map.addNodes({{map.parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
+      addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2, brushNode3}}});
       map.selectNodes({brushNode1});
 
       SECTION("z camera")
@@ -628,22 +633,22 @@ TEST_CASE("Map_Selection")
     SECTION("Select contained group")
     {
       auto* layerNode = new LayerNode{Layer{"Layer 1"}};
-      map.addNodes({{map.world(), {layerNode}}});
+      addNodes(map, {{map.world(), {layerNode}}});
 
       auto* groupNode = new GroupNode{Group{"Unnamed"}};
-      map.addNodes({{layerNode, {groupNode}}});
+      addNodes(map, {{layerNode, {groupNode}}});
 
       const auto brushBounds = vm::bbox3d{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
       auto* brushNode =
         new BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-      map.addNodes({{groupNode, {brushNode}}});
+      addNodes(map, {{groupNode, {brushNode}}});
 
       const auto selectionBounds =
         vm::bbox3d{{-48.0, -48.0, -48.0}, {+48.0, +48.0, +48.0}};
 
       auto* selectionBrush =
         new BrushNode{builder.createCuboid(selectionBounds, "material") | kdl::value()};
-      map.addNodes({{layerNode, {selectionBrush}}});
+      addNodes(map, {{layerNode, {selectionBrush}}});
 
       map.selectNodes({selectionBrush});
       map.selectContainedNodes(true);
@@ -711,16 +716,21 @@ TEST_CASE("Map_Selection")
       });
     };
 
-    map.addNodes({
-      {map.world()->defaultLayer(), {brush, pointEntity, patch, brushEntity, outerGroup}},
-    });
+    addNodes(
+      map,
+      {
+        {map.world()->defaultLayer(),
+         {brush, pointEntity, patch, brushEntity, outerGroup}},
+      });
 
-    map.addNodes({
-      {brushEntity, {brushInEntity1, brushInEntity2}},
-      {outerGroup, {brushInOuterGroup, innerGroup}},
-    });
+    addNodes(
+      map,
+      {
+        {brushEntity, {brushInEntity1, brushInEntity2}},
+        {outerGroup, {brushInOuterGroup, innerGroup}},
+      });
 
-    map.addNodes({{innerGroup, {brushInInnerGroup}}});
+    addNodes(map, {{innerGroup, {brushInInnerGroup}}});
 
     map.deselectAll();
 
@@ -801,18 +811,18 @@ TEST_CASE("Map_Selection")
 
     auto* brushNode1 =
       new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-    map.addNodes({{map.parentForNodes(), {brushNode1}}});
+    addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
     auto* brushNode2 = new BrushNode{
       builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
-    map.addNodes({{map.parentForNodes(), {brushNode2}}});
+    addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
     auto* brushNode3 = new BrushNode{
       builder.createCuboid(box.translate({2, 2, 2}), "material") | kdl::value()};
-    map.addNodes({{map.parentForNodes(), {brushNode3}}});
+    addNodes(map, {{parentForNodes(map), {brushNode3}}});
 
     auto* patchNode = createPatchNode();
-    map.addNodes({{map.parentForNodes(), {patchNode}}});
+    addNodes(map, {{parentForNodes(map), {patchNode}}});
 
     map.selectNodes({brushNode1, brushNode2});
     auto* brushEnt = map.createBrushEntity(brushEntityDefinition);
@@ -851,7 +861,7 @@ TEST_CASE("Map_Selection")
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -878,10 +888,10 @@ TEST_CASE("Map_Selection")
   SECTION("Selection clears repeat stack")
   {
     auto* entityNode1 = new EntityNode{Entity{}};
-    map.addNodes({{map.parentForNodes(), {entityNode1}}});
+    addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
     auto* entityNode2 = new EntityNode{Entity{}};
-    map.addNodes({{map.parentForNodes(), {entityNode2}}});
+    addNodes(map, {{parentForNodes(map), {entityNode2}}});
 
     map.selectNodes({entityNode1});
 
@@ -915,7 +925,7 @@ TEST_CASE("Map_Selection")
   SECTION("lastSelectionBounds")
   {
     auto* entityNode = new EntityNode{Entity{{{"classname", "point_entity"}}}};
-    map.addNodes({{map.parentForNodes(), {entityNode}}});
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
     REQUIRE(!entityNode->logicalBounds().is_empty());
 
     map.selectAllNodes();
@@ -928,7 +938,7 @@ TEST_CASE("Map_Selection")
     CHECK(map.lastSelectionBounds() == bounds);
 
     auto* brushNode = createBrushNode(map);
-    map.addNodes({{map.parentForNodes(), {brushNode}}});
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
 
     map.selectNodes({brushNode});
     CHECK(map.lastSelectionBounds() == bounds);

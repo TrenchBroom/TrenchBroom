@@ -25,6 +25,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
@@ -42,7 +43,7 @@ bool Map::createBrush(const std::vector<vm::vec3d>& points)
 
              auto transaction = Transaction{*this, "Create Brush"};
              deselectAll();
-             if (addNodes({{parentForNodes(), {brushNode}}}).empty())
+             if (addNodes(*this, {{parentForNodes(*this), {brushNode}}}).empty())
              {
                transaction.cancel();
                return Error{"Could not add brush to document"};

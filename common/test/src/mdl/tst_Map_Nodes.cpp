@@ -28,6 +28,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -64,14 +65,14 @@ TEST_CASE("Map_Nodes")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      map.addNodes({{map.world(), {layerNode1}}});
-      map.addNodes({{map.world(), {layerNode2}}});
+      addNodes(map, {{map.world(), {layerNode1}}});
+      addNodes(map, {{map.world(), {layerNode2}}});
 
       map.setCurrentLayer(layerNode1);
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
       REQUIRE(entityNode1->parent() == layerNode1);
 
@@ -88,7 +89,7 @@ TEST_CASE("Map_Nodes")
       // Create another entity in layer1. It will be visible, while entity1 will still be
       // hidden.
       auto* entityNode2 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode2}}});
+      addNodes(map, {{parentForNodes(map), {entityNode2}}});
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -102,14 +103,14 @@ TEST_CASE("Map_Nodes")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      map.addNodes({{map.world(), {layerNode1}}});
-      map.addNodes({{map.world(), {layerNode2}}});
+      addNodes(map, {{map.world(), {layerNode1}}});
+      addNodes(map, {{map.world(), {layerNode2}}});
 
       map.setCurrentLayer(layerNode1);
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
       REQUIRE(entityNode1->parent() == layerNode1);
 
@@ -122,7 +123,7 @@ TEST_CASE("Map_Nodes")
       REQUIRE(entityNode1->locked());
 
       auto* entityNode2 = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entityNode2}}});
+      addNodes(map, {{parentForNodes(map), {entityNode2}}});
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -139,7 +140,7 @@ TEST_CASE("Map_Nodes")
         auto* groupNode = new GroupNode{Group{"test"}};
         auto* brushNode = createBrushNode(map);
         groupNode->addChild(brushNode);
-        map.addNodes({{map.parentForNodes(), {groupNode}}});
+        addNodes(map, {{parentForNodes(map), {groupNode}}});
 
         map.selectNodes({groupNode});
         auto* linkedGroupNode = map.createLinkedDuplicate();
@@ -152,7 +153,7 @@ TEST_CASE("Map_Nodes")
           CreateNode{[](const auto&) -> Node* { return createPatchNode(); }});
 
         auto* nodeToAdd = createNode(map);
-        map.addNodes({{groupNode, {nodeToAdd}}});
+        addNodes(map, {{groupNode, {nodeToAdd}}});
 
         CHECK(linkedGroupNode->childCount() == 2u);
 
@@ -190,7 +191,7 @@ TEST_CASE("Map_Nodes")
       SECTION("Linked nodes inherit the group's transformation when they are added")
       {
         auto* groupNode = new GroupNode{Group{"group"}};
-        map.addNodes({{map.parentForNodes(), {groupNode}}});
+        addNodes(map, {{parentForNodes(map), {groupNode}}});
 
         map.selectNodes({groupNode});
         auto* linkedGroupNode = map.createLinkedDuplicate();
@@ -201,7 +202,7 @@ TEST_CASE("Map_Nodes")
         map.deselectAll();
 
         auto* brushNode = createBrushNode(map);
-        map.addNodes({{groupNode, {brushNode}}});
+        addNodes(map, {{groupNode, {brushNode}}});
 
         REQUIRE(groupNode->childCount() == 1u);
         REQUIRE(linkedGroupNode->childCount() == 1u);
@@ -231,7 +232,7 @@ TEST_CASE("Map_Nodes")
       SECTION("Child cannot be added because adding it to a linked group fails")
       {
         auto* groupNode = new GroupNode{Group{"group"}};
-        map.addNodes({{map.parentForNodes(), {groupNode}}});
+        addNodes(map, {{parentForNodes(map), {groupNode}}});
 
         map.selectNodes({groupNode});
         auto* linkedGroupNode = map.createLinkedDuplicate();
@@ -244,7 +245,7 @@ TEST_CASE("Map_Nodes")
         map.deselectAll();
 
         auto* brushNode = createBrushNode(map);
-        CHECK(map.addNodes({{groupNode, {brushNode}}}).empty());
+        CHECK(addNodes(map, {{groupNode, {brushNode}}}).empty());
 
         CHECK(groupNode->childCount() == 0u);
         CHECK(linkedGroupNode->childCount() == 0u);
@@ -258,8 +259,8 @@ TEST_CASE("Map_Nodes")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      map.addNodes({{map.world(), {layerNode1}}});
-      map.addNodes({{map.world(), {layerNode2}}});
+      addNodes(map, {{map.world(), {layerNode1}}});
+      addNodes(map, {{map.world(), {layerNode2}}});
 
       map.setCurrentLayer(layerNode1);
       auto* entityNode = map.createPointEntity(pointEntityDefinition, {0, 0, 0});
@@ -268,7 +269,7 @@ TEST_CASE("Map_Nodes")
 
       map.setCurrentLayer(layerNode2);
       map.selectNodes({entityNode});
-      map.duplicateSelectedNodes();
+      duplicateSelectedNodes(map);
 
       REQUIRE(map.selection().entities.size() == 1);
 
@@ -281,7 +282,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Nodes duplicated in a hidden layer become visible")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
-      map.addNodes({{map.world(), {layerNode1}}});
+      addNodes(map, {{map.world(), {layerNode1}}});
 
       map.setCurrentLayer(layerNode1);
       map.hideLayers({layerNode1});
@@ -289,7 +290,7 @@ TEST_CASE("Map_Nodes")
       // Create entity1 and brush1 in the hidden layer1
       auto* entityNode1 = new EntityNode{Entity{}};
       auto* brushNode1 = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {entityNode1, brushNode1}}});
+      addNodes(map, {{parentForNodes(map), {entityNode1, brushNode1}}});
 
       REQUIRE(entityNode1->parent() == layerNode1);
       REQUIRE(brushNode1->parent() == layerNode1);
@@ -303,7 +304,7 @@ TEST_CASE("Map_Nodes")
       map.selectNodes({entityNode1, brushNode1});
 
       // Duplicate entity1 and brush1
-      map.duplicateSelectedNodes();
+      duplicateSelectedNodes(map);
       REQUIRE(map.selection().entities.size() == 1u);
       REQUIRE(map.selection().brushes.size() == 1u);
       auto* entityNode2 = map.selection().entities.front();
@@ -325,27 +326,27 @@ TEST_CASE("Map_Nodes")
     SECTION("Cannot reparent layer to layer")
     {
       auto* layer1 = new LayerNode{Layer{"Layer 1"}};
-      map.addNodes({{map.world(), {layer1}}});
+      addNodes(map, {{map.world(), {layer1}}});
 
       auto* layer2 = new LayerNode{Layer{"Layer 2"}};
-      map.addNodes({{map.world(), {layer2}}});
+      addNodes(map, {{map.world(), {layer2}}});
 
-      CHECK_FALSE(map.reparentNodes({{layer2, {layer1}}}));
+      CHECK_FALSE(reparentNodes(map, {{layer2, {layer1}}}));
     }
 
     SECTION("Reparent between layers")
     {
       auto* oldParent = new LayerNode{Layer{"Layer 1"}};
-      map.addNodes({{map.world(), {oldParent}}});
+      addNodes(map, {{map.world(), {oldParent}}});
 
       auto* newParent = new LayerNode{Layer{"Layer 2"}};
-      map.addNodes({{map.world(), {newParent}}});
+      addNodes(map, {{map.world(), {newParent}}});
 
       auto* entityNode = new EntityNode{Entity{}};
-      map.addNodes({{oldParent, {entityNode}}});
+      addNodes(map, {{oldParent, {entityNode}}});
 
       assert(entityNode->parent() == oldParent);
-      CHECK(map.reparentNodes({{newParent, {entityNode}}}));
+      CHECK(reparentNodes(map, {{newParent, {entityNode}}}));
       CHECK(entityNode->parent() == newParent);
 
       map.undoCommand();
@@ -355,57 +356,57 @@ TEST_CASE("Map_Nodes")
     SECTION("Cannot reparent a group to itself")
     {
       auto* group = new GroupNode{Group{"Group"}};
-      map.addNodes({{map.parentForNodes(), {group}}});
+      addNodes(map, {{parentForNodes(map), {group}}});
 
-      CHECK_FALSE(map.reparentNodes({{group, {group}}}));
+      CHECK_FALSE(reparentNodes(map, {{group, {group}}}));
     }
 
     SECTION("Cannot reparent a group to its descendants")
     {
       auto* outer = new GroupNode{Group{"Outer"}};
-      map.addNodes({{map.parentForNodes(), {outer}}});
+      addNodes(map, {{parentForNodes(map), {outer}}});
 
       auto* inner = new GroupNode{Group{"Inner"}};
-      map.addNodes({{outer, {inner}}});
+      addNodes(map, {{outer, {inner}}});
 
-      CHECK_FALSE(map.reparentNodes({{inner, {outer}}}));
+      CHECK_FALSE(reparentNodes(map, {{inner, {outer}}}));
     }
 
     SECTION("Empty groups are removed after reparenting")
     {
       auto* group = new GroupNode{Group{"Group"}};
-      map.addNodes({{map.parentForNodes(), {group}}});
+      addNodes(map, {{parentForNodes(map), {group}}});
 
       auto* entity = new EntityNode{Entity{}};
-      map.addNodes({{group, {entity}}});
+      addNodes(map, {{group, {entity}}});
 
-      CHECK(map.reparentNodes({{map.parentForNodes(), {entity}}}));
-      CHECK(entity->parent() == map.parentForNodes());
+      CHECK(reparentNodes(map, {{parentForNodes(map), {entity}}}));
+      CHECK(entity->parent() == parentForNodes(map));
       CHECK(group->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(group->parent() == map.parentForNodes());
+      CHECK(group->parent() == parentForNodes(map));
       CHECK(entity->parent() == group);
     }
 
     SECTION("Empty groups are removed recursively after reparenting")
     {
       auto* outer = new GroupNode{Group{"Outer"}};
-      map.addNodes({{map.parentForNodes(), {outer}}});
+      addNodes(map, {{parentForNodes(map), {outer}}});
 
       auto* inner = new GroupNode{Group{"Inner"}};
-      map.addNodes({{outer, {inner}}});
+      addNodes(map, {{outer, {inner}}});
 
       auto* entity = new EntityNode{Entity{}};
-      map.addNodes({{inner, {entity}}});
+      addNodes(map, {{inner, {entity}}});
 
-      CHECK(map.reparentNodes({{map.parentForNodes(), {entity}}}));
-      CHECK(entity->parent() == map.parentForNodes());
+      CHECK(reparentNodes(map, {{parentForNodes(map), {entity}}}));
+      CHECK(entity->parent() == parentForNodes(map));
       CHECK(inner->parent() == nullptr);
       CHECK(outer->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(outer->parent() == map.parentForNodes());
+      CHECK(outer->parent() == parentForNodes(map));
       CHECK(inner->parent() == outer);
       CHECK(entity->parent() == inner);
     }
@@ -413,38 +414,38 @@ TEST_CASE("Map_Nodes")
     SECTION("Empty entities are removed after reparenting")
     {
       auto* entity = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {entity}}});
+      addNodes(map, {{parentForNodes(map), {entity}}});
 
       auto* brush = createBrushNode(map);
-      map.addNodes({{entity, {brush}}});
+      addNodes(map, {{entity, {brush}}});
 
-      CHECK(map.reparentNodes({{map.parentForNodes(), {brush}}}));
-      CHECK(brush->parent() == map.parentForNodes());
+      CHECK(reparentNodes(map, {{parentForNodes(map), {brush}}}));
+      CHECK(brush->parent() == parentForNodes(map));
       CHECK(entity->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(entity->parent() == map.parentForNodes());
+      CHECK(entity->parent() == parentForNodes(map));
       CHECK(brush->parent() == entity);
     }
 
     SECTION("Empty groups and entities are removed after reparenting")
     {
       auto* group = new GroupNode{Group{"Group"}};
-      map.addNodes({{map.parentForNodes(), {group}}});
+      addNodes(map, {{parentForNodes(map), {group}}});
 
       auto* entity = new EntityNode{Entity{}};
-      map.addNodes({{group, {entity}}});
+      addNodes(map, {{group, {entity}}});
 
       auto* brush = createBrushNode(map);
-      map.addNodes({{entity, {brush}}});
+      addNodes(map, {{entity, {brush}}});
 
-      CHECK(map.reparentNodes({{map.parentForNodes(), {brush}}}));
-      CHECK(brush->parent() == map.parentForNodes());
+      CHECK(reparentNodes(map, {{parentForNodes(map), {brush}}}));
+      CHECK(brush->parent() == parentForNodes(map));
       CHECK(group->parent() == nullptr);
       CHECK(entity->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(group->parent() == map.parentForNodes());
+      CHECK(group->parent() == parentForNodes(map));
       CHECK(entity->parent() == group);
       CHECK(brush->parent() == entity);
     }
@@ -454,7 +455,7 @@ TEST_CASE("Map_Nodes")
       auto* nestedBrushNode = createBrushNode(map);
       auto* nestedEntityNode = new EntityNode{Entity{}};
 
-      map.addNodes({{map.parentForNodes(), {nestedBrushNode, nestedEntityNode}}});
+      addNodes(map, {{parentForNodes(map), {nestedBrushNode, nestedEntityNode}}});
       map.selectNodes({nestedBrushNode, nestedEntityNode});
 
       auto* nestedGroupNode = map.groupSelectedNodes("nested");
@@ -469,7 +470,7 @@ TEST_CASE("Map_Nodes")
       auto* entityBrushNode = createBrushNode(map);
       entityNode->addChild(entityBrushNode);
 
-      map.addNodes({{map.parentForNodes(), {brushNode, entityNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
 
       map.selectNodes({brushNode, entityNode, nestedGroupNode});
       auto* groupNode = map.groupSelectedNodes("group");
@@ -493,7 +494,7 @@ TEST_CASE("Map_Nodes")
 
       SECTION("Moving a brush entity to the world resets its link IDs")
       {
-        REQUIRE(map.reparentNodes({{map.parentForNodes(), {entityNode}}}));
+        REQUIRE(reparentNodes(map, {{parentForNodes(map), {entityNode}}}));
 
         CHECK(entityNode->linkId() != originalEntityLinkId);
         CHECK(entityBrushNode->linkId() != originalEntityBrushLinkId);
@@ -506,7 +507,7 @@ TEST_CASE("Map_Nodes")
       SECTION(
         "Moving objects out of a nested group into the container resets their link IDs")
       {
-        REQUIRE(map.reparentNodes({{groupNode, {nestedBrushNode}}}));
+        REQUIRE(reparentNodes(map, {{groupNode, {nestedBrushNode}}}));
         CHECK(nestedBrushNode->linkId() != originalNestedBrushLinkId);
 
         CHECK_THAT(*linkedNestedGroupNode, MatchesNode(*nestedGroupNode));
@@ -516,7 +517,7 @@ TEST_CASE("Map_Nodes")
 
       SECTION("Moving objects into a nested linked group keeps their link IDs")
       {
-        REQUIRE(map.reparentNodes({{nestedGroupNode, {brushNode}}}));
+        REQUIRE(reparentNodes(map, {{nestedGroupNode, {brushNode}}}));
         CHECK(brushNode->linkId() == originalBrushLinkId);
 
         CHECK_THAT(*linkedNestedGroupNode, MatchesNode(*nestedGroupNode));
@@ -542,7 +543,7 @@ TEST_CASE("Map_Nodes")
       auto* groupNode = new GroupNode{Group{"group"}};
       auto* brushNode = createBrushNode(map);
       groupNode->addChild(brushNode);
-      map.addNodes({{map.parentForNodes(), {groupNode}}});
+      addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
       auto* linkedGroupNode = map.createLinkedDuplicate();
@@ -555,12 +556,12 @@ TEST_CASE("Map_Nodes")
       SECTION("Move node into group node")
       {
         auto* entityNode = new EntityNode{Entity{}};
-        map.addNodes({{map.parentForNodes(), {entityNode}}});
+        addNodes(map, {{parentForNodes(map), {entityNode}}});
 
         REQUIRE(groupNode->childCount() == 1u);
         REQUIRE(linkedGroupNode->childCount() == 1u);
 
-        map.reparentNodes({{groupNode, {entityNode}}});
+        reparentNodes(map, {{groupNode, {entityNode}}});
 
         CHECK(groupNode->childCount() == 2u);
         CHECK(linkedGroupNode->childCount() == 2u);
@@ -576,7 +577,7 @@ TEST_CASE("Map_Nodes")
 
         map.undoCommand();
 
-        CHECK(entityNode->parent() == map.parentForNodes());
+        CHECK(entityNode->parent() == parentForNodes(map));
         CHECK(groupNode->childCount() == 1u);
         CHECK(linkedGroupNode->childCount() == 1u);
       }
@@ -584,14 +585,14 @@ TEST_CASE("Map_Nodes")
       SECTION("Move node out of group node")
       {
         auto* entityNode = new EntityNode{Entity{}};
-        map.addNodes({{groupNode, {entityNode}}});
+        addNodes(map, {{groupNode, {entityNode}}});
 
         REQUIRE(groupNode->childCount() == 2u);
         REQUIRE(linkedGroupNode->childCount() == 2u);
 
-        map.reparentNodes({{map.parentForNodes(), {entityNode}}});
+        reparentNodes(map, {{parentForNodes(map), {entityNode}}});
 
-        CHECK(entityNode->parent() == map.parentForNodes());
+        CHECK(entityNode->parent() == parentForNodes(map));
         CHECK(groupNode->childCount() == 1u);
         CHECK(linkedGroupNode->childCount() == 1u);
 
@@ -606,7 +607,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Nested linked groups")
     {
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
       auto* groupNode = map.groupSelectedNodes("test");
@@ -621,7 +622,7 @@ TEST_CASE("Map_Nodes")
 
       SECTION("Adding a linked group to its linked sibling does nothing")
       {
-        CHECK_FALSE(map.reparentNodes({{groupNode, {linkedGroupNode}}}));
+        CHECK_FALSE(reparentNodes(map, {{groupNode, {linkedGroupNode}}}));
       }
 
       SECTION(
@@ -634,25 +635,25 @@ TEST_CASE("Map_Nodes")
         REQUIRE(outerGroupNode != nullptr);
 
         map.deselectAll();
-        CHECK_FALSE(map.reparentNodes({{groupNode, {outerGroupNode}}}));
+        CHECK_FALSE(reparentNodes(map, {{groupNode, {outerGroupNode}}}));
       }
     }
 
     SECTION("Update linked groups after recursive deletion")
     {
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
-      map.addNodes({{map.parentForNodes(), {outerGroupNode}}});
+      addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
       map.openGroup(outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
-      map.addNodes({{map.parentForNodes(), {outerEntityNode, innerGroupNode}}});
+      addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
       map.openGroup(innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {innerEntityNode}}});
+      addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
 
       map.closeGroup();
       map.closeGroup();
@@ -667,7 +668,7 @@ TEST_CASE("Map_Nodes")
 
       map.deselectAll();
 
-      map.reparentNodes({{map.parentForNodes(), {innerEntityNode}}});
+      reparentNodes(map, {{parentForNodes(map), {innerEntityNode}}});
       CHECK(outerGroupNode->children() == std::vector<Node*>{outerEntityNode});
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
@@ -685,7 +686,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Linked group update fails")
     {
       auto* groupNode = new GroupNode{Group{"group"}};
-      map.addNodes({{map.parentForNodes(), {groupNode}}});
+      addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
       auto* linkedGroupNode = map.createLinkedDuplicate();
@@ -698,9 +699,9 @@ TEST_CASE("Map_Nodes")
       map.deselectAll();
 
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
-      CHECK_FALSE(map.reparentNodes({{groupNode, {brushNode}}}));
+      CHECK_FALSE(reparentNodes(map, {{groupNode, {brushNode}}}));
 
       CHECK(groupNode->childCount() == 0u);
       CHECK(linkedGroupNode->childCount() == 0u);
@@ -712,13 +713,13 @@ TEST_CASE("Map_Nodes")
       auto* brushNode = createBrushNode(map);
       groupNode->addChild(brushNode);
 
-      map.addNodes({{map.parentForNodes(), {groupNode}}});
+      addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
       auto* linkedGroupNode = map.createLinkedDuplicate();
       map.deselectAll();
 
-      CHECK_FALSE(map.reparentNodes({{linkedGroupNode, {brushNode}}}));
+      CHECK_FALSE(reparentNodes(map, {{linkedGroupNode, {brushNode}}}));
 
       CHECK(groupNode->childCount() == 1u);
       CHECK(linkedGroupNode->childCount() == 1u);
@@ -730,9 +731,9 @@ TEST_CASE("Map_Nodes")
     SECTION("Remove layer")
     {
       auto* layer = new LayerNode{Layer{"Layer 1"}};
-      map.addNodes({{map.world(), {layer}}});
+      addNodes(map, {{map.world(), {layer}}});
 
-      map.removeNodes({layer});
+      removeNodes(map, {layer});
       CHECK(layer->parent() == nullptr);
 
       map.undoCommand();
@@ -742,14 +743,14 @@ TEST_CASE("Map_Nodes")
     SECTION("Remove empty group")
     {
       auto* group = new GroupNode{Group{"group"}};
-      map.addNodes({{map.parentForNodes(), {group}}});
+      addNodes(map, {{parentForNodes(map), {group}}});
 
       map.openGroup(group);
 
       auto* brush = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brush}}});
+      addNodes(map, {{parentForNodes(map), {brush}}});
 
-      map.removeNodes({brush});
+      removeNodes(map, {brush});
       CHECK(map.currentGroup() == nullptr);
       CHECK(brush->parent() == nullptr);
       CHECK(group->parent() == nullptr);
@@ -763,19 +764,19 @@ TEST_CASE("Map_Nodes")
     SECTION("Recursively remove empty groups")
     {
       auto* outer = new GroupNode{Group{"outer"}};
-      map.addNodes({{map.parentForNodes(), {outer}}});
+      addNodes(map, {{parentForNodes(map), {outer}}});
 
       map.openGroup(outer);
 
       auto* inner = new GroupNode{Group{"inner"}};
-      map.addNodes({{map.parentForNodes(), {inner}}});
+      addNodes(map, {{parentForNodes(map), {inner}}});
 
       map.openGroup(inner);
 
       auto* brush = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brush}}});
+      addNodes(map, {{parentForNodes(map), {brush}}});
 
-      map.removeNodes({brush});
+      removeNodes(map, {brush});
       CHECK(map.currentGroup() == nullptr);
       CHECK(brush->parent() == nullptr);
       CHECK(inner->parent() == nullptr);
@@ -791,15 +792,15 @@ TEST_CASE("Map_Nodes")
     SECTION("Remove empty brush entitiy")
     {
       auto* layer = new LayerNode{Layer{"Layer 1"}};
-      map.addNodes({{map.world(), {layer}}});
+      addNodes(map, {{map.world(), {layer}}});
 
       auto* entity = new EntityNode{Entity{}};
-      map.addNodes({{layer, {entity}}});
+      addNodes(map, {{layer, {entity}}});
 
       auto* brush = createBrushNode(map);
-      map.addNodes({{entity, {brush}}});
+      addNodes(map, {{entity, {brush}}});
 
-      map.removeNodes({brush});
+      removeNodes(map, {brush});
       CHECK(brush->parent() == nullptr);
       CHECK(entity->parent() == nullptr);
 
@@ -821,13 +822,13 @@ TEST_CASE("Map_Nodes")
 
       auto* nodeToRemove = createNode(map);
       groupNode->addChildren({brushNode, nodeToRemove});
-      map.addNodes({{map.parentForNodes(), {groupNode}}});
+      addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
       auto* linkedGroupNode = map.createLinkedDuplicate();
       map.deselectAll();
 
-      map.removeNodes({nodeToRemove});
+      removeNodes(map, {nodeToRemove});
 
       CHECK(linkedGroupNode->childCount() == 1u);
 
@@ -840,18 +841,18 @@ TEST_CASE("Map_Nodes")
     SECTION("Update linked groups with recursion")
     {
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
-      map.addNodes({{map.parentForNodes(), {outerGroupNode}}});
+      addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
       map.openGroup(outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
-      map.addNodes({{map.parentForNodes(), {outerEntityNode, innerGroupNode}}});
+      addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
       map.openGroup(innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
-      map.addNodes({{map.parentForNodes(), {innerEntityNode}}});
+      addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
 
       map.closeGroup();
       map.closeGroup();
@@ -866,7 +867,7 @@ TEST_CASE("Map_Nodes")
         == std::vector<Node*>{outerEntityNode, innerGroupNode});
       REQUIRE_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
-      map.removeNodes({innerEntityNode});
+      removeNodes(map, {innerEntityNode});
       REQUIRE(outerGroupNode->children() == std::vector<Node*>{outerEntityNode});
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
@@ -887,7 +888,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Update brushes")
     {
       auto* brushNode = createBrushNode(map);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       const auto originalBrush = brushNode->brush();
       auto modifiedBrush = originalBrush;
@@ -909,7 +910,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Update patches")
     {
       auto* patchNode = createPatchNode();
-      map.addNodes({{map.parentForNodes(), {patchNode}}});
+      addNodes(map, {{parentForNodes(map), {patchNode}}});
 
       const auto originalPatch = patchNode->patch();
       auto modifiedPatch = originalPatch;
@@ -935,7 +936,7 @@ TEST_CASE("Map_Nodes")
       REQUIRE(material != nullptr);
 
       auto* brushNode = createBrushNode(map, MaterialName);
-      map.addNodes({{map.parentForNodes(), {brushNode}}});
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       const auto& originalBrush = brushNode->brush();
       auto modifiedBrush = originalBrush;
@@ -964,7 +965,7 @@ TEST_CASE("Map_Nodes")
         {EntityPropertyKeys::Classname, Classname},
       }}};
 
-      map.addNodes({{map.parentForNodes(), {entityNode}}});
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       const auto& originalEntity = entityNode->entity();
       auto modifiedEntity = originalEntity;
@@ -987,7 +988,7 @@ TEST_CASE("Map_Nodes")
       auto* groupNode = new GroupNode{Group{"group"}};
       auto* brushNode = createBrushNode(map);
       groupNode->addChild(brushNode);
-      map.addNodes({{map.parentForNodes(), {groupNode}}});
+      addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
       auto* linkedGroupNode = map.createLinkedDuplicate();
@@ -1032,7 +1033,7 @@ TEST_CASE("Map_Nodes")
       auto* groupNode = new GroupNode{Group{"group"}};
       auto* brushNode = createBrushNode(map);
       groupNode->addChild(brushNode);
-      map.addNodes({{map.parentForNodes(), {groupNode}}});
+      addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
       auto* linkedGroupNode = map.createLinkedDuplicate();

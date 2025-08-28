@@ -30,6 +30,7 @@
 #include "mdl/Game.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PickResult.h"
@@ -96,7 +97,7 @@ TEST_CASE("ExtrudeTool")
     auto* brushNode1 =
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
-    map.addNodes({{map.currentLayer(), {brushNode1}}});
+    addNodes(map, {{map.currentLayer(), {brushNode1}}});
     map.selectNodes({brushNode1});
 
     SECTION("Pick ray hits brush directly")
@@ -153,7 +154,7 @@ TEST_CASE("ExtrudeTool")
     auto* brushNode1 =
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
-    map.addNodes({{map.currentLayer(), {brushNode1}}});
+    addNodes(map, {{map.currentLayer(), {brushNode1}}});
     map.selectNodes({brushNode1});
 
     SECTION("Pick ray hits brush directly")

@@ -27,6 +27,7 @@
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -47,7 +48,7 @@ TEST_CASE("Map_NodeLocking")
     SECTION("Layer nodes")
     {
       auto* layerNode = new LayerNode{Layer{"layer"}};
-      map.addNodes({{map.world(), {layerNode}}});
+      addNodes(map, {{map.world(), {layerNode}}});
 
       REQUIRE_FALSE(layerNode->locked());
 
@@ -66,8 +67,9 @@ TEST_CASE("Map_NodeLocking")
 
       auto* entityNodeInGroup = new EntityNode{Entity{}};
 
-      map.addNodes(
-        {{map.parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
+      addNodes(
+        map,
+        {{parentForNodes(map), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
       map.deselectAll();
       map.selectNodes({entityNodeInGroup});
 
@@ -100,8 +102,9 @@ TEST_CASE("Map_NodeLocking")
 
       auto* entityNodeInGroup = new EntityNode{Entity{}};
 
-      map.addNodes(
-        {{map.parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
+      addNodes(
+        map,
+        {{parentForNodes(map), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
       map.deselectAll();
       map.selectNodes({entityNodeInGroup});
 
@@ -109,7 +112,7 @@ TEST_CASE("Map_NodeLocking")
       map.deselectAll();
 
       auto* layerNode = new LayerNode{Layer{"layer"}};
-      map.addNodes({{map.world(), {layerNode}}});
+      addNodes(map, {{map.world(), {layerNode}}});
 
       const auto originalModificationCount = map.modificationCount();
 
@@ -133,11 +136,11 @@ TEST_CASE("Map_NodeLocking")
       auto* unlockedBrushNode = createBrushNode(map);
 
       auto* layerNode = new LayerNode{Layer{"layer"}};
-      map.addNodes({{map.world(), {layerNode}}});
+      addNodes(map, {{map.world(), {layerNode}}});
 
-      map.addNodes({{layerNode, {unlockedBrushNode}}});
-      map.addNodes(
-        {{map.world()->defaultLayer(), {selectedBrushNode, unselectedBrushNode}}});
+      addNodes(map, {{layerNode, {unlockedBrushNode}}});
+      addNodes(
+        map, {{map.world()->defaultLayer(), {selectedBrushNode, unselectedBrushNode}}});
 
       SECTION("Node selection")
       {

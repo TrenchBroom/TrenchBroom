@@ -17,15 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
 #include "MapFixture.h"
 #include "TestFactory.h"
-#include "TestUtils.h"
 #include "mdl/BrushNode.h" // IWYU pragma: keep
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "ui/RotateTool.h"
 
 #include "Catch2.h"
@@ -54,7 +53,7 @@ TEST_CASE("RotateTool")
     auto* entityNode2 = new mdl::EntityNode{std::move(entity2)};
     auto* brushNode = createBrushNode(map);
 
-    map.addNodes({{map.parentForNodes(), {entityNode1, entityNode2, brushNode}}});
+    addNodes(map, {{parentForNodes(map), {entityNode1, entityNode2, brushNode}}});
 
     SECTION("If nothing is selected")
     {

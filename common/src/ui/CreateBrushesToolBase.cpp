@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
 #include "render/BrushRenderer.h"
 #include "render/SelectionBoundsRenderer.h"
@@ -55,7 +56,7 @@ void CreateBrushesToolBase::createBrushes()
 
     auto transaction = mdl::Transaction{m_map, "Create Brush"};
     m_map.deselectAll();
-    auto addedNodes = m_map.addNodes({{m_map.parentForNodes(), nodesToAdd}});
+    auto addedNodes = addNodes(m_map, {{parentForNodes(m_map), nodesToAdd}});
     m_map.selectNodes(addedNodes);
     transaction.commit();
 
