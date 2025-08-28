@@ -49,7 +49,7 @@ TEST_CASE("Map_Nodes")
   auto& map = fixture.map();
   fixture.create();
 
-  map.setEntityDefinitions({
+  map.entityDefinitionManager().setDefinitions({
     {"point_entity",
      Color{},
      "this is a point entity",

@@ -50,7 +50,7 @@ TEST_CASE("Map_Selection")
 
   auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
-  map.setEntityDefinitions({
+  map.entityDefinitionManager().setDefinitions({
     {"brush_entity", Color{}, "this is a brush entity", {}},
   });
 

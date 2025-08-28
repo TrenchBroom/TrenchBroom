@@ -59,6 +59,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
+#include "mdl/Map_Assets.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -1242,12 +1243,12 @@ bool MapFrame::canReloadPortalFile() const
 
 void MapFrame::reloadMaterialCollections()
 {
-  m_document->map().reloadMaterialCollections();
+  mdl::reloadMaterialCollections(m_document->map());
 }
 
 void MapFrame::reloadEntityDefinitions()
 {
-  m_document->map().reloadEntityDefinitions();
+  mdl::reloadEntityDefinitions(m_document->map());
 }
 
 void MapFrame::closeDocument()

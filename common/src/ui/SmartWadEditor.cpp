@@ -27,6 +27,7 @@
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
 #include "ui/BorderLine.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/QtUtils.h"
@@ -227,7 +228,7 @@ void SmartWadEditor::moveSelectedWadsDown()
 
 void SmartWadEditor::reloadWads()
 {
-  map().reloadMaterialCollections();
+  reloadMaterialCollections(map());
 }
 
 bool SmartWadEditor::canRemoveWads() const

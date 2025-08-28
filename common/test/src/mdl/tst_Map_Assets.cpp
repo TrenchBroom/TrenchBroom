@@ -23,6 +23,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/vector_utils.h"
@@ -64,7 +65,7 @@ TEST_CASE("Map_Assets")
     REQUIRE(
       kdl::none_of(faces, [](const auto* face) { return face->material() == nullptr; }));
 
-    CHECK_NOTHROW(map.reloadMaterialCollections());
+    CHECK_NOTHROW(reloadMaterialCollections(map));
 
     REQUIRE(
       kdl::none_of(faces, [](const auto* face) { return face->material() == nullptr; }));

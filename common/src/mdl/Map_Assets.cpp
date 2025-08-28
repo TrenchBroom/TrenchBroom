@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_Assets.h"
+
 #include "Logger.h"
 #include "Map.h"
 #include "io/SimpleParserStatus.h"
@@ -157,37 +159,27 @@ auto makeUnsetEntityModelsVisitor()
 
 } // namespace
 
-EntityDefinitionFileSpec Map::entityDefinitionFile() const
+EntityDefinitionFileSpec entityDefinitionFile(const Map& map)
 {
-  auto* worldNode = world();
-  return worldNode ? game()->extractEntityDefinitionFile(worldNode->entity())
+  const auto* worldNode = map.world();
+  return worldNode ? map.game()->extractEntityDefinitionFile(worldNode->entity())
                    : EntityDefinitionFileSpec{};
 }
 
-std::vector<EntityDefinitionFileSpec> Map::allEntityDefinitionFiles() const
-{
-  return game()->allEntityDefinitionFiles();
-}
-
-void Map::setEntityDefinitionFile(const EntityDefinitionFileSpec& spec)
+void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)
 {
   // to avoid backslashes being misinterpreted as escape sequences
   const auto formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
-  auto entity = world()->entity();
+  auto entity = map.world()->entity();
   entity.addOrUpdateProperty(EntityPropertyKeys::EntityDefinitions, formatted);
-  updateNodeContents(
-    "Set Entity Definitions", {{world(), NodeContents{std::move(entity)}}}, {});
+  map.updateNodeContents(
+    "Set Entity Definitions", {{map.world(), NodeContents{std::move(entity)}}}, {});
 }
 
-void Map::setEntityDefinitions(std::vector<EntityDefinition> definitions)
+std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)
 {
-  entityDefinitionManager().setDefinitions(std::move(definitions));
-}
-
-std::vector<std::filesystem::path> Map::enabledMaterialCollections() const
-{
-  if (auto* worldNode = world())
+  if (const auto* worldNode = map.world())
   {
     if (
       const auto* materialCollectionStr =
@@ -203,28 +195,28 @@ std::vector<std::filesystem::path> Map::enabledMaterialCollections() const
 
     // Otherwise, enable all texture collections
     return kdl::vec_sort_and_remove_duplicates(
-      m_materialManager->collections()
+      map.materialManager().collections()
       | std::views::transform([](const auto& collection) { return collection.path(); })
       | kdl::to_vector);
   }
   return {};
 }
 
-std::vector<std::filesystem::path> Map::disabledMaterialCollections() const
+std::vector<std::filesystem::path> disabledMaterialCollections(const Map& map)
 {
-  if (world())
+  if (map.world())
   {
     auto materialCollections = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-      m_materialManager->collections(),
+      map.materialManager().collections(),
       [](const auto& collection) { return collection.path(); }));
 
-    return kdl::set_difference(materialCollections, enabledMaterialCollections());
+    return kdl::set_difference(materialCollections, enabledMaterialCollections(map));
   }
   return {};
 }
 
-void Map::setEnabledMaterialCollections(
-  const std::vector<std::filesystem::path>& enabledMaterialCollections)
+void setEnabledMaterialCollections(
+  Map& map, const std::vector<std::filesystem::path>& enabledMaterialCollections)
 {
   const auto enabledMaterialCollectionStr = kdl::str_join(
     kdl::vec_transform(
@@ -232,38 +224,37 @@ void Map::setEnabledMaterialCollections(
       [](const auto& path) { return path.string(); }),
     ";");
 
-  auto transaction = Transaction{*this, "Set enabled material collections"};
+  auto transaction = Transaction{map, "Set enabled material collections"};
 
-  const auto pushSelection = PushSelection{*this};
-  deselectAll();
+  const auto pushSelection = PushSelection{map};
+  map.deselectAll();
 
-  const auto success = setEntityProperty(
+  const auto success = map.setEntityProperty(
     EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
   transaction.finish(success);
 }
 
-void Map::reloadMaterialCollections()
+void reloadMaterialCollections(Map& map)
 {
-  const auto nodes = std::vector<Node*>{world()};
+  const auto nodes = std::vector<Node*>{map.world()};
   const auto notifyNodes =
-    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, nodes};
+    NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
   const auto notifyMaterialCollections = NotifyBeforeAndAfter{
-    materialCollectionsWillChangeNotifier, materialCollectionsDidChangeNotifier};
+    map.materialCollectionsWillChangeNotifier, map.materialCollectionsDidChangeNotifier};
 
-  logger().info() << "Reloading material collections";
-  clearMaterials();
+  map.logger().info() << "Reloading material collections";
   // materialCollectionsDidChange will load the collections again
 }
 
-void Map::reloadEntityDefinitions()
+void reloadEntityDefinitions(Map& map)
 {
-  const auto nodes = std::vector<Node*>{m_world.get()};
+  const auto nodes = std::vector<Node*>{map.world()};
   const auto notifyNodes =
-    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, nodes};
+    NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
   const auto notifyEntityDefinitions = NotifyBeforeAndAfter{
-    entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier};
+    map.entityDefinitionsWillChangeNotifier, map.entityDefinitionsDidChangeNotifier};
 
-  logger().info() << "Reloading entity definitions";
+  map.logger().info() << "Reloading entity definitions";
 }
 
 void Map::loadAssets()

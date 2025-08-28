@@ -30,6 +30,7 @@
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
@@ -181,7 +182,8 @@ void EntityDefinitionFileChooser::updateControls()
   m_builtin->setAllowDeselectAll(false);
 
   const auto& map = m_document.map();
-  auto specs = map.allEntityDefinitionFiles();
+  const auto& game = *map.game();
+  auto specs = game.allEntityDefinitionFiles();
   specs = kdl::vec_sort(std::move(specs));
 
   for (const auto& spec : specs)
@@ -195,7 +197,7 @@ void EntityDefinitionFileChooser::updateControls()
     m_builtin->addItem(item);
   }
 
-  const auto spec = map.entityDefinitionFile();
+  const auto spec = entityDefinitionFile(map);
   if (spec.builtin())
   {
     if (const auto index = kdl::index_of(specs, spec))
@@ -228,7 +230,7 @@ void EntityDefinitionFileChooser::updateControls()
     m_externalLabel->setFont(font);
   }
 
-  m_reloadExternal->setEnabled(map.entityDefinitionFile().external());
+  m_reloadExternal->setEnabled(entityDefinitionFile(map).external());
 }
 
 void EntityDefinitionFileChooser::builtinSelectionChanged()
@@ -240,9 +242,9 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
     auto spec = item->data(Qt::UserRole).value<mdl::EntityDefinitionFileSpec>();
 
     auto& map = m_document.map();
-    if (map.entityDefinitionFile() != spec)
+    if (entityDefinitionFile(map) != spec)
     {
-      map.setEntityDefinitionFile(spec);
+      setEntityDefinitionFile(map, spec);
     }
   }
 }
@@ -268,8 +270,7 @@ void EntityDefinitionFileChooser::chooseExternalClicked()
 
 void EntityDefinitionFileChooser::reloadExternalClicked()
 {
-  auto& map = m_document.map();
-  map.reloadEntityDefinitions();
+  reloadEntityDefinitions(m_document.map());
 }
 
 } // namespace tb::ui

@@ -25,7 +25,6 @@
 #include "io/ExportOptions.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/ColorRange.h"
-#include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/NodeContents.h"
 #include "mdl/ResourceId.h"
 #include "mdl/Selection.h"
@@ -518,23 +517,6 @@ private: // validation
 
 public:
   void setIssueHidden(const Issue& issue, bool hidden);
-
-public: // asset management
-  EntityDefinitionFileSpec entityDefinitionFile() const;
-  std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
-  void setEntityDefinitionFile(const EntityDefinitionFileSpec& spec);
-
-  // For testing
-  void setEntityDefinitions(std::vector<EntityDefinition> definitions);
-
-  std::vector<std::filesystem::path> enabledMaterialCollections() const;
-  std::vector<std::filesystem::path> disabledMaterialCollections() const;
-
-  void setEnabledMaterialCollections(
-    const std::vector<std::filesystem::path>& enabledMaterialCollections);
-
-  void reloadMaterialCollections();
-  void reloadEntityDefinitions();
 
 private:
   void loadAssets();

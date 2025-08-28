@@ -25,6 +25,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialCollection.h"
 #include "mdl/MaterialManager.h"
@@ -210,7 +211,7 @@ void MaterialBrowserView::addMaterialToLayout(
 std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
   const auto& map = m_document.map();
-  const auto enabledMaterialCollections = map.enabledMaterialCollections();
+  const auto enabledMaterialCollections = mdl::enabledMaterialCollections(map);
 
   auto result = std::vector<const mdl::MaterialCollection*>{};
   for (const auto& collection : map.materialManager().collections())

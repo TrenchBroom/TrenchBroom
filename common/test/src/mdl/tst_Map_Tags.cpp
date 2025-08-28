@@ -108,7 +108,7 @@ TEST_CASE("Map_Tags")
     }};
   fixture.create({.game = MockGameFixture{std::move(gameConfig)}});
 
-  map.setEntityDefinitions({
+  map.entityDefinitionManager().setDefinitions({
     {"brush_entity", Color{}, "this is a brush entity", {}},
   });
 

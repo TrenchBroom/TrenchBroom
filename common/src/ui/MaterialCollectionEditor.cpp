@@ -27,6 +27,7 @@
 #include "io/PathQt.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
 #include "mdl/Node.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
@@ -65,8 +66,7 @@ void MaterialCollectionEditor::addSelectedMaterialCollections()
 
   enabledCollections = kdl::vec_sort_and_remove_duplicates(std::move(enabledCollections));
 
-  auto& map = m_document.map();
-  map.setEnabledMaterialCollections(enabledCollections);
+  setEnabledMaterialCollections(m_document.map(), enabledCollections);
 }
 
 void MaterialCollectionEditor::removeSelectedMaterialCollections()
@@ -87,14 +87,12 @@ void MaterialCollectionEditor::removeSelectedMaterialCollections()
     enabledCollections = kdl::vec_erase_at(std::move(enabledCollections), index);
   }
 
-  auto& map = m_document.map();
-  map.setEnabledMaterialCollections(enabledCollections);
+  setEnabledMaterialCollections(m_document.map(), enabledCollections);
 }
 
 void MaterialCollectionEditor::reloadMaterialCollections()
 {
-  auto& map = m_document.map();
-  map.reloadMaterialCollections();
+  mdl::reloadMaterialCollections(m_document.map());
 }
 
 void MaterialCollectionEditor::availableMaterialCollectionSelectionChanged()
@@ -327,15 +325,13 @@ void MaterialCollectionEditor::updateEnabledMaterialCollections()
 std::vector<std::filesystem::path> MaterialCollectionEditor::
   availableMaterialCollections() const
 {
-  auto& map = m_document.map();
-  return map.disabledMaterialCollections();
+  return disabledMaterialCollections(m_document.map());
 }
 
 std::vector<std::filesystem::path> MaterialCollectionEditor::enabledMaterialCollections()
   const
 {
-  auto& map = m_document.map();
-  return map.enabledMaterialCollections();
+  return mdl::enabledMaterialCollections(m_document.map());
 }
 
 } // namespace tb::ui

@@ -329,7 +329,7 @@ TEST_CASE("Map_Picking")
 
     SECTION("Brush entity")
     {
-      map.setEntityDefinitions({
+      map.entityDefinitionManager().setDefinitions({
         {"brush_entity", Color{}, "this is a brush entity", {}},
       });
 

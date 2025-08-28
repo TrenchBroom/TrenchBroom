@@ -43,7 +43,7 @@ TEST_CASE("Map_Entities")
   auto& map = fixture.map();
   fixture.create();
 
-  map.setEntityDefinitions({
+  map.entityDefinitionManager().setDefinitions({
     {"point_entity",
      Color{},
      "this is a point entity",
@@ -102,7 +102,7 @@ TEST_CASE("Map_Entities")
       gameConfig.entityConfig.setDefaultProperties = true;
       fixture.create({.game = MockGameFixture{std::move(gameConfig)}});
 
-      map.setEntityDefinitions({
+      map.entityDefinitionManager().setDefinitions({
         EntityDefinition{
           "some_name",
           Color{},
@@ -208,7 +208,7 @@ TEST_CASE("Map_Entities")
       gameConfig.entityConfig.setDefaultProperties = true;
       fixture.create({.game = MockGameFixture{std::move(gameConfig)}});
 
-      map.setEntityDefinitions({
+      map.entityDefinitionManager().setDefinitions({
         EntityDefinition{
           "some_name",
           Color{},
@@ -756,7 +756,7 @@ TEST_CASE("Map_Entities")
 
   SECTION("setDefaultEntityProperties")
   {
-    map.setEntityDefinitions({
+    map.entityDefinitionManager().setDefinitions({
       EntityDefinition{
         "some_name",
         Color{},

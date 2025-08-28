@@ -29,6 +29,7 @@
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/MapDocument.h"
 
@@ -89,7 +90,7 @@ size_t loadEntityDefinitionFile(
         const auto path =
           convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
         const auto spec = mdl::EntityDefinitionFileSpec::external(path);
-        map.setEntityDefinitionFile(spec);
+        setEntityDefinitionFile(map, spec);
         return static_cast<size_t>(i);
       }
     }
