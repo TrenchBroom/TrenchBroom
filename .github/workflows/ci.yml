@@ -1,6 +1,4 @@
-permissions:
-  # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
-  packages: write
+name: CI Builds
 
 on:
   # Run on pushes to tags, the "master" branch, and PR's
@@ -11,16 +9,15 @@ on:
       - master
   pull_request:
 
-name: CI
-
 jobs:
-  # Job key
   ci:
-    # Label displayed in UI
-    name: CI
     runs-on: ${{ matrix.os }}
+
+    permissions:
+      # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
+      packages: write
+
     strategy:
-      # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
@@ -37,7 +34,6 @@ jobs:
     env:
       # Record pull request head commit SHA
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      TB_OS_IMAGE: ${{ matrix.os }}
       # Set up environment variables required for caching vcpkg packages using NuGet
       # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-packages?pivots=windows-runner
       USERNAME: TrenchBroom

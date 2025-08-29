@@ -1,21 +1,19 @@
-name: cpp-linter
-
-permissions:
-  # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
-  packages: write
+name: CPP Linter
 
 on: [pull_request]
 
 jobs:
   cpp-linter:
     runs-on: ubuntu-22.04
+
     permissions:
+      # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
+      packages: write
       pull-requests: write
 
     env:
       # Record pull request head commit SHA
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      TB_OS_IMAGE: ${{ matrix.os }}
       # Set up environment variables required for caching vcpkg packages using NuGet
       # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-packages?pivots=windows-runner
       USERNAME: TrenchBroom
