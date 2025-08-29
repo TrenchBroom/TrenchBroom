@@ -1,3 +1,5 @@
+name: CI Builds
+
 on:
   # Run on pushes to tags, the "master" branch, and PR's
   push:
@@ -7,16 +9,15 @@ on:
       - master
   pull_request:
 
-name: CI
-
 jobs:
-  # Job key
   ci:
-    # Label displayed in UI
-    name: CI
     runs-on: ${{ matrix.os }}
+
+    permissions:
+      # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
+      packages: write
+
     strategy:
-      # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
@@ -33,7 +34,6 @@ jobs:
     env:
       # Record pull request head commit SHA
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      TB_OS_IMAGE: ${{ matrix.os }}
       # Set up environment variables required for caching vcpkg packages using NuGet
       # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-packages?pivots=windows-runner
       USERNAME: TrenchBroom
@@ -87,9 +87,9 @@ jobs:
             -StorePasswordInClearText `
             -Name GitHubPackages `
             -UserName "${{ env.USERNAME }}" `
-            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+            -Password "${{ secrets.GITHUB_TOKEN }}"
           .$(${{ env.VCPKG_EXE }} fetch nuget) `
-            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" `
+            setapikey "${{ secrets.GITHUB_TOKEN }}" `
             -Source "${{ env.FEED_URL }}"
 
       - name: Windows - Build
@@ -127,9 +127,9 @@ jobs:
             -StorePasswordInClearText \
             -Name GitHubPackages \
             -UserName "${{ env.USERNAME }}" \
-            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+            -Password "${{ secrets.GITHUB_TOKEN }}"
           mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
-            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" \
+            setapikey "${{ secrets.GITHUB_TOKEN }}" \
             -Source "${{ env.FEED_URL }}"
 
       - name: Linux - Build
@@ -185,12 +185,12 @@ jobs:
           # this issue can always reoccur when brew updates their python formula
           brew unlink python@3.12
           brew link --overwrite python@3.12
-          brew install cmake p7zip pandoc ninja autoconf automake
+          brew install p7zip pandoc ninja autoconf automake
 
       - name: macOS 14 - Install dependencies
         if: ${{ matrix.os == 'macos-14' }}
         run: |
-          brew install cmake p7zip pandoc ninja autoconf automake
+          brew install p7zip pandoc ninja autoconf automake
 
       - name: macOS 14 - Import signing certificates
         if: ${{ env.TB_SIGN_MAC_BUNDLE == 'true' }}
@@ -209,9 +209,9 @@ jobs:
             -StorePasswordInClearText \
             -Name GitHubPackages \
             -UserName "${{ env.USERNAME }}" \
-            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+            -Password "${{ secrets.GITHUB_TOKEN }}"
           mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
-            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" \
+            setapikey "${{ secrets.GITHUB_TOKEN }}" \
             -Source "${{ env.FEED_URL }}"
 
       - name: macOS - Build
