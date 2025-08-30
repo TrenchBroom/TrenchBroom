@@ -30,10 +30,11 @@
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/string_compare.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
+
+#include <fmt/format.h>
 
 #include <algorithm>
 #include <cassert>
@@ -92,7 +93,7 @@ Result<std::vector<std::filesystem::path>> thinBackups(
 std::filesystem::path makeBackupName(
   const std::filesystem::path& mapBasename, const size_t index)
 {
-  return kdl::path_add_extension(mapBasename, "." + kdl::str_to_string(index) + ".map");
+  return kdl::path_add_extension(mapBasename, fmt::format(".{}.map", index));
 }
 
 Result<void> cleanBackups(
