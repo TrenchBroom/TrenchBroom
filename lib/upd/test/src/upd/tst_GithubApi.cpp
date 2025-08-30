@@ -59,42 +59,43 @@ TEST_CASE("GithubApi")
         bool,
         std::optional<Release<TestVersion>>>;
 
-      const auto& [availableReleases, currentVersion, includePreReleases, expectedRelease] =
-        GENERATE(values<T>({
-          {{}, TestVersion{1}, false, std::nullopt},
-          {{
-             Release<TestVersion>{TestVersion{3}, false, false, "v3", "", {}},
-             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
-             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
-           },
-           TestVersion{2},
-           false,
-           Release<TestVersion>{TestVersion{3}, false, false, "v3", "", {}}},
-          {{
-             Release<TestVersion>{TestVersion{3}, false, true, "v3", "", {}},
-             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
-             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
-           },
-           TestVersion{2},
-           false,
-           std::nullopt},
-          {{
-             Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
-             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
-             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
-           },
-           TestVersion{2},
-           false,
-           std::nullopt},
-          {{
-             Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
-             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
-             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
-           },
-           TestVersion{2},
-           true,
-           Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}}},
-        }));
+      const auto
+        [availableReleases, currentVersion, includePreReleases, expectedRelease] =
+          GENERATE(values<T>({
+            {{}, TestVersion{1}, false, std::nullopt},
+            {{
+               Release<TestVersion>{TestVersion{3}, false, false, "v3", "", {}},
+               Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+               Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+             },
+             TestVersion{2},
+             false,
+             Release<TestVersion>{TestVersion{3}, false, false, "v3", "", {}}},
+            {{
+               Release<TestVersion>{TestVersion{3}, false, true, "v3", "", {}},
+               Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+               Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+             },
+             TestVersion{2},
+             false,
+             std::nullopt},
+            {{
+               Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
+               Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+               Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+             },
+             TestVersion{2},
+             false,
+             std::nullopt},
+            {{
+               Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
+               Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+               Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+             },
+             TestVersion{2},
+             true,
+             Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}}},
+          }));
 
       CAPTURE(availableReleases, currentVersion, includePreReleases);
 
@@ -136,7 +137,7 @@ TEST_CASE("GithubApi")
     {
       using T = std::tuple<QByteArray, QString>;
 
-      const auto& [body, expectedError] = GENERATE(values<T>({
+      const auto [body, expectedError] = GENERATE(values<T>({
         {R"()", "illegal value"},
         {R"([)", "unterminated array"},
         {R"(asdf)", "illegal value"},
@@ -163,7 +164,7 @@ TEST_CASE("GithubApi")
     {
       using T = std::tuple<QByteArray, QList<Release<TestVersion>>>;
 
-      const auto& [body, expectedReleases] = GENERATE(values<T>({
+      const auto [body, expectedReleases] = GENERATE(values<T>({
         {R"([])", {}},
         {
           R"([{

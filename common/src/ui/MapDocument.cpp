@@ -1261,13 +1261,17 @@ std::vector<mdl::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const
 
   result = kdl::vec_sort_and_remove_duplicates(std::move(result));
 
+  if (result.size() == 1)
+  {
+    return result;
+  }
+
   // Don't select worldspawn together with any other entities
-  return result.size() == 1
-           ? result
-           : kdl::vec_filter(std::move(result), [](const auto* entityNode) {
-               return entityNode->entity().classname()
-                      != mdl::EntityPropertyValues::WorldspawnClassname;
-             });
+  return result | std::views::filter([](const auto* entityNode) {
+           return entityNode->entity().classname()
+                  != mdl::EntityPropertyValues::WorldspawnClassname;
+         })
+         | kdl::to_vector;
 }
 
 std::vector<mdl::BrushNode*> MapDocument::allSelectedBrushNodes() const

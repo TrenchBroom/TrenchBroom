@@ -99,7 +99,7 @@ TEST_CASE("parseUpdateVersion")
   using T = std::tuple<QString, std::optional<UpdateVersion>>;
 
   // clang-format off
-  const auto& 
+  const auto 
   [str,           expectedVersion] = GENERATE(values<T>({
   {"",            std::nullopt},
   {"asdf",        std::nullopt},

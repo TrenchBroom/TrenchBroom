@@ -56,7 +56,7 @@ TEST_CASE("QtUtils")
   {
     using T = std::tuple<QLocale, vm::vec3d, QString>;
 
-    const auto& [locale, vec, expectedString] = GENERATE_COPY(values<T>({
+    const auto [locale, vec, expectedString] = GENERATE_COPY(values<T>({
       {en_US, {1.1, 2.2, 3.3}, "1.1 2.2 3.3"},
       {en_US, {1, 2, 3}, "1 2 3"},
       {de_DE, {1.1, 2.2, 3.3}, "1,1 2,2 3,3"},
@@ -74,7 +74,7 @@ TEST_CASE("QtUtils")
   {
     using T = std::tuple<QLocale, QString, std::optional<vm::vec3d>>;
 
-    const auto& [locale, str, expectedVec] = GENERATE_COPY(values<T>({
+    const auto [locale, str, expectedVec] = GENERATE_COPY(values<T>({
       {en_US, "asdf", std::nullopt},
       {en_US, "1.1 2.2 3.3", vm::vec3d{1.1, 2.2, 3.3}},
       {en_US, "1 2 3", vm::vec3d{1, 2, 3}},
