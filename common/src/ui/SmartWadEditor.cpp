@@ -28,6 +28,7 @@
 #include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
+#include "mdl/Map_Entities.h"
 #include "ui/BorderLine.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/QtUtils.h"
@@ -155,7 +156,7 @@ void SmartWadEditor::addWads()
       wadPaths.push_back(convertToPathType(
         pathDialog.pathType(), absWadPath, map().path(), map().game()->gamePath()));
 
-      map().setEntityProperty(propertyKey(), getWadPathStr(wadPaths));
+      setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
       m_wadPaths->setCurrentRow(
         m_wadPaths->count() - 1, QItemSelectionModel::ClearAndSelect);
     }
@@ -181,7 +182,7 @@ void SmartWadEditor::removeSelectedWads()
     wadPaths = kdl::vec_erase_at(std::move(wadPaths), index);
   }
 
-  map().setEntityProperty(propertyKey(), getWadPathStr(wadPaths));
+  setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
   m_wadPaths->setCurrentRow(
     std::min(int(indicesToRemove.back()), m_wadPaths->count() - 1),
     QItemSelectionModel::ClearAndSelect);
@@ -202,7 +203,7 @@ void SmartWadEditor::moveSelectedWadsUp()
     using std::swap;
     swap(wadPaths[index], wadPaths[index - 1]);
 
-    map().setEntityProperty(propertyKey(), getWadPathStr(wadPaths));
+    setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
     m_wadPaths->setCurrentRow(int(index) - 1, QItemSelectionModel::ClearAndSelect);
   }
 }
@@ -221,7 +222,7 @@ void SmartWadEditor::moveSelectedWadsDown()
     using std::swap;
     swap(wadPaths[index], wadPaths[index + 1]);
 
-    map().setEntityProperty(propertyKey(), getWadPathStr(wadPaths));
+    setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
     m_wadPaths->setCurrentRow(int(index) + 1, QItemSelectionModel::ClearAndSelect);
   }
 }

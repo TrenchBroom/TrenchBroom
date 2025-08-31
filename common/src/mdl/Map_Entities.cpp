@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_Entities.h"
+
 #include "Ensure.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/Entity.h"
@@ -80,8 +82,8 @@ std::optional<std::string> findUnprotectedPropertyValue(
 
 } // namespace
 
-EntityNode* Map::createPointEntity(
-  const EntityDefinition& definition, const vm::vec3d& delta)
+EntityNode* createPointEntity(
+  Map& map, const EntityDefinition& definition, const vm::vec3d& delta)
 {
   ensure(
     getType(definition) == EntityDefinitionType::Point,
@@ -89,22 +91,22 @@ EntityNode* Map::createPointEntity(
 
   auto entity = Entity{{{EntityPropertyKeys::Classname, definition.name}}};
 
-  if (world()->entityPropertyConfig().setDefaultProperties)
+  if (map.world()->entityPropertyConfig().setDefaultProperties)
   {
     mdl::setDefaultProperties(definition, entity, SetDefaultPropertyMode::SetAll);
   }
 
   auto* entityNode = new EntityNode{std::move(entity)};
 
-  auto transaction = Transaction{*this, "Create " + definition.name};
-  deselectAll();
-  if (addNodes(*this, {{parentForNodes(*this), {entityNode}}}).empty())
+  auto transaction = Transaction{map, "Create " + definition.name};
+  map.deselectAll();
+  if (addNodes(map, {{parentForNodes(map), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;
   }
-  selectNodes({entityNode});
-  if (!transformSelection("Translate Objects", vm::translation_matrix(delta)))
+  map.selectNodes({entityNode});
+  if (!map.transformSelection("Translate Objects", vm::translation_matrix(delta)))
   {
     transaction.cancel();
     return nullptr;
@@ -118,19 +120,19 @@ EntityNode* Map::createPointEntity(
   return entityNode;
 }
 
-EntityNode* Map::createBrushEntity(const EntityDefinition& definition)
+EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
 {
   ensure(
     getType(definition) == EntityDefinitionType::Brush,
     "definition is a brush entity definition");
 
-  const auto brushes = selection().brushes;
+  const auto brushes = map.selection().brushes;
   assert(!brushes.empty());
 
   // if all brushes belong to the same entity, and that entity is not worldspawn, copy
   // its properties
   auto entity =
-    (brushes.front()->entity() != world()
+    (brushes.front()->entity() != map.world()
      && std::all_of(
        std::next(brushes.begin()),
        brushes.end(),
@@ -140,7 +142,7 @@ EntityNode* Map::createBrushEntity(const EntityDefinition& definition)
 
   entity.addOrUpdateProperty(EntityPropertyKeys::Classname, definition.name);
 
-  if (world()->entityPropertyConfig().setDefaultProperties)
+  if (map.world()->entityPropertyConfig().setDefaultProperties)
   {
     mdl::setDefaultProperties(definition, entity, SetDefaultPropertyMode::SetAll);
   }
@@ -149,19 +151,19 @@ EntityNode* Map::createBrushEntity(const EntityDefinition& definition)
 
   const auto nodes = kdl::vec_static_cast<Node*>(brushes);
 
-  auto transaction = Transaction{*this, "Create " + definition.name};
-  deselectAll();
-  if (addNodes(*this, {{parentForNodes(*this), {entityNode}}}).empty())
+  auto transaction = Transaction{map, "Create " + definition.name};
+  map.deselectAll();
+  if (addNodes(map, {{parentForNodes(map), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;
   }
-  if (!reparentNodes(*this, {{entityNode, nodes}}))
+  if (!reparentNodes(map, {{entityNode, nodes}}))
   {
     transaction.cancel();
     return nullptr;
   }
-  selectNodes(nodes);
+  map.selectNodes(nodes);
 
   if (!transaction.commit())
   {
@@ -171,12 +173,15 @@ EntityNode* Map::createBrushEntity(const EntityDefinition& definition)
   return entityNode;
 }
 
-bool Map::setEntityProperty(
-  const std::string& key, const std::string& value, const bool defaultToProtected)
+bool setEntityProperty(
+  Map& map,
+  const std::string& key,
+  const std::string& value,
+  const bool defaultToProtected)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
   return applyAndSwap(
-    *this,
+    map,
     "Set Property",
     entityNodes,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)),
@@ -191,11 +196,11 @@ bool Map::setEntityProperty(
       [](BezierPatch&) { return true; }));
 }
 
-bool Map::renameEntityProperty(const std::string& oldKey, const std::string& newKey)
+bool renameEntityProperty(Map& map, const std::string& oldKey, const std::string& newKey)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
   return applyAndSwap(
-    *this,
+    map,
     "Rename Property",
     entityNodes,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)),
@@ -210,11 +215,11 @@ bool Map::renameEntityProperty(const std::string& oldKey, const std::string& new
       [](BezierPatch&) { return true; }));
 }
 
-bool Map::removeEntityProperty(const std::string& key)
+bool removeEntityProperty(Map& map, const std::string& key)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
   return applyAndSwap(
-    *this,
+    map,
     "Remove Property",
     entityNodes,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)),
@@ -229,11 +234,11 @@ bool Map::removeEntityProperty(const std::string& key)
       [](BezierPatch&) { return true; }));
 }
 
-bool Map::convertEntityColorRange(const std::string& key, ColorRange::Type range)
+bool convertEntityColorRange(Map& map, const std::string& key, ColorRange::Type range)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
   return applyAndSwap(
-    *this,
+    map,
     "Convert Color",
     entityNodes,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)),
@@ -251,12 +256,12 @@ bool Map::convertEntityColorRange(const std::string& key, ColorRange::Type range
       [](BezierPatch&) { return true; }));
 }
 
-bool Map::updateEntitySpawnflag(
-  const std::string& key, const size_t flagIndex, const bool setFlag)
+bool updateEntitySpawnflag(
+  Map& map, const std::string& key, const size_t flagIndex, const bool setFlag)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
   return applyAndSwap(
-    *this,
+    map,
     setFlag ? "Set Spawnflag" : "Unset Spawnflag",
     entityNodes,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)),
@@ -277,9 +282,9 @@ bool Map::updateEntitySpawnflag(
       [](BezierPatch&) { return true; }));
 }
 
-bool Map::setProtectedEntityProperty(const std::string& key, const bool value)
+bool setProtectedEntityProperty(Map& map, const std::string& key, const bool value)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
 
   auto nodesToUpdate = std::vector<std::pair<Node*, NodeContents>>{};
   for (auto* entityNode : entityNodes)
@@ -294,7 +299,7 @@ bool Map::setProtectedEntityProperty(const std::string& key, const bool value)
     {
       if (
         const auto newValue =
-          findUnprotectedPropertyValue(key, *entityNode, *m_world.get()))
+          findUnprotectedPropertyValue(key, *entityNode, *map.world()))
       {
         entity.addOrUpdateProperty(key, *newValue);
       }
@@ -305,15 +310,15 @@ bool Map::setProtectedEntityProperty(const std::string& key, const bool value)
     nodesToUpdate.emplace_back(entityNode, std::move(entity));
   }
 
-  return updateNodeContents(
+  return map.updateNodeContents(
     "Set Protected Property",
     nodesToUpdate,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)));
 }
 
-bool Map::clearProtectedEntityProperties()
+bool clearProtectedEntityProperties(Map& map)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
 
   auto nodesToUpdate = std::vector<std::pair<Node*, NodeContents>>{};
   for (auto* entityNode : entityNodes)
@@ -323,7 +328,7 @@ bool Map::clearProtectedEntityProperties()
       continue;
     }
 
-    const auto linkedEntities = collectLinkedNodes({m_world.get()}, *entityNode);
+    const auto linkedEntities = collectLinkedNodes({map.world()}, *entityNode);
     if (linkedEntities.size() <= 1)
     {
       continue;
@@ -342,30 +347,30 @@ bool Map::clearProtectedEntityProperties()
     nodesToUpdate.emplace_back(entityNode, std::move(entity));
   }
 
-  return updateNodeContents(
+  return map.updateNodeContents(
     "Clear Protected Properties",
     nodesToUpdate,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)));
 }
 
-bool Map::canClearProtectedEntityProperties() const
+bool canClearProtectedEntityProperties(const Map& map)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
   if (
     entityNodes.empty()
-    || (entityNodes.size() == 1u && entityNodes.front() == m_world.get()))
+    || (entityNodes.size() == 1u && entityNodes.front() == map.world()))
   {
     return false;
   }
 
-  return canUpdateLinkedGroups(kdl::vec_static_cast<Node*>(entityNodes));
+  return map.canUpdateLinkedGroups(kdl::vec_static_cast<Node*>(entityNodes));
 }
 
-void Map::setDefaultEntityProperties(const SetDefaultPropertyMode mode)
+void setDefaultEntityProperties(Map& map, const SetDefaultPropertyMode mode)
 {
-  const auto entityNodes = selection().allEntities();
+  const auto entityNodes = map.selection().allEntities();
   applyAndSwap(
-    *this,
+    map,
     "Reset Default Properties",
     entityNodes,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)),

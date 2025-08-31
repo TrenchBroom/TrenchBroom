@@ -27,6 +27,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
@@ -349,7 +350,7 @@ TEST_CASE("Map_Picking")
 
       map.selectAllNodes();
 
-      map.createBrushEntity(brushEntityDefinition);
+      createBrushEntity(map, brushEntityDefinition);
       map.deselectAll();
 
       auto pickResult = mdl::PickResult{};

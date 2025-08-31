@@ -47,6 +47,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -684,13 +685,13 @@ void MapViewBase::createPointEntity(const mdl::EntityDefinition& definition)
 
   auto& map = m_document.map();
   const auto delta = computePointEntityPosition(definition.pointEntityDefinition->bounds);
-  map.createPointEntity(definition, delta);
+  mdl::createPointEntity(map, definition, delta);
 }
 
 void MapViewBase::createBrushEntity(const mdl::EntityDefinition& definition)
 {
   auto& map = m_document.map();
-  map.createBrushEntity(definition);
+  mdl::createBrushEntity(map, definition);
 }
 
 bool MapViewBase::canCreateBrushEntity()

@@ -28,6 +28,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
@@ -299,7 +300,7 @@ TEST_CASE("Map_Tags")
       CHECK_FALSE(brushNode->hasTag(tag));
 
       map.selectNodes({lightEntityNode});
-      map.setEntityProperty("classname", "brush_entity");
+      setEntityProperty(map, "classname", "brush_entity");
       map.deselectAll();
 
       CHECK(brushNode->hasTag(tag));

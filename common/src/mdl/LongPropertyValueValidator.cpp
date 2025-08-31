@@ -24,6 +24,7 @@
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/PushSelection.h"
 
 #include <string>
@@ -50,7 +51,7 @@ IssueQuickFix makeTruncatePropertyValueQuickFix(const size_t maxLength)
 
             map.deselectAll();
             map.selectNodes({&issue.node()});
-            map.setEntityProperty(propertyName, propertyValue.substr(0, maxLength));
+            setEntityProperty(map, propertyName, propertyValue.substr(0, maxLength));
           }};
 }
 } // namespace

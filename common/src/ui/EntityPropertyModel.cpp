@@ -36,6 +36,7 @@
 #include "mdl/EntityNodeIndex.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
@@ -1074,7 +1075,7 @@ bool EntityPropertyModel::renameProperty(
     }
   }
 
-  return map.renameEntityProperty(oldKey, newKey);
+  return renameEntityProperty(map, oldKey, newKey);
 }
 
 bool EntityPropertyModel::updateProperty(
@@ -1111,7 +1112,7 @@ bool EntityPropertyModel::updateProperty(
   }
 
   auto& map = m_document.map();
-  return map.setEntityProperty(key, newValue);
+  return setEntityProperty(map, key, newValue);
 }
 
 bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool newValue)
@@ -1120,7 +1121,7 @@ bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool
 
   const auto& key = m_rows.at(rowIndex).key();
   auto& map = m_document.map();
-  return map.setProtectedEntityProperty(key, newValue);
+  return setProtectedEntityProperty(map, key, newValue);
 }
 
 bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const

@@ -28,6 +28,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -165,7 +166,7 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{map.world(), {layerNode2}}});
 
       map.setCurrentLayer(layerNode1);
-      auto* entityNode = map.createPointEntity(pointEntityDefinition, {0, 0, 0});
+      auto* entityNode = createPointEntity(map, pointEntityDefinition, {0, 0, 0});
       CHECK(entityNode->parent() == layerNode1);
       CHECK(layerNode1->childCount() == 1);
 

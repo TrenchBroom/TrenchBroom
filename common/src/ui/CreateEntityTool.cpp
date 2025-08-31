@@ -29,6 +29,7 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
@@ -60,7 +61,7 @@ bool CreateEntityTool::createEntity(const std::string& classname)
 
   m_map.startTransaction(
     "Create '" + definition->name + "'", mdl::TransactionScope::LongRunning);
-  m_entity = m_map.createPointEntity(*definition, {0, 0, 0});
+  m_entity = createPointEntity(m_map, *definition, {0, 0, 0});
 
   return m_entity != nullptr;
 }

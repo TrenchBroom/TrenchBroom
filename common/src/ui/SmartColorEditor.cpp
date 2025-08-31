@@ -33,6 +33,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/ColorButton.h"
@@ -217,17 +218,17 @@ void SmartColorEditor::setColor(const QColor& color)
   const auto colorRange =
     m_floatRadio->isChecked() ? mdl::ColorRange::Float : mdl::ColorRange::Byte;
   const auto value = mdl::entityColorAsString(fromQColor(color), colorRange);
-  map().setEntityProperty(propertyKey(), value);
+  setEntityProperty(map(), propertyKey(), value);
 }
 
 void SmartColorEditor::floatRangeRadioButtonClicked()
 {
-  map().convertEntityColorRange(propertyKey(), mdl::ColorRange::Float);
+  convertEntityColorRange(map(), propertyKey(), mdl::ColorRange::Float);
 }
 
 void SmartColorEditor::byteRangeRadioButtonClicked()
 {
-  map().convertEntityColorRange(propertyKey(), mdl::ColorRange::Byte);
+  convertEntityColorRange(map(), propertyKey(), mdl::ColorRange::Byte);
 }
 
 void SmartColorEditor::colorPickerChanged(const QColor& color)

@@ -24,7 +24,6 @@
 #include "Result.h"
 #include "io/ExportOptions.h"
 #include "mdl/BrushFaceHandle.h"
-#include "mdl/ColorRange.h"
 #include "mdl/NodeContents.h"
 #include "mdl/ResourceId.h"
 #include "mdl/Selection.h"
@@ -406,25 +405,6 @@ public: // group management
 
 private:
   bool updateLinkedGroups();
-
-public: // entity management
-  EntityNode* createPointEntity(
-    const EntityDefinition& definition, const vm::vec3d& delta);
-  EntityNode* createBrushEntity(const EntityDefinition& definition);
-
-  bool setEntityProperty(
-    const std::string& key, const std::string& value, bool defaultToProtected = false);
-  bool renameEntityProperty(const std::string& oldKey, const std::string& newKey);
-  bool removeEntityProperty(const std::string& key);
-
-  bool convertEntityColorRange(const std::string& key, ColorRange::Type range);
-  bool updateEntitySpawnflag(const std::string& key, size_t flagIndex, bool setFlag);
-
-  bool setProtectedEntityProperty(const std::string& key, bool value);
-  bool clearProtectedEntityProperties();
-  bool canClearProtectedEntityProperties() const;
-
-  void setDefaultEntityProperties(SetDefaultPropertyMode mode);
 
 public: // geometry
   bool transformSelection(

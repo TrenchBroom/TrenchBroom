@@ -31,6 +31,7 @@
 #include "mdl/Game.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PushSelection.h"
@@ -229,8 +230,8 @@ void setEnabledMaterialCollections(
   const auto pushSelection = PushSelection{map};
   map.deselectAll();
 
-  const auto success = map.setEntityProperty(
-    EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
+  const auto success = setEntityProperty(
+    map, EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
   transaction.finish(success);
 }
 

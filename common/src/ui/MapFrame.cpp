@@ -62,6 +62,7 @@
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_CopyPaste.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -2513,7 +2514,7 @@ void MapFrame::dropEvent(QDropEvent* event)
       kdl::vec_concat(std::move(wadPaths), std::move(wadPathsToAdd)),
       [](const auto& path) { return path.string(); }),
     ";");
-  map.setEntityProperty(*wadPropertyKey, newWadPathsStr);
+  setEntityProperty(map, *wadPropertyKey, newWadPathsStr);
 
   event->acceptProposedAction();
 }

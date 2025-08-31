@@ -689,6 +689,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/Map_Assets.h
         ${COMMON_SOURCE_DIR}/mdl/Map_Brushes.h
         ${COMMON_SOURCE_DIR}/mdl/Map_CopyPaste.h
+        ${COMMON_SOURCE_DIR}/mdl/Map_Entities.h
         ${COMMON_SOURCE_DIR}/mdl/Map_Nodes.h
         ${COMMON_SOURCE_DIR}/mdl/Map.h
         ${COMMON_SOURCE_DIR}/mdl/MapFormat.h

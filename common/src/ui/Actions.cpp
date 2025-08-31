@@ -30,6 +30,7 @@
 #include "mdl/EntityProperties.h"
 #include "mdl/Grid.h" // IWYU pragma: keep
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Tag.h"
 #include "ui/Inspector.h"
 #include "ui/MapDocument.h"
@@ -1441,9 +1442,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Clear Protected Properties"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.map().clearProtectedEntityProperties(); },
+    [](auto& context) { clearProtectedEntityProperties(context.map()); },
     [](const auto& context) {
-      return context.hasDocument() && context.map().canClearProtectedEntityProperties();
+      return context.hasDocument() && canClearProtectedEntityProperties(context.map());
     },
   }));
   editMenu.addSeparator();

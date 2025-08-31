@@ -27,6 +27,7 @@
 
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
@@ -51,14 +52,14 @@ void SmartChoiceEditor::comboBoxActivated(const int /* index */)
   const auto valueDescStr =
     mapStringFromUnicode(map().encoding(), m_comboBox->currentText());
   const auto valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
-  map().setEntityProperty(propertyKey(), valueStr);
+  setEntityProperty(map(), propertyKey(), valueStr);
 }
 
 void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text)
 {
   if (!m_ignoreEditTextChanged)
   {
-    map().setEntityProperty(propertyKey(), mapStringFromUnicode(map().encoding(), text));
+    setEntityProperty(map(), propertyKey(), mapStringFromUnicode(map().encoding(), text));
   }
 }
 

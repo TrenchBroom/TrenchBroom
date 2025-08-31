@@ -21,6 +21,7 @@
 
 #include "mdl/Issue.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PushSelection.h"
 
@@ -85,7 +86,7 @@ IssueQuickFix makeRemoveEntityPropertiesQuickFix(const IssueType type)
 
             map.deselectAll();
             map.selectNodes({&issue.node()});
-            map.removeEntityProperty(entityPropertyIssue.propertyKey());
+            removeEntityProperty(map, entityPropertyIssue.propertyKey());
           }};
 }
 
@@ -113,17 +114,17 @@ IssueQuickFix makeTransformEntityPropertiesQuickFix(
 
             if (newKey.empty())
             {
-              map.removeEntityProperty(propIssue.propertyKey());
+              removeEntityProperty(map, propIssue.propertyKey());
             }
             else
             {
               if (newKey != oldkey)
               {
-                map.renameEntityProperty(oldkey, newKey);
+                renameEntityProperty(map, oldkey, newKey);
               }
               if (newValue != oldValue)
               {
-                map.setEntityProperty(newKey, newValue);
+                setEntityProperty(map, newKey, newValue);
               }
             }
           }};

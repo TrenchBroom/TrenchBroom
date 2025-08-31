@@ -28,6 +28,7 @@
 #include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
@@ -467,7 +468,7 @@ void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) c
   }
 
   assert(definition != nullptr);
-  map.createBrushEntity(*definition);
+  createBrushEntity(map, *definition);
 
   if (!m_material.empty())
   {

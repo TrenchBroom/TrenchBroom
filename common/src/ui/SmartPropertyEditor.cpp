@@ -20,6 +20,7 @@
 #include "SmartPropertyEditor.h"
 
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "ui/MapDocument.h"
 
 #include <vector>
@@ -77,7 +78,7 @@ const std::vector<mdl::EntityNodeBase*> SmartPropertyEditor::nodes() const
 void SmartPropertyEditor::addOrUpdateProperty(const std::string& value)
 {
   assert(m_active);
-  map().setEntityProperty(m_propertyKey, value);
+  setEntityProperty(map(), m_propertyKey, value);
 }
 
 } // namespace tb::ui

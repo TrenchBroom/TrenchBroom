@@ -35,6 +35,7 @@
 #include "Macros.h"
 #include "mdl/EntityNodeBase.h" // IWYU pragma: keep
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
 #include "ui/BorderLine.h"
@@ -115,7 +116,7 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
   auto& map = m_document.map();
   const auto newPropertyKey = newPropertyKeyForEntityNodes(map.selection().allEntities());
 
-  if (!map.setEntityProperty(newPropertyKey, "", defaultToProtected))
+  if (!setEntityProperty(map, newPropertyKey, "", defaultToProtected))
   {
     // Setting a property can fail if a linked group update would be inconsistent
     return;
@@ -155,7 +156,7 @@ void EntityPropertyGrid::removeSelectedProperties()
 
   for (const auto& propertyKey : propertyKeys)
   {
-    if (!map.removeEntityProperty(propertyKey))
+    if (!removeEntityProperty(map, propertyKey))
     {
       transaction.cancel();
       return;
@@ -282,13 +283,14 @@ void EntityPropertyGrid::createGui(MapDocument& document)
 
   auto* setDefaultPropertiesMenu = new QMenu{this};
   setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [&]() {
-    m_document.map().setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetExisting);
+    setDefaultEntityProperties(
+      m_document.map(), mdl::SetDefaultPropertyMode::SetExisting);
   });
   setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [&]() {
-    m_document.map().setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetMissing);
+    setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
   });
   setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
-    m_document.map().setDefaultEntityProperties(mdl::SetDefaultPropertyMode::SetMissing);
+    setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
   });
 
   m_setDefaultPropertiesButton =

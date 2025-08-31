@@ -31,6 +31,7 @@
 #include "mdl/IssueQuickFix.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -72,10 +73,10 @@ TEST_CASE("Validation")
 
   SECTION("EmptyPropertyKeyValidator")
   {
-    auto* entityNode = map.createPointEntity(pointEntityDefinition, vm::vec3d{0, 0, 0});
+    auto* entityNode = createPointEntity(map, pointEntityDefinition, vm::vec3d{0, 0, 0});
 
     map.selectNodes({entityNode});
-    map.setEntityProperty("", "");
+    setEntityProperty(map, "", "");
     REQUIRE(entityNode->entity().hasProperty(""));
 
     auto emptyPropertyKeyValidator = std::make_unique<EmptyPropertyKeyValidator>();
@@ -123,10 +124,10 @@ TEST_CASE("Validation")
 
   SECTION("EmptyPropertyValueValidator")
   {
-    auto* entityNode = map.createPointEntity(pointEntityDefinition, vm::vec3d{0, 0, 0});
+    auto* entityNode = createPointEntity(map, pointEntityDefinition, vm::vec3d{0, 0, 0});
 
     map.selectNodes({entityNode});
-    map.setEntityProperty("", "");
+    setEntityProperty(map, "", "");
     REQUIRE(entityNode->entity().hasProperty(""));
 
     auto emptyPropertyValueValidator = std::make_unique<EmptyPropertyValueValidator>();

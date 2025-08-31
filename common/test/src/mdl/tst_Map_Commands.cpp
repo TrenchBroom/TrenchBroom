@@ -27,6 +27,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/TransactionScope.h"
@@ -67,7 +68,7 @@ TEST_CASE("Map_Commands")
     SECTION("Update materials")
     {
       map.deselectAll();
-      map.setEntityProperty(EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
+      setEntityProperty(map, EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
 
       auto* brushNode = createBrushNode(map, "coffin1");
       addNodes(map, {{parentForNodes(map), {brushNode}}});

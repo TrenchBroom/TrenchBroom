@@ -28,6 +28,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -420,7 +421,7 @@ TEST_CASE("Map_Selection")
       map, {{parentForNodes(map), {brushNode1, brushNode2, brushNode3, patchNode}}});
 
     map.selectNodes({brushNode1, brushNode2});
-    map.createBrushEntity(brushEntityDefinition);
+    createBrushEntity(map, brushEntityDefinition);
 
     map.deselectAll();
 
@@ -825,7 +826,7 @@ TEST_CASE("Map_Selection")
     addNodes(map, {{parentForNodes(map), {patchNode}}});
 
     map.selectNodes({brushNode1, brushNode2});
-    auto* brushEnt = map.createBrushEntity(brushEntityDefinition);
+    auto* brushEnt = createBrushEntity(map, brushEntityDefinition);
 
     map.deselectAll();
 
@@ -904,7 +905,7 @@ TEST_CASE("Map_Selection")
     CHECK(map.canRepeatCommands());
 
     // this command will not clear the repeat stack
-    map.setEntityProperty("this", "that");
+    setEntityProperty(map, "this", "that");
     CHECK(map.canRepeatCommands());
 
     // this command will replace the command on the repeat stack
