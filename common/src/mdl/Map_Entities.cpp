@@ -29,6 +29,7 @@
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
@@ -364,7 +365,7 @@ bool canClearProtectedEntityProperties(const Map& map)
     return false;
   }
 
-  return map.canUpdateLinkedGroups(kdl::vec_static_cast<Node*>(entityNodes));
+  return canUpdateLinkedGroups(kdl::vec_static_cast<Node*>(entityNodes));
 }
 
 void setDefaultEntityProperties(Map& map, const SetDefaultPropertyMode mode)

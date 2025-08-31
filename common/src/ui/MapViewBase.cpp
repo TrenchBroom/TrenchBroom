@@ -49,6 +49,7 @@
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -635,9 +636,9 @@ void MapViewBase::cancel()
     {
       map.deselectAll();
     }
-    else if (map.currentGroup())
+    else if (map.editorContext().currentGroup())
     {
-      map.closeGroup();
+      closeGroup(map);
     }
   }
 }
@@ -1501,9 +1502,9 @@ void MapViewBase::removeSelectedObjectsFromGroup()
   auto transaction = mdl::Transaction{map, "Remove Objects from Group"};
   reparentNodes(nodes, map.currentLayer(), true);
 
-  while (map.currentGroup())
+  while (map.editorContext().currentGroup())
   {
-    map.closeGroup();
+    closeGroup(map);
   }
   map.selectNodes(nodes);
   transaction.commit();
@@ -1532,7 +1533,7 @@ void MapViewBase::mergeSelectedGroups()
   ensure(newGroup, "newGroup is null");
 
   auto transaction = mdl::Transaction{map, "Merge Groups"};
-  map.mergeSelectedGroupsWithGroup(newGroup);
+  mergeSelectedGroupsWithGroup(map, newGroup);
   transaction.commit();
 }
 

@@ -28,6 +28,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
@@ -189,7 +190,7 @@ void doSelectAllNodes(Map& map)
 {
   doDeselectAll(map);
 
-  auto* target = map.currentGroupOrWorld();
+  auto* target = currentGroupOrWorld(map);
   const auto nodesToSelect =
     collectSelectableNodes(target->children(), map.editorContext());
 
@@ -200,7 +201,7 @@ void doSelectAllBrushFaces(Map& map)
 {
   doDeselectAll(map);
 
-  auto* target = map.currentGroupOrWorld();
+  auto* target = currentGroupOrWorld(map);
   auto facesToSelect =
     collectSelectableBrushFaces(std::vector<Node*>{target}, map.editorContext());
 

@@ -32,6 +32,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
@@ -205,13 +206,14 @@ std::vector<Node*> removeImplicitelyRemovedNodes(std::vector<Node*> nodes)
 
 void closeRemovedGroups(Map& map, const std::map<Node*, std::vector<Node*>>& toRemove)
 {
+  const auto& editorContext = map.editorContext();
   for (const auto& [parent, nodes] : toRemove)
   {
     for (const Node* node : nodes)
     {
-      if (node == map.currentGroup())
+      if (node == editorContext.currentGroup())
       {
-        map.closeGroup();
+        closeGroup(map);
         closeRemovedGroups(map, toRemove);
         return;
       }
@@ -241,7 +243,7 @@ Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes)
   if (nodes.empty())
   {
     // No reference nodes, so return either the current group (if open) or current layer
-    auto* result = static_cast<Node*>(map.currentGroup());
+    auto* result = static_cast<Node*>(map.editorContext().currentGroup());
     if (!result)
     {
       result = map.currentLayer();
@@ -275,7 +277,7 @@ std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>&
     return {};
   }
 
-  map.setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(nodes)), true);
+  setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(nodes)), true);
 
   const auto addedNodes = kdl::vec_flatten(kdl::map_values(nodes));
   map.ensureNodesVisible(addedNodes);
@@ -401,12 +403,12 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
     return false;
   }
 
-  map.setHasPendingChanges(changedLinkedGroups, true);
+  setHasPendingChanges(changedLinkedGroups, true);
 
   auto removableNodes = collectRemovableParents(nodesToRemove);
   while (!removableNodes.empty())
   {
-    map.setHasPendingChanges(
+    setHasPendingChanges(
       collectContainingGroups(kdl::vec_flatten(kdl::map_values(removableNodes))), true);
 
     closeRemovedGroups(map, removableNodes);
@@ -425,8 +427,7 @@ void removeNodes(Map& map, const std::vector<Node*>& nodes)
   auto transaction = Transaction{map, "Remove Objects"};
   while (!removableNodes.empty())
   {
-    map.setHasPendingChanges(
-      collectGroupsOrContainers(kdl::map_keys(removableNodes)), true);
+    setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(removableNodes)), true);
 
     closeRemovedGroups(map, removableNodes);
     map.executeAndStore(AddRemoveNodesCommand::remove(removableNodes));

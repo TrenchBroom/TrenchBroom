@@ -30,6 +30,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
@@ -144,8 +145,8 @@ TEST_CASE("Map_Entities")
       REQUIRE(
         entityNode->physicalBounds() == vm::bbox3d{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
 
-      auto* groupNode = map.groupSelectedNodes("test");
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* groupNode = groupSelectedNodes(map, "test");
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode);
 
       // move the linked group up by half the world bounds
@@ -158,7 +159,7 @@ TEST_CASE("Map_Entities")
         == vm::bbox3d{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
 
       // create a brush entity inside the original group
-      map.openGroup(groupNode);
+      openGroup(map, groupNode);
       map.deselectAll();
 
       // create a new point entity below the origin -- this entity is temporarily
@@ -249,8 +250,8 @@ TEST_CASE("Map_Entities")
       REQUIRE(
         entityNode->physicalBounds() == vm::bbox3d{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
 
-      auto* groupNode = map.groupSelectedNodes("test");
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* groupNode = groupSelectedNodes(map, "test");
+      auto* linkedGroupNode = createLinkedDuplicate(map);
 
       // move the linked group up by half the world bounds
       const auto zOffset = map.worldBounds().max.z();
@@ -262,7 +263,7 @@ TEST_CASE("Map_Entities")
         == vm::bbox3d{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
 
       // create a brush entity inside the original group
-      map.openGroup(groupNode);
+      openGroup(map, groupNode);
       map.deselectAll();
 
       auto* brushNode = createBrushNode(map);
@@ -315,9 +316,9 @@ TEST_CASE("Map_Entities")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
       map.selectNodes({entityNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
-      auto* linkedGroupNode1 = map.createLinkedDuplicate();
-      auto* linkedGroupNode2 = map.createLinkedDuplicate();
+      auto* groupNode = groupSelectedNodes(map, "test");
+      auto* linkedGroupNode1 = createLinkedDuplicate(map);
+      auto* linkedGroupNode2 = createLinkedDuplicate(map);
 
       REQUIRE(groupNode != nullptr);
       REQUIRE(linkedGroupNode1 != nullptr);
@@ -490,12 +491,12 @@ TEST_CASE("Map_Entities")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       map.selectNodes({entityNode});
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
 
       map.deselectAll();
       map.selectNodes({groupNode});
 
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode->childCount() == 1u);
 
       // both entities have the same value initially
@@ -640,13 +641,13 @@ TEST_CASE("Map_Entities")
     map.selectNodes({entityNode});
     CHECK(canClearProtectedEntityProperties(map));
 
-    auto* groupNode = map.groupSelectedNodes("test");
+    auto* groupNode = groupSelectedNodes(map, "test");
 
     map.deselectAll();
     map.selectNodes({groupNode});
     CHECK(canClearProtectedEntityProperties(map));
 
-    auto* linkedGroupNode = map.createLinkedDuplicate();
+    auto* linkedGroupNode = createLinkedDuplicate(map);
     REQUIRE(linkedGroupNode->childCount() == 1u);
 
     // both entities have the same values initially

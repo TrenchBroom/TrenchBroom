@@ -30,6 +30,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -358,7 +359,7 @@ TEST_CASE("Map_Selection")
       addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
       map.selectNodes({brushNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
 
       SECTION("Cannot select linked groups if selection is empty")
@@ -381,7 +382,7 @@ TEST_CASE("Map_Selection")
         map.deselectAll();
         map.selectNodes({entityNode});
 
-        auto* unlinkedGroupNode = map.groupSelectedNodes("other");
+        auto* unlinkedGroupNode = groupSelectedNodes(map, "other");
         REQUIRE(unlinkedGroupNode != nullptr);
 
         CHECK_FALSE(map.canSelectLinkedGroups());
@@ -392,7 +393,7 @@ TEST_CASE("Map_Selection")
 
       SECTION("Select linked groups")
       {
-        auto* linkedGroupNode = map.createLinkedDuplicate();
+        auto* linkedGroupNode = createLinkedDuplicate(map);
         REQUIRE(linkedGroupNode != nullptr);
 
         map.deselectAll();
@@ -769,7 +770,7 @@ TEST_CASE("Map_Selection")
 
     SECTION("outer group is open")
     {
-      map.openGroup(outerGroup);
+      openGroup(map, outerGroup);
 
       const auto [lineNumbers, expectedNodeNames] = GENERATE(values<T>({
         {{31}, {}},
@@ -788,8 +789,8 @@ TEST_CASE("Map_Selection")
 
     SECTION("inner group is open")
     {
-      map.openGroup(outerGroup);
-      map.openGroup(innerGroup);
+      openGroup(map, outerGroup);
+      openGroup(map, innerGroup);
 
       const auto [lineNumbers, expectedNodeNames] = GENERATE(values<T>({
         {{31}, {}},
@@ -866,10 +867,10 @@ TEST_CASE("Map_Selection")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
 
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode != nullptr);
 
       map.deselectAll();

@@ -25,6 +25,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/ModelUtils.h"
 
 namespace tb::render
@@ -46,12 +47,14 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
 
   const auto selectedGroupNodes = m_map.selection().groups;
 
-  const auto& editorContext = m_map.editorContext();
-  const auto* groupNode = selectedGroupNodes.size() == 1 ? selectedGroupNodes.front()
-                                                         : editorContext.currentGroup();
+  const auto* groupNode = selectedGroupNodes.size() == 1
+                            ? selectedGroupNodes.front()
+                            : m_map.editorContext().currentGroup();
 
   if (groupNode)
   {
+    const auto& editorContext = m_map.editorContext();
+
     const auto& linkId = groupNode->linkId();
     const auto linkedGroupNodes = mdl::collectGroupsWithLinkId({m_map.world()}, linkId);
 

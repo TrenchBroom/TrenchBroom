@@ -30,6 +30,7 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
@@ -393,13 +394,14 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
   }
   else
   {
-    const auto inGroup = m_map.currentGroup() != nullptr;
+    const auto* currentGroup = m_map.editorContext().currentGroup();
+    const auto inGroup = currentGroup != nullptr;
     const auto hit =
       firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
     if (hit.isMatch())
     {
       const auto hitInGroup =
-        inGroup && mdl::hitToNode(hit)->isDescendantOf(m_map.currentGroup());
+        inGroup && mdl::hitToNode(hit)->isDescendantOf(currentGroup);
       if (!inGroup || hitInGroup)
       {
         // If the hit node is inside a closed group, treat it as a hit on the group insted
@@ -408,7 +410,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
         {
           if (editorContext.selectable(*groupNode))
           {
-            m_map.openGroup(groupNode);
+            openGroup(m_map, groupNode);
           }
         }
         else
@@ -438,12 +440,12 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       }
       else if (inGroup)
       {
-        m_map.closeGroup();
+        closeGroup(m_map);
       }
     }
     else if (inGroup)
     {
-      m_map.closeGroup();
+      closeGroup(m_map);
     }
   }
 

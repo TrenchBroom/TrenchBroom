@@ -27,6 +27,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "ui/MapDocument.h"
 
@@ -328,10 +329,10 @@ TEST_CASE("Map_Brushes")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
 
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode != nullptr);
 
       map.deselectAll();

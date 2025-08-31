@@ -25,6 +25,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/RepeatStack.h"
 #include "mdl/UndoableCommand.h"

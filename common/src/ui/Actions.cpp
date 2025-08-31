@@ -31,6 +31,7 @@
 #include "mdl/Grid.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Tag.h"
 #include "ui/Inspector.h"
 #include "ui/MapDocument.h"
@@ -1412,9 +1413,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Create Linked Duplicate"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_D},
-    [](auto& context) { context.map().createLinkedDuplicate(); },
+    [](auto& context) { createLinkedDuplicate(context.map()); },
     [](const auto& context) {
-      return context.hasDocument() && context.map().canCreateLinkedDuplicate();
+      return context.hasDocument() && canCreateLinkedDuplicate(context.map());
     },
   }));
   editMenu.addItem(addAction(Action{
@@ -1432,9 +1433,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Separate Selected Groups"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.map().separateSelectedLinkedGroups(); },
+    [](auto& context) { separateSelectedLinkedGroups(context.map()); },
     [](const auto& context) {
-      return context.hasDocument() && context.map().canSeparateSelectedLinkedGroups();
+      return context.hasDocument() && canSeparateSelectedLinkedGroups(context.map());
     },
   }));
   editMenu.addItem(addAction(Action{

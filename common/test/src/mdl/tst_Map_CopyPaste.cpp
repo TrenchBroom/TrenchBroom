@@ -28,6 +28,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
@@ -253,7 +254,7 @@ common/caulk
 
       const auto groupName = std::string{"testGroup"};
 
-      auto* groupNode = map.groupSelectedNodes(groupName);
+      auto* groupNode = groupSelectedNodes(map, groupName);
       CHECK(groupNode != nullptr);
       map.selectNodes({groupNode});
 
@@ -281,8 +282,8 @@ common/caulk
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
-      map.openGroup(groupNode);
+      auto* groupNode = groupSelectedNodes(map, "test");
+      openGroup(map, groupNode);
 
       CHECK(paste(map, data) == PasteType::Node);
       CHECK(map.selection().hasOnlyEntities());
@@ -334,7 +335,7 @@ common/caulk
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       map.selectNodes({entityNode});
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
 
       const auto persistentGroupId = groupNode->persistentId();
       REQUIRE(persistentGroupId.has_value());
@@ -378,11 +379,11 @@ common/caulk
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
 
       map.deselectAll();
       map.selectNodes({groupNode});
-      auto* linkedGroup = map.createLinkedDuplicate();
+      auto* linkedGroup = createLinkedDuplicate(map);
 
       const auto originalGroupLinkId = linkedGroup->linkId();
       REQUIRE(originalGroupLinkId == groupNode->linkId());
@@ -398,7 +399,7 @@ common/caulk
       SECTION("Pasting one linked brush")
       {
         map.deselectAll();
-        map.openGroup(groupNode);
+        openGroup(map, groupNode);
 
         map.selectNodes({brushNode});
         const auto data = serializeSelectedNodes(map);
@@ -478,7 +479,7 @@ common/caulk
 
         SECTION("Pasting recursive linked group")
         {
-          map.openGroup(groupNode);
+          openGroup(map, groupNode);
 
           CHECK(paste(map, data) == PasteType::Node);
           CHECK(groupNode->childCount() == 2);

@@ -33,6 +33,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/VertexHandleManager.h"
@@ -175,7 +176,7 @@ TEST_CASE("Map_Geometry")
 
       map.selectNodes({brushNode1});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       CHECK(groupNode->selected());
 
       CHECK(translateSelection(map, vm::vec3d{16, 0, 0}));
@@ -199,10 +200,10 @@ TEST_CASE("Map_Geometry")
       addNodes(map, {{parentForNodes(map), {brushNode1}}});
       map.selectNodes({brushNode1});
 
-      auto* group = map.groupSelectedNodes("testGroup");
+      auto* group = groupSelectedNodes(map, "testGroup");
       map.selectNodes({group});
 
-      auto* linkedGroup = map.createLinkedDuplicate();
+      auto* linkedGroup = createLinkedDuplicate(map);
       map.deselectAll();
       map.selectNodes({linkedGroup});
       REQUIRE_THAT(
@@ -309,7 +310,7 @@ TEST_CASE("Map_Geometry")
         SECTION("Rotating grouped brush entity")
         {
           map.selectNodes({entityNode});
-          auto* groupNode = map.groupSelectedNodes("some_name");
+          auto* groupNode = groupSelectedNodes(map, "some_name");
 
           map.deselectAll();
           map.selectNodes({groupNode});
@@ -373,7 +374,7 @@ TEST_CASE("Map_Geometry")
 
       map.selectNodes({brushNode1});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       CHECK(groupNode->selected());
 
       CHECK_FALSE(entityNode->entity().hasProperty("origin"));
@@ -424,7 +425,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("in group")
     {
-      [[maybe_unused]] auto* group = map.groupSelectedNodes("my group");
+      [[maybe_unused]] auto* group = groupSelectedNodes(map, "my group");
 
       // attempting an invalid scale has no effect
       CHECK_FALSE(scaleSelection(map, initialBBox, invalidBBox));
@@ -579,10 +580,10 @@ TEST_CASE("Map_Geometry")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
 
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode != nullptr);
 
       map.deselectAll();

@@ -28,6 +28,7 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
@@ -114,7 +115,7 @@ TEST_CASE("Map_Picking")
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
       map.selectAllNodes();
-      auto* group = map.groupSelectedNodes("test");
+      auto* group = groupSelectedNodes(map, "test");
 
       auto pickResult = PickResult{};
       map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
@@ -153,7 +154,7 @@ TEST_CASE("Map_Picking")
 
       // hitting a grouped object when the containing group is open should return the
       // object only
-      map.openGroup(group);
+      openGroup(map, group);
 
       pickResult.clear();
       map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
@@ -186,7 +187,7 @@ TEST_CASE("Map_Picking")
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
       map.selectAllNodes();
-      auto* innerGroup = map.groupSelectedNodes("inner");
+      auto* innerGroup = groupSelectedNodes(map, "inner");
 
       map.deselectAll();
       auto* brushNode3 = new BrushNode{
@@ -196,7 +197,7 @@ TEST_CASE("Map_Picking")
       addNodes(map, {{parentForNodes(map), {brushNode3}}});
 
       map.selectAllNodes();
-      auto* outerGroup = map.groupSelectedNodes("outer");
+      auto* outerGroup = groupSelectedNodes(map, "outer");
 
       const vm::ray3d highRay({-32, 0, +32 + 256}, {1, 0, 0});
       const vm::ray3d lowRay({-32, 0, +32}, {1, 0, 0});
@@ -240,7 +241,7 @@ TEST_CASE("Map_Picking")
 
       // hitting a grouped object when the containing group is open should return the
       // object only
-      map.openGroup(outerGroup);
+      openGroup(map, outerGroup);
 
       /*
        * world
@@ -284,7 +285,7 @@ TEST_CASE("Map_Picking")
 
       // open the inner group, too. hitsToNodesWithGroupPicking() should no longer return
       // groups, since all groups are open.
-      map.openGroup(innerGroup);
+      openGroup(map, innerGroup);
 
       /*
        * world

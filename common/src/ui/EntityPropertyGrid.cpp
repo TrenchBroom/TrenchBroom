@@ -36,6 +36,7 @@
 #include "mdl/EntityNodeBase.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
 #include "ui/BorderLine.h"
@@ -448,7 +449,7 @@ void EntityPropertyGrid::updateControlsEnabled()
   auto& map = m_document.map();
   const auto nodes = map.selection().allEntities();
   const auto canUpdateLinkedGroups =
-    map.canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));
+    mdl::canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));
   m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_addPropertyButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_removePropertiesButton->setEnabled(

@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_Groups.h"
+
 #include "Logger.h"
 #include "Uuid.h"
 #include "mdl/ApplyAndSwap.h"
@@ -87,246 +89,7 @@ std::vector<Node*> collectNodesToUnlink(const std::vector<GroupNode*>& groupNode
   return result;
 }
 
-std::vector<GroupNode*> collectGroupsWithPendingChanges(Node& node)
-{
-  auto result = std::vector<GroupNode*>{};
-
-  node.accept(kdl::overload(
-    [](auto&& thisLambda, const WorldNode* worldNode) {
-      worldNode->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, const LayerNode* layerNode) {
-      layerNode->visitChildren(thisLambda);
-    },
-    [&](auto&& thisLambda, GroupNode* groupNode) {
-      if (groupNode->hasPendingChanges())
-      {
-        result.push_back(groupNode);
-      }
-      groupNode->visitChildren(thisLambda);
-    },
-    [](const EntityNode*) {},
-    [](const BrushNode*) {},
-    [](const PatchNode*) {}));
-
-  return result;
-}
-
-} // namespace
-
-GroupNode* Map::currentGroup() const
-{
-  return m_editorContext->currentGroup();
-}
-
-Node* Map::currentGroupOrWorld() const
-{
-  Node* result = currentGroup();
-  return result ? result : m_world.get();
-}
-
-void Map::openGroup(GroupNode* groupNode)
-{
-  auto transaction = Transaction{*this, "Open Group"};
-
-  deselectAll();
-
-  if (auto* previousGroupNode = editorContext().currentGroup())
-  {
-    resetNodeLockingState({previousGroupNode});
-  }
-  else
-  {
-    lockNodes({world()});
-  }
-  unlockNodes({groupNode});
-  executeAndStore(CurrentGroupCommand::push(groupNode));
-
-  transaction.commit();
-}
-
-void Map::closeGroup()
-{
-  auto transaction = Transaction{*this, "Close Group"};
-
-  deselectAll();
-  auto* previousGroup = editorContext().currentGroup();
-  resetNodeLockingState({previousGroup});
-  executeAndStore(CurrentGroupCommand::pop());
-
-  auto* currentGroup = editorContext().currentGroup();
-  if (currentGroup != nullptr)
-  {
-    unlockNodes({currentGroup});
-  }
-  else
-  {
-    unlockNodes({world()});
-  }
-
-  transaction.commit();
-}
-
-GroupNode* Map::groupSelectedNodes(const std::string& name)
-{
-  if (!selection().hasNodes())
-  {
-    return nullptr;
-  }
-
-  const auto nodes = collectGroupableNodes(selection().nodes, world());
-  if (nodes.empty())
-  {
-    return nullptr;
-  }
-
-  auto* group = new GroupNode{Group{name}};
-
-  auto transaction = Transaction{*this, "Group Selected Objects"};
-  deselectAll();
-  if (
-    addNodes(*this, {{parentForNodes(*this, nodes), {group}}}).empty()
-    || !reparentNodes(*this, {{group, nodes}}))
-  {
-    transaction.cancel();
-    return nullptr;
-  }
-  selectNodes({group});
-
-  if (!transaction.commit())
-  {
-    return nullptr;
-  }
-
-  return group;
-}
-
-void Map::ungroupSelectedNodes()
-{
-  if (!selection().hasNodes())
-  {
-    return;
-  }
-
-  auto transaction = Transaction{*this, "Ungroup"};
-  separateSelectedLinkedGroups(false);
-
-  const auto selectedNodes = selection().nodes;
-  auto nodesToReselect = std::vector<Node*>{};
-
-  deselectAll();
-
-  auto success = true;
-  Node::visitAll(
-    selectedNodes,
-    kdl::overload(
-      [](WorldNode*) {},
-      [](LayerNode*) {},
-      [&](GroupNode* group) {
-        auto* parent = group->parent();
-        const auto children = group->children();
-        success = success && reparentNodes(*this, {{parent, children}});
-        nodesToReselect = kdl::vec_concat(std::move(nodesToReselect), children);
-      },
-      [&](EntityNode* entity) { nodesToReselect.push_back(entity); },
-      [&](BrushNode* brush) { nodesToReselect.push_back(brush); },
-      [&](PatchNode* patch) { nodesToReselect.push_back(patch); }));
-
-  if (!success)
-  {
-    transaction.cancel();
-    return;
-  }
-
-  selectNodes(nodesToReselect);
-  transaction.commit();
-}
-
-void Map::mergeSelectedGroupsWithGroup(GroupNode* group)
-{
-  if (!selection().hasNodes() || !selection().hasOnlyGroups())
-  {
-    return;
-  }
-
-  const auto groupsToMerge = selection().groups;
-
-  auto transaction = Transaction{*this, "Merge Groups"};
-  deselectAll();
-
-  for (auto groupToMerge : groupsToMerge)
-  {
-    if (groupToMerge != group)
-    {
-      const auto children = groupToMerge->children();
-      if (!reparentNodes(*this, {{group, children}}))
-      {
-        transaction.cancel();
-        return;
-      }
-    }
-  }
-  selectNodes({group});
-
-  transaction.commit();
-}
-
-void Map::renameSelectedGroups(const std::string& name)
-{
-  if (selection().hasNodes() && selection().hasOnlyGroups())
-  {
-    const auto commandName =
-      kdl::str_plural("Rename ", selection().groups.size(), "Group", "Groups");
-    applyAndSwap(
-      *this,
-      commandName,
-      selection().groups,
-      {},
-      kdl::overload(
-        [](Layer&) { return true; },
-        [&](Group& group) {
-          group.setName(name);
-          return true;
-        },
-        [](Entity&) { return true; },
-        [](Brush&) { return true; },
-        [](BezierPatch&) { return true; }));
-  }
-}
-
-bool Map::canCreateLinkedDuplicate() const
-{
-  return selection().hasOnlyGroups() && selection().groups.size() == 1u;
-}
-
-GroupNode* Map::createLinkedDuplicate()
-{
-  if (!canCreateLinkedDuplicate())
-  {
-    return nullptr;
-  }
-
-  auto* groupNode = selection().groups.front();
-  auto* groupNodeClone =
-    static_cast<GroupNode*>(groupNode->cloneRecursively(worldBounds()));
-  auto* suggestedParent = parentForNodes(*this, {groupNode});
-
-  auto transaction = Transaction{*this, "Create Linked Duplicate"};
-  if (addNodes(*this, {{suggestedParent, {groupNodeClone}}}).empty())
-  {
-    transaction.cancel();
-    return nullptr;
-  }
-
-  if (!transaction.commit())
-  {
-    return nullptr;
-  }
-
-  return groupNodeClone;
-}
-
-void Map::linkGroups(const std::vector<GroupNode*>& groupNodes)
+void linkGroups(Map& map, const std::vector<GroupNode*>& groupNodes)
 {
   if (groupNodes.size() > 1)
   {
@@ -340,15 +103,15 @@ void Map::linkGroups(const std::vector<GroupNode*>& groupNodes)
               return {std::move(pair)};
             });
 
-          executeAndStore(
+          map.executeAndStore(
             std::make_unique<SetLinkIdsCommand>("Set Link ID", std::move(linkIdVector)));
         })
       | kdl::transform_error(
-        [&](auto e) { logger().error() << "Could not link groups: " << e.msg; });
+        [&](auto e) { map.logger().error() << "Could not link groups: " << e.msg; });
   }
 }
 
-void Map::unlinkGroups(const std::vector<GroupNode*>& groupNodes)
+void unlinkGroups(Map& map, const std::vector<GroupNode*>& groupNodes)
 {
   const auto nodesToUnlink = collectNodesToUnlink(groupNodes);
 
@@ -356,21 +119,230 @@ void Map::unlinkGroups(const std::vector<GroupNode*>& groupNodes)
     nodesToUnlink,
     [](auto* node) -> std::tuple<Node*, std::string> { return {node, generateUuid()}; });
 
-  executeAndStore(
+  map.executeAndStore(
     std::make_unique<SetLinkIdsCommand>("Reset Link ID", std::move(linkIds)));
 }
 
-void Map::separateSelectedLinkedGroups(const bool relinkGroups)
+} // namespace
+
+Node* currentGroupOrWorld(const Map& map)
+{
+  Node* result = map.editorContext().currentGroup();
+  return result ? result : map.world();
+}
+
+void openGroup(Map& map, GroupNode* groupNode)
+{
+  auto transaction = Transaction{map, "Open Group"};
+
+  map.deselectAll();
+
+  if (auto* previousGroupNode = map.editorContext().currentGroup())
+  {
+    map.resetNodeLockingState({previousGroupNode});
+  }
+  else
+  {
+    map.lockNodes({map.world()});
+  }
+  map.unlockNodes({groupNode});
+  map.executeAndStore(CurrentGroupCommand::push(groupNode));
+
+  transaction.commit();
+}
+
+void closeGroup(Map& map)
+{
+  auto transaction = Transaction{map, "Close Group"};
+
+  map.deselectAll();
+  auto* previousGroup = map.editorContext().currentGroup();
+  map.resetNodeLockingState({previousGroup});
+  map.executeAndStore(CurrentGroupCommand::pop());
+
+  auto* newGroup = map.editorContext().currentGroup();
+  if (newGroup != nullptr)
+  {
+    map.unlockNodes({newGroup});
+  }
+  else
+  {
+    map.unlockNodes({map.world()});
+  }
+
+  transaction.commit();
+}
+
+GroupNode* groupSelectedNodes(Map& map, const std::string& name)
+{
+  if (!map.selection().hasNodes())
+  {
+    return nullptr;
+  }
+
+  const auto nodes = collectGroupableNodes(map.selection().nodes, map.world());
+  if (nodes.empty())
+  {
+    return nullptr;
+  }
+
+  auto* group = new GroupNode{Group{name}};
+
+  auto transaction = Transaction{map, "Group Selected Objects"};
+  map.deselectAll();
+  if (
+    addNodes(map, {{parentForNodes(map, nodes), {group}}}).empty()
+    || !reparentNodes(map, {{group, nodes}}))
+  {
+    transaction.cancel();
+    return nullptr;
+  }
+  map.selectNodes({group});
+
+  if (!transaction.commit())
+  {
+    return nullptr;
+  }
+
+  return group;
+}
+
+void ungroupSelectedNodes(Map& map)
+{
+  if (!map.selection().hasNodes())
+  {
+    return;
+  }
+
+  auto transaction = Transaction{map, "Ungroup"};
+  separateSelectedLinkedGroups(map, false);
+
+  const auto selectedNodes = map.selection().nodes;
+  auto nodesToReselect = std::vector<Node*>{};
+
+  map.deselectAll();
+
+  auto success = true;
+  Node::visitAll(
+    selectedNodes,
+    kdl::overload(
+      [](WorldNode*) {},
+      [](LayerNode*) {},
+      [&](GroupNode* group) {
+        auto* parent = group->parent();
+        const auto children = group->children();
+        success = success && reparentNodes(map, {{parent, children}});
+        nodesToReselect = kdl::vec_concat(std::move(nodesToReselect), children);
+      },
+      [&](EntityNode* entity) { nodesToReselect.push_back(entity); },
+      [&](BrushNode* brush) { nodesToReselect.push_back(brush); },
+      [&](PatchNode* patch) { nodesToReselect.push_back(patch); }));
+
+  if (!success)
+  {
+    transaction.cancel();
+    return;
+  }
+
+  map.selectNodes(nodesToReselect);
+  transaction.commit();
+}
+
+void mergeSelectedGroupsWithGroup(Map& map, GroupNode* group)
+{
+  if (!map.selection().hasNodes() || !map.selection().hasOnlyGroups())
+  {
+    return;
+  }
+
+  const auto groupsToMerge = map.selection().groups;
+
+  auto transaction = Transaction{map, "Merge Groups"};
+  map.deselectAll();
+
+  for (auto groupToMerge : groupsToMerge)
+  {
+    if (groupToMerge != group)
+    {
+      const auto children = groupToMerge->children();
+      if (!reparentNodes(map, {{group, children}}))
+      {
+        transaction.cancel();
+        return;
+      }
+    }
+  }
+  map.selectNodes({group});
+
+  transaction.commit();
+}
+
+void renameSelectedGroups(Map& map, const std::string& name)
+{
+  if (map.selection().hasNodes() && map.selection().hasOnlyGroups())
+  {
+    const auto commandName =
+      kdl::str_plural("Rename ", map.selection().groups.size(), "Group", "Groups");
+    applyAndSwap(
+      map,
+      commandName,
+      map.selection().groups,
+      {},
+      kdl::overload(
+        [](Layer&) { return true; },
+        [&](Group& group) {
+          group.setName(name);
+          return true;
+        },
+        [](Entity&) { return true; },
+        [](Brush&) { return true; },
+        [](BezierPatch&) { return true; }));
+  }
+}
+
+bool canCreateLinkedDuplicate(const Map& map)
+{
+  return map.selection().hasOnlyGroups() && map.selection().groups.size() == 1u;
+}
+
+GroupNode* createLinkedDuplicate(Map& map)
+{
+  if (!canCreateLinkedDuplicate(map))
+  {
+    return nullptr;
+  }
+
+  auto* groupNode = map.selection().groups.front();
+  auto* groupNodeClone =
+    static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
+  auto* suggestedParent = parentForNodes(map, {groupNode});
+
+  auto transaction = Transaction{map, "Create Linked Duplicate"};
+  if (addNodes(map, {{suggestedParent, {groupNodeClone}}}).empty())
+  {
+    transaction.cancel();
+    return nullptr;
+  }
+
+  if (!transaction.commit())
+  {
+    return nullptr;
+  }
+
+  return groupNodeClone;
+}
+
+void separateSelectedLinkedGroups(Map& map, const bool relinkGroups)
 {
   const auto selectedLinkIds = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-    selection().groups, [](const auto* groupNode) { return groupNode->linkId(); }));
+    map.selection().groups, [](const auto* groupNode) { return groupNode->linkId(); }));
 
   auto groupsToUnlink = std::vector<GroupNode*>{};
   auto groupsToRelink = std::vector<std::vector<GroupNode*>>{};
 
   for (const auto& linkedGroupId : selectedLinkIds)
   {
-    auto linkedGroups = collectGroupsWithLinkId({world()}, linkedGroupId);
+    auto linkedGroups = collectGroupsWithLinkId({map.world()}, linkedGroupId);
 
     // partition the linked groups into selected and unselected ones
     const auto it = std::partition(
@@ -406,12 +378,12 @@ void Map::separateSelectedLinkedGroups(const bool relinkGroups)
 
   if (checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
-    auto transaction = Transaction{*this, "Separate Selected Linked Groups"};
+    auto transaction = Transaction{map, "Separate Selected Linked Groups"};
 
-    unlinkGroups(groupsToUnlink);
+    unlinkGroups(map, groupsToUnlink);
     for (const auto& groupNodes : groupsToRelink)
     {
-      linkGroups(groupNodes);
+      linkGroups(map, groupNodes);
     }
 
     setHasPendingChanges(changedLinkedGroups, true);
@@ -419,10 +391,10 @@ void Map::separateSelectedLinkedGroups(const bool relinkGroups)
   }
 }
 
-bool Map::canSeparateSelectedLinkedGroups() const
+bool canSeparateSelectedLinkedGroups(const Map& map)
 {
-  return std::ranges::any_of(selection().groups, [&](const auto* groupNode) {
-    const auto linkedGroups = collectNodesWithLinkId({world()}, groupNode->linkId());
+  return std::ranges::any_of(map.selection().groups, [&](const auto* groupNode) {
+    const auto linkedGroups = collectNodesWithLinkId({map.world()}, groupNode->linkId());
     return linkedGroups.size() > 1u
            && std::ranges::any_of(linkedGroups, [](const auto* linkedGroupNode) {
                 return !linkedGroupNode->selected();
@@ -430,16 +402,7 @@ bool Map::canSeparateSelectedLinkedGroups() const
   });
 }
 
-void Map::setHasPendingChanges(
-  const std::vector<GroupNode*>& groupNodes, const bool hasPendingChanges)
-{
-  for (auto* groupNode : groupNodes)
-  {
-    groupNode->setHasPendingChanges(hasPendingChanges);
-  }
-}
-
-bool Map::canUpdateLinkedGroups(const std::vector<Node*>& nodes) const
+bool canUpdateLinkedGroups(const std::vector<Node*>& nodes)
 {
   if (nodes.empty())
   {
@@ -450,22 +413,13 @@ bool Map::canUpdateLinkedGroups(const std::vector<Node*>& nodes) const
   return checkLinkedGroupsToUpdate(changedLinkedGroups);
 }
 
-bool Map::updateLinkedGroups()
+void setHasPendingChanges(
+  const std::vector<GroupNode*>& groupNodes, const bool hasPendingChanges)
 {
-  if (isCurrentDocumentStateObservable())
+  for (auto* groupNode : groupNodes)
   {
-    if (const auto allChangedLinkedGroups = collectGroupsWithPendingChanges(*m_world);
-        !allChangedLinkedGroups.empty())
-    {
-      setHasPendingChanges(allChangedLinkedGroups, false);
-
-      auto command = std::make_unique<UpdateLinkedGroupsCommand>(allChangedLinkedGroups);
-      const auto result = executeAndStore(std::move(command));
-      return result->success();
-    }
+    groupNode->setHasPendingChanges(hasPendingChanges);
   }
-
-  return true;
 }
 
 } // namespace tb::mdl

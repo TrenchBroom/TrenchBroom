@@ -21,8 +21,14 @@
 #include "Logger.h"
 #include "Map.h"
 #include "mdl/CommandProcessor.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/Map_Groups.h"
+#include "mdl/Node.h"
 #include "mdl/RepeatStack.h"
 #include "mdl/UndoableCommand.h"
+#include "mdl/UpdateLinkedGroupsCommand.h"
+#include "mdl/WorldNode.h"
 
 #include <memory>
 
@@ -30,6 +36,49 @@ namespace tb::mdl
 {
 namespace
 {
+
+std::vector<GroupNode*> collectGroupsWithPendingChanges(Node& node)
+{
+  auto result = std::vector<GroupNode*>{};
+
+  node.accept(kdl::overload(
+    [](auto&& thisLambda, const WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, GroupNode* groupNode) {
+      if (groupNode->hasPendingChanges())
+      {
+        result.push_back(groupNode);
+      }
+      groupNode->visitChildren(thisLambda);
+    },
+    [](const EntityNode*) {},
+    [](const BrushNode*) {},
+    [](const PatchNode*) {}));
+
+  return result;
+}
+
+bool updateLinkedGroups(Map& map)
+{
+  if (map.isCurrentDocumentStateObservable())
+  {
+    if (const auto allChangedLinkedGroups = collectGroupsWithPendingChanges(*map.world());
+        !allChangedLinkedGroups.empty())
+    {
+      setHasPendingChanges(allChangedLinkedGroups, false);
+
+      auto command = std::make_unique<UpdateLinkedGroupsCommand>(allChangedLinkedGroups);
+      const auto result = map.executeAndStore(std::move(command));
+      return result->success();
+    }
+  }
+
+  return true;
+}
 
 class ThrowExceptionCommand : public UndoableCommand
 {
@@ -76,7 +125,7 @@ const std::string& Map::redoCommandName() const
 void Map::undoCommand()
 {
   m_commandProcessor->undo();
-  updateLinkedGroups();
+  updateLinkedGroups(*this);
 
   // Undo/redo in the repeat system is not supported for now, so just clear the repeat
   // stack
@@ -86,7 +135,7 @@ void Map::undoCommand()
 void Map::redoCommand()
 {
   m_commandProcessor->redo();
-  updateLinkedGroups();
+  updateLinkedGroups(*this);
 
   // Undo/redo in the repeat system is not supported for now, so just clear the repeat
   // stack
@@ -141,7 +190,7 @@ bool Map::commitTransaction()
 {
   logger().debug() << "Committing transaction";
 
-  if (!updateLinkedGroups())
+  if (!updateLinkedGroups(*this))
   {
     cancelTransaction();
     return false;

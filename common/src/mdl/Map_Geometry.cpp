@@ -36,6 +36,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -280,7 +281,7 @@ TransformVerticesResult transformVertices(
       return TransformVerticesResult{false, false};
     }
 
-    map.setHasPendingChanges(changedLinkedGroups, true);
+    setHasPendingChanges(changedLinkedGroups, true);
 
     if (!transaction.commit())
     {
@@ -361,7 +362,7 @@ bool transformEdges(
       return false;
     }
 
-    map.setHasPendingChanges(changedLinkedGroups, true);
+    setHasPendingChanges(changedLinkedGroups, true);
     return transaction.commit();
   }
 
@@ -430,7 +431,7 @@ bool transformFaces(
       return false;
     }
 
-    map.setHasPendingChanges(changedLinkedGroups, true);
+    setHasPendingChanges(changedLinkedGroups, true);
     return transaction.commit();
   }
 
@@ -479,7 +480,7 @@ bool addVertex(Map& map, const vm::vec3d& vertexPosition)
       return false;
     }
 
-    map.setHasPendingChanges(changedLinkedGroups, true);
+    setHasPendingChanges(changedLinkedGroups, true);
     return transaction.commit();
   }
 
@@ -535,7 +536,7 @@ bool removeVertices(
       return false;
     }
 
-    map.setHasPendingChanges(changedLinkedGroups, true);
+    setHasPendingChanges(changedLinkedGroups, true);
     return transaction.commit();
   }
 

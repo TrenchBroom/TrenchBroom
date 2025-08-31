@@ -21,6 +21,7 @@
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
@@ -30,6 +31,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
@@ -145,7 +147,7 @@ TEST_CASE("Map_Nodes")
         addNodes(map, {{parentForNodes(map), {groupNode}}});
 
         map.selectNodes({groupNode});
-        auto* linkedGroupNode = map.createLinkedDuplicate();
+        auto* linkedGroupNode = createLinkedDuplicate(map);
         map.deselectAll();
 
         using CreateNode = std::function<Node*(const Map&)>;
@@ -196,7 +198,7 @@ TEST_CASE("Map_Nodes")
         addNodes(map, {{parentForNodes(map), {groupNode}}});
 
         map.selectNodes({groupNode});
-        auto* linkedGroupNode = map.createLinkedDuplicate();
+        auto* linkedGroupNode = createLinkedDuplicate(map);
         map.deselectAll();
 
         map.selectNodes({linkedGroupNode});
@@ -237,7 +239,7 @@ TEST_CASE("Map_Nodes")
         addNodes(map, {{parentForNodes(map), {groupNode}}});
 
         map.selectNodes({groupNode});
-        auto* linkedGroupNode = map.createLinkedDuplicate();
+        auto* linkedGroupNode = createLinkedDuplicate(map);
         map.deselectAll();
 
         // adding a brush to the linked group node will fail because it will go out of
@@ -460,12 +462,12 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {nestedBrushNode, nestedEntityNode}}});
       map.selectNodes({nestedBrushNode, nestedEntityNode});
 
-      auto* nestedGroupNode = map.groupSelectedNodes("nested");
+      auto* nestedGroupNode = groupSelectedNodes(map, "nested");
 
       map.deselectAll();
       map.selectNodes({nestedGroupNode});
 
-      auto* linkedNestedGroupNode = map.createLinkedDuplicate();
+      auto* linkedNestedGroupNode = createLinkedDuplicate(map);
 
       auto* brushNode = createBrushNode(map);
       auto* entityNode = new EntityNode{Entity{}};
@@ -475,13 +477,13 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
 
       map.selectNodes({brushNode, entityNode, nestedGroupNode});
-      auto* groupNode = map.groupSelectedNodes("group");
+      auto* groupNode = groupSelectedNodes(map, "group");
 
       map.deselectAll();
       map.selectNodes({groupNode});
 
-      auto* linkedGroupNode = map.createLinkedDuplicate();
-      auto* linkedGroupNode2 = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
+      auto* linkedGroupNode2 = createLinkedDuplicate(map);
 
       map.deselectAll();
 
@@ -530,7 +532,7 @@ TEST_CASE("Map_Nodes")
       SECTION("Grouping objects within a linked group keeps their link IDs")
       {
         map.selectNodes({entityNode});
-        map.groupSelectedNodes("new group");
+        groupSelectedNodes(map, "new group");
         CHECK(entityNode->linkId() == originalEntityLinkId);
         CHECK(entityBrushNode->linkId() == originalEntityBrushLinkId);
 
@@ -548,7 +550,7 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       map.deselectAll();
 
       map.selectNodes({linkedGroupNode});
@@ -612,12 +614,12 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       map.selectNodes({brushNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
 
       map.deselectAll();
       map.selectNodes({groupNode});
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       map.deselectAll();
 
       REQUIRE_THAT(*linkedGroupNode, MatchesNode(*groupNode));
@@ -633,7 +635,7 @@ TEST_CASE("Map_Nodes")
       {
         map.selectNodes({linkedGroupNode});
 
-        auto* outerGroupNode = map.groupSelectedNodes("outer");
+        auto* outerGroupNode = groupSelectedNodes(map, "outer");
         REQUIRE(outerGroupNode != nullptr);
 
         map.deselectAll();
@@ -646,23 +648,23 @@ TEST_CASE("Map_Nodes")
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
-      map.openGroup(outerGroupNode);
+      openGroup(map, outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
-      map.openGroup(innerGroupNode);
+      openGroup(map, innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
 
-      map.closeGroup();
-      map.closeGroup();
+      closeGroup(map);
+      closeGroup(map);
 
       map.selectNodes({outerGroupNode});
 
-      auto* linkedOuterGroupNode = map.createLinkedDuplicate();
+      auto* linkedOuterGroupNode = createLinkedDuplicate(map);
       REQUIRE(
         outerGroupNode->children()
         == std::vector<Node*>{outerEntityNode, innerGroupNode});
@@ -691,7 +693,7 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       map.deselectAll();
 
       // adding a brush to the linked group node will fail because it will go out of world
@@ -718,7 +720,7 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       map.deselectAll();
 
       CHECK_FALSE(reparentNodes(map, {{linkedGroupNode, {brushNode}}}));
@@ -747,18 +749,18 @@ TEST_CASE("Map_Nodes")
       auto* group = new GroupNode{Group{"group"}};
       addNodes(map, {{parentForNodes(map), {group}}});
 
-      map.openGroup(group);
+      openGroup(map, group);
 
       auto* brush = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brush}}});
 
       removeNodes(map, {brush});
-      CHECK(map.currentGroup() == nullptr);
+      CHECK(map.editorContext().currentGroup() == nullptr);
       CHECK(brush->parent() == nullptr);
       CHECK(group->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(map.currentGroup() == group);
+      CHECK(map.editorContext().currentGroup() == group);
       CHECK(brush->parent() == group);
       CHECK(group->parent() == map.world()->defaultLayer());
     }
@@ -768,24 +770,24 @@ TEST_CASE("Map_Nodes")
       auto* outer = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outer}}});
 
-      map.openGroup(outer);
+      openGroup(map, outer);
 
       auto* inner = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {inner}}});
 
-      map.openGroup(inner);
+      openGroup(map, inner);
 
       auto* brush = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brush}}});
 
       removeNodes(map, {brush});
-      CHECK(map.currentGroup() == nullptr);
+      CHECK(map.editorContext().currentGroup() == nullptr);
       CHECK(brush->parent() == nullptr);
       CHECK(inner->parent() == nullptr);
       CHECK(outer->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(map.currentGroup() == inner);
+      CHECK(map.editorContext().currentGroup() == inner);
       CHECK(brush->parent() == inner);
       CHECK(inner->parent() == outer);
       CHECK(outer->parent() == map.world()->defaultLayer());
@@ -827,7 +829,7 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       map.deselectAll();
 
       removeNodes(map, {nodeToRemove});
@@ -845,23 +847,23 @@ TEST_CASE("Map_Nodes")
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
-      map.openGroup(outerGroupNode);
+      openGroup(map, outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
-      map.openGroup(innerGroupNode);
+      openGroup(map, innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
 
-      map.closeGroup();
-      map.closeGroup();
+      closeGroup(map);
+      closeGroup(map);
 
       map.selectNodes({outerGroupNode});
 
-      auto* linkedOuterGroupNode = map.createLinkedDuplicate();
+      auto* linkedOuterGroupNode = createLinkedDuplicate(map);
       map.deselectAll();
 
       REQUIRE(
@@ -993,7 +995,7 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
 
       map.deselectAll();
       map.selectNodes({linkedGroupNode});
@@ -1038,7 +1040,7 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{parentForNodes(map), {groupNode}}});
 
       map.selectNodes({groupNode});
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       map.deselectAll();
 
       // moving the brush in linked group node will fail because it will go out of world

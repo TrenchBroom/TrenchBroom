@@ -26,6 +26,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -296,7 +297,7 @@ void Map::invertNodeSelection()
     }
   };
 
-  currentGroupOrWorld()->accept(kdl::overload(
+  currentGroupOrWorld(*this)->accept(kdl::overload(
     [](auto&& thisLambda, WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
     [](auto&& thisLambda, LayerNode* layerNode) { layerNode->visitChildren(thisLambda); },
     [&](auto&& thisLambda, GroupNode* groupNode) {

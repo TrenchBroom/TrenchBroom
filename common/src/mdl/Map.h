@@ -367,44 +367,6 @@ private:
   enum class MoveDirection;
   bool moveLayerByOne(LayerNode* layerNode, MoveDirection direction);
 
-public: // group management
-  GroupNode* currentGroup() const;
-  Node* currentGroupOrWorld() const;
-
-  void openGroup(GroupNode* groupNode);
-  void closeGroup();
-
-  GroupNode* groupSelectedNodes(const std::string& name);
-  void ungroupSelectedNodes();
-  void mergeSelectedGroupsWithGroup(GroupNode* group);
-
-  void renameSelectedGroups(const std::string& name);
-
-  bool canCreateLinkedDuplicate() const;
-  GroupNode* createLinkedDuplicate();
-
-  void linkGroups(const std::vector<GroupNode*>& groupNodes);
-  void unlinkGroups(const std::vector<GroupNode*>& groupNodes);
-
-  /**
-   * Unlinks the selected linked groups.
-   *
-   * For every set of selected linked groups that belong to the same link set, the
-   * selected groups will be added to a new link set with the effect that these groups
-   * will still be linked to each other, but they will no longer be linked to any other
-   * member of their original link set that was not selected.
-   */
-  void separateSelectedLinkedGroups(bool relinkGroups = true);
-  bool canSeparateSelectedLinkedGroups() const;
-
-  void setHasPendingChanges(
-    const std::vector<GroupNode*>& groupNodes, bool hasPendingChanges);
-
-  bool canUpdateLinkedGroups(const std::vector<Node*>& nodes) const;
-
-private:
-  bool updateLinkedGroups();
-
 public: // tag management
   void registerSmartTags();
   const std::vector<SmartTag>& smartTags() const;

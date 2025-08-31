@@ -64,6 +64,7 @@
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -521,7 +522,7 @@ QString describeSelection(const mdl::Map& map)
 
   // open groups
   auto groups = std::vector<mdl::GroupNode*>{};
-  for (auto* group = map.currentGroup(); group != nullptr;
+  for (auto* group = map.editorContext().currentGroup(); group != nullptr;
        group = group->containingGroup())
   {
     groups.push_back(group);
@@ -1633,8 +1634,7 @@ void MapFrame::groupSelectedObjects()
     const auto name = queryGroupName(this, "Unnamed");
     if (!name.empty())
     {
-      auto& map = m_document->map();
-      map.groupSelectedNodes(name);
+      groupSelectedNodes(m_document->map(), name);
     }
   }
 }
@@ -1649,8 +1649,7 @@ void MapFrame::ungroupSelectedObjects()
 {
   if (canUngroupSelectedObjects())
   {
-    auto& map = m_document->map();
-    map.ungroupSelectedNodes();
+    ungroupSelectedNodes(m_document->map());
   }
 }
 
@@ -1671,7 +1670,7 @@ void MapFrame::renameSelectedGroups()
     const auto name = queryGroupName(this, suggestion);
     if (!name.empty())
     {
-      map.renameSelectedGroups(name);
+      mdl::renameSelectedGroups(map, name);
     }
   }
 }

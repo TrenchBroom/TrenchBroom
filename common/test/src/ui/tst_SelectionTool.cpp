@@ -113,7 +113,7 @@ TEST_CASE("SelectionTool")
           {
             CHECK(map.selection().brushFaces.empty());
             CHECK_FALSE(map.selection().hasNodes());
-            CHECK(map.currentGroup() == groupNode);
+            CHECK(map.editorContext().currentGroup() == groupNode);
           }
         }
       }

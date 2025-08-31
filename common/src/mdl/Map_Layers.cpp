@@ -21,6 +21,7 @@
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/SetCurrentLayerCommand.h"
@@ -45,9 +46,9 @@ void Map::setCurrentLayer(LayerNode* layerNode)
 
   auto transaction = Transaction{*this, "Set Current Layer"};
 
-  while (currentGroup())
+  while (editorContext().currentGroup())
   {
-    closeGroup();
+    closeGroup(*this);
   }
 
   const auto descendants = collectDescendants({currentLayer()});

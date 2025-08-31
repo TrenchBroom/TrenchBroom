@@ -27,6 +27,7 @@
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -73,7 +74,7 @@ TEST_CASE("Map_NodeLocking")
       map.deselectAll();
       map.selectNodes({entityNodeInGroup});
 
-      auto* groupNode = map.groupSelectedNodes("group");
+      auto* groupNode = groupSelectedNodes(map, "group");
       map.deselectAll();
 
       REQUIRE_FALSE(brushNode->locked());
@@ -108,7 +109,7 @@ TEST_CASE("Map_NodeLocking")
       map.deselectAll();
       map.selectNodes({entityNodeInGroup});
 
-      auto* groupNode = map.groupSelectedNodes("group");
+      auto* groupNode = groupSelectedNodes(map, "group");
       map.deselectAll();
 
       auto* layerNode = new LayerNode{Layer{"layer"}};

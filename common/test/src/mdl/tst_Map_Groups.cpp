@@ -22,6 +22,7 @@
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
@@ -29,6 +30,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -65,7 +67,7 @@ TEST_CASE("Map_Groups")
   {
     SECTION("Create empty group")
     {
-      CHECK(map.groupSelectedNodes("test") == nullptr);
+      CHECK(groupSelectedNodes(map, "test") == nullptr);
     }
 
     SECTION("Create group with one node")
@@ -79,7 +81,7 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{parentForNodes(map), {node}}});
       map.selectNodes({node});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       CHECK(groupNode != nullptr);
 
       CHECK(node->parent() == groupNode);
@@ -106,7 +108,7 @@ TEST_CASE("Map_Groups")
 
       map.selectNodes({childNode1});
 
-      GroupNode* groupNode = map.groupSelectedNodes("test");
+      GroupNode* groupNode = groupSelectedNodes(map, "test");
       CHECK(groupNode != nullptr);
 
       CHECK(childNode1->parent() == entityNode);
@@ -138,7 +140,7 @@ TEST_CASE("Map_Groups")
 
       map.selectNodes({childNode1, childNode2});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       CHECK(groupNode != nullptr);
 
       CHECK(childNode1->parent() == entityNode);
@@ -172,7 +174,7 @@ TEST_CASE("Map_Groups")
 
       map.setCurrentLayer(layerNode2);
       map.selectNodes({entityNode});
-      auto* newGroupNode = map.groupSelectedNodes("Group in Layer 1");
+      auto* newGroupNode = groupSelectedNodes(map, "Group in Layer 1");
 
       CHECK(entityNode->parent() == newGroupNode);
       CHECK(findContainingLayer(entityNode) == layerNode1);
@@ -188,12 +190,12 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{parentForNodes(map), {nestedBrushNode, nestedEntityNode}}});
       map.selectNodes({nestedBrushNode, nestedEntityNode});
 
-      auto* nestedGroupNode = map.groupSelectedNodes("nested");
+      auto* nestedGroupNode = groupSelectedNodes(map, "nested");
 
       map.deselectAll();
       map.selectNodes({nestedGroupNode});
 
-      auto* linkedNestedGroupNode = map.createLinkedDuplicate();
+      auto* linkedNestedGroupNode = createLinkedDuplicate(map);
 
       auto* brushNode = createBrushNode(map);
       auto* entityNode = new EntityNode{Entity{}};
@@ -203,13 +205,13 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
 
       map.selectNodes({brushNode, entityNode, nestedGroupNode});
-      auto* groupNode = map.groupSelectedNodes("group");
+      auto* groupNode = groupSelectedNodes(map, "group");
 
       map.deselectAll();
       map.selectNodes({groupNode});
 
-      auto* linkedGroupNode = map.createLinkedDuplicate();
-      auto* linkedGroupNode2 = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
+      auto* linkedGroupNode2 = createLinkedDuplicate(map);
 
       map.deselectAll();
 
@@ -223,7 +225,7 @@ TEST_CASE("Map_Groups")
       REQUIRE_THAT(*linkedGroupNode2, MatchesNode(*groupNode));
 
       map.selectNodes({entityNode});
-      map.groupSelectedNodes("new group");
+      groupSelectedNodes(map, "new group");
       CHECK(entityNode->linkId() == originalEntityLinkId);
       CHECK(entityBrushNode->linkId() == originalEntityBrushLinkId);
 
@@ -248,14 +250,14 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{parentForNodes(map), {innerEntityNode2}}});
       map.selectNodes({innerEntityNode1, innerEntityNode2});
 
-      auto* innerGroupNode = map.groupSelectedNodes("Inner");
+      auto* innerGroupNode = groupSelectedNodes(map, "Inner");
 
       map.deselectAll();
       addNodes(map, {{parentForNodes(map), {outerEntityNode1}}});
       addNodes(map, {{parentForNodes(map), {outerEntityNode2}}});
       map.selectNodes({innerGroupNode, outerEntityNode1, outerEntityNode2});
 
-      auto* outerGroupNode = map.groupSelectedNodes("Outer");
+      auto* outerGroupNode = groupSelectedNodes(map, "Outer");
       map.deselectAll();
 
       // check our assumptions
@@ -271,7 +273,7 @@ TEST_CASE("Map_Groups")
       CHECK(innerEntityNode1->parent() == innerGroupNode);
       CHECK(innerEntityNode2->parent() == innerGroupNode);
 
-      CHECK(map.currentGroup() == nullptr);
+      CHECK(map.editorContext().currentGroup() == nullptr);
       CHECK(!outerGroupNode->opened());
       CHECK(!innerGroupNode->opened());
 
@@ -282,9 +284,9 @@ TEST_CASE("Map_Groups")
       CHECK(findContainingGroup(outerEntityNode1) == outerGroupNode);
 
       // open the outer group and ungroup the inner group
-      map.openGroup(outerGroupNode);
+      openGroup(map, outerGroupNode);
       map.selectNodes({innerGroupNode});
-      map.ungroupSelectedNodes();
+      ungroupSelectedNodes(map);
       map.deselectAll();
 
       CHECK(innerEntityNode1->parent() == outerGroupNode);
@@ -298,10 +300,10 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{parentForNodes(map), {entityNode1}}});
       map.selectNodes({entityNode1});
 
-      auto* groupNode = map.groupSelectedNodes("Group");
+      auto* groupNode = groupSelectedNodes(map, "Group");
       CHECK_THAT(map.selection().nodes, Catch::Equals(std::vector<Node*>{groupNode}));
 
-      map.ungroupSelectedNodes();
+      ungroupSelectedNodes(map);
       CHECK_THAT(map.selection().nodes, Catch::Equals(std::vector<Node*>{entityNode1}));
     }
 
@@ -321,14 +323,14 @@ TEST_CASE("Map_Groups")
       CHECK_FALSE(entityNode1->selected());
       CHECK(brushNode1->selected());
 
-      auto* groupNode = map.groupSelectedNodes("Group");
+      auto* groupNode = groupSelectedNodes(map, "Group");
       CHECK_THAT(groupNode->children(), Catch::Equals(std::vector<Node*>{entityNode1}));
       CHECK_THAT(entityNode1->children(), Catch::Equals(std::vector<Node*>{brushNode1}));
       CHECK_THAT(map.selection().nodes, Catch::Equals(std::vector<Node*>{groupNode}));
       CHECK(map.selection().allBrushes() == std::vector<BrushNode*>{brushNode1});
       CHECK(!map.selection().hasBrushes());
 
-      map.ungroupSelectedNodes();
+      ungroupSelectedNodes(map);
       CHECK_THAT(map.selection().nodes, Catch::Equals(std::vector<Node*>{brushNode1}));
       CHECK_FALSE(entityNode1->selected());
       CHECK(brushNode1->selected());
@@ -344,13 +346,13 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{parentForNodes(map), {entityNode2}}});
       map.selectNodes({entityNode1});
 
-      auto* groupNode = map.groupSelectedNodes("Group");
+      auto* groupNode = groupSelectedNodes(map, "Group");
       map.selectNodes({entityNode2});
       CHECK_THAT(
         map.selection().nodes,
         Catch::UnorderedEquals(std::vector<Node*>{groupNode, entityNode2}));
 
-      map.ungroupSelectedNodes();
+      ungroupSelectedNodes(map);
       CHECK_THAT(
         map.selection().nodes,
         Catch::UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
@@ -363,7 +365,7 @@ TEST_CASE("Map_Groups")
 
       map.selectNodes({brushNode});
 
-      auto* groupNode = map.groupSelectedNodes("test");
+      auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
 
       const auto originalGroupLinkId = groupNode->linkId();
@@ -372,12 +374,12 @@ TEST_CASE("Map_Groups")
       map.deselectAll();
       map.selectNodes({groupNode});
 
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
 
       map.deselectAll();
       map.selectNodes({linkedGroupNode});
 
-      auto* linkedGroupNode2 = map.createLinkedDuplicate();
+      auto* linkedGroupNode2 = createLinkedDuplicate(map);
       map.deselectAll();
 
       auto* linkedBrushNode =
@@ -396,7 +398,7 @@ TEST_CASE("Map_Groups")
       {
         map.selectNodes({linkedGroupNode2});
 
-        map.ungroupSelectedNodes();
+        ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
           Catch::UnorderedEquals(
@@ -413,7 +415,7 @@ TEST_CASE("Map_Groups")
       {
         map.selectNodes({linkedGroupNode, linkedGroupNode2});
 
-        map.ungroupSelectedNodes();
+        ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
           Catch::UnorderedEquals(
@@ -435,7 +437,7 @@ TEST_CASE("Map_Groups")
         map.selectNodes({linkedGroupNode});
         map.selectNodes({linkedGroupNode2});
 
-        map.ungroupSelectedNodes();
+        ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
           Catch::UnorderedEquals(
@@ -471,20 +473,20 @@ TEST_CASE("Map_Groups")
     addNodes(map, {{parentForNodes(map), {entityNode1}}});
     map.deselectAll();
     map.selectNodes({entityNode1});
-    auto* groupNode1 = map.groupSelectedNodes("group1");
+    auto* groupNode1 = groupSelectedNodes(map, "group1");
 
     auto* entityNode2 = new EntityNode{Entity{}};
     addNodes(map, {{parentForNodes(map), {entityNode2}}});
     map.deselectAll();
     map.selectNodes({entityNode2});
-    auto* groupNode2 = map.groupSelectedNodes("group2");
+    auto* groupNode2 = groupSelectedNodes(map, "group2");
 
     CHECK_THAT(
       map.currentLayer()->children(),
       Catch::UnorderedEquals(std::vector<Node*>{groupNode1, groupNode2}));
 
     map.selectNodes({groupNode1, groupNode2});
-    map.mergeSelectedGroupsWithGroup(groupNode2);
+    mergeSelectedGroupsWithGroup(map, groupNode2);
 
     CHECK_THAT(map.selection().nodes, Catch::Equals(std::vector<Node*>{groupNode2}));
     CHECK_THAT(
@@ -502,9 +504,9 @@ TEST_CASE("Map_Groups")
     addNodes(map, {{parentForNodes(map), {brushNode1}}});
     map.selectNodes({brushNode1});
 
-    auto* groupNode = map.groupSelectedNodes("test");
+    auto* groupNode = groupSelectedNodes(map, "test");
 
-    map.renameSelectedGroups("abc");
+    renameSelectedGroups(map, "abc");
     CHECK(groupNode->name() == "abc");
 
     map.undoCommand();
@@ -520,18 +522,18 @@ TEST_CASE("Map_Groups")
     addNodes(map, {{parentForNodes(map), {brushNode}}});
     map.selectNodes({brushNode});
 
-    auto* groupNode = map.groupSelectedNodes("test");
+    auto* groupNode = groupSelectedNodes(map, "test");
     REQUIRE(groupNode != nullptr);
 
     map.deselectAll();
 
-    CHECK_FALSE(map.canCreateLinkedDuplicate());
-    CHECK(map.createLinkedDuplicate() == nullptr);
+    CHECK_FALSE(canCreateLinkedDuplicate(map));
+    CHECK(createLinkedDuplicate(map) == nullptr);
 
     map.selectNodes({groupNode});
-    CHECK(map.canCreateLinkedDuplicate());
+    CHECK(canCreateLinkedDuplicate(map));
 
-    auto* linkedGroupNode = map.createLinkedDuplicate();
+    auto* linkedGroupNode = createLinkedDuplicate(map);
     CHECK_THAT(*linkedGroupNode, MatchesNode(*groupNode));
   }
 
@@ -541,7 +543,7 @@ TEST_CASE("Map_Groups")
     addNodes(map, {{parentForNodes(map), {brushNode}}});
     map.selectNodes({brushNode});
 
-    auto* groupNode = map.groupSelectedNodes("test");
+    auto* groupNode = groupSelectedNodes(map, "test");
     REQUIRE(groupNode != nullptr);
 
     map.deselectAll();
@@ -552,21 +554,21 @@ TEST_CASE("Map_Groups")
 
     SECTION("Separating a group that isn't linked")
     {
-      CHECK_FALSE(map.canSeparateSelectedLinkedGroups());
+      CHECK_FALSE(canSeparateSelectedLinkedGroups(map));
     }
 
     SECTION("Separating all members of a link set")
     {
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE_THAT(*linkedGroupNode, MatchesNode(*groupNode));
 
       map.selectNodes({groupNode, linkedGroupNode});
-      CHECK_FALSE(map.canSeparateSelectedLinkedGroups());
+      CHECK_FALSE(canSeparateSelectedLinkedGroups(map));
     }
 
     SECTION("Separating one group from a link set with two members")
     {
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE_THAT(*linkedGroupNode, MatchesNode(*groupNode));
 
       auto* linkedBrushNode =
@@ -576,8 +578,8 @@ TEST_CASE("Map_Groups")
       map.deselectAll();
       map.selectNodes({linkedGroupNode});
 
-      CHECK(map.canSeparateSelectedLinkedGroups());
-      map.separateSelectedLinkedGroups();
+      CHECK(canSeparateSelectedLinkedGroups(map));
+      separateSelectedLinkedGroups(map);
       CHECK(groupNode->linkId() == originalGroupLinkId);
       CHECK(brushNode->linkId() == originalBrushLinkId);
       CHECK(linkedGroupNode->linkId() != originalGroupLinkId);
@@ -592,9 +594,9 @@ TEST_CASE("Map_Groups")
 
     SECTION("Separating multiple groups from a link set with several members")
     {
-      auto* linkedGroupNode1 = map.createLinkedDuplicate();
-      auto* linkedGroupNode2 = map.createLinkedDuplicate();
-      auto* linkedGroupNode3 = map.createLinkedDuplicate();
+      auto* linkedGroupNode1 = createLinkedDuplicate(map);
+      auto* linkedGroupNode2 = createLinkedDuplicate(map);
+      auto* linkedGroupNode3 = createLinkedDuplicate(map);
 
       REQUIRE_THAT(*linkedGroupNode1, MatchesNode(*groupNode));
       REQUIRE_THAT(*linkedGroupNode2, MatchesNode(*groupNode));
@@ -609,9 +611,9 @@ TEST_CASE("Map_Groups")
 
       map.deselectAll();
       map.selectNodes({linkedGroupNode2, linkedGroupNode3});
-      CHECK(map.canSeparateSelectedLinkedGroups());
+      CHECK(canSeparateSelectedLinkedGroups(map));
 
-      map.separateSelectedLinkedGroups();
+      separateSelectedLinkedGroups(map);
       CHECK(groupNode->linkId() == originalGroupLinkId);
       CHECK(linkedGroupNode1->linkId() == originalGroupLinkId);
 
@@ -658,18 +660,18 @@ TEST_CASE("Map_Groups")
       nestedGroupNode->addChild(nestedEntityNode);
       addNodes(map, {{groupNode, {nestedGroupNode}}});
 
-      map.openGroup(groupNode);
+      openGroup(map, groupNode);
       map.deselectAll();
       map.selectNodes({nestedGroupNode});
 
-      auto* nestedLinkedGroupNode = map.createLinkedDuplicate();
+      auto* nestedLinkedGroupNode = createLinkedDuplicate(map);
       REQUIRE_THAT(*nestedLinkedGroupNode, MatchesNode(*nestedGroupNode));
 
       map.deselectAll();
-      map.closeGroup();
+      closeGroup(map);
 
       map.selectNodes({groupNode});
-      auto* linkedGroupNode = map.createLinkedDuplicate();
+      auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE_THAT(*linkedGroupNode, MatchesNode(*groupNode));
 
       const auto [linkedBrushNode, linkedNestedGroupNode, linkedNestedLinkedGroupNode] =
@@ -680,7 +682,7 @@ TEST_CASE("Map_Groups")
       SECTION("Separating linked groups with nested linked groups inside")
       {
         map.selectNodes({groupNode});
-        map.separateSelectedLinkedGroups();
+        separateSelectedLinkedGroups(map);
 
         // The outer groups where separated
         CHECK(groupNode->linkId() != linkedGroupNode->linkId());
@@ -694,14 +696,14 @@ TEST_CASE("Map_Groups")
 
       SECTION("Separating linked groups nested inside a linked group")
       {
-        map.openGroup(groupNode);
+        openGroup(map, groupNode);
         map.selectNodes({nestedLinkedGroupNode});
-        map.separateSelectedLinkedGroups();
+        separateSelectedLinkedGroups(map);
 
         REQUIRE(nestedGroupNode->linkId() != nestedLinkedGroupNode->linkId());
 
         map.deselectAll();
-        map.closeGroup();
+        closeGroup(map);
 
         // the change was propagated to linkedGroupNode:
         CHECK_THAT(*linkedGroupNode, MatchesNode(*groupNode));
@@ -734,9 +736,9 @@ TEST_CASE("Map_Groups")
       Catch::UnorderedEquals(
         std::vector<mdl::EntityNodeBase*>{entityNode, linkedEntityNode}));
 
-    CHECK(map.canUpdateLinkedGroups({entityNode}));
-    CHECK(map.canUpdateLinkedGroups({linkedEntityNode}));
-    CHECK_FALSE(map.canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(entityNodes)));
+    CHECK(canUpdateLinkedGroups({entityNode}));
+    CHECK(canUpdateLinkedGroups({linkedEntityNode}));
+    CHECK_FALSE(canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(entityNodes)));
   }
 }
 
