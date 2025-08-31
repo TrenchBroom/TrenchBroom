@@ -193,7 +193,7 @@ std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)
         | kdl::to_vector);
     }
 
-    // Otherwise, enable all texture collections
+    // Otherwise, enable all material collections
     return kdl::vec_sort_and_remove_duplicates(
       map.materialManager().collections()
       | std::views::transform([](const auto& collection) { return collection.path(); })

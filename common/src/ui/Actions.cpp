@@ -1144,8 +1144,8 @@ void ActionManager::createFileMenu()
   }));
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{
-    "Menu/File/Reload Texture Collections",
-    QObject::tr("Reload Texture Collections"),
+    "Menu/File/Reload Material Collections",
+    QObject::tr("Reload Material Collections"),
     ActionContext::Any,
     QKeySequence{Qt::Key_F5},
     [](auto& context) { context.frame().reloadMaterialCollections(); },
