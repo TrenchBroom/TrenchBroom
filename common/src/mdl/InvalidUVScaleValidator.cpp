@@ -27,6 +27,7 @@
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/PushSelection.h"
 
 #include <string>
@@ -61,7 +62,7 @@ IssueQuickFix makeResetUVScaleQuickFix()
 
             map.deselectAll();
             map.selectBrushFaces(faceHandles);
-            map.setFaceAttributes(request);
+            setBrushFaceAttributes(map, request);
           }};
 }
 } // namespace

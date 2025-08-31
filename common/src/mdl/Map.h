@@ -432,26 +432,6 @@ public: // entity management
 
   void setDefaultEntityProperties(SetDefaultPropertyMode mode);
 
-public: // brush management
-  bool createBrush(const std::vector<vm::vec3d>& points);
-
-  bool setFaceAttributes(const BrushFaceAttributes& attributes);
-  bool setFaceAttributesExceptContentFlags(const BrushFaceAttributes& attributes);
-  bool setFaceAttributes(const ChangeBrushFaceAttributesRequest& request);
-  bool copyUVFromFace(
-    const UVCoordSystemSnapshot& coordSystemSnapshot,
-    const BrushFaceAttributes& attribs,
-    const vm::plane3d& sourceFacePlane,
-    WrapStyle wrapStyle);
-  bool translateUV(
-    const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
-  bool rotateUV(float angle);
-  bool shearUV(const vm::vec2f& factors);
-  bool flipUV(
-    const vm::vec3f& cameraUp,
-    const vm::vec3f& cameraRight,
-    vm::direction cameraRelativeFlipDirection);
-
 public: // geometry
   bool transformSelection(
     const std::string& commandName, const vm::mat4x4d& transformation);

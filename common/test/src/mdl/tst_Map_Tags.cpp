@@ -27,6 +27,7 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
@@ -318,7 +319,7 @@ TEST_CASE("Map_Tags")
       request.setContentFlags(1);
 
       map.selectBrushFaces({faceHandle});
-      map.setFaceAttributes(request);
+      setBrushFaceAttributes(map, request);
       map.deselectAll();
 
       const auto& faces = brushNode->brush().faces();

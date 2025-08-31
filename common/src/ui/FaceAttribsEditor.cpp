@@ -34,6 +34,7 @@
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
@@ -85,7 +86,7 @@ void FaceAttribsEditor::xOffsetChanged(const double value)
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setXOffset(float(value));
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -101,7 +102,7 @@ void FaceAttribsEditor::yOffsetChanged(const double value)
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setYOffset(float(value));
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -117,7 +118,7 @@ void FaceAttribsEditor::rotationChanged(const double value)
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setRotation(float(value));
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -133,7 +134,7 @@ void FaceAttribsEditor::xScaleChanged(const double value)
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setXScale(float(value));
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -149,7 +150,7 @@ void FaceAttribsEditor::yScaleChanged(const double value)
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setYScale(float(value));
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -173,7 +174,7 @@ void FaceAttribsEditor::surfaceFlagChanged(
   {
     request.unsetSurfaceFlags(value);
   }
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -197,7 +198,7 @@ void FaceAttribsEditor::contentFlagChanged(
   {
     request.unsetContentFlags(value);
   }
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -213,7 +214,7 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setSurfaceValue(float(value));
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -234,7 +235,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
     {
       auto request = mdl::ChangeBrushFaceAttributesRequest{};
       request.setColor(*color);
-      if (!map.setFaceAttributes(request))
+      if (!setBrushFaceAttributes(map, request))
       {
         updateControls();
       }
@@ -244,7 +245,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   {
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setColor(Color());
-    if (!map.setFaceAttributes(request))
+    if (!setBrushFaceAttributes(map, request))
     {
       updateControls();
     }
@@ -261,7 +262,7 @@ void FaceAttribsEditor::surfaceFlagsUnset()
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.replaceSurfaceFlags(std::nullopt);
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -277,7 +278,7 @@ void FaceAttribsEditor::contentFlagsUnset()
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.replaceContentFlags(std::nullopt);
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -293,7 +294,7 @@ void FaceAttribsEditor::surfaceValueUnset()
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setSurfaceValue(std::nullopt);
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -309,7 +310,7 @@ void FaceAttribsEditor::colorValueUnset()
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setColor(std::nullopt);
-  if (!map.setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }

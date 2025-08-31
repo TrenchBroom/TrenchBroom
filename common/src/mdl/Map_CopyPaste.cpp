@@ -32,6 +32,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PasteType.h"
@@ -237,7 +238,7 @@ bool pasteNodes(Map& map, const std::vector<Node*>& nodes)
 bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 {
   assert(!faces.empty());
-  return map.setFaceAttributesExceptContentFlags(faces.back().attributes());
+  return setBrushFaceAttributesExceptContentFlags(map, faces.back().attributes());
 }
 
 } // namespace

@@ -26,6 +26,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
 #include "ui/MapDocument.h"
 
@@ -39,7 +40,7 @@ TEST_CASE("Map_Brushes")
   auto fixture = MapFixture{};
   auto& map = fixture.map();
 
-  SECTION("setFaceAttributes")
+  SECTION("setBrushFaceAttributes")
   {
     fixture.create();
 
@@ -66,7 +67,7 @@ TEST_CASE("Map_Brushes")
       setFirstFace.replaceContentFlags(12u);
       setFirstFace.setSurfaceValue(3.14f);
       setFirstFace.setColor(Color{1.0f, 1.0f, 1.0f, 1.0f});
-      map.setFaceAttributes(setFirstFace);
+      setBrushFaceAttributes(map, setFirstFace);
 
       {
         const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
@@ -96,7 +97,7 @@ TEST_CASE("Map_Brushes")
       setSecondFace.replaceContentFlags(2048u);
       setSecondFace.setSurfaceValue(1.0f);
       setSecondFace.setColor(Color{0.5f, 0.5f, 0.5f, 0.5f});
-      map.setFaceAttributes(setSecondFace);
+      setBrushFaceAttributes(map, setSecondFace);
 
       {
         const auto& secondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
@@ -117,7 +118,7 @@ TEST_CASE("Map_Brushes")
 
       auto copySecondToThirdFace = ChangeBrushFaceAttributesRequest{};
       copySecondToThirdFace.setAll(brushNode->brush().face(secondFaceIndex));
-      map.setFaceAttributes(copySecondToThirdFace);
+      setBrushFaceAttributes(map, copySecondToThirdFace);
 
       CHECK(
         brushNode->brush().face(thirdFaceIndex).attributes()
@@ -131,7 +132,7 @@ TEST_CASE("Map_Brushes")
 
       auto copyFirstToSecondFace = ChangeBrushFaceAttributesRequest{};
       copyFirstToSecondFace.setAll(brushNode->brush().face(firstFaceIndex));
-      map.setFaceAttributes(copyFirstToSecondFace);
+      setBrushFaceAttributes(map, copyFirstToSecondFace);
 
       CHECK(
         brushNode->brush().face(secondFaceIndex).attributes()
@@ -142,7 +143,7 @@ TEST_CASE("Map_Brushes")
       ChangeBrushFaceAttributesRequest copyFirstToThirdFaceNoContents;
       copyFirstToThirdFaceNoContents.setAllExceptContentFlags(
         brushNode->brush().face(firstFaceIndex));
-      map.setFaceAttributes(copyFirstToThirdFaceNoContents);
+      setBrushFaceAttributes(map, copyFirstToThirdFaceNoContents);
 
       {
         const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
@@ -174,7 +175,7 @@ TEST_CASE("Map_Brushes")
 
       auto setMaterial = ChangeBrushFaceAttributesRequest{};
       setMaterial.setMaterialName("material");
-      map.setFaceAttributes(setMaterial);
+      setBrushFaceAttributes(map, setMaterial);
       for (const auto& face : brushNode->brush().faces())
       {
         REQUIRE(face.attributes().materialName() == "material");
@@ -222,8 +223,8 @@ TEST_CASE("Map_Brushes")
         "Transfer face attributes except content flags from waterbrush to lavabrush")
       {
         map.selectNodes({lavabrush});
-        CHECK(map.setFaceAttributesExceptContentFlags(
-          waterbrush->brush().face(0).attributes()));
+        CHECK(setBrushFaceAttributesExceptContentFlags(
+          map, waterbrush->brush().face(0).attributes()));
 
         SECTION("Check lavabrush is now inheriting the water content flags")
         {
@@ -244,7 +245,7 @@ TEST_CASE("Map_Brushes")
 
         auto request = ChangeBrushFaceAttributesRequest{};
         request.setContentFlags(WaterFlag);
-        CHECK(map.setFaceAttributes(request));
+        CHECK(setBrushFaceAttributes(map, request));
 
         CHECK(lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
         CHECK(
@@ -264,7 +265,7 @@ TEST_CASE("Map_Brushes")
 
       auto request = ChangeBrushFaceAttributesRequest{};
       request.setMaterialName("something_else");
-      map.setFaceAttributes(request);
+      setBrushFaceAttributes(map, request);
 
       CHECK(brushNode->brush().face(0).attributes().materialName() == "something_else");
       CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
@@ -295,7 +296,7 @@ TEST_CASE("Map_Brushes")
       rotate.addRotation(2.0);
       for (size_t i = 0; i < 5; ++i)
       {
-        map.setFaceAttributes(rotate);
+        setBrushFaceAttributes(map, rotate);
       }
 
       REQUIRE(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
@@ -303,7 +304,7 @@ TEST_CASE("Map_Brushes")
       auto reset = ChangeBrushFaceAttributesRequest{};
       reset.resetAll(defaultFaceAttrs);
 
-      map.setFaceAttributes(reset);
+      setBrushFaceAttributes(map, reset);
 
       CHECK(brushNode->brush().face(faceIndex).attributes().xOffset() == 0.0f);
       CHECK(brushNode->brush().face(faceIndex).attributes().yOffset() == 0.0f);
@@ -341,7 +342,7 @@ TEST_CASE("Map_Brushes")
 
         auto setMaterial = ChangeBrushFaceAttributesRequest{};
         setMaterial.setMaterialName("abc");
-        CHECK(map.setFaceAttributes(setMaterial));
+        CHECK(setBrushFaceAttributes(map, setMaterial));
 
         // check that the brushes in both linked groups got a material
         for (auto* g : std::vector<GroupNode*>{groupNode, linkedGroupNode})

@@ -26,6 +26,7 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/TransactionScope.h"
@@ -109,7 +110,7 @@ TEST_CASE("Map_Commands")
 
         auto request = ChangeBrushFaceAttributesRequest{};
         request.setXOffset(12.34f);
-        REQUIRE(map.setFaceAttributes(request));
+        REQUIRE(setBrushFaceAttributes(map, request));
 
         map.undoCommand(); // undo move
         CHECK(material->usageCount() == 6u);

@@ -30,6 +30,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
@@ -270,15 +271,16 @@ void transferFaceAttributes(
   {
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setMaterialName(sourceFaceHandle.face().attributes().materialName());
-    map.setFaceAttributes(request);
+    setBrushFaceAttributes(map, request);
   }
   else
   {
     auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot();
-    map.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
+    setBrushFaceAttributesExceptContentFlags(map, sourceFaceHandle.face().attributes());
     if (snapshot)
     {
-      map.copyUVFromFace(
+      copyUV(
+        map,
         *snapshot,
         sourceFaceHandle.face().attributes(),
         sourceFaceHandle.face().boundary(),

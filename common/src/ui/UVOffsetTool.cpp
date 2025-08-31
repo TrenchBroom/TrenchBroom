@@ -22,6 +22,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/TransactionScope.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
@@ -113,7 +114,7 @@ public:
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setOffset(corrected);
 
-    m_map.setFaceAttributes(request);
+    setBrushFaceAttributes(m_map, request);
 
     m_lastPoint = m_lastPoint + snapped;
     return true;

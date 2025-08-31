@@ -28,6 +28,7 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/UVView.h"
@@ -158,7 +159,7 @@ void UVEditor::resetUVClicked()
 
   auto& map = m_document.map();
   request.resetAll(map.game()->config().faceAttribsConfig.defaults);
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void UVEditor::resetUVToWorldClicked()
@@ -167,7 +168,7 @@ void UVEditor::resetUVToWorldClicked()
 
   auto& map = m_document.map();
   request.resetAllToParaxial(map.game()->config().faceAttribsConfig.defaults);
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void UVEditor::flipUVHClicked()
@@ -176,7 +177,7 @@ void UVEditor::flipUVHClicked()
   request.mulXScale(-1.0f);
 
   auto& map = m_document.map();
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void UVEditor::flipUVVClicked()
@@ -185,7 +186,7 @@ void UVEditor::flipUVVClicked()
   request.mulYScale(-1.0f);
 
   auto& map = m_document.map();
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void UVEditor::rotateUVCCWClicked()
@@ -194,7 +195,7 @@ void UVEditor::rotateUVCCWClicked()
   request.addRotation(90.0f);
 
   auto& map = m_document.map();
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void UVEditor::rotateUVCWClicked()
@@ -203,7 +204,7 @@ void UVEditor::rotateUVCWClicked()
   request.addRotation(-90.0f);
 
   auto& map = m_document.map();
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void UVEditor::subDivisionChanged()

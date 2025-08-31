@@ -27,6 +27,7 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
@@ -144,7 +145,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
 
   auto request = ChangeBrushFaceAttributesRequest{};
   request.setMaterialName(material->name());
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 bool MaterialTagMatcher::canEnable() const
@@ -335,14 +336,14 @@ void FlagsTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
 
   auto request = ChangeBrushFaceAttributesRequest{};
   m_setFlags(request, flagToSet);
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void FlagsTagMatcher::disable(TagMatcherCallback&, Map& map) const
 {
   auto request = ChangeBrushFaceAttributesRequest{};
   m_unsetFlags(request, m_flags);
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 bool FlagsTagMatcher::canEnable() const
@@ -472,7 +473,7 @@ void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) c
   {
     auto request = ChangeBrushFaceAttributesRequest{};
     request.setMaterialName(m_material);
-    map.setFaceAttributes(request);
+    setBrushFaceAttributes(map, request);
   }
 }
 

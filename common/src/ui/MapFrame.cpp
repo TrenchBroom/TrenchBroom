@@ -60,6 +60,7 @@
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Map_Assets.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -2298,8 +2299,7 @@ void MapFrame::debugCreateBrush()
     auto positions = std::vector<vm::vec3d>{};
     vm::parse_all<double, 3>(str.toStdString(), std::back_inserter(positions));
 
-    auto& map = m_document->map();
-    map.createBrush(positions);
+    createBrush(m_document->map(), positions);
   }
 }
 
@@ -2314,8 +2314,7 @@ void MapFrame::debugCreateCube()
     const auto bounds = vm::bbox3d{size / 2.0};
     const auto positions = bounds.vertices() | kdl::to_vector;
 
-    auto& map = m_document->map();
-    map.createBrush(positions);
+    createBrush(m_document->map(), positions);
   }
 }
 

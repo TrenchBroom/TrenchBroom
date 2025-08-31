@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_Brushes.h"
+
 #include "Logger.h"
 #include "Map.h"
 #include "mdl/ApplyAndSwap.h"
@@ -32,23 +34,25 @@
 namespace tb::mdl
 {
 
-bool Map::createBrush(const std::vector<vm::vec3d>& points)
+bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
 {
   const auto builder = BrushBuilder{
-    world()->mapFormat(), worldBounds(), game()->config().faceAttribsConfig.defaults};
+    map.world()->mapFormat(),
+    map.worldBounds(),
+    map.game()->config().faceAttribsConfig.defaults};
 
-  return builder.createBrush(points, currentMaterialName())
+  return builder.createBrush(points, map.currentMaterialName())
          | kdl::and_then([&](auto b) -> Result<void> {
              auto* brushNode = new BrushNode{std::move(b)};
 
-             auto transaction = Transaction{*this, "Create Brush"};
-             deselectAll();
-             if (addNodes(*this, {{parentForNodes(*this), {brushNode}}}).empty())
+             auto transaction = Transaction{map, "Create Brush"};
+             map.deselectAll();
+             if (addNodes(map, {{parentForNodes(map), {brushNode}}}).empty())
              {
                transaction.cancel();
                return Error{"Could not add brush to document"};
              }
-             selectNodes({brushNode});
+             map.selectNodes({brushNode});
              if (!transaction.commit())
              {
                return Error{"Could not add brush to document"};
@@ -57,73 +61,79 @@ bool Map::createBrush(const std::vector<vm::vec3d>& points)
              return kdl::void_success;
            })
          | kdl::if_error(
-           [&](auto e) { logger().error() << "Could not create brush: " << e.msg; })
+           [&](auto e) { map.logger().error() << "Could not create brush: " << e.msg; })
          | kdl::is_success();
 }
 
-bool Map::setFaceAttributes(const BrushFaceAttributes& attributes)
+bool setBrushFaceAttributes(Map& map, const BrushFaceAttributes& attributes)
 {
-  ChangeBrushFaceAttributesRequest request;
+  auto request = ChangeBrushFaceAttributesRequest{};
   request.setAll(attributes);
-  return setFaceAttributes(request);
+  return setBrushFaceAttributes(map, request);
 }
 
-bool Map::setFaceAttributesExceptContentFlags(const BrushFaceAttributes& attributes)
+bool setBrushFaceAttributesExceptContentFlags(
+  Map& map, const BrushFaceAttributes& attributes)
 {
-  ChangeBrushFaceAttributesRequest request;
+  auto request = ChangeBrushFaceAttributesRequest{};
   request.setAllExceptContentFlags(attributes);
-  return setFaceAttributes(request);
+  return setBrushFaceAttributes(map, request);
 }
 
-bool Map::setFaceAttributes(const ChangeBrushFaceAttributesRequest& request)
+bool setBrushFaceAttributes(Map& map, const ChangeBrushFaceAttributesRequest& request)
 {
   return applyAndSwap(
-    *this, request.name(), selection().allBrushFaces(), [&](BrushFace& brushFace) {
+    map, request.name(), map.selection().allBrushFaces(), [&](BrushFace& brushFace) {
       request.evaluate(brushFace);
       return true;
     });
 }
 
-bool Map::copyUVFromFace(
+bool copyUV(
+  Map& map,
   const UVCoordSystemSnapshot& coordSystemSnapshot,
   const BrushFaceAttributes& attribs,
   const vm::plane3d& sourceFacePlane,
   const WrapStyle wrapStyle)
 {
   return applyAndSwap(
-    *this, "Copy UV Alignment", selection().brushFaces, [&](BrushFace& face) {
+    map, "Copy UV Alignment", map.selection().brushFaces, [&](BrushFace& face) {
       face.copyUVCoordSystemFromFace(
         coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
     });
 }
 
-bool Map::translateUV(
-  const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta)
+bool translateUV(
+  Map& map,
+  const vm::vec3f& cameraUp,
+  const vm::vec3f& cameraRight,
+  const vm::vec2f& delta)
 {
-  return applyAndSwap(*this, "Move UV", selection().brushFaces, [&](BrushFace& face) {
+  return applyAndSwap(map, "Move UV", map.selection().brushFaces, [&](BrushFace& face) {
     face.moveUV(vm::vec3d(cameraUp), vm::vec3d(cameraRight), delta);
     return true;
   });
 }
 
-bool Map::rotateUV(const float angle)
+bool rotateUV(Map& map, const float angle)
 {
-  return applyAndSwap(*this, "Rotate UV", selection().brushFaces, [&](BrushFace& face) {
+  return applyAndSwap(map, "Rotate UV", map.selection().brushFaces, [&](BrushFace& face) {
     face.rotateUV(angle);
     return true;
   });
 }
 
-bool Map::shearUV(const vm::vec2f& factors)
+bool shearUV(Map& map, const vm::vec2f& factors)
 {
-  return applyAndSwap(*this, "Shear UV", selection().brushFaces, [&](BrushFace& face) {
+  return applyAndSwap(map, "Shear UV", map.selection().brushFaces, [&](BrushFace& face) {
     face.shearUV(factors);
     return true;
   });
 }
 
-bool Map::flipUV(
+bool flipUV(
+  Map& map,
   const vm::vec3f& cameraUp,
   const vm::vec3f& cameraRight,
   const vm::direction cameraRelativeFlipDirection)
@@ -132,9 +142,9 @@ bool Map::flipUV(
     (cameraRelativeFlipDirection == vm::direction::left
      || cameraRelativeFlipDirection == vm::direction::right);
   return applyAndSwap(
-    *this,
+    map,
     isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
-    selection().brushFaces,
+    map.selection().brushFaces,
     [&](BrushFace& face) {
       face.flipUV(
         vm::vec3d(cameraUp), vm::vec3d(cameraRight), cameraRelativeFlipDirection);

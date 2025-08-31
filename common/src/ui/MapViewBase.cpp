@@ -46,6 +46,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -499,7 +500,7 @@ void MapViewBase::moveUV(const vm::direction direction, const UVActionMode mode)
   if (map.selection().hasBrushFaces())
   {
     const auto offset = moveUVOffset(direction, mode);
-    map.translateUV(camera().up(), camera().right(), offset);
+    translateUV(map, camera().up(), camera().right(), offset);
   }
 }
 
@@ -547,7 +548,7 @@ void MapViewBase::rotateUV(const bool clockwise, const UVActionMode mode)
   if (map.selection().hasBrushFaces())
   {
     const auto angle = rotateUVAngle(clockwise, mode);
-    map.rotateUV(angle);
+    mdl::rotateUV(map, angle);
   }
 }
 
@@ -578,7 +579,7 @@ void MapViewBase::flipUV(const vm::direction direction)
   auto& map = m_document.map();
   if (map.selection().hasBrushFaces())
   {
-    map.flipUV(camera().up(), camera().right(), direction);
+    mdl::flipUV(map, camera().up(), camera().right(), direction);
   }
 }
 
@@ -588,7 +589,7 @@ void MapViewBase::resetUV()
 
   auto& map = m_document.map();
   request.resetAll(map.game()->config().faceAttribsConfig.defaults);
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void MapViewBase::resetUVToWorld()
@@ -597,7 +598,7 @@ void MapViewBase::resetUVToWorld()
 
   auto& map = m_document.map();
   request.resetAllToParaxial(map.game()->config().faceAttribsConfig.defaults);
-  map.setFaceAttributes(request);
+  setBrushFaceAttributes(map, request);
 }
 
 void MapViewBase::assembleBrush()

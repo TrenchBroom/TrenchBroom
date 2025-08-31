@@ -24,6 +24,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "ui/GestureTracker.h"
@@ -184,7 +185,7 @@ public:
           vm::vec2f{0, 0}, m_helper.face()->attributes().scale(), true)
         * origin};
 
-      m_map.shearUV(snappedFactors);
+      shearUV(m_map, snappedFactors);
 
       const auto newOriginUV = vm::vec2f{
         m_helper.face()->toUVCoordSystemMatrix(
@@ -195,7 +196,7 @@ public:
 
       auto request = mdl::ChangeBrushFaceAttributesRequest{};
       request.setOffset(newOffset);
-      m_map.setFaceAttributes(request);
+      setBrushFaceAttributes(m_map, request);
     }
 
     return true;

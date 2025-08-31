@@ -26,6 +26,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
@@ -224,7 +225,7 @@ public:
 
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setRotation(snappedAngle);
-    m_map.setFaceAttributes(request);
+    setBrushFaceAttributes(m_map, request);
 
     // Correct the offsets.
     const auto toFaceNew =
@@ -238,7 +239,7 @@ public:
 
     request.clear();
     request.setOffset(newOffset);
-    m_map.setFaceAttributes(request);
+    setBrushFaceAttributes(m_map, request);
 
     return true;
   }

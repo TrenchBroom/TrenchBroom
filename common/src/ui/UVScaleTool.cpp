@@ -25,6 +25,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "render/EdgeRenderer.h"
@@ -230,14 +231,14 @@ public:
 
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setScale(newScale);
-    m_map.setFaceAttributes(request);
+    setBrushFaceAttributes(m_map, request);
 
     const auto newOriginInUVCoords = vm::correct(m_helper.originInUVCoords(), 4, 0.0f);
     const auto originDelta = originHandlePosUVCoords - newOriginInUVCoords;
 
     request.clear();
     request.addOffset(originDelta);
-    m_map.setFaceAttributes(request);
+    setBrushFaceAttributes(m_map, request);
 
     m_lastHitPoint =
       m_lastHitPoint
