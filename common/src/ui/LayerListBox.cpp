@@ -27,6 +27,7 @@
 #include <QToolButton>
 #include <QtGlobal>
 
+#include "mdl/EditorContext.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/WorldNode.h"
@@ -110,10 +111,11 @@ void LayerListBoxWidget::updateItem()
 void LayerListBoxWidget::updateLayerItem()
 {
   auto& map = m_document.map();
+  const auto& editorContext = map.editorContext();
 
   // Update labels
   m_nameText->setText(tr("%1").arg(QString::fromStdString(m_layer->name())));
-  if (map.currentLayer() == m_layer)
+  if (editorContext.currentLayer() == m_layer)
   {
     makeEmphasized(m_nameText);
   }
@@ -128,7 +130,7 @@ void LayerListBoxWidget::updateLayerItem()
   m_infoText->setText(info);
 
   // Update buttons
-  m_activeButton->setChecked(map.currentLayer() == m_layer);
+  m_activeButton->setChecked(editorContext.currentLayer() == m_layer);
   m_lockButton->setChecked(m_layer->locked());
   m_hiddenButton->setChecked(m_layer->hidden());
   m_omitFromExportButton->setChecked(m_layer->layer().omitFromExport());

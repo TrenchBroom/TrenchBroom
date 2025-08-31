@@ -346,27 +346,6 @@ public: // picking
   void pick(const vm::ray3d& pickRay, PickResult& pickResult) const;
   std::vector<Node*> findNodesContaining(const vm::vec3d& point) const;
 
-public: // layer management
-  LayerNode* currentLayer() const;
-  void setCurrentLayer(LayerNode* currentLayer);
-  bool canSetCurrentLayer(LayerNode* currentLayer) const;
-
-  void renameLayer(LayerNode* layer, const std::string& name);
-
-  void moveLayer(LayerNode* layer, int offset);
-  bool canMoveLayer(LayerNode* layer, int offset) const;
-  void moveSelectedNodesToLayer(LayerNode* layer);
-  bool canMoveSelectedNodesToLayer(LayerNode* layer) const;
-  void hideLayers(const std::vector<LayerNode*>& layers);
-  bool canHideLayers(const std::vector<LayerNode*>& layers) const;
-  void isolateLayers(const std::vector<LayerNode*>& layers);
-  bool canIsolateLayers(const std::vector<LayerNode*>& layers) const;
-  void setOmitLayerFromExport(LayerNode* layerNode, bool omitFromExport);
-
-private:
-  enum class MoveDirection;
-  bool moveLayerByOne(LayerNode* layerNode, MoveDirection direction);
-
 public: // tag management
   void registerSmartTags();
   const std::vector<SmartTag>& smartTags() const;

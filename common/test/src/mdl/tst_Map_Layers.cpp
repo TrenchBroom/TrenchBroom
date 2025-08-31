@@ -21,6 +21,7 @@
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Group.h"
@@ -28,6 +29,7 @@
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -64,22 +66,22 @@ TEST_CASE("Map_Layers")
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
       addNodes(map, {{map.world(), {layerNode1}}});
       addNodes(map, {{map.world(), {layerNode2}}});
-      CHECK(map.currentLayer() == defaultLayerNode);
+      CHECK(map.editorContext().currentLayer() == defaultLayerNode);
 
-      map.setCurrentLayer(layerNode1);
-      map.setCurrentLayer(layerNode2);
-      CHECK(map.currentLayer() == layerNode2);
+      setCurrentLayer(map, layerNode1);
+      setCurrentLayer(map, layerNode2);
+      CHECK(map.editorContext().currentLayer() == layerNode2);
 
       // No collation currently because of the transactions in setCurrentLayer()
       map.undoCommand();
-      CHECK(map.currentLayer() == layerNode1);
+      CHECK(map.editorContext().currentLayer() == layerNode1);
       map.undoCommand();
-      CHECK(map.currentLayer() == defaultLayerNode);
+      CHECK(map.editorContext().currentLayer() == defaultLayerNode);
 
       map.redoCommand();
-      CHECK(map.currentLayer() == layerNode1);
+      CHECK(map.editorContext().currentLayer() == layerNode1);
       map.redoCommand();
-      CHECK(map.currentLayer() == layerNode2);
+      CHECK(map.editorContext().currentLayer() == layerNode2);
     }
 
     SECTION("Switching away from a hidden layer with visible nodes hides them")
@@ -89,14 +91,14 @@ TEST_CASE("Map_Layers")
       addNodes(map, {{map.world(), {layerNode1}}});
       addNodes(map, {{map.world(), {layerNode2}}});
 
-      map.setCurrentLayer(layerNode1);
+      setCurrentLayer(map, layerNode1);
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
       // Hide layer1. The entity now inherits its visibility state and is hidden
-      map.hideLayers({layerNode1});
+      hideLayers(map, {layerNode1});
 
       REQUIRE(entityNode1->visibilityState() == VisibilityState::Inherited);
       REQUIRE(!entityNode1->visible());
@@ -114,9 +116,9 @@ TEST_CASE("Map_Layers")
       CHECK(entityNode2->visible());
 
       // Change to layer2. This hides all objects in layer1
-      map.setCurrentLayer(layerNode2);
+      setCurrentLayer(map, layerNode2);
 
-      CHECK(map.currentLayer() == layerNode2);
+      CHECK(map.editorContext().currentLayer() == layerNode2);
       CHECK(entityNode1->visibilityState() == VisibilityState::Inherited);
       CHECK(!entityNode1->visible());
       CHECK(entityNode2->visibilityState() == VisibilityState::Inherited);
@@ -125,7 +127,7 @@ TEST_CASE("Map_Layers")
       // Undo (Switch current layer back to layer1)
       map.undoCommand();
 
-      CHECK(map.currentLayer() == layerNode1);
+      CHECK(map.editorContext().currentLayer() == layerNode1);
       CHECK(entityNode1->visibilityState() == VisibilityState::Inherited);
       CHECK(!entityNode1->visible());
       CHECK(entityNode2->visibilityState() == VisibilityState::Shown);
@@ -139,7 +141,7 @@ TEST_CASE("Map_Layers")
       addNodes(map, {{map.world(), {layerNode1}}});
       addNodes(map, {{map.world(), {layerNode2}}});
 
-      map.setCurrentLayer(layerNode1);
+      setCurrentLayer(map, layerNode1);
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
@@ -163,9 +165,9 @@ TEST_CASE("Map_Layers")
       CHECK(!entityNode2->locked());
 
       // Change to layer2. This locks all objects in layer1
-      map.setCurrentLayer(layerNode2);
+      setCurrentLayer(map, layerNode2);
 
-      CHECK(map.currentLayer() == layerNode2);
+      CHECK(map.editorContext().currentLayer() == layerNode2);
       CHECK(entityNode1->lockState() == LockState::Inherited);
       CHECK(entityNode1->locked());
       CHECK(entityNode2->lockState() == LockState::Inherited);
@@ -174,7 +176,7 @@ TEST_CASE("Map_Layers")
       // Undo (Switch current layer back to layer1)
       map.undoCommand();
 
-      CHECK(map.currentLayer() == layerNode1);
+      CHECK(map.editorContext().currentLayer() == layerNode1);
       CHECK(entityNode1->lockState() == LockState::Inherited);
       CHECK(entityNode1->locked());
       CHECK(entityNode2->lockState() == LockState::Unlocked);
@@ -188,7 +190,7 @@ TEST_CASE("Map_Layers")
     addNodes(map, {{map.world(), {layerNode}}});
     CHECK(layerNode->name() == "test1");
 
-    map.renameLayer(layerNode, "test2");
+    renameLayer(map, layerNode, "test2");
     CHECK(layerNode->name() == "test2");
 
     map.undoCommand();
@@ -210,41 +212,41 @@ TEST_CASE("Map_Layers")
     SECTION("canMoveLayer")
     {
       // defaultLayer() can never be moved
-      CHECK(!map.canMoveLayer(map.world()->defaultLayer(), 1));
-      CHECK(map.canMoveLayer(layerNode0, 0));
-      CHECK(!map.canMoveLayer(layerNode0, -1));
-      CHECK(map.canMoveLayer(layerNode0, 1));
-      CHECK(map.canMoveLayer(layerNode0, 2));
-      CHECK(!map.canMoveLayer(layerNode0, 3));
+      CHECK(!canMoveLayer(map, map.world()->defaultLayer(), 1));
+      CHECK(canMoveLayer(map, layerNode0, 0));
+      CHECK(!canMoveLayer(map, layerNode0, -1));
+      CHECK(canMoveLayer(map, layerNode0, 1));
+      CHECK(canMoveLayer(map, layerNode0, 2));
+      CHECK(!canMoveLayer(map, layerNode0, 3));
     }
 
     SECTION("moveLayer by 0 has no effect")
     {
-      map.moveLayer(layerNode0, 0);
+      moveLayer(map, layerNode0, 0);
       CHECK(layerNode0->layer().sortIndex() == 0);
     }
     SECTION("moveLayer by invalid negative amount is clamped")
     {
-      map.moveLayer(layerNode0, -1000);
+      moveLayer(map, layerNode0, -1000);
       CHECK(layerNode0->layer().sortIndex() == 0);
     }
     SECTION("moveLayer by 1")
     {
-      map.moveLayer(layerNode0, 1);
+      moveLayer(map, layerNode0, 1);
       CHECK(layerNode1->layer().sortIndex() == 0);
       CHECK(layerNode0->layer().sortIndex() == 1);
       CHECK(layerNode2->layer().sortIndex() == 2);
     }
     SECTION("moveLayer by 2")
     {
-      map.moveLayer(layerNode0, 2);
+      moveLayer(map, layerNode0, 2);
       CHECK(layerNode1->layer().sortIndex() == 0);
       CHECK(layerNode2->layer().sortIndex() == 1);
       CHECK(layerNode0->layer().sortIndex() == 2);
     }
     SECTION("moveLayer by invalid positive amount is clamped")
     {
-      map.moveLayer(layerNode0, 1000);
+      moveLayer(map, layerNode0, 1000);
       CHECK(layerNode1->layer().sortIndex() == 0);
       CHECK(layerNode2->layer().sortIndex() == 1);
       CHECK(layerNode0->layer().sortIndex() == 2);
@@ -279,7 +281,7 @@ TEST_CASE("Map_Layers")
       WHEN("The node is moved to another layer")
       {
         map.selectNodes({node});
-        map.moveSelectedNodesToLayer(customLayer);
+        moveSelectedNodesToLayer(map, customLayer);
 
         THEN("The group node is in the target layer")
         {
@@ -339,7 +341,7 @@ TEST_CASE("Map_Layers")
         }
 
         const auto selectedNodes = map.selection().nodes;
-        map.moveSelectedNodesToLayer(customLayer);
+        moveSelectedNodesToLayer(map, customLayer);
 
         THEN("The brush entity node is moved to the target layer")
         {

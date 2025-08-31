@@ -26,6 +26,7 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
@@ -871,9 +872,9 @@ TEST_CASE("Map_Geometry")
         "fixture/test/ui/MapDocumentTest/csgSubtractFailure.map",
         {.mapFormat = MapFormat::Valve, .game = LoadGameFixture{"Quake"}});
 
-      REQUIRE(map.currentLayer()->childCount() == 2);
+      REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
       auto* subtrahendNode =
-        dynamic_cast<BrushNode*>(map.currentLayer()->children().at(1));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(1));
       REQUIRE(subtrahendNode);
       REQUIRE(subtrahendNode->brush().findFace("clip").has_value());
 
@@ -881,8 +882,9 @@ TEST_CASE("Map_Geometry")
       map.selectNodes({subtrahendNode});
       CHECK(csgSubtract(map));
 
-      REQUIRE(map.currentLayer()->childCount() == 1);
-      auto* result = dynamic_cast<BrushNode*>(map.currentLayer()->children().at(0));
+      REQUIRE(map.editorContext().currentLayer()->childCount() == 1);
+      auto* result =
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
 
       CHECK_THAT(
         result->brush().vertexPositions(),
@@ -906,7 +908,7 @@ TEST_CASE("Map_Geometry")
       "fixture/test/ui/MapDocumentTest/csgHollow.map",
       {.mapFormat = MapFormat::Valve, .game = LoadGameFixture{"Quake"}});
 
-    REQUIRE(map.currentLayer()->childCount() == 2);
+    REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
     REQUIRE(!map.modified());
 
     SECTION("A brush too small to be hollowed doesn't block the command")
@@ -916,17 +918,17 @@ TEST_CASE("Map_Geometry")
 
       // One cube is too small to hollow, so it's left untouched.
       // The other is hollowed into 6 brushes.
-      CHECK(map.currentLayer()->childCount() == 7);
+      CHECK(map.editorContext().currentLayer()->childCount() == 7);
       CHECK(map.modified());
     }
 
     SECTION("If no brushes are hollowed, the transaction isn't committed")
     {
-      auto* smallBrushNode = map.currentLayer()->children().at(0);
+      auto* smallBrushNode = map.editorContext().currentLayer()->children().at(0);
       map.selectNodes({smallBrushNode});
 
       CHECK(!csgHollow(map));
-      CHECK(map.currentLayer()->childCount() == 2);
+      CHECK(map.editorContext().currentLayer()->childCount() == 2);
       CHECK(!map.modified());
     }
   }

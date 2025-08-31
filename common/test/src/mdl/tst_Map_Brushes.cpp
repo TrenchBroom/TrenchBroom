@@ -23,6 +23,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/EditorContext.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -204,16 +205,18 @@ TEST_CASE("Map_Brushes")
         "fixture/test/ui/ChangeBrushFaceAttributesTest/lavaAndWater.map",
         {.game = LoadGameFixture{"Quake2"}});
 
-      REQUIRE(map.currentLayer() != nullptr);
+      REQUIRE(map.editorContext().currentLayer() != nullptr);
 
-      auto* lavabrush = dynamic_cast<BrushNode*>(map.currentLayer()->children().at(0));
+      auto* lavabrush =
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
       REQUIRE(lavabrush);
       CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
       CHECK(
         lavabrush->brush().face(0).resolvedSurfaceContents()
         == LavaFlag); // comes from the .wal texture
 
-      auto* waterbrush = dynamic_cast<BrushNode*>(map.currentLayer()->children().at(1));
+      auto* waterbrush =
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(1));
       REQUIRE(waterbrush);
       CHECK(!waterbrush->brush().face(0).attributes().hasSurfaceAttributes());
       CHECK(

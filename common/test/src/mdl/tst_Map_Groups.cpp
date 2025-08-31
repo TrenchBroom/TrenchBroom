@@ -31,6 +31,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -167,19 +168,19 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{map.world(), {layerNode1}}});
       addNodes(map, {{map.world(), {layerNode2}}});
 
-      map.setCurrentLayer(layerNode1);
+      setCurrentLayer(map, layerNode1);
       auto* entityNode = createPointEntity(map, pointEntityDefinition, {0, 0, 0});
       CHECK(entityNode->parent() == layerNode1);
       CHECK(layerNode1->childCount() == 1);
 
-      map.setCurrentLayer(layerNode2);
+      setCurrentLayer(map, layerNode2);
       map.selectNodes({entityNode});
       auto* newGroupNode = groupSelectedNodes(map, "Group in Layer 1");
 
       CHECK(entityNode->parent() == newGroupNode);
       CHECK(findContainingLayer(entityNode) == layerNode1);
       CHECK(findContainingLayer(newGroupNode) == layerNode1);
-      CHECK(map.currentLayer() == layerNode2);
+      CHECK(map.editorContext().currentLayer() == layerNode2);
     }
 
     SECTION("Grouping objects within a linked group keeps their link IDs")
@@ -264,7 +265,7 @@ TEST_CASE("Map_Groups")
       CHECK(outerGroupNode->childCount() == 3u);
       CHECK(innerGroupNode->childCount() == 2u);
 
-      CHECK(outerGroupNode->parent() == map.currentLayer());
+      CHECK(outerGroupNode->parent() == map.editorContext().currentLayer());
 
       CHECK(outerEntityNode1->parent() == outerGroupNode);
       CHECK(outerEntityNode2->parent() == outerGroupNode);
@@ -482,7 +483,7 @@ TEST_CASE("Map_Groups")
     auto* groupNode2 = groupSelectedNodes(map, "group2");
 
     CHECK_THAT(
-      map.currentLayer()->children(),
+      map.editorContext().currentLayer()->children(),
       Catch::UnorderedEquals(std::vector<Node*>{groupNode1, groupNode2}));
 
     map.selectNodes({groupNode1, groupNode2});
@@ -490,7 +491,8 @@ TEST_CASE("Map_Groups")
 
     CHECK_THAT(map.selection().nodes, Catch::Equals(std::vector<Node*>{groupNode2}));
     CHECK_THAT(
-      map.currentLayer()->children(), Catch::Equals(std::vector<Node*>{groupNode2}));
+      map.editorContext().currentLayer()->children(),
+      Catch::Equals(std::vector<Node*>{groupNode2}));
 
     CHECK_THAT(groupNode1->children(), Catch::UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(

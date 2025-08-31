@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_Layers.h"
+
 #include "Ensure.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/EditorContext.h"
@@ -33,229 +35,18 @@
 
 namespace tb::mdl
 {
-
-LayerNode* Map::currentLayer() const
+namespace
 {
-  return editorContext().currentLayer();
-}
 
-void Map::setCurrentLayer(LayerNode* layerNode)
-{
-  ensure(currentLayer() != nullptr, "old currentLayer is not null");
-  ensure(layerNode != nullptr, "new currentLayer is not null");
-
-  auto transaction = Transaction{*this, "Set Current Layer"};
-
-  while (editorContext().currentGroup())
-  {
-    closeGroup(*this);
-  }
-
-  const auto descendants = collectDescendants({currentLayer()});
-  downgradeShownToInherit(descendants);
-  downgradeUnlockedToInherit(descendants);
-
-  executeAndStore(SetCurrentLayerCommand::set(layerNode));
-  transaction.commit();
-}
-
-bool Map::canSetCurrentLayer(LayerNode* layerNode) const
-{
-  return currentLayer() != layerNode;
-}
-
-void Map::renameLayer(LayerNode* layerNode, const std::string& name)
-{
-  applyAndSwap(
-    *this,
-    "Rename Layer",
-    std::vector<Node*>{layerNode},
-    {},
-    kdl::overload(
-      [&](Layer& layer) {
-        layer.setName(name);
-        return true;
-      },
-      [](Group&) { return true; },
-      [](Entity&) { return true; },
-      [](Brush&) { return true; },
-      [](BezierPatch&) { return true; }));
-}
-
-enum class Map::MoveDirection
+enum class MoveDirection
 {
   Up,
   Down
 };
 
-void Map::moveLayer(LayerNode* layer, const int offset)
+bool moveLayerByOne(Map& map, LayerNode* layerNode, const MoveDirection direction)
 {
-  ensure(layer != world()->defaultLayer(), "attempted to move default layer");
-
-  auto transaction = Transaction{*this, "Move Layer"};
-
-  const auto direction = (offset > 0) ? Map::MoveDirection::Down : MoveDirection::Up;
-  for (int i = 0; i < std::abs(offset); ++i)
-  {
-    if (!moveLayerByOne(layer, direction))
-    {
-      break;
-    }
-  }
-
-  transaction.commit();
-}
-
-bool Map::canMoveLayer(LayerNode* layer, const int offset) const
-{
-  ensure(layer != nullptr, "null layer");
-
-  WorldNode* world = this->world();
-  if (layer == world->defaultLayer())
-  {
-    return false;
-  }
-
-  const auto sorted = world->customLayersUserSorted();
-  const auto maybeIndex = kdl::index_of(sorted, layer);
-  if (!maybeIndex.has_value())
-  {
-    return false;
-  }
-
-  const auto newIndex = static_cast<int>(*maybeIndex) + offset;
-  return (newIndex >= 0 && newIndex < static_cast<int>(sorted.size()));
-}
-
-void Map::moveSelectedNodesToLayer(LayerNode* layer)
-{
-  const auto& selectedNodes = this->selection().nodes;
-
-  auto nodesToMove = std::vector<Node*>{};
-  auto nodesToSelect = std::vector<Node*>{};
-
-  const auto addBrushOrPatchNode = [&](auto* node) {
-    assert(node->selected());
-
-    if (!node->containedInGroup())
-    {
-      auto* entity = node->entity();
-      if (entity == world())
-      {
-        nodesToMove.push_back(node);
-        nodesToSelect.push_back(node);
-      }
-      else
-      {
-        if (!kdl::vec_contains(nodesToMove, entity))
-        {
-          nodesToMove.push_back(entity);
-          nodesToSelect = kdl::vec_concat(std::move(nodesToSelect), entity->children());
-        }
-      }
-    }
-  };
-
-  for (auto* node : selectedNodes)
-  {
-    node->accept(kdl::overload(
-      [](WorldNode*) {},
-      [](LayerNode*) {},
-      [&](GroupNode* group) {
-        assert(group->selected());
-
-        if (!group->containedInGroup())
-        {
-          nodesToMove.push_back(group);
-          nodesToSelect.push_back(group);
-        }
-      },
-      [&](EntityNode* entity) {
-        assert(entity->selected());
-
-        if (!entity->containedInGroup())
-        {
-          nodesToMove.push_back(entity);
-          nodesToSelect.push_back(entity);
-        }
-      },
-      [&](BrushNode* brush) { addBrushOrPatchNode(brush); },
-      [&](PatchNode* patch) { addBrushOrPatchNode(patch); }));
-  }
-
-  if (!nodesToMove.empty())
-  {
-    auto transaction = Transaction{*this, "Move Nodes to " + layer->name()};
-    deselectAll();
-    if (!reparentNodes(*this, {{layer, nodesToMove}}))
-    {
-      transaction.cancel();
-      return;
-    }
-    if (!layer->hidden() && !layer->locked())
-    {
-      selectNodes(nodesToSelect);
-    }
-    transaction.commit();
-  }
-}
-
-bool Map::canMoveSelectedNodesToLayer(LayerNode* layer) const
-{
-  ensure(layer != nullptr, "null layer");
-  const auto& nodes = selection().nodes;
-
-  const auto isAnyNodeInGroup = std::ranges::any_of(
-    nodes, [&](auto* node) { return findContainingGroup(node) != nullptr; });
-  const auto isAnyNodeInOtherLayer = std::ranges::any_of(
-    nodes, [&](auto* node) { return findContainingLayer(node) != layer; });
-
-  return !nodes.empty() && !isAnyNodeInGroup && isAnyNodeInOtherLayer;
-}
-
-void Map::hideLayers(const std::vector<LayerNode*>& layers)
-{
-  auto transaction = Transaction{*this, "Hide Layers"};
-  hideNodes(kdl::vec_static_cast<Node*>(layers));
-  transaction.commit();
-}
-
-bool Map::canHideLayers(const std::vector<LayerNode*>& layers) const
-{
-  return std::ranges::any_of(layers, [](const auto* layer) { return layer->visible(); });
-}
-
-void Map::isolateLayers(const std::vector<LayerNode*>& layers)
-{
-  const auto allLayers = world()->allLayers();
-
-  auto transaction = Transaction{*this, "Isolate Layers"};
-  hideNodes(kdl::vec_static_cast<Node*>(allLayers));
-  showNodes(kdl::vec_static_cast<Node*>(layers));
-  transaction.commit();
-}
-
-bool Map::canIsolateLayers(const std::vector<LayerNode*>& layers) const
-{
-  const auto allLayers = world()->allLayers();
-  return std::ranges::any_of(allLayers, [&](const auto* layer) {
-    return kdl::vec_contains(layers, layer) != layer->visible();
-  });
-}
-
-void Map::setOmitLayerFromExport(LayerNode* layerNode, const bool omitFromExport)
-{
-  const auto commandName =
-    omitFromExport ? "Omit Layer from Export" : "Include Layer in Export";
-
-  auto layer = layerNode->layer();
-  layer.setOmitFromExport(omitFromExport);
-  updateNodeContents(commandName, {{layerNode, NodeContents(std::move(layer))}}, {});
-}
-
-bool Map::moveLayerByOne(LayerNode* layerNode, const MoveDirection direction)
-{
-  const auto sorted = world()->customLayersUserSorted();
+  const auto sorted = map.world()->customLayersUserSorted();
 
   const auto maybeIndex = kdl::index_of(sorted, layerNode);
   if (!maybeIndex.has_value())
@@ -281,13 +72,225 @@ bool Map::moveLayerByOne(LayerNode* layerNode, const MoveDirection direction)
   layer.setSortIndex(neighbourSortIndex);
   neighbourLayer.setSortIndex(layerSortIndex);
 
-  updateNodeContents(
+  map.updateNodeContents(
     "Swap Layer Positions",
     {{layerNode, NodeContents(std::move(layer))},
      {neighbourNode, NodeContents(std::move(neighbourLayer))}},
     {});
 
   return true;
+}
+
+} // namespace
+
+void setCurrentLayer(Map& map, LayerNode* layerNode)
+{
+  auto* currentLayer = map.editorContext().currentLayer();
+  ensure(currentLayer != nullptr, "old currentLayer is not null");
+  ensure(layerNode != nullptr, "new currentLayer is not null");
+
+  auto transaction = Transaction{map, "Set Current Layer"};
+
+  while (map.editorContext().currentGroup())
+  {
+    closeGroup(map);
+  }
+
+  const auto descendants = collectDescendants({currentLayer});
+  map.downgradeShownToInherit(descendants);
+  map.downgradeUnlockedToInherit(descendants);
+
+  map.executeAndStore(SetCurrentLayerCommand::set(layerNode));
+  transaction.commit();
+}
+
+bool canSetCurrentLayer(const Map& map, LayerNode* layerNode)
+{
+  return map.editorContext().currentLayer() != layerNode;
+}
+
+void renameLayer(Map& map, LayerNode* layerNode, const std::string& name)
+{
+  applyAndSwap(
+    map,
+    "Rename Layer",
+    std::vector<Node*>{layerNode},
+    {},
+    kdl::overload(
+      [&](Layer& layer) {
+        layer.setName(name);
+        return true;
+      },
+      [](Group&) { return true; },
+      [](Entity&) { return true; },
+      [](Brush&) { return true; },
+      [](BezierPatch&) { return true; }));
+}
+
+void moveLayer(Map& map, LayerNode* layer, const int offset)
+{
+  ensure(layer != map.world()->defaultLayer(), "attempted to move default layer");
+
+  auto transaction = Transaction{map, "Move Layer"};
+
+  const auto direction = (offset > 0) ? MoveDirection::Down : MoveDirection::Up;
+  for (int i = 0; i < std::abs(offset); ++i)
+  {
+    if (!moveLayerByOne(map, layer, direction))
+    {
+      break;
+    }
+  }
+
+  transaction.commit();
+}
+
+bool canMoveLayer(const Map& map, LayerNode* layerNode, const int offset)
+{
+  ensure(layerNode != nullptr, "null layer");
+
+  auto* worldNode = map.world();
+  if (layerNode == worldNode->defaultLayer())
+  {
+    return false;
+  }
+
+  const auto sorted = worldNode->customLayersUserSorted();
+  const auto maybeIndex = kdl::index_of(sorted, layerNode);
+  if (!maybeIndex.has_value())
+  {
+    return false;
+  }
+
+  const auto newIndex = static_cast<int>(*maybeIndex) + offset;
+  return (newIndex >= 0 && newIndex < static_cast<int>(sorted.size()));
+}
+
+void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
+{
+  const auto& selectedNodes = map.selection().nodes;
+
+  auto nodesToMove = std::vector<Node*>{};
+  auto nodesToSelect = std::vector<Node*>{};
+
+  const auto addBrushOrPatchNode = [&](auto* node) {
+    assert(node->selected());
+
+    if (!node->containedInGroup())
+    {
+      auto* entityNode = node->entity();
+      if (entityNode == map.world())
+      {
+        nodesToMove.push_back(node);
+        nodesToSelect.push_back(node);
+      }
+      else
+      {
+        if (!kdl::vec_contains(nodesToMove, entityNode))
+        {
+          nodesToMove.push_back(entityNode);
+          nodesToSelect =
+            kdl::vec_concat(std::move(nodesToSelect), entityNode->children());
+        }
+      }
+    }
+  };
+
+  for (auto* node : selectedNodes)
+  {
+    node->accept(kdl::overload(
+      [](WorldNode*) {},
+      [](LayerNode*) {},
+      [&](GroupNode* groupNode) {
+        assert(groupNode->selected());
+
+        if (!groupNode->containedInGroup())
+        {
+          nodesToMove.push_back(groupNode);
+          nodesToSelect.push_back(groupNode);
+        }
+      },
+      [&](EntityNode* entityNode) {
+        assert(entityNode->selected());
+
+        if (!entityNode->containedInGroup())
+        {
+          nodesToMove.push_back(entityNode);
+          nodesToSelect.push_back(entityNode);
+        }
+      },
+      [&](BrushNode* brushNode) { addBrushOrPatchNode(brushNode); },
+      [&](PatchNode* patchNode) { addBrushOrPatchNode(patchNode); }));
+  }
+
+  if (!nodesToMove.empty())
+  {
+    auto transaction = Transaction{map, "Move Nodes to " + layerNode->name()};
+    map.deselectAll();
+    if (!reparentNodes(map, {{layerNode, nodesToMove}}))
+    {
+      transaction.cancel();
+      return;
+    }
+    if (!layerNode->hidden() && !layerNode->locked())
+    {
+      map.selectNodes(nodesToSelect);
+    }
+    transaction.commit();
+  }
+}
+
+bool canMoveSelectedNodesToLayer(const Map& map, LayerNode* layerNode)
+{
+  ensure(layerNode != nullptr, "null layer");
+  const auto& nodes = map.selection().nodes;
+
+  const auto isAnyNodeInGroup = std::ranges::any_of(
+    nodes, [&](auto* node) { return findContainingGroup(node) != nullptr; });
+  const auto isAnyNodeInOtherLayer = std::ranges::any_of(
+    nodes, [&](auto* node) { return findContainingLayer(node) != layerNode; });
+
+  return !nodes.empty() && !isAnyNodeInGroup && isAnyNodeInOtherLayer;
+}
+
+void hideLayers(Map& map, const std::vector<LayerNode*>& layers)
+{
+  auto transaction = Transaction{map, "Hide Layers"};
+  map.hideNodes(kdl::vec_static_cast<Node*>(layers));
+  transaction.commit();
+}
+
+bool canHideLayers(const std::vector<LayerNode*>& layers)
+{
+  return std::ranges::any_of(layers, [](const auto* layer) { return layer->visible(); });
+}
+
+void isolateLayers(Map& map, const std::vector<LayerNode*>& layers)
+{
+  const auto allLayers = map.world()->allLayers();
+
+  auto transaction = Transaction{map, "Isolate Layers"};
+  map.hideNodes(kdl::vec_static_cast<Node*>(allLayers));
+  map.showNodes(kdl::vec_static_cast<Node*>(layers));
+  transaction.commit();
+}
+
+bool canIsolateLayers(const Map& map, const std::vector<LayerNode*>& layers)
+{
+  const auto allLayers = map.world()->allLayers();
+  return std::ranges::any_of(allLayers, [&](const auto* layer) {
+    return kdl::vec_contains(layers, layer) != layer->visible();
+  });
+}
+
+void setOmitLayerFromExport(Map& map, LayerNode* layerNode, const bool omitFromExport)
+{
+  const auto commandName =
+    omitFromExport ? "Omit Layer from Export" : "Include Layer in Export";
+
+  auto layer = layerNode->layer();
+  layer.setOmitFromExport(omitFromExport);
+  map.updateNodeContents(commandName, {{layerNode, NodeContents(std::move(layer))}}, {});
 }
 
 } // namespace tb::mdl

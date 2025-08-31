@@ -32,6 +32,7 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
@@ -72,7 +73,7 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{map.world(), {layerNode1}}});
       addNodes(map, {{map.world(), {layerNode2}}});
 
-      map.setCurrentLayer(layerNode1);
+      setCurrentLayer(map, layerNode1);
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
@@ -85,7 +86,7 @@ TEST_CASE("Map_Nodes")
 
       // Hide layer1. If any nodes in the layer were Visibility_Shown they would be reset
       // to Visibility_Inherited
-      map.hideLayers({layerNode1});
+      hideLayers(map, {layerNode1});
 
       REQUIRE(entityNode1->visibilityState() == VisibilityState::Inherited);
       REQUIRE(!entityNode1->visible());
@@ -110,7 +111,7 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{map.world(), {layerNode1}}});
       addNodes(map, {{map.world(), {layerNode2}}});
 
-      map.setCurrentLayer(layerNode1);
+      setCurrentLayer(map, layerNode1);
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
@@ -266,12 +267,12 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{map.world(), {layerNode1}}});
       addNodes(map, {{map.world(), {layerNode2}}});
 
-      map.setCurrentLayer(layerNode1);
+      setCurrentLayer(map, layerNode1);
       auto* entityNode = createPointEntity(map, pointEntityDefinition, {0, 0, 0});
       CHECK(entityNode->parent() == layerNode1);
       CHECK(layerNode1->childCount() == 1);
 
-      map.setCurrentLayer(layerNode2);
+      setCurrentLayer(map, layerNode2);
       map.selectNodes({entityNode});
       duplicateSelectedNodes(map);
 
@@ -280,7 +281,7 @@ TEST_CASE("Map_Nodes")
       auto* entityClone = map.selection().entities.at(0);
       CHECK(entityClone->parent() == layerNode1);
       CHECK(layerNode1->childCount() == 2);
-      CHECK(map.currentLayer() == layerNode2);
+      CHECK(map.editorContext().currentLayer() == layerNode2);
     }
 
     SECTION("Nodes duplicated in a hidden layer become visible")
@@ -288,8 +289,8 @@ TEST_CASE("Map_Nodes")
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       addNodes(map, {{map.world(), {layerNode1}}});
 
-      map.setCurrentLayer(layerNode1);
-      map.hideLayers({layerNode1});
+      setCurrentLayer(map, layerNode1);
+      hideLayers(map, {layerNode1});
 
       // Create entity1 and brush1 in the hidden layer1
       auto* entityNode1 = new EntityNode{Entity{}};

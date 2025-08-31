@@ -511,6 +511,8 @@ std::string numberWithSuffix(
 
 QString describeSelection(const mdl::Map& map)
 {
+  const auto& editorContext = map.editorContext();
+
   const auto Arrow = QString(" ") + QString(QChar(0x203A)) + QString(" ");
 
   auto pipeSeparatedSections = QStringList{};
@@ -518,11 +520,11 @@ QString describeSelection(const mdl::Map& map)
   pipeSeparatedSections << QString::fromStdString(map.game()->config().name)
                         << QString::fromStdString(
                              mdl::formatName(map.world()->mapFormat()))
-                        << QString::fromStdString(map.currentLayer()->name());
+                        << QString::fromStdString(editorContext.currentLayer()->name());
 
   // open groups
   auto groups = std::vector<mdl::GroupNode*>{};
-  for (auto* group = map.editorContext().currentGroup(); group != nullptr;
+  for (auto* group = editorContext.currentGroup(); group != nullptr;
        group = group->containingGroup())
   {
     groups.push_back(group);
@@ -627,7 +629,6 @@ QString describeSelection(const mdl::Map& map)
   size_t hiddenBrushes = 0u;
   size_t hiddenPatches = 0u;
 
-  const auto& editorContext = map.editorContext();
   map.world()->accept(kdl::overload(
     [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       worldNode->visitChildren(thisLambda);

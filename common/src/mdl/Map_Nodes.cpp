@@ -246,7 +246,7 @@ Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes)
     auto* result = static_cast<Node*>(map.editorContext().currentGroup());
     if (!result)
     {
-      result = map.currentLayer();
+      result = map.editorContext().currentLayer();
     }
     return result;
   }

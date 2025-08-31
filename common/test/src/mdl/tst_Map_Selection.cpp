@@ -22,6 +22,7 @@
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
@@ -545,7 +546,7 @@ TEST_CASE("Map_Selection")
         map.selection().brushes,
         Catch::UnorderedEquals(std::vector<BrushNode*>{brushNode1, brushNode2}));
       CHECK_THAT(
-        map.currentLayer()->children(),
+        map.editorContext().currentLayer()->children(),
         Catch::Equals(std::vector<Node*>{brushNode1, brushNode2}));
 
       map.selectTouchingNodes(true);
@@ -553,7 +554,9 @@ TEST_CASE("Map_Selection")
       // only this next line was failing
       CHECK_THAT(
         map.selection().brushes, Catch::UnorderedEquals(std::vector<BrushNode*>{}));
-      CHECK_THAT(map.currentLayer()->children(), Catch::Equals(std::vector<Node*>{}));
+      CHECK_THAT(
+        map.editorContext().currentLayer()->children(),
+        Catch::Equals(std::vector<Node*>{}));
 
       // brush1 and brush2 are deleted
       CHECK(brushNode1->parent() == nullptr);

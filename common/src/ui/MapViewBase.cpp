@@ -50,6 +50,7 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -1262,9 +1263,9 @@ void MapViewBase::showPopupMenuLater()
   {
     auto* action = moveSelectionTo->addAction(
       QString::fromStdString(layerNode->name()), this, [&map, layerNode] {
-        map.moveSelectedNodesToLayer(layerNode);
+        moveSelectedNodesToLayer(map, layerNode);
       });
-    action->setEnabled(map.canMoveSelectedNodesToLayer(layerNode));
+    action->setEnabled(canMoveSelectedNodesToLayer(map, layerNode));
   }
 
   const auto moveSelectionToItems = moveSelectionTo->actions();
@@ -1279,8 +1280,8 @@ void MapViewBase::showPopupMenuLater()
     auto* action = menu.addAction(
       tr("Make Layer %1 Active").arg(QString::fromStdString(layerNode->name())),
       this,
-      [&map, layerNode]() { map.setCurrentLayer(layerNode); });
-    action->setEnabled(map.canSetCurrentLayer(layerNode));
+      [&map, layerNode]() { setCurrentLayer(map, layerNode); });
+    action->setEnabled(canSetCurrentLayer(map, layerNode));
   }
   else
   {
@@ -1289,9 +1290,9 @@ void MapViewBase::showPopupMenuLater()
     {
       auto* action = makeLayerActive->addAction(
         QString::fromStdString(layerNode->name()), this, [&map, layerNode]() {
-          map.setCurrentLayer(layerNode);
+          setCurrentLayer(map, layerNode);
         });
-      action->setEnabled(map.canSetCurrentLayer(layerNode));
+      action->setEnabled(canSetCurrentLayer(map, layerNode));
     }
     if (makeLayerActive->isEmpty())
     {
@@ -1301,14 +1302,14 @@ void MapViewBase::showPopupMenuLater()
 
   auto* hideLayersAction =
     menu.addAction(tr("Hide Layers"), this, [&map, selectedObjectLayers]() {
-      map.hideLayers(selectedObjectLayers);
+      hideLayers(map, selectedObjectLayers);
     });
-  hideLayersAction->setEnabled(map.canHideLayers(selectedObjectLayers));
+  hideLayersAction->setEnabled(canHideLayers(selectedObjectLayers));
   auto* isolateLayersAction =
     menu.addAction(tr("Isolate Layers"), this, [&map, selectedObjectLayers]() {
-      map.isolateLayers(selectedObjectLayers);
+      isolateLayers(map, selectedObjectLayers);
     });
-  isolateLayersAction->setEnabled(map.canIsolateLayers(selectedObjectLayers));
+  isolateLayersAction->setEnabled(canIsolateLayers(map, selectedObjectLayers));
   auto* selectAllInLayersAction =
     menu.addAction(tr("Select All in Layers"), this, [&map, selectedObjectLayers]() {
       map.selectAllInLayers(selectedObjectLayers);
@@ -1495,14 +1496,16 @@ void MapViewBase::addSelectedObjectsToGroup()
 void MapViewBase::removeSelectedObjectsFromGroup()
 {
   auto& map = m_document.map();
+  const auto& editorContext = map.editorContext();
+
   const auto nodes = map.selection().nodes;
-  auto* currentGroup = map.editorContext().currentGroup();
+  auto* currentGroup = editorContext.currentGroup();
   ensure(currentGroup, "currentGroup is null");
 
   auto transaction = mdl::Transaction{map, "Remove Objects from Group"};
-  reparentNodes(nodes, map.currentLayer(), true);
+  reparentNodes(nodes, editorContext.currentLayer(), true);
 
-  while (map.editorContext().currentGroup())
+  while (editorContext.currentGroup())
   {
     closeGroup(map);
   }
@@ -1618,7 +1621,7 @@ mdl::Node* MapViewBase::findNewParentEntityForBrushes(
     }
   }
 
-  return map.currentLayer();
+  return map.editorContext().currentLayer();
 }
 
 bool MapViewBase::canReparentNodes(

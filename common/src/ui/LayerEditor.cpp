@@ -27,8 +27,10 @@
 
 #include "ViewUtils.h"
 #include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
@@ -60,15 +62,14 @@ LayerEditor::LayerEditor(MapDocument& document, QWidget* parent)
 void LayerEditor::onSetCurrentLayer(mdl::LayerNode* layerNode)
 {
   auto& map = m_document.map();
-  map.setCurrentLayer(layerNode);
+  setCurrentLayer(map, layerNode);
 
   updateButtons();
 }
 
 bool LayerEditor::canSetCurrentLayer(mdl::LayerNode* layerNode) const
 {
-  auto& map = m_document.map();
-  return map.currentLayer() != layerNode;
+  return mdl::canSetCurrentLayer(m_document.map(), layerNode);
 }
 
 void LayerEditor::onLayerRightClick(mdl::LayerNode* layerNode)
@@ -117,7 +118,7 @@ void LayerEditor::onLayerRightClick(mdl::LayerNode* layerNode)
   moveSelectionToLayerAction->setEnabled(canMoveSelectedNodesToLayer());
   selectAllInLayerAction->setEnabled(canSelectAllInLayer());
   toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
-  isolateLayerAction->setEnabled(map.canIsolateLayers({layerNode}));
+  isolateLayerAction->setEnabled(canIsolateLayers(map, {layerNode}));
   toggleLayerOmitFromExportAction->setCheckable(true);
   toggleLayerOmitFromExportAction->setChecked(layerNode->layer().omitFromExport());
 
@@ -173,14 +174,13 @@ void LayerEditor::toggleLayerLocked(mdl::LayerNode* layerNode)
 void LayerEditor::toggleOmitLayerFromExport(mdl::LayerNode* layerNode)
 {
   ensure(layerNode != nullptr, "layer is null");
-  auto& map = m_document.map();
-  map.setOmitLayerFromExport(layerNode, !layerNode->layer().omitFromExport());
+  setOmitLayerFromExport(
+    m_document.map(), layerNode, !layerNode->layer().omitFromExport());
 }
 
 void LayerEditor::isolateLayer(mdl::LayerNode* layer)
 {
-  auto& map = m_document.map();
-  map.isolateLayers(std::vector<mdl::LayerNode*>{layer});
+  isolateLayers(m_document.map(), std::vector<mdl::LayerNode*>{layer});
 }
 
 void LayerEditor::onMoveSelectedNodesToLayer()
@@ -188,16 +188,14 @@ void LayerEditor::onMoveSelectedNodesToLayer()
   auto* layerNode = m_layerList->selectedLayer();
   ensure(layerNode != nullptr, "layer is null");
 
-  auto& map = m_document.map();
-  map.moveSelectedNodesToLayer(layerNode);
+  moveSelectedNodesToLayer(m_document.map(), layerNode);
 }
 
 bool LayerEditor::canMoveSelectedNodesToLayer() const
 {
   if (auto* layerNode = m_layerList->selectedLayer())
   {
-    auto& map = m_document.map();
-    return map.canMoveSelectedNodesToLayer(layerNode);
+    return mdl::canMoveSelectedNodesToLayer(m_document.map(), layerNode);
   }
   return false;
 }
@@ -245,7 +243,7 @@ void LayerEditor::onAddLayer()
       return;
     }
 
-    map.setCurrentLayer(layerNode);
+    setCurrentLayer(map, layerNode);
     transaction.commit();
 
     m_layerList->setSelectedLayer(layerNode);
@@ -273,9 +271,9 @@ void LayerEditor::onRemoveLayer()
     }
   }
 
-  if (map.currentLayer() == layerNode)
+  if (map.editorContext().currentLayer() == layerNode)
   {
-    map.setCurrentLayer(defaultLayerNode);
+    setCurrentLayer(map, defaultLayerNode);
   }
 
   m_layerList->updateSelectionForRemoval();
@@ -306,7 +304,7 @@ void LayerEditor::onRenameLayer()
 
     if (const auto name = queryLayerName(this, layerNode->name()); !name.empty())
     {
-      map.renameLayer(layerNode, name);
+      renameLayer(map, layerNode, name);
     }
   }
 }
@@ -325,8 +323,7 @@ bool LayerEditor::canMoveLayer(const int direction) const
 {
   if (auto* layerNode = m_layerList->selectedLayer(); layerNode && direction != 0)
   {
-    auto& map = m_document.map();
-    return map.canMoveLayer(layerNode, direction);
+    return mdl::canMoveLayer(m_document.map(), layerNode, direction);
   }
   return false;
 }
@@ -336,8 +333,7 @@ void LayerEditor::moveLayer(mdl::LayerNode* layerNode, int direction)
   if (direction != 0)
   {
     ensure(layerNode != nullptr, "layer is null");
-    auto& map = m_document.map();
-    map.moveLayer(layerNode, direction);
+    mdl::moveLayer(m_document.map(), layerNode, direction);
   }
 }
 

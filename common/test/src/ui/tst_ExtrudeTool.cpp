@@ -97,7 +97,7 @@ TEST_CASE("ExtrudeTool")
     auto* brushNode1 =
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
-    addNodes(map, {{map.currentLayer(), {brushNode1}}});
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1}}});
     map.selectNodes({brushNode1});
 
     SECTION("Pick ray hits brush directly")
@@ -154,7 +154,7 @@ TEST_CASE("ExtrudeTool")
     auto* brushNode1 =
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
-    addNodes(map, {{map.currentLayer(), {brushNode1}}});
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1}}});
     map.selectNodes({brushNode1});
 
     SECTION("Pick ray hits brush directly")
@@ -336,7 +336,8 @@ TEST_CASE("ExtrudeTool")
 
       SECTION("check 2 resulting worldspawn brushes")
       {
-        const auto nodes = mdl::filterBrushNodes(map.currentLayer()->children());
+        const auto nodes =
+          mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
         const auto bounds = kdl::vec_transform(
           nodes, [](const auto* node) { return node->logicalBounds(); });
         const auto expectedBounds = std::vector<vm::bbox3d>{
@@ -375,7 +376,8 @@ TEST_CASE("ExtrudeTool")
 
       SECTION("check 2 resulting worldspawn brushes")
       {
-        const auto nodes = mdl::filterBrushNodes(map.currentLayer()->children());
+        const auto nodes =
+          mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
         const auto bounds = kdl::vec_transform(
           nodes, [](const auto* node) { return node->logicalBounds(); });
         const auto expectedBounds = std::vector<vm::bbox3d>{
@@ -408,7 +410,8 @@ TEST_CASE("ExtrudeTool")
 
       SECTION("check 1 resulting worldspawn brushes")
       {
-        const auto nodes = mdl::filterBrushNodes(map.currentLayer()->children());
+        const auto nodes =
+          mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
         const auto bounds = kdl::vec_transform(
           nodes, [](const auto* node) { return node->logicalBounds(); });
         const auto expectedBounds = std::vector<vm::bbox3d>{
@@ -442,7 +445,8 @@ TEST_CASE("ExtrudeTool")
 
       SECTION("check 1 resulting worldspawn brush")
       {
-        auto nodes = mdl::filterBrushNodes(map.currentLayer()->children());
+        auto nodes =
+          mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
         nodes = kdl::vec_filter(
           std::move(nodes), [](const auto* node) { return node->selected(); });
 
