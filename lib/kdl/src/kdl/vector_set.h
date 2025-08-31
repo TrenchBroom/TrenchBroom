@@ -37,7 +37,6 @@ class vector_set : public set_adapter<std::vector<T, Allocator>, Compare>
 private:
   using vec_type = std::vector<T, Allocator>;
   using base = set_adapter<vec_type, Compare>;
-  using base::m_cmp;
   using base::m_data;
 
 public:
@@ -113,7 +112,7 @@ public:
     : base(std::vector<T, Allocator>(alloc), cmp)
   {
     m_data.insert(std::end(m_data), first, last);
-    detail::sort_unique(m_data, m_cmp);
+    detail::sort_unique(m_data, base::key_comp());
     assert(check_invariant());
   }
 
@@ -140,7 +139,7 @@ public:
   {
     m_data.reserve(capacity);
     m_data.insert(std::end(m_data), first, last);
-    detail::sort_unique(m_data, m_cmp);
+    detail::sort_unique(m_data, base::key_comp());
     assert(check_invariant());
   }
 
@@ -209,7 +208,7 @@ public:
   vector_set& operator=(std::initializer_list<typename base::value_type> values)
   {
     m_data = values;
-    detail::sort_unique(m_data, m_cmp);
+    detail::sort_unique(m_data, base::key_comp());
     return *this;
   }
 
@@ -223,7 +222,7 @@ public:
   vector_set& operator=(std::vector<typename base::value_type> values)
   {
     m_data = values;
-    detail::sort_unique(m_data, m_cmp);
+    detail::sort_unique(m_data, base::key_comp());
     return *this;
   }
 

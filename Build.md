@@ -100,6 +100,9 @@ If you have a debian-based distribution, open a command prompt and execute this 
 sudo apt-get install g++ libxi-dev libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libglew-dev libxrandr-dev build-essential libglm-dev libxxf86vm-dev libfreetype6-dev libfreeimage-dev libtinyxml2-dev pandoc cmake p7zip-full ninja-build curl
 ```
 
+> [!IMPORTANT]
+> You need to use GCC 13 or later to compile TrenchBroom.
+
 ### Build TrenchBroom
 
 Create a subdirectory in TrenchBroom directory called `build`.

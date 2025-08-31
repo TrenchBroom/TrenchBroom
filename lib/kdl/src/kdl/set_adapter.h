@@ -68,6 +68,8 @@ class const_set_adapter
 {
 protected:
   C m_data;
+
+private:
   Compare m_cmp;
 
 public:
@@ -234,7 +236,7 @@ public:
   template <typename K>
   const_iterator lower_bound(const K& x) const
   {
-    return std::lower_bound(std::begin(m_data), std::end(m_data), x, m_cmp);
+    return std::lower_bound(std::begin(m_data), std::end(m_data), x, key_comp());
   }
 
   /**
@@ -248,7 +250,7 @@ public:
   template <typename K>
   const_iterator upper_bound(const K& x) const
   {
-    return std::upper_bound(std::begin(m_data), std::end(m_data), x, m_cmp);
+    return std::upper_bound(std::begin(m_data), std::end(m_data), x, key_comp());
   }
 
   /**
@@ -259,7 +261,7 @@ public:
 
   /**
    * Returns a copy of the comparator used to compare the values. Returns the same
-   * comparator as key_cmp().
+   * comparator as key_comp().
    */
   value_compare value_comp() const { return m_cmp; }
 
@@ -275,7 +277,7 @@ public:
 
   std::weak_ordering operator<=>(const const_set_adapter& other) const
   {
-    const auto cmp = col_lexicographical_compare(m_data, other.m_data, m_cmp);
+    const auto cmp = col_lexicographical_compare(m_data, other.m_data, key_comp());
     return cmp < 0   ? std::weak_ordering::less
            : cmp > 0 ? std::weak_ordering::greater
                      : std::weak_ordering::equivalent;
@@ -300,7 +302,7 @@ protected:
       for (auto cur = begin(), last = std::prev(end()); cur != last; ++cur)
       {
         auto next = std::next(cur);
-        if (!m_cmp(*cur, *next))
+        if (!key_comp()(*cur, *next))
         {
           return false;
         }
@@ -313,7 +315,7 @@ protected:
   template <typename L, typename R>
   bool is_equivalent(const L& lhs, const R& rhs) const
   {
-    return !m_cmp(lhs, rhs) && !m_cmp(rhs, lhs);
+    return !key_comp()(lhs, rhs) && !key_comp()(rhs, lhs);
   }
 };
 
@@ -339,10 +341,8 @@ private:
   using base = const_set_adapter<C, Compare>;
 
 protected:
-  using base::m_cmp;
   using base::m_data;
 
-public:
 public:
   using key_type = typename std::remove_reference<C>::type::value_type;
   using value_type = key_type;
@@ -406,7 +406,7 @@ public:
   set_adapter& operator=(std::initializer_list<value_type> values)
   {
     m_data = values;
-    detail::sort_unique(m_data, m_cmp);
+    detail::sort_unique(m_data, key_comp());
     return *this;
   }
 
@@ -785,7 +785,7 @@ public:
   template <typename K>
   iterator lower_bound(const K& x)
   {
-    return std::lower_bound(std::begin(m_data), std::end(m_data), x, m_cmp);
+    return std::lower_bound(std::begin(m_data), std::end(m_data), x, key_comp());
   }
 
   /**
@@ -799,7 +799,7 @@ public:
   template <typename K>
   iterator upper_bound(const K& x)
   {
-    return std::upper_bound(std::begin(m_data), std::end(m_data), x, m_cmp);
+    return std::upper_bound(std::begin(m_data), std::end(m_data), x, key_comp());
   }
 
   /**
@@ -842,7 +842,7 @@ private:
   const_iterator insert_hint(const_iterator hint, const value_type& value) const
   {
     // correct the hint if necessary
-    if (hint != end() && !m_cmp(value, *hint))
+    if (hint != end() && !key_comp()(value, *hint))
     {
       return insert_hint(value);
     }
@@ -850,7 +850,7 @@ private:
     if (hint != begin())
     {
       const auto pos = std::prev(hint);
-      if (!m_cmp(*pos, value))
+      if (!key_comp()(*pos, value))
       {
         return insert_hint(value);
       }

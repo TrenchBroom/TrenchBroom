@@ -83,7 +83,7 @@ TEST_CASE("BezierPatch")
       using T = std::tuple<vm::axis::type, std::vector<BezierPatch::Point>>;
 
       // clang-format off
-      const auto&
+      const auto
       [axis, expectedPoints] = GENERATE(values<T>({
       {vm::axis::x, {
         {-1,  1,  2}, {0,  1,  1}, {1,  1,  0},

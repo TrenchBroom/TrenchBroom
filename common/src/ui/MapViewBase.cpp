@@ -1420,13 +1420,12 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const mdl::EntityDefinitionType type)
   auto document = kdl::mem_lock(m_document);
   for (const auto& group : document->entityDefinitionManager().groups())
   {
-    const auto definitionsWithType =
-      filterAndSort(group.definitions, type, mdl::EntityDefinitionSortOrder::Name);
     auto creatableDefinitions =
-      definitionsWithType | std::views::filter([](const auto* d) {
-        return !kdl::cs::str_is_equal(
-          d->name, mdl::EntityPropertyValues::WorldspawnClassname);
-      });
+      filterAndSort(group.definitions, type, mdl::EntityDefinitionSortOrder::Name)
+      | std::views::filter([](const auto* d) {
+          return !kdl::cs::str_is_equal(
+            d->name, mdl::EntityPropertyValues::WorldspawnClassname);
+        });
 
     if (!std::ranges::empty(creatableDefinitions))
     {
