@@ -29,6 +29,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
@@ -199,7 +200,7 @@ TEST_CASE("Map_Nodes")
         map.deselectAll();
 
         map.selectNodes({linkedGroupNode});
-        map.translateSelection(vm::vec3d{32, 0, 0});
+        translateSelection(map, vm::vec3d{32, 0, 0});
         map.deselectAll();
 
         auto* brushNode = createBrushNode(map);
@@ -242,7 +243,7 @@ TEST_CASE("Map_Nodes")
         // adding a brush to the linked group node will fail because it will go out of
         // world bounds
         map.selectNodes({linkedGroupNode});
-        map.translateSelection(map.worldBounds().max);
+        translateSelection(map, map.worldBounds().max);
         map.deselectAll();
 
         auto* brushNode = createBrushNode(map);
@@ -551,7 +552,7 @@ TEST_CASE("Map_Nodes")
       map.deselectAll();
 
       map.selectNodes({linkedGroupNode});
-      map.translateSelection(vm::vec3d{32, 0, 0});
+      translateSelection(map, vm::vec3d{32, 0, 0});
       map.deselectAll();
 
       SECTION("Move node into group node")
@@ -696,7 +697,7 @@ TEST_CASE("Map_Nodes")
       // adding a brush to the linked group node will fail because it will go out of world
       // bounds
       map.selectNodes({linkedGroupNode});
-      map.translateSelection(map.worldBounds().max);
+      translateSelection(map, map.worldBounds().max);
       map.deselectAll();
 
       auto* brushNode = createBrushNode(map);
@@ -996,13 +997,13 @@ TEST_CASE("Map_Nodes")
 
       map.deselectAll();
       map.selectNodes({linkedGroupNode});
-      map.translateSelection(vm::vec3d{32, 0, 0});
+      translateSelection(map, vm::vec3d{32, 0, 0});
       map.deselectAll();
 
       const auto originalBrushBounds = brushNode->physicalBounds();
 
       map.selectNodes({brushNode});
-      map.translateSelection(vm::vec3d{0, 16, 0});
+      translateSelection(map, vm::vec3d{0, 16, 0});
 
       REQUIRE(
         brushNode->physicalBounds()
@@ -1043,14 +1044,14 @@ TEST_CASE("Map_Nodes")
       // moving the brush in linked group node will fail because it will go out of world
       // bounds
       map.selectNodes({linkedGroupNode});
-      REQUIRE(map.translateSelection(
-        map.worldBounds().max - linkedGroupNode->physicalBounds().size()));
+      REQUIRE(translateSelection(
+        map, map.worldBounds().max - linkedGroupNode->physicalBounds().size()));
       map.deselectAll();
 
       const auto originalBrushBounds = brushNode->physicalBounds();
 
       map.selectNodes({brushNode});
-      CHECK_FALSE(map.translateSelection(vm::vec3d{0, 16, 0}));
+      CHECK_FALSE(translateSelection(map, vm::vec3d{0, 16, 0}));
 
       REQUIRE(brushNode->physicalBounds() == originalBrushBounds);
 

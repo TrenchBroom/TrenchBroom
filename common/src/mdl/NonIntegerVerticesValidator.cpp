@@ -24,7 +24,7 @@
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
-#include "mdl/Polyhedron.h"
+#include "mdl/Map_Geometry.h"
 
 #include <string>
 
@@ -37,7 +37,7 @@ const auto Type = freeIssueType();
 
 IssueQuickFix makeSnapVerticesQuickFix()
 {
-  return {"Snap Vertices", [](auto& map, const auto&) { map.snapVertices(1); }};
+  return {"Snap Vertices", [](auto& map, const auto&) { snapVertices(map, 1); }};
 }
 
 } // namespace

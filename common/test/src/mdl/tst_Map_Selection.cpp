@@ -29,6 +29,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -86,7 +87,7 @@ TEST_CASE("Map_Selection")
         map.selection().brushes, Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
 
       // translate the brush
-      map.translateSelection(vm::vec3d{10.0, 0.0, 0.0});
+      translateSelection(map, vm::vec3d{10.0, 0.0, 0.0});
       CHECK(brushNode->logicalBounds().center() == vm::vec3d{10.0, 0.0, 0.0});
 
       // Start undoing changes
@@ -897,7 +898,7 @@ TEST_CASE("Map_Selection")
     map.selectNodes({entityNode1});
 
     REQUIRE_FALSE(map.canRepeatCommands());
-    map.translateSelection({1, 2, 3});
+    translateSelection(map, {1, 2, 3});
     REQUIRE(map.canRepeatCommands());
 
     map.deselectAll();
@@ -909,7 +910,7 @@ TEST_CASE("Map_Selection")
     CHECK(map.canRepeatCommands());
 
     // this command will replace the command on the repeat stack
-    map.translateSelection({-1, -2, -3});
+    translateSelection(map, {-1, -2, -3});
     CHECK(map.canRepeatCommands());
 
     map.deselectAll();

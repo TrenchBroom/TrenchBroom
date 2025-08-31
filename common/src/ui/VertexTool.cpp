@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
+#include "mdl/Map_Geometry.h"
 #include "render/RenderBatch.h"
 #include "ui/MapDocument.h"
 
@@ -158,7 +159,7 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
   if (m_mode == Mode::Move)
   {
     auto handles = m_map.vertexHandles().selectedHandles();
-    const auto result = m_map.transformVertices(std::move(handles), transform);
+    const auto result = transformVertices(m_map, std::move(handles), transform);
     if (result.success)
     {
       if (!result.hasRemainingVertices)
@@ -193,7 +194,7 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
   if (!brushes.empty())
   {
     const auto newVertexPosition = transform * m_dragHandlePosition;
-    if (m_map.addVertex(newVertexPosition))
+    if (addVertex(m_map, newVertexPosition))
     {
       m_mode = Mode::Move;
       m_map.edgeHandles().deselectAll();
@@ -264,7 +265,7 @@ void VertexTool::removeSelection()
 
   const auto commandName =
     kdl::str_plural(handles.size(), "Remove Brush Vertex", "Remove Brush Vertices");
-  m_map.removeVertices(commandName, std::move(handles));
+  removeVertices(m_map, commandName, std::move(handles));
 }
 
 void VertexTool::renderGuide(

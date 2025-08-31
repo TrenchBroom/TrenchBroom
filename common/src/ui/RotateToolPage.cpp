@@ -30,6 +30,7 @@
 #include "mdl/EntityProperties.h"
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/QtUtils.h"
@@ -253,7 +254,7 @@ void RotateToolPage::rotateClicked()
   const auto axis = getAxis();
   const auto angle = vm::to_radians(m_angle->value());
 
-  m_map.rotateSelection(center, axis, angle);
+  rotateSelection(m_map, center, axis, angle);
 }
 
 void RotateToolPage::updateAnglePropertyAfterTransformClicked()

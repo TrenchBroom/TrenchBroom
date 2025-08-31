@@ -29,6 +29,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
@@ -139,7 +140,7 @@ TEST_CASE("Map_Entities")
       map.selectNodes({entityNode});
 
       // move the entity down
-      REQUIRE(map.translateSelection({0, 0, -256}));
+      REQUIRE(translateSelection(map, {0, 0, -256}));
       REQUIRE(
         entityNode->physicalBounds() == vm::bbox3d{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
 
@@ -151,7 +152,7 @@ TEST_CASE("Map_Entities")
       const auto zOffset = map.worldBounds().max.z();
       map.deselectAll();
       map.selectNodes({linkedGroupNode});
-      map.translateSelection({0, 0, map.worldBounds().max.z()});
+      translateSelection(map, {0, 0, map.worldBounds().max.z()});
       REQUIRE(
         linkedGroupNode->physicalBounds()
         == vm::bbox3d{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
@@ -244,7 +245,7 @@ TEST_CASE("Map_Entities")
       map.selectNodes({entityNode});
 
       // move the entity down
-      REQUIRE(map.translateSelection({0, 0, -256}));
+      REQUIRE(translateSelection(map, {0, 0, -256}));
       REQUIRE(
         entityNode->physicalBounds() == vm::bbox3d{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
 
@@ -255,7 +256,7 @@ TEST_CASE("Map_Entities")
       const auto zOffset = map.worldBounds().max.z();
       map.deselectAll();
       map.selectNodes({linkedGroupNode});
-      map.translateSelection({0, 0, map.worldBounds().max.z()});
+      translateSelection(map, {0, 0, map.worldBounds().max.z()});
       REQUIRE(
         linkedGroupNode->physicalBounds()
         == vm::bbox3d{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});

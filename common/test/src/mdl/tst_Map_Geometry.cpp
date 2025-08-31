@@ -32,6 +32,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_CopyPaste.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/VertexHandleManager.h"
@@ -139,7 +140,7 @@ TEST_CASE("Map_Geometry")
       WHEN("The node is transformed")
       {
         map.selectNodes({node});
-        map.transformSelection("Transform Nodes", transformation);
+        transformSelection(map, "Transform Nodes", transformation);
 
         THEN("The transformation was applied to the node and its children")
         {
@@ -177,7 +178,7 @@ TEST_CASE("Map_Geometry")
       auto* groupNode = map.groupSelectedNodes("test");
       CHECK(groupNode->selected());
 
-      CHECK(map.translateSelection(vm::vec3d{16, 0, 0}));
+      CHECK(translateSelection(map, vm::vec3d{16, 0, 0}));
       CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
 
       map.undoCommand();
@@ -213,7 +214,7 @@ TEST_CASE("Map_Geometry")
       const auto setPref = TemporarilySetPref{Preferences::AlignmentLock, false};
 
       const auto delta = vm::vec3d{0.125, 0, 0};
-      REQUIRE(map.translateSelection(delta));
+      REQUIRE(translateSelection(map, delta));
 
       auto getUVCoords =
         [](auto* brushNode, const vm::vec3d& normal) -> std::vector<vm::vec2f> {
@@ -255,7 +256,7 @@ TEST_CASE("Map_Geometry")
         CHECK(boundsCenter == vm::vec3d{15.5, 15.5, 15.5});
 
         // 90 degrees CCW about the Z axis through the center of the selection
-        map.rotateSelection(boundsCenter, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+        rotateSelection(map, boundsCenter, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
         CHECK(checkBrushIntegral(brushNode1));
         CHECK(checkBrushIntegral(brushNode2));
@@ -284,8 +285,11 @@ TEST_CASE("Map_Geometry")
         SECTION("Rotating some brushes, but not all")
         {
           map.selectNodes({brushNode1});
-          map.rotateSelection(
-            map.selectionBounds()->center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+          rotateSelection(
+            map,
+            map.selectionBounds()->center(),
+            vm::vec3d{0, 0, 1},
+            vm::to_radians(90.0));
 
           CHECK(*entityNode->entity().property("angle") == "45");
         }
@@ -293,8 +297,11 @@ TEST_CASE("Map_Geometry")
         SECTION("Rotating all brushes")
         {
           map.selectNodes({brushNode1, brushNode2});
-          map.rotateSelection(
-            map.selectionBounds()->center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+          rotateSelection(
+            map,
+            map.selectionBounds()->center(),
+            vm::vec3d{0, 0, 1},
+            vm::to_radians(90.0));
 
           CHECK(*entityNode->entity().property("angle") == "135");
         }
@@ -306,8 +313,11 @@ TEST_CASE("Map_Geometry")
 
           map.deselectAll();
           map.selectNodes({groupNode});
-          map.rotateSelection(
-            map.selectionBounds()->center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+          rotateSelection(
+            map,
+            map.selectionBounds()->center(),
+            vm::vec3d{0, 0, 1},
+            vm::to_radians(90.0));
 
           CHECK(*entityNode->entity().property("angle") == "135");
         }
@@ -333,7 +343,7 @@ TEST_CASE("Map_Geometry")
         {32, 32, 32},
       });
 
-      map.rotateSelection({0, 0, 0}, {0, 0, 1}, vm::to_radians(45.0));
+      rotateSelection(map, {0, 0, 0}, {0, 0, 1}, vm::to_radians(45.0));
 
       const auto& brush = brushNode->brush();
       const auto e = vm::constants<double>::almost_zero();
@@ -367,7 +377,7 @@ TEST_CASE("Map_Geometry")
       CHECK(groupNode->selected());
 
       CHECK_FALSE(entityNode->entity().hasProperty("origin"));
-      CHECK(map.rotateSelection(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0));
+      CHECK(rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0));
       CHECK_FALSE(entityNode->entity().hasProperty("origin"));
 
       map.undoCommand();
@@ -399,13 +409,13 @@ TEST_CASE("Map_Geometry")
     SECTION("single brush")
     {
       // attempting an invalid scale has no effect
-      CHECK_FALSE(map.scaleSelection(initialBBox, invalidBBox));
+      CHECK_FALSE(scaleSelection(map, initialBBox, invalidBBox));
       CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
       CHECK(
         brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
         == vm::plane3d{100.0, vm::vec3d{0, 0, 1}});
 
-      CHECK(map.scaleSelection(initialBBox, doubleBBox));
+      CHECK(scaleSelection(map, initialBBox, doubleBBox));
       CHECK(brushNode->logicalBounds().size() == vm::vec3d{400, 400, 400});
       CHECK(
         brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
@@ -417,17 +427,17 @@ TEST_CASE("Map_Geometry")
       [[maybe_unused]] auto* group = map.groupSelectedNodes("my group");
 
       // attempting an invalid scale has no effect
-      CHECK_FALSE(map.scaleSelection(initialBBox, invalidBBox));
+      CHECK_FALSE(scaleSelection(map, initialBBox, invalidBBox));
       CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
 
-      CHECK(map.scaleSelection(initialBBox, doubleBBox));
+      CHECK(scaleSelection(map, initialBBox, doubleBBox));
       CHECK(brushNode->logicalBounds().size() == vm::vec3d{400, 400, 400});
     }
 
     SECTION("with off center origin")
     {
       const auto origin = vm::vec3d{50, 0, 0};
-      CHECK(map.scaleSelection(origin, vm::vec3d{2.0, 1.0, 1.0}));
+      CHECK(scaleSelection(map, origin, vm::vec3d{2.0, 1.0, 1.0}));
       CHECK(
         brushNode->logicalBounds() == vm::bbox3d{{-250, -100, -100}, {150, 100, 100}});
     }
@@ -464,7 +474,7 @@ TEST_CASE("Map_Geometry")
 
       // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get
       // sheared.
-      CHECK(map.shearSelection(initialBBox, vm::vec3d{0, -1, 0}, vm::vec3d{50, 0, 0}));
+      CHECK(shearSelection(map, initialBBox, vm::vec3d{0, -1, 0}, vm::vec3d{50, 0, 0}));
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
@@ -509,7 +519,7 @@ TEST_CASE("Map_Geometry")
 
       // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get
       // sheared.
-      CHECK(map.shearSelection(initialBBox, vm::vec3d{0, 0, 1}, vm::vec3d{50, 0, 0}));
+      CHECK(shearSelection(map, initialBBox, vm::vec3d{0, 0, 1}, vm::vec3d{50, 0, 0}));
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
@@ -550,7 +560,7 @@ TEST_CASE("Map_Geometry")
     const auto boundsCenter = map.selectionBounds()->center();
     CHECK(boundsCenter == vm::approx{vm::vec3d{15.5, 15.5, 15.5}});
 
-    map.flipSelection(boundsCenter, vm::axis::x);
+    flipSelection(map, boundsCenter, vm::axis::x);
 
     CHECK(checkBrushIntegral(brushNode1));
     CHECK(checkBrushIntegral(brushNode2));
@@ -582,11 +592,11 @@ TEST_CASE("Map_Geometry")
         map.selectNodes({groupNode, linkedGroupNode});
 
         CHECK(
-          map.transformSelection("", vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.0})));
+          transformSelection(map, "", vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.0})));
 
         // This could generate conflicts, because what snaps one group could misalign
         // another group in the link set. So, just reject the change.
-        CHECK(!map.snapVertices(16.0));
+        CHECK(!snapVertices(map, 16.0));
       }
     }
   }
@@ -618,7 +628,7 @@ TEST_CASE("Map_Geometry")
       map.selectAllNodes();
 
       CHECK(map.selection().brushes.size() == 1u);
-      CHECK_NOTHROW(map.snapVertices(map.grid().actualSize()));
+      CHECK_NOTHROW(snapVertices(map, map.grid().actualSize()));
     }
   }
 
@@ -642,7 +652,7 @@ TEST_CASE("Map_Geometry")
       CHECK(entityNode->children().size() == 1u);
 
       map.selectNodes({brushNode1, brushNode2});
-      CHECK(map.csgConvexMerge());
+      CHECK(csgConvexMerge(map));
       CHECK(entityNode->children().size() == 1u);
 
       auto* brushNode3 = entityNode->children().front();
@@ -671,7 +681,7 @@ TEST_CASE("Map_Geometry")
       const auto& face2 = brushNode2->brush().face(faceIndex);
 
       map.selectBrushFaces({{brushNode1, faceIndex}, {brushNode2, faceIndex}});
-      CHECK(map.csgConvexMerge());
+      CHECK(csgConvexMerge(map));
       CHECK(
         entityNode->children().size()
         == 2u); // added to the parent of the first brush, original brush is not deleted
@@ -722,7 +732,7 @@ TEST_CASE("Map_Geometry")
       CHECK(entityNode->children().size() == 2u);
 
       map.selectNodes({brushNode1, brushNode2});
-      CHECK(map.csgConvexMerge());
+      CHECK(csgConvexMerge(map));
       CHECK(entityNode->children().size() == 1u);
 
       auto* brushNode3 = static_cast<BrushNode*>(entityNode->children()[0]);
@@ -761,7 +771,7 @@ TEST_CASE("Map_Geometry")
 
       // we want to compute minuend - {subtrahendNode1, subtrahendNode2}
       map.selectNodes({subtrahendNode1, subtrahendNode2});
-      CHECK(map.csgSubtract());
+      CHECK(csgSubtract(map));
       CHECK(entityNode->children().size() == 2u);
 
       auto* remainderNode1 = dynamic_cast<BrushNode*>(entityNode->children()[0]);
@@ -795,7 +805,7 @@ TEST_CASE("Map_Geometry")
       addNodes(map, {{entityNode, {subtrahend1}}});
 
       map.selectNodes({subtrahend1});
-      CHECK(map.csgSubtract());
+      CHECK(csgSubtract(map));
       CHECK(entityNode->children().size() == 0u);
       CHECK_FALSE(map.selection().hasNodes());
 
@@ -837,7 +847,7 @@ TEST_CASE("Map_Geometry")
 
       // we want to compute brush1 - brush2
       map.selectNodes({brushNode2});
-      CHECK(map.csgSubtract());
+      CHECK(csgSubtract(map));
       CHECK(entityNode->children().size() == 1u);
 
       auto* brushNode3 = static_cast<BrushNode*>(entityNode->children()[0]);
@@ -868,7 +878,7 @@ TEST_CASE("Map_Geometry")
 
       // select the second object in the default layer (a clip brush) and subtract
       map.selectNodes({subtrahendNode});
-      CHECK(map.csgSubtract());
+      CHECK(csgSubtract(map));
 
       REQUIRE(map.currentLayer()->childCount() == 1);
       auto* result = dynamic_cast<BrushNode*>(map.currentLayer()->children().at(0));
@@ -901,7 +911,7 @@ TEST_CASE("Map_Geometry")
     SECTION("A brush too small to be hollowed doesn't block the command")
     {
       map.selectAllNodes();
-      CHECK(map.csgHollow());
+      CHECK(csgHollow(map));
 
       // One cube is too small to hollow, so it's left untouched.
       // The other is hollowed into 6 brushes.
@@ -914,7 +924,7 @@ TEST_CASE("Map_Geometry")
       auto* smallBrushNode = map.currentLayer()->children().at(0);
       map.selectNodes({smallBrushNode});
 
-      CHECK(!map.csgHollow());
+      CHECK(!csgHollow(map));
       CHECK(map.currentLayer()->childCount() == 2);
       CHECK(!map.modified());
     }

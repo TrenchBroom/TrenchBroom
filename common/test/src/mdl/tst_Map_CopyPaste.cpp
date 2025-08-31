@@ -27,6 +27,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_CopyPaste.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
@@ -262,7 +263,7 @@ common/caulk
       CHECK(paste(map, copied) == PasteType::Node);
       CHECK(map.selection().groups.size() == 1u);
       CHECK(map.selection().groups.at(0)->name() == groupName);
-      CHECK(map.translateSelection(delta));
+      CHECK(translateSelection(map, delta));
       CHECK(map.selectionBounds() == box.translate(delta));
     }
 

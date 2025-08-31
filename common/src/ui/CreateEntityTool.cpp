@@ -30,6 +30,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
@@ -99,7 +100,7 @@ void CreateEntityTool::updateEntityPosition2D(const vm::ray3d& pickRay)
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    m_map.translateSelection(delta);
+    translateSelection(m_map, delta);
   }
 }
 
@@ -129,7 +130,7 @@ void CreateEntityTool::updateEntityPosition3D(
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    m_map.translateSelection(delta);
+    translateSelection(m_map, delta);
   }
 }
 

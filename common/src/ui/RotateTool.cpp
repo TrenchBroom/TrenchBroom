@@ -24,6 +24,7 @@
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/TransactionScope.h"
 #include "ui/RotateHandle.h"
 #include "ui/RotateToolPage.h"
@@ -125,7 +126,7 @@ void RotateTool::applyRotation(
   const vm::vec3d& center, const vm::vec3d& axis, const double angle)
 {
   m_map.rollbackTransaction();
-  m_map.rotateSelection(center, axis, angle);
+  rotateSelection(m_map, center, axis, angle);
 }
 
 mdl::Hit RotateTool::pick2D(const vm::ray3d& pickRay, const render::Camera& camera)

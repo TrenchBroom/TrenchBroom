@@ -26,6 +26,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "render/Camera.h"
@@ -1039,7 +1040,7 @@ void ScaleTool::scaleByDelta(const vm::vec3d& delta)
 
   if (!newBox.is_empty())
   {
-    m_map.scaleSelection(bounds(), newBox);
+    scaleSelection(m_map, bounds(), newBox);
   }
 }
 

@@ -29,7 +29,6 @@
 #include "mdl/Selection.h"
 
 #include "vm/bbox.h"
-#include "vm/polygon.h"
 
 #include <filesystem>
 #include <memory>
@@ -405,46 +404,6 @@ public: // group management
 
 private:
   bool updateLinkedGroups();
-
-public: // geometry
-  bool transformSelection(
-    const std::string& commandName, const vm::mat4x4d& transformation);
-
-  bool translateSelection(const vm::vec3d& delta);
-  bool rotateSelection(const vm::vec3d& center, const vm::vec3d& axis, double angle);
-  bool scaleSelection(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox);
-  bool scaleSelection(const vm::vec3d& center, const vm::vec3d& scaleFactors);
-  bool shearSelection(
-    const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta);
-  bool flipSelection(const vm::vec3d& center, vm::axis::type axis);
-
-  struct TransformVerticesResult
-  {
-    bool success;
-    bool hasRemainingVertices;
-  };
-
-  TransformVerticesResult transformVertices(
-    std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform);
-  bool transformEdges(
-    std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform);
-  bool transformFaces(
-    std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform);
-
-  bool addVertex(const vm::vec3d& vertexPosition);
-  bool removeVertices(
-    const std::string& commandName, std::vector<vm::vec3d> vertexPositions);
-
-  bool snapVertices(double snapTo);
-
-  bool csgConvexMerge();
-  bool csgSubtract();
-  bool csgIntersect();
-  bool csgHollow();
-
-  bool clipBrushes(const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3);
-
-  bool extrudeBrushes(const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta);
 
 public: // tag management
   void registerSmartTags();

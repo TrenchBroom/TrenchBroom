@@ -28,6 +28,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/TransactionScope.h"
@@ -57,7 +58,7 @@ TEST_CASE("Map_Commands")
       CHECK(!entityNode->entity().hasProperty("angle"));
 
       map.selectNodes({entityNode});
-      map.rotateSelection(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(15.0));
+      rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(15.0));
       CHECK(entityNode->entity().hasProperty("angle"));
       CHECK(*entityNode->entity().property("angle") == "15");
 
@@ -85,7 +86,7 @@ TEST_CASE("Map_Commands")
       SECTION("translateSelection")
       {
         map.selectNodes({brushNode});
-        map.translateSelection(vm::vec3d{1, 1, 1});
+        translateSelection(map, vm::vec3d{1, 1, 1});
         CHECK(material->usageCount() == 6u);
 
         map.undoCommand();
@@ -156,7 +157,7 @@ TEST_CASE("Map_Commands")
       map.selectNodes({entityNode});
 
       REQUIRE_FALSE(map.canRepeatCommands());
-      map.translateSelection({1, 2, 3});
+      translateSelection(map, {1, 2, 3});
       CHECK(map.canRepeatCommands());
 
       REQUIRE(entityNode->entity().origin() == vm::vec3d(1, 2, 3));
@@ -175,7 +176,7 @@ TEST_CASE("Map_Commands")
       map.selectNodes({entityNode});
 
       REQUIRE_FALSE(map.canRepeatCommands());
-      map.rotateSelection(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+      rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
       CHECK(map.canRepeatCommands());
 
       REQUIRE(
@@ -201,7 +202,7 @@ TEST_CASE("Map_Commands")
       REQUIRE_FALSE(map.canRepeatCommands());
       const auto oldBounds = brushNode1->logicalBounds();
       const auto newBounds = vm::bbox3d(oldBounds.min, 2.0 * oldBounds.max);
-      map.scaleSelection(oldBounds, newBounds);
+      scaleSelection(map, oldBounds, newBounds);
       CHECK(map.canRepeatCommands());
 
       auto* brushNode2 = createBrushNode(map);
@@ -220,7 +221,7 @@ TEST_CASE("Map_Commands")
       map.selectNodes({brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
-      map.scaleSelection(brushNode1->logicalBounds().center(), vm::vec3d(2, 2, 2));
+      scaleSelection(map, brushNode1->logicalBounds().center(), vm::vec3d(2, 2, 2));
       CHECK(map.canRepeatCommands());
 
       auto* brushNode2 = createBrushNode(map);
@@ -241,7 +242,7 @@ TEST_CASE("Map_Commands")
       map.selectNodes({brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
-      map.shearSelection(originalBounds, vm::vec3d{0, 0, 1}, vm::vec3d(32, 0, 0));
+      shearSelection(map, originalBounds, vm::vec3d{0, 0, 1}, vm::vec3d(32, 0, 0));
       REQUIRE(brushNode1->logicalBounds() != originalBounds);
       CHECK(map.canRepeatCommands());
 
@@ -263,7 +264,7 @@ TEST_CASE("Map_Commands")
       map.selectNodes({brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
-      map.flipSelection(originalBounds.max, vm::axis::z);
+      flipSelection(map, originalBounds.max, vm::axis::z);
       REQUIRE(brushNode1->logicalBounds() != originalBounds);
       CHECK(map.canRepeatCommands());
 
@@ -289,29 +290,29 @@ TEST_CASE("Map_Commands")
         duplicateSelectedNodes(map);
 
         map.startTransaction("", TransactionScope::Oneshot);
-        map.translateSelection({0, 0, 10});
+        translateSelection(map, {0, 0, 10});
         map.rollbackTransaction();
-        map.translateSelection({10, 0, 0});
+        translateSelection(map, {10, 0, 0});
         map.commitTransaction();
       }
       SECTION("translations that get coalesced")
       {
         duplicateSelectedNodes(map);
 
-        map.translateSelection({5, 0, 0});
-        map.translateSelection({5, 0, 0});
+        translateSelection(map, {5, 0, 0});
+        translateSelection(map, {5, 0, 0});
       }
       SECTION("duplicate inside transaction, then standalone movements")
       {
         map.startTransaction("", TransactionScope::Oneshot);
         duplicateSelectedNodes(map);
-        map.translateSelection({2, 0, 0});
-        map.translateSelection({2, 0, 0});
+        translateSelection(map, {2, 0, 0});
+        translateSelection(map, {2, 0, 0});
         map.commitTransaction();
 
-        map.translateSelection({2, 0, 0});
-        map.translateSelection({2, 0, 0});
-        map.translateSelection({2, 0, 0});
+        translateSelection(map, {2, 0, 0});
+        translateSelection(map, {2, 0, 0});
+        translateSelection(map, {2, 0, 0});
       }
 
       // repeatable actions:
@@ -347,9 +348,9 @@ TEST_CASE("Map_Commands")
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
 
       map.startTransaction("", TransactionScope::Oneshot);
-      map.translateSelection({0, 0, 10});
+      translateSelection(map, {0, 0, 10});
       map.rollbackTransaction();
-      map.translateSelection({10, 0, 0});
+      translateSelection(map, {10, 0, 0});
       map.commitTransaction();
       // overall result: x += 10
 
@@ -384,7 +385,7 @@ TEST_CASE("Map_Commands")
       map.selectNodes({entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
 
-      map.translateSelection({0, 0, 10});
+      translateSelection(map, {0, 0, 10});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 10));
       CHECK(map.canRepeatCommands());
 

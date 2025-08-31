@@ -28,6 +28,7 @@
 #include "mdl/Game.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
@@ -106,7 +107,7 @@ EntityNode* createPointEntity(
     return nullptr;
   }
   map.selectNodes({entityNode});
-  if (!map.transformSelection("Translate Objects", vm::translation_matrix(delta)))
+  if (!transformSelection(map, "Translate Objects", vm::translation_matrix(delta)))
   {
     transaction.cancel();
     return nullptr;

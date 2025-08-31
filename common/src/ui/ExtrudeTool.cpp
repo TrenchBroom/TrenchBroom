@@ -29,6 +29,7 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/NodeContents.h"
 #include "mdl/PickResult.h"
@@ -579,7 +580,7 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
   else
   {
     m_map.rollbackTransaction();
-    if (m_map.extrudeBrushes(getPolygons(dragState.initialDragHandles), handleDelta))
+    if (extrudeBrushes(m_map, getPolygons(dragState.initialDragHandles), handleDelta))
     {
       dragState.totalDelta = handleDelta;
     }
@@ -587,8 +588,8 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
     {
       // extrudeBrushes() fails if some brushes were completely clipped away.
       // In that case, restore the last m_totalDelta to be successfully applied.
-      m_map.extrudeBrushes(
-        getPolygons(dragState.initialDragHandles), dragState.totalDelta);
+      extrudeBrushes(
+        m_map, getPolygons(dragState.initialDragHandles), dragState.totalDelta);
     }
   }
 
@@ -609,15 +610,16 @@ bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
   ensure(m_dragging, "may only be called during a drag");
 
   m_map.rollbackTransaction();
-  if (m_map.transformFaces(
-        getPolygons(dragState.initialDragHandles), vm::translation_matrix(delta)))
+  if (transformFaces(
+        m_map, getPolygons(dragState.initialDragHandles), vm::translation_matrix(delta)))
   {
     dragState.totalDelta = delta;
   }
   else
   {
     // restore the last successful position
-    m_map.transformFaces(
+    transformFaces(
+      m_map,
       getPolygons(dragState.initialDragHandles),
       vm::translation_matrix(dragState.totalDelta));
   }

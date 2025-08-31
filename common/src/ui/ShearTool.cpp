@@ -25,6 +25,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "render/Camera.h"
@@ -202,7 +203,7 @@ void ShearTool::shearByDelta(const vm::vec3d& delta)
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
     const auto side = m_dragStartHit.target<BBoxSide>();
-    m_map.shearSelection(bounds(), side.normal, delta);
+    shearSelection(m_map, bounds(), side.normal, delta);
   }
 }
 

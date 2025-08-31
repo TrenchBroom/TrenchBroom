@@ -21,6 +21,7 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
 
@@ -46,7 +47,7 @@ TEST_CASE("Transaction")
 
   addNodes(map, {{parentForNodes(map), {entityNode}}});
   map.selectNodes({entityNode});
-  map.transformSelection("translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
+  transformSelection(map, "translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
 
   REQUIRE(transaction.state() == Transaction::State::Running);
   REQUIRE(entityNode->entity().origin() == vm::vec3d{1, 0, 0});

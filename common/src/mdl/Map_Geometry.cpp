@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_Geometry.h"
+
 #include "Ensure.h"
 #include "Logger.h"
 #include "Map.h"
@@ -39,7 +41,6 @@
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Polyhedron3.h"
-#include "mdl/RepeatStack.h"
 #include "mdl/SetLinkIdsCommand.h"
 #include "mdl/SwapNodeContentsCommand.h"
 #include "mdl/Transaction.h"
@@ -54,18 +55,19 @@
 namespace tb::mdl
 {
 
-bool Map::transformSelection(
-  const std::string& commandName, const vm::mat4x4d& transformation)
+bool transformSelection(
+  Map& map, const std::string& commandName, const vm::mat4x4d& transformation)
 {
-  if (vertexHandles().anySelected())
+  if (map.vertexHandles().anySelected())
   {
-    return transformVertices(vertexHandles().selectedHandles(), transformation).success;
+    return transformVertices(map, map.vertexHandles().selectedHandles(), transformation)
+      .success;
   }
 
   auto nodesToTransform = std::vector<Node*>{};
   auto entitiesToTransform = std::unordered_map<EntityNodeBase*, size_t>{};
 
-  for (auto* node : selection().nodes)
+  for (auto* node : map.selection().nodes)
   {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, WorldNode* worldNode) {
@@ -113,7 +115,7 @@ bool Map::transformSelection(
 
   const auto alignmentLock = pref(Preferences::AlignmentLock);
   const auto updateAngleProperty =
-    world()->entityPropertyConfig().updateAnglePropertyAfterTransform;
+    map.world()->entityPropertyConfig().updateAnglePropertyAfterTransform;
 
   auto tasks =
     nodesToTransform | std::views::transform([&](auto& node) {
@@ -135,10 +137,10 @@ bool Map::transformSelection(
             const auto* containingGroup = brushNode->containingGroup();
             const bool lockAlignment =
             alignmentLock
-            || (containingGroup && containingGroup->closed() && collectLinkedNodes({world()}, *brushNode).size() > 1);
+            || (containingGroup && containingGroup->closed() && collectLinkedNodes({map.world()}, *brushNode).size() > 1);
 
             auto brush = brushNode->brush();
-            return brush.transform(worldBounds(), transformation, lockAlignment)
+            return brush.transform(map.worldBounds(), transformation, lockAlignment)
                    | kdl::and_then([&]() -> TransformResult {
                        return std::make_pair(brushNode, NodeContents{std::move(brush)});
                      });
@@ -151,74 +153,78 @@ bool Map::transformSelection(
       }};
     });
 
-  const auto success = taskManager().run_tasks_and_wait(tasks) | kdl::fold
+  const auto success = map.taskManager().run_tasks_and_wait(tasks) | kdl::fold
                        | kdl::transform([&](auto nodesToUpdate) {
-                           return updateNodeContents(
+                           return map.updateNodeContents(
                              commandName,
                              std::move(nodesToUpdate),
-                             collectContainingGroups(selection().nodes));
+                             collectContainingGroups(map.selection().nodes));
                          })
                        | kdl::value_or(false);
 
   if (success)
   {
-    m_repeatStack->push([&, commandName, transformation]() {
-      transformSelection(commandName, transformation);
+    map.pushRepeatableCommand([&, commandName, transformation]() {
+      transformSelection(map, commandName, transformation);
     });
   }
 
   return success;
 }
 
-bool Map::translateSelection(const vm::vec3d& delta)
+bool translateSelection(mdl::Map& map, const vm::vec3d& delta)
 {
-  return transformSelection("Translate Objects", vm::translation_matrix(delta));
+  return transformSelection(map, "Translate Objects", vm::translation_matrix(delta));
 }
 
-bool Map::rotateSelection(const vm::vec3d& center, const vm::vec3d& axis, double angle)
+bool rotateSelection(
+  mdl::Map& map, const vm::vec3d& center, const vm::vec3d& axis, double angle)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::rotation_matrix(axis, angle)
                               * vm::translation_matrix(-center);
-  return transformSelection("Rotate Objects", transformation);
+  return transformSelection(map, "Rotate Objects", transformation);
 }
 
-bool Map::scaleSelection(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox)
+bool scaleSelection(mdl::Map& map, const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox)
 {
   const auto transformation = vm::scale_bbox_matrix(oldBBox, newBBox);
-  return transformSelection("Scale Objects", transformation);
+  return transformSelection(map, "Scale Objects", transformation);
 }
 
-bool Map::scaleSelection(const vm::vec3d& center, const vm::vec3d& scaleFactors)
+bool scaleSelection(mdl::Map& map, const vm::vec3d& center, const vm::vec3d& scaleFactors)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::scaling_matrix(scaleFactors)
                               * vm::translation_matrix(-center);
-  return transformSelection("Scale Objects", transformation);
+  return transformSelection(map, "Scale Objects", transformation);
 }
 
-bool Map::shearSelection(
-  const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta)
+bool shearSelection(
+  mdl::Map& map,
+  const vm::bbox3d& box,
+  const vm::vec3d& sideToShear,
+  const vm::vec3d& delta)
 {
   const auto transformation = vm::shear_bbox_matrix(box, sideToShear, delta);
-  return transformSelection("Scale Objects", transformation);
+  return transformSelection(map, "Scale Objects", transformation);
 }
 
-bool Map::flipSelection(const vm::vec3d& center, const vm::axis::type axis)
+bool flipSelection(mdl::Map& map, const vm::vec3d& center, const vm::axis::type axis)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::mirror_matrix<double>(axis)
                               * vm::translation_matrix(-center);
-  return transformSelection("Flip Objects", transformation);
+  return transformSelection(map, "Flip Objects", transformation);
 }
 
 
-Map::TransformVerticesResult Map::transformVertices(
-  std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform)
+TransformVerticesResult transformVertices(
+  Map& map, std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform)
 {
   auto newVertexPositions = std::vector<vm::vec3d>{};
   auto newNodes = applyToNodeContents(
-    selection().nodes,
+    map.selection().nodes,
     kdl::overload(
       [](Layer&) { return true; },
       [](Group&) { return true; },
@@ -231,13 +237,13 @@ Map::TransformVerticesResult Map::transformVertices(
           return true;
         }
 
-        if (!brush.canTransformVertices(worldBounds(), verticesToMove, transform))
+        if (!brush.canTransformVertices(map.worldBounds(), verticesToMove, transform))
         {
           return false;
         }
 
         return brush.transformVertices(
-                 worldBounds(), verticesToMove, transform, pref(Preferences::UVLock))
+                 map.worldBounds(), verticesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions =
                      brush.findClosestVertexPositions(transform * verticesToMove);
@@ -245,7 +251,7 @@ Map::TransformVerticesResult Map::transformVertices(
                      std::move(newVertexPositions), std::move(newPositions));
                  })
                | kdl::if_error([&](auto e) {
-                   logger().error() << "Could not move brush vertices: " << e.msg;
+                   map.logger().error() << "Could not move brush vertices: " << e.msg;
                  })
                | kdl::is_success();
       },
@@ -257,12 +263,12 @@ Map::TransformVerticesResult Map::transformVertices(
 
     const auto commandName =
       kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = Transaction{map, commandName};
 
     const auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
+    const auto result = map.executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName,
       std::move(*newNodes),
       std::move(vertexPositions),
@@ -274,7 +280,7 @@ Map::TransformVerticesResult Map::transformVertices(
       return TransformVerticesResult{false, false};
     }
 
-    setHasPendingChanges(changedLinkedGroups, true);
+    map.setHasPendingChanges(changedLinkedGroups, true);
 
     if (!transaction.commit())
     {
@@ -293,12 +299,12 @@ Map::TransformVerticesResult Map::transformVertices(
   return TransformVerticesResult{false, false};
 }
 
-bool Map::transformEdges(
-  std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform)
+bool transformEdges(
+  Map& map, std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform)
 {
   auto newEdgePositions = std::vector<vm::segment3d>{};
   auto newNodes = applyToNodeContents(
-    selection().nodes,
+    map.selection().nodes,
     kdl::overload(
       [](Layer&) { return true; },
       [](Group&) { return true; },
@@ -311,13 +317,13 @@ bool Map::transformEdges(
           return true;
         }
 
-        if (!brush.canTransformEdges(worldBounds(), edgesToMove, transform))
+        if (!brush.canTransformEdges(map.worldBounds(), edgesToMove, transform))
         {
           return false;
         }
 
         return brush.transformEdges(
-                 worldBounds(), edgesToMove, transform, pref(Preferences::UVLock))
+                 map.worldBounds(), edgesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(
                      edgesToMove,
@@ -326,7 +332,7 @@ bool Map::transformEdges(
                      std::move(newEdgePositions), std::move(newPositions));
                  })
                | kdl::if_error([&](auto e) {
-                   logger().error() << "Could not move brush edges: " << e.msg;
+                   map.logger().error() << "Could not move brush edges: " << e.msg;
                  })
                | kdl::is_success();
       },
@@ -338,12 +344,12 @@ bool Map::transformEdges(
 
     const auto commandName =
       kdl::str_plural(edgePositions.size(), "Move Brush Edge", "Move Brush Edges");
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = Transaction{map, commandName};
 
     const auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushEdgeCommand>(
+    const auto result = map.executeAndStore(std::make_unique<BrushEdgeCommand>(
       commandName,
       std::move(*newNodes),
       std::move(edgePositions),
@@ -355,19 +361,19 @@ bool Map::transformEdges(
       return false;
     }
 
-    setHasPendingChanges(changedLinkedGroups, true);
+    map.setHasPendingChanges(changedLinkedGroups, true);
     return transaction.commit();
   }
 
   return false;
 }
 
-bool Map::transformFaces(
-  std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform)
+bool transformFaces(
+  Map& map, std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform)
 {
   auto newFacePositions = std::vector<vm::polygon3d>{};
   auto newNodes = applyToNodeContents(
-    selection().nodes,
+    map.selection().nodes,
     kdl::overload(
       [](Layer&) { return true; },
       [](Group&) { return true; },
@@ -380,13 +386,13 @@ bool Map::transformFaces(
           return true;
         }
 
-        if (!brush.canTransformFaces(worldBounds(), facesToMove, transform))
+        if (!brush.canTransformFaces(map.worldBounds(), facesToMove, transform))
         {
           return false;
         }
 
         return brush.transformFaces(
-                 worldBounds(), facesToMove, transform, pref(Preferences::UVLock))
+                 map.worldBounds(), facesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(
                      facesToMove,
@@ -395,7 +401,7 @@ bool Map::transformFaces(
                      std::move(newFacePositions), std::move(newPositions));
                  })
                | kdl::if_error([&](auto e) {
-                   logger().error() << "Could not move brush faces: " << e.msg;
+                   map.logger().error() << "Could not move brush faces: " << e.msg;
                  })
                | kdl::is_success();
       },
@@ -407,12 +413,12 @@ bool Map::transformFaces(
 
     const auto commandName =
       kdl::str_plural(facePositions.size(), "Move Brush Face", "Move Brush Faces");
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = Transaction{map, commandName};
 
     auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushFaceCommand>(
+    const auto result = map.executeAndStore(std::make_unique<BrushFaceCommand>(
       commandName,
       std::move(*newNodes),
       std::move(facePositions),
@@ -424,30 +430,30 @@ bool Map::transformFaces(
       return false;
     }
 
-    setHasPendingChanges(changedLinkedGroups, true);
+    map.setHasPendingChanges(changedLinkedGroups, true);
     return transaction.commit();
   }
 
   return false;
 }
 
-bool Map::addVertex(const vm::vec3d& vertexPosition)
+bool addVertex(Map& map, const vm::vec3d& vertexPosition)
 {
   auto newNodes = applyToNodeContents(
-    selection().nodes,
+    map.selection().nodes,
     kdl::overload(
       [](Layer&) { return true; },
       [](Group&) { return true; },
       [](Entity&) { return true; },
       [&](Brush& brush) {
-        if (!brush.canAddVertex(worldBounds(), vertexPosition))
+        if (!brush.canAddVertex(map.worldBounds(), vertexPosition))
         {
           return false;
         }
 
-        return brush.addVertex(worldBounds(), vertexPosition)
+        return brush.addVertex(map.worldBounds(), vertexPosition)
                | kdl::if_error([&](auto e) {
-                   logger().error() << "Could not add brush vertex: " << e.msg;
+                   map.logger().error() << "Could not add brush vertex: " << e.msg;
                  })
                | kdl::is_success();
       },
@@ -456,12 +462,12 @@ bool Map::addVertex(const vm::vec3d& vertexPosition)
   if (newNodes)
   {
     const auto commandName = "Add Brush Vertex";
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = Transaction{map, commandName};
 
     const auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
+    const auto result = map.executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName,
       std::move(*newNodes),
       std::vector<vm::vec3d>{},
@@ -473,18 +479,18 @@ bool Map::addVertex(const vm::vec3d& vertexPosition)
       return false;
     }
 
-    setHasPendingChanges(changedLinkedGroups, true);
+    map.setHasPendingChanges(changedLinkedGroups, true);
     return transaction.commit();
   }
 
   return false;
 }
 
-bool Map::removeVertices(
-  const std::string& commandName, std::vector<vm::vec3d> vertexPositions)
+bool removeVertices(
+  Map& map, const std::string& commandName, std::vector<vm::vec3d> vertexPositions)
 {
   auto newNodes = applyToNodeContents(
-    selection().nodes,
+    map.selection().nodes,
     kdl::overload(
       [](Layer&) { return true; },
       [](Group&) { return true; },
@@ -497,14 +503,14 @@ bool Map::removeVertices(
           return true;
         }
 
-        if (!brush.canRemoveVertices(worldBounds(), verticesToRemove))
+        if (!brush.canRemoveVertices(map.worldBounds(), verticesToRemove))
         {
           return false;
         }
 
-        return brush.removeVertices(worldBounds(), verticesToRemove)
+        return brush.removeVertices(map.worldBounds(), verticesToRemove)
                | kdl::if_error([&](auto e) {
-                   logger().error() << "Could not remove brush vertices: " << e.msg;
+                   map.logger().error() << "Could not remove brush vertices: " << e.msg;
                  })
                | kdl::is_success();
       },
@@ -512,12 +518,12 @@ bool Map::removeVertices(
 
   if (newNodes)
   {
-    auto transaction = Transaction{*this, commandName};
+    auto transaction = Transaction{map, commandName};
 
     auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
-    const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
+    const auto result = map.executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName,
       std::move(*newNodes),
       std::move(vertexPositions),
@@ -529,21 +535,21 @@ bool Map::removeVertices(
       return false;
     }
 
-    setHasPendingChanges(changedLinkedGroups, true);
+    map.setHasPendingChanges(changedLinkedGroups, true);
     return transaction.commit();
   }
 
   return false;
 }
 
-bool Map::snapVertices(const double snapTo)
+bool snapVertices(Map& map, const double snapTo)
 {
   size_t succeededBrushCount = 0;
   size_t failedBrushCount = 0;
 
-  const auto allSelectedBrushes = selection().allBrushes();
+  const auto allSelectedBrushes = map.selection().allBrushes();
   const bool applyAndSwapSuccess = applyAndSwap(
-    *this,
+    map,
     "Snap Brush Vertices",
     allSelectedBrushes,
     collectContainingGroups(kdl::vec_static_cast<Node*>(allSelectedBrushes)),
@@ -552,12 +558,12 @@ bool Map::snapVertices(const double snapTo)
       [](Group&) { return true; },
       [](Entity&) { return true; },
       [&](Brush& originalBrush) {
-        if (originalBrush.canSnapVertices(worldBounds(), snapTo))
+        if (originalBrush.canSnapVertices(map.worldBounds(), snapTo))
         {
-          originalBrush.snapVertices(worldBounds(), snapTo, pref(Preferences::UVLock))
+          originalBrush.snapVertices(map.worldBounds(), snapTo, pref(Preferences::UVLock))
             | kdl::transform([&]() { succeededBrushCount += 1; })
             | kdl::transform_error([&](auto e) {
-                logger().error() << "Could not snap vertices: " << e.msg;
+                map.logger().error() << "Could not snap vertices: " << e.msg;
                 failedBrushCount += 1;
               });
         }
@@ -575,14 +581,14 @@ bool Map::snapVertices(const double snapTo)
   }
   if (succeededBrushCount > 0)
   {
-    logger().info() << fmt::format(
+    map.logger().info() << fmt::format(
       "Snapped vertices of {} {}",
       succeededBrushCount,
       kdl::str_plural(succeededBrushCount, "brush", "brushes"));
   }
   if (failedBrushCount > 0)
   {
-    logger().info() << fmt::format(
+    map.logger().info() << fmt::format(
       "Failed to snap vertices of {} {}",
       failedBrushCount,
       kdl::str_plural(failedBrushCount, "brush", "brushes"));
@@ -591,18 +597,18 @@ bool Map::snapVertices(const double snapTo)
   return true;
 }
 
-bool Map::csgConvexMerge()
+bool csgConvexMerge(Map& map)
 {
-  if (!selection().hasBrushFaces() && !selection().hasOnlyBrushes())
+  if (!map.selection().hasBrushFaces() && !map.selection().hasOnlyBrushes())
   {
     return false;
   }
 
   auto points = std::vector<vm::vec3d>{};
 
-  if (selection().hasBrushFaces())
+  if (map.selection().hasBrushFaces())
   {
-    for (const auto& handle : selection().brushFaces)
+    for (const auto& handle : map.selection().brushFaces)
     {
       for (const auto* vertex : handle.face().vertices())
       {
@@ -610,9 +616,9 @@ bool Map::csgConvexMerge()
       }
     }
   }
-  else if (selection().hasOnlyBrushes())
+  else if (map.selection().hasOnlyBrushes())
   {
-    for (const auto* brushNode : selection().brushes)
+    for (const auto* brushNode : map.selection().brushes)
     {
       for (const auto* vertex : brushNode->brush().vertices())
       {
@@ -628,63 +634,65 @@ bool Map::csgConvexMerge()
   }
 
   const auto builder = BrushBuilder{
-    world()->mapFormat(), worldBounds(), game()->config().faceAttribsConfig.defaults};
-  return builder.createBrush(polyhedron, currentMaterialName())
+    map.world()->mapFormat(),
+    map.worldBounds(),
+    map.game()->config().faceAttribsConfig.defaults};
+  return builder.createBrush(polyhedron, map.currentMaterialName())
          | kdl::transform([&](auto b) {
              b.cloneFaceAttributesFrom(kdl::vec_transform(
-               selection().brushes,
+               map.selection().brushes,
                [](const auto* brushNode) { return &brushNode->brush(); }));
 
              // The nodelist is either empty or contains only brushes.
-             const auto toRemove = selection().nodes;
+             const auto toRemove = map.selection().nodes;
 
              // We could be merging brushes that have different parents; use the parent
              // of the first brush.
              auto* parentNode = static_cast<Node*>(nullptr);
-             if (!selection().brushes.empty())
+             if (!map.selection().brushes.empty())
              {
-               parentNode = selection().brushes.front()->parent();
+               parentNode = map.selection().brushes.front()->parent();
              }
-             else if (!selection().brushFaces.empty())
+             else if (!map.selection().brushFaces.empty())
              {
-               parentNode = selection().brushFaces.front().node()->parent();
+               parentNode = map.selection().brushFaces.front().node()->parent();
              }
              else
              {
-               parentNode = parentForNodes(*this);
+               parentNode = parentForNodes(map);
              }
 
              auto* brushNode = new BrushNode{std::move(b)};
 
-             auto transaction = Transaction{*this, "CSG Convex Merge"};
-             deselectAll();
-             if (addNodes(*this, {{parentNode, {brushNode}}}).empty())
+             auto transaction = Transaction{map, "CSG Convex Merge"};
+             map.deselectAll();
+             if (addNodes(map, {{parentNode, {brushNode}}}).empty())
              {
                transaction.cancel();
                return;
              }
-             removeNodes(*this, toRemove);
-             selectNodes({brushNode});
+             removeNodes(map, toRemove);
+             map.selectNodes({brushNode});
              transaction.commit();
            })
          | kdl::if_error(
-           [&](auto e) { logger().error() << "Could not create brush: " << e.msg; })
+           [&](auto e) { map.logger().error() << "Could not create brush: " << e.msg; })
          | kdl::is_success();
 }
 
-bool Map::csgSubtract()
+bool csgSubtract(Map& map)
 {
-  const auto subtrahendNodes = std::vector<BrushNode*>{selection().brushes};
+  const auto subtrahendNodes = std::vector<BrushNode*>{map.selection().brushes};
   if (subtrahendNodes.empty())
   {
     return false;
   }
 
-  auto transaction = Transaction{*this, "CSG Subtract"};
+  auto transaction = Transaction{map, "CSG Subtract"};
   // Select touching, but don't delete the subtrahends yet
-  selectTouchingNodes(false);
+  map.selectTouchingNodes(false);
 
-  const auto minuendNodes = std::vector<BrushNode*>{selection().brushes};
+  const auto minuendNodes = std::vector<BrushNode*>{map.selection().brushes};
   const auto subtrahends = kdl::vec_transform(
     subtrahendNodes, [](const auto* subtrahendNode) { return &subtrahendNode->brush(); });
 
@@ -695,7 +703,10 @@ bool Map::csgSubtract()
   return minuendNodes | std::views::transform([&](auto* minuendNode) {
            const auto& minuend = minuendNode->brush();
            auto currentSubtractionResults = minuend.subtract(
-             world()->mapFormat(), worldBounds(), currentMaterialName(), subtrahends);
+             map.world()->mapFormat(),
+             map.worldBounds(),
+             map.currentMaterialName(),
+             subtrahends);
 
            return kdl::vec_filter(
                     std::move(currentSubtractionResults),
@@ -715,24 +726,24 @@ bool Map::csgSubtract()
                     });
          })
          | kdl::fold | kdl::transform([&]() {
-             deselectAll();
-             const auto added = addNodes(*this, toAdd);
-             removeNodes(*this, toRemove);
-             selectNodes(added);
+             map.deselectAll();
+             const auto added = addNodes(map, toAdd);
+             removeNodes(map, toRemove);
+             map.selectNodes(added);
 
              return transaction.commit();
            })
          | kdl::transform_error([&](const auto& e) {
-             logger().error() << "Could not subtract brushes: " << e;
+             map.logger().error() << "Could not subtract brushes: " << e;
              transaction.cancel();
              return false;
            })
          | kdl::value();
 }
 
-bool Map::csgIntersect()
+bool csgIntersect(Map& map)
 {
-  const auto brushes = selection().brushes;
+  const auto brushes = map.selection().brushes;
   if (brushes.size() < 2u)
   {
     return false;
@@ -747,39 +758,39 @@ bool Map::csgIntersect()
   {
     auto* brushNode = *it;
     const auto& brush = brushNode->brush();
-    valid = intersection.intersect(worldBounds(), brush) | kdl::if_error([&](auto e) {
-              logger().error() << "Could not intersect brushes: " << e.msg;
+    valid = intersection.intersect(map.worldBounds(), brush) | kdl::if_error([&](auto e) {
+              map.logger().error() << "Could not intersect brushes: " << e.msg;
             })
             | kdl::is_success();
   }
 
   const auto toRemove = std::vector<Node*>{std::begin(brushes), std::end(brushes)};
 
-  auto transaction = Transaction{*this, "CSG Intersect"};
-  deselectNodes(toRemove);
+  auto transaction = Transaction{map, "CSG Intersect"};
+  map.deselectNodes(toRemove);
 
   if (valid)
   {
     auto* intersectionNode = new BrushNode{std::move(intersection)};
-    if (addNodes(*this, {{parentForNodes(*this, toRemove), {intersectionNode}}}).empty())
+    if (addNodes(map, {{parentForNodes(map, toRemove), {intersectionNode}}}).empty())
     {
       transaction.cancel();
       return false;
     }
-    removeNodes(*this, toRemove);
-    selectNodes({intersectionNode});
+    removeNodes(map, toRemove);
+    map.selectNodes({intersectionNode});
   }
   else
   {
-    removeNodes(*this, toRemove);
+    removeNodes(map, toRemove);
   }
 
   return transaction.commit();
 }
 
-bool Map::csgHollow()
+bool csgHollow(Map& map)
 {
-  const auto brushNodes = selection().brushes;
+  const auto brushNodes = map.selection().brushes;
   if (brushNodes.empty())
   {
     return false;
@@ -794,14 +805,14 @@ bool Map::csgHollow()
     const auto& originalBrush = brushNode->brush();
 
     auto shrunkenBrush = originalBrush;
-    shrunkenBrush.expand(worldBounds(), -double(grid().actualSize()), true)
+    shrunkenBrush.expand(map.worldBounds(), -double(map.grid().actualSize()), true)
       | kdl::and_then([&]() {
           didHollowAnything = true;
 
           return originalBrush.subtract(
-                   world()->mapFormat(),
-                   worldBounds(),
-                   currentMaterialName(),
+                   map.world()->mapFormat(),
+                   map.worldBounds(),
+                   map.currentMaterialName(),
                    shrunkenBrush)
                  | kdl::fold | kdl::transform([&](auto fragments) {
                      auto fragmentNodes =
@@ -816,7 +827,7 @@ bool Map::csgHollow()
                    });
         })
       | kdl::transform_error(
-        [&](const auto& e) { logger().error() << "Could not hollow brush: " << e; });
+        [&](const auto& e) { map.logger().error() << "Could not hollow brush: " << e; });
   }
 
   if (!didHollowAnything)
@@ -824,74 +835,77 @@ bool Map::csgHollow()
     return false;
   }
 
-  auto transaction = Transaction{*this, "CSG Hollow"};
-  deselectAll();
-  const auto added = addNodes(*this, toAdd);
+  auto transaction = Transaction{map, "CSG Hollow"};
+  map.deselectAll();
+  const auto added = addNodes(map, toAdd);
   if (added.empty())
   {
     transaction.cancel();
     return false;
   }
-  removeNodes(*this, toRemove);
-  selectNodes(added);
+  removeNodes(map, toRemove);
+  map.selectNodes(added);
 
   return transaction.commit();
 }
 
-bool Map::clipBrushes(const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3)
+bool clipBrushes(Map& map, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3)
 {
-  return selection().brushes | std::views::transform([&](const BrushNode* originalBrush) {
-           auto clippedBrush = originalBrush->brush();
-           return BrushFace::create(
-                    p1,
-                    p2,
-                    p3,
-                    BrushFaceAttributes{currentMaterialName()},
-                    world()->mapFormat())
-                  | kdl::and_then([&](BrushFace&& clipFace) {
-                      return clippedBrush.clip(worldBounds(), std::move(clipFace));
-                    })
-                  | kdl::and_then([&]() -> Result<std::pair<Node*, Brush>> {
-                      return std::make_pair(
-                        originalBrush->parent(), std::move(clippedBrush));
-                    });
-         })
+  return map.selection().brushes
+         | std::views::transform([&](const BrushNode* originalBrush) {
+             auto clippedBrush = originalBrush->brush();
+             return BrushFace::create(
+                      p1,
+                      p2,
+                      p3,
+                      BrushFaceAttributes{map.currentMaterialName()},
+                      map.world()->mapFormat())
+                    | kdl::and_then([&](BrushFace&& clipFace) {
+                        return clippedBrush.clip(map.worldBounds(), std::move(clipFace));
+                      })
+                    | kdl::and_then([&]() -> Result<std::pair<Node*, Brush>> {
+                        return std::make_pair(
+                          originalBrush->parent(), std::move(clippedBrush));
+                      });
+           })
          | kdl::fold | kdl::and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
              auto toAdd = std::map<Node*, std::vector<Node*>>{};
-             const auto toRemove = kdl::vec_static_cast<Node*>(selection().brushes);
+             const auto toRemove = kdl::vec_static_cast<Node*>(map.selection().brushes);
 
              for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
              {
                toAdd[parentNode].push_back(new BrushNode{std::move(clippedBrush)});
              }
 
-             auto transaction = Transaction{*this, "Clip Brushes"};
-             deselectAll();
-             removeNodes(*this, toRemove);
+             auto transaction = Transaction{map, "Clip Brushes"};
+             map.deselectAll();
+             removeNodes(map, toRemove);
 
-             const auto addedNodes = addNodes(*this, toAdd);
+             const auto addedNodes = addNodes(map, toAdd);
              if (addedNodes.empty())
              {
                transaction.cancel();
                return Error{"Could not replace brushes in document"};
              }
-             selectNodes(addedNodes);
+             map.selectNodes(addedNodes);
              if (!transaction.commit())
              {
                return Error{"Could not replace brushes in document"};
              }
              return kdl::void_success;
            })
-         | kdl::if_error(
-           [&](const auto& e) { logger().error() << "Could not clip brushes: " << e; })
+         | kdl::if_error([&](const auto& e) {
+             map.logger().error() << "Could not clip brushes: " << e;
+           })
          | kdl::is_success();
 }
 
-bool Map::extrudeBrushes(const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta)
+bool extrudeBrushes(
+  Map& map, const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta)
 {
-  const auto nodes = selection().nodes;
+  const auto nodes = map.selection().nodes;
   return applyAndSwap(
-    *this,
+    map,
     "Resize Brushes",
     nodes,
     collectContainingGroups(nodes),
@@ -908,10 +922,11 @@ bool Map::extrudeBrushes(const std::vector<vm::polygon3d>& faces, const vm::vec3
         }
 
         return brush.moveBoundary(
-                 worldBounds(), *faceIndex, delta, pref(Preferences::AlignmentLock))
-               | kdl::transform([&]() { return worldBounds().contains(brush.bounds()); })
+                 map.worldBounds(), *faceIndex, delta, pref(Preferences::AlignmentLock))
+               | kdl::transform(
+                 [&]() { return map.worldBounds().contains(brush.bounds()); })
                | kdl::transform_error([&](auto e) {
-                   logger().error() << "Could not resize brush: " << e.msg;
+                   map.logger().error() << "Could not resize brush: " << e.msg;
                    return false;
                  })
                | kdl::value();

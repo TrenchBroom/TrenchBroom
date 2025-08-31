@@ -28,6 +28,7 @@
 #include <QStackedLayout>
 
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "ui/QtUtils.h"
 #include "ui/ScaleTool.h"
 #include "ui/ViewConstants.h"
@@ -144,7 +145,7 @@ void ScaleToolPage::applyScale()
     {
       if (const auto& selectionBounds = m_map.selectionBounds())
       {
-        m_map.scaleSelection(selectionBounds->center(), *scaleFactors);
+        scaleSelection(m_map, selectionBounds->center(), *scaleFactors);
       }
     }
   }

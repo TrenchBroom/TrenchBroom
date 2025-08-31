@@ -20,6 +20,7 @@
 #include "FaceTool.h"
 
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 
 #include "kdl/string_format.h"
 
@@ -70,7 +71,7 @@ FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
 {
   auto handles = m_map.faceHandles().selectedHandles();
   const auto transform = vm::translation_matrix(delta);
-  if (m_map.transformFaces(std::move(handles), transform))
+  if (transformFaces(m_map, std::move(handles), transform))
   {
     m_dragHandlePosition = m_dragHandlePosition.transform(transform);
     return MoveResult::Continue;
@@ -93,7 +94,7 @@ void FaceTool::removeSelection()
 
   const auto commandName =
     kdl::str_plural(handles.size(), "Remove Brush Face", "Remove Brush Faces");
-  m_map.removeVertices(commandName, std::move(vertexPositions));
+  removeVertices(m_map, commandName, std::move(vertexPositions));
 }
 
 } // namespace tb::ui

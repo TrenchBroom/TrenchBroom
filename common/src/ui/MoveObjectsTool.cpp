@@ -21,6 +21,7 @@
 
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/TransactionScope.h"
 #include "ui/InputState.h"
@@ -78,7 +79,7 @@ MoveObjectsTool::MoveResult MoveObjectsTool::move(
     duplicateSelectedNodes(m_map);
   }
 
-  return m_map.translateSelection(delta) ? MoveResult::Continue : MoveResult::Deny;
+  return translateSelection(m_map, delta) ? MoveResult::Continue : MoveResult::Deny;
 }
 
 void MoveObjectsTool::endMove(const InputState&)

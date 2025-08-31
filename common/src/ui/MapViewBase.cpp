@@ -48,6 +48,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -410,7 +411,7 @@ void MapViewBase::moveObjects(const vm::direction direction)
   auto& map = m_document.map();
   const auto& grid = map.grid();
   const auto delta = moveDirection(direction) * double(grid.actualSize());
-  map.translateSelection(delta);
+  translateSelection(map, delta);
 }
 
 void MapViewBase::duplicateObjects()
@@ -444,7 +445,7 @@ void MapViewBase::rotate(const vm::rotation_axis axisSpec, const bool clockwise)
     const auto center = m_toolBox.rotateToolActive() ? m_toolBox.rotateToolCenter()
                                                      : grid.referencePoint(*bounds);
 
-    map.rotateSelection(center, axis, angle);
+    rotateSelection(map, center, axis, angle);
   }
 }
 
@@ -485,7 +486,7 @@ void MapViewBase::flip(const vm::direction direction)
     const auto center = halfGrid.referencePoint(*map.selectionBounds());
     const auto axis = flipAxis(direction);
 
-    map.flipSelection(center, axis);
+    flipSelection(map, center, axis);
   }
 }
 

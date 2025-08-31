@@ -63,6 +63,7 @@
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -1374,7 +1375,7 @@ void MapFrame::pasteAtCursorPosition()
         const auto delta = m_mapView->pasteObjectsDelta(*bounds, referenceBounds);
         map.showNodes(nodes);
         map.selectNodes(nodes); // Hiding deselected the nodes, so reselect them
-        if (!map.translateSelection(delta))
+        if (!translateSelection(map, delta))
         {
           transaction.cancel();
           break;
@@ -1702,7 +1703,7 @@ void MapFrame::moveSelectedObjects()
     if (const auto offset = parse<double, 3>(str))
     {
       auto& map = m_document->map();
-      map.translateSelection(*offset);
+      translateSelection(map, *offset);
     }
     else
     {
@@ -1889,8 +1890,7 @@ void MapFrame::csgConvexMerge()
     }
     else
     {
-      auto& map = m_document->map();
-      map.csgConvexMerge();
+      mdl::csgConvexMerge(m_document->map());
     }
   }
 }
@@ -1910,8 +1910,7 @@ void MapFrame::csgSubtract()
 {
   if (canDoCsgSubtract())
   {
-    auto& map = m_document->map();
-    map.csgSubtract();
+    mdl::csgSubtract(m_document->map());
   }
 }
 
@@ -1926,8 +1925,7 @@ void MapFrame::csgHollow()
 {
   if (canDoCsgHollow())
   {
-    auto& map = m_document->map();
-    map.csgHollow();
+    mdl::csgHollow(m_document->map());
   }
 }
 
@@ -1942,8 +1940,7 @@ void MapFrame::csgIntersect()
 {
   if (canDoCsgIntersect())
   {
-    auto& map = m_document->map();
-    map.csgIntersect();
+    mdl::csgIntersect(m_document->map());
   }
 }
 
@@ -1959,7 +1956,7 @@ void MapFrame::snapVerticesToInteger()
   if (canSnapVertices())
   {
     auto& map = m_document->map();
-    map.snapVertices(1u);
+    snapVertices(map, 1u);
   }
 }
 
@@ -1968,7 +1965,7 @@ void MapFrame::snapVerticesToGrid()
   if (canSnapVertices())
   {
     auto& map = m_document->map();
-    map.snapVertices(map.grid().actualSize());
+    snapVertices(map, map.grid().actualSize());
   }
 }
 
@@ -2336,8 +2333,7 @@ void MapFrame::debugClipBrush()
     vm::parse_all<double, 3>(str.toStdString(), std::back_inserter(points));
     if (points.size() == 3)
     {
-      auto& map = m_document->map();
-      map.clipBrushes(points[0], points[1], points[2]);
+      clipBrushes(m_document->map(), points[0], points[1], points[2]);
     }
   }
 }
