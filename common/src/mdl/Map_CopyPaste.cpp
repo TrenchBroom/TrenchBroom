@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Map_CopyPaste.h"
+
 #include "Logger.h"
 #include "Map.h"
 #include "Uuid.h"
@@ -243,54 +245,54 @@ bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 
 } // namespace
 
-std::string Map::serializeSelectedNodes()
+std::string serializeSelectedNodes(Map& map)
 {
   auto stream = std::stringstream{};
-  auto writer = io::NodeWriter{*world(), stream};
-  writer.writeNodes(selection().nodes, taskManager());
+  auto writer = io::NodeWriter{*map.world(), stream};
+  writer.writeNodes(map.selection().nodes, map.taskManager());
   return stream.str();
 }
 
-std::string Map::serializeSelectedBrushFaces()
+std::string serializeSelectedBrushFaces(Map& map)
 {
   auto stream = std::stringstream{};
-  auto writer = io::NodeWriter{*world(), stream};
+  auto writer = io::NodeWriter{*map.world(), stream};
   writer.writeBrushFaces(
-    selection().brushFaces | std::views::transform([](const auto& h) { return h.face(); })
-      | kdl::to_vector,
-    taskManager());
+    map.selection().brushFaces
+      | std::views::transform([](const auto& h) { return h.face(); }) | kdl::to_vector,
+    map.taskManager());
   return stream.str();
 }
 
-PasteType Map::paste(const std::string& str)
+PasteType paste(Map& map, const std::string& str)
 {
-  auto parserStatus = io::SimpleParserStatus{logger()};
+  auto parserStatus = io::SimpleParserStatus{map.logger()};
 
   // Try parsing as entities, then as brushes, in all compatible formats
   return io::NodeReader::read(
            str,
-           world()->mapFormat(),
-           worldBounds(),
-           world()->entityPropertyConfig(),
+           map.world()->mapFormat(),
+           map.worldBounds(),
+           map.world()->entityPropertyConfig(),
            parserStatus,
-           taskManager())
+           map.taskManager())
          | kdl::transform([&](auto nodes) {
-             return pasteNodes(*this, nodes) ? PasteType::Node : PasteType::Failed;
+             return pasteNodes(map, nodes) ? PasteType::Node : PasteType::Failed;
            })
          | kdl::or_else([&](const auto& nodeError) {
              // Try parsing as brush faces
-             auto reader = io::BrushFaceReader{str, world()->mapFormat()};
-             return reader.read(worldBounds(), parserStatus)
+             auto reader = io::BrushFaceReader{str, map.world()->mapFormat()};
+             return reader.read(map.worldBounds(), parserStatus)
                     | kdl::transform([&](const auto& faces) {
-                        return !faces.empty() && pasteBrushFaces(*this, faces)
+                        return !faces.empty() && pasteBrushFaces(map, faces)
                                  ? PasteType::BrushFace
                                  : PasteType::Failed;
                       })
                     | kdl::transform_error([&](const auto& faceError) {
-                        logger().error()
+                        map.logger().error()
                           << "Could not parse clipboard contents as nodes: "
                           << nodeError.msg;
-                        logger().error()
+                        map.logger().error()
                           << "Could not parse clipboard contents as faces: "
                           << faceError.msg;
                         return PasteType::Failed;

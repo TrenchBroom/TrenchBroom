@@ -25,6 +25,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PasteType.h"
 
@@ -55,7 +56,7 @@ TEST_CASE("Map")
       switch (mode)
       {
       case Mode::CopyPaste:
-        REQUIRE(map.paste(map.serializeSelectedNodes()) == PasteType::Node);
+        REQUIRE(paste(map, serializeSelectedNodes(map)) == PasteType::Node);
         break;
       case Mode::Duplicate:
         duplicateSelectedNodes(map);

@@ -26,6 +26,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
@@ -73,7 +74,7 @@ TEST_CASE("Map_CopyPaste")
       REQUIRE(defaultLayerNode.childCount() == 0u);
       REQUIRE(worldNode.customLayers().empty());
 
-      CHECK(map.paste(data) == PasteType::Node);
+      CHECK(paste(map, data) == PasteType::Node);
       CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
       CHECK(worldNode.customLayers().empty());
       CHECK(defaultLayerNode.childCount() == 1u);
@@ -108,7 +109,7 @@ TEST_CASE("Map_CopyPaste")
       const auto& defaultLayerNode = *worldNode.defaultLayer();
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
-      CHECK(map.paste(data) == PasteType::Node);
+      CHECK(paste(map, data) == PasteType::Node);
       CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
       CHECK(defaultLayerNode.childCount() == 1u);
 
@@ -145,7 +146,7 @@ TEST_CASE("Map_CopyPaste")
       const auto& defaultLayerNode = *worldNode.defaultLayer();
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
-      CHECK(map.paste(data) == PasteType::Node);
+      CHECK(paste(map, data) == PasteType::Node);
       CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
       CHECK(defaultLayerNode.childCount() == 1u);
 
@@ -179,7 +180,7 @@ TEST_CASE("Map_CopyPaste")
       const auto& defaultLayerNode = *worldNode.defaultLayer();
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
-      CHECK(map.paste(data) == PasteType::Node);
+      CHECK(paste(map, data) == PasteType::Node);
       CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
       CHECK(defaultLayerNode.childCount() == 1u);
       CHECK(dynamic_cast<BrushNode*>(defaultLayerNode.children().front()) != nullptr);
@@ -202,7 +203,7 @@ TEST_CASE("Map_CopyPaste")
       const auto& defaultLayerNode = *worldNode.defaultLayer();
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
-      CHECK(map.paste(data) == PasteType::Node);
+      CHECK(paste(map, data) == PasteType::Node);
       CHECK(defaultLayerNode.childCount() == 1u);
       CHECK(dynamic_cast<BrushNode*>(defaultLayerNode.children().front()) != nullptr);
     }
@@ -232,7 +233,7 @@ common/caulk
       const auto& defaultLayerNode = *worldNode.defaultLayer();
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
-      REQUIRE(map.paste(data) == PasteType::Node);
+      REQUIRE(paste(map, data) == PasteType::Node);
       REQUIRE(defaultLayerNode.childCount() == 1u);
       CHECK(dynamic_cast<PatchNode*>(defaultLayerNode.children().front()) != nullptr);
     }
@@ -255,10 +256,10 @@ common/caulk
       CHECK(groupNode != nullptr);
       map.selectNodes({groupNode});
 
-      const auto copied = map.serializeSelectedNodes();
+      const auto copied = serializeSelectedNodes(map);
 
       const auto delta = vm::vec3d{16, 16, 16};
-      CHECK(map.paste(copied) == PasteType::Node);
+      CHECK(paste(map, copied) == PasteType::Node);
       CHECK(map.selection().groups.size() == 1u);
       CHECK(map.selection().groups.at(0)->name() == groupName);
       CHECK(map.translateSelection(delta));
@@ -282,7 +283,7 @@ common/caulk
       auto* groupNode = map.groupSelectedNodes("test");
       map.openGroup(groupNode);
 
-      CHECK(map.paste(data) == PasteType::Node);
+      CHECK(paste(map, data) == PasteType::Node);
       CHECK(map.selection().hasOnlyEntities());
       CHECK(map.selection().entities.size() == 1u);
 
@@ -310,7 +311,7 @@ common/caulk
       REQUIRE(map.selection().brushes.size() == 0u);
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
-      REQUIRE(map.paste(data) == PasteType::Node);
+      REQUIRE(paste(map, data) == PasteType::Node);
       REQUIRE(defaultLayerNode.childCount() == 1u);
       REQUIRE(dynamic_cast<BrushNode*>(defaultLayerNode.children().front()) != nullptr);
       REQUIRE(map.selection().brushes.size() == 1u);
@@ -340,12 +341,12 @@ common/caulk
       map.deselectAll();
       map.selectNodes({groupNode});
 
-      const auto str = map.serializeSelectedNodes();
+      const auto str = serializeSelectedNodes(map);
 
       SECTION("Copy and paste resets persistent group ID")
       {
         map.deselectAll();
-        REQUIRE(map.paste(str) == PasteType::Node);
+        REQUIRE(paste(map, str) == PasteType::Node);
 
         auto* pastedGroupNode =
           dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children().back());
@@ -359,7 +360,7 @@ common/caulk
       {
         removeSelectedNodes(map);
         map.deselectAll();
-        REQUIRE(map.paste(str) == PasteType::Node);
+        REQUIRE(paste(map, str) == PasteType::Node);
 
         auto* pastedGroupNode =
           dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children().back());
@@ -399,11 +400,11 @@ common/caulk
         map.openGroup(groupNode);
 
         map.selectNodes({brushNode});
-        const auto data = map.serializeSelectedNodes();
+        const auto data = serializeSelectedNodes(map);
 
         map.deselectAll();
 
-        CHECK(map.paste(data) == PasteType::Node);
+        CHECK(paste(map, data) == PasteType::Node);
         CHECK(groupNode->childCount() == 2);
 
         const auto* pastedBrushNode =
@@ -416,7 +417,7 @@ common/caulk
       SECTION("Pasting one linked group")
       {
         map.selectNodes({linkedGroup});
-        const auto data = map.serializeSelectedNodes();
+        const auto data = serializeSelectedNodes(map);
 
         map.deselectAll();
 
@@ -425,7 +426,7 @@ common/caulk
           map.selectAllNodes();
           removeSelectedNodes(map);
 
-          CHECK(map.paste(data) == PasteType::Node);
+          CHECK(paste(map, data) == PasteType::Node);
           CHECK(map.world()->defaultLayer()->childCount() == 1);
 
           const auto* pastedGroupNode =
@@ -440,7 +441,7 @@ common/caulk
           map.selectNodes({linkedGroup});
           removeSelectedNodes(map);
 
-          CHECK(map.paste(data) == PasteType::Node);
+          CHECK(paste(map, data) == PasteType::Node);
           CHECK(map.world()->defaultLayer()->childCount() == 2);
 
           const auto* pastedGroupNode =
@@ -458,7 +459,7 @@ common/caulk
 
         SECTION("If more than one linked group exists")
         {
-          CHECK(map.paste(data) == PasteType::Node);
+          CHECK(paste(map, data) == PasteType::Node);
           CHECK(map.world()->defaultLayer()->childCount() == 3);
 
           const auto* pastedGroupNode =
@@ -478,7 +479,7 @@ common/caulk
         {
           map.openGroup(groupNode);
 
-          CHECK(map.paste(data) == PasteType::Node);
+          CHECK(paste(map, data) == PasteType::Node);
           CHECK(groupNode->childCount() == 2);
           CHECK(linkedGroup->childCount() == 2);
 
@@ -510,7 +511,7 @@ common/caulk
       SECTION("Pasting two linked groups")
       {
         map.selectNodes({groupNode, linkedGroup});
-        const auto data = map.serializeSelectedNodes();
+        const auto data = serializeSelectedNodes(map);
 
         map.deselectAll();
 
@@ -519,7 +520,7 @@ common/caulk
           map.selectNodes({linkedGroup});
           removeSelectedNodes(map);
 
-          CHECK(map.paste(data) == PasteType::Node);
+          CHECK(paste(map, data) == PasteType::Node);
           CHECK(map.world()->defaultLayer()->childCount() == 3);
 
           const auto* pastedGroupNode1 =
@@ -551,7 +552,7 @@ common/caulk
 
         SECTION("If both original groups exist")
         {
-          CHECK(map.paste(data) == PasteType::Node);
+          CHECK(paste(map, data) == PasteType::Node);
           CHECK(map.world()->defaultLayer()->childCount() == 4);
 
           const auto* pastedGroupNode1 =

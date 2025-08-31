@@ -31,6 +31,7 @@
 #include "mdl/Grid.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/VertexHandleManager.h"
@@ -613,7 +614,7 @@ TEST_CASE("Map_Geometry")
 ( -96 -64 172 ) ( -96 -64 116 ) ( -116 -64 144 ) karch1 -0 -0 -0 1 1
 }
 })";
-      map.paste(brush);
+      paste(map, brush);
       map.selectAllNodes();
 
       CHECK(map.selection().brushes.size() == 1u);

@@ -327,12 +327,6 @@ private:
     const std::filesystem::path& path);
   void clearWorld();
 
-public: // copy / paste
-  std::string serializeSelectedNodes();
-  std::string serializeSelectedBrushFaces();
-
-  PasteType paste(const std::string& str);
-
 public: // node visibility
   void isolateSelectedNodes();
   void hideSelectedNodes();

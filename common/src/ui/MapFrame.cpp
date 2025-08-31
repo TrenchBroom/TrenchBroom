@@ -61,6 +61,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -1326,8 +1327,8 @@ void MapFrame::copyToClipboard()
 {
   auto& map = m_document->map();
   const auto& selection = map.selection();
-  const auto str = selection.hasNodes()        ? map.serializeSelectedNodes()
-                   : selection.hasBrushFaces() ? map.serializeSelectedBrushFaces()
+  const auto str = selection.hasNodes()        ? serializeSelectedNodes(map)
+                   : selection.hasBrushFaces() ? serializeSelectedBrushFaces(map)
                                                : std::string{};
 
   auto* clipboard = QApplication::clipboard();
@@ -1410,7 +1411,7 @@ mdl::PasteType MapFrame::paste()
   }
 
   auto& map = m_document->map();
-  return map.paste(mapStringFromUnicode(map.encoding(), qtext));
+  return mdl::paste(map, mapStringFromUnicode(map.encoding(), qtext));
 }
 
 /**

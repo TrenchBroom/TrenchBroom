@@ -18,12 +18,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
 #include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_CopyPaste.h"
 #include "mdl/PasteType.h"
 #include "mdl/WorldNode.h"
 #include "ui/ClipTool.h"
@@ -59,7 +59,7 @@ TEST_CASE("ClipTool")
 }
 }
 )";
-    REQUIRE(map.paste(data) == mdl::PasteType::Node);
+    REQUIRE(paste(map, data) == mdl::PasteType::Node);
 
     const auto* defaultLayer = map.world()->defaultLayer();
 
