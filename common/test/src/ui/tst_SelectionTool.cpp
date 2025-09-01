@@ -31,6 +31,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Picking.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 #include "render/OrthographicCamera.h"
@@ -81,7 +82,7 @@ TEST_CASE("SelectionTool")
         const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
 
         auto pickResult = mdl::PickResult{};
-        map.pick(pickRay, pickResult);
+        pick(map, pickRay, pickResult);
         REQUIRE(pickResult.all().size() == 1);
 
         REQUIRE(map.selection().brushFaces.empty());
@@ -149,7 +150,7 @@ TEST_CASE("SelectionTool")
         const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
 
         auto pickResult = mdl::PickResult{};
-        map.pick(pickRay, pickResult);
+        pick(map, pickRay, pickResult);
         REQUIRE(pickResult.all().size() == 1);
 
         REQUIRE(map.selection().brushFaces.empty());
@@ -506,7 +507,7 @@ TEST_CASE("SelectionTool")
         const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
 
         auto pickResult = mdl::PickResult{};
-        map.pick(pickRay, pickResult);
+        pick(map, pickRay, pickResult);
         CHECK(pickResult.all().size() == 2);
         REQUIRE(map.selection().brushFaces.empty());
 

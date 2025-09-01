@@ -26,6 +26,7 @@
 #include "mdl/Grid.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map_Picking.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
 #include "mdl/PointTrace.h"
@@ -162,7 +163,7 @@ mdl::PickResult MapView2D::pick(const vm::ray3d& pickRay) const
   const auto axis = vm::find_abs_max_component(pickRay.direction);
 
   auto pickResult = mdl::PickResult::bySize(axis);
-  map.pick(pickRay, pickResult);
+  mdl::pick(map, pickRay, pickResult);
 
   return pickResult;
 }

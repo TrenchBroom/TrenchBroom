@@ -30,6 +30,7 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Picking.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
@@ -58,7 +59,7 @@ TEST_CASE("Map_Picking")
       addNodes(map, {{parentForNodes(map), {brushNode1}}});
 
       auto pickResult = PickResult{};
-      map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
+      pick(map, vm::ray3d{{-32, 0, 0}, {1, 0, 0}}, pickResult);
 
       auto hits = pickResult.all();
       CHECK(hits.size() == 1u);
@@ -70,7 +71,7 @@ TEST_CASE("Map_Picking")
       CHECK(hits.front().distance() == vm::approx{32.0});
 
       pickResult.clear();
-      map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{-1, 0, 0}}, pickResult);
+      pick(map, vm::ray3d{{-32, 0, 0}, {-1, 0, 0}}, pickResult);
       CHECK(pickResult.all().empty());
     }
 
@@ -86,7 +87,7 @@ TEST_CASE("Map_Picking")
         origin + vm::vec3d{-32.0, bounds.size().y() / 2.0, bounds.size().z() / 2.0};
 
       auto pickResult = PickResult{};
-      map.pick(vm::ray3d{rayOrigin, vm::vec3d{1, 0, 0}}, pickResult);
+      pick(map, vm::ray3d{rayOrigin, {1, 0, 0}}, pickResult);
 
       auto hits = pickResult.all();
       CHECK(hits.size() == 1u);
@@ -95,7 +96,7 @@ TEST_CASE("Map_Picking")
       CHECK(hits.front().distance() == vm::approx{32.0 - bounds.size().x() / 2.0});
 
       pickResult.clear();
-      map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{-1, 0, 0}}, pickResult);
+      pick(map, vm::ray3d{{-32, 0, 0}, {-1, 0, 0}}, pickResult);
       CHECK(pickResult.all().empty());
     }
 
@@ -118,7 +119,7 @@ TEST_CASE("Map_Picking")
       auto* group = groupSelectedNodes(map, "test");
 
       auto pickResult = PickResult{};
-      map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
+      pick(map, vm::ray3d{{-32, 0, 0}, {1, 0, 0}}, pickResult);
 
       // picking a grouped object when the containing group is closed should return the
       // object, which is converted to the group when hitsToNodesWithGroupPicking() is
@@ -137,7 +138,7 @@ TEST_CASE("Map_Picking")
 
       // hitting both objects in the group should return the group only once
       pickResult.clear();
-      map.pick(vm::ray3d{vm::vec3d{32, 32, -32}, vm::vec3d{0, 0, 1}}, pickResult);
+      pick(map, vm::ray3d{{32, 32, -32}, {0, 0, 1}}, pickResult);
 
       hits = pickResult.all(type(BrushNode::BrushHitType));
       CHECK(hits.size() == 2u);
@@ -147,7 +148,7 @@ TEST_CASE("Map_Picking")
 
       // hitting the group bounds doesn't count as a hit
       pickResult.clear();
-      map.pick(vm::ray3d{vm::vec3d{-32, 0, 96}, vm::vec3d{1, 0, 0}}, pickResult);
+      pick(map, vm::ray3d{{-32, 0, 96}, {1, 0, 0}}, pickResult);
 
       hits = pickResult.all(type(BrushNode::BrushHitType));
       CHECK(hits.empty());
@@ -157,7 +158,7 @@ TEST_CASE("Map_Picking")
       openGroup(map, group);
 
       pickResult.clear();
-      map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
+      pick(map, vm::ray3d{{-32, 0, 0}, {1, 0, 0}}, pickResult);
 
       hits = pickResult.all(type(BrushNode::BrushHitType));
       CHECK(hits.size() == 1u);
@@ -253,7 +254,7 @@ TEST_CASE("Map_Picking")
        */
 
       pickResult.clear();
-      map.pick(highRay, pickResult);
+      pick(map, highRay, pickResult);
 
       auto hits = pickResult.all(type(BrushNode::BrushHitType));
       CHECK(hits.size() == 1u);
@@ -270,7 +271,7 @@ TEST_CASE("Map_Picking")
       // hitting the brush in the inner group should return the inner group when
       // hitsToNodesWithGroupPicking() is used
       pickResult.clear();
-      map.pick(lowRay, pickResult);
+      pick(map, lowRay, pickResult);
 
       hits = pickResult.all(type(BrushNode::BrushHitType));
       CHECK(hits.size() == 1u);
@@ -302,7 +303,7 @@ TEST_CASE("Map_Picking")
 
       // pick a brush in the outer group
       pickResult.clear();
-      map.pick(highRay, pickResult);
+      pick(map, highRay, pickResult);
 
       hits = pickResult.all(type(BrushNode::BrushHitType));
       CHECK(hits.size() == 1u);
@@ -316,7 +317,7 @@ TEST_CASE("Map_Picking")
 
       // pick a brush in the inner group
       pickResult.clear();
-      map.pick(lowRay, pickResult);
+      pick(map, lowRay, pickResult);
 
       hits = pickResult.all(type(BrushNode::BrushHitType));
       CHECK(hits.size() == 1u);
@@ -357,7 +358,7 @@ TEST_CASE("Map_Picking")
       auto pickResult = mdl::PickResult{};
 
       // picking entity brushes should only return the brushes and not the entity
-      map.pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
+      pick(map, vm::ray3d{{-32, 0, 0}, {1, 0, 0}}, pickResult);
 
       auto hits = pickResult.all();
       CHECK(hits.size() == 1u);

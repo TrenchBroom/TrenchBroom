@@ -30,6 +30,7 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map_Picking.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
 #include "mdl/PointTrace.h"
@@ -214,7 +215,7 @@ mdl::PickResult MapView3D::pick(const vm::ray3d& pickRay) const
   const auto& map = m_document.map();
   auto pickResult = mdl::PickResult::byDistance();
 
-  map.pick(pickRay, pickResult);
+  mdl::pick(map, pickRay, pickResult);
   return pickResult;
 }
 
@@ -241,7 +242,7 @@ vm::vec3d MapView3D::pasteObjectsDelta(
       vm::ray3d{m_camera->pickRay(float(clientCoords.x()), float(clientCoords.y()))};
     auto pickResult = mdl::PickResult::byDistance();
 
-    map.pick(pickRay, pickResult);
+    mdl::pick(map, pickRay, pickResult);
 
     const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))

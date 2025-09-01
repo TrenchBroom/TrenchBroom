@@ -325,10 +325,6 @@ private:
     const std::filesystem::path& path);
   void clearWorld();
 
-public: // picking
-  void pick(const vm::ray3d& pickRay, PickResult& pickResult) const;
-  std::vector<Node*> findNodesContaining(const vm::vec3d& point) const;
-
 public: // tag management
   void registerSmartTags();
   const std::vector<SmartTag>& smartTags() const;

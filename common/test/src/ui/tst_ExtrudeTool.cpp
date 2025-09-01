@@ -31,6 +31,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Picking.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PickResult.h"
@@ -63,7 +64,7 @@ vm::vec3d n(const vm::vec3d& v)
 mdl::PickResult performPick(mdl::Map& map, ExtrudeTool& tool, const vm::ray3d& pickRay)
 {
   auto pickResult = mdl::PickResult::byDistance();
-  map.pick(pickRay, pickResult);
+  pick(map, pickRay, pickResult);
 
   const auto hit = tool.pick3D(pickRay, pickResult);
   CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
@@ -105,7 +106,7 @@ TEST_CASE("ExtrudeTool")
       constexpr auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
 
       auto pickResult = mdl::PickResult{};
-      map.pick(pickRay, pickResult);
+      pick(map, pickRay, pickResult);
 
       REQUIRE(pickResult.all().size() == 1);
 
@@ -162,7 +163,7 @@ TEST_CASE("ExtrudeTool")
       const auto pickRay = vm::ray3d{{0, 0, 24}, vm::normalize(vm::vec3d{-1, 0, -1})};
 
       auto pickResult = mdl::PickResult{};
-      map.pick(pickRay, pickResult);
+      pick(map, pickRay, pickResult);
 
       REQUIRE(pickResult.all().size() == 1);
 

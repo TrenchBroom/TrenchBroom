@@ -23,13 +23,13 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Picking.h"
 #include "mdl/PickResult.h"
 #include "render/ActiveShader.h"
 #include "render/PrimType.h"
 #include "render/RenderContext.h"
 #include "render/Shaders.h"
 #include "render/VboManager.h"
-#include "ui/MapDocument.h"
 
 #include "vm/ray.h"
 #include "vm/vec.h"
@@ -49,7 +49,7 @@ void SpikeGuideRenderer::add(
   using namespace mdl::HitFilters;
 
   auto pickResult = mdl::PickResult::byDistance();
-  map.pick(ray, pickResult);
+  pick(map, ray, pickResult);
 
   if (const auto& hit =
         pickResult.first(type(mdl::BrushNode::BrushHitType) && minDistance(1.0));

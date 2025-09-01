@@ -24,6 +24,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_CopyPaste.h"
+#include "mdl/Map_Picking.h"
 #include "mdl/PasteType.h"
 #include "mdl/WorldNode.h"
 #include "render/PerspectiveCamera.h"
@@ -46,7 +47,7 @@ void updatePickState(
       static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()))),
     camera);
 
-  map.pick(pickRequest.pickRay(), pickResult);
+  pick(map, pickRequest.pickRay(), pickResult);
 
   inputState.setPickRequest(pickRequest);
   inputState.setPickResult(std::move(pickResult));
