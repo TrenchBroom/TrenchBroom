@@ -31,6 +31,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Picking.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
@@ -115,7 +116,7 @@ TEST_CASE("Map_Picking")
         | kdl::value()};
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
-      map.selectAllNodes();
+      selectAllNodes(map);
       auto* group = groupSelectedNodes(map, "test");
 
       auto pickResult = PickResult{};
@@ -187,17 +188,17 @@ TEST_CASE("Map_Picking")
         | kdl::value()};
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
-      map.selectAllNodes();
+      selectAllNodes(map);
       auto* innerGroup = groupSelectedNodes(map, "inner");
 
-      map.deselectAll();
+      deselectAll(map);
       auto* brushNode3 = new BrushNode{
         builder.createCuboid(
           vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 256}), "material")
         | kdl::value()};
       addNodes(map, {{parentForNodes(map), {brushNode3}}});
 
-      map.selectAllNodes();
+      selectAllNodes(map);
       auto* outerGroup = groupSelectedNodes(map, "outer");
 
       const vm::ray3d highRay({-32, 0, +32 + 256}, {1, 0, 0});
@@ -350,10 +351,10 @@ TEST_CASE("Map_Picking")
         | kdl::value()};
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
-      map.selectAllNodes();
+      selectAllNodes(map);
 
       createBrushEntity(map, brushEntityDefinition);
-      map.deselectAll();
+      deselectAll(map);
 
       auto pickResult = mdl::PickResult{};
 

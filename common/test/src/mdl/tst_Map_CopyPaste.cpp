@@ -30,6 +30,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -250,13 +251,13 @@ common/caulk
       auto* brushNode1 =
         new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
       addNodes(map, {{parentForNodes(map), {brushNode1}}});
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       const auto groupName = std::string{"testGroup"};
 
       auto* groupNode = groupSelectedNodes(map, groupName);
       CHECK(groupNode != nullptr);
-      map.selectNodes({groupNode});
+      selectNodes(map, {groupNode});
 
       const auto copied = serializeSelectedNodes(map);
 
@@ -280,7 +281,7 @@ common/caulk
 
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       openGroup(map, groupNode);
@@ -334,20 +335,20 @@ common/caulk
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
       auto* groupNode = groupSelectedNodes(map, "test");
 
       const auto persistentGroupId = groupNode->persistentId();
       REQUIRE(persistentGroupId.has_value());
 
-      map.deselectAll();
-      map.selectNodes({groupNode});
+      deselectAll(map);
+      selectNodes(map, {groupNode});
 
       const auto str = serializeSelectedNodes(map);
 
       SECTION("Copy and paste resets persistent group ID")
       {
-        map.deselectAll();
+        deselectAll(map);
         REQUIRE(paste(map, str) == PasteType::Node);
 
         auto* pastedGroupNode =
@@ -361,7 +362,7 @@ common/caulk
       SECTION("Cut and paste retains persistent group ID")
       {
         removeSelectedNodes(map);
-        map.deselectAll();
+        deselectAll(map);
         REQUIRE(paste(map, str) == PasteType::Node);
 
         auto* pastedGroupNode =
@@ -377,12 +378,12 @@ common/caulk
     {
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
 
-      map.deselectAll();
-      map.selectNodes({groupNode});
+      deselectAll(map);
+      selectNodes(map, {groupNode});
       auto* linkedGroup = createLinkedDuplicate(map);
 
       const auto originalGroupLinkId = linkedGroup->linkId();
@@ -394,17 +395,17 @@ common/caulk
       const auto originalBrushLinkId = linkedBrushNode->linkId();
       REQUIRE(originalBrushLinkId == brushNode->linkId());
 
-      map.deselectAll();
+      deselectAll(map);
 
       SECTION("Pasting one linked brush")
       {
-        map.deselectAll();
+        deselectAll(map);
         openGroup(map, groupNode);
 
-        map.selectNodes({brushNode});
+        selectNodes(map, {brushNode});
         const auto data = serializeSelectedNodes(map);
 
-        map.deselectAll();
+        deselectAll(map);
 
         CHECK(paste(map, data) == PasteType::Node);
         CHECK(groupNode->childCount() == 2);
@@ -418,14 +419,14 @@ common/caulk
 
       SECTION("Pasting one linked group")
       {
-        map.selectNodes({linkedGroup});
+        selectNodes(map, {linkedGroup});
         const auto data = serializeSelectedNodes(map);
 
-        map.deselectAll();
+        deselectAll(map);
 
         SECTION("Pasting unknown linked group ID")
         {
-          map.selectAllNodes();
+          selectAllNodes(map);
           removeSelectedNodes(map);
 
           CHECK(paste(map, data) == PasteType::Node);
@@ -440,7 +441,7 @@ common/caulk
 
         SECTION("If only one linked group exists")
         {
-          map.selectNodes({linkedGroup});
+          selectNodes(map, {linkedGroup});
           removeSelectedNodes(map);
 
           CHECK(paste(map, data) == PasteType::Node);
@@ -512,14 +513,14 @@ common/caulk
 
       SECTION("Pasting two linked groups")
       {
-        map.selectNodes({groupNode, linkedGroup});
+        selectNodes(map, {groupNode, linkedGroup});
         const auto data = serializeSelectedNodes(map);
 
-        map.deselectAll();
+        deselectAll(map);
 
         SECTION("If only one original group exists")
         {
-          map.selectNodes({linkedGroup});
+          selectNodes(map, {linkedGroup});
           removeSelectedNodes(map);
 
           CHECK(paste(map, data) == PasteType::Node);

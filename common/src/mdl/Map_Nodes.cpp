@@ -35,6 +35,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_NodeVisibility.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
@@ -338,7 +339,7 @@ void duplicateSelectedNodes(Map& map)
 
   {
     auto transaction = Transaction{map, "Duplicate Objects"};
-    map.deselectAll();
+    deselectAll(map);
 
     if (addNodes(map, nodesToAdd).empty())
     {
@@ -346,7 +347,7 @@ void duplicateSelectedNodes(Map& map)
       return;
     }
 
-    map.selectNodes(nodesToSelect);
+    selectNodes(map, nodesToSelect);
     if (!transaction.commit())
     {
       return;
@@ -445,7 +446,7 @@ void removeSelectedNodes(Map& map)
   const auto nodes = map.selection().nodes;
 
   auto transaction = Transaction{map, "Delete Objects"};
-  map.deselectAll();
+  deselectAll(map);
   removeNodes(map, nodes);
   assertResult(transaction.commit());
 }

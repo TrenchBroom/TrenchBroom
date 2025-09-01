@@ -268,31 +268,6 @@ private:
 public: // selection management
   const Selection& selection() const;
 
-  void selectAllNodes();
-  void selectNodes(const std::vector<Node*>& nodes);
-
-  void selectSiblingNodes();
-  void selectTouchingNodes(bool del);
-  void selectTouchingNodes(vm::axis::type cameraAxis, bool del);
-  void selectContainedNodes(bool del);
-  void selectNodesWithFilePosition(const std::vector<size_t>& positions);
-  void selectBrushesWithMaterial(const Material* material);
-  void invertNodeSelection();
-
-  void selectAllInLayers(const std::vector<LayerNode*>& layers);
-  bool canSelectAllInLayers(const std::vector<LayerNode*>& layers) const;
-
-  bool canSelectLinkedGroups() const;
-  void selectLinkedGroups();
-
-  void selectBrushFaces(const std::vector<BrushFaceHandle>& handles);
-  void selectBrushFacesWithMaterial(const Material* material);
-  void convertToFaceSelection();
-
-  void deselectAll();
-  void deselectNodes(const std::vector<Node*>& nodes);
-  void deselectBrushFaces(const std::vector<BrushFaceHandle>& handles);
-
   const vm::bbox3d referenceBounds() const;
   const std::optional<vm::bbox3d>& lastSelectionBounds() const;
   const std::optional<vm::bbox3d>& selectionBounds() const;

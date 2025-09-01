@@ -25,6 +25,7 @@
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "ui/RotateTool.h"
 
 #include "Catch2.h"
@@ -63,7 +64,7 @@ TEST_CASE("RotateTool")
 
     SECTION("If a single entity is selected")
     {
-      map.selectNodes({entityNode1});
+      selectNodes(map, {entityNode1});
 
       tool.resetRotationCenter();
       CHECK(tool.rotationCenter() == vm::vec3d{8, 16, 32});
@@ -71,7 +72,7 @@ TEST_CASE("RotateTool")
 
     SECTION("If multiple entities are selected")
     {
-      map.selectNodes({entityNode1, entityNode2});
+      selectNodes(map, {entityNode1, entityNode2});
 
       tool.resetRotationCenter();
       CHECK(tool.rotationCenter() == map.grid().snap(map.selectionBounds()->center()));
@@ -79,7 +80,7 @@ TEST_CASE("RotateTool")
 
     SECTION("If a mix of nodes is selected")
     {
-      map.selectNodes({entityNode1, brushNode});
+      selectNodes(map, {entityNode1, brushNode});
 
       tool.resetRotationCenter();
       CHECK(tool.rotationCenter() == map.grid().snap(map.selectionBounds()->center()));

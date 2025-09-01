@@ -30,6 +30,7 @@
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/TagMatcher.h"
@@ -299,9 +300,9 @@ TEST_CASE("Map_Tags")
       const auto& tag = map.smartTag("entity");
       CHECK_FALSE(brushNode->hasTag(tag));
 
-      map.selectNodes({lightEntityNode});
+      selectNodes(map, {lightEntityNode});
       setEntityProperty(map, "classname", "brush_entity");
-      map.deselectAll();
+      deselectAll(map);
 
       CHECK(brushNode->hasTag(tag));
     }
@@ -319,9 +320,9 @@ TEST_CASE("Map_Tags")
       auto request = ChangeBrushFaceAttributesRequest{};
       request.setContentFlags(1);
 
-      map.selectBrushFaces({faceHandle});
+      selectBrushFaces(map, {faceHandle});
       setBrushFaceAttributes(map, request);
-      map.deselectAll();
+      deselectAll(map);
 
       const auto& faces = brushNode->brush().faces();
       CHECK(faces[0].hasTag(tag));
@@ -369,7 +370,7 @@ TEST_CASE("Map_Tags")
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
       CHECK_FALSE(tag.matches(faceHandle.face()));
 
-      map.selectBrushFaces({faceHandle});
+      selectBrushFaces(map, {faceHandle});
 
       auto callback = TestCallback{0};
       tag.enable(callback, map);
@@ -439,7 +440,7 @@ TEST_CASE("Map_Tags")
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
       CHECK_FALSE(tag.matches(faceHandle.face()));
 
-      map.selectBrushFaces({faceHandle});
+      selectBrushFaces(map, {faceHandle});
 
       auto callback = TestCallback{0};
       tag.enable(callback, map);
@@ -499,7 +500,7 @@ TEST_CASE("Map_Tags")
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
       CHECK_FALSE(tag.matches(faceHandle.face()));
 
-      map.selectBrushFaces({faceHandle});
+      selectBrushFaces(map, {faceHandle});
 
       auto callback = TestCallback{0};
       tag.enable(callback, map);
@@ -526,7 +527,7 @@ TEST_CASE("Map_Tags")
       const auto faceHandle = BrushFaceHandle{matchingBrushNode, 0u};
       CHECK(tag.matches(faceHandle.face()));
 
-      map.selectBrushFaces({faceHandle});
+      selectBrushFaces(map, {faceHandle});
 
       auto callback = TestCallback{0};
       tag.disable(callback, map);
@@ -580,7 +581,7 @@ TEST_CASE("Map_Tags")
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
       CHECK_FALSE(tag.matches(faceHandle.face()));
 
-      map.selectBrushFaces({faceHandle});
+      selectBrushFaces(map, {faceHandle});
 
       auto callback = TestCallback{0};
       tag.enable(callback, map);
@@ -607,7 +608,7 @@ TEST_CASE("Map_Tags")
       const auto faceHandle = BrushFaceHandle{matchingBrushNode, 0u};
       CHECK(tag.matches(faceHandle.face()));
 
-      map.selectBrushFaces({faceHandle});
+      selectBrushFaces(map, {faceHandle});
 
       auto callback = TestCallback{0};
       tag.disable(callback, map);
@@ -646,7 +647,7 @@ TEST_CASE("Map_Tags")
 
       CHECK(tag.canEnable());
 
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto callback = TestCallback{0};
       tag.enable(callback, map);
@@ -666,7 +667,7 @@ TEST_CASE("Map_Tags")
       addNodes(map, {{oldEntity, {brushNode}}});
 
       const auto& tag = map.smartTag("entity");
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto callback = TestCallback{0};
       tag.enable(callback, map);
@@ -697,7 +698,7 @@ TEST_CASE("Map_Tags")
 
       CHECK(tag.canDisable());
 
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto callback = TestCallback{0};
       tag.disable(callback, map);

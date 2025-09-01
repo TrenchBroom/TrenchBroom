@@ -34,6 +34,7 @@
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
@@ -207,16 +208,14 @@ void LayerEditor::onSelectAllInLayer()
   auto* layerNode = m_layerList->selectedLayer();
   ensure(layerNode != nullptr, "layer is null");
 
-  auto& map = m_document.map();
-  map.selectAllInLayers({layerNode});
+  selectAllInLayers(m_document.map(), {layerNode});
 }
 
 bool LayerEditor::canSelectAllInLayer() const
 {
   if (auto* layerNode = m_layerList->selectedLayer())
   {
-    auto& map = m_document.map();
-    return map.canSelectAllInLayers({layerNode});
+    return canSelectAllInLayers(m_document.map(), {layerNode});
   }
   return false;
 }
@@ -263,7 +262,7 @@ void LayerEditor::onRemoveLayer()
   auto* defaultLayerNode = map.world()->defaultLayer();
 
   auto transaction = mdl::Transaction{map, "Remove Layer " + layerNode->name()};
-  map.deselectAll();
+  deselectAll(map);
   if (layerNode->hasChildren())
   {
     if (!reparentNodes(map, {{defaultLayerNode, layerNode->children()}}))

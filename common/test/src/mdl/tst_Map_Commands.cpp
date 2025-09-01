@@ -30,6 +30,7 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/TransactionScope.h"
 
@@ -57,7 +58,7 @@ TEST_CASE("Map_Commands")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
       CHECK(!entityNode->entity().hasProperty("angle"));
 
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
       rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(15.0));
       CHECK(entityNode->entity().hasProperty("angle"));
       CHECK(*entityNode->entity().property("angle") == "15");
@@ -68,7 +69,7 @@ TEST_CASE("Map_Commands")
 
     SECTION("Update materials")
     {
-      map.deselectAll();
+      deselectAll(map);
       setEntityProperty(map, EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
 
       auto* brushNode = createBrushNode(map, "coffin1");
@@ -85,7 +86,7 @@ TEST_CASE("Map_Commands")
 
       SECTION("translateSelection")
       {
-        map.selectNodes({brushNode});
+        selectNodes(map, {brushNode});
         translateSelection(map, vm::vec3d{1, 1, 1});
         CHECK(material->usageCount() == 6u);
 
@@ -95,7 +96,7 @@ TEST_CASE("Map_Commands")
 
       SECTION("removeSelectedNodes")
       {
-        map.selectNodes({brushNode});
+        selectNodes(map, {brushNode});
         removeSelectedNodes(map);
         CHECK(material->usageCount() == 0u);
 
@@ -108,7 +109,7 @@ TEST_CASE("Map_Commands")
         auto topFaceIndex = brushNode->brush().findFace(vm::vec3d{0, 0, 1});
         REQUIRE(topFaceIndex.has_value());
 
-        map.selectBrushFaces({{brushNode, *topFaceIndex}});
+        selectBrushFaces(map, {{brushNode, *topFaceIndex}});
 
         auto request = ChangeBrushFaceAttributesRequest{};
         request.setXOffset(12.34f);
@@ -138,7 +139,7 @@ TEST_CASE("Map_Commands")
     addNodes(map, {{parentForNodes(map), {entityNode}}});
     CHECK_FALSE(map.canRepeatCommands());
 
-    map.selectNodes({entityNode});
+    selectNodes(map, {entityNode});
     CHECK_FALSE(map.canRepeatCommands());
 
     duplicateSelectedNodes(map);
@@ -154,7 +155,7 @@ TEST_CASE("Map_Commands")
     {
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
 
       REQUIRE_FALSE(map.canRepeatCommands());
       translateSelection(map, {1, 2, 3});
@@ -173,7 +174,7 @@ TEST_CASE("Map_Commands")
       auto* entityNode = new EntityNode(std::move(entity));
 
       addNodes(map, {{parentForNodes(map), {entityNode}}});
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
 
       REQUIRE_FALSE(map.canRepeatCommands());
       rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
@@ -197,7 +198,7 @@ TEST_CASE("Map_Commands")
       auto* brushNode1 = createBrushNode(map);
 
       addNodes(map, {{parentForNodes(map), {brushNode1}}});
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
       const auto oldBounds = brushNode1->logicalBounds();
@@ -207,7 +208,7 @@ TEST_CASE("Map_Commands")
 
       auto* brushNode2 = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
-      map.selectNodes({brushNode2});
+      selectNodes(map, {brushNode2});
 
       map.repeatCommands();
       CHECK(brushNode2->logicalBounds() == newBounds);
@@ -218,7 +219,7 @@ TEST_CASE("Map_Commands")
       auto* brushNode1 = createBrushNode(map);
 
       addNodes(map, {{parentForNodes(map), {brushNode1}}});
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
       scaleSelection(map, brushNode1->logicalBounds().center(), vm::vec3d(2, 2, 2));
@@ -226,8 +227,8 @@ TEST_CASE("Map_Commands")
 
       auto* brushNode2 = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
-      map.deselectAll();
-      map.selectNodes({brushNode2});
+      deselectAll(map);
+      selectNodes(map, {brushNode2});
 
       map.repeatCommands();
       CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
@@ -239,7 +240,7 @@ TEST_CASE("Map_Commands")
       const auto originalBounds = brushNode1->logicalBounds();
 
       addNodes(map, {{parentForNodes(map), {brushNode1}}});
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
       shearSelection(map, originalBounds, vm::vec3d{0, 0, 1}, vm::vec3d(32, 0, 0));
@@ -248,8 +249,8 @@ TEST_CASE("Map_Commands")
 
       auto* brushNode2 = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
-      map.deselectAll();
-      map.selectNodes({brushNode2});
+      deselectAll(map);
+      selectNodes(map, {brushNode2});
 
       map.repeatCommands();
       CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
@@ -261,7 +262,7 @@ TEST_CASE("Map_Commands")
       const auto originalBounds = brushNode1->logicalBounds();
 
       addNodes(map, {{parentForNodes(map), {brushNode1}}});
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
       flipSelection(map, originalBounds.max, vm::axis::z);
@@ -270,8 +271,8 @@ TEST_CASE("Map_Commands")
 
       auto* brushNode2 = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
-      map.deselectAll();
-      map.selectNodes({brushNode2});
+      deselectAll(map);
+      selectNodes(map, {brushNode2});
 
       map.repeatCommands();
       CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
@@ -282,7 +283,7 @@ TEST_CASE("Map_Commands")
       auto* entityNode1 = new EntityNode({});
       addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
-      map.selectNodes({entityNode1});
+      selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
 
       SECTION("transaction containing a rollback")
@@ -344,7 +345,7 @@ TEST_CASE("Map_Commands")
       auto* entityNode1 = new EntityNode({});
       addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
-      map.selectNodes({entityNode1});
+      selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
 
       map.startTransaction("", TransactionScope::Oneshot);
@@ -361,8 +362,8 @@ TEST_CASE("Map_Commands")
       auto* entityNode2 = new EntityNode({});
       addNodes(map, {{parentForNodes(map), {entityNode2}}});
 
-      map.deselectAll();
-      map.selectNodes({entityNode2});
+      deselectAll(map);
+      selectNodes(map, {entityNode2});
       CHECK(entityNode2->entity().origin() == vm::vec3d(0, 0, 0));
 
       CHECK(map.canRepeatCommands());
@@ -382,7 +383,7 @@ TEST_CASE("Map_Commands")
       auto* entityNode1 = new EntityNode({});
       addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
-      map.selectNodes({entityNode1});
+      selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
 
       translateSelection(map, {0, 0, 10});

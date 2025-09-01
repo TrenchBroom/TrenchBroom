@@ -32,6 +32,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Tag.h"
 #include "ui/Inspector.h"
 #include "ui/MapDocument.h"
@@ -1423,9 +1424,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Select Linked Groups"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.map().selectLinkedGroups(); },
+    [](auto& context) { selectLinkedGroups(context.map()); },
     [](const auto& context) {
-      return context.hasDocument() && context.map().canSelectLinkedGroups();
+      return context.hasDocument() && canSelectLinkedGroups(context.map());
     },
   }));
   editMenu.addItem(addAction(Action{

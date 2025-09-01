@@ -28,6 +28,7 @@
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PasteType.h"
 
 #include "catch/Matchers.h"
@@ -75,7 +76,7 @@ TEST_CASE("Map")
       entityNode->addChild(brushNode);
 
       addNodes(map, {{parentForNodes(map), {entityNode}}});
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
@@ -84,7 +85,7 @@ TEST_CASE("Map")
       {
         openGroup(map, groupNode);
 
-        map.selectNodes({brushNode});
+        selectNodes(map, {brushNode});
         duplicateOrCopyPaste();
 
         const auto* brushNodeCopy = map.selection().brushes.at(0u);
@@ -102,11 +103,11 @@ TEST_CASE("Map")
         REQUIRE(linkedGroupNode != nullptr);
         REQUIRE_THAT(*linkedGroupNode, MatchesNode(*groupNode));
 
-        map.deselectAll();
-        map.selectNodes({groupNode});
+        deselectAll(map);
+        selectNodes(map, {groupNode});
         openGroup(map, groupNode);
 
-        map.selectNodes({entityNode});
+        selectNodes(map, {entityNode});
         duplicateOrCopyPaste();
 
         const auto* brushNodeCopy = map.selection().brushes.at(0u);
@@ -123,7 +124,7 @@ TEST_CASE("Map")
     {
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
@@ -141,7 +142,7 @@ TEST_CASE("Map")
     {
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
@@ -151,7 +152,7 @@ TEST_CASE("Map")
 
       openGroup(map, groupNode);
 
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
       duplicateOrCopyPaste();
 
       auto* brushNodeCopy = map.selection().brushes.at(0u);
@@ -162,7 +163,7 @@ TEST_CASE("Map")
     {
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto* innerGroupNode = groupSelectedNodes(map, "inner");
       REQUIRE(innerGroupNode != nullptr);
@@ -178,7 +179,7 @@ TEST_CASE("Map")
 
       openGroup(map, outerGroupNode);
 
-      map.selectNodes({innerGroupNode});
+      selectNodes(map, {innerGroupNode});
       duplicateOrCopyPaste();
 
       auto* innerGroupNodeCopy = map.selection().groups.at(0u);
@@ -189,7 +190,7 @@ TEST_CASE("Map")
     {
       auto* innerBrushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {innerBrushNode}}});
-      map.selectNodes({innerBrushNode});
+      selectNodes(map, {innerBrushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
@@ -197,12 +198,12 @@ TEST_CASE("Map")
       auto* outerBrushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {outerBrushNode}}});
 
-      map.deselectAll();
-      map.selectNodes({groupNode, outerBrushNode});
+      deselectAll(map);
+      selectNodes(map, {groupNode, outerBrushNode});
       auto* outerGroupNode = groupSelectedNodes(map, "outer");
 
-      map.deselectAll();
-      map.selectNodes({outerGroupNode});
+      deselectAll(map);
+      selectNodes(map, {outerGroupNode});
 
       duplicateOrCopyPaste();
 
@@ -227,13 +228,13 @@ TEST_CASE("Map")
 
       auto* innerBrushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {innerBrushNode}}});
-      map.selectNodes({innerBrushNode});
+      selectNodes(map, {innerBrushNode});
 
       auto* innerGroupNode = groupSelectedNodes(map, "inner");
       REQUIRE(innerGroupNode != nullptr);
 
-      map.deselectAll();
-      map.selectNodes({innerGroupNode});
+      deselectAll(map);
+      selectNodes(map, {innerGroupNode});
 
       auto* linkedInnerGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
@@ -243,12 +244,12 @@ TEST_CASE("Map")
       auto* outerBrushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {outerBrushNode}}});
 
-      map.deselectAll();
-      map.selectNodes({innerGroupNode, linkedInnerGroupNode, outerBrushNode});
+      deselectAll(map);
+      selectNodes(map, {innerGroupNode, linkedInnerGroupNode, outerBrushNode});
       auto* outerGroupNode = groupSelectedNodes(map, "outer");
 
-      map.deselectAll();
-      map.selectNodes({outerGroupNode});
+      deselectAll(map);
+      selectNodes(map, {outerGroupNode});
 
       duplicateOrCopyPaste();
 

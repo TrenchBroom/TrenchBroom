@@ -23,6 +23,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
 
 #include "vm/mat_ext.h"
@@ -46,7 +47,7 @@ TEST_CASE("Transaction")
   CHECK(transaction.state() == Transaction::State::Running);
 
   addNodes(map, {{parentForNodes(map), {entityNode}}});
-  map.selectNodes({entityNode});
+  selectNodes(map, {entityNode});
   transformSelection(map, "translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
 
   REQUIRE(transaction.state() == Transaction::State::Running);
@@ -60,7 +61,7 @@ TEST_CASE("Transaction")
     CHECK(entityNode->entity().origin() == vm::vec3d{1, 0, 0});
 
     map.undoCommand();
-    map.selectAllNodes();
+    selectAllNodes(map);
 
     CHECK_FALSE(map.selection().hasNodes());
   }
@@ -71,7 +72,7 @@ TEST_CASE("Transaction")
 
     CHECK(transaction.state() == Transaction::State::Running);
 
-    map.selectAllNodes();
+    selectAllNodes(map);
     CHECK_FALSE(map.selection().hasNodes());
 
     // must commit the transaction in order to destroy it
@@ -84,7 +85,7 @@ TEST_CASE("Transaction")
 
     CHECK(transaction.state() == Transaction::State::Cancelled);
 
-    map.selectAllNodes();
+    selectAllNodes(map);
     CHECK_FALSE(map.selection().hasNodes());
   }
 }

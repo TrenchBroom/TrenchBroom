@@ -26,6 +26,7 @@
 #include "Preferences.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialCollection.h"
 #include "mdl/MaterialManager.h"
@@ -453,12 +454,11 @@ void MaterialBrowserView::doContextMenu(
     auto menu = QMenu{this};
     menu.addAction(tr("Select Faces"), this, [&, material = &cellData(*cell)]() {
       auto& map = m_document.map();
-      map.selectBrushFacesWithMaterial(material);
+      selectBrushFacesWithMaterial(map, material);
     });
 
     menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
-      auto& map = m_document.map();
-      map.selectBrushesWithMaterial(material);
+      selectBrushesWithMaterial(m_document.map(), material);
     });
 
     menu.exec(event->globalPos());

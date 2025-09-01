@@ -31,6 +31,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
@@ -168,8 +169,8 @@ void drillSelection(const InputState& inputState, mdl::Map& map)
   if (nextNode)
   {
     auto transaction = mdl::Transaction{map, "Drill Selection"};
-    map.deselectNodes({selectedNode});
-    map.selectNodes({nextNode});
+    deselectNodes(map, {selectedNode});
+    selectNodes(map, {nextNode});
     transaction.commit();
   }
 }
@@ -201,7 +202,7 @@ public:
         const auto& face = faceHandle->face();
         if (!face.selected() && editorContext.selectable(*brushNode, face))
         {
-          m_map.selectBrushFaces({*faceHandle});
+          selectBrushFaces(m_map, {*faceHandle});
         }
       }
     }
@@ -215,7 +216,7 @@ public:
         auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
         if (!node->selected() && editorContext.selectable(*node))
         {
-          m_map.selectNodes({node});
+          selectNodes(m_map, {node});
         }
       }
     }
@@ -274,13 +275,13 @@ bool SelectionTool::mouseClick(const InputState& inputState)
           {
             if (brushNode->selected())
             {
-              m_map.deselectBrushFaces({*faceHandle});
+              deselectBrushFaces(m_map, {*faceHandle});
             }
             else
             {
               auto transaction = mdl::Transaction{m_map, "Select Brush Face"};
-              m_map.convertToFaceSelection();
-              m_map.selectBrushFaces({*faceHandle});
+              convertToFaceSelection(m_map);
+              selectBrushFaces(m_map, {*faceHandle});
               transaction.commit();
             }
           }
@@ -288,26 +289,26 @@ bool SelectionTool::mouseClick(const InputState& inputState)
           {
             if (face.selected())
             {
-              m_map.deselectBrushFaces({*faceHandle});
+              deselectBrushFaces(m_map, {*faceHandle});
             }
             else
             {
-              m_map.selectBrushFaces({*faceHandle});
+              selectBrushFaces(m_map, {*faceHandle});
             }
           }
         }
         else
         {
           auto transaction = mdl::Transaction{m_map, "Select Brush Face"};
-          m_map.deselectAll();
-          m_map.selectBrushFaces({*faceHandle});
+          deselectAll(m_map);
+          selectBrushFaces(m_map, {*faceHandle});
           transaction.commit();
         }
       }
     }
     else
     {
-      m_map.deselectAll();
+      deselectAll(m_map);
     }
   }
   else
@@ -323,31 +324,31 @@ bool SelectionTool::mouseClick(const InputState& inputState)
         {
           if (node->selected())
           {
-            m_map.deselectNodes({node});
+            deselectNodes(m_map, {node});
           }
           else
           {
             auto transaction = mdl::Transaction{m_map, "Select Object"};
             if (m_map.selection().hasBrushFaces())
             {
-              m_map.deselectAll();
+              deselectAll(m_map);
             }
-            m_map.selectNodes({node});
+            selectNodes(m_map, {node});
             transaction.commit();
           }
         }
         else
         {
           auto transaction = mdl::Transaction{m_map, "Select Object"};
-          m_map.deselectAll();
-          m_map.selectNodes({node});
+          deselectAll(m_map);
+          selectNodes(m_map, {node});
           transaction.commit();
         }
       }
     }
     else
     {
-      m_map.deselectAll();
+      deselectAll(m_map);
     }
   }
 
@@ -378,15 +379,15 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
         {
           if (m_map.selection().hasNodes())
           {
-            m_map.convertToFaceSelection();
+            convertToFaceSelection(m_map);
           }
-          m_map.selectBrushFaces(mdl::toHandles(brushNode));
+          selectBrushFaces(m_map, mdl::toHandles(brushNode));
         }
         else
         {
           auto transaction = mdl::Transaction{m_map, "Select Brush Faces"};
-          m_map.deselectAll();
-          m_map.selectBrushFaces(mdl::toHandles(brushNode));
+          deselectAll(m_map);
+          selectBrushFaces(m_map, mdl::toHandles(brushNode));
           transaction.commit();
         }
       }
@@ -424,15 +425,15 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
             {
               if (m_map.selection().hasBrushFaces())
               {
-                m_map.deselectAll();
+                deselectAll(m_map);
               }
-              m_map.selectNodes(siblings);
+              selectNodes(m_map, siblings);
             }
             else
             {
               auto transaction = mdl::Transaction{m_map, "Select Brushes"};
-              m_map.deselectAll();
-              m_map.selectNodes(siblings);
+              deselectAll(m_map);
+              selectNodes(m_map, siblings);
               transaction.commit();
             }
           }
@@ -491,11 +492,11 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
           "Drag Select Brush Faces", mdl::TransactionScope::LongRunning);
         if (m_map.selection().hasAny() && !m_map.selection().hasBrushFaces())
         {
-          m_map.deselectAll();
+          deselectAll(m_map);
         }
         if (!face.selected())
         {
-          m_map.selectBrushFaces({*faceHandle});
+          selectBrushFaces(m_map, {*faceHandle});
         }
 
         return std::make_unique<PaintSelectionDragTracker>(m_map);
@@ -517,11 +518,11 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
       m_map.startTransaction("Drag Select Objects", mdl::TransactionScope::LongRunning);
       if (m_map.selection().hasAny() && !m_map.selection().hasNodes())
       {
-        m_map.deselectAll();
+        deselectAll(m_map);
       }
       if (!node->selected())
       {
-        m_map.selectNodes({node});
+        selectNodes(m_map, {node});
       }
 
       return std::make_unique<PaintSelectionDragTracker>(m_map);

@@ -32,6 +32,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Picking.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 #include "render/OrthographicCamera.h"
@@ -274,7 +275,7 @@ TEST_CASE("SelectionTool")
 
         AND_GIVEN("The front face of the brush is selected")
         {
-          map.selectBrushFaces({{brushNode, frontFaceIndex}});
+          selectBrushFaces(map, {{brushNode, frontFaceIndex}});
 
           WHEN("I shift click once")
           {
@@ -339,7 +340,7 @@ TEST_CASE("SelectionTool")
 
         AND_GIVEN("The entity is selected")
         {
-          map.selectNodes({entityNode});
+          selectNodes(map, {entityNode});
 
           WHEN("I shift click once")
           {

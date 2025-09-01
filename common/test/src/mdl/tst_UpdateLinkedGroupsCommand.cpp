@@ -22,9 +22,9 @@
 #include "mdl/BrushNode.h" // IWYU pragma: keep
 #include "mdl/CurrentGroupCommand.h"
 #include "mdl/GroupNode.h" // IWYU pragma: keep
-#include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/UpdateLinkedGroupsCommand.h"
 
 #include "Catch2.h"
@@ -41,13 +41,13 @@ TEST_CASE("UpdateLinkedGroupsCommand")
   const auto createLinkedGroup = [&]() {
     auto brushNode = createBrushNode(map);
     addNodes(map, {{parentForNodes(map), {brushNode}}});
-    map.selectNodes({brushNode});
+    selectNodes(map, {brushNode});
 
     auto* groupNode = groupSelectedNodes(map, "group");
-    map.selectNodes({groupNode});
+    selectNodes(map, {groupNode});
 
     auto* linkedGroupNode = createLinkedDuplicate(map);
-    map.deselectAll();
+    deselectAll(map);
 
     return std::tuple{groupNode, linkedGroupNode};
   };

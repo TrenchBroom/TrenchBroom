@@ -27,6 +27,7 @@
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/SetCurrentLayerCommand.h"
 #include "mdl/Transaction.h"
@@ -228,7 +229,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
   if (!nodesToMove.empty())
   {
     auto transaction = Transaction{map, "Move Nodes to " + layerNode->name()};
-    map.deselectAll();
+    deselectAll(map);
     if (!reparentNodes(map, {{layerNode, nodesToMove}}))
     {
       transaction.cancel();
@@ -236,7 +237,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
     }
     if (!layerNode->hidden() && !layerNode->locked())
     {
-      map.selectNodes(nodesToSelect);
+      selectNodes(map, nodesToSelect);
     }
     transaction.commit();
   }

@@ -32,6 +32,7 @@
 #include "mdl/IssueQuickFix.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
@@ -124,8 +125,8 @@ void IssueBrowserView::updateSelection()
     }
   }
 
-  map.deselectAll();
-  map.selectNodes(nodes);
+  mdl::deselectAll(map);
+  selectNodes(map, nodes);
 }
 
 void IssueBrowserView::updateIssues()

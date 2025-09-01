@@ -52,6 +52,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PointTrace.h"
@@ -635,7 +636,7 @@ void MapViewBase::cancel()
     auto& map = m_document.map();
     if (map.selection().hasAny())
     {
-      map.deselectAll();
+      deselectAll(map);
     }
     else if (map.editorContext().currentGroup())
     {
@@ -1312,9 +1313,9 @@ void MapViewBase::showPopupMenuLater()
   isolateLayersAction->setEnabled(canIsolateLayers(map, selectedObjectLayers));
   auto* selectAllInLayersAction =
     menu.addAction(tr("Select All in Layers"), this, [&map, selectedObjectLayers]() {
-      map.selectAllInLayers(selectedObjectLayers);
+      selectAllInLayers(map, selectedObjectLayers);
     });
-  selectAllInLayersAction->setEnabled(map.canSelectAllInLayers(selectedObjectLayers));
+  selectAllInLayersAction->setEnabled(canSelectAllInLayers(map, selectedObjectLayers));
 
   menu.addSeparator();
 
@@ -1488,8 +1489,8 @@ void MapViewBase::addSelectedObjectsToGroup()
 
   auto transaction = mdl::Transaction{map, "Add Objects to Group"};
   reparentNodes(nodes, newGroup, true);
-  map.deselectAll();
-  map.selectNodes({newGroup});
+  deselectAll(map);
+  selectNodes(map, {newGroup});
   transaction.commit();
 }
 
@@ -1509,7 +1510,7 @@ void MapViewBase::removeSelectedObjectsFromGroup()
   {
     closeGroup(map);
   }
-  map.selectNodes(nodes);
+  selectNodes(map, nodes);
   transaction.commit();
 }
 
@@ -1583,8 +1584,8 @@ void MapViewBase::moveSelectedBrushesToEntity()
     mdl::Transaction{map, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
   reparentNodes(nodes, newParent, false);
 
-  map.deselectAll();
-  map.selectNodes(nodes);
+  deselectAll(map);
+  selectNodes(map, nodes);
   transaction.commit();
 }
 
@@ -1680,13 +1681,13 @@ void MapViewBase::reparentNodes(
                     + " to " + newParent->name();
 
   auto transaction = mdl::Transaction{map, name};
-  map.deselectAll();
+  deselectAll(map);
   if (!mdl::reparentNodes(map, {{newParent, reparentableNodes}}))
   {
     transaction.cancel();
     return;
   }
-  map.selectNodes(reparentableNodes);
+  selectNodes(map, reparentableNodes);
   transaction.commit();
 }
 

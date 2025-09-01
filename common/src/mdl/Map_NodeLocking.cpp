@@ -21,6 +21,7 @@
 
 #include "Map.h"
 #include "mdl/BrushFaceHandle.h" // IWYU pragma: keep
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/SetLockStateCommand.h"
@@ -38,8 +39,8 @@ void lockNodes(Map& map, const std::vector<Node*>& nodes)
   auto transaction = Transaction{map, "Lock Objects"};
 
   // Deselect any selected nodes or faces inside `nodes`
-  map.deselectNodes(collectSelectedNodes(nodes));
-  map.deselectBrushFaces(collectSelectedBrushFaces(nodes));
+  deselectNodes(map, collectSelectedNodes(nodes));
+  deselectBrushFaces(map, collectSelectedBrushFaces(nodes));
 
   // Reset lock state of any forced unlocked children of `nodes`
   downgradeUnlockedToInherit(map, collectDescendants(nodes));

@@ -36,6 +36,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
@@ -141,7 +142,7 @@ TEST_CASE("Map_Geometry")
 
       WHEN("The node is transformed")
       {
-        map.selectNodes({node});
+        selectNodes(map, {node});
         transformSelection(map, "Transform Nodes", transformation);
 
         THEN("The transformation was applied to the node and its children")
@@ -175,7 +176,7 @@ TEST_CASE("Map_Geometry")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
       reparentNodes(map, {{entityNode, {brushNode1}}});
 
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       CHECK(groupNode->selected());
@@ -199,14 +200,14 @@ TEST_CASE("Map_Geometry")
       auto* brushNode1 =
         new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
       addNodes(map, {{parentForNodes(map), {brushNode1}}});
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       auto* group = groupSelectedNodes(map, "testGroup");
-      map.selectNodes({group});
+      selectNodes(map, {group});
 
       auto* linkedGroup = createLinkedDuplicate(map);
-      map.deselectAll();
-      map.selectNodes({linkedGroup});
+      deselectAll(map);
+      selectNodes(map, {linkedGroup});
       REQUIRE_THAT(
         map.selection().nodes, Catch::UnorderedEquals(std::vector<Node*>{linkedGroup}));
 
@@ -252,7 +253,7 @@ TEST_CASE("Map_Geometry")
       SECTION("two brushes")
       {
         addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2}}});
-        map.selectNodes({brushNode1, brushNode2});
+        selectNodes(map, {brushNode1, brushNode2});
 
         const auto boundsCenter = map.selectionBounds()->center();
         CHECK(boundsCenter == vm::vec3d{15.5, 15.5, 15.5});
@@ -286,7 +287,7 @@ TEST_CASE("Map_Geometry")
 
         SECTION("Rotating some brushes, but not all")
         {
-          map.selectNodes({brushNode1});
+          selectNodes(map, {brushNode1});
           rotateSelection(
             map,
             map.selectionBounds()->center(),
@@ -298,7 +299,7 @@ TEST_CASE("Map_Geometry")
 
         SECTION("Rotating all brushes")
         {
-          map.selectNodes({brushNode1, brushNode2});
+          selectNodes(map, {brushNode1, brushNode2});
           rotateSelection(
             map,
             map.selectionBounds()->center(),
@@ -310,11 +311,11 @@ TEST_CASE("Map_Geometry")
 
         SECTION("Rotating grouped brush entity")
         {
-          map.selectNodes({entityNode});
+          selectNodes(map, {entityNode});
           auto* groupNode = groupSelectedNodes(map, "some_name");
 
-          map.deselectAll();
-          map.selectNodes({groupNode});
+          deselectAll(map);
+          selectNodes(map, {groupNode});
           rotateSelection(
             map,
             map.selectionBounds()->center(),
@@ -334,7 +335,7 @@ TEST_CASE("Map_Geometry")
         | kdl::value()};
 
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto& vertexHandles = map.vertexHandles();
       vertexHandles.addHandles(brushNode);
@@ -373,7 +374,7 @@ TEST_CASE("Map_Geometry")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
       reparentNodes(map, {{entityNode, {brushNode1}}});
 
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       CHECK(groupNode->selected());
@@ -401,7 +402,7 @@ TEST_CASE("Map_Geometry")
     const auto& brush = brushNode->brush();
 
     addNodes(map, {{parentForNodes(map), {brushNode}}});
-    map.selectNodes({brushNode});
+    selectNodes(map, {brushNode});
 
     REQUIRE(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
     REQUIRE(
@@ -457,7 +458,7 @@ TEST_CASE("Map_Geometry")
         new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
@@ -502,7 +503,7 @@ TEST_CASE("Map_Geometry")
         new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
@@ -557,7 +558,7 @@ TEST_CASE("Map_Geometry")
     addNodes(map, {{parentForNodes(map), {brushNode1}}});
     addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
-    map.selectNodes({brushNode1, brushNode2});
+    selectNodes(map, {brushNode1, brushNode2});
 
     const auto boundsCenter = map.selectionBounds()->center();
     CHECK(boundsCenter == vm::approx{vm::vec3d{15.5, 15.5, 15.5}});
@@ -579,7 +580,7 @@ TEST_CASE("Map_Geometry")
 
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
@@ -587,11 +588,11 @@ TEST_CASE("Map_Geometry")
       auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode != nullptr);
 
-      map.deselectAll();
+      deselectAll(map);
 
       SECTION("Can't snap to grid with both groups selected")
       {
-        map.selectNodes({groupNode, linkedGroupNode});
+        selectNodes(map, {groupNode, linkedGroupNode});
 
         CHECK(
           transformSelection(map, "", vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.0})));
@@ -608,7 +609,7 @@ TEST_CASE("Map_Geometry")
     SECTION("Don't crash when snapping vertices")
     {
       // see https://github.com/TrenchBroom/TrenchBroom/issues/2244
-      map.selectAllNodes();
+      selectAllNodes(map);
       removeSelectedNodes(map);
 
       const auto brush = R"(
@@ -627,7 +628,7 @@ TEST_CASE("Map_Geometry")
 }
 })";
       paste(map, brush);
-      map.selectAllNodes();
+      selectAllNodes(map);
 
       CHECK(map.selection().brushes.size() == 1u);
       CHECK_NOTHROW(snapVertices(map, map.grid().actualSize()));
@@ -653,7 +654,7 @@ TEST_CASE("Map_Geometry")
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
       CHECK(entityNode->children().size() == 1u);
 
-      map.selectNodes({brushNode1, brushNode2});
+      selectNodes(map, {brushNode1, brushNode2});
       CHECK(csgConvexMerge(map));
       CHECK(entityNode->children().size() == 1u);
 
@@ -682,7 +683,7 @@ TEST_CASE("Map_Geometry")
       const auto& face1 = brushNode1->brush().face(faceIndex);
       const auto& face2 = brushNode2->brush().face(faceIndex);
 
-      map.selectBrushFaces({{brushNode1, faceIndex}, {brushNode2, faceIndex}});
+      selectBrushFaces(map, {{brushNode1, faceIndex}, {brushNode2, faceIndex}});
       CHECK(csgConvexMerge(map));
       CHECK(
         entityNode->children().size()
@@ -733,7 +734,7 @@ TEST_CASE("Map_Geometry")
       addNodes(map, {{entityNode, {brushNode2}}});
       CHECK(entityNode->children().size() == 2u);
 
-      map.selectNodes({brushNode1, brushNode2});
+      selectNodes(map, {brushNode1, brushNode2});
       CHECK(csgConvexMerge(map));
       CHECK(entityNode->children().size() == 1u);
 
@@ -772,7 +773,7 @@ TEST_CASE("Map_Geometry")
       CHECK(entityNode->children().size() == 3u);
 
       // we want to compute minuend - {subtrahendNode1, subtrahendNode2}
-      map.selectNodes({subtrahendNode1, subtrahendNode2});
+      selectNodes(map, {subtrahendNode1, subtrahendNode2});
       CHECK(csgSubtract(map));
       CHECK(entityNode->children().size() == 2u);
 
@@ -806,7 +807,7 @@ TEST_CASE("Map_Geometry")
         | kdl::value()};
       addNodes(map, {{entityNode, {subtrahend1}}});
 
-      map.selectNodes({subtrahend1});
+      selectNodes(map, {subtrahend1});
       CHECK(csgSubtract(map));
       CHECK(entityNode->children().size() == 0u);
       CHECK_FALSE(map.selection().hasNodes());
@@ -848,7 +849,7 @@ TEST_CASE("Map_Geometry")
       CHECK(entityNode->children().size() == 2u);
 
       // we want to compute brush1 - brush2
-      map.selectNodes({brushNode2});
+      selectNodes(map, {brushNode2});
       CHECK(csgSubtract(map));
       CHECK(entityNode->children().size() == 1u);
 
@@ -879,7 +880,7 @@ TEST_CASE("Map_Geometry")
       REQUIRE(subtrahendNode->brush().findFace("clip").has_value());
 
       // select the second object in the default layer (a clip brush) and subtract
-      map.selectNodes({subtrahendNode});
+      selectNodes(map, {subtrahendNode});
       CHECK(csgSubtract(map));
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 1);
@@ -913,7 +914,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("A brush too small to be hollowed doesn't block the command")
     {
-      map.selectAllNodes();
+      selectAllNodes(map);
       CHECK(csgHollow(map));
 
       // One cube is too small to hollow, so it's left untouched.
@@ -925,7 +926,7 @@ TEST_CASE("Map_Geometry")
     SECTION("If no brushes are hollowed, the transaction isn't committed")
     {
       auto* smallBrushNode = map.editorContext().currentLayer()->children().at(0);
-      map.selectNodes({smallBrushNode});
+      selectNodes(map, {smallBrushNode});
 
       CHECK(!csgHollow(map));
       CHECK(map.editorContext().currentLayer()->childCount() == 2);

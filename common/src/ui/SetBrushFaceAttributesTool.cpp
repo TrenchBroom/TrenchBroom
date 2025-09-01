@@ -31,6 +31,7 @@
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
@@ -264,8 +265,8 @@ void transferFaceAttributes(
                        : mdl::WrapStyle::Projection;
 
   auto transaction = mdl::Transaction{map, TransferFaceAttributesTransactionName};
-  map.deselectAll();
-  map.selectBrushFaces(targetFaceHandlesForLinkedGroups);
+  deselectAll(map);
+  selectBrushFaces(map, targetFaceHandlesForLinkedGroups);
 
   if (copyMaterialOnlyModifiersDown(inputState))
   {
@@ -288,8 +289,8 @@ void transferFaceAttributes(
     }
   }
 
-  map.deselectAll();
-  map.selectBrushFaces({faceToSelectAfter});
+  deselectAll(map);
+  selectBrushFaces(map, {faceToSelectAfter});
   transaction.commit();
 }
 

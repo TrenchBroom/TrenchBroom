@@ -31,6 +31,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
@@ -101,13 +102,13 @@ EntityNode* createPointEntity(
   auto* entityNode = new EntityNode{std::move(entity)};
 
   auto transaction = Transaction{map, "Create " + definition.name};
-  map.deselectAll();
+  deselectAll(map);
   if (addNodes(map, {{parentForNodes(map), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;
   }
-  map.selectNodes({entityNode});
+  selectNodes(map, {entityNode});
   if (!transformSelection(map, "Translate Objects", vm::translation_matrix(delta)))
   {
     transaction.cancel();
@@ -154,7 +155,7 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
   const auto nodes = kdl::vec_static_cast<Node*>(brushes);
 
   auto transaction = Transaction{map, "Create " + definition.name};
-  map.deselectAll();
+  deselectAll(map);
   if (addNodes(map, {{parentForNodes(map), {entityNode}}}).empty())
   {
     transaction.cancel();
@@ -165,7 +166,7 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
     transaction.cancel();
     return nullptr;
   }
-  map.selectNodes(nodes);
+  selectNodes(map, nodes);
 
   if (!transaction.commit())
   {

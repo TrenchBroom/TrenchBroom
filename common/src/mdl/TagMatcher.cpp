@@ -30,6 +30,7 @@
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/Selection.h"
@@ -496,9 +497,10 @@ void EntityClassNameTagMatcher::disable(TagMatcherCallback&, Map& map) const
   {
     return;
   }
-  map.deselectAll();
+  deselectAll(map);
   reparentNodes(map, {{parentForNodes(map, selectedBrushes), detailBrushes}});
-  map.selectNodes(std::vector<Node*>(std::begin(detailBrushes), std::end(detailBrushes)));
+  selectNodes(
+    map, std::vector<Node*>(std::begin(detailBrushes), std::end(detailBrushes)));
 }
 
 bool EntityClassNameTagMatcher::canEnable() const

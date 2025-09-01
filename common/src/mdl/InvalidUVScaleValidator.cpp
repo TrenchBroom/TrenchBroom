@@ -28,6 +28,7 @@
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PushSelection.h"
 
 #include <string>
@@ -60,8 +61,8 @@ IssueQuickFix makeResetUVScaleQuickFix()
             auto request = ChangeBrushFaceAttributesRequest{};
             request.setScale(vm::vec2f{1, 1});
 
-            map.deselectAll();
-            map.selectBrushFaces(faceHandles);
+            deselectAll(map);
+            selectBrushFaces(map, faceHandles);
             setBrushFaceAttributes(map, request);
           }};
 }

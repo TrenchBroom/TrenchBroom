@@ -36,6 +36,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
@@ -230,8 +231,8 @@ bool pasteNodes(Map& map, const std::vector<Node*>& nodes)
     return false;
   }
 
-  map.deselectAll();
-  map.selectNodes(collectSelectableNodes(addedNodes, map.editorContext()));
+  deselectAll(map);
+  selectNodes(map, collectSelectableNodes(addedNodes, map.editorContext()));
   transaction.commit();
 
   return true;

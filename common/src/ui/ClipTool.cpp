@@ -28,6 +28,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PickResult.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/Transaction.h"
@@ -613,9 +614,9 @@ void ClipTool::performClip()
     const auto toRemove = map.selection().nodes;
     const auto addedNodes = addNodes(m_map, toAdd);
 
-    map.deselectAll();
+    deselectAll(map);
     removeNodes(map, toRemove);
-    map.selectNodes(addedNodes);
+    selectNodes(map, addedNodes);
     transaction.commit();
 
     update();

@@ -32,6 +32,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -75,7 +76,7 @@ TEST_CASE("Validation")
   {
     auto* entityNode = createPointEntity(map, pointEntityDefinition, vm::vec3d{0, 0, 0});
 
-    map.selectNodes({entityNode});
+    selectNodes(map, {entityNode});
     setEntityProperty(map, "", "");
     REQUIRE(entityNode->entity().hasProperty(""));
 
@@ -126,7 +127,7 @@ TEST_CASE("Validation")
   {
     auto* entityNode = createPointEntity(map, pointEntityDefinition, vm::vec3d{0, 0, 0});
 
-    map.selectNodes({entityNode});
+    selectNodes(map, {entityNode});
     setEntityProperty(map, "", "");
     REQUIRE(entityNode->entity().hasProperty(""));
 

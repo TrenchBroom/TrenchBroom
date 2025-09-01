@@ -32,6 +32,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Picking.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PickResult.h"
@@ -99,7 +100,7 @@ TEST_CASE("ExtrudeTool")
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
     addNodes(map, {{map.editorContext().currentLayer(), {brushNode1}}});
-    map.selectNodes({brushNode1});
+    selectNodes(map, {brushNode1});
 
     SECTION("Pick ray hits brush directly")
     {
@@ -156,7 +157,7 @@ TEST_CASE("ExtrudeTool")
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
     addNodes(map, {{map.editorContext().currentLayer(), {brushNode1}}});
-    map.selectNodes({brushNode1});
+    selectNodes(map, {brushNode1});
 
     SECTION("Pick ray hits brush directly")
     {
@@ -234,7 +235,7 @@ TEST_CASE("ExtrudeTool")
       mapPath,
       {.mapFormat = mdl::MapFormat::Valve, .game = mdl::LoadGameFixture{"Quake"}});
 
-    map.selectAllNodes();
+    selectAllNodes(map);
 
     auto brushes = map.selection().brushes;
     REQUIRE(brushes.size() == 2);
@@ -280,7 +281,7 @@ TEST_CASE("ExtrudeTool")
       mapPath,
       {.mapFormat = mdl::MapFormat::Valve, .game = mdl::LoadGameFixture{"Quake"}});
 
-    map.selectAllNodes();
+    selectAllNodes(map);
 
     auto brushes = map.selection().brushes;
     REQUIRE(brushes.size() == 2);

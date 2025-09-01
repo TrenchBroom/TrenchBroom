@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_Selection.h"
+
 #include "Logger.h"
 #include "Map.h"
 #include "mdl/BrushBuilder.h"
@@ -54,19 +56,19 @@ const Selection& Map::selection() const
   return *m_cachedSelection;
 }
 
-void Map::selectAllNodes()
+void selectAllNodes(Map& map)
 {
-  executeAndStore(SelectionCommand::selectAllNodes());
+  map.executeAndStore(SelectionCommand::selectAllNodes());
 }
 
-void Map::selectNodes(const std::vector<Node*>& nodes)
+void selectNodes(Map& map, const std::vector<Node*>& nodes)
 {
-  executeAndStore(SelectionCommand::select(nodes));
+  map.executeAndStore(SelectionCommand::select(nodes));
 }
 
-void Map::selectSiblingNodes()
+void selectSiblingNodes(Map& map)
 {
-  const auto& nodes = selection().nodes;
+  const auto& nodes = map.selection().nodes;
   if (nodes.empty())
   {
     return;
@@ -82,41 +84,41 @@ void Map::selectSiblingNodes()
     {
       nodesToSelect = kdl::vec_concat(
         std::move(nodesToSelect),
-        collectSelectableNodes(parent->children(), editorContext()));
+        collectSelectableNodes(parent->children(), map.editorContext()));
     }
   }
 
-  auto transaction = Transaction{*this, "Select Siblings"};
-  deselectAll();
-  selectNodes(nodesToSelect);
+  auto transaction = Transaction{map, "Select Siblings"};
+  deselectAll(map);
+  selectNodes(map, nodesToSelect);
   transaction.commit();
 }
 
-void Map::selectTouchingNodes(const bool del)
+void selectTouchingNodes(Map& map, const bool del)
 {
-  auto nodes = collectTouchingNodes({world()}, selection().brushes)
+  auto nodes = collectTouchingNodes({map.world()}, map.selection().brushes)
                | std::views::filter(
-                 [&](const auto* node) { return editorContext().selectable(*node); })
+                 [&](const auto* node) { return map.editorContext().selectable(*node); })
                | kdl::to_vector;
 
-  auto transaction = Transaction{*this, "Select Touching"};
+  auto transaction = Transaction{map, "Select Touching"};
   if (del)
   {
-    removeSelectedNodes(*this);
+    removeSelectedNodes(map);
   }
   else
   {
-    deselectAll();
+    deselectAll(map);
   }
-  selectNodes(nodes);
+  selectNodes(map, nodes);
   transaction.commit();
 }
 
-void Map::selectTouchingNodes(const vm::axis::type cameraAxis, const bool del)
+void selectTouchingNodes(Map& map, const vm::axis::type cameraAxis, const bool del)
 {
   const auto cameraAbsDirection = vm::vec3d::axis(cameraAxis);
   // we can't make a brush that is exactly as large as worldBounds
-  const auto tallBounds = worldBounds().expand(-1.0);
+  const auto tallBounds = map.worldBounds().expand(-1.0);
 
   const auto min = vm::dot(tallBounds.min, cameraAbsDirection);
   const auto max = vm::dot(tallBounds.max, cameraAbsDirection);
@@ -124,10 +126,10 @@ void Map::selectTouchingNodes(const vm::axis::type cameraAxis, const bool del)
   const auto minPlane = vm::plane3d{min, cameraAbsDirection};
   const auto maxPlane = vm::plane3d{max, cameraAbsDirection};
 
-  const auto& selectionBrushNodes = selection().brushes;
+  const auto& selectionBrushNodes = map.selection().brushes;
   assert(!selectionBrushNodes.empty());
 
-  const auto brushBuilder = BrushBuilder{world()->mapFormat(), worldBounds()};
+  const auto brushBuilder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
   kdl::vec_transform(
     selectionBrushNodes,
@@ -150,53 +152,54 @@ void Map::selectTouchingNodes(const vm::axis::type cameraAxis, const bool del)
     | kdl::fold | kdl::transform([&](const auto& tallBrushes) {
         // delete the original selection brushes before searching for the objects to
         // select
-        auto transaction = Transaction{*this, "Select Tall"};
+        auto transaction = Transaction{map, "Select Tall"};
         if (del)
         {
-          removeSelectedNodes(*this);
+          removeSelectedNodes(map);
         }
         else
         {
-          deselectAll();
+          deselectAll(map);
         }
 
         const auto nodesToSelect =
           collectContainedNodes(
-            {world()}, tallBrushes | std::views::transform([](const auto& b) {
-                         return b.get();
-                       }) | kdl::to_vector)
+            {map.world()}, tallBrushes | std::views::transform([](const auto& b) {
+                             return b.get();
+                           }) | kdl::to_vector)
           | std::views::filter(
-            [&](const auto* node) { return editorContext().selectable(*node); })
+            [&](const auto* node) { return map.editorContext().selectable(*node); })
           | kdl::to_vector;
-        selectNodes(nodesToSelect);
+        selectNodes(map, nodesToSelect);
 
         transaction.commit();
       })
-    | kdl::transform_error(
-      [&](auto e) { logger().error() << "Could not create selection brush: " << e.msg; });
+    | kdl::transform_error([&](auto e) {
+        map.logger().error() << "Could not create selection brush: " << e.msg;
+      });
 }
 
-void Map::selectContainedNodes(const bool del)
+void selectContainedNodes(Map& map, const bool del)
 {
-  auto nodes = collectContainedNodes({world()}, selection().brushes)
+  auto nodes = collectContainedNodes({map.world()}, map.selection().brushes)
                | std::views::filter(
-                 [&](const auto* node) { return editorContext().selectable(*node); })
+                 [&](const auto* node) { return map.editorContext().selectable(*node); })
                | kdl::to_vector;
 
-  auto transaction = Transaction{*this, "Select Inside"};
+  auto transaction = Transaction{map, "Select Inside"};
   if (del)
   {
-    removeSelectedNodes(*this);
+    removeSelectedNodes(map);
   }
   else
   {
-    deselectAll();
+    deselectAll(map);
   }
-  selectNodes(nodes);
+  selectNodes(map, nodes);
   transaction.commit();
 }
 
-void Map::selectNodesWithFilePosition(const std::vector<size_t>& positions)
+void selectNodesWithFilePosition(Map& map, const std::vector<size_t>& positions)
 {
   auto nodesToSelect = std::vector<Node*>{};
   const auto hasFilePosition = [&](const auto* node) {
@@ -205,7 +208,7 @@ void Map::selectNodesWithFilePosition(const std::vector<size_t>& positions)
     });
   };
 
-  world()->accept(kdl::overload(
+  map.world()->accept(kdl::overload(
     [&](
       auto&& thisLambda, WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
     [&](
@@ -213,7 +216,7 @@ void Map::selectNodesWithFilePosition(const std::vector<size_t>& positions)
     [&](auto&& thisLambda, GroupNode* groupNode) {
       if (hasFilePosition(groupNode))
       {
-        if (editorContext().selectable(*groupNode))
+        if (map.editorContext().selectable(*groupNode))
         {
           nodesToSelect.push_back(groupNode);
         }
@@ -226,7 +229,7 @@ void Map::selectNodesWithFilePosition(const std::vector<size_t>& positions)
     [&](auto&& thisLambda, EntityNode* entityNode) {
       if (hasFilePosition(entityNode))
       {
-        if (editorContext().selectable(*entityNode))
+        if (map.editorContext().selectable(*entityNode))
         {
           nodesToSelect.push_back(entityNode);
         }
@@ -239,48 +242,48 @@ void Map::selectNodesWithFilePosition(const std::vector<size_t>& positions)
             // no child was selected, select all children
             nodesToSelect = kdl::vec_concat(
               std::move(nodesToSelect),
-              collectSelectableNodes(entityNode->children(), editorContext()));
+              collectSelectableNodes(entityNode->children(), map.editorContext()));
           }
         }
       }
     },
     [&](BrushNode* brushNode) {
-      if (hasFilePosition(brushNode) && editorContext().selectable(*brushNode))
+      if (hasFilePosition(brushNode) && map.editorContext().selectable(*brushNode))
       {
         nodesToSelect.push_back(brushNode);
       }
     },
     [&](PatchNode* patchNode) {
-      if (hasFilePosition(patchNode) && editorContext().selectable(*patchNode))
+      if (hasFilePosition(patchNode) && map.editorContext().selectable(*patchNode))
       {
         nodesToSelect.push_back(patchNode);
       }
     }));
 
-  auto transaction = Transaction{*this, "Select by Line Number"};
-  deselectAll();
-  selectNodes(nodesToSelect);
+  auto transaction = Transaction{map, "Select by Line Number"};
+  deselectAll(map);
+  selectNodes(map, nodesToSelect);
   transaction.commit();
 }
 
-void Map::selectBrushesWithMaterial(const Material* material)
+void selectBrushesWithMaterial(Map& map, const Material* material)
 {
   const auto brushes =
-    collectSelectableNodes(std::vector<Node*>{world()}, editorContext())
+    collectSelectableNodes(std::vector<Node*>{map.world()}, map.editorContext())
     | std::views::filter([&](const auto& node) {
         return std::ranges::any_of(
-          collectSelectableBrushFaces({node}, editorContext()),
+          collectSelectableBrushFaces({node}, map.editorContext()),
           [&](const auto& h) { return h.face().material() == material; });
       })
     | kdl::to_vector;
 
-  auto transaction = Transaction{*this, "Select Brushes with Material"};
-  deselectAll();
-  selectNodes(brushes);
+  auto transaction = Transaction{map, "Select Brushes with Material"};
+  deselectAll(map);
+  selectNodes(map, brushes);
   transaction.commit();
 }
 
-void Map::invertNodeSelection()
+void invertNodeSelection(Map& map)
 {
   // This only selects nodes that have no selected children (or parents).
   // This is because if a brush entity only 1 selected child and 1 unselected,
@@ -291,13 +294,13 @@ void Map::invertNodeSelection()
   const auto collectNode = [&](auto* node) {
     if (
       !node->transitivelySelected() && !node->descendantSelected()
-      && editorContext().selectable(*node))
+      && map.editorContext().selectable(*node))
     {
       nodesToSelect.push_back(node);
     }
   };
 
-  currentGroupOrWorld(*this)->accept(kdl::overload(
+  currentGroupOrWorld(map)->accept(kdl::overload(
     [](auto&& thisLambda, WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
     [](auto&& thisLambda, LayerNode* layerNode) { layerNode->visitChildren(thisLambda); },
     [&](auto&& thisLambda, GroupNode* groupNode) {
@@ -311,106 +314,107 @@ void Map::invertNodeSelection()
     [&](BrushNode* brushNode) { collectNode(brushNode); },
     [&](PatchNode* patchNode) { collectNode(patchNode); }));
 
-  auto transaction = Transaction{*this, "Select Inverse"};
-  deselectAll();
-  selectNodes(nodesToSelect);
+  auto transaction = Transaction{map, "Select Inverse"};
+  deselectAll(map);
+  selectNodes(map, nodesToSelect);
   transaction.commit();
 }
 
-void Map::selectAllInLayers(const std::vector<LayerNode*>& layers)
+void selectAllInLayers(Map& map, const std::vector<LayerNode*>& layers)
 {
   const auto nodes =
-    collectSelectableNodes(kdl::vec_static_cast<Node*>(layers), editorContext());
+    collectSelectableNodes(kdl::vec_static_cast<Node*>(layers), map.editorContext());
 
-  deselectAll();
-  selectNodes(nodes);
+  deselectAll(map);
+  selectNodes(map, nodes);
 }
 
-bool Map::canSelectAllInLayers(const std::vector<LayerNode*>& /* layers */) const
+bool canSelectAllInLayers(const Map& map, const std::vector<LayerNode*>&)
 {
-  return editorContext().canChangeSelection();
+  return map.editorContext().canChangeSelection();
 }
 
-bool Map::canSelectLinkedGroups() const
+void selectLinkedGroups(Map& map)
 {
-  if (!selection().hasOnlyGroups())
+  if (!canSelectLinkedGroups(map))
+  {
+    return;
+  }
+
+  const auto linkIdsToSelect = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+    map.selection().groups, [](const auto* groupNode) { return groupNode->linkId(); }));
+  const auto groupNodesToSelect =
+    kdl::vec_flatten(kdl::vec_transform(linkIdsToSelect, [&](const auto& linkId) {
+      return collectNodesWithLinkId({map.world()}, linkId);
+    }));
+
+  auto transaction = Transaction{map, "Select Linked Groups"};
+  deselectAll(map);
+  selectNodes(map, groupNodesToSelect);
+  transaction.commit();
+}
+
+bool canSelectLinkedGroups(const Map& map)
+{
+  if (!map.selection().hasOnlyGroups())
   {
     return false;
   }
 
   const auto allLinkIds = kdl::vec_sort(kdl::vec_transform(
-    collectGroups({world()}), [](const auto& groupNode) { return groupNode->linkId(); }));
+    collectGroups({map.world()}),
+    [](const auto& groupNode) { return groupNode->linkId(); }));
 
-  return kdl::all_of(selection().groups, [&](const auto* groupNode) {
+  return kdl::all_of(map.selection().groups, [&](const auto* groupNode) {
     const auto [iBegin, iEnd] =
       std::equal_range(allLinkIds.begin(), allLinkIds.end(), groupNode->linkId());
     return std::distance(iBegin, iEnd) > 1;
   });
 }
 
-void Map::selectLinkedGroups()
+void selectBrushFaces(Map& map, const std::vector<BrushFaceHandle>& handles)
 {
-  if (!canSelectLinkedGroups())
-  {
-    return;
-  }
-
-  const auto linkIdsToSelect = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-    selection().groups, [](const auto* groupNode) { return groupNode->linkId(); }));
-  const auto groupNodesToSelect =
-    kdl::vec_flatten(kdl::vec_transform(linkIdsToSelect, [&](const auto& linkId) {
-      return collectNodesWithLinkId({world()}, linkId);
-    }));
-
-  auto transaction = Transaction{*this, "Select Linked Groups"};
-  deselectAll();
-  selectNodes(groupNodesToSelect);
-  transaction.commit();
-}
-
-void Map::selectBrushFaces(const std::vector<BrushFaceHandle>& handles)
-{
-  executeAndStore(SelectionCommand::select(handles));
+  map.executeAndStore(SelectionCommand::select(handles));
   if (!handles.empty())
   {
-    setCurrentMaterialName(handles.back().face().attributes().materialName());
+    map.setCurrentMaterialName(handles.back().face().attributes().materialName());
   }
 }
 
-void Map::selectBrushFacesWithMaterial(const Material* material)
+void selectBrushFacesWithMaterial(Map& map, const Material* material)
 {
   const auto faces =
-    collectSelectableBrushFaces(std::vector<Node*>{world()}, editorContext())
+    collectSelectableBrushFaces(std::vector<Node*>{map.world()}, map.editorContext())
     | std::views::filter([&](const auto& h) { return h.face().material() == material; })
     | kdl::to_vector;
 
-  auto transaction = Transaction{*this, "Select Faces with Material"};
-  deselectAll();
-  selectBrushFaces(faces);
+  auto transaction = Transaction{map, "Select Faces with Material"};
+  deselectAll(map);
+  selectBrushFaces(map, faces);
   transaction.commit();
 }
 
-void Map::convertToFaceSelection()
+void convertToFaceSelection(Map& map)
 {
-  executeAndStore(SelectionCommand::convertToFaces());
+  map.executeAndStore(SelectionCommand::convertToFaces());
 }
 
-void Map::deselectAll()
+void deselectAll(Map& map)
 {
-  if (selection().hasAny())
+  if (map.selection().hasAny())
   {
-    executeAndStore(SelectionCommand::deselectAll());
+    map.executeAndStore(SelectionCommand::deselectAll());
   }
 }
 
-void Map::deselectNodes(const std::vector<Node*>& nodes)
+void deselectNodes(Map& map, const std::vector<Node*>& nodes)
 {
-  executeAndStore(SelectionCommand::deselect(nodes));
+  map.executeAndStore(SelectionCommand::deselect(nodes));
 }
 
-void Map::deselectBrushFaces(const std::vector<BrushFaceHandle>& handles)
+void deselectBrushFaces(Map& map, const std::vector<BrushFaceHandle>& handles)
 {
-  executeAndStore(SelectionCommand::deselect(handles));
+  map.executeAndStore(SelectionCommand::deselect(handles));
 }
 
 const vm::bbox3d Map::referenceBounds() const

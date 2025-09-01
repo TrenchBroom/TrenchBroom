@@ -26,6 +26,7 @@
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 
 #include "kdl/vector_utils.h"
 
@@ -53,9 +54,9 @@ IssueQuickFix makeMoveBrushesToWorldQuickFix()
               affectedNodes = kdl::vec_concat(std::move(affectedNodes), node.children());
             }
 
-            map.deselectAll();
+            deselectAll(map);
             reparentNodes(map, nodesToReparent);
-            map.selectNodes(affectedNodes);
+            selectNodes(map, affectedNodes);
           }};
 }
 } // namespace

@@ -67,6 +67,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/PasteType.h"
@@ -1377,7 +1378,7 @@ void MapFrame::pasteAtCursorPosition()
         hideNodes(map, nodes);
         const auto delta = m_mapView->pasteObjectsDelta(*bounds, referenceBounds);
         showNodes(map, nodes);
-        map.selectNodes(nodes); // Hiding deselected the nodes, so reselect them
+        selectNodes(map, nodes); // Hiding deselected the nodes, so reselect them
         if (!translateSelection(map, delta))
         {
           transaction.cancel();
@@ -1502,8 +1503,7 @@ void MapFrame::selectAll()
 {
   if (canSelect())
   {
-    auto& map = m_document->map();
-    map.selectAllNodes();
+    selectAllNodes(m_document->map());
   }
 }
 
@@ -1511,8 +1511,7 @@ void MapFrame::selectSiblings()
 {
   if (canSelectSiblings())
   {
-    auto& map = m_document->map();
-    map.selectSiblingNodes();
+    selectSiblingNodes(m_document->map());
   }
 }
 
@@ -1520,8 +1519,7 @@ void MapFrame::selectTouching()
 {
   if (canSelectByBrush())
   {
-    auto& map = m_document->map();
-    map.selectTouchingNodes(true);
+    selectTouchingNodes(m_document->map(), true);
   }
 }
 
@@ -1529,8 +1527,7 @@ void MapFrame::selectInside()
 {
   if (canSelectByBrush())
   {
-    auto& map = m_document->map();
-    map.selectContainedNodes(true);
+    selectContainedNodes(m_document->map(), true);
   }
 }
 
@@ -1563,8 +1560,7 @@ void MapFrame::selectByLineNumber()
         }
       }
 
-      auto& map = m_document->map();
-      map.selectNodesWithFilePosition(positions);
+      selectNodesWithFilePosition(m_document->map(), positions);
     }
   }
 }
@@ -1573,8 +1569,7 @@ void MapFrame::selectInverse()
 {
   if (canSelectInverse())
   {
-    auto& map = m_document->map();
-    map.invertNodeSelection();
+    invertNodeSelection(m_document->map());
   }
 }
 
@@ -1583,7 +1578,7 @@ void MapFrame::selectNone()
   if (canDeselect())
   {
     auto& map = m_document->map();
-    map.deselectAll();
+    deselectAll(map);
   }
 }
 

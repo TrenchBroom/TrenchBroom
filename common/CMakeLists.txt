@@ -697,6 +697,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/Map_NodeLocking.h
         ${COMMON_SOURCE_DIR}/mdl/Map_Nodes.h
         ${COMMON_SOURCE_DIR}/mdl/Map_Picking.h
+        ${COMMON_SOURCE_DIR}/mdl/Map_Selection.h
         ${COMMON_SOURCE_DIR}/mdl/Map.h
         ${COMMON_SOURCE_DIR}/mdl/MapFormat.h
         ${COMMON_SOURCE_DIR}/mdl/Material.h

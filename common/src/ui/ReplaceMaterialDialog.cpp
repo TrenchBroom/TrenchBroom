@@ -28,6 +28,7 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Material.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PushSelection.h"
@@ -62,7 +63,7 @@ void replaceMaterials(
   const auto pushSelection = mdl::PushSelection{map};
 
   auto transaction = mdl::Transaction{map, "Replace Materials"};
-  map.selectBrushFaces(faces);
+  selectBrushFaces(map, faces);
   if (!setBrushFaceAttributes(map, request))
   {
     transaction.cancel();

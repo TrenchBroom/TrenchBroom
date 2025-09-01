@@ -24,6 +24,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PatchNode.h"
@@ -85,7 +86,7 @@ void hideNodes(Map& map, std::vector<Node*> nodes)
   auto transaction = Transaction{map, "Hide Objects"};
 
   // Deselect any selected nodes inside `nodes`
-  map.deselectNodes(collectSelectedNodes(nodes));
+  deselectNodes(map, collectSelectedNodes(nodes));
 
   // Reset visibility of any forced shown children of `nodes`
   downgradeShownToInherit(map, collectDescendants(nodes));

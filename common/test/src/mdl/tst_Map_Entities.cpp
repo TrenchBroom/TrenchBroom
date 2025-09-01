@@ -32,6 +32,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
@@ -91,7 +92,7 @@ TEST_CASE("Map_Entities")
     {
       auto* existingNode =
         createPointEntity(map, *pointEntityDefinition, vm::vec3d{0, 0, 0});
-      map.selectNodes({existingNode});
+      selectNodes(map, {existingNode});
 
       const auto origin = existingNode->entity().origin();
       createPointEntity(map, *pointEntityDefinition, {16, 16, 16});
@@ -138,7 +139,7 @@ TEST_CASE("Map_Entities")
     {
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
 
       // move the entity down
       REQUIRE(translateSelection(map, {0, 0, -256}));
@@ -151,8 +152,8 @@ TEST_CASE("Map_Entities")
 
       // move the linked group up by half the world bounds
       const auto zOffset = map.worldBounds().max.z();
-      map.deselectAll();
-      map.selectNodes({linkedGroupNode});
+      deselectAll(map);
+      selectNodes(map, {linkedGroupNode});
       translateSelection(map, {0, 0, map.worldBounds().max.z()});
       REQUIRE(
         linkedGroupNode->physicalBounds()
@@ -160,7 +161,7 @@ TEST_CASE("Map_Entities")
 
       // create a brush entity inside the original group
       openGroup(map, groupNode);
-      map.deselectAll();
+      deselectAll(map);
 
       // create a new point entity below the origin -- this entity is temporarily
       // created at the origin and then moved to its eventual position, but the entity
@@ -177,7 +178,7 @@ TEST_CASE("Map_Entities")
       auto* brushNode = createBrushNode(map, "some_material");
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
       auto* entityNode = createBrushEntity(map, *brushEntityDefinition);
       CHECK(entityNode != nullptr);
       CHECK(entityNode->entity().definition() == brushEntityDefinition);
@@ -191,14 +192,14 @@ TEST_CASE("Map_Entities")
       auto* brushNode3 = createBrushNode(map, "some_material");
       addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2, brushNode3}}});
 
-      map.selectNodes({brushNode1, brushNode2, brushNode3});
+      selectNodes(map, {brushNode1, brushNode2, brushNode3});
       auto* previousEntityNode = createBrushEntity(map, *brushEntityDefinition);
 
       setEntityProperty(map, "prop", "value");
       REQUIRE(previousEntityNode->entity().hasProperty("prop", "value"));
 
-      map.deselectAll();
-      map.selectNodes({brushNode1, brushNode2});
+      deselectAll(map);
+      selectNodes(map, {brushNode1, brushNode2});
 
       auto* newEntityNode = createBrushEntity(map, *brushEntityDefinition);
       CHECK(newEntityNode != nullptr);
@@ -228,7 +229,7 @@ TEST_CASE("Map_Entities")
       auto* brushNode = createBrushNode(map, "some_material");
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
       auto* entityNode = createBrushEntity(map, definitionWithDefaults);
       REQUIRE(entityNode != nullptr);
       CHECK_THAT(
@@ -243,7 +244,7 @@ TEST_CASE("Map_Entities")
     {
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
 
       // move the entity down
       REQUIRE(translateSelection(map, {0, 0, -256}));
@@ -255,8 +256,8 @@ TEST_CASE("Map_Entities")
 
       // move the linked group up by half the world bounds
       const auto zOffset = map.worldBounds().max.z();
-      map.deselectAll();
-      map.selectNodes({linkedGroupNode});
+      deselectAll(map);
+      selectNodes(map, {linkedGroupNode});
       translateSelection(map, {0, 0, map.worldBounds().max.z()});
       REQUIRE(
         linkedGroupNode->physicalBounds()
@@ -264,7 +265,7 @@ TEST_CASE("Map_Entities")
 
       // create a brush entity inside the original group
       openGroup(map, groupNode);
-      map.deselectAll();
+      deselectAll(map);
 
       auto* brushNode = createBrushNode(map);
       transformNode(
@@ -272,8 +273,8 @@ TEST_CASE("Map_Entities")
       REQUIRE(brushNode->physicalBounds() == vm::bbox3d{{-16, -16, -48}, {16, 16, -16}});
 
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.deselectAll();
-      map.selectNodes({brushNode});
+      deselectAll(map);
+      selectNodes(map, {brushNode});
 
       // create a brush entity - a temporarily empty entity will be created at the origin
       // and propagated into the linked group, where it ends up out of world bounds and
@@ -291,8 +292,8 @@ TEST_CASE("Map_Entities")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
-      map.deselectAll();
-      map.selectNodes({entityNode});
+      deselectAll(map);
+      selectNodes(map, {entityNode});
       REQUIRE(
         map.selectionBounds()->size()
         == largeEntityDefinition->pointEntityDefinition->bounds.size());
@@ -314,7 +315,7 @@ TEST_CASE("Map_Entities")
 
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       auto* linkedGroupNode1 = createLinkedDuplicate(map);
@@ -324,9 +325,9 @@ TEST_CASE("Map_Entities")
       REQUIRE(linkedGroupNode1 != nullptr);
       REQUIRE(linkedGroupNode2 != nullptr);
 
-      map.deselectAll();
+      deselectAll(map);
 
-      map.selectNodes({groupNode, linkedGroupNode1});
+      selectNodes(map, {groupNode, linkedGroupNode1});
 
       // Current design is to reject this because it's modifying entities from multiple
       // groups in a link set. While in this case the change isn't conflicting, some
@@ -361,8 +362,8 @@ TEST_CASE("Map_Entities")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
-      map.deselectAll();
-      map.selectNodes({entityNode});
+      deselectAll(map);
+      selectNodes(map, {entityNode});
       REQUIRE(
         map.selectionBounds()->size()
         == largeEntityDefinition->pointEntityDefinition->bounds.size());
@@ -399,8 +400,8 @@ TEST_CASE("Map_Entities")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
-      map.deselectAll();
-      map.selectNodes({entityNode});
+      deselectAll(map);
+      selectNodes(map, {entityNode});
       REQUIRE(
         map.selectionBounds()->size()
         == largeEntityDefinition->pointEntityDefinition->bounds.size());
@@ -426,7 +427,7 @@ TEST_CASE("Map_Entities")
         | kdl::value()};
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
-      map.selectAllNodes();
+      selectAllNodes(map);
 
       auto* brushEntNode = createBrushEntity(map, *brushEntityDefinition);
       REQUIRE_THAT(
@@ -447,7 +448,7 @@ TEST_CASE("Map_Entities")
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
 
       SECTION("Set protected property")
       {
@@ -470,8 +471,8 @@ TEST_CASE("Map_Entities")
           Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
 
         // Ensure that the consecutive SwapNodeContentsCommands are not collated
-        map.deselectAll();
-        map.selectNodes({entityNode});
+        deselectAll(map);
+        selectNodes(map, {entityNode});
 
         setProtectedEntityProperty(map, "some_key", false);
         CHECK_THAT(
@@ -490,11 +491,11 @@ TEST_CASE("Map_Entities")
       auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      map.selectNodes({entityNode});
+      selectNodes(map, {entityNode});
       auto* groupNode = groupSelectedNodes(map, "test");
 
-      map.deselectAll();
-      map.selectNodes({groupNode});
+      deselectAll(map);
+      selectNodes(map, {groupNode});
 
       auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode->childCount() == 1u);
@@ -507,8 +508,8 @@ TEST_CASE("Map_Entities")
         linkedEntityNode->entity().properties(),
         Catch::UnorderedEquals(std::vector<EntityProperty>{{"some_key", "some_value"}}));
 
-      map.deselectAll();
-      map.selectNodes({linkedEntityNode});
+      deselectAll(map);
+      selectNodes(map, {linkedEntityNode});
 
       // set the property to protected in the linked entity and change its value
       setProtectedEntityProperty(map, "some_key", true);
@@ -543,8 +544,8 @@ TEST_CASE("Map_Entities")
       SECTION("When no corresponding entity with an unprotected property can be found")
       {
         // set the property to protected in the original entity too
-        map.deselectAll();
-        map.selectNodes({entityNode});
+        deselectAll(map);
+        selectNodes(map, {entityNode});
         setProtectedEntityProperty(map, "some_key", true);
 
         linkedEntityNode = dynamic_cast<EntityNode*>(linkedGroupNode->children().front());
@@ -557,8 +558,8 @@ TEST_CASE("Map_Entities")
           Catch::UnorderedEquals(
             std::vector<EntityProperty>{{"some_key", "another_value"}}));
 
-        map.deselectAll();
-        map.selectNodes({linkedEntityNode});
+        deselectAll(map);
+        selectNodes(map, {linkedEntityNode});
         setProtectedEntityProperty(map, "some_key", false);
 
         entityNode = dynamic_cast<EntityNode*>(groupNode->children().front());
@@ -575,8 +576,8 @@ TEST_CASE("Map_Entities")
           "Setting the property to unprotected in the original entity will fetch the new "
           "value now")
         {
-          map.deselectAll();
-          map.selectNodes({entityNode});
+          deselectAll(map);
+          selectNodes(map, {entityNode});
           setProtectedEntityProperty(map, "some_key", false);
 
           linkedEntityNode =
@@ -638,13 +639,13 @@ TEST_CASE("Map_Entities")
 
     CHECK_FALSE(canClearProtectedEntityProperties(map));
 
-    map.selectNodes({entityNode});
+    selectNodes(map, {entityNode});
     CHECK(canClearProtectedEntityProperties(map));
 
     auto* groupNode = groupSelectedNodes(map, "test");
 
-    map.deselectAll();
-    map.selectNodes({groupNode});
+    deselectAll(map);
+    selectNodes(map, {groupNode});
     CHECK(canClearProtectedEntityProperties(map));
 
     auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -655,8 +656,8 @@ TEST_CASE("Map_Entities")
       dynamic_cast<EntityNode*>(linkedGroupNode->children().front());
     REQUIRE(linkedEntityNode);
 
-    map.deselectAll();
-    map.selectNodes({entityNode});
+    deselectAll(map);
+    selectNodes(map, {entityNode});
 
     // set the property "some_key" to protected in the original entity and change its
     // value
@@ -666,8 +667,8 @@ TEST_CASE("Map_Entities")
     linkedEntityNode = dynamic_cast<EntityNode*>(linkedGroupNode->children().front());
     REQUIRE(linkedEntityNode);
 
-    map.deselectAll();
-    map.selectNodes({linkedEntityNode});
+    deselectAll(map);
+    selectNodes(map, {linkedEntityNode});
 
     // set the property "another_key" to protected in the linked entity and change its
     // value
@@ -699,13 +700,13 @@ TEST_CASE("Map_Entities")
         {"another_key", "yet_another_value"},
         {"yet_another_key", "and_yet_another_value"}}));
 
-    map.deselectAll();
-    map.selectNodes({groupNode});
-    map.selectNodes({linkedGroupNode});
+    deselectAll(map);
+    selectNodes(map, {groupNode});
+    selectNodes(map, {linkedGroupNode});
 
     CHECK_FALSE(canClearProtectedEntityProperties(map));
 
-    map.deselectNodes({groupNode});
+    deselectNodes(map, {groupNode});
 
     CHECK(canClearProtectedEntityProperties(map));
     clearProtectedEntityProperties(map);
@@ -785,25 +786,25 @@ TEST_CASE("Map_Entities")
       {"classname", "some_class"},
     }}};
     addNodes(map, {{parentForNodes(map), {entityNodeWithoutDefinition}}});
-    map.selectNodes({entityNodeWithoutDefinition});
+    selectNodes(map, {entityNodeWithoutDefinition});
     setEntityProperty(map, "some_prop", "some_value");
-    map.deselectAll();
+    deselectAll(map);
 
     auto* entityNodeWithProp = createPointEntity(map, *definitionWithDefaults, {0, 0, 0});
     REQUIRE(entityNodeWithProp != nullptr);
     REQUIRE(entityNodeWithProp->entity().definition() == definitionWithDefaults);
-    map.selectNodes({entityNodeWithProp});
+    selectNodes(map, {entityNodeWithProp});
     setEntityProperty(map, "some_prop", "some_value");
-    map.deselectAll();
+    deselectAll(map);
 
     auto* entityNodeWithPropA =
       createPointEntity(map, *definitionWithDefaults, {0, 0, 0});
     REQUIRE(entityNodeWithPropA != nullptr);
     REQUIRE(entityNodeWithPropA->entity().definition() == definitionWithDefaults);
-    map.selectNodes({entityNodeWithPropA});
+    selectNodes(map, {entityNodeWithPropA});
     setEntityProperty(map, "some_prop", "some_value");
     setEntityProperty(map, "default_prop_a", "default_value_a");
-    map.deselectAll();
+    deselectAll(map);
 
     auto* entityNodeWithPropAWithValueChanged =
       createPointEntity(map, *definitionWithDefaults, {0, 0, 0});
@@ -811,19 +812,19 @@ TEST_CASE("Map_Entities")
     REQUIRE(
       entityNodeWithPropAWithValueChanged->entity().definition()
       == definitionWithDefaults);
-    map.selectNodes({entityNodeWithPropAWithValueChanged});
+    selectNodes(map, {entityNodeWithPropAWithValueChanged});
     setEntityProperty(map, "default_prop_a", "some_other_value");
-    map.deselectAll();
+    deselectAll(map);
 
     auto* entityNodeWithPropsAB =
       createPointEntity(map, *definitionWithDefaults, {0, 0, 0});
     REQUIRE(entityNodeWithPropsAB != nullptr);
     REQUIRE(entityNodeWithPropsAB->entity().definition() == definitionWithDefaults);
-    map.selectNodes({entityNodeWithPropsAB});
+    selectNodes(map, {entityNodeWithPropsAB});
     setEntityProperty(map, "some_prop", "some_value");
     setEntityProperty(map, "default_prop_a", "default_value_a");
     setEntityProperty(map, "default_prop_b", "yet_another_value");
-    map.deselectAll();
+    deselectAll(map);
 
     REQUIRE_THAT(
       entityNodeWithoutDefinition->entity().properties(),
@@ -859,7 +860,8 @@ TEST_CASE("Map_Entities")
         {"default_prop_b", "yet_another_value"},
       }));
 
-    map.selectNodes(
+    selectNodes(
+      map,
       {entityNodeWithoutDefinition,
        entityNodeWithProp,
        entityNodeWithPropA,

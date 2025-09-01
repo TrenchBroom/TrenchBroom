@@ -30,6 +30,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -72,11 +73,11 @@ TEST_CASE("Map_NodeLocking")
       addNodes(
         map,
         {{parentForNodes(map), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
-      map.deselectAll();
-      map.selectNodes({entityNodeInGroup});
+      deselectAll(map);
+      selectNodes(map, {entityNodeInGroup});
 
       auto* groupNode = groupSelectedNodes(map, "group");
-      map.deselectAll();
+      deselectAll(map);
 
       REQUIRE_FALSE(brushNode->locked());
       REQUIRE_FALSE(entityNode->locked());
@@ -107,11 +108,11 @@ TEST_CASE("Map_NodeLocking")
       addNodes(
         map,
         {{parentForNodes(map), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
-      map.deselectAll();
-      map.selectNodes({entityNodeInGroup});
+      deselectAll(map);
+      selectNodes(map, {entityNodeInGroup});
 
       auto* groupNode = groupSelectedNodes(map, "group");
-      map.deselectAll();
+      deselectAll(map);
 
       auto* layerNode = new LayerNode{Layer{"layer"}};
       addNodes(map, {{map.world(), {layerNode}}});
@@ -146,7 +147,7 @@ TEST_CASE("Map_NodeLocking")
 
       SECTION("Node selection")
       {
-        map.selectNodes({selectedBrushNode, unlockedBrushNode});
+        selectNodes(map, {selectedBrushNode, unlockedBrushNode});
 
         REQUIRE_THAT(
           map.selection().nodes,
@@ -171,11 +172,13 @@ TEST_CASE("Map_NodeLocking")
 
       SECTION("Brush face selection")
       {
-        map.selectBrushFaces({
-          {selectedBrushNode, 0},
-          {selectedBrushNode, 1},
-          {unlockedBrushNode, 0},
-        });
+        selectBrushFaces(
+          map,
+          {
+            {selectedBrushNode, 0},
+            {selectedBrushNode, 1},
+            {unlockedBrushNode, 0},
+          });
         REQUIRE_THAT(
           map.selection().brushFaces,
           Catch::UnorderedEquals(std::vector<BrushFaceHandle>{

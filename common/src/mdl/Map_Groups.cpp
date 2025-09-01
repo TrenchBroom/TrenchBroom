@@ -29,6 +29,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/SetLinkIdsCommand.h"
 #include "mdl/Transaction.h"
@@ -136,7 +137,7 @@ void openGroup(Map& map, GroupNode* groupNode)
 {
   auto transaction = Transaction{map, "Open Group"};
 
-  map.deselectAll();
+  deselectAll(map);
 
   if (auto* previousGroupNode = map.editorContext().currentGroup())
   {
@@ -156,7 +157,7 @@ void closeGroup(Map& map)
 {
   auto transaction = Transaction{map, "Close Group"};
 
-  map.deselectAll();
+  deselectAll(map);
   auto* previousGroup = map.editorContext().currentGroup();
   resetNodeLockingState(map, {previousGroup});
   map.executeAndStore(CurrentGroupCommand::pop());
@@ -190,7 +191,7 @@ GroupNode* groupSelectedNodes(Map& map, const std::string& name)
   auto* group = new GroupNode{Group{name}};
 
   auto transaction = Transaction{map, "Group Selected Objects"};
-  map.deselectAll();
+  deselectAll(map);
   if (
     addNodes(map, {{parentForNodes(map, nodes), {group}}}).empty()
     || !reparentNodes(map, {{group, nodes}}))
@@ -198,7 +199,7 @@ GroupNode* groupSelectedNodes(Map& map, const std::string& name)
     transaction.cancel();
     return nullptr;
   }
-  map.selectNodes({group});
+  selectNodes(map, {group});
 
   if (!transaction.commit())
   {
@@ -221,7 +222,7 @@ void ungroupSelectedNodes(Map& map)
   const auto selectedNodes = map.selection().nodes;
   auto nodesToReselect = std::vector<Node*>{};
 
-  map.deselectAll();
+  deselectAll(map);
 
   auto success = true;
   Node::visitAll(
@@ -245,7 +246,7 @@ void ungroupSelectedNodes(Map& map)
     return;
   }
 
-  map.selectNodes(nodesToReselect);
+  selectNodes(map, nodesToReselect);
   transaction.commit();
 }
 
@@ -259,7 +260,7 @@ void mergeSelectedGroupsWithGroup(Map& map, GroupNode* group)
   const auto groupsToMerge = map.selection().groups;
 
   auto transaction = Transaction{map, "Merge Groups"};
-  map.deselectAll();
+  deselectAll(map);
 
   for (auto groupToMerge : groupsToMerge)
   {
@@ -273,7 +274,7 @@ void mergeSelectedGroupsWithGroup(Map& map, GroupNode* group)
       }
     }
   }
-  map.selectNodes({group});
+  selectNodes(map, {group});
 
   transaction.commit();
 }

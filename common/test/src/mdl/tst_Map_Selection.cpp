@@ -33,6 +33,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -73,18 +74,18 @@ TEST_CASE("Map_Selection")
       REQUIRE(topFaceIndex);
 
       // select the top face
-      map.selectBrushFaces({{brushNode, *topFaceIndex}});
+      selectBrushFaces(map, {{brushNode, *topFaceIndex}});
       CHECK_THAT(
         map.selection().brushFaces,
         Catch::Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 
       // deselect it
-      map.deselectBrushFaces({{brushNode, *topFaceIndex}});
+      deselectBrushFaces(map, {{brushNode, *topFaceIndex}});
       CHECK_THAT(
         map.selection().brushFaces, Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       // select the brush
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
       CHECK_THAT(
         map.selection().brushes, Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
 
@@ -142,7 +143,7 @@ TEST_CASE("Map_Selection")
              emptyGroupNode,
              groupNodeWithEntity}}});
 
-        map.deselectAll();
+        deselectAll(map);
 
         WHEN("Nothing is selected")
         {
@@ -157,7 +158,7 @@ TEST_CASE("Map_Selection")
 
         WHEN("A top level brush node is selected")
         {
-          map.selectNodes({topLevelBrushNode});
+          selectNodes(map, {topLevelBrushNode});
 
           THEN("The world node is returned")
           {
@@ -170,7 +171,7 @@ TEST_CASE("Map_Selection")
 
         WHEN("A top level patch node is selected")
         {
-          map.selectNodes({topLevelPatchNode});
+          selectNodes(map, {topLevelPatchNode});
 
           THEN("The world node is returned")
           {
@@ -183,7 +184,7 @@ TEST_CASE("Map_Selection")
 
         WHEN("An empty group node is selected")
         {
-          map.selectNodes({emptyGroupNode});
+          selectNodes(map, {emptyGroupNode});
 
           THEN("Worldspawn is returned")
           {
@@ -196,7 +197,7 @@ TEST_CASE("Map_Selection")
 
         WHEN("A group node containing an entity node is selected")
         {
-          map.selectNodes({groupNodeWithEntity});
+          selectNodes(map, {groupNodeWithEntity});
 
           THEN("The grouped entity node is returned")
           {
@@ -208,7 +209,7 @@ TEST_CASE("Map_Selection")
 
           AND_WHEN("A top level entity node is selected")
           {
-            map.selectNodes({topLevelEntityNode});
+            selectNodes(map, {topLevelEntityNode});
 
             THEN("The top level entity node and the grouped entity node are returned")
             {
@@ -222,7 +223,7 @@ TEST_CASE("Map_Selection")
 
         WHEN("An empty top level entity node is selected")
         {
-          map.selectNodes({topLevelEntityNode});
+          selectNodes(map, {topLevelEntityNode});
 
           THEN("That entity node is returned")
           {
@@ -250,7 +251,7 @@ TEST_CASE("Map_Selection")
 
           CAPTURE(nodeToSelect->name(), otherNode->name());
 
-          map.selectNodes({nodeToSelect});
+          mdl::selectNodes(map, {nodeToSelect});
 
           THEN("The containing entity node is returned")
           {
@@ -262,7 +263,7 @@ TEST_CASE("Map_Selection")
 
           AND_WHEN("Another node in the same entity node is selected")
           {
-            map.selectNodes({otherNode});
+            mdl::selectNodes(map, {otherNode});
 
             THEN("The containing entity node is returned only once")
             {
@@ -275,7 +276,7 @@ TEST_CASE("Map_Selection")
 
           AND_WHEN("A top level entity node is selected")
           {
-            map.selectNodes({topLevelEntityNode});
+            mdl::selectNodes(map, {topLevelEntityNode});
 
             THEN("The top level entity node and the brush entity node are returned")
             {
@@ -344,7 +345,7 @@ TEST_CASE("Map_Selection")
       const auto nodes = resolvePaths(paths);
       const auto brushNodes = kdl::vec_static_cast<BrushNode*>(nodes);
 
-      map.selectNodes(nodes);
+      selectNodes(map, nodes);
 
       CHECK_THAT(
         map.selection().allBrushes(), Catch::Matchers::UnorderedEquals(brushNodes));
@@ -358,38 +359,38 @@ TEST_CASE("Map_Selection")
       auto* entityNode = new EntityNode{Entity{}};
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
 
       SECTION("Cannot select linked groups if selection is empty")
       {
-        map.deselectAll();
-        CHECK_FALSE(map.canSelectLinkedGroups());
+        deselectAll(map);
+        CHECK_FALSE(canSelectLinkedGroups(map));
       }
 
       SECTION("Cannot select linked groups if selection contains non-groups")
       {
-        map.deselectAll();
-        map.selectNodes({entityNode});
-        CHECK_FALSE(map.canSelectLinkedGroups());
-        map.selectNodes({groupNode});
-        CHECK_FALSE(map.canSelectLinkedGroups());
+        deselectAll(map);
+        selectNodes(map, {entityNode});
+        CHECK_FALSE(canSelectLinkedGroups(map));
+        selectNodes(map, {groupNode});
+        CHECK_FALSE(canSelectLinkedGroups(map));
       }
 
       SECTION("Cannot select linked groups if selection contains unlinked groups")
       {
-        map.deselectAll();
-        map.selectNodes({entityNode});
+        deselectAll(map);
+        selectNodes(map, {entityNode});
 
         auto* unlinkedGroupNode = groupSelectedNodes(map, "other");
         REQUIRE(unlinkedGroupNode != nullptr);
 
-        CHECK_FALSE(map.canSelectLinkedGroups());
+        CHECK_FALSE(canSelectLinkedGroups(map));
 
-        map.selectNodes({groupNode});
-        CHECK_FALSE(map.canSelectLinkedGroups());
+        selectNodes(map, {groupNode});
+        CHECK_FALSE(canSelectLinkedGroups(map));
       }
 
       SECTION("Select linked groups")
@@ -397,11 +398,11 @@ TEST_CASE("Map_Selection")
         auto* linkedGroupNode = createLinkedDuplicate(map);
         REQUIRE(linkedGroupNode != nullptr);
 
-        map.deselectAll();
-        map.selectNodes({groupNode});
+        deselectAll(map);
+        selectNodes(map, {groupNode});
 
-        REQUIRE(map.canSelectLinkedGroups());
-        map.selectLinkedGroups();
+        REQUIRE(canSelectLinkedGroups(map));
+        selectLinkedGroups(map);
         CHECK_THAT(
           map.selection().nodes,
           Catch::UnorderedEquals(std::vector<Node*>{groupNode, linkedGroupNode}));
@@ -423,10 +424,10 @@ TEST_CASE("Map_Selection")
     addNodes(
       map, {{parentForNodes(map), {brushNode1, brushNode2, brushNode3, patchNode}}});
 
-    map.selectNodes({brushNode1, brushNode2});
+    selectNodes(map, {brushNode1, brushNode2});
     createBrushEntity(map, brushEntityDefinition);
 
-    map.deselectAll();
+    deselectAll(map);
 
     // worldspawn {
     //   brushEnt { brush1, brush2 },
@@ -436,11 +437,11 @@ TEST_CASE("Map_Selection")
 
     SECTION("Brush in default layer")
     {
-      map.selectNodes({brushNode3});
+      selectNodes(map, {brushNode3});
       REQUIRE_THAT(
         map.selection().nodes, Catch::UnorderedEquals(std::vector<Node*>{brushNode3}));
 
-      map.selectSiblingNodes();
+      selectSiblingNodes(map);
       CHECK_THAT(
         map.selection().nodes,
         Catch::UnorderedEquals(
@@ -453,11 +454,11 @@ TEST_CASE("Map_Selection")
 
     SECTION("Brush in brush entity")
     {
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
       REQUIRE_THAT(
         map.selection().nodes, Catch::UnorderedEquals(std::vector<Node*>{brushNode1}));
 
-      map.selectSiblingNodes();
+      selectSiblingNodes(map);
       CHECK_THAT(
         map.selection().nodes,
         Catch::UnorderedEquals(std::vector<Node*>{brushNode1, brushNode2}));
@@ -493,8 +494,8 @@ TEST_CASE("Map_Selection")
       REQUIRE(!brushNode1->intersects(brushNode3));
       REQUIRE(!brushNode3->intersects(brushNode1));
 
-      map.selectNodes({brushNode1});
-      map.selectTouchingNodes(false);
+      selectNodes(map, {brushNode1});
+      selectTouchingNodes(map, false);
 
       using Catch::Matchers::UnorderedEquals;
       CHECK_THAT(
@@ -521,8 +522,8 @@ TEST_CASE("Map_Selection")
         new BrushNode{builder.createCuboid(selectionBounds, "material") | kdl::value()};
       addNodes(map, {{layerNode, {selectionBrush}}});
 
-      map.selectNodes({selectionBrush});
-      map.selectTouchingNodes(true);
+      selectNodes(map, {selectionBrush});
+      selectTouchingNodes(map, true);
 
       CHECK(map.selection().nodes == std::vector<Node*>{groupNode});
     }
@@ -540,7 +541,7 @@ TEST_CASE("Map_Selection")
         builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
 
-      map.selectAllNodes();
+      selectAllNodes(map);
 
       CHECK_THAT(
         map.selection().brushes,
@@ -549,7 +550,7 @@ TEST_CASE("Map_Selection")
         map.editorContext().currentLayer()->children(),
         Catch::Equals(std::vector<Node*>{brushNode1, brushNode2}));
 
-      map.selectTouchingNodes(true);
+      selectTouchingNodes(map, true);
 
       // only this next line was failing
       CHECK_THAT(
@@ -585,9 +586,9 @@ TEST_CASE("Map_Selection")
 
       outerGroup->open();
       innerGroup->open();
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
-      map.selectTouchingNodes(false);
+      selectTouchingNodes(map, false);
 
       CHECK_THAT(
         map.selection().brushes,
@@ -615,18 +616,18 @@ TEST_CASE("Map_Selection")
       REQUIRE(!brushNode1->intersects(brushNode3));
 
       addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2, brushNode3}}});
-      map.selectNodes({brushNode1});
+      selectNodes(map, {brushNode1});
 
       SECTION("z camera")
       {
-        map.selectTouchingNodes(vm::axis::z, true);
+        selectTouchingNodes(map, vm::axis::z, true);
 
         CHECK_THAT(
           map.selection().brushes, UnorderedEquals(std::vector<BrushNode*>{brushNode2}));
       }
       SECTION("x camera")
       {
-        map.selectTouchingNodes(vm::axis::x, true);
+        selectTouchingNodes(map, vm::axis::x, true);
 
         CHECK_THAT(
           map.selection().brushes, UnorderedEquals(std::vector<BrushNode*>{brushNode3}));
@@ -656,8 +657,8 @@ TEST_CASE("Map_Selection")
         new BrushNode{builder.createCuboid(selectionBounds, "material") | kdl::value()};
       addNodes(map, {{layerNode, {selectionBrush}}});
 
-      map.selectNodes({selectionBrush});
-      map.selectContainedNodes(true);
+      selectNodes(map, {selectionBrush});
+      selectContainedNodes(map, true);
 
       CHECK(map.selection().nodes == std::vector<Node*>{groupNode});
     }
@@ -738,7 +739,7 @@ TEST_CASE("Map_Selection")
 
     addNodes(map, {{innerGroup, {brushInInnerGroup}}});
 
-    map.deselectAll();
+    deselectAll(map);
 
     using T = std::tuple<std::vector<size_t>, std::vector<std::string>>;
 
@@ -765,7 +766,7 @@ TEST_CASE("Map_Selection")
 
       CAPTURE(lineNumbers);
 
-      map.selectNodesWithFilePosition(lineNumbers);
+      selectNodesWithFilePosition(map, lineNumbers);
       CHECK_THAT(
         mapNodeNames(map.selection().nodes),
         Catch::Matchers::UnorderedEquals(expectedNodeNames));
@@ -784,7 +785,7 @@ TEST_CASE("Map_Selection")
 
       CAPTURE(lineNumbers);
 
-      map.selectNodesWithFilePosition(lineNumbers);
+      selectNodesWithFilePosition(map, lineNumbers);
       CHECK_THAT(
         mapNodeNames(map.selection().nodes),
         Catch::Matchers::UnorderedEquals(expectedNodeNames));
@@ -804,7 +805,7 @@ TEST_CASE("Map_Selection")
 
       CAPTURE(lineNumbers);
 
-      map.selectNodesWithFilePosition(lineNumbers);
+      selectNodesWithFilePosition(map, lineNumbers);
       CHECK_THAT(
         mapNodeNames(map.selection().nodes),
         Catch::Matchers::UnorderedEquals(expectedNodeNames));
@@ -830,10 +831,10 @@ TEST_CASE("Map_Selection")
     auto* patchNode = createPatchNode();
     addNodes(map, {{parentForNodes(map), {patchNode}}});
 
-    map.selectNodes({brushNode1, brushNode2});
+    selectNodes(map, {brushNode1, brushNode2});
     auto* brushEnt = createBrushEntity(map, brushEntityDefinition);
 
-    map.deselectAll();
+    deselectAll(map);
 
     // worldspawn {
     //   brushEnt { brush1, brush2 },
@@ -841,14 +842,14 @@ TEST_CASE("Map_Selection")
     //   patch
     // }
 
-    map.selectNodes({brushNode1});
+    selectNodes(map, {brushNode1});
     REQUIRE(brushNode1->selected());
     REQUIRE(!brushNode2->selected());
     REQUIRE(!brushNode3->selected());
     REQUIRE(!brushEnt->selected());
     REQUIRE(!patchNode->selected());
 
-    map.invertNodeSelection();
+    invertNodeSelection(map);
 
     CHECK_THAT(
       map.selection().nodes,
@@ -868,7 +869,7 @@ TEST_CASE("Map_Selection")
 
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
-      map.selectNodes({brushNode});
+      selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
       REQUIRE(groupNode != nullptr);
@@ -876,16 +877,16 @@ TEST_CASE("Map_Selection")
       auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode != nullptr);
 
-      map.deselectAll();
+      deselectAll(map);
 
       SECTION("Face selection locks other groups in link set")
       {
         CHECK(!linkedGroupNode->locked());
 
-        map.selectBrushFaces({{brushNode, 0}});
+        selectBrushFaces(map, {{brushNode, 0}});
         CHECK(linkedGroupNode->locked());
 
-        map.deselectAll();
+        deselectAll(map);
         CHECK(!linkedGroupNode->locked());
       }
     }
@@ -899,14 +900,14 @@ TEST_CASE("Map_Selection")
     auto* entityNode2 = new EntityNode{Entity{}};
     addNodes(map, {{parentForNodes(map), {entityNode2}}});
 
-    map.selectNodes({entityNode1});
+    selectNodes(map, {entityNode1});
 
     REQUIRE_FALSE(map.canRepeatCommands());
     translateSelection(map, {1, 2, 3});
     REQUIRE(map.canRepeatCommands());
 
-    map.deselectAll();
-    map.selectNodes({entityNode2});
+    deselectAll(map);
+    selectNodes(map, {entityNode2});
     CHECK(map.canRepeatCommands());
 
     // this command will not clear the repeat stack
@@ -917,14 +918,14 @@ TEST_CASE("Map_Selection")
     translateSelection(map, {-1, -2, -3});
     CHECK(map.canRepeatCommands());
 
-    map.deselectAll();
-    map.selectNodes({entityNode1});
+    deselectAll(map);
+    selectNodes(map, {entityNode1});
 
     map.repeatCommands();
     CHECK(entityNode1->entity().origin() == vm::vec3d{0, 0, 0});
 
-    map.deselectAll();
-    map.selectNodes({entityNode1});
+    deselectAll(map);
+    selectNodes(map, {entityNode1});
     CHECK(map.canRepeatCommands());
   }
 
@@ -934,24 +935,24 @@ TEST_CASE("Map_Selection")
     addNodes(map, {{parentForNodes(map), {entityNode}}});
     REQUIRE(!entityNode->logicalBounds().is_empty());
 
-    map.selectAllNodes();
+    selectAllNodes(map);
 
     auto bounds = map.selectionBounds();
-    map.deselectAll();
+    deselectAll(map);
     CHECK(map.lastSelectionBounds() == bounds);
 
-    map.deselectAll();
+    deselectAll(map);
     CHECK(map.lastSelectionBounds() == bounds);
 
     auto* brushNode = createBrushNode(map);
     addNodes(map, {{parentForNodes(map), {brushNode}}});
 
-    map.selectNodes({brushNode});
+    selectNodes(map, {brushNode});
     CHECK(map.lastSelectionBounds() == bounds);
 
     bounds = brushNode->logicalBounds();
 
-    map.deselectAll();
+    deselectAll(map);
     CHECK(map.lastSelectionBounds() == bounds);
   }
 }

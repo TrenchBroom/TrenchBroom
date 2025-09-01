@@ -23,6 +23,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PushSelection.h"
 
 #include <cassert>
@@ -84,8 +85,8 @@ IssueQuickFix makeRemoveEntityPropertiesQuickFix(const IssueType type)
             // selected, the removeProperty call will correctly affect worldspawn
             // either way.
 
-            map.deselectAll();
-            map.selectNodes({&issue.node()});
+            deselectAll(map);
+            selectNodes(map, {&issue.node()});
             removeEntityProperty(map, entityPropertyIssue.propertyKey());
           }};
 }
@@ -109,8 +110,8 @@ IssueQuickFix makeTransformEntityPropertiesQuickFix(
             // selected, the removeProperty call will correctly affect worldspawn
             // either way.
 
-            map.deselectAll();
-            map.selectNodes({&issue.node()});
+            deselectAll(map);
+            selectNodes(map, {&issue.node()});
 
             if (newKey.empty())
             {

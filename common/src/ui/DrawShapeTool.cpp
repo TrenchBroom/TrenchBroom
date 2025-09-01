@@ -24,6 +24,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
 #include "ui/DrawShapeToolExtension.h"
 #include "ui/DrawShapeToolPage.h"
@@ -92,7 +93,7 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
                    return static_cast<mdl::Node*>(node.release());
                  }) | kdl::to_vector},
               });
-            m_map.selectNodes(addedNodes);
+            selectNodes(m_map, addedNodes);
 
             transaction.commit();
           })

@@ -25,6 +25,7 @@
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PushSelection.h"
 
 #include <string>
@@ -49,8 +50,8 @@ IssueQuickFix makeTruncatePropertyValueQuickFix(const size_t maxLength)
             // selected, the removeProperty call will correctly affect worldspawn either
             // way.
 
-            map.deselectAll();
-            map.selectNodes({&issue.node()});
+            deselectAll(map);
+            selectNodes(map, {&issue.node()});
             setEntityProperty(map, propertyName, propertyValue.substr(0, maxLength));
           }};
 }

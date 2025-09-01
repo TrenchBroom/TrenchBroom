@@ -20,6 +20,7 @@
 #include "PushSelection.h"
 
 #include "mdl/Map.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Selection.h"
 
 #include <cassert>
@@ -36,14 +37,14 @@ PushSelection::PushSelection(Map& map)
 
 PushSelection::~PushSelection()
 {
-  m_map.deselectAll();
+  deselectAll(m_map);
   if (!m_nodes.empty() && m_map.selection().nodes != m_nodes)
   {
-    m_map.selectNodes(m_nodes);
+    selectNodes(m_map, m_nodes);
   }
   else if (!m_faces.empty() && m_map.selection().brushFaces != m_faces)
   {
-    m_map.selectBrushFaces(m_faces);
+    selectBrushFaces(m_map, m_faces);
   }
 }
 
