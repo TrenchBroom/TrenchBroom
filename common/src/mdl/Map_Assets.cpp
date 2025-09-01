@@ -33,6 +33,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/Map_World.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PushSelection.h"
@@ -46,6 +47,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <ranges>
 #include <vector>
 
 namespace tb::mdl
@@ -279,7 +281,7 @@ void Map::loadEntityDefinitions()
 {
   const auto spec = m_world ? game()->extractEntityDefinitionFile(m_world->entity())
                             : EntityDefinitionFileSpec{};
-  const auto path = game()->findEntityDefinitionFile(spec, externalSearchPaths());
+  const auto path = game()->findEntityDefinitionFile(spec, externalSearchPaths(*this));
   auto status = io::SimpleParserStatus{m_logger};
 
   entityDefinitionManager().loadDefinitions(path, *game(), status)
@@ -421,6 +423,15 @@ void Map::unsetEntityModels()
 void Map::unsetEntityModels(const std::vector<Node*>& nodes)
 {
   Node::visitAll(nodes, makeUnsetEntityModelsVisitor());
+}
+
+void Map::updateGameSearchPaths()
+{
+  m_game->setAdditionalSearchPaths(
+    mods(*this) | std::views::transform([](const auto& mod) {
+      return std::filesystem::path{mod};
+    }) | kdl::to_vector,
+    m_logger);
 }
 
 } // namespace tb::mdl

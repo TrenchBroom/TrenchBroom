@@ -27,6 +27,7 @@
 
 #include "mdl/Game.h"
 #include "mdl/Map.h"
+#include "mdl/Map_World.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
 #include "ui/ClickableLabel.h"
@@ -264,14 +265,14 @@ void MapPropertiesEditor::createGui()
     if (checked)
     {
       auto& map = m_document.map();
-      map.setSoftMapBounds({mdl::SoftMapBoundsType::Map, std::nullopt});
+      setSoftMapBounds(map, {mdl::SoftMapBoundsType::Map, std::nullopt});
     }
   });
   connect(m_softBoundsFromGame, &QAbstractButton::clicked, this, [&](const auto checked) {
     if (checked)
     {
       auto& map = m_document.map();
-      map.setSoftMapBounds({mdl::SoftMapBoundsType::Game, std::nullopt});
+      setSoftMapBounds(map, {mdl::SoftMapBoundsType::Game, std::nullopt});
     }
   });
   connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [&](const auto checked) {
@@ -287,7 +288,7 @@ void MapPropertiesEditor::createGui()
       // text fields have a valid value entered.
       if (const auto parsed = parseLineEdits())
       {
-        map.setSoftMapBounds({mdl::SoftMapBoundsType::Map, *parsed});
+        setSoftMapBounds(map, {mdl::SoftMapBoundsType::Map, *parsed});
       }
     }
   });
@@ -302,7 +303,7 @@ void MapPropertiesEditor::createGui()
       if (const auto parsed = parseLineEdits())
       {
         auto& map = m_document.map();
-        map.setSoftMapBounds({mdl::SoftMapBoundsType::Map, *parsed});
+        setSoftMapBounds(map, {mdl::SoftMapBoundsType::Map, *parsed});
       }
     }
   };
@@ -358,7 +359,7 @@ void MapPropertiesEditor::updateGui()
     m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
     m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
 
-    const auto bounds = map.softMapBounds();
+    const auto bounds = softMapBounds(map);
 
     if (bounds.source == mdl::SoftMapBoundsType::Map && !bounds.bounds)
     {

@@ -281,17 +281,6 @@ public: // node management
     const std::string& commandName,
     std::vector<std::pair<Node*, NodeContents>> nodesToSwap);
 
-public: // world management
-  SoftMapBounds softMapBounds() const;
-  void setSoftMapBounds(const SoftMapBounds& bounds);
-
-  std::vector<std::filesystem::path> externalSearchPaths() const;
-  void updateGameSearchPaths();
-
-  std::vector<std::string> mods() const;
-  void setMods(const std::vector<std::string>& mods);
-  std::string defaultMod() const;
-
 private:
   void setWorld(
     const vm::bbox3d& worldBounds,
@@ -354,6 +343,8 @@ private:
   void setEntityModels(const std::vector<Node*>& nodes);
   void unsetEntityModels();
   void unsetEntityModels(const std::vector<Node*>& nodes);
+
+  void updateGameSearchPaths();
 
 public: // resource processing
   void processResourcesSync(const ProcessContext& processContext);

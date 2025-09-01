@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_World.h"
+
 #include "Map.h"
 #include "io/GameConfigParser.h"
 #include "io/SystemPaths.h"
@@ -31,21 +33,24 @@
 namespace tb::mdl
 {
 
-SoftMapBounds Map::softMapBounds() const
+SoftMapBounds softMapBounds(const Map& map)
 {
-  if (!m_world)
+  if (const auto* worldNode = map.world())
   {
-    return {SoftMapBoundsType::Game, std::nullopt};
+    return map.game()->extractSoftMapBounds(worldNode->entity());
   }
-  return m_game->extractSoftMapBounds(m_world->entity());
+  return {SoftMapBoundsType::Game, std::nullopt};
 }
 
 /**
  * Note if bounds.source is SoftMapBoundsType::Game, bounds.bounds is ignored.
  */
-void Map::setSoftMapBounds(const SoftMapBounds& bounds)
+void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
 {
-  auto entity = world()->entity();
+  auto* worldNode = map.world();
+  ensure(worldNode, "world is set");
+
+  auto entity = worldNode->entity();
   switch (bounds.source)
   {
   case SoftMapBoundsType::Map:
@@ -69,20 +74,20 @@ void Map::setSoftMapBounds(const SoftMapBounds& bounds)
     break;
     switchDefault();
   }
-  updateNodeContents(
-    "Set Soft Map Bounds", {{world(), NodeContents(std::move(entity))}}, {});
+
+  map.updateNodeContents(
+    "Set Soft Map Bounds", {{worldNode, NodeContents(std::move(entity))}}, {});
 }
 
-std::vector<std::filesystem::path> Map::externalSearchPaths() const
+std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
 {
-  std::vector<std::filesystem::path> searchPaths;
-  if (!m_path.empty() && m_path.is_absolute())
+  auto searchPaths = std::vector<std::filesystem::path>{};
+  if (const auto& mapPath = map.path(); !mapPath.empty() && mapPath.is_absolute())
   {
-    searchPaths.push_back(m_path.parent_path());
+    searchPaths.push_back(mapPath.parent_path());
   }
 
-  const std::filesystem::path gamePath = m_game->gamePath();
-  if (!gamePath.empty())
+  if (const auto gamePath = map.game()->gamePath(); !gamePath.empty())
   {
     searchPaths.push_back(gamePath);
   }
@@ -91,22 +96,15 @@ std::vector<std::filesystem::path> Map::externalSearchPaths() const
   return searchPaths;
 }
 
-void Map::updateGameSearchPaths()
+std::vector<std::string> mods(const Map& map)
 {
-  m_game->setAdditionalSearchPaths(
-    kdl::vec_transform(
-      mods(), [](const auto& mod) { return std::filesystem::path{mod}; }),
-    m_logger);
+  return map.game()->extractEnabledMods(map.world()->entity());
 }
 
-std::vector<std::string> Map::mods() const
+void setMods(Map& map, const std::vector<std::string>& mods)
 {
-  return m_game->extractEnabledMods(m_world->entity());
-}
-
-void Map::setMods(const std::vector<std::string>& mods)
-{
-  auto entity = m_world->entity();
+  auto* worldNode = map.world();
+  auto entity = worldNode->entity();
   if (mods.empty())
   {
     entity.removeProperty(EntityPropertyKeys::Mods);
@@ -116,13 +114,13 @@ void Map::setMods(const std::vector<std::string>& mods)
     const auto newValue = kdl::str_join(mods, ";");
     entity.addOrUpdateProperty(EntityPropertyKeys::Mods, newValue);
   }
-  updateNodeContents(
-    "Set Enabled Mods", {{world(), NodeContents(std::move(entity))}}, {});
+  map.updateNodeContents(
+    "Set Enabled Mods", {{worldNode, NodeContents(std::move(entity))}}, {});
 }
 
-std::string Map::defaultMod() const
+std::string defaultMod(const Map& map)
 {
-  return m_game->defaultMod();
+  return map.game()->defaultMod();
 }
 
 void Map::setWorld(

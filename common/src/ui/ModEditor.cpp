@@ -29,6 +29,7 @@
 #include "PreferenceManager.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
+#include "mdl/Map_World.h"
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
@@ -211,7 +212,7 @@ void ModEditor::updateMods()
   const auto pattern = m_filterBox->text().toStdString();
 
   const auto& map = m_document.map();
-  const auto enabledMods = map.mods();
+  const auto enabledMods = mods(map);
 
   m_availableModList->clear();
   m_availableModList->addItems(
@@ -233,12 +234,12 @@ void ModEditor::addModClicked()
   if (const auto selections = m_availableModList->selectedItems(); !selections.empty())
   {
     auto& map = m_document.map();
-    auto mods = map.mods();
+    auto mods = mdl::mods(map);
     for (const auto* item : selections)
     {
       mods.push_back(item->text().toStdString());
     }
-    map.setMods(mods);
+    setMods(map, mods);
   }
 }
 
@@ -248,13 +249,13 @@ void ModEditor::removeModClicked()
   {
     auto& map = m_document.map();
 
-    auto mods = map.mods();
+    auto mods = mdl::mods(map);
     for (const auto* item : selections)
     {
       const auto mod = item->text().toStdString();
       mods = kdl::vec_erase(std::move(mods), mod);
     }
-    map.setMods(mods);
+    setMods(map, mods);
   }
 }
 
@@ -264,14 +265,14 @@ void ModEditor::moveModUpClicked()
   assert(selections.size() == 1);
 
   auto& map = m_document.map();
-  auto mods = map.mods();
+  auto mods = mdl::mods(map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
   ensure(index < mods.size(), "index out of range");
 
   using std::swap;
   swap(mods[index - 1], mods[index]);
-  map.setMods(mods);
+  setMods(map, mods);
 
   m_enabledModList->clearSelection();
   m_enabledModList->setCurrentRow(int(index - 1));
@@ -283,14 +284,14 @@ void ModEditor::moveModDownClicked()
   assert(selections.size() == 1);
 
   auto& map = m_document.map();
-  auto mods = map.mods();
+  auto mods = mdl::mods(map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
   ensure(index < mods.size() - 1, "index out of range");
 
   using std::swap;
   swap(mods[index + 1], mods[index]);
-  map.setMods(mods);
+  setMods(map, mods);
 
   m_enabledModList->clearSelection();
   m_enabledModList->setCurrentRow(int(index + 1));

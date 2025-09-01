@@ -23,12 +23,12 @@
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameFactory.h"
 #include "mdl/Map.h"
+#include "mdl/Map_World.h"
 #include "ui/MapDocument.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/vector_utils.h"
 
-#include <memory>
 #include <string>
 #include <thread>
 
@@ -53,8 +53,8 @@ CommonVariables::CommonVariables(const mdl::Map& map)
   const auto gamePath = map.game()->gamePath();
 
   auto mods = std::vector<std::string>{};
-  mods.push_back(map.defaultMod());
-  mods = kdl::vec_concat(std::move(mods), map.mods());
+  mods.push_back(defaultMod(map));
+  mods = kdl::vec_concat(std::move(mods), mdl::mods(map));
 
   using namespace CompilationVariableNames;
   set(MAP_BASE_NAME, el::Value{kdl::path_remove_extension(filename).string()});

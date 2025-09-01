@@ -698,6 +698,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/Map_Nodes.h
         ${COMMON_SOURCE_DIR}/mdl/Map_Picking.h
         ${COMMON_SOURCE_DIR}/mdl/Map_Selection.h
+        ${COMMON_SOURCE_DIR}/mdl/Map_World.h
         ${COMMON_SOURCE_DIR}/mdl/Map.h
         ${COMMON_SOURCE_DIR}/mdl/MapFormat.h
         ${COMMON_SOURCE_DIR}/mdl/Material.h
@@ -758,6 +759,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/SetLinkIdsCommand.h
         ${COMMON_SOURCE_DIR}/mdl/SetLockStateCommand.h
         ${COMMON_SOURCE_DIR}/mdl/SetVisibilityCommand.h
+        ${COMMON_SOURCE_DIR}/mdl/SoftMapBounds.h
         ${COMMON_SOURCE_DIR}/mdl/SoftMapBoundsValidator.h
         ${COMMON_SOURCE_DIR}/mdl/SwapNodeContentsCommand.h
         ${COMMON_SOURCE_DIR}/mdl/Tag.h

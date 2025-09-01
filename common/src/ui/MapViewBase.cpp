@@ -53,6 +53,7 @@
 #include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/Map_World.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PointTrace.h"
@@ -1024,7 +1025,7 @@ void MapViewBase::renderContents()
   renderContext.setDpiScale(static_cast<float>(window()->devicePixelRatioF()));
   renderContext.setSoftMapBounds(
     pref(Preferences::ShowSoftMapBounds)
-      ? vm::bbox3f{map.softMapBounds().bounds.value_or(vm::bbox3d{})}
+      ? vm::bbox3f{softMapBounds(map).bounds.value_or(vm::bbox3d{})}
       : vm::bbox3f{});
 
   setupGL(renderContext);

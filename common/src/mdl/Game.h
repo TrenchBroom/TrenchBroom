@@ -23,12 +23,10 @@
 #include "io/EntityDefinitionLoader.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameConfig.h"
-
-#include "vm/bbox.h"
+#include "mdl/SoftMapBounds.h"
 
 #include <filesystem>
 #include <map>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -55,21 +53,6 @@ class SmartTag;
 class WorldNode;
 struct CompilationConfig;
 struct FlagsConfig;
-
-enum class SoftMapBoundsType
-{
-  Game,
-  Map
-};
-
-struct SoftMapBounds
-{
-  SoftMapBoundsType source;
-  /**
-   * std::nullopt indicates unlimited soft map bounds
-   */
-  std::optional<vm::bbox3d> bounds;
-};
 
 class Game : public io::EntityDefinitionLoader
 {
