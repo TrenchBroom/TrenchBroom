@@ -19,11 +19,11 @@
 
 #include "mdl/Map_NodeVisibility.h"
 
-#include "Map.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"

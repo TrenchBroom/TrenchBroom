@@ -19,10 +19,10 @@
 
 #include "Exceptions.h"
 #include "Logger.h"
-#include "Map.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Node.h"
 #include "mdl/RepeatStack.h"

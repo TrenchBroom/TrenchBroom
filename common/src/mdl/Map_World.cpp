@@ -19,12 +19,12 @@
 
 #include "mdl/Map_World.h"
 
-#include "Map.h"
 #include "io/GameConfigParser.h"
 #include "io/SystemPaths.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Game.h"
+#include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"

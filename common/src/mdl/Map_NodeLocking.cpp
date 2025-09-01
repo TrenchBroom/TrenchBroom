@@ -19,8 +19,8 @@
 
 #include "mdl/Map_NodeLocking.h"
 
-#include "Map.h"
 #include "mdl/BrushFaceHandle.h" // IWYU pragma: keep
+#include "mdl/Map.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"

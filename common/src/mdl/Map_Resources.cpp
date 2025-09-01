@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Map.h"
+#include "mdl/Map.h"
 #include "mdl/ResourceManager.h"
 
 #include "kdl/task_manager.h"

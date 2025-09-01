@@ -18,13 +18,13 @@
  */
 
 #include "Logger.h"
-#include "Map.h"
 #include "PreferenceManager.h"
 #include "mdl/Command.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/RepeatStack.h"

@@ -20,7 +20,6 @@
 #include "Map_CopyPaste.h"
 
 #include "Logger.h"
-#include "Map.h"
 #include "Uuid.h"
 #include "io/BrushFaceReader.h"
 #include "io/NodeReader.h"

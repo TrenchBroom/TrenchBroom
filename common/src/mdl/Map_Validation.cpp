@@ -18,7 +18,6 @@
  */
 
 #include "Ensure.h"
-#include "Map.h"
 #include "mdl/EmptyBrushEntityValidator.h"
 #include "mdl/EmptyGroupValidator.h"
 #include "mdl/EmptyPropertyKeyValidator.h"
@@ -29,6 +28,7 @@
 #include "mdl/LinkSourceValidator.h"
 #include "mdl/LongPropertyKeyValidator.h"
 #include "mdl/LongPropertyValueValidator.h"
+#include "mdl/Map.h"
 #include "mdl/MissingClassnameValidator.h"
 #include "mdl/MissingDefinitionValidator.h"
 #include "mdl/MissingModValidator.h"

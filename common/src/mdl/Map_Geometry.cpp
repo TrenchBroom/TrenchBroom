@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 #include "Logger.h"
-#include "Map.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/AddRemoveNodesCommand.h"
@@ -36,6 +35,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"

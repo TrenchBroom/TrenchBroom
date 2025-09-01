@@ -20,7 +20,6 @@
 #include "mdl/Map_Selection.h"
 
 #include "Logger.h"
-#include "Map.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/EditorContext.h"
@@ -28,6 +27,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"

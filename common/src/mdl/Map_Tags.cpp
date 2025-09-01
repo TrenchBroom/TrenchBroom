@@ -18,13 +18,13 @@
  */
 
 #include "Ensure.h"
-#include "Map.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Game.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
 #include "mdl/TagManager.h"

@@ -19,7 +19,7 @@
 
 #include "mdl/Map_Picking.h"
 
-#include "Map.h"
+#include "mdl/Map.h"
 #include "mdl/WorldNode.h"
 
 namespace tb::mdl

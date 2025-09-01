@@ -20,7 +20,6 @@
 #include "mdl/Map_Assets.h"
 
 #include "Logger.h"
-#include "Map.h"
 #include "io/SimpleParserStatus.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BrushFace.h"
@@ -31,6 +30,7 @@
 #include "mdl/Game.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"

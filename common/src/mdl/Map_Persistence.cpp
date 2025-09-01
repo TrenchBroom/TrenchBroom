@@ -19,7 +19,6 @@
 
 #include "Ensure.h"
 #include "Logger.h"
-#include "Map.h"
 #include "io/DiskIO.h"
 #include "io/MapHeader.h"
 #include "io/NodeWriter.h"
@@ -34,6 +33,7 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/Game.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "mdl/WorldNode.h"
 
