@@ -1024,8 +1024,6 @@ void Map::loadEntityDefinitions()
     | kdl::transform([&]() {
         m_logger.info() << fmt::format(
           "Loaded entity definition file {}", path.filename());
-        // TODO:
-        // createEntityDefinitionActions();
       })
     | kdl::transform_error([&](auto e) {
         if (spec.builtin())
