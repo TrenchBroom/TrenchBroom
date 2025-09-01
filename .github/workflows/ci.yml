@@ -1,5 +1,4 @@
 name: CI Builds
-
 on:
   # Run on pushes to tags, the "master" branch, and PR's
   push:
@@ -9,13 +8,13 @@ on:
       - master
   pull_request:
 
+permissions:
+  # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
+  packages: write
+
 jobs:
   ci:
     runs-on: ${{ matrix.os }}
-
-    permissions:
-      # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
-      packages: write
 
     strategy:
       fail-fast: false
