@@ -25,6 +25,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Game.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
@@ -75,8 +76,8 @@ void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
     switchDefault();
   }
 
-  map.updateNodeContents(
-    "Set Soft Map Bounds", {{worldNode, NodeContents(std::move(entity))}}, {});
+  updateNodeContents(
+    map, "Set Soft Map Bounds", {{worldNode, NodeContents(std::move(entity))}}, {});
 }
 
 std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
@@ -114,8 +115,8 @@ void setMods(Map& map, const std::vector<std::string>& mods)
     const auto newValue = kdl::str_join(mods, ";");
     entity.addOrUpdateProperty(EntityPropertyKeys::Mods, newValue);
   }
-  map.updateNodeContents(
-    "Set Enabled Mods", {{worldNode, NodeContents(std::move(entity))}}, {});
+  updateNodeContents(
+    map, "Set Enabled Mods", {{worldNode, NodeContents(std::move(entity))}}, {});
 }
 
 std::string defaultMod(const Map& map)

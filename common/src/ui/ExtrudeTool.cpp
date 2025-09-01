@@ -542,7 +542,7 @@ bool splitBrushesInward(
   map.rollbackTransaction();
 
   // FIXME: deal with linked group update failure (needed for #3647)
-  const bool success = map.updateNodeContents("Resize Brushes", nodesToUpdate);
+  const bool success = updateNodeContents(map, "Resize Brushes", nodesToUpdate);
   unused(success);
 
   // Add the newly split off brushes and select them (keeping the original brushes

@@ -313,7 +313,8 @@ bool setProtectedEntityProperty(Map& map, const std::string& key, const bool val
     nodesToUpdate.emplace_back(entityNode, std::move(entity));
   }
 
-  return map.updateNodeContents(
+  return updateNodeContents(
+    map,
     "Set Protected Property",
     nodesToUpdate,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)));
@@ -350,7 +351,8 @@ bool clearProtectedEntityProperties(Map& map)
     nodesToUpdate.emplace_back(entityNode, std::move(entity));
   }
 
-  return map.updateNodeContents(
+  return updateNodeContents(
+    map,
     "Clear Protected Properties",
     nodesToUpdate,
     collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)));

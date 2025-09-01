@@ -75,7 +75,8 @@ bool moveLayerByOne(Map& map, LayerNode* layerNode, const MoveDirection directio
   layer.setSortIndex(neighbourSortIndex);
   neighbourLayer.setSortIndex(layerSortIndex);
 
-  map.updateNodeContents(
+  updateNodeContents(
+    map,
     "Swap Layer Positions",
     {{layerNode, NodeContents(std::move(layer))},
      {neighbourNode, NodeContents(std::move(neighbourLayer))}},
@@ -293,7 +294,7 @@ void setOmitLayerFromExport(Map& map, LayerNode* layerNode, const bool omitFromE
 
   auto layer = layerNode->layer();
   layer.setOmitFromExport(omitFromExport);
-  map.updateNodeContents(commandName, {{layerNode, NodeContents(std::move(layer))}}, {});
+  updateNodeContents(map, commandName, {{layerNode, NodeContents(std::move(layer))}}, {});
 }
 
 } // namespace tb::mdl

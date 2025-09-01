@@ -272,15 +272,6 @@ public: // selection management
   const std::optional<vm::bbox3d>& lastSelectionBounds() const;
   const std::optional<vm::bbox3d>& selectionBounds() const;
 
-public: // node management
-  bool updateNodeContents(
-    const std::string& commandName,
-    std::vector<std::pair<Node*, NodeContents>> nodesToSwap,
-    std::vector<GroupNode*> changedLinkedGroups);
-  bool updateNodeContents(
-    const std::string& commandName,
-    std::vector<std::pair<Node*, NodeContents>> nodesToSwap);
-
 private:
   void setWorld(
     const vm::bbox3d& worldBounds,

@@ -451,7 +451,8 @@ void removeSelectedNodes(Map& map)
   assertResult(transaction.commit());
 }
 
-bool Map::updateNodeContents(
+bool updateNodeContents(
+  Map& map,
   const std::string& commandName,
   std::vector<std::pair<Node*, NodeContents>> nodesToSwap,
   std::vector<GroupNode*> changedLinkedGroups)
@@ -462,8 +463,8 @@ bool Map::updateNodeContents(
     return false;
   }
 
-  auto transaction = Transaction{*this};
-  const auto result = executeAndStore(
+  auto transaction = Transaction{map};
+  const auto result = map.executeAndStore(
     std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap)));
 
   if (!result->success())
@@ -476,14 +477,16 @@ bool Map::updateNodeContents(
   return transaction.commit();
 }
 
-bool Map::updateNodeContents(
-  const std::string& commandName, std::vector<std::pair<Node*, NodeContents>> nodesToSwap)
+bool updateNodeContents(
+  Map& map,
+  const std::string& commandName,
+  std::vector<std::pair<Node*, NodeContents>> nodesToSwap)
 {
   auto changedLinkedGroups = collectContainingGroups(
     kdl::vec_transform(nodesToSwap, [](const auto& p) { return p.first; }));
 
   return updateNodeContents(
-    commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));
+    map, commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));
 }
 
 } // namespace tb::mdl

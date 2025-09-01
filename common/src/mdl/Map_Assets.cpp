@@ -32,6 +32,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Map_World.h"
 #include "mdl/MaterialManager.h"
@@ -177,8 +178,8 @@ void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)
 
   auto entity = map.world()->entity();
   entity.addOrUpdateProperty(EntityPropertyKeys::EntityDefinitions, formatted);
-  map.updateNodeContents(
-    "Set Entity Definitions", {{map.world(), NodeContents{std::move(entity)}}}, {});
+  updateNodeContents(
+    map, "Set Entity Definitions", {{map.world(), NodeContents{std::move(entity)}}}, {});
 }
 
 std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)

@@ -907,7 +907,7 @@ TEST_CASE("Map_Nodes")
       auto nodesToSwap = std::vector<std::pair<Node*, NodeContents>>{};
       nodesToSwap.emplace_back(brushNode, modifiedBrush);
 
-      map.updateNodeContents("Update Nodes", std::move(nodesToSwap), {});
+      updateNodeContents(map, "Update Nodes", std::move(nodesToSwap), {});
       CHECK(brushNode->brush() == modifiedBrush);
 
       map.undoCommand();
@@ -926,7 +926,7 @@ TEST_CASE("Map_Nodes")
       auto nodesToSwap = std::vector<std::pair<Node*, NodeContents>>{};
       nodesToSwap.emplace_back(patchNode, modifiedPatch);
 
-      map.updateNodeContents("Update Nodes", std::move(nodesToSwap), {});
+      updateNodeContents(map, "Update Nodes", std::move(nodesToSwap), {});
       CHECK(patchNode->patch() == modifiedPatch);
 
       map.undoCommand();
@@ -957,7 +957,7 @@ TEST_CASE("Map_Nodes")
 
       REQUIRE(material->usageCount() == 6u);
 
-      map.updateNodeContents("Update Nodes", std::move(nodesToSwap), {});
+      updateNodeContents(map, "Update Nodes", std::move(nodesToSwap), {});
       CHECK(material->usageCount() == 6u);
 
       map.undoCommand();
@@ -983,7 +983,7 @@ TEST_CASE("Map_Nodes")
 
       REQUIRE(pointEntityDefinition.usageCount() == 1u);
 
-      map.updateNodeContents("Update Nodes", std::move(nodesToSwap), {});
+      updateNodeContents(map, "Update Nodes", std::move(nodesToSwap), {});
       CHECK(pointEntityDefinition.usageCount() == 1u);
 
       map.undoCommand();

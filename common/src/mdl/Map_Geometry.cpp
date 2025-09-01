@@ -157,7 +157,8 @@ bool transformSelection(
 
   const auto success = map.taskManager().run_tasks_and_wait(tasks) | kdl::fold
                        | kdl::transform([&](auto nodesToUpdate) {
-                           return map.updateNodeContents(
+                           return updateNodeContents(
+                             map,
                              commandName,
                              std::move(nodesToUpdate),
                              collectContainingGroups(map.selection().nodes));

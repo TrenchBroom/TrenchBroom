@@ -29,6 +29,7 @@
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/NodeContents.h"
@@ -119,8 +120,8 @@ bool applyAndSwap(
 
   if (auto newNodes = applyToNodeContents(nodes, std::move(lambda)))
   {
-    return map.updateNodeContents(
-      commandName, std::move(*newNodes), std::move(changedLinkedGroups));
+    return updateNodeContents(
+      map, commandName, std::move(*newNodes), std::move(changedLinkedGroups));
   }
 
   return false;
@@ -185,8 +186,8 @@ bool applyAndSwap(
 
   auto changedLinkedGroups = collectContainingGroups(
     kdl::vec_transform(newNodes, [](const auto& p) { return p.first; }));
-  map.updateNodeContents(
-    commandName, std::move(newNodes), std::move(changedLinkedGroups));
+  updateNodeContents(
+    map, commandName, std::move(newNodes), std::move(changedLinkedGroups));
 
   return true;
 }

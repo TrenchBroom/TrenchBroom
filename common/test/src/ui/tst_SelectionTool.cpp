@@ -409,8 +409,8 @@ TEST_CASE("SelectionTool")
 
           auto newBrush = brushNode->brush();
           newBrush.face(topFaceIndex).addTag(hiddenTag);
-          map.updateNodeContents(
-            "Set Tag", {{brushNode, mdl::NodeContents{std::move(newBrush)}}});
+          updateNodeContents(
+            map, "Set Tag", {{brushNode, mdl::NodeContents{std::move(newBrush)}}});
 
           REQUIRE(brushNode->brush().face(topFaceIndex).hasTag(hiddenTag));
 
@@ -490,8 +490,8 @@ TEST_CASE("SelectionTool")
       const auto hiddenTag = mdl::Tag{"hidden", {}};
       auto taggedBrush = hiddenBrushNode->brush();
       taggedBrush.face(hiddenTopFaceIndex).addTag(hiddenTag);
-      map.updateNodeContents(
-        "Set Tag", {{hiddenBrushNode, mdl::NodeContents{std::move(taggedBrush)}}});
+      updateNodeContents(
+        map, "Set Tag", {{hiddenBrushNode, mdl::NodeContents{std::move(taggedBrush)}}});
 
       map.editorContext().setHiddenTags(hiddenTag.type());
 

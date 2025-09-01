@@ -19,10 +19,13 @@
 
 #pragma once
 
+#include "mdl/NodeContents.h"
+
 #include <vector>
 
 namespace tb::mdl
 {
+class GroupNode;
 class Map;
 class Node;
 
@@ -44,5 +47,15 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
 
 void removeNodes(Map& map, const std::vector<Node*>& nodes);
 void removeSelectedNodes(Map& map);
+
+bool updateNodeContents(
+  Map& map,
+  const std::string& commandName,
+  std::vector<std::pair<Node*, NodeContents>> nodesToSwap,
+  std::vector<GroupNode*> changedLinkedGroups);
+bool updateNodeContents(
+  Map& map,
+  const std::string& commandName,
+  std::vector<std::pair<Node*, NodeContents>> nodesToSwap);
 
 } // namespace tb::mdl
