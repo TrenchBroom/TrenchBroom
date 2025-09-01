@@ -27,6 +27,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
+#include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/SetLinkIdsCommand.h"
@@ -139,13 +140,13 @@ void openGroup(Map& map, GroupNode* groupNode)
 
   if (auto* previousGroupNode = map.editorContext().currentGroup())
   {
-    map.resetNodeLockingState({previousGroupNode});
+    resetNodeLockingState(map, {previousGroupNode});
   }
   else
   {
-    map.lockNodes({map.world()});
+    lockNodes(map, {map.world()});
   }
-  map.unlockNodes({groupNode});
+  unlockNodes(map, {groupNode});
   map.executeAndStore(CurrentGroupCommand::push(groupNode));
 
   transaction.commit();
@@ -157,17 +158,17 @@ void closeGroup(Map& map)
 
   map.deselectAll();
   auto* previousGroup = map.editorContext().currentGroup();
-  map.resetNodeLockingState({previousGroup});
+  resetNodeLockingState(map, {previousGroup});
   map.executeAndStore(CurrentGroupCommand::pop());
 
   auto* newGroup = map.editorContext().currentGroup();
   if (newGroup != nullptr)
   {
-    map.unlockNodes({newGroup});
+    unlockNodes(map, {newGroup});
   }
   else
   {
-    map.unlockNodes({map.world()});
+    unlockNodes(map, {map.world()});
   }
 
   transaction.commit();

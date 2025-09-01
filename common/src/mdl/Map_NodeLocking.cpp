@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_NodeLocking.h"
+
 #include "Map.h"
 #include "mdl/BrushFaceHandle.h" // IWYU pragma: keep
 #include "mdl/ModelUtils.h"
@@ -24,51 +26,53 @@
 #include "mdl/SetLockStateCommand.h"
 #include "mdl/Transaction.h"
 
-#include <algorithm>
+#include "kdl/range_to_vector.h"
+
+#include <ranges>
 
 namespace tb::mdl
 {
 
-void Map::lockNodes(const std::vector<Node*>& nodes)
+void lockNodes(Map& map, const std::vector<Node*>& nodes)
 {
-  auto transaction = Transaction{*this, "Lock Objects"};
+  auto transaction = Transaction{map, "Lock Objects"};
 
   // Deselect any selected nodes or faces inside `nodes`
-  deselectNodes(collectSelectedNodes(nodes));
-  deselectBrushFaces(collectSelectedBrushFaces(nodes));
+  map.deselectNodes(collectSelectedNodes(nodes));
+  map.deselectBrushFaces(collectSelectedBrushFaces(nodes));
 
   // Reset lock state of any forced unlocked children of `nodes`
-  downgradeUnlockedToInherit(collectDescendants(nodes));
+  downgradeUnlockedToInherit(map, collectDescendants(nodes));
 
-  executeAndStore(SetLockStateCommand::lock(nodes));
+  map.executeAndStore(SetLockStateCommand::lock(nodes));
   transaction.commit();
 }
 
-void Map::unlockNodes(const std::vector<Node*>& nodes)
+void unlockNodes(Map& map, const std::vector<Node*>& nodes)
 {
-  executeAndStore(SetLockStateCommand::unlock(nodes));
+  map.executeAndStore(SetLockStateCommand::unlock(nodes));
 }
 
-void Map::ensureNodesUnlocked(const std::vector<Node*>& nodes)
+void ensureNodesUnlocked(Map& map, const std::vector<Node*>& nodes)
 {
-  auto nodesToUnlock = std::vector<Node*>{};
-  std::ranges::copy_if(
-    nodes, std::back_inserter(nodesToUnlock), [](auto* node) { return node->locked(); });
-  unlockNodes(nodesToUnlock);
+  const auto nodesToUnlock =
+    nodes | std::views::filter([](auto* node) { return node->locked(); })
+    | kdl::to_vector;
+  unlockNodes(map, nodesToUnlock);
 }
 
-void Map::resetNodeLockingState(const std::vector<Node*>& nodes)
+void resetNodeLockingState(Map& map, const std::vector<Node*>& nodes)
 {
-  executeAndStore(SetLockStateCommand::reset(nodes));
+  map.executeAndStore(SetLockStateCommand::reset(nodes));
 }
 
-void Map::downgradeUnlockedToInherit(const std::vector<Node*>& nodes)
+void downgradeUnlockedToInherit(Map& map, const std::vector<Node*>& nodes)
 {
-  auto nodesToReset = std::vector<Node*>{};
-  std::ranges::copy_if(nodes, std::back_inserter(nodesToReset), [](auto* node) {
-    return node->lockState() == LockState::Unlocked;
-  });
-  resetNodeLockingState(nodesToReset);
+  const auto nodesToReset = nodes | std::views::filter([](auto* node) {
+                              return node->lockState() == LockState::Unlocked;
+                            })
+                            | kdl::to_vector;
+  resetNodeLockingState(map, nodesToReset);
 }
 
 } // namespace tb::mdl

@@ -31,6 +31,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Layers.h"
+#include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
@@ -163,11 +164,11 @@ void LayerEditor::toggleLayerLocked(mdl::LayerNode* layerNode)
   auto& map = m_document.map();
   if (!layerNode->locked())
   {
-    map.lockNodes(std::vector<mdl::Node*>{layerNode});
+    lockNodes(map, std::vector<mdl::Node*>{layerNode});
   }
   else
   {
-    map.resetNodeLockingState(std::vector<mdl::Node*>{layerNode});
+    resetNodeLockingState(map, std::vector<mdl::Node*>{layerNode});
   }
 }
 
@@ -370,7 +371,7 @@ void LayerEditor::onLockAllLayers()
 {
   auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
-  map.lockNodes(kdl::vec_static_cast<mdl::Node*>(layers));
+  lockNodes(map, kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canLockAllLayers() const
@@ -384,7 +385,7 @@ void LayerEditor::onUnlockAllLayers()
 {
   auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
-  map.resetNodeLockingState(kdl::vec_static_cast<mdl::Node*>(layers));
+  resetNodeLockingState(map, kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canUnlockAllLayers() const

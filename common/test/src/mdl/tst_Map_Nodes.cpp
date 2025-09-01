@@ -33,6 +33,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Layers.h"
+#include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
@@ -122,7 +123,7 @@ TEST_CASE("Map_Nodes")
       CHECK(entityNode1->lockState() == LockState::Inherited);
       CHECK(!entityNode1->locked());
 
-      map.lockNodes({layerNode1});
+      lockNodes(map, {layerNode1});
 
       REQUIRE(entityNode1->lockState() == LockState::Inherited);
       REQUIRE(entityNode1->locked());

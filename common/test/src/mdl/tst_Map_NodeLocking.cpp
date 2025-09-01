@@ -28,6 +28,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -53,7 +54,7 @@ TEST_CASE("Map_NodeLocking")
 
       REQUIRE_FALSE(layerNode->locked());
 
-      map.lockNodes({layerNode});
+      lockNodes(map, {layerNode});
       CHECK(layerNode->locked());
 
       map.undoCommand();
@@ -82,7 +83,7 @@ TEST_CASE("Map_NodeLocking")
       REQUIRE_FALSE(groupNode->locked());
       REQUIRE_FALSE(patchNode->locked());
 
-      map.lockNodes({brushNode, entityNode, groupNode, patchNode});
+      lockNodes(map, {brushNode, entityNode, groupNode, patchNode});
       CHECK(brushNode->locked());
       CHECK(entityNode->locked());
       CHECK(groupNode->locked());
@@ -117,13 +118,13 @@ TEST_CASE("Map_NodeLocking")
 
       const auto originalModificationCount = map.modificationCount();
 
-      map.lockNodes({brushNode, entityNode, groupNode, patchNode});
+      lockNodes(map, {brushNode, entityNode, groupNode, patchNode});
       CHECK(map.modificationCount() == originalModificationCount);
 
       map.undoCommand();
       CHECK(map.modificationCount() == originalModificationCount);
 
-      map.lockNodes({layerNode});
+      lockNodes(map, {layerNode});
       CHECK(map.modificationCount() == originalModificationCount + 1u);
 
       map.undoCommand();
@@ -154,7 +155,7 @@ TEST_CASE("Map_NodeLocking")
             unlockedBrushNode,
           }));
 
-        map.lockNodes({map.world()->defaultLayer()});
+        lockNodes(map, {map.world()->defaultLayer()});
         CHECK_THAT(
           map.selection().nodes,
           Catch::UnorderedEquals(std::vector<Node*>{unlockedBrushNode}));
@@ -183,7 +184,7 @@ TEST_CASE("Map_NodeLocking")
             {unlockedBrushNode, 0},
           }));
 
-        map.lockNodes({map.world()->defaultLayer()});
+        lockNodes(map, {map.world()->defaultLayer()});
         CHECK_THAT(
           map.selection().brushFaces,
           Catch::UnorderedEquals(std::vector<BrushFaceHandle>{

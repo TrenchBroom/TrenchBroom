@@ -335,13 +335,6 @@ public: // node visibility
   void resetNodeVisibility(const std::vector<Node*>& nodes);
   void downgradeShownToInherit(const std::vector<Node*>& nodes);
 
-public: // node locking
-  void lockNodes(const std::vector<Node*>& nodes);
-  void unlockNodes(const std::vector<Node*>& nodes);
-  void ensureNodesUnlocked(const std::vector<Node*>& nodes);
-  void resetNodeLockingState(const std::vector<Node*>& nodes);
-  void downgradeUnlockedToInherit(const std::vector<Node*>& nodes);
-
 public: // picking
   void pick(const vm::ray3d& pickRay, PickResult& pickResult) const;
   std::vector<Node*> findNodesContaining(const vm::vec3d& point) const;

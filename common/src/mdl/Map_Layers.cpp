@@ -24,6 +24,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/SetCurrentLayerCommand.h"
@@ -98,7 +99,7 @@ void setCurrentLayer(Map& map, LayerNode* layerNode)
 
   const auto descendants = collectDescendants({currentLayer});
   map.downgradeShownToInherit(descendants);
-  map.downgradeUnlockedToInherit(descendants);
+  downgradeUnlockedToInherit(map, descendants);
 
   map.executeAndStore(SetCurrentLayerCommand::set(layerNode));
   transaction.commit();

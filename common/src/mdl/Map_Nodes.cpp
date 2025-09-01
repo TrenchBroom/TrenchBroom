@@ -33,6 +33,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_NodeLocking.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
@@ -281,7 +282,7 @@ std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>&
 
   const auto addedNodes = kdl::vec_flatten(kdl::map_values(nodes));
   map.ensureNodesVisible(addedNodes);
-  map.ensureNodesUnlocked(addedNodes);
+  ensureNodesUnlocked(map, addedNodes);
   if (!transaction.commit())
   {
     return {};
@@ -387,7 +388,7 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
       nodes,
       [&](mdl::Object* node) { return node->containingLayer() != newParentLayer; });
 
-    map.downgradeUnlockedToInherit(nodesToDowngrade);
+    downgradeUnlockedToInherit(map, nodesToDowngrade);
     map.downgradeShownToInherit(nodesToDowngrade);
   }
 

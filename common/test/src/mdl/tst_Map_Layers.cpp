@@ -30,6 +30,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Layers.h"
+#include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -147,7 +148,7 @@ TEST_CASE("Map_Layers")
       auto* entityNode1 = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode1}}});
 
-      map.lockNodes({layerNode1});
+      lockNodes(map, {layerNode1});
 
       REQUIRE(entityNode1->lockState() == LockState::Inherited);
       REQUIRE(entityNode1->locked());
