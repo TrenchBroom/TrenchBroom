@@ -24,7 +24,6 @@
 #include "Result.h"
 #include "io/ExportOptions.h"
 #include "mdl/BrushFaceHandle.h"
-#include "mdl/NodeContents.h"
 #include "mdl/ResourceId.h"
 #include "mdl/Selection.h"
 
@@ -265,20 +264,19 @@ private:
   void setLastSaveModificationCount();
   void clearModificationCount();
 
-public: // selection management
-  const Selection& selection() const;
-
-  const vm::bbox3d referenceBounds() const;
-  const std::optional<vm::bbox3d>& lastSelectionBounds() const;
-  const std::optional<vm::bbox3d>& selectionBounds() const;
-
-private:
   void setWorld(
     const vm::bbox3d& worldBounds,
     std::unique_ptr<WorldNode> worldNode,
     std::unique_ptr<Game> game,
     const std::filesystem::path& path);
   void clearWorld();
+
+public: // selection management
+  const Selection& selection() const;
+
+  const vm::bbox3d referenceBounds() const;
+  const std::optional<vm::bbox3d>& lastSelectionBounds() const;
+  const std::optional<vm::bbox3d>& selectionBounds() const;
 
 public: // tag management
   void registerSmartTags();
@@ -306,7 +304,7 @@ private: // validation
 public:
   void setIssueHidden(const Issue& issue, bool hidden);
 
-private:
+private: // Asset management
   void loadAssets();
   void clearAssets();
 

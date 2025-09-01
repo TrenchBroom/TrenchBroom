@@ -26,8 +26,6 @@
 #include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
-#include "mdl/ModelUtils.h"
-#include "mdl/Node.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
@@ -122,33 +120,6 @@ void setMods(Map& map, const std::vector<std::string>& mods)
 std::string defaultMod(const Map& map)
 {
   return map.game()->defaultMod();
-}
-
-void Map::setWorld(
-  const vm::bbox3d& worldBounds,
-  std::unique_ptr<WorldNode> worldNode,
-  std::unique_ptr<Game> game,
-  const std::filesystem::path& path)
-{
-  m_worldBounds = worldBounds;
-  m_world = std::move(worldNode);
-  m_game = std::move(game);
-
-  entityModelManager().setGame(m_game.get(), taskManager());
-  editorContext().setCurrentLayer(world()->defaultLayer());
-
-  updateGameSearchPaths();
-  setPath(path);
-
-  loadAssets();
-  registerValidators();
-  registerSmartTags();
-}
-
-void Map::clearWorld()
-{
-  m_world.reset();
-  editorContext().reset();
 }
 
 } // namespace tb::mdl

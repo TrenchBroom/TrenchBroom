@@ -157,7 +157,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/LongPropertyValueValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Assets.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Brushes.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Map_Commands.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_CopyPaste.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Entities.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Geometry.cpp
@@ -167,13 +166,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/Map_Nodes.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_NodeVisibility.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_NodeVisibility.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Map_Observers.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Map_Persistence.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Picking.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Map_Resources.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Selection.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Map_Tags.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Map_Validation.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_World.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapFormat.cpp

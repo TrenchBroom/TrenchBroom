@@ -47,15 +47,6 @@
 namespace tb::mdl
 {
 
-const Selection& Map::selection() const
-{
-  if (!m_cachedSelection)
-  {
-    m_cachedSelection = m_world ? computeSelection(*m_world.get()) : Selection{};
-  }
-  return *m_cachedSelection;
-}
-
 void selectAllNodes(Map& map)
 {
   map.executeAndStore(SelectionCommand::selectAllNodes());
@@ -415,33 +406,6 @@ void deselectNodes(Map& map, const std::vector<Node*>& nodes)
 void deselectBrushFaces(Map& map, const std::vector<BrushFaceHandle>& handles)
 {
   map.executeAndStore(SelectionCommand::deselect(handles));
-}
-
-const vm::bbox3d Map::referenceBounds() const
-{
-  if (const auto bounds = selectionBounds())
-  {
-    return *bounds;
-  }
-  if (const auto bounds = lastSelectionBounds())
-  {
-    return *bounds;
-  }
-  return vm::bbox3d{16.0};
-}
-
-const std::optional<vm::bbox3d>& Map::lastSelectionBounds() const
-{
-  return m_lastSelectionBounds;
-}
-
-const std::optional<vm::bbox3d>& Map::selectionBounds() const
-{
-  if (!m_cachedSelectionBounds && selection().hasNodes())
-  {
-    m_cachedSelectionBounds = computeLogicalBounds(selection().nodes);
-  }
-  return m_cachedSelectionBounds;
 }
 
 } // namespace tb::mdl
