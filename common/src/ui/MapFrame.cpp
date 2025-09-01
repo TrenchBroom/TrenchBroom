@@ -65,6 +65,7 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -1373,9 +1374,9 @@ void MapFrame::pasteAtCursorPosition()
         // (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
         const auto nodes = map.selection().nodes;
 
-        map.hideNodes(nodes);
+        hideNodes(map, nodes);
         const auto delta = m_mapView->pasteObjectsDelta(*bounds, referenceBounds);
-        map.showNodes(nodes);
+        showNodes(map, nodes);
         map.selectNodes(nodes); // Hiding deselected the nodes, so reselect them
         if (!translateSelection(map, delta))
         {
@@ -2105,8 +2106,7 @@ void MapFrame::isolateSelection()
 {
   if (canIsolateSelection())
   {
-    auto& map = m_document->map();
-    map.isolateSelectedNodes();
+    isolateSelectedNodes(m_document->map());
   }
 }
 
@@ -2120,8 +2120,7 @@ void MapFrame::hideSelection()
 {
   if (canHideSelection())
   {
-    auto& map = m_document->map();
-    map.hideSelectedNodes();
+    hideSelectedNodes(m_document->map());
   }
 }
 
@@ -2133,8 +2132,7 @@ bool MapFrame::canHideSelection() const
 
 void MapFrame::showAll()
 {
-  auto& map = m_document->map();
-  map.showAllNodes();
+  showAllNodes(m_document->map());
 }
 
 void MapFrame::switchToInspectorPage(const InspectorPage page)

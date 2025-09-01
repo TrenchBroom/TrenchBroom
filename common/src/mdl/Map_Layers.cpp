@@ -25,6 +25,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_NodeLocking.h"
+#include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/SetCurrentLayerCommand.h"
@@ -98,7 +99,7 @@ void setCurrentLayer(Map& map, LayerNode* layerNode)
   }
 
   const auto descendants = collectDescendants({currentLayer});
-  map.downgradeShownToInherit(descendants);
+  downgradeShownToInherit(map, descendants);
   downgradeUnlockedToInherit(map, descendants);
 
   map.executeAndStore(SetCurrentLayerCommand::set(layerNode));
@@ -257,7 +258,7 @@ bool canMoveSelectedNodesToLayer(const Map& map, LayerNode* layerNode)
 void hideLayers(Map& map, const std::vector<LayerNode*>& layers)
 {
   auto transaction = Transaction{map, "Hide Layers"};
-  map.hideNodes(kdl::vec_static_cast<Node*>(layers));
+  hideNodes(map, kdl::vec_static_cast<Node*>(layers));
   transaction.commit();
 }
 
@@ -271,8 +272,8 @@ void isolateLayers(Map& map, const std::vector<LayerNode*>& layers)
   const auto allLayers = map.world()->allLayers();
 
   auto transaction = Transaction{map, "Isolate Layers"};
-  map.hideNodes(kdl::vec_static_cast<Node*>(allLayers));
-  map.showNodes(kdl::vec_static_cast<Node*>(layers));
+  hideNodes(map, kdl::vec_static_cast<Node*>(allLayers));
+  showNodes(map, kdl::vec_static_cast<Node*>(layers));
   transaction.commit();
 }
 

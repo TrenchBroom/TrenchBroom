@@ -325,16 +325,6 @@ private:
     const std::filesystem::path& path);
   void clearWorld();
 
-public: // node visibility
-  void isolateSelectedNodes();
-  void hideSelectedNodes();
-  void hideNodes(std::vector<Node*> nodes);
-  void showAllNodes();
-  void showNodes(const std::vector<Node*>& nodes);
-  void ensureNodesVisible(const std::vector<Node*>& nodes);
-  void resetNodeVisibility(const std::vector<Node*>& nodes);
-  void downgradeShownToInherit(const std::vector<Node*>& nodes);
-
 public: // picking
   void pick(const vm::ray3d& pickRay, PickResult& pickResult) const;
   std::vector<Node*> findNodesContaining(const vm::vec3d& point) const;

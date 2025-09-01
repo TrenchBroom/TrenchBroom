@@ -27,6 +27,7 @@
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/PatchNode.h"
 
@@ -73,7 +74,7 @@ TEST_CASE("Map_NodeVisibility")
           map.selectNodes({nodeToIsolate});
 
           const auto selectedNodes = map.selection().nodes;
-          map.isolateSelectedNodes();
+          isolateSelectedNodes(map);
 
           THEN("The node is isolated and selected")
           {
@@ -130,7 +131,7 @@ TEST_CASE("Map_NodeVisibility")
           REQUIRE_FALSE(entityNode->selected());
 
           const auto selectedNodes = map.selection().nodes;
-          map.isolateSelectedNodes();
+          isolateSelectedNodes(map);
 
           // https://github.com/TrenchBroom/TrenchBroom/issues/3117
           THEN("The containining entity node is visible")

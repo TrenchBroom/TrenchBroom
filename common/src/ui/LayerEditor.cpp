@@ -32,6 +32,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Layers.h"
 #include "mdl/Map_NodeLocking.h"
+#include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
@@ -145,11 +146,11 @@ void LayerEditor::toggleLayerVisible(mdl::LayerNode* layerNode)
   auto& map = m_document.map();
   if (!layerNode->hidden())
   {
-    map.hideNodes(std::vector<mdl::Node*>{layerNode});
+    hideNodes(map, std::vector<mdl::Node*>{layerNode});
   }
   else
   {
-    map.resetNodeVisibility(std::vector<mdl::Node*>{layerNode});
+    resetNodeVisibility(map, std::vector<mdl::Node*>{layerNode});
   }
 }
 
@@ -342,7 +343,7 @@ void LayerEditor::onShowAllLayers()
 {
   auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
-  map.resetNodeVisibility(kdl::vec_static_cast<mdl::Node*>(layers));
+  resetNodeVisibility(map, kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canShowAllLayers() const
@@ -357,7 +358,7 @@ void LayerEditor::onHideAllLayers()
 {
   auto& map = m_document.map();
   const auto layers = map.world()->allLayers();
-  map.hideNodes(kdl::vec_static_cast<mdl::Node*>(layers));
+  hideNodes(map, kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canHideAllLayers() const

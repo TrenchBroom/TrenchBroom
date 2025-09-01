@@ -166,6 +166,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/Map_NodeLocking.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Nodes.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_NodeVisibility.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Map_NodeVisibility.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Observers.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Persistence.cpp
         ${COMMON_SOURCE_DIR}/mdl/Map_Picking.cpp

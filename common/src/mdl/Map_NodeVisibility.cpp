@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Map_NodeVisibility.h"
+
 #include "Map.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
@@ -30,13 +32,14 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
+#include "kdl/range_to_vector.h"
 
-#include <algorithm>
+#include <ranges>
 
 namespace tb::mdl
 {
 
-void Map::isolateSelectedNodes()
+void isolateSelectedNodes(Map& map)
 {
   auto selectedNodes = std::vector<Node*>{};
   auto unselectedNodes = std::vector<Node*>{};
@@ -52,7 +55,7 @@ void Map::isolateSelectedNodes()
     }
   };
 
-  world()->accept(kdl::overload(
+  map.world()->accept(kdl::overload(
     [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
     [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
     [&](auto&& thisLambda, GroupNode* group) {
@@ -66,58 +69,58 @@ void Map::isolateSelectedNodes()
     [&](BrushNode* brush) { collectNode(brush); },
     [&](PatchNode* patch) { collectNode(patch); }));
 
-  auto transaction = Transaction{*this, "Isolate Objects"};
-  executeAndStore(SetVisibilityCommand::hide(unselectedNodes));
-  executeAndStore(SetVisibilityCommand::show(selectedNodes));
+  auto transaction = Transaction{map, "Isolate Objects"};
+  map.executeAndStore(SetVisibilityCommand::hide(unselectedNodes));
+  map.executeAndStore(SetVisibilityCommand::show(selectedNodes));
   transaction.commit();
 }
 
-void Map::hideSelectedNodes()
+void hideSelectedNodes(Map& map)
 {
-  hideNodes(selection().nodes);
+  hideNodes(map, map.selection().nodes);
 }
 
-void Map::hideNodes(std::vector<Node*> nodes)
+void hideNodes(Map& map, std::vector<Node*> nodes)
 {
-  auto transaction = Transaction{*this, "Hide Objects"};
+  auto transaction = Transaction{map, "Hide Objects"};
 
   // Deselect any selected nodes inside `nodes`
-  deselectNodes(collectSelectedNodes(nodes));
+  map.deselectNodes(collectSelectedNodes(nodes));
 
   // Reset visibility of any forced shown children of `nodes`
-  downgradeShownToInherit(collectDescendants(nodes));
+  downgradeShownToInherit(map, collectDescendants(nodes));
 
-  executeAndStore(SetVisibilityCommand::hide(nodes));
+  map.executeAndStore(SetVisibilityCommand::hide(nodes));
   transaction.commit();
 }
 
-void Map::showAllNodes()
+void showAllNodes(Map& map)
 {
-  resetNodeVisibility(mdl::collectDescendants(m_world->allLayers()));
+  resetNodeVisibility(map, mdl::collectDescendants(map.world()->allLayers()));
 }
 
-void Map::showNodes(const std::vector<Node*>& nodes)
+void showNodes(Map& map, const std::vector<Node*>& nodes)
 {
-  executeAndStore(SetVisibilityCommand::show(nodes));
+  map.executeAndStore(SetVisibilityCommand::show(nodes));
 }
 
-void Map::ensureNodesVisible(const std::vector<Node*>& nodes)
+void ensureNodesVisible(Map& map, const std::vector<Node*>& nodes)
 {
-  executeAndStore(SetVisibilityCommand::ensureVisible(nodes));
+  map.executeAndStore(SetVisibilityCommand::ensureVisible(nodes));
 }
 
-void Map::resetNodeVisibility(const std::vector<Node*>& nodes)
+void resetNodeVisibility(Map& map, const std::vector<Node*>& nodes)
 {
-  executeAndStore(SetVisibilityCommand::reset(nodes));
+  map.executeAndStore(SetVisibilityCommand::reset(nodes));
 }
 
-void Map::downgradeShownToInherit(const std::vector<Node*>& nodes)
+void downgradeShownToInherit(Map& map, const std::vector<Node*>& nodes)
 {
-  auto nodesToReset = std::vector<Node*>{};
-  std::ranges::copy_if(nodes, std::back_inserter(nodesToReset), [](auto* node) {
-    return node->visibilityState() == VisibilityState::Shown;
-  });
-  resetNodeVisibility(nodesToReset);
+  const auto nodesToReset = nodes | std::views::filter([](auto* node) {
+                              return node->visibilityState() == VisibilityState::Shown;
+                            })
+                            | kdl::to_vector;
+  resetNodeVisibility(map, nodesToReset);
 }
 
 } // namespace tb::mdl

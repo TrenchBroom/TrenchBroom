@@ -34,6 +34,7 @@
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_NodeLocking.h"
+#include "mdl/Map_NodeVisibility.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
@@ -281,7 +282,7 @@ std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>&
   setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(nodes)), true);
 
   const auto addedNodes = kdl::vec_flatten(kdl::map_values(nodes));
-  map.ensureNodesVisible(addedNodes);
+  ensureNodesVisible(map, addedNodes);
   ensureNodesUnlocked(map, addedNodes);
   if (!transaction.commit())
   {
@@ -389,7 +390,7 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
       [&](mdl::Object* node) { return node->containingLayer() != newParentLayer; });
 
     downgradeUnlockedToInherit(map, nodesToDowngrade);
-    map.downgradeShownToInherit(nodesToDowngrade);
+    downgradeShownToInherit(map, nodesToDowngrade);
   }
 
   // Reset link IDs of nodes being reparented, but don't recurse into nested groups
