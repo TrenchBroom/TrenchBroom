@@ -1,6 +1,4 @@
 name: Check Commits
-
-# This workflow is triggered on pull requests for the repository.
 on: [pull_request]
 
 jobs:

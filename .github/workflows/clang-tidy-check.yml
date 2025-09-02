@@ -1,15 +1,14 @@
 name: CPP Linter
-
 on: [pull_request]
+
+permissions:
+  # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
+  packages: write
+  pull-requests: write
 
 jobs:
   cpp-linter:
     runs-on: ubuntu-22.04
-
-    permissions:
-      # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
-      packages: write
-      pull-requests: write
 
     env:
       # Record pull request head commit SHA
