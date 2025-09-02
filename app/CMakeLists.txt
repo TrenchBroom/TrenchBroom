@@ -190,9 +190,9 @@ if(WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:miniz::miniz>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:GLEW::GLEW>" "$<TARGET_FILE_DIR:TrenchBroom>")
 
-    # If requested, run windeployqt which copies the Qt dlls into the deployable folder, along with necessary
-    # runtime dlls by the compiler
-    if(TB_RUN_WINDEPLOYQT)
+    # Run windeployqt which copies the Qt dlls into the deployable folder, along with necessary runtime dlls by the compiler
+    # Only copy translations on release builds, as deploying them takes significantly longer
+    if(NOT TB_SKIP_WINDEPLOYQT)
         message(STATUS "windeployqt requested")
 
         # Get windeployqt path (hack)
@@ -201,7 +201,12 @@ if(WIN32)
         message(STATUS "windeployqt found: ${TB_WINDEPLOYQT_PATH}")
 
         add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND "${TB_WINDEPLOYQT_PATH}" --no-compiler-runtime "$<TARGET_FILE_DIR:TrenchBroom>")
+                COMMAND "${TB_WINDEPLOYQT_PATH}"
+                        --no-compiler-runtime
+                        $<$<CONFIG:Debug>:--no-translations>
+                        "$<TARGET_FILE_DIR:TrenchBroom>")
+    else()
+        message(STATUS "windeployqt skipped")
     endif()
 endif()
 
