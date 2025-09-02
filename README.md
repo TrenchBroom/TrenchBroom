@@ -30,7 +30,7 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 	- CSG operations: merge, subtract, intersect
 	- UV view for easy texture manipulations
 	- Precise texture lock for all brush editing operations
-	- Multiple texture collections
+	- Multiple material collections
 * **Entity Editing**
 	- Entity browser with drag and drop support
 	- Support for FGD and DEF files for entity definitions

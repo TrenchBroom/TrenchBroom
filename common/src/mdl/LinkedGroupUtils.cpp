@@ -27,6 +27,7 @@
 #include "mdl/NodeQueries.h"
 
 #include "kdl/grouped_range.h"
+#include "kdl/map_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/task_manager.h"
@@ -746,7 +747,7 @@ void resetLinkIds(const std::vector<GroupNode*>& groupNodes)
 Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes)
 {
-  return copyLinkIds(sourceGroupNode, targetGroupNodes, mdl::GroupRecursionMode::Deep);
+  return copyLinkIds(sourceGroupNode, targetGroupNodes, GroupRecursionMode::Deep);
 }
 
 std::vector<Error> copyAndSetLinkIds(
@@ -754,9 +755,58 @@ std::vector<Error> copyAndSetLinkIds(
 {
   auto errors = std::vector<Error>{};
   setLinkIds(
-    copyLinkIds(sourceGroupNode, targetGroupNodes, mdl::GroupRecursionMode::Shallow),
+    copyLinkIds(sourceGroupNode, targetGroupNodes, GroupRecursionMode::Shallow),
     targetGroupNodes,
     errors);
+  return errors;
+}
+
+std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
+  const std::map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode)
+{
+  // Recursively collect all groups to add
+  const auto groupsToAdd = kdl::vec_sort(
+    collectGroups(kdl::vec_flatten(kdl::map_values(nodesToAdd))),
+    compareGroupNodesByLinkId);
+
+  const auto groupsByLinkId = kdl::make_grouped_range(
+    groupsToAdd,
+    [](const auto* lhs, const auto* rhs) { return lhs->linkId() == rhs->linkId(); });
+
+  auto errors = std::vector<Error>{};
+  for (const auto& linkedGroupsToAdd : groupsByLinkId)
+  {
+    const auto& linkId = linkedGroupsToAdd.front()->linkId();
+    const auto existingLinkedNodes = collectNodesWithLinkId({&worldNode}, linkId);
+
+    if (existingLinkedNodes.size() == 1)
+    {
+      // Unlink the added nodes because we don't want to create linked duplicates
+      resetLinkIds({linkedGroupsToAdd.front()});
+
+      if (std::next(linkedGroupsToAdd.begin()) != linkedGroupsToAdd.end())
+      {
+        // But keep the added linked groups mutually linked
+        copyAndSetLinkIds(
+          *linkedGroupsToAdd.front(),
+          std::vector(std::next(linkedGroupsToAdd.begin()), linkedGroupsToAdd.end()));
+      }
+    }
+    else if (existingLinkedNodes.size() > 1)
+    {
+      // Keep the pasted nodes linked to their originals, but validate the structure
+      if (
+        auto* existingLinkedGroup = dynamic_cast<GroupNode*>(existingLinkedNodes.front()))
+      {
+        errors = kdl::vec_concat(
+          std::move(errors),
+          copyAndSetLinkIds(
+            *existingLinkedGroup,
+            std::vector(linkedGroupsToAdd.begin(), linkedGroupsToAdd.end())));
+      }
+    }
+  }
+
   return errors;
 }
 

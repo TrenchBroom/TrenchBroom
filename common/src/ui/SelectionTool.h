@@ -23,12 +23,12 @@
 #include "ui/ToolController.h"
 
 #include <memory>
-#include <vector>
 
 namespace tb::mdl
 {
+class Map;
 class Node;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -38,22 +38,14 @@ class RenderContext;
 namespace tb::ui
 {
 class GestureTracker;
-class MapDocument;
-
-/**
- * Applies the group picking logic of findOutermostClosedGroupOrNode() to a list of hits.
- * The order of the hits is preserved, but if multiple hits map to the same group, that
- * group will only be listed once in the output.
- */
-std::vector<mdl::Node*> hitsToNodesWithGroupPicking(const std::vector<mdl::Hit>& hits);
 
 class SelectionTool : public ToolController, public Tool
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
 public:
-  explicit SelectionTool(std::weak_ptr<MapDocument> document);
+  explicit SelectionTool(mdl::Map& map);
 
   Tool& tool() override;
   const Tool& tool() const override;

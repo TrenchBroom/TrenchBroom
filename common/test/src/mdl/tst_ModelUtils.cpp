@@ -437,12 +437,12 @@ TEST_CASE("ModelUtils.collectSelectableNodes")
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode}));
 
-  editorContext.pushGroup(outerGroupNode);
+  editorContext.pushGroup(*outerGroupNode);
   CHECK_THAT(
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{innerGroupNode, patchNode}));
 
-  editorContext.pushGroup(innerGroupNode);
+  editorContext.pushGroup(*innerGroupNode);
   CHECK_THAT(
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode}));
@@ -471,7 +471,7 @@ TEST_CASE("ModelUtils.collectSelectedBrushFaces")
     CHECK_THAT(
       collectSelectedBrushFaces({&worldNode}),
       Catch::Matchers::UnorderedEquals(
-        std::vector<mdl::BrushFaceHandle>{{brushNode, 0u}, {brushNode, 1u}}));
+        std::vector<BrushFaceHandle>{{brushNode, 0u}, {brushNode, 1u}}));
   }
 
   SECTION("Node selection")
@@ -630,7 +630,7 @@ TEST_CASE("ModelUtils.filterNodes")
     CHECK(
       filterBrushNodes(
         {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
-      == std::vector<mdl::BrushNode*>{&brushNode});
+      == std::vector<BrushNode*>{&brushNode});
   }
 
   SECTION("Filter entity nodes")
@@ -638,7 +638,7 @@ TEST_CASE("ModelUtils.filterNodes")
     CHECK(
       filterEntityNodes(
         {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
-      == std::vector<mdl::EntityNode*>{&entityNode});
+      == std::vector<EntityNode*>{&entityNode});
   }
 }
 

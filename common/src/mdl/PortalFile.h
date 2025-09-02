@@ -30,18 +30,7 @@
 namespace tb::mdl
 {
 
-class PortalFile
-{
-private:
-  std::vector<vm::polygon3f> m_portals;
-
-public:
-  explicit PortalFile(std::vector<vm::polygon3f> portals);
-
-  const std::vector<vm::polygon3f>& portals() const;
-};
-
 bool canLoadPortalFile(const std::filesystem::path& path);
-Result<PortalFile> loadPortalFile(std::istream& stream);
+Result<std::vector<vm::polygon3f>> loadPortalFile(std::istream& stream);
 
 } // namespace tb::mdl

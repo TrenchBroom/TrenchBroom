@@ -21,8 +21,10 @@
 
 #include "io/DiskIO.h"
 #include "io/ImageFileSystem.h"
+#include "mdl/GameConfig.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Node.h"
+#include "mdl/Selection.h"
 
 #include "kdl/task_manager.h"
 
@@ -135,12 +137,7 @@ void assertMaterial(
 void transformNode(
   Node& node, const vm::mat4x4d& transformation, const vm::bbox3d& worldBounds);
 
-struct GameAndConfig
-{
-  std::shared_ptr<mdl::Game> game;
-  std::unique_ptr<mdl::GameConfig> gameConfig;
-};
-GameAndConfig loadGame(const std::string& gameName);
+std::unique_ptr<Game> loadGame(const std::string& gameName);
 
 const mdl::BrushFace* findFaceByPoints(
   const std::vector<mdl::BrushFace>& faces,
@@ -188,6 +185,9 @@ Child* getChildAs(const Node& node)
   return getFirstChildOfType<Child>(children);
 }
 
+Selection makeSelection(const std::vector<Node*>& nodes);
+Selection makeSelection(const std::vector<BrushFaceHandle>& brushFaces);
+
 } // namespace mdl
 
 namespace ui
@@ -197,8 +197,6 @@ class MapDocument;
 struct DocumentGameConfig
 {
   std::shared_ptr<MapDocument> document;
-  std::shared_ptr<mdl::Game> game;
-  std::unique_ptr<mdl::GameConfig> gameConfig;
   std::unique_ptr<kdl::task_manager> taskManager;
 };
 

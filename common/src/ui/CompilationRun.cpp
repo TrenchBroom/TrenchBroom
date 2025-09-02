@@ -28,7 +28,6 @@
 #include "ui/MapDocument.h"
 #include "ui/TextOutputAdapter.h"
 
-#include <memory>
 #include <string>
 
 namespace tb::ui
@@ -48,19 +47,15 @@ bool CompilationRun::running() const
 }
 
 Result<void> CompilationRun::run(
-  const mdl::CompilationProfile& profile,
-  std::shared_ptr<MapDocument> document,
-  QTextEdit* currentOutput)
+  const mdl::CompilationProfile& profile, const mdl::Map& map, QTextEdit* currentOutput)
 {
-  return run(profile, std::move(document), currentOutput, false);
+  return run(profile, map, currentOutput, false);
 }
 
 Result<void> CompilationRun::test(
-  const mdl::CompilationProfile& profile,
-  std::shared_ptr<MapDocument> document,
-  QTextEdit* currentOutput)
+  const mdl::CompilationProfile& profile, const mdl::Map& map, QTextEdit* currentOutput)
 {
-  return run(profile, std::move(document), currentOutput, true);
+  return run(profile, map, currentOutput, true);
 }
 
 void CompilationRun::terminate()
@@ -78,21 +73,20 @@ bool CompilationRun::doIsRunning() const
 
 Result<void> CompilationRun::run(
   const mdl::CompilationProfile& profile,
-  std::shared_ptr<MapDocument> document,
+  const mdl::Map& map,
   QTextEdit* currentOutput,
   const bool test)
 {
   ensure(!profile.tasks.empty(), "profile has  tasks");
-  ensure(document != nullptr, "document is not null");
   ensure(currentOutput != nullptr, "currentOutput is not null");
 
   assert(!doIsRunning());
   cleanup();
 
-  return buildWorkDir(profile, document) | kdl::transform([&](const auto& workDir) {
-           auto variables = CompilationVariables{document, workDir};
-           auto compilationContext = CompilationContext{
-             document, variables, TextOutputAdapter{currentOutput}, test};
+  return buildWorkDir(profile, map) | kdl::transform([&](const auto& workDir) {
+           auto variables = CompilationVariables{map, workDir};
+           auto compilationContext =
+             CompilationContext{map, variables, TextOutputAdapter{currentOutput}, test};
            m_currentRun =
              new CompilationRunner{std::move(compilationContext), profile, this};
            connect(
@@ -109,10 +103,9 @@ Result<void> CompilationRun::run(
 }
 
 Result<std::string> CompilationRun::buildWorkDir(
-  const mdl::CompilationProfile& profile, std::shared_ptr<MapDocument> document)
+  const mdl::CompilationProfile& profile, const mdl::Map& map)
 {
-  return el::interpolate(
-    CompilationWorkDirVariables{std::move(document)}, profile.workDirSpec);
+  return el::interpolate(CompilationWorkDirVariables{map}, profile.workDirSpec);
 }
 
 void CompilationRun::cleanup()

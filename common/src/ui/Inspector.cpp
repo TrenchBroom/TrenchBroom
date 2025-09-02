@@ -32,7 +32,7 @@
 namespace tb::ui
 {
 Inspector::Inspector(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
 {
   m_tabBook = new TabBook{};

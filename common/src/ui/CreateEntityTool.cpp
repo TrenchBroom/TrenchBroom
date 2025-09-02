@@ -25,44 +25,44 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Grid.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/PickResult.h"
+#include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
-#include "ui/Grid.h"
-#include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 
 #include "kdl/k.h"
-#include "kdl/memory_utils.h"
 
 #include <string>
 
 namespace tb::ui
 {
 
-CreateEntityTool::CreateEntityTool(std::weak_ptr<MapDocument> document)
+CreateEntityTool::CreateEntityTool(mdl::Map& map)
   : Tool{K(initiallyActive)}
-  , m_document{std::move(document)}
+  , m_map{map}
 {
 }
 
 bool CreateEntityTool::createEntity(const std::string& classname)
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& definitionManager = document->entityDefinitionManager();
+  const auto& definitionManager = m_map.entityDefinitionManager();
   const auto* definition = definitionManager.definition(classname);
   if (!definition || getType(*definition) != mdl::EntityDefinitionType::Point)
   {
     return false;
   }
 
-  m_referenceBounds = document->referenceBounds();
+  m_referenceBounds = m_map.referenceBounds();
 
-  document->startTransaction(
-    "Create '" + definition->name + "'", TransactionScope::LongRunning);
-  m_entity = document->createPointEntity(*definition, {0, 0, 0});
+  m_map.startTransaction(
+    "Create '" + definition->name + "'", mdl::TransactionScope::LongRunning);
+  m_entity = createPointEntity(m_map, *definition, {0, 0, 0});
 
   return m_entity != nullptr;
 }
@@ -71,8 +71,7 @@ void CreateEntityTool::removeEntity()
 {
   ensure(m_entity != nullptr, "entity is not null");
 
-  auto document = kdl::mem_lock(m_document);
-  document->cancelTransaction();
+  m_map.cancelTransaction();
   m_entity = nullptr;
 }
 
@@ -80,16 +79,13 @@ void CreateEntityTool::commitEntity()
 {
   ensure(m_entity != nullptr, "entity is not null");
 
-  auto document = kdl::mem_lock(m_document);
-  document->commitTransaction();
+  m_map.commitTransaction();
   m_entity = nullptr;
 }
 
 void CreateEntityTool::updateEntityPosition2D(const vm::ray3d& pickRay)
 {
   ensure(m_entity != nullptr, "entity is not null");
-
-  auto document = kdl::mem_lock(m_document);
 
   const auto toMin = m_referenceBounds.min - pickRay.origin;
   const auto toMax = m_referenceBounds.max - pickRay.origin;
@@ -98,13 +94,13 @@ void CreateEntityTool::updateEntityPosition2D(const vm::ray3d& pickRay)
                         : m_referenceBounds.max;
   const auto dragPlane = vm::plane3d(anchor, -pickRay.direction);
 
-  const auto& grid = document->grid();
+  const auto& grid = m_map.grid();
   const auto delta = grid.moveDeltaForBounds(
-    dragPlane, m_entity->logicalBounds(), document->worldBounds(), pickRay);
+    dragPlane, m_entity->logicalBounds(), m_map.worldBounds(), pickRay);
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    document->translate(delta);
+    translateSelection(m_map, delta);
   }
 }
 
@@ -115,16 +111,14 @@ void CreateEntityTool::updateEntityPosition3D(
 
   ensure(m_entity != nullptr, "entity is not null");
 
-  auto document = kdl::mem_lock(m_document);
-
   auto delta = vm::vec3d{};
-  const auto& grid = document->grid();
+  const auto& grid = m_map.grid();
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType));
   if (const auto faceHandle = mdl::hitToFaceHandle(hit))
   {
     const auto& face = faceHandle->face();
     delta = grid.moveDeltaForBounds(
-      face.boundary(), m_entity->logicalBounds(), document->worldBounds(), pickRay);
+      face.boundary(), m_entity->logicalBounds(), m_map.worldBounds(), pickRay);
   }
   else
   {
@@ -136,7 +130,7 @@ void CreateEntityTool::updateEntityPosition3D(
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    document->translate(delta);
+    translateSelection(m_map, delta);
   }
 }
 

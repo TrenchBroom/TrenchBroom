@@ -24,10 +24,14 @@
 
 #include <memory>
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 class GestureTracker;
-class MapDocument;
 
 /**
  * Functionality summary:
@@ -45,10 +49,10 @@ class MapDocument;
 class SetBrushFaceAttributesTool : public ToolController, public Tool
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
 public:
-  explicit SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document);
+  explicit SetBrushFaceAttributesTool(mdl::Map& map);
 
 private:
   Tool& tool() override;

@@ -19,8 +19,8 @@
 
 #include "FaceToolController.h"
 
+#include "mdl/VertexHandleManager.h"
 #include "ui/FaceTool.h"
-#include "ui/VertexHandleManager.h"
 
 #include <memory>
 
@@ -31,7 +31,7 @@ class FaceToolController::SelectFacePart : public SelectPartBase<vm::polygon3d>
 {
 public:
   explicit SelectFacePart(FaceTool& tool)
-    : SelectPartBase{tool, FaceHandleManager::HandleHitType}
+    : SelectPartBase{tool, mdl::FaceHandleManager::HandleHitType}
   {
   }
 
@@ -46,7 +46,7 @@ class FaceToolController::MoveFacePart : public MovePartBase
 {
 public:
   explicit MoveFacePart(FaceTool& tool)
-    : MovePartBase{tool, FaceHandleManager::HandleHitType}
+    : MovePartBase{tool, mdl::FaceHandleManager::HandleHitType}
   {
   }
 };

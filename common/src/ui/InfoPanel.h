@@ -21,8 +21,6 @@
 
 #include <QWidget>
 
-#include <memory>
-
 namespace tb
 {
 class Logger;
@@ -44,7 +42,7 @@ private:
   IssueBrowser* m_issueBrowser = nullptr;
 
 public:
-  explicit InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit InfoPanel(MapDocument& document, QWidget* parent = nullptr);
   Console* console() const;
 };
 

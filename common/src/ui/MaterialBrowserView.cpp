@@ -24,6 +24,9 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialCollection.h"
 #include "mdl/MaterialManager.h"
@@ -38,7 +41,6 @@
 #include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -54,16 +56,14 @@ namespace tb::ui
 {
 
 MaterialBrowserView::MaterialBrowserView(
-  QScrollBar* scrollBar,
-  GLContextManager& contextManager,
-  std::weak_ptr<MapDocument> document_)
+  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
   : CellView{contextManager, scrollBar}
-  , m_document{std::move(document_)}
+  , m_document{document}
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->materialUsageCountsDidChangeNotifier.connect(
+  auto& map = m_document.map();
+  m_notifierConnection += map.materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
-  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+  m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
     this, &MaterialBrowserView::resourcesWereProcessed);
 }
 
@@ -211,11 +211,11 @@ void MaterialBrowserView::addMaterialToLayout(
 
 std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto enabledMaterialCollections = document->enabledMaterialCollections();
+  const auto& map = m_document.map();
+  const auto enabledMaterialCollections = mdl::enabledMaterialCollections(map);
 
   auto result = std::vector<const mdl::MaterialCollection*>{};
-  for (const auto& collection : document->materialManager().collections())
+  for (const auto& collection : map.materialManager().collections())
   {
     if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
     {
@@ -234,7 +234,6 @@ std::vector<const mdl::Material*> MaterialBrowserView::getMaterials(
 
 std::vector<const mdl::Material*> MaterialBrowserView::getMaterials() const
 {
-  auto document = kdl::mem_lock(m_document);
   auto materials = std::vector<const mdl::Material*>{};
   for (const auto& collection : getCollections())
   {
@@ -454,13 +453,12 @@ void MaterialBrowserView::doContextMenu(
   {
     auto menu = QMenu{this};
     menu.addAction(tr("Select Faces"), this, [&, material = &cellData(*cell)]() {
-      auto doc = kdl::mem_lock(m_document);
-      doc->selectFacesWithMaterial(material);
+      auto& map = m_document.map();
+      selectBrushFacesWithMaterial(map, material);
     });
 
     menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
-      auto doc = kdl::mem_lock(m_document);
-      doc->selectBrushesWithMaterial(material);
+      selectBrushesWithMaterial(m_document.map(), material);
     });
 
     menu.exec(event->globalPos());

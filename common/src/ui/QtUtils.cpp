@@ -51,9 +51,9 @@
 #include "Ensure.h"
 #include "Macros.h"
 #include "io/ResourceUtils.h"
+#include "mdl/MapTextEncoding.h"
 #include "ui/BorderLine.h"
 #include "ui/MapFrame.h"
-#include "ui/MapTextEncoding.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
@@ -62,16 +62,16 @@ namespace tb::ui
 namespace
 {
 
-QStringConverter::Encoding codecForEncoding(const MapTextEncoding encoding)
+QStringConverter::Encoding codecForEncoding(const mdl::MapTextEncoding encoding)
 {
   switch (encoding)
   {
-  case MapTextEncoding::Quake:
+  case mdl::MapTextEncoding::Quake:
     // Quake uses the full 1-255 range for its bitmap font.
     // So using a "just assume UTF-8" approach would not work here.
     // See: https://github.com/TrenchBroom/TrenchBroom/issues/3122
     return QStringConverter::System;
-  case MapTextEncoding::Utf8:
+  case mdl::MapTextEncoding::Utf8:
     return QStringConverter::Utf8;
     switchDefault();
   }
@@ -581,14 +581,15 @@ void showModelessDialog(QDialog* dialog)
   dialog->activateWindow();
 }
 
-QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& string)
+QString mapStringToUnicode(const mdl::MapTextEncoding encoding, const std::string& string)
 {
   const auto codec = codecForEncoding(encoding);
   auto decode = QStringDecoder{codec};
   return decode(QByteArray::fromStdString(string));
 }
 
-std::string mapStringFromUnicode(const MapTextEncoding encoding, const QString& string)
+std::string mapStringFromUnicode(
+  const mdl::MapTextEncoding encoding, const QString& string)
 {
   const auto codec = codecForEncoding(encoding);
   auto encode = QStringEncoder{codec};

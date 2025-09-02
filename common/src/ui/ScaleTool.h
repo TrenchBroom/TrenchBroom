@@ -34,13 +34,14 @@
 #include "vm/vec.h"
 
 #include <bitset>
-#include <memory>
 #include <vector>
 
 namespace tb::mdl
 {
+class Grid;
+class Map;
 class PickResult;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -49,8 +50,6 @@ class Camera;
 
 namespace tb::ui
 {
-class Grid;
-class MapDocument;
 class ScaleToolPage;
 
 /**
@@ -230,7 +229,7 @@ public:
   static const mdl::HitType::Type ScaleToolCornerHitType;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
   ScaleToolPage* m_toolPage = nullptr;
   bool m_resizing = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
@@ -240,12 +239,12 @@ private:
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
 
 public:
-  explicit ScaleTool(std::weak_ptr<MapDocument> document);
+  explicit ScaleTool(mdl::Map& map);
   ~ScaleTool() override;
 
   bool doActivate() override;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   const mdl::Hit& dragStartHit() const;
   bool applies() const;

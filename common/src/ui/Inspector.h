@@ -21,8 +21,6 @@
 
 #include <QWidget>
 
-#include <memory>
-
 namespace tb::ui
 {
 class FaceInspector;
@@ -54,9 +52,7 @@ private:
 
 public:
   Inspector(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
   void connectTopWidgets(MapViewBar* mapViewBar);
   void switchToPage(InspectorPage page);
   bool cancelMouseDrag();

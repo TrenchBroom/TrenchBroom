@@ -73,15 +73,16 @@ To download and install an available update, click on the link labeled "Update a
   });
 
   m_includePreReleaseUpdates = new QCheckBox{};
-  connect(m_includePreReleaseUpdates, &QCheckBox::checkStateChanged, [&](const auto state) {
-    if (!m_disableNotifiers)
-    {
-      const auto value = state == Qt::Checked;
-      auto& prefs = PreferenceManager::instance();
-      prefs.set(Preferences::IncludePreReleaseUpdates, value);
-      TrenchBroomApp::instance().updater().reset();
-    }
-  });
+  connect(
+    m_includePreReleaseUpdates, &QCheckBox::checkStateChanged, [&](const auto state) {
+      if (!m_disableNotifiers)
+      {
+        const auto value = state == Qt::Checked;
+        auto& prefs = PreferenceManager::instance();
+        prefs.set(Preferences::IncludePreReleaseUpdates, value);
+        TrenchBroomApp::instance().updater().reset();
+      }
+    });
 
   auto* preReleaseInfo = new QLabel{tr(
     R"(Pre-releases are versions of TrenchBroom that are not yet considered stable. 

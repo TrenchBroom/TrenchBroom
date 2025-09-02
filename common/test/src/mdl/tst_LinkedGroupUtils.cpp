@@ -173,12 +173,12 @@ TEST_CASE("collectLinkedGroups")
   setLinkId(*groupNode2, "group2");
 
   auto* linkedGroupNode1_1 =
-    static_cast<mdl::GroupNode*>(groupNode1->cloneRecursively(worldBounds));
+    static_cast<GroupNode*>(groupNode1->cloneRecursively(worldBounds));
 
   auto* linkedGroupNode2_1 =
-    static_cast<mdl::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+    static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds));
   auto* linkedGroupNode2_2 =
-    static_cast<mdl::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+    static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds));
 
   worldNode.defaultLayer()->addChild(groupNode1);
   worldNode.defaultLayer()->addChild(groupNode2);
@@ -192,15 +192,15 @@ TEST_CASE("collectLinkedGroups")
 
   CHECK_THAT(
     collectGroupsWithLinkId({&worldNode}, "asdf"),
-    Catch::Matchers::UnorderedEquals(std::vector<mdl::GroupNode*>{}));
+    Catch::Matchers::UnorderedEquals(std::vector<GroupNode*>{}));
   CHECK_THAT(
     collectGroupsWithLinkId({&worldNode}, "group1"),
     Catch::Matchers::UnorderedEquals(
-      std::vector<mdl::GroupNode*>{groupNode1, linkedGroupNode1_1}));
+      std::vector<GroupNode*>{groupNode1, linkedGroupNode1_1}));
   CHECK_THAT(
     collectGroupsWithLinkId({&worldNode}, "group2"),
     Catch::Matchers::UnorderedEquals(
-      std::vector<mdl::GroupNode*>{groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
+      std::vector<GroupNode*>{groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
 }
 
 TEST_CASE("updateLinkedGroups")

@@ -25,8 +25,11 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/TransactionScope.h"
 #include "render/ActiveShader.h"
 #include "render/Circle.h"
 #include "render/RenderBatch.h"
@@ -38,10 +41,8 @@
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 #include "ui/UVViewHelper.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
 
 #include "vm/intersection.h"
@@ -180,18 +181,17 @@ private:
 class UVRotateDragTracker : public GestureTracker
 {
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   const UVViewHelper& m_helper;
   float m_initialAngle;
 
 public:
-  UVRotateDragTracker(
-    MapDocument& document, const UVViewHelper& helper, const float initialAngle)
-    : m_document{document}
+  UVRotateDragTracker(mdl::Map& map, const UVViewHelper& helper, const float initialAngle)
+    : m_map{map}
     , m_helper{helper}
     , m_initialAngle{initialAngle}
   {
-    document.startTransaction("Rotate UV", TransactionScope::LongRunning);
+    m_map.startTransaction("Rotate UV", mdl::TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override
@@ -225,7 +225,7 @@ public:
 
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setRotation(snappedAngle);
-    m_document.setFaceAttributes(request);
+    setBrushFaceAttributes(m_map, request);
 
     // Correct the offsets.
     const auto toFaceNew =
@@ -239,14 +239,14 @@ public:
 
     request.clear();
     request.setOffset(newOffset);
-    m_document.setFaceAttributes(request);
+    setBrushFaceAttributes(m_map, request);
 
     return true;
   }
 
-  void end(const InputState&) override { m_document.commitTransaction(); }
+  void end(const InputState&) override { m_map.commitTransaction(); }
 
-  void cancel() override { m_document.cancelTransaction(); }
+  void cancel() override { m_map.cancelTransaction(); }
 
   void render(const InputState&, render::RenderContext&, render::RenderBatch& renderBatch)
     const override
@@ -299,10 +299,10 @@ std::optional<float> computeInitialAngle(
 
 const mdl::HitType::Type UVRotateTool::AngleHandleHitType = mdl::HitType::freeType();
 
-UVRotateTool::UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
+UVRotateTool::UVRotateTool(MapDocument& document, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -374,8 +374,7 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVRotateDragTracker>(
-    *kdl::mem_lock(m_document), m_helper, *initialAngle);
+  return std::make_unique<UVRotateDragTracker>(m_document.map(), m_helper, *initialAngle);
 }
 
 void UVRotateTool::render(

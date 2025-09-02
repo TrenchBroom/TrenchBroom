@@ -23,21 +23,25 @@
 
 #include <memory>
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 
 class DrawShapeTool;
 class GestureTracker;
-class MapDocument;
 
 class DrawShapeToolController2D : public ToolController
 {
 private:
   DrawShapeTool& m_tool;
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
 public:
-  DrawShapeToolController2D(DrawShapeTool& tool, std::weak_ptr<MapDocument> document);
+  DrawShapeToolController2D(DrawShapeTool& tool, mdl::Map& map);
 
 private:
   Tool& tool() override;

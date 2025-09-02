@@ -22,7 +22,6 @@
 #include "mdl/CompilationTask.h"
 #include "ui/ControlListBox.h"
 
-#include <memory>
 #include <vector>
 
 class QCheckBox;
@@ -48,7 +47,7 @@ class CompilationTaskEditorBase : public ControlListBoxItemRenderer
   Q_OBJECT
 protected:
   const QString m_title;
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   mdl::CompilationProfile& m_profile;
   mdl::CompilationTask& m_task;
   QCheckBox* m_enabledCheckbox = nullptr;
@@ -59,7 +58,7 @@ protected:
 protected:
   CompilationTaskEditorBase(
     QString title,
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     mdl::CompilationProfile& profile,
     mdl::CompilationTask& task,
     QWidget* parent);
@@ -83,7 +82,7 @@ private:
 
 public:
   CompilationExportMapTaskEditor(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     mdl::CompilationProfile& profile,
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
@@ -104,7 +103,7 @@ private:
 
 public:
   CompilationCopyFilesTaskEditor(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     mdl::CompilationProfile& profile,
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
@@ -126,7 +125,7 @@ private:
 
 public:
   CompilationRenameFileTaskEditor(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     mdl::CompilationProfile& profile,
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
@@ -147,7 +146,7 @@ private:
 
 public:
   CompilationDeleteFilesTaskEditor(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     mdl::CompilationProfile& profile,
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
@@ -169,7 +168,7 @@ private:
 
 public:
   CompilationRunToolTaskEditor(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     mdl::CompilationProfile& profile,
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
@@ -188,12 +187,11 @@ class CompilationTaskListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   mdl::CompilationProfile* m_profile = nullptr;
 
 public:
-  explicit CompilationTaskListBox(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit CompilationTaskListBox(MapDocument& document, QWidget* parent = nullptr);
 
   void setProfile(mdl::CompilationProfile* profile);
 

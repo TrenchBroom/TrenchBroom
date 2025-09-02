@@ -56,7 +56,7 @@ Result<std::filesystem::path> findMaterialFile(
     return materialPath;
   }
 
-  const auto matcher = kdl::lift_and(
+  const auto matcher = kdl::logical_and(
     makeFilenamePathMatcher(
       kdl::path_remove_extension(materialPath.filename()).string() + ".*"),
     makeExtensionPathMatcher(extensions));

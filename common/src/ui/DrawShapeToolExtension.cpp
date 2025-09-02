@@ -23,11 +23,10 @@
 #include <QPushButton>
 
 #include "Ensure.h"
+#include "mdl/Map.h"
 #include "ui/DrawShapeToolExtensions.h"
-#include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
 
@@ -50,7 +49,7 @@ void DrawShapeToolExtensionPage::addWidget(QWidget* widget)
   boxLayout->insertWidget(boxLayout->count() - 1, widget, 0, Qt::AlignVCenter);
 }
 
-void DrawShapeToolExtensionPage::addApplyButton(std::weak_ptr<MapDocument> document)
+void DrawShapeToolExtensionPage::addApplyButton(mdl::Map& map)
 {
   auto* applyButton = new QPushButton{tr("Apply")};
   applyButton->setEnabled(false);
@@ -58,9 +57,10 @@ void DrawShapeToolExtensionPage::addApplyButton(std::weak_ptr<MapDocument> docum
 
   addWidget(applyButton);
 
-  auto doc = kdl::mem_lock(document);
-  m_notifierConnection += doc->selectionDidChangeNotifier.connect(
-    [=](const auto&) { applyButton->setEnabled(doc->hasSelectedNodes()); });
+  m_notifierConnection +=
+    map.selectionDidChangeNotifier.connect([&map, applyButton](const auto&) {
+      applyButton->setEnabled(map.selection().hasNodes());
+    });
 }
 
 vm::axis::type ShapeParameters::axis() const
@@ -147,16 +147,15 @@ void ShapeParameters::setAccuracy(const size_t accuracy)
   }
 }
 
-DrawShapeToolExtension::DrawShapeToolExtension(std::weak_ptr<MapDocument> document)
-  : m_document{std::move(document)}
+DrawShapeToolExtension::DrawShapeToolExtension(mdl::Map& map)
+  : m_map{map}
 {
 }
 
 DrawShapeToolExtension::~DrawShapeToolExtension() = default;
 
-DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(
-  std::weak_ptr<MapDocument> document)
-  : m_extensions{createDrawShapeToolExtensions(document)}
+DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(mdl::Map& map)
+  : m_extensions{createDrawShapeToolExtensions(map)}
 {
   ensure(!m_extensions.empty(), "extensions must not be empty");
 }

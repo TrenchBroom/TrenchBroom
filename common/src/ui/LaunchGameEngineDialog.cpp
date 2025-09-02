@@ -27,9 +27,11 @@
 #include <QProcess>
 #include <QPushButton>
 
+#include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Map.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
 #include "ui/CurrentGameIndicator.h"
@@ -42,7 +44,6 @@
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_utils.h"
 
 #include <string>
@@ -50,10 +51,9 @@
 namespace tb::ui
 {
 
-LaunchGameEngineDialog::LaunchGameEngineDialog(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+LaunchGameEngineDialog::LaunchGameEngineDialog(MapDocument& document, QWidget* parent)
   : QDialog{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui();
 }
@@ -63,8 +63,8 @@ void LaunchGameEngineDialog::createGui()
   setWindowIconTB(this);
   setWindowTitle("Launch Engine");
 
-  auto document = kdl::mem_lock(m_document);
-  const auto& gameName = document->game()->config().name;
+  const auto& map = m_document.map();
+  const auto& gameName = map.game()->config().name;
   auto* gameIndicator = new CurrentGameIndicator{gameName};
 
   auto* midPanel = new QWidget{this};
@@ -177,8 +177,8 @@ void LaunchGameEngineDialog::createGui()
 
 void LaunchGameEngineDialog::reloadConfig()
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& gameName = document->game()->config().name;
+  const auto& map = m_document.map();
+  const auto& gameName = map.game()->config().name;
 
   auto& gameFactory = mdl::GameFactory::instance();
   const auto& gameConfig = gameFactory.gameConfig(gameName);
@@ -189,7 +189,8 @@ void LaunchGameEngineDialog::reloadConfig()
 
 LaunchGameEngineVariables LaunchGameEngineDialog::variables() const
 {
-  return LaunchGameEngineVariables{kdl::mem_lock(m_document)};
+  const auto& map = m_document.map();
+  return LaunchGameEngineVariables{map};
 }
 
 void LaunchGameEngineDialog::gameEngineProfileChanged()
@@ -213,7 +214,8 @@ void LaunchGameEngineDialog::editGameEngines()
 {
   saveConfig();
 
-  auto dialog = GameEngineDialog{kdl::mem_lock(m_document)->game()->config().name, this};
+  const auto& map = m_document.map();
+  auto dialog = GameEngineDialog{map.game()->config().name, this};
   dialog.exec();
 
   const auto previousRow = m_gameEngineList->currentRow();
@@ -257,10 +259,10 @@ void LaunchGameEngineDialog::done(const int r)
 
 void LaunchGameEngineDialog::saveConfig()
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& gameName = document->game()->config().name;
+  auto& map = m_document.map();
+  const auto& gameName = map.game()->config().name;
   auto& gameFactory = mdl::GameFactory::instance();
-  gameFactory.saveGameEngineConfig(gameName, m_config, document->logger());
+  gameFactory.saveGameEngineConfig(gameName, m_config, map.logger());
 }
 
 } // namespace tb::ui

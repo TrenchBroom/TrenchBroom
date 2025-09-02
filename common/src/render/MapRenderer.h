@@ -23,7 +23,6 @@
 #include "NotifierConnection.h"
 
 #include <filesystem>
-#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -32,21 +31,16 @@ namespace tb
 class Color;
 }
 
-namespace tb::ui
-{
-// FIXME: Renderer should not depend on View
-class MapDocument;
-class Selection;
-} // namespace tb::ui
-
 namespace tb::mdl
 {
 class BrushNode;
 class BrushFaceHandle;
 class GroupNode;
 class LayerNode;
+class Map;
 class Node;
 class ResourceId;
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -61,7 +55,7 @@ class RenderContext;
 class MapRenderer
 {
 private:
-  std::weak_ptr<ui::MapDocument> m_document;
+  mdl::Map& m_map;
 
   std::unique_ptr<ObjectRenderer> m_defaultRenderer;
   std::unique_ptr<ObjectRenderer> m_selectionRenderer;
@@ -83,7 +77,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapRenderer(std::weak_ptr<ui::MapDocument> document);
+  explicit MapRenderer(mdl::Map& map);
   ~MapRenderer();
 
   deleteCopyAndMove(MapRenderer);
@@ -96,7 +90,9 @@ public: // rendering
   void render(RenderContext& renderContext, RenderBatch& renderBatch);
 
 private:
+  void reload();
   void clear();
+
   void setupGL(RenderBatch& renderBatch);
   void renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
@@ -129,8 +125,9 @@ private:
 private: // notification
   void connectObservers();
 
-  void documentWasCleared(ui::MapDocument* document);
-  void documentWasNewedOrLoaded(ui::MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
+  void mapWasCleared(mdl::Map& map);
 
   void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
@@ -139,12 +136,12 @@ private: // notification
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
   void nodeLockingDidChange(const std::vector<mdl::Node*>& nodes);
 
-  void groupWasOpened(mdl::GroupNode* group);
-  void groupWasClosed(mdl::GroupNode* group);
+  void groupWasOpened(mdl::GroupNode& group);
+  void groupWasClosed(mdl::GroupNode& group);
 
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
 
-  void selectionDidChange(const ui::Selection& selection);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds);
 

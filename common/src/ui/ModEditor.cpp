@@ -27,6 +27,9 @@
 
 #include "Notifier.h"
 #include "PreferenceManager.h"
+#include "mdl/Game.h"
+#include "mdl/Map.h"
+#include "mdl/Map_World.h"
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
@@ -34,7 +37,6 @@
 #include "ui/ViewConstants.h"
 
 #include "kdl/collection_utils.h"
-#include "kdl/memory_utils.h"
 #include "kdl/range_to.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
@@ -46,9 +48,9 @@
 namespace tb::ui
 {
 
-ModEditor::ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
+ModEditor::ModEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui();
   connectObservers();
@@ -154,26 +156,26 @@ void ModEditor::updateButtons()
 
 void ModEditor::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
+  auto& map = m_document.map();
   m_notifierConnection +=
-    document->documentWasNewedNotifier.connect(this, &ModEditor::documentWasNewed);
+    map.mapWasCreatedNotifier.connect(this, &ModEditor::mapWasCreated);
   m_notifierConnection +=
-    document->documentWasLoadedNotifier.connect(this, &ModEditor::documentWasLoaded);
+    map.mapWasLoadedNotifier.connect(this, &ModEditor::mapWasLoaded);
   m_notifierConnection +=
-    document->modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
+    map.modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &ModEditor::preferenceDidChange);
 }
 
-void ModEditor::documentWasNewed(MapDocument*)
+void ModEditor::mapWasCreated(mdl::Map&)
 {
   updateAvailableMods();
   updateMods();
 }
 
-void ModEditor::documentWasLoaded(MapDocument*)
+void ModEditor::mapWasLoaded(mdl::Map&)
 {
   updateAvailableMods();
   updateMods();
@@ -186,8 +188,8 @@ void ModEditor::modsDidChange()
 
 void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (document->isGamePathPreference(path))
+  const auto& map = m_document.map();
+  if (map.game()->isGamePathPreference(path))
   {
     updateAvailableMods();
     updateMods();
@@ -196,12 +198,12 @@ void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 
 void ModEditor::updateAvailableMods()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->game()->availableMods() | kdl::transform([&](auto availableMods) {
+  auto& map = m_document.map();
+  map.game()->availableMods() | kdl::transform([&](auto availableMods) {
     m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
   }) | kdl::transform_error([&](auto e) {
     m_availableMods.clear();
-    document->error() << "Could not update available mods: " << e.msg;
+    map.logger().error() << "Could not update available mods: " << e.msg;
   });
 }
 
@@ -209,8 +211,8 @@ void ModEditor::updateMods()
 {
   const auto pattern = m_filterBox->text().toStdString();
 
-  auto document = kdl::mem_lock(m_document);
-  const auto enabledMods = document->mods();
+  const auto& map = m_document.map();
+  const auto enabledMods = mods(map);
 
   m_availableModList->clear();
   m_availableModList->addItems(
@@ -231,14 +233,13 @@ void ModEditor::addModClicked()
 {
   if (const auto selections = m_availableModList->selectedItems(); !selections.empty())
   {
-    auto document = kdl::mem_lock(m_document);
-
-    auto mods = document->mods();
+    auto& map = m_document.map();
+    auto mods = mdl::mods(map);
     for (const auto* item : selections)
     {
       mods.push_back(item->text().toStdString());
     }
-    document->setMods(mods);
+    setMods(map, mods);
   }
 }
 
@@ -246,15 +247,15 @@ void ModEditor::removeModClicked()
 {
   if (const auto selections = m_enabledModList->selectedItems(); !selections.empty())
   {
-    auto document = kdl::mem_lock(m_document);
+    auto& map = m_document.map();
 
-    auto mods = document->mods();
+    auto mods = mdl::mods(map);
     for (const auto* item : selections)
     {
       const auto mod = item->text().toStdString();
       mods = kdl::vec_erase(std::move(mods), mod);
     }
-    document->setMods(mods);
+    setMods(map, mods);
   }
 }
 
@@ -263,15 +264,15 @@ void ModEditor::moveModUpClicked()
   const auto selections = m_enabledModList->selectedItems();
   assert(selections.size() == 1);
 
-  auto document = kdl::mem_lock(m_document);
-  auto mods = document->mods();
+  auto& map = m_document.map();
+  auto mods = mdl::mods(map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
   ensure(index < mods.size(), "index out of range");
 
   using std::swap;
   swap(mods[index - 1], mods[index]);
-  document->setMods(mods);
+  setMods(map, mods);
 
   m_enabledModList->clearSelection();
   m_enabledModList->setCurrentRow(int(index - 1));
@@ -282,15 +283,15 @@ void ModEditor::moveModDownClicked()
   const auto selections = m_enabledModList->selectedItems();
   assert(selections.size() == 1);
 
-  auto document = kdl::mem_lock(m_document);
-  auto mods = document->mods();
+  auto& map = m_document.map();
+  auto mods = mdl::mods(map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
   ensure(index < mods.size() - 1, "index out of range");
 
   using std::swap;
   swap(mods[index + 1], mods[index]);
-  document->setMods(mods);
+  setMods(map, mods);
 
   m_enabledModList->clearSelection();
   m_enabledModList->setCurrentRow(int(index + 1));

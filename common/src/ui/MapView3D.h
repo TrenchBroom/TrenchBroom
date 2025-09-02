@@ -23,7 +23,6 @@
 #include "ui/MapViewBase.h"
 
 #include <filesystem>
-#include <memory>
 #include <vector>
 
 class QKeyEvent;
@@ -49,7 +48,7 @@ private:
 
 public:
   MapView3D(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     MapViewToolBox& toolBox,
     render::MapRenderer& renderer,
     GLContextManager& contextManager);

@@ -23,7 +23,6 @@
 
 #include "NotifierConnection.h"
 
-#include <memory>
 #include <vector>
 
 class QAbstractButton;
@@ -34,7 +33,9 @@ class QGridLayout;
 namespace tb::mdl
 {
 class BrushFaceHandle;
+class Map;
 class Node;
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -42,7 +43,6 @@ namespace tb::ui
 class FlagsPopupEditor;
 class GLContextManager;
 class MapDocument;
-class Selection;
 class SignalDelayer;
 class SpinControl;
 class UVEditor;
@@ -51,7 +51,7 @@ class FaceAttribsEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   UVEditor* m_uvEditor = nullptr;
   QLabel* m_materialName = nullptr;
@@ -86,9 +86,7 @@ private:
 
 public:
   FaceAttribsEditor(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 
@@ -114,11 +112,11 @@ private:
 
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map&);
+  void mapWasLoaded(mdl::Map&);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void materialCollectionsDidChange();
 
   void updateControls();

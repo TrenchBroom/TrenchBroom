@@ -22,8 +22,6 @@
 #include "mdl/Polyhedron3.h"
 #include "ui/CreateBrushesToolBase.h"
 
-#include <memory>
-
 namespace tb::ui
 {
 
@@ -33,7 +31,7 @@ private:
   std::unique_ptr<mdl::Polyhedron3> m_polyhedron;
 
 public:
-  explicit AssembleBrushTool(std::weak_ptr<MapDocument> document);
+  explicit AssembleBrushTool(mdl::Map& map);
 
   const mdl::Polyhedron3& polyhedron() const;
   void update(const mdl::Polyhedron3& polyhedron);

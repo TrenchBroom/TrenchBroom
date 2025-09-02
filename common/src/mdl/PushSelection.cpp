@@ -19,36 +19,32 @@
 
 #include "PushSelection.h"
 
-#include "mdl/MapFacade.h"
-#include "mdl/NodeCollection.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Selection.h"
+#include "mdl/Selection.h"
 
 #include <cassert>
 
 namespace tb::mdl
 {
 
-PushSelection::PushSelection(MapFacade* facade)
-  : PushSelection{*facade}
-{
-}
-
-PushSelection::PushSelection(MapFacade& facade)
-  : m_facade{facade}
-  , m_nodes{m_facade.selectedNodes().nodes()}
-  , m_faces{m_facade.selectedBrushFaces()}
+PushSelection::PushSelection(Map& map)
+  : m_map{map}
+  , m_nodes{m_map.selection().nodes}
+  , m_faces{m_map.selection().brushFaces}
 {
 }
 
 PushSelection::~PushSelection()
 {
-  m_facade.deselectAll();
-  if (!m_nodes.empty() && m_facade.selectedNodes().nodes() != m_nodes)
+  deselectAll(m_map);
+  if (!m_nodes.empty() && m_map.selection().nodes != m_nodes)
   {
-    m_facade.selectNodes(m_nodes);
+    selectNodes(m_map, m_nodes);
   }
-  else if (!m_faces.empty() && m_facade.selectedBrushFaces() != m_faces)
+  else if (!m_faces.empty() && m_map.selection().brushFaces != m_faces)
   {
-    m_facade.selectBrushFaces(m_faces);
+    selectBrushFaces(m_map, m_faces);
   }
 }
 

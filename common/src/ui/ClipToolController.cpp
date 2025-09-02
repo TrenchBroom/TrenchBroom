@@ -25,6 +25,7 @@
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/BrushNode.h"
+#include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
@@ -33,7 +34,6 @@
 #include "render/Camera.h"
 #include "render/RenderContext.h"
 #include "ui/ClipTool.h"
-#include "ui/Grid.h"
 #include "ui/HandleDragTracker.h"
 
 #include "kdl/optional_utils.h"
@@ -168,8 +168,10 @@ public:
     const auto viewDir = vm::get_abs_max_component_axis(vm::vec3d(camera.direction()));
 
     const auto& pickRay = inputState.pickRay();
-    const auto defaultPos = m_tool.defaultClipPointPos();
-    return vm::intersect_ray_plane(pickRay, vm::plane3d{defaultPos, viewDir})
+    return m_tool.defaultClipPointPos()
+           | kdl::optional_transform([&](const auto defaultPos) {
+               return vm::intersect_ray_plane(pickRay, vm::plane3d{defaultPos, viewDir});
+             })
            | kdl::optional_transform([&](const auto distance) {
                const auto hitPoint = vm::point_at_distance(pickRay, distance);
                const auto position = m_tool.grid().snap(hitPoint);

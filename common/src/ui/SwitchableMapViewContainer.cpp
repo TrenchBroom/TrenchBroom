@@ -23,6 +23,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "mdl/Map.h"
 #include "mdl/PointTrace.h"
 #include "render/MapRenderer.h"
 #include "ui/FourPaneMapView.h"
@@ -39,18 +40,17 @@
 #include "ui/ThreePaneMapView.h"
 #include "ui/TwoPaneMapView.h"
 
-#include "kdl/memory_utils.h"
-
 namespace tb::ui
 {
 SwitchableMapViewContainer::SwitchableMapViewContainer(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_contextManager{contextManager}
   , m_mapViewBar{new MapViewBar(m_document)}
-  , m_toolBox{std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())}
-  , m_mapRenderer{std::make_unique<render::MapRenderer>(m_document)}
+  , m_toolBox{std::make_unique<MapViewToolBox>(
+      m_document.map(), m_mapViewBar->toolBook())}
+  , m_mapRenderer{std::make_unique<render::MapRenderer>(m_document.map())}
   , m_activationTracker{std::make_unique<MapViewActivationTracker>()}
 {
   setObjectName("SwitchableMapViewContainer");
@@ -158,7 +158,8 @@ bool SwitchableMapViewContainer::clipToolActive() const
 
 bool SwitchableMapViewContainer::canToggleClipTool() const
 {
-  return clipToolActive() || kdl::mem_lock(m_document)->selectedNodes().hasOnlyBrushes();
+  const auto& map = m_document.map();
+  return clipToolActive() || map.selection().hasOnlyBrushes();
 }
 
 void SwitchableMapViewContainer::toggleClipTool()
@@ -179,7 +180,8 @@ bool SwitchableMapViewContainer::rotateToolActive() const
 
 bool SwitchableMapViewContainer::canToggleRotateTool() const
 {
-  return rotateToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  const auto& map = m_document.map();
+  return rotateToolActive() || map.selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleRotateTool()
@@ -200,7 +202,8 @@ bool SwitchableMapViewContainer::shearToolActive() const
 
 bool SwitchableMapViewContainer::canToggleScaleTool() const
 {
-  return scaleToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  const auto& map = m_document.map();
+  return scaleToolActive() || map.selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleScaleTool()
@@ -211,7 +214,8 @@ void SwitchableMapViewContainer::toggleScaleTool()
 
 bool SwitchableMapViewContainer::canToggleShearTool() const
 {
-  return shearToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  const auto& map = m_document.map();
+  return shearToolActive() || map.selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleShearTool()
@@ -222,8 +226,9 @@ void SwitchableMapViewContainer::toggleShearTool()
 
 bool SwitchableMapViewContainer::canToggleVertexTools() const
 {
+  const auto& map = m_document.map();
   return vertexToolActive() || edgeToolActive() || faceToolActive()
-         || kdl::mem_lock(m_document)->selectedNodes().hasOnlyBrushes();
+         || map.selection().hasOnlyBrushes();
 }
 
 bool SwitchableMapViewContainer::anyVertexToolActive() const
@@ -286,44 +291,40 @@ MapViewToolBox& SwitchableMapViewContainer::mapViewToolBox()
 
 bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const
 {
-  auto document = kdl::mem_lock(m_document);
-  if (const auto* pointFile = document->pointFile())
+  if (const auto* pointTrace = m_document.pointTrace())
   {
-    return pointFile->hasNextPoint();
+    return pointTrace->hasNextPoint();
   }
   return false;
 }
 
 bool SwitchableMapViewContainer::canMoveCameraToPreviousTracePoint() const
 {
-  auto document = kdl::mem_lock(m_document);
-  if (const auto* pointFile = document->pointFile())
+  if (const auto* pointTrace = m_document.pointTrace())
   {
-    return pointFile->hasPreviousPoint();
+    return pointTrace->hasPreviousPoint();
   }
   return false;
 }
 
 void SwitchableMapViewContainer::moveCameraToNextTracePoint()
 {
-  auto document = kdl::mem_lock(m_document);
-  assert(document->isPointFileLoaded());
+  assert(m_document.isPointFileLoaded());
 
-  if (auto* pointFile = document->pointFile())
+  if (auto* pointTrace = m_document.pointTrace())
   {
-    pointFile->advance();
+    pointTrace->advance();
     m_mapView->moveCameraToCurrentTracePoint();
   }
 }
 
 void SwitchableMapViewContainer::moveCameraToPreviousTracePoint()
 {
-  auto document = kdl::mem_lock(m_document);
-  assert(document->isPointFileLoaded());
+  assert(m_document.isPointFileLoaded());
 
-  if (auto* pointFile = document->pointFile())
+  if (auto* pointTrace = m_document.pointTrace())
   {
-    pointFile->retreat();
+    pointTrace->retreat();
     m_mapView->moveCameraToCurrentTracePoint();
   }
 }

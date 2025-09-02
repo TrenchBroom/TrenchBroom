@@ -31,6 +31,7 @@
 #include "QtUtils.h"
 #include "io/ExportOptions.h"
 #include "io/PathQt.h"
+#include "mdl/Map.h"
 #include "ui/BorderLine.h"
 #include "ui/DialogHeader.h"
 #include "ui/FormWithSectionsLayout.h"
@@ -151,8 +152,8 @@ void ObjExportDialog::createGui()
 
 void ObjExportDialog::updateExportPath()
 {
-  const auto document = m_mapFrame->document();
-  const auto& originalPath = document->path();
+  const auto& map = m_mapFrame->document().map();
+  const auto& originalPath = map.path();
   const auto objPath = kdl::path_replace_extension(originalPath, ".obj");
   m_exportPathEdit->setText(io::pathAsQString(objPath));
 }

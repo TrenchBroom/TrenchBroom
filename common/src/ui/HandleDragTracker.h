@@ -34,9 +34,13 @@
 #include <optional>
 #include <type_traits>
 
-namespace tb::ui
+namespace tb::mdl
 {
 class Grid;
+}
+
+namespace tb::ui
+{
 
 /**
  * The state of a drag.
@@ -469,12 +473,12 @@ DragHandleSnapper makeIdentityHandleSnapper();
  * distance to the initial handle position (passed in the drag state) is snapped to the
  * grid.
  */
-DragHandleSnapper makeRelativeHandleSnapper(const Grid& grid);
+DragHandleSnapper makeRelativeHandleSnapper(const mdl::Grid& grid);
 
 /**
  * Returns a snapper function that snaps the proposed handle position to the grid.
  */
-DragHandleSnapper makeAbsoluteHandleSnapper(const Grid& grid);
+DragHandleSnapper makeAbsoluteHandleSnapper(const mdl::Grid& grid);
 
 /**
  * Returns a snapper function that snaps the proposed handle position to the closest point
@@ -482,13 +486,15 @@ DragHandleSnapper makeAbsoluteHandleSnapper(const Grid& grid);
  * position is a multiple of the grid size. If the initial handle position is not on the
  * line itself, it is orthogonally projected onto the line.
  */
-DragHandleSnapper makeRelativeLineHandleSnapper(const Grid& grid, const vm::line3d& line);
+DragHandleSnapper makeRelativeLineHandleSnapper(
+  const mdl::Grid& grid, const vm::line3d& line);
 
 /**
  * Returns a snapper function that snaps the proposed handle position to the closest point
  * on the given line such that any of its components is a multiple of the grid size.
  */
-DragHandleSnapper makeAbsoluteLineHandleSnapper(const Grid& grid, const vm::line3d& line);
+DragHandleSnapper makeAbsoluteLineHandleSnapper(
+  const mdl::Grid& grid, const vm::line3d& line);
 
 /**
  * Returns a snapper function that snaps the proposed handle position to a point on a
@@ -507,7 +513,7 @@ DragHandleSnapper makeAbsoluteLineHandleSnapper(const Grid& grid, const vm::line
  * and the proposed handle position is snapped to 90°.
  */
 DragHandleSnapper makeCircleHandleSnapper(
-  const Grid& grid,
+  const mdl::Grid& grid,
   double snapAngle,
   const vm::vec3d& center,
   const vm::vec3d& normal,
@@ -517,7 +523,7 @@ DragHandleSnapper makeCircleHandleSnapper(
  * Returns a handle proposer that proposes the position of the first brush face hit in the
  * current pick result, snapped to the grid projected onto that face.
  */
-HandlePositionProposer makeBrushFaceHandleProposer(const Grid& grid);
+HandlePositionProposer makeBrushFaceHandleProposer(const mdl::Grid& grid);
 
 /**
  * Composes a drag handle picker and a drag handle snapper into one function.

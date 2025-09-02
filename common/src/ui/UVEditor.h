@@ -23,15 +23,17 @@
 
 #include "NotifierConnection.h"
 
-#include <memory>
-
 class QSpinBox;
 class QWidget;
 class QAbstractButton;
 
+namespace tb::mdl
+{
+struct SelectionChange;
+}
+
 namespace tb::ui
 {
-class Selection;
 class GLContextManager;
 class MapDocument;
 class UVView;
@@ -40,7 +42,7 @@ class UVEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   UVView* m_uvView = nullptr;
   QSpinBox* m_xSubDivisionEditor = nullptr;
@@ -57,9 +59,7 @@ private:
 
 public:
   explicit UVEditor(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 
@@ -69,7 +69,7 @@ private:
 private:
   void createGui(GLContextManager& contextManager);
 
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void connectObservers();
 

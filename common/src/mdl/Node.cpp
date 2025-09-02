@@ -25,6 +25,7 @@
 #include "mdl/Issue.h"
 #include "mdl/Validator.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/range_utils.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
@@ -68,13 +69,18 @@ NodePath Node::pathFrom(const Node& ancestor) const
 
   assert(child == &ancestor);
 
-  std::reverse(std::begin(result.indices), std::end(result.indices));
+  std::ranges::reverse(result.indices);
   return result;
 }
 
 Node* Node::resolvePath(const NodePath& path)
 {
-  auto* node = this;
+  return KDL_CONST_OVERLOAD(resolvePath(path));
+}
+
+const Node* Node::resolvePath(const NodePath& path) const
+{
+  const auto* node = this;
   for (const auto index : path.indices)
   {
     if (index >= node->childCount())
@@ -85,11 +91,6 @@ Node* Node::resolvePath(const NodePath& path)
     node = node->children()[index];
   }
   return node;
-}
-
-const Node* Node::resolvePath(const NodePath& path) const
-{
-  return const_cast<Node*>(this)->resolvePath(path);
 }
 
 const vm::bbox3d& Node::logicalBounds() const

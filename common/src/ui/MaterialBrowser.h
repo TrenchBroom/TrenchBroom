@@ -24,7 +24,6 @@
 #include "NotifierConnection.h"
 
 #include <filesystem>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -36,6 +35,7 @@ class QScrollBar;
 namespace tb::mdl
 {
 class BrushFaceHandle;
+class Map;
 class Material;
 class Node;
 } // namespace tb::mdl
@@ -51,7 +51,7 @@ class MaterialBrowser : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   QComboBox* m_sortOrderChoice = nullptr;
   QPushButton* m_groupButton = nullptr;
   QPushButton* m_usedButton = nullptr;
@@ -63,9 +63,7 @@ private:
 
 public:
   MaterialBrowser(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   const mdl::Material* selectedMaterial() const;
   void setSelectedMaterial(const mdl::Material* selectedMaterial);
@@ -84,8 +82,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);

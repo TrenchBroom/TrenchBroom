@@ -137,7 +137,7 @@ using UpdateLinkedGroupsResult =
  */
 Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
-  const std::vector<mdl::GroupNode*>& targetGroupNodes,
+  const std::vector<GroupNode*>& targetGroupNodes,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager);
 
@@ -154,5 +154,8 @@ Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
 
 std::vector<Error> copyAndSetLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
+
+std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
+  const std::map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode);
 
 } // namespace tb::mdl

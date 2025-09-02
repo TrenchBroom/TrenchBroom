@@ -21,7 +21,6 @@
 
 #include "mdl/Validator.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -31,11 +30,11 @@ class Game;
 
 class MissingModValidator : public Validator
 {
-  std::weak_ptr<Game> m_game;
+  const Game& m_game;
   mutable std::vector<std::string> m_lastMods;
 
 public:
-  explicit MissingModValidator(std::weak_ptr<Game> game);
+  explicit MissingModValidator(const Game& game);
 
 private:
   void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)

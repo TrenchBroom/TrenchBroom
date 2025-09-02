@@ -162,13 +162,13 @@ public:
    * Configures `this` so, when evaluated, it transfers all attributes from the given
    * face to the evaluation target.
    */
-  void setAll(const mdl::BrushFace& face);
+  void setAll(const BrushFace& face);
   /**
    * Same as setAll(), but doesn't transfer content flags.
    */
-  void setAllExceptContentFlags(const mdl::BrushFace& face);
-  void setAll(const mdl::BrushFaceAttributes& attributes);
-  void setAllExceptContentFlags(const mdl::BrushFaceAttributes& attributes);
+  void setAllExceptContentFlags(const BrushFace& face);
+  void setAll(const BrushFaceAttributes& attributes);
+  void setAllExceptContentFlags(const BrushFaceAttributes& attributes);
 };
 
 } // namespace tb::mdl

@@ -18,24 +18,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapDocumentTest.h"
+#include "MapFixture.h"
+#include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
+#include "mdl/Map_CopyPaste.h"
+#include "mdl/PasteType.h"
 #include "mdl/WorldNode.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
-#include "ui/PasteType.h"
 
 #include "Catch2.h"
 
 namespace tb::ui
 {
 
-TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
+TEST_CASE("ClipTool")
 {
-  // https://github.com/TrenchBroom/TrenchBroom/issues/4461
+  auto fixture = mdl::MapFixture{};
+  auto& map = fixture.map();
+  fixture.create();
+
   SECTION("Clipped brushes get new link IDs")
   {
+    // https://github.com/TrenchBroom/TrenchBroom/issues/4461
     const auto data = R"(// entity 0
 {
 "mapversion" "220"
@@ -52,9 +59,9 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
 }
 }
 )";
-    REQUIRE(document->paste(data) == PasteType::Node);
+    REQUIRE(paste(map, data) == mdl::PasteType::Node);
 
-    const auto* defaultLayer = document->world()->defaultLayer();
+    const auto* defaultLayer = map.world()->defaultLayer();
 
     const auto* originalBrushNode =
       dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().front());
@@ -62,7 +69,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
 
     const auto originalLinkId = originalBrushNode->linkId();
 
-    auto tool = ClipTool{document};
+    auto tool = ClipTool{map};
     REQUIRE(tool.activate());
 
     tool.addPoint(vm::vec3d{0, 16, 16}, {});

@@ -31,13 +31,15 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/Grid.h"
+#include "mdl/Map.h"
 #include "mdl/MapFormat.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/FlagsPopupEditor.h"
-#include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/SignalDelayer.h"
@@ -46,7 +48,6 @@
 #include "ui/ViewConstants.h"
 #include "ui/ViewUtils.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
@@ -59,9 +60,9 @@ namespace tb::ui
 {
 
 FaceAttribsEditor::FaceAttribsEditor(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_updateControlsSignalDelayer{new SignalDelayer{this}}
 {
   createGui(contextManager);
@@ -77,15 +78,15 @@ bool FaceAttribsEditor::cancelMouseDrag()
 
 void FaceAttribsEditor::xOffsetChanged(const double value)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setXOffset(float(value));
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -93,15 +94,15 @@ void FaceAttribsEditor::xOffsetChanged(const double value)
 
 void FaceAttribsEditor::yOffsetChanged(const double value)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setYOffset(float(value));
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -109,15 +110,15 @@ void FaceAttribsEditor::yOffsetChanged(const double value)
 
 void FaceAttribsEditor::rotationChanged(const double value)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setRotation(float(value));
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -125,15 +126,15 @@ void FaceAttribsEditor::rotationChanged(const double value)
 
 void FaceAttribsEditor::xScaleChanged(const double value)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setXScale(float(value));
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -141,15 +142,15 @@ void FaceAttribsEditor::xScaleChanged(const double value)
 
 void FaceAttribsEditor::yScaleChanged(const double value)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setYScale(float(value));
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -158,8 +159,8 @@ void FaceAttribsEditor::yScaleChanged(const double value)
 void FaceAttribsEditor::surfaceFlagChanged(
   const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -173,7 +174,7 @@ void FaceAttribsEditor::surfaceFlagChanged(
   {
     request.unsetSurfaceFlags(value);
   }
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -182,8 +183,8 @@ void FaceAttribsEditor::surfaceFlagChanged(
 void FaceAttribsEditor::contentFlagChanged(
   const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -197,7 +198,7 @@ void FaceAttribsEditor::contentFlagChanged(
   {
     request.unsetContentFlags(value);
   }
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -205,15 +206,15 @@ void FaceAttribsEditor::contentFlagChanged(
 
 void FaceAttribsEditor::surfaceValueChanged(const double value)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setSurfaceValue(float(value));
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -221,8 +222,8 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
 
 void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -234,7 +235,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
     {
       auto request = mdl::ChangeBrushFaceAttributesRequest{};
       request.setColor(*color);
-      if (!document->setFaceAttributes(request))
+      if (!setBrushFaceAttributes(map, request))
       {
         updateControls();
       }
@@ -244,7 +245,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   {
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setColor(Color());
-    if (!document->setFaceAttributes(request))
+    if (!setBrushFaceAttributes(map, request))
     {
       updateControls();
     }
@@ -253,15 +254,15 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
 
 void FaceAttribsEditor::surfaceFlagsUnset()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.replaceSurfaceFlags(std::nullopt);
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -269,15 +270,15 @@ void FaceAttribsEditor::surfaceFlagsUnset()
 
 void FaceAttribsEditor::contentFlagsUnset()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.replaceContentFlags(std::nullopt);
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -285,15 +286,15 @@ void FaceAttribsEditor::contentFlagsUnset()
 
 void FaceAttribsEditor::surfaceValueUnset()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setSurfaceValue(std::nullopt);
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -301,15 +302,15 @@ void FaceAttribsEditor::surfaceValueUnset()
 
 void FaceAttribsEditor::colorValueUnset()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setColor(std::nullopt);
-  if (!document->setFaceAttributes(request))
+  if (!setBrushFaceAttributes(map, request))
   {
     updateControls();
   }
@@ -317,8 +318,8 @@ void FaceAttribsEditor::colorValueUnset()
 
 void FaceAttribsEditor::updateIncrements()
 {
-  auto document = kdl::mem_lock(m_document);
-  Grid& grid = document->grid();
+  const auto& map = m_document.map();
+  const auto& grid = map.grid();
 
   m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
   m_yOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
@@ -562,29 +563,29 @@ void FaceAttribsEditor::bindEvents()
 
 void FaceAttribsEditor::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &FaceAttribsEditor::documentWasNewed);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &FaceAttribsEditor::documentWasLoaded);
+  auto& map = m_document.map();
   m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &FaceAttribsEditor::nodesDidChange);
-  m_notifierConnection += document->brushFacesDidChangeNotifier.connect(
+    map.mapWasCreatedNotifier.connect(this, &FaceAttribsEditor::mapWasCreated);
+  m_notifierConnection +=
+    map.mapWasLoadedNotifier.connect(this, &FaceAttribsEditor::mapWasLoaded);
+  m_notifierConnection +=
+    map.nodesDidChangeNotifier.connect(this, &FaceAttribsEditor::nodesDidChange);
+  m_notifierConnection += map.brushFacesDidChangeNotifier.connect(
     this, &FaceAttribsEditor::brushFacesDidChange);
-  m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &FaceAttribsEditor::selectionDidChange);
-  m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
+  m_notifierConnection +=
+    map.selectionDidChangeNotifier.connect(this, &FaceAttribsEditor::selectionDidChange);
+  m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
     this, &FaceAttribsEditor::materialCollectionsDidChange);
-  m_notifierConnection += document->grid().gridDidChangeNotifier.connect(
-    this, &FaceAttribsEditor::updateIncrements);
+  m_notifierConnection +=
+    map.grid().gridDidChangeNotifier.connect(this, &FaceAttribsEditor::updateIncrements);
 }
 
-void FaceAttribsEditor::documentWasNewed(MapDocument*)
+void FaceAttribsEditor::mapWasCreated(mdl::Map&)
 {
   updateControls();
 }
 
-void FaceAttribsEditor::documentWasLoaded(MapDocument*)
+void FaceAttribsEditor::mapWasLoaded(mdl::Map&)
 {
   updateControls();
 }
@@ -599,7 +600,7 @@ void FaceAttribsEditor::brushFacesDidChange(const std::vector<mdl::BrushFaceHand
   updateControlsDelayed();
 }
 
-void FaceAttribsEditor::selectionDidChange(const Selection&)
+void FaceAttribsEditor::selectionDidChange(const mdl::SelectionChange&)
 {
   updateControlsDelayed();
 }
@@ -674,7 +675,8 @@ void FaceAttribsEditor::updateControls()
     hideColorAttribEditor();
   }
 
-  const auto faceHandles = kdl::mem_lock(m_document)->allSelectedBrushFaces();
+  const auto& map = m_document.map();
+  const auto faceHandles = map.selection().allBrushFaces();
   if (!faceHandles.empty())
   {
     auto materialMulti = false;
@@ -834,15 +836,15 @@ void FaceAttribsEditor::updateControlsDelayed()
 
 bool FaceAttribsEditor::hasSurfaceFlags() const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = m_document.map();
+  const auto game = map.game();
   return !game->config().faceAttribsConfig.surfaceFlags.flags.empty();
 }
 
 bool FaceAttribsEditor::hasContentFlags() const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = m_document.map();
+  const auto game = map.game();
   return !game->config().faceAttribsConfig.contentFlags.flags.empty();
 }
 
@@ -876,8 +878,8 @@ void FaceAttribsEditor::hideContentFlagsEditor()
 
 bool FaceAttribsEditor::hasColorAttribs() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->world()->mapFormat() == mdl::MapFormat::Daikatana;
+  const auto& map = m_document.map();
+  return map.world()->mapFormat() == mdl::MapFormat::Daikatana;
 }
 
 void FaceAttribsEditor::showColorAttribEditor()
@@ -915,8 +917,8 @@ std::tuple<QList<int>, QStringList, QStringList> getFlags(
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFlags()
   const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = m_document.map();
+  const auto game = map.game();
   const auto& surfaceFlags = game->config().faceAttribsConfig.surfaceFlags;
   return getFlags(surfaceFlags.flags);
 }
@@ -924,8 +926,8 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFl
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFlags()
   const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
+  const auto& map = m_document.map();
+  const auto game = map.game();
   const auto& contentFlags = game->config().faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);
 }

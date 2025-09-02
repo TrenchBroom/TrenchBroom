@@ -52,7 +52,7 @@ public:
    * @param node the containing brush node, must not be null
    * @param face the face to reference
    */
-  BrushFaceReference(mdl::BrushNode* node, const mdl::BrushFace& face);
+  BrushFaceReference(BrushNode* node, const BrushFace& face);
 
   /**
    * Resolves the referenced brush face or an error if this reference cannot be resolved.

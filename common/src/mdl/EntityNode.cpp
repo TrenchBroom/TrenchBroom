@@ -157,7 +157,7 @@ bool EntityNode::doSelectable() const
 void EntityNode::doPick(
   const EditorContext& editorContext, const vm::ray3d& ray, PickResult& pickResult)
 {
-  if (!hasChildren() && editorContext.visible(this))
+  if (!hasChildren() && editorContext.visible(*this))
   {
     const auto& myBounds = logicalBounds();
     if (!myBounds.contains(ray.origin))

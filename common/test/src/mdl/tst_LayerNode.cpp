@@ -37,58 +37,62 @@
 namespace tb::mdl
 {
 
-TEST_CASE("LayerNodeTest.canAddChild")
+TEST_CASE("LayerNode")
 {
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
 
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+  SECTION("canAddChild")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
 
-  // clang-format off
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+    auto layerNode = LayerNode{Layer{"layer"}};
+    auto groupNode = GroupNode{Group{"group"}};
+    auto entityNode = EntityNode{Entity{}};
+    auto brushNode = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+    // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
+    // clang-format on
 
-  CHECK_FALSE(layerNode.canAddChild(&worldNode));
-  CHECK_FALSE(layerNode.canAddChild(&layerNode));
-  CHECK(layerNode.canAddChild(&groupNode));
-  CHECK(layerNode.canAddChild(&entityNode));
-  CHECK(layerNode.canAddChild(&brushNode));
-  CHECK(layerNode.canAddChild(&patchNode));
-}
+    CHECK_FALSE(layerNode.canAddChild(&worldNode));
+    CHECK_FALSE(layerNode.canAddChild(&layerNode));
+    CHECK(layerNode.canAddChild(&groupNode));
+    CHECK(layerNode.canAddChild(&entityNode));
+    CHECK(layerNode.canAddChild(&brushNode));
+    CHECK(layerNode.canAddChild(&patchNode));
+  }
 
-TEST_CASE("LayerNodeTest.canRemoveChild")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  SECTION("canRemoveChild")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
 
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+    auto layerNode = LayerNode{Layer{"layer"}};
+    auto groupNode = GroupNode{Group{"group"}};
+    auto entityNode = EntityNode{Entity{}};
+    auto brushNode = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
-  // clang-format off
+    // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
+    // clang-format on
 
-  CHECK(layerNode.canRemoveChild(&worldNode));
-  CHECK(layerNode.canRemoveChild(&layerNode));
-  CHECK(layerNode.canRemoveChild(&groupNode));
-  CHECK(layerNode.canRemoveChild(&entityNode));
-  CHECK(layerNode.canRemoveChild(&brushNode));
-  CHECK(layerNode.canRemoveChild(&patchNode));
+    CHECK(layerNode.canRemoveChild(&worldNode));
+    CHECK(layerNode.canRemoveChild(&layerNode));
+    CHECK(layerNode.canRemoveChild(&groupNode));
+    CHECK(layerNode.canRemoveChild(&entityNode));
+    CHECK(layerNode.canRemoveChild(&brushNode));
+    CHECK(layerNode.canRemoveChild(&patchNode));
+  }
 }
 
 } // namespace tb::mdl

@@ -33,10 +33,10 @@ namespace tb::ui
 {
 
 EntityInspector::EntityInspector(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
 {
-  createGui(std::move(document), contextManager);
+  createGui(document, contextManager);
 }
 
 EntityInspector::~EntityInspector()
@@ -44,8 +44,7 @@ EntityInspector::~EntityInspector()
   saveWindowState(m_splitter);
 }
 
-void EntityInspector::createGui(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+void EntityInspector::createGui(MapDocument& document, GLContextManager& contextManager)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
@@ -66,15 +65,14 @@ void EntityInspector::createGui(
   restoreWindowState(m_splitter);
 }
 
-QWidget* EntityInspector::createAttributeEditor(
-  QWidget* parent, std::weak_ptr<MapDocument> document)
+QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocument& document)
 {
-  m_attributeEditor = new EntityPropertyEditor{std::move(document), parent};
+  m_attributeEditor = new EntityPropertyEditor{document, parent};
   return m_attributeEditor;
 }
 
 QWidget* EntityInspector::createEntityBrowser(
-  QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+  QWidget* parent, MapDocument& document, GLContextManager& contextManager)
 {
   auto* panel = new SwitchableTitledPanel{
     tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};

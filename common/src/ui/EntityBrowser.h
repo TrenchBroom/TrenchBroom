@@ -24,7 +24,6 @@
 #include "NotifierConnection.h"
 
 #include <filesystem>
-#include <memory>
 #include <vector>
 
 class QPushButton;
@@ -34,6 +33,7 @@ class QScrollBar;
 
 namespace tb::mdl
 {
+class Map;
 class Node;
 class ResourceId;
 } // namespace tb::mdl
@@ -48,7 +48,7 @@ class EntityBrowser : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   QComboBox* m_sortOrderChoice = nullptr;
   QPushButton* m_groupButton = nullptr;
   QPushButton* m_usedButton = nullptr;
@@ -60,9 +60,7 @@ private:
 
 public:
   EntityBrowser(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   void reload();
 
@@ -71,8 +69,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
 
   void modsDidChange();
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);

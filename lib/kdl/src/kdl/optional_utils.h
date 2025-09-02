@@ -49,6 +49,25 @@ auto operator|(const std::optional<T>& o, const and_then_helper<F>& h)
 
 // Type acts as a tag to find the correct operator| overload
 template <typename F>
+struct or_else_helper
+{
+  const F& f;
+};
+
+template <typename T, typename F>
+auto operator|(std::optional<T>&& o, const or_else_helper<F>& h)
+{
+  return o ? std::move(o) : h.f();
+}
+
+template <typename T, typename F>
+auto operator|(const std::optional<T>& o, const or_else_helper<F>& h)
+{
+  return o ? o : h.f();
+}
+
+// Type acts as a tag to find the correct operator| overload
+template <typename F>
 struct transform_helper
 {
   const F& f;
@@ -73,6 +92,12 @@ template <typename F>
 auto optional_and_then(const F& f)
 {
   return detail::and_then_helper<F>{f};
+}
+
+template <typename F>
+auto optional_or_else(const F& f)
+{
+  return detail::or_else_helper<F>{f};
 }
 
 template <typename F>

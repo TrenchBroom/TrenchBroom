@@ -94,7 +94,7 @@ bool EntityNodeIndexQuery::execute(
   }
 }
 
-std::vector<mdl::EntityProperty> EntityNodeIndexQuery::execute(
+std::vector<EntityProperty> EntityNodeIndexQuery::execute(
   const EntityNodeBase* node) const
 {
   const auto& entity = node->entity();

@@ -124,9 +124,9 @@ size_t GameFactory::gameCount() const
   return m_configs.size();
 }
 
-std::shared_ptr<Game> GameFactory::createGame(const std::string& gameName, Logger& logger)
+std::unique_ptr<Game> GameFactory::createGame(const std::string& gameName, Logger& logger)
 {
-  return std::make_shared<GameImpl>(gameConfig(gameName), gamePath(gameName), logger);
+  return std::make_unique<GameImpl>(gameConfig(gameName), gamePath(gameName), logger);
 }
 
 std::vector<std::string> GameFactory::fileFormats(const std::string& gameName) const

@@ -25,9 +25,12 @@
 
 #include "io/PathQt.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/Game.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
+#include "mdl/Map_Entities.h"
 #include "ui/BorderLine.h"
 #include "ui/ChoosePathTypeDialog.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/TitleBar.h"
 #include "ui/ViewConstants.h"
@@ -71,8 +74,8 @@ std::string getWadPathStr(const std::vector<std::filesystem::path>& wadPaths)
 
 } // namespace
 
-SmartWadEditor::SmartWadEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor{std::move(document), parent}
+SmartWadEditor::SmartWadEditor(MapDocument& document, QWidget* parent)
+  : SmartPropertyEditor{document, parent}
 {
   auto* header = new TitleBar{"Wad Files"};
 
@@ -143,20 +146,17 @@ void SmartWadEditor::addWads()
       FileDialogDir::MaterialCollection, pathQStr);
 
     const auto absWadPath = io::pathFromQString(pathQStr);
-    auto pathDialog = ChoosePathTypeDialog{
-      window(), absWadPath, document()->path(), document()->game()->gamePath()};
+    auto pathDialog =
+      ChoosePathTypeDialog{window(), absWadPath, map().path(), map().game()->gamePath()};
 
     const int result = pathDialog.exec();
     if (result == QDialog::Accepted)
     {
       auto wadPaths = getWadPaths(nodes(), propertyKey());
       wadPaths.push_back(convertToPathType(
-        pathDialog.pathType(),
-        absWadPath,
-        document()->path(),
-        document()->game()->gamePath()));
+        pathDialog.pathType(), absWadPath, map().path(), map().game()->gamePath()));
 
-      document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
+      setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
       m_wadPaths->setCurrentRow(
         m_wadPaths->count() - 1, QItemSelectionModel::ClearAndSelect);
     }
@@ -182,7 +182,7 @@ void SmartWadEditor::removeSelectedWads()
     wadPaths = kdl::vec_erase_at(std::move(wadPaths), index);
   }
 
-  document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
+  setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
   m_wadPaths->setCurrentRow(
     std::min(int(indicesToRemove.back()), m_wadPaths->count() - 1),
     QItemSelectionModel::ClearAndSelect);
@@ -203,7 +203,7 @@ void SmartWadEditor::moveSelectedWadsUp()
     using std::swap;
     swap(wadPaths[index], wadPaths[index - 1]);
 
-    document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
+    setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
     m_wadPaths->setCurrentRow(int(index) - 1, QItemSelectionModel::ClearAndSelect);
   }
 }
@@ -222,14 +222,14 @@ void SmartWadEditor::moveSelectedWadsDown()
     using std::swap;
     swap(wadPaths[index], wadPaths[index + 1]);
 
-    document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
+    setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
     m_wadPaths->setCurrentRow(int(index) + 1, QItemSelectionModel::ClearAndSelect);
   }
 }
 
 void SmartWadEditor::reloadWads()
 {
-  document()->reloadMaterialCollections();
+  reloadMaterialCollections(map());
 }
 
 bool SmartWadEditor::canRemoveWads() const

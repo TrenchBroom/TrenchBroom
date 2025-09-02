@@ -33,7 +33,7 @@ class FaceHandleManager;
 class FaceTool : public VertexToolBase<vm::polygon3d>
 {
 public:
-  explicit FaceTool(std::weak_ptr<MapDocument> document);
+  explicit FaceTool(mdl::Map& map);
 
 public:
   std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;
@@ -48,8 +48,8 @@ public:
     mdl::PickResult& pickResult) const override;
 
 public:
-  FaceHandleManager& handleManager() override;
-  const FaceHandleManager& handleManager() const override;
+  mdl::FaceHandleManager& handleManager() override;
+  const mdl::FaceHandleManager& handleManager() const override;
 
 public:
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(

@@ -38,12 +38,12 @@ class BrushNode;
 class BrushFace;
 class ChangeBrushFaceAttributesRequest;
 class Game;
-class MapFacade;
+class Map;
 
 class MaterialTagMatcher : public TagMatcher
 {
 public:
-  void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
+  void enable(TagMatcherCallback& callback, Map& map) const override;
   bool canEnable() const override;
   void appendToStream(std::ostream& str) const override;
 
@@ -107,8 +107,8 @@ protected:
 
 public:
   bool matches(const Taggable& taggable) const override;
-  void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
-  void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
+  void enable(TagMatcherCallback& callback, Map& map) const override;
+  void disable(TagMatcherCallback& callback, Map& map) const override;
   bool canEnable() const override;
   bool canDisable() const override;
   void appendToStream(std::ostream& str) const override;
@@ -143,8 +143,8 @@ public:
 
 public:
   bool matches(const Taggable& taggable) const override;
-  void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
-  void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
+  void enable(TagMatcherCallback& callback, Map& map) const override;
+  void disable(TagMatcherCallback& callback, Map& map) const override;
   bool canEnable() const override;
   bool canDisable() const override;
   void appendToStream(std::ostream& str) const override;

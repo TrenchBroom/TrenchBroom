@@ -22,7 +22,6 @@
 #include "NotifierConnection.h"
 #include "ui/TabBook.h"
 
-#include <memory>
 #include <vector>
 
 class QCheckBox;
@@ -33,6 +32,7 @@ namespace tb::mdl
 {
 class BrushFaceHandle;
 class Issue;
+class Map;
 class Node;
 } // namespace tb::mdl
 
@@ -51,7 +51,7 @@ private:
   static const int HideIssuesCommandId = 3;
   static const int FixObjectsBaseId = 4;
 
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   IssueBrowserView* m_view = nullptr;
   QCheckBox* m_showHiddenIssuesCheckBox = nullptr;
   FlagsPopupEditor* m_filterEditor = nullptr;
@@ -59,19 +59,22 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit IssueBrowser(MapDocument& document, QWidget* parent = nullptr);
 
   QWidget* createTabBarPage(QWidget* parent) override;
 
 private:
   void connectObservers();
-  void documentWasNewedOrLoaded(MapDocument* document);
-  void documentWasSaved(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
+  void mapWasSaved(mdl::Map& map);
   void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
   void issueIgnoreChanged(mdl::Issue* issue);
+
+  void reload();
 
   void updateFilterFlags();
 

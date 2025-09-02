@@ -33,16 +33,6 @@
 namespace tb::mdl
 {
 
-PortalFile::PortalFile(std::vector<vm::polygon3f> portals)
-  : m_portals{std::move(portals)}
-{
-}
-
-const std::vector<vm::polygon3f>& PortalFile::portals() const
-{
-  return m_portals;
-}
-
 bool canLoadPortalFile(const std::filesystem::path& path)
 {
   return io::Disk::withInputStream(
@@ -50,7 +40,7 @@ bool canLoadPortalFile(const std::filesystem::path& path)
          | kdl::transform_error([](const auto&) { return false; }) | kdl::value();
 }
 
-Result<PortalFile> loadPortalFile(std::istream& stream)
+Result<std::vector<vm::polygon3f>> loadPortalFile(std::istream& stream)
 {
   static const auto lineSplitter = "() \n\t\r";
 
@@ -139,7 +129,8 @@ Result<PortalFile> loadPortalFile(std::istream& stream)
 
     portals.emplace_back(std::move(verts));
   }
-  return PortalFile{std::move(portals)};
+
+  return portals;
 }
 
 

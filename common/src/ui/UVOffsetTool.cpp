@@ -21,13 +21,14 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
+#include "mdl/TransactionScope.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 #include "ui/UVView.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_fold.h"
 
 #include "vm/intersection.h"
@@ -78,18 +79,18 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
 class UVOffsetDragTracker : public GestureTracker
 {
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   const UVViewHelper& m_helper;
   vm::vec2f m_lastPoint;
 
 public:
   UVOffsetDragTracker(
-    MapDocument& document, const UVViewHelper& helper, const InputState& inputState)
-    : m_document{document}
+    mdl::Map& map, const UVViewHelper& helper, const InputState& inputState)
+    : m_map{map}
     , m_helper{helper}
     , m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())}
   {
-    m_document.startTransaction("Move UV", TransactionScope::LongRunning);
+    m_map.startTransaction("Move UV", mdl::TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override
@@ -113,24 +114,23 @@ public:
     auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setOffset(corrected);
 
-    m_document.setFaceAttributes(request);
+    setBrushFaceAttributes(m_map, request);
 
     m_lastPoint = m_lastPoint + snapped;
     return true;
   }
 
-  void end(const InputState&) override { m_document.commitTransaction(); }
+  void end(const InputState&) override { m_map.commitTransaction(); }
 
-  void cancel() override { m_document.cancelTransaction(); }
+  void cancel() override { m_map.cancelTransaction(); }
 };
 
 } // namespace
 
-UVOffsetTool::UVOffsetTool(
-  std::weak_ptr<MapDocument> document, const UVViewHelper& helper)
+UVOffsetTool::UVOffsetTool(MapDocument& document, const UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -157,8 +157,7 @@ std::unique_ptr<GestureTracker> UVOffsetTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVOffsetDragTracker>(
-    *kdl::mem_lock(m_document), m_helper, inputState);
+  return std::make_unique<UVOffsetDragTracker>(m_document.map(), m_helper, inputState);
 }
 
 bool UVOffsetTool::cancel()

@@ -27,8 +27,9 @@
 
 namespace tb::mdl
 {
+class BrushVertexCommandBase;
 class PickResult;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -40,10 +41,7 @@ class RenderService;
 
 namespace tb::ui
 {
-class BrushVertexCommandBase;
-class Grid;
 class Lasso;
-class Selection;
 
 class VertexTool : public VertexToolBase<vm::vec3d>
 {
@@ -60,7 +58,7 @@ private:
   mutable render::PointGuideRenderer m_guideRenderer;
 
 public:
-  explicit VertexTool(std::weak_ptr<MapDocument> document);
+  explicit VertexTool(mdl::Map& map);
 
 public:
   std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::vec3d& handle) const;
@@ -80,8 +78,8 @@ public: // Handle selection
   bool deselectAll() override;
 
 public:
-  VertexHandleManager& handleManager() override;
-  const VertexHandleManager& handleManager() const override;
+  mdl::VertexHandleManager& handleManager() override;
+  const mdl::VertexHandleManager& handleManager() const override;
 
 public: // Vertex moving
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
@@ -113,8 +111,8 @@ private:
   void addHandles(const std::vector<mdl::Node*>& nodes) override;
   void removeHandles(const std::vector<mdl::Node*>& nodes) override;
 
-  void addHandles(BrushVertexCommandBase* command) override;
-  void removeHandles(BrushVertexCommandBase* command) override;
+  void addHandles(mdl::BrushVertexCommandBase* command) override;
+  void removeHandles(mdl::BrushVertexCommandBase* command) override;
 
 private: // General helper methods
   void resetModeAfterDeselection();

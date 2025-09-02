@@ -55,7 +55,7 @@ public:
 private:
   void onFocusChange(QWidget* old, QWidget* now);
   MapFrame* createOrReuseFrame(kdl::task_manager& taskManager);
-  MapFrame* createFrame(std::shared_ptr<MapDocument> document);
+  MapFrame* createFrame(std::unique_ptr<MapDocument> document);
   void removeFrame(MapFrame* frame);
 
   friend class MapFrame;

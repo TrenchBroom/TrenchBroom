@@ -22,16 +22,16 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/PickResult.h"
+#include "mdl/TransactionScope.h"
 #include "render/Camera.h"
-#include "ui/Grid.h"
-#include "ui/MapDocument.h"
 #include "ui/ScaleToolPage.h"
-#include "ui/TransactionScope.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
 #include "kdl/reflection_impl.h"
 
@@ -565,9 +565,9 @@ vm::bbox3d moveBBoxForHit(
 
 // ScaleTool
 
-ScaleTool::ScaleTool(std::weak_ptr<MapDocument> document)
+ScaleTool::ScaleTool(mdl::Map& map)
   : Tool{false}
-  , m_document{std::move(document)}
+  , m_map{map}
 {
 }
 
@@ -579,9 +579,9 @@ bool ScaleTool::doActivate()
   return true;
 }
 
-const Grid& ScaleTool::grid() const
+const mdl::Grid& ScaleTool::grid() const
 {
-  return kdl::mem_lock(m_document)->grid();
+  return m_map.grid();
 }
 
 const mdl::Hit& ScaleTool::dragStartHit() const
@@ -591,8 +591,7 @@ const mdl::Hit& ScaleTool::dragStartHit() const
 
 bool ScaleTool::applies() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return !document->selectedNodes().empty();
+  return m_map.selection().hasNodes();
 }
 
 BackSide pickBackSideOfBox(
@@ -782,8 +781,9 @@ void ScaleTool::pick3D(
 
 vm::bbox3d ScaleTool::bounds() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->selectionBounds();
+  const auto& bounds = m_map.selectionBounds();
+  ensure(bounds, "selection bounds are available");
+  return *bounds;
 }
 
 std::vector<vm::polygon3f> ScaleTool::polygonsHighlightedByDrag() const
@@ -1021,8 +1021,7 @@ void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
   m_dragStartHit = hit;
   m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
-  auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Scale Objects", TransactionScope::LongRunning);
+  m_map.startTransaction("Scale Objects", mdl::TransactionScope::LongRunning);
   m_resizing = true;
 }
 
@@ -1031,8 +1030,6 @@ void ScaleTool::scaleByDelta(const vm::vec3d& delta)
   ensure(m_resizing, "must be resizing already");
 
   m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
-
-  auto document = kdl::mem_lock(m_document);
 
   const auto newBox = moveBBoxForHit(
     m_bboxAtDragStart,
@@ -1043,35 +1040,33 @@ void ScaleTool::scaleByDelta(const vm::vec3d& delta)
 
   if (!newBox.is_empty())
   {
-    document->scale(bounds(), newBox);
+    scaleSelection(m_map, bounds(), newBox);
   }
 }
 
 void ScaleTool::commitScale()
 {
-  auto document = kdl::mem_lock(m_document);
   if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
   {
-    document->cancelTransaction();
+    m_map.cancelTransaction();
   }
   else
   {
-    document->commitTransaction();
+    m_map.commitTransaction();
   }
   m_resizing = false;
 }
 
 void ScaleTool::cancelScale()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->cancelTransaction();
+  m_map.cancelTransaction();
   m_resizing = false;
 }
 
 QWidget* ScaleTool::doCreatePage(QWidget* parent)
 {
   assert(m_toolPage == nullptr);
-  m_toolPage = new ScaleToolPage{m_document, parent};
+  m_toolPage = new ScaleToolPage{m_map, parent};
   return m_toolPage;
 }
 

@@ -21,14 +21,14 @@
 
 #include <QWidget>
 
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace tb::mdl
 {
 class EntityNodeBase;
-}
+class Map;
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -38,15 +38,14 @@ class SmartPropertyEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   std::string m_propertyKey;
   std::vector<mdl::EntityNodeBase*> m_nodes;
   bool m_active = false;
 
 public:
-  explicit SmartPropertyEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartPropertyEditor(MapDocument& document, QWidget* parent = nullptr);
   ~SmartPropertyEditor() override;
 
   bool usesPropertyKey(const std::string& propertyKey) const;
@@ -56,7 +55,7 @@ public:
   void deactivate();
 
 protected:
-  std::shared_ptr<MapDocument> document() const;
+  mdl::Map& map();
   const std::string& propertyKey() const;
   const std::vector<mdl::EntityNodeBase*> nodes() const;
   void addOrUpdateProperty(const std::string& value);

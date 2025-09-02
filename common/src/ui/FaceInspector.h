@@ -22,15 +22,14 @@
 #include "NotifierConnection.h"
 #include "ui/TabBook.h"
 
-#include <memory>
-
 class QSplitter;
 class QWidget;
 
 namespace tb::mdl
 {
+class Map;
 class Material;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -44,7 +43,7 @@ class FaceInspector : public TabBookPage
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   QSplitter* m_splitter = nullptr;
   FaceAttribsEditor* m_faceAttribsEditor = nullptr;
   MaterialBrowser* m_materialBrowser = nullptr;
@@ -54,9 +53,7 @@ private:
 
 public:
   FaceInspector(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
   ~FaceInspector() override;
 
   bool cancelMouseDrag();
@@ -71,7 +68,8 @@ private:
   void materialSelected(const mdl::Material* material);
 
   void connectObservers();
-  void documentWasNewedOrOpened(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
 };
 
 } // namespace tb::ui

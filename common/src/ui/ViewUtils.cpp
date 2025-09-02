@@ -28,15 +28,15 @@
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
 
 #include <filesystem>
-#include <memory>
 
 namespace tb::ui
 {
@@ -58,31 +58,30 @@ void combineFlags(
   }
 }
 
-bool loadEntityDefinitionFile(
-  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path)
+bool loadEntityDefinitionFile(MapDocument& document, QWidget* parent, const QString& path)
 {
   return loadEntityDefinitionFile(document, parent, QStringList{path}) == 0;
 }
 
 size_t loadEntityDefinitionFile(
-  std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs)
+  MapDocument& document, QWidget* parent, const QStringList& pathStrs)
 {
   if (pathStrs.empty())
   {
     return 0;
   }
 
-  auto document = kdl::mem_lock(i_document);
-  auto game = document->game();
+  auto& map = document.map();
+  const auto& game = *map.game();
   const auto& gameFactory = mdl::GameFactory::instance();
-  const auto gamePath = gameFactory.gamePath(game->config().name);
-  const auto docPath = document->path();
+  const auto gamePath = gameFactory.gamePath(game.config().name);
+  const auto docPath = map.path();
 
   for (int i = 0; i < pathStrs.size(); ++i)
   {
     const auto& pathStr = pathStrs[i];
     const auto absPath = io::pathFromQString(pathStr);
-    if (game->isEntityDefinitionFile(absPath))
+    if (game.isEntityDefinitionFile(absPath))
     {
       auto pathDialog =
         ChoosePathTypeDialog{parent->window(), absPath, docPath, gamePath};
@@ -91,7 +90,7 @@ size_t loadEntityDefinitionFile(
         const auto path =
           convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
         const auto spec = mdl::EntityDefinitionFileSpec::external(path);
-        document->setEntityDefinitionFile(spec);
+        setEntityDefinitionFile(map, spec);
         return static_cast<size_t>(i);
       }
     }

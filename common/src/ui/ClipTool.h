@@ -35,8 +35,12 @@ namespace tb::mdl
 {
 class BrushFace;
 class BrushFaceHandle;
+class Grid;
+class Map;
 class Node;
 class PickResult;
+
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -49,10 +53,6 @@ class RenderContext;
 
 namespace tb::ui
 {
-class Grid;
-class MapDocument;
-class Selection;
-
 class ClipStrategy;
 
 class ClipTool : public Tool
@@ -69,7 +69,7 @@ private:
   };
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
   ClipSide m_clipSide = ClipSide::Front;
   std::unique_ptr<ClipStrategy> m_strategy;
@@ -86,10 +86,10 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ClipTool(std::weak_ptr<MapDocument> document);
+  explicit ClipTool(mdl::Map& map);
   ~ClipTool() override;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   void toggleSide();
 
@@ -124,7 +124,7 @@ private:
   std::map<mdl::Node*, std::vector<mdl::Node*>> clipBrushes();
 
 public:
-  vm::vec3d defaultClipPointPos() const;
+  std::optional<vm::vec3d> defaultClipPointPos() const;
 
   bool canAddPoint(const vm::vec3d& point) const;
   bool hasPoints() const;
@@ -168,7 +168,7 @@ private:
   bool doRemove();
 
   void connectObservers();
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void nodesWillChange(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& nodes);
