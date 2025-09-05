@@ -84,6 +84,169 @@ public:
 
 TEST_CASE("Map")
 {
+  SECTION("create")
+  {
+    auto taskManager = createTestTaskManager();
+    auto logger = NullLogger{};
+    auto map = Map{*taskManager, logger};
+
+    REQUIRE(map.world() == nullptr);
+    REQUIRE(map.worldBounds() == Map::DefaultWorldBounds);
+
+    SECTION("Calling create sets worldspawn and notifies observers")
+    {
+      auto mapWasCreated = Observer<Map&>{map.mapWasCreatedNotifier};
+      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+      REQUIRE(map.create(
+        MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+
+      REQUIRE(map.world() != nullptr);
+      CHECK(
+        map.world()->entity()
+        == Entity{{
+          {EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname},
+        }});
+      CHECK(!map.worldBounds().is_empty());
+      CHECK(mapWasCreated.collected == std::set{&map});
+      CHECK(mapWasCleared.collected.empty());
+
+      SECTION("Calling create again clears the map and resets the modification count")
+      {
+        mapWasCreated.collected.clear();
+
+        map.incModificationCount();
+
+        REQUIRE(map.create(
+          MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+
+        CHECK(map.modificationCount() == 0);
+        CHECK(mapWasCreated.collected == std::set{&map});
+        CHECK(mapWasCleared.collected == std::set{&map});
+      }
+    }
+
+    SECTION("Loads the initial map if configured")
+    {
+      auto gameConfig = MockGameConfig{};
+      gameConfig.forceEmptyNewMap = false;
+      gameConfig.path = "fixture/test/mdl/Map/GameConfig.cfg";
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {"initialMap.map"}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
+
+      const auto* defaultLayerNode = map.world()->defaultLayer();
+      REQUIRE(defaultLayerNode->children().size() == 1);
+
+      const auto* brushNode =
+        dynamic_cast<const BrushNode*>(defaultLayerNode->children().front());
+      REQUIRE(brushNode);
+
+      CHECK(brushNode->brush().bounds() == vm::bbox3d{{-32, -32, -64}, {32, 32, 64}});
+
+      const auto* valveVersionProperty =
+        map.world()->entity().property(EntityPropertyKeys::ValveVersion);
+      REQUIRE(valveVersionProperty);
+      CHECK(*valveVersionProperty == "220");
+    }
+
+    SECTION("Sets Valve version property")
+    {
+      auto gameConfig = MockGameConfig{};
+      gameConfig.forceEmptyNewMap = false;
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {"initialMap.map"}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
+
+      const auto* valveVersionProperty =
+        map.world()->entity().property(EntityPropertyKeys::ValveVersion);
+      REQUIRE(valveVersionProperty);
+      CHECK(*valveVersionProperty == "220");
+    }
+
+    SECTION("Sets material config property")
+    {
+      auto gameConfig = MockGameConfig{};
+      gameConfig.forceEmptyNewMap = false;
+      gameConfig.materialConfig.property = "wad";
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {"initialMap.map"}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
+
+      const auto* materialConfigProperty = map.world()->entity().property("wad");
+      REQUIRE(materialConfigProperty);
+      CHECK(*materialConfigProperty == "");
+    }
+
+    SECTION("Creates an initial brush if configured")
+    {
+      auto gameConfig = MockGameConfig{};
+      gameConfig.forceEmptyNewMap = false;
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Standard", {}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
+
+      const auto* defaultLayerNode = map.world()->defaultLayer();
+      REQUIRE(defaultLayerNode->children().size() == 1);
+
+      const auto* brushNode =
+        dynamic_cast<const BrushNode*>(defaultLayerNode->children().front());
+      REQUIRE(brushNode);
+
+      CHECK(brushNode->brush().bounds() == vm::bbox3d{{-64, -64, -16}, {64, 64, 16}});
+    }
+
+    SECTION("Sets worldspawn default properties")
+    {
+      // This currently does not work because we clear the entity definitions when
+      // creating a map.
+
+      map.entityDefinitionManager().setDefinitions({
+        {
+          "worldspawn",
+          Color{},
+          {},
+          {
+            {"some_default_prop", PropertyValueTypes::String{"value"}, "", ""},
+          },
+        },
+      });
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.entityConfig.setDefaultProperties = true;
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, std::move(game)));
+
+      REQUIRE(map.world() != nullptr);
+      /* EXPECTED:
+      CHECK(
+        map.world()->entity()
+        == Entity{{
+          {EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname},
+          {"some_default_prop", "value"},
+        }});
+      ACTUAL: */
+      CHECK(
+        map.world()->entity()
+        == Entity{{
+          {EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname},
+        }});
+    }
+  }
+
   SECTION("load")
   {
     auto taskManager = createTestTaskManager();
