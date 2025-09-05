@@ -499,7 +499,7 @@ TEST_CASE("CompilationRunner")
   auto& map = fixture.map();
 
   fixture.load(
-    "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
+    "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map",
     {.game = mdl::LoadGameFixture{"Quake"}});
 
   const auto testWorkDir = std::string{"/some/path"};

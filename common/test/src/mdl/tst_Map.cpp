@@ -99,7 +99,7 @@ TEST_CASE("Map")
       SECTION("Detect Valve Format Map")
       {
         fixture.load(
-          "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
+          "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map",
           {.game = MockGameFixture{gameConfig}});
 
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
@@ -109,7 +109,7 @@ TEST_CASE("Map")
       SECTION("Detect Standard Format Map")
       {
         fixture.load(
-          "fixture/test/ui/MapDocumentTest/standardFormatMapWithoutFormatTag.map",
+          "fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map",
           {.game = MockGameFixture{gameConfig}});
 
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Standard);
@@ -119,7 +119,7 @@ TEST_CASE("Map")
       SECTION("detectEmptyMap")
       {
         fixture.load(
-          "fixture/test/ui/MapDocumentTest/emptyMapWithoutFormatTag.map",
+          "fixture/test/mdl/Map/emptyMapWithoutFormatTag.map",
           {.game = LoadGameFixture{"Quake"}});
 
         // an empty map detects as Valve because Valve is listed first in the Quake game
@@ -133,8 +133,7 @@ TEST_CASE("Map")
         // map has both Standard and Valve brushes
         CHECK_THROWS_AS(
           fixture.load(
-            "fixture/test/ui/MapDocumentTest/mixedFormats.map",
-            {.game = LoadGameFixture{"Quake"}}),
+            "fixture/test/mdl/Map/mixedFormats.map", {.game = LoadGameFixture{"Quake"}}),
           std::runtime_error);
       }
     }
@@ -145,7 +144,7 @@ TEST_CASE("Map")
     SECTION("Writing map header")
     {
       fixture.load(
-        "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
+        "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map",
         {.game = LoadGameFixture{"Quake"}});
       REQUIRE(map.world()->mapFormat() == mdl::MapFormat::Valve);
 
