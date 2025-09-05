@@ -43,7 +43,7 @@ TEST_CASE("Map_Assets")
   SECTION("reloadMaterialCollections")
   {
     fixture.load(
-      "fixture/test/ui/MapDocumentTest/reloadMaterialCollectionsQ2.map",
+      "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map",
       {.mapFormat = MapFormat::Quake2, .game = LoadGameFixture{"Quake2"}});
 
     const auto faces = map.world()->defaultLayer()->children()
