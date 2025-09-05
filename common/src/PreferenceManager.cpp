@@ -40,6 +40,7 @@
 
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
+#include "kdl/reflection_impl.h"
 
 #include <vector>
 
@@ -387,6 +388,14 @@ void togglePref(Preference<bool>& preference)
   prefs.saveChanges();
 }
 
+namespace PreferenceErrors
+{
+kdl_reflect_impl(NoFilePresent);
+kdl_reflect_impl(JsonParseError);
+kdl_reflect_impl(FileAccessError);
+kdl_reflect_impl(LockFileError);
+} // namespace PreferenceErrors
+
 std::filesystem::path preferenceFilePath()
 {
   return io::SystemPaths::userDataDirectory() / "Preferences.json";
@@ -503,3 +512,8 @@ QByteArray writePreferencesToJson(
 }
 
 } // namespace tb
+
+std::ostream& operator<<(std::ostream& lhs, const QJsonParseError& rhs)
+{
+  return lhs << rhs.errorString().toStdString();
+}

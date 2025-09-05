@@ -249,7 +249,7 @@ TEST_CASE("BrushBuilder")
       vm::axis::z,
       "someName");
 
-    CHECK(cylinder.is_success());
+    REQUIRE(cylinder);
     CHECK(cylinder.value().size() == 8);
   }
 }

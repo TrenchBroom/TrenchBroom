@@ -224,8 +224,8 @@ TEST_CASE("Preferences")
             .is_error_type<PreferenceErrors::JsonParseError>());
 
     // Valid JSON
-    CHECK(parsePreferencesFromJson(QByteArray(R"({"foo": "bar"})")).is_success());
-    CHECK(parsePreferencesFromJson(QByteArray("{}")).is_success());
+    CHECK(parsePreferencesFromJson(QByteArray(R"({"foo": "bar"})")));
+    CHECK(parsePreferencesFromJson(QByteArray("{}")));
 
     readPreferencesFromFile("fixture/test/preferences-v2.json")
       | kdl::transform([](const std::map<std::filesystem::path, QJsonValue>& prefs) {

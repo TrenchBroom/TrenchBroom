@@ -353,7 +353,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
 
     CHECK(nodes.value().size() == 1u);
 
@@ -379,7 +379,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
     CHECK(nodes.value().size() == 1u);
 
     kdl::col_delete_all(nodes.value());
@@ -486,7 +486,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
     CHECK(nodes.value().size() == 1u);
 
     kdl::col_delete_all(nodes.value());
@@ -508,7 +508,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
     CHECK(nodes.value().empty());
 
     kdl::col_delete_all(nodes.value());
@@ -842,7 +842,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
 
     CHECK(nodes.value().size() == 1u);
     CHECK(nodes.value().at(0)->hasChildren());

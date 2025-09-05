@@ -164,8 +164,7 @@ TEST_CASE("GameFactory")
 
   SECTION("initialize")
   {
-    CHECK(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath})
-            .is_success());
+    REQUIRE(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}));
 
     CHECK(gameFactory.userGameConfigsPath() == env.dir() / userPath);
     CHECK(
@@ -206,8 +205,7 @@ TEST_CASE("GameFactory")
 
   SECTION("saveCompilationConfig")
   {
-    REQUIRE(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath})
-              .is_success());
+    REQUIRE(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}));
 
     REQUIRE(kdl::vec_contains(gameFactory.gameList(), "Daikatana"));
 
@@ -218,8 +216,7 @@ TEST_CASE("GameFactory")
 
   SECTION("saveGameEngineConfig")
   {
-    REQUIRE(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath})
-              .is_success());
+    REQUIRE(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}));
 
     REQUIRE(kdl::vec_contains(gameFactory.gameList(), "Daikatana"));
 
