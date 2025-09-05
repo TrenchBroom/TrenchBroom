@@ -342,7 +342,7 @@ void transformNode(
     },
     [&](BrushNode* brushNode) {
       auto brush = brushNode->brush();
-      REQUIRE(brush.transform(worldBounds, transformation, false).is_success());
+      REQUIRE(brush.transform(worldBounds, transformation, false));
       brushNode->setBrush(std::move(brush));
     },
     [&](PatchNode* patchNode) {

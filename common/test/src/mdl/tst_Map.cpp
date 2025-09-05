@@ -182,8 +182,7 @@ TEST_CASE("Map")
         auto* layerNode = new mdl::LayerNode{std::move(layer)};
         addNodes(map, {{map.world(), {layerNode}}});
 
-        REQUIRE(
-          map.exportAs(io::MapExportOptions{env.dir() / newDocumentPath}).is_success());
+        REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / newDocumentPath}));
         REQUIRE(env.fileExists(newDocumentPath));
       }
 

@@ -220,17 +220,10 @@ TEST_CASE("DiskIO")
         "Failed to open {}: path does not denote a file",
         env.dir() / "does_not_exist.txt")}});
 
-    auto file = Disk::openFile(env.dir() / "test.txt");
-    CHECK(file.is_success());
-
-    file = Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map");
-    CHECK(file.is_success());
-
-    file = Disk::openFile(env.dir() / "linkedDir/test2.map");
-    CHECK(file.is_success());
-
-    file = Disk::openFile(env.dir() / "linkedTest2.map");
-    CHECK(file.is_success());
+    CHECK(Disk::openFile(env.dir() / "test.txt"));
+    CHECK(Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map"));
+    CHECK(Disk::openFile(env.dir() / "linkedDir/test2.map"));
+    CHECK(Disk::openFile(env.dir() / "linkedTest2.map"));
   }
 
   SECTION("withStream")
@@ -250,26 +243,24 @@ TEST_CASE("DiskIO")
     SECTION("withOutputStream")
     {
       REQUIRE(Disk::withOutputStream(
-                env.dir() / "test.txt",
-                std::ios::out | std::ios::app,
-                [](auto& stream) { stream << "\nmore content"; })
-                .is_success());
+        env.dir() / "test.txt", std::ios::out | std::ios::app, [](auto& stream) {
+          stream << "\nmore content";
+        }));
       CHECK(
         Disk::withInputStream(env.dir() / "test.txt", readAll)
         == "some content\nmore content");
 
       REQUIRE(Disk::withOutputStream(env.dir() / "some_other_name.txt", [](auto& stream) {
-                stream << "some text...";
-              }).is_success());
+        stream << "some text...";
+      }));
       CHECK(
         Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
         == "some text...");
 
       REQUIRE(Disk::withOutputStream(
-                env.dir() / "linkedTest2.map",
-                std::ios::out | std::ios::app,
-                [](auto& stream) { stream << "\nwow even more content"; })
-                .is_success());
+        env.dir() / "linkedTest2.map", std::ios::out | std::ios::app, [](auto& stream) {
+          stream << "\nwow even more content";
+        }));
       CHECK(
         Disk::withInputStream(env.dir() / "test2.map", readAll)
         == "//test file\n{}\nwow even more content");

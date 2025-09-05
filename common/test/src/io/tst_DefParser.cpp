@@ -51,7 +51,7 @@ TEST_CASE("DefParser")
       auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
       auto status = TestParserStatus{};
-      CHECK(parser.parseDefinitions(status).is_success());
+      CHECK(parser.parseDefinitions(status));
 
       /* Disabled because our files are full of previously undetected problems
       if (status.countStatus(LogLevel::Warn) > 0u) {
@@ -87,7 +87,7 @@ TEST_CASE("DefParser")
       auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
       auto status = TestParserStatus{};
-      CHECK(parser.parseDefinitions(status).is_success());
+      CHECK(parser.parseDefinitions(status));
       CHECK(status.countStatus(LogLevel::Warn) == 0u);
       CHECK(status.countStatus(LogLevel::Error) == 0u);
     }

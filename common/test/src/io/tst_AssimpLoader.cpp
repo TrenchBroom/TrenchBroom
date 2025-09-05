@@ -45,7 +45,7 @@ TEST_CASE("AssimpLoader")
     {
       auto loader = AssimpLoader{"cube.dae", *fs};
       auto modelData = loader.load(logger);
-      REQUIRE(modelData.is_success());
+      REQUIRE(modelData);
 
       CHECK(modelData.value().frameCount() == 1);
       CHECK(modelData.value().surfaceCount() == 1);
@@ -57,7 +57,7 @@ TEST_CASE("AssimpLoader")
       auto loader = AssimpLoader{"cube.mdl", *fs};
 
       auto modelData = loader.load(logger);
-      REQUIRE(modelData.is_success());
+      REQUIRE(modelData);
 
       CHECK(modelData.value().surfaceCount() == 4);
       CHECK(modelData.value().surface(0).skinCount() == 1);
@@ -87,7 +87,7 @@ TEST_CASE("AssimpLoader")
     auto loader = AssimpLoader{modelPath, *fs};
 
     auto modelData = loader.load(logger);
-    REQUIRE(modelData.is_success());
+    REQUIRE(modelData);
 
     REQUIRE(modelData.value().frameCount() == 1);
     REQUIRE(modelData.value().surfaceCount() == 1);

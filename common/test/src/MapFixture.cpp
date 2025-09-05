@@ -68,7 +68,7 @@ void MapFixture::create(const MapFixtureConfig& config)
   auto game = createGame(config);
 
   ensure(
-    m_map->create(mapFormat, vm::bbox3d{8192.0}, std::move(game)).is_success(),
+    m_map->create(mapFormat, vm::bbox3d{8192.0}, std::move(game)),
     "Map was created successfully");
 }
 

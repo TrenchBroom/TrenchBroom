@@ -1038,6 +1038,11 @@ public:
   /**
    * Indicates whether the given result contains a value.
    */
+  explicit operator bool() const { return is_success(); }
+
+  /**
+   * Indicates whether the given result contains a value.
+   */
   bool is_success() const { return m_value.index() == 0u; }
 
   /**
@@ -1578,6 +1583,11 @@ public:
    * Silence warnings about unused results.
    */
   void ignore() const {}
+
+  /**
+   * Indicates whether the given result contains a value.
+   */
+  explicit operator bool() const { return is_success(); }
 
   /**
    * Indicates whether the given result contains a value.
@@ -2201,6 +2211,11 @@ public:
   /**
    * Indicates whether the given result contains a value.
    */
+  explicit operator bool() const { return is_success(); }
+
+  /**
+   * Indicates whether the given result contains a value.
+   */
   bool is_success() const { return m_value.index() == 0u; }
 
   /**
@@ -2310,6 +2325,11 @@ public:
       return Cm_Result{f()};
     }
   }
+
+  /**
+   * Indicates whether the given result contains a value.
+   */
+  explicit operator bool() const { return is_success(); }
 
   /**
    * Indicates whether this result is empty. Always true.
@@ -2797,6 +2817,11 @@ public:
    * Silence warnings about unused results.
    */
   void ignore() const {}
+
+  /**
+   * Indicates whether the given result contains a value.
+   */
+  explicit operator bool() const { return is_success(); }
 
   /**
    * Indicates whether this result is empty.

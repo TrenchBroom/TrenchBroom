@@ -86,7 +86,7 @@ TEST_CASE("AseLoader")
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
     auto modelResult = loader.load(logger);
-    CHECK(modelResult.is_success());
+    REQUIRE(modelResult);
 
     SECTION("Windows paths are converted to generic paths")
     {
@@ -127,7 +127,7 @@ TEST_CASE("AseLoader")
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
     auto modelData = loader.load(logger);
-    CHECK(modelData.is_success());
+    REQUIRE(modelData);
 
     // account for the default material
     CHECK(modelData.value().surface(0).skinCount() == 2u);
@@ -158,7 +158,7 @@ TEST_CASE("AseLoader")
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
     auto modelData = loader.load(logger);
-    CHECK(modelData.is_success());
+    REQUIRE(modelData);
 
     // account for the default texture
     CHECK(modelData.value().surface(0).skinCount() == 2u);
@@ -214,8 +214,7 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
     auto reader = aseFile->reader().buffer();
     auto loader = AseLoader{"player", reader.stringView(), loadMaterial};
 
-    auto model = loader.load(logger);
-    CHECK(model.is_success());
+    CHECK(loader.load(logger));
   }
 
   SECTION("2679")
@@ -241,8 +240,7 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
     auto reader = aseFile->reader().buffer();
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto model = loader.load(logger);
-    CHECK(model.is_success());
+    CHECK(loader.load(logger));
   }
 
   SECTION("2898")
@@ -271,7 +269,7 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
       auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
       auto model = loader.load(logger);
-      CHECK(model.is_success());
+      CHECK(model);
     }
 
     SECTION("no UV")
@@ -281,7 +279,7 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
       auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
       auto model = loader.load(logger);
-      CHECK(model.is_success());
+      CHECK(model);
     }
   }
 }

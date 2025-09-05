@@ -523,7 +523,7 @@ bool splitBrushesInward(
     nodesToUpdate.emplace_back(brushNode, std::move(frontBrush));
 
     // Back brush
-    if (backBrush.clip(worldBounds, clipFace).is_success())
+    if (backBrush.clip(worldBounds, clipFace))
     {
       auto* newBrushNode = new mdl::BrushNode(std::move(backBrush));
       newNodes[brushNode->parent()].push_back(newBrushNode);
