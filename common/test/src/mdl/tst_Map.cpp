@@ -18,6 +18,7 @@
  */
 
 #include "Exceptions.h"
+#include "Logger.h"
 #include "MapFixture.h"
 #include "MockGame.h"
 #include "TestFactory.h"
@@ -43,6 +44,7 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
+#include "mdl/Observer.h"
 #include "mdl/PasteType.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TextureResource.h"
@@ -82,48 +84,65 @@ public:
 
 TEST_CASE("Map")
 {
-  auto fixture = MapFixture{};
-  auto& map = fixture.map();
-
   SECTION("load")
   {
+    auto taskManager = createTestTaskManager();
+    auto logger = NullLogger{};
+    auto map = Map{*taskManager, logger};
+
+    REQUIRE(map.world() == nullptr);
+    REQUIRE(map.worldBounds() == Map::DefaultWorldBounds);
+
+    auto mapWasLoaded = Observer<Map&>{map.mapWasLoadedNotifier};
+    auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
     SECTION("Format detection")
     {
       auto gameConfig = MockGameConfig{};
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
-        {"Standard", {}},
         {"Valve", {}},
+        {"Standard", {}},
         {"Quake3", {}},
       };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
 
       SECTION("Detect Valve Format Map")
       {
-        fixture.load(
-          "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map",
-          {.game = MockGameFixture{gameConfig}});
+        REQUIRE(map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"));
 
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
         CHECK(map.world()->defaultLayer()->childCount() == 1);
+        CHECK(mapWasLoaded.collected == std::set{&map});
+        CHECK(mapWasCleared.collected.empty());
       }
 
       SECTION("Detect Standard Format Map")
       {
-        fixture.load(
-          "fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map",
-          {.game = MockGameFixture{gameConfig}});
+        REQUIRE(map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          "fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"));
 
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Standard);
         CHECK(map.world()->defaultLayer()->childCount() == 1);
+        CHECK(mapWasLoaded.collected == std::set{&map});
+        CHECK(mapWasCleared.collected.empty());
       }
 
       SECTION("detectEmptyMap")
       {
-        fixture.load(
-          "fixture/test/mdl/Map/emptyMapWithoutFormatTag.map",
-          {.game = LoadGameFixture{"Quake"}});
+        REQUIRE(map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          "fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"));
 
-        // an empty map detects as Valve because Valve is listed first in the Quake game
-        // config
+        // an empty map detects as Valve because Valve is listed first in the game config
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
         CHECK(map.world()->defaultLayer()->childCount() == 0);
       }
@@ -131,21 +150,56 @@ TEST_CASE("Map")
       SECTION("mixedFormats")
       {
         // map has both Standard and Valve brushes
-        CHECK_THROWS_AS(
-          fixture.load(
-            "fixture/test/mdl/Map/mixedFormats.map", {.game = LoadGameFixture{"Quake"}}),
-          std::runtime_error);
+        CHECK(!map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          "fixture/test/mdl/Map/mixedFormats.map"));
+      }
+
+      SECTION("Loading clears the map")
+      {
+        REQUIRE(map.create(
+          MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+
+        REQUIRE(map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"));
+
+        CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
+        CHECK(map.world()->defaultLayer()->childCount() == 1);
+        CHECK(mapWasLoaded.collected == std::set{&map});
+        CHECK(mapWasCleared.collected == std::set{&map});
       }
     }
   }
 
   SECTION("saveAs")
   {
+    auto taskManager = createTestTaskManager();
+    auto logger = NullLogger{};
+    auto map = Map{*taskManager, logger};
+
+    REQUIRE(map.world() == nullptr);
+    REQUIRE(map.worldBounds() == Map::DefaultWorldBounds);
+
+    auto gameConfig = MockGameConfig{};
+    gameConfig.fileFormats = std::vector<MapFormatConfig>{
+      {"Standard", {}},
+      {"Valve", {}},
+      {"Quake3", {}},
+    };
+    auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
     SECTION("Writing map header")
     {
-      fixture.load(
-        "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map",
-        {.game = LoadGameFixture{"Quake"}});
+      REQUIRE(map.load(
+        MapFormat::Unknown,
+        vm::bbox3d{8192.0},
+        std::move(game),
+        "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"));
       REQUIRE(map.world()->mapFormat() == mdl::MapFormat::Valve);
 
       auto env = io::TestEnvironment{};
@@ -160,12 +214,15 @@ TEST_CASE("Map")
       CHECK(
         io::readMapHeader(istr)
         == Result<std::pair<std::optional<std::string>, mdl::MapFormat>>{
-          std::pair{"Quake", mdl::MapFormat::Valve}});
+          std::pair{"Test", mdl::MapFormat::Valve}});
     }
   }
 
   SECTION("exportAs")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
     auto env = io::TestEnvironment{};
 
     SECTION("omit layers from export")
@@ -194,6 +251,8 @@ TEST_CASE("Map")
 
   SECTION("selection")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     SECTION("brushFaces")
@@ -541,6 +600,9 @@ TEST_CASE("Map")
         {},
         std::make_unique<EntityClassNameTagMatcher>("brush_entity", ""),
       }};
+
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create({.game = MockGameFixture{gameConfig}});
 
     map.entityDefinitionManager().setDefinitions({
@@ -1141,6 +1203,8 @@ TEST_CASE("Map")
 
   SECTION("undoCommand")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     SECTION("Undoing a rotation removes angle key")
@@ -1227,6 +1291,8 @@ TEST_CASE("Map")
 
   SECTION("canRepeatCommands")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     CHECK_FALSE(map.canRepeatCommands());
@@ -1247,6 +1313,8 @@ TEST_CASE("Map")
 
   SECTION("repeatCommands")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     SECTION("Repeat translation")
@@ -1499,6 +1567,8 @@ TEST_CASE("Map")
 
   SECTION("throwExceptionDuringCommand")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     CHECK_THROWS_AS(map.throwExceptionDuringCommand(), CommandProcessorException);
@@ -1506,6 +1576,8 @@ TEST_CASE("Map")
 
   SECTION("Duplicate and Copy / Paste behave identically")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     enum class Mode
