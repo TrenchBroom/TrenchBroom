@@ -20,6 +20,7 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/MockGame.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/MockGame.h"
         "${COMMON_TEST_SOURCE_DIR}/mdl/MockTaskRunner.h"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/Observer.h"
         "${COMMON_TEST_SOURCE_DIR}/QtPrettyPrinters.h"
         "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestFactory.cpp"
