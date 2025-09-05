@@ -383,7 +383,7 @@ Result<void> Brush::expand(
   for (auto& face : m_faces)
   {
     const vm::vec3d moveAmount = face.boundary().normal * delta;
-    if (!face.transform(vm::translation_matrix(moveAmount), lockMaterial).is_success())
+    if (!face.transform(vm::translation_matrix(moveAmount), lockMaterial))
     {
       return Error{"Brush has invalid face"};
     }
@@ -1185,7 +1185,7 @@ Result<void> Brush::transform(
 {
   for (auto& face : m_faces)
   {
-    if (!face.transform(transformation, lockMaterials).is_success())
+    if (!face.transform(transformation, lockMaterials))
     {
       return Error{"Brush has invalid face"};
     }

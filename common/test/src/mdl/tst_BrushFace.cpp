@@ -109,14 +109,14 @@ void checkAlignmentLockOffWithTransform(
   // reset alignment, transform the face (alignment lock off)
   auto face = origFace;
   resetFaceUVAlignment(face);
-  REQUIRE(face.transform(transform, false).is_success());
+  REQUIRE(face.transform(transform, false));
   face.resetUVCoordSystemCache();
 
   // reset alignment, transform the face (alignment lock off), then reset the alignment
   // again
   auto resetFace = origFace;
   resetFaceUVAlignment(resetFace);
-  REQUIRE(resetFace.transform(transform, false).is_success());
+  REQUIRE(resetFace.transform(transform, false));
   resetFaceUVAlignment(resetFace);
 
   // UVs of the verts of `face` and `resetFace` should be the same now
@@ -188,7 +188,7 @@ void checkAlignmentLockOnWithTransform(
 
   // transform the face
   auto face = origFace;
-  REQUIRE(face.transform(transform, true).is_success());
+  REQUIRE(face.transform(transform, true));
   face.resetUVCoordSystemCache();
 
   // transform the verts
@@ -406,7 +406,7 @@ void checkAlignmentLockOffWithVerticalFlip(const Brush& cube)
 
   // transform the face (alignment lock off)
   auto face = origFace;
-  REQUIRE(face.transform(transform, false).is_success());
+  REQUIRE(face.transform(transform, false));
   face.resetUVCoordSystemCache();
 
   // UVs of the verts of `face` and `origFace` should be the same now
@@ -438,7 +438,7 @@ void checkAlignmentLockOffWithScale(const Brush& cube)
 
   // transform the face (alignment lock off)
   auto face = origFace;
-  REQUIRE(face.transform(transform, false).is_success());
+  REQUIRE(face.transform(transform, false));
   face.resetUVCoordSystemCache();
 
   // get UV at mins; should be equal
@@ -492,10 +492,8 @@ TEST_CASE("BrushFace")
     const auto p2 = vm::vec3d{2, 0, 4};
 
     const auto attribs = BrushFaceAttributes{""};
-    CHECK_FALSE(
-      BrushFace::create(
-        p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
-        .is_success());
+    CHECK_FALSE(BrushFace::create(
+      p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs)));
   }
 
   SECTION("materialUsageCount")
@@ -558,10 +556,8 @@ TEST_CASE("BrushFace")
       builder.createCuboid(
         vm::bbox3d(vm::vec3d{-64, -64, -64}, vm::vec3d{64, 64, 64}), "material")
       | kdl::value();
-    REQUIRE(brush
-              .transform(
-                worldBounds, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), false)
-              .is_success());
+    REQUIRE(brush.transform(
+      worldBounds, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), false));
 
     const auto& face = brush.faces().front();
     REQUIRE(face.boundary().normal.z() == vm::approx{0.0});
@@ -655,7 +651,7 @@ TEST_CASE("BrushFace")
     auto status = io::TestParserStatus{};
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
 
     auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     REQUIRE(pyramidLight != nullptr);
@@ -719,7 +715,7 @@ TEST_CASE("BrushFace")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
 
     auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     REQUIRE(pyramidLight != nullptr);
@@ -796,7 +792,7 @@ TEST_CASE("BrushFace")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
 
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     CHECK(brushNode != nullptr);
@@ -808,13 +804,11 @@ TEST_CASE("BrushFace")
       brush.findFace(vm::vec3d{-0.70710678118654746, 0.70710678118654746, 0});
     REQUIRE(angledFaceIndex);
 
-    CHECK(brush
-            .moveBoundary(
-              worldBounds,
-              *angledFaceIndex,
-              vm::vec3d{-7.9999999999999973, 7.9999999999999973, 0},
-              true)
-            .is_success());
+    CHECK(brush.moveBoundary(
+      worldBounds,
+      *angledFaceIndex,
+      vm::vec3d{-7.9999999999999973, 7.9999999999999973, 0},
+      true));
 
     kdl::col_delete_all(nodes.value());
   }
@@ -841,7 +835,7 @@ TEST_CASE("BrushFace")
 
     auto testTransform = [&](const auto& transform) {
       auto standardCube = startingCube;
-      REQUIRE(standardCube.transform(worldBounds, transform, true).is_success());
+      REQUIRE(standardCube.transform(worldBounds, transform, true));
       CHECK(dynamic_cast<const ParaxialUVCoordSystem*>(
         &standardCube.face(0).uvCoordSystem()));
 
@@ -888,7 +882,7 @@ TEST_CASE("BrushFace")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
 
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     REQUIRE(brushNode != nullptr);

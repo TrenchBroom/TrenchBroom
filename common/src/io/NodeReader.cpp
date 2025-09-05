@@ -55,15 +55,15 @@ Result<std::vector<mdl::Node*>> NodeReader::read(
   // Try preferred format first
   for (const auto compatibleMapFormat : mdl::compatibleFormats(preferredMapFormat))
   {
-    if (auto result = readAsFormat(
-          compatibleMapFormat,
-          preferredMapFormat,
-          str,
-          worldBounds,
-          entityPropertyConfig,
-          status,
-          taskManager);
-        result.is_success())
+    if (
+      auto result = readAsFormat(
+        compatibleMapFormat,
+        preferredMapFormat,
+        str,
+        worldBounds,
+        entityPropertyConfig,
+        status,
+        taskManager))
     {
       return std::move(result) | kdl::transform([&](auto nodes) {
                for (const auto& error : mdl::initializeLinkIds(nodes))

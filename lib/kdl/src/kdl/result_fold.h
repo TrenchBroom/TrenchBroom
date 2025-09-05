@@ -173,8 +173,7 @@ auto select_first(I cur, I end, const F& f)
 {
   while (cur != end)
   {
-    auto result = f(*cur++);
-    if (result.is_success())
+    if (auto result = f(*cur++))
     {
       return std::move(result).value();
     }
