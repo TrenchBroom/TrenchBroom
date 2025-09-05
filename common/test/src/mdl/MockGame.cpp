@@ -57,8 +57,9 @@ MockGameConfig::MockGameConfig()
 {
 }
 
-MockGame::MockGame()
-  : m_fs{std::make_unique<io::VirtualFileSystem>()}
+MockGame::MockGame(MockGameConfig config)
+  : m_config{std::move(config)}
+  , m_fs{std::make_unique<io::VirtualFileSystem>()}
 {
   m_fs->mount("", std::make_unique<io::DiskFileSystem>(std::filesystem::current_path()));
 }
