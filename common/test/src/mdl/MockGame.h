@@ -56,7 +56,7 @@ private:
   mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
 
 public:
-  MockGame();
+  explicit MockGame(MockGameConfig config = {});
   ~MockGame() override;
 
   const GameConfig& config() const override;
