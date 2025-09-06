@@ -95,7 +95,7 @@ TEST_CASE("Autosaver")
 
   SECTION("Don't trigger autosave before the save interval expires")
   {
-    map.saveAs(env.dir() / "test.map");
+    REQUIRE(map.saveAs(env.dir() / "test.map"));
     REQUIRE(env.fileExists("test.map"));
 
     auto autosaver = Autosaver{map, 10s};
@@ -113,8 +113,8 @@ TEST_CASE("Autosaver")
 
   SECTION("Trigger a save when the interval expires")
   {
-    map.saveAs(env.dir() / "test.map");
-    assert(env.fileExists("test.map"));
+    REQUIRE(map.saveAs(env.dir() / "test.map"));
+    REQUIRE(env.fileExists("test.map"));
 
     auto autosaver = Autosaver{map, 100ms};
 
@@ -132,8 +132,8 @@ TEST_CASE("Autosaver")
 
   SECTION("Trigger another save when the interval expires again and the map is changed")
   {
-    map.saveAs(env.dir() / "test.map");
-    assert(env.fileExists("test.map"));
+    REQUIRE(map.saveAs(env.dir() / "test.map"));
+    REQUIRE(env.fileExists("test.map"));
 
     auto autosaver = Autosaver{map, 100ms};
 
@@ -167,8 +167,8 @@ TEST_CASE("Autosaver")
 
   SECTION("Don't save unchanged maps")
   {
-    map.saveAs(env.dir() / "test.map");
-    assert(env.fileExists("test.map"));
+    REQUIRE(map.saveAs(env.dir() / "test.map"));
+    REQUIRE(env.fileExists("test.map"));
 
     auto autosaver = Autosaver{map, 0s};
     autosaver.triggerAutosave();
@@ -185,8 +185,8 @@ TEST_CASE("Autosaver")
     env.createFile("autosave/test.1.map", "some content");
     env.createFile("autosave/test.1-crash.map", "some content again");
 
-    map.saveAs(env.dir() / "test.map");
-    assert(env.fileExists("test.map"));
+    REQUIRE(map.saveAs(env.dir() / "test.map"));
+    REQUIRE(env.fileExists("test.map"));
 
     auto autosaver = Autosaver{map, 0s};
 
@@ -226,8 +226,8 @@ TEST_CASE("Autosaver")
           "autosave/test.2.map",
         });
 
-      map.saveAs(env.dir() / "test.map");
-      assert(env.fileExists("test.map"));
+      REQUIRE(map.saveAs(env.dir() / "test.map"));
+      REQUIRE(env.fileExists("test.map"));
 
       auto autosaver = Autosaver{map, 100ms, maxBackups};
 
@@ -316,8 +316,8 @@ TEST_CASE("Autosaver")
           "autosave/test.3.map",
         });
 
-      map.saveAs(env.dir() / "test.map");
-      assert(env.fileExists("test.map"));
+      REQUIRE(map.saveAs(env.dir() / "test.map"));
+      REQUIRE(env.fileExists("test.map"));
 
       auto autosaver = Autosaver{map, 100ms, maxBackups};
 

@@ -23,7 +23,6 @@
 #include "MockGame.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
-#include "io/MapHeader.h"
 #include "io/TestEnvironment.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
@@ -80,6 +79,11 @@ public:
   size_t selectOption(const std::vector<std::string>&) override { return m_option; }
 };
 
+auto makeAbsolute(const auto& path)
+{
+  return std::filesystem::current_path() / path;
+}
+
 } // namespace
 
 TEST_CASE("Map")
@@ -108,6 +112,8 @@ TEST_CASE("Map")
           {EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname},
         }});
       CHECK(!map.worldBounds().is_empty());
+      CHECK(!map.persistent());
+      CHECK(map.path() == "unnamed.map");
       CHECK(mapWasCreated.collected == std::set{&map});
       CHECK(mapWasCleared.collected.empty());
 
@@ -256,8 +262,87 @@ TEST_CASE("Map")
     REQUIRE(map.world() == nullptr);
     REQUIRE(map.worldBounds() == Map::DefaultWorldBounds);
 
-    auto mapWasLoaded = Observer<Map&>{map.mapWasLoadedNotifier};
-    auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+    SECTION("Notifies observers")
+    {
+      auto mapWasLoaded = Observer<Map&>{map.mapWasLoadedNotifier};
+      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+      const auto mapWasEmpty = GENERATE(false, true);
+
+      if (!mapWasEmpty)
+      {
+        REQUIRE(map.create(
+          MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+      }
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      mapWasCleared.collected.clear();
+      REQUIRE(map.load(
+        MapFormat::Unknown,
+        vm::bbox3d{8192.0},
+        std::move(game),
+        makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
+
+      CHECK(mapWasCleared.collected == (mapWasEmpty ? std::set<Map*>{} : std::set{&map}));
+      CHECK(mapWasLoaded.collected == std::set{&map});
+    }
+
+    SECTION("Sets world bounds, game and file path")
+    {
+      const auto worldBounds = vm::bbox3d{8192.0};
+      const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.worldBounds() != worldBounds);
+      REQUIRE(map.game() == nullptr);
+      REQUIRE(map.path() != path);
+      REQUIRE(map.load(MapFormat::Unknown, worldBounds, std::move(game), path));
+
+      CHECK(map.worldBounds() == worldBounds);
+      CHECK(map.game() != nullptr);
+      CHECK(map.path() == path);
+      CHECK(map.persistent());
+    }
+
+    SECTION("Loading a map clears it first")
+    {
+      // create a map and add an entity
+      REQUIRE(map.create(
+        MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+      REQUIRE(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+
+      auto* initialEntityNode = new EntityNode{{}};
+      addNodes(map, {{parentForNodes(map), {initialEntityNode}}});
+      REQUIRE(
+        map.world()->defaultLayer()->children() == std::vector<Node*>{initialEntityNode});
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+      REQUIRE(map.load(
+        MapFormat::Unknown,
+        vm::bbox3d{8192.0},
+        std::move(game),
+        makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
+
+      CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+      CHECK(mapWasCleared.collected == std::set{&map});
+    }
 
     SECTION("Format detection")
     {
@@ -275,12 +360,10 @@ TEST_CASE("Map")
           MapFormat::Unknown,
           vm::bbox3d{8192.0},
           std::move(game),
-          "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"));
+          makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map")));
 
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
         CHECK(map.world()->defaultLayer()->childCount() == 1);
-        CHECK(mapWasLoaded.collected == std::set{&map});
-        CHECK(mapWasCleared.collected.empty());
       }
 
       SECTION("Detect Standard Format Map")
@@ -289,12 +372,10 @@ TEST_CASE("Map")
           MapFormat::Unknown,
           vm::bbox3d{8192.0},
           std::move(game),
-          "fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"));
+          makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map")));
 
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Standard);
         CHECK(map.world()->defaultLayer()->childCount() == 1);
-        CHECK(mapWasLoaded.collected == std::set{&map});
-        CHECK(mapWasCleared.collected.empty());
       }
 
       SECTION("detectEmptyMap")
@@ -303,7 +384,7 @@ TEST_CASE("Map")
           MapFormat::Unknown,
           vm::bbox3d{8192.0},
           std::move(game),
-          "fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"));
+          makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map")));
 
         // an empty map detects as Valve because Valve is listed first in the game config
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
@@ -317,68 +398,160 @@ TEST_CASE("Map")
           MapFormat::Unknown,
           vm::bbox3d{8192.0},
           std::move(game),
-          "fixture/test/mdl/Map/mixedFormats.map"));
-      }
-
-      SECTION("Loading clears the map")
-      {
-        REQUIRE(map.create(
-          MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
-
-        REQUIRE(map.load(
-          MapFormat::Unknown,
-          vm::bbox3d{8192.0},
-          std::move(game),
-          "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"));
-
-        CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
-        CHECK(map.world()->defaultLayer()->childCount() == 1);
-        CHECK(mapWasLoaded.collected == std::set{&map});
-        CHECK(mapWasCleared.collected == std::set{&map});
+          makeAbsolute("fixture/test/mdl/Map/mixedFormats.map")));
       }
     }
   }
 
-  SECTION("saveAs")
+  SECTION("reload")
   {
     auto taskManager = createTestTaskManager();
     auto logger = NullLogger{};
     auto map = Map{*taskManager, logger};
 
-    REQUIRE(map.world() == nullptr);
-    REQUIRE(map.worldBounds() == Map::DefaultWorldBounds);
-
     auto gameConfig = MockGameConfig{};
     gameConfig.fileFormats = std::vector<MapFormatConfig>{
-      {"Standard", {}},
       {"Valve", {}},
-      {"Quake3", {}},
     };
     auto game = std::make_unique<MockGame>(std::move(gameConfig));
 
-    SECTION("Writing map header")
+    const auto worldBounds = vm::bbox3d{8192.0};
+    const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
+
+    REQUIRE(map.load(MapFormat::Unknown, worldBounds, std::move(game), path));
+    REQUIRE(map.worldBounds() == worldBounds);
+    REQUIRE(map.game() != nullptr);
+    REQUIRE(map.path() == path);
+    REQUIRE(map.persistent());
+
+    SECTION("Notifies observers")
     {
-      REQUIRE(map.load(
-        MapFormat::Unknown,
-        vm::bbox3d{8192.0},
-        std::move(game),
-        "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"));
-      REQUIRE(map.world()->mapFormat() == mdl::MapFormat::Valve);
+      auto mapWasLoaded = Observer<Map&>{map.mapWasLoadedNotifier};
+      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
 
-      auto env = io::TestEnvironment{};
+      REQUIRE(map.reload());
 
-      const auto newDocumentPath = std::filesystem::path{"test.map"};
-      map.saveAs(env.dir() / newDocumentPath);
-      REQUIRE(env.fileExists(newDocumentPath));
-
-      const auto newDocumentContent = env.loadFile(newDocumentPath);
-      auto istr = std::istringstream{newDocumentContent};
-
-      CHECK(
-        io::readMapHeader(istr)
-        == Result<std::pair<std::optional<std::string>, mdl::MapFormat>>{
-          std::pair{"Test", mdl::MapFormat::Valve}});
+      CHECK(mapWasCleared.collected == std::set{&map});
+      CHECK(mapWasLoaded.collected == std::set{&map});
     }
+
+    SECTION("Updates world, world bounds, game and file path")
+    {
+      const auto* previousGame = map.game();
+
+      auto* transientEntityNode = new EntityNode{{}};
+      addNodes(map, {{parentForNodes(map), {transientEntityNode}}});
+      REQUIRE(
+        map.world()->defaultLayer()->children()
+        == std::vector<Node*>{transientEntityNode});
+
+      REQUIRE(map.reload());
+
+      CHECK(map.worldBounds() == worldBounds);
+      CHECK(map.game() == previousGame);
+      CHECK(map.path() == path);
+      CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+    }
+  }
+
+  SECTION("save")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
+    auto env = io::TestEnvironment{};
+
+    const auto filename = "test.map";
+    env.createFile(filename, R"(// Game: Test
+// Format: Valve
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"name" "entity1"
+}
+)");
+
+    const auto path = env.dir() / filename;
+
+    auto gameConfig = MockGameConfig{};
+    gameConfig.fileFormats = {{"Valve", ""}};
+    fixture.load(path, {.game = MockGameFixture{std::move(gameConfig)}});
+
+    REQUIRE(map.persistent());
+    REQUIRE(map.path() == path);
+
+    auto* entityNode = new EntityNode{Entity{{{"name", "entity2"}}}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+    auto mapWasSaved = Observer<Map&>{map.mapWasSavedNotifier};
+    auto modificationStateDidChange =
+      Observer<void>{map.modificationStateDidChangeNotifier};
+
+    REQUIRE(map.save());
+
+    CHECK(mapWasSaved.collected == std::set{&map});
+    CHECK(modificationStateDidChange.called);
+    CHECK(map.persistent());
+    CHECK(map.path() == path);
+
+    REQUIRE(env.fileExists(path));
+    CHECK(env.loadFile(path) == R"(// Game: Test
+// Format: Valve
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"name" "entity1"
+}
+// entity 2
+{
+"name" "entity2"
+}
+)");
+  }
+
+  SECTION("saveAs")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
+    fixture.create();
+
+    auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    REQUIRE(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+
+    auto mapWasSaved = Observer<Map&>{map.mapWasSavedNotifier};
+    auto modificationStateDidChange =
+      Observer<void>{map.modificationStateDidChangeNotifier};
+
+    auto env = io::TestEnvironment{};
+
+    const auto path = env.dir() / "test.map";
+    REQUIRE(map.saveAs(path));
+
+    CHECK(mapWasSaved.collected == std::set{&map});
+    CHECK(modificationStateDidChange.called);
+    CHECK(map.persistent());
+    CHECK(map.path() == path);
+
+    REQUIRE(env.fileExists(path));
+    CHECK(env.loadFile(path) == R"(// Game: Test
+// Format: Standard
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"key" "value"
+}
+)");
   }
 
   SECTION("exportAs")

@@ -242,9 +242,9 @@ public: // persistence
     std::unique_ptr<Game> game,
     const std::filesystem::path& path);
   Result<void> reload();
-  void save();
-  void saveAs(const std::filesystem::path& path);
-  void saveTo(const std::filesystem::path& path);
+  Result<void> save();
+  Result<void> saveAs(const std::filesystem::path& path);
+  Result<void> saveTo(const std::filesystem::path& path);
   Result<void> exportAs(const io::ExportOptions& options) const;
 
   void clear();

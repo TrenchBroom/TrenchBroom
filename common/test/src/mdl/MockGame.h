@@ -43,6 +43,7 @@ class VirtualFileSystem;
 
 namespace tb::mdl
 {
+
 struct MockGameConfig : public GameConfig
 {
   MockGameConfig();

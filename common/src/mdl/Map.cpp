@@ -630,6 +630,11 @@ Result<void> Map::load(
   std::unique_ptr<Game> game,
   const std::filesystem::path& path)
 {
+  if (!path.is_absolute())
+  {
+    return Error{"Path must be absolute"};
+  }
+
   m_logger.info() << fmt::format("Loading document from {}", path);
 
   clear();
@@ -657,21 +662,27 @@ Result<void> Map::reload()
   return load(mapFormat, worldBounds, std::move(game), path);
 }
 
-void Map::save()
+Result<void> Map::save()
 {
-  saveAs(m_path);
+  return saveAs(m_path);
 }
 
-void Map::saveAs(const std::filesystem::path& path)
+Result<void> Map::saveAs(const std::filesystem::path& path)
 {
-  saveTo(path);
-  setLastSaveModificationCount();
-  setPath(path);
-  mapWasSavedNotifier(*this);
+  return saveTo(path).transform([&]() {
+    setLastSaveModificationCount();
+    setPath(path);
+    mapWasSavedNotifier(*this);
+  });
 }
 
-void Map::saveTo(const std::filesystem::path& path)
+Result<void> Map::saveTo(const std::filesystem::path& path)
 {
+  if (!path.is_absolute())
+  {
+    return Error{"Path must be absolute"};
+  }
+
   ensure(m_game.get() != nullptr, "game is null");
   ensure(m_world, "world is null");
 
@@ -684,6 +695,8 @@ void Map::saveTo(const std::filesystem::path& path)
   }) | kdl::transform_error([&](const auto& e) {
     m_logger.error() << "Could not save document: " << e.msg;
   });
+
+  return Result<void>{};
 }
 
 Result<void> Map::exportAs(const io::ExportOptions& options) const
