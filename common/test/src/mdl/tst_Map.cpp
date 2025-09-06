@@ -25,6 +25,7 @@
 #include "TestUtils.h"
 #include "io/TestEnvironment.h"
 #include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
@@ -561,7 +562,46 @@ TEST_CASE("Map")
 
     auto env = io::TestEnvironment{};
 
-    SECTION("omit layers from export")
+    SECTION("Export as obj")
+    {
+      fixture.create();
+
+      const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
+      auto* brushNode = new BrushNode{
+        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+        | kdl::value()};
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
+
+      const auto objFilename = "test.obj";
+      const auto mtlFilename = "test.mtl";
+
+      REQUIRE(map.exportAs(io::ObjExportOptions{
+        env.dir() / objFilename,
+        io::ObjMtlPathMode::RelativeToExportPath,
+      }));
+
+      CHECK(env.fileExists(objFilename));
+      CHECK(env.fileExists(mtlFilename));
+      CHECK(!map.persistent());
+      CHECK(map.path() == "unnamed.map");
+    }
+
+    SECTION("Export as map")
+    {
+      fixture.create();
+
+      auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+      const auto filename = "test.map";
+      REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / filename}));
+      CHECK(env.fileExists(filename));
+      CHECK(!map.persistent());
+      CHECK(map.path() == "unnamed.map");
+    }
+
+    SECTION("Omit layers from export")
     {
       const auto newDocumentPath = std::filesystem::path{"test.map"};
 
