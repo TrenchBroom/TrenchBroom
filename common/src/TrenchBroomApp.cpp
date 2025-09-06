@@ -805,8 +805,11 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
     // save the map
     if (const auto document = topDocument(); document && document->map().game())
     {
-      document->map().saveTo(mapPath);
-      std::cerr << "wrote map to " << mapPath.string() << std::endl;
+      document->map().saveTo(mapPath) | kdl::transform([&]() {
+        std::cerr << "wrote map to " << mapPath.string() << std::endl;
+      }) | kdl::transform_error([](const auto& e) {
+        std::cerr << "could not write map: " << e.msg << std::endl;
+      });
     }
     else
     {
