@@ -29,6 +29,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
@@ -623,6 +624,43 @@ TEST_CASE("Map")
         {.mapFormat = MapFormat::Standard, .game = LoadGameFixture{"Quake"}});
       CHECK(map.world()->customLayers().empty());
     }
+  }
+
+  SECTION("clear")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+    fixture.create();
+
+    auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+    selectNodes(map, {entityNode});
+    translateSelection(map, {16, 16, 16});
+
+    map.editorContext().setBlockSelection(true);
+
+    auto mapWillBeCleared = Observer<Map&>{map.mapWillBeClearedNotifier};
+    auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+    REQUIRE(map.canUndoCommand());
+    REQUIRE(map.canRepeatCommands());
+    REQUIRE(map.modificationCount() > 0);
+    REQUIRE(map.modified());
+
+    map.clear();
+
+    CHECK(!map.canUndoCommand());
+    CHECK(!map.canRepeatCommands());
+    CHECK(!map.editorContext().blockSelection());
+    CHECK(map.selection() == Selection{});
+    CHECK(map.world() == nullptr);
+    CHECK(map.game() != nullptr);
+    CHECK(map.modificationCount() == 0);
+    CHECK(!map.modified());
+
+    CHECK(mapWillBeCleared.collected == std::set{&map});
+    CHECK(mapWasCleared.collected == std::set{&map});
   }
 
   SECTION("selection")
