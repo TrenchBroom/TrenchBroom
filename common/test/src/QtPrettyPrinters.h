@@ -24,7 +24,7 @@
 
 #include <fmt/format.h>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 // These are so Catch can print Qt types
 

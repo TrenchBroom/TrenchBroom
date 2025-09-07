@@ -19,10 +19,14 @@
 
 #include "mdl/BezierPatch.h"
 
+#include "vm/mat_ext.h"
+#include "vm/util.h"
+
 #include <tuple>
 #include <vector>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::mdl
 {

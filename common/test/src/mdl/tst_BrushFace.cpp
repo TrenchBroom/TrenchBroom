@@ -40,11 +40,12 @@
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <memory>
 #include <vector>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl
 {
