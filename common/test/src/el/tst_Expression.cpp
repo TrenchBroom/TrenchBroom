@@ -34,6 +34,11 @@
 
 #include "Catch2.h"
 
+#if !defined(__clang__) && defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wparentheses"
+#endif
+
 namespace tb::el
 {
 namespace
@@ -1205,3 +1210,7 @@ TEST_CASE("Expression")
 }
 
 } // namespace tb::el
+
+#if !defined(__clang__) && defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
