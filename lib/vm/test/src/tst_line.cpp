@@ -23,13 +23,14 @@
 
 #include "vm/approx.h"
 #include "vm/line.h"
+#include "vm/line_io.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/scalar.h"
 
 #include <sstream>
 
-#include "catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace vm
 {

@@ -20,6 +20,8 @@ target_sources(vm-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vec.cpp"
         )
 
+add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
+
 target_link_libraries(vm-test Catch2::Catch2WithMain vm)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
