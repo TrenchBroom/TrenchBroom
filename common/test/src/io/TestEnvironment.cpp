@@ -108,6 +108,11 @@ void TestEnvironment::createSymLink(
   }
 }
 
+bool TestEnvironment::remove(const std::filesystem::path& path)
+{
+  return std::filesystem::remove(m_dir / path);
+}
+
 bool TestEnvironment::deleteTestEnvironment()
 {
   return std::filesystem::remove_all(m_sandboxPath);
