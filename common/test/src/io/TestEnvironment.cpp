@@ -36,6 +36,7 @@ namespace tb::io
 
 namespace
 {
+
 auto addNonAsciiDirs(const std::filesystem::path& rootPath)
 {
   // have a non-ASCII character in the directory name to help catch
@@ -44,6 +45,7 @@ auto addNonAsciiDirs(const std::filesystem::path& rootPath)
   const auto hiraganaLetterSmallA = "ぁ";
   return rootPath / cyrillic / hiraganaLetterSmallA;
 }
+
 } // namespace
 
 TestEnvironment::TestEnvironment(
@@ -106,14 +108,9 @@ void TestEnvironment::createSymLink(
   }
 }
 
-static bool deleteDirectoryAbsolute(const std::filesystem::path& absolutePath)
-{
-  return std::filesystem::remove_all(absolutePath);
-}
-
 bool TestEnvironment::deleteTestEnvironment()
 {
-  return deleteDirectoryAbsolute(m_sandboxPath);
+  return std::filesystem::remove_all(m_sandboxPath);
 }
 
 bool TestEnvironment::directoryExists(const std::filesystem::path& path) const
