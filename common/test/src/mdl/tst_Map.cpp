@@ -663,6 +663,52 @@ TEST_CASE("Map")
     CHECK(mapWasCleared.collected == std::set{&map});
   }
 
+  SECTION("persistent")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
+    SECTION("A newly created map is transient")
+    {
+      fixture.create();
+
+      CHECK(!map.persistent());
+    }
+
+    SECTION("A loaded map is persistent")
+    {
+      auto env = io::TestEnvironment{};
+
+      const auto filename = "test.map";
+      env.createFile(filename, R"(// Game: Test
+// Format: Valve
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"name" "entity1"
+}
+)");
+
+      const auto path = env.dir() / filename;
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = {{"Valve", ""}};
+      fixture.load(path, {.game = MockGameFixture{std::move(gameConfig)}});
+
+      CHECK(map.persistent());
+
+      SECTION("If the backing file is deleted, the map is transient again")
+      {
+        REQUIRE(env.remove(filename));
+
+        CHECK(!map.persistent());
+      }
+    }
+  }
+
   SECTION("selection")
   {
     auto fixture = MapFixture{};
