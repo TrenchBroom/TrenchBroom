@@ -709,6 +709,35 @@ TEST_CASE("Map")
     }
   }
 
+  SECTION("modified")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
+    fixture.create();
+    CHECK(!map.modified());
+
+    auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+    CHECK(map.modified());
+
+    SECTION("Saving resets the modified flag")
+    {
+      auto env = io::TestEnvironment{};
+      REQUIRE(map.saveAs(env.dir() / "test.map"));
+
+      CHECK(!map.modified());
+    }
+
+    SECTION("Clearing resets the modified flag")
+    {
+      map.clear();
+
+      CHECK(!map.modified());
+    }
+  }
+
   SECTION("selection")
   {
     auto fixture = MapFixture{};
