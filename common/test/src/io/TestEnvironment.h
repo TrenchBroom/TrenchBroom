@@ -54,6 +54,7 @@ public:
   void createSymLink(
     const std::filesystem::path& target, const std::filesystem::path& link);
 
+  bool remove(const std::filesystem::path& path);
   bool deleteTestEnvironment();
 
   bool directoryExists(const std::filesystem::path& path) const;
