@@ -370,35 +370,37 @@ TEST_CASE("ModelUtils.collectSelectedNodes")
   + layerNode
   */
   CHECK_THAT(
-    collectSelectedNodes({&worldNode}), Catch::UnorderedEquals(std::vector<Node*>{}));
+    collectSelectedNodes({&worldNode}),
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
   brushNode->select();
   patchNode->select();
 
   CHECK_THAT(
     collectSelectedNodes({&worldNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({innerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode}));
 
   CHECK_THAT(
     collectSelectedNodes({innerGroupNode, patchNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   innerGroupNode->select();
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{innerGroupNode, brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<Node*>{innerGroupNode, brushNode, patchNode}));
 }
 
 TEST_CASE("ModelUtils.collectSelectableNodes")

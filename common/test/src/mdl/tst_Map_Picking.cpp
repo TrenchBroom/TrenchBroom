@@ -135,7 +135,8 @@ TEST_CASE("Map_Picking")
       CHECK(hits.front().distance() == vm::approx{32.0});
 
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Node*>{group}));
+        hitsToNodesWithGroupPicking(hits),
+        Catch::Matchers::Equals(std::vector<Node*>{group}));
 
       // hitting both objects in the group should return the group only once
       pickResult.clear();
@@ -145,7 +146,8 @@ TEST_CASE("Map_Picking")
       CHECK(hits.size() == 2u);
 
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Node*>{group}));
+        hitsToNodesWithGroupPicking(hits),
+        Catch::Matchers::Equals(std::vector<Node*>{group}));
 
       // hitting the group bounds doesn't count as a hit
       pickResult.clear();
@@ -170,7 +172,8 @@ TEST_CASE("Map_Picking")
       CHECK(hits.front().distance() == vm::approx{32.0});
 
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Node*>{brushNode1}));
+        hitsToNodesWithGroupPicking(hits),
+        Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
     }
 
     SECTION("Nested group")
@@ -267,7 +270,8 @@ TEST_CASE("Map_Picking")
       CHECK(hits.front().distance() == vm::approx{32.0});
 
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Node*>{brushNode3}));
+        hitsToNodesWithGroupPicking(hits),
+        Catch::Matchers::Equals(std::vector<Node*>{brushNode3}));
 
       // hitting the brush in the inner group should return the inner group when
       // hitsToNodesWithGroupPicking() is used
@@ -283,7 +287,8 @@ TEST_CASE("Map_Picking")
         == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
       CHECK(hits.front().distance() == vm::approx{32.0});
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Node*>{innerGroup}));
+        hitsToNodesWithGroupPicking(hits),
+        Catch::Matchers::Equals(std::vector<Node*>{innerGroup}));
 
       // open the inner group, too. hitsToNodesWithGroupPicking() should no longer return
       // groups, since all groups are open.
@@ -314,7 +319,8 @@ TEST_CASE("Map_Picking")
         == brush3.face(*brush3.findFace(vm::vec3d{-1, 0, 0})));
       CHECK(hits.front().distance() == vm::approx{32.0});
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Node*>{brushNode3}));
+        hitsToNodesWithGroupPicking(hits),
+        Catch::Matchers::Equals(std::vector<Node*>{brushNode3}));
 
       // pick a brush in the inner group
       pickResult.clear();
@@ -328,7 +334,8 @@ TEST_CASE("Map_Picking")
         == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
       CHECK(hits.front().distance() == vm::approx{32.0});
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Node*>{brushNode1}));
+        hitsToNodesWithGroupPicking(hits),
+        Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
     }
 
     SECTION("Brush entity")

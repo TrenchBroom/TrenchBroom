@@ -90,56 +90,60 @@ TEST_CASE("NodeQueries")
   SECTION("collectAncestors")
   {
     CHECK_THAT(
-      collectAncestors({&worldNode}), Catch::UnorderedEquals(std::vector<Node*>{}));
+      collectAncestors({&worldNode}),
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(
       collectAncestors({layerNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{&worldNode}));
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{&worldNode}));
     CHECK_THAT(
       collectAncestors({outerGroupNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode}));
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode}));
     CHECK_THAT(
       collectAncestors({innerGroupNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
     CHECK_THAT(
       collectAncestors({entityNode}),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
     CHECK_THAT(
       collectAncestors({brushNode}),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
     CHECK_THAT(
       collectAncestors({patchNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
     CHECK_THAT(
       collectAncestors({brushNode, patchNode}),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
     CHECK_THAT(
       collectAncestors({brushNode, patchNode}, [](const LayerNode*) { return true; }),
-      Catch::UnorderedEquals(std::vector<Node*>{layerNode}));
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{layerNode}));
   }
 
   SECTION("collectNodesAndAncestors")
   {
     CHECK_THAT(
       collectNodesAndAncestors({&worldNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{&worldNode}));
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{&worldNode}));
     CHECK_THAT(
       collectNodesAndAncestors({brushNode, patchNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{
         &worldNode, layerNode, outerGroupNode, innerGroupNode, brushNode, patchNode}));
     CHECK_THAT(
       collectNodesAndAncestors(
         {brushNode, patchNode}, [](const GroupNode*) { return true; }),
-      Catch::UnorderedEquals(std::vector<Node*>{outerGroupNode, innerGroupNode}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Node*>{outerGroupNode, innerGroupNode}));
   }
 
   SECTION("collectDescendants")
   {
     CHECK_THAT(
       collectDescendants({&worldNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{
         worldNode.defaultLayer(),
         layerNode,
         outerGroupNode,
@@ -149,42 +153,46 @@ TEST_CASE("NodeQueries")
         patchNode}));
     CHECK_THAT(
       collectDescendants({layerNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{
         outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
     CHECK_THAT(
       collectDescendants({outerGroupNode}),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Node*>{innerGroupNode, entityNode, brushNode, patchNode}));
     CHECK_THAT(
       collectDescendants({innerGroupNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{entityNode, brushNode}));
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityNode, brushNode}));
     CHECK_THAT(
-      collectDescendants({entityNode}), Catch::UnorderedEquals(std::vector<Node*>{}));
+      collectDescendants({entityNode}),
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(
       collectDescendants({innerGroupNode, outerGroupNode}),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Node*>{innerGroupNode, entityNode, brushNode, patchNode}));
     CHECK_THAT(
       collectDescendants({&worldNode}, [](const GroupNode*) { return true; }),
-      Catch::UnorderedEquals(std::vector<Node*>{outerGroupNode, innerGroupNode}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Node*>{outerGroupNode, innerGroupNode}));
   }
 
   SECTION("collectNodesAndDescendants")
   {
     CHECK_THAT(
       collectNodesAndDescendants({innerGroupNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{innerGroupNode, entityNode, brushNode}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Node*>{innerGroupNode, entityNode, brushNode}));
     CHECK_THAT(
       collectNodesAndDescendants({entityNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{entityNode}));
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityNode}));
     CHECK_THAT(
       collectNodesAndDescendants({innerGroupNode, outerGroupNode}),
-      Catch::UnorderedEquals(std::vector<Node*>{
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{
         outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
     CHECK_THAT(
       collectNodesAndDescendants(
         {innerGroupNode, outerGroupNode}, [](const GroupNode*) { return true; }),
-      Catch::UnorderedEquals(std::vector<Node*>{outerGroupNode, innerGroupNode}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Node*>{outerGroupNode, innerGroupNode}));
   }
 }
 

@@ -22,7 +22,7 @@
 #include <QByteArray>
 #include <QString>
 
-#include <catch2/catch.hpp> // IWYU pragma: export
+#include <catch2/catch_all.hpp> // IWYU pragma: export
 
 namespace Catch
 {

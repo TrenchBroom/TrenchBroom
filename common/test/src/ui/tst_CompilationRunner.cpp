@@ -226,7 +226,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     REQUIRE_FALSE(exec.errored);
     REQUIRE(exec.ended);
 
-    CHECK_THAT(output.toPlainText().toStdString(), Catch::Contains(R"(1
+    CHECK_THAT(output.toPlainText().toStdString(), Catch::Matchers::ContainsSubstring(R"(1
 2
 str
 escaped str)"));

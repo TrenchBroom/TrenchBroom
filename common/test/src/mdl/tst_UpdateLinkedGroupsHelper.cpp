@@ -248,7 +248,8 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
       REQUIRE(linkedGroupNode->childCount() == 1u);
       CHECK_THAT(
-        linkedGroupNode->children(), Catch::Equals(std::vector<Node*>{linkedBrushNode}));
+        linkedGroupNode->children(),
+        Catch::Matchers::Equals(std::vector<Node*>{linkedBrushNode}));
       CHECK(linkedBrushNode->parent() == linkedGroupNode);
       CHECK(
         linkedBrushNode->physicalBounds()

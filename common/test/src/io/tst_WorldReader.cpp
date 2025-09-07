@@ -1238,7 +1238,7 @@ common/caulk
 
     CHECK_THAT(
       patch.controlPoints(),
-      Catch::Equals(std::vector<mdl::BezierPatch::Point>{
+      Catch::Matchers::Equals(std::vector<mdl::BezierPatch::Point>{
         {-64, -64, 4, 0, 0},
         {-64, 0, 4, 0, -0.25},
         {-64, 64, 4, 0, -0.5},
@@ -1885,7 +1885,7 @@ common/caulk
 
       CHECK_THAT(
         entityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{}));
     }
 
     SECTION("Two protected properties")
@@ -1896,7 +1896,7 @@ common/caulk
 
       CHECK_THAT(
         entityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"origin", "target"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"origin", "target"}));
     }
 
     SECTION("Escaped semicolon")
@@ -1907,7 +1907,7 @@ common/caulk
 
       CHECK_THAT(
         entityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"with;semicolon"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"with;semicolon"}));
     }
   }
 

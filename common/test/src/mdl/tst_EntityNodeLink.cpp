@@ -46,11 +46,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateLink")
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
     sourceNode->linkTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->linkSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->linkTargets().empty());
 }
 
@@ -73,16 +73,17 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink")
   CHECK(sourceNode1->linkSources().empty());
   CHECK_THAT(
     sourceNode1->linkTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK(sourceNode2->linkSources().empty());
   CHECK_THAT(
     sourceNode2->linkTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->linkSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode1, sourceNode2}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<EntityNodeBase*>{sourceNode1, sourceNode2}));
   CHECK(targetNode->linkTargets().empty());
 }
 
@@ -109,16 +110,17 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink")
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
     sourceNode->linkTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode1, targetNode2}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<EntityNodeBase*>{targetNode1, targetNode2}));
 
   CHECK_THAT(
     targetNode1->linkSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode1->linkTargets().empty());
 
   CHECK_THAT(
     targetNode2->linkSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode2->linkTargets().empty());
 }
 
@@ -134,11 +136,11 @@ TEST_CASE("EntityNodeLinkTest.testLoadLink")
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
     sourceNode->linkTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->linkSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->linkTargets().empty());
 }
 
@@ -161,11 +163,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingSource")
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
     sourceNode->linkTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->linkSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->linkTargets().empty());
 }
 
@@ -188,11 +190,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingTarget")
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
     sourceNode->linkTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->linkSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->linkTargets().empty());
 }
 
@@ -275,11 +277,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLink")
   CHECK(sourceNode->killSources().empty());
   CHECK_THAT(
     sourceNode->killTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->killSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->killTargets().empty());
 }
 
@@ -295,11 +297,11 @@ TEST_CASE("EntityNodeLinkTest.testLoadKillLink")
   CHECK(sourceNode->killSources().empty());
   CHECK_THAT(
     sourceNode->killTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->killSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->killTargets().empty());
 }
 
@@ -323,11 +325,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingSource")
   CHECK(sourceNode->killSources().empty());
   CHECK_THAT(
     sourceNode->killTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->killSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->killTargets().empty());
 }
 
@@ -350,11 +352,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingTarget")
   CHECK(sourceNode->killSources().empty());
   CHECK_THAT(
     sourceNode->killTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
   CHECK_THAT(
     targetNode->killSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->killTargets().empty());
 }
 

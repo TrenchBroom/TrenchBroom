@@ -64,11 +64,11 @@ TEST_CASE("EntityNodeIndex")
 
     CHECK_THAT(
       findExactExact(index, "test", "somevalue"),
-      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
+      Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
 
     CHECK_THAT(
       findExactExact(index, "other", "someothervalue"),
-      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity2}));
+      Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{&entity2}));
   }
 
   SECTION("removeEntityNode")
@@ -87,7 +87,7 @@ TEST_CASE("EntityNodeIndex")
 
     CHECK_THAT(
       findExactExact(index, "test", "somevalue"),
-      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
+      Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
   }
 
   SECTION("addProperty")
@@ -108,11 +108,11 @@ TEST_CASE("EntityNodeIndex")
 
     CHECK_THAT(
       findExactExact(index, "test", "somevalue"),
-      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
+      Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
 
     CHECK_THAT(
       findExactExact(index, "other", "someothervalue"),
-      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity2}));
+      Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{&entity2}));
   }
 
   SECTION("removeProperty")
@@ -131,7 +131,7 @@ TEST_CASE("EntityNodeIndex")
 
     CHECK_THAT(
       findExactExact(index, "test", "somevalue"),
-      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
+      Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
 
     CHECK(
       findExactExact(index, "other", "someothervalue") == std::vector<EntityNodeBase*>{});
@@ -150,7 +150,7 @@ TEST_CASE("EntityNodeIndex")
 
     CHECK_THAT(
       findNumberedExact(index, "test", "somevalue"),
-      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
+      Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
   }
 
   SECTION("addRemoveFloatProperty")
@@ -160,7 +160,7 @@ TEST_CASE("EntityNodeIndex")
     index.addEntityNode(&entity1);
     CHECK_THAT(
       findExactExact(index, "delay", "3.5"),
-      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
+      Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
 
     index.removeProperty(&entity1, "delay", "3.5");
     CHECK(findNumberedExact(index, "delay", "3.5") == std::vector<EntityNodeBase*>{});
@@ -179,7 +179,8 @@ TEST_CASE("EntityNodeIndex")
     index.addEntityNode(&entity2);
 
     CHECK_THAT(
-      index.allKeys(), Catch::UnorderedEquals(std::vector<std::string>{"test", "other"}));
+      index.allKeys(),
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"test", "other"}));
   }
 
   SECTION("allValuesForKeys")
@@ -196,7 +197,8 @@ TEST_CASE("EntityNodeIndex")
 
     CHECK_THAT(
       index.allValuesForKeys(EntityNodeIndexQuery::exact("test")),
-      Catch::UnorderedEquals(std::vector<std::string>{"somevalue", "somevalue2"}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<std::string>{"somevalue", "somevalue2"}));
   }
 }
 

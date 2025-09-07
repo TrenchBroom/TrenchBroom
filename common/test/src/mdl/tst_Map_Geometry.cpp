@@ -209,7 +209,8 @@ TEST_CASE("Map_Geometry")
       deselectAll(map);
       selectNodes(map, {linkedGroup});
       REQUIRE_THAT(
-        map.selection().nodes, Catch::UnorderedEquals(std::vector<Node*>{linkedGroup}));
+        map.selection().nodes,
+        Catch::Matchers::UnorderedEquals(std::vector<Node*>{linkedGroup}));
 
       auto* linkedBrushNode = dynamic_cast<BrushNode*>(linkedGroup->children().at(0));
       REQUIRE(linkedBrushNode != nullptr);
@@ -462,7 +463,7 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        Catch::UnorderedEquals(std::vector<vm::vec3d>{
+        Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
           // bottom face
           {100, 100, 100},
           {200, 100, 100},
@@ -481,7 +482,7 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        Catch::UnorderedEquals(std::vector<vm::vec3d>{
+        Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
           // bottom face
           {150, 100, 100},
           {250, 100, 100},
@@ -507,7 +508,7 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        Catch::UnorderedEquals(std::vector<vm::vec3d>{
+        Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
           // bottom face
           {0, 0, 0},
           {100, 0, 0},
@@ -526,7 +527,7 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        Catch::UnorderedEquals(std::vector<vm::vec3d>{
+        Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
           // bottom face
           {0, 0, 0},
           {100, 0, 0},
@@ -817,7 +818,8 @@ TEST_CASE("Map_Geometry")
 
       CHECK(map.selection().hasOnlyBrushes());
       CHECK_THAT(
-        map.selection().brushes, Catch::Equals(std::vector<BrushNode*>{subtrahend1}));
+        map.selection().brushes,
+        Catch::Matchers::Equals(std::vector<BrushNode*>{subtrahend1}));
     }
 
     SECTION("Texture alignment")

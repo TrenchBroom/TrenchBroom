@@ -114,7 +114,8 @@ TEST_CASE("Map_Selection")
         selectLinkedGroups(map);
         CHECK_THAT(
           map.selection().nodes,
-          Catch::UnorderedEquals(std::vector<Node*>{groupNode, linkedGroupNode}));
+          Catch::Matchers::UnorderedEquals(
+            std::vector<Node*>{groupNode, linkedGroupNode}));
       }
     }
   }
@@ -148,33 +149,37 @@ TEST_CASE("Map_Selection")
     {
       selectNodes(map, {brushNode3});
       REQUIRE_THAT(
-        map.selection().nodes, Catch::UnorderedEquals(std::vector<Node*>{brushNode3}));
+        map.selection().nodes,
+        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode3}));
 
       selectSiblingNodes(map);
       CHECK_THAT(
         map.selection().nodes,
-        Catch::UnorderedEquals(
+        Catch::Matchers::UnorderedEquals(
           std::vector<Node*>{brushNode1, brushNode2, brushNode3, patchNode}));
 
       map.undoCommand();
       CHECK_THAT(
-        map.selection().nodes, Catch::UnorderedEquals(std::vector<Node*>{brushNode3}));
+        map.selection().nodes,
+        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode3}));
     }
 
     SECTION("Brush in brush entity")
     {
       selectNodes(map, {brushNode1});
       REQUIRE_THAT(
-        map.selection().nodes, Catch::UnorderedEquals(std::vector<Node*>{brushNode1}));
+        map.selection().nodes,
+        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode1}));
 
       selectSiblingNodes(map);
       CHECK_THAT(
         map.selection().nodes,
-        Catch::UnorderedEquals(std::vector<Node*>{brushNode1, brushNode2}));
+        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode1, brushNode2}));
 
       map.undoCommand();
       CHECK_THAT(
-        map.selection().nodes, Catch::UnorderedEquals(std::vector<Node*>{brushNode1}));
+        map.selection().nodes,
+        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode1}));
     }
   }
 
@@ -254,19 +259,21 @@ TEST_CASE("Map_Selection")
 
       CHECK_THAT(
         map.selection().brushes,
-        Catch::UnorderedEquals(std::vector<BrushNode*>{brushNode1, brushNode2}));
+        Catch::Matchers::UnorderedEquals(
+          std::vector<BrushNode*>{brushNode1, brushNode2}));
       CHECK_THAT(
         map.editorContext().currentLayer()->children(),
-        Catch::Equals(std::vector<Node*>{brushNode1, brushNode2}));
+        Catch::Matchers::Equals(std::vector<Node*>{brushNode1, brushNode2}));
 
       selectTouchingNodes(map, true);
 
       // only this next line was failing
       CHECK_THAT(
-        map.selection().brushes, Catch::UnorderedEquals(std::vector<BrushNode*>{}));
+        map.selection().brushes,
+        Catch::Matchers::UnorderedEquals(std::vector<BrushNode*>{}));
       CHECK_THAT(
         map.editorContext().currentLayer()->children(),
-        Catch::Equals(std::vector<Node*>{}));
+        Catch::Matchers::Equals(std::vector<Node*>{}));
 
       // brush1 and brush2 are deleted
       CHECK(brushNode1->parent() == nullptr);
@@ -301,7 +308,7 @@ TEST_CASE("Map_Selection")
 
       CHECK_THAT(
         map.selection().brushes,
-        Catch::UnorderedEquals(std::vector<BrushNode*>{brushNode2}));
+        Catch::Matchers::UnorderedEquals(std::vector<BrushNode*>{brushNode2}));
     }
 
     SECTION("Select touching nodes along axis")
@@ -562,7 +569,8 @@ TEST_CASE("Map_Selection")
 
     CHECK_THAT(
       map.selection().nodes,
-      Catch::UnorderedEquals(std::vector<Node*>{brushNode2, brushNode3, patchNode}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Node*>{brushNode2, brushNode3, patchNode}));
     CHECK(!brushNode1->selected());
     CHECK(brushNode2->selected());
     CHECK(brushNode3->selected());

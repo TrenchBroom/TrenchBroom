@@ -81,7 +81,7 @@ MaterialCollectionInfo makeMaterialCollectionInfo(
 }
 
 class MaterialCollectionsMatcher
-  : public Catch::MatcherBase<Result<std::vector<mdl::MaterialCollection>>>
+  : public Catch::Matchers::MatcherBase<Result<std::vector<mdl::MaterialCollection>>>
 {
 private:
   std::vector<MaterialCollectionInfo> m_expected;

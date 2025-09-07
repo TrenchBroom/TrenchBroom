@@ -86,43 +86,43 @@ TEST_CASE("string_utils")
 
   SECTION("str_split")
   {
-    CHECK_THAT(str_split("", " "), Catch::Equals(std::vector<std::string>{}));
-    CHECK_THAT(str_split(" ", " "), Catch::Equals(std::vector<std::string>{}));
-    CHECK_THAT(str_split("asdf", " "), Catch::Equals(std::vector<std::string>{"asdf"}));
+    CHECK_THAT(str_split("", " "), Catch::Matchers::Equals(std::vector<std::string>{}));
+    CHECK_THAT(str_split(" ", " "), Catch::Matchers::Equals(std::vector<std::string>{}));
+    CHECK_THAT(str_split("asdf", " "), Catch::Matchers::Equals(std::vector<std::string>{"asdf"}));
     CHECK_THAT(
-      str_split("d asdf", " "), Catch::Equals(std::vector<std::string>{"d", "asdf"}));
+      str_split("d asdf", " "), Catch::Matchers::Equals(std::vector<std::string>{"d", "asdf"}));
     CHECK_THAT(
-      str_split("asdf d", " "), Catch::Equals(std::vector<std::string>{"asdf", "d"}));
+      str_split("asdf d", " "), Catch::Matchers::Equals(std::vector<std::string>{"asdf", "d"}));
     CHECK_THAT(
       str_split("The quick brown fox", " "),
-      Catch::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
     CHECK_THAT(
       str_split(" The quick brown fox", " "),
-      Catch::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
     CHECK_THAT(
       str_split("  The quick brown fox ", " "),
-      Catch::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
     CHECK_THAT(
       str_split("The quick   brown fox", " "),
-      Catch::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
     CHECK_THAT(
       str_split("The quick   brown fox", " f"),
-      Catch::Equals(std::vector<std::string>{"The", "quick", "brown", "ox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The", "quick", "brown", "ox"}));
     CHECK_THAT(
       str_split("The; quick brown; fox", ";"),
-      Catch::Equals(std::vector<std::string>{"The", "quick brown", "fox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The", "quick brown", "fox"}));
     CHECK_THAT(
       str_split("The;quick brown; fox", " ;"),
-      Catch::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
     CHECK_THAT(
       str_split("The\\; quick brown; fox", ";"),
-      Catch::Equals(std::vector<std::string>{"The; quick brown", "fox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The; quick brown", "fox"}));
     CHECK_THAT(
       str_split("The\\\\; quick brown; fox", ";"),
-      Catch::Equals(std::vector<std::string>{"The\\", "quick brown", "fox"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"The\\", "quick brown", "fox"}));
     CHECK_THAT(
       str_split("c:\\x\\y", "\\"),
-      Catch::Equals(std::vector<std::string>{"c:", "x", "y"}));
+      Catch::Matchers::Equals(std::vector<std::string>{"c:", "x", "y"}));
   }
 
   SECTION("str_join")

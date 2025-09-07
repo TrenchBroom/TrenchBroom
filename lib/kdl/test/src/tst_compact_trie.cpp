@@ -38,7 +38,7 @@ void assertMatches(
   std::vector<std::string> matches;
   index.find_matches(pattern, std::back_inserter(matches));
 
-  CHECK_THAT(matches, Catch::UnorderedEquals(expectedMatches));
+  CHECK_THAT(matches, Catch::Matchers::UnorderedEquals(expectedMatches));
 }
 
 } // namespace
@@ -208,7 +208,7 @@ TEST_CASE("compact_trie_test.get_keys")
 
   CHECK_THAT(
     keys,
-    Catch::UnorderedEquals(
+    Catch::Matchers::UnorderedEquals(
       std::vector<std::string>{"key", "key2", "key22", "key22bs", "k1"}));
 }
 

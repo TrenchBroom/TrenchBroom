@@ -1,6 +1,5 @@
 add_executable(vm-test)
 target_sources(vm-test PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_bbox.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_bezier_surface.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_convex_hull.cpp"
@@ -21,7 +20,7 @@ target_sources(vm-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vec.cpp"
         )
 
-target_link_libraries(vm-test Catch2::Catch2 vm)
+target_link_libraries(vm-test Catch2::Catch2WithMain vm)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(vm-test PRIVATE -Wall -Wextra -Wconversion -pedantic -Wno-c++98-compat -Wno-global-constructors -Wno-zero-as-null-pointer-constant)
