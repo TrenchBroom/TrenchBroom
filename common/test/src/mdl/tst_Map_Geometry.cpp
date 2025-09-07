@@ -390,6 +390,24 @@ TEST_CASE("Map_Geometry")
 
       CHECK_FALSE(entityNode->entity().hasProperty("origin"));
     }
+
+    SECTION("Undoing a rotation removes angle key")
+    {
+      auto* entityNode = new EntityNode{Entity{{
+        {EntityPropertyKeys::Classname, "test"},
+      }}};
+
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      CHECK(!entityNode->entity().hasProperty("angle"));
+
+      selectNodes(map, {entityNode});
+      rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(15.0));
+      CHECK(entityNode->entity().hasProperty("angle"));
+      CHECK(*entityNode->entity().property("angle") == "15");
+
+      map.undoCommand();
+      CHECK(!entityNode->entity().hasProperty("angle"));
+    }
   }
 
   SECTION("scaleSelection")
