@@ -61,6 +61,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_predicate.hpp>
+#include <catch2/matchers/catch_matchers_quantifiers.hpp>
 
 namespace tb::mdl
 {
@@ -1706,13 +1708,13 @@ TEST_CASE("Map")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       const auto* material = map.materialManager().material("coffin1");
-      CHECK(material != nullptr);
-      CHECK(material->usageCount() == 6u);
+      REQUIRE(material != nullptr);
+      REQUIRE(material->usageCount() == 6u);
 
-      for (const auto& face : brushNode->brush().faces())
-      {
-        CHECK(face.material() == material);
-      }
+      REQUIRE_THAT(
+        brushNode->brush().faces(),
+        Catch::Matchers::AllMatch(Catch::Matchers::Predicate<const BrushFace&>(
+          [&](const auto& face) { return face.material() == material; })));
 
       SECTION("translateSelection")
       {
@@ -1754,10 +1756,10 @@ TEST_CASE("Map")
         REQUIRE(!map.selection().hasBrushFaces());
       }
 
-      for (const auto& face : brushNode->brush().faces())
-      {
-        CHECK(face.material() == material);
-      }
+      CHECK_THAT(
+        brushNode->brush().faces(),
+        Catch::Matchers::AllMatch(Catch::Matchers::Predicate<const BrushFace&>(
+          [&](const auto& face) { return face.material() == material; })));
     }
   }
 
