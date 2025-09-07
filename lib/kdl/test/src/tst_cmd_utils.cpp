@@ -19,7 +19,7 @@
 
 #include "kdl/cmd_utils.h"
 
-#include "catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace kdl
 {

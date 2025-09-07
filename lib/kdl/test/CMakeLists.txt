@@ -37,6 +37,8 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_zip_iterator.cpp"
 )
 
+add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
+
 target_link_libraries(kdl-test Catch2::Catch2WithMain kdl)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
