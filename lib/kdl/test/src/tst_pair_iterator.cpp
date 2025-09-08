@@ -28,10 +28,10 @@
 
 namespace kdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("pair_iterator")
 {
-  using Catch::Matchers::UnorderedEquals;
 
   using T = std::tuple<std::vector<int>, std::vector<std::tuple<int, int>>>;
   const auto [range, expected] = GENERATE(values<T>({

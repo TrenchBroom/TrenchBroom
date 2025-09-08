@@ -40,6 +40,8 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 class TestNode : public EntityNode
@@ -250,8 +252,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
       REQUIRE(linkedGroupNode->childCount() == 1u);
       CHECK_THAT(
-        linkedGroupNode->children(),
-        Catch::Matchers::Equals(std::vector<Node*>{linkedBrushNode}));
+        linkedGroupNode->children(), Equals(std::vector<Node*>{linkedBrushNode}));
       CHECK(linkedBrushNode->parent() == linkedGroupNode);
       CHECK(
         linkedBrushNode->physicalBounds()

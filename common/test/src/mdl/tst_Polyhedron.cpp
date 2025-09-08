@@ -34,6 +34,8 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 using Polyhedron3d =
@@ -707,7 +709,7 @@ TEST_CASE("Polyhedron")
 
     CHECK_THAT(
       minuend.subtract(subtrahend),
-      Catch::Matchers::UnorderedEquals(std::vector<Polyhedron3d>{
+      UnorderedEquals(std::vector<Polyhedron3d>{
         Polyhedron3d{p1, p3, p2, p4, p9, p12, p11, p10},
         Polyhedron3d{p6, p8, p13, p14, p16, p15, p7, p5},
         Polyhedron3d{p14, p13, p10, p9, p18, p22, p21, p17},
@@ -775,7 +777,7 @@ TEST_CASE("Polyhedron")
 
     CHECK_THAT(
       minuend.subtract(subtrahend),
-      Catch::Matchers::UnorderedEquals(std::vector<Polyhedron3d>{
+      UnorderedEquals(std::vector<Polyhedron3d>{
         {p1, p2, p3, p4, p9, p10, p11, p12},
         {p5, p6, p7, p8, p13, p14, p15, p16},
         {p9, p10, p13, p14, p17, p18, p21, p22},
@@ -863,7 +865,7 @@ TEST_CASE("Polyhedron")
 
     CHECK_THAT(
       minuend.subtract(subtrahend),
-      Catch::Matchers::UnorderedEquals(std::vector<Polyhedron3d>{
+      UnorderedEquals(std::vector<Polyhedron3d>{
         {p1, p2, p3, p4, p5, p6, p7, p8},
         {p9, p10, p11, p12, p13, p14, p15, p16},
         {p17, p18, p19, p20, p3, p2, p13, p16},

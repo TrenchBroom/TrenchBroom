@@ -39,6 +39,7 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("Map_NodeLocking")
 {
@@ -152,20 +153,19 @@ TEST_CASE("Map_NodeLocking")
 
         REQUIRE_THAT(
           map.selection().nodes,
-          Catch::Matchers::UnorderedEquals(std::vector<Node*>{
+          UnorderedEquals(std::vector<Node*>{
             selectedBrushNode,
             unlockedBrushNode,
           }));
 
         lockNodes(map, {map.world()->defaultLayer()});
         CHECK_THAT(
-          map.selection().nodes,
-          Catch::Matchers::UnorderedEquals(std::vector<Node*>{unlockedBrushNode}));
+          map.selection().nodes, UnorderedEquals(std::vector<Node*>{unlockedBrushNode}));
 
         map.undoCommand();
         CHECK_THAT(
           map.selection().nodes,
-          Catch::Matchers::UnorderedEquals(std::vector<Node*>{
+          UnorderedEquals(std::vector<Node*>{
             selectedBrushNode,
             unlockedBrushNode,
           }));
@@ -182,7 +182,7 @@ TEST_CASE("Map_NodeLocking")
           });
         REQUIRE_THAT(
           map.selection().brushFaces,
-          Catch::Matchers::UnorderedEquals(std::vector<BrushFaceHandle>{
+          UnorderedEquals(std::vector<BrushFaceHandle>{
             {selectedBrushNode, 0},
             {selectedBrushNode, 1},
             {unlockedBrushNode, 0},
@@ -191,14 +191,14 @@ TEST_CASE("Map_NodeLocking")
         lockNodes(map, {map.world()->defaultLayer()});
         CHECK_THAT(
           map.selection().brushFaces,
-          Catch::Matchers::UnorderedEquals(std::vector<BrushFaceHandle>{
+          UnorderedEquals(std::vector<BrushFaceHandle>{
             {unlockedBrushNode, 0},
           }));
 
         map.undoCommand();
         CHECK_THAT(
           map.selection().brushFaces,
-          Catch::Matchers::UnorderedEquals(std::vector<BrushFaceHandle>{
+          UnorderedEquals(std::vector<BrushFaceHandle>{
             {selectedBrushNode, 0},
             {selectedBrushNode, 1},
             {unlockedBrushNode, 0},

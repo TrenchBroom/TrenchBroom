@@ -27,6 +27,8 @@
 
 namespace kdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 using test_index = compact_trie<std::string>;
@@ -39,7 +41,7 @@ void assertMatches(
   std::vector<std::string> matches;
   index.find_matches(pattern, std::back_inserter(matches));
 
-  CHECK_THAT(matches, Catch::Matchers::UnorderedEquals(expectedMatches));
+  CHECK_THAT(matches, UnorderedEquals(expectedMatches));
 }
 
 } // namespace
@@ -209,8 +211,7 @@ TEST_CASE("compact_trie_test.get_keys")
 
   CHECK_THAT(
     keys,
-    Catch::Matchers::UnorderedEquals(
-      std::vector<std::string>{"key", "key2", "key22", "key22bs", "k1"}));
+    UnorderedEquals(std::vector<std::string>{"key", "key2", "key22", "key22bs", "k1"}));
 }
 
 } // namespace kdl

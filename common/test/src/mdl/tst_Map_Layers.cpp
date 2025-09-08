@@ -43,6 +43,8 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -371,8 +373,7 @@ TEST_CASE("Map_Layers")
 
             AND_THEN("The originally selected nodes are selected")
             {
-              CHECK_THAT(
-                map.selection().nodes, Catch::Matchers::UnorderedEquals(selectedNodes));
+              CHECK_THAT(map.selection().nodes, UnorderedEquals(selectedNodes));
             }
           }
         }

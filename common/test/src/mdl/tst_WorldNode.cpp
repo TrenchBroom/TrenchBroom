@@ -40,6 +40,7 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("WorldNodeTest.canAddChild")
 {
@@ -221,11 +222,10 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates")
     REQUIRE(nodeTree.contains(patchNode));
     REQUIRE_THAT(
       nodeTree.find_containers(vm::vec3d{0, 0, 0}),
-      Catch::Matchers::UnorderedEquals(
-        std::vector<Node*>{entityNode, brushNode, patchNode}));
+      UnorderedEquals(std::vector<Node*>{entityNode, brushNode, patchNode}));
     REQUIRE_THAT(
       nodeTree.find_containers(vm::vec3d{384, 384, 384}),
-      Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+      UnorderedEquals(std::vector<Node*>{}));
 
     transformNode(
       *entityNode, vm::translation_matrix(vm::vec3d(384, 384, 384)), worldBounds);
@@ -239,11 +239,10 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates")
     CHECK(nodeTree.contains(patchNode));
     CHECK_THAT(
       nodeTree.find_containers(vm::vec3d{0, 0, 0}),
-      Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+      UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(
       nodeTree.find_containers(vm::vec3d{384, 384, 384}),
-      Catch::Matchers::UnorderedEquals(
-        std::vector<Node*>{entityNode, brushNode, patchNode}));
+      UnorderedEquals(std::vector<Node*>{entityNode, brushNode, patchNode}));
   }
 }
 

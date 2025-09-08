@@ -34,6 +34,8 @@
 
 namespace vm
 {
+using namespace Catch::Matchers;
+
 TEST_CASE("polygon.constructor_default")
 {
   CHECK(polygon3d().vertices().size() == 0u);
@@ -41,8 +43,6 @@ TEST_CASE("polygon.constructor_default")
 
 TEST_CASE("polygon.constructor_with_initializer_list")
 {
-  using Catch::Matchers::Equals;
-
   const auto expected = std::vector<vec3d>{
     vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)};
   CHECK_THAT(
@@ -53,8 +53,6 @@ TEST_CASE("polygon.constructor_with_initializer_list")
 
 TEST_CASE("polygon.construct_with_vertex_list")
 {
-  using Catch::Matchers::Equals;
-
   const auto vertices = std::vector<vec3d>{
     vec3d(+1, +1, 0), vec3d(+1, -1, 0), vec3d(-1, -1, 0), vec3d(-1, +1, 0)};
   const auto expected = std::vector<vec3d>{
@@ -87,8 +85,6 @@ TEST_CASE("polygon.vertex_count")
 
 TEST_CASE("polygon.vertices")
 {
-  using Catch::Matchers::Equals;
-
   const auto vertices = std::vector<vec3d>{
     vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)};
   const auto p = polygon3d(vertices);
@@ -105,8 +101,6 @@ TEST_CASE("polygon.center")
 
 TEST_CASE("polygon.invert")
 {
-  using Catch::Matchers::Equals;
-
   const auto p = polygon3d({
     vec3d(-1, -1, 0),
     vec3d(-1, +1, 0),
@@ -126,8 +120,6 @@ TEST_CASE("polygon.invert")
 
 TEST_CASE("polygon.translate")
 {
-  using Catch::Matchers::Equals;
-
   const auto p =
     polygon3d({vec3d(+1, +1, 0), vec3d(+1, -1, 0), vec3d(-1, -1, 0), vec3d(-1, +1, 0)});
   const auto t = vec3d(1, 2, 3);
@@ -136,8 +128,6 @@ TEST_CASE("polygon.translate")
 
 TEST_CASE("polygon.transform")
 {
-  using Catch::Matchers::Equals;
-
   const auto p =
     polygon3d({vec3d(+1, +1, 0), vec3d(+1, -1, 0), vec3d(-1, -1, 0), vec3d(-1, +1, 0)});
   const auto t = rotation_matrix(to_radians(14.0), to_radians(13.0), to_radians(44.0))
@@ -148,8 +138,6 @@ TEST_CASE("polygon.transform")
 
 TEST_CASE("polygon.get_vertices")
 {
-  using Catch::Matchers::Equals;
-
   const auto p1 =
     polygon3d({vec3d(+1, +1, 0), vec3d(+1, -1, 0), vec3d(-1, -1, 0), vec3d(-1, +1, 0)});
   const auto p2 = p1.translate(vec3d(1, 2, 3));
