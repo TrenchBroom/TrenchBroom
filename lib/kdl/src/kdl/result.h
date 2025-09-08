@@ -525,6 +525,11 @@ public:
       std::move(m_value));
   }
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   /**
    * Applies the given function to the value contained in this result, and returns a
    * combination of this result and the result of the given function.
@@ -665,6 +670,9 @@ public:
         [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
       std::move(m_value));
   }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
   /**
    * Applies the given function to any error contained in this result, and returns a new
@@ -1178,6 +1186,11 @@ public:
     return std::visit(reference_visitor{visitor}, std::move(m_value));
   }
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   /**
    * See result<Value, Errors...>::and_then
    */
@@ -1237,6 +1250,9 @@ public:
         [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; })},
       std::move(m_value));
   }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
   /**
    * See result<Value, Errors...>::or_else
@@ -1770,6 +1786,11 @@ public:
       std::move(m_value));
   }
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   /**
    * See result<Value, Errors...>::and_then. The only difference is that the given
    * function receives the values stored in this result not as a multi_value, but as
@@ -1833,6 +1854,9 @@ public:
         [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
       std::move(m_value));
   }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
   /**
    * See result<Value, Errors...>::or_else. The only difference is that the given
@@ -2456,6 +2480,11 @@ public:
       std::move(m_value));
   }
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   /**
    * See result<Value, Errors...>::and_then.
    */
@@ -2495,6 +2524,9 @@ public:
         [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
       std::move(m_value));
   }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
   /**
    * See result<Value, Errors...>::or_else.

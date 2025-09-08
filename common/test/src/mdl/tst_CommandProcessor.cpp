@@ -32,7 +32,8 @@
 #include <thread>
 #include <variant>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
 {
@@ -278,7 +279,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName},
         {CommandNotif::CommandDone, commandName},
         {CommandNotif::TransactionDone, commandName},
@@ -293,7 +294,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandUndo, commandName},
         {CommandNotif::CommandUndone, commandName},
         {CommandNotif::TransactionUndone, commandName},
@@ -319,7 +320,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName},
         {CommandNotif::CommandDone, commandName},
         {CommandNotif::TransactionDone, commandName},
@@ -332,7 +333,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandUndo, commandName},
         {CommandNotif::CommandUndoFailed, commandName},
       }));
@@ -356,7 +357,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName},
         {CommandNotif::CommandDoFailed, commandName},
       }));
@@ -396,7 +397,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName1},
         {CommandNotif::CommandDone, commandName1},
         {CommandNotif::CommandDo, commandName2},
@@ -416,7 +417,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandUndo, commandName2},
         {CommandNotif::CommandUndone, commandName2},
         {CommandNotif::CommandUndo, commandName1},
@@ -432,7 +433,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName1},
         {CommandNotif::CommandDone, commandName1},
         {CommandNotif::CommandDo, commandName2},
@@ -467,7 +468,7 @@ TEST_CASE("CommandProcessor")
     CHECK(commandProcessor.executeAndStore(std::move(command1))->success());
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName1},
         {CommandNotif::CommandDone, commandName1},
       }));
@@ -475,7 +476,7 @@ TEST_CASE("CommandProcessor")
     CHECK(commandProcessor.executeAndStore(std::move(command2))->success());
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName2},
         {CommandNotif::CommandDone, commandName2},
       }));
@@ -483,7 +484,7 @@ TEST_CASE("CommandProcessor")
     commandProcessor.rollbackTransaction();
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandUndo, commandName2},
         {CommandNotif::CommandUndone, commandName2},
         {CommandNotif::CommandUndo, commandName1},
@@ -531,7 +532,7 @@ TEST_CASE("CommandProcessor")
     CHECK(commandProcessor.executeAndStore(std::move(outerCommand))->success());
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, outerCommandName},
         {CommandNotif::CommandDone, outerCommandName},
       }));
@@ -540,7 +541,7 @@ TEST_CASE("CommandProcessor")
     CHECK(commandProcessor.executeAndStore(std::move(innerCommand))->success());
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, innerCommandName},
         {CommandNotif::CommandDone, innerCommandName},
       }));
@@ -548,14 +549,14 @@ TEST_CASE("CommandProcessor")
     commandProcessor.commitTransaction();
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::TransactionDone, innerTransactionName},
       }));
 
     commandProcessor.commitTransaction();
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::TransactionDone, outerTransactionName},
       }));
 
@@ -571,7 +572,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandUndo, innerCommandName},
         {CommandNotif::CommandUndone, innerCommandName},
         {CommandNotif::CommandUndo, outerCommandName},
@@ -677,7 +678,7 @@ TEST_CASE("CommandProcessor")
     commandProcessor.executeAndStore(std::move(command1));
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName1},
         {CommandNotif::CommandDone, commandName1},
         {CommandNotif::TransactionDone, commandName1},
@@ -686,7 +687,7 @@ TEST_CASE("CommandProcessor")
     commandProcessor.executeAndStore(std::move(command2));
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName2},
         {CommandNotif::CommandDone, commandName2},
         {CommandNotif::TransactionDone, commandName2},
@@ -705,7 +706,7 @@ TEST_CASE("CommandProcessor")
     // NOTE: commandName2 is gone because it was coalesced into commandName1
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandUndo, commandName1},
         {CommandNotif::CommandUndone, commandName1},
         {CommandNotif::TransactionUndone, commandName1},
@@ -733,7 +734,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName1},
         {CommandNotif::CommandDone, commandName1},
         {CommandNotif::TransactionDone, commandName1},
@@ -745,7 +746,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandDo, commandName2},
         {CommandNotif::CommandDone, commandName2},
         {CommandNotif::TransactionDone, commandName2},
@@ -759,7 +760,7 @@ TEST_CASE("CommandProcessor")
 
     CHECK_THAT(
       observer.popNotifications(),
-      Catch::Equals(std::vector<NotificationTuple>{
+      Catch::Matchers::Equals(std::vector<NotificationTuple>{
         {CommandNotif::CommandUndo, commandName2},
         {CommandNotif::CommandUndone, commandName2},
         {CommandNotif::TransactionUndone, commandName2},

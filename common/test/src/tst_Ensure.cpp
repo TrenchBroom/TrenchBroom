@@ -19,7 +19,7 @@
 
 #include "Ensure.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace tb::Ensure
 {

@@ -25,11 +25,13 @@
 #include "ui/HandleDragTracker.h"
 
 #include "vm/approx.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <tuple>
 #include <vector>
 
-#include "Catch2.h" // IWYU pragma: keep
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::ui
 {

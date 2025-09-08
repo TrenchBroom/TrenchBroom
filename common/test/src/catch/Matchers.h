@@ -33,13 +33,15 @@
 #include <sstream>
 #include <vector>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb
 {
 
 template <typename T>
-class PointerMatcher : public Catch::MatcherBase<const T*>
+class PointerMatcher : public Catch::Matchers::MatcherBase<const T*>
 {
   T m_expected;
 
@@ -66,7 +68,7 @@ auto MatchesPointer(T expected)
 }
 
 template <typename M, typename T, typename... E>
-class DelegatingResultMatcher : public Catch::MatcherBase<kdl::result<T, E...>>
+class DelegatingResultMatcher : public Catch::Matchers::MatcherBase<kdl::result<T, E...>>
 {
   M m_makeMatcher;
   kdl::result<T, E...> m_expected;
@@ -109,7 +111,7 @@ public:
 };
 
 template <typename T, typename... E>
-class ResultMatcher : public Catch::MatcherBase<kdl::result<T, E...>>
+class ResultMatcher : public Catch::Matchers::MatcherBase<kdl::result<T, E...>>
 {
   kdl::result<T, E...> m_expected;
   bool m_matchErrorMsg;
@@ -156,12 +158,14 @@ auto MatchesResult(kdl::result<T, E...> expected, const bool matchErrorMsg = fal
 inline auto MatchesPathsResult(std::vector<std::filesystem::path> paths)
 {
   return DelegatingResultMatcher{
-    [](auto&& x) { return Catch::UnorderedEquals(std::forward<decltype(x)>(x)); },
+    [](auto&& x) {
+      return Catch::Matchers::UnorderedEquals(std::forward<decltype(x)>(x));
+    },
     Result<std::vector<std::filesystem::path>>{std::move(paths)}};
 }
 
 template <typename T>
-class AnyOfMatcher : public Catch::MatcherBase<T>
+class AnyOfMatcher : public Catch::Matchers::MatcherBase<T>
 {
   std::vector<T> m_expected;
 
@@ -198,7 +202,7 @@ AnyOfMatcher<T> MatchesAnyOf(std::initializer_list<T> expected)
 }
 
 template <typename T>
-class NoneOfMatcher : public Catch::MatcherBase<T>
+class NoneOfMatcher : public Catch::Matchers::MatcherBase<T>
 {
   std::vector<T> m_expected;
 
@@ -235,7 +239,7 @@ NoneOfMatcher<T> MatchesNoneOf(std::initializer_list<T> expected)
 }
 
 template <typename T>
-class AllDifferentMatcher : public Catch::MatcherBase<T>
+class AllDifferentMatcher : public Catch::Matchers::MatcherBase<T>
 {
 public:
   bool match(const T& in) const override
@@ -257,7 +261,7 @@ AllDifferentMatcher<T> AllDifferent()
   return AllDifferentMatcher<T>{};
 }
 
-class GlobMatcher : public Catch::MatcherBase<std::string>
+class GlobMatcher : public Catch::Matchers::MatcherBase<std::string>
 {
 private:
   std::string m_glob;
@@ -276,7 +280,8 @@ GlobMatcher MatchesGlob(std::string glob);
  * an epsilon.
  */
 template <typename T, std::size_t S>
-class UnorderedApproxVecMatcher : public Catch::MatcherBase<std::vector<vm::vec<T, S>>>
+class UnorderedApproxVecMatcher
+  : public Catch::Matchers::MatcherBase<std::vector<vm::vec<T, S>>>
 {
 private:
   std::vector<vm::vec<T, S>> m_expected;
@@ -348,7 +353,7 @@ namespace tb::mdl
 {
 class Node;
 
-class NodeMatcher : public Catch::MatcherBase<Node>
+class NodeMatcher : public Catch::Matchers::MatcherBase<Node>
 {
   const Node& m_expected;
 
@@ -362,7 +367,7 @@ public:
 
 NodeMatcher MatchesNode(const Node& expected);
 
-class NodeVectorMatcher : public Catch::MatcherBase<const std::vector<Node*>&>
+class NodeVectorMatcher : public Catch::Matchers::MatcherBase<const std::vector<Node*>&>
 {
   const std::vector<Node*> m_expected;
 

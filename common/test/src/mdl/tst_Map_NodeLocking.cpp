@@ -34,7 +34,8 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
 {
@@ -151,7 +152,7 @@ TEST_CASE("Map_NodeLocking")
 
         REQUIRE_THAT(
           map.selection().nodes,
-          Catch::UnorderedEquals(std::vector<Node*>{
+          Catch::Matchers::UnorderedEquals(std::vector<Node*>{
             selectedBrushNode,
             unlockedBrushNode,
           }));
@@ -159,12 +160,12 @@ TEST_CASE("Map_NodeLocking")
         lockNodes(map, {map.world()->defaultLayer()});
         CHECK_THAT(
           map.selection().nodes,
-          Catch::UnorderedEquals(std::vector<Node*>{unlockedBrushNode}));
+          Catch::Matchers::UnorderedEquals(std::vector<Node*>{unlockedBrushNode}));
 
         map.undoCommand();
         CHECK_THAT(
           map.selection().nodes,
-          Catch::UnorderedEquals(std::vector<Node*>{
+          Catch::Matchers::UnorderedEquals(std::vector<Node*>{
             selectedBrushNode,
             unlockedBrushNode,
           }));
@@ -181,7 +182,7 @@ TEST_CASE("Map_NodeLocking")
           });
         REQUIRE_THAT(
           map.selection().brushFaces,
-          Catch::UnorderedEquals(std::vector<BrushFaceHandle>{
+          Catch::Matchers::UnorderedEquals(std::vector<BrushFaceHandle>{
             {selectedBrushNode, 0},
             {selectedBrushNode, 1},
             {unlockedBrushNode, 0},
@@ -190,14 +191,14 @@ TEST_CASE("Map_NodeLocking")
         lockNodes(map, {map.world()->defaultLayer()});
         CHECK_THAT(
           map.selection().brushFaces,
-          Catch::UnorderedEquals(std::vector<BrushFaceHandle>{
+          Catch::Matchers::UnorderedEquals(std::vector<BrushFaceHandle>{
             {unlockedBrushNode, 0},
           }));
 
         map.undoCommand();
         CHECK_THAT(
           map.selection().brushFaces,
-          Catch::UnorderedEquals(std::vector<BrushFaceHandle>{
+          Catch::Matchers::UnorderedEquals(std::vector<BrushFaceHandle>{
             {selectedBrushNode, 0},
             {selectedBrushNode, 1},
             {unlockedBrushNode, 0},

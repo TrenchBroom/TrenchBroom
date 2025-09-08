@@ -52,10 +52,12 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include "catch/Matchers.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::mdl
 {
@@ -210,17 +212,20 @@ TEST_CASE("Map")
       selectBrushFaces(map, {{brushNode, *topFaceIndex}});
       CHECK_THAT(
         map.selection().brushFaces,
-        Catch::Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+        Catch::Matchers::Equals(
+          std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 
       // deselect it
       deselectBrushFaces(map, {{brushNode, *topFaceIndex}});
       CHECK_THAT(
-        map.selection().brushFaces, Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
+        map.selection().brushFaces,
+        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       // select the brush
       selectNodes(map, {brushNode});
       CHECK_THAT(
-        map.selection().brushes, Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
+        map.selection().brushes,
+        Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{brushNode}));
 
       // translate the brush
       translateSelection(map, vm::vec3d{10.0, 0.0, 0.0});
@@ -231,19 +236,24 @@ TEST_CASE("Map")
       map.undoCommand();
       CHECK(brushNode->logicalBounds().center() == vm::vec3d{0, 0, 0});
       CHECK_THAT(
-        map.selection().brushes, Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
+        map.selection().brushes,
+        Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{brushNode}));
       CHECK_THAT(
-        map.selection().brushFaces, Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
+        map.selection().brushFaces,
+        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       map.undoCommand();
-      CHECK_THAT(map.selection().brushes, Catch::Equals(std::vector<mdl::BrushNode*>{}));
       CHECK_THAT(
-        map.selection().brushFaces, Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
+        map.selection().brushes, Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{}));
+      CHECK_THAT(
+        map.selection().brushFaces,
+        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       map.undoCommand();
       CHECK_THAT(
         map.selection().brushFaces,
-        Catch::Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+        Catch::Matchers::Equals(
+          std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
     }
 
     SECTION("allEntities")
@@ -369,14 +379,17 @@ TEST_CASE("Map")
 
         WHEN("A node in a brush entity node is selected")
         {
+          using SelectNodes =
+            std::function<std::tuple<Node*, Node*>(BrushNode*, PatchNode*)>;
+
           const auto selectBrushNode =
-            [](auto* brushNode, auto* patchNode) -> std::tuple<Node*, Node*> {
-            return {brushNode, patchNode};
-          };
+            SelectNodes{[](auto* brushNode, auto* patchNode) -> std::tuple<Node*, Node*> {
+              return {brushNode, patchNode};
+            }};
           const auto selectPatchNode =
-            [](auto* brushNode, auto* patchNode) -> std::tuple<Node*, Node*> {
-            return {patchNode, brushNode};
-          };
+            SelectNodes{[](auto* brushNode, auto* patchNode) -> std::tuple<Node*, Node*> {
+              return {patchNode, brushNode};
+            }};
           const auto selectNodes = GENERATE_COPY(selectBrushNode, selectPatchNode);
 
           const auto [nodeToSelect, otherNode] =

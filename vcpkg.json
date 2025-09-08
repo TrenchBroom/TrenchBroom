@@ -8,7 +8,7 @@
     },
     {
       "name": "catch2",
-      "version>=": "2.13.8"
+      "version>=": "3.10.0"
     },
     {
       "name": "fmt",
@@ -46,10 +46,6 @@
   ],
   "builtin-baseline": "b1b19307e2d2ec1eefbdb7ea069de7d4bcd31f01",
   "overrides": [
-    {
-      "name": "catch2",
-      "version": "2.13.8"
-    },
     {
       "name": "rapidjson",
       "version": "2025-02-26"

@@ -5,7 +5,6 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/Matchers.h"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.h"
-        "${COMMON_TEST_SOURCE_DIR}/Catch2.h"
         "${COMMON_TEST_SOURCE_DIR}/el/ELTestUtils.h"
         "${COMMON_TEST_SOURCE_DIR}/io/ObjectFile.h"
         "${COMMON_TEST_SOURCE_DIR}/io/TestEnvironment.cpp"
@@ -161,6 +160,8 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_TextOutputAdapter.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_UpdateVersion.cpp"
 )
+
+add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
 # Catch2 needs one source file to define a macro (in our case CATCH_CONFIG_RUNNER) before including
 # catch.hpp. This needs to be excluded from unity builds, otherwise the macro wouldn't be defined

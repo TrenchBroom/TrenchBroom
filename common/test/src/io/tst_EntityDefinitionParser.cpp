@@ -26,7 +26,8 @@
 
 #include <vector>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::io
 {
@@ -96,7 +97,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -307,7 +309,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 6u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -358,7 +361,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -404,7 +408,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -457,7 +462,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -511,7 +517,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -564,7 +571,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -720,7 +728,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -804,7 +813,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -901,7 +911,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -1002,7 +1013,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -1114,7 +1126,8 @@ TEST_CASE("resolveInheritance")
     };
 
     auto status = TestParserStatus{};
-    CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+    CHECK_THAT(
+      resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }

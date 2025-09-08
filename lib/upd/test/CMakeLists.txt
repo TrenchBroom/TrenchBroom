@@ -1,8 +1,6 @@
 set(LIB_UPDATE_TEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(LIB_UPDATE_TEST_SOURCE
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/RunAllTests.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/StringMakers.h"
   "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestHttpClient.cpp"
   "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestHttpClient.h"
   "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestUtils.cpp"
@@ -15,15 +13,12 @@ set(LIB_UPDATE_TEST_SOURCE
   "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/tst_UpdateController.cpp"
 )
 
-# Catch2 needs one source file to define a macro (in our case CATCH_CONFIG_RUNNER) before including
-# catch.hpp. This needs to be excluded from unity builds, otherwise the macro wouldn't be defined
-# before the first catch.hpp inclusion.
-set_property(SOURCE "${LIB_UPDATE_TEST_SOURCE_DIR}/RunAllTests.cpp" PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
 add_executable(upd-test ${LIB_UPDATE_TEST_SOURCE})
 target_include_directories(upd-test PRIVATE ${LIB_UPDATE_TEST_SOURCE_DIR} ${LIB_UPDATE_SOURCE_DIR})
 target_include_directories(upd-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-target_link_libraries(upd-test PRIVATE upd Catch2::Catch2 Qt6::Test)
+target_link_libraries(upd-test PRIVATE upd Catch2::Catch2WithMain Qt6::Test)
 set_target_properties(upd-test PROPERTIES AUTOMOC TRUE)
 
 set_compiler_config(upd-test)

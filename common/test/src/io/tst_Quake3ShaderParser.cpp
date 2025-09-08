@@ -22,7 +22,8 @@
 #include "io/TestParserStatus.h"
 #include "mdl/Quake3Shader.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::io
 {
@@ -49,7 +50,7 @@ textures/liquids/lavahell2 //path and name of new texture
 
     CHECK_THAT(
       parser.parse(status).value(),
-      Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
         "textures/liquids/lavahell2",      // shaderPath
         "",                                // editorImage
         "",                                // lightImage
@@ -96,7 +97,7 @@ textures/liquids/lavahell2 //path and name of new texture
 
     CHECK_THAT(
       parser.parse(status).value(),
-      Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
         "textures/liquids/lavahell2",       // shaderPath
         "",                                 // editorImage
         "",                                 // lightImage
@@ -147,7 +148,7 @@ textures/liquids/lavahell2 //path and name of new texture
 
     CHECK_THAT(
       parser.parse(status).value(),
-      Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
         "textures/liquids/lavahell2",       // shaderPath
         "textures/eerie/lavahell.tga",      // editorImage
         "",                                 // lightImage
@@ -198,7 +199,7 @@ textures/eerie/ironcrosslt2_10000
 
     CHECK_THAT(
       parser.parse(status).value(),
-      Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
         "textures/eerie/ironcrosslt2_10000",            // shaderPath
         "textures/gothic_light/ironcrosslt2.tga",       // editorImage
         "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
@@ -257,7 +258,7 @@ textures/eerie/ironcrosslt2_10000
 
     CHECK_THAT(
       parser.parse(status).value(),
-      Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
         "textures/eerie/ironcrosslt2_10000",            // shaderPath
         "textures/gothic_light/ironcrosslt2.tga",       // editorImage
         "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
@@ -372,7 +373,7 @@ textures/liquids/lavahell2 //path and name of new texture
 
     CHECK_THAT(
       parser.parse(status).value(),
-      Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{
         {
           "textures/eerie/ironcrosslt2_10000",            // shaderPath
           "textures/gothic_light/ironcrosslt2.tga",       // editorImage
@@ -495,7 +496,7 @@ waterBubble
 
     CHECK_THAT(
       parser.parse(status).value(),
-      Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
         "waterBubble",                     // shaderPath
         "",                                // editorImage
         "",                                // lightImage
@@ -592,7 +593,7 @@ TEST_CASE("Quake3ShaderParser (Regression)", "[regression]")
 
     CHECK_THAT(
       parser.parse(status).value(),
-      Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
         "textures/eerie/ironcrosslt2_10000",      // shaderPath
         "textures/gothic_light/ironcrosslt2.tga", // editorImage
         "",                                       // lightImage

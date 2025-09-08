@@ -23,7 +23,8 @@
 
 #include <sstream>
 
-#include "catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace vm
 {
@@ -74,13 +75,13 @@ TEST_CASE("vec_io.parse_all")
   std::vector<vec3f> result;
 
   parse_all<float, 3>("", std::back_inserter(result));
-  CHECK_THAT(result, Catch::Equals(std::vector<vec3f>{}));
+  CHECK_THAT(result, Catch::Matchers::Equals(std::vector<vec3f>{}));
 
   result.clear();
   parse_all<float, 3>("1.0 3 3.5 2.0 2.0 2.0", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Equals(std::vector<vec3f>{
+    Catch::Matchers::Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));
@@ -89,7 +90,7 @@ TEST_CASE("vec_io.parse_all")
   parse_all<float, 3>("(1.0 3 3.5) (2.0 2.0 2.0)", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Equals(std::vector<vec3f>{
+    Catch::Matchers::Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));
@@ -98,7 +99,7 @@ TEST_CASE("vec_io.parse_all")
   parse_all<float, 3>("(1.0 3 3.5), (2.0 2.0 2.0)", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Equals(std::vector<vec3f>{
+    Catch::Matchers::Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));
@@ -107,7 +108,7 @@ TEST_CASE("vec_io.parse_all")
   parse_all<float, 3>("(1.0 3 3.5); (2.0 2.0 2.0)", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Equals(std::vector<vec3f>{
+    Catch::Matchers::Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));
@@ -116,7 +117,7 @@ TEST_CASE("vec_io.parse_all")
   parse_all<float, 3>("1.0 3 3.5, 2.0 2.0 2.0", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Equals(std::vector<vec3f>{
+    Catch::Matchers::Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));

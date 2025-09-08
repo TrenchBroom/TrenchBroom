@@ -44,7 +44,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <filesystem>
 #include <mutex>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 namespace tb::ui
 {
@@ -226,7 +228,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     REQUIRE_FALSE(exec.errored);
     REQUIRE(exec.ended);
 
-    CHECK_THAT(output.toPlainText().toStdString(), Catch::Contains(R"(1
+    CHECK_THAT(output.toPlainText().toStdString(), Catch::Matchers::ContainsSubstring(R"(1
 2
 str
 escaped str)"));

@@ -36,13 +36,15 @@
 #include "vm/polygon.h"
 #include "vm/segment.h"
 #include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <string>
 #include <vector>
 
 #include "catch/Matchers.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::mdl
 {
@@ -482,7 +484,8 @@ TEST_CASE("Brush")
         expectedVerticesArray.begin(), expectedVerticesArray.end()};
 
       CHECK(brush1.bounds() == expandedBBox);
-      CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
+      CHECK_THAT(
+        brush1.vertexPositions(), Catch::Matchers::UnorderedEquals(expectedVertices));
     }
 
     SECTION("Expand inwards")
@@ -501,7 +504,8 @@ TEST_CASE("Brush")
         expectedVerticesArray.begin(), expectedVerticesArray.end()};
 
       CHECK(brush1.bounds() == expandedBBox);
-      CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
+      CHECK_THAT(
+        brush1.vertexPositions(), Catch::Matchers::UnorderedEquals(expectedVertices));
     }
 
     SECTION("Can't make invalid brush by expanding")
@@ -2439,7 +2443,8 @@ TEST_CASE("Brush")
 
       const auto& subtraction = fragments.at(0);
       CHECK_THAT(
-        subtraction.vertexPositions(), Catch::UnorderedEquals(brush1.vertexPositions()));
+        subtraction.vertexPositions(),
+        Catch::Matchers::UnorderedEquals(brush1.vertexPositions()));
     }
 
     SECTION("Subtract contained brushes")

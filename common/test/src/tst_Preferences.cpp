@@ -34,7 +34,7 @@
 #include <optional>
 #include <string>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 
 inline std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs)

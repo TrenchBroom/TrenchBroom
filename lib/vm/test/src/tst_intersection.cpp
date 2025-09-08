@@ -26,10 +26,11 @@
 #include "vm/quat.h"
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 
-#include "catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace vm
 {
