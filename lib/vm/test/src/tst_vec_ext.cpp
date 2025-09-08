@@ -29,12 +29,12 @@
 
 namespace vm
 {
+using namespace Catch::Matchers;
+
 // ========== operations on ranges of vectors ==========
 
 TEST_CASE("vec_ext.operator_plus_vector")
 {
-  using Catch::Matchers::Equals;
-
   const auto in = std::vector<vec3f>{vec3f(1, 2, 3), vec3f(2, 3, 4)};
   const auto exp = std::vector<vec3f>{vec3f(0, 3, 1), vec3f(1, 4, 2)};
   CHECK_THAT(in + vec3f(-1, +1, -2), Equals(exp));
@@ -51,8 +51,6 @@ TEST_CASE("vec_ext.operator_plus_array")
 
 TEST_CASE("vec_ext.operator_multiply_vector")
 {
-  using Catch::Matchers::Equals;
-
   const auto in = std::vector<vec3f>{vec3f(1, 2, 3), vec3f(2, 3, 4)};
   const auto exp = std::vector<vec3f>{vec3f(3, 6, 9), vec3f(6, 9, 12)};
   CHECK_THAT(in * 3.0f, Equals(exp));

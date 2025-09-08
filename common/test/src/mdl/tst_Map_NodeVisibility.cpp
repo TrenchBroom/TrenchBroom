@@ -38,6 +38,7 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("Map_NodeVisibility")
 {
@@ -95,8 +96,7 @@ TEST_CASE("Map_NodeVisibility")
               CHECK_FALSE(nodeToIsolate->hidden());
               CHECK_FALSE(nodeToHide->hidden());
 
-              CHECK_THAT(
-                map.selection().nodes, Catch::Matchers::UnorderedEquals(selectedNodes));
+              CHECK_THAT(map.selection().nodes, UnorderedEquals(selectedNodes));
             }
           }
         }
@@ -166,8 +166,7 @@ TEST_CASE("Map_NodeVisibility")
               CHECK_FALSE(childNode1->hidden());
               CHECK_FALSE(childNode2->hidden());
 
-              CHECK_THAT(
-                map.selection().nodes, Catch::Matchers::UnorderedEquals(selectedNodes));
+              CHECK_THAT(map.selection().nodes, UnorderedEquals(selectedNodes));
             }
           }
         }

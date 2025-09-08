@@ -48,6 +48,7 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("Map_Selection")
 {
@@ -116,8 +117,7 @@ TEST_CASE("Map_Selection")
         selectLinkedGroups(map);
         CHECK_THAT(
           map.selection().nodes,
-          Catch::Matchers::UnorderedEquals(
-            std::vector<Node*>{groupNode, linkedGroupNode}));
+          UnorderedEquals(std::vector<Node*>{groupNode, linkedGroupNode}));
       }
     }
   }
@@ -151,37 +151,31 @@ TEST_CASE("Map_Selection")
     {
       selectNodes(map, {brushNode3});
       REQUIRE_THAT(
-        map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode3}));
+        map.selection().nodes, UnorderedEquals(std::vector<Node*>{brushNode3}));
 
       selectSiblingNodes(map);
       CHECK_THAT(
         map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(
+        UnorderedEquals(
           std::vector<Node*>{brushNode1, brushNode2, brushNode3, patchNode}));
 
       map.undoCommand();
-      CHECK_THAT(
-        map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode3}));
+      CHECK_THAT(map.selection().nodes, UnorderedEquals(std::vector<Node*>{brushNode3}));
     }
 
     SECTION("Brush in brush entity")
     {
       selectNodes(map, {brushNode1});
       REQUIRE_THAT(
-        map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode1}));
+        map.selection().nodes, UnorderedEquals(std::vector<Node*>{brushNode1}));
 
       selectSiblingNodes(map);
       CHECK_THAT(
         map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode1, brushNode2}));
+        UnorderedEquals(std::vector<Node*>{brushNode1, brushNode2}));
 
       map.undoCommand();
-      CHECK_THAT(
-        map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode1}));
+      CHECK_THAT(map.selection().nodes, UnorderedEquals(std::vector<Node*>{brushNode1}));
     }
   }
 
@@ -213,7 +207,6 @@ TEST_CASE("Map_Selection")
       selectNodes(map, {brushNode1});
       selectTouchingNodes(map, false);
 
-      using Catch::Matchers::UnorderedEquals;
       CHECK_THAT(
         map.selection().brushes, UnorderedEquals(std::vector<BrushNode*>{brushNode2}));
     }
@@ -261,21 +254,17 @@ TEST_CASE("Map_Selection")
 
       CHECK_THAT(
         map.selection().brushes,
-        Catch::Matchers::UnorderedEquals(
-          std::vector<BrushNode*>{brushNode1, brushNode2}));
+        UnorderedEquals(std::vector<BrushNode*>{brushNode1, brushNode2}));
       CHECK_THAT(
         map.editorContext().currentLayer()->children(),
-        Catch::Matchers::Equals(std::vector<Node*>{brushNode1, brushNode2}));
+        Equals(std::vector<Node*>{brushNode1, brushNode2}));
 
       selectTouchingNodes(map, true);
 
       // only this next line was failing
+      CHECK_THAT(map.selection().brushes, UnorderedEquals(std::vector<BrushNode*>{}));
       CHECK_THAT(
-        map.selection().brushes,
-        Catch::Matchers::UnorderedEquals(std::vector<BrushNode*>{}));
-      CHECK_THAT(
-        map.editorContext().currentLayer()->children(),
-        Catch::Matchers::Equals(std::vector<Node*>{}));
+        map.editorContext().currentLayer()->children(), Equals(std::vector<Node*>{}));
 
       // brush1 and brush2 are deleted
       CHECK(brushNode1->parent() == nullptr);
@@ -309,14 +298,11 @@ TEST_CASE("Map_Selection")
       selectTouchingNodes(map, false);
 
       CHECK_THAT(
-        map.selection().brushes,
-        Catch::Matchers::UnorderedEquals(std::vector<BrushNode*>{brushNode2}));
+        map.selection().brushes, UnorderedEquals(std::vector<BrushNode*>{brushNode2}));
     }
 
     SECTION("Select touching nodes along axis")
     {
-      using Catch::Matchers::UnorderedEquals;
-
       auto* brushNode1 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
       auto* brushNode2 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
       auto* brushNode3 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
@@ -485,9 +471,7 @@ TEST_CASE("Map_Selection")
       CAPTURE(lineNumbers);
 
       selectNodesWithFilePosition(map, lineNumbers);
-      CHECK_THAT(
-        mapNodeNames(map.selection().nodes),
-        Catch::Matchers::UnorderedEquals(expectedNodeNames));
+      CHECK_THAT(mapNodeNames(map.selection().nodes), UnorderedEquals(expectedNodeNames));
     }
 
     SECTION("outer group is open")
@@ -504,9 +488,7 @@ TEST_CASE("Map_Selection")
       CAPTURE(lineNumbers);
 
       selectNodesWithFilePosition(map, lineNumbers);
-      CHECK_THAT(
-        mapNodeNames(map.selection().nodes),
-        Catch::Matchers::UnorderedEquals(expectedNodeNames));
+      CHECK_THAT(mapNodeNames(map.selection().nodes), UnorderedEquals(expectedNodeNames));
     }
 
     SECTION("inner group is open")
@@ -524,9 +506,7 @@ TEST_CASE("Map_Selection")
       CAPTURE(lineNumbers);
 
       selectNodesWithFilePosition(map, lineNumbers);
-      CHECK_THAT(
-        mapNodeNames(map.selection().nodes),
-        Catch::Matchers::UnorderedEquals(expectedNodeNames));
+      CHECK_THAT(mapNodeNames(map.selection().nodes), UnorderedEquals(expectedNodeNames));
     }
   }
 
@@ -571,8 +551,7 @@ TEST_CASE("Map_Selection")
 
     CHECK_THAT(
       map.selection().nodes,
-      Catch::Matchers::UnorderedEquals(
-        std::vector<Node*>{brushNode2, brushNode3, patchNode}));
+      UnorderedEquals(std::vector<Node*>{brushNode2, brushNode3, patchNode}));
     CHECK(!brushNode1->selected());
     CHECK(brushNode2->selected());
     CHECK(brushNode3->selected());

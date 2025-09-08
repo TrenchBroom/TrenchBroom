@@ -28,6 +28,8 @@
 
 namespace vm
 {
+using namespace Catch::Matchers;
+
 TEST_CASE("vec_io.parse_valid_string")
 {
   constexpr auto s = "1.0 3 3.5";
@@ -75,13 +77,13 @@ TEST_CASE("vec_io.parse_all")
   std::vector<vec3f> result;
 
   parse_all<float, 3>("", std::back_inserter(result));
-  CHECK_THAT(result, Catch::Matchers::Equals(std::vector<vec3f>{}));
+  CHECK_THAT(result, Equals(std::vector<vec3f>{}));
 
   result.clear();
   parse_all<float, 3>("1.0 3 3.5 2.0 2.0 2.0", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Matchers::Equals(std::vector<vec3f>{
+    Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));
@@ -90,7 +92,7 @@ TEST_CASE("vec_io.parse_all")
   parse_all<float, 3>("(1.0 3 3.5) (2.0 2.0 2.0)", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Matchers::Equals(std::vector<vec3f>{
+    Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));
@@ -99,7 +101,7 @@ TEST_CASE("vec_io.parse_all")
   parse_all<float, 3>("(1.0 3 3.5), (2.0 2.0 2.0)", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Matchers::Equals(std::vector<vec3f>{
+    Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));
@@ -108,7 +110,7 @@ TEST_CASE("vec_io.parse_all")
   parse_all<float, 3>("(1.0 3 3.5); (2.0 2.0 2.0)", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Matchers::Equals(std::vector<vec3f>{
+    Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));
@@ -117,7 +119,7 @@ TEST_CASE("vec_io.parse_all")
   parse_all<float, 3>("1.0 3 3.5, 2.0 2.0 2.0", std::back_inserter(result));
   CHECK_THAT(
     result,
-    Catch::Matchers::Equals(std::vector<vec3f>{
+    Equals(std::vector<vec3f>{
       vec3f(1, 3, 3.5),
       vec3f(2, 2, 2),
     }));

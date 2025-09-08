@@ -26,6 +26,8 @@
 
 namespace kdl
 {
+using namespace Catch::Matchers;
+
 namespace cs
 {
 
@@ -183,9 +185,7 @@ C sorted(C c)
 
 TEST_CASE("string_utils_cs_test.sort")
 {
-  CHECK_THAT(
-    sorted(std::vector<std::string>{}),
-    Catch::Matchers::Equals(std::vector<std::string>{}));
+  CHECK_THAT(sorted(std::vector<std::string>{}), Equals(std::vector<std::string>{}));
 
   CHECK_THAT(
     sorted(std::vector<std::string>{
@@ -196,7 +196,7 @@ TEST_CASE("string_utils_cs_test.sort")
       "def",
       "aab",
     }),
-    Catch::Matchers::Equals(std::vector<std::string>{
+    Equals(std::vector<std::string>{
       "Ab",
       "Zasdf",
       "a",
@@ -338,9 +338,7 @@ C sorted(C c)
 
 TEST_CASE("string_utils_ci_test.sort")
 {
-  CHECK_THAT(
-    sorted(std::vector<std::string>{}),
-    Catch::Matchers::Equals(std::vector<std::string>{}));
+  CHECK_THAT(sorted(std::vector<std::string>{}), Equals(std::vector<std::string>{}));
 
   CHECK_THAT(
     sorted(std::vector<std::string>{
@@ -351,7 +349,7 @@ TEST_CASE("string_utils_ci_test.sort")
       "def",
       "aab",
     }),
-    Catch::Matchers::Equals(std::vector<std::string>{
+    Equals(std::vector<std::string>{
       "a",
       "aab",
       "Ab",

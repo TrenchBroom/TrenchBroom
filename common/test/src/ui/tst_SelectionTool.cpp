@@ -47,6 +47,7 @@
 
 namespace tb::ui
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("SelectionTool")
 {
@@ -305,7 +306,7 @@ TEST_CASE("SelectionTool")
             {
               CHECK_THAT(
                 map.selection().brushFaces,
-                Catch::Matchers::UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
+                UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
                   {brushNode, topFaceIndex}, {brushNode, frontFaceIndex}}));
               CHECK_FALSE(map.selection().hasNodes());
             }
