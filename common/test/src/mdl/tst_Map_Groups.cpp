@@ -48,6 +48,7 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("Map_Groups")
 {
@@ -304,12 +305,10 @@ TEST_CASE("Map_Groups")
       selectNodes(map, {entityNode1});
 
       auto* groupNode = groupSelectedNodes(map, "Group");
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{groupNode}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{groupNode}));
 
       ungroupSelectedNodes(map);
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{entityNode1}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{entityNode1}));
     }
 
     SECTION("Ungrouping leaves a brush entity selected")
@@ -324,24 +323,19 @@ TEST_CASE("Map_Groups")
         | kdl::value()};
       addNodes(map, {{entityNode1, {brushNode1}}});
       selectNodes(map, {entityNode1});
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{brushNode1}));
       CHECK_FALSE(entityNode1->selected());
       CHECK(brushNode1->selected());
 
       auto* groupNode = groupSelectedNodes(map, "Group");
-      CHECK_THAT(
-        groupNode->children(), Catch::Matchers::Equals(std::vector<Node*>{entityNode1}));
-      CHECK_THAT(
-        entityNode1->children(), Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{groupNode}));
+      CHECK_THAT(groupNode->children(), Equals(std::vector<Node*>{entityNode1}));
+      CHECK_THAT(entityNode1->children(), Equals(std::vector<Node*>{brushNode1}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{groupNode}));
       CHECK(map.selection().allBrushes() == std::vector<BrushNode*>{brushNode1});
       CHECK(!map.selection().hasBrushes());
 
       ungroupSelectedNodes(map);
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{brushNode1}));
       CHECK_FALSE(entityNode1->selected());
       CHECK(brushNode1->selected());
     }
@@ -360,12 +354,12 @@ TEST_CASE("Map_Groups")
       selectNodes(map, {entityNode2});
       CHECK_THAT(
         map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{groupNode, entityNode2}));
+        UnorderedEquals(std::vector<Node*>{groupNode, entityNode2}));
 
       ungroupSelectedNodes(map);
       CHECK_THAT(
         map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
+        UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
     }
 
     SECTION("Ungrouping linked groups")
@@ -400,7 +394,7 @@ TEST_CASE("Map_Groups")
 
       REQUIRE_THAT(
         map.world()->defaultLayer()->children(),
-        Catch::Matchers::UnorderedEquals(
+        UnorderedEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
       SECTION(
@@ -411,7 +405,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
-          Catch::Matchers::UnorderedEquals(
+          UnorderedEquals(
             std::vector<Node*>{groupNode, linkedGroupNode, linkedBrushNode2}));
         CHECK(groupNode->linkId() == linkedGroupNode->linkId());
         CHECK(linkedGroupNode2->linkId() != groupNode->linkId());
@@ -428,7 +422,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
-          Catch::Matchers::UnorderedEquals(
+          UnorderedEquals(
             std::vector<Node*>{groupNode, linkedBrushNode, linkedBrushNode2}));
 
         CHECK(groupNode->linkId() == originalGroupLinkId);
@@ -450,7 +444,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
-          Catch::Matchers::UnorderedEquals(
+          UnorderedEquals(
             std::vector<Node*>{brushNode, linkedBrushNode, linkedBrushNode2}));
 
         CHECK(groupNode->linkId() != originalGroupLinkId);
@@ -465,7 +459,7 @@ TEST_CASE("Map_Groups")
       map.undoCommand();
       CHECK_THAT(
         map.world()->defaultLayer()->children(),
-        Catch::Matchers::UnorderedEquals(
+        UnorderedEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
       CHECK(groupNode->linkId() == originalGroupLinkId);
       CHECK(linkedGroupNode->linkId() == originalGroupLinkId);
@@ -493,22 +487,20 @@ TEST_CASE("Map_Groups")
 
     CHECK_THAT(
       map.editorContext().currentLayer()->children(),
-      Catch::Matchers::UnorderedEquals(std::vector<Node*>{groupNode1, groupNode2}));
+      UnorderedEquals(std::vector<Node*>{groupNode1, groupNode2}));
 
     selectNodes(map, {groupNode1, groupNode2});
     mergeSelectedGroupsWithGroup(map, groupNode2);
 
-    CHECK_THAT(
-      map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{groupNode2}));
+    CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{groupNode2}));
     CHECK_THAT(
       map.editorContext().currentLayer()->children(),
-      Catch::Matchers::Equals(std::vector<Node*>{groupNode2}));
+      Equals(std::vector<Node*>{groupNode2}));
 
-    CHECK_THAT(
-      groupNode1->children(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    CHECK_THAT(groupNode1->children(), UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(
       groupNode2->children(),
-      Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
+      UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
   }
 
   SECTION("renameSelectedGroups")
@@ -746,8 +738,7 @@ TEST_CASE("Map_Groups")
     const auto entityNodes = map.selection().allEntities();
     REQUIRE_THAT(
       entityNodes,
-      Catch::Matchers::UnorderedEquals(
-        std::vector<mdl::EntityNodeBase*>{entityNode, linkedEntityNode}));
+      UnorderedEquals(std::vector<mdl::EntityNodeBase*>{entityNode, linkedEntityNode}));
 
     CHECK(canUpdateLinkedGroups({entityNode}));
     CHECK(canUpdateLinkedGroups({linkedEntityNode}));

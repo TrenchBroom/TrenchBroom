@@ -66,6 +66,8 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -760,20 +762,16 @@ TEST_CASE("Map")
       selectBrushFaces(map, {{brushNode, *topFaceIndex}});
       CHECK_THAT(
         map.selection().brushFaces,
-        Catch::Matchers::Equals(
-          std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+        Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 
       // deselect it
       deselectBrushFaces(map, {{brushNode, *topFaceIndex}});
-      CHECK_THAT(
-        map.selection().brushFaces,
-        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
+      CHECK_THAT(map.selection().brushFaces, Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       // select the brush
       selectNodes(map, {brushNode});
       CHECK_THAT(
-        map.selection().brushes,
-        Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{brushNode}));
+        map.selection().brushes, Equals(std::vector<mdl::BrushNode*>{brushNode}));
 
       // translate the brush
       translateSelection(map, vm::vec3d{10.0, 0.0, 0.0});
@@ -784,24 +782,17 @@ TEST_CASE("Map")
       map.undoCommand();
       CHECK(brushNode->logicalBounds().center() == vm::vec3d{0, 0, 0});
       CHECK_THAT(
-        map.selection().brushes,
-        Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{brushNode}));
-      CHECK_THAT(
-        map.selection().brushFaces,
-        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
+        map.selection().brushes, Equals(std::vector<mdl::BrushNode*>{brushNode}));
+      CHECK_THAT(map.selection().brushFaces, Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       map.undoCommand();
-      CHECK_THAT(
-        map.selection().brushes, Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{}));
-      CHECK_THAT(
-        map.selection().brushFaces,
-        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
+      CHECK_THAT(map.selection().brushes, Equals(std::vector<mdl::BrushNode*>{}));
+      CHECK_THAT(map.selection().brushFaces, Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       map.undoCommand();
       CHECK_THAT(
         map.selection().brushFaces,
-        Catch::Matchers::Equals(
-          std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+        Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
     }
 
     SECTION("allEntities")
@@ -842,8 +833,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
           }
         }
 
@@ -855,8 +845,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
           }
         }
 
@@ -868,8 +857,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
           }
         }
 
@@ -881,8 +869,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
           }
         }
 
@@ -894,8 +881,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{groupedEntityNode}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{groupedEntityNode}));
           }
 
           AND_WHEN("A top level entity node is selected")
@@ -906,7 +892,7 @@ TEST_CASE("Map")
             {
               CHECK_THAT(
                 map.selection().allEntities(),
-                Catch::Matchers::UnorderedEquals(
+                UnorderedEquals(
                   std::vector<EntityNodeBase*>{groupedEntityNode, topLevelEntityNode}));
             }
           }
@@ -920,8 +906,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{topLevelEntityNode}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{topLevelEntityNode}));
           }
         }
 
@@ -951,8 +936,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{topLevelBrushEntityNode}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{topLevelBrushEntityNode}));
           }
 
           AND_WHEN("Another node in the same entity node is selected")
@@ -963,8 +947,7 @@ TEST_CASE("Map")
             {
               CHECK_THAT(
                 map.selection().allEntities(),
-                Catch::Matchers::UnorderedEquals(
-                  std::vector<EntityNodeBase*>{topLevelBrushEntityNode}));
+                UnorderedEquals(std::vector<EntityNodeBase*>{topLevelBrushEntityNode}));
             }
           }
 
@@ -976,7 +959,7 @@ TEST_CASE("Map")
             {
               CHECK_THAT(
                 map.selection().allEntities(),
-                Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{
+                UnorderedEquals(std::vector<EntityNodeBase*>{
                   topLevelBrushEntityNode, topLevelEntityNode}));
             }
           }
@@ -1041,8 +1024,7 @@ TEST_CASE("Map")
 
       selectNodes(map, nodes);
 
-      CHECK_THAT(
-        map.selection().allBrushes(), Catch::Matchers::UnorderedEquals(brushNodes));
+      CHECK_THAT(map.selection().allBrushes(), UnorderedEquals(brushNodes));
     }
   }
 
@@ -1713,7 +1695,7 @@ TEST_CASE("Map")
 
       REQUIRE_THAT(
         brushNode->brush().faces(),
-        Catch::Matchers::AllMatch(Catch::Matchers::Predicate<const BrushFace&>(
+        AllMatch(Predicate<const BrushFace&>(
           [&](const auto& face) { return face.material() == material; })));
 
       SECTION("translateSelection")
@@ -1758,7 +1740,7 @@ TEST_CASE("Map")
 
       CHECK_THAT(
         brushNode->brush().faces(),
-        Catch::Matchers::AllMatch(Catch::Matchers::Predicate<const BrushFace&>(
+        AllMatch(Predicate<const BrushFace&>(
           [&](const auto& face) { return face.material() == material; })));
     }
   }

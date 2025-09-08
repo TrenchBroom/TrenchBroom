@@ -38,6 +38,8 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -93,38 +95,37 @@ TEST_CASE("Issue.addSelectableNodes")
 
   CHECK_FALSE(hasSelectableNodes(TestIssue{outerGroupNode}));
   CHECK_THAT(
-    getSelectableNodes(TestIssue{outerGroupNode}),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    getSelectableNodes(TestIssue{outerGroupNode}), UnorderedEquals(std::vector<Node*>{}));
 
   CHECK(hasSelectableNodes(TestIssue{*innerGroupNode}));
   CHECK_THAT(
     getSelectableNodes(TestIssue{*innerGroupNode}),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{innerGroupNode}));
+    UnorderedEquals(std::vector<Node*>{innerGroupNode}));
 
   CHECK(hasSelectableNodes(TestIssue{*pointEntityNode}));
   CHECK_THAT(
     getSelectableNodes(TestIssue{*pointEntityNode}),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{pointEntityNode}));
+    UnorderedEquals(std::vector<Node*>{pointEntityNode}));
 
   CHECK(hasSelectableNodes(TestIssue{*brushNode}));
   CHECK_THAT(
     getSelectableNodes(TestIssue{*brushNode}),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode}));
+    UnorderedEquals(std::vector<Node*>{brushNode}));
 
   CHECK(hasSelectableNodes(TestIssue{*brushEntityNode}));
   CHECK_THAT(
     getSelectableNodes(TestIssue{*brushEntityNode}),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityBrushNode}));
+    UnorderedEquals(std::vector<Node*>{entityBrushNode}));
 
   CHECK(hasSelectableNodes(TestIssue{*entityBrushNode}));
   CHECK_THAT(
     getSelectableNodes(TestIssue{*entityBrushNode}),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityBrushNode}));
+    UnorderedEquals(std::vector<Node*>{entityBrushNode}));
 
   CHECK(hasSelectableNodes(TestIssue{*patchNode}));
   CHECK_THAT(
     getSelectableNodes(TestIssue{*patchNode}),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{patchNode}));
+    UnorderedEquals(std::vector<Node*>{patchNode}));
 }
 
 } // namespace tb::mdl
