@@ -95,12 +95,27 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
   return searchPaths;
 }
 
-std::vector<std::string> mods(const Map& map)
+std::vector<std::string> enabledMods(const Entity& entity)
 {
-  return map.game()->extractEnabledMods(map.world()->entity());
+  if (const auto* modStr = entity.property(EntityPropertyKeys::Mods))
+  {
+    return kdl::str_split(*modStr, ";");
+  }
+
+  return {};
 }
 
-void setMods(Map& map, const std::vector<std::string>& mods)
+std::vector<std::string> enabledMods(const Map& map)
+{
+  if (const auto* worldNode = map.world())
+  {
+    return enabledMods(worldNode->entity());
+  }
+
+  return {};
+}
+
+void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 {
   auto* worldNode = map.world();
   auto entity = worldNode->entity();

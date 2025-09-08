@@ -54,7 +54,7 @@ CommonVariables::CommonVariables(const mdl::Map& map)
 
   auto mods = std::vector<std::string>{};
   mods.push_back(defaultMod(map));
-  mods = kdl::vec_concat(std::move(mods), mdl::mods(map));
+  mods = kdl::vec_concat(std::move(mods), enabledMods(map));
 
   using namespace CompilationVariableNames;
   set(MAP_BASE_NAME, el::Value{kdl::path_remove_extension(filename).string()});

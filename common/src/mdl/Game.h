@@ -87,15 +87,12 @@ public: // material collection handling
 public: // entity definition handling
   virtual bool isEntityDefinitionFile(const std::filesystem::path& path) const = 0;
   virtual std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const = 0;
-  virtual EntityDefinitionFileSpec extractEntityDefinitionFile(
-    const Entity& entity) const = 0;
   virtual std::filesystem::path findEntityDefinitionFile(
     const EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
 public: // mods
   virtual Result<std::vector<std::string>> availableMods() const = 0;
-  virtual std::vector<std::string> extractEnabledMods(const Entity& entity) const = 0;
   virtual std::string defaultMod() const = 0;
 };
 } // namespace tb::mdl

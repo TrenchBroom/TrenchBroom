@@ -32,6 +32,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kdl/optional_utils.h"
 #include "kdl/ranges/to.h"
 #include "kdl/string_utils.h"
 
@@ -43,12 +44,43 @@
 
 namespace tb::mdl
 {
-
-EntityDefinitionFileSpec entityDefinitionFile(const Map& map)
+namespace
 {
-  const auto* worldNode = map.world();
-  return worldNode ? map.game()->extractEntityDefinitionFile(worldNode->entity())
-                   : EntityDefinitionFileSpec{};
+
+std::optional<EntityDefinitionFileSpec> defaultEntityDefinitionFile(const Map& map)
+{
+  if (const auto* game = map.game())
+  {
+    if (const auto paths = game->config().entityConfig.defFilePaths; !paths.empty())
+    {
+      return mdl::EntityDefinitionFileSpec::builtin(paths.front());
+    }
+  }
+
+  return std::nullopt;
+}
+
+} // namespace
+
+std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Entity& entity)
+{
+  if (const auto* defValue = entity.property(EntityPropertyKeys::EntityDefinitions))
+  {
+    return EntityDefinitionFileSpec::parse(*defValue);
+  }
+
+  return std::nullopt;
+}
+
+std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Map& map)
+{
+  if (const auto* worldNode = map.world())
+  {
+    return entityDefinitionFile(worldNode->entity())
+           | kdl::optional_or_else([&]() { return defaultEntityDefinitionFile(map); });
+  }
+
+  return std::nullopt;
 }
 
 void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)

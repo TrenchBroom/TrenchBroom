@@ -19,12 +19,10 @@
 
 #pragma once
 
-// FIXME: there must not be dependencies from Assets or Model or Renderer to Qt
-#include <QMetaType>
-
 #include "kdl/reflection_decl.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 namespace tb::mdl
@@ -37,25 +35,21 @@ private:
   {
     Builtin,
     External,
-    Unset
   };
 
   friend std::ostream& operator<<(std::ostream& lhs, Type rhs);
 
-  Type m_type = Type::Unset;
+  Type m_type;
   std::filesystem::path m_path;
 
   kdl_reflect_decl(EntityDefinitionFileSpec, m_type, m_path);
 
 public:
-  EntityDefinitionFileSpec();
-
-  static EntityDefinitionFileSpec parse(const std::string& str);
+  static std::optional<EntityDefinitionFileSpec> parse(const std::string& str);
   static EntityDefinitionFileSpec builtin(const std::filesystem::path& path);
   static EntityDefinitionFileSpec external(const std::filesystem::path& path);
   static EntityDefinitionFileSpec unset();
 
-  bool valid() const;
   bool builtin() const;
   bool external() const;
 
@@ -68,7 +62,3 @@ private:
 };
 
 } // namespace tb::mdl
-
-
-// Allow storing this class in a QVariant
-Q_DECLARE_METATYPE(tb::mdl::EntityDefinitionFileSpec)
