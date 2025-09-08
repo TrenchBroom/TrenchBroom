@@ -28,7 +28,6 @@
 #include <cassert>
 #include <string>
 
-
 namespace tb::mdl
 {
 
@@ -44,16 +43,12 @@ std::ostream& operator<<(std::ostream& lhs, const EntityDefinitionFileSpec::Type
   case EntityDefinitionFileSpec::Type::External:
     lhs << "external";
     break;
-  case EntityDefinitionFileSpec::Type::Unset:
-    lhs << "unset";
-    break;
   }
   return lhs;
 }
 
-EntityDefinitionFileSpec::EntityDefinitionFileSpec() = default;
-
-EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
+std::optional<EntityDefinitionFileSpec> EntityDefinitionFileSpec::parse(
+  const std::string& str)
 {
   if (kdl::cs::str_is_prefix(str, "external:"))
   {
@@ -65,11 +60,7 @@ EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
     return EntityDefinitionFileSpec::builtin(str.substr(8));
   }
 
-  // If the location spec is missing, we assume that an absolute path indicates an
-  // external file spec, and a relative path indicates a builtin file spec.
-  const auto path = std::filesystem::path{str};
-  return path.is_absolute() ? EntityDefinitionFileSpec::external(path)
-                            : EntityDefinitionFileSpec::builtin(path);
+  return std::nullopt;
 }
 
 EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(
@@ -82,16 +73,6 @@ EntityDefinitionFileSpec EntityDefinitionFileSpec::external(
   const std::filesystem::path& path)
 {
   return {Type::External, path};
-}
-
-EntityDefinitionFileSpec EntityDefinitionFileSpec::unset()
-{
-  return {};
-}
-
-bool EntityDefinitionFileSpec::valid() const
-{
-  return m_type != Type::Unset;
 }
 
 bool EntityDefinitionFileSpec::builtin() const
@@ -111,9 +92,8 @@ const std::filesystem::path& EntityDefinitionFileSpec::path() const
 
 std::string EntityDefinitionFileSpec::asString() const
 {
-  return !valid()    ? std::string{}
-         : builtin() ? fmt::format("builtin:{}", m_path)
-                     : fmt::format("external:{}", m_path);
+  return builtin() ? fmt::format("builtin:{}", m_path)
+                   : fmt::format("external:{}", m_path);
 }
 
 EntityDefinitionFileSpec::EntityDefinitionFileSpec(
@@ -121,7 +101,7 @@ EntityDefinitionFileSpec::EntityDefinitionFileSpec(
   : m_type{type}
   , m_path{std::move(path)}
 {
-  assert(valid());
   assert(!m_path.empty());
 }
+
 } // namespace tb::mdl

@@ -27,6 +27,7 @@
 
 namespace tb::mdl
 {
+class Entity;
 class Map;
 
 SoftMapBounds softMapBounds(const Map& map);
@@ -34,8 +35,9 @@ void setSoftMapBounds(Map& map, const SoftMapBounds& bounds);
 
 std::vector<std::filesystem::path> externalSearchPaths(const Map& map);
 
-std::vector<std::string> mods(const Map& map);
-void setMods(Map& map, const std::vector<std::string>& mods);
+std::vector<std::string> enabledMods(const Entity& entity);
+std::vector<std::string> enabledMods(const Map& map);
+void setEnabledMods(Map& map, const std::vector<std::string>& mods);
 std::string defaultMod(const Map& map);
 
 } // namespace tb::mdl

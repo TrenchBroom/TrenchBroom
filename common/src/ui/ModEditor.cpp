@@ -212,7 +212,7 @@ void ModEditor::updateMods()
   const auto pattern = m_filterBox->text().toStdString();
 
   const auto& map = m_document.map();
-  const auto enabledMods = mods(map);
+  const auto enabledMods = mdl::enabledMods(map);
 
   m_availableModList->clear();
   m_availableModList->addItems(
@@ -234,12 +234,12 @@ void ModEditor::addModClicked()
   if (const auto selections = m_availableModList->selectedItems(); !selections.empty())
   {
     auto& map = m_document.map();
-    auto mods = mdl::mods(map);
+    auto enabledMods = mdl::enabledMods(map);
     for (const auto* item : selections)
     {
-      mods.push_back(item->text().toStdString());
+      enabledMods.push_back(item->text().toStdString());
     }
-    setMods(map, mods);
+    setEnabledMods(map, enabledMods);
   }
 }
 
@@ -249,13 +249,13 @@ void ModEditor::removeModClicked()
   {
     auto& map = m_document.map();
 
-    auto mods = mdl::mods(map);
+    auto enabledMods = mdl::enabledMods(map);
     for (const auto* item : selections)
     {
       const auto mod = item->text().toStdString();
-      mods = kdl::vec_erase(std::move(mods), mod);
+      enabledMods = kdl::vec_erase(std::move(enabledMods), mod);
     }
-    setMods(map, mods);
+    setEnabledMods(map, enabledMods);
   }
 }
 
@@ -265,14 +265,14 @@ void ModEditor::moveModUpClicked()
   assert(selections.size() == 1);
 
   auto& map = m_document.map();
-  auto mods = mdl::mods(map);
+  auto enabledMods = mdl::enabledMods(map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
-  ensure(index < mods.size(), "index out of range");
+  ensure(index < enabledMods.size(), "index out of range");
 
   using std::swap;
-  swap(mods[index - 1], mods[index]);
-  setMods(map, mods);
+  swap(enabledMods[index - 1], enabledMods[index]);
+  setEnabledMods(map, enabledMods);
 
   m_enabledModList->clearSelection();
   m_enabledModList->setCurrentRow(int(index - 1));
@@ -284,14 +284,14 @@ void ModEditor::moveModDownClicked()
   assert(selections.size() == 1);
 
   auto& map = m_document.map();
-  auto mods = mdl::mods(map);
+  auto enabledMods = mdl::enabledMods(map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
-  ensure(index < mods.size() - 1, "index out of range");
+  ensure(index < enabledMods.size() - 1, "index out of range");
 
   using std::swap;
-  swap(mods[index + 1], mods[index]);
-  setMods(map, mods);
+  swap(enabledMods[index + 1], enabledMods[index]);
+  setEnabledMods(map, enabledMods);
 
   m_enabledModList->clearSelection();
   m_enabledModList->setCurrentRow(int(index + 1));

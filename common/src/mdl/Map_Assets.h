@@ -22,13 +22,16 @@
 #include "mdl/EntityDefinitionFileSpec.h"
 
 #include <filesystem>
+#include <optional>
 #include <vector>
 
 namespace tb::mdl
 {
+class Entity;
 class Map;
 
-EntityDefinitionFileSpec entityDefinitionFile(const Map& map);
+std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Entity& entity);
+std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Map& map);
 void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec);
 
 std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map);

@@ -30,13 +30,14 @@
 #include "mdl/Map_World.h"
 #include "mdl/PushSelection.h"
 
-#include "kdl/vector_utils.h"
+#include "kdl/range_to_vector.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
 
 #include <cassert>
 #include <filesystem>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -84,9 +85,9 @@ IssueQuickFix makeRemoveModsQuickFix()
             // If nothing is selected, property changes will affect only world.
             deselectAll(map);
 
-            const auto oldMods = mods(map);
+            const auto oldMods = enabledMods(map);
             const auto newMods = removeMissingMods(oldMods, issues);
-            setMods(map, newMods);
+            setEnabledMods(map, newMods);
           }};
 }
 } // namespace
@@ -106,15 +107,16 @@ void MissingModValidator::doValidate(
     return;
   }
 
-  auto mods = m_game.extractEnabledMods(entityNode.entity());
-
+  auto mods = mdl::enabledMods(entityNode.entity());
   if (mods == m_lastMods)
   {
     return;
   }
 
   const auto additionalSearchPaths =
-    kdl::vec_transform(mods, [](const auto& mod) { return std::filesystem::path{mod}; });
+    mods
+    | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
+    | kdl::to_vector;
   const auto errors = m_game.checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors)
