@@ -19,7 +19,6 @@
 
 #include "GameImpl.h"
 
-#include "Exceptions.h"
 #include "Logger.h"
 #include "io/BrushFaceReader.h"
 #include "io/DefParser.h"
@@ -189,36 +188,10 @@ std::vector<EntityDefinitionFileSpec> GameImpl::allEntityDefinitionFiles() const
   });
 }
 
-EntityDefinitionFileSpec GameImpl::extractEntityDefinitionFile(const Entity& entity) const
-{
-  if (const auto* defValue = entity.property(EntityPropertyKeys::EntityDefinitions))
-  {
-    return EntityDefinitionFileSpec::parse(*defValue);
-  }
-
-  return defaultEntityDefinitionFile();
-}
-
-EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const
-{
-  if (const auto paths = m_config.entityConfig.defFilePaths; !paths.empty())
-  {
-    return EntityDefinitionFileSpec::builtin(paths.front());
-  }
-
-  throw GameException{
-    "No entity definition files found for game '" + config().name + "'"};
-}
-
 std::filesystem::path GameImpl::findEntityDefinitionFile(
   const EntityDefinitionFileSpec& spec,
   const std::vector<std::filesystem::path>& searchPaths) const
 {
-  if (!spec.valid())
-  {
-    throw GameException{"Invalid entity definition file spec"};
-  }
-
   const auto& path = spec.path();
   if (spec.builtin())
   {
@@ -256,15 +229,6 @@ Result<std::vector<std::string>> GameImpl::availableMods() const
                return !kdl::ci::str_is_equal(mod, defaultMod);
              });
            });
-}
-
-std::vector<std::string> GameImpl::extractEnabledMods(const Entity& entity) const
-{
-  if (const auto* modStr = entity.property(EntityPropertyKeys::Mods))
-  {
-    return kdl::str_split(*modStr, ";");
-  }
-  return {};
 }
 
 std::string GameImpl::defaultMod() const
