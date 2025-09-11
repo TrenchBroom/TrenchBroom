@@ -135,20 +135,29 @@ std::vector<std::filesystem::path> disabledMaterialCollections(const Map& map)
 void setEnabledMaterialCollections(
   Map& map, const std::vector<std::filesystem::path>& enabledMaterialCollections)
 {
-  const auto enabledMaterialCollectionStr = kdl::str_join(
-    kdl::vec_transform(
-      kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections),
-      [](const auto& path) { return path.string(); }),
-    ";");
-
   auto transaction = Transaction{map, "Set enabled material collections"};
 
   const auto pushSelection = PushSelection{map};
   deselectAll(map);
 
-  const auto success = setEntityProperty(
-    map, EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
-  transaction.finish(success);
+  if (!enabledMaterialCollections.empty())
+  {
+    const auto enabledMaterialCollectionStr = kdl::str_join(
+      kdl::vec_transform(
+        kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections),
+        [](const auto& path) { return path.string(); }),
+      ";");
+
+    const auto success = setEntityProperty(
+      map, EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
+    transaction.finish(success);
+  }
+  else
+  {
+    const auto success =
+      removeEntityProperty(map, EntityPropertyKeys::EnabledMaterialCollections);
+    transaction.finish(success);
+  }
 }
 
 void reloadMaterialCollections(Map& map)
