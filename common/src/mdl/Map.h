@@ -55,7 +55,6 @@ enum class TransactionScope;
 enum class WrapStyle;
 
 class BrushFaceAttributes;
-class ChangeBrushFaceAttributesRequest;
 class Command;
 class CommandProcessor;
 class CommandResult;

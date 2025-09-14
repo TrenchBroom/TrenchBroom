@@ -24,12 +24,12 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Material.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/BorderLine.h"
 #include "ui/FaceAttribsEditor.h"
 #include "ui/MapDocument.h"
@@ -185,9 +185,7 @@ void FaceInspector::materialSelected(const mdl::Material* material)
                                        : mdl::BrushFaceAttributes::NoMaterialName;
 
       map.setCurrentMaterialName(materialNameToSet);
-      auto request = mdl::ChangeBrushFaceAttributesRequest{};
-      request.setMaterialName(materialNameToSet);
-      setBrushFaceAttributes(map, request);
+      setBrushFaceAttributes(map, {.materialName = materialNameToSet});
     }
     else
     {

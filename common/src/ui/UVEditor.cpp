@@ -25,10 +25,10 @@
 #include <QToolButton>
 #include <QtGlobal>
 
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/UVView.h"
@@ -155,56 +155,40 @@ void UVEditor::connectObservers()
 
 void UVEditor::resetUVClicked()
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-
   auto& map = m_document.map();
-  request.resetAll(map.game()->config().faceAttribsConfig.defaults);
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(
+    map, mdl::resetAll(map.game()->config().faceAttribsConfig.defaults));
 }
 
 void UVEditor::resetUVToWorldClicked()
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-
   auto& map = m_document.map();
-  request.resetAllToParaxial(map.game()->config().faceAttribsConfig.defaults);
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(
+    map, mdl::resetAllToParaxial(map.game()->config().faceAttribsConfig.defaults));
 }
 
 void UVEditor::flipUVHClicked()
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.mulXScale(-1.0f);
-
   auto& map = m_document.map();
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(map, {.xScale = mdl::MultiplyValue{-1.0f}});
 }
 
 void UVEditor::flipUVVClicked()
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.mulYScale(-1.0f);
-
   auto& map = m_document.map();
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(map, {.yScale = mdl::MultiplyValue{-1.0f}});
 }
 
 void UVEditor::rotateUVCCWClicked()
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.addRotation(90.0f);
-
   auto& map = m_document.map();
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(map, {.rotation = mdl::AddValue{90.0f}});
 }
 
 void UVEditor::rotateUVCWClicked()
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.addRotation(-90.0f);
-
   auto& map = m_document.map();
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(map, {.rotation = mdl::AddValue{-90.0f}});
 }
 
 void UVEditor::subDivisionChanged()

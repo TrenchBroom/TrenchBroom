@@ -21,13 +21,13 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushGeometry.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "render/EdgeRenderer.h"
 #include "render/GLVertexType.h"
 #include "render/PrimType.h"
@@ -229,16 +229,22 @@ public:
     }
     newScale = vm::correct(newScale, 4, 0.0f);
 
-    auto request = mdl::ChangeBrushFaceAttributesRequest{};
-    request.setScale(newScale);
-    setBrushFaceAttributes(m_map, request);
+    setBrushFaceAttributes(
+      m_map,
+      {
+        .xScale = mdl::SetValue{newScale.x()},
+        .yScale = mdl::SetValue{newScale.y()},
+      });
 
     const auto newOriginInUVCoords = vm::correct(m_helper.originInUVCoords(), 4, 0.0f);
     const auto originDelta = originHandlePosUVCoords - newOriginInUVCoords;
 
-    request.clear();
-    request.addOffset(originDelta);
-    setBrushFaceAttributes(m_map, request);
+    setBrushFaceAttributes(
+      m_map,
+      {
+        .xOffset = mdl::AddValue{originDelta.x()},
+        .yOffset = mdl::AddValue{originDelta.y()},
+      });
 
     m_lastHitPoint =
       m_lastHitPoint

@@ -31,7 +31,6 @@
 #include "Preferences.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionGroup.h"
@@ -58,6 +57,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PointTrace.h"
 #include "mdl/Transaction.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
 #include "render/Compass.h"
@@ -591,20 +591,16 @@ void MapViewBase::flipUV(const vm::direction direction)
 
 void MapViewBase::resetUV()
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-
   auto& map = m_document.map();
-  request.resetAll(map.game()->config().faceAttribsConfig.defaults);
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(
+    map, mdl::resetAll(map.game()->config().faceAttribsConfig.defaults));
 }
 
 void MapViewBase::resetUVToWorld()
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-
   auto& map = m_document.map();
-  request.resetAllToParaxial(map.game()->config().faceAttribsConfig.defaults);
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(
+    map, mdl::resetAllToParaxial(map.game()->config().faceAttribsConfig.defaults));
 }
 
 void MapViewBase::assembleBrush()

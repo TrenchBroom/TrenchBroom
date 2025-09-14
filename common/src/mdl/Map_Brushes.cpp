@@ -24,12 +24,12 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
 namespace tb::mdl
@@ -66,11 +66,11 @@ bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
          | kdl::is_success();
 }
 
-bool setBrushFaceAttributes(Map& map, const ChangeBrushFaceAttributesRequest& request)
+bool setBrushFaceAttributes(Map& map, const UpdateBrushFaceAttributes& update)
 {
   return applyAndSwap(
-    map, request.name(), map.selection().allBrushFaces(), [&](BrushFace& brushFace) {
-      request.evaluate(brushFace);
+    map, "Change Face Attributes", map.selection().allBrushFaces(), [&](auto& brushFace) {
+      evaluate(update, brushFace);
       return true;
     });
 }

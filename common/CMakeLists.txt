@@ -99,7 +99,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReference.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.cpp
-        ${COMMON_SOURCE_DIR}/mdl/ChangeBrushFaceAttributesRequest.cpp
         ${COMMON_SOURCE_DIR}/mdl/CircleShape.cpp
         ${COMMON_SOURCE_DIR}/mdl/ColorRange.cpp
         ${COMMON_SOURCE_DIR}/mdl/Command.cpp
@@ -620,7 +619,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/BrushGeometry.h
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.h
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.h
-        ${COMMON_SOURCE_DIR}/mdl/ChangeBrushFaceAttributesRequest.h
         ${COMMON_SOURCE_DIR}/mdl/CircleShape.h
         ${COMMON_SOURCE_DIR}/mdl/ColorRange.h
         ${COMMON_SOURCE_DIR}/mdl/Command.h
