@@ -131,6 +131,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Selection.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Tagging.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Transaction.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_UpdateBrushFaceAttributes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_UpdateLinkedGroupsCommand.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_UpdateLinkedGroupsHelper.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_UVCoordSystem.cpp"
