@@ -76,7 +76,7 @@ set(KDL_HEADER
   "${KDL_SOURCE_DIR}/kdl/zip_iterator.h"
 )
 
-add_library(kdl ${KDL_SOURCE} ${KDL_HEADER})
+add_library(kdl STATIC ${KDL_SOURCE} ${KDL_HEADER})
 target_include_directories(kdl PUBLIC ${KDL_SOURCE_DIR})
 
 # task_manager.h uses <thread>, etc., which requires this on Linux
