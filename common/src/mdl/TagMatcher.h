@@ -22,6 +22,7 @@
 #include "mdl/Material.h"
 #include "mdl/Tag.h"
 #include "mdl/TagVisitor.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 
 #include "kdl/vector_set.h"
 
@@ -36,7 +37,6 @@ namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
-class ChangeBrushFaceAttributesRequest;
 class Game;
 class Map;
 
@@ -87,7 +87,7 @@ class FlagsTagMatcher : public TagMatcher
 {
 protected:
   using GetFlags = std::function<int(const BrushFace&)>;
-  using SetFlags = std::function<void(ChangeBrushFaceAttributesRequest&, int)>;
+  using SetFlags = std::function<UpdateBrushFaceAttributes(int)>;
   using GetFlagNames = std::function<std::vector<std::string>(const Game& game, int)>;
 
 protected:

@@ -28,7 +28,6 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
@@ -41,6 +40,7 @@
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/ranges/to.h"
@@ -242,9 +242,8 @@ bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 {
   assert(!faces.empty());
 
-  auto request = ChangeBrushFaceAttributesRequest{};
-  request.setAllExceptContentFlags(faces.back().attributes());
-  return setBrushFaceAttributes(map, request);
+  const auto update = copyAllExceptContentFlags(faces.back().attributes());
+  return setBrushFaceAttributes(map, update);
 }
 
 } // namespace

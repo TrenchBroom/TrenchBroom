@@ -22,7 +22,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushFace.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
@@ -30,6 +29,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "render/ActiveShader.h"
 #include "render/Circle.h"
 #include "render/RenderBatch.h"
@@ -223,9 +223,7 @@ public:
     const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
     const auto oldCenterInWorldCoords = toWorld * vm::vec3d{oldCenterInFaceCoords};
 
-    auto request = mdl::ChangeBrushFaceAttributesRequest{};
-    request.setRotation(snappedAngle);
-    setBrushFaceAttributes(m_map, request);
+    setBrushFaceAttributes(m_map, {.rotation = mdl::SetValue{snappedAngle}});
 
     // Correct the offsets.
     const auto toFaceNew =
@@ -237,9 +235,12 @@ public:
     const auto newOffset =
       vm::correct(m_helper.face()->attributes().offset() + delta, 4, 0.0f);
 
-    request.clear();
-    request.setOffset(newOffset);
-    setBrushFaceAttributes(m_map, request);
+    setBrushFaceAttributes(
+      m_map,
+      {
+        .xOffset = mdl::SetValue{newOffset.x()},
+        .yOffset = mdl::SetValue{newOffset.y()},
+      });
 
     return true;
   }

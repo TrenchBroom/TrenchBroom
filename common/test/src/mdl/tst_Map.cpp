@@ -28,7 +28,6 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionManager.h"
@@ -50,6 +49,7 @@
 #include "mdl/TagMatcher.h"
 #include "mdl/TextureResource.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/vector_utils.h"
@@ -1284,11 +1284,8 @@ TEST_CASE("Map")
         const auto faceHandle = BrushFaceHandle{brushNode, 0u};
         CHECK_FALSE(faceHandle.face().hasTag(tag));
 
-        auto request = ChangeBrushFaceAttributesRequest{};
-        request.setContentFlags(1);
-
         selectBrushFaces(map, {faceHandle});
-        setBrushFaceAttributes(map, request);
+        setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{1}});
         deselectAll(map);
 
         const auto& faces = brushNode->brush().faces();
@@ -1725,9 +1722,7 @@ TEST_CASE("Map")
 
         selectBrushFaces(map, {{brushNode, *topFaceIndex}});
 
-        auto request = ChangeBrushFaceAttributesRequest{};
-        request.setXOffset(12.34f);
-        REQUIRE(setBrushFaceAttributes(map, request));
+        REQUIRE(setBrushFaceAttributes(map, {.xOffset = SetValue{12.34f}}));
 
         map.undoCommand(); // undo move
         CHECK(material->usageCount() == 6u);

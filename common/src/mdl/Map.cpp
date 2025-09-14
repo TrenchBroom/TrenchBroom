@@ -36,7 +36,6 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Command.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/EditorContext.h"

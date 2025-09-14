@@ -21,7 +21,6 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
@@ -34,6 +33,7 @@
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/Selection.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
 #include "kdl/ranges/to.h"
@@ -145,9 +145,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
 
   assert(material != nullptr);
 
-  auto request = ChangeBrushFaceAttributesRequest{};
-  request.setMaterialName(material->name());
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(map, {.materialName = material->name()});
 }
 
 bool MaterialTagMatcher::canEnable() const
@@ -336,16 +334,12 @@ void FlagsTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
     }
   }
 
-  auto request = ChangeBrushFaceAttributesRequest{};
-  m_setFlags(request, flagToSet);
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(map, m_setFlags(flagToSet));
 }
 
 void FlagsTagMatcher::disable(TagMatcherCallback&, Map& map) const
 {
-  auto request = ChangeBrushFaceAttributesRequest{};
-  m_unsetFlags(request, m_flags);
-  setBrushFaceAttributes(map, request);
+  setBrushFaceAttributes(map, m_unsetFlags(m_flags));
 }
 
 bool FlagsTagMatcher::canEnable() const
@@ -368,8 +362,12 @@ ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags)
   : FlagsTagMatcher{
       i_flags,
       [](const auto& face) { return face.resolvedSurfaceContents(); },
-      [](auto& request, const auto flags) { request.setContentFlags(flags); },
-      [](auto& request, const auto flags) { request.unsetContentFlags(flags); },
+      [](const auto flags) {
+        return UpdateBrushFaceAttributes{.surfaceContents = SetFlagBits{flags}};
+      },
+      [](const auto flags) {
+        return UpdateBrushFaceAttributes{.surfaceContents = ClearFlagBits{flags}};
+      },
       [](const auto& game, const auto flags) {
         return game.config().faceAttribsConfig.contentFlags.flagNames(flags);
       }}
@@ -385,8 +383,12 @@ SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int i_flags)
   : FlagsTagMatcher{
       i_flags,
       [](const auto& face) { return face.resolvedSurfaceFlags(); },
-      [](auto& request, const auto flags) { request.setSurfaceFlags(flags); },
-      [](auto& request, const auto flags) { request.unsetSurfaceFlags(flags); },
+      [](const auto flags) {
+        return UpdateBrushFaceAttributes{.surfaceFlags = SetFlagBits{flags}};
+      },
+      [](const auto flags) {
+        return UpdateBrushFaceAttributes{.surfaceFlags = ClearFlagBits{flags}};
+      },
       [](const auto& game, const auto flags) {
         return game.config().faceAttribsConfig.surfaceFlags.flagNames(flags);
       }}
@@ -473,9 +475,7 @@ void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) c
 
   if (!m_material.empty())
   {
-    auto request = ChangeBrushFaceAttributesRequest{};
-    request.setMaterialName(m_material);
-    setBrushFaceAttributes(map, request);
+    setBrushFaceAttributes(map, {.materialName = m_material});
   }
 }
 
