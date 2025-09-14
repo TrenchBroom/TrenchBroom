@@ -222,6 +222,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/mdl/Transaction.cpp
         ${COMMON_SOURCE_DIR}/mdl/UndoableCommand.cpp
+        ${COMMON_SOURCE_DIR}/mdl/UpdateBrushFaceAttributes.cpp
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsCommandBase.cpp
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsHelper.cpp
@@ -768,6 +769,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/Transaction.h
         ${COMMON_SOURCE_DIR}/mdl/TransactionScope.h
         ${COMMON_SOURCE_DIR}/mdl/UndoableCommand.h
+        ${COMMON_SOURCE_DIR}/mdl/UpdateBrushFaceAttributes.h
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsCommand.h
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsCommandBase.h
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsHelper.h
