@@ -276,9 +276,11 @@ void transferFaceAttributes(
   }
   else
   {
-    auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot();
-    setBrushFaceAttributesExceptContentFlags(map, sourceFaceHandle.face().attributes());
-    if (snapshot)
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
+    request.setAllExceptContentFlags(sourceFaceHandle.face().attributes());
+    setBrushFaceAttributes(map, request);
+
+    if (auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot())
     {
       copyUV(
         map,

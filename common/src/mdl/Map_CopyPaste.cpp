@@ -28,6 +28,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
@@ -240,7 +241,10 @@ bool pasteNodes(Map& map, const std::vector<Node*>& nodes)
 bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 {
   assert(!faces.empty());
-  return setBrushFaceAttributesExceptContentFlags(map, faces.back().attributes());
+
+  auto request = ChangeBrushFaceAttributesRequest{};
+  request.setAllExceptContentFlags(faces.back().attributes());
+  return setBrushFaceAttributes(map, request);
 }
 
 } // namespace

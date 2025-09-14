@@ -66,21 +66,6 @@ bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
          | kdl::is_success();
 }
 
-bool setBrushFaceAttributes(Map& map, const BrushFaceAttributes& attributes)
-{
-  auto request = ChangeBrushFaceAttributesRequest{};
-  request.setAll(attributes);
-  return setBrushFaceAttributes(map, request);
-}
-
-bool setBrushFaceAttributesExceptContentFlags(
-  Map& map, const BrushFaceAttributes& attributes)
-{
-  auto request = ChangeBrushFaceAttributesRequest{};
-  request.setAllExceptContentFlags(attributes);
-  return setBrushFaceAttributes(map, request);
-}
-
 bool setBrushFaceAttributes(Map& map, const ChangeBrushFaceAttributesRequest& request)
 {
   return applyAndSwap(

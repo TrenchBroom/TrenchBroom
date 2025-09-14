@@ -158,15 +158,6 @@ public:
 
   void setColor(const std::optional<Color>& colorValue);
 
-  /**
-   * Configures `this` so, when evaluated, it transfers all attributes from the given
-   * face to the evaluation target.
-   */
-  void setAll(const BrushFace& face);
-  /**
-   * Same as setAll(), but doesn't transfer content flags.
-   */
-  void setAllExceptContentFlags(const BrushFace& face);
   void setAll(const BrushFaceAttributes& attributes);
   void setAllExceptContentFlags(const BrushFaceAttributes& attributes);
 };

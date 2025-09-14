@@ -120,7 +120,7 @@ TEST_CASE("Map_Brushes")
       selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
 
       auto copySecondToThirdFace = ChangeBrushFaceAttributesRequest{};
-      copySecondToThirdFace.setAll(brushNode->brush().face(secondFaceIndex));
+      copySecondToThirdFace.setAll(brushNode->brush().face(secondFaceIndex).attributes());
       setBrushFaceAttributes(map, copySecondToThirdFace);
 
       CHECK(
@@ -134,7 +134,7 @@ TEST_CASE("Map_Brushes")
       selectBrushFaces(map, {{brushNode, secondFaceIndex}});
 
       auto copyFirstToSecondFace = ChangeBrushFaceAttributesRequest{};
-      copyFirstToSecondFace.setAll(brushNode->brush().face(firstFaceIndex));
+      copyFirstToSecondFace.setAll(brushNode->brush().face(firstFaceIndex).attributes());
       setBrushFaceAttributes(map, copyFirstToSecondFace);
 
       CHECK(
@@ -145,7 +145,7 @@ TEST_CASE("Map_Brushes")
       selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
       ChangeBrushFaceAttributesRequest copyFirstToThirdFaceNoContents;
       copyFirstToThirdFaceNoContents.setAllExceptContentFlags(
-        brushNode->brush().face(firstFaceIndex));
+        brushNode->brush().face(firstFaceIndex).attributes());
       setBrushFaceAttributes(map, copyFirstToThirdFaceNoContents);
 
       {
@@ -228,8 +228,10 @@ TEST_CASE("Map_Brushes")
         "Transfer face attributes except content flags from waterbrush to lavabrush")
       {
         selectNodes(map, {lavabrush});
-        CHECK(setBrushFaceAttributesExceptContentFlags(
-          map, waterbrush->brush().face(0).attributes()));
+
+        auto request = ChangeBrushFaceAttributesRequest{};
+        request.setAllExceptContentFlags(waterbrush->brush().face(0).attributes());
+        CHECK(setBrushFaceAttributes(map, request));
 
         SECTION("Check lavabrush is now inheriting the water content flags")
         {

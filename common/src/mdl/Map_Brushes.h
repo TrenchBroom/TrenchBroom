@@ -36,9 +36,6 @@ enum class WrapStyle;
 
 bool createBrush(Map& map, const std::vector<vm::vec3d>& points);
 
-bool setBrushFaceAttributes(Map& map, const BrushFaceAttributes& attributes);
-bool setBrushFaceAttributesExceptContentFlags(
-  Map& map, const BrushFaceAttributes& attributes);
 bool setBrushFaceAttributes(Map& map, const ChangeBrushFaceAttributesRequest& request);
 
 bool copyUV(
