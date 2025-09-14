@@ -43,6 +43,46 @@ TEST_CASE("Map_Brushes")
   auto fixture = MapFixture{};
   auto& map = fixture.map();
 
+  SECTION("createBrush")
+  {
+    fixture.create();
+
+    SECTION("valid brush")
+    {
+      const auto points = std::vector<vm::vec3d>{
+        {-64, -64, -64},
+        {-64, -64, +64},
+        {-64, +64, -64},
+        {-64, +64, +64},
+        {+64, -64, -64},
+        {+64, -64, +64},
+        {+64, +64, -64},
+        {+64, +64, +64},
+      };
+
+      CHECK(createBrush(map, points));
+
+      REQUIRE(map.selection().brushes.size() == 1);
+
+      const auto* brushNode = map.selection().brushes.front();
+      CHECK(std::ranges::all_of(
+        points, [&](const auto& point) { return brushNode->brush().hasVertex(point); }));
+    }
+
+    SECTION("invalid brush")
+    {
+      const auto points = std::vector<vm::vec3d>{
+        {-64, -64, -64},
+        {-64, -64, +64},
+        {-64, +64, -64},
+        {-64, +64, +64},
+      };
+
+      CHECK(!createBrush(map, points));
+      CHECK(map.selection().brushes.empty());
+    }
+  }
+
   SECTION("setBrushFaceAttributes")
   {
     fixture.create();
