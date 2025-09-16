@@ -30,6 +30,9 @@ TrenchBroom depends on Qt version 6.7. It might work with later versions, but ea
 
 Note the path where Qt was installed. For example, on Windows the default installation path would look like `C:\Qt\6.7.3\`. We will refer to this path later on as `<QT_INSTALL_DIR>`.
 
+> [!IMPORTANT]
+> You need to build against Qt 6.9 on macOS 26.
+
 ---
 
 ## Docker
@@ -129,6 +132,9 @@ cmake --build . --target TrenchBroom
 ### Prerequisites
 
 In order to develop, debug and compile TrenchBroom, you need to install tools listed below.
+
+> [!IMPORTANT]
+> You need to build against Qt 6.9 on macOS 26.
 
 #### Xcode
 
