@@ -605,11 +605,11 @@ void BrushFace::flipUV(
 
   if (flipUAxis)
   {
-    m_attributes.setXScale(-1.0f * m_attributes.xScale());
+    m_attributes.setXScale(-m_attributes.xScale());
   }
   else
   {
-    m_attributes.setYScale(-1.0f * m_attributes.yScale());
+    m_attributes.setYScale(-m_attributes.yScale());
   }
 }
 
