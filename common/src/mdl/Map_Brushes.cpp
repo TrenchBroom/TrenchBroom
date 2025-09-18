@@ -83,7 +83,7 @@ bool copyUV(
   const WrapStyle wrapStyle)
 {
   return applyAndSwap(
-    map, "Copy UV Alignment", map.selection().brushFaces, [&](BrushFace& face) {
+    map, "Copy UV Alignment", map.selection().brushFaces, [&](auto& face) {
       face.copyUVCoordSystemFromFace(
         coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
@@ -96,15 +96,15 @@ bool translateUV(
   const vm::vec3f& cameraRight,
   const vm::vec2f& delta)
 {
-  return applyAndSwap(map, "Move UV", map.selection().brushFaces, [&](BrushFace& face) {
-    face.moveUV(vm::vec3d(cameraUp), vm::vec3d(cameraRight), delta);
+  return applyAndSwap(map, "Translate UV", map.selection().brushFaces, [&](auto& face) {
+    face.moveUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
     return true;
   });
 }
 
 bool rotateUV(Map& map, const float angle)
 {
-  return applyAndSwap(map, "Rotate UV", map.selection().brushFaces, [&](BrushFace& face) {
+  return applyAndSwap(map, "Rotate UV", map.selection().brushFaces, [&](auto& face) {
     face.rotateUV(angle);
     return true;
   });
@@ -112,7 +112,7 @@ bool rotateUV(Map& map, const float angle)
 
 bool shearUV(Map& map, const vm::vec2f& factors)
 {
-  return applyAndSwap(map, "Shear UV", map.selection().brushFaces, [&](BrushFace& face) {
+  return applyAndSwap(map, "Shear UV", map.selection().brushFaces, [&](auto& face) {
     face.shearUV(factors);
     return true;
   });
@@ -131,9 +131,9 @@ bool flipUV(
     map,
     isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     map.selection().brushFaces,
-    [&](BrushFace& face) {
+    [&](auto& face) {
       face.flipUV(
-        vm::vec3d(cameraUp), vm::vec3d(cameraRight), cameraRelativeFlipDirection);
+        vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, cameraRelativeFlipDirection);
       return true;
     });
 }
