@@ -192,6 +192,9 @@ jobs:
           brew unlink python@3.12
           brew link --overwrite python@3.12
           brew install p7zip pandoc ninja autoconf automake
+          # Uninstall openexr
+          # remove when upgrading to macos-14
+          brew uninstall --ignore-dependencies openexr
 
       - name: macOS 14 - Install dependencies
         if: ${{ matrix.os == 'macos-14' }}
