@@ -46,6 +46,101 @@ TEST_CASE("Map_CopyPaste")
   auto& map = fixture.map();
   fixture.create();
 
+  SECTION("serializeSelectedNodes")
+  {
+    const auto builder = BrushBuilder{
+      map.world()->mapFormat(),
+      map.worldBounds(),
+      map.game()->config().faceAttribsConfig.defaults};
+
+    auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
+    auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
+
+    addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
+
+    SECTION("nothing is selected")
+    {
+      CHECK(serializeSelectedNodes(map) == R"()");
+    }
+
+    SECTION("entity is selected")
+    {
+      selectNodes(map, {entityNode});
+
+      CHECK(serializeSelectedNodes(map) == R"(// entity 0
+{
+"some_key" "some_value"
+}
+)");
+    }
+
+    SECTION("two nodes are selected")
+    {
+      selectNodes(map, {entityNode, brushNode});
+
+      CHECK(serializeSelectedNodes(map) == R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some_material 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some_material 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some_material 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some_material 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some_material 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some_material 0 0 0 1 1
+}
+}
+// entity 1
+{
+"some_key" "some_value"
+}
+)");
+    }
+  }
+
+  SECTION("serializeSelectedBrushFaces")
+  {
+    const auto builder = BrushBuilder{
+      map.world()->mapFormat(),
+      map.worldBounds(),
+      map.game()->config().faceAttribsConfig.defaults};
+
+    auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
+
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
+
+    SECTION("nothing is selected")
+    {
+      CHECK(serializeSelectedBrushFaces(map) == R"()");
+    }
+
+    SECTION("one face is selected")
+    {
+      selectBrushFaces(map, {toHandles(brushNode).front()});
+
+      CHECK(
+        serializeSelectedBrushFaces(map)
+        == R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some_material 0 0 0 1 1
+)");
+    }
+
+    SECTION("all faces are selected")
+    {
+      selectBrushFaces(map, toHandles(brushNode));
+
+      CHECK(
+        serializeSelectedBrushFaces(map)
+        == R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some_material 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some_material 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some_material 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some_material 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some_material 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some_material 0 0 0 1 1
+)");
+    }
+  }
+
   SECTION("paste")
   {
     SECTION("Paste worldspawn with single brush in layer")
