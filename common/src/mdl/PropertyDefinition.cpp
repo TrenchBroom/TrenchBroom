@@ -43,10 +43,6 @@ kdl_reflect_impl(ChoiceOption);
 kdl_reflect_impl(Choice);
 kdl_reflect_impl(Flag);
 kdl_reflect_impl(Flags);
-kdl_reflect_impl(Color3f);
-kdl_reflect_impl(Color3i);
-kdl_reflect_impl(ColorWithBrightness3f);
-kdl_reflect_impl(ColorWithBrightness3i);
 kdl_reflect_impl(ColorPropertyType);
 kdl_reflect_impl(Unknown);
 

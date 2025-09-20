@@ -851,12 +851,16 @@ mdl::PropertyDefinition FgdParser::parseColorPropertyDefinition(
     kdl::overload(
       [&](const Color3f& c) -> ColorValue {
         if (brightness.has_value())
+        {
           return ColorWithBrightness3f{c, brightness.value()};
+        }
         return c;
       },
       [&](const Color3i& c) -> ColorValue {
         if (brightness.has_value())
+        {
           return ColorWithBrightness3i{c, brightness.value()};
+        }
         return c;
       }),
     baseType);

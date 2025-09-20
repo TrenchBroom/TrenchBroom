@@ -111,7 +111,8 @@ template <typename T>
 struct ColorT
 {
   std::array<T, 3> components;
-  kdl_reflect_decl(ColorT, components);
+
+  auto operator<=>(const ColorT&) const = default;
 };
 
 template <typename T>
@@ -119,7 +120,8 @@ struct ColorWithBrightnessT
 {
   ColorT<T> color;
   float brightness;
-  kdl_reflect_decl(ColorWithBrightnessT, color, brightness);
+
+  auto operator<=>(const ColorWithBrightnessT&) const = default;
 };
 
 using Color3f = ColorT<float>;
@@ -127,7 +129,8 @@ using Color3i = ColorT<int>;
 using ColorWithBrightness3i = ColorWithBrightnessT<int>;
 using ColorWithBrightness3f = ColorWithBrightnessT<float>;
 
-using ColorValue = std::variant<Color3f, Color3i, ColorWithBrightness3f, ColorWithBrightness3i>;
+using ColorValue =
+  std::variant<Color3f, Color3i, ColorWithBrightness3f, ColorWithBrightness3i>;
 
 std::ostream& operator<<(std::ostream& lhs, const ColorValue& rhs);
 
