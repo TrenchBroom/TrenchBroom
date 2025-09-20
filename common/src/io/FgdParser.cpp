@@ -29,7 +29,6 @@
 #include "mdl/PropertyDefinition.h"
 
 #include "kdl/invoke.h"
-#include "kdl/optional_utils.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
@@ -608,10 +607,9 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   {
     return parseFlagsPropertyDefinition(std::move(propertyKey));
   }
-  // supported color type names: color1, color255, lightcolor1, lightcolor255
   if (
-    kdl::ci::str_is_prefix(typeName, "color")
-    || kdl::ci::str_is_prefix(typeName, "lightcolor"))
+    kdl::ci::str_is_equal(typeName, "color1")
+    || kdl::ci::str_is_equal(typeName, "color255"))
   {
     return parseColorPropertyDefinition(status, typeName, std::move(propertyKey));
   }
@@ -779,37 +777,6 @@ mdl::PropertyDefinition FgdParser::parseFlagsPropertyDefinition(std::string prop
   return {std::move(propertyKey), Flags{std::move(flags), defaultValue}, "", "", false};
 }
 
-namespace
-{
-const auto knownTypeColorAny = ColorPropertyValue{{
-  ColorComponent{ColorValueType::Any, ColorComponentType::Red},
-  ColorComponent{ColorValueType::Any, ColorComponentType::Green},
-  ColorComponent{ColorValueType::Any, ColorComponentType::Blue},
-}};
-const auto knownTypeColor1 = ColorPropertyValue{{
-  ColorComponent{ColorValueType::Float, ColorComponentType::Red},
-  ColorComponent{ColorValueType::Float, ColorComponentType::Green},
-  ColorComponent{ColorValueType::Float, ColorComponentType::Blue},
-}};
-const auto knownTypeColor255 = ColorPropertyValue{{
-  ColorComponent{ColorValueType::Byte, ColorComponentType::Red},
-  ColorComponent{ColorValueType::Byte, ColorComponentType::Green},
-  ColorComponent{ColorValueType::Byte, ColorComponentType::Blue},
-}};
-const auto knownTypeLightColor1 = ColorPropertyValue{{
-  ColorComponent{ColorValueType::Float, ColorComponentType::Red},
-  ColorComponent{ColorValueType::Float, ColorComponentType::Green},
-  ColorComponent{ColorValueType::Float, ColorComponentType::Blue},
-  ColorComponent{ColorValueType::Byte, ColorComponentType::LightBrightness},
-}};
-const auto knownTypeLightColor255 = ColorPropertyValue{{
-  ColorComponent{ColorValueType::Byte, ColorComponentType::Red},
-  ColorComponent{ColorValueType::Byte, ColorComponentType::Green},
-  ColorComponent{ColorValueType::Byte, ColorComponentType::Blue},
-  ColorComponent{ColorValueType::Byte, ColorComponentType::LightBrightness},
-}};
-} // namespace
-
 mdl::PropertyDefinition FgdParser::parseColorPropertyDefinition(
   ParserStatus& status, const std::string& typeName, std::string propertyKey)
 {
@@ -819,58 +786,84 @@ mdl::PropertyDefinition FgdParser::parseColorPropertyDefinition(
   auto longDescription = parsePropertyDescription();
 
   auto defaultComponentValues =
-    parseColorPropertyValueOptionalValues(defaultValue.value_or(""), 4);
+    kdl::vec_transform(kdl::str_split(defaultValue.value_or(""), " "), kdl::str_to_float);
+  if (defaultComponentValues.size() < 3)
+  {
+    defaultComponentValues.resize(3, std::nullopt);
+  }
 
-  ColorPropertyValue type;
+  // determine if the base color type is float (0-1) or integer (0-255)
+  bool integerType;
 
   if (kdl::ci::str_is_equal(typeName, "color1"))
   {
-    type = knownTypeColor1;
+    integerType = false;
   }
   else if (kdl::ci::str_is_equal(typeName, "color255"))
   {
-    type = knownTypeColor255;
-  }
-  else if (kdl::ci::str_is_equal(typeName, "lightcolor1"))
-  {
-    type = knownTypeLightColor1;
-  }
-  else if (kdl::ci::str_is_equal(typeName, "lightcolor255"))
-  {
-    type = knownTypeLightColor255;
+    integerType = true;
   }
   else
   {
-    // guess the type based on the default value
-    // only inspect the first 3 values (the rgb component)
-    type = knownTypeColorAny;
+    // guess the type based on the default value - only inspect the first 3 values
+    integerType = false;
     for (size_t i = 0; i < 3; ++i)
     {
-      // assume byte if any value is above 1, assume float if any value is (0, 1]
-      // if all values are 0 then we can't guess the type
+      // assume integer if any value is above 1, assume float if any value is (0, 1]
+      // if all values are 0 then we can't guess the type and we assume float
       const auto v = defaultComponentValues[i].value_or(0.0f);
       if (v > 1)
       {
-        type = knownTypeColor255;
+        integerType = true;
         break;
       }
       else if (v > 0.0f && v <= 1.0f)
       {
-        type = knownTypeColor1;
+        integerType = false;
         break;
       }
     }
   }
 
-  defaultComponentValues.resize(type.components.size(), std::nullopt);
-  for (size_t i = 0; i < type.components.size(); ++i)
+  // create the base color type
+  std::variant<Color3f, Color3i> baseType;
+  if (integerType)
   {
-    type.components[i].defaultValue = defaultComponentValues.at(i);
+    baseType = Color3i{
+      int(defaultComponentValues[0].value_or(0)),
+      int(defaultComponentValues[1].value_or(0)),
+      int(defaultComponentValues[2].value_or(0))};
   }
+  else
+  {
+    baseType = Color3f{
+      defaultComponentValues[0].value_or(0.0f),
+      defaultComponentValues[1].value_or(0.0f),
+      defaultComponentValues[2].value_or(0.0f)};
+  }
+
+  // if the default value has a fourth component, then we use the brightness
+  // variant of the colour type
+  const auto brightness =
+    defaultComponentValues.size() > 3 ? defaultComponentValues[3] : std::nullopt;
+
+  ColorValue value = std::visit(
+    kdl::overload(
+      [&](const Color3f& c) -> ColorValue {
+        if (brightness.has_value())
+          return ColorWithBrightness3f{c, brightness.value()};
+        return c;
+      },
+      [&](const Color3i& c) -> ColorValue {
+        if (brightness.has_value())
+          return ColorWithBrightness3i{c, brightness.value()};
+        return c;
+      }),
+    baseType);
 
   return {
     std::move(propertyKey),
-    type,
+    ColorPropertyType{value},
     std::move(shortDescription),
     std::move(longDescription),
     readOnly};

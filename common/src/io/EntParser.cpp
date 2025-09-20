@@ -304,13 +304,8 @@ auto withDefaultValue(
         }
         return flagValueType;
       },
-      [&](ColorPropertyValue colorValueType) -> mdl::PropertyValueType {
-        const auto values = parseColorPropertyValueOptionalValues(
-          parseString(element, "value"), colorValueType.components.size());
-        for (size_t i = 0; i < colorValueType.components.size(); ++i)
-        {
-          colorValueType.components[i].defaultValue = values[i];
-        }
+      [&](ColorPropertyType colorValueType) -> mdl::PropertyValueType {
+        // not implemented for now
         return colorValueType;
       },
       [&](Unknown unknownValueType) -> mdl::PropertyValueType {

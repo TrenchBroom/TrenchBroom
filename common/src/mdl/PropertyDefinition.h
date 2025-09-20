@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "Color.h"
+
 #include "kdl/reflection_decl.h"
 
 #include <optional>
@@ -105,45 +107,36 @@ struct Flags
   kdl_reflect_decl(Flags, defaultValue, flags);
 };
 
-enum class ColorValueType
+template <typename T>
+struct ColorT
 {
-  Any,
-  Float,
-  Byte
+  std::array<T, 3> components;
+  kdl_reflect_decl(ColorT, components);
 };
 
-std::ostream& operator<<(std::ostream& lhs, ColorValueType rhs);
-
-enum class ColorComponentType
+template <typename T>
+struct ColorWithBrightnessT
 {
-  Red,
-  Green,
-  Blue,
-  Alpha,
-  LightBrightness,
-  Other
+  ColorT<T> color;
+  float brightness;
+  kdl_reflect_decl(ColorWithBrightnessT, color, brightness);
 };
 
-std::ostream& operator<<(std::ostream& lhs, ColorComponentType rhs);
+using Color3f = ColorT<float>;
+using Color3i = ColorT<int>;
+using ColorWithBrightness3i = ColorWithBrightnessT<int>;
+using ColorWithBrightness3f = ColorWithBrightnessT<float>;
 
-struct ColorComponent
+using ColorValue = std::variant<Color3f, Color3i, ColorWithBrightness3f, ColorWithBrightness3i>;
+
+std::ostream& operator<<(std::ostream& lhs, const ColorValue& rhs);
+
+struct ColorPropertyType
 {
-  ColorValueType valueType;
-  ColorComponentType componentType;
-  std::optional<float> defaultValue = std::nullopt;
+  std::optional<ColorValue> defaultValue = std::nullopt;
 
-  kdl_reflect_decl(ColorComponent, valueType, componentType, defaultValue);
+  kdl_reflect_decl(ColorPropertyType, defaultValue);
 };
-
-struct ColorPropertyValue
-{
-  std::vector<ColorComponent> components;
-
-  kdl_reflect_decl(ColorPropertyValue, components);
-};
-
-std::vector<std::optional<float>> parseColorPropertyValueOptionalValues(
-  const std::string_view& value, size_t minimumNumValues);
 
 struct Unknown
 {
@@ -163,7 +156,7 @@ using PropertyValueType = std::variant<
   PropertyValueTypes::Float,
   PropertyValueTypes::Choice,
   PropertyValueTypes::Flags,
-  PropertyValueTypes::ColorPropertyValue,
+  PropertyValueTypes::ColorPropertyType,
   PropertyValueTypes::Unknown>;
 
 std::ostream& operator<<(std::ostream& lhs, const PropertyValueType& rhs);

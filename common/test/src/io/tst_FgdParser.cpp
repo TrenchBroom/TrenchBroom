@@ -736,8 +736,8 @@ TEST_CASE("FgdParser")
        test2(color255) : "Property 2" : "255 127 0" : "Longer description 2"
 
        // rgb colours + brightness
-       test3(lightcolor1) : "Property 3" : "0.2 0.3 0.4 1000" : "Longer description 3"
-       test4(lightcolor255) : "Property 4" : "10 20 30 1000" : "Longer description 4"
+       test3(color1) : "Property 3" : "0.2 0.3 0.4 1000" : "Longer description 3"
+       test4(color255) : "Property 4" : "10 20 30 1000" : "Longer description 4"
 
        // backwards compatible auto-detections
        _color(string) : "Color 1" : "0.0 0.1 0.2" : "Color 1 description"
@@ -756,68 +756,35 @@ TEST_CASE("FgdParser")
          Color{1.0f, 1.0f, 1.0f, 1.0f},
          "Entity with different color types",
          {{"test1",
-           ColorPropertyValue{{
-             {ColorValueType::Float, ColorComponentType::Red, 1.0f},
-             {ColorValueType::Float, ColorComponentType::Green, 0.5f},
-             {ColorValueType::Float, ColorComponentType::Blue, 0.0f},
-           }},
+           ColorPropertyType{Color3f{1.0f, 0.5f, 0.0f}},
            "Property 1",
            "Longer description 1"},
           {"test2",
-           ColorPropertyValue{{
-             {ColorValueType::Byte, ColorComponentType::Red, 255.0f},
-             {ColorValueType::Byte, ColorComponentType::Green, 127.0f},
-             {ColorValueType::Byte, ColorComponentType::Blue, 0.0f},
-           }},
+           ColorPropertyType{Color3i{255, 127, 0}},
            "Property 2",
            "Longer description 2"},
           {"test3",
-           ColorPropertyValue{{
-             {ColorValueType::Float, ColorComponentType::Red, 0.2f},
-             {ColorValueType::Float, ColorComponentType::Green, 0.3f},
-             {ColorValueType::Float, ColorComponentType::Blue, 0.4f},
-             {ColorValueType::Byte,
-              ColorComponentType::LightBrightness,
-              1000.0f},
-           }},
+           ColorPropertyType{ColorWithBrightness3f{Color3f{0.2f, 0.3f, 0.4f}, 1000.0f}},
            "Property 3",
            "Longer description 3"},
           {"test4",
-           ColorPropertyValue{{
-             {ColorValueType::Byte, ColorComponentType::Red, 10.0f},
-             {ColorValueType::Byte, ColorComponentType::Green, 20.0f},
-             {ColorValueType::Byte, ColorComponentType::Blue, 30.0f},
-             {ColorValueType::Byte, ColorComponentType::LightBrightness, 1000.0f},
-           }},
+           ColorPropertyType{ColorWithBrightness3i{Color3i{10, 20, 30}, 1000.0f}},
            "Property 4",
            "Longer description 4"},
           {"_color",
-           ColorPropertyValue{{
-             {ColorValueType::Float, ColorComponentType::Red, 0.0f},
-             {ColorValueType::Float, ColorComponentType::Green, 0.1f},
-             {ColorValueType::Float, ColorComponentType::Blue, 0.2f},
-           }},
+           ColorPropertyType{Color3f{0.0f, 0.1f, 0.2f}},
            "Color 1",
            "Color 1 description"},
           {"_color2",
-           ColorPropertyValue{{
-             {ColorValueType::Byte, ColorComponentType::Red, 10.0f},
-             {ColorValueType::Byte, ColorComponentType::Green, 20.0f},
-             {ColorValueType::Byte, ColorComponentType::Blue, 30.0f},
-           }},
+           ColorPropertyType{Color3i{10, 20, 30}},
            "Color 2",
            "Color 2 description"},
           {"any_color",
-           ColorPropertyValue{{
-             {ColorValueType::Any, ColorComponentType::Red, std::nullopt},
-             {ColorValueType::Any, ColorComponentType::Green, std::nullopt},
-             {ColorValueType::Any, ColorComponentType::Blue, std::nullopt},
-           }},
+           ColorPropertyType{Color3f{0.0f, 0.0f, 0.0f}},
            "Color 3",
            "Color 3 description"}},
          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}}});
   }
-
   static const auto FgdModelDefinitionTemplate =
     R"(@PointClass model(${MODEL}) = item_shells : "Shells" [])";
 
