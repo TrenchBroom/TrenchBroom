@@ -580,6 +580,15 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   }
   if (kdl::ci::str_is_equal(typeName, "string"))
   {
+    // match color names for backward compatibility: color, *_color, *_color2, *_colour
+    if (
+      kdl::ci::str_is_equal(propertyKey, "color")
+      || kdl::ci::str_is_suffix(propertyKey, "_color")
+      || kdl::ci::str_is_suffix(propertyKey, "_color2")
+      || kdl::ci::str_is_suffix(propertyKey, "_colour"))
+    {
+      return parseColorPropertyDefinition(status, typeName, std::move(propertyKey));
+    }
     return parseStringPropertyDefinition(status, std::move(propertyKey));
   }
   if (kdl::ci::str_is_equal(typeName, "integer"))
@@ -597,6 +606,12 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   if (kdl::ci::str_is_equal(typeName, "flags"))
   {
     return parseFlagsPropertyDefinition(std::move(propertyKey));
+  }
+  if (
+    kdl::ci::str_is_equal(typeName, "color1")
+    || kdl::ci::str_is_equal(typeName, "color255"))
+  {
+    return parseColorPropertyDefinition(status, typeName, std::move(propertyKey));
   }
 
   status.debug(
@@ -760,6 +775,102 @@ mdl::PropertyDefinition FgdParser::parseFlagsPropertyDefinition(std::string prop
   }
 
   return {std::move(propertyKey), Flags{std::move(flags), defaultValue}, "", "", false};
+}
+
+mdl::PropertyDefinition FgdParser::parseColorPropertyDefinition(
+  ParserStatus& status, const std::string& typeName, std::string propertyKey)
+{
+  const auto readOnly = parseReadOnlyFlag(status);
+  auto shortDescription = parsePropertyDescription();
+  auto defaultValue = parseDefaultStringValue(status);
+  auto longDescription = parsePropertyDescription();
+
+  auto defaultComponentValues =
+    kdl::vec_transform(kdl::str_split(defaultValue.value_or(""), " "), kdl::str_to_float);
+  if (defaultComponentValues.size() < 3)
+  {
+    defaultComponentValues.resize(3, std::nullopt);
+  }
+
+  // determine if the base color type is float (0-1) or integer (0-255)
+  bool integerType;
+
+  if (kdl::ci::str_is_equal(typeName, "color1"))
+  {
+    integerType = false;
+  }
+  else if (kdl::ci::str_is_equal(typeName, "color255"))
+  {
+    integerType = true;
+  }
+  else
+  {
+    // guess the type based on the default value - only inspect the first 3 values
+    integerType = false;
+    for (size_t i = 0; i < 3; ++i)
+    {
+      // assume integer if any value is above 1, assume float if any value is (0, 1]
+      // if all values are 0 then we can't guess the type and we assume float
+      const auto v = defaultComponentValues[i].value_or(0.0f);
+      if (v > 1)
+      {
+        integerType = true;
+        break;
+      }
+      else if (v > 0.0f && v <= 1.0f)
+      {
+        integerType = false;
+        break;
+      }
+    }
+  }
+
+  // create the base color type
+  std::variant<Color3f, Color3i> baseType;
+  if (integerType)
+  {
+    baseType = Color3i{
+      int(defaultComponentValues[0].value_or(0)),
+      int(defaultComponentValues[1].value_or(0)),
+      int(defaultComponentValues[2].value_or(0))};
+  }
+  else
+  {
+    baseType = Color3f{
+      defaultComponentValues[0].value_or(0.0f),
+      defaultComponentValues[1].value_or(0.0f),
+      defaultComponentValues[2].value_or(0.0f)};
+  }
+
+  // if the default value has a fourth component, then we use the brightness
+  // variant of the colour type
+  const auto brightness =
+    defaultComponentValues.size() > 3 ? defaultComponentValues[3] : std::nullopt;
+
+  ColorValue value = std::visit(
+    kdl::overload(
+      [&](const Color3f& c) -> ColorValue {
+        if (brightness.has_value())
+        {
+          return ColorWithBrightness3f{c, brightness.value()};
+        }
+        return c;
+      },
+      [&](const Color3i& c) -> ColorValue {
+        if (brightness.has_value())
+        {
+          return ColorWithBrightness3i{c, brightness.value()};
+        }
+        return c;
+      }),
+    baseType);
+
+  return {
+    std::move(propertyKey),
+    ColorPropertyType{value},
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly};
 }
 
 mdl::PropertyDefinition FgdParser::parseUnknownPropertyDefinition(

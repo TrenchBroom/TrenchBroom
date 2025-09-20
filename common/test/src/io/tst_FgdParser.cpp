@@ -726,6 +726,65 @@ TEST_CASE("FgdParser")
       });
   }
 
+  SECTION("parseColorPropertyDefinition")
+  {
+    const auto file = R"(
+    @PointClass = info_colors : "Entity with different color types"
+    [
+       // rgb colours
+       test1(color1) : "Property 1" : "1.0 0.5 0.0" : "Longer description 1"
+       test2(color255) : "Property 2" : "255 127 0" : "Longer description 2"
+
+       // rgb colours + brightness
+       test3(color1) : "Property 3" : "0.2 0.3 0.4 1000" : "Longer description 3"
+       test4(color255) : "Property 4" : "10 20 30 1000" : "Longer description 4"
+
+       // backwards compatible auto-detections
+       _color(string) : "Color 1" : "0.0 0.1 0.2" : "Color 1 description"
+       _color2(string) : "Color 2" : "10 20 30" : "Color 2 description"
+       any_color(string) : "Color 3" : : "Color 3 description"
+    ]
+)";
+
+    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"info_colors",
+         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         "Entity with different color types",
+         {{"test1",
+           ColorPropertyType{Color3f{1.0f, 0.5f, 0.0f}},
+           "Property 1",
+           "Longer description 1"},
+          {"test2",
+           ColorPropertyType{Color3i{255, 127, 0}},
+           "Property 2",
+           "Longer description 2"},
+          {"test3",
+           ColorPropertyType{ColorWithBrightness3f{Color3f{0.2f, 0.3f, 0.4f}, 1000.0f}},
+           "Property 3",
+           "Longer description 3"},
+          {"test4",
+           ColorPropertyType{ColorWithBrightness3i{Color3i{10, 20, 30}, 1000.0f}},
+           "Property 4",
+           "Longer description 4"},
+          {"_color",
+           ColorPropertyType{Color3f{0.0f, 0.1f, 0.2f}},
+           "Color 1",
+           "Color 1 description"},
+          {"_color2",
+           ColorPropertyType{Color3i{10, 20, 30}},
+           "Color 2",
+           "Color 2 description"},
+          {"any_color",
+           ColorPropertyType{Color3f{0.0f, 0.0f, 0.0f}},
+           "Color 3",
+           "Color 3 description"}},
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}}});
+  }
   static const auto FgdModelDefinitionTemplate =
     R"(@PointClass model(${MODEL}) = item_shells : "Shells" [])";
 

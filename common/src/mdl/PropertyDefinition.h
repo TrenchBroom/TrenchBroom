@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "Color.h"
+
 #include "kdl/reflection_decl.h"
 
 #include <optional>
@@ -105,6 +107,40 @@ struct Flags
   kdl_reflect_decl(Flags, defaultValue, flags);
 };
 
+template <typename T>
+struct ColorT
+{
+  std::array<T, 3> components;
+
+  auto operator<=>(const ColorT&) const = default;
+};
+
+template <typename T>
+struct ColorWithBrightnessT
+{
+  ColorT<T> color;
+  float brightness;
+
+  auto operator<=>(const ColorWithBrightnessT&) const = default;
+};
+
+using Color3f = ColorT<float>;
+using Color3i = ColorT<int>;
+using ColorWithBrightness3i = ColorWithBrightnessT<int>;
+using ColorWithBrightness3f = ColorWithBrightnessT<float>;
+
+using ColorValue =
+  std::variant<Color3f, Color3i, ColorWithBrightness3f, ColorWithBrightness3i>;
+
+std::ostream& operator<<(std::ostream& lhs, const ColorValue& rhs);
+
+struct ColorPropertyType
+{
+  std::optional<ColorValue> defaultValue = std::nullopt;
+
+  kdl_reflect_decl(ColorPropertyType, defaultValue);
+};
+
 struct Unknown
 {
   std::optional<std::string> defaultValue = std::nullopt;
@@ -123,6 +159,7 @@ using PropertyValueType = std::variant<
   PropertyValueTypes::Float,
   PropertyValueTypes::Choice,
   PropertyValueTypes::Flags,
+  PropertyValueTypes::ColorPropertyType,
   PropertyValueTypes::Unknown>;
 
 std::ostream& operator<<(std::ostream& lhs, const PropertyValueType& rhs);
