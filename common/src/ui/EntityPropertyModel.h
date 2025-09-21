@@ -25,7 +25,6 @@
 
 #include <iosfwd>
 #include <map>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -149,10 +148,10 @@ private:
   std::vector<PropertyRow> m_rows;
   bool m_showDefaultRows;
   bool m_shouldShowProtectedProperties;
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
 public:
-  explicit EntityPropertyModel(std::weak_ptr<MapDocument> document, QObject* parent);
+  explicit EntityPropertyModel(MapDocument& document, QObject* parent);
 
   bool showDefaultRows() const;
   void setShowDefaultRows(bool showDefaultRows);

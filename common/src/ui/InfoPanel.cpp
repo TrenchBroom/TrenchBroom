@@ -28,7 +28,7 @@
 namespace tb::ui
 {
 
-InfoPanel::InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent)
+InfoPanel::InfoPanel(MapDocument& document, QWidget* parent)
   : QWidget{parent}
 {
   m_tabBook = new TabBook{};

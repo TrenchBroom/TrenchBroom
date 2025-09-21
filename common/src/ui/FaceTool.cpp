@@ -19,23 +19,23 @@
 
 #include "FaceTool.h"
 
-#include "kdl/memory_utils.h"
-#include "kdl/string_format.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 
+#include "kdl/string_format.h"
 
 namespace tb::ui
 {
 
-FaceTool::FaceTool(std::weak_ptr<MapDocument> document)
-  : VertexToolBase{std::move(document)}
+FaceTool::FaceTool(mdl::Map& map)
+  : VertexToolBase{map}
 {
 }
 
 std::vector<mdl::BrushNode*> FaceTool::findIncidentBrushes(
   const vm::polygon3d& handle) const
 {
-  auto document = kdl::mem_lock(m_document);
-  return findIncidentBrushes(document->faceHandles(), handle);
+  return findIncidentBrushes(m_map.faceHandles(), handle);
 }
 
 void FaceTool::pick(
@@ -43,20 +43,17 @@ void FaceTool::pick(
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
-  auto document = kdl::mem_lock(m_document);
-  document->faceHandles().pickCenterHandle(pickRay, camera, pickResult);
+  m_map.faceHandles().pickCenterHandle(pickRay, camera, pickResult);
 }
 
-FaceHandleManager& FaceTool::handleManager()
+mdl::FaceHandleManager& FaceTool::handleManager()
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->faceHandles();
+  return m_map.faceHandles();
 }
 
-const FaceHandleManager& FaceTool::handleManager() const
+const mdl::FaceHandleManager& FaceTool::handleManager() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->faceHandles();
+  return m_map.faceHandles();
 }
 
 std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
@@ -65,18 +62,16 @@ std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
   assert(!hits.empty());
 
   const auto& hit = hits.front();
-  assert(hit.hasType(FaceHandleManager::HandleHitType));
+  assert(hit.hasType(mdl::FaceHandleManager::HandleHitType));
 
   return {hit.target<vm::polygon3d>().center(), hit.hitPoint()};
 }
 
 FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
 {
-  auto document = kdl::mem_lock(m_document);
-
-  auto handles = document->faceHandles().selectedHandles();
+  auto handles = m_map.faceHandles().selectedHandles();
   const auto transform = vm::translation_matrix(delta);
-  if (document->transformFaces(std::move(handles), transform))
+  if (transformFaces(m_map, std::move(handles), transform))
   {
     m_dragHandlePosition = m_dragHandlePosition.transform(transform);
     return MoveResult::Continue;
@@ -86,23 +81,20 @@ FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
 
 std::string FaceTool::actionName() const
 {
-  auto document = kdl::mem_lock(m_document);
   return kdl::str_plural(
-    document->faceHandles().selectedHandleCount(), "Move Face", "Move Faces");
+    m_map.faceHandles().selectedHandleCount(), "Move Face", "Move Faces");
 }
 
 void FaceTool::removeSelection()
 {
-  auto document = kdl::mem_lock(m_document);
-
-  const auto handles = document->faceHandles().selectedHandles();
+  const auto handles = m_map.faceHandles().selectedHandles();
   auto vertexPositions = std::vector<vm::vec3d>{};
   vm::polygon3d::get_vertices(
     std::begin(handles), std::end(handles), std::back_inserter(vertexPositions));
 
   const auto commandName =
     kdl::str_plural(handles.size(), "Remove Brush Face", "Remove Brush Faces");
-  kdl::mem_lock(m_document)->removeVertices(commandName, std::move(vertexPositions));
+  removeVertices(m_map, commandName, std::move(vertexPositions));
 }
 
 } // namespace tb::ui

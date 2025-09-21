@@ -23,7 +23,6 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
-#include "mdl/MapFacade.h"
 #include "mdl/PatchNode.h"
 
 #include <string>

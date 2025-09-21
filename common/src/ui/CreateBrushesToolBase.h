@@ -27,7 +27,9 @@
 namespace tb::mdl
 {
 class BrushNode;
-}
+class Grid;
+class Map;
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -38,24 +40,22 @@ class RenderContext;
 
 namespace tb::ui
 {
-class Grid;
-class MapDocument;
 
 class CreateBrushesToolBase : public Tool
 {
 protected:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
 private:
   std::vector<std::unique_ptr<mdl::BrushNode>> m_brushNodes;
   std::unique_ptr<render::BrushRenderer> m_brushRenderer;
 
 public:
-  CreateBrushesToolBase(bool initiallyActive, std::weak_ptr<MapDocument> document);
+  CreateBrushesToolBase(bool initiallyActive, mdl::Map& map);
   ~CreateBrushesToolBase() override;
 
 public:
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   void createBrushes();
   void clearBrushes();

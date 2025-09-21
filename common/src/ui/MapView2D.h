@@ -24,8 +24,6 @@
 
 #include "vm/vec.h"
 
-#include <memory>
-
 namespace tb::mdl
 {
 class PickResult;
@@ -61,7 +59,7 @@ private:
 
 public:
   MapView2D(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     MapViewToolBox& toolBox,
     render::MapRenderer& renderer,
     GLContextManager& contextManager,

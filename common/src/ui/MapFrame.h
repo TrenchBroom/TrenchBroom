@@ -27,7 +27,6 @@
 #include "Result.h"
 #include "io/ExportOptions.h"
 #include "mdl/MapFormat.h"
-#include "ui/Selection.h"
 
 #include <chrono>
 #include <filesystem>
@@ -52,16 +51,22 @@ class Logger;
 
 namespace tb::mdl
 {
+class Autosaver;
 class Game;
 class GroupNode;
 class LayerNode;
+class Map;
 class Material;
+class Node;
+
+enum class PasteType;
+
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
 {
 class Action;
-class Autosaver;
 class Console;
 class FrameManager;
 class GLContextManager;
@@ -71,7 +76,6 @@ enum class InspectorPage;
 class MapDocument;
 class MapViewBase;
 class ObjExportDialog;
-enum class PasteType;
 class SignalDelayer;
 class SwitchableMapViewContainer;
 class Tool;
@@ -81,10 +85,10 @@ class MapFrame : public QMainWindow
   Q_OBJECT
 private:
   FrameManager& m_frameManager;
-  std::shared_ptr<MapDocument> m_document;
+  std::unique_ptr<MapDocument> m_document;
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
-  std::unique_ptr<Autosaver> m_autosaver;
+  std::unique_ptr<mdl::Autosaver> m_autosaver;
   QTimer* m_autosaveTimer = nullptr;
   QTimer* m_processResourcesTimer = nullptr;
 
@@ -127,11 +131,12 @@ private:
   SignalDelayer* m_updateStatusBarSignalDelayer = nullptr;
 
 public:
-  MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> document);
+  MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> document);
   ~MapFrame() override;
 
   void positionOnScreen(QWidget* reference);
-  std::shared_ptr<MapDocument> document() const;
+  const MapDocument& document() const;
+  MapDocument& document();
 
 public: // getters and such
   Logger& logger() const;
@@ -167,9 +172,11 @@ private: // gui creation
 private: // notification handlers
   void connectObservers();
 
-  void documentWasCleared(ui::MapDocument* document);
-  void documentDidChange(ui::MapDocument* document);
-  void documentModificationStateDidChange();
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
+  void mapWasSaved(mdl::Map& map);
+  void mapWasCleared(mdl::Map& map);
+  void mapModificationStateDidChange();
 
   void transactionDone(const std::string&);
   void transactionUndone(const std::string&);
@@ -179,10 +186,10 @@ private: // notification handlers
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
   void toolHandleSelectionChanged(Tool& tool);
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void currentLayerDidChange(const tb::mdl::LayerNode* layer);
-  void groupWasOpened(mdl::GroupNode* group);
-  void groupWasClosed(mdl::GroupNode* group);
+  void groupWasOpened(mdl::GroupNode& group);
+  void groupWasClosed(mdl::GroupNode& group);
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
   void editorContextDidChange();
   void pointFileDidChange();
@@ -192,9 +199,9 @@ private: // menu event handlers
   void bindEvents();
 
 public:
-  Result<bool> newDocument(std::shared_ptr<mdl::Game> game, mdl::MapFormat mapFormat);
+  Result<bool> newDocument(std::unique_ptr<mdl::Game> game, mdl::MapFormat mapFormat);
   Result<bool> openDocument(
-    std::shared_ptr<mdl::Game> game,
+    std::unique_ptr<mdl::Game> game,
     mdl::MapFormat mapFormat,
     const std::filesystem::path& path);
   bool saveDocument();
@@ -242,11 +249,11 @@ public:
 
   void pasteAtCursorPosition();
   void pasteAtOriginalPosition();
-  PasteType paste();
+  mdl::PasteType paste();
   bool canPaste() const;
 
   void duplicateSelection();
-  bool canDuplicateSelectino() const;
+  bool canDuplicateSelection() const;
 
   void deleteSelection();
   bool canDeleteSelection() const;

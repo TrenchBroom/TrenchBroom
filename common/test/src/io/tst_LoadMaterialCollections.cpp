@@ -35,7 +35,8 @@
 #include <memory>
 #include <ranges>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 
 namespace tb::io
 {
@@ -81,7 +82,7 @@ MaterialCollectionInfo makeMaterialCollectionInfo(
 }
 
 class MaterialCollectionsMatcher
-  : public Catch::MatcherBase<Result<std::vector<mdl::MaterialCollection>>>
+  : public Catch::Matchers::MatcherBase<Result<std::vector<mdl::MaterialCollection>>>
 {
 private:
   std::vector<MaterialCollectionInfo> m_expected;
@@ -217,8 +218,8 @@ TEST_CASE("loadMaterialCollections")
       fs.mount("textures", openFS<WadFileSystem>(additionalWadPath));
 
       // Overriding is determined by load order: Wads that are loaded later override
-      // textures from other wads that were loaded before. But the texture collections are
-      // sorted by name and not by load order!
+      // materials from other wads that were loaded before. But the material collections
+      // are sorted by name and not by load order!
       CHECK_THAT(
         loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
         MatchesMaterialCollections({
@@ -226,7 +227,7 @@ TEST_CASE("loadMaterialCollections")
             "cr8_a_excerpt.wad", // sorting does not depend on load order
             {
               MaterialInfo{"added", 128, 128},
-              // overrides texture from cr8_czg.wad
+              // overrides material from cr8_czg.wad
               MaterialInfo{"cr8_czg_1", 64, 128},
             },
           },

@@ -38,7 +38,8 @@
 #include <functional>
 #include <tuple>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::mdl
 {
@@ -245,9 +246,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     worldNode.setVisibilityState(wrldVisState);
     worldNode.setLockState(wrldLckState);
 
-    CHECK(context.visible(&worldNode) == visible);
-    CHECK(context.editable(&worldNode) == editable);
-    CHECK(context.selectable(&worldNode) == selectable);
+    CHECK(context.visible(worldNode) == visible);
+    CHECK(context.editable(worldNode) == editable);
+    CHECK(context.selectable(worldNode) == selectable);
   }
 
   SECTION("Layer")
@@ -310,9 +311,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     layerNode->setVisibilityState(layrVisState);
     layerNode->setLockState(layrLckState);
 
-    CHECK(context.visible(layerNode) == visible);
-    CHECK(context.editable(layerNode) == editable);
-    CHECK(context.selectable(layerNode) == selectable);
+    CHECK(context.visible(*layerNode) == visible);
+    CHECK(context.editable(*layerNode) == editable);
+    CHECK(context.selectable(*layerNode) == selectable);
   }
 
   SECTION("Top Level Group")
@@ -479,7 +480,7 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
 
     if (open)
     {
-      context.pushGroup(groupNode);
+      context.pushGroup(*groupNode);
     }
 
     if (selected)
@@ -492,9 +493,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
 
     brushNode->setVisibilityState(childVisState);
 
-    CHECK(context.visible(groupNode) == visible);
-    CHECK(context.editable(groupNode) == editable);
-    CHECK(context.selectable(groupNode) == selectable);
+    CHECK(context.visible(*groupNode) == visible);
+    CHECK(context.editable(*groupNode) == editable);
+    CHECK(context.selectable(*groupNode) == selectable);
   }
 
   SECTION("Top Level Brush Entity, Patch Entity")
@@ -621,9 +622,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
 
     childNode->setVisibilityState(childVisState);
 
-    CHECK(context.visible(entityNode) == visible);
-    CHECK(context.editable(entityNode) == editable);
-    CHECK(context.selectable(entityNode) == selectable);
+    CHECK(context.visible(*entityNode) == visible);
+    CHECK(context.editable(*entityNode) == editable);
+    CHECK(context.selectable(*entityNode) == selectable);
   }
 
   SECTION("Top Level Point Entity")
@@ -712,9 +713,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     entityNode->setVisibilityState(entVisState);
     entityNode->setLockState(entLckState);
 
-    CHECK(context.visible(entityNode) == visible);
-    CHECK(context.editable(entityNode) == editable);
-    CHECK(context.selectable(entityNode) == selectable);
+    CHECK(context.visible(*entityNode) == visible);
+    CHECK(context.editable(*entityNode) == editable);
+    CHECK(context.selectable(*entityNode) == selectable);
   }
 
   SECTION("Top Level Brush, Patch")
@@ -772,9 +773,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     node->setVisibilityState(nodeVisState);
     node->setLockState(nodeLckState);
 
-    CHECK(context.visible(node) == visible);
-    CHECK(context.editable(node) == editable);
-    CHECK(context.selectable(node) == selectable);
+    CHECK(context.visible(*node) == visible);
+    CHECK(context.editable(*node) == editable);
+    CHECK(context.selectable(*node) == selectable);
   }
 }
 
@@ -927,12 +928,12 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
 
     if (outOpen)
     {
-      context.pushGroup(outerGroupNode);
+      context.pushGroup(*outerGroupNode);
     }
 
     if (innOpen)
     {
-      context.pushGroup(innerGroupNode);
+      context.pushGroup(*innerGroupNode);
     }
 
     if (outSel)
@@ -950,9 +951,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
     innerGroupNode->setVisibilityState(innVisState);
     innerGroupNode->setLockState(innLckState);
 
-    CHECK(context.visible(innerGroupNode) == visible);
-    CHECK(context.editable(innerGroupNode) == editable);
-    CHECK(context.selectable(innerGroupNode) == selectable);
+    CHECK(context.visible(*innerGroupNode) == visible);
+    CHECK(context.editable(*innerGroupNode) == editable);
+    CHECK(context.selectable(*innerGroupNode) == selectable);
   }
 
   SECTION("Grouped Point Entity, Grouped Brush, Grouped Patch")
@@ -1025,7 +1026,7 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
 
     if (grpOpen)
     {
-      context.pushGroup(groupNode);
+      context.pushGroup(*groupNode);
     }
 
     groupNode->setVisibilityState(grpVisState);
@@ -1033,9 +1034,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
     childNode->setVisibilityState(entVisState);
     childNode->setLockState(entLckState);
 
-    CHECK(context.visible(childNode) == visible);
-    CHECK(context.editable(childNode) == editable);
-    CHECK(context.selectable(childNode) == selectable);
+    CHECK(context.visible(*childNode) == visible);
+    CHECK(context.editable(*childNode) == editable);
+    CHECK(context.selectable(*childNode) == selectable);
   }
 
   SECTION("Grouped Brush Entity, Patch Entity")
@@ -1186,7 +1187,7 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
 
     if (grpOpen)
     {
-      context.pushGroup(groupNode);
+      context.pushGroup(*groupNode);
     }
 
     groupNode->setVisibilityState(grpVisState);
@@ -1197,9 +1198,9 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
 
     childNode->setVisibilityState(childVisState);
 
-    CHECK(context.visible(entityNode) == visible);
-    CHECK(context.editable(entityNode) == editable);
-    CHECK(context.selectable(entityNode) == selectable);
+    CHECK(context.visible(*entityNode) == visible);
+    CHECK(context.editable(*entityNode) == editable);
+    CHECK(context.selectable(*entityNode) == selectable);
   }
 }
 

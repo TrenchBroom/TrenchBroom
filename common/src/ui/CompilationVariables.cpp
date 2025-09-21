@@ -20,13 +20,15 @@
 #include "CompilationVariables.h"
 
 #include "io/SystemPaths.h"
+#include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameFactory.h"
+#include "mdl/Map.h"
+#include "mdl/Map_World.h"
 #include "ui/MapDocument.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/vector_utils.h"
 
-#include <memory>
 #include <string>
 #include <thread>
 
@@ -45,14 +47,14 @@ const std::string MODS = "MODS";
 const std::string APP_DIR_PATH = "APP_DIR_PATH";
 } // namespace CompilationVariableNames
 
-CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
+CommonVariables::CommonVariables(const mdl::Map& map)
 {
-  const auto filename = document->path().filename();
-  const auto gamePath = document->game()->gamePath();
+  const auto filename = map.path().filename();
+  const auto gamePath = map.game()->gamePath();
 
   auto mods = std::vector<std::string>{};
-  mods.push_back(document->defaultMod());
-  mods = kdl::vec_concat(std::move(mods), document->mods());
+  mods.push_back(defaultMod(map));
+  mods = kdl::vec_concat(std::move(mods), mdl::mods(map));
 
   using namespace CompilationVariableNames;
   set(MAP_BASE_NAME, el::Value{kdl::path_remove_extension(filename).string()});
@@ -62,22 +64,21 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
     el::Value{kdl::vec_transform(mods, [](const auto& mod) { return el::Value{mod}; })});
 
   const auto& factory = mdl::GameFactory::instance();
-  for (const auto& tool : document->game()->config().compilationTools)
+  for (const auto& tool : map.game()->config().compilationTools)
   {
     const auto toolPath =
-      factory.compilationToolPath(document->game()->config().name, tool.name);
+      factory.compilationToolPath(map.game()->config().name, tool.name);
     // e.g. variable name might be "qbsp", and the value is the path to the user's local
     // qbsp executable
     set(tool.name, el::Value{toolPath.string()});
   }
 }
 
-CommonCompilationVariables::CommonCompilationVariables(
-  std::shared_ptr<MapDocument> document)
-  : CommonVariables{document}
+CommonCompilationVariables::CommonCompilationVariables(const mdl::Map& map)
+  : CommonVariables{map}
 {
-  const auto filename = document->path().filename();
-  const auto filePath = document->path().parent_path();
+  const auto filename = map.path().filename();
+  const auto filePath = map.path().parent_path();
   const auto appPath = io::SystemPaths::appDirectory();
 
   using namespace CompilationVariableNames;
@@ -86,15 +87,14 @@ CommonCompilationVariables::CommonCompilationVariables(
   set(APP_DIR_PATH, el::Value{appPath.string()});
 }
 
-CompilationWorkDirVariables::CompilationWorkDirVariables(
-  std::shared_ptr<MapDocument> document)
-  : CommonCompilationVariables{std::move(document)}
+CompilationWorkDirVariables::CompilationWorkDirVariables(const mdl::Map& map)
+  : CommonCompilationVariables{map}
 {
 }
 
 CompilationVariables::CompilationVariables(
-  std::shared_ptr<MapDocument> document, const std::string& workDir)
-  : CommonCompilationVariables{std::move(document)}
+  const mdl::Map& map, const std::string& workDir)
+  : CommonCompilationVariables{map}
 {
   const auto cpuCount = size_t(std::max(std::thread::hardware_concurrency(), 1u));
 
@@ -103,9 +103,8 @@ CompilationVariables::CompilationVariables(
   set(WORK_DIR_PATH, el::Value{workDir});
 }
 
-LaunchGameEngineVariables::LaunchGameEngineVariables(
-  std::shared_ptr<MapDocument> document)
-  : CommonVariables{std::move(document)}
+LaunchGameEngineVariables::LaunchGameEngineVariables(const mdl::Map& map)
+  : CommonVariables{map}
 {
 }
 

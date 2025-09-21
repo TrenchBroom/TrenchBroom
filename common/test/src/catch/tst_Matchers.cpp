@@ -20,8 +20,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "Matchers.h"
 
 #include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace tb
 {

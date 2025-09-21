@@ -21,8 +21,6 @@
 
 #include <QWidget>
 
-#include <memory>
-
 class QAbstractButton;
 class QLineEdit;
 class QStackedWidget;
@@ -45,7 +43,7 @@ class CompilationProfileEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   mdl::CompilationProfile* m_profile{nullptr};
   QStackedWidget* m_stackedWidget{nullptr};
   QLineEdit* m_nameTxt{nullptr};
@@ -57,8 +55,7 @@ private:
   QAbstractButton* m_moveTaskDownButton{nullptr};
 
 public:
-  explicit CompilationProfileEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit CompilationProfileEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   QWidget* createEditorPage(QWidget* parent);

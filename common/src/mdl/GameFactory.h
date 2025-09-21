@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Result.h"
-#include "mdl/MapFormat.h"
+#include "mdl/Game.h"
 
 #include <filesystem>
 #include <map>
@@ -45,7 +45,6 @@ class WritableVirtualFileSystem;
 namespace tb::mdl
 {
 struct CompilationConfig;
-class Game;
 struct GameConfig;
 struct GameEngineConfig;
 
@@ -121,7 +120,7 @@ public:
 
   const std::vector<std::string>& gameList() const;
   size_t gameCount() const;
-  std::shared_ptr<Game> createGame(const std::string& gameName, Logger& logger);
+  std::unique_ptr<Game> createGame(const std::string& gameName, Logger& logger);
 
   std::vector<std::string> fileFormats(const std::string& gameName) const;
   std::filesystem::path iconPath(const std::string& gameName) const;

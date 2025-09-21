@@ -22,19 +22,19 @@
 
 #include <functional>
 
-#include "catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace kdl
 {
 
-TEST_CASE("lift_and")
+TEST_CASE("logical_and")
 {
   const auto f1 = [](int a, int b, int) { return a == b; };
   const auto f2 = [](int, int b, int c) { return b == c; };
 
   SECTION("Lambdas")
   {
-    const auto f1_and_f2 = lift_and(f1, f2);
+    const auto f1_and_f2 = logical_and(f1, f2);
 
     CHECK(f1_and_f2(1, 1, 1));
     CHECK_FALSE(f1_and_f2(1, 1, 2));
@@ -44,7 +44,7 @@ TEST_CASE("lift_and")
 
   SECTION("std::function")
   {
-    const auto f1_and_f2 = lift_and(std::function{f1}, std::function{f2});
+    const auto f1_and_f2 = logical_and(std::function{f1}, std::function{f2});
 
     CHECK(f1_and_f2(1, 1, 1));
     CHECK_FALSE(f1_and_f2(1, 1, 2));
@@ -53,14 +53,14 @@ TEST_CASE("lift_and")
   }
 }
 
-TEST_CASE("lift_or")
+TEST_CASE("logical_or")
 {
   const auto f1 = [](int a, int b, int) { return a == b; };
   const auto f2 = [](int, int b, int c) { return b == c; };
 
   SECTION("Lambdas")
   {
-    const auto f1_or_f2 = lift_or(f1, f2);
+    const auto f1_or_f2 = logical_or(f1, f2);
 
     CHECK(f1_or_f2(1, 1, 1));
     CHECK(f1_or_f2(1, 1, 2));
@@ -70,12 +70,33 @@ TEST_CASE("lift_or")
 
   SECTION("std::function")
   {
-    const auto f1_or_f2 = lift_or(std::function{f1}, std::function{f2});
+    const auto f1_or_f2 = logical_or(std::function{f1}, std::function{f2});
 
     CHECK(f1_or_f2(1, 1, 1));
     CHECK(f1_or_f2(1, 1, 2));
     CHECK(f1_or_f2(1, 2, 2));
     CHECK_FALSE(f1_or_f2(1, 2, 3));
+  }
+}
+
+TEST_CASE("logical_not")
+{
+  const auto f = [](int a, int b) { return a == b; };
+
+  SECTION("Lambdas")
+  {
+    const auto fn = logical_not(f);
+
+    CHECK_FALSE(fn(1, 1));
+    CHECK(fn(1, 2));
+  }
+
+  SECTION("std::function")
+  {
+    const auto fn = logical_not(std::function{f});
+
+    CHECK_FALSE(fn(1, 1));
+    CHECK(fn(1, 2));
   }
 }
 

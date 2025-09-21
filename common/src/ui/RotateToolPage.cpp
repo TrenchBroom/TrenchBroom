@@ -28,16 +28,16 @@
 #include <QtGlobal>
 
 #include "mdl/EntityProperties.h"
+#include "mdl/Grid.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
-#include "ui/Grid.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/RotateTool.h"
 #include "ui/SpinControl.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_to.h"
 
 #include <fmt/format.h>
@@ -48,10 +48,9 @@
 namespace tb::ui
 {
 
-RotateToolPage::RotateToolPage(
-  std::weak_ptr<MapDocument> document, RotateTool& tool, QWidget* parent)
+RotateToolPage::RotateToolPage(mdl::Map& map, RotateTool& tool, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_map{map}
   , m_tool{tool}
 {
   createGui();
@@ -61,13 +60,12 @@ RotateToolPage::RotateToolPage(
 
 void RotateToolPage::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &RotateToolPage::selectionDidChange);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &RotateToolPage::documentWasNewedOrLoaded);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &RotateToolPage::documentWasNewedOrLoaded);
+  m_notifierConnection +=
+    m_map.selectionDidChangeNotifier.connect(this, &RotateToolPage::selectionDidChange);
+  m_notifierConnection +=
+    m_map.mapWasCreatedNotifier.connect(this, &RotateToolPage::mapWasCreated);
+  m_notifierConnection +=
+    m_map.mapWasLoadedNotifier.connect(this, &RotateToolPage::mapWasLoaded);
 
   m_notifierConnection += m_tool.rotationCenterDidChangeNotifier.connect(
     this, &RotateToolPage::rotationCenterDidChange);
@@ -165,25 +163,29 @@ void RotateToolPage::createGui()
 
 void RotateToolPage::updateGui()
 {
-  const auto& grid = kdl::mem_lock(m_document)->grid();
+  const auto& grid = m_map.grid();
   m_angle->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
 
-  auto document = kdl::mem_lock(m_document);
-  m_rotateButton->setEnabled(document->hasSelectedNodes());
+  m_rotateButton->setEnabled(m_map.selection().hasNodes());
 
-  if (const auto* worldNode = document->world())
+  if (const auto* worldNode = m_map.world())
   {
     m_updateAnglePropertyAfterTransformCheckBox->setChecked(
       worldNode->entityPropertyConfig().updateAnglePropertyAfterTransform);
   }
 }
 
-void RotateToolPage::selectionDidChange(const Selection&)
+void RotateToolPage::mapWasCreated(mdl::Map&)
 {
   updateGui();
 }
 
-void RotateToolPage::documentWasNewedOrLoaded(MapDocument*)
+void RotateToolPage::mapWasLoaded(mdl::Map&)
+{
+  updateGui();
+}
+
+void RotateToolPage::selectionDidChange(const mdl::SelectionChange&)
 {
   updateGui();
 }
@@ -252,14 +254,12 @@ void RotateToolPage::rotateClicked()
   const auto axis = getAxis();
   const auto angle = vm::to_radians(m_angle->value());
 
-  auto document = kdl::mem_lock(m_document);
-  document->rotate(center, axis, angle);
+  rotateSelection(m_map, center, axis, angle);
 }
 
 void RotateToolPage::updateAnglePropertyAfterTransformClicked()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->world()->entityPropertyConfig().updateAnglePropertyAfterTransform =
+  m_map.world()->entityPropertyConfig().updateAnglePropertyAfterTransform =
     m_updateAnglePropertyAfterTransformCheckBox->isChecked();
 }
 

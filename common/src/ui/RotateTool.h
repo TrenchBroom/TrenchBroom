@@ -24,7 +24,11 @@
 
 #include "vm/scalar.h"
 
-#include <memory>
+namespace tb::mdl
+{
+class Grid;
+class Map;
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -35,13 +39,11 @@ class RenderContext;
 
 namespace tb::ui
 {
-class Grid;
-class MapDocument;
 
 class RotateTool : public Tool
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
   RotateHandle m_handle;
   double m_angle = vm::to_radians(15.0);
 
@@ -50,11 +52,11 @@ public:
   Notifier<vm::vec3d> rotationCenterWasUsedNotifier;
   Notifier<RotateHandle::HitArea> handleHitAreaDidChangeNotifier;
 
-  explicit RotateTool(std::weak_ptr<MapDocument> document);
+  explicit RotateTool(mdl::Map& map);
 
   bool doActivate() override;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   void updateToolPageAxis(RotateHandle::HitArea area);
 

@@ -34,11 +34,8 @@
 #include "ui/ScaleTool.h"
 #include "ui/ShearTool.h"
 
-#include "kdl/memory_utils.h"
-
 #include "vm/line.h"
 #include "vm/plane.h"
-#include "vm/polygon.h"
 
 #include <cassert>
 
@@ -49,7 +46,7 @@ namespace
 
 HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
-  const Grid& grid,
+  const mdl::Grid& grid,
   const mdl::Hit& dragStartHit,
   const vm::bbox3d& bboxAtDragStart,
   const vm::vec3d& handleOffset)
@@ -182,10 +179,9 @@ std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
 
 } // namespace
 
-ShearToolController::ShearToolController(
-  ShearTool& tool, std::weak_ptr<MapDocument> document)
+ShearToolController::ShearToolController(ShearTool& tool, mdl::Map& map)
   : m_tool{tool}
-  , m_document{std::move(document)}
+  , m_map{map}
 {
 }
 
@@ -238,8 +234,6 @@ std::unique_ptr<GestureTracker> ShearToolController::acceptMouseDrag(
   {
     return nullptr;
   }
-
-  auto document = kdl::mem_lock(m_document);
 
   const auto& hit = inputState.pickResult().first(type(ShearTool::ShearToolSideHitType));
   if (!hit.isMatch())
@@ -306,9 +300,8 @@ bool ShearToolController::cancel()
 
 // ShearToolController2D
 
-ShearToolController2D::ShearToolController2D(
-  ShearTool& tool, std::weak_ptr<MapDocument> document)
-  : ShearToolController{tool, std::move(document)}
+ShearToolController2D::ShearToolController2D(ShearTool& tool, mdl::Map& map)
+  : ShearToolController{tool, map}
 {
 }
 
@@ -320,9 +313,8 @@ void ShearToolController2D::doPick(
 
 // ShearToolController3D
 
-ShearToolController3D::ShearToolController3D(
-  ShearTool& tool, std::weak_ptr<MapDocument> document)
-  : ShearToolController{tool, std::move(document)}
+ShearToolController3D::ShearToolController3D(ShearTool& tool, mdl::Map& map)
+  : ShearToolController{tool, map}
 {
 }
 

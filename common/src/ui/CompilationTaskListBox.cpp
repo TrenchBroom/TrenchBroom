@@ -28,19 +28,18 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "el/EvaluationContext.h"
 #include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
+#include "ui/MapDocument.h"
 #include "ui/MultiCompletionLineEdit.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 
 namespace tb::ui
@@ -49,13 +48,13 @@ namespace tb::ui
 
 CompilationTaskEditorBase::CompilationTaskEditorBase(
   QString title,
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   mdl::CompilationProfile& profile,
   mdl::CompilationTask& task,
   QWidget* parent)
   : ControlListBoxItemRenderer{parent}
   , m_title{std::move(title)}
-  , m_document{std::move(document)}
+  , m_document{document}
   , m_profile{profile}
   , m_task{task}
 {
@@ -111,23 +110,23 @@ void CompilationTaskEditorBase::updateItem()
 
 void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
 {
+  const auto& map = m_document.map();
   const auto workDir =
-    el::interpolate(
-      CompilationWorkDirVariables{kdl::mem_lock(m_document)}, m_profile.workDirSpec)
+    el::interpolate(CompilationWorkDirVariables{map}, m_profile.workDirSpec)
     | kdl::value_or(std::string{});
 
-  const auto variables = CompilationVariables{kdl::mem_lock(m_document), workDir};
+  const auto variables = CompilationVariables{map, workDir};
   completer->setModel(new VariableStoreModel{variables});
 }
 
 // CompilationExportMapTaskEditor
 
 CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   mdl::CompilationProfile& profile,
   mdl::CompilationTask& task,
   QWidget* parent)
-  : CompilationTaskEditorBase{"Export Map", std::move(document), profile, task, parent}
+  : CompilationTaskEditorBase{"Export Map", document, profile, task, parent}
 {
   assert(std::holds_alternative<mdl::CompilationExportMap>(task));
 
@@ -179,11 +178,11 @@ void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
 }
 
 CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   mdl::CompilationProfile& profile,
   mdl::CompilationTask& task,
   QWidget* parent)
-  : CompilationTaskEditorBase{"Copy Files", std::move(document), profile, task, parent}
+  : CompilationTaskEditorBase{"Copy Files", document, profile, task, parent}
 {
   assert(std::holds_alternative<mdl::CompilationCopyFiles>(task));
 
@@ -263,11 +262,11 @@ void CompilationCopyFilesTaskEditor::targetSpecChanged(const QString& text)
 }
 
 CompilationRenameFileTaskEditor::CompilationRenameFileTaskEditor(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   mdl::CompilationProfile& profile,
   mdl::CompilationTask& task,
   QWidget* parent)
-  : CompilationTaskEditorBase{"Rename File", std::move(document), profile, task, parent}
+  : CompilationTaskEditorBase{"Rename File", document, profile, task, parent}
 {
   assert(std::holds_alternative<mdl::CompilationRenameFile>(task));
 
@@ -348,11 +347,11 @@ void CompilationRenameFileTaskEditor::targetSpecChanged(const QString& text)
 }
 
 CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   mdl::CompilationProfile& profile,
   mdl::CompilationTask& task,
   QWidget* parent)
-  : CompilationTaskEditorBase{"Delete Files", std::move(document), profile, task, parent}
+  : CompilationTaskEditorBase{"Delete Files", document, profile, task, parent}
 {
   assert(std::holds_alternative<mdl::CompilationDeleteFiles>(task));
 
@@ -408,11 +407,11 @@ void CompilationDeleteFilesTaskEditor::targetSpecChanged(const QString& text)
 // CompilationRunToolTaskEditor
 
 CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   mdl::CompilationProfile& profile,
   mdl::CompilationTask& task,
   QWidget* parent)
-  : CompilationTaskEditorBase{"Run Tool", std::move(document), profile, task, parent}
+  : CompilationTaskEditorBase{"Run Tool", document, profile, task, parent}
 {
   assert(std::holds_alternative<mdl::CompilationRunTool>(task));
 
@@ -545,10 +544,9 @@ void CompilationRunToolTaskEditor::treatNonZeroResultCodeAsErrorChanged(const in
 
 // CompilationTaskListBox
 
-CompilationTaskListBox::CompilationTaskListBox(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+CompilationTaskListBox::CompilationTaskListBox(MapDocument& document, QWidget* parent)
   : ControlListBox{"Click the '+' button to create a task.", QMargins{}, false, parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
 }
 

@@ -42,7 +42,8 @@
 #include "vm/bbox.h"
 #include "vm/mat_ext.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
 {
@@ -370,35 +371,37 @@ TEST_CASE("ModelUtils.collectSelectedNodes")
   + layerNode
   */
   CHECK_THAT(
-    collectSelectedNodes({&worldNode}), Catch::UnorderedEquals(std::vector<Node*>{}));
+    collectSelectedNodes({&worldNode}),
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
   brushNode->select();
   patchNode->select();
 
   CHECK_THAT(
     collectSelectedNodes({&worldNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({innerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode}));
 
   CHECK_THAT(
     collectSelectedNodes({innerGroupNode, patchNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   innerGroupNode->select();
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{innerGroupNode, brushNode, patchNode}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<Node*>{innerGroupNode, brushNode, patchNode}));
 }
 
 TEST_CASE("ModelUtils.collectSelectableNodes")
@@ -437,12 +440,12 @@ TEST_CASE("ModelUtils.collectSelectableNodes")
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode}));
 
-  editorContext.pushGroup(outerGroupNode);
+  editorContext.pushGroup(*outerGroupNode);
   CHECK_THAT(
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{innerGroupNode, patchNode}));
 
-  editorContext.pushGroup(innerGroupNode);
+  editorContext.pushGroup(*innerGroupNode);
   CHECK_THAT(
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode}));
@@ -471,7 +474,7 @@ TEST_CASE("ModelUtils.collectSelectedBrushFaces")
     CHECK_THAT(
       collectSelectedBrushFaces({&worldNode}),
       Catch::Matchers::UnorderedEquals(
-        std::vector<mdl::BrushFaceHandle>{{brushNode, 0u}, {brushNode, 1u}}));
+        std::vector<BrushFaceHandle>{{brushNode, 0u}, {brushNode, 1u}}));
   }
 
   SECTION("Node selection")
@@ -630,7 +633,7 @@ TEST_CASE("ModelUtils.filterNodes")
     CHECK(
       filterBrushNodes(
         {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
-      == std::vector<mdl::BrushNode*>{&brushNode});
+      == std::vector<BrushNode*>{&brushNode});
   }
 
   SECTION("Filter entity nodes")
@@ -638,7 +641,7 @@ TEST_CASE("ModelUtils.filterNodes")
     CHECK(
       filterEntityNodes(
         {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
-      == std::vector<mdl::EntityNode*>{&entityNode});
+      == std::vector<EntityNode*>{&entityNode});
   }
 }
 

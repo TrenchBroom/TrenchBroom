@@ -20,7 +20,7 @@
 
 #include "kdl/resource.h"
 
-#include "catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace kdl
 {
@@ -28,10 +28,7 @@ namespace kdl
 TEST_CASE("resource")
 {
   auto deleter_calls = std::vector<int>{};
-  auto deleter = [&](const auto i) {
-    deleter_calls.push_back(i);
-    ;
-  };
+  auto deleter = [&](const auto i) { deleter_calls.push_back(i); };
 
   SECTION("destructor calls deleter")
   {

@@ -30,8 +30,10 @@
 #include <fmt/std.h>
 
 #include <filesystem>
+#include <iostream>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::io
 {
@@ -144,7 +146,7 @@ TEST_CASE("DiskIO")
 
     CHECK_THAT(
       Disk::find(env.dir(), TraversalMode::Flat) | kdl::value(),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
         env.dir() / "anotherDir",
@@ -156,7 +158,7 @@ TEST_CASE("DiskIO")
 
     CHECK_THAT(
       Disk::find(env.dir(), TraversalMode::Recursive) | kdl::value(),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
         env.dir() / "anotherDir",
@@ -172,7 +174,7 @@ TEST_CASE("DiskIO")
 
     CHECK_THAT(
       Disk::find(env.dir(), TraversalMode{0}) | kdl::value(),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
         env.dir() / "anotherDir",
@@ -184,7 +186,7 @@ TEST_CASE("DiskIO")
 
     CHECK_THAT(
       Disk::find(env.dir(), TraversalMode{1}) | kdl::value(),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
         env.dir() / "anotherDir",

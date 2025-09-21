@@ -24,7 +24,6 @@
 #include "NotifierConnection.h"
 
 #include <filesystem>
-#include <memory>
 #include <vector>
 
 class QListWidget;
@@ -32,8 +31,9 @@ class QAbstractButton;
 
 namespace tb::mdl
 {
+class Map;
 class Node;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -43,7 +43,7 @@ class MaterialCollectionEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   QListWidget* m_availableCollectionsList = nullptr;
   QListWidget* m_enabledCollectionsList = nullptr;
@@ -55,8 +55,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MaterialCollectionEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit MaterialCollectionEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void addSelectedMaterialCollections();
@@ -75,7 +74,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewedOrLoaded(MapDocument*);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void materialCollectionsDidChange();
   void modsDidChange();

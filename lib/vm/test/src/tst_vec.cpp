@@ -24,11 +24,12 @@
 #include "vm/approx.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 #include <limits>
 
-#include "catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace vm
 {

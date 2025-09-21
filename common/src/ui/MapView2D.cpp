@@ -23,8 +23,11 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
+#include "mdl/Grid.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
+#include "mdl/Map_Picking.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
 #include "mdl/PointTrace.h"
@@ -46,7 +49,6 @@
 #include "ui/FaceTool.h" // IWYU pragma: keep
 #include "ui/FaceToolController.h"
 #include "ui/GLContextManager.h"
-#include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MoveObjectsToolController.h"
@@ -63,12 +65,12 @@ namespace tb::ui
 {
 
 MapView2D::MapView2D(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   MapViewToolBox& toolBox,
   render::MapRenderer& renderer,
   GLContextManager& contextManager,
   ViewPlane viewPlane)
-  : MapViewBase{std::move(document), toolBox, renderer, contextManager}
+  : MapViewBase{document, toolBox, renderer, contextManager}
   , m_camera{std::make_unique<render::OrthographicCamera>()}
 {
   connectObservers();
@@ -94,8 +96,8 @@ MapView2D::MapView2D(
 
 void MapView2D::initializeCamera(const ViewPlane viewPlane)
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto worldBounds = vm::bbox3f(document->worldBounds());
+  const auto& map = m_document.map();
+  const auto worldBounds = vm::bbox3f{map.worldBounds()};
 
   switch (viewPlane)
   {
@@ -120,14 +122,14 @@ void MapView2D::initializeCamera(const ViewPlane viewPlane)
 
 void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
 {
+  auto& map = m_document.map();
+
   addToolController(std::make_unique<CameraTool2D>(*m_camera));
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
   addToolController(std::make_unique<RotateToolController2D>(toolBox.rotateTool()));
-  addToolController(
-    std::make_unique<ScaleToolController2D>(toolBox.scaleTool(), m_document));
-  addToolController(
-    std::make_unique<ShearToolController2D>(toolBox.shearTool(), m_document));
+  addToolController(std::make_unique<ScaleToolController2D>(toolBox.scaleTool(), map));
+  addToolController(std::make_unique<ShearToolController2D>(toolBox.shearTool(), map));
   addToolController(std::make_unique<ExtrudeToolController2D>(toolBox.extrudeTool()));
   addToolController(std::make_unique<ClipToolController2D>(toolBox.clipTool()));
   addToolController(std::make_unique<VertexToolController>(toolBox.vertexTool()));
@@ -135,9 +137,9 @@ void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(std::make_unique<FaceToolController>(toolBox.faceTool()));
   addToolController(
     std::make_unique<CreateEntityToolController2D>(toolBox.createEntityTool()));
-  addToolController(std::make_unique<SelectionTool>(m_document));
+  addToolController(std::make_unique<SelectionTool>(map));
   addToolController(
-    std::make_unique<DrawShapeToolController2D>(toolBox.drawShapeTool(), m_document));
+    std::make_unique<DrawShapeToolController2D>(toolBox.drawShapeTool(), map));
 }
 
 void MapView2D::connectObservers()
@@ -158,11 +160,11 @@ PickRequest MapView2D::pickRequest(const float x, const float y) const
 
 mdl::PickResult MapView2D::pick(const vm::ray3d& pickRay) const
 {
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = m_document.map();
   const auto axis = vm::find_abs_max_component(pickRay.direction);
 
   auto pickResult = mdl::PickResult::bySize(axis);
-  document->pick(pickRay, pickResult);
+  mdl::pick(map, pickRay, pickResult);
 
   return pickResult;
 }
@@ -182,9 +184,9 @@ void MapView2D::updateViewport(
 vm::vec3d MapView2D::pasteObjectsDelta(
   const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const
 {
-  auto document = kdl::mem_lock(m_document);
-  const auto& grid = document->grid();
-  const auto& worldBounds = document->worldBounds();
+  const auto& map = m_document.map();
+  const auto& grid = map.grid();
+  const auto& worldBounds = map.worldBounds();
 
   const auto& pickRay = MapView2D::pickRay();
 
@@ -205,9 +207,8 @@ bool MapView2D::canSelectTall()
 
 void MapView2D::selectTall()
 {
-  const auto document = kdl::mem_lock(m_document);
-  const vm::axis::type cameraAxis = vm::find_abs_max_component(m_camera->direction());
-  document->selectTall(cameraAxis);
+  const auto cameraAxis = vm::find_abs_max_component(m_camera->direction());
+  selectTouchingNodes(m_document.map(), cameraAxis, true);
 }
 
 void MapView2D::reset2dCameras(const render::Camera& masterCamera, const bool animate)
@@ -233,8 +234,8 @@ void MapView2D::reset2dCameras(const render::Camera& masterCamera, const bool an
 
 void MapView2D::focusCameraOnSelection(const bool animate)
 {
-  const auto document = kdl::mem_lock(m_document);
-  const auto bounds = vm::bbox3f{document->referenceBounds()};
+  const auto& map = m_document.map();
+  const auto bounds = vm::bbox3f{map.referenceBounds()};
   const auto diff = bounds.center() - m_camera->position();
   const auto delta = vm::dot(diff, m_camera->up()) * m_camera->up()
                      + vm::dot(diff, m_camera->right()) * m_camera->right();
@@ -272,12 +273,11 @@ void MapView2D::animateCamera(
 
 void MapView2D::moveCameraToCurrentTracePoint()
 {
-  auto document = kdl::mem_lock(m_document);
-  assert(document->isPointFileLoaded());
+  assert(m_document.isPointFileLoaded());
 
-  if (const auto* pointFile = document->pointFile())
+  if (const auto* pointTrace = m_document.pointTrace())
   {
-    moveCameraToPosition(pointFile->currentPoint(), true);
+    moveCameraToPosition(pointTrace->currentPoint(), true);
   }
 }
 
@@ -334,10 +334,10 @@ vm::vec3d MapView2D::computePointEntityPosition(const vm::bbox3d& bounds) const
 {
   using namespace mdl::HitFilters;
 
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = m_document.map();
 
-  const auto& grid = document->grid();
-  const auto& worldBounds = document->worldBounds();
+  const auto& grid = map.grid();
+  const auto& worldBounds = map.worldBounds();
 
   const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType) && selected());
   if (const auto faceHandle = mdl::hitToFaceHandle(hit))
@@ -347,7 +347,7 @@ vm::vec3d MapView2D::computePointEntityPosition(const vm::bbox3d& bounds) const
   }
   else
   {
-    const auto referenceBounds = document->referenceBounds();
+    const auto referenceBounds = map.referenceBounds();
     const auto& pickRay = MapView2D::pickRay();
 
     const auto toMin = referenceBounds.min - pickRay.origin;
@@ -374,8 +374,8 @@ render::RenderMode MapView2D::renderMode()
 
 void MapView2D::renderGrid(render::RenderContext&, render::RenderBatch& renderBatch)
 {
-  auto document = kdl::mem_lock(m_document);
-  renderBatch.addOneShot(new render::GridRenderer(*m_camera, document->worldBounds()));
+  const auto& map = m_document.map();
+  renderBatch.addOneShot(new render::GridRenderer(*m_camera, map.worldBounds()));
 }
 
 void MapView2D::renderMap(
@@ -385,10 +385,11 @@ void MapView2D::renderMap(
 {
   renderer.render(renderContext, renderBatch);
 
-  auto document = kdl::mem_lock(m_document);
-  if (renderContext.showSelectionGuide() && document->hasSelectedNodes())
+  const auto& map = m_document.map();
+  if (const auto& bounds = map.selectionBounds();
+      bounds && renderContext.showSelectionGuide())
   {
-    auto boundsRenderer = render::SelectionBoundsRenderer{document->selectionBounds()};
+    auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
   }
 }
@@ -406,8 +407,6 @@ void MapView2D::renderSoftWorldBounds(
 {
   if (!renderContext.softMapBounds().is_empty())
   {
-    auto document = kdl::mem_lock(m_document);
-
     auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SoftMapBoundsColor));
     renderService.renderBounds(renderContext.softMapBounds());

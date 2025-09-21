@@ -62,9 +62,13 @@ namespace tb
 class Color;
 }
 
-namespace tb::ui
+namespace tb::mdl
 {
 enum class MapTextEncoding;
+}
+
+namespace tb::ui
+{
 
 class SyncHeightEventFilter : public QObject
 {
@@ -258,8 +262,8 @@ void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
 
 void showModelessDialog(QDialog* dialog);
 
-QString mapStringToUnicode(MapTextEncoding encoding, const std::string& string);
-std::string mapStringFromUnicode(MapTextEncoding encoding, const QString& string);
+QString mapStringToUnicode(mdl::MapTextEncoding encoding, const std::string& string);
+std::string mapStringFromUnicode(mdl::MapTextEncoding encoding, const QString& string);
 
 /**
  * Maps one of Qt::META, Qt::SHIFT, Qt::CTRL, Qt::ALT to the

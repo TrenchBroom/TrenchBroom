@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../../test/src/Catch2.h"
 #include "BenchmarkUtils.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -35,6 +34,8 @@
 #include <string>
 #include <tuple>
 #include <vector>
+
+#include <catch2/catch_test_macros.hpp>
 
 namespace tb::render
 {

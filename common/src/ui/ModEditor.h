@@ -24,7 +24,6 @@
 #include "NotifierConnection.h"
 
 #include <filesystem>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -32,6 +31,11 @@ class QLineEdit;
 class QListWidget;
 class QWidget;
 class QAbstractButton;
+
+namespace tb::mdl
+{
+class Map;
+}
 
 namespace tb::ui
 {
@@ -41,7 +45,7 @@ class ModEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   QListWidget* m_availableModList = nullptr;
   QListWidget* m_enabledModList = nullptr;
@@ -56,7 +60,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit ModEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();
@@ -66,8 +70,8 @@ private slots:
 private:
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 

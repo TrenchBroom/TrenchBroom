@@ -33,12 +33,12 @@ namespace tb::mdl
 {
 class EntityNodeBase;
 class Node;
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
 {
 class MapDocument;
-class Selection;
 class SmartPropertyEditor;
 
 using SmartPropertyEditorMatcher =
@@ -47,7 +47,7 @@ using SmartPropertyEditorMatcher =
 class SmartPropertyEditorManager : public QWidget
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   std::vector<std::tuple<SmartPropertyEditorMatcher, SmartPropertyEditor*>> m_editors;
   std::string m_propertyKey;
@@ -56,8 +56,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit SmartPropertyEditorManager(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartPropertyEditorManager(MapDocument& document, QWidget* parent = nullptr);
 
   void switchEditor(
     const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes);
@@ -70,7 +69,7 @@ private:
 
   void connectObservers();
 
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
 
   SmartPropertyEditor* selectEditor(

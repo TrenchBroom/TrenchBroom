@@ -27,12 +27,11 @@
 #include <QPushButton>
 #include <QStackedLayout>
 
-#include "ui/MapDocument.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "ui/QtUtils.h"
 #include "ui/ScaleTool.h"
 #include "ui/ViewConstants.h"
-
-#include "kdl/memory_utils.h"
 
 #include "vm/vec.h"
 
@@ -42,9 +41,9 @@
 namespace tb::ui
 {
 
-ScaleToolPage::ScaleToolPage(std::weak_ptr<MapDocument> document, QWidget* parent)
+ScaleToolPage::ScaleToolPage(mdl::Map& map, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_map{map}
 {
   createGui();
   connectObservers();
@@ -53,17 +52,13 @@ ScaleToolPage::ScaleToolPage(std::weak_ptr<MapDocument> document, QWidget* paren
 
 void ScaleToolPage::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &ScaleToolPage::selectionDidChange);
+  m_notifierConnection +=
+    m_map.selectionDidChangeNotifier.connect(this, &ScaleToolPage::selectionDidChange);
 }
 
 void ScaleToolPage::activate()
 {
-  const auto document = kdl::mem_lock(m_document);
-  const auto suggestedSize = document->hasSelectedNodes()
-                               ? document->selectionBounds().size()
-                               : vm::vec3d{0, 0, 0};
+  const auto suggestedSize = m_map.selectionBounds().value_or(vm::bbox3d{}).size();
 
   m_sizeTextBox->setText(toString(suggestedSize));
   m_factorsTextBox->setText(toString(vm::vec3d{1, 1, 1}));
@@ -71,8 +66,6 @@ void ScaleToolPage::activate()
 
 void ScaleToolPage::createGui()
 {
-  auto document = kdl::mem_lock(m_document);
-
   auto* text = new QLabel{tr("Scale objects")};
 
   m_book = new QStackedLayout{};
@@ -113,33 +106,33 @@ void ScaleToolPage::createGui()
 
 void ScaleToolPage::updateGui()
 {
-  auto document = kdl::mem_lock(m_document);
   m_button->setEnabled(canScale());
 }
 
 bool ScaleToolPage::canScale() const
 {
-  return kdl::mem_lock(m_document)->hasSelectedNodes();
+  return m_map.selection().hasNodes();
 }
 
 std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
 {
   switch (m_scaleFactorsOrSize->currentIndex())
   {
-  case 0: {
-    auto document = kdl::mem_lock(m_document);
-    if (const auto desiredSize = parse<double, 3>(m_sizeTextBox->text()))
+  case 0:
+    if (const auto& selectionBounds = m_map.selectionBounds())
     {
-      return *desiredSize / document->selectionBounds().size();
+      if (const auto desiredSize = parse<double, 3>(m_sizeTextBox->text()))
+      {
+        return *desiredSize / selectionBounds->size();
+      }
     }
     return std::nullopt;
-  }
   default:
     return parse<double, 3>(m_factorsTextBox->text());
   }
 }
 
-void ScaleToolPage::selectionDidChange(const Selection&)
+void ScaleToolPage::selectionDidChange(const mdl::SelectionChange&)
 {
   updateGui();
 }
@@ -150,9 +143,10 @@ void ScaleToolPage::applyScale()
   {
     if (const auto scaleFactors = getScaleFactors())
     {
-      auto document = kdl::mem_lock(m_document);
-      const auto box = document->selectionBounds();
-      document->scale(box.center(), *scaleFactors);
+      if (const auto& selectionBounds = m_map.selectionBounds())
+      {
+        scaleSelection(m_map, selectionBounds->center(), *scaleFactors);
+      }
     }
   }
 }

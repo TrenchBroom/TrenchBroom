@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapFixture.h"
+#include "TestUtils.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -24,247 +26,496 @@
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Game.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
+#include "mdl/Map_Picking.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 #include "render/OrthographicCamera.h"
 #include "ui/InputState.h"
-#include "ui/MapDocumentTest.h"
 #include "ui/PickRequest.h"
 #include "ui/SelectionTool.h"
 
 #include "kdl/result.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::ui
 {
 
-TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
+TEST_CASE("SelectionTool")
 {
-  const auto* world = document->world();
-  auto builder = mdl::BrushBuilder{
-    world->mapFormat(),
-    document->worldBounds(),
-    document->game()->config().faceAttribsConfig.defaults};
+  auto fixture = mdl::MapFixture{};
+  auto& map = fixture.map();
+  fixture.create();
 
-  auto tool = SelectionTool{document};
-
-  GIVEN("A group node")
+  SECTION("clicking")
   {
-    auto* brushNode =
-      new mdl::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
-    auto* groupNode = new mdl::GroupNode(mdl::Group{"some_group"});
+    const auto* world = map.world();
+    auto builder = mdl::BrushBuilder{
+      world->mapFormat(),
+      map.worldBounds(),
+      map.game()->config().faceAttribsConfig.defaults};
 
-    document->addNodes({{document->parentForNodes(), {groupNode}}});
-    document->addNodes({{groupNode, {brushNode, entityNode}}});
+    auto tool = SelectionTool{map};
 
-    auto camera = render::OrthographicCamera{};
-
-    AND_GIVEN("A pick ray that points at the top face of the brush")
+    GIVEN("A group node")
     {
-      camera.moveTo({0, 0, 32});
-      camera.setDirection({0, 0, -1}, {0, 1, 0});
+      auto* brushNode =
+        new mdl::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
+      auto* groupNode = new mdl::GroupNode(mdl::Group{"some_group"});
 
-      const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{groupNode, {brushNode, entityNode}}});
 
-      auto pickResult = mdl::PickResult{};
-      document->pick(pickRay, pickResult);
-      REQUIRE(pickResult.all().size() == 1);
+      auto camera = render::OrthographicCamera{};
 
-      REQUIRE(document->selectedBrushFaces().empty());
-
-      auto inputState = InputState{};
-      inputState.setPickRequest({pickRay, camera});
-      inputState.setPickResult(std::move(pickResult));
-
-      WHEN("I click once")
+      AND_GIVEN("A pick ray that points at the top face of the brush")
       {
-        inputState.mouseDown(MouseButtons::Left);
-        tool.mouseClick(inputState);
-        inputState.mouseUp(MouseButtons::Left);
+        camera.moveTo({0, 0, 32});
+        camera.setDirection({0, 0, -1}, {0, 1, 0});
 
-        THEN("The group gets selected")
+        const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+        auto pickResult = mdl::PickResult{};
+        pick(map, pickRay, pickResult);
+        REQUIRE(pickResult.all().size() == 1);
+
+        REQUIRE(map.selection().brushFaces.empty());
+
+        auto inputState = InputState{};
+        inputState.setPickRequest({pickRay, camera});
+        inputState.setPickResult(std::move(pickResult));
+
+        WHEN("I click once")
         {
-          CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == mdl::NodeCollection{{groupNode}});
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The group gets selected")
+          {
+            CHECK(map.selection().brushFaces.empty());
+            CHECK(map.selection() == mdl::makeSelection({groupNode}));
+          }
+        }
+
+        WHEN("I double click")
+        {
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseDoubleClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The group is opened")
+          {
+            CHECK(map.selection().brushFaces.empty());
+            CHECK_FALSE(map.selection().hasNodes());
+            CHECK(map.editorContext().currentGroup() == groupNode);
+          }
         }
       }
+    }
 
-      WHEN("I double click")
+    GIVEN("A brush node and an entity node")
+    {
+      auto brush = builder.createCube(
+                     32.0,
+                     "left_face",
+                     "right_face",
+                     "front_face",
+                     "back_face",
+                     "top_face",
+                     "bottom_face")
+                   | kdl::value();
+      auto* brushNode = new mdl::BrushNode{std::move(brush)};
+
+      const auto topFaceIndex = *brushNode->brush().findFace("top_face");
+      const auto frontFaceIndex = *brushNode->brush().findFace("front_face");
+
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
+
+      addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
+
+      auto camera = render::OrthographicCamera{};
+
+      AND_GIVEN("A pick ray that points at the top face of the brush")
       {
-        inputState.mouseDown(MouseButtons::Left);
-        tool.mouseDoubleClick(inputState);
-        inputState.mouseUp(MouseButtons::Left);
+        camera.moveTo({0, 0, 32});
+        camera.setDirection({0, 0, -1}, {0, 1, 0});
 
-        THEN("The group is opened")
+        const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+        auto pickResult = mdl::PickResult{};
+        pick(map, pickRay, pickResult);
+        REQUIRE(pickResult.all().size() == 1);
+
+        REQUIRE(map.selection().brushFaces.empty());
+
+        auto inputState = InputState{};
+        inputState.setPickRequest({pickRay, camera});
+        inputState.setPickResult(std::move(pickResult));
+
+        WHEN("I shift click once")
         {
-          CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes().empty());
-          CHECK(document->currentGroup() == groupNode);
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The top face get selected")
+          {
+            CHECK(
+              map.selection().brushFaces
+              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+            CHECK_FALSE(map.selection().hasNodes());
+          }
+
+          AND_WHEN("I shift click on the selected face again")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The top face remains selected")
+            {
+              CHECK(
+                map.selection().brushFaces
+                == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
+
+          AND_WHEN("I shift+ctrl click on the selected face again")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The top face gets deselected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
+        }
+
+        WHEN("I click once")
+        {
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The brush gets selected")
+          {
+            CHECK(map.selection().brushFaces.empty());
+            CHECK(map.selection() == mdl::makeSelection({brushNode}));
+          }
+
+          AND_WHEN("I click on the selected brushagain")
+          {
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The brush remains selected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(map.selection() == mdl::makeSelection({brushNode}));
+            }
+          }
+
+          AND_WHEN("I ctrl click on the selected brush again")
+          {
+            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The brush gets deselected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
+        }
+
+        WHEN("I shift double click")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseDoubleClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("All brush faces are selected")
+          {
+            CHECK(map.selection().brushFaces.size() == 6);
+            CHECK_FALSE(map.selection().hasNodes());
+          }
+        }
+
+        WHEN("I double click")
+        {
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseDoubleClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("All nodes are selected")
+          {
+            CHECK(map.selection().brushFaces.empty());
+            CHECK(map.selection() == mdl::makeSelection({brushNode, entityNode}));
+          }
+        }
+
+        AND_GIVEN("The front face of the brush is selected")
+        {
+          selectBrushFaces(map, {{brushNode, frontFaceIndex}});
+
+          WHEN("I shift click once")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The top face get selected")
+            {
+              CHECK(
+                map.selection().brushFaces
+                == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
+
+          WHEN("I shift+ctrl click once")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("Both the front and the top faces are selected")
+            {
+              CHECK_THAT(
+                map.selection().brushFaces,
+                Catch::Matchers::UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
+                  {brushNode, topFaceIndex}, {brushNode, frontFaceIndex}}));
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
+
+          WHEN("I click once")
+          {
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The brush gets selected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(map.selection() == mdl::makeSelection({brushNode}));
+            }
+          }
+
+          WHEN("I ctrl click once")
+          {
+            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The brush gets selected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(map.selection() == mdl::makeSelection({brushNode}));
+            }
+          }
+        }
+
+        AND_GIVEN("The entity is selected")
+        {
+          selectNodes(map, {entityNode});
+
+          WHEN("I shift click once")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The top face get selected")
+            {
+              CHECK(
+                map.selection().brushFaces
+                == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
+
+          WHEN("I shift+ctrl click once")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The top face get selected")
+            {
+              CHECK(
+                map.selection().brushFaces
+                == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
+
+          WHEN("I click once")
+          {
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The brush gets selected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(map.selection() == mdl::makeSelection({brushNode}));
+            }
+          }
+
+          WHEN("I ctrl click once")
+          {
+            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The brush and entity both get selected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(map.selection() == mdl::makeSelection({brushNode, entityNode}));
+            }
+          }
+        }
+
+        AND_GIVEN("The top face is hidden")
+        {
+
+          auto hiddenTag = mdl::Tag{"hidden", {}};
+
+          auto newBrush = brushNode->brush();
+          newBrush.face(topFaceIndex).addTag(hiddenTag);
+          updateNodeContents(
+            map, "Set Tag", {{brushNode, mdl::NodeContents{std::move(newBrush)}}});
+
+          REQUIRE(brushNode->brush().face(topFaceIndex).hasTag(hiddenTag));
+
+          map.editorContext().setHiddenTags(hiddenTag.type());
+          REQUIRE_FALSE(map.editorContext().visible(
+            *brushNode, brushNode->brush().face(topFaceIndex)));
+
+          WHEN("I shift click once")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("Nothing happens")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
+
+          WHEN("I click once")
+          {
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("Nothing happens")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK_FALSE(map.selection().hasNodes());
+            }
+          }
         }
       }
     }
   }
 
-  GIVEN("A brush node and an entity node")
+  SECTION("clickingThroughHidden")
   {
-    auto brush = builder.createCube(
-                   32.0,
-                   "left_face",
-                   "right_face",
-                   "front_face",
-                   "back_face",
-                   "top_face",
-                   "bottom_face")
-                 | kdl::value();
-    auto* brushNode = new mdl::BrushNode{std::move(brush)};
+    const auto* world = map.world();
+    auto builder = mdl::BrushBuilder{
+      world->mapFormat(),
+      map.worldBounds(),
+      map.game()->config().faceAttribsConfig.defaults};
 
-    const auto topFaceIndex = *brushNode->brush().findFace("top_face");
-    const auto frontFaceIndex = *brushNode->brush().findFace("front_face");
+    auto tool = SelectionTool{map};
 
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
-
-    document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
-
-    auto camera = render::OrthographicCamera{};
-
-    AND_GIVEN("A pick ray that points at the top face of the brush")
+    GIVEN("A brush visible behind the hidden face of another brush")
     {
-      camera.moveTo({0, 0, 32});
-      camera.setDirection({0, 0, -1}, {0, 1, 0});
+      auto visibleBrush = builder.createCube(
+                            32.0,
+                            "left_face",
+                            "right_face",
+                            "front_face",
+                            "back_face",
+                            "top_face",
+                            "bottom_face")
+                          | kdl::value();
+      auto* visibleBrushNode = new mdl::BrushNode{std::move(visibleBrush)};
+      const auto visibleTopFaceIndex = *visibleBrushNode->brush().findFace("top_face");
 
-      const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+      auto hiddenBrush = builder.createCube(
+                           64.0,
+                           "left_face",
+                           "right_face",
+                           "front_face",
+                           "back_face",
+                           "top_face",
+                           "bottom_face")
+                         | kdl::value();
+      auto* hiddenBrushNode = new mdl::BrushNode{std::move(hiddenBrush)};
+      const auto hiddenTopFaceIndex = *hiddenBrushNode->brush().findFace("top_face");
 
-      auto pickResult = mdl::PickResult{};
-      document->pick(pickRay, pickResult);
-      REQUIRE(pickResult.all().size() == 1);
+      addNodes(map, {{parentForNodes(map), {visibleBrushNode, hiddenBrushNode}}});
 
-      REQUIRE(document->selectedBrushFaces().empty());
+      const auto hiddenTag = mdl::Tag{"hidden", {}};
+      auto taggedBrush = hiddenBrushNode->brush();
+      taggedBrush.face(hiddenTopFaceIndex).addTag(hiddenTag);
+      updateNodeContents(
+        map, "Set Tag", {{hiddenBrushNode, mdl::NodeContents{std::move(taggedBrush)}}});
 
-      auto inputState = InputState{};
-      inputState.setPickRequest({pickRay, camera});
-      inputState.setPickResult(std::move(pickResult));
+      map.editorContext().setHiddenTags(hiddenTag.type());
 
-      WHEN("I shift click once")
+      REQUIRE(hiddenBrushNode->brush().face(hiddenTopFaceIndex).hasTag(hiddenTag));
+      CHECK_FALSE(map.editorContext().visible(
+        *hiddenBrushNode, hiddenBrushNode->brush().face(hiddenTopFaceIndex)));
+
+      auto camera = render::OrthographicCamera{};
+      AND_GIVEN("A pick ray that points at the top face of the brushes")
       {
-        inputState.setModifierKeys(ModifierKeys::Shift);
-        inputState.mouseDown(MouseButtons::Left);
-        tool.mouseClick(inputState);
-        inputState.mouseUp(MouseButtons::Left);
+        camera.moveTo({0, 0, 128});
+        camera.setDirection({0, 0, -1}, {0, 1, 0});
 
-        THEN("The top face get selected")
-        {
-          CHECK(
-            document->selectedBrushFaces()
-            == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-          CHECK(document->selectedNodes().empty());
-        }
+        const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
 
-        AND_WHEN("I shift click on the selected face again")
-        {
-          inputState.setModifierKeys(ModifierKeys::Shift);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
+        auto pickResult = mdl::PickResult{};
+        pick(map, pickRay, pickResult);
+        CHECK(pickResult.all().size() == 2);
+        REQUIRE(map.selection().brushFaces.empty());
 
-          THEN("The top face remains selected")
-          {
-            CHECK(
-              document->selectedBrushFaces()
-              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK(document->selectedNodes().empty());
-          }
-        }
-
-        AND_WHEN("I shift+ctrl click on the selected face again")
-        {
-          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("The top face gets deselected")
-          {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes().empty());
-          }
-        }
-      }
-
-      WHEN("I click once")
-      {
-        inputState.mouseDown(MouseButtons::Left);
-        tool.mouseClick(inputState);
-        inputState.mouseUp(MouseButtons::Left);
-
-        THEN("The brush gets selected")
-        {
-          CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
-        }
-
-        AND_WHEN("I click on the selected brushagain")
-        {
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("The brush remains selected")
-          {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
-          }
-        }
-
-        AND_WHEN("I ctrl click on the selected brush again")
-        {
-          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("The brush gets deselected")
-          {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes().empty());
-          }
-        }
-      }
-
-      WHEN("I shift double click")
-      {
-        inputState.setModifierKeys(ModifierKeys::Shift);
-        inputState.mouseDown(MouseButtons::Left);
-        tool.mouseDoubleClick(inputState);
-        inputState.mouseUp(MouseButtons::Left);
-
-        THEN("All brush faces are selected")
-        {
-          CHECK(document->selectedBrushFaces().size() == 6);
-          CHECK(document->selectedNodes().empty());
-        }
-      }
-
-      WHEN("I double click")
-      {
-        inputState.mouseDown(MouseButtons::Left);
-        tool.mouseDoubleClick(inputState);
-        inputState.mouseUp(MouseButtons::Left);
-
-        THEN("All nodes are selected")
-        {
-          CHECK(document->selectedBrushFaces().empty());
-          CHECK(
-            document->selectedNodes() == mdl::NodeCollection{{brushNode, entityNode}});
-        }
-      }
-
-      AND_GIVEN("The front face of the brush is selected")
-      {
-        document->selectBrushFaces({{brushNode, frontFaceIndex}});
+        auto inputState = InputState{};
+        inputState.setPickRequest({pickRay, camera});
+        inputState.setPickResult(std::move(pickResult));
 
         WHEN("I shift click once")
         {
@@ -273,29 +524,13 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
 
-          THEN("The top face get selected")
+          THEN("The top face of the visible brush get selected")
           {
+            CHECK_FALSE(map.selection().hasNodes());
             CHECK(
-              document->selectedBrushFaces()
-              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK(document->selectedNodes().empty());
-          }
-        }
-
-        WHEN("I shift+ctrl click once")
-        {
-          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("Both the front and the top faces are selected")
-          {
-            CHECK_THAT(
-              document->selectedBrushFaces(),
-              Catch::Matchers::UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
-                {brushNode, topFaceIndex}, {brushNode, frontFaceIndex}}));
-            CHECK(document->selectedNodes().empty());
+              map.selection().brushFaces
+              == std::vector<mdl::BrushFaceHandle>{
+                {visibleBrushNode, visibleTopFaceIndex}});
           }
         }
 
@@ -305,133 +540,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
 
-          THEN("The brush gets selected")
+          THEN("The visible brush gets selected")
           {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
-          }
-        }
-
-        WHEN("I ctrl click once")
-        {
-          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("The brush gets selected")
-          {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
-          }
-        }
-      }
-
-      AND_GIVEN("The entity is selected")
-      {
-        document->selectNodes({entityNode});
-
-        WHEN("I shift click once")
-        {
-          inputState.setModifierKeys(ModifierKeys::Shift);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("The top face get selected")
-          {
-            CHECK(
-              document->selectedBrushFaces()
-              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK(document->selectedNodes().empty());
-          }
-        }
-
-        WHEN("I shift+ctrl click once")
-        {
-          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("The top face get selected")
-          {
-            CHECK(
-              document->selectedBrushFaces()
-              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK(document->selectedNodes().empty());
-          }
-        }
-
-        WHEN("I click once")
-        {
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("The brush gets selected")
-          {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
-          }
-        }
-
-        WHEN("I ctrl click once")
-        {
-          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("The brush and entity both get selected")
-          {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(
-              document->selectedNodes() == mdl::NodeCollection{{entityNode, brushNode}});
-          }
-        }
-      }
-
-      AND_GIVEN("The top face is hidden")
-      {
-
-        auto hiddenTag = mdl::Tag{"hidden", {}};
-
-        auto newBrush = brushNode->brush();
-        newBrush.face(topFaceIndex).addTag(hiddenTag);
-        document->swapNodeContents(
-          "Set Tag", {{brushNode, mdl::NodeContents{std::move(newBrush)}}});
-
-        REQUIRE(brushNode->brush().face(topFaceIndex).hasTag(hiddenTag));
-
-        document->editorContext().setHiddenTags(hiddenTag.type());
-        REQUIRE_FALSE(document->editorContext().visible(
-          brushNode, brushNode->brush().face(topFaceIndex)));
-
-        WHEN("I shift click once")
-        {
-          inputState.setModifierKeys(ModifierKeys::Shift);
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("Nothing happens")
-          {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes().empty());
-          }
-        }
-
-        WHEN("I click once")
-        {
-          inputState.mouseDown(MouseButtons::Left);
-          tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::Left);
-
-          THEN("Nothing happens")
-          {
-            CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes().empty());
+            CHECK(map.selection().brushFaces.empty());
+            CHECK(map.selection() == mdl::makeSelection({visibleBrushNode}));
           }
         }
       }
@@ -439,104 +551,4 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clickingThroughHidden")
-{
-  const auto* world = document->world();
-  auto builder = mdl::BrushBuilder{
-    world->mapFormat(),
-    document->worldBounds(),
-    document->game()->config().faceAttribsConfig.defaults};
-
-  auto tool = SelectionTool{document};
-
-  GIVEN("A brush visible behind the hidden face of another brush")
-  {
-    auto visibleBrush = builder.createCube(
-                          32.0,
-                          "left_face",
-                          "right_face",
-                          "front_face",
-                          "back_face",
-                          "top_face",
-                          "bottom_face")
-                        | kdl::value();
-    auto* visibleBrushNode = new mdl::BrushNode{std::move(visibleBrush)};
-    const auto visibleTopFaceIndex = *visibleBrushNode->brush().findFace("top_face");
-
-    auto hiddenBrush = builder.createCube(
-                         64.0,
-                         "left_face",
-                         "right_face",
-                         "front_face",
-                         "back_face",
-                         "top_face",
-                         "bottom_face")
-                       | kdl::value();
-    auto* hiddenBrushNode = new mdl::BrushNode{std::move(hiddenBrush)};
-    const auto hiddenTopFaceIndex = *hiddenBrushNode->brush().findFace("top_face");
-
-    document->addNodes(
-      {{document->parentForNodes(), {visibleBrushNode, hiddenBrushNode}}});
-
-    const auto hiddenTag = mdl::Tag{"hidden", {}};
-    auto taggedBrush = hiddenBrushNode->brush();
-    taggedBrush.face(hiddenTopFaceIndex).addTag(hiddenTag);
-    document->swapNodeContents(
-      "Set Tag", {{hiddenBrushNode, mdl::NodeContents{std::move(taggedBrush)}}});
-
-    document->editorContext().setHiddenTags(hiddenTag.type());
-
-    REQUIRE(hiddenBrushNode->brush().face(hiddenTopFaceIndex).hasTag(hiddenTag));
-    CHECK_FALSE(document->editorContext().visible(
-      hiddenBrushNode, hiddenBrushNode->brush().face(hiddenTopFaceIndex)));
-
-    auto camera = render::OrthographicCamera{};
-    AND_GIVEN("A pick ray that points at the top face of the brushes")
-    {
-      camera.moveTo({0, 0, 128});
-      camera.setDirection({0, 0, -1}, {0, 1, 0});
-
-      const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
-
-      auto pickResult = mdl::PickResult{};
-      document->pick(pickRay, pickResult);
-      CHECK(pickResult.all().size() == 2);
-      REQUIRE(document->selectedBrushFaces().empty());
-
-      auto inputState = InputState{};
-      inputState.setPickRequest({pickRay, camera});
-      inputState.setPickResult(std::move(pickResult));
-
-      WHEN("I shift click once")
-      {
-        inputState.setModifierKeys(ModifierKeys::Shift);
-        inputState.mouseDown(MouseButtons::Left);
-        tool.mouseClick(inputState);
-        inputState.mouseUp(MouseButtons::Left);
-
-        THEN("The top face of the visible brush get selected")
-        {
-          CHECK(document->selectedNodes().empty());
-          CHECK(
-            document->selectedBrushFaces()
-            == std::vector<mdl::BrushFaceHandle>{
-              {visibleBrushNode, visibleTopFaceIndex}});
-        }
-      }
-
-      WHEN("I click once")
-      {
-        inputState.mouseDown(MouseButtons::Left);
-        tool.mouseClick(inputState);
-        inputState.mouseUp(MouseButtons::Left);
-
-        THEN("The visible brush gets selected")
-        {
-          CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == mdl::NodeCollection{{visibleBrushNode}});
-        }
-      }
-    }
-  }
-}
 } // namespace tb::ui

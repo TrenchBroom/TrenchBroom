@@ -32,7 +32,6 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-#include <memory>
 #include <variant>
 #include <vector>
 
@@ -41,9 +40,12 @@ namespace tb
 namespace mdl
 {
 class BrushFace;
+class Grid;
 class Hit;
+class Map;
 class Node;
 class PickResult;
+struct SelectionChange;
 } // namespace mdl
 
 namespace render
@@ -53,9 +55,6 @@ class Camera;
 
 namespace ui
 {
-class Grid;
-class MapDocument;
-class Selection;
 
 /**
  * Similar to mdl::BrushFaceHandle but caches the Brush state at the beginning of the
@@ -113,7 +112,8 @@ public:
   static const mdl::HitType::Type ExtrudeHitType;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
+
   /**
    * Propsed drag handles for the next drag. Should only be accessed when m_dragging is
    * false. This needs to be cached here so that it is shared between multiple views.
@@ -125,11 +125,11 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ExtrudeTool(std::weak_ptr<MapDocument> document);
+  explicit ExtrudeTool(mdl::Map& map);
 
   bool applies() const;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   mdl::Hit pick2D(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) const;
   mdl::Hit pick3D(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) const;
@@ -160,7 +160,7 @@ public:
 private:
   void connectObservers();
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
 };
 } // namespace ui
 } // namespace tb

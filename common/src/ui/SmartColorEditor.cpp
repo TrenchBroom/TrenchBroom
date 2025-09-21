@@ -32,11 +32,12 @@
 #include "mdl/EntityNodeBase.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/ColorButton.h"
 #include "ui/ColorTable.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -104,8 +105,8 @@ std::vector<QColor> collectColors(
 
 } // namespace
 
-SmartColorEditor::SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor{std::move(document), parent}
+SmartColorEditor::SmartColorEditor(MapDocument& document, QWidget* parent)
+  : SmartPropertyEditor{document, parent}
 {
   createGui();
 }
@@ -203,32 +204,31 @@ void SmartColorEditor::updateColorRange(const std::vector<mdl::EntityNodeBase*>&
 
 void SmartColorEditor::updateColorHistory()
 {
-  m_colorHistory->setColors(
-    collectColors(std::vector{document()->world()}, propertyKey()));
+  m_colorHistory->setColors(collectColors(std::vector{map().world()}, propertyKey()));
 
   const auto selectedColors =
-    collectColors(document()->allSelectedEntityNodes(), propertyKey());
+    collectColors(map().selection().allEntities(), propertyKey());
   m_colorHistory->setSelection(selectedColors);
   m_colorPicker->setColor(
     !selectedColors.empty() ? selectedColors.back() : QColor(Qt::black));
 }
 
-void SmartColorEditor::setColor(const QColor& color) const
+void SmartColorEditor::setColor(const QColor& color)
 {
   const auto colorRange =
     m_floatRadio->isChecked() ? mdl::ColorRange::Float : mdl::ColorRange::Byte;
   const auto value = mdl::entityColorAsString(fromQColor(color), colorRange);
-  document()->setProperty(propertyKey(), value);
+  setEntityProperty(map(), propertyKey(), value);
 }
 
 void SmartColorEditor::floatRangeRadioButtonClicked()
 {
-  document()->convertEntityColorRange(propertyKey(), mdl::ColorRange::Float);
+  convertEntityColorRange(map(), propertyKey(), mdl::ColorRange::Float);
 }
 
 void SmartColorEditor::byteRangeRadioButtonClicked()
 {
-  document()->convertEntityColorRange(propertyKey(), mdl::ColorRange::Byte);
+  convertEntityColorRange(map(), propertyKey(), mdl::ColorRange::Byte);
 }
 
 void SmartColorEditor::colorPickerChanged(const QColor& color)

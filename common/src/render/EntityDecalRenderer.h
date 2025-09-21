@@ -26,7 +26,6 @@
 #include "render/GLVertexType.h"
 #include "render/Renderable.h"
 
-#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -35,15 +34,11 @@ namespace tb::mdl
 class BrushFace;
 class BrushNode;
 class EntityNode;
+class Map;
 class Material;
 class Node;
 struct DecalSpecification;
 } // namespace tb::mdl
-
-namespace tb::ui
-{
-class MapDocument; // FIXME: Renderer should not depend on View
-} // namespace tb::ui
 
 namespace tb::render
 {
@@ -68,7 +63,7 @@ private:
   using EntityWithDependenciesMap =
     std::unordered_map<const mdl::EntityNode*, EntityDecalData>;
 
-  std::weak_ptr<ui::MapDocument> m_document;
+  mdl::Map& m_map;
   EntityWithDependenciesMap m_entities;
 
   using Vertex = render::GLVertexTypes::P3NT2::Vertex;
@@ -81,7 +76,7 @@ private:
   Color m_faceColor;
 
 public:
-  explicit EntityDecalRenderer(std::weak_ptr<ui::MapDocument> document);
+  explicit EntityDecalRenderer(mdl::Map& map);
 
   /**
    * Equivalent to updateNode() on all added nodes.

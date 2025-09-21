@@ -22,7 +22,6 @@
 #include "ui/CameraLinkHelper.h"
 #include "ui/MapViewContainer.h"
 
-#include <memory>
 #include <vector>
 
 class QStackedLayout;
@@ -56,7 +55,7 @@ public:
   static constexpr auto View_ALL = View_3D | View_2D;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   std::vector<MapViewBase*> m_mapViews;
   MapViewBase* m_currentMapView = nullptr;
@@ -65,7 +64,7 @@ private:
 
 public:
   CyclingMapView(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     MapViewToolBox& toolBox,
     render::MapRenderer& mapRenderer,
     GLContextManager& contextManager,

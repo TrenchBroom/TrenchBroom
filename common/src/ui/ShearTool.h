@@ -29,13 +29,14 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-#include <memory>
 #include <optional>
 
 namespace tb::mdl
 {
+class Grid;
+class Map;
 class PickResult;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -44,8 +45,6 @@ class Camera;
 
 namespace tb::ui
 {
-class Grid;
-class MapDocument;
 
 class ShearTool : public Tool
 {
@@ -53,7 +52,7 @@ public:
   static const mdl::HitType::Type ShearToolSideHitType;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
   bool m_resizing = false;
   bool m_constrainVertical = false;
   vm::bbox3d m_bboxAtDragStart;
@@ -61,10 +60,10 @@ private:
   vm::vec3d m_dragCumulativeDelta;
 
 public:
-  explicit ShearTool(std::weak_ptr<MapDocument> document);
+  explicit ShearTool(mdl::Map& map);
   ~ShearTool() override;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   bool applies() const;
 

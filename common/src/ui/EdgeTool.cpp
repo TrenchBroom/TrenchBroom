@@ -19,22 +19,23 @@
 
 #include "EdgeTool.h"
 
-#include "kdl/memory_utils.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
+
 #include "kdl/string_format.h"
 
 namespace tb::ui
 {
 
-EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document)
-  : VertexToolBase{std::move(document)}
+EdgeTool::EdgeTool(mdl::Map& map)
+  : VertexToolBase{map}
 {
 }
 
 std::vector<mdl::BrushNode*> EdgeTool::findIncidentBrushes(
   const vm::segment3d& handle) const
 {
-  auto document = kdl::mem_lock(m_document);
-  return findIncidentBrushes(document->edgeHandles(), handle);
+  return findIncidentBrushes(handleManager(), handle);
 }
 
 void EdgeTool::pick(
@@ -42,20 +43,17 @@ void EdgeTool::pick(
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
-  auto document = kdl::mem_lock(m_document);
-  document->edgeHandles().pickCenterHandle(pickRay, camera, pickResult);
+  handleManager().pickCenterHandle(pickRay, camera, pickResult);
 }
 
-EdgeHandleManager& EdgeTool::handleManager()
+mdl::EdgeHandleManager& EdgeTool::handleManager()
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->edgeHandles();
+  return m_map.edgeHandles();
 }
 
-const EdgeHandleManager& EdgeTool::handleManager() const
+const mdl::EdgeHandleManager& EdgeTool::handleManager() const
 {
-  auto document = kdl::mem_lock(m_document);
-  return document->edgeHandles();
+  return m_map.edgeHandles();
 }
 
 std::tuple<vm::vec3d, vm::vec3d> EdgeTool::handlePositionAndHitPoint(
@@ -64,18 +62,16 @@ std::tuple<vm::vec3d, vm::vec3d> EdgeTool::handlePositionAndHitPoint(
   assert(!hits.empty());
 
   const auto& hit = hits.front();
-  assert(hit.hasType(EdgeHandleManager::HandleHitType));
+  assert(hit.hasType(mdl::EdgeHandleManager::HandleHitType));
 
   return {hit.target<vm::segment3d>().center(), hit.hitPoint()};
 }
 
 EdgeTool::MoveResult EdgeTool::move(const vm::vec3d& delta)
 {
-  auto document = kdl::mem_lock(m_document);
-
-  auto handles = document->edgeHandles().selectedHandles();
+  auto handles = m_map.edgeHandles().selectedHandles();
   const auto transform = vm::translation_matrix(delta);
-  if (document->transformEdges(std::move(handles), transform))
+  if (transformEdges(m_map, std::move(handles), transform))
   {
     m_dragHandlePosition = m_dragHandlePosition.transform(transform);
     return MoveResult::Continue;
@@ -85,16 +81,13 @@ EdgeTool::MoveResult EdgeTool::move(const vm::vec3d& delta)
 
 std::string EdgeTool::actionName() const
 {
-  auto document = kdl::mem_lock(m_document);
   return kdl::str_plural(
-    document->edgeHandles().selectedHandleCount(), "Move Edge", "Move Edges");
+    handleManager().selectedHandleCount(), "Move Edge", "Move Edges");
 }
 
 void EdgeTool::removeSelection()
 {
-  auto document = kdl::mem_lock(m_document);
-
-  const auto handles = document->edgeHandles().selectedHandles();
+  const auto handles = m_map.edgeHandles().selectedHandles();
   auto vertexPositions = std::vector<vm::vec3d>{};
   vertexPositions.reserve(2 * vertexPositions.size());
   vm::segment3d::get_vertices(
@@ -102,7 +95,7 @@ void EdgeTool::removeSelection()
 
   const auto commandName =
     kdl::str_plural(handles.size(), "Remove Brush Edge", "Remove Brush Edges");
-  kdl::mem_lock(m_document)->removeVertices(commandName, std::move(vertexPositions));
+  removeVertices(m_map, commandName, std::move(vertexPositions));
 }
 
 } // namespace tb::ui

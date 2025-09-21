@@ -46,7 +46,8 @@ private:
 
   bool m_blockSelection;
 
-  GroupNode* m_currentGroup;
+  LayerNode* m_currentLayer = nullptr;
+  GroupNode* m_currentGroup = nullptr;
 
 public:
   Notifier<> editorContextDidChangeNotifier;
@@ -59,7 +60,7 @@ public:
   TagType::Type hiddenTags() const;
   void setHiddenTags(TagType::Type hiddenTags);
 
-  bool entityDefinitionHidden(const EntityNodeBase* entityNode) const;
+  bool entityDefinitionHidden(const EntityNodeBase& entityNode) const;
   bool entityDefinitionHidden(const EntityDefinition& definition) const;
   void setEntityDefinitionHidden(const EntityDefinition& definition, bool hidden);
 
@@ -67,38 +68,41 @@ public:
   void setBlockSelection(bool blockSelection);
 
 public:
+  LayerNode* currentLayer() const;
+  void setCurrentLayer(LayerNode* layerNode);
+
   GroupNode* currentGroup() const;
-  void pushGroup(GroupNode* groupNode);
+  void pushGroup(GroupNode& groupNode);
   void popGroup();
 
 public:
-  bool visible(const Node* node) const;
-  bool visible(const WorldNode* worldNode) const;
-  bool visible(const LayerNode* layerNode) const;
-  bool visible(const GroupNode* groupNode) const;
-  bool visible(const EntityNode* entityNode) const;
-  bool visible(const BrushNode* brushNode) const;
-  bool visible(const BrushNode* brushNode, const BrushFace& face) const;
-  bool visible(const PatchNode* patchNode) const;
+  bool visible(const Node& node) const;
+  bool visible(const WorldNode& worldNode) const;
+  bool visible(const LayerNode& layerNode) const;
+  bool visible(const GroupNode& groupNode) const;
+  bool visible(const EntityNode& entityNode) const;
+  bool visible(const BrushNode& brushNode) const;
+  bool visible(const BrushNode& brushNode, const BrushFace& face) const;
+  bool visible(const PatchNode& patchNode) const;
 
 private:
-  bool anyChildVisible(const Node* node) const;
+  bool anyChildVisible(const Node& node) const;
 
 public:
-  bool editable(const Node* node) const;
-  bool editable(const BrushNode* brushNode, const BrushFace& face) const;
+  bool editable(const Node& node) const;
+  bool editable(const BrushNode& brushNode, const BrushFace& face) const;
 
-  bool selectable(const Node* node) const;
-  bool selectable(const WorldNode* worldNode) const;
-  bool selectable(const LayerNode* layerNode) const;
-  bool selectable(const GroupNode* groupNode) const;
-  bool selectable(const EntityNode* entityNode) const;
-  bool selectable(const BrushNode* brushNode) const;
-  bool selectable(const BrushNode* brushNode, const BrushFace& face) const;
-  bool selectable(const PatchNode* patchNode) const;
+  bool selectable(const Node& node) const;
+  bool selectable(const WorldNode& worldNode) const;
+  bool selectable(const LayerNode& layerNode) const;
+  bool selectable(const GroupNode& groupNode) const;
+  bool selectable(const EntityNode& entityNode) const;
+  bool selectable(const BrushNode& brushNode) const;
+  bool selectable(const BrushNode& brushNode, const BrushFace& face) const;
+  bool selectable(const PatchNode& patchNode) const;
 
   bool canChangeSelection() const;
-  bool inOpenGroup(const Object* object) const;
+  bool inOpenGroup(const Object& object) const;
 
 private:
   EditorContext(const EditorContext&);

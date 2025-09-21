@@ -25,7 +25,6 @@
 #include "mdl/TagType.h"
 
 #include <filesystem>
-#include <memory>
 #include <vector>
 
 class QCheckBox;
@@ -35,9 +34,11 @@ class QButtonGroup;
 namespace tb::mdl
 {
 class EditorContext;
-struct EntityDefinition;
 class EntityDefinitionManager;
+class Map;
 class SmartTag;
+
+struct EntityDefinition;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -79,7 +80,7 @@ class ViewEditor : public QWidget
 private:
   using CheckBoxList = std::vector<QCheckBox*>;
 
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   QCheckBox* m_showEntityClassnamesCheckBox = nullptr;
 
@@ -107,12 +108,13 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ViewEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit ViewEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void connectObservers();
 
-  void documentWasNewedOrLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void editorContextDidChange();
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
@@ -159,8 +161,7 @@ private:
   ViewEditor* m_editor = nullptr;
 
 public:
-  explicit ViewPopupEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit ViewPopupEditor(MapDocument& document, QWidget* parent = nullptr);
 };
 
 } // namespace tb::ui

@@ -24,7 +24,6 @@
 
 #include "vm/bbox.h"
 
-#include <memory>
 #include <optional>
 #include <vector>
 
@@ -36,8 +35,9 @@ class QRadioButton;
 
 namespace tb::mdl
 {
+class Map;
 class Node;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -52,14 +52,14 @@ private:
   CollapsibleTitledPanel* m_modEditor = nullptr;
 
 public:
-  explicit MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit MapInspector(MapDocument& document, QWidget* parent = nullptr);
   ~MapInspector() override;
 
 private:
-  void createGui(std::weak_ptr<MapDocument> document);
-  QWidget* createLayerEditor(std::weak_ptr<MapDocument> document);
-  CollapsibleTitledPanel* createMapPropertiesEditor(std::weak_ptr<MapDocument> document);
-  CollapsibleTitledPanel* createModEditor(std::weak_ptr<MapDocument> document);
+  void createGui(MapDocument& document);
+  QWidget* createLayerEditor(MapDocument& document);
+  CollapsibleTitledPanel* createMapPropertiesEditor(MapDocument& document);
+  CollapsibleTitledPanel* createModEditor(MapDocument& document);
 };
 
 /**
@@ -69,7 +69,7 @@ class MapPropertiesEditor : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   bool m_updatingGui = false;
 
   QRadioButton* m_softBoundsDisabled = nullptr;
@@ -83,8 +83,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapPropertiesEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit MapPropertiesEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   std::optional<vm::bbox3d> parseLineEdits();
@@ -93,8 +92,8 @@ private:
 private:
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void updateGui();
 };

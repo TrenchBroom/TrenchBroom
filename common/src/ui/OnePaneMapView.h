@@ -21,8 +21,6 @@
 
 #include "ui/MultiPaneMapView.h"
 
-#include <memory>
-
 namespace tb::render
 {
 class MapRenderer;
@@ -38,13 +36,13 @@ class MapViewToolBox;
 class OnePaneMapView : public MultiPaneMapView
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   CyclingMapView* m_mapView = nullptr;
 
 public:
   explicit OnePaneMapView(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     MapViewToolBox& toolBox,
     render::MapRenderer& mapRenderer,
     GLContextManager& contextManager,

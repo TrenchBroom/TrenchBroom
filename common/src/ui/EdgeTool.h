@@ -27,6 +27,7 @@
 namespace tb::mdl
 {
 class BrushNode;
+class Map;
 class PickResult;
 } // namespace tb::mdl
 
@@ -37,10 +38,11 @@ class Camera;
 
 namespace tb::ui
 {
+
 class EdgeTool : public VertexToolBase<vm::segment3d>
 {
 public:
-  explicit EdgeTool(std::weak_ptr<MapDocument> document);
+  explicit EdgeTool(mdl::Map& map);
 
 public:
   std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
@@ -55,8 +57,8 @@ public:
     mdl::PickResult& pickResult) const override;
 
 public:
-  EdgeHandleManager& handleManager() override;
-  const EdgeHandleManager& handleManager() const override;
+  mdl::EdgeHandleManager& handleManager() override;
+  const mdl::EdgeHandleManager& handleManager() const override;
 
 public:
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(

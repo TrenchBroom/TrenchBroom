@@ -25,23 +25,22 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/FlagsEditor.h"
-#include "ui/MapDocument.h"
 #include "ui/ViewUtils.h"
 
 #include "kdl/set_temp.h"
 #include "kdl/string_utils.h"
 
 #include <cassert>
-#include <memory>
 #include <vector>
 
 namespace tb::ui
 {
 
-SmartFlagsEditor::SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor{std::move(document), parent}
+SmartFlagsEditor::SmartFlagsEditor(MapDocument& document, QWidget* parent)
+  : SmartPropertyEditor{document, parent}
 {
   createGui();
 }
@@ -177,7 +176,7 @@ void SmartFlagsEditor::flagChanged(
   {
     const auto ignoreUpdates = kdl::set_temp{m_ignoreUpdates};
     const auto set = m_flagsEditor->isFlagSet(index);
-    document()->updateSpawnflag(propertyKey(), index, set);
+    updateEntitySpawnflag(map(), propertyKey(), index, set);
   }
 }
 

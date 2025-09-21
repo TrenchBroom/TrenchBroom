@@ -27,7 +27,6 @@
 #include "ui/ToolBoxConnector.h"
 
 #include <filesystem>
-#include <memory>
 #include <utility>
 #include <vector>
 
@@ -39,10 +38,14 @@ class QAction;
 namespace tb::mdl
 {
 struct EntityDefinition;
+class Command;
 class GroupNode;
+class Map;
 class Node;
-class NodeCollection;
+struct Selection;
+struct SelectionChange;
 class SmartTag;
+class UndoableCommand;
 enum class EntityDefinitionType;
 } // namespace tb::mdl
 
@@ -61,13 +64,10 @@ namespace tb::ui
 {
 class Action;
 class AnimationManager;
-class Command;
 class MapDocument;
 class MapViewToolBox;
-class Selection;
 class SignalDelayer;
 class Tool;
-class UndoableCommand;
 
 class MapViewBase : public RenderView,
                     public MapView,
@@ -79,7 +79,7 @@ public:
   static const int DefaultCameraAnimationDuration;
 
 protected:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   MapViewToolBox& m_toolBox;
   render::MapRenderer& m_renderer;
 
@@ -104,7 +104,7 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    std::weak_ptr<MapDocument> document,
+    MapDocument& document,
     MapViewToolBox& toolBox,
     render::MapRenderer& renderer,
     GLContextManager& contextManager);
@@ -117,7 +117,7 @@ protected:
    * This must be called exactly once, at the end of subclasses's constructors.
    * (Does virtual function calls, so we can't call it in the MapViewBase constructor.)
    *
-   * On normal app startup, these tasks are handled by documentDidChange(),
+   * On normal app startup, these tasks are handled the mapWas* callbacks,
    * but when changing map view layouts (e.g. 1 pane to 2 pane) there are
    * no document notifications to handle these tasks, so it must be done by the
    * constructor.
@@ -140,9 +140,9 @@ private:
 
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void toolChanged(Tool& tool);
-  void commandDone(Command& command);
-  void commandUndone(UndoableCommand& command);
-  void selectionDidChange(const Selection& selection);
+  void commandDone(mdl::Command& command);
+  void commandUndone(mdl::UndoableCommand& command);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void materialCollectionsDidChange();
   void entityDefinitionsDidChange();
   void modsDidChange();
@@ -151,7 +151,9 @@ private:
   void pointFileDidChange();
   void portalFileDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void documentDidChange(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
+  void mapWasCleared(mdl::Map& map);
 
 private: // shortcut setup
   void createActions();
@@ -216,8 +218,7 @@ public: // reparenting objects
   mdl::Node* findNewGroupForObjects(const std::vector<mdl::Node*>& nodes) const;
 
   void mergeSelectedGroups();
-  mdl::GroupNode* findGroupToMergeGroupsInto(
-    const mdl::NodeCollection& selectedNodes) const;
+  mdl::GroupNode* findGroupToMergeGroupsInto(const mdl::Selection& selection) const;
 
   /**
    * Checks whether the given node can be reparented under the given new parent.

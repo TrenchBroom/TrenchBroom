@@ -23,11 +23,14 @@
 
 #include "NotifierConnection.h"
 
-#include <memory>
-
 class QPushButton;
 class QListWidget;
 class QLabel;
+
+namespace tb::mdl
+{
+class Map;
+}
 
 namespace tb::ui
 {
@@ -56,7 +59,7 @@ class EntityDefinitionFileChooser : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   SingleSelectionListWidget* m_builtin = nullptr;
   QLabel* m_externalLabel = nullptr;
@@ -66,8 +69,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityDefinitionFileChooser(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit EntityDefinitionFileChooser(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();
@@ -75,8 +77,8 @@ private:
 
   void connectObservers();
 
-  void documentWasNewed(MapDocument* document);
-  void documentWasLoaded(MapDocument* document);
+  void mapWasCreated(mdl::Map& map);
+  void mapWasLoaded(mdl::Map& map);
   void entityDefinitionsDidChange();
 
   void updateControls();

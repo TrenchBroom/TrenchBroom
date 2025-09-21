@@ -24,6 +24,11 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::render
 {
 class Camera;
@@ -34,7 +39,6 @@ class RenderContext;
 namespace tb::ui
 {
 class GestureTracker;
-class MapDocument;
 class ShearTool;
 
 class ShearToolController : public ToolController
@@ -43,10 +47,10 @@ protected:
   ShearTool& m_tool;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
 public:
-  explicit ShearToolController(ShearTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ShearToolController(ShearTool& tool, mdl::Map& map);
   ~ShearToolController() override;
 
 private:
@@ -77,7 +81,7 @@ private:
 class ShearToolController2D : public ShearToolController
 {
 public:
-  explicit ShearToolController2D(ShearTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ShearToolController2D(ShearTool& tool, mdl::Map& map);
 
 private:
   void doPick(
@@ -89,7 +93,7 @@ private:
 class ShearToolController3D : public ShearToolController
 {
 public:
-  explicit ShearToolController3D(ShearTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ShearToolController3D(ShearTool& tool, mdl::Map& map);
 
 private:
   void doPick(

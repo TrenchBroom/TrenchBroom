@@ -21,7 +21,6 @@
 
 #include "ui/SmartPropertyEditor.h"
 
-#include <memory>
 #include <vector>
 
 class QString;
@@ -45,8 +44,7 @@ private:
   bool m_ignoreUpdates = false;
 
 public:
-  explicit SmartFlagsEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartFlagsEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();

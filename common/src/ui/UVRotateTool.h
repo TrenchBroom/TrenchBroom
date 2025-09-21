@@ -48,11 +48,11 @@ public:
   static const mdl::HitType::Type AngleHandleHitType;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   UVViewHelper& m_helper;
 
 public:
-  UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
+  UVRotateTool(MapDocument& document, UVViewHelper& helper);
 
 private:
   Tool& tool() override;

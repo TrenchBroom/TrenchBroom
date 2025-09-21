@@ -37,7 +37,7 @@ namespace tb::ui
 {
 
 CompilationProfileManager::CompilationProfileManager(
-  std::weak_ptr<MapDocument> document, mdl::CompilationConfig config, QWidget* parent)
+  MapDocument& document, mdl::CompilationConfig config, QWidget* parent)
   : QWidget{parent}
   , m_config{std::move(config)}
 {
@@ -47,8 +47,7 @@ CompilationProfileManager::CompilationProfileManager(
   auto* editorPanel = new TitledPanel{"Details"};
 
   m_profileList = new CompilationProfileListBox{m_config, listPanel->getPanel()};
-  m_profileEditor =
-    new CompilationProfileEditor{std::move(document), editorPanel->getPanel()};
+  m_profileEditor = new CompilationProfileEditor{document, editorPanel->getPanel()};
 
   auto* addProfileButton = createBitmapButton("Add.svg", "Add profile");
   m_removeProfileButton = createBitmapButton("Remove.svg", "Remove the selected profile");

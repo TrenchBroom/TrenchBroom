@@ -1,5 +1,4 @@
-name: Pull request
-# This workflow is triggered on pull requests for the repository.
+name: Check Commits
 on: [pull_request]
 
 jobs:

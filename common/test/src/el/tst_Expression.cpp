@@ -32,7 +32,13 @@
 
 #include "catch/Matchers.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+
+#if !defined(__clang__) && defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wparentheses"
+#endif
 
 namespace tb::el
 {
@@ -1205,3 +1211,7 @@ TEST_CASE("Expression")
 }
 
 } // namespace tb::el
+
+#if !defined(__clang__) && defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif

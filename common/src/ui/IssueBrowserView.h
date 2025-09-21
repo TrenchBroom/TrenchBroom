@@ -24,7 +24,6 @@
 
 #include "mdl/IssueType.h"
 
-#include <memory>
 #include <vector>
 
 class QWidget;
@@ -47,7 +46,7 @@ class IssueBrowserView : public QWidget
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
 
   int m_hiddenIssueTypes = 0;
   bool m_showHiddenIssues = false;
@@ -58,8 +57,7 @@ private:
   IssueBrowserModel* m_tableModel = nullptr;
 
 public:
-  explicit IssueBrowserView(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit IssueBrowserView(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();

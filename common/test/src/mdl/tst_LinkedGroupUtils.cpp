@@ -44,7 +44,8 @@
 
 #include "catch/Matchers.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::mdl
 {
@@ -98,7 +99,7 @@ std::unordered_map<const Node*, std::string> getLinkIds(const Node& node)
   return result;
 }
 
-class LinkIdMatcher : public Catch::MatcherBase<const WorldNode&>
+class LinkIdMatcher : public Catch::Matchers::MatcherBase<const WorldNode&>
 {
   std::vector<std::vector<const Node*>> m_expected;
 
@@ -173,12 +174,12 @@ TEST_CASE("collectLinkedGroups")
   setLinkId(*groupNode2, "group2");
 
   auto* linkedGroupNode1_1 =
-    static_cast<mdl::GroupNode*>(groupNode1->cloneRecursively(worldBounds));
+    static_cast<GroupNode*>(groupNode1->cloneRecursively(worldBounds));
 
   auto* linkedGroupNode2_1 =
-    static_cast<mdl::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+    static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds));
   auto* linkedGroupNode2_2 =
-    static_cast<mdl::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+    static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds));
 
   worldNode.defaultLayer()->addChild(groupNode1);
   worldNode.defaultLayer()->addChild(groupNode2);
@@ -192,15 +193,15 @@ TEST_CASE("collectLinkedGroups")
 
   CHECK_THAT(
     collectGroupsWithLinkId({&worldNode}, "asdf"),
-    Catch::Matchers::UnorderedEquals(std::vector<mdl::GroupNode*>{}));
+    Catch::Matchers::UnorderedEquals(std::vector<GroupNode*>{}));
   CHECK_THAT(
     collectGroupsWithLinkId({&worldNode}, "group1"),
     Catch::Matchers::UnorderedEquals(
-      std::vector<mdl::GroupNode*>{groupNode1, linkedGroupNode1_1}));
+      std::vector<GroupNode*>{groupNode1, linkedGroupNode1_1}));
   CHECK_THAT(
     collectGroupsWithLinkId({&worldNode}, "group2"),
     Catch::Matchers::UnorderedEquals(
-      std::vector<mdl::GroupNode*>{groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
+      std::vector<GroupNode*>{groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
 }
 
 TEST_CASE("updateLinkedGroups")
@@ -523,7 +524,7 @@ TEST_CASE("updateLinkedGroups")
       static_cast<EntityNode*>(targetGroupNode->children().front());
     REQUIRE_THAT(
       targetEntityNode->entity().properties(),
-      Catch::Equals(sourceEntityNode->entity().properties()));
+      Catch::Matchers::Equals(sourceEntityNode->entity().properties()));
 
     using T = std::tuple<
       std::vector<std::string>,
@@ -645,10 +646,11 @@ TEST_CASE("updateLinkedGroups")
 
           CHECK_THAT(
             newEntityNode->entity().properties(),
-            Catch::UnorderedEquals(expectedTargetProperties));
+            Catch::Matchers::UnorderedEquals(expectedTargetProperties));
           CHECK_THAT(
             newEntityNode->entity().protectedProperties(),
-            Catch::UnorderedEquals(targetEntityNode->entity().protectedProperties()));
+            Catch::Matchers::UnorderedEquals(
+              targetEntityNode->entity().protectedProperties()));
         })
       | kdl::transform_error([](const auto&) { FAIL(); });
   }
@@ -703,12 +705,12 @@ TEST_CASE("updateLinkedGroups")
 
           CHECK_THAT(
             newEntityNode->entity().properties(),
-            Catch::UnorderedEquals(std::vector<EntityProperty>{
+            Catch::Matchers::UnorderedEquals(std::vector<EntityProperty>{
               {"light", "500"},
             }));
           CHECK_THAT(
             newEntityNode->entity().protectedProperties(),
-            Catch::UnorderedEquals(std::vector<std::string>{"light"}));
+            Catch::Matchers::UnorderedEquals(std::vector<std::string>{"light"}));
         })
       | kdl::transform_error([](const auto&) { FAIL(); });
   }
@@ -955,7 +957,7 @@ TEST_CASE("initializeLinkIds")
 
       CHECK_THAT(
         initializeLinkIds({&worldNode}),
-        Catch::UnorderedEquals(std::vector{
+        Catch::Matchers::UnorderedEquals(std::vector{
           Error{"Inconsistent linked group structure"},
           Error{"Inconsistent linked group structure"}}));
 
@@ -1013,7 +1015,7 @@ TEST_CASE("initializeLinkIds")
 
       CHECK_THAT(
         initializeLinkIds({&worldNode}),
-        Catch::UnorderedEquals(std::vector{
+        Catch::Matchers::UnorderedEquals(std::vector{
           Error{"Inconsistent linked group structure"},
           Error{"Inconsistent linked group structure"}}));
 

@@ -17,19 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "render/OrthographicCamera.h"
-#include "ui/Grid.h"
 #include "ui/HandleDragTracker.h"
 
 #include "vm/approx.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <tuple>
 #include <vector>
 
-#include "Catch2.h" // IWYU pragma: keep
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::ui
 {
@@ -620,7 +622,7 @@ TEST_CASE("makeRelativeHandleSnapper")
 
   CAPTURE(initialHandlePosition, proposedHandlePosition, gridSize);
 
-  const auto grid = Grid{gridSize};
+  const auto grid = mdl::Grid{gridSize};
   CHECK(
     makeRelativeHandleSnapper(grid)(
       InputState{},
@@ -646,7 +648,7 @@ TEST_CASE("makeAbsoluteHandleSnapper")
 
   CAPTURE(proposedHandlePosition, gridSize);
 
-  const auto grid = Grid{gridSize};
+  const auto grid = mdl::Grid{gridSize};
   CHECK(
     makeAbsoluteHandleSnapper(grid)(
       InputState{},
@@ -674,7 +676,7 @@ TEST_CASE("makeRelativeLineHandleSnapper")
 
   CAPTURE(initialHandlePosition, proposedHandlePosition, gridSize, line);
 
-  const auto grid = Grid{gridSize};
+  const auto grid = mdl::Grid{gridSize};
   CHECK(
     makeRelativeLineHandleSnapper(grid, line)(
       InputState{},
@@ -701,7 +703,7 @@ TEST_CASE("makeAbsoluteLineHandleSnapper")
 
   CAPTURE(proposedHandlePosition, gridSize, line);
 
-  const auto grid = Grid{gridSize};
+  const auto grid = mdl::Grid{gridSize};
   CHECK(
     makeAbsoluteLineHandleSnapper(grid, line)(
       InputState{},
@@ -726,7 +728,7 @@ TEST_CASE("makeCircleHandleSnapper")
 
   CAPTURE(initialHandlePosition, proposedHandlePosition, snapAngle);
 
-  const auto grid = Grid{4};
+  const auto grid = mdl::Grid{4};
   const auto center = vm::vec3d{0, 0, 0};
   const auto normal = vm::vec3d{0, 0, 1};
   const auto radius = 10.0;

@@ -30,6 +30,9 @@ TrenchBroom depends on Qt version 6.7. It might work with later versions, but ea
 
 Note the path where Qt was installed. For example, on Windows the default installation path would look like `C:\Qt\6.7.3\`. We will refer to this path later on as `<QT_INSTALL_DIR>`.
 
+> [!IMPORTANT]
+> You need to build against Qt 6.9 on macOS 26.
+
 ---
 
 ## Docker
@@ -100,6 +103,9 @@ If you have a debian-based distribution, open a command prompt and execute this 
 sudo apt-get install g++ libxi-dev libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libglew-dev libxrandr-dev build-essential libglm-dev libxxf86vm-dev libfreetype6-dev libfreeimage-dev libtinyxml2-dev pandoc cmake p7zip-full ninja-build curl
 ```
 
+> [!IMPORTANT]
+> You need to use GCC 13 or later to compile TrenchBroom.
+
 ### Build TrenchBroom
 
 Create a subdirectory in TrenchBroom directory called `build`.
@@ -126,6 +132,9 @@ cmake --build . --target TrenchBroom
 ### Prerequisites
 
 In order to develop, debug and compile TrenchBroom, you need to install tools listed below.
+
+> [!IMPORTANT]
+> You need to build against Qt 6.9 on macOS 26.
 
 #### Xcode
 

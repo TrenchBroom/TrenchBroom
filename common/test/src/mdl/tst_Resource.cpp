@@ -23,7 +23,8 @@
 
 #include "kdl/reflection_impl.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::mdl
 {

@@ -23,19 +23,17 @@
 #include "mdl/BrushBuilder.h"
 #include "ui/DrawShapeToolExtension.h"
 
-#include <memory>
 #include <vector>
 
 class QWidget;
 
 namespace tb::ui
 {
-class MapDocument;
 
 class DrawShapeToolCuboidExtension : public DrawShapeToolExtension
 {
 public:
-  explicit DrawShapeToolCuboidExtension(std::weak_ptr<MapDocument> document);
+  explicit DrawShapeToolCuboidExtension(mdl::Map& map);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
@@ -73,9 +71,7 @@ class DrawShapeToolCylinderShapeExtensionPage
 {
 public:
   explicit DrawShapeToolCylinderShapeExtensionPage(
-    std::weak_ptr<MapDocument> document,
-    ShapeParameters& parameters,
-    QWidget* parent = nullptr);
+    mdl::Map& map, ShapeParameters& parameters, QWidget* parent = nullptr);
 
 private:
   ShapeParameters& m_parameters;
@@ -86,7 +82,7 @@ private:
 class DrawShapeToolCylinderExtension : public DrawShapeToolExtension
 {
 public:
-  explicit DrawShapeToolCylinderExtension(std::weak_ptr<MapDocument> document);
+  explicit DrawShapeToolCylinderExtension(mdl::Map& map);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
@@ -100,9 +96,7 @@ class DrawShapeToolConeShapeExtensionPage : public DrawShapeToolCircularShapeExt
 {
 public:
   explicit DrawShapeToolConeShapeExtensionPage(
-    std::weak_ptr<MapDocument> document,
-    ShapeParameters& parameters,
-    QWidget* parent = nullptr);
+    mdl::Map& map, ShapeParameters& parameters, QWidget* parent = nullptr);
 
 private:
   ShapeParameters& m_parameters;
@@ -112,7 +106,7 @@ private:
 class DrawShapeToolConeExtension : public DrawShapeToolExtension
 {
 public:
-  explicit DrawShapeToolConeExtension(std::weak_ptr<MapDocument> document);
+  explicit DrawShapeToolConeExtension(mdl::Map& map);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
@@ -126,9 +120,7 @@ class DrawShapeToolIcoSphereShapeExtensionPage : public DrawShapeToolExtensionPa
 {
 public:
   explicit DrawShapeToolIcoSphereShapeExtensionPage(
-    std::weak_ptr<MapDocument> document,
-    ShapeParameters& parameters,
-    QWidget* parent = nullptr);
+    mdl::Map& map, ShapeParameters& parameters, QWidget* parent = nullptr);
 
 private:
   ShapeParameters& m_parameters;
@@ -139,7 +131,7 @@ private:
 class DrawShapeToolIcoSphereExtension : public DrawShapeToolExtension
 {
 public:
-  explicit DrawShapeToolIcoSphereExtension(std::weak_ptr<MapDocument> document);
+  explicit DrawShapeToolIcoSphereExtension(mdl::Map& map);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
@@ -154,9 +146,7 @@ class DrawShapeToolUVSphereShapeExtensionPage
 {
 public:
   explicit DrawShapeToolUVSphereShapeExtensionPage(
-    std::weak_ptr<MapDocument> document,
-    ShapeParameters& parameters,
-    QWidget* parent = nullptr);
+    mdl::Map& map, ShapeParameters& parameters, QWidget* parent = nullptr);
 
 private:
   ShapeParameters& m_parameters;
@@ -167,7 +157,7 @@ private:
 class DrawShapeToolUVSphereExtension : public DrawShapeToolExtension
 {
 public:
-  explicit DrawShapeToolUVSphereExtension(std::weak_ptr<MapDocument> document);
+  explicit DrawShapeToolUVSphereExtension(mdl::Map& map);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
@@ -178,6 +168,6 @@ public:
 };
 
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(
-  std::weak_ptr<MapDocument> document);
+  mdl::Map& map);
 
 } // namespace tb::ui

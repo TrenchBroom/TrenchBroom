@@ -24,6 +24,11 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::render
 {
 class Camera;
@@ -33,7 +38,6 @@ class RenderContext;
 
 namespace tb::ui
 {
-class MapDocument;
 class ScaleTool;
 
 class ScaleToolController : public ToolController
@@ -42,10 +46,10 @@ protected:
   ScaleTool& m_tool;
 
 private:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
 public:
-  explicit ScaleToolController(ScaleTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ScaleToolController(ScaleTool& tool, mdl::Map& map);
   ~ScaleToolController() override;
 
 private:
@@ -79,7 +83,7 @@ private:
 class ScaleToolController2D : public ScaleToolController
 {
 public:
-  explicit ScaleToolController2D(ScaleTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ScaleToolController2D(ScaleTool& tool, mdl::Map& map);
 
 private:
   void doPick(
@@ -91,7 +95,7 @@ private:
 class ScaleToolController3D : public ScaleToolController
 {
 public:
-  explicit ScaleToolController3D(ScaleTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ScaleToolController3D(ScaleTool& tool, mdl::Map& map);
 
 private:
   void doPick(

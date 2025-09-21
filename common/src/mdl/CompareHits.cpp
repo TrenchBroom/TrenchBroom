@@ -80,7 +80,7 @@ int CompareHitsBySize::doCompare(const Hit& lhs, const Hit& rhs) const
 
 double CompareHitsBySize::getSize(const Hit& hit) const
 {
-  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
+  if (const auto faceHandle = hitToFaceHandle(hit))
   {
     return faceHandle->face().projectedArea(m_axis);
   }

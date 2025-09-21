@@ -21,7 +21,6 @@
 
 #include <QStringList>
 
-#include <memory>
 #include <string>
 
 class QWidget;
@@ -39,9 +38,9 @@ class MapDocument;
 void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
 bool loadEntityDefinitionFile(
-  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
+  MapDocument& document, QWidget* parent, const QString& path);
 size_t loadEntityDefinitionFile(
-  std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
+  MapDocument& document, QWidget* parent, const QStringList& pathStrs);
 
 std::string queryGroupName(QWidget* parent, const std::string& suggestion);
 std::string queryLayerName(QWidget* parent, const std::string& suggestion);

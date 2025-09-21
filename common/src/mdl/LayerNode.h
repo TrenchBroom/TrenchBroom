@@ -61,6 +61,7 @@ public:
    * Stable sort the given vector using `sortIndex()` as the sort key.
    */
   static void sortLayers(std::vector<LayerNode*>& layers);
+  static void sortLayers(std::vector<const LayerNode*>& layers);
 
   const std::optional<IdType>& persistentId() const;
   void setPersistentId(IdType persistentId);

@@ -75,7 +75,7 @@ void EntityModelManager::reloadShaders(kdl::task_manager& taskManager)
   }
 }
 
-void EntityModelManager::setGame(const mdl::Game* game, kdl::task_manager& taskManager)
+void EntityModelManager::setGame(const Game* game, kdl::task_manager& taskManager)
 {
   clear();
   m_game = game;

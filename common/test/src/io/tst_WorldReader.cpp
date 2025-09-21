@@ -43,7 +43,9 @@
 #include <filesystem>
 #include <string>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::io
 {
@@ -56,7 +58,7 @@ TEST_CASE("WorldReader")
   const auto worldBounds = vm::bbox3d{8192.0};
   auto status = TestParserStatus{};
 
-  SECTION("parseEmptyMap")
+  SECTION("Empty map")
   {
     const auto data = "";
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
@@ -70,7 +72,7 @@ TEST_CASE("WorldReader")
     CHECK_FALSE(world->children().front()->hasChildren());
   }
 
-  SECTION("parseMapWithEmptyEntity")
+  SECTION("Empty entity")
   {
     const auto data = "{}";
 
@@ -85,7 +87,7 @@ TEST_CASE("WorldReader")
     CHECK(world->children().front()->childCount() == 1u);
   }
 
-  SECTION("parseMapWithWorldspawn")
+  SECTION("Worldspawn entity")
   {
     const auto data = R"(
 {
@@ -117,7 +119,7 @@ TEST_CASE("WorldReader")
     CHECK(!defaultLayer->layer().omitFromExport());
   }
 
-  SECTION("parseDefaultLayerProperties")
+  SECTION("Default layer properties")
   {
     const auto data = R"(
 {
@@ -147,7 +149,7 @@ TEST_CASE("WorldReader")
     CHECK(defaultLayer->layer().omitFromExport());
   }
 
-  SECTION("parseMapWithWorldspawnAndOneMoreEntity")
+  SECTION("Worldspawn and one entity")
   {
     const auto data = R"(
 {
@@ -189,7 +191,7 @@ TEST_CASE("WorldReader")
     CHECK(*entityNode->entity().property("angle") == " -1 ");
   }
 
-  SECTION("parseMapWithWorldspawnAndOneBrush")
+  SECTION("Worldspawn and one brush")
   {
     const auto data = R"(
 {
@@ -269,7 +271,7 @@ TEST_CASE("WorldReader")
       != nullptr);
   }
 
-  SECTION("parseMapAndCheckFaceFlags")
+  SECTION("Map and check face flags")
   {
     const auto data = R"(
 {
@@ -312,7 +314,7 @@ TEST_CASE("WorldReader")
     CHECK(face->attributes().yScale() == -0.55f);
   }
 
-  SECTION("parseBrushWithCurlyBraceInMaterialName")
+  SECTION("Curly brace in material name")
   {
     const auto data = R"(
 {
@@ -386,7 +388,7 @@ TEST_CASE("WorldReader")
       != nullptr);
   }
 
-  SECTION("parseValveBrush")
+  SECTION("Valve220 brush")
   {
     const auto data = R"(
 {
@@ -414,7 +416,7 @@ TEST_CASE("WorldReader")
     checkBrushUVCoordSystem(brush, true);
   }
 
-  SECTION("parseQuake2Brush")
+  SECTION("Quake 2 brush format")
   {
     const auto data = R"(
 {
@@ -482,7 +484,7 @@ TEST_CASE("WorldReader")
     }
   }
 
-  SECTION("parseQuake2ValveBrush")
+  SECTION("Quake 2 Valve220 brush format")
   {
     const auto data = R"(
 {
@@ -512,7 +514,7 @@ TEST_CASE("WorldReader")
     checkBrushUVCoordSystem(brush, true);
   }
 
-  SECTION("parseQuake3ValveBrush")
+  SECTION("Quake 3 Valve220 brush format")
   {
     const auto data = R"(
 {
@@ -542,7 +544,7 @@ TEST_CASE("WorldReader")
     checkBrushUVCoordSystem(brush, true);
   }
 
-  SECTION("parseDaikatanaBrush")
+  SECTION("Daikatana brush format")
   {
     const auto data = R"(
 {
@@ -589,7 +591,7 @@ TEST_CASE("WorldReader")
     CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
   }
 
-  SECTION("parseDaikatanaMapHeader")
+  SECTION("Daikatana map header")
   {
     const auto data = R"(
 ////////////////////////////////////////////////////////////
@@ -633,7 +635,7 @@ TEST_CASE("WorldReader")
     checkBrushUVCoordSystem(brush, false);
   }
 
-  SECTION("parseQuakeBrushWithNumericalMaterialName")
+  SECTION("Standard brush with numeric material name")
   {
     const auto data = R"(
 {
@@ -661,7 +663,7 @@ TEST_CASE("WorldReader")
     checkBrushUVCoordSystem(brush, false);
   }
 
-  SECTION("parseBrushesWithLayer")
+  SECTION("Layer with brushes")
   {
     const auto data = R"(
 {
@@ -722,7 +724,7 @@ TEST_CASE("WorldReader")
     CHECK(!myLayerNode->locked());
   }
 
-  SECTION("parseLayersWithReverseSort")
+  SECTION("Ordered layers")
   {
     const auto data = R"(
 {
@@ -780,7 +782,7 @@ TEST_CASE("WorldReader")
     CHECK(!sortNode1->layer().omitFromExport());
   }
 
-  SECTION("parseLayersWithReversedSortIndicesWithGaps")
+  SECTION("Ordered layers with gaps")
   {
     const auto data = R"(
 {
@@ -838,9 +840,9 @@ TEST_CASE("WorldReader")
     CHECK(sortNode5->layer().sortIndex() == 5);
   }
 
-  SECTION("parseLayersWithSortIndicesWithGapsAndDuplicates")
+  SECTION("Ordered layers with gaps and duplicates")
   {
-    const std::string data = R"end(
+    const auto data = R"end(
 {
 "classname" "worldspawn"
 }
@@ -934,7 +936,7 @@ TEST_CASE("WorldReader")
     CHECK(sortNode12->layer().sortIndex() == 12);
   }
 
-  SECTION("parseEntitiesAndBrushesWithLayer")
+  SECTION("Layer with entity and brushes")
   {
     const auto data = R"(
 {
@@ -995,7 +997,7 @@ TEST_CASE("WorldReader")
     CHECK(world->children().back()->children().back()->childCount() == 1u);
   }
 
-  SECTION("parseEntitiesAndBrushesWithGroup")
+  SECTION("Grouped entities and brushes")
   {
     const auto data = R"(
 {
@@ -1077,7 +1079,7 @@ TEST_CASE("WorldReader")
     CHECK(mySubGroup->childCount() == 1u);
   }
 
-  SECTION("parseLayersAndGroupsAndRetainIds")
+  SECTION("Parsed groups and layers retain their IDs")
   {
     const auto data = R"(
 {
@@ -1132,7 +1134,7 @@ TEST_CASE("WorldReader")
     CHECK(groupNode2->persistentId() == 22u);
   }
 
-  SECTION("parseBrushPrimitive")
+  SECTION("Brush primitive")
   {
     const auto data = R"(
             {
@@ -1161,7 +1163,7 @@ TEST_CASE("WorldReader")
     CHECK(world->defaultLayer()->childCount() == 0u);
   }
 
-  SECTION("parseBrushPrimitiveAndLegacyBrush")
+  SECTION("Brush primitive and legacy brush")
   {
     const auto data = R"(
 {
@@ -1198,7 +1200,7 @@ brushDef
     CHECK(world->defaultLayer()->childCount() == 1u);
   }
 
-  SECTION("parseQuake3Patch")
+  SECTION("Quake 3 patch")
   {
     const auto data = R"(
 {
@@ -1238,7 +1240,7 @@ common/caulk
 
     CHECK_THAT(
       patch.controlPoints(),
-      Catch::Equals(std::vector<mdl::BezierPatch::Point>{
+      Catch::Matchers::Equals(std::vector<mdl::BezierPatch::Point>{
         {-64, -64, 4, 0, 0},
         {-64, 0, 4, 0, -0.25},
         {-64, 64, 4, 0, -0.5},
@@ -1257,7 +1259,7 @@ common/caulk
       }));
   }
 
-  SECTION("parseMultipleClassnames")
+  SECTION("Multiple classnames")
   {
     // See https://github.com/TrenchBroom/TrenchBroom/issues/1485
 
@@ -1273,7 +1275,7 @@ common/caulk
     CHECK_NOTHROW(reader.read(worldBounds, status, taskManager));
   }
 
-  SECTION("parseEscapedDoubleQuotationMarks")
+  SECTION("Escaped double quotation marks")
   {
     const auto data = R"(
 {
@@ -1296,7 +1298,7 @@ common/caulk
     CHECK(*worldNode->entity().property("message") == "yay \\\"Mr. Robot!\\\"");
   }
 
-  SECTION("parsePropertyWithUnescapedPathAndTrailingBackslash")
+  SECTION("Property with unescaped path and trailing backslash")
   {
     const auto data = R"(
 {
@@ -1319,7 +1321,7 @@ common/caulk
     CHECK(*worldNode->entity().property("path") == "c:\\a\\b\\c\\");
   }
 
-  SECTION("parsePropertyWithEscapedPathAndTrailingBackslash")
+  SECTION("Property with escaped path and trailing backslash")
   {
     const auto data = R"(
 {
@@ -1342,7 +1344,7 @@ common/caulk
     CHECK(*worldNode->entity().property("path") == "c:\\\\a\\\\b\\\\c\\\\");
   }
 
-  SECTION("parsePropertyTrailingEscapedBackslash")
+  SECTION("Property with trailing escaped backslash")
   {
     const auto data = R"(
 {
@@ -1365,9 +1367,9 @@ common/caulk
     CHECK(*worldNode->entity().property("message") == "test\\\\");
   }
 
-  // https://github.com/TrenchBroom/TrenchBroom/issues/1739
-  SECTION("parsePropertyNewlineEscapeSequence")
+  SECTION("Property with newline escape sequence")
   {
+    // https://github.com/TrenchBroom/TrenchBroom/issues/1739
     const auto data = R"(
 {
 "classname" "worldspawn"
@@ -1389,54 +1391,7 @@ common/caulk
     CHECK(*worldNode->entity().property("message") == "vm::line1\\nvm::line2d");
   }
 
-  /*
-  SECTION("parseIssueIgnoreFlags") {
-      const auto data = "{"
-                        "\"classname\" \"worldspawn\""
-                        "{\n"
-                        "/// hideIssues 2\n"
-                        "( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) none 0 0 0 1 1\n"
-                        "( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) none 0 0 0 1 1\n"
-                        "( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) none 0 0 0 1 1\n"
-                        "( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) none 0 0 0 1 1\n"
-                        "( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) none 0 0 0 1 1\n"
-                        "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
-                        "}\n"
-                        "}"
-                        "{"
-                        "/// hideIssues 3\n"
-                        "\"classname\" \"info_player_deathmatch\""
-                        "\"origin\" \"1 22 -3\""
-                        "\"angle\" \" -1 \""
-                        "}");
-      vm::bbox3d worldBounds(-8192, 8192);
-
-      using namespace testing;
-      mdl::MockGameSPtr game = mdl::MockGame::newGame();
-      EXPECT_CALL(*game,
-  doBrushContentTypes()).WillOnce(ReturnRef(mdl::BrushContentType::EmptyList));
-
-      StandardMapParser parser(data, game.get());
-      mdl::Map* map = parser.parseMap(worldBounds);
-
-      const mdl::EntityList& entities = map->entities();
-      CHECK(entities.size() == 2u);
-
-      const mdl::EntityNode* firstEntity = entities[0];
-      CHECK(firstEntity->hiddenIssues() == 0u);
-
-      const mdl::BrushList& brushes = firstEntity->brushes();
-      CHECK(brushes.size() == 1u);
-
-      const mdl::BrushNode* brush = brushes[0];
-      CHECK(brush->hiddenIssues() == 2u);
-
-      const mdl::EntityNode* secondEntity = entities[1];
-      CHECK(secondEntity->hiddenIssues() == 3u);
-  }
-   */
-
-  SECTION("parseHeretic2QuarkMap")
+  SECTION("Heretic 2 map made in Quark")
   {
     const auto mapPath =
       std::filesystem::current_path() / "fixture/test/io/Map/Heretic2Quark.map";
@@ -1465,7 +1420,7 @@ common/caulk
     }
   }
 
-  SECTION("parseTBEmptyMaterialName")
+  SECTION("__TB_empty material name")
   {
     const auto data = R"(
 // entity 0
@@ -1506,7 +1461,7 @@ common/caulk
     }
   }
 
-  SECTION("parseQuotedMaterialNames")
+  SECTION("Quoted material names")
   {
     using NameInfo = std::tuple<std::string, std::string>;
 
@@ -1562,7 +1517,7 @@ common/caulk
     CHECK(brushNode->brush().face(0).attributes().materialName() == expectedName);
   }
 
-  SECTION("parseLinkedGroups")
+  SECTION("Linked groups")
   {
     const auto data = R"(
 {
@@ -1615,7 +1570,7 @@ common/caulk
       == vm::translation_matrix(vm::vec3d{32.0, 16.0, 0.0}));
   }
 
-  SECTION("parseOrphanedLinkedGroups")
+  SECTION("Orphaned linked groups")
   {
     const auto data = R"(
 {
@@ -1650,7 +1605,7 @@ common/caulk
       groupNode->group().transformation() == vm::translation_matrix(vm::vec3d{32, 0, 0}));
   }
 
-  SECTION("parseLinkedGroupsWithMissingTransformation")
+  SECTION("Linked group with missing transformation")
   {
     const auto data = R"(
 {
@@ -1715,7 +1670,7 @@ common/caulk
       == vm::translation_matrix(vm::vec3d{32.0, 16.0, 0.0}));
   }
 
-  SECTION("parseGroupWithUnnecessaryTransformation")
+  SECTION("Group with unnecessary transformation")
   {
     const auto data = R"(
 {
@@ -1747,7 +1702,7 @@ common/caulk
     CHECK(groupNode->group().transformation() == vm::mat4x4d{});
   }
 
-  SECTION("parseRecursiveLinkedGroups")
+  SECTION("Recursive linked groups")
   {
     const auto data = R"(
 {
@@ -1894,7 +1849,7 @@ common/caulk
     CHECK(groupNode_4_1_1_fgh->group().transformation() == vm::mat4x4d::identity());
   }
 
-  SECTION("parseProtectedEntityProperties")
+  SECTION("Protected entity properties")
   {
     const auto data = R"(
 {
@@ -1932,7 +1887,7 @@ common/caulk
 
       CHECK_THAT(
         entityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{}));
     }
 
     SECTION("Two protected properties")
@@ -1943,7 +1898,7 @@ common/caulk
 
       CHECK_THAT(
         entityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"origin", "target"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"origin", "target"}));
     }
 
     SECTION("Escaped semicolon")
@@ -1954,11 +1909,11 @@ common/caulk
 
       CHECK_THAT(
         entityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"with;semicolon"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"with;semicolon"}));
     }
   }
 
-  SECTION("parseUnknownFormatEmptyMap")
+  SECTION("Empty map with unknown format")
   {
     const auto data = R"(
 {
@@ -1979,6 +1934,128 @@ common/caulk
     const auto& world = worldResult.value();
     REQUIRE(world != nullptr);
     CHECK(world->mapFormat() == mdl::MapFormat::Standard);
+  }
+}
+
+TEST_CASE("WorldReader (Regression)", "[regression]")
+{
+  auto taskManager = kdl::task_manager{};
+  const auto worldBounds = vm::bbox3d{8192.0};
+  auto status = io::TestParserStatus{};
+
+  SECTION("1424")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+"message" "yay"
+{
+( 0 0 0 ) ( 0 0 0 ) ( 0 0 0 ) __TB_empty -56 -72 -0 1 1
+( 1320 512 152 ) ( 1280 512 192 ) ( 1320 504 152 ) grill_wall03b_h -0 -72 -0 1 1
+( 1344 512 160 ) ( 1280 512 224 ) ( 1320 512 152 ) grill_wall03b_h -56 -72 -0 1 1
+( 1320 512 152 ) ( 1320 504 152 ) ( 1344 512 160 ) grill_wall03b_h -56 -0 -0 1 1
+( 0 0 0 ) ( 0 0 0 ) ( 0 0 0 ) __TB_empty -0 -72 -0 1 1
+( 1320 504 152 ) ( 1280 505.37931034482756 197.51724137931035 ) ( 1344 512 160 ) grill_wall03b_h -56 -72 -0 1 1
+}
+})";
+
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto world = reader.read(worldBounds, status, taskManager);
+    CHECK(world != nullptr);
+  }
+
+  SECTION("Problematic brush 1")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( 308 108 176 ) ( 308 132 176 ) ( 252 132 176 ) mt_sr_v13 -59 13 -90 1 1
+( 252 132 208 ) ( 308 132 208 ) ( 308 108 208 ) mt_sr_v13 -59 13 -90 1 1
+( 288 152 176 ) ( 288 152 208 ) ( 288 120 208 ) mt_sr_v13 -59 -110 -180 1 1
+( 288 122 176 ) ( 288 122 208 ) ( 308 102 208 ) mt_sr_v13 -37 -111 -180 1 1
+( 308 100 176 ) ( 308 100 208 ) ( 324 116 208 ) mt_sr_v13 -100 -111 0 1 -1
+( 287 152 208 ) ( 287 152 176 ) ( 323 116 176 ) mt_sr_v13 -65 -111 -180 1 1
+}
+})";
+
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult.is_success());
+
+    const auto& world = worldResult.value();
+    REQUIRE(world != nullptr);
+
+    CHECK(world->childCount() == 1u);
+    auto* defaultLayer = world->children().front();
+    CHECK(defaultLayer->childCount() == 1u);
+
+    auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    checkBrushUVCoordSystem(brushNode, false);
+    const auto& faces = brushNode->brush().faces();
+    CHECK(faces.size() == 6u);
+    CHECK(findFaceByPoints(faces, {308, 108, 176}, {308, 132, 176}, {252, 132, 176}));
+    CHECK(findFaceByPoints(faces, {252, 132, 208}, {308, 132, 208}, {308, 108, 208}));
+    CHECK(findFaceByPoints(faces, {288, 152, 176}, {288, 152, 208}, {288, 120, 208}));
+    CHECK(findFaceByPoints(faces, {288, 122, 176}, {288, 122, 208}, {308, 102, 208}));
+    CHECK(findFaceByPoints(faces, {308, 100, 176}, {308, 100, 208}, {324, 116, 208}));
+    CHECK(findFaceByPoints(faces, {287, 152, 208}, {287, 152, 176}, {323, 116, 176}));
+  }
+
+  SECTION("Problematic brush 2")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( -572 1078 128 ) ( -594 1088 128 ) ( -597 1072 96 ) mt_sr_v16 -64 0 -180 1 -1
+( -572 1078 160 ) ( -572 1078 128 ) ( -590 1051 128 ) b_rc_v4 32 0 90 1 1
+( -601 1056 160 ) ( -601 1056 128 ) ( -594 1088 128 ) b_rc_v4 32 0 90 1 1
+( -590 1051 160 ) ( -590 1051 128 ) ( -601 1056 128 ) b_rc_v4 32 -16 90 1 1
+( -512 1051 128 ) ( -624 1051 128 ) ( -568 1088 128 ) b_rc_v4 0 -16 90 1 1
+( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1
+}
+})";
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult.is_success());
+
+    const auto& world = worldResult.value();
+    REQUIRE(world != nullptr);
+
+    CHECK(world->childCount() == 1u);
+    auto* defaultLayer = world->children().front();
+    CHECK(defaultLayer->childCount() == 1u);
+    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    checkBrushUVCoordSystem(brush, false);
+  }
+
+  SECTION("Problematic brush 3")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( 256 1152 -96 ) ( 160 1152 -96 ) ( 160 1120 -96 ) b_rc_v4 31 -31 90 1 1
+( -64 1120 64 ) ( -64 1184 64 ) ( -32 1184 32 ) b_rc_v4 31 -31 90 1 1
+( -112 1120 32 ) ( 224 1120 32 ) ( 224 1120 -96 ) b_rc_v4 0 0 90 1 1
+( -112 1184 -96 ) ( 264 1184 -96 ) ( 264 1184 32 ) b_rc_v4 -127 -32 90 1 1
+( -64 1184 64 ) ( -64 1120 64 ) ( -64 1120 -96 ) b_rc_v4 -127 32 90 1 1
+( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1
+}
+})";
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult.is_success());
+
+    const auto& world = worldResult.value();
+    REQUIRE(world != nullptr);
+
+    CHECK(world->childCount() == 1u);
+    auto* defaultLayer = world->children().front();
+    CHECK(defaultLayer->childCount() == 1u);
+    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    checkBrushUVCoordSystem(brush, false);
   }
 }
 

@@ -29,13 +29,14 @@
 #include "io/PathQt.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/Game.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewUtils.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
@@ -77,9 +78,9 @@ bool SingleSelectionListWidget::allowDeselectAll() const
 // EntityDefinitionFileChooser
 
 EntityDefinitionFileChooser::EntityDefinitionFileChooser(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+  MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   createGui();
   bindEvents();
@@ -150,21 +151,21 @@ void EntityDefinitionFileChooser::bindEvents()
 
 void EntityDefinitionFileChooser::connectObservers()
 {
-  auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &EntityDefinitionFileChooser::documentWasNewed);
-  m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &EntityDefinitionFileChooser::documentWasLoaded);
-  m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
+  auto& map = m_document.map();
+  m_notifierConnection +=
+    map.mapWasCreatedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasCreated);
+  m_notifierConnection +=
+    map.mapWasLoadedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasLoaded);
+  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
     this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
 }
 
-void EntityDefinitionFileChooser::documentWasNewed(MapDocument*)
+void EntityDefinitionFileChooser::mapWasCreated(mdl::Map&)
 {
   updateControls();
 }
 
-void EntityDefinitionFileChooser::documentWasLoaded(MapDocument*)
+void EntityDefinitionFileChooser::mapWasLoaded(mdl::Map&)
 {
   updateControls();
 }
@@ -180,8 +181,9 @@ void EntityDefinitionFileChooser::updateControls()
   m_builtin->clear();
   m_builtin->setAllowDeselectAll(false);
 
-  auto document = kdl::mem_lock(m_document);
-  auto specs = document->allEntityDefinitionFiles();
+  const auto& map = m_document.map();
+  const auto& game = *map.game();
+  auto specs = game.allEntityDefinitionFiles();
   specs = kdl::vec_sort(std::move(specs));
 
   for (const auto& spec : specs)
@@ -195,7 +197,7 @@ void EntityDefinitionFileChooser::updateControls()
     m_builtin->addItem(item);
   }
 
-  const auto spec = document->entityDefinitionFile();
+  const auto spec = entityDefinitionFile(map);
   if (spec.builtin())
   {
     if (const auto index = kdl::index_of(specs, spec))
@@ -228,7 +230,7 @@ void EntityDefinitionFileChooser::updateControls()
     m_externalLabel->setFont(font);
   }
 
-  m_reloadExternal->setEnabled(document->entityDefinitionFile().external());
+  m_reloadExternal->setEnabled(entityDefinitionFile(map).external());
 }
 
 void EntityDefinitionFileChooser::builtinSelectionChanged()
@@ -239,10 +241,10 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
     auto* item = m_builtin->selectedItems().first();
     auto spec = item->data(Qt::UserRole).value<mdl::EntityDefinitionFileSpec>();
 
-    auto document = kdl::mem_lock(m_document);
-    if (document->entityDefinitionFile() != spec)
+    auto& map = m_document.map();
+    if (entityDefinitionFile(map) != spec)
     {
-      document->setEntityDefinitionFile(spec);
+      setEntityDefinitionFile(map, spec);
     }
   }
 }
@@ -268,8 +270,7 @@ void EntityDefinitionFileChooser::chooseExternalClicked()
 
 void EntityDefinitionFileChooser::reloadExternalClicked()
 {
-  auto document = kdl::mem_lock(m_document);
-  document->reloadEntityDefinitions();
+  reloadEntityDefinitions(m_document.map());
 }
 
 } // namespace tb::ui

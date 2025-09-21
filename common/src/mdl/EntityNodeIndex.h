@@ -56,7 +56,7 @@ public:
 
   std::set<EntityNodeBase*> execute(const EntityNodeStringIndex& index) const;
   bool execute(const EntityNodeBase* node, const std::string& value) const;
-  std::vector<mdl::EntityProperty> execute(const EntityNodeBase* node) const;
+  std::vector<EntityProperty> execute(const EntityNodeBase* node) const;
 
 private:
   explicit EntityNodeIndexQuery(Type type, std::string pattern = "");

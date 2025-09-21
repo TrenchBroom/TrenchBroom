@@ -25,13 +25,14 @@
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/ray.h"
+#include "vm/ray_io.h"
 #include "vm/scalar.h"
 #include "vm/util.h"
 #include "vm/vec.h"
 
 #include <sstream>
 
-#include "catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace vm
 {

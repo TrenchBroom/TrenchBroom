@@ -36,14 +36,16 @@
 #include <filesystem>
 #include <memory>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace tb::io
 {
 
-TEST_CASE("Md3LoaderTest.loadValidMd3")
+TEST_CASE("Md3Loader")
 {
   auto logger = NullLogger{};
+  auto taskManager = kdl::task_manager{};
+  auto fs = VirtualFileSystem{};
 
   const auto materialConfig = mdl::MaterialConfig{
     {},
@@ -54,63 +56,112 @@ TEST_CASE("Md3LoaderTest.loadValidMd3")
     {},
   };
 
-  auto fs = VirtualFileSystem{};
-  fs.mount(
-    "",
-    std::make_unique<DiskFileSystem>(
-      std::filesystem::current_path() / "fixture/test/io/Md3/bfg"));
+  SECTION("Load valid MD3 model")
+  {
+    fs.mount(
+      "",
+      std::make_unique<DiskFileSystem>(
+        std::filesystem::current_path() / "fixture/test/io/Md3/bfg"));
 
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return io::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(io::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto md3Path = "models/weapons2/bfg/bfg.md3";
+    const auto md3File = fs.openFile(md3Path) | kdl::value();
+
+    auto reader = md3File->reader().buffer();
+    auto loader = Md3Loader{"bfg", reader, loadMaterial};
+    auto modelData = loader.load(logger);
+
+    CHECK(modelData.is_success());
+
+    CHECK(modelData.value().frameCount() == 1u);
+    CHECK(modelData.value().surfaceCount() == 2u);
+
+    const auto* frame = modelData.value().frame("MilkShape 3D");
+    CHECK(frame != nullptr);
+    CHECK(vm::is_equal(
+      vm::bbox3f(
+        vm::vec3f(-10.234375, -10.765625, -9.4375),
+        vm::vec3f(30.34375, 10.765625, 11.609375)),
+      frame->bounds(),
+      0.01f));
+
+    const auto* surface1 = modelData.value().surface("x_bfg");
+    CHECK(surface1 != nullptr);
+    CHECK(surface1->frameCount() == 1u);
+    CHECK(surface1->skinCount() == 1u);
+
+    const auto* skin1 = surface1->skin("models/weapons2/bfg/LDAbfg");
+    CHECK(skin1 != nullptr);
+
+    const auto* surface2 = modelData.value().surface("x_fx");
+    CHECK(surface2 != nullptr);
+    CHECK(surface2->frameCount() == 1u);
+    CHECK(surface2->skinCount() == 1u);
+
+    const auto* skin2 = surface2->skin("models/weapons2/bfg/LDAbfg_z");
+    CHECK(skin2 != nullptr);
+  }
+}
+
+TEST_CASE("Md3Loader (Regression)", "[regression]")
+{
+  auto logger = NullLogger{};
   auto taskManager = kdl::task_manager{};
+  auto fs = VirtualFileSystem{};
 
-  const auto shaders =
-    loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
-
-  const auto createResource = [](auto resourceLoader) {
-    return createResourceSync(std::move(resourceLoader));
+  const auto materialConfig = mdl::MaterialConfig{
+    {},
+    {".tga", ".png", ".jpg", ".jpeg"},
+    {},
+    {},
+    "scripts",
+    {},
   };
 
-  const auto loadMaterial = [&](const auto& materialPath) {
-    return io::loadMaterial(
-             fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
-           | kdl::or_else(io::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
-  };
+  SECTION("2659")
+  {
+    fs.mount(
+      "",
+      std::make_unique<DiskFileSystem>(
+        std::filesystem::current_path() / "fixture/test/io/Md3/armor"));
 
-  const auto md3Path = "models/weapons2/bfg/bfg.md3";
-  const auto md3File = fs.openFile(md3Path) | kdl::value();
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
-  auto reader = md3File->reader().buffer();
-  auto loader = Md3Loader{"bfg", reader, loadMaterial};
-  auto modelData = loader.load(logger);
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
 
-  CHECK(modelData.is_success());
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return io::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(io::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
 
-  CHECK(modelData.value().frameCount() == 1u);
-  CHECK(modelData.value().surfaceCount() == 2u);
+    const auto md3Path = "models/armor_red.md3";
+    const auto md3File = fs.openFile(md3Path) | kdl::value();
 
-  const auto* frame = modelData.value().frame("MilkShape 3D");
-  CHECK(frame != nullptr);
-  CHECK(vm::is_equal(
-    vm::bbox3f(
-      vm::vec3f(-10.234375, -10.765625, -9.4375),
-      vm::vec3f(30.34375, 10.765625, 11.609375)),
-    frame->bounds(),
-    0.01f));
+    auto reader = md3File->reader().buffer();
+    auto loader = Md3Loader{"armor_red", reader, loadMaterial};
+    auto modelData = loader.load(logger);
 
-  const auto* surface1 = modelData.value().surface("x_bfg");
-  CHECK(surface1 != nullptr);
-  CHECK(surface1->frameCount() == 1u);
-  CHECK(surface1->skinCount() == 1u);
+    CHECK(modelData.is_success());
 
-  const auto* skin1 = surface1->skin("models/weapons2/bfg/LDAbfg");
-  CHECK(skin1 != nullptr);
-
-  const auto* surface2 = modelData.value().surface("x_fx");
-  CHECK(surface2 != nullptr);
-  CHECK(surface2->frameCount() == 1u);
-  CHECK(surface2->skinCount() == 1u);
-
-  const auto* skin2 = surface2->skin("models/weapons2/bfg/LDAbfg_z");
-  CHECK(skin2 != nullptr);
+    CHECK(modelData.value().frameCount() == 30u);
+    CHECK(modelData.value().surfaceCount() == 2u);
+  }
 }
 
 } // namespace tb::io

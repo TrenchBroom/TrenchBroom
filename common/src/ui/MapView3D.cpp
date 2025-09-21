@@ -25,10 +25,12 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Map_Picking.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
 #include "mdl/PointTrace.h"
@@ -52,7 +54,7 @@
 #include "ui/FaceToolController.h"
 #include "ui/FlyModeHelper.h"
 #include "ui/GLContextManager.h"
-#include "ui/Grid.h"
+#include "ui/MapDocument.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MoveObjectsToolController.h"
 #include "ui/RotateToolController.h"
@@ -71,11 +73,11 @@ namespace tb::ui
 {
 
 MapView3D::MapView3D(
-  std::weak_ptr<MapDocument> document,
+  MapDocument& document,
   MapViewToolBox& toolBox,
   render::MapRenderer& renderer,
   GLContextManager& contextManager)
-  : MapViewBase{std::move(document), toolBox, renderer, contextManager}
+  : MapViewBase{document, toolBox, renderer, contextManager}
   , m_camera{std::make_unique<render::PerspectiveCamera>()}
   , m_flyModeHelper{std::make_unique<FlyModeHelper>(*m_camera)}
 {
@@ -99,14 +101,14 @@ void MapView3D::initializeCamera()
 
 void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
 {
+  auto& map = m_document.map();
+
   addToolController(std::make_unique<CameraTool3D>(*m_camera));
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
   addToolController(std::make_unique<RotateToolController3D>(toolBox.rotateTool()));
-  addToolController(
-    std::make_unique<ScaleToolController3D>(toolBox.scaleTool(), m_document));
-  addToolController(
-    std::make_unique<ShearToolController3D>(toolBox.shearTool(), m_document));
+  addToolController(std::make_unique<ScaleToolController3D>(toolBox.scaleTool(), map));
+  addToolController(std::make_unique<ShearToolController3D>(toolBox.shearTool(), map));
   addToolController(std::make_unique<ExtrudeToolController3D>(toolBox.extrudeTool()));
   addToolController(
     std::make_unique<AssembleBrushToolController3D>(toolBox.assembleBrushTool()));
@@ -116,10 +118,10 @@ void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(std::make_unique<FaceToolController>(toolBox.faceTool()));
   addToolController(
     std::make_unique<CreateEntityToolController3D>(toolBox.createEntityTool()));
-  addToolController(std::make_unique<SetBrushFaceAttributesTool>(m_document));
-  addToolController(std::make_unique<SelectionTool>(m_document));
+  addToolController(std::make_unique<SetBrushFaceAttributesTool>(map));
+  addToolController(std::make_unique<SelectionTool>(map));
   addToolController(
-    std::make_unique<DrawShapeToolController3D>(toolBox.drawShapeTool(), m_document));
+    std::make_unique<DrawShapeToolController3D>(toolBox.drawShapeTool(), map));
 }
 
 void MapView3D::connectObservers()
@@ -210,10 +212,10 @@ PickRequest MapView3D::pickRequest(const float x, const float y) const
 
 mdl::PickResult MapView3D::pick(const vm::ray3d& pickRay) const
 {
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = m_document.map();
   auto pickResult = mdl::PickResult::byDistance();
 
-  document->pick(pickRay, pickResult);
+  mdl::pick(map, pickRay, pickResult);
   return pickResult;
 }
 
@@ -228,8 +230,8 @@ vm::vec3d MapView3D::pasteObjectsDelta(
 {
   using namespace mdl::HitFilters;
 
-  auto document = kdl::mem_lock(m_document);
-  const auto& grid = document->grid();
+  const auto& map = m_document.map();
+  const auto& grid = map.grid();
 
   const auto pos = QCursor::pos();
   const auto clientCoords = mapFromGlobal(pos);
@@ -240,21 +242,19 @@ vm::vec3d MapView3D::pasteObjectsDelta(
       vm::ray3d{m_camera->pickRay(float(clientCoords.x()), float(clientCoords.y()))};
     auto pickResult = mdl::PickResult::byDistance();
 
-    document->pick(pickRay, pickResult);
+    mdl::pick(map, pickRay, pickResult);
 
     const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       const auto& face = faceHandle->face();
-      return grid.moveDeltaForBounds(
-        face.boundary(), bounds, document->worldBounds(), pickRay);
+      return grid.moveDeltaForBounds(face.boundary(), bounds, map.worldBounds(), pickRay);
     }
     else
     {
       const auto point = vm::vec3d{grid.snap(m_camera->defaultPoint(pickRay))};
       const auto targetPlane = vm::plane3d{point, -vm::vec3d{m_camera->direction()}};
-      return grid.moveDeltaForBounds(
-        targetPlane, bounds, document->worldBounds(), pickRay);
+      return grid.moveDeltaForBounds(targetPlane, bounds, map.worldBounds(), pickRay);
     }
   }
   else
@@ -281,8 +281,8 @@ void MapView3D::reset2dCameras(const render::Camera&, const bool)
 
 void MapView3D::focusCameraOnSelection(const bool animate)
 {
-  auto document = kdl::mem_lock(m_document);
-  if (const auto& nodes = document->selectedNodes().nodes(); !nodes.empty())
+  const auto& map = m_document.map();
+  if (const auto& nodes = map.selection().nodes; !nodes.empty())
   {
     const auto newPosition = focusCameraOnObjectsPosition(nodes);
     moveCameraToPosition(newPosition, animate);
@@ -437,13 +437,12 @@ void MapView3D::animateCamera(
 
 void MapView3D::moveCameraToCurrentTracePoint()
 {
-  auto document = kdl::mem_lock(m_document);
-  assert(document->isPointFileLoaded());
+  assert(m_document.isPointFileLoaded());
 
-  if (const auto* pointFile = document->pointFile())
+  if (const auto* pointTrace = m_document.pointTrace())
   {
-    const auto position = pointFile->currentPoint() + vm::vec3f{0.0f, 0.0f, 16.0f};
-    const auto direction = pointFile->currentDirection();
+    const auto position = pointTrace->currentPoint() + vm::vec3f{0.0f, 0.0f, 16.0f};
+    const auto direction = pointTrace->currentDirection();
     animateCamera(position, direction, vm::vec3f{0, 0, 1}, m_camera->zoom());
   }
 }
@@ -504,10 +503,10 @@ vm::vec3d MapView3D::computePointEntityPosition(const vm::bbox3d& bounds) const
 {
   using namespace mdl::HitFilters;
 
-  auto document = kdl::mem_lock(m_document);
+  const auto& map = m_document.map();
 
-  auto& grid = document->grid();
-  const auto& worldBounds = document->worldBounds();
+  const auto& grid = map.grid();
+  const auto& worldBounds = map.worldBounds();
 
   const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType));
   if (const auto faceHandle = mdl::hitToFaceHandle(hit))
@@ -545,16 +544,16 @@ void MapView3D::renderMap(
 {
   renderer.render(renderContext, renderBatch);
 
-  auto document = kdl::mem_lock(m_document);
-  if (renderContext.showSelectionGuide() && document->hasSelectedNodes())
+  const auto& map = m_document.map();
+  if (const auto& bounds = map.selectionBounds();
+      bounds && renderContext.showSelectionGuide())
   {
-    const auto& bounds = document->selectionBounds();
-    auto boundsRenderer = render::SelectionBoundsRenderer{bounds};
+    auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
 
-    auto* guideRenderer = new render::BoundsGuideRenderer{m_document};
+    auto* guideRenderer = new render::BoundsGuideRenderer{m_document.map()};
     guideRenderer->setColor(pref(Preferences::SelectionBoundsColor));
-    guideRenderer->setBounds(bounds);
+    guideRenderer->setBounds(*bounds);
     renderBatch.addOneShot(guideRenderer);
   }
 }

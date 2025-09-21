@@ -13,7 +13,7 @@ REM Don't pass -DCMAKE_CXX_FLAGS="/WX" on the cmake command line; doing so wipes
 set CXXFLAGS="/WX"
 
 call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-cmake .. -GNinja -DCMAKE_PREFIX_PATH="%QT_ROOT_DIR%" -DCMAKE_BUILD_TYPE=Release -DTB_ENABLE_PCH=0 -DTB_ENABLE_CCACHE=0 -DTB_RUN_WINDEPLOYQT=1
+cmake .. -GNinja -DCMAKE_PREFIX_PATH="%QT_ROOT_DIR%" -DCMAKE_BUILD_TYPE=Release -DTB_ENABLE_PCH=0 -DTB_ENABLE_CCACHE=0
 
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
@@ -40,9 +40,6 @@ cd "%BUILD_DIR%"
 
 cd common\test
 common-test.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-
-common-regression-test.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 

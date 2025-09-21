@@ -21,7 +21,6 @@
 
 #include "ui/SmartPropertyEditor.h"
 
-#include <memory>
 #include <vector>
 
 class QColor;
@@ -48,8 +47,7 @@ private:
   ColorTable* m_colorHistory = nullptr;
 
 public:
-  explicit SmartColorEditor(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartColorEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();
@@ -58,7 +56,7 @@ private:
   void updateColorRange(const std::vector<mdl::EntityNodeBase*>& nodes);
   void updateColorHistory();
 
-  void setColor(const QColor& wxColor) const;
+  void setColor(const QColor& color);
 
   void floatRangeRadioButtonClicked();
   void byteRangeRadioButtonClicked();

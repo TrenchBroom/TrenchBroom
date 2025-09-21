@@ -30,10 +30,8 @@
 #include "render/RenderService.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
-#include "ui/MapDocument.h"
 #include "ui/ScaleTool.h"
 
-#include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/line.h"
@@ -46,10 +44,9 @@
 
 namespace tb::ui
 {
-ScaleToolController::ScaleToolController(
-  ScaleTool& tool, std::weak_ptr<MapDocument> document)
+ScaleToolController::ScaleToolController(ScaleTool& tool, mdl::Map& map)
   : m_tool{tool}
-  , m_document{std::move(document)}
+  , m_map{map}
 {
 }
 
@@ -75,7 +72,7 @@ void ScaleToolController::pick(const InputState& inputState, mdl::PickResult& pi
 
 static HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
-  const Grid& grid,
+  const mdl::Grid& grid,
   const mdl::Hit& dragStartHit,
   const vm::bbox3d& bboxAtDragStart,
   const vm::vec3d& handleOffset)
@@ -241,7 +238,6 @@ std::unique_ptr<GestureTracker> ScaleToolController::acceptMouseDrag(
   {
     return nullptr;
   }
-  auto document = kdl::mem_lock(m_document);
 
   const auto& hit = inputState.pickResult().first(type(
     ScaleTool::ScaleToolSideHitType | ScaleTool::ScaleToolEdgeHitType
@@ -438,9 +434,8 @@ bool ScaleToolController::cancel()
 
 // ScaleToolController2D
 
-ScaleToolController2D::ScaleToolController2D(
-  ScaleTool& tool, std::weak_ptr<MapDocument> document)
-  : ScaleToolController(tool, document)
+ScaleToolController2D::ScaleToolController2D(ScaleTool& tool, mdl::Map& map)
+  : ScaleToolController(tool, map)
 {
 }
 
@@ -454,9 +449,8 @@ void ScaleToolController2D::doPick(
 
 // ScaleToolController3D
 
-ScaleToolController3D::ScaleToolController3D(
-  ScaleTool& tool, std::weak_ptr<MapDocument> document)
-  : ScaleToolController(tool, document)
+ScaleToolController3D::ScaleToolController3D(ScaleTool& tool, mdl::Map& map)
+  : ScaleToolController(tool, map)
 {
 }
 

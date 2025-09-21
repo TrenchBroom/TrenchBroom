@@ -33,6 +33,7 @@
 #include "io/TraversalMode.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/Map.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationVariables.h"
 #include "ui/MapDocument.h" // IWYU pragma: keep
@@ -123,8 +124,7 @@ void CompilationExportMapTaskRunner::doExecute()
       return io::Disk::createDirectory(targetPath.parent_path())
              | kdl::and_then([&](auto) {
                  const auto options = io::MapExportOptions{targetPath};
-                 const auto document = m_context.document();
-                 return document->exportDocumentAs(options);
+                 return m_context.map().exportAs(options);
                });
     }
     return Result<void>{};
@@ -157,7 +157,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
         const auto targetPath = kdl::parse_path(interpolatedTarget);
 
         const auto sourceDirPath = sourcePath.parent_path();
-        const auto sourcePathMatcher = kdl::lift_and(
+        const auto sourcePathMatcher = kdl::logical_and(
           io::makePathInfoPathMatcher({io::PathInfo::File}),
           io::makeFilenamePathMatcher(sourcePath.filename().string()));
 
@@ -252,7 +252,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
     const auto targetPath = kdl::parse_path(interpolated);
 
     const auto targetDirPath = targetPath.parent_path();
-    const auto targetPathMatcher = kdl::lift_and(
+    const auto targetPathMatcher = kdl::logical_and(
       io::makePathInfoPathMatcher({io::PathInfo::File}),
       io::makeFilenamePathMatcher(targetPath.filename().string()));
 

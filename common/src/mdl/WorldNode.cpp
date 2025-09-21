@@ -32,6 +32,7 @@
 #include "mdl/ValidatorRegistry.h"
 #include "octree.h"
 
+#include "kdl/const_overload.h"
 #include "kdl/k.h"
 #include "kdl/overload.h"
 #include "kdl/vector_utils.h"
@@ -101,73 +102,68 @@ const LayerNode* WorldNode::defaultLayer() const
 
 std::vector<LayerNode*> WorldNode::allLayers()
 {
-  auto layers = std::vector<LayerNode*>{};
-  visitChildren(kdl::overload(
-    [](WorldNode*) {},
-    [&](LayerNode* layer) { layers.push_back(layer); },
-    [](GroupNode*) {},
-    [](EntityNode*) {},
-    [](BrushNode*) {},
-    [](PatchNode*) {}));
-  return layers;
+  return KDL_CONST_OVERLOAD(allLayers());
 }
 
 std::vector<const LayerNode*> WorldNode::allLayers() const
 {
-  return kdl::vec_transform(
-    const_cast<WorldNode*>(this)->allLayers(), [](const auto* l) { return l; });
+  auto layers = std::vector<const LayerNode*>{};
+  visitChildren(kdl::overload(
+    [](const WorldNode*) {},
+    [&](const LayerNode* layer) { layers.push_back(layer); },
+    [](const GroupNode*) {},
+    [](const EntityNode*) {},
+    [](const BrushNode*) {},
+    [](const PatchNode*) {}));
+  return layers;
 }
 
 std::vector<LayerNode*> WorldNode::customLayers()
 {
-  auto layers = std::vector<LayerNode*>{};
+  return KDL_CONST_OVERLOAD(customLayers());
+}
+
+std::vector<const LayerNode*> WorldNode::customLayers() const
+{
+  auto layers = std::vector<const LayerNode*>{};
 
   const auto& children = Node::children();
   for (auto it = std::next(std::begin(children)); it != std::end(children); ++it)
   {
     (*it)->accept(kdl::overload(
-      [](WorldNode*) {},
-      [&](LayerNode* layer) { layers.push_back(layer); },
-      [](GroupNode*) {},
-      [](EntityNode*) {},
-      [](BrushNode*) {},
-      [](PatchNode*) {}));
+      [](const WorldNode*) {},
+      [&](const LayerNode* layer) { layers.push_back(layer); },
+      [](const GroupNode*) {},
+      [](const EntityNode*) {},
+      [](const BrushNode*) {},
+      [](const PatchNode*) {}));
   }
 
   return layers;
 }
 
-std::vector<const LayerNode*> WorldNode::customLayers() const
+std::vector<LayerNode*> WorldNode::allLayersUserSorted()
 {
-  return kdl::vec_transform(
-    const_cast<WorldNode*>(this)->customLayers(), [](const auto* l) { return l; });
+  return KDL_CONST_OVERLOAD(allLayersUserSorted());
 }
 
-std::vector<LayerNode*> WorldNode::allLayersUserSorted()
+std::vector<const LayerNode*> WorldNode::allLayersUserSorted() const
 {
   auto result = allLayers();
   LayerNode::sortLayers(result);
   return result;
 }
 
-std::vector<const LayerNode*> WorldNode::allLayersUserSorted() const
-{
-  return kdl::vec_transform(
-    const_cast<WorldNode*>(this)->allLayersUserSorted(), [](const auto* l) { return l; });
-}
-
 std::vector<LayerNode*> WorldNode::customLayersUserSorted()
 {
-  auto result = customLayers();
-  LayerNode::sortLayers(result);
-  return result;
+  return KDL_CONST_OVERLOAD(customLayersUserSorted());
 }
 
 std::vector<const LayerNode*> WorldNode::customLayersUserSorted() const
 {
-  return kdl::vec_transform(
-    const_cast<WorldNode*>(this)->customLayersUserSorted(),
-    [](const auto* l) { return l; });
+  auto result = customLayers();
+  LayerNode::sortLayers(result);
+  return result;
 }
 
 void WorldNode::createDefaultLayer()
@@ -216,7 +212,7 @@ void WorldNode::enableNodeTreeUpdates()
 
 void WorldNode::rebuildNodeTree()
 {
-  auto nodes = std::vector<mdl::Node*>{};
+  auto nodes = std::vector<Node*>{};
   const auto addNode = [&](auto* node) {
     if (node->shouldAddToSpacialIndex())
     {
@@ -474,7 +470,7 @@ const EntityPropertyConfig& WorldNode::doGetEntityPropertyConfig() const
 void WorldNode::doFindEntityNodesWithProperty(
   const std::string& name,
   const std::string& value,
-  std::vector<mdl::EntityNodeBase*>& result) const
+  std::vector<EntityNodeBase*>& result) const
 {
   result = kdl::vec_concat(
     std::move(result),
@@ -484,7 +480,7 @@ void WorldNode::doFindEntityNodesWithProperty(
 void WorldNode::doFindEntityNodesWithNumberedProperty(
   const std::string& prefix,
   const std::string& value,
-  std::vector<mdl::EntityNodeBase*>& result) const
+  std::vector<EntityNodeBase*>& result) const
 {
   result = kdl::vec_concat(
     std::move(result),

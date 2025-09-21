@@ -33,11 +33,11 @@ class UVViewHelper;
 class UVOffsetTool : public ToolController, public Tool
 {
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   const UVViewHelper& m_helper;
 
 public:
-  UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper);
+  UVOffsetTool(MapDocument& document, const UVViewHelper& helper);
 
 private:
   Tool& tool() override;

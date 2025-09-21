@@ -66,7 +66,7 @@ void EntityDefinitionManager::clear()
 }
 
 const EntityDefinition* EntityDefinitionManager::definition(
-  const mdl::EntityNodeBase* node) const
+  const EntityNodeBase* node) const
 {
   ensure(node != nullptr, "node is null");
   return definition(node->entity().classname());

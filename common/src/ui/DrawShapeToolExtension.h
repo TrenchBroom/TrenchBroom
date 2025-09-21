@@ -27,13 +27,16 @@
 #include "mdl/BrushBuilder.h"
 
 #include <filesystem>
-#include <memory>
 #include <string>
 #include <vector>
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
-class MapDocument;
 
 class DrawShapeToolExtensionPage : public QWidget
 {
@@ -48,7 +51,7 @@ public:
 
 protected:
   void addWidget(QWidget* widget);
-  void addApplyButton(std::weak_ptr<MapDocument> document);
+  void addApplyButton(mdl::Map& map);
 };
 
 class ShapeParameters
@@ -95,9 +98,9 @@ public:
 class DrawShapeToolExtension
 {
 protected:
-  std::weak_ptr<MapDocument> m_document;
+  mdl::Map& m_map;
 
-  explicit DrawShapeToolExtension(std::weak_ptr<MapDocument> document);
+  explicit DrawShapeToolExtension(mdl::Map& map);
 
 public:
   virtual ~DrawShapeToolExtension();
@@ -114,7 +117,7 @@ class DrawShapeToolExtensionManager
 public:
   Notifier<size_t> currentExtensionDidChangeNotifier;
 
-  explicit DrawShapeToolExtensionManager(std::weak_ptr<MapDocument> document);
+  explicit DrawShapeToolExtensionManager(mdl::Map& map);
 
   const std::vector<DrawShapeToolExtension*> extensions() const;
 

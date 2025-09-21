@@ -39,13 +39,13 @@ struct EntityPropertyConfig;
 class GameImpl : public Game
 {
 private:
-  GameConfig& m_config;
+  GameConfig m_config;
   GameFileSystem m_fs;
   std::filesystem::path m_gamePath;
   std::vector<std::filesystem::path> m_additionalSearchPaths;
 
 public:
-  GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& logger);
+  GameImpl(GameConfig config, std::filesystem::path gamePath, Logger& logger);
 
 public: // implement EntityDefinitionLoader interface:
   Result<std::vector<EntityDefinition>> loadEntityDefinitions(

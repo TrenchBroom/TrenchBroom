@@ -29,7 +29,9 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
 {
@@ -289,12 +291,12 @@ TEST_CASE("EntityTest")
       entity.addOrUpdateProperty("newKey", "newValue", true);
       CHECK_THAT(
         entity.protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
 
       entity.addOrUpdateProperty("test", "anotherValue", true);
       CHECK_THAT(
         entity.protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
     }
 
     SECTION("Updates cached model transformation")
@@ -364,7 +366,7 @@ TEST_CASE("EntityTest")
       entity.renameProperty("originalKey", "newKey");
       CHECK_THAT(
         entity.protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
     }
 
     SECTION("Updates cached model transformation")
@@ -427,13 +429,13 @@ TEST_CASE("EntityTest")
       entity.addOrUpdateProperty("newKey", "value", true);
       REQUIRE_THAT(
         entity.protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
 
       entity.removeProperty("newKey");
       REQUIRE(!entity.hasProperty("newKey"));
       CHECK_THAT(
         entity.protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
     }
 
     SECTION("Updates cached model transformation")

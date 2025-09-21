@@ -23,7 +23,8 @@
 
 #include <optional>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::ui
 {
@@ -99,7 +100,7 @@ TEST_CASE("parseUpdateVersion")
   using T = std::tuple<QString, std::optional<UpdateVersion>>;
 
   // clang-format off
-  const auto& 
+  const auto 
   [str,           expectedVersion] = GENERATE(values<T>({
   {"",            std::nullopt},
   {"asdf",        std::nullopt},

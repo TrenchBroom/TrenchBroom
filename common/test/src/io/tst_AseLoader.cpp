@@ -36,11 +36,12 @@
 
 #include <filesystem>
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace tb::io
 {
-TEST_CASE("AseLoaderTest")
+
+TEST_CASE("AseLoader")
 {
   auto logger = NullLogger{};
 
@@ -167,6 +168,121 @@ TEST_CASE("AseLoaderTest")
     CHECK(material->name() == "textures/bigtile");
     CHECK(material->texture()->width() == 32u);
     CHECK(material->texture()->height() == 32u);
+  }
+}
+
+TEST_CASE("AseLoader (Regression)", "[regression]")
+{
+  auto logger = NullLogger{};
+
+  const auto materialConfig = mdl::MaterialConfig{
+    {},
+    {".tga", ".png", ".jpg", ".jpeg"},
+    {},
+    {},
+    "scripts",
+    {},
+  };
+
+  const auto defaultAssetsPath =
+    std::filesystem::current_path() / "fixture/test/io/ResourceUtils/assets";
+  auto fs = VirtualFileSystem{};
+  fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
+
+  auto taskManager = kdl::task_manager{};
+
+  SECTION("2657")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/io/Ase/steelstorm_player";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return io::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(io::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("player.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto loader = AseLoader{"player", reader.stringView(), loadMaterial};
+
+    auto model = loader.load(logger);
+    CHECK(model.is_success());
+  }
+
+  SECTION("2679")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/io/Ase/no_scene_directive";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return io::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(io::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
+
+    auto model = loader.load(logger);
+    CHECK(model.is_success());
+  }
+
+  SECTION("2898")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/io/Ase/index_out_of_bounds";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return io::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(io::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    SECTION("vertex index")
+    {
+      const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
+      auto reader = aseFile->reader().buffer();
+      auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
+
+      auto model = loader.load(logger);
+      CHECK(model.is_success());
+    }
+
+    SECTION("no UV")
+    {
+      const auto aseFile = fs.openFile("wedge_45_no_uv.ase") | kdl::value();
+      auto reader = aseFile->reader().buffer();
+      auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
+
+      auto model = loader.load(logger);
+      CHECK(model.is_success());
+    }
   }
 }
 

@@ -25,8 +25,6 @@
 #include "NotifierConnection.h"
 #include "ui/MapView.h"
 
-#include <memory>
-
 namespace tb::render
 {
 class MapRenderer;
@@ -51,7 +49,7 @@ class SwitchableMapViewContainer : public QWidget, public MapView
 {
   Q_OBJECT
 private:
-  std::weak_ptr<MapDocument> m_document;
+  MapDocument& m_document;
   GLContextManager& m_contextManager;
 
   MapViewBar* m_mapViewBar = nullptr;
@@ -66,9 +64,7 @@ private:
 
 public:
   SwitchableMapViewContainer(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
   ~SwitchableMapViewContainer() override;
 
   void connectTopWidgets(Inspector* inspector);

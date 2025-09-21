@@ -82,8 +82,8 @@ extern const std::string LayerOmitFromExportValue;
 struct EntityPropertyConfig
 {
   std::optional<el::ExpressionNode> defaultModelScaleExpression;
-  bool setDefaultProperties{false};
-  bool updateAnglePropertyAfterTransform{true};
+  bool setDefaultProperties = false;
+  bool updateAnglePropertyAfterTransform = true;
 
   kdl_reflect_decl(
     EntityPropertyConfig,

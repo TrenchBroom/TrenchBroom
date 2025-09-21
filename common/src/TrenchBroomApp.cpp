@@ -30,6 +30,7 @@
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "ui/AboutDialog.h"
 #include "ui/Actions.h"
@@ -97,16 +98,16 @@ namespace
 {
 
 // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
-std::shared_ptr<MapDocument> topDocument()
+MapDocument* topDocument()
 {
   if (const auto* frameManager = TrenchBroomApp::instance().frameManager())
   {
-    if (const auto* frame = frameManager->topFrame())
+    if (auto* frame = frameManager->topFrame())
     {
-      return frame->document();
+      return &frame->document();
     }
   }
-  return {};
+  return nullptr;
 }
 
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
@@ -453,11 +454,11 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 
                auto [gameName, mapFormat] = *gameNameAndMapFormat;
                auto game = gameFactory.createGame(gameName, frame->logger());
-               ensure(game.get() != nullptr, "game is null");
+               ensure(game != nullptr, "game is null");
 
                closeWelcomeWindow();
 
-               return frame->openDocument(game, mapFormat, absPath);
+               return frame->openDocument(std::move(game), mapFormat, absPath);
              })
            | kdl::transform_error([&](const auto& e) {
                if (frame)
@@ -541,15 +542,16 @@ bool TrenchBroomApp::newDocument()
 
     auto& gameFactory = mdl::GameFactory::instance();
     auto game = gameFactory.createGame(gameName, frame->logger());
-    ensure(game.get() != nullptr, "game is null");
+    ensure(game != nullptr, "game is null");
 
     closeWelcomeWindow();
-    return frame->newDocument(game, mapFormat) | kdl::transform_error([&](auto e) {
-             frame->close();
+    return frame->newDocument(std::move(game), mapFormat)
+           | kdl::transform_error([&](auto e) {
+               frame->close();
 
-             QMessageBox::critical(nullptr, "", QString::fromStdString(e.msg));
-             return false;
-           })
+               QMessageBox::critical(nullptr, "", QString::fromStdString(e.msg));
+               return false;
+             })
            | kdl::value();
   }
   catch (const Exception& e)
@@ -734,8 +736,8 @@ std::string makeCrashReport(const std::string& stacktrace, const std::string& re
 std::filesystem::path savedMapPath()
 {
   const auto document = topDocument();
-  return document && document->path().is_absolute() ? document->path()
-                                                    : std::filesystem::path{};
+  const auto& map = document->map();
+  return document && map.path().is_absolute() ? map.path() : std::filesystem::path{};
 }
 
 std::filesystem::path crashReportBasePath()
@@ -801,10 +803,9 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
     });
 
     // save the map
-    auto doc = topDocument();
-    if (doc.get() && doc->game())
+    if (const auto document = topDocument(); document && document->map().game())
     {
-      doc->saveDocumentTo(mapPath);
+      document->map().saveTo(mapPath);
       std::cerr << "wrote map to " << mapPath.string() << std::endl;
     }
     else

@@ -50,7 +50,7 @@ public:
   IssueType type() const;
   Node& node() const;
 
-  bool addSelectableNodes(std::vector<mdl::Node*>& nodes) const;
+  bool addSelectableNodes(std::vector<Node*>& nodes) const;
 
   bool hidden() const;
 

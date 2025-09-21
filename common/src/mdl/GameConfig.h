@@ -81,7 +81,7 @@ struct EntityConfig
   std::vector<std::filesystem::path> defFilePaths;
   Color defaultColor;
   std::optional<el::ExpressionNode> scaleExpression;
-  bool setDefaultProperties;
+  bool setDefaultProperties = false;
 
   kdl_reflect_decl(
     EntityConfig, defFilePaths, defaultColor, scaleExpression, setDefaultProperties);
@@ -129,7 +129,7 @@ struct GameConfig
   std::string name;
   std::filesystem::path path;
   std::filesystem::path icon;
-  bool experimental;
+  bool experimental = false;
   std::vector<MapFormatConfig> fileFormats;
   FileSystemConfig fileSystemConfig;
   MaterialConfig materialConfig;
@@ -140,12 +140,12 @@ struct GameConfig
   std::vector<CompilationTool> compilationTools;
   bool forceEmptyNewMap = false;
 
-  CompilationConfig compilationConfig{};
-  GameEngineConfig gameEngineConfig{};
-  bool compilationConfigParseFailed{false};
-  bool gameEngineConfigParseFailed{false};
+  CompilationConfig compilationConfig = {};
+  GameEngineConfig gameEngineConfig = {};
+  bool compilationConfigParseFailed = false;
+  bool gameEngineConfigParseFailed = false;
 
-  size_t maxPropertyLength{1023};
+  size_t maxPropertyLength = 1023;
 
   kdl_reflect_decl(
     GameConfig,

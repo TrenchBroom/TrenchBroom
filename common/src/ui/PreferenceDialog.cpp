@@ -58,9 +58,9 @@ enum class PreferenceDialog::PrefPane
 } PrefPane;
 
 
-PreferenceDialog::PreferenceDialog(std::shared_ptr<MapDocument> document, QWidget* parent)
+PreferenceDialog::PreferenceDialog(MapDocument* document, QWidget* parent)
   : QDialog{parent}
-  , m_document{std::move(document)}
+  , m_document{document}
 {
   setWindowTitle("Preferences");
   setWindowIconTB(this);
@@ -115,11 +115,11 @@ void PreferenceDialog::createGui()
   }
 
   m_stackedWidget = new QStackedWidget{};
-  m_stackedWidget->addWidget(new GamesPreferencePane{m_document.get()});
+  m_stackedWidget->addWidget(new GamesPreferencePane{m_document});
   m_stackedWidget->addWidget(new ViewPreferencePane{});
   m_stackedWidget->addWidget(new ColorsPreferencePane{});
   m_stackedWidget->addWidget(new MousePreferencePane{});
-  m_stackedWidget->addWidget(new KeyboardPreferencePane{m_document.get()});
+  m_stackedWidget->addWidget(new KeyboardPreferencePane{m_document});
   m_stackedWidget->addWidget(new UpdatePreferencePane{});
 
   m_buttonBox = new QDialogButtonBox{

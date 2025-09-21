@@ -21,8 +21,6 @@
 
 #include "ui/TabBook.h"
 
-#include <memory>
-
 class QSplitter;
 
 namespace tb::ui
@@ -42,18 +40,14 @@ private:
 
 public:
   EntityInspector(
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager,
-    QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
   ~EntityInspector() override;
 
 private:
-  void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
-  QWidget* createAttributeEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
+  void createGui(MapDocument& document, GLContextManager& contextManager);
+  QWidget* createAttributeEditor(QWidget* parent, MapDocument& document);
   QWidget* createEntityBrowser(
-    QWidget* parent,
-    std::weak_ptr<MapDocument> document,
-    GLContextManager& contextManager);
+    QWidget* parent, MapDocument& document, GLContextManager& contextManager);
 };
 
 } // namespace tb::ui

@@ -17,48 +17,52 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "io/DiskFileSystem.h"
 #include "io/Quake3ShaderParser.h"
 #include "io/TestParserStatus.h"
 #include "mdl/Quake3Shader.h"
 
-#include "Catch2.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::io
 {
 
-TEST_CASE("Quake3ShaderParserTest.parseEmptyShader")
+TEST_CASE("Quake3ShaderParser")
 {
-  const auto data = "";
-  auto parser = Quake3ShaderParser{data};
   auto status = TestParserStatus{};
 
-  CHECK(parser.parse(status).value().empty());
-}
+  SECTION("Parse empty shader")
+  {
+    const auto data = "";
+    auto parser = Quake3ShaderParser{data};
 
-TEST_CASE("Quake3ShaderParserTest.parseSingleShaderWithEmptyBlock")
-{
-  const auto data = R"(
+    CHECK(parser.parse(status).value().empty());
+  }
+
+  SECTION("Parse single shader with empty block")
+  {
+    const auto data = R"(
 textures/liquids/lavahell2 //path and name of new texture
 {}
 )";
-  auto parser = Quake3ShaderParser{data};
-  auto status = TestParserStatus{};
+    auto parser = Quake3ShaderParser{data};
 
-  CHECK_THAT(
-    parser.parse(status).value(),
-    Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
-      "textures/liquids/lavahell2",      // shaderPath
-      "",                                // editorImage
-      "",                                // lightImage
-      mdl::Quake3Shader::Culling::Front, // culling
-      {},                                // surfaceParms
-      {}                                 // stages
-    }}));
-}
+    CHECK_THAT(
+      parser.parse(status).value(),
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "textures/liquids/lavahell2",      // shaderPath
+        "",                                // editorImage
+        "",                                // lightImage
+        mdl::Quake3Shader::Culling::Front, // culling
+        {},                                // surfaceParms
+        {}                                 // stages
+      }}));
+  }
 
-TEST_CASE("Quake3ShaderParserTest.parseSingleSimpleShaderWithoutEditorImage")
-{
-  const auto data = R"(
+  SECTION("Parse simple shader without editor image")
+  {
+    const auto data = R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
 
@@ -89,27 +93,26 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })";
-  auto parser = Quake3ShaderParser{data};
-  auto status = TestParserStatus{};
+    auto parser = Quake3ShaderParser{data};
 
-  CHECK_THAT(
-    parser.parse(status).value(),
-    Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
-      "textures/liquids/lavahell2",       // shaderPath
-      "",                                 // editorImage
-      "",                                 // lightImage
-      mdl::Quake3Shader::Culling::None,   // culling
-      {"noimpact", "lava", "nolightmap"}, // surfaceParms
-      {{
-        "textures/eerie/lavahell.tga", // map
-        {"", ""}                       // blendFunc
-      }} // stages
-    }}));
-}
+    CHECK_THAT(
+      parser.parse(status).value(),
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "textures/liquids/lavahell2",       // shaderPath
+        "",                                 // editorImage
+        "",                                 // lightImage
+        mdl::Quake3Shader::Culling::None,   // culling
+        {"noimpact", "lava", "nolightmap"}, // surfaceParms
+        {{
+          "textures/eerie/lavahell.tga", // map
+          {"", ""}                       // blendFunc
+        }} // stages
+      }}));
+  }
 
-TEST_CASE("Quake3ShaderParserTest.parseSingleSimpleShaderWithEditorImage")
-{
-  const auto data = R"(
+  SECTION("Parse simple shader with editor image")
+  {
+    const auto data = R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
 
@@ -141,27 +144,26 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })";
-  auto parser = Quake3ShaderParser{data};
-  auto status = TestParserStatus{};
+    auto parser = Quake3ShaderParser{data};
 
-  CHECK_THAT(
-    parser.parse(status).value(),
-    Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
-      "textures/liquids/lavahell2",       // shaderPath
-      "textures/eerie/lavahell.tga",      // editorImage
-      "",                                 // lightImage
-      mdl::Quake3Shader::Culling::None,   // culling
-      {"noimpact", "lava", "nolightmap"}, // surfaceParms
-      {{
-        "textures/eerie/lavahell.tga", // map
-        {"", ""}                       // blendFunc
-      }} // stages
-    }}));
-}
+    CHECK_THAT(
+      parser.parse(status).value(),
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "textures/liquids/lavahell2",       // shaderPath
+        "textures/eerie/lavahell.tga",      // editorImage
+        "",                                 // lightImage
+        mdl::Quake3Shader::Culling::None,   // culling
+        {"noimpact", "lava", "nolightmap"}, // surfaceParms
+        {{
+          "textures/eerie/lavahell.tga", // map
+          {"", ""}                       // blendFunc
+        }} // stages
+      }}));
+  }
 
-TEST_CASE("Quake3ShaderParserTest.parseSingleComplexShaderWithEditorImage")
-{
-  const auto data = R"(
+  SECTION("Parse complex shader with editor image")
+  {
+    const auto data = R"(
 textures/eerie/ironcrosslt2_10000
 {
 
@@ -193,35 +195,34 @@ textures/eerie/ironcrosslt2_10000
     }
 
 })";
-  auto parser = Quake3ShaderParser{data};
-  auto status = TestParserStatus{};
+    auto parser = Quake3ShaderParser{data};
 
-  CHECK_THAT(
-    parser.parse(status).value(),
-    Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
-      "textures/eerie/ironcrosslt2_10000",            // shaderPath
-      "textures/gothic_light/ironcrosslt2.tga",       // editorImage
-      "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
-      mdl::Quake3Shader::Culling::Front,              // culling
-      {},                                             // surfaceParms
-      {{
-         "$lightmap", // map
-         {"", ""}     // blendFunc
-       },
-       {
-         "textures/gothic_light/ironcrosslt2.tga", // map
-         {"GL_DST_COLOR", "GL_ZERO"}               // blendFunc
-       },
-       {
-         "textures/gothic_light/ironcrosslt2.blend.tga", // map
-         {"GL_ONE", "GL_ONE"}                            // blendFunc
-       }} // stages
-    }}));
-}
+    CHECK_THAT(
+      parser.parse(status).value(),
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "textures/eerie/ironcrosslt2_10000",            // shaderPath
+        "textures/gothic_light/ironcrosslt2.tga",       // editorImage
+        "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
+        mdl::Quake3Shader::Culling::Front,              // culling
+        {},                                             // surfaceParms
+        {{
+           "$lightmap", // map
+           {"", ""}     // blendFunc
+         },
+         {
+           "textures/gothic_light/ironcrosslt2.tga", // map
+           {"GL_DST_COLOR", "GL_ZERO"}               // blendFunc
+         },
+         {
+           "textures/gothic_light/ironcrosslt2.blend.tga", // map
+           {"GL_ONE", "GL_ONE"}                            // blendFunc
+         }} // stages
+      }}));
+  }
 
-TEST_CASE("Quake3ShaderParserTest.caseSensitivity")
-{
-  const auto data = R"(
+  SECTION("Case sensitivity")
+  {
+    const auto data = R"(
 textures/eerie/ironcrosslt2_10000
 {
 
@@ -253,35 +254,55 @@ textures/eerie/ironcrosslt2_10000
     }
 
 })";
-  auto parser = Quake3ShaderParser{data};
-  auto status = TestParserStatus{};
+    auto parser = Quake3ShaderParser{data};
 
-  CHECK_THAT(
-    parser.parse(status).value(),
-    Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
-      "textures/eerie/ironcrosslt2_10000",            // shaderPath
-      "textures/gothic_light/ironcrosslt2.tga",       // editorImage
-      "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
-      mdl::Quake3Shader::Culling::Front,              // culling
-      {},                                             // surfaceParms
-      {{
-         "$lightmap", // map
-         {"", ""}     // blendFunc
-       },
-       {
-         "textures/gothic_light/ironcrosslt2.tga", // map
-         {"GL_DST_COLOR", "GL_ZERO"}               // blendFunc
-       },
-       {
-         "textures/gothic_light/ironcrosslt2.blend.tga", // map
-         {"GL_ONE", "GL_ONE"}                            // blendFunc
-       }} // stages
-    }}));
+    CHECK_THAT(
+      parser.parse(status).value(),
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "textures/eerie/ironcrosslt2_10000",            // shaderPath
+        "textures/gothic_light/ironcrosslt2.tga",       // editorImage
+        "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
+        mdl::Quake3Shader::Culling::Front,              // culling
+        {},                                             // surfaceParms
+        {{
+           "$lightmap", // map
+           {"", ""}     // blendFunc
+         },
+         {
+           "textures/gothic_light/ironcrosslt2.tga", // map
+           {"GL_DST_COLOR", "GL_ZERO"}               // blendFunc
+         },
+         {
+           "textures/gothic_light/ironcrosslt2.blend.tga", // map
+           {"GL_ONE", "GL_ONE"}                            // blendFunc
+         }} // stages
+      }}));
+  }
+
+  SECTION("Parse shader with a comment terminating a block entry")
+  {
+    const auto data = R"(
+waterBubble
+{
+    sort	underwater
+    cull none
+    entityMergable		// this comment terminates a block entry
+    {
+        map sprites/bubble.tga
+        blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+        rgbGen		vertex
+        alphaGen	vertex
+    }
 }
 
-TEST_CASE("Quake3ShaderParserTest.parseTwoShaders")
-{
-  const auto data = R"(
+)";
+    auto parser = Quake3ShaderParser{data};
+    CHECK_NOTHROW(parser.parse(status));
+  }
+
+  SECTION("Parse two shaders")
+  {
+    const auto data = R"(
 textures/eerie/ironcrosslt2_10000
 {
 
@@ -348,47 +369,46 @@ textures/liquids/lavahell2 //path and name of new texture
 }
 
 )";
-  auto parser = Quake3ShaderParser{data};
-  auto status = TestParserStatus{};
+    auto parser = Quake3ShaderParser{data};
 
-  CHECK_THAT(
-    parser.parse(status).value(),
-    Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{
-      {
-        "textures/eerie/ironcrosslt2_10000",            // shaderPath
-        "textures/gothic_light/ironcrosslt2.tga",       // editorImage
-        "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
-        mdl::Quake3Shader::Culling::Front,              // culling
-        {},                                             // surfaceParms
-        {{
-           "$lightmap", // map
-           {"", ""}     // blendFunc
-         },
-         {
-           "textures/gothic_light/ironcrosslt2.tga", // map
-           {"GL_DST_COLOR", "GL_ZERO"}               // blendFunc
-         },
-         {
-           "textures/gothic_light/ironcrosslt2.blend.tga", // map
-           {"GL_ONE", "GL_ONE"}                            // blendFunc
-         }} // stages
-      },
-      {
-        "textures/liquids/lavahell2",       // shaderPath
-        "textures/eerie/lavahell.tga",      // editorImage
-        "",                                 // lightImage
-        mdl::Quake3Shader::Culling::None,   // culling
-        {"noimpact", "lava", "nolightmap"}, // surfaceParms
-        {{
-          "textures/eerie/lavahell.tga", // map
-          {"", ""}                       // blendFunc
-        }} // stages
-      }}));
-}
+    CHECK_THAT(
+      parser.parse(status).value(),
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{
+        {
+          "textures/eerie/ironcrosslt2_10000",            // shaderPath
+          "textures/gothic_light/ironcrosslt2.tga",       // editorImage
+          "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
+          mdl::Quake3Shader::Culling::Front,              // culling
+          {},                                             // surfaceParms
+          {{
+             "$lightmap", // map
+             {"", ""}     // blendFunc
+           },
+           {
+             "textures/gothic_light/ironcrosslt2.tga", // map
+             {"GL_DST_COLOR", "GL_ZERO"}               // blendFunc
+           },
+           {
+             "textures/gothic_light/ironcrosslt2.blend.tga", // map
+             {"GL_ONE", "GL_ONE"}                            // blendFunc
+           }} // stages
+        },
+        {
+          "textures/liquids/lavahell2",       // shaderPath
+          "textures/eerie/lavahell.tga",      // editorImage
+          "",                                 // lightImage
+          mdl::Quake3Shader::Culling::None,   // culling
+          {"noimpact", "lava", "nolightmap"}, // surfaceParms
+          {{
+            "textures/eerie/lavahell.tga", // map
+            {"", ""}                       // blendFunc
+          }} // stages
+        }}));
+  }
 
-TEST_CASE("Quake3ShaderParserTest.parseShadersWithMultilineComment")
-{
-  const auto data = R"(
+  SECTION("Parse shaders with multiline comment")
+  {
+    const auto data = R"(
 /*
 This is a
 multiline comment.
@@ -408,16 +428,14 @@ waterBubble
 }
 
 )";
-  auto parser = Quake3ShaderParser{data};
-  auto status = TestParserStatus{};
-  CHECK_NOTHROW(parser.parse(status));
-}
+    auto parser = Quake3ShaderParser{data};
+    CHECK_NOTHROW(parser.parse(status));
+  }
 
-TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters")
-{
-  // see
-  // https://github.com/id-Software/Quake-III-Arena/blob/master/code/renderer/tr_shader.c#L176
-  const auto data = R"(
+  SECTION("Parse blend func parameters")
+  {
+    // https://github.com/id-Software/Quake-III-Arena/blob/master/code/renderer/tr_shader.c#L176
+    const auto data = R"(
             waterBubble
             {
                 {
@@ -472,70 +490,143 @@ TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters")
 
             )";
 
-  using BF = mdl::Quake3ShaderStage::BlendFunc;
+    using BF = mdl::Quake3ShaderStage::BlendFunc;
 
-  auto parser = Quake3ShaderParser{data};
+    auto parser = Quake3ShaderParser{data};
+
+    CHECK_THAT(
+      parser.parse(status).value(),
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "waterBubble",                     // shaderPath
+        "",                                // editorImage
+        "",                                // lightImage
+        mdl::Quake3Shader::Culling::Front, // culling
+        {},                                // surfaceParms
+        {
+          {
+            "sprites/bubble.tga", // map
+            {BF::One, BF::One}    // blendFunc
+          },
+          {
+            "sprites/bubble.tga",     // map
+            {BF::DestColor, BF::Zero} // blendFunc
+          },
+          {
+            "sprites/bubble.tga",                // map
+            {BF::SrcAlpha, BF::OneMinusSrcAlpha} // blendFunc
+          },
+          {
+            "sprites/bubble.tga", // map
+            {BF::One, BF::One}    // blendFunc
+          },
+          {
+            "sprites/bubble.tga", // map
+            {BF::Zero, BF::Zero}  // blendFunc
+          },
+          {
+            "sprites/bubble.tga",         // map
+            {BF::DestColor, BF::SrcAlpha} // blendFunc
+          },
+          {
+            "sprites/bubble.tga",                         // map
+            {BF::OneMinusDestColor, BF::OneMinusSrcAlpha} // blendFunc
+          },
+          {
+            "sprites/bubble.tga",         // map
+            {BF::SrcAlpha, BF::DestAlpha} // blendFunc
+          },
+          {
+            "sprites/bubble.tga",                         // map
+            {BF::OneMinusSrcAlpha, BF::OneMinusDestAlpha} // blendFunc
+          },
+          {
+            "sprites/bubble.tga",         // map
+            {BF::DestAlpha, BF::SrcColor} // blendFunc
+          },
+          {
+            "sprites/bubble.tga",                         // map
+            {BF::OneMinusDestAlpha, BF::OneMinusSrcColor} // blendFunc
+          },
+          {
+            "sprites/bubble.tga",                        // map
+            {BF::SrcAlphaSaturate, BF::OneMinusSrcColor} // blendFunc
+          },
+        } // stages
+      }}));
+  }
+}
+
+TEST_CASE("Quake3ShaderParser (Regression)", "[regression]")
+{
   auto status = TestParserStatus{};
 
-  CHECK_THAT(
-    parser.parse(status).value(),
-    Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
-      "waterBubble",                     // shaderPath
-      "",                                // editorImage
-      "",                                // lightImage
-      mdl::Quake3Shader::Culling::Front, // culling
-      {},                                // surfaceParms
-      {
+  SECTION("2537")
+  {
+    // see https://github.com/TrenchBroom/TrenchBroom/issues/2537
+    // The file contains a carriage return without a consecutive line feed, which tripped
+    // the parser.
+
+    const auto workDir = std::filesystem::current_path();
+    auto fs = DiskFileSystem{workDir / "fixture/test/io/Shader/parser"};
+    auto testFile = fs.openFile("am_cf_models.shader") | kdl::value();
+    auto reader = testFile->reader().buffer();
+
+    auto parser = Quake3ShaderParser{reader.stringView()};
+    CHECK_NOTHROW(parser.parse(status));
+  }
+
+  SECTION("2633")
+  {
+    // see https://github.com/TrenchBroom/TrenchBroom/issues/2633
+    // apparently, the Q3 engine can handle this
+
+    const auto data = R"(
+/textures/eerie/ironcrosslt2_10000
+{
+    qer_editorimage textures/gothic_light/ironcrosslt2.tga
+    //base TGA (used because the shader is used with several
+    // different light values
+
+})";
+
+    auto parser = Quake3ShaderParser{data};
+
+    CHECK_THAT(
+      parser.parse(status).value(),
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "textures/eerie/ironcrosslt2_10000",      // shaderPath
+        "textures/gothic_light/ironcrosslt2.tga", // editorImage
+        "",                                       // lightImage
+        mdl::Quake3Shader::Culling::Front,        // culling
+        {},                                       // surfaceParms
+        {}                                        // stages
+      }}));
+  }
+
+  SECTION("2663")
+  {
+    // see https://github.com/TrenchBroom/TrenchBroom/issues/2663
+    // Quake 3 allows this, too.
+
+    const std::string data(R"(
+textures/evil3_floors/t-flr_oddtile_drty
+{
         {
-          "sprites/bubble.tga", // map
-          {BF::One, BF::One}    // blendFunc
-        },
+		map $lightmap
+		              rgbGen identity 	}
+}
+textures/evil3_floors/cemtiledrk_mhbrk
+{
+
         {
-          "sprites/bubble.tga",     // map
-          {BF::DestColor, BF::Zero} // blendFunc
-        },
-        {
-          "sprites/bubble.tga",                // map
-          {BF::SrcAlpha, BF::OneMinusSrcAlpha} // blendFunc
-        },
-        {
-          "sprites/bubble.tga", // map
-          {BF::One, BF::One}    // blendFunc
-        },
-        {
-          "sprites/bubble.tga", // map
-          {BF::Zero, BF::Zero}  // blendFunc
-        },
-        {
-          "sprites/bubble.tga",         // map
-          {BF::DestColor, BF::SrcAlpha} // blendFunc
-        },
-        {
-          "sprites/bubble.tga",                         // map
-          {BF::OneMinusDestColor, BF::OneMinusSrcAlpha} // blendFunc
-        },
-        {
-          "sprites/bubble.tga",         // map
-          {BF::SrcAlpha, BF::DestAlpha} // blendFunc
-        },
-        {
-          "sprites/bubble.tga",                         // map
-          {BF::OneMinusSrcAlpha, BF::OneMinusDestAlpha} // blendFunc
-        },
-        {
-          "sprites/bubble.tga",         // map
-          {BF::DestAlpha, BF::SrcColor} // blendFunc
-        },
-        {
-          "sprites/bubble.tga",                         // map
-          {BF::OneMinusDestAlpha, BF::OneMinusSrcColor} // blendFunc
-        },
-        {
-          "sprites/bubble.tga",                        // map
-          {BF::SrcAlphaSaturate, BF::OneMinusSrcColor} // blendFunc
-        },
-      } // stages
-    }}));
+		map textures/evil3_floors/cemtiledrk_mhbrk_glow.tga
+	}
+}
+)");
+
+    auto parser = Quake3ShaderParser{data};
+    CHECK_NOTHROW(parser.parse(status));
+  }
 }
 
 } // namespace tb::io

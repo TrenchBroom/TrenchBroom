@@ -26,7 +26,9 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
-#include "mdl/MapFacade.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PushSelection.h"
 
 #include <string>
@@ -41,28 +43,28 @@ const auto Type = freeIssueType();
 
 IssueQuickFix makeResetUVScaleQuickFix()
 {
-  return {
-    "Reset UV Scale", [](MapFacade& facade, const std::vector<const Issue*>& issues) {
-      const auto pushSelection = PushSelection{facade};
+  return {"Reset UV Scale", [](Map& map, const std::vector<const Issue*>& issues) {
+            const auto pushSelection = PushSelection{map};
 
-      auto faceHandles = std::vector<BrushFaceHandle>{};
-      for (const auto* issue : issues)
-      {
-        if (issue->type() == Type)
-        {
-          auto& brushNode = static_cast<BrushNode&>(issue->node());
-          const auto faceIndex = static_cast<const BrushFaceIssue*>(issue)->faceIndex();
-          faceHandles.emplace_back(&brushNode, faceIndex);
-        }
-      }
+            auto faceHandles = std::vector<BrushFaceHandle>{};
+            for (const auto* issue : issues)
+            {
+              if (issue->type() == Type)
+              {
+                auto& brushNode = static_cast<BrushNode&>(issue->node());
+                const auto faceIndex =
+                  static_cast<const BrushFaceIssue*>(issue)->faceIndex();
+                faceHandles.emplace_back(&brushNode, faceIndex);
+              }
+            }
 
-      auto request = ChangeBrushFaceAttributesRequest{};
-      request.setScale(vm::vec2f{1, 1});
+            auto request = ChangeBrushFaceAttributesRequest{};
+            request.setScale(vm::vec2f{1, 1});
 
-      facade.deselectAll();
-      facade.selectBrushFaces(faceHandles);
-      facade.setFaceAttributes(request);
-    }};
+            deselectAll(map);
+            selectBrushFaces(map, faceHandles);
+            setBrushFaceAttributes(map, request);
+          }};
 }
 } // namespace
 

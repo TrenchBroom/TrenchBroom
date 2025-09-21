@@ -29,7 +29,7 @@ namespace detail
 {
 
 template <typename T, size_t... I>
-auto lift_and_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
+auto logical_and_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
 {
   return [tuple_of_functions = std::forward<T>(tuple_of_functions_)](auto&&... x) {
     return (... && std::get<I>(tuple_of_functions)(std::forward<decltype(x)>(x)...));
@@ -37,7 +37,7 @@ auto lift_and_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
 }
 
 template <typename T, size_t... I>
-auto lift_or_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
+auto logical_or_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
 {
   return [tuple_of_functions = std::forward<T>(tuple_of_functions_)](auto&&... x) {
     return (... || std::get<I>(tuple_of_functions)(std::forward<decltype(x)>(x)...));
@@ -47,17 +47,25 @@ auto lift_or_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
 } // namespace detail
 
 template <typename... F>
-auto lift_and(F&&... fun)
+auto logical_and(F&&... fun)
 {
-  return detail::lift_and_impl(
+  return detail::logical_and_impl(
     std::tuple{std::forward<F>(fun)...}, std::make_index_sequence<sizeof...(F)>{});
 }
 
 template <typename... F>
-auto lift_or(F&&... fun)
+auto logical_or(F&&... fun)
 {
-  return detail::lift_or_impl(
+  return detail::logical_or_impl(
     std::tuple{std::forward<F>(fun)...}, std::make_index_sequence<sizeof...(F)>{});
+}
+
+template <typename F>
+auto logical_not(F&& fun_)
+{
+  return [fun = std::forward<F>(fun_)](auto&&... x) {
+    return !fun(std::forward<decltype(x)>(x)...);
+  };
 }
 
 } // namespace kdl

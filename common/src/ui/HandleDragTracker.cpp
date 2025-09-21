@@ -22,9 +22,9 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
+#include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
-#include "ui/Grid.h"
 
 #include "kdl/optional_utils.h"
 #include "kdl/reflection_impl.h"
@@ -127,7 +127,7 @@ DragHandleSnapper makeIdentityHandleSnapper()
     };
 }
 
-DragHandleSnapper makeRelativeHandleSnapper(const Grid& grid)
+DragHandleSnapper makeRelativeHandleSnapper(const mdl::Grid& grid)
 {
   return [&grid](
            const InputState&,
@@ -138,7 +138,7 @@ DragHandleSnapper makeRelativeHandleSnapper(const Grid& grid)
   };
 }
 
-DragHandleSnapper makeAbsoluteHandleSnapper(const Grid& grid)
+DragHandleSnapper makeAbsoluteHandleSnapper(const mdl::Grid& grid)
 {
   return [&grid](
            const InputState&, const DragState&, const vm::vec3d& proposedHandlePosition) {
@@ -146,7 +146,8 @@ DragHandleSnapper makeAbsoluteHandleSnapper(const Grid& grid)
   };
 }
 
-DragHandleSnapper makeRelativeLineHandleSnapper(const Grid& grid, const vm::line3d& line)
+DragHandleSnapper makeRelativeLineHandleSnapper(
+  const mdl::Grid& grid, const vm::line3d& line)
 {
   return [&grid, line](
            const InputState&,
@@ -161,7 +162,8 @@ DragHandleSnapper makeRelativeLineHandleSnapper(const Grid& grid, const vm::line
   };
 }
 
-DragHandleSnapper makeAbsoluteLineHandleSnapper(const Grid& grid, const vm::line3d& line)
+DragHandleSnapper makeAbsoluteLineHandleSnapper(
+  const mdl::Grid& grid, const vm::line3d& line)
 {
   return [&grid, line](
            const InputState&, const DragState&, const vm::vec3d& proposedHandlePosition) {
@@ -170,7 +172,7 @@ DragHandleSnapper makeAbsoluteLineHandleSnapper(const Grid& grid, const vm::line
 }
 
 DragHandleSnapper makeCircleHandleSnapper(
-  const Grid& grid,
+  const mdl::Grid& grid,
   double snapAngle,
   const vm::vec3d& center,
   const vm::vec3d& normal,
@@ -195,7 +197,7 @@ DragHandleSnapper makeCircleHandleSnapper(
   };
 }
 
-HandlePositionProposer makeBrushFaceHandleProposer(const Grid& grid)
+HandlePositionProposer makeBrushFaceHandleProposer(const mdl::Grid& grid)
 {
   return
     [&grid](const InputState& inputState, const DragState&) -> std::optional<vm::vec3d> {

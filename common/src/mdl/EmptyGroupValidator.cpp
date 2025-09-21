@@ -22,7 +22,6 @@
 #include "mdl/GroupNode.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
-#include "mdl/MapFacade.h"
 
 #include <vector>
 
