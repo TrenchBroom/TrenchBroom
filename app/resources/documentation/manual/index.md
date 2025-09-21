@@ -52,7 +52,7 @@ In theory, you can add any data to any entity. You could add a "Color" property 
 
 ### Entity Definition File
 
-An [entity definition file](#entity_definitions) is like a data template, setting default properties and values for each entity class. Without it, you'd have to memorize each entity's properties and exact spelling (`color`, `_color`, or `colour`?) which would be very unpleasant. Clearly, entity definitions are important and necessary. See [Entity Definition Setup](#entity_definition_setup) for more info.
+An [entity definition file](#entity_definitions) contains **property definitions**: presets, data types, default values, and even helpful advice / in-editor documentation for each property. Without entity definitions, you'd have to memorize each entity's classname, properties, and exact spelling (`color`, `_color`, or `colour`?) which would be very unpleasant. See [Entity Definition Setup](#entity_definition_setup) for more info.
 
 ### Mod Directory
  
