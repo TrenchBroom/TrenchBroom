@@ -22,11 +22,13 @@ TrenchBroom is a modern cross-platform 3D level editor. It is designed for Quake
   - Use FGD, ENT or DEF entity definition files
   - Visualize 3D entity models in editor
 
+### NOTE: This is just a manual, not a tutorial
+
+This manual only covers editor functionality, and **NOT** how to make levels / level design. See [References and Links](#references_and_links) to find a mapping community for help and support.
+
 # Getting Started {#getting_started}
 
 First we'll begin with an overview of key concepts, then we'll tour TrenchBroom's interface and features.
-
-> **NOTE: this is just a manual, not a tutorial.** Beyond editor functionality, this will not teach you how to make levels. See [References and Links](#references_and_links) to find a mapping community for help and support.
 
 ## Key Concepts {#key_concepts}
 
