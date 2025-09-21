@@ -42,9 +42,19 @@ Maps are made of **entities**: Quake's general word for game objects, actors, or
 
 **Brushes** are **convex** solids that must always bulge outward, like a cube or a sphere. Brushes cannot be concave or curve inward, like a bowl or a banana.
 
-### Entity Definitions and Mods
+### Entity Data
 
-To use entities, you need an [entity definition file](#entity_definitions) that lists each entity class and its **properties** like name, color, angle, or health. For example, a "light" entity could have a "light color" property, or a "monster_zombie" entity might have a "health" property. See [Entity Definition Setup](#entity_definition_setup) for more info.
+Entity data is a list of **properties** to set an object's name, color, health, etc. Each property has a **key** with an associated **value**. Some examples:
+* `light` entity with a "Light color" property, key: `_color` and value: `255 255 255` (RGB color?)
+* `monster_zombie` entity with a "Health" property, key: `health` and value: `100` (health points?)
+
+In theory, you can add any data to any entity. You could add a "Color" property to a zombie, or a "Health" property to a light. It is up to each game to implement (or ignore) any of that data.
+
+### Entity Definition File
+
+An [entity definition file](#entity_definitions) is like a data template, setting default properties and values for each entity class. Without it, you'd have to memorize each entity's properties and exact spelling (`color`, `_color`, or `colour`?) which would be very unpleasant. Clearly, entity definitions are important and necessary. See [Entity Definition Setup](#entity_definition_setup) for more info.
+
+### Mod Directory
  
 To display models and other assets, you set a **mod directory**, a project folder that contains all the files and subfolders you want to use. (This is also a great place to put your entity definition file.) If you load multiple mods that use the same filenames, the higher priority mod's files will override the others. See [Mod Setup](#mod_setup) for more info.
 
