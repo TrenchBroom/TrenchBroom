@@ -126,6 +126,8 @@ public:
 
   std::string asString() const;
 
+  const std::shared_ptr<Expression>& getExpression() const { return m_expression; }
+
   friend bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs);
   friend bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs);
   friend std::ostream& operator<<(std::ostream& str, const ExpressionNode& exp);
