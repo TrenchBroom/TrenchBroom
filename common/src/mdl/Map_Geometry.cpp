@@ -50,12 +50,15 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
 #include "kdl/result_fold.h"
 #include "kdl/string_format.h"
 #include "kdl/task_manager.h"
 
 namespace tb::mdl
 {
+
+kdl_reflect_impl(TransformVerticesResult);
 
 bool transformSelection(
   Map& map, const std::string& commandName, const vm::mat4x4d& transformation)

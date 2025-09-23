@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "kdl/reflection_decl.h"
+
 #include "vm/bbox.h"
 #include "vm/mat.h"
 #include "vm/polygon.h"
@@ -49,6 +51,8 @@ struct TransformVerticesResult
 {
   bool success;
   bool hasRemainingVertices;
+
+  kdl_reflect_decl(TransformVerticesResult, success, hasRemainingVertices);
 };
 
 TransformVerticesResult transformVertices(
