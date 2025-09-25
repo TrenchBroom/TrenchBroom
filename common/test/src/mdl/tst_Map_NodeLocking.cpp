@@ -49,7 +49,6 @@ TEST_CASE("Map_NodeLocking")
 
   SECTION("lockNodes")
   {
-
     SECTION("Layer nodes")
     {
       auto* layerNode = new LayerNode{Layer{"layer"}};
@@ -92,11 +91,20 @@ TEST_CASE("Map_NodeLocking")
       CHECK(groupNode->locked());
       CHECK(patchNode->locked());
 
-      map.undoCommand();
-      CHECK_FALSE(brushNode->locked());
-      CHECK_FALSE(entityNode->locked());
-      CHECK_FALSE(groupNode->locked());
-      CHECK_FALSE(patchNode->locked());
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+        CHECK_FALSE(brushNode->locked());
+        CHECK_FALSE(entityNode->locked());
+        CHECK_FALSE(groupNode->locked());
+        CHECK_FALSE(patchNode->locked());
+
+        map.redoCommand();
+        CHECK(brushNode->locked());
+        CHECK(entityNode->locked());
+        CHECK(groupNode->locked());
+        CHECK(patchNode->locked());
+      }
     }
 
     SECTION("Locking increases modification count")
@@ -204,6 +212,121 @@ TEST_CASE("Map_NodeLocking")
             {unlockedBrushNode, 0},
           }));
       }
+    }
+  }
+
+  SECTION("unlockNodes")
+  {
+    auto* brushNode = createBrushNode(map);
+    auto* entityNode = new EntityNode{Entity{}};
+
+    lockNodes(map, {brushNode, entityNode});
+    REQUIRE(brushNode->locked());
+    REQUIRE(entityNode->locked());
+
+    unlockNodes(map, {brushNode, entityNode});
+    CHECK(!brushNode->locked());
+    CHECK(!entityNode->locked());
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(brushNode->locked());
+      CHECK(entityNode->locked());
+
+      map.redoCommand();
+      CHECK(!brushNode->locked());
+      CHECK(!entityNode->locked());
+    }
+  }
+
+  SECTION("ensureNodesUnlocked")
+  {
+    auto* brushNode = createBrushNode(map);
+    auto* entityNode = new EntityNode{Entity{}};
+    addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
+
+    lockNodes(map, {brushNode});
+    REQUIRE(brushNode->locked());
+    REQUIRE(!entityNode->locked());
+
+    ensureNodesUnlocked(map, {brushNode, entityNode});
+    CHECK(!brushNode->locked());
+    CHECK(!entityNode->locked());
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(brushNode->locked());
+      CHECK(!entityNode->locked());
+
+      map.redoCommand();
+      CHECK(!brushNode->locked());
+      CHECK(!entityNode->locked());
+    }
+  }
+
+  SECTION("resetNodeLockingState")
+  {
+    auto* lockedNode = new EntityNode{Entity{}};
+    auto* unlockedNode = new EntityNode{Entity{}};
+    auto* inheritedNode = new EntityNode{Entity{}};
+    addNodes(map, {{parentForNodes(map), {lockedNode, unlockedNode, inheritedNode}}});
+
+    lockNodes(map, {lockedNode});
+    unlockNodes(map, {unlockedNode});
+    REQUIRE(lockedNode->lockState() == LockState::Locked);
+    REQUIRE(unlockedNode->lockState() == LockState::Unlocked);
+    REQUIRE(inheritedNode->lockState() == LockState::Inherited);
+
+    resetNodeLockingState(map, {lockedNode, unlockedNode, inheritedNode});
+    CHECK(lockedNode->lockState() == LockState::Inherited);
+    CHECK(unlockedNode->lockState() == LockState::Inherited);
+    CHECK(inheritedNode->lockState() == LockState::Inherited);
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(lockedNode->lockState() == LockState::Locked);
+      CHECK(unlockedNode->lockState() == LockState::Unlocked);
+      CHECK(inheritedNode->lockState() == LockState::Inherited);
+
+      map.redoCommand();
+      CHECK(lockedNode->lockState() == LockState::Inherited);
+      CHECK(unlockedNode->lockState() == LockState::Inherited);
+      CHECK(inheritedNode->lockState() == LockState::Inherited);
+    }
+  }
+
+  SECTION("downgradeUnlockedToInherit")
+  {
+    auto* lockedNode = new EntityNode{Entity{}};
+    auto* unlockedNode = new EntityNode{Entity{}};
+    auto* inheritedNode = new EntityNode{Entity{}};
+    addNodes(map, {{parentForNodes(map), {lockedNode, unlockedNode, inheritedNode}}});
+
+    lockNodes(map, {lockedNode});
+    unlockNodes(map, {unlockedNode});
+    REQUIRE(lockedNode->lockState() == LockState::Locked);
+    REQUIRE(unlockedNode->lockState() == LockState::Unlocked);
+    REQUIRE(inheritedNode->lockState() == LockState::Inherited);
+
+    downgradeUnlockedToInherit(map, {lockedNode, unlockedNode, inheritedNode});
+    CHECK(lockedNode->lockState() == LockState::Locked);
+    CHECK(unlockedNode->lockState() == LockState::Inherited);
+    CHECK(inheritedNode->lockState() == LockState::Inherited);
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(lockedNode->lockState() == LockState::Locked);
+      CHECK(unlockedNode->lockState() == LockState::Unlocked);
+      CHECK(inheritedNode->lockState() == LockState::Inherited);
+
+      map.redoCommand();
+      CHECK(lockedNode->lockState() == LockState::Locked);
+      CHECK(unlockedNode->lockState() == LockState::Inherited);
+      CHECK(inheritedNode->lockState() == LockState::Inherited);
     }
   }
 }
