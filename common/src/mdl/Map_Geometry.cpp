@@ -852,57 +852,6 @@ bool csgHollow(Map& map)
   return transaction.commit();
 }
 
-bool clipBrushes(Map& map, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3)
-{
-  return map.selection().brushes
-         | std::views::transform([&](const BrushNode* originalBrush) {
-             auto clippedBrush = originalBrush->brush();
-             return BrushFace::create(
-                      p1,
-                      p2,
-                      p3,
-                      BrushFaceAttributes{map.currentMaterialName()},
-                      map.world()->mapFormat())
-                    | kdl::and_then([&](BrushFace&& clipFace) {
-                        return clippedBrush.clip(map.worldBounds(), std::move(clipFace));
-                      })
-                    | kdl::and_then([&]() -> Result<std::pair<Node*, Brush>> {
-                        return std::make_pair(
-                          originalBrush->parent(), std::move(clippedBrush));
-                      });
-           })
-         | kdl::fold | kdl::and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
-             auto toAdd = std::map<Node*, std::vector<Node*>>{};
-             const auto toRemove = kdl::vec_static_cast<Node*>(map.selection().brushes);
-
-             for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
-             {
-               toAdd[parentNode].push_back(new BrushNode{std::move(clippedBrush)});
-             }
-
-             auto transaction = Transaction{map, "Clip Brushes"};
-             deselectAll(map);
-             removeNodes(map, toRemove);
-
-             const auto addedNodes = addNodes(map, toAdd);
-             if (addedNodes.empty())
-             {
-               transaction.cancel();
-               return Error{"Could not replace brushes in document"};
-             }
-             selectNodes(map, addedNodes);
-             if (!transaction.commit())
-             {
-               return Error{"Could not replace brushes in document"};
-             }
-             return kdl::void_success;
-           })
-         | kdl::if_error([&](const auto& e) {
-             map.logger().error() << "Could not clip brushes: " << e;
-           })
-         | kdl::is_success();
-}
-
 bool extrudeBrushes(
   Map& map, const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta)
 {

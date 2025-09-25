@@ -2303,27 +2303,6 @@ void MapFrame::debugCreateCube()
   }
 }
 
-void MapFrame::debugClipBrush()
-{
-  auto ok = false;
-  const auto str = QInputDialog::getText(
-    this,
-    "Clip Brush",
-    "Enter face points ( x y z ) ( x y z ) ( x y z )",
-    QLineEdit::Normal,
-    "",
-    &ok);
-  if (ok)
-  {
-    auto points = std::vector<vm::vec3d>{};
-    vm::parse_all<double, 3>(str.toStdString(), std::back_inserter(points));
-    if (points.size() == 3)
-    {
-      clipBrushes(m_document->map(), points[0], points[1], points[2]);
-    }
-  }
-}
-
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wold-style-cast"

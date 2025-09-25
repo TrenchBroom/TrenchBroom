@@ -69,8 +69,6 @@ bool csgSubtract(Map& map);
 bool csgIntersect(Map& map);
 bool csgHollow(Map& map);
 
-bool clipBrushes(Map& map, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3);
-
 bool extrudeBrushes(
   Map& map, const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta);
 
