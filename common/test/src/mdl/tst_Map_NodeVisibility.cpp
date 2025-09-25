@@ -173,6 +173,306 @@ TEST_CASE("Map_NodeVisibility")
       }
     }
   }
+
+  SECTION("hideSelectedNodes")
+  {
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* groupedEntityNode = new EntityNode{Entity{}};
+
+    addNodes(map, {{parentForNodes(map), {entityNode, groupNode}}});
+    addNodes(map, {{groupNode, {groupedEntityNode}}});
+
+    showNodes(map, {groupedEntityNode});
+    REQUIRE(groupedEntityNode->visibilityState() == VisibilityState::Shown);
+
+    selectNodes(map, {entityNode, groupNode});
+    hideSelectedNodes(map);
+    CHECK(map.selection().nodes == std::vector<Node*>{});
+    CHECK(entityNode->visibilityState() == VisibilityState::Hidden);
+    CHECK(groupNode->visibilityState() == VisibilityState::Hidden);
+    CHECK(groupedEntityNode->visibilityState() == VisibilityState::Inherited);
+  }
+
+  SECTION("hideNodes")
+  {
+    auto* pointEntityNode = new EntityNode{Entity{}};
+    auto* selectedEntityNode = new EntityNode{Entity{}};
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* brushNode = createBrushNode(map);
+    auto* selectedBrushNode = createBrushNode(map);
+
+    addNodes(
+      map,
+      {{parentForNodes(map), {pointEntityNode, selectedEntityNode, brushEntityNode}}});
+    addNodes(map, {{brushEntityNode, {brushNode, selectedBrushNode}}});
+
+    showNodes(map, {selectedBrushNode});
+    REQUIRE(selectedBrushNode->visibilityState() == VisibilityState::Shown);
+
+    selectNodes(map, {selectedEntityNode, selectedBrushNode});
+    hideNodes(map, {pointEntityNode, brushEntityNode});
+    CHECK(map.selection().nodes == std::vector<Node*>{selectedEntityNode});
+    CHECK(pointEntityNode->visibilityState() == VisibilityState::Hidden);
+    CHECK(brushEntityNode->visibilityState() == VisibilityState::Hidden);
+    CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(selectedBrushNode->visibilityState() == VisibilityState::Inherited);
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(
+        map.selection().nodes
+        == std::vector<Node*>{selectedEntityNode, selectedBrushNode});
+      CHECK(pointEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(selectedBrushNode->visibilityState() == VisibilityState::Shown);
+
+      map.redoCommand();
+      CHECK(map.selection().nodes == std::vector<Node*>{selectedEntityNode});
+      CHECK(pointEntityNode->visibilityState() == VisibilityState::Hidden);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Hidden);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(selectedBrushNode->visibilityState() == VisibilityState::Inherited);
+    }
+  }
+
+  SECTION("showAllNodes")
+  {
+    auto* shownEntityNode = new EntityNode{Entity{}};
+    auto* hiddenEntityNode = new EntityNode{Entity{}};
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* brushNode = createBrushNode(map);
+    auto* hiddenBrushNode = createBrushNode(map);
+
+    addNodes(
+      map, {{parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
+    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+
+    shownEntityNode->setVisibilityState(VisibilityState::Shown);
+    hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
+    hiddenBrushNode->setVisibilityState(VisibilityState::Hidden);
+
+    REQUIRE(shownEntityNode->visibilityState() == VisibilityState::Shown);
+    REQUIRE(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+    REQUIRE(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(brushNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    showAllNodes(map);
+    CHECK(shownEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Inherited);
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+      map.redoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Inherited);
+    }
+  }
+
+
+  SECTION("showNodes")
+  {
+    auto* shownEntityNode = new EntityNode{Entity{}};
+    auto* hiddenEntityNode = new EntityNode{Entity{}};
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* brushNode = createBrushNode(map);
+    auto* hiddenBrushNode = createBrushNode(map);
+
+    addNodes(
+      map, {{parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
+    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+
+    shownEntityNode->setVisibilityState(VisibilityState::Shown);
+    hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
+    hiddenBrushNode->setVisibilityState(VisibilityState::Hidden);
+
+    REQUIRE(shownEntityNode->visibilityState() == VisibilityState::Shown);
+    REQUIRE(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+    REQUIRE(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(brushNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    showNodes(map, {shownEntityNode, hiddenEntityNode, brushNode});
+    CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+    CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Shown);
+    CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(brushNode->visibilityState() == VisibilityState::Shown);
+    CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+      map.redoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Shown);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+    }
+  }
+
+  SECTION("ensureNodesVisible")
+  {
+    auto* shownEntityNode = new EntityNode{Entity{}};
+    auto* hiddenEntityNode = new EntityNode{Entity{}};
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* brushNode = createBrushNode(map);
+    auto* hiddenBrushNode = createBrushNode(map);
+
+    addNodes(
+      map, {{parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
+    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+
+    shownEntityNode->setVisibilityState(VisibilityState::Shown);
+    hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
+    hiddenBrushNode->setVisibilityState(VisibilityState::Hidden);
+
+    REQUIRE(shownEntityNode->visibilityState() == VisibilityState::Shown);
+    REQUIRE(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+    REQUIRE(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(brushNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    ensureNodesVisible(map, {shownEntityNode, hiddenEntityNode, brushEntityNode});
+    CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+    CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Shown);
+    CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+      map.redoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+    }
+  }
+
+  SECTION("resetNodeVisibility")
+  {
+    auto* shownEntityNode = new EntityNode{Entity{}};
+    auto* hiddenEntityNode = new EntityNode{Entity{}};
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* brushNode = createBrushNode(map);
+    auto* hiddenBrushNode = createBrushNode(map);
+
+    addNodes(
+      map, {{parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
+    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+
+    shownEntityNode->setVisibilityState(VisibilityState::Shown);
+    hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
+    hiddenBrushNode->setVisibilityState(VisibilityState::Hidden);
+
+    REQUIRE(shownEntityNode->visibilityState() == VisibilityState::Shown);
+    REQUIRE(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+    REQUIRE(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(brushNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    resetNodeVisibility(map, {shownEntityNode, hiddenEntityNode, brushEntityNode});
+    CHECK(shownEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+      map.redoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+    }
+  }
+
+  SECTION("downgradeShownToInherit")
+  {
+    auto* shownEntityNode = new EntityNode{Entity{}};
+    auto* hiddenEntityNode = new EntityNode{Entity{}};
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* brushNode = createBrushNode(map);
+    auto* hiddenBrushNode = createBrushNode(map);
+
+    addNodes(
+      map, {{parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
+    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+
+    shownEntityNode->setVisibilityState(VisibilityState::Shown);
+    hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
+    hiddenBrushNode->setVisibilityState(VisibilityState::Hidden);
+
+    REQUIRE(shownEntityNode->visibilityState() == VisibilityState::Shown);
+    REQUIRE(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+    REQUIRE(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(brushNode->visibilityState() == VisibilityState::Inherited);
+    REQUIRE(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    downgradeShownToInherit(map, {shownEntityNode, hiddenEntityNode, brushEntityNode});
+    CHECK(shownEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+    CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+    CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Shown);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+
+      map.redoCommand();
+      CHECK(shownEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenEntityNode->visibilityState() == VisibilityState::Hidden);
+      CHECK(brushEntityNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(brushNode->visibilityState() == VisibilityState::Inherited);
+      CHECK(hiddenBrushNode->visibilityState() == VisibilityState::Hidden);
+    }
+  }
 }
 
 } // namespace tb::mdl
