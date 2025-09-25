@@ -379,7 +379,7 @@ common/caulk
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
-      openGroup(map, groupNode);
+      openGroup(map, *groupNode);
 
       CHECK(paste(map, data) == PasteType::Node);
       CHECK(map.selection().hasOnlyEntities());
@@ -495,7 +495,7 @@ common/caulk
       SECTION("Pasting one linked brush")
       {
         deselectAll(map);
-        openGroup(map, groupNode);
+        openGroup(map, *groupNode);
 
         selectNodes(map, {brushNode});
         const auto data = serializeSelectedNodes(map);
@@ -575,7 +575,7 @@ common/caulk
 
         SECTION("Pasting recursive linked group")
         {
-          openGroup(map, groupNode);
+          openGroup(map, *groupNode);
 
           CHECK(paste(map, data) == PasteType::Node);
           CHECK(groupNode->childCount() == 2);

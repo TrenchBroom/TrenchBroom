@@ -411,7 +411,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
         {
           if (editorContext.selectable(*groupNode))
           {
-            openGroup(m_map, groupNode);
+            openGroup(m_map, *groupNode);
           }
         }
         else

@@ -35,6 +35,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
+#include "mdl/Observer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -66,6 +67,131 @@ TEST_CASE("Map_Groups")
   });
 
   const auto& pointEntityDefinition = map.entityDefinitionManager().definitions().front();
+
+  SECTION("currentGroupOrWorld")
+  {
+    SECTION("Map is empty")
+    {
+      CHECK(currentGroupOrWorld(map) == map.world());
+    }
+
+    SECTION("Map contains nodes")
+    {
+      auto* entityNode = new EntityNode{Entity{}};
+      auto* innerGroupNode = new GroupNode{Group{"inner"}};
+      auto* outerGroupNode = new GroupNode{Group{"outer"}};
+
+      addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+      addNodes(map, {{outerGroupNode, {innerGroupNode}}});
+      addNodes(map, {{innerGroupNode, {entityNode}}});
+
+      SECTION("No group is opened")
+      {
+        CHECK(currentGroupOrWorld(map) == map.world());
+      }
+
+      SECTION("Outer group is opened")
+      {
+        openGroup(map, *outerGroupNode);
+        CHECK(currentGroupOrWorld(map) == outerGroupNode);
+      }
+
+      SECTION("Inner group is opened")
+      {
+        openGroup(map, *outerGroupNode);
+        openGroup(map, *innerGroupNode);
+        CHECK(currentGroupOrWorld(map) == innerGroupNode);
+      }
+    }
+  }
+
+  SECTION("openGroup")
+  {
+    auto* entityNode1 = new EntityNode{Entity{}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+
+    addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+    addNodes(map, {{outerGroupNode, {innerGroupNode}}});
+    addNodes(map, {{innerGroupNode, {entityNode1}}});
+
+    REQUIRE(outerGroupNode->closed());
+    REQUIRE(innerGroupNode->closed());
+
+    SECTION("Opens group and notifies observers")
+    {
+      auto groupWasOpened = Observer<GroupNode&>{map.groupWasOpenedNotifier};
+
+      openGroup(map, *outerGroupNode);
+      CHECK(outerGroupNode->opened());
+      CHECK(innerGroupNode->closed());
+
+      CHECK(groupWasOpened.collected == std::set{outerGroupNode});
+    }
+
+    SECTION("Locks world but keeps group unlocked")
+    {
+      openGroup(map, *outerGroupNode);
+
+      CHECK(map.world()->lockState() == LockState::Locked);
+      CHECK(outerGroupNode->lockState() == LockState::Unlocked);
+    }
+
+    SECTION("Resets locking state of outer group when opening inner")
+    {
+      openGroup(map, *outerGroupNode);
+      REQUIRE(outerGroupNode->lockState() == LockState::Unlocked);
+
+      openGroup(map, *innerGroupNode);
+      CHECK(outerGroupNode->lockState() == LockState::Inherited);
+    }
+  }
+
+  SECTION("closeGroup")
+  {
+    auto* entityNode1 = new EntityNode{Entity{}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+
+    addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+    addNodes(map, {{outerGroupNode, {innerGroupNode}}});
+    addNodes(map, {{innerGroupNode, {entityNode1}}});
+
+    openGroup(map, *outerGroupNode);
+
+    REQUIRE(outerGroupNode->opened());
+    REQUIRE(innerGroupNode->closed());
+
+    SECTION("Closes group and notifies observers")
+    {
+      auto groupWasClosed = Observer<GroupNode&>{map.groupWasClosedNotifier};
+
+      closeGroup(map);
+      CHECK(outerGroupNode->closed());
+      CHECK(innerGroupNode->closed());
+
+      CHECK(groupWasClosed.collected == std::set{outerGroupNode});
+    }
+
+    SECTION("Resets locking state and unlocks world when closing outer")
+    {
+      closeGroup(map);
+
+      CHECK(map.world()->lockState() == LockState::Unlocked);
+      CHECK(outerGroupNode->lockState() == LockState::Inherited);
+    }
+
+    SECTION("Resets locking state of inner group and unlocks outer when closing inner")
+    {
+      openGroup(map, *innerGroupNode);
+      REQUIRE(outerGroupNode->lockState() == LockState::Inherited);
+      REQUIRE(innerGroupNode->lockState() == LockState::Unlocked);
+
+      closeGroup(map);
+      CHECK(outerGroupNode->lockState() == LockState::Unlocked);
+      CHECK(innerGroupNode->lockState() == LockState::Inherited);
+    }
+  }
 
   SECTION("groupSelectedNodes")
   {
@@ -288,7 +414,7 @@ TEST_CASE("Map_Groups")
       CHECK(findContainingGroup(outerEntityNode1) == outerGroupNode);
 
       // open the outer group and ungroup the inner group
-      openGroup(map, outerGroupNode);
+      openGroup(map, *outerGroupNode);
       selectNodes(map, {innerGroupNode});
       ungroupSelectedNodes(map);
       deselectAll(map);
@@ -521,7 +647,7 @@ TEST_CASE("Map_Groups")
     CHECK(groupNode->name() == "abc");
   }
 
-  SECTION("createdLinkedDuplicate")
+  SECTION("createLinkedDuplicate")
   {
     auto* brushNode = createBrushNode(map);
     addNodes(map, {{parentForNodes(map), {brushNode}}});
@@ -665,7 +791,7 @@ TEST_CASE("Map_Groups")
       nestedGroupNode->addChild(nestedEntityNode);
       addNodes(map, {{groupNode, {nestedGroupNode}}});
 
-      openGroup(map, groupNode);
+      openGroup(map, *groupNode);
       deselectAll(map);
       selectNodes(map, {nestedGroupNode});
 
@@ -701,7 +827,7 @@ TEST_CASE("Map_Groups")
 
       SECTION("Separating linked groups nested inside a linked group")
       {
-        openGroup(map, groupNode);
+        openGroup(map, *groupNode);
         selectNodes(map, {nestedLinkedGroupNode});
         separateSelectedLinkedGroups(map);
 
@@ -743,6 +869,23 @@ TEST_CASE("Map_Groups")
     CHECK(canUpdateLinkedGroups({entityNode}));
     CHECK(canUpdateLinkedGroups({linkedEntityNode}));
     CHECK_FALSE(canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(entityNodes)));
+  }
+
+  SECTION("setHasPendingChanges")
+  {
+    auto groupNode1 = std::make_unique<GroupNode>(Group{"1"});
+    auto groupNode2 = std::make_unique<GroupNode>(Group{"2"});
+
+    REQUIRE(!groupNode1->hasPendingChanges());
+    REQUIRE(!groupNode2->hasPendingChanges());
+
+    setHasPendingChanges({groupNode1.get(), groupNode2.get()}, true);
+    CHECK(groupNode1->hasPendingChanges());
+    CHECK(groupNode2->hasPendingChanges());
+
+    setHasPendingChanges({groupNode1.get()}, false);
+    CHECK(!groupNode1->hasPendingChanges());
+    CHECK(groupNode2->hasPendingChanges());
   }
 }
 

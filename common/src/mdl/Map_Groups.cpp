@@ -133,7 +133,7 @@ Node* currentGroupOrWorld(const Map& map)
   return result ? result : map.world();
 }
 
-void openGroup(Map& map, GroupNode* groupNode)
+void openGroup(Map& map, GroupNode& groupNode)
 {
   auto transaction = Transaction{map, "Open Group"};
 
@@ -147,8 +147,8 @@ void openGroup(Map& map, GroupNode* groupNode)
   {
     lockNodes(map, {map.world()});
   }
-  unlockNodes(map, {groupNode});
-  map.executeAndStore(CurrentGroupCommand::push(groupNode));
+  unlockNodes(map, {&groupNode});
+  map.executeAndStore(CurrentGroupCommand::push(&groupNode));
 
   transaction.commit();
 }

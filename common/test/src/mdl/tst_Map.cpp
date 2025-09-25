@@ -2068,7 +2068,7 @@ TEST_CASE("Map")
 
       SECTION("If the group is not linked")
       {
-        openGroup(map, groupNode);
+        openGroup(map, *groupNode);
 
         selectNodes(map, {brushNode});
         duplicateOrCopyPaste();
@@ -2090,7 +2090,7 @@ TEST_CASE("Map")
 
         deselectAll(map);
         selectNodes(map, {groupNode});
-        openGroup(map, groupNode);
+        openGroup(map, *groupNode);
 
         selectNodes(map, {entityNode});
         duplicateOrCopyPaste();
@@ -2135,7 +2135,7 @@ TEST_CASE("Map")
       auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode->linkId() == groupNode->linkId());
 
-      openGroup(map, groupNode);
+      openGroup(map, *groupNode);
 
       selectNodes(map, {brushNode});
       duplicateOrCopyPaste();
@@ -2162,7 +2162,7 @@ TEST_CASE("Map")
       const auto linkedInnerGroupNode = getChildAs<GroupNode>(*linkedOuterGroupNode);
       REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
-      openGroup(map, outerGroupNode);
+      openGroup(map, *outerGroupNode);
 
       selectNodes(map, {innerGroupNode});
       duplicateOrCopyPaste();

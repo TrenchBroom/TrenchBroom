@@ -178,7 +178,7 @@ TEST_CASE("Map_Entities")
         == vm::bbox3d{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
 
       // create a brush entity inside the original group
-      openGroup(map, groupNode);
+      openGroup(map, *groupNode);
       deselectAll(map);
 
       // create a new point entity below the origin -- this entity is temporarily
@@ -297,7 +297,7 @@ TEST_CASE("Map_Entities")
         == vm::bbox3d{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
 
       // create a brush entity inside the original group
-      openGroup(map, groupNode);
+      openGroup(map, *groupNode);
       deselectAll(map);
 
       auto* brushNode = createBrushNode(map);

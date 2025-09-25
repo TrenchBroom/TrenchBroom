@@ -476,7 +476,7 @@ TEST_CASE("Map_Selection")
 
     SECTION("outer group is open")
     {
-      openGroup(map, outerGroup);
+      openGroup(map, *outerGroup);
 
       const auto [lineNumbers, expectedNodeNames] = GENERATE(values<T>({
         {{31}, {}},
@@ -493,8 +493,8 @@ TEST_CASE("Map_Selection")
 
     SECTION("inner group is open")
     {
-      openGroup(map, outerGroup);
-      openGroup(map, innerGroup);
+      openGroup(map, *outerGroup);
+      openGroup(map, *innerGroup);
 
       const auto [lineNumbers, expectedNodeNames] = GENERATE(values<T>({
         {{31}, {}},

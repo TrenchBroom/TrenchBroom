@@ -157,7 +157,7 @@ TEST_CASE("Map_Picking")
 
       // hitting a grouped object when the containing group is open should return the
       // object only
-      openGroup(map, group);
+      openGroup(map, *group);
 
       pickResult.clear();
       pick(map, vm::ray3d{{-32, 0, 0}, {1, 0, 0}}, pickResult);
@@ -244,7 +244,7 @@ TEST_CASE("Map_Picking")
 
       // hitting a grouped object when the containing group is open should return the
       // object only
-      openGroup(map, outerGroup);
+      openGroup(map, *outerGroup);
 
       /*
        * world
@@ -288,7 +288,7 @@ TEST_CASE("Map_Picking")
 
       // open the inner group, too. hitsToNodesWithGroupPicking() should no longer return
       // groups, since all groups are open.
-      openGroup(map, innerGroup);
+      openGroup(map, *innerGroup);
 
       /*
        * world

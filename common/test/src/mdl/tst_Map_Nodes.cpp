@@ -652,13 +652,13 @@ TEST_CASE("Map_Nodes")
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
-      openGroup(map, outerGroupNode);
+      openGroup(map, *outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
-      openGroup(map, innerGroupNode);
+      openGroup(map, *innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
@@ -753,7 +753,7 @@ TEST_CASE("Map_Nodes")
       auto* group = new GroupNode{Group{"group"}};
       addNodes(map, {{parentForNodes(map), {group}}});
 
-      openGroup(map, group);
+      openGroup(map, *group);
 
       auto* brush = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brush}}});
@@ -774,12 +774,12 @@ TEST_CASE("Map_Nodes")
       auto* outer = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outer}}});
 
-      openGroup(map, outer);
+      openGroup(map, *outer);
 
       auto* inner = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {inner}}});
 
-      openGroup(map, inner);
+      openGroup(map, *inner);
 
       auto* brush = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brush}}});
@@ -851,13 +851,13 @@ TEST_CASE("Map_Nodes")
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
-      openGroup(map, outerGroupNode);
+      openGroup(map, *outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
-      openGroup(map, innerGroupNode);
+      openGroup(map, *innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
