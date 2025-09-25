@@ -372,6 +372,36 @@ TEST_CASE("Map_Picking")
       CHECK(hits.front().distance() == vm::approx{32.0});
     }
   }
+
+  SECTION("findNodesContaining")
+  {
+    auto* brushNode = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+      | kdl::value()};
+
+    auto* entityNode = new EntityNode{Entity{}};
+    REQUIRE(entityNode->logicalBounds() == vm::bbox3d{{-8, -8, -8}, {8, 8, 8}});
+
+    auto* groupedBrushNode = new BrushNode{
+      builder.createCuboid(
+        vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 32}), "material")
+      | kdl::value()};
+    addNodes(map, {{parentForNodes(map), {brushNode, entityNode, groupedBrushNode}}});
+
+    selectNodes(map, {groupedBrushNode});
+    groupSelectedNodes(map, "test");
+
+    CHECK(findNodesContaining(map, {0, 0, 1024}) == std::vector<Node*>{});
+    CHECK_THAT(
+      findNodesContaining(map, {0, 0, 0}),
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, entityNode}));
+    CHECK_THAT(
+      findNodesContaining(map, {32, 32, 24}),
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode}));
+    CHECK_THAT(
+      findNodesContaining(map, {32, 32, 72}),
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{groupedBrushNode}));
+  }
 }
 
 } // namespace tb::mdl
