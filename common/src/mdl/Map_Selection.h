@@ -23,6 +23,7 @@
 
 #include "vm/util.h"
 
+#include <string_view>
 #include <vector>
 
 namespace tb::mdl
@@ -40,7 +41,7 @@ void selectTouchingNodes(Map& map, bool del);
 void selectTouchingNodes(Map& map, vm::axis::type cameraAxis, bool del);
 void selectContainedNodes(Map& map, bool del);
 void selectNodesWithFilePosition(Map& map, const std::vector<size_t>& positions);
-void selectBrushesWithMaterial(Map& map, const Material* material);
+void selectBrushesWithMaterial(Map& map, std::string_view materialName);
 void invertNodeSelection(Map& map);
 
 void selectAllInLayers(Map& map, const std::vector<LayerNode*>& layers);
@@ -50,7 +51,7 @@ void selectLinkedGroups(Map& map);
 bool canSelectLinkedGroups(const Map& map);
 
 void selectBrushFaces(Map& map, const std::vector<BrushFaceHandle>& handles);
-void selectBrushFacesWithMaterial(Map& map, const Material* material);
+void selectBrushFacesWithMaterial(Map& map, std::string_view materialName);
 void convertToFaceSelection(Map& map);
 
 void deselectAll(Map& map);

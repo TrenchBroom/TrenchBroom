@@ -21,6 +21,7 @@
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
@@ -63,6 +64,55 @@ TEST_CASE("Map_Selection")
   });
 
   const auto& brushEntityDefinition = map.entityDefinitionManager().definitions().back();
+
+  SECTION("selectAllNodes")
+  {
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* brushNode = createBrushNode(map);
+    auto* groupedEntityNode = new EntityNode{Entity{}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* patchNode = createPatchNode();
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* entityBrushNode = createBrushNode(map);
+
+    addNodes(
+      map,
+      {{parentForNodes(map),
+        {entityNode, brushNode, groupNode, patchNode, brushEntityNode}}});
+    addNodes(map, {{groupNode, {groupedEntityNode}}});
+    addNodes(map, {{brushEntityNode, {entityBrushNode}}});
+
+    SECTION("No group is opened")
+    {
+      selectAllNodes(map);
+
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(std::vector<Node*>{
+          entityNode, brushNode, groupNode, patchNode, entityBrushNode}));
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+        CHECK(map.selection().nodes == std::vector<Node*>{});
+
+        map.redoCommand();
+        CHECK_THAT(
+          map.selection().nodes,
+          UnorderedEquals(std::vector<Node*>{
+            entityNode, brushNode, groupNode, patchNode, entityBrushNode}));
+      }
+    }
+
+    SECTION("With open group")
+    {
+      openGroup(map, *groupNode);
+
+      selectAllNodes(map);
+
+      CHECK(map.selection().nodes == std::vector<Node*>{groupedEntityNode});
+    }
+  }
 
   SECTION("selectNodes")
   {
@@ -510,6 +560,43 @@ TEST_CASE("Map_Selection")
     }
   }
 
+  SECTION("selectBrushesWithMaterial")
+  {
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* brushNodeM1 = createBrushNode(map, "material1");
+    auto* brushNodeM2 = createBrushNode(map, "material2");
+    auto* groupedBrushNodeM1 = createBrushNode(map, "material1");
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* patchNode = createPatchNode();
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* entityBrushNodeM1 = createBrushNode(map, "material1");
+
+    addNodes(
+      map,
+      {{parentForNodes(map),
+        {entityNode, brushNodeM1, brushNodeM2, groupNode, patchNode, brushEntityNode}}});
+    addNodes(map, {{groupNode, {groupedBrushNodeM1}}});
+    addNodes(map, {{brushEntityNode, {entityBrushNodeM1}}});
+
+    SECTION("No group open")
+    {
+      selectBrushesWithMaterial(map, "material1");
+
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(std::vector<Node*>{brushNodeM1, entityBrushNodeM1, groupNode}));
+    }
+
+    SECTION("With open group")
+    {
+      openGroup(map, *groupNode);
+
+      selectBrushesWithMaterial(map, "material1");
+
+      CHECK(map.selection().nodes == std::vector<Node*>{groupedBrushNodeM1});
+    }
+  }
+
   SECTION("invertNodeSelection")
   {
     const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
@@ -559,8 +646,133 @@ TEST_CASE("Map_Selection")
     CHECK(patchNode->selected());
   }
 
+  SECTION("selectAllInLayers")
+  {
+    auto* defaultLayer = map.world()->defaultLayer();
+    auto* customLayer1 = new LayerNode{Layer{"1"}};
+    auto* customLayer2 = new LayerNode{Layer{"2"}};
+
+    auto* entityNodeInDefaultLayer = new EntityNode{{}};
+    auto* entityNodeInCustomLayer1 = new EntityNode{{}};
+    auto* entityNodeInCustomLayer2 = new EntityNode{{}};
+
+    addNodes(map, {{map.world(), {customLayer1, customLayer2}}});
+    addNodes(
+      map,
+      {
+        {defaultLayer, {entityNodeInDefaultLayer}},
+        {customLayer1, {entityNodeInCustomLayer1}},
+        {customLayer2, {entityNodeInCustomLayer2}},
+      });
+
+    selectAllInLayers(map, {defaultLayer});
+    CHECK(map.selection().nodes == std::vector<Node*>{entityNodeInDefaultLayer});
+
+    selectAllInLayers(map, {defaultLayer, customLayer1});
+    CHECK_THAT(
+      map.selection().nodes,
+      UnorderedEquals(
+        std::vector<Node*>{entityNodeInDefaultLayer, entityNodeInCustomLayer1}));
+  }
+
+  SECTION("selectLinkedGroups")
+  {
+    auto* entityNode = new EntityNode{{}};
+    auto* groupedEntityNode = new EntityNode{{}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* linkedEntityNode1 = new EntityNode{{}};
+    auto* linkedGroupNode1 = new GroupNode{Group{"linked group"}};
+
+    addNodes(map, {{parentForNodes(map), {entityNode, groupNode, linkedGroupNode1}}});
+    addNodes(
+      map,
+      {
+        {groupNode, {groupedEntityNode}},
+        {linkedGroupNode1, {linkedEntityNode1}},
+      });
+
+    selectNodes(map, {linkedGroupNode1});
+    auto* linkedGroupNode2 = createLinkedDuplicate(map);
+    auto* linkedGroupNode3 = createLinkedDuplicate(map);
+
+    deselectAll(map);
+
+    SECTION("When the original is selected")
+    {
+      selectNodes(map, {linkedGroupNode1});
+
+      selectLinkedGroups(map);
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(
+          std::vector<Node*>{linkedGroupNode1, linkedGroupNode2, linkedGroupNode3}));
+    }
+
+    SECTION("When a duplicate is selected")
+    {
+      selectNodes(map, {linkedGroupNode2});
+
+      selectLinkedGroups(map);
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(
+          std::vector<Node*>{linkedGroupNode1, linkedGroupNode2, linkedGroupNode3}));
+    }
+
+    SECTION("When nothing is selected")
+    {
+      selectLinkedGroups(map);
+      CHECK(map.selection().nodes == std::vector<Node*>{});
+    }
+
+    SECTION("When an unlinked group is selected")
+    {
+      selectNodes(map, {groupNode});
+
+      selectLinkedGroups(map);
+      CHECK(map.selection().nodes == std::vector<Node*>{groupNode});
+    }
+
+    SECTION("When some node is selected")
+    {
+      selectNodes(map, {entityNode});
+
+      selectLinkedGroups(map);
+      CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
+    }
+  }
+
   SECTION("selectBrushFaces")
   {
+    SECTION("Basic selection")
+    {
+      auto* brushNode1 = createBrushNode(map);
+      auto* brushNode2 = createBrushNode(map);
+
+      addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2}}});
+
+      selectBrushFaces(map, {{brushNode1, 0}, {brushNode1, 2}, {brushNode2, 5}});
+
+      CHECK_THAT(
+        map.selection().brushFaces,
+        UnorderedEquals(std::vector<BrushFaceHandle>{
+          {brushNode1, 0},
+          {brushNode1, 2},
+          {brushNode2, 5},
+        }));
+
+      selectBrushFaces(map, {{brushNode1, 1}});
+
+      CHECK_THAT(
+        map.selection().brushFaces,
+        UnorderedEquals(std::vector<BrushFaceHandle>{
+          {brushNode1, 0},
+          {brushNode1, 1},
+          {brushNode1, 2},
+          {brushNode2, 5},
+        }));
+    }
+
     SECTION("Linked groups")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
@@ -587,6 +799,244 @@ TEST_CASE("Map_Selection")
         deselectAll(map);
         CHECK(!linkedGroupNode->locked());
       }
+    }
+  }
+
+  SECTION("selectBrushFacesWithMaterial")
+  {
+    auto* brushNodeM1 = createBrushNode(map, "material1");
+    auto* brushNodeM2 = createBrushNode(map, "material2");
+    auto* brushNodeM13 = createBrushNode(map, "material3");
+
+    {
+      auto brushM13 = brushNodeM13->brush();
+      for (auto& brushFace : (brushM13.faces() | std::views::take(3)))
+      {
+        auto attributes = brushFace.attributes();
+        attributes.setMaterialName("material1");
+        brushFace.setAttributes(attributes);
+      }
+      brushNodeM13->setBrush(std::move(brushM13));
+    }
+
+    auto* groupedBrushNodeM1 = createBrushNode(map, "material1");
+    auto* groupNode = new GroupNode{Group{"group"}};
+
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* entityBrushNodeM1 = createBrushNode(map, "material1");
+
+    addNodes(
+      map,
+      {{parentForNodes(map),
+        {brushNodeM1, brushNodeM2, brushNodeM13, groupNode, brushEntityNode}}});
+    addNodes(
+      map,
+      {
+        {groupNode, {groupedBrushNodeM1}},
+        {brushEntityNode, {entityBrushNodeM1}},
+      });
+
+    SECTION("No group open")
+    {
+      selectBrushFacesWithMaterial(map, "material1");
+
+      const auto expectedBrushFaces = kdl::vec_concat(
+        toHandles(brushNodeM1),
+        toHandles(entityBrushNodeM1),
+        toHandles(groupedBrushNodeM1),
+        toHandles(brushNodeM13) | std::views::filter([](const auto& handle) {
+          return handle.face().attributes().materialName() == "material1";
+        }) | kdl::ranges::to<std::vector>());
+
+      CHECK_THAT(map.selection().brushFaces, UnorderedEquals(expectedBrushFaces));
+    }
+
+    SECTION("With open group")
+    {
+      openGroup(map, *groupNode);
+
+      selectBrushFacesWithMaterial(map, "material1");
+
+      CHECK_THAT(
+        map.selection().brushFaces, UnorderedEquals(toHandles(groupedBrushNodeM1)));
+    }
+  }
+
+  SECTION("deselectAll")
+  {
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* groupedEntityNode = new EntityNode{Entity{}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* entityBrushNode = createBrushNode(map);
+
+    addNodes(map, {{parentForNodes(map), {entityNode, groupNode, brushEntityNode}}});
+    addNodes(map, {{groupNode, {groupedEntityNode}}});
+    addNodes(map, {{brushEntityNode, {entityBrushNode}}});
+
+    SECTION("Node selection")
+    {
+      selectNodes(map, {entityNode, groupNode, entityBrushNode});
+
+      REQUIRE_THAT(
+        map.selection().nodes,
+        UnorderedEquals(std::vector<Node*>{entityNode, groupNode, entityBrushNode}));
+
+      deselectAll(map);
+      CHECK(map.selection().nodes == std::vector<Node*>{});
+    }
+
+    SECTION("Brush face selection")
+    {
+      selectBrushFaces(map, toHandles(entityBrushNode));
+
+      REQUIRE_THAT(
+        map.selection().brushFaces, UnorderedEquals(toHandles(entityBrushNode)));
+      deselectAll(map);
+      CHECK(map.selection().brushFaces == std::vector<BrushFaceHandle>{});
+    }
+  }
+
+  SECTION("deselectNodes")
+  {
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* unselectedEntityNode = new EntityNode{Entity{}};
+    auto* groupedEntityNode = new EntityNode{Entity{}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* brushEntityNode = new EntityNode{Entity{}};
+    auto* entityBrushNode = createBrushNode(map);
+
+    addNodes(
+      map,
+      {{parentForNodes(map),
+        {entityNode, unselectedEntityNode, groupNode, brushEntityNode}}});
+    addNodes(map, {{groupNode, {groupedEntityNode}}});
+    addNodes(map, {{brushEntityNode, {entityBrushNode}}});
+
+    SECTION("Node selection")
+    {
+      selectNodes(map, {entityNode, groupNode, entityBrushNode});
+
+      REQUIRE_THAT(
+        map.selection().nodes,
+        UnorderedEquals(std::vector<Node*>{entityNode, groupNode, entityBrushNode}));
+
+      SECTION("Deselect nothing does nothing")
+      {
+        deselectNodes(map, {});
+        CHECK_THAT(
+          map.selection().nodes,
+          UnorderedEquals(std::vector<Node*>{entityNode, groupNode, entityBrushNode}));
+      }
+
+      SECTION("Deselect an unselected node has does nothing")
+      {
+        deselectNodes(map, {unselectedEntityNode});
+        CHECK_THAT(
+          map.selection().nodes,
+          UnorderedEquals(std::vector<Node*>{entityNode, groupNode, entityBrushNode}));
+      }
+
+      SECTION("Deselect a single node")
+      {
+        deselectNodes(map, {entityNode});
+        CHECK_THAT(
+          map.selection().nodes,
+          UnorderedEquals(std::vector<Node*>{groupNode, entityBrushNode}));
+      }
+
+      SECTION("Deselect multiple nodes")
+      {
+        deselectNodes(map, {entityNode, groupNode});
+        CHECK_THAT(
+          map.selection().nodes, UnorderedEquals(std::vector<Node*>{entityBrushNode}));
+      }
+
+      SECTION("Deselect all nodes")
+      {
+        deselectNodes(map, {entityNode, groupNode, entityBrushNode});
+        CHECK(map.selection().nodes == std::vector<Node*>{});
+      }
+    }
+
+    SECTION("Brush face selection")
+    {
+      selectBrushFaces(map, toHandles(entityBrushNode));
+
+      REQUIRE_THAT(
+        map.selection().brushFaces, UnorderedEquals(toHandles(entityBrushNode)));
+
+      deselectNodes(map, {entityNode});
+      CHECK_THAT(map.selection().brushFaces, UnorderedEquals(toHandles(entityBrushNode)));
+    }
+  }
+
+  SECTION("deselectBrushFaces")
+  {
+    auto* brushNode1 = createBrushNode(map);
+    auto* brushNode2 = createBrushNode(map);
+
+    addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2}}});
+
+    selectBrushFaces(map, {{brushNode1, 0}, {brushNode1, 2}, {brushNode2, 5}});
+
+    REQUIRE_THAT(
+      map.selection().brushFaces,
+      UnorderedEquals(std::vector<BrushFaceHandle>{
+        {brushNode1, 0},
+        {brushNode1, 2},
+        {brushNode2, 5},
+      }));
+
+    SECTION("Deselect nothing does nothing")
+    {
+      deselectBrushFaces(map, {});
+      CHECK_THAT(
+        map.selection().brushFaces,
+        UnorderedEquals(std::vector<BrushFaceHandle>{
+          {brushNode1, 0},
+          {brushNode1, 2},
+          {brushNode2, 5},
+        }));
+    }
+
+    SECTION("Deselect an unselected face does nothing")
+    {
+      deselectBrushFaces(map, {{brushNode1, 1}});
+      CHECK_THAT(
+        map.selection().brushFaces,
+        UnorderedEquals(std::vector<BrushFaceHandle>{
+          {brushNode1, 0},
+          {brushNode1, 2},
+          {brushNode2, 5},
+        }));
+    }
+
+    SECTION("Deselect a single face")
+    {
+      deselectBrushFaces(map, {{brushNode1, 0}});
+      CHECK_THAT(
+        map.selection().brushFaces,
+        UnorderedEquals(std::vector<BrushFaceHandle>{
+          {brushNode1, 2},
+          {brushNode2, 5},
+        }));
+    }
+
+    SECTION("Deselect multiple faces")
+    {
+      deselectBrushFaces(map, {{brushNode1, 0}, {brushNode2, 5}});
+      CHECK_THAT(
+        map.selection().brushFaces,
+        UnorderedEquals(std::vector<BrushFaceHandle>{
+          {brushNode1, 2},
+        }));
+    }
+
+    SECTION("Deselect all faces")
+    {
+      deselectBrushFaces(map, {{brushNode1, 0}, {brushNode1, 2}, {brushNode2, 5}});
+      CHECK(map.selection().brushFaces == std::vector<BrushFaceHandle>{});
     }
   }
 

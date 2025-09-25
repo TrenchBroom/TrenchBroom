@@ -454,11 +454,11 @@ void MaterialBrowserView::doContextMenu(
     auto menu = QMenu{this};
     menu.addAction(tr("Select Faces"), this, [&, material = &cellData(*cell)]() {
       auto& map = m_document.map();
-      selectBrushFacesWithMaterial(map, material);
+      selectBrushFacesWithMaterial(map, material->name());
     });
 
     menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
-      selectBrushesWithMaterial(m_document.map(), material);
+      selectBrushesWithMaterial(m_document.map(), material->name());
     });
 
     menu.exec(event->globalPos());
