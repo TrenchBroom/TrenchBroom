@@ -67,6 +67,36 @@ TEST_CASE("Map_Nodes")
 
   const auto& pointEntityDefinition = map.entityDefinitionManager().definitions().front();
 
+  SECTION("parentForNodes")
+  {
+    auto* customLayerNode = new LayerNode{Layer{"custom layer"}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* groupedEntityNode = new EntityNode{Entity{}};
+    auto* defaultLayerEntityNode = new EntityNode{Entity{}};
+
+    addNodes(map, {{map.world(), {customLayerNode}}});
+    addNodes(map, {{customLayerNode, {groupNode}}});
+    addNodes(map, {{groupNode, {groupedEntityNode}}});
+    addNodes(map, {{map.world()->defaultLayer(), {defaultLayerEntityNode}}});
+
+    SECTION("Returns default layer if no group is open")
+    {
+      CHECK(parentForNodes(map) == map.world()->defaultLayer());
+    }
+
+    SECTION("Returns currently opened group, if any")
+    {
+      openGroup(map, *groupNode);
+      CHECK(parentForNodes(map) == groupNode);
+    }
+
+    SECTION("Returns parent of first node in given vector")
+    {
+      CHECK(parentForNodes(map, {groupedEntityNode}) == groupNode);
+      CHECK(parentForNodes(map, {groupNode}) == customLayerNode);
+    }
+  }
+
   SECTION("addNodes")
   {
     SECTION("Nodes added to a hidden layer are visible")
@@ -889,6 +919,17 @@ TEST_CASE("Map_Nodes")
       REQUIRE(outerGroupNode->children() == std::vector<Node*>{outerEntityNode});
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
     }
+  }
+
+  SECTION("removeSelectedNodes")
+  {
+    auto* entityNode = new EntityNode{Entity{}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    selectNodes(map, {entityNode});
+
+    removeSelectedNodes(map);
+    CHECK(map.selection().nodes == std::vector<Node*>{});
+    CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
   }
 
   SECTION("updateNodeContents")
