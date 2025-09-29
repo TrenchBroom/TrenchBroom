@@ -46,7 +46,7 @@ target_sources(vm INTERFACE
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(vm INTERFACE -Wall -Wextra -pedantic -Wshadow-all -Wno-c++98-compat -Wno-float-equal)
+    target_compile_options(vm INTERFACE -Wall -Wextra -pedantic -Wshadow-all -Wno-c++98-compat -Wno-c++20-compat -Wno-float-equal)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(vm INTERFACE -Wall -Wextra -pedantic -Wshadow=local)
 elseif(MSVC EQUAL 1)

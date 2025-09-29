@@ -44,6 +44,21 @@ set(KDL_HEADER
   "${KDL_SOURCE_DIR}/kdl/range_to_vector.h"
   "${KDL_SOURCE_DIR}/kdl/range_utils.h"
   "${KDL_SOURCE_DIR}/kdl/range.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/adjacent_transform_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/adjacent_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/as_rvalue_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/cartesian_product_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/chunk_by_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/chunk_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/detail/movable_box.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/detail/non_propagating_cache.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/detail/range_utils.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/enumerate_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/slide_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/stride_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/to.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/zip_transform_view.h"
+  "${KDL_SOURCE_DIR}/kdl/ranges/zip_view.h"
   "${KDL_SOURCE_DIR}/kdl/reflection_decl.h"
   "${KDL_SOURCE_DIR}/kdl/reflection_impl.h"
   "${KDL_SOURCE_DIR}/kdl/regex_utils.cpp"
@@ -90,7 +105,7 @@ target_link_libraries(kdl PRIVATE FastFloat::fast_float)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors -Wno-poison-system-directories)
+    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-padded -Wno-exit-time-destructors -Wno-poison-system-directories)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow=local -pedantic)
 
