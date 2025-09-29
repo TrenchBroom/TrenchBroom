@@ -25,7 +25,7 @@
 #include "render/Camera.h"
 
 #include "kdl/map_utils.h"
-#include "kdl/range_to.h"
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 #include <iterator>
@@ -397,7 +397,7 @@ public:
     const auto selectionState = handles | std::views::transform([&](const auto& handle) {
                                   return std::pair{handle, selected(handle)};
                                 })
-                                | kdl::to<std::map<Handle, bool>>();
+                                | kdl::ranges::to<std::map<Handle, bool>>();
 
     for (const auto& handle : handles)
     {

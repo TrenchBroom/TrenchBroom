@@ -29,7 +29,7 @@
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <ranges>
 
@@ -56,7 +56,7 @@ auto setLinkIds(const std::vector<std::tuple<Node*, std::string>>& linkIds)
                return {node, std::move(oldLinkId)};
              }));
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 } // namespace

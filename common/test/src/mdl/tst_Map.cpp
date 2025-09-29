@@ -471,7 +471,7 @@ TEST_CASE("Map")
         return paths | std::views::transform([&](const auto& path) {
                  return map.world()->resolvePath(path);
                })
-               | kdl::to_vector;
+               | kdl::ranges::to<std::vector>();
       };
 
       using T = std::vector<NodePath>;

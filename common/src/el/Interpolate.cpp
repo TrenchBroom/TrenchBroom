@@ -75,7 +75,7 @@ auto evaluateExpressions(
   return expressions | std::views::transform([&](const auto& expression) {
            return expression.evaluate(context);
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 auto substituteValues(

@@ -25,8 +25,7 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
-#include "kdl/range_to.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
@@ -1154,10 +1153,11 @@ Expression optimize(
     return LiteralExpression{Value{
       optimizedExpressions
       | std::views::transform([&](const auto& x) { return x.evaluate(context); })
-      | kdl::to_vector}};
+      | kdl::ranges::to<std::vector>()}};
   }
 
-  return ArrayExpression{std::move(optimizedExpressions) | kdl::to_vector};
+  return ArrayExpression{
+    std::move(optimizedExpressions) | kdl::ranges::to<std::vector>()};
 }
 
 Expression optimize(
@@ -1177,11 +1177,12 @@ Expression optimize(
       optimizedExpressions | std::views::transform([&](const auto& entry) {
         return std::pair{entry.first, entry.second.evaluate(context)};
       })
-      | kdl::to<MapType>()}};
+      | kdl::ranges::to<MapType>()}};
   }
 
   return MapExpression{
-    std::move(optimizedExpressions) | kdl::to<std::map<std::string, ExpressionNode>>()};
+    std::move(optimizedExpressions)
+    | kdl::ranges::to<std::map<std::string, ExpressionNode>>()};
 }
 
 Expression optimize(

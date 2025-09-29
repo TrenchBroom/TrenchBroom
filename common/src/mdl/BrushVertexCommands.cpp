@@ -21,7 +21,7 @@
 
 #include "ui/VertexTool.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <ranges>
 
@@ -52,7 +52,7 @@ static auto collectBrushNodes(const std::vector<std::pair<Node*, NodeContents>> 
          })
          | std::views::transform(
            [](const auto& pair) { return static_cast<BrushNode*>(pair.first); })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 void BrushVertexCommandBase::removeHandles(VertexHandleManagerBase& manager)

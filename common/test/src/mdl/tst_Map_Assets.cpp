@@ -53,7 +53,7 @@ TEST_CASE("Map_Assets")
                            REQUIRE(brushNode);
                            return &brushNode->brush().faces().front();
                          })
-                       | kdl::to_vector;
+                       | kdl::ranges::to<std::vector>();
 
     REQUIRE(faces.size() == 4);
     REQUIRE(

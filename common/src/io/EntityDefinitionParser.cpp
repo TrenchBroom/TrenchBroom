@@ -27,7 +27,7 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <algorithm>
 #include <optional>
@@ -475,7 +475,8 @@ std::vector<EntityDefinitionClassInfo> resolveInheritance(
     [&](const auto& name) -> std::vector<const EntityDefinitionClassInfo*> {
     return filteredClassInfos
            | std::views::filter([&](const auto& c) { return c.name == name; })
-           | std::views::transform([](const auto& c) { return &c; }) | kdl::to_vector;
+           | std::views::transform([](const auto& c) { return &c; })
+           | kdl::ranges::to<std::vector>();
   };
 
   return filteredClassInfos | std::views::filter([](const auto& c) {
@@ -483,7 +484,7 @@ std::vector<EntityDefinitionClassInfo> resolveInheritance(
          })
          | std::views::transform(
            [&](const auto& c) { return resolveInheritance(status, c, findClassInfos); })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)

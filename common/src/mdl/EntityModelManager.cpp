@@ -32,7 +32,7 @@
 #include "mdl/Resource.h"
 #include "render/MaterialIndexRangeRenderer.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 
 namespace tb::mdl
@@ -175,7 +175,7 @@ const std::vector<const EntityModel*> EntityModelManager::
   const auto toPointer = [](const auto& model) { return &model; };
 
   return m_models | views::values | views::filter(filterByResourceId)
-         | views::transform(toPointer) | kdl::to_vector;
+         | views::transform(toPointer) | kdl::ranges::to<std::vector>();
 }
 
 const EntityModel* EntityModelManager::safeGetModel(

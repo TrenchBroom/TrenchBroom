@@ -32,7 +32,7 @@
 #include "render/Camera.h"
 #include "ui/ScaleToolPage.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
 
 #include "vm/bbox.h"
@@ -75,7 +75,7 @@ std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner& corner)
            sideNormal[i] = corner.corner[i];
            return BBoxSide{sideNormal};
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 /**
@@ -113,7 +113,7 @@ std::vector<vm::polygon3f> polysForSides(
   return sides | std::views::transform([&](const auto& side) {
            return vm::polygon3f{polygonForBBoxSide(box, side)};
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 std::vector<BBoxSide> sidesWithOppositeSides(const std::vector<BBoxSide>& sides)

@@ -28,7 +28,7 @@
 #include "render/PrimType.h"
 
 #include "kdl/path_utils.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h" // IWYU pragma: keep
 #include "kdl/string_format.h"
@@ -90,7 +90,8 @@ void loadSurfaceMaterials(
   const LoadMaterialFunc& loadMaterial)
 {
   using std::views::transform;
-  surface.setSkins(shaderPaths | transform(loadMaterial) | kdl::to_vector);
+  surface.setSkins(
+    shaderPaths | transform(loadMaterial) | kdl::ranges::to<std::vector>());
 }
 
 Result<void> parseSurfaces(

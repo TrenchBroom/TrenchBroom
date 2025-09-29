@@ -27,7 +27,7 @@
 #include "ui/DrawShapeToolExtensions.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 namespace tb::ui
@@ -190,7 +190,7 @@ std::vector<DrawShapeToolExtensionPage*> DrawShapeToolExtensionManager::createTo
   return m_extensions | std::views::transform([&](const auto& extension) {
            return extension->createToolPage(m_parameters, parent);
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolExtensionManager::createBrushes(

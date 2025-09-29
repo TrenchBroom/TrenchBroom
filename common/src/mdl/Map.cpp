@@ -93,7 +93,7 @@
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
 #include "kdl/path_utils.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/string_utils.h"
 #include "kdl/task_manager.h"
 
@@ -135,7 +135,7 @@ Result<std::unique_ptr<WorldNode>> loadMap(
                config.fileFormats | std::views::transform([](const auto& formatConfig) {
                  return formatFromName(formatConfig.format);
                })
-               | kdl::to_vector;
+               | kdl::ranges::to<std::vector>();
 
              return io::WorldReader::tryRead(
                fileReader.stringView(),
@@ -1164,7 +1164,7 @@ void Map::updateGameSearchPaths()
   m_game->setAdditionalSearchPaths(
     mods(*this) | std::views::transform([](const auto& mod) {
       return std::filesystem::path{mod};
-    }) | kdl::to_vector,
+    }) | kdl::ranges::to<std::vector>(),
     m_logger);
 }
 

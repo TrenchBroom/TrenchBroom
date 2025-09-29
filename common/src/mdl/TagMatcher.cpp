@@ -36,7 +36,7 @@
 #include "mdl/Selection.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/string_compare.h"
 #include "kdl/struct_io.h"
 #include "kdl/vector_utils.h"
@@ -440,7 +440,7 @@ void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) c
                                         && matchesClassname(definition.name);
                                })
                              | std::views::transform([](const auto& d) { return &d; })
-                             | kdl::to_vector;
+                             | kdl::ranges::to<std::vector>();
 
   std::ranges::sort(matchingDefinitions, [](const auto* lhs, const auto* rhs) {
     return kdl::ci::str_compare(lhs->name, rhs->name) < 0;
@@ -459,7 +459,7 @@ void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) c
   {
     const auto options = matchingDefinitions
                          | std::views::transform([](const auto& d) { return d->name; })
-                         | kdl::to_vector;
+                         | kdl::ranges::to<std::vector>();
     const auto index = callback.selectOption(options);
     if (index >= matchingDefinitions.size())
     {

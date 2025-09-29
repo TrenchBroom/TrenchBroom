@@ -26,7 +26,7 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/stable_remove_duplicates.h"
 #include "kdl/vector_utils.h"
 
@@ -144,7 +144,7 @@ std::vector<Node*> hitsToNodesWithGroupPicking(const std::vector<Hit>& hits)
     hits | std::views::transform([](const auto& hit) {
       return findOutermostClosedGroupOrNode(hitToNode(hit));
     })
-    | kdl::to_vector);
+    | kdl::ranges::to<std::vector>());
 }
 
 const Node* findOutermostClosedGroupOrNode(const Node* node)

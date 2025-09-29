@@ -25,7 +25,7 @@
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <ranges>
 #include <string>
@@ -52,7 +52,7 @@ std::vector<mdl::GameEngineProfile> parseProfiles(
   return value.arrayValue(context) | std::views::transform([&](const auto& profileValue) {
            return parseProfile(context, profileValue);
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 Result<mdl::GameEngineConfig> parseGameEngineConfig(

@@ -32,7 +32,7 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/string_format.h"
 
@@ -73,7 +73,7 @@ void doDeselectBrushFaces(const std::vector<BrushFaceHandle>& faces, Map& map)
     collectGroups({map.world()}) | std::views::filter([](const auto* groupNode) {
       return groupNode->lockedByOtherSelection();
     })
-    | kdl::to_vector);
+    | kdl::ranges::to<std::vector>());
 
   auto deselected = std::vector<BrushFaceHandle>{};
   deselected.reserve(faces.size());

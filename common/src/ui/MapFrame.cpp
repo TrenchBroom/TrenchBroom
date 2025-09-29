@@ -105,7 +105,7 @@
 
 #include "kdl/const_overload.h"
 #include "kdl/overload.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
@@ -2304,7 +2304,7 @@ void MapFrame::debugCreateCube()
   {
     const auto size = str.toDouble();
     const auto bounds = vm::bbox3d{size / 2.0};
-    const auto positions = bounds.vertices() | kdl::to_vector;
+    const auto positions = bounds.vertices() | kdl::ranges::to<std::vector>();
 
     createBrush(m_document->map(), positions);
   }

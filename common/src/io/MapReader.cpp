@@ -674,7 +674,7 @@ std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
                     })
                   | kdl::value();
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 void validateDuplicateLayersAndGroups(

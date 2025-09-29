@@ -24,7 +24,7 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
@@ -245,7 +245,7 @@ std::vector<std::string> Value::asStringList(const EvaluationContext& context) c
   return arrayValue(context) | std::views::transform([&](const auto& entry) {
            return entry.stringValue(context);
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 std::vector<std::string> Value::asStringSet(const EvaluationContext& context) const

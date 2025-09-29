@@ -42,7 +42,7 @@
 #include "kdl/functional.h"
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result_fold.h"
 #include "kdl/string_utils.h"
 
@@ -167,7 +167,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
                      pathsToCopy | std::views::transform([](const auto& path) {
                        return fmt::format("{}", path);
                      })
-                     | kdl::to_vector;
+                     | kdl::ranges::to<std::vector>();
 
                    m_context << "#### Copying to '" << io::pathAsQString(targetPath)
                              << "/': "
@@ -262,7 +262,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
                  pathsToDelete | std::views::transform([](const auto& path) {
                    return fmt::format("{}", path);
                  })
-                 | kdl::to_vector;
+                 | kdl::ranges::to<std::vector>();
 
                m_context << "#### Deleting: "
                          << QString::fromStdString(kdl::str_join(pathStrsToDelete, ", "))

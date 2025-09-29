@@ -31,7 +31,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
 
 #include <ranges>
@@ -76,7 +76,7 @@ std::vector<EntityNodeBase*> computeAllEntities(
                return entityNode->entity().classname()
                       != EntityPropertyValues::WorldspawnClassname;
              })
-             | kdl::to_vector;
+             | kdl::ranges::to<std::vector>();
   }
 
   return result;

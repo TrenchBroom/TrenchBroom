@@ -42,7 +42,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 #include <ranges>
@@ -258,8 +258,9 @@ std::string serializeSelectedBrushFaces(Map& map)
   auto stream = std::stringstream{};
   auto writer = io::NodeWriter{*map.world(), stream};
   writer.writeBrushFaces(
-    map.selection().brushFaces
-      | std::views::transform([](const auto& h) { return h.face(); }) | kdl::to_vector,
+    map.selection().brushFaces | std::views::transform([](const auto& h) {
+      return h.face();
+    }) | kdl::ranges::to<std::vector>(),
     map.taskManager());
   return stream.str();
 }

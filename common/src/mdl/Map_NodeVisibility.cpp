@@ -33,7 +33,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <ranges>
 
@@ -120,7 +120,7 @@ void downgradeShownToInherit(Map& map, const std::vector<Node*>& nodes)
   const auto nodesToReset = nodes | std::views::filter([](auto* node) {
                               return node->visibilityState() == VisibilityState::Shown;
                             })
-                            | kdl::to_vector;
+                            | kdl::ranges::to<std::vector>();
   resetNodeVisibility(map, nodesToReset);
 }
 

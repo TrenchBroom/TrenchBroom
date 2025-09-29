@@ -18,7 +18,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/as_rvalue_view.h"
+#include "kdl/ranges/to.h"
 #include "kdl/task_manager.h"
 
 #include <memory>
@@ -92,7 +93,8 @@ TEST_CASE("task_manager")
     REQUIRE(!task_ran2);
     REQUIRE(!task_ran3);
 
-    auto futures = tm.run_tasks(std::vector{task1, task2, task3}) | kdl::to_vector;
+    auto futures = tm.run_tasks(std::vector{task1, task2, task3}) | kdl::views::as_rvalue
+                   | kdl::ranges::to<std::vector>();
 
     CHECK(futures[0].get() == 4);
     CHECK(futures[1].get() == 10);
@@ -115,7 +117,8 @@ TEST_CASE("task_manager")
     REQUIRE(!task_ran3);
 
     CHECK(
-      (tm.run_tasks_and_wait(std::vector{task1, task2, task3}) | to_vector)
+      (tm.run_tasks_and_wait(std::vector{task1, task2, task3})
+       | kdl::ranges::to<std::vector>())
       == std::vector{4, 10, 15});
 
     CHECK(task_ran1);
@@ -128,7 +131,7 @@ TEST_CASE("task_manager stress test")
 {
   auto tm = task_manager{};
 
-  const auto ints = std::views::iota(0, 1000) | to_vector;
+  const auto ints = std::views::iota(0, 1000) | kdl::ranges::to<std::vector>();
   using diff_type = std::ranges::range_difference_t<decltype(ints)>;
 
   auto futures = std::vector<std::future<int>>{};
@@ -144,7 +147,7 @@ TEST_CASE("task_manager stress test")
                      return j;
                    }};
                  })
-                 | to_vector;
+                 | kdl::ranges::to<std::vector>();
 
     auto new_futures = tm.run_tasks(tasks);
     futures.insert(
@@ -155,7 +158,7 @@ TEST_CASE("task_manager stress test")
 
   const auto results = futures
                        | std::views::transform([](auto& future) { return future.get(); })
-                       | to_vector;
+                       | kdl::ranges::to<std::vector>();
   CHECK(results == results);
 }
 

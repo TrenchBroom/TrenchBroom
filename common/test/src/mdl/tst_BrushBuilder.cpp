@@ -23,7 +23,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Polyhedron3.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 
 #include <string>
@@ -49,7 +49,8 @@ auto makeFace(const std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>& face)
 auto makeBrush(const std::vector<std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>>& faces)
 {
   return Brush::create(
-           vm::bbox3d{8192.0}, faces | std::views::transform(makeFace) | kdl::to_vector)
+           vm::bbox3d{8192.0},
+           faces | std::views::transform(makeFace) | kdl::ranges::to<std::vector>())
          | kdl::value();
 };
 

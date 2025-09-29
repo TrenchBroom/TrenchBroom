@@ -23,7 +23,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result_fold.h"
 
 #include <cassert>
@@ -53,7 +53,7 @@ std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& h
   return handles | std::views::transform([](const auto& handle) {
            return BrushFaceReference{handle.node(), handle.face()};
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 Result<std::vector<BrushFaceHandle>> resolveAllRefs(
@@ -61,6 +61,6 @@ Result<std::vector<BrushFaceHandle>> resolveAllRefs(
 {
   return faceRefs
          | std::views::transform([](const auto& faceRef) { return faceRef.resolve(); })
-         | kdl::to_vector | kdl::fold;
+         | kdl::ranges::to<std::vector>() | kdl::fold;
 }
 } // namespace tb::mdl

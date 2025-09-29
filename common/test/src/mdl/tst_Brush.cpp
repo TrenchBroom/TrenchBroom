@@ -27,7 +27,7 @@
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
@@ -134,7 +134,7 @@ void assertCanMoveEdges(
 
   const auto expectedMovedEdges =
     edges | std::views::transform([&](const auto& edge) { return edge.translate(delta); })
-    | kdl::to_vector;
+    | kdl::ranges::to<std::vector>();
 
   CHECK(brush.canTransformEdges(worldBounds, edges, transform));
   CHECK(brush.transformEdges(worldBounds, edges, transform).is_success());
@@ -160,7 +160,7 @@ void assertCanMoveFaces(
   const auto expectedMovedFaces =
     movingFaces
     | std::views::transform([&](const auto& face) { return face.transform(transform); })
-    | kdl::to_vector;
+    | kdl::ranges::to<std::vector>();
 
   CHECK(brush.canTransformFaces(worldBounds, movingFaces, transform));
   CHECK(brush.transformFaces(worldBounds, movingFaces, transform).is_success());
@@ -1477,7 +1477,7 @@ TEST_CASE("Brush")
       const auto allVertexPositions =
         brush.vertices()
         | std::views::transform([](const auto* vertex) { return vertex->position(); })
-        | kdl::to_vector;
+        | kdl::ranges::to<std::vector>();
 
       CHECK(brush.canTransformVertices(
         worldBounds, allVertexPositions, vm::translation_matrix(vm::vec3d{16, 0, 0})));

@@ -27,7 +27,7 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
@@ -103,7 +103,7 @@ bool checkLinkedGroupsToUpdate(const std::vector<GroupNode*>& changedLinkedGroup
   const auto linkedGroupIds = kdl::vec_sort(
     changedLinkedGroups
     | std::views::transform([](const auto* groupNode) { return groupNode->linkId(); })
-    | kdl::to_vector);
+    | kdl::ranges::to<std::vector>());
 
   return std::ranges::adjacent_find(linkedGroupIds) == std::end(linkedGroupIds);
 }

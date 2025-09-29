@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "mdl/EntityDefinition.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <algorithm>
 #include <ranges>
@@ -44,7 +44,7 @@ std::vector<const EntityDefinition*> filterAndSort(
   auto result = entityDefinitions | std::views::filter([&](const auto* entityDefinition) {
                   return getType(*entityDefinition) == type;
                 })
-                | kdl::to_vector;
+                | kdl::ranges::to<std::vector>();
 
   std::ranges::sort(result, [&](const auto* lhs, const auto* rhs) {
     switch (order)
