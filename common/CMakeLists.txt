@@ -209,6 +209,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/SetLinkIdsCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/SetLockStateCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/SetVisibilityCommand.cpp
+        ${COMMON_SOURCE_DIR}/mdl/SoftMapBounds.cpp
         ${COMMON_SOURCE_DIR}/mdl/SoftMapBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/SwapNodeContentsCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/Tag.cpp

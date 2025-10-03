@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,36 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "SoftMapBounds.h"
 
-#include "kdl/reflection_decl.h"
+#include "kdl/reflection_impl.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
 
-#include <iosfwd>
-#include <optional>
+#include <ostream>
 
 namespace tb::mdl
 {
 
-enum class SoftMapBoundsType
+std::ostream& operator<<(std::ostream& lhs, const SoftMapBoundsType rhs)
 {
-  Game,
-  Map
-};
+  switch (rhs)
+  {
+  case SoftMapBoundsType::Game:
+    lhs << "Game";
+    break;
+  case SoftMapBoundsType::Map:
+    lhs << "Map";
+    break;
+  }
+  return lhs;
+}
 
-std::ostream& operator<<(std::ostream& lhs, SoftMapBoundsType rhs);
-
-struct SoftMapBounds
-{
-  SoftMapBoundsType source;
-
-  /**
-   * std::nullopt indicates unlimited soft map bounds
-   */
-  std::optional<vm::bbox3d> bounds;
-
-  kdl_reflect_decl(SoftMapBounds, source, bounds);
-};
+kdl_reflect_impl(SoftMapBounds);
 
 } // namespace tb::mdl
