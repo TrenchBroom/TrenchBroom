@@ -40,7 +40,7 @@
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <fmt/format.h>
 
@@ -127,7 +127,7 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
   return faces | std::views::filter([&](const auto& handle) {
            return handle.face().material() == subject;
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)

@@ -1,5 +1,5 @@
 /*
- Copyright 2024 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -18,32 +18,26 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "kdl/ranges/detail/movable_box.h"
 
-#include "kdl/range_utils.h"
+#include <string>
 
-#include <ranges>
-#include <vector>
+#include <catch2/catch_test_macros.hpp>
 
-namespace kdl
-{
-namespace detail
+namespace kdl::ranges::detail
 {
 
-// Type acts as a tag to find the correct operator| overload
-struct to_vector_helper
+TEST_CASE("movable_box")
 {
-};
+  const auto f = []() {};
 
-// This actually does the work
-template <std::ranges::range R>
-auto operator|(R&& r, to_vector_helper)
-{
-  return std::vector(get_begin(std::forward<R>(r)), get_end(std::forward<R>(r)));
+  static_assert(std::is_move_constructible_v<movable_box<int>>);
+  static_assert(std::is_move_constructible_v<movable_box<std::string>>);
+  static_assert(std::is_move_constructible_v<movable_box<decltype(f)>>);
+
+  static_assert(std::is_move_assignable_v<movable_box<int>>);
+  static_assert(std::is_move_assignable_v<movable_box<std::string>>);
+  static_assert(std::is_move_assignable_v<movable_box<decltype(f)>>);
 }
 
-} // namespace detail
-
-constexpr auto to_vector = detail::to_vector_helper{};
-
-} // namespace kdl
+} // namespace kdl::ranges::detail

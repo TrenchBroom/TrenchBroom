@@ -27,7 +27,7 @@
 #include "mdl/SetLockStateCommand.h"
 #include "mdl/Transaction.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <ranges>
 
@@ -58,7 +58,7 @@ void ensureNodesUnlocked(Map& map, const std::vector<Node*>& nodes)
 {
   const auto nodesToUnlock =
     nodes | std::views::filter([](auto* node) { return node->locked(); })
-    | kdl::to_vector;
+    | kdl::ranges::to<std::vector>();
   unlockNodes(map, nodesToUnlock);
 }
 
@@ -72,7 +72,7 @@ void downgradeUnlockedToInherit(Map& map, const std::vector<Node*>& nodes)
   const auto nodesToReset = nodes | std::views::filter([](auto* node) {
                               return node->lockState() == LockState::Unlocked;
                             })
-                            | kdl::to_vector;
+                            | kdl::ranges::to<std::vector>();
   resetNodeLockingState(map, nodesToReset);
 }
 

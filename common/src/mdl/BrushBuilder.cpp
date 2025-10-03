@@ -24,7 +24,7 @@
 #include "mdl/BrushFace.h"
 #include "render/RenderUtils.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
@@ -365,7 +365,7 @@ auto makeVerticesForWedges(
              return vm::squared_distance(v, a) < vm::squared_distance(v, b);
            });
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 auto makeHollowCylinderInnerCircle(
@@ -402,7 +402,7 @@ auto makeHollowCylinderInnerCircle(
             const auto offsetDir = vm::vec2d{-l.direction.y(), l.direction.x()};
             return vm::line2d{l.point + offsetDir * thickness, l.direction};
           })
-          | kdl::to_vector;
+          | kdl::ranges::to<std::vector>();
 
         auto innerCircle = std::vector<vm::vec2d>{};
         innerCircle.reserve(numSides);
@@ -496,7 +496,7 @@ namespace
 auto setZ(const std::vector<vm::vec2d>& vertices, const double z)
 {
   return vertices | std::views::transform([&](const auto& v) { return vm::vec3d{v, z}; })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 /** If a scalable cone is stretched, it doesn't have one vertex as the tip. Instead, the
@@ -639,7 +639,7 @@ auto makeRing(
                  * vm::translation_matrix(-boundsXY.xy().center());
   const auto circle = t * makeCircle(circleShape, boundsXY.xy());
   return circle | std::views::transform([&](const auto& v) { return vm::vec3d{v, z}; })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 auto makeAlignedUVSphere(

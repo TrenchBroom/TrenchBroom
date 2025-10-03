@@ -25,7 +25,7 @@
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 #include <ranges>
@@ -74,7 +74,7 @@ void doSwapNodeContents(
 {
   const auto nodes = nodesToSwap
                      | std::views::transform([](const auto& pair) { return pair.first; })
-                     | kdl::to_vector;
+                     | kdl::ranges::to<std::vector>();
   const auto parents = collectAncestors(nodes);
   const auto descendants = collectDescendants(nodes);
 

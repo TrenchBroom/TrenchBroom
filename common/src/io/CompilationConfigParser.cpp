@@ -26,7 +26,7 @@
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <fmt/format.h>
 
@@ -142,7 +142,7 @@ std::vector<mdl::CompilationTask> parseTasks(
   return value.arrayValue(context) | std::views::transform([&](const auto& taskValue) {
            return parseTask(context, taskValue);
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 mdl::CompilationProfile parseProfile(
@@ -161,7 +161,7 @@ std::vector<mdl::CompilationProfile> parseProfiles(
   return value.arrayValue(context) | std::views::transform([&](const auto& profileValue) {
            return parseProfile(context, profileValue);
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 Result<mdl::CompilationConfig> parseCompilationConfig(

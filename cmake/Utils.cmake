@@ -98,7 +98,7 @@ macro(set_compiler_config TARGET)
         target_compile_options(${TARGET} PRIVATE -Wno-global-constructors -Wno-exit-time-destructors -Wno-padded -Wno-format-nonliteral -Wno-used-but-marked-unused)
 
         # disable C++98 compatibility warnings
-        target_compile_options(${TARGET} PRIVATE -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++98-compat-bind-to-temporary-copy)
+        target_compile_options(${TARGET} PRIVATE -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++98-compat-bind-to-temporary-copy -Wno-c++20-compat)
 
         # FIXME: investigate further and turn off these warnings if possible
         target_compile_options(${TARGET} PRIVATE -Wno-weak-vtables -Wno-weak-template-vtables)

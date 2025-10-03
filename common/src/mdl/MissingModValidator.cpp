@@ -30,7 +30,7 @@
 #include "mdl/Map_World.h"
 #include "mdl/PushSelection.h"
 
-#include "kdl/vector_utils.h"
+#include "kdl/ranges/to.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -114,7 +114,9 @@ void MissingModValidator::doValidate(
   }
 
   const auto additionalSearchPaths =
-    kdl::vec_transform(mods, [](const auto& mod) { return std::filesystem::path{mod}; });
+    mods
+    | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
+    | kdl::ranges::to<std::vector>();
   const auto errors = m_game.checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors)

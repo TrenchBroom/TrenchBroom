@@ -37,7 +37,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result_fold.h"
 
 #include <ranges>
@@ -90,7 +90,7 @@ void selectTouchingNodes(Map& map, const bool del)
   auto nodes = collectTouchingNodes({map.world()}, map.selection().brushes)
                | std::views::filter(
                  [&](const auto* node) { return map.editorContext().selectable(*node); })
-               | kdl::to_vector;
+               | kdl::ranges::to<std::vector>();
 
   auto transaction = Transaction{map, "Select Touching"};
   if (del)
@@ -157,10 +157,10 @@ void selectTouchingNodes(Map& map, const vm::axis::type cameraAxis, const bool d
           collectContainedNodes(
             {map.world()}, tallBrushes | std::views::transform([](const auto& b) {
                              return b.get();
-                           }) | kdl::to_vector)
+                           }) | kdl::ranges::to<std::vector>())
           | std::views::filter(
             [&](const auto* node) { return map.editorContext().selectable(*node); })
-          | kdl::to_vector;
+          | kdl::ranges::to<std::vector>();
         selectNodes(map, nodesToSelect);
 
         transaction.commit();
@@ -175,7 +175,7 @@ void selectContainedNodes(Map& map, const bool del)
   auto nodes = collectContainedNodes({map.world()}, map.selection().brushes)
                | std::views::filter(
                  [&](const auto* node) { return map.editorContext().selectable(*node); })
-               | kdl::to_vector;
+               | kdl::ranges::to<std::vector>();
 
   auto transaction = Transaction{map, "Select Inside"};
   if (del)
@@ -266,7 +266,7 @@ void selectBrushesWithMaterial(Map& map, const Material* material)
           collectSelectableBrushFaces({node}, map.editorContext()),
           [&](const auto& h) { return h.face().material() == material; });
       })
-    | kdl::to_vector;
+    | kdl::ranges::to<std::vector>();
 
   auto transaction = Transaction{map, "Select Brushes with Material"};
   deselectAll(map);
@@ -377,7 +377,7 @@ void selectBrushFacesWithMaterial(Map& map, const Material* material)
   const auto faces =
     collectSelectableBrushFaces(std::vector<Node*>{map.world()}, map.editorContext())
     | std::views::filter([&](const auto& h) { return h.face().material() == material; })
-    | kdl::to_vector;
+    | kdl::ranges::to<std::vector>();
 
   auto transaction = Transaction{map, "Select Faces with Material"};
   deselectAll(map);

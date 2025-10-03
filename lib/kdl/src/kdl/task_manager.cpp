@@ -20,8 +20,6 @@
 
 #include "kdl/task_manager.h"
 
-#include "kdl/range_to_vector.h"
-
 #include <condition_variable>
 #include <functional>
 #include <future>

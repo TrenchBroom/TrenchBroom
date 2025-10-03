@@ -35,7 +35,7 @@
 #include "ui/TitleBar.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
@@ -59,7 +59,7 @@ std::vector<std::filesystem::path> getWadPaths(
       return wadPaths | std::views::transform([](const auto& s) {
                return std::filesystem::path{s};
              })
-             | kdl::to_vector;
+             | kdl::ranges::to<std::vector>();
     }
   }
   return {};

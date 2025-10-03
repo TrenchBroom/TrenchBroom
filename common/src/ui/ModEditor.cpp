@@ -37,7 +37,7 @@
 #include "ui/ViewConstants.h"
 
 #include "kdl/collection_utils.h"
-#include "kdl/range_to.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
@@ -219,14 +219,14 @@ void ModEditor::updateMods()
     m_availableMods | std::views::filter([&](const auto& mod) {
       return kdl::ci::str_contains(mod, pattern) && !kdl::vec_contains(enabledMods, mod);
     })
-    | std::views::transform(QString::fromStdString) | kdl::to<QStringList>());
+    | std::views::transform(QString::fromStdString) | kdl::ranges::to<QStringList>());
 
   m_enabledModList->clear();
   m_enabledModList->addItems(
     enabledMods | std::views::filter([&](const auto& mod) {
       return kdl::ci::str_contains(mod, pattern);
     })
-    | std::views::transform(QString::fromStdString) | kdl::to<QStringList>());
+    | std::views::transform(QString::fromStdString) | kdl::ranges::to<QStringList>());
 }
 
 void ModEditor::addModClicked()

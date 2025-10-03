@@ -33,7 +33,7 @@
 #include "ui/UVViewHelper.h"
 
 #include "kdl/optional_utils.h"
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include "vm/intersection.h"
 #include "vm/vec.h"
@@ -75,7 +75,7 @@ std::vector<vm::vec2f> getEdgeVectorsUV(const UVViewHelper& helper)
              return vm::vec2f{toUV * segment3d.end()}
                     - vm::vec2f{toUV * segment3d.start()};
            })
-           | kdl::to_vector;
+           | kdl::ranges::to<std::vector>();
   }
   return {};
 }
@@ -87,7 +87,7 @@ std::vector<float> getSnappedShearFactors(
            return !vm::is_zero(v[axis], vm::Cf::almost_zero());
          })
          | std::views::transform([&](const auto& v) { return -v[1 - axis] / v[axis]; })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 float snapShearFactors(

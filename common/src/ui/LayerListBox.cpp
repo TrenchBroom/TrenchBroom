@@ -35,7 +35,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 namespace tb::ui
 {
@@ -335,7 +335,7 @@ std::vector<mdl::LayerNode*> LayerListBox::layers() const
 
   return std::views::iota(0, rowCount)
          | std::views::transform([&](const auto i) { return layerForRow(i); })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 } // namespace tb::ui

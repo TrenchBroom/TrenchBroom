@@ -27,7 +27,7 @@
 #include "mdl/TagAttribute.h"
 #include "mdl/TagMatcher.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include "vm/vec_io.h"
 
@@ -53,7 +53,7 @@ std::vector<std::filesystem::path> extensionsToPaths(const std::vector<std::stri
   return strs | std::views::transform([](const auto& str) {
            return std::filesystem::path{prependDot(str)};
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 void checkVersion(const el::EvaluationContext& context, const el::Value& version)
@@ -96,7 +96,7 @@ std::vector<mdl::CompilationTool> parseCompilationTools(
              std::move(description),
            };
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 std::optional<vm::bbox3d> parseSoftMapBounds(
@@ -445,7 +445,7 @@ mdl::EntityConfig parseEntityConfig(
                | std::views::transform([&](const auto& v) {
                    return std::filesystem::path{v.stringValue(context)};
                  })
-               | kdl::to_vector;
+               | kdl::ranges::to<std::vector>();
 
   const auto color = Color::parse(value.at(context, "defaultcolor").stringValue(context))
                        .value_or(Color{});
@@ -524,7 +524,7 @@ std::vector<mdl::MapFormatConfig> parseMapFormatConfigs(
              entry.atOrDefault(context, "initialmap").stringValue(context),
            };
          })
-         | kdl::to_vector;
+         | kdl::ranges::to<std::vector>();
 }
 
 Result<mdl::GameConfig> parseGameConfig(

@@ -29,7 +29,7 @@
 #include "ui/DrawShapeToolExtension.h"
 #include "ui/DrawShapeToolPage.h"
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 
 #include <ranges>
@@ -50,7 +50,7 @@ void DrawShapeTool::update(const vm::bbox3d& bounds)
       brushes | std::views::transform([](auto brush) {
         return std::make_unique<mdl::BrushNode>(std::move(brush));
       })
-      | kdl::to_vector);
+      | kdl::ranges::to<std::vector>());
   }) | kdl::transform_error([&](auto e) {
     clearBrushes();
     m_map.logger().error() << "Could not update brushes: " << e;
@@ -79,7 +79,7 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
             return brushes | std::views::transform([](auto brush) {
                      return std::make_unique<mdl::BrushNode>(std::move(brush));
                    })
-                   | kdl::to_vector;
+                   | kdl::ranges::to<std::vector>();
           })
         | kdl::transform([&](auto brushNodes) {
             auto transaction = mdl::Transaction{m_map, "Update Brushes"};
@@ -91,7 +91,7 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
                 {parentForNodes(m_map),
                  brushNodes | std::views::transform([](auto& node) {
                    return static_cast<mdl::Node*>(node.release());
-                 }) | kdl::to_vector},
+                 }) | kdl::ranges::to<std::vector>()},
               });
             selectNodes(m_map, addedNodes);
 

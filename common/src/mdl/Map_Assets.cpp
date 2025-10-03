@@ -32,7 +32,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 #include "kdl/string_utils.h"
 
 #include <fmt/format.h>
@@ -75,14 +75,14 @@ std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)
         strs | std::views::transform([](const auto& str) {
           return std::filesystem::path{str};
         })
-        | kdl::to_vector);
+        | kdl::ranges::to<std::vector>());
     }
 
     // Otherwise, enable all material collections
     return kdl::vec_sort_and_remove_duplicates(
       map.materialManager().collections()
       | std::views::transform([](const auto& collection) { return collection.path(); })
-      | kdl::to_vector);
+      | kdl::ranges::to<std::vector>());
   }
   return {};
 }

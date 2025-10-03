@@ -38,7 +38,7 @@
 #include "ui/SpinControl.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/range_to.h"
+#include "kdl/ranges/to.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -204,7 +204,7 @@ void RotateToolPage::rotationCenterWasUsed(const vm::vec3d& center)
   m_recentlyUsedCentersList->addItems(
     m_recentlyUsedCenters | std::views::reverse
     | std::views::transform([](const auto& c) { return toString(c); })
-    | kdl::to<QStringList>());
+    | kdl::ranges::to<QStringList>());
 
   if (m_recentlyUsedCentersList->count() > 0)
   {

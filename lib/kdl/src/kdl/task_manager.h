@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "kdl/range_to_vector.h"
+#include "kdl/ranges/to.h"
 
 #include <condition_variable>
 #include <functional>
@@ -84,7 +84,7 @@ public:
     return tasks | std::views::transform([&](auto&& task) {
              return run_task(std::forward<decltype(task)>(task));
            })
-           | to_vector;
+           | kdl::ranges::to<std::vector>();
   }
 
   template <std::ranges::range range>
@@ -92,7 +92,7 @@ public:
   {
     auto futures = run_tasks(std::forward<range>(tasks));
     return futures | std::views::transform([](auto& future) { return future.get(); })
-           | to_vector;
+           | kdl::ranges::to<std::vector>();
   }
 };
 

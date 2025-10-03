@@ -1,5 +1,5 @@
 /*
- Copyright 2024 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -18,39 +18,25 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "kdl/range_utils.h"
-
+#include <algorithm>
 #include <ranges>
 
 namespace kdl
 {
-namespace detail
-{
 
-// Type acts as a tag to find the correct operator| overload
-template <typename C>
-struct to_container_helper
+template <std::ranges::input_range R1, std::ranges::input_range R2>
+auto recursive_ranges_equal(R1&& r1, R2&& r2)
 {
-};
-
-// This actually does the work
-template <typename Container, std::ranges::range R>
-  requires std::
-    convertible_to<std::ranges::range_value_t<R>, typename Container::value_type>
-  Container operator|(R&& r, to_container_helper<Container>)
-{
-  return Container{get_begin(r), get_end(r)};
-}
-
-} // namespace detail
-
-template <std::ranges::range Container>
-  requires(!std::ranges::view<Container>)
-auto to()
-{
-  return detail::to_container_helper<Container>{};
+  return std::ranges::equal(r1, r2, [](auto&& e1, auto&& e2) {
+    if constexpr (std::ranges::range<decltype(e1)> && std::ranges::range<decltype(e2)>)
+    {
+      return recursive_ranges_equal(e1, e2);
+    }
+    else
+    {
+      return std::ranges::equal_to{}(e1, e2);
+    }
+  });
 }
 
 } // namespace kdl
