@@ -86,9 +86,12 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
     searchPaths.push_back(mapPath.parent_path());
   }
 
-  if (const auto gamePath = map.game()->gamePath(); !gamePath.empty())
+  if (const auto* game = map.game())
   {
-    searchPaths.push_back(gamePath);
+    if (const auto gamePath = game->gamePath(); !gamePath.empty())
+    {
+      searchPaths.push_back(gamePath);
+    }
   }
 
   searchPaths.push_back(io::SystemPaths::appDirectory());
@@ -118,6 +121,8 @@ std::vector<std::string> enabledMods(const Map& map)
 void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 {
   auto* worldNode = map.world();
+  ensure(worldNode, "world is set");
+
   auto entity = worldNode->entity();
   if (mods.empty())
   {
@@ -134,7 +139,10 @@ void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 
 std::string defaultMod(const Map& map)
 {
-  return map.game()->defaultMod();
+  const auto* game = map.game();
+  ensure(game, "game is set");
+
+  return game->defaultMod();
 }
 
 } // namespace tb::mdl

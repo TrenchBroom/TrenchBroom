@@ -116,6 +116,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_NodeVisibility.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Picking.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Selection.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_World.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_ModelDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_ModelUtils.cpp"

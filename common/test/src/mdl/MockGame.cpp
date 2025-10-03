@@ -146,7 +146,7 @@ Result<std::vector<std::string>> MockGame::availableMods() const
 
 std::string MockGame::defaultMod() const
 {
-  return "";
+  return "defaultMod";
 }
 
 Result<std::vector<EntityDefinition>> MockGame::loadEntityDefinitions(
