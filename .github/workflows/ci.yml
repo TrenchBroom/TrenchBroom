@@ -19,14 +19,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
+        os: [ubuntu-22.04, macos-14, macos-15-intel, windows-2022]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
           - os: windows-2022
             tb-arch: default-arch
         include:
-          - os: macos-13
+          - os: macos-15-intel
             tb-build-type: asan
           - os: windows-2022
             tb-arch: x64
@@ -99,7 +99,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'windows-2022' }}
         with:
-          name: windows-2022-x64
+          name: ${{ matrix.os }}
           path: |
             cmakebuild/*.zip
             cmakebuild/*.zip.md5
@@ -147,19 +147,23 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         with:
-          name: ubuntu-22.04
+          name: ${{ matrix.os }}
           path: |
             cmakebuild/*.zip
             cmakebuild/*.md5
 
       # macOS
+      - name: macOS - Switch to Xcode 16.2
+        if: ${{ startsWith(matrix.os, 'macos') }}
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
       - name: macOS - Bootstrap vcpkg
-        if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
+        if: ${{ startsWith(matrix.os, 'macos') }}
         shell: bash
         run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
 
       - name: macOS - Set up signing environment
-        if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
+        if: ${{ startsWith(matrix.os, 'macos') }}
         run: |
             if [[ "${{ matrix.tb-build-type }}" == "asan" ]]; then
               echo "TB_ENABLE_ASAN=true" >> $GITHUB_ENV
@@ -182,26 +186,18 @@ jobs:
               echo "TB_SIGN_MAC_BUNDLE=false" >> $GITHUB_ENV
             fi
 
-      - name: macOS 13 - Install dependencies
-        if: ${{ matrix.os == 'macos-13' }}
+      - name: macOS - Install dependencies
+        if: ${{ startsWith(matrix.os, 'macos') }}
+        run: brew install p7zip pandoc ninja autoconf automake mono
+
+      - name: macOS 15 - Uninstall openexr
+        if: ${{ startsWith(matrix.os, 'macos-15') }}
         run: |
-          # workaround for https://github.com/actions/runner-images/issues/4020
-          # copied from https://github.com/Gelmo/warfork-qfusion/commit/79f3dd021b5b74d19647a4bf225d488c9b3dd44d
-          # remove when fixed or upgrading to macos-14
-          # this issue can always reoccur when brew updates their python formula
-          brew unlink python@3.12
-          brew link --overwrite python@3.12
-          brew install p7zip pandoc ninja autoconf automake
           # Uninstall openexr
-          # remove when upgrading to macos-14
+          # See https://github.com/TrenchBroom/TrenchBroom/pull/4900
           brew uninstall --ignore-dependencies openexr
 
-      - name: macOS 14 - Install dependencies
-        if: ${{ matrix.os == 'macos-14' }}
-        run: |
-          brew install p7zip pandoc ninja autoconf automake
-
-      - name: macOS 14 - Import signing certificates
+      - name: macOS - Import signing certificates
         if: ${{ env.TB_SIGN_MAC_BUNDLE == 'true' }}
         uses: apple-actions/import-codesign-certs@v3
         with:
@@ -209,7 +205,7 @@ jobs:
           p12-password: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}
 
       - name: macOS - Add NuGet sources
-        if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
+        if: ${{ startsWith(matrix.os, 'macos') }}
         shell: bash
         run: |
           mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
@@ -224,23 +220,14 @@ jobs:
             -Source "${{ env.FEED_URL }}"
 
       - name: macOS - Build
-        if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
+        if: ${{ startsWith(matrix.os, 'macos') }}
         run: ./CI-macos.sh
 
-      - name: macOS 13 - Upload artifacts
+      - name: macOS - Upload artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'macos-13' && matrix.tb-build-type != 'asan' }}
+        if: ${{ startsWith(matrix.os, 'macos') && matrix.tb-build-type != 'asan' }}
         with:
-          name: macos-13
-          path: |
-            cmakebuild/*.zip
-            cmakebuild/*.md5
-
-      - name: macOS 14 - Upload artifacts
-        uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'macos-14' }}
-        with:
-          name: macos-14
+          name: ${{ matrix.os }}
           path: |
             cmakebuild/*.zip
             cmakebuild/*.md5
