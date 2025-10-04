@@ -28,9 +28,8 @@
 namespace tb::mdl
 {
 
-class EntityDefinitionFileSpec
+struct EntityDefinitionFileSpec
 {
-private:
   enum class Type
   {
     Builtin,
@@ -39,26 +38,17 @@ private:
 
   friend std::ostream& operator<<(std::ostream& lhs, Type rhs);
 
-  Type m_type;
-  std::filesystem::path m_path;
+  Type type;
+  std::filesystem::path path;
 
-  kdl_reflect_decl(EntityDefinitionFileSpec, m_type, m_path);
+  kdl_reflect_decl(EntityDefinitionFileSpec, type, path);
 
 public:
   static std::optional<EntityDefinitionFileSpec> parse(const std::string& str);
-  static EntityDefinitionFileSpec builtin(const std::filesystem::path& path);
-  static EntityDefinitionFileSpec external(const std::filesystem::path& path);
-  static EntityDefinitionFileSpec unset();
-
-  bool builtin() const;
-  bool external() const;
-
-  const std::filesystem::path& path() const;
+  static EntityDefinitionFileSpec makeBuiltin(const std::filesystem::path& path);
+  static EntityDefinitionFileSpec makeExternal(const std::filesystem::path& path);
 
   std::string asString() const;
-
-private:
-  EntityDefinitionFileSpec(Type type, std::filesystem::path path);
 };
 
 } // namespace tb::mdl

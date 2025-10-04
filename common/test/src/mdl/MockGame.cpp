@@ -136,7 +136,7 @@ std::filesystem::path MockGame::findEntityDefinitionFile(
   const EntityDefinitionFileSpec& spec,
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
-  return spec.path();
+  return spec.path;
 }
 
 Result<std::vector<std::string>> MockGame::availableMods() const

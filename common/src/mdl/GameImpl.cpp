@@ -44,7 +44,6 @@
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
-#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
@@ -184,7 +183,7 @@ bool GameImpl::isEntityDefinitionFile(const std::filesystem::path& path) const
 std::vector<EntityDefinitionFileSpec> GameImpl::allEntityDefinitionFiles() const
 {
   return kdl::vec_transform(m_config.entityConfig.defFilePaths, [](const auto& path) {
-    return EntityDefinitionFileSpec::builtin(path);
+    return EntityDefinitionFileSpec::makeBuiltin(path);
   });
 }
 
@@ -192,18 +191,17 @@ std::filesystem::path GameImpl::findEntityDefinitionFile(
   const EntityDefinitionFileSpec& spec,
   const std::vector<std::filesystem::path>& searchPaths) const
 {
-  const auto& path = spec.path();
-  if (spec.builtin())
+  if (spec.type == EntityDefinitionFileSpec::Type::Builtin)
   {
-    return m_config.findConfigFile(path);
+    return m_config.findConfigFile(spec.path);
   }
 
-  if (path.is_absolute())
+  if (spec.path.is_absolute())
   {
-    return path;
+    return spec.path;
   }
 
-  return io::Disk::resolvePath(searchPaths, path);
+  return io::Disk::resolvePath(searchPaths, spec.path);
 }
 
 Result<std::vector<std::string>> GameImpl::availableMods() const

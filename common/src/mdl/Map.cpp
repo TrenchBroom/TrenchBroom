@@ -1040,15 +1040,16 @@ void Map::loadEntityDefinitions()
             "Loaded entity definition file {}", path.filename());
         })
       | kdl::transform_error([&](auto e) {
-          if (spec->builtin())
+          switch (spec->type)
           {
+          case EntityDefinitionFileSpec::Type::Builtin:
             m_logger.error() << "Could not load builtin entity definition file '"
-                             << spec->path() << "': " << e.msg;
-          }
-          else
-          {
+                             << spec->path << "': " << e.msg;
+            break;
+          case EntityDefinitionFileSpec::Type::External:
             m_logger.error() << "Could not load external entity definition file '"
-                             << spec->path() << "': " << e.msg;
+                             << spec->path << "': " << e.msg;
+            break;
           }
         });
   }

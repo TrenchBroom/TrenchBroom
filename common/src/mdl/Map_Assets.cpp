@@ -53,7 +53,7 @@ std::optional<EntityDefinitionFileSpec> defaultEntityDefinitionFile(const Map& m
   {
     if (const auto paths = game->config().entityConfig.defFilePaths; !paths.empty())
     {
-      return mdl::EntityDefinitionFileSpec::builtin(paths.front());
+      return mdl::EntityDefinitionFileSpec::makeBuiltin(paths.front());
     }
   }
 

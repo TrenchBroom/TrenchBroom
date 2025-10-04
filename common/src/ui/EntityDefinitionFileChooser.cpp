@@ -187,18 +187,17 @@ void EntityDefinitionFileChooser::updateControls()
 
   for (const auto& spec : specs)
   {
-    const auto& path = spec.path();
     const auto str = spec.asString();
 
     auto* item = new QListWidgetItem();
-    item->setData(Qt::DisplayRole, io::pathAsQString(path.filename()));
+    item->setData(Qt::DisplayRole, io::pathAsQString(spec.path.filename()));
     item->setData(Qt::UserRole, QVariant::fromValue(QString::fromStdString(str)));
 
     m_builtin->addItem(item);
   }
 
   const auto spec = entityDefinitionFile(map);
-  if (!spec || spec->builtin())
+  if (!spec || spec->type == mdl::EntityDefinitionFileSpec::Type::Builtin)
   {
     if (spec)
     {
@@ -225,10 +224,10 @@ void EntityDefinitionFileChooser::updateControls()
   }
   else
   {
-    assert(spec && spec->external());
+    assert(spec && spec->type == mdl::EntityDefinitionFileSpec::Type::External);
 
     m_builtin->clearSelection();
-    m_externalLabel->setText(io::pathAsQString(spec->path()));
+    m_externalLabel->setText(io::pathAsQString(spec->path));
 
     auto normalPal = QPalette{};
     m_externalLabel->setPalette(normalPal);

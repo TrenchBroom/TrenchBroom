@@ -45,13 +45,13 @@ namespace tb::mdl
 class BrushFace;
 class BrushFaceAttributes;
 class Entity;
-class EntityDefinitionFileSpec;
 class EntityNodeBase;
 class MaterialManager;
 class Node;
 class SmartTag;
 class WorldNode;
 struct CompilationConfig;
+struct EntityDefinitionFileSpec;
 struct FlagsConfig;
 
 class Game : public io::EntityDefinitionLoader
