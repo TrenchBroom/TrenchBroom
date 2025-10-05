@@ -84,8 +84,9 @@ auto doReplaceChildren(
   for (auto& [parent, newChildren] : nodes)
   {
     allNewChildren = kdl::vec_concat(
-      std::move(allNewChildren),
-      kdl::vec_transform(newChildren, [](auto& child) { return child.get(); }));
+      std::move(allNewChildren), newChildren | std::views::transform([](auto& child) {
+                                   return child.get();
+                                 }) | kdl::ranges::to<std::vector>());
 
     auto oldChildren = parent->replaceChildren(std::move(newChildren));
 

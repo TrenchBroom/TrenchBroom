@@ -39,10 +39,12 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
+#include <ranges>
 #include <variant>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
@@ -390,8 +392,8 @@ TEST_CASE("NodeTest.replaceChildren")
 
   CHECK(oldChildren.size() == 2u);
   CHECK_THAT(
-    kdl::vec_transform(oldChildren, [](const auto& c) { return c.get(); }),
-    UnorderedEquals(std::vector<Node*>{childNode1, childNode2}));
+    oldChildren | std::views::transform([](const auto& c) { return c.get(); }),
+    UnorderedRangeEquals(std::vector{childNode1, childNode2}));
   CHECK(childNode1->parent() == nullptr);
   CHECK(childNode2->parent() == nullptr);
 

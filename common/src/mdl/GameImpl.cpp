@@ -42,13 +42,15 @@
 #include "mdl/MaterialManager.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/as_rvalue_view.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
-#include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -182,9 +184,10 @@ bool GameImpl::isEntityDefinitionFile(const std::filesystem::path& path) const
 
 std::vector<EntityDefinitionFileSpec> GameImpl::allEntityDefinitionFiles() const
 {
-  return kdl::vec_transform(m_config.entityConfig.defFilePaths, [](const auto& path) {
-    return EntityDefinitionFileSpec::makeBuiltin(path);
-  });
+  return m_config.entityConfig.defFilePaths | std::views::transform([](const auto& path) {
+           return EntityDefinitionFileSpec::makeBuiltin(path);
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 std::filesystem::path GameImpl::findEntityDefinitionFile(
@@ -217,15 +220,16 @@ Result<std::vector<std::string>> GameImpl::availableMods() const
            "",
            io::TraversalMode::Flat,
            io::makePathInfoPathMatcher({io::PathInfo::Directory}))
-         | kdl::transform([](auto subDirs) {
-             return kdl::vec_transform(std::move(subDirs), [](auto subDir) {
-               return subDir.filename().string();
-             });
+         | kdl::transform([](const auto& subDirs) {
+             return subDirs | std::views::transform([](const auto& subDir) {
+                      return subDir.filename().string();
+                    });
            })
          | kdl::transform([&](auto mods) {
-             return kdl::vec_filter(std::move(mods), [&](const auto& mod) {
-               return !kdl::ci::str_is_equal(mod, defaultMod);
-             });
+             return mods | std::views::filter([&](const auto& mod) {
+                      return !kdl::ci::str_is_equal(mod, defaultMod);
+                    })
+                    | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
            });
 }
 

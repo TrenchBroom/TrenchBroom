@@ -25,12 +25,13 @@
 #include "mdl/MaterialCollection.h"
 
 #include "kdl/const_overload.h"
-#include "kdl/map_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/string_format.h"
 #include "kdl/vector_utils.h"
 
 #include <algorithm>
+#include <ranges>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -145,8 +146,9 @@ void MaterialManager::updateMaterials()
     }
   }
 
-  m_materials = kdl::vec_transform(kdl::map_values(m_materialsByName), [](auto* t) {
-    return const_cast<const Material*>(t);
-  });
+  m_materials =
+    m_materialsByName | std::views::values
+    | std::views::transform([](auto* t) { return const_cast<const Material*>(t); })
+    | kdl::ranges::to<std::vector>();
 }
 } // namespace tb::mdl

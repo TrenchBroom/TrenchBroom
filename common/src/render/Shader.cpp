@@ -21,10 +21,11 @@
 
 #include "io/DiskIO.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
 
 #include <cassert>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -120,7 +121,8 @@ Result<Shader> loadShader(const std::filesystem::path& path, const GLenum type)
 
   return loadSource(path) | kdl::and_then([&](const auto& source) -> Result<Shader> {
            const auto linePtrs =
-             kdl::vec_transform(source, [](const auto& line) { return line.c_str(); });
+             source | std::views::transform([](const auto& line) { return line.c_str(); })
+             | kdl::ranges::to<std::vector>();
 
            glAssert(glShaderSource(
              shaderId, GLsizei(linePtrs.size()), linePtrs.data(), nullptr));

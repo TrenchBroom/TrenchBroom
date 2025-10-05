@@ -27,6 +27,7 @@
 #include "mdl/UVCoordSystem.h"
 
 #include "kdl/range_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -1156,10 +1157,11 @@ std::vector<Result<Brush>> Brush::subtract(
     result = std::move(nextResults);
   }
 
-  return kdl::vec_transform(result, [&](const auto& geometry) {
-    return createBrush(
-      mapFormat, worldBounds, defaultMaterialName, geometry, subtrahends);
-  });
+  return result | std::views::transform([&](const auto& geometry) {
+           return createBrush(
+             mapFormat, worldBounds, defaultMaterialName, geometry, subtrahends);
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 std::vector<Result<Brush>> Brush::subtract(
@@ -1234,20 +1236,18 @@ Result<Brush> Brush::createBrush(
   const BrushGeometry& geometry,
   const std::vector<const Brush*>& subtrahends) const
 {
-  return kdl::vec_transform(
-           geometry.faces(),
-           [&](const auto* face) {
-             const auto* h1 = face->boundary().front();
-             const auto* h0 = h1->next();
-             const auto* h2 = h0->next();
+  return geometry.faces() | std::views::transform([&](const auto* face) {
+           const auto* h1 = face->boundary().front();
+           const auto* h0 = h1->next();
+           const auto* h2 = h0->next();
 
-             const auto& p0 = h0->origin()->position();
-             const auto& p1 = h1->origin()->position();
-             const auto& p2 = h2->origin()->position();
+           const auto& p0 = h0->origin()->position();
+           const auto& p1 = h1->origin()->position();
+           const auto& p2 = h2->origin()->position();
 
-             return BrushFace::create(
-               p0, p1, p2, BrushFaceAttributes(defaultMaterialName), mapFormat);
-           })
+           return BrushFace::create(
+             p0, p1, p2, BrushFaceAttributes(defaultMaterialName), mapFormat);
+         })
          | kdl::fold | kdl::and_then([&](std::vector<BrushFace>&& faces) {
              return Brush::create(worldBounds, std::move(faces));
            })

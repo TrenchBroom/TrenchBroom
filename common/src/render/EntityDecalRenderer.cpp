@@ -34,10 +34,12 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
+#include "kdl/ranges/to.h"
 
 #include "vm/intersection.h"
 
 #include <cstring>
+#include <ranges>
 
 namespace tb::render
 {
@@ -136,9 +138,11 @@ std::vector<Vertex> createDecalBrushFace(
 
   // convert the geometry into a list of vertices
   const auto norm = vm::vec3f{plane.normal};
-  return kdl::vec_transform(verts, [&](const auto& v) {
-    return Vertex{vm::vec3f{v}, norm, uvCoordSystem->uvCoords(v, attrs, textureSize)};
-  });
+  return verts | std::views::transform([&](const auto& v) {
+           const auto uv = uvCoordSystem->uvCoords(v, attrs, textureSize);
+           return Vertex{vm::vec3f{v}, norm, uv};
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 } // namespace
@@ -345,12 +349,13 @@ void EntityDecalRenderer::validateDecalData(
     return;
   }
 
-  // `bbox` and methods in the veclib library perform inclusive intersection tests - that
-  // is, if two polygons share an edge, plane, or vertex, then they are considered to be
-  // intersecting. We need the opposite behaviour when placing decals: when the entity's
-  // bounding box 'touches' but doesn't actually intersect through a face, we do not want
-  // to place a decal on it. To achieve this logic, we shrink the bounds just a tiny bit
-  // so adjacent faces that don't actually breach the entity's bounding box are excluded.
+  // `bbox` and methods in the veclib library perform inclusive intersection tests -
+  // that is, if two polygons share an edge, plane, or vertex, then they are considered
+  // to be intersecting. We need the opposite behaviour when placing decals: when the
+  // entity's bounding box 'touches' but doesn't actually intersect through a face, we
+  // do not want to place a decal on it. To achieve this logic, we shrink the bounds
+  // just a tiny bit so adjacent faces that don't actually breach the entity's bounding
+  // box are excluded.
   const auto shrunkBounds = entityBounds.expand(-vm::Cd::almost_zero());
 
   // create geometry for the decal

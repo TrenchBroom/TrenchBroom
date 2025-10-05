@@ -27,6 +27,7 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -37,6 +38,7 @@
 #include "vm/vec_io.h"
 
 #include <algorithm>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -357,8 +359,9 @@ const std::string* Entity::property(const std::string& key) const
 
 std::vector<std::string> Entity::propertyKeys() const
 {
-  return kdl::vec_transform(
-    m_properties, [](const auto& property) { return property.key(); });
+  return m_properties
+         | std::views::transform([](const auto& property) { return property.key(); })
+         | kdl::ranges::to<std::vector>();
 }
 
 const std::string& Entity::classname() const

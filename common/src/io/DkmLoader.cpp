@@ -32,9 +32,9 @@
 #include "render/PrimType.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/string_format.h"
 
 #include "vm/vec.h"
 
@@ -425,24 +425,24 @@ Result<void> loadSkins(
   const FileSystem& fs,
   Logger& logger)
 {
-  return kdl::vec_transform(
-           skins,
-           [&](const auto& skin) {
-             return findSkin(skin, fs) | kdl::transform([&](const auto skinPath) {
-                      return loadSkin(skinPath, fs, logger);
-                    });
-           })
-         | kdl::fold | kdl::transform([&](auto materials) {
-             surface.setSkins(std::move(materials));
+  const auto findAndLoadSkin = [&](const auto& skin) {
+    return findSkin(skin, fs) | kdl::transform([&](const auto skinPath) {
+             return loadSkin(skinPath, fs, logger);
            });
+  };
+
+  return skins | std::views::transform(findAndLoadSkin) | kdl::fold
+         | kdl::transform(
+           [&](auto materials) { surface.setSkins(std::move(materials)); });
 }
 
 auto getVertices(const DkmFrame& frame, const std::vector<DkmMeshVertex>& meshVertices)
 {
-  return kdl::vec_transform(meshVertices, [&](const auto& meshVertex) {
-    const auto position = frame.vertex(meshVertex.vertexIndex);
-    return mdl::EntityModelVertex{position, meshVertex.uv};
-  });
+  return meshVertices | std::views::transform([&](const auto& meshVertex) {
+           const auto position = frame.vertex(meshVertex.vertexIndex);
+           return mdl::EntityModelVertex{position, meshVertex.uv};
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 void buildFrame(

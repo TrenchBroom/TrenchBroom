@@ -28,7 +28,6 @@
 #include "mdl/NodeQueries.h"
 
 #include "kdl/ranges/to.h"
-#include "kdl/vector_utils.h"
 
 #include <ranges>
 
@@ -155,13 +154,15 @@ bool SwapNodeContentsCommand::doCollateWith(UndoableCommand& command)
 {
   if (auto* other = dynamic_cast<SwapNodeContentsCommand*>(&command))
   {
-    auto myNodes =
-      kdl::vec_transform(m_nodes, [](const auto& pair) { return pair.first; });
-    auto theirNodes =
-      kdl::vec_transform(other->m_nodes, [](const auto& pair) { return pair.first; });
+    auto myNodes = m_nodes
+                   | std::views::transform([](const auto& pair) { return pair.first; })
+                   | kdl::ranges::to<std::vector>();
+    auto theirNodes = other->m_nodes
+                      | std::views::transform([](const auto& pair) { return pair.first; })
+                      | kdl::ranges::to<std::vector>();
 
-    kdl::vec_sort(myNodes);
-    kdl::vec_sort(theirNodes);
+    std::ranges::sort(myNodes);
+    std::ranges::sort(theirNodes);
 
     return myNodes == theirNodes;
   }

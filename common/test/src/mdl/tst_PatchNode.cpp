@@ -22,16 +22,18 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
 
-#include "kdl/vector_utils.h"
-
 #include "vm/approx.h"
 #include "vm/vec.h"
 
+#include <ranges>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace vm
 {
+
 template <>
 class approx<tb::mdl::PatchGrid::Point>
 {
@@ -82,6 +84,7 @@ public:
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("PatchNode.computeGridNormals") {}
 
@@ -156,9 +159,11 @@ TEST_CASE("PatchNode.makePatchGrid")
   // clang-format on
 
   CAPTURE(r, c, sd, controlPoints);
-  CHECK(
-    makePatchGrid(BezierPatch{r, c, controlPoints, "material"}, sd).points
-    == kdl::vec_transform(expectedPoints, [](const auto& p) { return vm::approx{p}; }));
+  CHECK_THAT(
+    makePatchGrid(BezierPatch{r, c, controlPoints, "material"}, sd).points,
+    RangeEquals(expectedPoints | std::views::transform([](const auto& p) {
+                  return vm::approx{p};
+                })));
 }
 
 TEST_CASE("PatchNode.pickFlatPatch")

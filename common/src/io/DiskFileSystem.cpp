@@ -25,8 +25,8 @@
 #include "io/TraversalMode.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -75,12 +75,16 @@ const FileSystemMetadata* DiskFileSystem::metadata(
 Result<std::vector<std::filesystem::path>> DiskFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
+  const auto makeLexicallyRelative = [&](const auto& p) {
+    return p.lexically_relative(m_root);
+  };
+
   return makeAbsolute(path) | kdl::and_then([&](const auto& absPath) {
            return Disk::find(absPath, traversalMode);
          })
          | kdl::transform([&](const auto& paths) {
-             return kdl::vec_transform(
-               paths, [&](auto p) { return p.lexically_relative(m_root); });
+             return paths | std::views::transform(makeLexicallyRelative)
+                    | kdl::ranges::to<std::vector>();
            });
 }
 

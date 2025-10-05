@@ -31,6 +31,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
+#include "kdl/ranges/to.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -70,9 +71,11 @@ void doWriteNodes(
         const auto& protectedProperties = entityNode->entity().protectedProperties();
         if (!protectedProperties.empty())
         {
-          const auto escapedProperties = kdl::vec_transform(
-            protectedProperties,
-            [](const auto& key) { return kdl::str_escape(key, ";"); });
+          const auto escapedProperties = protectedProperties
+                                         | std::views::transform([](const auto& key) {
+                                             return kdl::str_escape(key, ";");
+                                           })
+                                         | kdl::ranges::to<std::vector>();
           extraProperties.emplace_back(
             mdl::EntityPropertyKeys::ProtectedEntityProperties,
             kdl::str_join(escapedProperties, ";"));

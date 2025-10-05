@@ -22,8 +22,10 @@
 #include "mdl/Resource.h"
 #include "mdl/ResourceManager.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
-#include "kdl/vector_utils.h"
+
+#include <ranges>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -252,8 +254,10 @@ TEST_CASE("ResourceManager")
         }),
       };
 
-      const auto resourceIds = kdl::vec_transform(
-        sharedResources, [](const auto& resource) { return resource->id(); });
+      const auto resourceIds =
+        sharedResources
+        | std::views::transform([](const auto& resource) { return resource->id(); })
+        | kdl::ranges::to<std::vector>();
 
       resourceManager.addResource(sharedResources[0]);
       resourceManager.addResource(sharedResources[1]);

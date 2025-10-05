@@ -23,8 +23,10 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "mdl/Brush.h"
 #include "mdl/BrushNode.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
-#include "kdl/vector_utils.h"
+
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -55,7 +57,8 @@ kdl_reflect_impl(BrushFaceHandle);
 
 std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles)
 {
-  return kdl::vec_transform(handles, [](const auto& handle) { return handle.node(); });
+  return handles | std::views::transform([](const auto& handle) { return handle.node(); })
+         | kdl::ranges::to<std::vector>();
 }
 
 std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode)

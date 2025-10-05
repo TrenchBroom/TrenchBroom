@@ -37,11 +37,13 @@
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kdl/ranges/as_rvalue_view.h"
 #include "kdl/ranges/to.h"
 #include "kdl/stable_remove_duplicates.h"
 #include "kdl/string_format.h"
 
 #include <algorithm>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -101,10 +103,11 @@ void linkGroups(Map& map, const std::vector<GroupNode*>& groupNodes)
       kdl::vec_slice_suffix(groupNodes, groupNodes.size() - 1);
     copyAndReturnLinkIds(sourceGroupNode, targetGroupNodes)
       | kdl::transform([&](auto linkIds) {
-          auto linkIdVector = kdl::vec_transform(
-            std::move(linkIds), [](auto pair) -> std::tuple<Node*, std::string> {
-              return {std::move(pair)};
-            });
+          auto linkIdVector = linkIds | kdl::views::as_rvalue
+                              | std::views::transform([](auto pair) {
+                                  return std::tuple<Node*, std::string>{std::move(pair)};
+                                })
+                              | kdl::ranges::to<std::vector>();
 
           map.executeAndStore(
             std::make_unique<SetLinkIdsCommand>("Set Link ID", std::move(linkIdVector)));
@@ -118,9 +121,10 @@ void unlinkGroups(Map& map, const std::vector<GroupNode*>& groupNodes)
 {
   const auto nodesToUnlink = collectNodesToUnlink(groupNodes);
 
-  auto linkIds = kdl::vec_transform(
-    nodesToUnlink,
-    [](auto* node) -> std::tuple<Node*, std::string> { return {node, generateUuid()}; });
+  auto linkIds = nodesToUnlink | std::views::transform([](auto* node) {
+                   return std::tuple<Node*, std::string>{node, generateUuid()};
+                 })
+                 | kdl::ranges::to<std::vector>();
 
   map.executeAndStore(
     std::make_unique<SetLinkIdsCommand>("Reset Link ID", std::move(linkIds)));
@@ -337,8 +341,10 @@ GroupNode* createLinkedDuplicate(Map& map)
 
 void separateSelectedLinkedGroups(Map& map, const bool relinkGroups)
 {
-  const auto selectedLinkIds = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-    map.selection().groups, [](const auto* groupNode) { return groupNode->linkId(); }));
+  const auto selectedLinkIds = kdl::vec_sort_and_remove_duplicates(
+    map.selection().groups
+    | std::views::transform([](const auto* groupNode) { return groupNode->linkId(); })
+    | kdl::ranges::to<std::vector>());
 
   auto groupsToUnlink = std::vector<GroupNode*>{};
   auto groupsToRelink = std::vector<std::vector<GroupNode*>>{};

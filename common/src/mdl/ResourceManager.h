@@ -21,12 +21,13 @@
 
 #include "mdl/Resource.h"
 
-#include "kdl/collection_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
-#include "kdl/vector_utils.h"
 
+#include <algorithm>
 #include <chrono>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 namespace tb::mdl
@@ -89,16 +90,17 @@ private:
 public:
   bool needsProcessing() const
   {
-    return kdl::any_of(m_resources, [](const auto& resourceWrapper) {
+    return std::ranges::any_of(m_resources, [](const auto& resourceWrapper) {
       return resourceWrapper->useCount() == 1 || resourceWrapper->needsProcessing();
     });
   }
 
   std::vector<const ResourceWrapperBase*> resources() const
   {
-    return kdl::vec_transform(m_resources, [](const auto& resourceWrapper) {
-      return static_cast<const ResourceWrapperBase*>(resourceWrapper.get());
-    });
+    return m_resources | std::views::transform([](const auto& resourceWrapper) {
+             return static_cast<const ResourceWrapperBase*>(resourceWrapper.get());
+           })
+           | kdl::ranges::to<std::vector>();
   }
 
   template <typename ResourceT>

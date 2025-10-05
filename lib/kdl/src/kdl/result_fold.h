@@ -121,7 +121,7 @@ auto collect_results(I cur, S end)
 
     while (cur != end)
     {
-      if (cur->is_error())
+      if ((*cur).is_error())
       {
         errors.push_back(std::move(*cur).error());
       }
@@ -164,7 +164,7 @@ auto collect_results(I cur, S end)
 template <typename C>
 auto collect_results(C&& c)
 {
-  return collect_results(c.begin(), c.end());
+  return collect_results(std::ranges::begin(c), std::ranges::end(c));
 }
 
 template <typename I, typename S, typename F>

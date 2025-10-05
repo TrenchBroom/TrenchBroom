@@ -28,10 +28,10 @@
 
 #include "kdl/grouped_range.h"
 #include "kdl/ranges/to.h"
+#include "kdl/ranges/zip_transform_view.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/task_manager.h"
-#include "kdl/zip_iterator.h"
 
 #include <string_view>
 #include <unordered_map>
@@ -181,8 +181,9 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
 FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
   WorldNode& world, const std::vector<BrushFaceHandle>& faces)
 {
-  const std::vector<Node*> nodes =
-    kdl::vec_transform(faces, [](auto handle) -> Node* { return handle.node(); });
+  const auto nodes = faces
+                     | std::views::transform([](auto handle) { return handle.node(); })
+                     | kdl::ranges::to<std::vector<Node*>>();
   auto constrainedNodes = nodeSelectionWithLinkedGroupConstraints(world, nodes);
 
   const auto nodesToSelect = kdl::vector_set<Node*>{constrainedNodes.nodesToSelect};
@@ -246,12 +247,10 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
     return Error{"Updating a linked node would exceed world bounds"};
   }
 
-  return kdl::vec_transform(
-           nodeToClone->children(),
-           [&](const auto* childNode) {
-             return cloneAndTransformRecursive(
-               childNode, origNodeToTransformedContents, worldBounds);
-           })
+  return nodeToClone->children() | std::views::transform([&](const auto* childNode) {
+           return cloneAndTransformRecursive(
+             childNode, origNodeToTransformedContents, worldBounds);
+         })
          | kdl::fold | kdl::transform([&](auto childClones) {
              for (auto& childClone : childClones)
              {
@@ -334,12 +333,10 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
              // Do a recursive traversal of the input node tree again,
              // creating a matching tree structure, and move in the contents
              // we've transformed above.
-             return kdl::vec_transform(
-                      node.children(),
-                      [&](const auto* childNode) {
-                        return cloneAndTransformRecursive(
-                          childNode, resultsMap, worldBounds);
-                      })
+             return node.children() | std::views::transform([&](const auto* childNode) {
+                      return cloneAndTransformRecursive(
+                        childNode, resultsMap, worldBounds);
+                    })
                     | kdl::fold;
            });
 }
@@ -484,22 +481,20 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
 
   const auto targetGroupNodesToUpdate =
     kdl::vec_erase(targetGroupNodes, &sourceGroupNode);
-  return kdl::vec_transform(
-           targetGroupNodesToUpdate,
-           [&](auto* targetGroupNode) {
-             const auto transformation =
-               targetGroupNode->group().transformation() * *invertedSourceTransformation;
-             return cloneAndTransformChildren(
-                      sourceGroupNode, worldBounds, transformation, taskManager)
-                    | kdl::transform([&](auto newChildren) {
-                        const auto linkIdToNodeMap =
-                          makeLinkIdToNodeMap(targetGroupNode->children());
-                        preserveGroupNames(newChildren, linkIdToNodeMap);
-                        preserveEntityProperties(newChildren, linkIdToNodeMap);
-                        return std::pair{
-                          static_cast<Node*>(targetGroupNode), std::move(newChildren)};
-                      });
-           })
+  return targetGroupNodesToUpdate | std::views::transform([&](auto* targetGroupNode) {
+           const auto transformation =
+             targetGroupNode->group().transformation() * *invertedSourceTransformation;
+           return cloneAndTransformChildren(
+                    sourceGroupNode, worldBounds, transformation, taskManager)
+                  | kdl::transform([&](auto newChildren) {
+                      const auto linkIdToNodeMap =
+                        makeLinkIdToNodeMap(targetGroupNode->children());
+                      preserveGroupNames(newChildren, linkIdToNodeMap);
+                      preserveEntityProperties(newChildren, linkIdToNodeMap);
+                      return std::pair{
+                        static_cast<Node*>(targetGroupNode), std::move(newChildren)};
+                    });
+         })
          | kdl::fold;
 }
 
@@ -600,13 +595,13 @@ Result<void> visitChildrenPerPosition(
     return Error{"Inconsistent linked group structure"};
   }
 
-  return kdl::vec_transform(
-           kdl::make_zip_range(sourceNode.children(), targetNode.children()),
-           [&](auto childPair) {
-             auto& [sourceChild, targetChild] = childPair;
+  return kdl::views::zip_transform(
+           [&](auto& sourceChild, auto& targetChild) {
              return visitNodesPerPosition(
                *sourceChild, *targetChild, f, recursionMode, depth);
-           })
+           },
+           sourceNode.children(),
+           targetNode.children())
          | kdl::fold;
 }
 
@@ -644,12 +639,9 @@ Result<std::unordered_map<Node*, std::string>> copyLinkIds(
   const GroupRecursionMode recursionMode)
 {
   auto linkIds = std::unordered_map<Node*, std::string>{};
-  return kdl::vec_transform(
-           targetGroupNodes,
-           [&](auto* targetGroupNode) {
-             return copyLinkIds(
-               sourceGroupNode, *targetGroupNode, recursionMode, linkIds);
-           })
+  return targetGroupNodes | std::views::transform([&](auto* targetGroupNode) {
+           return copyLinkIds(sourceGroupNode, *targetGroupNode, recursionMode, linkIds);
+         })
          | kdl::fold | kdl::transform([&]() { return std::move(linkIds); });
 }
 

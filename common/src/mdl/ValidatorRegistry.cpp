@@ -22,9 +22,11 @@
 #include "Ensure.h"
 #include "mdl/Validator.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 #include <cassert>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -33,9 +35,10 @@ ValidatorRegistry::~ValidatorRegistry() = default;
 
 std::vector<const Validator*> ValidatorRegistry::registeredValidators() const
 {
-  return kdl::vec_transform(m_validators, [](const auto& validator) {
-    return const_cast<const Validator*>(validator.get());
-  });
+  return m_validators | std::views::transform([](const auto& validator) {
+           return const_cast<const Validator*>(validator.get());
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 std::vector<const IssueQuickFix*> ValidatorRegistry::quickFixes(

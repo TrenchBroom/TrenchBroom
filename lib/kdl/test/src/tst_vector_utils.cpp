@@ -331,46 +331,6 @@ TEST_CASE("vector_utils_test.vec_filter_rvalue")
     vec_filter(makeVec(), [](const auto&, auto i) { return i % 2u == 1u; }).size() == 1u);
 }
 
-TEST_CASE("vector_utils_test.vec_transform")
-{
-  CHECK_THAT(
-    vec_transform(std::vector<int>{}, [](auto x) { return x + 10; }),
-    Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_transform(std::vector<int>{1, 2, 3}, [](auto x) { return x + 10; }),
-    Equals(std::vector<int>{11, 12, 13}));
-  CHECK_THAT(
-    vec_transform(std::vector<int>{1, 2, 3}, [](auto x) { return x + 10.0; }),
-    Equals(std::vector<double>{11.0, 12.0, 13.0}));
-  CHECK_THAT(
-    vec_transform(
-      std::vector<int>{1, 2, 3},
-      [](auto x, auto i) { return x + static_cast<double>(i); }),
-    Equals(std::vector<double>{1.0, 3.0, 5.0}));
-}
-
-struct X
-{
-};
-
-TEST_CASE("vector_utils_test.vec_transform_lvalue")
-{
-  std::vector<X> v{X{}, X{}, X{}};
-
-  CHECK(vec_transform(v, [](X& x) { return x; }).size() == 3u);
-  CHECK(vec_transform(v, [](X& x, std::size_t) { return x; }).size() == 3u);
-}
-
-TEST_CASE("vector_utils_test.vec_transform_rvalue")
-{
-  CHECK(
-    vec_transform(std::vector<X>{X()}, [](X&& x) { return std::move(x); }).size() == 1u);
-  CHECK(
-    vec_transform(std::vector<X>{X()}, [](X&& x, std::size_t) { return std::move(x); })
-      .size()
-    == 1u);
-}
-
 TEST_CASE("vector_utils_test.set_difference")
 {
   using vec = std::vector<int>;

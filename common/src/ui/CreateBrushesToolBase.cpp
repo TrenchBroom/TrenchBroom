@@ -29,6 +29,11 @@
 #include "render/BrushRenderer.h"
 #include "render/SelectionBoundsRenderer.h"
 
+#include "kdl/ranges/as_rvalue_view.h"
+#include "kdl/ranges/to.h"
+
+#include <ranges>
+
 namespace tb::ui
 {
 
@@ -50,9 +55,10 @@ void CreateBrushesToolBase::createBrushes()
 {
   if (!m_brushNodes.empty())
   {
-    auto nodesToAdd = kdl::vec_transform(std::move(m_brushNodes), [](auto brushNode) {
-      return static_cast<mdl::Node*>(brushNode.release());
-    });
+    auto nodesToAdd =
+      m_brushNodes | kdl::views::as_rvalue
+      | std::views::transform([](auto brushNode) { return brushNode.release(); })
+      | kdl::ranges::to<std::vector<mdl::Node*>>();
     clearBrushes();
 
     auto transaction = mdl::Transaction{m_map, "Create Brush"};

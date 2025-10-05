@@ -36,6 +36,10 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
+#include "kdl/ranges/to.h"
+
+#include <ranges>
+
 namespace tb::mdl
 {
 
@@ -184,8 +188,8 @@ bool applyAndSwap(
     newNodes.emplace_back(brushNode, NodeContents(std::move(brush)));
   }
 
-  auto changedLinkedGroups = collectContainingGroups(
-    kdl::vec_transform(newNodes, [](const auto& p) { return p.first; }));
+  auto changedLinkedGroups =
+    collectContainingGroups(newNodes | std::views::keys | kdl::ranges::to<std::vector>());
   updateNodeContents(
     map, commandName, std::move(newNodes), std::move(changedLinkedGroups));
 

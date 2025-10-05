@@ -37,9 +37,12 @@
 #include "render/Shaders.h"
 #include "render/VertexArray.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/vec.h"
+
+#include <ranges>
 
 namespace tb::render
 {
@@ -183,9 +186,12 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
       const auto vertexOffset = vertices.size();
 
       const auto& grid = patchNode->grid();
-      auto gridVertices = kdl::vec_transform(grid.points, [](const auto& p) {
-        return Vertex{vm::vec3f{p.position}, vm::vec3f{p.normal}, vm::vec2f{p.uvCoords}};
-      });
+      auto gridVertices =
+        grid.points | std::views::transform([](const auto& p) {
+          return Vertex{
+            vm::vec3f{p.position}, vm::vec3f{p.normal}, vm::vec2f{p.uvCoords}};
+        })
+        | kdl::ranges::to<std::vector>();
       vertices = kdl::vec_concat(std::move(vertices), std::move(gridVertices));
 
       const auto* material = patchNode->patch().material();

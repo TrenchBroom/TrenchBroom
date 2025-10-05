@@ -1074,9 +1074,8 @@ void Map::loadMaterials()
 {
   if (const auto* wadStr = m_world->entity().property(EntityPropertyKeys::Wad))
   {
-    const auto wadPaths = kdl::vec_transform(
-      kdl::str_split(*wadStr, ";"),
-      [](const auto& str) { return std::filesystem::path{str}; });
+    const auto wadPaths = kdl::str_split(*wadStr, ";")
+                          | kdl::ranges::to<std::vector<std::filesystem::path>>();
     m_game->reloadWads(path(), wadPaths, m_logger);
   }
   m_materialManager->reload(

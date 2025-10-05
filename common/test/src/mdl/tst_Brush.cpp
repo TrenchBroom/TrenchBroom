@@ -38,6 +38,7 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -141,7 +142,8 @@ void assertCanMoveEdges(
   CHECK(brush.canTransformEdges(worldBounds, edges, transform));
   CHECK(brush.transformEdges(worldBounds, edges, transform));
   const auto movedEdges = brush.findClosestEdgePositions(
-    kdl::vec_transform(edges, [&](const auto& s) { return s.translate(delta); }));
+    edges | std::views::transform([&](const auto& s) { return s.translate(delta); })
+    | kdl::ranges::to<std::vector>());
   CHECK(movedEdges == expectedMovedEdges);
 }
 
@@ -1749,8 +1751,10 @@ TEST_CASE("Brush")
       const auto inverse = vm::translation_matrix(p1 - p1_2);
 
       CHECK(brush.transformEdges(worldBounds, oldEdgePositions, transform));
-      auto newEdgePositions = brush.findClosestEdgePositions(kdl::vec_transform(
-        oldEdgePositions, [&](const auto& s) { return s.transform(transform); }));
+      auto newEdgePositions = brush.findClosestEdgePositions(
+        oldEdgePositions
+        | std::views::transform([&](const auto& s) { return s.transform(transform); })
+        | kdl::ranges::to<std::vector>());
 
       CHECK(newEdgePositions == std::vector<vm::segment3d>{{p1_2, p2_2}});
 
@@ -1767,8 +1771,10 @@ TEST_CASE("Brush")
 
       oldEdgePositions = std::move(newEdgePositions);
       CHECK(brush.transformEdges(worldBounds, oldEdgePositions, inverse));
-      newEdgePositions = brush.findClosestEdgePositions(kdl::vec_transform(
-        oldEdgePositions, [&](const auto& s) { return s.transform(inverse); }));
+      newEdgePositions = brush.findClosestEdgePositions(
+        oldEdgePositions
+        | std::views::transform([&](const auto& s) { return s.transform(inverse); })
+        | kdl::ranges::to<std::vector>());
 
       CHECK(newEdgePositions == std::vector<vm::segment3d>{originalEdge});
 
@@ -1856,8 +1862,10 @@ TEST_CASE("Brush")
 
       auto oldFacePositions = std::vector<vm::polygon3d>{face};
       CHECK(brush.transformFaces(worldBounds, oldFacePositions, transform));
-      auto newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(
-        oldFacePositions, [&](const auto& f) { return f.transform(transform); }));
+      auto newFacePositions = brush.findClosestFacePositions(
+        oldFacePositions
+        | std::views::transform([&](const auto& f) { return f.transform(transform); })
+        | kdl::ranges::to<std::vector>());
 
       CHECK(newFacePositions.size() == 1u);
       CHECK(newFacePositions[0].hasVertex({-48, -48, +32}));
@@ -1867,8 +1875,10 @@ TEST_CASE("Brush")
 
       oldFacePositions = std::move(newFacePositions);
       CHECK(brush.transformFaces(worldBounds, oldFacePositions, inverse));
-      newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(
-        oldFacePositions, [&](const auto& f) { return f.transform(inverse); }));
+      newFacePositions = brush.findClosestFacePositions(
+        oldFacePositions
+        | std::views::transform([&](const auto& f) { return f.transform(inverse); })
+        | kdl::ranges::to<std::vector>());
 
       CHECK(newFacePositions.size() == 1u);
       CHECK(newFacePositions[0].vertices().size() == 4u);
@@ -2221,10 +2231,15 @@ TEST_CASE("Brush")
 
       for (auto& oldFace : brush.faces())
       {
-        const auto oldUVCoords = kdl::vec_transform(
-          oldFace.vertexPositions(), [&](auto x) { return oldFace.uvCoords(x); });
+        const auto oldUVCoords =
+          oldFace.vertexPositions()
+          | std::views::transform([&](auto x) { return oldFace.uvCoords(x); })
+          | kdl::ranges::to<std::vector>();
+
         const auto shearedVertexPositions =
-          kdl::vec_transform(oldFace.vertexPositions(), [&](auto x) { return M * x; });
+          oldFace.vertexPositions() | std::views::transform([&](auto x) { return M * x; })
+          | kdl::ranges::to<std::vector>();
+
         const auto shearedPolygon = vm::polygon3d{shearedVertexPositions};
 
         const auto normal = oldFace.boundary().normal;
@@ -2234,9 +2249,13 @@ TEST_CASE("Brush")
         {
           const auto newFaceIndex = changed.findFace(shearedPolygon);
           REQUIRE(newFaceIndex);
+
           const auto& newFace = changed.face(*newFaceIndex);
-          const auto newUVCoords = kdl::vec_transform(
-            shearedVertexPositions, [&](auto x) { return newFace.uvCoords(x); });
+          const auto newUVCoords =
+            shearedVertexPositions
+            | std::views::transform([&](auto x) { return newFace.uvCoords(x); })
+            | kdl::ranges::to<std::vector>();
+
           if (
             normal == vm::vec3d{0, 0, 1} || normal == vm::vec3d{0, 1, 0}
             || normal == vm::vec3d{0, -1, 0})
@@ -2255,10 +2274,13 @@ TEST_CASE("Brush")
         {
           const auto newFaceWithUVLockIndex = changedWithUVLock.findFace(shearedPolygon);
           REQUIRE(newFaceWithUVLockIndex);
+
           const auto& newFaceWithUVLock = changedWithUVLock.face(*newFaceWithUVLockIndex);
-          const auto newUVCoordsWithUVLock = kdl::vec_transform(
-            shearedVertexPositions,
-            [&](auto x) { return newFaceWithUVLock.uvCoords(x); });
+          const auto newUVCoordsWithUVLock =
+            shearedVertexPositions
+            | std::views::transform([&](auto x) { return newFaceWithUVLock.uvCoords(x); })
+            | kdl::ranges::to<std::vector>();
+
           if (normal == vm::vec3d{0, 0, 1} || (format == MapFormat::Valve))
           {
             CHECK(uvListsEqual(oldUVCoords, newUVCoordsWithUVLock));

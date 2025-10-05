@@ -31,11 +31,12 @@
 #include "io/ZipFileSystem.h"
 #include "mdl/GameConfig.h"
 
+#include "kdl/ranges/as_rvalue_view.h"
 #include "kdl/result_fold.h"
 #include "kdl/string_compare.h"
-#include "kdl/vector_utils.h"
 
 #include <memory>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -174,9 +175,8 @@ void GameFileSystem::addFileSystemPackages(
       io::makeExtensionPathMatcher(packageExtensions))
       | kdl::and_then([&](auto packagePaths) {
           std::ranges::sort(packagePaths);
-          return kdl::vec_transform(
-                   std::move(packagePaths),
-                   [&](auto packagePath) {
+          return packagePaths | kdl::views::as_rvalue
+                 | std::views::transform([&](auto packagePath) {
                      return diskFS.makeAbsolute(packagePath)
                             | kdl::and_then([&](const auto& absPackagePath) {
                                 return createImageFileSystem(

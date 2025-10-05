@@ -40,10 +40,11 @@
 #include "mdl/TextureResource.h"
 
 #include "kdl/functional.h"
-#include "kdl/grouped_range.h"
 #include "kdl/map_utils.h"
 #include "kdl/path_hash.h"
 #include "kdl/path_utils.h"
+#include "kdl/ranges/chunk_by_view.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/string_compare.h"
@@ -395,28 +396,27 @@ std::vector<mdl::MaterialCollection> groupMaterialsIntoCollections(
                                                          : lhs.name() < rhs.name();
   });
 
-  auto materialsByCollection =
-    kdl::make_grouped_range(materials, [&](const auto& lhs, const auto& rhs) {
-      return lhs.collectionName() == rhs.collectionName();
-    });
+  return materials | kdl::views::chunk_by([&](const auto& lhs, const auto& rhs) {
+           return lhs.collectionName() == rhs.collectionName();
+         })
+         | std::views::transform([&](auto groupedMaterials) {
+             assert(!groupedMaterials.empty());
 
-  return kdl::vec_transform(materialsByCollection, [&](auto groupedMaterials) {
-    assert(!groupedMaterials.empty());
+             auto materialCollectionName = groupedMaterials.front().collectionName();
 
-    auto materialCollectionName = groupedMaterials.front().collectionName();
+             auto materialsForCollection = std::vector<mdl::Material>(
+               std::move_iterator{groupedMaterials.begin()},
+               std::move_iterator{groupedMaterials.end()});
 
-    auto materialsForCollection = std::vector<mdl::Material>(
-      std::move_iterator{groupedMaterials.begin()},
-      std::move_iterator{groupedMaterials.end()});
+             materialsForCollection = kdl::vec_sort(
+               std::move(materialsForCollection), [&](const auto& lhs, const auto& rhs) {
+                 return lhs.relativePath() < rhs.relativePath();
+               });
 
-    materialsForCollection = kdl::vec_sort(
-      std::move(materialsForCollection), [&](const auto& lhs, const auto& rhs) {
-        return lhs.relativePath() < rhs.relativePath();
-      });
-
-    return mdl::MaterialCollection{
-      std::move(materialCollectionName), std::move(materialsForCollection)};
-  });
+             return mdl::MaterialCollection{
+               std::move(materialCollectionName), std::move(materialsForCollection)};
+           })
+         | kdl::ranges::to<std::vector>();
 }
 
 } // namespace
@@ -469,9 +469,8 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
          | kdl::and_then([&](auto shaders) {
              return findAllMaterialPaths(fs, materialConfig, shaders)
                     | kdl::and_then([&](const auto& materialPaths) {
-                        return kdl::vec_transform(
-                                 materialPaths,
-                                 [&](const auto& materialPath) {
+                        return materialPaths
+                               | std::views::transform([&](const auto& materialPath) {
                                    return loadMaterial(
                                      fs,
                                      materialConfig,

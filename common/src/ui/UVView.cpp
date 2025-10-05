@@ -48,8 +48,11 @@
 #include "ui/UVScaleTool.h"
 #include "ui/UVShearTool.h"
 
+#include "kdl/ranges/to.h"
+
 #include <cassert>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 namespace tb::ui
@@ -340,9 +343,11 @@ void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch
 
   assert(m_helper.valid());
 
-  auto edgeVertices = kdl::vec_transform(
-    m_helper.face()->vertices(),
-    [](const auto* vertex) { return Vertex{vm::vec3f(vertex->position())}; });
+  auto edgeVertices = m_helper.face()->vertices()
+                      | std::views::transform([](const auto* vertex) {
+                          return Vertex{vm::vec3f{vertex->position()}};
+                        })
+                      | kdl::ranges::to<std::vector>();
 
   auto edgeRenderer = render::DirectEdgeRenderer{
     render::VertexArray::move(std::move(edgeVertices)), render::PrimType::LineLoop};

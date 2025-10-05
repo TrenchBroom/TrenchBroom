@@ -39,9 +39,9 @@
 #include "kdl/ranges/to.h"
 #include "kdl/string_compare.h"
 #include "kdl/struct_io.h"
-#include "kdl/vector_utils.h"
 
 #include <ostream>
+#include <ranges>
 #include <vector>
 
 namespace tb::mdl
@@ -133,8 +133,10 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
   }
   else
   {
-    const auto options = kdl::vec_transform(
-      matchingMaterials, [](const auto* current) { return current->name(); });
+    const auto options =
+      matchingMaterials
+      | std::views::transform([](const auto* current) { return current->name(); })
+      | kdl::ranges::to<std::vector>();
     const auto index = callback.selectOption(options);
     if (index >= matchingMaterials.size())
     {

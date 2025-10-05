@@ -37,9 +37,13 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 
+#include "kdl/ranges/to.h"
+
 #include "vm/distance.h" // IWYU pragma: keep
 #include "vm/plane.h"
 #include "vm/scalar.h"
+
+#include <ranges>
 
 namespace tb::ui
 {
@@ -113,7 +117,8 @@ auto buildEdgeRenderer(const std::vector<mdl::BrushFaceHandle>& dragHandles)
 auto buildEdgeRenderer(const std::vector<ExtrudeDragHandle>& dragHandles)
 {
   return buildEdgeRenderer(
-    kdl::vec_transform(dragHandles, [](const auto& h) { return h.faceHandle; }));
+    dragHandles | std::views::transform([](const auto& h) { return h.faceHandle; })
+    | kdl::ranges::to<std::vector>());
 }
 
 struct ExtrudeDragDelegate : public HandleDragTrackerDelegate

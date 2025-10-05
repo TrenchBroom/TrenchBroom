@@ -53,6 +53,7 @@
 
 #include <algorithm>
 #include <optional>
+#include <ranges>
 
 namespace tb::ui
 {
@@ -326,7 +327,8 @@ public:
 
   std::vector<vm::vec3d> getPoints() const override
   {
-    auto result = kdl::vec_transform(m_points, [](const auto& p) { return p.point; });
+    auto result = m_points | std::views::transform([](const auto& p) { return p.point; })
+                  | kdl::ranges::to<std::vector>();
     if (const auto thirdPoint = computeThirdPoint())
     {
       result = kdl::vec_push_back(std::move(result), *thirdPoint);
@@ -420,9 +422,11 @@ public:
     {
       auto renderService = render::RenderService{renderContext, renderBatch};
 
-      const auto positions = kdl::vec_transform(
-        m_faceHandle->face().vertices(),
-        [](const auto& vertex) { return vm::vec3f{vertex->position()}; });
+      const auto positions = m_faceHandle->face().vertices()
+                             | std::views::transform([](const auto& vertex) {
+                                 return vm::vec3f{vertex->position()};
+                               })
+                             | kdl::ranges::to<std::vector>();
 
       renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
       renderService.renderPolygonOutline(positions);

@@ -24,6 +24,8 @@
 #include "io/TraversalMode.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/as_rvalue_view.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
@@ -205,8 +207,9 @@ Result<std::vector<std::filesystem::path>> findInMountedFileSystem(
   {
     return mountPoint.mountedFileSystem->find(path, traversalMode)
            | kdl::transform([&](auto paths) {
-               return kdl::vec_transform(
-                 std::move(paths), [&](auto p) { return mountPoint.path / p; });
+               return paths | kdl::views::as_rvalue
+                      | std::views::transform([&](auto p) { return mountPoint.path / p; })
+                      | kdl::ranges::to<std::vector>();
              });
   }
   return std::vector<std::filesystem::path>{};
@@ -253,11 +256,9 @@ Result<std::vector<std::filesystem::path>> findMatchesForMountedFileSystem(
 Result<std::vector<std::filesystem::path>> VirtualFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
-  return kdl::vec_transform(
-           m_mountPoints,
-           [&](const auto& mountPoint) {
-             return findMatchesForMountedFileSystem(mountPoint, path, traversalMode);
-           })
+  return m_mountPoints | std::views::transform([&](const auto& mountPoint) {
+           return findMatchesForMountedFileSystem(mountPoint, path, traversalMode);
+         })
          | kdl::fold | kdl::transform([](auto nestedPaths) {
              if (nestedPaths.empty())
              {

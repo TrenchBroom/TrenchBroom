@@ -28,9 +28,9 @@
 #include "mdl/Resource.h"
 #include "mdl/Texture.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/task_manager.h"
-#include "kdl/vector_utils.h"
 
 #include <memory>
 #include <ranges>
@@ -64,21 +64,22 @@ struct MaterialCollectionInfo
 MaterialCollectionInfo makeMaterialCollectionInfo(
   const mdl::MaterialCollection& materialCollection)
 {
+  const auto toMaterialInfo = [](const auto& material) -> std::optional<MaterialInfo> {
+    if (const auto* texture = material.texture())
+    {
+      return MaterialInfo{
+        material.name(),
+        material.texture()->width(),
+        material.texture()->height(),
+      };
+    }
+    return std::nullopt;
+  };
+
   return MaterialCollectionInfo{
     materialCollection.path(),
-    kdl::vec_transform(
-      materialCollection.materials(),
-      [](const auto& material) -> std::optional<MaterialInfo> {
-        if (const auto* texture = material.texture())
-        {
-          return MaterialInfo{
-            material.name(),
-            material.texture()->width(),
-            material.texture()->height(),
-          };
-        }
-        return std::nullopt;
-      })};
+    materialCollection.materials() | std::views::transform(toMaterialInfo)
+      | kdl::ranges::to<std::vector>()};
 }
 
 class MaterialCollectionsMatcher

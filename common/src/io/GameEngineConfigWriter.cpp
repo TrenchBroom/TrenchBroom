@@ -23,6 +23,7 @@
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 #include <ostream>
@@ -48,8 +49,10 @@ void GameEngineConfigWriter::writeConfig()
 
 el::Value GameEngineConfigWriter::writeProfiles(const mdl::GameEngineConfig& config) const
 {
-  return el::Value{kdl::vec_transform(
-    config.profiles, [&](const auto& profile) { return writeProfile(profile); })};
+  return el::Value{
+    config.profiles
+    | std::views::transform([&](const auto& profile) { return writeProfile(profile); })
+    | kdl::ranges::to<std::vector>()};
 }
 
 el::Value GameEngineConfigWriter::writeProfile(

@@ -31,15 +31,15 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/pair_iterator.h"
+#include "kdl/ranges/adjacent_view.h"
 #include "kdl/task_manager.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
 #include <numeric>
+#include <ranges>
 #include <vector>
 
 #include "catch/Matchers.h"
@@ -123,12 +123,12 @@ public:
       });
 
     const auto expectedLinkIds =
-      kdl::vec_transform(m_expected, [&](const auto& nodesWithSameLinkId) {
+      m_expected | std::views::transform([&](const auto& nodesWithSameLinkId) {
         return getValue(linkIds, nodesWithSameLinkId.front());
       });
 
     return linkIds.size() == count
-           && kdl::all_of(
+           && std::ranges::all_of(
              m_expected,
              [&](const auto& nodesWithSameLinkId) {
                if (nodesWithSameLinkId.empty())
@@ -141,10 +141,10 @@ public:
                         return getValue(linkIds, entity) == linkId;
                       });
              })
-           && kdl::none_of(
-             kdl::make_pair_range(expectedLinkIds), [](const auto& linkIdPair) {
-               const auto& [linkId1, linkId2] = linkIdPair;
-               return linkId1 == linkId2;
+           && std::ranges::none_of(
+             expectedLinkIds | kdl::views::adjacent<2>, [](const auto& pair) {
+               const auto& [linkId1, linkId2] = pair;
+               return linkId1 && linkId2 && *linkId1 == *linkId2;
              });
   }
 
