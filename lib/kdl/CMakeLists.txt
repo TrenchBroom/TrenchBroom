@@ -86,7 +86,6 @@ set(KDL_HEADER
   "${KDL_SOURCE_DIR}/kdl/vector_set_forward.h"
   "${KDL_SOURCE_DIR}/kdl/vector_set.h"
   "${KDL_SOURCE_DIR}/kdl/vector_utils.h"
-  "${KDL_SOURCE_DIR}/kdl/zip_iterator.h"
 )
 
 add_library(kdl STATIC ${KDL_SOURCE} ${KDL_HEADER})

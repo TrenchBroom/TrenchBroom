@@ -42,7 +42,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/ranges/to.h"
-#include "kdl/zip_iterator.h"
+#include "kdl/ranges/zip_view.h"
 
 #include "vm/approx.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
@@ -94,7 +94,7 @@ void checkTransformation(
 
   REQUIRE(node.childCount() == original.childCount());
   for (const auto& [nodeChild, originalChild] :
-       kdl::make_zip_range(node.children(), original.children()))
+       kdl::views::zip(node.children(), original.children()))
   {
     checkTransformation(*nodeChild, *originalChild, transformation);
   }

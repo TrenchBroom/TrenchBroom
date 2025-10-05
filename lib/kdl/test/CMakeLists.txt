@@ -48,7 +48,6 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_tuple_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_set.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_utils.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_zip_iterator.cpp"
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
