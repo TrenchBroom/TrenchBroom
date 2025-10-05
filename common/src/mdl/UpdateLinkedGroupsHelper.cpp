@@ -25,7 +25,6 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/map_utils.h"
 #include "kdl/overload.h"
 #include "kdl/ranges/as_rvalue_view.h"
 #include "kdl/ranges/to.h"
@@ -71,7 +70,8 @@ auto doReplaceChildren(
     return result;
   }
 
-  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  const auto parents =
+    collectNodesAndAncestors(nodes | std::views::keys | kdl::ranges::to<std::vector>());
   auto notifyParents = NotifyBeforeAndAfter{
     map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
 

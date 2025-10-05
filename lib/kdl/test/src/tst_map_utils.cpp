@@ -32,31 +32,6 @@ namespace kdl
 {
 
 template <typename K, typename V>
-void test_map_keys(const std::vector<K>& keys, const std::map<K, V>& map)
-{
-  CHECK(map_keys(map) == keys);
-}
-
-TEST_CASE("map_utils_test.map_keys")
-{
-  test_map_keys<int, int>({}, {});
-  test_map_keys<int, std::string>({1, 2, 3}, {{1, "one"}, {2, "two"}, {3, "three "}});
-}
-
-template <typename K, typename V>
-void test_map_values(const std::vector<V>& values, const std::map<K, V>& map)
-{
-  CHECK(map_values(map) == values);
-}
-
-TEST_CASE("map_utils_test.map_values")
-{
-  test_map_values<int, int>({}, {});
-  test_map_values<int, std::string>(
-    {"one", "two", "three"}, {{1, "one"}, {2, "two"}, {3, "three"}});
-}
-
-template <typename K, typename V>
 void test_map_lexicographical_compare(
   const int exp, const std::map<K, V>& lhs, const std::map<K, V>& rhs)
 {

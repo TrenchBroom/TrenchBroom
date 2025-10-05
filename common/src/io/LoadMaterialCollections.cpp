@@ -40,7 +40,6 @@
 #include "mdl/TextureResource.h"
 
 #include "kdl/functional.h"
-#include "kdl/map_utils.h"
 #include "kdl/path_hash.h"
 #include "kdl/path_utils.h"
 #include "kdl/ranges/as_rvalue_view.h"
@@ -120,7 +119,8 @@ Result<std::vector<std::filesystem::path>> findAllMaterialPaths(
              {
                pathStemToPath[shader.shaderPath] = shader.shaderPath;
              }
-             return kdl::vec_sort(kdl::map_values(pathStemToPath));
+             return kdl::vec_sort(
+               pathStemToPath | std::views::values | kdl::ranges::to<std::vector>());
            });
 }
 
