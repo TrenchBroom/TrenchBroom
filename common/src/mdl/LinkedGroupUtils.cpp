@@ -27,7 +27,7 @@
 #include "mdl/NodeQueries.h"
 
 #include "kdl/grouped_range.h"
-#include "kdl/map_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/task_manager.h"
@@ -766,7 +766,9 @@ std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
 {
   // Recursively collect all groups to add
   const auto groupsToAdd = kdl::vec_sort(
-    collectGroups(kdl::vec_flatten(kdl::map_values(nodesToAdd))),
+    collectGroups(
+      nodesToAdd | std::views::values | std::views::join
+      | kdl::ranges::to<std::vector>()),
     compareGroupNodesByLinkId);
 
   const auto groupsByLinkId = kdl::make_grouped_range(

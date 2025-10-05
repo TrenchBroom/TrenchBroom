@@ -27,6 +27,7 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
+#include "kdl/ranges/as_rvalue_view.h"
 #include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -193,7 +194,8 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
          })
          | kdl::fold
          | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
-             return kdl::vec_flatten(std::move(nestedUpdateLists));
+             return nestedUpdateLists | std::views::join | kdl::views::as_rvalue
+                    | kdl::ranges::to<std::vector>();
            });
 }
 

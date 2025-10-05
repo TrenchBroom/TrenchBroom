@@ -317,8 +317,8 @@ void findSuperClassesAndInheritFrom(
 {
   const auto findClassInfoWithType =
     [&](const auto& classes, const auto type) -> const EntityDefinitionClassInfo* {
-    if (const auto it = std::find_if(
-          classes.begin(), classes.end(), [&](const auto* c) { return c->type == type; });
+    if (const auto it =
+          std::ranges::find_if(classes, [&](const auto* c) { return c->type == type; });
         it != classes.end())
     {
       return *it;
@@ -471,8 +471,7 @@ std::vector<EntityDefinitionClassInfo> resolveInheritance(
   ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
 {
   const auto filteredClassInfos = filterRedundantClasses(status, classInfos);
-  const auto findClassInfos =
-    [&](const auto& name) -> std::vector<const EntityDefinitionClassInfo*> {
+  const auto findClassInfos = [&](const auto& name) {
     return filteredClassInfos
            | std::views::filter([&](const auto& c) { return c.name == name; })
            | std::views::transform([](const auto& c) { return &c; })

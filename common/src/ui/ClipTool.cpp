@@ -41,6 +41,7 @@
 #include "kdl/map_utils.h"
 #include "kdl/optional_utils.h"
 #include "kdl/overload.h"
+#include "kdl/ranges/to.h"
 #include "kdl/set_temp.h"
 #include "kdl/vector_utils.h"
 
@@ -208,8 +209,9 @@ public:
 
   std::vector<vm::vec3d> combineHelpVectors() const
   {
-    return kdl::vec_flatten(
-      kdl::vec_transform(m_points, [](const auto& point) { return point.helpVectors; }));
+    return m_points
+           | std::views::transform([](const auto& point) { return point.helpVectors; })
+           | std::views::join | kdl::ranges::to<std::vector>();
   }
 
   bool canClip() const override { return m_points.size() == 3 || computeThirdPoint(); }

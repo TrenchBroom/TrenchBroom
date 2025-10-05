@@ -37,6 +37,7 @@
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kdl/ranges/to.h"
 #include "kdl/stable_remove_duplicates.h"
 #include "kdl/string_format.h"
 
@@ -374,9 +375,9 @@ void separateSelectedLinkedGroups(Map& map, const bool relinkGroups)
   }
 
   const auto changedLinkedGroups = kdl::vec_sort_and_remove_duplicates(kdl::vec_concat(
-    collectContainingGroups(kdl::vec_static_cast<Node*>(groupsToUnlink)),
+    collectContainingGroups(groupsToUnlink | kdl::ranges::to<std::vector<Node*>>()),
     collectContainingGroups(
-      kdl::vec_static_cast<Node*>(kdl::vec_flatten(groupsToRelink)))));
+      groupsToRelink | std::views::join | kdl::ranges::to<std::vector<Node*>>())));
 
   if (checkLinkedGroupsToUpdate(changedLinkedGroups))
   {

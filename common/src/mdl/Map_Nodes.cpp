@@ -46,8 +46,8 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/map_utils.h"
 #include "kdl/overload.h"
+#include "kdl/ranges/to.h"
 
 namespace tb::mdl
 {
@@ -280,9 +280,12 @@ std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>&
     return {};
   }
 
-  setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(nodes)), true);
+  setHasPendingChanges(
+    collectGroupsOrContainers(nodes | std::views::keys | kdl::ranges::to<std::vector>()),
+    true);
 
-  const auto addedNodes = kdl::vec_flatten(kdl::map_values(nodes));
+  const auto addedNodes =
+    nodes | std::views::values | std::views::join | kdl::ranges::to<std::vector>();
   ensureNodesVisible(map, addedNodes);
   ensureNodesUnlocked(map, addedNodes);
   if (!transaction.commit())
@@ -364,11 +367,12 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
     return false;
   }
 
-  const auto nodesToRemove =
-    parentChildrenMap(kdl::vec_flatten(kdl::map_values(nodesToAdd)));
+  const auto nodesToRemove = parentChildrenMap(
+    nodesToAdd | std::views::values | std::views::join | kdl::ranges::to<std::vector>());
 
-  const auto changedLinkedGroups = collectGroupsOrContainers(
-    kdl::vec_concat(kdl::map_keys(nodesToAdd), kdl::map_keys(nodesToRemove)));
+  const auto changedLinkedGroups = collectGroupsOrContainers(kdl::vec_concat(
+    nodesToAdd | std::views::keys | kdl::ranges::to<std::vector>(),
+    nodesToRemove | std::views::keys | kdl::ranges::to<std::vector>()));
 
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
@@ -412,7 +416,10 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
   while (!removableNodes.empty())
   {
     setHasPendingChanges(
-      collectContainingGroups(kdl::vec_flatten(kdl::map_values(removableNodes))), true);
+      collectContainingGroups(
+        removableNodes | std::views::values | std::views::join
+        | kdl::ranges::to<std::vector>()),
+      true);
 
     closeRemovedGroups(map, removableNodes);
     map.executeAndStore(mdl::AddRemoveNodesCommand::remove(removableNodes));
@@ -430,7 +437,10 @@ void removeNodes(Map& map, const std::vector<Node*>& nodes)
   auto transaction = Transaction{map, "Remove Objects"};
   while (!removableNodes.empty())
   {
-    setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(removableNodes)), true);
+    setHasPendingChanges(
+      collectGroupsOrContainers(
+        removableNodes | std::views::keys | kdl::ranges::to<std::vector>()),
+      true);
 
     closeRemovedGroups(map, removableNodes);
     map.executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
@@ -483,7 +493,7 @@ bool updateNodeContents(
   std::vector<std::pair<Node*, NodeContents>> nodesToSwap)
 {
   auto changedLinkedGroups = collectContainingGroups(
-    kdl::vec_transform(nodesToSwap, [](const auto& p) { return p.first; }));
+    nodesToSwap | std::views::elements<0> | kdl::ranges::to<std::vector>());
 
   return updateNodeContents(
     map, commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));

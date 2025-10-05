@@ -371,30 +371,6 @@ TEST_CASE("vector_utils_test.vec_transform_rvalue")
     == 1u);
 }
 
-TEST_CASE("vector_utils_test.vec_flatten")
-{
-  CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{}), Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1}}), Equals(std::vector<int>{1}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{}, {}}), Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1}, {}}), Equals(std::vector<int>{1}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{}, {1}}), Equals(std::vector<int>{1}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1}, {2}}), Equals(std::vector<int>{1, 2}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1, 2}, {3}}),
-    Equals(std::vector<int>{1, 2, 3}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1, 2}, {3}}),
-    Equals(std::vector<int>{1, 2, 3}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1, 2}, {2, 3}}),
-    Equals(std::vector<int>{1, 2, 2, 3}));
-}
-
 TEST_CASE("vector_utils_test.set_difference")
 {
   using vec = std::vector<int>;
