@@ -427,21 +427,25 @@ const vm::mat4x4d& Entity::rotation() const
 
 std::vector<EntityProperty> Entity::propertiesWithKey(const std::string& key) const
 {
-  return kdl::vec_filter(
-    m_properties, [&](const auto& property) { return property.hasKey(key); });
+  return m_properties
+         | std::views::filter([&](const auto& property) { return property.hasKey(key); })
+         | kdl::ranges::to<std::vector>();
 }
 
 std::vector<EntityProperty> Entity::propertiesWithPrefix(const std::string& prefix) const
 {
-  return kdl::vec_filter(
-    m_properties, [&](const auto& property) { return property.hasPrefix(prefix); });
+  return m_properties | std::views::filter([&](const auto& property) {
+           return property.hasPrefix(prefix);
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 std::vector<EntityProperty> Entity::numberedProperties(const std::string& prefix) const
 {
-  return kdl::vec_filter(m_properties, [&](const auto& property) {
-    return property.hasNumberedPrefix(prefix);
-  });
+  return m_properties | std::views::filter([&](const auto& property) {
+           return property.hasNumberedPrefix(prefix);
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 void Entity::transform(const vm::mat4x4d& transformation, const bool updateAngleProperty)

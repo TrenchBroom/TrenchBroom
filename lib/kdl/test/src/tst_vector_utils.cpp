@@ -286,26 +286,6 @@ TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates")
     Equals(std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("vector_utils_test.vec_filter")
-{
-  CHECK_THAT(
-    vec_filter(std::vector<int>{}, [](auto) { return false; }),
-    Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_filter(std::vector<int>{1, 2, 3}, [](auto) { return false; }),
-    Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_filter(std::vector<int>{1, 2, 3}, [](auto) { return true; }),
-    Equals(std::vector<int>{1, 2, 3}));
-  CHECK_THAT(
-    vec_filter(std::vector<int>{1, 2, 3}, [](auto x) { return x % 2 == 0; }),
-    Equals(std::vector<int>{2}));
-
-  CHECK_THAT(
-    vec_filter(std::vector<int>{1, 2, 3}, [](auto, auto i) { return i % 2 == 0; }),
-    Equals(std::vector<int>{1, 3}));
-}
-
 struct MoveOnly
 {
   MoveOnly() = default;
@@ -316,20 +296,6 @@ struct MoveOnly
   MoveOnly(MoveOnly&& other) noexcept = default;
   MoveOnly& operator=(MoveOnly&& other) = default;
 };
-
-TEST_CASE("vector_utils_test.vec_filter_rvalue")
-{
-  const auto makeVec = []() {
-    auto vec = std::vector<MoveOnly>{};
-    vec.emplace_back();
-    vec.emplace_back();
-    return vec;
-  };
-
-  CHECK(vec_filter(makeVec(), [](const auto&) { return true; }).size() == 2u);
-  CHECK(
-    vec_filter(makeVec(), [](const auto&, auto i) { return i % 2u == 1u; }).size() == 1u);
-}
 
 TEST_CASE("vector_utils_test.set_difference")
 {

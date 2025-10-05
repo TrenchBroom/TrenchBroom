@@ -26,7 +26,10 @@
 #include "io/PathQt.h"
 #include "ui/QtUtils.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
+
+#include <ranges>
 
 namespace tb::ui
 {
@@ -148,7 +151,9 @@ void RecentDocuments::saveToConfig()
 std::vector<std::filesystem::path> RecentDocuments::updateFilteredDocuments()
 {
   return std::exchange(
-    m_filteredDocuments, kdl::vec_filter(m_recentDocuments, m_filterPredicate));
+    m_filteredDocuments,
+    m_recentDocuments | std::views::filter(m_filterPredicate)
+      | kdl::ranges::to<std::vector>());
 }
 
 void RecentDocuments::insertPath(const std::filesystem::path& path)

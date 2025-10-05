@@ -240,8 +240,11 @@ TransformVerticesResult transformVertices(
       [](Group&) { return true; },
       [](Entity&) { return true; },
       [&](Brush& brush) {
-        const auto verticesToMove = kdl::vec_filter(
-          vertexPositions, [&](const auto& vertex) { return brush.hasVertex(vertex); });
+        const auto verticesToMove = vertexPositions
+                                    | std::views::filter([&](const auto& vertex) {
+                                        return brush.hasVertex(vertex);
+                                      })
+                                    | kdl::ranges::to<std::vector>();
         if (verticesToMove.empty())
         {
           return true;
@@ -320,8 +323,10 @@ bool transformEdges(
       [](Group&) { return true; },
       [](Entity&) { return true; },
       [&](Brush& brush) {
-        const auto edgesToMove = kdl::vec_filter(
-          edgePositions, [&](const auto& edge) { return brush.hasEdge(edge); });
+        const auto edgesToMove =
+          edgePositions
+          | std::views::filter([&](const auto& edge) { return brush.hasEdge(edge); })
+          | kdl::ranges::to<std::vector>();
         if (edgesToMove.empty())
         {
           return true;
@@ -391,8 +396,10 @@ bool transformFaces(
       [](Group&) { return true; },
       [](Entity&) { return true; },
       [&](Brush& brush) {
-        const auto facesToMove = kdl::vec_filter(
-          facePositions, [&](const auto& face) { return brush.hasFace(face); });
+        const auto facesToMove =
+          facePositions
+          | std::views::filter([&](const auto& face) { return brush.hasFace(face); })
+          | kdl::ranges::to<std::vector>();
         if (facesToMove.empty())
         {
           return true;
@@ -510,8 +517,11 @@ bool removeVertices(
       [](Group&) { return true; },
       [](Entity&) { return true; },
       [&](Brush& brush) {
-        const auto verticesToRemove = kdl::vec_filter(
-          vertexPositions, [&](const auto& vertex) { return brush.hasVertex(vertex); });
+        const auto verticesToRemove = vertexPositions
+                                      | std::views::filter([&](const auto& vertex) {
+                                          return brush.hasVertex(vertex);
+                                        })
+                                      | kdl::ranges::to<std::vector>();
         if (verticesToRemove.empty())
         {
           return true;
@@ -727,10 +737,10 @@ bool csgSubtract(Map& map)
              map.currentMaterialName(),
              subtrahends);
 
-           return kdl::vec_filter(
-                    std::move(currentSubtractionResults),
-                    [](const auto r) { return r | kdl::is_success(); })
-                  | kdl::fold | kdl::transform([&](auto currentBrushes) {
+           return currentSubtractionResults
+                  | std::views::filter([](const auto r) { return r | kdl::is_success(); })
+                  | kdl::views::as_rvalue | kdl::fold
+                  | kdl::transform([&](auto currentBrushes) {
                       if (!currentBrushes.empty())
                       {
                         auto resultNodes = currentBrushes | kdl::views::as_rvalue

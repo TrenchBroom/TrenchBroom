@@ -256,9 +256,11 @@ TEST_CASE("ExtrudeTool")
       brushNode->brush().face(brushNode->brush().findFace("larger_top_face").value());
 
     // Find the entity defining the camera position for our test
-    auto* cameraEntity = kdl::vec_filter(map.selection().entities, [](const auto* e) {
-                           return e->entity().classname() == "trigger_relay";
-                         }).front();
+    auto* cameraEntity =
+      (map.selection().entities | std::views::filter([](const auto* e) {
+         return e->entity().classname() == "trigger_relay";
+       }))
+        .front();
 
     // Fire a pick ray at largerTopFace
     const auto pickRay = vm::ray3d{
@@ -293,19 +295,21 @@ TEST_CASE("ExtrudeTool")
 
     // Find the entity defining the camera position for our test
     const auto* cameraEntity =
-      kdl::vec_filter(map.selection().entities, [](const auto* node) {
-        return node->entity().classname() == "trigger_relay";
-      }).front();
+      (map.selection().entities | std::views::filter([](const auto* node) {
+         return node->entity().classname() == "trigger_relay";
+       }))
+        .front();
 
     const auto* cameraTarget =
-      kdl::vec_filter(map.selection().entities, [](const auto* node) {
-        return node->entity().classname() == "info_null";
-      }).front();
+      (map.selection().entities | std::views::filter([](const auto* node) {
+         return node->entity().classname() == "info_null";
+       }))
+        .front();
 
     const auto* funcDetailNode =
-      kdl::vec_filter(
-        mdl::filterEntityNodes(mdl::collectDescendants({map.world()})),
-        [](const auto* node) { return node->entity().classname() == "func_detail"; })
+      (mdl::filterEntityNodes(mdl::collectDescendants({map.world()}))
+       | std::views::filter(
+         [](const auto* node) { return node->entity().classname() == "func_detail"; }))
         .front();
 
     // Fire a pick ray at cameraTarget
@@ -474,33 +478,30 @@ TEST_CASE("ExtrudeTool")
 
       SECTION("check 1 resulting worldspawn brush")
       {
-        auto nodes =
-          mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
-        nodes = kdl::vec_filter(
-          std::move(nodes), [](const auto* node) { return node->selected(); });
+        const auto bounds =
+          mdl::filterBrushNodes(map.editorContext().currentLayer()->children())
+          | std::views::filter([](const auto* node) { return node->selected(); })
+          | std::views::transform([](const auto* node) { return node->logicalBounds(); })
+          | kdl::ranges::to<std::vector>();
 
-        const auto bounds = nodes | std::views::transform([](const auto* node) {
-                              return node->logicalBounds();
-                            });
         CHECK_THAT(
           bounds,
-          UnorderedRangeEquals(std::vector<vm::bbox3d>{
+          UnorderedEquals(std::vector<vm::bbox3d>{
             {{-32, 224, 16}, {-16, 240, 32}},
           }));
       }
 
       SECTION("check 1 resulting func_detail brush")
       {
-        auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
-        nodes = kdl::vec_filter(
-          std::move(nodes), [](const auto* node) { return node->selected(); });
+        const auto bounds =
+          mdl::filterBrushNodes(funcDetailNode->children())
+          | std::views::filter([](const auto* node) { return node->selected(); })
+          | std::views::transform([](const auto* node) { return node->logicalBounds(); })
+          | kdl::ranges::to<std::vector>();
 
-        const auto bounds = nodes | std::views::transform([](const auto* node) {
-                              return node->logicalBounds();
-                            });
         CHECK_THAT(
           bounds,
-          UnorderedRangeEquals(std::vector<vm::bbox3d>{{{-16, 224, 16}, {16, 240, 32}}}));
+          UnorderedEquals(std::vector<vm::bbox3d>{{{-16, 224, 16}, {16, 240, 32}}}));
       }
 
       CHECK_THAT(

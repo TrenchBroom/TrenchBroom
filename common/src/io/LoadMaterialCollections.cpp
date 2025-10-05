@@ -43,6 +43,7 @@
 #include "kdl/map_utils.h"
 #include "kdl/path_hash.h"
 #include "kdl/path_utils.h"
+#include "kdl/ranges/as_rvalue_view.h"
 #include "kdl/ranges/chunk_by_view.h"
 #include "kdl/ranges/to.h"
 #include "kdl/result.h"
@@ -54,6 +55,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <ranges>
 #include <string>
 
 namespace tb::io
@@ -91,9 +93,11 @@ Result<std::vector<std::filesystem::path>> findTexturePaths(
            TraversalMode::Recursive,
            makeExtensionPathMatcher(materialConfig.extensions))
          | kdl::transform([&](auto paths) {
-             return kdl::vec_filter(std::move(paths), [&](const auto& path) {
-               return !shouldExclude(path.stem().string(), materialConfig.excludes);
-             });
+             return paths | std::views::filter([&](const auto& path) {
+                      return !shouldExclude(
+                        path.stem().string(), materialConfig.excludes);
+                    })
+                    | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
            });
 }
 
@@ -462,9 +466,10 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
 
   return loadShaders(fs, materialConfig, taskManager, logger)
          | kdl::transform([&](auto shaders) {
-             return kdl::vec_filter(std::move(shaders), [&](const auto& shader) {
-               return kdl::path_has_prefix(shader.shaderPath, materialConfig.root);
-             });
+             return shaders | std::views::filter([&](const auto& shader) {
+                      return kdl::path_has_prefix(shader.shaderPath, materialConfig.root);
+                    })
+                    | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
            })
          | kdl::and_then([&](auto shaders) {
              return findAllMaterialPaths(fs, materialConfig, shaders)

@@ -40,6 +40,7 @@
 #include "vm/util.h"
 
 #include <iterator>
+#include <ranges>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -283,18 +284,17 @@ static const BrushFace* findBestMatchingFace(
   }
 
   // First, look for coplanar candidates
-  const auto coplanarCandidates = kdl::vec_filter(
-    candidates,
-    [&](const BrushFace* candidate) { return candidate->coplanarWith(face.boundary()); });
-  ;
+  const auto coplanarCandidates = candidates
+                                  | std::views::filter([&](const BrushFace* candidate) {
+                                      return candidate->coplanarWith(face.boundary());
+                                    })
+                                  | kdl::ranges::to<std::vector>();
 
   if (!coplanarCandidates.empty())
   {
     // Return the largest coplanar face
-    return *std::max_element(
-      std::begin(coplanarCandidates),
-      std::end(coplanarCandidates),
-      [](const BrushFace* lhs, const BrushFace* rhs) {
+    return *std::ranges::max_element(
+      coplanarCandidates, [](const BrushFace* lhs, const BrushFace* rhs) {
         return lhs->area() < rhs->area();
       });
   }

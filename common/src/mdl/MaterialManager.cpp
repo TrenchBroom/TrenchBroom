@@ -108,9 +108,11 @@ const std::vector<const Material*> MaterialManager::findMaterialsByTextureResour
 {
   const auto resourceIdSet =
     std::unordered_set<ResourceId>{textureResourceIds.begin(), textureResourceIds.end()};
-  return kdl::vec_filter(m_materials, [&](const auto* material) {
-    return resourceIdSet.count(material->textureResource().id()) > 0;
-  });
+
+  return m_materials | std::views::filter([&](const auto* material) {
+           return resourceIdSet.count(material->textureResource().id()) > 0;
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 const std::vector<const Material*>& MaterialManager::materials() const
