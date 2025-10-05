@@ -22,6 +22,8 @@
 #include "Notifier.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Assets.h"
+#include "mdl/Map_World.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
 
@@ -36,7 +38,7 @@ namespace
 {
 
 auto notifySpecialWorldProperties(
-  const Game& game, const std::vector<std::pair<Node*, NodeContents>>& nodesToSwap)
+  const std::vector<std::pair<Node*, NodeContents>>& nodesToSwap)
 {
   for (const auto& [node, contents] : nodesToSwap)
   {
@@ -52,13 +54,13 @@ auto notifySpecialWorldProperties(
         (oldWads == nullptr) != (newWads == nullptr)
         || (oldWads != nullptr && newWads != nullptr && *oldWads != *newWads);
 
-      const auto oldEntityDefinitionSpec = game.extractEntityDefinitionFile(oldEntity);
-      const auto newEntityDefinitionSpec = game.extractEntityDefinitionFile(newEntity);
+      const auto oldEntityDefinitionSpec = entityDefinitionFile(oldEntity);
+      const auto newEntityDefinitionSpec = entityDefinitionFile(newEntity);
       const bool notifyEntityDefinitionsChange =
         oldEntityDefinitionSpec != newEntityDefinitionSpec;
 
-      const auto oldMods = game.extractEnabledMods(oldEntity);
-      const auto newMods = game.extractEnabledMods(newEntity);
+      const auto oldMods = enabledMods(oldEntity);
+      const auto newMods = enabledMods(newEntity);
       const bool notifyModsChange = oldMods != newMods;
 
       return std::tuple{
@@ -86,7 +88,7 @@ void doSwapNodeContents(
     map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, descendants};
 
   const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
-    notifySpecialWorldProperties(*map.game(), nodesToSwap);
+    notifySpecialWorldProperties(nodesToSwap);
   auto notifyWads = NotifyBeforeAndAfter{
     notifyWadsChange,
     map.materialCollectionsWillChangeNotifier,

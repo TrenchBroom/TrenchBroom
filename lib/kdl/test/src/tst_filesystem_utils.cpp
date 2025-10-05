@@ -63,16 +63,15 @@ TEST_CASE("filesystem_utils")
     SECTION("with_ostream")
     {
       REQUIRE(with_ostream(
-                fixture_dir / "test.txt",
-                std::ios::out | std::ios::app,
-                [](auto& stream) { stream << "\nmore content"; })
-                .is_success());
+        fixture_dir / "test.txt", std::ios::out | std::ios::app, [](auto& stream) {
+          stream << "\nmore content";
+        }));
       CHECK(
         with_istream(fixture_dir / "test.txt", read_all) == "some content\nmore content");
 
       REQUIRE(with_ostream(fixture_dir / "some_other_name.txt", [](auto& stream) {
-                stream << "some text...";
-              }).is_success());
+        stream << "some text...";
+      }));
       CHECK(
         with_istream(fixture_dir / "some_other_name.txt", read_all) == "some text...");
     }

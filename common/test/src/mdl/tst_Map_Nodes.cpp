@@ -67,6 +67,36 @@ TEST_CASE("Map_Nodes")
 
   const auto& pointEntityDefinition = map.entityDefinitionManager().definitions().front();
 
+  SECTION("parentForNodes")
+  {
+    auto* customLayerNode = new LayerNode{Layer{"custom layer"}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* groupedEntityNode = new EntityNode{Entity{}};
+    auto* defaultLayerEntityNode = new EntityNode{Entity{}};
+
+    addNodes(map, {{map.world(), {customLayerNode}}});
+    addNodes(map, {{customLayerNode, {groupNode}}});
+    addNodes(map, {{groupNode, {groupedEntityNode}}});
+    addNodes(map, {{map.world()->defaultLayer(), {defaultLayerEntityNode}}});
+
+    SECTION("Returns default layer if no group is open")
+    {
+      CHECK(parentForNodes(map) == map.world()->defaultLayer());
+    }
+
+    SECTION("Returns currently opened group, if any")
+    {
+      openGroup(map, *groupNode);
+      CHECK(parentForNodes(map) == groupNode);
+    }
+
+    SECTION("Returns parent of first node in given vector")
+    {
+      CHECK(parentForNodes(map, {groupedEntityNode}) == groupNode);
+      CHECK(parentForNodes(map, {groupNode}) == customLayerNode);
+    }
+  }
+
   SECTION("addNodes")
   {
     SECTION("Nodes added to a hidden layer are visible")
@@ -652,13 +682,13 @@ TEST_CASE("Map_Nodes")
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
-      openGroup(map, outerGroupNode);
+      openGroup(map, *outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
-      openGroup(map, innerGroupNode);
+      openGroup(map, *innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
@@ -753,7 +783,7 @@ TEST_CASE("Map_Nodes")
       auto* group = new GroupNode{Group{"group"}};
       addNodes(map, {{parentForNodes(map), {group}}});
 
-      openGroup(map, group);
+      openGroup(map, *group);
 
       auto* brush = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brush}}});
@@ -774,12 +804,12 @@ TEST_CASE("Map_Nodes")
       auto* outer = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outer}}});
 
-      openGroup(map, outer);
+      openGroup(map, *outer);
 
       auto* inner = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {inner}}});
 
-      openGroup(map, inner);
+      openGroup(map, *inner);
 
       auto* brush = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brush}}});
@@ -851,13 +881,13 @@ TEST_CASE("Map_Nodes")
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
       addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
 
-      openGroup(map, outerGroupNode);
+      openGroup(map, *outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
       addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
-      openGroup(map, innerGroupNode);
+      openGroup(map, *innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
@@ -891,6 +921,17 @@ TEST_CASE("Map_Nodes")
     }
   }
 
+  SECTION("removeSelectedNodes")
+  {
+    auto* entityNode = new EntityNode{Entity{}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    selectNodes(map, {entityNode});
+
+    removeSelectedNodes(map);
+    CHECK(map.selection().nodes == std::vector<Node*>{});
+    CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+  }
+
   SECTION("updateNodeContents")
   {
     SECTION("Update brushes")
@@ -900,10 +941,8 @@ TEST_CASE("Map_Nodes")
 
       const auto originalBrush = brushNode->brush();
       auto modifiedBrush = originalBrush;
-      REQUIRE(modifiedBrush
-                .transform(
-                  map.worldBounds(), vm::translation_matrix(vm::vec3d(16, 0, 0)), false)
-                .is_success());
+      REQUIRE(modifiedBrush.transform(
+        map.worldBounds(), vm::translation_matrix(vm::vec3d(16, 0, 0)), false));
 
       auto nodesToSwap = std::vector<std::pair<Node*, NodeContents>>{};
       nodesToSwap.emplace_back(brushNode, modifiedBrush);
@@ -948,10 +987,8 @@ TEST_CASE("Map_Nodes")
 
       const auto& originalBrush = brushNode->brush();
       auto modifiedBrush = originalBrush;
-      REQUIRE(modifiedBrush
-                .transform(
-                  map.worldBounds(), vm::translation_matrix(vm::vec3d(16, 0, 0)), false)
-                .is_success());
+      REQUIRE(modifiedBrush.transform(
+        map.worldBounds(), vm::translation_matrix(vm::vec3d(16, 0, 0)), false));
 
       auto nodesToSwap = std::vector<std::pair<Node*, NodeContents>>{};
       nodesToSwap.emplace_back(brushNode, std::move(modifiedBrush));

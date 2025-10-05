@@ -50,7 +50,7 @@ TEST_CASE("BspLoaderTest.loadValidHlBsp")
   auto loader = BspLoader("hl", reader, palette, fs);
   auto bspData = loader.load(logger);
 
-  CHECK(bspData.is_success());
+  REQUIRE(bspData);
   CHECK(bspData.value().surfaceCount() == 1u);
   CHECK(bspData.value().frameCount() == 1u);
 

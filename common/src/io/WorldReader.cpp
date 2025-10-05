@@ -84,7 +84,7 @@ Result<std::unique_ptr<mdl::WorldNode>> WorldReader::tryRead(
     }
 
     auto reader = WorldReader{str, mapFormat, entityPropertyConfig};
-    if (auto result = reader.read(worldBounds, status, taskManager); result.is_success())
+    if (auto result = reader.read(worldBounds, status, taskManager))
     {
       return result;
     }

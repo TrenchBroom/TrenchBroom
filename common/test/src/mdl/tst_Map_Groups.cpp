@@ -35,6 +35,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
+#include "mdl/Observer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -48,6 +49,7 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("Map_Groups")
 {
@@ -65,6 +67,131 @@ TEST_CASE("Map_Groups")
   });
 
   const auto& pointEntityDefinition = map.entityDefinitionManager().definitions().front();
+
+  SECTION("currentGroupOrWorld")
+  {
+    SECTION("Map is empty")
+    {
+      CHECK(currentGroupOrWorld(map) == map.world());
+    }
+
+    SECTION("Map contains nodes")
+    {
+      auto* entityNode = new EntityNode{Entity{}};
+      auto* innerGroupNode = new GroupNode{Group{"inner"}};
+      auto* outerGroupNode = new GroupNode{Group{"outer"}};
+
+      addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+      addNodes(map, {{outerGroupNode, {innerGroupNode}}});
+      addNodes(map, {{innerGroupNode, {entityNode}}});
+
+      SECTION("No group is opened")
+      {
+        CHECK(currentGroupOrWorld(map) == map.world());
+      }
+
+      SECTION("Outer group is opened")
+      {
+        openGroup(map, *outerGroupNode);
+        CHECK(currentGroupOrWorld(map) == outerGroupNode);
+      }
+
+      SECTION("Inner group is opened")
+      {
+        openGroup(map, *outerGroupNode);
+        openGroup(map, *innerGroupNode);
+        CHECK(currentGroupOrWorld(map) == innerGroupNode);
+      }
+    }
+  }
+
+  SECTION("openGroup")
+  {
+    auto* entityNode1 = new EntityNode{Entity{}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+
+    addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+    addNodes(map, {{outerGroupNode, {innerGroupNode}}});
+    addNodes(map, {{innerGroupNode, {entityNode1}}});
+
+    REQUIRE(outerGroupNode->closed());
+    REQUIRE(innerGroupNode->closed());
+
+    SECTION("Opens group and notifies observers")
+    {
+      auto groupWasOpened = Observer<GroupNode&>{map.groupWasOpenedNotifier};
+
+      openGroup(map, *outerGroupNode);
+      CHECK(outerGroupNode->opened());
+      CHECK(innerGroupNode->closed());
+
+      CHECK(groupWasOpened.collected == std::set{outerGroupNode});
+    }
+
+    SECTION("Locks world but keeps group unlocked")
+    {
+      openGroup(map, *outerGroupNode);
+
+      CHECK(map.world()->lockState() == LockState::Locked);
+      CHECK(outerGroupNode->lockState() == LockState::Unlocked);
+    }
+
+    SECTION("Resets locking state of outer group when opening inner")
+    {
+      openGroup(map, *outerGroupNode);
+      REQUIRE(outerGroupNode->lockState() == LockState::Unlocked);
+
+      openGroup(map, *innerGroupNode);
+      CHECK(outerGroupNode->lockState() == LockState::Inherited);
+    }
+  }
+
+  SECTION("closeGroup")
+  {
+    auto* entityNode1 = new EntityNode{Entity{}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+
+    addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+    addNodes(map, {{outerGroupNode, {innerGroupNode}}});
+    addNodes(map, {{innerGroupNode, {entityNode1}}});
+
+    openGroup(map, *outerGroupNode);
+
+    REQUIRE(outerGroupNode->opened());
+    REQUIRE(innerGroupNode->closed());
+
+    SECTION("Closes group and notifies observers")
+    {
+      auto groupWasClosed = Observer<GroupNode&>{map.groupWasClosedNotifier};
+
+      closeGroup(map);
+      CHECK(outerGroupNode->closed());
+      CHECK(innerGroupNode->closed());
+
+      CHECK(groupWasClosed.collected == std::set{outerGroupNode});
+    }
+
+    SECTION("Resets locking state and unlocks world when closing outer")
+    {
+      closeGroup(map);
+
+      CHECK(map.world()->lockState() == LockState::Unlocked);
+      CHECK(outerGroupNode->lockState() == LockState::Inherited);
+    }
+
+    SECTION("Resets locking state of inner group and unlocks outer when closing inner")
+    {
+      openGroup(map, *innerGroupNode);
+      REQUIRE(outerGroupNode->lockState() == LockState::Inherited);
+      REQUIRE(innerGroupNode->lockState() == LockState::Unlocked);
+
+      closeGroup(map);
+      CHECK(outerGroupNode->lockState() == LockState::Unlocked);
+      CHECK(innerGroupNode->lockState() == LockState::Inherited);
+    }
+  }
 
   SECTION("groupSelectedNodes")
   {
@@ -287,7 +414,7 @@ TEST_CASE("Map_Groups")
       CHECK(findContainingGroup(outerEntityNode1) == outerGroupNode);
 
       // open the outer group and ungroup the inner group
-      openGroup(map, outerGroupNode);
+      openGroup(map, *outerGroupNode);
       selectNodes(map, {innerGroupNode});
       ungroupSelectedNodes(map);
       deselectAll(map);
@@ -304,12 +431,10 @@ TEST_CASE("Map_Groups")
       selectNodes(map, {entityNode1});
 
       auto* groupNode = groupSelectedNodes(map, "Group");
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{groupNode}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{groupNode}));
 
       ungroupSelectedNodes(map);
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{entityNode1}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{entityNode1}));
     }
 
     SECTION("Ungrouping leaves a brush entity selected")
@@ -324,24 +449,19 @@ TEST_CASE("Map_Groups")
         | kdl::value()};
       addNodes(map, {{entityNode1, {brushNode1}}});
       selectNodes(map, {entityNode1});
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{brushNode1}));
       CHECK_FALSE(entityNode1->selected());
       CHECK(brushNode1->selected());
 
       auto* groupNode = groupSelectedNodes(map, "Group");
-      CHECK_THAT(
-        groupNode->children(), Catch::Matchers::Equals(std::vector<Node*>{entityNode1}));
-      CHECK_THAT(
-        entityNode1->children(), Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{groupNode}));
+      CHECK_THAT(groupNode->children(), Equals(std::vector<Node*>{entityNode1}));
+      CHECK_THAT(entityNode1->children(), Equals(std::vector<Node*>{brushNode1}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{groupNode}));
       CHECK(map.selection().allBrushes() == std::vector<BrushNode*>{brushNode1});
       CHECK(!map.selection().hasBrushes());
 
       ungroupSelectedNodes(map);
-      CHECK_THAT(
-        map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
+      CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{brushNode1}));
       CHECK_FALSE(entityNode1->selected());
       CHECK(brushNode1->selected());
     }
@@ -360,12 +480,12 @@ TEST_CASE("Map_Groups")
       selectNodes(map, {entityNode2});
       CHECK_THAT(
         map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{groupNode, entityNode2}));
+        UnorderedEquals(std::vector<Node*>{groupNode, entityNode2}));
 
       ungroupSelectedNodes(map);
       CHECK_THAT(
         map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
+        UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
     }
 
     SECTION("Ungrouping linked groups")
@@ -400,7 +520,7 @@ TEST_CASE("Map_Groups")
 
       REQUIRE_THAT(
         map.world()->defaultLayer()->children(),
-        Catch::Matchers::UnorderedEquals(
+        UnorderedEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
       SECTION(
@@ -411,7 +531,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
-          Catch::Matchers::UnorderedEquals(
+          UnorderedEquals(
             std::vector<Node*>{groupNode, linkedGroupNode, linkedBrushNode2}));
         CHECK(groupNode->linkId() == linkedGroupNode->linkId());
         CHECK(linkedGroupNode2->linkId() != groupNode->linkId());
@@ -428,7 +548,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
-          Catch::Matchers::UnorderedEquals(
+          UnorderedEquals(
             std::vector<Node*>{groupNode, linkedBrushNode, linkedBrushNode2}));
 
         CHECK(groupNode->linkId() == originalGroupLinkId);
@@ -450,7 +570,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.world()->defaultLayer()->children(),
-          Catch::Matchers::UnorderedEquals(
+          UnorderedEquals(
             std::vector<Node*>{brushNode, linkedBrushNode, linkedBrushNode2}));
 
         CHECK(groupNode->linkId() != originalGroupLinkId);
@@ -465,7 +585,7 @@ TEST_CASE("Map_Groups")
       map.undoCommand();
       CHECK_THAT(
         map.world()->defaultLayer()->children(),
-        Catch::Matchers::UnorderedEquals(
+        UnorderedEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
       CHECK(groupNode->linkId() == originalGroupLinkId);
       CHECK(linkedGroupNode->linkId() == originalGroupLinkId);
@@ -493,22 +613,20 @@ TEST_CASE("Map_Groups")
 
     CHECK_THAT(
       map.editorContext().currentLayer()->children(),
-      Catch::Matchers::UnorderedEquals(std::vector<Node*>{groupNode1, groupNode2}));
+      UnorderedEquals(std::vector<Node*>{groupNode1, groupNode2}));
 
     selectNodes(map, {groupNode1, groupNode2});
     mergeSelectedGroupsWithGroup(map, groupNode2);
 
-    CHECK_THAT(
-      map.selection().nodes, Catch::Matchers::Equals(std::vector<Node*>{groupNode2}));
+    CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{groupNode2}));
     CHECK_THAT(
       map.editorContext().currentLayer()->children(),
-      Catch::Matchers::Equals(std::vector<Node*>{groupNode2}));
+      Equals(std::vector<Node*>{groupNode2}));
 
-    CHECK_THAT(
-      groupNode1->children(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    CHECK_THAT(groupNode1->children(), UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(
       groupNode2->children(),
-      Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
+      UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
   }
 
   SECTION("renameSelectedGroups")
@@ -529,7 +647,7 @@ TEST_CASE("Map_Groups")
     CHECK(groupNode->name() == "abc");
   }
 
-  SECTION("createdLinkedDuplicate")
+  SECTION("createLinkedDuplicate")
   {
     auto* brushNode = createBrushNode(map);
     addNodes(map, {{parentForNodes(map), {brushNode}}});
@@ -673,7 +791,7 @@ TEST_CASE("Map_Groups")
       nestedGroupNode->addChild(nestedEntityNode);
       addNodes(map, {{groupNode, {nestedGroupNode}}});
 
-      openGroup(map, groupNode);
+      openGroup(map, *groupNode);
       deselectAll(map);
       selectNodes(map, {nestedGroupNode});
 
@@ -709,7 +827,7 @@ TEST_CASE("Map_Groups")
 
       SECTION("Separating linked groups nested inside a linked group")
       {
-        openGroup(map, groupNode);
+        openGroup(map, *groupNode);
         selectNodes(map, {nestedLinkedGroupNode});
         separateSelectedLinkedGroups(map);
 
@@ -746,12 +864,28 @@ TEST_CASE("Map_Groups")
     const auto entityNodes = map.selection().allEntities();
     REQUIRE_THAT(
       entityNodes,
-      Catch::Matchers::UnorderedEquals(
-        std::vector<mdl::EntityNodeBase*>{entityNode, linkedEntityNode}));
+      UnorderedEquals(std::vector<mdl::EntityNodeBase*>{entityNode, linkedEntityNode}));
 
     CHECK(canUpdateLinkedGroups({entityNode}));
     CHECK(canUpdateLinkedGroups({linkedEntityNode}));
     CHECK_FALSE(canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(entityNodes)));
+  }
+
+  SECTION("setHasPendingChanges")
+  {
+    auto groupNode1 = std::make_unique<GroupNode>(Group{"1"});
+    auto groupNode2 = std::make_unique<GroupNode>(Group{"2"});
+
+    REQUIRE(!groupNode1->hasPendingChanges());
+    REQUIRE(!groupNode2->hasPendingChanges());
+
+    setHasPendingChanges({groupNode1.get(), groupNode2.get()}, true);
+    CHECK(groupNode1->hasPendingChanges());
+    CHECK(groupNode2->hasPendingChanges());
+
+    setHasPendingChanges({groupNode1.get()}, false);
+    CHECK(!groupNode1->hasPendingChanges());
+    CHECK(groupNode2->hasPendingChanges());
   }
 }
 

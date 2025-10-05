@@ -56,7 +56,7 @@ TEST_CASE("FgdParser")
       auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
       auto status = TestParserStatus{};
-      CHECK(parser.parseDefinitions(status).is_success());
+      CHECK(parser.parseDefinitions(status));
 
       /* Disabled because our files are full of previously undetected problems
       if (status.countStatus(LogLevel::Warn) > 0u) {
@@ -967,7 +967,7 @@ model({"path"
 
     auto status = TestParserStatus{};
     auto defs = parser.parseDefinitions(status);
-    REQUIRE(defs.is_success());
+    REQUIRE(defs);
     CHECK(defs.value().size() == 2u);
     CHECK(std::ranges::any_of(
       defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
@@ -986,7 +986,7 @@ model({"path"
 
     auto status = TestParserStatus{};
     auto defs = parser.parseDefinitions(status);
-    REQUIRE(defs.is_success());
+    REQUIRE(defs);
     CHECK(defs.value().size() == 3u);
     CHECK(std::ranges::any_of(
       defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
@@ -1007,7 +1007,7 @@ model({"path"
 
     auto status = TestParserStatus{};
     auto defs = parser.parseDefinitions(status);
-    REQUIRE(defs.is_success());
+    REQUIRE(defs);
     CHECK(defs.value().size() == 1u);
     CHECK(std::ranges::any_of(
       defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));

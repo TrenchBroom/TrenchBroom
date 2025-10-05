@@ -27,11 +27,10 @@
 
 namespace kdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("zip_iterator_test.construct")
 {
-  using Catch::Matchers::Equals;
-
   const auto v1 = std::vector<int>{1, 2, 3};
   const auto v2 = std::vector<int>{4, 5, 6};
 
@@ -44,8 +43,6 @@ TEST_CASE("zip_iterator_test.construct")
 
 TEST_CASE("zip_iterator_test.make_zip_range")
 {
-  using Catch::Matchers::Equals;
-
   const auto v1 = std::vector<int>{1, 2, 3};
   const auto v2 = std::vector<int>{4, 5, 6};
   const auto v3 = std::vector<int>{7, 8, 9};

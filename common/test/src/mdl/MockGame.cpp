@@ -57,8 +57,9 @@ MockGameConfig::MockGameConfig()
 {
 }
 
-MockGame::MockGame()
-  : m_fs{std::make_unique<io::VirtualFileSystem>()}
+MockGame::MockGame(MockGameConfig config)
+  : m_config{std::move(config)}
+  , m_fs{std::make_unique<io::VirtualFileSystem>()}
 {
   m_fs->mount("", std::make_unique<io::DiskFileSystem>(std::filesystem::current_path()));
 }
@@ -131,17 +132,11 @@ std::vector<EntityDefinitionFileSpec> MockGame::allEntityDefinitionFiles() const
   return {};
 }
 
-EntityDefinitionFileSpec MockGame::extractEntityDefinitionFile(
-  const Entity& /* entity */) const
-{
-  return {};
-}
-
 std::filesystem::path MockGame::findEntityDefinitionFile(
-  const EntityDefinitionFileSpec& /* spec */,
+  const EntityDefinitionFileSpec& spec,
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
-  return {};
+  return spec.path;
 }
 
 Result<std::vector<std::string>> MockGame::availableMods() const
@@ -149,14 +144,9 @@ Result<std::vector<std::string>> MockGame::availableMods() const
   return std::vector<std::string>{};
 }
 
-std::vector<std::string> MockGame::extractEnabledMods(const Entity& /* entity */) const
-{
-  return {};
-}
-
 std::string MockGame::defaultMod() const
 {
-  return "";
+  return "defaultMod";
 }
 
 Result<std::vector<EntityDefinition>> MockGame::loadEntityDefinitions(

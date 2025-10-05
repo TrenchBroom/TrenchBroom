@@ -52,7 +52,7 @@ Result<void> EntityDefinitionManager::loadDefinitions(
 
 void EntityDefinitionManager::setDefinitions(std::vector<EntityDefinition> newDefinitions)
 {
-  clear();
+  clearGroups();
 
   m_definitions = std::move(newDefinitions);
 
@@ -62,6 +62,7 @@ void EntityDefinitionManager::setDefinitions(std::vector<EntityDefinition> newDe
 
 void EntityDefinitionManager::clear()
 {
+  m_definitions.clear();
   clearGroups();
 }
 

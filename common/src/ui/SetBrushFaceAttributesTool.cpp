@@ -24,7 +24,6 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
@@ -36,6 +35,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UVCoordSystem.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 
@@ -270,15 +270,15 @@ void transferFaceAttributes(
 
   if (copyMaterialOnlyModifiersDown(inputState))
   {
-    auto request = mdl::ChangeBrushFaceAttributesRequest{};
-    request.setMaterialName(sourceFaceHandle.face().attributes().materialName());
-    setBrushFaceAttributes(map, request);
+    setBrushFaceAttributes(
+      map, {.materialName = sourceFaceHandle.face().attributes().materialName()});
   }
   else
   {
-    auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot();
-    setBrushFaceAttributesExceptContentFlags(map, sourceFaceHandle.face().attributes());
-    if (snapshot)
+    setBrushFaceAttributes(
+      map, mdl::copyAllExceptContentFlags(sourceFaceHandle.face().attributes()));
+
+    if (auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot())
     {
       copyUV(
         map,

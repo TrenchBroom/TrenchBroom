@@ -23,13 +23,13 @@
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PushSelection.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 
 #include <string>
 #include <vector>
@@ -58,12 +58,14 @@ IssueQuickFix makeResetUVScaleQuickFix()
               }
             }
 
-            auto request = ChangeBrushFaceAttributesRequest{};
-            request.setScale(vm::vec2f{1, 1});
-
             deselectAll(map);
             selectBrushFaces(map, faceHandles);
-            setBrushFaceAttributes(map, request);
+            setBrushFaceAttributes(
+              map,
+              {
+                .xScale = SetValue{1.0f},
+                .yScale = SetValue{1.0f},
+              });
           }};
 }
 } // namespace

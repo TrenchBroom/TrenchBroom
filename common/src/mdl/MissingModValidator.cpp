@@ -37,6 +37,7 @@
 
 #include <cassert>
 #include <filesystem>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -84,9 +85,9 @@ IssueQuickFix makeRemoveModsQuickFix()
             // If nothing is selected, property changes will affect only world.
             deselectAll(map);
 
-            const auto oldMods = mods(map);
+            const auto oldMods = enabledMods(map);
             const auto newMods = removeMissingMods(oldMods, issues);
-            setMods(map, newMods);
+            setEnabledMods(map, newMods);
           }};
 }
 } // namespace
@@ -106,8 +107,7 @@ void MissingModValidator::doValidate(
     return;
   }
 
-  auto mods = m_game.extractEnabledMods(entityNode.entity());
-
+  auto mods = mdl::enabledMods(entityNode.entity());
   if (mods == m_lastMods)
   {
     return;

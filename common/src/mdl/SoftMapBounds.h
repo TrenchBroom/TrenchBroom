@@ -19,8 +19,11 @@
 
 #pragma once
 
+#include "kdl/reflection_decl.h"
+
 #include "vm/bbox.h"
 
+#include <iosfwd>
 #include <optional>
 
 namespace tb::mdl
@@ -32,13 +35,18 @@ enum class SoftMapBoundsType
   Map
 };
 
+std::ostream& operator<<(std::ostream& lhs, SoftMapBoundsType rhs);
+
 struct SoftMapBounds
 {
   SoftMapBoundsType source;
+
   /**
    * std::nullopt indicates unlimited soft map bounds
    */
   std::optional<vm::bbox3d> bounds;
+
+  kdl_reflect_decl(SoftMapBounds, source, bounds);
 };
 
 } // namespace tb::mdl

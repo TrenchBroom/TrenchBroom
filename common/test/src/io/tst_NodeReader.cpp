@@ -68,7 +68,7 @@ TEST_CASE("NodeReader")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
 
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     REQUIRE(brushNode != nullptr);
@@ -102,7 +102,7 @@ TEST_CASE("NodeReader")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
 
     auto* groupNode = dynamic_cast<GroupNode*>(nodes.value().at(0));
     REQUIRE(groupNode != nullptr);
@@ -139,7 +139,7 @@ TEST_CASE("NodeReader")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.is_success());
+    REQUIRE(nodes);
     CHECK(nodes.value().size() == 1);
   }
 }

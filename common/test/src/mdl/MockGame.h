@@ -43,6 +43,7 @@ class VirtualFileSystem;
 
 namespace tb::mdl
 {
+
 struct MockGameConfig : public GameConfig
 {
   MockGameConfig();
@@ -56,7 +57,7 @@ private:
   mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
 
 public:
-  MockGame();
+  explicit MockGame(MockGameConfig config = {});
   ~MockGame() override;
 
   const GameConfig& config() const override;
@@ -79,14 +80,11 @@ public:
 
   bool isEntityDefinitionFile(const std::filesystem::path& path) const override;
   std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
-  EntityDefinitionFileSpec extractEntityDefinitionFile(
-    const Entity& entity) const override;
   std::filesystem::path findEntityDefinitionFile(
     const EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
   Result<std::vector<std::string>> availableMods() const override;
-  std::vector<std::string> extractEnabledMods(const Entity& entity) const override;
   std::string defaultMod() const override;
 
   Result<std::vector<EntityDefinition>> loadEntityDefinitions(

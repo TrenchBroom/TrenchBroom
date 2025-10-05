@@ -28,7 +28,6 @@
 #include "Color.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Grid.h"
@@ -37,6 +36,7 @@
 #include "mdl/Map_Brushes.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/FlagsPopupEditor.h"
@@ -53,7 +53,6 @@
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <memory>
 #include <string>
 
 namespace tb::ui
@@ -84,9 +83,7 @@ void FaceAttribsEditor::xOffsetChanged(const double value)
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setXOffset(float(value));
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.xOffset = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -100,9 +97,7 @@ void FaceAttribsEditor::yOffsetChanged(const double value)
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setYOffset(float(value));
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.yOffset = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -116,9 +111,7 @@ void FaceAttribsEditor::rotationChanged(const double value)
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setRotation(float(value));
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.rotation = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -132,9 +125,7 @@ void FaceAttribsEditor::xScaleChanged(const double value)
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setXScale(float(value));
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.xScale = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -148,9 +139,7 @@ void FaceAttribsEditor::yScaleChanged(const double value)
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setYScale(float(value));
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.yScale = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -164,17 +153,10 @@ void FaceAttribsEditor::surfaceFlagChanged(
   {
     return;
   }
-
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  if (setFlag & value)
-  {
-    request.setSurfaceFlags(value);
-  }
-  else
-  {
-    request.unsetSurfaceFlags(value);
-  }
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(
+        map,
+        {.surfaceFlags = setFlag & value ? mdl::FlagOp{mdl::SetFlagBits{value}}
+                                         : mdl::FlagOp{mdl::ClearFlagBits{value}}}))
   {
     updateControls();
   }
@@ -189,16 +171,10 @@ void FaceAttribsEditor::contentFlagChanged(
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  if (setFlag & value)
-  {
-    request.setContentFlags(value);
-  }
-  else
-  {
-    request.unsetContentFlags(value);
-  }
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(
+        map,
+        {.surfaceContents = setFlag & value ? mdl::FlagOp{mdl::SetFlagBits{value}}
+                                            : mdl::FlagOp{mdl::ClearFlagBits{value}}}))
   {
     updateControls();
   }
@@ -212,9 +188,7 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setSurfaceValue(float(value));
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.surfaceValue = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -233,9 +207,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   {
     if (const auto color = Color::parse(str))
     {
-      auto request = mdl::ChangeBrushFaceAttributesRequest{};
-      request.setColor(*color);
-      if (!setBrushFaceAttributes(map, request))
+      if (!setBrushFaceAttributes(map, {.color = *color}))
       {
         updateControls();
       }
@@ -243,9 +215,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   }
   else
   {
-    auto request = mdl::ChangeBrushFaceAttributesRequest{};
-    request.setColor(Color());
-    if (!setBrushFaceAttributes(map, request))
+    if (!setBrushFaceAttributes(map, {.color = Color{}}))
     {
       updateControls();
     }
@@ -260,9 +230,7 @@ void FaceAttribsEditor::surfaceFlagsUnset()
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.replaceSurfaceFlags(std::nullopt);
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.surfaceFlags = mdl::SetFlags{std::nullopt}}))
   {
     updateControls();
   }
@@ -276,9 +244,7 @@ void FaceAttribsEditor::contentFlagsUnset()
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.replaceContentFlags(std::nullopt);
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.surfaceContents = mdl::SetFlags{std::nullopt}}))
   {
     updateControls();
   }
@@ -292,9 +258,7 @@ void FaceAttribsEditor::surfaceValueUnset()
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setSurfaceValue(std::nullopt);
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.surfaceValue = mdl::SetValue{std::nullopt}}))
   {
     updateControls();
   }
@@ -308,9 +272,7 @@ void FaceAttribsEditor::colorValueUnset()
     return;
   }
 
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setColor(std::nullopt);
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.color = std::nullopt}))
   {
     updateControls();
   }

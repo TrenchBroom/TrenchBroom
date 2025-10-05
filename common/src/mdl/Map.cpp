@@ -36,7 +36,6 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Command.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/EditorContext.h"
@@ -61,6 +60,7 @@
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "mdl/MapTextEncoding.h"
+#include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
@@ -630,6 +630,11 @@ Result<void> Map::load(
   std::unique_ptr<Game> game,
   const std::filesystem::path& path)
 {
+  if (!path.is_absolute())
+  {
+    return Error{"Path must be absolute"};
+  }
+
   m_logger.info() << fmt::format("Loading document from {}", path);
 
   clear();
@@ -657,21 +662,27 @@ Result<void> Map::reload()
   return load(mapFormat, worldBounds, std::move(game), path);
 }
 
-void Map::save()
+Result<void> Map::save()
 {
-  saveAs(m_path);
+  return saveAs(m_path);
 }
 
-void Map::saveAs(const std::filesystem::path& path)
+Result<void> Map::saveAs(const std::filesystem::path& path)
 {
-  saveTo(path);
-  setLastSaveModificationCount();
-  setPath(path);
-  mapWasSavedNotifier(*this);
+  return saveTo(path).transform([&]() {
+    setLastSaveModificationCount();
+    setPath(path);
+    mapWasSavedNotifier(*this);
+  });
 }
 
-void Map::saveTo(const std::filesystem::path& path)
+Result<void> Map::saveTo(const std::filesystem::path& path)
 {
+  if (!path.is_absolute())
+  {
+    return Error{"Path must be absolute"};
+  }
+
   ensure(m_game.get() != nullptr, "game is null");
   ensure(m_world, "world is null");
 
@@ -684,6 +695,8 @@ void Map::saveTo(const std::filesystem::path& path)
   }) | kdl::transform_error([&](const auto& e) {
     m_logger.error() << "Could not save document: " << e.msg;
   });
+
+  return Result<void>{};
 }
 
 Result<void> Map::exportAs(const io::ExportOptions& options) const
@@ -1015,28 +1028,34 @@ void Map::clearAssets()
 
 void Map::loadEntityDefinitions()
 {
-  const auto spec = m_world ? game()->extractEntityDefinitionFile(m_world->entity())
-                            : EntityDefinitionFileSpec{};
-  const auto path = game()->findEntityDefinitionFile(spec, externalSearchPaths(*this));
-  auto status = io::SimpleParserStatus{m_logger};
+  if (const auto spec = entityDefinitionFile(*this))
+  {
+    const auto path = game()->findEntityDefinitionFile(*spec, externalSearchPaths(*this));
+    auto status = io::SimpleParserStatus{m_logger};
 
-  entityDefinitionManager().loadDefinitions(path, *game(), status)
-    | kdl::transform([&]() {
-        m_logger.info() << fmt::format(
-          "Loaded entity definition file {}", path.filename());
-      })
-    | kdl::transform_error([&](auto e) {
-        if (spec.builtin())
-        {
-          m_logger.error() << "Could not load builtin entity definition file '"
-                           << spec.path() << "': " << e.msg;
-        }
-        else
-        {
-          m_logger.error() << "Could not load external entity definition file '"
-                           << spec.path() << "': " << e.msg;
-        }
-      });
+    entityDefinitionManager().loadDefinitions(path, *game(), status)
+      | kdl::transform([&]() {
+          m_logger.info() << fmt::format(
+            "Loaded entity definition file {}", path.filename());
+        })
+      | kdl::transform_error([&](auto e) {
+          switch (spec->type)
+          {
+          case EntityDefinitionFileSpec::Type::Builtin:
+            m_logger.error() << "Could not load builtin entity definition file '"
+                             << spec->path << "': " << e.msg;
+            break;
+          case EntityDefinitionFileSpec::Type::External:
+            m_logger.error() << "Could not load external entity definition file '"
+                             << spec->path << "': " << e.msg;
+            break;
+          }
+        });
+  }
+  else
+  {
+    entityDefinitionManager().clear();
+  }
 }
 
 void Map::clearEntityDefinitions()
@@ -1162,7 +1181,7 @@ void Map::unsetEntityModels(const std::vector<Node*>& nodes)
 void Map::updateGameSearchPaths()
 {
   m_game->setAdditionalSearchPaths(
-    mods(*this) | std::views::transform([](const auto& mod) {
+    enabledMods(*this) | std::views::transform([](const auto& mod) {
       return std::filesystem::path{mod};
     }) | kdl::ranges::to<std::vector>(),
     m_logger);

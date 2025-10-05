@@ -86,23 +86,43 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
     searchPaths.push_back(mapPath.parent_path());
   }
 
-  if (const auto gamePath = map.game()->gamePath(); !gamePath.empty())
+  if (const auto* game = map.game())
   {
-    searchPaths.push_back(gamePath);
+    if (const auto gamePath = game->gamePath(); !gamePath.empty())
+    {
+      searchPaths.push_back(gamePath);
+    }
   }
 
   searchPaths.push_back(io::SystemPaths::appDirectory());
   return searchPaths;
 }
 
-std::vector<std::string> mods(const Map& map)
+std::vector<std::string> enabledMods(const Entity& entity)
 {
-  return map.game()->extractEnabledMods(map.world()->entity());
+  if (const auto* modStr = entity.property(EntityPropertyKeys::Mods))
+  {
+    return kdl::str_split(*modStr, ";");
+  }
+
+  return {};
 }
 
-void setMods(Map& map, const std::vector<std::string>& mods)
+std::vector<std::string> enabledMods(const Map& map)
+{
+  if (const auto* worldNode = map.world())
+  {
+    return enabledMods(worldNode->entity());
+  }
+
+  return {};
+}
+
+void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 {
   auto* worldNode = map.world();
+  ensure(worldNode, "world is set");
+
   auto entity = worldNode->entity();
   if (mods.empty())
   {
@@ -119,7 +139,10 @@ void setMods(Map& map, const std::vector<std::string>& mods)
 
 std::string defaultMod(const Map& map)
 {
-  return map.game()->defaultMod();
+  const auto* game = map.game();
+  ensure(game, "game is set");
+
+  return game->defaultMod();
 }
 
 } // namespace tb::mdl

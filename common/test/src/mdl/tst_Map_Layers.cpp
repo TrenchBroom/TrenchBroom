@@ -43,6 +43,8 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -371,12 +373,139 @@ TEST_CASE("Map_Layers")
 
             AND_THEN("The originally selected nodes are selected")
             {
-              CHECK_THAT(
-                map.selection().nodes, Catch::Matchers::UnorderedEquals(selectedNodes));
+              CHECK_THAT(map.selection().nodes, UnorderedEquals(selectedNodes));
             }
           }
         }
       }
+    }
+  }
+
+  SECTION("hideLayers")
+  {
+    auto* entityNode = new EntityNode{Entity{}};
+
+    SECTION("Hide default layer")
+    {
+      auto& layerNode = *map.world()->defaultLayer();
+      addNodes(map, {{&layerNode, {entityNode}}});
+      REQUIRE(layerNode.visible());
+      REQUIRE(entityNode->visible());
+
+      hideLayers(map, {&layerNode});
+      CHECK(!layerNode.visible());
+      CHECK(!entityNode->visible());
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+        CHECK(layerNode.visible());
+        CHECK(entityNode->visible());
+
+        map.redoCommand();
+        CHECK(!layerNode.visible());
+        CHECK(!entityNode->visible());
+      }
+    }
+
+    SECTION("Hide custom layer")
+    {
+      auto* layerNode = new LayerNode{Layer{"custom layer"}};
+      addNodes(map, {{map.world(), {layerNode}}});
+      addNodes(map, {{layerNode, {entityNode}}});
+      REQUIRE(layerNode->visible());
+      REQUIRE(entityNode->visible());
+
+      hideLayers(map, {layerNode});
+      CHECK(!layerNode->visible());
+      CHECK(!entityNode->visible());
+    }
+  }
+
+  SECTION("isolateLayers")
+  {
+    auto& defaultLayerNode = *map.world()->defaultLayer();
+    auto* defaultLayerEntityNode = new EntityNode{Entity{}};
+    auto* customLayerNode = new LayerNode{Layer{"custom layer"}};
+    auto* customLayerEntityNode = new EntityNode{Entity{}};
+    auto* otherLayerNode = new LayerNode{Layer{"other layer"}};
+
+    addNodes(map, {{&defaultLayerNode, {defaultLayerEntityNode}}});
+    addNodes(map, {{map.world(), {customLayerNode, otherLayerNode}}});
+    addNodes(map, {{customLayerNode, {customLayerEntityNode}}});
+
+    REQUIRE(defaultLayerNode.visible());
+    REQUIRE(defaultLayerEntityNode->visible());
+    REQUIRE(customLayerNode->visible());
+    REQUIRE(customLayerEntityNode->visible());
+    REQUIRE(otherLayerNode->visible());
+
+    SECTION("Isolate default layer")
+    {
+      isolateLayers(map, {&defaultLayerNode});
+      CHECK(defaultLayerNode.visible());
+      CHECK(defaultLayerEntityNode->visible());
+      CHECK(!customLayerNode->visible());
+      CHECK(!customLayerEntityNode->visible());
+      CHECK(!otherLayerNode->visible());
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+        CHECK(defaultLayerNode.visible());
+        CHECK(defaultLayerEntityNode->visible());
+        CHECK(customLayerNode->visible());
+        CHECK(customLayerEntityNode->visible());
+        CHECK(otherLayerNode->visible());
+
+        map.redoCommand();
+        CHECK(defaultLayerNode.visible());
+        CHECK(defaultLayerEntityNode->visible());
+        CHECK(!customLayerNode->visible());
+        CHECK(!customLayerEntityNode->visible());
+        CHECK(!otherLayerNode->visible());
+      }
+    }
+
+    SECTION("Isolate custom layer")
+    {
+      isolateLayers(map, {customLayerNode});
+      CHECK(!defaultLayerNode.visible());
+      CHECK(!defaultLayerEntityNode->visible());
+      CHECK(customLayerNode->visible());
+      CHECK(customLayerEntityNode->visible());
+      CHECK(!otherLayerNode->visible());
+    }
+
+    SECTION("Isolate two layers")
+    {
+      isolateLayers(map, {&defaultLayerNode, customLayerNode});
+      CHECK(defaultLayerNode.visible());
+      CHECK(defaultLayerEntityNode->visible());
+      CHECK(customLayerNode->visible());
+      CHECK(customLayerEntityNode->visible());
+      CHECK(!otherLayerNode->visible());
+    }
+  }
+
+  SECTION("setOmitLayersFromExport")
+  {
+    auto& defaultLayerNode = *map.world()->defaultLayer();
+    REQUIRE(!defaultLayerNode.layer().omitFromExport());
+
+    setOmitLayerFromExport(map, &defaultLayerNode, true);
+    CHECK(defaultLayerNode.layer().omitFromExport());
+
+    setOmitLayerFromExport(map, &defaultLayerNode, false);
+    CHECK(!defaultLayerNode.layer().omitFromExport());
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+      CHECK(defaultLayerNode.layer().omitFromExport());
+
+      map.redoCommand();
+      CHECK(!defaultLayerNode.layer().omitFromExport());
     }
   }
 }

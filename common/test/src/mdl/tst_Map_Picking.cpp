@@ -43,6 +43,8 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 TEST_CASE("Map_Picking")
 {
   auto fixture = MapFixture{};
@@ -135,9 +137,7 @@ TEST_CASE("Map_Picking")
         == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
       CHECK(hits.front().distance() == vm::approx{32.0});
 
-      CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits),
-        Catch::Matchers::Equals(std::vector<Node*>{group}));
+      CHECK_THAT(hitsToNodesWithGroupPicking(hits), Equals(std::vector<Node*>{group}));
 
       // hitting both objects in the group should return the group only once
       pickResult.clear();
@@ -146,9 +146,7 @@ TEST_CASE("Map_Picking")
       hits = pickResult.all(type(BrushNode::BrushHitType));
       CHECK(hits.size() == 2u);
 
-      CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits),
-        Catch::Matchers::Equals(std::vector<Node*>{group}));
+      CHECK_THAT(hitsToNodesWithGroupPicking(hits), Equals(std::vector<Node*>{group}));
 
       // hitting the group bounds doesn't count as a hit
       pickResult.clear();
@@ -159,7 +157,7 @@ TEST_CASE("Map_Picking")
 
       // hitting a grouped object when the containing group is open should return the
       // object only
-      openGroup(map, group);
+      openGroup(map, *group);
 
       pickResult.clear();
       pick(map, vm::ray3d{{-32, 0, 0}, {1, 0, 0}}, pickResult);
@@ -173,8 +171,7 @@ TEST_CASE("Map_Picking")
       CHECK(hits.front().distance() == vm::approx{32.0});
 
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits),
-        Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
+        hitsToNodesWithGroupPicking(hits), Equals(std::vector<Node*>{brushNode1}));
     }
 
     SECTION("Nested group")
@@ -247,7 +244,7 @@ TEST_CASE("Map_Picking")
 
       // hitting a grouped object when the containing group is open should return the
       // object only
-      openGroup(map, outerGroup);
+      openGroup(map, *outerGroup);
 
       /*
        * world
@@ -271,8 +268,7 @@ TEST_CASE("Map_Picking")
       CHECK(hits.front().distance() == vm::approx{32.0});
 
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits),
-        Catch::Matchers::Equals(std::vector<Node*>{brushNode3}));
+        hitsToNodesWithGroupPicking(hits), Equals(std::vector<Node*>{brushNode3}));
 
       // hitting the brush in the inner group should return the inner group when
       // hitsToNodesWithGroupPicking() is used
@@ -288,12 +284,11 @@ TEST_CASE("Map_Picking")
         == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
       CHECK(hits.front().distance() == vm::approx{32.0});
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits),
-        Catch::Matchers::Equals(std::vector<Node*>{innerGroup}));
+        hitsToNodesWithGroupPicking(hits), Equals(std::vector<Node*>{innerGroup}));
 
       // open the inner group, too. hitsToNodesWithGroupPicking() should no longer return
       // groups, since all groups are open.
-      openGroup(map, innerGroup);
+      openGroup(map, *innerGroup);
 
       /*
        * world
@@ -320,8 +315,7 @@ TEST_CASE("Map_Picking")
         == brush3.face(*brush3.findFace(vm::vec3d{-1, 0, 0})));
       CHECK(hits.front().distance() == vm::approx{32.0});
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits),
-        Catch::Matchers::Equals(std::vector<Node*>{brushNode3}));
+        hitsToNodesWithGroupPicking(hits), Equals(std::vector<Node*>{brushNode3}));
 
       // pick a brush in the inner group
       pickResult.clear();
@@ -335,8 +329,7 @@ TEST_CASE("Map_Picking")
         == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
       CHECK(hits.front().distance() == vm::approx{32.0});
       CHECK_THAT(
-        hitsToNodesWithGroupPicking(hits),
-        Catch::Matchers::Equals(std::vector<Node*>{brushNode1}));
+        hitsToNodesWithGroupPicking(hits), Equals(std::vector<Node*>{brushNode1}));
     }
 
     SECTION("Brush entity")
@@ -378,6 +371,36 @@ TEST_CASE("Map_Picking")
         == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
       CHECK(hits.front().distance() == vm::approx{32.0});
     }
+  }
+
+  SECTION("findNodesContaining")
+  {
+    auto* brushNode = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+      | kdl::value()};
+
+    auto* entityNode = new EntityNode{Entity{}};
+    REQUIRE(entityNode->logicalBounds() == vm::bbox3d{{-8, -8, -8}, {8, 8, 8}});
+
+    auto* groupedBrushNode = new BrushNode{
+      builder.createCuboid(
+        vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 32}), "material")
+      | kdl::value()};
+    addNodes(map, {{parentForNodes(map), {brushNode, entityNode, groupedBrushNode}}});
+
+    selectNodes(map, {groupedBrushNode});
+    groupSelectedNodes(map, "test");
+
+    CHECK(findNodesContaining(map, {0, 0, 1024}) == std::vector<Node*>{});
+    CHECK_THAT(
+      findNodesContaining(map, {0, 0, 0}),
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode, entityNode}));
+    CHECK_THAT(
+      findNodesContaining(map, {32, 32, 24}),
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode}));
+    CHECK_THAT(
+      findNodesContaining(map, {32, 32, 72}),
+      Catch::Matchers::UnorderedEquals(std::vector<Node*>{groupedBrushNode}));
   }
 }
 

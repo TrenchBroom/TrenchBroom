@@ -169,12 +169,12 @@ void Autosaver::autosave()
                           return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
                         });
              });
-  }) | kdl::transform([&](const auto& backupFilePath) {
+  }) | kdl::and_then([&](const auto& backupFilePath) {
     m_lastSaveTime = Clock::now();
     m_lastModificationCount = m_map.modificationCount();
-    m_map.saveTo(backupFilePath);
-
-    m_map.logger().info() << "Created autosave backup at " << backupFilePath;
+    return m_map.saveTo(backupFilePath) | kdl::transform([&]() {
+             m_map.logger().info() << "Created autosave backup at " << backupFilePath;
+           });
   }) | kdl::transform_error([&](auto e) {
     m_map.logger().error() << "Aborting autosave: " << e.msg;
   });

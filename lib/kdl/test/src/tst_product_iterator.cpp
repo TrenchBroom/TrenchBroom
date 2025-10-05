@@ -28,12 +28,10 @@
 
 namespace kdl
 {
+using namespace Catch::Matchers;
 
 TEST_CASE("product_iterator")
 {
-  using Catch::Matchers::UnorderedEquals;
-
-
   SECTION("with a single range")
   {
     using T = std::tuple<std::vector<int>, std::vector<std::tuple<int>>>;

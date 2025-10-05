@@ -68,16 +68,18 @@ void MapFixture::create(const MapFixtureConfig& config)
   auto game = createGame(config);
 
   ensure(
-    m_map->create(mapFormat, vm::bbox3d{8192.0}, std::move(game)).is_success(),
+    m_map->create(mapFormat, vm::bbox3d{8192.0}, std::move(game)),
     "Map was created successfully");
 }
 
 void MapFixture::load(const std::filesystem::path& path, const MapFixtureConfig& config)
 {
+  const auto absPath = path.is_absolute() ? path : std::filesystem::current_path() / path;
+
   const auto mapFormat = config.mapFormat.value_or(MapFormat::Unknown);
   auto game = createGame(config);
 
-  m_map->load(mapFormat, vm::bbox3d{8192.0}, std::move(game), path)
+  m_map->load(mapFormat, vm::bbox3d{8192.0}, std::move(game), absPath)
     .transform_error([](const auto& e) { throw std::runtime_error{e.msg}; });
   m_map->processResourcesSync(ProcessContext{false, [](auto, auto) {}});
 }

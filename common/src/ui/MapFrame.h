@@ -403,7 +403,6 @@ public:
   void debugPrintVertices();
   void debugCreateBrush();
   void debugCreateCube();
-  void debugClipBrush();
   void debugCrash();
   void debugThrowExceptionDuringCommand();
   void debugSetWindowSize();

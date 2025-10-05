@@ -53,6 +53,8 @@
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -110,29 +112,30 @@ TEST_CASE("Map_Geometry")
 
   SECTION("transformSelection")
   {
-    using CreateNode = std::function<Node*(const Map&)>;
-    const auto createNode = GENERATE_COPY(
-      CreateNode{[](const auto& m) -> Node* {
-        auto* groupNode = new GroupNode{Group{"group"}};
-        auto* brushNode = createBrushNode(m);
-        auto* patchNode = createPatchNode();
-        auto* entityNode = new EntityNode{Entity{}};
-        groupNode->addChildren({brushNode, patchNode, entityNode});
-        return groupNode;
-      }},
-      CreateNode{[](const auto&) -> Node* { return new EntityNode{Entity{}}; }},
-      CreateNode{[](const auto& m) -> Node* {
-        auto* entityNode = new EntityNode{Entity{}};
-        auto* brushNode = createBrushNode(m);
-        auto* patchNode = createPatchNode();
-        entityNode->addChildren({brushNode, patchNode});
-        return entityNode;
-      }},
-      CreateNode{[](const auto& m) -> Node* { return createBrushNode(m); }},
-      CreateNode{[](const auto&) -> Node* { return createPatchNode(); }});
-
     GIVEN("A node to transform")
     {
+      using CreateNode = std::function<Node*(const Map&)>;
+
+      const auto createNode = GENERATE_COPY(
+        CreateNode{[](const auto& m) -> Node* {
+          auto* groupNode = new GroupNode{Group{"group"}};
+          auto* brushNode = createBrushNode(m);
+          auto* patchNode = createPatchNode();
+          auto* entityNode = new EntityNode{Entity{}};
+          groupNode->addChildren({brushNode, patchNode, entityNode});
+          return groupNode;
+        }},
+        CreateNode{[](const auto&) -> Node* { return new EntityNode{Entity{}}; }},
+        CreateNode{[](const auto& m) -> Node* {
+          auto* entityNode = new EntityNode{Entity{}};
+          auto* brushNode = createBrushNode(m);
+          auto* patchNode = createPatchNode();
+          entityNode->addChildren({brushNode, patchNode});
+          return entityNode;
+        }},
+        CreateNode{[](const auto& m) -> Node* { return createBrushNode(m); }},
+        CreateNode{[](const auto&) -> Node* { return createPatchNode(); }});
+
       auto* node = createNode(map);
       CAPTURE(node->name());
 
@@ -160,14 +163,21 @@ TEST_CASE("Map_Geometry")
           {
             checkTransformation(*node, *originalNode.get(), vm::mat4x4d::identity());
           }
+
+          AND_WHEN("The transformation is redone")
+          {
+            map.redoCommand();
+
+            THEN("The transformation is applied again")
+            {
+              checkTransformation(*node, *originalNode.get(), transformation);
+            }
+          }
         }
       }
     }
-  }
 
-  SECTION("translateSelection")
-  {
-    SECTION("Transform a group containing a brush entity")
+    GIVEN("A group containing a brush entity")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/1715
 
@@ -181,17 +191,31 @@ TEST_CASE("Map_Geometry")
       selectNodes(map, {brushNode1});
 
       auto* groupNode = groupSelectedNodes(map, "test");
-      CHECK(groupNode->selected());
+      REQUIRE(groupNode->selected());
 
-      CHECK(translateSelection(map, vm::vec3d{16, 0, 0}));
-      CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
+      WHEN("The group is transformed")
+      {
+        REQUIRE(transformSelection(
+          map, "Translate", vm::translation_matrix(vm::vec3d{16, 0, 0})));
 
-      map.undoCommand();
+        THEN("The entity does not have any empty property keys")
+        {
+          CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
 
-      CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
+          AND_WHEN("The transformation is undone")
+          {
+            map.undoCommand();
+
+            THEN("The entity still doesn't have any empty property keys")
+            {
+              CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
+            }
+          }
+        }
+      }
     }
 
-    SECTION("Linked group")
+    GIVEN("Two linked groups")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3784
 
@@ -211,43 +235,70 @@ TEST_CASE("Map_Geometry")
       deselectAll(map);
       selectNodes(map, {linkedGroup});
       REQUIRE_THAT(
-        map.selection().nodes,
-        Catch::Matchers::UnorderedEquals(std::vector<Node*>{linkedGroup}));
+        map.selection().nodes, UnorderedEquals(std::vector<Node*>{linkedGroup}));
 
       auto* linkedBrushNode = dynamic_cast<BrushNode*>(linkedGroup->children().at(0));
       REQUIRE(linkedBrushNode != nullptr);
 
-      const auto setPref = TemporarilySetPref{Preferences::AlignmentLock, false};
+      WHEN("One of the groups is transformed with aligment lock off")
+      {
+        const auto setPref = TemporarilySetPref{Preferences::AlignmentLock, false};
 
-      const auto delta = vm::vec3d{0.125, 0, 0};
-      REQUIRE(translateSelection(map, delta));
+        const auto delta = vm::vec3d{0.125, 0, 0};
+        REQUIRE(translateSelection(map, delta));
 
-      auto getUVCoords =
-        [](auto* brushNode, const vm::vec3d& normal) -> std::vector<vm::vec2f> {
-        const BrushFace& face =
-          brushNode->brush().face(*brushNode->brush().findFace(normal));
-        return kdl::vec_transform(
-          face.vertexPositions(), [&](auto x) { return face.uvCoords(x); });
-      };
+        THEN("The brushes in both linked groups have alignment lock forced on")
+        {
+          auto getUVCoords =
+            [](auto* brushNode, const vm::vec3d& normal) -> std::vector<vm::vec2f> {
+            const BrushFace& face =
+              brushNode->brush().face(*brushNode->brush().findFace(normal));
+            return kdl::vec_transform(
+              face.vertexPositions(), [&](auto x) { return face.uvCoords(x); });
+          };
 
-      // Brushes in linked groups should have alignment lock forced on
-      CHECK(uvListsEqual(
-        getUVCoords(brushNode1, vm::vec3d{0, 0, 1}),
-        getUVCoords(linkedBrushNode, vm::vec3d{0, 0, 1})));
+          // Brushes in linked groups should have alignment lock forced on
+          CHECK(uvListsEqual(
+            getUVCoords(brushNode1, vm::vec3d{0, 0, 1}),
+            getUVCoords(linkedBrushNode, vm::vec3d{0, 0, 1})));
+        }
+      }
+    }
+  }
+
+  SECTION("translateSelection")
+  {
+    GIVEN("An entity")
+    {
+      auto* entityNode = new EntityNode{Entity{}};
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      selectNodes(map, {entityNode});
+
+      WHEN("The entity is translated")
+      {
+        translateSelection(map, {1, 2, 3});
+        THEN("It is transformed accordingly")
+        {
+          const auto* originValue =
+            entityNode->entity().property(EntityPropertyKeys::Origin);
+          REQUIRE(originValue != nullptr);
+          CHECK(*originValue == "1 2 3");
+        }
+      }
     }
   }
 
   SECTION("rotateSelection")
   {
-    const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
-
     SECTION("objects")
     {
+      const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
       auto* brushNode1 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
+        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {30, 31, 31}}, "material")
         | kdl::value()};
       auto* brushNode2 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
+        builder.createCuboid(vm::bbox3d{{30, 0, 0}, {31, 31, 31}}, "material")
         | kdl::value()};
 
       REQUIRE(checkBrushIntegral(brushNode1));
@@ -267,9 +318,8 @@ TEST_CASE("Map_Geometry")
         CHECK(checkBrushIntegral(brushNode1));
         CHECK(checkBrushIntegral(brushNode2));
 
-        const auto brush1ExpectedBounds = vm::bbox3d{{0.0, 0.0, 0.0}, {31.0, 30.0, 31.0}};
-        const auto brush2ExpectedBounds =
-          vm::bbox3d{{0.0, 30.0, 0.0}, {31.0, 31.0, 31.0}};
+        const auto brush1ExpectedBounds = vm::bbox3d{{0, 0, 0}, {31, 30, 31}};
+        const auto brush2ExpectedBounds = vm::bbox3d{{0, 30, 0}, {31, 31, 31}};
 
         // these should be exactly integral
         CHECK(brushNode1->logicalBounds() == brush1ExpectedBounds);
@@ -332,9 +382,10 @@ TEST_CASE("Map_Geometry")
 
     SECTION("vertices")
     {
+      const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
       auto* brushNode = new BrushNode{
-        builder.createCuboid(
-          vm::bbox3d{{-32.0, -32.0, -32.0}, {32.0, 32.0, 32.0}}, "material")
+        builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
         | kdl::value()};
 
       addNodes(map, {{parentForNodes(map), {brushNode}}});
@@ -351,19 +402,18 @@ TEST_CASE("Map_Geometry")
 
       rotateSelection(map, {0, 0, 0}, {0, 0, 1}, vm::to_radians(45.0));
 
-      const auto& brush = brushNode->brush();
       const auto e = vm::constants<double>::almost_zero();
       const auto x = 45.254833995939407;
 
-      CHECK(brush.hasVertex({-x, 0, +32}, e));
-      CHECK(brush.hasVertex({+x, 0, +32}, e));
-      CHECK(brush.hasVertex({0, -x, +32}, e));
-      CHECK(brush.hasVertex({0, +x, +32}, e));
+      CHECK(brushNode->brush().hasVertex({-x, 0, +32}, e));
+      CHECK(brushNode->brush().hasVertex({+x, 0, +32}, e));
+      CHECK(brushNode->brush().hasVertex({0, -x, +32}, e));
+      CHECK(brushNode->brush().hasVertex({0, +x, +32}, e));
 
-      CHECK(brush.hasVertex({-32, -32, -32}, e));
-      CHECK(brush.hasVertex({-32, +32, -32}, e));
-      CHECK(brush.hasVertex({+32, -32, -32}, e));
-      CHECK(brush.hasVertex({+32, +32, -32}, e));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}, e));
+      CHECK(brushNode->brush().hasVertex({-32, +32, -32}, e));
+      CHECK(brushNode->brush().hasVertex({+32, -32, -32}, e));
+      CHECK(brushNode->brush().hasVertex({+32, +32, -32}, e));
     }
 
     SECTION("Rotating a group containing a brush entity")
@@ -383,12 +433,30 @@ TEST_CASE("Map_Geometry")
       CHECK(groupNode->selected());
 
       CHECK_FALSE(entityNode->entity().hasProperty("origin"));
-      CHECK(rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0));
+      CHECK(rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10));
       CHECK_FALSE(entityNode->entity().hasProperty("origin"));
 
       map.undoCommand();
 
       CHECK_FALSE(entityNode->entity().hasProperty("origin"));
+    }
+
+    SECTION("Undoing a rotation removes angle key")
+    {
+      auto* entityNode = new EntityNode{Entity{{
+        {EntityPropertyKeys::Classname, "test"},
+      }}};
+
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      CHECK(!entityNode->entity().hasProperty("angle"));
+
+      selectNodes(map, {entityNode});
+      rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(15.0));
+      CHECK(entityNode->entity().hasProperty("angle"));
+      CHECK(*entityNode->entity().property("angle") == "15");
+
+      map.undoCommand();
+      CHECK(!entityNode->entity().hasProperty("angle"));
     }
   }
 
@@ -402,15 +470,14 @@ TEST_CASE("Map_Geometry")
 
     auto* brushNode =
       new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
-    const auto& brush = brushNode->brush();
 
     addNodes(map, {{parentForNodes(map), {brushNode}}});
     selectNodes(map, {brushNode});
 
     REQUIRE(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
     REQUIRE(
-      brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
-      == vm::plane3d{100.0, vm::vec3d{0, 0, 1}});
+      brushNode->brush().face(*brushNode->brush().findFace(vm::vec3d{0, 0, 1})).boundary()
+      == vm::plane3d{100, vm::vec3d{0, 0, 1}});
 
     SECTION("single brush")
     {
@@ -418,14 +485,18 @@ TEST_CASE("Map_Geometry")
       CHECK_FALSE(scaleSelection(map, initialBBox, invalidBBox));
       CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
       CHECK(
-        brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
-        == vm::plane3d{100.0, vm::vec3d{0, 0, 1}});
+        brushNode->brush()
+          .face(*brushNode->brush().findFace(vm::vec3d{0, 0, 1}))
+          .boundary()
+        == vm::plane3d{100, vm::vec3d{0, 0, 1}});
 
       CHECK(scaleSelection(map, initialBBox, doubleBBox));
       CHECK(brushNode->logicalBounds().size() == vm::vec3d{400, 400, 400});
       CHECK(
-        brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
-        == vm::plane3d{200.0, vm::vec3d{0, 0, 1}});
+        brushNode->brush()
+          .face(*brushNode->brush().findFace(vm::vec3d{0, 0, 1}))
+          .boundary()
+        == vm::plane3d{200, vm::vec3d{0, 0, 1}});
     }
 
     SECTION("in group")
@@ -443,7 +514,7 @@ TEST_CASE("Map_Geometry")
     SECTION("with off center origin")
     {
       const auto origin = vm::vec3d{50, 0, 0};
-      CHECK(scaleSelection(map, origin, vm::vec3d{2.0, 1.0, 1.0}));
+      CHECK(scaleSelection(map, origin, vm::vec3d{2, 1, 1}));
       CHECK(
         brushNode->logicalBounds() == vm::bbox3d{{-250, -100, -100}, {150, 100, 100}});
     }
@@ -465,7 +536,7 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
+        UnorderedEquals(std::vector<vm::vec3d>{
           // bottom face
           {100, 100, 100},
           {200, 100, 100},
@@ -484,7 +555,7 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
+        UnorderedEquals(std::vector<vm::vec3d>{
           // bottom face
           {150, 100, 100},
           {250, 100, 100},
@@ -510,7 +581,7 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
+        UnorderedEquals(std::vector<vm::vec3d>{
           // bottom face
           {0, 0, 0},
           {100, 0, 0},
@@ -529,7 +600,7 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
+        UnorderedEquals(std::vector<vm::vec3d>{
           // bottom face
           {0, 0, 0},
           {100, 0, 0},
@@ -549,10 +620,10 @@ TEST_CASE("Map_Geometry")
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     auto* brushNode1 = new BrushNode{
-      builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
+      builder.createCuboid(vm::bbox3d{{0, 0, 0}, {30, 31, 31}}, "material")
       | kdl::value()};
     auto* brushNode2 = new BrushNode{
-      builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
+      builder.createCuboid(vm::bbox3d{{30, 0, 0}, {31, 31, 31}}, "material")
       | kdl::value()};
 
     CHECK(checkBrushIntegral(brushNode1));
@@ -571,39 +642,377 @@ TEST_CASE("Map_Geometry")
     CHECK(checkBrushIntegral(brushNode1));
     CHECK(checkBrushIntegral(brushNode2));
 
-    CHECK(brushNode1->logicalBounds() == vm::bbox3d{{1.0, 0.0, 0.0}, {31.0, 31.0, 31.0}});
-    CHECK(brushNode2->logicalBounds() == vm::bbox3d{{0.0, 0.0, 0.0}, {1.0, 31.0, 31.0}});
+    CHECK(brushNode1->logicalBounds() == vm::bbox3d{{1, 0, 0}, {31, 31, 31}});
+    CHECK(brushNode2->logicalBounds() == vm::bbox3d{{0, 0, 0}, {1, 31, 31}});
   }
 
-  SECTION("snapVertices")
+  SECTION("transformVertices")
   {
-    SECTION("Linked groups")
+    const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
+    auto* brushNode = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    selectNodes(map, {brushNode});
+
+    SECTION("no vertex gets deleted")
     {
-      // https://github.com/TrenchBroom/TrenchBroom/issues/3768
+      REQUIRE(
+        transformVertices(
+          map,
+          {
+            {-32, -32, 32},
+            {-32, 32, 32},
+            {32, -32, 32},
+            {32, 32, 32},
+          },
+          vm::translation_matrix(vm::vec3d{0, 0, 32}))
+        == TransformVerticesResult{true, true});
 
-      auto* brushNode = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
-      selectNodes(map, {brushNode});
+      CHECK(brushNode->brush().hasVertex({-32, -32, 64}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, 64}));
+      CHECK(brushNode->brush().hasVertex({32, -32, 64}));
+      CHECK(brushNode->brush().hasVertex({32, 32, 64}));
 
-      auto* groupNode = groupSelectedNodes(map, "test");
-      REQUIRE(groupNode != nullptr);
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
 
-      auto* linkedGroupNode = createLinkedDuplicate(map);
-      REQUIRE(linkedGroupNode != nullptr);
-
-      deselectAll(map);
-
-      SECTION("Can't snap to grid with both groups selected")
+      SECTION("Undo and redo")
       {
-        selectNodes(map, {groupNode, linkedGroupNode});
+        map.undoCommand();
 
-        CHECK(
-          transformSelection(map, "", vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.0})));
+        CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, 32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, 32}));
+        CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, -32}));
 
-        // This could generate conflicts, because what snaps one group could misalign
-        // another group in the link set. So, just reject the change.
-        CHECK(!snapVertices(map, 16.0));
+        map.redoCommand();
+
+        CHECK(brushNode->brush().hasVertex({-32, -32, 64}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, 64}));
+        CHECK(brushNode->brush().hasVertex({32, -32, 64}));
+        CHECK(brushNode->brush().hasVertex({32, 32, 64}));
+        CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, -32}));
       }
+    }
+
+    SECTION("all vertices get deleted")
+    {
+      REQUIRE(
+        transformVertices(
+          map, {{32, 32, 32}}, vm::translation_matrix(vm::vec3d{-32, -32, -32}))
+        == TransformVerticesResult{true, false});
+
+      REQUIRE(brushNode->brush().vertexCount() == 7);
+      CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+    }
+  }
+
+  SECTION("transformEdges")
+  {
+    const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
+    auto* brushNode = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    selectNodes(map, {brushNode});
+
+    SECTION("Edge transform is valid")
+    {
+      REQUIRE(transformEdges(
+        map,
+        {{{32, -32, 32}, {32, 32, 32}}},
+        vm::translation_matrix(vm::vec3d{0, 0, 32})));
+
+      CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, 64}));
+      CHECK(brushNode->brush().hasVertex({32, 32, 64}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+
+      SECTION("undo and redo")
+      {
+        map.undoCommand();
+
+        CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, 32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, 32}));
+        CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+
+        map.redoCommand();
+
+        CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, 64}));
+        CHECK(brushNode->brush().hasVertex({32, 32, 64}));
+        CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+      }
+    }
+
+    SECTION("Edge transform is invalid")
+    {
+      REQUIRE(!transformEdges(
+        map,
+        {{{32, -32, 32}, {32, 32, 32}}},
+        vm::translation_matrix(vm::vec3d{-32, 0, -32})));
+
+      CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+    }
+
+    SECTION("Edge not found")
+    {
+      REQUIRE(transformEdges(
+        map, {{{1, 2, 3}, {4, 5, 6}}}, vm::translation_matrix(vm::vec3d{-32, 0, -32})));
+
+      CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+    }
+  }
+
+  SECTION("transformFaces")
+  {
+    const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
+    auto* brushNode = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    selectNodes(map, {brushNode});
+
+    SECTION("Face transform is valid")
+    {
+      REQUIRE(transformFaces(
+        map,
+        {{
+          {-32, -32, 32},
+          {32, -32, 32},
+          {32, 32, 32},
+          {-32, 32, 32},
+        }},
+        vm::translation_matrix(vm::vec3d{0, 0, 32})));
+
+      CHECK(brushNode->brush().hasVertex({-32, -32, 64}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, 64}));
+      CHECK(brushNode->brush().hasVertex({32, -32, 64}));
+      CHECK(brushNode->brush().hasVertex({32, 32, 64}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+
+      SECTION("undo and redo")
+      {
+        map.undoCommand();
+
+        CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, 32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, 32}));
+        CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+
+        map.redoCommand();
+
+        CHECK(brushNode->brush().hasVertex({-32, -32, 64}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, 64}));
+        CHECK(brushNode->brush().hasVertex({32, -32, 64}));
+        CHECK(brushNode->brush().hasVertex({32, 32, 64}));
+        CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+        CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+      }
+    }
+
+    SECTION("Face transform is invalid")
+    {
+      REQUIRE(!transformFaces(
+        map,
+        {{
+          {-32, -32, 32},
+          {32, -32, 32},
+          {32, 32, 32},
+          {-32, 32, 32},
+        }},
+        vm::translation_matrix(vm::vec3d{0, 0, -128})));
+
+      CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+    }
+
+    SECTION("Face not found")
+    {
+      REQUIRE(transformFaces(
+        map,
+        {{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}},
+        vm::translation_matrix(vm::vec3d{-32, 0, -32})));
+
+      CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, 32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, 32}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+    }
+  }
+
+  SECTION("addVertex")
+  {
+    const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
+    auto* brushNode = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    selectNodes(map, {brushNode});
+
+    SECTION("Vertex can be added")
+    {
+      REQUIRE(addVertex(map, {0, 0, 64}));
+
+      CHECK(brushNode->brush().vertexCount() == 9);
+      CHECK(brushNode->brush().hasVertex({0, 0, 64}));
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+
+        CHECK(brushNode->brush().vertexCount() == 8);
+        CHECK(!brushNode->brush().hasVertex({0, 0, 64}));
+
+        map.redoCommand();
+
+        CHECK(brushNode->brush().vertexCount() == 9);
+        CHECK(brushNode->brush().hasVertex({0, 0, 64}));
+      }
+    }
+
+    SECTION("Vertex cannot be added")
+    {
+      REQUIRE(!addVertex(map, {0, 0, 0}));
+
+      CHECK(brushNode->brush().vertexCount() == 8);
+    }
+  }
+
+  SECTION("removeVertices")
+  {
+    const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
+    auto* brushNode = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    selectNodes(map, {brushNode});
+
+    SECTION("Remove single vertex")
+    {
+      REQUIRE(removeVertices(map, "Remove vertex", {{32, 32, 32}}));
+
+      CHECK(brushNode->brush().vertexCount() == 7);
+      CHECK(!brushNode->brush().hasVertex({32, 32, 32}));
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+
+        CHECK(brushNode->brush().vertexCount() == 8);
+        CHECK(brushNode->brush().hasVertex({32, 32, 32}));
+
+        map.redoCommand();
+
+        CHECK(brushNode->brush().vertexCount() == 7);
+        CHECK(!brushNode->brush().hasVertex({32, 32, 32}));
+      }
+    }
+
+    SECTION("Remove multiple vertices")
+    {
+      REQUIRE(removeVertices(
+        map,
+        "Remove vertex",
+        {
+          {32, 32, 32},
+          {32, -32, 32},
+          {-32, 32, 32},
+        }));
+
+      CHECK(brushNode->brush().vertexCount() == 5);
+      CHECK(brushNode->brush().hasVertex({32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, 32, -32}));
+      CHECK(brushNode->brush().hasVertex({-32, -32, 32}));
+    }
+
+    SECTION("Vertices cannot be removed")
+    {
+      REQUIRE(!removeVertices(
+        map,
+        "Remove vertex",
+        {
+          {32, 32, 32},
+          {32, -32, 32},
+          {-32, 32, 32},
+          {-32, -32, 32},
+        }));
+
+      CHECK(brushNode->brush().vertexCount() == 8);
     }
   }
 
@@ -635,6 +1044,35 @@ TEST_CASE("Map_Geometry")
 
       CHECK(map.selection().brushes.size() == 1u);
       CHECK_NOTHROW(snapVertices(map, map.grid().actualSize()));
+    }
+
+    SECTION("Linked groups")
+    {
+      // https://github.com/TrenchBroom/TrenchBroom/issues/3768
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      selectNodes(map, {brushNode});
+
+      auto* groupNode = groupSelectedNodes(map, "test");
+      REQUIRE(groupNode != nullptr);
+
+      auto* linkedGroupNode = createLinkedDuplicate(map);
+      REQUIRE(linkedGroupNode != nullptr);
+
+      deselectAll(map);
+
+      SECTION("Can't snap to grid with both groups selected")
+      {
+        selectNodes(map, {groupNode, linkedGroupNode});
+
+        CHECK(
+          transformSelection(map, "", vm::translation_matrix(vm::vec3d{0.5, 0.5, 0})));
+
+        // This could generate conflicts, because what snaps one group could misalign
+        // another group in the link set. So, just reject the change.
+        CHECK(!snapVertices(map, 16));
+      }
     }
   }
 
@@ -819,9 +1257,7 @@ TEST_CASE("Map_Geometry")
       map.undoCommand();
 
       CHECK(map.selection().hasOnlyBrushes());
-      CHECK_THAT(
-        map.selection().brushes,
-        Catch::Matchers::Equals(std::vector<BrushNode*>{subtrahend1}));
+      CHECK_THAT(map.selection().brushes, Equals(std::vector<BrushNode*>{subtrahend1}));
     }
 
     SECTION("Texture alignment")
@@ -874,7 +1310,7 @@ TEST_CASE("Map_Geometry")
     SECTION("Regression tests")
     {
       fixture.load(
-        "fixture/test/ui/MapDocumentTest/csgSubtractFailure.map",
+        "fixture/test/mdl/Map/csgSubtractFailure.map",
         {.mapFormat = MapFormat::Valve, .game = LoadGameFixture{"Quake"}});
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
@@ -910,7 +1346,7 @@ TEST_CASE("Map_Geometry")
   SECTION("csgHollow")
   {
     fixture.load(
-      "fixture/test/ui/MapDocumentTest/csgHollow.map",
+      "fixture/test/mdl/Map/csgHollow.map",
       {.mapFormat = MapFormat::Valve, .game = LoadGameFixture{"Quake"}});
 
     REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
@@ -935,6 +1371,75 @@ TEST_CASE("Map_Geometry")
       CHECK(!csgHollow(map));
       CHECK(map.editorContext().currentLayer()->childCount() == 2);
       CHECK(!map.modified());
+    }
+  }
+
+  SECTION("extrudeBrushes")
+  {
+    const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
+    auto* brushNode1 = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-64, -32, -32}, {0, 32, 32}}, "material")
+      | kdl::value()};
+
+    auto* brushNode2 = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, -32, -32}, {64, 32, 32}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{parentForNodes(map), {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    SECTION("Extrude one brush")
+    {
+      REQUIRE(extrudeBrushes(
+        map,
+        {
+          {
+            {-64, -32, +32},
+            {0, -32, +32},
+            {0, +32, +32},
+            {-64, +32, +32},
+          },
+        },
+        {0, 0, 32}));
+
+      CHECK(brushNode1->physicalBounds() == vm::bbox3d{{-64, -32, -32}, {0, +32, +64}});
+      CHECK(brushNode2->physicalBounds() == vm::bbox3d{{0, -32, -32}, {+64, +32, +32}});
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+        CHECK(brushNode1->physicalBounds() == vm::bbox3d{{-64, -32, -32}, {0, 32, 32}});
+        CHECK(brushNode2->physicalBounds() == vm::bbox3d{{0, -32, -32}, {+64, +32, +32}});
+
+        map.redoCommand();
+        CHECK(brushNode1->physicalBounds() == vm::bbox3d{{-64, -32, -32}, {0, +32, +64}});
+        CHECK(brushNode2->physicalBounds() == vm::bbox3d{{0, -32, -32}, {+64, +32, +32}});
+      }
+    }
+
+    SECTION("Extrude two brushes")
+    {
+      REQUIRE(extrudeBrushes(
+        map,
+        {
+          {
+            {-64, -32, +32},
+            {0, -32, +32},
+            {0, +32, +32},
+            {-64, +32, +32},
+          },
+          {
+            {0, -32, +32},
+            {+64, -32, +32},
+            {+64, +32, +32},
+            {0, +32, +32},
+          },
+        },
+        {0, 0, 32}));
+
+      CHECK(brushNode1->physicalBounds() == vm::bbox3d{{-64, -32, -32}, {0, +32, +64}});
+      CHECK(brushNode2->physicalBounds() == vm::bbox3d{{0, -32, -32}, {+64, +32, +64}});
     }
   }
 }

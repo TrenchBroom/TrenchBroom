@@ -48,7 +48,7 @@ TEST_CASE("MdlLoaderTest.loadValidMdl")
   auto loader = MdlLoader("armor", reader, palette);
   auto modelData = loader.load(logger);
 
-  CHECK(modelData.is_success());
+  REQUIRE(modelData);
   CHECK(modelData.value().surfaceCount() == 1u);
   CHECK(modelData.value().frameCount() == 1u);
 

@@ -89,7 +89,7 @@ size_t loadEntityDefinitionFile(
       {
         const auto path =
           convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
-        const auto spec = mdl::EntityDefinitionFileSpec::external(path);
+        const auto spec = mdl::EntityDefinitionFileSpec::makeExternal(path);
         setEntityDefinitionFile(map, spec);
         return static_cast<size_t>(i);
       }

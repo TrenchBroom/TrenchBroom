@@ -18,16 +18,17 @@
  */
 
 #include "Exceptions.h"
+#include "Logger.h"
 #include "MapFixture.h"
 #include "MockGame.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
-#include "io/MapHeader.h"
 #include "io/TestEnvironment.h"
 #include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
@@ -43,10 +44,12 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
+#include "mdl/Observer.h"
 #include "mdl/PasteType.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TextureResource.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/vector_utils.h"
@@ -58,9 +61,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_predicate.hpp>
+#include <catch2/matchers/catch_matchers_quantifiers.hpp>
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -78,29 +85,288 @@ public:
   size_t selectOption(const std::vector<std::string>&) override { return m_option; }
 };
 
+auto makeAbsolute(const auto& path)
+{
+  return std::filesystem::current_path() / path;
+}
+
 } // namespace
 
 TEST_CASE("Map")
 {
-  auto fixture = MapFixture{};
-  auto& map = fixture.map();
+  SECTION("create")
+  {
+    auto taskManager = createTestTaskManager();
+    auto logger = NullLogger{};
+    auto map = Map{*taskManager, logger};
+
+    REQUIRE(map.world() == nullptr);
+    REQUIRE(map.worldBounds() == Map::DefaultWorldBounds);
+
+    SECTION("Calling create sets worldspawn and notifies observers")
+    {
+      auto mapWasCreated = Observer<Map&>{map.mapWasCreatedNotifier};
+      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+      REQUIRE(map.create(
+        MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+
+      REQUIRE(map.world() != nullptr);
+      CHECK(
+        map.world()->entity()
+        == Entity{{
+          {EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname},
+        }});
+      CHECK(!map.worldBounds().is_empty());
+      CHECK(!map.persistent());
+      CHECK(map.path() == "unnamed.map");
+      CHECK(mapWasCreated.collected == std::set{&map});
+      CHECK(mapWasCleared.collected.empty());
+
+      SECTION("Calling create again clears the map and resets the modification count")
+      {
+        mapWasCreated.collected.clear();
+
+        map.incModificationCount();
+
+        REQUIRE(map.create(
+          MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+
+        CHECK(map.modificationCount() == 0);
+        CHECK(mapWasCreated.collected == std::set{&map});
+        CHECK(mapWasCleared.collected == std::set{&map});
+      }
+    }
+
+    SECTION("Loads the initial map if configured")
+    {
+      auto gameConfig = MockGameConfig{};
+      gameConfig.forceEmptyNewMap = false;
+      gameConfig.path = "fixture/test/mdl/Map/GameConfig.cfg";
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {"initialMap.map"}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
+
+      const auto* defaultLayerNode = map.world()->defaultLayer();
+      REQUIRE(defaultLayerNode->children().size() == 1);
+
+      const auto* brushNode =
+        dynamic_cast<const BrushNode*>(defaultLayerNode->children().front());
+      REQUIRE(brushNode);
+
+      CHECK(brushNode->brush().bounds() == vm::bbox3d{{-32, -32, -64}, {32, 32, 64}});
+
+      const auto* valveVersionProperty =
+        map.world()->entity().property(EntityPropertyKeys::ValveVersion);
+      REQUIRE(valveVersionProperty);
+      CHECK(*valveVersionProperty == "220");
+    }
+
+    SECTION("Sets Valve version property")
+    {
+      auto gameConfig = MockGameConfig{};
+      gameConfig.forceEmptyNewMap = false;
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {"initialMap.map"}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
+
+      const auto* valveVersionProperty =
+        map.world()->entity().property(EntityPropertyKeys::ValveVersion);
+      REQUIRE(valveVersionProperty);
+      CHECK(*valveVersionProperty == "220");
+    }
+
+    SECTION("Sets material config property")
+    {
+      auto gameConfig = MockGameConfig{};
+      gameConfig.forceEmptyNewMap = false;
+      gameConfig.materialConfig.property = "wad";
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {"initialMap.map"}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
+
+      const auto* materialConfigProperty = map.world()->entity().property("wad");
+      REQUIRE(materialConfigProperty);
+      CHECK(*materialConfigProperty == "");
+    }
+
+    SECTION("Creates an initial brush if configured")
+    {
+      auto gameConfig = MockGameConfig{};
+      gameConfig.forceEmptyNewMap = false;
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Standard", {}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
+
+      const auto* defaultLayerNode = map.world()->defaultLayer();
+      REQUIRE(defaultLayerNode->children().size() == 1);
+
+      const auto* brushNode =
+        dynamic_cast<const BrushNode*>(defaultLayerNode->children().front());
+      REQUIRE(brushNode);
+
+      CHECK(brushNode->brush().bounds() == vm::bbox3d{{-64, -64, -16}, {64, 64, 16}});
+    }
+
+    SECTION("Sets worldspawn default properties")
+    {
+      // This currently does not work because we clear the entity definitions when
+      // creating a map.
+
+      map.entityDefinitionManager().setDefinitions({
+        {
+          "worldspawn",
+          Color{},
+          {},
+          {
+            {"some_default_prop", PropertyValueTypes::String{"value"}, "", ""},
+          },
+        },
+      });
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.entityConfig.setDefaultProperties = true;
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, std::move(game)));
+
+      REQUIRE(map.world() != nullptr);
+      /* EXPECTED:
+      CHECK(
+        map.world()->entity()
+        == Entity{{
+          {EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname},
+          {"some_default_prop", "value"},
+        }});
+      ACTUAL: */
+      CHECK(
+        map.world()->entity()
+        == Entity{{
+          {EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname},
+        }});
+    }
+  }
 
   SECTION("load")
   {
+    auto taskManager = createTestTaskManager();
+    auto logger = NullLogger{};
+    auto map = Map{*taskManager, logger};
+
+    REQUIRE(map.world() == nullptr);
+    REQUIRE(map.worldBounds() == Map::DefaultWorldBounds);
+
+    SECTION("Notifies observers")
+    {
+      auto mapWasLoaded = Observer<Map&>{map.mapWasLoadedNotifier};
+      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+      const auto mapWasEmpty = GENERATE(false, true);
+
+      if (!mapWasEmpty)
+      {
+        REQUIRE(map.create(
+          MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+      }
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      mapWasCleared.collected.clear();
+      REQUIRE(map.load(
+        MapFormat::Unknown,
+        vm::bbox3d{8192.0},
+        std::move(game),
+        makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
+
+      CHECK(mapWasCleared.collected == (mapWasEmpty ? std::set<Map*>{} : std::set{&map}));
+      CHECK(mapWasLoaded.collected == std::set{&map});
+    }
+
+    SECTION("Sets world bounds, game and file path")
+    {
+      const auto worldBounds = vm::bbox3d{8192.0};
+      const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      REQUIRE(map.worldBounds() != worldBounds);
+      REQUIRE(map.game() == nullptr);
+      REQUIRE(map.path() != path);
+      REQUIRE(map.load(MapFormat::Unknown, worldBounds, std::move(game), path));
+
+      CHECK(map.worldBounds() == worldBounds);
+      CHECK(map.game() != nullptr);
+      CHECK(map.path() == path);
+      CHECK(map.persistent());
+    }
+
+    SECTION("Loading a map clears it first")
+    {
+      // create a map and add an entity
+      REQUIRE(map.create(
+        MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+      REQUIRE(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+
+      auto* initialEntityNode = new EntityNode{{}};
+      addNodes(map, {{parentForNodes(map), {initialEntityNode}}});
+      REQUIRE(
+        map.world()->defaultLayer()->children() == std::vector<Node*>{initialEntityNode});
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {}},
+      };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+      REQUIRE(map.load(
+        MapFormat::Unknown,
+        vm::bbox3d{8192.0},
+        std::move(game),
+        makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
+
+      CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+      CHECK(mapWasCleared.collected == std::set{&map});
+    }
+
     SECTION("Format detection")
     {
       auto gameConfig = MockGameConfig{};
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
-        {"Standard", {}},
         {"Valve", {}},
+        {"Standard", {}},
         {"Quake3", {}},
       };
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
 
       SECTION("Detect Valve Format Map")
       {
-        fixture.load(
-          "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
-          {.game = MockGameFixture{gameConfig}});
+        REQUIRE(map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map")));
 
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
         CHECK(map.world()->defaultLayer()->childCount() == 1);
@@ -108,9 +374,11 @@ TEST_CASE("Map")
 
       SECTION("Detect Standard Format Map")
       {
-        fixture.load(
-          "fixture/test/ui/MapDocumentTest/standardFormatMapWithoutFormatTag.map",
-          {.game = MockGameFixture{gameConfig}});
+        REQUIRE(map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map")));
 
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Standard);
         CHECK(map.world()->defaultLayer()->childCount() == 1);
@@ -118,12 +386,13 @@ TEST_CASE("Map")
 
       SECTION("detectEmptyMap")
       {
-        fixture.load(
-          "fixture/test/ui/MapDocumentTest/emptyMapWithoutFormatTag.map",
-          {.game = LoadGameFixture{"Quake"}});
+        REQUIRE(map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map")));
 
-        // an empty map detects as Valve because Valve is listed first in the Quake game
-        // config
+        // an empty map detects as Valve because Valve is listed first in the game config
         CHECK(map.world()->mapFormat() == mdl::MapFormat::Valve);
         CHECK(map.world()->defaultLayer()->childCount() == 0);
       }
@@ -131,45 +400,213 @@ TEST_CASE("Map")
       SECTION("mixedFormats")
       {
         // map has both Standard and Valve brushes
-        CHECK_THROWS_AS(
-          fixture.load(
-            "fixture/test/ui/MapDocumentTest/mixedFormats.map",
-            {.game = LoadGameFixture{"Quake"}}),
-          std::runtime_error);
+        CHECK(!map.load(
+          MapFormat::Unknown,
+          vm::bbox3d{8192.0},
+          std::move(game),
+          makeAbsolute("fixture/test/mdl/Map/mixedFormats.map")));
       }
     }
   }
 
+  SECTION("reload")
+  {
+    auto taskManager = createTestTaskManager();
+    auto logger = NullLogger{};
+    auto map = Map{*taskManager, logger};
+
+    auto gameConfig = MockGameConfig{};
+    gameConfig.fileFormats = std::vector<MapFormatConfig>{
+      {"Valve", {}},
+    };
+    auto game = std::make_unique<MockGame>(std::move(gameConfig));
+
+    const auto worldBounds = vm::bbox3d{8192.0};
+    const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
+
+    REQUIRE(map.load(MapFormat::Unknown, worldBounds, std::move(game), path));
+    REQUIRE(map.worldBounds() == worldBounds);
+    REQUIRE(map.game() != nullptr);
+    REQUIRE(map.path() == path);
+    REQUIRE(map.persistent());
+
+    SECTION("Notifies observers")
+    {
+      auto mapWasLoaded = Observer<Map&>{map.mapWasLoadedNotifier};
+      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+      REQUIRE(map.reload());
+
+      CHECK(mapWasCleared.collected == std::set{&map});
+      CHECK(mapWasLoaded.collected == std::set{&map});
+    }
+
+    SECTION("Updates world, world bounds, game and file path")
+    {
+      const auto* previousGame = map.game();
+
+      auto* transientEntityNode = new EntityNode{{}};
+      addNodes(map, {{parentForNodes(map), {transientEntityNode}}});
+      REQUIRE(
+        map.world()->defaultLayer()->children()
+        == std::vector<Node*>{transientEntityNode});
+
+      REQUIRE(map.reload());
+
+      CHECK(map.worldBounds() == worldBounds);
+      CHECK(map.game() == previousGame);
+      CHECK(map.path() == path);
+      CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+    }
+  }
+
+  SECTION("save")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
+    auto env = io::TestEnvironment{};
+
+    const auto filename = "test.map";
+    env.createFile(filename, R"(// Game: Test
+// Format: Valve
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"name" "entity1"
+}
+)");
+
+    const auto path = env.dir() / filename;
+
+    auto gameConfig = MockGameConfig{};
+    gameConfig.fileFormats = {{"Valve", ""}};
+    fixture.load(path, {.game = MockGameFixture{std::move(gameConfig)}});
+
+    REQUIRE(map.persistent());
+    REQUIRE(map.path() == path);
+
+    auto* entityNode = new EntityNode{Entity{{{"name", "entity2"}}}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+    auto mapWasSaved = Observer<Map&>{map.mapWasSavedNotifier};
+    auto modificationStateDidChange =
+      Observer<void>{map.modificationStateDidChangeNotifier};
+
+    REQUIRE(map.save());
+
+    CHECK(mapWasSaved.collected == std::set{&map});
+    CHECK(modificationStateDidChange.called);
+    CHECK(map.persistent());
+    CHECK(map.path() == path);
+
+    REQUIRE(env.fileExists(path));
+    CHECK(env.loadFile(path) == R"(// Game: Test
+// Format: Valve
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"name" "entity1"
+}
+// entity 2
+{
+"name" "entity2"
+}
+)");
+  }
+
   SECTION("saveAs")
   {
-    SECTION("Writing map header")
-    {
-      fixture.load(
-        "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
-        {.game = LoadGameFixture{"Quake"}});
-      REQUIRE(map.world()->mapFormat() == mdl::MapFormat::Valve);
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
 
-      auto env = io::TestEnvironment{};
+    fixture.create();
 
-      const auto newDocumentPath = std::filesystem::path{"test.map"};
-      map.saveAs(env.dir() / newDocumentPath);
-      REQUIRE(env.fileExists(newDocumentPath));
+    auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    REQUIRE(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
 
-      const auto newDocumentContent = env.loadFile(newDocumentPath);
-      auto istr = std::istringstream{newDocumentContent};
+    auto mapWasSaved = Observer<Map&>{map.mapWasSavedNotifier};
+    auto modificationStateDidChange =
+      Observer<void>{map.modificationStateDidChangeNotifier};
 
-      CHECK(
-        io::readMapHeader(istr)
-        == Result<std::pair<std::optional<std::string>, mdl::MapFormat>>{
-          std::pair{"Quake", mdl::MapFormat::Valve}});
-    }
+    auto env = io::TestEnvironment{};
+
+    const auto path = env.dir() / "test.map";
+    REQUIRE(map.saveAs(path));
+
+    CHECK(mapWasSaved.collected == std::set{&map});
+    CHECK(modificationStateDidChange.called);
+    CHECK(map.persistent());
+    CHECK(map.path() == path);
+
+    REQUIRE(env.fileExists(path));
+    CHECK(env.loadFile(path) == R"(// Game: Test
+// Format: Standard
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"key" "value"
+}
+)");
   }
 
   SECTION("exportAs")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
     auto env = io::TestEnvironment{};
 
-    SECTION("omit layers from export")
+    SECTION("Export as obj")
+    {
+      fixture.create();
+
+      const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+
+      auto* brushNode = new BrushNode{
+        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+        | kdl::value()};
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
+
+      const auto objFilename = "test.obj";
+      const auto mtlFilename = "test.mtl";
+
+      REQUIRE(map.exportAs(io::ObjExportOptions{
+        env.dir() / objFilename,
+        io::ObjMtlPathMode::RelativeToExportPath,
+      }));
+
+      CHECK(env.fileExists(objFilename));
+      CHECK(env.fileExists(mtlFilename));
+      CHECK(!map.persistent());
+      CHECK(map.path() == "unnamed.map");
+    }
+
+    SECTION("Export as map")
+    {
+      fixture.create();
+
+      auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+      const auto filename = "test.map";
+      REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / filename}));
+      CHECK(env.fileExists(filename));
+      CHECK(!map.persistent());
+      CHECK(map.path() == "unnamed.map");
+    }
+
+    SECTION("Omit layers from export")
     {
       const auto newDocumentPath = std::filesystem::path{"test.map"};
 
@@ -182,8 +619,7 @@ TEST_CASE("Map")
         auto* layerNode = new mdl::LayerNode{std::move(layer)};
         addNodes(map, {{map.world(), {layerNode}}});
 
-        REQUIRE(
-          map.exportAs(io::MapExportOptions{env.dir() / newDocumentPath}).is_success());
+        REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / newDocumentPath}));
         REQUIRE(env.fileExists(newDocumentPath));
       }
 
@@ -194,8 +630,122 @@ TEST_CASE("Map")
     }
   }
 
+  SECTION("clear")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+    fixture.create();
+
+    auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+    selectNodes(map, {entityNode});
+    translateSelection(map, {16, 16, 16});
+
+    map.editorContext().setBlockSelection(true);
+
+    auto mapWillBeCleared = Observer<Map&>{map.mapWillBeClearedNotifier};
+    auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+
+    REQUIRE(map.canUndoCommand());
+    REQUIRE(map.canRepeatCommands());
+    REQUIRE(map.modificationCount() > 0);
+    REQUIRE(map.modified());
+
+    map.clear();
+
+    CHECK(!map.canUndoCommand());
+    CHECK(!map.canRepeatCommands());
+    CHECK(!map.editorContext().blockSelection());
+    CHECK(map.selection() == Selection{});
+    CHECK(map.world() == nullptr);
+    CHECK(map.game() != nullptr);
+    CHECK(map.modificationCount() == 0);
+    CHECK(!map.modified());
+
+    CHECK(mapWillBeCleared.collected == std::set{&map});
+    CHECK(mapWasCleared.collected == std::set{&map});
+  }
+
+  SECTION("persistent")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
+    SECTION("A newly created map is transient")
+    {
+      fixture.create();
+
+      CHECK(!map.persistent());
+    }
+
+    SECTION("A loaded map is persistent")
+    {
+      auto env = io::TestEnvironment{};
+
+      const auto filename = "test.map";
+      env.createFile(filename, R"(// Game: Test
+// Format: Valve
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"name" "entity1"
+}
+)");
+
+      const auto path = env.dir() / filename;
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = {{"Valve", ""}};
+      fixture.load(path, {.game = MockGameFixture{std::move(gameConfig)}});
+
+      CHECK(map.persistent());
+
+      SECTION("If the backing file is deleted, the map is transient again")
+      {
+        REQUIRE(env.remove(filename));
+
+        CHECK(!map.persistent());
+      }
+    }
+  }
+
+  SECTION("modified")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
+
+    fixture.create();
+    CHECK(!map.modified());
+
+    auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+    CHECK(map.modified());
+
+    SECTION("Saving resets the modified flag")
+    {
+      auto env = io::TestEnvironment{};
+      REQUIRE(map.saveAs(env.dir() / "test.map"));
+
+      CHECK(!map.modified());
+    }
+
+    SECTION("Clearing resets the modified flag")
+    {
+      map.clear();
+
+      CHECK(!map.modified());
+    }
+  }
+
   SECTION("selection")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     SECTION("brushFaces")
@@ -212,20 +762,16 @@ TEST_CASE("Map")
       selectBrushFaces(map, {{brushNode, *topFaceIndex}});
       CHECK_THAT(
         map.selection().brushFaces,
-        Catch::Matchers::Equals(
-          std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+        Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 
       // deselect it
       deselectBrushFaces(map, {{brushNode, *topFaceIndex}});
-      CHECK_THAT(
-        map.selection().brushFaces,
-        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
+      CHECK_THAT(map.selection().brushFaces, Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       // select the brush
       selectNodes(map, {brushNode});
       CHECK_THAT(
-        map.selection().brushes,
-        Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{brushNode}));
+        map.selection().brushes, Equals(std::vector<mdl::BrushNode*>{brushNode}));
 
       // translate the brush
       translateSelection(map, vm::vec3d{10.0, 0.0, 0.0});
@@ -236,24 +782,17 @@ TEST_CASE("Map")
       map.undoCommand();
       CHECK(brushNode->logicalBounds().center() == vm::vec3d{0, 0, 0});
       CHECK_THAT(
-        map.selection().brushes,
-        Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{brushNode}));
-      CHECK_THAT(
-        map.selection().brushFaces,
-        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
+        map.selection().brushes, Equals(std::vector<mdl::BrushNode*>{brushNode}));
+      CHECK_THAT(map.selection().brushFaces, Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       map.undoCommand();
-      CHECK_THAT(
-        map.selection().brushes, Catch::Matchers::Equals(std::vector<mdl::BrushNode*>{}));
-      CHECK_THAT(
-        map.selection().brushFaces,
-        Catch::Matchers::Equals(std::vector<mdl::BrushFaceHandle>{}));
+      CHECK_THAT(map.selection().brushes, Equals(std::vector<mdl::BrushNode*>{}));
+      CHECK_THAT(map.selection().brushFaces, Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       map.undoCommand();
       CHECK_THAT(
         map.selection().brushFaces,
-        Catch::Matchers::Equals(
-          std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+        Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
     }
 
     SECTION("allEntities")
@@ -294,8 +833,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
           }
         }
 
@@ -307,8 +845,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
           }
         }
 
@@ -320,8 +857,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
           }
         }
 
@@ -333,8 +869,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
           }
         }
 
@@ -346,8 +881,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{groupedEntityNode}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{groupedEntityNode}));
           }
 
           AND_WHEN("A top level entity node is selected")
@@ -358,7 +892,7 @@ TEST_CASE("Map")
             {
               CHECK_THAT(
                 map.selection().allEntities(),
-                Catch::Matchers::UnorderedEquals(
+                UnorderedEquals(
                   std::vector<EntityNodeBase*>{groupedEntityNode, topLevelEntityNode}));
             }
           }
@@ -372,8 +906,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{topLevelEntityNode}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{topLevelEntityNode}));
           }
         }
 
@@ -403,8 +936,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              Catch::Matchers::UnorderedEquals(
-                std::vector<EntityNodeBase*>{topLevelBrushEntityNode}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{topLevelBrushEntityNode}));
           }
 
           AND_WHEN("Another node in the same entity node is selected")
@@ -415,8 +947,7 @@ TEST_CASE("Map")
             {
               CHECK_THAT(
                 map.selection().allEntities(),
-                Catch::Matchers::UnorderedEquals(
-                  std::vector<EntityNodeBase*>{topLevelBrushEntityNode}));
+                UnorderedEquals(std::vector<EntityNodeBase*>{topLevelBrushEntityNode}));
             }
           }
 
@@ -428,7 +959,7 @@ TEST_CASE("Map")
             {
               CHECK_THAT(
                 map.selection().allEntities(),
-                Catch::Matchers::UnorderedEquals(std::vector<EntityNodeBase*>{
+                UnorderedEquals(std::vector<EntityNodeBase*>{
                   topLevelBrushEntityNode, topLevelEntityNode}));
             }
           }
@@ -493,8 +1024,7 @@ TEST_CASE("Map")
 
       selectNodes(map, nodes);
 
-      CHECK_THAT(
-        map.selection().allBrushes(), Catch::Matchers::UnorderedEquals(brushNodes));
+      CHECK_THAT(map.selection().allBrushes(), UnorderedEquals(brushNodes));
     }
   }
 
@@ -543,6 +1073,9 @@ TEST_CASE("Map")
         {},
         std::make_unique<EntityClassNameTagMatcher>("brush_entity", ""),
       }};
+
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create({.game = MockGameFixture{gameConfig}});
 
     map.entityDefinitionManager().setDefinitions({
@@ -751,11 +1284,8 @@ TEST_CASE("Map")
         const auto faceHandle = BrushFaceHandle{brushNode, 0u};
         CHECK_FALSE(faceHandle.face().hasTag(tag));
 
-        auto request = ChangeBrushFaceAttributesRequest{};
-        request.setContentFlags(1);
-
         selectBrushFaces(map, {faceHandle});
-        setBrushFaceAttributes(map, request);
+        setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{1}});
         deselectAll(map);
 
         const auto& faces = brushNode->brush().faces();
@@ -1143,25 +1673,10 @@ TEST_CASE("Map")
 
   SECTION("undoCommand")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
-    SECTION("Undoing a rotation removes angle key")
-    {
-      auto* entityNode = new EntityNode{Entity{{
-        {EntityPropertyKeys::Classname, "test"},
-      }}};
-
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
-      CHECK(!entityNode->entity().hasProperty("angle"));
-
-      selectNodes(map, {entityNode});
-      rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(15.0));
-      CHECK(entityNode->entity().hasProperty("angle"));
-      CHECK(*entityNode->entity().property("angle") == "15");
-
-      map.undoCommand();
-      CHECK(!entityNode->entity().hasProperty("angle"));
-    }
 
     SECTION("Update materials")
     {
@@ -1172,13 +1687,13 @@ TEST_CASE("Map")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       const auto* material = map.materialManager().material("coffin1");
-      CHECK(material != nullptr);
-      CHECK(material->usageCount() == 6u);
+      REQUIRE(material != nullptr);
+      REQUIRE(material->usageCount() == 6u);
 
-      for (const auto& face : brushNode->brush().faces())
-      {
-        CHECK(face.material() == material);
-      }
+      REQUIRE_THAT(
+        brushNode->brush().faces(),
+        AllMatch(Predicate<const BrushFace&>(
+          [&](const auto& face) { return face.material() == material; })));
 
       SECTION("translateSelection")
       {
@@ -1207,9 +1722,7 @@ TEST_CASE("Map")
 
         selectBrushFaces(map, {{brushNode, *topFaceIndex}});
 
-        auto request = ChangeBrushFaceAttributesRequest{};
-        request.setXOffset(12.34f);
-        REQUIRE(setBrushFaceAttributes(map, request));
+        REQUIRE(setBrushFaceAttributes(map, {.xOffset = SetValue{12.34f}}));
 
         map.undoCommand(); // undo move
         CHECK(material->usageCount() == 6u);
@@ -1220,15 +1733,17 @@ TEST_CASE("Map")
         REQUIRE(!map.selection().hasBrushFaces());
       }
 
-      for (const auto& face : brushNode->brush().faces())
-      {
-        CHECK(face.material() == material);
-      }
+      CHECK_THAT(
+        brushNode->brush().faces(),
+        AllMatch(Predicate<const BrushFace&>(
+          [&](const auto& face) { return face.material() == material; })));
     }
   }
 
   SECTION("canRepeatCommands")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     CHECK_FALSE(map.canRepeatCommands());
@@ -1249,6 +1764,8 @@ TEST_CASE("Map")
 
   SECTION("repeatCommands")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     SECTION("Repeat translation")
@@ -1501,6 +2018,8 @@ TEST_CASE("Map")
 
   SECTION("throwExceptionDuringCommand")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     CHECK_THROWS_AS(map.throwExceptionDuringCommand(), CommandProcessorException);
@@ -1508,6 +2027,8 @@ TEST_CASE("Map")
 
   SECTION("Duplicate and Copy / Paste behave identically")
   {
+    auto fixture = MapFixture{};
+    auto& map = fixture.map();
     fixture.create();
 
     enum class Mode
@@ -1547,7 +2068,7 @@ TEST_CASE("Map")
 
       SECTION("If the group is not linked")
       {
-        openGroup(map, groupNode);
+        openGroup(map, *groupNode);
 
         selectNodes(map, {brushNode});
         duplicateOrCopyPaste();
@@ -1569,7 +2090,7 @@ TEST_CASE("Map")
 
         deselectAll(map);
         selectNodes(map, {groupNode});
-        openGroup(map, groupNode);
+        openGroup(map, *groupNode);
 
         selectNodes(map, {entityNode});
         duplicateOrCopyPaste();
@@ -1614,7 +2135,7 @@ TEST_CASE("Map")
       auto* linkedGroupNode = createLinkedDuplicate(map);
       REQUIRE(linkedGroupNode->linkId() == groupNode->linkId());
 
-      openGroup(map, groupNode);
+      openGroup(map, *groupNode);
 
       selectNodes(map, {brushNode});
       duplicateOrCopyPaste();
@@ -1641,7 +2162,7 @@ TEST_CASE("Map")
       const auto linkedInnerGroupNode = getChildAs<GroupNode>(*linkedOuterGroupNode);
       REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
-      openGroup(map, outerGroupNode);
+      openGroup(map, *outerGroupNode);
 
       selectNodes(map, {innerGroupNode});
       duplicateOrCopyPaste();

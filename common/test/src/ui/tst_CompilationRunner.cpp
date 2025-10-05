@@ -53,6 +53,8 @@ namespace tb::ui
 using namespace std::chrono_literals;
 using namespace std::string_literals;
 
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -228,7 +230,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     REQUIRE_FALSE(exec.errored);
     REQUIRE(exec.ended);
 
-    CHECK_THAT(output.toPlainText().toStdString(), Catch::Matchers::ContainsSubstring(R"(1
+    CHECK_THAT(output.toPlainText().toStdString(), ContainsSubstring(R"(1
 2
 str
 escaped str)"));
@@ -499,7 +501,7 @@ TEST_CASE("CompilationRunner")
   auto& map = fixture.map();
 
   fixture.load(
-    "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
+    "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map",
     {.game = mdl::LoadGameFixture{"Quake"}});
 
   const auto testWorkDir = std::string{"/some/path"};

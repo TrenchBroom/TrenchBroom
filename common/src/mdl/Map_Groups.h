@@ -30,7 +30,7 @@ class Node;
 
 Node* currentGroupOrWorld(const Map& map);
 
-void openGroup(Map& map, GroupNode* groupNode);
+void openGroup(Map& map, GroupNode& groupNode);
 void closeGroup(Map& map);
 
 GroupNode* groupSelectedNodes(Map& map, const std::string& name);

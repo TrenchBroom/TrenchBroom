@@ -20,10 +20,10 @@
 #include "UVOffsetTool.h"
 
 #include "mdl/BrushFace.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
@@ -111,10 +111,12 @@ public:
       return true;
     }
 
-    auto request = mdl::ChangeBrushFaceAttributesRequest{};
-    request.setOffset(corrected);
-
-    setBrushFaceAttributes(m_map, request);
+    setBrushFaceAttributes(
+      m_map,
+      {
+        .xOffset = mdl::SetValue{corrected.x()},
+        .yOffset = mdl::SetValue{corrected.y()},
+      });
 
     m_lastPoint = m_lastPoint + snapped;
     return true;

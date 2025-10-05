@@ -42,7 +42,6 @@
 
 namespace tb::ui
 {
-// SingleSelectionListWidget
 
 SingleSelectionListWidget::SingleSelectionListWidget(QWidget* parent)
   : QListWidget{parent}
@@ -188,24 +187,28 @@ void EntityDefinitionFileChooser::updateControls()
 
   for (const auto& spec : specs)
   {
-    const auto& path = spec.path();
+    const auto str = spec.asString();
 
     auto* item = new QListWidgetItem();
-    item->setData(Qt::DisplayRole, io::pathAsQString(path.filename()));
-    item->setData(Qt::UserRole, QVariant::fromValue(spec));
+    item->setData(Qt::DisplayRole, io::pathAsQString(spec.path.filename()));
+    item->setData(Qt::UserRole, QVariant::fromValue(QString::fromStdString(str)));
 
     m_builtin->addItem(item);
   }
 
   const auto spec = entityDefinitionFile(map);
-  if (spec.builtin())
+  if (!spec || spec->type == mdl::EntityDefinitionFileSpec::Type::Builtin)
   {
-    if (const auto index = kdl::index_of(specs, spec))
+    if (spec)
     {
-      // the chosen builtin entity definition file might not be in the game config anymore
-      // if the config has changed after the definition file was chosen
-      m_builtin->setCurrentRow(static_cast<int>(*index));
+      if (const auto index = kdl::index_of(specs, *spec))
+      {
+        // the chosen builtin entity definition file might not be in the game config
+        // anymore if the config has changed after the definition file was chosen
+        m_builtin->setCurrentRow(static_cast<int>(*index));
+      }
     }
+
     m_externalLabel->setText(tr("use builtin"));
 
     auto lightText = QPalette{};
@@ -216,11 +219,15 @@ void EntityDefinitionFileChooser::updateControls()
     auto font = m_externalLabel->font();
     font.setStyle(QFont::StyleOblique);
     m_externalLabel->setFont(font);
+
+    m_reloadExternal->setEnabled(true);
   }
   else
   {
+    assert(spec && spec->type == mdl::EntityDefinitionFileSpec::Type::External);
+
     m_builtin->clearSelection();
-    m_externalLabel->setText(io::pathAsQString(spec.path()));
+    m_externalLabel->setText(io::pathAsQString(spec->path));
 
     auto normalPal = QPalette{};
     m_externalLabel->setPalette(normalPal);
@@ -228,9 +235,9 @@ void EntityDefinitionFileChooser::updateControls()
     auto font = m_externalLabel->font();
     font.setStyle(QFont::StyleNormal);
     m_externalLabel->setFont(font);
-  }
 
-  m_reloadExternal->setEnabled(entityDefinitionFile(map).external());
+    m_reloadExternal->setEnabled(true);
+  }
 }
 
 void EntityDefinitionFileChooser::builtinSelectionChanged()
@@ -239,12 +246,14 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
   {
 
     auto* item = m_builtin->selectedItems().first();
-    auto spec = item->data(Qt::UserRole).value<mdl::EntityDefinitionFileSpec>();
-
-    auto& map = m_document.map();
-    if (entityDefinitionFile(map) != spec)
+    const auto specStr = item->data(Qt::UserRole).value<QString>();
+    if (const auto spec = mdl::EntityDefinitionFileSpec::parse(specStr.toStdString()))
     {
-      setEntityDefinitionFile(map, spec);
+      auto& map = m_document.map();
+      if (entityDefinitionFile(map) != *spec)
+      {
+        setEntityDefinitionFile(map, *spec);
+      }
     }
   }
 }

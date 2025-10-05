@@ -19,8 +19,12 @@
 
 #include "EntityDefinitionFileSpec.h"
 
+#include "Macros.h"
+
 #include "kdl/reflection_impl.h"
 #include "kdl/string_compare.h"
+#include <kdl/path_utils.h>
+#include <kdl/string_utils.h>
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -44,84 +48,51 @@ std::ostream& operator<<(std::ostream& lhs, const EntityDefinitionFileSpec::Type
   case EntityDefinitionFileSpec::Type::External:
     lhs << "external";
     break;
-  case EntityDefinitionFileSpec::Type::Unset:
-    lhs << "unset";
-    break;
   }
   return lhs;
 }
 
-EntityDefinitionFileSpec::EntityDefinitionFileSpec() = default;
-
-EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
+std::optional<EntityDefinitionFileSpec> EntityDefinitionFileSpec::parse(
+  const std::string& str)
 {
   if (kdl::cs::str_is_prefix(str, "external:"))
   {
-    return EntityDefinitionFileSpec::external(str.substr(9));
+    return EntityDefinitionFileSpec::makeExternal(kdl::parse_path(str.substr(9)));
   }
 
   if (kdl::cs::str_is_prefix(str, "builtin:"))
   {
-    return EntityDefinitionFileSpec::builtin(str.substr(8));
+    return EntityDefinitionFileSpec::makeBuiltin(kdl::parse_path(str.substr(8)));
   }
 
-  // If the location spec is missing, we assume that an absolute path indicates an
-  // external file spec, and a relative path indicates a builtin file spec.
-  const auto path = std::filesystem::path{str};
-  return path.is_absolute() ? EntityDefinitionFileSpec::external(path)
-                            : EntityDefinitionFileSpec::builtin(path);
+  return std::nullopt;
 }
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(
+EntityDefinitionFileSpec EntityDefinitionFileSpec::makeBuiltin(
   const std::filesystem::path& path)
 {
   return {Type::Builtin, path};
 }
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::external(
+EntityDefinitionFileSpec EntityDefinitionFileSpec::makeExternal(
   const std::filesystem::path& path)
 {
   return {Type::External, path};
 }
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::unset()
-{
-  return {};
-}
-
-bool EntityDefinitionFileSpec::valid() const
-{
-  return m_type != Type::Unset;
-}
-
-bool EntityDefinitionFileSpec::builtin() const
-{
-  return m_type == Type::Builtin;
-}
-
-bool EntityDefinitionFileSpec::external() const
-{
-  return m_type == Type::External;
-}
-
-const std::filesystem::path& EntityDefinitionFileSpec::path() const
-{
-  return m_path;
-}
-
 std::string EntityDefinitionFileSpec::asString() const
 {
-  return !valid()    ? std::string{}
-         : builtin() ? fmt::format("builtin:{}", m_path)
-                     : fmt::format("external:{}", m_path);
+  // to avoid backslashes being misinterpreted as escape sequences
+  const auto forwardPath = kdl::str_replace_every(path.string(), "\\", "/");
+
+  switch (type)
+  {
+  case Type::Builtin:
+    return fmt::format("builtin:{}", forwardPath);
+  case Type::External:
+    return fmt::format("external:{}", forwardPath);
+    switchDefault();
+  }
 }
 
-EntityDefinitionFileSpec::EntityDefinitionFileSpec(
-  const Type type, std::filesystem::path path)
-  : m_type{type}
-  , m_path{std::move(path)}
-{
-  assert(valid());
-  assert(!m_path.empty());
-}
 } // namespace tb::mdl

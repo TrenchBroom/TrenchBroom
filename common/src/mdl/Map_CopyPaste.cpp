@@ -40,6 +40,7 @@
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/ranges/to.h"
@@ -240,7 +241,9 @@ bool pasteNodes(Map& map, const std::vector<Node*>& nodes)
 bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 {
   assert(!faces.empty());
-  return setBrushFaceAttributesExceptContentFlags(map, faces.back().attributes());
+
+  const auto update = copyAllExceptContentFlags(faces.back().attributes());
+  return setBrushFaceAttributes(map, update);
 }
 
 } // namespace

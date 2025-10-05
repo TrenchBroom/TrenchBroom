@@ -24,12 +24,12 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
 namespace tb::mdl
@@ -66,26 +66,11 @@ bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
          | kdl::is_success();
 }
 
-bool setBrushFaceAttributes(Map& map, const BrushFaceAttributes& attributes)
-{
-  auto request = ChangeBrushFaceAttributesRequest{};
-  request.setAll(attributes);
-  return setBrushFaceAttributes(map, request);
-}
-
-bool setBrushFaceAttributesExceptContentFlags(
-  Map& map, const BrushFaceAttributes& attributes)
-{
-  auto request = ChangeBrushFaceAttributesRequest{};
-  request.setAllExceptContentFlags(attributes);
-  return setBrushFaceAttributes(map, request);
-}
-
-bool setBrushFaceAttributes(Map& map, const ChangeBrushFaceAttributesRequest& request)
+bool setBrushFaceAttributes(Map& map, const UpdateBrushFaceAttributes& update)
 {
   return applyAndSwap(
-    map, request.name(), map.selection().allBrushFaces(), [&](BrushFace& brushFace) {
-      request.evaluate(brushFace);
+    map, "Change Face Attributes", map.selection().allBrushFaces(), [&](auto& brushFace) {
+      evaluate(update, brushFace);
       return true;
     });
 }
@@ -98,7 +83,7 @@ bool copyUV(
   const WrapStyle wrapStyle)
 {
   return applyAndSwap(
-    map, "Copy UV Alignment", map.selection().brushFaces, [&](BrushFace& face) {
+    map, "Copy UV Alignment", map.selection().brushFaces, [&](auto& face) {
       face.copyUVCoordSystemFromFace(
         coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
@@ -111,15 +96,15 @@ bool translateUV(
   const vm::vec3f& cameraRight,
   const vm::vec2f& delta)
 {
-  return applyAndSwap(map, "Move UV", map.selection().brushFaces, [&](BrushFace& face) {
-    face.moveUV(vm::vec3d(cameraUp), vm::vec3d(cameraRight), delta);
+  return applyAndSwap(map, "Translate UV", map.selection().brushFaces, [&](auto& face) {
+    face.moveUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
     return true;
   });
 }
 
 bool rotateUV(Map& map, const float angle)
 {
-  return applyAndSwap(map, "Rotate UV", map.selection().brushFaces, [&](BrushFace& face) {
+  return applyAndSwap(map, "Rotate UV", map.selection().brushFaces, [&](auto& face) {
     face.rotateUV(angle);
     return true;
   });
@@ -127,7 +112,7 @@ bool rotateUV(Map& map, const float angle)
 
 bool shearUV(Map& map, const vm::vec2f& factors)
 {
-  return applyAndSwap(map, "Shear UV", map.selection().brushFaces, [&](BrushFace& face) {
+  return applyAndSwap(map, "Shear UV", map.selection().brushFaces, [&](auto& face) {
     face.shearUV(factors);
     return true;
   });
@@ -146,9 +131,9 @@ bool flipUV(
     map,
     isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     map.selection().brushFaces,
-    [&](BrushFace& face) {
+    [&](auto& face) {
       face.flipUV(
-        vm::vec3d(cameraUp), vm::vec3d(cameraRight), cameraRelativeFlipDirection);
+        vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, cameraRelativeFlipDirection);
       return true;
     });
 }

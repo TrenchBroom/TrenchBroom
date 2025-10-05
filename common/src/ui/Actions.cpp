@@ -2100,14 +2100,6 @@ void ActionManager::createDebugMenu()
     [](const auto& context) { return context.hasDocument(); },
   }));
   debugMenu.addItem(addAction(Action{
-    "Menu/Debug/Clip Brush...",
-    QObject::tr("Clip Brush..."),
-    ActionContext::Any,
-    QKeySequence{},
-    [](auto& context) { context.frame().debugClipBrush(); },
-    [](const auto& context) { return context.hasDocument(); },
-  }));
-  debugMenu.addItem(addAction(Action{
     "Menu/Debug/Crash...",
     QObject::tr("Crash..."),
     ActionContext::Any,

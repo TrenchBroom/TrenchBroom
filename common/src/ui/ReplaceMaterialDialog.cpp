@@ -25,7 +25,6 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Selection.h"
@@ -33,7 +32,8 @@
 #include "mdl/NodeQueries.h"
 #include "mdl/PushSelection.h"
 #include "mdl/Transaction.h"
-#include "mdl/WorldNode.h" // IWYU pragma: keep
+#include "mdl/UpdateBrushFaceAttributes.h" // IWYU pragma: keep
+#include "mdl/WorldNode.h"                 // IWYU pragma: keep
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowser.h"
@@ -57,14 +57,11 @@ void replaceMaterials(
   const std::vector<mdl::BrushFaceHandle>& faces,
   const std::string& materialName)
 {
-  auto request = mdl::ChangeBrushFaceAttributesRequest{};
-  request.setMaterialName(materialName);
-
   const auto pushSelection = mdl::PushSelection{map};
 
   auto transaction = mdl::Transaction{map, "Replace Materials"};
   selectBrushFaces(map, faces);
-  if (!setBrushFaceAttributes(map, request))
+  if (!setBrushFaceAttributes(map, {.materialName = materialName}))
   {
     transaction.cancel();
     return;

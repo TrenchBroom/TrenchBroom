@@ -28,18 +28,16 @@
 namespace tb::mdl
 {
 class BrushFaceAttributes;
-class ChangeBrushFaceAttributesRequest;
 class Map;
 class UVCoordSystemSnapshot;
+
+struct UpdateBrushFaceAttributes;
 
 enum class WrapStyle;
 
 bool createBrush(Map& map, const std::vector<vm::vec3d>& points);
 
-bool setBrushFaceAttributes(Map& map, const BrushFaceAttributes& attributes);
-bool setBrushFaceAttributesExceptContentFlags(
-  Map& map, const BrushFaceAttributes& attributes);
-bool setBrushFaceAttributes(Map& map, const ChangeBrushFaceAttributesRequest& request);
+bool setBrushFaceAttributes(Map& map, const UpdateBrushFaceAttributes& update);
 
 bool copyUV(
   Map& map,

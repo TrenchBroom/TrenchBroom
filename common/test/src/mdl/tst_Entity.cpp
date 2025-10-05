@@ -35,7 +35,7 @@
 
 namespace tb::mdl
 {
-
+using namespace Catch::Matchers;
 using namespace PropertyValueTypes;
 
 TEST_CASE("EntityTest")
@@ -123,7 +123,7 @@ TEST_CASE("EntityTest")
     auto entity = Entity{initialProperties};
     setDefaultProperties(definition, entity, mode);
 
-    CHECK_THAT(entity.properties(), Catch::Matchers::UnorderedEquals(expectedProperties));
+    CHECK_THAT(entity.properties(), UnorderedEquals(expectedProperties));
   }
 
   SECTION("definitionBounds")
@@ -291,12 +291,12 @@ TEST_CASE("EntityTest")
       entity.addOrUpdateProperty("newKey", "newValue", true);
       CHECK_THAT(
         entity.protectedProperties(),
-        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        UnorderedEquals(std::vector<std::string>{"newKey"}));
 
       entity.addOrUpdateProperty("test", "anotherValue", true);
       CHECK_THAT(
         entity.protectedProperties(),
-        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        UnorderedEquals(std::vector<std::string>{"newKey"}));
     }
 
     SECTION("Updates cached model transformation")
@@ -366,7 +366,7 @@ TEST_CASE("EntityTest")
       entity.renameProperty("originalKey", "newKey");
       CHECK_THAT(
         entity.protectedProperties(),
-        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        UnorderedEquals(std::vector<std::string>{"newKey"}));
     }
 
     SECTION("Updates cached model transformation")
@@ -429,13 +429,13 @@ TEST_CASE("EntityTest")
       entity.addOrUpdateProperty("newKey", "value", true);
       REQUIRE_THAT(
         entity.protectedProperties(),
-        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        UnorderedEquals(std::vector<std::string>{"newKey"}));
 
       entity.removeProperty("newKey");
       REQUIRE(!entity.hasProperty("newKey"));
       CHECK_THAT(
         entity.protectedProperties(),
-        Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
+        UnorderedEquals(std::vector<std::string>{"newKey"}));
     }
 
     SECTION("Updates cached model transformation")

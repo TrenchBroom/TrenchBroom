@@ -19,56 +19,36 @@
 
 #pragma once
 
-// FIXME: there must not be dependencies from Assets or Model or Renderer to Qt
-#include <QMetaType>
-
 #include "kdl/reflection_decl.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 namespace tb::mdl
 {
 
-class EntityDefinitionFileSpec
+struct EntityDefinitionFileSpec
 {
-private:
   enum class Type
   {
     Builtin,
     External,
-    Unset
   };
 
   friend std::ostream& operator<<(std::ostream& lhs, Type rhs);
 
-  Type m_type = Type::Unset;
-  std::filesystem::path m_path;
+  Type type;
+  std::filesystem::path path;
 
-  kdl_reflect_decl(EntityDefinitionFileSpec, m_type, m_path);
+  kdl_reflect_decl(EntityDefinitionFileSpec, type, path);
 
 public:
-  EntityDefinitionFileSpec();
-
-  static EntityDefinitionFileSpec parse(const std::string& str);
-  static EntityDefinitionFileSpec builtin(const std::filesystem::path& path);
-  static EntityDefinitionFileSpec external(const std::filesystem::path& path);
-  static EntityDefinitionFileSpec unset();
-
-  bool valid() const;
-  bool builtin() const;
-  bool external() const;
-
-  const std::filesystem::path& path() const;
+  static std::optional<EntityDefinitionFileSpec> parse(const std::string& str);
+  static EntityDefinitionFileSpec makeBuiltin(const std::filesystem::path& path);
+  static EntityDefinitionFileSpec makeExternal(const std::filesystem::path& path);
 
   std::string asString() const;
-
-private:
-  EntityDefinitionFileSpec(Type type, std::filesystem::path path);
 };
 
 } // namespace tb::mdl
-
-
-// Allow storing this class in a QVariant
-Q_DECLARE_METATYPE(tb::mdl::EntityDefinitionFileSpec)

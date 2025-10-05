@@ -99,7 +99,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReference.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.cpp
-        ${COMMON_SOURCE_DIR}/mdl/ChangeBrushFaceAttributesRequest.cpp
         ${COMMON_SOURCE_DIR}/mdl/CircleShape.cpp
         ${COMMON_SOURCE_DIR}/mdl/ColorRange.cpp
         ${COMMON_SOURCE_DIR}/mdl/Command.cpp
@@ -210,6 +209,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/SetLinkIdsCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/SetLockStateCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/SetVisibilityCommand.cpp
+        ${COMMON_SOURCE_DIR}/mdl/SoftMapBounds.cpp
         ${COMMON_SOURCE_DIR}/mdl/SoftMapBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/SwapNodeContentsCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/Tag.cpp
@@ -222,6 +222,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/mdl/Transaction.cpp
         ${COMMON_SOURCE_DIR}/mdl/UndoableCommand.cpp
+        ${COMMON_SOURCE_DIR}/mdl/UpdateBrushFaceAttributes.cpp
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsCommandBase.cpp
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsHelper.cpp
@@ -619,7 +620,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/BrushGeometry.h
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.h
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.h
-        ${COMMON_SOURCE_DIR}/mdl/ChangeBrushFaceAttributesRequest.h
         ${COMMON_SOURCE_DIR}/mdl/CircleShape.h
         ${COMMON_SOURCE_DIR}/mdl/ColorRange.h
         ${COMMON_SOURCE_DIR}/mdl/Command.h
@@ -768,6 +768,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/Transaction.h
         ${COMMON_SOURCE_DIR}/mdl/TransactionScope.h
         ${COMMON_SOURCE_DIR}/mdl/UndoableCommand.h
+        ${COMMON_SOURCE_DIR}/mdl/UpdateBrushFaceAttributes.h
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsCommand.h
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsCommandBase.h
         ${COMMON_SOURCE_DIR}/mdl/UpdateLinkedGroupsHelper.h
