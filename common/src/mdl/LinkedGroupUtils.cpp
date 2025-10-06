@@ -26,7 +26,8 @@
 #include "mdl/NodeContents.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/grouped_range.h"
+#include "kdl/range.h"
+#include "kdl/ranges/chunk_by_view.h"
 #include "kdl/ranges/to.h"
 #include "kdl/ranges/zip_transform_view.h"
 #include "kdl/result.h"
@@ -707,9 +708,10 @@ std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes)
 {
   const auto allGroupNodes =
     kdl::vec_sort(collectGroups(nodes), compareGroupNodesByLinkId);
-  const auto groupNodesByLinkId = kdl::make_grouped_range(
-    allGroupNodes,
-    [](const auto* lhs, const auto* rhs) { return lhs->linkId() == rhs->linkId(); });
+  auto groupNodesByLinkId =
+    allGroupNodes | kdl::views::chunk_by([](const auto* lhs, const auto* rhs) {
+      return lhs->linkId() == rhs->linkId();
+    });
 
   auto errors = std::vector<Error>{};
   for (const auto groupNodesWithId : groupNodesByLinkId)
@@ -763,12 +765,13 @@ std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
       | kdl::ranges::to<std::vector>()),
     compareGroupNodesByLinkId);
 
-  const auto groupsByLinkId = kdl::make_grouped_range(
-    groupsToAdd,
-    [](const auto* lhs, const auto* rhs) { return lhs->linkId() == rhs->linkId(); });
+  auto groupNodesByLinkId =
+    groupsToAdd | kdl::views::chunk_by([](const auto* lhs, const auto* rhs) {
+      return lhs->linkId() == rhs->linkId();
+    });
 
   auto errors = std::vector<Error>{};
-  for (const auto& linkedGroupsToAdd : groupsByLinkId)
+  for (const auto& linkedGroupsToAdd : groupNodesByLinkId)
   {
     const auto& linkId = linkedGroupsToAdd.front()->linkId();
     const auto existingLinkedNodes = collectNodesWithLinkId({&worldNode}, linkId);

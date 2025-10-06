@@ -20,7 +20,6 @@ set(KDL_HEADER
   "${KDL_SOURCE_DIR}/kdl/filesystem_utils.cpp"
   "${KDL_SOURCE_DIR}/kdl/filesystem_utils.h"
   "${KDL_SOURCE_DIR}/kdl/functional.h"
-  "${KDL_SOURCE_DIR}/kdl/grouped_range.h"
   "${KDL_SOURCE_DIR}/kdl/hash_utils.h"
   "${KDL_SOURCE_DIR}/kdl/intrusive_circular_list_forward.h"
   "${KDL_SOURCE_DIR}/kdl/intrusive_circular_list.h"
