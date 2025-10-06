@@ -26,7 +26,6 @@
 #include "mdl/NodeContents.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/range.h"
 #include "kdl/ranges/chunk_by_view.h"
 #include "kdl/ranges/to.h"
 #include "kdl/ranges/zip_transform_view.h"
@@ -656,9 +655,7 @@ Result<std::unordered_map<Node*, std::string>> copyLinkIds(
   }
 
   return copyLinkIds(
-    *groupNodes.front(),
-    kdl::range{std::next(groupNodes.begin()), groupNodes.end()},
-    recursionMode);
+    *groupNodes.front(), groupNodes | std::views::drop(1), recursionMode);
 }
 
 template <typename R>
