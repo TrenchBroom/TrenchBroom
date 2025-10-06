@@ -445,7 +445,6 @@ auto collectStringVertices(
     pref(Preferences::RendererFontPath()), size_t(pref(Preferences::BrowserFontSize))};
 
   const auto textColor = std::vector<Color>{pref(Preferences::BrowserTextColor)};
-  const auto subTextColor = std::vector<Color>{pref(Preferences::BrowserSubTextColor)};
 
   auto stringVertices = std::map<render::FontDescriptor, std::vector<TextVertex>>{};
   for (const auto& group : layout.groups())
