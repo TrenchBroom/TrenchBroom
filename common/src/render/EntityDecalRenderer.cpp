@@ -38,6 +38,7 @@
 
 #include "vm/intersection.h"
 
+#include <algorithm>
 #include <cstring>
 #include <ranges>
 
@@ -109,7 +110,7 @@ std::vector<Vertex> createDecalBrushFace(
 
   if (!vm::is_equal(plane.normal, vertPlane->normal, vm::Cd::almost_zero()))
   {
-    std::reverse(std::begin(verts), std::end(verts));
+    std::ranges::reverse(verts);
   }
 
   // calculate the UV offset based on the first vertex location
@@ -245,8 +246,7 @@ void EntityDecalRenderer::updateBrush(const mdl::BrushNode* brushNode)
     const auto& editorContext = m_map.editorContext();
     const auto intersects =
       editorContext.visible(*brushNode) && brushNode->intersects(ent);
-    const auto tracked = std::find(data.brushes.begin(), data.brushes.end(), brushNode)
-                         != data.brushes.end();
+    const auto tracked = std::ranges::find(data.brushes, brushNode) != data.brushes.end();
 
     // if this brush is tracked by this entity or intersects, we'll need to
     // recalculate the geometry
@@ -269,8 +269,7 @@ void EntityDecalRenderer::removeBrush(const mdl::BrushNode* brushNode)
     }
 
     // if this brush is tracked by this entity, remove it and recalculate
-    const auto tracked = std::find(data.brushes.begin(), data.brushes.end(), brushNode)
-                         != data.brushes.end();
+    const auto tracked = std::ranges::find(data.brushes, brushNode) != data.brushes.end();
     if (tracked)
     {
       invalidateDecalData(data);

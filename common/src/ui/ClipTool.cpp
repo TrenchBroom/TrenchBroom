@@ -186,10 +186,10 @@ public:
       counts[index]++;
     }
 
-    const auto first = std::max_element(std::begin(counts), std::end(counts));
+    const auto first = std::ranges::max_element(counts);
     const auto firstIndex = std::distance(std::begin(counts), first);
 
-    const auto next = std::max_element(std::next(first), std::end(counts));
+    const auto next = std::ranges::max_element(std::next(first), std::end(counts));
     if (next == std::end(counts) || *first > *next)
     {
       return vm::vec3d::axis(size_t(firstIndex % 3));

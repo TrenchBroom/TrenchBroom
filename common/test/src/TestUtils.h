@@ -152,7 +152,7 @@ void setLinkId(Node& node, std::string linkId);
 template <typename Child>
 auto findFirstChildOfType(const std::vector<Node*>& children)
 {
-  return std::find_if(children.begin(), children.end(), [](const auto* child) {
+  return std::ranges::find_if(children, [](const auto* child) {
     return dynamic_cast<const Child*>(child) != nullptr;
   });
 }

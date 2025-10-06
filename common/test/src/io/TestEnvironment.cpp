@@ -25,6 +25,7 @@
 
 #include <fmt/format.h>
 
+#include <algorithm>
 #include <fstream>
 #include <string>
 
@@ -136,7 +137,7 @@ std::vector<std::filesystem::path> TestEnvironment::directoryContents(
   {
     result.push_back(entry.path().lexically_relative(m_dir));
   }
-  std::sort(result.begin(), result.end());
+  std::ranges::sort(result);
   return result;
 }
 

@@ -744,11 +744,10 @@ void MapViewBase::makeStructural()
 
   auto toReparent = std::vector<mdl::Node*>{};
   const auto& selectedBrushes = map.selection().brushes;
-  std::copy_if(
-    selectedBrushes.begin(),
-    selectedBrushes.end(),
-    std::back_inserter(toReparent),
-    [&](const auto* brushNode) { return brushNode->entity() != map.world(); });
+  std::ranges::copy_if(
+    selectedBrushes, std::back_inserter(toReparent), [&](const auto* brushNode) {
+      return brushNode->entity() != map.world();
+    });
 
   auto transaction = mdl::Transaction{map, "Make Structural"};
 

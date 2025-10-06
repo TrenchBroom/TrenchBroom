@@ -270,8 +270,7 @@ void Entity::renameProperty(const std::string& oldKey, std::string newKey)
   const auto oldIt = findEntityProperty(m_properties, oldKey);
   if (oldIt != std::end(m_properties))
   {
-    if (const auto protIt = std::find(
-          std::begin(m_protectedProperties), std::end(m_protectedProperties), oldKey);
+    if (const auto protIt = std::ranges::find(m_protectedProperties, oldKey);
         protIt != std::end(m_protectedProperties))
     {
       m_protectedProperties.erase(protIt);

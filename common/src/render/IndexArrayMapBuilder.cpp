@@ -21,6 +21,7 @@
 
 #include "render/PrimType.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace tb::render
@@ -151,6 +152,6 @@ void IndexArrayMapBuilder::add(const PrimType primType, const IndexList& indices
   const size_t offset = m_ranges.add(primType, indices.size());
   auto dest = std::begin(m_indices);
   std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
-  std::copy(std::begin(indices), std::end(indices), dest);
+  std::ranges::copy(indices, dest);
 }
 } // namespace tb::render

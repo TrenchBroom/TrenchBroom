@@ -48,6 +48,7 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_set.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iterator>
 #include <map>
@@ -589,9 +590,8 @@ const PropertyRow* EntityPropertyModel::dataForModelIndex(const QModelIndex& ind
 
 int EntityPropertyModel::rowForPropertyKey(const std::string& propertyKey) const
 {
-  const auto it = std::find_if(m_rows.begin(), m_rows.end(), [&](const auto& row) {
-    return row.key() == propertyKey;
-  });
+  const auto it = std::ranges::find_if(
+    m_rows, [&](const auto& row) { return row.key() == propertyKey; });
   return it != m_rows.end() ? static_cast<int>(std::distance(m_rows.begin(), it)) : -1;
 }
 

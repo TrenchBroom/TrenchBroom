@@ -41,6 +41,7 @@
 #include "vm/util.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <algorithm>
 #include <string>
 #include <utility>
 
@@ -232,7 +233,7 @@ void BrushFace::sortFaces(std::vector<BrushFace>& faces)
   // in which the faces are added to the brush, so I chose to just sort the faces by
   // their normals.
 
-  std::sort(std::begin(faces), std::end(faces), [](const auto& lhs, const auto& rhs) {
+  std::ranges::sort(faces, [](const auto& lhs, const auto& rhs) {
     const auto& lhsBoundary = lhs.boundary();
     const auto& rhsBoundary = rhs.boundary();
 

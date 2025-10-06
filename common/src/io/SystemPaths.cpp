@@ -29,6 +29,7 @@
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace tb::io::SystemPaths
@@ -129,7 +130,7 @@ std::vector<std::filesystem::path> findResourceDirectories(
   for (const auto& dir : dirs)
   {
     const auto path = io::pathFromQString(dir);
-    if (std::find(result.begin(), result.end(), path) == result.end())
+    if (std::ranges::find(result, path) == result.end())
     {
       result.push_back(path);
     }

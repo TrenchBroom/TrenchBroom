@@ -190,19 +190,15 @@ bool isWorldspawn(const std::string& classname)
 std::vector<EntityProperty>::const_iterator findEntityProperty(
   const std::vector<EntityProperty>& properties, const std::string& key)
 {
-  return std::find_if(
-    std::begin(properties), std::end(properties), [&](const auto& property) {
-      return property.hasKey(key);
-    });
+  return std::ranges::find_if(
+    properties, [&](const auto& property) { return property.hasKey(key); });
 }
 
 std::vector<EntityProperty>::iterator findEntityProperty(
   std::vector<EntityProperty>& properties, const std::string& key)
 {
-  return std::find_if(
-    std::begin(properties), std::end(properties), [&](const auto& property) {
-      return property.hasKey(key);
-    });
+  return std::ranges::find_if(
+    properties, [&](const auto& property) { return property.hasKey(key); });
 }
 
 const std::string& findEntityPropertyOrDefault(

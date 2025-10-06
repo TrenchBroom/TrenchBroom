@@ -24,6 +24,7 @@
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -80,7 +81,7 @@ void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
     // child widgets, so get the top-level widget with QWidget::window()
     if (auto* frame = dynamic_cast<MapFrame*>(now->window()))
     {
-      if (auto it = std::find(m_frames.begin(), m_frames.end(), frame);
+      if (auto it = std::ranges::find(m_frames, frame);
           it != m_frames.end() && it != m_frames.begin())
       {
         assert(topFrame() != frame);
@@ -116,7 +117,7 @@ MapFrame* FrameManager::createFrame(std::unique_ptr<MapDocument> document)
 void FrameManager::removeFrame(MapFrame* frame)
 {
   // This is called from MapFrame::closeEvent
-  if (auto it = std::find(m_frames.begin(), m_frames.end(), frame); it != m_frames.end())
+  if (auto it = std::ranges::find(m_frames, frame); it != m_frames.end())
   {
     m_frames.erase(it);
     // MapFrame uses Qt::WA_DeleteOnClose so we don't need to delete it here

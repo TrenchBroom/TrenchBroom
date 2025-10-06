@@ -115,6 +115,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <iterator>
@@ -2462,14 +2463,13 @@ void MapFrame::dropEvent(QDropEvent* event)
   }
 
   auto wadPathsToAdd = std::vector<std::filesystem::path>{};
-  std::transform(
-    urls.begin(), urls.end(), std::back_inserter(wadPathsToAdd), [&](const auto& url) {
-      return convertToPathType(
-        pathDialog.pathType(),
-        io::pathFromQString(url.toLocalFile()),
-        map.path(),
-        game->gamePath());
-    });
+  std::ranges::transform(urls, std::back_inserter(wadPathsToAdd), [&](const auto& url) {
+    return convertToPathType(
+      pathDialog.pathType(),
+      io::pathFromQString(url.toLocalFile()),
+      map.path(),
+      game->gamePath());
+  });
 
   const auto newWadPathsStr = kdl::str_join(
     kdl::vec_concat(std::move(wadPaths), std::move(wadPathsToAdd))

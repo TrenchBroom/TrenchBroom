@@ -397,8 +397,8 @@ void ParallelUVCoordSystem::updateNormalWithProjection(
   }
   assert(cosAngles.size() == 6);
 
-  const auto index = std::distance(
-    cosAngles.begin(), std::max_element(cosAngles.begin(), cosAngles.end()));
+  const auto index =
+    std::distance(cosAngles.begin(), std::ranges::max_element(cosAngles));
   assert(index >= 0);
   assert(index < 6);
 

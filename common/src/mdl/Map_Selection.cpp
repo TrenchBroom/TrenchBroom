@@ -361,9 +361,8 @@ bool canSelectLinkedGroups(const Map& map)
     | kdl::ranges::to<std::vector>());
 
   return kdl::all_of(map.selection().groups, [&](const auto* groupNode) {
-    const auto [iBegin, iEnd] =
-      std::equal_range(allLinkIds.begin(), allLinkIds.end(), groupNode->linkId());
-    return std::distance(iBegin, iEnd) > 1;
+    const auto linkIdRange = std::ranges::equal_range(allLinkIds, groupNode->linkId());
+    return std::ranges::size(linkIdRange) > 1;
   });
 }
 

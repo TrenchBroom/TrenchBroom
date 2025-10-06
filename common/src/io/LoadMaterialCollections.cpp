@@ -54,6 +54,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <algorithm>
 #include <ranges>
 #include <string>
 
@@ -435,10 +436,8 @@ Result<mdl::Material> loadMaterial(
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
   const auto materialPathStem = kdl::path_remove_extension(materialPath);
-  const auto iShader =
-    std::find_if(shaders.begin(), shaders.end(), [&](const auto& shader) {
-      return shader.shaderPath == materialPathStem;
-    });
+  const auto iShader = std::ranges::find_if(
+    shaders, [&](const auto& shader) { return shader.shaderPath == materialPathStem; });
 
   return (iShader != shaders.end()
             ? loadShaderMaterial(*iShader, fs, materialConfig, createResource)

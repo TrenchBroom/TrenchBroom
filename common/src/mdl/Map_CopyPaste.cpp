@@ -46,6 +46,7 @@
 #include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
+#include <algorithm>
 #include <ranges>
 
 namespace tb::mdl
@@ -184,7 +185,7 @@ void fixRecursiveLinkedGroups(
         },
         [&](auto&& thisLambda, GroupNode* groupNode) {
           const auto& linkId = groupNode->linkId();
-          if (std::binary_search(linkedGroupIds.begin(), linkedGroupIds.end(), linkId))
+          if (std::ranges::binary_search(linkedGroupIds, linkId))
           {
             logger.warn() << "Unlinking recursive linked group with ID '" << linkId
                           << "'";
