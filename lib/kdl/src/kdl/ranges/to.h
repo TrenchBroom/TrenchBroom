@@ -23,6 +23,12 @@
 #include <algorithm>
 #include <ranges>
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
+
 namespace kdl::ranges
 {
 namespace detail
@@ -276,5 +282,9 @@ constexpr auto to(Args&&... args)
 {
   return detail::to_fn<detail::wrap_c<C>, Args...>{std::forward<Args>(args)...};
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } // namespace kdl::ranges
