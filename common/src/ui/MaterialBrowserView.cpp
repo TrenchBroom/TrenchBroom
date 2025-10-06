@@ -260,9 +260,10 @@ std::vector<const mdl::Material*> MaterialBrowserView::filterMaterials(
   if (!m_filterText.empty())
   {
     materials = kdl::vec_erase_if(std::move(materials), [&](const auto* material) {
-      return !kdl::all_of(kdl::str_split(m_filterText, " "), [&](const auto& pattern) {
-        return kdl::ci::str_contains(material->name(), pattern);
-      });
+      return std::ranges::none_of(
+        kdl::str_split(m_filterText, " "), [&](const auto& pattern) {
+          return kdl::ci::str_contains(material->name(), pattern);
+        });
     });
   }
   return materials;

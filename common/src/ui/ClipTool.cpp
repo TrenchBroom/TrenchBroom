@@ -223,7 +223,7 @@ public:
   {
     return (m_points.size() < 2
             || (m_points.size() == 2 && !vm::is_colinear(m_points[0].point, m_points[1].point, point)))
-           && kdl::none_of(m_points, [&](const auto& p) {
+           && std::ranges::none_of(m_points, [&](const auto& p) {
                 return vm::is_equal(p.point, point, vm::Cd::almost_zero());
               });
   }

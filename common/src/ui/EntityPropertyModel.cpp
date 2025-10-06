@@ -716,9 +716,10 @@ std::vector<std::string> EntityPropertyModel::getAllClassnames() const
 static bool computeShouldShowProtectedProperties(
   const std::vector<mdl::EntityNodeBase*>& entityNodes)
 {
-  return !entityNodes.empty() && kdl::all_of(entityNodes, [](const auto* entityNode) {
-    return mdl::findContainingGroup(entityNode);
-  });
+  return !entityNodes.empty()
+         && std::ranges::all_of(entityNodes, [](const auto* entityNode) {
+              return mdl::findContainingGroup(entityNode);
+            });
 }
 
 void EntityPropertyModel::updateFromMapDocument()
