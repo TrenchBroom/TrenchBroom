@@ -9,6 +9,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_chunk_view.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_enumerate_view.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_movable_box.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_repeat_view.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_slide_view.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_stride_view.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_to.cpp"
