@@ -41,6 +41,7 @@
 #include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -49,6 +50,7 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -229,7 +231,8 @@ std::vector<const mdl::Material*> MaterialBrowserView::getMaterials(
   const mdl::MaterialCollection& collection) const
 {
   return sortMaterials(filterMaterials(
-    kdl::vec_transform(collection.materials(), [](const auto& t) { return &t; })));
+    collection.materials() | std::views::transform([](const auto& t) { return &t; })
+    | kdl::ranges::to<std::vector>()));
 }
 
 std::vector<const mdl::Material*> MaterialBrowserView::getMaterials() const

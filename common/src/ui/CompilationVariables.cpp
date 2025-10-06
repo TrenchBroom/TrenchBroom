@@ -27,8 +27,10 @@
 #include "ui/MapDocument.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
+#include <ranges>
 #include <string>
 #include <thread>
 
@@ -61,7 +63,9 @@ CommonVariables::CommonVariables(const mdl::Map& map)
   set(GAME_DIR_PATH, el::Value{gamePath.string()});
   set(
     MODS,
-    el::Value{kdl::vec_transform(mods, [](const auto& mod) { return el::Value{mod}; })});
+    el::Value{
+      mods | std::views::transform([](const auto& mod) { return el::Value{mod}; })
+      | kdl::ranges::to<std::vector>()});
 
   const auto& factory = mdl::GameFactory::instance();
   for (const auto& tool : map.game()->config().compilationTools)

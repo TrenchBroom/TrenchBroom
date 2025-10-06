@@ -83,8 +83,9 @@ Result<std::vector<mdl::Quake3Shader>> loadShaders(
                });
              return taskManager.run_tasks_and_wait(tasks) | kdl::fold;
            })
-         | kdl::transform(
-           [&](auto nestedShaders) { return kdl::vec_flatten(std::move(nestedShaders)); })
+         | kdl::transform([&](auto nestedShaders) {
+             return nestedShaders | std::views::join | kdl::ranges::to<std::vector>();
+           })
          | kdl::transform([](auto shaders) {
              auto result = kdl::vec_sort_and_remove_duplicates(
                std::move(shaders), [](const auto& lhs, const auto& rhs) {

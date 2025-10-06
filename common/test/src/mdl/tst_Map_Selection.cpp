@@ -39,12 +39,15 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/map_utils.h"
+#include "kdl/ranges/to.h"
 
 #include <map>
+#include <ranges>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
@@ -472,9 +475,10 @@ TEST_CASE("Map_Selection")
     };
 
     const auto mapNodeNames = [&](const auto& nodes) {
-      return kdl::vec_transform(nodes, [&](const Node* node) {
-        return kdl::map_find_or_default(nodeToName, node, std::string{"<unknown>"});
-      });
+      return nodes | std::views::transform([&](const Node* node) {
+               return kdl::map_find_or_default(
+                 nodeToName, node, std::string{"<unknown>"});
+             });
     };
 
     addNodes(
@@ -521,7 +525,8 @@ TEST_CASE("Map_Selection")
       CAPTURE(lineNumbers);
 
       selectNodesWithFilePosition(map, lineNumbers);
-      CHECK_THAT(mapNodeNames(map.selection().nodes), UnorderedEquals(expectedNodeNames));
+      CHECK_THAT(
+        mapNodeNames(map.selection().nodes), UnorderedRangeEquals(expectedNodeNames));
     }
 
     SECTION("outer group is open")
@@ -538,7 +543,8 @@ TEST_CASE("Map_Selection")
       CAPTURE(lineNumbers);
 
       selectNodesWithFilePosition(map, lineNumbers);
-      CHECK_THAT(mapNodeNames(map.selection().nodes), UnorderedEquals(expectedNodeNames));
+      CHECK_THAT(
+        mapNodeNames(map.selection().nodes), UnorderedRangeEquals(expectedNodeNames));
     }
 
     SECTION("inner group is open")
@@ -556,7 +562,8 @@ TEST_CASE("Map_Selection")
       CAPTURE(lineNumbers);
 
       selectNodesWithFilePosition(map, lineNumbers);
-      CHECK_THAT(mapNodeNames(map.selection().nodes), UnorderedEquals(expectedNodeNames));
+      CHECK_THAT(
+        mapNodeNames(map.selection().nodes), UnorderedRangeEquals(expectedNodeNames));
     }
   }
 

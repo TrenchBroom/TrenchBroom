@@ -30,6 +30,8 @@
 #include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
+#include <ranges>
+
 namespace tb::ui
 {
 
@@ -163,8 +165,9 @@ DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(mdl::Map& map)
 const std::vector<DrawShapeToolExtension*> DrawShapeToolExtensionManager::extensions()
   const
 {
-  return kdl::vec_transform(
-    m_extensions, [](const auto& extension) { return extension.get(); });
+  return m_extensions
+         | std::views::transform([](const auto& extension) { return extension.get(); })
+         | kdl::ranges::to<std::vector>();
 }
 
 const DrawShapeToolExtension& DrawShapeToolExtensionManager::currentExtension() const

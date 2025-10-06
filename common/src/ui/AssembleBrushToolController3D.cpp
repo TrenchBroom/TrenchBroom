@@ -37,6 +37,7 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/line.h"
@@ -46,6 +47,7 @@
 #include <algorithm>
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 namespace tb::ui
 {
@@ -396,12 +398,13 @@ void AssembleBrushToolController3D::render(
         const auto* face = polyhedron.faces().front();
         const auto pos3 = face->vertexPositions();
         auto pos3f =
-          kdl::vec_transform(pos3, [](const auto& pos) { return vm::vec3f{pos}; });
+          pos3 | std::views::transform([](const auto& pos) { return vm::vec3f{pos}; })
+          | kdl::ranges::to<std::vector>();
 
         renderService.setForegroundColor(Color{pref(Preferences::HandleColor), 0.5f});
         renderService.renderFilledPolygon(pos3f);
 
-        std::reverse(std::begin(pos3f), std::end(pos3f));
+        std::ranges::reverse(pos3f);
         renderService.renderFilledPolygon(pos3f);
       }
     }

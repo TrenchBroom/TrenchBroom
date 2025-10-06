@@ -37,12 +37,16 @@
 
 #include <chrono>
 #include <filesystem>
+#include <ranges>
 #include <thread>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -92,6 +96,8 @@ TEST_CASE("Autosaver")
   fixture.create();
 
   auto env = io::TestEnvironment{};
+
+  const auto loadFile = [&](const auto& path) { return env.loadFile(path); };
 
   SECTION("Don't trigger autosave before the save interval expires")
   {
@@ -218,13 +224,12 @@ TEST_CASE("Autosaver")
       }
 
       REQUIRE(env.directoryContents("autosave") == initialPaths);
-      REQUIRE(
-        kdl::vec_transform(
-          initialPaths, [&](const auto& path) { return env.loadFile(path); })
-        == std::vector<std::string>{
+      REQUIRE_THAT(
+        initialPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector{
           "autosave/test.1.map",
           "autosave/test.2.map",
-        });
+        }));
 
       REQUIRE(map.saveAs(env.dir() / "test.map"));
       REQUIRE(env.fileExists("test.map"));
@@ -241,9 +246,9 @@ TEST_CASE("Autosaver")
       const auto allPaths = kdl::vec_push_back(initialPaths, "autosave/test.3.map");
 
       CHECK(env.directoryContents("autosave") == allPaths);
-      CHECK(
-        kdl::vec_transform(allPaths, [&](const auto& path) { return env.loadFile(path); })
-        == std::vector<std::string>{
+      CHECK_THAT(
+        allPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector{
           "autosave/test.1.map",
           "autosave/test.2.map",
           R"(// Game: Test
@@ -256,7 +261,7 @@ TEST_CASE("Autosaver")
 {
 }
 )",
-        });
+        }));
 
       // modify the map again
       addNodes(map, {{map.editorContext().currentLayer(), {new EntityNode{{}}}}});
@@ -265,9 +270,9 @@ TEST_CASE("Autosaver")
       autosaver.triggerAutosave();
 
       CHECK(env.directoryContents("autosave") == allPaths);
-      CHECK(
-        kdl::vec_transform(allPaths, [&](const auto& path) { return env.loadFile(path); })
-        == std::vector<std::string>{
+      CHECK_THAT(
+        allPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector{
           "autosave/test.2.map",
           R"(// Game: Test
 // Format: Standard
@@ -292,7 +297,7 @@ TEST_CASE("Autosaver")
 {
 }
 )",
-        });
+        }));
     }
 
     SECTION("Gaps are compacted")
@@ -308,13 +313,12 @@ TEST_CASE("Autosaver")
       }
 
       REQUIRE(env.directoryContents("autosave") == initialPaths);
-      REQUIRE(
-        kdl::vec_transform(
-          initialPaths, [&](const auto& path) { return env.loadFile(path); })
-        == std::vector<std::string>{
+      REQUIRE_THAT(
+        initialPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector{
           "autosave/test.1.map",
           "autosave/test.3.map",
-        });
+        }));
 
       REQUIRE(map.saveAs(env.dir() / "test.map"));
       REQUIRE(env.fileExists("test.map"));
@@ -334,9 +338,9 @@ TEST_CASE("Autosaver")
       };
 
       CHECK(env.directoryContents("autosave") == allPaths);
-      CHECK(
-        kdl::vec_transform(allPaths, [&](const auto& path) { return env.loadFile(path); })
-        == std::vector<std::string>{
+      CHECK_THAT(
+        allPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector{
           "autosave/test.1.map",
           "autosave/test.3.map",
           R"(// Game: Test
@@ -349,7 +353,7 @@ TEST_CASE("Autosaver")
 {
 }
 )",
-        });
+        }));
     }
   }
 }

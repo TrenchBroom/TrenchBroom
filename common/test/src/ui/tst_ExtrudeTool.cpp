@@ -47,11 +47,13 @@
 #include "vm/vec.h"
 
 #include <filesystem>
+#include <ranges>
 
 #include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::ui
 {
@@ -254,9 +256,11 @@ TEST_CASE("ExtrudeTool")
       brushNode->brush().face(brushNode->brush().findFace("larger_top_face").value());
 
     // Find the entity defining the camera position for our test
-    auto* cameraEntity = kdl::vec_filter(map.selection().entities, [](const auto* e) {
-                           return e->entity().classname() == "trigger_relay";
-                         }).front();
+    auto* cameraEntity =
+      (map.selection().entities | std::views::filter([](const auto* e) {
+         return e->entity().classname() == "trigger_relay";
+       }))
+        .front();
 
     // Fire a pick ray at largerTopFace
     const auto pickRay = vm::ray3d{
@@ -268,10 +272,10 @@ TEST_CASE("ExtrudeTool")
       pickResult.all().front().target<mdl::BrushFaceHandle>().face() == largerTopFace);
 
     CHECK_THAT(
-      kdl::vec_transform(
-        tool.proposedDragHandles(),
-        [](const auto& h) { return h.faceAtDragStart().attributes().materialName(); }),
-      UnorderedEquals(expectedDragFaceMaterialNames));
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().attributes().materialName();
+      }),
+      UnorderedRangeEquals(expectedDragFaceMaterialNames));
   }
 
   SECTION("splitBrushes")
@@ -291,19 +295,21 @@ TEST_CASE("ExtrudeTool")
 
     // Find the entity defining the camera position for our test
     const auto* cameraEntity =
-      kdl::vec_filter(map.selection().entities, [](const auto* node) {
-        return node->entity().classname() == "trigger_relay";
-      }).front();
+      (map.selection().entities | std::views::filter([](const auto* node) {
+         return node->entity().classname() == "trigger_relay";
+       }))
+        .front();
 
     const auto* cameraTarget =
-      kdl::vec_filter(map.selection().entities, [](const auto* node) {
-        return node->entity().classname() == "info_null";
-      }).front();
+      (map.selection().entities | std::views::filter([](const auto* node) {
+         return node->entity().classname() == "info_null";
+       }))
+        .front();
 
     const auto* funcDetailNode =
-      kdl::vec_filter(
-        mdl::filterEntityNodes(mdl::collectDescendants({map.world()})),
-        [](const auto* node) { return node->entity().classname() == "func_detail"; })
+      (mdl::filterEntityNodes(mdl::collectDescendants({map.world()}))
+       | std::views::filter(
+         [](const auto* node) { return node->entity().classname() == "func_detail"; }))
         .front();
 
     // Fire a pick ray at cameraTarget
@@ -314,11 +320,11 @@ TEST_CASE("ExtrudeTool")
     const auto pickResult = performPick(map, tool, pickRay);
 
     // We are going to drag the 2 faces with +Y normals
-    CHECK(
-      kdl::vec_transform(
-        tool.proposedDragHandles(),
-        [](const auto& h) { return h.faceAtDragStart().normal(); })
-      == std::vector<vm::vec3d>{vm::vec3d{0, 1, 0}, vm::vec3d{0, 1, 0}});
+    CHECK_THAT(
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().normal();
+      }),
+      RangeEquals(std::vector<vm::vec3d>{{0, 1, 0}, {0, 1, 0}}));
 
     const auto hit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
     auto dragState = ExtrudeDragState{
@@ -343,27 +349,37 @@ TEST_CASE("ExtrudeTool")
       {
         const auto nodes =
           mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
-        const auto bounds = kdl::vec_transform(
-          nodes, [](const auto* node) { return node->logicalBounds(); });
-        const auto expectedBounds = std::vector<vm::bbox3d>{
-          {{-32, 144, 16}, {-16, 192, 32}}, {{-32, 192, 16}, {-16, 224, 32}}};
-        CHECK_THAT(bounds, UnorderedEquals(expectedBounds));
+        const auto bounds = nodes | std::views::transform([](const auto* node) {
+                              return node->logicalBounds();
+                            });
+
+        CHECK_THAT(
+          bounds,
+          UnorderedRangeEquals(std::vector<vm::bbox3d>{
+            {{-32, 144, 16}, {-16, 192, 32}},
+            {{-32, 192, 16}, {-16, 224, 32}},
+          }));
       }
 
       SECTION("check 2 resulting func_detail brushes")
       {
         const auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
-        const auto bounds = kdl::vec_transform(
-          nodes, [](const auto* node) { return node->logicalBounds(); });
-        const auto expectedBounds = std::vector<vm::bbox3d>{
-          {{-16, 176, 16}, {16, 192, 32}}, {{-16, 192, 16}, {16, 224, 32}}};
-        CHECK_THAT(bounds, UnorderedEquals(expectedBounds));
+        const auto bounds = nodes | std::views::transform([](const auto* node) {
+                              return node->logicalBounds();
+                            });
+
+        CHECK_THAT(
+          bounds,
+          UnorderedRangeEquals(std::vector<vm::bbox3d>{
+            {{-16, 176, 16}, {16, 192, 32}},
+            {{-16, 192, 16}, {16, 224, 32}},
+          }));
       }
 
       CHECK_THAT(
-        kdl::vec_transform(
-          map.selection().brushes,
-          [](const auto* brushNode) { return brushNode->linkId(); }),
+        map.selection().brushes | std::views::transform([](const auto* brushNode) {
+          return brushNode->linkId();
+        }) | kdl::ranges::to<std::vector>(),
         AllDifferent<std::vector<std::string>>());
     }
 
@@ -383,21 +399,28 @@ TEST_CASE("ExtrudeTool")
       {
         const auto nodes =
           mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
-        const auto bounds = kdl::vec_transform(
-          nodes, [](const auto* node) { return node->logicalBounds(); });
-        const auto expectedBounds = std::vector<vm::bbox3d>{
-          {{-32, 144, 16}, {-16, 176, 32}}, {{-32, 176, 16}, {-16, 224, 32}}};
-        CHECK_THAT(bounds, UnorderedEquals(expectedBounds));
+        const auto bounds = nodes | std::views::transform([](const auto* node) {
+                              return node->logicalBounds();
+                            });
+
+        CHECK_THAT(
+          bounds,
+          UnorderedRangeEquals(std::vector<vm::bbox3d>{
+            {{-32, 144, 16}, {-16, 176, 32}},
+            {{-32, 176, 16}, {-16, 224, 32}},
+          }));
       }
 
       SECTION("check 1 resulting func_detail brush")
       {
         const auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
-        const auto bounds = kdl::vec_transform(
-          nodes, [](const auto* node) { return node->logicalBounds(); });
-        const auto expectedBounds =
-          std::vector<vm::bbox3d>{{{-16, 176, 16}, {16, 224, 32}}};
-        CHECK_THAT(bounds, UnorderedEquals(expectedBounds));
+        const auto bounds = nodes | std::views::transform([](const auto* node) {
+                              return node->logicalBounds();
+                            });
+
+        CHECK_THAT(
+          bounds,
+          UnorderedRangeEquals(std::vector<vm::bbox3d>{{{-16, 176, 16}, {16, 224, 32}}}));
       }
     }
 
@@ -417,22 +440,27 @@ TEST_CASE("ExtrudeTool")
       {
         const auto nodes =
           mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
-        const auto bounds = kdl::vec_transform(
-          nodes, [](const auto* node) { return node->logicalBounds(); });
-        const auto expectedBounds = std::vector<vm::bbox3d>{
-          {{-32, 144, 16}, {-16, 192, 32}},
-        };
-        CHECK_THAT(bounds, UnorderedEquals(expectedBounds));
+        const auto bounds = nodes | std::views::transform([](const auto* node) {
+                              return node->logicalBounds();
+                            });
+
+        CHECK_THAT(
+          bounds,
+          UnorderedRangeEquals(std::vector<vm::bbox3d>{
+            {{-32, 144, 16}, {-16, 192, 32}},
+          }));
       }
 
       SECTION("check 1 resulting func_detail brush")
       {
         const auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
-        const auto bounds = kdl::vec_transform(
-          nodes, [](const auto* node) { return node->logicalBounds(); });
-        const auto expectedBounds =
-          std::vector<vm::bbox3d>{{{-16, 176, 16}, {16, 192, 32}}};
-        CHECK_THAT(bounds, UnorderedEquals(expectedBounds));
+        const auto bounds = nodes | std::views::transform([](const auto* node) {
+                              return node->logicalBounds();
+                            });
+
+        CHECK_THAT(
+          bounds,
+          UnorderedRangeEquals(std::vector<vm::bbox3d>{{{-16, 176, 16}, {16, 192, 32}}}));
       }
     }
 
@@ -450,36 +478,36 @@ TEST_CASE("ExtrudeTool")
 
       SECTION("check 1 resulting worldspawn brush")
       {
-        auto nodes =
-          mdl::filterBrushNodes(map.editorContext().currentLayer()->children());
-        nodes = kdl::vec_filter(
-          std::move(nodes), [](const auto* node) { return node->selected(); });
+        const auto bounds =
+          mdl::filterBrushNodes(map.editorContext().currentLayer()->children())
+          | std::views::filter([](const auto* node) { return node->selected(); })
+          | std::views::transform([](const auto* node) { return node->logicalBounds(); })
+          | kdl::ranges::to<std::vector>();
 
-        const auto bounds = kdl::vec_transform(
-          nodes, [](const auto* node) { return node->logicalBounds(); });
-        const auto expectedBounds = std::vector<vm::bbox3d>{
-          {{-32, 224, 16}, {-16, 240, 32}},
-        };
-        CHECK_THAT(bounds, UnorderedEquals(expectedBounds));
+        CHECK_THAT(
+          bounds,
+          UnorderedEquals(std::vector<vm::bbox3d>{
+            {{-32, 224, 16}, {-16, 240, 32}},
+          }));
       }
 
       SECTION("check 1 resulting func_detail brush")
       {
-        auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
-        nodes = kdl::vec_filter(
-          std::move(nodes), [](const auto* node) { return node->selected(); });
+        const auto bounds =
+          mdl::filterBrushNodes(funcDetailNode->children())
+          | std::views::filter([](const auto* node) { return node->selected(); })
+          | std::views::transform([](const auto* node) { return node->logicalBounds(); })
+          | kdl::ranges::to<std::vector>();
 
-        const auto bounds = kdl::vec_transform(
-          nodes, [](const auto* node) { return node->logicalBounds(); });
-        const auto expectedBounds =
-          std::vector<vm::bbox3d>{{{-16, 224, 16}, {16, 240, 32}}};
-        CHECK_THAT(bounds, UnorderedEquals(expectedBounds));
+        CHECK_THAT(
+          bounds,
+          UnorderedEquals(std::vector<vm::bbox3d>{{{-16, 224, 16}, {16, 240, 32}}}));
       }
 
       CHECK_THAT(
-        kdl::vec_transform(
-          map.selection().brushes,
-          [](const auto* brushNode) { return brushNode->linkId(); }),
+        map.selection().brushes | std::views::transform([](const auto* brushNode) {
+          return brushNode->linkId();
+        }) | kdl::ranges::to<std::vector>(),
         AllDifferent<std::vector<std::string>>());
     }
   }

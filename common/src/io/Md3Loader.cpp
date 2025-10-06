@@ -31,8 +31,6 @@
 #include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h" // IWYU pragma: keep
-#include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
 
 #include <fmt/core.h>
 
@@ -362,9 +360,8 @@ Result<mdl::EntityModelData> Md3Loader::load(Logger&)
              data,
              m_loadMaterial)
            | kdl::and_then([&]() {
-               return kdl::vec_transform(
-                        std::views::iota(0u, frameCount),
-                        [&](const auto i) {
+               return std::views::iota(0u, frameCount)
+                      | std::views::transform([&](const auto i) {
                           auto& frame = parseFrame(
                             reader.subReaderFromBegin(
                               frameOffset + i * Md3Layout::FrameLength,

@@ -40,10 +40,11 @@
 #include "mdl/TextureResource.h"
 
 #include "kdl/functional.h"
-#include "kdl/grouped_range.h"
-#include "kdl/map_utils.h"
 #include "kdl/path_hash.h"
 #include "kdl/path_utils.h"
+#include "kdl/ranges/as_rvalue_view.h"
+#include "kdl/ranges/chunk_by_view.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/string_compare.h"
@@ -53,6 +54,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <ranges>
 #include <string>
 
 namespace tb::io
@@ -90,9 +92,11 @@ Result<std::vector<std::filesystem::path>> findTexturePaths(
            TraversalMode::Recursive,
            makeExtensionPathMatcher(materialConfig.extensions))
          | kdl::transform([&](auto paths) {
-             return kdl::vec_filter(std::move(paths), [&](const auto& path) {
-               return !shouldExclude(path.stem().string(), materialConfig.excludes);
-             });
+             return paths | std::views::filter([&](const auto& path) {
+                      return !shouldExclude(
+                        path.stem().string(), materialConfig.excludes);
+                    })
+                    | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
            });
 }
 
@@ -115,7 +119,8 @@ Result<std::vector<std::filesystem::path>> findAllMaterialPaths(
              {
                pathStemToPath[shader.shaderPath] = shader.shaderPath;
              }
-             return kdl::vec_sort(kdl::map_values(pathStemToPath));
+             return kdl::vec_sort(
+               pathStemToPath | std::views::values | kdl::ranges::to<std::vector>());
            });
 }
 
@@ -395,28 +400,27 @@ std::vector<mdl::MaterialCollection> groupMaterialsIntoCollections(
                                                          : lhs.name() < rhs.name();
   });
 
-  auto materialsByCollection =
-    kdl::make_grouped_range(materials, [&](const auto& lhs, const auto& rhs) {
-      return lhs.collectionName() == rhs.collectionName();
-    });
+  return materials | kdl::views::chunk_by([&](const auto& lhs, const auto& rhs) {
+           return lhs.collectionName() == rhs.collectionName();
+         })
+         | std::views::transform([&](auto groupedMaterials) {
+             assert(!groupedMaterials.empty());
 
-  return kdl::vec_transform(materialsByCollection, [&](auto groupedMaterials) {
-    assert(!groupedMaterials.empty());
+             auto materialCollectionName = groupedMaterials.front().collectionName();
 
-    auto materialCollectionName = groupedMaterials.front().collectionName();
+             auto materialsForCollection = std::vector<mdl::Material>(
+               std::move_iterator{groupedMaterials.begin()},
+               std::move_iterator{groupedMaterials.end()});
 
-    auto materialsForCollection = std::vector<mdl::Material>(
-      std::move_iterator{groupedMaterials.begin()},
-      std::move_iterator{groupedMaterials.end()});
+             materialsForCollection = kdl::vec_sort(
+               std::move(materialsForCollection), [&](const auto& lhs, const auto& rhs) {
+                 return lhs.relativePath() < rhs.relativePath();
+               });
 
-    materialsForCollection = kdl::vec_sort(
-      std::move(materialsForCollection), [&](const auto& lhs, const auto& rhs) {
-        return lhs.relativePath() < rhs.relativePath();
-      });
-
-    return mdl::MaterialCollection{
-      std::move(materialCollectionName), std::move(materialsForCollection)};
-  });
+             return mdl::MaterialCollection{
+               std::move(materialCollectionName), std::move(materialsForCollection)};
+           })
+         | kdl::ranges::to<std::vector>();
 }
 
 } // namespace
@@ -462,16 +466,16 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
 
   return loadShaders(fs, materialConfig, taskManager, logger)
          | kdl::transform([&](auto shaders) {
-             return kdl::vec_filter(std::move(shaders), [&](const auto& shader) {
-               return kdl::path_has_prefix(shader.shaderPath, materialConfig.root);
-             });
+             return shaders | std::views::filter([&](const auto& shader) {
+                      return kdl::path_has_prefix(shader.shaderPath, materialConfig.root);
+                    })
+                    | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
            })
          | kdl::and_then([&](auto shaders) {
              return findAllMaterialPaths(fs, materialConfig, shaders)
                     | kdl::and_then([&](const auto& materialPaths) {
-                        return kdl::vec_transform(
-                                 materialPaths,
-                                 [&](const auto& materialPath) {
+                        return materialPaths
+                               | std::views::transform([&](const auto& materialPath) {
                                    return loadMaterial(
                                      fs,
                                      materialConfig,

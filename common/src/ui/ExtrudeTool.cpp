@@ -39,6 +39,7 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -51,6 +52,7 @@
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <map>
+#include <ranges>
 #include <vector>
 
 namespace tb::ui
@@ -315,9 +317,10 @@ std::vector<ExtrudeDragHandle> getDragHandles(
   assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
   const auto& data = hit.target<const ExtrudeHitData&>();
 
-  return kdl::vec_transform(
-    collectCoplanarFaces(nodes, data.face),
-    [](const auto& handle) { return ExtrudeDragHandle{handle}; });
+  return collectCoplanarFaces(nodes, data.face)
+         | std::views::transform(
+           [](const auto& faceHandle) { return ExtrudeDragHandle{faceHandle}; })
+         | kdl::ranges::to<std::vector>();
 }
 } // namespace
 
@@ -408,9 +411,8 @@ bool splitBrushesOutward(
   auto newDragFaces = std::vector<mdl::BrushFaceHandle>{};
   auto newNodes = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
 
-  return kdl::vec_transform(
-           dragState.initialDragHandles,
-           [&](const auto& dragHandle) {
+  return dragState.initialDragHandles
+         | std::views::transform([&](const auto& dragHandle) {
              auto* brushNode = dragHandle.faceHandle.node();
 
              const auto& oldBrush = dragHandle.brushAtDragStart;
@@ -559,9 +561,11 @@ bool splitBrushesInward(
 
 std::vector<vm::polygon3d> getPolygons(const std::vector<ExtrudeDragHandle>& dragHandles)
 {
-  return kdl::vec_transform(dragHandles, [](const auto& dragHandle) {
-    return dragHandle.brushAtDragStart.face(dragHandle.faceHandle.faceIndex()).polygon();
-  });
+  return dragHandles | std::views::transform([](const auto& dragHandle) {
+           return dragHandle.brushAtDragStart.face(dragHandle.faceHandle.faceIndex())
+             .polygon();
+         })
+         | kdl::ranges::to<std::vector>();
 }
 } // namespace
 

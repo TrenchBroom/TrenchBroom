@@ -36,14 +36,16 @@
 #include "mdl/GameImpl.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
+#include "kdl/result_fold.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
 
 #include <iostream>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -131,8 +133,9 @@ std::unique_ptr<Game> GameFactory::createGame(const std::string& gameName, Logge
 
 std::vector<std::string> GameFactory::fileFormats(const std::string& gameName) const
 {
-  return kdl::vec_transform(
-    gameConfig(gameName).fileFormats, [](const auto& format) { return format.format; });
+  return gameConfig(gameName).fileFormats
+         | std::views::transform([](const auto& format) { return format.format; })
+         | kdl::ranges::to<std::vector>();
 }
 
 std::filesystem::path GameFactory::iconPath(const std::string& gameName) const
@@ -260,17 +263,13 @@ Result<std::vector<std::string>> GameFactory::loadGameConfigs(
            io::TraversalMode::Recursive,
            io::makeFilenamePathMatcher("GameConfig.cfg"))
          | kdl::transform([&](auto configFiles) {
-             auto errors = std::vector<std::string>{};
-             kdl::vec_transform(configFiles, [&](const auto& configFilePath) {
-               return loadGameConfig(gamePathConfig, configFilePath)
-                      | kdl::transform_error([&](auto e) {
-                          errors.push_back(fmt::format(
-                            "Failed to load game configuration file {}: {}",
-                            configFilePath,
-                            e.msg));
-                        });
-             });
-             return errors;
+             return configFiles | std::views::transform([&](const auto& configFilePath) {
+                      return loadGameConfig(gamePathConfig, configFilePath);
+                    })
+                    | kdl::collect() | std::views::transform([](const auto& e) {
+                        return std::visit([](const auto& x) { return x.msg; }, e);
+                      })
+                    | kdl::ranges::to<std::vector>();
            });
 }
 

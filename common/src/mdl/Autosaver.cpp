@@ -28,6 +28,7 @@
 #include "mdl/Map.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/enumerate_view.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/string_format.h"
@@ -38,6 +39,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -74,16 +76,14 @@ Result<std::vector<std::filesystem::path>> thinBackups(
   }
 
   const auto toDelete = kdl::vec_slice_prefix(backups, 1);
-  return kdl::vec_transform(
-           toDelete,
-           [&](auto filename) {
-             return fs.deleteFile(filename) | kdl::transform([&](const auto deleted) {
-                      if (deleted)
-                      {
-                        logger.debug() << "Deleted autosave backup " << filename;
-                      }
-                    });
-           })
+  return toDelete | std::views::transform([&](auto filename) {
+           return fs.deleteFile(filename) | kdl::transform([&](const auto deleted) {
+                    if (deleted)
+                    {
+                      logger.debug() << "Deleted autosave backup " << filename;
+                    }
+                  });
+         })
          | kdl::fold | kdl::transform([&]() {
              return kdl::vec_slice_suffix(backups, backups.size() - 1);
            });
@@ -97,17 +97,19 @@ std::filesystem::path makeBackupName(
 
 Result<void> cleanBackups(
   io::WritableDiskFileSystem& fs,
-  std::vector<std::filesystem::path>& backups,
+  const std::vector<std::filesystem::path>& backups,
   const std::filesystem::path& mapBasename)
 {
-  return kdl::vec_transform(
-           backups,
-           [&](const std::filesystem::path& backup, const size_t i) {
-             const auto& oldName = backup.filename();
-             const auto newName = makeBackupName(mapBasename, i + 1);
+  const auto cleanBackup = [&](const auto i, const auto& backup) {
+    const auto& oldName = backup.filename();
+    const auto newName = makeBackupName(mapBasename, size_t(i) + 1);
 
-             return oldName != newName ? fs.moveFile(oldName, newName) : Result<void>{};
-           })
+    return oldName != newName ? fs.moveFile(oldName, newName) : Result<void>{};
+  };
+
+  return backups | kdl::views::enumerate | std::views::transform([&](const auto& pair) {
+           return std::apply(cleanBackup, pair);
+         })
          | kdl::fold;
 }
 

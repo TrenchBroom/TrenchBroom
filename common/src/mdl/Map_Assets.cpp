@@ -123,9 +123,10 @@ std::vector<std::filesystem::path> disabledMaterialCollections(const Map& map)
 {
   if (map.world())
   {
-    auto materialCollections = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-      map.materialManager().collections(),
-      [](const auto& collection) { return collection.path(); }));
+    auto materialCollections = kdl::vec_sort_and_remove_duplicates(
+      map.materialManager().collections()
+      | std::views::transform([](const auto& collection) { return collection.path(); })
+      | kdl::ranges::to<std::vector>());
 
     return kdl::set_difference(materialCollections, enabledMaterialCollections(map));
   }
@@ -143,9 +144,9 @@ void setEnabledMaterialCollections(
   if (!enabledMaterialCollections.empty())
   {
     const auto enabledMaterialCollectionStr = kdl::str_join(
-      kdl::vec_transform(
-        kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections),
-        [](const auto& path) { return path.string(); }),
+      kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections)
+        | std::views::transform([](const auto& path) { return path.string(); })
+        | kdl::ranges::to<std::vector>(),
       ";");
 
     const auto success = setEntityProperty(

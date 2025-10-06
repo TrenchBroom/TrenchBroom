@@ -31,7 +31,7 @@
 #include "render/PrimType.h"
 
 #include "kdl/path_utils.h"
-#include "kdl/string_format.h"
+#include "kdl/ranges/to.h"
 
 #include <fmt/format.h>
 
@@ -264,9 +264,10 @@ auto parseFrameVertices(
     }
   }
 
-  return kdl::vec_transform(packedVertices, [&](const auto& vertex) {
-    return unpackFrameVertex(vertex, origin, scale);
-  });
+  return packedVertices | std::views::transform([&](const auto& vertex) {
+           return unpackFrameVertex(vertex, origin, scale);
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 auto makeFrameTriangles(

@@ -33,8 +33,8 @@
 
 #include "kdl/const_overload.h"
 #include "kdl/overload.h"
+#include "kdl/ranges/zip_view.h"
 #include "kdl/reflection_impl.h"
-#include "kdl/zip_iterator.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 #include "vm/intersection.h"
@@ -280,7 +280,7 @@ PatchGrid makePatchGrid(const BezierPatch& patch, const size_t subdivisionsPerSu
 
   auto points = std::vector<PatchGrid::Point>{};
   auto boundsBuilder = vm::bbox3d::builder{};
-  for (const auto [point, normal] : kdl::make_zip_range(patchGrid, normals))
+  for (const auto [point, normal] : kdl::views::zip(patchGrid, normals))
   {
     const auto position = vm::slice<3>(point, 0);
     const auto uvCoords = vm::slice<2>(point, 3);

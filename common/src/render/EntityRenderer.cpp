@@ -33,10 +33,13 @@
 #include "render/RenderService.h"
 #include "render/TextAnchor.h"
 
+#include "kdl/ranges/to.h"
+
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
+#include <ranges>
 #include <vector>
 
 namespace tb::render
@@ -362,7 +365,8 @@ void EntityRenderer::renderAngles(RenderContext& renderContext, RenderBatch& ren
 
 
       const auto vertices =
-        kdl::vec_transform(arrow, [&](const auto& x) { return matrix * x; });
+        arrow | std::views::transform([&](const auto& x) { return matrix * x; })
+        | kdl::ranges::to<std::vector>();
       renderService.renderPolygonOutline(vertices);
     }
   }

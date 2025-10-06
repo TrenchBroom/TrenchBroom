@@ -23,7 +23,7 @@
 #include "mdl/CompareHits.h"
 #include "mdl/Hit.h"
 
-#include "kdl/vector_utils.h"
+#include "kdl/ranges/to.h"
 
 #include "vm/scalar.h"
 #include "vm/util.h"
@@ -31,6 +31,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -152,7 +153,7 @@ const Hit& PickResult::first(const HitFilter& filter) const
 
 std::vector<Hit> PickResult::all(const HitFilter& filter) const
 {
-  return kdl::vec_filter(m_hits, filter);
+  return m_hits | std::views::filter(filter) | kdl::ranges::to<std::vector>();
 }
 
 void PickResult::clear()

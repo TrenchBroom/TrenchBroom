@@ -32,7 +32,7 @@
 #include "ui/InputState.h"
 #include "ui/ScaleTool.h"
 
-#include "kdl/vector_utils.h"
+#include "kdl/ranges/to.h"
 
 #include "vm/line.h"
 #include "vm/plane.h"
@@ -40,6 +40,7 @@
 #include "vm/segment.h"
 
 #include <cassert>
+#include <ranges>
 #include <utility>
 
 namespace tb::ui
@@ -379,7 +380,7 @@ static std::vector<vm::vec3d> visibleCornerHandles(
     return cornerHandles;
   }
 
-  return kdl::vec_filter(cornerHandles, [&](const auto& corner) {
+  const auto isVisible = [&](const auto& corner) {
     const auto ray = vm::ray3d{camera.pickRay(vm::vec3f{corner})};
 
     auto pr = mdl::PickResult{};
@@ -393,7 +394,9 @@ static std::vector<vm::vec3d> visibleCornerHandles(
     }
 
     return !pr.empty() && pr.all().front().type() == ScaleTool::ScaleToolCornerHitType;
-  });
+  };
+
+  return cornerHandles | std::views::filter(isVisible) | kdl::ranges::to<std::vector>();
 }
 
 void ScaleToolController::render(

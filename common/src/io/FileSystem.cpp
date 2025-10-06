@@ -22,12 +22,14 @@
 #include "io/PathInfo.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/as_rvalue_view.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -52,9 +54,10 @@ Result<std::vector<std::filesystem::path>> FileSystem::find(
   }
 
   return doFind(path, traversalMode) | kdl::transform([&](auto paths) {
-           return kdl::vec_filter(std::move(paths), [&](const auto& p) {
-             return pathMatcher(p, [&](const auto& x) { return pathInfo(x); });
-           });
+           return paths | std::views::filter([&](const auto& p) {
+                    return pathMatcher(p, [&](const auto& x) { return pathInfo(x); });
+                  })
+                  | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
          });
 }
 

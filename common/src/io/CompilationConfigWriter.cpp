@@ -26,7 +26,7 @@
 #include "mdl/CompilationTask.h"
 
 #include "kdl/overload.h"
-#include "kdl/vector_utils.h"
+#include "kdl/ranges/to.h"
 
 #include <cassert>
 #include <ostream>
@@ -53,8 +53,10 @@ void CompilationConfigWriter::writeConfig()
 el::Value CompilationConfigWriter::writeProfiles(
   const mdl::CompilationConfig& config) const
 {
-  return el::Value{kdl::vec_transform(
-    config.profiles, [&](const auto& profile) { return writeProfile(profile); })};
+  return el::Value{
+    config.profiles
+    | std::views::transform([&](const auto& profile) { return writeProfile(profile); })
+    | kdl::ranges::to<std::vector>()};
 }
 
 el::Value CompilationConfigWriter::writeProfile(
@@ -70,7 +72,7 @@ el::Value CompilationConfigWriter::writeProfile(
 el::Value CompilationConfigWriter::writeTasks(
   const mdl::CompilationProfile& profile) const
 {
-  return el::Value{kdl::vec_transform(profile.tasks, [](const auto& task) {
+  const auto writeTask = [](const auto& task) {
     return std::visit(
       kdl::overload(
         [](const mdl::CompilationExportMap& exportMap) {
@@ -131,7 +133,10 @@ el::Value CompilationConfigWriter::writeTasks(
           return el::Value{std::move(map)};
         }),
       task);
-  })};
+  };
+
+  return el::Value{
+    profile.tasks | std::views::transform(writeTask) | kdl::ranges::to<std::vector>()};
 }
 
 } // namespace tb::io

@@ -39,6 +39,7 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <ranges>
 
@@ -170,11 +171,13 @@ void SmartWadEditor::removeSelectedWads()
     return;
   }
 
-  const auto indicesToRemove = kdl::vec_sort(
-    kdl::vec_transform(
-      m_wadPaths->selectedItems(),
-      [&](const auto& selectedItem) { return size_t(m_wadPaths->row(selectedItem)); }),
-    std::greater<size_t>{});
+  auto indicesToRemove = std::vector<size_t>{};
+  std::transform(
+    m_wadPaths->selectedItems().begin(),
+    m_wadPaths->selectedItems().end(),
+    std::back_inserter(indicesToRemove),
+    [&](const auto* item) { return size_t(m_wadPaths->row(item)); });
+  std::ranges::sort(indicesToRemove, std::greater<size_t>{});
 
   auto wadPaths = getWadPaths(nodes(), propertyKey());
   for (const auto index : indicesToRemove)
@@ -268,8 +271,12 @@ bool SmartWadEditor::canReloadWads() const
 
 void SmartWadEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
-  const auto selectedRows =
-    kdl::vec_transform(m_wadPaths->selectedItems(), [&](const auto& selectedItem) {
+  auto cachedSelection = std::vector<std::tuple<int, QString>>{};
+  std::transform(
+    m_wadPaths->selectedItems().begin(),
+    m_wadPaths->selectedItems().end(),
+    std::back_inserter(cachedSelection),
+    [&](const auto* selectedItem) {
       return std::tuple{m_wadPaths->row(selectedItem), selectedItem->text()};
     });
 
@@ -280,7 +287,7 @@ void SmartWadEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nod
     m_wadPaths->addItem(io::pathAsQString(path));
   }
 
-  for (const auto& [index, text] : selectedRows)
+  for (const auto& [index, text] : cachedSelection)
   {
     if (index < m_wadPaths->count() && m_wadPaths->item(index)->text() == text)
     {

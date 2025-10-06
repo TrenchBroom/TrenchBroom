@@ -36,8 +36,8 @@ namespace kdl
  *
  * If any of the given results contains an error, that error is returned.
  */
-template <typename I>
-auto fold_results(I cur, I end)
+template <typename I, typename S>
+auto fold_results(I cur, S end)
 {
   using in_result_type = typename std::iterator_traits<I>::value_type;
   using in_value_type = typename in_result_type::value_type;
@@ -95,7 +95,7 @@ auto fold_results(I cur, I end)
 template <typename C>
 auto fold_results(C&& c)
 {
-  return fold_results(std::begin(c), std::end(c));
+  return fold_results(std::ranges::begin(c), std::ranges::end(c));
 }
 
 /**
@@ -105,8 +105,8 @@ auto fold_results(C&& c)
  *
  * If any of the given results contains an error, that error is returned.
  */
-template <typename I>
-auto collect_results(I cur, I end)
+template <typename I, typename S>
+auto collect_results(I cur, S end)
 {
   using in_result_type = typename std::iterator_traits<I>::value_type;
   using in_value_type = typename in_result_type::value_type;
@@ -121,7 +121,7 @@ auto collect_results(I cur, I end)
 
     while (cur != end)
     {
-      if (cur->is_error())
+      if ((*cur).is_error())
       {
         errors.push_back(std::move(*cur).error());
       }
@@ -164,11 +164,11 @@ auto collect_results(I cur, I end)
 template <typename C>
 auto collect_results(C&& c)
 {
-  return collect_results(c.begin(), c.end());
+  return collect_results(std::ranges::begin(c), std::ranges::end(c));
 }
 
-template <typename I, typename F>
-auto select_first(I cur, I end, const F& f)
+template <typename I, typename S, typename F>
+auto select_first(I cur, S end, const F& f)
   -> std::optional<typename decltype(f(*cur))::value_type>
 {
   while (cur != end)
@@ -184,7 +184,7 @@ auto select_first(I cur, I end, const F& f)
 template <typename C, typename F>
 auto select_first(C&& c, const F& f)
 {
-  return select_first(std::begin(c), std::end(c), f);
+  return select_first(std::ranges::begin(c), std::ranges::end(c), f);
 }
 
 struct result_fold

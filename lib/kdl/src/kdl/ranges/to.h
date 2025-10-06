@@ -23,6 +23,12 @@
 #include <algorithm>
 #include <ranges>
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
+
 namespace kdl::ranges
 {
 namespace detail
@@ -87,6 +93,17 @@ struct dummy_iterator
   bool operator==(const dummy_iterator&) const;
 };
 
+// True if std::iterator_traits<std::ranges::iterator_t<R>>::iterator_category
+// is valid and denotes a type derived from std::input_iterator_tag
+template <typename R>
+concept input_iterator_range =
+  requires {
+    typename std::iterator_traits<std::ranges::iterator_t<R>>::iterator_category;
+  }
+  && std::derived_from<
+    typename std::iterator_traits<std::ranges::iterator_t<R>>::iterator_category,
+    std::input_iterator_tag>;
+
 } // namespace detail
 
 template <typename C, std::ranges::input_range R, typename... Args>
@@ -99,22 +116,6 @@ constexpr C to(R&& r, Args&&... args)
     || std::
       convertible_to<std::ranges::range_reference_t<R>, std::ranges::range_value_t<C>>)
   {
-    // True if std::ranges::iterator_t<R>::iterator_category is valid and denotes an
-    // input iterator.
-    constexpr auto is_input_iterator = []() constexpr {
-      using It = std::ranges::iterator_t<R>;
-      if constexpr (requires { typename std::iterator_traits<It>::iterator_category; })
-      {
-        return std::derived_from<
-          typename std::iterator_traits<It>::iterator_category,
-          std::input_iterator_tag>;
-      }
-      else
-      {
-        return false;
-      }
-    }();
-
     if constexpr (std::constructible_from<C, R, Args...>)
     {
       return C(std::forward<R>(r), std::forward<Args>(args)...);
@@ -125,13 +126,12 @@ constexpr C to(R&& r, Args&&... args)
     //   return C(std::from_range, std::forward<R>(r), std::forward<Args>(args)...);
     // }
     if constexpr (
-      std::ranges::common_range<R>
+      std::ranges::common_range<R> && detail::input_iterator_range<R>
       && std::constructible_from<
         C,
         std::ranges::iterator_t<R>,
         std::ranges::sentinel_t<R>,
-        Args...>
-      && is_input_iterator)
+        Args...>)
     {
       return C(std::ranges::begin(r), std::ranges::end(r), std::forward<Args>(args)...);
     }
@@ -282,5 +282,9 @@ constexpr auto to(Args&&... args)
 {
   return detail::to_fn<detail::wrap_c<C>, Args...>{std::forward<Args>(args)...};
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } // namespace kdl::ranges

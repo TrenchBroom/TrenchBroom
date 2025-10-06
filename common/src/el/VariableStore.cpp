@@ -22,12 +22,13 @@
 #include "el/ELExceptions.h"
 #include "el/Value.h"
 
-#include "kdl/map_utils.h"
+#include "kdl/ranges/to.h"
 
 #include <fmt/format.h>
 
 #include <algorithm>
 #include <ostream>
+#include <ranges>
 #include <string>
 
 namespace tb::el
@@ -99,7 +100,7 @@ Value VariableTable::value(const std::string& name) const
 
 std::vector<std::string> VariableTable::names() const
 {
-  return kdl::map_keys(m_variables);
+  return m_variables | std::views::keys | kdl::ranges::to<std::vector>();
 }
 
 void VariableTable::set(std::string name, Value value)

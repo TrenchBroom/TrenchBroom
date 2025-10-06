@@ -25,10 +25,10 @@
 
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <filesystem>
+#include <ranges>
 #include <string>
 
 namespace tb::render
@@ -65,23 +65,19 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
 Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
 {
   return createShaderProgram(config.name) | kdl::and_then([&](auto program) {
-           return kdl::vec_transform(
-                    config.vertexShaders,
-                    [&](const auto& path) {
-                      return loadShader(path, GL_VERTEX_SHADER)
-                             | kdl::transform(
-                               [&](auto shader) { program.attach(shader.get()); });
-                    })
+           return config.vertexShaders | std::views::transform([&](const auto& path) {
+                    return loadShader(path, GL_VERTEX_SHADER)
+                           | kdl::transform(
+                             [&](auto shader) { program.attach(shader.get()); });
+                  })
                   | kdl::fold | kdl::transform([&]() { return std::move(program); });
          })
          | kdl::and_then([&](auto program) {
-             return kdl::vec_transform(
-                      config.fragmentShaders,
-                      [&](const auto& path) {
-                        return loadShader(path, GL_FRAGMENT_SHADER)
-                               | kdl::transform(
-                                 [&](auto shader) { program.attach(shader.get()); });
-                      })
+             return config.fragmentShaders | std::views::transform([&](const auto& path) {
+                      return loadShader(path, GL_FRAGMENT_SHADER)
+                             | kdl::transform(
+                               [&](auto shader) { program.attach(shader.get()); });
+                    })
                     | kdl::fold | kdl::transform([&]() { return std::move(program); });
            })
          | kdl::and_then([&](auto program) {

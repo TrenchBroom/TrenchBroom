@@ -41,10 +41,13 @@
 #include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/zip_iterator.h"
+#include "kdl/ranges/to.h"
+#include "kdl/ranges/zip_view.h"
 
 #include "vm/approx.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
+
+#include <ranges>
 
 #include "catch/Matchers.h"
 
@@ -91,7 +94,7 @@ void checkTransformation(
 
   REQUIRE(node.childCount() == original.childCount());
   for (const auto& [nodeChild, originalChild] :
-       kdl::make_zip_range(node.children(), original.children()))
+       kdl::views::zip(node.children(), original.children()))
   {
     checkTransformation(*nodeChild, *originalChild, transformation);
   }
@@ -253,8 +256,9 @@ TEST_CASE("Map_Geometry")
             [](auto* brushNode, const vm::vec3d& normal) -> std::vector<vm::vec2f> {
             const BrushFace& face =
               brushNode->brush().face(*brushNode->brush().findFace(normal));
-            return kdl::vec_transform(
-              face.vertexPositions(), [&](auto x) { return face.uvCoords(x); });
+            return face.vertexPositions()
+                   | std::views::transform([&](auto x) { return face.uvCoords(x); })
+                   | kdl::ranges::to<std::vector>();
           };
 
           // Brushes in linked groups should have alignment lock forced on

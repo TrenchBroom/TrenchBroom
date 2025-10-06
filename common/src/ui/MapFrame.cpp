@@ -2445,9 +2445,8 @@ void MapFrame::dropEvent(QDropEvent* event)
   }
 
   const auto* wadPathsStr = map.world()->entity().property(*wadPropertyKey);
-  auto wadPaths = wadPathsStr ? kdl::vec_transform(
-                                  kdl::str_split(*wadPathsStr, ";"),
-                                  [](const auto& s) { return std::filesystem::path{s}; })
+  auto wadPaths = wadPathsStr ? kdl::str_split(*wadPathsStr, ";")
+                                  | kdl::ranges::to<std::vector<std::filesystem::path>>()
                               : std::vector<std::filesystem::path>{};
 
   auto pathDialog = ChoosePathTypeDialog{
@@ -2462,18 +2461,19 @@ void MapFrame::dropEvent(QDropEvent* event)
     return;
   }
 
-  auto wadPathsToAdd = kdl::vec_transform(urls, [&](const auto& url) {
-    return convertToPathType(
-      pathDialog.pathType(),
-      io::pathFromQString(url.toLocalFile()),
-      map.path(),
-      game->gamePath());
-  });
+  auto wadPathsToAdd = std::vector<std::filesystem::path>{};
+  std::transform(
+    urls.begin(), urls.end(), std::back_inserter(wadPathsToAdd), [&](const auto& url) {
+      return convertToPathType(
+        pathDialog.pathType(),
+        io::pathFromQString(url.toLocalFile()),
+        map.path(),
+        game->gamePath());
+    });
 
   const auto newWadPathsStr = kdl::str_join(
-    kdl::vec_transform(
-      kdl::vec_concat(std::move(wadPaths), std::move(wadPathsToAdd)),
-      [](const auto& path) { return path.string(); }),
+    kdl::vec_concat(std::move(wadPaths), std::move(wadPathsToAdd))
+      | std::views::transform([](const auto& path) { return path.string(); }),
     ";");
   setEntityProperty(map, *wadPropertyKey, newWadPathsStr);
 

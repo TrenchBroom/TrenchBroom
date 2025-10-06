@@ -81,6 +81,7 @@
 #include "ui/SelectionTool.h"
 #include "ui/SignalDelayer.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
 #include "kdl/vector_utils.h"
@@ -1691,10 +1692,11 @@ void MapViewBase::reparentNodes(
 std::vector<mdl::Node*> MapViewBase::collectReparentableNodes(
   const std::vector<mdl::Node*>& nodes, const mdl::Node* newParent) const
 {
-  return kdl::vec_filter(nodes, [&](const auto* node) {
-    return newParent != node && newParent != node->parent()
-           && !newParent->isDescendantOf(node);
-  });
+  return nodes | std::views::filter([&](const auto* node) {
+           return newParent != node && newParent != node->parent()
+                  && !newParent->isDescendantOf(node);
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 bool MapViewBase::canMergeGroups() const

@@ -22,7 +22,6 @@
 #include "el/ELExceptions.h"
 #include "el/EvaluationContext.h"
 
-#include "kdl/map_utils.h"
 #include "kdl/overload.h"
 #include "kdl/ranges/to.h"
 #include "kdl/string_compare.h"
@@ -755,7 +754,7 @@ bool Value::contains(const EvaluationContext& context, const std::string& key) c
 
 std::vector<std::string> Value::keys(const EvaluationContext& context) const
 {
-  return kdl::map_keys(mapValue(context));
+  return mapValue(context) | std::views::keys | kdl::ranges::to<std::vector>();
 }
 
 Value Value::at(const EvaluationContext& context, const size_t index) const

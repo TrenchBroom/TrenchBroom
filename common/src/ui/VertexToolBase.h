@@ -43,6 +43,7 @@
 #include "ui/Tool.h"
 
 #include "kdl/overload.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/set_temp.h"
 #include "kdl/string_utils.h"
@@ -555,7 +556,8 @@ private: // Observers and state management
     if (m_ignoreChangeNotifications == 0u)
     {
       const auto selectedNodes =
-        kdl::vec_filter(nodes, [](const auto* node) { return node->selected(); });
+        nodes | std::views::filter([](const auto* node) { return node->selected(); })
+        | kdl::ranges::to<std::vector>();
       removeHandles(selectedNodes);
     }
   }
@@ -565,7 +567,8 @@ private: // Observers and state management
     if (m_ignoreChangeNotifications == 0u)
     {
       const auto selectedNodes =
-        kdl::vec_filter(nodes, [](const auto* node) { return node->selected(); });
+        nodes | std::views::filter([](const auto* node) { return node->selected(); })
+        | kdl::ranges::to<std::vector>();
       addHandles(selectedNodes);
     }
   }

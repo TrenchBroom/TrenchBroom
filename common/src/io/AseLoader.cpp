@@ -667,16 +667,19 @@ Result<mdl::EntityModelData> AseLoader::buildModelData(
 {
   using Vertex = mdl::EntityModelVertex;
 
-  auto data = mdl::EntityModelData{mdl::PitchType::Normal, mdl::Orientation::Oriented};
-  auto& surface = data.addSurface(m_name, 1);
-
-  // Load the materials
-  auto materials = kdl::vec_transform(scene.materialPaths, [&](const auto& path) {
+  const auto loadMaterial = [&](const auto& path) {
     const auto fixedPath = fixMaterialPath(path);
     return m_loadMaterial(fixedPath);
-  });
+  };
+
+  // Load the materials
+  auto materials = scene.materialPaths | std::views::transform(loadMaterial)
+                   | kdl::ranges::to<std::vector>();
 
   materials.push_back(m_loadMaterial(DefaultTexturePath));
+
+  auto data = mdl::EntityModelData{mdl::PitchType::Normal, mdl::Orientation::Oriented};
+  auto& surface = data.addSurface(m_name, 1);
   surface.setSkins(std::move(materials));
 
   // Count vertices and build bounds

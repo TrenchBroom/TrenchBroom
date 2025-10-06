@@ -24,9 +24,10 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
-#include "kdl/vector_utils.h"
+#include "kdl/ranges/to.h"
 
 #include <cassert>
+#include <ranges>
 #include <string>
 
 namespace tb::mdl
@@ -46,9 +47,10 @@ const std::string& Validator::description() const
 
 std::vector<const IssueQuickFix*> Validator::quickFixes() const
 {
-  return kdl::vec_transform(m_quickFixes, [](const auto& quickFix) {
-    return const_cast<const IssueQuickFix*>(&quickFix);
-  });
+  return m_quickFixes | std::views::transform([](const auto& quickFix) {
+           return const_cast<const IssueQuickFix*>(&quickFix);
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 void Validator::validate(Node& node, std::vector<std::unique_ptr<Issue>>& issues) const

@@ -38,6 +38,8 @@
 #include "render/PrimType.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/as_rvalue_view.h"
+#include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
@@ -820,6 +822,11 @@ bool AssimpLoader::canParse(const std::filesystem::path& path)
 
 Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
 {
+  const auto createMaterial = [](auto texture) {
+    auto textureResource = createTextureResource(std::move(texture));
+    return mdl::Material{"", std::move(textureResource)};
+  };
+
   try
   {
     constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
@@ -858,12 +865,10 @@ Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
       // multiple alternatives (this is how assimp handles skins)
 
       // load skins for this surface
-      auto textures =
-        loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger);
-      auto materials = kdl::vec_transform(std::move(textures), [](auto texture) {
-        auto textureResource = createTextureResource(std::move(texture));
-        return mdl::Material{"", std::move(textureResource)};
-      });
+      auto materials =
+        loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger)
+        | kdl::views::as_rvalue | std::views::transform(createMaterial)
+        | kdl::ranges::to<std::vector>();
       surface.setSkins(std::move(materials));
     }
 

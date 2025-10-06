@@ -286,26 +286,6 @@ TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates")
     Equals(std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("vector_utils_test.vec_filter")
-{
-  CHECK_THAT(
-    vec_filter(std::vector<int>{}, [](auto) { return false; }),
-    Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_filter(std::vector<int>{1, 2, 3}, [](auto) { return false; }),
-    Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_filter(std::vector<int>{1, 2, 3}, [](auto) { return true; }),
-    Equals(std::vector<int>{1, 2, 3}));
-  CHECK_THAT(
-    vec_filter(std::vector<int>{1, 2, 3}, [](auto x) { return x % 2 == 0; }),
-    Equals(std::vector<int>{2}));
-
-  CHECK_THAT(
-    vec_filter(std::vector<int>{1, 2, 3}, [](auto, auto i) { return i % 2 == 0; }),
-    Equals(std::vector<int>{1, 3}));
-}
-
 struct MoveOnly
 {
   MoveOnly() = default;
@@ -316,84 +296,6 @@ struct MoveOnly
   MoveOnly(MoveOnly&& other) noexcept = default;
   MoveOnly& operator=(MoveOnly&& other) = default;
 };
-
-TEST_CASE("vector_utils_test.vec_filter_rvalue")
-{
-  const auto makeVec = []() {
-    auto vec = std::vector<MoveOnly>{};
-    vec.emplace_back();
-    vec.emplace_back();
-    return vec;
-  };
-
-  CHECK(vec_filter(makeVec(), [](const auto&) { return true; }).size() == 2u);
-  CHECK(
-    vec_filter(makeVec(), [](const auto&, auto i) { return i % 2u == 1u; }).size() == 1u);
-}
-
-TEST_CASE("vector_utils_test.vec_transform")
-{
-  CHECK_THAT(
-    vec_transform(std::vector<int>{}, [](auto x) { return x + 10; }),
-    Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_transform(std::vector<int>{1, 2, 3}, [](auto x) { return x + 10; }),
-    Equals(std::vector<int>{11, 12, 13}));
-  CHECK_THAT(
-    vec_transform(std::vector<int>{1, 2, 3}, [](auto x) { return x + 10.0; }),
-    Equals(std::vector<double>{11.0, 12.0, 13.0}));
-  CHECK_THAT(
-    vec_transform(
-      std::vector<int>{1, 2, 3},
-      [](auto x, auto i) { return x + static_cast<double>(i); }),
-    Equals(std::vector<double>{1.0, 3.0, 5.0}));
-}
-
-struct X
-{
-};
-
-TEST_CASE("vector_utils_test.vec_transform_lvalue")
-{
-  std::vector<X> v{X{}, X{}, X{}};
-
-  CHECK(vec_transform(v, [](X& x) { return x; }).size() == 3u);
-  CHECK(vec_transform(v, [](X& x, std::size_t) { return x; }).size() == 3u);
-}
-
-TEST_CASE("vector_utils_test.vec_transform_rvalue")
-{
-  CHECK(
-    vec_transform(std::vector<X>{X()}, [](X&& x) { return std::move(x); }).size() == 1u);
-  CHECK(
-    vec_transform(std::vector<X>{X()}, [](X&& x, std::size_t) { return std::move(x); })
-      .size()
-    == 1u);
-}
-
-TEST_CASE("vector_utils_test.vec_flatten")
-{
-  CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{}), Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1}}), Equals(std::vector<int>{1}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{}, {}}), Equals(std::vector<int>{}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1}, {}}), Equals(std::vector<int>{1}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{}, {1}}), Equals(std::vector<int>{1}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1}, {2}}), Equals(std::vector<int>{1, 2}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1, 2}, {3}}),
-    Equals(std::vector<int>{1, 2, 3}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1, 2}, {3}}),
-    Equals(std::vector<int>{1, 2, 3}));
-  CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1, 2}, {2, 3}}),
-    Equals(std::vector<int>{1, 2, 2, 3}));
-}
 
 TEST_CASE("vector_utils_test.set_difference")
 {

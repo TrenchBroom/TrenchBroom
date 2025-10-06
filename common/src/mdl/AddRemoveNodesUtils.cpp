@@ -24,7 +24,7 @@
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/map_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/vector_utils.h"
 
 namespace tb::mdl
@@ -32,7 +32,9 @@ namespace tb::mdl
 
 void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
-  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  const auto parents =
+    collectNodesAndAncestors(nodes | std::views::keys | kdl::ranges::to<std::vector>());
+
   auto notifyParents = NotifyBeforeAndAfter{
     map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
 
@@ -48,11 +50,15 @@ void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& ma
 
 void removeNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
-  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  const auto parents =
+    collectNodesAndAncestors(nodes | std::views::keys | kdl::ranges::to<std::vector>());
+
   auto notifyParents = NotifyBeforeAndAfter{
     map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
 
-  const auto allChildren = kdl::vec_flatten(kdl::map_values(nodes));
+  const auto allChildren =
+    nodes | std::views::values | std::views::join | kdl::ranges::to<std::vector>();
+
   auto notifyChildren = NotifyBeforeAndAfter{
     map.nodesWillBeRemovedNotifier, map.nodesWereRemovedNotifier, allChildren};
 

@@ -47,10 +47,12 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/string_format.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
+#include <ranges>
 #include <vector>
 
 #define GRID_LOG(x)
@@ -147,8 +149,10 @@ void EntityPropertyGrid::removeSelectedProperties()
   }
 
   const auto selectedRows = selectedRowsAndCursorRow();
-  const auto propertyKeys = kdl::vec_transform(
-    selectedRows, [&](const auto row) { return m_model->propertyKey(row); });
+  const auto propertyKeys =
+    selectedRows
+    | std::views::transform([&](const auto row) { return m_model->propertyKey(row); })
+    | kdl::ranges::to<std::vector>();
   const auto numRows = propertyKeys.size();
 
   auto& map = m_document.map();

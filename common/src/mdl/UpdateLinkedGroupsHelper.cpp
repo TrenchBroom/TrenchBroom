@@ -25,8 +25,8 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/map_utils.h"
 #include "kdl/overload.h"
+#include "kdl/ranges/as_rvalue_view.h"
 #include "kdl/ranges/to.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -70,7 +70,8 @@ auto doReplaceChildren(
     return result;
   }
 
-  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  const auto parents =
+    collectNodesAndAncestors(nodes | std::views::keys | kdl::ranges::to<std::vector>());
   auto notifyParents = NotifyBeforeAndAfter{
     map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
 
@@ -83,8 +84,9 @@ auto doReplaceChildren(
   for (auto& [parent, newChildren] : nodes)
   {
     allNewChildren = kdl::vec_concat(
-      std::move(allNewChildren),
-      kdl::vec_transform(newChildren, [](auto& child) { return child.get(); }));
+      std::move(allNewChildren), newChildren | std::views::transform([](auto& child) {
+                                   return child.get();
+                                 }) | kdl::ranges::to<std::vector>());
 
     auto oldChildren = parent->replaceChildren(std::move(newChildren));
 
@@ -193,7 +195,8 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
          })
          | kdl::fold
          | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
-             return kdl::vec_flatten(std::move(nestedUpdateLists));
+             return nestedUpdateLists | std::views::join | kdl::views::as_rvalue
+                    | kdl::ranges::to<std::vector>();
            });
 }
 

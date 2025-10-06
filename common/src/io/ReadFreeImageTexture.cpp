@@ -28,6 +28,7 @@
 #include "mdl/TextureBuffer.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/ranges/to.h"
 #include "kdl/resource.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
@@ -219,9 +220,9 @@ std::vector<std::string> getSupportedFreeImageExtensions()
         kdl::str_to_lower(std::string{FreeImage_GetFIFExtensionList(format)});
       result = kdl::vec_concat(
         std::move(result),
-        kdl::vec_transform(
-          kdl::str_split(extensionListStr, ","),
-          [](const auto& extension) { return "." + extension; }));
+        kdl::str_split(extensionListStr, ",")
+          | std::views::transform([](const auto& extension) { return "." + extension; })
+          | kdl::ranges::to<std::vector>());
     }
   }
 

@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 
-#include "kdl/zip_iterator.h"
+#include "kdl/ranges/zip_view.h"
 
 #include <compare>
 
@@ -63,7 +63,7 @@ std::strong_ordering AttrString::operator<=>(const AttrString& other) const
     return cmp;
   }
 
-  for (const auto& [mine, theirs] : kdl::make_zip_range(m_lines, other.m_lines))
+  for (const auto& [mine, theirs] : kdl::views::zip(m_lines, other.m_lines))
   {
     if (const auto cmp = mine <=> theirs; cmp != 0)
     {

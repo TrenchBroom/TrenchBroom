@@ -19,7 +19,11 @@
 
 #pragma once
 
+#include "kdl/ranges/to.h"
+
 #include <cstddef>
+#include <ranges>
+#include <tuple>
 #include <vector>
 
 namespace tb::render
@@ -137,6 +141,30 @@ struct GLVertex<AttrType, AttrTypeRest...>
       result.emplace_back((*cur++)...);
     }
     return result;
+  }
+
+  /**
+   * Creates a list of vertices from the given data. The attribute values for each vertex
+   * are taken from the range of tuples. The tuple elements must be given in the correct
+   * order according the type of this vertex.
+   *
+   * @tparam R the type of the given range of tuples
+   * @param r the range of tuples
+   * @return the list of vertices
+   */
+  template <std::ranges::range R>
+  static std::vector<GLVertex<AttrType, AttrTypeRest...>> toList(R r)
+  {
+    using TupleType = std::ranges::range_value_t<R>;
+
+    static_assert(
+      std::tuple_size_v<TupleType> == sizeof...(AttrTypeRest) + 1,
+      "tuple size must match number of vertex attributes");
+
+    return r | std::views::transform([](const auto& attrTuple) {
+             return std::make_from_tuple<GLVertex<AttrType, AttrTypeRest...>>(attrTuple);
+           })
+           | kdl::ranges::to<std::vector>();
   }
 };
 
