@@ -498,24 +498,6 @@ std::vector<T, A> vec_erase(std::vector<T, A> v, const X& x)
 }
 
 /**
- * Erases every element from the given vector for which the given predicate evaluates to
- * true using the erase-remove idiom. Returns a vector with the remaining elements.
- *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam P the predicate type
- * @param v the vector
- * @param predicate the predicate
- * @return a vector with the remaining elements
- */
-template <typename T, typename A, typename P>
-std::vector<T, A> vec_erase_if(std::vector<T, A> v, const P& predicate)
-{
-  v.erase(std::remove_if(std::begin(v), std::end(v), predicate), std::end(v));
-  return v;
-}
-
-/**
  * Erases the element at the given index from the given vector. The element is swapped
  * with the last element of the vector, and then the last element is erased. Returns a
  * vector with the remaining elements.

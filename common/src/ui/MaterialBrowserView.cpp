@@ -253,13 +253,12 @@ std::vector<const mdl::Material*> MaterialBrowserView::filterMaterials(
 {
   if (m_hideUnused)
   {
-    materials = kdl::vec_erase_if(std::move(materials), [](const auto* material) {
-      return material->usageCount() == 0;
-    });
+    std::erase_if(
+      materials, [](const auto* material) { return material->usageCount() == 0; });
   }
   if (!m_filterText.empty())
   {
-    materials = kdl::vec_erase_if(std::move(materials), [&](const auto* material) {
+    std::erase_if(materials, [&](const auto* material) {
       return std::ranges::none_of(
         kdl::str_split(m_filterText, " "), [&](const auto& pattern) {
           return kdl::ci::str_contains(material->name(), pattern);

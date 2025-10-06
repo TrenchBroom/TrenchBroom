@@ -377,9 +377,7 @@ void ToolBox::deactivateTool(Tool& tool)
   const auto previouslySuppressedTools = currentlySuppressedTools();
 
   tool.deactivate();
-  m_modalToolStack.erase(
-    std::remove(m_modalToolStack.begin(), m_modalToolStack.end(), &tool),
-    m_modalToolStack.end());
+  std::erase(m_modalToolStack, &tool);
   toolDeactivatedNotifier(tool);
 
   const auto toolsToRelease =
