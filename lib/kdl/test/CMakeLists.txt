@@ -38,7 +38,6 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_result.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_set_adapter.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_set_temp.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_skip_iterator.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_stable_remove_duplicates.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_std_io.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_string_compare.cpp"

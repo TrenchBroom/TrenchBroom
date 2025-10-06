@@ -39,7 +39,9 @@
 #include "ui/CellLayout.h"
 #include "ui/RenderView.h"
 
-#include "kdl/skip_iterator.h"
+#include "kdl/ranges/repeat_view.h"
+#include "kdl/ranges/stride_view.h"
+#include "kdl/ranges/zip_view.h"
 
 #include "vm/mat_ext.h"
 
@@ -444,7 +446,7 @@ auto collectStringVertices(
   auto defaultFont = render::FontDescriptor{
     pref(Preferences::RendererFontPath()), size_t(pref(Preferences::BrowserFontSize))};
 
-  const auto textColor = std::vector<Color>{pref(Preferences::BrowserTextColor)};
+  const auto textColor = pref(Preferences::BrowserTextColor);
 
   auto stringVertices = std::map<render::FontDescriptor, std::vector<TextVertex>>{};
   for (const auto& group : layout.groups())
@@ -461,11 +463,12 @@ auto collectStringVertices(
 
         auto& font = fontManager.font(defaultFont);
         const auto quads = font.quads(groupTitle, false, offset);
-        const auto titleVertices = TextVertex::toList(
-          quads.size() / 2,
-          kdl::skip_iterator{std::begin(quads), std::end(quads), 0, 2},
-          kdl::skip_iterator{std::begin(quads), std::end(quads), 1, 2},
-          kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
+
+        const auto titleVertices = TextVertex::toList(kdl::views::zip(
+          quads | kdl::views::stride(2),
+          quads | std::views::drop(1) | kdl::views::stride(2),
+          kdl::views::repeat(textColor)));
+
         auto& vertices = stringVertices[defaultFont];
         vertices.insert(
           std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
@@ -491,11 +494,10 @@ auto collectStringVertices(
             const auto yOffset = vm::vec2f{x, y + height - bounds.bottom()};
 
             const auto quads = font.quads(title, false, yOffset);
-            const auto vertices = TextVertex::toList(
-              quads.size() / 2,
-              kdl::skip_iterator{std::begin(quads), std::end(quads), 0, 2},
-              kdl::skip_iterator{std::begin(quads), std::end(quads), 1, 2},
-              kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
+            const auto vertices = TextVertex::toList(kdl::views::zip(
+              quads | kdl::views::stride(2),
+              quads | std::views::drop(1) | kdl::views::stride(2),
+              kdl::views::repeat(textColor)));
 
             stringVertices[fontDescriptor] =
               kdl::vec_concat(std::move(stringVertices[fontDescriptor]), vertices);

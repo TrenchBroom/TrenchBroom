@@ -70,7 +70,6 @@ set(KDL_HEADER
   "${KDL_SOURCE_DIR}/kdl/result.h"
   "${KDL_SOURCE_DIR}/kdl/set_adapter.h"
   "${KDL_SOURCE_DIR}/kdl/set_temp.h"
-  "${KDL_SOURCE_DIR}/kdl/skip_iterator.h"
   "${KDL_SOURCE_DIR}/kdl/stable_remove_duplicates.h"
   "${KDL_SOURCE_DIR}/kdl/std_io.h"
   "${KDL_SOURCE_DIR}/kdl/string_compare_detail.h"
