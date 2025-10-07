@@ -304,6 +304,10 @@ auto withDefaultValue(
         }
         return flagValueType;
       },
+      [&](ColorPropertyType colorValueType) -> mdl::PropertyValueType {
+        // not implemented for now
+        return colorValueType;
+      },
       [&](Unknown unknownValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
