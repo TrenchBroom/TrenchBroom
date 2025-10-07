@@ -93,8 +93,7 @@ void PickResult::addHit(const Hit& hit)
   if (!vm::is_nan(hit.distance()) && !vm::is_nan(hit.hitPoint()))
   {
     ensure(m_compare.get() != nullptr, "compare is null");
-    auto pos = std::upper_bound(
-      std::begin(m_hits), std::end(m_hits), hit, CompareWrapper(m_compare.get()));
+    auto pos = std::ranges::upper_bound(m_hits, hit, CompareWrapper{m_compare.get()});
     m_hits.insert(pos, hit);
   }
 }

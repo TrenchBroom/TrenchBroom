@@ -38,6 +38,7 @@
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
+#include <algorithm>
 #include <numeric>
 #include <ranges>
 #include <vector>
@@ -137,9 +138,10 @@ public:
                }
 
                const auto linkId = getValue(linkIds, nodesWithSameLinkId.front());
-               return linkId && kdl::all_of(nodesWithSameLinkId, [&](auto* entity) {
-                        return getValue(linkIds, entity) == linkId;
-                      });
+               return linkId
+                      && std::ranges::all_of(nodesWithSameLinkId, [&](auto* entity) {
+                           return getValue(linkIds, entity) == linkId;
+                         });
              })
            && std::ranges::none_of(
              expectedLinkIds | kdl::views::adjacent<2>, [](const auto& pair) {

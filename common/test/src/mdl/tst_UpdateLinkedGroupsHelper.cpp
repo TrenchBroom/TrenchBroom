@@ -34,6 +34,8 @@
 
 #include "kdl/overload.h"
 
+#include <algorithm>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -486,7 +488,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       SECTION("Propagate both changes at once")
       {
         auto groupNodes = std::vector<GroupNode*>{outerGroupNode, innerGroupNode};
-        std::sort(std::begin(groupNodes), std::end(groupNodes));
+        std::ranges::sort(groupNodes);
 
         // The following code generates both permutations of the group nodes
         const auto permute = GENERATE(true, false);

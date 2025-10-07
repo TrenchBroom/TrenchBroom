@@ -100,9 +100,8 @@ void BrushRendererBrushCache::validateVertexCache(const mdl::BrushNode& brushNod
   // grouped by material (via `BrushRendererBrushCache::cachedFacesSortedByMaterial()`),
   // without needing to build an std::map
 
-  std::sort(
-    m_cachedFacesSortedByMaterial.begin(),
-    m_cachedFacesSortedByMaterial.end(),
+  std::ranges::sort(
+    m_cachedFacesSortedByMaterial,
     [](const CachedFace& a, const CachedFace& b) { return a.material < b.material; });
 
   // Build edge index cache

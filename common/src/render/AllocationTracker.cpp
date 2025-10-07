@@ -39,11 +39,10 @@ AllocationTracker::Range::Range(Index p, Index s)
 static std::vector<AllocationTracker::Block*>::iterator findFirstLargerOrEqualBin(
   std::vector<AllocationTracker::Block*>& bins, const size_t desiredSize)
 {
-  return std::lower_bound(
-    bins.begin(),
-    bins.end(),
-    desiredSize,
-    [](const AllocationTracker::Block* a, const size_t b) { return a->size < b; });
+  return std::ranges::lower_bound(
+    bins, desiredSize, std::less<size_t>{}, [](const auto* block) {
+      return block->size;
+    });
 }
 
 void AllocationTracker::unlinkFromBinList(Block* block)

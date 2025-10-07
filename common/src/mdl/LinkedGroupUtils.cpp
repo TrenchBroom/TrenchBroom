@@ -33,6 +33,7 @@
 #include "kdl/result_fold.h"
 #include "kdl/task_manager.h"
 
+#include <algorithm>
 #include <string_view>
 #include <unordered_map>
 
@@ -133,7 +134,7 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
   {
     const auto containingGroupNodes = collectContainingGroups(*node);
 
-    const bool isNodeInGroupsToLock = kdl::any_of(
+    const bool isNodeInGroupsToLock = std::ranges::any_of(
       containingGroupNodes,
       [&](auto* groupNode) { return groupsToLock.count(groupNode) == 1u; });
 
@@ -148,7 +149,7 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
     // `linkedGroupsContainingNode`.
 
     // first check if we've already processed all of these
-    const auto areAncestorGroupsHandled = kdl::all_of(
+    const auto areAncestorGroupsHandled = std::ranges::all_of(
       containingGroupNodes,
       [&](auto* groupNode) { return groupsToKeepUnlocked.count(groupNode) == 1u; });
 

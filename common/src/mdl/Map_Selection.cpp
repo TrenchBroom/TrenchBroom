@@ -40,6 +40,7 @@
 #include "kdl/ranges/to.h"
 #include "kdl/result_fold.h"
 
+#include <algorithm>
 #include <ranges>
 #include <unordered_set>
 #include <vector>
@@ -360,10 +361,9 @@ bool canSelectLinkedGroups(const Map& map)
     | std::views::transform([](const auto& groupNode) { return groupNode->linkId(); })
     | kdl::ranges::to<std::vector>());
 
-  return kdl::all_of(map.selection().groups, [&](const auto* groupNode) {
-    const auto [iBegin, iEnd] =
-      std::equal_range(allLinkIds.begin(), allLinkIds.end(), groupNode->linkId());
-    return std::distance(iBegin, iEnd) > 1;
+  return std::ranges::all_of(map.selection().groups, [&](const auto* groupNode) {
+    const auto linkIdRange = std::ranges::equal_range(allLinkIds, groupNode->linkId());
+    return std::ranges::size(linkIdRange) > 1;
   });
 }
 

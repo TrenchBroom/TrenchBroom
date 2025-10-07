@@ -31,6 +31,7 @@
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
 
+#include <algorithm>
 #include <tuple>
 #include <vector>
 
@@ -462,7 +463,7 @@ bool hasConflict(Preference<QKeySequence>& preference)
     &Preferences::CameraFlyUp(),
     &Preferences::CameraFlyDown()};
 
-  return kdl::any_of(prefs, [&](auto* other) {
+  return std::ranges::any_of(prefs, [&](auto* other) {
     return preference.path() != other->path() && pref(*other) == pref(preference);
   });
 }

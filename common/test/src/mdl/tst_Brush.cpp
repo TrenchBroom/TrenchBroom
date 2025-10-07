@@ -38,6 +38,7 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <algorithm>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -1535,7 +1536,7 @@ TEST_CASE("Brush")
       {
         auto brushCopy = brush;
         auto temp = baseQuadVertexPositions;
-        std::reverse(temp.begin(), temp.end());
+        std::ranges::reverse(temp);
         const auto flippedBaseQuadVertexPositions = std::vector<vm::vec3d>{temp};
 
         const auto transform = vm::translation_matrix(vm::vec3d{0.0, 0.0, -129.0});

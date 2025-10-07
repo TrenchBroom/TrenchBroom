@@ -744,11 +744,10 @@ void MapViewBase::makeStructural()
 
   auto toReparent = std::vector<mdl::Node*>{};
   const auto& selectedBrushes = map.selection().brushes;
-  std::copy_if(
-    selectedBrushes.begin(),
-    selectedBrushes.end(),
-    std::back_inserter(toReparent),
-    [&](const auto* brushNode) { return brushNode->entity() != map.world(); });
+  std::ranges::copy_if(
+    selectedBrushes, std::back_inserter(toReparent), [&](const auto* brushNode) {
+      return brushNode->entity() != map.world();
+    });
 
   auto transaction = mdl::Transaction{map, "Make Structural"};
 
@@ -1554,7 +1553,7 @@ mdl::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
   {
     if (auto* mergeTarget = findOutermostClosedGroup(mdl::hitToNode(hits.front())))
     {
-      if (kdl::all_of(selection.nodes, [&](const auto* node) {
+      if (std::ranges::all_of(selection.nodes, [&](const auto* node) {
             return node == mergeTarget || canReparentNode(node, mergeTarget);
           }))
       {

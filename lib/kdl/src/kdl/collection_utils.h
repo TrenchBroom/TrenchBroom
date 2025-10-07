@@ -341,22 +341,4 @@ C col_sort(C c, const Compare& cmp = Compare())
   return c;
 }
 
-template <typename C, typename P>
-bool none_of(const C& c, const P& p)
-{
-  return std::none_of(std::begin(c), std::end(c), p);
-}
-
-template <typename C, typename P>
-bool any_of(const C& c, const P& p)
-{
-  return std::any_of(std::begin(c), std::end(c), p);
-}
-
-template <typename C, typename P>
-bool all_of(const C& c, const P& p)
-{
-  return std::all_of(std::begin(c), std::end(c), p);
-}
-
 } // namespace kdl

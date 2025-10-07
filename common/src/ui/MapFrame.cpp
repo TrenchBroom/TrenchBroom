@@ -115,6 +115,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <iterator>
@@ -482,7 +483,7 @@ template <typename T>
 const mdl::EntityNodeBase* commonEntityForNodeList(const std::vector<T*>& nodes)
 {
   return !nodes.empty()
-             && kdl::all_of(
+             && std::ranges::all_of(
                nodes,
                [&](const auto* node) {
                  return node->entity() == nodes.front()->entity();
@@ -495,7 +496,7 @@ std::optional<std::string> commonClassnameForEntityList(
   const std::vector<mdl::EntityNode*>& nodes)
 {
   return !nodes.empty()
-             && kdl::all_of(
+             && std::ranges::all_of(
                nodes,
                [&](const auto* entityNode) {
                  return entityNode->entity().classname()
@@ -2208,7 +2209,7 @@ const mdl::Material* materialToReveal(const mdl::Map& map)
   const auto& selection = map.selection();
 
   const auto* firstMaterial = selection.allBrushFaces().front().face().material();
-  const auto allFacesHaveIdenticalMaterial = kdl::all_of(
+  const auto allFacesHaveIdenticalMaterial = std::ranges::all_of(
     selection.allBrushFaces(),
     [&](const auto& face) { return face.face().material() == firstMaterial; });
 
@@ -2414,7 +2415,7 @@ void MapFrame::dragEnterEvent(QDragEnterEvent* event)
   const auto game = map.game();
   if (
     game->config().materialConfig.property && event->mimeData()->hasUrls()
-    && kdl::all_of(event->mimeData()->urls(), [](const auto& url) {
+    && std::ranges::all_of(event->mimeData()->urls(), [](const auto& url) {
          if (!url.isLocalFile())
          {
            return false;
@@ -2462,14 +2463,13 @@ void MapFrame::dropEvent(QDropEvent* event)
   }
 
   auto wadPathsToAdd = std::vector<std::filesystem::path>{};
-  std::transform(
-    urls.begin(), urls.end(), std::back_inserter(wadPathsToAdd), [&](const auto& url) {
-      return convertToPathType(
-        pathDialog.pathType(),
-        io::pathFromQString(url.toLocalFile()),
-        map.path(),
-        game->gamePath());
-    });
+  std::ranges::transform(urls, std::back_inserter(wadPathsToAdd), [&](const auto& url) {
+    return convertToPathType(
+      pathDialog.pathType(),
+      io::pathFromQString(url.toLocalFile()),
+      map.path(),
+      game->gamePath());
+  });
 
   const auto newWadPathsStr = kdl::str_join(
     kdl::vec_concat(std::move(wadPaths), std::move(wadPathsToAdd))

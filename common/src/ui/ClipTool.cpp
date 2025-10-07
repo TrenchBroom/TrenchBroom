@@ -186,10 +186,10 @@ public:
       counts[index]++;
     }
 
-    const auto first = std::max_element(std::begin(counts), std::end(counts));
+    const auto first = std::ranges::max_element(counts);
     const auto firstIndex = std::distance(std::begin(counts), first);
 
-    const auto next = std::max_element(std::next(first), std::end(counts));
+    const auto next = std::ranges::max_element(std::next(first), std::end(counts));
     if (next == std::end(counts) || *first > *next)
     {
       return vm::vec3d::axis(size_t(firstIndex % 3));
@@ -223,7 +223,7 @@ public:
   {
     return (m_points.size() < 2
             || (m_points.size() == 2 && !vm::is_colinear(m_points[0].point, m_points[1].point, point)))
-           && kdl::none_of(m_points, [&](const auto& p) {
+           && std::ranges::none_of(m_points, [&](const auto& p) {
                 return vm::is_equal(p.point, point, vm::Cd::almost_zero());
               });
   }

@@ -40,6 +40,7 @@
 #include "kdl/string_compare.h"
 #include "kdl/struct_io.h"
 
+#include <algorithm>
 #include <ostream>
 #include <ranges>
 #include <vector>
@@ -109,18 +110,14 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
   const auto& allMaterials = materialManager.materials();
   auto matchingMaterials = std::vector<const Material*>{};
 
-  std::copy_if(
-    std::begin(allMaterials),
-    std::end(allMaterials),
-    std::back_inserter(matchingMaterials),
-    [this](auto* material) { return matchesMaterial(material); });
-
-  std::sort(
-    std::begin(matchingMaterials),
-    std::end(matchingMaterials),
-    [](const auto* lhs, const auto* rhs) {
-      return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
+  std::ranges::copy_if(
+    allMaterials, std::back_inserter(matchingMaterials), [this](auto* material) {
+      return matchesMaterial(material);
     });
+
+  std::ranges::sort(matchingMaterials, [](const auto* lhs, const auto* rhs) {
+    return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
+  });
 
   const Material* material = nullptr;
   if (matchingMaterials.empty())

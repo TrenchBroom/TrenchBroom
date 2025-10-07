@@ -20,6 +20,7 @@ Checks: >
   modernize-use-nullptr,
   modernize-use-override,
   modernize-use-using,
+  modernize-use-ranges,
   performance-for-range-copy,
   performance-move-const-arg,
   performance-move-constructor-init,

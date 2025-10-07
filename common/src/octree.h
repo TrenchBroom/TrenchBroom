@@ -328,7 +328,7 @@ private:
           }
           else
           {
-            const auto i_data = std::find(i.data.begin(), i.data.end(), data);
+            const auto i_data = std::ranges::find(i.data, data);
             assert(i_data != i.data.end());
             i.data.erase(i_data);
           }
@@ -339,7 +339,7 @@ private:
               return is_inner_node(c) || !get_data(c).empty();
             };
             const auto num_non_empty_children =
-              std::count_if(i.children.begin(), i.children.end(), is_non_empty_child);
+              std::ranges::count_if(i.children, is_non_empty_child);
             if (num_non_empty_children == 0)
             {
               node = leaf_node{i.address, std::move(i.data)};
@@ -347,7 +347,7 @@ private:
             else if (num_non_empty_children == 1 && i.data.empty())
             {
               const auto i_non_empty_child =
-                std::find_if(i.children.begin(), i.children.end(), is_non_empty_child);
+                std::ranges::find_if(i.children, is_non_empty_child);
               assert(i_non_empty_child != i.children.end());
 
               auto child = std::move(*i_non_empty_child);
@@ -356,7 +356,7 @@ private:
           }
         },
         [&](leaf_node& l) {
-          const auto i_data = std::find(l.data.begin(), l.data.end(), data);
+          const auto i_data = std::ranges::find(l.data, data);
           assert(i_data != l.data.end());
           l.data.erase(i_data);
         }),
@@ -542,7 +542,7 @@ public:
         *m_root,
         [&](const auto& node) {
           const auto& data = get_data(node);
-          std::copy(data.begin(), data.end(), out);
+          std::ranges::copy(data, out);
         },
         [&](const auto& node) {
           const auto bounds = get_address(node).to_bounds(m_min_size);
@@ -582,7 +582,7 @@ public:
         *m_root,
         [&](const auto& node) {
           const auto& data = get_data(node);
-          std::copy(data.begin(), data.end(), out);
+          std::ranges::copy(data, out);
         },
         [&](const auto& node) {
           const auto bounds = get_address(node).to_bounds(m_min_size);
@@ -622,7 +622,7 @@ public:
         *m_root,
         [&](const auto& node) {
           const auto& data = get_data(node);
-          std::copy(data.begin(), data.end(), out);
+          std::ranges::copy(data, out);
         },
         [&](const auto& node) {
           return get_address(node).to_bounds(m_min_size).contains(point);

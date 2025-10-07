@@ -35,6 +35,8 @@
 
 #include "kdl/string_compare.h"
 
+#include <algorithm>
+
 namespace tb
 {
 
@@ -113,14 +115,9 @@ bool nodesMatch(const Node& lhs, const Node& rhs)
 
 bool nodesMatch(const std::vector<Node*>& lhs, const std::vector<Node*>& rhs)
 {
-  return std::equal(
-    lhs.begin(),
-    lhs.end(),
-    rhs.begin(),
-    rhs.end(),
-    [](const auto* lhsChild, const auto* rhsChild) {
-      return nodesMatch(*lhsChild, *rhsChild);
-    });
+  return std::ranges::equal(lhs, rhs, [](const auto* lhsChild, const auto* rhsChild) {
+    return nodesMatch(*lhsChild, *rhsChild);
+  });
 }
 } // namespace
 
@@ -153,12 +150,9 @@ NodeVectorMatcher::NodeVectorMatcher(std::vector<Node*> expected)
 
 bool NodeVectorMatcher::match(const std::vector<Node*>& in) const
 {
-  return std::equal(
-    in.begin(),
-    in.end(),
-    m_expected.begin(),
-    m_expected.end(),
-    [](const auto& lhs, const auto& rhs) { return nodesMatch(*lhs, *rhs); });
+  return std::ranges::equal(in, m_expected, [](const auto& lhs, const auto& rhs) {
+    return nodesMatch(*lhs, *rhs);
+  });
 }
 
 std::string NodeVectorMatcher::describe() const

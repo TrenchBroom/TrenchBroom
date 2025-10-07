@@ -48,6 +48,7 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_set.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iterator>
 #include <map>
@@ -589,9 +590,8 @@ const PropertyRow* EntityPropertyModel::dataForModelIndex(const QModelIndex& ind
 
 int EntityPropertyModel::rowForPropertyKey(const std::string& propertyKey) const
 {
-  const auto it = std::find_if(m_rows.begin(), m_rows.end(), [&](const auto& row) {
-    return row.key() == propertyKey;
-  });
+  const auto it = std::ranges::find_if(
+    m_rows, [&](const auto& row) { return row.key() == propertyKey; });
   return it != m_rows.end() ? static_cast<int>(std::distance(m_rows.begin(), it)) : -1;
 }
 
@@ -716,9 +716,10 @@ std::vector<std::string> EntityPropertyModel::getAllClassnames() const
 static bool computeShouldShowProtectedProperties(
   const std::vector<mdl::EntityNodeBase*>& entityNodes)
 {
-  return !entityNodes.empty() && kdl::all_of(entityNodes, [](const auto* entityNode) {
-    return mdl::findContainingGroup(entityNode);
-  });
+  return !entityNodes.empty()
+         && std::ranges::all_of(entityNodes, [](const auto* entityNode) {
+              return mdl::findContainingGroup(entityNode);
+            });
 }
 
 void EntityPropertyModel::updateFromMapDocument()

@@ -830,7 +830,7 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
   }
 
   const auto v2WasRemoved = [&]() {
-    return std::find(m_vertices.begin(), m_vertices.end(), v2) == m_vertices.end();
+    return std::ranges::find(m_vertices, v2) == m_vertices.end();
   };
 
   // merge f1 into n1:

@@ -164,7 +164,7 @@ void MaterialIndexArrayMapBuilder::add(
   const auto offset = m_ranges.add(material, primType, indices.size());
   auto dest = std::begin(m_indices);
   std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
-  std::copy(std::begin(indices), std::end(indices), dest);
+  std::ranges::copy(indices, dest);
 }
 
 } // namespace tb::render

@@ -26,6 +26,8 @@
 #include "kdl/path_utils.h"
 #include "kdl/reflection_impl.h"
 
+#include <algorithm>
+
 namespace tb::io
 {
 
@@ -53,10 +55,8 @@ const Entry* getChild(const Entry& entry, const std::string& name)
   return std::visit(
     kdl::overload(
       [&](const DirectoryEntry& d) -> const Entry* {
-        const auto it =
-          std::find_if(d.entries.begin(), d.entries.end(), [&](const auto& child) {
-            return getEntryName(child) == name;
-          });
+        const auto it = std::ranges::find_if(
+          d.entries, [&](const auto& child) { return getEntryName(child) == name; });
         return it != d.entries.end() ? &*it : nullptr;
       },
       [](const auto&) -> const Entry* { return nullptr; }),

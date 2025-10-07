@@ -22,6 +22,7 @@
 
 #include "kdl/string_format.h"
 
+#include <algorithm>
 #include <numeric>
 
 namespace kdl
@@ -35,8 +36,7 @@ size_t path_length(const std::filesystem::path& path)
 bool path_has_prefix(
   const std::filesystem::path& path, const std::filesystem::path& prefix)
 {
-  const auto [i_path, i_prefix] =
-    std::mismatch(path.begin(), path.end(), prefix.begin(), prefix.end());
+  const auto [i_path, i_prefix] = std::ranges::mismatch(path, prefix);
   return i_prefix == prefix.end();
 }
 

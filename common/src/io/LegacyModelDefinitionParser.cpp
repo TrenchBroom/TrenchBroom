@@ -164,7 +164,7 @@ el::ExpressionNode LegacyModelDefinitionParser::parseModelDefinition(ParserStatu
   } while (token.hasType(MdlToken::Comma));
 
   // The legacy model expressions are evaluated back to front.
-  std::reverse(std::begin(modelExpressions), std::end(modelExpressions));
+  std::ranges::reverse(modelExpressions);
   return el::ExpressionNode{
     el::SwitchExpression{std::move(modelExpressions)}, startLocation};
 }

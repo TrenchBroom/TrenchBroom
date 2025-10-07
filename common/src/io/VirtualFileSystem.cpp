@@ -33,6 +33,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <algorithm>
 #include <optional>
 #include <unordered_map>
 
@@ -157,10 +158,8 @@ VirtualMountPointId VirtualFileSystem::mount(
 
 bool VirtualFileSystem::unmount(const VirtualMountPointId& id)
 {
-  if (const auto it = std::find_if(
-        m_mountPoints.begin(),
-        m_mountPoints.end(),
-        [&](const auto& mountPoint) { return mountPoint.id == id; });
+  if (const auto it = std::ranges::find_if(
+        m_mountPoints, [&](const auto& mountPoint) { return mountPoint.id == id; });
       it != m_mountPoints.end())
   {
     m_mountPoints.erase(it);

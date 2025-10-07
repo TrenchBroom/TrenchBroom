@@ -354,12 +354,11 @@ void separateSelectedLinkedGroups(Map& map, const bool relinkGroups)
     auto linkedGroups = collectGroupsWithLinkId({map.world()}, linkedGroupId);
 
     // partition the linked groups into selected and unselected ones
-    const auto it = std::partition(
-      std::begin(linkedGroups), std::end(linkedGroups), [](const auto* linkedGroupNode) {
-        return linkedGroupNode->selected();
-      });
-
-    auto selectedLinkedGroups = std::vector<GroupNode*>(std::begin(linkedGroups), it);
+    auto selectedLinkedGroups = std::vector<GroupNode*>{};
+    std::ranges::copy_if(
+      linkedGroups,
+      std::back_inserter(selectedLinkedGroups),
+      [](const auto* linkedGroupNode) { return linkedGroupNode->selected(); });
 
     assert(!selectedLinkedGroups.empty());
     if (linkedGroups.size() - selectedLinkedGroups.size() > 0)

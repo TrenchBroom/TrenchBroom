@@ -52,6 +52,7 @@
 #include "vm/quat.h"
 #include "vm/vec.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -202,9 +203,10 @@ bool matchesFilterText(
   const mdl::EntityDefinition& definition, const std::string& filterText)
 {
   return filterText.empty()
-         || kdl::all_of(kdl::str_split(filterText, " "), [&](const auto& pattern) {
-              return kdl::ci::str_contains(definition.name, pattern);
-            });
+         || std::ranges::all_of(
+           kdl::str_split(filterText, " "), [&](const auto& pattern) {
+             return kdl::ci::str_contains(definition.name, pattern);
+           });
 }
 } // namespace
 

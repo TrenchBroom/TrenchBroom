@@ -216,25 +216,6 @@ TEST_CASE("vector_utils_test.vec_erase")
   test_erase<int>({1, 2, 1}, 1, {2});
 }
 
-template <typename T, typename P>
-void test_erase_if(std::vector<T> from, const P& pred, const std::vector<T>& exp)
-{
-  const auto originalFrom = from;
-  CHECK_THAT(vec_erase_if(from, pred), Equals(exp));
-  CHECK_THAT(from, Equals(originalFrom));
-  CHECK_THAT(vec_erase_if(std::move(from), pred), Equals(exp));
-}
-
-TEST_CASE("vector_utils_test.vec_erase_if")
-{
-  const auto pred = [](const int n) { return n % 2 == 0; };
-
-  test_erase_if<int>({}, pred, {});
-  test_erase_if<int>({1}, pred, {1});
-  test_erase_if<int>({1, 2, 1}, pred, {1, 1});
-  test_erase_if<int>({2, 1, 2}, pred, {1});
-}
-
 template <typename T>
 void test_erase_at(std::vector<T> from, const std::size_t i, const std::vector<T>& exp)
 {

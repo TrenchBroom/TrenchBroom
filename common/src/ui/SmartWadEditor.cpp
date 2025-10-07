@@ -172,9 +172,8 @@ void SmartWadEditor::removeSelectedWads()
   }
 
   auto indicesToRemove = std::vector<size_t>{};
-  std::transform(
-    m_wadPaths->selectedItems().begin(),
-    m_wadPaths->selectedItems().end(),
+  std::ranges::transform(
+    m_wadPaths->selectedItems(),
     std::back_inserter(indicesToRemove),
     [&](const auto* item) { return size_t(m_wadPaths->row(item)); });
   std::ranges::sort(indicesToRemove, std::greater<size_t>{});
@@ -272,9 +271,8 @@ bool SmartWadEditor::canReloadWads() const
 void SmartWadEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   auto cachedSelection = std::vector<std::tuple<int, QString>>{};
-  std::transform(
-    m_wadPaths->selectedItems().begin(),
-    m_wadPaths->selectedItems().end(),
+  std::ranges::transform(
+    m_wadPaths->selectedItems(),
     std::back_inserter(cachedSelection),
     [&](const auto* selectedItem) {
       return std::tuple{m_wadPaths->row(selectedItem), selectedItem->text()};

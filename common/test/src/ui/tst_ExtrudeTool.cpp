@@ -46,6 +46,7 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <ranges>
 
@@ -245,8 +246,8 @@ TEST_CASE("ExtrudeTool")
     auto brushes = map.selection().brushes;
     REQUIRE(brushes.size() == 2);
 
-    const auto brushIt = std::find_if(
-      std::begin(brushes), std::end(brushes), [](const mdl::BrushNode* brushNode) {
+    const auto brushIt =
+      std::ranges::find_if(brushes, [](const mdl::BrushNode* brushNode) {
         return brushNode->brush().findFace("larger_top_face").has_value();
       });
     REQUIRE(brushIt != std::end(brushes));

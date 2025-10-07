@@ -39,6 +39,7 @@
 #include "vm/segment.h"
 #include "vm/util.h"
 
+#include <algorithm>
 #include <iterator>
 #include <ranges>
 #include <set>
@@ -285,7 +286,7 @@ static const BrushFace* findBestMatchingFace(
 
   // First, look for coplanar candidates
   const auto coplanarCandidates = candidates
-                                  | std::views::filter([&](const BrushFace* candidate) {
+                                  | std::views::filter([&](const auto* candidate) {
                                       return candidate->coplanarWith(face.boundary());
                                     })
                                   | kdl::ranges::to<std::vector>();
@@ -294,23 +295,19 @@ static const BrushFace* findBestMatchingFace(
   {
     // Return the largest coplanar face
     return *std::ranges::max_element(
-      coplanarCandidates, [](const BrushFace* lhs, const BrushFace* rhs) {
-        return lhs->area() < rhs->area();
-      });
+      coplanarCandidates,
+      [](const auto* lhs, const auto* rhs) { return lhs->area() < rhs->area(); });
   }
 
   // No coplanar faces. Return the one with the smallest "face center off reference
   // plane" distance.
-  const auto faceCenterOffPlaneDist = [&](const BrushFace* candidate) -> double {
+  const auto faceCenterOffPlaneDist = [&](const auto* candidate) -> double {
     return vm::abs(face.boundary().point_distance(candidate->center()));
   };
 
-  return *std::min_element(
-    std::begin(candidates),
-    std::end(candidates),
-    [&](const BrushFace* lhs, const BrushFace* rhs) {
-      return faceCenterOffPlaneDist(lhs) < faceCenterOffPlaneDist(rhs);
-    });
+  return *std::ranges::min_element(candidates, [&](const auto* lhs, const auto* rhs) {
+    return faceCenterOffPlaneDist(lhs) < faceCenterOffPlaneDist(rhs);
+  });
 }
 
 void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)

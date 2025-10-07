@@ -217,7 +217,7 @@ HttpOperation* getLatestRelease(
         return release.draft || (!includePreReleases && release.prerelease);
       });
 
-      if (auto iLatestRelease = std::max_element(releases.begin(), releases.end());
+      if (auto iLatestRelease = std::ranges::max_element(releases);
           iLatestRelease != releases.end() && currentVersion < iLatestRelease->version)
       {
         getLatestReleaseCallback(*iLatestRelease);

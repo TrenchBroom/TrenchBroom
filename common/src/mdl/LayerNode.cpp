@@ -63,14 +63,14 @@ bool LayerNode::isDefaultLayer() const
 
 void LayerNode::sortLayers(std::vector<LayerNode*>& layers)
 {
-  std::stable_sort(layers.begin(), layers.end(), [](const auto* a, const auto* b) {
+  std::ranges::stable_sort(layers, [](const auto* a, const auto* b) {
     return a->layer().sortIndex() < b->layer().sortIndex();
   });
 }
 
 void LayerNode::sortLayers(std::vector<const LayerNode*>& layers)
 {
-  std::stable_sort(layers.begin(), layers.end(), [](const auto* a, const auto* b) {
+  std::ranges::stable_sort(layers, [](const auto* a, const auto* b) {
     return a->layer().sortIndex() < b->layer().sortIndex();
   });
 }

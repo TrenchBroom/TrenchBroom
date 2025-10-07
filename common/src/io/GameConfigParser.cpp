@@ -61,8 +61,7 @@ void checkVersion(const el::EvaluationContext& context, const el::Value& version
   const auto validVsns = std::vector<el::IntegerType>{9};
   const auto isValidVersion =
     version.convertibleTo(el::ValueType::Number)
-    && std::find(validVsns.begin(), validVsns.end(), version.integerValue(context))
-         != validVsns.end();
+    && std::ranges::find(validVsns, version.integerValue(context)) != validVsns.end();
 
   if (!isValidVersion)
   {
