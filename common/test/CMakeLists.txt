@@ -111,6 +111,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Geometry.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Groups.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Layers.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_NodeIndex.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_NodeLocking.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Nodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_NodeVisibility.cpp"

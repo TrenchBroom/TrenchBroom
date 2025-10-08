@@ -73,6 +73,7 @@
 #include "mdl/MixedBrushContentsValidator.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
+#include "mdl/NodeIndex.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/NonIntegerVerticesValidator.h"
 #include "mdl/PatchNode.h"
@@ -459,6 +460,7 @@ Map::Map(kdl::task_manager& taskManager, Logger& logger)
   , m_editorContext{std::make_unique<EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
   , m_worldBounds{DefaultWorldBounds}
+  , m_nodeIndex{std::make_unique<NodeIndex>()}
   , m_vertexHandles{std::make_unique<VertexHandleManager>()}
   , m_edgeHandles{std::make_unique<EdgeHandleManager>()}
   , m_faceHandles{std::make_unique<FaceHandleManager>()}
@@ -807,6 +809,7 @@ void Map::setWorld(
   std::unique_ptr<Game> game,
   const std::filesystem::path& path)
 {
+  m_nodeIndex->clear();
   m_worldBounds = worldBounds;
   m_world = std::move(worldNode);
   m_game = std::move(game);
@@ -1187,6 +1190,37 @@ void Map::updateGameSearchPaths()
     m_logger);
 }
 
+void Map::initializeNodeIndex()
+{
+  ensure(m_world, "world node is set");
+  addToNodeIndex({world()}, true);
+}
+
+void Map::addToNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
+{
+  for (auto* node : nodes)
+  {
+    m_nodeIndex->addNode(*node);
+
+    if (recurse)
+    {
+      addToNodeIndex(node->children(), true);
+    }
+  }
+}
+
+void Map::removeFromNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
+{
+  for (auto* node : nodes)
+  {
+    m_nodeIndex->removeNode(*node);
+
+    if (recurse)
+    {
+      removeFromNodeIndex(node->children(), true);
+    }
+  }
+}
 
 void Map::processResourcesSync(const ProcessContext& processContext)
 {
@@ -1371,6 +1405,7 @@ void Map::connectObservers()
   m_notifierConnection +=
     nodesWillBeRemovedNotifier.connect(this, &Map::nodesWillBeRemoved);
   m_notifierConnection += nodesWereRemovedNotifier.connect(this, &Map::nodesWereRemoved);
+  m_notifierConnection += nodesWillChangeNotifier.connect(this, &Map::nodesWillChange);
   m_notifierConnection += nodesDidChangeNotifier.connect(this, &Map::nodesDidChange);
   m_notifierConnection +=
     brushFacesDidChangeNotifier.connect(this, &Map::brushFacesDidChange);
@@ -1429,11 +1464,13 @@ void Map::connectObservers()
 void Map::mapWasCreated(Map&)
 {
   initializeAllNodeTags();
+  initializeNodeIndex();
 }
 
 void Map::mapWasLoaded(Map&)
 {
   initializeAllNodeTags();
+  initializeNodeIndex();
 }
 
 void Map::nodesWereAdded(const std::vector<Node*>& nodes)
@@ -1443,6 +1480,7 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
   setEntityModels(nodes);
   setMaterials(nodes);
   initializeNodeTags(nodes);
+  addToNodeIndex(nodes, true);
 
   m_cachedSelection = std::nullopt;
   m_cachedSelectionBounds = std::nullopt;
@@ -1450,6 +1488,7 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
 
 void Map::nodesWillBeRemoved(const std::vector<Node*>& nodes)
 {
+  removeFromNodeIndex(nodes, true);
   clearNodeTags(nodes);
 }
 
@@ -1463,12 +1502,18 @@ void Map::nodesWereRemoved(const std::vector<Node*>& nodes)
   m_cachedSelectionBounds = std::nullopt;
 }
 
+void Map::nodesWillChange(const std::vector<Node*>& nodes)
+{
+  removeFromNodeIndex(nodes, false);
+}
+
 void Map::nodesDidChange(const std::vector<Node*>& nodes)
 {
   setEntityDefinitions(nodes);
   setEntityModels(nodes);
   setMaterials(nodes);
   updateNodeTags(collectNodesAndDescendants(nodes));
+  addToNodeIndex(nodes, false);
 
   m_cachedSelectionBounds = std::nullopt;
 }

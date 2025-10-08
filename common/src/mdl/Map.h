@@ -24,6 +24,7 @@
 #include "Result.h"
 #include "io/ExportOptions.h"
 #include "mdl/BrushFaceHandle.h"
+#include "mdl/NodeIndex.h"
 #include "mdl/ResourceId.h"
 #include "mdl/Selection.h"
 
@@ -33,6 +34,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace kdl
@@ -70,6 +72,7 @@ class Issue;
 class LayerNode;
 class MaterialManager;
 class Node;
+class NodeIndex;
 class PickResult;
 class PointTrace;
 class RepeatStack;
@@ -108,6 +111,7 @@ private:
   std::unique_ptr<Game> m_game;
   vm::bbox3d m_worldBounds;
   std::unique_ptr<WorldNode> m_world;
+  std::unique_ptr<NodeIndex> m_nodeIndex;
 
   std::unique_ptr<VertexHandleManager> m_vertexHandles;
   std::unique_ptr<EdgeHandleManager> m_edgeHandles;
@@ -232,6 +236,13 @@ public: // misc
   const std::string& currentMaterialName() const;
   void setCurrentMaterialName(const std::string& currentMaterialName);
 
+  template <typename NodeType = Node>
+  std::vector<NodeType*> findNodes(std::string_view pattern)
+  {
+    return m_nodeIndex ? m_nodeIndex->findNodes<NodeType>(pattern)
+                       : std::vector<NodeType*>{};
+  }
+
 public: // persistence
   Result<void> create(
     MapFormat mapFormat, const vm::bbox3d& worldBounds, std::unique_ptr<Game> game);
@@ -334,6 +345,11 @@ private: // Asset management
 
   void updateGameSearchPaths();
 
+private: // index management
+  void initializeNodeIndex();
+  void addToNodeIndex(const std::vector<Node*>& nodes, bool recurse);
+  void removeFromNodeIndex(const std::vector<Node*>& nodes, bool recurse);
+
 public: // resource processing
   void processResourcesSync(const ProcessContext& processContext);
   void processResourcesAsync(const ProcessContext& processContext);
@@ -376,6 +392,7 @@ private: // observers
   void nodesWereAdded(const std::vector<Node*>& nodes);
   void nodesWillBeRemoved(const std::vector<Node*>& nodes);
   void nodesWereRemoved(const std::vector<Node*>& nodes);
+  void nodesWillChange(const std::vector<Node*>& nodes);
   void nodesDidChange(const std::vector<Node*>& nodes);
   void brushFacesDidChange(const std::vector<BrushFaceHandle>& brushFaces);
   void resourcesWereProcessed(const std::vector<ResourceId>&);
