@@ -1363,9 +1363,16 @@ std::unique_ptr<CommandResult> Map::executeAndStore(
 
 void Map::connectObservers()
 {
+  m_notifierConnection += mapWasCreatedNotifier.connect(this, &Map::mapWasCreated);
+  m_notifierConnection += mapWasLoadedNotifier.connect(this, &Map::mapWasLoaded);
+
   m_notifierConnection += nodesWereAddedNotifier.connect(this, &Map::nodesWereAdded);
+  m_notifierConnection +=
+    nodesWillBeRemovedNotifier.connect(this, &Map::nodesWillBeRemoved);
   m_notifierConnection += nodesWereRemovedNotifier.connect(this, &Map::nodesWereRemoved);
   m_notifierConnection += nodesDidChangeNotifier.connect(this, &Map::nodesDidChange);
+  m_notifierConnection +=
+    brushFacesDidChangeNotifier.connect(this, &Map::brushFacesDidChange);
 
   m_notifierConnection +=
     selectionDidChangeNotifier.connect(this, &Map::selectionDidChange);
@@ -1396,16 +1403,8 @@ void Map::connectObservers()
   m_notifierConnection +=
     transactionUndoneNotifier.connect(this, &Map::transactionUndone);
 
-  // tag management
-  m_notifierConnection += mapWasCreatedNotifier.connect(this, &Map::mapWasCreated);
-  m_notifierConnection += mapWasLoadedNotifier.connect(this, &Map::mapWasLoaded);
-  m_notifierConnection += nodesWereAddedNotifier.connect(this, &Map::initializeNodeTags);
-  m_notifierConnection += nodesWillBeRemovedNotifier.connect(this, &Map::clearNodeTags);
-  m_notifierConnection += nodesDidChangeNotifier.connect(this, &Map::updateNodeTags);
-  m_notifierConnection += brushFacesDidChangeNotifier.connect(this, &Map::updateFaceTags);
-  m_notifierConnection += modsDidChangeNotifier.connect(this, &Map::updateAllFaceTags);
-  m_notifierConnection += resourcesWereProcessedNotifier.connect(
-    this, &Map::updateFaceTagsAfterResourcesWhereProcessed);
+  m_notifierConnection +=
+    resourcesWereProcessedNotifier.connect(this, &Map::resourcesWereProcessed);
 
   // command processing
   m_notifierConnection +=
@@ -1447,6 +1446,11 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
   m_cachedSelectionBounds = std::nullopt;
 }
 
+void Map::nodesWillBeRemoved(const std::vector<Node*>& nodes)
+{
+  clearNodeTags(nodes);
+}
+
 void Map::nodesWereRemoved(const std::vector<Node*>& nodes)
 {
   unsetEntityModels(nodes);
@@ -1462,8 +1466,19 @@ void Map::nodesDidChange(const std::vector<Node*>& nodes)
   setEntityDefinitions(nodes);
   setEntityModels(nodes);
   setMaterials(nodes);
+  updateNodeTags(nodes);
 
   m_cachedSelectionBounds = std::nullopt;
+}
+
+void Map::brushFacesDidChange(const std::vector<BrushFaceHandle>& brushFaces)
+{
+  updateFaceTags(brushFaces);
+}
+
+void Map::resourcesWereProcessed(const std::vector<ResourceId>& resourceIds)
+{
+  updateFaceTagsAfterResourcesWhereProcessed(resourceIds);
 }
 
 void Map::selectionWillChange()
@@ -1518,6 +1533,7 @@ void Map::modsDidChange()
   updateGameSearchPaths();
   setEntityDefinitions();
   setEntityModels();
+  updateAllFaceTags();
 }
 
 void Map::preferenceDidChange(const std::filesystem::path& path)

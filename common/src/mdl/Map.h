@@ -172,7 +172,7 @@ public: // notification
 
   Notifier<const std::vector<BrushFaceHandle>&> brushFacesDidChangeNotifier;
 
-  Notifier<const std::vector<ResourceId>> resourcesWereProcessedNotifier;
+  Notifier<const std::vector<ResourceId>&> resourcesWereProcessedNotifier;
 
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;
@@ -374,8 +374,11 @@ private: // observers
   void mapWasCreated(Map& map);
   void mapWasLoaded(Map& map);
   void nodesWereAdded(const std::vector<Node*>& nodes);
+  void nodesWillBeRemoved(const std::vector<Node*>& nodes);
   void nodesWereRemoved(const std::vector<Node*>& nodes);
   void nodesDidChange(const std::vector<Node*>& nodes);
+  void brushFacesDidChange(const std::vector<BrushFaceHandle>& brushFaces);
+  void resourcesWereProcessed(const std::vector<ResourceId>&);
   void selectionWillChange();
   void selectionDidChange(const SelectionChange& selectionChange);
   void materialCollectionsWillChange();
