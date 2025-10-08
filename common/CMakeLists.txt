@@ -182,6 +182,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/ModelUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Node.cpp
         ${COMMON_SOURCE_DIR}/mdl/NodeContents.cpp
+        ${COMMON_SOURCE_DIR}/mdl/NodeIndex.cpp
         ${COMMON_SOURCE_DIR}/mdl/NodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/mdl/NonIntegerVerticesValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/Object.cpp
@@ -707,6 +708,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/ModelUtils.h
         ${COMMON_SOURCE_DIR}/mdl/Node.h
         ${COMMON_SOURCE_DIR}/mdl/NodeContents.h
+        ${COMMON_SOURCE_DIR}/mdl/NodeIndex.h
         ${COMMON_SOURCE_DIR}/mdl/NodeQueries.h
         ${COMMON_SOURCE_DIR}/mdl/NodeVisitor.h
         ${COMMON_SOURCE_DIR}/mdl/NonIntegerVerticesValidator.h

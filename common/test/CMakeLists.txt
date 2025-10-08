@@ -121,6 +121,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_ModelDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_ModelUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Node.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_NodeIndex.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_NodeQueries.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Palette.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_PatchNode.cpp"
