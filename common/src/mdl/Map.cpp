@@ -73,6 +73,7 @@
 #include "mdl/MixedBrushContentsValidator.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
+#include "mdl/NodeQueries.h"
 #include "mdl/NonIntegerVerticesValidator.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PointEntityWithBrushesValidator.h"
@@ -1441,6 +1442,7 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
   setEntityDefinitions(nodes);
   setEntityModels(nodes);
   setMaterials(nodes);
+  initializeNodeTags(nodes);
 
   m_cachedSelection = std::nullopt;
   m_cachedSelectionBounds = std::nullopt;
@@ -1466,7 +1468,7 @@ void Map::nodesDidChange(const std::vector<Node*>& nodes)
   setEntityDefinitions(nodes);
   setEntityModels(nodes);
   setMaterials(nodes);
-  updateNodeTags(nodes);
+  updateNodeTags(collectNodesAndDescendants(nodes));
 
   m_cachedSelectionBounds = std::nullopt;
 }

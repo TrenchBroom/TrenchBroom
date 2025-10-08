@@ -76,15 +76,9 @@ void doSwapNodeContents(
   const auto nodes = nodesToSwap
                      | std::views::transform([](const auto& pair) { return pair.first; })
                      | kdl::ranges::to<std::vector>();
-  const auto parents = collectAncestors(nodes);
-  const auto descendants = collectDescendants(nodes);
 
   auto notifyNodes =
     NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
-  auto notifyParents = NotifyBeforeAndAfter{
-    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
-  auto notifyDescendants = NotifyBeforeAndAfter{
-    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, descendants};
 
   const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
     notifySpecialWorldProperties(nodesToSwap);
