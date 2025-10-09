@@ -42,29 +42,6 @@
 namespace tb::render
 {
 
-EntityLinkRenderer::EntityLinkRenderer(mdl::Map& map)
-  : m_map{map}
-{
-}
-
-void EntityLinkRenderer::setDefaultColor(const Color& defaultColor)
-{
-  if (defaultColor != m_defaultColor)
-  {
-    m_defaultColor = defaultColor;
-    invalidate();
-  }
-}
-
-void EntityLinkRenderer::setSelectedColor(const Color& selectedColor)
-{
-  if (selectedColor != m_selectedColor)
-  {
-    m_selectedColor = selectedColor;
-    invalidate();
-  }
-}
-
 namespace
 {
 
@@ -303,7 +280,31 @@ auto getLinks(const mdl::Map& map, const Color& defaultColor, const Color& selec
 
   return std::vector<LinkRenderer::LineVertex>{};
 }
+
 } // namespace
+
+EntityLinkRenderer::EntityLinkRenderer(mdl::Map& map)
+  : m_map{map}
+{
+}
+
+void EntityLinkRenderer::setDefaultColor(const Color& defaultColor)
+{
+  if (defaultColor != m_defaultColor)
+  {
+    m_defaultColor = defaultColor;
+    invalidate();
+  }
+}
+
+void EntityLinkRenderer::setSelectedColor(const Color& selectedColor)
+{
+  if (selectedColor != m_selectedColor)
+  {
+    m_selectedColor = selectedColor;
+    invalidate();
+  }
+}
 
 std::vector<LinkRenderer::LineVertex> EntityLinkRenderer::getLinks()
 {
