@@ -120,6 +120,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionFileSpec.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionManager.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityLinkManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityModel.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityModelDataResource.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityModelManager.cpp
@@ -644,6 +645,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionManager.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionUtils.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityLinkManager.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModel.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModelDataResource.h
