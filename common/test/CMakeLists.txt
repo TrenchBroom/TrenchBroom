@@ -109,6 +109,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Brushes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_CopyPaste.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Entities.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_EntityLinks.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Geometry.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Groups.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Map_Layers.cpp"

@@ -63,6 +63,7 @@ class CommandResult;
 class EdgeHandleManager;
 class EditorContext;
 class EntityDefinitionManager;
+class EntityLinkManager;
 class EntityModelManager;
 class FaceHandleManager;
 class Game;
@@ -112,6 +113,7 @@ private:
   vm::bbox3d m_worldBounds;
   std::unique_ptr<WorldNode> m_world;
   std::unique_ptr<NodeIndex> m_nodeIndex;
+  std::unique_ptr<EntityLinkManager> m_entityLinkManager;
 
   std::unique_ptr<VertexHandleManager> m_vertexHandles;
   std::unique_ptr<EdgeHandleManager> m_edgeHandles;
@@ -243,6 +245,8 @@ public: // misc
                        : std::vector<NodeType*>{};
   }
 
+  const EntityLinkManager& entityLinkManager() const;
+
 public: // persistence
   Result<void> create(
     MapFormat mapFormat, const vm::bbox3d& worldBounds, std::unique_ptr<Game> game);
@@ -349,6 +353,11 @@ private: // index management
   void initializeNodeIndex();
   void addToNodeIndex(const std::vector<Node*>& nodes, bool recurse);
   void removeFromNodeIndex(const std::vector<Node*>& nodes, bool recurse);
+
+private: // entity link management
+  void initializeEntityLinks();
+  void addEntityLinks(const std::vector<Node*>& nodes, bool recurse);
+  void removeEntityLinks(const std::vector<Node*>& nodes, bool recurse);
 
 public: // resource processing
   void processResourcesSync(const ProcessContext& processContext);

@@ -44,6 +44,7 @@
 #include "mdl/EmptyPropertyKeyValidator.h"
 #include "mdl/EmptyPropertyValueValidator.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityLinkManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Game.h"
@@ -461,6 +462,7 @@ Map::Map(kdl::task_manager& taskManager, Logger& logger)
   , m_grid{std::make_unique<Grid>(4)}
   , m_worldBounds{DefaultWorldBounds}
   , m_nodeIndex{std::make_unique<NodeIndex>()}
+  , m_entityLinkManager{std::make_unique<EntityLinkManager>(*m_nodeIndex)}
   , m_vertexHandles{std::make_unique<VertexHandleManager>()}
   , m_edgeHandles{std::make_unique<EdgeHandleManager>()}
   , m_faceHandles{std::make_unique<FaceHandleManager>()}
@@ -610,6 +612,11 @@ void Map::setCurrentMaterialName(const std::string& currentMaterialName)
   }
 }
 
+const EntityLinkManager& Map::entityLinkManager() const
+{
+  return *m_entityLinkManager;
+}
+
 Result<void> Map::create(
   const MapFormat mapFormat, const vm::bbox3d& worldBounds, std::unique_ptr<Game> game)
 {
@@ -738,6 +745,8 @@ void Map::clear()
   {
     mapWillBeClearedNotifier(*this);
 
+    m_nodeIndex->clear();
+    m_entityLinkManager->clear();
     m_editorContext->reset();
     m_cachedSelection = std::nullopt;
     clearAssets();
@@ -809,7 +818,6 @@ void Map::setWorld(
   std::unique_ptr<Game> game,
   const std::filesystem::path& path)
 {
-  m_nodeIndex->clear();
   m_worldBounds = worldBounds;
   m_world = std::move(worldNode);
   m_game = std::move(game);
@@ -1222,6 +1230,51 @@ void Map::removeFromNodeIndex(const std::vector<Node*>& nodes, const bool recurs
   }
 }
 
+void Map::initializeEntityLinks()
+{
+  ensure(m_world, "world node is set");
+  addEntityLinks({world()}, true);
+}
+
+void Map::addEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
+{
+  for (auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [&](WorldNode* worldNode) { m_entityLinkManager->addEntityNode(*worldNode); },
+      [](LayerNode*) {},
+      [](GroupNode*) {},
+      [&](EntityNode* entityNode) { m_entityLinkManager->addEntityNode(*entityNode); },
+      [](BrushNode*) {},
+      [](PatchNode*) {}));
+
+    if (recurse)
+    {
+      addEntityLinks(node->children(), true);
+    }
+  }
+}
+
+void Map::removeEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
+{
+  for (auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [&](WorldNode* worldNode) { m_entityLinkManager->removeEntityNode(*worldNode); },
+      [](LayerNode*) {},
+      [](GroupNode*) {},
+      [&](EntityNode* entityNode) { m_entityLinkManager->removeEntityNode(*entityNode); },
+      [](BrushNode*) {},
+      [](PatchNode*) {}));
+
+
+    if (recurse)
+    {
+      removeEntityLinks(node->children(), true);
+    }
+  }
+}
+
 void Map::processResourcesSync(const ProcessContext& processContext)
 {
   auto allProcessedResourceIds = std::vector<ResourceId>{};
@@ -1465,12 +1518,14 @@ void Map::mapWasCreated(Map&)
 {
   initializeAllNodeTags();
   initializeNodeIndex();
+  initializeEntityLinks();
 }
 
 void Map::mapWasLoaded(Map&)
 {
   initializeAllNodeTags();
   initializeNodeIndex();
+  initializeEntityLinks();
 }
 
 void Map::nodesWereAdded(const std::vector<Node*>& nodes)
@@ -1481,6 +1536,7 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
   setMaterials(nodes);
   initializeNodeTags(nodes);
   addToNodeIndex(nodes, true);
+  addEntityLinks(nodes, true);
 
   m_cachedSelection = std::nullopt;
   m_cachedSelectionBounds = std::nullopt;
@@ -1488,6 +1544,7 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
 
 void Map::nodesWillBeRemoved(const std::vector<Node*>& nodes)
 {
+  removeEntityLinks(nodes, true);
   removeFromNodeIndex(nodes, true);
   clearNodeTags(nodes);
 }
@@ -1504,6 +1561,7 @@ void Map::nodesWereRemoved(const std::vector<Node*>& nodes)
 
 void Map::nodesWillChange(const std::vector<Node*>& nodes)
 {
+  removeEntityLinks(nodes, false);
   removeFromNodeIndex(nodes, false);
 }
 
@@ -1514,6 +1572,7 @@ void Map::nodesDidChange(const std::vector<Node*>& nodes)
   setMaterials(nodes);
   updateNodeTags(collectNodesAndDescendants(nodes));
   addToNodeIndex(nodes, false);
+  addEntityLinks(nodes, false);
 
   m_cachedSelectionBounds = std::nullopt;
 }
