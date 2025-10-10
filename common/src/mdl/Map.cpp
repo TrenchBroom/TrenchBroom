@@ -55,6 +55,7 @@
 #include "mdl/Issue.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkSourceValidator.h"
+#include "mdl/LinkTargetValidator.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/LongPropertyKeyValidator.h"
 #include "mdl/LongPropertyValueValidator.h"
@@ -994,8 +995,8 @@ void Map::registerValidators()
   m_world->registerValidator(std::make_unique<EmptyGroupValidator>());
   m_world->registerValidator(std::make_unique<EmptyBrushEntityValidator>());
   m_world->registerValidator(std::make_unique<PointEntityWithBrushesValidator>());
-  m_world->registerValidator(std::make_unique<LinkSourceValidator>());
-  m_world->registerValidator(std::make_unique<LinkSourceValidator>());
+  m_world->registerValidator(std::make_unique<LinkSourceValidator>(*m_entityLinkManager));
+  m_world->registerValidator(std::make_unique<LinkTargetValidator>(*m_entityLinkManager));
   m_world->registerValidator(std::make_unique<NonIntegerVerticesValidator>());
   m_world->registerValidator(std::make_unique<MixedBrushContentsValidator>());
   m_world->registerValidator(std::make_unique<WorldBoundsValidator>(worldBounds()));

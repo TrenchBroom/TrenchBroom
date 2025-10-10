@@ -19,6 +19,7 @@
 
 #include "LinkSourceValidator.h"
 
+#include "mdl/EntityLinkManager.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Issue.h"
@@ -33,8 +34,9 @@ namespace
 const auto Type = freeIssueType();
 } // namespace
 
-LinkSourceValidator::LinkSourceValidator()
+LinkSourceValidator::LinkSourceValidator(const EntityLinkManager& entityLinkManager)
   : Validator{Type, "Missing entity link source"}
+  , m_entityLinkManager{entityLinkManager}
 {
   addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
 }
@@ -42,7 +44,7 @@ LinkSourceValidator::LinkSourceValidator()
 void LinkSourceValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
-  if (entityNode.hasMissingSources())
+  if (m_entityLinkManager.hasMissingSource(entityNode))
   {
     issues.push_back(std::make_unique<EntityPropertyIssue>(
       Type,

@@ -19,6 +19,7 @@
 
 #include "LinkTargetValidator.h"
 
+#include "mdl/EntityLinkManager.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
@@ -31,26 +32,11 @@ namespace tb::mdl
 namespace
 {
 const auto Type = freeIssueType();
-
-void validateInternal(
-  EntityNodeBase& entityNode,
-  const std::vector<std::string>& propertyKeys,
-  std::vector<std::unique_ptr<Issue>>& issues)
-{
-  issues.reserve(issues.size() + propertyKeys.size());
-  for (const auto& key : propertyKeys)
-  {
-    issues.push_back(std::make_unique<EntityPropertyIssue>(
-      Type,
-      entityNode,
-      key,
-      entityNode.name() + " has missing target for key '" + key + "'"));
-  }
-}
 } // namespace
 
-LinkTargetValidator::LinkTargetValidator()
+LinkTargetValidator::LinkTargetValidator(const EntityLinkManager& entityLinkManager)
   : Validator{Type, "Missing entity link target"}
+  , m_entityLinkManager{entityLinkManager}
 {
   addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
 }
@@ -58,8 +44,19 @@ LinkTargetValidator::LinkTargetValidator()
 void LinkTargetValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
-  validateInternal(entityNode, entityNode.findMissingLinkTargets(), issues);
-  validateInternal(entityNode, entityNode.findMissingKillTargets(), issues);
+  if (const auto& missingLinkKeys =
+        m_entityLinkManager.getLinksWithMissingTarget(entityNode);
+      !missingLinkKeys.empty())
+  {
+    for (const auto& key : missingLinkKeys)
+    {
+      issues.push_back(std::make_unique<EntityPropertyIssue>(
+        Type,
+        entityNode,
+        key,
+        entityNode.name() + " has missing target for key '" + key + "'"));
+    }
+  }
 }
 
 } // namespace tb::mdl
