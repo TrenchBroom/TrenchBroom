@@ -23,7 +23,6 @@
 #include "mdl/PropertyDefinition.h"
 
 #include "kdl/ranges/to.h"
-#include "kdl/vector_utils.h"
 
 #include <ranges>
 #include <string>
@@ -110,10 +109,7 @@ const Entity& EntityNodeBase::entity() const
 Entity EntityNodeBase::setEntity(Entity entity)
 {
   const auto notifyChange = NotifyPropertyChange{*this};
-
-  auto oldEntity = std::exchange(m_entity, std::move(entity));
-  updateIndexAndLinks(oldEntity.properties());
-  return oldEntity;
+  return std::exchange(m_entity, std::move(entity));
 }
 
 void EntityNodeBase::setDefinition(const EntityDefinition* definition)
@@ -147,102 +143,6 @@ void EntityNodeBase::propertiesDidChange(const vm::bbox3d& oldPhysicalBounds)
   doPropertiesDidChange(oldPhysicalBounds);
 }
 
-void EntityNodeBase::updateIndexAndLinks(const std::vector<EntityProperty>& oldProperties)
-{
-  const auto oldSorted = kdl::vec_sort(oldProperties);
-  const auto newSorted = kdl::vec_sort(m_entity.properties());
-
-  updatePropertyIndex(oldSorted, newSorted);
-}
-
-void EntityNodeBase::updatePropertyIndex(
-  const std::vector<EntityProperty>& oldProperties,
-  const std::vector<EntityProperty>& newProperties)
-{
-  auto oldIt = std::begin(oldProperties);
-  auto oldEnd = std::end(oldProperties);
-  auto newIt = std::begin(newProperties);
-  auto newEnd = std::end(newProperties);
-
-  while (oldIt != oldEnd && newIt != newEnd)
-  {
-    const auto& oldProp = *oldIt;
-    const auto& newProp = *newIt;
-
-    if (oldProp < newProp)
-    {
-      removePropertyFromIndex(oldProp.key(), oldProp.value());
-      ++oldIt;
-    }
-    else if (oldProp > newProp)
-    {
-      addPropertyToIndex(newProp.key(), newProp.value());
-      ++newIt;
-    }
-    else
-    {
-      updatePropertyIndex(oldProp.key(), oldProp.value(), newProp.key(), newProp.value());
-      ++oldIt;
-      ++newIt;
-    }
-  }
-
-  while (oldIt != oldEnd)
-  {
-    const auto& oldProp = *oldIt;
-    removePropertyFromIndex(oldProp.key(), oldProp.value());
-    ++oldIt;
-  }
-
-  while (newIt != newEnd)
-  {
-    const auto& newProp = *newIt;
-    addPropertyToIndex(newProp.key(), newProp.value());
-    ++newIt;
-  }
-}
-
-void EntityNodeBase::addPropertiesToIndex()
-{
-  for (const auto& property : m_entity.properties())
-  {
-    addPropertyToIndex(property.key(), property.value());
-  }
-}
-
-void EntityNodeBase::removePropertiesFromIndex()
-{
-  for (const auto& property : m_entity.properties())
-  {
-    removePropertyFromIndex(property.key(), property.value());
-  }
-}
-
-void EntityNodeBase::addPropertyToIndex(const std::string& key, const std::string& value)
-{
-  addToIndex(this, key, value);
-}
-
-void EntityNodeBase::removePropertyFromIndex(
-  const std::string& key, const std::string& value)
-{
-  removeFromIndex(this, key, value);
-}
-
-void EntityNodeBase::updatePropertyIndex(
-  const std::string& oldKey,
-  const std::string& oldValue,
-  const std::string& newKey,
-  const std::string& newValue)
-{
-  if (oldKey == newKey && oldValue == newValue)
-  {
-    return;
-  }
-  removeFromIndex(this, oldKey, oldValue);
-  addToIndex(this, newKey, newValue);
-}
-
 vm::vec3d EntityNodeBase::linkSourceAnchor() const
 {
   return doGetLinkSourceAnchor();
@@ -251,16 +151,6 @@ vm::vec3d EntityNodeBase::linkSourceAnchor() const
 vm::vec3d EntityNodeBase::linkTargetAnchor() const
 {
   return doGetLinkTargetAnchor();
-}
-
-void EntityNodeBase::doAncestorWillChange()
-{
-  removePropertiesFromIndex();
-}
-
-void EntityNodeBase::doAncestorDidChange()
-{
-  addPropertiesToIndex();
 }
 
 EntityNodeBase::EntityNodeBase() = default;

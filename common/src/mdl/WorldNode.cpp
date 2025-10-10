@@ -23,7 +23,6 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
-#include "mdl/EntityNodeIndex.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
@@ -35,7 +34,6 @@
 #include "kdl/const_overload.h"
 #include "kdl/k.h"
 #include "kdl/overload.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
@@ -51,7 +49,6 @@ WorldNode::WorldNode(
   : m_entityPropertyConfig{std::move(entityPropertyConfig)}
   , m_mapFormat{mapFormat}
   , m_defaultLayer{nullptr}
-  , m_entityNodeIndex{std::make_unique<EntityNodeIndex>()}
   , m_validatorRegistry{std::make_unique<ValidatorRegistry>()}
   , m_nodeTree{std::make_unique<NodeTree>(256.0)}
   , m_updateNodeTree{true}
@@ -171,11 +168,6 @@ void WorldNode::createDefaultLayer()
   m_defaultLayer = new LayerNode{Layer{"Default Layer", K(defaultLayer)}};
   addChild(m_defaultLayer);
   assert(m_defaultLayer->layer().sortIndex() == Layer::defaultLayerSortIndex());
-}
-
-const EntityNodeIndex& WorldNode::entityNodeIndex() const
-{
-  return *m_entityNodeIndex;
 }
 
 std::vector<const Validator*> WorldNode::registeredValidators() const
@@ -465,38 +457,6 @@ void WorldNode::doAccept(ConstNodeVisitor& visitor) const
 const EntityPropertyConfig& WorldNode::doGetEntityPropertyConfig() const
 {
   return m_entityPropertyConfig;
-}
-
-void WorldNode::doFindEntityNodesWithProperty(
-  const std::string& name,
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
-{
-  result = kdl::vec_concat(
-    std::move(result),
-    m_entityNodeIndex->findEntityNodes(EntityNodeIndexQuery::exact(name), value));
-}
-
-void WorldNode::doFindEntityNodesWithNumberedProperty(
-  const std::string& prefix,
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
-{
-  result = kdl::vec_concat(
-    std::move(result),
-    m_entityNodeIndex->findEntityNodes(EntityNodeIndexQuery::numbered(prefix), value));
-}
-
-void WorldNode::doAddToIndex(
-  EntityNodeBase* node, const std::string& key, const std::string& value)
-{
-  m_entityNodeIndex->addProperty(node, key, value);
-}
-
-void WorldNode::doRemoveFromIndex(
-  EntityNodeBase* node, const std::string& key, const std::string& value)
-{
-  m_entityNodeIndex->removeProperty(node, key, value);
 }
 
 void WorldNode::doPropertiesDidChange(const vm::bbox3d& /* oldBounds */) {}

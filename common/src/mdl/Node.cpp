@@ -860,34 +860,6 @@ const EntityPropertyConfig& Node::entityPropertyConfig() const
   return doGetEntityPropertyConfig();
 }
 
-void Node::findEntityNodesWithProperty(
-  const std::string& key,
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
-{
-  return doFindEntityNodesWithProperty(key, value, result);
-}
-
-void Node::findEntityNodesWithNumberedProperty(
-  const std::string& prefix,
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
-{
-  return doFindEntityNodesWithNumberedProperty(prefix, value, result);
-}
-
-void Node::addToIndex(
-  EntityNodeBase* node, const std::string& key, const std::string& value)
-{
-  doAddToIndex(node, key, value);
-}
-
-void Node::removeFromIndex(
-  EntityNodeBase* node, const std::string& key, const std::string& value)
-{
-  doRemoveFromIndex(node, key, value);
-}
-
 Node* Node::doCloneRecursively(const vm::bbox3d& worldBounds) const
 {
   auto* clone = Node::clone(worldBounds);
@@ -934,46 +906,6 @@ const EntityPropertyConfig& Node::doGetEntityPropertyConfig() const
 
   static const auto defaultConfig = EntityPropertyConfig{};
   return defaultConfig;
-}
-
-void Node::doFindEntityNodesWithProperty(
-  const std::string& key,
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
-{
-  if (m_parent)
-  {
-    m_parent->findEntityNodesWithProperty(key, value, result);
-  }
-}
-
-void Node::doFindEntityNodesWithNumberedProperty(
-  const std::string& prefix,
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
-{
-  if (m_parent)
-  {
-    m_parent->findEntityNodesWithNumberedProperty(prefix, value, result);
-  }
-}
-
-void Node::doAddToIndex(
-  EntityNodeBase* node, const std::string& key, const std::string& value)
-{
-  if (m_parent)
-  {
-    m_parent->addToIndex(node, key, value);
-  }
-}
-
-void Node::doRemoveFromIndex(
-  EntityNodeBase* node, const std::string& key, const std::string& value)
-{
-  if (m_parent)
-  {
-    m_parent->removeFromIndex(node, key, value);
-  }
 }
 
 } // namespace tb::mdl

@@ -34,7 +34,6 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
-#include "mdl/EntityNodeIndex.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"

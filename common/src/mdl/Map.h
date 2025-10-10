@@ -239,7 +239,7 @@ public: // misc
   void setCurrentMaterialName(const std::string& currentMaterialName);
 
   template <typename NodeType = Node>
-  std::vector<NodeType*> findNodes(std::string_view pattern)
+  std::vector<NodeType*> findNodes(std::string_view pattern) const
   {
     return m_nodeIndex ? m_nodeIndex->findNodes<NodeType>(pattern)
                        : std::vector<NodeType*>{};

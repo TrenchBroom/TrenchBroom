@@ -488,20 +488,6 @@ public: // visitors
 public: // entity property configuration access
   const EntityPropertyConfig& entityPropertyConfig() const;
 
-protected: // index management
-  void findEntityNodesWithProperty(
-    const std::string& key,
-    const std::string& value,
-    std::vector<EntityNodeBase*>& result) const;
-  void findEntityNodesWithNumberedProperty(
-    const std::string& prefix,
-    const std::string& value,
-    std::vector<EntityNodeBase*>& result) const;
-
-  void addToIndex(EntityNodeBase* node, const std::string& key, const std::string& value);
-  void removeFromIndex(
-    EntityNodeBase* node, const std::string& key, const std::string& value);
-
 private: // subclassing interface
   virtual const std::string& doGetName() const = 0;
   virtual const vm::bbox3d& doGetLogicalBounds() const = 0;
@@ -553,20 +539,6 @@ private: // subclassing interface
   virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
 
   virtual const EntityPropertyConfig& doGetEntityPropertyConfig() const;
-
-  virtual void doFindEntityNodesWithProperty(
-    const std::string& key,
-    const std::string& value,
-    std::vector<EntityNodeBase*>& result) const;
-  virtual void doFindEntityNodesWithNumberedProperty(
-    const std::string& prefix,
-    const std::string& value,
-    std::vector<EntityNodeBase*>& result) const;
-
-  virtual void doAddToIndex(
-    EntityNodeBase* node, const std::string& key, const std::string& value);
-  virtual void doRemoveFromIndex(
-    EntityNodeBase* node, const std::string& key, const std::string& value);
 };
 
 } // namespace tb::mdl

@@ -28,12 +28,10 @@
 #include "octree.h"
 
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace tb::mdl
 {
-class EntityNodeIndex;
 class IssueQuickFix;
 enum class MapFormat;
 class PickResult;
@@ -46,7 +44,6 @@ private:
   EntityPropertyConfig m_entityPropertyConfig;
   MapFormat m_mapFormat;
   LayerNode* m_defaultLayer;
-  std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
   std::unique_ptr<ValidatorRegistry> m_validatorRegistry;
 
   using NodeTree = octree<double, Node*>;
@@ -121,9 +118,6 @@ public: // layer management
 private:
   void createDefaultLayer();
 
-public: // index
-  const EntityNodeIndex& entityNodeIndex() const;
-
 public: // validator registration
   std::vector<const Validator*> registeredValidators() const;
   std::vector<const IssueQuickFix*> quickFixes(IssueType issueTypes) const;
@@ -162,18 +156,6 @@ private: // implement Node interface
   void doAccept(NodeVisitor& visitor) override;
   void doAccept(ConstNodeVisitor& visitor) const override;
   const EntityPropertyConfig& doGetEntityPropertyConfig() const override;
-  void doFindEntityNodesWithProperty(
-    const std::string& name,
-    const std::string& value,
-    std::vector<EntityNodeBase*>& result) const override;
-  void doFindEntityNodesWithNumberedProperty(
-    const std::string& prefix,
-    const std::string& value,
-    std::vector<EntityNodeBase*>& result) const override;
-  void doAddToIndex(
-    EntityNodeBase* node, const std::string& key, const std::string& value) override;
-  void doRemoveFromIndex(
-    EntityNodeBase* node, const std::string& key, const std::string& value) override;
 
 private: // implement EntityNodeBase interface
   void doPropertiesDidChange(const vm::bbox3d& oldBounds) override;

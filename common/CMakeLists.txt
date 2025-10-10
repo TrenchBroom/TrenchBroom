@@ -126,7 +126,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/EntityModelManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityNode.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityNodeBase.cpp
-        ${COMMON_SOURCE_DIR}/mdl/EntityNodeIndex.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityProperties.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityPropertiesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityRotation.cpp
@@ -652,7 +651,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/EntityModelManager.h
         ${COMMON_SOURCE_DIR}/mdl/EntityNode.h
         ${COMMON_SOURCE_DIR}/mdl/EntityNodeBase.h
-        ${COMMON_SOURCE_DIR}/mdl/EntityNodeIndex.h
         ${COMMON_SOURCE_DIR}/mdl/EntityProperties.h
         ${COMMON_SOURCE_DIR}/mdl/EntityPropertiesVariableStore.h
         ${COMMON_SOURCE_DIR}/mdl/EntityRotation.h

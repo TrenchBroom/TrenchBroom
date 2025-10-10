@@ -20,7 +20,6 @@
 #pragma once
 
 #include "mdl/Entity.h"
-#include "mdl/EntityProperties.h"
 #include "mdl/Node.h"
 
 #include "vm/bbox.h"
@@ -73,24 +72,6 @@ private: // property management internals
   void propertiesWillChange();
   void propertiesDidChange(const vm::bbox3d& oldPhysicalBounds);
 
-private: // bulk update after property changes
-  void updateIndexAndLinks(const std::vector<EntityProperty>& newProperties);
-  void updatePropertyIndex(
-    const std::vector<EntityProperty>& oldProperties,
-    const std::vector<EntityProperty>& newProperties);
-
-private: // search index management
-  void addPropertiesToIndex();
-  void removePropertiesFromIndex();
-
-  void addPropertyToIndex(const std::string& key, const std::string& value);
-  void removePropertyFromIndex(const std::string& key, const std::string& value);
-  void updatePropertyIndex(
-    const std::string& oldKey,
-    const std::string& oldValue,
-    const std::string& newKey,
-    const std::string& newValue);
-
 public: // Entity linking
   vm::vec3d linkSourceAnchor() const;
   vm::vec3d linkTargetAnchor() const;
@@ -100,8 +81,6 @@ protected:
 
 private: // implemenation of node interface
   const std::string& doGetName() const override;
-  void doAncestorWillChange() override;
-  void doAncestorDidChange() override;
 
 private: // subclassing interface
   virtual void doPropertiesDidChange(const vm::bbox3d& oldBounds) = 0;
