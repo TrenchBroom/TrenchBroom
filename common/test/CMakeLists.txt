@@ -93,7 +93,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityModel.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityNode.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityNodeIndex.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityNodeLink.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityRotation.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Game.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_GameFactory.cpp"
