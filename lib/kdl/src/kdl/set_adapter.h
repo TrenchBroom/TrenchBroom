@@ -803,6 +803,11 @@ public:
   }
 
   /**
+   * Returns a reference to the underlying vector.
+   */
+  const auto& data() const { return m_data; }
+
+  /**
    * Returns the underlying vector. Afterwards, this set will be empty.
    */
   auto release_data()

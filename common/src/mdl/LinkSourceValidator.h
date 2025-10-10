@@ -25,11 +25,15 @@
 
 namespace tb::mdl
 {
+class EntityLinkManager;
 
 class LinkSourceValidator : public Validator
 {
+private:
+  const EntityLinkManager& m_entityLinkManager;
+
 public:
-  LinkSourceValidator();
+  explicit LinkSourceValidator(const EntityLinkManager& entityLinkManager);
 
 private:
   void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)

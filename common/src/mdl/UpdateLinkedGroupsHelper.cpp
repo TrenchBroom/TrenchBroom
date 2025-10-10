@@ -70,11 +70,6 @@ auto doReplaceChildren(
     return result;
   }
 
-  const auto parents =
-    collectNodesAndAncestors(nodes | std::views::keys | kdl::ranges::to<std::vector>());
-  auto notifyParents = NotifyBeforeAndAfter{
-    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
-
   const auto allOldChildren = collectOldChildren(nodes);
   auto notifyChildren = NotifyBeforeAndAfter{
     map.nodesWillBeRemovedNotifier, map.nodesWereRemovedNotifier, allOldChildren};

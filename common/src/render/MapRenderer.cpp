@@ -33,6 +33,7 @@
 #include "mdl/Map.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/Node.h"
+#include "mdl/NodeQueries.h"
 #include "mdl/PatchNode.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/WorldNode.h"
@@ -734,11 +735,11 @@ void MapRenderer::nodesWereRemoved(const std::vector<mdl::Node*>& nodes)
 
 void MapRenderer::nodesDidChange(const std::vector<mdl::Node*>& nodes)
 {
-  for (auto* node : nodes)
+  for (auto* node : mdl::collectNodesAndAncestors(nodes))
   {
-    // nodesDidChange() will report ancestors changing, e.g. the world and layer are
-    // reported as changing when a brush is dragged. So, don't update recursively here as
-    // it would cause the entire map to be invalidated on every change.
+    // We update the ancestors along with the nodes, i.e. the world node. So, don't update
+    // recursively here as it would cause the entire map to be invalidated on every
+    // change.
     updateAndInvalidateNode(node);
   }
   invalidateEntityLinkRenderer();

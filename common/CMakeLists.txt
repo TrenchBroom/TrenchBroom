@@ -120,12 +120,12 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionFileSpec.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionManager.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityLinkManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityModel.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityModelDataResource.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityModelManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityNode.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityNodeBase.cpp
-        ${COMMON_SOURCE_DIR}/mdl/EntityNodeIndex.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityProperties.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityPropertiesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityRotation.cpp
@@ -182,6 +182,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/ModelUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Node.cpp
         ${COMMON_SOURCE_DIR}/mdl/NodeContents.cpp
+        ${COMMON_SOURCE_DIR}/mdl/NodeIndex.cpp
         ${COMMON_SOURCE_DIR}/mdl/NodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/mdl/NonIntegerVerticesValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/Object.cpp
@@ -643,13 +644,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionManager.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionUtils.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityLinkManager.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModel.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModelDataResource.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModelManager.h
         ${COMMON_SOURCE_DIR}/mdl/EntityNode.h
         ${COMMON_SOURCE_DIR}/mdl/EntityNodeBase.h
-        ${COMMON_SOURCE_DIR}/mdl/EntityNodeIndex.h
         ${COMMON_SOURCE_DIR}/mdl/EntityProperties.h
         ${COMMON_SOURCE_DIR}/mdl/EntityPropertiesVariableStore.h
         ${COMMON_SOURCE_DIR}/mdl/EntityRotation.h
@@ -707,6 +708,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/ModelUtils.h
         ${COMMON_SOURCE_DIR}/mdl/Node.h
         ${COMMON_SOURCE_DIR}/mdl/NodeContents.h
+        ${COMMON_SOURCE_DIR}/mdl/NodeIndex.h
         ${COMMON_SOURCE_DIR}/mdl/NodeQueries.h
         ${COMMON_SOURCE_DIR}/mdl/NodeVisitor.h
         ${COMMON_SOURCE_DIR}/mdl/NonIntegerVerticesValidator.h
