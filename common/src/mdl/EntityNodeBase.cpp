@@ -22,6 +22,7 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kdl/ranges/adjacent_view.h"
 #include "kdl/ranges/to.h"
 
 #include <ranges>
@@ -33,33 +34,27 @@ namespace tb::mdl
 
 namespace
 {
-template <typename T, typename Eq = std::equal_to<T*>>
-const auto* select(const std::vector<T*> ts, const Eq& eq = Eq{})
-{
-  if (ts.empty())
-  {
-    return static_cast<T*>(nullptr);
-  }
 
-  const auto* result = ts.front();
-  for (auto it = std::next(ts.begin()); it != ts.end(); ++it)
-  {
-    const auto* t = *it;
-    if (!eq(result, t))
-    {
-      return static_cast<T*>(nullptr);
-    }
-  }
-  return result;
+template <
+  std::ranges::range R,
+  typename Eq = std::equal_to<std::ranges::range_value_t<R>>>
+const auto* select(const R ts, const Eq& eq = Eq{})
+{
+  return !ts.empty()
+             && std::ranges::all_of(
+               ts | kdl::views::pairwise,
+               [&](const auto& pair) { return std::apply(eq, pair); })
+           ? ts.front()
+           : nullptr;
 }
+
 } // namespace
 
 const EntityDefinition* selectEntityDefinition(const std::vector<EntityNodeBase*>& nodes)
 {
-  return select(
-    nodes
-    | std::views::transform([](const auto* node) { return node->entity().definition(); })
-    | kdl::ranges::to<std::vector>());
+  return select(nodes | std::views::transform([](const auto* node) {
+                  return node->entity().definition();
+                }));
 }
 
 const PropertyDefinition* propertyDefinition(
@@ -72,11 +67,9 @@ const PropertyDefinition* propertyDefinition(
 const PropertyDefinition* selectPropertyDefinition(
   const std::string& key, const std::vector<EntityNodeBase*>& nodes)
 {
-  return select(
-    nodes | std::views::transform([&](const auto* node) {
-      return propertyDefinition(node, key);
-    })
-    | kdl::ranges::to<std::vector>());
+  return select(nodes | std::views::transform([&](const auto* node) {
+                  return propertyDefinition(node, key);
+                }));
 }
 
 std::string selectPropertyValue(
@@ -85,7 +78,7 @@ std::string selectPropertyValue(
   const auto* value = select(
     nodes | std::views::transform([&](const auto* node) {
       return node->entity().property(key);
-    }) | kdl::ranges::to<std::vector>(),
+    }),
     [](const auto* lhs, const auto* rhs) {
       return (lhs == nullptr && rhs == nullptr)
              || (lhs != nullptr && rhs != nullptr && *lhs == *rhs);
