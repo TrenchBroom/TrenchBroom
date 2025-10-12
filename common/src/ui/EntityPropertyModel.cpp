@@ -32,9 +32,11 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
-#include "mdl/EntityNodeIndex.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/ModelUtils.h"
@@ -46,7 +48,8 @@
 #include "kdl/range_utils.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/string_utils.h"
-#include "kdl/vector_set.h"
+
+#include <fmt/format.h>
 
 #include <algorithm>
 #include <cassert>
@@ -54,6 +57,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #define MODEL_LOG(x)
@@ -149,7 +153,6 @@ std::vector<std::string> allKeys(
   const bool showProtectedProperties)
 {
   auto result = kdl::vector_set<std::string>{};
-
   for (const auto* node : nodes)
   {
     // Add explicitly set properties
@@ -653,9 +656,30 @@ std::vector<std::string> EntityPropertyModel::propertyKeys(
 
 std::vector<std::string> EntityPropertyModel::getAllPropertyKeys() const
 {
+  auto result = kdl::vector_set<std::string>{};
+  auto addEntityKeys = [&](const auto& node) {
+    const auto keys =
+      node.entity().properties()
+      | std::views::transform([](const auto& property) { return property.key(); });
+
+    result.insert(keys.begin(), keys.end());
+  };
+
   const auto& map = m_document.map();
-  const auto& index = map.world()->entityNodeIndex();
-  auto result = kdl::vector_set<std::string>(index.allKeys());
+  map.world()->accept(kdl::overload(
+    [&](auto&& thisLambda, const mdl::WorldNode* worldNode) {
+      addEntityKeys(*worldNode);
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const mdl::GroupNode* groupNode) {
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](const mdl::EntityNode* entityNode) { addEntityKeys(*entityNode); },
+    [](const mdl::BrushNode*) {},
+    [](const mdl::PatchNode*) {}));
 
   // also add keys from all loaded entity definitions
   for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
@@ -675,23 +699,24 @@ std::vector<std::string> EntityPropertyModel::getAllValuesForPropertyKeys(
   const std::vector<std::string>& propertyKeys) const
 {
   const auto& map = m_document.map();
-  const auto& index = map.world()->entityNodeIndex();
 
-  auto result = std::vector<std::string>();
-  auto resultSet = kdl::wrap_set(result);
-
+  auto result = kdl::vector_set<std::string>();
   for (const auto& key : propertyKeys)
   {
-    const auto values = index.allValuesForKeys(mdl::EntityNodeIndexQuery::numbered(key));
-    for (const auto& value : values)
+    for (const auto* entityNode :
+         map.findNodes<mdl::EntityNodeBase>(fmt::format("{}%*", key)))
     {
-      resultSet.insert(value);
+      const auto values =
+        entityNode->entity().numberedProperties(key)
+        | std::views::transform([](const auto& property) { return property.value(); });
+
+      result.insert(values.begin(), values.end());
     }
   }
 
   // remove the empty string
-  resultSet.erase("");
-  return result;
+  result.erase("");
+  return result.release_data();
 }
 
 std::vector<std::string> EntityPropertyModel::getAllClassnames() const

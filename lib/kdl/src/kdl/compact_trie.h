@@ -21,9 +21,9 @@
 #pragma once
 
 #include "kdl/string_compare.h"
+#include "kdl/vector_set.h"
 
 #include <cassert>
-#include <set>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -127,7 +127,7 @@ private:
     void insert(const node* n, const node* parent)
     {
       assert(n != nullptr);
-      m_state.try_emplace(n, parent);
+      m_state.try_emplace(n, node_match_state{parent});
     }
 
     /**
@@ -142,7 +142,8 @@ private:
     bool is_fully_matched(const node* n)
     {
       auto it = m_state.find(n);
-      assert(it != std::end(m_state));
+      assert(it != m_state.end());
+
       const auto& state = it->second;
       return state.node_matched && state.fully_matched_children == n->m_children.size();
     }
@@ -160,7 +161,7 @@ private:
     void set_fully_matched(const node* n)
     {
       auto it = m_state.find(n);
-      assert(it != std::end(m_state));
+      assert(it != m_state.end());
 
       auto& state = it->second;
       state.node_matched = true;
@@ -184,7 +185,7 @@ private:
     bool set_matched(const node* n)
     {
       auto it = m_state.find(n);
-      assert(it != std::end(m_state));
+      assert(it != m_state.end());
 
       auto& state = it->second;
       if (state.node_matched)
@@ -205,10 +206,10 @@ private:
   private:
     void update_parent_states(const node* n)
     {
-      while (n != nullptr)
+      while (n)
       {
         auto it = m_state.find(n);
-        assert(it != std::end(m_state));
+        assert(it != m_state.end());
 
         auto& state = it->second;
         state.fully_matched_children += 1u;
@@ -225,22 +226,15 @@ private:
   };
 
   /**
-   * A trie node. Children are stored in a set ordered by `node_cmp`. Each node can store
-   * a given value multiple times.
+   * A trie node. Children are stored in a flat set ordered by `node_cmp`. Each node can
+   * store a given value multiple times.
    *
-   * A trie node has only const methods and therefore appears to be immutable, but this is
-   * not the case. All of its members are actually declared as mutable and may be modified
-   * by the `insert` or `remove` member functions. The reason for this peculiar design
-   * choice is that trie nodes are stored by value in a `std::set`, and `std::set` does
-   * not allow its contents to be modified, since that might affect the position of the
-   * value in the set.
-   *
-   * But in this particular case, the position of a node in the containing set depends
-   * only on the node's key, and the node's key is changed only in ways that does not
-   * affect its position. The key can only become shorter or longer, that is, key "abc"
-   * might be changed to "ab" or "abcd", and neither of these changes affects how the key
-   * compares to other keys due to the order introduce by `node_cmp`, which consideres two
-   * keys equivalent if they share a non-empty prefix.
+   * Note that the position of a node in the containing set depends only on the node's
+   * key, and the node's key is changed only in ways that does not affect its position.
+   * The key can only become shorter or longer, that is, key "abc" might be changed to
+   * "ab" or "abcd", and neither of these changes affects how the key compares to other
+   * keys due to the order introduce by `node_cmp`, which consideres two keys equivalent
+   * if they share a non-empty prefix.
    *
    * This implies that the following two conditions hold for a node with key "abc":
    * - There is no sibling node with a key that is a prefix of "abc".
@@ -257,22 +251,22 @@ private:
     friend class match_state;
 
     using value_container = std::unordered_map<V, std::size_t>;
-    using node_set = std::set<node, node_cmp>;
+    using node_set = kdl::vector_set<node, node_cmp>;
 
     /**
      * The partical key of this node.
      */
-    mutable std::string m_key;
+    std::string m_key;
 
     /**
      * Maps a value to the number of times it was stored in this node.
      */
-    mutable value_container m_values;
+    value_container m_values;
 
     /**
      * The children of this node.
      */
-    mutable node_set m_children;
+    node_set m_children;
 
   public:
     /**
@@ -281,7 +275,7 @@ private:
      * @param key the key
      */
     explicit node(std::string key)
-      : m_key(std::move(key))
+      : m_key{std::move(key)}
     {
     }
 
@@ -295,7 +289,7 @@ private:
      * @param key the key to insert
      * @param value the value to insert
      */
-    void insert(const std::string_view key, const V& value) const
+    void insert(const std::string_view key, const V& value)
     {
       // clang-format off
       /*
@@ -332,11 +326,11 @@ private:
           // case 0, 1: m_key is a prefix of key, find or create a child that has a common
           // prefix with the remainder of key and insert there
           const auto remainder = key.substr(mismatch);
-          const auto& child = *m_children.insert(node(std::string(remainder))).first;
+          auto& child = *m_children.emplace(std::string{remainder}).first;
           child.insert(remainder, value);
         }
         else
-        { // mismatch == m_key.size()
+        { // mismatch < m_key.size()
           // case 2: key and m_key have a common prefix, split this node and insert again
           split_node(mismatch);
           insert(key, value);
@@ -361,11 +355,11 @@ private:
      * @param value the value to remove
      * @return true if the given key and value were removed from this node's subtree
      */
-    bool remove(const std::string_view key, const V& value) const
+    bool remove(const std::string_view key, const V& value)
     {
-      bool result = false;
+      auto result = false;
 
-      const std::size_t mismatch = kdl::cs::str_mismatch(key, m_key);
+      const auto mismatch = kdl::cs::str_mismatch(key, m_key);
       if (m_key.size() <= key.length() && mismatch == m_key.length())
       {
         // m_key is a prefix of key or m_key == key
@@ -373,8 +367,8 @@ private:
         {
           // m_key is a true prefix of key, continue at the corresponding child node
           const auto remainder = key.substr(mismatch);
-          const auto it = m_children.find(remainder);
-          assert(it != std::end(m_children));
+          auto it = m_children.find(remainder);
+          assert(it != m_children.end());
 
           result = it->remove(remainder, value);
           if (!it->m_key.empty() && it->m_values.empty() && it->m_children.empty())
@@ -490,7 +484,6 @@ private:
             }
             else
             {
-              // MSVC does not accept braces here:
               throw std::invalid_argument{"invalid escape sequence in pattern"};
             }
           }
@@ -500,7 +493,7 @@ private:
             for (const auto& c : {"*", "?", "%", "\\"})
             {
               const auto it = m_children.find(c);
-              if (it != std::end(m_children))
+              if (it != m_children.end())
               {
                 it->find_matches(pattern, p_i, this, match_state, out);
               }
@@ -573,13 +566,12 @@ private:
             else
             {
               // the key is consumed, so continue matching at the children
-              for (auto it = m_children.lower_bound("0"),
-                        end = m_children.upper_bound("9");
-                   it != end;
-                   ++it)
-              {
-                it->find_matches(pattern, p_i, this, match_state, out);
-              }
+              std::for_each(
+                m_children.lower_bound("0"),
+                m_children.upper_bound("9"),
+                [&](const auto& child) {
+                  child.find_matches(pattern, p_i, this, match_state, out);
+                });
             }
           }
           else
@@ -653,23 +645,21 @@ private:
     }
 
   private:
-    void insert_value(const V& value) const { m_values[value]++; }
+    void insert_value(const V& value) { m_values[value]++; }
 
-    bool remove_value(const V& value) const
+    bool remove_value(const V& value)
     {
       auto it = m_values.find(value);
-      if (it == std::end(m_values))
+      if (it == m_values.end())
       {
         return false;
       }
-      else
+
+      if (--(it->second) == 0u)
       {
-        if (--(it->second) == 0u)
-        {
-          m_values.erase(it);
-        }
-        return true;
+        m_values.erase(it);
       }
+      return true;
     }
 
     /**
@@ -685,7 +675,7 @@ private:
      *
      * @param index the index at which to split the node's key
      */
-    void split_node(const std::size_t index) const
+    void split_node(const std::size_t index)
     {
       assert(m_key.length() > 1u);
 
@@ -696,10 +686,10 @@ private:
       assert(!remainder.empty());
 
       using std::swap;
-      node_set new_children;
+      auto new_children = node_set{};
       swap(new_children, m_children);
 
-      const node& new_child = *m_children.insert(node(std::move(remainder))).first;
+      auto& new_child = *m_children.insert(node(std::move(remainder))).first;
       swap(new_child.m_children, new_children);
       swap(new_child.m_values, m_values);
 
@@ -713,7 +703,7 @@ private:
      *
      * Precondition: This node has only one child, and this node has no values of its own.
      */
-    void merge_node() const
+    void merge_node()
     {
       assert(m_children.size() == 1u);
       assert(m_values.empty());
@@ -722,7 +712,7 @@ private:
       auto old_children = node_set{};
       swap(old_children, m_children);
 
-      const auto& child = *std::begin(old_children);
+      auto& child = *old_children.begin();
       swap(m_children, child.m_children);
       swap(m_values, child.m_values);
 

@@ -1253,47 +1253,47 @@ TEST_CASE("Map")
         reparentNodes(map, {{lightEntityNode, {brushNode}}});
         CHECK(brushNode->hasTag(tag));
       }
+    }
 
-      SECTION("setEntityProperty updates tags")
+    SECTION("setEntityProperty updates tags")
+    {
+      auto* lightEntityNode = new EntityNode{Entity{{
+        {"classname", "asdf"},
+      }}};
+      addNodes(map, {{parentForNodes(map), {lightEntityNode}}});
+
+      auto* brushNode = createBrushNode(map, "some_material");
+      addNodes(map, {{lightEntityNode, {brushNode}}});
+
+      const auto& tag = map.smartTag("entity");
+      CHECK_FALSE(brushNode->hasTag(tag));
+
+      selectNodes(map, {lightEntityNode});
+      setEntityProperty(map, "classname", "brush_entity");
+      deselectAll(map);
+
+      CHECK(brushNode->hasTag(tag));
+    }
+
+    SECTION("setBrushFaceAttributes updates tags")
+    {
+      auto* brushNode = createBrushNode(map, "asdf");
+      addNodes(map, {{parentForNodes(map), {brushNode}}});
+
+      const auto& tag = map.smartTag("contentflags");
+
+      const auto faceHandle = BrushFaceHandle{brushNode, 0u};
+      CHECK_FALSE(faceHandle.face().hasTag(tag));
+
+      selectBrushFaces(map, {faceHandle});
+      setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{1}});
+      deselectAll(map);
+
+      const auto& faces = brushNode->brush().faces();
+      CHECK(faces[0].hasTag(tag));
+      for (size_t i = 1u; i < faces.size(); ++i)
       {
-        auto* lightEntityNode = new EntityNode{Entity{{
-          {"classname", "asdf"},
-        }}};
-        addNodes(map, {{parentForNodes(map), {lightEntityNode}}});
-
-        auto* brushNode = createBrushNode(map, "some_material");
-        addNodes(map, {{lightEntityNode, {brushNode}}});
-
-        const auto& tag = map.smartTag("entity");
-        CHECK_FALSE(brushNode->hasTag(tag));
-
-        selectNodes(map, {lightEntityNode});
-        setEntityProperty(map, "classname", "brush_entity");
-        deselectAll(map);
-
-        CHECK(brushNode->hasTag(tag));
-      }
-
-      SECTION("setBrushFaceAttributes updates tags")
-      {
-        auto* brushNode = createBrushNode(map, "asdf");
-        addNodes(map, {{parentForNodes(map), {brushNode}}});
-
-        const auto& tag = map.smartTag("contentflags");
-
-        const auto faceHandle = BrushFaceHandle{brushNode, 0u};
-        CHECK_FALSE(faceHandle.face().hasTag(tag));
-
-        selectBrushFaces(map, {faceHandle});
-        setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{1}});
-        deselectAll(map);
-
-        const auto& faces = brushNode->brush().faces();
-        CHECK(faces[0].hasTag(tag));
-        for (size_t i = 1u; i < faces.size(); ++i)
-        {
-          CHECK(!faces[i].hasTag(tag));
-        }
+        CHECK(!faces[i].hasTag(tag));
       }
     }
 

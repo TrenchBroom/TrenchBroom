@@ -282,19 +282,18 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
       REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
-      addNodes(map, {{parentForNodes(map), {linkedInnerGroupNode}}});
-
       auto* linkedOuterGroupNode =
         static_cast<GroupNode*>(outerGroupNode->cloneRecursively(map.worldBounds()));
       setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
       REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
 
-      addNodes(map, {{parentForNodes(map), {linkedOuterGroupNode}}});
-
       auto* nestedLinkedInnerGroupNode =
         static_cast<GroupNode*>(linkedOuterGroupNode->children().front());
       setGroupName(*nestedLinkedInnerGroupNode, "nestedLinkedInnerGroupNode");
       REQUIRE(nestedLinkedInnerGroupNode->linkId() == innerGroupNode->linkId());
+
+      addNodes(
+        map, {{parentForNodes(map), {linkedInnerGroupNode, linkedOuterGroupNode}}});
 
       /*
       world
