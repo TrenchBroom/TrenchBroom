@@ -150,9 +150,19 @@ std::string MockGame::defaultMod() const
 }
 
 Result<std::vector<EntityDefinition>> MockGame::loadEntityDefinitions(
-  io::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
+  io::ParserStatus& /* status */, const std::filesystem::path& path) const
 {
-  return std::vector<EntityDefinition>{};
+  if (m_entityDefinitions.empty())
+  {
+    return std::vector<EntityDefinition>{};
+  }
+
+  if (const auto i = m_entityDefinitions.find(path); i != m_entityDefinitions.end())
+  {
+    return i->second;
+  }
+
+  return Error{fmt::format("Unknown entity definition file: {}", path)};
 }
 
 void MockGame::setSmartTags(std::vector<SmartTag> smartTags)
@@ -163,6 +173,13 @@ void MockGame::setSmartTags(std::vector<SmartTag> smartTags)
 void MockGame::setDefaultFaceAttributes(const BrushFaceAttributes& defaultFaceAttributes)
 {
   m_config.faceAttribsConfig.defaults = defaultFaceAttributes;
+}
+
+void MockGame::setEntityDefinitionFiles(
+  std::unordered_map<std::filesystem::path, std::vector<EntityDefinition>>
+    entityDefinitionFiles)
+{
+  m_entityDefinitions = std::move(entityDefinitionFiles);
 }
 
 } // namespace tb::mdl
