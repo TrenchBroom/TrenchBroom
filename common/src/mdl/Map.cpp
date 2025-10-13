@@ -1043,13 +1043,14 @@ void Map::loadEntityDefinitions()
 {
   if (const auto spec = entityDefinitionFile(*this))
   {
-    const auto path = game()->findEntityDefinitionFile(*spec, externalSearchPaths(*this));
     auto status = io::SimpleParserStatus{m_logger};
+    const auto path = game()->findEntityDefinitionFile(*spec, externalSearchPaths(*this));
 
-    entityDefinitionManager().loadDefinitions(path, *game(), status)
-      | kdl::transform([&]() {
+    game()->loadEntityDefinitions(status, path)
+      | kdl::transform([&](auto entityDefinitions) {
           m_logger.info() << fmt::format(
             "Loaded entity definition file {}", path.filename());
+          entityDefinitionManager().setDefinitions(std::move(entityDefinitions));
         })
       | kdl::transform_error([&](auto e) {
           switch (spec->type)

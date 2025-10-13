@@ -20,12 +20,9 @@
 #include "EntityDefinitionManager.h"
 
 #include "Ensure.h"
-#include "io/EntityDefinitionLoader.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityNodeBase.h"
-
-#include "kdl/result.h"
 
 #include <algorithm>
 #include <string>
@@ -38,16 +35,6 @@ namespace tb::mdl
 EntityDefinitionManager::~EntityDefinitionManager()
 {
   clear();
-}
-
-Result<void> EntityDefinitionManager::loadDefinitions(
-  const std::filesystem::path& path,
-  const io::EntityDefinitionLoader& loader,
-  io::ParserStatus& status)
-{
-  return loader.loadEntityDefinitions(status, path)
-         | kdl::transform(
-           [&](auto entityDefinitions) { setDefinitions(std::move(entityDefinitions)); });
 }
 
 void EntityDefinitionManager::setDefinitions(std::vector<EntityDefinition> newDefinitions)
