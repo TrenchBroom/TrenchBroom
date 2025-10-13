@@ -257,6 +257,36 @@ TEST_CASE("Map")
           {EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname},
         }});
     }
+
+    SECTION("Loads default entity definition file")
+    {
+      const auto entityDefinitionFilePath =
+        std::filesystem::path{"/some/folder/Quake.fgd"};
+      const auto entityDefinition = EntityDefinition{
+        "some_name",
+        {},
+        {},
+        {
+          PropertyDefinition{"some_prop", PropertyValueTypes::TargetSource{}, {}, {}},
+        },
+        {},
+        1};
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {}},
+      };
+      gameConfig.entityConfig.defFilePaths.emplace_back(entityDefinitionFilePath);
+
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      game->setEntityDefinitionFiles({
+        {entityDefinitionFilePath, {entityDefinition}},
+      });
+
+      REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, std::move(game)));
+
+      CHECK(map.entityDefinitionManager().definitions() == std::vector{entityDefinition});
+    }
   }
 
   SECTION("load")
@@ -406,6 +436,40 @@ TEST_CASE("Map")
           std::move(game),
           makeAbsolute("fixture/test/mdl/Map/mixedFormats.map")));
       }
+    }
+
+    SECTION("Loads default entity definition file")
+    {
+      const auto entityDefinitionFilePath =
+        std::filesystem::path{"/some/folder/Quake.fgd"};
+      const auto entityDefinition = EntityDefinition{
+        "some_name",
+        {},
+        {},
+        {
+          PropertyDefinition{"some_prop", PropertyValueTypes::TargetSource{}, {}, {}},
+        },
+        {},
+        1};
+
+      auto gameConfig = MockGameConfig{};
+      gameConfig.fileFormats = std::vector<MapFormatConfig>{
+        {"Valve", {}},
+      };
+      gameConfig.entityConfig.defFilePaths.emplace_back(entityDefinitionFilePath);
+
+      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      game->setEntityDefinitionFiles({
+        {entityDefinitionFilePath, {entityDefinition}},
+      });
+
+      REQUIRE(map.load(
+        MapFormat::Unknown,
+        vm::bbox3d{8192.0},
+        std::move(game),
+        makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
+
+      CHECK(map.entityDefinitionManager().definitions() == std::vector{entityDefinition});
     }
   }
 
