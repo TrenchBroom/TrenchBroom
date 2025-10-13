@@ -120,6 +120,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionFileSpec.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionManager.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityLinkManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityModel.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityModelDataResource.cpp

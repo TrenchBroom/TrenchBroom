@@ -89,6 +89,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EditorContext.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Entity.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityDefinitionFileSpec.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityDefinitionUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityLinkManager.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityModel.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityNode.cpp"

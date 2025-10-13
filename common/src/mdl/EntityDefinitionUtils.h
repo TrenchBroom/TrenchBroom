@@ -59,4 +59,14 @@ std::vector<const EntityDefinition*> filterAndSort(
   return result;
 }
 
+/**
+ * Overrides the entity property values types of the given entity definitions.
+ *
+ * If the given vector contains no entity definition that uses the TargetSource or
+ * TargetDestination property value types, we switch to legacy mode to support the default
+ * entity linking properties.
+ */
+void addOrSetDefaultEntityLinkProperties(
+  std::vector<mdl::EntityDefinition>& entityDefinitions);
+
 } // namespace tb::mdl

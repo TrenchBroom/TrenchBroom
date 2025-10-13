@@ -44,6 +44,7 @@
 #include "mdl/EmptyPropertyKeyValidator.h"
 #include "mdl/EmptyPropertyValueValidator.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityLinkManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
@@ -1050,6 +1051,8 @@ void Map::loadEntityDefinitions()
       | kdl::transform([&](auto entityDefinitions) {
           m_logger.info() << fmt::format(
             "Loaded entity definition file {}", path.filename());
+
+          addOrSetDefaultEntityLinkProperties(entityDefinitions);
           entityDefinitionManager().setDefinitions(std::move(entityDefinitions));
         })
       | kdl::transform_error([&](auto e) {
