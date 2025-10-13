@@ -19,6 +19,7 @@
 
 #include "EntityDefinition.h"
 
+#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
@@ -27,6 +28,24 @@
 
 namespace tb::mdl
 {
+namespace
+{
+template <typename ValueType>
+std::vector<const PropertyDefinition*> getPropertyDefinitionsWithType(
+  const EntityDefinition* entityDefinition)
+{
+  return entityDefinition
+           ? entityDefinition->propertyDefinitions
+               | std::views::filter([](const auto& propertyDefinition) {
+                   return std::holds_alternative<ValueType>(propertyDefinition.valueType);
+                 })
+               | std::views::transform(
+                 [](const auto& propertyDefinition) { return &propertyDefinition; })
+               | kdl::ranges::to<std::vector>()
+           : std::vector<const PropertyDefinition*>{};
+}
+
+} // namespace
 
 kdl_reflect_impl(PointEntityDefinition);
 
@@ -47,8 +66,8 @@ void EntityDefinition::decUsageCount() const
 
 kdl_reflect_impl(EntityDefinition);
 
-const PropertyDefinition* getPropertyDefinition(
-  const EntityDefinition& entityDefinition, const std::string& key)
+PropertyDefinition* getPropertyDefinition(
+  EntityDefinition& entityDefinition, const std::string& key)
 {
   if (const auto it = std::ranges::find_if(
         entityDefinition.propertyDefinitions,
@@ -61,9 +80,29 @@ const PropertyDefinition* getPropertyDefinition(
 }
 
 const PropertyDefinition* getPropertyDefinition(
+  const EntityDefinition& entityDefinition, const std::string& key)
+{
+  return getPropertyDefinition(const_cast<EntityDefinition&>(entityDefinition), key);
+}
+
+const PropertyDefinition* getPropertyDefinition(
   const EntityDefinition* entityDefinition, const std::string& key)
 {
   return entityDefinition ? getPropertyDefinition(*entityDefinition, key) : nullptr;
+}
+
+std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
+  const EntityDefinition* entityDefinition)
+{
+  return getPropertyDefinitionsWithType<PropertyValueTypes::TargetDestination>(
+    entityDefinition);
+}
+
+std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
+  const EntityDefinition* entityDefinition)
+{
+  return getPropertyDefinitionsWithType<PropertyValueTypes::TargetSource>(
+    entityDefinition);
 }
 
 std::string_view getShortName(const EntityDefinition& entityDefinition)
