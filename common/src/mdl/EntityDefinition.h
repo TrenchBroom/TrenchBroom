@@ -82,12 +82,6 @@ const PropertyDefinition* getPropertyDefinition(
 const PropertyDefinition* getPropertyDefinition(
   const EntityDefinition* entityDefinition, const std::string& key);
 
-std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
-  const EntityDefinition* entityDefinition);
-
-std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
-  const EntityDefinition* entityDefinition);
-
 enum class EntityDefinitionType
 {
   Point,

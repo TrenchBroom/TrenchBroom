@@ -19,7 +19,7 @@
 
 #include "EntityLinkManager.h"
 
-#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/NodeIndex.h"
 

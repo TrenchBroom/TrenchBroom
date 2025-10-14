@@ -19,7 +19,6 @@
 
 #include "EntityDefinition.h"
 
-#include "kdl/ranges/to.h"
 #include "kdl/reflection_impl.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
@@ -28,24 +27,6 @@
 
 namespace tb::mdl
 {
-namespace
-{
-template <typename ValueType>
-std::vector<const PropertyDefinition*> getPropertyDefinitionsWithType(
-  const EntityDefinition* entityDefinition)
-{
-  return entityDefinition
-           ? entityDefinition->propertyDefinitions
-               | std::views::filter([](const auto& propertyDefinition) {
-                   return std::holds_alternative<ValueType>(propertyDefinition.valueType);
-                 })
-               | std::views::transform(
-                 [](const auto& propertyDefinition) { return &propertyDefinition; })
-               | kdl::ranges::to<std::vector>()
-           : std::vector<const PropertyDefinition*>{};
-}
-
-} // namespace
 
 kdl_reflect_impl(PointEntityDefinition);
 
@@ -89,18 +70,6 @@ const PropertyDefinition* getPropertyDefinition(
   const EntityDefinition* entityDefinition, const std::string& key)
 {
   return entityDefinition ? getPropertyDefinition(*entityDefinition, key) : nullptr;
-}
-
-std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
-  const EntityDefinition* entityDefinition)
-{
-  return getPropertyDefinitionsWithType<PropertyValueTypes::LinkSource>(entityDefinition);
-}
-
-std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
-  const EntityDefinition* entityDefinition)
-{
-  return getPropertyDefinitionsWithType<PropertyValueTypes::LinkTarget>(entityDefinition);
 }
 
 std::string_view getShortName(const EntityDefinition& entityDefinition)

@@ -26,6 +26,21 @@ namespace tb::mdl
 namespace
 {
 
+template <typename ValueType>
+std::vector<const PropertyDefinition*> getPropertyDefinitionsWithType(
+  const EntityDefinition* entityDefinition)
+{
+  return entityDefinition
+           ? entityDefinition->propertyDefinitions
+               | std::views::filter([](const auto& propertyDefinition) {
+                   return std::holds_alternative<ValueType>(propertyDefinition.valueType);
+                 })
+               | std::views::transform(
+                 [](const auto& propertyDefinition) { return &propertyDefinition; })
+               | kdl::ranges::to<std::vector>()
+           : std::vector<const PropertyDefinition*>{};
+}
+
 auto getAllPropertyDefinitions(auto&& entityDefinitions)
 {
   return entityDefinitions | std::views::transform([](auto&& entityDefinition) -> auto&& {
@@ -75,6 +90,18 @@ void addOrSetDefaultEntityLinkProperties(mdl::EntityDefinition& entityDefinition
 }
 
 } // namespace
+
+std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
+  const EntityDefinition* entityDefinition)
+{
+  return getPropertyDefinitionsWithType<PropertyValueTypes::LinkSource>(entityDefinition);
+}
+
+std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
+  const EntityDefinition* entityDefinition)
+{
+  return getPropertyDefinitionsWithType<PropertyValueTypes::LinkTarget>(entityDefinition);
+}
 
 void addOrSetDefaultEntityLinkProperties(
   std::vector<mdl::EntityDefinition>& entityDefinitions)

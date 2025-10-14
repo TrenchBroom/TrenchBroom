@@ -59,6 +59,12 @@ std::vector<const EntityDefinition*> filterAndSort(
   return result;
 }
 
+std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
+  const EntityDefinition* entityDefinition);
+
+std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
+  const EntityDefinition* entityDefinition);
+
 /**
  * Overrides the entity property values types of the given entity definitions.
  *
