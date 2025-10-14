@@ -39,9 +39,9 @@ bool hasAnyEntityLinkPropertyDefinition(
 {
   return std::ranges::any_of(
     getAllPropertyDefinitions(entityDefinitions), [](const auto& propertyDefinition) {
-      return std::holds_alternative<mdl::PropertyValueTypes::TargetSource>(
+      return std::holds_alternative<mdl::PropertyValueTypes::LinkTarget>(
                propertyDefinition.valueType)
-             || std::holds_alternative<mdl::PropertyValueTypes::TargetDestination>(
+             || std::holds_alternative<mdl::PropertyValueTypes::LinkSource>(
                propertyDefinition.valueType);
     });
 }
@@ -51,13 +51,13 @@ void addOrSetDefaultEntityLinkProperties(mdl::EntityDefinition& entityDefinition
   static const auto keysAndValueTypes =
     std::vector<std::tuple<std::string, mdl::PropertyValueType, std::string>>{
       {mdl::EntityPropertyKeys::Target,
-       mdl::PropertyValueTypes::TargetDestination{},
+       mdl::PropertyValueTypes::LinkSource{},
        "name of entity to trigger"},
       {mdl::EntityPropertyKeys::Killtarget,
-       mdl::PropertyValueTypes::TargetDestination{},
+       mdl::PropertyValueTypes::LinkSource{},
        "name of entity to kill"},
       {mdl::EntityPropertyKeys::Targetname,
-       mdl::PropertyValueTypes::TargetSource{},
+       mdl::PropertyValueTypes::LinkTarget{},
        "target name for linking"}};
 
   for (const auto& [key, valueType, description] : keysAndValueTypes)

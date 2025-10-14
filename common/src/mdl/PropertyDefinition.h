@@ -31,14 +31,14 @@ namespace tb::mdl
 
 namespace PropertyValueTypes
 {
-struct TargetSource
+struct LinkSource
 {
-  kdl_reflect_decl_empty(TargetSource);
+  kdl_reflect_decl_empty(LinkSource);
 };
 
-struct TargetDestination
+struct LinkTarget
 {
-  kdl_reflect_decl_empty(TargetDestination);
+  kdl_reflect_decl_empty(LinkTarget);
 };
 
 struct String
@@ -115,8 +115,8 @@ struct Unknown
 } // namespace PropertyValueTypes
 
 using PropertyValueType = std::variant<
-  PropertyValueTypes::TargetSource,
-  PropertyValueTypes::TargetDestination,
+  PropertyValueTypes::LinkTarget,
+  PropertyValueTypes::LinkSource,
   PropertyValueTypes::String,
   PropertyValueTypes::Boolean,
   PropertyValueTypes::Integer,

@@ -52,8 +52,8 @@ TEST_CASE("EntityLinkManager")
     {},
     {},
     {
-      {SourceProp, PropertyValueTypes::TargetDestination{}, {}, {}},
-      {AltSourceProp, PropertyValueTypes::TargetDestination{}, {}, {}},
+      {SourceProp, PropertyValueTypes::LinkSource{}, {}, {}},
+      {AltSourceProp, PropertyValueTypes::LinkSource{}, {}, {}},
     }};
 
   const auto targetDefinition = EntityDefinition{
@@ -61,8 +61,8 @@ TEST_CASE("EntityLinkManager")
     {},
     {},
     {
-      {TargetProp, PropertyValueTypes::TargetSource{}, {}, {}},
-      {AltTargetProp, PropertyValueTypes::TargetSource{}, {}, {}},
+      {TargetProp, PropertyValueTypes::LinkTarget{}, {}, {}},
+      {AltTargetProp, PropertyValueTypes::LinkTarget{}, {}, {}},
     }};
 
   const auto sourceTargetDefinition = EntityDefinition{
@@ -70,8 +70,8 @@ TEST_CASE("EntityLinkManager")
     {},
     {},
     {
-      {SourceProp, PropertyValueTypes::TargetDestination{}, {}, {}},
-      {TargetProp, PropertyValueTypes::TargetSource{}, {}, {}},
+      {SourceProp, PropertyValueTypes::LinkSource{}, {}, {}},
+      {TargetProp, PropertyValueTypes::LinkTarget{}, {}, {}},
     }};
 
   SECTION("Adding and removing entities")

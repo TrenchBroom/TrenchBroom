@@ -242,7 +242,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
              "Model Light Color",
              R"(Color of constant light of .md3 model, included with entity (default 1 1 1).)"},
             {"targetname",
-             TargetSource{},
+             LinkTarget{},
              "Target Name",
              R"(Used to attach a misc_model entity to this entity.)"},
             {"_castshadows",
@@ -489,7 +489,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
           {
             {
               "target",
-              TargetDestination{},
+              LinkSource{},
               "target",
               "",
             },

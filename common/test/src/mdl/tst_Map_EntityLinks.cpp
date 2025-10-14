@@ -62,13 +62,13 @@ TEST_CASE("Map_EntityLinks")
       {},
       {},
       {
-        {Target, PropertyValueTypes::TargetDestination{}, {}, {}},
+        {Target, PropertyValueTypes::LinkSource{}, {}, {}},
       }},
      {targetClassname,
       {},
       {},
       {
-        {Targetname, PropertyValueTypes::TargetSource{}, {}, {}},
+        {Targetname, PropertyValueTypes::LinkTarget{}, {}, {}},
       }}});
 
   SECTION("Adding nodes adds their links")

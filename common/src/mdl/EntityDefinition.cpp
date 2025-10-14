@@ -94,15 +94,13 @@ const PropertyDefinition* getPropertyDefinition(
 std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
   const EntityDefinition* entityDefinition)
 {
-  return getPropertyDefinitionsWithType<PropertyValueTypes::TargetDestination>(
-    entityDefinition);
+  return getPropertyDefinitionsWithType<PropertyValueTypes::LinkSource>(entityDefinition);
 }
 
 std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
   const EntityDefinition* entityDefinition)
 {
-  return getPropertyDefinitionsWithType<PropertyValueTypes::TargetSource>(
-    entityDefinition);
+  return getPropertyDefinitionsWithType<PropertyValueTypes::LinkTarget>(entityDefinition);
 }
 
 std::string_view getShortName(const EntityDefinition& entityDefinition)
