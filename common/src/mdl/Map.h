@@ -356,6 +356,7 @@ private: // index management
 
 private: // entity link management
   void initializeEntityLinks();
+  void clearEntityLinks();
   void addEntityLinks(const std::vector<Node*>& nodes, bool recurse);
   void removeEntityLinks(const std::vector<Node*>& nodes, bool recurse);
 

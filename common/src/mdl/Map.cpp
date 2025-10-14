@@ -1241,6 +1241,11 @@ void Map::initializeEntityLinks()
   addEntityLinks({world()}, true);
 }
 
+void Map::clearEntityLinks()
+{
+  m_entityLinkManager->clear();
+}
+
 void Map::addEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
 {
   for (auto* node : nodes)
@@ -1623,6 +1628,7 @@ void Map::entityDefinitionsWillChange()
 {
   clearEntityDefinitions();
   clearEntityModels();
+  clearEntityLinks();
 }
 
 void Map::entityDefinitionsDidChange()
@@ -1630,6 +1636,7 @@ void Map::entityDefinitionsDidChange()
   loadEntityDefinitions();
   setEntityDefinitions();
   setEntityModels();
+  initializeEntityLinks();
 }
 
 void Map::modsWillChange()

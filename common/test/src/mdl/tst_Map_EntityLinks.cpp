@@ -21,6 +21,7 @@
 #include "TestFactory.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityLinkManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Group.h"
@@ -51,15 +52,34 @@ TEST_CASE("Map_EntityLinks")
   auto fixture = MapFixture{};
   auto& map = fixture.map();
 
-  fixture.create();
+  fixture.create({.game = MockGameFixture{}});
+
+  constexpr auto sourceClassname = "source_definition";
+  constexpr auto targetClassname = "target_definition";
+
+  map.entityDefinitionManager().setDefinitions(
+    {{sourceClassname,
+      {},
+      {},
+      {
+        {Target, PropertyValueTypes::TargetDestination{}, {}, {}},
+      }},
+     {targetClassname,
+      {},
+      {},
+      {
+        {Targetname, PropertyValueTypes::TargetSource{}, {}, {}},
+      }}});
 
   SECTION("Adding nodes adds their links")
   {
     auto* sourceNode = new EntityNode{Entity{{
+      {Classname, sourceClassname},
       {Target, "some_value"},
     }}};
 
     auto* targetNode = new EntityNode{Entity{{
+      {Classname, targetClassname},
       {Targetname, "some_value"},
     }}};
 
@@ -70,10 +90,12 @@ TEST_CASE("Map_EntityLinks")
   SECTION("Removing nodes removes their links")
   {
     auto* sourceNode = new EntityNode{Entity{{
+      {Classname, sourceClassname},
       {Target, "some_value"},
     }}};
 
     auto* targetNode = new EntityNode{Entity{{
+      {Classname, targetClassname},
       {Targetname, "some_value"},
     }}};
 
@@ -93,10 +115,101 @@ TEST_CASE("Map_EntityLinks")
     }
   }
 
+  SECTION("Changing classname updates links")
+  {
+    SECTION("When the entities are already linked")
+    {
+      auto* sourceNode = new EntityNode{Entity{{
+        {Classname, sourceClassname},
+        {Target, "some_value"},
+      }}};
+
+      auto* targetNode = new EntityNode{Entity{{
+        {Classname, targetClassname},
+        {Targetname, "some_value"},
+      }}};
+
+      addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
+      REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+
+      SECTION("Change source classname")
+      {
+        selectNodes(map, {sourceNode});
+        setEntityProperty(map, Classname, "some_other_class");
+        CHECK(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+      }
+
+      SECTION("Remove source classname")
+      {
+        selectNodes(map, {sourceNode});
+        removeEntityProperty(map, Classname);
+        CHECK(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+      }
+
+      SECTION("Change target classname")
+      {
+        selectNodes(map, {targetNode});
+        setEntityProperty(map, Classname, "some_other_class");
+        CHECK(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+      }
+
+      SECTION("Remove target classname")
+      {
+        selectNodes(map, {targetNode});
+        removeEntityProperty(map, Classname);
+        CHECK(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+      }
+    }
+
+    SECTION("When the entities are not linked")
+    {
+      auto* sourceNode = new EntityNode{Entity{{
+        {Classname, "some_other_class"},
+        {Target, "some_value"},
+      }}};
+
+      auto* targetNode = new EntityNode{Entity{{
+        {Classname, "yet_anotehr_class"},
+        {Targetname, "some_value"},
+      }}};
+
+      addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
+      REQUIRE(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+
+      SECTION("Change source classname, then target classname")
+      {
+        selectNodes(map, {sourceNode});
+        setEntityProperty(map, Classname, sourceClassname);
+        CHECK(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+
+        deselectAll(map);
+        selectNodes(map, {targetNode});
+        setEntityProperty(map, Classname, targetClassname);
+        CHECK(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+      }
+
+      SECTION("Change target classname, then source classname")
+      {
+        selectNodes(map, {targetNode});
+        setEntityProperty(map, Classname, targetClassname);
+        CHECK(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+
+        deselectAll(map);
+        selectNodes(map, {sourceNode});
+        setEntityProperty(map, Classname, sourceClassname);
+        CHECK(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
+      }
+    }
+  }
+
   SECTION("Setting properties updates links")
   {
-    auto* sourceNode = new EntityNode{Entity{{}}};
-    auto* targetNode = new EntityNode{Entity{{}}};
+    auto* sourceNode = new EntityNode{Entity{{
+      {Classname, sourceClassname},
+    }}};
+    auto* targetNode = new EntityNode{Entity{{
+      {Classname, targetClassname},
+    }}};
 
     addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
     REQUIRE(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
@@ -129,10 +242,12 @@ TEST_CASE("Map_EntityLinks")
   SECTION("Unsetting properties removes links")
   {
     auto* sourceNode = new EntityNode{Entity{{
+      {Classname, sourceClassname},
       {Target, "some_value"},
     }}};
 
     auto* targetNode = new EntityNode{Entity{{
+      {Classname, targetClassname},
       {Targetname, "some_value"},
     }}};
 
@@ -157,10 +272,12 @@ TEST_CASE("Map_EntityLinks")
   SECTION("Grouped nodes")
   {
     auto* sourceNode = new EntityNode{Entity{{
+      {Classname, sourceClassname},
       {Target, "some_value"},
     }}};
 
     auto* targetNode = new EntityNode{Entity{{
+      {Classname, targetClassname},
       {Targetname, "some_value"},
     }}};
 

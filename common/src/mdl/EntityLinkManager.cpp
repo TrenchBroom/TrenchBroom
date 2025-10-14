@@ -19,6 +19,7 @@
 
 #include "EntityLinkManager.h"
 
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/NodeIndex.h"
 
@@ -31,7 +32,47 @@ namespace tb::mdl
 namespace
 {
 const EntityLinkManager::LinkEndsForName EmptyLinkEnds;
+
+auto getLinkSourcePropertyKeys(const EntityNodeBase& sourceNode)
+{
+  return getLinkSourcePropertyDefinitions(sourceNode.entity().definition())
+         | std::views::transform(
+           [](const auto* propertyDefinition) { return propertyDefinition->key; })
+         | kdl::ranges::to<std::vector>();
 }
+
+auto getLinkTargetPropertyKeys(const EntityNodeBase& targetNode)
+{
+  return getLinkTargetPropertyDefinitions(targetNode.entity().definition())
+         | std::views::transform(
+           [](const auto* propertyDefinition) { return propertyDefinition->key; })
+         | kdl::ranges::to<std::vector>();
+}
+
+template <std::ranges::range R>
+auto getPropertiesForKeys(const EntityNodeBase& entityNode, R keys)
+{
+  return std::move(keys) | std::views::transform([&](const auto& key) {
+           return entityNode.entity().numberedProperties(key)
+                  | std::views::transform(
+                    [&](auto property) { return std::pair{key, std::move(property)}; });
+         })
+         | std::views::join;
+}
+
+
+bool hasLinkTargetProperty(const EntityNodeBase& targetNode, const std::string& value)
+{
+  return std::ranges::any_of(
+    getLinkTargetPropertyKeys(targetNode) | std::views::transform([&](const auto& key) {
+      return targetNode.entity().property(key);
+    }),
+    [&](const auto* targetPropertyValue) {
+      return targetPropertyValue && *targetPropertyValue == value;
+    });
+}
+
+} // namespace
 
 EntityLinkManager::EntityLinkManager(const NodeIndex& nodeIndex)
   : m_nodeIndex{nodeIndex}
@@ -121,27 +162,26 @@ void EntityLinkManager::addLinksFrom(EntityNodeBase& sourceNode)
 {
   using namespace EntityPropertyKeys;
 
-  const auto& entity = sourceNode.entity();
-  for (const auto& propertyPrefix : {Target, Killtarget})
+  for (const auto& [linkSourceKey, linkSourceProperty] :
+       getPropertiesForKeys(sourceNode, getLinkSourcePropertyKeys(sourceNode)))
   {
-    for (const auto& property : entity.numberedProperties(propertyPrefix))
+    const auto& linkSourceValue = linkSourceProperty.value();
+
+    // The node has some source property. We create an entry for the node and the property
+    // even if we don't know if there are any target nodes. This way, we can detect link
+    // sources with missing targets during validation.
+    auto& linkTargetsPerKey = m_linkSources[&sourceNode][linkSourceKey];
+
+    auto targetNodes =
+      m_nodeIndex.findNodes<EntityNodeBase>(linkSourceValue)
+      | std::views::filter([&](const auto* maybeTargetNode) {
+          return hasLinkTargetProperty(*maybeTargetNode, linkSourceValue);
+        });
+
+    for (const auto* targetNode : targetNodes)
     {
-      // The node has a target or killtarget property. We create an entry for the node
-      // and the property even if we don't know if there are any target nodes. This way,
-      // we can detect link sources with missing targets during validation.
-      auto& linkTargetsForName = m_linkSources[&sourceNode][propertyPrefix];
-
-      auto targetNodes =
-        m_nodeIndex.findNodes<EntityNodeBase>(property.value())
-        | std::views::filter([&](const auto& entityNode) {
-            return entityNode->entity().hasProperty(Targetname, property.value());
-          });
-
-      for (auto* targetNode : targetNodes)
-      {
-        linkTargetsForName.emplace(targetNode);
-        m_linkTargets[targetNode][propertyPrefix].emplace(&sourceNode);
-      }
+      linkTargetsPerKey.emplace(targetNode);
+      m_linkTargets[targetNode][linkSourceKey].emplace(&sourceNode);
     }
   }
 }
@@ -150,26 +190,26 @@ void EntityLinkManager::addLinksTo(EntityNodeBase& targetNode)
 {
   using namespace EntityPropertyKeys;
 
-  const auto& entity = targetNode.entity();
-  if (const auto* targetname = entity.property(Targetname))
+  for (const auto& [linkTargetKey, linkTargetProperty] :
+       getPropertiesForKeys(targetNode, getLinkTargetPropertyKeys(targetNode)))
   {
-    // The entity has a targetname property, so we will create an entry for it even though
-    // it might not have any link sources. We use the empty entry to identify that is is
-    // missing a link source during validation.
+    const auto& value = linkTargetProperty.value();
+
+    // The entity has a link target property, so we will create an entry for it even
+    // though it might not have any link sources. We use the empty entry to identify that
+    // is is missing a link source during validation.
     auto& linksToTarget = m_linkTargets[&targetNode];
 
-    for (const auto& propertyPrefix : {Target, Killtarget})
+    for (const auto* sourceNode : m_nodeIndex.findNodes<EntityNodeBase>(value))
     {
-      auto sourceNodes =
-        m_nodeIndex.findNodes<EntityNodeBase>(*targetname)
-        | std::views::filter([&](const auto& entityNode) {
-            return entityNode->entity().hasNumberedProperty(propertyPrefix, *targetname);
-          });
-
-      for (auto* sourceNode : sourceNodes)
+      for (const auto& linkSourceKey : getLinkSourcePropertyKeys(*sourceNode))
       {
-        m_linkSources[sourceNode][propertyPrefix].emplace(&targetNode);
-        linksToTarget[propertyPrefix].emplace(sourceNode);
+        const auto& sourceEntity = sourceNode->entity();
+        if (sourceEntity.hasNumberedProperty(linkSourceKey, value))
+        {
+          m_linkSources[sourceNode][linkSourceKey].emplace(&targetNode);
+          linksToTarget[linkSourceKey].emplace(sourceNode);
+        }
       }
     }
   }
@@ -227,8 +267,8 @@ void EntityLinkManager::removeLinkFromTarget(
       }
     }
 
-    // Don't erase i from m_linkTargets even if it becomes empty! The entry will still be
-    // used to find target nodes with missing sources during validation.
+    // Don't erase i from m_linkTargets even if it becomes empty! The entry will still
+    // be used to find target nodes with missing sources during validation.
   }
 }
 
