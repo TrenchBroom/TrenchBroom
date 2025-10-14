@@ -31,6 +31,8 @@
 namespace tb::mdl
 {
 
+class Map;
+
 enum class EntityDefinitionSortOrder
 {
   Name,
@@ -64,6 +66,12 @@ std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
 
 std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
   const EntityDefinition* entityDefinition);
+
+bool isLinkSourceProperty(
+  const EntityDefinition* entityDefinition, const std::string& key);
+
+bool isLinkTargetProperty(
+  const EntityDefinition* entityDefinition, const std::string& key);
 
 /**
  * Overrides the entity property values types of the given entity definitions.

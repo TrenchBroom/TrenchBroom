@@ -27,18 +27,12 @@ namespace
 {
 
 template <typename ValueType>
-std::vector<const PropertyDefinition*> getPropertyDefinitionsWithType(
-  const EntityDefinition* entityDefinition)
+auto getPropertyDefinitionsWithType(const EntityDefinition& entityDefinition)
 {
-  return entityDefinition
-           ? entityDefinition->propertyDefinitions
-               | std::views::filter([](const auto& propertyDefinition) {
-                   return std::holds_alternative<ValueType>(propertyDefinition.valueType);
-                 })
-               | std::views::transform(
-                 [](const auto& propertyDefinition) { return &propertyDefinition; })
-               | kdl::ranges::to<std::vector>()
-           : std::vector<const PropertyDefinition*>{};
+  return entityDefinition.propertyDefinitions
+         | std::views::filter([](const auto& propertyDefinition) {
+             return std::holds_alternative<ValueType>(propertyDefinition.valueType);
+           });
 }
 
 auto getAllPropertyDefinitions(auto&& entityDefinitions)
@@ -94,13 +88,45 @@ void addOrSetDefaultEntityLinkProperties(mdl::EntityDefinition& entityDefinition
 std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
   const EntityDefinition* entityDefinition)
 {
-  return getPropertyDefinitionsWithType<PropertyValueTypes::LinkSource>(entityDefinition);
+  return entityDefinition
+           ? getPropertyDefinitionsWithType<PropertyValueTypes::LinkSource>(
+               *entityDefinition)
+               | std::views::transform(
+                 [](const auto& propertyDefinition) { return &propertyDefinition; })
+               | kdl::ranges::to<std::vector>()
+           : std::vector<const PropertyDefinition*>{};
 }
 
 std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
   const EntityDefinition* entityDefinition)
 {
-  return getPropertyDefinitionsWithType<PropertyValueTypes::LinkTarget>(entityDefinition);
+  return entityDefinition
+           ? getPropertyDefinitionsWithType<PropertyValueTypes::LinkTarget>(
+               *entityDefinition)
+               | std::views::transform(
+                 [](const auto& propertyDefinition) { return &propertyDefinition; })
+               | kdl::ranges::to<std::vector>()
+           : std::vector<const PropertyDefinition*>{};
+}
+
+bool isLinkSourceProperty(
+  const EntityDefinition* entityDefinition, const std::string& key)
+{
+  return entityDefinition
+         && std::ranges::any_of(
+           getPropertyDefinitionsWithType<PropertyValueTypes::LinkSource>(
+             *entityDefinition),
+           [&](const auto& propertyDefinition) { return propertyDefinition.key == key; });
+}
+
+bool isLinkTargetProperty(
+  const EntityDefinition* entityDefinition, const std::string& key)
+{
+  return entityDefinition
+         && std::ranges::any_of(
+           getPropertyDefinitionsWithType<PropertyValueTypes::LinkTarget>(
+             *entityDefinition),
+           [&](const auto& propertyDefinition) { return propertyDefinition.key == key; });
 }
 
 void addOrSetDefaultEntityLinkProperties(
