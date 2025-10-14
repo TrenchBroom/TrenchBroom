@@ -37,7 +37,7 @@ namespace tb::ui
 {
 class MapDocument;
 
-enum class ValueType
+enum class ValueState
 {
   /**
    * No entities have this key set; the provided value is the default from the entity
@@ -58,7 +58,7 @@ enum class ValueType
   MultipleValues
 };
 
-std::ostream& operator<<(std::ostream& lhs, const ValueType& rhs);
+std::ostream& operator<<(std::ostream& lhs, const ValueState& rhs);
 
 enum class PropertyProtection
 {
@@ -83,7 +83,7 @@ class PropertyRow
 private:
   std::string m_key;
   std::string m_value;
-  ValueType m_valueType;
+  ValueState m_valueState;
 
   bool m_keyMutable;
   bool m_valueMutable;
@@ -110,7 +110,7 @@ public:
     PropertyRow,
     m_key,
     m_value,
-    m_valueType,
+    m_valueState,
     m_keyMutable,
     m_valueMutable,
     m_protected,

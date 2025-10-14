@@ -201,17 +201,17 @@ std::map<std::string, PropertyRow> rowsForEntityNodes(
 
 } // namespace
 
-std::ostream& operator<<(std::ostream& lhs, const ValueType& rhs)
+std::ostream& operator<<(std::ostream& lhs, const ValueState& rhs)
 {
   switch (rhs)
   {
-  case ValueType::Unset:
+  case ValueState::Unset:
     return lhs << "Unset";
-  case ValueType::SingleValue:
+  case ValueState::SingleValue:
     return lhs << "SingleValue";
-  case ValueType::SingleValueAndUnset:
+  case ValueState::SingleValueAndUnset:
     return lhs << "SingleValueAndUnset";
-  case ValueType::MultipleValues:
+  case ValueState::MultipleValues:
     return lhs << "MultipleValues";
     switchDefault();
   }
@@ -249,7 +249,7 @@ std::string newPropertyKeyForEntityNodes(const std::vector<mdl::EntityNodeBase*>
 }
 
 PropertyRow::PropertyRow()
-  : m_valueType{ValueType::Unset}
+  : m_valueState{ValueState::Unset}
   , m_keyMutable{true}
   , m_valueMutable{true}
   , m_protected{PropertyProtection::NotProtectable}
@@ -264,17 +264,17 @@ PropertyRow::PropertyRow(std::string key, const mdl::EntityNodeBase* node)
   if (const auto* value = node->entity().property(m_key))
   {
     m_value = *value;
-    m_valueType = ValueType::SingleValue;
+    m_valueState = ValueState::SingleValue;
   }
   else if (definition)
   {
     m_value = mdl::PropertyDefinition::defaultValue(*definition).value_or("");
-    m_valueType = ValueType::Unset;
+    m_valueState = ValueState::Unset;
   }
   else
   {
     // this is the case when the key is coming from another entity
-    m_valueType = ValueType::Unset;
+    m_valueState = ValueState::Unset;
   }
 
   m_keyMutable = isPropertyKeyMutable(node->entity(), m_key);
@@ -292,30 +292,30 @@ void PropertyRow::merge(const mdl::EntityNodeBase* other)
   const auto* otherValue = other->entity().property(m_key);
 
   // State transitions
-  if (m_valueType == ValueType::Unset)
+  if (m_valueState == ValueState::Unset)
   {
     if (otherValue)
     {
-      m_valueType = ValueType::SingleValueAndUnset;
+      m_valueState = ValueState::SingleValueAndUnset;
       m_value = *otherValue;
     }
   }
-  else if (m_valueType == ValueType::SingleValue)
+  else if (m_valueState == ValueState::SingleValue)
   {
     if (!otherValue)
     {
-      m_valueType = ValueType::SingleValueAndUnset;
+      m_valueState = ValueState::SingleValueAndUnset;
     }
     else if (*otherValue != m_value)
     {
-      m_valueType = ValueType::MultipleValues;
+      m_valueState = ValueState::MultipleValues;
     }
   }
-  else if (m_valueType == ValueType::SingleValueAndUnset)
+  else if (m_valueState == ValueState::SingleValueAndUnset)
   {
     if (otherValue && *otherValue != m_value)
     {
-      m_valueType = ValueType::MultipleValues;
+      m_valueState = ValueState::MultipleValues;
     }
   }
 
@@ -345,7 +345,7 @@ const std::string& PropertyRow::key() const
 
 std::string PropertyRow::value() const
 {
-  if (m_valueType == ValueType::MultipleValues)
+  if (m_valueState == ValueState::MultipleValues)
   {
     return "multi";
   }
@@ -374,17 +374,17 @@ const std::string& PropertyRow::tooltip() const
 
 bool PropertyRow::isDefault() const
 {
-  return m_valueType == ValueType::Unset;
+  return m_valueState == ValueState::Unset;
 }
 
 bool PropertyRow::multi() const
 {
-  return m_valueType == ValueType::MultipleValues;
+  return m_valueState == ValueState::MultipleValues;
 }
 
 bool PropertyRow::subset() const
 {
-  return m_valueType == ValueType::SingleValueAndUnset;
+  return m_valueState == ValueState::SingleValueAndUnset;
 }
 
 kdl_reflect_impl(PropertyRow);
