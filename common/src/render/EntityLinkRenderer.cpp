@@ -91,14 +91,15 @@ struct CollectAllLinksVisitor
 
   void addLinks(
     const mdl::EntityNodeBase& sourceNode,
-    const mdl::EntityLinkManager::LinkEndsForName& entityLinks,
+    const mdl::EntityLinkManager::LinkEndsForPropertyKey& entityLinks,
     std::vector<LinkRenderer::LineVertex>& linkVertices)
   {
-    for (const auto* targetNode : getLinkEnds(entityLinks))
+    for (const auto& linkEnd : getLinkEnds(entityLinks))
     {
-      if (editorContext.visible(*targetNode))
+      const auto& targetNode = *linkEnd.node;
+      if (editorContext.visible(targetNode))
       {
-        addLink(sourceNode, *targetNode, defaultColor, selectedColor, linkVertices);
+        addLink(sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
       }
     }
   }
@@ -125,30 +126,32 @@ struct CollectTransitiveSelectedLinksVisitor
 
   void addLinksFrom(
     const mdl::EntityNodeBase& sourceNode,
-    const mdl::EntityLinkManager::LinkEndsForName& entityLinks,
+    const mdl::EntityLinkManager::LinkEndsForPropertyKey& entityLinks,
     std::vector<LinkRenderer::LineVertex>& linkVertices)
   {
-    for (const auto* targetNode : getLinkEnds(entityLinks))
+    for (const auto& linkEnd : getLinkEnds(entityLinks))
     {
-      if (editorContext.visible(*targetNode))
+      const auto& targetNode = *linkEnd.node;
+      if (editorContext.visible(targetNode))
       {
-        addLink(sourceNode, *targetNode, defaultColor, selectedColor, linkVertices);
-        visit(*targetNode, linkVertices);
+        addLink(sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
+        visit(targetNode, linkVertices);
       }
     }
   }
 
   void addLinksTo(
     const mdl::EntityNodeBase& targetNode,
-    const mdl::EntityLinkManager::LinkEndsForName& entityLinks,
+    const mdl::EntityLinkManager::LinkEndsForPropertyKey& entityLinks,
     std::vector<LinkRenderer::LineVertex>& linkVertices)
   {
-    for (const auto* sourceNode : getLinkEnds(entityLinks))
+    for (const auto& linkEnd : getLinkEnds(entityLinks))
     {
-      if (editorContext.visible(*sourceNode))
+      const auto& sourceNode = *linkEnd.node;
+      if (editorContext.visible(sourceNode))
       {
-        addLink(*sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
-        visit(*sourceNode, linkVertices);
+        addLink(sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
+        visit(sourceNode, linkVertices);
       }
     }
   }
@@ -173,30 +176,32 @@ struct CollectDirectSelectedLinksVisitor
 
   void addLinksFrom(
     const mdl::EntityNodeBase& sourceNode,
-    const mdl::EntityLinkManager::LinkEndsForName& entityLinks,
+    const mdl::EntityLinkManager::LinkEndsForPropertyKey& entityLinks,
     std::vector<LinkRenderer::LineVertex>& linkVertices)
   {
-    for (const auto* targetNode : getLinkEnds(entityLinks))
+    for (const auto& linkEnd : getLinkEnds(entityLinks))
     {
-      if (editorContext.visible(*targetNode))
+      const auto& targetNode = *linkEnd.node;
+      if (editorContext.visible(targetNode))
       {
-        addLink(sourceNode, *targetNode, defaultColor, selectedColor, linkVertices);
+        addLink(sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
       }
     }
   }
 
   void addLinksTo(
     const mdl::EntityNodeBase& targetNode,
-    const mdl::EntityLinkManager::LinkEndsForName& entityLinks,
+    const mdl::EntityLinkManager::LinkEndsForPropertyKey& entityLinks,
     std::vector<LinkRenderer::LineVertex>& linkVertices)
   {
-    for (const auto* sourceNode : getLinkEnds(entityLinks))
+    for (const auto& linkEnd : getLinkEnds(entityLinks))
     {
+      const auto& sourceNode = *linkEnd.node;
       if (
-        !sourceNode->selected() && !sourceNode->descendantSelected()
-        && editorContext.visible(*sourceNode))
+        !sourceNode.selected() && !sourceNode.descendantSelected()
+        && editorContext.visible(sourceNode))
       {
-        addLink(*sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
+        addLink(sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
       }
     }
   }

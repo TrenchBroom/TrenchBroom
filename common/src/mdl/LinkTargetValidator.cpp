@@ -45,7 +45,7 @@ void LinkTargetValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
   if (const auto& missingLinkKeys =
-        m_entityLinkManager.getLinksWithMissingTarget(entityNode);
+        m_entityLinkManager.getSourcePropertyKeysWithMissingTarget(entityNode);
       !missingLinkKeys.empty())
   {
     for (const auto& key : missingLinkKeys)

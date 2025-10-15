@@ -37,7 +37,7 @@ TEST_CASE("EntityLinkManager")
 {
   using namespace std::string_literals;
   using namespace EntityPropertyKeys;
-  using LinkEndsForName = EntityLinkManager::LinkEndsForName;
+  using LinkEndsForKey = EntityLinkManager::LinkEndsForPropertyKey;
 
   const auto SourceProp = "target"s;
   const auto AltSourceProp = "alt_target"s;
@@ -92,99 +92,109 @@ TEST_CASE("EntityLinkManager")
     m.addEntityNode(sourceNode);
     CHECK(
       m.linksFrom(sourceNode)
-      == LinkEndsForName{
-        {SourceProp, {&targetNode}},
+      == LinkEndsForKey{
+        {SourceProp, {{&targetNode, TargetProp}}},
       });
-    CHECK(m.linksTo(sourceNode) == LinkEndsForName{});
-    CHECK(m.linksFrom(targetNode) == LinkEndsForName{});
+    CHECK(m.linksTo(sourceNode) == LinkEndsForKey{});
+    CHECK(m.linksFrom(targetNode) == LinkEndsForKey{});
     CHECK(
       m.linksTo(targetNode)
-      == LinkEndsForName{
-        {SourceProp, {&sourceNode}},
+      == LinkEndsForKey{
+        {TargetProp, {{&sourceNode, SourceProp}}},
       });
 
     m.addEntityNode(targetNode);
     CHECK(
       m.linksFrom(sourceNode)
-      == LinkEndsForName{
-        {SourceProp, {&targetNode}},
+      == LinkEndsForKey{
+        {SourceProp, {{&targetNode, TargetProp}}},
       });
-    CHECK(m.linksTo(sourceNode) == LinkEndsForName{});
-    CHECK(m.linksFrom(targetNode) == LinkEndsForName{});
+    CHECK(m.linksTo(sourceNode) == LinkEndsForKey{});
+    CHECK(m.linksFrom(targetNode) == LinkEndsForKey{});
     CHECK(
       m.linksTo(targetNode)
-      == LinkEndsForName{
-        {SourceProp, {&sourceNode}},
+      == LinkEndsForKey{
+        {TargetProp, {{&sourceNode, SourceProp}}},
       });
 
-    CHECK(!m.hasMissingSource(sourceNode));
+    CHECK(!m.hasMissingSource(sourceNode, TargetProp));
+    CHECK(!m.hasMissingSource(sourceNode, AltTargetProp));
     CHECK(!m.hasMissingTarget(sourceNode, SourceProp));
     CHECK(!m.hasMissingTarget(sourceNode, AltSourceProp));
 
     CHECK(!m.hasMissingTarget(targetNode, SourceProp));
     CHECK(!m.hasMissingTarget(targetNode, AltSourceProp));
-    CHECK(!m.hasMissingSource(targetNode));
+    CHECK(!m.hasMissingSource(targetNode, TargetProp));
+    CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
 
     SECTION("Removing the source node, then the target node")
     {
       m.removeEntityNode(sourceNode);
-      CHECK(m.linksFrom(sourceNode) == LinkEndsForName{});
-      CHECK(m.linksTo(sourceNode) == LinkEndsForName{});
-      CHECK(m.linksFrom(targetNode) == LinkEndsForName{});
-      CHECK(m.linksTo(targetNode) == LinkEndsForName{});
+      CHECK(m.linksFrom(sourceNode) == LinkEndsForKey{});
+      CHECK(m.linksTo(sourceNode) == LinkEndsForKey{});
+      CHECK(m.linksFrom(targetNode) == LinkEndsForKey{});
+      CHECK(m.linksTo(targetNode) == LinkEndsForKey{{TargetProp, {}}});
 
-      CHECK(!m.hasMissingSource(sourceNode));
+      CHECK(!m.hasMissingSource(sourceNode, TargetProp));
+      CHECK(!m.hasMissingSource(sourceNode, AltTargetProp));
       CHECK(!m.hasMissingTarget(sourceNode, SourceProp));
       CHECK(!m.hasMissingTarget(sourceNode, AltSourceProp));
 
       CHECK(!m.hasMissingTarget(targetNode, SourceProp));
       CHECK(!m.hasMissingTarget(targetNode, AltSourceProp));
-      CHECK(m.hasMissingSource(targetNode));
+      CHECK(m.hasMissingSource(targetNode, TargetProp));
+      CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
 
       m.removeEntityNode(targetNode);
-      CHECK(m.linksFrom(sourceNode) == LinkEndsForName{});
-      CHECK(m.linksTo(sourceNode) == LinkEndsForName{});
-      CHECK(m.linksFrom(targetNode) == LinkEndsForName{});
-      CHECK(m.linksTo(targetNode) == LinkEndsForName{});
+      CHECK(m.linksFrom(sourceNode) == LinkEndsForKey{});
+      CHECK(m.linksTo(sourceNode) == LinkEndsForKey{});
+      CHECK(m.linksFrom(targetNode) == LinkEndsForKey{});
+      CHECK(m.linksTo(targetNode) == LinkEndsForKey{});
 
-      CHECK(!m.hasMissingSource(sourceNode));
+      CHECK(!m.hasMissingSource(sourceNode, TargetProp));
+      CHECK(!m.hasMissingSource(sourceNode, AltTargetProp));
       CHECK(!m.hasMissingTarget(sourceNode, SourceProp));
       CHECK(!m.hasMissingTarget(sourceNode, AltSourceProp));
 
       CHECK(!m.hasMissingTarget(targetNode, SourceProp));
       CHECK(!m.hasMissingTarget(targetNode, AltSourceProp));
-      CHECK(!m.hasMissingSource(targetNode));
+      CHECK(!m.hasMissingSource(targetNode, TargetProp));
+      CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
     }
 
     SECTION("Removing the target node")
     {
       m.removeEntityNode(targetNode);
-      CHECK(m.linksFrom(sourceNode) == LinkEndsForName{{SourceProp, {}}});
-      CHECK(m.linksTo(sourceNode) == LinkEndsForName{});
-      CHECK(m.linksFrom(targetNode) == LinkEndsForName{});
-      CHECK(m.linksTo(targetNode) == LinkEndsForName{});
+      CHECK(m.linksFrom(sourceNode) == LinkEndsForKey{{SourceProp, {}}});
+      CHECK(m.linksTo(sourceNode) == LinkEndsForKey{});
+      CHECK(m.linksFrom(targetNode) == LinkEndsForKey{});
+      CHECK(m.linksTo(targetNode) == LinkEndsForKey{});
 
-      CHECK(!m.hasMissingSource(sourceNode));
+      CHECK(!m.hasMissingSource(sourceNode, TargetProp));
+      CHECK(!m.hasMissingSource(sourceNode, AltTargetProp));
       CHECK(m.hasMissingTarget(sourceNode, SourceProp));
       CHECK(!m.hasMissingTarget(sourceNode, AltSourceProp));
 
       CHECK(!m.hasMissingTarget(targetNode, SourceProp));
       CHECK(!m.hasMissingTarget(targetNode, AltSourceProp));
-      CHECK(!m.hasMissingSource(targetNode));
+      CHECK(!m.hasMissingSource(targetNode, TargetProp));
+      CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
 
       m.removeEntityNode(sourceNode);
-      CHECK(m.linksFrom(sourceNode) == LinkEndsForName{});
-      CHECK(m.linksTo(sourceNode) == LinkEndsForName{});
-      CHECK(m.linksFrom(targetNode) == LinkEndsForName{});
-      CHECK(m.linksTo(targetNode) == LinkEndsForName{});
+      CHECK(m.linksFrom(sourceNode) == LinkEndsForKey{});
+      CHECK(m.linksTo(sourceNode) == LinkEndsForKey{});
+      CHECK(m.linksFrom(targetNode) == LinkEndsForKey{});
+      CHECK(m.linksTo(targetNode) == LinkEndsForKey{});
 
-      CHECK(!m.hasMissingSource(sourceNode));
+      CHECK(!m.hasMissingSource(sourceNode, TargetProp));
+      CHECK(!m.hasMissingSource(sourceNode, AltTargetProp));
       CHECK(!m.hasMissingTarget(sourceNode, SourceProp));
       CHECK(!m.hasMissingTarget(sourceNode, Killtarget));
 
       CHECK(!m.hasMissingTarget(targetNode, SourceProp));
       CHECK(!m.hasMissingTarget(targetNode, AltSourceProp));
-      CHECK(!m.hasMissingSource(targetNode));
+      CHECK(!m.hasMissingSource(targetNode, TargetProp));
+      CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
     }
   }
 
@@ -206,7 +216,7 @@ TEST_CASE("EntityLinkManager")
 
     CHECK(!m.hasLink(n1, n2, SourceProp));
     CHECK(!m.hasMissingTarget(n1, SourceProp));
-    CHECK(!m.hasMissingSource(n2));
+    CHECK(!m.hasMissingSource(n2, TargetProp));
   }
 
   SECTION("No source prop definition")
@@ -229,7 +239,7 @@ TEST_CASE("EntityLinkManager")
 
     CHECK(!m.hasLink(n1, n2, SourceProp));
     CHECK(!m.hasMissingTarget(n1, SourceProp));
-    CHECK(m.hasMissingSource(n2));
+    CHECK(m.hasMissingSource(n2, TargetProp));
   }
 
   SECTION("No target prop definition")
@@ -252,7 +262,7 @@ TEST_CASE("EntityLinkManager")
 
     CHECK(!m.hasLink(n1, n2, SourceProp));
     CHECK(m.hasMissingTarget(n1, SourceProp));
-    CHECK(!m.hasMissingSource(n2));
+    CHECK(!m.hasMissingSource(n2, TargetProp));
   }
 
   SECTION("Mixed properties, same link name")
@@ -318,12 +328,14 @@ TEST_CASE("EntityLinkManager")
     CHECK(m.hasLink(n1, n2, SourceProp));
     CHECK(m.hasLink(n1, n2, SourceProp));
 
-    CHECK(m.linksFrom(n1) == LinkEndsForName{{SourceProp, {&n2, &n3}}});
-    CHECK(m.linksTo(n1) == LinkEndsForName{});
-    CHECK(m.linksFrom(n2) == LinkEndsForName{});
-    CHECK(m.linksTo(n2) == LinkEndsForName{{SourceProp, {&n1}}});
-    CHECK(m.linksFrom(n3) == LinkEndsForName{});
-    CHECK(m.linksTo(n3) == LinkEndsForName{{SourceProp, {&n1}}});
+    CHECK(
+      m.linksFrom(n1)
+      == LinkEndsForKey{{SourceProp, {{&n2, TargetProp}, {&n3, TargetProp}}}});
+    CHECK(m.linksTo(n1) == LinkEndsForKey{});
+    CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+    CHECK(m.linksTo(n2) == LinkEndsForKey{{TargetProp, {{&n1, SourceProp}}}});
+    CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+    CHECK(m.linksTo(n3) == LinkEndsForKey{{TargetProp, {{&n1, SourceProp}}}});
   }
 
   SECTION("Loop")
@@ -338,16 +350,16 @@ TEST_CASE("EntityLinkManager")
     i.addNode(n);
 
     m.addEntityNode(n);
-    CHECK(m.linksFrom(n) == LinkEndsForName{{SourceProp, {&n}}});
-    CHECK(m.linksTo(n) == LinkEndsForName{{SourceProp, {&n}}});
+    CHECK(m.linksFrom(n) == LinkEndsForKey{{SourceProp, {{&n, TargetProp}}}});
+    CHECK(m.linksTo(n) == LinkEndsForKey{{TargetProp, {{&n, SourceProp}}}});
     CHECK(!m.hasMissingTarget(n, SourceProp));
-    CHECK(!m.hasMissingSource(n));
+    CHECK(!m.hasMissingSource(n, TargetProp));
 
     m.removeEntityNode(n);
-    CHECK(m.linksFrom(n) == LinkEndsForName{});
-    CHECK(m.linksTo(n) == LinkEndsForName{});
+    CHECK(m.linksFrom(n) == LinkEndsForKey{});
+    CHECK(m.linksTo(n) == LinkEndsForKey{});
     CHECK(!m.hasMissingTarget(n, SourceProp));
-    CHECK(!m.hasMissingSource(n));
+    CHECK(!m.hasMissingSource(n, TargetProp));
   }
 
   SECTION("Cycle")
@@ -371,39 +383,39 @@ TEST_CASE("EntityLinkManager")
     m.addEntityNode(n1);
     m.addEntityNode(n2);
 
-    CHECK(m.linksFrom(n1) == LinkEndsForName{{SourceProp, {&n2}}});
-    CHECK(m.linksTo(n1) == LinkEndsForName{{SourceProp, {&n2}}});
-    CHECK(m.linksFrom(n2) == LinkEndsForName{{SourceProp, {&n1}}});
-    CHECK(m.linksTo(n2) == LinkEndsForName{{SourceProp, {&n1}}});
+    CHECK(m.linksFrom(n1) == LinkEndsForKey{{SourceProp, {{&n2, TargetProp}}}});
+    CHECK(m.linksTo(n1) == LinkEndsForKey{{TargetProp, {{&n2, SourceProp}}}});
+    CHECK(m.linksFrom(n2) == LinkEndsForKey{{SourceProp, {{&n1, TargetProp}}}});
+    CHECK(m.linksTo(n2) == LinkEndsForKey{{TargetProp, {{&n1, SourceProp}}}});
     CHECK(!m.hasMissingTarget(n1, SourceProp));
-    CHECK(!m.hasMissingSource(n1));
+    CHECK(!m.hasMissingSource(n1, TargetProp));
     CHECK(!m.hasMissingTarget(n2, SourceProp));
-    CHECK(!m.hasMissingSource(n2));
+    CHECK(!m.hasMissingSource(n2, TargetProp));
 
     SECTION("Remove n1")
     {
       m.removeEntityNode(n1);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{{SourceProp, {}}});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{{SourceProp, {}}});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{{TargetProp, {}}});
       CHECK(!m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(m.hasMissingTarget(n2, SourceProp));
-      CHECK(m.hasMissingSource(n2));
+      CHECK(m.hasMissingSource(n2, TargetProp));
     }
 
     SECTION("Remove n2")
     {
       m.removeEntityNode(n2);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{{SourceProp, {}}});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{{SourceProp, {}}});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{{TargetProp, {}}});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{});
       CHECK(m.hasMissingTarget(n1, SourceProp));
-      CHECK(m.hasMissingSource(n1));
+      CHECK(m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
     }
   }
 
@@ -434,152 +446,152 @@ TEST_CASE("EntityLinkManager")
     m.addEntityNode(n2);
     m.addEntityNode(n3);
 
-    CHECK(m.linksFrom(n1) == LinkEndsForName{{SourceProp, {&n2}}});
-    CHECK(m.linksTo(n1) == LinkEndsForName{});
-    CHECK(m.linksFrom(n2) == LinkEndsForName{{SourceProp, {&n3}}});
-    CHECK(m.linksTo(n2) == LinkEndsForName{{SourceProp, {&n1}}});
-    CHECK(m.linksFrom(n3) == LinkEndsForName{});
-    CHECK(m.linksTo(n3) == LinkEndsForName{{SourceProp, {&n2}}});
+    CHECK(m.linksFrom(n1) == LinkEndsForKey{{SourceProp, {{&n2, TargetProp}}}});
+    CHECK(m.linksTo(n1) == LinkEndsForKey{});
+    CHECK(m.linksFrom(n2) == LinkEndsForKey{{SourceProp, {{&n3, TargetProp}}}});
+    CHECK(m.linksTo(n2) == LinkEndsForKey{{TargetProp, {{&n1, SourceProp}}}});
+    CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+    CHECK(m.linksTo(n3) == LinkEndsForKey{{TargetProp, {{&n2, SourceProp}}}});
     CHECK(!m.hasMissingTarget(n1, SourceProp));
-    CHECK(!m.hasMissingSource(n1));
+    CHECK(!m.hasMissingSource(n1, TargetProp));
     CHECK(!m.hasMissingTarget(n2, SourceProp));
-    CHECK(!m.hasMissingSource(n2));
+    CHECK(!m.hasMissingSource(n2, TargetProp));
     CHECK(!m.hasMissingTarget(n3, SourceProp));
-    CHECK(!m.hasMissingSource(n3));
+    CHECK(!m.hasMissingSource(n3, TargetProp));
 
     SECTION("Remove n1, n2, n3")
     {
       m.removeEntityNode(n1);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{{SourceProp, {&n3}}});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{{SourceProp, {&n2}}});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{{SourceProp, {{&n3, TargetProp}}}});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{{TargetProp, {}}});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{{TargetProp, {{&n2, SourceProp}}}});
       CHECK(!m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(m.hasMissingSource(n2));
+      CHECK(m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(!m.hasMissingSource(n3));
+      CHECK(!m.hasMissingSource(n3, TargetProp));
 
       m.removeEntityNode(n2);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{{TargetProp, {}}});
       CHECK(!m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(m.hasMissingSource(n3));
+      CHECK(m.hasMissingSource(n3, TargetProp));
 
       m.removeEntityNode(n3);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{});
       CHECK(!m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(!m.hasMissingSource(n3));
+      CHECK(!m.hasMissingSource(n3, TargetProp));
     }
 
     SECTION("Remove n2, n3, n1")
     {
       m.removeEntityNode(n2);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{{SourceProp, {}}});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{{SourceProp, {}}});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{{TargetProp, {}}});
       CHECK(m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(m.hasMissingSource(n3));
+      CHECK(m.hasMissingSource(n3, TargetProp));
 
       m.removeEntityNode(n3);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{{SourceProp, {}}});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{{SourceProp, {}}});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{});
       CHECK(m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(!m.hasMissingSource(n3));
+      CHECK(!m.hasMissingSource(n3, TargetProp));
 
       m.removeEntityNode(n1);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{});
       CHECK(!m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(!m.hasMissingSource(n3));
+      CHECK(!m.hasMissingSource(n3, TargetProp));
     }
 
     SECTION("Remove n3, n2, n1")
     {
       m.removeEntityNode(n3);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{{SourceProp, {&n2}}});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{{SourceProp, {}}});
-      CHECK(m.linksTo(n2) == LinkEndsForName{{SourceProp, {&n1}}});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{{SourceProp, {{&n2, TargetProp}}}});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{{SourceProp, {}}});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{{TargetProp, {{&n1, SourceProp}}}});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{});
       CHECK(!m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(!m.hasMissingSource(n3));
+      CHECK(!m.hasMissingSource(n3, TargetProp));
 
       m.removeEntityNode(n2);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{{SourceProp, {}}});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{{SourceProp, {}}});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{});
       CHECK(m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(!m.hasMissingSource(n3));
+      CHECK(!m.hasMissingSource(n3, TargetProp));
 
       m.removeEntityNode(n1);
-      CHECK(m.linksFrom(n1) == LinkEndsForName{});
-      CHECK(m.linksTo(n1) == LinkEndsForName{});
-      CHECK(m.linksFrom(n2) == LinkEndsForName{});
-      CHECK(m.linksTo(n2) == LinkEndsForName{});
-      CHECK(m.linksFrom(n3) == LinkEndsForName{});
-      CHECK(m.linksTo(n3) == LinkEndsForName{});
+      CHECK(m.linksFrom(n1) == LinkEndsForKey{});
+      CHECK(m.linksTo(n1) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n2) == LinkEndsForKey{});
+      CHECK(m.linksTo(n2) == LinkEndsForKey{});
+      CHECK(m.linksFrom(n3) == LinkEndsForKey{});
+      CHECK(m.linksTo(n3) == LinkEndsForKey{});
       CHECK(!m.hasMissingTarget(n1, SourceProp));
-      CHECK(!m.hasMissingSource(n1));
+      CHECK(!m.hasMissingSource(n1, TargetProp));
       CHECK(!m.hasMissingTarget(n2, SourceProp));
-      CHECK(!m.hasMissingSource(n2));
+      CHECK(!m.hasMissingSource(n2, TargetProp));
       CHECK(!m.hasMissingTarget(n3, SourceProp));
-      CHECK(!m.hasMissingSource(n3));
+      CHECK(!m.hasMissingSource(n3, TargetProp));
     }
   }
 

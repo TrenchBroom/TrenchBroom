@@ -21,7 +21,6 @@
 
 #include "mdl/EntityLinkManager.h"
 #include "mdl/EntityNodeBase.h"
-#include "mdl/EntityProperties.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 
@@ -44,13 +43,18 @@ LinkSourceValidator::LinkSourceValidator(const EntityLinkManager& entityLinkMana
 void LinkSourceValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
-  if (m_entityLinkManager.hasMissingSource(entityNode))
+  if (const auto& missingLinkKeys =
+        m_entityLinkManager.getTargetPropertyKeysWithMissingSource(entityNode);
+      !missingLinkKeys.empty())
   {
-    issues.push_back(std::make_unique<EntityPropertyIssue>(
-      Type,
-      entityNode,
-      EntityPropertyKeys::Targetname,
-      entityNode.name() + " has unused targetname key"));
+    for (const auto& key : missingLinkKeys)
+    {
+      issues.push_back(std::make_unique<EntityPropertyIssue>(
+        Type,
+        entityNode,
+        key,
+        entityNode.name() + " has unused link target key '" + key + "'"));
+    }
   }
 }
 
