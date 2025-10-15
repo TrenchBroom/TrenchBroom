@@ -75,6 +75,9 @@ TEST_CASE("entityRotationInfo")
 
   auto manglePropertyDef =
     PropertyDefinition{"mangle", PropertyValueTypes::String{}, "", ""};
+  auto targetPropertyDef =
+    PropertyDefinition{"target", PropertyValueTypes::LinkSource{}, "", ""};
+
   auto normalPitch = EntityModel{
     "",
     createEntityModelDataResource(
@@ -120,7 +123,8 @@ TEST_CASE("entityRotationInfo")
 
   // a light with a target key
   {{{"classname", "light"},
-    {"target", "xyz"}},           true,  std::nullopt,                    nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
+    {"angles",    "0 0 0"},
+    {"target", "xyz"}},           true,  {{{targetPropertyDef}}},         nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
 
   // non-light brush entity without additional keys
   {{{"classname", "other"}},      false, std::nullopt,                    nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
