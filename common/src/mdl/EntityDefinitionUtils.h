@@ -31,6 +31,8 @@
 namespace tb::mdl
 {
 
+class Map;
+
 enum class EntityDefinitionSortOrder
 {
   Name,
@@ -58,5 +60,27 @@ std::vector<const EntityDefinition*> filterAndSort(
   });
   return result;
 }
+
+std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
+  const EntityDefinition* entityDefinition);
+
+std::vector<const PropertyDefinition*> getLinkTargetPropertyDefinitions(
+  const EntityDefinition* entityDefinition);
+
+bool isLinkSourceProperty(
+  const EntityDefinition* entityDefinition, const std::string& key);
+
+bool isLinkTargetProperty(
+  const EntityDefinition* entityDefinition, const std::string& key);
+
+/**
+ * Overrides the entity property values types of the given entity definitions.
+ *
+ * If the given vector contains no entity definition that uses the TargetSource or
+ * TargetDestination property value types, we switch to legacy mode to support the default
+ * entity linking properties.
+ */
+void addOrSetDefaultEntityLinkProperties(
+  std::vector<mdl::EntityDefinition>& entityDefinitions);
 
 } // namespace tb::mdl

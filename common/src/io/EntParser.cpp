@@ -256,10 +256,10 @@ auto withDefaultValue(
 {
   return std::visit(
     kdl::overload(
-      [](const TargetSource& targetSourceValueType) -> mdl::PropertyValueType {
+      [](const LinkTarget& targetSourceValueType) -> mdl::PropertyValueType {
         return targetSourceValueType;
       },
-      [](const TargetDestination& targetDestinationValueType) -> mdl::PropertyValueType {
+      [](const LinkSource& targetDestinationValueType) -> mdl::PropertyValueType {
         return targetDestinationValueType;
       },
       [&](String stringValueType) -> mdl::PropertyValueType {
@@ -334,7 +334,7 @@ std::optional<mdl::PropertyDefinition> parseTargetNamePropertyDefinition(
 {
   auto factory = [](std::string name, std::string shortDesc, std::string longDesc) {
     return mdl::PropertyDefinition{
-      std::move(name), TargetSource{}, std::move(shortDesc), std::move(longDesc)};
+      std::move(name), LinkTarget{}, std::move(shortDesc), std::move(longDesc)};
   };
   return parsePropertyDefinition(element, factory, status);
 }
@@ -344,7 +344,7 @@ std::optional<mdl::PropertyDefinition> parseTargetPropertyDefinition(
 {
   auto factory = [](std::string name, std::string shortDesc, std::string longDesc) {
     return mdl::PropertyDefinition{
-      std::move(name), TargetDestination{}, std::move(shortDesc), std::move(longDesc)};
+      std::move(name), LinkSource{}, std::move(shortDesc), std::move(longDesc)};
   };
   return parsePropertyDefinition(element, factory, status);
 }

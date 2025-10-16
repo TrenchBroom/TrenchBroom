@@ -47,8 +47,8 @@ void EntityDefinition::decUsageCount() const
 
 kdl_reflect_impl(EntityDefinition);
 
-const PropertyDefinition* getPropertyDefinition(
-  const EntityDefinition& entityDefinition, const std::string& key)
+PropertyDefinition* getPropertyDefinition(
+  EntityDefinition& entityDefinition, const std::string& key)
 {
   if (const auto it = std::ranges::find_if(
         entityDefinition.propertyDefinitions,
@@ -58,6 +58,12 @@ const PropertyDefinition* getPropertyDefinition(
     return &*it;
   }
   return nullptr;
+}
+
+const PropertyDefinition* getPropertyDefinition(
+  const EntityDefinition& entityDefinition, const std::string& key)
+{
+  return getPropertyDefinition(const_cast<EntityDefinition&>(entityDefinition), key);
 }
 
 const PropertyDefinition* getPropertyDefinition(

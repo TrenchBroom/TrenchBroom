@@ -31,8 +31,8 @@ namespace tb::mdl
 namespace PropertyValueTypes
 {
 
-kdl_reflect_impl(TargetSource);
-kdl_reflect_impl(TargetDestination);
+kdl_reflect_impl(LinkSource);
+kdl_reflect_impl(LinkTarget);
 kdl_reflect_impl(String);
 kdl_reflect_impl(Boolean);
 kdl_reflect_impl(Integer);
@@ -73,8 +73,8 @@ std::optional<std::string> PropertyDefinition::defaultValue(
 
   return std::visit(
     kdl::overload(
-      [](const TargetSource&) -> std::optional<std::string> { return std::nullopt; },
-      [](const TargetDestination&) -> std::optional<std::string> { return std::nullopt; },
+      [](const LinkTarget&) -> std::optional<std::string> { return std::nullopt; },
+      [](const LinkSource&) -> std::optional<std::string> { return std::nullopt; },
       [](const String& value) { return value.defaultValue; },
       [](const Boolean& value) {
         return value.defaultValue | kdl::optional_transform([](const auto b) {

@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityModel.h"
 #include "mdl/EntityNode.h"
 
@@ -126,6 +127,18 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
     (pitchType == PitchType::MdlInverted ? EntityRotationType::Euler
                                          : EntityRotationType::Euler_PositivePitchDown);
 
+  const auto hasTarget = [&]() {
+    const auto targetPropertyKeys =
+      getLinkSourcePropertyDefinitions(entity.definition())
+      | std::views::transform(
+        [](const auto& linkSourceProperty) { return linkSourceProperty->key; });
+
+    return std::ranges::any_of(targetPropertyKeys, [&](const auto& targetPropertyKey) {
+      return entity.hasProperty(targetPropertyKey);
+    });
+  };
+
+
   // determine the type of rotation to apply to this entity
   const auto classname = entity.classname();
   if (classname != EntityPropertyValues::NoClassname)
@@ -138,7 +151,7 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
         type = EntityRotationType::Mangle;
         propertyKey = EntityPropertyKeys::Mangle;
       }
-      else if (!entity.hasProperty(EntityPropertyKeys::Target))
+      else if (!hasTarget())
       {
         // not a spotlight, but might have a rotatable model, so change angle or angles
         if (entity.hasProperty(EntityPropertyKeys::Angles))

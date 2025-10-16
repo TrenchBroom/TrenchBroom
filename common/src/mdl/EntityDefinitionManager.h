@@ -19,20 +19,11 @@
 
 #pragma once
 
-#include "Result.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionGroup.h"
 
-#include <filesystem>
 #include <string_view>
 #include <vector>
-
-
-namespace tb::io
-{
-class EntityDefinitionLoader;
-class ParserStatus;
-} // namespace tb::io
 
 namespace tb::mdl
 {
@@ -49,10 +40,6 @@ private:
 public:
   ~EntityDefinitionManager();
 
-  Result<void> loadDefinitions(
-    const std::filesystem::path& path,
-    const io::EntityDefinitionLoader& loader,
-    io::ParserStatus& status);
   void setDefinitions(std::vector<EntityDefinition> newDefinitions);
   void clear();
 

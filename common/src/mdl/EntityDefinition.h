@@ -73,6 +73,9 @@ struct EntityDefinition
     std::make_shared<std::atomic<size_t>>(0);
 };
 
+PropertyDefinition* getPropertyDefinition(
+  EntityDefinition& entityDefinition, const std::string& key);
+
 const PropertyDefinition* getPropertyDefinition(
   const EntityDefinition& entityDefinition, const std::string& key);
 

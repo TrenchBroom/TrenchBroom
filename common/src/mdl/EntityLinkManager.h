@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "kdl/reflection_decl.h"
+
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -29,34 +31,60 @@ namespace tb::mdl
 class EntityNodeBase;
 class NodeIndex;
 
+struct LinkEnd
+{
+  const EntityNodeBase* node;
+  std::string propertyKey;
+
+  kdl_reflect_decl(LinkEnd, node, propertyKey);
+};
+
 class EntityLinkManager
 {
 public:
-  using LinkEnds = std::unordered_set<const EntityNodeBase*>;
-  using LinkEndsForName = std::unordered_map<std::string, LinkEnds>;
+  using LinkEnds = std::unordered_set<LinkEnd>;
+  using LinkEndsForPropertyKey = std::unordered_map<std::string, LinkEnds>;
+  using LinksForEntityNode =
+    std::unordered_map<const EntityNodeBase*, LinkEndsForPropertyKey>;
 
 private:
   const NodeIndex& m_nodeIndex;
 
-  std::unordered_map<const EntityNodeBase*, LinkEndsForName> m_linkSources;
-  std::unordered_map<const EntityNodeBase*, LinkEndsForName> m_linkTargets;
+  LinksForEntityNode m_linkSources;
+  LinksForEntityNode m_linkTargets;
 
 public:
   explicit EntityLinkManager(const NodeIndex& nodeIndex);
 
-  const LinkEndsForName& linksFrom(const EntityNodeBase& sourceNode) const;
-  const LinkEndsForName& linksTo(const EntityNodeBase& targetNode) const;
+  const LinkEndsForPropertyKey& linksFrom(const EntityNodeBase& sourceNode) const;
+  const LinkEnds& linksFrom(
+    const EntityNodeBase& sourceNode, const std::string& sourcePropertyKey) const;
+
+  const LinkEndsForPropertyKey& linksTo(const EntityNodeBase& targetNode) const;
+  const LinkEnds& linksTo(
+    const EntityNodeBase& targetNode, const std::string& targetPropertyKey) const;
 
   bool hasLink(
     const EntityNodeBase& sourceNode,
     const EntityNodeBase& targetNode,
-    const std::string& name) const;
+    const std::string& sourcePropertyKey) const;
 
-  bool hasMissingTarget(const EntityNodeBase& sourceNode, const std::string& name) const;
-  bool hasMissingSource(const EntityNodeBase& targetNode) const;
+  bool hasLink(
+    const EntityNodeBase& sourceNode,
+    const EntityNodeBase& targetNode,
+    const std::string& sourcePropertyKey,
+    const std::string& targetPropertyKey) const;
 
-  std::vector<std::string> getLinksWithMissingTarget(
+  bool hasMissingTarget(
+    const EntityNodeBase& sourceNode, const std::string& sourcePropertyKey) const;
+  bool hasMissingSource(
+    const EntityNodeBase& targetNode, const std::string& targetPropertyKey) const;
+
+  std::vector<std::string> getSourcePropertyKeysWithMissingTarget(
     const EntityNodeBase& sourceNode) const;
+
+  std::vector<std::string> getTargetPropertyKeysWithMissingSource(
+    const EntityNodeBase& targetNode) const;
 
   void addEntityNode(EntityNodeBase& entityNode);
   void removeEntityNode(EntityNodeBase& entityNode);
@@ -69,14 +97,12 @@ private:
 
   void removeLinksFrom(const EntityNodeBase& sourceNode);
   void removeLinksTo(const EntityNodeBase& targetNode);
-
-  void removeLinkFromTarget(
-    const EntityNodeBase& sourceNode,
-    const EntityNodeBase& targetNode,
-    const std::string& name);
-  void removeLinkFromSource(
-    const EntityNodeBase& sourceNode,
-    const EntityNodeBase& targetNode,
-    const std::string& name);
 };
+
 } // namespace tb::mdl
+
+template <>
+struct std::hash<tb::mdl::LinkEnd>
+{
+  std::size_t operator()(const tb::mdl::LinkEnd& linkEnd) const noexcept;
+};

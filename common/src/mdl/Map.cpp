@@ -44,6 +44,7 @@
 #include "mdl/EmptyPropertyKeyValidator.h"
 #include "mdl/EmptyPropertyValueValidator.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityLinkManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
@@ -1043,13 +1044,16 @@ void Map::loadEntityDefinitions()
 {
   if (const auto spec = entityDefinitionFile(*this))
   {
-    const auto path = game()->findEntityDefinitionFile(*spec, externalSearchPaths(*this));
     auto status = io::SimpleParserStatus{m_logger};
+    const auto path = game()->findEntityDefinitionFile(*spec, externalSearchPaths(*this));
 
-    entityDefinitionManager().loadDefinitions(path, *game(), status)
-      | kdl::transform([&]() {
+    game()->loadEntityDefinitions(status, path)
+      | kdl::transform([&](auto entityDefinitions) {
           m_logger.info() << fmt::format(
             "Loaded entity definition file {}", path.filename());
+
+          addOrSetDefaultEntityLinkProperties(entityDefinitions);
+          entityDefinitionManager().setDefinitions(std::move(entityDefinitions));
         })
       | kdl::transform_error([&](auto e) {
           switch (spec->type)
@@ -1235,6 +1239,11 @@ void Map::initializeEntityLinks()
 {
   ensure(m_world, "world node is set");
   addEntityLinks({world()}, true);
+}
+
+void Map::clearEntityLinks()
+{
+  m_entityLinkManager->clear();
 }
 
 void Map::addEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
@@ -1619,6 +1628,7 @@ void Map::entityDefinitionsWillChange()
 {
   clearEntityDefinitions();
   clearEntityModels();
+  clearEntityLinks();
 }
 
 void Map::entityDefinitionsDidChange()
@@ -1626,6 +1636,7 @@ void Map::entityDefinitionsDidChange()
   loadEntityDefinitions();
   setEntityDefinitions();
   setEntityModels();
+  initializeEntityLinks();
 }
 
 void Map::modsWillChange()

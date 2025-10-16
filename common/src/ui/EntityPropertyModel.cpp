@@ -32,6 +32,7 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
@@ -132,6 +133,15 @@ PropertyProtection isPropertyProtected(
   return PropertyProtection::NotProtectable;
 }
 
+LinkType getLinkType(const mdl::EntityNodeBase& entityNode, const std::string& key)
+{
+  return mdl::isLinkSourceProperty(entityNode.entity().definition(), key)
+           ? LinkType::Source
+         : mdl::isLinkTargetProperty(entityNode.entity().definition(), key)
+           ? LinkType::Target
+           : LinkType::None;
+}
+
 PropertyRow rowForEntityNodes(
   const std::string& key, const std::vector<mdl::EntityNodeBase*>& nodes)
 {
@@ -199,20 +209,164 @@ std::map<std::string, PropertyRow> rowsForEntityNodes(
   return result;
 }
 
+std::vector<std::string> getAllPropertyKeys(const mdl::Map& map)
+{
+  auto result = kdl::vector_set<std::string>{};
+  auto addEntityKeys = [&](const auto& node) {
+    const auto keys =
+      node.entity().properties()
+      | std::views::transform([](const auto& property) { return property.key(); });
+
+    result.insert(keys.begin(), keys.end());
+  };
+
+  map.world()->accept(kdl::overload(
+    [&](auto&& thisLambda, const mdl::WorldNode* worldNode) {
+      addEntityKeys(*worldNode);
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const mdl::GroupNode* groupNode) {
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](const mdl::EntityNode* entityNode) { addEntityKeys(*entityNode); },
+    [](const mdl::BrushNode*) {},
+    [](const mdl::PatchNode*) {}));
+
+  // also add keys from all loaded entity definitions
+  for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
+  {
+    for (const auto& propertyDefinition : entityDefinition.propertyDefinitions)
+    {
+      result.insert(propertyDefinition.key);
+    }
+  }
+
+  // remove the empty string
+  result.erase("");
+  return result.release_data();
+}
+
+std::vector<std::string> getAllValuesForPropertyKeys(
+  const mdl::Map& map, const std::vector<std::string>& propertyKeys)
+{
+  auto result = kdl::vector_set<std::string>();
+  for (const auto& key : propertyKeys)
+  {
+    for (const auto* entityNode :
+         map.findNodes<mdl::EntityNodeBase>(fmt::format("{}%*", key)))
+    {
+      const auto values =
+        entityNode->entity().numberedProperties(key)
+        | std::views::transform([](const auto& property) { return property.value(); });
+
+      result.insert(values.begin(), values.end());
+    }
+  }
+
+  // remove the empty string
+  result.erase("");
+  return result.release_data();
+}
+
+std::vector<std::string> getAllClassnames(const mdl::Map& map)
+{
+  // start with currently used classnames
+  auto result = getAllValuesForPropertyKeys(map, {mdl::EntityPropertyKeys::Classname});
+  auto resultSet = kdl::wrap_set(result);
+
+  // add keys from all loaded entity definitions
+  for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
+  {
+    resultSet.insert(entityDefinition.name);
+  }
+
+  // remove the empty string
+  resultSet.erase("");
+  return result;
+}
+
+template <typename... ValueType>
+std::vector<std::string> getAllValuesForPropertyValueTypes(const mdl::Map& map)
+{
+  auto result = kdl::vector_set<std::string>();
+  map.world()->accept(kdl::overload(
+    [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, const mdl::GroupNode* groupNode) {
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](const mdl::EntityNode* entityNode) {
+      if (const auto* entityDefinition = entityNode->entity().definition())
+      {
+        auto propertyValues =
+          entityDefinition->propertyDefinitions
+          | std::views::filter([](const auto& propertyDefinition) {
+              return (
+                std::holds_alternative<ValueType>(propertyDefinition.valueType) || ...);
+            })
+          | std::views::transform([&](const auto& propertyDefinition) {
+              return entityNode->entity().property(propertyDefinition.key);
+            })
+          | std::views::filter(
+            [](const auto* propertyValue) { return propertyValue != nullptr; })
+          | std::views::transform(
+            [](const auto& propertyValue) { return *propertyValue; });
+
+        result.insert(propertyValues.begin(), propertyValues.end());
+      }
+    },
+    [&](const mdl::BrushNode*) {},
+    [&](const mdl::PatchNode*) {}));
+
+  // remove the empty string
+  result.erase("");
+  return result.release_data();
+}
+
+bool computeShouldShowProtectedProperties(
+  const std::vector<mdl::EntityNodeBase*>& entityNodes)
+{
+  return !entityNodes.empty()
+         && std::ranges::all_of(entityNodes, [](const auto* entityNode) {
+              return mdl::findContainingGroup(entityNode);
+            });
+}
+
 } // namespace
 
-std::ostream& operator<<(std::ostream& lhs, const ValueType& rhs)
+std::ostream& operator<<(std::ostream& lhs, const ValueState& rhs)
 {
   switch (rhs)
   {
-  case ValueType::Unset:
+  case ValueState::Unset:
     return lhs << "Unset";
-  case ValueType::SingleValue:
+  case ValueState::SingleValue:
     return lhs << "SingleValue";
-  case ValueType::SingleValueAndUnset:
+  case ValueState::SingleValueAndUnset:
     return lhs << "SingleValueAndUnset";
-  case ValueType::MultipleValues:
+  case ValueState::MultipleValues:
     return lhs << "MultipleValues";
+    switchDefault();
+  }
+}
+
+std::ostream& operator<<(std::ostream& lhs, const LinkType& rhs)
+{
+  switch (rhs)
+  {
+  case LinkType::Source:
+    return lhs << "Source";
+  case LinkType::Target:
+    return lhs << "Target";
+  case LinkType::None:
+    return lhs << "None";
     switchDefault();
   }
 }
@@ -249,10 +403,11 @@ std::string newPropertyKeyForEntityNodes(const std::vector<mdl::EntityNodeBase*>
 }
 
 PropertyRow::PropertyRow()
-  : m_valueType{ValueType::Unset}
+  : m_valueState{ValueState::Unset}
   , m_keyMutable{true}
   , m_valueMutable{true}
   , m_protected{PropertyProtection::NotProtectable}
+  , m_linkType{LinkType::None}
 {
 }
 
@@ -264,22 +419,23 @@ PropertyRow::PropertyRow(std::string key, const mdl::EntityNodeBase* node)
   if (const auto* value = node->entity().property(m_key))
   {
     m_value = *value;
-    m_valueType = ValueType::SingleValue;
+    m_valueState = ValueState::SingleValue;
   }
   else if (definition)
   {
     m_value = mdl::PropertyDefinition::defaultValue(*definition).value_or("");
-    m_valueType = ValueType::Unset;
+    m_valueState = ValueState::Unset;
   }
   else
   {
     // this is the case when the key is coming from another entity
-    m_valueType = ValueType::Unset;
+    m_valueState = ValueState::Unset;
   }
 
   m_keyMutable = isPropertyKeyMutable(node->entity(), m_key);
   m_valueMutable = isPropertyValueMutable(node->entity(), m_key);
   m_protected = isPropertyProtected(*node, m_key);
+  m_linkType = getLinkType(*node, m_key);
   m_tooltip = (definition ? definition->shortDescription : "");
   if (m_tooltip.empty())
   {
@@ -292,30 +448,30 @@ void PropertyRow::merge(const mdl::EntityNodeBase* other)
   const auto* otherValue = other->entity().property(m_key);
 
   // State transitions
-  if (m_valueType == ValueType::Unset)
+  if (m_valueState == ValueState::Unset)
   {
     if (otherValue)
     {
-      m_valueType = ValueType::SingleValueAndUnset;
+      m_valueState = ValueState::SingleValueAndUnset;
       m_value = *otherValue;
     }
   }
-  else if (m_valueType == ValueType::SingleValue)
+  else if (m_valueState == ValueState::SingleValue)
   {
     if (!otherValue)
     {
-      m_valueType = ValueType::SingleValueAndUnset;
+      m_valueState = ValueState::SingleValueAndUnset;
     }
     else if (*otherValue != m_value)
     {
-      m_valueType = ValueType::MultipleValues;
+      m_valueState = ValueState::MultipleValues;
     }
   }
-  else if (m_valueType == ValueType::SingleValueAndUnset)
+  else if (m_valueState == ValueState::SingleValueAndUnset)
   {
     if (otherValue && *otherValue != m_value)
     {
-      m_valueType = ValueType::MultipleValues;
+      m_valueState = ValueState::MultipleValues;
     }
   }
 
@@ -336,6 +492,11 @@ void PropertyRow::merge(const mdl::EntityNodeBase* other)
       m_protected = PropertyProtection::Mixed;
     }
   }
+
+  if (m_linkType == LinkType::None)
+  {
+    m_linkType = getLinkType(*other, m_key);
+  }
 }
 
 const std::string& PropertyRow::key() const
@@ -345,7 +506,7 @@ const std::string& PropertyRow::key() const
 
 std::string PropertyRow::value() const
 {
-  if (m_valueType == ValueType::MultipleValues)
+  if (m_valueState == ValueState::MultipleValues)
   {
     return "multi";
   }
@@ -367,6 +528,11 @@ PropertyProtection PropertyRow::isProtected() const
   return m_protected;
 }
 
+LinkType PropertyRow::linkType() const
+{
+  return m_linkType;
+}
+
 const std::string& PropertyRow::tooltip() const
 {
   return m_tooltip;
@@ -374,17 +540,17 @@ const std::string& PropertyRow::tooltip() const
 
 bool PropertyRow::isDefault() const
 {
-  return m_valueType == ValueType::Unset;
+  return m_valueState == ValueState::Unset;
 }
 
 bool PropertyRow::multi() const
 {
-  return m_valueType == ValueType::MultipleValues;
+  return m_valueState == ValueState::MultipleValues;
 }
 
 bool PropertyRow::subset() const
 {
-  return m_valueType == ValueType::SingleValueAndUnset;
+  return m_valueState == ValueState::SingleValueAndUnset;
 }
 
 kdl_reflect_impl(PropertyRow);
@@ -600,29 +766,35 @@ int EntityPropertyModel::rowForPropertyKey(const std::string& propertyKey) const
 
 QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
 {
-  const auto key = propertyKey(index.row());
+  if (index.row() < 0 || index.row() >= static_cast<int>(m_rows.size()))
+  {
+    return {};
+  }
 
+  const auto& row = m_rows[static_cast<size_t>(index.row())];
   auto result = std::vector<std::string>{};
   if (index.column() == ColumnKey)
   {
-    result = getAllPropertyKeys();
+    result = getAllPropertyKeys(m_document.map());
   }
   else if (index.column() == ColumnValue)
   {
-    if (
-      key == mdl::EntityPropertyKeys::Target
-      || key == mdl::EntityPropertyKeys::Killtarget)
+    switch (row.linkType())
     {
-      result = getAllValuesForPropertyKeys({mdl::EntityPropertyKeys::Targetname});
-    }
-    else if (key == mdl::EntityPropertyKeys::Targetname)
-    {
-      result = getAllValuesForPropertyKeys(
-        {mdl::EntityPropertyKeys::Target, mdl::EntityPropertyKeys::Killtarget});
-    }
-    else if (key == mdl::EntityPropertyKeys::Classname)
-    {
-      result = getAllClassnames();
+    case LinkType::Source:
+      result = getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkTarget>(
+        m_document.map());
+      break;
+    case LinkType::Target:
+      result = getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkSource>(
+        m_document.map());
+      break;
+    case LinkType::None:
+      if (row.key() == mdl::EntityPropertyKeys::Classname)
+      {
+        result = getAllClassnames(m_document.map());
+      }
+      break;
     }
   }
 
@@ -652,99 +824,6 @@ std::vector<std::string> EntityPropertyModel::propertyKeys(
     result.push_back(this->propertyKey(row + i));
   }
   return result;
-}
-
-std::vector<std::string> EntityPropertyModel::getAllPropertyKeys() const
-{
-  auto result = kdl::vector_set<std::string>{};
-  auto addEntityKeys = [&](const auto& node) {
-    const auto keys =
-      node.entity().properties()
-      | std::views::transform([](const auto& property) { return property.key(); });
-
-    result.insert(keys.begin(), keys.end());
-  };
-
-  const auto& map = m_document.map();
-  map.world()->accept(kdl::overload(
-    [&](auto&& thisLambda, const mdl::WorldNode* worldNode) {
-      addEntityKeys(*worldNode);
-      worldNode->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
-      layerNode->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, const mdl::GroupNode* groupNode) {
-      groupNode->visitChildren(thisLambda);
-    },
-    [&](const mdl::EntityNode* entityNode) { addEntityKeys(*entityNode); },
-    [](const mdl::BrushNode*) {},
-    [](const mdl::PatchNode*) {}));
-
-  // also add keys from all loaded entity definitions
-  for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
-  {
-    for (const auto& propertyDefinition : entityDefinition.propertyDefinitions)
-    {
-      result.insert(propertyDefinition.key);
-    }
-  }
-
-  // remove the empty string
-  result.erase("");
-  return result.release_data();
-}
-
-std::vector<std::string> EntityPropertyModel::getAllValuesForPropertyKeys(
-  const std::vector<std::string>& propertyKeys) const
-{
-  const auto& map = m_document.map();
-
-  auto result = kdl::vector_set<std::string>();
-  for (const auto& key : propertyKeys)
-  {
-    for (const auto* entityNode :
-         map.findNodes<mdl::EntityNodeBase>(fmt::format("{}%*", key)))
-    {
-      const auto values =
-        entityNode->entity().numberedProperties(key)
-        | std::views::transform([](const auto& property) { return property.value(); });
-
-      result.insert(values.begin(), values.end());
-    }
-  }
-
-  // remove the empty string
-  result.erase("");
-  return result.release_data();
-}
-
-std::vector<std::string> EntityPropertyModel::getAllClassnames() const
-{
-  const auto& map = m_document.map();
-
-  // start with currently used classnames
-  auto result = getAllValuesForPropertyKeys({mdl::EntityPropertyKeys::Classname});
-  auto resultSet = kdl::wrap_set(result);
-
-  // add keys from all loaded entity definitions
-  for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
-  {
-    resultSet.insert(entityDefinition.name);
-  }
-
-  // remove the empty string
-  resultSet.erase("");
-  return result;
-}
-
-static bool computeShouldShowProtectedProperties(
-  const std::vector<mdl::EntityNodeBase*>& entityNodes)
-{
-  return !entityNodes.empty()
-         && std::ranges::all_of(entityNodes, [](const auto* entityNode) {
-              return mdl::findContainingGroup(entityNode);
-            });
 }
 
 void EntityPropertyModel::updateFromMapDocument()

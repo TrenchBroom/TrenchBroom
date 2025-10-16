@@ -37,7 +37,7 @@ namespace tb::ui
 {
 class MapDocument;
 
-enum class ValueType
+enum class ValueState
 {
   /**
    * No entities have this key set; the provided value is the default from the entity
@@ -58,7 +58,16 @@ enum class ValueType
   MultipleValues
 };
 
-std::ostream& operator<<(std::ostream& lhs, const ValueType& rhs);
+std::ostream& operator<<(std::ostream& lhs, const ValueState& rhs);
+
+enum class LinkType
+{
+  Source,
+  Target,
+  None,
+};
+
+std::ostream& operator<<(std::ostream& lhs, const LinkType& rhs);
 
 enum class PropertyProtection
 {
@@ -83,11 +92,12 @@ class PropertyRow
 private:
   std::string m_key;
   std::string m_value;
-  ValueType m_valueType;
+  ValueState m_valueState;
 
   bool m_keyMutable;
   bool m_valueMutable;
   PropertyProtection m_protected;
+  LinkType m_linkType;
   std::string m_tooltip;
 
 public:
@@ -101,6 +111,7 @@ public:
   bool keyMutable() const;
   bool valueMutable() const;
   PropertyProtection isProtected() const;
+  LinkType linkType() const;
   const std::string& tooltip() const;
   bool isDefault() const;
   bool multi() const;
@@ -110,10 +121,11 @@ public:
     PropertyRow,
     m_key,
     m_value,
-    m_valueType,
+    m_valueState,
     m_keyMutable,
     m_valueMutable,
     m_protected,
+    m_linkType,
     m_tooltip);
 };
 
@@ -168,10 +180,6 @@ public: // for autocompletion
 
 private: // autocompletion helpers
   std::vector<std::string> propertyKeys(int row, int count) const;
-  std::vector<std::string> getAllPropertyKeys() const;
-  std::vector<std::string> getAllValuesForPropertyKeys(
-    const std::vector<std::string>& propertyKeys) const;
-  std::vector<std::string> getAllClassnames() const;
 public slots:
   void updateFromMapDocument();
 

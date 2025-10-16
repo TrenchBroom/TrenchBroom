@@ -297,9 +297,9 @@ TEST_CASE("FgdParser")
             }},
             "",
             ""},
-           {"target", TargetDestination{}, "Target", ""},
-           {"killtarget", TargetDestination{}, "Killtarget", ""},
-           {"targetname", TargetSource{}, "Name", ""},
+           {"target", LinkSource{}, "Target", ""},
+           {"killtarget", LinkSource{}, "Killtarget", ""},
+           {"targetname", LinkTarget{}, "Name", ""},
          },
          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
       });
@@ -358,7 +358,7 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"targetname", TargetSource{}, "Source", "A long description"},
+            {"targetname", LinkTarget{}, "Source", "A long description"},
           },
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
         },
@@ -386,7 +386,7 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"target", TargetDestination{}, "Target", ""},
+            {"target", LinkSource{}, "Target", ""},
           },
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
         },
