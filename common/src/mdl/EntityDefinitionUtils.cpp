@@ -21,6 +21,9 @@
 
 #include "mdl/EntityProperties.h"
 
+#include "kdl/string_compare.h"
+#include "kdl/string_utils.h"
+
 namespace tb::mdl
 {
 namespace
@@ -83,6 +86,85 @@ void addOrSetDefaultEntityLinkProperties(EntityDefinition& entityDefinition)
   }
 }
 
+PropertyValueTypes::Color3f makeColor3f(const std::vector<std::optional<float>>& values)
+{
+  return {
+    values[0].value_or(0.0f),
+    values[1].value_or(0.0f),
+    values[2].value_or(0.0f),
+  };
+}
+
+PropertyValueTypes::Color3i makeColor3i(const std::vector<std::optional<float>>& values)
+{
+  return {
+    int(values[0].value_or(0.0f)),
+    int(values[1].value_or(0.0f)),
+    int(values[2].value_or(0.0f)),
+  };
+}
+
+using Color3 = std::variant<PropertyValueTypes::Color3f, PropertyValueTypes::Color3i>;
+
+Color3 makeColor3(
+  const std::optional<std::string_view>& typeName,
+  const std::vector<std::optional<float>>& values)
+{
+  assert(values.size() >= 3);
+
+  if (typeName)
+  {
+    if (kdl::ci::str_is_equal(*typeName, "color1"))
+    {
+      return makeColor3f(values);
+    }
+
+    if (kdl::ci::str_is_equal(*typeName, "color255"))
+    {
+      return makeColor3i(values);
+    }
+  }
+
+  // guess the type based on the default value - only inspect the first 3 values
+  // assume integer if any value is > 1
+  if (std::ranges::any_of(
+        values | std::views::take(3), [](const auto& value) { return value > 1.0f; }))
+  {
+    return makeColor3i(values);
+  }
+
+  // all values <= 1; assume float if any value is > 0
+  if (std::ranges::any_of(
+        values | std::views::take(3), [](const auto& value) { return value > 0.0f; }))
+  {
+    return makeColor3f(values);
+  }
+
+  // all values are 0, assume float
+  return makeColor3f(values);
+}
+
+auto makeColorValue(Color3 color, const std::optional<float>& brightness)
+{
+  return std::visit(
+    kdl::overload(
+      [&](const PropertyValueTypes::Color3f& color3f) -> PropertyValueTypes::ColorValue {
+        if (brightness)
+        {
+          return PropertyValueTypes::ColorWithBrightness3f{color3f, *brightness};
+        }
+        return color3f;
+      },
+      [&](const PropertyValueTypes::Color3i& color3i) -> PropertyValueTypes::ColorValue {
+        if (brightness)
+        {
+          return PropertyValueTypes::ColorWithBrightness3i{color3i, *brightness};
+        }
+        return color3i;
+      }),
+    color);
+}
+
 } // namespace
 
 std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
@@ -138,6 +220,32 @@ void addOrSetDefaultEntityLinkProperties(std::vector<EntityDefinition>& entityDe
       addOrSetDefaultEntityLinkProperties(entityDefinition);
     }
   }
+}
+
+std::optional<PropertyValueTypes::ColorValue> parseColorPropertyDefaultValue(
+  const std::optional<std::string_view>& typeName,
+  const std::optional<std::string>& defaultValue)
+{
+  if (!defaultValue)
+  {
+    return std::nullopt;
+  }
+
+  auto defaultComponentValues = kdl::str_split(*defaultValue, " ")
+                                | std::views::transform(kdl::str_to_float)
+                                | kdl::ranges::to<std::vector>();
+
+  if (defaultComponentValues.size() < 3)
+  {
+    defaultComponentValues.resize(3, std::nullopt);
+  }
+
+  // if the default value has a fourth component, then we use the brightness
+  // variant of the colour type
+  const auto brightness =
+    defaultComponentValues.size() > 3 ? defaultComponentValues[3] : std::nullopt;
+
+  return makeColorValue(makeColor3(typeName, defaultComponentValues), brightness);
 }
 
 } // namespace tb::mdl

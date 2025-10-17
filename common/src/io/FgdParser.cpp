@@ -26,6 +26,7 @@
 #include "io/ParseModelDefinition.h"
 #include "io/ParserException.h"
 #include "io/ParserStatus.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/PropertyDefinition.h"
 
 #include "kdl/invoke.h"
@@ -596,6 +597,12 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   {
     return parseFlagsPropertyDefinition(std::move(propertyKey));
   }
+  if (
+    kdl::ci::str_is_equal(typeName, "color1")
+    || kdl::ci::str_is_equal(typeName, "color255"))
+  {
+    return parseColorPropertyDefinition(status, typeName, std::move(propertyKey));
+  }
 
   status.debug(
     location,
@@ -765,6 +772,23 @@ mdl::PropertyDefinition FgdParser::parseFlagsPropertyDefinition(std::string prop
     "",
     "",
     false};
+}
+
+mdl::PropertyDefinition FgdParser::parseColorPropertyDefinition(
+  ParserStatus& status, const std::string& typeName, std::string propertyKey)
+{
+  const auto readOnly = parseReadOnlyFlag(status);
+  auto shortDescription = parsePropertyDescription();
+  auto defaultValue =
+    mdl::parseColorPropertyDefaultValue(typeName, parseDefaultStringValue(status));
+  auto longDescription = parsePropertyDescription();
+
+  return {
+    std::move(propertyKey),
+    mdl::PropertyValueTypes::Color{std::move(defaultValue)},
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly};
 }
 
 mdl::PropertyDefinition FgdParser::parseUnknownPropertyDefinition(

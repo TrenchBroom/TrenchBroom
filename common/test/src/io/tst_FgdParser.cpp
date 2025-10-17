@@ -34,6 +34,7 @@
 #include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::io
 {
@@ -747,6 +748,65 @@ TEST_CASE("FgdParser")
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
         },
       });
+  }
+
+  SECTION("parseColorPropertyDefinition")
+  {
+    constexpr auto entityTemplate = R"(
+    @PointClass = info_colors : "Entity with different color types"
+    [
+      {}
+    ])";
+
+    using T = std::tuple<std::string, mdl::PropertyDefinition>;
+
+    const auto [str, expectedPropertyDefinition] = GENERATE(values<T>({
+      {R"(test1(color1) : "Property 1" : "1.0 0.5 0.0" : "Longer description 1")",
+       {"test1",
+        mdl::PropertyValueTypes::Color{
+          mdl::PropertyValueTypes::Color3f{1.0f, 0.5f, 0.0f}},
+        "Property 1",
+        "Longer description 1"}},
+
+      {R"(test2(color255) : "Property 2" : "255 127 0" : "Longer description 2")",
+       {"test2",
+        mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::Color3i{255, 127, 0}},
+        "Property 2",
+        "Longer description 2"}},
+
+      {R"(test3(color1) : "Property 3" : "0.2 0.3 0.4 1000" : "Longer description 3")",
+       {"test3",
+        mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::ColorWithBrightness3f{
+          mdl::PropertyValueTypes::Color3f{0.2f, 0.3f, 0.4f}, 1000.0f}},
+        "Property 3",
+        "Longer description 3"}},
+
+      {R"(test4(color255) : "Property 4" : "10 20 30 1000" : "Longer description 4")",
+       {"test4",
+        mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::ColorWithBrightness3i{
+          mdl::PropertyValueTypes::Color3i{10, 20, 30}, 1000.0f}},
+        "Property 4",
+        "Longer description 4"}},
+
+      {R"(test5(color255) : "Property 5" : : "Longer description 5")",
+       {"test5", mdl::PropertyValueTypes::Color{}, "Property 5", "Longer description 5"}},
+    }));
+
+    CAPTURE(str);
+
+    const auto file = fmt::format(entityTemplate, str);
+
+    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"info_colors",
+         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         "Entity with different color types",
+         {expectedPropertyDefinition},
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}}});
   }
 
   static const auto FgdModelDefinitionTemplate =
