@@ -26,9 +26,9 @@ TrenchBroom uses [vcpkg](https://vcpkg.io/) to manage build dependencies except 
 
 ### Qt
 
-TrenchBroom depends on Qt version 6.7. It might work with later versions, but earlier versions will definitely not work. The easiest way to install a specific version of Qt for your platform is the official installer, which requires you to create an account. Follow [these instructions](https://doc.qt.io/qt-6/qt-online-installation.html) to download and and run the Qt installer. Then, install the latest version of Qt 6.7 for your platform.
+TrenchBroom depends on Qt version 6.8. It might work with later versions, but earlier versions will definitely not work. The easiest way to install a specific version of Qt for your platform is the official installer, which requires you to create an account. Follow [these instructions](https://doc.qt.io/qt-6/qt-online-installation.html) to download and and run the Qt installer. Then, install the latest version of Qt 6.8 for your platform.
 
-Note the path where Qt was installed. For example, on Windows the default installation path would look like `C:\Qt\6.7.3\`. We will refer to this path later on as `<QT_INSTALL_DIR>`.
+Note the path where Qt was installed. For example, on Windows the default installation path would look like `C:\Qt\6.8.3\`. We will refer to this path later on as `<QT_INSTALL_DIR>`.
 
 > [!IMPORTANT]
 > You need to build against Qt 6.9 on macOS 26.
