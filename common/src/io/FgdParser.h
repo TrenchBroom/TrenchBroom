@@ -46,10 +46,18 @@ class ModelDefinition;
 namespace tb::io
 {
 
-struct EntityDefinitionClassInfo;
+enum class ColorType
+{
+  Color1,
+  Color255,
+};
+
 enum class EntityDefinitionClassType;
+
 class FileSystem;
 class ParserStatus;
+
+struct EntityDefinitionClassInfo;
 
 namespace FgdToken
 {
@@ -145,6 +153,8 @@ private:
     ParserStatus& status, std::string propertyKey);
   mdl::PropertyDefinition parseInputPropertyDefinition(ParserStatus& status);
   mdl::PropertyDefinition parseOutputPropertyDefinition(ParserStatus& status);
+  mdl::PropertyDefinition parseColorPropertyDefinition(
+    ParserStatus& status, ColorType colorType, std::string propertyKey);
   mdl::PropertyDefinition parseUnknownPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
 

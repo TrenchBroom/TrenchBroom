@@ -642,6 +642,16 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(ParserStatus& status)
   {
     return parseOriginPropertyDefinition(status, std::move(propertyKey));
   }
+  if (kdl::ci::str_is_equal(typeName, "color1"))
+  {
+    return parseColorPropertyDefinition(
+      status, ColorType::Color1, std::move(propertyKey));
+  }
+  if (kdl::ci::str_is_equal(typeName, "color255"))
+  {
+    return parseColorPropertyDefinition(
+      status, ColorType::Color255, std::move(propertyKey));
+  }
 
   status.debug(
     location,
@@ -852,6 +862,34 @@ mdl::PropertyDefinition FgdParser::parseOutputPropertyDefinition(ParserStatus& s
     std::move(description),
     {},
     false};
+}
+
+mdl::PropertyDefinition FgdParser::parseColorPropertyDefinition(
+  ParserStatus& status, const ColorType colorType, std::string propertyKey)
+{
+  const auto readOnly = parseReadOnlyFlag(status);
+  auto shortDescription = parsePropertyDescription();
+  auto defaultValue = parseDefaultStringValue(status);
+  auto longDescription = parsePropertyDescription();
+
+  switch (colorType)
+  {
+  case ColorType::Color1:
+    return {
+      std::move(propertyKey),
+      mdl::PropertyValueTypes::Color<RgbF>{std::move(defaultValue)},
+      std::move(shortDescription),
+      std::move(longDescription),
+      readOnly};
+  case ColorType::Color255:
+    return {
+      std::move(propertyKey),
+      mdl::PropertyValueTypes::Color<RgbB>{std::move(defaultValue)},
+      std::move(shortDescription),
+      std::move(longDescription),
+      readOnly};
+    switchDefault();
+  }
 }
 
 mdl::PropertyDefinition FgdParser::parseUnknownPropertyDefinition(

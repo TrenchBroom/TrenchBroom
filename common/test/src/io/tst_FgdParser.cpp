@@ -34,6 +34,7 @@
 #include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::io
 {
@@ -749,14 +750,51 @@ TEST_CASE("FgdParser")
       });
   }
 
-  SECTION("parseOriginPropertyDefinition")
+  SECTION("parseColorPropertyDefinition")
   {
-    const auto file = R"(
-    @PointClass = info_notnull : "Wildcard entity" // I love you
+    constexpr auto entityTemplate = R"(
+    @PointClass = info_colors : "Entity with different color types"
     [
-       origin(origin) : "Entity origin" : "1 2 3" : "Long description 1"
-    ]
-)";
+      {}
+    ])";
+
+    using T = std::tuple<std::string, mdl::PropertyDefinition>;
+
+    const auto [str, expectedPropertyDefinition] = GENERATE(values<T>({
+      {R"(test1(color1) : "Property 1" : "1.0 0.5 0.0" : "Longer description 1")",
+       {"test1",
+        mdl::PropertyValueTypes::Color<RgbF>{"1.0 0.5 0.0"},
+        "Property 1",
+        "Longer description 1"}},
+
+      {R"(test2(color255) : "Property 2" : "255 127 0" : "Longer description 2")",
+       {"test2",
+        mdl::PropertyValueTypes::Color<RgbB>{"255 127 0"},
+        "Property 2",
+        "Longer description 2"}},
+
+      {R"(test3(color1) : "Property 3" : "0.2 0.3 0.4 1000" : "Longer description 3")",
+       {"test3",
+        mdl::PropertyValueTypes::Color<RgbF>{"0.2 0.3 0.4 1000"},
+        "Property 3",
+        "Longer description 3"}},
+
+      {R"(test4(color255) : "Property 4" : "10 20 30 1000" : "Longer description 4")",
+       {"test4",
+        mdl::PropertyValueTypes::Color<RgbB>{"10 20 30 1000"},
+        "Property 4",
+        "Longer description 4"}},
+
+      {R"(test5(color255) : "Property 5" : : "Longer description 5")",
+       {"test5",
+        mdl::PropertyValueTypes::Color<RgbB>{},
+        "Property 5",
+        "Longer description 5"}},
+    }));
+
+    CAPTURE(str);
+
+    const auto file = fmt::format(entityTemplate, str);
 
     auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
@@ -764,19 +802,11 @@ TEST_CASE("FgdParser")
     CHECK(
       parser.parseDefinitions(status)
       == std::vector<mdl::EntityDefinition>{
-        {
-          "info_notnull",
-          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
-          "Wildcard entity",
-          {
-            {"origin",
-             mdl::PropertyValueTypes::Origin{"1 2 3"},
-             "Entity origin",
-             "Long description 1"},
-          },
-          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
-        },
-      });
+        {"info_colors",
+         RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
+         "Entity with different color types",
+         {expectedPropertyDefinition},
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}}});
   }
 
   SECTION("parsePropertyDefinitionForInputOutputProperty")
