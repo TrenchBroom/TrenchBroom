@@ -21,6 +21,9 @@
 
 #include "mdl/EntityProperties.h"
 
+#include "kdl/string_compare.h"
+#include "kdl/string_utils.h"
+
 namespace tb::mdl
 {
 namespace
@@ -112,7 +115,84 @@ void addOrConvertOriginProperties(EntityDefinition& entityDefinition)
   }
 }
 
+Rgb makeRgb(
+  const std::optional<std::string_view>& typeName, const std::vector<float>& values)
+{
+  assert(values.size() >= 3);
+
+  const auto vec = vm::vec3f{values[0], values[1], values[2]};
+
+  if (typeName)
+  {
+    if (kdl::ci::str_is_equal(*typeName, "color1"))
+    {
+      return RgbF{vec};
+    }
+
+    if (kdl::ci::str_is_equal(*typeName, "color255"))
+    {
+      return RgbB{vm::vec<uint8_t, 3>{vec}};
+    }
+  }
+
+  if (isFloatColorRange(vec))
+  {
+    return RgbF{vec};
+  }
+
+  if (isByteColorRange(vec))
+  {
+    return RgbB{vm::vec<uint8_t, 3>{vec}};
+  }
+
+  // assume float
+  return RgbF{vec};
+}
+
+auto getBrightness(const std::vector<float>& values)
+{
+  return values.size() > 3 ? std::optional{values[3]} : std::nullopt;
+}
+
+PropertyValueTypes::ColorValue makeColorValue(
+  const Rgb& rgb, const std::optional<float>& brightness)
+{
+  if (brightness)
+  {
+    return PropertyValueTypes::ColorWithBrightness{rgb, *brightness};
+  }
+  return rgb;
+}
+
 } // namespace
+
+std::optional<PropertyValueTypes::ColorValue> parseColorPropertyDefaultValue(
+  const std::optional<std::string_view>& typeName,
+  const std::optional<std::string>& defaultValue)
+{
+  if (!defaultValue)
+  {
+    return std::nullopt;
+  }
+
+  const auto maybeComponents = kdl::str_split(*defaultValue, " ")
+                               | std::views::transform(kdl::str_to_float)
+                               | kdl::ranges::to<std::vector>();
+
+  if (
+    maybeComponents.size() < 3 || maybeComponents.size() > 4
+    || std::ranges::any_of(
+      maybeComponents, [](const auto& v) { return v == std::nullopt; }))
+  {
+    return std::nullopt;
+  }
+
+  const auto components = maybeComponents
+                          | std::views::transform([](const auto& v) { return *v; })
+                          | kdl::ranges::to<std::vector>();
+
+  return makeColorValue(makeRgb(typeName, components), getBrightness(components));
+}
 
 std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
   const EntityDefinition* entityDefinition)
