@@ -21,6 +21,8 @@
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationTask.h"
 
+#include "catch/CatchConfig.h"
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::io

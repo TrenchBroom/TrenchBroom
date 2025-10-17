@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2016 Eric Wasylishen
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,34 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Ensure.h"
+#define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
 
-#include "catch/CatchConfig.h"
-
-#include <catch2/catch_test_macros.hpp>
-
-namespace tb::Ensure
-{
-
-TEST_CASE("EnsureTest.successfulEnsure")
-{
-  CHECK_NOTHROW([]() { ensure(true, "this shouldn't fail"); }());
-}
-
-// Disable a clang warning when using ASSERT_DEATH
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcovered-switch-default"
-#endif
-
-TEST_CASE("EnsureTest.failingEnsure")
-{
-  // FIXME: not with catch2
-  // ASSERT_DEATH(ensure(false, "this should fail"), "");
-}
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
-} // namespace tb::Ensure
+#include "catch/StringMakers.h" // IWYU pragma: keep

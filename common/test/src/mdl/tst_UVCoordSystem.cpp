@@ -21,6 +21,8 @@
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 
+#include "catch/CatchConfig.h"
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl

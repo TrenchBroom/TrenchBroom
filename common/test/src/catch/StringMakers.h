@@ -26,6 +26,15 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
+#include "kdl/result_io.h" // IWYU pragma: keep
+
+#include "vm/bbox_io.h"  // IWYU pragma: keep
+#include "vm/line_io.h"  // IWYU pragma: keep
+#include "vm/mat_io.h"   // IWYU pragma: keep
+#include "vm/plane_io.h" // IWYU pragma: keep
+#include "vm/ray_io.h"   // IWYU pragma: keep
+#include "vm/vec_io.h"   // IWYU pragma: keep
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl
@@ -39,12 +48,15 @@ std::string convertToString(const Node* node);
 
 namespace Catch
 {
-template <>
-struct StringMaker<tb::mdl::Node>
+
+template <typename Value, typename... Errors>
+struct StringMaker<kdl::result<Value, Errors...>>
 {
-  static std::string convert(const tb::mdl::Node& value)
+  static std::string convert(const kdl::result<Value, Errors...>& result)
   {
-    return convertToString(value);
+    auto str = std::stringstream{};
+    str << result;
+    return str.str();
   }
 };
 
