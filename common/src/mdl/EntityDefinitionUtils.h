@@ -61,6 +61,13 @@ std::vector<const EntityDefinition*> filterAndSort(
   return result;
 }
 
+/**
+ * Parse the default value of a color property definition.
+ */
+std::optional<PropertyValueTypes::ColorValue> parseColorPropertyDefaultValue(
+  const std::optional<std::string_view>& typeName,
+  const std::optional<std::string>& defaultValue);
+
 std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
   const EntityDefinition* entityDefinition);
 

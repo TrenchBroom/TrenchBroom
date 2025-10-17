@@ -309,6 +309,10 @@ auto withDefaultValue(
         }
         return originValueType;
       },
+      [&](mdl::PropertyValueTypes::Color colorValueType) -> mdl::PropertyValueType {
+        // not implemented for now
+        return colorValueType;
+      },
       [&](mdl::PropertyValueTypes::Unknown unknownValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
