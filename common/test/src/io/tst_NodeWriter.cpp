@@ -40,6 +40,7 @@
 #include <sstream>
 #include <vector>
 
+#include "catch/CatchConfig.h"
 #include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
