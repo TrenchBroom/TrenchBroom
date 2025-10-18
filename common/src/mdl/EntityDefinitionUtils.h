@@ -81,6 +81,21 @@ bool isLinkTargetProperty(
  * entity linking properties.
  */
 void addOrSetDefaultEntityLinkProperties(
-  std::vector<mdl::EntityDefinition>& entityDefinitions);
+  std::vector<EntityDefinition>& entityDefinitions);
+
+/**
+ * Parse the default value of a color property definition.
+ */
+std::optional<PropertyValueTypes::ColorValue> parseColorPropertyDefaultValue(
+  const std::optional<std::string_view>& typeName,
+  const std::optional<std::string>& defaultValue);
+
+/**
+ * Overrides the entity property values types of the given entity definitions.
+ *
+ * Any property named 'color', '*_color', '*_color2' or '*_colour' gets converted to the
+ * proper color property definition.
+ */
+void convertLegacyColorProperties(std::vector<EntityDefinition>& entityDefinitions);
 
 } // namespace tb::mdl

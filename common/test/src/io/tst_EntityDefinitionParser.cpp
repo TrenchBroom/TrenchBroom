@@ -522,12 +522,14 @@ TEST_CASE("resolveInheritance")
 
   SECTION("inheritPropertyDefinitions")
   {
-    using namespace mdl::PropertyValueTypes;
-
-    const auto a1_1 = mdl::PropertyDefinition{"a1", String{}, "a1_1", ""};
-    const auto a1_2 = mdl::PropertyDefinition{"a1", String{}, "a1_2", ""};
-    const auto a2 = mdl::PropertyDefinition{"a2", String{}, "a2", ""};
-    const auto a3 = mdl::PropertyDefinition{"a3", String{}, "a3", ""};
+    const auto a1_1 =
+      mdl::PropertyDefinition{"a1", mdl::PropertyValueTypes::String{}, "a1_1", ""};
+    const auto a1_2 =
+      mdl::PropertyDefinition{"a1", mdl::PropertyValueTypes::String{}, "a1_2", ""};
+    const auto a2 =
+      mdl::PropertyDefinition{"a2", mdl::PropertyValueTypes::String{}, "a2", ""};
+    const auto a3 =
+      mdl::PropertyDefinition{"a3", mdl::PropertyValueTypes::String{}, "a3", ""};
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,
@@ -647,12 +649,14 @@ TEST_CASE("resolveInheritance")
 
   SECTION("chainOfBaseClasses")
   {
-    using namespace mdl::PropertyValueTypes;
-
-    const auto a1_1 = mdl::PropertyDefinition{"a1", String{}, "a1_1", ""};
-    const auto a1_2 = mdl::PropertyDefinition{"a1", String{}, "a1_2", ""};
-    const auto a2 = mdl::PropertyDefinition{"a2", String{}, "a2", ""};
-    const auto a3 = mdl::PropertyDefinition{"a3", String{}, "a3", ""};
+    const auto a1_1 =
+      mdl::PropertyDefinition{"a1", mdl::PropertyValueTypes::String{}, "a1_1", ""};
+    const auto a1_2 =
+      mdl::PropertyDefinition{"a1", mdl::PropertyValueTypes::String{}, "a1_2", ""};
+    const auto a2 =
+      mdl::PropertyDefinition{"a2", mdl::PropertyValueTypes::String{}, "a2", ""};
+    const auto a3 =
+      mdl::PropertyDefinition{"a3", mdl::PropertyValueTypes::String{}, "a3", ""};
 
     const auto base1ModelDef =
       mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
@@ -731,12 +735,14 @@ TEST_CASE("resolveInheritance")
 
   SECTION("multipleBaseClasses")
   {
-    using namespace mdl::PropertyValueTypes;
-
-    const auto a1_1 = mdl::PropertyDefinition{"a1", String{}, "a1_1", ""};
-    const auto a1_2 = mdl::PropertyDefinition{"a1", String{}, "a1_2", ""};
-    const auto a2 = mdl::PropertyDefinition{"a2", String{}, "a2", ""};
-    const auto a3 = mdl::PropertyDefinition{"a3", String{}, "a3", ""};
+    const auto a1_1 =
+      mdl::PropertyDefinition{"a1", mdl::PropertyValueTypes::String{}, "a1_1", ""};
+    const auto a1_2 =
+      mdl::PropertyDefinition{"a1", mdl::PropertyValueTypes::String{}, "a1_2", ""};
+    const auto a2 =
+      mdl::PropertyDefinition{"a2", mdl::PropertyValueTypes::String{}, "a2", ""};
+    const auto a3 =
+      mdl::PropertyDefinition{"a3", mdl::PropertyValueTypes::String{}, "a3", ""};
 
     const auto base1ModelDef =
       mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
@@ -815,12 +821,14 @@ TEST_CASE("resolveInheritance")
 
   SECTION("diamondInheritance")
   {
-    using namespace mdl::PropertyValueTypes;
-
-    const auto a1 = mdl::PropertyDefinition{"a1", String{}, "a1", ""};
-    const auto a2_1 = mdl::PropertyDefinition{"a2_1", String{}, "a2_1", ""};
-    const auto a2_2 = mdl::PropertyDefinition{"a2_2", String{}, "a2_2", ""};
-    const auto a3 = mdl::PropertyDefinition{"a3", String{}, "a3", ""};
+    const auto a1 =
+      mdl::PropertyDefinition{"a1", mdl::PropertyValueTypes::String{}, "a1", ""};
+    const auto a2_1 =
+      mdl::PropertyDefinition{"a2_1", mdl::PropertyValueTypes::String{}, "a2_1", ""};
+    const auto a2_2 =
+      mdl::PropertyDefinition{"a2_2", mdl::PropertyValueTypes::String{}, "a2_2", ""};
+    const auto a3 =
+      mdl::PropertyDefinition{"a3", mdl::PropertyValueTypes::String{}, "a3", ""};
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,

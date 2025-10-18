@@ -26,6 +26,7 @@
 #include "io/ParseModelDefinition.h"
 #include "io/ParserException.h"
 #include "io/ParserStatus.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/PropertyDefinition.h"
 
 #include "kdl/invoke.h"
@@ -45,8 +46,6 @@
 
 namespace tb::io
 {
-using namespace mdl::PropertyValueTypes;
-
 namespace
 {
 
@@ -598,6 +597,12 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   {
     return parseFlagsPropertyDefinition(std::move(propertyKey));
   }
+  if (
+    kdl::ci::str_is_equal(typeName, "color1")
+    || kdl::ci::str_is_equal(typeName, "color255"))
+  {
+    return parseColorPropertyDefinition(status, typeName, std::move(propertyKey));
+  }
 
   status.debug(
     location,
@@ -615,7 +620,7 @@ mdl::PropertyDefinition FgdParser::parseTargetSourcePropertyDefinition(
   auto longDescription = parsePropertyDescription();
   return {
     std::move(propertyKey),
-    LinkTarget{},
+    mdl::PropertyValueTypes::LinkTarget{},
     std::move(shortDescription),
     std::move(longDescription),
     readOnly};
@@ -630,7 +635,7 @@ mdl::PropertyDefinition FgdParser::parseTargetDestinationPropertyDefinition(
   auto longDescription = parsePropertyDescription();
   return {
     std::move(propertyKey),
-    LinkSource{},
+    mdl::PropertyValueTypes::LinkSource{},
     std::move(shortDescription),
     std::move(longDescription),
     readOnly};
@@ -645,7 +650,7 @@ mdl::PropertyDefinition FgdParser::parseStringPropertyDefinition(
   auto longDescription = parsePropertyDescription();
   return {
     std::move(propertyKey),
-    String{std::move(defaultValue)},
+    mdl::PropertyValueTypes::String{std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
     readOnly};
@@ -660,7 +665,7 @@ mdl::PropertyDefinition FgdParser::parseIntegerPropertyDefinition(
   auto longDescription = parsePropertyDescription();
   return {
     std::move(propertyKey),
-    Integer{std::move(defaultValue)},
+    mdl::PropertyValueTypes::Integer{std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
     readOnly};
@@ -675,7 +680,7 @@ mdl::PropertyDefinition FgdParser::parseFloatPropertyDefinition(
   auto longDescription = parsePropertyDescription();
   return {
     std::move(propertyKey),
-    Float{std::move(defaultValue)},
+    mdl::PropertyValueTypes::Float{std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
     readOnly};
@@ -695,21 +700,22 @@ mdl::PropertyDefinition FgdParser::parseChoicesPropertyDefinition(
   auto token = m_tokenizer.nextToken(
     FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket);
 
-  auto options = std::vector<ChoiceOption>{};
+  auto options = std::vector<mdl::PropertyValueTypes::ChoiceOption>{};
   while (token.type() != FgdToken::CBracket)
   {
     auto value = token.data();
     m_tokenizer.nextToken(FgdToken::Colon);
     auto caption = parseString();
 
-    options.push_back(ChoiceOption{std::move(value), std::move(caption)});
+    options.push_back(
+      mdl::PropertyValueTypes::ChoiceOption{std::move(value), std::move(caption)});
     token = m_tokenizer.nextToken(
       FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket);
   }
 
   return {
     std::move(propertyKey),
-    Choice{std::move(options), std::move(defaultValue)},
+    mdl::PropertyValueTypes::Choice{std::move(options), std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
     readOnly};
@@ -725,7 +731,7 @@ mdl::PropertyDefinition FgdParser::parseFlagsPropertyDefinition(std::string prop
 
   auto token = m_tokenizer.nextToken(FgdToken::Integer | FgdToken::CBracket);
 
-  auto flags = std::vector<Flag>{};
+  auto flags = std::vector<mdl::PropertyValueTypes::Flag>{};
   auto defaultValue = 0;
 
   while (token.type() != FgdToken::CBracket)
@@ -756,10 +762,33 @@ mdl::PropertyDefinition FgdParser::parseFlagsPropertyDefinition(std::string prop
       token = m_tokenizer.nextToken(FgdToken::Integer | FgdToken::CBracket);
     }
 
-    flags.push_back(Flag{value, std::move(shortDescription), std::move(longDescription)});
+    flags.push_back(mdl::PropertyValueTypes::Flag{
+      value, std::move(shortDescription), std::move(longDescription)});
   }
 
-  return {std::move(propertyKey), Flags{std::move(flags), defaultValue}, "", "", false};
+  return {
+    std::move(propertyKey),
+    mdl::PropertyValueTypes::Flags{std::move(flags), defaultValue},
+    "",
+    "",
+    false};
+}
+
+mdl::PropertyDefinition FgdParser::parseColorPropertyDefinition(
+  ParserStatus& status, const std::string& typeName, std::string propertyKey)
+{
+  const auto readOnly = parseReadOnlyFlag(status);
+  auto shortDescription = parsePropertyDescription();
+  auto defaultValue =
+    mdl::parseColorPropertyDefaultValue(typeName, parseDefaultStringValue(status));
+  auto longDescription = parsePropertyDescription();
+
+  return {
+    std::move(propertyKey),
+    mdl::PropertyValueTypes::Color{std::move(defaultValue)},
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly};
 }
 
 mdl::PropertyDefinition FgdParser::parseUnknownPropertyDefinition(
@@ -771,7 +800,7 @@ mdl::PropertyDefinition FgdParser::parseUnknownPropertyDefinition(
   auto longDescription = parsePropertyDescription();
   return {
     std::move(propertyKey),
-    Unknown{std::move(defaultValue)},
+    mdl::PropertyValueTypes::Unknown{std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
     readOnly};

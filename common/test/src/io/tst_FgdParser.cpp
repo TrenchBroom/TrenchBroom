@@ -34,10 +34,10 @@
 #include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::io
 {
-using namespace mdl::PropertyValueTypes;
 
 TEST_CASE("FgdParser")
 {
@@ -134,7 +134,7 @@ TEST_CASE("FgdParser")
           "Dusty fluorescent light fixture",
           {
             {"spawnflags",
-             Flags{
+             mdl::PropertyValueTypes::Flags{
                {
                  {1, "", ""},
                },
@@ -176,9 +176,12 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "World entity",
           {
-            {"message", String{}, "Text on entering the world", ""},
+            {"message",
+             mdl::PropertyValueTypes::String{},
+             "Text on entering the world",
+             ""},
             {"worldtype",
-             Choice{
+             mdl::PropertyValueTypes::Choice{
                {
                  {"0", "Medieval"},
                  {"1", "Metal (runic)"},
@@ -187,10 +190,13 @@ TEST_CASE("FgdParser")
                "0"},
              "Ambience",
              ""},
-            {"sounds", Integer{0}, "CD track to play", ""},
-            {"light", Integer{}, "Ambient light", ""},
-            {"_sunlight", Integer{}, "Sunlight", ""},
-            {"_sun_mangle", String{}, "Sun mangle (Yaw pitch roll)", ""},
+            {"sounds", mdl::PropertyValueTypes::Integer{0}, "CD track to play", ""},
+            {"light", mdl::PropertyValueTypes::Integer{}, "Ambient light", ""},
+            {"_sunlight", mdl::PropertyValueTypes::Integer{}, "Sunlight", ""},
+            {"_sun_mangle",
+             mdl::PropertyValueTypes::String{},
+             "Sun mangle (Yaw pitch roll)",
+             ""},
           },
         },
       });
@@ -218,11 +224,11 @@ TEST_CASE("FgdParser")
          Color{1.0f, 1.0f, 1.0f, 1.0f},
          "Wildcard entity",
          {
-           {"use", String{}, "self.use", ""},
-           {"think", String{}, "self.think", ""},
-           {"nextthink", Integer{}, "nextthink", ""},
-           {"noise", String{}, "noise", ""},
-           {"touch", String{}, "self.touch", ""},
+           {"use", mdl::PropertyValueTypes::String{}, "self.use", ""},
+           {"think", mdl::PropertyValueTypes::String{}, "self.think", ""},
+           {"nextthink", mdl::PropertyValueTypes::Integer{}, "nextthink", ""},
+           {"noise", mdl::PropertyValueTypes::String{}, "noise", ""},
+           {"touch", mdl::PropertyValueTypes::String{}, "self.touch", ""},
          },
          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
       });
@@ -285,13 +291,13 @@ TEST_CASE("FgdParser")
          Color{1.0f, 1.0f, 1.0f, 1.0f},
          "Wildcard entity",
          {
-           {"use", String{}, "self.use", ""},
-           {"think", String{}, "self.think", ""},
-           {"nextthink", Integer{}, "nextthink", ""},
-           {"noise", String{}, "noise", ""},
-           {"touch", String{}, "self.touch", ""},
+           {"use", mdl::PropertyValueTypes::String{}, "self.use", ""},
+           {"think", mdl::PropertyValueTypes::String{}, "self.think", ""},
+           {"nextthink", mdl::PropertyValueTypes::Integer{}, "nextthink", ""},
+           {"noise", mdl::PropertyValueTypes::String{}, "noise", ""},
+           {"touch", mdl::PropertyValueTypes::String{}, "self.touch", ""},
            {"spawnflags",
-            Flags{{
+            mdl::PropertyValueTypes::Flags{{
               {256, "Not on Easy", ""},
               {512, "Not on Normal", ""},
               {1024, "Not on Hard", ""},
@@ -299,9 +305,9 @@ TEST_CASE("FgdParser")
             }},
             "",
             ""},
-           {"target", LinkSource{}, "Target", ""},
-           {"killtarget", LinkSource{}, "Killtarget", ""},
-           {"targetname", LinkTarget{}, "Name", ""},
+           {"target", mdl::PropertyValueTypes::LinkSource{}, "Target", ""},
+           {"killtarget", mdl::PropertyValueTypes::LinkSource{}, "Killtarget", ""},
+           {"targetname", mdl::PropertyValueTypes::LinkTarget{}, "Name", ""},
          },
          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
       });
@@ -330,11 +336,11 @@ TEST_CASE("FgdParser")
          Color{1.0f, 1.0f, 1.0f, 1.0f},
          "Wildcard entity",
          {
-           {"use", String{}, "self.use", ""},
-           {"think", String{}, "self.think", ""},
-           {"nextthink", Integer{}, "nextthink", ""},
-           {"noise", String{}, "noise", ""},
-           {"touch", String{}, "self.touch", ""},
+           {"use", mdl::PropertyValueTypes::String{}, "self.use", ""},
+           {"think", mdl::PropertyValueTypes::String{}, "self.think", ""},
+           {"nextthink", mdl::PropertyValueTypes::Integer{}, "nextthink", ""},
+           {"noise", mdl::PropertyValueTypes::String{}, "noise", ""},
+           {"touch", mdl::PropertyValueTypes::String{}, "self.touch", ""},
          },
          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
       });
@@ -360,7 +366,10 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"targetname", LinkTarget{}, "Source", "A long description"},
+            {"targetname",
+             mdl::PropertyValueTypes::LinkTarget{},
+             "Source",
+             "A long description"},
           },
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
         },
@@ -388,7 +397,7 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"target", LinkSource{}, "Target", ""},
+            {"target", mdl::PropertyValueTypes::LinkSource{}, "Target", ""},
           },
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
         },
@@ -416,9 +425,12 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"message", String{}, "Text on entering the world", "Long description 1"},
+            {"message",
+             mdl::PropertyValueTypes::String{},
+             "Text on entering the world",
+             "Long description 1"},
             {"message2",
-             String{"DefaultValue"},
+             mdl::PropertyValueTypes::String{"DefaultValue"},
              "With a default value",
              "Long description 2"},
           },
@@ -448,8 +460,8 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"123", String{}, "Something", "Long description 1"},
-            {"456", String{}, "Something", "Long description 1"},
+            {"123", mdl::PropertyValueTypes::String{}, "Something", "Long description 1"},
+            {"456", mdl::PropertyValueTypes::String{}, "Something", "Long description 1"},
           },
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
         },
@@ -480,8 +492,8 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"name", String{"3"}, "Description", ""},
-            {"other", String{"1.5"}, "", ""},
+            {"name", mdl::PropertyValueTypes::String{"3"}, "Description", ""},
+            {"other", mdl::PropertyValueTypes::String{"1.5"}, "", ""},
           },
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
         },
@@ -508,9 +520,12 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"sounds", Integer{}, "CD track to play", "Longer description"},
+            {"sounds",
+             mdl::PropertyValueTypes::Integer{},
+             "CD track to play",
+             "Longer description"},
             {"sounds2",
-             Integer{2},
+             mdl::PropertyValueTypes::Integer{2},
              "CD track to play with default",
              "Longer description"},
           },
@@ -540,9 +555,13 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"sounds", Integer{}, "CD track to play", "Longer description", true},
+            {"sounds",
+             mdl::PropertyValueTypes::Integer{},
+             "CD track to play",
+             "Longer description",
+             true},
             {"sounds2",
-             Integer{2},
+             mdl::PropertyValueTypes::Integer{2},
              "CD track to play with default",
              R"(Longe
     description)"},
@@ -573,9 +592,12 @@ TEST_CASE("FgdParser")
           Color{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
-            {"test", Float{}, "Some test propertyDefinition", "Longer description 1"},
+            {"test",
+             mdl::PropertyValueTypes::Float{},
+             "Some test propertyDefinition",
+             "Longer description 1"},
             {"test2",
-             Float{2.7f},
+             mdl::PropertyValueTypes::Float{2.7f},
              "Some test propertyDefinition with default",
              "Longer description 2"},
           },
@@ -633,7 +655,7 @@ TEST_CASE("FgdParser")
           "Wildcard entity",
           {
             {"worldtype",
-             Choice{{
+             mdl::PropertyValueTypes::Choice{{
                {"0", "Medieval"},
                {"1", "Metal (runic)"},
                {"2", "Base"},
@@ -641,7 +663,7 @@ TEST_CASE("FgdParser")
              "Ambience",
              "Long description 1"},
             {"worldtype2",
-             Choice{
+             mdl::PropertyValueTypes::Choice{
                {
                  {"0", "Medieval"},
                  {"1", "Metal (runic)"},
@@ -650,7 +672,7 @@ TEST_CASE("FgdParser")
              "Ambience with default",
              "Long description 2"},
             {"puzzle_id",
-             Choice{
+             mdl::PropertyValueTypes::Choice{
                {
                  {"keep3", "Mill key"},
                  {"cskey", "Castle key"},
@@ -660,7 +682,7 @@ TEST_CASE("FgdParser")
              "Puzzle id",
              ""},
             {"floaty",
-             Choice{
+             mdl::PropertyValueTypes::Choice{
                {
                  {"1.0", "Something"},
                  {"2.3", "Something else"},
@@ -670,7 +692,7 @@ TEST_CASE("FgdParser")
              "Floaty",
              ""},
             {"negative",
-             Choice{
+             mdl::PropertyValueTypes::Choice{
                {
                  {"-2", "Something"},
                  {"-1", "Something else"},
@@ -712,7 +734,7 @@ TEST_CASE("FgdParser")
           "Wildcard entity",
           {
             {"spawnflags",
-             Flags{
+             mdl::PropertyValueTypes::Flags{
                {
                  {256, "Not on Easy", ""},
                  {512, "Not on Normal", ""},
@@ -726,6 +748,65 @@ TEST_CASE("FgdParser")
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
         },
       });
+  }
+
+  SECTION("parseColorPropertyDefinition")
+  {
+    constexpr auto entityTemplate = R"(
+    @PointClass = info_colors : "Entity with different color types"
+    [
+      {}
+    ])";
+
+    using T = std::tuple<std::string, mdl::PropertyDefinition>;
+
+    const auto [str, expectedPropertyDefinition] = GENERATE(values<T>({
+      {R"(test1(color1) : "Property 1" : "1.0 0.5 0.0" : "Longer description 1")",
+       {"test1",
+        mdl::PropertyValueTypes::Color{
+          mdl::PropertyValueTypes::Color3f{1.0f, 0.5f, 0.0f}},
+        "Property 1",
+        "Longer description 1"}},
+
+      {R"(test2(color255) : "Property 2" : "255 127 0" : "Longer description 2")",
+       {"test2",
+        mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::Color3i{255, 127, 0}},
+        "Property 2",
+        "Longer description 2"}},
+
+      {R"(test3(color1) : "Property 3" : "0.2 0.3 0.4 1000" : "Longer description 3")",
+       {"test3",
+        mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::ColorWithBrightness3f{
+          mdl::PropertyValueTypes::Color3f{0.2f, 0.3f, 0.4f}, 1000.0f}},
+        "Property 3",
+        "Longer description 3"}},
+
+      {R"(test4(color255) : "Property 4" : "10 20 30 1000" : "Longer description 4")",
+       {"test4",
+        mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::ColorWithBrightness3i{
+          mdl::PropertyValueTypes::Color3i{10, 20, 30}, 1000.0f}},
+        "Property 4",
+        "Longer description 4"}},
+
+      {R"(test5(color255) : "Property 5" : : "Longer description 5")",
+       {"test5", mdl::PropertyValueTypes::Color{}, "Property 5", "Longer description 5"}},
+    }));
+
+    CAPTURE(str);
+
+    const auto file = fmt::format(entityTemplate, str);
+
+    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"info_colors",
+         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         "Entity with different color types",
+         {expectedPropertyDefinition},
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}}});
   }
 
   static const auto FgdModelDefinitionTemplate =
@@ -798,7 +879,7 @@ TEST_CASE("FgdParser")
           "Polyp",
           {
             {"startonground",
-             Choice{
+             mdl::PropertyValueTypes::Choice{
                {
                  {"0", "Flying"},
                  {"1", "On ground"},

@@ -29,6 +29,7 @@
 #include "io/ParseModelDefinition.h"
 #include "io/ParserException.h"
 #include "io/ParserStatus.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/PropertyDefinition.h"
 
@@ -48,8 +49,6 @@
 
 namespace tb::io
 {
-using namespace mdl::PropertyValueTypes;
-
 namespace
 {
 
@@ -205,7 +204,7 @@ std::optional<mdl::PropertyDefinition> parseListDeclaration(
   if (expectAttribute(element, "name", status))
   {
     auto name = parseString(element, "name");
-    auto options = std::vector<ChoiceOption>{};
+    auto options = std::vector<mdl::PropertyValueTypes::ChoiceOption>{};
 
     const auto* itemElement = element.FirstChildElement("item");
     while (itemElement)
@@ -216,11 +215,13 @@ std::optional<mdl::PropertyDefinition> parseListDeclaration(
       {
         auto itemName = parseString(*itemElement, "name");
         auto itemValue = parseString(*itemElement, "value");
-        options.push_back(ChoiceOption{std::move(itemValue), std::move(itemName)});
+        options.push_back(mdl::PropertyValueTypes::ChoiceOption{
+          std::move(itemValue), std::move(itemName)});
       }
       itemElement = itemElement->NextSiblingElement("item");
     }
-    return mdl::PropertyDefinition{std::move(name), Choice{std::move(options)}, "", ""};
+    return mdl::PropertyDefinition{
+      std::move(name), mdl::PropertyValueTypes::Choice{std::move(options)}, "", ""};
   }
   return std::nullopt;
 }
@@ -256,55 +257,61 @@ auto withDefaultValue(
 {
   return std::visit(
     kdl::overload(
-      [](const LinkTarget& targetSourceValueType) -> mdl::PropertyValueType {
-        return targetSourceValueType;
-      },
-      [](const LinkSource& targetDestinationValueType) -> mdl::PropertyValueType {
-        return targetDestinationValueType;
-      },
-      [&](String stringValueType) -> mdl::PropertyValueType {
+      [](const mdl::PropertyValueTypes::LinkTarget& targetSourceValueType)
+        -> mdl::PropertyValueType { return targetSourceValueType; },
+      [](const mdl::PropertyValueTypes::LinkSource& targetDestinationValueType)
+        -> mdl::PropertyValueType { return targetDestinationValueType; },
+      [&](mdl::PropertyValueTypes::String stringValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
           stringValueType.defaultValue = parseString(element, "value");
         }
         return stringValueType;
       },
-      [&](Boolean booleanValueType) -> mdl::PropertyValueType {
+      [&](mdl::PropertyValueTypes::Boolean booleanValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
           booleanValueType.defaultValue = parseBoolean(element, "value");
         }
         return booleanValueType;
       },
-      [&](Integer integerValueType) -> mdl::PropertyValueType {
+      [&](mdl::PropertyValueTypes::Integer integerValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
           integerValueType.defaultValue = parseInteger(element, "value");
         }
         return integerValueType;
       },
-      [&](Float floatValueType) -> mdl::PropertyValueType {
+      [&](mdl::PropertyValueTypes::Float floatValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
           floatValueType.defaultValue = parseFloat(element, "value");
         }
         return floatValueType;
       },
-      [&](Choice choiceValueType) -> mdl::PropertyValueType {
+      [&](mdl::PropertyValueTypes::Choice choiceValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
           choiceValueType.defaultValue = parseString(element, "value");
         }
         return choiceValueType;
       },
-      [&](Flags flagValueType) -> mdl::PropertyValueType {
+      [&](mdl::PropertyValueTypes::Flags flagValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
           flagValueType.defaultValue = parseInteger(element, "value").value_or(0);
         }
         return flagValueType;
       },
-      [&](Unknown unknownValueType) -> mdl::PropertyValueType {
+      [&](mdl::PropertyValueTypes::Color colorValueType) -> mdl::PropertyValueType {
+        if (hasAttribute(element, "value"))
+        {
+          colorValueType.defaultValue = mdl::parseColorPropertyDefaultValue(
+            element.Name(), parseString(element, "value"));
+        }
+        return colorValueType;
+      },
+      [&](mdl::PropertyValueTypes::Unknown unknownValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
           unknownValueType.defaultValue = parseString(element, "value");
@@ -334,7 +341,10 @@ std::optional<mdl::PropertyDefinition> parseTargetNamePropertyDefinition(
 {
   auto factory = [](std::string name, std::string shortDesc, std::string longDesc) {
     return mdl::PropertyDefinition{
-      std::move(name), LinkTarget{}, std::move(shortDesc), std::move(longDesc)};
+      std::move(name),
+      mdl::PropertyValueTypes::LinkTarget{},
+      std::move(shortDesc),
+      std::move(longDesc)};
   };
   return parsePropertyDefinition(element, factory, status);
 }
@@ -344,7 +354,10 @@ std::optional<mdl::PropertyDefinition> parseTargetPropertyDefinition(
 {
   auto factory = [](std::string name, std::string shortDesc, std::string longDesc) {
     return mdl::PropertyDefinition{
-      std::move(name), LinkSource{}, std::move(shortDesc), std::move(longDesc)};
+      std::move(name),
+      mdl::PropertyValueTypes::LinkSource{},
+      std::move(shortDesc),
+      std::move(longDesc)};
   };
   return parsePropertyDefinition(element, factory, status);
 }
@@ -359,7 +372,7 @@ std::optional<mdl::PropertyDefinition> parseRealPropertyDefinition(
       {
         return mdl::PropertyDefinition{
           std::move(key),
-          Float{floatDefaultValue},
+          mdl::PropertyValueTypes::Float{floatDefaultValue},
           std::move(shortDesc),
           std::move(longDesc)};
       }
@@ -372,13 +385,16 @@ std::optional<mdl::PropertyDefinition> parseRealPropertyDefinition(
         status);
       return mdl::PropertyDefinition{
         std::move(key),
-        Unknown{std::move(strDefaultValue)},
+        mdl::PropertyValueTypes::Unknown{std::move(strDefaultValue)},
         std::move(shortDesc),
         std::move(longDesc)};
     }
 
     return mdl::PropertyDefinition{
-      std::move(key), Float{}, std::move(shortDesc), std::move(longDesc)};
+      std::move(key),
+      mdl::PropertyValueTypes::Float{},
+      std::move(shortDesc),
+      std::move(longDesc)};
   };
 
   return parsePropertyDefinition(element, factory, status);
@@ -394,7 +410,7 @@ std::optional<mdl::PropertyDefinition> parseIntegerPropertyDefinition(
       {
         return mdl::PropertyDefinition{
           std::move(key),
-          Integer{intDefaultValue},
+          mdl::PropertyValueTypes::Integer{intDefaultValue},
           std::move(shortDesc),
           std::move(longDesc)};
       }
@@ -407,13 +423,16 @@ std::optional<mdl::PropertyDefinition> parseIntegerPropertyDefinition(
         status);
       return mdl::PropertyDefinition{
         std::move(key),
-        Unknown{std::move(strDefaultValue)},
+        mdl::PropertyValueTypes::Unknown{std::move(strDefaultValue)},
         std::move(shortDesc),
         std::move(longDesc)};
     }
 
     return mdl::PropertyDefinition{
-      std::move(key), Integer{}, std::move(shortDesc), std::move(longDesc)};
+      std::move(key),
+      mdl::PropertyValueTypes::Integer{},
+      std::move(shortDesc),
+      std::move(longDesc)};
   };
 
   return parsePropertyDefinition(element, factory, status);
@@ -429,7 +448,7 @@ std::optional<mdl::PropertyDefinition> parseBooleanPropertyDefinition(
       {
         return mdl::PropertyDefinition{
           std::move(key),
-          Boolean{std::move(boolDefaultValue)},
+          mdl::PropertyValueTypes::Boolean{std::move(boolDefaultValue)},
           std::move(shortDesc),
           std::move(longDesc)};
       }
@@ -442,13 +461,16 @@ std::optional<mdl::PropertyDefinition> parseBooleanPropertyDefinition(
         status);
       return mdl::PropertyDefinition{
         std::move(key),
-        Unknown{std::move(strDefaultValue)},
+        mdl::PropertyValueTypes::Unknown{std::move(strDefaultValue)},
         std::move(shortDesc),
         std::move(longDesc)};
     }
 
     return mdl::PropertyDefinition{
-      std::move(key), Integer{}, std::move(shortDesc), std::move(longDesc)};
+      std::move(key),
+      mdl::PropertyValueTypes::Integer{},
+      std::move(shortDesc),
+      std::move(longDesc)};
   };
 
   return parsePropertyDefinition(element, factory, status);
@@ -463,7 +485,29 @@ std::optional<mdl::PropertyDefinition> parseStringPropertyDefinition(
                           : std::nullopt;
     return mdl::PropertyDefinition{
       std::move(key),
-      String{std::move(defaultValue)},
+      mdl::PropertyValueTypes::String{std::move(defaultValue)},
+      std::move(shortDesc),
+      std::move(longDesc)};
+  };
+
+  return parsePropertyDefinition(element, factory, status);
+}
+
+std::optional<mdl::PropertyDefinition> parseColorPropertyDefinition(
+  const tinyxml2::XMLElement& element, ParserStatus& status)
+{
+  auto factory = [&](std::string key, std::string shortDesc, std::string longDesc) {
+    std::optional<mdl::PropertyValueTypes::ColorValue> defaultValue = std::nullopt;
+
+    if (hasAttribute(element, "value"))
+    {
+      defaultValue = mdl::parseColorPropertyDefaultValue(
+        element.Name(), parseString(element, "value"));
+    }
+
+    return mdl::PropertyDefinition{
+      std::move(key),
+      mdl::PropertyValueTypes::Color{std::move(defaultValue)},
       std::move(shortDesc),
       std::move(longDesc)};
   };
@@ -480,7 +524,7 @@ std::optional<mdl::PropertyDefinition> parseUnknownPropertyDefinition(
                           : std::nullopt;
     return mdl::PropertyDefinition{
       std::move(key),
-      Unknown{std::move(defaultValue)},
+      mdl::PropertyValueTypes::Unknown{std::move(defaultValue)},
       std::move(shortDesc),
       std::move(longDesc)};
   };
@@ -543,7 +587,7 @@ std::optional<mdl::PropertyDefinition> parsePropertyDefinition(
   }
   if (getName(element) == "color")
   {
-    return parseUnknownPropertyDefinition(element, status);
+    return parseColorPropertyDefinition(element, status);
   }
 
   for (const auto& propertyDeclaration : propertyDeclarations)
@@ -584,7 +628,7 @@ std::optional<mdl::PropertyDefinition> parseSpawnflags(
 {
   if (const auto* flagElement = element.FirstChildElement("flag"))
   {
-    auto flags = std::vector<Flag>{};
+    auto flags = std::vector<mdl::PropertyValueTypes::Flag>{};
     do
     {
       const auto bit = parseSize(*flagElement, "bit");
@@ -601,14 +645,18 @@ std::optional<mdl::PropertyDefinition> parseSpawnflags(
         const auto value = 1 << *bit;
         auto shortDesc = parseString(*flagElement, "key");
         auto longDesc = parseString(*flagElement, "name");
-        flags.push_back(Flag{value, std::move(shortDesc), std::move(longDesc)});
+        flags.push_back(mdl::PropertyValueTypes::Flag{
+          value, std::move(shortDesc), std::move(longDesc)});
       }
 
       flagElement = flagElement->NextSiblingElement("flag");
     } while (flagElement);
 
     return mdl::PropertyDefinition{
-      mdl::EntityPropertyKeys::Spawnflags, Flags{std::move(flags)}, "", ""};
+      mdl::EntityPropertyKeys::Spawnflags,
+      mdl::PropertyValueTypes::Flags{std::move(flags)},
+      "",
+      ""};
   }
   return std::nullopt;
 }
