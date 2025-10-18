@@ -33,8 +33,6 @@
 
 namespace tb::io
 {
-using namespace mdl::PropertyValueTypes;
-
 TEST_CASE("DefParser")
 {
   SECTION("parseIncludedDefFiles")
@@ -163,7 +161,7 @@ Set sounds to the cd track to play.
           {
             {
               "worldtype",
-              Choice{
+              mdl::PropertyValueTypes::Choice{
                 {
                   {"0", "medieval"},
                   {"1", "metal"},
@@ -199,7 +197,7 @@ Set sounds to the cd track to play.
           {
             {
               mdl::EntityPropertyKeys::Spawnflags,
-              Flags{
+              mdl::PropertyValueTypes::Flags{
                 {
                   {1, "Crucified", ""},
                   {2, "ambush", ""},
@@ -238,7 +236,7 @@ Set sounds to the cd track to play.
           {
             {
               mdl::EntityPropertyKeys::Spawnflags,
-              Flags{
+              mdl::PropertyValueTypes::Flags{
                 {
                   {1, "", ""},
                   {2, "SUSPENDED", ""},
@@ -280,7 +278,7 @@ Set sounds to the cd track to play.
           {
             {
               mdl::EntityPropertyKeys::Spawnflags,
-              Flags{
+              mdl::PropertyValueTypes::Flags{
                 {
                   {1, "SUSPENDED", ""},
                   {2, "SPIN", ""},
@@ -345,7 +343,7 @@ Set sounds to the cd track to play.
           {
             {
               mdl::EntityPropertyKeys::Spawnflags,
-              Flags{
+              mdl::PropertyValueTypes::Flags{
                 {
                   {1, "START_OFF", ""},
                 },
@@ -354,7 +352,7 @@ Set sounds to the cd track to play.
               "",
             },
             {"style",
-             Choice{
+             mdl::PropertyValueTypes::Choice{
                {
                  {"0", "normal"},
                  {"1", "flicker (first variety)"},
@@ -453,7 +451,7 @@ Set sounds to the cd track to play.
          {
            {
              mdl::EntityPropertyKeys::Spawnflags,
-             Flags{
+             mdl::PropertyValueTypes::Flags{
                {
                  {1, "START_OFF", ""},
                },

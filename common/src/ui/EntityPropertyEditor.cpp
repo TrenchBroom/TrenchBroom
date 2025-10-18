@@ -104,13 +104,11 @@ void EntityPropertyEditor::updateDocumentationAndSmartEditor()
 QString EntityPropertyEditor::optionDescriptions(
   const mdl::PropertyDefinition& definition)
 {
-  using namespace mdl::PropertyValueTypes;
-
   static const auto bullet = QString{" "} + QChar{0x2022} + QString{" "};
 
   return std::visit(
     kdl::overload(
-      [](const Choice& valueType) {
+      [](const mdl::PropertyValueTypes::Choice& valueType) {
         auto result = QString{};
         auto stream = QTextStream{&result};
         for (const auto& option : valueType.options)
@@ -124,7 +122,7 @@ QString EntityPropertyEditor::optionDescriptions(
         }
         return result;
       },
-      [](const Flags& valueType) {
+      [](const mdl::PropertyValueTypes::Flags& valueType) {
         // The options are not necessarily sorted by value, so we sort the descriptions
         // here by inserting into a map sorted by the flag value.
         auto flagDescriptors = std::map<int, QString>{};

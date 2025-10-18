@@ -38,8 +38,6 @@
 
 namespace tb::io
 {
-using namespace mdl::PropertyValueTypes;
-
 namespace
 {
 auto tokenNames()
@@ -261,18 +259,22 @@ std::optional<EntityDefinitionClassInfo> DefParser::parseClassInfo(ParserStatus&
 
 mdl::PropertyDefinition DefParser::parseSpawnflags()
 {
-  auto flags = std::vector<Flag>{};
+  auto flags = std::vector<mdl::PropertyValueTypes::Flag>{};
   auto token = m_tokenizer.peekToken();
   while (token.hasType(DefToken::Word | DefToken::Minus))
   {
     token = m_tokenizer.nextToken();
     auto name = token.hasType(DefToken::Word) ? token.data() : "";
     const auto value = 1 << flags.size();
-    flags.push_back(Flag{value, std::move(name), ""});
+    flags.push_back(mdl::PropertyValueTypes::Flag{value, std::move(name), ""});
     token = m_tokenizer.peekToken();
   }
 
-  return {mdl::EntityPropertyKeys::Spawnflags, Flags{std::move(flags)}, "", ""};
+  return {
+    mdl::EntityPropertyKeys::Spawnflags,
+    mdl::PropertyValueTypes::Flags{std::move(flags)},
+    "",
+    ""};
 }
 
 void DefParser::parseProperties(
@@ -354,7 +356,7 @@ mdl::PropertyDefinition DefParser::parseChoicePropertyDefinition()
   auto token = m_tokenizer.nextToken(DefToken::QuotedString);
   auto propertyKey = token.data();
 
-  auto options = std::vector<ChoiceOption>{};
+  auto options = std::vector<mdl::PropertyValueTypes::ChoiceOption>{};
   m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::OParenthesis);
   token = m_tokenizer.skipAndNextToken(DefToken::Newline);
   while (token.type() == DefToken::OParenthesis)
@@ -365,14 +367,16 @@ mdl::PropertyDefinition DefParser::parseChoicePropertyDefinition()
     m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::Comma);
     token = m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::QuotedString);
     auto name = token.data();
-    options.push_back(ChoiceOption{std::move(value), std::move(name)});
+    options.push_back(
+      mdl::PropertyValueTypes::ChoiceOption{std::move(value), std::move(name)});
 
     m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::CParenthesis);
     token = m_tokenizer.skipAndNextToken(
       DefToken::Newline, DefToken::OParenthesis | DefToken::CParenthesis);
   }
 
-  return {std::move(propertyKey), Choice{std::move(options)}, "", ""};
+  return {
+    std::move(propertyKey), mdl::PropertyValueTypes::Choice{std::move(options)}, "", ""};
 }
 
 mdl::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)

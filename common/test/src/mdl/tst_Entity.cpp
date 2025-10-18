@@ -38,7 +38,6 @@
 namespace tb::mdl
 {
 using namespace Catch::Matchers;
-using namespace PropertyValueTypes;
 
 TEST_CASE("EntityTest")
 {
@@ -96,8 +95,8 @@ TEST_CASE("EntityTest")
       Color{},
       "",
       {
-        {"some_prop", String{}, "", ""},
-        {"some_default_prop", String{"value"}, "", ""},
+        {"some_prop", mdl::PropertyValueTypes::String{}, "", ""},
+        {"some_default_prop", mdl::PropertyValueTypes::String{"value"}, "", ""},
       },
       PointEntityDefinition{vm::bbox3d{32.0}, {}, {}},
     };

@@ -34,7 +34,6 @@
 
 namespace tb::io
 {
-using namespace mdl::PropertyValueTypes;
 
 TEST_CASE("EntParser")
 {
@@ -161,13 +160,16 @@ Updated: 2011-03-02
     Compiler-only entity that specifies the origin of a skybox (a wholly contained, separate area of the map), similar to some games portal skies. When compiled with Q3Map2, the skybox surfaces will be visible from any place where sky is normally visible. It will cast shadows on the normal parts of the map, and can be used with cloud layers and other effects.
     )",
           std::vector<mdl::PropertyDefinition>{
-            {"angle", Unknown{}, "Yaw Angle", R"(Rotation angle of the sky surfaces.)"},
+            {"angle",
+             mdl::PropertyValueTypes::Unknown{},
+             "Yaw Angle",
+             R"(Rotation angle of the sky surfaces.)"},
             {"angles",
-             Unknown{},
+             mdl::PropertyValueTypes::Unknown{},
              "Pitch Yaw Roll",
              R"(Individual control of PITCH, YAW, and ROLL (default 0 0 0).)"},
             {"_scale",
-             Float{64.0f},
+             mdl::PropertyValueTypes::Float{64.0f},
              "Scale",
              R"(Scaling factor (default 64), good values are between 50 and 300, depending on the map.)"},
           },
@@ -225,34 +227,34 @@ Target this entity with a misc_model to have the model attached to the entity (s
 )",
           {
             {"spawnflags",
-             Flags{{
+             mdl::PropertyValueTypes::Flags{{
                {1, "X_AXIS", "X Axis"},
                {2, "Y_AXIS", "Y Axis"},
              }},
              "",
              ""},
             {"noise",
-             Unknown{},
+             mdl::PropertyValueTypes::Unknown{},
              "Sound File",
              R"(Path/name of .wav file to play. Use looping sounds only (e.g. sound/world/drone6.wav - see notes).)"},
             {"model2",
-             Unknown{},
+             mdl::PropertyValueTypes::Unknown{},
              "Model File",
              R"(Path/name of model to include (.md3 files only, e.g. models/mapobjects/jets/jets01.md3).)"},
             {"color",
-             Unknown{"1 1 1"},
+             mdl::PropertyValueTypes::Unknown{"1 1 1"},
              "Model Light Color",
              R"(Color of constant light of .md3 model, included with entity (default 1 1 1).)"},
             {"targetname",
-             LinkTarget{},
+             mdl::PropertyValueTypes::LinkTarget{},
              "Target Name",
              R"(Used to attach a misc_model entity to this entity.)"},
             {"_castshadows",
-             Integer{0},
+             mdl::PropertyValueTypes::Integer{0},
              "Shadow Caster Level",
              R"(Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.)"},
             {"_celshader",
-             Unknown{},
+             mdl::PropertyValueTypes::Unknown{},
              "Cel Shader",
              R"(Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.)"},
           },
@@ -296,7 +298,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
           "",
           {
             {"count",
-             Choice{
+             mdl::PropertyValueTypes::Choice{
                {
                  {"0", "white"},
                  {"1", "red"},
@@ -352,14 +354,14 @@ Target this entity with a misc_model to have the model attached to the entity (s
           Color{0.77f, 0.88f, 1.0f, 1.0f},
           "",
           {
-            {"prop_true", Boolean{true}, "true", ""},
-            {"prop_false", Boolean{false}, "false", ""},
-            {"prop_True", Boolean{true}, "True", ""},
-            {"prop_False", Boolean{false}, "False", ""},
-            {"prop_0", Boolean{false}, "0", ""},
-            {"prop_1", Boolean{true}, "1", ""},
-            {"prop_2", Boolean{true}, "2", ""},
-            {"prop_n1", Boolean{true}, "-1", ""},
+            {"prop_true", mdl::PropertyValueTypes::Boolean{true}, "true", ""},
+            {"prop_false", mdl::PropertyValueTypes::Boolean{false}, "false", ""},
+            {"prop_True", mdl::PropertyValueTypes::Boolean{true}, "True", ""},
+            {"prop_False", mdl::PropertyValueTypes::Boolean{false}, "False", ""},
+            {"prop_0", mdl::PropertyValueTypes::Boolean{false}, "0", ""},
+            {"prop_1", mdl::PropertyValueTypes::Boolean{true}, "1", ""},
+            {"prop_2", mdl::PropertyValueTypes::Boolean{true}, "2", ""},
+            {"prop_n1", mdl::PropertyValueTypes::Boolean{true}, "-1", ""},
           },
           mdl::PointEntityDefinition{
             {{-4, -4, -4}, {4, 4, 4}},
@@ -392,7 +394,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
           Color{0.77f, 0.88f, 1.0f, 1.0f},
           "",
           {
-            {"_scale", Unknown{"asdf"}, "Scale", ""},
+            {"_scale", mdl::PropertyValueTypes::Unknown{"asdf"}, "Scale", ""},
           },
           mdl::PointEntityDefinition{
             {{-4, -4, -4}, {4, 4, 4}},
@@ -491,7 +493,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
           {
             {
               "target",
-              LinkSource{},
+              mdl::PropertyValueTypes::LinkSource{},
               "target",
               "",
             },
