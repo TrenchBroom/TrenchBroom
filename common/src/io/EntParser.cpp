@@ -30,6 +30,7 @@
 #include "io/ParseModelDefinition.h"
 #include "io/ParserException.h"
 #include "io/ParserStatus.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/PropertyDefinition.h"
 
@@ -316,7 +317,11 @@ auto withDefaultValue(
         return originValueType;
       },
       [&](mdl::PropertyValueTypes::Color colorValueType) -> mdl::PropertyValueType {
-        // not implemented for now
+        if (hasAttribute(element, "value"))
+        {
+          colorValueType.defaultValue = mdl::parseColorPropertyDefaultValue(
+            element.Name(), parseString(element, "value"));
+        }
         return colorValueType;
       },
       [&](mdl::PropertyValueTypes::Unknown unknownValueType) -> mdl::PropertyValueType {
@@ -501,6 +506,28 @@ std::optional<mdl::PropertyDefinition> parseStringPropertyDefinition(
   return parsePropertyDefinition(element, factory, status);
 }
 
+std::optional<mdl::PropertyDefinition> parseColorPropertyDefinition(
+  const tinyxml2::XMLElement& element, ParserStatus& status)
+{
+  auto factory = [&](std::string key, std::string shortDesc, std::string longDesc) {
+    std::optional<mdl::PropertyValueTypes::ColorValue> defaultValue = std::nullopt;
+
+    if (hasAttribute(element, "value"))
+    {
+      defaultValue = mdl::parseColorPropertyDefaultValue(
+        element.Name(), parseString(element, "value"));
+    }
+
+    return mdl::PropertyDefinition{
+      std::move(key),
+      mdl::PropertyValueTypes::Color{std::move(defaultValue)},
+      std::move(shortDesc),
+      std::move(longDesc)};
+  };
+
+  return parsePropertyDefinition(element, factory, status);
+}
+
 std::optional<mdl::PropertyDefinition> parseUnknownPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
@@ -573,7 +600,7 @@ std::optional<mdl::PropertyDefinition> parsePropertyDefinition(
   }
   if (getName(element) == "color")
   {
-    return parseUnknownPropertyDefinition(element, status);
+    return parseColorPropertyDefinition(element, status);
   }
 
   for (const auto& propertyDeclaration : propertyDeclarations)
