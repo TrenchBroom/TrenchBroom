@@ -37,8 +37,6 @@
 
 namespace tb::io
 {
-using namespace mdl::PropertyValueTypes;
-
 namespace
 {
 constexpr auto DefaultSize = vm::bbox3d{-8, +8};
@@ -51,15 +49,15 @@ std::optional<mdl::PropertyDefinition> mergePropertyDefinitions(
 
   // for now, only merge spawnflags
   const auto* superClassFlags =
-    std::get_if<Flags>(&superClassPropertyDefinition.valueType);
-  const auto* inheritingClassFlags =
-    std::get_if<Flags>(&inheritingClassPropertyDefinition.valueType);
+    std::get_if<mdl::PropertyValueTypes::Flags>(&superClassPropertyDefinition.valueType);
+  const auto* inheritingClassFlags = std::get_if<mdl::PropertyValueTypes::Flags>(
+    &inheritingClassPropertyDefinition.valueType);
   if (
     superClassFlags && inheritingClassFlags
     && superClassPropertyDefinition.key == mdl::EntityPropertyKeys::Spawnflags
     && inheritingClassPropertyDefinition.key == mdl::EntityPropertyKeys::Spawnflags)
   {
-    auto mergedFlags = std::vector<Flag>{};
+    auto mergedFlags = std::vector<mdl::PropertyValueTypes::Flag>{};
     int mergedDefaultValue = 0;
     for (int i = 0; i < 24; ++i)
     {
@@ -74,7 +72,7 @@ std::optional<mdl::PropertyDefinition> mergePropertyDefinitions(
           mergedDefaultValue = mergedDefaultValue | flagValue;
         }
 
-        mergedFlags.push_back(Flag{
+        mergedFlags.push_back(mdl::PropertyValueTypes::Flag{
           baseclassFlag->value,
           baseclassFlag->shortDescription,
           baseclassFlag->longDescription});
@@ -86,14 +84,14 @@ std::optional<mdl::PropertyDefinition> mergePropertyDefinitions(
           mergedDefaultValue = mergedDefaultValue | flagValue;
         }
 
-        mergedFlags.push_back(Flag{
+        mergedFlags.push_back(mdl::PropertyValueTypes::Flag{
           classFlag->value, classFlag->shortDescription, classFlag->longDescription});
       }
     }
 
     return mdl::PropertyDefinition{
       mdl::EntityPropertyKeys::Spawnflags,
-      Flags{std::move(mergedFlags), mergedDefaultValue},
+      mdl::PropertyValueTypes::Flags{std::move(mergedFlags), mergedDefaultValue},
       inheritingClassPropertyDefinition.shortDescription,
       inheritingClassPropertyDefinition.longDescription,
       inheritingClassPropertyDefinition.readOnly};
