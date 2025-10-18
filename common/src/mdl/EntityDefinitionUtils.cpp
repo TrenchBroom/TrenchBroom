@@ -164,6 +164,39 @@ PropertyValueTypes::ColorValue makeColorValue(
   return rgb;
 }
 
+auto convertLegacyColorValueType(const std::optional<std::string>& defaultValueStr)
+{
+  return PropertyValueTypes::Color{
+    parseColorPropertyDefaultValue(std::nullopt, defaultValueStr)};
+}
+
+void convertLegacyColorProperties(EntityDefinition& entityDefinition)
+{
+  const auto isLegacyColorProperty = [](const auto& propertyDefinition) {
+    return kdl::ci::str_is_equal(propertyDefinition.key, "color")
+           || kdl::ci::str_is_suffix(propertyDefinition.key, "_color")
+           || kdl::ci::str_is_suffix(propertyDefinition.key, "_color2")
+           || kdl::ci::str_is_suffix(propertyDefinition.key, "_colour");
+  };
+
+  for (auto& propertyDefinition :
+       entityDefinition.propertyDefinitions | std::views::filter(isLegacyColorProperty))
+  {
+    std::visit(
+      kdl::overload(
+        [&](PropertyValueTypes::String& stringValueType) {
+          propertyDefinition.valueType =
+            convertLegacyColorValueType(stringValueType.defaultValue);
+        },
+        [&](PropertyValueTypes::Unknown& unknownValueType) {
+          propertyDefinition.valueType =
+            convertLegacyColorValueType(unknownValueType.defaultValue);
+        },
+        [](const auto&) {}),
+      propertyDefinition.valueType);
+  }
+}
+
 } // namespace
 
 std::optional<PropertyValueTypes::ColorValue> parseColorPropertyDefaultValue(
@@ -258,6 +291,14 @@ void addOrConvertOriginProperties(std::vector<EntityDefinition>& entityDefinitio
   for (auto& entityDefinition : entityDefinitions | std::views::filter(isPointEntity))
   {
     addOrConvertOriginProperties(entityDefinition);
+  }
+}
+
+void convertLegacyColorProperties(std::vector<EntityDefinition>& entityDefinitions)
+{
+  for (auto& entityDefinition : entityDefinitions)
+  {
+    convertLegacyColorProperties(entityDefinition);
   }
 }
 
