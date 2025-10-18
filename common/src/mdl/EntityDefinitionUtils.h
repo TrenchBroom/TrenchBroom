@@ -89,6 +89,6 @@ void addOrSetDefaultEntityLinkProperties(
  * For any point entity definition, change its "origin" property definition to type
  * Origin, or add an "origin" property of that type if it is missing.
  */
-void addOrConvertOriginProperties(std::vector<mdl::EntityDefinition>& entityDefinitions);
+void addOrConvertOriginProperties(std::vector<EntityDefinition>& entityDefinitions);
 
 } // namespace tb::mdl

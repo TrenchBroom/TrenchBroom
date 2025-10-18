@@ -169,7 +169,7 @@ void addOrSetDefaultEntityLinkProperties(std::vector<EntityDefinition>& entityDe
   }
 }
 
-void addOrConvertOriginProperties(std::vector<mdl::EntityDefinition>& entityDefinitions)
+void addOrConvertOriginProperties(std::vector<EntityDefinition>& entityDefinitions)
 {
   const auto isPointEntity = [](const auto& entityDefinition) {
     return entityDefinition.pointEntityDefinition != std::nullopt;
