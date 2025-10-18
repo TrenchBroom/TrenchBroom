@@ -36,21 +36,15 @@ template <std::ranges::view V>
 class chunk_view : public std::ranges::view_interface<chunk_view<V>>
 {
 public:
-  class inner_iterator;
+  struct inner_iterator;
 
-  class outer_iterator
+  struct outer_iterator
   {
-    friend class chunk_view<V>;
-
-  public:
     using iterator_concept = std::input_iterator_tag;
     using difference_type = std::ranges::range_difference_t<V>;
 
-    class value_type : public std::ranges::view_interface<value_type>
+    struct value_type : public std::ranges::view_interface<value_type>
     {
-      friend class outer_iterator;
-
-    public:
       constexpr inner_iterator begin() const noexcept { return inner_iterator{*parent_}; }
 
       constexpr std::default_sentinel_t end() const noexcept
@@ -67,7 +61,6 @@ public:
         return std::make_unsigned_t<decltype(s)>(s);
       }
 
-    private:
       constexpr explicit value_type(chunk_view& parent)
         : parent_{std::addressof(parent)}
       {
@@ -117,7 +110,6 @@ public:
       return -(s - i);
     }
 
-  private:
     constexpr explicit outer_iterator(chunk_view& parent)
       : parent_{std::addressof(parent)}
     {
@@ -126,11 +118,8 @@ public:
     chunk_view* parent_{nullptr};
   };
 
-  class inner_iterator
+  struct inner_iterator
   {
-    friend class outer_iterator::value_type;
-
-  public:
     using iterator_concept = std::input_iterator_tag;
     using difference_type = std::ranges::range_difference_t<V>;
     using value_type = std::ranges::range_value_t<V>;
@@ -164,7 +153,8 @@ public:
 
     constexpr void operator++(int) { ++*this; }
 
-    friend constexpr bool operator==(const inner_iterator& i, std::default_sentinel_t)
+    friend constexpr bool operator==(
+      const inner_iterator& i, const std::default_sentinel_t)
     {
       return i.parent_->remainder_ == 0;
     }
@@ -202,7 +192,6 @@ public:
       std::ranges::iter_swap(*x.parent_->current_, *y.parent_->current_);
     }
 
-  private:
     constexpr explicit inner_iterator(chunk_view& parent)
       : parent_{std::addressof(parent)}
     {
@@ -249,50 +238,6 @@ public:
     return std::make_unsigned_t<decltype(s)>(s);
   }
 
-private:
-#if defined(__GNUC__) && !defined(__clang__)
-  template <typename T>
-  friend constexpr bool operator==(
-    const chunk_view<T>::outer_iterator&, std::default_sentinel_t);
-
-  template <typename T>
-  friend constexpr chunk_view<T>::outer_iterator::difference_type operator-(
-    std::default_sentinel_t, const chunk_view<T>::outer_iterator&);
-
-  template <typename T>
-  friend constexpr chunk_view<T>::outer_iterator::difference_type operator-(
-    chunk_view<T>::outer_iterator&, std::default_sentinel_t);
-
-  template <typename T>
-  friend constexpr bool operator==(
-    const chunk_view<T>::inner_iterator& i, std::default_sentinel_t);
-
-  template <typename T>
-  friend constexpr chunk_view<T>::inner_iterator::difference_type operator-(
-    std::default_sentinel_t, const chunk_view<T>::inner_iterator& i);
-
-  template <typename T>
-  friend constexpr chunk_view<T>::inner_iterator::difference_type operator-(
-    const chunk_view<T>::inner_iterator& i, std::default_sentinel_t s);
-
-  template <typename T>
-  friend constexpr void iter_swap(
-    const chunk_view<T>::inner_iterator& x, const chunk_view<T>::inner_iterator& y);
-#else
-  friend constexpr bool operator==(const outer_iterator&, std::default_sentinel_t);
-  friend constexpr outer_iterator::difference_type operator-(
-    std::default_sentinel_t, const outer_iterator&);
-  friend constexpr outer_iterator::difference_type operator-(
-    outer_iterator&, std::default_sentinel_t);
-
-  friend constexpr bool operator==(const inner_iterator& i, std::default_sentinel_t);
-  friend constexpr inner_iterator::difference_type operator-(
-    std::default_sentinel_t, const inner_iterator& i);
-  friend constexpr inner_iterator::difference_type operator-(
-    const inner_iterator& i, std::default_sentinel_t s);
-  friend constexpr void iter_swap(const inner_iterator& x, const inner_iterator& y);
-#endif
-
   V base_{};
   std::ranges::range_difference_t<V> n_{};
   std::ranges::range_difference_t<V> remainder_{};
@@ -305,12 +250,11 @@ class chunk_view<V> : public std::ranges::view_interface<chunk_view<V>>
 {
 public:
   template <bool Const>
-  class iterator
+  struct iterator
   {
     using Parent = detail::maybe_const<Const, chunk_view>;
     using Base = detail::maybe_const<Const, V>;
 
-  public:
     using iterator_category = std::input_iterator_tag;
     using iterator_concept = decltype(detail::get_iter_cat<V>());
     using value_type = decltype(std::views::take(
@@ -486,9 +430,6 @@ public:
     {
       return -(s - i);
     }
-
-  private:
-    friend class chunk_view;
 
     constexpr iterator(
       Parent* parent,
