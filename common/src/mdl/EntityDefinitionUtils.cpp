@@ -86,18 +86,18 @@ void addOrSetDefaultEntityLinkProperties(EntityDefinition& entityDefinition)
   }
 }
 
-PropertyValueTypes::Color3f makeColor3f(const std::vector<std::optional<float>>& values)
+auto makeColor3f(const std::vector<std::optional<float>>& values)
 {
-  return {
+  return PropertyValueTypes::Color3f{
     values[0].value_or(0.0f),
     values[1].value_or(0.0f),
     values[2].value_or(0.0f),
   };
 }
 
-PropertyValueTypes::Color3i makeColor3i(const std::vector<std::optional<float>>& values)
+auto makeColor3i(const std::vector<std::optional<float>>& values)
 {
-  return {
+  return PropertyValueTypes::Color3i{
     int(values[0].value_or(0.0f)),
     int(values[1].value_or(0.0f)),
     int(values[2].value_or(0.0f)),
@@ -142,6 +142,16 @@ Color3 makeColor3(
 
   // all values are 0, assume float
   return makeColor3f(values);
+}
+
+auto getBrightness(const std::vector<std::optional<float>>& values)
+{
+  auto brightness = std::optional<float>{};
+  if (values.size() > 3)
+  {
+    brightness = values[3];
+  }
+  return brightness;
 }
 
 auto makeColorValue(Color3 color, const std::optional<float>& brightness)
@@ -273,12 +283,8 @@ std::optional<PropertyValueTypes::ColorValue> parseColorPropertyDefaultValue(
     defaultComponentValues.resize(3, std::nullopt);
   }
 
-  // if the default value has a fourth component, then we use the brightness
-  // variant of the colour type
-  const auto brightness =
-    defaultComponentValues.size() > 3 ? defaultComponentValues[3] : std::nullopt;
-
-  return makeColorValue(makeColor3(typeName, defaultComponentValues), brightness);
+  return makeColorValue(
+    makeColor3(typeName, defaultComponentValues), getBrightness(defaultComponentValues));
 }
 
 void convertLegacyColorProperties(std::vector<EntityDefinition>& entityDefinitions)
