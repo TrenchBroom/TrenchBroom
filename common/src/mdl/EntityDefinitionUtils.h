@@ -98,4 +98,12 @@ void addOrSetDefaultEntityLinkProperties(
  */
 void addOrConvertOriginProperties(std::vector<EntityDefinition>& entityDefinitions);
 
+/**
+ * Overrides the entity property values types of the given entity definitions.
+ *
+ * Any property named 'color', '*_color', '*_color2' or '*_colour' gets converted to the
+ * proper color property definition.
+ */
+void convertLegacyColorProperties(std::vector<EntityDefinition>& entityDefinitions);
+
 } // namespace tb::mdl
