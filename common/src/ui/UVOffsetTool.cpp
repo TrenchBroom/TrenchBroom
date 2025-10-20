@@ -129,10 +129,10 @@ public:
 
 } // namespace
 
-UVOffsetTool::UVOffsetTool(MapDocument& document, const UVViewHelper& helper)
+UVOffsetTool::UVOffsetTool(mdl::Map& map, const UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{document}
+  , m_map{map}
   , m_helper{helper}
 {
 }
@@ -159,7 +159,7 @@ std::unique_ptr<GestureTracker> UVOffsetTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVOffsetDragTracker>(m_document.map(), m_helper, inputState);
+  return std::make_unique<UVOffsetDragTracker>(m_map, m_helper, inputState);
 }
 
 bool UVOffsetTool::cancel()

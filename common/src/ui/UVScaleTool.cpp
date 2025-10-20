@@ -268,10 +268,10 @@ public:
 const mdl::HitType::Type UVScaleTool::XHandleHitType = mdl::HitType::freeType();
 const mdl::HitType::Type UVScaleTool::YHandleHitType = mdl::HitType::freeType();
 
-UVScaleTool::UVScaleTool(MapDocument& document, UVViewHelper& helper)
+UVScaleTool::UVScaleTool(mdl::Map& map, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{document}
+  , m_map{map}
   , m_helper{helper}
 {
 }
@@ -326,7 +326,7 @@ std::unique_ptr<GestureTracker> UVScaleTool::acceptMouseDrag(const InputState& i
   }
 
   return std::make_unique<UVScaleDragTracker>(
-    m_document.map(), m_helper, handle, selector, *initialHitPoint);
+    m_map, m_helper, handle, selector, *initialHitPoint);
 }
 
 void UVScaleTool::render(

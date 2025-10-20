@@ -32,7 +32,6 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/BorderLine.h"
 #include "ui/FaceAttribsEditor.h"
-#include "ui/MapDocument.h"
 #include "ui/MaterialBrowser.h"
 #include "ui/MaterialCollectionEditor.h"
 #include "ui/QtUtils.h"
@@ -56,9 +55,9 @@ void resetMaterialBrowserInfo(mdl::Map& map, QWidget* materialBrowserInfo)
 } // namespace
 
 FaceInspector::FaceInspector(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
-  , m_document{document}
+  , m_map{map}
 {
   createGui(contextManager);
   connectObservers();
@@ -109,7 +108,7 @@ void FaceInspector::createGui(GLContextManager& contextManager)
 
 QWidget* FaceInspector::createFaceAttribsEditor(GLContextManager& contextManager)
 {
-  m_faceAttribsEditor = new FaceAttribsEditor{m_document, contextManager};
+  m_faceAttribsEditor = new FaceAttribsEditor{m_map, contextManager};
   return m_faceAttribsEditor;
 }
 
@@ -118,14 +117,14 @@ QWidget* FaceInspector::createMaterialBrowser(GLContextManager& contextManager)
   auto* panel =
     new SwitchableTitledPanel{tr("Material Browser"), {{tr("Browser"), tr("Settings")}}};
 
-  m_materialBrowser = new MaterialBrowser{m_document, contextManager};
+  m_materialBrowser = new MaterialBrowser{m_map, contextManager};
 
   auto* materialBrowserLayout = new QVBoxLayout{};
   materialBrowserLayout->setContentsMargins(0, 0, 0, 0);
   materialBrowserLayout->addWidget(m_materialBrowser, 1);
   panel->getPanel(0)->setLayout(materialBrowserLayout);
 
-  auto* materialCollectionEditor = new MaterialCollectionEditor{m_document};
+  auto* materialCollectionEditor = new MaterialCollectionEditor{m_map};
   m_materialBrowserInfo = createMaterialBrowserInfo();
 
   auto* materialCollectionEditorLayout = new QVBoxLayout{};
@@ -168,8 +167,7 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
 
 void FaceInspector::materialSelected(const mdl::Material* material)
 {
-  auto& map = m_document.map();
-  const auto faces = map.selection().allBrushFaces();
+  const auto faces = m_map.selection().allBrushFaces();
 
   if (material)
   {
@@ -184,13 +182,13 @@ void FaceInspector::materialSelected(const mdl::Material* material)
                                        ? material->name()
                                        : mdl::BrushFaceAttributes::NoMaterialName;
 
-      map.setCurrentMaterialName(materialNameToSet);
-      setBrushFaceAttributes(map, {.materialName = materialNameToSet});
+      m_map.setCurrentMaterialName(materialNameToSet);
+      setBrushFaceAttributes(m_map, {.materialName = materialNameToSet});
     }
     else
     {
-      map.setCurrentMaterialName(
-        map.currentMaterialName() != material->name()
+      m_map.setCurrentMaterialName(
+        m_map.currentMaterialName() != material->name()
           ? material->name()
           : mdl::BrushFaceAttributes::NoMaterialName);
     }
@@ -199,11 +197,10 @@ void FaceInspector::materialSelected(const mdl::Material* material)
 
 void FaceInspector::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &FaceInspector::mapWasCreated);
+    m_map.mapWasCreatedNotifier.connect(this, &FaceInspector::mapWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &FaceInspector::mapWasLoaded);
+    m_map.mapWasLoadedNotifier.connect(this, &FaceInspector::mapWasLoaded);
 }
 
 void FaceInspector::mapWasCreated(mdl::Map& map)

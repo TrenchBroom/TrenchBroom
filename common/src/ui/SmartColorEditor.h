@@ -28,11 +28,15 @@ class QWidget;
 class QPushButton;
 class QRadioButton;
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 class ColorButton;
 class ColorTable;
-class MapDocument;
 
 class SmartColorEditor : public SmartPropertyEditor
 {
@@ -47,7 +51,7 @@ private:
   ColorTable* m_colorHistory = nullptr;
 
 public:
-  explicit SmartColorEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit SmartColorEditor(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   void createGui();

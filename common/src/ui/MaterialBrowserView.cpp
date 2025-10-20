@@ -58,14 +58,13 @@ namespace tb::ui
 {
 
 MaterialBrowserView::MaterialBrowserView(
-  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
+  QScrollBar* scrollBar, GLContextManager& contextManager, mdl::Map& map)
   : CellView{contextManager, scrollBar}
-  , m_document{document}
+  , m_map{map}
 {
-  auto& map = m_document.map();
-  m_notifierConnection += map.materialUsageCountsDidChangeNotifier.connect(
+  m_notifierConnection += m_map.materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
-  m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
+  m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
     this, &MaterialBrowserView::resourcesWereProcessed);
 }
 
@@ -213,11 +212,10 @@ void MaterialBrowserView::addMaterialToLayout(
 
 std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
-  const auto& map = m_document.map();
-  const auto enabledMaterialCollections = mdl::enabledMaterialCollections(map);
+  const auto enabledMaterialCollections = mdl::enabledMaterialCollections(m_map);
 
   auto result = std::vector<const mdl::MaterialCollection*>{};
-  for (const auto& collection : map.materialManager().collections())
+  for (const auto& collection : m_map.materialManager().collections())
   {
     if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
     {
@@ -456,12 +454,11 @@ void MaterialBrowserView::doContextMenu(
   {
     auto menu = QMenu{this};
     menu.addAction(tr("Select Faces"), this, [&, material = &cellData(*cell)]() {
-      auto& map = m_document.map();
-      selectBrushFacesWithMaterial(map, material->name());
+      selectBrushFacesWithMaterial(m_map, material->name());
     });
 
     menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
-      selectBrushesWithMaterial(m_document.map(), material->name());
+      selectBrushesWithMaterial(m_map, material->name());
     });
 
     menu.exec(event->globalPos());

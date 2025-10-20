@@ -33,20 +33,17 @@ namespace tb
 {
 namespace mdl
 {
+class Map;
+class Node;
+
 struct EntityDefinition;
 struct PropertyDefinition;
-} // namespace mdl
-
-namespace mdl
-{
-class Node;
 struct SelectionChange;
 } // namespace mdl
 
 namespace ui
 {
 class EntityPropertyGrid;
-class MapDocument;
 class SmartPropertyEditorManager;
 
 /**
@@ -57,7 +54,7 @@ class EntityPropertyEditor : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   QSplitter* m_splitter = nullptr;
   EntityPropertyGrid* m_propertyGrid = nullptr;
   SmartPropertyEditorManager* m_smartEditorManager = nullptr;
@@ -67,7 +64,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityPropertyEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit EntityPropertyEditor(mdl::Map& map, QWidget* parent = nullptr);
   ~EntityPropertyEditor() override;
 
 private:
@@ -88,7 +85,7 @@ private:
   static QString optionDescriptions(const mdl::PropertyDefinition& definition);
 
   void updateDocumentation(const std::string& propertyKey);
-  void createGui(MapDocument& document);
+  void createGui();
 
   void updateMinimumSize();
 };

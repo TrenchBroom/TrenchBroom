@@ -28,7 +28,8 @@
 namespace tb::mdl
 {
 class PickResult;
-}
+class Map;
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -50,11 +51,11 @@ public:
   static const mdl::HitType::Type YHandleHitType;
 
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   UVViewHelper& m_helper;
 
 public:
-  UVScaleTool(MapDocument& document, UVViewHelper& helper);
+  UVScaleTool(mdl::Map& map, UVViewHelper& helper);
 
 private:
   Tool& tool() override;

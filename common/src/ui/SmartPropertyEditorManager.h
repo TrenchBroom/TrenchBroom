@@ -32,13 +32,14 @@ class QStackedLayout;
 namespace tb::mdl
 {
 class EntityNodeBase;
+class Map;
 class Node;
+
 struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
 {
-class MapDocument;
 class SmartPropertyEditor;
 
 using SmartPropertyEditorMatcher =
@@ -47,7 +48,7 @@ using SmartPropertyEditorMatcher =
 class SmartPropertyEditorManager : public QWidget
 {
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   std::vector<std::tuple<SmartPropertyEditorMatcher, SmartPropertyEditor*>> m_editors;
   std::string m_propertyKey;
@@ -56,7 +57,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit SmartPropertyEditorManager(MapDocument& document, QWidget* parent = nullptr);
+  explicit SmartPropertyEditorManager(mdl::Map& map, QWidget* parent = nullptr);
 
   void switchEditor(
     const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes);

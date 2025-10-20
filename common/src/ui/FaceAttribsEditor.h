@@ -51,7 +51,7 @@ class FaceAttribsEditor : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   UVEditor* m_uvEditor = nullptr;
   QLabel* m_materialName = nullptr;
@@ -86,7 +86,7 @@ private:
 
 public:
   FaceAttribsEditor(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 

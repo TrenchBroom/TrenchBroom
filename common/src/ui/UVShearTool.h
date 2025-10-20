@@ -25,6 +25,11 @@
 
 #include <memory>
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 
@@ -39,11 +44,11 @@ private:
   static const mdl::HitType::Type YHandleHitType;
 
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   UVViewHelper& m_helper;
 
 public:
-  UVShearTool(MapDocument& document, UVViewHelper& helper);
+  UVShearTool(mdl::Map& map, UVViewHelper& helper);
 
 private:
   Tool& tool() override;

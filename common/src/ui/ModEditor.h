@@ -39,13 +39,11 @@ class Map;
 
 namespace tb::ui
 {
-class MapDocument;
-
 class ModEditor : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   QListWidget* m_availableModList = nullptr;
   QListWidget* m_enabledModList = nullptr;
@@ -60,7 +58,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ModEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit ModEditor(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   void createGui();

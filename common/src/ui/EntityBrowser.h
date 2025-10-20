@@ -48,7 +48,7 @@ class EntityBrowser : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   QComboBox* m_sortOrderChoice = nullptr;
   QPushButton* m_groupButton = nullptr;
   QPushButton* m_usedButton = nullptr;
@@ -60,7 +60,7 @@ private:
 
 public:
   EntityBrowser(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   void reload();
 

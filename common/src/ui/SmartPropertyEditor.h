@@ -32,20 +32,19 @@ class Map;
 
 namespace tb::ui
 {
-class MapDocument;
 
 class SmartPropertyEditor : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   std::string m_propertyKey;
   std::vector<mdl::EntityNodeBase*> m_nodes;
   bool m_active = false;
 
 public:
-  explicit SmartPropertyEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit SmartPropertyEditor(mdl::Map& map, QWidget* parent = nullptr);
   ~SmartPropertyEditor() override;
 
   bool usesPropertyKey(const std::string& propertyKey) const;

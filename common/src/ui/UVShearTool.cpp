@@ -215,10 +215,10 @@ public:
 const mdl::HitType::Type UVShearTool::XHandleHitType = mdl::HitType::freeType();
 const mdl::HitType::Type UVShearTool::YHandleHitType = mdl::HitType::freeType();
 
-UVShearTool::UVShearTool(MapDocument& document, UVViewHelper& helper)
+UVShearTool::UVShearTool(mdl::Map& map, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{document}
+  , m_map{map}
   , m_helper{helper}
 {
 }
@@ -287,7 +287,7 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
   }
 
   return std::make_unique<UVShearDragTracker>(
-    m_document.map(), m_helper, selector, xAxis, yAxis, *initialHit);
+    m_map, m_helper, selector, xAxis, yAxis, *initialHit);
 }
 
 bool UVShearTool::cancel()

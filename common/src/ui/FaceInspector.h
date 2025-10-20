@@ -36,14 +36,13 @@ namespace tb::ui
 class CollapsibleTitledPanel;
 class FaceAttribsEditor;
 class GLContextManager;
-class MapDocument;
 class MaterialBrowser;
 
 class FaceInspector : public TabBookPage
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   QSplitter* m_splitter = nullptr;
   FaceAttribsEditor* m_faceAttribsEditor = nullptr;
   MaterialBrowser* m_materialBrowser = nullptr;
@@ -53,7 +52,7 @@ private:
 
 public:
   FaceInspector(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
   ~FaceInspector() override;
 
   bool cancelMouseDrag();

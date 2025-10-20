@@ -58,20 +58,19 @@ void combineFlags(
   }
 }
 
-bool loadEntityDefinitionFile(MapDocument& document, QWidget* parent, const QString& path)
+bool loadEntityDefinitionFile(mdl::Map& map, QWidget* parent, const QString& path)
 {
-  return loadEntityDefinitionFile(document, parent, QStringList{path}) == 0;
+  return loadEntityDefinitionFile(map, parent, QStringList{path}) == 0;
 }
 
 size_t loadEntityDefinitionFile(
-  MapDocument& document, QWidget* parent, const QStringList& pathStrs)
+  mdl::Map& map, QWidget* parent, const QStringList& pathStrs)
 {
   if (pathStrs.empty())
   {
     return 0;
   }
 
-  auto& map = document.map();
   const auto& game = *map.game();
   const auto& gameFactory = mdl::GameFactory::instance();
   const auto gamePath = gameFactory.gamePath(game.config().name);

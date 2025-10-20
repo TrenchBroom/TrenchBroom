@@ -300,10 +300,10 @@ std::optional<float> computeInitialAngle(
 
 const mdl::HitType::Type UVRotateTool::AngleHandleHitType = mdl::HitType::freeType();
 
-UVRotateTool::UVRotateTool(MapDocument& document, UVViewHelper& helper)
+UVRotateTool::UVRotateTool(mdl::Map& map, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_document{document}
+  , m_map{map}
   , m_helper{helper}
 {
 }
@@ -375,7 +375,7 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVRotateDragTracker>(m_document.map(), m_helper, *initialAngle);
+  return std::make_unique<UVRotateDragTracker>(m_map, m_helper, *initialAngle);
 }
 
 void UVRotateTool::render(

@@ -37,13 +37,12 @@ class Node;
 
 namespace tb::ui
 {
-class MapDocument;
 
 class LayerListBoxWidget : public ControlListBoxItemRenderer
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   mdl::LayerNode* m_layer = nullptr;
   QAbstractButton* m_activeButton = nullptr;
   QLabel* m_nameText = nullptr;
@@ -53,8 +52,7 @@ private:
   QAbstractButton* m_lockButton = nullptr;
 
 public:
-  LayerListBoxWidget(
-    MapDocument& document, mdl::LayerNode* layer, QWidget* parent = nullptr);
+  LayerListBoxWidget(mdl::Map& map, mdl::LayerNode* layer, QWidget* parent = nullptr);
 
   void updateItem() override;
 
@@ -79,12 +77,12 @@ class LayerListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit LayerListBox(MapDocument& document, QWidget* parent = nullptr);
+  explicit LayerListBox(mdl::Map& map, QWidget* parent = nullptr);
 
   mdl::LayerNode* selectedLayer() const;
   void setSelectedLayer(mdl::LayerNode* layer);
