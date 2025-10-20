@@ -53,29 +53,42 @@ TEST_CASE("EntityPropertyModel")
   auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
   groupNode->addChild(groupedEntityNode);
 
-  map.entityDefinitionManager().setDefinitions(
-    {{"source_entity",
-      {},
-      {},
-      {
-        {
-          mdl::EntityPropertyKeys::Target,
-          mdl::PropertyValueTypes::LinkSource{},
-          {},
-          {},
-        },
-      }},
-     {"target_entity",
-      {},
-      {},
-      {
-        {
-          mdl::EntityPropertyKeys::Targetname,
-          mdl::PropertyValueTypes::LinkTarget{},
-          {},
-          {},
-        },
-      }}});
+  map.entityDefinitionManager().setDefinitions({
+    {"source_entity",
+     {},
+     {},
+     {
+       {
+         mdl::EntityPropertyKeys::Target,
+         mdl::PropertyValueTypes::LinkSource{},
+         {},
+         {},
+       },
+     }},
+    {"target_entity",
+     {},
+     {},
+     {
+       {
+         mdl::EntityPropertyKeys::Targetname,
+         mdl::PropertyValueTypes::LinkTarget{},
+         {},
+         {},
+       },
+     }},
+    {"readonly_entity",
+     {},
+     {},
+     {
+       {
+         "readonly",
+         mdl::PropertyValueTypes::String{},
+         {},
+         {},
+         true,
+       },
+     }},
+  });
 
   auto* sourceEntity = new mdl::EntityNode{mdl::Entity{{
     {"classname", "source_entity"},
@@ -85,6 +98,11 @@ TEST_CASE("EntityPropertyModel")
   auto* targetEntity = new mdl::EntityNode{mdl::Entity{{
     {"classname", "target_entity"},
     {"targetname", "some_target"},
+  }}};
+
+  auto* readonlyEntity = new mdl::EntityNode{mdl::Entity{{
+    {"classname", "readonly_entity"},
+    {"readonly", "some_value"},
   }}};
 
   mdl::addNodes(
@@ -97,6 +115,7 @@ TEST_CASE("EntityPropertyModel")
          groupNode,
          sourceEntity,
          targetEntity,
+         readonlyEntity,
        }},
     });
 
@@ -362,6 +381,37 @@ TEST_CASE("EntityPropertyModel")
             .valueMutable = true,
             .protection = PropertyProtection::NotProtectable,
             .linkType = LinkType::Target,
+            .tooltip = "",
+          },
+        });
+    }
+
+    SECTION("readonly properties")
+    {
+      mdl::selectNodes(map, {readonlyEntity});
+      model.updateFromMap();
+
+      CHECK(
+        model.rows()
+        == std::vector<PropertyRow>{
+          {
+            .key = "classname",
+            .value = "readonly_entity",
+            .valueState = ValueState::SingleValue,
+            .keyMutable = true,
+            .valueMutable = true,
+            .protection = PropertyProtection::NotProtectable,
+            .linkType = LinkType::None,
+            .tooltip = "No description found",
+          },
+          {
+            .key = "readonly",
+            .value = "some_value",
+            .valueState = ValueState::SingleValue,
+            .keyMutable = false,
+            .valueMutable = false,
+            .protection = PropertyProtection::NotProtectable,
+            .linkType = LinkType::None,
             .tooltip = "",
           },
         });

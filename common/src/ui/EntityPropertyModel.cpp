@@ -67,10 +67,31 @@ namespace tb::ui
 namespace
 {
 
+bool isPropertyReadOnly(const mdl::Entity& entity, const std::string& key)
+{
+  if (const auto* entityDefinition = entity.definition())
+  {
+    if (const auto iPropertyDefinition = std::ranges::find_if(
+          entityDefinition->propertyDefinitions,
+          [&](const auto& propertyDefinition) { return propertyDefinition.key == key; });
+        iPropertyDefinition != entityDefinition->propertyDefinitions.end())
+    {
+      return iPropertyDefinition->readOnly;
+    }
+  }
+
+  return false;
+}
+
 bool isPropertyKeyMutable(const mdl::Entity& entity, const std::string& key)
 {
   assert(!mdl::isGroup(entity.classname(), entity.properties()));
   assert(!mdl::isLayer(entity.classname(), entity.properties()));
+
+  if (isPropertyReadOnly(entity, key))
+  {
+    return false;
+  }
 
   if (mdl::isWorldspawn(entity.classname()))
   {
@@ -93,6 +114,11 @@ bool isPropertyValueMutable(const mdl::Entity& entity, const std::string& key)
 {
   assert(!mdl::isGroup(entity.classname(), entity.properties()));
   assert(!mdl::isLayer(entity.classname(), entity.properties()));
+
+  if (isPropertyReadOnly(entity, key))
+  {
+    return false;
+  }
 
   if (mdl::isWorldspawn(entity.classname()))
   {
