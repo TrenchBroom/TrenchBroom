@@ -418,7 +418,7 @@ mdl::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(
 
 void LayerEditor::createGui()
 {
-  m_layerList = new LayerListBox{m_document, this};
+  m_layerList = new LayerListBox{m_document.map(), this};
   connect(
     m_layerList, &LayerListBox::layerSetCurrent, this, &LayerEditor::onSetCurrentLayer);
   connect(
