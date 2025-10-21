@@ -277,6 +277,62 @@ std::vector<std::string> allKeys(
   return result.release_data();
 }
 
+auto makeKeyToPropertyRowMap(const std::vector<PropertyRow>& rows)
+{
+  return rows
+         | std::views::transform([](const auto& row) { return std::pair{row.key, row}; })
+         | kdl::ranges::to<std::map>();
+}
+
+struct KeyDiff
+{
+  std::vector<std::string> removed;
+  std::vector<std::string> added;
+  std::vector<std::string> updated;
+  std::vector<std::string> unchanged;
+};
+
+KeyDiff comparePropertyMaps(
+  const std::map<std::string, PropertyRow>& oldRows,
+  const std::map<std::string, PropertyRow>& newRows)
+{
+  auto result = KeyDiff{};
+  result.removed.reserve(oldRows.size());
+  result.added.reserve(newRows.size());
+  result.updated.reserve(newRows.size());
+  result.unchanged.reserve(newRows.size());
+
+  for (const auto& [key, value] : oldRows)
+  {
+    if (auto it = newRows.find(key); it != std::end(newRows))
+    {
+      if (it->second == value)
+      {
+        result.unchanged.push_back(key);
+      }
+      else
+      {
+        result.updated.push_back(key);
+      }
+    }
+    else
+    {
+      result.removed.push_back(key);
+    }
+  }
+
+  for (const auto& [key, value] : newRows)
+  {
+    unused(value);
+    if (oldRows.find(key) == std::end(oldRows))
+    {
+      result.added.push_back(key);
+    }
+  }
+
+  return result;
+}
+
 std::map<std::string, PropertyRow> rowsForEntityNodes(
   const std::vector<mdl::EntityNodeBase*>& entityNodes,
   const bool showDefaultRows,
@@ -494,63 +550,6 @@ EntityPropertyModel::EntityPropertyModel(mdl::Map& map, QObject* parent)
   , m_map{map}
 {
   updateFromMap();
-}
-
-static auto makeKeyToPropertyRowMap(const std::vector<PropertyRow>& rows)
-{
-  auto result = std::map<std::string, PropertyRow>{};
-  for (const auto& row : rows)
-  {
-    result[row.key] = row;
-  }
-  return result;
-}
-
-struct KeyDiff
-{
-  std::vector<std::string> removed;
-  std::vector<std::string> added;
-  std::vector<std::string> updated;
-  std::vector<std::string> unchanged;
-};
-
-static KeyDiff comparePropertyMaps(
-  const std::map<std::string, PropertyRow>& oldRows,
-  const std::map<std::string, PropertyRow>& newRows)
-{
-  auto result = KeyDiff{};
-  result.removed.reserve(oldRows.size());
-  result.added.reserve(newRows.size());
-  result.updated.reserve(newRows.size());
-  result.unchanged.reserve(newRows.size());
-
-  for (const auto& [key, value] : oldRows)
-  {
-    if (auto it = newRows.find(key); it != std::end(newRows))
-    {
-      if (it->second == value)
-      {
-        result.unchanged.push_back(key);
-      }
-      else
-      {
-        result.updated.push_back(key);
-      }
-    }
-    else
-    {
-      result.removed.push_back(key);
-    }
-  }
-  for (const auto& [key, value] : newRows)
-  {
-    unused(value);
-    if (oldRows.find(key) == std::end(oldRows))
-    {
-      result.added.push_back(key);
-    }
-  }
-  return result;
 }
 
 bool EntityPropertyModel::showDefaultRows() const
