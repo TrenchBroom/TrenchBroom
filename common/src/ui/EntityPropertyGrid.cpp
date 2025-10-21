@@ -229,7 +229,7 @@ void EntityPropertyGrid::createGui(MapDocument& document)
 {
   m_table = new EntityPropertyTable{};
 
-  m_model = new EntityPropertyModel{document, this};
+  m_model = new EntityPropertyModel{document.map(), this};
 
   // ensure the table takes ownership of the model in setModel
   // FIXME: why? this looks unnecessary
