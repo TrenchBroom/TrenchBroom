@@ -83,4 +83,12 @@ bool isLinkTargetProperty(
 void addOrSetDefaultEntityLinkProperties(
   std::vector<EntityDefinition>& entityDefinitions);
 
+/**
+ * Overrides the entity property values types of the given entity definitions.
+ *
+ * For any point entity definition, change its "origin" property definition to type
+ * Origin, or add an "origin" property of that type if it is missing.
+ */
+void addOrConvertOriginProperties(std::vector<mdl::EntityDefinition>& entityDefinitions);
+
 } // namespace tb::mdl
