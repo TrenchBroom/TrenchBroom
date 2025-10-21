@@ -42,7 +42,6 @@ class Node;
 namespace tb::ui
 {
 class CollapsibleTitledPanel;
-class MapDocument;
 
 class MapInspector : public TabBookPage
 {
@@ -52,11 +51,11 @@ private:
   CollapsibleTitledPanel* m_modEditor = nullptr;
 
 public:
-  explicit MapInspector(MapDocument& document, QWidget* parent = nullptr);
+  explicit MapInspector(mdl::Map& map, QWidget* parent = nullptr);
   ~MapInspector() override;
 
 private:
-  void createGui(MapDocument& document);
+  void createGui(mdl::Map& map);
   QWidget* createLayerEditor(mdl::Map& map);
   CollapsibleTitledPanel* createMapPropertiesEditor(mdl::Map& map);
   CollapsibleTitledPanel* createModEditor(mdl::Map& map);

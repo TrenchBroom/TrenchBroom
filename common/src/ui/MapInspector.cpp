@@ -33,7 +33,6 @@
 #include "ui/ClickableLabel.h"
 #include "ui/CollapsibleTitledPanel.h"
 #include "ui/LayerEditor.h"
-#include "ui/MapDocument.h"
 #include "ui/ModEditor.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
@@ -81,10 +80,10 @@ QString formatVec(const std::optional<vm::bbox3d>& bbox, const bool max)
 
 // MapInspector
 
-MapInspector::MapInspector(MapDocument& document, QWidget* parent)
+MapInspector::MapInspector(mdl::Map& map, QWidget* parent)
   : TabBookPage{parent}
 {
-  createGui(document);
+  createGui(map);
 }
 
 MapInspector::~MapInspector()
@@ -93,16 +92,16 @@ MapInspector::~MapInspector()
   saveWindowState(m_modEditor);
 }
 
-void MapInspector::createGui(MapDocument& document)
+void MapInspector::createGui(mdl::Map& map)
 {
-  m_mapPropertiesEditor = createMapPropertiesEditor(document.map());
-  m_modEditor = createModEditor(document.map());
+  m_mapPropertiesEditor = createMapPropertiesEditor(map);
+  m_modEditor = createModEditor(map);
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
   sizer->setSpacing(0);
 
-  sizer->addWidget(createLayerEditor(document.map()), 1);
+  sizer->addWidget(createLayerEditor(map), 1);
   sizer->addWidget(new BorderLine{}, 0);
   sizer->addWidget(m_mapPropertiesEditor, 0);
   sizer->addWidget(new BorderLine{}, 0);
