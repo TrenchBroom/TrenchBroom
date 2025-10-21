@@ -81,6 +81,6 @@ bool isLinkTargetProperty(
  * entity linking properties.
  */
 void addOrSetDefaultEntityLinkProperties(
-  std::vector<mdl::EntityDefinition>& entityDefinitions);
+  std::vector<EntityDefinition>& entityDefinitions);
 
 } // namespace tb::mdl
