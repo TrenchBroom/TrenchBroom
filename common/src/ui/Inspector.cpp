@@ -40,7 +40,7 @@ Inspector::Inspector(
 
   m_mapInspector = new MapInspector{document.map()};
   m_entityInspector = new EntityInspector{document.map(), contextManager};
-  m_faceInspector = new FaceInspector{document, contextManager};
+  m_faceInspector = new FaceInspector{document.map(), contextManager};
 
   m_tabBook->addPage(m_mapInspector, "Map");
   m_tabBook->addPage(m_entityInspector, "Entity");
