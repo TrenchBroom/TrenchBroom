@@ -125,7 +125,7 @@ QWidget* FaceInspector::createMaterialBrowser(GLContextManager& contextManager)
   materialBrowserLayout->addWidget(m_materialBrowser, 1);
   panel->getPanel(0)->setLayout(materialBrowserLayout);
 
-  auto* materialCollectionEditor = new MaterialCollectionEditor{m_document};
+  auto* materialCollectionEditor = new MaterialCollectionEditor{m_document.map()};
   m_materialBrowserInfo = createMaterialBrowserInfo();
 
   auto* materialCollectionEditorLayout = new QVBoxLayout{};
