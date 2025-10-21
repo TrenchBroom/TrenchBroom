@@ -96,7 +96,7 @@ MapInspector::~MapInspector()
 void MapInspector::createGui(MapDocument& document)
 {
   m_mapPropertiesEditor = createMapPropertiesEditor(document.map());
-  m_modEditor = createModEditor(document);
+  m_modEditor = createModEditor(document.map());
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
@@ -140,12 +140,12 @@ CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(mdl::Map& map)
   return titledPanel;
 }
 
-CollapsibleTitledPanel* MapInspector::createModEditor(MapDocument& document)
+CollapsibleTitledPanel* MapInspector::createModEditor(mdl::Map& map)
 {
   auto* titledPanel = new CollapsibleTitledPanel{tr("Mods")};
   titledPanel->setObjectName("MapInspector_ModsPanel");
 
-  auto* modEditor = new ModEditor{document};
+  auto* modEditor = new ModEditor{map};
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);

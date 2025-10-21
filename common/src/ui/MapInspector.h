@@ -59,7 +59,7 @@ private:
   void createGui(MapDocument& document);
   QWidget* createLayerEditor(MapDocument& document);
   CollapsibleTitledPanel* createMapPropertiesEditor(mdl::Map& map);
-  CollapsibleTitledPanel* createModEditor(MapDocument& document);
+  CollapsibleTitledPanel* createModEditor(mdl::Map& map);
 };
 
 /**
