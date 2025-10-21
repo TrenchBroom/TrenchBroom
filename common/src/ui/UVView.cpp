@@ -181,7 +181,7 @@ void UVView::createTools()
   addToolController(std::make_unique<UVOriginTool>(m_helper));
   addToolController(std::make_unique<UVScaleTool>(m_document.map(), m_helper));
   addToolController(std::make_unique<UVShearTool>(m_document.map(), m_helper));
-  addToolController(std::make_unique<UVOffsetTool>(m_document, m_helper));
+  addToolController(std::make_unique<UVOffsetTool>(m_document.map(), m_helper));
   addToolController(std::make_unique<UVCameraTool>(m_camera));
 }
 
