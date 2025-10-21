@@ -66,7 +66,7 @@ void UVEditor::updateButtons()
 
 void UVEditor::createGui(GLContextManager& contextManager)
 {
-  m_uvView = new UVView{m_document, contextManager};
+  m_uvView = new UVView{m_document.map(), contextManager};
 
   m_resetUVButton = createBitmapButton("ResetUV.svg", tr("Reset UV alignment"), this);
   m_resetUVToWorldButton = createBitmapButton(
