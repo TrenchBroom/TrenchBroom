@@ -43,7 +43,6 @@
 #include "ui/EntityPropertyItemDelegate.h"
 #include "ui/EntityPropertyModel.h"
 #include "ui/EntityPropertyTable.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -60,11 +59,11 @@
 namespace tb::ui
 {
 
-EntityPropertyGrid::EntityPropertyGrid(MapDocument& document, QWidget* parent)
+EntityPropertyGrid::EntityPropertyGrid(mdl::Map& map, QWidget* parent)
   : QWidget{parent}
-  , m_document{document}
+  , m_map{map}
 {
-  createGui(m_document);
+  createGui();
   connectObservers();
 }
 
@@ -116,10 +115,10 @@ void EntityPropertyGrid::restoreSelection()
 
 void EntityPropertyGrid::addProperty(const bool defaultToProtected)
 {
-  auto& map = m_document.map();
-  const auto newPropertyKey = newPropertyKeyForEntityNodes(map.selection().allEntities());
+  const auto newPropertyKey =
+    newPropertyKeyForEntityNodes(m_map.selection().allEntities());
 
-  if (!setEntityProperty(map, newPropertyKey, "", defaultToProtected))
+  if (!setEntityProperty(m_map, newPropertyKey, "", defaultToProtected))
   {
     // Setting a property can fail if a linked group update would be inconsistent
     return;
@@ -155,13 +154,12 @@ void EntityPropertyGrid::removeSelectedProperties()
     | kdl::ranges::to<std::vector>();
   const auto numRows = propertyKeys.size();
 
-  auto& map = m_document.map();
   auto transaction = mdl::Transaction{
-    map, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
+    m_map, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
 
   for (const auto& propertyKey : propertyKeys)
   {
-    if (!removeEntityProperty(map, propertyKey))
+    if (!removeEntityProperty(m_map, propertyKey))
     {
       transaction.cancel();
       return;
@@ -225,11 +223,11 @@ protected:
   }
 };
 
-void EntityPropertyGrid::createGui(MapDocument& document)
+void EntityPropertyGrid::createGui()
 {
   m_table = new EntityPropertyTable{};
 
-  m_model = new EntityPropertyModel{document.map(), this};
+  m_model = new EntityPropertyModel{m_map, this};
 
   // ensure the table takes ownership of the model in setModel
   // FIXME: why? this looks unnecessary
@@ -288,14 +286,13 @@ void EntityPropertyGrid::createGui(MapDocument& document)
 
   auto* setDefaultPropertiesMenu = new QMenu{this};
   setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [&]() {
-    setDefaultEntityProperties(
-      m_document.map(), mdl::SetDefaultPropertyMode::SetExisting);
+    setDefaultEntityProperties(m_map, mdl::SetDefaultPropertyMode::SetExisting);
   });
   setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [&]() {
-    setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
+    setDefaultEntityProperties(m_map, mdl::SetDefaultPropertyMode::SetMissing);
   });
   setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
-    setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
+    setDefaultEntityProperties(m_map, mdl::SetDefaultPropertyMode::SetMissing);
   });
 
   m_setDefaultPropertiesButton =
@@ -384,17 +381,16 @@ void EntityPropertyGrid::createGui(MapDocument& document)
 
 void EntityPropertyGrid::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &EntityPropertyGrid::mapWasCreated);
+    m_map.mapWasCreatedNotifier.connect(this, &EntityPropertyGrid::mapWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &EntityPropertyGrid::mapWasLoaded);
+    m_map.mapWasLoadedNotifier.connect(this, &EntityPropertyGrid::mapWasLoaded);
   m_notifierConnection +=
-    map.nodesDidChangeNotifier.connect(this, &EntityPropertyGrid::nodesDidChange);
-  m_notifierConnection += map.selectionWillChangeNotifier.connect(
+    m_map.nodesDidChangeNotifier.connect(this, &EntityPropertyGrid::nodesDidChange);
+  m_notifierConnection += m_map.selectionWillChangeNotifier.connect(
     this, &EntityPropertyGrid::selectionWillChange);
-  m_notifierConnection +=
-    map.selectionDidChangeNotifier.connect(this, &EntityPropertyGrid::selectionDidChange);
+  m_notifierConnection += m_map.selectionDidChangeNotifier.connect(
+    this, &EntityPropertyGrid::selectionDidChange);
 }
 
 void EntityPropertyGrid::mapWasCreated(mdl::Map&)
@@ -450,8 +446,7 @@ void EntityPropertyGrid::ensureSelectionVisible()
 
 void EntityPropertyGrid::updateControlsEnabled()
 {
-  auto& map = m_document.map();
-  const auto nodes = map.selection().allEntities();
+  const auto nodes = m_map.selection().allEntities();
   const auto canUpdateLinkedGroups =
     mdl::canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));
   m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
