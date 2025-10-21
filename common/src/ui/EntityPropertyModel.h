@@ -89,46 +89,28 @@ std::string newPropertyKeyForEntityNodes(const std::vector<mdl::EntityNodeBase*>
 /**
  * Viewmodel (as in MVVM) for a single row in the table
  */
-class PropertyRow
+struct PropertyRow
 {
-private:
-  std::string m_key;
-  std::string m_value;
-  ValueState m_valueState;
+  std::string key;
+  std::string value;
+  ValueState valueState = ValueState::Unset;
 
-  bool m_keyMutable;
-  bool m_valueMutable;
-  PropertyProtection m_protected;
-  LinkType m_linkType;
-  std::string m_tooltip;
-
-public:
-  PropertyRow();
-  PropertyRow(std::string key, const mdl::EntityNodeBase* node);
-
-  void merge(const mdl::EntityNodeBase* other);
-
-  const std::string& key() const;
-  std::string value() const;
-  bool keyMutable() const;
-  bool valueMutable() const;
-  PropertyProtection isProtected() const;
-  LinkType linkType() const;
-  const std::string& tooltip() const;
-  bool isDefault() const;
-  bool multi() const;
-  bool subset() const;
+  bool keyMutable = true;
+  bool valueMutable = true;
+  PropertyProtection protection = PropertyProtection::NotProtectable;
+  LinkType linkType = LinkType::None;
+  std::string tooltip;
 
   kdl_reflect_decl(
     PropertyRow,
-    m_key,
-    m_value,
-    m_valueState,
-    m_keyMutable,
-    m_valueMutable,
-    m_protected,
-    m_linkType,
-    m_tooltip);
+    key,
+    value,
+    valueState,
+    keyMutable,
+    valueMutable,
+    protection,
+    linkType,
+    tooltip);
 };
 
 /**
@@ -165,25 +147,22 @@ private:
   mdl::Map& m_map;
 
 public:
-  explicit EntityPropertyModel(mdl::Map& map, QObject* parent);
+  explicit EntityPropertyModel(mdl::Map& map, QObject* parent = nullptr);
 
   bool showDefaultRows() const;
   void setShowDefaultRows(bool showDefaultRows);
 
   bool shouldShowProtectedProperties() const;
 
-  void setRows(const std::map<std::string, PropertyRow>& newRows);
+  const std::vector<PropertyRow>& rows() const;
 
-  const PropertyRow* dataForModelIndex(const QModelIndex& index) const;
-  int rowForPropertyKey(const std::string& propertyKey) const;
+  const PropertyRow* rowForModelIndex(const QModelIndex& index) const;
+  int rowIndexForPropertyKey(const std::string& propertyKey) const;
 
-public: // for autocompletion
   QStringList getCompletions(const QModelIndex& index) const;
 
-private: // autocompletion helpers
-  std::vector<std::string> propertyKeys(int row, int count) const;
 public slots:
-  void updateFromMapDocument();
+  void updateFromMap();
 
 public: // QAbstractTableModel overrides
   int rowCount(const QModelIndex& parent) const override;
@@ -194,6 +173,9 @@ public: // QAbstractTableModel overrides
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private: // helpers
+  std::vector<std::string> propertyKeys(int row, int count) const;
+
+  void setRows(const std::map<std::string, PropertyRow>& newRows);
   bool hasRowWithPropertyKey(const std::string& propertyKey) const;
   bool renameProperty(
     size_t rowIndex,

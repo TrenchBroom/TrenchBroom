@@ -92,7 +92,7 @@ void EntityPropertyGrid::restoreSelection()
   GRID_LOG(qDebug() << "Restore selection");
   for (const auto& selection : m_selectionBackup)
   {
-    const auto row = m_model->rowForPropertyKey(selection.propertyKey);
+    const auto row = m_model->rowIndexForPropertyKey(selection.propertyKey);
     if (row == -1)
     {
       GRID_LOG(
@@ -127,9 +127,9 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
 
   // Force an immediate update to the table rows (by default, updates are delayed - see
   // EntityPropertyGrid::updateControls), so we can select the new row.
-  m_model->updateFromMapDocument();
+  m_model->updateFromMap();
 
-  const auto row = m_model->rowForPropertyKey(newPropertyKey);
+  const auto row = m_model->rowIndexForPropertyKey(newPropertyKey);
   ensure(row != -1, "row should have been inserted");
 
   // Select the newly inserted property key
@@ -424,7 +424,7 @@ void EntityPropertyGrid::updateControls()
   // selected row in the table, unless it's a key name that exists in worldspawn. To avoid
   // that problem, make a delayed call to update the table.
   QTimer::singleShot(0, this, [&]() {
-    m_model->updateFromMapDocument();
+    m_model->updateFromMap();
 
     if (m_table->selectionModel()->selectedIndexes().empty())
     {
@@ -461,8 +461,8 @@ void EntityPropertyGrid::updateControlsEnabled()
 std::string EntityPropertyGrid::selectedRowName() const
 {
   const auto current = m_proxyModel->mapToSource(m_table->currentIndex());
-  const auto* rowModel = m_model->dataForModelIndex(current);
-  return rowModel ? rowModel->key() : "";
+  const auto* rowModel = m_model->rowForModelIndex(current);
+  return rowModel ? rowModel->key : "";
 }
 
 } // namespace tb::ui
