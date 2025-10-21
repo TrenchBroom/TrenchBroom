@@ -118,7 +118,7 @@ QWidget* FaceInspector::createMaterialBrowser(GLContextManager& contextManager)
   auto* panel =
     new SwitchableTitledPanel{tr("Material Browser"), {{tr("Browser"), tr("Settings")}}};
 
-  m_materialBrowser = new MaterialBrowser{m_document, contextManager};
+  m_materialBrowser = new MaterialBrowser{m_document.map(), contextManager};
 
   auto* materialBrowserLayout = new QVBoxLayout{};
   materialBrowserLayout->setContentsMargins(0, 0, 0, 0);

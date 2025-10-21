@@ -133,7 +133,7 @@ void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
   setWindowTitle(tr("Replace Material"));
 
   auto* subjectPanel = new TitledPanel{tr("Find")};
-  m_subjectBrowser = new MaterialBrowser{m_document, contextManager};
+  m_subjectBrowser = new MaterialBrowser{m_document.map(), contextManager};
   m_subjectBrowser->setHideUnused(true);
   connect(
     m_subjectBrowser,
@@ -148,7 +148,7 @@ void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
   subjectPanel->getPanel()->setLayout(subjectPanelLayout);
 
   auto* replacementPanel = new TitledPanel{tr("Replace with")};
-  m_replacementBrowser = new MaterialBrowser{m_document, contextManager};
+  m_replacementBrowser = new MaterialBrowser{m_document.map(), contextManager};
   m_replacementBrowser->setSelectedMaterial(nullptr); // Override the current material.
   connect(
     m_replacementBrowser,
