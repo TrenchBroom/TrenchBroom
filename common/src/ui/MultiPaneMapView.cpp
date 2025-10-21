@@ -59,9 +59,8 @@ void MultiPaneMapView::installActivationTracker(
 
 bool MultiPaneMapView::isCurrent() const
 {
-  return std::any_of(m_mapViews.begin(), m_mapViews.end(), [](auto* mapView) {
-    return mapView->isCurrent();
-  });
+  return std::ranges::any_of(
+    m_mapViews, [](auto* mapView) { return mapView->isCurrent(); });
 }
 
 MapViewBase* MultiPaneMapView::firstMapViewBase()

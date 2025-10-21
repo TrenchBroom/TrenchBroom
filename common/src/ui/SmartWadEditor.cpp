@@ -243,10 +243,9 @@ bool SmartWadEditor::canRemoveWads() const
   }
 
   const auto wadPaths = getWadPaths(nodes(), propertyKey());
-  return !selections.empty()
-         && std::all_of(selections.begin(), selections.end(), [&](const auto s) {
-              return size_t(s) < wadPaths.size();
-            });
+  return !selections.empty() && std::ranges::all_of(selections, [&](const auto s) {
+    return size_t(s) < wadPaths.size();
+  });
 
   return true;
 }

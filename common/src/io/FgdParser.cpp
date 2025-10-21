@@ -235,9 +235,8 @@ std::filesystem::path FgdParser::currentRoot() const
 
 bool FgdParser::isRecursiveInclude(const std::filesystem::path& path) const
 {
-  return std::any_of(m_paths.begin(), m_paths.end(), [&](const auto& includedPath) {
-    return includedPath == path;
-  });
+  return std::ranges::any_of(
+    m_paths, [&](const auto& includedPath) { return includedPath == path; });
 }
 
 std::vector<EntityDefinitionClassInfo> FgdParser::parseClassInfos(ParserStatus& status)

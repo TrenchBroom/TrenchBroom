@@ -335,19 +335,17 @@ bool Entity::hasProperty(const std::string& key, const std::string& value) const
 bool Entity::hasPropertyWithPrefix(
   const std::string& prefix, const std::string& value) const
 {
-  return std::any_of(
-    std::begin(m_properties), std::end(m_properties), [&](const auto& property) {
-      return property.hasPrefixAndValue(prefix, value);
-    });
+  return std::ranges::any_of(m_properties, [&](const auto& property) {
+    return property.hasPrefixAndValue(prefix, value);
+  });
 }
 
 bool Entity::hasNumberedProperty(
   const std::string& prefix, const std::string& value) const
 {
-  return std::any_of(
-    std::begin(m_properties), std::end(m_properties), [&](const auto& property) {
-      return property.hasNumberedPrefixAndValue(prefix, value);
-    });
+  return std::ranges::any_of(m_properties, [&](const auto& property) {
+    return property.hasNumberedPrefixAndValue(prefix, value);
+  });
 }
 
 const std::string* Entity::property(const std::string& key) const

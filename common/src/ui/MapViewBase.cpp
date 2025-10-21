@@ -1267,10 +1267,8 @@ void MapViewBase::showPopupMenuLater()
   }
 
   const auto moveSelectionToItems = moveSelectionTo->actions();
-  moveSelectionTo->setEnabled(std::any_of(
-    std::begin(moveSelectionToItems),
-    std::end(moveSelectionToItems),
-    [](QAction* action) { return action->isEnabled(); }));
+  moveSelectionTo->setEnabled(std::ranges::any_of(
+    moveSelectionToItems, [](QAction* action) { return action->isEnabled(); }));
 
   if (selectedObjectLayers.size() == 1u)
   {
@@ -1625,9 +1623,8 @@ mdl::Node* MapViewBase::findNewParentEntityForBrushes(
 bool MapViewBase::canReparentNodes(
   const std::vector<mdl::Node*>& nodes, const mdl::Node* newParent) const
 {
-  return std::any_of(nodes.begin(), nodes.end(), [&](const auto* node) {
-    return canReparentNode(node, newParent);
-  });
+  return std::ranges::any_of(
+    nodes, [&](const auto* node) { return canReparentNode(node, newParent); });
 }
 
 /**
@@ -1711,7 +1708,7 @@ bool MapViewBase::canMakeStructural() const
   if (map.selection().hasOnlyBrushes())
   {
     const auto& brushes = map.selection().brushes;
-    return std::any_of(brushes.begin(), brushes.end(), [&](const auto* brush) {
+    return std::ranges::any_of(brushes, [&](const auto* brush) {
       return brush->hasAnyTag() || brush->entity() != map.world()
              || brush->anyFaceHasAnyTag();
     });

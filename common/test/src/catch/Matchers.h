@@ -179,8 +179,7 @@ public:
 
   bool match(const T& in) const override
   {
-    return std::any_of(
-      m_expected.begin(), m_expected.end(), [&](const auto& e) { return in == e; });
+    return std::ranges::any_of(m_expected, [&](const auto& e) { return in == e; });
   }
 
   std::string describe() const override
@@ -216,8 +215,7 @@ public:
 
   bool match(const T& in) const override
   {
-    return std::none_of(
-      m_expected.begin(), m_expected.end(), [&](const auto& e) { return in == e; });
+    return std::ranges::none_of(m_expected, [&](const auto& e) { return in == e; });
   }
 
   std::string describe() const override

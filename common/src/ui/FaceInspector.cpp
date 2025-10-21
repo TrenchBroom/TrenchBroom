@@ -38,6 +38,7 @@
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace tb::ui
@@ -173,10 +174,9 @@ void FaceInspector::materialSelected(const mdl::Material* material)
   {
     if (!faces.empty())
     {
-      const auto allFacesHaveMaterial =
-        std::all_of(faces.begin(), faces.end(), [&](const auto& faceHandle) {
-          return faceHandle.face().material() == material;
-        });
+      const auto allFacesHaveMaterial = std::ranges::all_of(
+        faces,
+        [&](const auto& faceHandle) { return faceHandle.face().material() == material; });
 
       const auto materialNameToSet = !allFacesHaveMaterial
                                        ? material->name()

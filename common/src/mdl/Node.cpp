@@ -32,6 +32,7 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iterator>
 #include <ranges>
@@ -163,9 +164,8 @@ bool Node::isAncestorOf(const Node* node) const
 
 bool Node::isAncestorOf(const std::vector<Node*>& nodes) const
 {
-  return std::any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) {
-    return isAncestorOf(node);
-  });
+  return std::ranges::any_of(
+    nodes, [this](const Node* node) { return isAncestorOf(node); });
 }
 
 bool Node::isDescendantOf(const Node* node) const
