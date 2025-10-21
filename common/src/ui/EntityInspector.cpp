@@ -67,7 +67,7 @@ void EntityInspector::createGui(MapDocument& document, GLContextManager& context
 
 QWidget* EntityInspector::createAttributeEditor(MapDocument& document, QWidget* parent)
 {
-  m_attributeEditor = new EntityPropertyEditor{document, parent};
+  m_attributeEditor = new EntityPropertyEditor{document.map(), parent};
   return m_attributeEditor;
 }
 
