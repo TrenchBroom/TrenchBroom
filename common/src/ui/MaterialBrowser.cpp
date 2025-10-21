@@ -111,7 +111,7 @@ void MaterialBrowser::createGui(GLContextManager& contextManager)
   auto* browserPanel = new QWidget{};
   m_scrollBar = new QScrollBar{Qt::Vertical};
 
-  m_view = new MaterialBrowserView{m_scrollBar, contextManager, m_document};
+  m_view = new MaterialBrowserView{m_scrollBar, contextManager, m_document.map()};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
