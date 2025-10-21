@@ -39,8 +39,6 @@ void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFl
 
 bool loadEntityDefinitionFile(
   MapDocument& document, QWidget* parent, const QString& path);
-size_t loadEntityDefinitionFile(
-  MapDocument& document, QWidget* parent, const QStringList& pathStrs);
 
 std::string queryGroupName(QWidget* parent, const std::string& suggestion);
 std::string queryLayerName(QWidget* parent, const std::string& suggestion);
