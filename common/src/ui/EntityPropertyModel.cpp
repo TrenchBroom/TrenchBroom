@@ -43,7 +43,6 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 
 #include "kdl/range_utils.h"
@@ -557,11 +556,11 @@ kdl_reflect_impl(PropertyRow);
 
 // EntityPropertyModel
 
-EntityPropertyModel::EntityPropertyModel(MapDocument& document, QObject* parent)
+EntityPropertyModel::EntityPropertyModel(mdl::Map& map, QObject* parent)
   : QAbstractTableModel{parent}
   , m_showDefaultRows{true}
   , m_shouldShowProtectedProperties{false}
-  , m_document{document}
+  , m_map{map}
 {
   updateFromMapDocument();
 }
@@ -670,8 +669,8 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
 
     MODEL_LOG(
       qDebug() << "EntityPropertyModel::setRows: one row changed: "
-               << mapStringToUnicode(map.encoding(), oldDeletion.key()) << " -> "
-               << mapStringToUnicode(map.encoding(), newAddition.key()));
+               << mapStringToUnicode(m_map.encoding(), oldDeletion.key()) << " -> "
+               << mapStringToUnicode(m_map.encoding(), newAddition.key()));
 
     const auto oldIndex = kdl::index_of(m_rows, oldDeletion);
     ensure(oldIndex, "deleted row must be found");
@@ -775,24 +774,24 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
   auto result = std::vector<std::string>{};
   if (index.column() == ColumnKey)
   {
-    result = getAllPropertyKeys(m_document.map());
+    result = getAllPropertyKeys(m_map);
   }
   else if (index.column() == ColumnValue)
   {
     switch (row.linkType())
     {
     case LinkType::Source:
-      result = getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkTarget>(
-        m_document.map());
+      result =
+        getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkTarget>(m_map);
       break;
     case LinkType::Target:
-      result = getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkSource>(
-        m_document.map());
+      result =
+        getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkSource>(m_map);
       break;
     case LinkType::None:
       if (row.key() == mdl::EntityPropertyKeys::Classname)
       {
-        result = getAllClassnames(m_document.map());
+        result = getAllClassnames(m_map);
       }
       break;
     }
@@ -830,8 +829,7 @@ void EntityPropertyModel::updateFromMapDocument()
 {
   MODEL_LOG(qDebug() << "updateFromMapDocument");
 
-  const auto& map = m_document.map();
-  const auto entityNodes = map.selection().allEntities();
+  const auto entityNodes = m_map.selection().allEntities();
   const auto rowsMap = rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
   setRows(rowsMap);
@@ -902,7 +900,6 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     return QVariant{};
   }
 
-  const auto& map = m_document.map();
   const auto& row = m_rows.at(static_cast<size_t>(index.row()));
 
   if (role == Qt::DecorationRole)
@@ -966,11 +963,11 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   {
     if (index.column() == ColumnKey)
     {
-      return QVariant{mapStringToUnicode(map.encoding(), row.key())};
+      return QVariant{mapStringToUnicode(m_map.encoding(), row.key())};
     }
     else if (index.column() == ColumnValue)
     {
-      return QVariant{mapStringToUnicode(map.encoding(), row.value())};
+      return QVariant{mapStringToUnicode(m_map.encoding(), row.value())};
     }
   }
 
@@ -1003,7 +1000,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     {
       if (!row.tooltip().empty())
       {
-        return QVariant{mapStringToUnicode(map.encoding(), row.tooltip())};
+        return QVariant{mapStringToUnicode(m_map.encoding(), row.tooltip())};
       }
     }
   }
@@ -1022,10 +1019,8 @@ bool EntityPropertyModel::setData(
     return false;
   }
 
-  const auto& map = m_document.map();
-
   const auto rowIndex = static_cast<size_t>(index.row());
-  const auto nodes = map.selection().allEntities();
+  const auto nodes = m_map.selection().allEntities();
   if (nodes.empty())
   {
     return false;
@@ -1036,10 +1031,10 @@ bool EntityPropertyModel::setData(
     // rename key
     MODEL_LOG(
       qDebug() << "tried to rename "
-               << mapStringToUnicode(map.encoding(), propertyRow.key()) << " to "
+               << mapStringToUnicode(m_map.encoding(), propertyRow.key()) << " to "
                << value.toString());
 
-    const auto newName = mapStringFromUnicode(map.encoding(), value.toString());
+    const auto newName = mapStringFromUnicode(m_map.encoding(), value.toString());
     if (renameProperty(rowIndex, newName, nodes))
     {
       return true;
@@ -1052,7 +1047,7 @@ bool EntityPropertyModel::setData(
                << " to " << value.toString());
 
     if (updateProperty(
-          rowIndex, mapStringFromUnicode(map.encoding(), value.toString()), nodes))
+          rowIndex, mapStringFromUnicode(m_map.encoding(), value.toString()), nodes))
     {
       return true;
     }
@@ -1063,7 +1058,7 @@ bool EntityPropertyModel::setData(
     {
       MODEL_LOG(
         qDebug() << "tried to set "
-                 << mapStringToUnicode(map.encoding(), propertyRow.key())
+                 << mapStringToUnicode(m_map.encoding(), propertyRow.key())
                  << " to protected");
       setProtectedProperty(rowIndex, true);
     }
@@ -1071,7 +1066,7 @@ bool EntityPropertyModel::setData(
     {
       MODEL_LOG(
         qDebug() << "tried to set "
-                 << mapStringToUnicode(map.encoding(), propertyRow.key())
+                 << mapStringToUnicode(m_map.encoding(), propertyRow.key())
                  << " to non protected");
       setProtectedProperty(rowIndex, false);
     }
@@ -1142,7 +1137,6 @@ bool EntityPropertyModel::renameProperty(
 {
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
-  auto& map = m_document.map();
   const auto& row = m_rows.at(rowIndex);
   const auto& oldKey = row.key();
 
@@ -1171,7 +1165,7 @@ bool EntityPropertyModel::renameProperty(
     msgBox.setWindowTitle(tr("Error"));
     msgBox.setText(
       tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
-        .arg(mapStringToUnicode(map.encoding(), newKey)));
+        .arg(mapStringToUnicode(m_map.encoding(), newKey)));
     msgBox.setIcon(QMessageBox::Critical);
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     if (msgBox.exec() == QMessageBox::No)
@@ -1180,7 +1174,7 @@ bool EntityPropertyModel::renameProperty(
     }
   }
 
-  return renameEntityProperty(map, oldKey, newKey);
+  return renameEntityProperty(m_map, oldKey, newKey);
 }
 
 bool EntityPropertyModel::updateProperty(
@@ -1216,8 +1210,7 @@ bool EntityPropertyModel::updateProperty(
     return true;
   }
 
-  auto& map = m_document.map();
-  return setEntityProperty(map, key, newValue);
+  return setEntityProperty(m_map, key, newValue);
 }
 
 bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool newValue)
@@ -1225,8 +1218,7 @@ bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
   const auto& key = m_rows.at(rowIndex).key();
-  auto& map = m_document.map();
-  return setProtectedEntityProperty(map, key, newValue);
+  return setProtectedEntityProperty(m_map, key, newValue);
 }
 
 bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const

@@ -37,13 +37,12 @@ class Node;
 
 namespace tb::ui
 {
-class MapDocument;
 
 class MaterialCollectionEditor : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   QListWidget* m_availableCollectionsList = nullptr;
   QListWidget* m_enabledCollectionsList = nullptr;
@@ -55,7 +54,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MaterialCollectionEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit MaterialCollectionEditor(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   void addSelectedMaterialCollections();

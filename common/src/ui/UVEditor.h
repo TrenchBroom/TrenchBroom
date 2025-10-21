@@ -29,20 +29,21 @@ class QAbstractButton;
 
 namespace tb::mdl
 {
+class Map;
+
 struct SelectionChange;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
 class GLContextManager;
-class MapDocument;
 class UVView;
 
 class UVEditor : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   UVView* m_uvView = nullptr;
   QSpinBox* m_xSubDivisionEditor = nullptr;
@@ -59,7 +60,7 @@ private:
 
 public:
   explicit UVEditor(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 

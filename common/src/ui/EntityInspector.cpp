@@ -24,7 +24,6 @@
 #include "ui/EntityBrowser.h"
 #include "ui/EntityDefinitionFileChooser.h"
 #include "ui/EntityPropertyEditor.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
@@ -33,10 +32,10 @@ namespace tb::ui
 {
 
 EntityInspector::EntityInspector(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
 {
-  createGui(document, contextManager);
+  createGui(map, contextManager);
 }
 
 EntityInspector::~EntityInspector()
@@ -44,13 +43,13 @@ EntityInspector::~EntityInspector()
   saveWindowState(m_splitter);
 }
 
-void EntityInspector::createGui(MapDocument& document, GLContextManager& contextManager)
+void EntityInspector::createGui(mdl::Map& map, GLContextManager& contextManager)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
 
-  m_splitter->addWidget(createAttributeEditor(m_splitter, document));
-  m_splitter->addWidget(createEntityBrowser(m_splitter, document, contextManager));
+  m_splitter->addWidget(createAttributeEditor(map, m_splitter));
+  m_splitter->addWidget(createEntityBrowser(map, contextManager, m_splitter));
 
   // when the window resizes, keep the attribute editor size constant
   m_splitter->setStretchFactor(0, 0);
@@ -65,26 +64,26 @@ void EntityInspector::createGui(MapDocument& document, GLContextManager& context
   restoreWindowState(m_splitter);
 }
 
-QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocument& document)
+QWidget* EntityInspector::createAttributeEditor(mdl::Map& map, QWidget* parent)
 {
-  m_attributeEditor = new EntityPropertyEditor{document, parent};
+  m_attributeEditor = new EntityPropertyEditor{map, parent};
   return m_attributeEditor;
 }
 
 QWidget* EntityInspector::createEntityBrowser(
-  QWidget* parent, MapDocument& document, GLContextManager& contextManager)
+  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
 {
   auto* panel = new SwitchableTitledPanel{
     tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};
 
-  m_entityBrowser = new EntityBrowser{document, contextManager};
+  m_entityBrowser = new EntityBrowser{map, contextManager};
 
   auto* entityBrowserLayout = new QVBoxLayout{};
   entityBrowserLayout->setContentsMargins(0, 0, 0, 0);
   entityBrowserLayout->addWidget(m_entityBrowser, 1);
   panel->getPanel(0)->setLayout(entityBrowserLayout);
 
-  auto* entityDefinitionFileEditor = new EntityDefinitionFileChooser{document};
+  auto* entityDefinitionFileEditor = new EntityDefinitionFileChooser{map};
 
   auto* entityDefinitionFileEditorLayout = new QVBoxLayout{};
   entityDefinitionFileEditorLayout->setContentsMargins(0, 0, 0, 0);

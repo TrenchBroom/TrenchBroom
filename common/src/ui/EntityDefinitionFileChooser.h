@@ -35,8 +35,6 @@ class Map;
 namespace tb::ui
 {
 
-class MapDocument;
-
 class SingleSelectionListWidget : public QListWidget
 {
   Q_OBJECT
@@ -59,7 +57,7 @@ class EntityDefinitionFileChooser : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   SingleSelectionListWidget* m_builtin = nullptr;
   QLabel* m_externalLabel = nullptr;
@@ -69,7 +67,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityDefinitionFileChooser(MapDocument& document, QWidget* parent = nullptr);
+  explicit EntityDefinitionFileChooser(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   void createGui();

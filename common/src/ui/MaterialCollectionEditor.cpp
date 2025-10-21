@@ -31,7 +31,6 @@
 #include "mdl/Node.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
@@ -43,9 +42,9 @@
 namespace tb::ui
 {
 
-MaterialCollectionEditor::MaterialCollectionEditor(MapDocument& document, QWidget* parent)
+MaterialCollectionEditor::MaterialCollectionEditor(mdl::Map& map, QWidget* parent)
   : QWidget{parent}
-  , m_document{document}
+  , m_map{map}
 {
   createGui();
   connectObservers();
@@ -66,7 +65,7 @@ void MaterialCollectionEditor::addSelectedMaterialCollections()
 
   enabledCollections = kdl::vec_sort_and_remove_duplicates(std::move(enabledCollections));
 
-  setEnabledMaterialCollections(m_document.map(), enabledCollections);
+  setEnabledMaterialCollections(m_map, enabledCollections);
 }
 
 void MaterialCollectionEditor::removeSelectedMaterialCollections()
@@ -87,12 +86,12 @@ void MaterialCollectionEditor::removeSelectedMaterialCollections()
     enabledCollections = kdl::vec_erase_at(std::move(enabledCollections), index);
   }
 
-  setEnabledMaterialCollections(m_document.map(), enabledCollections);
+  setEnabledMaterialCollections(m_map, enabledCollections);
 }
 
 void MaterialCollectionEditor::reloadMaterialCollections()
 {
-  mdl::reloadMaterialCollections(m_document.map());
+  mdl::reloadMaterialCollections(m_map);
 }
 
 void MaterialCollectionEditor::availableMaterialCollectionSelectionChanged()
@@ -225,17 +224,16 @@ void MaterialCollectionEditor::updateButtons()
 
 void MaterialCollectionEditor::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &MaterialCollectionEditor::mapWasCreated);
+    m_map.mapWasCreatedNotifier.connect(this, &MaterialCollectionEditor::mapWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &MaterialCollectionEditor::mapWasLoaded);
+    m_map.mapWasLoadedNotifier.connect(this, &MaterialCollectionEditor::mapWasLoaded);
   m_notifierConnection +=
-    map.nodesDidChangeNotifier.connect(this, &MaterialCollectionEditor::nodesDidChange);
-  m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
+    m_map.nodesDidChangeNotifier.connect(this, &MaterialCollectionEditor::nodesDidChange);
+  m_notifierConnection += m_map.materialCollectionsDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::materialCollectionsDidChange);
   m_notifierConnection +=
-    map.modsDidChangeNotifier.connect(this, &MaterialCollectionEditor::modsDidChange);
+    m_map.modsDidChangeNotifier.connect(this, &MaterialCollectionEditor::modsDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
@@ -256,8 +254,7 @@ void MaterialCollectionEditor::mapWasLoaded(mdl::Map&)
 
 void MaterialCollectionEditor::nodesDidChange(const std::vector<mdl::Node*>& nodes)
 {
-  const auto& map = m_document.map();
-  if (kdl::vec_contains(nodes, map.world()))
+  if (kdl::vec_contains(nodes, m_map.world()))
   {
     updateAllMaterialCollections();
     updateButtons();
@@ -278,8 +275,7 @@ void MaterialCollectionEditor::modsDidChange()
 
 void MaterialCollectionEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  const auto& map = m_document.map();
-  if (map.game()->isGamePathPreference(path))
+  if (m_map.game()->isGamePathPreference(path))
   {
     updateAllMaterialCollections();
     updateButtons();
@@ -325,13 +321,13 @@ void MaterialCollectionEditor::updateEnabledMaterialCollections()
 std::vector<std::filesystem::path> MaterialCollectionEditor::
   availableMaterialCollections() const
 {
-  return disabledMaterialCollections(m_document.map());
+  return disabledMaterialCollections(m_map);
 }
 
 std::vector<std::filesystem::path> MaterialCollectionEditor::enabledMaterialCollections()
   const
 {
-  return mdl::enabledMaterialCollections(m_document.map());
+  return mdl::enabledMaterialCollections(m_map);
 }
 
 } // namespace tb::ui

@@ -105,8 +105,8 @@ std::vector<QColor> collectColors(
 
 } // namespace
 
-SmartColorEditor::SmartColorEditor(MapDocument& document, QWidget* parent)
-  : SmartPropertyEditor{document, parent}
+SmartColorEditor::SmartColorEditor(mdl::Map& map, QWidget* parent)
+  : SmartPropertyEditor{map, parent}
 {
   createGui();
 }

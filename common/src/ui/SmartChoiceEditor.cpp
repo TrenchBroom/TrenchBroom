@@ -39,8 +39,8 @@
 namespace tb::ui
 {
 
-SmartChoiceEditor::SmartChoiceEditor(MapDocument& document, QWidget* parent)
-  : SmartPropertyEditor{document, parent}
+SmartChoiceEditor::SmartChoiceEditor(mdl::Map& map, QWidget* parent)
+  : SmartPropertyEditor{map, parent}
 {
   createGui();
 }

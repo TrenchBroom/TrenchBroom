@@ -51,7 +51,6 @@ class RenderContext;
 
 namespace tb::ui
 {
-class MapDocument;
 class UVRotateTool;
 class UVOriginTool;
 class UVScaleTool;
@@ -71,7 +70,7 @@ public:
   static const mdl::HitType::Type FaceHitType;
 
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   render::OrthographicCamera m_camera;
   UVViewHelper m_helper;
@@ -81,7 +80,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  UVView(MapDocument& document, GLContextManager& contextManager);
+  UVView(mdl::Map& map, GLContextManager& contextManager);
 
   void setSubDivisions(const vm::vec2i& subDivisions);
 

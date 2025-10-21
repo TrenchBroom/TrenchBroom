@@ -39,8 +39,8 @@
 namespace tb::ui
 {
 
-SmartFlagsEditor::SmartFlagsEditor(MapDocument& document, QWidget* parent)
-  : SmartPropertyEditor{document, parent}
+SmartFlagsEditor::SmartFlagsEditor(mdl::Map& map, QWidget* parent)
+  : SmartPropertyEditor{map, parent}
 {
   createGui();
 }

@@ -28,6 +28,7 @@ class QPushButton;
 namespace tb::mdl
 {
 class BrushFaceHandle;
+class Map;
 class Material;
 } // namespace tb::mdl
 
@@ -35,14 +36,13 @@ namespace tb::ui
 {
 
 class GLContextManager;
-class MapDocument;
 class MaterialBrowser;
 
 class ReplaceMaterialDialog : public QDialog
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   MaterialBrowser* m_subjectBrowser = nullptr;
   MaterialBrowser* m_replacementBrowser = nullptr;
@@ -50,7 +50,7 @@ private:
 
 public:
   ReplaceMaterialDialog(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
 
 private:
   void accept() override;

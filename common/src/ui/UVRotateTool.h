@@ -27,8 +27,9 @@
 
 namespace tb::mdl
 {
+class Map;
 class PickResult;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -39,7 +40,6 @@ class RenderContext;
 namespace tb::ui
 {
 class GestureTracker;
-class MapDocument;
 class UVViewHelper;
 
 class UVRotateTool : public ToolController, public Tool
@@ -48,11 +48,11 @@ public:
   static const mdl::HitType::Type AngleHandleHitType;
 
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   UVViewHelper& m_helper;
 
 public:
-  UVRotateTool(MapDocument& document, UVViewHelper& helper);
+  UVRotateTool(mdl::Map& map, UVViewHelper& helper);
 
 private:
   Tool& tool() override;

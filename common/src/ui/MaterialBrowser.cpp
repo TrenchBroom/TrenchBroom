@@ -32,7 +32,6 @@
 #include "mdl/Map.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
-#include "ui/MapDocument.h"
 #include "ui/MaterialBrowserView.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
@@ -44,9 +43,9 @@ namespace tb::ui
 {
 
 MaterialBrowser::MaterialBrowser(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{document}
+  , m_map{map}
 {
   createGui(contextManager);
   bindEvents();
@@ -111,7 +110,7 @@ void MaterialBrowser::createGui(GLContextManager& contextManager)
   auto* browserPanel = new QWidget{};
   m_scrollBar = new QScrollBar{Qt::Vertical};
 
-  m_view = new MaterialBrowserView{m_scrollBar, contextManager, m_document};
+  m_view = new MaterialBrowserView{m_scrollBar, contextManager, m_map};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
@@ -183,22 +182,21 @@ void MaterialBrowser::bindEvents()
 
 void MaterialBrowser::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &MaterialBrowser::mapWasCreated);
+    m_map.mapWasCreatedNotifier.connect(this, &MaterialBrowser::mapWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &MaterialBrowser::mapWasLoaded);
+    m_map.mapWasLoadedNotifier.connect(this, &MaterialBrowser::mapWasLoaded);
   m_notifierConnection +=
-    map.nodesWereAddedNotifier.connect(this, &MaterialBrowser::nodesWereAdded);
+    m_map.nodesWereAddedNotifier.connect(this, &MaterialBrowser::nodesWereAdded);
   m_notifierConnection +=
-    map.nodesWereRemovedNotifier.connect(this, &MaterialBrowser::nodesWereRemoved);
+    m_map.nodesWereRemovedNotifier.connect(this, &MaterialBrowser::nodesWereRemoved);
   m_notifierConnection +=
-    map.nodesDidChangeNotifier.connect(this, &MaterialBrowser::nodesDidChange);
-  m_notifierConnection +=
-    map.brushFacesDidChangeNotifier.connect(this, &MaterialBrowser::brushFacesDidChange);
-  m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
+    m_map.nodesDidChangeNotifier.connect(this, &MaterialBrowser::nodesDidChange);
+  m_notifierConnection += m_map.brushFacesDidChangeNotifier.connect(
+    this, &MaterialBrowser::brushFacesDidChange);
+  m_notifierConnection += m_map.materialCollectionsDidChangeNotifier.connect(
     this, &MaterialBrowser::materialCollectionsDidChange);
-  m_notifierConnection += map.currentMaterialNameDidChangeNotifier.connect(
+  m_notifierConnection += m_map.currentMaterialNameDidChangeNotifier.connect(
     this, &MaterialBrowser::currentMaterialNameDidChange);
 
   auto& prefs = PreferenceManager::instance();
@@ -248,10 +246,9 @@ void MaterialBrowser::currentMaterialNameDidChange(const std::string& /* materia
 
 void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  auto& map = m_document.map();
   if (
     path == Preferences::MaterialBrowserIconSize.path()
-    || map.game()->isGamePathPreference(path))
+    || m_map.game()->isGamePathPreference(path))
   {
     reload();
   }
@@ -273,9 +270,8 @@ void MaterialBrowser::reload()
 
 void MaterialBrowser::updateSelectedMaterial()
 {
-  auto& map = m_document.map();
-  const auto& materialName = map.currentMaterialName();
-  const auto* material = map.materialManager().material(materialName);
+  const auto& materialName = m_map.currentMaterialName();
+  const auto* material = m_map.materialManager().material(materialName);
   m_view->setSelectedMaterial(material);
 }
 

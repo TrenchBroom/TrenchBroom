@@ -44,7 +44,6 @@ namespace tb::ui
 {
 class EntityPropertyModel;
 class EntityPropertyTable;
-class MapDocument;
 
 struct PropertyGridSelection
 {
@@ -60,7 +59,7 @@ class EntityPropertyGrid : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
   EntityPropertyModel* m_model;
   QSortFilterProxyModel* m_proxyModel;
@@ -75,7 +74,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityPropertyGrid(MapDocument& document, QWidget* parent = nullptr);
+  explicit EntityPropertyGrid(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   void backupSelection();
@@ -89,7 +88,7 @@ private:
   std::vector<int> selectedRowsAndCursorRow() const;
 
 private:
-  void createGui(MapDocument& document);
+  void createGui();
 
   void connectObservers();
 

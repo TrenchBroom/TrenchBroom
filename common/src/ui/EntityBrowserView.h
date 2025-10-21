@@ -39,10 +39,13 @@ class Logger;
 
 namespace tb::mdl
 {
-struct EntityDefinition;
+class Map;
+class ResourceId;
+
 enum class EntityDefinitionSortOrder;
 enum class Orientation;
-class ResourceId;
+
+struct EntityDefinition;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -54,7 +57,6 @@ class Transformation;
 
 namespace tb::ui
 {
-class MapDocument;
 
 using EntityGroupData = std::string;
 
@@ -83,7 +85,7 @@ private:
   static constexpr auto CameraDirection = vm::vec3f{-1, 0, 0};
   static constexpr auto CameraUp = vm::vec3f{0, 0, 1};
 
-  MapDocument& m_document;
+  mdl::Map& m_map;
   std::optional<el::ExpressionNode> m_defaultScaleModelExpression;
   vm::quatf m_rotation;
 
@@ -96,7 +98,7 @@ private:
 
 public:
   EntityBrowserView(
-    QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document);
+    QScrollBar* scrollBar, GLContextManager& contextManager, mdl::Map& map);
   ~EntityBrowserView() override;
 
 public:

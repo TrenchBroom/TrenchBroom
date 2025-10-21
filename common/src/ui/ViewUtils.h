@@ -31,16 +31,18 @@ namespace tb
 class Logger;
 }
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 class MapDocument;
 
 void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
-bool loadEntityDefinitionFile(
-  MapDocument& document, QWidget* parent, const QString& path);
-size_t loadEntityDefinitionFile(
-  MapDocument& document, QWidget* parent, const QStringList& pathStrs);
+bool loadEntityDefinitionFile(tb::mdl::Map& map, QWidget* parent, const QString& path);
 
 std::string queryGroupName(QWidget* parent, const std::string& suggestion);
 std::string queryLayerName(QWidget* parent, const std::string& suggestion);

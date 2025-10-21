@@ -24,9 +24,8 @@
 namespace tb::ui
 {
 
-SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(
-  MapDocument& document, QWidget* parent)
-  : SmartPropertyEditor{document, parent}
+SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(mdl::Map& map, QWidget* parent)
+  : SmartPropertyEditor{map, parent}
 {
 }
 

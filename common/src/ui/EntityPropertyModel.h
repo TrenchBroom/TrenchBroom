@@ -28,14 +28,16 @@
 #include <string>
 #include <vector>
 
+class QObject;
+
 namespace tb::mdl
 {
 class EntityNodeBase;
-}
+class Map;
+} // namespace tb::mdl
 
 namespace tb::ui
 {
-class MapDocument;
 
 enum class ValueState
 {
@@ -160,10 +162,10 @@ private:
   std::vector<PropertyRow> m_rows;
   bool m_showDefaultRows;
   bool m_shouldShowProtectedProperties;
-  MapDocument& m_document;
+  mdl::Map& m_map;
 
 public:
-  explicit EntityPropertyModel(MapDocument& document, QObject* parent);
+  explicit EntityPropertyModel(mdl::Map& map, QObject* parent);
 
   bool showDefaultRows() const;
   void setShowDefaultRows(bool showDefaultRows);

@@ -58,45 +58,28 @@ void combineFlags(
   }
 }
 
-bool loadEntityDefinitionFile(MapDocument& document, QWidget* parent, const QString& path)
+bool loadEntityDefinitionFile(mdl::Map& map, QWidget* parent, const QString& pathStr)
 {
-  return loadEntityDefinitionFile(document, parent, QStringList{path}) == 0;
-}
-
-size_t loadEntityDefinitionFile(
-  MapDocument& document, QWidget* parent, const QStringList& pathStrs)
-{
-  if (pathStrs.empty())
-  {
-    return 0;
-  }
-
-  auto& map = document.map();
   const auto& game = *map.game();
   const auto& gameFactory = mdl::GameFactory::instance();
   const auto gamePath = gameFactory.gamePath(game.config().name);
   const auto docPath = map.path();
 
-  for (int i = 0; i < pathStrs.size(); ++i)
+  const auto absPath = io::pathFromQString(pathStr);
+  if (game.isEntityDefinitionFile(absPath))
   {
-    const auto& pathStr = pathStrs[i];
-    const auto absPath = io::pathFromQString(pathStr);
-    if (game.isEntityDefinitionFile(absPath))
+    auto pathDialog = ChoosePathTypeDialog{parent->window(), absPath, docPath, gamePath};
+    if (pathDialog.exec() == QDialog::Accepted)
     {
-      auto pathDialog =
-        ChoosePathTypeDialog{parent->window(), absPath, docPath, gamePath};
-      if (pathDialog.exec() == QDialog::Accepted)
-      {
-        const auto path =
-          convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
-        const auto spec = mdl::EntityDefinitionFileSpec::makeExternal(path);
-        setEntityDefinitionFile(map, spec);
-        return static_cast<size_t>(i);
-      }
+      const auto path =
+        convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
+      const auto spec = mdl::EntityDefinitionFileSpec::makeExternal(path);
+      setEntityDefinitionFile(map, spec);
+      return true;
     }
   }
 
-  return static_cast<size_t>(pathStrs.size());
+  return false;
 }
 
 static std::string queryObjectName(

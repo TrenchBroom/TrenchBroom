@@ -42,7 +42,6 @@ class Node;
 namespace tb::ui
 {
 class CollapsibleTitledPanel;
-class MapDocument;
 
 class MapInspector : public TabBookPage
 {
@@ -52,14 +51,14 @@ private:
   CollapsibleTitledPanel* m_modEditor = nullptr;
 
 public:
-  explicit MapInspector(MapDocument& document, QWidget* parent = nullptr);
+  explicit MapInspector(mdl::Map& map, QWidget* parent = nullptr);
   ~MapInspector() override;
 
 private:
-  void createGui(MapDocument& document);
-  QWidget* createLayerEditor(MapDocument& document);
-  CollapsibleTitledPanel* createMapPropertiesEditor(MapDocument& document);
-  CollapsibleTitledPanel* createModEditor(MapDocument& document);
+  void createGui(mdl::Map& map);
+  QWidget* createLayerEditor(mdl::Map& map);
+  CollapsibleTitledPanel* createMapPropertiesEditor(mdl::Map& map);
+  CollapsibleTitledPanel* createModEditor(mdl::Map& map);
 };
 
 /**
@@ -69,7 +68,7 @@ class MapPropertiesEditor : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   bool m_updatingGui = false;
 
   QRadioButton* m_softBoundsDisabled = nullptr;
@@ -83,7 +82,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapPropertiesEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit MapPropertiesEditor(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   std::optional<vm::bbox3d> parseLineEdits();

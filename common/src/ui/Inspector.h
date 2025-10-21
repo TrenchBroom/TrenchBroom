@@ -21,12 +21,16 @@
 
 #include <QWidget>
 
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 class FaceInspector;
 class EntityInspector;
 class GLContextManager;
-class MapDocument;
 class MapInspector;
 class MapViewBar;
 class SyncHeightEventFilter;
@@ -51,8 +55,7 @@ private:
   SyncHeightEventFilter* m_syncTabBarEventFilter = nullptr;
 
 public:
-  Inspector(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+  Inspector(mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
   void connectTopWidgets(MapViewBar* mapViewBar);
   void switchToPage(InspectorPage page);
   bool cancelMouseDrag();
