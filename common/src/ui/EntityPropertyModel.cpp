@@ -115,7 +115,7 @@ bool isPropertyProtectable(const mdl::EntityNodeBase& entityNode, const std::str
   return mdl::findContainingGroup(&entityNode) && key != mdl::EntityPropertyKeys::Origin;
 }
 
-PropertyProtection isPropertyProtected(
+PropertyProtection getPropertyProtection(
   const mdl::EntityNodeBase& entityNode, const std::string& key)
 {
   if (isPropertyProtectable(entityNode, key))
@@ -132,28 +132,110 @@ PropertyProtection isPropertyProtected(
   return PropertyProtection::NotProtectable;
 }
 
-LinkType getLinkType(const mdl::EntityNodeBase& entityNode, const std::string& key)
+LinkType getLinkType(const mdl::Entity& entity, const std::string& key)
 {
-  return mdl::isLinkSourceProperty(entityNode.entity().definition(), key)
-           ? LinkType::Source
-         : mdl::isLinkTargetProperty(entityNode.entity().definition(), key)
-           ? LinkType::Target
-           : LinkType::None;
+  return mdl::isLinkSourceProperty(entity.definition(), key)   ? LinkType::Source
+         : mdl::isLinkTargetProperty(entity.definition(), key) ? LinkType::Target
+                                                               : LinkType::None;
 }
 
-PropertyRow rowForEntityNodes(
-  const std::string& key, const std::vector<mdl::EntityNodeBase*>& nodes)
+PropertyRow makeRow(std::string key, const mdl::EntityNodeBase& entityNode)
 {
-  ensure(!nodes.empty(), "rowForEntityNodes requries a non-empty node list");
+  auto row = PropertyRow{};
+  row.key = std::move(key);
+
+  const auto& entity = entityNode.entity();
+  const auto* definition = mdl::propertyDefinition(&entityNode, row.key);
+
+  if (const auto* value = entity.property(row.key))
+  {
+    row.value = *value;
+    row.valueState = ValueState::SingleValue;
+  }
+  else if (definition)
+  {
+    row.value = mdl::PropertyDefinition::defaultValue(*definition).value_or("");
+  }
+
+  row.keyMutable = isPropertyKeyMutable(entity, row.key);
+  row.valueMutable = isPropertyValueMutable(entity, row.key);
+  row.protection = getPropertyProtection(entityNode, row.key);
+  row.linkType = getLinkType(entity, row.key);
+  row.tooltip = definition ? definition->shortDescription : "No description found";
+
+  return row;
+}
+
+PropertyRow mergeRows(PropertyRow row, const mdl::EntityNodeBase& entityNode)
+{
+  const auto& entity = entityNode.entity();
+  const auto* value = entity.property(row.key);
+
+  // State transitions
+  if (row.valueState == ValueState::Unset)
+  {
+    if (value)
+    {
+      row.valueState = ValueState::SingleValueAndUnset;
+      row.value = *value;
+    }
+  }
+  else if (row.valueState == ValueState::SingleValue)
+  {
+    if (!value)
+    {
+      row.valueState = ValueState::SingleValueAndUnset;
+    }
+    else if (*value != row.value)
+    {
+      row.value = "multi";
+      row.valueState = ValueState::MultipleValues;
+    }
+  }
+  else if (row.valueState == ValueState::SingleValueAndUnset)
+  {
+    if (value && *value != row.value)
+    {
+      row.value = "multi";
+      row.valueState = ValueState::MultipleValues;
+    }
+  }
+
+  row.keyMutable = row.keyMutable && isPropertyKeyMutable(entity, row.key);
+  row.valueMutable = row.valueMutable && isPropertyValueMutable(entity, row.key);
+
+  const auto protection = getPropertyProtection(entityNode, row.key);
+  if (row.protection != protection)
+  {
+    if (
+      row.protection == PropertyProtection::NotProtectable
+      || protection == PropertyProtection::NotProtectable)
+    {
+      row.protection = PropertyProtection::NotProtectable;
+    }
+    else
+    {
+      row.protection = PropertyProtection::Mixed;
+    }
+  }
+
+  if (row.linkType == LinkType::None)
+  {
+    row.linkType = getLinkType(entity, row.key);
+  }
+
+  return row;
+}
+
+PropertyRow makeRow(std::string key, const std::vector<mdl::EntityNodeBase*>& entityNodes)
+{
+  ensure(!entityNodes.empty(), "entityNodes contains at least one node");
 
   return std::accumulate(
-    std::next(nodes.begin()),
-    nodes.end(),
-    PropertyRow{key, nodes.front()},
-    [](PropertyRow lhs, const mdl::EntityNodeBase* rhs) {
-      lhs.merge(rhs);
-      return lhs;
-    });
+    std::next(entityNodes.begin()),
+    entityNodes.end(),
+    makeRow(std::move(key), *entityNodes.front()),
+    [](auto lhs, const auto* rhs) { return mergeRows(std::move(lhs), *rhs); });
 }
 
 std::vector<std::string> allKeys(
@@ -196,14 +278,14 @@ std::vector<std::string> allKeys(
 }
 
 std::map<std::string, PropertyRow> rowsForEntityNodes(
-  const std::vector<mdl::EntityNodeBase*>& nodes,
+  const std::vector<mdl::EntityNodeBase*>& entityNodes,
   const bool showDefaultRows,
   const bool showProtectedProperties)
 {
   auto result = std::map<std::string, PropertyRow>{};
-  for (const auto& key : allKeys(nodes, showDefaultRows, showProtectedProperties))
+  for (const auto& key : allKeys(entityNodes, showDefaultRows, showProtectedProperties))
   {
-    result[key] = rowForEntityNodes(key, nodes);
+    result[key] = makeRow(key, entityNodes);
   }
   return result;
 }
@@ -401,157 +483,6 @@ std::string newPropertyKeyForEntityNodes(const std::vector<mdl::EntityNodeBase*>
   // unreachable
 }
 
-PropertyRow::PropertyRow()
-  : m_valueState{ValueState::Unset}
-  , m_keyMutable{true}
-  , m_valueMutable{true}
-  , m_protected{PropertyProtection::NotProtectable}
-  , m_linkType{LinkType::None}
-{
-}
-
-PropertyRow::PropertyRow(std::string key, const mdl::EntityNodeBase* node)
-  : m_key{std::move(key)}
-{
-  const auto* definition = mdl::propertyDefinition(node, m_key);
-
-  if (const auto* value = node->entity().property(m_key))
-  {
-    m_value = *value;
-    m_valueState = ValueState::SingleValue;
-  }
-  else if (definition)
-  {
-    m_value = mdl::PropertyDefinition::defaultValue(*definition).value_or("");
-    m_valueState = ValueState::Unset;
-  }
-  else
-  {
-    // this is the case when the key is coming from another entity
-    m_valueState = ValueState::Unset;
-  }
-
-  m_keyMutable = isPropertyKeyMutable(node->entity(), m_key);
-  m_valueMutable = isPropertyValueMutable(node->entity(), m_key);
-  m_protected = isPropertyProtected(*node, m_key);
-  m_linkType = getLinkType(*node, m_key);
-  m_tooltip = (definition ? definition->shortDescription : "");
-  if (m_tooltip.empty())
-  {
-    m_tooltip = "No description found";
-  }
-}
-
-void PropertyRow::merge(const mdl::EntityNodeBase* other)
-{
-  const auto* otherValue = other->entity().property(m_key);
-
-  // State transitions
-  if (m_valueState == ValueState::Unset)
-  {
-    if (otherValue)
-    {
-      m_valueState = ValueState::SingleValueAndUnset;
-      m_value = *otherValue;
-    }
-  }
-  else if (m_valueState == ValueState::SingleValue)
-  {
-    if (!otherValue)
-    {
-      m_valueState = ValueState::SingleValueAndUnset;
-    }
-    else if (*otherValue != m_value)
-    {
-      m_valueState = ValueState::MultipleValues;
-    }
-  }
-  else if (m_valueState == ValueState::SingleValueAndUnset)
-  {
-    if (otherValue && *otherValue != m_value)
-    {
-      m_valueState = ValueState::MultipleValues;
-    }
-  }
-
-  m_keyMutable = (m_keyMutable && isPropertyKeyMutable(other->entity(), m_key));
-  m_valueMutable = (m_valueMutable && isPropertyValueMutable(other->entity(), m_key));
-
-  const auto otherProtected = isPropertyProtected(*other, m_key);
-  if (m_protected != otherProtected)
-  {
-    if (
-      m_protected == PropertyProtection::NotProtectable
-      || otherProtected == PropertyProtection::NotProtectable)
-    {
-      m_protected = PropertyProtection::NotProtectable;
-    }
-    else
-    {
-      m_protected = PropertyProtection::Mixed;
-    }
-  }
-
-  if (m_linkType == LinkType::None)
-  {
-    m_linkType = getLinkType(*other, m_key);
-  }
-}
-
-const std::string& PropertyRow::key() const
-{
-  return m_key;
-}
-
-std::string PropertyRow::value() const
-{
-  if (m_valueState == ValueState::MultipleValues)
-  {
-    return "multi";
-  }
-  return m_value;
-}
-
-bool PropertyRow::keyMutable() const
-{
-  return m_keyMutable;
-}
-
-bool PropertyRow::valueMutable() const
-{
-  return m_valueMutable;
-}
-
-PropertyProtection PropertyRow::isProtected() const
-{
-  return m_protected;
-}
-
-LinkType PropertyRow::linkType() const
-{
-  return m_linkType;
-}
-
-const std::string& PropertyRow::tooltip() const
-{
-  return m_tooltip;
-}
-
-bool PropertyRow::isDefault() const
-{
-  return m_valueState == ValueState::Unset;
-}
-
-bool PropertyRow::multi() const
-{
-  return m_valueState == ValueState::MultipleValues;
-}
-
-bool PropertyRow::subset() const
-{
-  return m_valueState == ValueState::SingleValueAndUnset;
-}
-
 kdl_reflect_impl(PropertyRow);
 
 // EntityPropertyModel
@@ -570,7 +501,7 @@ static auto makeKeyToPropertyRowMap(const std::vector<PropertyRow>& rows)
   auto result = std::map<std::string, PropertyRow>{};
   for (const auto& row : rows)
   {
-    result[row.key()] = row;
+    result[row.key] = row;
   }
   return result;
 }
@@ -669,8 +600,8 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
 
     MODEL_LOG(
       qDebug() << "EntityPropertyModel::setRows: one row changed: "
-               << mapStringToUnicode(m_map.encoding(), oldDeletion.key()) << " -> "
-               << mapStringToUnicode(m_map.encoding(), newAddition.key()));
+               << mapStringToUnicode(m_map.encoding(), oldDeletion.key) << " -> "
+               << mapStringToUnicode(m_map.encoding(), newAddition.key));
 
     const auto oldIndex = kdl::index_of(m_rows, oldDeletion);
     ensure(oldIndex, "deleted row must be found");
@@ -758,8 +689,8 @@ const PropertyRow* EntityPropertyModel::dataForModelIndex(const QModelIndex& ind
 
 int EntityPropertyModel::rowForPropertyKey(const std::string& propertyKey) const
 {
-  const auto it = std::ranges::find_if(
-    m_rows, [&](const auto& row) { return row.key() == propertyKey; });
+  const auto it =
+    std::ranges::find_if(m_rows, [&](const auto& row) { return row.key == propertyKey; });
   return it != m_rows.end() ? static_cast<int>(std::distance(m_rows.begin(), it)) : -1;
 }
 
@@ -778,7 +709,7 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
   }
   else if (index.column() == ColumnValue)
   {
-    switch (row.linkType())
+    switch (row.linkType)
     {
     case LinkType::Source:
       result =
@@ -789,7 +720,7 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
         getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkSource>(m_map);
       break;
     case LinkType::None:
-      if (row.key() == mdl::EntityPropertyKeys::Classname)
+      if (row.key == mdl::EntityPropertyKeys::Classname)
       {
         result = getAllClassnames(m_map);
       }
@@ -808,7 +739,7 @@ std::string EntityPropertyModel::propertyKey(const int row) const
   }
   else
   {
-    return m_rows[static_cast<size_t>(row)].key();
+    return m_rows[static_cast<size_t>(row)].key;
   }
 }
 
@@ -868,21 +799,21 @@ Qt::ItemFlags EntityPropertyModel::flags(const QModelIndex& index) const
 
   if (index.column() == ColumnProtected)
   {
-    if (row.isProtected() != PropertyProtection::NotProtectable)
+    if (row.protection != PropertyProtection::NotProtectable)
     {
       flags |= Qt::ItemIsUserCheckable;
     }
   }
   else if (index.column() == ColumnKey)
   {
-    if (row.keyMutable())
+    if (row.keyMutable)
     {
       flags |= Qt::ItemIsEditable;
     }
   }
   else if (index.column() == ColumnValue)
   {
-    if (row.valueMutable())
+    if (row.valueMutable)
     {
       flags |= Qt::ItemIsEditable;
     }
@@ -907,14 +838,14 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     // lock icon
     if (index.column() == ColumnKey)
     {
-      if (!row.keyMutable())
+      if (!row.keyMutable)
       {
         return QVariant{io::loadSVGIcon("Locked_small.svg")};
       }
     }
     else if (index.column() == ColumnValue)
     {
-      if (!row.valueMutable())
+      if (!row.valueMutable)
       {
         return QVariant{io::loadSVGIcon("Locked_small.svg")};
       }
@@ -925,13 +856,15 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   if (role == Qt::ForegroundRole)
   {
     const auto disabledCellText = QPalette{}.color(QPalette::Disabled, QPalette::Text);
-    if (row.isDefault() || row.subset())
+    if (
+      row.valueState == ValueState::Unset
+      || row.valueState == ValueState::SingleValueAndUnset)
     {
       return QVariant{QBrush{disabledCellText}};
     }
     if (index.column() == ColumnValue)
     {
-      if (row.multi())
+      if (row.valueState == ValueState::MultipleValues)
       {
         return QVariant{QBrush{disabledCellText}};
       }
@@ -941,7 +874,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
 
   if (role == Qt::FontRole)
   {
-    if (row.isDefault())
+    if (row.valueState == ValueState::Unset)
     {
       auto italicFont = QFont{};
       italicFont.setItalic(true);
@@ -949,7 +882,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     }
     if (index.column() == ColumnValue)
     {
-      if (row.multi())
+      if (row.valueState == ValueState::MultipleValues)
       {
         auto italicFont = QFont{};
         italicFont.setItalic(true);
@@ -963,11 +896,11 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   {
     if (index.column() == ColumnKey)
     {
-      return QVariant{mapStringToUnicode(m_map.encoding(), row.key())};
+      return QVariant{mapStringToUnicode(m_map.encoding(), row.key)};
     }
     else if (index.column() == ColumnValue)
     {
-      return QVariant{mapStringToUnicode(m_map.encoding(), row.value())};
+      return QVariant{mapStringToUnicode(m_map.encoding(), row.value)};
     }
   }
 
@@ -975,11 +908,11 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   {
     if (index.column() == ColumnProtected)
     {
-      if (row.isProtected() == PropertyProtection::Protected)
+      if (row.protection == PropertyProtection::Protected)
       {
         return QVariant{Qt::CheckState::Checked};
       }
-      else if (row.isProtected() == PropertyProtection::Mixed)
+      else if (row.protection == PropertyProtection::Mixed)
       {
         return QVariant{Qt::CheckState::PartiallyChecked};
       }
@@ -998,9 +931,9 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     }
     else
     {
-      if (!row.tooltip().empty())
+      if (!row.tooltip.empty())
       {
-        return QVariant{mapStringToUnicode(m_map.encoding(), row.tooltip())};
+        return QVariant{mapStringToUnicode(m_map.encoding(), row.tooltip)};
       }
     }
   }
@@ -1031,7 +964,7 @@ bool EntityPropertyModel::setData(
     // rename key
     MODEL_LOG(
       qDebug() << "tried to rename "
-               << mapStringToUnicode(m_map.encoding(), propertyRow.key()) << " to "
+               << mapStringToUnicode(m_map.encoding(), propertyRow.key) << " to "
                << value.toString());
 
     const auto newName = mapStringFromUnicode(m_map.encoding(), value.toString());
@@ -1043,7 +976,7 @@ bool EntityPropertyModel::setData(
   else if (index.column() == ColumnValue && role == Qt::EditRole)
   {
     MODEL_LOG(
-      qDebug() << "tried to set " << mapStringToUnicode(map.encoding(), propertyRow.key())
+      qDebug() << "tried to set " << mapStringToUnicode(map.encoding(), propertyRow.key)
                << " to " << value.toString());
 
     if (updateProperty(
@@ -1058,7 +991,7 @@ bool EntityPropertyModel::setData(
     {
       MODEL_LOG(
         qDebug() << "tried to set "
-                 << mapStringToUnicode(m_map.encoding(), propertyRow.key())
+                 << mapStringToUnicode(m_map.encoding(), propertyRow.key)
                  << " to protected");
       setProtectedProperty(rowIndex, true);
     }
@@ -1066,7 +999,7 @@ bool EntityPropertyModel::setData(
     {
       MODEL_LOG(
         qDebug() << "tried to set "
-                 << mapStringToUnicode(m_map.encoding(), propertyRow.key())
+                 << mapStringToUnicode(m_map.encoding(), propertyRow.key)
                  << " to non protected");
       setProtectedProperty(rowIndex, false);
     }
@@ -1118,11 +1051,11 @@ bool EntityPropertyModel::canRemove(const int rowIndexInt)
   }
 
   const auto& row = m_rows.at(static_cast<size_t>(rowIndexInt));
-  if (row.isDefault())
+  if (row.valueState == ValueState::Unset)
   {
     return false;
   }
-  return row.keyMutable() && row.valueMutable();
+  return row.keyMutable && row.valueMutable;
 }
 
 bool EntityPropertyModel::hasRowWithPropertyKey(const std::string& propertyKey) const
@@ -1138,7 +1071,7 @@ bool EntityPropertyModel::renameProperty(
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
   const auto& row = m_rows.at(rowIndex);
-  const auto& oldKey = row.key();
+  const auto& oldKey = row.key;
 
   if (oldKey == newKey)
   {
@@ -1146,7 +1079,7 @@ bool EntityPropertyModel::renameProperty(
   }
 
   ensure(
-    row.keyMutable(),
+    row.keyMutable,
     "tried to rename immutable name"); // EntityPropertyModel::flags prevents
                                        // us from renaming immutable names
 
@@ -1154,7 +1087,7 @@ bool EntityPropertyModel::renameProperty(
   {
     const auto& rowToOverwrite =
       m_rows.at(static_cast<size_t>(rowForPropertyKey(newKey)));
-    if (!rowToOverwrite.valueMutable())
+    if (!rowToOverwrite.valueMutable)
     {
       // Prevent changing an immutable value via a rename
       // TODO: would this be better checked inside MapDocument::renameProperty?
@@ -1185,7 +1118,7 @@ bool EntityPropertyModel::updateProperty(
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
   auto hasChange = false;
-  const auto& key = m_rows.at(rowIndex).key();
+  const auto& key = m_rows.at(rowIndex).key;
   for (const auto* node : nodes)
   {
     if (const auto* oldValue = node->entity().property(key))
@@ -1217,7 +1150,7 @@ bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool
 {
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
-  const auto& key = m_rows.at(rowIndex).key();
+  const auto& key = m_rows.at(rowIndex).key;
   return setProtectedEntityProperty(m_map, key, newValue);
 }
 
@@ -1227,17 +1160,17 @@ bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndex
   const auto& rowB = m_rows.at(rowIndexB);
 
   // 1. non-default sorts before default
-  if (!rowA.isDefault() && rowB.isDefault())
+  if (rowA.valueState != ValueState::Unset && rowB.valueState == ValueState::Unset)
   {
     return true;
   }
-  if (rowA.isDefault() && !rowB.isDefault())
+  if (rowA.valueState == ValueState::Unset && rowB.valueState != ValueState::Unset)
   {
     return false;
   }
 
   // 2. sort by name
-  return rowA.key() < rowB.key();
+  return rowA.key < rowB.key;
 }
 
 } // namespace tb::ui

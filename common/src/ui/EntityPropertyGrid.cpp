@@ -462,7 +462,7 @@ std::string EntityPropertyGrid::selectedRowName() const
 {
   const auto current = m_proxyModel->mapToSource(m_table->currentIndex());
   const auto* rowModel = m_model->dataForModelIndex(current);
-  return rowModel ? rowModel->key() : "";
+  return rowModel ? rowModel->key : "";
 }
 
 } // namespace tb::ui
