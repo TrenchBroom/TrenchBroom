@@ -1674,7 +1674,7 @@ bool MapFrame::canRenameSelectedGroups() const
 
 void MapFrame::replaceMaterial()
 {
-  auto dialog = ReplaceMaterialDialog{document(), *m_contextManager, this};
+  auto dialog = ReplaceMaterialDialog{document().map(), *m_contextManager, this};
   dialog.exec();
 }
 

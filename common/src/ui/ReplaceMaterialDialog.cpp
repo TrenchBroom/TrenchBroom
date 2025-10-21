@@ -35,7 +35,6 @@
 #include "mdl/UpdateBrushFaceAttributes.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"                 // IWYU pragma: keep
 #include "ui/BorderLine.h"
-#include "ui/MapDocument.h"
 #include "ui/MaterialBrowser.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
@@ -72,9 +71,9 @@ void replaceMaterials(
 } // namespace
 
 ReplaceMaterialDialog::ReplaceMaterialDialog(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
   : QDialog{parent}
-  , m_document{document}
+  , m_map{map}
 {
   createGui(contextManager);
 }
@@ -89,8 +88,7 @@ void ReplaceMaterialDialog::accept()
 
   if (const auto faces = getApplicableFaces(); !faces.empty())
   {
-    auto& map = m_document.map();
-    replaceMaterials(map, faces, replacement->name());
+    replaceMaterials(m_map, faces, replacement->name());
 
     const auto msg = fmt::format(
       "Replaced material '{}' with '{}' on {} faces.",
@@ -114,11 +112,10 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
   const auto* subject = m_subjectBrowser->selectedMaterial();
   ensure(subject != nullptr, "subject is null");
 
-  const auto& map = m_document.map();
-  auto faces = map.selection().allBrushFaces();
+  auto faces = m_map.selection().allBrushFaces();
   if (faces.empty())
   {
-    faces = mdl::collectBrushFaces({map.world()});
+    faces = mdl::collectBrushFaces({m_map.world()});
   }
 
   return faces | std::views::filter([&](const auto& handle) {
@@ -133,7 +130,7 @@ void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
   setWindowTitle(tr("Replace Material"));
 
   auto* subjectPanel = new TitledPanel{tr("Find")};
-  m_subjectBrowser = new MaterialBrowser{m_document.map(), contextManager};
+  m_subjectBrowser = new MaterialBrowser{m_map, contextManager};
   m_subjectBrowser->setHideUnused(true);
   connect(
     m_subjectBrowser,
@@ -148,7 +145,7 @@ void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
   subjectPanel->getPanel()->setLayout(subjectPanelLayout);
 
   auto* replacementPanel = new TitledPanel{tr("Replace with")};
-  m_replacementBrowser = new MaterialBrowser{m_document.map(), contextManager};
+  m_replacementBrowser = new MaterialBrowser{m_map, contextManager};
   m_replacementBrowser->setSelectedMaterial(nullptr); // Override the current material.
   connect(
     m_replacementBrowser,
