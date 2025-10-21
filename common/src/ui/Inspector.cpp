@@ -23,6 +23,7 @@
 
 #include "ui/EntityInspector.h"
 #include "ui/FaceInspector.h"
+#include "ui/MapDocument.h"
 #include "ui/MapInspector.h"
 #include "ui/MapViewBar.h"
 #include "ui/QtUtils.h"
@@ -38,7 +39,7 @@ Inspector::Inspector(
   m_tabBook = new TabBook{};
 
   m_mapInspector = new MapInspector{document};
-  m_entityInspector = new EntityInspector{document, contextManager};
+  m_entityInspector = new EntityInspector{document.map(), contextManager};
   m_faceInspector = new FaceInspector{document, contextManager};
 
   m_tabBook->addPage(m_mapInspector, "Map");
