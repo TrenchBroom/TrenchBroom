@@ -165,7 +165,7 @@ private:
   mdl::Map& m_map;
 
 public:
-  explicit EntityPropertyModel(mdl::Map& map, QObject* parent);
+  explicit EntityPropertyModel(mdl::Map& map, QObject* parent = nullptr);
 
   bool showDefaultRows() const;
   void setShowDefaultRows(bool showDefaultRows);
