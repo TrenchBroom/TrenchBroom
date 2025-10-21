@@ -84,7 +84,7 @@ QWidget* EntityInspector::createEntityBrowser(
   entityBrowserLayout->addWidget(m_entityBrowser, 1);
   panel->getPanel(0)->setLayout(entityBrowserLayout);
 
-  auto* entityDefinitionFileEditor = new EntityDefinitionFileChooser{document};
+  auto* entityDefinitionFileEditor = new EntityDefinitionFileChooser{document.map()};
 
   auto* entityDefinitionFileEditorLayout = new QVBoxLayout{};
   entityDefinitionFileEditorLayout->setContentsMargins(0, 0, 0, 0);

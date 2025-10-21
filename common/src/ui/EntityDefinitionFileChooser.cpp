@@ -32,7 +32,6 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "ui/BorderLine.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewUtils.h"
@@ -76,10 +75,9 @@ bool SingleSelectionListWidget::allowDeselectAll() const
 
 // EntityDefinitionFileChooser
 
-EntityDefinitionFileChooser::EntityDefinitionFileChooser(
-  MapDocument& document, QWidget* parent)
+EntityDefinitionFileChooser::EntityDefinitionFileChooser(mdl::Map& map, QWidget* parent)
   : QWidget{parent}
-  , m_document{document}
+  , m_map{map}
 {
   createGui();
   bindEvents();
@@ -150,12 +148,11 @@ void EntityDefinitionFileChooser::bindEvents()
 
 void EntityDefinitionFileChooser::connectObservers()
 {
-  auto& map = m_document.map();
+  m_notifierConnection += m_map.mapWasCreatedNotifier.connect(
+    this, &EntityDefinitionFileChooser::mapWasCreated);
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasCreated);
-  m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasLoaded);
-  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
+    m_map.mapWasLoadedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasLoaded);
+  m_notifierConnection += m_map.entityDefinitionsDidChangeNotifier.connect(
     this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
 }
 
@@ -180,8 +177,7 @@ void EntityDefinitionFileChooser::updateControls()
   m_builtin->clear();
   m_builtin->setAllowDeselectAll(false);
 
-  const auto& map = m_document.map();
-  const auto& game = *map.game();
+  const auto& game = *m_map.game();
   auto specs = game.allEntityDefinitionFiles();
   specs = kdl::vec_sort(std::move(specs));
 
@@ -196,7 +192,7 @@ void EntityDefinitionFileChooser::updateControls()
     m_builtin->addItem(item);
   }
 
-  const auto spec = entityDefinitionFile(map);
+  const auto spec = entityDefinitionFile(m_map);
   if (!spec || spec->type == mdl::EntityDefinitionFileSpec::Type::Builtin)
   {
     if (spec)
@@ -249,10 +245,9 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
     const auto specStr = item->data(Qt::UserRole).value<QString>();
     if (const auto spec = mdl::EntityDefinitionFileSpec::parse(specStr.toStdString()))
     {
-      auto& map = m_document.map();
-      if (entityDefinitionFile(map) != *spec)
+      if (entityDefinitionFile(m_map) != *spec)
       {
-        setEntityDefinitionFile(map, *spec);
+        setEntityDefinitionFile(m_map, *spec);
       }
     }
   }
@@ -273,13 +268,13 @@ void EntityDefinitionFileChooser::chooseExternalClicked()
   {
     updateFileDialogDefaultDirectoryWithFilename(
       FileDialogDir::EntityDefinition, fileName);
-    loadEntityDefinitionFile(m_document.map(), this, fileName);
+    loadEntityDefinitionFile(m_map, this, fileName);
   }
 }
 
 void EntityDefinitionFileChooser::reloadExternalClicked()
 {
-  reloadEntityDefinitions(m_document.map());
+  reloadEntityDefinitions(m_map);
 }
 
 } // namespace tb::ui
