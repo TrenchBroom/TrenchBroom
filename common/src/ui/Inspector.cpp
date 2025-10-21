@@ -23,7 +23,6 @@
 
 #include "ui/EntityInspector.h"
 #include "ui/FaceInspector.h"
-#include "ui/MapDocument.h"
 #include "ui/MapInspector.h"
 #include "ui/MapViewBar.h"
 #include "ui/QtUtils.h"
@@ -32,15 +31,14 @@
 
 namespace tb::ui
 {
-Inspector::Inspector(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+Inspector::Inspector(mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
 {
   m_tabBook = new TabBook{};
 
-  m_mapInspector = new MapInspector{document.map()};
-  m_entityInspector = new EntityInspector{document.map(), contextManager};
-  m_faceInspector = new FaceInspector{document.map(), contextManager};
+  m_mapInspector = new MapInspector{map};
+  m_entityInspector = new EntityInspector{map, contextManager};
+  m_faceInspector = new FaceInspector{map, contextManager};
 
   m_tabBook->addPage(m_mapInspector, "Map");
   m_tabBook->addPage(m_entityInspector, "Entity");
