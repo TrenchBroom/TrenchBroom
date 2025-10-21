@@ -49,8 +49,8 @@ void EntityInspector::createGui(MapDocument& document, GLContextManager& context
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
 
-  m_splitter->addWidget(createAttributeEditor(m_splitter, document));
-  m_splitter->addWidget(createEntityBrowser(m_splitter, document, contextManager));
+  m_splitter->addWidget(createAttributeEditor(document, m_splitter));
+  m_splitter->addWidget(createEntityBrowser(document, contextManager, m_splitter));
 
   // when the window resizes, keep the attribute editor size constant
   m_splitter->setStretchFactor(0, 0);
@@ -65,14 +65,14 @@ void EntityInspector::createGui(MapDocument& document, GLContextManager& context
   restoreWindowState(m_splitter);
 }
 
-QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocument& document)
+QWidget* EntityInspector::createAttributeEditor(MapDocument& document, QWidget* parent)
 {
   m_attributeEditor = new EntityPropertyEditor{document, parent};
   return m_attributeEditor;
 }
 
 QWidget* EntityInspector::createEntityBrowser(
-  QWidget* parent, MapDocument& document, GLContextManager& contextManager)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
 {
   auto* panel = new SwitchableTitledPanel{
     tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};

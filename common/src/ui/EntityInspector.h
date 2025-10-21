@@ -45,9 +45,9 @@ public:
 
 private:
   void createGui(MapDocument& document, GLContextManager& contextManager);
-  QWidget* createAttributeEditor(QWidget* parent, MapDocument& document);
+  QWidget* createAttributeEditor(MapDocument& document, QWidget* parent);
   QWidget* createEntityBrowser(
-    QWidget* parent, MapDocument& document, GLContextManager& contextManager);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent);
 };
 
 } // namespace tb::ui
