@@ -77,7 +77,7 @@ QWidget* EntityInspector::createEntityBrowser(
   auto* panel = new SwitchableTitledPanel{
     tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};
 
-  m_entityBrowser = new EntityBrowser{document, contextManager};
+  m_entityBrowser = new EntityBrowser{document.map(), contextManager};
 
   auto* entityBrowserLayout = new QVBoxLayout{};
   entityBrowserLayout->setContentsMargins(0, 0, 0, 0);
