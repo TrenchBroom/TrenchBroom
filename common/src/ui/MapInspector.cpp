@@ -102,7 +102,7 @@ void MapInspector::createGui(MapDocument& document)
   sizer->setContentsMargins(0, 0, 0, 0);
   sizer->setSpacing(0);
 
-  sizer->addWidget(createLayerEditor(document), 1);
+  sizer->addWidget(createLayerEditor(document.map()), 1);
   sizer->addWidget(new BorderLine{}, 0);
   sizer->addWidget(m_mapPropertiesEditor, 0);
   sizer->addWidget(new BorderLine{}, 0);
@@ -110,10 +110,10 @@ void MapInspector::createGui(MapDocument& document)
   setLayout(sizer);
 }
 
-QWidget* MapInspector::createLayerEditor(MapDocument& document)
+QWidget* MapInspector::createLayerEditor(mdl::Map& map)
 {
   auto* titledPanel = new TitledPanel{tr("Layers")};
-  auto* layerEditor = new LayerEditor{document};
+  auto* layerEditor = new LayerEditor{map};
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
