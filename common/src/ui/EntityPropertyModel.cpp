@@ -679,11 +679,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
 
 const PropertyRow* EntityPropertyModel::dataForModelIndex(const QModelIndex& index) const
 {
-  if (!index.isValid())
-  {
-    return nullptr;
-  }
-  return &m_rows.at(static_cast<size_t>(index.row()));
+  return index.isValid() ? &m_rows.at(static_cast<size_t>(index.row())) : nullptr;
 }
 
 int EntityPropertyModel::rowForPropertyKey(const std::string& propertyKey) const
