@@ -61,10 +61,9 @@ std::ostream& operator<<(std::ostream& lhs, const VariableStore& rhs)
 bool operator==(const VariableStore& lhs, const VariableStore& rhs)
 {
   const auto names = lhs.names();
-  return names == rhs.names()
-         && std::all_of(std::begin(names), std::end(names), [&](const auto& name) {
-              return lhs.value(name) == rhs.value(name);
-            });
+  return names == rhs.names() && std::ranges::all_of(names, [&](const auto& name) {
+           return lhs.value(name) == rhs.value(name);
+         });
 }
 
 bool operator!=(const VariableStore& lhs, const VariableStore& rhs)

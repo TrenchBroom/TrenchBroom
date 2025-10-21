@@ -23,6 +23,8 @@
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
 
+#include <algorithm>
+
 namespace tb::io
 {
 
@@ -30,7 +32,7 @@ PathMatcher makeExtensionPathMatcher(std::vector<std::filesystem::path> extensio
 {
   return [extensions = std::move(extensions_)](
            const std::filesystem::path& path, const GetPathInfo&) {
-    return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
+    return std::ranges::any_of(extensions, [&](const auto& extension) {
       return kdl::path_has_extension(
         kdl::path_to_lower(path), kdl::path_to_lower(extension));
     });

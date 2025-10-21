@@ -193,9 +193,8 @@ void selectNodesWithFilePosition(Map& map, const std::vector<size_t>& positions)
 {
   auto nodesToSelect = std::vector<Node*>{};
   const auto hasFilePosition = [&](const auto* node) {
-    return std::any_of(positions.begin(), positions.end(), [&](const auto position) {
-      return node->containsLine(position);
-    });
+    return std::ranges::any_of(
+      positions, [&](const auto position) { return node->containsLine(position); });
   };
 
   map.world()->accept(kdl::overload(

@@ -26,6 +26,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
 
+#include <algorithm>
 #include <string>
 
 namespace tb::mdl
@@ -52,9 +53,8 @@ void NonIntegerVerticesValidator::doValidate(
   BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
   const auto& vertices = brushNode.brush().vertices();
-  if (!std::all_of(vertices.begin(), vertices.end(), [](const auto* vertex) {
-        return vm::is_integral(vertex->position());
-      }))
+  if (!std::ranges::all_of(
+        vertices, [](const auto* vertex) { return vm::is_integral(vertex->position()); }))
   {
     issues.push_back(
       std::make_unique<Issue>(Type, brushNode, "Brush has non-integer vertices"));

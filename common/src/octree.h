@@ -231,11 +231,9 @@ private:
     return std::visit(
       kdl::overload(
         [](const inner_node& i) {
-          return i.data.empty()
-                 && std::all_of(
-                   i.children.begin(), i.children.end(), [](const auto& child) {
-                     return is_leaf_node(child) && is_empty(child);
-                   });
+          return i.data.empty() && std::ranges::all_of(i.children, [](const auto& child) {
+                   return is_leaf_node(child) && is_empty(child);
+                 });
         },
         [](const leaf_node& l) { return l.data.empty(); }),
       node);

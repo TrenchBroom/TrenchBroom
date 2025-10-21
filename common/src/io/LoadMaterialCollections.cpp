@@ -80,7 +80,7 @@ std::optional<Result<mdl::Palette>> loadPalette(
 bool shouldExclude(
   const std::string& materialName, const std::vector<std::string>& patterns)
 {
-  return std::any_of(patterns.begin(), patterns.end(), [&](const auto& pattern) {
+  return std::ranges::any_of(patterns, [&](const auto& pattern) {
     return kdl::ci::str_matches_glob(materialName, pattern);
   });
 }

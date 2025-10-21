@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <optional>
+#include <ranges>
 #include <unordered_map>
 
 namespace tb::io
@@ -117,9 +118,8 @@ PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
     }
   }
 
-  return std::any_of(
-           m_mountPoints.rbegin(),
-           m_mountPoints.rend(),
+  return std::ranges::any_of(
+           m_mountPoints | std::views::reverse,
            [&](const auto& mountPoint) {
              return kdl::path_has_prefix(
                kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path));

@@ -50,6 +50,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <algorithm>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -177,7 +178,7 @@ bool GameImpl::isEntityDefinitionFile(const std::filesystem::path& path) const
 {
   static const auto extensions = {".fgd", ".def", ".ent"};
 
-  return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
+  return std::ranges::any_of(extensions, [&](const auto& extension) {
     return kdl::path_has_extension(kdl::path_to_lower(path), extension);
   });
 }

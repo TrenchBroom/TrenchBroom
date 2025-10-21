@@ -51,6 +51,7 @@
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
+#include <algorithm>
 #include <ranges>
 #include <vector>
 
@@ -172,7 +173,7 @@ void EntityPropertyGrid::removeSelectedProperties()
 bool EntityPropertyGrid::canRemoveSelectedProperties() const
 {
   const auto rows = selectedRowsAndCursorRow();
-  return !rows.empty() && std::all_of(rows.begin(), rows.end(), [&](const auto row) {
+  return !rows.empty() && std::ranges::all_of(rows, [&](const auto row) {
     return m_model->canRemove(row);
   });
 }
