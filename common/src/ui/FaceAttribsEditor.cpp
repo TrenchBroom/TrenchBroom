@@ -40,7 +40,6 @@
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/FlagsPopupEditor.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/SignalDelayer.h"
 #include "ui/SpinControl.h"
@@ -59,9 +58,9 @@ namespace tb::ui
 {
 
 FaceAttribsEditor::FaceAttribsEditor(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_document{document}
+  , m_map{map}
   , m_updateControlsSignalDelayer{new SignalDelayer{this}}
 {
   createGui(contextManager);
@@ -77,13 +76,12 @@ bool FaceAttribsEditor::cancelMouseDrag()
 
 void FaceAttribsEditor::xOffsetChanged(const double value)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.xOffset = mdl::SetValue{float(value)}}))
+  if (!setBrushFaceAttributes(m_map, {.xOffset = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -91,13 +89,12 @@ void FaceAttribsEditor::xOffsetChanged(const double value)
 
 void FaceAttribsEditor::yOffsetChanged(const double value)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.yOffset = mdl::SetValue{float(value)}}))
+  if (!setBrushFaceAttributes(m_map, {.yOffset = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -105,13 +102,12 @@ void FaceAttribsEditor::yOffsetChanged(const double value)
 
 void FaceAttribsEditor::rotationChanged(const double value)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.rotation = mdl::SetValue{float(value)}}))
+  if (!setBrushFaceAttributes(m_map, {.rotation = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -119,13 +115,12 @@ void FaceAttribsEditor::rotationChanged(const double value)
 
 void FaceAttribsEditor::xScaleChanged(const double value)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.xScale = mdl::SetValue{float(value)}}))
+  if (!setBrushFaceAttributes(m_map, {.xScale = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -133,13 +128,12 @@ void FaceAttribsEditor::xScaleChanged(const double value)
 
 void FaceAttribsEditor::yScaleChanged(const double value)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.yScale = mdl::SetValue{float(value)}}))
+  if (!setBrushFaceAttributes(m_map, {.yScale = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -148,13 +142,12 @@ void FaceAttribsEditor::yScaleChanged(const double value)
 void FaceAttribsEditor::surfaceFlagChanged(
   const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
   if (!setBrushFaceAttributes(
-        map,
+        m_map,
         {.surfaceFlags = setFlag & value ? mdl::FlagOp{mdl::SetFlagBits{value}}
                                          : mdl::FlagOp{mdl::ClearFlagBits{value}}}))
   {
@@ -165,14 +158,13 @@ void FaceAttribsEditor::surfaceFlagChanged(
 void FaceAttribsEditor::contentFlagChanged(
   const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
   if (!setBrushFaceAttributes(
-        map,
+        m_map,
         {.surfaceContents = setFlag & value ? mdl::FlagOp{mdl::SetFlagBits{value}}
                                             : mdl::FlagOp{mdl::ClearFlagBits{value}}}))
   {
@@ -182,13 +174,12 @@ void FaceAttribsEditor::contentFlagChanged(
 
 void FaceAttribsEditor::surfaceValueChanged(const double value)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.surfaceValue = mdl::SetValue{float(value)}}))
+  if (!setBrushFaceAttributes(m_map, {.surfaceValue = mdl::SetValue{float(value)}}))
   {
     updateControls();
   }
@@ -196,8 +187,7 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
 
 void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -207,7 +197,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   {
     if (const auto color = Color::parse(str))
     {
-      if (!setBrushFaceAttributes(map, {.color = *color}))
+      if (!setBrushFaceAttributes(m_map, {.color = *color}))
       {
         updateControls();
       }
@@ -215,7 +205,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   }
   else
   {
-    if (!setBrushFaceAttributes(map, {.color = Color{}}))
+    if (!setBrushFaceAttributes(m_map, {.color = Color{}}))
     {
       updateControls();
     }
@@ -224,13 +214,12 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
 
 void FaceAttribsEditor::surfaceFlagsUnset()
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.surfaceFlags = mdl::SetFlags{std::nullopt}}))
+  if (!setBrushFaceAttributes(m_map, {.surfaceFlags = mdl::SetFlags{std::nullopt}}))
   {
     updateControls();
   }
@@ -238,13 +227,12 @@ void FaceAttribsEditor::surfaceFlagsUnset()
 
 void FaceAttribsEditor::contentFlagsUnset()
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.surfaceContents = mdl::SetFlags{std::nullopt}}))
+  if (!setBrushFaceAttributes(m_map, {.surfaceContents = mdl::SetFlags{std::nullopt}}))
   {
     updateControls();
   }
@@ -252,13 +240,12 @@ void FaceAttribsEditor::contentFlagsUnset()
 
 void FaceAttribsEditor::surfaceValueUnset()
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.surfaceValue = mdl::SetValue{std::nullopt}}))
+  if (!setBrushFaceAttributes(m_map, {.surfaceValue = mdl::SetValue{std::nullopt}}))
   {
     updateControls();
   }
@@ -266,13 +253,12 @@ void FaceAttribsEditor::surfaceValueUnset()
 
 void FaceAttribsEditor::colorValueUnset()
 {
-  auto& map = m_document.map();
-  if (!map.selection().hasAnyBrushFaces())
+  if (!m_map.selection().hasAnyBrushFaces())
   {
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.color = std::nullopt}))
+  if (!setBrushFaceAttributes(m_map, {.color = std::nullopt}))
   {
     updateControls();
   }
@@ -280,8 +266,7 @@ void FaceAttribsEditor::colorValueUnset()
 
 void FaceAttribsEditor::updateIncrements()
 {
-  const auto& map = m_document.map();
-  const auto& grid = map.grid();
+  const auto& grid = m_map.grid();
 
   m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
   m_yOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
@@ -302,7 +287,7 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
 
 void FaceAttribsEditor::createGui(GLContextManager& contextManager)
 {
-  m_uvEditor = new UVEditor{m_document.map(), contextManager};
+  m_uvEditor = new UVEditor{m_map, contextManager};
 
   auto* materialNameLabel = new QLabel{"Material"};
   makeEmphasized(materialNameLabel);
@@ -525,21 +510,20 @@ void FaceAttribsEditor::bindEvents()
 
 void FaceAttribsEditor::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &FaceAttribsEditor::mapWasCreated);
+    m_map.mapWasCreatedNotifier.connect(this, &FaceAttribsEditor::mapWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &FaceAttribsEditor::mapWasLoaded);
+    m_map.mapWasLoadedNotifier.connect(this, &FaceAttribsEditor::mapWasLoaded);
   m_notifierConnection +=
-    map.nodesDidChangeNotifier.connect(this, &FaceAttribsEditor::nodesDidChange);
-  m_notifierConnection += map.brushFacesDidChangeNotifier.connect(
+    m_map.nodesDidChangeNotifier.connect(this, &FaceAttribsEditor::nodesDidChange);
+  m_notifierConnection += m_map.brushFacesDidChangeNotifier.connect(
     this, &FaceAttribsEditor::brushFacesDidChange);
-  m_notifierConnection +=
-    map.selectionDidChangeNotifier.connect(this, &FaceAttribsEditor::selectionDidChange);
-  m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
+  m_notifierConnection += m_map.selectionDidChangeNotifier.connect(
+    this, &FaceAttribsEditor::selectionDidChange);
+  m_notifierConnection += m_map.materialCollectionsDidChangeNotifier.connect(
     this, &FaceAttribsEditor::materialCollectionsDidChange);
-  m_notifierConnection +=
-    map.grid().gridDidChangeNotifier.connect(this, &FaceAttribsEditor::updateIncrements);
+  m_notifierConnection += m_map.grid().gridDidChangeNotifier.connect(
+    this, &FaceAttribsEditor::updateIncrements);
 }
 
 void FaceAttribsEditor::mapWasCreated(mdl::Map&)
@@ -637,8 +621,7 @@ void FaceAttribsEditor::updateControls()
     hideColorAttribEditor();
   }
 
-  const auto& map = m_document.map();
-  const auto faceHandles = map.selection().allBrushFaces();
+  const auto faceHandles = m_map.selection().allBrushFaces();
   if (!faceHandles.empty())
   {
     auto materialMulti = false;
@@ -798,15 +781,13 @@ void FaceAttribsEditor::updateControlsDelayed()
 
 bool FaceAttribsEditor::hasSurfaceFlags() const
 {
-  const auto& map = m_document.map();
-  const auto game = map.game();
+  const auto game = m_map.game();
   return !game->config().faceAttribsConfig.surfaceFlags.flags.empty();
 }
 
 bool FaceAttribsEditor::hasContentFlags() const
 {
-  const auto& map = m_document.map();
-  const auto game = map.game();
+  const auto game = m_map.game();
   return !game->config().faceAttribsConfig.contentFlags.flags.empty();
 }
 
@@ -840,8 +821,7 @@ void FaceAttribsEditor::hideContentFlagsEditor()
 
 bool FaceAttribsEditor::hasColorAttribs() const
 {
-  const auto& map = m_document.map();
-  return map.world()->mapFormat() == mdl::MapFormat::Daikatana;
+  return m_map.world()->mapFormat() == mdl::MapFormat::Daikatana;
 }
 
 void FaceAttribsEditor::showColorAttribEditor()
@@ -879,8 +859,7 @@ std::tuple<QList<int>, QStringList, QStringList> getFlags(
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFlags()
   const
 {
-  const auto& map = m_document.map();
-  const auto game = map.game();
+  const auto game = m_map.game();
   const auto& surfaceFlags = game->config().faceAttribsConfig.surfaceFlags;
   return getFlags(surfaceFlags.flags);
 }
@@ -888,8 +867,7 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFl
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFlags()
   const
 {
-  const auto& map = m_document.map();
-  const auto game = map.game();
+  const auto game = m_map.game();
   const auto& contentFlags = game->config().faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);
 }

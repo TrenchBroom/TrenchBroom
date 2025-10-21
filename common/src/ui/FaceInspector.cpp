@@ -109,7 +109,7 @@ void FaceInspector::createGui(GLContextManager& contextManager)
 
 QWidget* FaceInspector::createFaceAttribsEditor(GLContextManager& contextManager)
 {
-  m_faceAttribsEditor = new FaceAttribsEditor{m_document, contextManager};
+  m_faceAttribsEditor = new FaceAttribsEditor{m_document.map(), contextManager};
   return m_faceAttribsEditor;
 }
 
