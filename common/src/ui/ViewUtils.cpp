@@ -58,10 +58,8 @@ void combineFlags(
   }
 }
 
-bool loadEntityDefinitionFile(
-  MapDocument& document, QWidget* parent, const QString& pathStr)
+bool loadEntityDefinitionFile(mdl::Map& map, QWidget* parent, const QString& pathStr)
 {
-  auto& map = document.map();
   const auto& game = *map.game();
   const auto& gameFactory = mdl::GameFactory::instance();
   const auto gamePath = gameFactory.gamePath(game.config().name);

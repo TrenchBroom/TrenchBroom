@@ -273,7 +273,7 @@ void EntityDefinitionFileChooser::chooseExternalClicked()
   {
     updateFileDialogDefaultDirectoryWithFilename(
       FileDialogDir::EntityDefinition, fileName);
-    loadEntityDefinitionFile(m_document, this, fileName);
+    loadEntityDefinitionFile(m_document.map(), this, fileName);
   }
 }
 
