@@ -302,7 +302,7 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
 
 void FaceAttribsEditor::createGui(GLContextManager& contextManager)
 {
-  m_uvEditor = new UVEditor{m_document, contextManager};
+  m_uvEditor = new UVEditor{m_document.map(), contextManager};
 
   auto* materialNameLabel = new QLabel{"Material"};
   makeEmphasized(materialNameLabel);
