@@ -562,7 +562,7 @@ EntityPropertyModel::EntityPropertyModel(mdl::Map& map, QObject* parent)
   , m_shouldShowProtectedProperties{false}
   , m_map{map}
 {
-  updateFromMapDocument();
+  updateFromMap();
 }
 
 static auto makeKeyToPropertyRowMap(const std::vector<PropertyRow>& rows)
@@ -634,7 +634,7 @@ void EntityPropertyModel::setShowDefaultRows(const bool showDefaultRows)
     return;
   }
   m_showDefaultRows = showDefaultRows;
-  updateFromMapDocument();
+  updateFromMap();
 }
 
 bool EntityPropertyModel::shouldShowProtectedProperties() const
@@ -825,7 +825,7 @@ std::vector<std::string> EntityPropertyModel::propertyKeys(
   return result;
 }
 
-void EntityPropertyModel::updateFromMapDocument()
+void EntityPropertyModel::updateFromMap()
 {
   MODEL_LOG(qDebug() << "updateFromMapDocument");
 

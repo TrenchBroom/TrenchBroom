@@ -183,7 +183,7 @@ public: // for autocompletion
 private: // autocompletion helpers
   std::vector<std::string> propertyKeys(int row, int count) const;
 public slots:
-  void updateFromMapDocument();
+  void updateFromMap();
 
 public: // QAbstractTableModel overrides
   int rowCount(const QModelIndex& parent) const override;

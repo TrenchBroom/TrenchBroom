@@ -127,7 +127,7 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
 
   // Force an immediate update to the table rows (by default, updates are delayed - see
   // EntityPropertyGrid::updateControls), so we can select the new row.
-  m_model->updateFromMapDocument();
+  m_model->updateFromMap();
 
   const auto row = m_model->rowForPropertyKey(newPropertyKey);
   ensure(row != -1, "row should have been inserted");
@@ -424,7 +424,7 @@ void EntityPropertyGrid::updateControls()
   // selected row in the table, unless it's a key name that exists in worldspawn. To avoid
   // that problem, make a delayed call to update the table.
   QTimer::singleShot(0, this, [&]() {
-    m_model->updateFromMapDocument();
+    m_model->updateFromMap();
 
     if (m_table->selectionModel()->selectedIndexes().empty())
     {
