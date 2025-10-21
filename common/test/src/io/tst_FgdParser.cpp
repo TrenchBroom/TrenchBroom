@@ -728,6 +728,33 @@ TEST_CASE("FgdParser")
       });
   }
 
+  SECTION("parseOriginPropertyDefinition")
+  {
+    const auto file = R"(
+    @PointClass = info_notnull : "Wildcard entity" // I love you
+    [
+       origin(origin) : "Entity origin" : "1 2 3" : "Long description 1"
+    ]
+)";
+
+    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"origin", Origin{"1 2 3"}, "Entity origin", "Long description 1"},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
+      });
+  }
+
   static const auto FgdModelDefinitionTemplate =
     R"(@PointClass model(${MODEL}) = item_shells : "Shells" [])";
 

@@ -105,6 +105,13 @@ struct Flags
   kdl_reflect_decl(Flags, defaultValue, flags);
 };
 
+struct Origin
+{
+  std::optional<std::string> defaultValue = std::nullopt;
+
+  kdl_reflect_decl(Origin, defaultValue);
+};
+
 struct Unknown
 {
   std::optional<std::string> defaultValue = std::nullopt;
@@ -123,6 +130,7 @@ using PropertyValueType = std::variant<
   PropertyValueTypes::Float,
   PropertyValueTypes::Choice,
   PropertyValueTypes::Flags,
+  PropertyValueTypes::Origin,
   PropertyValueTypes::Unknown>;
 
 std::ostream& operator<<(std::ostream& lhs, const PropertyValueType& rhs);

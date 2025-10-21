@@ -304,6 +304,13 @@ auto withDefaultValue(
         }
         return flagValueType;
       },
+      [&](Origin originValueType) -> mdl::PropertyValueType {
+        if (hasAttribute(element, "value"))
+        {
+          originValueType.defaultValue = parseString(element, "value");
+        }
+        return originValueType;
+      },
       [&](Unknown unknownValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
