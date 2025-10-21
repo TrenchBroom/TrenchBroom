@@ -23,9 +23,14 @@
 
 #include <vector>
 
+
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
-class MapDocument;
 
 /**
  * Placeholder for when there is no smart editor. Just an empty QWidget.
@@ -34,7 +39,7 @@ class SmartDefaultPropertyEditor : public SmartPropertyEditor
 {
   Q_OBJECT
 public:
-  explicit SmartDefaultPropertyEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit SmartDefaultPropertyEditor(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   void doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes) override;

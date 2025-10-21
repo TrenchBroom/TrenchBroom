@@ -249,7 +249,7 @@ void EntityPropertyEditor::createGui(MapDocument& document)
   m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 
   m_propertyGrid = new EntityPropertyGrid{document.map()};
-  m_smartEditorManager = new SmartPropertyEditorManager{document};
+  m_smartEditorManager = new SmartPropertyEditorManager{document.map()};
   m_documentationText = new QTextEdit{};
   m_documentationText->setReadOnly(true);
 

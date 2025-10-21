@@ -27,10 +27,15 @@ class QString;
 class QWidget;
 class QScrollArea;
 
+
+namespace tb::mdl
+{
+class Map;
+}
+
 namespace tb::ui
 {
 class FlagsEditor;
-class MapDocument;
 
 class SmartFlagsEditor : public SmartPropertyEditor
 {
@@ -44,7 +49,7 @@ private:
   bool m_ignoreUpdates = false;
 
 public:
-  explicit SmartFlagsEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit SmartFlagsEditor(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   void createGui();

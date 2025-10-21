@@ -21,16 +21,15 @@
 
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
-#include "ui/MapDocument.h"
 
 #include <vector>
 
 namespace tb::ui
 {
 
-SmartPropertyEditor::SmartPropertyEditor(MapDocument& document, QWidget* parent)
+SmartPropertyEditor::SmartPropertyEditor(mdl::Map& map, QWidget* parent)
   : QWidget{parent}
-  , m_document{document}
+  , m_map{map}
 {
 }
 
@@ -62,7 +61,7 @@ bool SmartPropertyEditor::usesPropertyKey(const std::string& propertyKey) const
 
 mdl::Map& SmartPropertyEditor::map()
 {
-  return m_document.map();
+  return m_map;
 }
 
 const std::string& SmartPropertyEditor::propertyKey() const

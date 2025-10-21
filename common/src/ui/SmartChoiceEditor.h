@@ -28,14 +28,15 @@ class QWidget;
 class QLabel;
 class QWidget;
 
+
 namespace tb::mdl
 {
 class ChoicePropertyDefinition;
-}
+class Map;
+} // namespace tb::mdl
 
 namespace tb::ui
 {
-class MapDocument;
 
 class SmartChoiceEditor : public SmartPropertyEditor
 {
@@ -45,7 +46,7 @@ private:
   bool m_ignoreEditTextChanged = false;
 
 public:
-  explicit SmartChoiceEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit SmartChoiceEditor(mdl::Map& map, QWidget* parent = nullptr);
 
   void comboBoxActivated(int index);
   void comboBoxEditTextChanged(const QString& text);

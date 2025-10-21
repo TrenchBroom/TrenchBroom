@@ -75,8 +75,8 @@ std::string getWadPathStr(const std::vector<std::filesystem::path>& wadPaths)
 
 } // namespace
 
-SmartWadEditor::SmartWadEditor(MapDocument& document, QWidget* parent)
-  : SmartPropertyEditor{document, parent}
+SmartWadEditor::SmartWadEditor(mdl::Map& map, QWidget* parent)
+  : SmartPropertyEditor{map, parent}
 {
   auto* header = new TitleBar{"Wad Files"};
 
