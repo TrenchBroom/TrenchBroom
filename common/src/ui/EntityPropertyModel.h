@@ -154,16 +154,13 @@ public:
 
   bool shouldShowProtectedProperties() const;
 
-  void setRows(const std::map<std::string, PropertyRow>& newRows);
+  const std::vector<PropertyRow>& rows() const;
 
-  const PropertyRow* dataForModelIndex(const QModelIndex& index) const;
-  int rowForPropertyKey(const std::string& propertyKey) const;
+  const PropertyRow* rowForModelIndex(const QModelIndex& index) const;
+  int rowIndexForPropertyKey(const std::string& propertyKey) const;
 
-public: // for autocompletion
   QStringList getCompletions(const QModelIndex& index) const;
 
-private: // autocompletion helpers
-  std::vector<std::string> propertyKeys(int row, int count) const;
 public slots:
   void updateFromMap();
 
@@ -176,6 +173,9 @@ public: // QAbstractTableModel overrides
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private: // helpers
+  std::vector<std::string> propertyKeys(int row, int count) const;
+
+  void setRows(const std::map<std::string, PropertyRow>& newRows);
   bool hasRowWithPropertyKey(const std::string& propertyKey) const;
   bool renameProperty(
     size_t rowIndex,

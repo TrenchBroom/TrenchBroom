@@ -572,117 +572,17 @@ bool EntityPropertyModel::shouldShowProtectedProperties() const
   return m_shouldShowProtectedProperties;
 }
 
-void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newRowMap)
+const std::vector<PropertyRow>& EntityPropertyModel::rows() const
 {
-  const auto oldRowMap = makeKeyToPropertyRowMap(m_rows);
-
-  if (newRowMap == oldRowMap)
-  {
-    MODEL_LOG(qDebug() << "EntityPropertyModel::setRows: no change");
-    return;
-  }
-
-  const auto diff = comparePropertyMaps(oldRowMap, newRowMap);
-
-  // If exactly one row was changed
-  // we can tell Qt the row was edited instead. This allows the selection/current
-  // index to be preserved, whereas removing the row would invalidate the current
-  // index.
-  //
-  // This situation happens when you rename a key and then press Tab to switch
-  // to editing the value for the newly renamed key.
-
-  if (diff.removed.size() == 1 && diff.added.size() == 1 && diff.updated.empty())
-  {
-    const auto& oldDeletion = oldRowMap.at(diff.removed[0]);
-    const auto& newAddition = newRowMap.at(diff.added[0]);
-
-    MODEL_LOG(
-      qDebug() << "EntityPropertyModel::setRows: one row changed: "
-               << mapStringToUnicode(m_map.encoding(), oldDeletion.key) << " -> "
-               << mapStringToUnicode(m_map.encoding(), newAddition.key));
-
-    const auto oldIndex = kdl::index_of(m_rows, oldDeletion);
-    ensure(oldIndex, "deleted row must be found");
-
-    m_rows.at(*oldIndex) = newAddition;
-
-    // Notify Qt
-    const auto topLeft = index(static_cast<int>(*oldIndex), 0);
-    const auto bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
-    emit dataChanged(topLeft, bottomRight);
-    return;
-  }
-
-  // Handle edited rows
-
-  MODEL_LOG(
-    qDebug() << "EntityPropertyModel::setRows: " << diff.updated.size()
-             << " common keys");
-  for (const auto& key : diff.updated)
-  {
-    const auto& oldRow = oldRowMap.at(key);
-    const auto& newRow = newRowMap.at(key);
-    const auto oldIndex = kdl::index_of(m_rows, oldRow);
-
-    MODEL_LOG(
-      qDebug() << "   updating row " << *oldIndex << "(" << QString::fromStdString(key)
-               << ")");
-
-    m_rows.at(*oldIndex) = newRow;
-
-    // Notify Qt
-    const auto topLeft = index(static_cast<int>(*oldIndex), 0);
-    const auto bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
-    emit dataChanged(topLeft, bottomRight);
-  }
-
-  // Insertions
-  if (!diff.added.empty())
-  {
-    MODEL_LOG(
-      qDebug() << "EntityPropertyModel::setRows: inserting " << diff.added.size()
-               << " rows");
-
-    const auto firstNewRow = static_cast<int>(m_rows.size());
-    const auto lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
-    assert(lastNewRow >= firstNewRow);
-
-    beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
-    for (const auto& key : diff.added)
-    {
-      const auto& row = newRowMap.at(key);
-      m_rows.push_back(row);
-    }
-    endInsertRows();
-  }
-
-  // Deletions
-  if (!diff.removed.empty())
-  {
-    MODEL_LOG(
-      qDebug() << "EntityPropertyModel::setRows: deleting " << diff.removed.size()
-               << " rows");
-
-    for (const auto& key : diff.removed)
-    {
-      const auto& row = oldRowMap.at(key);
-      const auto index = kdl::index_of(m_rows, row);
-      assert(index);
-
-      beginRemoveRows(QModelIndex{}, static_cast<int>(*index), static_cast<int>(*index));
-      m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));
-      endRemoveRows();
-    }
-  }
+  return m_rows;
 }
 
-const PropertyRow* EntityPropertyModel::dataForModelIndex(const QModelIndex& index) const
+const PropertyRow* EntityPropertyModel::rowForModelIndex(const QModelIndex& index) const
 {
   return index.isValid() ? &m_rows.at(static_cast<size_t>(index.row())) : nullptr;
 }
 
-int EntityPropertyModel::rowForPropertyKey(const std::string& propertyKey) const
+int EntityPropertyModel::rowIndexForPropertyKey(const std::string& propertyKey) const
 {
   const auto it =
     std::ranges::find_if(m_rows, [&](const auto& row) { return row.key == propertyKey; });
@@ -736,19 +636,6 @@ std::string EntityPropertyModel::propertyKey(const int row) const
   {
     return m_rows[static_cast<size_t>(row)].key;
   }
-}
-
-std::vector<std::string> EntityPropertyModel::propertyKeys(
-  const int row, const int count) const
-{
-  auto result = std::vector<std::string>{};
-  result.reserve(static_cast<std::size_t>(count));
-
-  for (int i = 0; i < count; ++i)
-  {
-    result.push_back(this->propertyKey(row + i));
-  }
-  return result;
 }
 
 void EntityPropertyModel::updateFromMap()
@@ -1053,9 +940,126 @@ bool EntityPropertyModel::canRemove(const int rowIndexInt)
   return row.keyMutable && row.valueMutable;
 }
 
+std::vector<std::string> EntityPropertyModel::propertyKeys(
+  const int row, const int count) const
+{
+  auto result = std::vector<std::string>{};
+  result.reserve(static_cast<std::size_t>(count));
+
+  for (int i = 0; i < count; ++i)
+  {
+    result.push_back(this->propertyKey(row + i));
+  }
+  return result;
+}
+
+void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newRowMap)
+{
+  const auto oldRowMap = makeKeyToPropertyRowMap(m_rows);
+
+  if (newRowMap == oldRowMap)
+  {
+    MODEL_LOG(qDebug() << "EntityPropertyModel::setRows: no change");
+    return;
+  }
+
+  const auto diff = comparePropertyMaps(oldRowMap, newRowMap);
+
+  // If exactly one row was changed we can tell Qt the row was edited instead. This allows
+  // the selection/current index to be preserved, whereas removing the row would
+  // invalidate the current index.
+  //
+  // This situation happens when you rename a key and then press Tab to switch to editing
+  // the value for the newly renamed key.
+
+  if (diff.removed.size() == 1 && diff.added.size() == 1 && diff.updated.empty())
+  {
+    const auto& oldDeletion = oldRowMap.at(diff.removed[0]);
+    const auto& newAddition = newRowMap.at(diff.added[0]);
+
+    MODEL_LOG(
+      qDebug() << "EntityPropertyModel::setRows: one row changed: "
+               << mapStringToUnicode(m_map.encoding(), oldDeletion.key) << " -> "
+               << mapStringToUnicode(m_map.encoding(), newAddition.key));
+
+    const auto oldIndex = kdl::index_of(m_rows, oldDeletion);
+    ensure(oldIndex, "deleted row must be found");
+
+    m_rows.at(*oldIndex) = newAddition;
+
+    // Notify Qt
+    const auto topLeft = index(static_cast<int>(*oldIndex), 0);
+    const auto bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
+    emit dataChanged(topLeft, bottomRight);
+    return;
+  }
+
+  // Handle edited rows
+
+  MODEL_LOG(
+    qDebug() << "EntityPropertyModel::setRows: " << diff.updated.size()
+             << " common keys");
+  for (const auto& key : diff.updated)
+  {
+    const auto& oldRow = oldRowMap.at(key);
+    const auto& newRow = newRowMap.at(key);
+    const auto oldIndex = kdl::index_of(m_rows, oldRow);
+
+    MODEL_LOG(
+      qDebug() << "   updating row " << *oldIndex << "(" << QString::fromStdString(key)
+               << ")");
+
+    m_rows.at(*oldIndex) = newRow;
+
+    // Notify Qt
+    const auto topLeft = index(static_cast<int>(*oldIndex), 0);
+    const auto bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
+    emit dataChanged(topLeft, bottomRight);
+  }
+
+  // Insertions
+  if (!diff.added.empty())
+  {
+    MODEL_LOG(
+      qDebug() << "EntityPropertyModel::setRows: inserting " << diff.added.size()
+               << " rows");
+
+    const auto firstNewRow = static_cast<int>(m_rows.size());
+    const auto lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
+    assert(lastNewRow >= firstNewRow);
+
+    beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
+    for (const auto& key : diff.added)
+    {
+      const auto& row = newRowMap.at(key);
+      m_rows.push_back(row);
+    }
+    endInsertRows();
+  }
+
+  // Deletions
+  if (!diff.removed.empty())
+  {
+    MODEL_LOG(
+      qDebug() << "EntityPropertyModel::setRows: deleting " << diff.removed.size()
+               << " rows");
+
+    for (const auto& key : diff.removed)
+    {
+      const auto& row = oldRowMap.at(key);
+      const auto index = kdl::index_of(m_rows, row);
+      assert(index);
+
+      beginRemoveRows(QModelIndex{}, static_cast<int>(*index), static_cast<int>(*index));
+      m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));
+      endRemoveRows();
+    }
+  }
+}
+
 bool EntityPropertyModel::hasRowWithPropertyKey(const std::string& propertyKey) const
 {
-  return rowForPropertyKey(propertyKey) != -1;
+  return rowIndexForPropertyKey(propertyKey) != -1;
 }
 
 bool EntityPropertyModel::renameProperty(
@@ -1081,7 +1085,7 @@ bool EntityPropertyModel::renameProperty(
   if (hasRowWithPropertyKey(newKey))
   {
     const auto& rowToOverwrite =
-      m_rows.at(static_cast<size_t>(rowForPropertyKey(newKey)));
+      m_rows.at(static_cast<size_t>(rowIndexForPropertyKey(newKey)));
     if (!rowToOverwrite.valueMutable)
     {
       // Prevent changing an immutable value via a rename

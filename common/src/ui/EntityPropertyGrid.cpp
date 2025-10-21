@@ -92,7 +92,7 @@ void EntityPropertyGrid::restoreSelection()
   GRID_LOG(qDebug() << "Restore selection");
   for (const auto& selection : m_selectionBackup)
   {
-    const auto row = m_model->rowForPropertyKey(selection.propertyKey);
+    const auto row = m_model->rowIndexForPropertyKey(selection.propertyKey);
     if (row == -1)
     {
       GRID_LOG(
@@ -129,7 +129,7 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
   // EntityPropertyGrid::updateControls), so we can select the new row.
   m_model->updateFromMap();
 
-  const auto row = m_model->rowForPropertyKey(newPropertyKey);
+  const auto row = m_model->rowIndexForPropertyKey(newPropertyKey);
   ensure(row != -1, "row should have been inserted");
 
   // Select the newly inserted property key
@@ -461,7 +461,7 @@ void EntityPropertyGrid::updateControlsEnabled()
 std::string EntityPropertyGrid::selectedRowName() const
 {
   const auto current = m_proxyModel->mapToSource(m_table->currentIndex());
-  const auto* rowModel = m_model->dataForModelIndex(current);
+  const auto* rowModel = m_model->rowForModelIndex(current);
   return rowModel ? rowModel->key : "";
 }
 
