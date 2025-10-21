@@ -58,7 +58,7 @@ public:
 private:
   void createGui(MapDocument& document);
   QWidget* createLayerEditor(MapDocument& document);
-  CollapsibleTitledPanel* createMapPropertiesEditor(MapDocument& document);
+  CollapsibleTitledPanel* createMapPropertiesEditor(mdl::Map& map);
   CollapsibleTitledPanel* createModEditor(MapDocument& document);
 };
 
@@ -69,7 +69,7 @@ class MapPropertiesEditor : public QWidget
 {
   Q_OBJECT
 private:
-  MapDocument& m_document;
+  mdl::Map& m_map;
   bool m_updatingGui = false;
 
   QRadioButton* m_softBoundsDisabled = nullptr;
@@ -83,7 +83,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapPropertiesEditor(MapDocument& document, QWidget* parent = nullptr);
+  explicit MapPropertiesEditor(mdl::Map& map, QWidget* parent = nullptr);
 
 private:
   std::optional<vm::bbox3d> parseLineEdits();
