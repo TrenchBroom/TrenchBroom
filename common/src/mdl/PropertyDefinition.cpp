@@ -42,6 +42,8 @@ kdl_reflect_impl(Choice);
 kdl_reflect_impl(Flag);
 kdl_reflect_impl(Flags);
 kdl_reflect_impl(Origin);
+kdl_reflect_impl(Input);
+kdl_reflect_impl(Output);
 kdl_reflect_impl(Unknown);
 
 const Flag* Flags::flag(const int flagValue) const
@@ -54,6 +56,32 @@ const Flag* Flags::flag(const int flagValue) const
 bool Flags::isDefault(const int flagValue) const
 {
   return (defaultValue & flagValue) != 0;
+}
+
+std::ostream& operator<<(std::ostream& lhs, IOParameterType rhs)
+{
+  switch (rhs)
+  {
+  case IOParameterType::Void:
+    lhs << "Void";
+    break;
+  case IOParameterType::String:
+    lhs << "String";
+    break;
+  case IOParameterType::Integer:
+    lhs << "Integer";
+    break;
+  case IOParameterType::Float:
+    lhs << "Float";
+    break;
+  case IOParameterType::Boolean:
+    lhs << "Boolean";
+    break;
+  case IOParameterType::EHandle:
+    lhs << "EHandle";
+    break;
+  }
+  return lhs;
 }
 
 } // namespace PropertyValueTypes
@@ -99,6 +127,12 @@ std::optional<std::string> PropertyDefinition::defaultValue(
                                        : std::nullopt;
       },
       [](const PropertyValueTypes::Origin& value) { return value.defaultValue; },
+      [](const PropertyValueTypes::Input&) -> std::optional<std::string> {
+        return std::nullopt;
+      },
+      [](const PropertyValueTypes::Output&) -> std::optional<std::string> {
+        return std::nullopt;
+      },
       [](const PropertyValueTypes::Unknown& value) { return value.defaultValue; }),
     definition.valueType);
 }
