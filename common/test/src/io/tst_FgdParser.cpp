@@ -779,6 +779,35 @@ TEST_CASE("FgdParser")
       });
   }
 
+  SECTION("parsePropertyDefinitionForInputOutputProperty")
+  {
+    const auto file = R"(
+    @PointClass = info_notnull : "Wildcard entity" // I love you
+    [
+       input(string) : "A property named input" : : ""
+       output(string) : "A property named output" : : ""
+    ]
+)";
+
+    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"input", mdl::PropertyValueTypes::String{}, "A property named input", ""},
+            {"output", mdl::PropertyValueTypes::String{}, "A property named output", ""},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
+      });
+  }
+
   static const auto FgdModelDefinitionTemplate =
     R"(@PointClass model(${MODEL}) = item_shells : "Shells" [])";
 
