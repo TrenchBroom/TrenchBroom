@@ -98,8 +98,8 @@ std::optional<std::string> PropertyDefinition::defaultValue(
         return value.defaultValue != 0 ? std::optional{std::to_string(value.defaultValue)}
                                        : std::nullopt;
       },
-      [](const mdl::PropertyValueTypes::Origin& value) { return value.defaultValue; },
-      [](const mdl::PropertyValueTypes::Unknown& value) { return value.defaultValue; }),
+      [](const PropertyValueTypes::Origin& value) { return value.defaultValue; },
+      [](const PropertyValueTypes::Unknown& value) { return value.defaultValue; }),
     definition.valueType);
 }
 
