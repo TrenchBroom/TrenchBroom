@@ -127,11 +127,7 @@ private:
   void skipClassProperty(ParserStatus& status);
 
   std::vector<mdl::PropertyDefinition> parsePropertyDefinitions(ParserStatus& status);
-  mdl::PropertyDefinition parsePropertyDefinition(
-    ParserStatus& status,
-    std::string propertyKey,
-    const std::string& typeName,
-    const FileLocation& location);
+  mdl::PropertyDefinition parsePropertyDefinition(ParserStatus& status);
   mdl::PropertyDefinition parseTargetSourcePropertyDefinition(
     ParserStatus& status, std::string propertyKey);
   mdl::PropertyDefinition parseTargetDestinationPropertyDefinition(

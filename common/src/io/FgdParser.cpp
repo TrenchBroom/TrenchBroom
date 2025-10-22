@@ -533,20 +533,14 @@ std::vector<mdl::PropertyDefinition> FgdParser::parsePropertyDefinitions(
 
   m_tokenizer.nextToken(FgdToken::OBracket);
   auto token =
-    m_tokenizer.nextToken(FgdToken::Word | FgdToken::Integer | FgdToken::CBracket);
+    m_tokenizer.peekToken(FgdToken::Word | FgdToken::Integer | FgdToken::CBracket);
 
   while (token.type() != FgdToken::CBracket)
   {
     const auto propertyKey = token.data();
     const auto location = token.location();
 
-    m_tokenizer.nextToken(FgdToken::OParenthesis);
-    token = m_tokenizer.nextToken(FgdToken::Word);
-    const auto typeName = token.data();
-    m_tokenizer.nextToken(FgdToken::CParenthesis);
-
-    auto propertyDefinition =
-      parsePropertyDefinition(status, propertyKey, typeName, location);
+    auto propertyDefinition = parsePropertyDefinition(status);
     if (!addPropertyDefinition(propertyDefinitions, std::move(propertyDefinition)))
     {
       status.warn(
@@ -555,18 +549,25 @@ std::vector<mdl::PropertyDefinition> FgdParser::parsePropertyDefinitions(
     }
 
     token =
-      m_tokenizer.nextToken(FgdToken::Word | FgdToken::Integer | FgdToken::CBracket);
+      m_tokenizer.peekToken(FgdToken::Word | FgdToken::Integer | FgdToken::CBracket);
   }
+  m_tokenizer.nextToken(FgdToken::CBracket);
 
   return propertyDefinitions;
 }
 
-mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
-  ParserStatus& status,
-  std::string propertyKey,
-  const std::string& typeName,
-  const FileLocation& location)
+mdl::PropertyDefinition FgdParser::parsePropertyDefinition(ParserStatus& status)
 {
+  auto token = m_tokenizer.nextToken(FgdToken::Word | FgdToken::Integer);
+
+  const auto location = token.location();
+  auto propertyKey = token.data();
+
+  m_tokenizer.nextToken(FgdToken::OParenthesis);
+  token = m_tokenizer.nextToken(FgdToken::Word);
+  const auto typeName = token.data();
+  m_tokenizer.nextToken(FgdToken::CParenthesis);
+
   if (kdl::ci::str_is_equal(typeName, "target_destination"))
   {
     return parseTargetDestinationPropertyDefinition(status, std::move(propertyKey));
