@@ -70,33 +70,36 @@ std::optional<std::string> PropertyDefinition::defaultValue(
   const PropertyDefinition& definition)
 {
   using namespace std::string_literals;
-  using namespace PropertyValueTypes;
 
   return std::visit(
     kdl::overload(
-      [](const LinkTarget&) -> std::optional<std::string> { return std::nullopt; },
-      [](const LinkSource&) -> std::optional<std::string> { return std::nullopt; },
-      [](const String& value) { return value.defaultValue; },
-      [](const Boolean& value) {
+      [](const PropertyValueTypes::LinkTarget&) -> std::optional<std::string> {
+        return std::nullopt;
+      },
+      [](const PropertyValueTypes::LinkSource&) -> std::optional<std::string> {
+        return std::nullopt;
+      },
+      [](const PropertyValueTypes::String& value) { return value.defaultValue; },
+      [](const PropertyValueTypes::Boolean& value) {
         return value.defaultValue | kdl::optional_transform([](const auto b) {
                  return b ? "true"s : "false"s;
                });
       },
-      [](const Integer& value) {
+      [](const PropertyValueTypes::Integer& value) {
         return value.defaultValue
                | kdl::optional_transform([](const auto i) { return std::to_string(i); });
       },
-      [](const Float& value) {
+      [](const PropertyValueTypes::Float& value) {
         return value.defaultValue
                | kdl::optional_transform([](const auto f) { return std::to_string(f); });
       },
-      [](const Choice& value) { return value.defaultValue; },
-      [](const Flags& value) {
+      [](const PropertyValueTypes::Choice& value) { return value.defaultValue; },
+      [](const PropertyValueTypes::Flags& value) {
         return value.defaultValue != 0 ? std::optional{std::to_string(value.defaultValue)}
                                        : std::nullopt;
       },
-      [](const Origin& value) { return value.defaultValue; },
-      [](const Unknown& value) { return value.defaultValue; }),
+      [](const mdl::PropertyValueTypes::Origin& value) { return value.defaultValue; },
+      [](const mdl::PropertyValueTypes::Unknown& value) { return value.defaultValue; }),
     definition.valueType);
 }
 
