@@ -808,6 +808,106 @@ TEST_CASE("FgdParser")
       });
   }
 
+
+  SECTION("parseIOProperties")
+  {
+    using mdl::PropertyValueTypes::IOParameterType;
+
+    const auto file = R"(
+    @PointClass = info_notnull : "Wildcard entity" // I love you
+    [
+       input voidInput(void) : "An input property without parameters"
+       input stringInput(string)
+       input integerInput(integer)
+       input floatInput(float)
+       input boolInput(bool)
+       input booleanInput(boolean)
+       input ehandleInput(ehandle)
+
+       output voidOutput(void) : "An output property without parameters"
+       output stringOutput(string)
+       output integerOutput(integer)
+       output floatOutput(float)
+       output boolOutput(bool)
+       output booleanOutput(boolean)
+       output ehandleOutput(ehandle)
+    ]
+)";
+
+    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"voidInput",
+             mdl::PropertyValueTypes::Input{IOParameterType::Void},
+             "An input property without parameters",
+             ""},
+            {"stringInput",
+             mdl::PropertyValueTypes::Input{IOParameterType::String},
+             "",
+             ""},
+            {"integerInput",
+             mdl::PropertyValueTypes::Input{IOParameterType::Integer},
+             "",
+             ""},
+            {"floatInput",
+             mdl::PropertyValueTypes::Input{IOParameterType::Float},
+             "",
+             ""},
+            {"boolInput",
+             mdl::PropertyValueTypes::Input{IOParameterType::Boolean},
+             "",
+             ""},
+            {"booleanInput",
+             mdl::PropertyValueTypes::Input{IOParameterType::Boolean},
+             "",
+             ""},
+            {"ehandleInput",
+             mdl::PropertyValueTypes::Input{IOParameterType::EHandle},
+             "",
+             ""},
+
+            {"voidOutput",
+             mdl::PropertyValueTypes::Output{IOParameterType::Void},
+             "An output property without parameters",
+             ""},
+            {"stringOutput",
+             mdl::PropertyValueTypes::Output{IOParameterType::String},
+             "",
+             ""},
+            {"integerOutput",
+             mdl::PropertyValueTypes::Output{IOParameterType::Integer},
+             "",
+             ""},
+            {"floatOutput",
+             mdl::PropertyValueTypes::Output{IOParameterType::Float},
+             "",
+             ""},
+            {"boolOutput",
+             mdl::PropertyValueTypes::Output{IOParameterType::Boolean},
+             "",
+             ""},
+            {"booleanOutput",
+             mdl::PropertyValueTypes::Output{IOParameterType::Boolean},
+             "",
+             ""},
+            {"ehandleOutput",
+             mdl::PropertyValueTypes::Output{IOParameterType::EHandle},
+             "",
+             ""},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
+      });
+  }
+
   static const auto FgdModelDefinitionTemplate =
     R"(@PointClass model(${MODEL}) = item_shells : "Shells" [])";
 

@@ -143,6 +143,8 @@ private:
   mdl::PropertyDefinition parseFlagsPropertyDefinition(std::string propertyKey);
   mdl::PropertyDefinition parseOriginPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
+  mdl::PropertyDefinition parseInputPropertyDefinition(ParserStatus& status);
+  mdl::PropertyDefinition parseOutputPropertyDefinition(ParserStatus& status);
   mdl::PropertyDefinition parseUnknownPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
 
@@ -152,6 +154,8 @@ private:
   std::optional<int> parseDefaultIntegerValue(ParserStatus& status);
   std::optional<float> parseDefaultFloatValue(ParserStatus& status);
   std::optional<std::string> parseDefaultChoiceValue();
+  std::tuple<std::string, mdl::PropertyValueTypes::IOParameterType> parseIOProperty(
+    ParserStatus& status);
 
   vm::vec3d parseVector();
   vm::bbox3d parseSize();
