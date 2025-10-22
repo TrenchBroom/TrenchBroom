@@ -41,6 +41,7 @@ kdl_reflect_impl(ChoiceOption);
 kdl_reflect_impl(Choice);
 kdl_reflect_impl(Flag);
 kdl_reflect_impl(Flags);
+kdl_reflect_impl(Origin);
 kdl_reflect_impl(Unknown);
 
 const Flag* Flags::flag(const int flagValue) const
@@ -94,6 +95,7 @@ std::optional<std::string> PropertyDefinition::defaultValue(
         return value.defaultValue != 0 ? std::optional{std::to_string(value.defaultValue)}
                                        : std::nullopt;
       },
+      [](const Origin& value) { return value.defaultValue; },
       [](const Unknown& value) { return value.defaultValue; }),
     definition.valueType);
 }

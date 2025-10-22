@@ -1053,6 +1053,8 @@ void Map::loadEntityDefinitions()
             "Loaded entity definition file {}", path.filename());
 
           addOrSetDefaultEntityLinkProperties(entityDefinitions);
+          addOrConvertOriginProperties(entityDefinitions);
+
           entityDefinitionManager().setDefinitions(std::move(entityDefinitions));
         })
       | kdl::transform_error([&](auto e) {

@@ -145,6 +145,8 @@ private:
   mdl::PropertyDefinition parseChoicesPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
   mdl::PropertyDefinition parseFlagsPropertyDefinition(std::string propertyKey);
+  mdl::PropertyDefinition parseOriginPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
   mdl::PropertyDefinition parseUnknownPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
 

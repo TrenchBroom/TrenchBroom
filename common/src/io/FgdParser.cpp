@@ -597,6 +597,10 @@ mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   {
     return parseFlagsPropertyDefinition(std::move(propertyKey));
   }
+  if (kdl::ci::str_is_equal(typeName, "origin"))
+  {
+    return parseOriginPropertyDefinition(status, std::move(propertyKey));
+  }
 
   status.debug(
     location,
@@ -759,6 +763,21 @@ mdl::PropertyDefinition FgdParser::parseFlagsPropertyDefinition(std::string prop
   }
 
   return {std::move(propertyKey), Flags{std::move(flags), defaultValue}, "", "", false};
+}
+
+mdl::PropertyDefinition FgdParser::parseOriginPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
+{
+  const auto readOnly = parseReadOnlyFlag(status);
+  auto shortDescription = parsePropertyDescription();
+  auto defaultValue = parseDefaultStringValue(status);
+  auto longDescription = parsePropertyDescription();
+  return {
+    std::move(propertyKey),
+    Origin{std::move(defaultValue)},
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly};
 }
 
 mdl::PropertyDefinition FgdParser::parseUnknownPropertyDefinition(
