@@ -34,6 +34,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
+#include "mdl/Observer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -67,6 +68,33 @@ TEST_CASE("Map_Layers")
 
   SECTION("setCurrentLayer")
   {
+    SECTION("Switching layers notifies map observers")
+    {
+      auto currentLayerDidChange =
+        Observer<const LayerNode*>{map.currentLayerDidChangeNotifier};
+
+      auto* defaultLayerNode = map.world()->defaultLayer();
+      auto* layerNode = new LayerNode{Layer{"test1"}};
+      addNodes(map, {{map.world(), {layerNode}}});
+
+      REQUIRE(map.editorContext().currentLayer() == defaultLayerNode);
+
+      setCurrentLayer(map, layerNode);
+      CHECK(map.editorContext().currentLayer() == layerNode);
+      CHECK(currentLayerDidChange.collected == std::set<const LayerNode*>{layerNode});
+      currentLayerDidChange.collected.clear();
+
+      map.undoCommand();
+      CHECK(map.editorContext().currentLayer() == defaultLayerNode);
+      CHECK(
+        currentLayerDidChange.collected == std::set<const LayerNode*>{defaultLayerNode});
+      currentLayerDidChange.collected.clear();
+
+      map.redoCommand();
+      CHECK(map.editorContext().currentLayer() == layerNode);
+      CHECK(currentLayerDidChange.collected == std::set<const LayerNode*>{layerNode});
+    }
+
     SECTION("Switching layers is collated into a single undo step")
     {
       auto* defaultLayerNode = map.world()->defaultLayer();
