@@ -203,4 +203,113 @@ TEST_CASE("addOrConvertOriginProperties")
   CHECK(definitions == expectedDefinitions);
 }
 
+TEST_CASE("convertLegacyColorProperties")
+{
+  using namespace EntityPropertyKeys;
+
+  using T = std::tuple<std::vector<EntityDefinition>, std::vector<EntityDefinition>>;
+
+  const auto [originalDefinitions, expectedDefinitions] = GENERATE(values<T>({
+    {{}, {}},
+    {{
+       {"some_definition", {}, "", {}},
+     },
+     {
+       {"some_definition", {}, "", {}},
+     }},
+    {{
+       {"some_definition",
+        {},
+        "",
+        {
+          {"some_key", mdl::PropertyValueTypes::String{}, "", ""},
+        }},
+     },
+     {
+       {"some_definition",
+        {},
+        "",
+        {
+          {"some_key", mdl::PropertyValueTypes::String{}, "", ""},
+        }},
+     }},
+    {{
+       {"some_definition",
+        {},
+        "",
+        {
+          {"color", mdl::PropertyValueTypes::String{"1 2 3"}, "", ""},
+        }},
+     },
+     {
+       {"some_definition",
+        {},
+        "",
+        {
+          {"color",
+           mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::Color3i{1, 2, 3}},
+           "",
+           ""},
+        }},
+     }},
+    {{
+       {"some_definition",
+        {},
+        "",
+        {
+          {"color", mdl::PropertyValueTypes::Unknown{"1 2 3"}, "", ""},
+        }},
+     },
+     {
+       {"some_definition",
+        {},
+        "",
+        {
+          {"color",
+           mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::Color3i{1, 2, 3}},
+           "",
+           ""},
+        }},
+     }},
+    {{
+       {"some_definition",
+        {},
+        "",
+        {
+          {"some_color", mdl::PropertyValueTypes::String{"0.1 0.2 0.3"}, "", ""},
+          {"some_color2", mdl::PropertyValueTypes::String{"0 0 0"}, "", ""},
+          {"some_colour", mdl::PropertyValueTypes::String{"0 0 10"}, "", ""},
+        }},
+     },
+     {
+       {"some_definition",
+        {},
+        "",
+        {
+          {"some_color",
+           mdl::PropertyValueTypes::Color{
+             mdl::PropertyValueTypes::Color3f{0.1f, 0.2f, 0.3f}},
+           "",
+           ""},
+          {"some_color2",
+           mdl::PropertyValueTypes::Color{
+             mdl::PropertyValueTypes::Color3f{0.0f, 0.0f, 0.0f}},
+           "",
+           ""},
+          {"some_colour",
+           mdl::PropertyValueTypes::Color{mdl::PropertyValueTypes::Color3i{0, 0, 10}},
+           "",
+           ""},
+        }},
+     }},
+  }));
+
+  CAPTURE(originalDefinitions);
+
+  auto definitions = originalDefinitions;
+  convertLegacyColorProperties(definitions);
+
+  CHECK(definitions == expectedDefinitions);
+}
+
 } // namespace tb::mdl

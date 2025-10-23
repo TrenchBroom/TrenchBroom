@@ -1054,6 +1054,7 @@ void Map::loadEntityDefinitions()
 
           addOrSetDefaultEntityLinkProperties(entityDefinitions);
           addOrConvertOriginProperties(entityDefinitions);
+          convertLegacyColorProperties(entityDefinitions);
 
           entityDefinitionManager().setDefinitions(std::move(entityDefinitions));
         })
