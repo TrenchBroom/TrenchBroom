@@ -19,6 +19,9 @@
 
 #include "TabBook.h"
 
+#include <QByteArray>
+#include <QDataStream>
+#include <QIODevice>
 #include <QStackedLayout>
 #include <QVBoxLayout>
 
@@ -75,6 +78,32 @@ void TabBook::switchToPage(const int index)
 {
   assert(index < m_tabBook->count());
   m_tabBook->setCurrentIndex(index);
+}
+
+QByteArray TabBook::saveState() const
+{
+  auto result = QByteArray{};
+  auto stream = QDataStream{&result, QIODevice::WriteOnly};
+  stream << m_tabBook->currentIndex();
+  return result;
+}
+
+bool TabBook::restoreState(const QByteArray& state)
+{
+  auto stream = QDataStream{state};
+  int currentIndex;
+  stream >> currentIndex;
+
+  if (stream.status() == QDataStream::Ok)
+  {
+    if (currentIndex < m_tabBook->count())
+    {
+      m_tabBook->setCurrentIndex(currentIndex);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 } // namespace tb::ui

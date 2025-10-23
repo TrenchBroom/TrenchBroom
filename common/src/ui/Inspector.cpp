@@ -19,6 +19,9 @@
 
 #include "Inspector.h"
 
+#include <QByteArray>
+#include <QDataStream>
+#include <QIODevice>
 #include <QVBoxLayout>
 
 #include "ui/EntityInspector.h"
@@ -35,6 +38,7 @@ Inspector::Inspector(mdl::Map& map, GLContextManager& contextManager, QWidget* p
   : QWidget{parent}
 {
   m_tabBook = new TabBook{};
+  m_tabBook->setObjectName("Inspector_TabBook");
 
   m_mapInspector = new MapInspector{map};
   m_entityInspector = new EntityInspector{map, contextManager};
@@ -48,6 +52,13 @@ Inspector::Inspector(mdl::Map& map, GLContextManager& contextManager, QWidget* p
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_tabBook);
   setLayout(layout);
+
+  restoreWindowState(m_tabBook);
+}
+
+Inspector::~Inspector()
+{
+  saveWindowState(m_tabBook);
 }
 
 void Inspector::connectTopWidgets(MapViewBar* mapViewBar)
@@ -74,6 +85,29 @@ bool Inspector::cancelMouseDrag()
 FaceInspector* Inspector::faceInspector()
 {
   return m_faceInspector;
+}
+
+QByteArray Inspector::saveState() const
+{
+  auto result = QByteArray{};
+  auto stream = QDataStream{&result, QIODevice::WriteOnly};
+  stream << isVisible();
+  return result;
+}
+
+bool Inspector::restoreState(const QByteArray& state)
+{
+  auto stream = QDataStream{state};
+  bool visible;
+  stream >> visible;
+
+  if (stream.status() == QDataStream::Ok)
+  {
+    setVisible(visible);
+    return true;
+  }
+
+  return false;
 }
 
 } // namespace tb::ui
