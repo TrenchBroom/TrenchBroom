@@ -1,5 +1,11 @@
 name: CPP Linter
-on: [pull_request]
+on:
+  push:
+    tags:
+      - '**'
+    branches:
+      - master
+  workflow_dispatch:
 
 permissions:
   # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
