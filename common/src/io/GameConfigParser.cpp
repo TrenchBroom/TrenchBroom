@@ -574,9 +574,9 @@ Result<mdl::GameConfig> parseGameConfig(
 
 } // namespace
 
-GameConfigParser::GameConfigParser(
-  std::string_view str, const std::filesystem::path& path)
-  : ConfigParserBase{std::move(str), path}
+GameConfigParser::GameConfigParser(const std::string_view str, std::filesystem::path path)
+  : m_elParser{ELParser::Mode::Strict, str}
+  , m_path{std::move(path)}
 {
 }
 
@@ -584,7 +584,7 @@ Result<mdl::GameConfig> GameConfigParser::parse()
 {
   using mdl::GameConfig;
 
-  return parseConfigFile()
+  return m_elParser.parse()
          | kdl::and_then([&](const auto& expression) -> Result<mdl::GameConfig> {
              return el::withEvaluationContext([&](auto& context) {
                return parseGameConfig(context, expression, m_path);

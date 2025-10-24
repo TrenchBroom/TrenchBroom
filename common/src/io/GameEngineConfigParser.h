@@ -21,19 +21,21 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "io/ConfigParserBase.h"
+#include "io/ELParser.h"
 #include "mdl/GameEngineConfig.h"
 
-#include <filesystem>
 #include <string_view>
 
 namespace tb::io
 {
 
-class GameEngineConfigParser : public ConfigParserBase
+class GameEngineConfigParser
 {
+private:
+  ELParser m_elParser;
+
 public:
-  GameEngineConfigParser(std::string_view str, std::filesystem::path path);
+  explicit GameEngineConfigParser(std::string_view str);
 
   Result<mdl::GameEngineConfig> parse();
 
