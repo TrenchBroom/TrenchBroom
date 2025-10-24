@@ -22,6 +22,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
+#include <QIODevice>
 #include <QTextStream>
 
 namespace upd

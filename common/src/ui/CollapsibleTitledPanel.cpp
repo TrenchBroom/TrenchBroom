@@ -19,6 +19,9 @@
 
 #include "CollapsibleTitledPanel.h"
 
+#include <QByteArray>
+#include <QDataStream>
+#include <QIODevice>
 #include <QLabel>
 #include <QLayout>
 
