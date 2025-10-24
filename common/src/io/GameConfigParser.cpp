@@ -43,6 +43,7 @@ namespace tb::io
 {
 namespace
 {
+
 std::string prependDot(const std::string& extension)
 {
   return !extension.empty() && extension.front() != '.' ? "." + extension : extension;
@@ -106,44 +107,32 @@ std::optional<vm::bbox3d> parseSoftMapBounds(
     return std::nullopt;
   }
 
-  const auto bounds = parseSoftMapBoundsString(value.stringValue(context));
-  if (!bounds.has_value())
+  if (const auto bounds = parseSoftMapBoundsString(value.stringValue(context)))
   {
-    // If a bounds is provided in the config, it must be valid
-    throw ParserException{
-      *context.location(value),
-      fmt::format("Can't parse soft map bounds '{}'", value.asString())};
+    return bounds;
   }
-  return bounds;
+
+  // If a bounds is provided in the config, it must be valid
+  throw ParserException{
+    *context.location(value),
+    fmt::format("Can't parse soft map bounds '{}'", value.asString())};
 }
 
 std::vector<mdl::TagAttribute> parseTagAttributes(
   const el::EvaluationContext& context, const el::Value& value)
 {
-  auto result = std::vector<mdl::TagAttribute>{};
-  if (value == el::Value::Null)
-  {
-    return result;
-  }
+  return value.arrayValue(context) | std::views::transform([&](const auto& entry) {
+           const auto& name = entry.stringValue(context);
+           if (name != mdl::TagAttributes::Transparency.name)
+           {
+             throw ParserException{
+               *context.location(value),
+               fmt::format("Unexpected tag attribute '{}'", name)};
+           }
 
-  result.reserve(value.length());
-  for (size_t i = 0; i < value.length(); ++i)
-  {
-    const auto& entry = value.at(context, i);
-    const auto& name = entry.stringValue(context);
-
-    if (name == mdl::TagAttributes::Transparency.name)
-    {
-      result.push_back(mdl::TagAttributes::Transparency);
-    }
-    else
-    {
-      throw ParserException{
-        *context.location(value), fmt::format("Unexpected tag attribute '{}'", name)};
-    }
-  }
-
-  return result;
+           return mdl::TagAttributes::Transparency;
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 int parseFlagValue(
@@ -174,22 +163,55 @@ void checkTagName(
   }
 }
 
-void parseSurfaceParmTag(
+std::unique_ptr<mdl::TagMatcher> parseFaceTagMatcher(
+  const el::EvaluationContext& context,
+  const el::Value& value,
+  const mdl::FaceAttribsConfig& faceAttribsConfig)
+{
+  const auto match = value.at(context, "match").stringValue(context);
+  if (match == "material")
+  {
+    return std::make_unique<mdl::MaterialNameTagMatcher>(
+      value.at(context, "pattern").stringValue(context));
+  }
+  if (match == "surfaceparm")
+  {
+    const auto patternValue = value.at(context, "pattern");
+    return patternValue.type() == el::ValueType::String
+             ? std::make_unique<mdl::SurfaceParmTagMatcher>(
+                 patternValue.stringValue(context))
+             : std::make_unique<mdl::SurfaceParmTagMatcher>(
+                 kdl::vector_set{patternValue.asStringSet(context)});
+  }
+  if (match == "contentflag")
+  {
+    return std::make_unique<mdl::ContentFlagsTagMatcher>(parseFlagValue(
+      context, value.at(context, "flags"), faceAttribsConfig.contentFlags));
+  }
+  if (match == "surfaceflag")
+  {
+    return std::make_unique<mdl::SurfaceFlagsTagMatcher>(parseFlagValue(
+      context, value.at(context, "flags"), faceAttribsConfig.surfaceFlags));
+  }
+
+  throw ParserException{
+    *context.location(value), fmt::format("Unexpected smart tag match type '{}'", match)};
+}
+
+mdl::SmartTag parseFaceTag(
   const el::EvaluationContext& context,
   std::string name,
   const el::Value& value,
-  std::vector<mdl::SmartTag>& result)
+  const mdl::FaceAttribsConfig& faceAttribsConfig)
 {
+  auto matcher = parseFaceTagMatcher(context, value, faceAttribsConfig);
   auto attribs = parseTagAttributes(context, value.atOrDefault(context, "attribs"));
 
-  const auto patternValue = value.at(context, "pattern");
-  auto matcher =
-    patternValue.type() == el::ValueType::String
-      ? std::make_unique<mdl::SurfaceParmTagMatcher>(patternValue.stringValue(context))
-      : std::make_unique<mdl::SurfaceParmTagMatcher>(
-          kdl::vector_set{patternValue.asStringSet(context)});
-
-  result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+  return {
+    std::move(name),
+    std::move(attribs),
+    std::move(matcher),
+  };
 }
 
 void parseFaceTags(
@@ -198,52 +220,43 @@ void parseFaceTags(
   const mdl::FaceAttribsConfig& faceAttribsConfig,
   std::vector<mdl::SmartTag>& result)
 {
-  if (value == el::Value::Null)
-  {
-    return;
-  }
-
   for (const auto& entry : value.arrayValue(context))
   {
     const auto nameValue = entry.at(context, "name");
     checkTagName(context, nameValue, result);
 
-    const auto match = entry.at(context, "match").stringValue(context);
-    if (match == "material")
-    {
-      result.emplace_back(
-        nameValue.stringValue(context),
-        parseTagAttributes(context, entry.atOrDefault(context, "attribs")),
-        std::make_unique<mdl::MaterialNameTagMatcher>(
-          entry.at(context, "pattern").stringValue(context)));
-    }
-    else if (match == "surfaceparm")
-    {
-      parseSurfaceParmTag(context, nameValue.stringValue(context), entry, result);
-    }
-    else if (match == "contentflag")
-    {
-      result.emplace_back(
-        nameValue.stringValue(context),
-        parseTagAttributes(context, entry.atOrDefault(context, "attribs")),
-        std::make_unique<mdl::ContentFlagsTagMatcher>(parseFlagValue(
-          context, entry.at(context, "flags"), faceAttribsConfig.contentFlags)));
-    }
-    else if (match == "surfaceflag")
-    {
-      result.emplace_back(
-        nameValue.stringValue(context),
-        parseTagAttributes(context, entry.atOrDefault(context, "attribs")),
-        std::make_unique<mdl::SurfaceFlagsTagMatcher>(parseFlagValue(
-          context, entry.at(context, "flags"), faceAttribsConfig.surfaceFlags)));
-    }
-    else
-    {
-      throw ParserException{
-        *context.location(entry),
-        fmt::format("Unexpected smart tag match type '{}'", match)};
-    }
+    result.push_back(
+      parseFaceTag(context, nameValue.stringValue(context), entry, faceAttribsConfig));
   }
+}
+
+
+std::unique_ptr<mdl::TagMatcher> parseBrushTagMatcher(
+  const el::EvaluationContext& context, const el::Value& value)
+{
+  const auto match = value.at(context, "match").stringValue(context);
+  if (match == "classname")
+  {
+    return std::make_unique<mdl::EntityClassNameTagMatcher>(
+      value.at(context, "pattern").stringValue(context),
+      value.atOrDefault(context, "material").stringValue(context));
+  }
+
+  throw ParserException{
+    *context.location(value), fmt::format("Unexpected smart tag match type '{}'", match)};
+}
+
+mdl::SmartTag parseBrushTag(
+  const el::EvaluationContext& context, std::string name, const el::Value& value)
+{
+  auto matcher = parseBrushTagMatcher(context, value);
+  auto attribs = parseTagAttributes(context, value.atOrDefault(context, "attribs"));
+
+  return {
+    std::move(name),
+    std::move(attribs),
+    std::move(matcher),
+  };
 }
 
 void parseBrushTags(
@@ -251,32 +264,12 @@ void parseBrushTags(
   const el::Value& value,
   std::vector<mdl::SmartTag>& result)
 {
-  if (value == el::Value::Null)
-  {
-    return;
-  }
-
   for (const auto& entry : value.arrayValue(context))
   {
     const auto nameValue = entry.at(context, "name");
     checkTagName(context, nameValue, result);
 
-    const auto match = entry.at(context, "match").stringValue(context);
-    if (match == "classname")
-    {
-      result.emplace_back(
-        nameValue.stringValue(context),
-        parseTagAttributes(context, entry.atOrDefault(context, "attribs")),
-        std::make_unique<mdl::EntityClassNameTagMatcher>(
-          entry.at(context, "pattern").stringValue(context),
-          entry.atOrDefault(context, "material").stringValue(context)));
-    }
-    else
-    {
-      throw ParserException{
-        *context.location(entry),
-        fmt::format("Unexpected smart tag match type '{}'", match)};
-    }
+    result.push_back(parseBrushTag(context, nameValue.stringValue(context), entry));
   }
 }
 
@@ -396,11 +389,6 @@ mdl::FlagsConfig parseFlagsConfig(
   const el::EvaluationContext& context, const el::Value& value)
 {
   using mdl::GameConfig;
-
-  if (value == el::Value::Null)
-  {
-    return {};
-  }
 
   auto flags = std::vector<mdl::FlagConfig>{};
   flags.reserve(value.length());
