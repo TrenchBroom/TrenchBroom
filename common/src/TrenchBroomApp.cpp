@@ -196,7 +196,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   m_frameManager = std::make_unique<FrameManager>(useSDI());
 
   m_recentDocuments = std::make_unique<RecentDocuments>(
-    10, [](const auto& path) { return std::filesystem::exists(path); });
+    10, [](const auto& path) { return io::Disk::pathInfo(path) == io::PathInfo::File; });
   connect(
     m_recentDocuments.get(),
     &RecentDocuments::loadDocument,
@@ -426,8 +426,10 @@ void TrenchBroomApp::updateRecentDocument(const std::filesystem::path& path)
 
 bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
+  // if std::filesystem::absolute fails, the file won't be found and we'll log it later
+  auto ec = std::error_code{};
   const auto absPath =
-    path.is_absolute() ? path : std::filesystem::absolute(path).lexically_normal();
+    path.is_absolute() ? path : std::filesystem::absolute(path, ec).lexically_normal();
 
   const auto checkFileExists = [&]() {
     return io::Disk::pathInfo(absPath) == io::PathInfo::File
