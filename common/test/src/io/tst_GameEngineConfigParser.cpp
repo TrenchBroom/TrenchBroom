@@ -20,8 +20,6 @@
 #include "io/GameEngineConfigParser.h"
 #include "mdl/GameEngineConfig.h"
 
-#include <filesystem>
-
 #include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -32,42 +30,42 @@ namespace tb::io
 TEST_CASE("GameEngineConfigParserTest.parseBlankConfig")
 {
   const auto config = R"(   )";
-  auto parser = GameEngineConfigParser{config, {}};
+  auto parser = GameEngineConfigParser{config};
   CHECK(parser.parse().is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyConfig")
 {
   const auto config = R"( { } )";
-  auto parser = GameEngineConfigParser{config, {}};
+  auto parser = GameEngineConfigParser{config};
   CHECK(parser.parse().is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyConfigWithTrailingGarbage")
 {
   const auto config = R"(  {  } asdf)";
-  auto parser = GameEngineConfigParser{config, {}};
+  auto parser = GameEngineConfigParser{config};
   CHECK(parser.parse().is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseMissingProfiles")
 {
   const auto config = R"(  { 'version' : 1 } )";
-  auto parser = GameEngineConfigParser{config, {}};
+  auto parser = GameEngineConfigParser{config};
   CHECK(parser.parse().is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseMissingVersion")
 {
   const auto config = R"(  { 'profiles': {} } )";
-  auto parser = GameEngineConfigParser{config, {}};
+  auto parser = GameEngineConfigParser{config};
   CHECK(parser.parse().is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyProfiles")
 {
   const auto config = R"(  { 'version': 1, 'profiles': [] } )";
-  auto parser = GameEngineConfigParser{config, {}};
+  auto parser = GameEngineConfigParser{config};
   CHECK(parser.parse() == mdl::GameEngineConfig{});
 }
 
@@ -82,7 +80,7 @@ TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
 	"version": 1
 }
 )";
-  auto parser = GameEngineConfigParser{config, {}};
+  auto parser = GameEngineConfigParser{config};
   CHECK(parser.parse().is_error());
 }
 
@@ -108,7 +106,7 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
 }
 )";
 
-  auto parser = GameEngineConfigParser{config, {}};
+  auto parser = GameEngineConfigParser{config};
   CHECK(
     parser.parse()
     == mdl::GameEngineConfig{

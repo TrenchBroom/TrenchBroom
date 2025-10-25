@@ -21,18 +21,22 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "io/ConfigParserBase.h"
+#include "io/ELParser.h"
 #include "mdl/CompilationConfig.h"
 
-#include <filesystem>
+#include <string_view>
+
 
 namespace tb::io
 {
 
-class CompilationConfigParser : public ConfigParserBase
+class CompilationConfigParser
 {
+private:
+  ELParser m_elParser;
+
 public:
-  explicit CompilationConfigParser(std::string_view str, std::filesystem::path path = {});
+  explicit CompilationConfigParser(std::string_view str);
 
   Result<mdl::CompilationConfig> parse();
 

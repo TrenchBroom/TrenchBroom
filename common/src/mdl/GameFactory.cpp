@@ -312,18 +312,16 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
   const auto path = gameConfig.configFileFolder() / "CompilationProfiles.cfg";
   if (m_configFs->pathInfo(path) == io::PathInfo::File)
   {
-    m_configFs->openFile(path).join(m_configFs->makeAbsolute(path))
-      | kdl::and_then([&](auto profilesFile, auto absolutePath) {
-          auto reader = profilesFile->reader().buffer();
-          auto parser = io::CompilationConfigParser{reader.stringView(), absolutePath};
-          return parser.parse();
-        })
-      | kdl::transform([&](auto compilationConfig) {
-          gameConfig.compilationConfig = std::move(compilationConfig);
-          gameConfig.compilationConfigParseFailed = false;
-        })
-      | kdl::transform_error(
-        [&](auto) { gameConfig.compilationConfigParseFailed = true; });
+    m_configFs->openFile(path) | kdl::and_then([&](auto profilesFile) {
+      auto reader = profilesFile->reader().buffer();
+      auto parser = io::CompilationConfigParser{reader.stringView()};
+      return parser.parse();
+    }) | kdl::transform([&](auto compilationConfig) {
+      gameConfig.compilationConfig = std::move(compilationConfig);
+      gameConfig.compilationConfigParseFailed = false;
+    }) | kdl::transform_error([&](auto) {
+      gameConfig.compilationConfigParseFailed = true;
+    });
   }
 }
 
@@ -332,18 +330,16 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   const auto path = gameConfig.configFileFolder() / "GameEngineProfiles.cfg";
   if (m_configFs->pathInfo(path) == io::PathInfo::File)
   {
-    m_configFs->openFile(path).join(m_configFs->makeAbsolute(path))
-      | kdl::and_then([&](auto profilesFile, auto absolutePath) {
-          auto reader = profilesFile->reader().buffer();
-          auto parser = io::GameEngineConfigParser{reader.stringView(), absolutePath};
-          return parser.parse();
-        })
-      | kdl::transform([&](auto gameEngineConfig) {
-          gameConfig.gameEngineConfig = std::move(gameEngineConfig);
-          gameConfig.gameEngineConfigParseFailed = false;
-        })
-      | kdl::transform_error(
-        [&](auto) { gameConfig.gameEngineConfigParseFailed = true; });
+    m_configFs->openFile(path) | kdl::and_then([&](auto profilesFile) {
+      auto reader = profilesFile->reader().buffer();
+      auto parser = io::GameEngineConfigParser{reader.stringView()};
+      return parser.parse();
+    }) | kdl::transform([&](auto gameEngineConfig) {
+      gameConfig.gameEngineConfig = std::move(gameEngineConfig);
+      gameConfig.gameEngineConfigParseFailed = false;
+    }) | kdl::transform_error([&](auto) {
+      gameConfig.gameEngineConfigParseFailed = true;
+    });
   }
 }
 
