@@ -185,7 +185,7 @@ public:
     }
 
     friend constexpr auto iter_move(const iterator& i) noexcept(
-      noexcept(std::ranges::iter_move(i.current_))
+      noexcept(std::ranges::iter_move(std::declval<iterator const&>().current_))
       and std::is_nothrow_move_constructible_v<
         std::ranges::range_rvalue_reference_t<Base>>)
     {
