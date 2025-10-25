@@ -112,6 +112,32 @@ struct Origin
   kdl_reflect_decl(Origin, defaultValue);
 };
 
+enum class IOParameterType
+{
+  Void,
+  String,
+  Integer,
+  Float,
+  Boolean,
+  EHandle,
+};
+
+std::ostream& operator<<(std::ostream& lhs, IOParameterType rhs);
+
+struct Input
+{
+  IOParameterType parameterType;
+
+  kdl_reflect_decl(Input, parameterType);
+};
+
+struct Output
+{
+  IOParameterType parameterType;
+
+  kdl_reflect_decl(Output, parameterType);
+};
+
 struct Unknown
 {
   std::optional<std::string> defaultValue = std::nullopt;
@@ -131,6 +157,8 @@ using PropertyValueType = std::variant<
   PropertyValueTypes::Choice,
   PropertyValueTypes::Flags,
   PropertyValueTypes::Origin,
+  PropertyValueTypes::Input,
+  PropertyValueTypes::Output,
   PropertyValueTypes::Unknown>;
 
 std::ostream& operator<<(std::ostream& lhs, const PropertyValueType& rhs);
