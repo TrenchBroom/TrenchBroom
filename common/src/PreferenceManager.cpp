@@ -30,6 +30,7 @@
 #if defined(Q_OS_WIN)
 #include <QSettings>
 #endif
+#include <QIODevice>
 #include <QStandardPaths>
 #include <QStringBuilder>
 #include <QTimer>

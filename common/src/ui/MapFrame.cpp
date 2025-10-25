@@ -382,6 +382,7 @@ void MapFrame::createGui()
   m_vSplitter->setObjectName("MapFrame_VerticalSplitterSplitter");
 
   m_infoPanel = new InfoPanel{document()};
+  m_infoPanel->setObjectName("MapFrame_InfoPanel");
   m_console = m_infoPanel->console();
 
   m_mapView = new SwitchableMapViewContainer{document(), *m_contextManager};
@@ -390,6 +391,7 @@ void MapFrame::createGui()
     m_currentMapView, "SwitchableMapViewContainer should have constructed a MapViewBase");
 
   m_inspector = new Inspector{document().map(), *m_contextManager};
+  m_inspector->setObjectName("Inspector");
 
   m_mapView->connectTopWidgets(m_inspector);
 
@@ -430,6 +432,8 @@ void MapFrame::createGui()
 
   restoreWindowState(m_hSplitter);
   restoreWindowState(m_vSplitter);
+  restoreWindowState(m_inspector);
+  restoreWindowState(m_infoPanel);
 }
 
 void MapFrame::createToolBar()
@@ -2506,6 +2510,8 @@ void MapFrame::closeEvent(QCloseEvent* event)
       saveWindowState(this);
       saveWindowState(m_hSplitter);
       saveWindowState(m_vSplitter);
+      saveWindowState(m_inspector);
+      saveWindowState(m_infoPanel);
 
       m_frameManager.removeFrame(this);
       event->accept();

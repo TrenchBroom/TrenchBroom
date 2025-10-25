@@ -56,11 +56,16 @@ private:
 
 public:
   Inspector(mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
+  ~Inspector() override;
+
   void connectTopWidgets(MapViewBar* mapViewBar);
   void switchToPage(InspectorPage page);
   bool cancelMouseDrag();
 
   FaceInspector* faceInspector();
+
+  QByteArray saveState() const;
+  bool restoreState(const QByteArray& state);
 };
 
 } // namespace tb::ui

@@ -43,7 +43,12 @@ private:
 
 public:
   explicit InfoPanel(MapDocument& document, QWidget* parent = nullptr);
+  ~InfoPanel() override;
+
   Console* console() const;
+
+  QByteArray saveState() const;
+  bool restoreState(const QByteArray& state);
 };
 
 } // namespace tb::ui
