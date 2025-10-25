@@ -55,10 +55,11 @@ std::string formatParserErrors(
 } // namespace
 
 WorldReader::WorldReader(
+  const mdl::GameConfig& config,
   std::string_view str,
   const MapFormat sourceAndTargetMapFormat,
   const EntityPropertyConfig& entityPropertyConfig)
-  : MapReader{std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat, entityPropertyConfig}
+  : MapReader{config, std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat, entityPropertyConfig}
   , m_worldNode{std::make_unique<WorldNode>(
       entityPropertyConfig, Entity{}, sourceAndTargetMapFormat)}
 {
@@ -66,6 +67,7 @@ WorldReader::WorldReader(
 }
 
 Result<std::unique_ptr<WorldNode>> WorldReader::tryRead(
+  const mdl::GameConfig& config,
   std::string_view str,
   const std::vector<MapFormat>& mapFormatsToTry,
   const vm::bbox3d& worldBounds,
@@ -82,7 +84,7 @@ Result<std::unique_ptr<WorldNode>> WorldReader::tryRead(
       continue;
     }
 
-    auto reader = WorldReader{str, mapFormat, entityPropertyConfig};
+    auto reader = WorldReader{config, str, mapFormat, entityPropertyConfig};
     if (auto result = reader.read(worldBounds, status, taskManager))
     {
       return result;

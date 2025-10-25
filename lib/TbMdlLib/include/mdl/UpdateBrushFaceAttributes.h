@@ -116,6 +116,18 @@ struct UpdateBrushFaceAttributes
   std::optional<std::optional<Color>> color = std::nullopt;
   std::optional<AxisOp> axis = std::nullopt;
 
+  // SiN
+  std::optional<std::optional<float>> sinNonlitValue = std::nullopt;
+  std::optional<std::optional<int>> sinTransAngle = std::nullopt;
+  std::optional<std::optional<float>> sinTransMag = std::nullopt;
+  std::optional<std::optional<float>> sinTranslucence = std::nullopt;
+  std::optional<std::optional<float>> sinRestitution = std::nullopt;
+  std::optional<std::optional<float>> sinFriction = std::nullopt;
+  std::optional<std::optional<float>> sinAnimTime = std::nullopt;
+  std::optional<std::optional<std::string>> sinDirectStyle = std::nullopt;
+  std::optional<std::optional<float>> sinDirect = std::nullopt;
+  std::optional<std::optional<float>> sinDirectAngle = std::nullopt;
+
   kdl_reflect_decl(
     UpdateBrushFaceAttributes,
     materialName,
@@ -128,7 +140,18 @@ struct UpdateBrushFaceAttributes
     surfaceContents,
     surfaceValue,
     color,
-    axis);
+    axis,
+    // SiN
+    sinNonlitValue,
+    sinTransAngle,
+    sinTransMag,
+    sinTranslucence,
+    sinRestitution,
+    sinFriction,
+    sinAnimTime,
+    sinDirectStyle,
+    sinDirect,
+    sinDirectAngle);
 };
 
 UpdateBrushFaceAttributes copyAll(const BrushFaceAttributes& attributes);

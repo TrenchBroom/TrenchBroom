@@ -54,6 +54,7 @@ class LayerNode;
 enum class MapFormat;
 class Node;
 class WorldNode;
+struct GameConfig;
 
 /**
  * Abstract superclass containing common code for:
@@ -123,6 +124,7 @@ protected:
    * if orphaned
    */
   MapReader(
+    const mdl::GameConfig& config,
     std::string_view str,
     MapFormat sourceMapFormat,
     MapFormat targetMapFormat,

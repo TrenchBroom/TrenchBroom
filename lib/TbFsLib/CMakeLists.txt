@@ -8,6 +8,7 @@ add_library(TbFsLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/FileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/FileSystemMetadata.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/IdPakFileSystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/SiNPakFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/PathInfo.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/PathMatcher.cpp

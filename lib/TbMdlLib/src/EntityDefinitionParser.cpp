@@ -29,6 +29,7 @@
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
+#include "kd/string_compare.h"
 
 #include <algorithm>
 #include <optional>
@@ -472,7 +473,7 @@ std::vector<EntityDefinitionClassInfo> resolveInheritance(
   const auto filteredClassInfos = filterRedundantClasses(status, classInfos);
   const auto findClassInfos = [&](const auto& name) {
     return filteredClassInfos
-           | std::views::filter([&](const auto& c) { return c.name == name; })
+           | std::views::filter([&](const auto& c) { return kdl::ci::str_is_equal(c.name, name); })
            | std::views::transform([](const auto& c) { return &c; })
            | kdl::ranges::to<std::vector>();
   };

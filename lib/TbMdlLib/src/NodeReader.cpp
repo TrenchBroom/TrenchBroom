@@ -36,15 +36,17 @@ namespace tb::mdl
 {
 
 NodeReader::NodeReader(
+  const mdl::GameConfig &config,
   const std::string_view str,
   const MapFormat sourceMapFormat,
   const MapFormat targetMapFormat,
   const EntityPropertyConfig& entityPropertyConfig)
-  : MapReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig}
+  : MapReader{config, str, sourceMapFormat, targetMapFormat, entityPropertyConfig}
 {
 }
 
 Result<std::vector<Node*>> NodeReader::read(
+  const mdl::GameConfig& config,
   const std::string& str,
   const MapFormat preferredMapFormat,
   const vm::bbox3d& worldBounds,
@@ -59,6 +61,7 @@ Result<std::vector<Node*>> NodeReader::read(
       auto result = readAsFormat(
         compatibleMapFormat,
         preferredMapFormat,
+        config,
         str,
         worldBounds,
         entityPropertyConfig,
@@ -91,6 +94,7 @@ Result<std::vector<Node*>> NodeReader::read(
 Result<std::vector<Node*>> NodeReader::readAsFormat(
   const MapFormat sourceMapFormat,
   const MapFormat targetMapFormat,
+  const mdl::GameConfig &config,
   const std::string& str,
   const vm::bbox3d& worldBounds,
   const EntityPropertyConfig& entityPropertyConfig,
@@ -98,7 +102,7 @@ Result<std::vector<Node*>> NodeReader::readAsFormat(
   kdl::task_manager& taskManager)
 {
   auto entityReader =
-    NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
+    NodeReader{config, str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
   return entityReader.readEntities(worldBounds, status, taskManager)
          | kdl::transform([&]() {
              status.info(
@@ -112,7 +116,7 @@ Result<std::vector<Node*>> NodeReader::readAsFormat(
              kdl::vec_clear_and_delete(entityReader.m_nodes);
 
              auto brushReader =
-               NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
+               NodeReader{config, str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
              return brushReader.readBrushes(worldBounds, status, taskManager)
                     | kdl::transform([&]() {
                         status.info(

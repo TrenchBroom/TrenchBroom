@@ -36,6 +36,10 @@ void dropPersistentValues(auto& values)
     {
       iValue = values.erase(iValue);
     }
+    else
+    {
+      iValue++;
+    }
   }
 }
 

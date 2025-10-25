@@ -20,6 +20,7 @@
 #include "TestParserStatus.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/NodeReader.h"
 #include "mdl/ParaxialUVCoordSystem.h"
@@ -43,7 +44,7 @@ TEST_CASE("NodeReader")
 ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 )";
 
-    CHECK(NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager)
+    CHECK(NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager)
             .is_error());
   }
 
@@ -67,7 +68,7 @@ TEST_CASE("NodeReader")
 )";
 
     auto nodes =
-      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
@@ -101,7 +102,7 @@ TEST_CASE("NodeReader")
 )";
 
     auto nodes =
-      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     auto* groupNode = dynamic_cast<GroupNode*>(nodes.value().at(0));
@@ -138,7 +139,7 @@ TEST_CASE("NodeReader")
 )";
 
     auto nodes =
-      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
     CHECK(nodes.value().size() == 1);
   }

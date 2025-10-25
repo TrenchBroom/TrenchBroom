@@ -29,6 +29,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
+#include "mdl/GameConfig.h"
 
 #include "kd/contracts.h"
 #include "kd/overload.h"
@@ -238,6 +239,131 @@ protected:
   }
 };
 
+namespace SiNWriter
+{
+  template<typename T>
+  static void writeSiNKeyValue(std::ostream& stream, const char *key, const std::optional<T> &value, const T &defaultValue = static_cast<T>(0))
+  {
+      if (value.has_value() && value != defaultValue) {
+          fmt::format_to(
+            std::ostreambuf_iterator<char>{stream},
+            " {} {}",
+            key,
+            value.value());
+      }
+  }
+
+  static void writeSiNKeyValue(std::ostream& stream, const char *key, const std::optional<Color> &value, const Color &defaultValue = Color(RgbB((unsigned char) 0, (unsigned char) 0, (unsigned char) 0)))
+  {
+      if (value.has_value() && value.value() != defaultValue) {
+          fmt::format_to(
+            std::ostreambuf_iterator<char>{stream},
+            " {} {}",
+            key,
+            value->to<RgbF>().toString());
+      }
+  }
+
+  static void writeSiNKeyValue(std::ostream& stream, const char *key, const std::optional<std::string> &value, const std::string &defaultValue = "")
+  {
+      if (value.has_value() && value != defaultValue) {
+          fmt::format_to(
+            std::ostreambuf_iterator<char>{stream},
+            " {} \"{}\"",
+            key,
+            value.value());
+      }
+  }
+
+  static void writeSiNKeyValues(const GameConfig& config, std::ostream& stream, const BrushFace& face)
+  {
+      // can't be constexpr sadly
+      const auto &attribs = face.attributes();
+
+      // contents, then surf flags
+      if (attribs.surfaceContents().has_value()) {
+          for (auto &contentflag : config.faceAttribsConfig.contentFlags.flags) {
+              if (contentflag.value & attribs.surfaceContents().value()) {
+                  fmt::format_to(
+                    std::ostreambuf_iterator<char>{stream},
+                    " +{}",
+                    contentflag.name);
+              }
+          }
+      }
+
+      if (attribs.surfaceFlags().has_value()) {
+          for (auto &surfaceflag : config.faceAttribsConfig.surfaceFlags.flags) {
+              if (surfaceflag.value & attribs.surfaceFlags().value()) {
+                  fmt::format_to(
+                    std::ostreambuf_iterator<char>{stream},
+                    " +{}",
+                    surfaceflag.name);
+              }
+          }
+      }
+
+      // attribs last
+      
+      writeSiNKeyValue(stream, "animtime", attribs.sinAnimTime(), BrushFaceAttributes::SiNDefaultAnimTime);
+      writeSiNKeyValue(stream, "friction", attribs.sinFriction(), BrushFaceAttributes::SiNDefaultFriction);
+      writeSiNKeyValue(stream, "restitution", attribs.sinRestitution());
+      writeSiNKeyValue(stream, "direct", attribs.sinDirect());
+      writeSiNKeyValue(stream, "directangle", attribs.sinDirectAngle());
+      writeSiNKeyValue(stream, "translucence", attribs.sinTranslucence());
+      writeSiNKeyValue(stream, "trans_mag", attribs.sinTransMag());
+      writeSiNKeyValue(stream, "trans_angle", attribs.sinTransAngle());
+      writeSiNKeyValue(stream, "color", attribs.color());
+      writeSiNKeyValue(stream, "lightvalue", attribs.surfaceValue());
+      writeSiNKeyValue(stream, "nonlitvalue", attribs.sinNonlitValue(), BrushFaceAttributes::SiNDefaultNonLitValue);
+      writeSiNKeyValue(stream, "directstyle", attribs.sinDirectStyle());
+  }
+}
+
+class SiNFileSerializer : public Quake2FileSerializer
+{
+    const GameConfig &m_config;
+
+public:
+  explicit SiNFileSerializer(const GameConfig& config, std::ostream& stream)
+    : m_config{config}, Quake2FileSerializer{stream}
+  {
+  }
+
+private:
+  void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const override
+  {
+    writeFacePoints(stream, face);
+    writeMaterialInfo(stream, face);
+
+    SiNWriter::writeSiNKeyValues(m_config, stream, face);
+
+    fmt::format_to(std::ostreambuf_iterator<char>{stream}, "\n");
+  }
+};
+
+class SiNValveFileSerializer : public Quake2ValveFileSerializer
+{
+    const GameConfig &m_config;
+
+public:
+  explicit SiNValveFileSerializer(const GameConfig& config, std::ostream& stream)
+      : m_config{config}, Quake2ValveFileSerializer{stream}
+  {
+  }
+
+private:
+  void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const override
+  {
+    writeFacePoints(stream, face);
+    writeValveMaterialInfo(stream, face);
+
+    SiNWriter::writeSiNKeyValues(m_config, stream, face);
+
+    fmt::format_to(std::ostreambuf_iterator<char>{stream}, "\n");
+  }
+};
+
 class Hexen2FileSerializer : public QuakeFileSerializer
 {
 public:
@@ -274,7 +400,7 @@ private:
 };
 
 std::unique_ptr<NodeSerializer> MapFileSerializer::create(
-  const MapFormat format, std::ostream& stream)
+  const GameConfig& config, const MapFormat format, std::ostream& stream)
 {
   switch (format)
   {
@@ -290,6 +416,10 @@ std::unique_ptr<NodeSerializer> MapFileSerializer::create(
     return std::make_unique<Quake2ValveFileSerializer>(stream);
   case MapFormat::Daikatana:
     return std::make_unique<DaikatanaFileSerializer>(stream);
+  case MapFormat::SiN_Valve:
+    return std::make_unique<SiNValveFileSerializer>(config, stream);
+  case MapFormat::SiN:
+    return std::make_unique<SiNFileSerializer>(config, stream);
   case MapFormat::Valve:
     return std::make_unique<ValveFileSerializer>(stream);
   case MapFormat::Hexen2:

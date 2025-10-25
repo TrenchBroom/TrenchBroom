@@ -26,6 +26,7 @@
 #include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
@@ -63,7 +64,7 @@ TEST_CASE("WorldReader")
   SECTION("Empty map")
   {
     const auto data = "";
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -78,7 +79,7 @@ TEST_CASE("WorldReader")
   {
     const auto data = "{}";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -99,7 +100,7 @@ TEST_CASE("WorldReader")
 )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -134,7 +135,7 @@ TEST_CASE("WorldReader")
 )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -166,7 +167,7 @@ TEST_CASE("WorldReader")
 )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -208,7 +209,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -288,7 +289,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -331,7 +332,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -405,7 +406,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Valve, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Valve, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -433,7 +434,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -503,7 +504,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2_Valve, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2_Valve, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -533,7 +534,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake3_Valve, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake3_Valve, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -561,7 +562,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Daikatana, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -622,7 +623,7 @@ TEST_CASE("WorldReader")
 )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Daikatana, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -650,7 +651,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -700,7 +701,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -748,7 +749,7 @@ TEST_CASE("WorldReader")
 "_tb_layer_omit_from_export" "1"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -810,7 +811,7 @@ TEST_CASE("WorldReader")
 "_tb_layer_sort_index" "1"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -889,7 +890,7 @@ TEST_CASE("WorldReader")
 "_tb_layer_sort_index" "12"
 })end";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -985,7 +986,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1061,7 +1062,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1106,7 +1107,7 @@ TEST_CASE("WorldReader")
 }
 )";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1153,7 +1154,7 @@ TEST_CASE("WorldReader")
             })";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake3, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1190,7 +1191,7 @@ brushDef
 })";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake3, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1221,7 +1222,7 @@ common/caulk
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake3, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1270,7 +1271,7 @@ common/caulk
 })";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Quake2, {}};
 
     CHECK_NOTHROW(reader.read(worldBounds, status, taskManager));
   }
@@ -1283,7 +1284,7 @@ common/caulk
 "message" "yay \"Mr. Robot!\""
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1306,7 +1307,7 @@ common/caulk
 "path" "c:\a\b\c\"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1329,7 +1330,7 @@ common/caulk
 "path" "c:\\a\\b\\c\\"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1352,7 +1353,7 @@ common/caulk
 "message" "test\\"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1376,7 +1377,7 @@ common/caulk
 "message" "vm::line1\nvm::line2d"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1398,7 +1399,7 @@ common/caulk
     const auto file = fs::Disk::openFile(mapPath) | kdl::value();
     auto fileReader = file->reader().buffer();
 
-    auto worldReader = WorldReader{fileReader.stringView(), mdl::MapFormat::Quake2, {}};
+    auto worldReader = WorldReader{{}, fileReader.stringView(), mdl::MapFormat::Quake2, {}};
     auto worldResult = worldReader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
@@ -1438,7 +1439,7 @@ common/caulk
 })";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1496,7 +1497,7 @@ common/caulk
       materialName);
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1542,7 +1543,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1587,7 +1588,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1637,7 +1638,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1686,7 +1687,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1785,7 +1786,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1870,7 +1871,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1923,6 +1924,7 @@ common/caulk
 
 
     auto worldResult = WorldReader::tryRead(
+      {},
       data,
       {mdl::MapFormat::Standard, mdl::MapFormat::Valve},
       worldBounds,
@@ -1959,7 +1961,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
     auto world = reader.read(worldBounds, status, taskManager);
     CHECK(world != nullptr);
   }
@@ -1979,7 +1981,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
@@ -2016,7 +2018,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 ( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1
 }
 })";
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
@@ -2044,7 +2046,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 ( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1
 }
 })";
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{{}, data, mdl::MapFormat::Standard, {}};
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 

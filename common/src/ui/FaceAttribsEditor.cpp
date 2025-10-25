@@ -28,6 +28,7 @@
 #include "gl/Material.h"
 #include "gl/Texture.h"
 #include "mdl/BrushFace.h"
+#include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -272,7 +273,299 @@ void FaceAttribsEditor::colorValueUnset()
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.color = std::nullopt}))
+  if (!setBrushFaceAttributes(map, {.color = std::optional<Color>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+// SiN stuff
+void FaceAttribsEditor::sinNonlitValueChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinNonlitValue = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinNonlitValueUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinNonlitValue = std::optional<float>{std::nullopt}}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinTransAngleChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinTransAngle = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinTransAngleUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinTransAngle = std::optional<int>{std::nullopt}}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinTransMagChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinTransMag = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinTransMagUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinTransMag = std::optional<float>{std::nullopt}}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinTranslucenceChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinTranslucence = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinTranslucenceUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinTranslucence = std::optional<float>{std::nullopt}}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinRestitutionChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinRestitution = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinRestitutionUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinRestitution = std::optional<float>{std::nullopt}}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinFrictionChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinFriction = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinFrictionUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinFriction = std::optional<float>{std::nullopt}}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinAnimTimeChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinAnimTime = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinAnimTimeUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinAnimTime = std::optional<float>{std::nullopt}}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinDirectStyleValueChanged(const QString& /* text */)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  const std::string str = m_surfaceSiNDirectStyleEditor->text().toStdString();
+  if (!kdl::str_is_blank(str))
+  {
+    if (!setBrushFaceAttributes(map, {.sinDirectStyle = {str}}))
+    {
+      updateControls();
+    }
+  }
+  else
+  {
+    if (!setBrushFaceAttributes(map, {.sinDirectStyle = std::optional<std::string>{std::nullopt}}))
+    {
+      updateControls();
+    }
+  }
+}
+
+void FaceAttribsEditor::sinDirectStyleValueUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinDirectStyle = std::optional<std::string>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinDirectChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinDirect = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinDirectUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinDirect = std::optional<float>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinDirectAngleChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinDirectAngle = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinDirectAngleUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinDirectAngle = std::optional<float>{std::nullopt}}))
   {
     updateControls();
   }
@@ -381,6 +674,87 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
   m_colorUnsetButton = createBitmapButton("ResetUV.svg", tr("Unset color"));
   m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);
 
+  // SiN stuff
+  auto setupSiNNumericControl = [](const char *labelStr, QLabel* &label, SpinControl* &spin, QAbstractButton* &unset, QWidget* &layout, double min, double max, double sinc, double minc, double linc) {
+      label = new QLabel{labelStr};
+      setEmphasizedStyle(label);
+      spin = new SpinControl{};
+      spin->setRange(min, max);
+      spin->setIncrements(sinc, minc, linc);
+      spin->setDigits(0, 6);
+      unset = createBitmapButton("ResetUV.svg", tr("Unset value"));
+      layout = createUnsetButtonLayout(spin, unset);
+  };
+
+  setupSiNNumericControl("Non-lit Value",
+                         m_surfaceSiNNonlitValueLabel,
+                         m_surfaceSiNNonlitValueEditor,
+                         m_surfaceSiNNonlitValueUnsetButton,
+                         m_surfaceSiNNonlitValueEditorLayout,
+                         0.0f, 1.0f, 0.01f, 0.05f, 0.1f);
+
+  setupSiNNumericControl("Translate Angle",
+                         m_surfaceSiNTransAngleLabel,
+                         m_surfaceSiNTransAngleEditor,
+                         m_surfaceSiNTransAngleUnsetButton,
+                         m_surfaceSiNTransAngleEditorLayout,
+                         0.0f, 360.0f, 1, 5, 30);
+
+  setupSiNNumericControl("Translate Magnitude",
+                         m_surfaceSiNTransMagLabel,
+                         m_surfaceSiNTransMagEditor,
+                         m_surfaceSiNTransMagUnsetButton,
+                         m_surfaceSiNTransMagEditorLayout,
+                         min, max, 1.0f, 10.0f, 100.0f);
+
+  setupSiNNumericControl("Translucence",
+                         m_surfaceSiNTranslucenceLabel,
+                         m_surfaceSiNTranslucenceEditor,
+                         m_surfaceSiNTranslucenceUnsetButton,
+                         m_surfaceSiNTranslucenceEditorLayout,
+                         0.0f, 1.0f, 0.01f, 0.05f, 0.1f);
+
+  setupSiNNumericControl("Restitution",
+                         m_surfaceSiNRestitutionLabel,
+                         m_surfaceSiNRestitutionEditor,
+                         m_surfaceSiNRestitutionUnsetButton,
+                         m_surfaceSiNRestitutionEditorLayout,
+                         0.0f, 1.0f, 0.01f, 0.05f, 0.1f);
+
+  setupSiNNumericControl("Friction",
+                         m_surfaceSiNFrictionLabel,
+                         m_surfaceSiNFrictionEditor,
+                         m_surfaceSiNFrictionUnsetButton,
+                         m_surfaceSiNFrictionEditorLayout,
+                         0.0f, max, 0.01f, 0.05f, 0.1f);
+
+  setupSiNNumericControl("Anim Time",
+                         m_surfaceSiNAnimTimeLabel,
+                         m_surfaceSiNAnimTimeEditor,
+                         m_surfaceSiNAnimTimeUnsetButton,
+                         m_surfaceSiNAnimTimeEditorLayout,
+                         0.0f, max, 0.1f, 0.25f, 0.5f);
+  
+  m_surfaceSiNDirectStyleLabel = new QLabel { "Direct Style" };
+  setEmphasizedStyle(m_surfaceSiNDirectStyleLabel);
+  m_surfaceSiNDirectStyleEditor = new QLineEdit{};
+  m_surfaceSiNDirectStyleUnsetButton = createBitmapButton("ResetUV.svg", tr("Unset surface direct style"));
+  m_surfaceSiNDirectStyleEditorLayout = createUnsetButtonLayout(m_surfaceSiNDirectStyleEditor, m_surfaceSiNDirectStyleUnsetButton);
+  
+  setupSiNNumericControl("Direct",
+                         m_surfaceSiNDirectLabel,
+                         m_surfaceSiNDirectEditor,
+                         m_surfaceSiNDirectUnsetButton,
+                         m_surfaceSiNDirectEditorLayout,
+                         min, max, 1, 10, 100);
+
+  setupSiNNumericControl("Direct Angle",
+                         m_surfaceSiNDirectAngleLabel,
+                         m_surfaceSiNDirectAngleEditor,
+                         m_surfaceSiNDirectAngleUnsetButton,
+                         m_surfaceSiNDirectAngleEditorLayout,
+                         0.0f, 360.0f, 1, 5, 30);
+
   const Qt::Alignment LabelFlags = Qt::AlignVCenter | Qt::AlignRight;
   const Qt::Alignment ValueFlags = Qt::AlignVCenter;
 
@@ -436,6 +810,44 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
 
   faceAttribsLayout->addWidget(m_colorLabel, r, c++, LabelFlags);
   faceAttribsLayout->addWidget(m_colorEditorLayout, r, c++, 1, 3);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_surfaceSiNNonlitValueLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNNonlitValueEditorLayout, r, c++, 1, 3);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_surfaceSiNTransAngleLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNTransAngleEditorLayout, r, c++);
+  faceAttribsLayout->addWidget(m_surfaceSiNTransMagLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNTransMagEditorLayout, r, c++);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_surfaceSiNTranslucenceLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNTranslucenceEditorLayout, r, c++);
+  faceAttribsLayout->addWidget(m_surfaceSiNRestitutionLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNRestitutionEditorLayout, r, c++);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_surfaceSiNFrictionLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNFrictionEditorLayout, r, c++);
+  faceAttribsLayout->addWidget(m_surfaceSiNAnimTimeLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNAnimTimeEditorLayout, r, c++);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_surfaceSiNDirectStyleLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNDirectStyleEditorLayout, r, c++, 1, 3);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_surfaceSiNDirectLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNDirectEditorLayout, r, c++);
+  faceAttribsLayout->addWidget(m_surfaceSiNDirectAngleLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNDirectAngleEditorLayout, r, c++);
   ++r;
   c = 0;
 
@@ -521,6 +933,105 @@ void FaceAttribsEditor::bindEvents()
     &SignalDelayer::processSignal,
     this,
     &FaceAttribsEditor::updateControls);
+
+  // SIN stuff
+  connect(
+    m_surfaceSiNNonlitValueEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinNonlitValueChanged);
+  connect(
+    m_surfaceSiNNonlitValueUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinNonlitValueUnset);
+  connect(
+    m_surfaceSiNTransAngleEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinTransAngleChanged);
+  connect(
+    m_surfaceSiNTransAngleUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinTransAngleUnset);
+  connect(
+    m_surfaceSiNTransMagEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinTransMagChanged);
+  connect(
+    m_surfaceSiNTransMagUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinTransMagUnset);
+  connect(
+    m_surfaceSiNTranslucenceEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinTranslucenceChanged);
+  connect(
+    m_surfaceSiNTranslucenceUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinTranslucenceUnset);
+  connect(
+    m_surfaceSiNRestitutionEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinRestitutionChanged);
+  connect(
+    m_surfaceSiNRestitutionUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinRestitutionUnset);
+  connect(
+    m_surfaceSiNFrictionEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinFrictionChanged);
+  connect(
+    m_surfaceSiNFrictionUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinFrictionUnset);
+  connect(
+    m_surfaceSiNAnimTimeEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinAnimTimeChanged);
+  connect(
+    m_surfaceSiNAnimTimeUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinAnimTimeUnset);
+  connect(
+    m_surfaceSiNDirectStyleEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::sinDirectStyleValueChanged);
+  connect(
+    m_surfaceSiNDirectStyleUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinDirectStyleValueUnset);
+  connect(
+    m_surfaceSiNDirectEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinDirectChanged);
+  connect(
+    m_surfaceSiNDirectUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinDirectUnset);
+  connect(
+    m_surfaceSiNDirectAngleEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinDirectAngleChanged);
+  connect(
+    m_surfaceSiNDirectAngleUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinDirectAngleUnset);
 }
 
 void FaceAttribsEditor::connectObservers()
@@ -573,6 +1084,18 @@ void FaceAttribsEditor::updateControls()
   const auto blockSurfaceFlagsEditor = QSignalBlocker{m_surfaceFlagsEditor};
   const auto blockContentFlagsEditor = QSignalBlocker{m_contentFlagsEditor};
   const auto blockColorEditor = QSignalBlocker{m_colorEditor};
+
+  // SiN
+  const auto blockSiNNonlitValueEditor = QSignalBlocker{m_surfaceSiNNonlitValueEditor};
+  const auto blockSiNTransAngleEditor = QSignalBlocker{m_surfaceSiNTransAngleEditor};
+  const auto blockSiNTransMagEditor = QSignalBlocker{m_surfaceSiNTransMagEditor};
+  const auto blockSiNTranslucenceEditor = QSignalBlocker{m_surfaceSiNTranslucenceEditor};
+  const auto blockSiNRestitutionEditor = QSignalBlocker{m_surfaceSiNRestitutionEditor};
+  const auto blockSiNFrictionEditor = QSignalBlocker{m_surfaceSiNFrictionEditor};
+  const auto blockSiNAnimTimeEditor = QSignalBlocker{m_surfaceSiNAnimTimeEditor};
+  const auto blockSiNDirectStyleEditor = QSignalBlocker{m_surfaceSiNDirectStyleEditor};
+  const auto blockSiNDirectEditor = QSignalBlocker{m_surfaceSiNDirectEditor};
+  const auto blockSiNDirectAngleEditor = QSignalBlocker{m_surfaceSiNDirectAngleEditor};
 
   if (hasSurfaceFlags())
   {
@@ -629,11 +1152,52 @@ void FaceAttribsEditor::updateControls()
     auto mixedSurfaceFlags = 0;
     auto mixedSurfaceContents = 0;
     const auto surfaceValue = firstFace.resolvedSurfaceValue();
-    const auto colorValue = firstFace.attributes().color();
+    const auto& colorValue = firstFace.attributes().color();
     auto hasSurfaceValue = firstFace.attributes().surfaceValue().has_value();
     auto hasSurfaceFlags = firstFace.attributes().surfaceFlags().has_value();
     auto hasSurfaceContents = firstFace.attributes().surfaceContents().has_value();
     auto hasColorValue = firstFace.attributes().hasColor();
+
+    // SiN
+    auto        sinNonlitValueMulti = false;
+    const auto &sinNonlitValue =    firstFace.attributes().sinNonlitValue();
+    auto     hasSiNNonlitValue = firstFace.attributes().hasSiNNonlitValue();
+
+    auto        sinTransAngleMulti = false;
+    const auto &sinTransAngle =    firstFace.attributes().sinTransAngle();
+    auto     hasSiNTransAngle = firstFace.attributes().hasSiNTransAngle();
+
+    auto        sinTransMagMulti = false;
+    const auto &sinTransMag =    firstFace.attributes().sinTransMag();
+    auto     hasSiNTransMag = firstFace.attributes().hasSiNTransMag();
+
+    auto        sinTranslucenceMulti = false;
+    const auto &sinTranslucence =    firstFace.attributes().sinTranslucence();
+    auto     hasSiNTranslucence = firstFace.attributes().hasSiNTranslucence();
+
+    auto        sinRestitutionMulti = false;
+    const auto &sinRestitution =    firstFace.attributes().sinRestitution();
+    auto     hasSiNRestitution = firstFace.attributes().hasSiNRestitution();
+
+    auto        sinFrictionMulti = false;
+    const auto &sinFriction =    firstFace.attributes().sinFriction();
+    auto     hasSiNFriction = firstFace.attributes().hasSiNFriction();
+
+    auto        sinAnimTimeMulti = false;
+    const auto &sinAnimTime =    firstFace.attributes().sinAnimTime();
+    auto     hasSiNAnimTime = firstFace.attributes().hasSiNAnimTime();
+
+    auto        sinDirectStyleValueMulti = false;
+    const auto &sinDirectStyleValue =    firstFace.attributes().sinDirectStyle();
+    auto     hasSiNDirectStyleValue = firstFace.attributes().hasSiNDirectStyle();
+
+    auto        sinDirectMulti = false;
+    const auto &sinDirect =    firstFace.attributes().sinDirect();
+    auto     hasSiNDirect = firstFace.attributes().hasSiNDirect();
+
+    auto        sinDirectAngleMulti = false;
+    const auto &sinDirectAngle =    firstFace.attributes().sinDirectAngle();
+    auto     hasSiNDirectAngle = firstFace.attributes().hasSiNDirectAngle();
 
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
@@ -650,6 +1214,28 @@ void FaceAttribsEditor::updateControls()
       hasSurfaceFlags |= face.attributes().surfaceFlags().has_value();
       hasSurfaceContents |= face.attributes().surfaceContents().has_value();
       hasColorValue |= face.attributes().hasColor();
+
+      // SiN
+      sinNonlitValueMulti |= (sinNonlitValue != face.attributes().sinNonlitValue());
+      hasSiNNonlitValue |= face.attributes().hasSiNNonlitValue();
+      sinTransAngleMulti |= (sinTransAngle != face.attributes().sinTransAngle());
+      hasSiNTransAngle |= face.attributes().hasSiNTransAngle();
+      sinTransMagMulti |= (sinTransMag != face.attributes().sinTransMag());
+      hasSiNTransMag |= face.attributes().hasSiNTransMag();
+      sinTranslucenceMulti |= (sinTranslucence != face.attributes().sinTranslucence());
+      hasSiNTranslucence |= face.attributes().hasSiNTranslucence();
+      sinRestitutionMulti |= (sinRestitution != face.attributes().sinRestitution());
+      hasSiNRestitution |= face.attributes().hasSiNRestitution();
+      sinFrictionMulti |= (sinFriction != face.attributes().sinFriction());
+      hasSiNFriction |= face.attributes().hasSiNFriction();
+      sinAnimTimeMulti |= (sinAnimTime != face.attributes().sinAnimTime());
+      hasSiNAnimTime |= face.attributes().hasSiNAnimTime();
+      sinDirectStyleValueMulti |= (sinDirectStyleValue != face.attributes().sinDirectStyle());
+      hasSiNDirectStyleValue |= face.attributes().hasSiNDirectStyle();
+      sinDirectMulti |= (sinDirect != face.attributes().sinDirect());
+      hasSiNDirect |= face.attributes().hasSiNDirect();
+      sinDirectAngleMulti |= (sinDirectAngle != face.attributes().sinDirectAngle());
+      hasSiNDirectAngle |= face.attributes().hasSiNDirectAngle();
 
       combineFlags(
         sizeof(int) * 8, face.resolvedSurfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
@@ -720,7 +1306,7 @@ void FaceAttribsEditor::updateControls()
       else
       {
         m_colorEditor->setPlaceholderText("");
-        m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(*colorValue)));
+        m_colorEditor->setText(QString::fromStdString(colorValue->to<RgbB>().toString()));
       }
     }
     else
@@ -735,6 +1321,56 @@ void FaceAttribsEditor::updateControls()
     m_surfaceFlagsUnsetButton->setEnabled(hasSurfaceFlags);
     m_contentFlagsUnsetButton->setEnabled(hasSurfaceContents);
     m_colorUnsetButton->setEnabled(hasColorValue);
+
+    // SiN
+    setValueOrMulti(m_surfaceSiNNonlitValueEditor, sinNonlitValueMulti, double(sinNonlitValue.value_or(mdl::BrushFaceAttributes::SiNDefaultNonLitValue)));
+    m_surfaceSiNNonlitValueUnsetButton->setEnabled(hasSiNNonlitValue);
+    setValueOrMulti(m_surfaceSiNTransAngleEditor, sinTransAngleMulti, double(sinTransAngle.value_or(0)));
+    m_surfaceSiNTransAngleUnsetButton->setEnabled(hasSiNTransAngle);
+    setValueOrMulti(m_surfaceSiNTransMagEditor, sinTransMagMulti, double(sinTransMag.value_or(0)));
+    m_surfaceSiNTransMagUnsetButton->setEnabled(hasSiNTransMag);
+    setValueOrMulti(m_surfaceSiNTranslucenceEditor, sinTranslucenceMulti, double(sinTranslucence.value_or(0)));
+    m_surfaceSiNTranslucenceUnsetButton->setEnabled(hasSiNTranslucence);
+    setValueOrMulti(m_surfaceSiNRestitutionEditor, sinRestitutionMulti, double(sinRestitution.value_or(0)));
+    m_surfaceSiNRestitutionUnsetButton->setEnabled(hasSiNRestitution);
+    setValueOrMulti(m_surfaceSiNFrictionEditor, sinFrictionMulti, double(sinFriction.value_or(mdl::BrushFaceAttributes::SiNDefaultFriction)));
+    m_surfaceSiNFrictionUnsetButton->setEnabled(hasSiNFriction);
+    setValueOrMulti(m_surfaceSiNAnimTimeEditor, sinAnimTimeMulti, double(sinAnimTime.value_or(mdl::BrushFaceAttributes::SiNDefaultAnimTime)));
+    m_surfaceSiNAnimTimeUnsetButton->setEnabled(hasSiNAnimTime);
+    if (hasSiNDirectStyleValue)
+    {
+      if (sinDirectStyleValueMulti)
+      {
+        m_surfaceSiNDirectStyleEditor->setPlaceholderText("multi");
+        m_surfaceSiNDirectStyleEditor->setText("");
+      }
+      else
+      {
+        m_surfaceSiNDirectStyleEditor->setPlaceholderText("");
+        m_surfaceSiNDirectStyleEditor->setText(QString::fromStdString(*sinDirectStyleValue));
+      }
+    }
+    else
+    {
+      m_surfaceSiNDirectStyleEditor->setPlaceholderText("");
+      m_surfaceSiNDirectStyleEditor->setText("");
+    }
+    m_surfaceSiNDirectStyleUnsetButton->setEnabled(hasSiNDirectStyleValue);
+    setValueOrMulti(m_surfaceSiNDirectEditor, sinDirectMulti, double(sinDirect.value_or(0)));
+    m_surfaceSiNDirectUnsetButton->setEnabled(hasSiNDirect);
+    setValueOrMulti(m_surfaceSiNDirectAngleEditor, sinDirectAngleMulti, double(sinDirectAngle.value_or(0)));
+    m_surfaceSiNDirectAngleUnsetButton->setEnabled(hasSiNDirectAngle);
+    
+    m_surfaceSiNNonlitValueEditor->setEnabled(true);
+    m_surfaceSiNTransAngleEditor->setEnabled(true);
+    m_surfaceSiNTransMagEditor->setEnabled(true);
+    m_surfaceSiNTranslucenceEditor->setEnabled(true);
+    m_surfaceSiNRestitutionEditor->setEnabled(true);
+    m_surfaceSiNFrictionEditor->setEnabled(true);
+    m_surfaceSiNAnimTimeEditor->setEnabled(true);
+    m_surfaceSiNDirectStyleEditor->setEnabled(true);
+    m_surfaceSiNDirectEditor->setEnabled(true);
+    m_surfaceSiNDirectAngleEditor->setEnabled(true);
   }
   else
   {
@@ -755,6 +1391,21 @@ void FaceAttribsEditor::updateControls()
     m_surfaceFlagsUnsetButton->setEnabled(false);
     m_contentFlagsUnsetButton->setEnabled(false);
     m_colorUnsetButton->setEnabled(false);
+
+    // SiN
+    disableAndSetPlaceholder(m_surfaceSiNNonlitValueEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNTransAngleEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNTransMagEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNTranslucenceEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNRestitutionEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNFrictionEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNAnimTimeEditor, "n/a");
+    m_surfaceSiNDirectStyleEditor->setText("");
+    m_surfaceSiNDirectStyleEditor->setPlaceholderText("n/a");
+    m_surfaceSiNDirectStyleEditor->setEnabled(false);
+    m_surfaceSiNDirectStyleUnsetButton->setEnabled(false);
+    disableAndSetPlaceholder(m_surfaceSiNDirectEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNDirectAngleEditor, "n/a");
   }
 }
 
@@ -805,7 +1456,8 @@ void FaceAttribsEditor::hideContentFlagsEditor()
 
 bool FaceAttribsEditor::hasColorAttribs() const
 {
-  return m_document.map().worldNode().mapFormat() == mdl::MapFormat::Daikatana;
+  return m_document.map().worldNode().mapFormat() == mdl::MapFormat::Daikatana ||
+         hasSiNAttributes();
 }
 
 void FaceAttribsEditor::showColorAttribEditor()
@@ -818,6 +1470,60 @@ void FaceAttribsEditor::hideColorAttribEditor()
 {
   m_colorLabel->hide();
   m_colorEditorLayout->hide();
+}
+
+bool FaceAttribsEditor::hasSiNAttributes() const
+{
+  return m_document.map().worldNode().mapFormat() == mdl::MapFormat::SiN ||
+         m_document.map().worldNode().mapFormat() == mdl::MapFormat::SiN_Valve;
+}
+
+void FaceAttribsEditor::showSiNAttribEditor()
+{
+    m_surfaceSiNNonlitValueLabel->hide();
+    m_surfaceSiNNonlitValueEditorLayout->hide();
+    m_surfaceSiNTransAngleLabel->hide();
+    m_surfaceSiNTransAngleEditorLayout->hide();
+    m_surfaceSiNTransMagLabel->hide();
+    m_surfaceSiNTransMagEditorLayout->hide();
+    m_surfaceSiNTranslucenceLabel->hide();
+    m_surfaceSiNTranslucenceEditorLayout->hide();
+    m_surfaceSiNRestitutionLabel->hide();
+    m_surfaceSiNRestitutionEditorLayout->hide();
+    m_surfaceSiNFrictionLabel->hide();
+    m_surfaceSiNFrictionEditorLayout->hide();
+    m_surfaceSiNAnimTimeLabel->hide();
+    m_surfaceSiNAnimTimeEditorLayout->hide();
+    m_surfaceSiNDirectStyleLabel->hide();
+    m_surfaceSiNDirectStyleEditorLayout->hide();
+    m_surfaceSiNDirectLabel->hide();
+    m_surfaceSiNDirectEditorLayout->hide();
+    m_surfaceSiNDirectAngleLabel->hide();
+    m_surfaceSiNDirectAngleEditorLayout->hide();
+}
+  
+void FaceAttribsEditor::hideSiNAttribEditor()
+{
+    m_surfaceSiNNonlitValueLabel->show();
+    m_surfaceSiNNonlitValueEditorLayout->show();
+    m_surfaceSiNTransAngleLabel->show();
+    m_surfaceSiNTransAngleEditorLayout->show();
+    m_surfaceSiNTransMagLabel->show();
+    m_surfaceSiNTransMagEditorLayout->show();
+    m_surfaceSiNTranslucenceLabel->show();
+    m_surfaceSiNTranslucenceEditorLayout->show();
+    m_surfaceSiNRestitutionLabel->show();
+    m_surfaceSiNRestitutionEditorLayout->show();
+    m_surfaceSiNFrictionLabel->show();
+    m_surfaceSiNFrictionEditorLayout->show();
+    m_surfaceSiNAnimTimeLabel->show();
+    m_surfaceSiNAnimTimeEditorLayout->show();
+    m_surfaceSiNDirectStyleLabel->show();
+    m_surfaceSiNDirectStyleEditorLayout->show();
+    m_surfaceSiNDirectLabel->show();
+    m_surfaceSiNDirectEditorLayout->show();
+    m_surfaceSiNDirectAngleLabel->show();
+    m_surfaceSiNDirectAngleEditorLayout->show();
 }
 
 namespace

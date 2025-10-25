@@ -28,6 +28,7 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/GameConfig.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LockState.h"
@@ -71,11 +72,12 @@ auto getFilePosition(const T& info)
 } // namespace
 
 MapReader::MapReader(
+  const mdl::GameConfig& config,
   const std::string_view str,
   const MapFormat sourceMapFormat,
   const MapFormat targetMapFormat,
   EntityPropertyConfig entityPropertyConfig)
-  : StandardMapParser{str, sourceMapFormat, targetMapFormat}
+  : StandardMapParser{config, str, sourceMapFormat, targetMapFormat}
   , m_entityPropertyConfig{std::move(entityPropertyConfig)}
 {
 }

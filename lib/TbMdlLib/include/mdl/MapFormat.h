@@ -58,6 +58,14 @@ enum class MapFormat
    */
   Daikatana,
   /**
+   * SiN map format.
+   */
+  SiN,
+  /**
+   * SiN map format Valve 220 format texturing
+   */
+  SiN_Valve,
+  /**
    * Quake 3 legacy format (like Quake 2, no brush primitives)
    */
   Quake3_Legacy,

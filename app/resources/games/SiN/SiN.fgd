@@ -1,0 +1,1919 @@
+//
+// SiN game definition file (.fgd)
+//
+// Paril, mostly auto-generated
+
+//
+// worldspawn
+//
+
+@SolidClass = worldspawn : "World entity"
+[
+    sky(string) : "Environment map name"
+    skyaxis(string) : "Vector axis for rotating sky"
+    skyrotate(string) : "Speed of rotation (degrees/second)"
+    soundtrack(string) : "Music file to use"
+    gravity(integer) : "Gravity" : 800
+    message(string) : "Level name"
+    nextmap(string) : "Next map (DM only)"
+    skipthread(string) : "Thread that is activated to skip this level (if cinematic)"
+    watercolor(color1) : "specifies the view blend color while in water." : "0 0 1"
+    wateralpha(float) : "specifies the alpha of the view blend while in water." : "0.1"
+    lavacolor(color1) : "specifies the view blend color while in lava." : "1.0 0.3 0.0"
+    lavaalpha(float) : "specifies the alpha of the view blend while in lava." : "0.6"
+    lightcolor(color1) : "specifies the view blend color while in light." : "1 1 1"
+    lightalpha(float) : "specifies the alpha of the view blend while in light." : "0.5"
+    lavadamage(integer) : "sets the amount of damage laval should do per waterheight level." : 10
+    cpsounds(string) : "checkpoint sounds" : "global/default_cp_sounds.scr"
+    script(string) : "script file to load"
+
+    spawnflags(Flags) =
+    [
+        1 : "Cinematic" : 0
+        4 : "Bikes Only" : 0
+        8 : "Bodies Fade" : 0
+    ]
+]
+
+// base class for all other entities
+@baseclass model({"path":model,"frame":frame,"scale":scale,"alpha":alpha}) = Entity
+[
+    spawnflags(Flags) =
+    [
+        256 : "Not in Easy" : 0
+        512 : "Not in Normal" : 0
+        1024 : "Not in Hard" : 0
+        2048 : "Not in Deathmatch" : 0
+        4096 : "Not in Coop" : 0
+        8192 : "Developer Only" : 0
+        16384 : "Detail (unused in Reloaded)" : 0
+        32768 : "Reserved Editor Flag" : 0
+    ]
+
+    alpha(float) : "opacity" : "1.0"
+    scale(float) : "scale" : "1.0"
+    minlight(integer) : "sets minlight flag" : 0
+    lightoffset(float) : "light offset (darken entity)" : "0.0"
+    team(string) : "team, for movers"
+    gravityaxis(choices) : "gravity axis of this object" : 0 =
+    [
+        0 : "+XYZ"
+        1 : "+YZX"
+        2 : "+ZXY"
+        3 : "-XYZ"
+        4 : "-YZX"
+        5 : "-ZXY"
+    ]
+    targetname(target_source) : "targetname"
+    targetname2(target_source) : "targetname2"
+    target(target_destination) : "target"
+    target2(target_destination) : "target2"
+    target3(target_destination) : "target3"
+    target4(target_destination) : "target4"
+    model(string) : "def file to use"
+    bind(target_destination) : "entity to auto-bind to"
+]
+
+@baseclass = AnglesOnly
+[
+	angles(string) : "angles (pitch yaw roll)" : "0 0 0"
+]
+
+@SolidClass base(Entity) = func_areaportal : "This is a non-visible object that divides the world into areas that are seperated when this portal is not activated. Usually enclosed in the middle of a door."
+[
+]
+
+@baseclass base(Entity) = Trigger
+[
+    spawnflags(Flags) =
+    [
+        4 : "Not Players; the trigger does not respond to players" : 0
+        8 : "Monsters; the trigger will respond to monsters" : 0
+        16 : "Projectiles; the trigger will respond to projectiles (rockets, grenades, etc.)" : 0
+        32 : "Hover bikes; the trigger will respond to vroom vrooms" : 0
+    ]
+
+    delay(float) : "delay before firing, in seconds"
+    wait(float) : "time after firing to wait before re-firing" : "0.2"
+    health(float) : "health of this trigger; the trigger must be killed to activate each time" : "0"
+    cnt(integer) : "how many times it can be triggered; -1 is infinite" : -1
+    noise(string) : "noise to make" : "environment/switch/switch2.wav"
+    message(string) : "message to display"
+    killtarget(target_destination) : "any objects that have a matching `target` will be removed when the trigger is fired"
+    key(string) : "item classname that must be owned to trigger this object"
+    thread(string) : "name of thread to trigger. This can be in a different script file as well by using the '::' notation."
+]
+
+@SolidClass base(Trigger) = trigger_multiple : "Variable sized repeatable trigger.  Must be targeted at one or more entities."
+[
+]
+
+@SolidClass base(Trigger) = trigger_once : "Variable sized trigger. Triggers once, then removes itself. You must set the key `target` to the name of another object in the level that has a matching targetname."
+[
+]
+
+@PointClass base(Trigger) = trigger_relay : "This fixed size trigger cannot be touched, it can only be fired by other events. It can contain killtargets, targets, delays, and messages."
+[
+]
+
+@SolidClass base(Trigger) = trigger_damagethreshold : "Triggers only when a threshold of damage is exceeded. When used in conjunction with func_breakawaywall, allows walls that may be destroyed with a rocket blast. Will also trigger any targeted func_areaportals when not invisible."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Invisible" : 0
+        16 : "Accumulative; health goes down each time it takes damage instead of only triggering if a single damage event hurts it enough" : 0
+    ]
+
+    cnt(integer) : "how many times it can be triggered; -1 is infinite" : 1
+    health(float) : "health of this trigger; the trigger must be killed to activate each time" : "60"
+]
+
+@SolidClass base(trigger_once) = trigger_secret : "Secret counter trigger. Automatically sets and increments script variables level.total_secrets and level.found_secrets."
+[
+	thread(string) : "name of thread to trigger. This can be in a different script file as well by using the '::' notation." : "global/universal_script.scr::secret"
+]
+
+@baseclass = GetMovedir
+[
+	angle(float) : "-1 = up, -2 = down, anything else is yaw"
+]
+
+@baseclass = AngleYawOnly
+[
+	angle(float) : "yaw only"
+]
+
+@baseclass base(Trigger) = Pusher
+[
+    spawnflags(Flags) =
+    [
+        4 : "Not Players; the trigger does not respond to players" : 0
+        8 : "Not Monsters; the trigger will respond to monsters" : 0
+        16 : "Not Projectiles; the trigger will respond to projectiles (rockets, grenades, etc.)" : 0
+        32 : "Start Off" : 0
+    ]
+
+	speed(float) : "push velocity" : "1000"
+]
+
+@SolidClass base(Pusher, GetMovedir) = trigger_push : "Pushes entities as if they were caught in a heavy wind."
+[
+]
+
+@SolidClass base(Pusher, AnglesOnly) = trigger_pushany : "Pushes entities as if they were caught in a heavy wind."
+[
+]
+
+@PointClass base(Entity) = trap_bouncingbetty : "Bouncing Betty"
+[
+    health(float) : "object health" : "200"
+]
+
+@SolidClass base(Entity) = func_box : "Explodable box that falls when boxes below it are destroyed."
+[
+    health(float) : "box health" : "60"
+    items(string) : "list of items, separated by spaces"
+    angle(float) : "box rotation" : "0"
+]
+
+@SolidClass base(Entity, AnglesOnly) = func_camera : "Camera used for cinematic sequences."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Orbit; tells the camera to create a circular path around the object it points to.  It the camera points to a path, it will loop when it gets to the end of the path." : 0
+        2 : "Start On; causes the camera to be moving as soon as it is spawned" : 0
+        4 : "Panning; camera should pan from right to left" : 0
+    ]
+
+	fov(float) : "field of view" : "90"
+	yaw(float) : "yaw of camera" : "0"
+	distance(float) : "the distance to follow or orbit if the target is not a path" : "128"
+	height(float) : "specifies height of camera from origin" : "128"
+	speed(float) : "specifies how fast to move on the path or orbit" : "1"
+	panspeed(float) : "speed at which to pan" : "7"
+	panmax(float) : "maximum angle offset for panning" : "45"
+	nextcamera(target_destination) : "a link to the next camera in a chain of cameras"
+	overlay(string) : "an overlay to use while looking through the camera"
+	thread(string) : "a thread label that will be fired when the camera is looked through"
+]
+
+@PointClass base(func_camera) = func_securitycamera : "Security camera"
+[
+]
+
+@PointClass base(Trigger) = play_sound_triggered : "DO NOT USE, USE TRIGGER_SPEAKER INSTEAD. play a sound when it is used. Normal sounds play each time the target is used. Ambient Looped sounds have an attenuation of 2 by default, volume 1, and the use function toggles it on/off. Multiple identical ambient looping sounds will just increase volume without any speed cost. The attenuation factor can be over-ridden by specifying an attenuation factor."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Ambient (start on)" : 0
+        2 : "Reliable" : 0
+        32 : "Ambient (start off)" : 0
+        128 : "Toggle" : 0
+    ]
+
+	volume(float) : "how loud" : "1.0"
+    noise(string) : "sound to play"
+	channel(integer) : "sound channel to play on; 0-6 are individual channels, 7 is auto. single fire only"
+	attenuation(float) : "sound attenuation, between 0-3"
+]
+
+@PointClass base(play_sound_triggered) = trigger_speaker : "play a sound when it is used. Normal sounds play each time the target is used. Ambient Looped sounds have an attenuation of 2 by default, volume 1, and the use function toggles it on/off. Multiple identical ambient looping sounds will just increase volume without any speed cost. The attenuation factor can be over-ridden by specifying an attenuation factor."
+[
+	pitch(float) : "pitch multiplier" : "1.0"
+	fadetime(float) : "fade time" : "0"
+	timeofs(float) : "time offset" : "0"
+]
+
+@baseclass = MinMaxDelay
+[
+	mindelay(float) : "minimum time delay" : "3"
+	maxdelay(float) : "maximum time delay" : "10"
+]
+
+@PointClass base(trigger_speaker, MinMaxDelay) = trigger_randomspeaker : "play a sound at random times. Normal sounds play each time the target is used. Ambient Looped sounds have an attenuation of 2 by default, volume 1, and the use function toggles it on/off. Multiple identical ambient looping sounds will just increase volume without any speed cost. The attenuation factor can be over-ridden by specifying an attenuation factor."
+[
+]
+
+@SolidClass base(Trigger) = trigger_changelevel : "When the player touches this, he gets sent to the map listed in the `map` variable. Unless the NO_INTERMISSION flag is set, the view will go to the info_intermission spot and display stats. Set the first character to '*' to clear save game data from previous levels. To specify a specific spawn spot, follow the map name with the targetname of the spawn spot. Example: '*mymap $thisspot'"
+[
+	map(string) : "map to switch to"
+	thread(string) : "thread to call" : "LevelComplete"
+]
+
+@SolidClass base(Trigger) = trigger_use : "Activates targets when 'used' by an entity"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Visible" : 0
+        8 : "Monsters; the trigger will respond to monsters" : 0
+    ]
+]
+
+@SolidClass base(trigger_use) = trigger_useonce : "Activates targets when 'used' by an entity, but only once"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Visible" : 0
+    ]
+
+	cnt(integer) readonly : "only one use" : 1
+]
+
+@SolidClass base(Trigger) = trigger_hurt : "hurty stuff"
+[
+    spawnflags(Flags) =
+    [
+        4 : "Not Players; the trigger does not respond to players" : 0
+        8 : "Not Monsters; the trigger will respond to monsters" : 0
+        16 : "Projectiles; the trigger will respond to projectiles (rockets, grenades, etc.)" : 0
+        32 : "Not Hoverbikes" : 0
+    ]
+
+	damage(float) : "amount of damage to cause" : "10"
+]
+
+@PointClass base(Trigger) = trigger_damagetargets : "damages stuff"
+[
+    spawnflags(Flags) =
+    [
+		1 : "Solid if set and shot at, the damage is passed on to the targets" : 0
+        4 : "Not Players; the trigger does not respond to players" : 0
+        8 : "Not Monsters; the trigger will respond to monsters" : 0
+        16 : "Projectiles; the trigger will respond to projectiles (rockets, grenades, etc.)" : 0
+    ]
+
+	damage(float) : "damage to deal" : "0"
+]
+
+@PointClass base(trigger_damagetargets, GetMovedir) = trigger_damagetargetsfixed : "damages stuff; no touch event"
+[
+]
+
+@PointClass base(Trigger, GetMovedir) = trigger_particles : "spawn some particles when triggering the object"
+[
+    spawnflags(Flags) =
+    [
+		1 : "Start On" : 0
+    ]
+
+    noise(string) : "noise to make"
+    count(integer) : "number of particles" : 10
+	particlestyle(integer) : "style of particles - sample styles (121 blood, 120 gunsmoke, 122 sparks, 123 orangeglow, 124 blueyellow, 125 debris trail, 128 oil, 129 waterspray)" : 122
+	attenuation(float) : "sound attenuation, between 0-3"
+	spawntarget(target_destination) : "triggered when particles are spawned"
+	size(integer) : "specifies the size of the particles to make" : 1
+	growrate(integer) : "specifies the rate at which the particles change size" : 0
+	speed(integer) : "constant amount of speed that particles are given" : 20
+	spread(integer) : "random amount of speed that particles are given" : 15
+	accel(string) : "acceleration that the particles have" : "0 0 -40"
+	fire(integer) : "causes flame type particles to be made" : 0
+	hit_solid(integer) : "causes particles to collision detect to solid objects" : 0
+	hit_ents(integer) : "causes particles to collision detect to characters" : 0
+	hit_remove(integer) : "causes particles to be removed when they collide with something" : 0
+	additive(integer) : "causes the particles to be displayed with an additive blend mode" : 0
+	time(float) : "will toggle throwing particles on and off when set to a non-0 value. When set, it specifies the time delay between time particles are thrown. Positive value means start on, and negative means start off." : "0"
+	target(target_destination) : "if set, used to set the angle of particle spawning towards this entity"
+]
+
+@PointClass base(trigger_particles, MinMaxDelay) = trigger_randomparticles : "spawn some particles randomly when triggering the object"
+[
+]
+
+@SolidClass base(Trigger) = trigger_thread : "Variable sized trigger. After firing cnt times, removes itself."
+[
+    cnt(integer) : "how many times it can be triggered; -1 is 1" : 1
+]
+
+@SolidClass base(trigger_use) = trigger_camerause : "Activates 'targeted' camera when 'used'. If activated, toggles through cameras"
+[
+]
+
+@SolidClass base(trigger_use) = trigger_movecapture : "Captures movement for players and sends them to a console"
+[
+    spawnflags(Flags) =
+    [
+		1 : "No Use; a user can't use it directly to activate it" : 0
+    ]
+
+	outputvar(string) : "Variable to output to"
+]
+
+@SolidClass base(trigger_use) = console : "le epic sin console"
+[
+    spawnflags(Flags) =
+    [
+		1 : "No Use; a user can't use it directly to activate it" : 0
+		2 : "Scroll" : 0
+		4 : "Menu" : 0
+		8 : "Ignore PVS" : 0
+    ]
+
+	consolename(string) : "Console name"
+	wait(float) : "Wait time" : "1.0"
+	virtualwidth(float) : "Virtual screen width" : "640.0"
+	virtualheight(float) : "Virtual screen height" : "480.0"
+	fraction(float) : "Screen fraction" : "1.0"
+	rows(integer) : "Number of rows" : 32
+	cols(integer) : "Number of columns" : 80
+	menufile(string) : "Menu file to use"
+	scroll(integer) : "Whether this console scrolls"
+	menu(integer) : "Whether this console is a menu"
+]
+
+@SolidClass base(trigger_use) = trigger_mutate : "mutates whatever triggers it."
+[
+    spawnflags(Flags) =
+    [
+        4 : "Not Players; the trigger does not respond to players" : 0
+        8 : "Not Monsters; the trigger will respond to monsters" : 0
+    ]
+]
+
+@SolidClass base(Trigger) = trigger_exit : "When the player touches this, an exit icon will be displayed in his hud. This is to inform him that he is near an exit."
+[
+    spawnflags(Flags) =
+    [
+		1 : "Start On" : 0
+		2 : "Toggle" : 0
+    ]
+]
+
+@SolidClass base(Trigger) = trigger_triggeredhurt : "only hurts entities for a time after it's triggered."
+[
+    spawnflags(Flags) =
+    [
+		32 : "Start On" : 0
+    ]
+
+	damage(float) : "amount of damage to cause" : "10"
+	hurttime(float) : "the amount of time after it's triggered that it will hurt things. 0 will make it toggle on and off each time it's triggered. Default will hurt once." : "0.1"
+]
+
+@PointClass base(play_sound_triggered) = func_fire : "Makes a triggerable particle flame. These flames do not cause any damage. They can be positioned as a single spot of fire, or a row of fire."
+[
+    spawnflags(Flags) =
+    [
+		1 : "Start Off" : 0
+    ]
+
+	count(integer) : "specifies the density of the flame" : 1
+	offset(string) : "a vector offset that flame are made to. Example: If you specified '64 0 0', then flames would be made between the entity's origin and the point 64 away on the X-axis, resulting in a solid row of flames." : "0 0 0"
+	startdir(string) : "the velocity that the begining flames are given.Example: the default of '0 0 32' would give the flames a velocity of 32 straight up" : "0 0 32"
+	enddir(string) : "the velocity that the ending flames are given.Example: the default '0 0 32' would give the flames a velocity of 324 straight up" : "0 0 32"
+	rate(float) : "the time delay between each time the flame is updated" : "0.2"
+	randomrate(float) : "the amount of random time delay there is for the flame updating" : "0"
+	lightstyle(integer) : "the lightstyle type of the flame. Valid values are from 150 to 159" : 151
+	size(integer) : "the size of the flame particles to make" : 20
+	damage(integer) : "amount of damage the hurt field should do" : 1
+]
+
+@PointClass base(Trigger, GetMovedir) = fx_sprite : "Spawnable sprite, kinda like with the sprite gun but older"
+[
+    spawnflags(Flags) =
+    [
+		1 : "Auto Animate" : 0
+		2 : "Splats on wall via movedir" : 0
+    ]
+
+	sprite(string) : "sprite model"
+	frame(integer) : "frame number to use"
+	color(color1) : "sprite color" : "1 1 1"
+]
+
+@baseclass color(255 255 0) size(6 6 6) base(Trigger) = BaseLight
+[
+	style(integer) : "style to use"
+	onstyle(string) : "lightstyle string when on" : "m"
+	offstyle(string) : "lightstyle string when off" : "a"
+]
+
+@PointClass base(BaseLight) = light_ramp : "Non-displayed light that ramps its intensity from one level to another when trigger."
+[
+	startlevel(float) : "Value between 0 and 2.0" : "1.0"
+	endlevel(float) : "Value between 0 and 2.0" : "0.0"
+	time(float) : "How many seconds the ramping will take" : "1.0"
+]
+
+@PointClass base(BaseLight) = light : "Non-displayed light."
+[
+    spawnflags(Flags) =
+    [
+		1 : "Start Off" : 0
+    ]
+]
+
+@PointClass base(light) = trigger_SetLightStyle : "Used for controlling surface based light sources. Set targetname to the identifier contained in groupname in the surfaces to control."
+[
+	targetname(string) : "groupname of the surface"
+]
+
+@SolidClass base(Entity) = func_remove : "Removed by game"
+[
+]
+
+@PointClass color(0 127 0) size(4 4 4) base(Entity) = info_null : "Removed by game"
+[
+]
+
+@PointClass color(0 127 0) size(4 4 4) base(Entity) = info_notnull : "Positional target"
+[
+]
+
+@SolidClass base(Trigger) = func_electrocute : "Electrocutes everything it can see if it is in the water"
+[
+	radius(float) : "range of the effect" : "500"
+]
+
+@PointClass base(Entity, AngleYawOnly) model({"path":modelname}) = func_spawn : "Spawns a thing"
+[
+	modelname(string) : "model to spawn"
+	spawntargetname(target_source) : "This will be the targetname of the spawned model"
+	attackmode(integer) : "Copied over to the spawned object"
+]
+
+@PointClass base(func_spawn) = func_respawn : "When the thing that is spawned is killed, this func_respawn will get triggered."
+[
+]
+
+@PointClass base(func_spawn) = func_spawnoutofsight : "Will only spawn something out of sight of its targets."
+[
+]
+
+@PointClass base(func_spawn) = func_spawnchain : "Tries to spawn something out of the sight of players. If it fails, it will trigger its targets. "
+[
+]
+
+@SolidClass base(Entity) = func_wall : "This is just a solid wall if not inhibited"
+[
+]
+
+@SolidClass base(Entity) = func_illusionary : "A simple entity that looks solid but lets you walk through it."
+[
+]
+
+@SolidClass base(trigger_once) = func_breakawaywall : "Special walltype that removes itself when triggered. Will also trigger any func_areaportals that it targets."
+[
+]
+
+@SolidClass base(Trigger) = func_explodingwall : "Blows up on activation or when attacked."
+[
+    spawnflags(Flags) =
+    [
+		1 : "Random Angles; object randomly spins while in the air" : 0
+		2 : "Land Shatter; object shatters when it hits the ground" : 0
+		32 : "Invisible; these are invisible and not solid until triggered" : 0
+		64 : "Accumulative; damage is accumulative not threshold" : 0
+		128 : "Two stage; object can be shattered once it lands on the ground" : 0
+    ]
+
+	health(float) : "health" : "60"
+	anglespeed(float) : "Speed at which pieces rotate; default 600 for Random Angles, otherwise 100"
+	land_radius(float) : "The distance of the ground the piece should be when on the ground" : "0"
+	land_angles(string) : "The angles you want this piece to orient to when it lands on the ground"
+	explosions(integer) : "number of explosions to spawn"
+	scale(float) : "the scale of the explosions to make" : "1.0"
+]
+
+@SolidClass base(Trigger) = misc_oxygen : "Touching this entity will reset the drowning time - only responds to players."
+[
+    spawnflags(Flags) =
+    [
+		1 : "Visible" : 0
+    ]
+]
+
+@SolidClass base(Trigger) = misc_teleporter : "Touching this entity will teleport players to the targeted object."
+[
+    spawnflags(Flags) =
+    [
+		1 : "Visible" : 0
+        4 : "Not Players; the trigger does not respond to players" : 0
+        8 : "Not Monsters; the trigger will respond to monsters" : 0
+        16 : "Not Projectiles; the trigger will respond to projectiles (rockets, grenades, etc.)" : 0
+		32 : "Not Hoverbikes" : 0
+		64 : "No Effects; it will not make a teleporting sound or particles" : 0
+		128 : "Offset Move; it will 'offset' the player to the destination, not actually teleport him" : 0
+    ]
+
+    gravityaxis(choices) : "gravity axis objects teleported will be changed to" : 0 =
+    [
+        0 : "+XYZ"
+        1 : "+YZX"
+        2 : "+ZXY"
+        3 : "-XYZ"
+        4 : "-YZX"
+        5 : "-ZXY"
+    ]
+]
+
+@PointClass base(Entity, GetMovedir) = misc_teleporter_dest : "Point teleporters at these."
+[
+]
+
+@PointClass color(0 127 0) size(4 4 4) base(Entity) = waypoint : "Used as a positioning device for objects"
+[
+]
+
+@SolidClass base(Trigger) = func_shatter : "For shattering objects. Triggers only when a threshold of damage is exceeded. Will also trigger any targeted func_areaportals when not invisible."
+[
+    spawnflags(Flags) =
+    [
+        4 : "Not Players; the trigger does not respond to players" : 0
+        8 : "Not Monsters; the trigger will respond to monsters" : 0
+        16 : "Not Projectiles; the trigger will respond to projectiles (rockets, grenades, etc.)" : 0
+		32 : "Hurt Shatter; when the thing gets hurt, spawn pieces of itself" : 0
+		64 : "Threshold; damage threshold behavior" : 0
+    ]
+
+	cnt(integer) readonly : "only one use" : 1
+	percentage(float) : "specifies how much of the thing to shatter" : "15"
+	minsize(integer) : "specifies minsize for tesselation, default based off size"
+	maxsize(integer) : "specifies maxsize for tesselation, default based off size"
+	health(float) : "specifies how much damage must occur before trigger fires" : "20"
+	noise(string) : "sound to play when shattered"
+]
+
+@SolidClass base(func_shatter) = func_glass : "For glass objects. Shatters when the accumulated damage is exceeded, or when activated. Sets a default noise if unset."
+[
+]
+
+@PointClass base(Entity, GetMovedir) = func_launcher : "Creates an object that launches projectiles. "
+[
+	projectile(string) : "the projectile that you want to launch (Examples: Rocket, Spear, etc...)"
+	launchsound(string) : "sound to play"
+	target(target_destination) : "if set, will launch at this target"
+]
+
+@baseclass = Angles
+[
+	angle(float) : "Yaw used if 'angles' is not set"
+	angles(string) : "Angle to display the entity at"
+]
+
+@baseclass base(Trigger, Angles) size(-10 -10 0, 10 10 20) color(0 0 255) = Item
+[
+	itemname(target_source) : "If the targetname is set by the spawn args, then this item will have a targetname.  If we try to remove the owner of this item, then we will remove the owner, then try to remove the item which will already have been removed by the previous event. This doesn't allow any items to have a targetname. This key is used as a fix for that bug."
+	targetname(target_source) readonly : "DO NOT SET"
+	amount(integer) : "override number (& potentially max) given when picked up"
+]
+
+@baseclass base(Item) = Ammo
+[
+]
+
+@PointClass base(Ammo) = ammo_10mm : "10mm Ammo"
+[
+]
+
+@PointClass base(Ammo) = ammo_50mm : "50mm Ammo"
+[
+]
+
+@PointClass base(Ammo) = ammo_pulserifle : "Pulse Rifle Ammo"
+[
+]
+
+@PointClass base(Ammo) = ammo_sniperrifle : "Sniper Ammo"
+[
+]
+
+@PointClass base(Ammo) = ammo_rockets : "Rockets"
+[
+]
+
+@PointClass base(Ammo) = ammo_speargun : "Spear Gun Ammo"
+[
+]
+
+@PointClass base(Ammo) = ammo_shotgunclip : "Shotgun Shells"
+[
+]
+
+@PointClass base(Ammo) = ammo_spidermines : "Spider mines"
+[
+]
+
+@PointClass base(Ammo) = ammo_missiles : "Missiles"
+[
+]
+
+@PointClass base(Ammo) = ammo_illudium : "Illudium"
+[
+]
+
+@baseclass base(Item) = Armor
+[
+]
+
+@PointClass base(Armor) = armor_riothelmet : "Riot Helmet"
+[
+]
+
+@PointClass base(Armor) = armor_flakjacket : "Flak Jacket"
+[
+]
+
+@PointClass base(Armor) = armor_flakpants : "Flak Pants"
+[
+]
+
+@baseclass base(Item) = Health
+[
+]
+
+@PointClass base(Health) = health_005 : "Health"
+[
+]
+
+@PointClass base(Health) = health_050 : "Health"
+[
+]
+
+@PointClass base(Health) = health_100 : "Health"
+[
+]
+
+@baseclass base(Item) = InventoryItem
+[
+]
+
+@PointClass base(InventoryItem) = Inventory_GlowStick : "Who wins: dark room, or one glowy boy?"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_scubagear : "Scuba gear"
+[
+]
+
+@PointClass base(InventoryItem) = powerup_adrenaline : "Adrenaline"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_bluecard : "Blue key card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_orangecard : "Orange key card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_yellowcard : "Yellow key card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_greencard : "Green key card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_identcard : "Ident key card"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_cookies : "Cookies"
+[
+]
+
+@PointClass size(-12 -12 0, 12 12 32) base(InventoryItem) = inventory_comlink : "Com Link"
+[
+]
+
+@PointClass size(-4 -4 0, 4 4 4) base(InventoryItem) = inventory_coin : "Coin"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_code : "Decoder"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_keyring : "Key Ring"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 8) base(InventoryItem) = inventory_moneybag : "Money Bag"
+[
+]
+
+@PointClass size(-4 -4 0, 4 4 4) base(InventoryItem) = inventory_dollar : "Dollar"
+[
+]
+
+@PointClass base(InventoryItem) = powerups_flashlight : "Flashlight"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 8) base(InventoryItem) = inventory_evidence : "Evidence"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_decoder : "Decoder (2)"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_genericpulsepart : "Pulse weapon part"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_chembiosuit : "Chemsuit"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_blueprints : "Blueprints"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_u4sample : "U4 Sample"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 8) base(InventoryItem) = inventory_envelope : "Envelope"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 8) base(InventoryItem) = inventory_candybar : "Candy"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 8) base(InventoryItem) = inventory_passcode : "Password"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 16) base(InventoryItem) = inventory_hand : "Hand"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_bluecranecard : "Blue CRANE Card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_orangecranecard : "Orange CRANE Card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_craneidentitycard : "Identity CRANE Card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_securityl1card : "Security Level 1 Card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_securityoverridecard : "Security Override Card"
+[
+]
+
+@PointClass size(-8 -4 0, 8 4 8) base(InventoryItem) = inventory_terminalaccesscard : "Terminal Access Card"
+[
+]
+
+@PointClass base(InventoryItem) = inventory_paradoxdiamond : "Paradox Diamond"
+[
+]
+
+@PointClass base(InventoryItem) = powerups_cloak : "Cloak"
+[
+]
+
+@PointClass base(InventoryItem) = powerups_mutagen : "Mutagen"
+[
+]
+
+@PointClass base(InventoryItem) = powerups_oxygen : "Breather"
+[
+]
+
+@PointClass base(InventoryItem) = powerup_goggles : "Gorgles"
+[
+]
+
+@PointClass base(InventoryItem) = powerup_shield : "Reactive Shields"
+[
+]
+
+@PointClass base(InventoryItem) = powerups_silencer : "Silencer"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 8) base(InventoryItem) = powerup_eastercandy : "Shhh"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 8) base(InventoryItem) = powerup_eastercoke : "Shhh"
+[
+]
+
+@PointClass base(InventoryItem) = ctf_flag_hardcorps : "CTF Flag (HC)"
+[
+]
+
+@PointClass base(InventoryItem) = ctf_flag_sintek : "CTF Flag (ST)"
+[
+]
+
+@baseclass base(Item) = Weapon
+[
+	ammo_in_clip(integer) : "Ammo left in clip"
+	weaponmode(integer) : "Weapon mode"
+	silenced(integer) : "Silenced"
+]
+
+@PointClass base(Weapon) = weapon_assaultrifle : "Assault Rifle"
+[
+]
+
+@PointClass base(Weapon) = weapon_highvelocitygun : "HV Chaingun"
+[
+]
+
+@PointClass base(Weapon) = weapon_magnum : "Magnum"
+[
+]
+
+@PointClass base(Weapon) = weapon_pulserifle : "Pulse Rifle"
+[
+]
+
+@PointClass base(Weapon) = weapon_quantumdestabilizer : "Quantum Destabilizer"
+[
+]
+
+@PointClass base(Weapon) = weapon_shotgun : "Shotgun"
+[
+]
+
+@PointClass base(Weapon) = weapon_sniperrifle : "Sniper Rifle"
+[
+]
+
+@PointClass base(Weapon) = weapon_concussiongun : "Concussion Gun"
+[
+]
+
+@PointClass base(Weapon) = weapon_flamethrower : "Flamethrower"
+[
+]
+
+@PointClass base(Weapon) = weapon_ip36 : "IP36"
+[
+]
+
+@PointClass base(Weapon) = weapon_rocketlauncher : "Rocket Launcher"
+[
+]
+
+@PointClass base(Weapon) = weapon_missilelauncher : "Guided Missile Launcher"
+[
+]
+
+@PointClass base(Weapon) = weapon_plasmabow : "Plasma Bow"
+[
+]
+
+@PointClass base(Weapon) = weapon_speargun : "Spear Gun"
+[
+]
+
+@PointClass base(Weapon) = weapon_stingerpack : "Stinger Pack"
+[
+]
+
+@PointClass color(0 127 0) size(4 4 4) base(Entity) = info_grav_pathnode : "node for gravity paths"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Head Node; the head of the path" : 0
+        2 : "Force; un-fightable gravity ( i.e. can't go backwards )" : 0
+    ]
+
+	speed(float) : "Speed of the pull (Use negative for a repulsion)" : "100"
+	radius(float) : "Radius of the effect of the pull" : "256"
+]
+
+@PointClass base(Entity, AngleYawOnly) = vehicles_hoverbike : "Vroom vroom"
+[
+    spawnflags(Flags) =
+    [
+        1 : "HardCORPS only" : 0
+        2 : "SiNTEK only" : 0
+    ]
+]
+
+@PointClass base(Trigger) = lensflare : "Lens flare"
+[
+	color(color1) : "color of the flare" : "1 1 1"
+	light(integer) : "If set, flare emits dynamic light"
+	radius(integer) : "Radius of the dynamic light"
+	scale(float) : "Scale of the lens flare" : "0.5"
+	sprite(string) : "Sprite to use" : "sprites/glow.spr"
+	lightstyle(integer) : "Light style to use" : 255
+]
+
+@PointClass base(Entity, Angles) = object : "Generic object"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Non-solid" : 0
+        2 : "Not shootable" : 0
+    ]
+
+	killtarget(target_destination) : "Kill this object when triggered/killed"
+	anim(string) : "Animation to use for this object"
+	skin(string) : "Skin to use for this object"
+]
+
+@PointClass base(object) = func_throwobject : "This is an object you can pickup and throw at people"
+[
+]
+
+@PointClass base(object) = world_firebarrel : "Barrel with fire coming out of it"
+[
+]
+
+@PointClass base(func_throwobject) = func_goliathobject : "This is a func_throwobject with added functionality that's been optimized for use by a goliath"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Non-solid; makes it not solid while sitting around" : 0
+        2 : "Not shootable; makes it not damagable while sitting around" : 0
+        4 : "makes it be affected by gravity while waiting around to be thrown" : 0
+        8 : "makes the object stay on top of other BBOX entities so they can be stacked" : 0
+    ]
+
+	attackmode(integer) : "Quick hack to get these workin with func_spawn" : 0
+]
+
+@PointClass base(object) = pigeon : "Skeet entity"
+[
+]
+
+@PointClass base(Entity) = skeetlauncher : "Skeet launcher"
+[
+]
+
+@PointClass base(Entity, AngleYawOnly) size(-16 -16 0, 16 16 72) color(127 127 0) = info_player_start : "Normal starting point for a level."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start on bike" : 0
+    ]
+
+	targetname(string) : "Name for the spawn point for maps"
+]
+
+@PointClass base(info_player_start) = info_player_progressivestart : "Starting point for a level.  When triggered, sets next spawnpoint to itself. Used for respawn point in Sin Arcade.  This must have a targetname for it to work."
+[
+]
+
+@PointClass base(info_player_start) = info_player_deathmatch : "Potential spawning position for deathmatch games."
+[
+]
+
+@PointClass base(info_player_start) = info_player_coop : "Potential spawning position for co-op games."
+[
+]
+
+@PointClass base(func_camera) size(8 8 8) = info_player_intermission : "Viewing point in between deathmatch levels."
+[
+]
+
+@PointClass base(Entity) = info_splinepath : "Mostly used for camera paths"
+[
+	loop_name(target_destination) : "Camera loop point"
+	angles(string) : "Pitch yaw roll angles"
+	speed(float) : "Node speed" : "1"
+]
+
+@baseclass base(Entity, Angles) = Sentient
+[
+]
+
+@baseclass color(255 0 0) base(Sentient) = Actor
+[
+	health(float) : "health" : "100"
+	mass(float) : "mass" : "200"
+	weapon(string) : "weapon this actor holds"
+	spawngroup(string) : "spawning group"
+	attackmode(integer) : "attack mode" : 0
+	attackrange(float) : "range of attack" : "8192"
+	visiondistance(float) : "vision distance" : "1024"
+	script(string) : "AI actor script" : "global/enemy.scr"
+	thread(string) : "Called when actor starts"
+	killthread(string) : "Called when actor dies" : ""
+	aim(float) : "Inverted aim accuracy (0.0 = 100% accuracy)"
+	painthreshold(float) : "Pain threshold; default is based on skill"
+	shotsperattack(float) : "Shots per attack; default is based on skill"
+	skin(string) : "Skin to use"
+]
+
+@PointClass base(Actor) = monster_bachrodai : "Enemy"
+[
+]
+
+@PointClass size(-16 -16 -18, 16 16 18) base(Actor) = animals_bat : "Enemy"
+[
+]
+
+@PointClass size(-16 -16 -18, 16 16 18) base(Actor) = animals_batlow : "Enemy"
+[
+]
+
+@PointClass size(-14 -14 -14, 14 14 14) base(Actor) = monster_bob : "Enemy"
+[
+]
+
+@PointClass size(-16 -16 0, 16 16 40) base(Actor) = monster_crawler : "Enemy"
+[
+]
+
+@PointClass size(-8 -8 0, 8 8 24) base(Actor) = animals_fish : "Enemy"
+[
+]
+
+@PointClass size(-40 -40 0, 40 40 240) base(Actor) = monster_goliath : "Enemy"
+[
+]
+
+@PointClass base(Actor) = monster_maneroboss : "Enemy"
+[
+]
+
+@PointClass base(Actor) = monster_mortician : "Enemy"
+[
+]
+
+@PointClass base(Actor) = monster_peon : "Enemy"
+[
+]
+
+@PointClass base(monster_peon) = boss_eonandpeon : "Enemy"
+[
+]
+
+@PointClass size(-10 -10 0, 10 10 12) base(Actor) = Animals_Rat : "Enemy"
+[
+]
+
+@PointClass size(-22 -22 0, 22 22 85) base(Actor) = monster_splitter : "Enemy"
+[
+]
+
+@PointClass base(Actor) = boss_thrallmaster : "Enemy"
+[
+]
+
+@baseclass base(Sentient) = Turret
+[
+	sightthread(string) : "thread when sight"
+	sighttarget(target_destination) : "target when sight"
+	patience(float) : "turret patience" : "1.0"
+	lagtime(float) : "lag time"
+	health(float) : "health, if any"
+]
+
+@PointClass base(Turret) = trap_camgun : "Camgun"
+[
+	yawrange(float) : "Yaw range" : "180"
+	pitchrange(float) : "Pitch range" : "180"
+
+	wakeupdistance(float) : "Distance until the turret wakes up" : "750"
+	firingdistance(float) : "Distance the turret will fire at" : "800"
+]
+
+@PointClass base(Turret) = trap_rocketturret : "Rocket turret"
+[
+	wakeupdistance(float) : "Distance until the turret wakes up" : "1950"
+	firingdistance(float) : "Distance the turret will fire at" : "2000"
+]
+
+@PointClass base(Turret) = trap_securityturret : "Security turret. Senses when player is near and raises up, searches for player, and fires. When player is dead or not near, it lowers down and goes back to sleep."
+[
+	health(float) : "Health" : "100"
+	wakeupdistance(float) : "Distance until the turret wakes up" : "750"
+	firingdistance(float) : "Distance the turret will fire at" : "800"
+]
+
+@SolidClass base(Trigger) = ctf_anti-nuke-zone : "This trigger field prevents nukes from blowing up fully while they're in it."
+[
+]
+
+@PointClass base(Trigger) = func_exploder : "Spawns an explosion when triggered. Triggers any targets."
+[
+    spawnflags(Flags) =
+    [
+        8 : "Big Explosions" : 0
+    ]
+
+	dmg(integer) : "how much damage to cause from each explosion" : 120
+	attenuation(float) : "attenuation for explosions" : "1.0"
+	volume(float) : "volume to play explosion sound at" : "1.0"
+]
+
+@SolidClass base(Trigger) = func_multi_exploder : "Spawns an explosion when triggered. Triggers any targets. size of brush determines where explosions will occur."
+[
+    spawnflags(Flags) =
+    [
+        2 : "Random Time" : 0
+        4 : "Random Scale" : 0
+        8 : "Big Explosions" : 0
+    ]
+
+	dmg(integer) : "how much damage to cause from each explosion" : 120
+	attenuation(float) : "attenuation for explosions" : "1.0"
+	volume(float) : "volume to play explosion sound at" : "1.0"
+	duration(float) : "how long to explode for" : "1.0"
+	wait(float) : "time between each explosion" : "0.25"
+	random(float) : "random factor" : "0.25"
+]
+
+@baseclass base(Trigger) = Mover
+[
+	dangerous(integer) : "whether this mover is an OSHA violation"
+]
+
+@baseclass base(Mover) = ScriptSlave
+[
+	speed(float) : "Movement speed" : "100"
+	angle(float) : "The forward direction of this script slave; -1 is up, -2 is down, any other value is yaw"
+	dmg(integer) : "Damage when smunched" : 2
+]
+
+@SolidClass base(ScriptSlave) = func_scriptobject : "Script Object"
+[
+]
+
+@PointClass base(ScriptSlave) = func_scriptobject : "Script Object"
+[
+]
+
+@baseclass base(ScriptSlave, GetMovedir) = Door
+[
+    spawnflags(Flags) =
+    [
+        1   : "Start Open; causes the door to move to its destination when spawned, and operate in reverse. It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors)." : 0
+        2   : "Open Direction; indicates which direction to open when START_OPEN is set" : 0
+        4   : "Don't Link; for when you have two doors that are touching but you want to operate independently" : 0
+        8   : "Not Players" : 0
+        16  : "Not Monsters" : 0
+        32  : "Toggle; causes the door to wait in both the start and end states for a trigger event" : 0
+        64 : "Auto Open; causes the door to open when a player is near instead of waiting for the player to use the door" : 0
+        128 : "Targeted; door is only operational from triggers or script" : 0
+    ]
+
+	sound_stop(string) : "Sound to use when the door stops" : "door_stop"
+	sound_move(string) : "Sound to use when the door moves" : "door_moving"
+	sound_message(string) : "Sound to play when the door prints a message"
+	sound_locked(string) : "Sound to play if the door is locked"
+	sound_close_stop(string) : "Sound to play when closed; if unset, uses `sound_stop`"
+	sound_close_move(string) : "Sound to play when closing; if unset, uses `sound_move`"
+	preciseuse(integer) : "Whether you need to precisely target the door"
+	triggerdist(float) : "Trigger distance for using this door" : "60"
+	health(float) : "Door health"
+	time(float) : "Travel time" : "0.3"
+	wait(float) : "Wait before closing; only if non-toggle; -1 = never return" : "3"
+	dmg(float) : "Door damage"
+]
+
+@SolidClass base(Door) = func_rotatingdoor : "Rotating door"
+[
+	angle(float) : "determines the opening direction.  point toward the middle of the door (away from the hinge)"
+	openangle(float) : "how wide to open the door" : "90"
+	onewayangles(string) : "the angles to rotate through when opening. Setting this makes the door only open in one direction"
+]
+
+@SolidClass base(Door) = func_door : "Sliding door"
+[
+	lip(float) : "lip remaining at end of move" : "8"
+]
+
+@SolidClass base(Door) = func_scriptdoor : "Scriptable door"
+[
+	initthread(string) : "code to execute to setup the door (optional)"
+	openthread(string) : "code to execute when opening the door (required)"
+	closethread(string) : "code to execute when closing the door (required)"
+	sound_stop(string) : "Sound when stopping" : ""
+	sound_move(string) : "Sound when moving" : ""
+]
+
+@PointClass base(ScriptSlave, Angles) = func_beam : "This creates a beam effect from the origin to the target's origin. If no target is specified, uses angles and projects beam out from there."
+[
+    spawnflags(Flags) =
+    [
+        1   : "Start On; starts the beam on" : 0
+        2   : "Animate; plays animation of the model" : 0
+        4   : "Fast; plays at 20hz" : 0
+        8   : "Roll" : 0
+        16  : "RandStart; Starts each segment of the beam's animation on a different frame" : 0
+        32  : "Electric; Applies a random electric efffect to the beam" : 0
+        64 : "RandAlpha; Randomly generate the alpha for the beam" : 0
+    ]
+
+	model(string) : "Specifies model to use. If the model field is not set, then a straight beam will be created using the color specified. color, minoffset, maxoffset ,ANIMATE, FAST, ROLL, RANDSTART, ELECTRIC, and RANDALPHA are not applicable if the model is not set."
+	maxoffset(float) : "Amount of electrical variation in the middle of beam" : "25"
+	minoffset(float) : "Amount of electrical variation at the endpoints of beam" : "5"
+	overlap(integer) : "Specifies the amount of overlap each beam link should have. Use this to fill in the cracks when using electric on beams"
+	diameter(integer) : "Diameter when no model set" : 4
+	beamstyle(integer) : "Sets the style for this beam to cycle through. This applies only to beams without models. sample styles (121 blood, 120 gunsmoke, 123 orangeglow, 124 blueyellow, 125 debris trail, 128 oil, 129 waterspray 130 blue-yellow-blue); See global0.scr for more style numbers"
+	color(color1) : "Color when no model set" : "1 1 1"
+	damage(float) : "Amount of damage the beam inflicts if beam hits someone"
+	life(float) : "Deactivates the beam life seconds after the beam is activated. If not set, beam will not be deactivated"
+]
+
+@PointClass base(ScriptSlave) = rope_piece : "Rope Piece - A single piece of a rope. All other settings are set in the rope's rope_base entity."
+[
+    spawnflags(Flags) =
+    [
+        1   : "Steam; makes this piece of the rope shoot out steam. Only does this while not attached" : 0
+        2   : "Wiggle; makes this piece of the rope wiggle about randomly. Only does this while not attached" : 0
+        4   : "Attached Steam; makes this piece of the rope spray steam even while attached. STEAM must also be marked for this to work" : 0
+        8   : "Attached Wiggle; makes this piece of the rope wiggle around even while attached. WIGGLE must also be marked for this to work" : 0
+    ]
+
+	target(target_destination) : "the `targetname` of the next piece in the rope. This should be blank if it's the last piece in the rope. If a non-rope_piece entity is targeted, it will attach itself to it"
+	targetname(target_source) : "used for the previous piece in the rope to find and link to this piece of the rope"
+	target2(target_destination) : "the targetname of the entity to attach this piece of the rope to. Any piece of a rope can be attached to something and be triggered at any time to detach it. Triggering the base of an attached rope will detach all attached points on that rope"
+	wigglemove(integer) : "the amount of force the random wiggling has. Also used for the number of particles to throw while steaming" : 32
+	steamtime(float) : "number of seconds between each time the rope shoots out steam" : "0.2"
+	wiggletime(float) : "number of seconds between each time the rope wiggles" : "0.5"
+	damage(integer) : "Amount of damage the rope piece does to things when it touches them. Will not hurt things if the rope is an untriggered START_STILL rope"
+]
+
+@PointClass base(rope_piece) model({"path":model,"frame":frame,"scale":scale,"alpha":alpha}) = rope_base : "Rope Base - the main control and top end attachment entity for ropes. This entity is the point to where ropes attach their top end. It's a stationary point entity. All setting for the whole rope are specified through this entity. If you want/need to trigger a rope to do something, then this is the entity to trigger. Trying to trigger a rope_piece will do nothing."
+[
+    spawnflags(Flags) =
+    [
+        1   : "No Attached Grab; makes the entire rope non-grabbable when attached anywhere along the rope" : 0
+        2   : "Start Still; specifies that the whole rope will be completely stationary until it is either triggered, or grabbed" : 0
+        4   : "No Grab; Specifies that player's can not grab the rope. They'll still bump it from walking through it, but they can not grab it" : 0
+    ]
+
+	target(target_destination) : "The `targetname` of the first rope_piece in the rope"
+	targetname(target_source) : "The name that the rope is triggered with"
+	piecelength(float) : "The distance between each piece of the rope" : "24"
+	piecemodel(string) : "The model to use for the rope pieces" : "rope.def"
+	pieceskin(integer) : "The skin number of the model to use for the rope pieces"
+	ropedampener(float) : "Horizontal velocity dampener for the rope" : "0.75"
+	playerdampener(float) : "Horizontal velocity dampener for a player grabbing the rope" : "0.95"
+	stiffness(float) : "Movement restricter on the amount that the rope can flex and bend. Valid values are from -1 (no restriction) to 1 (tried to be perfectly straight. The position of the first rope piece determines what direction the rope is pushed from the base of the rope" : "-1"
+	strength(float) : "How strongly a stiff rope goes to position" : "1"
+]
+
+@SolidClass base(ScriptSlave) = func_volumetric : "Use this to make non-solid volumes.  You still need to set up the surface properties with the `add` flag."
+[
+]
+
+@PointClass base(ScriptSlave) = func_scriptorigin : "Used as an alternate origin for objects. Bind the object to the func_scriptorigin in order to simulate changing that object's origin"
+[
+]
+
+@PointClass base(ScriptSlave, Angles) = func_scriptmodel : "Script Model"
+[
+	anim(string) : "Animation to use"
+	skin(string) : "Skin to use"
+	frame(integer) : "Frame index, one-indexed"
+]
+
+@PointClass base(func_scriptmodel) = monster_helicopterboss : "Heli Boss"
+[
+]
+
+@baseclass base(func_scriptmodel) = VehicleBase
+[
+]
+
+@SolidClass base(VehicleBase) = script_wheelsback : "???"
+[
+]
+
+@SolidClass base(VehicleBase) = script_wheelsfront : "???"
+[
+]
+
+@SolidClass base(VehicleBase) = script_vehicle : "Vehicle"
+[
+]
+
+@SolidClass base(script_vehicle) = script_drivablevehicle : "Drivable"
+[
+	respawntime(float) : "Respawn time in CTF" : "60"
+]
+
+@PointClass base(Trigger) = func_earthquake : "Earthquake"
+[
+	duration(float) : "Duration of the earthquake." : "0.8"
+]
+
+@SolidClass base(Trigger) = func_checkpoint : "Bike Checkpoint"
+[
+    spawnflags(Flags) =
+    [
+        1   : "Any Order; only settable on the goal line. When set, it allows players to hit the checkpoints in the level in any order. They must still hit them all" : 0
+        2   : "Random Reward; specifies that the checkpoint will give out only one type of ammo (choosen randomly) when touched. Otherwise, a player will recieve some of each type of ammo" : 0
+        4   : "Turbo Fill; makes this checkpoint refill a hoverbike's turbo meter when passed" : 0
+        8   : "Always Reward; always gives a player the ammo and health reward even if he's already hit it" : 0
+    ]
+
+	rockets(integer) : "the amount of rocket ammo that the player may receive" : 10
+	bullets(integer) : "the amount of bullet ammo that the player may receive" : 25
+	mines(integer) : "the number of mines that the player may receive" : 3
+	bikehealth(integer) : "the amount of health a hoverbike may receive" : -1
+	riderhealth(integer) : "the amount of health a hoverbike may receive" : -1
+	disabletime(float) : "sets how long after someone successfully hits this checkpoint that it will be disabled. No one can successfully hit the checkpoint while it's disabled. Default is 0, don't disable. If ALWAYSREWARD is set, default is 5"
+	id(integer) : "the id number of the checkpoint. Set to 0 for the goal line and 1 or greater for checkpoints"
+	points(integer) : "is the number of frag points recieved for passing this checkpoint. Default is 0 for checkpoints and 1 for goal lines"
+	fastestpoints(integer) : "the number of points rewarded for making the fastest lap; defaults to 1 on goals"
+	previous_id(integer) : "the id number of the checkpoint that comes before this one"
+]
+
+@SolidClass base(Trigger) = ctf_bikerefill : "Bike refill station"
+[
+    spawnflags(Flags) =
+    [
+        1   : "Random Reward; specifies that the checkpoint will give out only one type of ammo (choosen randomly) when touched. Otherwise, a player will recieve some of each type of ammo" : 0
+        2   : "Turbo Fill; makes this checkpoint refill a hoverbike's turbo meter when passed" : 0
+        4   : "HardCORPS only" : 0
+        8   : "SiNTEK only" : 0
+    ]
+
+	rockets(integer) : "the amount of rocket ammo that the player may receive" : 10
+	bullets(integer) : "the amount of bullet ammo that the player may receive" : 25
+	mines(integer) : "the number of mines that the player may receive" : 3
+	bikehealth(integer) : "the amount of health a hoverbike may receive" : -1
+	riderhealth(integer) : "the amount of health a hoverbike may receive" : -1
+	disabletime(float) : "sets how long after someone hits this refiller that it will be disabled. No one can get more ammo from it while it's disabled." : "10"
+]
+
+@baseclass base(Trigger) = BaseJitter
+[
+    spawnflags(Flags) =
+    [
+        1   : "Toggle" : 0
+        2   : "Start On" : 0
+    ]
+]
+
+@PointClass base(BaseJitter) = func_jitter_global : "Causes an angle and offset jitter of players' views"
+[
+	duration(float) : "the duration of the jitter" : "0.8"
+	angleduration(float) : "angle jitter duration. Set to -1 for no angle jitter."
+	anglemagnitude(float) : "angle jitter magnitude." : "3"
+	anglefalloff(float) : "angle jitter falloff rate." : "4"
+	offsetduration(float) : " offset jitter duration. Set to -1 for no offset jitter."
+	offsetmagnitude(float) : "offset jitter magnitude." : "2"
+	offsetfalloff(float) : "offset jitter falloff rate." : "3"
+]
+
+@PointClass base(BaseJitter) = func_jitter_radius : "Causes an angle and offset jitter of players' views that are within a certain radius of the entity"
+[
+	radius(float) : "the max effective radius of the view jitter" : "128"
+	outerjitter(float) : "the percentage of the full jitter that will be used at the max effective range" : "0.25"
+	duration(float) : "the duration of the jitter" : "0.25"
+	angleduration(float) : "angle jitter duration. Set to -1 for no angle jitter."
+	anglemagnitude(float) : "angle jitter magnitude." : "6"
+	anglefalloff(float) : "angle jitter falloff rate." : "9"
+	offsetduration(float) : "offset jitter duration. Set to -1 for no offset jitter."
+	offsetmagnitude(float) : "offset jitter magnitude." : "5"
+	offsetfalloff(float) : "offset jitter falloff rate." : "8"
+]
+
+@PointClass color(127 0 0) size(4 4 4) = info_pathnode : "Monster navigation nodes"
+[
+    spawnflags(Flags) =
+    [
+        1   : "Flee" : 0
+        2   : "Duck" : 0
+        4   : "Cover" : 0
+        8   : "Door" : 0
+        16  : "Jump" : 0
+        32  : "Ladder" : 0
+    ]
+
+	target(target_destination) : "Jump target"
+	targetname(target_source) : "Jump targetname"
+]
+
+// aliases from DEF files
+@PointClass base(Bullet10mm) = Ammo_10mm : "test" [ ]
+@PointClass base(Bullet10mm) = Ammo_Magnum : "test" [ ]
+@PointClass base(Bullet50mm) = Ammo_50mm : "test" [ ]
+@PointClass base(object) = world_acduct : "test" [ ]
+@PointClass base(object) = world_acvent : "test" [ ]
+@PointClass base(object) = items_alarm : "test" [ ]
+@PointClass base(object) = furniture_alter : "test" [ ]
+@PointClass base(object) = items_axepick : "test" [ ]
+@PointClass size(-46 -26 0, 46 26 96) base(script_drivablevehicle) = vehicles_atv : "test" [ ]
+@PointClass base(BackWheels) = vehicles_atv_backtire : "test" [ ]
+@PointClass base(FrontWheels) = vehicles_atv_fronttire : "test" [ ]
+@PointClass base(object) = items_fireaxe : "test" [ ]
+@PointClass base(object) = items_axepick : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 88) base(bacrodai) = Monster_Bachrodai : "test" [ ]
+@PointClass base(object) = items_bag : "test" [ ]
+@PointClass base(object) = items_axepick : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 122) base(object) = plant_banktree : "test" [ ]
+@PointClass base(object) = furniture_barstool : "test" [ ]
+@PointClass size(-1 -4 0, 1 4 8) base(object) = items_battery : "test" [ ]
+@PointClass base(object) = furniture_bchair : "test" [ ]
+@PointClass base(object) = deskitems_beaker : "test" [ ]
+@PointClass base(object) = deskitems_beakerZied : "test" [ ]
+@PointClass base(object) = deskitems_beakerZied : "test" [ ]
+@PointClass size(-18 -18 -8, 18 18 8) base(actor) = Monster_Beecadrone : "test" [ ]
+@PointClass base(object) = deskitems_beercan : "test" [ ]
+@PointClass base(object) = items_bellalarm : "test" [ ]
+@PointClass base(object) = items_belt : "test" [ ]
+@PointClass base(Hoverbike) = vehicles_hoverbike : "test" [ ]
+@PointClass base(object) = world_blockade : "test" [ ]
+@PointClass size(-8 -8 0, 8 8 8) base(item) = inventory_blueprints : "test" [ ]
+@PointClass base(object) = deskitems_blueprints : "test" [ ]
+@PointClass base(object) = deskitems_book_closed : "test" [ ]
+@PointClass base(object) = deskitems_book_closed2 : "test" [ ]
+@PointClass base(object) = deskitems_book_closed3 : "test" [ ]
+@PointClass base(object) = deskitems_book_closed4 : "test" [ ]
+@PointClass base(object) = deskitems_book_closed5 : "test" [ ]
+@PointClass base(object) = deskitems_book_open : "test" [ ]
+@PointClass base(object) = deskitems_book_open : "test" [ ]
+@PointClass size(-40 -40 0, 40 40 104) base(EonAndPeon) = Boss_EonAndPeon : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Cinematic_Bouncer : "test" [ ]
+@PointClass base(object) = world_boxfan : "test" [ ]
+@PointClass base(object) = items_briefcase : "test" [ ]
+@PointClass base(object) = fx_bubbles : "test" [ ]
+@PointClass size(-24 -24 0, 24 24 20) base(actor) = Monster_Bug : "test" [ ]
+@PointClass base(object) = items_bulb_on : "test" [ ]
+@PointClass base(object) = items_bulb_off : "test" [ ]
+@PointClass size(-4 -4 0, 4 4 8) base(actor) = items_bulb_on : "test" [ ]
+@PointClass size(-4 -4 0, 4 4 8) base(actor) = items_bulb_off : "test" [ ]
+@PointClass base(script_drivablevehicle) = vehicles_bulldozer : "test" [ ]
+@PointClass size(-80 -80 0, 80 80 144) base(script_drivablevehicle) = vehicles_bulldozerZied : "test" [ ]
+@PointClass base(object) = world_bullhorn : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Bum1 : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Bum2 : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Bum2Sitting : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Bum2Sleeping : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Bum1Sitting : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Bum1Sleeping : "test" [ ]
+@PointClass base(object) = deskitems_bunsenburner : "test" [ ]
+@PointClass base(object) = furniture_cabinet : "test" [ ]
+@PointClass base(object) = deskitems_calendar1 : "test" [ ]
+@PointClass base(object) = deskitems_calendar2 : "test" [ ]
+@PointClass base(object) = deskitems_calendar3 : "test" [ ]
+@PointClass base(object) = func_securitycamera : "test" [ ]
+@PointClass size(-12 -10 -10, 68 10 10) base(actor) = trap_camgun : "test" [ ]
+@PointClass base(object) = world_barrel : "test" [ ]
+@PointClass base(object) = vehicles_car : "test" [ ]
+@PointClass base(object) = deskitems_playingcards : "test" [ ]
+@PointClass base(object) = 2015_cardoor : "test" [ ]
+@PointClass base(object) = 2015_car_tyre : "test" [ ]
+@PointClass base(object) = deskitems_cdrack : "test" [ ]
+@PointClass base(object) = furniture_chair1 : "test" [ ]
+@PointClass base(object) = furniture_chair2 : "test" [ ]
+@PointClass base(object) = furniture_chair3 : "test" [ ]
+@PointClass base(object) = furniture_chairs_largered : "test" [ ]
+@PointClass base(object) = furniture_chairs_largeblack : "test" [ ]
+@PointClass base(object) = furniture_chairs_smallgreen : "test" [ ]
+@PointClass base(object) = furniture_chairs_smallblue : "test" [ ]
+@PointClass size(-12 -12 0, 12 12 68) base(actor) = Neutral_ChemicalWorker : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_ChemFemale : "test" [ ]
+@PointClass size(-8 -8 0, 8 8 64) base(item) = Inventory_ChemBioSuit : "test" [ ]
+@PointClass size(-19 -19 0, 19 19 50) base(actor) = Monster_ChurchCutscene_Grogg : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 70) base(mortician) = Monster_ChurchCutscene_Mortician : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 75) base(actor) = Monster_ChurchCutscene_Slim : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 85) base(Actor) = Monster_ChurchCutscene_Splitter : "test" [ ]
+@PointClass size(-24 -24 0, 24 24 72) base(actor) = Monster_ChurchCutscene_Vultorn : "test" [ ]
+@PointClass base(object) = cinematic_hoverbike : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 80) base(actor) = cinematic_blade : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 80) base(actor) = cinematic_blade_vacant : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = cinematic_elexis : "test" [ ]
+@PointClass size(-24 -24 0, 24 24 80) base(actor) = cinematic_jc : "test" [ ]
+@PointClass size(-4 -8 0, 4 8 72) base(actor) = cinematic_mancini : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Cinematic_Manero : "test" [ ]
+@PointClass size(-24 -24 0, 24 24 88) base(actor) = cinematic_manumit : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Cinematic_ManeroThug : "test" [ ]
+@PointClass size(-24 -24 0, 24 24 80) base(actor) = cinematic_thug : "test" [ ]
+@PointClass size(-12 -12 0, 12 12 138) base(object) = plant_citytree : "test" [ ]
+@PointClass size(-12 -12 0, 12 12 138) base(object) = plant_citytree : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FemaleCivilian : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_PenthousePet1 : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_PenthousePet1 : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Showergirl : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Showgirl : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_PenthousePets : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Waitress : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Waitress2 : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleCivilian : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_DealerBartender : "test" [ ]
+@PointClass size(-4 -4 0, 4 4 8) base(object) = deskitems_clamp : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Blade : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Elexis : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_JC : "test" [ ]
+@PointClass base(powerups_cloak) = Powerup_Cloaking : "test" [ ]
+@PointClass base(object) = 2015_clothes_pile : "test" [ ]
+@PointClass base(object) = furniture_coatrack : "test" [ ]
+@PointClass base(object) = deskitems_coffeemug : "test" [ ]
+@PointClass base(object) = deskitems_coffeemugs_sinteklogo : "test" [ ]
+@PointClass base(object) = deskitems_coffeemugs_fcblogo : "test" [ ]
+@PointClass base(object) = deskitems_coffeemugs_yellow : "test" [ ]
+@PointClass base(object) = deskitems_coffeemugs_blue : "test" [ ]
+@PointClass base(object) = deskitems_softdrink : "test" [ ]
+@PointClass base(object) = gib_Concrete1 : "test" [ ]
+@PointClass base(object) = gib_Concrete2 : "test" [ ]
+@PointClass base(object) = gib_Concrete3 : "test" [ ]
+@PointClass base(object) = gib_Concrete4 : "test" [ ]
+@PointClass base(object) = gib_Concrete5 : "test" [ ]
+@PointClass base(object) = 2015_cond_bottlea : "test" [ ]
+@PointClass base(object) = 2015_cond_bottleb : "test" [ ]
+@PointClass base(object) = 2015_cond_cutlery : "test" [ ]
+@PointClass base(object) = 2015_cond_glass : "test" [ ]
+@PointClass base(object) = 2015_cond_napkin : "test" [ ]
+@PointClass base(object) = 2015_cond_napkins : "test" [ ]
+@PointClass base(object) = 2015_cond_pepper : "test" [ ]
+@PointClass base(object) = 2015_cond_plate : "test" [ ]
+@PointClass base(object) = 2015_cond_salt : "test" [ ]
+@PointClass base(object) = plant_coral : "test" [ ]
+@PointClass base(object) = plant_coraltypes_green : "test" [ ]
+@PointClass base(object) = plant_coraltypes_blue : "test" [ ]
+@PointClass base(object) = plant_coraltypes_brown : "test" [ ]
+@PointClass base(object) = deskitems_cpu_case : "test" [ ]
+@PointClass size(-4 -6 0, 4 6 2) base(actor) = deskitems_cpu_keyboard : "test" [ ]
+@PointClass size(-4 -6 0, 4 6 2) base(object) = deskitems_cpu_keyboarduseable : "test" [ ]
+@PointClass base(object) = deskitems_cpu_monitor : "test" [ ]
+@PointClass base(object) = deskitems_cpu_monitor_jc : "test" [ ]
+@PointClass base(object) = deskitems_cpu_monitor_manumit : "test" [ ]
+@PointClass base(object) = deskitems_cpu_monitoruseable : "test" [ ]
+@PointClass base(object) = vehicles_crane : "test" [ ]
+@PointClass size(-4 -4 0, 4 4 4) base(object) = items_crosshair : "test" [ ]
+@PointClass size(-40 -40 0, 40 40 64) base(CTFDrivableTurret) = ctf_fixedturret : "test" [ ]
+@PointClass base(CTFTurret) = ctf_turret : "test" [ ]
+@PointClass base(object) = 2015_cup : "test" [ ]
+@PointClass base(object) = deskitems_cupandpens : "test" [ ]
+@PointClass size(-14 -14 0, 14 14 82) base(actor) = Monster_ConstrucWorker : "test" [ ]
+@PointClass base(object) = items_axepick : "test" [ ]
+@PointClass size(-40 -40 0, 40 40 104) base(actor) = Monster_DarkCaptain : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_DeadGuy : "test" [ ]
+@PointClass base(object) = deskitems_lamp : "test" [ ]
+@PointClass base(object) = 2015_desk_caddy : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 30) base(actor) = Monster_Doggie : "test" [ ]
+@PointClass base(object) = items_doorbell : "test" [ ]
+@PointClass size(-8 -8 0, 8 8 48) base(actor) = Monster_Eon : "test" [ ]
+@PointClass base(object) = items_statue_elexis : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 80) base(actor) = Monster_EvilBlade : "test" [ ]
+@PointClass base(object) = items_axepick : "test" [ ]
+@PointClass base(object) = 2015_factory_broom : "test" [ ]
+@PointClass base(object) = 2015_factory_oilcan : "test" [ ]
+@PointClass base(object) = 2015_factory_oil_drum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FemaleDancer : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Cinematic_FDancer_BlueDress : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_bluespotcrop : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_BrownDress : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_CamoDress : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_GreenSwirlCrop : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_PurpleDress : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_PurpleStripeCrop : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_PurpleSwirlCrop : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_redcrop : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_SquidDress : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_StripeDress : "test" [ ]
+@PointClass base(object) = Cinematic_FDancer_unconscious : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_WaterDress : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_ZisaBastard : "test" [ ]
+@PointClass base(object) = gib_feather : "test" [ ]
+@PointClass base(object) = world_firebarrel : "test" [ ]
+@PointClass base(object) = fx_firegen : "test" [ ]
+@PointClass base(object) = world_firelog : "test" [ ]
+@PointClass base(object) = world_FireExtinguisher : "test" [ ]
+@PointClass base(Animals_Fish) = Animals_TropicalFish_Blue : "test" [ ]
+@PointClass base(Animals_Fish) = Animals_TropicalFish_Dope1 : "test" [ ]
+@PointClass base(Animals_Fish) = Animals_TropicalFish_Dope2 : "test" [ ]
+@PointClass base(Animals_Fish) = Animals_TropicalFish_Green : "test" [ ]
+@PointClass base(Animals_Fish) = Animals_TropicalFish_Yellow : "test" [ ]
+@PointClass base(object) = world_usflag : "test" [ ]
+@PointClass base(object) = plant_flower : "test" [ ]
+@PointClass base(object) = deskitems_folder1 : "test" [ ]
+@PointClass base(object) = deskitems_folder2 : "test" [ ]
+@PointClass size(-8 -12 0, 8 12 80) base(actor) = Monster_ConstructForeman : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_OilRigForeman : "test" [ ]
+@PointClass size(-14 -14 0, 14 14 60) base(actor) = Monster_WarehouseForeman : "test" [ ]
+@PointClass size(-56 -56 0, 56 56 112) base(script_drivablevehicle) = vehicles_forklift : "test" [ ]
+@PointClass size(-56 -56 0, 56 56 112) base(script_drivablevehicle) = vehicles_forkliftZied : "test" [ ]
+@PointClass size(-19 -19 0, 19 19 50) base(actor) = Monster_Grogg : "test" [ ]
+@PointClass base(object) = gib_gib1 : "test" [ ]
+@PointClass base(object) = gib_gib2 : "test" [ ]
+@PointClass base(object) = gib_Arm : "test" [ ]
+@PointClass base(object) = gib_Head : "test" [ ]
+@PointClass base(object) = gib_Leg : "test" [ ]
+@PointClass base(object) = gib_Rib : "test" [ ]
+@PointClass base(object) = gib_torso : "test" [ ]
+@PointClass base(object) = Monster_Goliath_Child : "test" [ ]
+@PointClass base(object) = Monster_Goliath_Foetus : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_ChainGunNL : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_AssaultRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_FlamethrowerNL : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_GrenadeLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_ChainGun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_Magnum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_NoWeapon : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_RocketLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntCapt_Shotgun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntStreet_AssaultRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntStreet_GrenadeLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntStreet_ChainGun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntStreet_Magnum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntStreet_NoWeapon : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntStreet_RocketLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_GruntStreet_Shotgun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Grunt_AssaultRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Grunt_GrenadeLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Grunt_ChainGun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Grunt_Magnum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Grunt_NoWeapon : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Grunt_RocketLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Grunt_Shotgun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Guerilla_AssaultRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Guerilla_ChainGun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Guerilla_Magnum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Guerilla_NoWeapon : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Guerilla_RocketLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Guerilla_Shotgun : "test" [ ]
+@PointClass base(object) = items_hammer1 : "test" [ ]
+@PointClass base(object) = items_hammer2 : "test" [ ]
+@PointClass base(object) = items_hanglite1_on : "test" [ ]
+@PointClass base(object) = items_hanglite1_off : "test" [ ]
+@PointClass base(object) = items_hanglite2_on : "test" [ ]
+@PointClass base(object) = items_hanglite2_off : "test" [ ]
+@PointClass base(object) = items_hanglite : "test" [ ]
+@PointClass base(object) = items_hanglite2 : "test" [ ]
+@PointClass base(object) = items_hanglite3 : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Hank : "test" [ ]
+@PointClass base(object) = items_hardhat : "test" [ ]
+@PointClass base(vehicle) = vehicles_HCBoat : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer1_AssaultRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer1_Cinematic : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer1_Magnum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer1_NoWeapon : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer1_Shotgun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer2_AssaultRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer2_Magnum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer2_NoWeapon : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer2_Shotgun : "test" [ ]
+@PointClass base(Health) = Health_020 : "test" [ ]
+@PointClass base(Health) = Health_Apple : "test" [ ]
+@PointClass base(Health) = Health_Banana : "test" [ ]
+@PointClass base(Health) = Health_Cookies : "test" [ ]
+@PointClass base(Health) = Health_IceCream : "test" [ ]
+@PointClass base(Health) = Health_Milk : "test" [ ]
+@PointClass base(Health) = Health_Pizza : "test" [ ]
+@PointClass base(object) = Health_CheesyPoofs : "test" [ ]
+@PointClass base(Health) = Health_Sandwich : "test" [ ]
+@PointClass base(Health) = Health_SeaRation : "test" [ ]
+@PointClass base(Health) = Health_Soda : "test" [ ]
+@PointClass base(Health) = Health_U4 : "test" [ ]
+@PointClass size(-113 -60 0, 113 60 96) base(script_drivablevehicle) = vehicles_humv : "test" [ ]
+@PointClass base(BackWheels) = vehicles_humv_backtire : "test" [ ]
+@PointClass base(BackWheels) = vehicles_humv_backtire2 : "test" [ ]
+@PointClass base(FrontWheels) = vehicles_humv_fronttire : "test" [ ]
+@PointClass base(FrontWheels) = vehicles_humv_fronttire2 : "test" [ ]
+@PointClass base(FrontWheels) = vehicles_humv_fronttire3 : "test" [ ]
+@PointClass base(object) = vehicles_humvlowpoly : "test" [ ]
+@PointClass size(-113 -60 0, 113 60 96) base(script_drivablevehicle) = vehicles_humv_sintek : "test" [ ]
+@PointClass size(-113 -60 0, 113 60 96) base(script_drivablevehicle) = vehicles_humv_tan : "test" [ ]
+@PointClass base(object) = vehicles_humv_tire : "test" [ ]
+@PointClass base(ChainGun) = weapon_highvelocitygun : "test" [ ]
+@PointClass base(object) = world_hydrant : "test" [ ]
+@PointClass base(object) = deskitems_icecream : "test" [ ]
+@PointClass base(object) = 2015_jacket : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Jessica : "test" [ ]
+@PointClass base(object) = items_axepick : "test" [ ]
+@PointClass size(-4 -4 0, 4 4 4) base(KeyRing) = inventory_keyring : "test" [ ]
+@PointClass size(-20 -24 0, 20 24 72) base(actor) = Neutral_LabWorker : "test" [ ]
+@PointClass base(object) = deskitems_tablelamp : "test" [ ]
+@PointClass base(vehicle) = vehicles_lamprey : "test" [ ]
+@PointClass base(vehicle) = vehicles_lamprey_manero : "test" [ ]
+@PointClass base(object) = vehicles_lamprey_rotors : "test" [ ]
+@PointClass base(vehicle) = vehicles_lamprey_sintek : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Lansing : "test" [ ]
+@PointClass base(object) = trap_oldlauncher : "test" [ ]
+@PointClass size(-36 -36 0, 36 36 80) base(actor) = trap_missilelauncher_top : "test" [ ]
+@PointClass base(object) = gib_lava_bubble : "test" [ ]
+@PointClass base(object) = gib_lava_rock1 : "test" [ ]
+@PointClass base(Magnum) = weapon_magnum : "test" [ ]
+@PointClass base(object) = world_mailbox : "test" [ ]
+@PointClass size(-4 -8 0, 4 8 72) base(actor) = Monster_Mancini : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Manero : "test" [ ]
+@PointClass size(-24 -24 0, 24 24 88) base(actor) = Monster_Manumit : "test" [ ]
+@PointClass base(object) = 2015_matress : "test" [ ]
+@PointClass base(object) = Innocent_MaleDancer_ChoppedArm : "test" [ ]
+@PointClass base(object) = Innocent_MaleDancer_ChoppedHead : "test" [ ]
+@PointClass base(object) = Innocent_MaleDancer_ChoppedBody : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_green : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_GreenT : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Cinematic_MaleDancer_Mutated : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_pink : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_Psych : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_psych2 : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_red : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_RedT : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_Target : "test" [ ]
+@PointClass base(object) = Cinematic_MaleDancer_Unconscious : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_vomit : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleDancer_ZisaBastard : "test" [ ]
+@PointClass base(object) = items_meathook : "test" [ ]
+@PointClass base(object) = world_meter : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_Military_1LyinginBed : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_Military_2Injured : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_Military_3Medic : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_Military_4Leader : "test" [ ]
+@PointClass base(Ammo_SpiderMines) = Ammo_SpiderMine : "test" [ ]
+@PointClass base(object) = vehicles_minitruck : "test" [ ]
+@PointClass size(-8 -8 0, 8 8 8) base(object) = items_moneybag : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 70) base(mortician) = Monster_Mortician_Normal : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 70) base(mortician) = Monster_Mortician_Druglab : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 70) base(mortician) = Monster_Mortician_Stinger : "test" [ ]
+@PointClass base(object) = deskitems_mouse : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_Magnum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_tommygun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_chain : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_flame : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_grenade : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_Kungfu : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_rocket : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_shtgn : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Cinematic_ManeroThug_Unarmed : "test" [ ]
+@PointClass size(-14 -14 0, 14 14 82) base(actor) = Monster_MetalWorker : "test" [ ]
+@PointClass size(-40 -40 0, 40 40 48) base(actor) = Monster_Nautic : "test" [ ]
+@PointClass base(object) = world_newsbox : "test" [ ]
+@PointClass base(object) = world_o2tank : "test" [ ]
+@PointClass base(object) = 2015_old_boot : "test" [ ]
+@PointClass size(-28 -28 0, 28 28 80) base(actor) = Neutral_OneThumb : "test" [ ]
+@PointClass size(-14 -14 0, 14 14 82) base(actor) = Monster_OilRigWorker : "test" [ ]
+@PointClass base(powerups_oxygen) = Powerup_Oxygen : "test" [ ]
+@PointClass base(weapon_stingerpack) = weapon_stinger : "test" [ ]
+@PointClass size(-40 -12 0, 10 12 256) base(object) = plant_palmtree : "test" [ ]
+@PointClass size(-12 -12 0, 12 12 14) base(ParadoxDiamond) = items_paradox : "test" [ ]
+@PointClass size(-40 -40 0, 40 40 104) base(Peon) = Monster_Peon : "test" [ ]
+@PointClass size(-56 -56 0, 56 56 160) base(Peon) = Monster_PeonShip : "test" [ ]
+@PointClass base(object) = deskitems_phone1 : "test" [ ]
+@PointClass base(object) = deskitems_phone2 : "test" [ ]
+@PointClass size(-12 -12 0, 12 12 24) base(actor) = Animals_Pigeon : "test" [ ]
+@PointClass size(-44 -44 0, 44 44 96) base(actor) = Monster_Pinphat : "test" [ ]
+@PointClass base(object) = 2015_pizza_box : "test" [ ]
+@PointClass size(-24 -24 0, 24 24 40) base(object) = plant_plant : "test" [ ]
+@PointClass base(ammo_pulserifle) = Ammo_Plasma : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Blade : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Elexis : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_JC : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Manero : "test" [ ]
+@PointClass base(object) = items_CheesyPoofs : "test" [ ]
+@PointClass base(object) = world_portolet : "test" [ ]
+@PointClass size(-8 -8 0, 8 8 60) base(actor) = Monster_ChurchCutscene_Priest : "test" [ ]
+@PointClass base(object) = world_propane : "test" [ ]
+@PointClass base(ammo_pulserifle) = Ammo_Pulse : "test" [ ]
+@PointClass base(weapon_quantumdestabilizer) = weapon_quantumd : "test" [ ]
+@PointClass base(object) = fx_rain_128x128 : "test" [ ]
+@PointClass base(object) = fx_rain_256x256 : "test" [ ]
+@PointClass base(object) = fx_rain_64x64 : "test" [ ]
+@PointClass base(object) = gib_ReconahArm : "test" [ ]
+@PointClass base(object) = gib_ReconahGun : "test" [ ]
+@PointClass base(object) = gib_ReconahLeg : "test" [ ]
+@PointClass base(object) = gib_ReconahTorso : "test" [ ]
+@PointClass size(-28 -28 0, 28 28 88) base(actor) = Monster_Reconah : "test" [ ]
+@PointClass base(object) = world_sign_ritual : "test" [ ]
+@PointClass base(object) = items_roulette : "test" [ ]
+@PointClass base(object) = world_safelite : "test" [ ]
+@PointClass base(object) = world_safelitez : "test" [ ]
+@PointClass base(object) = world_safelitezFullbright : "test" [ ]
+@PointClass size(-24 -32 0, 24 32 96) base(actor) = Monster_Sergeant : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Scientist : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Scientist_Nologo : "test" [ ]
+@PointClass size(-4 -4 0, 4 4 8) base(object) = deskitems_scissors : "test" [ ]
+@PointClass base(object) = deskitems_telescope1 : "test" [ ]
+@PointClass size(-7 -5 0, 7 5 48) base(object) = deskitems_telescope2 : "test" [ ]
+@PointClass base(inventory_scubagear) = Powerup_ScubaGear : "test" [ ]
+@PointClass size(-24 -36 0, 24 36 96) base(actor) = Monster_Seabonite : "test" [ ]
+@PointClass base(object) = plant_seaweed : "test" [ ]
+@PointClass size(-24 -36 0, 24 36 96) base(actor) = Monster_SeaboniteCaptain : "test" [ ]
+@PointClass base(actor) = Monster_SecurityRover : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 58) base(actor) = Monster_Securton : "test" [ ]
+@PointClass base(object) = world_shipcrate : "test" [ ]
+@PointClass base(Ammo_ShotgunClip) = Ammo_Shotgun : "test" [ ]
+@PointClass base(object) = plant_shrub : "test" [ ]
+@PointClass base(object) = world_sign_large : "test" [ ]
+@PointClass base(object) = world_sign_small : "test" [ ]
+@PointClass size(-8 -4 0, 8 4 8) base(silencer) = inventory_silencer : "test" [ ]
+@PointClass base(actor) = world_sink : "test" [ ]
+@PointClass base(object) = world_sink : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 75) base(actor) = Monster_Slim_Normal : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 75) base(actor) = Monster_Slim_Concussion : "test" [ ]
+@PointClass base(object) = items_slotface : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 200) base(monster_goliath) = Monster_SmallGoliath : "test" [ ]
+@PointClass base(object) = fx_smokegen : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 88) base(actor) = Monster_Sniper : "test" [ ]
+@PointClass base(object) = deskitems_software1 : "test" [ ]
+@PointClass base(object) = deskitems_software2 : "test" [ ]
+@PointClass base(object) = deskitems_software3 : "test" [ ]
+@PointClass base(object) = deskitems_software4 : "test" [ ]
+@PointClass size(-8 -8 -8, 8 8 8) base(actor) = trap_SpiderMine : "test" [ ]
+@PointClass base(object) = info_splinepath : "test" [ ]
+@PointClass base(object) = world_stalagtite : "test" [ ]
+@PointClass base(object) = fx_steamgen : "test" [ ]
+@PointClass size(-9 -9 0, 9 9 240) base(object) = world_streetlight : "test" [ ]
+@PointClass size(-7 -7 0, 7 7 128) base(object) = world_sign_street : "test" [ ]
+@PointClass base(object) = world_stump : "test" [ ]
+@PointClass size(-69 -54 0, 109 54 80) base(object) = vehicles_Sub : "test" [ ]
+@PointClass base(object) = items_browntechuniform : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Technician_ChemicalWorker : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Neutral_Technician_Crane : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Technician_Freeport : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Neutral_Technician_Generic1 : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Neutral_Technician_Generic2 : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Neutral_Technician_Generic3 : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Monster_Guard_Crane_Ass : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Monster_Guard_Crane_Pis : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Monster_Guard_Crane_rocket : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Monster_Guard_Crane_shotgun : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 80) base(actor) = Neutral_Guard_MuseumShotgun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Technician_Marine : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Technician_SinTEK : "test" [ ]
+@PointClass base(object) = deskitems_testtube : "test" [ ]
+@PointClass size(-64 -64 0, 64 64 320) base(ThrallMaster) = Boss_ThrallMaster : "test" [ ]
+@PointClass base(goliathobject) = world_rubble : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_AssaultRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_Flamethrower : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_Gernade : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_PulseRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_RocketLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_Shotgun : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_Sniper : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Thug_AssaultRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Thug_4Cinematic : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Thug_Magnum : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Thug_NoWeapon : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Thug_PulseRifle : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Thug_RocketLauncher : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_Thug_Shotgun : "test" [ ]
+@PointClass size(0 -20 -15, 5 20 15) base(object) = Cinematic_WagesofSin2-new : "test" [ ]
+@PointClass size(0 -30 -15, 5 35 15) base(object) = Cinematic_WagesofSin3-new : "test" [ ]
+@PointClass size(0 -70 -15, 5 70 15) base(object) = Cinematic_WagesofSin1-new : "test" [ ]
+@PointClass base(actor) = world_toilet : "test" [ ]
+@PointClass base(object) = items_toolbox : "test" [ ]
+@PointClass base(object) = world_torch : "test" [ ]
+@PointClass size(-9 -9 0, 9 9 240) base(object) = world_streetlight : "test" [ ]
+@PointClass base(object) = world_trashcan1 : "test" [ ]
+@PointClass base(object) = world_trashcan2 : "test" [ ]
+@PointClass base(object) = world_trashcan3 : "test" [ ]
+@PointClass base(object) = deskitems_tray : "test" [ ]
+@PointClass base(object) = plant_tree : "test" [ ]
+@PointClass base(object) = vehicles_truck : "test" [ ]
+@PointClass base(object) = 2015_bathtub : "test" [ ]
+@PointClass base(actor) = trap_securityturret : "test" [ ]
+@PointClass base(object) = 2015_tv_crt : "test" [ ]
+@PointClass base(object) = Powerup_U4 : "test" [ ]
+@PointClass base(object) = items_axepick : "test" [ ]
+@PointClass base(Powerups_Mutagen) = Powerup_U4Vial : "test" [ ]
+@PointClass base(actor) = world_urinal : "test" [ ]
+@PointClass base(object) = world_urinal : "test" [ ]
+@PointClass base(object) = fx_uwshock : "test" [ ]
+@PointClass base(object) = vehicles_van : "test" [ ]
+@PointClass size(-32 -32 0, 32 32 72) base(actor) = Monster_Vultorn : "test" [ ]
+@PointClass size(-20 -20 0, 20 20 70) base(actor) = Monster_VultornZied : "test" [ ]
+@PointClass size(-10 -32 0, 30 32 50) base(actor) = Monster_VultornSmall : "test" [ ]
+@PointClass base(object) = world_wirespool : "test" [ ]
+@PointClass size(-10 -10 0, 10 10 12) base(object) = Monster_DeadWorker : "test" [ ]
+@PointClass size(-8 -12 0, 8 12 80) base(actor) = Monster_GenericWorker : "test" [ ]
+@PointClass base(object) = world_wreckingball : "test" [ ]
+@PointClass base(object) = Innocent_XenoBody : "test" [ ]

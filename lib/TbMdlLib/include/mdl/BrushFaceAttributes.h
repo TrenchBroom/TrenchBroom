@@ -28,6 +28,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <vector>
 
 namespace tb::mdl
 {
@@ -36,6 +38,10 @@ class BrushFaceAttributes
 {
 public:
   static const std::string NoMaterialName;
+
+  static constexpr float SiNDefaultNonLitValue = 0.5f;
+  static constexpr float SiNDefaultFriction = 1.0f;
+  static constexpr float SiNDefaultAnimTime = 0.2f;
 
 private:
   std::string m_materialName;
@@ -50,6 +56,19 @@ private:
 
   std::optional<Color> m_color;
 
+  // SiN stuff
+  std::optional<float> m_nonlitvalue;// = 0.5f;
+  std::optional<int> m_trans_angle;
+  std::optional<float> m_trans_mag;
+  std::optional<float> m_translucence;
+  std::optional<float> m_restitution;
+  std::optional<float> m_friction;// = 1.0f;
+  std::optional<float> m_animtime;// = 0.2f;
+  
+  std::optional<std::string> m_directstyle;
+  std::optional<float> m_direct;
+  std::optional<float> m_directangle;
+
 public:
   explicit BrushFaceAttributes(std::string_view materialName);
   BrushFaceAttributes(std::string_view materialName, const BrushFaceAttributes& other);
@@ -63,7 +82,18 @@ public:
     m_surfaceContents,
     m_surfaceFlags,
     m_surfaceValue,
-    m_color);
+    m_color,
+    m_nonlitvalue,
+    m_trans_angle,
+    m_trans_mag,
+    m_translucence,
+    m_restitution,
+    m_friction,
+    m_animtime,
+    m_directstyle,
+    m_direct,
+    m_directangle
+  );
 
   const std::string& materialName() const;
 
@@ -100,6 +130,48 @@ public:
   bool setSurfaceFlags(const std::optional<int>& surfaceFlags);
   bool setSurfaceValue(const std::optional<float>& surfaceValue);
   bool setColor(const std::optional<Color>& color);
+
+  // SiN
+  bool hasSiNNonlitValue() const;
+  const std::optional<float>& sinNonlitValue() const;
+
+  bool hasSiNTransAngle() const;
+  const std::optional<int>& sinTransAngle() const;
+
+  bool hasSiNTransMag() const;
+  const std::optional<float>& sinTransMag() const;
+
+  bool hasSiNTranslucence() const;
+  const std::optional<float>& sinTranslucence() const;
+
+  bool hasSiNRestitution() const;
+  const std::optional<float>& sinRestitution() const;
+
+  bool hasSiNFriction() const;
+  const std::optional<float>& sinFriction() const;
+
+  bool hasSiNAnimTime() const;
+  const std::optional<float>& sinAnimTime() const;
+
+  bool hasSiNDirectStyle() const;
+  const std::optional<std::string>& sinDirectStyle() const;
+
+  bool hasSiNDirect() const;
+  const std::optional<float>& sinDirect() const;
+
+  bool hasSiNDirectAngle() const;
+  const std::optional<float>& sinDirectAngle() const;
+
+  bool setSiNNonlitValue(const std::optional<float>& value);
+  bool setSiNTransAngle(const std::optional<int>& value);
+  bool setSiNTransMag(const std::optional<float>& value);
+  bool setSiNTranslucence(const std::optional<float>& value);
+  bool setSiNRestitution(const std::optional<float>& value);
+  bool setSiNFriction(const std::optional<float>& value);
+  bool setSiNAnimTime(const std::optional<float>& value);
+  bool setSiNDirectStyle(const std::optional<std::string>& value);
+  bool setSiNDirect(const std::optional<float>& value);
+  bool setSiNDirectAngle(const std::optional<float>& value);
 };
 
 } // namespace tb::mdl

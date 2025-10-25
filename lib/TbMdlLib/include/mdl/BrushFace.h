@@ -205,6 +205,18 @@ public:
   float resolvedSurfaceValue() const;
   std::optional<Color> resolvedColor() const;
 
+  // SiN
+  std::optional<float> resolvedSiNNonlitValue() const;
+  std::optional<int> resolvedSiNTransAngle() const;
+  std::optional<float> resolvedSiNTransMag() const;
+  std::optional<float> resolvedSiNTranslucence() const;
+  std::optional<float> resolvedSiNRestitution() const;
+  std::optional<float> resolvedSiNFriction() const;
+  std::optional<float> resolvedSiNAnimTime() const;
+  std::optional<std::string> resolvedSiNDirectStyle() const;
+  std::optional<float> resolvedSiNDirect() const;
+  std::optional<float> resolvedSiNDirectAngle() const;
+
   void resetUVCoordSystemCache();
   const UVCoordSystem& uvCoordSystem() const;
 

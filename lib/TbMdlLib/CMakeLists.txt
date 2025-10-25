@@ -96,6 +96,7 @@ add_library(TbMdlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadM8Texture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadMaterialCollections.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadMd2Model.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadSiNModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadMd3Model.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadMdlModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadMdxModel.cpp
@@ -105,6 +106,7 @@ add_library(TbMdlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadSpriteModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadTexture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadWalTexture.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadSwlTexture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LockState.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LongPropertyKeyValidator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LongPropertyValueValidator.cpp

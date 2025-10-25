@@ -176,6 +176,7 @@ Result<std::unique_ptr<WorldNode>> loadWorldNode(
                | kdl::ranges::to<std::vector>();
 
              return WorldReader::tryRead(
+               config,
                fileReader.stringView(),
                possibleFormats,
                worldBounds,
@@ -185,7 +186,7 @@ Result<std::unique_ptr<WorldNode>> loadWorldNode(
            }
 
            auto worldReader =
-             WorldReader{fileReader.stringView(), mapFormat, entityPropertyConfig};
+             WorldReader{config, fileReader.stringView(), mapFormat, entityPropertyConfig};
            return worldReader.read(worldBounds, parserStatus, taskManager);
          });
 }
@@ -214,7 +215,7 @@ Result<std::unique_ptr<WorldNode>> createWorldNode(
   {
     if (
       format == MapFormat::Valve || format == MapFormat::Quake2_Valve
-      || format == MapFormat::Quake3_Valve)
+      || format == MapFormat::Quake3_Valve || format == MapFormat::SiN_Valve)
     {
       worldEntity.addOrUpdateProperty(EntityPropertyKeys::ValveVersion, "220");
     }
@@ -847,7 +848,7 @@ Result<void> Map::saveTo(const std::filesystem::path& path) const
   fs::Disk::withOutputStream(path, [&](auto& stream) {
     writeMapHeader(stream, gameInfo().gameConfig.name, m_worldNode->mapFormat());
 
-    auto writer = NodeWriter{*m_worldNode, stream};
+    auto writer = NodeWriter{gameInfo().gameConfig, *m_worldNode, stream};
     writer.setExporting(false);
     writer.writeMap(m_taskManager);
   }) | kdl::transform_error([&](const auto& e) {
@@ -866,6 +867,7 @@ Result<void> Map::exportAs(const ExportOptions& options) const
           const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
           return fs::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
             auto writer = NodeWriter{
+              gameInfo().gameConfig,
               *m_worldNode,
               std::make_unique<ObjSerializer>(
                 objStream, mtlStream, mtlPath.filename().string(), objOptions)};
@@ -876,7 +878,7 @@ Result<void> Map::exportAs(const ExportOptions& options) const
       },
       [&](const MapExportOptions& mapOptions) {
         return fs::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
-          auto writer = NodeWriter{*m_worldNode, stream};
+          auto writer = NodeWriter{gameInfo().gameConfig, *m_worldNode, stream};
           writer.setExporting(true);
           writer.writeMap(m_taskManager);
         });

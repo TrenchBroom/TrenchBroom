@@ -38,6 +38,7 @@ namespace mdl
 {
 struct EntityPropertyConfig;
 class WorldNode;
+struct GameConfig;
 
 /**
  * MapReader subclass for loading a whole .map file.
@@ -48,6 +49,7 @@ class WorldReader : public MapReader
 
 public:
   WorldReader(
+    const mdl::GameConfig& config,
     std::string_view str,
     MapFormat sourceAndTargetMapFormat,
     const EntityPropertyConfig& entityPropertyConfig);
@@ -68,6 +70,7 @@ public:
    * formats
    */
   static Result<std::unique_ptr<WorldNode>> tryRead(
+    const mdl::GameConfig& config,
     std::string_view str,
     const std::vector<MapFormat>& mapFormatsToTry,
     const vm::bbox3d& worldBounds,

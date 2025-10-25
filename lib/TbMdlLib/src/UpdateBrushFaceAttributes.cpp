@@ -99,6 +99,16 @@ UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFaceAttributes& a
     .surfaceFlags = replaceFlagsIfSet(attributes.surfaceFlags()),
     .surfaceValue = setValueIfSet(attributes.surfaceValue()),
     .color = attributes.color(),
+    .sinNonlitValue = attributes.sinNonlitValue(),
+    .sinTransAngle = attributes.sinTransAngle(),
+    .sinTransMag = attributes.sinTransMag(),
+    .sinTranslucence = attributes.sinTranslucence(),
+    .sinRestitution = attributes.sinRestitution(),
+    .sinFriction = attributes.sinFriction(),
+    .sinAnimTime = attributes.sinAnimTime(),
+    .sinDirectStyle = attributes.sinDirectStyle(),
+    .sinDirect = attributes.sinDirect(),
+    .sinDirectAngle = attributes.sinDirectAngle()
   };
 }
 
@@ -214,8 +224,58 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
 
   if (update.color)
   {
-    attributes.setColor(
-      *update.color | kdl::optional_or_else([&]() { return brushFace.resolvedColor(); }));
+    attributes.setColor(*update.color);
+  }
+
+  // SiN
+  if (update.sinNonlitValue)
+  {
+    attributes.setSiNNonlitValue(*update.sinNonlitValue);
+  }
+  if (update.sinTransAngle)
+  {
+    attributes.setSiNTransAngle(
+      *update.sinTransAngle);
+  }
+  if (update.sinTransMag)
+  {
+    attributes.setSiNTransMag(
+      *update.sinTransMag);
+  }
+  if (update.sinTranslucence)
+  {
+    attributes.setSiNTranslucence(
+      *update.sinTranslucence);
+  }
+  if (update.sinRestitution)
+  {
+    attributes.setSiNRestitution(
+      *update.sinRestitution);
+  }
+  if (update.sinFriction)
+  {
+    attributes.setSiNFriction(
+      *update.sinFriction);
+  }
+  if (update.sinAnimTime)
+  {
+    attributes.setSiNAnimTime(
+      *update.sinAnimTime);
+  }
+  if (update.sinDirectStyle)
+  {
+    attributes.setSiNDirectStyle(
+      *update.sinDirectStyle);
+  }
+  if (update.sinDirect)
+  {
+    attributes.setSiNDirect(
+      *update.sinDirect);
+  }
+  if (update.sinDirectAngle)
+  {
+    attributes.setSiNDirectAngle(
+      *update.sinDirectAngle);
   }
 
   brushFace.setAttributes(attributes);

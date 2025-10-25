@@ -41,6 +41,7 @@ struct FileLocation;
 
 namespace mdl
 {
+struct GameConfig;
 
 namespace QuakeMapToken
 {
@@ -85,6 +86,7 @@ private:
   static const std::string PatchId;
 
   QuakeMapTokenizer m_tokenizer;
+  const mdl::GameConfig& m_config;
 
 protected:
   MapFormat m_sourceMapFormat;
@@ -100,7 +102,7 @@ public:
    * @param targetMapFormat the format to convert the created objects to
    */
   StandardMapParser(
-    std::string_view str, MapFormat sourceMapFormat, MapFormat targetMapFormat);
+    const GameConfig& config, std::string_view str, MapFormat sourceMapFormat, MapFormat targetMapFormat);
 
   ~StandardMapParser() override;
 
@@ -134,6 +136,9 @@ private:
   void parseQuake2ValveFace(ParserStatus& status);
   void parseHexen2Face(ParserStatus& status);
   void parseDaikatanaFace(ParserStatus& status);
+  void parseSiNData(ParserStatus& status, mdl::BrushFaceAttributes& attribs);
+  void parseSiNFace(ParserStatus& status);
+  void parseSiNValveFace(ParserStatus& status);
   void parseValveFace(ParserStatus& status);
   void parsePrimitiveFace(ParserStatus& status);
 

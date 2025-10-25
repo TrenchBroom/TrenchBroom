@@ -39,6 +39,7 @@ class LayerNode;
 class Node;
 class NodeSerializer;
 class WorldNode;
+struct GameConfig;
 
 class NodeWriter
 {
@@ -46,11 +47,12 @@ private:
   using EntityBrushesMap = std::map<EntityNode*, std::vector<BrushNode*>>;
 
   const WorldNode& m_world;
+  const GameConfig& m_config;
   std::unique_ptr<NodeSerializer> m_serializer;
 
 public:
-  NodeWriter(const WorldNode& world, std::ostream& stream);
-  NodeWriter(const WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
+  NodeWriter(const GameConfig& game, const WorldNode& world, std::ostream& stream);
+  NodeWriter(const GameConfig& game, const WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
   ~NodeWriter();
 
   void setExporting(bool exporting);

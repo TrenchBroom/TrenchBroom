@@ -33,6 +33,7 @@
 #include "mdl/TestUtils.h"
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
+#include "mdl/GameConfig.h"
 
 #include "kd/result.h"
 #include "kd/task_manager.h"
@@ -55,7 +56,7 @@ TEST_CASE("NodeWriter")
     auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -73,7 +74,7 @@ TEST_CASE("NodeWriter")
     auto map = mdl::WorldNode{{}, {{"message", "holy damn"}}, mdl::MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -99,7 +100,7 @@ TEST_CASE("NodeWriter")
     map.defaultLayer()->setLayer(std::move(layer));
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -138,7 +139,7 @@ TEST_CASE("NodeWriter")
     map.defaultLayer()->addChild(brushNode2);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -210,7 +211,7 @@ TEST_CASE("NodeWriter")
     map.defaultLayer()->addChild(brushNode1);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -245,7 +246,7 @@ TEST_CASE("NodeWriter")
     map.defaultLayer()->addChild(brushNode1);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -279,7 +280,7 @@ TEST_CASE("NodeWriter")
     map.defaultLayer()->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -319,7 +320,7 @@ TEST_CASE("NodeWriter")
     layerNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -365,7 +366,7 @@ TEST_CASE("NodeWriter")
     map.addChild(layerNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -405,7 +406,7 @@ TEST_CASE("NodeWriter")
     groupNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -454,7 +455,7 @@ TEST_CASE("NodeWriter")
     groupNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -516,7 +517,7 @@ TEST_CASE("NodeWriter")
     innerGroupNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -595,7 +596,7 @@ TEST_CASE("NodeWriter")
     innerGroupNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -697,7 +698,7 @@ TEST_CASE("NodeWriter")
     layerNode2->addChild(layer2BrushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.setExporting(true);
     writer.writeMap(taskManager);
 
@@ -750,7 +751,7 @@ TEST_CASE("NodeWriter")
     layerNode->setLockState(mdl::LockState::Inherited);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -794,7 +795,7 @@ TEST_CASE("NodeWriter")
     map.defaultLayer()->addChild(outerGroupNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeNodes({innerGroupNode, worldBrushNode}, taskManager);
 
     const auto actual = str.str();
@@ -847,7 +848,7 @@ TEST_CASE("NodeWriter")
     SECTION("Group node with identity transformation does not write transformation")
     {
       auto str = std::stringstream{};
-      auto writer = NodeWriter{worldNode, str};
+      auto writer = NodeWriter{{}, worldNode, str};
       writer.writeMap(taskManager);
 
       const auto actual = str.str();
@@ -875,7 +876,7 @@ TEST_CASE("NodeWriter")
         *groupNode, vm::translation_matrix(vm::vec3d{32, 0, 0}), worldBounds);
 
       auto str = std::stringstream{};
-      auto writer = NodeWriter{worldNode, str};
+      auto writer = NodeWriter{{}, worldNode, str};
       writer.writeMap(taskManager);
 
       const auto actual = str.str();
@@ -920,7 +921,7 @@ TEST_CASE("NodeWriter")
     REQUIRE(groupNodeClone->linkId() == groupNode->linkId());
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{worldNode, str};
+    auto writer = NodeWriter{{}, worldNode, str};
     writer.writeNodes({groupNode}, taskManager);
 
     const auto actual = str.str();
@@ -951,7 +952,7 @@ TEST_CASE("NodeWriter")
       worldNode.defaultLayer()->addChild(entityNode);
 
       auto str = std::stringstream{};
-      auto writer = NodeWriter{worldNode, str};
+      auto writer = NodeWriter{{}, worldNode, str};
       writer.writeNodes({entityNode}, taskManager);
 
       const auto actual = str.str();
@@ -971,7 +972,7 @@ TEST_CASE("NodeWriter")
       worldNode.defaultLayer()->addChild(entityNode);
 
       auto str = std::stringstream{};
-      auto writer = NodeWriter{worldNode, str};
+      auto writer = NodeWriter{{}, worldNode, str};
       writer.writeNodes({entityNode}, taskManager);
 
       const auto actual = str.str();
@@ -994,7 +995,7 @@ TEST_CASE("NodeWriter")
     auto* brushNode = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeBrushFaces(brushNode->brush().faces(), taskManager);
 
     const auto actual = str.str();
@@ -1018,7 +1019,7 @@ TEST_CASE("NodeWriter")
       {}, {{"message", "\"holy damn\", he said"}}, mdl::MapFormat::Standard);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -1039,7 +1040,7 @@ TEST_CASE("NodeWriter")
       {}, {{"message", R"(\"holy damn\", he said)"}}, mdl::MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -1061,7 +1062,7 @@ TEST_CASE("NodeWriter")
       mdl::WorldNode{{}, {{"message", "holy damn\\nhe said"}}, mdl::MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -1089,7 +1090,7 @@ TEST_CASE("NodeWriter")
       mdl::MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{{}, map, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();

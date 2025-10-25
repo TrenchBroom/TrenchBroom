@@ -24,6 +24,7 @@
 #include "mdl/EntityNodeBase.h"
 
 #include "kd/contracts.h"
+#include "kd/string_compare.h"
 
 #include <algorithm>
 #include <string>
@@ -67,7 +68,7 @@ const EntityDefinition* EntityDefinitionManager::definition(
 {
   if (const auto it = std::ranges::find_if(
         m_definitions,
-        [&](const auto& definition) { return definition.name == classname; });
+        [&](const auto& definition) { return kdl::ci::str_is_equal(definition.name, classname); });
       it != m_definitions.end())
   {
     return &*it;

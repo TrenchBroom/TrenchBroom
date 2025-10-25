@@ -30,6 +30,7 @@
 #include "mdl/LoadDkmModel.h"
 #include "mdl/LoadImageSpriteModel.h"
 #include "mdl/LoadMd2Model.h"
+#include "mdl/LoadSiNModel.h"
 #include "mdl/LoadMd3Model.h"
 #include "mdl/LoadMdlModel.h"
 #include "mdl/LoadMdxModel.h"
@@ -62,7 +63,16 @@ Result<EntityModelData> loadEntityModelData(
   Logger& logger)
 {
   const auto modelName = path.filename().string();
-  return fs.openFile(path) | kdl::and_then([&](auto file) -> Result<EntityModelData> {
+
+  // SiN specific
+  const auto modelPath = path;
+
+  auto file = fs.openFile(path);
+
+  if (!file)
+      file = fs.openFile("models/" + path.string());
+
+  return file | kdl::and_then([&](auto file) -> Result<EntityModelData> {
            auto reader = file->reader().buffer();
 
            if (canLoadMdlModel(path, reader))
@@ -76,6 +86,10 @@ Result<EntityModelData> loadEntityModelData(
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
                       return loadMd2Model(modelName, reader, palette, fs, logger);
                     });
+           }
+           if (canLoadSiNModel(path, reader))
+           {
+             return loadSiNModel(modelName, reader, fs, logger);
            }
            if (canLoadBspModel(path, reader))
            {

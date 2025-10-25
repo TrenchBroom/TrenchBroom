@@ -71,6 +71,58 @@ private:
   FlagsPopupEditor* m_contentFlagsEditor = nullptr;
   QAbstractButton* m_contentFlagsUnsetButton = nullptr;
 
+  // SiN stuff
+  QLabel* m_surfaceSiNNonlitValueLabel = nullptr;
+  QWidget* m_surfaceSiNNonlitValueEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNNonlitValueEditor = nullptr;
+  QAbstractButton* m_surfaceSiNNonlitValueUnsetButton = nullptr;
+  
+  QLabel* m_surfaceSiNTransAngleLabel = nullptr;
+  QWidget* m_surfaceSiNTransAngleEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNTransAngleEditor = nullptr;
+  QAbstractButton* m_surfaceSiNTransAngleUnsetButton = nullptr;
+  
+  QLabel* m_surfaceSiNTransMagLabel = nullptr;
+  QWidget* m_surfaceSiNTransMagEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNTransMagEditor = nullptr;
+  QAbstractButton* m_surfaceSiNTransMagUnsetButton = nullptr;
+  
+  QLabel* m_surfaceSiNTranslucenceLabel = nullptr;
+  QWidget* m_surfaceSiNTranslucenceEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNTranslucenceEditor = nullptr;
+  QAbstractButton* m_surfaceSiNTranslucenceUnsetButton = nullptr;
+  
+  QLabel* m_surfaceSiNRestitutionLabel = nullptr;
+  QWidget* m_surfaceSiNRestitutionEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNRestitutionEditor = nullptr;
+  QAbstractButton* m_surfaceSiNRestitutionUnsetButton = nullptr;
+  
+  QLabel* m_surfaceSiNFrictionLabel = nullptr;
+  QWidget* m_surfaceSiNFrictionEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNFrictionEditor = nullptr;
+  QAbstractButton* m_surfaceSiNFrictionUnsetButton = nullptr;
+  
+  QLabel* m_surfaceSiNAnimTimeLabel = nullptr;
+  QWidget* m_surfaceSiNAnimTimeEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNAnimTimeEditor = nullptr;
+  QAbstractButton* m_surfaceSiNAnimTimeUnsetButton = nullptr;
+
+  QLabel* m_surfaceSiNDirectStyleLabel = nullptr;
+  QWidget* m_surfaceSiNDirectStyleEditorLayout = nullptr;
+  QLineEdit* m_surfaceSiNDirectStyleEditor = nullptr;
+  QAbstractButton* m_surfaceSiNDirectStyleUnsetButton = nullptr;
+  
+  QLabel* m_surfaceSiNDirectLabel = nullptr;
+  QWidget* m_surfaceSiNDirectEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNDirectEditor = nullptr;
+  QAbstractButton* m_surfaceSiNDirectUnsetButton = nullptr;
+  
+  QLabel* m_surfaceSiNDirectAngleLabel = nullptr;
+  QWidget* m_surfaceSiNDirectAngleEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNDirectAngleEditor = nullptr;
+  QAbstractButton* m_surfaceSiNDirectAngleUnsetButton = nullptr;
+
+
   QLabel* m_colorLabel = nullptr;
   QWidget* m_colorEditorLayout = nullptr;
   QLineEdit* m_colorEditor = nullptr;
@@ -96,10 +148,34 @@ private:
   void contentFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
   void surfaceValueChanged(double value);
   void colorValueChanged(const QString& text);
+
   void surfaceFlagsUnset();
   void contentFlagsUnset();
   void surfaceValueUnset();
   void colorValueUnset();
+
+  // SiN stuff
+  void sinNonlitValueChanged(double value);
+  void sinNonlitValueUnset();
+  void sinTransAngleChanged(double value);
+  void sinTransAngleUnset();
+  void sinTransMagChanged(double value);
+  void sinTransMagUnset();
+  void sinTranslucenceChanged(double value);
+  void sinTranslucenceUnset();
+  void sinRestitutionChanged(double value);
+  void sinRestitutionUnset();
+  void sinFrictionChanged(double value);
+  void sinFrictionUnset();
+  void sinAnimTimeChanged(double value);
+  void sinAnimTimeUnset();
+  void sinDirectStyleValueChanged(const QString& text);
+  void sinDirectStyleValueUnset();
+  void sinDirectChanged(double value);
+  void sinDirectUnset();
+  void sinDirectAngleChanged(double value);
+  void sinDirectAngleUnset();
+
   void updateIncrements();
 
 private:
@@ -123,6 +199,11 @@ private:
   bool hasColorAttribs() const;
   void showColorAttribEditor();
   void hideColorAttribEditor();
+
+  // SiN stuff
+  bool hasSiNAttributes() const;
+  void showSiNAttribEditor();
+  void hideSiNAttribEditor();
 
   std::tuple<QList<int>, QStringList, QStringList> getSurfaceFlags() const;
   std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;

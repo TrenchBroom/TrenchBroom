@@ -53,6 +53,14 @@ MapFormat formatFromName(const std::string& formatName)
   {
     return MapFormat::Daikatana;
   }
+  if (formatName == "SiN")
+  {
+    return MapFormat::SiN;
+  }
+  if (formatName == "SiN (Valve)")
+  {
+    return MapFormat::SiN_Valve;
+  }
   if (formatName == "Quake3 (legacy)")
   {
     return MapFormat::Quake3_Legacy;
@@ -93,6 +101,12 @@ std::ostream& operator<<(std::ostream& lhs, const MapFormat rhs)
   case MapFormat::Daikatana:
     lhs << "Daikatana";
     break;
+  case MapFormat::SiN:
+    lhs << "SiN";
+    break;
+  case MapFormat::SiN_Valve:
+    lhs << "SiN_Valve";
+    break;
   case MapFormat::Quake3_Legacy:
     lhs << "Quake3_Legacy";
     break;
@@ -122,6 +136,10 @@ std::string formatName(const MapFormat format)
     return "Hexen2";
   case MapFormat::Daikatana:
     return "Daikatana";
+  case MapFormat::SiN:
+    return "SiN";
+  case MapFormat::SiN_Valve:
+    return "SiN (Valve)";
   case MapFormat::Quake3_Legacy:
     return "Quake3 (legacy)";
   case MapFormat::Quake3_Valve:
@@ -149,7 +167,9 @@ std::vector<MapFormat> compatibleFormats(const MapFormat format)
   case MapFormat::Hexen2:
     return {MapFormat::Hexen2};
   case MapFormat::Daikatana:
-    return {MapFormat::Daikatana};
+      return {MapFormat::Daikatana};
+  case MapFormat::SiN:
+      return {MapFormat::SiN, MapFormat::SiN_Valve};
   case MapFormat::Quake3_Legacy:
     return {MapFormat::Quake3_Legacy, MapFormat::Quake3_Valve, MapFormat::Quake3};
   case MapFormat::Quake3_Valve:
@@ -169,11 +189,13 @@ bool isParallelUVCoordSystem(const MapFormat format)
   case MapFormat::Valve:
   case MapFormat::Quake2_Valve:
   case MapFormat::Quake3_Valve:
+  case MapFormat::SiN_Valve:
     return true;
   case MapFormat::Standard:
   case MapFormat::Quake2:
   case MapFormat::Hexen2:
   case MapFormat::Daikatana:
+  case MapFormat::SiN:
   case MapFormat::Quake3_Legacy:
   case MapFormat::Quake3:
   case MapFormat::Unknown:

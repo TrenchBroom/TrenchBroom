@@ -52,6 +52,9 @@ std::ostream& operator<<(std::ostream& lhs, const PaletteColorFormat rhs)
   case PaletteColorFormat::Rgba:
     lhs << "Rgba";
     break;
+  case PaletteColorFormat::Rgbx:
+    lhs << "Rgbx";
+    break;
     switchDefault();
   }
 
@@ -176,6 +179,29 @@ Result<Palette> makePalette(
     // The data is already in RGBA format, don't process it
     result->opaqueData = data;
     result->index255TransparentData = data;
+    break;
+  case PaletteColorFormat::Rgbx:
+    // transform data to RGBA
+    result->opaqueData.reserve(data.size());
+
+    for (size_t i = 0; i < data.size() / 4; ++i)
+    {
+      const auto r = data[4 * i + 0];
+      const auto g = data[4 * i + 1];
+      const auto b = data[4 * i + 2];
+
+      result->opaqueData.push_back(r);
+      result->opaqueData.push_back(g);
+      result->opaqueData.push_back(b);
+      result->opaqueData.push_back(0xFF);
+    }
+
+    if (!result->opaqueData.empty())
+    {
+      // build index255TransparentData from opaqueData
+      result->index255TransparentData = result->opaqueData;
+      result->index255TransparentData.back() = 0;
+    }
     break;
   }
 

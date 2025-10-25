@@ -24,6 +24,7 @@
 #include "ParserStatus.h"
 #include "mdl/BrushFace.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/GameConfig.h"
 
 #include "kd/contracts.h"
 
@@ -175,10 +176,12 @@ const std::string StandardMapParser::BrushPrimitiveId = "brushDef";
 const std::string StandardMapParser::PatchId = "patchDef2";
 
 StandardMapParser::StandardMapParser(
+  const mdl::GameConfig& config,
   const std::string_view str,
   const MapFormat sourceMapFormat,
   const MapFormat targetMapFormat)
-  : m_tokenizer{str}
+  : m_config(config)
+  , m_tokenizer{str}
   , m_sourceMapFormat{sourceMapFormat}
   , m_targetMapFormat{targetMapFormat}
 {
@@ -451,6 +454,12 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
   case MapFormat::Daikatana:
     parseDaikatanaFace(status);
     break;
+  case MapFormat::SiN:
+    parseSiNFace(status);
+    break;
+  case mdl::MapFormat::SiN_Valve:
+    parseSiNValveFace(status);
+    break;
   case MapFormat::Valve:
     parseValveFace(status);
     break;
@@ -604,6 +613,126 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
   }
 
   onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+}
+
+void StandardMapParser::parseSiNData(ParserStatus&, mdl::BrushFaceAttributes& attribs)
+{
+  // SiN extra info is optional
+  m_tokenizer.setSkipEol(false);
+  while (m_tokenizer.peekToken().hasType(QuakeMapToken::String))
+  {
+    auto lhs = m_tokenizer.nextToken();
+
+    if (lhs.hasType(QuakeMapToken::Eol))
+      break;
+
+    if (lhs.data()[0] == '-')
+    {
+      //throw ParserException{m_tokenizer.location(), fmt::format("SiN formatted map has subtractive flags; this is not currently supported")};
+    }
+    if (lhs.data()[0] == '+')
+    {
+      auto flag = std::string_view{lhs.data()}.substr(1);
+      bool found = false;
+
+      for (auto &contentflag : m_config.faceAttribsConfig.contentFlags.flags) {
+          if (contentflag.name == flag) {
+              attribs.setSurfaceContents(attribs.surfaceContents().value_or(0) | contentflag.value);
+              found = true;
+              break;
+          }
+      }
+
+      if (!found) {
+          for (auto &surfaceflag : m_config.faceAttribsConfig.surfaceFlags.flags) {
+              if (surfaceflag.name == flag) {
+                  attribs.setSurfaceFlags(attribs.surfaceFlags().value_or(0) | surfaceflag.value);
+                  break;
+              }
+          }
+      }
+      continue;
+    }
+    
+    if (lhs.data() == "animtime") {
+        attribs.setSiNAnimTime(parseFloat());
+    } else if (lhs.data() == "friction") {
+        attribs.setSiNFriction(parseFloat());
+    } else if (lhs.data() == "restitution") {
+        attribs.setSiNRestitution(parseFloat());
+    } else if (lhs.data() == "direct") {
+        attribs.setSiNDirect(parseFloat());
+    } else if (lhs.data() == "directangle") {
+        attribs.setSiNDirectAngle(parseFloat());
+    } else if (lhs.data() == "translucence") {
+        attribs.setSiNTranslucence(parseFloat());
+    } else if (lhs.data() == "trans_mag") {
+        attribs.setSiNTransMag(parseFloat());
+    } else if (lhs.data() == "trans_angle") {
+        attribs.setSiNTransAngle(parseInteger());
+    } else if (lhs.data() == "color") {
+        const auto r = vm::clamp((int) (parseFloat() * 255.0f), 0, 255);
+        const auto g = vm::clamp((int) (parseFloat() * 255.0f), 0, 255);
+        const auto b = vm::clamp((int) (parseFloat() * 255.0f), 0, 255);
+        attribs.setColor(RgbB{
+          static_cast<unsigned char>(r),
+          static_cast<unsigned char>(g),
+          static_cast<unsigned char>(b),
+        });
+    } else if (lhs.data() == "lightvalue") {
+        attribs.setSurfaceValue(parseFloat());
+    } else if (lhs.data() == "nonlitvalue") {
+        attribs.setSiNNonlitValue(parseFloat());
+    } else if (lhs.data() == "directstyle") {
+        auto rhs = m_tokenizer.nextToken(QuakeMapToken::String);
+        attribs.setSiNDirectStyle(rhs.data());
+    } else {
+        throw ParserException(m_tokenizer.location(), fmt::format("unknown SiN named face attribute \"{}\"", lhs.data()));
+    }
+  }
+
+  m_tokenizer.setSkipEol(true);
+}
+
+void StandardMapParser::parseSiNFace(ParserStatus& status)
+{
+  const auto location = m_tokenizer.location();
+
+  const auto [p1, p2, p3] = parseFacePoints(status);
+  const auto materialName = parseMaterialName(status);
+
+  auto attribs = mdl::BrushFaceAttributes{materialName};
+  attribs.setXOffset(parseFloat());
+  attribs.setYOffset(parseFloat());
+  attribs.setRotation(parseFloat());
+  attribs.setXScale(parseFloat());
+  attribs.setYScale(parseFloat());
+
+  parseSiNData(status, attribs);
+
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+}
+
+void StandardMapParser::parseSiNValveFace(ParserStatus& status)
+{
+  const auto location = m_tokenizer.location();
+
+  const auto [p1, p2, p3] = parseFacePoints(status);
+  const auto materialName = parseMaterialName(status);
+
+  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
+
+  auto attribs = mdl::BrushFaceAttributes{materialName};
+  attribs.setXOffset(uOffset);
+  attribs.setYOffset(vOffset);
+  attribs.setRotation(parseFloat());
+  attribs.setXScale(parseFloat());
+  attribs.setYScale(parseFloat());
+
+  parseSiNData(status, attribs);
+  
+  onValveBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
 void StandardMapParser::parseValveFace(ParserStatus& status)

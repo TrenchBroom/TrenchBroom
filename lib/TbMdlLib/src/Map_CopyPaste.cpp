@@ -27,6 +27,7 @@
 #include "mdl/BrushFaceReader.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
+#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
@@ -253,7 +254,7 @@ bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 std::string serializeSelectedNodes(Map& map)
 {
   auto stream = std::stringstream{};
-  auto writer = NodeWriter{map.worldNode(), stream};
+  auto writer = NodeWriter{map.gameInfo().gameConfig, map.worldNode(), stream};
   writer.writeNodes(map.selection().nodes, map.taskManager());
   return stream.str();
 }
@@ -261,7 +262,7 @@ std::string serializeSelectedNodes(Map& map)
 std::string serializeSelectedBrushFaces(Map& map)
 {
   auto stream = std::stringstream{};
-  auto writer = NodeWriter{map.worldNode(), stream};
+  auto writer = NodeWriter{map.gameInfo().gameConfig, map.worldNode(), stream};
   writer.writeBrushFaces(
     map.selection().brushFaces | std::views::transform([](const auto& h) {
       return h.face();
@@ -276,6 +277,7 @@ PasteType paste(Map& map, const std::string& str)
 
   // Try parsing as entities, then as brushes, in all compatible formats
   return NodeReader::read(
+           map.gameInfo().gameConfig,
            str,
            map.worldNode().mapFormat(),
            map.worldBounds(),
@@ -287,7 +289,7 @@ PasteType paste(Map& map, const std::string& str)
            })
          | kdl::or_else([&](const auto& nodeError) {
              // Try parsing as brush faces
-             auto reader = BrushFaceReader{str, map.worldNode().mapFormat()};
+             auto reader = BrushFaceReader{map.gameInfo().gameConfig, str, map.worldNode().mapFormat()};
              return reader.read(map.worldBounds(), parserStatus)
                     | kdl::transform([&](const auto& faces) {
                         return !faces.empty() && pasteBrushFaces(map, faces)

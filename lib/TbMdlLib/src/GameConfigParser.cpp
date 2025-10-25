@@ -371,6 +371,11 @@ BrushFaceAttributes parseFaceAttribsDefaults(
     defaults.setColor(color);
   }
 
+  // SiN, also temp
+  defaults.setSiNAnimTime(BrushFaceAttributes::SiNDefaultAnimTime);
+  defaults.setSiNFriction(BrushFaceAttributes::SiNDefaultFriction);
+  defaults.setSiNNonlitValue(BrushFaceAttributes::SiNDefaultNonLitValue);
+
   return defaults;
 }
 

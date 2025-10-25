@@ -252,4 +252,205 @@ bool BrushFaceAttributes::setColor(const std::optional<Color>& color)
   return false;
 }
 
+// SiN
+bool BrushFaceAttributes::hasSiNNonlitValue() const
+{
+  return m_nonlitvalue.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinNonlitValue() const
+{
+  return m_nonlitvalue;
+}
+
+bool BrushFaceAttributes::hasSiNTransAngle() const
+{
+  return m_trans_angle.has_value();
+}
+
+const std::optional<int>& BrushFaceAttributes::sinTransAngle() const
+{
+  return m_trans_angle;
+}
+
+bool BrushFaceAttributes::hasSiNTransMag() const
+{
+  return m_trans_mag.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinTransMag() const
+{
+  return m_trans_mag;
+}
+
+bool BrushFaceAttributes::hasSiNTranslucence() const
+{
+  return m_translucence.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinTranslucence() const
+{
+  return m_translucence;
+}
+
+bool BrushFaceAttributes::hasSiNRestitution() const
+{
+  return m_restitution.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinRestitution() const
+{
+  return m_restitution;
+}
+
+bool BrushFaceAttributes::hasSiNFriction() const
+{
+  return m_friction.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinFriction() const
+{
+  return m_friction;
+}
+
+bool BrushFaceAttributes::hasSiNAnimTime() const
+{
+  return m_animtime.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinAnimTime() const
+{
+  return m_animtime;
+}
+
+bool BrushFaceAttributes::hasSiNDirectStyle() const
+{
+  return m_directstyle.has_value();
+}
+
+const std::optional<std::string>& BrushFaceAttributes::sinDirectStyle() const
+{
+  return m_directstyle;
+}
+
+bool BrushFaceAttributes::hasSiNDirect() const
+{
+  return m_direct.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinDirect() const
+{
+  return m_direct;
+}
+
+bool BrushFaceAttributes::hasSiNDirectAngle() const
+{
+  return m_directangle.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinDirectAngle() const
+{
+  return m_directangle;
+}
+
+bool BrushFaceAttributes::setSiNNonlitValue(const std::optional<float>& value)
+{
+  if (value != m_nonlitvalue)
+  {
+    m_nonlitvalue = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNTransAngle(const std::optional<int>& value)
+{
+  if (value != m_trans_angle)
+  {
+    m_trans_angle = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNTransMag(const std::optional<float>& value)
+{
+  if (value != m_trans_mag)
+  {
+    m_trans_mag = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNTranslucence(const std::optional<float>& value)
+{
+  if (value != m_translucence)
+  {
+    m_translucence = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNRestitution(const std::optional<float>& value)
+{
+  if (value != m_restitution)
+  {
+    m_restitution = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNFriction(const std::optional<float>& value)
+{
+  if (value != m_friction)
+  {
+    m_friction = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNAnimTime(const std::optional<float>& value)
+{
+  if (value != m_animtime)
+  {
+    m_animtime = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNDirectStyle(const std::optional<std::string>& value)
+{
+  if (value != m_directstyle)
+  {
+    m_directstyle = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNDirect(const std::optional<float>& value)
+{
+  if (value != m_direct)
+  {
+    m_direct = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNDirectAngle(const std::optional<float>& value)
+{
+  if (value != m_directangle)
+  {
+    m_directangle = value;
+    return true;
+  }
+  return false;
+}
+
 } // namespace tb::mdl

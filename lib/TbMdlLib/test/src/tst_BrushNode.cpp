@@ -24,6 +24,7 @@
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
@@ -353,7 +354,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       })";
 
     auto nodes =
-      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     CHECK(nodes.value().size() == 1u);
@@ -379,7 +380,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       })";
 
     auto nodes =
-      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
     CHECK(nodes.value().size() == 1u);
 
@@ -486,7 +487,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       })";
 
     auto nodes =
-      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
     CHECK(nodes.value().size() == 1u);
 
@@ -508,7 +509,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       })";
 
     auto nodes =
-      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
     CHECK(nodes.value().empty());
 
@@ -538,7 +539,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( 82.285690308  0  0          ) ( 96 16  0 ) (  0            0  0          ) rock5_2 0 0 0 1 1
       })";
 
-    auto nodes = NodeReader::read(
+    auto nodes = NodeReader::read({}, 
       data,
       MapFormat::Standard,
       worldBounds,
@@ -589,7 +590,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( -67 328 878 ) ( -77 465 890 ) ( -69 515 908 ) rock4_2 -1 33 0 1 1
       })";
 
-    auto nodes = NodeReader::read(
+    auto nodes = NodeReader::read({}, 
       data,
       MapFormat::Standard,
       worldBounds,
@@ -617,7 +618,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( -483 1777 253 ) ( -459 1579 -115 ) ( -183 1692 95 ) *water1 -0 -0 -0 1 1
       })";
 
-    auto nodes = NodeReader::read(
+    auto nodes = NodeReader::read({}, 
       data,
       MapFormat::Standard,
       worldBounds,
@@ -710,7 +711,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 )";
 
     CHECK_NOTHROW(
-      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager));
+      NodeReader::read({}, data, MapFormat::Standard, worldBounds, {}, status, taskManager));
   }
 
   SECTION("2491")
@@ -729,7 +730,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
     )";
 
     CHECK_NOTHROW(
-      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager));
+      NodeReader::read({}, data, MapFormat::Standard, worldBounds, {}, status, taskManager));
   }
 
   SECTION("2686")
@@ -766,7 +767,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
             )";
 
     CHECK_NOTHROW(
-      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager));
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager));
   }
 
   SECTION("4100")
@@ -794,7 +795,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 })";
 
     CHECK_NOTHROW(
-      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager));
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager));
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/1893
@@ -842,7 +843,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       })";
 
     auto nodes =
-      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     CHECK(nodes.value().size() == 1u);

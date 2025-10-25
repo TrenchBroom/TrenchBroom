@@ -27,6 +27,7 @@
 #include "mdl/LoadMipTexture.h"
 #include "mdl/LoadShaders.h"
 #include "mdl/LoadWalTexture.h"
+#include "mdl/LoadSwlTexture.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
@@ -74,6 +75,13 @@ Result<gl::Texture> loadTexture(
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              return loadWalTexture(reader, palette);
+           });
+  }
+  else if (extension == ".swl")
+  {
+    return fs.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return loadSwlTexture(reader);
            });
   }
   else if (extension == ".m8")
