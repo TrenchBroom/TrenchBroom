@@ -128,7 +128,7 @@ TEST_CASE("NodeWriter")
     for (auto& face : brush1.faces())
     {
       auto attributes = face.attributes();
-      attributes.setColor(Color{1.0f, 2.0f, 3.0f});
+      attributes.setColor(Color{1.0f, 0.5f, 0.25f});
       face.setAttributes(attributes);
     }
     auto* brushNode1 = new mdl::BrushNode{std::move(brush1)};
@@ -149,12 +149,12 @@ TEST_CASE("NodeWriter")
 "classname" "worldspawn"
 // brush 0
 {
-( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1 0 0 0 1 2 3
-( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1 0 0 0 1 2 3
-( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1 0 0 0 1 2 3
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1 0 0 0 1 2 3
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1 0 0 0 1 2 3
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1 0 0 0 1 2 3
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1 0 0 0 255 127 63
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1 0 0 0 255 127 63
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1 0 0 0 255 127 63
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1 0 0 0 255 127 63
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1 0 0 0 255 127 63
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1 0 0 0 255 127 63
 }
 // brush 1
 {

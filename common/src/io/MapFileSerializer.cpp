@@ -235,9 +235,9 @@ protected:
     fmt::format_to(
       std::ostreambuf_iterator<char>{stream},
       " {} {} {}",
-      static_cast<int>(face.resolvedColor().r()),
-      static_cast<int>(face.resolvedColor().g()),
-      static_cast<int>(face.resolvedColor().b()));
+      static_cast<int>(face.resolvedColor().r() * 255.0f),
+      static_cast<int>(face.resolvedColor().g() * 255.0f),
+      static_cast<int>(face.resolvedColor().b() * 255.0f));
   }
 };
 
