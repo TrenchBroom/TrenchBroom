@@ -186,15 +186,14 @@ Result<mdl::CompilationConfig> parseCompilationConfig(
 
 } // namespace
 
-CompilationConfigParser::CompilationConfigParser(
-  const std::string_view str, std::filesystem::path path)
-  : ConfigParserBase{str, std::move(path)}
+CompilationConfigParser::CompilationConfigParser(const std::string_view str)
+  : m_elParser{ELParser::Mode::Strict, str}
 {
 }
 
 Result<mdl::CompilationConfig> CompilationConfigParser::parse()
 {
-  return parseConfigFile() | kdl::and_then([&](const auto& expression) {
+  return m_elParser.parse() | kdl::and_then([&](const auto& expression) {
            return el::withEvaluationContext(
              [&](auto& context) { return parseCompilationConfig(context, expression); });
          });

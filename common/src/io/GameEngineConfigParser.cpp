@@ -19,7 +19,6 @@
 
 #include "GameEngineConfigParser.h"
 
-#include "Macros.h"
 #include "el/EvaluationContext.h"
 #include "el/Value.h"
 #include "mdl/GameEngineConfig.h"
@@ -71,15 +70,14 @@ Result<mdl::GameEngineConfig> parseGameEngineConfig(
 
 } // namespace
 
-GameEngineConfigParser::GameEngineConfigParser(
-  const std::string_view str, std::filesystem::path path)
-  : ConfigParserBase{str, std::move(path)}
+GameEngineConfigParser::GameEngineConfigParser(const std::string_view str)
+  : m_elParser{ELParser::Mode::Strict, str}
 {
 }
 
 Result<mdl::GameEngineConfig> GameEngineConfigParser::parse()
 {
-  return parseConfigFile() | kdl::and_then([&](const auto& expression) {
+  return m_elParser.parse() | kdl::and_then([&](const auto& expression) {
            return el::withEvaluationContext(
              [&](auto& context) { return parseGameEngineConfig(context, expression); });
          });

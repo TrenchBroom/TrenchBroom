@@ -19,7 +19,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/BspLoader.cpp
         ${COMMON_SOURCE_DIR}/io/CompilationConfigParser.cpp
         ${COMMON_SOURCE_DIR}/io/CompilationConfigWriter.cpp
-        ${COMMON_SOURCE_DIR}/io/ConfigParserBase.cpp
         ${COMMON_SOURCE_DIR}/io/DefParser.cpp
         ${COMMON_SOURCE_DIR}/io/DiskFileSystem.cpp
         ${COMMON_SOURCE_DIR}/io/DiskIO.cpp
@@ -533,7 +532,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/BspLoader.h
         ${COMMON_SOURCE_DIR}/io/CompilationConfigParser.h
         ${COMMON_SOURCE_DIR}/io/CompilationConfigWriter.h
-        ${COMMON_SOURCE_DIR}/io/ConfigParserBase.h
         ${COMMON_SOURCE_DIR}/io/DefParser.h
         ${COMMON_SOURCE_DIR}/io/DiskFileSystem.h
         ${COMMON_SOURCE_DIR}/io/DiskIO.h

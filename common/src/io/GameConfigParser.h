@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "io/ConfigParserBase.h"
+#include "io/ELParser.h"
 #include "mdl/GameConfig.h"
 
 #include <filesystem>
@@ -37,10 +37,14 @@ class BrushFaceAttributes;
 namespace tb::io
 {
 
-class GameConfigParser : public ConfigParserBase
+class GameConfigParser
 {
+private:
+  ELParser m_elParser;
+  std::filesystem::path m_path;
+
 public:
-  explicit GameConfigParser(std::string_view str, const std::filesystem::path& path = {});
+  explicit GameConfigParser(std::string_view str, std::filesystem::path path = {});
 
   Result<mdl::GameConfig> parse();
 
