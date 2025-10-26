@@ -61,6 +61,13 @@ std::vector<const EntityDefinition*> filterAndSort(
   return result;
 }
 
+/**
+ * Parse the default value of a color property definition.
+ */
+std::optional<PropertyValueTypes::ColorValue> parseColorPropertyDefaultValue(
+  const std::optional<std::string_view>& typeName,
+  const std::optional<std::string>& defaultValue);
+
 std::vector<const PropertyDefinition*> getLinkSourcePropertyDefinitions(
   const EntityDefinition* entityDefinition);
 
@@ -90,5 +97,13 @@ void addOrSetDefaultEntityLinkProperties(
  * Origin, or add an "origin" property of that type if it is missing.
  */
 void addOrConvertOriginProperties(std::vector<EntityDefinition>& entityDefinitions);
+
+/**
+ * Overrides the entity property values types of the given entity definitions.
+ *
+ * Any property named 'color', '*_color', '*_color2' or '*_colour' gets converted to the
+ * proper color property definition.
+ */
+void convertLegacyColorProperties(std::vector<EntityDefinition>& entityDefinitions);
 
 } // namespace tb::mdl

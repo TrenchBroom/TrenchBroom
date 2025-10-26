@@ -147,6 +147,8 @@ private:
   mdl::PropertyDefinition parseFlagsPropertyDefinition(std::string propertyKey);
   mdl::PropertyDefinition parseOriginPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
+  mdl::PropertyDefinition parseColorPropertyDefinition(
+    ParserStatus& status, const std::string& typeName, std::string propertyKey);
   mdl::PropertyDefinition parseUnknownPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
 
