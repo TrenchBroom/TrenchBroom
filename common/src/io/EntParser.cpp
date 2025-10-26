@@ -309,6 +309,12 @@ auto withDefaultValue(
         }
         return originValueType;
       },
+      [](mdl::PropertyValueTypes::Input inputValueType) -> mdl::PropertyValueType {
+        return inputValueType;
+      },
+      [](mdl::PropertyValueTypes::Output outputValueType) -> mdl::PropertyValueType {
+        return outputValueType;
+      },
       [&](mdl::PropertyValueTypes::Unknown unknownValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
