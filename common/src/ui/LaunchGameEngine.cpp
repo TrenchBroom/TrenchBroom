@@ -23,7 +23,6 @@
 #include <QString>
 #include <QStringList>
 
-#include "el/EvaluationContext.h"
 #include "el/Interpolate.h"
 #include "io/PathQt.h"
 #include "mdl/GameEngineProfile.h"

@@ -23,7 +23,6 @@
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
-#include "mdl/NodeQueries.h"
 
 #include "kdl/overload.h"
 #include "kdl/ranges/as_rvalue_view.h"
