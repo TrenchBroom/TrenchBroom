@@ -51,6 +51,8 @@ public:
   void addPage(TabBookPage* page, const QString& title);
   void switchToPage(int index);
 
+  QByteArray saveState() const;
+  bool restoreState(const QByteArray& state);
 signals:
   void pageChanged(int page);
 };

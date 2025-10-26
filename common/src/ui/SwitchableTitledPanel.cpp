@@ -20,6 +20,8 @@
 #include "SwitchableTitledPanel.h"
 
 #include <QBoxLayout>
+#include <QByteArray>
+#include <QDataStream>
 #include <QIODevice>
 #include <QStackedLayout>
 
