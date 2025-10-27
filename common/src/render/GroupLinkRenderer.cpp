@@ -65,8 +65,8 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
       if (linkedGroupNode != groupNode && editorContext.visible(*linkedGroupNode))
       {
         const auto targetPosition = getLinkAnchorPosition(*linkedGroupNode);
-        links.emplace_back(sourcePosition, linkColor);
-        links.emplace_back(targetPosition, linkColor);
+        links.emplace_back(sourcePosition, linkColor.toRgbaF());
+        links.emplace_back(targetPosition, linkColor.toRgbaF());
       }
     }
   }

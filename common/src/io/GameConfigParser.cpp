@@ -363,7 +363,12 @@ mdl::BrushFaceAttributes parseFaceAttribsDefaults(
   if (const auto colorValue = value.atOrDefault(context, "color");
       colorValue != el::Value::Null)
   {
-    defaults.setColor(Color::parse(colorValue.stringValue(context)).value_or(Color{}));
+    const auto color = Color::parse(colorValue.stringValue(context))
+                       | kdl::if_error([&](const auto& e) {
+                           throw ParserException{*context.location(value), e.msg};
+                         })
+                       | kdl::value();
+    defaults.setColor(color);
   }
 
   return defaults;
@@ -435,7 +440,10 @@ mdl::EntityConfig parseEntityConfig(
                | kdl::ranges::to<std::vector>();
 
   const auto color = Color::parse(value.at(context, "defaultcolor").stringValue(context))
-                       .value_or(Color{});
+                     | kdl::if_error([&](const auto& e) {
+                         throw ParserException{*context.location(value), e.msg};
+                       })
+                     | kdl::value();
 
   return mdl::EntityConfig{
     std::move(paths),

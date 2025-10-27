@@ -275,7 +275,7 @@ void RenderView::processInput()
 
 void RenderView::clearBackground()
 {
-  const auto backgroundColor = getBackgroundColor();
+  const auto backgroundColor = getBackgroundColor().toRgbaF();
 
   glAssert(glClearColor(
     backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a()));
@@ -291,8 +291,8 @@ void RenderView::renderFocusIndicator()
 {
   if (shouldRenderFocusIndicator() && hasFocus())
   {
-    const auto& outer = m_focusColor;
-    const auto& inner = m_focusColor;
+    const auto outer = m_focusColor.toRgbaF();
+    const auto inner = m_focusColor.toRgbaF();
 
     const auto r = devicePixelRatioF();
     const auto w = float(width() * r);

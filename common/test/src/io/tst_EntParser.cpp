@@ -51,7 +51,7 @@ TEST_CASE("EntParser")
       auto file = Disk::openFile(path) | kdl::value();
       auto reader = file->reader().buffer();
 
-      auto parser = EntParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
+      auto parser = EntParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
 
       auto status = TestParserStatus{};
       CHECK(parser.parseDefinitions(status));
@@ -75,7 +75,7 @@ TEST_CASE("EntParser")
   SECTION("parseEmptyFile")
   {
     const auto file = "";
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -87,7 +87,7 @@ TEST_CASE("EntParser")
   	 
   )";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -101,7 +101,7 @@ TEST_CASE("EntParser")
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
 </classes>)";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status).is_error());
@@ -144,7 +144,7 @@ Updated: 2011-03-02
 </classes>
 )";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -152,7 +152,7 @@ Updated: 2011-03-02
       == std::vector<mdl::EntityDefinition>{
         {
           "_skybox",
-          Color{0.77f, 0.88f, 1.0f},
+          RgbF{0.77f, 0.88f, 1.0f},
           R"(
     -------- KEYS --------
     asdf
@@ -207,7 +207,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </group>
 </classes>)";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -215,7 +215,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
       == std::vector<mdl::EntityDefinition>{
         {
           "func_bobbing",
-          Color{0.0f, 0.4f, 1.0f},
+          RgbF{0.0f, 0.4f, 1.0f},
           R"(
 Solid entity that oscillates back and forth in a linear motion. By default, it will have an amount of displacement in either direction equal to the dimension of the brush in the axis in which it's bobbing. Entity bobs on the Z axis (up-down) by default. It can also emit sound if the "noise" key is set. Will crush the player when blocked.
 -------- KEYS --------
@@ -286,7 +286,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </classes>
             )";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -294,7 +294,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
       == std::vector<mdl::EntityDefinition>{
         {
           "_skybox",
-          Color{0.77f, 0.88f, 1.0f},
+          RgbF{0.77f, 0.88f, 1.0f},
           "",
           {
             {"count",
@@ -343,7 +343,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </classes>
 )";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -351,7 +351,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
       == std::vector<mdl::EntityDefinition>{
         {
           "_skybox",
-          Color{0.77f, 0.88f, 1.0f, 1.0f},
+          RgbF{0.77f, 0.88f, 1.0f},
           "",
           {
             {"prop_true", mdl::PropertyValueTypes::Boolean{true}, "true", ""},
@@ -383,7 +383,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </classes>
                         )";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -391,7 +391,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
       == std::vector<mdl::EntityDefinition>{
         {
           "_skybox",
-          Color{0.77f, 0.88f, 1.0f, 1.0f},
+          RgbF{0.77f, 0.88f, 1.0f},
           "",
           {
             {"_scale", mdl::PropertyValueTypes::Unknown{"asdf"}, "Scale", ""},
@@ -414,7 +414,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </classes>
             )";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -422,7 +422,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
       == std::vector<mdl::EntityDefinition>{
         {
           "ammo_bfg",
-          Color{0.3f, 0.3f, 1.0f, 1.0f},
+          RgbF{0.3f, 0.3f, 1.0f},
           "",
           {},
           mdl::PointEntityDefinition{
@@ -444,7 +444,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             </classes>
             )";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -452,7 +452,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
       == std::vector<mdl::EntityDefinition>{
         {
           "ammo_bfg",
-          Color{0.3f, 0.3f, 1.0f, 1.0f},
+          RgbF{0.3f, 0.3f, 1.0f},
           "",
           {},
           mdl::PointEntityDefinition{
@@ -480,7 +480,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
   </classes>
 )";
 
-    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -488,7 +488,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
       == std::vector<mdl::EntityDefinition>{
         {
           "linkEmitter",
-          Color{0.2f, 0.5f, 0.2f, 1.0f},
+          RgbF{0.2f, 0.5f, 0.2f},
           "",
           {
             {

@@ -338,8 +338,8 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
               const auto& color = definition.color;
               vm::bbox3f{pointEntityDefinition.bounds}.for_each_edge(
                 [&](const vm::vec3f& v1, const vm::vec3f& v2) {
-                  vertices.emplace_back(itemTrans * v1, color);
-                  vertices.emplace_back(itemTrans * v2, color);
+                  vertices.emplace_back(itemTrans * v1, color.toRgbaF());
+                  vertices.emplace_back(itemTrans * v2, color.toRgbaF());
                 });
             }
           }

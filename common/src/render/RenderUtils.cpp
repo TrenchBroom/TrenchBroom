@@ -34,7 +34,7 @@ vm::vec3f gridColorForMaterial(const mdl::Material* material)
 {
   if (const auto* texture = getTexture(material))
   {
-    const auto& averageColor = texture->averageColor();
+    const auto averageColor = texture->averageColor().toRgbF();
     if ((averageColor.r() + averageColor.g() + averageColor.b()) / 3.0f > 0.50f)
     {
       // bright material grid color

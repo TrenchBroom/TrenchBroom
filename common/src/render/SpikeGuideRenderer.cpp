@@ -99,7 +99,7 @@ void SpikeGuideRenderer::doRender(RenderContext& renderContext)
 
 void SpikeGuideRenderer::addPoint(const vm::vec3d& position)
 {
-  m_pointVertices.emplace_back(vm::vec3f(position), m_color);
+  m_pointVertices.emplace_back(vm::vec3f(position), m_color.toRgbaF());
 }
 
 void SpikeGuideRenderer::addSpike(
@@ -107,9 +107,9 @@ void SpikeGuideRenderer::addSpike(
 {
   const auto mix = static_cast<float>(maxLength / length / 2.0);
 
-  m_spikeVertices.emplace_back(vm::vec3f(ray.origin), m_color);
+  m_spikeVertices.emplace_back(vm::vec3f(ray.origin), m_color.toRgbaF());
   m_spikeVertices.emplace_back(
-    vm::vec3f(vm::point_at_distance(ray, length)), Color(m_color, m_color.a() * mix));
+    vm::vec3f(vm::point_at_distance(ray, length)), blendColor(m_color.toRgbaF(), mix));
 }
 
 void SpikeGuideRenderer::validate()

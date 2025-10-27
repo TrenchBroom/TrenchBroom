@@ -163,7 +163,7 @@ private:
       const auto translation = vm::translation_matrix(vm::vec3d{originPosition});
       const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
-      shader.set("Color", m_highlight ? highlightColor : handleColor);
+      shader.set("Color", m_highlight ? highlightColor.toRgbaF() : handleColor);
       m_outer.render();
     }
 

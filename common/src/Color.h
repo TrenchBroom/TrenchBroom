@@ -19,57 +19,288 @@
 
 #pragma once
 
+#include "Result.h"
+
+#include "kdl/reflection_decl.h"
+
+#include "vm/scalar.h"
 #include "vm/vec.h"
 
-#include <optional>
+#include <cstdint>
 #include <string>
+#include <string_view>
+#include <variant>
 
 namespace tb
 {
 
-class Color : public vm::vec<float, 4>
+template <typename T, size_t S>
+bool isFloatColorRange(const vm::vec<T, S>& vec)
 {
+  for (size_t i = 0; i < S; ++i)
+  {
+    if (vec[i] < T(0) || vec[i] > T(1))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+template <typename T, size_t S>
+bool isByteColorRange(const vm::vec<T, S>& vec)
+{
+  for (size_t i = 0; i < S; ++i)
+  {
+    if (vec[i] < T(0) || vec[i] > T(255))
+    {
+      return false;
+    }
+
+    if constexpr (std::is_floating_point_v<T>)
+    {
+      if (std::truncf(vec[i]) != vec[i])
+      {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+class RgbF;
+class RgbB;
+class RgbaF;
+class RgbaB;
+
+class RgbF
+{
+
 public:
-  static std::optional<Color> parse(const std::string& str);
+  static constexpr auto S = 3;
+
+private:
+  vm::vec<float, S> m_v;
+
+public:
+  RgbF();
+  RgbF(float r, float g, float b);
+  explicit RgbF(const vm::vec<float, S>& v);
+
+  static Result<RgbF> parse(std::string_view str);
+
+  float r() const;
+  float g() const;
+  float b() const;
+
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  operator vm::vec<float, S>() const;
+
+  vm::vec<float, S> vec() const;
+
+  RgbF toFloat() const;
+  RgbB toByte() const;
+  RgbF toRgbF() const;
+  RgbB toRgbB() const;
+  RgbaF toRgbaF() const;
+  RgbaB toRgbaB() const;
   std::string toString() const;
 
-  Color();
+  kdl_reflect_decl(RgbF, m_v);
+};
+
+class RgbB
+{
+public:
+  static constexpr auto S = 3;
+
+private:
+  vm::vec<uint8_t, S> m_v;
+
+public:
+  RgbB();
+  RgbB(uint8_t r, uint8_t g, uint8_t b);
+  explicit RgbB(const vm::vec<uint8_t, S>& v);
+
+  static Result<RgbB> parse(std::string_view str);
+
+  uint8_t r() const;
+  uint8_t g() const;
+  uint8_t b() const;
+
   // NOLINTNEXTLINE(google-explicit-constructor)
-  Color(const vec<float, 4>& v);
-  Color(float r, float g, float b, float a = 1.0f);
-  Color(const Color& color, float a);
-  Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 0xFF);
-  Color(int r, int g, int b, float a);
-  Color(int r, int g, int b, int a = 0xFF);
+  operator vm::vec<uint8_t, S>() const;
+
+  vm::vec<uint8_t, S> vec() const;
+
+  RgbF toFloat() const;
+  RgbB toByte() const;
+  RgbF toRgbF() const;
+  RgbB toRgbB() const;
+  RgbaF toRgbaF() const;
+  RgbaB toRgbaB() const;
+  std::string toString() const;
+
+  kdl_reflect_decl(RgbB, m_v);
+};
+
+class RgbaF
+{
+public:
+  static constexpr auto S = 4;
+
+private:
+  vm::vec<float, S> m_v;
+
+public:
+  RgbaF();
+  RgbaF(float r, float g, float b, float a);
+  RgbaF(const RgbF& rgb, float a);
+  explicit RgbaF(const vm::vec<float, S>& v);
+
+  static Result<RgbaF> parse(std::string_view str);
 
   float r() const;
   float g() const;
   float b() const;
   float a() const;
 
-  template <typename T>
-  Color& mix(const Color& other, const T f)
-  {
-    const auto c = float(vm::max(static_cast<T>(0.0), vm::min(static_cast<T>(1.0), f)));
-    const auto d = 1.0f - c;
-    for (size_t i = 0; i < 4; i++)
-    {
-      v[i] = d * v[i] + c * other[i];
-    }
-    return *this;
-  }
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  operator vm::vec<float, S>() const;
 
-  Color mixed(const Color& other, const float f) const
-  {
-    return Color{*this}.mix(other, f);
-  }
+  vm::vec<float, S> vec() const;
 
-  friend Color mixAlpha(const Color& color, const float f)
-  {
-    return Color{color.r(), color.g(), color.b(), f * color.a()};
-  }
+  RgbaF toFloat() const;
+  RgbaB toByte() const;
+  RgbF toRgbF() const;
+  RgbB toRgbB() const;
+  RgbaF toRgbaF() const;
+  RgbaB toRgbaB() const;
+  std::string toString() const;
 
-  static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
+  kdl_reflect_decl(RgbaF, m_v);
 };
+
+class RgbaB
+{
+public:
+  static constexpr auto S = 4;
+
+private:
+  vm::vec<uint8_t, S> m_v;
+
+public:
+  RgbaB();
+  RgbaB(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+  RgbaB(const RgbB& rgb, uint8_t a);
+  explicit RgbaB(const vm::vec<uint8_t, S>& v);
+
+  static Result<RgbaB> parse(std::string_view str);
+
+  uint8_t r() const;
+  uint8_t g() const;
+  uint8_t b() const;
+  uint8_t a() const;
+
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  operator vm::vec<uint8_t, S>() const;
+
+  vm::vec<uint8_t, S> vec() const;
+
+  RgbaF toFloat() const;
+  RgbaB toByte() const;
+  RgbF toRgbF() const;
+  RgbB toRgbB() const;
+  RgbaF toRgbaF() const;
+  RgbaB toRgbaB() const;
+  std::string toString() const;
+
+  kdl_reflect_decl(RgbaB, m_v);
+};
+
+class Color
+{
+private:
+  std::variant<RgbF, RgbB, RgbaF, RgbaB> m_value;
+
+public:
+  Color();
+
+  // NOLINTBEGIN(google-explicit-constructor)
+  Color(const RgbF& rgbF);
+  Color(const RgbB& rgbB);
+  Color(const RgbaF& rgbaF);
+  Color(const RgbaB& rgbaB);
+  // NOLINTEND(google-explicit-constructor)
+
+  template <typename T, size_t S>
+  static Result<Color> fromVec(const vm::vec<T, S>& vec)
+  {
+    if constexpr (S == 3)
+    {
+      if (isFloatColorRange(vec))
+      {
+        return Color{RgbF{vm::vec<float, S>{vec}}};
+      }
+
+      if (isByteColorRange(vec))
+      {
+        return Color{RgbB{vm::vec<uint8_t, S>{vec}}};
+      }
+    }
+
+    if constexpr (S == 4)
+    {
+      if (isFloatColorRange(vec))
+      {
+        return Color{RgbaF{vm::vec<float, S>{vec}}};
+      }
+
+      if (isByteColorRange(vec))
+      {
+        return Color{RgbaB{vm::vec<uint8_t, S>{vec}}};
+      }
+    }
+
+    return Error{"Invalid color values"};
+  }
+
+  static Result<Color> parse(std::string_view str);
+
+  bool isFloat() const;
+  bool isByte() const;
+
+  Color toFloat() const;
+  Color toByte() const;
+  RgbF toRgbF() const;
+  RgbB toRgbB() const;
+  RgbaF toRgbaF() const;
+  RgbaB toRgbaB() const;
+  std::string toString() const;
+
+  kdl_reflect_decl(Color, m_value);
+};
+
+template <typename T>
+concept AnyColor = std::is_same_v<std::remove_cvref_t<T>, RgbF>
+                   || std::is_same_v<std::remove_cvref_t<T>, RgbB>
+                   || std::is_same_v<std::remove_cvref_t<T>, RgbaF>
+                   || std::is_same_v<std::remove_cvref_t<T>, RgbaB>
+                   || std::is_same_v<std::remove_cvref_t<T>, Color>;
+
+template <AnyColor C>
+auto mixColors(const C& lhs, const C& rhs, const float f)
+{
+  return C{vm::mix(
+    lhs.toFloat().vec(), rhs.toFloat().vec(), vm::vec<float, C::S>::fill(vm::clamp(f)))};
+}
+
+Color mixColors(const Color& lhs, const Color& rhs, float f);
+
+RgbaF blendColor(const RgbaF& c, float f);
+
+void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
 
 } // namespace tb

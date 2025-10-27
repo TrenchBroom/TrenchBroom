@@ -946,20 +946,20 @@ vm::bbox3d FgdParser::parseSize()
 
 Color FgdParser::parseColor()
 {
-  auto color = Color{};
-  m_tokenizer.nextToken(FgdToken::OParenthesis);
+  auto token = m_tokenizer.nextToken(FgdToken::OParenthesis);
+  const auto location = token.location();
+
+  auto vec = vm::vec3f{};
   for (size_t i = 0; i < 3; i++)
   {
-    auto token = m_tokenizer.nextToken(FgdToken::Decimal | FgdToken::Integer);
-    color[i] = token.toFloat<float>();
-    if (color[i] > 1.0f)
-    {
-      color[i] /= 255.0f;
-    }
+    token = m_tokenizer.nextToken(FgdToken::Decimal | FgdToken::Integer);
+    vec[i] = token.toFloat<float>();
   }
   m_tokenizer.nextToken(FgdToken::CParenthesis);
-  color[3] = 1.0f;
-  return color;
+
+  return Color::fromVec(vec)
+         | kdl::if_error([&](const auto& e) { throw ParserException{location, e.msg}; })
+         | kdl::value();
 }
 
 std::string FgdParser::parseString()

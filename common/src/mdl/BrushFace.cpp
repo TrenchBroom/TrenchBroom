@@ -467,9 +467,9 @@ float BrushFace::resolvedSurfaceValue() const
   return resolveSurfaceData(m_attributes, material()).surfaceValue;
 }
 
-Color BrushFace::resolvedColor() const
+std::optional<Color> BrushFace::resolvedColor() const
 {
-  return m_attributes.color().value_or(Color{});
+  return m_attributes.color();
 }
 
 void BrushFace::resetUVCoordSystemCache()

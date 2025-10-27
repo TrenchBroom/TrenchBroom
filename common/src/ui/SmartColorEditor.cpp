@@ -27,7 +27,6 @@
 
 #include "Color.h"
 #include "mdl/ColorRange.h"
-#include "mdl/EntityColor.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/GroupNode.h"
@@ -62,8 +61,8 @@ std::vector<QColor> collectColors(
     const auto rb = float(rhs.blue()) / 255.0f;
 
     float lh, ls, lbr, rh, rs, rbr;
-    Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
-    Color::rgbToHSB(rr, rg, rb, rh, rs, rbr);
+    rgbToHSB(lr, lg, lb, lh, ls, lbr);
+    rgbToHSB(rr, rg, rb, rh, rs, rbr);
 
     return lh < rh     ? true
            : lh > rh   ? false
@@ -78,7 +77,9 @@ std::vector<QColor> collectColors(
   const auto visitEntityNode = [&](const auto* node) {
     if (const auto* value = node->entity().property(propertyKey))
     {
-      colors.insert(toQColor(mdl::parseEntityColor(*value)));
+      Color::parse(*value)
+        | kdl::transform([&](const auto color) { colors.insert(toQColor(color)); })
+        | kdl::ignore();
     }
   };
 
@@ -213,12 +214,14 @@ void SmartColorEditor::updateColorHistory()
     !selectedColors.empty() ? selectedColors.back() : QColor(Qt::black));
 }
 
-void SmartColorEditor::setColor(const QColor& color)
+void SmartColorEditor::setColor(const QColor& qColor)
 {
-  const auto colorRange =
-    m_floatRadio->isChecked() ? mdl::ColorRange::Float : mdl::ColorRange::Byte;
-  const auto value = mdl::entityColorAsString(fromQColor(color), colorRange);
-  setEntityProperty(map(), propertyKey(), value);
+  const auto rawColor = fromQColor(qColor);
+  const auto requestedColor =
+    m_floatRadio->isChecked() ? Color{rawColor.toRgbF()} : Color{rawColor.toRgbB()};
+  const auto colorAsString = requestedColor.toString();
+
+  setEntityProperty(map(), propertyKey(), colorAsString);
 }
 
 void SmartColorEditor::floatRangeRadioButtonClicked()

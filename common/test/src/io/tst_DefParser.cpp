@@ -48,7 +48,7 @@ TEST_CASE("DefParser")
 
       auto file = Disk::openFile(path) | kdl::value();
       auto reader = file->reader().buffer();
-      auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
+      auto parser = DefParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
 
       auto status = TestParserStatus{};
       CHECK(parser.parseDefinitions(status));
@@ -84,7 +84,7 @@ TEST_CASE("DefParser")
     {
       auto file = Disk::openFile(path) | kdl::value();
       auto reader = file->reader().buffer();
-      auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
+      auto parser = DefParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
 
       auto status = TestParserStatus{};
       CHECK(parser.parseDefinitions(status));
@@ -96,7 +96,7 @@ TEST_CASE("DefParser")
   SECTION("parseEmptyFile")
   {
     const auto file = R"()";
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -108,7 +108,7 @@ TEST_CASE("DefParser")
   	 
   )";
 
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -120,7 +120,7 @@ TEST_CASE("DefParser")
 //kj3k4jkdjfkjdf
 )";
 
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -145,7 +145,7 @@ Set sounds to the cd track to play.
 */
 )";
 
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -153,7 +153,7 @@ Set sounds to the cd track to play.
       == std::vector<mdl::EntityDefinition>{
         {
           "worldspawn",
-          Color{0.0f, 0.0f, 0.0f, 1.0f},
+          RgbF{0.0f, 0.0f, 0.0f},
           R"(Only used for the world entity. 
 Set message to the level name. 
 Set sounds to the cd track to play. 
@@ -184,7 +184,7 @@ Set sounds to the cd track to play.
     */
 )";
 
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -192,7 +192,7 @@ Set sounds to the cd track to play.
       == std::vector<mdl::EntityDefinition>{
         {
           "monster_zombie",
-          Color{1.0f, 0.0f, 0.0f, 1.0f},
+          RgbF{1.0f, 0.0f, 0.0f},
           R"(If crucified, stick the bounding box 12 pixels back into a wall to look right.)",
           {
             {
@@ -223,7 +223,7 @@ Set sounds to the cd track to play.
     some desc
     */)";
 
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -231,7 +231,7 @@ Set sounds to the cd track to play.
       == std::vector<mdl::EntityDefinition>{
         {
           "item_health",
-          Color{0.3f, 0.3f, 1.0f, 1.0f},
+          RgbF{0.3f, 0.3f, 1.0f},
           "some desc",
           {
             {
@@ -265,7 +265,7 @@ Set sounds to the cd track to play.
     some desc
     */)";
 
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -273,7 +273,7 @@ Set sounds to the cd track to play.
       == std::vector<mdl::EntityDefinition>{
         {
           "item_health",
-          Color{0.3f, 0.3f, 1.0f, 1.0f},
+          RgbF{0.3f, 0.3f, 1.0f},
           "some desc",
           {
             {
@@ -327,7 +327,7 @@ Set sounds to the cd track to play.
     Default "style" is 0.
     */)-";
 
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -335,7 +335,7 @@ Set sounds to the cd track to play.
       == std::vector<mdl::EntityDefinition>{
         {
           "light",
-          Color{0.0f, 1.0f, 0.0f, 1.0f},
+          RgbF{0.0f, 1.0f, 0.0f},
           R"(Non-displayed light.
     Default light value is 300
     If targeted, it will toggle between on or off.
@@ -439,14 +439,14 @@ Set sounds to the cd track to play.
     }
     */)";
 
-    auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
       parser.parseDefinitions(status)
       == std::vector<mdl::EntityDefinition>{
         {"light",
-         Color{0.0f, 1.0f, 0.0f, 1.0f},
+         RgbF{0.0f, 1.0f, 0.0f},
          "",
          {
            {

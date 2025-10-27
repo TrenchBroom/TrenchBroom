@@ -223,9 +223,9 @@ void Compass::renderSolidAxis(
   auto shader = ActiveShader{renderContext.shaderManager(), Shaders::CompassShader};
   shader.set("CameraPosition", vm::vec3f{0, 500, 0});
   shader.set("LightDirection", vm::normalize(vm::vec3f{0, 0.5, 1}));
-  shader.set("LightDiffuse", Color{1.0f, 1.0f, 1.0f, 1.0f});
-  shader.set("LightSpecular", Color{0.3f, 0.3f, 0.3f, 1.0f});
-  shader.set("GlobalAmbient", Color{0.2f, 0.2f, 0.2f, 1.0f});
+  shader.set("LightDiffuse", RgbaF{1.0f, 1.0f, 1.0f, 1.0f});
+  shader.set("LightSpecular", RgbaF{0.3f, 0.3f, 0.3f, 1.0f});
+  shader.set("GlobalAmbient", RgbaF{0.2f, 0.2f, 0.2f, 1.0f});
   shader.set("MaterialShininess", 32.0f);
 
   shader.set("MaterialDiffuse", color);

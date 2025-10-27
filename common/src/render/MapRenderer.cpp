@@ -213,9 +213,12 @@ MapRenderer::~MapRenderer()
 
 void MapRenderer::overrideSelectionColors(const Color& color, const float mix)
 {
-  const auto edgeColor = pref(Preferences::SelectedEdgeColor).mixed(color, mix);
-  const auto occludedEdgeColor = pref(Preferences::SelectedFaceColor).mixed(color, mix);
-  const auto tintColor = pref(Preferences::SelectedFaceColor).mixed(color, mix);
+  const auto edgeColor =
+    mixColors(pref(Preferences::SelectedEdgeColor).toRgbaF(), color.toRgbaF(), mix);
+  const auto occludedEdgeColor =
+    mixColors(pref(Preferences::SelectedFaceColor).toRgbaF(), color.toRgbaF(), mix);
+  const auto tintColor =
+    mixColors(pref(Preferences::SelectedFaceColor).toRgbaF(), color.toRgbaF(), mix);
 
   m_selectionRenderer->setEntityBoundsColor(edgeColor);
   m_selectionRenderer->setBrushEdgeColor(edgeColor);
@@ -377,8 +380,9 @@ void MapRenderer::setupSelectionRenderer(ObjectRenderer& renderer)
     pref(Preferences::SelectedInfoOverlayBackgroundColor));
   renderer.setShowBrushEdges(true);
   renderer.setShowOccludedObjects(true);
-  renderer.setOccludedEdgeColor(Color(
-    pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
+  renderer.setOccludedEdgeColor(RgbaF{
+    pref(Preferences::SelectedEdgeColor).toRgbF(),
+    pref(Preferences::OccludedSelectedEdgeAlpha)});
   renderer.setTint(true);
   renderer.setTintColor(pref(Preferences::SelectedFaceColor));
 

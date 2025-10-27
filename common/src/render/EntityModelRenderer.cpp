@@ -175,11 +175,7 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
     shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
     shader.set(
       "SoftMapBoundsColor",
-      vm::vec4f{
-        prefs.get(Preferences::SoftMapBoundsColor).r(),
-        prefs.get(Preferences::SoftMapBoundsColor).g(),
-        prefs.get(Preferences::SoftMapBoundsColor).b(),
-        0.1f});
+      RgbaF{prefs.get(Preferences::SoftMapBoundsColor).toRgbF(), 0.1f});
 
     shader.set("CameraPosition", renderContext.camera().position());
     shader.set("CameraDirection", renderContext.camera().direction());

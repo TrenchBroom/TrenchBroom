@@ -19,44 +19,52 @@
 
 #include "ColorRange.h"
 
-#include "kdl/string_utils.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h" // IWYU pragma: keep
+#include "mdl/EntityNodeBase.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h" // IWYU pragma: keep
 
 namespace tb::mdl
 {
 
-ColorRange::Type detectColorRange(const std::vector<std::string>& components)
-{
-  if (components.size() != 3)
-  {
-    return ColorRange::Unset;
-  }
-
-  auto range = ColorRange::Byte;
-  auto leq1 = true;
-  for (size_t i = 0; i < 3 && range == ColorRange::Byte; ++i)
-  {
-    if (components[i].find('.') != std::string::npos)
-    {
-      range = ColorRange::Float;
-    }
-    else if (components[i] != "0" && components[i] != "1")
-    {
-      leq1 = false;
-    }
-  }
-
-  // All values are either 0 or 1, so we assume float range.
-  if (range == ColorRange::Byte && leq1)
-  {
-    range = ColorRange::Float;
-  }
-
-  return range;
-}
-
 ColorRange::Type detectColorRange(const std::string& str)
 {
-  return detectColorRange(kdl::str_split(str, " "));
+  return Color::parse(str) | kdl::transform([](const auto& color) {
+           return color.isFloat() ? ColorRange::Float : ColorRange::Byte;
+         })
+         | kdl::value_or(ColorRange::Unset);
+}
+
+ColorRange::Type detectColorRange(
+  const std::string& propertyKey, const std::vector<EntityNodeBase*>& nodes)
+{
+  auto result = ColorRange::Unset;
+  for (auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [&](const EntityNodeBase* entityNode) {
+        if (const auto* value = entityNode->entity().property(propertyKey))
+        {
+          const auto range = detectColorRange(*value);
+          if (result == ColorRange::Unset)
+          {
+            result = range;
+          }
+          else if (result != range)
+          {
+            result = ColorRange::Mixed;
+          }
+        }
+      },
+      [](const LayerNode*) {},
+      [](const GroupNode*) {},
+      [](const BrushNode*) {},
+      [](const PatchNode*) {}));
+  }
+  return result;
 }
 
 } // namespace tb::mdl

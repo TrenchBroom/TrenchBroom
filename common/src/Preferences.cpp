@@ -48,18 +48,20 @@ Preference<QString> Theme("Theme", systemTheme());
 
 Preference<bool> ShowAxes("render/Show axes", true);
 Preference<Color> SoftMapBoundsColor(
-  "render/Colors/Soft map bounds color", Color(241, 125, 37));
-Preference<Color> BackgroundColor("render/Colors/Background", Color(38, 38, 38));
+  "render/Colors/Soft map bounds color", RgbB(241, 125, 37));
+Preference<Color> BackgroundColor("render/Colors/Background", RgbB(38, 38, 38));
 Preference<float> AxisLength("render/Axis length", 128.0f);
-Preference<Color> XAxisColor("render/Colors/X axis", Color(0xFF, 0x3D, 0x00, 0.7f), true);
-Preference<Color> YAxisColor("render/Colors/Y axis", Color(0x4B, 0x95, 0x00, 0.7f), true);
-Preference<Color> ZAxisColor("render/Colors/Z axis", Color(0x10, 0x9C, 0xFF, 0.7f), true);
-Preference<Color> PointFileColor(
-  "render/Colors/Point file", Color(0.0f, 1.0f, 0.0f, 1.0f));
+Preference<Color> XAxisColor(
+  "render/Colors/X axis", RgbaF(1.0f, 0.24f, 0.0f, 0.7f), true);
+Preference<Color> YAxisColor(
+  "render/Colors/Y axis", RgbaF(0.29f, 0.58f, 0.0f, 0.7f), true);
+Preference<Color> ZAxisColor(
+  "render/Colors/Z axis", RgbaF(0.06f, 0.61f, 1.0f, 0.7f), true);
+Preference<Color> PointFileColor("render/Colors/Point file", RgbF(0.0f, 1.0f, 0.0f));
 Preference<Color> PortalFileBorderColor(
-  "render/Colors/Portal file border", Color(1.0f, 1.0f, 1.0f, 0.5f));
+  "render/Colors/Portal file border", RgbaF(1.0f, 1.0f, 1.0f, 0.5f));
 Preference<Color> PortalFileFillColor(
-  "render/Colors/Portal file fill", Color(1.0f, 0.4f, 0.4f, 0.2f));
+  "render/Colors/Portal file fill", RgbaF(1.0f, 0.4f, 0.4f, 0.2f));
 Preference<bool> ShowFPS("render/Show FPS", false);
 
 Preference<Color>& axisColor(vm::axis::type axis)
@@ -77,111 +79,102 @@ Preference<Color>& axisColor(vm::axis::type axis)
 }
 
 Preference<Color> CompassBackgroundColor(
-  "render/Colors/Compass background", Color(0.5f, 0.5f, 0.5f, 0.5f), true);
+  "render/Colors/Compass background", RgbaF(0.5f, 0.5f, 0.5f, 0.5f), true);
 Preference<Color> CompassBackgroundOutlineColor(
-  "render/Colors/Compass background outline", Color(1.0f, 1.0f, 1.0f, 0.5f), true);
+  "render/Colors/Compass background outline", RgbaF(1.0f, 1.0f, 1.0f, 0.5f), true);
 Preference<Color> CompassAxisOutlineColor(
-  "render/Colors/Compass axis outline", Color(1.0f, 1.0f, 1.0f, 1.0f), true);
+  "render/Colors/Compass axis outline", RgbF(1.0f, 1.0f, 1.0f), true);
 
 Preference<Color> CameraFrustumColor(
-  "render/Colors/Camera frustum", Color(0.0f, 1.0f, 1.0f, 1.0f));
+  "render/Colors/Camera frustum", RgbF(0.0f, 1.0f, 1.0f));
 
-Preference<Color> DefaultGroupColor(
-  "render/Colors/Groups", Color(0.7f, 0.4f, 1.0f, 1.0f));
+Preference<Color> DefaultGroupColor("render/Colors/Groups", RgbF(0.7f, 0.4f, 1.0f));
 Preference<Color> LinkedGroupColor(
-  "render/Colors/Linked Groups", Color(1.0f, 0.35f, 0.87f, 1.0f));
+  "render/Colors/Linked Groups", RgbF(1.0f, 0.35f, 0.87f));
 
 Preference<Color> TutorialOverlayTextColor(
-  "render/Colors/Tutorial overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
+  "render/Colors/Tutorial overlay text", RgbF(1.0f, 1.0f, 1.0f));
 Preference<Color> TutorialOverlayBackgroundColor(
-  "render/Colors/Tutorial overlay background", Color(1.0f, 0.5f, 0.0f, 0.6f));
+  "render/Colors/Tutorial overlay background", RgbaF(1.0f, 0.5f, 0.0f, 0.6f));
 
-Preference<Color> FaceColor("render/Colors/Faces", Color(0.2f, 0.2f, 0.2f, 1.0f));
+Preference<Color> FaceColor("render/Colors/Faces", RgbF(0.2f, 0.2f, 0.2f));
 Preference<Color> SelectedFaceColor(
-  "render/Colors/Selected faces", Color(1.0f, 0.85f, 0.85f, 1.0f));
-Preference<Color> LockedFaceColor(
-  "render/Colors/Locked faces", Color(0.85f, 0.85f, 1.0f, 1.0f));
+  "render/Colors/Selected faces", RgbF(1.0f, 0.85f, 0.85f));
+Preference<Color> LockedFaceColor("render/Colors/Locked faces", RgbF(0.85f, 0.85f, 1.0f));
 Preference<float> TransparentFaceAlpha("render/Colors/Transparent faces", 0.4f);
-Preference<Color> EdgeColor("render/Colors/Edges", Color(0.9f, 0.9f, 0.9f, 1.0f));
+Preference<Color> EdgeColor("render/Colors/Edges", RgbF(0.9f, 0.9f, 0.9f));
 Preference<Color> SelectedEdgeColor(
-  "render/Colors/Selected edges", Color(1.0f, 0.0f, 0.0f, 1.0f));
+  "render/Colors/Selected edges", RgbF(1.0f, 0.0f, 0.0f));
 Preference<float> OccludedSelectedEdgeAlpha(
   "render/Colors/Occluded selected edge alpha", 0.4f);
-Preference<Color> LockedEdgeColor(
-  "render/Colors/Locked edges", Color(0.13f, 0.3f, 1.0f, 1.0f));
+Preference<Color> LockedEdgeColor("render/Colors/Locked edges", RgbF(0.13f, 0.3f, 1.0f));
 Preference<Color> UndefinedEntityColor(
-  "render/Colors/Undefined entity", Color(0.5f, 0.5f, 0.5f, 1.0f));
+  "render/Colors/Undefined entity", RgbF(0.5f, 0.5f, 0.5f));
 
 Preference<Color> SelectionBoundsColor(
-  "render/Colors/Selection bounds", Color(1.0f, 0.0f, 0.0f, 0.35f));
+  "render/Colors/Selection bounds", RgbaF(1.0f, 0.0f, 0.0f, 0.35f));
 
 Preference<Color> InfoOverlayTextColor(
-  "render/Colors/Info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
+  "render/Colors/Info overlay text", RgbF(1.0f, 1.0f, 1.0f));
 Preference<Color> GroupInfoOverlayTextColor(
-  "render/Colors/Group info overlay text", Color(0.7f, 0.4f, 1.0f, 1.0f));
+  "render/Colors/Group info overlay text", RgbF(0.7f, 0.4f, 1.0f));
 Preference<Color> InfoOverlayBackgroundColor(
-  "render/Colors/Info overlay background", Color(0.0f, 0.0f, 0.0f, 0.6f));
+  "render/Colors/Info overlay background", RgbaF(0.0f, 0.0f, 0.0f, 0.6f));
 Preference<float> WeakInfoOverlayBackgroundAlpha(
   "render/Colors/Weak info overlay background alpha", 0.3f);
 Preference<Color> SelectedInfoOverlayTextColor(
-  "render/Colors/Selected info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
+  "render/Colors/Selected info overlay text", RgbF(1.0f, 1.0f, 1.0f));
 Preference<Color> SelectedInfoOverlayBackgroundColor(
-  "render/Colors/Selected info overlay background", Color(1.0f, 0.0f, 0.0f, 0.6f));
+  "render/Colors/Selected info overlay background", RgbaF(1.0f, 0.0f, 0.0f, 0.6f));
 Preference<Color> LockedInfoOverlayTextColor(
-  "render/Colors/Locked info overlay text", Color(0.35f, 0.35f, 0.6f, 1.0f));
+  "render/Colors/Locked info overlay text", RgbF(0.35f, 0.35f, 0.6f));
 Preference<Color> LockedInfoOverlayBackgroundColor(
-  "render/Colors/Locked info overlay background", Color(0.0f, 0.0f, 0.0f, 0.6f));
+  "render/Colors/Locked info overlay background", RgbaF(0.0f, 0.0f, 0.0f, 0.6f));
 
 Preference<float> HandleRadius("Controls/Handle radius", 3.0f);
 Preference<float> MaximumHandleDistance("Controls/Maximum handle distance", 1000.0f);
-Preference<Color> HandleColor("render/Colors/Handle", Color(248, 230, 60, 1.0f));
+Preference<Color> HandleColor("render/Colors/Handle", RgbF(0.97f, 0.9f, 0.23f));
 Preference<Color> OccludedHandleColor(
-  "render/Colors/Occluded handle", Color(248, 230, 60, 0.4f));
+  "render/Colors/Occluded handle", RgbaF(0.87f, 0.9f, 0.23f, 0.4f));
 Preference<Color> SelectedHandleColor(
-  "render/Colors/Selected handle", Color(1.0f, 0.0f, 0.0f, 1.0f));
+  "render/Colors/Selected handle", RgbF(1.0f, 0.0f, 0.0f));
 Preference<Color> OccludedSelectedHandleColor(
-  "render/Colors/Occluded selected handle", Color(1.0f, 0.0f, 0.0f, 0.4f));
+  "render/Colors/Occluded selected handle", RgbaF(1.0f, 0.0f, 0.0f, 0.4f));
 
-Preference<Color> ClipHandleColor(
-  "render/Colors/Clip handle", Color(1.0f, 0.5f, 0.0f, 1.0f));
+Preference<Color> ClipHandleColor("render/Colors/Clip handle", RgbF(1.0f, 0.5f, 0.0f));
 Preference<Color> ClipFaceColor(
-  "render/Colors/Clip face", Color(0.6f, 0.4f, 0.0f, 0.35f));
+  "render/Colors/Clip face", RgbaF(0.6f, 0.4f, 0.0f, 0.35f));
 
-Preference<Color> ExtrudeHandleColor(
-  "render/Colors/Resize handle", Color(248, 230, 60, 1.0f));
+Preference<Color> ExtrudeHandleColor("render/Colors/Resize handle", RgbB(248, 230, 60));
 Preference<float> RotateHandleRadius("Controls/Rotate handle radius", 64.0f);
-Preference<Color> RotateHandleColor(
-  "render/Colors/Rotate handle", Color(248, 230, 60, 1.0f));
+Preference<Color> RotateHandleColor("render/Colors/Rotate handle", RgbB(248, 230, 60));
 
-Preference<Color> ScaleHandleColor(
-  "render/Colors/Scale handle", Color(77, 255, 80, 1.0f));
-Preference<Color> ScaleFillColor("render/Colors/Scale fill", Color(77, 255, 80, 0.125f));
-Preference<Color> ScaleOutlineColor(
-  "render/Colors/Scale outline", Color(77, 255, 80, 1.0f));
+Preference<Color> ScaleHandleColor("render/Colors/Scale handle", RgbB(77, 255, 80));
+Preference<Color> ScaleFillColor(
+  "render/Colors/Scale fill", RgbaF(77 / 255.0f, 1.0f, 80 / 255.0f, 0.125f));
+Preference<Color> ScaleOutlineColor("render/Colors/Scale outline", RgbB(77, 255, 80));
 Preference<float> ScaleOutlineDimAlpha("render/Colors/Scale outline dim alpha", 0.3f);
-Preference<Color> ShearFillColor("render/Colors/Shear fill", Color(45, 133, 255, 0.125f));
-Preference<Color> ShearOutlineColor(
-  "render/Colors/Shear outline", Color(45, 133, 255, 1.0f));
+Preference<Color> ShearFillColor(
+  "render/Colors/Shear fill", RgbaF(45 / 255.0f, 133 / 255.0f, 1.0f, 0.125f));
+Preference<Color> ShearOutlineColor("render/Colors/Shear outline", RgbB(45, 133, 255));
 
-Preference<Color> MoveTraceColor(
-  "render/Colors/Move trace", Color(0.0f, 1.0f, 1.0f, 1.0f));
+Preference<Color> MoveTraceColor("render/Colors/Move trace", RgbF(0.0f, 1.0f, 1.0f));
 Preference<Color> OccludedMoveTraceColor(
-  "render/Colors/Move trace", Color(0.0f, 1.0f, 1.0f, 0.4f));
+  "render/Colors/Move trace", RgbaF(0.0f, 1.0f, 1.0f, 0.4f));
 
 Preference<Color> MoveIndicatorOutlineColor(
-  "render/Colors/Move indicator outline", Color(1.0f, 1.0f, 1.0f, 1.0f));
+  "render/Colors/Move indicator outline", RgbF(1.0f, 1.0f, 1.0f));
 Preference<Color> MoveIndicatorFillColor(
-  "render/Colors/Move indicator fill", Color(0.0f, 0.0f, 0.0f, 0.5f));
+  "render/Colors/Move indicator fill", RgbaF(0.0f, 0.0f, 0.0f, 0.5f));
 
 Preference<Color> AngleIndicatorColor(
-  "render/Colors/Angle indicator", Color(1.0f, 1.0f, 1.0f, 1.0f));
+  "render/Colors/Angle indicator", RgbF(1.0f, 1.0f, 1.0f));
 
-Preference<Color> TextureSeamColor(
-  "render/Colors/Texture seam", Color(1.0f, 1.0f, 0.0f, 1.0f));
+Preference<Color> TextureSeamColor("render/Colors/Texture seam", RgbF(1.0f, 1.0f, 0.0f));
 
 Preference<float> Brightness("render/Brightness", 1.4f);
 Preference<float> GridAlpha("render/Grid/Alpha", 0.5f);
-Preference<Color> GridColor2D("Rendere/Grid/Color2D", Color(0.8f, 0.8f, 0.8f, 0.8f));
+Preference<Color> GridColor2D("render/Grid/Color2D", RgbaF(0.8f, 0.8f, 0.8f, 0.8f));
 
 Preference<int> TextureMinFilter("render/Texture mode min filter", 0x2700);
 Preference<int> TextureMagFilter("render/Texture mode mag filter", 0x2600);
@@ -200,20 +193,20 @@ Preference<std::filesystem::path>& RendererFontPath()
 Preference<int> RendererFontSize("render/Font size", 13);
 
 Preference<int> BrowserFontSize("Browser/Font size", 13);
-Preference<Color> BrowserTextColor("Browser/Text color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+Preference<Color> BrowserTextColor("Browser/Text color", RgbF(1.0f, 1.0f, 1.0f));
 Preference<Color> BrowserSubTextColor(
-  "Browser/Sub text color", Color(0.65f, 0.65f, 0.65f, 1.0f));
+  "Browser/Sub text color", RgbF(0.65f, 0.65f, 0.65f));
 Preference<Color> BrowserGroupBackgroundColor(
-  "Browser/Group background color", Color(0.1f, 0.1f, 0.1f, 0.8f));
+  "Browser/Group background color", RgbaF(0.1f, 0.1f, 0.1f, 0.8f));
 Preference<Color> BrowserBackgroundColor(
-  "Browser/Background color", Color(0.14f, 0.14f, 0.14f, 1.0f));
+  "Browser/Background color", RgbF(0.14f, 0.14f, 0.14f));
 Preference<float> MaterialBrowserIconSize("Texture Browser/Icon size", 1.0f);
 Preference<Color> MaterialBrowserDefaultColor(
-  "Texture Browser/Default color", Color(0.0f, 0.0f, 0.0f, 0.0f));
+  "Texture Browser/Default color", RgbaF(0.0f, 0.0f, 0.0f, 0.0f));
 Preference<Color> MaterialBrowserSelectedColor(
-  "Texture Browser/Selected color", Color(1.0f, 0.0f, 0.0f, 1.0f));
+  "Texture Browser/Selected color", RgbF(1.0f, 0.0f, 0.0f));
 Preference<Color> MaterialBrowserUsedColor(
-  "Texture Browser/Used color", Color(1.0f, 0.7f, 0.0f, 1.0f));
+  "Texture Browser/Used color", RgbF(1.0f, 0.7f, 0.0f));
 
 Preference<float> CameraLookSpeed("Controls/Camera/Look speed", 0.5f);
 Preference<bool> CameraLookInvertH("Controls/Camera/Invert horizontal look", false);

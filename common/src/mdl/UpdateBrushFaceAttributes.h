@@ -113,7 +113,7 @@ struct UpdateBrushFaceAttributes
   std::optional<FlagOp> surfaceFlags = std::nullopt;
   std::optional<FlagOp> surfaceContents = std::nullopt;
   std::optional<ValueOp> surfaceValue = std::nullopt;
-  std::optional<Color> color = std::nullopt;
+  std::optional<std::optional<Color>> color = std::nullopt;
   std::optional<AxisOp> axis = std::nullopt;
 
   kdl_reflect_decl(

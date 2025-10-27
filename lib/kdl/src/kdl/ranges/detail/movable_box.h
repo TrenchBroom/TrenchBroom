@@ -49,13 +49,13 @@ public:
 
   constexpr movable_box(const movable_box& other) noexcept(
     std::is_nothrow_copy_constructible_v<T>)
-    : std::optional<T>{other}
+    : std::optional<T>{static_cast<const std::optional<T>&>(other)}
   {
   }
 
   constexpr movable_box(movable_box&& other) noexcept(
     std::is_nothrow_move_constructible_v<T>)
-    : std::optional<T>{std::move(other)}
+    : std::optional<T>{static_cast<std::optional<T>&&>(std::move(other))}
   {
   }
 

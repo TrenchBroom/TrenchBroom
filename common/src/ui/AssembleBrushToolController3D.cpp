@@ -401,7 +401,8 @@ void AssembleBrushToolController3D::render(
           pos3 | std::views::transform([](const auto& pos) { return vm::vec3f{pos}; })
           | kdl::ranges::to<std::vector>();
 
-        renderService.setForegroundColor(Color{pref(Preferences::HandleColor), 0.5f});
+        renderService.setForegroundColor(
+          RgbaF{pref(Preferences::HandleColor).toRgbF(), 0.5f});
         renderService.renderFilledPolygon(pos3f);
 
         std::ranges::reverse(pos3f);

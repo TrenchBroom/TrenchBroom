@@ -95,7 +95,7 @@ TEST_CASE("NodeWriter")
     map.defaultLayer()->setLockState(mdl::LockState::Locked);
 
     auto layer = map.defaultLayer()->layer();
-    layer.setColor(Color(0.25f, 0.75f, 1.0f));
+    layer.setColor(RgbF{0.25f, 0.75f, 1.0f});
     layer.setOmitFromExport(true);
     map.defaultLayer()->setLayer(std::move(layer));
 
@@ -108,7 +108,7 @@ TEST_CASE("NodeWriter")
       R"(// entity 0
 {
 "classname" "worldspawn"
-"_tb_layer_color" "0.25 0.75 1 1"
+"_tb_layer_color" "0.25 0.75 1"
 "_tb_layer_locked" "1"
 "_tb_layer_hidden" "1"
 "_tb_layer_omit_from_export" "1"
@@ -128,7 +128,7 @@ TEST_CASE("NodeWriter")
     for (auto& face : brush1.faces())
     {
       auto attributes = face.attributes();
-      attributes.setColor(Color{1.0f, 0.5f, 0.25f});
+      attributes.setColor(RgbF{1.0f, 0.5f, 0.25f});
       face.setAttributes(attributes);
     }
     auto* brushNode1 = new mdl::BrushNode{std::move(brush1)};

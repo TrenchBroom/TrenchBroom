@@ -332,10 +332,9 @@ CreateNodeResult createWorldNode(
   auto defaultLayer = defaultLayerNode->layer();
   if (const auto* colorStr = entity.property(mdl::EntityPropertyKeys::LayerColor))
   {
-    if (const auto color = Color::parse(*colorStr))
-    {
-      defaultLayer.setColor(*color);
-    }
+    Color::parse(*colorStr)
+      | kdl::transform([&](const auto& color) { defaultLayer.setColor(color); })
+      | kdl::ignore();
     entity.removeProperty(mdl::EntityPropertyKeys::LayerColor);
   }
   if (

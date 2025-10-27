@@ -554,14 +554,16 @@ void ClipTool::renderBrushes(
   m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
   m_remainingBrushRenderer->setShowEdges(true);
   m_remainingBrushRenderer->setShowOccludedEdges(true);
-  m_remainingBrushRenderer->setOccludedEdgeColor(Color(
-    pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
+  m_remainingBrushRenderer->setOccludedEdgeColor(RgbaF{
+    pref(Preferences::SelectedEdgeColor).toRgbF(),
+    pref(Preferences::OccludedSelectedEdgeAlpha)});
   m_remainingBrushRenderer->setTint(true);
   m_remainingBrushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
   m_remainingBrushRenderer->render(renderContext, renderBatch);
 
   m_clippedBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
-  m_clippedBrushRenderer->setEdgeColor(Color(pref(Preferences::EdgeColor), 0.5f));
+  m_clippedBrushRenderer->setEdgeColor(
+    RgbaF{pref(Preferences::EdgeColor).toRgbF(), 0.5f});
   m_clippedBrushRenderer->setShowEdges(true);
   m_clippedBrushRenderer->setTint(false);
   m_clippedBrushRenderer->setForceTransparent(true);

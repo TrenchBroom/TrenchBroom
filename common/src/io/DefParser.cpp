@@ -421,20 +421,20 @@ vm::bbox3d DefParser::parseBounds()
 
 Color DefParser::parseColor()
 {
-  auto color = Color{};
-  m_tokenizer.nextToken(DefToken::OParenthesis);
+  auto token = m_tokenizer.nextToken(DefToken::OParenthesis);
+  const auto location = token.location();
+
+  auto vec = vm::vec3f{};
   for (size_t i = 0; i < 3; i++)
   {
-    const auto token = m_tokenizer.nextToken(DefToken::Decimal | DefToken::Integer);
-    color[i] = token.toFloat<float>();
-    if (color[i] > 1.0f)
-    {
-      color[i] /= 255.0f;
-    }
+    token = m_tokenizer.nextToken(DefToken::Decimal | DefToken::Integer);
+    vec[i] = token.toFloat<float>();
   }
   m_tokenizer.nextToken(DefToken::CParenthesis);
-  color[3] = 1.0f;
-  return color;
+
+  return Color::fromVec(vec)
+         | kdl::if_error([&](const auto& e) { throw ParserException{location, e.msg}; })
+         | kdl::value();
 }
 
 } // namespace tb::io

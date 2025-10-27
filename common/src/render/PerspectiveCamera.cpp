@@ -148,23 +148,23 @@ void PerspectiveCamera::doRenderFrustum(
   vm::vec3f verts[4];
   getFrustumVertices(size, verts);
 
-  triangleVertices.emplace_back(position(), Color{color, 0.7f});
+  triangleVertices.emplace_back(position(), RgbaF{color.toRgbF(), 0.7f}.vec());
   for (size_t i = 0; i < 4; ++i)
   {
-    triangleVertices.emplace_back(verts[i], Color{color, 0.2f});
+    triangleVertices.emplace_back(verts[i], RgbaF{color.toRgbF(), 0.2f}.vec());
   }
-  triangleVertices.emplace_back(verts[0], Color{color, 0.2f});
+  triangleVertices.emplace_back(verts[0], RgbaF{color.toRgbF(), 0.2f}.vec());
 
   for (size_t i = 0; i < 4; ++i)
   {
-    lineVertices.emplace_back(position(), color);
-    lineVertices.emplace_back(verts[i], color);
+    lineVertices.emplace_back(position(), color.toRgbaF());
+    lineVertices.emplace_back(verts[i], color.toRgbaF());
   }
 
   for (size_t i = 0; i < 4; ++i)
   {
-    lineVertices.emplace_back(verts[i], color);
-    lineVertices.emplace_back(verts[vm::succ(i, 4)], color);
+    lineVertices.emplace_back(verts[i], color.toRgbaF());
+    lineVertices.emplace_back(verts[vm::succ(i, 4)], color.toRgbaF());
   }
 
   auto triangleArray = VertexArray::ref(triangleVertices);

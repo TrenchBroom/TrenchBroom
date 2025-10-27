@@ -19,6 +19,7 @@
 
 #include "ReadWalTexture.h"
 
+#include "Color.h"
 #include "Ensure.h"
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
@@ -70,7 +71,7 @@ std::tuple<mdl::TextureBufferList, bool> readMips(
   Color& averageColor,
   const mdl::PaletteTransparency transparency)
 {
-  static auto tempColor = Color{};
+  static auto tempColor = Color{RgbaF{}};
 
   auto buffers = mdl::TextureBufferList{};
   mdl::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
@@ -104,7 +105,7 @@ std::tuple<mdl::TextureBufferList, bool> readMips(
 Result<mdl::Texture> readQ2Wal(Reader& reader, const std::optional<mdl::Palette>& palette)
 {
   static const auto MaxMipLevels = size_t(4);
-  auto averageColor = Color{};
+  auto averageColor = Color{RgbaF{}};
   size_t offsets[MaxMipLevels];
 
   // https://github.com/id-Software/Quake-2-Tools/blob/master/qe4/qfiles.h#L142
@@ -163,7 +164,7 @@ Result<mdl::Texture> readQ2Wal(Reader& reader, const std::optional<mdl::Palette>
 Result<mdl::Texture> readDkWal(Reader& reader)
 {
   static const auto MaxMipLevels = size_t(9);
-  auto averageColor = Color{};
+  auto averageColor = Color{RgbaF{}};
   size_t offsets[MaxMipLevels];
 
   // https://gist.github.com/DanielGibson/a53c74b10ddd0a1f3d6ab42909d5b7e1

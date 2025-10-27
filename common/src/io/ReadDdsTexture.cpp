@@ -252,7 +252,7 @@ Result<mdl::Texture> readDdsTexture(Reader& reader)
     return mdl::Texture{
       width,
       height,
-      Color{},
+      RgbaF{},
       format,
       mdl::TextureMask::Off,
       mdl::NoEmbeddedDefaults{},

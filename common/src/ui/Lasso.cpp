@@ -94,11 +94,11 @@ void Lasso::render(
   };
 
   auto renderService = render::RenderService{renderContext, renderBatch};
-  renderService.setForegroundColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+  renderService.setForegroundColor(RgbaF{1.0f, 1.0f, 1.0f, 1.0f});
   renderService.setLineWidth(2.0f);
   renderService.renderPolygonOutline(polygon);
 
-  renderService.setForegroundColor(Color(1.0f, 1.0f, 1.0f, 0.25f));
+  renderService.setForegroundColor(RgbaF{1.0f, 1.0f, 1.0f, 0.25f});
   renderService.renderFilledPolygon(polygon);
 }
 

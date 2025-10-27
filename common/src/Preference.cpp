@@ -47,13 +47,8 @@ bool PreferenceSerializer::readFromJson(const QJsonValue& in, Color& out) const
     return false;
   }
 
-  if (const auto color = Color::parse(in.toString().toStdString()))
-  {
-    out = *color;
-    return true;
-  }
-
-  return false;
+  return Color::parse(in.toString().toStdString())
+         | kdl::transform([&](const auto& color) { out = color; }) | kdl::is_success();
 }
 
 bool PreferenceSerializer::readFromJson(const QJsonValue& in, float& out) const
@@ -136,8 +131,8 @@ QJsonValue toJson(const T& in)
 
 QJsonValue PreferenceSerializer::writeToJson(const Color& in) const
 {
-  return toJson(in, [](QTextStream& lhs, const Color& rhs) {
-    lhs << rhs.r() << " " << rhs.g() << " " << rhs.b() << " " << rhs.a();
+  return toJson(in, [](auto& lhs, const auto& rhs) {
+    lhs << QString::fromStdString(rhs.toRgbaF().toString());
   });
 }
 

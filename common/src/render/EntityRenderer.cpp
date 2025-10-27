@@ -403,8 +403,8 @@ auto makeColoredWireFrameBoundsVertexBuilder(
   std::vector<GLVertexTypes::P3C4::Vertex>& vertices, const Color& color)
 {
   return [&](const vm::vec3d& v1, const vm::vec3d& v2) {
-    vertices.emplace_back(vm::vec3f{v1}, color);
-    vertices.emplace_back(vm::vec3f{v2}, color);
+    vertices.emplace_back(vm::vec3f{v1}, color.toRgbaF());
+    vertices.emplace_back(vm::vec3f{v2}, color.toRgbaF());
   };
 }
 
@@ -417,10 +417,10 @@ auto makeColoredSolidBoundsVertexBuilder(
            const vm::vec3d& v3,
            const vm::vec3d& v4,
            const vm::vec3d& n) {
-    vertices.emplace_back(vm::vec3f{v1}, vm::vec3f{n}, color);
-    vertices.emplace_back(vm::vec3f{v2}, vm::vec3f{n}, color);
-    vertices.emplace_back(vm::vec3f{v3}, vm::vec3f{n}, color);
-    vertices.emplace_back(vm::vec3f{v4}, vm::vec3f{n}, color);
+    vertices.emplace_back(vm::vec3f{v1}, vm::vec3f{n}, color.toRgbaF());
+    vertices.emplace_back(vm::vec3f{v2}, vm::vec3f{n}, color.toRgbaF());
+    vertices.emplace_back(vm::vec3f{v3}, vm::vec3f{n}, color.toRgbaF());
+    vertices.emplace_back(vm::vec3f{v4}, vm::vec3f{n}, color.toRgbaF());
   };
 }
 

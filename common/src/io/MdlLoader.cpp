@@ -19,6 +19,7 @@
 
 #include "MdlLoader.h"
 
+#include "Color.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 #include "mdl/EntityModel.h"
@@ -433,7 +434,7 @@ mdl::Material parseSkin(
   const auto mask = (transparency == mdl::PaletteTransparency::Index255Transparent)
                       ? mdl::TextureMask::On
                       : mdl::TextureMask::Off;
-  auto avgColor = Color{};
+  auto avgColor = Color{RgbaF{}};
   auto rgbaImage = mdl::TextureBuffer{size * 4};
 
   const auto skinGroup = reader.readSize<int32_t>();

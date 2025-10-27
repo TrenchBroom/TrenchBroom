@@ -159,9 +159,9 @@ std::vector<EdgeVertex> getHandleVertices(
   const UVViewHelper& helper, const vm::vec2b& highlightHandle)
 {
   const auto xColor =
-    highlightHandle.x() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
+    highlightHandle.x() ? RgbaF{1.0f, 0.0f, 0.0f, 1.0f} : RgbaF{0.7f, 0.0f, 0.0f, 1.0f};
   const auto yColor =
-    highlightHandle.y() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
+    highlightHandle.y() ? RgbaF{1.0f, 0.0f, 0.0f, 1.0f} : RgbaF{0.7f, 0.0f, 0.0f, 1.0f};
 
   vm::vec3d x1, x2, y1, y2;
   helper.computeOriginHandleVertices(x1, x2, y1, y2);
@@ -238,7 +238,7 @@ private:
 
     auto shader = render::ActiveShader{
       renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
-    shader.set("Color", m_highlight ? highlightColor : handleColor);
+    shader.set("Color", m_highlight ? highlightColor.toRgbaF() : handleColor);
     m_originHandle.render();
   }
 };

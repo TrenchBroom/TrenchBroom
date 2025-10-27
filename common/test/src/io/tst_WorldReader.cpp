@@ -146,7 +146,7 @@ TEST_CASE("WorldReader")
     auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
     REQUIRE(defaultLayer != nullptr);
 
-    CHECK(defaultLayer->layer().color() == Color(0.0f, 1.0f, 0.0f));
+    CHECK(defaultLayer->layer().color() == Color{RgbF{0.0f, 1.0f, 0.0f}});
     CHECK(defaultLayer->locked());
     CHECK(defaultLayer->hidden());
     CHECK(defaultLayer->layer().omitFromExport());
@@ -584,13 +584,11 @@ TEST_CASE("WorldReader")
     REQUIRE(b_rc_v16w_index);
     REQUIRE(c_mf_v3cww_index);
 
-    CHECK(vm::is_equal(
-      Color(5, 6, 7), *brush.face(*c_mf_v3cw_index).attributes().color(), 0.1f));
+    CHECK(brush.face(*c_mf_v3cw_index).attributes().color() == Color{RgbB{5, 6, 7}});
     CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceContents() == 1);
     CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceFlags() == 2);
     CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceValue() == 3.0);
-    CHECK(vm::is_equal(
-      Color(8, 9, 10), *brush.face(*b_rc_v16w_index).attributes().color(), 0.1f));
+    CHECK(brush.face(*b_rc_v16w_index).attributes().color() == Color{RgbB{8, 9, 10}});
     CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
   }
 

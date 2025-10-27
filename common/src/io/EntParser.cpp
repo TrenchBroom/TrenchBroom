@@ -19,6 +19,7 @@
 
 #include "EntParser.h"
 
+#include "Color.h"
 #include "FileLocation.h"
 #include "el/ELExceptions.h"
 #include "el/Expression.h"
@@ -170,7 +171,12 @@ std::optional<float> parseFloat(
 std::optional<Color> parseColor(
   const tinyxml2::XMLElement& element, const std::string& attributeName)
 {
-  return Color::parse(parseString(element, attributeName));
+  return Color::parse(parseString(element, attributeName))
+         | kdl::if_error([&](const auto& e) {
+             const auto line = size_t(element.GetLineNum());
+             throw ParserException{FileLocation{line}, e.msg};
+           })
+         | kdl::value();
 }
 
 std::optional<vm::bbox3d> parseBounds(

@@ -88,7 +88,7 @@ private:
       renderContext.transformation(), vm::translation_matrix(vm::vec3f{m_position})};
     auto shader = render::ActiveShader{
       renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
-    shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
+    shader.set("Color", RgbaF{1.0f, 1.0f, 1.0f, 0.2f});
     m_circle.render();
 
     glAssert(glEnable(GL_DEPTH_TEST));

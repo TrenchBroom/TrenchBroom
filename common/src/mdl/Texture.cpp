@@ -219,7 +219,7 @@ Texture::Texture(size_t width, size_t height)
   : Texture{
       width,
       height,
-      Color{0, 0, 0, 0},
+      RgbaF{},
       GL_RGBA,
       TextureMask::Off,
       NoEmbeddedDefaults{},
