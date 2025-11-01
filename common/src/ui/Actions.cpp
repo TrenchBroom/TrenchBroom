@@ -1015,6 +1015,7 @@ void ActionManager::createMenu()
   createFileMenu();
   createEditMenu();
   createSelectionMenu();
+  createGroupsMenu();
   createViewMenu();
   createRunMenu();
   createDebugMenu();
@@ -1307,69 +1308,6 @@ void ActionManager::createEditMenu()
     },
   }));
   editMenu.addSeparator();
-    std::filesystem::path{"Menu/Edit/Group"},
-    QObject::tr("Group Selected Objects"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::Key_G},
-    [](auto& context) { context.frame().groupSelectedObjects(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canGroupSelectedObjects();
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    "Menu/Edit/Ungroup",
-    QObject::tr("Ungroup Selected Objects"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_G},
-    [](auto& context) { context.frame().ungroupSelectedObjects(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canUngroupSelectedObjects();
-    },
-  }));
-  editMenu.addSeparator();
-
-  editMenu.addItem(addAction(Action{
-    std::filesystem::path{"Menu/Edit/Create Linked Duplicate"},
-    QObject::tr("Create Linked Duplicate"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_D},
-    [](auto& context) { createLinkedDuplicate(context.map()); },
-    [](const auto& context) {
-      return context.hasDocument() && canCreateLinkedDuplicate(context.map());
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    std::filesystem::path{"Menu/Edit/Select Linked Groups"},
-    QObject::tr("Select Linked Groups"),
-    ActionContext::Any,
-    QKeySequence{},
-    [](auto& context) { selectLinkedGroups(context.map()); },
-    [](const auto& context) {
-      return context.hasDocument() && canSelectLinkedGroups(context.map());
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    std::filesystem::path{"Menu/Edit/Separate Linked Groups"},
-    QObject::tr("Separate Selected Groups"),
-    ActionContext::Any,
-    QKeySequence{},
-    [](auto& context) { separateSelectedLinkedGroups(context.map()); },
-    [](const auto& context) {
-      return context.hasDocument() && canSeparateSelectedLinkedGroups(context.map());
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    std::filesystem::path{"Menu/Edit/Clear Protected Properties"},
-    QObject::tr("Clear Protected Properties"),
-    ActionContext::Any,
-    QKeySequence{},
-    [](auto& context) { clearProtectedEntityProperties(context.map()); },
-    [](const auto& context) {
-      return context.hasDocument() && canClearProtectedEntityProperties(context.map());
-    },
-  }));
-  editMenu.addSeparator();
-
   editMenu.addItem(addAction(Action{
     std::filesystem::path{"Controls/Map view/Flip objects horizontally"},
     QObject::tr("Flip Horizontally"),
@@ -1703,6 +1641,73 @@ void ActionManager::createSelectionMenu()
     [](auto& context) { context.frame().selectByLineNumber(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame().canSelect();
+    },
+  }));
+}
+
+void ActionManager::createGroupsMenu()
+{
+  auto& groupsMenu = createMainMenu("Groups");
+  groupsMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Group"},
+    QObject::tr("Group Selected Objects"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::Key_G},
+    [](auto& context) { context.frame().groupSelectedObjects(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canGroupSelectedObjects();
+    },
+  }));
+  groupsMenu.addItem(addAction(Action{
+    "Menu/Edit/Ungroup",
+    QObject::tr("Ungroup Selected Objects"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_G},
+    [](auto& context) { context.frame().ungroupSelectedObjects(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canUngroupSelectedObjects();
+    },
+  }));
+  groupsMenu.addSeparator();
+
+  groupsMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Create Linked Duplicate"},
+    QObject::tr("Create Linked Duplicate"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_D},
+    [](auto& context) { createLinkedDuplicate(context.map()); },
+    [](const auto& context) {
+      return context.hasDocument() && canCreateLinkedDuplicate(context.map());
+    },
+  }));
+  groupsMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Select Linked Groups"},
+    QObject::tr("Select Linked Groups"),
+    ActionContext::Any,
+    QKeySequence{},
+    [](auto& context) { selectLinkedGroups(context.map()); },
+    [](const auto& context) {
+      return context.hasDocument() && canSelectLinkedGroups(context.map());
+    },
+  }));
+  groupsMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Separate Linked Groups"},
+    QObject::tr("Separate Selected Groups"),
+    ActionContext::Any,
+    QKeySequence{},
+    [](auto& context) { separateSelectedLinkedGroups(context.map()); },
+    [](const auto& context) {
+      return context.hasDocument() && canSeparateSelectedLinkedGroups(context.map());
+    },
+  }));
+  groupsMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Clear Protected Properties"},
+    QObject::tr("Clear Protected Properties"),
+    ActionContext::Any,
+    QKeySequence{},
+    [](auto& context) { clearProtectedEntityProperties(context.map()); },
+    [](const auto& context) {
+      return context.hasDocument() && canClearProtectedEntityProperties(context.map());
     },
   }));
 }
