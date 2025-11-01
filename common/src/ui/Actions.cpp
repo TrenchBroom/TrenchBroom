@@ -1014,6 +1014,7 @@ void ActionManager::createMenu()
 {
   createFileMenu();
   createEditMenu();
+  createSelectionMenu();
   createViewMenu();
   createRunMenu();
   createDebugMenu();
@@ -1306,88 +1307,6 @@ void ActionManager::createEditMenu()
     },
   }));
   editMenu.addSeparator();
-  editMenu.addItem(addAction(Action{
-    "Menu/Edit/Select All",
-    QObject::tr("Select All"),
-    ActionContext::Any,
-    QKeySequence::SelectAll,
-    [](auto& context) { context.frame().selectAll(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canSelect();
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    "Menu/Edit/Select Siblings",
-    QObject::tr("Select Siblings"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::Key_B},
-    [](auto& context) { context.frame().selectSiblings(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canSelectSiblings();
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    "Menu/Edit/Select Touching",
-    QObject::tr("Select Touching"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::Key_T},
-    [](auto& context) { context.frame().selectTouching(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canSelectByBrush();
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    "Menu/Edit/Select Inside",
-    QObject::tr("Select Inside"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::Key_E},
-    [](auto& context) { context.frame().selectInside(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canSelectByBrush();
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    std::filesystem::path{"Menu/Edit/Select Tall"},
-    QObject::tr("Select Tall"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_E},
-    [](auto& context) { context.frame().selectTall(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canSelectTall();
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    "Menu/Edit/Select by Line Number",
-    QObject::tr("Select by Line Number..."),
-    ActionContext::Any,
-    QKeySequence{},
-    [](auto& context) { context.frame().selectByLineNumber(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canSelect();
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    std::filesystem::path{"Menu/Edit/Select Inverse"},
-    QObject::tr("Select Inverse"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_A},
-    [](auto& context) { context.frame().selectInverse(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canSelectInverse();
-    },
-  }));
-  editMenu.addItem(addAction(Action{
-    std::filesystem::path{"Menu/Edit/Select None"},
-    QObject::tr("Select None"),
-    ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_A},
-    [](auto& context) { context.frame().selectNone(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.frame().canDeselect();
-    },
-  }));
-  editMenu.addSeparator();
-  editMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Group"},
     QObject::tr("Group Selected Objects"),
     ActionContext::Any,
@@ -1699,6 +1618,92 @@ void ActionManager::createEditMenu()
     QKeySequence{},
     [](auto& context) { context.frame().replaceMaterial(); },
     [](const auto& context) { return context.hasDocument(); },
+  }));
+}
+
+void ActionManager::createSelectionMenu()
+{
+  auto& selectionMenu = createMainMenu("Selection");
+  selectionMenu.addItem(addAction(Action{
+    "Menu/Edit/Select All",
+    QObject::tr("Select All"),
+    ActionContext::Any,
+    QKeySequence::SelectAll,
+    [](auto& context) { context.frame().selectAll(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canSelect();
+    },
+  }));
+  selectionMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Invert Selection"},
+    QObject::tr("Invert Selection"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_A},
+    [](auto& context) { context.frame().selectInverse(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canSelectInverse();
+    },
+  }));
+  selectionMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Deselect All"},
+    QObject::tr("Deselect All"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_A},
+    [](auto& context) { context.frame().selectNone(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canDeselect();
+    },
+  }));
+  selectionMenu.addSeparator();
+  selectionMenu.addItem(addAction(Action{
+    "Menu/Edit/Select Siblings",
+    QObject::tr("Select Siblings"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::Key_B},
+    [](auto& context) { context.frame().selectSiblings(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canSelectSiblings();
+    },
+  }));
+  selectionMenu.addItem(addAction(Action{
+    "Menu/Edit/Select Touching",
+    QObject::tr("Select Touching"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::Key_T},
+    [](auto& context) { context.frame().selectTouching(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canSelectByBrush();
+    },
+  }));
+  selectionMenu.addItem(addAction(Action{
+    "Menu/Edit/Select Inside",
+    QObject::tr("Select Inside"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::Key_E},
+    [](auto& context) { context.frame().selectInside(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canSelectByBrush();
+    },
+  }));
+  selectionMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Select Tall"},
+    QObject::tr("Select Tall"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_E},
+    [](auto& context) { context.frame().selectTall(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canSelectTall();
+    },
+  }));
+  selectionMenu.addItem(addAction(Action{
+    "Menu/Edit/Select by Line Number",
+    QObject::tr("Select by Line Number..."),
+    ActionContext::Any,
+    QKeySequence{},
+    [](auto& context) { context.frame().selectByLineNumber(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canSelect();
+    },
   }));
 }
 

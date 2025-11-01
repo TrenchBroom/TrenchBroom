@@ -270,6 +270,7 @@ private:
   void createMenu();
   void createFileMenu();
   void createEditMenu();
+  void createSelectionMenu();
   void createViewMenu();
   void createRunMenu();
   void createDebugMenu();
