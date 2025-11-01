@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "vm/vec.h"
 #undef CursorShape
 
 #include <QBoxLayout>
@@ -31,8 +30,11 @@
 #include <QStringList>
 #include <QWidget>
 
+#include "Color.h"
 #include "Ensure.h"
 #include "ui/ViewConstants.h"
+
+#include "vm/vec.h"
 
 #include <filesystem>
 #include <string>
@@ -56,11 +58,6 @@ class QTableView;
 class QToolButton;
 class QVBoxLayout;
 class QWidget;
-
-namespace tb
-{
-class Color;
-}
 
 namespace tb::mdl
 {

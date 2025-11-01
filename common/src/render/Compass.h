@@ -19,14 +19,10 @@
 
 #pragma once
 
+#include "Color.h"
 #include "render/IndexRangeRenderer.h"
 #include "render/Renderable.h"
 
-
-namespace tb
-{
-class Color;
-}
 
 namespace tb::render
 {
