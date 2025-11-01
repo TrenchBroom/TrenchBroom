@@ -157,7 +157,7 @@ TEST_CASE("GameConfigParser")
         },
         mdl::EntityConfig{
           {{"Quake.fgd"}, {"Quoth2.fgd"}, {"Rubicon2.def"}, {"Teamfortress.fgd"}},
-          Color{0.6f, 0.6f, 0.6f, 1.0f},
+          RgbaF{0.6f, 0.6f, 0.6f, 1.0f},
           {},
           false},
         mdl::FaceAttribsConfig{},
@@ -414,7 +414,7 @@ TEST_CASE("GameConfigParser")
           {},
           {},
         },
-        mdl::EntityConfig{{{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}, false},
+        mdl::EntityConfig{{{"Quake2.fgd"}}, RgbaF{0.6f, 0.6f, 0.6f, 1.0f}, {}, false},
         mdl::FaceAttribsConfig{
           {{{"light",
              "Emit light from the surface, brightness is specified in the 'value' field",
@@ -575,7 +575,7 @@ TEST_CASE("GameConfigParser")
             "surfaceFlags": [ "slick" ],
             "surfaceContents": [ "solid" ],
             "surfaceValue": 0,
-            "color": "1.0 1.0 1.0 1.0"
+            "color": "0 128 255"
         },
         "surfaceflags": [
             {
@@ -725,7 +725,7 @@ TEST_CASE("GameConfigParser")
     expectedBrushFaceAttributes.setSurfaceContents(1 << 0);
     expectedBrushFaceAttributes.setSurfaceFlags(1 << 1);
     expectedBrushFaceAttributes.setSurfaceValue(0.0f);
-    expectedBrushFaceAttributes.setColor(Color(255, 255, 255, 255));
+    expectedBrushFaceAttributes.setColor(RgbB(0, 128, 255));
 
     CHECK(
       GameConfigParser(config).parse()
@@ -746,7 +746,7 @@ TEST_CASE("GameConfigParser")
         },
         mdl::EntityConfig{
           {{"Extras.ent"}},
-          Color{0.6f, 0.6f, 0.6f, 1.0f},
+          RgbaF{0.6f, 0.6f, 0.6f, 1.0f},
           el::ExpressionNode{el::ArrayExpression{{
             // the line numbers are not checked
             el::ExpressionNode{el::VariableExpression{"modelscale"}},
@@ -931,7 +931,7 @@ TEST_CASE("GameConfigParser")
         },
         mdl::EntityConfig{
           {{"Quake.fgd"}, {"Quoth2.fgd"}, {"Rubicon2.def"}, {"Teamfortress.fgd"}},
-          Color{0.6f, 0.6f, 0.6f, 1.0f},
+          RgbaF{0.6f, 0.6f, 0.6f, 1.0f},
           {},
           true}, // setDefaultProperties
         mdl::FaceAttribsConfig{},

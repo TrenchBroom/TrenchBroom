@@ -113,7 +113,7 @@ TEST_CASE("Map_Brushes")
           .surfaceFlags = SetFlags{63u},
           .surfaceContents = SetFlags{12u},
           .surfaceValue = SetValue{3.14f},
-          .color = Color{1.0f, 1.0f, 1.0f, 1.0f},
+          .color = RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
         });
 
       {
@@ -127,7 +127,7 @@ TEST_CASE("Map_Brushes")
         CHECK(firstAttrs.surfaceFlags() == 63u);
         CHECK(firstAttrs.surfaceContents() == 12u);
         CHECK(firstAttrs.surfaceValue() == 3.14f);
-        CHECK(firstAttrs.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+        CHECK(firstAttrs.color() == Color{RgbaF{1.0f, 1.0f, 1.0f, 1.0f}});
       }
 
       deselectAll(map);
@@ -145,7 +145,7 @@ TEST_CASE("Map_Brushes")
           .surfaceFlags = SetFlags{18u},
           .surfaceContents = SetFlags{2048u},
           .surfaceValue = SetValue{1.0f},
-          .color = Color{0.5f, 0.5f, 0.5f, 0.5f},
+          .color = RgbaF{0.5f, 0.5f, 0.5f, 0.5f},
         });
 
       {
@@ -159,7 +159,7 @@ TEST_CASE("Map_Brushes")
         CHECK(secondAttrs.surfaceFlags() == 18u);
         CHECK(secondAttrs.surfaceContents() == 2048u);
         CHECK(secondAttrs.surfaceValue() == 1.0f);
-        CHECK(secondAttrs.color() == Color{0.5f, 0.5f, 0.5f, 0.5f});
+        CHECK(secondAttrs.color() == Color{RgbaF{0.5f, 0.5f, 0.5f, 0.5f}});
       }
 
       deselectAll(map);

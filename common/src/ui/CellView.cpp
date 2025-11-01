@@ -467,7 +467,7 @@ auto collectStringVertices(
         const auto titleVertices = TextVertex::toList(kdl::views::zip(
           quads | kdl::views::stride(2),
           quads | std::views::drop(1) | kdl::views::stride(2),
-          kdl::views::repeat(textColor)));
+          kdl::views::repeat(textColor.toRgbaF())));
 
         auto& vertices = stringVertices[defaultFont];
         vertices.insert(
@@ -497,7 +497,7 @@ auto collectStringVertices(
             const auto vertices = TextVertex::toList(kdl::views::zip(
               quads | kdl::views::stride(2),
               quads | std::views::drop(1) | kdl::views::stride(2),
-              kdl::views::repeat(textColor)));
+              kdl::views::repeat(textColor.toRgbaF())));
 
             stringVertices[fontDescriptor] =
               kdl::vec_concat(std::move(stringVertices[fontDescriptor]), vertices);

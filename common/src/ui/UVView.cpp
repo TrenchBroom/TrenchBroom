@@ -350,7 +350,7 @@ void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch
   auto edgeRenderer = render::DirectEdgeRenderer{
     render::VertexArray::move(std::move(edgeVertices)), render::PrimType::LineLoop};
 
-  const auto edgeColor = Color{1.0f, 1.0f, 1.0f, 1.0f};
+  const auto edgeColor = RgbaF{1.0f, 1.0f, 1.0f, 1.0f};
   edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
 }
 
@@ -371,10 +371,10 @@ void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBat
 
   auto edgeRenderer = render::DirectEdgeRenderer{
     render::VertexArray::move(std::vector{
-      Vertex{center, pref(Preferences::XAxisColor)},
-      Vertex{center + length * uAxis, pref(Preferences::XAxisColor)},
-      Vertex{center, pref(Preferences::YAxisColor)},
-      Vertex{center + length * vAxis, pref(Preferences::YAxisColor)},
+      Vertex{center, pref(Preferences::XAxisColor).toRgbaF()},
+      Vertex{center + length * uAxis, pref(Preferences::XAxisColor).toRgbaF()},
+      Vertex{center, pref(Preferences::YAxisColor).toRgbaF()},
+      Vertex{center + length * vAxis, pref(Preferences::YAxisColor).toRgbaF()},
     }),
     render::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 2.0f);

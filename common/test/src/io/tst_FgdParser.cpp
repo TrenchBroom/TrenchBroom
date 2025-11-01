@@ -54,7 +54,7 @@ TEST_CASE("FgdParser")
       auto file = Disk::openFile(path) | kdl::value();
       auto reader = file->reader().buffer();
 
-      auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
+      auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
       auto status = TestParserStatus{};
       CHECK(parser.parseDefinitions(status));
@@ -82,7 +82,7 @@ TEST_CASE("FgdParser")
   SECTION("parseEmptyFile")
   {
     const auto file = "";
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -91,7 +91,7 @@ TEST_CASE("FgdParser")
   SECTION("parseWhitespaceFile")
   {
     const auto file = "     \n  \t \n  ";
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -102,7 +102,7 @@ TEST_CASE("FgdParser")
     const auto file = R"(// asdfasdfasdf
 //kj3k4jkdjfkjdf
 )";
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -121,7 +121,7 @@ TEST_CASE("FgdParser")
     ]
     // 0221 - changed inheritance from "light" to "light_min1"
 )";
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -129,7 +129,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "light_mine1",
-          Color{0, 255, 0},
+          RgbB{0, 255, 0},
           "Dusty fluorescent light fixture",
           {
             {"spawnflags",
@@ -164,7 +164,7 @@ TEST_CASE("FgdParser")
        _sun_mangle(string) : "Sun mangle (Yaw pitch roll)"
     ])-";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -172,7 +172,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "worldspawn",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "World entity",
           {
             {"message",
@@ -213,14 +213,14 @@ TEST_CASE("FgdParser")
     	touch(string) : "self.touch"
     ])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
       parser.parseDefinitions(status)
       == std::vector<mdl::EntityDefinition>{
         {"info_notnull",
-         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
          "Wildcard entity",
          {
            {"use", mdl::PropertyValueTypes::String{}, "self.use", ""},
@@ -247,7 +247,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
@@ -280,14 +280,14 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
       parser.parseDefinitions(status)
       == std::vector<mdl::EntityDefinition>{
         {"info_notnull",
-         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
          "Wildcard entity",
          {
            {"use", mdl::PropertyValueTypes::String{}, "self.use", ""},
@@ -325,14 +325,14 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
       parser.parseDefinitions(status)
       == std::vector<mdl::EntityDefinition>{
         {"info_notnull",
-         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
          "Wildcard entity",
          {
            {"use", mdl::PropertyValueTypes::String{}, "self.use", ""},
@@ -354,7 +354,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -362,7 +362,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"targetname",
@@ -384,7 +384,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
 
@@ -393,7 +393,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"target", mdl::PropertyValueTypes::LinkSource{}, "Target", ""},
@@ -413,7 +413,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -421,7 +421,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"message",
@@ -448,7 +448,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -456,7 +456,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"123", mdl::PropertyValueTypes::String{}, "Something", "Long description 1"},
@@ -480,7 +480,7 @@ TEST_CASE("FgdParser")
     other(string) : "" : 1.5
 ])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -488,7 +488,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"name", mdl::PropertyValueTypes::String{"3"}, "Description", ""},
@@ -508,7 +508,7 @@ TEST_CASE("FgdParser")
        sounds2(integer) : "CD track to play with default" : 2 : "Longer description"
     ])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -516,7 +516,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"sounds",
@@ -543,7 +543,7 @@ TEST_CASE("FgdParser")
     description"
     ])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -551,7 +551,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"sounds",
@@ -580,7 +580,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -588,7 +588,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"test",
@@ -642,7 +642,7 @@ TEST_CASE("FgdParser")
 ]
             )-";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -650,7 +650,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"worldtype",
@@ -721,7 +721,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -729,7 +729,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"spawnflags",
@@ -758,7 +758,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -766,7 +766,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"origin",
@@ -837,7 +837,7 @@ TEST_CASE("FgdParser")
   ]
 ])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -845,7 +845,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "monster_polyp",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Polyp",
           {
             {"startonground",
@@ -937,7 +937,7 @@ TEST_CASE("FgdParser")
 decor_goddess_statue : "Goddess Statue" []
 )";
 
-    auto parser = FgdParser(file, Color{1.0f, 1.0f, 1.0f, 1.0f});
+    auto parser = FgdParser(file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f});
     auto status = TestParserStatus{};
 
     CHECK(
@@ -945,7 +945,7 @@ decor_goddess_statue : "Goddess Statue" []
       == std::vector<mdl::EntityDefinition>{
         {
           "decor_goddess_statue",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Goddess Statue",
           {},
           mdl::PointEntityDefinition{
@@ -963,7 +963,7 @@ decor_goddess_statue : "Goddess Statue" []
 @PointClass size(32 32 0, -32 -32 256) model({"path" : ":progs/goddess-statue.mdl" }) =
 decor_goddess_statue : "Goddess Statue" [])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -971,7 +971,7 @@ decor_goddess_statue : "Goddess Statue" [])";
       == std::vector<mdl::EntityDefinition>{
         {
           "decor_goddess_statue",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Goddess Statue",
           {},
           mdl::PointEntityDefinition{
@@ -990,7 +990,7 @@ size(-16 -16 -24, 16 16 40)
 model({1}) =
 decor_goddess_statue : "Goddess Statue" [])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status).is_error());
@@ -1003,7 +1003,7 @@ size(-16 -16 -24, 16 16 40)
 model({"path"
        : ":progs/goddess-statue.mdl" }) = decor_goddess_statue ; "Goddess Statue" [])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(parser.parseDefinitions(status).is_error());
@@ -1016,7 +1016,7 @@ model({"path"
     auto file = Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
-    auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
+    auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
     auto status = TestParserStatus{};
     auto defs = parser.parseDefinitions(status);
@@ -1035,7 +1035,7 @@ model({"path"
     auto file = Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
-    auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
+    auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
     auto status = TestParserStatus{};
     auto defs = parser.parseDefinitions(status);
@@ -1056,7 +1056,7 @@ model({"path"
     auto file = Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
-    auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
+    auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
     auto status = TestParserStatus{};
     auto defs = parser.parseDefinitions(status);
@@ -1075,7 +1075,7 @@ model({"path"
   " in the help dialog for this entity"
 [])";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
 
@@ -1084,7 +1084,7 @@ model({"path"
       == std::vector<mdl::EntityDefinition>{
         {
           "cont_description",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           R"(This is an example description for this example entity. It will appear in the help dialog for this entity)",
           {},
           mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},

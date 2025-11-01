@@ -69,8 +69,8 @@ void addLink(
   const auto& sourceColor = anySelected ? selectedColor : defaultColor;
   const auto& targetColor = anySelected ? selectedColor : defaultColor;
 
-  links.emplace_back(vm::vec3f{sourceNode.linkSourceAnchor()}, sourceColor);
-  links.emplace_back(vm::vec3f{targetNode.linkTargetAnchor()}, targetColor);
+  links.emplace_back(vm::vec3f{sourceNode.linkSourceAnchor()}, sourceColor.toRgbaF());
+  links.emplace_back(vm::vec3f{targetNode.linkTargetAnchor()}, targetColor.toRgbaF());
 }
 
 struct CollectAllLinksVisitor

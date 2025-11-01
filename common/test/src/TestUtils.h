@@ -21,7 +21,6 @@
 
 #include "io/DiskIO.h"
 #include "io/ImageFileSystem.h"
-#include "mdl/GameConfig.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Node.h"
 #include "mdl/Selection.h"

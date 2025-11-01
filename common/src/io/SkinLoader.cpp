@@ -30,7 +30,6 @@
 #include "mdl/Palette.h"
 
 #include "kdl/path_utils.h"
-#include "kdl/string_format.h"
 
 namespace tb::io
 {

@@ -333,16 +333,17 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
             const auto& material = cellData(cell);
             const auto& color = materialColor(material);
             vertices.emplace_back(
-              vm::vec2f{bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)}, color);
+              vm::vec2f{bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)},
+              color.toRgbaF());
             vertices.emplace_back(
               vm::vec2f{bounds.left() - 2.0f, height - (bounds.bottom() + 2.0f - y)},
-              color);
+              color.toRgbaF());
             vertices.emplace_back(
               vm::vec2f{bounds.right() + 2.0f, height - (bounds.bottom() + 2.0f - y)},
-              color);
+              color.toRgbaF());
             vertices.emplace_back(
               vm::vec2f{bounds.right() + 2.0f, height - (bounds.top() - 2.0f - y)},
-              color);
+              color.toRgbaF());
           }
         }
       }

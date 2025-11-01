@@ -67,7 +67,7 @@ Result<mdl::Texture> readMipTexture(
 {
   static const auto MipLevels = size_t(4);
 
-  auto averageColor = Color{};
+  auto averageColor = Color{RgbaF{}};
   auto buffers = mdl::TextureBufferList{MipLevels};
   size_t offset[MipLevels];
 
@@ -101,7 +101,7 @@ Result<mdl::Texture> readMipTexture(
                reader.seekFromBegin(offset[i]);
                const auto size = mipSize(width, height, i);
 
-               auto tempColor = Color{};
+               auto tempColor = Color{RgbaF{}};
                palette.indexedToRgba(reader, size, buffers[i], transparency, tempColor);
                if (i == 0)
                {

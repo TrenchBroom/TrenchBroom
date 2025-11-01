@@ -88,7 +88,7 @@ TEST_CASE("BrushBuilder")
     defaultAttribs.setSurfaceContents(1);
     defaultAttribs.setSurfaceFlags(2);
     defaultAttribs.setSurfaceValue(0.1f);
-    defaultAttribs.setColor(Color{255, 255, 255, 255});
+    defaultAttribs.setColor(RgbB{255, 255, 255});
 
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
 
@@ -108,7 +108,7 @@ TEST_CASE("BrushBuilder")
       CHECK(faces[i].attributes().surfaceContents() == 1);
       CHECK(faces[i].attributes().surfaceFlags() == 2);
       CHECK(faces[i].attributes().surfaceValue() == 0.1f);
-      CHECK(faces[i].attributes().color() == Color{255, 255, 255, 255});
+      CHECK(faces[i].attributes().color() == Color{RgbB{255, 255, 255}});
     }
   }
 
@@ -121,7 +121,7 @@ TEST_CASE("BrushBuilder")
     defaultAttribs.setSurfaceContents(1);
     defaultAttribs.setSurfaceFlags(2);
     defaultAttribs.setSurfaceValue(0.1f);
-    defaultAttribs.setColor(Color{255, 255, 255, 255});
+    defaultAttribs.setColor(RgbB{255, 255, 255});
 
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
 
@@ -153,7 +153,7 @@ TEST_CASE("BrushBuilder")
       CHECK(faces[i].attributes().surfaceContents() == 1);
       CHECK(faces[i].attributes().surfaceFlags() == 2);
       CHECK(faces[i].attributes().surfaceValue() == 0.1f);
-      CHECK(faces[i].attributes().color() == Color{255, 255, 255, 255});
+      CHECK(faces[i].attributes().color() == Color{RgbB{255, 255, 255}});
     }
   }
 

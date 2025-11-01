@@ -274,7 +274,7 @@ void VertexTool::renderGuide(
   const vm::vec3d& position) const
 {
   m_guideRenderer.setPosition(position);
-  m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
+  m_guideRenderer.setColor(RgbaF{pref(Preferences::HandleColor).toRgbF(), 0.5f});
   renderBatch.add(&m_guideRenderer);
 }
 

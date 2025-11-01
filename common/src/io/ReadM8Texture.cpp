@@ -19,6 +19,7 @@
 
 #include "ReadM8Texture.h"
 
+#include "Color.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 #include "mdl/Palette.h"
@@ -85,7 +86,7 @@ Result<mdl::Texture> readM8Texture(Reader& reader)
                reader.seekForward(4); // contents
                reader.seekForward(4); // value
 
-               auto mip0AverageColor = Color{};
+               auto mip0AverageColor = Color{RgbaF{}};
                auto buffers = mdl::TextureBufferList{};
                for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
                {
@@ -101,7 +102,7 @@ Result<mdl::Texture> readM8Texture(Reader& reader)
 
                  auto rgbaImage = mdl::TextureBuffer{4 * w * h};
 
-                 auto averageColor = Color{};
+                 auto averageColor = Color{RgbaF{}};
                  palette.indexedToRgba(
                    reader,
                    w * h,

@@ -159,7 +159,7 @@ void renderHighlight(
   const vm::vec2b& selector,
   render::RenderBatch& renderBatch)
 {
-  static const auto color = Color{1.0f, 0.0f, 0.0f, 1.0f};
+  static const auto color = RgbaF{1.0f, 0.0f, 0.0f, 1.0f};
 
   auto handleRenderer = render::DirectEdgeRenderer{
     render::VertexArray::move(getHandleVertices(helper, handle, selector)),

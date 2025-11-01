@@ -25,7 +25,6 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Color.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Game.h"
@@ -195,17 +194,16 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   const std::string str = m_colorEditor->text().toStdString();
   if (!kdl::str_is_blank(str))
   {
-    if (const auto color = Color::parse(str))
-    {
-      if (!setBrushFaceAttributes(m_map, {.color = *color}))
+    Color::parse(str) | kdl::transform([&](const auto& color) {
+      if (!setBrushFaceAttributes(m_map, {.color = {color}}))
       {
         updateControls();
       }
-    }
+    }) | kdl::ignore();
   }
   else
   {
-    if (!setBrushFaceAttributes(m_map, {.color = Color{}}))
+    if (!setBrushFaceAttributes(m_map, {.color = {std::nullopt}}))
     {
       updateControls();
     }

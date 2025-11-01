@@ -25,6 +25,7 @@
 
 namespace tb::mdl
 {
+class EntityNodeBase;
 
 namespace ColorRange
 {
@@ -35,7 +36,9 @@ static const Type Byte = 2;
 static const Type Mixed = Float | Byte;
 } // namespace ColorRange
 
-ColorRange::Type detectColorRange(const std::vector<std::string>& components);
 ColorRange::Type detectColorRange(const std::string& str);
+
+ColorRange::Type detectColorRange(
+  const std::string& entityNode, const std::vector<EntityNodeBase*>& nodes);
 
 } // namespace tb::mdl

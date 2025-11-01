@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Color.h"
 #include "Result.h"
 #include "mdl/AssetReference.h"
 #include "mdl/BrushFaceAttributes.h"
@@ -196,7 +197,7 @@ public:
   int resolvedSurfaceContents() const;
   int resolvedSurfaceFlags() const;
   float resolvedSurfaceValue() const;
-  Color resolvedColor() const;
+  std::optional<Color> resolvedColor() const;
 
   void resetUVCoordSystemCache();
   const UVCoordSystem& uvCoordSystem() const;

@@ -57,7 +57,7 @@ SprPicture parsePicture(Reader& reader, const mdl::Palette& palette)
   const auto height = reader.readSize<int32_t>();
 
   auto rgbaImage = mdl::TextureBuffer{4 * width * height};
-  auto averageColor = Color{};
+  auto averageColor = Color{RgbaF{}};
   palette.indexedToRgba(
     reader,
     width * height,

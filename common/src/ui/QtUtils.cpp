@@ -336,7 +336,7 @@ QWidget* makeUnselected(QWidget* widget, const QPalette& defaultPalette)
 
 Color fromQColor(const QColor& color)
 {
-  return {
+  return RgbaF{
     static_cast<float>(color.redF()),
     static_cast<float>(color.greenF()),
     static_cast<float>(color.blueF()),
@@ -345,11 +345,8 @@ Color fromQColor(const QColor& color)
 
 QColor toQColor(const Color& color)
 {
-  return QColor::fromRgb(
-    int(color.r() * 255.0f),
-    int(color.g() * 255.0f),
-    int(color.b() * 255.0f),
-    int(color.a() * 255.0f));
+  const auto rgbaF = color.toRgbaF();
+  return QColor::fromRgbF(rgbaF.r(), rgbaF.g(), rgbaF.b(), rgbaF.a());
 }
 
 QToolButton* createBitmapButton(

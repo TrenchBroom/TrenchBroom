@@ -55,8 +55,8 @@ private:
   std::unique_ptr<PointHandleRenderer> m_pointHandleRenderer;
   std::unique_ptr<PrimitiveRenderer> m_primitiveRenderer;
 
-  Color m_foregroundColor = Color{1, 1, 1, 1};
-  Color m_backgroundColor = Color{0, 0, 0, 1};
+  Color m_foregroundColor = RgbaF{1, 1, 1, 1};
+  Color m_backgroundColor = RgbaF{0, 0, 0, 1};
   float m_lineWidth = 1.0f;
   OcclusionPolicy m_occlusionPolicy;
   CullingPolicy m_cullingPolicy;

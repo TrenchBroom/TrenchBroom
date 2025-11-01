@@ -94,7 +94,7 @@ bool Palette::indexedToRgba(
     colorSum[1] += uint32_t(rgbaData[(i * 4) + 1]);
     colorSum[2] += uint32_t(rgbaData[(i * 4) + 2]);
   }
-  averageColor = Color{
+  averageColor = RgbaF{
     float(colorSum[0]) / (255.0f * float(pixelCount)),
     float(colorSum[1]) / (255.0f * float(pixelCount)),
     float(colorSum[2]) / (255.0f * float(pixelCount)),

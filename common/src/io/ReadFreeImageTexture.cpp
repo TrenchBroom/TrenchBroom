@@ -90,16 +90,20 @@ Color getAverageColor(const mdl::TextureBuffer& buffer, const GLenum format)
   const auto stride = numPixels <= 4192 ? 1 : numPixels / 64;
   const auto numSamples = numPixels / stride;
 
-  auto average = Color{};
+  auto average = vm::vec4f{};
   for (std::size_t i = 0; i < numSamples; ++i)
   {
     const auto pixel = i * 4 * stride;
-    average =
-      average + Color{data[pixel + r], data[pixel + g], data[pixel + b], data[pixel + a]};
+    average = average
+              + vm::vec4f{
+                float(data[pixel + r]),
+                float(data[pixel + g]),
+                float(data[pixel + b]),
+                float(data[pixel + a])};
   }
   average = average / static_cast<float>(numSamples);
 
-  return average;
+  return RgbaF{average};
 }
 
 Result<mdl::Texture> readFreeImageTextureFromMemory(

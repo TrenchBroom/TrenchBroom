@@ -53,7 +53,7 @@ ModelSpecification getModelSpecification(
   const std::string& entityPropertiesStr = "{}")
 {
   const auto defStr = kdl::str_replace_every(templateStr, "${MODEL}", modelStr);
-  auto parser = Parser{defStr, Color{1, 1, 1, 1}};
+  auto parser = Parser{defStr, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
   return getModelSpecification(parser, entityPropertiesStr);
 }
 
@@ -78,7 +78,7 @@ void assertDecalDefinition(
   const std::string& entityPropertiesStr = "{}")
 {
   const auto defStr = kdl::str_replace_every(templateStr, "${DECAL}", decalStr);
-  auto parser = Parser{defStr, Color{1, 1, 1, 1}};
+  auto parser = Parser{defStr, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
   assertDecalDefinition(expected, parser, entityPropertiesStr);
 }
 } // namespace tb::mdl

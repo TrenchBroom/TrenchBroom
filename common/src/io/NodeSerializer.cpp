@@ -85,12 +85,12 @@ void NodeSerializer::defaultLayer(const mdl::WorldNode& world)
 
   // Transfer the color, locked state, and hidden state from the default layer Layer
   // object to worldspawn
-  const mdl::LayerNode* defaultLayerNode = world.defaultLayer();
-  const mdl::Layer& defaultLayer = defaultLayerNode->layer();
-  if (defaultLayer.color())
+  const auto* defaultLayerNode = world.defaultLayer();
+  const auto& defaultLayer = defaultLayerNode->layer();
+  if (const auto color = defaultLayer.color())
   {
     worldEntity.addOrUpdateProperty(
-      mdl::EntityPropertyKeys::LayerColor, kdl::str_to_string(*defaultLayer.color()));
+      mdl::EntityPropertyKeys::LayerColor, color->toString());
   }
   else
   {

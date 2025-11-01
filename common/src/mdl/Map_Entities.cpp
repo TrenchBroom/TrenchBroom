@@ -22,7 +22,6 @@
 #include "Ensure.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/Entity.h"
-#include "mdl/EntityColor.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Game.h"
@@ -42,6 +41,15 @@ namespace tb::mdl
 {
 namespace
 {
+
+Result<std::string> convertEntityColor(
+  const std::string_view str, const ColorRange::Type colorRange)
+{
+  return Color::parse(str) | kdl::transform([&](const auto& color) {
+           return colorRange == ColorRange::Float ? color.toFloat().toString()
+                                                  : color.toByte().toString();
+         });
+}
 
 /**
  * Search the given linked groups for an entity node at the given node path, and return
@@ -251,7 +259,10 @@ bool convertEntityColorRange(Map& map, const std::string& key, ColorRange::Type 
       [&](Entity& entity) {
         if (const auto* oldValue = entity.property(key))
         {
-          entity.addOrUpdateProperty(key, convertEntityColor(*oldValue, range));
+          return convertEntityColor(*oldValue, range)
+                 | kdl::transform(
+                   [&](const auto& value) { entity.addOrUpdateProperty(key, value); })
+                 | kdl::is_success();
         }
         return true;
       },

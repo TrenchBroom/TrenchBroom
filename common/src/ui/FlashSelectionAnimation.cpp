@@ -38,7 +38,7 @@ FlashSelectionAnimation::FlashSelectionAnimation(
 
 void FlashSelectionAnimation::doUpdate(const double progress)
 {
-  static const auto white = Color{1.0f, 1.0f, 1.0f, 1.0f};
+  static const auto white = RgbaF{1.0f, 1.0f, 1.0f, 1.0f};
 
   const auto fltProgress = static_cast<float>(progress);
   if (fltProgress < 1.0f)

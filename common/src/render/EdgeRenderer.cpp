@@ -93,10 +93,8 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
     shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
     shader.set(
       "SoftMapBoundsColor",
-      vm::vec4f{
-        pref(Preferences::SoftMapBoundsColor).r(),
-        pref(Preferences::SoftMapBoundsColor).g(),
-        pref(Preferences::SoftMapBoundsColor).b(),
+      RgbaF{
+        pref(Preferences::SoftMapBoundsColor).toRgbF(),
         0.33f}); // NOTE: heavier tint than FaceRenderer, since these are lines
     shader.set("UseUniformColor", m_params.useColor);
     shader.set("Color", m_params.color);

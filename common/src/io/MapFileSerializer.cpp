@@ -232,12 +232,10 @@ private:
 protected:
   void writeSurfaceColor(std::ostream& stream, const mdl::BrushFace& face) const
   {
-    fmt::format_to(
-      std::ostreambuf_iterator<char>{stream},
-      " {} {} {}",
-      static_cast<int>(face.resolvedColor().r() * 255.0f),
-      static_cast<int>(face.resolvedColor().g() * 255.0f),
-      static_cast<int>(face.resolvedColor().b() * 255.0f));
+    if (const auto color = face.resolvedColor())
+    {
+      stream << " " << color->toRgbB().toString();
+    }
   }
 };
 

@@ -37,8 +37,8 @@ class EntityLinkRenderer : public LinkRenderer
 {
   mdl::Map& m_map;
 
-  Color m_defaultColor = {0.5f, 1.0f, 0.5f, 1.0f};
-  Color m_selectedColor = {1.0f, 0.0f, 0.0f, 1.0f};
+  Color m_defaultColor = RgbaF{0.5f, 1.0f, 0.5f, 1.0f};
+  Color m_selectedColor = RgbaF{1.0f, 0.0f, 0.0f, 1.0f};
 
 public:
   explicit EntityLinkRenderer(mdl::Map& map);

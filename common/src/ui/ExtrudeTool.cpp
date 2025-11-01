@@ -43,7 +43,6 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/distance.h"
 #include "vm/line_io.h"  // IWYU pragma: keep

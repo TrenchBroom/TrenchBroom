@@ -171,7 +171,7 @@ void FaceRenderer::doRender(RenderContext& context)
     shader.set("SoftMapBoundsMax", context.softMapBounds().max);
     shader.set(
       "SoftMapBoundsColor",
-      vm::vec4f{prefs.get(Preferences::SoftMapBoundsColor).xyz(), 0.1f});
+      RgbaF{prefs.get(Preferences::SoftMapBoundsColor).toRgbF(), 0.1f});
 
     auto func = RenderFunc{
       shader,

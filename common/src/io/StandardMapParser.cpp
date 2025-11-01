@@ -19,6 +19,7 @@
 
 #include "StandardMapParser.h"
 
+#include "Color.h"
 #include "FileLocation.h"
 #include "io/ParserStatus.h"
 #include "mdl/BrushFace.h"
@@ -593,7 +594,14 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
     if (m_tokenizer.peekToken().hasType(QuakeMapToken::Integer))
     {
       // red, green, blue
-      attribs.setColor(Color{parseInteger(), parseInteger(), parseInteger()});
+      const auto r = vm::clamp(parseInteger(), 0, 255);
+      const auto g = vm::clamp(parseInteger(), 0, 255);
+      const auto b = vm::clamp(parseInteger(), 0, 255);
+      attribs.setColor(RgbB{
+        static_cast<unsigned char>(r),
+        static_cast<unsigned char>(g),
+        static_cast<unsigned char>(b),
+      });
     }
   }
 
