@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Color.h"
 #include "Macros.h"
 #include "render/BrushRenderer.h"
 #include "render/EntityRenderer.h"
@@ -29,7 +30,6 @@
 
 namespace tb
 {
-class Color;
 class Logger;
 } // namespace tb
 

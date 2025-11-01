@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Color.h"
 #include "Notifier.h"
 
 #include "kdl/reflection_decl.h"
@@ -30,11 +31,6 @@
 #include "vm/vec.h"
 
 #include <optional>
-
-namespace tb
-{
-class Color;
-}
 
 namespace tb::render
 {

@@ -24,9 +24,6 @@
 
 #include "vm/vec_io.h"
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
 #include <optional>
 
 namespace tb
@@ -36,7 +33,6 @@ kdl_reflect_impl(RgbF);
 kdl_reflect_impl(RgbB);
 kdl_reflect_impl(RgbaF);
 kdl_reflect_impl(RgbaB);
-kdl_reflect_impl(Color);
 
 RgbF::RgbF()
   : m_v{0.0f, 0.0f, 0.0f}
@@ -87,6 +83,16 @@ RgbF::operator vm::vec<float, RgbF::S>() const
 vm::vec<float, RgbF::S> RgbF::vec() const
 {
   return m_v;
+}
+
+bool RgbF::isFloat() const
+{
+  return true;
+}
+
+bool RgbF::isByte() const
+{
+  return false;
 }
 
 RgbF RgbF::toFloat() const
@@ -172,6 +178,16 @@ RgbB::operator vm::vec<uint8_t, RgbB::S>() const
 vm::vec<uint8_t, RgbB::S> RgbB::vec() const
 {
   return m_v;
+}
+
+bool RgbB::isFloat() const
+{
+  return false;
+}
+
+bool RgbB::isByte() const
+{
+  return true;
 }
 
 RgbF RgbB::toFloat() const
@@ -269,6 +285,16 @@ vm::vec<float, RgbaF::S> RgbaF::vec() const
   return m_v;
 }
 
+bool RgbaF::isFloat() const
+{
+  return true;
+}
+
+bool RgbaF::isByte() const
+{
+  return false;
+}
+
 RgbaF RgbaF::toFloat() const
 {
   return toRgbaF();
@@ -364,6 +390,16 @@ vm::vec<uint8_t, RgbaB::S> RgbaB::vec() const
   return m_v;
 }
 
+bool RgbaB::isFloat() const
+{
+  return false;
+}
+
+bool RgbaB::isByte() const
+{
+  return true;
+}
+
 RgbaF RgbaB::toFloat() const
 {
   return toRgbaF();
@@ -397,94 +433,6 @@ RgbaB RgbaB::toRgbaB() const
 std::string RgbaB::toString() const
 {
   return fmt::format("{} {} {} {}", r(), g(), b(), a());
-}
-
-Color::Color()
-  : m_value{RgbaF{}}
-{
-}
-
-Color::Color(const RgbF& rgbF)
-  : m_value{rgbF}
-{
-}
-
-Color::Color(const RgbB& rgbB)
-  : m_value{rgbB}
-{
-}
-
-Color::Color(const RgbaF& rgbaF)
-  : m_value{rgbaF}
-{
-}
-
-Color::Color(const RgbaB& rgbaB)
-  : m_value{rgbaB}
-{
-}
-
-Result<Color> Color::parse(const std::string_view str)
-{
-  const auto toColor = [](const auto& x) { return Color{x}; };
-
-  const auto toColorError = [&](const auto&) {
-    return Result<Color>{Error{fmt::format("Failed to parse '{}' as color", str)}};
-  };
-
-  return RgbaF::parse(str) | kdl::transform(toColor) | kdl::or_else([&](const auto&) {
-           return RgbaB::parse(str) | kdl::transform(toColor);
-         })
-         | kdl::or_else(
-           [&](const auto&) { return RgbF::parse(str) | kdl::transform(toColor); })
-         | kdl::or_else(
-           [&](const auto&) { return RgbB::parse(str) | kdl::transform(toColor); })
-         | kdl::or_else(toColorError);
-}
-
-bool Color::isFloat() const
-{
-  return std::holds_alternative<RgbF>(m_value) || std::holds_alternative<RgbaF>(m_value);
-}
-
-bool Color::isByte() const
-{
-  return std::holds_alternative<RgbB>(m_value) || std::holds_alternative<RgbaB>(m_value);
-}
-
-Color Color::toFloat() const
-{
-  return std::visit([](const auto& x) { return Color{x.toFloat()}; }, m_value);
-}
-
-Color Color::toByte() const
-{
-  return std::visit([](const auto& x) { return Color{x.toByte()}; }, m_value);
-}
-
-RgbF Color::toRgbF() const
-{
-  return std::visit([](const auto& x) { return x.toRgbF(); }, m_value);
-}
-
-RgbB Color::toRgbB() const
-{
-  return std::visit([](const auto& x) { return x.toRgbB(); }, m_value);
-}
-
-RgbaF Color::toRgbaF() const
-{
-  return std::visit([](const auto& x) { return x.toRgbaF(); }, m_value);
-}
-
-RgbaB Color::toRgbaB() const
-{
-  return std::visit([](const auto& x) { return x.toRgbaB(); }, m_value);
-}
-
-std::string Color::toString() const
-{
-  return std::visit([](const auto& x) { return x.toString(); }, m_value);
 }
 
 Color mixColors(const Color& lhs, const Color& rhs, const float f)
