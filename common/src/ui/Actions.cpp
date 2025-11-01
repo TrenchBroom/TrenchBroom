@@ -1309,7 +1309,9 @@ void ActionManager::createEditMenu()
     },
   }));
   editMenu.addSeparator();
-  editMenu.addItem(addAction(Action{
+
+  auto& transformMenu = editMenu.addMenu("Transform");
+  transformMenu.addItem(addAction(Action{
     std::filesystem::path{"Controls/Map view/Flip objects horizontally"},
     QObject::tr("Flip Horizontally"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
@@ -1318,7 +1320,7 @@ void ActionManager::createEditMenu()
     [](const auto& context) { return context.hasDocument() && context.view().canFlip(); },
     std::filesystem::path{"FlipHorizontally.svg"},
   }));
-  editMenu.addItem(addAction(Action{
+  transformMenu.addItem(addAction(Action{
     std::filesystem::path{"Controls/Map view/Flip objects vertically"},
     QObject::tr("Flip Vertically"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
@@ -1327,7 +1329,7 @@ void ActionManager::createEditMenu()
     [](const auto& context) { return context.hasDocument() && context.view().canFlip(); },
     std::filesystem::path{"FlipVertically.svg"},
   }));
-  editMenu.addItem(addAction(Action{
+  transformMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Move objects"},
     QObject::tr("Move..."),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
@@ -1380,8 +1382,8 @@ void ActionManager::createEditMenu()
     },
   }));
 
-  editMenu.addSeparator();
-  editMenu.addItem(addAction(Action{
+  auto& vertexEditingMenu = editMenu.addMenu("Vertices");
+  vertexEditingMenu.addItem(addAction(Action{
     "Menu/Edit/Snap Vertices to Integer",
     QObject::tr("Snap Vertices to Integer"),
     ActionContext::Any,
@@ -1391,7 +1393,7 @@ void ActionManager::createEditMenu()
       return context.hasDocument() && context.frame().canSnapVertices();
     },
   }));
-  editMenu.addItem(addAction(Action{
+  vertexEditingMenu.addItem(addAction(Action{
     "Menu/Edit/Snap Vertices to Grid",
     QObject::tr("Snap Vertices to Grid"),
     ActionContext::Any,
@@ -1401,8 +1403,9 @@ void ActionManager::createEditMenu()
       return context.hasDocument() && context.frame().canSnapVertices();
     },
   }));
-  editMenu.addSeparator();
-  editMenu.addItem(addAction(Action{
+
+  auto& texturesMenu = editMenu.addMenu("Textures");
+  texturesMenu.addItem(addAction(Action{
     "Menu/Edit/Texture Lock",
     QObject::tr("Texture Lock"),
     ActionContext::Any,
@@ -1412,7 +1415,7 @@ void ActionManager::createEditMenu()
     [](const auto&) { return pref(Preferences::AlignmentLock); },
     std::filesystem::path{"AlignmentLock.svg"},
   }));
-  editMenu.addItem(addAction(Action{
+  texturesMenu.addItem(addAction(Action{
     "Menu/Edit/UV Lock",
     QObject::tr("UV Lock"),
     ActionContext::Any,
@@ -1422,8 +1425,8 @@ void ActionManager::createEditMenu()
     [](const auto&) { return pref(Preferences::UVLock); },
     std::filesystem::path{"UVLock.svg"},
   }));
-  editMenu.addSeparator();
-  editMenu.addItem(addAction(Action{
+  texturesMenu.addSeparator();
+  texturesMenu.addItem(addAction(Action{
     "Menu/Edit/Replace Texture...",
     QObject::tr("Replace Texture..."),
     ActionContext::Any,
