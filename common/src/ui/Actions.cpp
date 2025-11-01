@@ -1545,6 +1545,16 @@ void ActionManager::createGroupsMenu()
       return context.hasDocument() && context.frame().canUngroupSelectedObjects();
     },
   }));
+  groupsMenu.addItem(addAction(Action{
+    "Menu/Edit/Rename Groups",
+    QObject::tr("Rename Selected Groups"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_G},
+    [](auto& context) { context.frame().renameSelectedGroups(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame().canRenameSelectedGroups();
+    },
+  }));
   groupsMenu.addSeparator();
 
   groupsMenu.addItem(addAction(Action{
