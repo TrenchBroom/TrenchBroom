@@ -20,10 +20,30 @@
 
 #pragma once
 
+#include <cstddef>
 #include <tuple>
 
 namespace kdl
 {
+namespace detail
+{
+
+template <std::size_t Offset, std::size_t... I>
+constexpr auto offset_index_sequence(std::index_sequence<I...>)
+  -> std::index_sequence<(Offset + I)...>;
+
+template <std::size_t Start, std::size_t Count>
+using make_index_range =
+  decltype(offset_index_sequence<Start>(std::make_index_sequence<Count>{}));
+
+template <typename Tuple, std::size_t... I>
+constexpr auto tup_slice_impl(Tuple&& t, std::index_sequence<I...>)
+{
+  return std::tuple{std::get<I>(std::forward<Tuple>(t))...};
+}
+
+} // namespace detail
+
 inline auto tup_capture()
 {
   return std::tuple<>{};
@@ -63,5 +83,40 @@ auto tup_capture(First&& first, Rest&&... rest)
   return std::tuple_cat(
     tup_capture(std::forward<First>(first)), tup_capture(std::forward<Rest>(rest)...));
 }
+
+/**
+ * Return a slice of length Count out of the given tuple starting at Start.
+ *
+ * @tparam Start the start index of the slice to return
+ * @tparam Count the length of the slice to return
+ * @tparam Tuple the type of the tuple
+ * @param t the tuple to slice
+ *
+ * @return a tuple containing Count elements of t starting at Start
+ */
+template <std::size_t Start, std::size_t Count, typename Tuple>
+constexpr auto tup_slice(Tuple&& t)
+{
+  static_assert(
+    Start + Count <= std::tuple_size_v<std::remove_reference_t<Tuple>>,
+    "slice is out of bounds");
+
+  return detail::tup_slice_impl(
+    std::forward<Tuple>(t), detail::make_index_range<Start, Count>{});
+}
+
+template <std::size_t M, typename Tuple>
+constexpr auto tup_prefix(Tuple&& t)
+{
+  return tup_slice<0, M>(std::forward<Tuple>(t));
+}
+
+template <std::size_t M, typename Tuple>
+constexpr auto tup_suffix(Tuple&& t)
+{
+  const auto TupleSize = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+  return tup_slice<TupleSize - M, M>(std::forward<Tuple>(t));
+}
+
 
 } // namespace kdl
