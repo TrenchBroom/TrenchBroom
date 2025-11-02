@@ -77,8 +77,9 @@ public:
   void set(const std::string& name, const vm::mat3x3f& value);
   void set(const std::string& name, const vm::mat4x4f& value);
 
-  template <AnyColor Color>
-  void set(const std::string& name, const Color& value)
+  template <typename C>
+  void set(const std::string& name, const C& value)
+    requires(Color::AnyColor<C> || std::is_same_v<C, Color>)
   {
     set(name, value.toRgbaF().vec());
   }

@@ -23,13 +23,14 @@
 #include <QString>
 #include <QTextStream>
 
+#include "Color.h"
+
 #include <filesystem>
 
 class QKeySequence;
 
 namespace tb
 {
-class Color;
 
 /**
  * Used by Qt version of TrenchBroom

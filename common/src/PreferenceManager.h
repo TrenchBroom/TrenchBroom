@@ -49,7 +49,6 @@ class QFileSystemWatcher;
 
 namespace tb
 {
-class Color;
 
 class PreferenceManager : public QObject
 {
