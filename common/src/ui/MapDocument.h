@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Color.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "mdl/PointTrace.h"
@@ -38,11 +39,6 @@ namespace kdl
 {
 class task_manager;
 } // namespace kdl
-
-namespace tb
-{
-class Color;
-} // namespace tb
 
 namespace tb::mdl
 {

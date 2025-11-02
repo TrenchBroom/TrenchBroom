@@ -19,17 +19,13 @@
 
 #pragma once
 
+#include "Color.h"
 #include "Macros.h"
 #include "NotifierConnection.h"
 
 #include <filesystem>
 #include <unordered_map>
 #include <vector>
-
-namespace tb
-{
-class Color;
-}
 
 namespace tb::mdl
 {

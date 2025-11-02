@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Color.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
@@ -44,7 +45,6 @@ class task_manager;
 
 namespace tb
 {
-class Color;
 class Logger;
 } // namespace tb
 

@@ -22,9 +22,12 @@
 #include "Result.h"
 
 #include "kdl/reflection_decl.h"
+#include "kdl/reflection_impl.h"
 
 #include "vm/scalar.h"
 #include "vm/vec.h"
+
+#include <fmt/format.h>
 
 #include <cstdint>
 #include <string>
@@ -100,6 +103,9 @@ public:
 
   vm::vec<float, S> vec() const;
 
+  bool isFloat() const;
+  bool isByte() const;
+
   RgbF toFloat() const;
   RgbB toByte() const;
   RgbF toRgbF() const;
@@ -134,6 +140,9 @@ public:
   operator vm::vec<uint8_t, S>() const;
 
   vm::vec<uint8_t, S> vec() const;
+
+  bool isFloat() const;
+  bool isByte() const;
 
   RgbF toFloat() const;
   RgbB toByte() const;
@@ -172,6 +181,9 @@ public:
 
   vm::vec<float, S> vec() const;
 
+  bool isFloat() const;
+  bool isByte() const;
+
   RgbaF toFloat() const;
   RgbaB toByte() const;
   RgbF toRgbF() const;
@@ -209,6 +221,9 @@ public:
 
   vm::vec<uint8_t, S> vec() const;
 
+  bool isFloat() const;
+  bool isByte() const;
+
   RgbaF toFloat() const;
   RgbaB toByte() const;
   RgbF toRgbF() const;
@@ -220,78 +235,154 @@ public:
   kdl_reflect_decl(RgbaB, m_v);
 };
 
-class Color
+template <typename T, typename... ColorTypes>
+concept AnyTypeOf = (std::is_same_v<std::remove_cvref_t<T>, ColorTypes> || ...);
+
+template <typename... ColorTypes>
+class ColorT
 {
 private:
-  std::variant<RgbF, RgbB, RgbaF, RgbaB> m_value;
+  std::variant<ColorTypes...> m_value;
 
 public:
-  Color();
+  template <typename C>
+  static constexpr auto AnyColor = AnyTypeOf<C, ColorTypes...>;
+
+  ColorT()
+    : m_value{RgbaF{}}
+  {
+  }
 
   // NOLINTBEGIN(google-explicit-constructor)
-  Color(const RgbF& rgbF);
-  Color(const RgbB& rgbB);
-  Color(const RgbaF& rgbaF);
-  Color(const RgbaB& rgbaB);
+  template <typename Color>
+  ColorT(const Color& color)
+    requires(AnyTypeOf<Color, ColorTypes...>)
+    : m_value{color}
+  {
+  }
   // NOLINTEND(google-explicit-constructor)
 
   template <typename T, size_t S>
-  static Result<Color> fromVec(const vm::vec<T, S>& vec)
+  static Result<ColorT> fromVec(const vm::vec<T, S>& vec)
   {
     if constexpr (S == 3)
     {
-      if (isFloatColorRange(vec))
+      if constexpr (AnyTypeOf<RgbF, ColorTypes...>)
       {
-        return Color{RgbF{vm::vec<float, S>{vec}}};
+        if (isFloatColorRange(vec))
+        {
+          return ColorT{RgbF{vm::vec<float, S>{vec}}};
+        }
       }
 
-      if (isByteColorRange(vec))
+      if constexpr (AnyTypeOf<RgbB, ColorTypes...>)
       {
-        return Color{RgbB{vm::vec<uint8_t, S>{vec}}};
+        if (isByteColorRange(vec))
+        {
+          return ColorT{RgbB{vm::vec<uint8_t, S>{vec}}};
+        }
       }
     }
 
     if constexpr (S == 4)
     {
-      if (isFloatColorRange(vec))
+      if constexpr (AnyTypeOf<RgbaF, ColorTypes...>)
       {
-        return Color{RgbaF{vm::vec<float, S>{vec}}};
+        if (isFloatColorRange(vec))
+        {
+          return ColorT{RgbaF{vm::vec<float, S>{vec}}};
+        }
       }
 
-      if (isByteColorRange(vec))
+      if constexpr (AnyTypeOf<RgbaB, ColorTypes...>)
       {
-        return Color{RgbaB{vm::vec<uint8_t, S>{vec}}};
+        if (isByteColorRange(vec))
+        {
+          return ColorT{RgbaB{vm::vec<uint8_t, S>{vec}}};
+        }
       }
     }
 
     return Error{"Invalid color values"};
   }
 
-  static Result<Color> parse(std::string_view str);
+  static Result<ColorT> parse(std::string_view str)
+  {
+    return parseImpl<ColorTypes...>(str);
+  }
 
-  bool isFloat() const;
-  bool isByte() const;
+  bool isFloat() const
+  {
+    return std::visit([](const auto& x) { return x.isFloat(); }, m_value);
+  }
 
-  Color toFloat() const;
-  Color toByte() const;
-  RgbF toRgbF() const;
-  RgbB toRgbB() const;
-  RgbaF toRgbaF() const;
-  RgbaB toRgbaB() const;
-  std::string toString() const;
+  bool isByte() const
+  {
+    return std::visit([](const auto& x) { return x.isByte(); }, m_value);
+  }
 
-  kdl_reflect_decl(Color, m_value);
+  ColorT toFloat() const
+  {
+    return std::visit([](const auto& x) { return ColorT{x.toFloat()}; }, m_value);
+  }
+
+  ColorT toByte() const
+  {
+    return std::visit([](const auto& x) { return ColorT{x.toByte()}; }, m_value);
+  }
+
+  RgbF toRgbF() const
+  {
+    return std::visit([](const auto& x) { return x.toRgbF(); }, m_value);
+  }
+
+  RgbB toRgbB() const
+  {
+    return std::visit([](const auto& x) { return x.toRgbB(); }, m_value);
+  }
+
+  RgbaF toRgbaF() const
+  {
+    return std::visit([](const auto& x) { return x.toRgbaF(); }, m_value);
+  }
+
+  RgbaB toRgbaB() const
+  {
+    return std::visit([](const auto& x) { return x.toRgbaB(); }, m_value);
+  }
+
+  std::string toString() const
+  {
+    return std::visit([](const auto& x) { return x.toString(); }, m_value);
+  }
+
+  kdl_reflect_inline(ColorT, m_value);
+
+private:
+  template <typename ColorTypeToTry, typename... MoreColorTypes>
+  static Result<ColorT> parseImpl(std::string_view str)
+  {
+    if (auto result = ColorTypeToTry::parse(str))
+    {
+      return result | kdl::transform([](const auto& x) { return ColorT{x}; });
+    }
+
+    if constexpr (sizeof...(MoreColorTypes) > 0)
+    {
+      return parseImpl<MoreColorTypes...>(str);
+    }
+
+    return Error{fmt::format("Failed to parse '{}' as color", str)};
+  }
 };
 
-template <typename T>
-concept AnyColor = std::is_same_v<std::remove_cvref_t<T>, RgbF>
-                   || std::is_same_v<std::remove_cvref_t<T>, RgbB>
-                   || std::is_same_v<std::remove_cvref_t<T>, RgbaF>
-                   || std::is_same_v<std::remove_cvref_t<T>, RgbaB>
-                   || std::is_same_v<std::remove_cvref_t<T>, Color>;
+using Color = ColorT<RgbaF, RgbaB, RgbF, RgbB>;
+using Rgb = ColorT<RgbF, RgbB>;
+using Rgba = ColorT<RgbaF, RgbaB>;
 
-template <AnyColor C>
+template <typename C>
 auto mixColors(const C& lhs, const C& rhs, const float f)
+  requires(Color::AnyColor<C>)
 {
   return C{vm::mix(
     lhs.toFloat().vec(), rhs.toFloat().vec(), vm::vec<float, C::S>::fill(vm::clamp(f)))};
