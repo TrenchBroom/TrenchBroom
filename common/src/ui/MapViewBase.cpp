@@ -1224,9 +1224,7 @@ void MapViewBase::showPopupMenuLater()
     &MapViewBase::mergeSelectedGroups);
   mergeGroupAction->setEnabled(canMergeGroups());
 
-  auto* renameAction =
-    menu.addAction(tr("Rename Groups"), mapFrame, &MapFrame::renameSelectedGroups);
-  renameAction->setEnabled(mapFrame->canRenameSelectedGroups());
+  addMainMenuAction("Menu/Edit/Rename Groups");
 
   if (newGroup && canReparentNodes(nodes, newGroup))
   {
