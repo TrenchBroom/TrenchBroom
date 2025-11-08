@@ -345,8 +345,12 @@ Color fromQColor(const QColor& color)
 
 QColor toQColor(const Color& color)
 {
-  const auto rgbaF = color.toRgbaF();
-  return QColor::fromRgbF(rgbaF.r(), rgbaF.g(), rgbaF.b(), rgbaF.a());
+  const auto rgbaF = color.to<RgbaF>();
+  return QColor::fromRgbF(
+    rgbaF.get<ColorChannel::r>(),
+    rgbaF.get<ColorChannel::g>(),
+    rgbaF.get<ColorChannel::b>(),
+    rgbaF.get<ColorChannel::a>());
 }
 
 QToolButton* createBitmapButton(

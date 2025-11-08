@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "Color.h"
+
 #include <string>
 #include <vector>
 
@@ -40,5 +42,7 @@ ColorRange::Type detectColorRange(const std::string& str);
 
 ColorRange::Type detectColorRange(
   const std::string& entityNode, const std::vector<EntityNodeBase*>& nodes);
+
+Color toColorRange(const Color& color, ColorRange::Type colorRange);
 
 } // namespace tb::mdl

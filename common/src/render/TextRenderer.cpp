@@ -108,8 +108,8 @@ void TextRenderer::renderString(
         std::move(vertices),
         size,
         offset,
-        blendColor(textColor.toRgbaF(), alphaFactor),
-        blendColor(backgroundColor.toRgbaF(), alphaFactor)});
+        blendColor(textColor.to<RgbaF>(), alphaFactor),
+        blendColor(backgroundColor.to<RgbaF>(), alphaFactor)});
   }
   else
   {
@@ -119,8 +119,8 @@ void TextRenderer::renderString(
         std::move(vertices),
         size,
         offset,
-        blendColor(textColor.toRgbaF(), alphaFactor),
-        blendColor(backgroundColor.toRgbaF(), alphaFactor)});
+        blendColor(textColor.to<RgbaF>(), alphaFactor),
+        blendColor(backgroundColor.to<RgbaF>(), alphaFactor)});
   }
 }
 
@@ -233,7 +233,9 @@ void TextRenderer::addEntry(
     const auto& position2 = stringVertices[2 * i];
     const auto& uvCoords = stringVertices[2 * i + 1];
     textVertices.emplace_back(
-      vm::vec3f{position2 + offset.xy(), -offset.z()}, uvCoords, textColor.toRgbaF());
+      vm::vec3f{position2 + offset.xy(), -offset.z()},
+      uvCoords,
+      textColor.to<RgbaF>().toVec());
   }
 
   const auto rect =
@@ -243,7 +245,7 @@ void TextRenderer::addEntry(
     const auto& vertex = rect[i];
     rectVertices.emplace_back(
       vm::vec3f{vertex + offset.xy() + stringSize / 2.0f, -offset.z()},
-      rectColor.toRgbaF());
+      rectColor.to<RgbaF>().toVec());
   }
 }
 

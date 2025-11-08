@@ -371,10 +371,10 @@ void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBat
 
   auto edgeRenderer = render::DirectEdgeRenderer{
     render::VertexArray::move(std::vector{
-      Vertex{center, pref(Preferences::XAxisColor).toRgbaF()},
-      Vertex{center + length * uAxis, pref(Preferences::XAxisColor).toRgbaF()},
-      Vertex{center, pref(Preferences::YAxisColor).toRgbaF()},
-      Vertex{center + length * vAxis, pref(Preferences::YAxisColor).toRgbaF()},
+      Vertex{center, pref(Preferences::XAxisColor).to<RgbaF>().toVec()},
+      Vertex{center + length * uAxis, pref(Preferences::XAxisColor).to<RgbaF>().toVec()},
+      Vertex{center, pref(Preferences::YAxisColor).to<RgbaF>().toVec()},
+      Vertex{center + length * vAxis, pref(Preferences::YAxisColor).to<RgbaF>().toVec()},
     }),
     render::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 2.0f);

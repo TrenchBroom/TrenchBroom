@@ -132,7 +132,7 @@ QJsonValue toJson(const T& in)
 QJsonValue PreferenceSerializer::writeToJson(const Color& in) const
 {
   return toJson(in, [](auto& lhs, const auto& rhs) {
-    lhs << QString::fromStdString(rhs.toRgbaF().toString());
+    lhs << QString::fromStdString(rhs.template to<RgbaF>().toString());
   });
 }
 

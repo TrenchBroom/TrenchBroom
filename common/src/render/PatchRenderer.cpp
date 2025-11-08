@@ -402,7 +402,7 @@ void PatchRenderer::doRender(RenderContext& context)
   shader.set("SoftMapBoundsMax", context.softMapBounds().max);
   shader.set(
     "SoftMapBoundsColor",
-    RgbaF{prefs.get(Preferences::SoftMapBoundsColor).toRgbF(), 0.1f});
+    RgbaF{prefs.get(Preferences::SoftMapBoundsColor).to<RgbF>(), 0.1f});
 
   auto func = RenderFunc{
     shader,

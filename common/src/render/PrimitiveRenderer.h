@@ -82,7 +82,7 @@ private:
 
   public:
     TriangleRenderAttributes(
-      const Color& color,
+      Color color,
       PrimitiveRendererOcclusionPolicy occlusionPolicy,
       PrimitiveRendererCullingPolicy cullingPolicy);
 

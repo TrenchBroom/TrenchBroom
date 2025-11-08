@@ -35,7 +35,9 @@ std::partial_ordering PrimitiveRenderer::LineRenderAttributes::operator<=>(
   const LineRenderAttributes& other) const
 {
   // compare by alpha first
-  if (const auto cmp = m_color.toRgbaF().a() <=> other.m_color.toRgbaF().a(); cmp != 0)
+  if (const auto cmp = m_color.to<RgbaF>().get<ColorChannel::a>()
+                       <=> other.m_color.to<RgbaF>().get<ColorChannel::a>();
+      cmp != 0)
   {
     return cmp;
   }
@@ -76,7 +78,7 @@ void PrimitiveRenderer::LineRenderAttributes::render(
     break;
   case PrimitiveRendererOcclusionPolicy::Transparent:
     glAssert(glDisable(GL_DEPTH_TEST));
-    shader.set("Color", blendColor(m_color.toRgbaF(), 1.0f / 3.0f));
+    shader.set("Color", blendColor(m_color.to<RgbaF>(), 1.0f / 3.0f));
     renderer.render();
     glAssert(glEnable(GL_DEPTH_TEST));
     shader.set("Color", m_color);
@@ -86,10 +88,10 @@ void PrimitiveRenderer::LineRenderAttributes::render(
 }
 
 PrimitiveRenderer::TriangleRenderAttributes::TriangleRenderAttributes(
-  const Color& color,
+  Color color,
   const PrimitiveRendererOcclusionPolicy occlusionPolicy,
   const PrimitiveRendererCullingPolicy cullingPolicy)
-  : m_color{color}
+  : m_color{std::move(color)}
   , m_occlusionPolicy{occlusionPolicy}
   , m_cullingPolicy{cullingPolicy}
 {
@@ -99,7 +101,9 @@ std::partial_ordering PrimitiveRenderer::TriangleRenderAttributes::operator<=>(
   const TriangleRenderAttributes& other) const
 {
   // sort by alpha first
-  if (const auto cmp = m_color.toRgbaF().a() <=> other.m_color.toRgbaF().a(); cmp != 0)
+  if (const auto cmp = m_color.to<RgbaF>().get<ColorChannel::a>()
+                       <=> other.m_color.to<RgbaF>().get<ColorChannel::a>();
+      cmp != 0)
   {
     return cmp;
   }
@@ -132,7 +136,7 @@ void PrimitiveRenderer::TriangleRenderAttributes::render(
   }
 
   // Disable depth writes if drawing something transparent
-  if (m_color.toRgbaF().a() < 1.0f)
+  if (m_color.to<RgbaF>().get<ColorChannel::a>() < 1.0f)
   {
     glAssert(glDepthMask(GL_FALSE));
   }
@@ -151,7 +155,7 @@ void PrimitiveRenderer::TriangleRenderAttributes::render(
     break;
   case PrimitiveRendererOcclusionPolicy::Transparent:
     glAssert(glDisable(GL_DEPTH_TEST));
-    shader.set("Color", blendColor(m_color.toRgbaF(), 1.0f / 2.0f));
+    shader.set("Color", blendColor(m_color.to<RgbaF>(), 1.0f / 2.0f));
     renderer.render();
     glAssert(glEnable(GL_DEPTH_TEST));
     shader.set("Color", m_color);
@@ -159,7 +163,7 @@ void PrimitiveRenderer::TriangleRenderAttributes::render(
     break;
   }
 
-  if (m_color.toRgbaF().a() < 1.0f)
+  if (m_color.to<RgbaF>().get<ColorChannel::a>() < 1.0f)
   {
     glAssert(glDepthMask(GL_TRUE));
   }

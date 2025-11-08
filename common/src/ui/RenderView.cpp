@@ -275,10 +275,13 @@ void RenderView::processInput()
 
 void RenderView::clearBackground()
 {
-  const auto backgroundColor = getBackgroundColor().toRgbaF();
+  const auto backgroundColor = getBackgroundColor().to<RgbaF>();
 
   glAssert(glClearColor(
-    backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a()));
+    backgroundColor.get<ColorChannel::r>(),
+    backgroundColor.get<ColorChannel::g>(),
+    backgroundColor.get<ColorChannel::b>(),
+    backgroundColor.get<ColorChannel::a>()));
   glAssert(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
@@ -291,8 +294,8 @@ void RenderView::renderFocusIndicator()
 {
   if (shouldRenderFocusIndicator() && hasFocus())
   {
-    const auto outer = m_focusColor.toRgbaF();
-    const auto inner = m_focusColor.toRgbaF();
+    const auto outer = m_focusColor.to<RgbaF>();
+    const auto inner = m_focusColor.to<RgbaF>();
 
     const auto r = devicePixelRatioF();
     const auto w = float(width() * r);
@@ -309,28 +312,28 @@ void RenderView::renderFocusIndicator()
     using Vertex = render::GLVertexTypes::P3C4::Vertex;
     auto array = render::VertexArray::move(std::vector{
       // top
-      Vertex{{0.0f, 0.0f, 0.0f}, outer},
-      Vertex{{w, 0.0f, 0.0f}, outer},
-      Vertex{{w - t, t, 0.0f}, inner},
-      Vertex{{t, t, 0.0f}, inner},
+      Vertex{{0.0f, 0.0f, 0.0f}, outer.toVec()},
+      Vertex{{w, 0.0f, 0.0f}, outer.toVec()},
+      Vertex{{w - t, t, 0.0f}, inner.toVec()},
+      Vertex{{t, t, 0.0f}, inner.toVec()},
 
       // right
-      Vertex{{w, 0.0f, 0.0f}, outer},
-      Vertex{{w, h, 0.0f}, outer},
-      Vertex{{w - t, h - t, 0.0f}, inner},
-      Vertex{{w - t, t, 0.0f}, inner},
+      Vertex{{w, 0.0f, 0.0f}, outer.toVec()},
+      Vertex{{w, h, 0.0f}, outer.toVec()},
+      Vertex{{w - t, h - t, 0.0f}, inner.toVec()},
+      Vertex{{w - t, t, 0.0f}, inner.toVec()},
 
       // bottom
-      Vertex{{w, h, 0.0f}, outer},
-      Vertex{{0.0f, h, 0.0f}, outer},
-      Vertex{{t, h - t, 0.0f}, inner},
-      Vertex{{w - t, h - t, 0.0f}, inner},
+      Vertex{{w, h, 0.0f}, outer.toVec()},
+      Vertex{{0.0f, h, 0.0f}, outer.toVec()},
+      Vertex{{t, h - t, 0.0f}, inner.toVec()},
+      Vertex{{w - t, h - t, 0.0f}, inner.toVec()},
 
       // left
-      Vertex{{0.0f, h, 0.0f}, outer},
-      Vertex{{0.0f, 0.0f, 0.0f}, outer},
-      Vertex{{t, t, 0.0f}, inner},
-      Vertex{{t, h - t, 0.0f}, inner},
+      Vertex{{0.0f, h, 0.0f}, outer.toVec()},
+      Vertex{{0.0f, 0.0f, 0.0f}, outer.toVec()},
+      Vertex{{t, t, 0.0f}, inner.toVec()},
+      Vertex{{t, h - t, 0.0f}, inner.toVec()},
     });
 
     array.prepare(vboManager());

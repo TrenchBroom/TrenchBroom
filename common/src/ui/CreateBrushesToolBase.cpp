@@ -93,7 +93,7 @@ void CreateBrushesToolBase::render(
     m_brushRenderer->setShowEdges(true);
     m_brushRenderer->setShowOccludedEdges(true);
     m_brushRenderer->setOccludedEdgeColor(RgbaF{
-      pref(Preferences::SelectedEdgeColor).toRgbF(),
+      pref(Preferences::SelectedEdgeColor).to<RgbF>(),
       pref(Preferences::OccludedSelectedEdgeAlpha)});
     m_brushRenderer->setTint(true);
     m_brushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));

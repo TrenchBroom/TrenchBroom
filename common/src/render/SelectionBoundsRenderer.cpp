@@ -398,7 +398,7 @@ void SelectionBoundsRenderer::renderSize2D(
   auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
   renderService.setBackgroundColor(RgbaF{
-    pref(Preferences::InfoOverlayBackgroundColor).toRgbF(),
+    pref(Preferences::InfoOverlayBackgroundColor).to<RgbF>(),
     pref(Preferences::WeakInfoOverlayBackgroundAlpha),
   });
   renderService.setShowOccludedObjects();
@@ -426,7 +426,7 @@ void SelectionBoundsRenderer::renderSize3D(
   auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
   renderService.setBackgroundColor(RgbaF{
-    pref(Preferences::InfoOverlayBackgroundColor).toRgbF(),
+    pref(Preferences::InfoOverlayBackgroundColor).to<RgbF>(),
     pref(Preferences::WeakInfoOverlayBackgroundAlpha),
   });
   renderService.setShowOccludedObjects();
@@ -446,7 +446,7 @@ void SelectionBoundsRenderer::renderMinMax(
   auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
   renderService.setBackgroundColor(RgbaF{
-    pref(Preferences::InfoOverlayBackgroundColor).toRgbF(),
+    pref(Preferences::InfoOverlayBackgroundColor).to<RgbF>(),
     pref(Preferences::WeakInfoOverlayBackgroundAlpha),
   });
   renderService.setShowOccludedObjects();

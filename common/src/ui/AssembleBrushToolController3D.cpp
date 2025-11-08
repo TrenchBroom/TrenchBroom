@@ -402,7 +402,7 @@ void AssembleBrushToolController3D::render(
           | kdl::ranges::to<std::vector>();
 
         renderService.setForegroundColor(
-          RgbaF{pref(Preferences::HandleColor).toRgbF(), 0.5f});
+          RgbaF{pref(Preferences::HandleColor).to<RgbF>(), 0.5f});
         renderService.renderFilledPolygon(pos3f);
 
         std::ranges::reverse(pos3f);

@@ -101,7 +101,7 @@ void PointHandleRenderer::renderHandles(
 
   for (const auto& [color, positions] : map)
   {
-    shader.set("Color", blendColor(color.toRgbaF(), opacity));
+    shader.set("Color", blendColor(color.to<RgbaF>(), opacity));
 
     for (const auto& position : positions)
     {

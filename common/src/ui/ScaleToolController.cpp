@@ -309,7 +309,7 @@ static void renderDragSideHighlights(
       auto renderService = render::RenderService{renderContext, renderBatch};
       renderService.setLineWidth(2.0);
       renderService.setForegroundColor(RgbaF{
-        pref(Preferences::ScaleOutlineColor).toRgbF(),
+        pref(Preferences::ScaleOutlineColor).to<RgbF>(),
         pref(Preferences::ScaleOutlineDimAlpha)});
       renderService.renderPolygonOutline(side.vertices());
     }

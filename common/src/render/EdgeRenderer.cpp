@@ -42,12 +42,12 @@ EdgeRenderer::Params::Params(
 }
 
 EdgeRenderer::Params::Params(
-  const float i_width, const double i_offset, const bool i_onTop, const Color& i_color)
+  const float i_width, const double i_offset, const bool i_onTop, Color i_color)
   : width{i_width}
   , offset{i_offset}
   , onTop{i_onTop}
   , useColor{true}
-  , color{i_color}
+  , color{std::move(i_color)}
 {
 }
 
@@ -56,17 +56,17 @@ EdgeRenderer::Params::Params(
   const double i_offset,
   const bool i_onTop,
   const bool i_useColor,
-  const Color& i_color)
+  Color i_color)
   : width{i_width}
   , offset{i_offset}
   , onTop{i_onTop}
   , useColor{i_useColor}
-  , color{i_color}
+  , color{std::move(i_color)}
 {
 }
 
-EdgeRenderer::RenderBase::RenderBase(const Params& params)
-  : m_params{params}
+EdgeRenderer::RenderBase::RenderBase(Params params)
+  : m_params{std::move(params)}
 {
 }
 
@@ -94,7 +94,7 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
     shader.set(
       "SoftMapBoundsColor",
       RgbaF{
-        pref(Preferences::SoftMapBoundsColor).toRgbF(),
+        pref(Preferences::SoftMapBoundsColor).to<RgbF>(),
         0.33f}); // NOTE: heavier tint than FaceRenderer, since these are lines
     shader.set("UseUniformColor", m_params.useColor);
     shader.set("Color", m_params.color);
