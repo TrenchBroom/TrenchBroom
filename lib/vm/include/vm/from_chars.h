@@ -32,7 +32,7 @@ namespace vm
 {
 
 template <typename C, std::integral I>
-auto from_chars(const C* first, const C* last, I& value, const int base = 10)
+constexpr auto from_chars(const C* first, const C* last, I& value, const int base = 10)
 {
   return std::from_chars(first, last, value, base);
 }
@@ -47,7 +47,8 @@ template <
     std::chars_format
 #endif
   >
-auto from_chars(const C* first, const C* last, F& value, const Fmt fmt = Fmt::general)
+constexpr auto from_chars(
+  const C* first, const C* last, F& value, const Fmt fmt = Fmt::general)
 {
 #if defined(__APPLE__)
   return fast_float::from_chars(first, last, value, fmt);
