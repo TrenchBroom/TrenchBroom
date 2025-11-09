@@ -88,6 +88,21 @@ std::optional<std::tuple<size_t, size_t>> str_next_token(
   std::string_view str, std::string_view delims);
 
 /**
+ * Peels tokens off the given string and returns them along with the index where the last
+ * token ended.
+ *
+ * Delimiters can be escaped with a backslash ('\'). Backslashes can be escaped with
+ * backslashes too. Escaped delimiters are not unescaped.
+ *
+ * @param str the string to split
+ * @param delims the delimiters to split with
+ * @param max the number of tokens to split off
+ * @return the tokens and the end index of the last token
+ */
+std::tuple<std::vector<std::string>, size_t> str_next_tokens(
+  std::string_view str, std::string_view delims, size_t max);
+
+/**
  * Splits the given strings along the given delimiters and returns a list of the nonempty
  * parts.
  *

@@ -101,6 +101,19 @@ TEST_CASE("string_utils")
     CHECK(str_next_token("as\\;df", ";") == std::tuple{0, 6});
   }
 
+  SECTION("str_next_tokens") {
+    CHECK(str_next_tokens("", "", 0) == std::tuple{std::vector<std::string>{}, 0});
+    CHECK(str_next_tokens("", "", 1) == std::tuple{std::vector<std::string>{}, 0});
+    CHECK(str_next_tokens("", " ", 0) == std::tuple{std::vector<std::string>{}, 0});
+    CHECK(str_next_tokens("", " ", 1) == std::tuple{std::vector<std::string>{}, 0});
+    CHECK(str_next_tokens("as", "", 0) == std::tuple{std::vector<std::string>{}, 0});
+    CHECK(str_next_tokens("as", "", 1) == std::tuple{std::vector<std::string>{"as"}, 2});
+    CHECK(str_next_tokens("as", " ", 0) == std::tuple{std::vector<std::string>{}, 0});
+    CHECK(str_next_tokens("as", " ", 1) == std::tuple{std::vector<std::string>{"as"}, 2});
+    CHECK(str_next_tokens(" as df ", " ", 2) == std::tuple{std::vector<std::string>{"as", "df"}, 6});
+    CHECK(str_next_tokens(" as df ", " ", 3) == std::tuple{std::vector<std::string>{"as", "df"}, 6});
+  }
+
   SECTION("str_split")
   {
     CHECK_THAT(str_split("", " "), Equals(std::vector<std::string>{}));

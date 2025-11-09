@@ -148,6 +148,37 @@ std::optional<std::tuple<size_t, size_t>> str_next_token(
   return std::tuple{start, str.length()};
 }
 
+std::tuple<std::vector<std::string>, size_t> str_next_tokens(
+  const std::string_view str, const std::string_view delims, const size_t max)
+{
+  if (max == 0)
+  {
+    return {std::vector<std::string>{}, 0};
+  }
+
+  auto cur = str;
+  auto result = std::vector<std::string>{};
+  result.reserve(max);
+
+  size_t i = 0;
+  size_t end = 0;
+  while (auto position = str_next_token(cur, delims))
+  {
+    const auto [tokenStart, tokenEnd] = *position;
+    const auto token = cur.substr(tokenStart, tokenEnd - tokenStart);
+    result.emplace_back(token);
+    cur = cur.substr(tokenEnd);
+    end += tokenEnd;
+
+    if (++i == max)
+    {
+      break;
+    }
+  }
+
+  return {result, end};
+}
+
 std::vector<std::string> str_split(
   const std::string_view str, const std::string_view delims)
 {
