@@ -23,6 +23,7 @@
 
 #include <vector>
 
+class QButtonGroup;
 class QColor;
 class QWidget;
 class QPushButton;
@@ -46,6 +47,7 @@ private:
   static const size_t ColorHistoryCellSize = 15;
   using wxColorList = std::vector<QColor>;
 
+  QButtonGroup* m_radioGroup = nullptr;
   QRadioButton* m_floatRadio = nullptr;
   QRadioButton* m_byteRadio = nullptr;
   ColorButton* m_colorPicker = nullptr;
