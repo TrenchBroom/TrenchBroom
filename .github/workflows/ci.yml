@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-14, macos-15-intel, windows-2022]
+        os: [ubuntu-22.04, macos-15, macos-15-intel, windows-2022]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
@@ -153,9 +153,9 @@ jobs:
             cmakebuild/*.md5
 
       # macOS
-      - name: macOS - Switch to Xcode 16.2
+      - name: macOS - Switch to Xcode 26
         if: ${{ startsWith(matrix.os, 'macos') }}
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
 
       - name: macOS - Bootstrap vcpkg
         if: ${{ startsWith(matrix.os, 'macos') }}
@@ -191,7 +191,7 @@ jobs:
         run: brew install p7zip pandoc ninja autoconf automake mono
 
       - name: macOS 15 - Uninstall openexr
-        if: ${{ startsWith(matrix.os, 'macos-15') }}
+        if: ${{ matrix.os == 'macos-15-intel' }}
         run: |
           # Uninstall openexr
           # See https://github.com/TrenchBroom/TrenchBroom/pull/4900

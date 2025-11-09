@@ -18,7 +18,7 @@ brew --prefix qt@6
 # deployment target used here. Therefore, when this variable is changed, the vcpkg binary
 # cache must be invalidated. The easiest way to do that is to update vcpkg to the latest
 # version because the vcpkg commit ID is part of the cache key for the binary cache.
-export MACOSX_DEPLOYMENT_TARGET=10.15
+export MACOSX_DEPLOYMENT_TARGET=12.0
 
 # Build TB
 
