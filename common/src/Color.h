@@ -119,6 +119,4 @@ auto mixColors(const C& lhs, const C& rhs, const float f)
 
 RgbaF blendColor(const RgbaF& c, float f);
 
-void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
-
 } // namespace tb
