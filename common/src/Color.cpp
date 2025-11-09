@@ -56,35 +56,4 @@ RgbaF blendColor(const RgbaF& c, const float f)
   return RgbaF{c.to<RgbF>(), f * c.get<ColorChannel::a>()};
 }
 
-void rgbToHSB(const float r, const float g, const float b, float& h, float& s, float& br)
-{
-  assert(r >= 0.0f && r <= 1.0f);
-  assert(g >= 0.0f && g <= 1.0f);
-  assert(b >= 0.0f && b <= 1.0f);
-
-  const auto max = vm::max(r, g, b);
-  const auto min = vm::min(r, g, b);
-  const auto dist = max - min;
-
-  br = max;
-  s = br != 0.0f ? dist / max : s;
-
-  if (s == 0.0f)
-  {
-    h = 0.0f;
-  }
-  else
-  {
-    const auto rc = (max - r) / dist;
-    const auto gc = (max - g) / dist;
-    const auto bc = (max - b) / dist;
-    h = r == max ? bc - gc : g == max ? 2.0f + rc - bc : 4.0f + gc - rc;
-    h = h / 6.0f;
-    if (h < 0)
-    {
-      h = h + 1.0f;
-    }
-  }
-}
-
 } // namespace tb
