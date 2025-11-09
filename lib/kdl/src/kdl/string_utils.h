@@ -65,6 +65,29 @@ std::optional<delimited_string> str_find_next_delimited_string(
   std::optional<char> escape_char = std::nullopt);
 
 /**
+ * Returns the next token from the given string. Leading delimiters are skipped and the
+ * part up until and not including the next delimiter is included.
+ *
+ * Delimiters can be escaped with a backslash ('\'). Backslashes can be escaped with
+ * backslashes too. Escaped delimiters are not unescaped.
+ *
+ * Examples:
+ *   str_next_token("", " ") == std::nullopt
+ *   str_next_token("  ", " ") == std::nullopt
+ *   str_next_token("asdf", " ") == {0, 4}
+ *   str_next_token(" asdf ", " ") == {1, 5}
+ *   str_next_token("asdf;qwer", ";") == {0, 4}
+ *   str_next_token("as\;df", ";") == {0, 6}
+ *
+ * @param str the string to extract a token from
+ * @param delims the token delimiters
+ * @return the start and end indices of the token, or nullopt if no token could be
+ * extracted
+ */
+std::optional<std::tuple<size_t, size_t>> str_next_token(
+  std::string_view str, std::string_view delims);
+
+/**
  * Splits the given strings along the given delimiters and returns a list of the nonempty
  * parts.
  *

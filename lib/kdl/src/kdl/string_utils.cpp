@@ -105,6 +105,49 @@ std::optional<delimited_string> str_find_next_delimited_string(
   return std::nullopt;
 }
 
+std::optional<std::tuple<size_t, size_t>> str_next_token(
+  const std::string_view str, const std::string_view delims)
+{
+  if (str.empty())
+  {
+    return std::nullopt;
+  }
+
+  if (delims.empty())
+  {
+    return std::tuple{0, str.length()};
+  }
+
+  // skip leading delimiters
+  const auto start = str.find_first_not_of(delims);
+  if (start == std::string_view::npos)
+  {
+    return std::nullopt;
+  }
+
+  for (auto i = start; i < str.size(); ++i)
+  {
+    const auto c = str[i];
+    if (c == '\\' && i < str.size() - 1u)
+    {
+      // maybe escaped delimiter or backslash
+      const auto n = str[i + 1];
+      if (n == '\\' || delims.find(n) != std::string_view::npos)
+      {
+        ++i;
+        continue;
+      }
+    }
+
+    if (delims.find(c) != std::string_view::npos)
+    {
+      return std::tuple{start, i};
+    }
+  }
+
+  return std::tuple{start, str.length()};
+}
+
 std::vector<std::string> str_split(
   const std::string_view str, const std::string_view delims)
 {

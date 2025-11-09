@@ -88,6 +88,19 @@ TEST_CASE("string_utils")
       == expectedResult);
   }
 
+  SECTION("str_next_token") {
+    CHECK(str_next_token("", " ") == std::nullopt);
+    CHECK(str_next_token("", "") == std::nullopt);
+    CHECK(str_next_token(" ", "") == std::tuple{0, 1});
+    CHECK(str_next_token("asdf", "") == std::tuple{0,4});
+    CHECK(str_next_token("asdf", " ") == std::tuple{0, 4});
+    CHECK(str_next_token(" asdf", " ") == std::tuple{1, 5});
+    CHECK(str_next_token(" asdf  ", " ") == std::tuple{1, 5});
+    CHECK(str_next_token(" as df  ", " ") == std::tuple{1, 3});
+    CHECK(str_next_token("as;df", ";") == std::tuple{0, 2});
+    CHECK(str_next_token("as\\;df", ";") == std::tuple{0, 6});
+  }
+
   SECTION("str_split")
   {
     CHECK_THAT(str_split("", " "), Equals(std::vector<std::string>{}));
