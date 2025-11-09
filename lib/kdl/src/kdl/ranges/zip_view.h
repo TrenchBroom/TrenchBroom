@@ -22,6 +22,7 @@
 
 #include "detail/range_utils.h"
 
+#include <algorithm>
 #include <ranges>
 #include <tuple>
 
