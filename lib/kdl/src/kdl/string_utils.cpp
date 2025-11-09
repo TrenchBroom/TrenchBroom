@@ -151,55 +151,15 @@ std::optional<std::tuple<size_t, size_t>> str_next_token(
 std::vector<std::string> str_split(
   const std::string_view str, const std::string_view delims)
 {
-  if (str.empty())
+  auto cur = str;
+  auto result = std::vector<std::string>{};
+  while (auto position = str_next_token(cur, delims))
   {
-    return {};
+    const auto [start, end] = *position;
+    const auto token = cur.substr(start, end - start);
+    result.emplace_back(token);
+    cur = cur.substr(end);
   }
-
-  if (delims.empty())
-  {
-    return {std::string{str}};
-  }
-
-  std::vector<std::string> result;
-  std::stringstream buf;
-
-  const auto appendPart = [&]() {
-    auto part = str_trim(buf.str());
-    if (!part.empty())
-    {
-      result.push_back(std::move(part));
-    }
-    buf.str("");
-  };
-
-  for (auto i = 0u; i < str.size(); ++i)
-  {
-    const auto c = str[i];
-    if (c == '\\' && i < str.size() - 1u)
-    {
-      // maybe escaped delimiter or backslash
-      const auto n = str[i + 1];
-      if (n == '\\' || delims.find(n) != std::string_view::npos)
-      {
-        buf << n;
-        ++i;
-        continue;
-      }
-    }
-
-    if (delims.find(c) != std::string_view::npos)
-    {
-      appendPart();
-    }
-    else
-    {
-      buf << c;
-    }
-  }
-
-  appendPart();
-
   return result;
 }
 

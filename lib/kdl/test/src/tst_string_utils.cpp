@@ -127,16 +127,16 @@ TEST_CASE("string_utils")
       Equals(std::vector<std::string>{"The", "quick", "brown", "ox"}));
     CHECK_THAT(
       str_split("The; quick brown; fox", ";"),
-      Equals(std::vector<std::string>{"The", "quick brown", "fox"}));
+      Equals(std::vector<std::string>{"The", " quick brown", " fox"}));
     CHECK_THAT(
       str_split("The;quick brown; fox", " ;"),
       Equals(std::vector<std::string>{"The", "quick", "brown", "fox"}));
     CHECK_THAT(
       str_split("The\\; quick brown; fox", ";"),
-      Equals(std::vector<std::string>{"The; quick brown", "fox"}));
+      Equals(std::vector<std::string>{"The\\; quick brown", " fox"}));
     CHECK_THAT(
       str_split("The\\\\; quick brown; fox", ";"),
-      Equals(std::vector<std::string>{"The\\", "quick brown", "fox"}));
+      Equals(std::vector<std::string>{"The\\\\", " quick brown", " fox"}));
     CHECK_THAT(
       str_split("c:\\x\\y", "\\"),
       Equals(std::vector<std::string>{"c:", "x", "y"}));

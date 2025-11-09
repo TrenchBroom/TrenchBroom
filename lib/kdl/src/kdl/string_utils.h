@@ -92,7 +92,7 @@ std::optional<std::tuple<size_t, size_t>> str_next_token(
  * parts.
  *
  * Delimiters can be escaped with a backslash ('\'). Backslashes can be escaped with
- * backslashes too.
+ * backslashes too. Escaped delimiters are not unescaped.
  *
  * @param str the string to split
  * @param delims the delimiters to split with
