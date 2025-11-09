@@ -79,11 +79,12 @@ void ColorTable::paintEvent(QPaintEvent* /* event */)
         if (std::ranges::find(m_selectedColors, color) != std::end(m_selectedColors))
         {
           painter.setPen(QColor{Qt::red});
-          painter.setBrush(QColor{Qt::red});
-          painter.drawRect(x - 1, y - 1, m_cellSize + 2, m_cellSize + 2);
+        }
+        else
+        {
+          painter.setPen(QColor{Qt::transparent});
         }
 
-        painter.setPen(color);
         painter.setBrush(color);
         painter.drawRect(x, y, m_cellSize, m_cellSize);
 
