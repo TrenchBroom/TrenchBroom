@@ -141,7 +141,7 @@ TEST_CASE("GithubApi")
       const auto [body, expectedError] = GENERATE(values<T>({
         {R"()", "illegal value"},
         {R"([)", "unterminated array"},
-        {R"(asdf)", "illegal value"},
+        {R"(asdf)", "illegal number"},
         {R"({})", "invalid response body, expected array"},
       }));
 
