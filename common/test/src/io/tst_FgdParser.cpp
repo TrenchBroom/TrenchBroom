@@ -789,7 +789,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -797,7 +797,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"input", mdl::PropertyValueTypes::String{}, "A property named input", ""},
@@ -834,7 +834,7 @@ TEST_CASE("FgdParser")
     ]
 )";
 
-    auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
     auto status = TestParserStatus{};
 
     CHECK(
@@ -842,7 +842,7 @@ TEST_CASE("FgdParser")
       == std::vector<mdl::EntityDefinition>{
         {
           "info_notnull",
-          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
           "Wildcard entity",
           {
             {"voidInput",
