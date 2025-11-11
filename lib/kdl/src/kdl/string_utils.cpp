@@ -105,32 +105,27 @@ std::optional<delimited_string> str_find_next_delimited_string(
   return std::nullopt;
 }
 
-std::vector<std::string> str_split(
+std::optional<std::tuple<size_t, size_t>> str_next_token(
   const std::string_view str, const std::string_view delims)
 {
   if (str.empty())
   {
-    return {};
+    return std::nullopt;
   }
 
   if (delims.empty())
   {
-    return {std::string{str}};
+    return std::tuple{0, str.length()};
   }
 
-  std::vector<std::string> result;
-  std::stringstream buf;
+  // skip leading delimiters
+  const auto start = str.find_first_not_of(delims);
+  if (start == std::string_view::npos)
+  {
+    return std::nullopt;
+  }
 
-  const auto appendPart = [&]() {
-    auto part = str_trim(buf.str());
-    if (!part.empty())
-    {
-      result.push_back(std::move(part));
-    }
-    buf.str("");
-  };
-
-  for (auto i = 0u; i < str.size(); ++i)
+  for (auto i = start; i < str.size(); ++i)
   {
     const auto c = str[i];
     if (c == '\\' && i < str.size() - 1u)
@@ -139,7 +134,6 @@ std::vector<std::string> str_split(
       const auto n = str[i + 1];
       if (n == '\\' || delims.find(n) != std::string_view::npos)
       {
-        buf << n;
         ++i;
         continue;
       }
@@ -147,16 +141,56 @@ std::vector<std::string> str_split(
 
     if (delims.find(c) != std::string_view::npos)
     {
-      appendPart();
-    }
-    else
-    {
-      buf << c;
+      return std::tuple{start, i};
     }
   }
 
-  appendPart();
+  return std::tuple{start, str.length()};
+}
 
+std::tuple<std::vector<std::string>, size_t> str_next_tokens(
+  const std::string_view str, const std::string_view delims, const size_t max)
+{
+  if (max == 0)
+  {
+    return {std::vector<std::string>{}, 0};
+  }
+
+  auto cur = str;
+  auto result = std::vector<std::string>{};
+  result.reserve(max);
+
+  size_t i = 0;
+  size_t end = 0;
+  while (auto position = str_next_token(cur, delims))
+  {
+    const auto [tokenStart, tokenEnd] = *position;
+    const auto token = cur.substr(tokenStart, tokenEnd - tokenStart);
+    result.emplace_back(token);
+    cur = cur.substr(tokenEnd);
+    end += tokenEnd;
+
+    if (++i == max)
+    {
+      break;
+    }
+  }
+
+  return {result, end};
+}
+
+std::vector<std::string> str_split(
+  const std::string_view str, const std::string_view delims)
+{
+  auto cur = str;
+  auto result = std::vector<std::string>{};
+  while (auto position = str_next_token(cur, delims))
+  {
+    const auto [start, end] = *position;
+    const auto token = cur.substr(start, end - start);
+    result.emplace_back(token);
+    cur = cur.substr(end);
+  }
   return result;
 }
 

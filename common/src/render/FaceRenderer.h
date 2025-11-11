@@ -55,7 +55,7 @@ public:
   FaceRenderer(
     std::shared_ptr<BrushVertexArray> vertexArray,
     std::shared_ptr<MaterialToBrushIndicesMap> indexArrayMap,
-    const Color& faceColor);
+    Color faceColor);
 
   void setGrayscale(bool grayscale);
   void setTint(bool tint);

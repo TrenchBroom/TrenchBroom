@@ -33,7 +33,7 @@ namespace tb::mdl
 ColorRange::Type detectColorRange(const std::string& str)
 {
   return Color::parse(str) | kdl::transform([](const auto& color) {
-           return color.isFloat() ? ColorRange::Float : ColorRange::Byte;
+           return color.template is<RgbF, RgbaF>() ? ColorRange::Float : ColorRange::Byte;
          })
          | kdl::value_or(ColorRange::Unset);
 }
@@ -65,6 +65,20 @@ ColorRange::Type detectColorRange(
       [](const PatchNode*) {}));
   }
   return result;
+}
+
+Color toColorRange(const Color& color, const ColorRange::Type colorRange)
+{
+  if (colorRange == ColorRange::Float)
+  {
+    return color.is<RgbB, RgbF>() ? Color{color.to<RgbF>()} : Color{color.to<RgbaF>()};
+  }
+  if (colorRange == ColorRange::Byte)
+  {
+    return color.is<RgbB, RgbF>() ? Color{color.to<RgbB>()} : Color{color.to<RgbaB>()};
+  }
+
+  return color;
 }
 
 } // namespace tb::mdl

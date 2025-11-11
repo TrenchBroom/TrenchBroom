@@ -36,13 +36,13 @@ struct and_then_helper
 
 // This actually does the work
 template <typename T, typename F>
-auto operator|(std::optional<T>&& o, and_then_helper<F> h)
+constexpr auto operator|(std::optional<T>&& o, and_then_helper<F> h)
 {
   return o ? h.f(std::move(*o)) : std::nullopt;
 }
 
 template <typename T, typename F>
-auto operator|(const std::optional<T>& o, const and_then_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, const and_then_helper<F>& h)
 {
   return o ? h.f(*o) : std::nullopt;
 }
@@ -55,13 +55,13 @@ struct or_else_helper
 };
 
 template <typename T, typename F>
-auto operator|(std::optional<T>&& o, const or_else_helper<F>& h)
+constexpr auto operator|(std::optional<T>&& o, const or_else_helper<F>& h)
 {
   return o ? std::move(o) : h.f();
 }
 
 template <typename T, typename F>
-auto operator|(const std::optional<T>& o, const or_else_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, const or_else_helper<F>& h)
 {
   return o ? o : h.f();
 }
@@ -75,13 +75,13 @@ struct transform_helper
 
 // This actually does the work
 template <typename T, typename F>
-auto operator|(std::optional<T>&& o, const transform_helper<F>& h)
+constexpr auto operator|(std::optional<T>&& o, const transform_helper<F>& h)
 {
   return o ? std::optional{h.f(std::move(*o))} : std::nullopt;
 }
 
 template <typename T, typename F>
-auto operator|(const std::optional<T>& o, const transform_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, const transform_helper<F>& h)
 {
   return o ? std::optional{h.f(*o)} : std::nullopt;
 }
@@ -89,19 +89,19 @@ auto operator|(const std::optional<T>& o, const transform_helper<F>& h)
 } // namespace detail
 
 template <typename F>
-auto optional_and_then(const F& f)
+constexpr auto optional_and_then(const F& f)
 {
   return detail::and_then_helper<F>{f};
 }
 
 template <typename F>
-auto optional_or_else(const F& f)
+constexpr auto optional_or_else(const F& f)
 {
   return detail::or_else_helper<F>{f};
 }
 
 template <typename F>
-auto optional_transform(const F& f)
+constexpr auto optional_transform(const F& f)
 {
   return detail::transform_helper<F>{f};
 }

@@ -44,13 +44,8 @@ public:
     Color color;
 
     Params(float i_width, double i_offset, bool i_onTop);
-    Params(float i_width, double i_offset, bool i_onTop, const Color& i_color);
-    Params(
-      float i_width,
-      double i_offset,
-      bool i_onTop,
-      bool i_useColor,
-      const Color& i_color);
+    Params(float i_width, double i_offset, bool i_onTop, Color i_color);
+    Params(float i_width, double i_offset, bool i_onTop, bool i_useColor, Color i_color);
   };
 
   class RenderBase
@@ -59,7 +54,7 @@ public:
     const Params m_params;
 
   public:
-    explicit RenderBase(const Params& params);
+    explicit RenderBase(Params params);
     virtual ~RenderBase();
 
   protected:

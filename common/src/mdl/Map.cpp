@@ -1531,6 +1531,9 @@ void Map::mapWasCreated(Map&)
   initializeAllNodeTags();
   initializeNodeIndex();
   initializeEntityLinks();
+
+  m_cachedSelection = std::nullopt;
+  m_cachedSelectionBounds = std::nullopt;
 }
 
 void Map::mapWasLoaded(Map&)
@@ -1538,6 +1541,9 @@ void Map::mapWasLoaded(Map&)
   initializeAllNodeTags();
   initializeNodeIndex();
   initializeEntityLinks();
+
+  m_cachedSelection = std::nullopt;
+  m_cachedSelectionBounds = std::nullopt;
 }
 
 void Map::nodesWereAdded(const std::vector<Node*>& nodes)

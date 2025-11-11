@@ -227,7 +227,7 @@ void RenderService::renderHandle(const vm::polygon3f& position)
 {
   setShowBackfaces();
   m_primitiveRenderer->renderFilledPolygon(
-    blendColor(m_foregroundColor.toRgbaF(), 0.07f),
+    blendColor(m_foregroundColor.to<RgbaF>(), 0.07f),
     m_occlusionPolicy,
     m_cullingPolicy,
     position.vertices());

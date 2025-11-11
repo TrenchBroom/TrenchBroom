@@ -532,7 +532,11 @@ CreateNodeResult createEntityNode(MapReader::EntityInfo entityInfo)
     const auto* protectedPropertiesStr =
       entity.property(mdl::EntityPropertyKeys::ProtectedEntityProperties))
   {
-    auto protectedProperties = kdl::str_split(*protectedPropertiesStr, ";");
+    auto protectedProperties =
+      kdl::str_split(*protectedPropertiesStr, ";")
+      | std::views::transform([](const auto& key) { return kdl::str_unescape(key, ";"); })
+      | kdl::ranges::to<std::vector>();
+
     entity.setProtectedProperties(std::move(protectedProperties));
     entity.removeProperty(mdl::EntityPropertyKeys::ProtectedEntityProperties);
   }

@@ -103,7 +103,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
   {                                                                                      \
     return kdl::detail::reflection_split_tokens<C>(#__VA_ARGS__);                        \
   }                                                                                      \
-  [[maybe_unused]] auto members() const                                                  \
+  [[maybe_unused]] auto constexpr members() const                                        \
   {                                                                                      \
     return std::forward_as_tuple(__VA_ARGS__);                                           \
   }
@@ -113,7 +113,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
   {                                                                                      \
     return std::array<std::string_view, 0>{};                                            \
   }                                                                                      \
-  [[maybe_unused]] auto members() const                                                  \
+  [[maybe_unused]] constexpr auto members() const                                        \
   {                                                                                      \
     return std::tuple<>{};                                                               \
   }
@@ -123,14 +123,14 @@ public:                                                                         
   template <                                                                             \
     typename KDL_T,                                                                      \
     typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
-  auto operator<=>(const KDL_T& rhs) const                                               \
+  constexpr auto operator<=>(const KDL_T& rhs) const                                     \
   {                                                                                      \
     return members() <=> rhs.members();                                                  \
   }                                                                                      \
   template <                                                                             \
     typename KDL_T,                                                                      \
     typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
-  bool operator==(const KDL_T& rhs) const                                                \
+  constexpr bool operator==(const KDL_T& rhs) const                                      \
   {                                                                                      \
     return members() == rhs.members();                                                   \
   }

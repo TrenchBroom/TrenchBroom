@@ -218,7 +218,7 @@ void SmartColorEditor::setColor(const QColor& qColor)
 {
   const auto rawColor = fromQColor(qColor);
   const auto requestedColor =
-    m_floatRadio->isChecked() ? Color{rawColor.toRgbF()} : Color{rawColor.toRgbB()};
+    m_floatRadio->isChecked() ? Color{rawColor.to<RgbF>()} : Color{rawColor.to<RgbB>()};
   const auto colorAsString = requestedColor.toString();
 
   setEntityProperty(map(), propertyKey(), colorAsString);

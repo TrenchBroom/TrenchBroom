@@ -77,4 +77,46 @@ TEST_CASE("tup_capture")
   }
 }
 
+TEST_CASE("tup_slice")
+{
+  using namespace std::string_literals;
+
+  CHECK(
+    tup_slice<0, 4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
+    == std::tuple{1, 2.0f, "asdf"s, 'c'});
+
+  CHECK(
+    tup_slice<1, 3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{2.0f, "asdf"s, 'c'});
+
+  CHECK(
+    tup_slice<0, 3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{1, 2.0f, "asdf"s});
+}
+
+TEST_CASE("tup_prefix")
+{
+  using namespace std::string_literals;
+
+  CHECK(
+    tup_prefix<4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
+    == std::tuple{1, 2.0f, "asdf"s, 'c'});
+
+  CHECK(tup_prefix<3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{1, 2.0f, "asdf"s});
+
+  CHECK(tup_prefix<0>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{});
+}
+
+TEST_CASE("tup_suffix")
+{
+  using namespace std::string_literals;
+
+  CHECK(
+    tup_suffix<4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
+    == std::tuple{1, 2.0f, "asdf"s, 'c'});
+
+  CHECK(
+    tup_suffix<3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{2.0f, "asdf"s, 'c'});
+
+  CHECK(tup_suffix<0>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{});
+}
+
 } // namespace kdl

@@ -234,7 +234,7 @@ protected:
   {
     if (const auto color = face.resolvedColor())
     {
-      stream << " " << color->toRgbB().toString();
+      stream << " " << color->to<RgbB>().toString();
     }
   }
 };

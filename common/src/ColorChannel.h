@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,30 +19,19 @@
 
 #pragma once
 
-#include "Color.h"
+#include <iosfwd>
 
-#include <string>
-#include <vector>
-
-
-namespace tb::mdl
+namespace tb
 {
-class EntityNodeBase;
 
-namespace ColorRange
+enum class ColorChannel
 {
-using Type = int;
-static const Type Unset = 0;
-static const Type Float = 1;
-static const Type Byte = 2;
-static const Type Mixed = Float | Byte;
-} // namespace ColorRange
+  r,
+  g,
+  b,
+  a,
+};
 
-ColorRange::Type detectColorRange(const std::string& str);
+std::ostream& operator<<(std::ostream& lhs, ColorChannel rhs);
 
-ColorRange::Type detectColorRange(
-  const std::string& entityNode, const std::vector<EntityNodeBase*>& nodes);
-
-Color toColorRange(const Color& color, ColorRange::Type colorRange);
-
-} // namespace tb::mdl
+} // namespace tb

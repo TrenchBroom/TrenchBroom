@@ -79,9 +79,9 @@ public:
 
   template <typename C>
   void set(const std::string& name, const C& value)
-    requires(Color::AnyColor<C> || std::is_same_v<C, Color>)
+    requires(AnyColor<C>)
   {
-    set(name, value.toRgbaF().vec());
+    set(name, value.template to<RgbaF>().toVec());
   }
 
   GLint findAttributeLocation(const std::string& name) const;

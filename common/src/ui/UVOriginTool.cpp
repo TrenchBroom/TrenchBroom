@@ -167,10 +167,10 @@ std::vector<EdgeVertex> getHandleVertices(
   helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
   return {
-    EdgeVertex{vm::vec3f{x1}, xColor},
-    EdgeVertex{vm::vec3f{x2}, xColor},
-    EdgeVertex{vm::vec3f{y1}, yColor},
-    EdgeVertex{vm::vec3f{y2}, yColor}};
+    EdgeVertex{vm::vec3f{x1}, xColor.toVec()},
+    EdgeVertex{vm::vec3f{x2}, xColor.toVec()},
+    EdgeVertex{vm::vec3f{y1}, yColor.toVec()},
+    EdgeVertex{vm::vec3f{y2}, yColor.toVec()}};
 }
 
 void renderLineHandles(
@@ -238,7 +238,7 @@ private:
 
     auto shader = render::ActiveShader{
       renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
-    shader.set("Color", m_highlight ? highlightColor.toRgbaF() : handleColor);
+    shader.set("Color", m_highlight ? highlightColor.to<RgbaF>() : handleColor);
     m_originHandle.render();
   }
 };

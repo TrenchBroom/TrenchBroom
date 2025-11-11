@@ -101,9 +101,12 @@ Color getAverageColor(const mdl::TextureBuffer& buffer, const GLenum format)
                 float(data[pixel + b]),
                 float(data[pixel + a])};
   }
-  average = average / static_cast<float>(numSamples);
+  average = vm::clamp(
+    average / static_cast<float>(numSamples),
+    vm::vec4f{0, 0, 0, 0},
+    vm::vec4f{1, 1, 1, 1});
 
-  return RgbaF{average};
+  return RgbaF{average[0], average[1], average[2], average[3]};
 }
 
 Result<mdl::Texture> readFreeImageTextureFromMemory(

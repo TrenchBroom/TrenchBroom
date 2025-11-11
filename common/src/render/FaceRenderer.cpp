@@ -51,12 +51,12 @@ public:
   RenderFunc(
     ActiveShader& shader,
     const bool applyMaterial,
-    const Color& defaultColor,
+    Color defaultColor,
     const int minFilter,
     const int magFilter)
     : m_shader{shader}
     , m_applyMaterial{applyMaterial}
-    , m_defaultColor{defaultColor}
+    , m_defaultColor{std::move(defaultColor)}
     , m_minFilter{minFilter}
     , m_magFilter{magFilter}
   {
@@ -93,10 +93,10 @@ FaceRenderer::FaceRenderer() = default;
 FaceRenderer::FaceRenderer(
   std::shared_ptr<BrushVertexArray> vertexArray,
   std::shared_ptr<MaterialToBrushIndicesMap> indexArrayMap,
-  const Color& faceColor)
+  Color faceColor)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArrayMap{std::move(indexArrayMap)}
-  , m_faceColor{faceColor}
+  , m_faceColor{std::move(faceColor)}
 {
 }
 
@@ -171,7 +171,7 @@ void FaceRenderer::doRender(RenderContext& context)
     shader.set("SoftMapBoundsMax", context.softMapBounds().max);
     shader.set(
       "SoftMapBoundsColor",
-      RgbaF{prefs.get(Preferences::SoftMapBoundsColor).toRgbF(), 0.1f});
+      RgbaF{prefs.get(Preferences::SoftMapBoundsColor).to<RgbF>(), 0.1f});
 
     auto func = RenderFunc{
       shader,

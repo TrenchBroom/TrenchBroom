@@ -235,8 +235,8 @@ void GroupRenderer::validateBounds()
       {
         const auto color = groupColor(*group);
         group->logicalBounds().for_each_edge([&](const auto& v1, const auto& v2) {
-          vertices.emplace_back(vm::vec3f{v1}, color.toRgbaF());
-          vertices.emplace_back(vm::vec3f{v2}, color.toRgbaF());
+          vertices.emplace_back(vm::vec3f{v1}, color.to<RgbaF>().toVec());
+          vertices.emplace_back(vm::vec3f{v2}, color.to<RgbaF>().toVec());
         });
       }
     }

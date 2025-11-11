@@ -46,8 +46,7 @@ Result<std::string> convertEntityColor(
   const std::string_view str, const ColorRange::Type colorRange)
 {
   return Color::parse(str) | kdl::transform([&](const auto& color) {
-           return colorRange == ColorRange::Float ? color.toFloat().toString()
-                                                  : color.toByte().toString();
+           return toColorRange(color, colorRange).toString();
          });
 }
 
