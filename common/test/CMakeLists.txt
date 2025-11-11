@@ -216,6 +216,9 @@ target_include_directories(common-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CON
 configure_test_target(common-test)
 add_dependencies(common-test cmd-tool)
 
+precompile_std_headers(common-test)
+precompile_qt_headers(common-test)
+
 # Copy shared resources for the test executables
 # We only need to do this once and not for both targets
 set(TEST_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:common-test>")
