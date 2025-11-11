@@ -1592,6 +1592,7 @@ void Map::nodesDidChange(const std::vector<Node*>& nodes)
   addToNodeIndex(nodes, false);
   addEntityLinks(nodes, false);
 
+  m_cachedSelection = std::nullopt;
   m_cachedSelectionBounds = std::nullopt;
 }
 
