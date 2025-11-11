@@ -44,7 +44,7 @@
       "platform": "osx"
     }
   ],
-  "builtin-baseline": "b1b19307e2d2ec1eefbdb7ea069de7d4bcd31f01",
+  "builtin-baseline": "9a5d7860d1e3c0e394495744cecbf0f5cf41306a",
   "overrides": [
     {
       "name": "rapidjson",

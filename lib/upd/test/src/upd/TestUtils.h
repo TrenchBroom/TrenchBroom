@@ -24,6 +24,8 @@
 
 #include <optional>
 
+#include <catch2/catch_test_macros.hpp>
+
 class QFile;
 
 namespace upd
@@ -33,3 +35,14 @@ std::optional<QString> readFileIntoString(QFile& file);
 std::optional<QString> readFileIntoString(const QString& path);
 
 } // namespace upd
+
+namespace Catch
+{
+
+template <>
+struct StringMaker<QString>
+{
+  static std::string convert(const QString& qString) { return qString.toStdString(); }
+};
+
+} // namespace Catch
