@@ -1082,61 +1082,8 @@ target_link_libraries(common
   PRIVATE GLEW::GLEW OpenGL::GL upd tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 # use precompiled headers on CMake 3.16 or later
-if (TB_ENABLE_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
-    message(STATUS "Using precompiled headers")
-    target_precompile_headers(common PUBLIC
-            <algorithm>
-            <any>
-            <array>
-            <cassert>
-            <chrono>
-            <cstddef>
-            <cstdio>
-            <cstdlib>
-            <ctime>
-            <filesystem>
-            <functional>
-            <initializer_list>
-            <iterator>
-            <iostream>
-            <istream>
-            <limits>
-            <list>
-            <map>
-            <memory>
-            <optional>
-            <ostream>
-            <ranges>
-            <set>
-            <string>
-            <tuple>
-            <type_traits>
-            <unordered_map>
-            <unordered_set>
-            <utility>
-            <variant>
-            <vector>
-
-            <QApplication>
-            <QBoxLayout>
-            <QCheckBox>
-            <QDebug>
-            <QEvent>
-            <QtGlobal>
-            <QGridLayout>
-            <QHBoxLayout>
-            <QLabel>
-            <QLineEdit>
-            <QObject>
-            <QPushButton>
-            <QString>
-            <QStringBuilder>
-            <QVBoxLayout>
-            <QWidget>
-    )
-else()
-    message(STATUS "Not using precompiled headers")
-endif()
+precompile_std_headers(common)
+precompile_qt_headers(common)
 
 # Organize files into IDE folders
 source_group(TREE "${COMMON_SOURCE_DIR}" FILES ${COMMON_SOURCE} ${COMMON_HEADER})
