@@ -24,11 +24,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
-namespace tb::mdl
-{
-class Map;
-}
-
 namespace tb::render
 {
 class Camera;
@@ -45,11 +40,8 @@ class ScaleToolController : public ToolController
 protected:
   ScaleTool& m_tool;
 
-private:
-  mdl::Map& m_map;
-
 public:
-  explicit ScaleToolController(ScaleTool& tool, mdl::Map& map);
+  explicit ScaleToolController(ScaleTool& tool);
   ~ScaleToolController() override;
 
 private:
@@ -83,7 +75,7 @@ private:
 class ScaleToolController2D : public ScaleToolController
 {
 public:
-  explicit ScaleToolController2D(ScaleTool& tool, mdl::Map& map);
+  explicit ScaleToolController2D(ScaleTool& tool);
 
 private:
   void doPick(
@@ -95,7 +87,7 @@ private:
 class ScaleToolController3D : public ScaleToolController
 {
 public:
-  explicit ScaleToolController3D(ScaleTool& tool, mdl::Map& map);
+  explicit ScaleToolController3D(ScaleTool& tool);
 
 private:
   void doPick(
