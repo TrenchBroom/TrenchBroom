@@ -261,8 +261,11 @@ void ShearToolController::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  renderBox(renderContext, renderBatch);
-  renderHandle(renderContext, renderBatch);
+  if (m_tool.applies())
+  {
+    renderBox(renderContext, renderBatch);
+    renderHandle(renderContext, renderBatch);
+  }
 }
 
 bool ShearToolController::cancel()
