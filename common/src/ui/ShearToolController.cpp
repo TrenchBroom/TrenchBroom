@@ -261,18 +261,30 @@ void ShearToolController::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  // render sheared box
-  {
-    auto renderService = render::RenderService{renderContext, renderBatch};
-    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-    const auto mat = m_tool.bboxShearMatrix();
-    const auto op = [&](const vm::vec3d& start, const vm::vec3d& end) {
-      renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
-    };
-    m_tool.bboxAtDragStart().for_each_edge(op);
-  }
+  renderBox(renderContext, renderBatch);
+  renderHandle(renderContext, renderBatch);
+}
 
-  // render shear handle
+bool ShearToolController::cancel()
+{
+  return false;
+}
+
+void ShearToolController::renderBox(
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
+{
+  auto renderService = render::RenderService{renderContext, renderBatch};
+  renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+  const auto mat = m_tool.bboxShearMatrix();
+  const auto op = [&](const vm::vec3d& start, const vm::vec3d& end) {
+    renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
+  };
+  m_tool.bboxAtDragStart().for_each_edge(op);
+}
+
+void ShearToolController::renderHandle(
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
+{
   if (const auto poly = m_tool.shearHandle())
   {
     // fill
@@ -291,11 +303,6 @@ void ShearToolController::render(
       renderService.renderPolygonOutline(poly->vertices());
     }
   }
-}
-
-bool ShearToolController::cancel()
-{
-  return false;
 }
 
 // ShearToolController2D
