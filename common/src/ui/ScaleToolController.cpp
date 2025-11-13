@@ -45,9 +45,8 @@
 
 namespace tb::ui
 {
-ScaleToolController::ScaleToolController(ScaleTool& tool, mdl::Map& map)
+ScaleToolController::ScaleToolController(ScaleTool& tool)
   : m_tool{tool}
-  , m_map{map}
 {
 }
 
@@ -441,8 +440,8 @@ bool ScaleToolController::cancel()
 
 // ScaleToolController2D
 
-ScaleToolController2D::ScaleToolController2D(ScaleTool& tool, mdl::Map& map)
-  : ScaleToolController(tool, map)
+ScaleToolController2D::ScaleToolController2D(ScaleTool& tool)
+  : ScaleToolController(tool)
 {
 }
 
@@ -456,8 +455,8 @@ void ScaleToolController2D::doPick(
 
 // ScaleToolController3D
 
-ScaleToolController3D::ScaleToolController3D(ScaleTool& tool, mdl::Map& map)
-  : ScaleToolController(tool, map)
+ScaleToolController3D::ScaleToolController3D(ScaleTool& tool)
+  : ScaleToolController(tool)
 {
 }
 

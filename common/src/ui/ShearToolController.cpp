@@ -179,9 +179,8 @@ std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
 
 } // namespace
 
-ShearToolController::ShearToolController(ShearTool& tool, mdl::Map& map)
+ShearToolController::ShearToolController(ShearTool& tool)
   : m_tool{tool}
-  , m_map{map}
 {
 }
 
@@ -310,8 +309,8 @@ void ShearToolController::renderHandle(
 
 // ShearToolController2D
 
-ShearToolController2D::ShearToolController2D(ShearTool& tool, mdl::Map& map)
-  : ShearToolController{tool, map}
+ShearToolController2D::ShearToolController2D(ShearTool& tool)
+  : ShearToolController{tool}
 {
 }
 
@@ -323,8 +322,8 @@ void ShearToolController2D::doPick(
 
 // ShearToolController3D
 
-ShearToolController3D::ShearToolController3D(ShearTool& tool, mdl::Map& map)
-  : ShearToolController{tool, map}
+ShearToolController3D::ShearToolController3D(ShearTool& tool)
+  : ShearToolController{tool}
 {
 }
 
