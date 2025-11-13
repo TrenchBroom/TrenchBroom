@@ -50,6 +50,6 @@ set_target_properties(upd PROPERTIES AUTOMOC TRUE)
 target_include_directories(upd PUBLIC ${LIB_UPDATE_SOURCE_DIR})
 target_link_libraries(upd PUBLIC Qt6::Widgets Qt6::Network)
 
-target_link_libraries(upd PRIVATE compiler-config)
+target_link_libraries(upd PRIVATE compiler-config precompile-std-headers)
 
 add_subdirectory(test)

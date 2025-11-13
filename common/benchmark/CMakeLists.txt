@@ -14,7 +14,7 @@ target_include_directories(common-benchmark PRIVATE ${COMMON_BENCHMARK_SOURCE_DI
 target_link_libraries(common-benchmark PRIVATE common Catch2::Catch2)
 set_target_properties(common-benchmark PROPERTIES AUTOMOC TRUE)
 
-target_link_libraries(common-benchmark PRIVATE compiler-config)
+target_link_libraries(common-benchmark PRIVATE compiler-config precompile-std-headers precompile-qt-headers)
 
 # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
 # but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
