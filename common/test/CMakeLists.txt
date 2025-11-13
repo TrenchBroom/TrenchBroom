@@ -191,7 +191,7 @@ source_group(TREE "${COMMON_TEST_SOURCE_DIR}" FILES ${COMMON_TEST_SOURCE})
 set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 
 add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
-set_compiler_config(common-test-utils)
+target_link_libraries(common-test-utils PRIVATE CompilerConfig)
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt6::Test)
 
@@ -199,7 +199,7 @@ macro(configure_test_target TARGET)
     target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2 upd fmt::fmt-header-only)
     set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
-    set_compiler_config(${TARGET})
+    target_link_libraries(${TARGET} PRIVATE CompilerConfig)
 
     # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
     # but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
