@@ -404,29 +404,32 @@ void ScaleToolController::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  if (!m_tool.bounds().is_empty())
+  if (m_tool.applies())
   {
-    renderBounds(renderContext, renderBatch, m_tool.bounds());
-    renderCornerHandles(
-      renderContext, renderBatch, visibleCornerHandles(m_tool, renderContext.camera()));
-  }
+    if (!m_tool.bounds().is_empty())
+    {
+      renderBounds(renderContext, renderBatch, m_tool.bounds());
+      renderCornerHandles(
+        renderContext, renderBatch, visibleCornerHandles(m_tool, renderContext.camera()));
+    }
 
-  renderDragSideHighlights(
-    renderContext, renderBatch, m_tool.polygonsHighlightedByDrag());
+    renderDragSideHighlights(
+      renderContext, renderBatch, m_tool.polygonsHighlightedByDrag());
 
-  if (m_tool.hasDragSide())
-  {
-    renderDragSide(renderContext, renderBatch, m_tool.dragSide());
-  }
+    if (m_tool.hasDragSide())
+    {
+      renderDragSide(renderContext, renderBatch, m_tool.dragSide());
+    }
 
-  if (m_tool.hasDragEdge())
-  {
-    renderDragEdge(renderContext, renderBatch, m_tool.dragEdge());
-  }
+    if (m_tool.hasDragEdge())
+    {
+      renderDragEdge(renderContext, renderBatch, m_tool.dragEdge());
+    }
 
-  if (m_tool.hasDragCorner())
-  {
-    renderDragCorner(renderContext, renderBatch, m_tool.dragCorner());
+    if (m_tool.hasDragCorner())
+    {
+      renderDragCorner(renderContext, renderBatch, m_tool.dragCorner());
+    }
   }
 }
 

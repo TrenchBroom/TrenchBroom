@@ -68,6 +68,11 @@ private:
     render::RenderBatch& renderBatch) override;
 
   bool cancel() override;
+
+private:
+  void renderBox(render::RenderContext& renderContext, render::RenderBatch& renderBatch);
+  void renderHandle(
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 };
 
 class ShearToolController2D : public ShearToolController

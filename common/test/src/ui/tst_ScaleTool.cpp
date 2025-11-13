@@ -18,133 +18,183 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapFixture.h"
+#include "TestFactory.h"
+#include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "ui/ScaleTool.h"
+
+#include "kdl/ranges/to.h"
 
 #include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::ui
 {
 
-TEST_CASE("ScaleToolTest.moveBBoxFace_NonProportional")
+TEST_CASE("ScaleTool")
 {
-  const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
+  auto fixture = mdl::MapFixture{};
+  auto& map = fixture.map();
+  fixture.create();
 
-  const auto exp1 = vm::bbox3d{{-100, -100, -100}, {125, 100, 100}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
+  auto* brushNode = mdl::createBrushNode(map);
+  auto* patchNode = mdl::createPatchNode("some_material");
+  mdl::addNodes(map, {{mdl::parentForNodes(map), {brushNode, entityNode, patchNode}}});
 
-  CHECK(
-    moveBBoxSide(
-      input1,
-      BBoxSide{{1, 0, 0}},
-      vm::vec3d{25, 0, 0},
-      ProportionalAxes::None(),
-      AnchorPos::Opposite)
-    == exp1);
+  auto nodes = std::vector<mdl::Node*>{entityNode, brushNode, patchNode};
+  constexpr size_t iEntityNode = 0;
+  constexpr size_t iBrushNode = 1;
+  constexpr size_t iPatchNode = 2;
 
-  // attempting to collapse the bbox returns an empty box
-  CHECK(moveBBoxSide(
-          input1,
-          BBoxSide{{1, 0, 0}},
-          vm::vec3d{-200, 0, 0},
-          ProportionalAxes::None(),
-          AnchorPos::Opposite)
-          .is_empty());
-  CHECK(moveBBoxSide(
-          input1,
-          BBoxSide{{1, 0, 0}},
-          vm::vec3d{-225, 0, 0},
-          ProportionalAxes::None(),
-          AnchorPos::Opposite)
-          .is_empty());
+  auto tool = ScaleTool{map};
 
-  // test with center anchor
-  const auto exp2 = vm::bbox3d{{-125, -100, -100}, {125, 100, 100}};
+  SECTION("applies")
+  {
+    using T = std::tuple<std::vector<size_t>, bool>;
 
-  CHECK(
-    moveBBoxSide(
-      input1,
-      BBoxSide{{1, 0, 0}},
-      vm::vec3d{25, 0, 0},
-      ProportionalAxes::None(),
-      AnchorPos::Center)
-    == exp2);
-  CHECK(moveBBoxSide(
-          input1,
-          BBoxSide{{1, 0, 0}},
-          vm::vec3d{-100, 0, 0},
-          ProportionalAxes::None(),
-          AnchorPos::Center)
-          .is_empty());
-  CHECK(moveBBoxSide(
-          input1,
-          BBoxSide{{1, 0, 0}},
-          vm::vec3d{-125, 0, 0},
-          ProportionalAxes::None(),
-          AnchorPos::Center)
-          .is_empty());
+    const auto [nodesIndicesToSelect, expectedApplies] = GENERATE(values<T>({
+      {std::vector<size_t>{}, false},
+      {std::vector<size_t>{iEntityNode}, true},
+      {std::vector<size_t>{iBrushNode}, true},
+      {std::vector<size_t>{iPatchNode}, true},
+      {std::vector<size_t>{iEntityNode, iBrushNode, iPatchNode}, true},
+    }));
+
+    const auto nodesToSelect =
+      nodesIndicesToSelect
+      | std::views::transform([&](const auto i) -> mdl::Node* { return nodes[i]; })
+      | kdl::ranges::to<std::vector>();
+
+    mdl::selectNodes(map, nodesToSelect);
+    CHECK(tool.applies() == expectedApplies);
+  }
 }
 
-TEST_CASE("ScaleToolTest.moveBBoxFace_Proportional")
+TEST_CASE("moveBBoxSide")
 {
-  const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
+  SECTION("non proportional")
+  {
+    const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
-  const auto exp1 = vm::bbox3d{{-100, -112.5, -112.5}, {125, 112.5, 112.5}};
+    const auto exp1 = vm::bbox3d{{-100, -100, -100}, {125, 100, 100}};
 
-  CHECK(exp1.size() == vm::vec3d{225, 225, 225});
-  CHECK(
-    moveBBoxSide(
-      input1,
-      BBoxSide{{1, 0, 0}},
-      vm::vec3d{25, 0, 0},
-      ProportionalAxes::All(),
-      AnchorPos::Opposite)
-    == exp1);
+    CHECK(
+      moveBBoxSide(
+        input1,
+        BBoxSide{{1, 0, 0}},
+        vm::vec3d{25, 0, 0},
+        ProportionalAxes::None(),
+        AnchorPos::Opposite)
+      == exp1);
 
-  // attempting to collapse the bbox returns an empty box
-  CHECK(moveBBoxSide(
-          input1,
-          BBoxSide{{1, 0, 0}},
-          vm::vec3d{-200, 0, 0},
-          ProportionalAxes::All(),
-          AnchorPos::Opposite)
-          .is_empty());
-  CHECK(moveBBoxSide(
-          input1,
-          BBoxSide{{1, 0, 0}},
-          vm::vec3d{-225, 0, 0},
-          ProportionalAxes::All(),
-          AnchorPos::Opposite)
-          .is_empty());
+    // attempting to collapse the bbox returns an empty box
+    CHECK(moveBBoxSide(
+            input1,
+            BBoxSide{{1, 0, 0}},
+            vm::vec3d{-200, 0, 0},
+            ProportionalAxes::None(),
+            AnchorPos::Opposite)
+            .is_empty());
+    CHECK(moveBBoxSide(
+            input1,
+            BBoxSide{{1, 0, 0}},
+            vm::vec3d{-225, 0, 0},
+            ProportionalAxes::None(),
+            AnchorPos::Opposite)
+            .is_empty());
 
-  // test with center anchor
-  const auto exp2 = vm::bbox3d{{-125, -125, -125}, {125, 125, 125}};
+    // test with center anchor
+    const auto exp2 = vm::bbox3d{{-125, -100, -100}, {125, 100, 100}};
 
-  CHECK(
-    moveBBoxSide(
-      input1,
-      BBoxSide{{1, 0, 0}},
-      vm::vec3d{25, 0, 0},
-      ProportionalAxes::All(),
-      AnchorPos::Center)
-    == exp2);
-  CHECK(moveBBoxSide(
-          input1,
-          BBoxSide{{1, 0, 0}},
-          vm::vec3d{-100, 0, 0},
-          ProportionalAxes::All(),
-          AnchorPos::Center)
-          .is_empty());
-  CHECK(moveBBoxSide(
-          input1,
-          BBoxSide{{1, 0, 0}},
-          vm::vec3d{-125, 0, 0},
-          ProportionalAxes::All(),
-          AnchorPos::Center)
-          .is_empty());
+    CHECK(
+      moveBBoxSide(
+        input1,
+        BBoxSide{{1, 0, 0}},
+        vm::vec3d{25, 0, 0},
+        ProportionalAxes::None(),
+        AnchorPos::Center)
+      == exp2);
+    CHECK(moveBBoxSide(
+            input1,
+            BBoxSide{{1, 0, 0}},
+            vm::vec3d{-100, 0, 0},
+            ProportionalAxes::None(),
+            AnchorPos::Center)
+            .is_empty());
+    CHECK(moveBBoxSide(
+            input1,
+            BBoxSide{{1, 0, 0}},
+            vm::vec3d{-125, 0, 0},
+            ProportionalAxes::None(),
+            AnchorPos::Center)
+            .is_empty());
+  }
+
+  SECTION("proportional")
+  {
+    const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
+
+    const auto exp1 = vm::bbox3d{{-100, -112.5, -112.5}, {125, 112.5, 112.5}};
+
+    CHECK(exp1.size() == vm::vec3d{225, 225, 225});
+    CHECK(
+      moveBBoxSide(
+        input1,
+        BBoxSide{{1, 0, 0}},
+        vm::vec3d{25, 0, 0},
+        ProportionalAxes::All(),
+        AnchorPos::Opposite)
+      == exp1);
+
+    // attempting to collapse the bbox returns an empty box
+    CHECK(moveBBoxSide(
+            input1,
+            BBoxSide{{1, 0, 0}},
+            vm::vec3d{-200, 0, 0},
+            ProportionalAxes::All(),
+            AnchorPos::Opposite)
+            .is_empty());
+    CHECK(moveBBoxSide(
+            input1,
+            BBoxSide{{1, 0, 0}},
+            vm::vec3d{-225, 0, 0},
+            ProportionalAxes::All(),
+            AnchorPos::Opposite)
+            .is_empty());
+
+    // test with center anchor
+    const auto exp2 = vm::bbox3d{{-125, -125, -125}, {125, 125, 125}};
+
+    CHECK(
+      moveBBoxSide(
+        input1,
+        BBoxSide{{1, 0, 0}},
+        vm::vec3d{25, 0, 0},
+        ProportionalAxes::All(),
+        AnchorPos::Center)
+      == exp2);
+    CHECK(moveBBoxSide(
+            input1,
+            BBoxSide{{1, 0, 0}},
+            vm::vec3d{-100, 0, 0},
+            ProportionalAxes::All(),
+            AnchorPos::Center)
+            .is_empty());
+    CHECK(moveBBoxSide(
+            input1,
+            BBoxSide{{1, 0, 0}},
+            vm::vec3d{-125, 0, 0},
+            ProportionalAxes::All(),
+            AnchorPos::Center)
+            .is_empty());
+  }
 }
 
-TEST_CASE("ScaleToolTest.moveBBoxCorner")
+TEST_CASE("moveBBoxCorner")
 {
   const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
@@ -178,171 +228,175 @@ TEST_CASE("ScaleToolTest.moveBBoxCorner")
           .is_empty());
 }
 
-TEST_CASE("ScaleToolTest.moveBBoxEdge_NonProportional")
+TEST_CASE("moveBBoxEdge")
 {
-  const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
+  SECTION("non proportional")
+  {
+    const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
-  const auto exp1 = vm::bbox3d{{-100, -100, -100}, {125, 125, 100}};
+    const auto exp1 = vm::bbox3d{{-100, -100, -100}, {125, 125, 100}};
 
-  // move the (+X, +Y, +/-Z) edge by X=25, Y=25
-  CHECK(
-    moveBBoxEdge(
-      input1,
-      BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-      vm::vec3d{25, 25, 0},
-      ProportionalAxes::None(),
-      AnchorPos::Opposite)
-    == exp1);
+    // move the (+X, +Y, +/-Z) edge by X=25, Y=25
+    CHECK(
+      moveBBoxEdge(
+        input1,
+        BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+        vm::vec3d{25, 25, 0},
+        ProportionalAxes::None(),
+        AnchorPos::Opposite)
+      == exp1);
 
-  // attempting to collapse the bbox returns an empty box
-  CHECK(moveBBoxEdge(
-          input1,
-          BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-          vm::vec3d{-200, -200, 0},
-          ProportionalAxes::None(),
-          AnchorPos::Opposite)
-          .is_empty());
-  CHECK(moveBBoxEdge(
-          input1,
-          BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-          vm::vec3d{-225, -225, 0},
-          ProportionalAxes::None(),
-          AnchorPos::Opposite)
-          .is_empty());
+    // attempting to collapse the bbox returns an empty box
+    CHECK(moveBBoxEdge(
+            input1,
+            BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+            vm::vec3d{-200, -200, 0},
+            ProportionalAxes::None(),
+            AnchorPos::Opposite)
+            .is_empty());
+    CHECK(moveBBoxEdge(
+            input1,
+            BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+            vm::vec3d{-225, -225, 0},
+            ProportionalAxes::None(),
+            AnchorPos::Opposite)
+            .is_empty());
 
-  // test with center anchor
-  const auto exp2 = vm::bbox3d{{-125, -125, -100}, {125, 125, 100}};
+    // test with center anchor
+    const auto exp2 = vm::bbox3d{{-125, -125, -100}, {125, 125, 100}};
 
-  // move the (+X, +Y, +/-Z) edge by X=25, Y=25
-  CHECK(
-    moveBBoxEdge(
-      input1,
-      BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-      vm::vec3d{25, 25, 0},
-      ProportionalAxes::None(),
-      AnchorPos::Center)
-    == exp2);
-  CHECK(moveBBoxEdge(
-          input1,
-          BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-          vm::vec3d{-100, -200, 0},
-          ProportionalAxes::None(),
-          AnchorPos::Center)
-          .is_empty());
-  CHECK(moveBBoxEdge(
-          input1,
-          BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-          vm::vec3d{-125, -225, 0},
-          ProportionalAxes::None(),
-          AnchorPos::Center)
-          .is_empty());
+    // move the (+X, +Y, +/-Z) edge by X=25, Y=25
+    CHECK(
+      moveBBoxEdge(
+        input1,
+        BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+        vm::vec3d{25, 25, 0},
+        ProportionalAxes::None(),
+        AnchorPos::Center)
+      == exp2);
+    CHECK(moveBBoxEdge(
+            input1,
+            BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+            vm::vec3d{-100, -200, 0},
+            ProportionalAxes::None(),
+            AnchorPos::Center)
+            .is_empty());
+    CHECK(moveBBoxEdge(
+            input1,
+            BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+            vm::vec3d{-125, -225, 0},
+            ProportionalAxes::None(),
+            AnchorPos::Center)
+            .is_empty());
+  }
+
+  SECTION("non proportional (negative Y axis)")
+  {
+    const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
+
+    const auto exp1 = vm::bbox3d{{-100, -125, -100}, {100, 100, 125}};
+
+    // move the (+Z, -Y, +/-X) edge by Z=25, Y=-25
+    CHECK(
+      moveBBoxEdge(
+        input1,
+        BBoxEdge{{1, -1, 1}, {-1, -1, 1}},
+        vm::vec3d{0, -25, 25},
+        ProportionalAxes::None(),
+        AnchorPos::Opposite)
+      == exp1);
+
+    // test with center anchor
+    const auto exp2 = vm::bbox3d{{-100, -125, -125}, {100, 125, 125}};
+
+    CHECK(
+      moveBBoxEdge(
+        input1,
+        BBoxEdge{{1, -1, 1}, {-1, -1, 1}},
+        vm::vec3d{0, -25, 25},
+        ProportionalAxes::None(),
+        AnchorPos::Center)
+      == exp2);
+  }
+
+  SECTION("proportional")
+  {
+    const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
+
+    const auto exp1 = vm::bbox3d{{-100, -100, -112.5}, {125, 125, 112.5}};
+
+    // move the (+X, +Y, +/-Z) edge by X=25, Y=25
+    CHECK(
+      moveBBoxEdge(
+        input1,
+        BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+        vm::vec3d{25, 25, 0},
+        ProportionalAxes::All(),
+        AnchorPos::Opposite)
+      == exp1);
+
+    // attempting to collapse the bbox returns an empty box
+    CHECK(moveBBoxEdge(
+            input1,
+            BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+            vm::vec3d{-200, -200, 0},
+            ProportionalAxes::All(),
+            AnchorPos::Opposite)
+            .is_empty());
+    CHECK(moveBBoxEdge(
+            input1,
+            BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+            vm::vec3d{-225, -225, 0},
+            ProportionalAxes::All(),
+            AnchorPos::Opposite)
+            .is_empty());
+
+    // test with center anchor
+    const auto exp2 = vm::bbox3d{{-125, -125, -125}, {125, 125, 125}};
+
+    CHECK(
+      moveBBoxEdge(
+        input1,
+        BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+        vm::vec3d{25, 25, 0},
+        ProportionalAxes::All(),
+        AnchorPos::Center)
+      == exp2);
+    CHECK(moveBBoxEdge(
+            input1,
+            BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+            vm::vec3d{-100, -100, 0},
+            ProportionalAxes::All(),
+            AnchorPos::Center)
+            .is_empty());
+    CHECK(moveBBoxEdge(
+            input1,
+            BBoxEdge{{1, 1, -1}, {1, 1, 1}},
+            vm::vec3d{-125, -125, 0},
+            ProportionalAxes::All(),
+            AnchorPos::Center)
+            .is_empty());
+  }
+
+  SECTION("mixed proportional and non proportional")
+  {
+    const auto input1 = vm::bbox3d{{-64, -64, -16}, {64, 64, 16}};
+
+    const auto exp1 = vm::bbox3d{{-64, -64, -16}, {128, 64, 48}};
+
+    // NOTE: the Y=64 part of the delta is ignored because the edge we are moving points
+    // along the Y axis
+    const auto delta = vm::vec3d{64, 64, 32};
+
+    CHECK(
+      moveBBoxEdge(
+        input1,
+        BBoxEdge{{1, 1, 1}, {1, -1, 1}},
+        delta,
+        ProportionalAxes(true, false, true),
+        AnchorPos::Opposite)
+      == exp1);
+  }
 }
 
-TEST_CASE("ScaleToolTest.moveBBoxEdge_NonProportional_NegY")
-{
-  const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
-
-  const auto exp1 = vm::bbox3d{{-100, -125, -100}, {100, 100, 125}};
-
-  // move the (+Z, -Y, +/-X) edge by Z=25, Y=-25
-  CHECK(
-    moveBBoxEdge(
-      input1,
-      BBoxEdge{{1, -1, 1}, {-1, -1, 1}},
-      vm::vec3d{0, -25, 25},
-      ProportionalAxes::None(),
-      AnchorPos::Opposite)
-    == exp1);
-
-  // test with center anchor
-  const auto exp2 = vm::bbox3d{{-100, -125, -125}, {100, 125, 125}};
-
-  CHECK(
-    moveBBoxEdge(
-      input1,
-      BBoxEdge{{1, -1, 1}, {-1, -1, 1}},
-      vm::vec3d{0, -25, 25},
-      ProportionalAxes::None(),
-      AnchorPos::Center)
-    == exp2);
-}
-
-TEST_CASE("ScaleToolTest.moveBBoxEdge_Proportional")
-{
-  const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
-
-  const auto exp1 = vm::bbox3d{{-100, -100, -112.5}, {125, 125, 112.5}};
-
-  // move the (+X, +Y, +/-Z) edge by X=25, Y=25
-  CHECK(
-    moveBBoxEdge(
-      input1,
-      BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-      vm::vec3d{25, 25, 0},
-      ProportionalAxes::All(),
-      AnchorPos::Opposite)
-    == exp1);
-
-  // attempting to collapse the bbox returns an empty box
-  CHECK(moveBBoxEdge(
-          input1,
-          BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-          vm::vec3d{-200, -200, 0},
-          ProportionalAxes::All(),
-          AnchorPos::Opposite)
-          .is_empty());
-  CHECK(moveBBoxEdge(
-          input1,
-          BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-          vm::vec3d{-225, -225, 0},
-          ProportionalAxes::All(),
-          AnchorPos::Opposite)
-          .is_empty());
-
-  // test with center anchor
-  const auto exp2 = vm::bbox3d{{-125, -125, -125}, {125, 125, 125}};
-
-  CHECK(
-    moveBBoxEdge(
-      input1,
-      BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-      vm::vec3d{25, 25, 0},
-      ProportionalAxes::All(),
-      AnchorPos::Center)
-    == exp2);
-  CHECK(moveBBoxEdge(
-          input1,
-          BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-          vm::vec3d{-100, -100, 0},
-          ProportionalAxes::All(),
-          AnchorPos::Center)
-          .is_empty());
-  CHECK(moveBBoxEdge(
-          input1,
-          BBoxEdge{{1, 1, -1}, {1, 1, 1}},
-          vm::vec3d{-125, -125, 0},
-          ProportionalAxes::All(),
-          AnchorPos::Center)
-          .is_empty());
-}
-
-TEST_CASE("ScaleToolTest.moveBBoxEdge")
-{
-  const auto input1 = vm::bbox3d{{-64, -64, -16}, {64, 64, 16}};
-
-  const auto exp1 = vm::bbox3d{{-64, -64, -16}, {128, 64, 48}};
-
-  // NOTE: the Y=64 part of the delta is ignored because the edge we are moving points
-  // along the Y axis
-  const auto delta = vm::vec3d{64, 64, 32};
-
-  CHECK(
-    moveBBoxEdge(
-      input1,
-      BBoxEdge{{1, 1, 1}, {1, -1, 1}},
-      delta,
-      ProportionalAxes(true, false, true),
-      AnchorPos::Opposite)
-    == exp1);
-}
 } // namespace tb::ui
