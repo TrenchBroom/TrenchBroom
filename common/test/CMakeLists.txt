@@ -75,7 +75,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ResourceUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_SystemPaths.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_TestFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_Tokenizer.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_VirtualFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_WorldReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_AssetUtils.cpp"
@@ -145,12 +144,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/render/tst_AllocationTracker.cpp"
         "${COMMON_TEST_SOURCE_DIR}/render/tst_Camera.cpp"
         "${COMMON_TEST_SOURCE_DIR}/render/tst_Vertex.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_Color.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_ColorComponentType.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_ColorT.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_ColorVariantT.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_Ensure.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_Notifier.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_octree.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_Preferences.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_StackWalker.cpp"
@@ -193,7 +186,7 @@ add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
 target_link_libraries(common-test-utils PRIVATE compiler-config precompile-std-headers precompile-qt-headers)
 
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt6::Test)
+target_link_libraries(common-test-utils PRIVATE lib-base common Catch2::Catch2 Qt6::Test)
 
 add_subdirectory(cmd-tool)
 
@@ -204,7 +197,7 @@ file(GENERATE
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_include_directories(common-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-target_link_libraries(common-test PRIVATE common common-test-utils Catch2::Catch2 lib-upd fmt::fmt-header-only)
+target_link_libraries(common-test PRIVATE lib-base common common-test-utils lib-upd Catch2::Catch2 fmt::fmt-header-only)
 target_link_libraries(common-test PRIVATE compiler-config precompile-std-headers precompile-qt-headers)
 
 set_target_properties(common-test PROPERTIES AUTOMOC TRUE)

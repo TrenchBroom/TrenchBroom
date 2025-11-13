@@ -29,8 +29,10 @@
 
 namespace tb
 {
+class ParserStatus;
+
 struct FileLocation;
-}
+} // namespace tb
 
 namespace tb::mdl
 {
@@ -40,7 +42,6 @@ class BrushFaceAttributes;
 
 namespace tb::io
 {
-class ParserStatus;
 
 class MapParser
 {

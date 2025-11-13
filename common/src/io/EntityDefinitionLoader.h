@@ -24,6 +24,11 @@
 #include <filesystem>
 #include <vector>
 
+namespace tb
+{
+class ParserStatus;
+}
+
 namespace tb::mdl
 {
 struct EntityDefinition;
@@ -31,7 +36,6 @@ struct EntityDefinition;
 
 namespace tb::io
 {
-class ParserStatus;
 
 class EntityDefinitionLoader
 {

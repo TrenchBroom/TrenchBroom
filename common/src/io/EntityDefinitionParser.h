@@ -25,6 +25,11 @@
 
 #include <vector>
 
+namespace tb
+{
+class ParserStatus;
+}
+
 namespace tb::mdl
 {
 struct PropertyDefinition;
@@ -33,7 +38,6 @@ struct PropertyDefinition;
 namespace tb::io
 {
 struct EntityDefinitionClassInfo;
-class ParserStatus;
 
 // exposed for testing
 std::vector<EntityDefinitionClassInfo> resolveInheritance(

@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
+#include "Tokenizer.h"
 #include "el/EL_Forward.h"
 #include "el/Expression.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 
 #include <cstdint>
 #include <iosfwd>

@@ -21,7 +21,7 @@
 
 #include "Color.h"
 #include "FileLocation.h"
-#include "io/ParserStatus.h"
+#include "ParserStatus.h"
 #include "mdl/BrushFace.h"
 #include "mdl/EntityProperties.h"
 

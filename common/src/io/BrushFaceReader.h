@@ -25,19 +25,24 @@
 #include <string_view>
 #include <vector>
 
+namespace tb
+{
+class ParserStatus;
+}
+
 namespace tb::mdl
 {
+enum class MapFormat;
+
 class BrushNode;
 class BrushFace;
 class EntityProperty;
 class LayerNode;
-enum class MapFormat;
 class Node;
 } // namespace tb::mdl
 
 namespace tb::io
 {
-class ParserStatus;
 
 /**
  * Used for pasting brush faces (i.e. their UVs only)

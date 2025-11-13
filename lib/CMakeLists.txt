@@ -1,3 +1,4 @@
+add_subdirectory(base)
 add_subdirectory(kdl)
 add_subdirectory(vm)
 add_subdirectory(stackwalker)

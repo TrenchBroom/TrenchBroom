@@ -21,6 +21,8 @@
 
 #include "Color.h"
 #include "FileLocation.h"
+#include "ParserException.h"
+#include "ParserStatus.h"
 #include "el/ELExceptions.h"
 #include "el/Expression.h"
 #include "el/Types.h"
@@ -28,8 +30,6 @@
 #include "io/ELParser.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/ParseModelDefinition.h"
-#include "io/ParserException.h"
-#include "io/ParserStatus.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/PropertyDefinition.h"
 

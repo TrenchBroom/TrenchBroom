@@ -39,6 +39,11 @@ namespace kdl
 class task_manager;
 }
 
+namespace tb
+{
+class ParserStatus;
+}
+
 namespace tb::mdl
 {
 class BrushNode;
@@ -54,8 +59,6 @@ class WorldNode;
 
 namespace tb::io
 {
-
-class ParserStatus;
 
 /**
  * Abstract superclass containing common code for:

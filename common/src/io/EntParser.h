@@ -24,10 +24,14 @@
 #include <string_view>
 #include <vector>
 
+namespace tb
+{
+class ParserStatus;
+}
+
 namespace tb::io
 {
 struct EntityDefinitionClassInfo;
-class ParserStatus;
 
 class EntParser : public EntityDefinitionParser
 {

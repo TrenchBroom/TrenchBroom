@@ -17,6 +17,4 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
-
 #include "catch/StringMakers.h" // IWYU pragma: keep

@@ -1,8 +1,6 @@
 set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
-        ${COMMON_SOURCE_DIR}/Color.cpp
-        ${COMMON_SOURCE_DIR}/ColorChannel.cpp
         ${COMMON_SOURCE_DIR}/el/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
         ${COMMON_SOURCE_DIR}/el/Expression.cpp
@@ -10,8 +8,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/el/Types.cpp
         ${COMMON_SOURCE_DIR}/el/Value.cpp
         ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
-        ${COMMON_SOURCE_DIR}/Ensure.cpp
-        ${COMMON_SOURCE_DIR}/FileLocation.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/io/AseLoader.cpp
         ${COMMON_SOURCE_DIR}/io/AssimpLoader.cpp
@@ -61,8 +57,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/NodeWriter.cpp
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
-        ${COMMON_SOURCE_DIR}/io/ParserException.cpp
-        ${COMMON_SOURCE_DIR}/io/ParserStatus.cpp
         ${COMMON_SOURCE_DIR}/io/PathInfo.cpp
         ${COMMON_SOURCE_DIR}/io/PathMatcher.cpp
         ${COMMON_SOURCE_DIR}/io/PathQt.cpp
@@ -84,8 +78,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/WadFileSystem.cpp
         ${COMMON_SOURCE_DIR}/io/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/io/ZipFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/Logger.cpp
-        ${COMMON_SOURCE_DIR}/LoggerCache.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
@@ -232,7 +224,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/VertexHandleManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.cpp
-        ${COMMON_SOURCE_DIR}/NotifierConnection.cpp
         ${COMMON_SOURCE_DIR}/octree.cpp
         ${COMMON_SOURCE_DIR}/Preference.cpp
         ${COMMON_SOURCE_DIR}/PreferenceManager.cpp
@@ -507,15 +498,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ViewPreferencePane.cpp
         ${COMMON_SOURCE_DIR}/ui/ViewUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/WelcomeWindow.cpp
-        ${COMMON_SOURCE_DIR}/Uuid.cpp
+        ${COMMON_SOURCE_DIR}/UUID.cpp
 )
 
 set(COMMON_HEADER
-        ${COMMON_SOURCE_DIR}/Color.h
-        ${COMMON_SOURCE_DIR}/ColorChannel.h
-        ${COMMON_SOURCE_DIR}/ColorComponentType.h
-        ${COMMON_SOURCE_DIR}/ColorT.h
-        ${COMMON_SOURCE_DIR}/ColorVariantT.h
         ${COMMON_SOURCE_DIR}/el/EL_Forward.h
         ${COMMON_SOURCE_DIR}/el/ELExceptions.h
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
@@ -524,9 +510,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/el/Types.h
         ${COMMON_SOURCE_DIR}/el/Value.h
         ${COMMON_SOURCE_DIR}/el/VariableStore.h
-        ${COMMON_SOURCE_DIR}/Ensure.h
-        ${COMMON_SOURCE_DIR}/Error.h
-        ${COMMON_SOURCE_DIR}/FileLocation.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/io/AseLoader.h
         ${COMMON_SOURCE_DIR}/io/AssimpLoader.h
@@ -576,9 +559,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/NodeWriter.h
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.h
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
-        ${COMMON_SOURCE_DIR}/io/Parser.h
-        ${COMMON_SOURCE_DIR}/io/ParserException.h
-        ${COMMON_SOURCE_DIR}/io/ParserStatus.h
         ${COMMON_SOURCE_DIR}/io/PathInfo.h
         ${COMMON_SOURCE_DIR}/io/PathMatcher.h
         ${COMMON_SOURCE_DIR}/io/PathQt.h
@@ -596,16 +576,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/SprLoader.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/io/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/io/Token.h
-        ${COMMON_SOURCE_DIR}/io/Tokenizer.h
         ${COMMON_SOURCE_DIR}/io/TraversalMode.h
         ${COMMON_SOURCE_DIR}/io/VirtualFileSystem.h
         ${COMMON_SOURCE_DIR}/io/WadFileSystem.h
         ${COMMON_SOURCE_DIR}/io/WorldReader.h
         ${COMMON_SOURCE_DIR}/io/ZipFileSystem.h
-        ${COMMON_SOURCE_DIR}/Logger.h
-        ${COMMON_SOURCE_DIR}/LoggerCache.h
-        ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
@@ -782,8 +757,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/VisibilityState.h
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.h
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.h
-        ${COMMON_SOURCE_DIR}/Notifier.h
-        ${COMMON_SOURCE_DIR}/NotifierConnection.h
         ${COMMON_SOURCE_DIR}/octree.h
         ${COMMON_SOURCE_DIR}/Preference.h
         ${COMMON_SOURCE_DIR}/PreferenceManager.h
@@ -865,7 +838,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/VboManager.h
         ${COMMON_SOURCE_DIR}/render/VertexArray.h
         ${COMMON_SOURCE_DIR}/render/VertexListBuilder.h
-        ${COMMON_SOURCE_DIR}/Result.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
@@ -1069,14 +1041,14 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ViewPreferencePane.h
         ${COMMON_SOURCE_DIR}/ui/ViewUtils.h
         ${COMMON_SOURCE_DIR}/ui/WelcomeWindow.h
-        ${COMMON_SOURCE_DIR}/Uuid.h
+        ${COMMON_SOURCE_DIR}/UUID.h
 )
 
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC lib-kdl lib-vm Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PUBLIC lib-kdl lib-vm lib-base Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE GLEW::GLEW OpenGL::GL lib-upd tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE compiler-config precompile-std-headers precompile-qt-headers)

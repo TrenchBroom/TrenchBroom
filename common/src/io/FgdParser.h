@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Color.h"
+#include "Parser.h"
+#include "Tokenizer.h"
 #include "io/EntityDefinitionParser.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 
 #include "vm/bbox.h"
 
@@ -34,8 +34,10 @@
 
 namespace tb
 {
+class ParserStatus;
+
 struct FileLocation;
-};
+}; // namespace tb
 
 namespace tb::mdl
 {
@@ -49,7 +51,6 @@ namespace tb::io
 struct EntityDefinitionClassInfo;
 enum class EntityDefinitionClassType;
 class FileSystem;
-class ParserStatus;
 
 namespace FgdToken
 {

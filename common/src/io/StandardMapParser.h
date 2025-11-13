@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
+#include "Tokenizer.h"
 #include "io/MapParser.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 #include "mdl/MapFormat.h"
 
 #include "kdl/vector_set_forward.h"
@@ -35,12 +35,13 @@
 
 namespace tb
 {
+class ParserStatus;
+
 struct FileLocation;
-}
+} // namespace tb
 
 namespace tb::io
 {
-class ParserStatus;
 
 namespace QuakeMapToken
 {

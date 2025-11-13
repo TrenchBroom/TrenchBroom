@@ -11,7 +11,7 @@ set_property(SOURCE "${COMMON_BENCHMARK_SOURCE_DIR}/Main.cpp" PROPERTY SKIP_UNIT
 
 add_executable(common-benchmark ${COMMON_BENCHMARK_SOURCE})
 target_include_directories(common-benchmark PRIVATE ${COMMON_BENCHMARK_SOURCE_DIR})
-target_link_libraries(common-benchmark PRIVATE common Catch2::Catch2)
+target_link_libraries(common-benchmark PRIVATE lib-base common Catch2::Catch2)
 set_target_properties(common-benchmark PROPERTIES AUTOMOC TRUE)
 
 target_link_libraries(common-benchmark PRIVATE compiler-config precompile-std-headers precompile-qt-headers)

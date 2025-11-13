@@ -30,6 +30,11 @@ namespace kdl
 class task_manager;
 }
 
+namespace tb
+{
+class ParserStatus;
+}
+
 namespace tb::mdl
 {
 struct EntityPropertyConfig;
@@ -38,7 +43,6 @@ class WorldNode;
 
 namespace tb::io
 {
-class ParserStatus;
 
 /**
  * MapReader subclass for loading a whole .map file.

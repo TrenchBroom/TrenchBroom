@@ -19,16 +19,20 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
+#include "Tokenizer.h"
 #include "el/EL_Forward.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 
 #include <string_view>
 
-namespace tb::io
+namespace tb
 {
 class ParserStatus;
+}
+
+namespace tb::io
+{
 
 namespace MdlToken
 {
