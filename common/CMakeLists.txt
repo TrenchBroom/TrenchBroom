@@ -1097,7 +1097,7 @@ if(APPLE)
     target_compile_definitions(common PUBLIC GL_SILENCE_DEPRECATION)
 endif()
 
-set_compiler_config(common)
+target_link_libraries(common PRIVATE compiler-config)
 
 # Create the cmake script for generating the version information
 target_include_directories(common PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
