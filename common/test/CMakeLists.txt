@@ -195,17 +195,6 @@ target_link_libraries(common-test-utils PRIVATE compiler-config precompile-std-h
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt6::Test)
 
-macro(configure_test_target TARGET)
-    target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2 upd fmt::fmt-header-only)
-    set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
-
-    target_link_libraries(${TARGET} PRIVATE compiler-config precompile-std-headers precompile-qt-headers)
-
-    # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
-    # but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
-    set_target_properties(${TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET}>")
-endmacro()
-
 add_subdirectory(cmd-tool)
 
 file(GENERATE
@@ -215,7 +204,15 @@ file(GENERATE
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_include_directories(common-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-configure_test_target(common-test)
+target_link_libraries(common-test PRIVATE common common-test-utils Catch2::Catch2 upd fmt::fmt-header-only)
+target_link_libraries(common-test PRIVATE compiler-config precompile-std-headers precompile-qt-headers)
+
+set_target_properties(common-test PROPERTIES AUTOMOC TRUE)
+
+# By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
+# but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
+set_target_properties(common-test PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET}>")
+
 add_dependencies(common-test cmd-tool)
 
 # Copy shared resources for the test executables
