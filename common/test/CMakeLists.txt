@@ -169,6 +169,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RecentDocuments.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RotateTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ScaleTool.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_ShearTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_SelectionTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_TextOutputAdapter.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_UpdateVersion.cpp"
