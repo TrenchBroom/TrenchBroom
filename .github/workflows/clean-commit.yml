@@ -1,5 +1,6 @@
 name: Check Commits
-on: [pull_request]
+on:
+  workflow_dispatch:
 
 jobs:
   clean_commit_job:

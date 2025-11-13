@@ -1,12 +1,11 @@
 name: CI Builds
 on:
-  # Run on pushes to tags, the "master" branch, and PR's
   push:
     tags:
       - '**'
     branches:
       - master
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
