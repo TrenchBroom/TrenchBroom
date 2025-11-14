@@ -11,6 +11,8 @@ on:
 permissions:
   # This grants the GITHUB_TOKEN the necessary permissions for use with nuget.
   packages: write
+  # Grant the Release step the necessary permissions to upload a release
+  contents: write
 
 jobs:
   ci:
