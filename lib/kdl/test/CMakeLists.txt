@@ -60,3 +60,5 @@ elseif(MSVC EQUAL 1)
 else()
     message(FATAL_ERROR "Cannot set compile options")
 endif()
+
+add_subdirectory(utils)
