@@ -24,7 +24,6 @@
 #include <QProcess>
 #include <QtGlobal>
 
-#include "Exceptions.h"
 #include "io/DiskIO.h"
 #include "io/ExportOptions.h"
 #include "io/PathInfo.h"
@@ -50,6 +49,7 @@
 #include <fmt/std.h>
 
 #include <ranges>
+#include <stdexcept>
 #include <string>
 
 namespace tb::ui
@@ -64,7 +64,7 @@ Result<std::string> workDir(const CompilationContext& context)
   {
     return context.variableValue(CompilationVariableNames::WORK_DIR_PATH);
   }
-  catch (const Exception& e)
+  catch (const std::runtime_error& e)
   {
     return Error{e.what()};
   }
@@ -95,7 +95,7 @@ Result<std::string> CompilationTaskRunner::interpolate(const std::string& spec) 
   {
     return m_context.interpolate(spec);
   }
-  catch (const Exception& e)
+  catch (const std::runtime_error& e)
   {
     return Error{
       fmt::format("Could not interpolate expression '{}': {}", spec, e.what())};

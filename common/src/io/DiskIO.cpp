@@ -19,7 +19,6 @@
 
 #include "DiskIO.h"
 
-#include "Exceptions.h"
 #include "Macros.h"
 #include "io/File.h"
 #include "io/PathInfo.h"
@@ -319,16 +318,10 @@ std::filesystem::path resolvePath(
     {
       if (searchPath.is_absolute())
       {
-        try
+        const auto fullPath = searchPath / path;
+        if (pathInfo(fullPath) != PathInfo::Unknown)
         {
-          const auto fullPath = searchPath / path;
-          if (pathInfo(fullPath) != PathInfo::Unknown)
-          {
-            return fullPath;
-          }
-        }
-        catch (const Exception&)
-        {
+          return fullPath;
         }
       }
     }

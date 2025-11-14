@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "Exceptions.h"
-
 #include "kdl/overload.h"
 #include "kdl/reflection_decl.h"
 #include "kdl/reflection_impl.h"
@@ -36,6 +34,7 @@
 #include <cmath>
 #include <cstdint>
 #include <optional>
+#include <stdexcept>
 #include <unordered_map>
 #include <variant>
 #include <vector>
@@ -414,7 +413,7 @@ public:
 
     if (contains(data))
     {
-      throw NodeTreeException("Data already in tree");
+      throw std::runtime_error("Data already in tree");
     }
 
     const auto address = detail::get_container(bounds, m_min_size);
@@ -480,7 +479,7 @@ public:
    * @param newBounds the new bounds of the node
    * @param data the node data of the node to update
    *
-   * @throws NodeTreeException if no node with the given data can be found in this tree
+   * @throws std::runtime_error if no node with the given data can be found in this tree
    */
   void update(const vm::bbox<T, 3>& newBounds, const U& data)
   {
@@ -488,7 +487,7 @@ public:
 
     if (!remove(data))
     {
-      throw NodeTreeException("node not found");
+      throw std::runtime_error("node not found");
     }
     insert(newBounds, data);
   }
@@ -635,7 +634,7 @@ private:
   {
     if (vm::is_nan(bounds.min) || vm::is_nan(bounds.max))
     {
-      throw NodeTreeException("Cannot add node to octree with invalid bounds");
+      throw std::runtime_error("Cannot add node to octree with invalid bounds");
     }
   }
 };

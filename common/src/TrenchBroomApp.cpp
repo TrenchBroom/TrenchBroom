@@ -19,7 +19,6 @@
 
 #include "TrenchBroomApp.h"
 
-#include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Result.h"
@@ -80,6 +79,7 @@
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -473,7 +473,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
              })
            | kdl::value();
   }
-  catch (const Exception& e)
+  catch (const std::exception& e)
   {
     if (frame)
     {
@@ -556,7 +556,7 @@ bool TrenchBroomApp::newDocument()
              })
            | kdl::value();
   }
-  catch (const Exception& e)
+  catch (const std::exception& e)
   {
     if (frame)
     {

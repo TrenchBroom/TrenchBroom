@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http:www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
 #include "Logger.h"
 #include "MapFixture.h"
 #include "MockGame.h"
@@ -2087,7 +2086,7 @@ TEST_CASE("Map")
     auto& map = fixture.map();
     fixture.create();
 
-    CHECK_THROWS_AS(map.throwExceptionDuringCommand(), CommandProcessorException);
+    CHECK_THROWS_AS(map.throwExceptionDuringCommand(), std::exception);
   }
 
   SECTION("Entity definition file handling")

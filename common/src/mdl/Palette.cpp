@@ -20,7 +20,6 @@
 #include "Palette.h"
 
 #include "Ensure.h"
-#include "Exceptions.h"
 #include "Macros.h"
 #include "io/File.h"
 #include "io/ImageLoader.h"
@@ -29,7 +28,6 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/reflection_impl.h"
-#include "kdl/string_format.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -237,7 +235,7 @@ Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& p
     return Error{
       fmt::format("Could not load palette file {}: Unknown palette format", path)};
   }
-  catch (const Exception& e)
+  catch (const std::runtime_error& e)
   {
     return Error{fmt::format("Could not load palette file {}: {}", path, e.what())};
   }
@@ -251,7 +249,7 @@ Result<Palette> loadPalette(io::Reader& reader, const PaletteColorFormat colorFo
     reader.read(data.data(), data.size());
     return makePalette(data, colorFormat);
   }
-  catch (const Exception& e)
+  catch (const std::runtime_error& e)
   {
     using namespace std::string_literals;
     return Error{"Could not load palette: "s + e.what()};

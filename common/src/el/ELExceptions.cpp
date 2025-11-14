@@ -60,8 +60,6 @@ DereferenceError::DereferenceError(
 {
 }
 
-EvaluationError::EvaluationError() = default;
-
 EvaluationError::EvaluationError(
   const ExpressionNode& expression, const std::string_view reason)
   : EvaluationError{

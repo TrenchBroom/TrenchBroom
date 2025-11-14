@@ -240,7 +240,7 @@ Result<mdl::Texture> readWalTexture(
     }
     return readQ2Wal(reader, palette);
   }
-  catch (const Exception& e)
+  catch (const std::runtime_error& e)
   {
     return Error{e.what()};
   }

@@ -19,7 +19,6 @@
 
 #include "EntityDefinitionParser.h"
 
-#include "Exceptions.h"
 #include "Macros.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/ParserStatus.h"
@@ -499,7 +498,7 @@ Result<std::vector<mdl::EntityDefinition>> EntityDefinitionParser::parseDefiniti
     const auto classInfos = parseClassInfos(status);
     return createDefinitions(status, classInfos, m_defaultEntityColor);
   }
-  catch (const Exception& e)
+  catch (const std::runtime_error& e)
   {
     return Error{e.what()};
   }

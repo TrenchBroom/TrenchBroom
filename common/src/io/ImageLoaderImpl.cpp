@@ -20,8 +20,9 @@
 #include "ImageLoaderImpl.h"
 
 #include "Ensure.h"
-#include "Exceptions.h"
 #include "Macros.h"
+
+#include <stdexcept>
 
 namespace tb::io
 {
@@ -49,7 +50,7 @@ ImageLoaderImpl::ImageLoaderImpl(
   const auto fifFormat = translateFormat(format);
   if (fifFormat == FIF_UNKNOWN)
   {
-    throw FileFormatException{"Unknown image format"};
+    throw std::runtime_error{"Unknown image format"};
   }
 
   m_bitmap = FreeImage_Load(fifFormat, path.string().c_str());
@@ -63,7 +64,7 @@ ImageLoaderImpl::ImageLoaderImpl(
   const auto fifFormat = translateFormat(format);
   if (fifFormat == FIF_UNKNOWN)
   {
-    throw FileFormatException{"Unknown image format"};
+    throw std::runtime_error{"Unknown image format"};
   }
 
   // this is supremely evil, but FreeImage guarantees that it will not modify wrapped

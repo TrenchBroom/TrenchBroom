@@ -20,12 +20,13 @@
 #pragma once
 
 #include "Ensure.h"
-#include "Exceptions.h"
 #include "Macros.h"
 #include "Polyhedron.h"
 
 #include "vm/plane.h"
 #include "vm/util.h"
+
+#include <exception>
 
 namespace tb::mdl
 {
@@ -178,7 +179,7 @@ std::optional<typename Polyhedron<T, FP, VP>::ClipResult::FailureReason> Polyhed
 }
 
 template <typename T, typename FP, typename VP>
-class Polyhedron<T, FP, VP>::NoSeamException : public Exception
+class Polyhedron<T, FP, VP>::NoSeamException : public std::exception
 {
 private:
   std::vector<Edge*> m_splitFaces;

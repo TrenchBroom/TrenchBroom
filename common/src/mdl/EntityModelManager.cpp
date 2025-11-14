@@ -19,7 +19,6 @@
 
 #include "EntityModelManager.h"
 
-#include "Exceptions.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "io/LoadEntityModel.h"
@@ -29,11 +28,12 @@
 #include "mdl/EntityModel.h"
 #include "mdl/Game.h"
 #include "mdl/Quake3Shader.h"
-#include "mdl/Resource.h"
 #include "render/MaterialIndexRangeRenderer.h"
 
 #include "kdl/ranges/to.h"
 #include "kdl/result.h"
+
+#include <stdexcept>
 
 namespace tb::mdl
 {
@@ -153,7 +153,7 @@ const EntityModel* EntityModelManager::model(const std::filesystem::path& path) 
            })
            | kdl::if_error([&](auto e) {
                m_logger.error() << e.msg;
-               throw GameException{e.msg};
+               throw std::runtime_error{e.msg};
              })
            | kdl::value();
   }
@@ -185,7 +185,7 @@ const EntityModel* EntityModelManager::safeGetModel(
   {
     return model(path);
   }
-  catch (const GameException&)
+  catch (const std::exception&)
   {
     return nullptr;
   }

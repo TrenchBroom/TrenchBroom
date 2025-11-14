@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Exceptions.h"
 #include "FileLocation.h"
 
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
@@ -31,13 +31,13 @@ class ExpressionNode;
 class Value;
 enum class ValueType;
 
-class Exception : public tb::Exception
+class Exception : public std::runtime_error
 {
 public:
-  using tb::Exception::Exception;
+  using std::runtime_error::runtime_error;
 };
 
-class InterpolationError : public tb::Exception
+class InterpolationError : Exception
 {
 public:
   using Exception::Exception;
@@ -66,7 +66,6 @@ public:
 class EvaluationError : public Exception
 {
 public:
-  EvaluationError();
   EvaluationError(const ExpressionNode& expression, std::string_view reason);
   EvaluationError(const std::optional<FileLocation>& location, std::string_view message);
 };

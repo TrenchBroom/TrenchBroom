@@ -38,6 +38,7 @@
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -391,7 +392,7 @@ void WorldNode::doDescendantWillBeRemoved(Node* node, const size_t /* depth */)
         auto str = std::stringstream();
         str << "Node not found with bounds " << nodeToRemove->physicalBounds() << ": "
             << nodeToRemove;
-        throw NodeTreeException{str.str()};
+        throw std::runtime_error{str.str()};
       }
     };
 

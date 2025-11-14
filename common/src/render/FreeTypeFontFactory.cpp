@@ -19,7 +19,6 @@
 
 #include "FreeTypeFontFactory.h"
 
-#include "Exceptions.h"
 #include "Macros.h"
 #include "io/DiskIO.h"
 #include "io/Reader.h"
@@ -31,6 +30,7 @@
 #include "render/TextureFont.h"
 
 #include <algorithm>
+#include <stdexcept>
 #include <string>
 
 namespace tb::render
@@ -43,7 +43,7 @@ auto initializeFreeType()
   auto library = FT_Library{nullptr};
   if (const auto error = FT_Init_FreeType(&library); error != 0)
   {
-    throw RenderException{"Error initializing FreeType: " + std::to_string(error)};
+    throw std::runtime_error{"Error initializing FreeType: " + std::to_string(error)};
   }
 
   return kdl::resource{library, FT_Done_FreeType};
@@ -78,7 +78,7 @@ auto loadFont(FT_Library library, const FontDescriptor& fontDescriptor)
              return std::pair{kdl::resource{face, FT_Done_Face}, std::move(reader)};
            })
          | kdl::if_error([&](auto e) {
-             throw RenderException{
+             throw std::runtime_error{
                "Error loading font '" + fontDescriptor.name() + "': " + e.msg};
            })
          | kdl::value();

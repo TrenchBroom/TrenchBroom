@@ -21,7 +21,6 @@
 
 #include <QDateTime>
 
-#include "Exceptions.h"
 #include "Notifier.h"
 #include "mdl/Command.h"
 #include "mdl/TransactionScope.h"
@@ -31,6 +30,7 @@
 #include "kdl/vector_utils.h"
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace tb::mdl
 {
@@ -81,7 +81,7 @@ private:
       notifyCommandIfNotType<TransactionCommand>(m_commandDoNotifier, *command);
       if (!command->performDo(map))
       {
-        throw CommandProcessorException{"Partial failure while executing transaction"};
+        throw std::runtime_error{"Partial failure while executing transaction"};
       }
       notifyCommandIfNotType<TransactionCommand>(m_commandDoneNotifier, *command);
     }
@@ -96,7 +96,7 @@ private:
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoNotifier, *command);
       if (!command->performUndo(map))
       {
-        throw CommandProcessorException{"Partial failure while undoing transaction"};
+        throw std::runtime_error{"Partial failure while undoing transaction"};
       }
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoneNotifier, *command);
     }
@@ -195,7 +195,7 @@ const std::string& CommandProcessor::undoCommandName() const
 {
   if (!canUndo())
   {
-    throw CommandProcessorException{"Command stack is empty"};
+    throw std::runtime_error{"Command stack is empty"};
   }
 
   return m_undoStack.back()->name();
@@ -205,7 +205,7 @@ const std::string& CommandProcessor::redoCommandName() const
 {
   if (!canRedo())
   {
-    throw CommandProcessorException{"Undo stack is empty"};
+    throw std::runtime_error{"Undo stack is empty"};
   }
 
   return m_redoStack.back()->name();
@@ -220,7 +220,7 @@ void CommandProcessor::commitTransaction()
 {
   if (m_transactionStack.empty())
   {
-    throw CommandProcessorException{"No transaction is currently executing"};
+    throw std::runtime_error{"No transaction is currently executing"};
   }
 
   createAndStoreTransaction();
@@ -230,7 +230,7 @@ void CommandProcessor::rollbackTransaction()
 {
   if (m_transactionStack.empty())
   {
-    throw CommandProcessorException{"No transaction is currently executing"};
+    throw std::runtime_error{"No transaction is currently executing"};
   }
 
   auto& transaction = m_transactionStack.back();
@@ -271,11 +271,11 @@ std::unique_ptr<CommandResult> CommandProcessor::undo()
 {
   if (!m_transactionStack.empty())
   {
-    throw CommandProcessorException{"Cannot undo individual commands of a transaction"};
+    throw std::runtime_error{"Cannot undo individual commands of a transaction"};
   }
   if (m_undoStack.empty())
   {
-    throw CommandProcessorException{"Undo stack is empty"};
+    throw std::runtime_error{"Undo stack is empty"};
   }
 
   auto command = popFromUndoStack();
@@ -293,11 +293,11 @@ std::unique_ptr<CommandResult> CommandProcessor::redo()
 {
   if (!m_transactionStack.empty())
   {
-    throw CommandProcessorException{"Cannot redo while in a transaction"};
+    throw std::runtime_error{"Cannot redo while in a transaction"};
   }
   if (m_redoStack.empty())
   {
-    throw CommandProcessorException{"Redo stack is empty"};
+    throw std::runtime_error{"Redo stack is empty"};
   }
 
   auto command = popFromRedoStack();

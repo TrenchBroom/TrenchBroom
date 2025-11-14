@@ -548,7 +548,7 @@ TEST_CASE("octree.insert_duplicate")
   tree.insert(vm::bbox3d{{0, 0, 0}, {2, 1, 1}}, 1);
   REQUIRE(tree.contains(1));
 
-  CHECK_THROWS_AS(tree.insert(vm::bbox3d{{0, 0, 0}, {2, 1, 1}}, 1), NodeTreeException);
+  CHECK_THROWS_AS(tree.insert(vm::bbox3d{{0, 0, 0}, {2, 1, 1}}, 1), std::runtime_error);
 
   CHECK(tree.contains(1));
   CHECK_FALSE(tree.empty());

@@ -19,7 +19,6 @@
 
 #include "GameFactory.h"
 
-#include "Exceptions.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "io/CompilationConfigParser.h"
@@ -46,6 +45,7 @@
 #include <iostream>
 #include <memory>
 #include <ranges>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -149,7 +149,7 @@ std::filesystem::path GameFactory::gamePath(const std::string& gameName) const
   const auto it = m_gamePaths.find(gameName);
   if (it == std::end(m_gamePaths))
   {
-    throw GameException{"Unknown game: " + gameName};
+    throw std::runtime_error{"Unknown game: " + gameName};
   }
   auto& pref = it->second;
   return PreferenceManager::instance().get(pref);
@@ -161,7 +161,7 @@ bool GameFactory::setGamePath(
   const auto it = m_gamePaths.find(gameName);
   if (it == std::end(m_gamePaths))
   {
-    throw GameException{"Unknown game: " + gameName};
+    throw std::runtime_error{"Unknown game: " + gameName};
   }
   auto& pref = it->second;
   return PreferenceManager::instance().set(pref, gamePath);
@@ -173,7 +173,7 @@ bool GameFactory::isGamePathPreference(
   const auto it = m_gamePaths.find(gameName);
   if (it == std::end(m_gamePaths))
   {
-    throw GameException{"Unknown game: " + gameName};
+    throw std::runtime_error{"Unknown game: " + gameName};
   }
   auto& pref = it->second;
   return pref.path() == prefPath;
@@ -209,7 +209,7 @@ GameConfig& GameFactory::gameConfig(const std::string& name)
   const auto cIt = m_configs.find(name);
   if (cIt == std::end(m_configs))
   {
-    throw GameException{"Unknown game: " + name};
+    throw std::runtime_error{"Unknown game: " + name};
   }
   return cIt->second;
 }
@@ -219,7 +219,7 @@ const GameConfig& GameFactory::gameConfig(const std::string& name) const
   const auto cIt = m_configs.find(name);
   if (cIt == std::end(m_configs))
   {
-    throw GameException{"Unknown game: " + name};
+    throw std::runtime_error{"Unknown game: " + name};
   }
   return cIt->second;
 }

@@ -39,7 +39,6 @@
 #include <QtGlobal>
 
 #include "Console.h"
-#include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
@@ -118,6 +117,7 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
+#include <exception>
 #include <iterator>
 #include <string>
 #include <variant>
@@ -2324,7 +2324,7 @@ static void debugSegfault()
 
 [[noreturn]] static void debugException()
 {
-  const auto e = Exception{};
+  const auto e = std::exception{};
   throw e;
 }
 

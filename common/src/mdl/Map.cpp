@@ -429,10 +429,7 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(Map&) override
-  {
-    throw CommandProcessorException{};
-  }
+  std::unique_ptr<CommandResult> doPerformDo(Map&) override { throw std::exception{}; }
 
   std::unique_ptr<CommandResult> doPerformUndo(Map&) override
   {
