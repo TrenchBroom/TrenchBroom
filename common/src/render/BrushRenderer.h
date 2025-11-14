@@ -280,13 +280,8 @@ private:
   void renderTransparentFaces(RenderBatch& renderBatch);
   void renderEdges(RenderBatch& renderBatch);
 
-public:
-  /**
-   * Only exposed for benchmarking.
-   */
-  void validate();
-
 private:
+  void validate();
   bool shouldDrawFaceInTransparentPass(
     const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const;
   void validateBrush(const mdl::BrushNode& brushNode);

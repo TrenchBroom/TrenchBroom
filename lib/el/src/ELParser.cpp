@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ELParser.h"
+#include "el/ELParser.h"
 
 #include "FileLocation.h"
 #include "ParserException.h"

@@ -17,12 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/ELParser.h"
 #include "el/ELTestUtils.h"
-#include "io/ELParser.h"
 
 #include <string>
-
-#include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
 

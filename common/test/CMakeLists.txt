@@ -6,7 +6,6 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/Matchers.h"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.h"
-        "${COMMON_TEST_SOURCE_DIR}/el/ELTestUtils.h"
         "${COMMON_TEST_SOURCE_DIR}/io/ObjectFile.h"
         "${COMMON_TEST_SOURCE_DIR}/io/TestEnvironment.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/TestEnvironment.h"
@@ -37,10 +36,6 @@ set(COMMON_TEST_UTILS_SOURCE
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_StringMakers.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/el/ELTestUtils.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/el/tst_EL.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/el/tst_Expression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/el/tst_Interpolate.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AseLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AssimpLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_BspLoader.cpp"
@@ -48,7 +43,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_DefParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_DiskFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_DiskIO.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_ELParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_EntityDefinitionParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_EntParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_FgdParser.cpp"
@@ -197,7 +191,7 @@ file(GENERATE
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_include_directories(common-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-target_link_libraries(common-test PRIVATE lib-base common common-test-utils lib-upd Catch2::Catch2 fmt::fmt-header-only)
+target_link_libraries(common-test PRIVATE lib-base lib-el lib-el-test_utils common common-test-utils lib-upd Catch2::Catch2 fmt::fmt-header-only)
 target_link_libraries(common-test PRIVATE compiler-config precompile-std-headers precompile-qt-headers)
 
 set_target_properties(common-test PROPERTIES AUTOMOC TRUE)

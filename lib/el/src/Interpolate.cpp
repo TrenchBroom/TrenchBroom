@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Interpolate.h"
+#include "el/Interpolate.h"
 
+#include "el/ELParser.h"
 #include "el/EvaluationContext.h"
 #include "el/Expression.h"
 #include "el/Value.h"
-#include "io/ELParser.h"
 
 #include "kdl/result_fold.h"
 #include "kdl/string_utils.h"

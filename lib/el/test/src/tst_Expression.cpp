@@ -18,20 +18,19 @@
  */
 
 #include "el/ELExceptions.h"
+#include "el/ELParser.h"
 #include "el/ELTestUtils.h"
 #include "el/EvaluationContext.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
-#include "io/ELParser.h"
+
+#include "kdl/catch_string_makers.h"
 
 #include <fmt/ostream.h>
 
 #include <string>
 #include <vector>
-
-#include "catch/CatchConfig.h"
-#include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -979,7 +978,7 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    CHECK_THAT(evaluate(expression), MatchesResult(expectedResult));
+    CHECK(evaluate(expression) == expectedResult);
   }
 
   SECTION("Subscript")
@@ -1045,7 +1044,7 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    CHECK_THAT(evaluate(expression), MatchesResult(expectedResult));
+    CHECK(evaluate(expression) == expectedResult);
   }
 
   SECTION("Switch")
@@ -1087,7 +1086,7 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    CHECK_THAT(evaluate(expression), MatchesResult(expectedResult));
+    CHECK(evaluate(expression) == expectedResult);
   }
 
   SECTION("Operator precedence")
