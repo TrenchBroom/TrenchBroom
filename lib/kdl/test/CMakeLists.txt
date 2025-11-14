@@ -49,7 +49,7 @@ target_sources(kdl-test PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(kdl-test Catch2::Catch2WithMain kdl)
+target_link_libraries(kdl-test lib-kdl Catch2::Catch2WithMain)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl-test PRIVATE -Wall -Wextra -Weverything -pedantic -Wno-c++98-compat -Wno-c++20-compat -Wno-global-constructors -Wno-zero-as-null-pointer-constant -Wno-weak-vtables)
