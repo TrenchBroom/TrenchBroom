@@ -1077,7 +1077,7 @@ set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
   PUBLIC lib-kdl lib-vm Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
-  PRIVATE GLEW::GLEW OpenGL::GL upd tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
+  PRIVATE GLEW::GLEW OpenGL::GL lib-upd tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE compiler-config precompile-std-headers precompile-qt-headers)
 

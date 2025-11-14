@@ -204,7 +204,7 @@ file(GENERATE
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_include_directories(common-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-target_link_libraries(common-test PRIVATE common common-test-utils Catch2::Catch2 upd fmt::fmt-header-only)
+target_link_libraries(common-test PRIVATE common common-test-utils Catch2::Catch2 lib-upd fmt::fmt-header-only)
 target_link_libraries(common-test PRIVATE compiler-config precompile-std-headers precompile-qt-headers)
 
 set_target_properties(common-test PROPERTIES AUTOMOC TRUE)

@@ -18,7 +18,7 @@ add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 add_executable(upd-test ${LIB_UPDATE_TEST_SOURCE})
 target_include_directories(upd-test PRIVATE ${LIB_UPDATE_TEST_SOURCE_DIR} ${LIB_UPDATE_SOURCE_DIR})
 target_include_directories(upd-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-target_link_libraries(upd-test PRIVATE upd Catch2::Catch2WithMain Qt6::Test)
+target_link_libraries(upd-test PRIVATE lib-upd Catch2::Catch2WithMain Qt6::Test)
 set_target_properties(upd-test PROPERTIES AUTOMOC TRUE)
 
 target_link_libraries(upd-test PRIVATE compiler-config precompile-std-headers)
