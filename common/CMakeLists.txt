@@ -1077,4 +1077,3 @@ add_custom_target(generate_version ${CMAKE_COMMAND}
 add_dependencies(common generate_version)
 
 add_subdirectory(test)
-add_subdirectory(benchmark)

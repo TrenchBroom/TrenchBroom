@@ -48,13 +48,6 @@ cd "$BUILD_DIR/lib/upd/test"
 cd "$BUILD_DIR/common/test"
 xvfb-run -a ./common-test || exit 1
 
-if [[ $TB_DEBUG_BUILD != "true" ]] ; then
-    cd "$BUILD_DIR/common/benchmark"
-    xvfb-run -a ./common-benchmark || exit 1
-else
-    echo "Skipping common-benmchark because this is a debug build"
-fi
-
 cd "$BUILD_DIR"
 
 ldd --verbose ./app/trenchbroom

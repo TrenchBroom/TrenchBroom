@@ -75,13 +75,6 @@ cd "$BUILD_DIR/lib/upd/test"
 cd "$BUILD_DIR/common/test"
 ./common-test || exit 1
 
-if [[ $TB_BUILD_TYPE == "Release" ]] ; then
-    cd "$BUILD_DIR/common/benchmark"
-    ./common-benchmark || exit 1
-else
-    echo "Skipping common-benmchark because this is a debug build"
-fi
-
 if [[ $TB_ENABLE_ASAN == "false" ]] ; then
   cd "$BUILD_DIR"
 

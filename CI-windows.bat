@@ -43,11 +43,6 @@ common-test.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
-cd common\benchmark
-common-benchmark.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
 "C:\Program Files\CMake\bin\cpack.exe"
 
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
