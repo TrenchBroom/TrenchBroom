@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestFileSystem.h"
+#include "fs/TestFileSystem.h"
 
-#include "io/ObjectFile.h"
-#include "io/TraversalMode.h"
+#include "fs/ObjectFile.h"
+#include "fs/TraversalMode.h"
 
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
