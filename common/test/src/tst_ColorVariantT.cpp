@@ -71,6 +71,21 @@ TEST_CASE("ColorVariantT")
       == Error{"Failed to create color from values -1, 0, 0"});
   }
 
+  SECTION("parseComponents")
+  {
+    CHECK(CV::parseComponents(std::vector{"1", "2", "3"}) == CV{Cb{1, 2, 3}});
+    CHECK(CV::parseComponents(std::vector{"0", "0", "0"}) == CV{Cf{0.0f, 0.0f, 0.0f}});
+    CHECK(
+      CV::parseComponents(std::vector{"0", "0", "0", "0"})
+      == CV{Caf{0.0f, 0.0f, 0.0f, 0.0f}});
+    CHECK(
+      CV::parseComponents(std::vector{"0", "0", "0", "0", "0"})
+      == CV{Caf{0.0f, 0.0f, 0.0f, 0.0f}});
+    CHECK(
+      CV::parseComponents(std::vector{"0", "0"})
+      == Error{"Failed to parse '0 0' as color"});
+  }
+
   SECTION("parse")
   {
     CHECK(CV::parse("1 2 3") == CV{Cb{1, 2, 3}});

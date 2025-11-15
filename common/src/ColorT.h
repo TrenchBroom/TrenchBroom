@@ -278,9 +278,9 @@ public:
     return ColorT{detail::fromNormalizedValues<ComponentTypes...>(values)};
   }
 
-  static Result<ColorT> parse(const std::string_view str)
+  template <std::ranges::random_access_range R>
+  static Result<ColorT> parseComponents(const R& components)
   {
-    const auto components = kdl::str_split(str, " ");
     if (
       const auto result = detail::parseComponentValues<ComponentTypes...>(
         components | std::views::take(NumComponents)))
@@ -288,7 +288,13 @@ public:
       return ColorT{*result};
     }
 
-    return Error{fmt::format("Failed to parse '{}' as color", str)};
+    return Error{
+      fmt::format("Failed to parse '{}' as color", fmt::join(components, " "))};
+  }
+
+  static Result<ColorT> parse(const std::string_view str)
+  {
+    return parseComponents(kdl::str_split(str, " "));
   }
 
   constexpr static size_t numComponents() { return NumComponents; }
