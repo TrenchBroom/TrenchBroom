@@ -220,6 +220,20 @@ TEST_CASE("ColorT")
       Cb::fromNormalizedValues(std::tuple{0.0f, 0.5f, 1.0f}) == Cb{0, 127, 255});
   }
 
+  SECTION("parseComponents")
+  {
+    CHECK(Cf::parseComponents(std::vector{"0.1", "0.2", "0.3"}) == Cf{0.1f, 0.2f, 0.3f});
+    CHECK(
+      Cf::parseComponents(std::vector{"0.1", "0.2", "0.3", "0.4"})
+      == Cf{0.1f, 0.2f, 0.3f});
+    CHECK(
+      Cf::parseComponents(std::vector{"2.1", "0.2", "0.3"})
+      == Error{"Failed to parse '2.1 0.2 0.3' as color"});
+    CHECK(
+      Cf::parseComponents(std::vector{"0.1", "0.2"})
+      == Error{"Failed to parse '0.1 0.2' as color"});
+  }
+
   SECTION("parse")
   {
     CHECK(Cf::parse("0.1 0.2 0.3") == Cf{0.1f, 0.2f, 0.3f});

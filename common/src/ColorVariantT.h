@@ -71,10 +71,16 @@ public:
     return fromValuesImpl<Colors...>(std::tuple{values...});
   }
 
-  static Result<ColorVariantT> parse(const std::string_view str)
+  template <std::ranges::random_access_range R>
+  static Result<ColorVariantT> parseComponents(const R& components)
   {
     // for parsing to succeed, Colors must be ordered by number of components
-    return parseImpl<Colors...>(str);
+    return parseComponentsImpl<Colors...>(components);
+  }
+
+  static Result<ColorVariantT> parse(const std::string_view str)
+  {
+    return parseComponents(kdl::str_split(str, " "));
   }
 
   size_t numComponents() const
@@ -123,20 +129,24 @@ private:
       fmt::format("Failed to create color from values {}", fmt::join(values, ", "))};
   }
 
-  template <AnyColorT ColorTypeToTry, AnyColorT... MoreColorTypes>
-  static Result<ColorVariantT> parseImpl(std::string_view str)
+  template <
+    AnyColorT ColorTypeToTry,
+    AnyColorT... MoreColorTypes,
+    std::ranges::random_access_range R>
+  static Result<ColorVariantT> parseComponentsImpl(const R& components)
   {
-    if (auto result = ColorTypeToTry::parse(str))
+    if (auto result = ColorTypeToTry::parseComponents(components))
     {
       return result | kdl::transform([](const auto& x) { return ColorVariantT{x}; });
     }
 
     if constexpr (sizeof...(MoreColorTypes) > 0)
     {
-      return parseImpl<MoreColorTypes...>(str);
+      return parseComponentsImpl<MoreColorTypes...>(components);
     }
 
-    return Error{fmt::format("Failed to parse '{}' as color", str)};
+    return Error{
+      fmt::format("Failed to parse '{}' as color", fmt::join(components, " "))};
   }
 #ifdef _MSC_VER
 #pragma warning(pop)
