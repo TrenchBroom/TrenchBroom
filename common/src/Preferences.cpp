@@ -32,6 +32,8 @@ namespace tb::Preferences
 Preference<bool> AskForAutoUpdates("updater/Ask for auto updates", true);
 Preference<bool> AutoCheckForUpdates("updater/Check for updates automatically", false);
 Preference<bool> IncludePreReleaseUpdates("updater/Include pre-releases", false);
+Preference<bool> EnableDraftReleaseUpdates(
+  "updater/Enable draft releases", false, PreferencePersistencePolicy::Transient);
 Preference<bool> IncludeDraftReleaseUpdates(
   "updater/Include draft releases", false, PreferencePersistencePolicy::Transient);
 

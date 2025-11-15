@@ -239,11 +239,6 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
     }
   }
 #endif
-
-  if (pref(Preferences::AutoCheckForUpdates))
-  {
-    m_updater->checkForUpdates();
-  }
 }
 
 TrenchBroomApp::~TrenchBroomApp()
@@ -269,11 +264,14 @@ void TrenchBroomApp::askForAutoUpdates()
     prefs.set(Preferences::AutoCheckForUpdates, enableAutoCheck);
     prefs.set(Preferences::AskForAutoUpdates, false);
     prefs.saveChanges();
+  }
+}
 
-    if (enableAutoCheck)
-    {
-      updater().checkForUpdates();
-    }
+void TrenchBroomApp::triggerAutoUpdateCheck()
+{
+  if (pref(Preferences::AutoCheckForUpdates))
+  {
+    m_updater->checkForUpdates();
   }
 }
 
@@ -281,7 +279,16 @@ void TrenchBroomApp::parseCommandLineAndShowFrame()
 {
   auto parser = QCommandLineParser{};
   parser.addOption(QCommandLineOption("portable"));
+  parser.addOption(QCommandLineOption("enableDraftReleaseUpdates"));
   parser.process(*this);
+
+  if (parser.isSet("enableDraftReleaseUpdates"))
+  {
+    auto& prefs = PreferenceManager::instance();
+    prefs.set(Preferences::EnableDraftReleaseUpdates, true);
+    prefs.set(Preferences::IncludeDraftReleaseUpdates, true);
+  }
+
   openFilesOrWelcomeFrame(parser.positionalArguments());
 }
 

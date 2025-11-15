@@ -84,6 +84,18 @@ To download and install an available update, click on the link labeled "Update a
       }
     });
 
+  m_includeDraftReleaseUpdates = new QCheckBox{};
+  connect(
+    m_includeDraftReleaseUpdates, &QCheckBox::checkStateChanged, [&](const auto state) {
+      if (!m_disableNotifiers)
+      {
+        const auto value = state == Qt::Checked;
+        auto& prefs = PreferenceManager::instance();
+        prefs.set(Preferences::IncludeDraftReleaseUpdates, value);
+        TrenchBroomApp::instance().updater().reset();
+      }
+    });
+
   auto* preReleaseInfo = new QLabel{tr(
     R"(Pre-releases are versions of TrenchBroom that are not yet considered stable. 
 They may contain new features or bug fixes that are not yet part of a stable release.)")};
@@ -91,25 +103,28 @@ They may contain new features or bug fixes that are not yet part of a stable rel
   auto& app = TrenchBroomApp::instance();
   auto* updateIndicator = app.updater().createUpdateIndicator();
 
-  auto* layout = new FormWithSectionsLayout{};
-  layout->setContentsMargins(
+  m_layout = new FormWithSectionsLayout{};
+  m_layout->setContentsMargins(
     LayoutConstants::DialogOuterMargin,
     LayoutConstants::DialogOuterMargin,
     LayoutConstants::DialogOuterMargin,
     LayoutConstants::DialogOuterMargin);
-  layout->setVerticalSpacing(LayoutConstants::WideVMargin);
+  m_layout->setVerticalSpacing(LayoutConstants::WideVMargin);
 
-  layout->addSection("Automatic Updates");
-  layout->addRow(updateInfo);
-  layout->addRow(updateIndicator);
-  layout->addSection("Update Preferences");
-  layout->addRow("Check for updates on startup", m_autoCheckForUpdates);
-  layout->addRow("Include pre-releases", m_includePreReleaseUpdates);
-  layout->addRow(preReleaseInfo);
+  m_layout->addSection("Automatic Updates");
+  m_layout->addRow(updateInfo);
+  m_layout->addRow(updateIndicator);
+  m_layout->addSection("Update Preferences");
+  m_layout->addRow("Check for updates on startup", m_autoCheckForUpdates);
+  m_layout->addRow("Include pre-releases", m_includePreReleaseUpdates);
+
+  m_includeDraftReleaseUpdatesRow = m_layout->rowCount();
+  m_layout->addRow("Include draft releases", m_includeDraftReleaseUpdates);
+  m_layout->addRow(preReleaseInfo);
 
   auto* widget = new QWidget{};
   widget->setMinimumWidth(400);
-  widget->setLayout(layout);
+  widget->setLayout(m_layout);
   return widget;
 }
 
@@ -123,6 +138,7 @@ void UpdatePreferencePane::doResetToDefaults()
   auto& prefs = PreferenceManager::instance();
   prefs.resetToDefault(Preferences::AutoCheckForUpdates);
   prefs.resetToDefault(Preferences::IncludePreReleaseUpdates);
+  prefs.resetToDefault(Preferences::IncludeDraftReleaseUpdates);
 }
 
 void UpdatePreferencePane::updateControls()
@@ -130,6 +146,9 @@ void UpdatePreferencePane::updateControls()
   const auto disableNotifiers = kdl::set_temp{m_disableNotifiers, true};
   m_autoCheckForUpdates->setChecked(pref(Preferences::AutoCheckForUpdates));
   m_includePreReleaseUpdates->setChecked(pref(Preferences::IncludePreReleaseUpdates));
+  m_includeDraftReleaseUpdates->setChecked(pref(Preferences::IncludeDraftReleaseUpdates));
+  m_layout->setRowVisible(
+    m_includeDraftReleaseUpdatesRow, pref(Preferences::EnableDraftReleaseUpdates));
 }
 
 bool UpdatePreferencePane::validate()

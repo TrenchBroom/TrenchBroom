@@ -25,13 +25,17 @@ class QCheckBox;
 
 namespace tb::ui
 {
+class FormWithSectionsLayout;
 
 class UpdatePreferencePane : public PreferencePane
 {
   Q_OBJECT
 private:
+  FormWithSectionsLayout* m_layout = nullptr;
   QCheckBox* m_autoCheckForUpdates = nullptr;
   QCheckBox* m_includePreReleaseUpdates = nullptr;
+  QCheckBox* m_includeDraftReleaseUpdates = nullptr;
+  int m_includeDraftReleaseUpdatesRow = 0;
   bool m_disableNotifiers = false;
 
 public:

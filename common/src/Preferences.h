@@ -38,6 +38,7 @@ namespace tb::Preferences
 extern Preference<bool> AskForAutoUpdates;
 extern Preference<bool> AutoCheckForUpdates;
 extern Preference<bool> IncludePreReleaseUpdates;
+extern Preference<bool> EnableDraftReleaseUpdates;
 extern Preference<bool> IncludeDraftReleaseUpdates;
 
 extern Preference<int> MapViewLayout;
