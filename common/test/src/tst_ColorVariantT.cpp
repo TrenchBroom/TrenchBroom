@@ -75,6 +75,8 @@ TEST_CASE("ColorVariantT")
   {
     CHECK(CV::parse("1 2 3") == CV{Cb{1, 2, 3}});
     CHECK(CV::parse("0 0 0") == CV{Cf{0.0f, 0.0f, 0.0f}});
+    CHECK(CV::parse("0 0 0 0") == CV{Caf{0.0f, 0.0f, 0.0f, 0.0f}});
+    CHECK(CV::parse("1 2 3 4") == CV{Cb{1, 2, 3}});
     CHECK(CV::parse("0 0") == Error{"Failed to parse '0 0' as color"});
   }
 

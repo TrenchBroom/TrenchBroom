@@ -223,6 +223,7 @@ TEST_CASE("ColorT")
   SECTION("parse")
   {
     CHECK(Cf::parse("0.1 0.2 0.3") == Cf{0.1f, 0.2f, 0.3f});
+    CHECK(Cf::parse("0.1 0.2 0.3 0.4") == Cf{0.1f, 0.2f, 0.3f});
     CHECK(Cf::parse("2.1 0.2 0.3") == Error{"Failed to parse '2.1 0.2 0.3' as color"});
     CHECK(Cf::parse("0.1 0.2") == Error{"Failed to parse '0.1 0.2' as color"});
   }
