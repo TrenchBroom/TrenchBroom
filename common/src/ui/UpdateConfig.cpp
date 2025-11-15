@@ -125,6 +125,7 @@ auto makeCheckForUpdates(const UpdateVersion& currentVersion)
     updateController.template checkForUpdates<UpdateVersion>(
       currentVersion,
       pref(Preferences::IncludePreReleaseUpdates),
+      pref(Preferences::IncludeDraftReleaseUpdates),
       parseUpdateVersion,
       describeUpdateVersion,
       chooseAsset);

@@ -104,7 +104,7 @@ TEST_CASE("UpdateController")
     auto config = UpdateConfig{
       [](auto& updateController) {
         updateController.template checkForUpdates<TestVersion>(
-          TestVersion{1}, false, parseVersion, describeVersion, chooseFirstAsset);
+          TestVersion{1}, false, false, parseVersion, describeVersion, chooseFirstAsset);
       },
       [&](const auto& downloadedUpdatePath, const auto& updateConfig) {
         return prepareUpdate(downloadedUpdatePath, updateConfig);
