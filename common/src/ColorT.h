@@ -32,6 +32,7 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
+#include <ranges>
 #include <string_view>
 #include <type_traits>
 
@@ -279,13 +280,12 @@ public:
 
   static Result<ColorT> parse(const std::string_view str)
   {
-    const auto parts = kdl::str_split(str, " ");
-    if (parts.size() == NumComponents)
+    const auto components = kdl::str_split(str, " ");
+    if (
+      const auto result = detail::parseComponentValues<ComponentTypes...>(
+        components | std::views::take(NumComponents)))
     {
-      if (const auto result = detail::parseComponentValues<ComponentTypes...>(parts))
-      {
-        return ColorT{*result};
-      }
+      return ColorT{*result};
     }
 
     return Error{fmt::format("Failed to parse '{}' as color", str)};
