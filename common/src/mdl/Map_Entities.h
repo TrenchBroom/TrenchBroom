@@ -32,6 +32,7 @@ class Map;
 
 enum class SetDefaultPropertyMode;
 
+struct EntityColorPropertyValue;
 struct EntityDefinition;
 
 EntityNode* createPointEntity(
@@ -46,6 +47,7 @@ bool setEntityProperty(
 bool renameEntityProperty(Map& map, const std::string& oldKey, const std::string& newKey);
 bool removeEntityProperty(Map& map, const std::string& key);
 
+bool setEntityColorProperty(Map& map, const std::string& key, const Rgb& newColor);
 bool convertEntityColorRange(Map& map, const std::string& key, ColorRange::Type range);
 bool updateEntitySpawnflag(
   Map& map, const std::string& key, size_t flagIndex, bool setFlag);

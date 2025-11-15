@@ -66,6 +66,28 @@ TEST_CASE("Map_Entities")
       {},
       PointEntityDefinition{vm::bbox3d{64.0}, {}, {}},
     },
+    {
+      "color_entity",
+      Color{},
+      "this is a point entity",
+      {
+        PropertyDefinition{"colorStr", PropertyValueTypes::String{}, "", ""},
+        PropertyDefinition{"color1", PropertyValueTypes::Color<RgbF>{}, "", ""},
+        PropertyDefinition{"color255", PropertyValueTypes::Color<RgbB>{}, "", ""},
+        PropertyDefinition{"colorAny", PropertyValueTypes::Color<Rgb>{}, "", ""},
+        PropertyDefinition{"color", PropertyValueTypes::Color<RgbF>{}, "", ""},
+      },
+      PointEntityDefinition{vm::bbox3d{64.0}, {}, {}},
+    },
+    {
+      "color_entity2",
+      Color{},
+      "this is a point entity",
+      {
+        PropertyDefinition{"color", PropertyValueTypes::Color<RgbB>{}, "", ""},
+      },
+      PointEntityDefinition{vm::bbox3d{64.0}, {}, {}},
+    },
     {"brush_entity", Color{}, "this is a brush entity", {}},
   });
 
@@ -659,6 +681,100 @@ TEST_CASE("Map_Entities")
         CHECK(entityNode->entity().definition() == nullptr);
         CHECK(map.selectionBounds()->size() == EntityNode::DefaultBounds.size());
       }
+    }
+  }
+
+  SECTION("setEntityColorProperty")
+  {
+    const auto originalEntity1 = Entity{{
+      {"classname", "color_entity"},
+      {"colorStr", "0 1 2 3 4"},
+      {"color255", "0 1 2 3 4"},
+      {"color1", "0.1 0.2 0.3 0.4"},
+      {"colorAny", "0.1 0.2 0.3 0.4 0.5"},
+    }};
+
+    auto* entityNode = new EntityNode{originalEntity1};
+    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    selectNodes(map, {entityNode});
+
+    SECTION("single entity selected")
+    {
+      using T = std::tuple<std::string, Rgb, std::vector<EntityProperty>>;
+
+      const auto [propertyKey, colorToSet, expectedProperties] = GENERATE(values<T>({
+        {"colorStr",
+         RgbB{5, 6, 7},
+         {
+           {"classname", "color_entity"},
+           {"colorStr", "5 6 7 3 4"},
+           {"color255", "0 1 2 3 4"},
+           {"color1", "0.1 0.2 0.3 0.4"},
+           {"colorAny", "0.1 0.2 0.3 0.4 0.5"},
+         }},
+        {"color255",
+         RgbB{5, 6, 7},
+         {
+           {"classname", "color_entity"},
+           {"colorStr", "0 1 2 3 4"},
+           {"color255", "5 6 7 3 4"},
+           {"color1", "0.1 0.2 0.3 0.4"},
+           {"colorAny", "0.1 0.2 0.3 0.4 0.5"},
+         }},
+        {"color1",
+         RgbF{0.5f, 0.6f, 0.7f},
+         {
+           {"classname", "color_entity"},
+           {"colorStr", "0 1 2 3 4"},
+           {"color255", "0 1 2 3 4"},
+           {"color1", "0.5 0.6 0.7 0.4"},
+           {"colorAny", "0.1 0.2 0.3 0.4 0.5"},
+         }},
+        {"colorAny",
+         RgbF{0.5f, 0.6f, 0.7f},
+         {
+           {"classname", "color_entity"},
+           {"colorStr", "0 1 2 3 4"},
+           {"color255", "0 1 2 3 4"},
+           {"color1", "0.1 0.2 0.3 0.4"},
+           {"colorAny", "0.5 0.6 0.7 0.4 0.5"},
+         }},
+      }));
+
+      CAPTURE(propertyKey, colorToSet);
+
+      REQUIRE(setEntityColorProperty(map, propertyKey, colorToSet));
+      CHECK(entityNode->entity().properties() == expectedProperties);
+    }
+
+    SECTION("multiple entities selected")
+    {
+      const auto originalEntity2 = Entity{{
+        {"classname", "color_entity2"},
+        {"color", "1 2 3 4"},
+      }};
+
+      auto* entityNode2 = new EntityNode{originalEntity2};
+      addNodes(map, {{parentForNodes(map), {entityNode2}}});
+      selectNodes(map, {entityNode2});
+
+      REQUIRE(setEntityColorProperty(map, "color", RgbF{0.0f, 0.5f, 1.0f}));
+      CHECK(
+        entityNode->entity().properties()
+        == std::vector<EntityProperty>{
+          {"classname", "color_entity"},
+          {"colorStr", "0 1 2 3 4"},
+          {"color255", "0 1 2 3 4"},
+          {"color1", "0.1 0.2 0.3 0.4"},
+          {"colorAny", "0.1 0.2 0.3 0.4 0.5"},
+          {"color", "0 0.5 1"},
+        });
+      CHECK(
+        entityNode2->entity().properties()
+        == std::vector<EntityProperty>{
+          {"classname", "color_entity2"},
+          {"color", "0 127 255 4"},
+        });
     }
   }
 
