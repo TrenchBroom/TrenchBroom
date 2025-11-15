@@ -23,6 +23,8 @@
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
+#include <fmt/format.h>
+
 #include <algorithm>
 #include <string>
 
@@ -132,6 +134,9 @@ std::optional<std::string> PropertyDefinition::defaultValue(
       },
       [](const PropertyValueTypes::Output&) -> std::optional<std::string> {
         return std::nullopt;
+      },
+      []<typename T>(const PropertyValueTypes::Color<T>& value) {
+        return value.defaultValue;
       },
       [](const PropertyValueTypes::Unknown& value) { return value.defaultValue; }),
     definition.valueType);

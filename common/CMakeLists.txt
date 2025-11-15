@@ -115,6 +115,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/EmptyPropertyKeyValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/EmptyPropertyValueValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/Entity.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityColorPropertyValue.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinition.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionFileSpec.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.cpp
@@ -641,6 +642,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/EmptyPropertyKeyValidator.h
         ${COMMON_SOURCE_DIR}/mdl/EmptyPropertyValueValidator.h
         ${COMMON_SOURCE_DIR}/mdl/Entity.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityColorPropertyValue.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinition.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionFileSpec.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.h
