@@ -32,6 +32,10 @@ namespace tb::Preferences
 Preference<bool> AskForAutoUpdates("updater/Ask for auto updates", true);
 Preference<bool> AutoCheckForUpdates("updater/Check for updates automatically", false);
 Preference<bool> IncludePreReleaseUpdates("updater/Include pre-releases", false);
+Preference<bool> EnableDraftReleaseUpdates(
+  "updater/Enable draft releases", false, PreferencePersistencePolicy::Transient);
+Preference<bool> IncludeDraftReleaseUpdates(
+  "updater/Include draft releases", false, PreferencePersistencePolicy::Transient);
 
 Preference<int> MapViewLayout(
   "Views/Map view layout", static_cast<int>(ui::MapViewLayout::OnePane));
@@ -52,11 +56,17 @@ Preference<Color> SoftMapBoundsColor(
 Preference<Color> BackgroundColor("render/Colors/Background", RgbB(38, 38, 38));
 Preference<float> AxisLength("render/Axis length", 128.0f);
 Preference<Color> XAxisColor(
-  "render/Colors/X axis", RgbaF(1.0f, 0.24f, 0.0f, 0.7f), true);
+  "render/Colors/X axis",
+  RgbaF(1.0f, 0.24f, 0.0f, 0.7f),
+  PreferencePersistencePolicy::ReadOnly);
 Preference<Color> YAxisColor(
-  "render/Colors/Y axis", RgbaF(0.29f, 0.58f, 0.0f, 0.7f), true);
+  "render/Colors/Y axis",
+  RgbaF(0.29f, 0.58f, 0.0f, 0.7f),
+  PreferencePersistencePolicy::ReadOnly);
 Preference<Color> ZAxisColor(
-  "render/Colors/Z axis", RgbaF(0.06f, 0.61f, 1.0f, 0.7f), true);
+  "render/Colors/Z axis",
+  RgbaF(0.06f, 0.61f, 1.0f, 0.7f),
+  PreferencePersistencePolicy::ReadOnly);
 Preference<Color> PointFileColor("render/Colors/Point file", RgbF(0.0f, 1.0f, 0.0f));
 Preference<Color> PortalFileBorderColor(
   "render/Colors/Portal file border", RgbaF(1.0f, 1.0f, 1.0f, 0.5f));
@@ -79,11 +89,17 @@ Preference<Color>& axisColor(vm::axis::type axis)
 }
 
 Preference<Color> CompassBackgroundColor(
-  "render/Colors/Compass background", RgbaF(0.5f, 0.5f, 0.5f, 0.5f), true);
+  "render/Colors/Compass background",
+  RgbaF(0.5f, 0.5f, 0.5f, 0.5f),
+  PreferencePersistencePolicy::ReadOnly);
 Preference<Color> CompassBackgroundOutlineColor(
-  "render/Colors/Compass background outline", RgbaF(1.0f, 1.0f, 1.0f, 0.5f), true);
+  "render/Colors/Compass background outline",
+  RgbaF(1.0f, 1.0f, 1.0f, 0.5f),
+  PreferencePersistencePolicy::ReadOnly);
 Preference<Color> CompassAxisOutlineColor(
-  "render/Colors/Compass axis outline", RgbF(1.0f, 1.0f, 1.0f), true);
+  "render/Colors/Compass axis outline",
+  RgbF(1.0f, 1.0f, 1.0f),
+  PreferencePersistencePolicy::ReadOnly);
 
 Preference<Color> CameraFrustumColor(
   "render/Colors/Camera frustum", RgbF(0.0f, 1.0f, 1.0f));

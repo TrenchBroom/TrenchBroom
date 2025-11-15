@@ -44,6 +44,7 @@ TEST_CASE("GithubApi")
         "some_repo",
         TestVersion{1},
         false,
+        false,
         parseVersion,
         [](const auto&) { FAIL("getLatestReleaseCallback should not be called"); },
         [](const auto& error) { CHECK(error == "some error"); });
@@ -58,47 +59,82 @@ TEST_CASE("GithubApi")
         QList<Release<TestVersion>>,
         TestVersion,
         bool,
+        bool,
         std::optional<Release<TestVersion>>>;
 
       const auto
-        [availableReleases, currentVersion, includePreReleases, expectedRelease] =
-          GENERATE(values<T>({
-            {{}, TestVersion{1}, false, std::nullopt},
-            {{
-               Release<TestVersion>{TestVersion{3}, false, false, "v3", "", {}},
-               Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
-               Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
-             },
-             TestVersion{2},
-             false,
-             Release<TestVersion>{TestVersion{3}, false, false, "v3", "", {}}},
-            {{
-               Release<TestVersion>{TestVersion{3}, false, true, "v3", "", {}},
-               Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
-               Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
-             },
-             TestVersion{2},
-             false,
-             std::nullopt},
-            {{
-               Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
-               Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
-               Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
-             },
-             TestVersion{2},
-             false,
-             std::nullopt},
-            {{
-               Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
-               Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
-               Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
-             },
-             TestVersion{2},
-             true,
-             Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}}},
-          }));
+        [availableReleases,
+         currentVersion,
+         includePreReleases,
+         includeDraftReleases,
+         expectedRelease] = GENERATE(values<T>({
+          {{}, TestVersion{1}, false, false, std::nullopt},
+          {{
+             Release<TestVersion>{TestVersion{3}, false, false, "v3", "", {}},
+             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+           },
+           TestVersion{2},
+           false,
+           false,
+           Release<TestVersion>{TestVersion{3}, false, false, "v3", "", {}}},
+          {{
+             Release<TestVersion>{TestVersion{3}, false, true, "v3", "", {}},
+             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+           },
+           TestVersion{2},
+           false,
+           false,
+           std::nullopt},
+          {{
+             Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
+             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+           },
+           TestVersion{2},
+           false,
+           false,
+           std::nullopt},
+          {{
+             Release<TestVersion>{TestVersion{5}, false, true, "v5", "", {}},
+             Release<TestVersion>{TestVersion{4}, true, true, "v4", "", {}},
+             Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
+             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+           },
+           TestVersion{2},
+           true,
+           false,
+           Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}}},
 
-      CAPTURE(availableReleases, currentVersion, includePreReleases);
+          {{
+             Release<TestVersion>{TestVersion{5}, false, true, "v5", "", {}},
+             Release<TestVersion>{TestVersion{4}, true, true, "v4", "", {}},
+             Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
+             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+           },
+           TestVersion{2},
+           true,
+           true,
+           Release<TestVersion>{TestVersion{5}, false, true, "v5", "", {}}},
+
+          {{
+             Release<TestVersion>{TestVersion{5}, true, true, "v5", "", {}},
+             Release<TestVersion>{TestVersion{4}, false, true, "v4", "", {}},
+             Release<TestVersion>{TestVersion{3}, true, false, "v3", "", {}},
+             Release<TestVersion>{TestVersion{2}, false, false, "v2", "", {}},
+             Release<TestVersion>{TestVersion{1}, false, false, "v1", "", {}},
+           },
+           TestVersion{2},
+           false,
+           true,
+           Release<TestVersion>{TestVersion{4}, false, true, "v4", "", {}}},
+        }));
+
+      CAPTURE(
+        availableReleases, currentVersion, includePreReleases, includeDraftReleases);
 
       getLatestRelease<TestVersion>(
         httpClient,
@@ -106,6 +142,7 @@ TEST_CASE("GithubApi")
         "some_repo",
         currentVersion,
         includePreReleases,
+        includeDraftReleases,
         parseVersion,
         [&, expectedRelease_ = expectedRelease](const auto& release) {
           CHECK(release == expectedRelease_);

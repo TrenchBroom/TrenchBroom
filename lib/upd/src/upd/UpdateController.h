@@ -182,6 +182,7 @@ public:
   void checkForUpdates(
     const Version& currentVersion,
     bool includePreReleases,
+    bool includeDraftReleases,
     ParseVersion<Version> parseVersion,
     DescribeVersion<Version> describeVersion_,
     ChooseAsset chooseAsset_)
@@ -196,6 +197,7 @@ public:
         m_config->ghRepoName,
         currentVersion,
         includePreReleases,
+        includeDraftReleases,
         std::move(parseVersion),
         [this,
          currentVersion,

@@ -170,7 +170,10 @@ void AppPreferenceManager::saveChangesImmediately()
 
 void AppPreferenceManager::markAsUnsaved(PreferenceBase& preference)
 {
-  m_unsavedPreferences.insert(&preference);
+  if (preference.persistencePolicy() == PreferencePersistencePolicy::Persistent)
+  {
+    m_unsavedPreferences.insert(&preference);
+  }
 }
 
 void AppPreferenceManager::showErrorAndDisableFileReadWrite(
@@ -307,6 +310,12 @@ void AppPreferenceManager::invalidatePreferences()
  */
 void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
 {
+  if (pref.persistencePolicy() != PreferencePersistencePolicy::Persistent)
+  {
+    pref.setValid(true);
+    return;
+  }
+
   const auto format = PreferenceSerializer{};
 
   auto it = m_cache.find(pref.path());

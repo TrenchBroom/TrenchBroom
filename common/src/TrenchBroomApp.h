@@ -71,6 +71,8 @@ public:
 
 public:
   void askForAutoUpdates();
+  void triggerAutoUpdateCheck();
+
   void parseCommandLineAndShowFrame();
 
   upd::Updater& updater();

@@ -207,6 +207,7 @@ HttpOperation* getLatestRelease(
   const QString& ghRepoName,
   const Version currentVersion,
   const bool includePreReleases,
+  const bool includeDraftReleases,
   ParseVersion<Version> parseVersion,
   GetLatestReleaseCallback<Version> getLatestReleaseCallback_,
   HttpClient::ErrorCallback errorCallback)
@@ -214,7 +215,8 @@ HttpOperation* getLatestRelease(
   auto getReleasesCallback =
     [=, getLatestReleaseCallback = std::move(getLatestReleaseCallback_)](auto releases) {
       erase_if(releases, [&](const auto& release) {
-        return release.draft || (!includePreReleases && release.prerelease);
+        return (!includeDraftReleases && release.draft)
+               || (!includePreReleases && release.prerelease);
       });
 
       if (auto iLatestRelease = std::ranges::max_element(releases);
