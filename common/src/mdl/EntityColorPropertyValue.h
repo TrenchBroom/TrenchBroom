@@ -40,8 +40,6 @@ struct EntityColorPropertyValue
   Rgb color;
   std::vector<float> extraComponents;
 
-  std::string toString() const;
-
   kdl_reflect_decl(EntityColorPropertyValue, color, extraComponents);
 };
 
@@ -49,5 +47,10 @@ Result<EntityColorPropertyValue> parseEntityColorPropertyValue(
   const EntityDefinition* entityDefinition,
   const std::string& propertyKey,
   const std::string& propertyValue);
+
+Result<std::string> entityColorPropertyToString(
+  const EntityDefinition* entityDefinition,
+  const std::string& propertyKey,
+  const EntityColorPropertyValue& entityColorPropertyValue);
 
 } // namespace tb::mdl

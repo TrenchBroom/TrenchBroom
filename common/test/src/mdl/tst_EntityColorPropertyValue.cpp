@@ -98,4 +98,75 @@ TEST_CASE("parseEntityColorPropertyValue")
     == expectedResult);
 }
 
+TEST_CASE("entityColorPropertyToString")
+{
+  const auto entityDefinition = EntityDefinition{
+    "some_entity",
+    Color{},
+    "",
+    {
+      PropertyDefinition{"colorStr", PropertyValueTypes::String{}, "", ""},
+      PropertyDefinition{"color1", PropertyValueTypes::Color<RgbF>{}, "", ""},
+      PropertyDefinition{"color255", PropertyValueTypes::Color<RgbB>{}, "", ""},
+      PropertyDefinition{"colorAny", PropertyValueTypes::Color<Rgb>{}, "", ""},
+    }};
+
+  using T = std::tuple<
+    std::optional<EntityDefinition>,
+    std::string,
+    EntityColorPropertyValue,
+    Result<std::string>>;
+
+  const auto [definition, propertyKey, colorValue, expectedResult] =
+    GENERATE_COPY(values<T>({
+      {std::nullopt,
+       "colorStr",
+       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
+       "0 0 0"},
+      {std::nullopt,
+       "colorStr",
+       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
+       "0 0 0 0"},
+      {entityDefinition,
+       "colorStr",
+       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
+       "0 0 0"},
+      {entityDefinition,
+       "colorStr",
+       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
+       "0 0 0 0"},
+      {entityDefinition,
+       "colorAny",
+       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
+       "0 0 0"},
+      {entityDefinition,
+       "colorAny",
+       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
+       "0 0 0 0"},
+      {entityDefinition,
+       "color1",
+       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
+       "0 0 0"},
+      {entityDefinition,
+       "color1",
+       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
+       "0 0 0 0"},
+      {entityDefinition,
+       "color255",
+       EntityColorPropertyValue{RgbB{0, 0, 0}, {}},
+       "0 0 0"},
+      {entityDefinition,
+       "color255",
+       EntityColorPropertyValue{RgbB{0, 0, 0}, {0.0f}},
+       "0 0 0 0"},
+    }));
+
+  CAPTURE(definition, propertyKey, colorValue);
+
+  CHECK(
+    entityColorPropertyToString(
+      definition ? &*definition : nullptr, propertyKey, colorValue)
+    == expectedResult);
+}
+
 } // namespace tb::mdl

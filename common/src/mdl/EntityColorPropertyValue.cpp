@@ -66,16 +66,17 @@ Result<EntityColorPropertyValue> parseEntityColorPropertyValue(const std::string
          });
 }
 
-} // namespace
-
-kdl_reflect_impl(EntityColorPropertyValue);
-
-std::string EntityColorPropertyValue::toString() const
+std::string entityColorPropertyToString(
+  const Rgb& color, const std::vector<float>& extraComponents)
 {
   return !extraComponents.empty()
            ? fmt::format("{} {}", color.toString(), fmt::join(extraComponents, " "))
            : color.toString();
 }
+
+} // namespace
+
+kdl_reflect_impl(EntityColorPropertyValue);
 
 Result<EntityColorPropertyValue> parseEntityColorPropertyValue(
   const EntityDefinition* entityDefinition,
@@ -105,5 +106,46 @@ Result<EntityColorPropertyValue> parseEntityColorPropertyValue(
 
   return parseEntityColorPropertyValue<Rgb>(propertyValue);
 };
+
+Result<std::string> entityColorPropertyToString(
+  const EntityDefinition* entityDefinition,
+  const std::string& propertyKey,
+  const EntityColorPropertyValue& entityColorPropertyValue)
+{
+  if (
+    const auto* propertyDefinition = getPropertyDefinition(entityDefinition, propertyKey))
+  {
+    return std::visit(
+             kdl::overload(
+               [&](const PropertyValueTypes::Color<Rgb>&) -> Result<Rgb> {
+                 return entityColorPropertyValue.color;
+               },
+               [&]<typename ColorType>(
+                 const PropertyValueTypes::Color<ColorType>&) -> Result<Rgb> {
+                 return Rgb{entityColorPropertyValue.color.to<ColorType>()};
+               },
+               [&](const PropertyValueTypes::String&) -> Result<Rgb> {
+                 return entityColorPropertyValue.color;
+               },
+               [&](const PropertyValueTypes::Unknown&) -> Result<Rgb> {
+                 return entityColorPropertyValue.color;
+               },
+               [](const auto& valueType) -> Result<Rgb> {
+                 return Error{fmt::format(
+                   "Cannot convert color property of type {} to string",
+                   fmt::streamed(valueType))};
+               }),
+             propertyDefinition->valueType)
+           | kdl::transform([&](const auto& color) {
+               return entityColorPropertyToString(
+                 color, entityColorPropertyValue.extraComponents);
+             });
+  }
+  else
+  {
+    return entityColorPropertyToString(
+      entityColorPropertyValue.color, entityColorPropertyValue.extraComponents);
+  }
+}
 
 } // namespace tb::mdl
