@@ -28,8 +28,6 @@
 
 #include "kdl/path_utils.h"
 
-#include <filesystem>
-
 
 namespace tb::ui
 {
@@ -44,7 +42,9 @@ void ColorModel::initialize()
   for (auto* pref : Preferences::staticPreferences())
   {
     auto* colorPref = dynamic_cast<Preference<Color>*>(pref);
-    if (colorPref != nullptr && !colorPref->isReadOnly())
+    if (
+      colorPref != nullptr
+      && colorPref->persistencePolicy() != PreferencePersistencePolicy::ReadOnly)
     {
       m_colors.emplace_back(colorPref);
     }

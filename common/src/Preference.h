@@ -61,10 +61,23 @@ public:
   QJsonValue writeToJson(const QString& in) const;
 };
 
+enum class PreferencePersistencePolicy
+{
+  // The preference is stored in the preference store when it changes
+  Persistent,
+  // The preference can be changed, but changes are not stored persistently
+  Transient,
+  // The preference cannot be changed at all
+  ReadOnly,
+};
+
 class PreferenceBase
 {
+private:
+  PreferencePersistencePolicy m_persistencePolicy;
+
 public:
-  PreferenceBase();
+  explicit PreferenceBase(PreferencePersistencePolicy persistencePolicy);
   virtual ~PreferenceBase();
 
   PreferenceBase(const PreferenceBase& other);
@@ -76,6 +89,8 @@ public:
   friend bool operator!=(const PreferenceBase& lhs, const PreferenceBase& rhs);
 
   virtual const std::filesystem::path& path() const = 0;
+
+  PreferencePersistencePolicy persistencePolicy() const;
 
 public: // private to PreferenceManager
   virtual void resetToDefault() = 0;
@@ -121,15 +136,17 @@ private:
   T m_defaultValue;
   T m_value;
   bool m_valid = false;
-  bool m_readOnly = false;
 
 public:
   Preference(
-    std::filesystem::path path, const T& defaultValue, const bool readOnly = false)
-    : m_path{std::move(path)}
+    std::filesystem::path path,
+    const T& defaultValue,
+    const PreferencePersistencePolicy persistencePolicy =
+      PreferencePersistencePolicy::Persistent)
+    : PreferenceBase{persistencePolicy}
+    , m_path{std::move(path)}
     , m_defaultValue{defaultValue}
     , m_value{m_defaultValue}
-    , m_readOnly{readOnly}
   {
   }
 
@@ -148,7 +165,7 @@ public:
 public: // PreferenceManager private
   void setValue(const T& value)
   {
-    assert(!m_readOnly);
+    assert(persistencePolicy() != PreferencePersistencePolicy::ReadOnly);
     m_value = value;
   }
 
@@ -181,7 +198,5 @@ public: // PreferenceManager private
   }
 
   bool isDefault() const override { return m_defaultValue == m_value; }
-
-  bool isReadOnly() const { return m_readOnly; }
 };
 } // namespace tb

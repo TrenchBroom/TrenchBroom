@@ -162,7 +162,12 @@ QJsonValue PreferenceSerializer::writeToJson(const QString& in) const
 }
 
 
-PreferenceBase::PreferenceBase() = default;
+PreferenceBase::PreferenceBase(const PreferencePersistencePolicy persistencePolicy)
+  : m_persistencePolicy{persistencePolicy}
+{
+}
+
+PreferenceBase::~PreferenceBase() = default;
 
 PreferenceBase::PreferenceBase(const PreferenceBase& other) = default;
 PreferenceBase::PreferenceBase(PreferenceBase&& other) noexcept = default;
@@ -179,7 +184,10 @@ bool operator!=(const PreferenceBase& lhs, const PreferenceBase& rhs)
   return !(lhs == rhs);
 }
 
-PreferenceBase::~PreferenceBase() = default;
+PreferencePersistencePolicy PreferenceBase::persistencePolicy() const
+{
+  return m_persistencePolicy;
+}
 
 DynamicPreferencePatternBase::~DynamicPreferencePatternBase() = default;
 
