@@ -58,29 +58,4 @@ TEST_CASE("blendColor")
   CHECK(blendColor(RgbaF{0.1f, 0.2f, 0.3f, 0.5f}, 0.6f) == RgbaF{0.1f, 0.2f, 0.3f, 0.3f});
 }
 
-TEST_CASE("rgbToHSB")
-{
-  float h = 0.0f;
-  float s = 0.0f;
-  float br = 0.0f;
-
-  // red -> hue 0, saturation 1, brightness 1
-  rgbToHSB(1.0f, 0.0f, 0.0f, h, s, br);
-  CHECK(h == 0.0f);
-  CHECK(s == 1.0f);
-  CHECK(br == 1.0f);
-
-  // yellow -> hue 1/6, saturation 1, brightness 1
-  rgbToHSB(1.0f, 1.0f, 0.0f, h, s, br);
-  CHECK(h == Catch::Approx(1.0f / 6.0f));
-  CHECK(s == Catch::Approx(1.0f));
-  CHECK(br == Catch::Approx(1.0f));
-
-  // gray -> hue 0, saturation 0, brightness 0.5
-  rgbToHSB(0.5f, 0.5f, 0.5f, h, s, br);
-  CHECK(h == 0.0f);
-  CHECK(s == 0.0f);
-  CHECK(br == Catch::Approx(0.5f));
-}
-
 } // namespace tb

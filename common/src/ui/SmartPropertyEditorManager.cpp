@@ -33,6 +33,7 @@
 #include "ui/SmartPropertyEditor.h"
 #include "ui/SmartWadEditor.h"
 
+#include "kdl/functional.h"
 #include "kdl/string_compare.h"
 
 namespace tb::ui
@@ -130,7 +131,11 @@ void SmartPropertyEditorManager::createEditors()
     },
     new SmartWadEditor{m_map, this});
   registerEditor(
-    makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
+    kdl::logical_or(
+      makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
+      makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<RgbF>>(),
+      makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<RgbB>>(),
+      makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<Rgb>>()),
     new SmartColorEditor{m_map, this});
   registerEditor(
     [](const auto&, const auto&) { return true; },

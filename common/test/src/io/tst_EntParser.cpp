@@ -242,7 +242,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
              "Model File",
              R"(Path/name of model to include (.md3 files only, e.g. models/mapobjects/jets/jets01.md3).)"},
             {"color",
-             mdl::PropertyValueTypes::Unknown{"1 1 1"},
+             mdl::PropertyValueTypes::Color<Rgb>{"1 1 1"},
              "Model Light Color",
              R"(Color of constant light of .md3 model, included with entity (default 1 1 1).)"},
             {"targetname",

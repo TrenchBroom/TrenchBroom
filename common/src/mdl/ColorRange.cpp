@@ -25,6 +25,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
+#include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
 namespace tb::mdl
@@ -42,21 +43,43 @@ ColorRange::Type detectColorRange(
   const std::string& propertyKey, const std::vector<EntityNodeBase*>& nodes)
 {
   auto result = ColorRange::Unset;
+  const auto setResult = [&](const auto range) {
+    if (result == ColorRange::Unset)
+    {
+      result = range;
+    }
+    else if (result != range)
+    {
+      result = ColorRange::Mixed;
+    }
+  };
+
   for (auto* node : nodes)
   {
     node->accept(kdl::overload(
       [&](const EntityNodeBase* entityNode) {
         if (const auto* value = entityNode->entity().property(propertyKey))
         {
-          const auto range = detectColorRange(*value);
-          if (result == ColorRange::Unset)
-          {
-            result = range;
-          }
-          else if (result != range)
-          {
-            result = ColorRange::Mixed;
-          }
+          setResult(detectColorRange(*value));
+        }
+        else if (const auto* propDef = mdl::propertyDefinition(node, propertyKey))
+        {
+          std::visit(
+            kdl::overload(
+              [&](const mdl::PropertyValueTypes::Color<RgbF>&) {
+                setResult(ColorRange::Float);
+              },
+              [&](const mdl::PropertyValueTypes::Color<RgbB>&) {
+                setResult(ColorRange::Byte);
+              },
+              [&](const mdl::PropertyValueTypes::Color<Rgb>& color) {
+                if (const auto& defaultValue = color.defaultValue)
+                {
+                  setResult(detectColorRange(*defaultValue));
+                }
+              },
+              [](const auto&) {}),
+            propDef->valueType);
         }
       },
       [](const LayerNode*) {},

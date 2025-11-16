@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityColorPropertyValue.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Game.h"
@@ -239,6 +240,39 @@ bool removeEntityProperty(Map& map, const std::string& key)
       [&](Entity& entity) {
         entity.removeProperty(key);
         return true;
+      },
+      [](Brush&) { return true; },
+      [](BezierPatch&) { return true; }));
+}
+
+bool setEntityColorProperty(Map& map, const std::string& key, const Rgb& newColor)
+{
+  const auto entityNodes = map.selection().allEntities();
+  return applyAndSwap(
+    map,
+    "Set Color",
+    entityNodes,
+    collectContainingGroups(kdl::vec_static_cast<Node*>(entityNodes)),
+    kdl::overload(
+      [](Layer&) { return true; },
+      [](Group&) { return true; },
+      [&](Entity& entity) {
+        const auto* oldValue = entity.property(key);
+        const auto extraComponents =
+          oldValue
+            ? parseEntityColorPropertyValue(entity.definition(), key, *oldValue)
+                | kdl::transform(
+                  [](const auto& oldColor) { return oldColor.extraComponents; })
+                | kdl::transform_error([](const auto&) { return std::vector<float>{}; })
+                | kdl::value()
+            : std::vector<float>{};
+
+        return entityColorPropertyToString(
+                 entity.definition(), key, {newColor, extraComponents})
+               | kdl::transform([&](const auto& newValueStr) {
+                   entity.addOrUpdateProperty(key, newValueStr);
+                 })
+               | kdl::is_success();
       },
       [](Brush&) { return true; },
       [](BezierPatch&) { return true; }));

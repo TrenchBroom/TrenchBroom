@@ -321,6 +321,14 @@ auto withDefaultValue(
       [](mdl::PropertyValueTypes::Output outputValueType) -> mdl::PropertyValueType {
         return outputValueType;
       },
+      [&]<typename T>(
+        mdl::PropertyValueTypes::Color<T> colorValueType) -> mdl::PropertyValueType {
+        if (hasAttribute(element, "value"))
+        {
+          colorValueType.defaultValue = parseString(element, "value");
+        }
+        return colorValueType;
+      },
       [&](mdl::PropertyValueTypes::Unknown unknownValueType) -> mdl::PropertyValueType {
         if (hasAttribute(element, "value"))
         {
@@ -503,6 +511,24 @@ std::optional<mdl::PropertyDefinition> parseStringPropertyDefinition(
   return parsePropertyDefinition(element, factory, status);
 }
 
+std::optional<mdl::PropertyDefinition> parseColorPropertyDefinition(
+  const tinyxml2::XMLElement& element, ParserStatus& status)
+{
+  auto factory = [&](std::string key, std::string shortDesc, std::string longDesc) {
+    auto defaultValue = hasAttribute(element, "value")
+                          ? std::optional(parseString(element, "value"))
+                          : std::nullopt;
+
+    return mdl::PropertyDefinition{
+      std::move(key),
+      mdl::PropertyValueTypes::Color<Rgb>{std::move(defaultValue)},
+      std::move(shortDesc),
+      std::move(longDesc)};
+  };
+
+  return parsePropertyDefinition(element, factory, status);
+}
+
 std::optional<mdl::PropertyDefinition> parseUnknownPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
@@ -575,7 +601,7 @@ std::optional<mdl::PropertyDefinition> parsePropertyDefinition(
   }
   if (getName(element) == "color")
   {
-    return parseUnknownPropertyDefinition(element, status);
+    return parseColorPropertyDefinition(element, status);
   }
 
   for (const auto& propertyDeclaration : propertyDeclarations)

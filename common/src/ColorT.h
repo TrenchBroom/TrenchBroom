@@ -32,6 +32,7 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
+#include <ranges>
 #include <string_view>
 #include <type_traits>
 
@@ -277,18 +278,23 @@ public:
     return ColorT{detail::fromNormalizedValues<ComponentTypes...>(values)};
   }
 
-  static Result<ColorT> parse(const std::string_view str)
+  template <std::ranges::random_access_range R>
+  static Result<ColorT> parseComponents(const R& components)
   {
-    const auto parts = kdl::str_split(str, " ");
-    if (parts.size() == NumComponents)
+    if (
+      const auto result = detail::parseComponentValues<ComponentTypes...>(
+        components | std::views::take(NumComponents)))
     {
-      if (const auto result = detail::parseComponentValues<ComponentTypes...>(parts))
-      {
-        return ColorT{*result};
-      }
+      return ColorT{*result};
     }
 
-    return Error{fmt::format("Failed to parse '{}' as color", str)};
+    return Error{
+      fmt::format("Failed to parse '{}' as color", fmt::join(components, " "))};
+  }
+
+  static Result<ColorT> parse(const std::string_view str)
+  {
+    return parseComponents(kdl::str_split(str, " "));
   }
 
   constexpr static size_t numComponents() { return NumComponents; }

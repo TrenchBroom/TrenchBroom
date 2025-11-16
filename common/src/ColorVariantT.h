@@ -30,13 +30,38 @@
 
 namespace tb
 {
+namespace detail
+{
+#include <type_traits>
+
+
+// contains_v<T, Ts...> : true if T is equal to any of Ts...
+template <typename T, typename... Ts>
+inline constexpr bool contains_v = (std::is_same_v<T, Ts> || ...);
+
+// Put Super... into a helper so the inner fold expands only Super...,
+// and the outer fold expands only Sub...
+template <typename... Super>
+struct subset
+{
+  template <typename... Sub>
+  static inline constexpr bool check_v = (contains_v<Sub, Super...> && ...);
+};
+
+} // namespace detail
 
 template <AnyColorT... Colors>
-  requires(sizeof...(Colors) > 0)
 class ColorVariantT
 {
 private:
+  // cannot use a requires clause for this because clang then complains about the friend
+  // declaration further below having differing requires clauses
+  static_assert(sizeof...(Colors) > 0);
+
   std::variant<Colors...> m_color;
+
+  template <AnyColorT... OtherColors>
+  friend class ColorVariantT;
 
 public:
   constexpr ColorVariantT()
@@ -45,8 +70,19 @@ public:
   }
 
   template <AnyColorT Color>
-  constexpr ColorVariantT(const Color& color) // NOLINT(google-explicit-constructor)
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  constexpr ColorVariantT(const Color& color)
     : m_color{color}
+  {
+  }
+
+  template <AnyColorT... OtherColors>
+    requires(detail::subset<Colors...>::template check_v<OtherColors...>)
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  constexpr ColorVariantT(const ColorVariantT<OtherColors...>& colorVariant)
+    : m_color{std::visit(
+        [](const auto& color) { return std::variant<Colors...>{color}; },
+        colorVariant.m_color)}
   {
   }
 
@@ -54,6 +90,16 @@ public:
   constexpr ColorVariantT& operator=(const Color& color)
   {
     m_color = color;
+    return *this;
+  }
+
+  template <AnyColorT... OtherColors>
+    requires(detail::subset<Colors...>::template check_v<OtherColors...>)
+  constexpr ColorVariantT& operator=(const ColorVariantT<OtherColors...>& colorVariant)
+  {
+    m_color = std::visit(
+      [](const auto& color) { return std::variant<Colors...>{color}; },
+      colorVariant.m_color);
     return *this;
   }
 
@@ -71,10 +117,16 @@ public:
     return fromValuesImpl<Colors...>(std::tuple{values...});
   }
 
-  static Result<ColorVariantT> parse(const std::string_view str)
+  template <std::ranges::random_access_range R>
+  static Result<ColorVariantT> parseComponents(const R& components)
   {
     // for parsing to succeed, Colors must be ordered by number of components
-    return parseImpl<Colors...>(str);
+    return parseComponentsImpl<Colors...>(components);
+  }
+
+  static Result<ColorVariantT> parse(const std::string_view str)
+  {
+    return parseComponents(kdl::str_split(str, " "));
   }
 
   size_t numComponents() const
@@ -101,7 +153,6 @@ public:
 
   kdl_reflect_inline(ColorVariantT, m_color);
 
-private:
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4702)
@@ -123,20 +174,24 @@ private:
       fmt::format("Failed to create color from values {}", fmt::join(values, ", "))};
   }
 
-  template <AnyColorT ColorTypeToTry, AnyColorT... MoreColorTypes>
-  static Result<ColorVariantT> parseImpl(std::string_view str)
+  template <
+    AnyColorT ColorTypeToTry,
+    AnyColorT... MoreColorTypes,
+    std::ranges::random_access_range R>
+  static Result<ColorVariantT> parseComponentsImpl(const R& components)
   {
-    if (auto result = ColorTypeToTry::parse(str))
+    if (auto result = ColorTypeToTry::parseComponents(components))
     {
       return result | kdl::transform([](const auto& x) { return ColorVariantT{x}; });
     }
 
     if constexpr (sizeof...(MoreColorTypes) > 0)
     {
-      return parseImpl<MoreColorTypes...>(str);
+      return parseComponentsImpl<MoreColorTypes...>(components);
     }
 
-    return Error{fmt::format("Failed to parse '{}' as color", str)};
+    return Error{
+      fmt::format("Failed to parse '{}' as color", fmt::join(components, " "))};
   }
 #ifdef _MSC_VER
 #pragma warning(pop)

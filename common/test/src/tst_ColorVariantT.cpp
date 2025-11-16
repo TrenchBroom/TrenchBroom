@@ -54,6 +54,24 @@ TEST_CASE("ColorVariantT")
     CHECK(color == CV{Cb{1, 2, 3}});
   }
 
+  SECTION("ColorVariantT(ColorVariantT)")
+  {
+    using CS = ColorVariantT<Cf, Cb>;
+
+    const auto cs = CS{Cf{0.1f, 0.2f, 0.3f}};
+    CHECK(CV{cs} == CV{Cf{0.1f, 0.2f, 0.3f}});
+  }
+
+  SECTION("operator=(ColorVariantT)")
+  {
+    using CS = ColorVariantT<Cf, Cb>;
+
+    auto color = CV{Cf{0.1f, 0.2f, 0.3f}};
+    color = CS{Cb{1, 2, 3}};
+
+    CHECK(color == CV{Cb{1, 2, 3}});
+  }
+
   SECTION("fromVec")
   {
     CHECK(CV::fromVec(vm::vec3f{0.1f, 0.2f, 0.3f}) == Cf{0.1f, 0.2f, 0.3f});
@@ -71,10 +89,27 @@ TEST_CASE("ColorVariantT")
       == Error{"Failed to create color from values -1, 0, 0"});
   }
 
+  SECTION("parseComponents")
+  {
+    CHECK(CV::parseComponents(std::vector{"1", "2", "3"}) == CV{Cb{1, 2, 3}});
+    CHECK(CV::parseComponents(std::vector{"0", "0", "0"}) == CV{Cf{0.0f, 0.0f, 0.0f}});
+    CHECK(
+      CV::parseComponents(std::vector{"0", "0", "0", "0"})
+      == CV{Caf{0.0f, 0.0f, 0.0f, 0.0f}});
+    CHECK(
+      CV::parseComponents(std::vector{"0", "0", "0", "0", "0"})
+      == CV{Caf{0.0f, 0.0f, 0.0f, 0.0f}});
+    CHECK(
+      CV::parseComponents(std::vector{"0", "0"})
+      == Error{"Failed to parse '0 0' as color"});
+  }
+
   SECTION("parse")
   {
     CHECK(CV::parse("1 2 3") == CV{Cb{1, 2, 3}});
     CHECK(CV::parse("0 0 0") == CV{Cf{0.0f, 0.0f, 0.0f}});
+    CHECK(CV::parse("0 0 0 0") == CV{Caf{0.0f, 0.0f, 0.0f, 0.0f}});
+    CHECK(CV::parse("1 2 3 4") == CV{Cb{1, 2, 3}});
     CHECK(CV::parse("0 0") == Error{"Failed to parse '0 0' as color"});
   }
 

@@ -33,6 +33,8 @@ TEST_CASE("Unzip")
   const auto zipPath = fixturePath + "/archive.zip";
   const auto destPath = fixturePath + "/extracted";
 
+  REQUIRE(QDir{destPath}.removeRecursively());
+
   REQUIRE(!QFileInfo{destPath + "/test1.txt"}.exists());
   REQUIRE(!QFileInfo{destPath + "/folder/test2.txt"}.exists());
 

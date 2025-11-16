@@ -89,6 +89,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_DecalDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EditorContext.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Entity.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityColorPropertyValue.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityDefinitionFileSpec.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityDefinitionUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityLinkManager.cpp"
