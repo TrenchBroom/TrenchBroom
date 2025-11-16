@@ -228,7 +228,13 @@ TEST_CASE("Map_Assets")
   {
     fixture.create({.mapFormat = MapFormat::Quake2, .game = LoadGameFixture{"Quake2"}});
 
-    REQUIRE(map.materialManager().collections().size() == 3);
+
+    const auto collectionPaths =
+      map.materialManager().collections()
+      | std::views::transform([](const auto& collection) { return collection.path(); })
+      | kdl::ranges::to<std::vector>();
+
+    REQUIRE(collectionPaths.size() == 3);
 
     const auto* worldNode = map.world();
     REQUIRE(worldNode);
@@ -239,20 +245,24 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(!getEnabledMaterialCollections());
 
-    SECTION("Setting an empty vector resets the property")
+    SECTION("Enabling all collections resets the property")
     {
-      setEnabledMaterialCollections(map, {"textures/e1m1/f1"});
-      REQUIRE(getEnabledMaterialCollections());
+      setEnabledMaterialCollections(map, collectionPaths);
+      REQUIRE(getEnabledMaterialCollections() == nullptr);
+    }
 
+    SECTION("Disabling all collections sets the property to an empty string")
+    {
       setEnabledMaterialCollections(map, {});
-      CHECK(!getEnabledMaterialCollections());
+      REQUIRE(getEnabledMaterialCollections() != nullptr);
+      CHECK(*getEnabledMaterialCollections() == "");
     }
 
     SECTION("Setting a non-empty vector sets the property")
     {
-      setEnabledMaterialCollections(map, {"textures/e1m1/f1"});
+      setEnabledMaterialCollections(map, {collectionPaths.front()});
       REQUIRE(getEnabledMaterialCollections());
-      CHECK(*getEnabledMaterialCollections() == "textures/e1m1/f1");
+      CHECK(*getEnabledMaterialCollections() == collectionPaths.front());
     }
 
     SECTION("Enabled material collections are sorted and unique")
