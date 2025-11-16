@@ -30,13 +30,38 @@
 
 namespace tb
 {
+namespace detail
+{
+#include <type_traits>
+
+
+// contains_v<T, Ts...> : true if T is equal to any of Ts...
+template <typename T, typename... Ts>
+inline constexpr bool contains_v = (std::is_same_v<T, Ts> || ...);
+
+// Put Super... into a helper so the inner fold expands only Super...,
+// and the outer fold expands only Sub...
+template <typename... Super>
+struct subset
+{
+  template <typename... Sub>
+  static inline constexpr bool check_v = (contains_v<Sub, Super...> && ...);
+};
+
+} // namespace detail
 
 template <AnyColorT... Colors>
-  requires(sizeof...(Colors) > 0)
 class ColorVariantT
 {
 private:
+  // cannot use a requires clause for this because clang then complains about the friend
+  // declaration further below having differing requires clauses
+  static_assert(sizeof...(Colors) > 0);
+
   std::variant<Colors...> m_color;
+
+  template <AnyColorT... OtherColors>
+  friend class ColorVariantT;
 
 public:
   constexpr ColorVariantT()
@@ -45,8 +70,19 @@ public:
   }
 
   template <AnyColorT Color>
-  constexpr ColorVariantT(const Color& color) // NOLINT(google-explicit-constructor)
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  constexpr ColorVariantT(const Color& color)
     : m_color{color}
+  {
+  }
+
+  template <AnyColorT... OtherColors>
+    requires(detail::subset<Colors...>::template check_v<OtherColors...>)
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  constexpr ColorVariantT(const ColorVariantT<OtherColors...>& colorVariant)
+    : m_color{std::visit(
+        [](const auto& color) { return std::variant<Colors...>{color}; },
+        colorVariant.m_color)}
   {
   }
 
@@ -54,6 +90,16 @@ public:
   constexpr ColorVariantT& operator=(const Color& color)
   {
     m_color = color;
+    return *this;
+  }
+
+  template <AnyColorT... OtherColors>
+    requires(detail::subset<Colors...>::template check_v<OtherColors...>)
+  constexpr ColorVariantT& operator=(const ColorVariantT<OtherColors...>& colorVariant)
+  {
+    m_color = std::visit(
+      [](const auto& color) { return std::variant<Colors...>{color}; },
+      colorVariant.m_color);
     return *this;
   }
 
@@ -107,7 +153,6 @@ public:
 
   kdl_reflect_inline(ColorVariantT, m_color);
 
-private:
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4702)

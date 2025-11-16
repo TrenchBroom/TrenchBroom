@@ -54,6 +54,24 @@ TEST_CASE("ColorVariantT")
     CHECK(color == CV{Cb{1, 2, 3}});
   }
 
+  SECTION("ColorVariantT(ColorVariantT)")
+  {
+    using CS = ColorVariantT<Cf, Cb>;
+
+    const auto cs = CS{Cf{0.1f, 0.2f, 0.3f}};
+    CHECK(CV{cs} == CV{Cf{0.1f, 0.2f, 0.3f}});
+  }
+
+  SECTION("operator=(ColorVariantT)")
+  {
+    using CS = ColorVariantT<Cf, Cb>;
+
+    auto color = CV{Cf{0.1f, 0.2f, 0.3f}};
+    color = CS{Cb{1, 2, 3}};
+
+    CHECK(color == CV{Cb{1, 2, 3}});
+  }
+
   SECTION("fromVec")
   {
     CHECK(CV::fromVec(vm::vec3f{0.1f, 0.2f, 0.3f}) == Cf{0.1f, 0.2f, 0.3f});
