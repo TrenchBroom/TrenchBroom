@@ -25,4 +25,22 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:tinyxml2::tinyxml2>" "$<TARGET_FILE_DIR:dump-shortcuts>"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:miniz::miniz>" "$<TARGET_FILE_DIR:dump-shortcuts>"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:GLEW::GLEW>" "$<TARGET_FILE_DIR:dump-shortcuts>")
+
+    # Run windeployqt which copies the Qt dlls into the deployable folder, along with necessary runtime dlls by the compiler
+    if(NOT TB_SKIP_WINDEPLOYQT)
+        message(STATUS "windeployqt requested")
+
+        # Get windeployqt path (hack)
+        get_target_property(TB_QMAKE_PATH Qt6::qmake IMPORTED_LOCATION)
+        string(REPLACE "qmake" "windeployqt" TB_WINDEPLOYQT_PATH "${TB_QMAKE_PATH}")
+        message(STATUS "windeployqt found: ${TB_WINDEPLOYQT_PATH}")
+
+        add_custom_command(TARGET dump-shortcuts POST_BUILD
+                COMMAND "${TB_WINDEPLOYQT_PATH}"
+                        --no-compiler-runtime
+                        --no-translations
+                        "$<TARGET_FILE_DIR:dump-shortcuts>")
+    else()
+        message(STATUS "windeployqt skipped")
+    endif()        
 endif()
