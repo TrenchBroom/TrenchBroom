@@ -141,24 +141,21 @@ void setEnabledMaterialCollections(
   const auto pushSelection = PushSelection{map};
   deselectAll(map);
 
-  if (!enabledMaterialCollections.empty())
-  {
-    const auto enabledMaterialCollectionStr = kdl::str_join(
-      kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections)
-        | std::views::transform([](const auto& path) { return path.string(); })
-        | kdl::ranges::to<std::vector>(),
-      ";");
+  const auto enabledMaterialCollectionStr = kdl::str_join(
+    kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections)
+      | std::views::transform([](const auto& path) { return path.string(); })
+      | kdl::ranges::to<std::vector>(),
+    ";");
 
-    const auto success = setEntityProperty(
-      map, EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
-    transaction.finish(success);
-  }
-  else
+  auto success = setEntityProperty(
+    map, EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
+
+  if (disabledMaterialCollections(map).empty())
   {
-    const auto success =
-      removeEntityProperty(map, EntityPropertyKeys::EnabledMaterialCollections);
-    transaction.finish(success);
+    success = removeEntityProperty(map, EntityPropertyKeys::EnabledMaterialCollections);
   }
+
+  transaction.finish(success);
 }
 
 void reloadMaterialCollections(Map& map)
