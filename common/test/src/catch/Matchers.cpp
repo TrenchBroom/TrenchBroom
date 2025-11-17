@@ -33,7 +33,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/string_compare.h"
+#include "kd/string_compare.h"
 
 #include <algorithm>
 

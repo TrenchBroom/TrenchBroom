@@ -36,10 +36,10 @@
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/result.h"
-#include "kdl/string_format.h"
-#include "kdl/string_utils.h"
-#include "kdl/task_manager.h"
+#include "kd/result.h"
+#include "kd/string_format.h"
+#include "kd/string_utils.h"
+#include "kd/task_manager.h"
 
 #include "vm/mat_io.h"
 

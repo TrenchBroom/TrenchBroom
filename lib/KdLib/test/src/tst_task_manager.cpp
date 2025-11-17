@@ -18,9 +18,9 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/ranges/to.h"
-#include "kdl/task_manager.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/to.h"
+#include "kd/task_manager.h"
 
 #include <memory>
 #include <tuple>

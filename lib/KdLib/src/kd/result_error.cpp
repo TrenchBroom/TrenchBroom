@@ -18,9 +18,9 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/result_error.h"
+#include "kd/result_error.h"
 
-#include "kdl/reflection_impl.h"
+#include "kd/reflection_impl.h"
 
 namespace kdl
 {

@@ -46,8 +46,8 @@
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
 
-#include "kdl/overload.h"
-#include "kdl/path_utils.h"
+#include "kd/overload.h"
+#include "kd/path_utils.h"
 
 #include <vector>
 

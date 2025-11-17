@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/ranges/repeat_view.h"
+#include "kd/ranges/repeat_view.h"
 
 #include <algorithm>
 #include <vector>

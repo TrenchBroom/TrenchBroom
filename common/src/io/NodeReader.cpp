@@ -27,7 +27,7 @@
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <string>
 #include <vector>

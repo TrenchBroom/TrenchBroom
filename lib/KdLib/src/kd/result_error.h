@@ -1,5 +1,5 @@
 /*
- Copyright 2020 Kristian Duske
+ Copyright 2025 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,45 +20,18 @@
 
 #pragma once
 
-#include "kdl/overload.h"
-#include "kdl/result.h"
-#include "kdl/std_io.h"
+#include "kd/reflection_decl.h"
 
-#include <iostream>
+#include <string>
 
 namespace kdl
 {
 
-template <typename Value, typename... Errors>
-std::ostream& operator<<(std::ostream& str, const result<Value, Errors...>& result)
+struct result_error
 {
-  result.visit([&](const auto& x) { str << make_streamable(x); });
-  return str;
-}
+  std::string msg;
 
-template <typename... Values>
-std::ostream& operator<<(std::ostream& str, const multi_value<Values...>& value)
-{
-  str << "multi_value" << make_streamable(value.values);
-  return str;
-}
-
-template <typename... Values, typename... Errors>
-std::ostream& operator<<(
-  std::ostream& str, const result<multi_value<Values...>, Errors...>& result)
-{
-  result.visit([&](const auto&... x) {
-    str << "multi_value" << make_streamable(std::forward_as_tuple(x...));
-  });
-  return str;
-}
-
-template <typename... Errors>
-std::ostream& operator<<(std::ostream& str, const result<void, Errors...>& result)
-{
-  result.visit(kdl::overload(
-    [&]() { str << "void"; }, [&](const auto& e) { str << make_streamable(e); }));
-  return str;
-}
+  kdl_reflect_decl(result_error, msg);
+};
 
 } // namespace kdl

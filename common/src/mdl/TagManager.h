@@ -21,7 +21,7 @@
 
 #include "mdl/Tag.h"
 
-#include "kdl/vector_set.h"
+#include "kd/vector_set.h"
 
 #include <string>
 

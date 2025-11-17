@@ -23,7 +23,7 @@
 #include "mdl/Map.h"
 #include "mdl/UpdateLinkedGroupsCommand.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include <string>
 

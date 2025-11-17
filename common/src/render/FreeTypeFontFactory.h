@@ -24,7 +24,7 @@
 
 #include "render/FontFactory.h"
 
-#include "kdl/resource.h"
+#include "kd/resource.h"
 
 #include <memory>
 

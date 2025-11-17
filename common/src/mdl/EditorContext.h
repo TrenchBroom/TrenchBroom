@@ -22,7 +22,7 @@
 #include "Notifier.h"
 #include "mdl/TagType.h"
 
-#include "kdl/dynamic_bitset.h"
+#include "kd/dynamic_bitset.h"
 
 namespace tb::mdl
 {

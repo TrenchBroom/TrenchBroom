@@ -36,8 +36,8 @@
 #include "ui/ClipTool.h"
 #include "ui/HandleDragTracker.h"
 
-#include "kdl/optional_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/optional_utils.h"
+#include "kd/vector_utils.h"
 
 #include "vm/distance.h"
 #include "vm/intersection.h"

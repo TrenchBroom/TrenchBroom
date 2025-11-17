@@ -38,12 +38,12 @@
 #include "render/RenderService.h"
 #include "ui/QtUtils.h"
 
-#include "kdl/map_utils.h"
-#include "kdl/optional_utils.h"
-#include "kdl/overload.h"
-#include "kdl/ranges/to.h"
-#include "kdl/set_temp.h"
-#include "kdl/vector_utils.h"
+#include "kd/map_utils.h"
+#include "kd/optional_utils.h"
+#include "kd/overload.h"
+#include "kd/ranges/to.h"
+#include "kd/set_temp.h"
+#include "kd/vector_utils.h"
 
 #include "vm/ray.h"
 #include "vm/vec_io.h" // IWYU pragma: keep

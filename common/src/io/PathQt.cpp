@@ -21,7 +21,7 @@
 
 #include <QFileInfo>
 
-#include "kdl/path_utils.h"
+#include "kd/path_utils.h"
 
 namespace tb::io
 {

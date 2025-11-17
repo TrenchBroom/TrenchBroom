@@ -31,9 +31,9 @@
 #include "mdl/ValidatorRegistry.h"
 #include "octree.h"
 
-#include "kdl/const_overload.h"
-#include "kdl/k.h"
-#include "kdl/overload.h"
+#include "kd/const_overload.h"
+#include "kd/k.h"
+#include "kd/overload.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 

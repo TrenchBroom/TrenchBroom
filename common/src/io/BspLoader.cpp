@@ -32,9 +32,9 @@
 #include "render/MaterialIndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/result.h"
-#include "kdl/string_format.h"
+#include "kd/path_utils.h"
+#include "kd/result.h"
+#include "kd/string_format.h"
 
 #include <fmt/format.h>
 

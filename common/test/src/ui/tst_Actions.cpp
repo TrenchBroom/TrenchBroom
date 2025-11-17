@@ -20,7 +20,7 @@
 #include "Ensure.h"
 #include "ui/Actions.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <sstream>
 #include <string>

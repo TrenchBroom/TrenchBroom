@@ -25,7 +25,7 @@
 #include "el/Value.h"
 #include "io/ParserException.h"
 
-#include "kdl/string_format.h"
+#include "kd/string_format.h"
 
 #include <fmt/format.h>
 

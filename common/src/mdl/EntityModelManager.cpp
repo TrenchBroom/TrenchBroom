@@ -32,8 +32,8 @@
 #include "mdl/Resource.h"
 #include "render/MaterialIndexRangeRenderer.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
 
 namespace tb::mdl
 {

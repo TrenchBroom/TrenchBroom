@@ -22,12 +22,12 @@
 #include "el/ELExceptions.h"
 #include "el/EvaluationContext.h"
 
-#include "kdl/overload.h"
-#include "kdl/ranges/to.h"
-#include "kdl/string_compare.h"
-#include "kdl/string_format.h"
-#include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/ranges/to.h"
+#include "kd/string_compare.h"
+#include "kd/string_format.h"
+#include "kd/string_utils.h"
+#include "kd/vector_utils.h"
 
 #include <cmath>
 #include <iterator>

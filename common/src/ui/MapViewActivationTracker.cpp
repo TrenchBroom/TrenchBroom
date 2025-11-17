@@ -26,7 +26,7 @@
 #include "Ensure.h"
 #include "ui/MapViewBase.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 namespace tb::ui
 {

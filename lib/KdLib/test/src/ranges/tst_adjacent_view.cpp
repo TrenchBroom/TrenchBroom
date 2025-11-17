@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/ranges/adjacent_view.h"
+#include "kd/ranges/adjacent_view.h"
 
 #include <vector>
 

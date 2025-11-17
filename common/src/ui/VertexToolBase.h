@@ -42,12 +42,12 @@
 #include "ui/Lasso.h"
 #include "ui/Tool.h"
 
-#include "kdl/overload.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/set_temp.h"
-#include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/set_temp.h"
+#include "kd/string_utils.h"
+#include "kd/vector_utils.h"
 
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep

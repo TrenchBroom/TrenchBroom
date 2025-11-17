@@ -19,7 +19,7 @@
 
 #include "SoftMapBounds.h"
 
-#include "kdl/reflection_impl.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 

@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/hash_utils.h"
+#include "kd/hash_utils.h"
 
 #include <string>
 

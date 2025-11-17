@@ -20,7 +20,7 @@
 
 #include "range_test_utils.h"
 
-#include "kdl/ranges/chunk_view.h"
+#include "kd/ranges/chunk_view.h"
 
 #include <algorithm>
 #include <ranges>

@@ -35,8 +35,8 @@
 #include "mdl/WorldNode.h"
 #include "render/BrushRendererBrushCache.h"
 
-#include "kdl/const_overload.h"
-#include "kdl/overload.h"
+#include "kd/const_overload.h"
+#include "kd/overload.h"
 
 #include "vm/intersection.h"
 #include "vm/util.h"

@@ -26,12 +26,12 @@
 #include "mdl/NodeContents.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/ranges/chunk_by_view.h"
-#include "kdl/ranges/to.h"
-#include "kdl/ranges/zip_transform_view.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/task_manager.h"
+#include "kd/ranges/chunk_by_view.h"
+#include "kd/ranges/to.h"
+#include "kd/ranges/zip_transform_view.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
+#include "kd/task_manager.h"
 
 #include <algorithm>
 #include <string_view>

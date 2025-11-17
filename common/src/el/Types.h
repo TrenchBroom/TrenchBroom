@@ -21,7 +21,7 @@
 
 #include "el/EL_Forward.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include <iosfwd>
 #include <map>

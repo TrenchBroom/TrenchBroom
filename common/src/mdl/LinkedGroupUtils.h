@@ -29,8 +29,8 @@
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/vector_utils.h"
 
 #include <memory>
 #include <unordered_map>

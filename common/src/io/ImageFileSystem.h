@@ -24,8 +24,8 @@
 #include "io/FileSystem.h"
 #include "io/FileSystemMetadata.h"
 
-#include "kdl/path_hash.h"
-#include "kdl/result.h"
+#include "kd/path_hash.h"
+#include "kd/result.h"
 
 #include <filesystem>
 #include <functional>

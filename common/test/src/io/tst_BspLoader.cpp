@@ -27,7 +27,7 @@
 #include "mdl/EntityModel.h"
 #include "mdl/Palette.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include "catch/CatchConfig.h"
 

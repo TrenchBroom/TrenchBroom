@@ -18,10 +18,10 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/overload.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
+#include "kd/overload.h"
+#include "kd/reflection_impl.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -21,9 +21,9 @@
 
 #include "io/DiskIO.h"
 
-#include "kdl/result.h"
-#include "kdl/string_format.h"
-#include "kdl/string_utils.h"
+#include "kd/result.h"
+#include "kd/string_format.h"
+#include "kd/string_utils.h"
 
 #include "vm/polygon.h"
 #include "vm/vec.h"

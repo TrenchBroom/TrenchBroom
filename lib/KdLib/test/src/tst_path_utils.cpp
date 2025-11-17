@@ -18,8 +18,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/k.h"
-#include "kdl/path_utils.h"
+#include "kd/k.h"
+#include "kd/path_utils.h"
 
 #include <catch2/catch_test_macros.hpp>
 

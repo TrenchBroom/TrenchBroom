@@ -24,7 +24,7 @@
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/line.h"
 #include "vm/vec.h"

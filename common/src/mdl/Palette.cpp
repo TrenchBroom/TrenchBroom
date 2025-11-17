@@ -27,9 +27,9 @@
 #include "io/Reader.h"
 #include "mdl/TextureBuffer.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/string_format.h"
+#include "kd/path_utils.h"
+#include "kd/reflection_impl.h"
+#include "kd/string_format.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

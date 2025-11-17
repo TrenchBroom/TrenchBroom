@@ -36,9 +36,9 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
-#include "kdl/ranges/to.h"
-#include "kdl/string_compare.h"
-#include "kdl/struct_io.h"
+#include "kd/ranges/to.h"
+#include "kd/string_compare.h"
+#include "kd/struct_io.h"
 
 #include <algorithm>
 #include <ostream>

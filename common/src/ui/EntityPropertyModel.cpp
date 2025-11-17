@@ -45,9 +45,9 @@
 #include "mdl/WorldNode.h"
 #include "ui/QtUtils.h"
 
-#include "kdl/range_utils.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/string_utils.h"
+#include "kd/range_utils.h"
+#include "kd/reflection_impl.h"
+#include "kd/string_utils.h"
 
 #include <fmt/format.h>
 

@@ -24,7 +24,7 @@
 #include "render/MaterialIndexArrayRenderer.h"
 #include "render/Renderable.h"
 
-#include "kdl/vector_set.h"
+#include "kd/vector_set.h"
 
 namespace tb::mdl
 {

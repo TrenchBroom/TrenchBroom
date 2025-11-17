@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/tuple_utils.h"
+#include "kd/tuple_utils.h"
 
 #include <catch2/catch_test_macros.hpp>
 

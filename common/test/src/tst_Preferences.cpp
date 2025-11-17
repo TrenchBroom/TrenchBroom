@@ -25,7 +25,7 @@
 #include "PreferenceManager.h"
 #include "io/PathQt.h"
 
-#include "kdl/path_utils.h"
+#include "kd/path_utils.h"
 
 #include "vm/approx.h"
 

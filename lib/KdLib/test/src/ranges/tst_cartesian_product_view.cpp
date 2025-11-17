@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/ranges/cartesian_product_view.h"
+#include "kd/ranges/cartesian_product_view.h"
 
 #include <algorithm>
 #include <forward_list>

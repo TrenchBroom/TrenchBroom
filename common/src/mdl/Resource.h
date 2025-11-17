@@ -23,9 +23,9 @@
 #include "ResourceId.h"
 #include "Result.h"
 
-#include "kdl/overload.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/result.h"
+#include "kd/overload.h"
+#include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include <functional>
 #include <future>

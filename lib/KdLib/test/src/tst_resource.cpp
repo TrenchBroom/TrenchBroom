@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/resource.h"
+#include "kd/resource.h"
 
 #include <catch2/catch_test_macros.hpp>
 

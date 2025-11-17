@@ -18,8 +18,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/std_io.h"
-#include "kdl/string_utils.h"
+#include "kd/std_io.h"
+#include "kd/string_utils.h"
 
 #include <sstream>
 #include <string>

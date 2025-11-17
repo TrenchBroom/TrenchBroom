@@ -18,8 +18,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/ranges/to.h"
-#include "kdl/ranges/zip_transform_view.h"
+#include "kd/ranges/to.h"
+#include "kd/ranges/zip_transform_view.h"
 
 #include <forward_list>
 #include <vector>

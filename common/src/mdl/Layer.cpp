@@ -19,7 +19,7 @@
 
 #include "Layer.h"
 
-#include "kdl/reflection_impl.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 

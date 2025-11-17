@@ -24,11 +24,11 @@
 #include "mdl/Material.h"
 #include "mdl/MaterialCollection.h"
 
-#include "kdl/const_overload.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
+#include "kd/const_overload.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/string_format.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>

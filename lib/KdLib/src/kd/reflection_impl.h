@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "kdl/reflection_decl.h"
-#include "kdl/struct_io.h"
+#include "kd/reflection_decl.h"
+#include "kd/struct_io.h"
 
 #include <ostream>
 

@@ -30,8 +30,8 @@
 #include "mdl/Texture.h"
 #include "mdl/UVCoordSystem.h"
 
-#include "kdl/reflection_impl.h"
-#include "kdl/result.h"
+#include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include "vm/bbox.h"
 #include "vm/intersection.h"

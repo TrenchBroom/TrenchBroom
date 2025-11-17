@@ -22,7 +22,7 @@
 #include "mdl/GameConfig.h"
 #include "mdl/GameFactory.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 

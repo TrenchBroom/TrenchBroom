@@ -19,9 +19,9 @@
 
 #include "PathMatcher.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/string_compare.h"
-#include "kdl/vector_utils.h"
+#include "kd/path_utils.h"
+#include "kd/string_compare.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 

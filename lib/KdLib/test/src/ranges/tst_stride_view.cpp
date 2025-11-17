@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/ranges/stride_view.h"
+#include "kd/ranges/stride_view.h"
 
 #include <algorithm>
 #include <sstream>

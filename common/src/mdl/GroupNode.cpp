@@ -30,8 +30,8 @@
 #include "mdl/Validator.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/vector_utils.h"
 
 #include <string>
 #include <vector>

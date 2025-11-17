@@ -49,13 +49,13 @@
 #include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/result_fold.h"
-#include "kdl/string_format.h"
-#include "kdl/task_manager.h"
+#include "kd/overload.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
+#include "kd/result_fold.h"
+#include "kd/string_format.h"
+#include "kd/task_manager.h"
 
 #include <ranges>
 

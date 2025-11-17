@@ -50,7 +50,7 @@
 #include "upd/QtHttpClient.h"
 #include "upd/Updater.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 #ifdef __APPLE__
 #include "ui/ActionBuilder.h"
 #endif
@@ -71,8 +71,8 @@
 #include <QTimer>
 #include <QUrl>
 
-#include "kdl/path_utils.h"
-#include "kdl/string_utils.h"
+#include "kd/path_utils.h"
+#include "kd/string_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

@@ -35,7 +35,7 @@
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <cassert>
 

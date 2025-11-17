@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/range_utils.h"
+#include "kd/range_utils.h"
 
 #include <vector>
 

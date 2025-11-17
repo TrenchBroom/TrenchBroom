@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "kdl/set_adapter.h"
-#include "kdl/vector_set_forward.h"
+#include "kd/set_adapter.h"
+#include "kd/vector_set_forward.h"
 
 #include <cassert>
 #include <functional>

@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/ranges/detail/movable_box.h"
+#include "kd/ranges/detail/movable_box.h"
 
 #include <string>
 

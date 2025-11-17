@@ -39,17 +39,17 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"
 
-#include "kdl/functional.h"
-#include "kdl/path_hash.h"
-#include "kdl/path_utils.h"
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/ranges/chunk_by_view.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/string_compare.h"
-#include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
+#include "kd/functional.h"
+#include "kd/path_hash.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/chunk_by_view.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
+#include "kd/string_compare.h"
+#include "kd/string_format.h"
+#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

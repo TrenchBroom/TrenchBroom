@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/meta_utils.h"
+#include "kd/meta_utils.h"
 
 #include <catch2/catch_test_macros.hpp>
 

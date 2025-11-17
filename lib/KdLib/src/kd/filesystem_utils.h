@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "kdl/result.h"
-#include "kdl/result_error.h"
+#include "kd/result.h"
+#include "kd/result_error.h"
 
 #include <filesystem>
 #include <fstream>

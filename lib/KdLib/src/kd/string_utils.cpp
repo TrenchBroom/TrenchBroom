@@ -18,14 +18,14 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/string_utils.h"
+#include "kd/string_utils.h"
 
 #if defined(__APPLE__)
 #include "fast_float/fast_float.h"
 #endif
 
-#include "kdl/reflection_impl.h"
-#include "kdl/string_format.h"
+#include "kd/reflection_impl.h"
+#include "kd/string_format.h"
 
 #include <algorithm>
 #include <cassert>

@@ -32,8 +32,8 @@
 #include "render/Camera.h"
 #include "ui/ScaleToolPage.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/bbox.h"
 #include "vm/distance.h"

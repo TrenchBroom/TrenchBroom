@@ -26,7 +26,7 @@
 #include "mdl/UndoableCommand.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <memory>
 #include <thread>

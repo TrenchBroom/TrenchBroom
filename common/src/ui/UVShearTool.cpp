@@ -31,8 +31,8 @@
 #include "ui/InputState.h"
 #include "ui/UVViewHelper.h"
 
-#include "kdl/optional_utils.h"
-#include "kdl/ranges/to.h"
+#include "kd/optional_utils.h"
+#include "kd/ranges/to.h"
 
 #include "vm/intersection.h"
 #include "vm/vec.h"

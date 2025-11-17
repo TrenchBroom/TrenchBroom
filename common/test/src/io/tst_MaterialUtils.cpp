@@ -23,8 +23,8 @@
 #include "io/ReadFreeImageTexture.h"
 #include "io/TestEnvironment.h"
 
-#include "kdl/result.h"
-#include "kdl/result_io.h" // IWYU pragma: keep
+#include "kd/result.h"
+#include "kd/result_io.h" // IWYU pragma: keep
 
 #include <filesystem>
 

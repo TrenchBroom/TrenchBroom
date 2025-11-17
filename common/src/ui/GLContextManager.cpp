@@ -27,8 +27,8 @@
 #include "render/Shaders.h"
 #include "render/VboManager.h"
 
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
 
 #include <fmt/format.h>
 

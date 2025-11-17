@@ -43,8 +43,8 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>

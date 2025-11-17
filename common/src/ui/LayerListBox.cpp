@@ -34,7 +34,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/ranges/to.h"
+#include "kd/ranges/to.h"
 
 namespace tb::ui
 {

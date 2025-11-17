@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/stable_remove_duplicates.h"
+#include "kd/stable_remove_duplicates.h"
 
 #include <tuple>
 #include <vector>

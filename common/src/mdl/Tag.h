@@ -23,7 +23,7 @@
 #include "mdl/TagAttribute.h"
 #include "mdl/TagType.h"
 
-#include "kdl/vector_set.h"
+#include "kd/vector_set.h"
 
 #include <iosfwd>
 #include <memory>

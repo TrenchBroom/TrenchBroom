@@ -36,11 +36,11 @@
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/collection_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/string_compare.h"
-#include "kdl/vector_utils.h"
+#include "kd/collection_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/string_compare.h"
+#include "kd/vector_utils.h"
 
 #include <cassert>
 #include <ranges>

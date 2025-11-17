@@ -26,7 +26,7 @@
 #include "mdl/GameEngineConfig.h"
 #include "mdl/Tag.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/bbox.h"
 

@@ -27,7 +27,7 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include <fmt/format.h>
 

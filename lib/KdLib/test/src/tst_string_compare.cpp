@@ -18,8 +18,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/collection_utils.h"
-#include "kdl/string_compare.h"
+#include "kd/collection_utils.h"
+#include "kd/string_compare.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>

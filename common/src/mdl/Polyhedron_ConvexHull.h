@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "Polyhedron.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/constants.h"

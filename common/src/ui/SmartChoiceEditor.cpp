@@ -32,7 +32,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/set_temp.h"
+#include "kd/set_temp.h"
 
 #include <cassert>
 

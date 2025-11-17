@@ -103,11 +103,11 @@
 #include "ui/ViewUtils.h"
 #include "upd/Updater.h"
 
-#include "kdl/const_overload.h"
-#include "kdl/overload.h"
-#include "kdl/ranges/to.h"
-#include "kdl/string_format.h"
-#include "kdl/string_utils.h"
+#include "kd/const_overload.h"
+#include "kd/overload.h"
+#include "kd/ranges/to.h"
+#include "kd/string_format.h"
+#include "kd/string_utils.h"
 
 #include "vm/vec.h"
 #include "vm/vec_io.h"

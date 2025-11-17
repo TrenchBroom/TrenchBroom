@@ -22,7 +22,7 @@
 #include "Logger.h"
 #include "mdl/ModelSpecification.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include <string_view>
 

@@ -23,8 +23,8 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Polyhedron3.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
 
 #include <string>
 

@@ -18,9 +18,9 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/reflection_decl.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/string_utils.h"
+#include "kd/reflection_decl.h"
+#include "kd/reflection_impl.h"
+#include "kd/string_utils.h"
 
 #include <vector>
 

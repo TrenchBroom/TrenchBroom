@@ -24,9 +24,9 @@
 #include "io/PathInfo.h"
 #include "io/TraversalMode.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

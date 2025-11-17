@@ -41,7 +41,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/overload.h"
+#include "kd/overload.h"
 
 #include "catch/CatchConfig.h"
 #include "catch/Matchers.h"

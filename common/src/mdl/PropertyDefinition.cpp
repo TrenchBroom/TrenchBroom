@@ -19,9 +19,9 @@
 
 #include "PropertyDefinition.h"
 
-#include "kdl/optional_utils.h"
-#include "kdl/overload.h"
-#include "kdl/reflection_impl.h"
+#include "kd/optional_utils.h"
+#include "kd/overload.h"
+#include "kd/reflection_impl.h"
 
 #include <fmt/format.h>
 

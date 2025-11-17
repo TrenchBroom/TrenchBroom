@@ -33,8 +33,8 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/compact_trie.h"
-#include "kdl/vector_utils.h"
+#include "kd/compact_trie.h"
+#include "kd/vector_utils.h"
 
 namespace tb::mdl
 {

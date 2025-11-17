@@ -19,8 +19,8 @@
 
 #include "EntityProperties.h"
 
-#include "kdl/reflection_impl.h"
-#include "kdl/string_compare.h"
+#include "kd/reflection_impl.h"
+#include "kd/string_compare.h"
 
 #include <algorithm>
 #include <string>

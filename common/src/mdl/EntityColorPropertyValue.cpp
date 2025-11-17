@@ -21,8 +21,8 @@
 
 #include "mdl/EntityDefinition.h"
 
-#include "kdl/reflection_impl.h"
-#include "kdl/result_fold.h"
+#include "kd/reflection_impl.h"
+#include "kd/result_fold.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>

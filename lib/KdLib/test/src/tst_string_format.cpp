@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/string_format.h"
+#include "kd/string_format.h"
 
 #include <catch2/catch_test_macros.hpp>
 

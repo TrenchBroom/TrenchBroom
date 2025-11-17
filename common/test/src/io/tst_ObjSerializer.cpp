@@ -30,8 +30,8 @@
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/result.h"
-#include "kdl/task_manager.h"
+#include "kd/result.h"
+#include "kd/task_manager.h"
 
 #include <fmt/format.h>
 

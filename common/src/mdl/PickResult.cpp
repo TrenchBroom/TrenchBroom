@@ -23,7 +23,7 @@
 #include "mdl/CompareHits.h"
 #include "mdl/Hit.h"
 
-#include "kdl/ranges/to.h"
+#include "kd/ranges/to.h"
 
 #include "vm/scalar.h"
 #include "vm/util.h"

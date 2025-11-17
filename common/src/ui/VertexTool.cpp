@@ -29,8 +29,8 @@
 #include "render/RenderBatch.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/const_overload.h"
-#include "kdl/string_format.h"
+#include "kd/const_overload.h"
+#include "kd/string_format.h"
 
 #include "vm/polygon.h"
 

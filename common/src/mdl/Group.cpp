@@ -19,7 +19,7 @@
 
 #include "Group.h"
 
-#include "kdl/reflection_impl.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/mat_io.h" // IWYU pragma: keep
 

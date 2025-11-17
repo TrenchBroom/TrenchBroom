@@ -26,7 +26,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/result_io.h" // IWYU pragma: keep
+#include "kd/result_io.h" // IWYU pragma: keep
 
 #include "vm/bbox_io.h"  // IWYU pragma: keep
 #include "vm/line_io.h"  // IWYU pragma: keep

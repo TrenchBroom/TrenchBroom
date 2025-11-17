@@ -22,7 +22,7 @@
 #include "render/PrimType.h"
 #include "render/VertexArray.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 namespace tb::render
 {

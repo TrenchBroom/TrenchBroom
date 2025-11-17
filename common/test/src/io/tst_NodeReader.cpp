@@ -23,7 +23,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 
-#include "kdl/task_manager.h"
+#include "kd/task_manager.h"
 
 #include "catch/CatchConfig.h"
 

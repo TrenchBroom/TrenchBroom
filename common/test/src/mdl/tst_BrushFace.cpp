@@ -32,9 +32,9 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/Texture.h"
 
-#include "kdl/collection_utils.h"
-#include "kdl/result.h"
-#include "kdl/task_manager.h"
+#include "kd/collection_utils.h"
+#include "kd/result.h"
+#include "kd/task_manager.h"
 
 #include "vm/approx.h"
 #include "vm/mat.h"

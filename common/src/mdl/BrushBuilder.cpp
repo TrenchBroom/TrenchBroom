@@ -24,10 +24,10 @@
 #include "mdl/BrushFace.h"
 #include "render/RenderUtils.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
+#include "kd/vector_utils.h"
 
 #include "vm/intersection.h"
 #include "vm/line.h"

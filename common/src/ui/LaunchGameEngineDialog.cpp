@@ -44,7 +44,7 @@
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/string_utils.h"
+#include "kd/string_utils.h"
 
 #include <string>
 

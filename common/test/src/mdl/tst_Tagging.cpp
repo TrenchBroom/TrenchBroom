@@ -24,7 +24,7 @@
 #include "mdl/Tag.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include "catch/CatchConfig.h"
 

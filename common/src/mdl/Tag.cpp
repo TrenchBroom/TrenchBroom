@@ -21,7 +21,7 @@
 
 #include "mdl/TagManager.h"
 
-#include "kdl/struct_io.h"
+#include "kd/struct_io.h"
 
 #include <cassert>
 #include <ostream>

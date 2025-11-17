@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "kdl/string_compare.h"
-#include "kdl/vector_set.h"
+#include "kd/string_compare.h"
+#include "kd/vector_set.h"
 
 #include <cassert>
 #include <stdexcept>

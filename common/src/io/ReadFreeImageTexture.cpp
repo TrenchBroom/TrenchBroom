@@ -27,12 +27,12 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/resource.h"
-#include "kdl/string_format.h"
-#include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/resource.h"
+#include "kd/string_format.h"
+#include "kd/string_utils.h"
+#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 

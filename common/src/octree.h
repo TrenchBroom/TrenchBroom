@@ -21,10 +21,10 @@
 
 #include "Exceptions.h"
 
-#include "kdl/overload.h"
-#include "kdl/reflection_decl.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/reflection_decl.h"
+#include "kd/reflection_impl.h"
+#include "kd/vector_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/intersection.h"

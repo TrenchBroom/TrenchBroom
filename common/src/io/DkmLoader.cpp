@@ -31,10 +31,10 @@
 #include "render/IndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
 
 #include "vm/vec.h"
 

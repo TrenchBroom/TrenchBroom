@@ -25,7 +25,7 @@
 #include "mdl/Tag.h"
 #include "mdl/VisibilityState.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/bbox.h"
 #include "vm/ray.h"

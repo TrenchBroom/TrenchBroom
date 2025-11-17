@@ -34,7 +34,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include "vm/bbox.h"
 #include "vm/util.h"

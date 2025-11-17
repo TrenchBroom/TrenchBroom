@@ -23,8 +23,8 @@
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 
-#include "kdl/result.h"
-#include "kdl/string_format.h"
+#include "kd/result.h"
+#include "kd/string_format.h"
 
 namespace tb::io
 {

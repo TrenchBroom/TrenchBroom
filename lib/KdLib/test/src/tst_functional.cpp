@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/functional.h"
+#include "kd/functional.h"
 
 #include <functional>
 

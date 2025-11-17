@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "kdl/overload.h"
-#include "kdl/reflection_decl.h"
+#include "kd/overload.h"
+#include "kd/reflection_decl.h"
 
 #include <variant>
 

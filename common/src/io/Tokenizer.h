@@ -23,8 +23,8 @@
 #include "Token.h"
 #include "io/ParserException.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/string_format.h"
+#include "kd/ranges/to.h"
+#include "kd/string_format.h"
 
 #include <fmt/format.h>
 

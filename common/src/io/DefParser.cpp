@@ -29,7 +29,7 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
-#include "kdl/string_format.h"
+#include "kd/string_format.h"
 
 #include <fmt/format.h>
 

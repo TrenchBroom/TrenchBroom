@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/compact_trie.h"
+#include "kd/compact_trie.h"
 
 #include <iterator>
 

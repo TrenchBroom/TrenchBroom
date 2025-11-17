@@ -32,8 +32,8 @@
 #include "Preference.h"
 #include "Result.h"
 
-#include "kdl/reflection_decl.h"
-#include "kdl/vector_set.h"
+#include "kd/reflection_decl.h"
+#include "kd/vector_set.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

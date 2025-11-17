@@ -36,8 +36,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CompilationVariables.h"
 #include "ui/TextOutputAdapter.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/string_utils.h"
+#include "kd/path_utils.h"
+#include "kd/string_utils.h"
 
 #include <chrono>
 #include <condition_variable>

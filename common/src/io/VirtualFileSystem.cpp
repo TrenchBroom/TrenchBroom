@@ -23,12 +23,12 @@
 #include "io/PathInfo.h"
 #include "io/TraversalMode.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
+#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

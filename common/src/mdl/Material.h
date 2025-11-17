@@ -22,7 +22,7 @@
 #include "mdl/TextureResource.h"
 #include "render/GL.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include <atomic>
 #include <filesystem>

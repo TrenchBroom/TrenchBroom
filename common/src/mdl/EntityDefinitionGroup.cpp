@@ -21,7 +21,7 @@
 
 #include "mdl/EntityDefinition.h"
 
-#include "kdl/string_format.h"
+#include "kd/string_format.h"
 
 namespace tb::mdl
 {

@@ -32,9 +32,9 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
-#include "kdl/optional_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/string_utils.h"
+#include "kd/optional_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/string_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

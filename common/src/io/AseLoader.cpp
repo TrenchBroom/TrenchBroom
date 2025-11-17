@@ -29,8 +29,8 @@
 #include "render/MaterialIndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
-#include "kdl/k.h"
-#include "kdl/path_utils.h"
+#include "kd/k.h"
+#include "kd/path_utils.h"
 
 #include <functional>
 #include <string>

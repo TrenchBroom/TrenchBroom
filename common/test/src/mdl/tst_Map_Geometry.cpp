@@ -41,8 +41,8 @@
 #include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/ranges/zip_view.h"
+#include "kd/ranges/to.h"
+#include "kd/ranges/zip_view.h"
 
 #include "vm/approx.h"
 #include "vm/vec_io.h" // IWYU pragma: keep

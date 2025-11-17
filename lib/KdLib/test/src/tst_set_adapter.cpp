@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/set_adapter.h"
+#include "kd/set_adapter.h"
 
 #include <vector>
 

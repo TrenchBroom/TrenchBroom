@@ -36,8 +36,8 @@
 #include "ui/TitledPanel.h"
 #include "ui/ViewUtils.h"
 
-#include "kdl/range_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/range_utils.h"
+#include "kd/vector_utils.h"
 
 namespace tb::ui
 {

@@ -23,7 +23,7 @@
 #include "render/Renderable.h"
 #include "render/VboManager.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 namespace tb::render
 {

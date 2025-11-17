@@ -18,8 +18,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/ranges/adjacent_transform_view.h"
-#include "kdl/ranges/to.h"
+#include "kd/ranges/adjacent_transform_view.h"
+#include "kd/ranges/to.h"
 
 #include <forward_list>
 #include <vector>

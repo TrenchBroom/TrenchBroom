@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/binary_relation.h"
+#include "kd/binary_relation.h"
 
 #include <algorithm>
 

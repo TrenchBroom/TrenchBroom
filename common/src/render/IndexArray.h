@@ -25,7 +25,7 @@
 #include "render/Vbo.h"
 #include "render/VboManager.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <memory>
 

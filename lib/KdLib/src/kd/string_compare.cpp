@@ -18,9 +18,9 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/string_compare.h"
+#include "kd/string_compare.h"
 
-#include "kdl/string_compare_detail.h"
+#include "kd/string_compare_detail.h"
 
 #include <algorithm>
 #include <cctype>

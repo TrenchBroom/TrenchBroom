@@ -33,8 +33,8 @@
 #include "mdl/UVCoordSystem.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/ranges/to.h"
+#include "kd/overload.h"
+#include "kd/ranges/to.h"
 
 #include "vm/intersection.h"
 

@@ -20,7 +20,7 @@
 
 #include "test_utils.h"
 
-#include "kdl/map_utils.h"
+#include "kd/map_utils.h"
 
 #include <map>
 #include <string>

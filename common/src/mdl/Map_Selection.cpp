@@ -37,8 +37,8 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/result_fold.h"
+#include "kd/ranges/to.h"
+#include "kd/result_fold.h"
 
 #include <algorithm>
 #include <ranges>

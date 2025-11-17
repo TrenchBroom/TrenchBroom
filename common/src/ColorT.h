@@ -22,10 +22,10 @@
 #include "ColorComponentType.h"
 #include "Result.h"
 
-#include "kdl/optional_utils.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/string_utils.h"
-#include "kdl/tuple_utils.h"
+#include "kd/optional_utils.h"
+#include "kd/reflection_impl.h"
+#include "kd/string_utils.h"
+#include "kd/tuple_utils.h"
 
 #include "vm/vec.h"
 

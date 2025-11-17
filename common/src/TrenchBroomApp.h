@@ -21,7 +21,7 @@
 
 #include <QApplication>
 
-#include "kdl/task_manager.h"
+#include "kd/task_manager.h"
 
 #include <filesystem>
 #include <memory>

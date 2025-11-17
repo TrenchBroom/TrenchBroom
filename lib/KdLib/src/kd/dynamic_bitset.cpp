@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "kdl/dynamic_bitset.h"
+#include "kd/dynamic_bitset.h"
 
 namespace kdl
 {

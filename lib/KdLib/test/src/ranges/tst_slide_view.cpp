@@ -20,7 +20,7 @@
 
 #include "range_test_utils.h"
 
-#include "kdl/ranges/slide_view.h"
+#include "kd/ranges/slide_view.h"
 
 #include <vector>
 

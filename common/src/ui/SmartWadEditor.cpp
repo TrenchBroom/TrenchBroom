@@ -35,9 +35,9 @@
 #include "ui/TitleBar.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/string_utils.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <filesystem>

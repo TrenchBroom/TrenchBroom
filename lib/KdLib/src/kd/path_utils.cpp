@@ -18,9 +18,9 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/path_utils.h"
+#include "kd/path_utils.h"
 
-#include "kdl/string_format.h"
+#include "kd/string_format.h"
 
 #include <algorithm>
 #include <numeric>

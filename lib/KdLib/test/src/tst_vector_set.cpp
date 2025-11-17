@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/vector_set.h"
+#include "kd/vector_set.h"
 
 #include <catch2/catch_test_macros.hpp>
 

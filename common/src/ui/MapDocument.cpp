@@ -40,8 +40,8 @@
 #include "ui/Actions.h"
 #include "ui/ViewEffectsService.h"
 
-#include "kdl/result.h"
-#include "kdl/task_manager.h"
+#include "kd/result.h"
+#include "kd/task_manager.h"
 
 #include "vm/polygon.h"
 

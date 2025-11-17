@@ -19,7 +19,7 @@
 
 #include "mdl/EntityDefinitionFileSpec.h"
 
-#include "kdl/path_utils.h"
+#include "kd/path_utils.h"
 
 #include "catch/CatchConfig.h"
 
