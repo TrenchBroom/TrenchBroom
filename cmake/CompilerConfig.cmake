@@ -13,9 +13,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
   # FIXME: Suppress warnings in moc generated files:
   target_compile_options(CompilerConfig INTERFACE -Wno-redundant-parens)
 
-  # Disable a warning in clang when using PCH:
-  target_compile_options(CompilerConfig INTERFACE -Wno-pragma-system-header-outside-header)
-
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(CompilerConfig INTERFACE -Wall -Wextra -Wconversion -Wshadow=local -Wnon-virtual-dtor -Wmissing-declarations -pedantic)
   target_compile_options(CompilerConfig INTERFACE "$<$<CONFIG:RELEASE>:-O3>")
