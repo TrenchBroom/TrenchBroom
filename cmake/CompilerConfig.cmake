@@ -7,7 +7,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
   endif()
 
   target_compile_options(CompilerConfig INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -Wnon-virtual-dtor -Wmissing-prototypes -pedantic)
-  target_compile_options(CompilerConfig INTERFACE -Wno-format-nonliteral -Wno-used-but-marked-unused)
+  target_compile_options(CompilerConfig INTERFACE -Wno-used-but-marked-unused)
 
   # disable C++98 compatibility warnings
   target_compile_options(CompilerConfig INTERFACE -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++98-compat-bind-to-temporary-copy -Wno-c++20-compat)
