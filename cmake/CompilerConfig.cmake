@@ -8,8 +8,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
 
   target_compile_options(CompilerConfig INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -Wnon-virtual-dtor -Wmissing-prototypes -pedantic)
 
-  # FIXME: investigate further and turn off these warnings if possible
-  target_compile_options(CompilerConfig INTERFACE -Wno-weak-vtables -Wno-weak-template-vtables)
   target_compile_options(CompilerConfig INTERFACE "$<$<CONFIG:RELEASE>:-O3>")
 
   # FIXME: Remove once we switch to Xcode 10
