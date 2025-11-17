@@ -87,6 +87,8 @@ set(KDL_HEADER
 add_library(kdl STATIC ${KDL_SOURCE} ${KDL_HEADER})
 target_include_directories(kdl PUBLIC ${KDL_SOURCE_DIR})
 
+target_link_libraries(kdl PRIVATE CompilerConfig PrecompileStdHeaders)
+
 # task_manager.h uses <thread>, etc., which requires this on Linux
 find_package(Threads REQUIRED)
 target_link_libraries(kdl PUBLIC Threads::Threads)
@@ -95,24 +97,6 @@ target_link_libraries(kdl PUBLIC Threads::Threads)
 # available for floating point types.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
 target_link_libraries(kdl PRIVATE FastFloat::fast_float)
-endif()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-padded -Wno-exit-time-destructors -Wno-poison-system-directories)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow=local -pedantic)
-
-    # gcc <= 7 warns about unused structured bindings, see https://github.com/TrenchBroom/TrenchBroom/issues/3751
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
-        target_compile_options(kdl INTERFACE -Wno-unused-variable)
-    endif()
-elseif(MSVC EQUAL 1)
-    target_compile_options(kdl INTERFACE /W4 /EHsc /MP)
-
-    # signed/unsigned mismatch: https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4365
-    target_compile_options(kdl INTERFACE /w44365)
-else()
-    message(FATAL_ERROR "Cannot set compile options for target")
 endif()
 
 add_subdirectory(test)
