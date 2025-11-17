@@ -8,9 +8,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
 
   target_compile_options(CompilerConfig INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -Wnon-virtual-dtor -Wmissing-prototypes -pedantic)
 
-  # disable C++98 compatibility warnings
-  target_compile_options(CompilerConfig INTERFACE -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++98-compat-bind-to-temporary-copy -Wno-c++20-compat)
-
   # FIXME: investigate further and turn off these warnings if possible
   target_compile_options(CompilerConfig INTERFACE -Wno-weak-vtables -Wno-weak-template-vtables)
   target_compile_options(CompilerConfig INTERFACE "$<$<CONFIG:RELEASE>:-O3>")
