@@ -10,9 +10,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
 
   target_compile_options(CompilerConfig INTERFACE "$<$<CONFIG:RELEASE>:-O3>")
 
-  # FIXME: Remove once we switch to Xcode 10
-  target_compile_options(CompilerConfig INTERFACE -Wno-missing-braces)
-
   # FIXME: Suppress warnings in moc generated files:
   target_compile_options(CompilerConfig INTERFACE -Wno-redundant-parens)
 
