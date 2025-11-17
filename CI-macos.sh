@@ -66,8 +66,8 @@ BUILD_DIR=$(pwd)
 cd "$BUILD_DIR/lib/vm/test"
 ./vm-test || exit 1
 
-cd "$BUILD_DIR/lib/kdl/test"
-./kdl-test || exit 1
+cd "$BUILD_DIR/lib/KdLib/test"
+./KdLibTest || exit 1
 
 cd "$BUILD_DIR/lib/upd/test"
 ./upd-test || exit 1

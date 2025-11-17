@@ -28,8 +28,8 @@ vm-test.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
-cd lib\kdl\test
-kdl-test.exe
+cd lib\KdLib\test
+KdLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 

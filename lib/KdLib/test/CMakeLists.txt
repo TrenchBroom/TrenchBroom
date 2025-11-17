@@ -1,5 +1,5 @@
-add_executable(kdl-test)
-target_sources(kdl-test PRIVATE
+add_executable(KdLibTest)
+target_sources(KdLibTest PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/range_test_utils.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_adjacent_transform_view.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_adjacent_view.cpp"
@@ -49,5 +49,5 @@ target_sources(kdl-test PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(kdl-test PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(kdl-test PRIVATE Catch2::Catch2WithMain kdl)
+target_link_libraries(KdLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
+target_link_libraries(KdLibTest PRIVATE Catch2::Catch2WithMain KdLib)
