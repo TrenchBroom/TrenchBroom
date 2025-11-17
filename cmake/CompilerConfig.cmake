@@ -16,10 +16,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
   # Disable a warning in clang when using PCH:
   target_compile_options(CompilerConfig INTERFACE -Wno-pragma-system-header-outside-header)
 
-  if(${CMAKE_VERSION} VERSION_EQUAL "3.24.1") 
-    # Disable missing prototype for automoc files, see https://gitlab.kitware.com/cmake/cmake/-/merge_requests/7558
-    set_source_files_properties("CompilerConfig_autogen/mocs_compilation.cpp" PROPERTIES COMPILE_FLAGS "-Wno-missing-prototypes")
-  endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(CompilerConfig INTERFACE -Wall -Wextra -Wconversion -Wshadow=local -Wnon-virtual-dtor -Wmissing-declarations -pedantic)
   target_compile_options(CompilerConfig INTERFACE "$<$<CONFIG:RELEASE>:-O3>")
@@ -30,11 +26,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # gcc <= 7 warns about unused structured bindings, see https://github.com/TrenchBroom/TrenchBroom/issues/3751
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
     target_compile_options(CompilerConfig INTERFACE -Wno-unused-variable)
-  endif()
-
-  if(${CMAKE_VERSION} VERSION_EQUAL "3.24.1") 
-    # Disable missing prototype for automoc files, see https://gitlab.kitware.com/cmake/cmake/-/merge_requests/7558
-    set_source_files_properties("CompilerConfig_autogen/mocs_compilation.cpp" PROPERTIES COMPILE_FLAGS "-Wno-missing-declarations")
   endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_compile_definitions(CompilerConfig INTERFACE _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE)
