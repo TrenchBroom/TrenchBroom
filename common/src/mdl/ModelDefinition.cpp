@@ -198,12 +198,19 @@ Result<vm::vec3d> ModelDefinition::scale(
         {
           return *scale;
         }
+        [[fallthrough]];
       case el::ValueType::String:
+        [[fallthrough]];
       case el::ValueType::Boolean:
+        [[fallthrough]];
       case el::ValueType::Number:
+        [[fallthrough]];
       case el::ValueType::Array:
+        [[fallthrough]];
       case el::ValueType::Range:
+        [[fallthrough]];
       case el::ValueType::Null:
+        [[fallthrough]];
       case el::ValueType::Undefined:
         break;
       }
