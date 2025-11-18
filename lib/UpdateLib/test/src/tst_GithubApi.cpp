@@ -19,10 +19,10 @@
 
 #include <QList>
 
+#include "TestHttpClient.h"
+#include "TestUtils.h"
+#include "TestVersion.h"
 #include "update/GithubApi.h"
-#include "update/TestHttpClient.h"
-#include "update/TestUtils.h"
-#include "update/TestVersion.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>

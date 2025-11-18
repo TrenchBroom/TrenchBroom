@@ -17,31 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Asset.h"
+#include "update/Logging.h"
 
-#include <ostream>
+#include <QDateTime>
+#include <QDebug>
+#include <QFile>
+#include <QIODevice>
+#include <QTextStream>
 
 namespace upd
 {
 
-bool operator==(const Asset& lhs, const Asset& rhs)
+void logToFile(const std::optional<QString>& logFilePath, const QString& msg)
 {
-  return lhs.name == rhs.name && lhs.url == rhs.url && lhs.size == rhs.size;
-}
+  if (logFilePath)
+  {
+    if (auto logFile = QFile{*logFilePath};
+        logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
+    {
+      const auto timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
 
-bool operator!=(const Asset& lhs, const Asset& rhs)
-{
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& lhs, const Asset& rhs)
-{
-  lhs << "Asset{";
-  lhs << "name: " << rhs.name.toStdString() << ", ";
-  lhs << "url: " << rhs.url.toString().toStdString() << ", ";
-  lhs << "size: " << rhs.size;
-  lhs << "}";
-  return lhs;
+      auto out = QTextStream{&logFile};
+      out << "[" << timestamp << "] " << msg << "\n";
+    }
+    else
+    {
+      qDebug() << "Failed to open log file:" << *logFilePath;
+    }
+  }
 }
 
 } // namespace upd

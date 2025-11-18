@@ -1,55 +1,51 @@
-set(LIB_UPDATE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+project(UpdateLib VERSION 0.1.0 LANGUAGES CXX)
 
-set(LIB_UPDATE_SOURCE
-  "${LIB_UPDATE_SOURCE_DIR}/update/Asset.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/FileUtils.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/GithubApi.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/HttpClient.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/InstallUpdate.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Logging.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/QtHttpClient.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Unzip.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateConfig.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateController.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateDialog.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateIndicator.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateInfo.cpp"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Updater.cpp"
+add_library(UpdateLib STATIC
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/Asset.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/FileUtils.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/GithubApi.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/HttpClient.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/InstallUpdate.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/Logging.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/QtHttpClient.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/Unzip.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateConfig.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateController.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateDialog.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateIndicator.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateInfo.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/Updater.cpp"
+
+  # list header files for automoc
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/Asset.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/FileUtils.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/GithubApi.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/HttpClient.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/InstallUpdate.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/Logging.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/QtHttpClient.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/Unzip.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/UpdateConfig.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/UpdateController.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/UpdateDialog.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/UpdateIndicator.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/UpdateInfo.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/update/Updater.h"
 )
 
-set(LIB_UPDATE_HEADER
-  "${LIB_UPDATE_SOURCE_DIR}/update/Asset.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/FileUtils.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/GithubApi.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/HttpClient.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/InstallUpdate.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Logging.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Overload.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/QtHttpClient.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Release.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Unzip.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateConfig.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateController.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateDialog.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateIndicator.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/UpdateInfo.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Updater.h"
-  "${LIB_UPDATE_SOURCE_DIR}/update/Version.h"
-)
-
-if (WIN32)
-  set(LIB_UPDATE_SCRIPT "${LIB_UPDATE_SOURCE_DIR}/scripts/install_update.bat" CACHE INTERNAL "Path to the update script")
-elseif (LINUX)
-  set(LIB_UPDATE_SCRIPT "${LIB_UPDATE_SOURCE_DIR}/scripts/install_update.sh" CACHE INTERNAL "Path to the update script")
-elseif (APPLE)
-  set(LIB_UPDATE_SCRIPT "${LIB_UPDATE_SOURCE_DIR}/scripts/install_update.sh" CACHE INTERNAL "Path to the update script")
-endif()
-
-add_library(UpdateLib STATIC ${LIB_UPDATE_SOURCE} ${LIB_UPDATE_HEADER})
-set_target_properties(UpdateLib PROPERTIES AUTOMOC TRUE)
-target_include_directories(UpdateLib PUBLIC ${LIB_UPDATE_SOURCE_DIR})
-target_link_libraries(UpdateLib PUBLIC Qt6::Widgets Qt6::Network)
+target_include_directories(UpdateLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(UpdateLib PRIVATE CompilerConfig)
+target_link_libraries(UpdateLib PUBLIC Qt6::Widgets Qt6::Network)
+
+set_target_properties(UpdateLib PROPERTIES AUTOMOC TRUE)
+
+if (WIN32)
+  set(LIB_UPDATE_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/install_update.bat" CACHE INTERNAL "Path to the update script")
+elseif (LINUX)
+  set(LIB_UPDATE_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/install_update.sh" CACHE INTERNAL "Path to the update script")
+elseif (APPLE)
+  set(LIB_UPDATE_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/install_update.sh" CACHE INTERNAL "Path to the update script")
+endif()
 
 add_subdirectory(test)

@@ -20,8 +20,8 @@
 #include <QTemporaryFile>
 #include <QtTest/QSignalSpy>
 
-#include "update/TestHttpClient.h"
-#include "update/TestVersion.h"
+#include "TestHttpClient.h"
+#include "TestVersion.h"
 #include "update/UpdateController.h"
 
 #include <chrono>

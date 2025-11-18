@@ -91,6 +91,8 @@ IncludeCategories:
   - Regex:           '^<Q.*'
     Priority:        2
     CaseSensitive:   true
+  - Regex:           '^"update/.*'
+    Priority:        3
   - Regex:           '^"kd/.*'
     Priority:        4
   - Regex:           '^<vm/.*'

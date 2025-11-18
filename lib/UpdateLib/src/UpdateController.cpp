@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UpdateController.h"
+#include "update/UpdateController.h"
 
 #include <QFileInfo>
 #include <QtConcurrent/QtConcurrent>

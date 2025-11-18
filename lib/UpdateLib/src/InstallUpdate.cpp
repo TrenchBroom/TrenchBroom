@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstallUpdate.h"
+#include "update/InstallUpdate.h"
 
 #include <QCoreApplication>
 #include <QDir>

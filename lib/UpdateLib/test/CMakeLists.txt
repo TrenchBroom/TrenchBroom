@@ -1,31 +1,23 @@
-set(LIB_UPDATE_TEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-
-set(LIB_UPDATE_TEST_SOURCE
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestHttpClient.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestHttpClient.h"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestUtils.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestUtils.h"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestVersion.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestVersion.h"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/tst_GithubApi.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/tst_QtHttpClient.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/tst_Unzip.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/tst_UpdateController.cpp"
+add_executable(UpdateLibTest)
+target_sources(UpdateLibTest PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/TestHttpClient.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/TestHttpClient.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/TestUtils.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/TestUtils.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/TestVersion.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/TestVersion.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GithubApi.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QtHttpClient.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Unzip.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateController.cpp"
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-add_executable(UpdateLibTest ${LIB_UPDATE_TEST_SOURCE})
-target_include_directories(UpdateLibTest PRIVATE ${LIB_UPDATE_TEST_SOURCE_DIR} ${LIB_UPDATE_SOURCE_DIR})
-target_include_directories(UpdateLibTest PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-target_link_libraries(UpdateLibTest PRIVATE UpdateLib Catch2::Catch2WithMain Qt6::Test)
-set_target_properties(UpdateLibTest PROPERTIES AUTOMOC TRUE)
-
 target_link_libraries(UpdateLibTest PRIVATE CompilerConfig)
+target_link_libraries(UpdateLibTest PRIVATE UpdateLib Catch2::Catch2WithMain Qt6::Test)
 
-# By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
-# but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
-# set_target_properties(UpdateLibTest PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:UpdateLibTest>")
+set_target_properties(UpdateLibTest PROPERTIES AUTOMOC TRUE)
 
 # Copy fixtures
 add_custom_command(

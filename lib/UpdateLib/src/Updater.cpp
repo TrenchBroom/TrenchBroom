@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Updater.h"
+#include "update/Updater.h"
 
 #include "update/HttpClient.h"
 #include "update/UpdateDialog.h"

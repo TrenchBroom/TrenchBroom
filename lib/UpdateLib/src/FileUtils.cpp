@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FileUtils.h"
+#include "update/FileUtils.h"
 
 #include <QDir>
 #include <QFileInfo>

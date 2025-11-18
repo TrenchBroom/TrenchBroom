@@ -17,34 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logging.h"
-
-#include <QDateTime>
-#include <QDebug>
-#include <QFile>
-#include <QIODevice>
-#include <QTextStream>
+#include "update/HttpClient.h"
 
 namespace upd
 {
 
-void logToFile(const std::optional<QString>& logFilePath, const QString& msg)
+HttpOperation::HttpOperation(QObject* parent)
+  : QObject{parent}
 {
-  if (logFilePath)
-  {
-    if (auto logFile = QFile{*logFilePath};
-        logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
-    {
-      const auto timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+}
 
-      auto out = QTextStream{&logFile};
-      out << "[" << timestamp << "] " << msg << "\n";
-    }
-    else
-    {
-      qDebug() << "Failed to open log file:" << *logFilePath;
-    }
-  }
+std::optional<float> HttpOperation::progress() const
+{
+  return std::nullopt;
+}
+
+HttpClient::HttpClient(QObject* parent)
+  : QObject{parent}
+{
 }
 
 } // namespace upd

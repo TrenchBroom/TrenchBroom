@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "update/TestHttpClient.h"
+#include "TestHttpClient.h"
 
 namespace upd
 {

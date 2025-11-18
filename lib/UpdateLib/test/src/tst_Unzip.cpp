@@ -19,7 +19,7 @@
 
 #include <QDir>
 
-#include "update/TestUtils.h"
+#include "TestUtils.h"
 #include "update/Unzip.h"
 
 #include <catch2/catch_test_macros.hpp>

@@ -17,24 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HttpClient.h"
+#include "update/Asset.h"
+
+#include <ostream>
 
 namespace upd
 {
 
-HttpOperation::HttpOperation(QObject* parent)
-  : QObject{parent}
+bool operator==(const Asset& lhs, const Asset& rhs)
 {
+  return lhs.name == rhs.name && lhs.url == rhs.url && lhs.size == rhs.size;
 }
 
-std::optional<float> HttpOperation::progress() const
+bool operator!=(const Asset& lhs, const Asset& rhs)
 {
-  return std::nullopt;
+  return !(lhs == rhs);
 }
 
-HttpClient::HttpClient(QObject* parent)
-  : QObject{parent}
+std::ostream& operator<<(std::ostream& lhs, const Asset& rhs)
 {
+  lhs << "Asset{";
+  lhs << "name: " << rhs.name.toStdString() << ", ";
+  lhs << "url: " << rhs.url.toString().toStdString() << ", ";
+  lhs << "size: " << rhs.size;
+  lhs << "}";
+  return lhs;
 }
 
 } // namespace upd

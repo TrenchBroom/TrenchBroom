@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UpdateDialog.h"
+#include "update/UpdateDialog.h"
 
 #include <QBoxLayout>
 #include <QCoreApplication>

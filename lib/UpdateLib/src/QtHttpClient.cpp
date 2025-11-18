@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QtHttpClient.h"
+#include "update/QtHttpClient.h"
 
 #include <QFileInfo>
 #include <QNetworkAccessManager>
