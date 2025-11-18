@@ -39,8 +39,8 @@
 #include "mdl/WorldNode.h"
 #include "ui/ExtrudeTool.h"
 
-#include "kdl/result.h"
-#include "kdl/vector_utils.h"
+#include "kd/result.h"
+#include "kd/vector_utils.h"
 
 #include "vm/approx.h"
 #include "vm/ray.h"

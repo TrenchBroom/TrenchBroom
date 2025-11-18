@@ -23,9 +23,9 @@
 #include "mdl/EntityNodeBase.h"
 #include "mdl/NodeIndex.h"
 
-#include "kdl/hash_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
+#include "kd/hash_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
 
 #include <ranges>
 

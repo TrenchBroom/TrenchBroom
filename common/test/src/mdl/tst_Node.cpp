@@ -35,9 +35,9 @@
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/result.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/result.h"
+#include "kd/vector_utils.h"
 
 #include <ranges>
 #include <variant>

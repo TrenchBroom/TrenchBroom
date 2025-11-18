@@ -27,10 +27,10 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
+#include "kd/string_utils.h"
+#include "kd/vector_utils.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"

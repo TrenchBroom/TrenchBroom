@@ -33,8 +33,8 @@
 #include "ui/SmartPropertyEditor.h"
 #include "ui/SmartWadEditor.h"
 
-#include "kdl/functional.h"
-#include "kdl/string_compare.h"
+#include "kd/functional.h"
+#include "kd/string_compare.h"
 
 namespace tb::ui
 {

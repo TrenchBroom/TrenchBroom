@@ -39,7 +39,7 @@
 #include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
 
-#include "kdl/const_overload.h"
+#include "kd/const_overload.h"
 
 #include "vm/util.h"
 

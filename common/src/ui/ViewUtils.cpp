@@ -33,8 +33,8 @@
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/string_compare.h"
-#include "kdl/string_format.h"
+#include "kd/string_compare.h"
+#include "kd/string_format.h"
 
 #include <filesystem>
 

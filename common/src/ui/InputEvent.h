@@ -21,7 +21,7 @@
 
 #include <QKeyEvent>
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include <chrono>
 #include <variant>

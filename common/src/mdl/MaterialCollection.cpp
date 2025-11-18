@@ -19,8 +19,8 @@
 
 #include "MaterialCollection.h"
 
-#include "kdl/const_overload.h"
-#include "kdl/reflection_impl.h"
+#include "kd/const_overload.h"
+#include "kd/reflection_impl.h"
 
 #include <algorithm>
 #include <string>

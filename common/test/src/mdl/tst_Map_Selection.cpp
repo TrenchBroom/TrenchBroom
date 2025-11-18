@@ -38,8 +38,8 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/map_utils.h"
-#include "kdl/ranges/to.h"
+#include "kd/map_utils.h"
+#include "kd/ranges/to.h"
 
 #include <map>
 #include <ranges>

@@ -30,7 +30,7 @@
 #include "mdl/TagVisitor.h"
 #include "mdl/Validator.h"
 
-#include "kdl/overload.h"
+#include "kd/overload.h"
 
 #include "vm/bbox.h"
 #include "vm/intersection.h"

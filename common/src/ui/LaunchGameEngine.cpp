@@ -27,7 +27,7 @@
 #include "io/PathQt.h"
 #include "mdl/GameEngineProfile.h"
 
-#include "kdl/cmd_utils.h"
+#include "kd/cmd_utils.h"
 
 #include <fmt/format.h>
 

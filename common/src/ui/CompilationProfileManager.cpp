@@ -30,8 +30,8 @@
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 
-#include "kdl/range_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/range_utils.h"
+#include "kd/vector_utils.h"
 
 namespace tb::ui
 {

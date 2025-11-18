@@ -26,9 +26,9 @@
 #include "mdl/Map_World.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/vector_utils.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/vector_utils.h"
 
 #include <ranges>
 #include <string>

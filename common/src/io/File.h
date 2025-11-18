@@ -22,7 +22,7 @@
 #include "Result.h"
 #include "io/Reader.h"
 
-#include "kdl/resource.h"
+#include "kd/resource.h"
 
 #include <cstdio>
 #include <filesystem>

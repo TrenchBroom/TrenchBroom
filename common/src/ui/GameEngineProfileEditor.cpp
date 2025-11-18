@@ -33,7 +33,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/string_compare.h"
+#include "kd/string_compare.h"
 
 namespace tb::ui
 {

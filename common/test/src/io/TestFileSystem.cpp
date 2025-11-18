@@ -22,9 +22,9 @@
 #include "io/ObjectFile.h"
 #include "io/TraversalMode.h"
 
-#include "kdl/overload.h"
-#include "kdl/path_utils.h"
-#include "kdl/reflection_impl.h"
+#include "kd/overload.h"
+#include "kd/path_utils.h"
+#include "kd/reflection_impl.h"
 
 #include <algorithm>
 

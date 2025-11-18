@@ -24,12 +24,12 @@
 #include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
 
-#include "kdl/overload.h"
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <cassert>

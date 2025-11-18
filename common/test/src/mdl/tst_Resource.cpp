@@ -21,7 +21,7 @@
 #include "mdl/MockTaskRunner.h"
 #include "mdl/Resource.h"
 
-#include "kdl/reflection_impl.h"
+#include "kd/reflection_impl.h"
 
 #include "catch/CatchConfig.h"
 

@@ -28,7 +28,7 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/vector_set.h"
+#include "kd/vector_set.h"
 
 #include <fmt/format.h>
 

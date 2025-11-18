@@ -22,8 +22,8 @@
 #include "Ensure.h"
 #include "mdl/Material.h"
 
-#include "kdl/const_overload.h"
-#include "kdl/reflection_impl.h"
+#include "kd/const_overload.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 #include "vm/bezier_surface.h"

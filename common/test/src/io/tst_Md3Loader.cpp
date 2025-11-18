@@ -29,7 +29,7 @@
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"
 
-#include "kdl/task_manager.h"
+#include "kd/task_manager.h"
 
 #include "vm/bbox.h"
 

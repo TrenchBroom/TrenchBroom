@@ -78,7 +78,7 @@ UseTab: Never
 # - main include file
 # - Qt includes
 # - TB includes
-# - kdl lib
+# - KdLib
 # - vm lib
 # - std lib
 # - anything else
@@ -91,9 +91,7 @@ IncludeCategories:
   - Regex:           '^<Q.*'
     Priority:        2
     CaseSensitive:   true
-  - Regex:           '^<kdl/.*'
-    Priority:        4
-  - Regex:           '^"kdl/.*'
+  - Regex:           '^"kd/.*'
     Priority:        4
   - Regex:           '^<vm/.*'
     Priority:        5

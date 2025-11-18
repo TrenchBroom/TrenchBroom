@@ -46,10 +46,10 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/string_format.h"
-#include "kdl/vector_set.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/string_format.h"
+#include "kd/vector_set.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>

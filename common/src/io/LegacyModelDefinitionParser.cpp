@@ -25,7 +25,7 @@
 #include "io/ParserStatus.h"
 #include "mdl/ModelDefinition.h"
 
-#include "kdl/string_compare.h"
+#include "kd/string_compare.h"
 
 #include <fmt/format.h>
 

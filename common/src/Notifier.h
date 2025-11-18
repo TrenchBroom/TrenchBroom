@@ -21,8 +21,8 @@
 
 #include "NotifierConnection.h"
 
-#include "kdl/set_temp.h"
-#include "kdl/tuple_utils.h"
+#include "kd/set_temp.h"
+#include "kd/tuple_utils.h"
 
 #include <algorithm>
 #include <cassert>

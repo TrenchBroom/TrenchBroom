@@ -36,7 +36,7 @@
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
 
-#include "kdl/k.h"
+#include "kd/k.h"
 
 #include <string>
 

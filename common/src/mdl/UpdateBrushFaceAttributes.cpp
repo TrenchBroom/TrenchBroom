@@ -23,8 +23,8 @@
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 
-#include "kdl/optional_utils.h"
-#include "kdl/reflection_impl.h"
+#include "kd/optional_utils.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 

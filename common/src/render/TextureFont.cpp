@@ -23,7 +23,7 @@
 #include "render/FontGlyph.h"
 #include "render/FontTexture.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include "vm/vec.h"
 

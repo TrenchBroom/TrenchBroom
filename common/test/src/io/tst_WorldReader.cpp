@@ -32,7 +32,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/task_manager.h"
+#include "kd/task_manager.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"

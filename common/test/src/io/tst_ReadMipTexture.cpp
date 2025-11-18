@@ -26,7 +26,7 @@
 #include "io/WadFileSystem.h"
 #include "mdl/Palette.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include <filesystem>
 #include <string>

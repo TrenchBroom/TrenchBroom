@@ -28,7 +28,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <map>
 #include <vector>

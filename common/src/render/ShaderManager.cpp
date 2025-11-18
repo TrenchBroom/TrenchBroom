@@ -23,8 +23,8 @@
 #include "io/SystemPaths.h"
 #include "render/ShaderConfig.h"
 
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
 
 #include <cassert>
 #include <filesystem>

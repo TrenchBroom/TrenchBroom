@@ -23,7 +23,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "mdl/EntityModel_Forward.h"
 #include "octree.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/bbox.h"
 

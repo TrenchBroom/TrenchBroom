@@ -37,12 +37,12 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
 
-#include "kdl/map_utils.h"
-#include "kdl/overload.h"
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
+#include "kd/map_utils.h"
+#include "kd/overload.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
 
 #include "vm/distance.h"
 #include "vm/line_io.h"  // IWYU pragma: keep

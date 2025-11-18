@@ -24,9 +24,9 @@
 #include "mdl/PickResult.h"
 #include "render/Camera.h"
 
-#include "kdl/map_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/vector_utils.h"
+#include "kd/map_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/vector_utils.h"
 
 #include <iterator>
 #include <map>

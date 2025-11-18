@@ -25,12 +25,12 @@
 #include "mdl/Issue.h"
 #include "mdl/Validator.h"
 
-#include "kdl/const_overload.h"
-#include "kdl/range_utils.h"
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/vector_utils.h"
+#include "kd/const_overload.h"
+#include "kd/range_utils.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <cassert>

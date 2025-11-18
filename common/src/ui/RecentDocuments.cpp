@@ -26,8 +26,8 @@
 #include "io/PathQt.h"
 #include "ui/QtUtils.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/vector_utils.h"
 
 #include <ranges>
 

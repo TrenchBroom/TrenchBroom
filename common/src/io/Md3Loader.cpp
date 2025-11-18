@@ -27,10 +27,10 @@
 #include "render/IndexRangeMapBuilder.h" // IWYU pragma: keep
 #include "render/PrimType.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h" // IWYU pragma: keep
+#include "kd/path_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/result_fold.h" // IWYU pragma: keep
 
 #include <fmt/core.h>
 

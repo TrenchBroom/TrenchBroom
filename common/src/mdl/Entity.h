@@ -24,7 +24,7 @@
 #include "mdl/AssetReference.h"
 #include "mdl/EntityProperties.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/bbox.h"
 #include "vm/mat.h"

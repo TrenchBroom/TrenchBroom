@@ -29,7 +29,7 @@
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
 
-#include "kdl/path_utils.h"
+#include "kd/path_utils.h"
 
 namespace tb::io
 {

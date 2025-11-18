@@ -23,7 +23,7 @@
 #include "mdl/EntityModel.h"
 #include "mdl/ModelSpecification.h"
 
-#include "kdl/path_hash.h"
+#include "kd/path_hash.h"
 
 #include <filesystem>
 #include <memory>

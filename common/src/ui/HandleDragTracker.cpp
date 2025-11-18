@@ -26,8 +26,8 @@
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 
-#include "kdl/optional_utils.h"
-#include "kdl/reflection_impl.h"
+#include "kd/optional_utils.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/distance.h"
 #include "vm/intersection.h"

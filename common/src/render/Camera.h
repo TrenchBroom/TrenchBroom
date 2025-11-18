@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "Notifier.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/mat.h"
 #include "vm/plane.h"

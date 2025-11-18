@@ -22,8 +22,8 @@
 #include "Ensure.h"
 #include "Polyhedron.h" // IWYU pragma: keep
 
-#include "kdl/binary_relation.h"
-#include "kdl/vector_set.h"
+#include "kd/binary_relation.h"
+#include "kd/vector_set.h"
 
 #include <limits>
 #include <map>

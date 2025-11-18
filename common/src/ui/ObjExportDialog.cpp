@@ -38,7 +38,7 @@
 #include "ui/MapDocument.h" // IWYU pragma: keep
 #include "ui/MapFrame.h"
 
-#include "kdl/path_utils.h"
+#include "kd/path_utils.h"
 
 #include <filesystem>
 

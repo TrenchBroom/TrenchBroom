@@ -32,9 +32,9 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
-#include "kdl/ranges/to.h"
-#include "kdl/result.h"
-#include "kdl/string_format.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
+#include "kd/string_format.h"
 
 #include <sstream>
 #include <string>

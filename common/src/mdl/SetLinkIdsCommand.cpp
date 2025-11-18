@@ -29,7 +29,7 @@
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"
 
-#include "kdl/ranges/to.h"
+#include "kd/ranges/to.h"
 
 #include <ranges>
 

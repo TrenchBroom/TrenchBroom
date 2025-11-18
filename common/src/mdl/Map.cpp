@@ -97,10 +97,10 @@
 #include "mdl/WorldNode.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/string_utils.h"
-#include "kdl/task_manager.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/string_utils.h"
+#include "kd/task_manager.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

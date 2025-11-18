@@ -24,8 +24,8 @@
 #include "Macros.h"
 #include "ui/ActionContext.h"
 
-#include "kdl/overload.h"
-#include "kdl/path_hash.h"
+#include "kd/overload.h"
+#include "kd/path_hash.h"
 
 #include <filesystem>
 #include <functional>

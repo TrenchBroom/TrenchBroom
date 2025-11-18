@@ -28,9 +28,9 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/string_format.h"
-#include "kdl/string_utils.h"
+#include "kd/overload.h"
+#include "kd/string_format.h"
+#include "kd/string_utils.h"
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 

@@ -37,8 +37,8 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/vector_utils.h"
 
 #include "vm/line.h"
 #include "vm/vec.h"

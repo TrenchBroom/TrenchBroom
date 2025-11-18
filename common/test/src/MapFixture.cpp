@@ -26,7 +26,7 @@
 #include "mdl/MockGame.h"
 #include "mdl/Resource.h"
 
-#include "kdl/overload.h"
+#include "kd/overload.h"
 
 namespace tb::mdl
 {

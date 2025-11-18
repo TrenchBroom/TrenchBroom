@@ -28,8 +28,8 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/result.h"
-#include "kdl/vector_utils.h"
+#include "kd/result.h"
+#include "kd/vector_utils.h"
 
 namespace tb::ui
 {

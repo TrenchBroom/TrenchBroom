@@ -37,10 +37,10 @@
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/ranges/to.h"
-#include "kdl/stable_remove_duplicates.h"
-#include "kdl/string_format.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/to.h"
+#include "kd/stable_remove_duplicates.h"
+#include "kd/string_format.h"
 
 #include <algorithm>
 #include <ranges>

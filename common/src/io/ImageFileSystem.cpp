@@ -23,8 +23,8 @@
 #include "io/PathInfo.h"
 #include "io/TraversalMode.h"
 
-#include "kdl/overload.h"
-#include "kdl/path_utils.h"
+#include "kd/overload.h"
+#include "kd/path_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>

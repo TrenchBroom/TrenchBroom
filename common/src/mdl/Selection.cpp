@@ -30,9 +30,9 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
+#include "kd/overload.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
 
 #include <ranges>
 

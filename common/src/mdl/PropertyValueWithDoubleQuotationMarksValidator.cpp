@@ -24,7 +24,7 @@
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 
-#include "kdl/string_utils.h"
+#include "kd/string_utils.h"
 
 #include <string>
 #include <vector>

@@ -19,9 +19,9 @@
 
 #include "mdl/ModelSpecification.h"
 
-#include "kdl/hash_utils.h"
-#include "kdl/path_hash.h"
-#include "kdl/reflection_impl.h"
+#include "kd/hash_utils.h"
+#include "kd/path_hash.h"
+#include "kd/reflection_impl.h"
 
 namespace tb::mdl
 {

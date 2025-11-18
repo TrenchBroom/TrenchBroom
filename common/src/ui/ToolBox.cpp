@@ -29,7 +29,7 @@
 #include "ui/ToolChain.h"
 #include "ui/ToolController.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <cassert>
 #include <string>

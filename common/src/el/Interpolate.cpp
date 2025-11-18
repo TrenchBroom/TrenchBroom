@@ -24,8 +24,8 @@
 #include "el/Value.h"
 #include "io/ELParser.h"
 
-#include "kdl/result_fold.h"
-#include "kdl/string_utils.h"
+#include "kd/result_fold.h"
+#include "kd/string_utils.h"
 
 #include <ranges>
 #include <sstream>

@@ -29,10 +29,10 @@
 #include "mdl/GameConfig.h"
 #include "mdl/Quake3Shader.h"
 
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/task_manager.h"
-#include "kdl/vector_utils.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
+#include "kd/task_manager.h"
+#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 

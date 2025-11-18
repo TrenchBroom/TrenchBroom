@@ -23,7 +23,7 @@
 #include "Result.h"
 #include "mdl/EntityDefinition.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include <string>
 #include <vector>

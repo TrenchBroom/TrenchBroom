@@ -30,8 +30,8 @@
 #include "ui/FlagsEditor.h"
 #include "ui/ViewUtils.h"
 
-#include "kdl/set_temp.h"
-#include "kdl/string_utils.h"
+#include "kd/set_temp.h"
+#include "kd/string_utils.h"
 
 #include <cassert>
 #include <vector>

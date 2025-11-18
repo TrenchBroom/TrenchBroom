@@ -32,7 +32,7 @@
 #include "mdl/WorldNode.h"
 #include "octree.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include "catch/CatchConfig.h"
 

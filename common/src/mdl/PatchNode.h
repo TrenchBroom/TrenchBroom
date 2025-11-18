@@ -24,7 +24,7 @@
 #include "mdl/Node.h"
 #include "mdl/Object.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/bbox.h"
 #include "vm/vec.h"

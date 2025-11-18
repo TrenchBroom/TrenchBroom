@@ -33,7 +33,7 @@
 #include "mdl/Selection.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include <vector>
 

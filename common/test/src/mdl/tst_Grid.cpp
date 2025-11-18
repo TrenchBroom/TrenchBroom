@@ -24,7 +24,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include "vm/approx.h"
 #include "vm/polygon.h"

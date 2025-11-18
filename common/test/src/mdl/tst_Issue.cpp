@@ -29,7 +29,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/PatchNode.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include <vector>
 

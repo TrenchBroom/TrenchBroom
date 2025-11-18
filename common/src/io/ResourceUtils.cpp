@@ -40,8 +40,8 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"
 
-#include "kdl/result.h"
-#include "kdl/set_temp.h"
+#include "kd/result.h"
+#include "kd/set_temp.h"
 
 #include <map>
 #include <string>

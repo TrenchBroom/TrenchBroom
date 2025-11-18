@@ -29,8 +29,8 @@
 #include "render/BrushRenderer.h"
 #include "render/SelectionBoundsRenderer.h"
 
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/ranges/to.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/to.h"
 
 #include <ranges>
 

@@ -21,9 +21,9 @@
 
 #include "Macros.h"
 
-#include "kdl/overload.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/reflection_impl.h"
+#include "kd/vector_utils.h"
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 

@@ -23,7 +23,7 @@
 #include "el/Expression.h"
 #include "mdl/ModelSpecification.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/vec.h"
 

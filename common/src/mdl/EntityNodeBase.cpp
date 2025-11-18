@@ -22,8 +22,8 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
-#include "kdl/ranges/adjacent_view.h"
-#include "kdl/ranges/to.h"
+#include "kd/ranges/adjacent_view.h"
+#include "kd/ranges/to.h"
 
 #include <ranges>
 #include <string>

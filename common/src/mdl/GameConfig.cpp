@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 
-#include "kdl/reflection_impl.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 #include "vm/vec_io.h"  // IWYU pragma: keep

@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "mdl/Texture.h"
 
-#include "kdl/reflection_impl.h"
+#include "kd/reflection_impl.h"
 
 #include <cassert>
 #include <ostream>

@@ -22,7 +22,7 @@
 #include "io/ReadFreeImageTexture.h"
 #include "mdl/Texture.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include <filesystem>
 #include <string>

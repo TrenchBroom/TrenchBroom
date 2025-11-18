@@ -22,7 +22,7 @@
 #include "io/ParserException.h"
 #include "io/Token.h"
 
-#include "kdl/string_utils.h"
+#include "kd/string_utils.h"
 
 #include <fmt/format.h>
 

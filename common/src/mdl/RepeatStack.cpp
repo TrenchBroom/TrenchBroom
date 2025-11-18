@@ -21,8 +21,8 @@
 
 #include "Ensure.h"
 
-#include "kdl/set_temp.h"
-#include "kdl/vector_utils.h"
+#include "kd/set_temp.h"
+#include "kd/vector_utils.h"
 
 #include <cassert>
 

@@ -39,9 +39,9 @@
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 
-#include "kdl/overload.h"
-#include "kdl/vector_set.h"
-#include "kdl/vector_utils.h"
+#include "kd/overload.h"
+#include "kd/vector_set.h"
+#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 

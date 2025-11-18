@@ -25,7 +25,7 @@
 #include "mdl/HitType.h"
 #include "ui/Tool.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include "vm/line.h"
 #include "vm/plane.h"

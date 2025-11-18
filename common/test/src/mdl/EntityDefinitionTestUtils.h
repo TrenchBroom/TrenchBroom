@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "mdl/ModelSpecification.h"
 
-#include "kdl/string_utils.h"
+#include "kd/string_utils.h"
 
 #include <string>
 

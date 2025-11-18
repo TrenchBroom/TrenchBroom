@@ -42,7 +42,7 @@
 #include "ui/LayerListBox.h"
 #include "ui/QtUtils.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <string>

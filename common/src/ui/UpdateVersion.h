@@ -21,7 +21,7 @@
 
 #include "upd/Asset.h"
 
-#include "kdl/reflection_decl.h"
+#include "kd/reflection_decl.h"
 
 #include <iosfwd>
 #include <variant>

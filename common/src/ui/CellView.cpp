@@ -39,9 +39,9 @@
 #include "ui/CellLayout.h"
 #include "ui/RenderView.h"
 
-#include "kdl/ranges/repeat_view.h"
-#include "kdl/ranges/stride_view.h"
-#include "kdl/ranges/zip_view.h"
+#include "kd/ranges/repeat_view.h"
+#include "kd/ranges/stride_view.h"
+#include "kd/ranges/zip_view.h"
 
 #include "vm/mat_ext.h"
 

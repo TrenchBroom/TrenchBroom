@@ -31,8 +31,8 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/ranges/adjacent_view.h"
-#include "kdl/task_manager.h"
+#include "kd/ranges/adjacent_view.h"
+#include "kd/task_manager.h"
 
 #include "vm/bbox.h"
 #include "vm/mat.h"

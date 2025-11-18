@@ -23,8 +23,8 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/result_fold.h"
+#include "kd/ranges/to.h"
+#include "kd/result_fold.h"
 
 #include <cassert>
 #include <ranges>

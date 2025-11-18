@@ -40,7 +40,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include "vm/polygon.h"
 #include "vm/scalar.h"

@@ -32,9 +32,9 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/string_format.h"
-#include "kdl/task_manager.h"
+#include "kd/overload.h"
+#include "kd/string_format.h"
+#include "kd/task_manager.h"
 
 #include <fmt/format.h>
 

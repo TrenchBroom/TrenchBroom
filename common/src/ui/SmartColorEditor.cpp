@@ -45,8 +45,8 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include "kdl/overload.h"
-#include "kdl/vector_set.h"
+#include "kd/overload.h"
+#include "kd/vector_set.h"
 
 #include <fmt/ostream.h>
 

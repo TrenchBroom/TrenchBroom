@@ -26,9 +26,9 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/NodeQueries.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/stable_remove_duplicates.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/stable_remove_duplicates.h"
+#include "kd/vector_utils.h"
 
 #include <vector>
 

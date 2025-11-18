@@ -21,7 +21,7 @@
 
 #include "mdl/Resource.h"
 
-#include "kdl/vector_utils.h"
+#include "kd/vector_utils.h"
 
 #include <future>
 #include <memory>

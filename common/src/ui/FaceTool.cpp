@@ -22,7 +22,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
 
-#include "kdl/string_format.h"
+#include "kd/string_format.h"
 
 namespace tb::ui
 {

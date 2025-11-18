@@ -40,7 +40,7 @@
 #include "ui/PickRequest.h"
 #include "ui/SelectionTool.h"
 
-#include "kdl/result.h"
+#include "kd/result.h"
 
 #include "catch/CatchConfig.h"
 

@@ -23,8 +23,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "mdl/Brush.h"
 #include "mdl/BrushNode.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
 
 #include <ranges>
 

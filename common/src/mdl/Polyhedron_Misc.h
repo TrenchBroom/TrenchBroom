@@ -21,7 +21,7 @@
 
 #include "Polyhedron.h"
 
-#include "kdl/range_utils.h"
+#include "kd/range_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/plane.h"

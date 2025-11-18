@@ -19,7 +19,7 @@
 
 #include "Quake3Shader.h"
 
-#include "kdl/reflection_impl.h"
+#include "kd/reflection_impl.h"
 
 #include <string>
 

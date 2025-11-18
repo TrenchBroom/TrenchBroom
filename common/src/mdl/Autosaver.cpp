@@ -27,13 +27,13 @@
 #include "io/TraversalMode.h"
 #include "mdl/Map.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/enumerate_view.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/string_format.h"
-#include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/enumerate_view.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
+#include "kd/string_format.h"
+#include "kd/string_utils.h"
+#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 

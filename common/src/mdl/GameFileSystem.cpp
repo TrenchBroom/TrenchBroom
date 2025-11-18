@@ -31,9 +31,9 @@
 #include "io/ZipFileSystem.h"
 #include "mdl/GameConfig.h"
 
-#include "kdl/ranges/as_rvalue_view.h"
-#include "kdl/result_fold.h"
-#include "kdl/string_compare.h"
+#include "kd/ranges/as_rvalue_view.h"
+#include "kd/result_fold.h"
+#include "kd/string_compare.h"
 
 #include <memory>
 #include <ranges>

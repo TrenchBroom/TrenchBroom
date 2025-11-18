@@ -25,8 +25,8 @@
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 
-#include "kdl/overload.h"
-#include "kdl/ranges/to.h"
+#include "kd/overload.h"
+#include "kd/ranges/to.h"
 
 #include <cassert>
 #include <ostream>

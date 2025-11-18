@@ -26,12 +26,12 @@
 #include "mdl/MapFormat.h"
 #include "mdl/UVCoordSystem.h"
 
-#include "kdl/range_utils.h"
-#include "kdl/ranges/to.h"
-#include "kdl/reflection_impl.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
+#include "kd/range_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
+#include "kd/result.h"
+#include "kd/result_fold.h"
+#include "kd/vector_utils.h"
 
 #include "vm/mat_ext.h"
 #include "vm/polygon.h"

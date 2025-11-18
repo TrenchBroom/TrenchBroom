@@ -19,7 +19,7 @@
 
 #include "TagAttribute.h"
 
-#include "kdl/struct_io.h"
+#include "kd/struct_io.h"
 
 namespace tb::mdl
 {

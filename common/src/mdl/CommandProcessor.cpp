@@ -27,8 +27,8 @@
 #include "mdl/TransactionScope.h"
 #include "mdl/UndoableCommand.h"
 
-#include "kdl/set_temp.h"
-#include "kdl/vector_utils.h"
+#include "kd/set_temp.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 

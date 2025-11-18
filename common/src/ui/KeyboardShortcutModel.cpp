@@ -26,9 +26,9 @@
 #include "ui/Actions.h"
 #include "ui/MapDocument.h"
 
-#include "kdl/ranges/to.h"
-#include "kdl/set_adapter.h"
-#include "kdl/vector_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/set_adapter.h"
+#include "kd/vector_utils.h"
 
 #include <ranges>
 

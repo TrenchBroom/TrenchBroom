@@ -31,8 +31,8 @@
 #include "render/IndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/ranges/to.h"
+#include "kd/path_utils.h"
+#include "kd/ranges/to.h"
 
 #include <fmt/format.h>
 

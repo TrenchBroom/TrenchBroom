@@ -30,9 +30,9 @@
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
 
-#include "kdl/k.h"
-#include "kdl/path_utils.h"
-#include "kdl/task_manager.h"
+#include "kd/k.h"
+#include "kd/path_utils.h"
+#include "kd/task_manager.h"
 
 #include <filesystem>
 

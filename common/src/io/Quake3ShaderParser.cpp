@@ -23,8 +23,8 @@
 #include "io/ParserStatus.h"
 #include "mdl/Quake3Shader.h"
 
-#include "kdl/string_compare.h"
-#include "kdl/string_format.h"
+#include "kd/string_compare.h"
+#include "kd/string_format.h"
 
 #include <filesystem>
 #include <string>

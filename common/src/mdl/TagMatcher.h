@@ -24,7 +24,7 @@
 #include "mdl/TagVisitor.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 
-#include "kdl/vector_set.h"
+#include "kd/vector_set.h"
 
 #include <functional>
 #include <iosfwd>
