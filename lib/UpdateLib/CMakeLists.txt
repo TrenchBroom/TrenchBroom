@@ -45,11 +45,11 @@ elseif (APPLE)
   set(LIB_UPDATE_SCRIPT "${LIB_UPDATE_SOURCE_DIR}/scripts/install_update.sh" CACHE INTERNAL "Path to the update script")
 endif()
 
-add_library(upd STATIC ${LIB_UPDATE_SOURCE} ${LIB_UPDATE_HEADER})
-set_target_properties(upd PROPERTIES AUTOMOC TRUE)
-target_include_directories(upd PUBLIC ${LIB_UPDATE_SOURCE_DIR})
-target_link_libraries(upd PUBLIC Qt6::Widgets Qt6::Network)
+add_library(UpdateLib STATIC ${LIB_UPDATE_SOURCE} ${LIB_UPDATE_HEADER})
+set_target_properties(UpdateLib PROPERTIES AUTOMOC TRUE)
+target_include_directories(UpdateLib PUBLIC ${LIB_UPDATE_SOURCE_DIR})
+target_link_libraries(UpdateLib PUBLIC Qt6::Widgets Qt6::Network)
 
-target_link_libraries(upd PRIVATE CompilerConfig)
+target_link_libraries(UpdateLib PRIVATE CompilerConfig)
 
 add_subdirectory(test)

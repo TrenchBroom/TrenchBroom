@@ -33,8 +33,8 @@ KdLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
-cd lib\upd\test
-upd-test.exe
+cd lib\UpdateLib\test
+UpdateLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
