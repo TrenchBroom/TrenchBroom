@@ -517,30 +517,30 @@ private: // Observers and state management
 
   void commandDoOrUndo(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandBase*>(&command))
+    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<H>*>(&command))
     {
       deselectHandles();
-      removeHandles(vertexCommand);
+      removeHandles(*vertexCommand);
       ++m_ignoreChangeNotifications;
     }
   }
 
   void commandDoneOrUndoFailed(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandBase*>(&command))
+    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<H>*>(&command))
     {
-      addHandles(vertexCommand);
-      selectNewHandlePositions(vertexCommand);
+      addHandles(*vertexCommand);
+      selectNewHandlePositions(*vertexCommand);
       --m_ignoreChangeNotifications;
     }
   }
 
   void commandDoFailedOrUndone(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandBase*>(&command))
+    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<H>*>(&command))
     {
-      addHandles(vertexCommand);
-      selectOldHandlePositions(vertexCommand);
+      addHandles(*vertexCommand);
+      selectOldHandlePositions(*vertexCommand);
       --m_ignoreChangeNotifications;
     }
   }
@@ -576,24 +576,24 @@ private: // Observers and state management
 protected:
   virtual void deselectHandles() { handleManager().deselectAll(); }
 
-  virtual void addHandles(mdl::BrushVertexCommandBase* command)
+  virtual void addHandles(mdl::BrushVertexCommandT<H>& command)
   {
-    command->addHandles(handleManager());
+    command.addHandles(handleManager());
   }
 
-  virtual void removeHandles(mdl::BrushVertexCommandBase* command)
+  virtual void removeHandles(mdl::BrushVertexCommandT<H>& command)
   {
-    command->removeHandles(handleManager());
+    command.removeHandles(handleManager());
   }
 
-  virtual void selectNewHandlePositions(mdl::BrushVertexCommandBase* command)
+  virtual void selectNewHandlePositions(mdl::BrushVertexCommandT<H>& command)
   {
-    command->selectNewHandlePositions(handleManager());
+    command.selectNewHandlePositions(handleManager());
   }
 
-  virtual void selectOldHandlePositions(mdl::BrushVertexCommandBase* command)
+  virtual void selectOldHandlePositions(mdl::BrushVertexCommandT<H>& command)
   {
-    command->selectOldHandlePositions(handleManager());
+    command.selectOldHandlePositions(handleManager());
   }
 
   template <typename HT>

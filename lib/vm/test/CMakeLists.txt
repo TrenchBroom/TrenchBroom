@@ -22,14 +22,5 @@ target_sources(vm-test PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(vm-test Catch2::Catch2WithMain vm)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(vm-test PRIVATE -Wall -Wextra -Wconversion -pedantic -Wno-c++98-compat -Wno-c++20-compat -Wno-global-constructors -Wno-zero-as-null-pointer-constant)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(vm-test PRIVATE -Wall -Wextra -Wconversion -pedantic)
-elseif(MSVC EQUAL 1)
-    target_compile_options(vm-test PRIVATE /W4 /EHsc /MP)
-else()
-    message(FATAL_ERROR "Cannot set compile options for target")
-endif()
+target_link_libraries(vm-test PRIVATE CompilerConfig PrecompileStdHeaders)
+target_link_libraries(vm-test PRIVATE Catch2::Catch2WithMain vm)

@@ -25,6 +25,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/VertexHandleManager.h"
 #include "render/RenderBatch.h"
 #include "ui/MapDocument.h"
 
@@ -316,18 +317,18 @@ void VertexTool::removeHandles(const std::vector<mdl::Node*>& nodes)
   VertexToolBase::removeHandles(nodes, m_map.faceHandles());
 }
 
-void VertexTool::addHandles(mdl::BrushVertexCommandBase* command)
+void VertexTool::addHandles(mdl::BrushVertexCommandT<vm::vec3d>& command)
 {
-  command->addHandles(m_map.vertexHandles());
-  command->addHandles(m_map.edgeHandles());
-  command->addHandles(m_map.faceHandles());
+  command.addHandles(m_map.vertexHandles());
+  command.addHandles(m_map.edgeHandles());
+  command.addHandles(m_map.faceHandles());
 }
 
-void VertexTool::removeHandles(mdl::BrushVertexCommandBase* command)
+void VertexTool::removeHandles(mdl::BrushVertexCommandT<vm::vec3d>& command)
 {
-  command->removeHandles(m_map.vertexHandles());
-  command->removeHandles(m_map.edgeHandles());
-  command->removeHandles(m_map.faceHandles());
+  command.removeHandles(m_map.vertexHandles());
+  command.removeHandles(m_map.edgeHandles());
+  command.removeHandles(m_map.faceHandles());
 }
 
 void VertexTool::resetModeAfterDeselection()

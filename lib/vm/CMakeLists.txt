@@ -45,18 +45,7 @@ target_sources(vm INTERFACE
     "${VM_INCLUDE_DIR}/vm/vec.h"
 )
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(vm INTERFACE -Wall -Wextra -pedantic -Wshadow-all -Wno-c++98-compat -Wno-c++20-compat -Wno-float-equal)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(vm INTERFACE -Wall -Wextra -pedantic -Wshadow=local)
-elseif(MSVC EQUAL 1)
-    target_compile_options(vm INTERFACE /W4 /EHsc /MP)
-
-    # signed/unsigned mismatch: https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4365
-    target_compile_options(vm INTERFACE /w44365)
-else()
-    message(FATAL_ERROR "Cannot set compile options for target")
-endif()
+target_link_libraries(vm INTERFACE CompilerConfig)
 
 # Use the fast-float library for from_chars on AppleClang, where std::from_chars is not
 # available for floating point types.

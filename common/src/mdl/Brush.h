@@ -51,7 +51,7 @@ private:
   /**
    * Epsilon value to use when finding a vertex after applying a vertex operation
    */
-  constexpr static double CloseVertexEpsilon = static_cast<double>(0.01);
+  constexpr static double CloseVertexEpsilon = 0.01;
 
 public:
   using VertexList = BrushVertexList;
@@ -90,10 +90,9 @@ public: // face management:
   std::optional<size_t> findFace(const vm::vec3d& normal) const;
   std::optional<size_t> findFace(const vm::plane3d& boundary) const;
   std::optional<size_t> findFace(
-    const vm::polygon3d& vertices, double epsilon = static_cast<double>(0.0)) const;
+    const vm::polygon3d& vertices, double epsilon = 0.0) const;
   std::optional<size_t> findFace(
-    const std::vector<vm::polygon3d>& candidates,
-    double epsilon = static_cast<double>(0.0)) const;
+    const std::vector<vm::polygon3d>& candidates, double epsilon = 0.0) const;
 
   const BrushFace& face(size_t index) const;
   BrushFace& face(size_t index);
@@ -157,12 +156,9 @@ public:
   std::vector<vm::polygon3d> findClosestFacePositions(
     const std::vector<vm::polygon3d>& positions) const;
 
-  bool hasVertex(
-    const vm::vec3d& position, double epsilon = static_cast<double>(0.0)) const;
-  bool hasEdge(
-    const vm::segment3d& edge, double epsilon = static_cast<double>(0.0)) const;
-  bool hasFace(
-    const vm::polygon3d& face, double epsilon = static_cast<double>(0.0)) const;
+  bool hasVertex(const vm::vec3d& position, double epsilon = 0.0) const;
+  bool hasEdge(const vm::segment3d& edge, double epsilon = 0.0) const;
+  bool hasFace(const vm::polygon3d& face, double epsilon = 0.0) const;
 
   size_t edgeCount() const;
   const EdgeList& edges() const;

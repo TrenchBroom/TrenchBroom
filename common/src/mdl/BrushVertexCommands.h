@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "mdl/NodeContents.h"
 #include "mdl/SwapNodeContentsCommand.h"
 
 #include "vm/polygon.h"
@@ -31,41 +32,18 @@
 
 namespace tb::mdl
 {
-class VertexHandleManagerBase;
+class BrushNode;
+
+namespace detail
+{
+
+std::vector<BrushNode*> collectBrushNodes(
+  const std::vector<std::pair<Node*, NodeContents>>& nodes);
+
+} // namespace detail
+
 template <typename H>
 class VertexHandleManagerBaseT;
-
-class BrushVertexCommandBase : public SwapNodeContentsCommand
-{
-protected:
-  BrushVertexCommandBase(
-    std::string name, std::vector<std::pair<Node*, NodeContents>> nodes);
-
-private:
-  std::unique_ptr<CommandResult> doPerformDo(Map& document) override;
-  virtual std::unique_ptr<CommandResult> createCommandResult(
-    std::unique_ptr<CommandResult> swapResult);
-
-public:
-  void removeHandles(VertexHandleManagerBase& manager);
-  void addHandles(VertexHandleManagerBase& manager);
-
-public:
-  virtual void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::vec3d>& manager) const;
-  virtual void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::vec3d>& manager) const;
-  virtual void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::segment3d>& manager) const;
-  virtual void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::segment3d>& manager) const;
-  virtual void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::polygon3d>& manager) const;
-  virtual void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::polygon3d>& manager) const;
-
-  deleteCopyAndMove(BrushVertexCommandBase);
-};
 
 class BrushVertexCommandResult : public CommandResult
 {
@@ -78,79 +56,65 @@ public:
   bool hasRemainingVertices() const;
 };
 
-class BrushVertexCommand : public BrushVertexCommandBase
+template <typename H>
+class BrushVertexCommandT : public SwapNodeContentsCommand
 {
 private:
-  std::vector<vm::vec3d> m_oldVertexPositions;
-  std::vector<vm::vec3d> m_newVertexPositions;
+  std::vector<H> m_oldPositions;
+  std::vector<H> m_newPositions;
 
 public:
-  BrushVertexCommand(
+  BrushVertexCommandT(
     std::string name,
     std::vector<std::pair<Node*, NodeContents>> nodes,
-    std::vector<vm::vec3d> oldVertexPositions,
-    std::vector<vm::vec3d> newVertexPositions);
+    std::vector<H> oldPositions,
+    std::vector<H> newPositions)
+    : SwapNodeContentsCommand{std::move(name), std::move(nodes)}
+    , m_oldPositions{std::move(oldPositions)}
+    , m_newPositions{std::move(newPositions)}
+  {
+  }
 
 private:
-  std::unique_ptr<CommandResult> createCommandResult(
-    std::unique_ptr<CommandResult> swapResult) override;
-
-  bool doCollateWith(UndoableCommand& command) override;
-
-  void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::vec3d>& manager) const override;
-  void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::vec3d>& manager) const override;
-
-  deleteCopyAndMove(BrushVertexCommand);
-};
-
-class BrushEdgeCommand : public BrushVertexCommandBase
-{
-private:
-  std::vector<vm::segment3d> m_oldEdgePositions;
-  std::vector<vm::segment3d> m_newEdgePositions;
+  std::unique_ptr<CommandResult> doPerformDo(Map& document) override
+  {
+    const auto swapResult = SwapNodeContentsCommand::doPerformDo(document);
+    return std::make_unique<BrushVertexCommandResult>(
+      swapResult->success(), !m_newPositions.empty());
+  }
 
 public:
-  BrushEdgeCommand(
-    std::string name,
-    std::vector<std::pair<Node*, NodeContents>> nodes,
-    std::vector<vm::segment3d> oldEdgePositions,
-    std::vector<vm::segment3d> newEdgePositions);
+  template <typename HT>
+  void removeHandles(VertexHandleManagerBaseT<HT>& manager)
+  {
+    const auto nodes = detail::collectBrushNodes(m_nodes);
+    manager.removeHandles(nodes);
+  }
 
-private:
-  bool doCollateWith(UndoableCommand& command) override;
+  template <typename HT>
+  void addHandles(VertexHandleManagerBaseT<HT>& manager)
+  {
+    const auto nodes = detail::collectBrushNodes(m_nodes);
+    manager.addHandles(nodes);
+  }
 
-  void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::segment3d>& manager) const override;
-  void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::segment3d>& manager) const override;
+  template <typename HT>
+  void selectNewHandlePositions(VertexHandleManagerBaseT<HT>& manager)
+  {
+    manager.select(m_newPositions);
+  }
 
-  deleteCopyAndMove(BrushEdgeCommand);
+  template <typename HT>
+  void selectOldHandlePositions(VertexHandleManagerBaseT<HT>& manager)
+  {
+    manager.select(m_oldPositions);
+  }
+
+  deleteCopyAndMove(BrushVertexCommandT);
 };
 
-class BrushFaceCommand : public BrushVertexCommandBase
-{
-private:
-  std::vector<vm::polygon3d> m_oldFacePositions;
-  std::vector<vm::polygon3d> m_newFacePositions;
-
-public:
-  BrushFaceCommand(
-    std::string name,
-    std::vector<std::pair<Node*, NodeContents>> nodes,
-    std::vector<vm::polygon3d> oldFacePositions,
-    std::vector<vm::polygon3d> newFacePositions);
-
-private:
-  bool doCollateWith(UndoableCommand& command) override;
-
-  void selectNewHandlePositions(
-    VertexHandleManagerBaseT<vm::polygon3d>& manager) const override;
-  void selectOldHandlePositions(
-    VertexHandleManagerBaseT<vm::polygon3d>& manager) const override;
-
-  deleteCopyAndMove(BrushFaceCommand);
-};
+using BrushVertexCommand = BrushVertexCommandT<vm::vec3d>;
+using BrushEdgeCommand = BrushVertexCommandT<vm::segment3d>;
+using BrushFaceCommand = BrushVertexCommandT<vm::polygon3d>;
 
 } // namespace tb::mdl

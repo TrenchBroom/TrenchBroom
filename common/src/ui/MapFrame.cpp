@@ -2308,10 +2308,13 @@ void MapFrame::debugCreateCube()
   }
 }
 
-#ifdef __clang__
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #pragma clang diagnostic ignored "-Wcast-qual"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 static void debugSegfault()
 {
@@ -2320,6 +2323,8 @@ static void debugSegfault()
 }
 #ifdef __clang__
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
 #endif
 
 [[noreturn]] static void debugException()

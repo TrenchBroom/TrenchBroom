@@ -27,7 +27,6 @@
 
 namespace tb::mdl
 {
-class BrushVertexCommandBase;
 class PickResult;
 } // namespace tb::mdl
 
@@ -111,8 +110,8 @@ private:
   void addHandles(const std::vector<mdl::Node*>& nodes) override;
   void removeHandles(const std::vector<mdl::Node*>& nodes) override;
 
-  void addHandles(mdl::BrushVertexCommandBase* command) override;
-  void removeHandles(mdl::BrushVertexCommandBase* command) override;
+  void addHandles(mdl::BrushVertexCommandT<vm::vec3d>& command) override;
+  void removeHandles(mdl::BrushVertexCommandT<vm::vec3d>& command) override;
 
 private: // General helper methods
   void resetModeAfterDeselection();

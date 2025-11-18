@@ -192,10 +192,11 @@ Result<std::unique_ptr<WorldNode>> createMap(
     }
   }
 
-  auto entityPropertyConfig = EntityPropertyConfig{
-    config.entityConfig.scaleExpression, config.entityConfig.setDefaultProperties};
   auto worldNode = std::make_unique<WorldNode>(
-    std::move(entityPropertyConfig), std::move(worldEntity), format);
+    EntityPropertyConfig{
+      config.entityConfig.scaleExpression, config.entityConfig.setDefaultProperties},
+    std::move(worldEntity),
+    format);
 
   if (!config.forceEmptyNewMap)
   {

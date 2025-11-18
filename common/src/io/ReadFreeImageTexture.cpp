@@ -79,7 +79,7 @@ Color getAverageColor(const mdl::TextureBuffer& buffer, const GLenum format)
   ensure(format == GL_RGBA || format == GL_BGRA, "format is GL_RGBA or GL_BGRA");
 
   const auto r = size_t(format == GL_RGBA ? 0 : 2);
-  const auto g = size_t(format == GL_RGBA ? 1 : 1);
+  const auto g = size_t(1);
   const auto b = size_t(format == GL_RGBA ? 2 : 0);
   const auto a = size_t(3);
 

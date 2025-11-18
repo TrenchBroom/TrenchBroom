@@ -115,10 +115,15 @@ Value evaluateUnaryPlus(
     {
       return Value{result->numberValue(context)};
     }
+    [[fallthrough]];
   case ValueType::Array:
+    [[fallthrough]];
   case ValueType::Map:
+    [[fallthrough]];
   case ValueType::Range:
+    [[fallthrough]];
   case ValueType::Null:
+    [[fallthrough]];
   case ValueType::Undefined:
     break;
   }
@@ -131,6 +136,7 @@ Value evaluateUnaryMinus(
   switch (v.type())
   {
   case ValueType::Boolean:
+    [[fallthrough]];
   case ValueType::Number:
     return Value{-v.convertTo(context, ValueType::Number).numberValue(context)};
   case ValueType::String:
@@ -138,10 +144,15 @@ Value evaluateUnaryMinus(
     {
       return Value{-result->numberValue(context)};
     }
+    [[fallthrough]];
   case ValueType::Array:
+    [[fallthrough]];
   case ValueType::Map:
+    [[fallthrough]];
   case ValueType::Range:
+    [[fallthrough]];
   case ValueType::Null:
+    [[fallthrough]];
   case ValueType::Undefined:
     break;
   }
@@ -156,11 +167,17 @@ Value evaluateLogicalNegation(
   case ValueType::Boolean:
     return Value{!v.booleanValue(context)};
   case ValueType::Number:
+    [[fallthrough]];
   case ValueType::String:
+    [[fallthrough]];
   case ValueType::Array:
+    [[fallthrough]];
   case ValueType::Map:
+    [[fallthrough]];
   case ValueType::Range:
+    [[fallthrough]];
   case ValueType::Null:
+    [[fallthrough]];
   case ValueType::Undefined:
     break;
   }
@@ -179,11 +196,17 @@ Value evaluateBitwiseNegation(
     {
       return Value{~result->integerValue(context)};
     }
+    [[fallthrough]];
   case ValueType::Boolean:
+    [[fallthrough]];
   case ValueType::Array:
+    [[fallthrough]];
   case ValueType::Map:
+    [[fallthrough]];
   case ValueType::Range:
+    [[fallthrough]];
   case ValueType::Null:
+    [[fallthrough]];
   case ValueType::Undefined:
     break;
   }

@@ -21,7 +21,7 @@ target_include_directories(upd-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG
 target_link_libraries(upd-test PRIVATE upd Catch2::Catch2WithMain Qt6::Test)
 set_target_properties(upd-test PROPERTIES AUTOMOC TRUE)
 
-set_compiler_config(upd-test)
+target_link_libraries(upd-test PRIVATE CompilerConfig)
 
 # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
 # but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.

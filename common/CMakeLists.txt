@@ -1083,9 +1083,7 @@ target_link_libraries(common
   PUBLIC kdl vm Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE GLEW::GLEW OpenGL::GL upd tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
-# use precompiled headers on CMake 3.16 or later
-precompile_std_headers(common)
-precompile_qt_headers(common)
+target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)
 
 # Organize files into IDE folders
 source_group(TREE "${COMMON_SOURCE_DIR}" FILES ${COMMON_SOURCE} ${COMMON_HEADER})
@@ -1098,8 +1096,6 @@ if(APPLE)
     # Silence macOS OpenGL deprecation warnings
     target_compile_definitions(common PUBLIC GL_SILENCE_DEPRECATION)
 endif()
-
-set_compiler_config(common)
 
 # Create the cmake script for generating the version information
 target_include_directories(common PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

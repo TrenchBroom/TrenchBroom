@@ -89,6 +89,8 @@ if(TB_ENABLE_ASAN)
 endif()
 
 include(cmake/Utils.cmake)
+include(cmake/CompilerConfig.cmake)
+include(cmake/PrecompileHeaders.cmake)
 
 # Find Git
 find_package(Git)

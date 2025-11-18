@@ -11,7 +11,7 @@ target_include_directories(dump-shortcuts PRIVATE ${DUMP_SHORTCUTS_SOURCE_DIR})
 target_link_libraries(dump-shortcuts PRIVATE common fmt::fmt-header-only)
 set_target_properties(dump-shortcuts PROPERTIES AUTOMOC TRUE)
 
-set_compiler_config(dump-shortcuts)
+target_link_libraries(dump-shortcuts PRIVATE CompilerConfig)
 
 # Organize files into IDE folders
 source_group(TREE "${COMMON_TEST_SOURCE_DIR}" FILES ${COMMON_TEST_SOURCE})
