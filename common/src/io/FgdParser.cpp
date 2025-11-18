@@ -365,6 +365,9 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
   classInfo.type = classType;
   classInfo.location = token.location();
 
+  bool hasModel = false;
+  std::optional<el::MapExpression> modelDefMap;
+
   while (token.type() == FgdToken::Word)
   {
     const auto typeName = token.data();
@@ -396,15 +399,29 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
       kdl::ci::str_is_equal(typeName, "model")
       || kdl::ci::str_is_equal(typeName, "studio")
       || kdl::ci::str_is_equal(typeName, "studioprop")
+      || kdl::ci::str_is_equal(typeName, "lightprop")
       || kdl::ci::str_is_equal(typeName, "sprite")
       || kdl::ci::str_is_equal(typeName, "iconsprite"))
     {
-      if (classInfo.modelDefinition)
-      {
-        status.warn(token.location(), "Found multiple model properties");
-      }
-      classInfo.modelDefinition =
-        parseModel(status, kdl::ci::str_is_equal(typeName, "sprite"));
+      if (!modelDefMap) modelDefMap = el::MapExpression();
+      parseModelproperty(status, *modelDefMap, mdl::ModelSpecificationKeys::Path, "model");
+      hasModel = true;
+      //ideally, if iconsprite, should be displayed in addition to the model and at a default 0.25 scale
+    }
+    else if (kdl::ci::str_is_equal(typeName, "skin"))
+    {
+      if (!modelDefMap) modelDefMap = el::MapExpression();
+      parseModelproperty(status, *modelDefMap, mdl::ModelSpecificationKeys::Skin, "skin");
+    }
+    else if (kdl::ci::str_is_equal(typeName, "sequence"))
+    {
+      if (!modelDefMap) modelDefMap = el::MapExpression();
+      parseModelproperty(status, *modelDefMap, mdl::ModelSpecificationKeys::Frame, "sequence");
+    }
+    else if (kdl::ci::str_is_equal(typeName, "scale"))
+    {
+      if (!modelDefMap) modelDefMap = el::MapExpression();
+      parseModelproperty(status, *modelDefMap, mdl::ModelSpecificationKeys::Scale, "scale");
     }
     else if (kdl::ci::str_is_equal(typeName, "decal"))
     {
@@ -435,6 +452,32 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
   }
 
   classInfo.propertyDefinitions = parsePropertyDefinitions(status);
+  
+  // If the entity has a defined model/studio/studioprop/lightprop/sprite then it is meant to be displayed
+  // so, compile the model definition and details here
+  if (hasModel)
+  {
+    // If any of the other model definition keys weren't found, then ensure they can be pulled from the entity key-values
+    if (!modelDefMap->elements.contains(mdl::ModelSpecificationKeys::Path))
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Path,
+         el::ExpressionNode{el::VariableExpression{"model"}}});
+    if (!modelDefMap->elements.contains(mdl::ModelSpecificationKeys::Skin))
+      modelDefMap->elements.insert({
+        mdl::ModelSpecificationKeys::Skin,
+         el::ExpressionNode{el::VariableExpression{"skin"}}});
+    if (!modelDefMap->elements.contains(mdl::ModelSpecificationKeys::Frame))
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Frame,
+         el::ExpressionNode{el::VariableExpression{"sequence"}}});
+    if (!modelDefMap->elements.contains(mdl::ModelSpecificationKeys::Scale))
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Scale,
+         el::ExpressionNode{el::VariableExpression{"scale"}}});
+    // Then compile all this information into a model definition
+    classInfo.modelDefinition =
+      mdl::ModelDefinition{el::ExpressionNode{std::move(modelDefMap.value())}};
+  }
 
   return classInfo;
 }
@@ -474,27 +517,47 @@ std::vector<std::string> FgdParser::parseSuperClasses()
   return superClasses;
 }
 
-mdl::ModelDefinition FgdParser::parseModel(
-  ParserStatus& status, const bool allowEmptyExpression)
+void FgdParser::parseModelproperty(
+  ParserStatus& status,
+  el::MapExpression& modelDefMap,
+  const std::string& mapKey,
+  const std::string& entityKey)
 {
   m_tokenizer.nextToken(FgdToken::OParenthesis);
 
-  if (allowEmptyExpression && m_tokenizer.peekToken().hasType(FgdToken::CParenthesis))
+  if (m_tokenizer.peekToken().hasType(FgdToken::CParenthesis))
   {
-    const auto location = m_tokenizer.location();
     m_tokenizer.skipToken();
-
-    auto defaultModel = el::MapExpression{{
-      {"path", el::ExpressionNode{el::VariableExpression{"model"}, location}},
-      {"scale", el::ExpressionNode{el::VariableExpression{"scale"}, location}},
-    }};
-    auto defaultExp = el::ExpressionNode{std::move(defaultModel), location};
-    return mdl::ModelDefinition{std::move(defaultExp)};
+    return;
   }
 
-  return io::parseModelDefinition(m_tokenizer, status, FgdToken::CParenthesis)
-         | kdl::if_error([](const auto& e) { throw ParserException{e.msg}; })
-         | kdl::value();
+  const auto location = m_tokenizer.location();
+  const auto line = location.line;
+  const auto column = *location.column;
+
+  auto parser = ELParser{ELParser::Mode::Lenient, m_tokenizer.remainder(), line, column};
+  el::ExpressionNode ex = parser.parse() | kdl::and_then([&](auto expression) {
+     // advance our tokenizer by the amount that the `parser` parsed
+      m_tokenizer.adoptState(parser.tokenizerState());
+     return ensureNextToken(m_tokenizer, FgdToken::CParenthesis, std::move(expression));
+  }) | kdl::value();
+  const std::shared_ptr<el::Expression>& exp = ex.getExpression();
+
+  if (std::holds_alternative<el::MapExpression>(*exp))
+  {
+    el::MapExpression m = std::get<el::MapExpression>(*exp);
+    for (auto e : m.elements)
+    {
+      modelDefMap.elements.insert(std::move(e));
+    }
+  }
+  else
+  {
+    el::ExpressionNode var = el::ExpressionNode{el::VariableExpression{entityKey}};
+    el::ExpressionNode caseop = el::ExpressionNode{el::BinaryExpression{el::BinaryOperation::Case,var,var}};
+    el::ExpressionNode swprop = el::ExpressionNode{el::SwitchExpression{std::vector<el::ExpressionNode>{std::move(caseop), std::move(ex)}}};
+    modelDefMap.elements.insert({mapKey, std::move(swprop)});
+  }
 }
 
 mdl::DecalDefinition FgdParser::parseDecal()

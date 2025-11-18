@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Color.h"
+#include "el/Expression.h"
 #include "io/EntityDefinitionParser.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
@@ -129,7 +130,7 @@ private:
   void skipMainClass();
 
   std::vector<std::string> parseSuperClasses();
-  mdl::ModelDefinition parseModel(ParserStatus& status, bool allowEmptyExpression);
+  void parseModelproperty(ParserStatus& status, el::MapExpression& modelDefMap, const std::string& mapKey, const std::string& entityKey);
   mdl::DecalDefinition parseDecal();
   std::string parseNamedValue(ParserStatus& status, const std::string& name);
   void skipClassProperty(ParserStatus& status);
