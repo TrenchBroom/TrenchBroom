@@ -1,20 +1,15 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(vm VERSION 0.1.0 LANGUAGES CXX)
-
-# instruct cmake not to set default warning levels for MSVC projects (cmake 3.15 or higher)
-if (POLICY CMP0092)
-    cmake_policy(SET CMP0092 NEW)
-endif()
+project(VmLib VERSION 0.1.0 LANGUAGES CXX)
 
 set(VM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_library(vm INTERFACE)
-target_include_directories(vm INTERFACE
+add_library(VmLib INTERFACE)
+target_include_directories(VmLib INTERFACE
         $<BUILD_INTERFACE:${VM_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:vm/include/vm>)
 
-target_sources(vm INTERFACE
+target_sources(VmLib INTERFACE
     "${VM_INCLUDE_DIR}/vm/abstract_line.h"
     "${VM_INCLUDE_DIR}/vm/approx.h"
     "${VM_INCLUDE_DIR}/vm/bbox_io.h"
@@ -45,12 +40,12 @@ target_sources(vm INTERFACE
     "${VM_INCLUDE_DIR}/vm/vec.h"
 )
 
-target_link_libraries(vm INTERFACE CompilerConfig)
+target_link_libraries(VmLib INTERFACE CompilerConfig)
 
 # Use the fast-float library for from_chars on AppleClang, where std::from_chars is not
 # available for floating point types.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-target_link_libraries(vm INTERFACE FastFloat::fast_float)
+target_link_libraries(VmLib INTERFACE FastFloat::fast_float)
 endif()
 
 add_subdirectory(test)

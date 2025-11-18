@@ -1,5 +1,5 @@
-add_executable(vm-test)
-target_sources(vm-test PRIVATE
+add_executable(VmLibTest)
+target_sources(VmLibTest PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_bbox.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_bezier_surface.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_convex_hull.cpp"
@@ -22,5 +22,5 @@ target_sources(vm-test PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(vm-test PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(vm-test PRIVATE Catch2::Catch2WithMain vm)
+target_link_libraries(VmLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
+target_link_libraries(VmLibTest PRIVATE Catch2::Catch2WithMain VmLib)
