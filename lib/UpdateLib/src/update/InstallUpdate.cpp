@@ -25,7 +25,7 @@
 #include <QProcess>
 #include <QStandardPaths>
 
-#include "upd/Logging.h"
+#include "update/Logging.h"
 
 namespace upd
 {

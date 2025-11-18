@@ -17,23 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upd/TestHttpClient.h"
+#pragma once
+
+#include "update/HttpClient.h"
+
+class QNetworkAccessManager;
 
 namespace upd
 {
 
-HttpOperation* TestHttpClient::get(
-  const QUrl&, GetCallback getCallback, ErrorCallback errorCallback) const
+class QtHttpClient : public HttpClient
 {
-  return new TestHttpOperation<GetCallback>{
-    std::move(getCallback), std::move(errorCallback), pendingGetOperation};
-}
+private:
+  QNetworkAccessManager& m_networkManager;
 
-HttpOperation* TestHttpClient::download(
-  const QUrl&, DownloadCallback downloadCallback, ErrorCallback errorCallback) const
-{
-  return new TestHttpOperation<DownloadCallback>{
-    std::move(downloadCallback), std::move(errorCallback), pendingDownloadOperation};
-}
+public:
+  explicit QtHttpClient(QNetworkAccessManager& networkManager);
+
+  HttpOperation* get(
+    const QUrl& url, GetCallback getCallback, ErrorCallback errorCallback) const override;
+
+  HttpOperation* download(
+    const QUrl& url,
+    DownloadCallback downloadCallback,
+    ErrorCallback errorCallback) const override;
+};
 
 } // namespace upd

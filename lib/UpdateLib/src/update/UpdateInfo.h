@@ -23,9 +23,9 @@
 #include <QString>
 #include <QUrl>
 
-#include "upd/Asset.h"
-#include "upd/Release.h"
-#include "upd/Version.h"
+#include "update/Asset.h"
+#include "update/Release.h"
+#include "update/Version.h"
 
 namespace upd
 {

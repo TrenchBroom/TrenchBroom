@@ -17,30 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QDir>
+#pragma once
 
-#include "upd/TestUtils.h"
-#include "upd/Unzip.h"
+#include <QLabel>
 
-#include <catch2/catch_test_macros.hpp>
+#include "update/UpdateController.h"
 
 namespace upd
 {
 
-TEST_CASE("Unzip")
+/**
+ * A QLabel that shows the current update state and lets users interact with it via
+ * clickable links.
+ */
+class UpdateIndicator : public QLabel
 {
-  const auto fixturePath = QDir::currentPath() + "/fixture/unzip";
-  const auto zipPath = fixturePath + "/archive.zip";
-  const auto destPath = fixturePath + "/extracted";
+  Q_OBJECT
+private:
+  UpdateController& m_updateController;
 
-  REQUIRE(QDir{destPath}.removeRecursively());
+public:
+  explicit UpdateIndicator(UpdateController& updateController, QWidget* parent = nullptr);
+  ~UpdateIndicator() override;
 
-  REQUIRE(!QFileInfo{destPath + "/test1.txt"}.exists());
-  REQUIRE(!QFileInfo{destPath + "/folder/test2.txt"}.exists());
-
-  CHECK(unzip(zipPath, destPath, std::nullopt));
-  CHECK(readFileIntoString(destPath + "/test1.txt") == "test1");
-  CHECK(readFileIntoString(destPath + "/folder/test2.txt") == "test2");
-}
+private:
+  void updateUI(const UpdateControllerState& state);
+};
 
 } // namespace upd

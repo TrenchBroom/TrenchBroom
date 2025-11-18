@@ -1,16 +1,16 @@
 set(LIB_UPDATE_TEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(LIB_UPDATE_TEST_SOURCE
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestHttpClient.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestHttpClient.h"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestUtils.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestUtils.h"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestVersion.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/TestVersion.h"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/tst_GithubApi.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/tst_QtHttpClient.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/tst_Unzip.cpp"
-  "${LIB_UPDATE_TEST_SOURCE_DIR}/upd/tst_UpdateController.cpp"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestHttpClient.cpp"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestHttpClient.h"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestUtils.cpp"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestUtils.h"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestVersion.cpp"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/TestVersion.h"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/tst_GithubApi.cpp"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/tst_QtHttpClient.cpp"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/tst_Unzip.cpp"
+  "${LIB_UPDATE_TEST_SOURCE_DIR}/update/tst_UpdateController.cpp"
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)

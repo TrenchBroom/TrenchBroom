@@ -26,10 +26,10 @@
 #include <QList>
 #include <QString>
 
-#include "upd/Asset.h"
-#include "upd/HttpClient.h"
-#include "upd/Release.h"
-#include "upd/Version.h"
+#include "update/Asset.h"
+#include "update/HttpClient.h"
+#include "update/Release.h"
+#include "update/Version.h"
 
 #include <algorithm>
 #include <functional>

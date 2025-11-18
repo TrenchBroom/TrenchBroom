@@ -17,28 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <QDir>
 
-#include <QString>
+#include "update/TestUtils.h"
+#include "update/Unzip.h"
 
-#include "upd/Release.h"
+#include <catch2/catch_test_macros.hpp>
 
 namespace upd
 {
 
-struct TestVersion
+TEST_CASE("Unzip")
 {
-  int v;
+  const auto fixturePath = QDir::currentPath() + "/fixture/unzip";
+  const auto zipPath = fixturePath + "/archive.zip";
+  const auto destPath = fixturePath + "/extracted";
 
-  auto operator<=>(const TestVersion& other) const = default;
+  REQUIRE(QDir{destPath}.removeRecursively());
 
-  friend std::ostream& operator<<(std::ostream& lhs, const TestVersion& rhs);
-};
+  REQUIRE(!QFileInfo{destPath + "/test1.txt"}.exists());
+  REQUIRE(!QFileInfo{destPath + "/folder/test2.txt"}.exists());
 
-std::optional<TestVersion> parseVersion(const QString& str);
-QString describeVersion(const TestVersion& version);
-Asset chooseFirstAsset(const QList<Asset>& assets);
-
-QByteArray makeGetReleasesJson(const QList<Release<TestVersion>>& releases);
+  CHECK(unzip(zipPath, destPath, std::nullopt));
+  CHECK(readFileIntoString(destPath + "/test1.txt") == "test1");
+  CHECK(readFileIntoString(destPath + "/folder/test2.txt") == "test2");
+}
 
 } // namespace upd

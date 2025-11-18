@@ -22,8 +22,8 @@
 #include <QBoxLayout>
 #include <QLabel>
 
-#include "upd/Overload.h"
-#include "upd/UpdateDialog.h"
+#include "update/Overload.h"
+#include "update/UpdateDialog.h"
 
 #include <variant>
 

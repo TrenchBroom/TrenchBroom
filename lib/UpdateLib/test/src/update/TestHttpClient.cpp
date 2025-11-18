@@ -17,42 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Updater.h"
-
-#include "upd/HttpClient.h"
-#include "upd/UpdateDialog.h"
-#include "upd/UpdateIndicator.h"
+#include "update/TestHttpClient.h"
 
 namespace upd
 {
 
-Updater::Updater(
-  HttpClient& httpClient, std::optional<UpdateConfig> config, QObject* parent)
-  : QObject(parent)
-  , m_httpClient{httpClient}
-  , m_updateController{new UpdateController{m_httpClient, std::move(config), this}}
+HttpOperation* TestHttpClient::get(
+  const QUrl&, GetCallback getCallback, ErrorCallback errorCallback) const
 {
+  return new TestHttpOperation<GetCallback>{
+    std::move(getCallback), std::move(errorCallback), pendingGetOperation};
 }
 
-void Updater::showUpdateDialog()
+HttpOperation* TestHttpClient::download(
+  const QUrl&, DownloadCallback downloadCallback, ErrorCallback errorCallback) const
 {
-  auto dialog = new UpdateDialog(*m_updateController);
-  dialog->exec();
-}
-
-void Updater::checkForUpdates()
-{
-  m_updateController->checkForUpdates();
-}
-
-void Updater::reset()
-{
-  m_updateController->reset();
-}
-
-QWidget* Updater::createUpdateIndicator(QWidget* parent)
-{
-  return new UpdateIndicator(*m_updateController, parent);
+  return new TestHttpOperation<DownloadCallback>{
+    std::move(downloadCallback), std::move(errorCallback), pendingDownloadOperation};
 }
 
 } // namespace upd

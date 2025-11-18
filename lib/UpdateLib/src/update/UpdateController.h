@@ -21,11 +21,11 @@
 
 #include <QObject>
 
-#include "upd/GithubApi.h"
-#include "upd/Release.h"
-#include "upd/UpdateConfig.h"
-#include "upd/UpdateInfo.h"
-#include "upd/Version.h"
+#include "update/GithubApi.h"
+#include "update/Release.h"
+#include "update/UpdateConfig.h"
+#include "update/UpdateInfo.h"
+#include "update/Version.h"
 
 #include <functional>
 #include <optional>

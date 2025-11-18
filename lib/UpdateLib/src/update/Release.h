@@ -22,7 +22,7 @@
 #include <QList>
 #include <QString>
 
-#include "upd/Asset.h"
+#include "update/Asset.h"
 
 #include <ostream>
 

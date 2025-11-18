@@ -23,8 +23,8 @@
 #include <QFileInfo>
 #include <QProcess>
 
-#include "upd/FileUtils.h"
-#include "upd/Logging.h"
+#include "update/FileUtils.h"
+#include "update/Logging.h"
 
 namespace upd
 {

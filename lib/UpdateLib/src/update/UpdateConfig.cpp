@@ -17,30 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "upd/HttpClient.h"
-
-class QNetworkAccessManager;
+#include "update/UpdateConfig.h"
 
 namespace upd
 {
 
-class QtHttpClient : public HttpClient
+QString describeUpdateConfig(const UpdateConfig& config)
 {
-private:
-  QNetworkAccessManager& m_networkManager;
-
-public:
-  explicit QtHttpClient(QNetworkAccessManager& networkManager);
-
-  HttpOperation* get(
-    const QUrl& url, GetCallback getCallback, ErrorCallback errorCallback) const override;
-
-  HttpOperation* download(
-    const QUrl& url,
-    DownloadCallback downloadCallback,
-    ErrorCallback errorCallback) const override;
-};
+  return QString{
+    R"(Update Configuration:
+  GitHub Org    : %1
+  GitHub Repo   : %2
+  Update Script : %3
+  App Dir       : %4
+  Binary Path   : %5
+  Work Dir      : %6
+  Log File      : %7)"}
+    .arg(config.ghOrgName)
+    .arg(config.ghRepoName)
+    .arg(config.updateScriptPath)
+    .arg(config.appFolderPath)
+    .arg(config.relativeAppPath)
+    .arg(config.workDirPath)
+    .arg(config.logFilePath);
+}
 
 } // namespace upd

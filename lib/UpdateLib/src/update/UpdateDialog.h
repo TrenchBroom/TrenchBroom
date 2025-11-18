@@ -21,7 +21,7 @@
 
 #include <QDialog>
 
-#include "upd/UpdateController.h"
+#include "update/UpdateController.h"
 
 namespace upd
 {

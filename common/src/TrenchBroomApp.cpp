@@ -47,8 +47,8 @@
 #include "ui/RecentDocuments.h"
 #include "ui/UpdateConfig.h"
 #include "ui/WelcomeWindow.h"
-#include "upd/QtHttpClient.h"
-#include "upd/Updater.h"
+#include "update/QtHttpClient.h"
+#include "update/Updater.h"
 
 #include "kd/vector_utils.h"
 #ifdef __APPLE__

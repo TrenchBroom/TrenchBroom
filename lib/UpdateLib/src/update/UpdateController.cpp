@@ -22,10 +22,10 @@
 #include <QFileInfo>
 #include <QtConcurrent/QtConcurrent>
 
-#include "upd/FileUtils.h"
-#include "upd/HttpClient.h"
-#include "upd/Logging.h"
-#include "upd/Overload.h"
+#include "update/FileUtils.h"
+#include "update/HttpClient.h"
+#include "update/Logging.h"
+#include "update/Overload.h"
 
 namespace upd
 {

@@ -21,7 +21,7 @@
 
 #include <QObject>
 
-#include "upd/UpdateController.h"
+#include "update/UpdateController.h"
 
 #include <optional>
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "upd/UpdateConfig.h"
+#include "update/UpdateConfig.h"
 
 #include <optional>
 

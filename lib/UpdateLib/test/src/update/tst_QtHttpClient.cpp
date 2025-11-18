@@ -21,8 +21,8 @@
 #include <QEventLoop>
 #include <QNetworkAccessManager>
 
-#include "upd/QtHttpClient.h"
-#include "upd/TestUtils.h"
+#include "update/QtHttpClient.h"
+#include "update/TestUtils.h"
 
 #include <catch2/catch_test_macros.hpp>
 

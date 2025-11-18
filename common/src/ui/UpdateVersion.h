@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "upd/Asset.h"
+#include "update/Asset.h"
 
 #include "kd/reflection_decl.h"
 

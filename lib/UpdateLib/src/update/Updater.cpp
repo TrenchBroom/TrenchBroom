@@ -17,31 +17,42 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "Updater.h"
 
-#include <QLabel>
-
-#include "upd/UpdateController.h"
+#include "update/HttpClient.h"
+#include "update/UpdateDialog.h"
+#include "update/UpdateIndicator.h"
 
 namespace upd
 {
 
-/**
- * A QLabel that shows the current update state and lets users interact with it via
- * clickable links.
- */
-class UpdateIndicator : public QLabel
+Updater::Updater(
+  HttpClient& httpClient, std::optional<UpdateConfig> config, QObject* parent)
+  : QObject(parent)
+  , m_httpClient{httpClient}
+  , m_updateController{new UpdateController{m_httpClient, std::move(config), this}}
 {
-  Q_OBJECT
-private:
-  UpdateController& m_updateController;
+}
 
-public:
-  explicit UpdateIndicator(UpdateController& updateController, QWidget* parent = nullptr);
-  ~UpdateIndicator() override;
+void Updater::showUpdateDialog()
+{
+  auto dialog = new UpdateDialog(*m_updateController);
+  dialog->exec();
+}
 
-private:
-  void updateUI(const UpdateControllerState& state);
-};
+void Updater::checkForUpdates()
+{
+  m_updateController->checkForUpdates();
+}
+
+void Updater::reset()
+{
+  m_updateController->reset();
+}
+
+QWidget* Updater::createUpdateIndicator(QWidget* parent)
+{
+  return new UpdateIndicator(*m_updateController, parent);
+}
 
 } // namespace upd

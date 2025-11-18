@@ -27,7 +27,7 @@
 #include <QPushButton>
 #include <QTimer>
 
-#include "upd/Overload.h"
+#include "update/Overload.h"
 
 #include <variant>
 

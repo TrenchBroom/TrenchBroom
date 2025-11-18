@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upd/TestVersion.h"
+#include "update/TestVersion.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>

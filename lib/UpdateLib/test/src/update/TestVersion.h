@@ -17,29 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upd/UpdateConfig.h"
+#pragma once
+
+#include <QString>
+
+#include "update/Release.h"
 
 namespace upd
 {
 
-QString describeUpdateConfig(const UpdateConfig& config)
+struct TestVersion
 {
-  return QString{
-    R"(Update Configuration:
-  GitHub Org    : %1
-  GitHub Repo   : %2
-  Update Script : %3
-  App Dir       : %4
-  Binary Path   : %5
-  Work Dir      : %6
-  Log File      : %7)"}
-    .arg(config.ghOrgName)
-    .arg(config.ghRepoName)
-    .arg(config.updateScriptPath)
-    .arg(config.appFolderPath)
-    .arg(config.relativeAppPath)
-    .arg(config.workDirPath)
-    .arg(config.logFilePath);
-}
+  int v;
+
+  auto operator<=>(const TestVersion& other) const = default;
+
+  friend std::ostream& operator<<(std::ostream& lhs, const TestVersion& rhs);
+};
+
+std::optional<TestVersion> parseVersion(const QString& str);
+QString describeVersion(const TestVersion& version);
+Asset chooseFirstAsset(const QList<Asset>& assets);
+
+QByteArray makeGetReleasesJson(const QList<Release<TestVersion>>& releases);
 
 } // namespace upd
