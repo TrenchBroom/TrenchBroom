@@ -11,6 +11,10 @@
       "version>=": "3.10.0"
     },
     {
+      "name": "cpptrace",
+      "version>=": "1.0.4"
+    },
+    {
       "name": "fmt",
       "version>=": "11.2.0"
     },

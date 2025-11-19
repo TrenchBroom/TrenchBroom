@@ -19,8 +19,9 @@
 
 #include "CrashReporter.h"
 
+#include <QStandardPaths>
+
 #include "TrenchBroomApp.h"
-#include "TrenchBroomStackWalker.h"
 #include "io/DiskIO.h"
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
@@ -39,6 +40,8 @@
 
 #include "kd/path_utils.h"
 
+#include <cpptrace/basic.hpp>
+#include <cpptrace/from_current.hpp>
 #include <fmt/format.h>
 #include <fmt/std.h>
 
@@ -55,19 +58,28 @@ namespace tb::ui
 {
 namespace
 {
-std::string makeCrashReport(const std::string& stacktrace, const std::string& reason)
+
+bool inReportCrashAndExit = false;
+bool crashReportGuiEnabled = true;
+
+std::string makeCrashReport(const auto& stacktrace, const auto& reason)
 {
   auto ss = std::stringstream{};
+
   ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
   ss << "Qt:\t" << qVersion() << std::endl;
+
   ss << "GL_VENDOR:\t" << GLContextManager::GLVendor << std::endl;
   ss << "GL_RENDERER:\t" << GLContextManager::GLRenderer << std::endl;
   ss << "GL_VERSION:\t" << GLContextManager::GLVersion << std::endl;
+
   ss << "TrenchBroom Version:\t" << getBuildVersion().toStdString() << std::endl;
   ss << "TrenchBroom Build:\t" << getBuildIdStr().toStdString() << std::endl;
+
   ss << "Reason:\t" << reason << std::endl;
-  ss << "Stack trace:" << std::endl;
-  ss << stacktrace << std::endl;
+
+  stacktrace.print(ss);
+
   return ss.str();
 }
 
@@ -105,37 +117,24 @@ std::filesystem::path crashReportBasePath()
 #if defined(_WIN32) && defined(_MSC_VER)
 LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
 {
-  reportCrashAndExit(
-    TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord),
-    std::to_string(pExceptionPtrs->ExceptionRecord->ExceptionCode));
+  reportCrashAndExit(std::to_string(pExceptionPtrs->ExceptionRecord->ExceptionCode));
   // return EXCEPTION_EXECUTE_HANDLER; unreachable
 }
 #else
 void CrashHandler(const int /* signum */)
 {
-  reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
+  reportCrashAndExit("SIGSEGV");
 }
 #endif
 
-bool inReportCrashAndExit = false;
-bool crashReportGuiEnabled = true;
-
-} // namespace
-
-void setCrashReportGUIEnabled(const bool guiEnabled)
-{
-  crashReportGuiEnabled = guiEnabled;
-}
-
-void reportCrashAndExit(const std::string& stacktrace, const std::string& reason)
+[[noreturn]] void reportCrashAndExit(
+  const cpptrace::stacktrace& stacktrace, const std::string& reason)
 {
   // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
-  if (inReportCrashAndExit)
+  if (std::exchange(inReportCrashAndExit, true))
   {
     std::abort();
   }
-
-  inReportCrashAndExit = true;
 
   // get the crash report as a string
   const auto report = makeCrashReport(stacktrace, reason);
@@ -194,6 +193,18 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   std::abort();
 }
 
+} // namespace
+
+void setCrashReportGUIEnabled(const bool guiEnabled)
+{
+  crashReportGuiEnabled = guiEnabled;
+}
+
+void reportCrashAndExit(const std::string& reason)
+{
+  reportCrashAndExit(cpptrace::generate_trace(), reason);
+}
+
 bool isReportingCrash()
 {
   return inReportCrashAndExit;
@@ -209,6 +220,22 @@ void setupCrashReporter()
 #else
   signal(SIGSEGV, CrashHandler);
 #endif
+}
+
+void runWithCrashReporting(const ThrowingFunction& func)
+{
+  CPPTRACE_TRY
+  {
+    func();
+  }
+  CPPTRACE_CATCH(const std::exception& e)
+  {
+    // Note that this will not catch all exceptions that are thrown from Qt event handlers
+    // because Qt doesn't guarantee that exceptions can propagate through its signal/slot
+    // mechanism. We will have to fix that by getting rid of exceptions altogether or by
+    // wrapping every slot in a try/catch block.
+    reportCrashAndExit(cpptrace::from_current_exception(), e.what());
+  }
 }
 
 } // namespace tb::ui

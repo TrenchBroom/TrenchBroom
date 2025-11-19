@@ -588,30 +588,9 @@ void TrenchBroomApp::debugShowCrashReportDialog()
  */
 bool TrenchBroomApp::notify(QObject* receiver, QEvent* event)
 {
-#ifdef _MSC_VER
-  __try
-  {
-    return QApplication::notify(receiver, event);
-
-    // We have to choose between capturing the stack trace (using __try/__except) and
-    // getting the C++ exception object (using C++ try/catch) - take the stack trace.
-  }
-  __except (TrenchBroomUnhandledExceptionFilter(GetExceptionInformation()))
-  {
-    // Unreachable, see TrenchBroomUnhandledExceptionFilter
-    return false;
-  }
-#else
-  try
-  {
-    return QApplication::notify(receiver, event);
-  }
-  catch (const std::exception& e)
-  {
-    // Unfortunately we can't portably get the stack trace of the exception itself
-    tb::ui::reportCrashAndExit("<uncaught exception>", e.what());
-  }
-#endif
+  auto result = false;
+  runWithCrashReporting([&]() { result = QApplication::notify(receiver, event); });
+  return result;
 }
 
 #ifdef __APPLE__
