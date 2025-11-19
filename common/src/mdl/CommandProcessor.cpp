@@ -212,20 +212,14 @@ void CommandProcessor::startTransaction(std::string name, const TransactionScope
 
 void CommandProcessor::commitTransaction()
 {
-  if (m_transactionStack.empty())
-  {
-    throw CommandProcessorException{"No transaction is currently executing"};
-  }
+  ensure(!m_transactionStack.empty(), "a transaction is currently executing");
 
   createAndStoreTransaction();
 }
 
 void CommandProcessor::rollbackTransaction()
 {
-  if (m_transactionStack.empty())
-  {
-    throw CommandProcessorException{"No transaction is currently executing"};
-  }
+  ensure(!m_transactionStack.empty(), "a transaction is currently executing");
 
   auto& transaction = m_transactionStack.back();
   for (auto it = std::rbegin(transaction.commands), end = std::rend(transaction.commands);

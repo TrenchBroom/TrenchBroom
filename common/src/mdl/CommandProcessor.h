@@ -192,7 +192,7 @@ public:
    * If the current transaction does not contain any commands, then the transaction ends,
    * but nothing will be stored in the command processor.
    *
-   * @throws CommandProcessorException if no transaction is currently executing
+   * Precondition: a transaction is currently executing.
    */
   void commitTransaction();
 
@@ -203,7 +203,7 @@ public:
    * `commitTransaction`. Since the transaction will be empty, committing it will just do
    * nothing but remove the transaction itself.
    *
-   * @throws CommandProcessorException if no transaction is currently executing
+   * Precondition: a transaction is currently executing.
    */
   void rollbackTransaction();
 
