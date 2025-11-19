@@ -310,7 +310,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/Thread.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
-        ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionBuilder.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionContext.cpp
@@ -352,6 +351,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/CrashDialog.cpp
+        ${COMMON_SOURCE_DIR}/ui/CrashReporter.cpp
         ${COMMON_SOURCE_DIR}/ui/CreateBrushesToolBase.cpp
         ${COMMON_SOURCE_DIR}/ui/CreateEntityTool.cpp
         ${COMMON_SOURCE_DIR}/ui/CreateEntityToolController.cpp
@@ -872,7 +872,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Result.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
-        ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
         ${COMMON_SOURCE_DIR}/ui/ActionBuilder.h
         ${COMMON_SOURCE_DIR}/ui/ActionContext.h
@@ -913,6 +912,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ContainerBar.h
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.h
         ${COMMON_SOURCE_DIR}/ui/CrashDialog.h
+        ${COMMON_SOURCE_DIR}/ui/CrashReporter.h
         ${COMMON_SOURCE_DIR}/ui/CreateBrushesToolBase.h
         ${COMMON_SOURCE_DIR}/ui/CreateEntityTool.h
         ${COMMON_SOURCE_DIR}/ui/CreateEntityToolController.h
@@ -1081,16 +1081,12 @@ set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
   PUBLIC KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
-  PRIVATE GLEW::GLEW OpenGL::GL UpdateLib tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
+  PRIVATE GLEW::GLEW OpenGL::GL UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)
 
 # Organize files into IDE folders
 source_group(TREE "${COMMON_SOURCE_DIR}" FILES ${COMMON_SOURCE} ${COMMON_HEADER})
-
-if(WIN32)
-    target_link_libraries(common PRIVATE stackwalker)
-endif()
 
 if(APPLE)
     # Silence macOS OpenGL deprecation warnings

@@ -23,7 +23,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Result.h"
-#include "TrenchBroomStackWalker.h"
 #include "io/DiskIO.h"
 #include "io/MapHeader.h"
 #include "io/PathInfo.h"
@@ -35,10 +34,9 @@
 #include "ui/AboutDialog.h"
 #include "ui/Actions.h"
 #include "ui/CrashDialog.h"
+#include "ui/CrashReporter.h"
 #include "ui/FrameManager.h"
-#include "ui/GLContextManager.h"
 #include "ui/GameDialog.h"
-#include "ui/GetVersion.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
@@ -71,7 +69,6 @@
 #include <QTimer>
 #include <QUrl>
 
-#include "kd/path_utils.h"
 #include "kd/string_utils.h"
 
 #include <fmt/format.h>
@@ -80,35 +77,16 @@
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
-#include <iostream>
 #include <memory>
 #include <optional>
-#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#if defined(_WIN32) && defined(_MSC_VER)
-#include <windows.h>
-#endif
 
 namespace tb::ui
 {
 namespace
 {
-
-// returns the topmost MapDocument as a shared pointer, or the empty shared pointer
-MapDocument* topDocument()
-{
-  if (const auto* frameManager = TrenchBroomApp::instance().frameManager())
-  {
-    if (auto* frame = frameManager->topFrame())
-    {
-      return &frame->document();
-    }
-  }
-  return nullptr;
-}
 
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
   const std::filesystem::path& path)
@@ -146,12 +124,6 @@ TrenchBroomApp& TrenchBroomApp::instance()
   return *dynamic_cast<TrenchBroomApp*>(qApp);
 }
 
-#if defined(_WIN32) && defined(_MSC_VER)
-LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs);
-#else
-[[noreturn]] static void CrashHandler(int signum);
-#endif
-
 TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   : QApplication{argc, argv}
   , m_networkManager{new QNetworkAccessManager{this}}
@@ -168,14 +140,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   // Don't show icons in menus, they are scaled down and don't look very good.
   setAttribute(Qt::AA_DontShowIconsInMenus);
 
-#if defined(_WIN32) && defined(_MSC_VER)
-  // with MSVC, set our own handler for segfaults so we can access the context
-  // pointer, to allow StackWalker to read the backtrace.
-  // see also: http://crashrpt.sourceforge.net/docs/html/exception_handling.html
-  SetUnhandledExceptionFilter(TrenchBroomUnhandledExceptionFilter);
-#else
-  signal(SIGSEGV, CrashHandler);
-#endif
+  setupCrashReporter();
 
   setApplicationName("TrenchBroom");
   // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
@@ -623,30 +588,9 @@ void TrenchBroomApp::debugShowCrashReportDialog()
  */
 bool TrenchBroomApp::notify(QObject* receiver, QEvent* event)
 {
-#ifdef _MSC_VER
-  __try
-  {
-    return QApplication::notify(receiver, event);
-
-    // We have to choose between capturing the stack trace (using __try/__except) and
-    // getting the C++ exception object (using C++ try/catch) - take the stack trace.
-  }
-  __except (TrenchBroomUnhandledExceptionFilter(GetExceptionInformation()))
-  {
-    // Unreachable, see TrenchBroomUnhandledExceptionFilter
-    return false;
-  }
-#else
-  try
-  {
-    return QApplication::notify(receiver, event);
-  }
-  catch (const std::exception& e)
-  {
-    // Unfortunately we can't portably get the stack trace of the exception itself
-    tb::ui::reportCrashAndExit("<uncaught exception>", e.what());
-  }
-#endif
+  auto result = false;
+  runWithCrashReporting([&]() { result = QApplication::notify(receiver, event); });
+  return result;
 }
 
 #ifdef __APPLE__
@@ -713,6 +657,18 @@ void TrenchBroomApp::closeWelcomeWindow()
   }
 }
 
+MapDocument* TrenchBroomApp::topDocument()
+{
+  if (const auto* frameManager = this->frameManager())
+  {
+    if (auto* frame = frameManager->topFrame())
+    {
+      return &frame->document();
+    }
+  }
+  return nullptr;
+}
+
 bool TrenchBroomApp::useSDI()
 {
 #ifdef _WIN32
@@ -722,149 +678,4 @@ bool TrenchBroomApp::useSDI()
 #endif
 }
 
-
-namespace
-{
-std::string makeCrashReport(const std::string& stacktrace, const std::string& reason)
-{
-  auto ss = std::stringstream{};
-  ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
-  ss << "Qt:\t" << qVersion() << std::endl;
-  ss << "GL_VENDOR:\t" << GLContextManager::GLVendor << std::endl;
-  ss << "GL_RENDERER:\t" << GLContextManager::GLRenderer << std::endl;
-  ss << "GL_VERSION:\t" << GLContextManager::GLVersion << std::endl;
-  ss << "TrenchBroom Version:\t" << getBuildVersion().toStdString() << std::endl;
-  ss << "TrenchBroom Build:\t" << getBuildIdStr().toStdString() << std::endl;
-  ss << "Reason:\t" << reason << std::endl;
-  ss << "Stack trace:" << std::endl;
-  ss << stacktrace << std::endl;
-  return ss.str();
-}
-
-// returns the empty path for unsaved maps, or if we can't determine the current map
-std::filesystem::path savedMapPath()
-{
-  const auto document = topDocument();
-  const auto& map = document->map();
-  return document && map.path().is_absolute() ? map.path() : std::filesystem::path{};
-}
-
-std::filesystem::path crashReportBasePath()
-{
-  const auto mapPath = savedMapPath();
-  const auto crashLogPath = !mapPath.empty()
-                              ? mapPath.parent_path() / mapPath.stem() += "-crash.txt"
-                              : io::pathFromQString(QStandardPaths::writableLocation(
-                                  QStandardPaths::DocumentsLocation))
-                                  / "trenchbroom-crash.txt";
-
-  // ensure it doesn't exist
-  auto index = 0;
-  auto testCrashLogPath = crashLogPath;
-  while (io::Disk::pathInfo(testCrashLogPath) == io::PathInfo::File)
-  {
-    ++index;
-
-    const auto testCrashLogName = fmt::format("{}-{}.txt", crashLogPath.stem(), index);
-    testCrashLogPath = crashLogPath.parent_path() / testCrashLogName;
-  }
-
-  return kdl::path_remove_extension(testCrashLogPath);
-}
-
-bool inReportCrashAndExit = false;
-bool crashReportGuiEnabled = true;
-
-} // namespace
-
-void setCrashReportGUIEnbled(const bool guiEnabled)
-{
-  crashReportGuiEnabled = guiEnabled;
-}
-
-void reportCrashAndExit(const std::string& stacktrace, const std::string& reason)
-{
-  // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
-  if (inReportCrashAndExit)
-  {
-    std::abort();
-  }
-
-  inReportCrashAndExit = true;
-
-  // get the crash report as a string
-  const auto report = makeCrashReport(stacktrace, reason);
-
-  // write it to the crash log file
-  const auto basePath = crashReportBasePath();
-
-  // ensure the containing directory exists
-  io::Disk::createDirectory(basePath.parent_path()) | kdl::transform([&](auto) {
-    const auto reportPath = kdl::path_add_extension(basePath, ".txt");
-    auto logPath = kdl::path_add_extension(basePath, ".log");
-    auto mapPath = kdl::path_add_extension(basePath, ".map");
-
-    io::Disk::withOutputStream(reportPath, [&](auto& stream) {
-      stream << report;
-      std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
-    }) | kdl::transform_error([](const auto& e) {
-      std::cerr << "could not write crash log: " << e.msg << std::endl;
-    });
-
-    // save the map
-    if (const auto document = topDocument(); document && document->map().game())
-    {
-      document->map().saveTo(mapPath) | kdl::transform([&]() {
-        std::cerr << "wrote map to " << mapPath.string() << std::endl;
-      }) | kdl::transform_error([](const auto& e) {
-        std::cerr << "could not write map: " << e.msg << std::endl;
-      });
-    }
-    else
-    {
-      mapPath = std::filesystem::path{};
-    }
-
-    // Copy the log file
-    auto ec = std::error_code{};
-    if (!std::filesystem::copy_file(io::SystemPaths::logFilePath(), logPath, ec) || ec)
-    {
-      logPath = std::filesystem::path{};
-    }
-
-    if (crashReportGuiEnabled)
-    {
-      auto dialog = CrashDialog{reason, reportPath, mapPath, logPath};
-      dialog.exec();
-    }
-  }) | kdl::transform_error([](const auto& e) {
-    std::cerr << "could not create crash folder: " << e.msg << std::endl;
-  });
-
-  // write the crash log to stderr
-  std::cerr << "crash log:" << std::endl;
-  std::cerr << report << std::endl;
-
-  std::abort();
-}
-
-bool isReportingCrash()
-{
-  return inReportCrashAndExit;
-}
-
-#if defined(_WIN32) && defined(_MSC_VER)
-LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
-{
-  reportCrashAndExit(
-    TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord),
-    std::to_string(pExceptionPtrs->ExceptionRecord->ExceptionCode));
-  // return EXCEPTION_EXECUTE_HANDLER; unreachable
-}
-#else
-static void CrashHandler(int /* signum */)
-{
-  tb::ui::reportCrashAndExit(tb::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
-}
-#endif
 } // namespace tb::ui

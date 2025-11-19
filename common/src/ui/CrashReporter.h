@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2016 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,18 +19,21 @@
 
 #pragma once
 
+#include <functional>
 #include <string>
 
-namespace tb
+namespace tb::ui
 {
 
-class TrenchBroomStackWalker
-{
-public:
-#if defined(_WIN32) && defined(_MSC_VER)
-  static std::string getStackTraceFromContext(void* context);
-#endif
-  static std::string getStackTrace();
-};
+void setCrashReportGUIEnabled(bool guiEnabled);
 
-} // namespace tb
+[[noreturn]] void reportCrashAndExit(const std::string& reason);
+
+bool isReportingCrash();
+
+void setupCrashReporter();
+
+using ThrowingFunction = std::function<void()>;
+void runWithCrashReporting(const ThrowingFunction& func);
+
+} // namespace tb::ui

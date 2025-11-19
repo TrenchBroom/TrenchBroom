@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "TestPreferenceManager.h"
 #include "TrenchBroomApp.h"
+#include "ui/CrashReporter.h"
 
 #include <catch2/catch_session.hpp>
 
@@ -30,7 +31,7 @@ int main(int argc, char** argv)
   tb::PreferenceManager::createInstance<tb::TestPreferenceManager>();
   tb::ui::TrenchBroomApp app(argc, argv);
 
-  tb::ui::setCrashReportGUIEnbled(false);
+  tb::ui::setCrashReportGUIEnabled(false);
 
   ensure(qApp == &app, "invalid app instance");
 

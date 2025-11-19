@@ -76,7 +76,7 @@ jobs:
           tidy-checks: '' # Use .clang-tidy config file.
           files-changed-only: false
           database: ${{github.workspace}}/build
-          ignore: 'build|vcpkg-overlay-ports|lib/stackwalker|common/src/ui/GetVersion.cpp'
+          ignore: 'build|vcpkg-overlay-ports|common/src/ui/GetVersion.cpp'
           step-summary: true
           thread-comments: true
       - name: Fail fast?!
