@@ -270,46 +270,42 @@ TransformVerticesResult transformVertices(
       },
       [](BezierPatch&) { return true; }));
 
-  if (newNodes)
+  if (!newNodes)
   {
-    kdl::vec_sort_and_remove_duplicates(newVertexPositions);
-
-    const auto commandName =
-      kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
-    auto transaction = Transaction{map, commandName};
-
-    const auto changedLinkedGroups = collectContainingGroups(
-      *newNodes | std::views::keys | kdl::ranges::to<std::vector>());
-
-    const auto result = map.executeAndStore(std::make_unique<BrushVertexCommand>(
-      commandName,
-      std::move(*newNodes),
-      std::move(vertexPositions),
-      std::move(newVertexPositions)));
-
-    if (!result->success())
-    {
-      transaction.cancel();
-      return TransformVerticesResult{false, false};
-    }
-
-    setHasPendingChanges(changedLinkedGroups, true);
-
-    if (!transaction.commit())
-    {
-      return TransformVerticesResult{false, false};
-    }
-
-    const auto* moveVerticesResult =
-      dynamic_cast<BrushVertexCommandResult*>(result.get());
-    ensure(
-      moveVerticesResult != nullptr,
-      "command processor returned unexpected command result type");
-
-    return {moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices()};
+    return TransformVerticesResult{false, false};
   }
 
-  return TransformVerticesResult{false, false};
+  kdl::vec_sort_and_remove_duplicates(newVertexPositions);
+
+  auto commandName =
+    kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
+  auto transaction = Transaction{map, commandName};
+
+  const auto changedLinkedGroups = collectContainingGroups(
+    *newNodes | std::views::keys | kdl::ranges::to<std::vector>());
+
+  auto commandOwner = std::make_unique<BrushVertexCommand>(
+    std::move(commandName),
+    std::move(*newNodes),
+    std::move(vertexPositions),
+    std::move(newVertexPositions));
+  const auto* command = commandOwner.get();
+  const auto result = map.executeAndStore(std::move(commandOwner));
+
+  if (!result->success())
+  {
+    transaction.cancel();
+    return TransformVerticesResult{false, false};
+  }
+
+  setHasPendingChanges(changedLinkedGroups, true);
+
+  if (!transaction.commit())
+  {
+    return TransformVerticesResult{false, false};
+  }
+
+  return {true, command->hasRemainingHandles()};
 }
 
 bool transformEdges(

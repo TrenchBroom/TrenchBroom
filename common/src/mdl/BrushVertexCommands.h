@@ -84,6 +84,8 @@ private:
   }
 
 public:
+  bool hasRemainingHandles() const { return !m_newPositions.empty(); }
+
   template <typename HT>
   void removeHandles(VertexHandleManagerBaseT<HT>& manager)
   {
