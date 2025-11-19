@@ -34,8 +34,8 @@ public:
   explicit UpdateLinkedGroupsCommand(std::vector<GroupNode*> changedLinkedGroups);
   ~UpdateLinkedGroupsCommand() override;
 
-  std::unique_ptr<CommandResult> doPerformDo(Map& map) override;
-  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override;
+  bool doPerformDo(Map& map) override;
+  bool doPerformUndo(Map& map) override;
 
   deleteCopyAndMove(UpdateLinkedGroupsCommand);
 };

@@ -86,16 +86,16 @@ std::string AddRemoveNodesCommand::makeName(const Action action)
   }
 }
 
-std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(Map& map)
+bool AddRemoveNodesCommand::doPerformDo(Map& map)
 {
   doAction(map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(Map& map)
+bool AddRemoveNodesCommand::doPerformUndo(Map& map)
 {
   undoAction(map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 void AddRemoveNodesCommand::doAction(Map& map)

@@ -273,8 +273,7 @@ std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>&
   }
 
   auto transaction = Transaction{map, "Add Objects"};
-  const auto result = map.executeAndStore(AddRemoveNodesCommand::add(nodes));
-  if (!result->success())
+  if (!map.executeAndStore(AddRemoveNodesCommand::add(nodes)))
   {
     transaction.cancel();
     return {};
@@ -402,9 +401,7 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
   map.executeAndStore(std::make_unique<mdl::SetLinkIdsCommand>(
     "Set Link ID", setLinkIdsForReparentingNodes(nodesToAdd)));
 
-  const auto result =
-    map.executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
-  if (!result->success())
+  if (!map.executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove)))
   {
     transaction.cancel();
     return false;
@@ -474,10 +471,8 @@ bool updateNodeContents(
   }
 
   auto transaction = Transaction{map};
-  const auto result = map.executeAndStore(
-    std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap)));
-
-  if (!result->success())
+  if (!map.executeAndStore(
+        std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap))))
   {
     transaction.cancel();
     return false;

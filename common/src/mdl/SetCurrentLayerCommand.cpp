@@ -36,21 +36,21 @@ SetCurrentLayerCommand::SetCurrentLayerCommand(LayerNode* layer)
 {
 }
 
-std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(Map& map)
+bool SetCurrentLayerCommand::doPerformDo(Map& map)
 {
   auto& editorContext = map.editorContext();
   m_oldCurrentLayer = editorContext.currentLayer();
   editorContext.setCurrentLayer(m_currentLayer);
   map.currentLayerDidChangeNotifier(m_currentLayer);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformUndo(Map& map)
+bool SetCurrentLayerCommand::doPerformUndo(Map& map)
 {
   auto& editorContext = map.editorContext();
   editorContext.setCurrentLayer(m_oldCurrentLayer);
   map.currentLayerDidChangeNotifier(m_oldCurrentLayer);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 bool SetCurrentLayerCommand::doCollateWith(UndoableCommand& command)

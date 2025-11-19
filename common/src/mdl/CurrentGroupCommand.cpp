@@ -60,7 +60,7 @@ CurrentGroupCommand::CurrentGroupCommand(GroupNode* group)
 {
 }
 
-std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(Map& map)
+bool CurrentGroupCommand::doPerformDo(Map& map)
 {
   if (m_group)
   {
@@ -71,10 +71,10 @@ std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(Map& map)
   {
     m_group = &doPopGroup(map);
   }
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(Map& map)
+bool CurrentGroupCommand::doPerformUndo(Map& map)
 {
   return doPerformDo(map);
 }

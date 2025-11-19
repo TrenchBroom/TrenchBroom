@@ -22,7 +22,6 @@
 #include "Macros.h"
 #include "mdl/Command.h"
 
-#include <memory>
 #include <string>
 
 namespace tb::mdl
@@ -39,13 +38,13 @@ protected:
 public:
   ~UndoableCommand() override;
 
-  std::unique_ptr<CommandResult> performDo(Map& map) override;
-  virtual std::unique_ptr<CommandResult> performUndo(Map& map);
+  bool performDo(Map& map) override;
+  virtual bool performUndo(Map& map);
 
   virtual bool collateWith(UndoableCommand& command);
 
 protected:
-  virtual std::unique_ptr<CommandResult> doPerformUndo(Map& map) = 0;
+  virtual bool doPerformUndo(Map& map) = 0;
 
   virtual bool doCollateWith(UndoableCommand& command);
 

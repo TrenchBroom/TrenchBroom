@@ -132,16 +132,16 @@ SwapNodeContentsCommand::SwapNodeContentsCommand(
 
 SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;
 
-std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(Map& map)
+bool SwapNodeContentsCommand::doPerformDo(Map& map)
 {
   doSwapNodeContents(m_nodes, map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(Map& map)
+bool SwapNodeContentsCommand::doPerformUndo(Map& map)
 {
   doSwapNodeContents(m_nodes, map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 bool SwapNodeContentsCommand::doCollateWith(UndoableCommand& command)

@@ -176,16 +176,16 @@ private:
     return call;
   }
 
-  std::unique_ptr<CommandResult> doPerformDo(Map&) override
+  bool doPerformDo(Map&) override
   {
     const auto expectedCall = popCall<DoPerformDo>();
-    return std::make_unique<CommandResult>(expectedCall.returnSuccess);
+    return expectedCall.returnSuccess;
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(Map&) override
+  bool doPerformUndo(Map&) override
   {
     const auto expectedCall = popCall<DoPerformUndo>();
-    return std::make_unique<CommandResult>(expectedCall.returnSuccess);
+    return expectedCall.returnSuccess;
   }
 
   bool doCollateWith(UndoableCommand& otherCommand) override
@@ -238,15 +238,9 @@ public:
   {
   }
 
-  std::unique_ptr<CommandResult> doPerformDo(Map&) override
-  {
-    return std::make_unique<CommandResult>(true);
-  }
+  bool doPerformDo(Map&) override { return true; }
 
-  std::unique_ptr<CommandResult> doPerformUndo(Map&) override
-  {
-    return std::make_unique<CommandResult>(true);
-  }
+  bool doPerformUndo(Map&) override { return true; }
 };
 
 } // namespace
@@ -275,8 +269,7 @@ TEST_CASE("CommandProcessor")
     command->expectDo(true);
     command->expectUndo(true);
 
-    const auto doResult = commandProcessor.executeAndStore(std::move(command));
-    CHECK(doResult->success());
+    CHECK(commandProcessor.executeAndStore(std::move(command)));
     CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.undoCommandName() == commandName);
@@ -289,8 +282,7 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::TransactionDone, commandName},
       }));
 
-    const auto undoResult = commandProcessor.undo();
-    CHECK(undoResult->success());
+    CHECK(commandProcessor.undo());
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK(commandProcessor.canRedo());
 
@@ -316,8 +308,7 @@ TEST_CASE("CommandProcessor")
     command->expectDo(true);
     command->expectUndo(false);
 
-    const auto doResult = commandProcessor.executeAndStore(std::move(command));
-    CHECK(doResult->success());
+    CHECK(commandProcessor.executeAndStore(std::move(command)));
     CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.undoCommandName() == commandName);
@@ -330,8 +321,7 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::TransactionDone, commandName},
       }));
 
-    const auto undoResult = commandProcessor.undo();
-    CHECK_FALSE(undoResult->success());
+    CHECK_FALSE(commandProcessor.undo());
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
 
@@ -353,8 +343,7 @@ TEST_CASE("CommandProcessor")
     auto command = std::make_unique<TestCommand>(commandName);
     command->expectDo(false);
 
-    const auto doResult = commandProcessor.executeAndStore(std::move(command));
-    CHECK_FALSE(doResult->success());
+    CHECK_FALSE(commandProcessor.executeAndStore(std::move(command)));
 
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
@@ -395,8 +384,8 @@ TEST_CASE("CommandProcessor")
     command2->expectDo(true);
 
     commandProcessor.startTransaction(transactionName, TransactionScope::Oneshot);
-    CHECK(commandProcessor.executeAndStore(std::move(command1))->success());
-    CHECK(commandProcessor.executeAndStore(std::move(command2))->success());
+    CHECK(commandProcessor.executeAndStore(std::move(command1)));
+    CHECK(commandProcessor.executeAndStore(std::move(command2)));
     commandProcessor.commitTransaction();
 
     CHECK_THAT(
@@ -413,7 +402,7 @@ TEST_CASE("CommandProcessor")
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.undoCommandName() == transactionName);
 
-    CHECK(commandProcessor.undo()->success());
+    CHECK(commandProcessor.undo());
 
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK(commandProcessor.canRedo());
@@ -429,7 +418,7 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::TransactionUndone, transactionName},
       }));
 
-    CHECK(commandProcessor.redo()->success());
+    CHECK(commandProcessor.redo());
 
     CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
@@ -469,7 +458,7 @@ TEST_CASE("CommandProcessor")
 
     const auto transactionName = "transaction";
     commandProcessor.startTransaction(transactionName, TransactionScope::Oneshot);
-    CHECK(commandProcessor.executeAndStore(std::move(command1))->success());
+    CHECK(commandProcessor.executeAndStore(std::move(command1)));
     CHECK_THAT(
       observer.popNotifications(),
       Equals(std::vector<NotificationTuple>{
@@ -477,7 +466,7 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::CommandDone, commandName1},
       }));
 
-    CHECK(commandProcessor.executeAndStore(std::move(command2))->success());
+    CHECK(commandProcessor.executeAndStore(std::move(command2)));
     CHECK_THAT(
       observer.popNotifications(),
       Equals(std::vector<NotificationTuple>{
@@ -533,7 +522,7 @@ TEST_CASE("CommandProcessor")
     outerCommand->expectUndo(true);
 
     commandProcessor.startTransaction(outerTransactionName, TransactionScope::Oneshot);
-    CHECK(commandProcessor.executeAndStore(std::move(outerCommand))->success());
+    CHECK(commandProcessor.executeAndStore(std::move(outerCommand)));
     CHECK_THAT(
       observer.popNotifications(),
       Equals(std::vector<NotificationTuple>{
@@ -542,7 +531,7 @@ TEST_CASE("CommandProcessor")
       }));
 
     commandProcessor.startTransaction(innerTransactionName, TransactionScope::Oneshot);
-    CHECK(commandProcessor.executeAndStore(std::move(innerCommand))->success());
+    CHECK(commandProcessor.executeAndStore(std::move(innerCommand)));
     CHECK_THAT(
       observer.popNotifications(),
       Equals(std::vector<NotificationTuple>{
@@ -568,7 +557,7 @@ TEST_CASE("CommandProcessor")
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.undoCommandName() == outerTransactionName);
 
-    CHECK(commandProcessor.undo()->success());
+    CHECK(commandProcessor.undo());
 
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK(commandProcessor.canRedo());
@@ -701,7 +690,7 @@ TEST_CASE("CommandProcessor")
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.undoCommandName() == commandName1);
 
-    CHECK(commandProcessor.undo()->success());
+    CHECK(commandProcessor.undo());
 
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK(commandProcessor.canRedo());
@@ -760,7 +749,7 @@ TEST_CASE("CommandProcessor")
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.undoCommandName() == commandName2);
 
-    CHECK(commandProcessor.undo()->success());
+    CHECK(commandProcessor.undo());
 
     CHECK_THAT(
       observer.popNotifications(),

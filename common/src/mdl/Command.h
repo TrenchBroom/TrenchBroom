@@ -21,24 +21,11 @@
 
 #include "Macros.h"
 
-#include <memory>
 #include <string>
 
 namespace tb::mdl
 {
 class Map;
-
-class CommandResult
-{
-private:
-  bool m_success;
-
-public:
-  explicit CommandResult(bool success);
-  virtual ~CommandResult();
-
-  bool success() const;
-};
 
 class Command
 {
@@ -63,10 +50,10 @@ public:
   CommandState state() const;
   const std::string& name() const;
 
-  virtual std::unique_ptr<CommandResult> performDo(Map& map);
+  virtual bool performDo(Map& map);
 
 private:
-  virtual std::unique_ptr<CommandResult> doPerformDo(Map& map) = 0;
+  virtual bool doPerformDo(Map& map) = 0;
 
   deleteCopyAndMove(Command);
 };

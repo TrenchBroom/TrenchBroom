@@ -44,8 +44,8 @@ protected:
 public:
   ~UpdateLinkedGroupsCommandBase() override;
 
-  std::unique_ptr<CommandResult> performDo(Map& map) override;
-  std::unique_ptr<CommandResult> performUndo(Map& map) override;
+  bool performDo(Map& map) override;
+  bool performUndo(Map& map) override;
 
   bool collateWith(UndoableCommand& command) override;
 

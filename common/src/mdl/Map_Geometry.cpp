@@ -290,9 +290,8 @@ TransformVerticesResult transformVertices(
     std::move(vertexPositions),
     std::move(newVertexPositions));
   const auto* command = commandOwner.get();
-  const auto result = map.executeAndStore(std::move(commandOwner));
 
-  if (!result->success())
+  if (!map.executeAndStore(std::move(commandOwner)))
   {
     transaction.cancel();
     return TransformVerticesResult{false, false};
@@ -368,7 +367,7 @@ bool transformEdges(
       std::move(edgePositions),
       std::move(newEdgePositions)));
 
-    if (!result->success())
+    if (!result)
     {
       transaction.cancel();
       return false;
@@ -441,7 +440,7 @@ bool transformFaces(
       std::move(facePositions),
       std::move(newFacePositions)));
 
-    if (!result->success())
+    if (!result)
     {
       transaction.cancel();
       return false;
@@ -490,7 +489,7 @@ bool addVertex(Map& map, const vm::vec3d& vertexPosition)
       std::vector<vm::vec3d>{},
       std::vector<vm::vec3d>{vertexPosition}));
 
-    if (!result->success())
+    if (!result)
     {
       transaction.cancel();
       return false;
@@ -549,7 +548,7 @@ bool removeVertices(
       std::move(vertexPositions),
       std::vector<vm::vec3d>{}));
 
-    if (!result->success())
+    if (!result)
     {
       transaction.cancel();
       return false;

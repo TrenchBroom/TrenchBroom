@@ -41,31 +41,28 @@ UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
 
 UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() = default;
 
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(Map& map)
+bool UpdateLinkedGroupsCommandBase::performDo(Map& map)
 {
   // reimplemented from UndoableCommand::performDo
-  auto commandResult = Command::performDo(map);
-  if (!commandResult->success())
+  const auto commandResult = Command::performDo(map);
+  if (!commandResult)
   {
-    return commandResult;
+    return false;
   }
 
-  return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(map) | kdl::transform([&]() {
-           setModificationCount(map);
-           return std::move(commandResult);
-         })
-         | kdl::transform_error([&](auto e) {
+  return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(map)
+         | kdl::transform([&]() { setModificationCount(map); })
+         | kdl::if_error([&](auto e) {
              doPerformUndo(map);
              map.logger().error() << e.msg;
-             return std::make_unique<CommandResult>(false);
            })
-         | kdl::value();
+         | kdl::is_success();
 }
 
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(Map& map)
+bool UpdateLinkedGroupsCommandBase::performUndo(Map& map)
 {
-  auto commandResult = UndoableCommand::performUndo(map);
-  if (commandResult->success())
+  const auto commandResult = UndoableCommand::performUndo(map);
+  if (commandResult)
   {
     m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(map);
   }

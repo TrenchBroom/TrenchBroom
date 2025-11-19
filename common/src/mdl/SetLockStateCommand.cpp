@@ -130,16 +130,16 @@ std::string SetLockStateCommand::makeName(const LockState state)
   }
 }
 
-std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(Map& map)
+bool SetLockStateCommand::doPerformDo(Map& map)
 {
   m_oldLockState = setLockState(m_nodes, m_lockState, map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(Map& map)
+bool SetLockStateCommand::doPerformUndo(Map& map)
 {
   restoreLockState(m_oldLockState, map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 } // namespace tb::mdl

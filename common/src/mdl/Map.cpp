@@ -413,8 +413,7 @@ bool updateLinkedGroups(Map& map)
       setHasPendingChanges(allChangedLinkedGroups, false);
 
       auto command = std::make_unique<UpdateLinkedGroupsCommand>(allChangedLinkedGroups);
-      const auto result = map.executeAndStore(std::move(command));
-      return result->success();
+      return map.executeAndStore(std::move(command));
     }
   }
 
@@ -430,15 +429,8 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(Map&) override
-  {
-    throw CommandProcessorException{};
-  }
-
-  std::unique_ptr<CommandResult> doPerformUndo(Map&) override
-  {
-    return std::make_unique<CommandResult>(true);
-  }
+  bool doPerformDo(Map&) override { throw CommandProcessorException{}; }
+  bool doPerformUndo(Map&) override { return true; }
 };
 
 } // namespace
@@ -1447,17 +1439,15 @@ bool Map::isCurrentDocumentStateObservable() const
 
 bool Map::throwExceptionDuringCommand()
 {
-  const auto result = executeAndStore(std::make_unique<ThrowExceptionCommand>());
-  return result->success();
+  return executeAndStore(std::make_unique<ThrowExceptionCommand>());
 }
 
-std::unique_ptr<CommandResult> Map::execute(std::unique_ptr<Command>&& command)
+bool Map::execute(std::unique_ptr<Command>&& command)
 {
   return m_commandProcessor->execute(std::move(command));
 }
 
-std::unique_ptr<CommandResult> Map::executeAndStore(
-  std::unique_ptr<UndoableCommand>&& command)
+bool Map::executeAndStore(std::unique_ptr<UndoableCommand>&& command)
 {
   return m_commandProcessor->executeAndStore(std::move(command));
 }

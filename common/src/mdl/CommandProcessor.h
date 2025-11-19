@@ -29,7 +29,6 @@
 namespace tb::mdl
 {
 class Command;
-class CommandResult;
 class Map;
 class UndoableCommand;
 enum class TransactionScope;
@@ -230,7 +229,7 @@ public:
    * @param command the command to execute
    * @return the result of executing the given command
    */
-  std::unique_ptr<CommandResult> execute(std::unique_ptr<Command> command);
+  bool execute(std::unique_ptr<Command> command);
 
   /**
    * Executes the given command by calling its `performDo` method and stores it for later
@@ -250,8 +249,7 @@ public:
    * @param command the command to execute
    * @return the result of executing the given command
    */
-  std::unique_ptr<CommandResult> executeAndStore(
-    std::unique_ptr<UndoableCommand> command);
+  bool executeAndStore(std::unique_ptr<UndoableCommand> command);
 
   /**
    * Undoes the most recently executed command by calling its `performUndo` method and
@@ -263,7 +261,7 @@ public:
    * @throws CommandProcessorException if a transaction is currently being executed or if
    * the undo stack is empty
    */
-  std::unique_ptr<CommandResult> undo();
+  bool undo();
 
   /**
    * Redoes the most recently undone comment by calling its `performDo` method and stores
@@ -275,7 +273,7 @@ public:
    * @throws CommandProcessorException if a transaction is currently being executed or if
    * the redo stack is empty
    */
-  std::unique_ptr<CommandResult> redo();
+  bool redo();
 
   /**
    * Clears this command processor. Both the undo and the redo stack are cleared, and
@@ -305,7 +303,7 @@ private:
    * @param command the command to execute
    * @return the result of executing the given command
    */
-  std::unique_ptr<CommandResult> executeCommand(Command& command);
+  bool executeCommand(Command& command);
 
   /**
    * Undoes the given command by calling its `performUndo` method and triggers the
@@ -314,7 +312,7 @@ private:
    * @param command the command to undo
    * @return the result of undoing the given command
    */
-  std::unique_ptr<CommandResult> undoCommand(UndoableCommand& command);
+  bool undoCommand(UndoableCommand& command);
 
   /**
    * Stores the given command or collates it with the topmost command on the undo stack.
