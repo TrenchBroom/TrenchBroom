@@ -24,7 +24,7 @@
 namespace tb::ui
 {
 
-void setCrashReportGUIEnbled(bool guiEnabled);
+void setCrashReportGUIEnabled(bool guiEnabled);
 
 [[noreturn]] void reportCrashAndExit(
   const std::string& stacktrace, const std::string& reason);

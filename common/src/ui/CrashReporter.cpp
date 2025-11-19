@@ -122,7 +122,7 @@ bool crashReportGuiEnabled = true;
 
 } // namespace
 
-void setCrashReportGUIEnbled(const bool guiEnabled)
+void setCrashReportGUIEnabled(const bool guiEnabled)
 {
   crashReportGuiEnabled = guiEnabled;
 }
