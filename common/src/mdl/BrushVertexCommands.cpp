@@ -25,9 +25,8 @@
 
 #include <ranges>
 
-namespace tb::mdl
-{
-namespace detail
+
+namespace tb::mdl::detail
 {
 
 std::vector<BrushNode*> collectBrushNodes(
@@ -41,18 +40,4 @@ std::vector<BrushNode*> collectBrushNodes(
          | kdl::ranges::to<std::vector>();
 }
 
-} // namespace detail
-
-BrushVertexCommandResult::BrushVertexCommandResult(
-  const bool success, const bool hasRemainingVertices)
-  : CommandResult{success}
-  , m_hasRemainingVertices{hasRemainingVertices}
-{
-}
-
-bool BrushVertexCommandResult::hasRemainingVertices() const
-{
-  return m_hasRemainingVertices;
-}
-
-} // namespace tb::mdl
+} // namespace tb::mdl::detail
