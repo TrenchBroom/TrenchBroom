@@ -257,8 +257,7 @@ public:
    *
    * @return the result of undoing the command
    *
-   * @throws CommandProcessorException if a transaction is currently being executed or if
-   * the undo stack is empty
+   * Precondition: No transaction is currently executing and the undo stack is not empty.
    */
   bool undo();
 
@@ -269,8 +268,7 @@ public:
    *
    * @return the result of executing the command
    *
-   * @throws CommandProcessorException if a transaction is currently being executed or if
-   * the redo stack is empty
+   * Precondition: No transaction is currently executing and the redo stack is not empty.
    */
   bool redo();
 

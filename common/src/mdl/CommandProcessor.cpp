@@ -256,14 +256,8 @@ bool CommandProcessor::executeAndStore(std::unique_ptr<UndoableCommand> command)
 
 bool CommandProcessor::undo()
 {
-  if (!m_transactionStack.empty())
-  {
-    throw CommandProcessorException{"Cannot undo individual commands of a transaction"};
-  }
-  if (m_undoStack.empty())
-  {
-    throw CommandProcessorException{"Undo stack is empty"};
-  }
+  ensure(m_transactionStack.empty(), "no running transaction");
+  ensure(!m_undoStack.empty(), "undo stack is not empty");
 
   auto command = popFromUndoStack();
   const auto result = undoCommand(*command);
@@ -278,14 +272,8 @@ bool CommandProcessor::undo()
 
 bool CommandProcessor::redo()
 {
-  if (!m_transactionStack.empty())
-  {
-    throw CommandProcessorException{"Cannot redo while in a transaction"};
-  }
-  if (m_redoStack.empty())
-  {
-    throw CommandProcessorException{"Redo stack is empty"};
-  }
+  ensure(m_transactionStack.empty(), "no running transaction");
+  ensure(!m_redoStack.empty(), "undo stack is not empty");
 
   auto command = popFromRedoStack();
   const auto result = executeCommand(*command);
