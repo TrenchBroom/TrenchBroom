@@ -17,15 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "update/Logging.h"
 
-#include "update/UpdateConfig.h"
+#include <QDateTime>
+#include <QDebug>
+#include <QFile>
+#include <QIODevice>
+#include <QTextStream>
 
-#include <optional>
-
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+void logToFile(const std::optional<QString>& logFilePath, const QString& msg)
+{
+  if (logFilePath)
+  {
+    if (auto logFile = QFile{*logFilePath};
+        logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
+    {
+      const auto timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
 
-} // namespace tb::ui
+      auto out = QTextStream{&logFile};
+      out << "[" << timestamp << "] " << msg << "\n";
+    }
+    else
+    {
+      qDebug() << "Failed to open log file:" << *logFilePath;
+    }
+  }
+}
+
+} // namespace upd

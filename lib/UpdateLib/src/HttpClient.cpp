@@ -17,15 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "update/HttpClient.h"
 
-#include "update/UpdateConfig.h"
-
-#include <optional>
-
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+HttpOperation::HttpOperation(QObject* parent)
+  : QObject{parent}
+{
+}
 
-} // namespace tb::ui
+std::optional<float> HttpOperation::progress() const
+{
+  return std::nullopt;
+}
+
+HttpClient::HttpClient(QObject* parent)
+  : QObject{parent}
+{
+}
+
+} // namespace upd

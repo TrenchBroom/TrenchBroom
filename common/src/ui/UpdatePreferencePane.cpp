@@ -31,7 +31,7 @@
 #include "ui/QtUtils.h"
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
-#include "upd/Updater.h"
+#include "update/Updater.h"
 
 namespace tb::ui
 {

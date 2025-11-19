@@ -30,9 +30,9 @@
 #include "io/SystemPaths.h"
 #include "ui/GetVersion.h"
 #include "ui/UpdateVersion.h"
-#include "upd/InstallUpdate.h"
-#include "upd/Unzip.h"
-#include "upd/UpdateController.h" // IWYU pragma: keep
+#include "update/InstallUpdate.h"
+#include "update/Unzip.h"
+#include "update/UpdateController.h" // IWYU pragma: keep
 
 #include <cstdlib>
 #include <filesystem>

@@ -32,7 +32,7 @@
 #include "ui/ClickableLabel.h"
 #include "ui/GetVersion.h"
 #include "ui/QtUtils.h"
-#include "upd/Updater.h"
+#include "update/Updater.h"
 
 namespace tb::ui
 {

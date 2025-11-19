@@ -17,15 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <QDir>
 
-#include "update/UpdateConfig.h"
+#include "TestUtils.h"
+#include "update/Unzip.h"
 
-#include <optional>
+#include <catch2/catch_test_macros.hpp>
 
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+TEST_CASE("Unzip")
+{
+  const auto fixturePath = QDir::currentPath() + "/fixture/unzip";
+  const auto zipPath = fixturePath + "/archive.zip";
+  const auto destPath = fixturePath + "/extracted";
 
-} // namespace tb::ui
+  REQUIRE(QDir{destPath}.removeRecursively());
+
+  REQUIRE(!QFileInfo{destPath + "/test1.txt"}.exists());
+  REQUIRE(!QFileInfo{destPath + "/folder/test2.txt"}.exists());
+
+  CHECK(unzip(zipPath, destPath, std::nullopt));
+  CHECK(readFileIntoString(destPath + "/test1.txt") == "test1");
+  CHECK(readFileIntoString(destPath + "/folder/test2.txt") == "test2");
+}
+
+} // namespace upd

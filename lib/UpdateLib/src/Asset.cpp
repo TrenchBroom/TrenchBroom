@@ -17,15 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "update/Asset.h"
 
-#include "update/UpdateConfig.h"
+#include <ostream>
 
-#include <optional>
-
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+bool operator==(const Asset& lhs, const Asset& rhs)
+{
+  return lhs.name == rhs.name && lhs.url == rhs.url && lhs.size == rhs.size;
+}
 
-} // namespace tb::ui
+bool operator!=(const Asset& lhs, const Asset& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const Asset& rhs)
+{
+  lhs << "Asset{";
+  lhs << "name: " << rhs.name.toStdString() << ", ";
+  lhs << "url: " << rhs.url.toString().toStdString() << ", ";
+  lhs << "size: " << rhs.size;
+  lhs << "}";
+  return lhs;
+}
+
+} // namespace upd

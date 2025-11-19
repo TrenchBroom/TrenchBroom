@@ -19,13 +19,29 @@
 
 #pragma once
 
-#include "update/UpdateConfig.h"
+#include <QLabel>
 
-#include <optional>
+#include "update/UpdateController.h"
 
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+/**
+ * A QLabel that shows the current update state and lets users interact with it via
+ * clickable links.
+ */
+class UpdateIndicator : public QLabel
+{
+  Q_OBJECT
+private:
+  UpdateController& m_updateController;
 
-} // namespace tb::ui
+public:
+  explicit UpdateIndicator(UpdateController& updateController, QWidget* parent = nullptr);
+  ~UpdateIndicator() override;
+
+private:
+  void updateUI(const UpdateControllerState& state);
+};
+
+} // namespace upd

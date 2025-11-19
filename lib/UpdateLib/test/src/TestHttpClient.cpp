@@ -17,15 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "TestHttpClient.h"
 
-#include "update/UpdateConfig.h"
-
-#include <optional>
-
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+HttpOperation* TestHttpClient::get(
+  const QUrl&, GetCallback getCallback, ErrorCallback errorCallback) const
+{
+  return new TestHttpOperation<GetCallback>{
+    std::move(getCallback), std::move(errorCallback), pendingGetOperation};
+}
 
-} // namespace tb::ui
+HttpOperation* TestHttpClient::download(
+  const QUrl&, DownloadCallback downloadCallback, ErrorCallback errorCallback) const
+{
+  return new TestHttpOperation<DownloadCallback>{
+    std::move(downloadCallback), std::move(errorCallback), pendingDownloadOperation};
+}
+
+} // namespace upd

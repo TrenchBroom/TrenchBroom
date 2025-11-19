@@ -101,7 +101,7 @@
 #include "ui/SwitchableMapViewContainer.h"
 #include "ui/VertexTool.h"
 #include "ui/ViewUtils.h"
-#include "upd/Updater.h"
+#include "update/Updater.h"
 
 #include "kd/const_overload.h"
 #include "kd/overload.h"

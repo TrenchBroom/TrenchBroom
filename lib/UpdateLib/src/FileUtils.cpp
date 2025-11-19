@@ -17,15 +17,38 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "update/FileUtils.h"
 
-#include "update/UpdateConfig.h"
+#include <QDir>
+#include <QFileInfo>
 
-#include <optional>
-
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+bool remove(const QString& path)
+{
+  const auto info = QFileInfo{path};
+  if (info.isFile() || info.isSymLink())
+  {
+    if (!QFile::remove(path))
+    {
+      return false;
+    }
+  }
+  else if (info.isDir())
+  {
+    if (!QDir{path}.removeRecursively())
+    {
+      return false;
+    }
+  }
 
-} // namespace tb::ui
+  return true;
+}
+
+bool cleanDirectory(const QString& path)
+{
+  return remove(path) && QDir{path}.mkpath(".");
+}
+
+} // namespace upd

@@ -19,13 +19,28 @@
 
 #pragma once
 
-#include "update/UpdateConfig.h"
+#include "update/HttpClient.h"
 
-#include <optional>
+class QNetworkAccessManager;
 
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+class QtHttpClient : public HttpClient
+{
+private:
+  QNetworkAccessManager& m_networkManager;
 
-} // namespace tb::ui
+public:
+  explicit QtHttpClient(QNetworkAccessManager& networkManager);
+
+  HttpOperation* get(
+    const QUrl& url, GetCallback getCallback, ErrorCallback errorCallback) const override;
+
+  HttpOperation* download(
+    const QUrl& url,
+    DownloadCallback downloadCallback,
+    ErrorCallback errorCallback) const override;
+};
+
+} // namespace upd

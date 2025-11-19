@@ -19,13 +19,26 @@
 
 #pragma once
 
-#include "update/UpdateConfig.h"
+#include <QString>
 
-#include <optional>
+#include "update/Release.h"
 
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+struct TestVersion
+{
+  int v;
 
-} // namespace tb::ui
+  auto operator<=>(const TestVersion& other) const = default;
+
+  friend std::ostream& operator<<(std::ostream& lhs, const TestVersion& rhs);
+};
+
+std::optional<TestVersion> parseVersion(const QString& str);
+QString describeVersion(const TestVersion& version);
+Asset chooseFirstAsset(const QList<Asset>& assets);
+
+QByteArray makeGetReleasesJson(const QList<Release<TestVersion>>& releases);
+
+} // namespace upd

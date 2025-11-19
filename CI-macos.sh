@@ -69,8 +69,8 @@ cd "$BUILD_DIR/lib/VmLib/test"
 cd "$BUILD_DIR/lib/KdLib/test"
 ./KdLibTest || exit 1
 
-cd "$BUILD_DIR/lib/upd/test"
-./upd-test || exit 1
+cd "$BUILD_DIR/lib/UpdateLib/test"
+./UpdateLibTest || exit 1
 
 cd "$BUILD_DIR/common/test"
 ./common-test || exit 1

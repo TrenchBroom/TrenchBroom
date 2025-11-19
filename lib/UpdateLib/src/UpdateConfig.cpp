@@ -17,15 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
 #include "update/UpdateConfig.h"
 
-#include <optional>
-
-namespace tb::ui
+namespace upd
 {
 
-std::optional<upd::UpdateConfig> makeUpdateConfig();
+QString describeUpdateConfig(const UpdateConfig& config)
+{
+  return QString{
+    R"(Update Configuration:
+  GitHub Org    : %1
+  GitHub Repo   : %2
+  Update Script : %3
+  App Dir       : %4
+  Binary Path   : %5
+  Work Dir      : %6
+  Log File      : %7)"}
+    .arg(config.ghOrgName)
+    .arg(config.ghRepoName)
+    .arg(config.updateScriptPath)
+    .arg(config.appFolderPath)
+    .arg(config.relativeAppPath)
+    .arg(config.workDirPath)
+    .arg(config.logFilePath);
+}
 
-} // namespace tb::ui
+} // namespace upd
