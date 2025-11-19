@@ -23,8 +23,8 @@ IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 set BUILD_DIR="%cd%"
 
-cd lib\vm\test
-vm-test.exe
+cd lib\VmLib\test
+VmLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 

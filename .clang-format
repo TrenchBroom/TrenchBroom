@@ -79,7 +79,7 @@ UseTab: Never
 # - Qt includes
 # - TB includes
 # - KdLib
-# - vm lib
+# - VmLib
 # - std lib
 # - anything else
 # - catch2

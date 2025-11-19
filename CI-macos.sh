@@ -63,8 +63,8 @@ cmake --build . --config "$TB_BUILD_TYPE" || exit 1
 
 BUILD_DIR=$(pwd)
 
-cd "$BUILD_DIR/lib/vm/test"
-./vm-test || exit 1
+cd "$BUILD_DIR/lib/VmLib/test"
+./VmLibTest || exit 1
 
 cd "$BUILD_DIR/lib/KdLib/test"
 ./KdLibTest || exit 1

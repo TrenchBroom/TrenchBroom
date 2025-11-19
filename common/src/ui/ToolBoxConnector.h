@@ -23,7 +23,7 @@
 #include "ui/InputEvent.h"
 #include "ui/InputState.h"
 
-#include <vm/vec.h>
+#include "vm/vec.h"
 
 #include <memory>
 #include <optional>
