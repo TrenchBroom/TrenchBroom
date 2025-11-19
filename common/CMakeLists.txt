@@ -310,7 +310,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/Thread.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
-        ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionBuilder.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionContext.cpp
@@ -873,7 +872,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Result.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
-        ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
         ${COMMON_SOURCE_DIR}/ui/ActionBuilder.h
         ${COMMON_SOURCE_DIR}/ui/ActionContext.h
@@ -1089,10 +1087,6 @@ target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders Precomp
 
 # Organize files into IDE folders
 source_group(TREE "${COMMON_SOURCE_DIR}" FILES ${COMMON_SOURCE} ${COMMON_HEADER})
-
-if(WIN32)
-    target_link_libraries(common PRIVATE stackwalker)
-endif()
 
 if(APPLE)
     # Silence macOS OpenGL deprecation warnings
