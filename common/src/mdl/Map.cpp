@@ -429,7 +429,7 @@ public:
   }
 
 private:
-  bool doPerformDo(Map&) override { throw CommandProcessorException{}; }
+  bool doPerformDo(Map&) override { throw std::exception{}; }
   bool doPerformUndo(Map&) override { return true; }
 };
 
