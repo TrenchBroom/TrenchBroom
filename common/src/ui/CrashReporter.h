@@ -17,23 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define CATCH_CONFIG_RUNNER
+#pragma once
 
-#include "Ensure.h"
-#include "TestPreferenceManager.h"
-#include "TrenchBroomApp.h"
-#include "ui/CrashReporter.h"
+#include <string>
 
-#include <catch2/catch_session.hpp>
-
-int main(int argc, char** argv)
+namespace tb::ui
 {
-  tb::PreferenceManager::createInstance<tb::TestPreferenceManager>();
-  tb::ui::TrenchBroomApp app(argc, argv);
 
-  tb::ui::setCrashReportGUIEnbled(false);
+void setCrashReportGUIEnbled(bool guiEnabled);
 
-  ensure(qApp == &app, "invalid app instance");
+[[noreturn]] void reportCrashAndExit(
+  const std::string& stacktrace, const std::string& reason);
 
-  return Catch::Session().run(argc, argv);
-}
+bool isReportingCrash();
+
+void setupCrashReporter();
+
+} // namespace tb::ui

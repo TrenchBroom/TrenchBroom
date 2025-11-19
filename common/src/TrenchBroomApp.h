@@ -25,7 +25,6 @@
 
 #include <filesystem>
 #include <memory>
-#include <string>
 #include <vector>
 
 class QMenu;
@@ -47,6 +46,7 @@ class Logger;
 namespace tb::ui
 {
 class FrameManager;
+class MapDocument;
 class RecentDocuments;
 class WelcomeWindow;
 
@@ -108,20 +108,15 @@ public:
 #endif
   void openFilesOrWelcomeFrame(const QStringList& fileNames);
 
-public:
   void showWelcomeWindow();
   void closeWelcomeWindow();
+
+  MapDocument* topDocument();
 
 private:
   static bool useSDI();
 signals:
   void recentDocumentsDidChange();
 };
-
-void setCrashReportGUIEnbled(bool guiEnabled);
-[[noreturn]] void reportCrashAndExit(
-  const std::string& stacktrace, const std::string& reason);
-bool isReportingCrash();
-
 
 } // namespace tb::ui

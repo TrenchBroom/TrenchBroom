@@ -352,6 +352,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/CrashDialog.cpp
+        ${COMMON_SOURCE_DIR}/ui/CrashReporter.cpp
         ${COMMON_SOURCE_DIR}/ui/CreateBrushesToolBase.cpp
         ${COMMON_SOURCE_DIR}/ui/CreateEntityTool.cpp
         ${COMMON_SOURCE_DIR}/ui/CreateEntityToolController.cpp
@@ -913,6 +914,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ContainerBar.h
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.h
         ${COMMON_SOURCE_DIR}/ui/CrashDialog.h
+        ${COMMON_SOURCE_DIR}/ui/CrashReporter.h
         ${COMMON_SOURCE_DIR}/ui/CreateBrushesToolBase.h
         ${COMMON_SOURCE_DIR}/ui/CreateEntityTool.h
         ${COMMON_SOURCE_DIR}/ui/CreateEntityToolController.h

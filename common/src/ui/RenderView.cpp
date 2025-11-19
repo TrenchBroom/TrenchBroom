@@ -27,6 +27,7 @@
 #include "render/Transformation.h"
 #include "render/VboManager.h"
 #include "render/VertexArray.h"
+#include "ui/CrashReporter.h"
 #include "ui/GLContextManager.h"
 #include "ui/InputEvent.h"
 #include "ui/QtUtils.h"
@@ -199,7 +200,7 @@ bool RenderView::event(QEvent* event)
 
 void RenderView::paintGL()
 {
-  if (tb::ui::isReportingCrash())
+  if (isReportingCrash())
   {
     return;
   }
