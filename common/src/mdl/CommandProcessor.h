@@ -165,17 +165,16 @@ public:
   bool canRedo() const;
 
   /**
-   * Returns the name of the command that will be undone when calling `undo`.
-   *
-   * Precondition: canUndo() == true
+   * Returns the name of the command that will be undone when calling `undo`, or null if
+   * no command can be undone.
    */
-  const std::string& undoCommandName() const;
+  const std::string* undoCommandName() const;
 
   /**
-   * Returns the name of the command that will be executed when callind `redo`.
+   * Returns the name of the command that will be executed when callind `redo`, or null if
+   * no command can be redone.
    */
-  const std::string& redoCommandName() const;
-
+  const std::string* redoCommandName() const;
   /**
    * Starts a new transaction. If a transaction is currently executing, then the newly
    * started transaction becomes a nested transaction and will be added as a command to

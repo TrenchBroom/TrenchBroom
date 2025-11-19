@@ -1326,20 +1326,20 @@ bool Map::needsResourceProcessing() const
 
 bool Map::canUndoCommand() const
 {
-  return m_commandProcessor->canUndo();
+  return m_commandProcessor->undoCommandName() != nullptr;
 }
 
 bool Map::canRedoCommand() const
 {
-  return m_commandProcessor->canRedo();
+  return m_commandProcessor->undoCommandName() != nullptr;
 }
 
-const std::string& Map::undoCommandName() const
+const std::string* Map::undoCommandName() const
 {
   return m_commandProcessor->undoCommandName();
 }
 
-const std::string& Map::redoCommandName() const
+const std::string* Map::redoCommandName() const
 {
   return m_commandProcessor->redoCommandName();
 }

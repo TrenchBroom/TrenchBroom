@@ -366,8 +366,8 @@ public: // resource processing
 public: // command processing
   bool canUndoCommand() const;
   bool canRedoCommand() const;
-  const std::string& undoCommandName() const;
-  const std::string& redoCommandName() const;
+  const std::string* undoCommandName() const;
+  const std::string* redoCommandName() const;
   void undoCommand();
   void redoCommand();
 

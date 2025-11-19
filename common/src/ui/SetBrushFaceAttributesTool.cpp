@@ -87,9 +87,8 @@ bool SetBrushFaceAttributesTool::mouseDoubleClick(const InputState& inputState)
 
     // The last click may not have been handled by this tool, see:
     // https://github.com/TrenchBroom/TrenchBroom/issues/3332
-    if (
-      m_map.canUndoCommand()
-      && m_map.undoCommandName() == TransferFaceAttributesTransactionName)
+    if (const auto* undoCommandName = m_map.undoCommandName();
+        undoCommandName && *undoCommandName == TransferFaceAttributesTransactionName)
     {
       m_map.undoCommand();
 

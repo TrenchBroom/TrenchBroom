@@ -270,9 +270,9 @@ TEST_CASE("CommandProcessor")
     command->expectUndo(true);
 
     CHECK(commandProcessor.executeAndStore(std::move(command)));
-    CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.undoCommandName() == commandName);
+    REQUIRE(commandProcessor.canUndo());
+    CHECK(*commandProcessor.undoCommandName() == commandName);
 
     CHECK_THAT(
       observer.popNotifications(),
@@ -284,9 +284,8 @@ TEST_CASE("CommandProcessor")
 
     CHECK(commandProcessor.undo());
     CHECK_FALSE(commandProcessor.canUndo());
-    CHECK(commandProcessor.canRedo());
-
-    REQUIRE(commandProcessor.redoCommandName() == commandName);
+    REQUIRE(commandProcessor.canRedo());
+    CHECK(*commandProcessor.redoCommandName() == commandName);
 
     CHECK_THAT(
       observer.popNotifications(),
@@ -309,9 +308,9 @@ TEST_CASE("CommandProcessor")
     command->expectUndo(false);
 
     CHECK(commandProcessor.executeAndStore(std::move(command)));
-    CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.undoCommandName() == commandName);
+    REQUIRE(commandProcessor.canUndo());
+    CHECK(*commandProcessor.undoCommandName() == commandName);
 
     CHECK_THAT(
       observer.popNotifications(),
@@ -398,15 +397,15 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::TransactionDone, transactionName},
       }));
 
-    CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.undoCommandName() == transactionName);
+    REQUIRE(commandProcessor.canUndo());
+    CHECK(*commandProcessor.undoCommandName() == transactionName);
 
     CHECK(commandProcessor.undo());
 
     CHECK_FALSE(commandProcessor.canUndo());
-    CHECK(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.redoCommandName() == transactionName);
+    REQUIRE(commandProcessor.canRedo());
+    CHECK(*commandProcessor.redoCommandName() == transactionName);
 
     CHECK_THAT(
       observer.popNotifications(),
@@ -420,9 +419,9 @@ TEST_CASE("CommandProcessor")
 
     CHECK(commandProcessor.redo());
 
-    CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.undoCommandName() == transactionName);
+    REQUIRE(commandProcessor.canUndo());
+    CHECK(*commandProcessor.undoCommandName() == transactionName);
 
     CHECK_THAT(
       observer.popNotifications(),
@@ -553,15 +552,15 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::TransactionDone, outerTransactionName},
       }));
 
-    CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.undoCommandName() == outerTransactionName);
+    REQUIRE(commandProcessor.canUndo());
+    CHECK(*commandProcessor.undoCommandName() == outerTransactionName);
 
     CHECK(commandProcessor.undo());
 
     CHECK_FALSE(commandProcessor.canUndo());
-    CHECK(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.redoCommandName() == outerTransactionName);
+    REQUIRE(commandProcessor.canRedo());
+    CHECK(*commandProcessor.redoCommandName() == outerTransactionName);
 
     CHECK_THAT(
       observer.popNotifications(),
@@ -686,15 +685,15 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::TransactionDone, commandName2},
       }));
 
-    CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.undoCommandName() == commandName1);
+    REQUIRE(commandProcessor.canUndo());
+    CHECK(*commandProcessor.undoCommandName() == commandName1);
 
     CHECK(commandProcessor.undo());
 
     CHECK_FALSE(commandProcessor.canUndo());
-    CHECK(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.redoCommandName() == commandName1);
+    REQUIRE(commandProcessor.canRedo());
+    CHECK(*commandProcessor.redoCommandName() == commandName1);
 
     // NOTE: commandName2 is gone because it was coalesced into commandName1
     CHECK_THAT(
@@ -745,9 +744,9 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::TransactionDone, commandName2},
       }));
 
-    CHECK(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.undoCommandName() == commandName2);
+    REQUIRE(commandProcessor.canUndo());
+    CHECK(*commandProcessor.undoCommandName() == commandName2);
 
     CHECK(commandProcessor.undo());
 
@@ -759,10 +758,10 @@ TEST_CASE("CommandProcessor")
         {CommandNotif::TransactionUndone, commandName2},
       }));
 
-    CHECK(commandProcessor.canUndo());
-    CHECK(commandProcessor.canRedo());
-    REQUIRE(commandProcessor.undoCommandName() == commandName1);
-    REQUIRE(commandProcessor.redoCommandName() == commandName2);
+    REQUIRE(commandProcessor.canUndo());
+    REQUIRE(commandProcessor.canRedo());
+    CHECK(*commandProcessor.undoCommandName() == commandName1);
+    CHECK(*commandProcessor.redoCommandName() == commandName2);
   }
 
   SECTION("collateTransactions")

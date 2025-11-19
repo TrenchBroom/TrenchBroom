@@ -195,24 +195,14 @@ bool CommandProcessor::canRedo() const
   return m_transactionStack.empty() && !m_redoStack.empty();
 }
 
-const std::string& CommandProcessor::undoCommandName() const
+const std::string* CommandProcessor::undoCommandName() const
 {
-  if (!canUndo())
-  {
-    throw CommandProcessorException{"Command stack is empty"};
-  }
-
-  return m_undoStack.back()->name();
+  return canUndo() ? &m_undoStack.back()->name() : nullptr;
 }
 
-const std::string& CommandProcessor::redoCommandName() const
+const std::string* CommandProcessor::redoCommandName() const
 {
-  if (!canRedo())
-  {
-    throw CommandProcessorException{"Undo stack is empty"};
-  }
-
-  return m_redoStack.back()->name();
+  return canRedo() ? &m_redoStack.back()->name() : nullptr;
 }
 
 void CommandProcessor::startTransaction(std::string name, const TransactionScope scope)
