@@ -80,6 +80,7 @@
 #include "ui/ClipTool.h"
 #include "ui/ColorButton.h"
 #include "ui/CompilationDialog.h"
+#include "ui/CrashReporter.h"
 #include "ui/EdgeTool.h"
 #include "ui/FaceInspector.h"
 #include "ui/FaceTool.h"
@@ -2337,7 +2338,9 @@ void MapFrame::debugCrash()
 {
   auto items = QStringList{};
   items << "Null pointer dereference"
-        << "Unhandled exception";
+        << "Unhandled exception"
+        << "Ensure failed"
+        << "Report crash and exit";
 
   bool ok;
   const auto item =
@@ -2352,6 +2355,14 @@ void MapFrame::debugCrash()
     else if (idx == 1)
     {
       debugException();
+    }
+    else if (idx == 2)
+    {
+      ensure(false, "Debug ensure failure");
+    }
+    else if (idx == 3)
+    {
+      tb::ui::reportCrashAndExit("Report crash and exit");
     }
   }
 }
