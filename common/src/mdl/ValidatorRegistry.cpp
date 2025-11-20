@@ -19,9 +19,9 @@
 
 #include "ValidatorRegistry.h"
 
-#include "Contracts.h"
 #include "mdl/Validator.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 

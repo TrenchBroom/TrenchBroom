@@ -19,7 +19,6 @@
 
 #include "SetLinkIdsCommand.h"
 
-#include "Contracts.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h" // IWYU pragma: keep
 #include "mdl/GroupNode.h"  // IWYU pragma: keep
@@ -29,6 +28,7 @@
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 
 #include <ranges>

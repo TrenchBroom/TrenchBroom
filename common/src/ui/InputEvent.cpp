@@ -21,8 +21,7 @@
 
 #include <QApplication>
 
-#include "Contracts.h"
-
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/reflection_impl.h"
 

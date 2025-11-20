@@ -19,7 +19,6 @@
 
 #include "ui/HandleDragTracker.h"
 
-#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
@@ -27,6 +26,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 #include "kd/reflection_impl.h"
 

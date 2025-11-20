@@ -19,10 +19,10 @@
 
 #include "ShaderProgram.h"
 
-#include "Contracts.h"
 #include "render/Shader.h"
 #include "render/ShaderManager.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 
 #include <string>

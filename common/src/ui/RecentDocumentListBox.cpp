@@ -19,10 +19,11 @@
 
 #include "RecentDocumentListBox.h"
 
-#include "Contracts.h"
 #include "TrenchBroomApp.h"
 #include "io/PathQt.h"
 #include "io/ResourceUtils.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 

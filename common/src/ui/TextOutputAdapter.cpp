@@ -24,7 +24,7 @@
 #include <QString>
 #include <QTextEdit>
 
-#include "Contracts.h"
+#include "kd/contracts.h"
 
 namespace tb::ui
 {

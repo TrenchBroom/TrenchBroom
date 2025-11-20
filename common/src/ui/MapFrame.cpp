@@ -39,7 +39,6 @@
 #include <QtGlobal>
 
 #include "Console.h"
-#include "Contracts.h"
 #include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -106,6 +105,7 @@
 #include "update/Updater.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"

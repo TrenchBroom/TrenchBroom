@@ -31,8 +31,9 @@
 #include <QWidget>
 
 #include "Color.h"
-#include "Contracts.h"
 #include "ui/ViewConstants.h"
+
+#include "kd/contracts.h"
 
 #include "vm/vec.h"
 

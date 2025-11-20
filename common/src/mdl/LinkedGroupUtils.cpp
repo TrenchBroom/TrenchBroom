@@ -19,13 +19,13 @@
 
 #include "LinkedGroupUtils.h"
 
-#include "Contracts.h"
 #include "Uuid.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/NodeContents.h"
 #include "mdl/NodeQueries.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/chunk_by_view.h"
 #include "kd/ranges/to.h"
 #include "kd/ranges/zip_transform_view.h"

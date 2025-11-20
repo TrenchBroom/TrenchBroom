@@ -48,13 +48,14 @@
 #include <QtGlobal>
 
 #include "Color.h"
-#include "Contracts.h"
 #include "Macros.h"
 #include "io/ResourceUtils.h"
 #include "mdl/MapTextEncoding.h"
 #include "ui/BorderLine.h"
 #include "ui/MapFrame.h"
 #include "ui/ViewConstants.h"
+
+#include "kd/contracts.h"
 
 namespace tb::ui
 {

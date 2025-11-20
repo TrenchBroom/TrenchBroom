@@ -32,7 +32,6 @@
 #include <QTimer>
 #include <QToolButton>
 
-#include "Contracts.h"
 #include "Macros.h"
 #include "mdl/EntityNodeBase.h" // IWYU pragma: keep
 #include "mdl/Map.h"
@@ -47,6 +46,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"
 #include "kd/vector_set.h"

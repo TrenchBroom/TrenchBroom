@@ -19,7 +19,6 @@
 
 #include "WorldNode.h"
 
-#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
@@ -32,6 +31,7 @@
 #include "octree.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/k.h"
 #include "kd/overload.h"
 

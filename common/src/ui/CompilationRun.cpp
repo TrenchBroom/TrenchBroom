@@ -19,7 +19,6 @@
 
 #include "CompilationRun.h"
 
-#include "Contracts.h"
 #include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "ui/CompilationContext.h"
@@ -27,6 +26,8 @@
 #include "ui/CompilationVariables.h"
 #include "ui/MapDocument.h"
 #include "ui/TextOutputAdapter.h"
+
+#include "kd/contracts.h"
 
 #include <string>
 

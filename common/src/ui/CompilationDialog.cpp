@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QTextEdit>
 
-#include "Contracts.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
@@ -41,6 +40,8 @@
 #include "ui/Splitter.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
+
+#include "kd/contracts.h"
 
 namespace tb::ui
 {

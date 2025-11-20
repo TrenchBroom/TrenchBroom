@@ -19,7 +19,6 @@
 
 #include "ReadFreeImageTexture.h"
 
-#include "Contracts.h"
 #include "FreeImage.h"
 #include "io/ImageLoaderImpl.h"
 #include "io/MaterialUtils.h"
@@ -27,6 +26,7 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/resource.h"

@@ -19,9 +19,10 @@
 
 #include "ImageLoaderImpl.h"
 
-#include "Contracts.h"
 #include "Exceptions.h"
 #include "Macros.h"
+
+#include "kd/contracts.h"
 
 namespace tb::io
 {

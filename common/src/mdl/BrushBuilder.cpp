@@ -19,11 +19,11 @@
 
 #include "BrushBuilder.h"
 
-#include "Contracts.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "render/RenderUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"

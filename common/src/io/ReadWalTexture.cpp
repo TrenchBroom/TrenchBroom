@@ -20,11 +20,12 @@
 #include "ReadWalTexture.h"
 
 #include "Color.h"
-#include "Contracts.h"
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 #include "mdl/Palette.h"
+
+#include "kd/contracts.h"
 
 #include <fmt/format.h>
 

@@ -19,10 +19,11 @@
 
 #include "ToolController.h"
 
-#include "Contracts.h"
 #include "ui/DropTracker.h"
 #include "ui/GestureTracker.h"
 #include "ui/Tool.h"
+
+#include "kd/contracts.h"
 
 namespace tb::ui
 {

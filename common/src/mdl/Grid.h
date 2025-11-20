@@ -19,9 +19,10 @@
 
 #pragma once
 
-#include "Contracts.h"
 #include "Macros.h"
 #include "Notifier.h"
+
+#include "kd/contracts.h"
 
 #include "vm/intersection.h"
 #include "vm/plane.h"

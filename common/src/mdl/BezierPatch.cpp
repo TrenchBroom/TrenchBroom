@@ -19,10 +19,10 @@
 
 #include "BezierPatch.h"
 
-#include "Contracts.h"
 #include "mdl/Material.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep

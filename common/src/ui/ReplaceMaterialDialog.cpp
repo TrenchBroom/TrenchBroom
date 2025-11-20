@@ -23,7 +23,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Map.h"
@@ -40,6 +39,7 @@
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 
 #include <fmt/format.h>

@@ -19,7 +19,6 @@
 
 #include "MapFileSerializer.h"
 
-#include "Contracts.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "mdl/BezierPatch.h"
@@ -32,6 +31,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/string_format.h"
 #include "kd/task_manager.h"

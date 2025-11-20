@@ -22,6 +22,7 @@
 #include "Polyhedron.h" // IWYU pragma: keep
 
 #include "kd/binary_relation.h"
+#include "kd/contracts.h"
 #include "kd/vector_set.h"
 
 #include <limits>

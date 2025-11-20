@@ -19,10 +19,11 @@
 
 #include "GameListBox.h"
 
-#include "Contracts.h"
 #include "io/ResourceUtils.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameFactory.h"
+
+#include "kd/contracts.h"
 
 #include <filesystem>
 #include <string>

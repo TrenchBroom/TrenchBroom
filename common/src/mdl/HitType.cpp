@@ -19,7 +19,7 @@
 
 #include "HitType.h"
 
-#include "Contracts.h"
+#include "kd/contracts.h"
 
 #include <cstddef>
 

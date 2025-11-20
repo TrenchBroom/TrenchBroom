@@ -27,7 +27,6 @@
 #include <QProcess>
 #include <QPushButton>
 
-#include "Contracts.h"
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
@@ -45,6 +44,7 @@
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/string_utils.h"
 
 #include <string>

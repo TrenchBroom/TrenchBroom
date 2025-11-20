@@ -19,7 +19,6 @@
 
 #include "ObjSerializer.h"
 
-#include "Contracts.h"
 #include "io/ExportOptions.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -27,6 +26,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/Polyhedron.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 
 #include <fmt/format.h>

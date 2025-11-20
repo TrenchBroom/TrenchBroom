@@ -19,9 +19,10 @@
 
 #include "FileLogger.h"
 
-#include "Contracts.h"
 #include "io/DiskIO.h"
 #include "io/SystemPaths.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 

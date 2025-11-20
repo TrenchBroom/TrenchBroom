@@ -19,13 +19,13 @@
 
 #include "Node.h"
 
-#include "Contracts.h"
 #include "Macros.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Issue.h"
 #include "mdl/Validator.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"

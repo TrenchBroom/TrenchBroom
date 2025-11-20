@@ -23,10 +23,11 @@
 #include <QLabel>
 #include <QStackedLayout>
 
-#include "Contracts.h"
 #include "ui/QtUtils.h"
 #include "ui/TabBook.h"
 #include "ui/ViewConstants.h"
+
+#include "kd/contracts.h"
 
 namespace tb::ui
 {

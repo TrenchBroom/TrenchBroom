@@ -20,7 +20,6 @@
 
 #include "ShearTool.h"
 
-#include "Contracts.h"
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
@@ -30,6 +29,8 @@
 #include "mdl/TransactionScope.h"
 #include "render/Camera.h"
 #include "ui/ScaleTool.h"
+
+#include "kd/contracts.h"
 
 #include "vm/intersection.h"
 

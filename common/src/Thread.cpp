@@ -22,7 +22,7 @@
 #include <QApplication>
 #include <QThread>
 
-#include "Contracts.h"
+#include "kd/contracts.h"
 
 namespace tb
 {

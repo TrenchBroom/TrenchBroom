@@ -26,7 +26,6 @@
 #include <QStackedWidget>
 #include <QToolButton>
 
-#include "Contracts.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "ui/BorderLine.h"
@@ -38,6 +37,7 @@
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/vector_utils.h"
 

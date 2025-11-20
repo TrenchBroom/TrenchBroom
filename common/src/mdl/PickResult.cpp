@@ -19,10 +19,10 @@
 
 #include "PickResult.h"
 
-#include "Contracts.h"
 #include "mdl/CompareHits.h"
 #include "mdl/Hit.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 
 #include "vm/scalar.h"

@@ -27,7 +27,6 @@
 #include <QString>
 #include <QTimer>
 
-#include "Contracts.h"
 #include "Macros.h"
 #include "io/ResourceUtils.h"
 #include "mdl/Entity.h"
@@ -46,6 +45,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/QtUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/reflection_impl.h"
 #include "kd/string_utils.h"

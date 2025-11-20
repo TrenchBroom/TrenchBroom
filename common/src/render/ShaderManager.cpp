@@ -19,10 +19,10 @@
 
 #include "ShaderManager.h"
 
-#include "Contracts.h"
 #include "io/SystemPaths.h"
 #include "render/ShaderConfig.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
 

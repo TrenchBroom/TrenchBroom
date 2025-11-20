@@ -19,13 +19,13 @@
 
 #include "MapFixture.h"
 
-#include "Contracts.h"
 #include "Logger.h"
 #include "TestUtils.h"
 #include "mdl/Map.h"
 #include "mdl/MockGame.h"
 #include "mdl/Resource.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 
 namespace tb::mdl

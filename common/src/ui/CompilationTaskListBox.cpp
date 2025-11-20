@@ -28,7 +28,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "Contracts.h"
 #include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
@@ -41,6 +40,7 @@
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 
 namespace tb::ui

@@ -19,10 +19,11 @@
 
 #include "EntityDefinitionManager.h"
 
-#include "Contracts.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityNodeBase.h"
+
+#include "kd/contracts.h"
 
 #include <algorithm>
 #include <string>

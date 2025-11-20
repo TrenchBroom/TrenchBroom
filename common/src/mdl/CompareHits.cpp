@@ -19,12 +19,13 @@
 
 #include "CompareHits.h"
 
-#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
+
+#include "kd/contracts.h"
 
 #include "vm/util.h"
 

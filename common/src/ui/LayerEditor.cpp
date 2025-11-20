@@ -25,7 +25,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "Contracts.h"
 #include "ViewUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
@@ -43,6 +42,7 @@
 #include "ui/LayerListBox.h"
 #include "ui/QtUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <algorithm>

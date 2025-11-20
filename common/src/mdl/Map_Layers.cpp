@@ -19,7 +19,6 @@
 
 #include "mdl/Map_Layers.h"
 
-#include "Contracts.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Map.h"
@@ -32,6 +31,7 @@
 #include "mdl/SetCurrentLayerCommand.h"
 #include "mdl/Transaction.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 
 #include <algorithm>

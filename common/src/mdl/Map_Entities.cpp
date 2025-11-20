@@ -19,7 +19,6 @@
 
 #include "mdl/Map_Entities.h"
 
-#include "Contracts.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityColorPropertyValue.h"
@@ -36,6 +35,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/string_utils.h"
 
 namespace tb::mdl

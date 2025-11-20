@@ -11,7 +11,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/el/Types.cpp
         ${COMMON_SOURCE_DIR}/el/Value.cpp
         ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
-        ${COMMON_SOURCE_DIR}/Ensure.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLocation.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
@@ -528,7 +527,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/el/Types.h
         ${COMMON_SOURCE_DIR}/el/Value.h
         ${COMMON_SOURCE_DIR}/el/VariableStore.h
-        ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Error.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLocation.h

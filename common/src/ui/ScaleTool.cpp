@@ -20,7 +20,6 @@
 
 #include "ScaleTool.h"
 
-#include "Contracts.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/Grid.h"
@@ -33,6 +32,7 @@
 #include "render/Camera.h"
 #include "ui/ScaleToolPage.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 

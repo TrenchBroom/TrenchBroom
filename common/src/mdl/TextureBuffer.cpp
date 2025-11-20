@@ -19,7 +19,7 @@
 
 #include "TextureBuffer.h"
 
-#include "Contracts.h"
+#include "kd/contracts.h"
 
 #include <FreeImage.h>
 #include <algorithm>

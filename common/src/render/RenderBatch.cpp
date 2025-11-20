@@ -19,10 +19,10 @@
 
 #include "RenderBatch.h"
 
-#include "Contracts.h"
 #include "render/Renderable.h"
 #include "render/VboManager.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 namespace tb::render

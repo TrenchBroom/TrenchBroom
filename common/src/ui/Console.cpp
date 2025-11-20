@@ -27,11 +27,12 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-#include "Contracts.h"
 #include "FileLogger.h"
 #include "Macros.h"
 #include "Thread.h"
 #include "ui/ViewConstants.h"
+
+#include "kd/contracts.h"
 
 #include <string>
 

@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Contracts.h"
 #include "ui/Actions.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <sstream>

@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include "Contracts.h"
 #include "render/GL.h"
 #include "render/PrimType.h"
 #include "render/Vbo.h"
 #include "render/VboManager.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <memory>

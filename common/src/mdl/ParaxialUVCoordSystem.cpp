@@ -19,9 +19,10 @@
 
 #include "ParaxialUVCoordSystem.h"
 
-#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/ParallelUVCoordSystem.h"
+
+#include "kd/contracts.h"
 
 #include "vm/plane.h"
 #include "vm/quat.h"

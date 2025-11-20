@@ -23,9 +23,9 @@
 #include <QDateTime>
 #include <QMouseEvent>
 
-#include "Contracts.h"
 #include "ui/MapViewBase.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 namespace tb::ui

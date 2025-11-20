@@ -26,7 +26,6 @@
 #include <QString>
 #include <QtGlobal>
 
-#include "Contracts.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -82,6 +81,7 @@
 #include "ui/SelectionTool.h"
 #include "ui/SignalDelayer.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
 #include "kd/string_format.h"

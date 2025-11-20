@@ -19,8 +19,7 @@
 
 #include "RepeatStack.h"
 
-#include "Contracts.h"
-
+#include "kd/contracts.h"
 #include "kd/set_temp.h"
 #include "kd/vector_utils.h"
 

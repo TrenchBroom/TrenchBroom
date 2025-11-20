@@ -21,12 +21,12 @@
 
 #include <QDateTime>
 
-#include "Contracts.h"
 #include "Notifier.h"
 #include "mdl/Command.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UndoableCommand.h"
 
+#include "kd/contracts.h"
 #include "kd/set_temp.h"
 #include "kd/vector_utils.h"
 

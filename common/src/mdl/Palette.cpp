@@ -19,7 +19,6 @@
 
 #include "Palette.h"
 
-#include "Contracts.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "io/File.h"
@@ -27,6 +26,7 @@
 #include "io/Reader.h"
 #include "mdl/TextureBuffer.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/reflection_impl.h"
 

@@ -30,6 +30,8 @@
 #include "render/BrushRendererBrushCache.h"
 #include "render/RenderContext.h"
 
+#include "kd/contracts.h"
+
 #include <cassert>
 #include <cstring>
 #include <vector>

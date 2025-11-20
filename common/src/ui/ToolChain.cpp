@@ -19,10 +19,11 @@
 
 #include "ToolChain.h"
 
-#include "Contracts.h"
 #include "ui/DropTracker.h"
 #include "ui/GestureTracker.h"
 #include "ui/ToolController.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 #include <string>

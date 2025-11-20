@@ -27,7 +27,6 @@
 #include <QScrollArea>
 
 #include "Color.h"
-#include "Contracts.h"
 #include "mdl/ColorRange.h"
 #include "mdl/EntityColorPropertyValue.h" // IWYU pragma: keep
 #include "mdl/EntityDefinition.h"         // IWYU pragma: keep
@@ -46,6 +45,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/vector_set.h"
 

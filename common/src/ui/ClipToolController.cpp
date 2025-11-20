@@ -19,7 +19,6 @@
 
 #include "ClipToolController.h"
 
-#include "Contracts.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -36,6 +35,7 @@
 #include "ui/ClipTool.h"
 #include "ui/HandleDragTracker.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 #include "kd/vector_utils.h"
 

@@ -19,13 +19,13 @@
 
 #include "ModelUtils.h"
 
-#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/EditorContext.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/NodeQueries.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/stable_remove_duplicates.h"
 #include "kd/vector_utils.h"

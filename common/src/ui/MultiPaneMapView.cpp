@@ -19,8 +19,9 @@
 
 #include "MultiPaneMapView.h"
 
-#include "Contracts.h"
 #include "ui/MapView.h"
+
+#include "kd/contracts.h"
 
 #include <algorithm>
 

@@ -30,7 +30,6 @@
 #include <QSvgRenderer>
 #include <QThread>
 
-#include "Contracts.h"
 #include "Logger.h"
 #include "Thread.h"
 #include "io/FileSystem.h"
@@ -41,6 +40,7 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 #include "kd/set_temp.h"
 

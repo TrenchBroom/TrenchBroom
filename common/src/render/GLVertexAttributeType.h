@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "Contracts.h"
 #include "Macros.h"
 #include "render/GL.h"
 #include "render/ShaderProgram.h"
+
+#include "kd/contracts.h"
 
 #include "vm/vec.h"
 

@@ -19,8 +19,7 @@
 
 #include "PointTrace.h"
 
-#include "Contracts.h"
-
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/distance.h"

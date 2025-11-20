@@ -24,10 +24,14 @@
 #include "TrenchBroomApp.h"
 #include "ui/CrashReporter.h"
 
+#include "kd/contracts.h"
+
 #include <catch2/catch_session.hpp>
 
 int main(int argc, char** argv)
 {
+  tb::setContractViolationHandler();
+
   tb::PreferenceManager::createInstance<tb::TestPreferenceManager>();
   tb::ui::TrenchBroomApp app(argc, argv);
 

@@ -19,7 +19,6 @@
 
 #include "TestUtils.h"
 
-#include "Contracts.h"
 #include "TestLogger.h"
 #include "io/DiskIO.h"
 #include "io/GameConfigParser.h"
@@ -40,6 +39,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 
 #include "vm/polygon.h"

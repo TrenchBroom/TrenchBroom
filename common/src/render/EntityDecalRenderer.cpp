@@ -20,7 +20,6 @@
 #include "EntityDecalRenderer.h"
 
 #include "BrushRendererArrays.h"
-#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/DecalDefinition.h"
@@ -34,6 +33,7 @@
 #include "mdl/UVCoordSystem.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 

@@ -19,7 +19,6 @@
 
 #include "LayerNode.h"
 
-#include "Contracts.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
@@ -29,6 +28,7 @@
 #include "mdl/Validator.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 
 #include <algorithm>

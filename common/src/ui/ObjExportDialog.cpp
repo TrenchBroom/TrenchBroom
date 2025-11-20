@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 
-#include "Contracts.h"
 #include "QtUtils.h"
 #include "io/ExportOptions.h"
 #include "io/PathQt.h"
@@ -38,6 +37,7 @@
 #include "ui/MapDocument.h" // IWYU pragma: keep
 #include "ui/MapFrame.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 
 #include <filesystem>

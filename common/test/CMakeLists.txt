@@ -150,8 +150,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/tst_ColorComponentType.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_ColorT.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_ColorVariantT.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_Contracts.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_Ensure.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_Notifier.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_octree.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_Preferences.cpp"

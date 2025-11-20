@@ -19,7 +19,6 @@
 
 #include "TrenchBroomApp.h"
 
-#include "Contracts.h"
 #include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -49,6 +48,7 @@
 #include "update/QtHttpClient.h"
 #include "update/Updater.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 #ifdef __APPLE__
 #include "ui/ActionBuilder.h"

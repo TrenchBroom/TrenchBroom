@@ -21,7 +21,7 @@
 
 #include <QTimer>
 
-#include "Contracts.h"
+#include "kd/contracts.h"
 
 #include <algorithm>
 #include <cassert>

@@ -21,11 +21,12 @@
 
 #include <QGuiApplication>
 
-#include "Contracts.h"
 #include "Macros.h"
 #include "ui/ToolBox.h"
 #include "ui/ToolChain.h"
 #include "ui/ToolController.h"
+
+#include "kd/contracts.h"
 
 #include <string>
 

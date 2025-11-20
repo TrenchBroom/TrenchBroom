@@ -19,7 +19,6 @@
 
 #include "Brush.h"
 
-#include "Contracts.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 #include "mdl/BrushFace.h"
@@ -27,6 +26,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/UVCoordSystem.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"

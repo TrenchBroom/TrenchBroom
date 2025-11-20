@@ -22,11 +22,11 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include "Contracts.h"
 #include "mdl/Map.h"
 #include "ui/DrawShapeToolExtensions.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 
 #include <ranges>

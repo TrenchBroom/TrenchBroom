@@ -26,7 +26,6 @@
 #include <QPushButton>
 #include <QStackedWidget>
 
-#include "Contracts.h"
 #include "io/DiskIO.h"
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
@@ -34,6 +33,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/string_compare.h"
 
 namespace tb::ui

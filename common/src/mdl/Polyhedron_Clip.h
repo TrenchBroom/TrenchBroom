@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "Contracts.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "Polyhedron.h"
+
+#include "kd/contracts.h"
 
 #include "vm/plane.h"
 #include "vm/util.h"

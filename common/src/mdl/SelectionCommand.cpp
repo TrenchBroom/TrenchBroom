@@ -19,7 +19,6 @@
 
 #include "SelectionCommand.h"
 
-#include "Contracts.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "mdl/BrushFace.h"
@@ -32,6 +31,7 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/string_format.h"

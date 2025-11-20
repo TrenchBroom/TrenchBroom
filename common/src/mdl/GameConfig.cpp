@@ -19,8 +19,7 @@
 
 #include "GameConfig.h"
 
-#include "Contracts.h"
-
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep

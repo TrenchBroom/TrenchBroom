@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Contracts.h"
 #include "render/AllocationTracker.h"
 #include "render/GL.h"
 #include "render/GLVertexType.h"
@@ -27,6 +26,8 @@
 #include "render/ShaderManager.h" // IWYU pragma: keep
 #include "render/Vbo.h"
 #include "render/VboManager.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 #include <memory>

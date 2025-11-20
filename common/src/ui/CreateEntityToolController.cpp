@@ -19,11 +19,11 @@
 
 #include "CreateEntityToolController.h"
 
-#include "Contracts.h"
 #include "ui/CreateEntityTool.h"
 #include "ui/DropTracker.h"
 #include "ui/InputState.h"
 
+#include "kd/contracts.h"
 #include "kd/string_utils.h"
 
 #include <functional>

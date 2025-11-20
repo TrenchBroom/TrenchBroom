@@ -19,7 +19,6 @@
 
 #include "SetBrushFaceAttributesTool.h"
 
-#include "Contracts.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -38,6 +37,8 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
+
+#include "kd/contracts.h"
 
 #include <vector>
 

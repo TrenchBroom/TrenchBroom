@@ -38,11 +38,11 @@
 #include <QStringBuilder>
 #include <QTimer>
 
-#include "Contracts.h"
 #include "Preferences.h"
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/path_utils.h"
 #include "kd/reflection_impl.h"

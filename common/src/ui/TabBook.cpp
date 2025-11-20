@@ -25,8 +25,9 @@
 #include <QStackedLayout>
 #include <QVBoxLayout>
 
-#include "Contracts.h"
 #include "ui/TabBar.h"
+
+#include "kd/contracts.h"
 
 namespace tb::ui
 {

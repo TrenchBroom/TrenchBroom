@@ -26,12 +26,12 @@
 #include <QThread>
 #include <QTimer>
 
-#include "Contracts.h"
 #include "Macros.h"
 #include "Notifier.h"
 #include "Preference.h"
 #include "Result.h"
 
+#include "kd/contracts.h"
 #include "kd/reflection_decl.h"
 #include "kd/vector_set.h"
 

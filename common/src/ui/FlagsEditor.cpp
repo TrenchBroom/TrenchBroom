@@ -22,9 +22,10 @@
 #include <QCheckBox>
 #include <QGridLayout>
 
-#include "Contracts.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 

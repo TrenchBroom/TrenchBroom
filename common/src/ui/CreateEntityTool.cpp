@@ -19,7 +19,6 @@
 
 #include "CreateEntityTool.h"
 
-#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
@@ -37,6 +36,7 @@
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
 
+#include "kd/contracts.h"
 #include "kd/k.h"
 
 #include <string>

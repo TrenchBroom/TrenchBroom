@@ -19,7 +19,7 @@
 
 #include "FontTexture.h"
 
-#include "Contracts.h"
+#include "kd/contracts.h"
 
 #include <cassert>
 #include <cstring>

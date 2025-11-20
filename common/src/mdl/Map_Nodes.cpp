@@ -19,7 +19,6 @@
 
 #include "Map_Nodes.h"
 
-#include "Contracts.h"
 #include "Logger.h"
 #include "Uuid.h"
 #include "mdl/AddRemoveNodesCommand.h"
@@ -46,6 +45,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 

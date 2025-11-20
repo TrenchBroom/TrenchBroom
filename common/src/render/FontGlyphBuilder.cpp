@@ -19,9 +19,10 @@
 
 #include "FontGlyphBuilder.h"
 
-#include "Contracts.h"
 #include "render/FontGlyph.h"
 #include "render/FontTexture.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 #include <cstring>

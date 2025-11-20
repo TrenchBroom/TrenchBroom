@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "Contracts.h"
 #include "Result.h"
 #include "io/FileSystem.h"
 #include "io/FileSystemMetadata.h"
 
+#include "kd/contracts.h"
 #include "kd/path_hash.h"
 #include "kd/result.h"
 

@@ -19,7 +19,6 @@
 
 #include "BrushFace.h"
 
-#include "Contracts.h"
 #include "Polyhedron.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Material.h"
@@ -30,6 +29,7 @@
 #include "mdl/Texture.h"
 #include "mdl/UVCoordSystem.h"
 
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 #include "kd/result.h"
 

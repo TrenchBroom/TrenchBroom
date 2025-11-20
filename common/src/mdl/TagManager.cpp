@@ -19,9 +19,10 @@
 
 #include "TagManager.h"
 
-#include "Contracts.h"
 #include "mdl/Tag.h"
 #include "mdl/TagType.h"
+
+#include "kd/contracts.h"
 
 #include <fmt/format.h>
 

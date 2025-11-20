@@ -19,7 +19,6 @@
 
 #include "mdl/Map_World.h"
 
-#include "Contracts.h"
 #include "io/GameConfigParser.h"
 #include "io/SystemPaths.h"
 #include "mdl/EditorContext.h"
@@ -29,6 +28,8 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
+
+#include "kd/contracts.h"
 
 namespace tb::mdl
 {

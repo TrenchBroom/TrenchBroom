@@ -25,7 +25,6 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Contracts.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
@@ -33,6 +32,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/set_temp.h"
 
 #include <cassert>
