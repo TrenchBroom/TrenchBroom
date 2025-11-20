@@ -21,6 +21,7 @@
 
 #include <QDateTime>
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Notifier.h"
 #include "mdl/Command.h"
@@ -76,13 +77,15 @@ public:
 private:
   bool doPerformDo(Map& map) override
   {
+    // Note: If a transaction cannot be redone successfully, then the app must be in an
+    // inconsistent state. Currently, we let the app crash if this happens (there are very
+    // few commands that can even fail, so it should be a rare occurrence). An alternative
+    // would be to undo the partially redone commands and drop the entire redo stack.
+
     for (auto& command : m_commands)
     {
       notifyCommandIfNotType<TransactionCommand>(m_commandDoNotifier, *command);
-      if (!command->performDo(map))
-      {
-        throw CommandProcessorException{"Partial failure while executing transaction"};
-      }
+      ensure(command->performDo(map), "Transaction can be redone successfully");
       notifyCommandIfNotType<TransactionCommand>(m_commandDoneNotifier, *command);
     }
     return true;
@@ -90,14 +93,16 @@ private:
 
   bool doPerformUndo(Map& map) override
   {
+    // Note: If a transaction cannot be undone successfully, then the app must be in an
+    // inconsistent state. Currently, we let the app crash if this happens (there are very
+    // few commands that can even fail, so it should be a rare occurrence). An alternative
+    // would be to redo the undone commands and drop the entire undo stack.
+
     for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it)
     {
       auto& command = *it;
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoNotifier, *command);
-      if (!command->performUndo(map))
-      {
-        throw CommandProcessorException{"Partial failure while undoing transaction"};
-      }
+      ensure(command->performUndo(map), "Transaction can be undone successfully");
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoneNotifier, *command);
     }
     return true;
