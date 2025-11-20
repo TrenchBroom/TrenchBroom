@@ -442,7 +442,8 @@ void MapFileSerializer::setFilePosition(const mdl::Node* node)
 
 size_t MapFileSerializer::startLine()
 {
-  assert(!m_startLineStack.empty());
+  contract_pre(!m_startLineStack.empty());
+
   const auto result = m_startLineStack.back();
   m_startLineStack.pop_back();
   return result;

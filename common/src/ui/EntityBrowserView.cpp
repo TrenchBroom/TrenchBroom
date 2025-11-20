@@ -42,6 +42,7 @@
 #include "render/Transformation.h"
 #include "render/VertexArray.h"
 
+#include "kd/contracts.h"
 #include "kd/string_compare.h"
 #include "kd/string_utils.h"
 
@@ -137,7 +138,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
 {
   const auto& fontPath = pref(Preferences::RendererFontPath());
   const auto fontSize = pref(Preferences::BrowserFontSize);
-  assert(fontSize > 0);
+  contract_assert(fontSize > 0);
 
   const auto& entityDefinitionManager = m_map.entityDefinitionManager();
   const auto font = render::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
@@ -215,10 +216,8 @@ void EntityBrowserView::addEntityToLayout(
     (!m_hideUnused || definition.usageCount() > 0)
     && matchesFilterText(definition, m_filterText))
   {
-    assert(definition.pointEntityDefinition != std::nullopt);
+    contract_assert(definition.pointEntityDefinition != std::nullopt);
     const auto& pointEntityDefinition = *definition.pointEntityDefinition;
-
-    const auto& entityModelManager = m_map.entityModelManager();
 
     const auto maxCellWidth = layout.maxCellWidth();
     const auto actualFont =
@@ -239,6 +238,7 @@ void EntityBrowserView::addEntityToLayout(
     auto transform = vm::mat4x4f{};
     auto modelOrientation = mdl::Orientation::Oriented;
 
+    const auto& entityModelManager = m_map.entityModelManager();
     const auto* model = entityModelManager.model(spec.path);
     const auto* modelData = model ? model->data() : nullptr;
     const auto* modelFrame = modelData ? modelData->frame(spec.frameIndex) : nullptr;

@@ -21,6 +21,8 @@
 
 #include "mdl/Map.h"
 
+#include "kd/contracts.h"
+
 #include <string>
 
 namespace tb::mdl
@@ -62,7 +64,8 @@ bool UndoableCommand::performUndo(Map& map)
 
 bool UndoableCommand::collateWith(UndoableCommand& command)
 {
-  assert(&command != this);
+  contract_pre(&command != this);
+
   if (doCollateWith(command))
   {
     m_modificationCount += command.m_modificationCount;

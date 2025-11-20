@@ -29,7 +29,6 @@
 
 #include "kd/contracts.h"
 
-#include <cassert>
 #include <memory>
 #include <vector>
 
@@ -89,23 +88,23 @@ private:
   {
     if (m_vboManager != nullptr)
     {
-      assert(m_vboManager == &vboManager);
+      contract_assert(m_vboManager == &vboManager);
     }
     else
     {
       m_vboManager = &vboManager;
     }
-    assert(m_vbo == nullptr);
 
+    contract_assert(m_vbo == nullptr);
     m_vbo = m_vboManager->allocateVbo(
       m_type, m_snapshot.size() * sizeof(T), VboUsage::DynamicDraw);
-    assert(m_vbo != nullptr);
+    contract_assert(m_vbo != nullptr);
 
     m_vbo->writeElements(0, m_snapshot);
 
     m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
-    assert(m_dirtyRange.clean());
-    assert((m_vbo->capacity() / sizeof(T)) == m_dirtyRange.capacity());
+    contract_post(m_dirtyRange.clean());
+    contract_post((m_vbo->capacity() / sizeof(T)) == m_dirtyRange.capacity());
   }
 
 public:
@@ -135,10 +134,7 @@ public:
     elements.swap(m_snapshot);
 
     // we allow zero elements.
-    if (!empty())
-    {
-      assert(!prepared());
-    }
+    contract_post(empty() || !prepared());
   }
 
   VboHolder(const VboHolder& other) = delete;
@@ -159,7 +155,7 @@ public:
   T* getPointerToWriteElementsTo(
     const size_t offsetWithinBlock, const size_t elementCount)
   {
-    assert(offsetWithinBlock + elementCount <= m_snapshot.size());
+    contract_pre(offsetWithinBlock + elementCount <= m_snapshot.size());
 
     // mark dirty range
     m_dirtyRange.markDirty(offsetWithinBlock, elementCount);
@@ -177,7 +173,7 @@ public:
   {
     if (empty())
     {
-      assert(prepared());
+      contract_post(prepared());
       return;
     }
     if (prepared())
@@ -189,7 +185,7 @@ public:
     if (m_vbo == nullptr)
     {
       allocateBlock(vboManager);
-      assert(prepared());
+      contract_post(prepared());
       return;
     }
 
@@ -198,7 +194,7 @@ public:
     {
       freeBlock();
       allocateBlock(vboManager);
-      assert(prepared());
+      contract_post(prepared());
       return;
     }
 
@@ -214,7 +210,7 @@ public:
     }
 
     m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
-    assert(prepared());
+    contract_post(prepared());
   }
 
   bool empty() const { return m_snapshot.empty(); }

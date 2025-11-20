@@ -30,6 +30,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"
@@ -50,7 +51,8 @@ void doWriteNodes(
 {
   auto parentStack = std::vector<const mdl::Node*>{parent};
   const auto parentProperties = [&]() {
-    assert(!parentStack.empty());
+    contract_pre(!parentStack.empty());
+
     return serializer.parentProperties(parentStack.back());
   };
 

@@ -23,8 +23,8 @@
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
-#include "kd/vector_utils.h"
 
 #include <ostream>
 
@@ -36,7 +36,7 @@ GameEngineConfigWriter::GameEngineConfigWriter(
   : m_config{config}
   , m_stream{stream}
 {
-  assert(!m_stream.bad());
+  contract_pre(m_stream.good());
 }
 
 void GameEngineConfigWriter::writeConfig()

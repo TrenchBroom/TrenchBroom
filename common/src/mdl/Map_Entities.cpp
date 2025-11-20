@@ -134,7 +134,7 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
   contract_pre(getType(definition) == EntityDefinitionType::Brush);
 
   const auto brushes = map.selection().brushes;
-  assert(!brushes.empty());
+  contract_assert(!brushes.empty());
 
   // if all brushes belong to the same entity, and that entity is not worldspawn, copy
   // its properties

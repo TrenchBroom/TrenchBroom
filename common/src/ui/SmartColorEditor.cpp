@@ -136,10 +136,11 @@ SmartColorEditor::SmartColorEditor(mdl::Map& map, QWidget* parent)
 
 void SmartColorEditor::createGui()
 {
-  assert(m_floatRadio == nullptr);
-  assert(m_byteRadio == nullptr);
-  assert(m_colorPicker == nullptr);
-  assert(m_colorHistory == nullptr);
+  contract_pre(m_radioGroup == nullptr);
+  contract_pre(m_floatRadio == nullptr);
+  contract_pre(m_byteRadio == nullptr);
+  contract_pre(m_colorPicker == nullptr);
+  contract_pre(m_colorHistory == nullptr);
 
   auto* rangeTxt = new QLabel{tr("Color range")};
   makeEmphasized(rangeTxt);

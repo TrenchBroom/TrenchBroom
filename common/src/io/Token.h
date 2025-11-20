@@ -21,9 +21,9 @@
 
 #include "FileLocation.h"
 
+#include "kd/contracts.h"
 #include "kd/string_utils.h"
 
-#include <cassert>
 #include <string>
 
 namespace tb::io
@@ -57,7 +57,7 @@ public:
     , m_line{line}
     , m_column{column}
   {
-    assert(end >= begin);
+    contract_pre(end >= begin);
   }
 
   Type type() const { return m_type; }

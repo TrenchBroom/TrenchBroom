@@ -33,6 +33,8 @@
 #include "ui/ShearTool.h"
 #include "ui/VertexTool.h"
 
+#include "kd/contracts.h"
+
 namespace tb::ui
 {
 
@@ -132,19 +134,22 @@ bool MapViewToolBox::clipToolActive() const
 
 void MapViewToolBox::toggleClipSide()
 {
-  assert(clipToolActive());
+  contract_pre(clipToolActive());
+
   m_clipTool->toggleSide();
 }
 
 void MapViewToolBox::performClip()
 {
-  assert(clipToolActive());
+  contract_pre(clipToolActive());
+
   m_clipTool->performClip();
 }
 
 void MapViewToolBox::removeLastClipPoint()
 {
-  assert(clipToolActive());
+  contract_pre(clipToolActive());
+
   m_clipTool->removeLastPoint();
 }
 
@@ -160,19 +165,22 @@ bool MapViewToolBox::rotateToolActive() const
 
 double MapViewToolBox::rotateToolAngle() const
 {
-  assert(rotateToolActive());
+  contract_pre(rotateToolActive());
+
   return m_rotateTool->angle();
 }
 
 vm::vec3d MapViewToolBox::rotateToolCenter() const
 {
-  assert(rotateToolActive());
+  contract_pre(rotateToolActive());
+
   return m_rotateTool->rotationCenter();
 }
 
 void MapViewToolBox::moveRotationCenter(const vm::vec3d& delta)
 {
-  assert(rotateToolActive());
+  contract_pre(rotateToolActive());
+
   const vm::vec3d center = m_rotateTool->rotationCenter();
   m_rotateTool->setRotationCenter(center + delta);
 }
@@ -240,7 +248,8 @@ bool MapViewToolBox::anyModalToolActive() const
 
 void MapViewToolBox::moveVertices(const vm::vec3d& delta)
 {
-  assert(anyVertexToolActive());
+  contract_pre(anyVertexToolActive());
+
   if (vertexToolActive())
   {
     vertexTool().moveSelection(delta);

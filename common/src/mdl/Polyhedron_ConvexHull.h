@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "Polyhedron.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include "vm/bbox.h"
@@ -114,7 +115,8 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addFirstPoint(
   const vm::vec<T, 3>& position)
 {
-  assert(empty());
+  contract_pre(empty());
+
   auto* newVertex = new Vertex{position};
   m_vertices.push_back(newVertex);
   return newVertex;
@@ -124,7 +126,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addSecondPoint(
   const vm::vec<T, 3>& position)
 {
-  assert(point());
+  contract_pre(point());
 
   auto* onlyVertex = *m_vertices.begin();
   if (position != onlyVertex->position())
@@ -145,7 +147,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addThirdPoint(
   const vm::vec<T, 3>& position)
 {
-  assert(edge());
+  contract_pre(edge());
 
   auto* v1 = m_vertices.front();
   auto* v2 = v1->next();
@@ -159,11 +161,11 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addColinearThirdPoint(
   const vm::vec<T, 3>& position)
 {
-  assert(edge());
+  contract_pre(edge());
 
   auto* v1 = m_vertices.front();
   auto* v2 = v1->next();
-  assert(vm::is_colinear(v1->position(), v2->position(), position));
+  contract_assert(vm::is_colinear(v1->position(), v2->position(), position));
 
   if (vm::segment<T, 3>(v1->position(), v2->position())
         .contains(position, vm::constants<T>::almost_zero()))
@@ -178,8 +180,8 @@ typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addColinearThirdP
     return v1;
   }
 
-  assert((vm::segment<T, 3>(position, v1->position())
-            .contains(v2->position(), vm::constants<T>::almost_zero())));
+  contract_assert((vm::segment<T, 3>(position, v1->position())
+                     .contains(v2->position(), vm::constants<T>::almost_zero())));
   v2->setPosition(position);
   return v2;
 }
@@ -188,18 +190,18 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addNonColinearThirdPoint(
   const vm::vec<T, 3>& position)
 {
-  assert(edge());
+  contract_pre(edge());
 
   auto* v1 = m_vertices.front();
   auto* v2 = v1->next();
-  assert(!vm::is_colinear(v1->position(), v2->position(), position));
+  contract_assert(!vm::is_colinear(v1->position(), v2->position(), position));
 
   auto* h1 = v1->leaving();
   auto* h2 = v2->leaving();
-  assert(h1->next() == h1);
-  assert(h1->previous() == h1);
-  assert(h2->next() == h2);
-  assert(h2->previous() == h2);
+  contract_assert(h1->next() == h1);
+  contract_assert(h1->previous() == h1);
+  contract_assert(h2->next() == h2);
+  contract_assert(h2->previous() == h2);
 
   if (const auto plane = vm::from_points(v2->position(), v1->position(), position))
   {
@@ -235,7 +237,8 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addFurtherPoint(
   const vm::vec<T, 3>& position, const T planeEpsilon)
 {
-  assert(faceCount() > 0u);
+  contract_pre(faceCount() > 0u);
+
   return faceCount() == 1 ? addFurtherPointToPolygon(position, planeEpsilon)
                           : addFurtherPointToPolyhedron(position, planeEpsilon);
 }
@@ -264,7 +267,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addPointToPolygon(
   const vm::vec<T, 3>& position, const T planeEpsilon)
 {
-  assert(polygon());
+  contract_pre(polygon());
 
   auto* face = m_faces.front();
   const auto& facePlane = face->plane();
@@ -354,7 +357,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::makePolyhedron(
   const vm::vec<T, 3>& position, const T planeEpsilon)
 {
-  assert(polygon());
+  contract_pre(polygon());
 
   auto seam = Seam{};
   auto* face = m_faces.front();
@@ -384,7 +387,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::
   addFurtherPointToPolyhedron(const vm::vec<T, 3>& position, const T planeEpsilon)
 {
-  assert(polyhedron());
+  contract_pre(polyhedron());
 
   auto seam = createSeamForHorizon(position, planeEpsilon);
 
@@ -398,7 +401,7 @@ typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::
     return nullptr;
   }
 
-  assert(seam->size() >= 3);
+  contract_assert(seam->size() >= 3);
 
   // Under certain circumstances, it is not possible to weave a cap onto the seam because
   // it would create a face with colinear points. In this case, we assume the vertex was
@@ -446,9 +449,10 @@ public:
    */
   void push_back(Edge* edge)
   {
-    assert(edge != nullptr);
-    assert(empty() || edge != last());
-    assert(checkEdge(edge));
+    contract_pre(edge != nullptr);
+    contract_pre(empty() || edge != last());
+    contract_pre(checkEdge(edge));
+
     m_edges.push_back(edge);
   }
 
@@ -486,7 +490,8 @@ public:
    */
   Edge* first() const
   {
-    assert(!empty());
+    contract_pre(!empty());
+
     return m_edges.front();
   }
 
@@ -497,7 +502,8 @@ public:
    */
   Edge* second() const
   {
-    assert(size() > 1u);
+    contract_pre(size() > 1u);
+
     return *std::next(m_edges.begin());
   }
 
@@ -508,7 +514,8 @@ public:
    */
   Edge* last() const
   {
-    assert(!empty());
+    contract_pre(!empty());
+
     return m_edges.back();
   }
 
@@ -559,7 +566,7 @@ public:
    */
   bool hasMultipleLoops() const
   {
-    assert(size() > 2);
+    contract_pre(size() > 2);
 
     auto visitedVertices = std::unordered_set<Vertex*>{};
     for (const auto* edge : m_edges)
@@ -601,7 +608,7 @@ private:
    */
   bool check() const
   {
-    assert(size() > 2);
+    contract_pre(size() > 2);
 
     const auto* last = m_edges.back();
     for (const auto* edge : m_edges)
@@ -680,7 +687,7 @@ void Polyhedron<T, FP, VP>::visitFace(
 template <typename T, typename FP, typename VP>
 void Polyhedron<T, FP, VP>::split(const Seam& seam)
 {
-  assert(seam.size() >= 3);
+  contract_pre(seam.size() >= 3);
   assert(!seam.hasMultipleLoops());
 
   // First, unset the second half edge of every seam edge.
@@ -777,14 +784,14 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Face* Polyhedron<T, FP, VP>::sealWithSinglePolygon(
   const Seam& seam, const vm::plane<T, 3>& plane)
 {
-  assert(seam.size() >= 3);
+  contract_pre(seam.size() >= 3);
+  contract_pre(!empty() && !point() && !edge() && !polygon());
   assert(!seam.hasMultipleLoops());
-  assert(!empty() && !point() && !edge() && !polygon());
 
   auto boundary = HalfEdgeList{};
   for (auto* seamEdge : seam)
   {
-    assert(!seamEdge->fullySpecified());
+    contract_assert(!seamEdge->fullySpecified());
 
     auto* origin = seamEdge->secondVertex();
     auto* boundaryEdge = new HalfEdge{origin};
@@ -801,9 +808,9 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::checkSeamForWeaving(
   const Seam& seam, const vm::vec<T, 3>& position) const
 {
-  assert(seam.size() >= 3);
+  contract_pre(seam.size() >= 3);
+  contract_pre(!empty() && !point() && !edge());
   assert(!seam.hasMultipleLoops());
-  assert(!empty() && !point() && !edge());
 
   for (auto* edge : seam)
   {
@@ -823,7 +830,7 @@ template <typename T, typename FP, typename VP>
 std::optional<typename Polyhedron<T, FP, VP>::WeaveConeResult> Polyhedron<T, FP, VP>::
   weaveCone(const Seam& seam, const vm::vec<T, 3>& position)
 {
-  assert(seam.size() >= 3);
+  contract_pre(seam.size() >= 3);
   assert(!seam.hasMultipleLoops());
 
   auto vertices = VertexList{};
@@ -878,7 +885,7 @@ std::optional<typename Polyhedron<T, FP, VP>::WeaveConeResult> Polyhedron<T, FP,
     last = h;
   }
 
-  assert(first->face() != last->face());
+  contract_assert(first->face() != last->face());
   edges.push_back(new Edge(first, last));
 
   return WeaveConeResult{
@@ -904,7 +911,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::mergeCoplanarIncidentFaces(
   Vertex* vertex, const T planeEpsilon)
 {
-  assert(vertex != nullptr);
+  contract_pre(vertex != nullptr);
   assert(checkInvariant());
 
   const auto checkAndMergeIncidentNeighbours = [&](auto* leaving) -> HalfEdge* {
@@ -973,7 +980,7 @@ bool Polyhedron<T, FP, VP>::mergeCoplanarIncidentFaces(
   };
 
   auto* firstLeaving = vertex->leaving();
-  assert(
+  contract_assert(
     firstLeaving != firstLeaving->nextIncident()
     && firstLeaving != firstLeaving->nextIncident()->nextIncident());
 
@@ -992,7 +999,7 @@ bool Polyhedron<T, FP, VP>::mergeCoplanarIncidentFaces(
   };
 
   // we have at least three incident edges left
-  assert(
+  contract_assert(
     firstLeaving != firstLeaving->nextIncident()
     && firstLeaving != firstLeaving->nextIncident()->nextIncident());
 

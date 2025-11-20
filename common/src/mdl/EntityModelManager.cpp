@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "Logger.h"
-#include "Macros.h"
 #include "io/LoadEntityModel.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/LoadShaders.h"
@@ -29,9 +28,9 @@
 #include "mdl/EntityModel.h"
 #include "mdl/Game.h"
 #include "mdl/Quake3Shader.h"
-#include "mdl/Resource.h"
 #include "render/MaterialIndexRangeRenderer.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 
@@ -101,8 +100,7 @@ render::MaterialRenderer* EntityModelManager::renderer(
           auto renderer = entityModelData->buildRenderer(spec.skinIndex, spec.frameIndex))
         {
           const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
-          assert(success);
-          unused(success);
+          contract_assert(success);
 
           auto* result = pos->second.get();
           m_unpreparedRenderers.push_back(result);
@@ -145,8 +143,7 @@ const EntityModel* EntityModelManager::model(const std::filesystem::path& path) 
 
     return loadModel(path) | kdl::transform([&](auto model) {
              const auto [pos, success] = m_models.emplace(path, std::move(model));
-             assert(success);
-             unused(success);
+             contract_assert(success);
 
              m_logger.debug() << "Loading entity model " << path;
              return &(pos->second);

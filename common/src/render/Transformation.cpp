@@ -21,9 +21,9 @@
 
 #include "render/GL.h"
 
-#include "vm/mat.h"
+#include "kd/contracts.h"
 
-#include <cassert>
+#include "vm/mat.h"
 
 namespace tb::render
 {
@@ -48,19 +48,22 @@ Transformation::~Transformation()
 
 const vm::mat4x4f& Transformation::projectionMatrix() const
 {
-  assert(!m_projectionStack.empty());
+  contract_pre(!m_projectionStack.empty());
+
   return m_projectionStack.back();
 }
 
 const vm::mat4x4f& Transformation::viewMatrix() const
 {
-  assert(!m_viewStack.empty());
+  contract_pre(!m_viewStack.empty());
+
   return m_viewStack.back();
 }
 
 const vm::mat4x4f& Transformation::modelMatrix() const
 {
-  assert(!m_modelStack.empty());
+  contract_pre(!m_modelStack.empty());
+
   return m_modelStack.back();
 }
 
@@ -82,9 +85,9 @@ void Transformation::pushTransformation(
 
 void Transformation::popTransformation()
 {
-  assert(m_projectionStack.size() > 1);
-  assert(m_viewStack.size() > 1);
-  assert(m_modelStack.size() > 1);
+  contract_pre(m_projectionStack.size() > 1);
+  contract_pre(m_viewStack.size() > 1);
+  contract_pre(m_modelStack.size() > 1);
 
   m_projectionStack.pop_back();
   m_viewStack.pop_back();
@@ -108,7 +111,8 @@ void Transformation::replaceAndPushModelMatrix(const vm::mat4x4f& matrix)
 
 void Transformation::popModelMatrix()
 {
-  assert(m_modelStack.size() > 1);
+  contract_pre(m_modelStack.size() > 1);
+
   m_modelStack.pop_back();
   loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
 }

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "kd/contracts.h"
+
 #include <cassert>
 #include <cstddef>
 #include <initializer_list>
@@ -372,7 +374,7 @@ public:
    */
   bool contains(const T* item) const
   {
-    assert(item != nullptr);
+    contract_pre(item != nullptr);
 
     for (const T* candidate : *this)
     {
@@ -392,7 +394,7 @@ public:
    */
   void push_back(T* item)
   {
-    assert(item != nullptr);
+    contract_pre(item != nullptr);
     assert(!contains(item));
     assert(check_invariant());
 
@@ -431,10 +433,10 @@ public:
    */
   intrusive_circular_list remove(iterator first, iterator last, const std::size_t count)
   {
+    contract_pre(count > 0u);
+    contract_pre(count <= size());
     assert(contains(*first));
     assert(last == end() || contains(*last));
-    assert(count > 0u);
-    assert(count <= size());
     assert(check_invariant());
 
     intrusive_circular_list result;
@@ -453,10 +455,10 @@ public:
    */
   void release(iterator first, iterator last, const std::size_t count)
   {
+    contract_pre(count > 0u);
+    contract_pre(count <= size());
     assert(contains(*first));
     assert(last == end() || contains(*last));
-    assert(count > 0u);
-    assert(count <= size());
     assert(check_invariant());
 
     if (count == size())
@@ -576,7 +578,7 @@ public:
   void splice(
     iterator position, L&& list, iterator first, iterator last, const std::size_t count)
   {
-    assert(!empty() || position == end());
+    contract_pre(!empty() || position == end());
     assert(position == end() || contains(*position));
 
     list.release(first, last, count);
@@ -643,12 +645,12 @@ public:
     const std::size_t move_count)
   {
 
+    contract_pre(replace_count > 0u);
+    contract_pre(replace_count <= size());
+    contract_pre(move_count > 0u);
+    contract_pre(move_count <= list.size());
     assert(empty() || contains(*replace_first));
     assert(replace_last == end() || contains(*replace_last));
-    assert(replace_count > 0u);
-    assert(replace_count <= size());
-    assert(move_count > 0u);
-    assert(move_count <= list.size());
 
     auto insert_position = replace_last;
     auto result = remove(replace_first, replace_last, replace_count);
@@ -692,19 +694,22 @@ public:
 private: // helpers
   auto& get_link(T* item) const
   {
-    assert(item != nullptr);
+    contract_pre(item != nullptr);
+
     return GetLink()(item);
   }
 
   T* get_previous(T* item) const
   {
-    assert(item != nullptr);
+    contract_pre(item != nullptr);
+
     return get_link(item).previous();
   }
 
   T* get_next(T* item) const
   {
-    assert(item != nullptr);
+    contract_pre(item != nullptr);
+
     return get_link(item).next();
   }
 

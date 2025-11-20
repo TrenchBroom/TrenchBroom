@@ -36,6 +36,7 @@
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 #include "kd/string_format.h"
 #include "kd/string_utils.h"
@@ -46,7 +47,6 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <cassert>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -116,8 +116,8 @@ void MapReader::onBeginEntity(
 
 void MapReader::onEndEntity(const FileLocation& endLocation, ParserStatus& /* status */)
 {
-  assert(m_currentEntityInfo != std::nullopt);
-  assert(std::holds_alternative<EntityInfo>(m_objectInfos[*m_currentEntityInfo]));
+  contract_pre(m_currentEntityInfo != std::nullopt);
+  contract_pre(std::holds_alternative<EntityInfo>(m_objectInfos[*m_currentEntityInfo]));
 
   auto& entity = std::get<EntityInfo>(m_objectInfos[*m_currentEntityInfo]);
   entity.endLocation = endLocation;
@@ -132,7 +132,7 @@ void MapReader::onBeginBrush(const FileLocation& location, ParserStatus& /* stat
 
 void MapReader::onEndBrush(const FileLocation& endLocation, ParserStatus& /* status */)
 {
-  assert(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
+  contract_pre(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
 
   auto& brush = std::get<BrushInfo>(m_objectInfos.back());
   brush.endLocation = endLocation;
@@ -998,7 +998,7 @@ void MapReader::createNodes(ParserStatus& status, kdl::task_manager& taskManager
  */
 void MapReader::onBrushFace(mdl::BrushFace face, ParserStatus& /* status */)
 {
-  assert(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
+  contract_pre(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
 
   auto& brush = std::get<BrushInfo>(m_objectInfos.back());
   brush.faces.push_back(std::move(face));

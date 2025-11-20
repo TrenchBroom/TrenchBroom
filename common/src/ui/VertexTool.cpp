@@ -30,11 +30,11 @@
 #include "ui/MapDocument.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/string_format.h"
 
 #include "vm/polygon.h"
 
-#include <cassert>
 #include <tuple>
 #include <vector>
 
@@ -101,10 +101,10 @@ const mdl::VertexHandleManager& VertexTool::handleManager() const
 std::tuple<vm::vec3d, vm::vec3d> VertexTool::handlePositionAndHitPoint(
   const std::vector<mdl::Hit>& hits) const
 {
-  assert(!hits.empty());
+  contract_pre(!hits.empty());
 
   const auto& hit = hits.front();
-  assert(hit.hasType(
+  contract_assert(hit.hasType(
     mdl::VertexHandleManager::HandleHitType | mdl::EdgeHandleManager::HandleHitType
     | mdl::FaceHandleManager::HandleHitType));
 
@@ -184,7 +184,7 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
   }
   else
   {
-    assert(m_mode == Mode::SplitFace);
+    contract_assert(m_mode == Mode::SplitFace);
     if (m_map.faceHandles().selectedHandleCount() == 1)
     {
       const auto handle = m_map.faceHandles().selectedHandles().front();
@@ -232,8 +232,8 @@ bool VertexTool::allowAbsoluteSnapping() const
 
 vm::vec3d VertexTool::getHandlePosition(const mdl::Hit& hit) const
 {
-  assert(hit.isMatch());
-  assert(hit.hasType(
+  contract_pre(hit.isMatch());
+  contract_pre(hit.hasType(
     mdl::VertexHandleManager::HandleHitType | mdl::EdgeHandleManager::HandleHitType
     | mdl::FaceHandleManager::HandleHitType));
 
@@ -260,7 +260,7 @@ std::string VertexTool::actionName() const
 
 void VertexTool::removeSelection()
 {
-  assert(canRemoveSelection());
+  contract_pre(canRemoveSelection());
 
   auto handles = m_map.vertexHandles().selectedHandles();
 

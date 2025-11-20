@@ -20,7 +20,8 @@
 
 #pragma once
 
-#include <cassert>
+#include "kd/contracts.h"
+
 #include <memory>
 
 namespace kdl
@@ -76,7 +77,8 @@ std::shared_ptr<T> mem_lock(std::shared_ptr<T> ptr)
 template <typename T>
 std::shared_ptr<T> mem_lock(std::weak_ptr<T> ptr)
 {
-  assert(!mem_expired(ptr));
+  contract_pre(!mem_expired(ptr));
+
   return ptr.lock();
 }
 

@@ -27,7 +27,6 @@
 #include "vm/vec_io.h"
 
 #include <algorithm>
-#include <cassert>
 #include <istream>
 #include <ranges>
 
@@ -89,7 +88,7 @@ namespace
 
 std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
 {
-  assert(points.size() > 1);
+  contract_pre(points.size() > 1);
 
   auto result = std::vector<vm::vec3f>{points[0]};
 
@@ -121,7 +120,7 @@ std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
     ++it;
   }
 
-  assert(result.size() > 1);
+  contract_post(result.size() > 1);
   return result;
 }
 

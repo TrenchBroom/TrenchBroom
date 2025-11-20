@@ -20,8 +20,9 @@
 
 #include "kd/string_format.h"
 
+#include "kd/contracts.h"
+
 #include <algorithm>
-#include <cassert>
 #include <sstream>
 
 namespace kdl
@@ -169,7 +170,7 @@ std::string str_escape(
 std::string str_escape_if_necessary(
   const std::string_view str, const std::string_view chars, const char esc)
 {
-  assert(chars.find(esc) == std::string::npos);
+  contract_pre(chars.find(esc) == std::string::npos);
 
   if (str.empty())
   {

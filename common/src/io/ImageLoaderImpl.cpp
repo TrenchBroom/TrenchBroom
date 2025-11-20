@@ -136,7 +136,8 @@ bool ImageLoaderImpl::hasPixels() const
 
 std::vector<unsigned char> ImageLoaderImpl::loadPalette() const
 {
-  assert(hasPalette());
+  contract_pre(hasPalette());
+
   const auto* pal = FreeImage_GetPalette(m_bitmap);
   if (!pal)
   {
@@ -157,7 +158,7 @@ std::vector<unsigned char> ImageLoaderImpl::loadPalette() const
 
 std::vector<unsigned char> ImageLoaderImpl::loadIndices() const
 {
-  assert(hasIndices());
+  contract_pre(hasIndices());
 
   auto result = std::vector<unsigned char>(width() * height());
   for (unsigned y = 0; y < height(); ++y)
@@ -176,14 +177,16 @@ std::vector<unsigned char> ImageLoaderImpl::loadIndices() const
 std::vector<unsigned char> ImageLoaderImpl::loadPixels(
   const ImageLoader::PixelFormat format) const
 {
-  assert(hasPixels());
+  contract_pre(hasPixels());
+
   const auto pSize = pixelSize(format);
   return hasIndices() ? loadIndexedPixels(pSize) : loadPixels(pSize);
 }
 
 std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize) const
 {
-  assert(pSize == 3);
+  contract_pre(pSize == 3);
+
   const auto* palette = FreeImage_GetPalette(m_bitmap);
   contract_assert(palette != nullptr);
 
@@ -194,7 +197,7 @@ std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize
     {
       BYTE paletteIndex = 0;
       assertResult(FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
-      assert(paletteIndex < paletteSize());
+      contract_assert(paletteIndex < paletteSize());
 
       const auto pixelIndex = ((height() - y - 1) * width() + x) * pSize;
       result[pixelIndex + 0] = static_cast<unsigned char>(palette[paletteIndex].rgbRed);

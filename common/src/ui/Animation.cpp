@@ -24,7 +24,6 @@
 #include "kd/contracts.h"
 
 #include <algorithm>
-#include <cassert>
 
 namespace tb::ui
 {
@@ -77,7 +76,7 @@ Animation::Animation(const Type type, const Curve curve, const double duration)
   , m_curve{createAnimationCurve(curve, duration)}
   , m_duration{duration}
 {
-  assert(m_duration > 0);
+  contract_pre(m_duration > 0);
 }
 
 Animation::~Animation() = default;
@@ -138,16 +137,17 @@ void AnimationManager::runAnimation(
   // start the ticks if needed
   if (!m_timer->isActive())
   {
-    assert(!m_elapsedTimer.isValid());
-    m_elapsedTimer.start();
+    contract_assert(!m_elapsedTimer.isValid());
 
+    m_elapsedTimer.start();
     m_timer->start(1000 / AnimationUpdateRateHz);
   }
 }
 
 void AnimationManager::onTimerTick()
 {
-  assert(m_elapsedTimer.isValid());
+  contract_pre(m_elapsedTimer.isValid());
+
   const auto msElapsed = static_cast<double>(m_elapsedTimer.restart());
 
   // advance the animation times

@@ -30,8 +30,6 @@
 #include "vm/mat_ext.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <cassert>
-
 namespace tb::mdl
 {
 
@@ -117,15 +115,17 @@ BezierPatch::Point& BezierPatch::controlPoint(const size_t row, const size_t col
 const BezierPatch::Point& BezierPatch::controlPoint(
   const size_t row, const size_t col) const
 {
-  assert(row < m_pointRowCount);
-  assert(col < m_pointColumnCount);
+  contract_pre(row < m_pointRowCount);
+  contract_pre(col < m_pointColumnCount);
+
   return m_controlPoints[row * m_pointColumnCount + col];
 }
 
 void BezierPatch::setControlPoint(const size_t row, const size_t col, Point controlPoint)
 {
-  assert(row < m_pointRowCount);
-  assert(col < m_pointColumnCount);
+  contract_pre(row < m_pointRowCount);
+  contract_pre(col < m_pointColumnCount);
+
   m_controlPoints[row * m_pointColumnCount + col] = std::move(controlPoint);
   m_bounds = computeBounds(m_controlPoints);
 }

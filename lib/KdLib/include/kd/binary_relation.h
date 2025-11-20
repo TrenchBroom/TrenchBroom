@@ -20,7 +20,8 @@
 
 #pragma once
 
-#include <cassert>
+#include "kd/contracts.h"
+
 #include <map>
 #include <set>
 
@@ -77,7 +78,7 @@ public:
       if (has_more())
       {
         m_right = right_begin();
-        assert(!is_at_right_end());
+        contract_assert(!is_at_right_end());
       }
     }
 
@@ -102,7 +103,7 @@ public:
 
     pair_type operator*() const
     {
-      assert(has_more() && !is_at_right_end());
+      contract_assert(has_more() && !is_at_right_end());
 
       const auto& left = m_left->first;
       const auto& right = *m_right;
@@ -141,7 +142,7 @@ public:
         if (has_more())
         {
           m_right = right_begin();
-          assert(!is_at_right_end());
+          contract_assert(!is_at_right_end());
         }
       }
     }
@@ -150,19 +151,19 @@ public:
 
     bool is_at_right_end() const
     {
-      assert(has_more());
+      contract_pre(has_more());
       return m_right == right_end();
     }
 
     right_iter right_begin() const
     {
-      assert(has_more());
+      contract_pre(has_more());
       return std::begin(m_left->second);
     }
 
     right_iter right_end() const
     {
-      assert(has_more());
+      contract_pre(has_more());
       return std::end(m_left->second);
     }
   };
@@ -430,7 +431,8 @@ public:
     else
     {
       const auto result = insert_right_to_left(l, r);
-      assert(result);
+      contract_post(result);
+
       ++m_size;
       return result;
     }
@@ -455,11 +457,11 @@ public:
     if (r_set.erase(r) > 0u)
     {
       auto rl_it = m_right_left_map.find(r);
-      assert(rl_it != std::end(m_right_left_map));
+      contract_assert(rl_it != std::end(m_right_left_map));
 
       auto& l_set = rl_it->second;
       const auto c = l_set.erase(l);
-      assert(c == 1u);
+      contract_assert(c == 1u);
       m_size -= c;
 
       if (r_set.empty())
@@ -475,7 +477,7 @@ public:
     }
     else
     {
-      assert(find_left(r).count(l) == 0u);
+      contract_assert(find_left(r).count(l) == 0u);
       return false;
     }
   }

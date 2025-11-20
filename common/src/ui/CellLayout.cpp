@@ -19,8 +19,9 @@
 
 #include "CellLayout.h"
 
+#include "kd/contracts.h"
+
 #include <algorithm>
-#include <cassert>
 
 namespace tb::ui
 {
@@ -145,10 +146,10 @@ void LayoutCell::doLayout(
   const float minHeight,
   const float maxHeight)
 {
-  assert(0.0f < minWidth);
-  assert(0.0f < minHeight);
-  assert(minWidth <= maxWidth);
-  assert(minHeight <= maxHeight);
+  contract_pre(0.0f < minWidth);
+  contract_pre(0.0f < minHeight);
+  contract_pre(minWidth <= maxWidth);
+  contract_pre(minHeight <= maxHeight);
 
   m_scale =
     std::min(std::min(maxWidth / m_itemWidth, maxHeight / m_itemHeight), maxUpScale);
@@ -317,7 +318,8 @@ void LayoutRow::addItem(
   if (newItemRowHeight > m_minCellHeight)
   {
     m_minCellHeight = newItemRowHeight;
-    assert(m_minCellHeight <= m_maxCellHeight);
+    contract_assert(m_minCellHeight <= m_maxCellHeight);
+
     readjustItems();
   }
 
@@ -544,7 +546,9 @@ void LayoutGroup::addItem(
 
   const auto oldRowHeight = m_rows.back().bounds().height;
 
-  assert(m_rows.back().canAddItem(itemWidth, itemHeight, titleWidth, titleHeight));
+  contract_assert(
+    m_rows.back().canAddItem(itemWidth, itemHeight, titleWidth, titleHeight));
+
   m_rows.back().addItem(
     std::move(item), std::move(title), itemWidth, itemHeight, titleWidth, titleHeight);
 
@@ -644,8 +648,8 @@ float CellLayout::maxCellWidth() const
 
 void CellLayout::setCellWidth(const float minCellWidth, const float maxCellWidth)
 {
-  assert(0.0f < minCellWidth);
-  assert(minCellWidth <= maxCellWidth);
+  contract_pre(0.0f < minCellWidth);
+  contract_pre(minCellWidth <= maxCellWidth);
 
   if (m_minCellWidth != minCellWidth || m_maxCellWidth != maxCellWidth)
   {
@@ -667,8 +671,8 @@ float CellLayout::maxCellHeight() const
 
 void CellLayout::setCellHeight(const float minCellHeight, const float maxCellHeight)
 {
-  assert(0.0f < minCellHeight);
-  assert(minCellHeight <= maxCellHeight);
+  contract_pre(0.0f < minCellHeight);
+  contract_pre(minCellHeight <= maxCellHeight);
 
   if (m_minCellHeight != minCellHeight || m_maxCellHeight != maxCellHeight)
   {

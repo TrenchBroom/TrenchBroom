@@ -188,10 +188,10 @@ std::optional<mdl::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
   contract_assert(newTargetBrushNode);
 
   const auto* oldTargetContainingGroupNode = oldTargetBrushNode.containingGroup();
-  assert(oldTargetContainingGroupNode);
+  contract_assert(oldTargetContainingGroupNode);
 
   const auto* newTargetContainingGroupNode = newTargetBrushNode->containingGroup();
-  assert(newTargetContainingGroupNode);
+  contract_assert(newTargetContainingGroupNode);
 
   contract_assert(
     oldTargetContainingGroupNode->linkId() == newTargetContainingGroupNode->linkId());
@@ -387,10 +387,10 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
 {
   using namespace mdl::HitFilters;
 
-  assert(canCopyAttributesFromSelection(inputState));
+  contract_pre(canCopyAttributesFromSelection(inputState));
 
   const auto selectedFaces = m_map.selection().brushFaces;
-  assert(!selectedFaces.empty());
+  contract_assert(!selectedFaces.empty());
 
   const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
   if (const auto targetFaceHandle = mdl::hitToFaceHandle(hit))

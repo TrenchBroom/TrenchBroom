@@ -20,6 +20,8 @@
 #include "io/Token.h"
 #include "io/Tokenizer.h"
 
+#include "kd/contracts.h"
+
 #include "vm/approx.h"
 
 #include <string>
@@ -103,7 +105,8 @@ private:
           return {SimpleToken::Decimal, c, e, offset(c), startLine, startColumn};
         }
         const auto e = readUntil("{};= \n\r\t");
-        assert(e != nullptr);
+        contract_assert(e != nullptr);
+
         return {SimpleToken::String, c, e, offset(c), startLine, startColumn};
       }
       }

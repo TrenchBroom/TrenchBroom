@@ -224,9 +224,10 @@ BackSide pickBackSideOfBox(
 class ScaleTool : public Tool
 {
 public:
-  static const mdl::HitType::Type ScaleToolSideHitType;
-  static const mdl::HitType::Type ScaleToolEdgeHitType;
-  static const mdl::HitType::Type ScaleToolCornerHitType;
+  static const mdl::HitType::Type SideHitType;
+  static const mdl::HitType::Type EdgeHitType;
+  static const mdl::HitType::Type CornerHitType;
+  static const mdl::HitType::Type AnyHitType;
 
 private:
   mdl::Map& m_map;

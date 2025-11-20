@@ -403,8 +403,8 @@ TEST_CASE("Polyhedron")
     auto rhs = other;
 
     // Just to be sure...
-    assert(lhs == original);
-    assert(rhs == other);
+    REQUIRE(lhs == original);
+    REQUIRE(rhs == other);
 
     using std::swap;
     swap(lhs, rhs);

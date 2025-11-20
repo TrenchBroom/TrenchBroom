@@ -21,6 +21,7 @@
 
 #include "NotifierConnection.h"
 
+#include "kd/contracts.h"
 #include "kd/set_temp.h"
 #include "kd/tuple_utils.h"
 
@@ -159,7 +160,7 @@ private:
 
     void processPendingObservers()
     {
-      assert(!m_notifying);
+      contract_pre(!m_notifying);
 
       for (auto it = std::begin(m_observers); it != std::end(m_observers);)
       {

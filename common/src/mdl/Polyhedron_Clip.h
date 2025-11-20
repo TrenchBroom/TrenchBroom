@@ -96,7 +96,7 @@ typename Polyhedron<T, FP, VP>::ClipResult Polyhedron<T, FP, VP>::clip(
 
     // We seal the polyhedron by creating a new face.
     auto* newFace = sealWithSinglePolygon(seam, plane);
-    assert(newFace != nullptr);
+    contract_assert(newFace != nullptr);
 
     // Remove any redundant vertices from the seam
     // TODO: check if we really need this
@@ -169,7 +169,7 @@ std::optional<typename Polyhedron<T, FP, VP>::ClipResult::FailureReason> Polyhed
     }
   }
 
-  assert(above + below + inside == m_vertices.size());
+  contract_assert(above + below + inside == m_vertices.size());
 
   return below + inside == m_vertices.size()
            ? std::optional{ClipResult::FailureReason::Unchanged}
@@ -393,7 +393,7 @@ std::tuple<typename Polyhedron<T, FP, VP>::HalfEdge*, bool> Polyhedron<T, FP, VP
 
       currentBoundaryEdge = currentBoundaryEdge->next();
       auto* newVertex = currentBoundaryEdge->origin();
-      assert(
+      contract_assert(
         plane.point_status(
           newVertex->position(), vm::constants<T>::point_status_epsilon())
         == vm::plane_status::inside);
@@ -431,7 +431,8 @@ std::tuple<typename Polyhedron<T, FP, VP>::HalfEdge*, bool> Polyhedron<T, FP, VP
     // destination of the seam origin edge is above or below the plane.
     const auto originStatus = plane.point_status(
       seamOrigin->destination()->position(), vm::constants<T>::point_status_epsilon());
-    assert(originStatus != vm::plane_status::inside);
+    contract_assert(originStatus != vm::plane_status::inside);
+
     if (originStatus == vm::plane_status::below)
     {
       intersectWithPlane(seamOrigin, seamDestination);
@@ -479,7 +480,7 @@ typename Polyhedron<T, FP, VP>::HalfEdge* Polyhedron<T, FP, VP>::findNextInterse
   auto* stopEdge = searchFrom->twin();
   do
   {
-    assert(currentEdge != stopEdge);
+    contract_assert(currentEdge != stopEdge);
 
     // Select two vertices that form a triangle (of an adjacent face) together with
     // currentEdge's origin vertex. If either of the two vertices is inside the plane or

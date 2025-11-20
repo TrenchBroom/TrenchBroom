@@ -179,7 +179,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
   auto nodesToSelect = std::vector<Node*>{};
 
   const auto addBrushOrPatchNode = [&](auto* node) {
-    assert(node->selected());
+    contract_pre(node->selected());
 
     if (!node->containedInGroup())
     {
@@ -207,7 +207,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
       [](WorldNode*) {},
       [](LayerNode*) {},
       [&](GroupNode* groupNode) {
-        assert(groupNode->selected());
+        contract_pre(groupNode->selected());
 
         if (!groupNode->containedInGroup())
         {
@@ -216,7 +216,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
         }
       },
       [&](EntityNode* entityNode) {
-        assert(entityNode->selected());
+        contract_pre(entityNode->selected());
 
         if (!entityNode->containedInGroup())
         {

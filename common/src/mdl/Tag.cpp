@@ -21,9 +21,9 @@
 
 #include "mdl/TagManager.h"
 
+#include "kd/contracts.h"
 #include "kd/struct_io.h"
 
-#include <cassert>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -170,7 +170,7 @@ bool Taggable::removeTag(const Tag& tag)
   {
     m_tagMask &= ~tag.type();
     m_tags.erase(it);
-    assert(!hasTag(tag));
+    contract_assert(!hasTag(tag));
 
     updateAttributeMask();
     return true;

@@ -34,10 +34,10 @@
 #include "ui/ScaleTool.h"
 #include "ui/ShearTool.h"
 
+#include "kd/contracts.h"
+
 #include "vm/line.h"
 #include "vm/plane.h"
-
-#include <cassert>
 
 namespace tb::ui
 {
@@ -170,8 +170,8 @@ public:
 std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
   const vm::bbox3d& bounds, const auto& hit)
 {
-  assert(hit.isMatch());
-  assert(hit.hasType(ShearTool::ShearToolSideHitType));
+  contract_pre(hit.isMatch());
+  contract_pre(hit.hasType(ShearTool::ShearToolSideHitType));
 
   const auto side = hit.template target<BBoxSide>();
   return {centerForBBoxSide(bounds, side), hit.hitPoint()};

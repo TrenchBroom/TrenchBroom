@@ -24,6 +24,7 @@
 #include "mdl/PickResult.h"
 #include "render/Camera.h"
 
+#include "kd/contracts.h"
 #include "kd/map_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
@@ -430,7 +431,8 @@ private:
   {
     if (info.select())
     {
-      assert(selectedHandleCount() < totalHandleCount());
+      contract_assert(selectedHandleCount() < totalHandleCount());
+
       ++m_selectedHandleCount;
     }
   }
@@ -439,7 +441,8 @@ private:
   {
     if (info.deselect())
     {
-      assert(m_selectedHandleCount > 0);
+      contract_assert(m_selectedHandleCount > 0);
+
       --m_selectedHandleCount;
     }
   }
@@ -448,12 +451,14 @@ private:
   {
     if (info.toggle())
     {
-      assert(selectedHandleCount() < totalHandleCount());
+      contract_assert(selectedHandleCount() < totalHandleCount());
+
       ++m_selectedHandleCount;
     }
     else
     {
-      assert(m_selectedHandleCount > 0);
+      contract_assert(m_selectedHandleCount > 0);
+
       --m_selectedHandleCount;
     }
   }

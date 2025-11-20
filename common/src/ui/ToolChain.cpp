@@ -25,7 +25,6 @@
 
 #include "kd/contracts.h"
 
-#include <cassert>
 #include <string>
 
 namespace tb::ui
@@ -36,10 +35,12 @@ ToolChain::~ToolChain() = default;
 
 void ToolChain::append(std::unique_ptr<ToolController> tool)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (chainEndsHere())
   {
-    assert(m_suffix == nullptr);
+    contract_assert(m_suffix == nullptr);
+
     m_tool = std::move(tool);
     m_suffix = std::make_unique<ToolChain>();
   }
@@ -49,12 +50,14 @@ void ToolChain::append(std::unique_ptr<ToolController> tool)
 
     m_suffix->append(std::move(tool));
   }
-  assert(checkInvariant());
+
+  contract_post(checkInvariant());
 }
 
 void ToolChain::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (!chainEndsHere())
   {
     if (m_tool->toolActive())
@@ -67,7 +70,8 @@ void ToolChain::pick(const InputState& inputState, mdl::PickResult& pickResult)
 
 void ToolChain::modifierKeyChange(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (!chainEndsHere())
   {
     if (m_tool->toolActive())
@@ -80,7 +84,8 @@ void ToolChain::modifierKeyChange(const InputState& inputState)
 
 void ToolChain::mouseDown(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (!chainEndsHere())
   {
     if (m_tool->toolActive())
@@ -93,7 +98,8 @@ void ToolChain::mouseDown(const InputState& inputState)
 
 void ToolChain::mouseUp(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (!chainEndsHere())
   {
     if (m_tool->toolActive())
@@ -106,7 +112,8 @@ void ToolChain::mouseUp(const InputState& inputState)
 
 bool ToolChain::mouseClick(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (chainEndsHere())
   {
     return false;
@@ -120,7 +127,8 @@ bool ToolChain::mouseClick(const InputState& inputState)
 
 bool ToolChain::mouseDoubleClick(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (chainEndsHere())
   {
     return false;
@@ -134,7 +142,8 @@ bool ToolChain::mouseDoubleClick(const InputState& inputState)
 
 void ToolChain::mouseScroll(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (!chainEndsHere())
   {
     if (m_tool->toolActive())
@@ -147,7 +156,8 @@ void ToolChain::mouseScroll(const InputState& inputState)
 
 void ToolChain::mouseMove(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (!chainEndsHere())
   {
     if (m_tool->toolActive())
@@ -160,7 +170,8 @@ void ToolChain::mouseMove(const InputState& inputState)
 
 std::unique_ptr<GestureTracker> ToolChain::acceptMouseDrag(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (chainEndsHere())
   {
     return nullptr;
@@ -177,7 +188,8 @@ std::unique_ptr<GestureTracker> ToolChain::acceptMouseDrag(const InputState& inp
 
 std::unique_ptr<GestureTracker> ToolChain::acceptGesture(const InputState& inputState)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (chainEndsHere())
   {
     return nullptr;
@@ -195,7 +207,8 @@ std::unique_ptr<GestureTracker> ToolChain::acceptGesture(const InputState& input
 bool ToolChain::shouldAcceptDrop(
   const InputState& inputState, const std::string& payload) const
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (chainEndsHere())
   {
     return false;
@@ -207,7 +220,8 @@ bool ToolChain::shouldAcceptDrop(
 std::unique_ptr<DropTracker> ToolChain::dragEnter(
   const InputState& inputState, const std::string& payload)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (chainEndsHere())
   {
     return nullptr;
@@ -225,7 +239,8 @@ std::unique_ptr<DropTracker> ToolChain::dragEnter(
 void ToolChain::setRenderOptions(
   const InputState& inputState, render::RenderContext& renderContext) const
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (!chainEndsHere())
   {
     if (m_tool->toolActive())
@@ -241,7 +256,8 @@ void ToolChain::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (!chainEndsHere())
   {
     if (m_tool->toolActive())
@@ -254,7 +270,8 @@ void ToolChain::render(
 
 bool ToolChain::cancel()
 {
-  assert(checkInvariant());
+  contract_pre(checkInvariant());
+
   if (chainEndsHere())
   {
     return false;

@@ -285,7 +285,7 @@ bool CommandProcessor::redo()
 
 void CommandProcessor::clear()
 {
-  assert(m_transactionStack.empty());
+  contract_pre(m_transactionStack.empty());
 
   m_undoStack.clear();
   m_redoStack.clear();
@@ -356,7 +356,8 @@ bool CommandProcessor::storeCommand(
 bool CommandProcessor::pushTransactionCommand(
   std::unique_ptr<UndoableCommand> command, const bool collate)
 {
-  assert(!m_transactionStack.empty());
+  contract_pre(!m_transactionStack.empty());
+
   auto& transaction = m_transactionStack.back();
   if (!transaction.commands.empty())
   {
@@ -373,7 +374,7 @@ bool CommandProcessor::pushTransactionCommand(
 
 void CommandProcessor::createAndStoreTransaction()
 {
-  assert(!m_transactionStack.empty());
+  contract_pre(!m_transactionStack.empty());
 
   auto transaction = kdl::vec_pop_back(m_transactionStack);
   if (!transaction.commands.empty())
@@ -411,7 +412,7 @@ std::unique_ptr<UndoableCommand> CommandProcessor::createTransaction(
 bool CommandProcessor::pushToUndoStack(
   std::unique_ptr<UndoableCommand> command, const bool collate)
 {
-  assert(m_transactionStack.empty());
+  contract_pre(m_transactionStack.empty());
 
   const auto timestamp = std::chrono::system_clock::now();
   const auto setLastCommandTimestamp = kdl::set_later{m_lastCommandTimestamp, timestamp};
@@ -431,8 +432,8 @@ bool CommandProcessor::pushToUndoStack(
 
 std::unique_ptr<UndoableCommand> CommandProcessor::popFromUndoStack()
 {
-  assert(m_transactionStack.empty());
-  assert(!m_undoStack.empty());
+  contract_pre(m_transactionStack.empty());
+  contract_pre(!m_undoStack.empty());
 
   return kdl::vec_pop_back(m_undoStack);
 }
@@ -446,14 +447,15 @@ bool CommandProcessor::collatable(
 
 void CommandProcessor::pushToRedoStack(std::unique_ptr<UndoableCommand> command)
 {
-  assert(m_transactionStack.empty());
+  contract_pre(m_transactionStack.empty());
+
   m_redoStack.push_back(std::move(command));
 }
 
 std::unique_ptr<UndoableCommand> CommandProcessor::popFromRedoStack()
 {
-  assert(m_transactionStack.empty());
-  assert(!m_redoStack.empty());
+  contract_pre(m_transactionStack.empty());
+  contract_pre(!m_redoStack.empty());
 
   return kdl::vec_pop_back(m_redoStack);
 }

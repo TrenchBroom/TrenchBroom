@@ -23,10 +23,10 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 
-#include <cassert>
 #include <ranges>
 
 namespace tb::mdl
@@ -36,7 +36,7 @@ BrushFaceReference::BrushFaceReference(BrushNode* node, const BrushFace& face)
   : m_node{node}
   , m_facePlane{face.boundary()}
 {
-  assert(m_node != nullptr);
+  contract_pre(m_node != nullptr);
 }
 
 Result<BrushFaceHandle> BrushFaceReference::resolve() const

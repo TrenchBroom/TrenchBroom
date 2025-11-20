@@ -600,7 +600,7 @@ std::string mapStringFromUnicode(
 
 QString nativeModifierLabel(const int modifier)
 {
-  assert(
+  contract_pre(
     modifier == Qt::META || modifier == Qt::SHIFT || modifier == Qt::CTRL
     || modifier == Qt::ALT);
 

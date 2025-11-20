@@ -57,7 +57,6 @@ FileLogger& FileLogger::instance()
 
 void FileLogger::doLog(const LogLevel /* level */, const std::string_view message)
 {
-  assert(m_stream);
   if (m_stream)
   {
     m_stream << message << std::endl;

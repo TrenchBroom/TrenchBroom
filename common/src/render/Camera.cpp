@@ -19,6 +19,7 @@
 
 #include "Camera.h"
 
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/distance.h"
@@ -68,13 +69,15 @@ float Camera::zoom() const
 
 void Camera::zoom(const float factor)
 {
-  assert(factor > 0.0f);
+  contract_pre(factor > 0.0f);
+
   setZoom(m_zoom * factor);
 }
 
 void Camera::setZoom(const float zoom)
 {
-  assert(zoom > 0.0f);
+  contract_pre(zoom > 0.0f);
+
   if (zoom != m_zoom && isValidZoom(zoom))
   {
     m_zoom = zoom;
@@ -273,7 +276,8 @@ vm::vec3f Camera::unproject(const float x, const float y, const float depth) con
 
 void Camera::setNearPlane(const float nearPlane)
 {
-  assert(nearPlane < m_farPlane);
+  contract_pre(nearPlane < m_farPlane);
+
   if (nearPlane != m_nearPlane)
   {
     m_nearPlane = nearPlane;
@@ -284,7 +288,8 @@ void Camera::setNearPlane(const float nearPlane)
 
 void Camera::setFarPlane(const float farPlane)
 {
-  assert(farPlane > m_nearPlane);
+  contract_pre(farPlane > m_nearPlane);
+
   if (farPlane != m_farPlane)
   {
     m_farPlane = farPlane;
@@ -475,10 +480,11 @@ Camera::Camera(
   , m_zoom{1.0f}
   , m_position{position}
 {
-  assert(m_nearPlane >= 0.0f);
-  assert(m_farPlane > m_nearPlane);
-  assert(vm::is_unit(direction, vm::Cf::almost_zero()));
-  assert(vm::is_unit(up, vm::Cf::almost_zero()));
+  contract_pre(m_nearPlane >= 0.0f);
+  contract_pre(m_farPlane > m_nearPlane);
+  contract_pre(vm::is_unit(direction, vm::Cf::almost_zero()));
+  contract_pre(vm::is_unit(up, vm::Cf::almost_zero()));
+
   setDirection(direction, up);
 }
 

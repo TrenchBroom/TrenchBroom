@@ -23,19 +23,20 @@
 #include "render/PrimType.h"
 #include "render/RenderUtils.h"
 
+#include "kd/contracts.h"
+
 #include "vm/constants.h"
 #include "vm/util.h"
 #include "vm/vec.h"
-
-#include <cassert>
 
 namespace tb::render
 {
 Circle::Circle(const float radius, const size_t segments, const bool filled)
   : m_filled{filled}
 {
-  assert(radius > 0.0f);
-  assert(segments > 0);
+  contract_pre(radius > 0.0f);
+  contract_pre(segments > 0);
+
   init2D(radius, segments, 0.0f, vm::Cf::two_pi());
 }
 
@@ -47,8 +48,9 @@ Circle::Circle(
   const float angleLength)
   : m_filled{filled}
 {
-  assert(radius > 0.0f);
-  assert(segments > 0);
+  contract_pre(radius > 0.0f);
+  contract_pre(segments > 0);
+
   init2D(radius, segments, startAngle, angleLength);
 }
 
@@ -61,8 +63,8 @@ Circle::Circle(
   const vm::vec3f& endAxis)
   : m_filled{filled}
 {
-  assert(radius > 0.0f);
-  assert(segments > 0);
+  contract_pre(radius > 0.0f);
+  contract_pre(segments > 0);
 
   const auto [startAngle, angleLength] = startAngleAndLength(axis, startAxis, endAxis);
   init3D(radius, segments, axis, startAngle, angleLength);
@@ -77,9 +79,10 @@ Circle::Circle(
   const float angleLength)
   : m_filled(filled)
 {
-  assert(radius > 0.0f);
-  assert(segments > 0);
-  assert(angleLength > 0.0f);
+  contract_pre(radius > 0.0f);
+  contract_pre(segments > 0);
+  contract_pre(angleLength > 0.0f);
+
   init3D(radius, segments, axis, startAngle, angleLength);
 }
 

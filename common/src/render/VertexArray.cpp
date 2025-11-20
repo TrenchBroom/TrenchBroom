@@ -21,7 +21,7 @@
 
 #include "render/PrimType.h"
 
-#include <cassert>
+#include "kd/contracts.h"
 
 namespace tb::render
 {
@@ -66,8 +66,8 @@ bool VertexArray::setup()
     return false;
   }
 
-  assert(prepared());
-  assert(!m_setup);
+  contract_assert(prepared());
+  contract_assert(!m_setup);
 
   m_holder->setup();
   m_setup = true;
@@ -76,8 +76,9 @@ bool VertexArray::setup()
 
 void VertexArray::cleanup()
 {
-  assert(m_setup);
-  assert(!empty());
+  contract_pre(m_setup);
+  contract_pre(!empty());
+
   m_holder->cleanup();
   m_setup = false;
 }
@@ -89,7 +90,8 @@ void VertexArray::render(const PrimType primType)
 
 void VertexArray::render(const PrimType primType, const GLint index, const GLsizei count)
 {
-  assert(prepared());
+  contract_pre(prepared());
+
   if (!m_setup)
   {
     if (setup())
@@ -110,7 +112,8 @@ void VertexArray::render(
   const GLCounts& counts,
   const GLint primCount)
 {
-  assert(prepared());
+  contract_pre(prepared());
+
   if (!m_setup)
   {
     if (setup())
@@ -132,7 +135,8 @@ void VertexArray::render(
 void VertexArray::render(
   const PrimType primType, const GLIndices& indices, const GLsizei count)
 {
-  assert(prepared());
+  contract_pre(prepared());
+
   if (!m_setup)
   {
     if (setup())

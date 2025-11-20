@@ -21,7 +21,7 @@
 
 #include "render/RenderUtils.h"
 
-#include <cassert>
+#include "kd/contracts.h"
 
 namespace tb::render
 {
@@ -77,7 +77,7 @@ size_t MaterialIndexArrayMap::add(
   const Material* material, const PrimType primType, const size_t count)
 {
   auto it = m_ranges.find(material);
-  assert(it != std::end(m_ranges));
+  contract_assert(it != std::end(m_ranges));
   return it->second.add(primType, count);
 }
 

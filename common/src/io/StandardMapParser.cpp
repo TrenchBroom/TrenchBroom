@@ -25,6 +25,8 @@
 #include "mdl/BrushFace.h"
 #include "mdl/EntityProperties.h"
 
+#include "kd/contracts.h"
+
 #include "vm/vec.h"
 
 #include <string>
@@ -180,8 +182,8 @@ StandardMapParser::StandardMapParser(
   , m_sourceMapFormat{sourceMapFormat}
   , m_targetMapFormat{targetMapFormat}
 {
-  assert(m_sourceMapFormat != mdl::MapFormat::Unknown);
-  assert(targetMapFormat != mdl::MapFormat::Unknown);
+  contract_pre(m_sourceMapFormat != mdl::MapFormat::Unknown);
+  contract_pre(targetMapFormat != mdl::MapFormat::Unknown);
 }
 
 StandardMapParser::~StandardMapParser() = default;

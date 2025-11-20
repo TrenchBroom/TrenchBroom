@@ -39,6 +39,7 @@
 #include "ui/MapDocument.h" // IWYU pragma: keep
 
 #include "kd/cmd_utils.h"
+#include "kd/contracts.h"
 #include "kd/functional.h"
 #include "kd/overload.h"
 #include "kd/path_utils.h"
@@ -319,7 +320,7 @@ void CompilationRunToolTaskRunner::doTerminate()
 
 void CompilationRunToolTaskRunner::startProcess()
 {
-  assert(m_process == nullptr);
+  contract_pre(m_process == nullptr);
 
   emit start();
   workDir(m_context)
@@ -510,7 +511,7 @@ CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(
 
 void CompilationRunner::execute()
 {
-  assert(!running());
+  contract_pre(!running());
 
   m_currentTask = std::begin(m_taskRunners);
   if (m_currentTask == std::end(m_taskRunners))
@@ -543,7 +544,8 @@ void CompilationRunner::execute()
 
 void CompilationRunner::terminate()
 {
-  assert(running());
+  contract_pre(running());
+
   unbindEvents(*m_currentTask->get());
   m_currentTask->get()->terminate();
   m_currentTask = std::end(m_taskRunners);

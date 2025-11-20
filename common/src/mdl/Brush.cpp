@@ -159,6 +159,7 @@ Result<void> Brush::updateGeometryFromFaces(const vm::bbox3d& worldBounds)
   m_faces = std::move(remainingFaces);
   m_geometry = std::move(geometry);
 
+  // too expensive for contract_post
   assert(checkFaceLinks());
 
   return kdl::void_success;
@@ -214,13 +215,15 @@ std::optional<size_t> Brush::findFace(
 
 const BrushFace& Brush::face(const size_t index) const
 {
-  assert(index < faceCount());
+  contract_pre(index < faceCount());
+
   return m_faces[index];
 }
 
 BrushFace& Brush::face(const size_t index)
 {
-  assert(index < faceCount());
+  contract_pre(index < faceCount());
+
   return m_faces[index];
 }
 
@@ -372,7 +375,7 @@ Result<void> Brush::moveBoundary(
   const vm::vec3d& delta,
   const bool lockMaterial)
 {
-  assert(faceIndex < faceCount());
+  contract_pre(faceIndex < faceCount());
 
   return m_faces[faceIndex].transform(vm::translation_matrix(delta), lockMaterial)
          | kdl::and_then([&]() { return updateGeometryFromFaces(worldBounds); });
@@ -590,8 +593,6 @@ bool Brush::canAddVertex(const vm::bbox3d& worldBounds, const vm::vec3d& positio
 
 Result<void> Brush::addVertex(const vm::bbox3d& worldBounds, const vm::vec3d& position)
 {
-  assert(canAddVertex(worldBounds, position));
-
   BrushGeometry newGeometry(
     kdl::vec_concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>({position})));
   const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
@@ -720,6 +721,7 @@ Result<void> Brush::transformEdges(
   const vm::mat4x4d& transform,
   const bool uvLock)
 {
+  // too expensive for contract_pre
   assert(canTransformEdges(worldBounds, edgePositions, transform));
 
   std::vector<vm::vec3d> vertexPositions;
@@ -768,6 +770,7 @@ Result<void> Brush::transformFaces(
   const vm::mat4x4d& transform,
   const bool uvLock)
 {
+  // too expensive for contract_pre
   assert(canTransformFaces(worldBounds, facePositions, transform));
 
   std::vector<vm::vec3d> vertexPositions;
@@ -967,6 +970,7 @@ Result<void> Brush::doTransformVertices(
   contract_pre(m_geometry != nullptr);
   contract_pre(!vertexPositions.empty());
 
+  // too expensive for contract_pre
   assert(canTransformVertices(worldBounds, vertexPositions, transform));
 
   std::vector<vm::vec3d> newVertices;

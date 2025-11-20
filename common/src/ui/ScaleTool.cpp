@@ -103,7 +103,7 @@ std::vector<BBoxSide> sidesForEdgeSelection(const BBoxEdge& edge)
     };
 
   vm::bbox3d{{-1, -1, -1}, {1, 1, 1}}.for_each_face(visitor);
-  assert(result.size() == 2);
+  contract_assert(result.size() == 2);
 
   return result;
 }
@@ -131,9 +131,11 @@ std::vector<BBoxSide> sidesWithOppositeSides(const std::vector<BBoxSide>& sides)
 
 } // namespace
 
-const mdl::HitType::Type ScaleTool::ScaleToolSideHitType = mdl::HitType::freeType();
-const mdl::HitType::Type ScaleTool::ScaleToolEdgeHitType = mdl::HitType::freeType();
-const mdl::HitType::Type ScaleTool::ScaleToolCornerHitType = mdl::HitType::freeType();
+const mdl::HitType::Type ScaleTool::SideHitType = mdl::HitType::freeType();
+const mdl::HitType::Type ScaleTool::EdgeHitType = mdl::HitType::freeType();
+const mdl::HitType::Type ScaleTool::CornerHitType = mdl::HitType::freeType();
+const mdl::HitType::Type ScaleTool::AnyHitType =
+  ScaleTool::SideHitType | ScaleTool::EdgeHitType | ScaleTool::CornerHitType;
 
 // Scale tool helper functions
 
@@ -230,7 +232,7 @@ std::vector<BBoxSide> allSides()
       result.emplace_back(n);
     });
 
-  assert(result.size() == 6);
+  contract_post(result.size() == 6);
   return result;
 }
 
@@ -242,7 +244,7 @@ std::vector<BBoxEdge> allEdges()
   vm::bbox3d{{-1, -1, -1}, {1, 1, 1}}.for_each_edge(
     [&](const auto& p0, const auto& p1) { result.emplace_back(p0, p1); });
 
-  assert(result.size() == 12);
+  contract_post(result.size() == 12);
   return result;
 }
 
@@ -254,7 +256,7 @@ std::vector<BBoxCorner> allCorners()
   vm::bbox3d{{-1, -1, -1}, {1, 1, 1}}.for_each_vertex(
     [&](const auto& point) { result.emplace_back(point); });
 
-  assert(result.size() == 8);
+  contract_post(result.size() == 8);
   return result;
 }
 
@@ -263,7 +265,7 @@ vm::vec3d pointForBBoxCorner(const vm::bbox3d& box, const BBoxCorner& corner)
   vm::vec3d res;
   for (size_t i = 0; i < 3; ++i)
   {
-    assert(corner.corner[i] == 1.0 || corner.corner[i] == -1.0);
+    contract_assert(corner.corner[i] == 1.0 || corner.corner[i] == -1.0);
 
     res[i] = (corner.corner[i] == 1.0) ? box.max[i] : box.min[i];
   }
@@ -307,7 +309,7 @@ vm::polygon3d polygonForBBoxSide(const vm::bbox3d& box, const BBoxSide& side)
       }
     });
 
-  assert(result.vertexCount() == 4);
+  contract_post(result.vertexCount() == 4);
   return result;
 }
 
@@ -325,7 +327,7 @@ vm::vec3d centerForBBoxSide(const vm::bbox3d& box, const BBoxSide& side)
     };
   box.for_each_face(visitor);
 
-  assert(result != std::nullopt);
+  contract_post(result != std::nullopt);
   return *result;
 }
 
@@ -488,20 +490,22 @@ vm::bbox3d moveBBoxEdge(
 
 vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const mdl::Hit& hit)
 {
+  contract_pre(hit.hasType(ScaleTool::AnyHitType));
+
   auto handleLine = vm::line3d{};
 
   // NOTE: We don't need to check for the Alt modifier (moves the drag anchor to the
   // center of the bbox) because all of these lines go through the center of the box
   // anyway, so the resulting line would be the same.
 
-  if (hit.type() == ScaleTool::ScaleToolSideHitType)
+  if (hit.type() == ScaleTool::SideHitType)
   {
     const auto draggingSide = hit.target<BBoxSide>();
 
     handleLine =
       vm::line3d{centerForBBoxSide(bboxAtDragStart, draggingSide), draggingSide.normal};
   }
-  else if (hit.type() == ScaleTool::ScaleToolEdgeHitType)
+  else if (hit.type() == ScaleTool::EdgeHitType)
   {
     const auto endEdge = hit.target<BBoxEdge>();
     const auto startEdge = oppositeEdge(endEdge);
@@ -514,7 +518,7 @@ vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const mdl::Hit& h
 
     handleLine = vm::line3d(handleLineStart, normalize(handleLineEnd - handleLineStart));
   }
-  else if (hit.type() == ScaleTool::ScaleToolCornerHitType)
+  else if (hit.type() == ScaleTool::CornerHitType)
   {
     const auto endCorner = hit.target<BBoxCorner>();
     const auto startCorner = oppositeCorner(endCorner);
@@ -523,10 +527,6 @@ vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const mdl::Hit& h
     const vm::vec3d handleLineEnd = pointForBBoxCorner(bboxAtDragStart, endCorner);
 
     handleLine = vm::line3d(handleLineStart, normalize(handleLineEnd - handleLineStart));
-  }
-  else
-  {
-    assert(0);
   }
 
   return handleLine;
@@ -539,29 +539,24 @@ vm::bbox3d moveBBoxForHit(
   const ProportionalAxes& proportional,
   const AnchorPos anchor)
 {
-  if (dragStartHit.type() == ScaleTool::ScaleToolSideHitType)
+  contract_pre(dragStartHit.hasType(ScaleTool::AnyHitType));
+
+  if (dragStartHit.type() == ScaleTool::SideHitType)
   {
     const auto endSide = dragStartHit.target<BBoxSide>();
-
     return moveBBoxSide(bboxAtDragStart, endSide, delta, proportional, anchor);
   }
-  else if (dragStartHit.type() == ScaleTool::ScaleToolEdgeHitType)
+
+  if (dragStartHit.type() == ScaleTool::EdgeHitType)
   {
     const auto endEdge = dragStartHit.target<BBoxEdge>();
-
     return moveBBoxEdge(bboxAtDragStart, endEdge, delta, proportional, anchor);
   }
-  else if (dragStartHit.type() == ScaleTool::ScaleToolCornerHitType)
-  {
-    const auto endCorner = dragStartHit.target<BBoxCorner>();
 
-    return moveBBoxCorner(bboxAtDragStart, endCorner, delta, anchor);
-  }
-  else
-  {
-    assert(0);
-    return vm::bbox3d{};
-  }
+  contract_assert(dragStartHit.type() == ScaleTool::CornerHitType);
+
+  const auto endCorner = dragStartHit.target<BBoxCorner>();
+  return moveBBoxCorner(bboxAtDragStart, endCorner, delta, anchor);
 }
 
 // ScaleTool
@@ -631,7 +626,7 @@ BackSide pickBackSideOfBox(
   // The hit point is the closest point on the pick ray to one of the edges of the face.
   // For face dragging, we'll project the pick ray onto the line through this point and
   // having the face normal.
-  assert(bestNormal != vm::vec3d(0, 0, 0));
+  contract_assert(bestNormal != vm::vec3d(0, 0, 0));
 
   return {
     bestDistAlongRay,
@@ -652,9 +647,10 @@ void ScaleTool::pickBackSides(
     // The hit point is the closest point on the pick ray to one of the edges of the face.
     // For face dragging, we'll project the pick ray onto the line through this point and
     // having the face normal.
-    assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
+    contract_assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
+
     pickResult.addHit(mdl::Hit{
-      ScaleToolSideHitType,
+      SideHitType,
       result.distAlongRay,
       vm::point_at_distance(pickRay, result.distAlongRay),
       BBoxSide{result.pickedSideNormal}});
@@ -679,7 +675,8 @@ void ScaleTool::pick2D(
   auto localPickResult = mdl::PickResult{};
 
   // bbox corners in 2d views
-  assert(camera.orthographicProjection());
+  contract_assert(camera.orthographicProjection());
+
   for (const auto& edge : allEdges())
   {
     const auto points = pointsForBBoxEdge(myBounds, edge);
@@ -695,7 +692,7 @@ void ScaleTool::pick2D(
             pickRay, point, double(pref(Preferences::HandleRadius))))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-          localPickResult.addHit(mdl::Hit{ScaleToolEdgeHitType, *dist, hitPoint, edge});
+          localPickResult.addHit(mdl::Hit{EdgeHitType, *dist, hitPoint, edge});
         }
       }
     }
@@ -727,7 +724,7 @@ void ScaleTool::pick3D(
   auto localPickResult = mdl::PickResult{};
 
   // these handles only work in 3D.
-  assert(camera.perspectiveProjection());
+  contract_assert(camera.perspectiveProjection());
 
   // corners
   for (const auto& corner : allCorners())
@@ -740,7 +737,7 @@ void ScaleTool::pick3D(
     if (const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(mdl::Hit{ScaleToolCornerHitType, *dist, hitPoint, corner});
+      localPickResult.addHit(mdl::Hit{CornerHitType, *dist, hitPoint, corner});
     }
   }
 
@@ -754,7 +751,7 @@ void ScaleTool::pick3D(
         pickRay, points, double(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(mdl::Hit{ScaleToolEdgeHitType, *dist, hitPoint, edge});
+      localPickResult.addHit(mdl::Hit{EdgeHitType, *dist, hitPoint, edge});
     }
   }
 
@@ -768,7 +765,7 @@ void ScaleTool::pick3D(
         pickRay, poly.vertices().begin(), poly.vertices().end()))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(mdl::Hit{ScaleToolSideHitType, *dist, hitPoint, side});
+      localPickResult.addHit(mdl::Hit{SideHitType, *dist, hitPoint, side});
     }
   }
 
@@ -792,7 +789,7 @@ std::vector<vm::polygon3f> ScaleTool::polygonsHighlightedByDrag() const
 {
   auto sides = std::vector<BBoxSide>{};
 
-  if (m_dragStartHit.type() == ScaleToolSideHitType)
+  if (m_dragStartHit.type() == SideHitType)
   {
     const auto side = m_dragStartHit.target<BBoxSide>();
     sides = {side};
@@ -820,12 +817,12 @@ std::vector<vm::polygon3f> ScaleTool::polygonsHighlightedByDrag() const
       }
     }
   }
-  else if (m_dragStartHit.type() == ScaleToolEdgeHitType)
+  else if (m_dragStartHit.type() == EdgeHitType)
   {
     const auto edge = m_dragStartHit.target<BBoxEdge>();
     sides = sidesForEdgeSelection(edge);
   }
-  else if (m_dragStartHit.type() == ScaleToolCornerHitType)
+  else if (m_dragStartHit.type() == CornerHitType)
   {
     const auto corner = m_dragStartHit.target<BBoxCorner>();
     sides = sidesForCornerSelection(corner);
@@ -851,7 +848,7 @@ bool ScaleTool::hasDragSide() const
 
 vm::polygon3f ScaleTool::dragSide() const
 {
-  if (m_dragStartHit.type() == ScaleToolSideHitType)
+  if (m_dragStartHit.type() == SideHitType)
   {
     const auto side = m_dragStartHit.target<BBoxSide>();
     return vm::polygon3f{polygonForBBoxSide(bounds(), side)};
@@ -862,24 +859,26 @@ vm::polygon3f ScaleTool::dragSide() const
 
 bool ScaleTool::hasDragEdge() const
 {
-  return m_dragStartHit.type() == ScaleToolEdgeHitType;
+  return m_dragStartHit.type() == EdgeHitType;
 }
 
 vm::segment3f ScaleTool::dragEdge() const
 {
-  assert(hasDragEdge());
+  contract_pre(hasDragEdge());
+
   auto whichEdge = m_dragStartHit.target<BBoxEdge>();
   return vm::segment3f{pointsForBBoxEdge(bounds(), whichEdge)};
 }
 
 bool ScaleTool::hasDragCorner() const
 {
-  return m_dragStartHit.type() == ScaleToolCornerHitType;
+  return m_dragStartHit.type() == CornerHitType;
 }
 
 vm::vec3f ScaleTool::dragCorner() const
 {
-  assert(hasDragCorner());
+  contract_pre(hasDragCorner());
+
   auto whichCorner = m_dragStartHit.target<BBoxCorner>();
   return vm::vec3f{pointForBBoxCorner(bounds(), whichCorner)};
 }
@@ -892,25 +891,27 @@ bool ScaleTool::hasDragAnchor() const
   }
 
   const auto type = m_dragStartHit.type();
-  return type == ScaleToolEdgeHitType || type == ScaleToolCornerHitType
-         || type == ScaleToolSideHitType;
+  return type == EdgeHitType || type == CornerHitType || type == SideHitType;
 }
 
 vm::vec3f ScaleTool::dragAnchor() const
 {
+  contract_pre(m_dragStartHit.hasType(ScaleTool::AnyHitType));
+
   if (m_anchorPos == AnchorPos::Center)
   {
     return vm::vec3f{bounds().center()};
   }
 
-  if (m_dragStartHit.type() == ScaleToolSideHitType)
+  if (m_dragStartHit.type() == SideHitType)
   {
     const auto endSide = m_dragStartHit.target<BBoxSide>();
     const auto startSide = oppositeSide(endSide);
 
     return vm::vec3f{centerForBBoxSide(bounds(), startSide)};
   }
-  else if (m_dragStartHit.type() == ScaleToolEdgeHitType)
+
+  if (m_dragStartHit.type() == EdgeHitType)
   {
     const auto endEdge = m_dragStartHit.target<BBoxEdge>();
     const auto startEdge = oppositeEdge(endEdge);
@@ -919,17 +920,14 @@ vm::vec3f ScaleTool::dragAnchor() const
 
     return vm::vec3f{startEdgeActual.center()};
   }
-  else if (m_dragStartHit.type() == ScaleToolCornerHitType)
-  {
-    const auto endCorner = m_dragStartHit.target<BBoxCorner>();
-    const auto startCorner = oppositeCorner(endCorner);
 
-    const auto startCornerActual = pointForBBoxCorner(bounds(), startCorner);
-    return vm::vec3f{startCornerActual};
-  }
+  contract_assert(m_dragStartHit.type() == CornerHitType);
 
-  assert(0);
-  return vm::vec3f{};
+  const auto endCorner = m_dragStartHit.target<BBoxCorner>();
+  const auto startCorner = oppositeCorner(endCorner);
+
+  const auto startCornerActual = pointForBBoxCorner(bounds(), startCorner);
+  return vm::vec3f{startCornerActual};
 }
 
 vm::bbox3d ScaleTool::bboxAtDragStart() const
@@ -955,29 +953,25 @@ void ScaleTool::updatePickedHandle(const mdl::PickResult& pickResult)
 {
   using namespace mdl::HitFilters;
 
-  const auto& hit = pickResult.first(
-    type(ScaleToolSideHitType | ScaleToolEdgeHitType | ScaleToolCornerHitType));
+  const auto& hit = pickResult.first(type(SideHitType | EdgeHitType | CornerHitType));
 
   // extract the highlighted handle from the hit here, and only refresh views if it
   // changed
-  if (hit.type() == ScaleToolSideHitType && m_dragStartHit.type() == ScaleToolSideHitType)
+  if (hit.type() == SideHitType && m_dragStartHit.type() == SideHitType)
   {
     if (hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>())
     {
       return;
     }
   }
-  else if (
-    hit.type() == ScaleToolEdgeHitType && m_dragStartHit.type() == ScaleToolEdgeHitType)
+  else if (hit.type() == EdgeHitType && m_dragStartHit.type() == EdgeHitType)
   {
     if (hit.target<BBoxEdge>() == m_dragStartHit.target<BBoxEdge>())
     {
       return;
     }
   }
-  else if (
-    hit.type() == ScaleToolCornerHitType
-    && m_dragStartHit.type() == ScaleToolCornerHitType)
+  else if (hit.type() == CornerHitType && m_dragStartHit.type() == CornerHitType)
   {
     if (hit.target<BBoxCorner>() == m_dragStartHit.target<BBoxCorner>())
     {
@@ -1015,8 +1009,8 @@ void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
 {
   contract_pre(hit.isMatch());
   contract_pre(
-    hit.type() == ScaleToolCornerHitType || hit.type() == ScaleToolEdgeHitType
-    || hit.type() == ScaleToolSideHitType);
+    hit.type() == CornerHitType || hit.type() == EdgeHitType
+    || hit.type() == SideHitType);
   contract_pre(!m_resizing);
 
   m_bboxAtDragStart = bounds();
@@ -1067,7 +1061,8 @@ void ScaleTool::cancelScale()
 
 QWidget* ScaleTool::doCreatePage(QWidget* parent)
 {
-  assert(m_toolPage == nullptr);
+  contract_pre(m_toolPage == nullptr);
+
   m_toolPage = new ScaleToolPage{m_map, parent};
   return m_toolPage;
 }

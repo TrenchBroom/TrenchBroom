@@ -25,6 +25,8 @@
 #include "render/RenderUtils.h"
 #include "render/Shaders.h"
 
+#include "kd/contracts.h"
+
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
@@ -302,8 +304,8 @@ void PrimitiveRenderer::renderCylinder(
   const vm::vec3f& start,
   const vm::vec3f& end)
 {
-  assert(radius > 0.0f);
-  assert(segments > 2);
+  contract_pre(radius > 0.0f);
+  contract_pre(segments > 2);
 
   const auto vec = end - start;
   const auto len = vm::length(vec);

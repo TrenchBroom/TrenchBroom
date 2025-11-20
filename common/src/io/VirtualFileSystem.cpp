@@ -23,6 +23,7 @@
 #include "io/PathInfo.h"
 #include "io/TraversalMode.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"
@@ -59,7 +60,8 @@ bool matches(const VirtualMountPoint& mountPoint, const std::filesystem::path& p
 std::filesystem::path suffix(
   const VirtualMountPoint& mountPoint, const std::filesystem::path& path)
 {
-  assert(matches(mountPoint, path));
+  contract_pre(matches(mountPoint, path));
+
   return kdl::path_clip(path, kdl::path_length(mountPoint.path));
 }
 
@@ -180,7 +182,7 @@ std::vector<std::filesystem::path> findMatchesForCommonPrefix(
   const std::filesystem::path& path,
   const TraversalMode& traversalMode)
 {
-  assert(kdl::path_has_prefix(mountPoint.path, path));
+  contract_pre(kdl::path_has_prefix(mountPoint.path, path));
 
   const auto suffixOffset = kdl::path_length(path);
   const auto suffixLength = kdl::path_length(mountPoint.path) - suffixOffset;

@@ -21,6 +21,7 @@
 
 #include "Polyhedron.h"
 
+#include "kd/contracts.h"
 #include "kd/intrusive_circular_list.h"
 
 namespace tb::mdl
@@ -85,7 +86,8 @@ typename Polyhedron_Vertex<T, FP, VP>::HalfEdge* Polyhedron_Vertex<T, FP, VP>::l
 template <typename T, typename FP, typename VP>
 void Polyhedron_Vertex<T, FP, VP>::setLeaving(HalfEdge* edge)
 {
-  assert(edge == nullptr || edge->origin() == this);
+  contract_pre(edge == nullptr || edge->origin() == this);
+
   m_leaving = edge;
 }
 
@@ -116,7 +118,8 @@ void Polyhedron_Vertex<T, FP, VP>::setPayload(typename VP::Type payload)
 template <typename T, typename FP, typename VP>
 bool Polyhedron_Vertex<T, FP, VP>::hasTwoIncidentEdges() const
 {
-  assert(m_leaving != nullptr);
+  contract_pre(m_leaving != nullptr);
+
   HalfEdge* nextLeaving = m_leaving->nextIncident();
   return nextLeaving != m_leaving && nextLeaving->nextIncident() == m_leaving;
 }
@@ -124,8 +127,8 @@ bool Polyhedron_Vertex<T, FP, VP>::hasTwoIncidentEdges() const
 template <typename T, typename FP, typename VP>
 bool Polyhedron_Vertex<T, FP, VP>::incident(const Face* face) const
 {
-  assert(face != nullptr);
-  assert(m_leaving != nullptr);
+  contract_pre(face != nullptr);
+  contract_pre(m_leaving != nullptr);
 
   auto* curEdge = m_leaving;
   do

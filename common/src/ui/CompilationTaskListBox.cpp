@@ -129,7 +129,7 @@ CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
   QWidget* parent)
   : CompilationTaskEditorBase{"Export Map", document, profile, task, parent}
 {
-  assert(std::holds_alternative<mdl::CompilationExportMap>(task));
+  contract_pre(std::holds_alternative<mdl::CompilationExportMap>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -185,7 +185,7 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
   QWidget* parent)
   : CompilationTaskEditorBase{"Copy Files", document, profile, task, parent}
 {
-  assert(std::holds_alternative<mdl::CompilationCopyFiles>(task));
+  contract_pre(std::holds_alternative<mdl::CompilationCopyFiles>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -269,7 +269,7 @@ CompilationRenameFileTaskEditor::CompilationRenameFileTaskEditor(
   QWidget* parent)
   : CompilationTaskEditorBase{"Rename File", document, profile, task, parent}
 {
-  assert(std::holds_alternative<mdl::CompilationRenameFile>(task));
+  contract_pre(std::holds_alternative<mdl::CompilationRenameFile>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -354,7 +354,7 @@ CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
   QWidget* parent)
   : CompilationTaskEditorBase{"Delete Files", document, profile, task, parent}
 {
-  assert(std::holds_alternative<mdl::CompilationDeleteFiles>(task));
+  contract_pre(std::holds_alternative<mdl::CompilationDeleteFiles>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -414,7 +414,7 @@ CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
   QWidget* parent)
   : CompilationTaskEditorBase{"Run Tool", document, profile, task, parent}
 {
-  assert(std::holds_alternative<mdl::CompilationRunTool>(task));
+  contract_pre(std::holds_alternative<mdl::CompilationRunTool>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(

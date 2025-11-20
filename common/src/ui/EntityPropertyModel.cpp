@@ -53,7 +53,6 @@
 #include <fmt/format.h>
 
 #include <algorithm>
-#include <cassert>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -86,8 +85,8 @@ bool isPropertyReadOnly(const mdl::Entity& entity, const std::string& key)
 
 bool isPropertyKeyMutable(const mdl::Entity& entity, const std::string& key)
 {
-  assert(!mdl::isGroup(entity.classname(), entity.properties()));
-  assert(!mdl::isLayer(entity.classname(), entity.properties()));
+  contract_pre(!mdl::isGroup(entity.classname(), entity.properties()));
+  contract_pre(!mdl::isLayer(entity.classname(), entity.properties()));
 
   if (isPropertyReadOnly(entity, key))
   {
@@ -113,8 +112,8 @@ bool isPropertyKeyMutable(const mdl::Entity& entity, const std::string& key)
 
 bool isPropertyValueMutable(const mdl::Entity& entity, const std::string& key)
 {
-  assert(!mdl::isGroup(entity.classname(), entity.properties()));
-  assert(!mdl::isLayer(entity.classname(), entity.properties()));
+  contract_pre(!mdl::isGroup(entity.classname(), entity.properties()));
+  contract_pre(!mdl::isLayer(entity.classname(), entity.properties()));
 
   if (isPropertyReadOnly(entity, key))
   {
@@ -1053,7 +1052,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
 
     const auto firstNewRow = static_cast<int>(m_rows.size());
     const auto lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
-    assert(lastNewRow >= firstNewRow);
+    contract_assert(lastNewRow >= firstNewRow);
 
     beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
     for (const auto& key : diff.added)
@@ -1075,7 +1074,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
     {
       const auto& row = oldRowMap.at(key);
       const auto index = kdl::index_of(m_rows, row);
-      assert(index);
+      contract_assert(index);
 
       beginRemoveRows(QModelIndex{}, static_cast<int>(*index), static_cast<int>(*index));
       m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));

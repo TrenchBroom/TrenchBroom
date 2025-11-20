@@ -27,8 +27,6 @@
 
 #include "kd/contracts.h"
 
-#include <cassert>
-
 namespace tb::ui
 {
 
@@ -36,7 +34,7 @@ FlagsEditor::FlagsEditor(const size_t numCols, QWidget* parent)
   : QWidget{parent}
   , m_numCols{numCols}
 {
-  assert(m_numCols > 0);
+  contract_pre(m_numCols > 0);
 }
 
 void FlagsEditor::setFlags(const QStringList& labels, const QStringList& tooltips)

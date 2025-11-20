@@ -27,6 +27,8 @@
 #include "render/OrthographicCamera.h"
 #include "ui/UVView.h"
 
+#include "kd/contracts.h"
+
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -87,7 +89,7 @@ const vm::vec2i& UVViewHelper::subDivisions() const
 
 vm::vec2d UVViewHelper::stripeSize() const
 {
-  assert(valid());
+  contract_pre(valid());
 
   if (const auto* texture = getTexture(face()->material()))
   {
@@ -104,7 +106,7 @@ void UVViewHelper::setSubDivisions(const vm::vec2i& subDivisions)
 
 const vm::vec3d UVViewHelper::origin() const
 {
-  assert(valid());
+  contract_pre(valid());
 
   return m_origin;
 }
@@ -118,7 +120,7 @@ const vm::vec2f UVViewHelper::originInFaceCoords() const
 
 const vm::vec2f UVViewHelper::originInUVCoords() const
 {
-  assert(valid());
+  contract_pre(valid());
 
   const auto toFace = face()->toUVCoordSystemMatrix(
     face()->attributes().offset(), face()->attributes().scale(), true);
@@ -147,7 +149,7 @@ void UVViewHelper::pickUVGrid(
   const mdl::HitType::Type hitTypes[2],
   mdl::PickResult& pickResult) const
 {
-  assert(valid());
+  contract_pre(valid());
 
   if (face()->material())
   {
@@ -216,7 +218,7 @@ vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& dista
 vm::vec2f UVViewHelper::computeDistanceFromUVGrid(const vm::vec3d& position) const
 {
   const auto stripe = stripeSize();
-  assert(stripe.x() != 0.0 && stripe.y() != 0);
+  contract_assert(stripe.x() != 0.0 && stripe.y() != 0.0);
 
   const auto closest = snap(position.xy(), stripe);
   return vm::vec2f{closest - position.xy()};
@@ -225,7 +227,7 @@ vm::vec2f UVViewHelper::computeDistanceFromUVGrid(const vm::vec3d& position) con
 void UVViewHelper::computeOriginHandleVertices(
   vm::vec3d& x1, vm::vec3d& x2, vm::vec3d& y1, vm::vec3d& y2) const
 {
-  assert(valid());
+  contract_pre(valid());
 
   const auto toTex =
     face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
@@ -237,7 +239,7 @@ void UVViewHelper::computeOriginHandleVertices(
 void UVViewHelper::computeScaleHandleVertices(
   const vm::vec2d& pos, vm::vec3d& x1, vm::vec3d& x2, vm::vec3d& y1, vm::vec3d& y2) const
 {
-  assert(valid());
+  contract_pre(valid());
 
   const auto toTex = face()->toUVCoordSystemMatrix(
     face()->attributes().offset(), face()->attributes().scale(), true);
@@ -278,7 +280,7 @@ vm::vec2f UVViewHelper::uvToViewCoords(const vm::vec2f& pos) const
 
 void UVViewHelper::resetOrigin()
 {
-  assert(valid());
+  contract_pre(valid());
 
   const auto toTex =
     face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
@@ -308,7 +310,7 @@ void UVViewHelper::resetOrigin()
 
 void UVViewHelper::resetCamera()
 {
-  assert(valid());
+  contract_pre(valid());
 
   const auto& normal = face()->boundary().normal;
 
@@ -326,7 +328,7 @@ void UVViewHelper::resetCamera()
 
 void UVViewHelper::resetZoom()
 {
-  assert(valid());
+  contract_pre(valid());
 
   auto w = float(m_camera.viewport().width);
   auto h = float(m_camera.viewport().height);
@@ -360,7 +362,7 @@ void UVViewHelper::resetZoom()
 
 vm::bbox3d UVViewHelper::computeFaceBoundsInCameraCoords() const
 {
-  assert(valid());
+  contract_pre(valid());
 
   const auto transform = vm::coordinate_system_matrix(
     vm::vec3d{m_camera.right()},

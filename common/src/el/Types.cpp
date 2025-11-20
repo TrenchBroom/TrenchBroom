@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
 #include <string>
@@ -117,7 +118,6 @@ ValueType typeForName(const std::string& type)
     return ValueType::Undefined;
   }
 
-  assert(false);
-  return ValueType::Null;
+  contract_assert(false);
 }
 } // namespace tb::el

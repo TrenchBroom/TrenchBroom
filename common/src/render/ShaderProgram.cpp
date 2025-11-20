@@ -25,6 +25,7 @@
 #include "kd/contracts.h"
 #include "kd/result.h"
 
+#include <cassert>
 #include <string>
 
 namespace tb::render
@@ -34,7 +35,7 @@ ShaderProgram::ShaderProgram(std::string name, const GLuint programId)
   : m_name{std::move(name)}
   , m_programId{programId}
 {
-  assert(m_programId != 0);
+  contract_pre(m_programId != 0);
 }
 
 ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept
@@ -61,7 +62,8 @@ ShaderProgram::~ShaderProgram()
 
 void ShaderProgram::attach(Shader& shader) const
 {
-  assert(m_programId != 0);
+  contract_pre(m_programId != 0);
+
   shader.attach(m_programId);
 }
 
@@ -104,7 +106,7 @@ Result<void> ShaderProgram::link()
 
 void ShaderProgram::activate(ShaderManager& shaderManager)
 {
-  assert(m_programId != 0);
+  contract_pre(m_programId != 0);
 
   glAssert(glUseProgram(m_programId));
   assert(checkActive());
@@ -199,7 +201,7 @@ GLint ShaderProgram::findAttributeLocation(const std::string& name) const
 
     auto inserted = false;
     std::tie(it, inserted) = m_attributeCache.emplace(name, index);
-    assert(inserted);
+    contract_assert(inserted);
   }
 
   return it->second;
@@ -216,7 +218,7 @@ GLint ShaderProgram::findUniformLocation(const std::string& name) const
 
     auto inserted = false;
     std::tie(it, inserted) = m_variableCache.emplace(name, index);
-    assert(inserted);
+    contract_assert(inserted);
   }
 
   return it->second;

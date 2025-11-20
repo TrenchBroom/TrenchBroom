@@ -21,6 +21,8 @@
 
 #include "Polyhedron.h"
 
+#include "kd/contracts.h"
+
 namespace tb::mdl
 {
 template <typename T, typename FP, typename VP>
@@ -55,7 +57,7 @@ Polyhedron_HalfEdge<T, FP, VP>::Polyhedron_HalfEdge(Vertex* origin)
   m_link{this}
 #endif
 {
-  assert(m_origin != nullptr);
+  contract_pre(m_origin != nullptr);
   setAsLeaving();
 }
 
@@ -108,7 +110,8 @@ vm::vec<T, 3> Polyhedron_HalfEdge<T, FP, VP>::vector() const
 template <typename T, typename FP, typename VP>
 Polyhedron_HalfEdge<T, FP, VP>* Polyhedron_HalfEdge<T, FP, VP>::twin() const
 {
-  assert(m_edge != nullptr);
+  contract_pre(m_edge != nullptr);
+
   return m_edge->twin(this);
 }
 
@@ -152,9 +155,9 @@ vm::plane_status Polyhedron_HalfEdge<T, FP, VP>::pointStatus(
 template <typename T, typename FP, typename VP>
 bool Polyhedron_HalfEdge<T, FP, VP>::colinear(const HalfEdge* other) const
 {
-  assert(other != nullptr);
-  assert(other != this);
-  assert(destination() == other->origin());
+  contract_pre(other != nullptr);
+  contract_pre(other != this);
+  contract_pre(destination() == other->origin());
 
   const auto& p0 = origin()->position();
   const auto& p1 = destination()->position();
@@ -166,7 +169,8 @@ bool Polyhedron_HalfEdge<T, FP, VP>::colinear(const HalfEdge* other) const
 template <typename T, typename FP, typename VP>
 void Polyhedron_HalfEdge<T, FP, VP>::setOrigin(Vertex* origin)
 {
-  assert(origin != nullptr);
+  contract_pre(origin != nullptr);
+
   m_origin = origin;
   setAsLeaving();
 }
@@ -174,30 +178,34 @@ void Polyhedron_HalfEdge<T, FP, VP>::setOrigin(Vertex* origin)
 template <typename T, typename FP, typename VP>
 void Polyhedron_HalfEdge<T, FP, VP>::setEdge(Edge* edge)
 {
-  assert(edge != nullptr);
-  assert(m_edge == nullptr);
+  contract_pre(edge != nullptr);
+  contract_pre(m_edge == nullptr);
+
   m_edge = edge;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron_HalfEdge<T, FP, VP>::unsetEdge()
 {
-  assert(m_edge != nullptr);
+  contract_pre(m_edge != nullptr);
+
   m_edge = nullptr;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron_HalfEdge<T, FP, VP>::setFace(Face* face)
 {
-  assert(face != nullptr);
-  assert(m_face == nullptr);
+  contract_pre(face != nullptr);
+  contract_pre(m_face == nullptr);
+
   m_face = face;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron_HalfEdge<T, FP, VP>::unsetFace()
 {
-  assert(m_face != nullptr);
+  contract_pre(m_face != nullptr);
+
   m_face = nullptr;
 }
 

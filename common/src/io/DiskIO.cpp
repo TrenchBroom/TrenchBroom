@@ -25,6 +25,7 @@
 #include "io/PathInfo.h"
 #include "io/TraversalMode.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/string_format.h"
 
@@ -39,7 +40,7 @@ namespace
 bool doCheckCaseSensitive()
 {
   const auto cwd = std::filesystem::current_path();
-  assert(std::filesystem::is_directory(cwd));
+  contract_assert(std::filesystem::is_directory(cwd));
 
   return !std::filesystem::exists(kdl::path_to_lower(cwd))
          || !std::filesystem::exists(kdl::str_to_upper(cwd.string()));
@@ -133,7 +134,7 @@ Result<std::vector<std::filesystem::path>> find(
 
   while (it != end)
   {
-    assert(!traversalMode.depth || it.depth() <= traversalMode.depth);
+    contract_assert(!traversalMode.depth || it.depth() <= traversalMode.depth);
 
     const auto& entryPath = it->path();
     if (pathMatcher(entryPath, pathInfo))

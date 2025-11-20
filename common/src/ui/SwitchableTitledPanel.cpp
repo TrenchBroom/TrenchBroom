@@ -29,6 +29,8 @@
 #include "ui/ClickableTitleBar.h"
 #include "ui/QtUtils.h"
 
+#include "kd/contracts.h"
+
 namespace tb::ui
 {
 
@@ -58,7 +60,8 @@ SwitchableTitledPanel::SwitchableTitledPanel(
 
 QWidget* SwitchableTitledPanel::getPanel(const size_t index) const
 {
-  assert(index < 2);
+  contract_pre(index < 2);
+
   return m_panels[index].panel;
 }
 

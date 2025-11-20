@@ -19,6 +19,8 @@
 
 #include "IndexArray.h"
 
+#include "kd/contracts.h"
+
 #include <utility>
 
 namespace tb::render
@@ -68,8 +70,8 @@ bool IndexArray::setup()
     return false;
   }
 
-  assert(prepared());
-  assert(!m_setup);
+  contract_assert(prepared());
+  contract_assert(!m_setup);
 
   m_holder->setup();
   m_setup = true;
@@ -78,7 +80,8 @@ bool IndexArray::setup()
 
 void IndexArray::render(const PrimType primType, const size_t offset, size_t count)
 {
-  assert(prepared());
+  contract_pre(prepared());
+
   if (!empty())
   {
     if (!m_setup)
@@ -98,8 +101,9 @@ void IndexArray::render(const PrimType primType, const size_t offset, size_t cou
 
 void IndexArray::cleanup()
 {
-  assert(m_setup);
-  assert(!empty());
+  contract_pre(m_setup);
+  contract_pre(!empty());
+
   m_holder->cleanup();
   m_setup = false;
 }

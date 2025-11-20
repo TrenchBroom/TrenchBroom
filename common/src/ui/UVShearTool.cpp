@@ -31,6 +31,7 @@
 #include "ui/InputState.h"
 #include "ui/UVViewHelper.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 #include "kd/ranges/to.h"
 
@@ -245,7 +246,7 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
 {
   using namespace mdl::HitFilters;
 
-  assert(m_helper.valid());
+  contract_pre(m_helper.valid());
 
   if (
     !(inputState.modifierKeysPressed(ModifierKeys::Alt)

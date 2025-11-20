@@ -23,9 +23,8 @@
 
 #include "ui/QtUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/string_utils.h"
-
-#include <cassert>
 
 namespace tb::ui
 {
@@ -70,7 +69,8 @@ QString SpinControl::textFromValue(const double val) const
     const auto dec = locale().decimalPoint();
     if (!str.isEmpty() && str[str.length() - 1] == dec)
     {
-      assert(m_minDigits == 0);
+      contract_assert(m_minDigits == 0);
+
       str.chop(1);
     }
   }

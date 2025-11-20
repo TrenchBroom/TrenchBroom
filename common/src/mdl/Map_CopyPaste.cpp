@@ -43,6 +43,7 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -241,7 +242,7 @@ bool pasteNodes(Map& map, const std::vector<Node*>& nodes)
 
 bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 {
-  assert(!faces.empty());
+  contract_pre(!faces.empty());
 
   const auto update = copyAllExceptContentFlags(faces.back().attributes());
   return setBrushFaceAttributes(map, update);

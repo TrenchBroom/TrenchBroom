@@ -96,6 +96,7 @@
 #include "mdl/WorldNode.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/string_utils.h"
@@ -105,7 +106,6 @@
 #include <fmt/std.h>
 
 #include <algorithm>
-#include <cassert>
 #include <cstdlib>
 #include <memory>
 #include <ranges>
@@ -784,7 +784,8 @@ void Map::incModificationCount(const size_t delta)
 
 void Map::decModificationCount(const size_t delta)
 {
-  assert(m_modificationCount >= delta);
+  contract_pre(m_modificationCount >= delta);
+
   m_modificationCount -= delta;
   modificationStateDidChangeNotifier();
 }

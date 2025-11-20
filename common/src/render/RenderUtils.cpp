@@ -23,6 +23,8 @@
 #include "mdl/Texture.h"
 #include "render/GL.h"
 
+#include "kd/contracts.h"
+
 namespace tb::render
 {
 namespace
@@ -122,8 +124,9 @@ std::vector<vm::vec2f> circle2D(
   const float angleLength,
   const size_t segments)
 {
-  assert(radius > 0.0f);
-  assert(segments > 0);
+  contract_pre(radius > 0.0f);
+  contract_pre(segments > 0);
+
   if (angleLength == 0.0f)
   {
     return {};
@@ -150,8 +153,9 @@ std::vector<vm::vec3f> circle2D(
   const float angleLength,
   const size_t segments)
 {
-  assert(radius > 0.0f);
-  assert(segments > 0);
+  contract_pre(radius > 0.0f);
+  contract_pre(segments > 0);
+
   if (angleLength == 0.0f)
   {
     return {};
@@ -245,8 +249,8 @@ std::vector<vm::vec2f> roundedRect2D(
   const float cornerRadius,
   const size_t cornerSegments)
 {
-  assert(cornerSegments > 0);
-  assert(cornerRadius <= width / 2.0f && cornerRadius <= height / 2.0f);
+  contract_pre(cornerSegments > 0);
+  contract_pre(cornerRadius <= width / 2.0f && cornerRadius <= height / 2.0f);
 
   auto vertices = std::vector<vm::vec2f>{};
   vertices.reserve(roundedRect2DVertexCount(cornerSegments));
@@ -337,7 +341,7 @@ std::vector<vm::vec2f> roundedRect2D(
 
 std::vector<vm::vec3f> sphere(const float radius, const size_t iterations)
 {
-  assert(radius > 0.0f);
+  contract_pre(radius > 0.0f);
 
   const auto [vertices, triangles] = sphereMesh<float>(iterations);
 
@@ -357,8 +361,8 @@ std::vector<vm::vec3f> sphere(const float radius, const size_t iterations)
 
 VertsAndNormals circle3D(const float radius, const size_t segments)
 {
-  assert(radius > 0.0f);
-  assert(segments > 2);
+  contract_pre(radius > 0.0f);
+  contract_pre(segments > 2);
 
   auto vertices = std::vector<vm::vec3f>{};
   vertices.reserve(segments);
@@ -380,9 +384,9 @@ VertsAndNormals circle3D(const float radius, const size_t segments)
 
 VertsAndNormals cylinder(const float radius, const float length, const size_t segments)
 {
-  assert(radius > 0.0f);
-  assert(length > 0.0f);
-  assert(segments > 2);
+  contract_pre(radius > 0.0f);
+  contract_pre(length > 0.0f);
+  contract_pre(segments > 2);
 
   auto vertices = std::vector<vm::vec3f>{};
   vertices.reserve(2 * (segments + 1));
@@ -413,9 +417,9 @@ VertsAndNormals cylinder(const float radius, const float length, const size_t se
 
 VertsAndNormals cone(const float radius, const float length, const size_t segments)
 {
-  assert(radius > 0.0f);
-  assert(length > 0.0f);
-  assert(segments > 2);
+  contract_pre(radius > 0.0f);
+  contract_pre(length > 0.0f);
+  contract_pre(segments > 2);
 
   auto vertices = std::vector<vm::vec3f>{};
   vertices.reserve(3 * (segments + 1));

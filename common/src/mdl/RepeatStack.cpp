@@ -23,8 +23,6 @@
 #include "kd/set_temp.h"
 #include "kd/vector_utils.h"
 
-#include <cassert>
-
 namespace tb::mdl
 {
 
@@ -76,7 +74,7 @@ void RepeatStack::clear()
 {
   if (m_openTransactionsStack.empty())
   {
-    assert(!m_repeating);
+    contract_assert(!m_repeating);
     m_stack.clear();
   }
 }

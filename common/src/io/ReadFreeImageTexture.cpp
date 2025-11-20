@@ -36,7 +36,6 @@
 
 #include <fmt/format.h>
 
-#include <cassert>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -164,7 +163,7 @@ Result<mdl::Texture> readFreeImageTextureFromMemory(
       return Error{"Unsupported pixel format"};
     }
 
-    assert(FreeImage_GetLine(*image) / FreeImage_GetWidth(*image) == 4);
+    contract_assert(FreeImage_GetLine(*image) / FreeImage_GetWidth(*image) == 4);
 
     auto* outBytes = buffers.at(0).data();
     const auto outBytesPerRow = int(imageWidth * 4);
@@ -216,7 +215,7 @@ std::vector<std::string> getSupportedFreeImageExtensions()
   auto result = std::vector<std::string>{};
 
   const auto count = FreeImage_GetFIFCount();
-  assert(count >= 0);
+  contract_assert(count >= 0);
 
   for (int i = 0; i < count; ++i)
   {

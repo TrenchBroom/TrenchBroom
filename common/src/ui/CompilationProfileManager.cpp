@@ -130,7 +130,8 @@ void CompilationProfileManager::addProfile()
 void CompilationProfileManager::removeProfile()
 {
   const auto index = m_profileList->currentRow();
-  assert(index >= 0);
+  contract_assert(index >= 0);
+
   removeProfile(static_cast<size_t>(index));
 }
 

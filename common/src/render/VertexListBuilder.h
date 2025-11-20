@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <vector>
@@ -61,7 +62,7 @@ public:
 
   Range addPoint(const Vertex& v1)
   {
-    assert(checkCapacity(1));
+    contract_pre(checkCapacity(1));
 
     const size_t index = currentIndex();
     m_vertices.push_back(v1);
@@ -73,7 +74,7 @@ public:
 
   Range addLine(const Vertex& v1, const Vertex& v2)
   {
-    assert(checkCapacity(2));
+    contract_pre(checkCapacity(2));
 
     const auto index = currentIndex();
     m_vertices.push_back(v1);
@@ -84,25 +85,28 @@ public:
 
   Range addLines(const VertexList& vertices)
   {
-    assert(vertices.size() % 2 == 0);
+    contract_pre(vertices.size() % 2 == 0);
+
     return addVertices(vertices);
   }
 
   Range addLineStrip(const VertexList& vertices)
   {
-    assert(vertices.size() >= 2);
+    contract_pre(vertices.size() >= 2);
+
     return addVertices(vertices);
   }
 
   Range addLineLoop(const VertexList& vertices)
   {
-    assert(vertices.size() >= 3);
+    contract_pre(vertices.size() >= 3);
+
     return addVertices(vertices);
   }
 
   Range addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3)
   {
-    assert(checkCapacity(3));
+    contract_pre(checkCapacity(3));
 
     const auto index = currentIndex();
     m_vertices.push_back(v1);
@@ -114,25 +118,28 @@ public:
 
   Range addTriangles(const VertexList& vertices)
   {
-    assert(vertices.size() % 3 == 0);
+    contract_pre(vertices.size() % 3 == 0);
+
     return addVertices(vertices);
   }
 
   Range addTriangleFan(const VertexList& vertices)
   {
-    assert(vertices.size() >= 3);
+    contract_pre(vertices.size() >= 3);
+
     return addVertices(vertices);
   }
 
   Range addTriangleStrip(const VertexList& vertices)
   {
-    assert(vertices.size() >= 3);
+    contract_pre(vertices.size() >= 3);
+
     return addVertices(vertices);
   }
 
   Range addQuad(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4)
   {
-    assert(checkCapacity(4));
+    contract_pre(checkCapacity(4));
 
     const auto index = currentIndex();
     m_vertices.push_back(v1);
@@ -145,27 +152,30 @@ public:
 
   Range addQuads(const VertexList& vertices)
   {
-    assert(vertices.size() % 4 == 0);
+    contract_pre(vertices.size() % 4 == 0);
+
     return addVertices(vertices);
   }
 
   Range addQuadStrip(const VertexList& vertices)
   {
-    assert(vertices.size() >= 4);
-    assert(vertices.size() % 2 == 0);
+    contract_pre(vertices.size() >= 4);
+    contract_pre(vertices.size() % 2 == 0);
+
     return addVertices(vertices);
   }
 
   Range addPolygon(const VertexList& vertices)
   {
-    assert(vertices.size() >= 3);
+    contract_pre(vertices.size() >= 3);
+
     return addVertices(vertices);
   }
 
 private:
   Range addVertices(const VertexList& vertices)
   {
-    assert(checkCapacity(vertices.size()));
+    contract_pre(checkCapacity(vertices.size()));
 
     const auto index = currentIndex();
     const auto count = vertices.size();

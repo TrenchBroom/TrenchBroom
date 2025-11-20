@@ -30,6 +30,7 @@
 #include "mdl/Validator.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/vector_utils.h"
 
@@ -73,14 +74,16 @@ bool GroupNode::closed() const
 
 void GroupNode::open()
 {
-  assert(m_editState == EditState::Closed);
+  contract_pre(m_editState == EditState::Closed);
+
   setEditState(EditState::Open);
   openAncestors();
 }
 
 void GroupNode::close()
 {
-  assert(m_editState == EditState::Open);
+  contract_pre(m_editState == EditState::Open);
+
   setEditState(EditState::Closed);
   closeAncestors();
 }

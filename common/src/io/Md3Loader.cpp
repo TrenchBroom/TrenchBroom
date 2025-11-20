@@ -27,6 +27,7 @@
 #include "render/IndexRangeMapBuilder.h" // IWYU pragma: keep
 #include "render/PrimType.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
@@ -180,7 +181,8 @@ auto parseUV(Reader reader, const size_t vertexCount)
 auto buildVertices(
   const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& uvCoords)
 {
-  assert(positions.size() == uvCoords.size());
+  contract_pre(positions.size() == uvCoords.size());
+
   const auto vertexCount = positions.size();
 
   using Vertex = mdl::EntityModelVertex;

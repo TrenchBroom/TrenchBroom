@@ -339,7 +339,7 @@ private:
       }
       else
       {
-        assert(right.hasVertex(position + delta));
+        contract_assert(right.hasVertex(position + delta));
         vertexMap.emplace(position, position + delta);
       }
       currentVertex = currentVertex->next();
@@ -367,8 +367,9 @@ private:
       auto* leftVertex = left.findVertexByPosition(leftPosition);
       auto* rightVertex = right.findVertexByPosition(rightPosition);
 
-      assert(leftVertex != nullptr);
-      assert(rightVertex != nullptr);
+      contract_assert(leftVertex != nullptr);
+      contract_assert(rightVertex != nullptr);
+
       result.insert(leftVertex, rightVertex);
     }
 

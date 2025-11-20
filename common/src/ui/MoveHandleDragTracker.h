@@ -26,6 +26,7 @@
 #include "render/TextAnchor.h"
 #include "ui/HandleDragTracker.h"
 
+#include "kd/contracts.h"
 #include "kd/string_utils.h"
 
 #include "vm/line.h"
@@ -33,7 +34,6 @@
 #include "vm/vec.h"
 
 #include <array>
-#include <cassert>
 #include <memory>
 #include <type_traits>
 
@@ -459,7 +459,7 @@ private:
     const vm::vec3d& origin,
     const vm::vec3d& handleOffset)
   {
-    assert(inputState.camera().perspectiveProjection());
+    contract_pre(inputState.camera().perspectiveProjection());
 
     const auto axis = vm::vec3d{0, 0, 1};
     return makeLineHandlePicker(vm::line3d{origin, axis}, handleOffset);

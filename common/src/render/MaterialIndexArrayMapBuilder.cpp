@@ -21,8 +21,9 @@
 
 #include "render/PrimType.h"
 
+#include "kd/contracts.h"
+
 #include <algorithm>
-#include <cassert>
 
 namespace tb::render
 {
@@ -67,7 +68,8 @@ void MaterialIndexArrayMapBuilder::addLine(
 void MaterialIndexArrayMapBuilder::addLines(
   const Material* material, const IndexList& indices)
 {
-  assert(indices.size() % 2 == 0);
+  contract_pre(indices.size() % 2 == 0);
+
   add(material, PrimType::Lines, indices);
 }
 
@@ -83,7 +85,8 @@ void MaterialIndexArrayMapBuilder::addTriangle(
 void MaterialIndexArrayMapBuilder::addTriangles(
   const Material* material, const IndexList& indices)
 {
-  assert(indices.size() % 3 == 0);
+  contract_pre(indices.size() % 3 == 0);
+
   add(material, PrimType::Triangles, indices);
 }
 
@@ -105,14 +108,16 @@ void MaterialIndexArrayMapBuilder::addQuad(
 void MaterialIndexArrayMapBuilder::addQuads(
   const Material* material, const IndexList& indices)
 {
-  assert(indices.size() % 4 == 0);
+  contract_pre(indices.size() % 4 == 0);
+
   add(material, PrimType::Quads, indices);
 }
 
 void MaterialIndexArrayMapBuilder::addQuads(
   const Material* material, const Index baseIndex, const size_t vertexCount)
 {
-  assert(vertexCount % 4 == 0);
+  contract_pre(vertexCount % 4 == 0);
+
   auto indices = IndexList{};
   indices.reserve(vertexCount);
 

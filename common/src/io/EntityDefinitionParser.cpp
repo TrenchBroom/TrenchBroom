@@ -27,6 +27,7 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 
 #include <algorithm>
@@ -45,7 +46,7 @@ std::optional<mdl::PropertyDefinition> mergePropertyDefinitions(
   const mdl::PropertyDefinition& inheritingClassPropertyDefinition,
   const mdl::PropertyDefinition& superClassPropertyDefinition)
 {
-  assert(inheritingClassPropertyDefinition.key == superClassPropertyDefinition.key);
+  contract_pre(inheritingClassPropertyDefinition.key == superClassPropertyDefinition.key);
 
   // for now, only merge spawnflags
   const auto* superClassFlags =

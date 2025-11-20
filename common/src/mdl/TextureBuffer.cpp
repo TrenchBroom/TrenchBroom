@@ -62,8 +62,8 @@ std::ostream& operator<<(std::ostream& lhs, const TextureBuffer& rhs)
 
 vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t level)
 {
-  assert(width > 0);
-  assert(height > 0);
+  contract_pre(width > 0);
+  contract_pre(height > 0);
 
   // from Issues 6 in:
   // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt

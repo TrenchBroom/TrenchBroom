@@ -34,7 +34,6 @@
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
-#include <cassert>
 #include <cmath>
 #include <ranges>
 #include <string>
@@ -430,7 +429,8 @@ auto makeHollowCylinderFragmentVertices(
   const size_t i,
   const vm::bbox3d& boundsXY)
 {
-  assert(outerCircle.size() == innerCircle.size());
+  contract_pre(outerCircle.size() == innerCircle.size());
+
   const auto numSides = outerCircle.size();
 
   const auto po = outerCircle[(i + 0) % numSides];

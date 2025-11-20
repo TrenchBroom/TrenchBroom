@@ -32,6 +32,8 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
+
 namespace tb::mdl
 {
 
@@ -115,7 +117,7 @@ GroupNode* EditorContext::currentGroup() const
 
 void EditorContext::pushGroup(GroupNode& groupNode)
 {
-  assert(!m_currentGroup || groupNode.containingGroup() == m_currentGroup);
+  contract_pre(!m_currentGroup || groupNode.containingGroup() == m_currentGroup);
 
   if (m_currentGroup)
   {

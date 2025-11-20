@@ -26,7 +26,6 @@
 #include "kd/result.h"
 #include "kd/result_fold.h"
 
-#include <cassert>
 #include <filesystem>
 #include <ranges>
 #include <string>
@@ -100,9 +99,7 @@ Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
 
   return render::loadShader(shaderPath, type) | kdl::transform([&](auto shader) {
            const auto [insertIt, inserted] = m_shaders.emplace(name, std::move(shader));
-
-           assert(inserted);
-           unused(inserted);
+           contract_assert(inserted);
 
            return std::ref(insertIt->second);
          });

@@ -40,6 +40,7 @@
 #include "ui/Actions.h"
 #include "ui/ViewEffectsService.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 #include "kd/task_manager.h"
 
@@ -49,7 +50,6 @@
 #include <fmt/std.h>
 
 #include <algorithm>
-#include <cassert>
 #include <cstdlib>
 #include <string>
 #include <type_traits>
@@ -164,13 +164,15 @@ bool MapDocument::canReloadPointFile() const
 
 void MapDocument::reloadPointFile()
 {
-  assert(isPointFileLoaded());
+  contract_pre(isPointFileLoaded());
+
   loadPointFile(m_pointFile->path);
 }
 
 void MapDocument::unloadPointFile()
 {
-  assert(isPointFileLoaded());
+  contract_pre(isPointFileLoaded());
+
   m_pointFile = std::nullopt;
 
   info() << "Unloaded point file";
@@ -217,13 +219,15 @@ bool MapDocument::canReloadPortalFile() const
 
 void MapDocument::reloadPortalFile()
 {
-  assert(isPortalFileLoaded());
+  contract_pre(isPortalFileLoaded());
+
   loadPortalFile(m_portalFile->path);
 }
 
 void MapDocument::unloadPortalFile()
 {
-  assert(isPortalFileLoaded());
+  contract_pre(isPortalFileLoaded());
+
   m_portalFile = std::nullopt;
 
   info() << "Unloaded portal file";

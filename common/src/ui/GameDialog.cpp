@@ -33,7 +33,8 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include <cassert>
+#include "kd/contracts.h"
+
 #include <string>
 
 Q_DECLARE_METATYPE(tb::mdl::MapFormat)
@@ -100,7 +101,7 @@ static QVariant formatToUserData(const mdl::MapFormat format)
 mdl::MapFormat GameDialog::currentMapFormat() const
 {
   const auto userData = m_mapFormatComboBox->currentData();
-  assert(userData.isValid());
+  contract_assert(userData.isValid());
 
   return formatFromUserData(userData);
 }

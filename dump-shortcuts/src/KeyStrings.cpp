@@ -21,7 +21,7 @@
 
 #include <QKeySequence>
 
-#include <cassert>
+#include "kd/contracts.h"
 
 namespace tb::ui
 {
@@ -265,8 +265,8 @@ void KeyStrings::putModifier(int key)
   // and portable text as "Shift+".
 
   auto portableLabel = keySequence.toString(QKeySequence::PortableText);
-  assert(portableLabel.endsWith("+")); // This will be something like "Ctrl+"
-  portableLabel.chop(1);               // Remove last character
+  contract_assert(portableLabel.endsWith("+")); // This will be something like "Ctrl+"
+  portableLabel.chop(1);                        // Remove last character
 
   auto nativeLabel = keySequence.toString(QKeySequence::NativeText);
   if (nativeLabel.endsWith("+"))

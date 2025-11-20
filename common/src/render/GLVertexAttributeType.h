@@ -138,7 +138,8 @@ public:
     const size_t stride,
     const size_t offset)
   {
-    assert(S == 3);
+    static_assert(S == 3);
+
     glAssert(glEnableClientState(GL_NORMAL_ARRAY));
     glAssert(glNormalPointer(
       D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));

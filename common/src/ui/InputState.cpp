@@ -24,6 +24,8 @@
 #include "Macros.h"
 #include "render/Camera.h"
 
+#include "kd/contracts.h"
+
 #include "vm/vec.h"
 
 namespace tb::ui
@@ -65,7 +67,8 @@ bool InputState::checkModifierKeys(
   const ModifierKeyState key3,
   const ModifierKeyState key4) const
 {
-  assert(key1 != ModifierKeys::DontCare);
+  contract_pre(key1 != ModifierKeys::DontCare);
+
   if (modifierKeysPressed(key1))
   {
     return true;

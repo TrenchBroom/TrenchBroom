@@ -257,7 +257,7 @@ void CompilationProfileEditor::removeTask()
 
 void CompilationProfileEditor::removeTask(const int index)
 {
-  assert(index >= 0);
+  contract_pre(index >= 0);
 
   m_profile->tasks = kdl::vec_erase_at(std::move(m_profile->tasks), size_t(index));
   m_taskList->reloadTasks();
@@ -286,7 +286,7 @@ void CompilationProfileEditor::moveTaskUp()
 
 void CompilationProfileEditor::moveTaskUp(const int index)
 {
-  assert(index > 0);
+  contract_pre(index > 0);
 
   auto it = std::next(m_profile->tasks.begin(), index);
   std::iter_swap(it, std::prev(it));
@@ -302,7 +302,7 @@ void CompilationProfileEditor::moveTaskDown()
 
 void CompilationProfileEditor::moveTaskDown(const int index)
 {
-  assert(index >= 0 && index < static_cast<int>(m_profile->tasks.size()) - 1);
+  contract_pre(index >= 0 && index < static_cast<int>(m_profile->tasks.size()) - 1);
 
   auto it = std::next(m_profile->tasks.begin(), index);
   std::iter_swap(it, std::next(it));

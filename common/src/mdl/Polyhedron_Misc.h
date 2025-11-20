@@ -21,6 +21,7 @@
 
 #include "Polyhedron.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 
 #include "vm/bbox.h"
@@ -286,6 +287,7 @@ private:
       auto* copy = new Vertex{currentVertex->position()};
       callback.vertexWasCopied(currentVertex, copy);
       assert(m_vertexMap.count(currentVertex) == 0u);
+
       m_vertexMap.emplace(currentVertex, copy);
       m_vertices.push_back(copy);
       currentVertex = currentVertex->next();
@@ -327,7 +329,8 @@ private:
   Vertex* findVertex(const Vertex* original)
   {
     auto it = m_vertexMap.find(original);
-    assert(it != m_vertexMap.end());
+    contract_assert(it != m_vertexMap.end());
+
     return it->second;
   }
 
@@ -895,14 +898,14 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
 template <typename T, typename FP, typename VP>
 void Polyhedron<T, FP, VP>::removeDegenerateFace(Face* face)
 {
-  assert(face != nullptr);
-  assert(face->vertexCount() == 2u);
+  contract_pre(face != nullptr);
+  contract_pre(face->vertexCount() == 2u);
 
   // The boundary of the face to remove consists of two half edges:
   auto* halfEdge1 = face->boundary().front();
   auto* halfEdge2 = halfEdge1->next();
-  assert(halfEdge2->next() == halfEdge1);
-  assert(halfEdge1->previous() == halfEdge2);
+  contract_assert(halfEdge2->next() == halfEdge1);
+  contract_assert(halfEdge1->previous() == halfEdge2);
 
   // The face has two vertices:
   auto* vertex1 = halfEdge1->origin();
@@ -912,10 +915,10 @@ void Polyhedron<T, FP, VP>::removeDegenerateFace(Face* face)
   vertex1->setLeaving(halfEdge2->twin());
   vertex2->setLeaving(halfEdge1->twin());
 
-  assert(vertex1->leaving() != halfEdge1);
-  assert(vertex1->leaving() != halfEdge2);
-  assert(vertex2->leaving() != halfEdge1);
-  assert(vertex2->leaving() != halfEdge2);
+  contract_assert(vertex1->leaving() != halfEdge1);
+  contract_assert(vertex1->leaving() != halfEdge2);
+  contract_assert(vertex2->leaving() != halfEdge1);
+  contract_assert(vertex2->leaving() != halfEdge2);
 
   // These two edges will be merged into one:
   auto* edge1 = halfEdge1->edge();
@@ -930,15 +933,15 @@ void Polyhedron<T, FP, VP>::removeDegenerateFace(Face* face)
   edge1->makeFirstEdge(halfEdge1Twin);
 
   // Now replace halfEdge2 by new halfEdge2Twin:
-  assert(halfEdge2Twin->edge() == edge2);
+  contract_assert(halfEdge2Twin->edge() == edge2);
   halfEdge2Twin->unsetEdge();
   edge1->unsetSecondEdge(); // unsets halfEdge1, leaving halfEdge1Twin as the first half
                             // edge of edge1
   edge1->setSecondEdge(halfEdge2Twin); // replace halfEdge1 with halfEdge2Twin
 
   // Now edge1 should be correct:
-  assert(edge1->firstEdge() == halfEdge1Twin);
-  assert(edge1->secondEdge() == halfEdge2Twin);
+  contract_assert(edge1->firstEdge() == halfEdge1Twin);
+  contract_assert(edge1->secondEdge() == halfEdge2Twin);
 
   // Delete the now obsolete edge.
   // The constructor doesn't do anything, so no further cleanup is necessary.
@@ -985,7 +988,7 @@ bool Polyhedron<T, FP, VP>::mergeNeighbours(HalfEdge* borderFirst, Edge*& validE
 
   auto edgesToRemove = neighbour->removeFromBoundary(twinFirst, twinLast);
   auto remainingEdges = neighbour->removeFromBoundary(remainingFirst, remainingLast);
-  assert(neighbour->boundary().empty());
+  contract_assert(neighbour->boundary().empty());
 
   // the replaced edges are deleted
   face->replaceBoundary(borderFirst, borderLast, std::move(remainingEdges));
@@ -1046,7 +1049,8 @@ bool Polyhedron<T, FP, VP>::mergeNeighbours(HalfEdge* borderFirst, Edge*& validE
       }
       else
       {
-        assert(face1->vertexCount() > 3u && face2->vertexCount() > 3u);
+        contract_assert(face1->vertexCount() > 3u && face2->vertexCount() > 3u);
+
         if (validEdge == vertex->leaving()->edge())
         {
           validEdge = validEdge->next();
@@ -1071,7 +1075,7 @@ bool Polyhedron<T, FP, VP>::mergeNeighbours(HalfEdge* borderFirst)
 template <typename T, typename FP, typename VP>
 void Polyhedron<T, FP, VP>::mergeIncidentEdges(Vertex* vertex)
 {
-  assert(vertex != nullptr);
+  contract_pre(vertex != nullptr);
 
   /*
                    face1
@@ -1083,25 +1087,25 @@ void Polyhedron<T, FP, VP>::mergeIncidentEdges(Vertex* vertex)
    */
 
   auto* leaving = vertex->leaving();
-  assert(leaving != nullptr);
+  contract_assert(leaving != nullptr);
 
   // vertex has exactly two incident edges
-  assert(leaving != leaving->nextIncident());
-  assert(leaving == leaving->nextIncident()->nextIncident());
+  contract_assert(leaving != leaving->nextIncident());
+  contract_assert(leaving == leaving->nextIncident()->nextIncident());
 
   // different faces on each side of the leaving edge
-  assert(leaving->face() != leaving->twin()->face());
+  contract_assert(leaving->face() != leaving->twin()->face());
 
   // only two incident faces in total
-  assert(leaving->face() == leaving->previous()->face());
-  assert(leaving->twin()->face() == leaving->twin()->next()->face());
+  contract_assert(leaving->face() == leaving->previous()->face());
+  contract_assert(leaving->twin()->face() == leaving->twin()->next()->face());
 
   auto* face1 = leaving->face();
   auto* face2 = leaving->twin()->face();
 
   // each incident face has more than three vertices
-  assert(face1->vertexCount() > 3u);
-  assert(face2->vertexCount() > 3u);
+  contract_assert(face1->vertexCount() > 3u);
+  contract_assert(face2->vertexCount() > 3u);
 
   auto* arriving = leaving->previous();
   auto* next = leaving->destination();
@@ -1156,7 +1160,7 @@ std::string Polyhedron<T, FP, VP>::exportObjSelectedFaces(
     {
       const auto* vertex = halfEdge->origin();
       auto indexOptional = kdl::index_of(vertices, vertex);
-      assert(indexOptional.has_value());
+      contract_assert(indexOptional.has_value());
 
       // .obj indices are 1-based
       ss << (*indexOptional + 1) << " ";

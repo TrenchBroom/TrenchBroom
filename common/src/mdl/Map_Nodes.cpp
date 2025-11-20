@@ -268,11 +268,10 @@ Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes)
 
 std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes)
 {
-  for (const auto& [parent, children] : nodes)
-  {
-    assert(parent == map.world() || parent->isDescendantOf(map.world()));
-    unused(parent);
-  }
+  contract_assert(std::ranges::all_of(nodes, [&](const auto& parentAndChildren) {
+    const auto& [parent, children] = parentAndChildren;
+    return parent == map.world() || parent->isDescendantOf(map.world());
+  }));
 
   auto transaction = Transaction{map, "Add Objects"};
   if (!map.executeAndStore(AddRemoveNodesCommand::add(nodes)))

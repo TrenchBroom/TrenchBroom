@@ -37,6 +37,7 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 
 #include "vm/distance.h" // IWYU pragma: keep
@@ -185,7 +186,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate
     using namespace mdl::HitFilters;
 
     const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
-    assert(hit.isMatch());
+    contract_assert(hit.isMatch());
 
     const auto& hitData = hit.target<ExtrudeHitData>();
     return std::visit(

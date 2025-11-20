@@ -146,7 +146,7 @@ Result<BrushFace> BrushFace::createFromStandard(
   const BrushFaceAttributes& inputAttribs,
   const MapFormat mapFormat)
 {
-  assert(mapFormat != MapFormat::Unknown);
+  contract_pre(mapFormat != MapFormat::Unknown);
 
   auto uvCoordSystem = std::unique_ptr<UVCoordSystem>{};
   auto attribs = BrushFaceAttributes{""};
@@ -177,7 +177,7 @@ Result<BrushFace> BrushFace::createFromValve(
   const vm::vec3d& vAxis,
   MapFormat mapFormat)
 {
-  assert(mapFormat != MapFormat::Unknown);
+  contract_pre(mapFormat != MapFormat::Unknown);
 
   auto uvCoordSystem = std::unique_ptr<UVCoordSystem>{};
   auto attribs = BrushFaceAttributes{""};
@@ -723,7 +723,8 @@ float BrushFace::measureUVAngle(const vm::vec2f& center, const vm::vec2f& point)
 
 size_t BrushFace::vertexCount() const
 {
-  assert(m_geometry != nullptr);
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->boundary().size();
 }
 
@@ -776,13 +777,15 @@ bool BrushFace::selected() const
 
 void BrushFace::select()
 {
-  assert(!m_selected);
+  contract_pre(!m_selected);
+
   m_selected = true;
 }
 
 void BrushFace::deselect()
 {
-  assert(m_selected);
+  contract_pre(m_selected);
+
   m_selected = false;
 }
 

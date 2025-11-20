@@ -65,6 +65,7 @@
 #include "ui/VertexTool.h"
 #include "ui/VertexToolController.h"
 
+#include "kd/contracts.h"
 #include "kd/set_temp.h"
 
 #include "vm/util.h"
@@ -437,7 +438,7 @@ void MapView3D::animateCamera(
 
 void MapView3D::moveCameraToCurrentTracePoint()
 {
-  assert(m_document.isPointFileLoaded());
+  contract_pre(m_document.isPointFileLoaded());
 
   if (const auto* pointTrace = m_document.pointTrace())
   {

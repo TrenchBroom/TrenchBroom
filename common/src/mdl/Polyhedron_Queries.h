@@ -21,6 +21,8 @@
 
 #include "Polyhedron.h"
 
+#include "kd/contracts.h"
+
 #include "vm/constants.h"
 #include "vm/distance.h"
 #include "vm/intersection.h"
@@ -126,8 +128,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::pointIntersectsPoint(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.point());
-  assert(rhs.point());
+  contract_pre(lhs.point());
+  contract_pre(rhs.point());
 
   const auto& lhsPos = lhs.m_vertices.front()->position();
   const auto& rhsPos = rhs.m_vertices.front()->position();
@@ -138,8 +140,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::pointIntersectsEdge(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.point());
-  assert(rhs.edge());
+  contract_pre(lhs.point());
+  contract_pre(rhs.edge());
 
   const auto& lhsPos = lhs.m_vertices.front()->position();
   const auto* rhsEdge = rhs.m_edges.front();
@@ -154,8 +156,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::pointIntersectsPolygon(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.point());
-  assert(rhs.polygon());
+  contract_pre(lhs.point());
+  contract_pre(rhs.polygon());
 
   const auto& lhsPos = lhs.m_vertices.front()->position();
   const auto* rhsFace = rhs.m_faces.front();
@@ -170,8 +172,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::pointIntersectsPolyhedron(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.point());
-  assert(rhs.polyhedron());
+  contract_pre(lhs.point());
+  contract_pre(rhs.polyhedron());
 
   const auto& lhsPos = lhs.m_vertices.front()->position();
   return rhs.contains(lhsPos, vm::constants<T>::point_status_epsilon());
@@ -188,8 +190,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::edgeIntersectsEdge(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.edge());
-  assert(rhs.edge());
+  contract_pre(lhs.edge());
+  contract_pre(rhs.edge());
 
   const auto* lhsEdge = lhs.m_edges.front();
   const auto& lhsStart = lhsEdge->firstVertex()->position();
@@ -232,8 +234,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::edgeIntersectsPolygon(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.edge());
-  assert(rhs.polygon());
+  contract_pre(lhs.edge());
+  contract_pre(rhs.polygon());
 
   const auto* lhsEdge = lhs.m_edges.front();
   const auto* rhsFace = rhs.m_faces.front();
@@ -245,8 +247,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::edgeIntersectsPolyhedron(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.edge());
-  assert(rhs.polyhedron());
+  contract_pre(lhs.edge());
+  contract_pre(rhs.polyhedron());
 
   const auto* lhsEdge = lhs.m_edges.front();
   const auto& lhsStart = lhsEdge->firstVertex()->position();
@@ -336,8 +338,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::polygonIntersectsPolygon(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.polygon());
-  assert(rhs.polygon());
+  contract_pre(lhs.polygon());
+  contract_pre(rhs.polygon());
 
   auto* lhsFace = lhs.faces().front();
   auto* rhsFace = rhs.faces().front();
@@ -349,8 +351,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::polygonIntersectsPolyhedron(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.polygon());
-  assert(rhs.polyhedron());
+  contract_pre(lhs.polygon());
+  contract_pre(rhs.polyhedron());
 
   auto* lhsFace = lhs.faces().front();
   for (const auto* rhsFace : rhs.faces())
@@ -417,8 +419,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::polyhedronIntersectsPolyhedron(
   const Polyhedron& lhs, const Polyhedron& rhs)
 {
-  assert(lhs.polyhedron());
-  assert(rhs.polyhedron());
+  contract_pre(lhs.polyhedron());
+  contract_pre(rhs.polyhedron());
 
   // separating axis theorem
   // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf

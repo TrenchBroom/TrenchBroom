@@ -37,6 +37,7 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
 
+#include "kd/contracts.h"
 #include "kd/map_utils.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
@@ -140,7 +141,7 @@ std::optional<EdgeInfo> getEdgeInfo(
 
   const auto leftFaceIndex = edge->firstFace()->payload();
   const auto rightFaceIndex = edge->secondFace()->payload();
-  assert(leftFaceIndex && rightFaceIndex);
+  contract_assert(leftFaceIndex && rightFaceIndex);
 
   const auto& leftFace = brushNode->brush().face(*leftFaceIndex);
   const auto& rightFace = brushNode->brush().face(*rightFaceIndex);
@@ -313,7 +314,7 @@ std::vector<ExtrudeDragHandle> getDragHandles(
     return {};
   }
 
-  assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
+  contract_assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
   const auto& data = hit.target<const ExtrudeHitData&>();
 
   return collectCoplanarFaces(nodes, data.face)

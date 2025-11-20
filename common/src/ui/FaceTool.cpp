@@ -22,6 +22,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
 
+#include "kd/contracts.h"
 #include "kd/string_format.h"
 
 namespace tb::ui
@@ -59,10 +60,10 @@ const mdl::FaceHandleManager& FaceTool::handleManager() const
 std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
   const std::vector<mdl::Hit>& hits) const
 {
-  assert(!hits.empty());
+  contract_pre(!hits.empty());
 
   const auto& hit = hits.front();
-  assert(hit.hasType(mdl::FaceHandleManager::HandleHitType));
+  contract_assert(hit.hasType(mdl::FaceHandleManager::HandleHitType));
 
   return {hit.target<vm::polygon3d>().center(), hit.hitPoint()};
 }

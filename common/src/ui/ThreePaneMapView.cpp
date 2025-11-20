@@ -28,6 +28,8 @@
 #include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 
+#include "kd/contracts.h"
+
 namespace tb::ui
 {
 
@@ -102,7 +104,8 @@ void ThreePaneMapView::createGui(
 
 void ThreePaneMapView::maximizeView(MapView* view)
 {
-  assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewZZ);
+  contract_pre(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewZZ);
+
   if (view == m_mapView3D)
   {
     m_vSplitter->hide();

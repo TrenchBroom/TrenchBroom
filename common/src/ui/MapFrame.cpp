@@ -118,7 +118,6 @@
 #include <fmt/std.h>
 
 #include <algorithm>
-#include <cassert>
 #include <chrono>
 #include <iterator>
 #include <string>
@@ -1662,7 +1661,7 @@ void MapFrame::renameSelectedGroups()
   if (canRenameSelectedGroups())
   {
     auto& map = m_document->map();
-    assert(map.selection().hasOnlyGroups());
+    contract_assert(map.selection().hasOnlyGroups());
 
     const auto suggestion = map.selection().groups.front()->name();
     const auto name = queryGroupName(this, suggestion);

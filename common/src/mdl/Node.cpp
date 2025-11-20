@@ -33,7 +33,6 @@
 #include "kd/vector_utils.h"
 
 #include <algorithm>
-#include <cassert>
 #include <iterator>
 #include <ranges>
 #include <string>
@@ -71,7 +70,7 @@ NodePath Node::pathFrom(const Node& ancestor) const
     parent = parent->m_parent;
   }
 
-  assert(child == &ancestor);
+  contract_assert(child == &ancestor);
 
   std::ranges::reverse(result.indices);
   return result;
@@ -416,7 +415,8 @@ void Node::incDescendantCount(const size_t delta)
 
 void Node::decDescendantCount(const size_t delta)
 {
-  assert(m_descendantCount >= delta);
+  contract_pre(m_descendantCount >= delta);
+
   if (delta != 0)
   {
     m_descendantCount -= delta;
@@ -429,8 +429,9 @@ void Node::decDescendantCount(const size_t delta)
 
 void Node::setParent(Node* parent)
 {
-  assert((m_parent == nullptr) ^ (parent == nullptr));
-  assert(parent != this);
+  contract_pre((m_parent == nullptr) != (parent == nullptr));
+  contract_pre(parent != this);
+
   if (parent != m_parent)
   {
     parentWillChange();
@@ -576,7 +577,8 @@ void Node::select()
 {
   if (selectable())
   {
-    assert(!m_selected);
+    contract_assert(!m_selected);
+
     m_selected = true;
     if (m_parent)
     {
@@ -589,7 +591,8 @@ void Node::deselect()
 {
   if (selectable())
   {
-    assert(m_selected);
+    contract_assert(m_selected);
+
     m_selected = false;
     if (m_parent)
     {
@@ -654,9 +657,10 @@ void Node::incChildSelectionCount(const size_t delta)
 
 void Node::decChildSelectionCount(const size_t delta)
 {
+  contract_pre(m_childSelectionCount >= delta);
+
   if (delta != 0)
   {
-    assert(m_childSelectionCount >= delta);
     m_childSelectionCount -= delta;
     decDescendantSelectionCount(delta);
   }
@@ -676,9 +680,10 @@ void Node::incDescendantSelectionCount(const size_t delta)
 
 void Node::decDescendantSelectionCount(const size_t delta)
 {
+  contract_pre(m_descendantSelectionCount >= delta);
+
   if (delta != 0)
   {
-    assert(m_descendantSelectionCount >= delta);
     m_descendantSelectionCount -= delta;
     if (m_parent)
     {

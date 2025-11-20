@@ -27,6 +27,8 @@
 #include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 
+#include "kd/contracts.h"
+
 namespace tb::ui
 {
 TwoPaneMapView::TwoPaneMapView(
@@ -84,7 +86,8 @@ void TwoPaneMapView::createGui(
 
 void TwoPaneMapView::maximizeView(MapView* view)
 {
-  assert(view == m_mapView2D || view == m_mapView3D);
+  contract_pre(view == m_mapView2D || view == m_mapView3D);
+
   if (view == m_mapView2D)
   {
     m_mapView3D->hide();

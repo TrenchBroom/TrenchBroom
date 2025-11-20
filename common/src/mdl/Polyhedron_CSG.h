@@ -21,6 +21,8 @@
 
 #include "Polyhedron.h"
 
+#include "kd/contracts.h"
+
 #include <vector>
 
 namespace tb::mdl
@@ -83,9 +85,9 @@ private:
 
   void subtract()
   {
-    const auto planes = sortPlanes(findSubtrahendPlanes());
+    contract_pre(m_fragments.empty());
 
-    assert(m_fragments.empty());
+    const auto planes = sortPlanes(findSubtrahendPlanes());
     doSubtract(Fragments{m_minuend}, planes.begin(), planes.end());
   }
 
@@ -153,8 +155,8 @@ private:
     typename PlaneList::iterator end,
     const std::vector<vm::vec<T, 3>>& axes)
   {
-    assert(begin != end);
-    assert(!axes.empty());
+    contract_pre(begin != end);
+    contract_pre(!axes.empty());
 
     auto axis = axes.front();
     auto bestIt = end;
@@ -191,7 +193,7 @@ private:
       return begin;
     }
 
-    assert(bestIt != end);
+    contract_assert(bestIt != end);
     axis = -bestIt->normal;
     std::iter_swap(begin++, bestIt);
 
@@ -258,7 +260,7 @@ private:
     {
       // vm::abs(curDot) == vm::abs(bestDot), resolve ambiguities.
 
-      assert(bestIt != end); // Because curDot != 0.0, the same is true for bestDot!
+      contract_assert(bestIt != end); // curDot != 0.0, so the same is true for bestDot!
       if (bestDot < 0.0 && curDot > 0.0)
       {
         // Prefer best matches pointing towards the direction of the axis, not the

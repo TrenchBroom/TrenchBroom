@@ -31,6 +31,7 @@
 #include "render/IndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
@@ -236,7 +237,7 @@ struct DkmFrame
 
   vm::vec3f vertex(size_t index) const
   {
-    assert(index < vertices.size());
+    contract_pre(index < vertices.size());
 
     const auto& vertex = vertices[index];
     const auto position = vm::vec3f{float(vertex.x), float(vertex.y), float(vertex.z)};
@@ -245,7 +246,7 @@ struct DkmFrame
 
   const vm::vec3f& normal(size_t index) const
   {
-    assert(index < vertices.size());
+    contract_pre(index < vertices.size());
 
     const DkmVertex& vertex = vertices[index];
     return Normals[vertex.normalIndex];
@@ -300,7 +301,7 @@ auto parsePackedVertex(Reader& reader)
 
 auto parseVertices(Reader& reader, const size_t vertexCount, const int version)
 {
-  assert(version == 1 || version == 2);
+  contract_pre(version == 1 || version == 2);
 
   auto vertices = std::vector<DkmVertex>{};
   vertices.reserve(vertexCount);

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "kd/contracts.h"
+
 #include "vm/bbox.h"
 #include "vm/util.h"
 #include "vm/vec.h"
@@ -118,7 +120,7 @@ template <typename T>
 std::tuple<std::vector<vm::vec<T, 3>>, std::vector<Triangle>> sphereMesh(
   const size_t iterations)
 {
-  assert(iterations > 0);
+  contract_pre(iterations > 0);
 
   auto vertices = std::vector<vm::vec<T, 3>>{};
   auto triangles = std::vector<Triangle>{};

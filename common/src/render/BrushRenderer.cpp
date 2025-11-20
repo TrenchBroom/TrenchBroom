@@ -32,7 +32,6 @@
 
 #include "kd/contracts.h"
 
-#include <cassert>
 #include <cstring>
 #include <vector>
 
@@ -102,7 +101,7 @@ bool BrushRenderer::DefaultFilter::visible(
   const auto& brush = brushNode.brush();
   const auto firstFaceIndex = edge.firstFace()->payload();
   const auto secondFaceIndex = edge.secondFace()->payload();
-  assert(firstFaceIndex && secondFaceIndex);
+  contract_assert(firstFaceIndex && secondFaceIndex);
 
   const auto& firstFace = brush.face(*firstFaceIndex);
   const auto& secondFace = brush.face(*secondFaceIndex);
@@ -139,7 +138,7 @@ bool BrushRenderer::DefaultFilter::selected(
   const auto& brush = brushNode.brush();
   const auto firstFaceIndex = edge.firstFace()->payload();
   const auto secondFaceIndex = edge.secondFace()->payload();
-  assert(firstFaceIndex && secondFaceIndex);
+  contract_assert(firstFaceIndex && secondFaceIndex);
 
   const auto& firstFace = brush.face(*firstFaceIndex);
   const auto& secondFace = brush.face(*secondFaceIndex);
@@ -184,9 +183,9 @@ void BrushRenderer::invalidate()
   }
   m_invalidBrushes = m_allBrushes;
 
-  assert(m_brushInfo.empty());
-  assert(m_transparentFaces->empty());
-  assert(m_opaqueFaces->empty());
+  contract_post(m_brushInfo.empty());
+  contract_post(m_transparentFaces->empty());
+  contract_post(m_opaqueFaces->empty());
 }
 
 void BrushRenderer::invalidateMaterials(
@@ -212,8 +211,8 @@ void BrushRenderer::invalidateBrush(const mdl::BrushNode* brushNode)
   // skip brushes that are not in the renderer
   if (m_allBrushes.find(brushNode) == std::end(m_allBrushes))
   {
-    assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
-    assert(m_invalidBrushes.find(brushNode) == std::end(m_invalidBrushes));
+    contract_assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
+    contract_assert(m_invalidBrushes.find(brushNode) == std::end(m_invalidBrushes));
     return;
   }
   // if it's not in the invalid set, put it in
@@ -381,14 +380,15 @@ void BrushRenderer::renderEdges(RenderBatch& renderBatch)
 
 void BrushRenderer::validate()
 {
-  assert(!valid());
+  contract_pre(!valid());
 
   for (auto* brushNode : m_invalidBrushes)
   {
     validateBrush(*brushNode);
   }
   m_invalidBrushes.clear();
-  assert(valid());
+
+  contract_assert(valid());
 
   m_opaqueFaceRenderer = FaceRenderer{m_vertexArray, m_opaqueFaces, m_faceColor};
   m_transparentFaceRenderer =
@@ -398,7 +398,8 @@ void BrushRenderer::validate()
 
 static size_t triIndicesCountForPolygon(const size_t vertexCount)
 {
-  assert(vertexCount >= 3);
+  contract_pre(vertexCount >= 3);
+
   const size_t indexCount = 3 * (vertexCount - 2);
   return indexCount;
 }
@@ -406,7 +407,8 @@ static size_t triIndicesCountForPolygon(const size_t vertexCount)
 static void addTriIndicesForPolygon(
   GLuint* dest, const GLuint baseIndex, const size_t vertexCount)
 {
-  assert(vertexCount >= 3);
+  contract_pre(vertexCount >= 3);
+
   for (size_t i = 0; i < vertexCount - 2; ++i)
   {
     *(dest++) = baseIndex;
@@ -590,7 +592,7 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
       const auto& cache = facesSortedByMaterial[j];
       if (cache.face->isMarked())
       {
-        assert(cache.material == material);
+        contract_assert(cache.material == material);
         if (shouldDrawFaceInTransparentPass(brushNode, *cache.face))
         {
           transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
@@ -634,7 +636,8 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
           currentDest += triIndicesCountForPolygon(cache.vertexCount);
         }
       }
-      assert(currentDest == (insertDest + transparentIndexCount));
+
+      contract_assert(currentDest == (insertDest + transparentIndexCount));
     }
 
     if (opaqueIndexCount > 0)
@@ -668,7 +671,8 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
           currentDest += triIndicesCountForPolygon(cache.vertexCount);
         }
       }
-      assert(currentDest == (insertDest + opaqueIndexCount));
+
+      contract_assert(currentDest == (insertDest + opaqueIndexCount));
     }
   }
 }
@@ -679,7 +683,8 @@ void BrushRenderer::addBrush(const mdl::BrushNode* brushNode)
   // if it is present, its validity is unchanged.
   if (m_allBrushes.insert(brushNode).second)
   {
-    assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
+    contract_assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
+
     assertResult(m_invalidBrushes.insert(brushNode).second);
   }
 }
@@ -692,7 +697,8 @@ void BrushRenderer::removeBrush(const mdl::BrushNode* brushNode)
   if (m_invalidBrushes.erase(brushNode) > 0u)
   {
     // invalid brushes are not in the VBO, so we can return  now.
-    assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
+    contract_assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
+
     return;
   }
 

@@ -24,8 +24,9 @@
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 
+#include "kd/contracts.h"
+
 #include <algorithm>
-#include <cassert>
 #include <memory>
 
 namespace tb::ui
@@ -64,7 +65,8 @@ bool FrameManager::closeAllFrames()
       return false;
     }
   }
-  assert(m_frames.empty());
+
+  contract_post(m_frames.empty());
   return true;
 }
 
@@ -84,7 +86,7 @@ void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
       if (auto it = std::ranges::find(m_frames, frame);
           it != m_frames.end() && it != m_frames.begin())
       {
-        assert(topFrame() != frame);
+        contract_assert(topFrame() != frame);
         m_frames.erase(it);
         m_frames.insert(m_frames.begin(), frame);
       }
@@ -94,7 +96,8 @@ void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
 
 MapFrame* FrameManager::createOrReuseFrame(kdl::task_manager& taskManager)
 {
-  assert(!m_singleFrame || m_frames.size() <= 1);
+  contract_pre(!m_singleFrame || m_frames.size() <= 1);
+
   if (!m_singleFrame || m_frames.empty())
   {
     auto document = std::make_unique<MapDocument>(taskManager);

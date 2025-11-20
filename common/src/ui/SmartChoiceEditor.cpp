@@ -35,8 +35,6 @@
 #include "kd/contracts.h"
 #include "kd/set_temp.h"
 
-#include <cassert>
-
 namespace tb::ui
 {
 
@@ -66,7 +64,7 @@ void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text)
 
 void SmartChoiceEditor::createGui()
 {
-  assert(m_comboBox == nullptr);
+  contract_pre(m_comboBox == nullptr);
 
   auto* infoText = new QLabel{tr("Select a choice option:")};
 

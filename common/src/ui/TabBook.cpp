@@ -77,7 +77,8 @@ void TabBook::addPage(TabBookPage* page, const QString& title)
 
 void TabBook::switchToPage(const int index)
 {
-  assert(index < m_tabBook->count());
+  contract_pre(index < m_tabBook->count());
+
   m_tabBook->setCurrentIndex(index);
 }
 

@@ -539,9 +539,9 @@ int getComponentOfPixel(
   }
 
   const auto& mip0DataBuffer = texture.buffersIfLoaded().at(0);
-  assert(texture.width() * texture.height() * 4 == mip0DataBuffer.size());
-  assert(x < texture.width());
-  assert(y < texture.height());
+  contract_assert(texture.width() * texture.height() * 4 == mip0DataBuffer.size());
+  contract_assert(x < texture.width());
+  contract_assert(y < texture.height());
 
   const uint8_t* mip0Data = mip0DataBuffer.data();
   return static_cast<int>(

@@ -70,7 +70,8 @@ void ShearTool::pickBackSides(
     // The hit point is the closest point on the pick ray to one of the edges of the face.
     // For face dragging, we'll project the pick ray onto the line through this point and
     // having the face normal.
-    assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
+    contract_assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
+
     pickResult.addHit(mdl::Hit{
       ShearToolSideHitType,
       result.distAlongRay,
@@ -121,7 +122,7 @@ void ShearTool::pick3D(
   auto localPickResult = mdl::PickResult{};
 
   // these handles only work in 3D.
-  assert(camera.perspectiveProjection());
+  contract_assert(camera.perspectiveProjection());
 
   // sides
   for (const auto& side : allSides())

@@ -657,7 +657,7 @@ void MapViewBase::createPointEntity()
   const auto classname = action->data().toString().toStdString();
   if (const auto* definition = map.entityDefinitionManager().definition(classname))
   {
-    assert(getType(*definition) == mdl::EntityDefinitionType::Point);
+    contract_assert(getType(*definition) == mdl::EntityDefinitionType::Point);
     createPointEntity(*definition);
   }
   else
@@ -716,9 +716,9 @@ void MapViewBase::toggleTagVisible(const mdl::SmartTag& tag)
 
 void MapViewBase::enableTag(const mdl::SmartTag& tag)
 {
-  assert(tag.canEnable());
-  auto& map = m_document.map();
+  contract_pre(tag.canEnable());
 
+  auto& map = m_document.map();
   auto transaction = mdl::Transaction{map, "Turn Selection into " + tag.name()};
   auto callback = EnableDisableTagCallback{};
   tag.enable(callback, map);
@@ -727,7 +727,8 @@ void MapViewBase::enableTag(const mdl::SmartTag& tag)
 
 void MapViewBase::disableTag(const mdl::SmartTag& tag)
 {
-  assert(tag.canDisable());
+  contract_pre(tag.canDisable());
+
   auto& map = m_document.map();
   auto transaction = mdl::Transaction{map, "Turn Selection into non-" + tag.name()};
   auto callback = EnableDisableTagCallback{};
@@ -1108,7 +1109,7 @@ void MapViewBase::renderPortalFile(
   if (!m_portalFileRenderer)
   {
     validatePortalFileRenderer(renderContext);
-    assert(m_portalFileRenderer);
+    contract_assert(m_portalFileRenderer);
   }
   renderBatch.add(m_portalFileRenderer.get());
 }
@@ -1120,7 +1121,8 @@ void MapViewBase::invalidatePortalFileRenderer()
 
 void MapViewBase::validatePortalFileRenderer(render::RenderContext&)
 {
-  assert(m_portalFileRenderer == nullptr);
+  contract_pre(m_portalFileRenderer == nullptr);
+
   m_portalFileRenderer = std::make_unique<render::PrimitiveRenderer>();
 
   if (const auto* portals = m_document.portals())
@@ -1209,7 +1211,8 @@ void MapViewBase::showPopupMenuLater()
   auto menu = QMenu{};
   const auto addMainMenuAction = [&](const auto& path) -> QAction* {
     auto* groupAction = mapFrame->findAction(path);
-    assert(groupAction);
+    contract_assert(groupAction);
+
     menu.addAction(groupAction);
     return groupAction;
   };
@@ -1668,7 +1671,7 @@ void MapViewBase::reparentNodes(
     preserveEntities ? collectEntitiesForNodes(nodes, map.world()) : nodes;
 
   const auto reparentableNodes = collectReparentableNodes(inputNodes, newParent);
-  assert(!reparentableNodes.empty());
+  contract_assert(!reparentableNodes.empty());
 
   const auto name = "Move "
                     + kdl::str_plural(reparentableNodes.size(), "Object", "Objects")

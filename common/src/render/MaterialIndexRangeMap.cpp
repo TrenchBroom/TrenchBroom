@@ -21,7 +21,7 @@
 
 #include "render/RenderUtils.h"
 
-#include <cassert>
+#include "kd/contracts.h"
 
 namespace tb::render
 {
@@ -162,7 +162,8 @@ IndexRangeMap& MaterialIndexRangeMap::findCurrent(const Material* material)
   {
     m_current = m_data->find(material);
   }
-  assert(m_current != m_data->end());
+  contract_assert(m_current != m_data->end());
+
   return m_current->second;
 }
 

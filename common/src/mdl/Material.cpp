@@ -22,9 +22,9 @@
 #include "Macros.h"
 #include "mdl/Texture.h"
 
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
-#include <cassert>
 #include <ostream>
 
 namespace tb::mdl
@@ -221,8 +221,7 @@ void Material::incUsageCount() const
 void Material::decUsageCount() const
 {
   const size_t previous = m_usageCount--;
-  assert(previous > 0);
-  unused(previous);
+  contract_assert(previous > 0);
 }
 
 void Material::activate(const int minFilter, const int magFilter) const
@@ -255,7 +254,7 @@ void Material::activate(const int minFilter, const int magFilter) const
       }
       else
       {
-        assert(m_blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
+        contract_assert(m_blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
         glAssert(glDisable(GL_BLEND));
       }
     }

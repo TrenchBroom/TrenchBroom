@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/reflection_impl.h"
 #include "kd/vector_utils.h"
@@ -51,7 +52,7 @@ auto makeTextureLoadedState(
       compressed ? (blockSize * std::max(size_t(1), mipSize.x() / 4)
                     * std::max(size_t(1), mipSize.y() / 4))
                  : (bytesPerPixel * mipSize.x() * mipSize.y());
-    assert(buffers[level].size() >= numBytes);
+    contract_assert(buffers[level].size() >= numBytes);
   }
 
   return TextureLoadedState{std::move(buffers)};
@@ -192,8 +193,8 @@ Texture::Texture(
   , m_embeddedDefaults{std::move(embeddedDefaults)}
   , m_state{makeTextureLoadedState(m_width, m_height, m_format, std::move(buffers))}
 {
-  assert(m_width > 0);
-  assert(m_height > 0);
+  contract_pre(m_width > 0);
+  contract_pre(m_height > 0);
 }
 
 Texture::Texture(

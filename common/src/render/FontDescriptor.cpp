@@ -19,7 +19,8 @@
 
 #include "FontDescriptor.h"
 
-#include <cassert>
+#include "kd/contracts.h"
+
 #include <utility>
 
 namespace tb::render
@@ -34,7 +35,7 @@ FontDescriptor::FontDescriptor(
   , m_minChar{minChar}
   , m_maxChar{maxChar}
 {
-  assert(m_minChar <= m_maxChar);
+  contract_pre(m_minChar <= m_maxChar);
 }
 
 const std::filesystem::path& FontDescriptor::path() const

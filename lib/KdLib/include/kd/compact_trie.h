@@ -20,10 +20,10 @@
 
 #pragma once
 
+#include "kd/contracts.h"
 #include "kd/string_compare.h"
 #include "kd/vector_set.h"
 
-#include <cassert>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -126,7 +126,7 @@ private:
      */
     void insert(const node* n, const node* parent)
     {
-      assert(n != nullptr);
+      contract_pre(n != nullptr);
       m_state.try_emplace(n, node_match_state{parent});
     }
 
@@ -142,7 +142,7 @@ private:
     bool is_fully_matched(const node* n)
     {
       auto it = m_state.find(n);
-      assert(it != m_state.end());
+      contract_assert(it != m_state.end());
 
       const auto& state = it->second;
       return state.node_matched && state.fully_matched_children == n->m_children.size();
@@ -161,7 +161,7 @@ private:
     void set_fully_matched(const node* n)
     {
       auto it = m_state.find(n);
-      assert(it != m_state.end());
+      contract_assert(it != m_state.end());
 
       auto& state = it->second;
       state.node_matched = true;
@@ -185,7 +185,7 @@ private:
     bool set_matched(const node* n)
     {
       auto it = m_state.find(n);
-      assert(it != m_state.end());
+      contract_assert(it != m_state.end());
 
       auto& state = it->second;
       if (state.node_matched)
@@ -209,7 +209,7 @@ private:
       while (n)
       {
         auto it = m_state.find(n);
-        assert(it != m_state.end());
+        contract_assert(it != m_state.end());
 
         auto& state = it->second;
         state.fully_matched_children += 1u;
@@ -316,7 +316,7 @@ private:
       // find the index of the first character where the given key and this node's key
       // differ
       const auto mismatch = kdl::cs::str_mismatch(key, m_key);
-      assert(mismatch > 0u || m_key.empty());
+      contract_assert(mismatch > 0u || m_key.empty());
 
       if (mismatch < key.size())
       {
@@ -368,7 +368,7 @@ private:
           // m_key is a true prefix of key, continue at the corresponding child node
           const auto remainder = key.substr(mismatch);
           auto it = m_children.find(remainder);
-          assert(it != m_children.end());
+          contract_assert(it != m_children.end());
 
           result = it->remove(remainder, value);
           if (!it->m_key.empty() && it->m_values.empty() && it->m_children.empty())
@@ -677,13 +677,13 @@ private:
      */
     void split_node(const std::size_t index)
     {
-      assert(m_key.length() > 1u);
+      contract_pre(m_key.length() > 1u);
 
       auto new_key = m_key.substr(0u, index);
       auto remainder = m_key.substr(index);
 
-      assert(!new_key.empty());
-      assert(!remainder.empty());
+      contract_assert(!new_key.empty());
+      contract_assert(!remainder.empty());
 
       using std::swap;
       auto new_children = node_set{};
@@ -705,8 +705,8 @@ private:
      */
     void merge_node()
     {
-      assert(m_children.size() == 1u);
-      assert(m_values.empty());
+      contract_pre(m_children.size() == 1u);
+      contract_pre(m_values.empty());
 
       using std::swap;
       auto old_children = node_set{};
@@ -776,7 +776,7 @@ private:
 
     bool compare(const std::string_view lhs, const std::string_view& rhs) const
     {
-      assert(!lhs.empty() && !rhs.empty());
+      contract_pre(!lhs.empty() && !rhs.empty());
       return lhs[0] < rhs[0];
     }
   };

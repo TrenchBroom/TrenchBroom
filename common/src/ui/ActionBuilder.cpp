@@ -25,6 +25,8 @@
 #include "io/ResourceUtils.h"
 #include "ui/Actions.h"
 
+#include "kd/contracts.h"
+
 namespace tb::ui
 {
 
@@ -90,11 +92,13 @@ PopulateMenuResult populateMenuBar(
   const auto& actionManager = ActionManager::instance();
   actionManager.visitMainMenu(kdl::overload(
     [&](const MenuSeparator&) {
-      assert(currentMenu != nullptr);
+      contract_assert(currentMenu != nullptr);
+
       currentMenu->addSeparator();
     },
     [&](const MenuAction& actionItem) {
-      assert(currentMenu);
+      contract_assert(currentMenu);
+
       auto& qtAction = findOrCreateQtAction(actionMap, actionItem.action, triggerFn);
       currentMenu->addAction(&qtAction);
 

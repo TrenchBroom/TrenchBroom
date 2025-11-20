@@ -39,10 +39,10 @@
 #include "ui/MapViewBase.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 
 #include "vm/util.h"
 
-#include <cassert>
 #include <string>
 #include <unordered_set>
 
@@ -52,11 +52,10 @@ namespace tb::ui
 
 ActionExecutionContext::ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView)
   : m_actionContext(mapView != nullptr ? mapView->actionContext() : ActionContext::Any)
-  , // cache here for performance reasons
-  m_frame{mapFrame}
+  , m_frame{mapFrame}
   , m_mapView{mapView}
 {
-  assert(m_frame == nullptr || m_mapView != nullptr);
+  contract_pre(m_frame == nullptr || m_mapView != nullptr);
 }
 
 bool ActionExecutionContext::hasDocument() const
