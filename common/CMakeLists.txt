@@ -3,6 +3,7 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Color.cpp
         ${COMMON_SOURCE_DIR}/ColorChannel.cpp
+        ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/el/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
         ${COMMON_SOURCE_DIR}/el/Expression.cpp
@@ -518,6 +519,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ColorComponentType.h
         ${COMMON_SOURCE_DIR}/ColorT.h
         ${COMMON_SOURCE_DIR}/ColorVariantT.h
+        ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/el/EL_Forward.h
         ${COMMON_SOURCE_DIR}/el/ELExceptions.h
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.h

@@ -28,6 +28,8 @@
 #include "io/PathQt.h"
 #include "ui/Actions.h"
 
+#include "kd/contracts.h"
+
 #include <array>
 #include <tuple>
 

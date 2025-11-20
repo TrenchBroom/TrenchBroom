@@ -4,6 +4,7 @@ project(KdLib VERSION 0.1.0 LANGUAGES CXX)
 
 add_library(KdLib STATIC 
   "${CMAKE_CURRENT_SOURCE_DIR}/src/cmd_utils.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/contracts.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/dynamic_bitset.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/filesystem_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/path_hash.cpp"
