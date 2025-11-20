@@ -31,14 +31,14 @@ UpdateLinkedGroupsCommand::UpdateLinkedGroupsCommand(
 
 UpdateLinkedGroupsCommand::~UpdateLinkedGroupsCommand() = default;
 
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformDo(Map&)
+bool UpdateLinkedGroupsCommand::doPerformDo(Map&)
 {
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformUndo(Map&)
+bool UpdateLinkedGroupsCommand::doPerformUndo(Map&)
 {
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 } // namespace tb::mdl

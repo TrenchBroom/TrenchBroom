@@ -24,18 +24,6 @@
 namespace tb::mdl
 {
 
-CommandResult::CommandResult(const bool success)
-  : m_success{success}
-{
-}
-
-CommandResult::~CommandResult() = default;
-
-bool CommandResult::success() const
-{
-  return m_success;
-}
-
 Command::Command(std::string name)
   : m_state{CommandState::Default}
   , m_name{std::move(name)}
@@ -54,11 +42,11 @@ const std::string& Command::name() const
   return m_name;
 }
 
-std::unique_ptr<CommandResult> Command::performDo(Map& map)
+bool Command::performDo(Map& map)
 {
   m_state = CommandState::Doing;
-  auto result = doPerformDo(map);
-  m_state = result->success() ? CommandState::Done : CommandState::Default;
+  const auto result = doPerformDo(map);
+  m_state = result ? CommandState::Done : CommandState::Default;
   return result;
 }
 

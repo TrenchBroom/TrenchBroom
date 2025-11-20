@@ -150,7 +150,7 @@ std::string SetVisibilityCommand::makeName(const Action action)
   }
 }
 
-std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(Map& map)
+bool SetVisibilityCommand::doPerformDo(Map& map)
 {
   switch (m_action)
   {
@@ -168,13 +168,13 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(Map& map)
     break;
     switchDefault();
   }
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(Map& map)
+bool SetVisibilityCommand::doPerformUndo(Map& map)
 {
   restoreVisibilityState(m_oldState, map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 } // namespace tb::mdl

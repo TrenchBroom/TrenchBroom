@@ -330,18 +330,17 @@ std::string SelectionCommand::makeName(
   return result.str();
 }
 
-std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(Map& map)
+bool SelectionCommand::doPerformDo(Map& map)
 {
   m_previouslySelectedNodes = map.selection().nodes;
   m_previouslySelectedFaceRefs = createRefs(map.selection().brushFaces);
 
-  return std::make_unique<CommandResult>(
-    doSelect(map)
-    | kdl::transform_error([&](const auto& e) { map.logger().error() << e.msg; })
-    | kdl::is_success());
+  return doSelect(map)
+         | kdl::transform_error([&](const auto& e) { map.logger().error() << e.msg; })
+         | kdl::is_success();
 }
 
-std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(Map& map)
+bool SelectionCommand::doPerformUndo(Map& map)
 {
   doDeselectAll(map);
 
@@ -352,15 +351,15 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(Map& map)
 
   if (!m_previouslySelectedFaceRefs.empty())
   {
-    return std::make_unique<CommandResult>(
-      resolveAllRefs(m_previouslySelectedFaceRefs)
-      | kdl::transform(
-        [&](const auto& faceHandles) { return doSelectBrushFaces(faceHandles, map); })
-      | kdl::transform_error([&](const auto& e) { map.logger().error() << e.msg; })
-      | kdl::is_success());
+    return resolveAllRefs(m_previouslySelectedFaceRefs)
+           | kdl::transform([&](const auto& faceHandles) {
+               return doSelectBrushFaces(faceHandles, map);
+             })
+           | kdl::transform_error([&](const auto& e) { map.logger().error() << e.msg; })
+           | kdl::is_success();
   }
 
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 Result<void> SelectionCommand::doSelect(Map& map) const

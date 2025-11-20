@@ -27,7 +27,6 @@
 #include "vm/segment.h"
 #include "vm/vec.h"
 
-#include <memory>
 #include <vector>
 
 namespace tb::mdl
@@ -44,17 +43,6 @@ std::vector<BrushNode*> collectBrushNodes(
 
 template <typename H>
 class VertexHandleManagerBaseT;
-
-class BrushVertexCommandResult : public CommandResult
-{
-private:
-  bool m_hasRemainingVertices;
-
-public:
-  BrushVertexCommandResult(bool success, bool hasRemainingVertices);
-
-  bool hasRemainingVertices() const;
-};
 
 template <typename H>
 class BrushVertexCommandT : public SwapNodeContentsCommand
@@ -75,15 +63,9 @@ public:
   {
   }
 
-private:
-  std::unique_ptr<CommandResult> doPerformDo(Map& document) override
-  {
-    const auto swapResult = SwapNodeContentsCommand::doPerformDo(document);
-    return std::make_unique<BrushVertexCommandResult>(
-      swapResult->success(), !m_newPositions.empty());
-  }
-
 public:
+  bool hasRemainingHandles() const { return !m_newPositions.empty(); }
+
   template <typename HT>
   void removeHandles(VertexHandleManagerBaseT<HT>& manager)
   {

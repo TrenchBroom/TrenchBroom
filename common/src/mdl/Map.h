@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Color.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
@@ -59,7 +58,6 @@ enum class WrapStyle;
 class BrushFaceAttributes;
 class Command;
 class CommandProcessor;
-class CommandResult;
 class EdgeHandleManager;
 class EditorContext;
 class EntityDefinitionManager;
@@ -368,8 +366,8 @@ public: // resource processing
 public: // command processing
   bool canUndoCommand() const;
   bool canRedoCommand() const;
-  const std::string& undoCommandName() const;
-  const std::string& redoCommandName() const;
+  const std::string* undoCommandName() const;
+  const std::string* redoCommandName() const;
   void undoCommand();
   void redoCommand();
 
@@ -391,9 +389,8 @@ public: // command processing
 
   bool throwExceptionDuringCommand();
 
-  std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
-  std::unique_ptr<CommandResult> executeAndStore(
-    std::unique_ptr<UndoableCommand>&& command);
+  bool execute(std::unique_ptr<Command>&& command);
+  bool executeAndStore(std::unique_ptr<UndoableCommand>&& command);
 
 private: // observers
   void connectObservers();

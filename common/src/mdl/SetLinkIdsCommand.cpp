@@ -70,16 +70,16 @@ SetLinkIdsCommand::SetLinkIdsCommand(
 
 SetLinkIdsCommand::~SetLinkIdsCommand() = default;
 
-std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformDo(Map&)
+bool SetLinkIdsCommand::doPerformDo(Map&)
 {
   m_linkIds = setLinkIds(m_linkIds);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformUndo(Map&)
+bool SetLinkIdsCommand::doPerformUndo(Map&)
 {
   m_linkIds = setLinkIds(m_linkIds);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 bool SetLinkIdsCommand::doCollateWith(UndoableCommand&)

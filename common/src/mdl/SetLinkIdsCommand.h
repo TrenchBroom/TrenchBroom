@@ -41,8 +41,8 @@ public:
     const std::string& name, std::vector<std::tuple<Node*, std::string>> linkIds);
   ~SetLinkIdsCommand() override;
 
-  std::unique_ptr<CommandResult> doPerformDo(Map& map) override;
-  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override;
+  bool doPerformDo(Map& map) override;
+  bool doPerformUndo(Map& map) override;
 
   bool doCollateWith(UndoableCommand& command) override;
 

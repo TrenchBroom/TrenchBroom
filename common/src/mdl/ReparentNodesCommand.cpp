@@ -41,18 +41,18 @@ ReparentNodesCommand::ReparentNodesCommand(
 {
 }
 
-std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(Map& map)
+bool ReparentNodesCommand::doPerformDo(Map& map)
 {
   removeNodesAndNotify(m_nodesToRemove, map);
   addNodesAndNotify(m_nodesToAdd, map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
-std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(Map& map)
+bool ReparentNodesCommand::doPerformUndo(Map& map)
 {
   removeNodesAndNotify(m_nodesToAdd, map);
   addNodesAndNotify(m_nodesToRemove, map);
-  return std::make_unique<CommandResult>(true);
+  return true;
 }
 
 } // namespace tb::mdl

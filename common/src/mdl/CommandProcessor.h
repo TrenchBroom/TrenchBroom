@@ -29,7 +29,6 @@
 namespace tb::mdl
 {
 class Command;
-class CommandResult;
 class Map;
 class UndoableCommand;
 enum class TransactionScope;
@@ -166,17 +165,16 @@ public:
   bool canRedo() const;
 
   /**
-   * Returns the name of the command that will be undone when calling `undo`.
-   *
-   * Precondition: canUndo() == true
+   * Returns the name of the command that will be undone when calling `undo`, or null if
+   * no command can be undone.
    */
-  const std::string& undoCommandName() const;
+  const std::string* undoCommandName() const;
 
   /**
-   * Returns the name of the command that will be executed when callind `redo`.
+   * Returns the name of the command that will be executed when callind `redo`, or null if
+   * no command can be redone.
    */
-  const std::string& redoCommandName() const;
-
+  const std::string* redoCommandName() const;
   /**
    * Starts a new transaction. If a transaction is currently executing, then the newly
    * started transaction becomes a nested transaction and will be added as a command to
@@ -194,7 +192,7 @@ public:
    * If the current transaction does not contain any commands, then the transaction ends,
    * but nothing will be stored in the command processor.
    *
-   * @throws CommandProcessorException if no transaction is currently executing
+   * Precondition: a transaction is currently executing.
    */
   void commitTransaction();
 
@@ -205,7 +203,7 @@ public:
    * `commitTransaction`. Since the transaction will be empty, committing it will just do
    * nothing but remove the transaction itself.
    *
-   * @throws CommandProcessorException if no transaction is currently executing
+   * Precondition: a transaction is currently executing.
    */
   void rollbackTransaction();
 
@@ -230,7 +228,7 @@ public:
    * @param command the command to execute
    * @return the result of executing the given command
    */
-  std::unique_ptr<CommandResult> execute(std::unique_ptr<Command> command);
+  bool execute(std::unique_ptr<Command> command);
 
   /**
    * Executes the given command by calling its `performDo` method and stores it for later
@@ -250,8 +248,7 @@ public:
    * @param command the command to execute
    * @return the result of executing the given command
    */
-  std::unique_ptr<CommandResult> executeAndStore(
-    std::unique_ptr<UndoableCommand> command);
+  bool executeAndStore(std::unique_ptr<UndoableCommand> command);
 
   /**
    * Undoes the most recently executed command by calling its `performUndo` method and
@@ -260,10 +257,9 @@ public:
    *
    * @return the result of undoing the command
    *
-   * @throws CommandProcessorException if a transaction is currently being executed or if
-   * the undo stack is empty
+   * Precondition: No transaction is currently executing and the undo stack is not empty.
    */
-  std::unique_ptr<CommandResult> undo();
+  bool undo();
 
   /**
    * Redoes the most recently undone comment by calling its `performDo` method and stores
@@ -272,10 +268,9 @@ public:
    *
    * @return the result of executing the command
    *
-   * @throws CommandProcessorException if a transaction is currently being executed or if
-   * the redo stack is empty
+   * Precondition: No transaction is currently executing and the redo stack is not empty.
    */
-  std::unique_ptr<CommandResult> redo();
+  bool redo();
 
   /**
    * Clears this command processor. Both the undo and the redo stack are cleared, and
@@ -305,7 +300,7 @@ private:
    * @param command the command to execute
    * @return the result of executing the given command
    */
-  std::unique_ptr<CommandResult> executeCommand(Command& command);
+  bool executeCommand(Command& command);
 
   /**
    * Undoes the given command by calling its `performUndo` method and triggers the
@@ -314,7 +309,7 @@ private:
    * @param command the command to undo
    * @return the result of undoing the given command
    */
-  std::unique_ptr<CommandResult> undoCommand(UndoableCommand& command);
+  bool undoCommand(UndoableCommand& command);
 
   /**
    * Stores the given command or collates it with the topmost command on the undo stack.

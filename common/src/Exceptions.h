@@ -49,12 +49,6 @@ public:
   using Exception::Exception;
 };
 
-class CommandProcessorException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 class RenderException : public Exception
 {
 public:

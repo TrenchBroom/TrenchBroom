@@ -318,9 +318,9 @@ void MapFrame::updateUndoRedoActions()
   const auto& map = m_document->map();
   if (m_undoAction)
   {
-    if (map.canUndoCommand())
+    if (const auto* undoCommandName = map.undoCommandName())
     {
-      const auto text = "Undo " + map.undoCommandName();
+      const auto text = "Undo " + *undoCommandName;
       m_undoAction->setText(QString::fromStdString(text));
       m_undoAction->setEnabled(true);
     }
@@ -332,9 +332,9 @@ void MapFrame::updateUndoRedoActions()
   }
   if (m_redoAction)
   {
-    if (map.canRedoCommand())
+    if (const auto* redoCommandName = map.redoCommandName())
     {
-      const auto text = "Redo " + map.redoCommandName();
+      const auto text = "Redo " + *redoCommandName;
       m_redoAction->setText(QString::fromStdString(text));
       m_redoAction->setEnabled(true);
     }

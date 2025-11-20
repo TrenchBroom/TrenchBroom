@@ -34,21 +34,21 @@ UndoableCommand::UndoableCommand(std::string name, const bool updateModification
 
 UndoableCommand::~UndoableCommand() = default;
 
-std::unique_ptr<CommandResult> UndoableCommand::performDo(Map& map)
+bool UndoableCommand::performDo(Map& map)
 {
-  auto result = Command::performDo(map);
-  if (result->success())
+  const auto result = Command::performDo(map);
+  if (result)
   {
     setModificationCount(map);
   }
   return result;
 }
 
-std::unique_ptr<CommandResult> UndoableCommand::performUndo(Map& map)
+bool UndoableCommand::performUndo(Map& map)
 {
   m_state = CommandState::Undoing;
-  auto result = doPerformUndo(map);
-  if (result->success())
+  const auto result = doPerformUndo(map);
+  if (result)
   {
     resetModificationCount(map);
     m_state = CommandState::Default;

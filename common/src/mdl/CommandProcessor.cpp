@@ -21,6 +21,7 @@
 
 #include <QDateTime>
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Notifier.h"
 #include "mdl/Command.h"
@@ -74,33 +75,37 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(Map& map) override
+  bool doPerformDo(Map& map) override
   {
+    // Note: If a transaction cannot be redone successfully, then the app must be in an
+    // inconsistent state. Currently, we let the app crash if this happens (there are very
+    // few commands that can even fail, so it should be a rare occurrence). An alternative
+    // would be to undo the partially redone commands and drop the entire redo stack.
+
     for (auto& command : m_commands)
     {
       notifyCommandIfNotType<TransactionCommand>(m_commandDoNotifier, *command);
-      if (!command->performDo(map))
-      {
-        throw CommandProcessorException{"Partial failure while executing transaction"};
-      }
+      ensure(command->performDo(map), "Transaction can be redone successfully");
       notifyCommandIfNotType<TransactionCommand>(m_commandDoneNotifier, *command);
     }
-    return std::make_unique<CommandResult>(true);
+    return true;
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override
+  bool doPerformUndo(Map& map) override
   {
+    // Note: If a transaction cannot be undone successfully, then the app must be in an
+    // inconsistent state. Currently, we let the app crash if this happens (there are very
+    // few commands that can even fail, so it should be a rare occurrence). An alternative
+    // would be to redo the undone commands and drop the entire undo stack.
+
     for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it)
     {
       auto& command = *it;
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoNotifier, *command);
-      if (!command->performUndo(map))
-      {
-        throw CommandProcessorException{"Partial failure while undoing transaction"};
-      }
+      ensure(command->performUndo(map), "Transaction can be undone successfully");
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoneNotifier, *command);
     }
-    return std::make_unique<CommandResult>(true);
+    return true;
   }
 
   bool doCollateWith(UndoableCommand& other) override
@@ -149,12 +154,11 @@ struct CommandProcessor::TransactionState
 
 struct CommandProcessor::SubmitAndStoreResult
 {
-  std::unique_ptr<CommandResult> commandResult;
+  bool commandResult;
   bool commandStored;
 
-  SubmitAndStoreResult(
-    std::unique_ptr<CommandResult> i_commandResult, const bool i_commandStored)
-    : commandResult{std::move(i_commandResult)}
+  SubmitAndStoreResult(bool i_commandResult, const bool i_commandStored)
+    : commandResult{i_commandResult}
     , commandStored{i_commandStored}
   {
   }
@@ -191,24 +195,14 @@ bool CommandProcessor::canRedo() const
   return m_transactionStack.empty() && !m_redoStack.empty();
 }
 
-const std::string& CommandProcessor::undoCommandName() const
+const std::string* CommandProcessor::undoCommandName() const
 {
-  if (!canUndo())
-  {
-    throw CommandProcessorException{"Command stack is empty"};
-  }
-
-  return m_undoStack.back()->name();
+  return canUndo() ? &m_undoStack.back()->name() : nullptr;
 }
 
-const std::string& CommandProcessor::redoCommandName() const
+const std::string* CommandProcessor::redoCommandName() const
 {
-  if (!canRedo())
-  {
-    throw CommandProcessorException{"Undo stack is empty"};
-  }
-
-  return m_redoStack.back()->name();
+  return canRedo() ? &m_redoStack.back()->name() : nullptr;
 }
 
 void CommandProcessor::startTransaction(std::string name, const TransactionScope scope)
@@ -218,20 +212,14 @@ void CommandProcessor::startTransaction(std::string name, const TransactionScope
 
 void CommandProcessor::commitTransaction()
 {
-  if (m_transactionStack.empty())
-  {
-    throw CommandProcessorException{"No transaction is currently executing"};
-  }
+  ensure(!m_transactionStack.empty(), "a transaction is currently executing");
 
   createAndStoreTransaction();
 }
 
 void CommandProcessor::rollbackTransaction()
 {
-  if (m_transactionStack.empty())
-  {
-    throw CommandProcessorException{"No transaction is currently executing"};
-  }
+  ensure(!m_transactionStack.empty(), "a transaction is currently executing");
 
   auto& transaction = m_transactionStack.back();
   for (auto it = std::rbegin(transaction.commands), end = std::rend(transaction.commands);
@@ -250,10 +238,10 @@ bool CommandProcessor::isCurrentDocumentStateObservable() const
               == TransactionScope::LongRunning;
 }
 
-std::unique_ptr<CommandResult> CommandProcessor::execute(std::unique_ptr<Command> command)
+bool CommandProcessor::execute(std::unique_ptr<Command> command)
 {
-  auto result = executeCommand(*command);
-  if (result->success())
+  const auto result = executeCommand(*command);
+  if (result)
   {
     m_undoStack.clear();
     m_redoStack.clear();
@@ -261,26 +249,19 @@ std::unique_ptr<CommandResult> CommandProcessor::execute(std::unique_ptr<Command
   return result;
 }
 
-std::unique_ptr<CommandResult> CommandProcessor::executeAndStore(
-  std::unique_ptr<UndoableCommand> command)
+bool CommandProcessor::executeAndStore(std::unique_ptr<UndoableCommand> command)
 {
   return executeAndStoreCommand(std::move(command), true).commandResult;
 }
 
-std::unique_ptr<CommandResult> CommandProcessor::undo()
+bool CommandProcessor::undo()
 {
-  if (!m_transactionStack.empty())
-  {
-    throw CommandProcessorException{"Cannot undo individual commands of a transaction"};
-  }
-  if (m_undoStack.empty())
-  {
-    throw CommandProcessorException{"Undo stack is empty"};
-  }
+  ensure(m_transactionStack.empty(), "no running transaction");
+  ensure(!m_undoStack.empty(), "undo stack is not empty");
 
   auto command = popFromUndoStack();
-  auto result = undoCommand(*command);
-  if (result->success())
+  const auto result = undoCommand(*command);
+  if (result)
   {
     const auto commandName = command->name();
     pushToRedoStack(std::move(command));
@@ -289,20 +270,14 @@ std::unique_ptr<CommandResult> CommandProcessor::undo()
   return result;
 }
 
-std::unique_ptr<CommandResult> CommandProcessor::redo()
+bool CommandProcessor::redo()
 {
-  if (!m_transactionStack.empty())
-  {
-    throw CommandProcessorException{"Cannot redo while in a transaction"};
-  }
-  if (m_redoStack.empty())
-  {
-    throw CommandProcessorException{"Redo stack is empty"};
-  }
+  ensure(m_transactionStack.empty(), "no running transaction");
+  ensure(!m_redoStack.empty(), "undo stack is not empty");
 
   auto command = popFromRedoStack();
-  auto result = executeCommand(*command);
-  if (result->success())
+  const auto result = executeCommand(*command);
+  if (result)
   {
     assertResult(pushToUndoStack(std::move(command), false));
   }
@@ -321,22 +296,22 @@ void CommandProcessor::clear()
 CommandProcessor::SubmitAndStoreResult CommandProcessor::executeAndStoreCommand(
   std::unique_ptr<UndoableCommand> command, const bool collate)
 {
-  auto commandResult = executeCommand(*command);
-  if (!commandResult->success())
+  const auto commandResult = executeCommand(*command);
+  if (!commandResult)
   {
-    return {std::move(commandResult), false};
+    return {false, false};
   }
 
   const auto commandStored = storeCommand(std::move(command), collate);
   m_redoStack.clear();
-  return {std::move(commandResult), commandStored};
+  return {true, commandStored};
 }
 
-std::unique_ptr<CommandResult> CommandProcessor::executeCommand(Command& command)
+bool CommandProcessor::executeCommand(Command& command)
 {
   notifyCommandIfNotType<TransactionCommand>(commandDoNotifier, command);
-  auto result = command.performDo(m_map);
-  if (result->success())
+  const auto result = command.performDo(m_map);
+  if (result)
   {
     notifyCommandIfNotType<TransactionCommand>(commandDoneNotifier, command);
     if (m_transactionStack.empty())
@@ -351,11 +326,11 @@ std::unique_ptr<CommandResult> CommandProcessor::executeCommand(Command& command
   return result;
 }
 
-std::unique_ptr<CommandResult> CommandProcessor::undoCommand(UndoableCommand& command)
+bool CommandProcessor::undoCommand(UndoableCommand& command)
 {
   notifyCommandIfNotType<TransactionCommand>(commandUndoNotifier, command);
-  auto result = command.performUndo(m_map);
-  if (result->success())
+  const auto result = command.performUndo(m_map);
+  if (result)
   {
     notifyCommandIfNotType<TransactionCommand>(commandUndoneNotifier, command);
   }

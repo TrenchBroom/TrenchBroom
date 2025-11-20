@@ -68,8 +68,8 @@ public:
 private:
   static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
 
-  std::unique_ptr<CommandResult> doPerformDo(Map& map) override;
-  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override;
+  bool doPerformDo(Map& map) override;
+  bool doPerformUndo(Map& map) override;
 
   Result<void> doSelect(Map& map) const;
 

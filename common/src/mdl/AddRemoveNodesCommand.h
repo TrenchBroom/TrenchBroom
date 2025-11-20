@@ -57,8 +57,8 @@ public:
 private:
   static std::string makeName(Action action);
 
-  std::unique_ptr<CommandResult> doPerformDo(Map& map) override;
-  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override;
+  bool doPerformDo(Map& map) override;
+  bool doPerformUndo(Map& map) override;
 
   void doAction(Map& map);
   void undoAction(Map& map);

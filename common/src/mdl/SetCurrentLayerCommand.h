@@ -40,8 +40,8 @@ public:
   explicit SetCurrentLayerCommand(LayerNode* layer);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(Map& map) override;
-  std::unique_ptr<CommandResult> doPerformUndo(Map& map) override;
+  bool doPerformDo(Map& map) override;
+  bool doPerformUndo(Map& map) override;
 
   bool doCollateWith(UndoableCommand& command) override;
 
