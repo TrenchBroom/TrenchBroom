@@ -45,8 +45,6 @@ private:
 
 public:
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    Node* parent, const std::vector<Node*>& children);
-  static std::unique_ptr<AddRemoveNodesCommand> add(
     const std::map<Node*, std::vector<Node*>>& nodes);
   static std::unique_ptr<AddRemoveNodesCommand> remove(
     const std::map<Node*, std::vector<Node*>>& nodes);
