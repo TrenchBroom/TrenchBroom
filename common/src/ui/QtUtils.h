@@ -31,7 +31,7 @@
 #include <QWidget>
 
 #include "Color.h"
-#include "Ensure.h"
+#include "Contracts.h"
 #include "ui/ViewConstants.h"
 
 #include "vm/vec.h"
@@ -110,7 +110,7 @@ void restoreWindowGeometry(QWidget* window);
 template <typename T>
 void saveWindowState(const T* window)
 {
-  ensure(window != nullptr, "window must not be null");
+  contract_pre(window != nullptr);
 
   const auto path = windowSettingsPath(window, "State");
   auto settings = QSettings{};
@@ -120,7 +120,7 @@ void saveWindowState(const T* window)
 template <typename T>
 void restoreWindowState(T* window)
 {
-  ensure(window != nullptr, "window must not be null");
+  contract_pre(window != nullptr);
 
   const auto path = windowSettingsPath(window, "State");
   auto settings = QSettings{};

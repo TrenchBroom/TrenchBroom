@@ -26,6 +26,7 @@
 #include <QString>
 #include <QtGlobal>
 
+#include "Contracts.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -683,7 +684,7 @@ void MapViewBase::createBrushEntity()
 
 void MapViewBase::createPointEntity(const mdl::EntityDefinition& definition)
 {
-  ensure(definition.pointEntityDefinition, "definition is a point entity definition");
+  contract_pre(definition.pointEntityDefinition);
 
   auto& map = m_document.map();
   const auto delta = computePointEntityPosition(definition.pointEntityDefinition->bounds);
@@ -1477,8 +1478,9 @@ void MapViewBase::addSelectedObjectsToGroup()
 {
   auto& map = m_document.map();
   const auto nodes = map.selection().nodes;
+
   auto* newGroup = findNewGroupForObjects(nodes);
-  ensure(newGroup, "newGroup is null");
+  contract_assert(newGroup != nullptr);
 
   auto transaction = mdl::Transaction{map, "Add Objects to Group"};
   reparentNodes(nodes, newGroup, true);
@@ -1494,7 +1496,7 @@ void MapViewBase::removeSelectedObjectsFromGroup()
 
   const auto nodes = map.selection().nodes;
   auto* currentGroup = editorContext.currentGroup();
-  ensure(currentGroup, "currentGroup is null");
+  contract_assert(currentGroup);
 
   auto transaction = mdl::Transaction{map, "Remove Objects from Group"};
   reparentNodes(nodes, editorContext.currentLayer(), true);
@@ -1527,7 +1529,7 @@ void MapViewBase::mergeSelectedGroups()
 {
   auto& map = m_document.map();
   auto* newGroup = findGroupToMergeGroupsInto(map.selection());
-  ensure(newGroup, "newGroup is null");
+  contract_assert(newGroup != nullptr);
 
   auto transaction = mdl::Transaction{map, "Merge Groups"};
   mergeSelectedGroupsWithGroup(map, newGroup);
@@ -1571,7 +1573,7 @@ void MapViewBase::moveSelectedBrushesToEntity()
   auto& map = m_document.map();
   const auto nodes = map.selection().nodes;
   auto* newParent = findNewParentEntityForBrushes(nodes);
-  ensure(newParent, "newParent is null");
+  contract_assert(newParent);
 
   auto transaction =
     mdl::Transaction{map, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
@@ -1659,7 +1661,7 @@ static std::vector<mdl::Node*> collectEntitiesForNodes(
 void MapViewBase::reparentNodes(
   const std::vector<mdl::Node*>& nodes, mdl::Node* newParent, const bool preserveEntities)
 {
-  ensure(newParent, "newParent is null");
+  contract_pre(newParent != nullptr);
 
   auto& map = m_document.map();
   const auto inputNodes =

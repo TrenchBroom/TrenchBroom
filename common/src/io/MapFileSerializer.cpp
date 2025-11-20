@@ -19,7 +19,7 @@
 
 #include "MapFileSerializer.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "mdl/BezierPatch.h"
@@ -310,7 +310,7 @@ MapFileSerializer::MapFileSerializer(std::ostream& stream)
 void MapFileSerializer::doBeginFile(
   const std::vector<const mdl::Node*>& rootNodes, kdl::task_manager& taskManager)
 {
-  ensure(m_nodeToPrecomputedString.empty(), "MapFileSerializer may not be reused");
+  contract_pre(m_nodeToPrecomputedString.empty());
 
   // collect nodes
   auto nodesToSerialize =
@@ -398,9 +398,8 @@ void MapFileSerializer::doBrush(const mdl::BrushNode* brush)
 
   // write pre-serialized brush faces
   auto it = m_nodeToPrecomputedString.find(brush);
-  ensure(
-    it != std::end(m_nodeToPrecomputedString),
-    "attempted to serialize a brush which was not passed to doBeginFile");
+  contract_assert(it != std::end(m_nodeToPrecomputedString));
+
   const auto& precomputedString = it->second;
   m_stream << precomputedString.string;
   m_line += precomputedString.lineCount;
@@ -426,9 +425,8 @@ void MapFileSerializer::doPatch(const mdl::PatchNode* patchNode)
 
   // write pre-serialized patch
   auto it = m_nodeToPrecomputedString.find(patchNode);
-  ensure(
-    it != std::end(m_nodeToPrecomputedString),
-    "attempted to serialize a patch which was not passed to doBeginFile");
+  contract_assert(it != std::end(m_nodeToPrecomputedString));
+
   const auto& precomputedString = it->second;
   m_stream << precomputedString.string;
   m_line += precomputedString.lineCount;

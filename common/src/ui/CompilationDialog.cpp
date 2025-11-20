@@ -27,7 +27,7 @@
 #include <QPushButton>
 #include <QTextEdit>
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
@@ -49,7 +49,8 @@ CompilationDialog::CompilationDialog(MapFrame* mapFrame)
   : QDialog{mapFrame}
   , m_mapFrame{mapFrame}
 {
-  ensure(mapFrame != nullptr, "must have a map frame");
+  contract_pre(mapFrame != nullptr);
+
   createGui();
   setMinimumSize(600, 300);
   resize(800, 600);
@@ -178,8 +179,8 @@ void CompilationDialog::startCompilation(const bool test)
   else
   {
     const auto* profile = m_profileManager->selectedProfile();
-    ensure(profile != nullptr, "profile is not null");
-    ensure(!profile->tasks.empty(), "profile has tasks");
+    contract_assert(profile != nullptr);
+    contract_assert(!profile->tasks.empty());
 
     runProfile(*profile, test) | kdl::transform_error([&](const auto& e) {
       m_output->setText(tr("Compilation failed: %1").arg(QString::fromStdString(e.msg)));
@@ -228,7 +229,8 @@ void CompilationDialog::closeEvent(QCloseEvent* event)
 void CompilationDialog::compilationStarted()
 {
   const auto* profile = m_profileManager->selectedProfile();
-  ensure(profile != nullptr, "profile is null");
+  contract_assert(profile != nullptr);
+
   m_currentRunLabel->setText(QString::fromStdString("Running " + profile->name));
   m_output->setText("");
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "render/AllocationTracker.h"
 #include "render/GL.h"
 #include "render/GLVertexType.h"
@@ -314,7 +314,8 @@ public:
 
   bool setupVertices() override
   {
-    ensure(VboHolder<V>::m_vbo != nullptr, "block is null");
+    contract_pre(VboHolder<V>::m_vbo != nullptr);
+
     VboHolder<V>::m_vbo->bind();
     V::Type::setup(
       VboHolder<V>::m_vboManager->shaderManager().currentProgram(),

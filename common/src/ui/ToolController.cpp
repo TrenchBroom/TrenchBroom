@@ -19,7 +19,7 @@
 
 #include "ToolController.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "ui/DropTracker.h"
 #include "ui/GestureTracker.h"
 #include "ui/Tool.h"
@@ -100,7 +100,8 @@ ToolControllerGroup::~ToolControllerGroup() = default;
 
 void ToolControllerGroup::addController(std::unique_ptr<ToolController> controller)
 {
-  ensure(controller != nullptr, "controller is null");
+  contract_pre(controller != nullptr);
+
   m_chain.append(std::move(controller));
 }
 

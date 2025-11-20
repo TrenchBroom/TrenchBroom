@@ -19,7 +19,7 @@
 
 #include "CompareHits.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
@@ -42,8 +42,8 @@ CombineCompareHits::CombineCompareHits(
   : m_first(std::move(first))
   , m_second(std::move(second))
 {
-  ensure(m_first != nullptr, "first is null");
-  ensure(m_second != nullptr, "second is null");
+  contract_pre(m_first != nullptr);
+  contract_pre(m_second != nullptr);
 }
 
 int CombineCompareHits::doCompare(const Hit& lhs, const Hit& rhs) const

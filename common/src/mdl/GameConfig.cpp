@@ -19,7 +19,7 @@
 
 #include "GameConfig.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 
 #include "kd/reflection_impl.h"
 
@@ -61,7 +61,8 @@ int FlagsConfig::flagValue(const std::string& flagName) const
 
 std::string FlagsConfig::flagName(const size_t index) const
 {
-  ensure(index < flags.size(), "index out of range");
+  contract_pre(index < flags.size());
+
   return flags[index].name;
 }
 

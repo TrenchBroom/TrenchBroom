@@ -19,7 +19,7 @@
 
 #include "WorldNode.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
@@ -87,13 +87,15 @@ const WorldNode::NodeTree& WorldNode::nodeTree() const
 
 LayerNode* WorldNode::defaultLayer()
 {
-  ensure(m_defaultLayer != nullptr, "defaultLayer is null");
+  contract_pre(m_defaultLayer != nullptr);
+
   return m_defaultLayer;
 }
 
 const LayerNode* WorldNode::defaultLayer() const
 {
-  ensure(m_defaultLayer != nullptr, "defaultLayer is null");
+  contract_pre(m_defaultLayer != nullptr);
+
   return m_defaultLayer;
 }
 
@@ -352,9 +354,7 @@ void WorldNode::doDescendantWasAdded(Node* node, const size_t /* depth */)
   const auto updatePersistentId = [&](auto* persistentNode) {
     if (const auto persistentNodeId = persistentNode->persistentId())
     {
-      ensure(
-        *persistentNodeId < std::numeric_limits<IdType>::max(),
-        "Persistent ID available");
+      contract_assert(*persistentNodeId < std::numeric_limits<IdType>::max());
       m_nextPersistentId = std::max(m_nextPersistentId, *persistentNodeId + 1u);
     }
     else

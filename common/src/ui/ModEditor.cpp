@@ -260,7 +260,7 @@ void ModEditor::moveModUpClicked()
   auto enabledMods = mdl::enabledMods(m_map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
-  ensure(index < enabledMods.size(), "index out of range");
+  contract_assert(index < enabledMods.size());
 
   using std::swap;
   swap(enabledMods[index - 1], enabledMods[index]);
@@ -278,7 +278,7 @@ void ModEditor::moveModDownClicked()
   auto enabledMods = mdl::enabledMods(m_map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
-  ensure(index < enabledMods.size() - 1, "index out of range");
+  contract_assert(index < enabledMods.size() - 1);
 
   using std::swap;
   swap(enabledMods[index + 1], enabledMods[index]);

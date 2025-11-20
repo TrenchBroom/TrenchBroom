@@ -19,7 +19,7 @@
 
 #include "ToolChain.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "ui/DropTracker.h"
 #include "ui/GestureTracker.h"
 #include "ui/ToolController.h"
@@ -44,7 +44,8 @@ void ToolChain::append(std::unique_ptr<ToolController> tool)
   }
   else
   {
-    ensure(m_suffix != nullptr, "suffix is null");
+    contract_assert(m_suffix != nullptr);
+
     m_suffix->append(std::move(tool));
   }
   assert(checkInvariant());

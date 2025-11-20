@@ -19,7 +19,7 @@
 
 #include "PointTrace.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 
 #include "kd/reflection_impl.h"
 
@@ -38,7 +38,7 @@ namespace tb::mdl
 PointTrace::PointTrace(std::vector<vm::vec3f> points)
   : m_points{std::move(points)}
 {
-  ensure(!m_points.empty(), "Point trace is not empty");
+  contract_pre(!m_points.empty());
 }
 
 bool PointTrace::hasNextPoint() const

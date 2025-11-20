@@ -19,7 +19,7 @@
 
 #include "Map_Nodes.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Logger.h"
 #include "Uuid.h"
 #include "mdl/AddRemoveNodesCommand.h"
@@ -232,7 +232,8 @@ auto collectRemovableParents(const std::map<Node*, std::vector<Node*>>& nodes)
     if (node->removeIfEmpty() && !node->hasChildren())
     {
       auto* parent = node->parent();
-      ensure(parent != nullptr, "parent is not null");
+      contract_assert(parent != nullptr);
+
       result[parent].push_back(node);
     }
   }
@@ -260,7 +261,8 @@ Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes)
   }
 
   auto* parentLayer = findContainingLayer(nodes.at(0));
-  ensure(parentLayer != nullptr, "no parent layer");
+  contract_post(parentLayer != nullptr);
+
   return parentLayer;
 }
 

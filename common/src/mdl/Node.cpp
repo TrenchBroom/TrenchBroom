@@ -19,7 +19,7 @@
 
 #include "Node.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Macros.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Issue.h"
@@ -258,9 +258,9 @@ std::vector<std::unique_ptr<Node>> Node::replaceChildren(
 
   for (auto* child : m_children)
   {
-    ensure(child != nullptr, "child is null");
-    assert(child->parent() == this);
-    assert(canRemoveChild(child));
+    contract_assert(child != nullptr);
+    contract_assert(child->parent() == this);
+    contract_assert(canRemoveChild(child));
 
     childWillBeRemoved(child);
     child->setParent(nullptr);
@@ -308,10 +308,10 @@ bool Node::canRemoveChild(const Node* child) const
 
 void Node::doAddChild(Node* child)
 {
-  ensure(child != nullptr, "child is null");
-  assert(!kdl::vec_contains(m_children, child));
-  assert(child->parent() == nullptr);
-  assert(canAddChild(child));
+  contract_pre(child != nullptr);
+  contract_pre(child->parent() == nullptr);
+  contract_pre(!kdl::vec_contains(m_children, child));
+  contract_pre(canAddChild(child));
 
   childWillBeAdded(child);
   // nodeWillChange();
@@ -323,9 +323,9 @@ void Node::doAddChild(Node* child)
 
 void Node::doRemoveChild(Node* child)
 {
-  ensure(child != nullptr, "child is null");
-  assert(child->parent() == this);
-  assert(canRemoveChild(child));
+  contract_pre(child != nullptr);
+  contract_pre(child->parent() == this);
+  contract_pre(canRemoveChild(child));
 
   childWillBeRemoved(child);
   // nodeWillChange();

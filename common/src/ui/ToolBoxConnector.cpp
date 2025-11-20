@@ -21,7 +21,7 @@
 
 #include <QGuiApplication>
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Macros.h"
 #include "ui/ToolBox.h"
 #include "ui/ToolChain.h"
@@ -67,7 +67,7 @@ const mdl::PickResult& ToolBoxConnector::pickResult() const
 
 void ToolBoxConnector::updatePickResult()
 {
-  ensure(m_toolBox, "toolBox is set");
+  contract_pre(m_toolBox != nullptr);
 
   m_inputState.setPickRequest(pickRequest(m_inputState.mouseX(), m_inputState.mouseY()));
   auto pickResult = pick(m_inputState.pickRay());
@@ -77,7 +77,8 @@ void ToolBoxConnector::updatePickResult()
 
 void ToolBoxConnector::setToolBox(ToolBox& toolBox)
 {
-  assert(!m_toolBox);
+  contract_pre(!m_toolBox);
+
   m_toolBox = &toolBox;
 }
 
@@ -88,7 +89,7 @@ void ToolBoxConnector::addToolController(std::unique_ptr<ToolController> toolCon
 
 bool ToolBoxConnector::dragEnter(const float x, const float y, const std::string& text)
 {
-  ensure(m_toolBox, "toolBox is set");
+  contract_pre(m_toolBox != nullptr);
 
   mouseMoved(x, y);
   updatePickResult();
@@ -98,7 +99,7 @@ bool ToolBoxConnector::dragEnter(const float x, const float y, const std::string
 
 bool ToolBoxConnector::dragMove(const float x, const float y, const std::string& text)
 {
-  ensure(m_toolBox, "toolBox is set");
+  contract_pre(m_toolBox != nullptr);
 
   mouseMoved(x, y);
   updatePickResult();
@@ -108,7 +109,7 @@ bool ToolBoxConnector::dragMove(const float x, const float y, const std::string&
 
 void ToolBoxConnector::dragLeave()
 {
-  ensure(m_toolBox, "toolBox is set");
+  contract_pre(m_toolBox != nullptr);
 
   m_toolBox->dragLeave(*m_toolChain, m_inputState);
 }
@@ -116,7 +117,7 @@ void ToolBoxConnector::dragLeave()
 bool ToolBoxConnector::dragDrop(
   const float /* x */, const float /* y */, const std::string& text)
 {
-  ensure(m_toolBox, "toolBox is set");
+  contract_pre(m_toolBox != nullptr);
 
   updatePickResult();
 
@@ -125,14 +126,16 @@ bool ToolBoxConnector::dragDrop(
 
 bool ToolBoxConnector::cancel()
 {
-  ensure(m_toolBox, "toolBox is set");
+  contract_pre(m_toolBox != nullptr);
+
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
   return m_toolBox->cancel(*m_toolChain);
 }
 
 void ToolBoxConnector::setRenderOptions(render::RenderContext& renderContext)
 {
-  ensure(m_toolBox, "toolBox is set");
+  contract_pre(m_toolBox != nullptr);
+
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
   m_toolBox->setRenderOptions(*m_toolChain, m_inputState, renderContext);
 }
@@ -140,7 +143,8 @@ void ToolBoxConnector::setRenderOptions(render::RenderContext& renderContext)
 void ToolBoxConnector::renderTools(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
-  ensure(m_toolBox, "toolBox is set");
+  contract_pre(m_toolBox != nullptr);
+
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
   m_toolBox->renderTools(*m_toolChain, m_inputState, renderContext, renderBatch);
 }

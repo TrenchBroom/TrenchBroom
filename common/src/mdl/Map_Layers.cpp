@@ -19,7 +19,7 @@
 
 #include "mdl/Map_Layers.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Map.h"
@@ -89,9 +89,10 @@ bool moveLayerByOne(Map& map, LayerNode* layerNode, const MoveDirection directio
 
 void setCurrentLayer(Map& map, LayerNode* layerNode)
 {
+  contract_pre(layerNode != nullptr);
+
   auto* currentLayer = map.editorContext().currentLayer();
-  ensure(currentLayer != nullptr, "old currentLayer is not null");
-  ensure(layerNode != nullptr, "new currentLayer is not null");
+  contract_assert(currentLayer != nullptr);
 
   auto transaction = Transaction{map, "Set Current Layer"};
 
@@ -133,7 +134,7 @@ void renameLayer(Map& map, LayerNode* layerNode, const std::string& name)
 
 void moveLayer(Map& map, LayerNode* layer, const int offset)
 {
-  ensure(layer != map.world()->defaultLayer(), "attempted to move default layer");
+  contract_pre(layer != map.world()->defaultLayer());
 
   auto transaction = Transaction{map, "Move Layer"};
 
@@ -151,7 +152,7 @@ void moveLayer(Map& map, LayerNode* layer, const int offset)
 
 bool canMoveLayer(const Map& map, LayerNode* layerNode, const int offset)
 {
-  ensure(layerNode != nullptr, "null layer");
+  contract_pre(layerNode != nullptr);
 
   auto* worldNode = map.world();
   if (layerNode == worldNode->defaultLayer())
@@ -246,7 +247,8 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
 
 bool canMoveSelectedNodesToLayer(const Map& map, LayerNode* layerNode)
 {
-  ensure(layerNode != nullptr, "null layer");
+  contract_pre(layerNode != nullptr);
+
   const auto& nodes = map.selection().nodes;
 
   const auto isAnyNodeInGroup = std::ranges::any_of(

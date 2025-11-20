@@ -19,7 +19,6 @@
 
 #include "EditorContext.h"
 
-#include "Ensure.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushFace.h"
@@ -128,7 +127,7 @@ void EditorContext::pushGroup(GroupNode& groupNode)
 
 void EditorContext::popGroup()
 {
-  ensure(m_currentGroup, "currentGroup is null");
+  contract_pre(m_currentGroup != nullptr);
 
   m_currentGroup->close();
   m_currentGroup = m_currentGroup->containingGroup();

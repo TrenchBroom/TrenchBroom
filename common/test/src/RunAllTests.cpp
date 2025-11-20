@@ -19,7 +19,7 @@
 
 #define CATCH_CONFIG_RUNNER
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "TestPreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "ui/CrashReporter.h"
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
   tb::ui::setCrashReportGUIEnabled(false);
 
-  ensure(qApp == &app, "invalid app instance");
+  contract_assert(qApp == &app);
 
   return Catch::Session().run(argc, argv);
 }

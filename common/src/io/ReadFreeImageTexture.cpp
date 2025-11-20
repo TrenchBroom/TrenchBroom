@@ -19,7 +19,7 @@
 
 #include "ReadFreeImageTexture.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "FreeImage.h"
 #include "io/ImageLoaderImpl.h"
 #include "io/MaterialUtils.h"
@@ -76,7 +76,7 @@ constexpr GLenum freeImage32BPPFormatToGLFormat()
 
 Color getAverageColor(const mdl::TextureBuffer& buffer, const GLenum format)
 {
-  ensure(format == GL_RGBA || format == GL_BGRA, "format is GL_RGBA or GL_BGRA");
+  contract_pre(format == GL_RGBA || format == GL_BGRA);
 
   const auto r = size_t(format == GL_RGBA ? 0 : 2);
   const auto g = size_t(1);

@@ -19,6 +19,7 @@
 
 #include "ui/HandleDragTracker.h"
 
+#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
@@ -210,7 +211,7 @@ HandlePositionProposer makeBrushFaceHandleProposer(const mdl::Grid& grid)
       }
 
       const auto faceHandle = mdl::hitToFaceHandle(hit);
-      ensure(faceHandle, "invalid hit type");
+      contract_assert(faceHandle != std::nullopt);
 
       return grid.snap(hit.hitPoint(), faceHandle->face().boundary());
     };

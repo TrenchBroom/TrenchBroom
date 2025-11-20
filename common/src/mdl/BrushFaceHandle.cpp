@@ -19,7 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "BrushFaceHandle.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushNode.h"
 
@@ -34,8 +34,8 @@ BrushFaceHandle::BrushFaceHandle(BrushNode* node, const size_t faceIndex)
   : m_node{node}
   , m_faceIndex{faceIndex}
 {
-  ensure(m_node != nullptr, "node must not be null");
-  ensure(m_faceIndex < m_node->brush().faceCount(), "face index must be valid");
+  contract_pre(m_node != nullptr);
+  contract_pre(m_faceIndex < m_node->brush().faceCount());
 }
 
 BrushNode* BrushFaceHandle::node() const

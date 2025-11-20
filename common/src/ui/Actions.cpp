@@ -22,7 +22,6 @@
 #include <QKeySequence>
 #include <QString>
 
-#include "Ensure.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
@@ -82,7 +81,8 @@ bool ActionExecutionContext::hasActionContext(
 
 const MapFrame& ActionExecutionContext::frame() const
 {
-  ensure(hasDocument(), "action execution context has document");
+  contract_pre(hasDocument());
+
   return *m_frame;
 }
 
@@ -93,8 +93,9 @@ MapFrame& ActionExecutionContext::frame()
 
 const MapViewBase& ActionExecutionContext::view() const
 {
-  ensure(hasDocument(), "action execution context has document");
-  ensure(m_mapView != nullptr, "action execution context has view");
+  contract_pre(hasDocument());
+  contract_pre(m_mapView != nullptr);
+
   return *m_mapView;
 }
 
@@ -2228,14 +2229,16 @@ const Action& ActionManager::existingAction(
   const std::filesystem::path& preferencePath) const
 {
   auto it = m_actions.find(preferencePath);
-  ensure(it != m_actions.end(), "couldn't find action");
+  contract_assert(it != m_actions.end());
+
   return it->second;
 }
 
 const Action& ActionManager::addAction(Action action)
 {
   auto [it, didInsert] = m_actions.insert({action.preferencePath(), std::move(action)});
-  ensure(didInsert, "duplicate action");
+  contract_assert(didInsert);
+
   return it->second;
 }
 

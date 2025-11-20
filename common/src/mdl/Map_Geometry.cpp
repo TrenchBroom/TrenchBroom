@@ -19,7 +19,6 @@
 
 #include "mdl/Map_Geometry.h"
 
-#include "Ensure.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -130,8 +129,8 @@ bool transformSelection(
     nodesToTransform | std::views::transform([&](auto& node) {
       return std::function{[&]() {
         return node->accept(kdl::overload(
-          [&](WorldNode*) -> TransformResult { ensure(false, "Unexpected world node"); },
-          [&](LayerNode*) -> TransformResult { ensure(false, "Unexpected layer node"); },
+          [&](WorldNode*) -> TransformResult { contract_assert(false); },
+          [&](LayerNode*) -> TransformResult { contract_assert(false); },
           [&](GroupNode* groupNode) -> TransformResult {
             auto group = groupNode->group();
             group.transform(transformation);

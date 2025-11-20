@@ -33,6 +33,11 @@ TEST_CASE("Contracts")
     CHECK_NOTHROW([]() { contract_pre(true); }());
   }
 
+  SECTION("contract_post")
+  {
+    CHECK_NOTHROW([]() { contract_post(true); }());
+  }
+
   SECTION("contract_assert")
   {
     CHECK_NOTHROW([]() { contract_assert(true); }());

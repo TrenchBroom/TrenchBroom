@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "Polyhedron.h"
@@ -407,7 +407,8 @@ std::tuple<typename Polyhedron<T, FP, VP>::HalfEdge*, bool> Polyhedron<T, FP, VP
       currentBoundaryEdge = currentBoundaryEdge->next();
     }
   } while (!seamDestination && currentBoundaryEdge != firstBoundaryEdge);
-  ensure(seamOrigin != nullptr, "seamOrigin is null");
+
+  contract_assert(seamOrigin != nullptr);
 
   // The plane only touches one vertex of the face.
   if (!seamDestination)

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Ensure.h"
 #include "Polyhedron.h" // IWYU pragma: keep
 
 #include "kd/binary_relation.h"
@@ -140,7 +139,7 @@ private:
   Face* findBestMatchingLeftFace(Face* rightFace) const
   {
     const auto matchingFaces = findMatchingLeftFaces(rightFace);
-    ensure(!matchingFaces.empty(), "No matching face found");
+    contract_assert(!matchingFaces.empty());
 
     // Among all matching faces, select one such its normal is the most similar to the
     // given face's normal.

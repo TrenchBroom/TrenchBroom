@@ -115,10 +115,10 @@ private:
     const auto toTex = m_helper.face()->toUVCoordSystemMatrix(offset, scale, true);
 
     const auto* material = m_helper.face()->material();
-    ensure(material, "material is null");
+    contract_assert(material != nullptr);
 
     const auto* texture = material->texture();
-    ensure(texture, "texture is null");
+    contract_assert(texture != nullptr);
 
     material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 

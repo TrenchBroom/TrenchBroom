@@ -19,7 +19,7 @@
 
 #include "MultiPaneMapView.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "ui/MapView.h"
 
 #include <algorithm>
@@ -35,7 +35,8 @@ MultiPaneMapView::~MultiPaneMapView() = default;
 
 void MultiPaneMapView::addMapView(MapView* mapView)
 {
-  ensure(mapView != nullptr, "mapView is nullptr");
+  contract_pre(mapView != nullptr);
+
   m_mapViews.push_back(mapView);
   mapView->setContainer(this);
 }
@@ -65,7 +66,8 @@ bool MultiPaneMapView::isCurrent() const
 
 MapViewBase* MultiPaneMapView::firstMapViewBase()
 {
-  ensure(!m_mapViews.empty(), "MultiPaneMapView empty in firstMapViewBase()");
+  contract_pre(!m_mapViews.empty());
+
   return m_mapViews.front()->firstMapViewBase();
 }
 

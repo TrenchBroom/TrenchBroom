@@ -30,8 +30,9 @@
 #include <QSvgRenderer>
 #include <QThread>
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Logger.h"
+#include "Thread.h"
 #include "io/FileSystem.h"
 #include "io/PathQt.h"
 #include "io/ReadFreeImageTexture.h"
@@ -164,9 +165,7 @@ void renderSvgToIcon(
 
 QPixmap loadSVGPixmap(const std::filesystem::path& imagePath)
 {
-  ensure(
-    qApp->thread() == QThread::currentThread(),
-    "loadSVGIcon can only be used on the main thread");
+  contract_pre(isMainThread());
 
   static auto cache = std::map<std::filesystem::path, QPixmap>{};
   if (const auto it = cache.find(imagePath); it != cache.end())
@@ -204,9 +203,7 @@ QIcon loadSVGIcon(const std::filesystem::path& imagePath)
   // called, which is slow. We never evict from the cache which is assumed to be OK
   // because this is just used for icons and there's a relatively small set of them.
 
-  ensure(
-    qApp->thread() == QThread::currentThread(),
-    "loadSVGIcon can only be used on the main thread");
+  contract_pre(isMainThread());
 
   static auto cache = std::map<std::filesystem::path, QIcon>{};
   if (const auto it = cache.find(imagePath); it != cache.end())

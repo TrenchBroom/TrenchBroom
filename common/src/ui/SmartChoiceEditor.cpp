@@ -25,6 +25,7 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
+#include "Contracts.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
@@ -98,7 +99,7 @@ void SmartChoiceEditor::createGui()
 
 void SmartChoiceEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
-  ensure(m_comboBox != nullptr, "comboBox is null");
+  contract_pre(m_comboBox != nullptr);
 
   const auto ignoreTextChanged = kdl::set_temp{m_ignoreEditTextChanged};
   m_comboBox->clear();

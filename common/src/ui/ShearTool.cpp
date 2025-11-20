@@ -20,7 +20,7 @@
 
 #include "ShearTool.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
@@ -147,7 +147,8 @@ void ShearTool::pick3D(
 vm::bbox3d ShearTool::bounds() const
 {
   const auto& bounds = m_map.selectionBounds();
-  ensure(bounds, "selection bounds are available");
+  contract_assert(bounds != std::nullopt);
+
   return *bounds;
 }
 
@@ -159,9 +160,9 @@ vm::bbox3d ShearTool::bboxAtDragStart() const
 
 void ShearTool::startShearWithHit(const mdl::Hit& hit)
 {
-  ensure(hit.isMatch(), "must start with matching hit");
-  ensure(hit.type() == ShearToolSideHitType, "wrong hit type");
-  ensure(!m_resizing, "must not be resizing already");
+  contract_pre(hit.isMatch());
+  contract_pre(hit.type() == ShearToolSideHitType);
+  contract_pre(!m_resizing);
 
   m_bboxAtDragStart = bounds();
   m_dragStartHit = hit;
@@ -173,7 +174,7 @@ void ShearTool::startShearWithHit(const mdl::Hit& hit)
 
 void ShearTool::commitShear()
 {
-  ensure(m_resizing, "must be resizing already");
+  contract_pre(m_resizing);
 
   if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
   {
@@ -188,7 +189,7 @@ void ShearTool::commitShear()
 
 void ShearTool::cancelShear()
 {
-  ensure(m_resizing, "must be resizing already");
+  contract_pre(m_resizing);
 
   m_map.cancelTransaction();
   m_resizing = false;
@@ -196,7 +197,7 @@ void ShearTool::cancelShear()
 
 void ShearTool::shearByDelta(const vm::vec3d& delta)
 {
-  ensure(m_resizing, "must be resizing already");
+  contract_pre(m_resizing);
 
   m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 

@@ -20,7 +20,7 @@
 #include "ReadWalTexture.h"
 
 #include "Color.h"
-#include "Ensure.h"
+#include "Contracts.h"
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
@@ -172,7 +172,7 @@ Result<mdl::Texture> readDkWal(Reader& reader)
   try
   {
     const auto version = reader.readChar<char>();
-    ensure(version == 3, "wal texture has version 3");
+    contract_assert(version == 3);
 
     reader.seekForward(WalLayout::TextureNameLength);
     reader.seekForward(3); // garbage

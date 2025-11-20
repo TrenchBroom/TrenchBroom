@@ -19,7 +19,7 @@
 
 #include "BrushFace.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Polyhedron.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Material.h"
@@ -223,7 +223,7 @@ BrushFace::BrushFace(
   , m_attributes{std::move(attributes)}
   , m_uvCoordSystem{std::move(uvCoordSystem)}
 {
-  ensure(m_uvCoordSystem != nullptr, "uvCoordSystem is null");
+  contract_pre(m_uvCoordSystem != nullptr);
 }
 
 void BrushFace::sortFaces(std::vector<BrushFace>& faces)
@@ -303,7 +303,8 @@ const vm::vec3d& BrushFace::normal() const
 
 vm::vec3d BrushFace::center() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   const auto& boundary = m_geometry->boundary();
   return vm::average(
     std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
@@ -311,7 +312,7 @@ vm::vec3d BrushFace::center() const
 
 vm::vec3d BrushFace::boundsCenter() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
 
   const auto toPlane =
     vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal);
@@ -657,7 +658,7 @@ void BrushFace::invert()
 
 Result<void> BrushFace::updatePointsFromVertices()
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
 
   const auto* first = m_geometry->boundary().front();
   const auto oldPlane = m_boundary;
@@ -728,19 +729,22 @@ size_t BrushFace::vertexCount() const
 
 std::vector<vm::vec3d> BrushFace::vertexPositions() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->vertexPositions();
 }
 
 bool BrushFace::hasVertices(const vm::polygon3d& vertices, const double epsilon) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->hasVertexPositions(vertices.vertices(), epsilon);
 }
 
 vm::polygon3d BrushFace::polygon() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return vm::polygon3d(vertexPositions());
 }
 
@@ -789,7 +793,7 @@ vm::vec2f BrushFace::uvCoords(const vm::vec3d& point) const
 
 std::optional<double> BrushFace::intersectWithRay(const vm::ray3d& ray) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
 
   const auto cos = vm::dot(m_boundary.normal, ray.direction);
   return cos < 0.0 ? vm::intersect_ray_polygon(

@@ -19,7 +19,7 @@
 
 #include "FontGlyphBuilder.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "render/FontGlyph.h"
 #include "render/FontTexture.h"
 
@@ -39,7 +39,7 @@ FontGlyphBuilder::FontGlyphBuilder(
   , m_x{m_margin}
   , m_y{m_margin}
 {
-  ensure(m_textureBuffer != nullptr, "textureBuffer is null");
+  contract_pre(m_textureBuffer != nullptr);
 }
 
 FontGlyph FontGlyphBuilder::createGlyph(

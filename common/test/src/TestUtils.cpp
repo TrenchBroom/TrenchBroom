@@ -19,7 +19,7 @@
 
 #include "TestUtils.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "TestLogger.h"
 #include "io/DiskIO.h"
 #include "io/GameConfigParser.h"
@@ -498,12 +498,10 @@ int getComponentOfPixel(
   const std::size_t y,
   const Component component)
 {
-  const auto format = texture.format();
-
-  ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
+  contract_pre(texture.format() == GL_BGRA || texture.format() == GL_RGBA);
 
   std::size_t componentIndex = 0;
-  if (format == GL_RGBA)
+  if (texture.format() == GL_RGBA)
   {
     switch (component)
     {
@@ -586,7 +584,8 @@ void checkColor(
 int getComponentOfPixel(
   const mdl::Material& material, std::size_t x, std::size_t y, Component component)
 {
-  ensure(material.texture(), "expected material to have a texture");
+  contract_pre(material.texture() != nullptr);
+
   return getComponentOfPixel(*material.texture(), x, y, component);
 }
 
@@ -600,7 +599,8 @@ void checkColor(
   const int a,
   const ColorMatch match)
 {
-  ensure(material.texture(), "expected material to have a texture");
+  contract_pre(material.texture() != nullptr);
+
   return checkColor(*material.texture(), x, y, r, g, b, a, match);
 }
 } // namespace tb

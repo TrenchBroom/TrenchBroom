@@ -19,7 +19,7 @@
 
 #include "HitType.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 
 #include <cstddef>
 
@@ -31,7 +31,8 @@ Type freeType()
   static const std::size_t Bits = (sizeof(Type) * 8);
   static std::size_t currentShift = 0;
 
-  ensure(currentShift <= Bits, "No more hit types");
+  contract_assert(currentShift <= Bits);
+
   return Type(1) << currentShift++;
 }
 

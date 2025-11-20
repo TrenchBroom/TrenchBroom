@@ -19,7 +19,7 @@
 
 #include "SetLinkIdsCommand.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h" // IWYU pragma: keep
 #include "mdl/GroupNode.h"  // IWYU pragma: keep
@@ -45,10 +45,10 @@ auto setLinkIds(const std::vector<std::tuple<Node*, std::string>>& linkIds)
            const auto& linkId = std::get<std::string>(nodeAndLinkId);
            return node->accept(kdl::overload(
              [&](const WorldNode*) -> std::tuple<Node*, std::string> {
-               ensure(false, "no unexpected world node");
+               contract_assert(false);
              },
              [](const LayerNode*) -> std::tuple<Node*, std::string> {
-               ensure(false, "no unexpected layer node");
+               contract_assert(false);
              },
              [&](Object* object) -> std::tuple<Node*, std::string> {
                auto oldLinkId = object->linkId();

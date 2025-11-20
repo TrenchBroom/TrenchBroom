@@ -19,7 +19,7 @@
 
 #include "RenderBatch.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "render/Renderable.h"
 #include "render/VboManager.h"
 
@@ -113,7 +113,8 @@ void RenderBatch::render(RenderContext& renderContext)
 
 void RenderBatch::doAdd(Renderable* renderable)
 {
-  ensure(renderable != nullptr, "renderable is null");
+  contract_pre(renderable != nullptr);
+
   m_batch.push_back(renderable);
 }
 

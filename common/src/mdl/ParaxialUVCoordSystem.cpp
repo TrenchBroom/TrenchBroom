@@ -19,7 +19,7 @@
 
 #include "ParaxialUVCoordSystem.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/ParallelUVCoordSystem.h"
 
@@ -544,7 +544,7 @@ std::unique_ptr<UVCoordSystemSnapshot> ParaxialUVCoordSystem::takeSnapshot() con
 
 void ParaxialUVCoordSystem::restoreSnapshot(const UVCoordSystemSnapshot& /* snapshot */)
 {
-  ensure(false, "unsupported");
+  contract_assert(false);
 }
 
 vm::vec3d ParaxialUVCoordSystem::uAxis() const

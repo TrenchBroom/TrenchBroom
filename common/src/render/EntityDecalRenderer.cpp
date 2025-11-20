@@ -20,6 +20,7 @@
 #include "EntityDecalRenderer.h"
 
 #include "BrushRendererArrays.h"
+#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/DecalDefinition.h"
@@ -320,7 +321,7 @@ void EntityDecalRenderer::validateDecalData(
   }
 
   const auto spec = getDecalSpecification(entityNode);
-  ensure(spec, "entity has a decal specification");
+  contract_assert(spec != std::nullopt);
 
   const auto& editorContext = m_map.editorContext();
   const auto* world = m_map.world();

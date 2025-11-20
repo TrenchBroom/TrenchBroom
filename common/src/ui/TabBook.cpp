@@ -25,7 +25,7 @@
 #include <QStackedLayout>
 #include <QVBoxLayout>
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "ui/TabBar.h"
 
 namespace tb::ui
@@ -68,7 +68,7 @@ TabBar* TabBook::tabBar()
 
 void TabBook::addPage(TabBookPage* page, const QString& title)
 {
-  ensure(page != nullptr, "page is null");
+  contract_pre(page != nullptr);
 
   m_tabBar->addTab(page, title);
   m_tabBook->addWidget(page);

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Macros.h"
 #include "Notifier.h"
 
@@ -386,7 +386,7 @@ public:
     const vm::polygon<T, 3>& polygon,
     const vm::vec<T, 3>& normal) const
   {
-    ensure(polygon.vertexCount() >= 3, "polygon has too few vertices");
+    contract_pre(polygon.vertexCount() >= 3);
 
     const auto plane = vm::plane<T, 3>{polygon.vertices().front(), normal};
     auto ps = std::optional{snap(p, plane)};

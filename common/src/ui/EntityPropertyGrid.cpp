@@ -32,6 +32,7 @@
 #include <QTimer>
 #include <QToolButton>
 
+#include "Contracts.h"
 #include "Macros.h"
 #include "mdl/EntityNodeBase.h" // IWYU pragma: keep
 #include "mdl/Map.h"
@@ -130,7 +131,7 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
   m_model->updateFromMap();
 
   const auto row = m_model->rowIndexForPropertyKey(newPropertyKey);
-  ensure(row != -1, "row should have been inserted");
+  contract_assert(row != -1);
 
   // Select the newly inserted property key
   const auto mappedIndex =

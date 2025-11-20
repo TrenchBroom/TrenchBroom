@@ -19,7 +19,7 @@
 
 #include "FontTexture.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 
 #include <cassert>
 #include <cstring>
@@ -75,7 +75,8 @@ void FontTexture::activate()
 {
   if (m_textureId == 0)
   {
-    ensure(m_buffer != nullptr, "buffer is null");
+    contract_assert(m_buffer != nullptr);
+
     glAssert(glGenTextures(1, &m_textureId));
     glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
     glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -95,7 +96,7 @@ void FontTexture::activate()
     m_buffer.release();
   }
 
-  assert(m_textureId > 0);
+  contract_post(m_textureId > 0);
   glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
 }
 

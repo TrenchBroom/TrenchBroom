@@ -385,7 +385,8 @@ QWidget* ViewEditor::createBrushesPanel(QWidget* parent)
     &ViewEditor::showBrushesChanged);
 
   auto* innerLayout = qobject_cast<QBoxLayout*>(inner->layout());
-  ensure(innerLayout, "inner sizer is null");
+  contract_assert(innerLayout);
+
   innerLayout->insertWidget(0, m_showBrushesCheckBox);
 
   return panel;

@@ -19,7 +19,7 @@
 
 #include "RepeatStack.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 
 #include "kd/set_temp.h"
 #include "kd/vector_utils.h"
@@ -102,7 +102,7 @@ void RepeatStack::commitTransaction()
 {
   if (!m_repeating)
   {
-    ensure(!m_openTransactionsStack.empty(), "a transaction is open");
+    contract_pre(!m_openTransactionsStack.empty());
 
     if (auto transaction = kdl::vec_pop_back(m_openTransactionsStack);
         !transaction.empty())
@@ -117,7 +117,7 @@ void RepeatStack::rollbackTransaction()
 {
   if (!m_repeating)
   {
-    ensure(!m_openTransactionsStack.empty(), "a transaction is open");
+    contract_assert(!m_openTransactionsStack.empty());
     m_openTransactionsStack.back().clear();
   }
 }

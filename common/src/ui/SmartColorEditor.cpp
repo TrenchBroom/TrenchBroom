@@ -27,6 +27,7 @@
 #include <QScrollArea>
 
 #include "Color.h"
+#include "Contracts.h"
 #include "mdl/ColorRange.h"
 #include "mdl/EntityColorPropertyValue.h" // IWYU pragma: keep
 #include "mdl/EntityDefinition.h"         // IWYU pragma: keep
@@ -199,10 +200,11 @@ void SmartColorEditor::createGui()
 
 void SmartColorEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
-  ensure(m_floatRadio != nullptr, "floatRadio is null");
-  ensure(m_byteRadio != nullptr, "byteRadio is null");
-  ensure(m_colorPicker != nullptr, "colorPicker is null");
-  ensure(m_colorHistory != nullptr, "colorHistory is null");
+  contract_pre(m_radioGroup != nullptr);
+  contract_pre(m_floatRadio != nullptr);
+  contract_pre(m_byteRadio != nullptr);
+  contract_pre(m_colorPicker != nullptr);
+  contract_pre(m_colorHistory != nullptr);
 
   updateColorRange(nodes);
   updateColorHistory();

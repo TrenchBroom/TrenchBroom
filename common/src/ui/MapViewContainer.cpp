@@ -19,7 +19,7 @@
 
 #include "MapViewContainer.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 
 namespace tb::ui
 {
@@ -34,7 +34,8 @@ vm::vec3d MapViewContainer::pasteObjectsDelta(
   const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const
 {
   auto* current = currentMapView();
-  ensure(current != nullptr, "current is nullptr");
+  contract_assert(current != nullptr);
+
   return current->pasteObjectsDelta(bounds, referenceBounds);
 }
 

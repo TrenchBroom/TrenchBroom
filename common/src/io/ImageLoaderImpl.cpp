@@ -19,7 +19,7 @@
 
 #include "ImageLoaderImpl.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Exceptions.h"
 #include "Macros.h"
 
@@ -183,8 +183,8 @@ std::vector<unsigned char> ImageLoaderImpl::loadPixels(
 std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize) const
 {
   assert(pSize == 3);
-  const auto* pal = FreeImage_GetPalette(m_bitmap);
-  ensure(pal != nullptr, "pal is null");
+  const auto* palette = FreeImage_GetPalette(m_bitmap);
+  contract_assert(palette != nullptr);
 
   auto result = std::vector<unsigned char>(width() * height() * pSize);
   for (unsigned y = 0; y < height(); ++y)
@@ -196,9 +196,9 @@ std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize
       assert(paletteIndex < paletteSize());
 
       const auto pixelIndex = ((height() - y - 1) * width() + x) * pSize;
-      result[pixelIndex + 0] = static_cast<unsigned char>(pal[paletteIndex].rgbRed);
-      result[pixelIndex + 1] = static_cast<unsigned char>(pal[paletteIndex].rgbGreen);
-      result[pixelIndex + 2] = static_cast<unsigned char>(pal[paletteIndex].rgbBlue);
+      result[pixelIndex + 0] = static_cast<unsigned char>(palette[paletteIndex].rgbRed);
+      result[pixelIndex + 1] = static_cast<unsigned char>(palette[paletteIndex].rgbGreen);
+      result[pixelIndex + 2] = static_cast<unsigned char>(palette[paletteIndex].rgbBlue);
     }
   }
   return result;

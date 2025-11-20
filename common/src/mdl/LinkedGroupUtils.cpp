@@ -19,7 +19,7 @@
 
 #include "LinkedGroupUtils.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Uuid.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -211,12 +211,8 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
   // First, clone `n`, and move in the new (transformed) content which was
   // prepared for it above
   auto clone = nodeToClone->accept(kdl::overload(
-    [](const WorldNode*) -> std::unique_ptr<Node> {
-      ensure(false, "Linked group structure is valid");
-    },
-    [](const LayerNode*) -> std::unique_ptr<Node> {
-      ensure(false, "Linked group structure is valid");
-    },
+    [](const WorldNode*) -> std::unique_ptr<Node> { contract_assert(false); },
+    [](const LayerNode*) -> std::unique_ptr<Node> { contract_assert(false); },
     [&](const GroupNode* groupNode) -> std::unique_ptr<Node> {
       auto& group = std::get<Group>(origNodeToTransformedContents.at(groupNode).get());
       auto newGroupNode = std::make_unique<GroupNode>(std::move(group));
@@ -283,12 +279,8 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
     nodesToClone | std::views::transform([&](const auto& nodeToTransform) {
       return std::function{[&]() {
         return nodeToTransform->accept(kdl::overload(
-          [](const WorldNode*) -> TransformResult {
-            ensure(false, "Linked group structure is valid");
-          },
-          [](const LayerNode*) -> TransformResult {
-            ensure(false, "Linked group structure is valid");
-          },
+          [](const WorldNode*) -> TransformResult { contract_assert(false); },
+          [](const LayerNode*) -> TransformResult { contract_assert(false); },
           [&](const GroupNode* groupNode) -> TransformResult {
             auto group = groupNode->group();
             group.transform(transformation);

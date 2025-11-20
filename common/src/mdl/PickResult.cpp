@@ -19,7 +19,7 @@
 
 #include "PickResult.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/CompareHits.h"
 #include "mdl/Hit.h"
 
@@ -87,12 +87,12 @@ size_t PickResult::size() const
 
 void PickResult::addHit(const Hit& hit)
 {
-  assert(!vm::is_nan(hit.distance()));
-  assert(!vm::is_nan(hit.hitPoint()));
+  contract_pre(!vm::is_nan(hit.distance()));
+  contract_pre(!vm::is_nan(hit.hitPoint()));
 
   if (!vm::is_nan(hit.distance()) && !vm::is_nan(hit.hitPoint()))
   {
-    ensure(m_compare.get() != nullptr, "compare is null");
+    contract_assert(m_compare != nullptr);
     auto pos = std::ranges::upper_bound(m_hits, hit, CompareWrapper{m_compare.get()});
     m_hits.insert(pos, hit);
   }

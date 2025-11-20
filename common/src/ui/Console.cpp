@@ -27,9 +27,10 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "FileLogger.h"
 #include "Macros.h"
+#include "Thread.h"
 #include "ui/ViewConstants.h"
 
 #include <string>
@@ -93,9 +94,7 @@ void Console::logToDebugOut(const LogLevel /* level */, const std::string& messa
 
 void Console::logToConsole(const LogLevel level, const std::string& message)
 {
-  ensure(
-    m_textView->thread() == QThread::currentThread(),
-    "Can only log to console from main thread");
+  contract_pre(isMainThread());
 
   auto format = QTextCharFormat{};
   format.setForeground(getForegroundBrush(level, m_textView->palette()));

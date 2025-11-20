@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "render/GL.h"
 #include "render/GLVertex.h"
 #include "render/ShaderManager.h"
@@ -85,7 +85,8 @@ private:
 
     void setup() override
     {
-      ensure(m_vbo, "block is null");
+      contract_pre(m_vbo);
+
       m_vbo->bind();
       VertexSpec::setup(m_vboManager->shaderManager().currentProgram(), m_vbo->offset());
     }

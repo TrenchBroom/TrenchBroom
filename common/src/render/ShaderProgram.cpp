@@ -19,7 +19,7 @@
 
 #include "ShaderProgram.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "render/Shader.h"
 #include "render/ShaderManager.h"
 
@@ -195,7 +195,7 @@ GLint ShaderProgram::findAttributeLocation(const std::string& name) const
   {
     auto index = GLint(0);
     glAssert(index = glGetAttribLocation(m_programId, name.c_str()));
-    ensure(index != -1, "Attribute location found in shader program");
+    contract_assert(index != -1);
 
     auto inserted = false;
     std::tie(it, inserted) = m_attributeCache.emplace(name, index);
@@ -212,7 +212,7 @@ GLint ShaderProgram::findUniformLocation(const std::string& name) const
   {
     auto index = GLint(0);
     glAssert(index = glGetUniformLocation(m_programId, name.c_str()));
-    ensure(index != -1, "Attribute location found in shader program");
+    contract_assert(index != -1);
 
     auto inserted = false;
     std::tie(it, inserted) = m_variableCache.emplace(name, index);

@@ -21,8 +21,7 @@
 
 #include <QDateTime>
 
-#include "Ensure.h"
-#include "Exceptions.h"
+#include "Contracts.h"
 #include "Notifier.h"
 #include "mdl/Command.h"
 #include "mdl/TransactionScope.h"
@@ -85,7 +84,7 @@ private:
     for (auto& command : m_commands)
     {
       notifyCommandIfNotType<TransactionCommand>(m_commandDoNotifier, *command);
-      ensure(command->performDo(map), "Transaction can be redone successfully");
+      contract_assert(command->performDo(map));
       notifyCommandIfNotType<TransactionCommand>(m_commandDoneNotifier, *command);
     }
     return true;
@@ -102,7 +101,7 @@ private:
     {
       auto& command = *it;
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoNotifier, *command);
-      ensure(command->performUndo(map), "Transaction can be undone successfully");
+      contract_assert(command->performUndo(map));
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoneNotifier, *command);
     }
     return true;
@@ -212,14 +211,14 @@ void CommandProcessor::startTransaction(std::string name, const TransactionScope
 
 void CommandProcessor::commitTransaction()
 {
-  ensure(!m_transactionStack.empty(), "a transaction is currently executing");
+  contract_pre(!m_transactionStack.empty());
 
   createAndStoreTransaction();
 }
 
 void CommandProcessor::rollbackTransaction()
 {
-  ensure(!m_transactionStack.empty(), "a transaction is currently executing");
+  contract_pre(!m_transactionStack.empty());
 
   auto& transaction = m_transactionStack.back();
   for (auto it = std::rbegin(transaction.commands), end = std::rend(transaction.commands);
@@ -256,8 +255,8 @@ bool CommandProcessor::executeAndStore(std::unique_ptr<UndoableCommand> command)
 
 bool CommandProcessor::undo()
 {
-  ensure(m_transactionStack.empty(), "no running transaction");
-  ensure(!m_undoStack.empty(), "undo stack is not empty");
+  contract_pre(m_transactionStack.empty());
+  contract_pre(!m_undoStack.empty());
 
   auto command = popFromUndoStack();
   const auto result = undoCommand(*command);
@@ -272,8 +271,8 @@ bool CommandProcessor::undo()
 
 bool CommandProcessor::redo()
 {
-  ensure(m_transactionStack.empty(), "no running transaction");
-  ensure(!m_redoStack.empty(), "undo stack is not empty");
+  contract_pre(m_transactionStack.empty());
+  contract_pre(!m_redoStack.empty());
 
   auto command = popFromRedoStack();
   const auto result = executeCommand(*command);

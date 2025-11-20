@@ -21,7 +21,7 @@
 
 #include <QTimer>
 
-#include "Ensure.h"
+#include "Contracts.h"
 
 #include <algorithm>
 #include <cassert>
@@ -126,7 +126,7 @@ AnimationManager::AnimationManager(QObject* parent)
 void AnimationManager::runAnimation(
   std::unique_ptr<Animation> animation, const bool replace)
 {
-  ensure(animation != nullptr, "animation is null");
+  contract_pre(animation != nullptr);
 
   auto& list = m_animations[animation->type()];
   if (replace)

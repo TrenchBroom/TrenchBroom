@@ -19,7 +19,7 @@
 
 #include "ParallelUVCoordSystem.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 
@@ -92,7 +92,7 @@ void ParallelUVCoordSystemSnapshot::doRestore(ParallelUVCoordSystem& coordSystem
 void ParallelUVCoordSystemSnapshot::doRestore(
   ParaxialUVCoordSystem& /* coordSystem */) const
 {
-  ensure(false, "wrong coord system type");
+  contract_assert(false);
 }
 
 /**

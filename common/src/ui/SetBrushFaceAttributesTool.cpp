@@ -19,7 +19,7 @@
 
 #include "SetBrushFaceAttributesTool.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -184,7 +184,7 @@ std::optional<mdl::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
 
   auto* newTargetBrushNode =
     dynamic_cast<mdl::BrushNode*>(linkedTargetBrushNodesInSourceGroup.front());
-  ensure(newTargetBrushNode, "linked nodes are consistent");
+  contract_assert(newTargetBrushNode);
 
   const auto* oldTargetContainingGroupNode = oldTargetBrushNode.containingGroup();
   assert(oldTargetContainingGroupNode);
@@ -192,9 +192,8 @@ std::optional<mdl::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
   const auto* newTargetContainingGroupNode = newTargetBrushNode->containingGroup();
   assert(newTargetContainingGroupNode);
 
-  ensure(
-    oldTargetContainingGroupNode->linkId() == newTargetContainingGroupNode->linkId(),
-    "containing groups are linked");
+  contract_assert(
+    oldTargetContainingGroupNode->linkId() == newTargetContainingGroupNode->linkId());
 
   const auto oldTargetTransformation =
     vm::invert(oldTargetContainingGroupNode->group().transformation());

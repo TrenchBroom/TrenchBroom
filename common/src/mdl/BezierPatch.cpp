@@ -19,7 +19,7 @@
 
 #include "BezierPatch.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/Material.h"
 
 #include "kd/const_overload.h"
@@ -61,15 +61,9 @@ BezierPatch::BezierPatch(
   , m_bounds(computeBounds(m_controlPoints))
   , m_materialName{std::move(materialName)}
 {
-  ensure(
-    m_pointRowCount > 2 && m_pointColumnCount > 2,
-    "Bezier patch must have at least 3*3 control points");
-  ensure(
-    m_pointRowCount % 2 == 1 && m_pointColumnCount % 2 == 1,
-    "Bezier patch must have odd number of control points per column and per row");
-  ensure(
-    m_controlPoints.size() == m_pointRowCount * m_pointColumnCount,
-    "Invalid Bezier patch control points");
+  contract_pre(m_pointRowCount > 2 && m_pointColumnCount > 2);
+  contract_pre(m_pointRowCount % 2 == 1 && m_pointColumnCount % 2 == 1);
+  contract_pre(m_controlPoints.size() == m_pointRowCount * m_pointColumnCount);
 }
 
 BezierPatch::~BezierPatch() = default;

@@ -371,7 +371,8 @@ std::vector<mdl::BrushFaceHandle> ExtrudeTool::getDragFaces(
  */
 void ExtrudeTool::beginExtrude()
 {
-  ensure(!m_dragging, "may not be called during a drag");
+  contract_pre(!m_dragging);
+
   m_dragging = true;
   m_map.startTransaction("Resize Brushes", mdl::TransactionScope::LongRunning);
 }
@@ -570,7 +571,7 @@ std::vector<vm::polygon3d> getPolygons(const std::vector<ExtrudeDragHandle>& dra
 
 bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragState)
 {
-  ensure(m_dragging, "may only be called during a drag");
+  contract_pre(m_dragging);
 
   if (dragState.splitBrushes)
   {
@@ -604,14 +605,15 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
 
 void ExtrudeTool::beginMove()
 {
-  ensure(!m_dragging, "may not be called during a drag");
+  contract_pre(!m_dragging);
+
   m_dragging = true;
   m_map.startTransaction("Move Faces", mdl::TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
-  ensure(m_dragging, "may only be called during a drag");
+  contract_pre(m_dragging);
 
   m_map.rollbackTransaction();
   if (transformFaces(
@@ -635,7 +637,7 @@ bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
 
 void ExtrudeTool::commit(const ExtrudeDragState& dragState)
 {
-  ensure(m_dragging, "may only be called during a drag");
+  contract_pre(m_dragging);
 
   if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
@@ -651,7 +653,7 @@ void ExtrudeTool::commit(const ExtrudeDragState& dragState)
 
 void ExtrudeTool::cancel()
 {
-  ensure(m_dragging, "may only be called during a drag");
+  contract_pre(m_dragging);
 
   m_map.cancelTransaction();
   m_proposedDragHandles.clear();

@@ -20,6 +20,7 @@
 
 #include "ScaleTool.h"
 
+#include "Contracts.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/Grid.h"
@@ -782,7 +783,8 @@ void ScaleTool::pick3D(
 vm::bbox3d ScaleTool::bounds() const
 {
   const auto& bounds = m_map.selectionBounds();
-  ensure(bounds, "selection bounds are available");
+  contract_assert(bounds != std::nullopt);
+
   return *bounds;
 }
 
@@ -932,7 +934,8 @@ vm::vec3f ScaleTool::dragAnchor() const
 
 vm::bbox3d ScaleTool::bboxAtDragStart() const
 {
-  ensure(m_resizing, "bboxAtDragStart() can only be called while resizing");
+  contract_pre(m_resizing);
+
   return m_bboxAtDragStart;
 }
 
@@ -1010,12 +1013,11 @@ const ProportionalAxes& ScaleTool::proportionalAxes() const
 
 void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
 {
-  ensure(hit.isMatch(), "must start with matching hit");
-  ensure(
+  contract_pre(hit.isMatch());
+  contract_pre(
     hit.type() == ScaleToolCornerHitType || hit.type() == ScaleToolEdgeHitType
-      || hit.type() == ScaleToolSideHitType,
-    "wrong hit type");
-  ensure(!m_resizing, "must not be resizing already");
+    || hit.type() == ScaleToolSideHitType);
+  contract_pre(!m_resizing);
 
   m_bboxAtDragStart = bounds();
   m_dragStartHit = hit;
@@ -1027,7 +1029,7 @@ void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
 
 void ScaleTool::scaleByDelta(const vm::vec3d& delta)
 {
-  ensure(m_resizing, "must be resizing already");
+  contract_pre(m_resizing);
 
   m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 

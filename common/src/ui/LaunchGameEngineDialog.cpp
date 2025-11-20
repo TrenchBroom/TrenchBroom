@@ -27,6 +27,7 @@
 #include <QProcess>
 #include <QPushButton>
 
+#include "Contracts.h"
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
@@ -240,7 +241,7 @@ void LaunchGameEngineDialog::editGameEngines()
 void LaunchGameEngineDialog::launchEngine()
 {
   const auto* profile = m_gameEngineList->selectedProfile();
-  ensure(profile != nullptr, "profile is null");
+  contract_assert(profile != nullptr);
 
   launchGameEngineProfile(*profile, variables())
     | kdl::transform_error([](const auto& e) {

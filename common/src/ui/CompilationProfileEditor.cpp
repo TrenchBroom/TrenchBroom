@@ -26,6 +26,7 @@
 #include <QStackedWidget>
 #include <QToolButton>
 
+#include "Contracts.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "ui/BorderLine.h"
@@ -171,7 +172,8 @@ Variables are allowed.)");
 
 void CompilationProfileEditor::nameChanged(const QString& text)
 {
-  ensure(m_profile != nullptr, "profile is null");
+  contract_pre(m_profile != nullptr);
+
   auto name = text.toStdString();
   if (m_profile->name != name)
   {
@@ -182,7 +184,8 @@ void CompilationProfileEditor::nameChanged(const QString& text)
 
 void CompilationProfileEditor::workDirChanged(const QString& text)
 {
-  ensure(m_profile != nullptr, "profile is null");
+  contract_pre(m_profile != nullptr);
+
   auto workDirSpec = text.toStdString();
   if (m_profile->workDirSpec != workDirSpec)
   {

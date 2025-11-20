@@ -23,7 +23,7 @@
 #include <QDateTime>
 #include <QMouseEvent>
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "ui/MapViewBase.h"
 
 #include "kd/vector_utils.h"
@@ -38,7 +38,7 @@ bool MapViewActivationTracker::active() const
 
 void MapViewActivationTracker::addWindow(MapViewBase* mapView)
 {
-  ensure(mapView != nullptr, "map view is null");
+  contract_pre(mapView != nullptr);
 
   mapView->installEventFilter(this);
   m_mapViews.push_back(mapView);
@@ -76,7 +76,7 @@ void MapViewActivationTracker::windowActivationChanged(const bool active)
 bool MapViewActivationTracker::eventFilter(QObject* object, QEvent* event)
 {
   auto* widget = dynamic_cast<QWidget*>(object);
-  ensure(widget != nullptr, "expected a QWidget");
+  contract_assert(widget != nullptr);
 
 #ifdef __clang__
 #pragma clang diagnostic push

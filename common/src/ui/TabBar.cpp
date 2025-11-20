@@ -23,7 +23,7 @@
 #include <QLabel>
 #include <QStackedLayout>
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "ui/QtUtils.h"
 #include "ui/TabBook.h"
 #include "ui/ViewConstants.h"
@@ -82,7 +82,8 @@ TabBar::TabBar(TabBook* tabBook)
   , m_tabBook{tabBook}
   , m_barBook{new QStackedLayout{}}
 {
-  ensure(m_tabBook != nullptr, "tabBook is null");
+  contract_pre(m_tabBook != nullptr);
+
   connect(m_tabBook, &TabBook::pageChanged, this, &TabBar::tabBookPageChanged);
 
   m_controlLayout = new QHBoxLayout{};
@@ -99,7 +100,7 @@ TabBar::TabBar(TabBook* tabBook)
 
 void TabBar::addTab(TabBookPage* bookPage, const QString& title)
 {
-  ensure(bookPage != nullptr, "bookPage is null");
+  contract_pre(bookPage != nullptr);
 
   auto* button = new TabBarButton{title};
   connect(button, &TabBarButton::clicked, this, &TabBar::buttonClicked);
@@ -134,7 +135,8 @@ void TabBar::buttonClicked()
 {
   auto* button = dynamic_cast<QWidget*>(QObject::sender());
   const auto index = findButtonIndex(button);
-  ensure(index < m_buttons.size(), "index out of range");
+  contract_assert(index < m_buttons.size());
+
   m_tabBook->switchToPage(int(index));
 }
 

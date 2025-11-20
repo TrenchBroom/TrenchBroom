@@ -19,7 +19,6 @@
 
 #include "BrushRenderer.h"
 
-#include "PreferenceManager.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -510,9 +509,9 @@ bool BrushRenderer::shouldDrawFaceInTransparentPass(
 
 void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
 {
-  assert(m_allBrushes.find(&brushNode) != std::end(m_allBrushes));
-  assert(m_invalidBrushes.find(&brushNode) != std::end(m_invalidBrushes));
-  assert(m_brushInfo.find(&brushNode) == std::end(m_brushInfo));
+  contract_pre(m_allBrushes.find(&brushNode) != std::end(m_allBrushes));
+  contract_pre(m_invalidBrushes.find(&brushNode) != std::end(m_invalidBrushes));
+  contract_pre(m_brushInfo.find(&brushNode) == std::end(m_brushInfo));
 
   const auto wrapper = FilterWrapper{*m_filter, m_showHiddenBrushes};
 
@@ -534,9 +533,9 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
   auto& brushCache = brushNode.brushRendererBrushCache();
   brushCache.validateVertexCache(brushNode);
   const auto& cachedVertices = brushCache.cachedVertices();
-  ensure(!cachedVertices.empty(), "Brush must have cached vertices");
+  contract_assert(!cachedVertices.empty());
 
-  assert(m_vertexArray != nullptr);
+  contract_assert(m_vertexArray != nullptr);
   auto [vertBlock, dest] =
     m_vertexArray->getPointerToInsertVerticesAt(cachedVertices.size());
   std::memcpy(dest, cachedVertices.data(), cachedVertices.size() * sizeof(*dest));
@@ -559,7 +558,7 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
       // it's possible to have no edges to render
       // e.g. select all faces of a brush, and the unselected brush renderer
       // will hit this branch.
-      ensure(info.edgeIndicesKey == nullptr, "BrushInfo not initialized");
+      contract_assert(info.edgeIndicesKey == nullptr);
     }
   }
 

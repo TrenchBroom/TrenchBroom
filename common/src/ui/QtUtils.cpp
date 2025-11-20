@@ -48,7 +48,7 @@
 #include <QtGlobal>
 
 #include "Color.h"
-#include "Ensure.h"
+#include "Contracts.h"
 #include "Macros.h"
 #include "io/ResourceUtils.h"
 #include "mdl/MapTextEncoding.h"
@@ -111,8 +111,8 @@ SyncHeightEventFilter::SyncHeightEventFilter(
   , m_primary{primary}
   , m_secondary{secondary}
 {
-  ensure(m_primary != nullptr, "primary is not null");
-  ensure(m_secondary != nullptr, "secondary is not null");
+  contract_pre(m_primary != nullptr);
+  contract_pre(m_secondary != nullptr);
 
   m_primary->installEventFilter(this);
 }
@@ -176,15 +176,15 @@ void updateFileDialogDefaultDirectoryWithDirectory(
 
 QString windowSettingsPath(const QWidget* window, const QString& suffix)
 {
-  ensure(window != nullptr, "window must not be null");
-  ensure(!window->objectName().isEmpty(), "window name must not be empty");
+  contract_pre(window != nullptr);
+  contract_pre(!window->objectName().isEmpty());
 
   return "Windows/" + window->objectName() + "/" + suffix;
 }
 
 void saveWindowGeometry(QWidget* window)
 {
-  ensure(window != nullptr, "window must not be null");
+  contract_pre(window != nullptr);
 
   const auto path = windowSettingsPath(window, "Geometry");
   auto settings = QSettings{};
@@ -193,7 +193,7 @@ void saveWindowGeometry(QWidget* window)
 
 void restoreWindowGeometry(QWidget* window)
 {
-  ensure(window != nullptr, "window must not be null");
+  contract_pre(window != nullptr);
 
   const auto path = windowSettingsPath(window, "Geometry");
   auto settings = QSettings{};
@@ -202,7 +202,7 @@ void restoreWindowGeometry(QWidget* window)
 
 bool widgetOrChildHasFocus(const QWidget* widget)
 {
-  ensure(widget != nullptr, "widget must not be null");
+  contract_pre(widget != nullptr);
 
   const auto* currentWidget = static_cast<QObject*>(QApplication::focusWidget());
   while (currentWidget)
@@ -365,9 +365,7 @@ QToolButton* createBitmapButton(
   // NOTE: QIcon::availableSizes() is not high-dpi friendly, it returns pixels when we
   // want logical sizes. We rely on the fact that loadIconResourceQt inserts pixmaps in
   // the order 1x then 2x, so the first pixmap has the logical size.
-  ensure(
-    !icon.availableSizes().empty(),
-    "expected a non-empty icon. Fails when the image file couldn't be found.");
+  contract_pre(!icon.availableSizes().empty());
 
   auto* button = new QToolButton{parent};
   button->setMinimumSize(icon.availableSizes().front());
@@ -469,7 +467,8 @@ void addToMiniToolBarLayout(QBoxLayout*) {}
 
 void setWindowIconTB(QWidget* window)
 {
-  ensure(window != nullptr, "window is null");
+  contract_pre(window != nullptr);
+
   window->setWindowIcon(QIcon{io::loadPixmapResource("AppIcon.png")});
 }
 

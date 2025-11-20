@@ -19,7 +19,7 @@
 
 #include "ObjSerializer.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "io/ExportOptions.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -96,8 +96,8 @@ ObjSerializer::ObjSerializer(
   , m_mtlFilename{std::move(mtlFilename)}
   , m_options{std::move(options)}
 {
-  ensure(m_objStream.good(), "obj stream is good");
-  ensure(m_mtlStream.good(), "mtl stream is good");
+  contract_pre(m_objStream.good());
+  contract_pre(m_mtlStream.good());
 }
 
 void ObjSerializer::doBeginFile(

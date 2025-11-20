@@ -19,7 +19,7 @@
 
 #include "ShaderManager.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "io/SystemPaths.h"
 #include "render/ShaderConfig.h"
 
@@ -48,7 +48,8 @@ Result<void> ShaderManager::loadProgram(const ShaderConfig& config)
 ShaderProgram& ShaderManager::program(const ShaderConfig& config)
 {
   auto it = m_programs.find(config.name);
-  ensure(it != std::end(m_programs), "Shader program was previously loaded");
+  contract_assert(it != std::end(m_programs));
+
   return it->second;
 }
 

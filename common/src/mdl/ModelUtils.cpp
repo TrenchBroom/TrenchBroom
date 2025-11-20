@@ -19,7 +19,7 @@
 
 #include "ModelUtils.h"
 
-#include "Ensure.h"
+#include "Contracts.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/EditorContext.h"
@@ -213,12 +213,13 @@ std::vector<GroupNode*> collectContainingGroups(const std::vector<Node*>& nodes)
 
 std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes)
 {
-  std::map<Node*, std::vector<Node*>> result;
+  auto result = std::map<Node*, std::vector<Node*>>{};
 
-  for (Node* node : nodes)
+  for (auto* node : nodes)
   {
-    Node* parent = node->parent();
-    ensure(parent != nullptr, "parent is null");
+    auto* parent = node->parent();
+    contract_assert(parent != nullptr);
+
     result[parent].push_back(node);
   }
 

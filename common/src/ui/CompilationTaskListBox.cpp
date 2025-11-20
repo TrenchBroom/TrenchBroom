@@ -28,6 +28,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
+#include "Contracts.h"
 #include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
@@ -569,7 +570,7 @@ size_t CompilationTaskListBox::itemCount() const
 ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
-  ensure(m_profile != nullptr, "profile is null");
+  contract_pre(m_profile != nullptr);
 
   auto& task = m_profile->tasks[index];
   auto* renderer = std::visit(
