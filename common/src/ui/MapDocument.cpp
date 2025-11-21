@@ -129,6 +129,11 @@ void MapDocument::createEntityDefinitionActions()
     m_map->entityDefinitionManager().definitions());
 }
 
+void MapDocument::clearEntityDefinitionActions()
+{
+  m_entityDefinitionActions.clear();
+}
+
 void MapDocument::loadPointFile(std::filesystem::path path)
 {
   static_assert(
@@ -245,16 +250,19 @@ void MapDocument::connectObservers()
 void MapDocument::mapWasCreated(mdl::Map&)
 {
   createTagActions();
+  createEntityDefinitionActions();
 }
 
 void MapDocument::mapWasLoaded(mdl::Map&)
 {
   createTagActions();
+  createEntityDefinitionActions();
 }
 
 void MapDocument::mapWasCleared(mdl::Map&)
 {
   clearTagActions();
+  clearEntityDefinitionActions();
 }
 
 void MapDocument::entityDefinitionsDidChange()
