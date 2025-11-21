@@ -22,7 +22,7 @@
 #include "FileLocation.h"
 #include "Macros.h"
 #include "Result.h"
-#include "el/ELExceptions.h"
+#include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 

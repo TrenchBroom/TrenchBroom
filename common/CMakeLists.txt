@@ -2,8 +2,8 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
-        ${COMMON_SOURCE_DIR}/el/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
+        ${COMMON_SOURCE_DIR}/el/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/el/Expression.cpp
         ${COMMON_SOURCE_DIR}/el/Interpolate.cpp
         ${COMMON_SOURCE_DIR}/el/Types.cpp
@@ -504,10 +504,10 @@ set(COMMON_SOURCE
 
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
-        ${COMMON_SOURCE_DIR}/el/EL_Forward.h
-        ${COMMON_SOURCE_DIR}/el/ELExceptions.h
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
+        ${COMMON_SOURCE_DIR}/el/Exceptions.h
         ${COMMON_SOURCE_DIR}/el/Expression.h
+        ${COMMON_SOURCE_DIR}/el/Forward.h
         ${COMMON_SOURCE_DIR}/el/Interpolate.h
         ${COMMON_SOURCE_DIR}/el/Types.h
         ${COMMON_SOURCE_DIR}/el/Value.h

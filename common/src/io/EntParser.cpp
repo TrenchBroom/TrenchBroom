@@ -23,7 +23,7 @@
 #include "FileLocation.h"
 #include "ParserException.h"
 #include "ParserStatus.h"
-#include "el/ELExceptions.h"
+#include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/Types.h"
 #include "el/Value.h"

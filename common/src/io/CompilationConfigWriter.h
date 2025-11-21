@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Macros.h"
-#include "el/EL_Forward.h"
+#include "el/Forward.h"
 
 #include <iosfwd>
 #include <string>

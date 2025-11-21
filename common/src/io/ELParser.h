@@ -22,8 +22,8 @@
 #include "Parser.h"
 #include "Result.h"
 #include "Tokenizer.h"
-#include "el/EL_Forward.h"
 #include "el/Expression.h"
+#include "el/Forward.h"
 
 #include <cstdint>
 #include <iosfwd>

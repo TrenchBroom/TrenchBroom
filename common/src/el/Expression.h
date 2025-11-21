@@ -20,7 +20,7 @@
 #pragma once
 
 #include "FileLocation.h"
-#include "el/EL_Forward.h"
+#include "el/Forward.h"
 #include "el/Value.h"
 
 #include <memory>

@@ -18,9 +18,9 @@
  */
 
 #include "Matchers.h"
-#include "el/ELExceptions.h"
 #include "el/ELTestUtils.h"
 #include "el/EvaluationContext.h"
+#include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
@@ -32,7 +32,6 @@
 #include <vector>
 
 #include "catch/CatchConfig.h"
-#include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
