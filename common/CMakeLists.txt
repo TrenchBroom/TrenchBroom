@@ -2,14 +2,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
-        ${COMMON_SOURCE_DIR}/el/ELParser.cpp
-        ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
-        ${COMMON_SOURCE_DIR}/el/Exceptions.cpp
-        ${COMMON_SOURCE_DIR}/el/Expression.cpp
-        ${COMMON_SOURCE_DIR}/el/Interpolate.cpp
-        ${COMMON_SOURCE_DIR}/el/Types.cpp
-        ${COMMON_SOURCE_DIR}/el/Value.cpp
-        ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/io/AseLoader.cpp
@@ -504,15 +496,6 @@ set(COMMON_SOURCE
 
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
-        ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
-        ${COMMON_SOURCE_DIR}/el/ELParser.h
-        ${COMMON_SOURCE_DIR}/el/Exceptions.h
-        ${COMMON_SOURCE_DIR}/el/Expression.h
-        ${COMMON_SOURCE_DIR}/el/Forward.h
-        ${COMMON_SOURCE_DIR}/el/Interpolate.h
-        ${COMMON_SOURCE_DIR}/el/Types.h
-        ${COMMON_SOURCE_DIR}/el/Value.h
-        ${COMMON_SOURCE_DIR}/el/VariableStore.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/io/AseLoader.h
@@ -1050,7 +1033,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC TbBaseLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PUBLIC TbBaseLib TbElLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE GLEW::GLEW OpenGL::GL UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)

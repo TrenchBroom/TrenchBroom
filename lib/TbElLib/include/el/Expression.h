@@ -20,8 +20,8 @@
 #pragma once
 
 #include "FileLocation.h"
-#include "el/Forward.h"
-#include "el/Value.h"
+#include "Forward.h"
+#include "Value.h"
 
 #include <memory>
 #include <optional>

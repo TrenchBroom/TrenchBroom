@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Expression.h"
+#include "el/Expression.h"
 
-#include "Value.h"
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
+#include "el/Value.h"
 
 #include "kd/map_utils.h"
 #include "kd/overload.h"
