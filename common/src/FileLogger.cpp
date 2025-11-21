@@ -33,12 +33,11 @@ namespace
 
 std::ofstream openLogFile(const std::filesystem::path& path)
 {
-  return io::Disk::createDirectory(path.parent_path())
-         | kdl::transform([&](auto) { return std::ofstream{path, std::ios::out}; })
-         | kdl::if_error([](const auto& e) {
-             throw std::runtime_error{"Could not open log file: " + e.msg};
-           })
-         | kdl::value();
+  auto ec = std::error_code{};
+  std::filesystem::create_directories(path.parent_path(), ec);
+  contract_assert(!ec);
+
+  return std::ofstream{path, std::ios::out};
 }
 
 } // namespace
