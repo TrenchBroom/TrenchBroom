@@ -130,7 +130,9 @@ private: // tag and entity definition actions
 
   void createTagActions();
   void clearTagActions();
+
   void createEntityDefinitionActions();
+  void clearEntityDefinitionActions();
 
 public: // point file management
   mdl::PointTrace* pointTrace();
