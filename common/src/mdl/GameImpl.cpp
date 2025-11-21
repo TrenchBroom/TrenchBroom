@@ -65,7 +65,7 @@ GameImpl::GameImpl(GameConfig config, std::filesystem::path gamePath, Logger& lo
 }
 
 Result<std::vector<EntityDefinition>> GameImpl::loadEntityDefinitions(
-  io::ParserStatus& status, const std::filesystem::path& path) const
+  ParserStatus& status, const std::filesystem::path& path) const
 {
   const auto extension = kdl::path_to_lower(path.extension());
   const auto& defaultColor = m_config.entityConfig.defaultColor;

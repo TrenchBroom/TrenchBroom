@@ -25,15 +25,18 @@
 
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+class ParserStatus;
+
+namespace mdl
 {
 struct PropertyDefinition;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 struct EntityDefinitionClassInfo;
-class ParserStatus;
 
 // exposed for testing
 std::vector<EntityDefinitionClassInfo> resolveInheritance(
@@ -55,4 +58,5 @@ private:
     ParserStatus& status) = 0;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

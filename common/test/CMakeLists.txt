@@ -75,7 +75,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ResourceUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_SystemPaths.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_TestFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_Tokenizer.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_VirtualFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_WorldReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_AssetUtils.cpp"

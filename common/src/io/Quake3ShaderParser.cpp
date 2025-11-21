@@ -20,7 +20,7 @@
 #include "Quake3ShaderParser.h"
 
 #include "Macros.h"
-#include "io/ParserStatus.h"
+#include "ParserStatus.h"
 #include "mdl/Quake3Shader.h"
 
 #include "kd/string_compare.h"

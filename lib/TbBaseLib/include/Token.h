@@ -26,7 +26,7 @@
 
 #include <string>
 
-namespace tb::io
+namespace tb
 {
 
 template <typename Type>
@@ -93,4 +93,4 @@ public:
   }
 };
 
-} // namespace tb::io
+} // namespace tb

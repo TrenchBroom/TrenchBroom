@@ -17,18 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SimpleParserStatus.h"
+#pragma once
 
+#include "FileLocation.h"
+
+#include <optional>
+#include <stdexcept>
 #include <string>
 
-namespace tb::io
+namespace tb
 {
 
-SimpleParserStatus::SimpleParserStatus(Logger& logger, std::string prefix)
-  : ParserStatus{logger, std::move(prefix)}
+class ParserException : public std::runtime_error
 {
-}
+public:
+  using std::runtime_error::runtime_error;
 
-void SimpleParserStatus::doProgress(const double /* progress */) {}
+  explicit ParserException(
+    const std::optional<FileLocation>& location, const std::string& str = "");
+};
 
-} // namespace tb::io
+} // namespace tb

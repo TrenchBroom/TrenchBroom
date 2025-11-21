@@ -21,6 +21,7 @@
 
 #include "Logger.h"
 #include "PreferenceManager.h"
+#include "SimpleParserStatus.h"
 #include "io/DiskIO.h"
 #include "io/GameConfigParser.h"
 #include "io/LoadMaterialCollections.h"
@@ -29,7 +30,6 @@
 #include "io/NodeWriter.h"
 #include "io/ObjSerializer.h"
 #include "io/PathInfo.h"
-#include "io/SimpleParserStatus.h"
 #include "io/WorldReader.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -129,7 +129,7 @@ Result<std::unique_ptr<WorldNode>> loadMap(
   const auto entityPropertyConfig = EntityPropertyConfig{
     config.entityConfig.scaleExpression, config.entityConfig.setDefaultProperties};
 
-  auto parserStatus = io::SimpleParserStatus{logger};
+  auto parserStatus = SimpleParserStatus{logger};
   return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
            auto fileReader = file->reader().buffer();
            if (mapFormat == MapFormat::Unknown)
@@ -1037,7 +1037,7 @@ void Map::loadEntityDefinitions()
 {
   if (const auto spec = entityDefinitionFile(*this))
   {
-    auto status = io::SimpleParserStatus{m_logger};
+    auto status = SimpleParserStatus{m_logger};
     const auto path = game()->findEntityDefinitionFile(*spec, externalSearchPaths(*this));
 
     game()->loadEntityDefinitions(status, path)

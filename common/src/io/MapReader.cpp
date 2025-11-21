@@ -21,8 +21,8 @@
 
 #include "Error.h" // IWYU pragma: keep
 #include "FileLocation.h"
+#include "ParserStatus.h"
 #include "Uuid.h"
-#include "io/ParserStatus.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"

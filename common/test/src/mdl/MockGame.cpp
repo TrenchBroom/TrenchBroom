@@ -150,7 +150,7 @@ std::string MockGame::defaultMod() const
 }
 
 Result<std::vector<EntityDefinition>> MockGame::loadEntityDefinitions(
-  io::ParserStatus& /* status */, const std::filesystem::path& path) const
+  ParserStatus& /* status */, const std::filesystem::path& path) const
 {
   if (m_entityDefinitions.empty())
   {

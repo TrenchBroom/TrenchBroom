@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Color.h"
+#include "Parser.h"
+#include "Tokenizer.h"
 #include "io/EntityDefinitionParser.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 
 #include "vm/bbox.h"
 
@@ -34,16 +34,17 @@
 
 namespace tb
 {
-struct FileLocation;
-};
+class ParserStatus;
 
-namespace tb::mdl
+struct FileLocation;
+
+namespace mdl
 {
 class DecalDefinition;
 class ModelDefinition;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 
 enum class ColorType
@@ -55,7 +56,6 @@ enum class ColorType
 enum class EntityDefinitionClassType;
 
 class FileSystem;
-class ParserStatus;
 
 struct EntityDefinitionClassInfo;
 
@@ -177,4 +177,5 @@ private:
     ParserStatus& status, const std::filesystem::path& path);
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

@@ -17,22 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "io/ParserStatus.h"
+#include "SimpleParserStatus.h"
 
 #include <string>
 
-namespace tb::io
+namespace tb
 {
 
-class SimpleParserStatus : public ParserStatus
+SimpleParserStatus::SimpleParserStatus(Logger& logger, std::string prefix)
+  : ParserStatus{logger, std::move(prefix)}
 {
-public:
-  explicit SimpleParserStatus(Logger& logger, std::string prefix = "");
+}
 
-private:
-  void doProgress(double progress) override;
-};
+void SimpleParserStatus::doProgress(const double /* progress */) {}
 
-} // namespace tb::io
+} // namespace tb

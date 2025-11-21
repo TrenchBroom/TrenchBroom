@@ -59,8 +59,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/NodeWriter.cpp
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
-        ${COMMON_SOURCE_DIR}/io/ParserException.cpp
-        ${COMMON_SOURCE_DIR}/io/ParserStatus.cpp
         ${COMMON_SOURCE_DIR}/io/PathInfo.cpp
         ${COMMON_SOURCE_DIR}/io/PathMatcher.cpp
         ${COMMON_SOURCE_DIR}/io/PathQt.cpp
@@ -72,7 +70,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/ReadMipTexture.cpp
         ${COMMON_SOURCE_DIR}/io/ReadWalTexture.cpp
         ${COMMON_SOURCE_DIR}/io/ResourceUtils.cpp
-        ${COMMON_SOURCE_DIR}/io/SimpleParserStatus.cpp
         ${COMMON_SOURCE_DIR}/io/SkinLoader.cpp
         ${COMMON_SOURCE_DIR}/io/SprLoader.cpp
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.cpp
@@ -82,8 +79,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/WadFileSystem.cpp
         ${COMMON_SOURCE_DIR}/io/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/io/ZipFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/Logger.cpp
-        ${COMMON_SOURCE_DIR}/LoggerCache.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
@@ -316,7 +311,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/ui/BorderLine.cpp
         ${COMMON_SOURCE_DIR}/ui/BorderPanel.cpp
-        ${COMMON_SOURCE_DIR}/ui/CachingLogger.cpp
         ${COMMON_SOURCE_DIR}/ui/CameraAnimation.cpp
         ${COMMON_SOURCE_DIR}/ui/CameraLinkHelper.cpp
         ${COMMON_SOURCE_DIR}/ui/CameraTool2D.cpp
@@ -568,9 +562,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/NodeWriter.h
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.h
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
-        ${COMMON_SOURCE_DIR}/io/Parser.h
-        ${COMMON_SOURCE_DIR}/io/ParserException.h
-        ${COMMON_SOURCE_DIR}/io/ParserStatus.h
         ${COMMON_SOURCE_DIR}/io/PathInfo.h
         ${COMMON_SOURCE_DIR}/io/PathMatcher.h
         ${COMMON_SOURCE_DIR}/io/PathQt.h
@@ -583,20 +574,15 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ReadMipTexture.h
         ${COMMON_SOURCE_DIR}/io/ReadWalTexture.h
         ${COMMON_SOURCE_DIR}/io/ResourceUtils.h
-        ${COMMON_SOURCE_DIR}/io/SimpleParserStatus.h
         ${COMMON_SOURCE_DIR}/io/SkinLoader.h
         ${COMMON_SOURCE_DIR}/io/SprLoader.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/io/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/io/Token.h
-        ${COMMON_SOURCE_DIR}/io/Tokenizer.h
         ${COMMON_SOURCE_DIR}/io/TraversalMode.h
         ${COMMON_SOURCE_DIR}/io/VirtualFileSystem.h
         ${COMMON_SOURCE_DIR}/io/WadFileSystem.h
         ${COMMON_SOURCE_DIR}/io/WorldReader.h
         ${COMMON_SOURCE_DIR}/io/ZipFileSystem.h
-        ${COMMON_SOURCE_DIR}/Logger.h
-        ${COMMON_SOURCE_DIR}/LoggerCache.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
@@ -867,7 +853,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/ui/BorderLine.h
         ${COMMON_SOURCE_DIR}/ui/BorderPanel.h
-        ${COMMON_SOURCE_DIR}/ui/CachingLogger.h
         ${COMMON_SOURCE_DIR}/ui/CameraAnimation.h
         ${COMMON_SOURCE_DIR}/ui/CameraLinkHelper.h
         ${COMMON_SOURCE_DIR}/ui/CameraTool2D.h

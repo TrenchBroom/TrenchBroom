@@ -49,7 +49,7 @@ public:
 
 public: // implement EntityDefinitionLoader interface:
   Result<std::vector<EntityDefinition>> loadEntityDefinitions(
-    io::ParserStatus& status, const std::filesystem::path& path) const override;
+    ParserStatus& status, const std::filesystem::path& path) const override;
 
 public: // implement Game interface
   const GameConfig& config() const override;

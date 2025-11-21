@@ -20,9 +20,9 @@
 #include "EntityDefinitionParser.h"
 
 #include "Macros.h"
+#include "ParserException.h"
+#include "ParserStatus.h"
 #include "io/EntityDefinitionClassInfo.h"
-#include "io/ParserException.h"
-#include "io/ParserStatus.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"

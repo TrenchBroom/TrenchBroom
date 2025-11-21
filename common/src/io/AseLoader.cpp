@@ -21,8 +21,8 @@
 
 #include "FileLocation.h"
 #include "Logger.h"
+#include "ParserException.h"
 #include "Result.h"
-#include "io/ParserException.h"
 #include "io/ResourceUtils.h"
 #include "mdl/EntityModel.h"
 #include "render/MaterialIndexRangeMap.h"

@@ -24,10 +24,13 @@
 #include <string_view>
 #include <vector>
 
-namespace tb::io
+namespace tb
+{
+class ParserStatus;
+
+namespace io
 {
 struct EntityDefinitionClassInfo;
-class ParserStatus;
 
 class EntParser : public EntityDefinitionParser
 {
@@ -41,4 +44,5 @@ private:
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb
