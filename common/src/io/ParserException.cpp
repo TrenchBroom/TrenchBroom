@@ -24,7 +24,7 @@ namespace tb
 
 ParserException::ParserException(
   const std::optional<FileLocation>& location, const std::string& str)
-  : Exception{prependLocation(location, str)}
+  : std::runtime_error{prependLocation(location, str)}
 {
 }
 
