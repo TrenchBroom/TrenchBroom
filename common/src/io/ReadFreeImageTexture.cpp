@@ -20,9 +20,9 @@
 #include "ReadFreeImageTexture.h"
 
 #include "FreeImage.h"
+#include "fs/Reader.h"
 #include "io/ImageLoaderImpl.h"
 #include "io/MaterialUtils.h"
-#include "io/Reader.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
 

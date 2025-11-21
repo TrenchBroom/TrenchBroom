@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
 #include "mdl/PortalFile.h"
 
 #include "vm/polygon.h"

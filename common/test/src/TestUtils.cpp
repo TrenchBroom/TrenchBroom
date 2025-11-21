@@ -20,9 +20,9 @@
 #include "TestUtils.h"
 
 #include "TestLogger.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
+#include "fs/ReaderException.h"
 #include "io/GameConfigParser.h"
-#include "io/ReaderException.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"

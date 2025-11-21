@@ -18,7 +18,7 @@
  */
 
 #include "Logger.h"
-#include "io/TestEnvironment.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameFactory.h"
 

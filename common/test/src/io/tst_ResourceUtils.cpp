@@ -18,7 +18,7 @@
  */
 
 #include "Logger.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/ResourceUtils.h"
 #include "mdl/Material.h"
 

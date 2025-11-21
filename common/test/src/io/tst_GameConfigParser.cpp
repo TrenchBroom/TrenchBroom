@@ -18,10 +18,10 @@
  */
 
 #include "el/Expression.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
+#include "fs/Reader.h"
+#include "fs/TraversalMode.h"
 #include "io/GameConfigParser.h"
-#include "io/Reader.h"
-#include "io/TraversalMode.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Tag.h"
 #include "mdl/TagMatcher.h"

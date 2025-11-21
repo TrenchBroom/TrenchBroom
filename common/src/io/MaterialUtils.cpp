@@ -19,9 +19,9 @@
 
 #include "MaterialUtils.h"
 
-#include "io/FileSystem.h"
-#include "io/PathInfo.h"
-#include "io/TraversalMode.h"
+#include "fs/FileSystem.h"
+#include "fs/PathInfo.h"
+#include "fs/TraversalMode.h"
 #include "mdl/TextureBuffer.h"
 
 #include "kd/functional.h"

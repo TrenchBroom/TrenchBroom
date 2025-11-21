@@ -19,11 +19,11 @@
 
 #include "Logger.h"
 #include "TestLogger.h"
-#include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
+#include "fs/WadFileSystem.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadMipTexture.h"
-#include "io/WadFileSystem.h"
 #include "mdl/Palette.h"
 
 #include "kd/result.h"

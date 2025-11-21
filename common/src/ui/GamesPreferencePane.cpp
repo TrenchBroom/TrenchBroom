@@ -32,7 +32,7 @@
 #include <QWidget>
 
 #include "FileLogger.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
 #include "io/PathQt.h"
 #include "io/ResourceUtils.h"
 #include "mdl/GameConfig.h"

@@ -25,8 +25,8 @@
 #include <QStandardPaths>
 #include <QString>
 
-#include "io/DiskIO.h"
-#include "io/PathInfo.h"
+#include "fs/DiskIO.h"
+#include "fs/PathInfo.h"
 #include "io/PathQt.h"
 
 #include <algorithm>

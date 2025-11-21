@@ -19,7 +19,7 @@
 
 #include "Logger.h"
 #include "TestUtils.h"
-#include "io/PathInfo.h"
+#include "fs/PathInfo.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameFileSystem.h"
 

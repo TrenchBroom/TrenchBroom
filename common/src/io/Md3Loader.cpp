@@ -20,8 +20,8 @@
 #include "Md3Loader.h"
 
 #include "Logger.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"                // IWYU pragma: keep
 #include "render/IndexRangeMapBuilder.h" // IWYU pragma: keep

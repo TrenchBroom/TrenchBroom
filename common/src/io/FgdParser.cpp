@@ -22,7 +22,7 @@
 #include "ParserException.h"
 #include "ParserStatus.h"
 #include "el/Expression.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "io/ParseModelDefinition.h"

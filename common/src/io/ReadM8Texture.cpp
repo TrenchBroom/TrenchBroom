@@ -20,8 +20,8 @@
 #include "ReadM8Texture.h"
 
 #include "Color.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "mdl/Palette.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"

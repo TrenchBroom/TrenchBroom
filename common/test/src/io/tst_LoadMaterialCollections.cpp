@@ -19,10 +19,10 @@
 
 #include "Logger.h"
 #include "TestUtils.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/VirtualFileSystem.h"
+#include "fs/WadFileSystem.h"
 #include "io/LoadMaterialCollections.h"
-#include "io/VirtualFileSystem.h"
-#include "io/WadFileSystem.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialCollection.h"
 #include "mdl/Resource.h"

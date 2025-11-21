@@ -25,12 +25,12 @@
 #include <QtGlobal>
 
 #include "el/Exceptions.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
+#include "fs/PathInfo.h"
+#include "fs/PathMatcher.h"
+#include "fs/TraversalMode.h"
 #include "io/ExportOptions.h"
-#include "io/PathInfo.h"
-#include "io/PathMatcher.h"
 #include "io/PathQt.h"
-#include "io/TraversalMode.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/Map.h"

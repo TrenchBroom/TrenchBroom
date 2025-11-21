@@ -22,10 +22,10 @@
 #include "Error.h" // IWYU pragma: keep
 #include "Logger.h"
 #include "SimpleParserStatus.h"
-#include "io/FileSystem.h"
-#include "io/PathInfo.h"
+#include "fs/FileSystem.h"
+#include "fs/PathInfo.h"
+#include "fs/TraversalMode.h"
 #include "io/Quake3ShaderParser.h"
-#include "io/TraversalMode.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Quake3Shader.h"
 

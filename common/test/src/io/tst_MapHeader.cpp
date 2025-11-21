@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "fs/TestEnvironment.h"
 #include "io/MapHeader.h"
-#include "io/TestEnvironment.h"
 
 #include <sstream>
 

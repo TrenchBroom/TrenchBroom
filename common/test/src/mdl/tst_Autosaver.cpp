@@ -21,8 +21,8 @@
 
 #include "MapFixture.h"
 #include "TestFactory.h"
-#include "io/DiskFileSystem.h"
-#include "io/TestEnvironment.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/Autosaver.h"
 #include "mdl/BrushNode.h" // IWYU pragma: keep
 #include "mdl/EditorContext.h"

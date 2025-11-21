@@ -21,7 +21,7 @@
 
 #include "Logger.h"
 #include "Result.h"
-#include "io/FileSystem.h"
+#include "fs/FileSystem.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/ReadWalTexture.h"

@@ -19,10 +19,10 @@
 
 #include "TestParserStatus.h"
 #include "el/TestUtils.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
+#include "fs/Reader.h"
+#include "fs/TraversalMode.h"
 #include "io/FgdParser.h"
-#include "io/Reader.h"
-#include "io/TraversalMode.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionTestUtils.h"
 #include "mdl/PropertyDefinition.h"

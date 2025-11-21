@@ -18,7 +18,7 @@
  */
 
 #include "TestParserStatus.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/Quake3ShaderParser.h"
 #include "mdl/Quake3Shader.h"
 

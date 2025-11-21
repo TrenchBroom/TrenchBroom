@@ -18,10 +18,10 @@
  */
 
 #include "TestParserStatus.h"
+#include "fs/DiskIO.h"
+#include "fs/PathMatcher.h"
+#include "fs/TraversalMode.h"
 #include "io/DefParser.h"
-#include "io/DiskIO.h"
-#include "io/PathMatcher.h"
-#include "io/TraversalMode.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionTestUtils.h"
 #include "mdl/EntityProperties.h"

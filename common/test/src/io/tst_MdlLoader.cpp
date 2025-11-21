@@ -18,10 +18,10 @@
  */
 
 #include "Logger.h"
-#include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
+#include "fs/Reader.h"
 #include "io/MdlLoader.h"
-#include "io/Reader.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Palette.h"
 

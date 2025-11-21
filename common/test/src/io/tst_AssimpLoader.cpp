@@ -19,8 +19,8 @@
  */
 
 #include "Logger.h"
+#include "fs/DiskFileSystem.h"
 #include "io/AssimpLoader.h"
-#include "io/DiskFileSystem.h"
 #include "mdl/EntityModel.h"
 
 #include "vm/approx.h"

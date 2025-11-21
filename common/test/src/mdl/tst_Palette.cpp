@@ -18,7 +18,7 @@
  */
 
 #include "Result.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
 #include "mdl/Palette.h"
 
 #include "kd/result.h"

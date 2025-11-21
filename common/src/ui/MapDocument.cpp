@@ -19,7 +19,7 @@
 
 #include "ui/MapDocument.h"
 
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"

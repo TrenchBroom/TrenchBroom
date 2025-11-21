@@ -19,10 +19,10 @@
 
 #include "Logger.h"
 #include "Matchers.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/TestEnvironment.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
-#include "io/TestEnvironment.h"
 
 #include "kd/result.h"
 #include "kd/result_io.h" // IWYU pragma: keep

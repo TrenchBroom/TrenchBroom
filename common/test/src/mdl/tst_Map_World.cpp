@@ -18,8 +18,8 @@
  */
 
 #include "MapFixture.h"
+#include "fs/TestEnvironment.h"
 #include "io/SystemPaths.h"
-#include "io/TestEnvironment.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
 #include "mdl/WorldNode.h"

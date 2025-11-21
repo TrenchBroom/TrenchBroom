@@ -23,7 +23,7 @@
 #include "MockGame.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
-#include "io/TestEnvironment.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"

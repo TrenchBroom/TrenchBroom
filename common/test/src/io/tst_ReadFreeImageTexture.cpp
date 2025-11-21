@@ -18,7 +18,7 @@
  */
 
 #include "TestUtils.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/ReadFreeImageTexture.h"
 #include "mdl/Texture.h"
 

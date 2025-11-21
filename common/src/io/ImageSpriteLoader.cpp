@@ -19,10 +19,10 @@
 
 #include "ImageSpriteLoader.h"
 
-#include "io/File.h"
+#include "fs/File.h"
+#include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
-#include "io/ReaderException.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"

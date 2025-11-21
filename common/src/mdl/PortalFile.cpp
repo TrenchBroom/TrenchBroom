@@ -19,7 +19,7 @@
 
 #include "PortalFile.h"
 
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
 
 #include "kd/result.h"
 #include "kd/string_format.h"

@@ -18,13 +18,13 @@
  */
 
 #include "Logger.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/Reader.h"
+#include "fs/VirtualFileSystem.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
 #include "io/Md3Loader.h"
-#include "io/Reader.h"
-#include "io/VirtualFileSystem.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"

@@ -19,7 +19,7 @@
  */
 
 #include "TestUtils.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/ReadDdsTexture.h"
 #include "mdl/Palette.h"
 #include "mdl/Texture.h"

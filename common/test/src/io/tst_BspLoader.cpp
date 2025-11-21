@@ -20,10 +20,10 @@
 
 
 #include "Logger.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
+#include "fs/Reader.h"
 #include "io/BspLoader.h"
-#include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
-#include "io/Reader.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Palette.h"
 

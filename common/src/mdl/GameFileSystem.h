@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "io/VirtualFileSystem.h"
+#include "fs/VirtualFileSystem.h"
 
 #include <filesystem>
 #include <vector>

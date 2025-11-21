@@ -26,8 +26,8 @@
 #include <QPushButton>
 #include <QStackedWidget>
 
-#include "io/DiskIO.h"
-#include "io/PathInfo.h"
+#include "fs/DiskIO.h"
+#include "fs/PathInfo.h"
 #include "io/PathQt.h"
 #include "mdl/GameEngineProfile.h"
 #include "ui/QtUtils.h"

@@ -20,8 +20,8 @@
 #include "FreeTypeFontFactory.h"
 
 #include "Macros.h"
-#include "io/DiskIO.h"
-#include "io/Reader.h"
+#include "fs/DiskIO.h"
+#include "fs/Reader.h"
 #include "io/SystemPaths.h"
 #include "render/FontDescriptor.h"
 #include "render/FontGlyph.h"

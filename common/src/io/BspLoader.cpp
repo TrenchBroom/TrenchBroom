@@ -20,10 +20,10 @@
 #include "BspLoader.h"
 
 #include "Logger.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadMipTexture.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
 #include "io/ResourceUtils.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"

@@ -19,9 +19,9 @@
 
 #include "TestParserStatus.h"
 #include "el/TestUtils.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
+#include "fs/TraversalMode.h"
 #include "io/EntParser.h"
-#include "io/TraversalMode.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/PropertyDefinition.h"
 

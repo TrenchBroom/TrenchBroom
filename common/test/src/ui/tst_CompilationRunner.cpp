@@ -25,7 +25,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "MapFixture.h"
 #include "TrenchBroomApp.h"
 #include "el/VariableStore.h"
-#include "io/TestEnvironment.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/EntityNode.h"

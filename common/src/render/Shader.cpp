@@ -19,7 +19,7 @@
 
 #include "Shader.h"
 
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"

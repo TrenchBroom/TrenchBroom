@@ -32,7 +32,7 @@
 
 #include "Logger.h"
 #include "Thread.h"
-#include "io/FileSystem.h"
+#include "fs/FileSystem.h"
 #include "io/PathQt.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/SystemPaths.h"

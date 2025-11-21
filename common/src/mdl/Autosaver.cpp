@@ -20,11 +20,11 @@
 #include "Autosaver.h"
 
 #include "Logger.h"
-#include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
-#include "io/FileSystem.h"
-#include "io/PathInfo.h"
-#include "io/TraversalMode.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
+#include "fs/FileSystem.h"
+#include "fs/PathInfo.h"
+#include "fs/TraversalMode.h"
 #include "mdl/Map.h"
 
 #include "kd/contracts.h"

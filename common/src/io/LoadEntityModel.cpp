@@ -20,11 +20,11 @@
 #include "LoadEntityModel.h"
 
 #include "Result.h"
+#include "fs/FileSystem.h"
 #include "io/AseLoader.h"
 #include "io/AssimpLoader.h"
 #include "io/BspLoader.h"
 #include "io/DkmLoader.h"
-#include "io/FileSystem.h"
 #include "io/ImageSpriteLoader.h"
 #include "io/Md2Loader.h"
 #include "io/Md3Loader.h"

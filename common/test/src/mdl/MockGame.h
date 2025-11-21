@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Result.h"
-#include "io/VirtualFileSystem.h"
+#include "fs/VirtualFileSystem.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/Game.h"

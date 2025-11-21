@@ -19,7 +19,7 @@
 
 #include "TestParserStatus.h"
 #include "TestUtils.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
 #include "io/WorldReader.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"

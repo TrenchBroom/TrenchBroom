@@ -20,9 +20,9 @@
 
 #include "ReadDdsTexture.h"
 
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
 

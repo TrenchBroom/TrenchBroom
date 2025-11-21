@@ -20,8 +20,8 @@
 #include "io/SprLoader.h"
 
 #include "Color.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"
 #include "mdl/Palette.h"

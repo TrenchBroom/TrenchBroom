@@ -19,7 +19,7 @@
 
 #include "MapFixture.h"
 #include "TestUtils.h"
-#include "io/TestEnvironment.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"

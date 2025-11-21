@@ -19,8 +19,8 @@
 
 #include "Md2Loader.h"
 
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "io/SkinLoader.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"

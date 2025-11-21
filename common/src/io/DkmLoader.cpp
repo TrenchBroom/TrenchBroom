@@ -19,12 +19,12 @@
 
 #include "DkmLoader.h"
 
-#include "io/FileSystem.h"
-#include "io/PathInfo.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/FileSystem.h"
+#include "fs/PathInfo.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
+#include "fs/TraversalMode.h"
 #include "io/SkinLoader.h"
-#include "io/TraversalMode.h"
 #include "mdl/EntityModel.h"
 #include "render/GLVertex.h"
 #include "render/IndexRangeMap.h"

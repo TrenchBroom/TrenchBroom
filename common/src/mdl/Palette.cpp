@@ -19,12 +19,11 @@
 
 #include "Palette.h"
 
-#include "Exceptions.h"
 #include "Macros.h"
-#include "io/File.h"
+#include "fs/File.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "io/ImageLoader.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
 #include "mdl/TextureBuffer.h"
 
 #include "kd/contracts.h"
