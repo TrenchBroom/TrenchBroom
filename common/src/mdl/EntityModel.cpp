@@ -166,6 +166,7 @@ void EntityModelFrame::addToSpacialTree(
       m_tris.push_back(p1);
       m_tris.push_back(p2);
       m_tris.push_back(p3);
+
       m_spacialTree.insert(bounds.bounds(), triIndex);
     }
     break;

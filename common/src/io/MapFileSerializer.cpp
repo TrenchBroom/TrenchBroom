@@ -19,7 +19,6 @@
 
 #include "MapFileSerializer.h"
 
-#include "Exceptions.h"
 #include "Macros.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
@@ -296,7 +295,7 @@ std::unique_ptr<NodeSerializer> MapFileSerializer::create(
   case mdl::MapFormat::Hexen2:
     return std::make_unique<Hexen2FileSerializer>(stream);
   case mdl::MapFormat::Unknown:
-    throw FileFormatException("Unknown map file format");
+    contract_assert(false);
     switchDefault();
   }
 }

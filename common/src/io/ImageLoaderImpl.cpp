@@ -48,11 +48,6 @@ ImageLoaderImpl::ImageLoaderImpl(
   InitFreeImage::initialize();
 
   const auto fifFormat = translateFormat(format);
-  if (fifFormat == FIF_UNKNOWN)
-  {
-    throw FileFormatException{"Unknown image format"};
-  }
-
   m_bitmap = FreeImage_Load(fifFormat, path.string().c_str());
 }
 
@@ -62,10 +57,6 @@ ImageLoaderImpl::ImageLoaderImpl(
   InitFreeImage::initialize();
 
   const auto fifFormat = translateFormat(format);
-  if (fifFormat == FIF_UNKNOWN)
-  {
-    throw FileFormatException{"Unknown image format"};
-  }
 
   // this is supremely evil, but FreeImage guarantees that it will not modify wrapped
   // memory

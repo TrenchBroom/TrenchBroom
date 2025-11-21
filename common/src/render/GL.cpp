@@ -19,10 +19,11 @@
 
 #include "GL.h"
 
-#include "Exceptions.h"
+#include "kd/contracts.h"
 
 #include <fmt/format.h>
 
+#include <stdexcept>
 #include <string>
 
 namespace tb
@@ -32,7 +33,7 @@ void glCheckError(const std::string& msg)
   const GLenum error = glGetError();
   if (error != GL_NO_ERROR)
   {
-    throw RenderException{
+    throw std::runtime_error{
       fmt::format("OpenGL error: {} ({}) {}", error, glGetErrorMessage(error), msg)};
   }
 }
@@ -108,7 +109,8 @@ GLenum glGetEnum(const std::string& name)
   {
     return GL_SRC_ALPHA_SATURATE;
   }
-  throw RenderException{"Unknown GL enum: " + name};
+
+  contract_assert(false);
 }
 
 std::string glGetEnumName(const GLenum enum_)

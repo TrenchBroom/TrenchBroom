@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "Exceptions.h"
-
 #include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/reflection_decl.h"
@@ -411,13 +409,20 @@ public:
    */
   bool contains(const U& data) const { return m_node_address_for_data.count(data) > 0; }
 
-  void insert(const vm::bbox<T, 3>& bounds, U data)
+  /**
+   * Insert the given bounds and data.
+   *
+   * @param bounds the bounds to insert
+   * @param data the data to insert
+   * @return true if the given data was inserted and false otherwise
+   */
+  bool insert(const vm::bbox<T, 3>& bounds, U data)
   {
-    check(bounds);
+    contract_pre(!vm::is_nan(bounds.min) && !vm::is_nan(bounds.max));
 
     if (contains(data))
     {
-      throw NodeTreeException("Data already in tree");
+      return false;
     }
 
     const auto address = detail::get_container(bounds, m_min_size);
@@ -449,6 +454,8 @@ public:
       insert_into_node(*m_root, address, std::move(data));
       m_node_address_for_data.emplace(data, address);
     }
+
+    return true;
   }
 
 
@@ -482,17 +489,12 @@ public:
    *
    * @param newBounds the new bounds of the node
    * @param data the node data of the node to update
-   *
-   * @throws NodeTreeException if no node with the given data can be found in this tree
    */
   void update(const vm::bbox<T, 3>& newBounds, const U& data)
   {
-    check(newBounds);
+    contract_pre(!vm::is_nan(newBounds.min) && !vm::is_nan(newBounds.max));
 
-    if (!remove(data))
-    {
-      throw NodeTreeException("node not found");
-    }
+    contract_assert(remove(data));
     insert(newBounds, data);
   }
 
@@ -632,15 +634,6 @@ public:
   }
 
   kdl_reflect_inline(octree, m_root, m_min_size, m_node_address_for_data);
-
-private:
-  void check(const vm::bbox<T, 3>& bounds) const
-  {
-    if (vm::is_nan(bounds.min) || vm::is_nan(bounds.max))
-    {
-      throw NodeTreeException("Cannot add node to octree with invalid bounds");
-    }
-  }
 };
 
 } // namespace tb

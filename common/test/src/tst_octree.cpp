@@ -241,20 +241,20 @@ TEST_CASE("octree.insert")
 
   SECTION("inserting into root node")
   {
-    tree.insert({{-2, 0, 0}, {5, 3, 6}}, 1);
+    CHECK(tree.insert({{-2, 0, 0}, {5, 3, 6}}, 1));
     CHECK(tree == octree<double, int>{32.0, leaf_node{{-1, -1, -1, 1}, {1}}});
 
-    tree.insert({{-32, -32, -32}, {32, 32, 32}}, 2);
+    CHECK(tree.insert({{-32, -32, -32}, {32, 32, 32}}, 2));
     CHECK(tree == octree<double, int>{32.0, leaf_node{{-1, -1, -1, 1}, {1, 2}}});
 
-    tree.insert({{-33, -32, -32}, {32, 32, 32}}, 3);
+    CHECK(tree.insert({{-33, -32, -32}, {32, 32, 32}}, 3));
     CHECK(tree == octree<double, int>{32.0, leaf_node{{-2, -2, -2, 2}, {1, 2, 3}}});
   }
 
 
   SECTION("expanding root node")
   {
-    tree.insert({{16, 16, -16}, {17, 17, -15}}, 1);
+    CHECK(tree.insert({{16, 16, -16}, {17, 17, -15}}, 1));
     CHECK(
       tree
       == octree<double, int>{
@@ -272,7 +272,7 @@ TEST_CASE("octree.insert")
             node{leaf_node{{-2, 0, 0, 1}, {}}},
             node{leaf_node{{0, 0, 0, 1}, {}}})}});
 
-    tree.insert({{-120, 130, -48}, {-116, 140, -40}}, 2);
+    CHECK(tree.insert({{-120, 130, -48}, {-116, 140, -40}}, 2));
   }
 
 
@@ -280,7 +280,7 @@ TEST_CASE("octree.insert")
   {
     SECTION("inserting skips unnecessary inner nodes")
     {
-      tree.insert({{2, 2, 2}, {3, 3, 3}}, 1);
+      CHECK(tree.insert({{2, 2, 2}, {3, 3, 3}}, 1));
       CHECK(
         tree
         == octree<double, int>{
@@ -298,7 +298,7 @@ TEST_CASE("octree.insert")
               node{leaf_node{{-2, 0, 0, 1}, {}}},
               node{leaf_node{{0, 0, 0, 0}, {1}}})}});
 
-      tree.insert({{3, 3, 3}, {4, 4, 4}}, 2);
+      CHECK(tree.insert({{3, 3, 3}, {4, 4, 4}}, 2));
       CHECK(
         tree
         == octree<double, int>{
@@ -320,7 +320,7 @@ TEST_CASE("octree.insert")
       {
         SECTION("when inserting into quadrant 7 of skipped node")
         {
-          tree.insert({{33, 33, 33}, {34, 34, 34}}, 3);
+          CHECK(tree.insert({{33, 33, 33}, {34, 34, 34}}, 3));
           CHECK(
             tree
             == octree<double, int>{
@@ -352,7 +352,7 @@ TEST_CASE("octree.insert")
 
         SECTION("when inserting into quadrant 1 of skipped node")
         {
-          tree.insert({{33, 3, 3}, {34, 4, 4}}, 3);
+          CHECK(tree.insert({{33, 3, 3}, {34, 4, 4}}, 3));
           CHECK(
             tree
             == octree<double, int>{
@@ -383,7 +383,7 @@ TEST_CASE("octree.insert")
         }
         SECTION("when inserting into skipped node directly")
         {
-          tree.insert({{31, 31, 31}, {34, 34, 34}}, 3);
+          CHECK(tree.insert({{31, 31, 31}, {34, 34, 34}}, 3));
           CHECK(
             tree
             == octree<double, int>{
@@ -545,10 +545,10 @@ TEST_CASE("octree.insert_duplicate")
 {
   auto tree = octree<double, int>{32.0};
 
-  tree.insert(vm::bbox3d{{0, 0, 0}, {2, 1, 1}}, 1);
+  REQUIRE(tree.insert(vm::bbox3d{{0, 0, 0}, {2, 1, 1}}, 1));
   REQUIRE(tree.contains(1));
 
-  CHECK_THROWS_AS(tree.insert(vm::bbox3d{{0, 0, 0}, {2, 1, 1}}, 1), NodeTreeException);
+  CHECK(!tree.insert(vm::bbox3d{{0, 0, 0}, {2, 1, 1}}, 1));
 
   CHECK(tree.contains(1));
   CHECK_FALSE(tree.empty());
@@ -563,9 +563,9 @@ TEST_CASE("octree.contains")
   CHECK_FALSE(tree.contains(2));
   CHECK_FALSE(tree.contains(3));
 
-  tree.insert(vm::bbox3d{{0, 0, 0}, {16, 16, 16}}, 1);
-  tree.insert(vm::bbox3d{{16, 16, 16}, {32, 32, 32}}, 2);
-  tree.insert(vm::bbox3d{{-16, -16, -16}, {0, 0, 0}}, 3);
+  REQUIRE(tree.insert(vm::bbox3d{{0, 0, 0}, {16, 16, 16}}, 1));
+  REQUIRE(tree.insert(vm::bbox3d{{16, 16, 16}, {32, 32, 32}}, 2));
+  REQUIRE(tree.insert(vm::bbox3d{{-16, -16, -16}, {0, 0, 0}}, 3));
 
   CHECK_FALSE(tree.contains(0));
   CHECK(tree.contains(1));
@@ -584,7 +584,7 @@ TEST_CASE("octree.find_intersectors-ray")
 
   SECTION("single node")
   {
-    tree.insert({{32, 32, 32}, {64, 64, 64}}, 1);
+    REQUIRE(tree.insert({{32, 32, 32}, {64, 64, 64}}, 1));
     REQUIRE(
       tree
       == octree<double, int>{
@@ -626,7 +626,7 @@ TEST_CASE("octree.find_intersectors-bbox")
 
   SECTION("single node")
   {
-    tree.insert({{32, 32, 32}, {64, 64, 64}}, 1);
+    REQUIRE(tree.insert({{32, 32, 32}, {64, 64, 64}}, 1));
     REQUIRE(
       tree
       == octree<double, int>{
@@ -688,7 +688,7 @@ TEST_CASE("octree.find_containers")
 
   SECTION("single node")
   {
-    tree.insert({{32, 32, 32}, {64, 64, 64}}, 1);
+    REQUIRE(tree.insert({{32, 32, 32}, {64, 64, 64}}, 1));
     REQUIRE(
       tree
       == octree<double, int>{

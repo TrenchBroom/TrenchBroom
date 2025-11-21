@@ -37,37 +37,7 @@ public:
   const char* what() const noexcept override;
 };
 
-class VboException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
-class AssetException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
-class RenderException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
-class NodeTreeException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 class GameException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
-class FileFormatException : public Exception
 {
 public:
   using Exception::Exception;
