@@ -37,6 +37,22 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+void initializeGlew()
+{
+  glewExperimental = GL_TRUE;
+  if (const auto glewState = glewInit(); glewState != GLEW_OK)
+  {
+    throw RenderException{fmt::format(
+      "Error initializing glew: {}",
+      reinterpret_cast<const char*>(glewGetErrorString(glewState)))};
+  }
+}
+
+} // namespace
+
 std::string GLContextManager::GLVendor = "unknown";
 std::string GLContextManager::GLRenderer = "unknown";
 std::string GLContextManager::GLVersion = "unknown";
@@ -53,17 +69,6 @@ GLContextManager::~GLContextManager() = default;
 bool GLContextManager::initialized() const
 {
   return m_initialized;
-}
-
-static void initializeGlew()
-{
-  glewExperimental = GL_TRUE;
-  if (const auto glewState = glewInit(); glewState != GLEW_OK)
-  {
-    throw RenderException{fmt::format(
-      "Error initializing glew: {}",
-      reinterpret_cast<const char*>(glewGetErrorString(glewState)))};
-  }
 }
 
 bool GLContextManager::initialize()
