@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Result.h"
-#include "el/EL_Forward.h"
 #include "el/Expression.h"
+#include "el/Forward.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
 

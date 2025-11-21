@@ -19,7 +19,7 @@
 
 #include "VariableStore.h"
 
-#include "el/ELExceptions.h"
+#include "el/Exceptions.h"
 #include "el/Value.h"
 
 #include "kd/ranges/to.h"
