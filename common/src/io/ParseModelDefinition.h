@@ -20,7 +20,7 @@
 #pragma once
 
 #include "ParserException.h"
-#include "io/ELParser.h"
+#include "el/ELParser.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "io/ParserStatus.h"
 #include "mdl/ModelDefinition.h"
