@@ -26,6 +26,7 @@
 #include "io/PathQt.h"
 #include "ui/QtUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -78,7 +79,7 @@ RecentDocuments::RecentDocuments(
   , m_maxSize{maxSize}
   , m_filterPredicate{std::move(filterPredicate)}
 {
-  assert(m_maxSize > 0);
+  contract_pre(m_maxSize > 0);
 }
 
 std::vector<std::filesystem::path> RecentDocuments::recentDocuments() const

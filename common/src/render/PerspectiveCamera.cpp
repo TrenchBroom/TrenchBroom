@@ -28,6 +28,8 @@
 #include "render/VboManager.h"
 #include "render/VertexArray.h"
 
+#include "kd/contracts.h"
+
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -52,7 +54,7 @@ PerspectiveCamera::PerspectiveCamera(
   : Camera{nearPlane, farPlane, viewport, position, direction, up}
   , m_fov{fov}
 {
-  assert(m_fov > 0.0f);
+  contract_pre(m_fov > 0.0f);
 }
 
 float PerspectiveCamera::fov() const
@@ -67,7 +69,8 @@ float PerspectiveCamera::zoomedFov() const
 
 void PerspectiveCamera::setFov(const float fov)
 {
-  assert(fov > 0.0f);
+  contract_pre(fov > 0.0f);
+
   if (fov != m_fov)
   {
     m_fov = fov;

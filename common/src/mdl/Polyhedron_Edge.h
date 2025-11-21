@@ -19,8 +19,9 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "Polyhedron.h"
+
+#include "kd/contracts.h"
 
 #include "vm/distance.h"
 #include "vm/plane.h"
@@ -65,7 +66,8 @@ Polyhedron_Edge<T, FP, VP>::Polyhedron_Edge(HalfEdge* first, HalfEdge* second)
   m_link(this)
 #endif
 {
-  assert(m_first != nullptr);
+  contract_pre(m_first != nullptr);
+
   m_first->setEdge(this);
   if (m_second)
   {
@@ -77,7 +79,8 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron_Edge<T, FP, VP>::Vertex* Polyhedron_Edge<T, FP, VP>::firstVertex()
   const
 {
-  assert(m_first != nullptr);
+  contract_pre(m_first != nullptr);
+
   return m_first->origin();
 }
 
@@ -85,7 +88,8 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron_Edge<T, FP, VP>::Vertex* Polyhedron_Edge<T, FP, VP>::secondVertex()
   const
 {
-  assert(m_first != nullptr);
+  contract_pre(m_first != nullptr);
+
   return m_second ? m_second->origin() : m_first->next()->origin();
 }
 
@@ -93,7 +97,8 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::firstEdge()
   const
 {
-  assert(m_first != nullptr);
+  contract_pre(m_first != nullptr);
+
   return m_first;
 }
 
@@ -101,7 +106,8 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::secondEdge()
   const
 {
-  assert(m_second != nullptr);
+  contract_pre(m_second != nullptr);
+
   return m_second;
 }
 
@@ -109,8 +115,9 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::twin(
   const HalfEdge* halfEdge) const
 {
-  assert(halfEdge != nullptr);
-  assert(halfEdge == m_first || halfEdge == m_second);
+  contract_pre(halfEdge != nullptr);
+  contract_pre(halfEdge == m_first || halfEdge == m_second);
+
   return halfEdge == m_first ? m_second : m_first;
 }
 
@@ -123,28 +130,32 @@ vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::vector() const
 template <typename T, typename FP, typename VP>
 vm::segment<T, 3> Polyhedron_Edge<T, FP, VP>::segment() const
 {
-  assert(fullySpecified());
+  contract_pre(fullySpecified());
+
   return vm::segment<T, 3>{m_first->origin()->position(), m_second->origin()->position()};
 }
 
 template <typename T, typename FP, typename VP>
 vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::center() const
 {
-  assert(fullySpecified());
+  contract_pre(fullySpecified());
+
   return (m_first->origin()->position() + m_second->origin()->position()) / T(2);
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron_Edge<T, FP, VP>::Face* Polyhedron_Edge<T, FP, VP>::firstFace() const
 {
-  assert(m_first != nullptr);
+  contract_pre(m_first != nullptr);
+
   return m_first->face();
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron_Edge<T, FP, VP>::Face* Polyhedron_Edge<T, FP, VP>::secondFace() const
 {
-  assert(m_second != nullptr);
+  contract_pre(m_second != nullptr);
+
   return m_second->face();
 }
 
@@ -189,7 +200,8 @@ T Polyhedron_Edge<T, FP, VP>::distanceTo(
 template <typename T, typename FP, typename VP>
 bool Polyhedron_Edge<T, FP, VP>::fullySpecified() const
 {
-  assert(m_first != nullptr);
+  contract_pre(m_first != nullptr);
+
   return m_second != nullptr;
 }
 
@@ -209,8 +221,7 @@ template <typename T, typename FP, typename VP>
 Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::split(
   const vm::plane<T, 3>& plane, const T epsilon)
 {
-  unused(epsilon);
-  assert(epsilon >= T(0));
+  contract_pre(epsilon >= T(0));
 
   // Assumes that the start and the end vertex of this edge are on opposite sides of
   // the given plane (precondition).
@@ -222,17 +233,17 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::split(
   const auto endDist = plane.point_distance(endPos);
 
   // Check what's implied by the precondition:
-  assert(vm::abs(startDist) > epsilon);
-  assert(vm::abs(endDist) > epsilon);
-  assert(vm::sign(startDist) != vm::sign(endDist));
-  assert(startDist != endDist); // implied by the above
+  contract_assert(vm::abs(startDist) > epsilon);
+  contract_assert(vm::abs(endDist) > epsilon);
+  contract_assert(vm::sign(startDist) != vm::sign(endDist));
+  contract_assert(startDist != endDist); // implied by the above
 
   const auto dot = startDist / (startDist - endDist);
 
   // 1. startDist and endDist have opposite signs, therefore dot cannot be negative
   // 2. |startDist - endDist| > 0 (due to precondition), therefore dot > 0
   // 3. |x-y| > x if x and y have different signs, therefore x / (x-y) < 1
-  assert(dot > T(0) && dot < T(1));
+  contract_assert(dot > T(0) && dot < T(1));
 
   const auto position = startPos + dot * (endPos - startPos);
   return insertVertex(position);
@@ -297,8 +308,9 @@ void Polyhedron_Edge<T, FP, VP>::flip()
 template <typename T, typename FP, typename VP>
 void Polyhedron_Edge<T, FP, VP>::makeFirstEdge(HalfEdge* edge)
 {
-  assert(edge != nullptr);
-  assert(m_first == edge || m_second == edge);
+  contract_pre(edge != nullptr);
+  contract_pre(m_first == edge || m_second == edge);
+
   if (edge != m_first)
   {
     flip();
@@ -308,8 +320,9 @@ void Polyhedron_Edge<T, FP, VP>::makeFirstEdge(HalfEdge* edge)
 template <typename T, typename FP, typename VP>
 void Polyhedron_Edge<T, FP, VP>::makeSecondEdge(HalfEdge* edge)
 {
-  assert(edge != nullptr);
-  assert(m_first == edge || m_second == edge);
+  contract_pre(edge != nullptr);
+  contract_pre(m_first == edge || m_second == edge);
+
   if (edge != m_second)
   {
     flip();
@@ -319,14 +332,16 @@ void Polyhedron_Edge<T, FP, VP>::makeSecondEdge(HalfEdge* edge)
 template <typename T, typename FP, typename VP>
 void Polyhedron_Edge<T, FP, VP>::setFirstAsLeaving()
 {
-  assert(m_first != nullptr);
+  contract_pre(m_first != nullptr);
+
   m_first->setAsLeaving();
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron_Edge<T, FP, VP>::unsetSecondEdge()
 {
-  assert(m_second != nullptr);
+  contract_pre(m_second != nullptr);
+
   m_second->unsetEdge();
   m_second = nullptr;
 }
@@ -334,9 +349,10 @@ void Polyhedron_Edge<T, FP, VP>::unsetSecondEdge()
 template <typename T, typename FP, typename VP>
 void Polyhedron_Edge<T, FP, VP>::setSecondEdge(HalfEdge* second)
 {
-  assert(second != nullptr);
-  assert(m_second == nullptr);
-  assert(second->edge() == nullptr);
+  contract_pre(second != nullptr);
+  contract_pre(m_second == nullptr);
+  contract_pre(second->edge() == nullptr);
+
   m_second = second;
   m_second->setEdge(this);
 }

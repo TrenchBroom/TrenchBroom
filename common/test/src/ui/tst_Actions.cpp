@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Ensure.h"
 #include "ui/Actions.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <sstream>
@@ -64,7 +64,7 @@ using ActionConflict = std::tuple<const Action*, const Action*>;
 auto getActionConflicts(
   const std::vector<const Action*>& actions, const std::vector<size_t>& conflicts)
 {
-  ensure(conflicts.size() % 2 == 0, "Conflicts must be pairs of indices");
+  contract_pre(conflicts.size() % 2 == 0);
 
   auto conflictingActions = std::vector<ActionConflict>{};
   for (size_t i = 0; i < conflicts.size(); i += 2)

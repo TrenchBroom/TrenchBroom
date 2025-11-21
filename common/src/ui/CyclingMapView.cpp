@@ -28,6 +28,8 @@
 #include "ui/MapView3D.h"
 #include "ui/MapViewActivationTracker.h"
 
+#include "kd/contracts.h"
+
 #include "vm/scalar.h"
 
 namespace tb::ui
@@ -84,7 +86,7 @@ void CyclingMapView::createGui(
     m_layout->addWidget(mapView);
   }
 
-  assert(!m_mapViews.empty());
+  contract_assert(!m_mapViews.empty());
   switchToMapView(m_mapViews[0]);
 }
 

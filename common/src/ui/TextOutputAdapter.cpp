@@ -24,7 +24,7 @@
 #include <QString>
 #include <QTextEdit>
 
-#include "Ensure.h"
+#include "kd/contracts.h"
 
 namespace tb::ui
 {
@@ -33,7 +33,7 @@ TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit)
   : m_textEdit{textEdit}
   , m_insertionCursor{m_textEdit->document()}
 {
-  ensure(m_textEdit != nullptr, "textEdit is null");
+  contract_pre(m_textEdit != nullptr);
 
   // Create our own private cursor, separate from the UI cursor
   // so user selections don't interfere with our text insertions

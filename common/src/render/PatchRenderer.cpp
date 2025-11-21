@@ -37,6 +37,7 @@
 #include "render/Shaders.h"
 #include "render/VertexArray.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -273,25 +274,25 @@ static DirectEdgeRenderer buildEdgeRenderer(
       {
         edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row, col++).position});
       }
-      assert(row == t && col == r);
+      contract_assert(row == t && col == r);
 
       while (row < b)
       {
         edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row++, col).position});
       }
-      assert(row == b && col == r);
+      contract_assert(row == b && col == r);
 
       while (col > l)
       {
         edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row, col--).position});
       }
-      assert(row == b && col == l);
+      contract_assert(row == b && col == l);
 
       while (row > t)
       {
         edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row--, col).position});
       }
-      assert(row == t && col == l);
+      contract_assert(row == t && col == l);
 
       indexRangeMapBuilder.addLineLoop(edgeLoopVertices);
     }

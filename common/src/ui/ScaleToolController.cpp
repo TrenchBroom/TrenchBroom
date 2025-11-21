@@ -80,7 +80,7 @@ static HandlePositionProposer makeHandlePositionProposer(
   const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::Shift);
 
   if (
-    dragStartHit.type() == ScaleTool::ScaleToolEdgeHitType
+    dragStartHit.type() == ScaleTool::EdgeHitType
     && inputState.camera().orthographicProjection() && !scaleAllAxes)
   {
     const auto plane = vm::plane3d{
@@ -91,10 +91,7 @@ static HandlePositionProposer makeHandlePositionProposer(
   }
   else
   {
-    assert(
-      dragStartHit.type() == ScaleTool::ScaleToolSideHitType
-      || dragStartHit.type() == ScaleTool::ScaleToolEdgeHitType
-      || dragStartHit.type() == ScaleTool::ScaleToolCornerHitType);
+    contract_assert(dragStartHit.hasType(ScaleTool::AnyHitType));
 
     const auto handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
@@ -239,9 +236,7 @@ std::unique_ptr<GestureTracker> ScaleToolController::acceptMouseDrag(
     return nullptr;
   }
 
-  const auto& hit = inputState.pickResult().first(type(
-    ScaleTool::ScaleToolSideHitType | ScaleTool::ScaleToolEdgeHitType
-    | ScaleTool::ScaleToolCornerHitType));
+  const auto& hit = inputState.pickResult().first(type(ScaleTool::AnyHitType));
   if (!hit.isMatch())
   {
     return nullptr;
@@ -393,7 +388,7 @@ static std::vector<vm::vec3d> visibleCornerHandles(
       tool.pick3D(ray, camera, pr);
     }
 
-    return !pr.empty() && pr.all().front().type() == ScaleTool::ScaleToolCornerHitType;
+    return !pr.empty() && pr.all().front().type() == ScaleTool::CornerHitType;
   };
 
   return cornerHandles | std::views::filter(isVisible) | kdl::ranges::to<std::vector>();

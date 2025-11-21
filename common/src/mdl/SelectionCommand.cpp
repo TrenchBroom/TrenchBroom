@@ -19,7 +19,6 @@
 
 #include "SelectionCommand.h"
 
-#include "Ensure.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "mdl/BrushFace.h"
@@ -32,6 +31,7 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/string_format.h"
@@ -127,17 +127,18 @@ void doDeselectAll(Map& map)
 
 void doSelectNodes(const std::vector<Node*>& nodes, Map& map)
 {
+  contract_pre(map.world() != nullptr);
+  contract_pre(std::ranges::all_of(nodes, [&](const auto* node) {
+    return node->isDescendantOf(map.world()) || node == map.world();
+  }));
+
   map.selectionWillChangeNotifier();
 
   auto selected = std::vector<Node*>{};
   selected.reserve(nodes.size());
 
-  const auto& worldNode = *map.world();
   for (auto* initialNode : nodes)
   {
-    ensure(
-      initialNode->isDescendantOf(&worldNode) || initialNode == &worldNode,
-      "to select a node, it must be world or a descendant");
     const auto nodesToSelect = initialNode->nodesRequiredForViewSelection();
     for (auto* node : nodesToSelect)
     {

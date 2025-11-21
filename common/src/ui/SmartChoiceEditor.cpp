@@ -32,9 +32,8 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/set_temp.h"
-
-#include <cassert>
 
 namespace tb::ui
 {
@@ -65,7 +64,7 @@ void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text)
 
 void SmartChoiceEditor::createGui()
 {
-  assert(m_comboBox == nullptr);
+  contract_pre(m_comboBox == nullptr);
 
   auto* infoText = new QLabel{tr("Select a choice option:")};
 
@@ -98,7 +97,7 @@ void SmartChoiceEditor::createGui()
 
 void SmartChoiceEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
-  ensure(m_comboBox != nullptr, "comboBox is null");
+  contract_pre(m_comboBox != nullptr);
 
   const auto ignoreTextChanged = kdl::set_temp{m_ignoreEditTextChanged};
   m_comboBox->clear();

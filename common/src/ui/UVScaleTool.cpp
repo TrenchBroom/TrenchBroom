@@ -38,6 +38,7 @@
 #include "ui/UVOriginTool.h"
 #include "ui/UVViewHelper.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 
 #include "vm/intersection.h"
@@ -298,7 +299,7 @@ std::unique_ptr<GestureTracker> UVScaleTool::acceptMouseDrag(const InputState& i
 {
   using namespace mdl::HitFilters;
 
-  assert(m_helper.valid());
+  contract_pre(m_helper.valid());
 
   if (
     !inputState.modifierKeysPressed(ModifierKeys::None)

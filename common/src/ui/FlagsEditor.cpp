@@ -22,11 +22,10 @@
 #include <QCheckBox>
 #include <QGridLayout>
 
-#include "Ensure.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
-#include <cassert>
+#include "kd/contracts.h"
 
 namespace tb::ui
 {
@@ -35,7 +34,7 @@ FlagsEditor::FlagsEditor(const size_t numCols, QWidget* parent)
   : QWidget{parent}
   , m_numCols{numCols}
 {
-  assert(m_numCols > 0);
+  contract_pre(m_numCols > 0);
 }
 
 void FlagsEditor::setFlags(const QStringList& labels, const QStringList& tooltips)
@@ -55,7 +54,7 @@ void FlagsEditor::setFlags(
 {
   const auto count = static_cast<size_t>(values.size());
   const auto numRows = (count + (m_numCols - 1)) / m_numCols;
-  ensure(numRows * m_numCols >= count, "didn't allocate enough grid cells");
+  contract_assert(numRows * m_numCols >= count);
 
   m_checkBoxes.clear();
   m_values.clear();
@@ -99,10 +98,8 @@ void FlagsEditor::setFlags(
     }
   }
 
-  for (size_t i = 0; i < m_checkBoxes.size(); ++i)
-  {
-    ensure(m_checkBoxes[i], "didn't create enough checkbox widgets");
-  }
+  contract_post(std::ranges::all_of(
+    m_checkBoxes, [](const auto* checkBox) { return checkBox != nullptr; }));
 
   setLayout(layout);
 }
@@ -137,13 +134,15 @@ size_t FlagsEditor::getNumFlags() const
 
 bool FlagsEditor::isFlagSet(const size_t index) const
 {
-  ensure(index < m_checkBoxes.size(), "index out of range");
+  contract_pre(index < m_checkBoxes.size());
+
   return m_checkBoxes[index]->checkState() == Qt::Checked;
 }
 
 bool FlagsEditor::isFlagMixed(const size_t index) const
 {
-  ensure(index < m_checkBoxes.size(), "index out of range");
+  contract_pre(index < m_checkBoxes.size());
+
   return m_checkBoxes[index]->checkState() == Qt::PartiallyChecked;
 }
 
@@ -175,13 +174,15 @@ int FlagsEditor::getMixedFlagValue() const
 
 QString FlagsEditor::getFlagLabel(const size_t index) const
 {
-  ensure(index < m_checkBoxes.size(), "index out of range");
+  contract_pre(index < m_checkBoxes.size());
+
   return m_checkBoxes[index]->text();
 }
 
 int FlagsEditor::lineHeight() const
 {
-  assert(!m_checkBoxes.empty());
+  contract_pre(!m_checkBoxes.empty());
+
   return m_checkBoxes.front()->frameSize().height();
 }
 

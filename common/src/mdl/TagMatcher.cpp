@@ -36,6 +36,7 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
 #include "kd/struct_io.h"
@@ -142,7 +143,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
     material = matchingMaterials[index];
   }
 
-  assert(material != nullptr);
+  contract_assert(material != nullptr);
 
   setBrushFaceAttributes(map, {.materialName = material->name()});
 }
@@ -469,7 +470,7 @@ void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) c
     definition = matchingDefinitions[index];
   }
 
-  assert(definition != nullptr);
+  contract_assert(definition != nullptr);
   createBrushEntity(map, *definition);
 
   if (!m_material.empty())

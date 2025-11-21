@@ -26,6 +26,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/UVCoordSystem.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
@@ -158,6 +159,7 @@ Result<void> Brush::updateGeometryFromFaces(const vm::bbox3d& worldBounds)
   m_faces = std::move(remainingFaces);
   m_geometry = std::move(geometry);
 
+  // too expensive for contract_post
   assert(checkFaceLinks());
 
   return kdl::void_success;
@@ -165,7 +167,8 @@ Result<void> Brush::updateGeometryFromFaces(const vm::bbox3d& worldBounds)
 
 const vm::bbox3d& Brush::bounds() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->bounds();
 }
 
@@ -212,13 +215,15 @@ std::optional<size_t> Brush::findFace(
 
 const BrushFace& Brush::face(const size_t index) const
 {
-  assert(index < faceCount());
+  contract_pre(index < faceCount());
+
   return m_faces[index];
 }
 
 BrushFace& Brush::face(const size_t index)
 {
-  assert(index < faceCount());
+  contract_pre(index < faceCount());
+
   return m_faces[index];
 }
 
@@ -239,13 +244,14 @@ std::vector<BrushFace>& Brush::faces()
 
 bool Brush::closed() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->closed();
 }
 
 bool Brush::fullySpecified() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
 
   for (auto* current : m_geometry->faces())
   {
@@ -369,7 +375,7 @@ Result<void> Brush::moveBoundary(
   const vm::vec3d& delta,
   const bool lockMaterial)
 {
-  assert(faceIndex < faceCount());
+  contract_pre(faceIndex < faceCount());
 
   return m_faces[faceIndex].transform(vm::translation_matrix(delta), lockMaterial)
          | kdl::and_then([&]() { return updateGeometryFromFaces(worldBounds); });
@@ -392,38 +398,43 @@ Result<void> Brush::expand(
 
 size_t Brush::vertexCount() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->vertexCount();
 }
 
 const Brush::VertexList& Brush::vertices() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->vertices();
 }
 
 const std::vector<vm::vec3d> Brush::vertexPositions() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->vertexPositions();
 }
 
 bool Brush::hasVertex(const vm::vec3d& position, const double epsilon) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->findVertexByPosition(position, epsilon) != nullptr;
 }
 
 vm::vec3d Brush::findClosestVertexPosition(const vm::vec3d& position) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->findClosestVertex(position)->position();
 }
 
 std::vector<vm::vec3d> Brush::findClosestVertexPositions(
   const std::vector<vm::vec3d>& positions) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
 
   std::vector<vm::vec3d> result;
   result.reserve(positions.size());
@@ -443,7 +454,7 @@ std::vector<vm::vec3d> Brush::findClosestVertexPositions(
 std::vector<vm::segment3d> Brush::findClosestEdgePositions(
   const std::vector<vm::segment3d>& positions) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
 
   auto result = std::vector<vm::segment3d>{};
   result.reserve(positions.size());
@@ -465,7 +476,7 @@ std::vector<vm::segment3d> Brush::findClosestEdgePositions(
 std::vector<vm::polygon3d> Brush::findClosestFacePositions(
   const std::vector<vm::polygon3d>& positions) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
 
   auto result = std::vector<vm::polygon3d>{};
   result.reserve(positions.size());
@@ -485,25 +496,29 @@ std::vector<vm::polygon3d> Brush::findClosestFacePositions(
 
 bool Brush::hasEdge(const vm::segment3d& edge, const double epsilon) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->findEdgeByPositions(edge.start(), edge.end(), epsilon) != nullptr;
 }
 
 bool Brush::hasFace(const vm::polygon3d& face, const double epsilon) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->hasFace(face.vertices(), epsilon);
 }
 
 size_t Brush::edgeCount() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->edgeCount();
 }
 
 const Brush::EdgeList& Brush::edges() const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return m_geometry->edges();
 }
 
@@ -564,7 +579,8 @@ Result<void> Brush::transformVertices(
 
 bool Brush::canAddVertex(const vm::bbox3d& worldBounds, const vm::vec3d& position) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   if (!worldBounds.contains(position))
   {
     return false;
@@ -577,8 +593,6 @@ bool Brush::canAddVertex(const vm::bbox3d& worldBounds, const vm::vec3d& positio
 
 Result<void> Brush::addVertex(const vm::bbox3d& worldBounds, const vm::vec3d& position)
 {
-  assert(canAddVertex(worldBounds, position));
-
   BrushGeometry newGeometry(
     kdl::vec_concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>({position})));
   const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
@@ -607,8 +621,8 @@ bool Brush::canRemoveVertices(
   const vm::bbox3d& /* worldBounds */,
   const std::vector<vm::vec3d>& vertexPositions) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
-  ensure(!vertexPositions.empty(), "no vertex positions");
+  contract_pre(m_geometry != nullptr);
+  contract_pre(!vertexPositions.empty());
 
   return removeVerticesFromGeometry(*m_geometry, vertexPositions).polyhedron();
 }
@@ -616,9 +630,9 @@ bool Brush::canRemoveVertices(
 Result<void> Brush::removeVertices(
   const vm::bbox3d& worldBounds, const std::vector<vm::vec3d>& vertexPositions)
 {
-  ensure(m_geometry != nullptr, "geometry is null");
-  ensure(!vertexPositions.empty(), "no vertex positions");
-  assert(canRemoveVertices(worldBounds, vertexPositions));
+  contract_pre(m_geometry != nullptr);
+  contract_pre(!vertexPositions.empty());
+  contract_pre(canRemoveVertices(worldBounds, vertexPositions));
 
   const BrushGeometry newGeometry =
     removeVerticesFromGeometry(*m_geometry, vertexPositions);
@@ -642,14 +656,15 @@ static BrushGeometry snappedGeometry(const BrushGeometry& geometry, const double
 bool Brush::canSnapVertices(
   const vm::bbox3d& /* worldBounds */, const double snapToF) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
+
   return snappedGeometry(*m_geometry, snapToF).polyhedron();
 }
 
 Result<void> Brush::snapVertices(
   const vm::bbox3d& worldBounds, const double snapToF, const bool uvLock)
 {
-  ensure(m_geometry != nullptr, "geometry is null");
+  contract_pre(m_geometry != nullptr);
 
   const BrushGeometry newGeometry = snappedGeometry(*m_geometry, snapToF);
 
@@ -673,8 +688,8 @@ bool Brush::canTransformEdges(
   const std::vector<vm::segment3d>& edgePositions,
   const vm::mat4x4d& transform) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
-  ensure(!edgePositions.empty(), "no edge positions");
+  contract_pre(m_geometry != nullptr);
+  contract_pre(!edgePositions.empty());
 
   std::vector<vm::vec3d> vertexPositions;
   vm::segment3d::get_vertices(
@@ -706,6 +721,7 @@ Result<void> Brush::transformEdges(
   const vm::mat4x4d& transform,
   const bool uvLock)
 {
+  // too expensive for contract_pre
   assert(canTransformEdges(worldBounds, edgePositions, transform));
 
   std::vector<vm::vec3d> vertexPositions;
@@ -721,8 +737,8 @@ bool Brush::canTransformFaces(
   const std::vector<vm::polygon3d>& facePositions,
   const vm::mat4x4d& transform) const
 {
-  ensure(m_geometry != nullptr, "geometry is null");
-  ensure(!facePositions.empty(), "no face positions");
+  contract_pre(m_geometry != nullptr);
+  contract_pre(!facePositions.empty());
 
   std::vector<vm::vec3d> vertexPositions;
   vm::polygon3d::get_vertices(
@@ -754,6 +770,7 @@ Result<void> Brush::transformFaces(
   const vm::mat4x4d& transform,
   const bool uvLock)
 {
+  // too expensive for contract_pre
   assert(canTransformFaces(worldBounds, facePositions, transform));
 
   std::vector<vm::vec3d> vertexPositions;
@@ -950,8 +967,10 @@ Result<void> Brush::doTransformVertices(
   const vm::mat4x4d& transform,
   const bool uvLock)
 {
-  ensure(m_geometry != nullptr, "geometry is null");
-  ensure(!vertexPositions.empty(), "no vertex positions");
+  contract_pre(m_geometry != nullptr);
+  contract_pre(!vertexPositions.empty());
+
+  // too expensive for contract_pre
   assert(canTransformVertices(worldBounds, vertexPositions, transform));
 
   std::vector<vm::vec3d> newVertices;

@@ -26,6 +26,8 @@
 #include "io/TestParserStatus.h"
 #include "mdl/EntityDefinition.h"
 
+#include "kd/contracts.h"
+
 #include <string>
 
 #include "catch/CatchConfig.h"
@@ -51,7 +53,7 @@ ModelSpecification getModelSpecification(
 ModelSpecification getModelSpecification(
   const EntityDefinition& definition, const std::string& entityPropertiesStr)
 {
-  assert(getType(definition) == EntityDefinitionType::Point);
+  contract_pre(getType(definition) == EntityDefinitionType::Point);
 
   const auto& pointDefinition = *definition.pointEntityDefinition;
   const auto& modelDefinition = pointDefinition.modelDefinition;
@@ -93,7 +95,7 @@ void assertDecalDefinition(
   const EntityDefinition& definition,
   const std::string& entityPropertiesStr)
 {
-  assert(getType(definition) == EntityDefinitionType::Point);
+  contract_pre(getType(definition) == EntityDefinitionType::Point);
 
   const auto& pointDefinition = *definition.pointEntityDefinition;
   const auto& modelDefinition = pointDefinition.decalDefinition;

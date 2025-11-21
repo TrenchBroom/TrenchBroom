@@ -22,7 +22,7 @@
 #include <QStackedLayout>
 #include <QWidget>
 
-#include <cassert>
+#include "kd/contracts.h"
 
 namespace tb::ui
 {
@@ -41,7 +41,8 @@ bool Tool::active() const
 
 bool Tool::activate()
 {
-  assert(!active());
+  contract_pre(!active());
+
   if (doActivate())
   {
     m_active = true;
@@ -52,7 +53,8 @@ bool Tool::activate()
 
 bool Tool::deactivate()
 {
-  assert(active());
+  contract_pre(active());
+
   if (doDeactivate())
   {
     m_active = false;
@@ -73,7 +75,7 @@ void Tool::notifyToolHandleSelectionChanged()
 
 void Tool::createPage(QStackedLayout* book)
 {
-  assert(!m_book);
+  contract_pre(!m_book);
 
   m_book = book;
   m_pageIndex = m_book->count();

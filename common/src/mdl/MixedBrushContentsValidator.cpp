@@ -23,7 +23,8 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Issue.h"
 
-#include <cassert>
+#include "kd/contracts.h"
+
 #include <string>
 #include <vector>
 
@@ -46,7 +47,7 @@ void MixedBrushContentsValidator::doValidate(
   const auto& faces = brush.faces();
   auto it = std::begin(faces);
   auto end = std::end(faces);
-  assert(it != end);
+  contract_assert(it != end);
 
   const auto contentFlags = it->resolvedSurfaceContents();
   ++it;

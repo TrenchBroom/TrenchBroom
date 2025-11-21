@@ -48,6 +48,7 @@
 #include "update/QtHttpClient.h"
 #include "update/Updater.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 #ifdef __APPLE__
 #include "ui/ActionBuilder.h"
@@ -428,7 +429,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 
                auto [gameName, mapFormat] = *gameNameAndMapFormat;
                auto game = gameFactory.createGame(gameName, frame->logger());
-               ensure(game != nullptr, "game is null");
+               contract_assert(game != nullptr);
 
                closeWelcomeWindow();
 
@@ -516,7 +517,7 @@ bool TrenchBroomApp::newDocument()
 
     auto& gameFactory = mdl::GameFactory::instance();
     auto game = gameFactory.createGame(gameName, frame->logger());
-    ensure(game != nullptr, "game is null");
+    contract_assert(game != nullptr);
 
     closeWelcomeWindow();
     return frame->newDocument(std::move(game), mapFormat)

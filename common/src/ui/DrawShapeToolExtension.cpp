@@ -22,13 +22,12 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include "Ensure.h"
 #include "mdl/Map.h"
 #include "ui/DrawShapeToolExtensions.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
-#include "kd/vector_utils.h"
 
 #include <ranges>
 
@@ -159,7 +158,7 @@ DrawShapeToolExtension::~DrawShapeToolExtension() = default;
 DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(mdl::Map& map)
   : m_extensions{createDrawShapeToolExtensions(map)}
 {
-  ensure(!m_extensions.empty(), "extensions must not be empty");
+  contract_pre(!m_extensions.empty());
 }
 
 const std::vector<DrawShapeToolExtension*> DrawShapeToolExtensionManager::extensions()

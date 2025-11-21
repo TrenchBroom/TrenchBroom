@@ -26,6 +26,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 #include "kd/reflection_impl.h"
 
@@ -210,7 +211,7 @@ HandlePositionProposer makeBrushFaceHandleProposer(const mdl::Grid& grid)
       }
 
       const auto faceHandle = mdl::hitToFaceHandle(hit);
-      ensure(faceHandle, "invalid hit type");
+      contract_assert(faceHandle != std::nullopt);
 
       return grid.snap(hit.hitPoint(), faceHandle->face().boundary());
     };

@@ -27,6 +27,7 @@
 #include "render/PrimType.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/bbox.h"
@@ -148,7 +149,8 @@ void EntityModelFrame::addToSpacialTree(
   case render::PrimType::LineLoop:
     break;
   case render::PrimType::Triangles: {
-    assert(count % 3 == 0);
+    contract_assert(count % 3 == 0);
+
     m_tris.reserve(m_tris.size() + count);
     for (size_t i = 0; i < count; i += 3)
     {
@@ -170,7 +172,8 @@ void EntityModelFrame::addToSpacialTree(
   }
   case render::PrimType::Polygon:
   case render::PrimType::TriangleFan: {
-    assert(count > 2);
+    contract_assert(count > 2);
+
     m_tris.reserve(m_tris.size() + (count - 2) * 3);
 
     const auto& p1 = render::getVertexComponent<0>(vertices[index]);
@@ -194,7 +197,8 @@ void EntityModelFrame::addToSpacialTree(
   case render::PrimType::Quads:
   case render::PrimType::QuadStrip:
   case render::PrimType::TriangleStrip: {
-    assert(count > 2);
+    contract_assert(count > 2);
+
     m_tris.reserve(m_tris.size() + (count - 2) * 3);
     for (size_t i = 0; i < count - 2; ++i)
     {
@@ -415,7 +419,8 @@ void EntityModelSurface::addMesh(
   std::vector<EntityModelVertex> vertices,
   render::IndexRangeMap indices)
 {
-  assert(frame.index() < frameCount());
+  contract_pre(frame.index() < frameCount());
+
   m_meshes[frame.index()] = std::make_unique<EntityModelIndexedMesh>(
     frame, std::move(vertices), std::move(indices));
 }
@@ -425,7 +430,8 @@ void EntityModelSurface::addMesh(
   std::vector<EntityModelVertex> vertices,
   render::MaterialIndexRangeMap indices)
 {
-  assert(frame.index() < frameCount());
+  contract_pre(frame.index() < frameCount());
+
   m_meshes[frame.index()] = std::make_unique<EntityModelMaterialMesh>(
     frame, std::move(vertices), std::move(indices));
 }
@@ -458,8 +464,8 @@ const Material* EntityModelSurface::skin(const size_t index) const
 std::unique_ptr<render::MaterialIndexRangeRenderer> EntityModelSurface::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {
-  assert(frameIndex < frameCount());
-  assert(skinIndex < skinCount());
+  contract_pre(frameIndex < frameCount());
+  contract_pre(skinIndex < skinCount());
 
   return m_meshes[frameIndex] ? m_meshes[frameIndex]->buildRenderer(skin(skinIndex))
                               : nullptr;

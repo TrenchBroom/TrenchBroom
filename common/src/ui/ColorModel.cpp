@@ -26,6 +26,7 @@
 #include "QtUtils.h"
 #include "io/PathQt.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 
 
@@ -187,7 +188,7 @@ void ColorModel::pickColor(const QModelIndex& mi)
 
 Preference<Color>* ColorModel::getColorPreference(const int index) const
 {
-  assert(index < m_colorsCount);
+  contract_pre(index < m_colorsCount);
   return m_colors[static_cast<size_t>(index)];
 }
 

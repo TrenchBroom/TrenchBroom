@@ -39,6 +39,7 @@
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 
 #include <fmt/format.h>
@@ -81,10 +82,10 @@ ReplaceMaterialDialog::ReplaceMaterialDialog(
 void ReplaceMaterialDialog::accept()
 {
   const auto* subject = m_subjectBrowser->selectedMaterial();
-  ensure(subject != nullptr, "subject is null");
+  contract_assert(subject != nullptr);
 
   const auto* replacement = m_replacementBrowser->selectedMaterial();
-  ensure(replacement != nullptr, "replacement is null");
+  contract_assert(replacement != nullptr);
 
   if (const auto faces = getApplicableFaces(); !faces.empty())
   {
@@ -110,7 +111,7 @@ void ReplaceMaterialDialog::accept()
 std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() const
 {
   const auto* subject = m_subjectBrowser->selectedMaterial();
-  ensure(subject != nullptr, "subject is null");
+  contract_assert(subject != nullptr);
 
   auto faces = m_map.selection().allBrushFaces();
   if (faces.empty())

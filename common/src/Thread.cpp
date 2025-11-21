@@ -22,14 +22,14 @@
 #include <QApplication>
 #include <QThread>
 
-#include "Ensure.h"
+#include "kd/contracts.h"
 
 namespace tb
 {
 
 bool isMainThread()
 {
-  ensure(qApp != nullptr, "QApplication must have been created");
+  contract_pre(qApp != nullptr);
   return (qApp->thread() == QThread::currentThread());
 }
 

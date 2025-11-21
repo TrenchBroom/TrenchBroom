@@ -59,6 +59,8 @@
 #include "ui/VertexTool.h"
 #include "ui/VertexToolController.h"
 
+#include "kd/contracts.h"
+
 #include "vm/util.h"
 
 namespace tb::ui
@@ -273,7 +275,7 @@ void MapView2D::animateCamera(
 
 void MapView2D::moveCameraToCurrentTracePoint()
 {
-  assert(m_document.isPointFileLoaded());
+  contract_pre(m_document.isPointFileLoaded());
 
   if (const auto* pointTrace = m_document.pointTrace())
   {

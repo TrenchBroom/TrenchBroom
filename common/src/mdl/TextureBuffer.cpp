@@ -19,7 +19,7 @@
 
 #include "TextureBuffer.h"
 
-#include "Ensure.h"
+#include "kd/contracts.h"
 
 #include <FreeImage.h>
 #include <algorithm>
@@ -62,8 +62,8 @@ std::ostream& operator<<(std::ostream& lhs, const TextureBuffer& rhs)
 
 vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t level)
 {
-  assert(width > 0);
-  assert(height > 0);
+  contract_pre(width > 0);
+  contract_pre(height > 0);
 
   // from Issues 6 in:
   // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
@@ -79,6 +79,8 @@ bool isCompressedFormat(const GLenum format)
 
 size_t blockSizeForFormat(const GLenum format)
 {
+  contract_pre(isCompressedFormat(format));
+
   switch (format)
   {
   case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
@@ -87,7 +89,8 @@ size_t blockSizeForFormat(const GLenum format)
   case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
     return 16U;
   }
-  ensure(false, "unknown compressed format");
+
+  // cannot happen
   return 0U;
 }
 
@@ -102,7 +105,8 @@ size_t bytesPerPixelForFormat(const GLenum format)
   case GL_BGRA:
     return 4U;
   }
-  ensure(false, "unknown format");
+
+  contract_assert(false);
   return 0U;
 }
 
@@ -143,13 +147,14 @@ void resizeMips(
 
       auto* oldBitmap = FreeImage_ConvertFromRawBits(
         oldPtr, oldWidth, oldHeight, oldPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
-      ensure(oldBitmap != nullptr, "oldBitmap is null");
+      contract_assert(oldBitmap != nullptr);
 
       const auto newWidth = int(newSize.x() / div);
       const auto newHeight = int(newSize.y() / div);
       const auto newPitch = newWidth * 3;
+
       auto* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
-      ensure(newBitmap != nullptr, "newBitmap is null");
+      contract_assert(newBitmap != nullptr);
 
       buffers[i] = TextureBuffer{3 * newSize.x() * newSize.y()};
       auto* newPtr = buffers[i].data();

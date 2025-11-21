@@ -28,12 +28,12 @@
 #include "ui/InputState.h"
 #include "ui/UVView.h"
 
+#include "kd/contracts.h"
 #include "kd/range_fold.h"
 
 #include "vm/intersection.h"
 #include "vm/vec.h"
 
-#include <cassert>
 #include <ranges>
 
 namespace tb::ui
@@ -54,7 +54,7 @@ vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
 
 vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
 {
-  assert(helper.valid());
+  contract_pre(helper.valid());
 
   if (helper.material())
   {
@@ -94,7 +94,7 @@ public:
 
   bool update(const InputState& inputState) override
   {
-    assert(m_helper.valid());
+    contract_pre(m_helper.valid());
 
     const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
     const auto delta = curPoint - m_lastPoint;
@@ -149,7 +149,7 @@ const Tool& UVOffsetTool::tool() const
 std::unique_ptr<GestureTracker> UVOffsetTool::acceptMouseDrag(
   const InputState& inputState)
 {
-  assert(m_helper.valid());
+  contract_pre(m_helper.valid());
 
   if (
     !inputState.modifierKeysPressed(ModifierKeys::None)

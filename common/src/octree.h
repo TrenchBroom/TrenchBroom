@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/reflection_decl.h"
 #include "kd/reflection_impl.h"
@@ -264,8 +265,8 @@ private:
     const detail::node_address& address,
     std::unordered_map<U, detail::node_address>& node_address_for_data)
   {
-    assert(is_root(address));
-    assert(address.contains(get_address(root)));
+    contract_pre(is_root(address));
+    contract_pre(address.contains(get_address(root)));
     get_address(root) = address;
 
     for (const auto& d : get_data(root))
@@ -280,14 +281,14 @@ private:
     {
       const auto container_address = get_container(get_address(node), address);
       const auto container_quadrant = get_quadrant(container_address, get_address(node));
-      assert(container_quadrant.has_value());
+      contract_assert(container_quadrant.has_value());
 
       auto container_node = inner_node{container_address, {}};
       container_node.children[*container_quadrant] = std::move(node);
       node = std::move(container_node);
     }
 
-    assert(get_address(node).contains(address));
+    contract_assert(get_address(node).contains(address));
     if (const auto quadrant = get_quadrant(get_address(node), address))
     {
       std::visit(
@@ -327,7 +328,8 @@ private:
           else
           {
             const auto i_data = std::ranges::find(i.data, data);
-            assert(i_data != i.data.end());
+            contract_assert(i_data != i.data.end());
+
             i.data.erase(i_data);
           }
 
@@ -346,7 +348,7 @@ private:
             {
               const auto i_non_empty_child =
                 std::ranges::find_if(i.children, is_non_empty_child);
-              assert(i_non_empty_child != i.children.end());
+              contract_assert(i_non_empty_child != i.children.end());
 
               auto child = std::move(*i_non_empty_child);
               node = std::move(child);
@@ -355,7 +357,8 @@ private:
         },
         [&](leaf_node& l) {
           const auto i_data = std::ranges::find(l.data, data);
-          assert(i_data != l.data.end());
+          contract_assert(i_data != l.data.end());
+
           l.data.erase(i_data);
         }),
       node);

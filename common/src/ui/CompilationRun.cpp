@@ -19,7 +19,6 @@
 
 #include "CompilationRun.h"
 
-#include "Ensure.h"
 #include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "ui/CompilationContext.h"
@@ -27,6 +26,8 @@
 #include "ui/CompilationVariables.h"
 #include "ui/MapDocument.h"
 #include "ui/TextOutputAdapter.h"
+
+#include "kd/contracts.h"
 
 #include <string>
 
@@ -77,10 +78,10 @@ Result<void> CompilationRun::run(
   QTextEdit* currentOutput,
   const bool test)
 {
-  ensure(!profile.tasks.empty(), "profile has  tasks");
-  ensure(currentOutput != nullptr, "currentOutput is not null");
+  contract_pre(!profile.tasks.empty());
+  contract_pre(currentOutput != nullptr);
+  contract_pre(!doIsRunning());
 
-  assert(!doIsRunning());
   cleanup();
 
   return buildWorkDir(profile, map) | kdl::transform([&](const auto& workDir) {

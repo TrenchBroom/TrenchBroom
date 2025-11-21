@@ -105,6 +105,7 @@
 #include "update/Updater.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"
@@ -117,7 +118,6 @@
 #include <fmt/std.h>
 
 #include <algorithm>
-#include <cassert>
 #include <chrono>
 #include <iterator>
 #include <string>
@@ -139,7 +139,7 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
   , m_updateStatusBarSignalDelayer{new SignalDelayer{this}}
 {
-  ensure(m_document != nullptr, "document is null");
+  contract_pre(m_document != nullptr);
 
   setAttribute(Qt::WA_DeleteOnClose);
   setObjectName("MapFrame");
@@ -388,8 +388,9 @@ void MapFrame::createGui()
 
   m_mapView = new SwitchableMapViewContainer{document(), *m_contextManager};
   m_currentMapView = m_mapView->firstMapViewBase();
-  ensure(
-    m_currentMapView, "SwitchableMapViewContainer should have constructed a MapViewBase");
+
+  // SwitchableMapViewContainer should have constructed a MapViewBase
+  contract_assert(m_currentMapView);
 
   m_inspector = new Inspector{document().map(), *m_contextManager};
   m_inspector->setObjectName("Inspector");
@@ -1660,7 +1661,7 @@ void MapFrame::renameSelectedGroups()
   if (canRenameSelectedGroups())
   {
     auto& map = m_document->map();
-    assert(map.selection().hasOnlyGroups());
+    contract_assert(map.selection().hasOnlyGroups());
 
     const auto suggestion = map.selection().groups.front()->name();
     const auto name = queryGroupName(this, suggestion);
@@ -2339,7 +2340,7 @@ void MapFrame::debugCrash()
   auto items = QStringList{};
   items << "Null pointer dereference"
         << "Unhandled exception"
-        << "Ensure failed"
+        << "Contract failed"
         << "Report crash and exit";
 
   bool ok;
@@ -2358,7 +2359,7 @@ void MapFrame::debugCrash()
     }
     else if (idx == 2)
     {
-      ensure(false, "Debug ensure failure");
+      contract_assert(false);
     }
     else if (idx == 3)
     {
@@ -2410,9 +2411,9 @@ MapViewBase* MapFrame::currentMapViewBase()
   {
     // This happens when the current map view is deleted (e.g. 4-pane to 1-pane layout)
     m_currentMapView = m_mapView->firstMapViewBase();
-    ensure(
-      m_currentMapView != nullptr,
-      "SwitchableMapViewContainer should have constructed a MapViewBase");
+
+    // SwitchableMapViewContainer should have constructed a MapViewBase
+    contract_assert(m_currentMapView != nullptr);
   }
   return m_currentMapView;
 }

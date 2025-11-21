@@ -37,12 +37,12 @@
 #include "ui/ViewConstants.h"
 
 #include "kd/collection_utils.h"
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/string_compare.h"
 #include "kd/vector_utils.h"
 
-#include <cassert>
 #include <ranges>
 
 namespace tb::ui
@@ -255,12 +255,12 @@ void ModEditor::removeModClicked()
 void ModEditor::moveModUpClicked()
 {
   const auto selections = m_enabledModList->selectedItems();
-  assert(selections.size() == 1);
+  contract_assert(selections.size() == 1);
 
   auto enabledMods = mdl::enabledMods(m_map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
-  ensure(index < enabledMods.size(), "index out of range");
+  contract_assert(index < enabledMods.size());
 
   using std::swap;
   swap(enabledMods[index - 1], enabledMods[index]);
@@ -273,12 +273,12 @@ void ModEditor::moveModUpClicked()
 void ModEditor::moveModDownClicked()
 {
   const auto selections = m_enabledModList->selectedItems();
-  assert(selections.size() == 1);
+  contract_assert(selections.size() == 1);
 
   auto enabledMods = mdl::enabledMods(m_map);
 
   const auto index = size_t(m_enabledModList->row(selections.first()));
-  ensure(index < enabledMods.size() - 1, "index out of range");
+  contract_assert(index < enabledMods.size() - 1);
 
   using std::swap;
   swap(enabledMods[index + 1], enabledMods[index]);

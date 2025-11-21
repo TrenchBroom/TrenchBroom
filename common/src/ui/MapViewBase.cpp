@@ -81,6 +81,7 @@
 #include "ui/SelectionTool.h"
 #include "ui/SignalDelayer.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
 #include "kd/string_format.h"
@@ -656,7 +657,7 @@ void MapViewBase::createPointEntity()
   const auto classname = action->data().toString().toStdString();
   if (const auto* definition = map.entityDefinitionManager().definition(classname))
   {
-    assert(getType(*definition) == mdl::EntityDefinitionType::Point);
+    contract_assert(getType(*definition) == mdl::EntityDefinitionType::Point);
     createPointEntity(*definition);
   }
   else
@@ -683,7 +684,7 @@ void MapViewBase::createBrushEntity()
 
 void MapViewBase::createPointEntity(const mdl::EntityDefinition& definition)
 {
-  ensure(definition.pointEntityDefinition, "definition is a point entity definition");
+  contract_pre(definition.pointEntityDefinition);
 
   auto& map = m_document.map();
   const auto delta = computePointEntityPosition(definition.pointEntityDefinition->bounds);
@@ -715,9 +716,9 @@ void MapViewBase::toggleTagVisible(const mdl::SmartTag& tag)
 
 void MapViewBase::enableTag(const mdl::SmartTag& tag)
 {
-  assert(tag.canEnable());
-  auto& map = m_document.map();
+  contract_pre(tag.canEnable());
 
+  auto& map = m_document.map();
   auto transaction = mdl::Transaction{map, "Turn Selection into " + tag.name()};
   auto callback = EnableDisableTagCallback{};
   tag.enable(callback, map);
@@ -726,7 +727,8 @@ void MapViewBase::enableTag(const mdl::SmartTag& tag)
 
 void MapViewBase::disableTag(const mdl::SmartTag& tag)
 {
-  assert(tag.canDisable());
+  contract_pre(tag.canDisable());
+
   auto& map = m_document.map();
   auto transaction = mdl::Transaction{map, "Turn Selection into non-" + tag.name()};
   auto callback = EnableDisableTagCallback{};
@@ -1107,7 +1109,7 @@ void MapViewBase::renderPortalFile(
   if (!m_portalFileRenderer)
   {
     validatePortalFileRenderer(renderContext);
-    assert(m_portalFileRenderer);
+    contract_assert(m_portalFileRenderer);
   }
   renderBatch.add(m_portalFileRenderer.get());
 }
@@ -1119,7 +1121,8 @@ void MapViewBase::invalidatePortalFileRenderer()
 
 void MapViewBase::validatePortalFileRenderer(render::RenderContext&)
 {
-  assert(m_portalFileRenderer == nullptr);
+  contract_pre(m_portalFileRenderer == nullptr);
+
   m_portalFileRenderer = std::make_unique<render::PrimitiveRenderer>();
 
   if (const auto* portals = m_document.portals())
@@ -1208,7 +1211,8 @@ void MapViewBase::showPopupMenuLater()
   auto menu = QMenu{};
   const auto addMainMenuAction = [&](const auto& path) -> QAction* {
     auto* groupAction = mapFrame->findAction(path);
-    assert(groupAction);
+    contract_assert(groupAction);
+
     menu.addAction(groupAction);
     return groupAction;
   };
@@ -1477,8 +1481,9 @@ void MapViewBase::addSelectedObjectsToGroup()
 {
   auto& map = m_document.map();
   const auto nodes = map.selection().nodes;
+
   auto* newGroup = findNewGroupForObjects(nodes);
-  ensure(newGroup, "newGroup is null");
+  contract_assert(newGroup != nullptr);
 
   auto transaction = mdl::Transaction{map, "Add Objects to Group"};
   reparentNodes(nodes, newGroup, true);
@@ -1494,7 +1499,7 @@ void MapViewBase::removeSelectedObjectsFromGroup()
 
   const auto nodes = map.selection().nodes;
   auto* currentGroup = editorContext.currentGroup();
-  ensure(currentGroup, "currentGroup is null");
+  contract_assert(currentGroup);
 
   auto transaction = mdl::Transaction{map, "Remove Objects from Group"};
   reparentNodes(nodes, editorContext.currentLayer(), true);
@@ -1527,7 +1532,7 @@ void MapViewBase::mergeSelectedGroups()
 {
   auto& map = m_document.map();
   auto* newGroup = findGroupToMergeGroupsInto(map.selection());
-  ensure(newGroup, "newGroup is null");
+  contract_assert(newGroup != nullptr);
 
   auto transaction = mdl::Transaction{map, "Merge Groups"};
   mergeSelectedGroupsWithGroup(map, newGroup);
@@ -1571,7 +1576,7 @@ void MapViewBase::moveSelectedBrushesToEntity()
   auto& map = m_document.map();
   const auto nodes = map.selection().nodes;
   auto* newParent = findNewParentEntityForBrushes(nodes);
-  ensure(newParent, "newParent is null");
+  contract_assert(newParent);
 
   auto transaction =
     mdl::Transaction{map, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
@@ -1659,14 +1664,14 @@ static std::vector<mdl::Node*> collectEntitiesForNodes(
 void MapViewBase::reparentNodes(
   const std::vector<mdl::Node*>& nodes, mdl::Node* newParent, const bool preserveEntities)
 {
-  ensure(newParent, "newParent is null");
+  contract_pre(newParent != nullptr);
 
   auto& map = m_document.map();
   const auto inputNodes =
     preserveEntities ? collectEntitiesForNodes(nodes, map.world()) : nodes;
 
   const auto reparentableNodes = collectReparentableNodes(inputNodes, newParent);
-  assert(!reparentableNodes.empty());
+  contract_assert(!reparentableNodes.empty());
 
   const auto name = "Move "
                     + kdl::str_plural(reparentableNodes.size(), "Object", "Objects")

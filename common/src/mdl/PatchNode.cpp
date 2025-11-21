@@ -32,6 +32,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/zip_view.h"
 #include "kd/reflection_impl.h"
@@ -40,7 +41,6 @@
 #include "vm/intersection.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <cassert>
 #include <string>
 
 namespace tb::mdl
@@ -53,7 +53,8 @@ kdl_reflect_impl(PatchGrid::Point);
 const PatchGrid::Point& PatchGrid::point(const size_t row, const size_t col) const
 {
   const auto index = row * pointColumnCount + col;
-  assert(index < points.size());
+  contract_assert(index < points.size());
+
   return points[index];
 }
 
@@ -135,17 +136,20 @@ std::vector<vm::vec3d> computeGridNormals(
     switch (rowOffset)
     {
     case RowOffset::Above: {
-      assert(row > 0u);
+      contract_assert(row > 0u);
+
       const auto above = gridPoint(row - 1u, col);
       switch (colOffset)
       {
       case ColOffset::Left: {
-        assert(col > 0u);
+        contract_assert(col > 0u);
+
         const auto left = gridPoint(row, col - 1u);
         return vm::cross(above - point, left - point);
       }
       case ColOffset::Right: {
-        assert(col < pointColumnCount - 1u);
+        contract_assert(col < pointColumnCount - 1u);
+
         const auto right = gridPoint(row, col + 1u);
         return vm::cross(right - point, above - point);
       }
@@ -153,17 +157,20 @@ std::vector<vm::vec3d> computeGridNormals(
       }
     }
     case RowOffset::Below: {
-      assert(row < pointRowCount - 1u);
+      contract_assert(row < pointRowCount - 1u);
+
       const auto below = gridPoint(row + 1u, col);
       switch (colOffset)
       {
       case ColOffset::Left: {
-        assert(col > 0u);
+        contract_assert(col > 0u);
+
         const auto left = gridPoint(row, col - 1u);
         return vm::cross(left - point, below - point);
       }
       case ColOffset::Right: {
-        assert(col < pointColumnCount - 1u);
+        contract_assert(col < pointColumnCount - 1u);
+
         const auto right = gridPoint(row, col + 1u);
         return vm::cross(below - point, right - point);
       }
@@ -276,7 +283,7 @@ PatchGrid makePatchGrid(const BezierPatch& patch, const size_t subdivisionsPerSu
   const auto patchGrid = patch.evaluate(subdivisionsPerSurface);
   const auto normals =
     computeGridNormals(patchGrid, gridPointRowCount, gridPointColumnCount);
-  assert(patchGrid.size() == normals.size());
+  contract_assert(patchGrid.size() == normals.size());
 
   auto points = std::vector<PatchGrid::Point>{};
   auto boundsBuilder = vm::bbox3d::builder{};

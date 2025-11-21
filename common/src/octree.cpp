@@ -45,7 +45,7 @@ node_address::node_address(
   , z{i_z}
   , size{i_size}
 {
-  assert(is_valid_address(x, y, z, size));
+  contract_pre(is_valid_address(x, y, z, size));
 }
 
 vm::vec<int, 3> node_address::min() const
@@ -78,7 +78,7 @@ node_address get_parent(const node_address& a)
 
 std::optional<size_t> get_quadrant(const node_address& outer, const node_address& inner)
 {
-  assert(outer.contains(inner));
+  contract_pre(outer.contains(inner));
 
   if (outer.size == 0)
   {
@@ -98,8 +98,8 @@ std::optional<size_t> get_quadrant(const node_address& outer, const node_address
 
 node_address get_child(const node_address& a, const size_t quadrant)
 {
-  assert(quadrant < 8);
-  assert(a.size > 0);
+  contract_pre(quadrant < 8);
+  contract_pre(a.size > 0);
 
   return {
     int16_t(a.x + ((quadrant & 1) ? (1 << (a.size - 1)) : 0)),
@@ -128,9 +128,9 @@ node_address get_root(const node_address& address)
 
 node_address get_container(const node_address& address1, const node_address& address2)
 {
-  assert((address1.x >= 0) == (address2.x >= 0));
-  assert((address1.y >= 0) == (address2.y >= 0));
-  assert((address1.z >= 0) == (address2.z >= 0));
+  contract_pre((address1.x >= 0) == (address2.x >= 0));
+  contract_pre((address1.y >= 0) == (address2.y >= 0));
+  contract_pre((address1.z >= 0) == (address2.z >= 0));
 
   if (address1.contains(address2))
   {

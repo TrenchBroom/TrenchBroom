@@ -33,6 +33,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/string_compare.h"
 
 namespace tb::ui
@@ -148,7 +149,7 @@ bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const
 
 void GameEngineProfileEditor::nameChanged(const QString& text)
 {
-  ensure(m_profile != nullptr, "profile is null");
+  contract_pre(m_profile != nullptr);
 
   m_profile->name = text.toStdString();
   emit profileChanged();
@@ -156,7 +157,7 @@ void GameEngineProfileEditor::nameChanged(const QString& text)
 
 void GameEngineProfileEditor::pathChanged()
 {
-  ensure(m_profile != nullptr, "profile is null");
+  contract_pre(m_profile != nullptr);
 
   updatePath(m_pathEdit->text());
 }

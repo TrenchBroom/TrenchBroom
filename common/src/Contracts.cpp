@@ -17,31 +17,63 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Ensure.h"
+#include "Contracts.h"
+
+#include "kd/contracts.h"
 
 #ifndef NDEBUG
 #include <cassert>
 
+namespace tb
+{
+namespace
+{
+
 // for debug builds, ensure is just an assertion
-void tb::ensureFailed(
-  const char* /* file */,
+void contractViolated(
+  const std::string_view /* file */,
   const int /* line */,
-  const char* /* condition */,
-  const char* /* message */)
+  const std::string_view /* type */,
+  const std::string_view /* condition */)
 {
   assert(0);
 }
+
+} // namespace
+} // namespace tb
+
 #else
 #include "ui/CrashReporter.h"
 
 #include <fmt/format.h>
 
+namespace tb
+{
+namespace
+{
+
 // for release builds, ensure generates a crash report
-void tb::ensureFailed(
-  const char* file, const int line, const char* condition, const char* message)
+void contractViolated(
+  const std::string_view file,
+  const int line,
+  const std::string_view type,
+  const std::string_view condition)
 {
   const auto reason =
-    fmt::format("{} line {}: Condition '{}' failed ({})", file, line, condition, message);
-  tb::ui::reportCrashAndExit(reason);
+    fmt::format("{} line {}: {} '{}' failed", file, line, type, condition);
+  ui::reportCrashAndExit(reason);
 }
+
+} // namespace
+} // namespace tb
 #endif
+
+namespace tb
+{
+
+void setContractViolationHandler()
+{
+  kd::set_contract_violation_handler(contractViolated);
+}
+
+} // namespace tb

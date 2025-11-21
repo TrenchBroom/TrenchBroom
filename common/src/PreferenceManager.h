@@ -26,12 +26,12 @@
 #include <QThread>
 #include <QTimer>
 
-#include "Ensure.h"
 #include "Macros.h"
 #include "Notifier.h"
 #include "Preference.h"
 #include "Result.h"
 
+#include "kd/contracts.h"
 #include "kd/reflection_decl.h"
 #include "kd/vector_set.h"
 
@@ -88,16 +88,13 @@ public:
       bool success = false;
       std::tie(it, success) = m_dynamicPreferences.emplace(
         path, std::make_unique<Preference<T>>(path, std::forward<T>(defaultValue)));
-      assert(success);
-      unused(success);
+      contract_assert(success);
     }
 
     const auto& prefPtr = it->second;
     auto* prefBase = prefPtr.get();
     auto* pref = dynamic_cast<Preference<T>*>(prefBase);
-    ensure(
-      pref != nullptr,
-      fmt::format("Preference {} must be of the expected type", path).c_str());
+    contract_assert(pref != nullptr);
     return *pref;
   }
 

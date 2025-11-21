@@ -19,10 +19,11 @@
 
 #include "RecentDocumentListBox.h"
 
-#include "Ensure.h"
 #include "TrenchBroomApp.h"
 #include "io/PathQt.h"
 #include "io/ResourceUtils.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 
@@ -61,7 +62,8 @@ QString RecentDocumentListBox::title(const size_t index) const
 {
   const auto& app = ui::TrenchBroomApp::instance();
   const auto& recentDocuments = app.recentDocuments();
-  ensure(index < recentDocuments.size(), "index out of range");
+  contract_assert(index < recentDocuments.size());
+
   return io::pathAsQString(recentDocuments[index].filename());
 }
 
@@ -69,7 +71,8 @@ QString RecentDocumentListBox::subtitle(const size_t index) const
 {
   const auto& app = ui::TrenchBroomApp::instance();
   const auto& recentDocuments = app.recentDocuments();
-  ensure(index < recentDocuments.size(), "index out of range");
+  contract_assert(index < recentDocuments.size());
+
   return io::pathAsQString(recentDocuments[index]);
 }
 

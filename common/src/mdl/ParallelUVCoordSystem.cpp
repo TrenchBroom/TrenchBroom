@@ -19,9 +19,10 @@
 
 #include "ParallelUVCoordSystem.h"
 
-#include "Ensure.h"
 #include "mdl/BrushFace.h"
 #include "mdl/ParaxialUVCoordSystem.h"
+
+#include "kd/contracts.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -92,7 +93,7 @@ void ParallelUVCoordSystemSnapshot::doRestore(ParallelUVCoordSystem& coordSystem
 void ParallelUVCoordSystemSnapshot::doRestore(
   ParaxialUVCoordSystem& /* coordSystem */) const
 {
-  ensure(false, "wrong coord system type");
+  contract_assert(false);
 }
 
 /**
@@ -243,13 +244,13 @@ void ParallelUVCoordSystem::transform(
   const auto angleDelta = computeRotationAngle(oldBoundary, effectiveTransformation);
   const auto newAngle =
     vm::correct(vm::normalize_degrees(attribs.rotation() + angleDelta), 4);
-  assert(!vm::is_nan(newAngle));
+  contract_assert(!vm::is_nan(newAngle));
   attribs.setRotation(newAngle);
 
   // calculate the current UV coordinates of the face's center
   const auto oldInvariantUVCoords =
     computeUVCoords(oldInvariant, attribs.scale()) + attribs.offset();
-  assert(!vm::is_nan(oldInvariantUVCoords));
+  contract_assert(!vm::is_nan(oldInvariantUVCoords));
 
   // compute the new UV axes
   const auto worldToTexSpace = toMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
@@ -275,8 +276,8 @@ void ParallelUVCoordSystem::transform(
     m_uAxis[i] = newWorldToUVSpace[i][0];
     m_vAxis[i] = newWorldToUVSpace[i][1];
   }
-  assert(!vm::is_nan(uAxis()));
-  assert(!vm::is_nan(vAxis()));
+  contract_assert(!vm::is_nan(uAxis()));
+  contract_assert(!vm::is_nan(vAxis()));
 
   // determine the new texture coordinates of the transformed center of the face, sans
   // offsets
@@ -287,7 +288,7 @@ void ParallelUVCoordSystem::transform(
   // the current and the original texture coordinates of the center
   const auto newOffset = vm::correct(
     attribs.modOffset(oldInvariantUVCoords - newInvariantUVCoords, textureSize), 4);
-  assert(!vm::is_nan(newOffset));
+  contract_assert(!vm::is_nan(newOffset));
   attribs.setOffset(newOffset);
 }
 
@@ -377,7 +378,7 @@ void ParallelUVCoordSystem::updateNormalWithProjection(
   {
     possibleUVAxes.emplace_back(rotation * uAxis(), rotation * vAxis());
   }
-  assert(possibleUVAxes.size() == 6);
+  contract_assert(possibleUVAxes.size() == 6);
 
   auto possibleUVNormals = std::vector<vm::vec3d>{};
   for (const auto& axes : possibleUVAxes)
@@ -385,7 +386,7 @@ void ParallelUVCoordSystem::updateNormalWithProjection(
     const auto normal = vm::normalize(vm::cross(axes.first, axes.second));
     possibleUVNormals.push_back(normal);
   }
-  assert(possibleUVNormals.size() == 6);
+  contract_assert(possibleUVNormals.size() == 6);
 
   // Find the index in possibleUVNormals of the normal closest to the newNormal (face
   // normal)
@@ -395,12 +396,12 @@ void ParallelUVCoordSystem::updateNormalWithProjection(
     const auto cosAngle = vm::dot(uvNormal, newNormal);
     cosAngles.push_back(cosAngle);
   }
-  assert(cosAngles.size() == 6);
+  contract_assert(cosAngles.size() == 6);
 
   const auto index =
     std::distance(cosAngles.begin(), std::ranges::max_element(cosAngles));
-  assert(index >= 0);
-  assert(index < 6);
+  contract_assert(index >= 0);
+  contract_assert(index < 6);
 
   // Skip 0 because it is "no change".
   // Skip 1 because it's a 180 degree flip, we prefer to just project the "front" texture

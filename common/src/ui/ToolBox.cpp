@@ -29,9 +29,9 @@
 #include "ui/ToolChain.h"
 #include "ui/ToolController.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
-#include <cassert>
 #include <string>
 #include <utility>
 
@@ -176,20 +176,23 @@ void ToolBox::startMouseDrag(ToolChain& chain, const InputState& inputState)
 
 bool ToolBox::mouseDrag(const InputState& inputState)
 {
-  assert(enabled() && dragging());
+  contract_pre(enabled() && dragging());
+
   return m_gestureTracker->update(inputState);
 }
 
 void ToolBox::endMouseDrag(const InputState& inputState)
 {
-  assert(enabled() && dragging());
+  contract_pre(enabled() && dragging());
+
   m_gestureTracker->end(inputState);
   m_gestureTracker = nullptr;
 }
 
 void ToolBox::cancelMouseDrag()
 {
-  assert(dragging());
+  contract_pre(dragging());
+
   m_gestureTracker->cancel();
   m_gestureTracker = nullptr;
 }
@@ -211,7 +214,7 @@ void ToolBox::mouseScroll(ToolChain& chain, const InputState& inputState)
 
 void ToolBox::startGesture(ToolChain& chain, const InputState& inputState)
 {
-  assert(!m_gestureTracker);
+  contract_pre(!m_gestureTracker);
 
   if (m_enabled)
   {
@@ -221,7 +224,8 @@ void ToolBox::startGesture(ToolChain& chain, const InputState& inputState)
 
 void ToolBox::gesturePan(const InputState& inputState)
 {
-  assert(enabled());
+  contract_pre(enabled());
+
   if (m_gestureTracker)
   {
     m_gestureTracker->update(inputState);
@@ -230,7 +234,8 @@ void ToolBox::gesturePan(const InputState& inputState)
 
 void ToolBox::gestureZoom(const InputState& inputState)
 {
-  assert(enabled());
+  contract_pre(enabled());
+
   if (m_gestureTracker)
   {
     m_gestureTracker->update(inputState);
@@ -239,7 +244,8 @@ void ToolBox::gestureZoom(const InputState& inputState)
 
 void ToolBox::gestureRotate(const InputState& inputState)
 {
-  assert(enabled());
+  contract_pre(enabled());
+
   if (m_gestureTracker)
   {
     m_gestureTracker->update(inputState);
@@ -248,7 +254,8 @@ void ToolBox::gestureRotate(const InputState& inputState)
 
 void ToolBox::endGesture(const InputState& inputState)
 {
-  assert(enabled());
+  contract_pre(enabled());
+
   if (m_gestureTracker)
   {
     m_gestureTracker->end(inputState);
@@ -314,7 +321,8 @@ void ToolBox::enable()
 
 void ToolBox::disable()
 {
-  assert(!dragging());
+  contract_pre(!dragging());
+
   m_enabled = false;
 }
 

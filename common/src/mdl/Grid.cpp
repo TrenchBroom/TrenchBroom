@@ -23,6 +23,8 @@
 #include "mdl/BrushGeometry.h"
 #include "mdl/Polyhedron.h"
 
+#include "kd/contracts.h"
+
 #include "vm/intersection.h"
 #include "vm/ray.h"
 #include "vm/scalar.h"
@@ -50,8 +52,9 @@ int Grid::size() const
 
 void Grid::setSize(const int size)
 {
-  assert(size <= MaxSize);
-  assert(size >= MinSize);
+  contract_pre(size <= MaxSize);
+  contract_pre(size >= MinSize);
+
   m_size = size;
   gridDidChangeNotifier();
 }
@@ -260,7 +263,7 @@ double Grid::snapToGridPlane(const vm::line3d& line, const double distance) cons
     }
   }
 
-  assert(!vm::is_nan(snappedDistance));
+  contract_post(!vm::is_nan(snappedDistance));
   return snappedDistance;
 }
 

@@ -42,6 +42,7 @@
 #include "ui/InputState.h"
 #include "ui/UVViewHelper.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 
 #include "vm/intersection.h"
@@ -195,7 +196,7 @@ public:
 
   bool update(const InputState& inputState) override
   {
-    assert(m_helper.valid());
+    contract_pre(m_helper.valid());
 
     const auto& boundary = m_helper.face()->boundary();
     const auto& pickRay = inputState.pickRay();
@@ -353,7 +354,7 @@ void UVRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResul
 std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
   const InputState& inputState)
 {
-  assert(m_helper.valid());
+  contract_pre(m_helper.valid());
 
   if (
     !(inputState.modifierKeysPressed(ModifierKeys::None)

@@ -19,11 +19,10 @@
 
 #include "AllocationTracker.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_set.h"
 
 #include <algorithm>
-#include <cassert>
-#include <stdexcept>
 
 // #define EXPENSIVE_CHECKS
 
@@ -47,7 +46,7 @@ static std::vector<AllocationTracker::Block*>::iterator findFirstLargerOrEqualBi
 
 void AllocationTracker::unlinkFromBinList(Block* block)
 {
-  assert(block->free);
+  contract_pre(block->free);
 
   if (block->prevOfSameSize == nullptr)
   {
@@ -56,8 +55,8 @@ void AllocationTracker::unlinkFromBinList(Block* block)
 
     // this means we must be in m_sizeToFreeBlock
     auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, block->size);
-    assert(it != m_freeBlockSizeBins.end());
-    assert(*it == block);
+    contract_assert(it != m_freeBlockSizeBins.end());
+    contract_assert(*it == block);
 
     // make sure we prune empty lists from the map!
     if (block->nextOfSameSize == nullptr)
@@ -77,14 +76,14 @@ void AllocationTracker::unlinkFromBinList(Block* block)
     // "regular" case, not the head of a size bin list.
 
     // handle the "previous" side
-    assert(block->prevOfSameSize != nullptr);
-    assert(block->size == block->prevOfSameSize->size);
+    contract_assert(block->prevOfSameSize != nullptr);
+    contract_assert(block->size == block->prevOfSameSize->size);
     block->prevOfSameSize->nextOfSameSize = block->nextOfSameSize;
 
     // handle the "next" side
     if (block->nextOfSameSize)
     {
-      assert(block->size == block->nextOfSameSize->size);
+      contract_assert(block->size == block->nextOfSameSize->size);
       block->nextOfSameSize->prevOfSameSize = block->prevOfSameSize;
     }
 
@@ -97,10 +96,10 @@ void AllocationTracker::unlinkFromBinList(Block* block)
 
 void AllocationTracker::linkToBinList(Block* block)
 {
-  assert(block->free);
-  assert(block->size > 0);
-  assert(block->prevOfSameSize == nullptr);
-  assert(block->nextOfSameSize == nullptr);
+  contract_pre(block->free);
+  contract_pre(block->size > 0);
+  contract_pre(block->prevOfSameSize == nullptr);
+  contract_pre(block->nextOfSameSize == nullptr);
 
   auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, block->size);
 
@@ -115,8 +114,8 @@ void AllocationTracker::linkToBinList(Block* block)
     // vector.
     Block* previousListHead = *it;
 
-    assert(previousListHead->size == block->size);
-    assert(previousListHead->prevOfSameSize == nullptr);
+    contract_assert(previousListHead->size == block->size);
+    contract_assert(previousListHead->prevOfSameSize == nullptr);
 
     // connect block to previousListHead
     block->nextOfSameSize = previousListHead;
@@ -151,12 +150,9 @@ AllocationTracker::Block* AllocationTracker::obtainBlock()
 
 AllocationTracker::Block* AllocationTracker::allocate(const size_t needed)
 {
-  checkInvariants();
+  contract_pre(needed > 0);
 
-  if (needed == 0)
-  {
-    throw std::runtime_error("allocate() requires positive nonzero size");
-  }
+  checkInvariants();
 
   // find the smallest free block that will fit the allocation
   auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, needed);
@@ -170,9 +166,9 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed)
   // (this is a special case of unlinkFromBinList(), duplicated here
   // to avoid doing a redundant binary search)
   Block* block = *it;
-  assert(block != nullptr);
-  assert(block->free);
-  assert(block->prevOfSameSize == nullptr);
+  contract_assert(block != nullptr);
+  contract_assert(block->free);
+  contract_assert(block->prevOfSameSize == nullptr);
   {
     Block* blockAfter = block->nextOfSameSize;
     if (blockAfter == nullptr)
@@ -200,7 +196,7 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed)
 
   // common case:
   // the block is too large, split off the part we need
-  assert(block->size > needed);
+  contract_assert(block->size > needed);
 
   // this will be the left section of `block`
   Block* newBlock = obtainBlock();
@@ -216,7 +212,7 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed)
   if (block->left == nullptr)
   {
     // update m_leftmostBlock
-    assert(m_leftmostBlock == block);
+    contract_assert(m_leftmostBlock == block);
     m_leftmostBlock = newBlock;
   }
   else
@@ -236,11 +232,11 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed)
 
 void AllocationTracker::free(Block* block)
 {
-  checkInvariants();
+  contract_pre(!block->free);
+  contract_pre(block->prevOfSameSize == nullptr);
+  contract_pre(block->nextOfSameSize == nullptr);
 
-  assert(!block->free);
-  assert(block->prevOfSameSize == nullptr);
-  assert(block->nextOfSameSize == nullptr);
+  checkInvariants();
 
   Block* left = block->left;
   Block* right = block->right;
@@ -391,12 +387,13 @@ size_t AllocationTracker::capacity() const
 
 void AllocationTracker::expand(const Index newCapacity)
 {
+  contract_pre(newCapacity > 0);
+
   checkInvariants();
 
   // special case: empty
   if (m_capacity == 0)
   {
-    assert(newCapacity > 0);
     m_capacity = newCapacity;
 
     Block* newBlock = obtainBlock();
@@ -418,7 +415,6 @@ void AllocationTracker::expand(const Index newCapacity)
   }
 
   const Index increase = newCapacity - m_capacity;
-  assert(increase > 0);
 
   // 2 cases:
   Block* lastBlock = m_rightmostBlock;
@@ -510,61 +506,61 @@ void AllocationTracker::checkInvariants() const
 #ifdef EXPENSIVE_CHECKS
   if (m_capacity == 0)
   {
-    assert(m_leftmostBlock == nullptr);
-    assert(m_rightmostBlock == nullptr);
-    assert(m_freeBlockSizeBins.empty());
+    contract_assert(m_leftmostBlock == nullptr);
+    contract_assert(m_rightmostBlock == nullptr);
+    contract_assert(m_freeBlockSizeBins.empty());
     return;
   }
 
-  assert(m_leftmostBlock != nullptr);
-  assert(m_leftmostBlock->left == nullptr);
-  assert(m_leftmostBlock->pos == 0);
+  contract_assert(m_leftmostBlock != nullptr);
+  contract_assert(m_leftmostBlock->left == nullptr);
+  contract_assert(m_leftmostBlock->pos == 0);
 
-  assert(m_rightmostBlock != nullptr);
-  assert(m_rightmostBlock->right == nullptr);
+  contract_assert(m_rightmostBlock != nullptr);
+  contract_assert(m_rightmostBlock->right == nullptr);
 
   // check the left/right pointers, size, pos
   size_t totalSize = 0;
   for (Block* block = m_leftmostBlock; block != nullptr; block = block->right)
   {
-    assert(block->size != 0);
+    contract_assert(block->size != 0);
     totalSize += block->size;
 
     if (block->right != nullptr)
     {
-      assert(block->right->left == block);
-      assert(block->right->pos == block->pos + block->size);
+      contract_assert(block->right->left == block);
+      contract_assert(block->right->pos == block->pos + block->size);
     }
     else
     {
       // rightmost block
-      assert(block == m_rightmostBlock);
+      contract_assert(block == m_rightmostBlock);
     }
 
     // used blocks aren't in the nextOfSameSize linked list
     if (!block->free)
     {
-      assert(block->prevOfSameSize == nullptr);
-      assert(block->nextOfSameSize == nullptr);
+      contract_assert(block->prevOfSameSize == nullptr);
+      contract_assert(block->nextOfSameSize == nullptr);
     }
   }
-  assert(m_capacity == totalSize);
+  contract_assert(m_capacity == totalSize);
 
   // check the size map
   for (const auto& headBlock : m_freeBlockSizeBins)
   {
-    assert(headBlock != nullptr);
-    assert(headBlock->prevOfSameSize == nullptr);
+    contract_assert(headBlock != nullptr);
+    contract_assert(headBlock->prevOfSameSize == nullptr);
 
     // check they all have the correct size
     for (Block* block = headBlock; block != nullptr; block = block->nextOfSameSize)
     {
-      assert(block->free);
-      assert(block->size == headBlock->size);
+      contract_assert(block->free);
+      contract_assert(block->size == headBlock->size);
 
       if (block->nextOfSameSize != nullptr)
       {
-        assert(block->nextOfSameSize->prevOfSameSize == block);
+        contract_assert(block->nextOfSameSize->prevOfSameSize == block);
       }
     }
   }
@@ -574,7 +570,7 @@ void AllocationTracker::checkInvariants() const
   {
     const auto& a = m_freeBlockSizeBins.at(i);
     const auto& b = m_freeBlockSizeBins.at(i + 1);
-    assert(a->size < b->size);
+    contract_assert(a->size < b->size);
   }
 #endif
 }

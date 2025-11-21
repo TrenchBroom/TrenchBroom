@@ -32,8 +32,9 @@ namespace tb::ui
 {
 void CameraLinkHelper::addCamera(render::Camera* camera)
 {
-  ensure(camera != nullptr, "camera is null");
-  assert(!kdl::vec_contains(m_cameras, camera));
+  contract_pre(camera != nullptr);
+  contract_pre(!kdl::vec_contains(m_cameras, camera));
+
   m_cameras.push_back(camera);
   m_notifierConnection +=
     camera->cameraDidChangeNotifier.connect(this, &CameraLinkHelper::cameraDidChange);

@@ -19,7 +19,6 @@
 
 #include "Map_Nodes.h"
 
-#include "Ensure.h"
 #include "Logger.h"
 #include "Uuid.h"
 #include "mdl/AddRemoveNodesCommand.h"
@@ -46,6 +45,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 
@@ -232,7 +232,8 @@ auto collectRemovableParents(const std::map<Node*, std::vector<Node*>>& nodes)
     if (node->removeIfEmpty() && !node->hasChildren())
     {
       auto* parent = node->parent();
-      ensure(parent != nullptr, "parent is not null");
+      contract_assert(parent != nullptr);
+
       result[parent].push_back(node);
     }
   }
@@ -260,17 +261,17 @@ Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes)
   }
 
   auto* parentLayer = findContainingLayer(nodes.at(0));
-  ensure(parentLayer != nullptr, "no parent layer");
+  contract_post(parentLayer != nullptr);
+
   return parentLayer;
 }
 
 std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes)
 {
-  for (const auto& [parent, children] : nodes)
-  {
-    assert(parent == map.world() || parent->isDescendantOf(map.world()));
-    unused(parent);
-  }
+  contract_assert(std::ranges::all_of(nodes, [&](const auto& parentAndChildren) {
+    const auto& [parent, children] = parentAndChildren;
+    return parent == map.world() || parent->isDescendantOf(map.world());
+  }));
 
   auto transaction = Transaction{map, "Add Objects"};
   if (!map.executeAndStore(AddRemoveNodesCommand::add(nodes)))

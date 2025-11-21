@@ -19,9 +19,10 @@
 
 #include "TagManager.h"
 
-#include "Ensure.h"
 #include "mdl/Tag.h"
 #include "mdl/TagType.h"
+
+#include "kd/contracts.h"
 
 #include <fmt/format.h>
 
@@ -123,7 +124,8 @@ size_t TagManager::freeTagIndex()
 {
   static const size_t Bits = (sizeof(TagType::Type) * 8);
   const auto index = m_smartTags.size();
-  ensure(index <= Bits, "no more tag types");
+  contract_assert(index <= Bits);
+
   return index;
 }
 

@@ -25,6 +25,8 @@
 
 #include "Color.h"
 
+#include "kd/contracts.h"
+
 #include <filesystem>
 
 class QKeySequence;
@@ -165,7 +167,7 @@ public:
 public: // PreferenceManager private
   void setValue(const T& value)
   {
-    assert(persistencePolicy() != PreferencePersistencePolicy::ReadOnly);
+    contract_pre(persistencePolicy() != PreferencePersistencePolicy::ReadOnly);
     m_value = value;
   }
 
@@ -177,7 +179,8 @@ public: // PreferenceManager private
 
   const T& value() const
   {
-    assert(m_valid);
+    contract_pre(m_valid);
+
     return m_value;
   }
 

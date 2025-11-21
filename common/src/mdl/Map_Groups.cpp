@@ -37,6 +37,7 @@
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kd/contracts.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"
 #include "kd/stable_remove_duplicates.h"
@@ -360,7 +361,7 @@ void separateSelectedLinkedGroups(Map& map, const bool relinkGroups)
       std::back_inserter(selectedLinkedGroups),
       [](const auto* linkedGroupNode) { return linkedGroupNode->selected(); });
 
-    assert(!selectedLinkedGroups.empty());
+    contract_assert(!selectedLinkedGroups.empty());
     if (linkedGroups.size() - selectedLinkedGroups.size() > 0)
     {
       if (relinkGroups)

@@ -237,7 +237,8 @@ public:
 
   void removeLastPoint() override
   {
-    ensure(canRemoveLastPoint(), "can't remove last point");
+    contract_pre(canRemoveLastPoint());
+
     m_points.pop_back();
   }
 
@@ -262,7 +263,7 @@ public:
     using namespace mdl::HitFilters;
 
     const auto& hit = pickResult.first(type(ClipTool::PointHitType));
-    assert(hit.isMatch());
+    contract_assert(hit.isMatch());
 
     const auto dragIndex = hit.target<size_t>();
     m_dragState = DragState{dragIndex, m_points[dragIndex]};
@@ -270,14 +271,15 @@ public:
 
   void beginDragLastPoint() override
   {
-    ensure(hasPoints(), "invalid numPoints");
+    contract_pre(hasPoints());
+
     m_dragState = DragState{m_points.size() - 1, m_points.back()};
   }
 
   bool dragPoint(
     const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors) override
   {
-    ensure(m_dragState, "Clip tool is dragging");
+    contract_pre(m_dragState != std::nullopt);
 
     // Don't allow to drag a point onto another point!
     for (size_t i = 0; i < m_points.size(); ++i)
@@ -316,7 +318,8 @@ public:
 
   void cancelDragPoint() override
   {
-    ensure(m_dragState, "Clip tool is dragging");
+    contract_pre(m_dragState != std::nullopt);
+
     m_points[m_dragState->index] = m_dragState->originalPoint;
     m_dragState = std::nullopt;
   }
@@ -680,7 +683,8 @@ bool ClipTool::hasPoints() const
 
 void ClipTool::addPoint(const vm::vec3d& point, const std::vector<vm::vec3d>& helpVectors)
 {
-  assert(canAddPoint(point));
+  contract_pre(canAddPoint(point));
+
   if (!m_strategy)
   {
     m_strategy = std::make_unique<PointClipStrategy>();
@@ -710,7 +714,8 @@ bool ClipTool::removeLastPoint()
 std::optional<std::tuple<vm::vec3d, vm::vec3d>> ClipTool::beginDragPoint(
   const mdl::PickResult& pickResult)
 {
-  assert(!m_dragging);
+  contract_pre(!m_dragging);
+
   if (m_strategy)
   {
     const auto handlePositionAndHitPoint = m_strategy->canDragPoint(pickResult);
@@ -727,8 +732,9 @@ std::optional<std::tuple<vm::vec3d, vm::vec3d>> ClipTool::beginDragPoint(
 
 void ClipTool::beginDragLastPoint()
 {
-  assert(!m_dragging);
-  ensure(m_strategy, "strategy is not null");
+  contract_pre(!m_dragging);
+  contract_pre(m_strategy != nullptr);
+
   m_strategy->beginDragLastPoint();
   m_dragging = true;
 }
@@ -736,8 +742,9 @@ void ClipTool::beginDragLastPoint()
 bool ClipTool::dragPoint(
   const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors)
 {
-  assert(m_dragging);
-  ensure(m_strategy, "strategy is not null");
+  contract_pre(m_dragging);
+  contract_pre(m_strategy != nullptr);
+
   if (!m_strategy->dragPoint(newPosition, helpVectors))
   {
     return false;
@@ -749,8 +756,9 @@ bool ClipTool::dragPoint(
 
 void ClipTool::endDragPoint()
 {
-  assert(m_dragging);
-  ensure(m_strategy, "strategy is not null");
+  contract_pre(m_dragging);
+  contract_pre(m_strategy != nullptr);
+
   m_strategy->endDragPoint();
   m_dragging = false;
   refreshViews();
@@ -758,8 +766,9 @@ void ClipTool::endDragPoint()
 
 void ClipTool::cancelDragPoint()
 {
-  assert(m_dragging);
-  ensure(m_strategy, "strategy is not null");
+  contract_pre(m_dragging);
+  contract_pre(m_strategy != nullptr);
+
   m_strategy->cancelDragPoint();
   m_dragging = false;
   refreshViews();
@@ -834,7 +843,7 @@ void ClipTool::updateBrushes()
   if (canClip())
   {
     const auto points = m_strategy->getPoints();
-    ensure(points.size() == 3, "invalid number of points");
+    contract_assert(points.size() == 3);
 
     for (auto* brushNode : brushNodes)
     {
@@ -855,7 +864,7 @@ void ClipTool::updateBrushes()
 void ClipTool::setFaceAttributes(
   const std::vector<mdl::BrushFace>& faces, mdl::BrushFace& toSet) const
 {
-  ensure(!faces.empty(), "no faces");
+  contract_pre(!faces.empty());
 
   auto faceIt = std::begin(faces);
   auto faceEnd = std::end(faces);

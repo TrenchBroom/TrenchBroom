@@ -19,7 +19,6 @@
 
 #include "LayerNode.h"
 
-#include "Ensure.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
@@ -29,6 +28,7 @@
 #include "mdl/Validator.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 
 #include <algorithm>
@@ -49,7 +49,7 @@ const Layer& LayerNode::layer() const
 
 Layer LayerNode::setLayer(Layer layer)
 {
-  ensure(layer.defaultLayer() == m_layer.defaultLayer(), "Set same layer type");
+  contract_pre(layer.defaultLayer() == m_layer.defaultLayer());
 
   using std::swap;
   swap(m_layer, layer);

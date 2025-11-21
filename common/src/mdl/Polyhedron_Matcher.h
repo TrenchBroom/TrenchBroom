@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "Ensure.h"
 #include "Polyhedron.h" // IWYU pragma: keep
 
 #include "kd/binary_relation.h"
+#include "kd/contracts.h"
 #include "kd/vector_set.h"
 
 #include <limits>
@@ -140,7 +140,7 @@ private:
   Face* findBestMatchingLeftFace(Face* rightFace) const
   {
     const auto matchingFaces = findMatchingLeftFaces(rightFace);
-    ensure(!matchingFaces.empty(), "No matching face found");
+    contract_assert(!matchingFaces.empty());
 
     // Among all matching faces, select one such its normal is the most similar to the
     // given face's normal.
@@ -339,7 +339,7 @@ private:
       }
       else
       {
-        assert(right.hasVertex(position + delta));
+        contract_assert(right.hasVertex(position + delta));
         vertexMap.emplace(position, position + delta);
       }
       currentVertex = currentVertex->next();
@@ -367,8 +367,9 @@ private:
       auto* leftVertex = left.findVertexByPosition(leftPosition);
       auto* rightVertex = right.findVertexByPosition(rightPosition);
 
-      assert(leftVertex != nullptr);
-      assert(rightVertex != nullptr);
+      contract_assert(leftVertex != nullptr);
+      contract_assert(rightVertex != nullptr);
+
       result.insert(leftVertex, rightVertex);
     }
 

@@ -23,6 +23,7 @@
 #include "mdl/Map.h"
 #include "mdl/UpdateLinkedGroupsCommand.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 
 #include <string>
@@ -71,7 +72,7 @@ bool UpdateLinkedGroupsCommandBase::performUndo(Map& map)
 
 bool UpdateLinkedGroupsCommandBase::collateWith(UndoableCommand& command)
 {
-  assert(&command != this);
+  contract_pre(&command != this);
 
   if (
     auto* updateLinkedGroupsCommand = dynamic_cast<UpdateLinkedGroupsCommand*>(&command))

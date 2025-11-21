@@ -47,9 +47,9 @@
 #include "ui/UVScaleTool.h"
 #include "ui/UVShearTool.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 
-#include <cassert>
 #include <memory>
 #include <ranges>
 #include <vector>
@@ -115,10 +115,10 @@ private:
     const auto toTex = m_helper.face()->toUVCoordSystemMatrix(offset, scale, true);
 
     const auto* material = m_helper.face()->material();
-    ensure(material, "material is null");
+    contract_assert(material != nullptr);
 
     const auto* texture = material->texture();
-    ensure(texture, "texture is null");
+    contract_assert(texture != nullptr);
 
     material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 
@@ -339,7 +339,7 @@ void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch
 {
   using Vertex = render::GLVertexTypes::P3::Vertex;
 
-  assert(m_helper.valid());
+  contract_pre(m_helper.valid());
 
   auto edgeVertices = m_helper.face()->vertices()
                       | std::views::transform([](const auto* vertex) {
@@ -358,7 +358,7 @@ void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBat
 {
   using Vertex = render::GLVertexTypes::P3C4::Vertex;
 
-  assert(m_helper.valid());
+  contract_pre(m_helper.valid());
 
   const auto& normal = m_helper.face()->boundary().normal;
   const auto uAxis = vm::vec3f{

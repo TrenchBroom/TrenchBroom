@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include "Ensure.h"
 #include "render/GL.h"
 #include "render/PrimType.h"
 #include "render/Vbo.h"
 #include "render/VboManager.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <memory>
@@ -91,7 +91,8 @@ private:
 
     void setup() override
     {
-      ensure(m_vbo != nullptr, "block is null");
+      contract_pre(m_vbo != nullptr);
+
       m_vbo->bind();
     }
 

@@ -19,10 +19,11 @@
 
 #include "GameListBox.h"
 
-#include "Ensure.h"
 #include "io/ResourceUtils.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameFactory.h"
+
+#include "kd/contracts.h"
 
 #include <filesystem>
 #include <string>
@@ -111,21 +112,24 @@ size_t GameListBox::itemCount() const
   return m_gameInfos.size();
 }
 
-QPixmap GameListBox::image(size_t index) const
+QPixmap GameListBox::image(const size_t index) const
 {
-  ensure(index < m_gameInfos.size(), "index out of range");
+  contract_pre(index < m_gameInfos.size());
+
   return m_gameInfos[index].image;
 }
 
 QString GameListBox::title(const size_t n) const
 {
-  ensure(n < m_gameInfos.size(), "index out of range");
+  contract_pre(n < m_gameInfos.size());
+
   return m_gameInfos[n].title;
 }
 
 QString GameListBox::subtitle(const size_t n) const
 {
-  ensure(n < m_gameInfos.size(), "index out of range");
+  contract_pre(n < m_gameInfos.size());
+
   return m_gameInfos[n].subtitle;
 }
 

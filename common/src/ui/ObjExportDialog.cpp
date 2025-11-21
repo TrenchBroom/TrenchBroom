@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 
-#include "Ensure.h"
 #include "QtUtils.h"
 #include "io/ExportOptions.h"
 #include "io/PathQt.h"
@@ -38,6 +37,7 @@
 #include "ui/MapDocument.h" // IWYU pragma: keep
 #include "ui/MapFrame.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 
 #include <filesystem>
@@ -49,7 +49,8 @@ ObjExportDialog::ObjExportDialog(MapFrame* mapFrame)
   : QDialog{mapFrame}
   , m_mapFrame{mapFrame}
 {
-  ensure(m_mapFrame != nullptr, "Map frame is not null");
+  contract_pre(m_mapFrame != nullptr);
+
   createGui();
   resize(500, 0);
   // setFixedHeight(height());

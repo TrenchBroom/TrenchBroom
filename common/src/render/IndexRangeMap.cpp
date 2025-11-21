@@ -83,7 +83,8 @@ void IndexRangeMap::IndicesAndCounts::add(
   case PrimType::TriangleStrip:
   case PrimType::QuadStrip:
   case PrimType::Polygon:
-    assert(dynamicGrowth || indices.capacity() > indices.size());
+    contract_assert(dynamicGrowth || indices.capacity() > indices.size());
+
     indices.push_back(static_cast<GLint>(index));
     counts.push_back(static_cast<GLsizei>(count));
     break;
@@ -93,7 +94,9 @@ void IndexRangeMap::IndicesAndCounts::add(
 void IndexRangeMap::IndicesAndCounts::add(
   const IndicesAndCounts& other, [[maybe_unused]] const bool dynamicGrowth)
 {
-  assert(dynamicGrowth || indices.capacity() >= indices.size() + other.indices.size());
+  contract_pre(
+    dynamicGrowth || indices.capacity() >= indices.size() + other.indices.size());
+
   indices = kdl::vec_concat(std::move(indices), other.indices);
   counts = kdl::vec_concat(std::move(counts), other.counts);
 }

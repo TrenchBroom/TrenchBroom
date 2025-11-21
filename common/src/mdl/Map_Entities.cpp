@@ -19,7 +19,6 @@
 
 #include "mdl/Map_Entities.h"
 
-#include "Ensure.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityColorPropertyValue.h"
@@ -36,6 +35,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/string_utils.h"
 
 namespace tb::mdl
@@ -96,9 +96,7 @@ std::optional<std::string> findUnprotectedPropertyValue(
 EntityNode* createPointEntity(
   Map& map, const EntityDefinition& definition, const vm::vec3d& delta)
 {
-  ensure(
-    getType(definition) == EntityDefinitionType::Point,
-    "definition is a point entity definition");
+  contract_pre(getType(definition) == EntityDefinitionType::Point);
 
   auto entity = Entity{{{EntityPropertyKeys::Classname, definition.name}}};
 
@@ -133,12 +131,10 @@ EntityNode* createPointEntity(
 
 EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
 {
-  ensure(
-    getType(definition) == EntityDefinitionType::Brush,
-    "definition is a brush entity definition");
+  contract_pre(getType(definition) == EntityDefinitionType::Brush);
 
   const auto brushes = map.selection().brushes;
-  assert(!brushes.empty());
+  contract_assert(!brushes.empty());
 
   // if all brushes belong to the same entity, and that entity is not worldspawn, copy
   // its properties

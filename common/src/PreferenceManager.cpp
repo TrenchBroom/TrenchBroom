@@ -27,6 +27,9 @@
 #include <QLockFile>
 #include <QMessageBox>
 #include <QSaveFile>
+
+#include "Thread.h"
+
 #if defined(Q_OS_WIN)
 #include <QSettings>
 #endif
@@ -39,6 +42,7 @@
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/path_utils.h"
 #include "kd/reflection_impl.h"
@@ -55,7 +59,8 @@ bool PreferenceManager::m_initialized = false;
 
 PreferenceManager& PreferenceManager::instance()
 {
-  ensure(m_instance != nullptr, "Preference manager is set");
+  contract_pre(m_instance != nullptr);
+
   if (!m_initialized)
   {
     m_instance->initialize();
@@ -365,9 +370,7 @@ void AppPreferenceManager::savePreferenceToCache(PreferenceBase& pref)
 
 void AppPreferenceManager::validatePreference(PreferenceBase& preference)
 {
-  ensure(
-    qApp->thread() == QThread::currentThread(),
-    "PreferenceManager can only be used on the main thread");
+  contract_pre(isMainThread());
 
   if (!preference.valid())
   {
@@ -377,9 +380,7 @@ void AppPreferenceManager::validatePreference(PreferenceBase& preference)
 
 void AppPreferenceManager::savePreference(PreferenceBase& preference)
 {
-  ensure(
-    qApp->thread() == QThread::currentThread(),
-    "PreferenceManager can only be used on the main thread");
+  contract_pre(isMainThread());
 
   markAsUnsaved(preference);
 

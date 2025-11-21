@@ -19,10 +19,11 @@
 
 #include "EntityDefinitionManager.h"
 
-#include "Ensure.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityNodeBase.h"
+
+#include "kd/contracts.h"
 
 #include <algorithm>
 #include <string>
@@ -56,7 +57,8 @@ void EntityDefinitionManager::clear()
 const EntityDefinition* EntityDefinitionManager::definition(
   const EntityNodeBase* node) const
 {
-  ensure(node != nullptr, "node is null");
+  contract_pre(node != nullptr);
+
   return definition(node->entity().classname());
 }
 

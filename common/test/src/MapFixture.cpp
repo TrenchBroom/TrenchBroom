@@ -19,13 +19,13 @@
 
 #include "MapFixture.h"
 
-#include "Ensure.h"
 #include "Logger.h"
 #include "TestUtils.h"
 #include "mdl/Map.h"
 #include "mdl/MockGame.h"
 #include "mdl/Resource.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 
 namespace tb::mdl
@@ -67,9 +67,7 @@ void MapFixture::create(const MapFixtureConfig& config)
   const auto mapFormat = config.mapFormat.value_or(MapFormat::Standard);
   auto game = createGame(config);
 
-  ensure(
-    m_map->create(mapFormat, vm::bbox3d{8192.0}, std::move(game)),
-    "Map was created successfully");
+  contract_assert(m_map->create(mapFormat, vm::bbox3d{8192.0}, std::move(game)));
 }
 
 void MapFixture::load(const std::filesystem::path& path, const MapFixtureConfig& config)

@@ -25,10 +25,10 @@
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 
-#include <cassert>
 #include <ostream>
 
 namespace tb::io
@@ -39,7 +39,7 @@ CompilationConfigWriter::CompilationConfigWriter(
   : m_config{config}
   , m_stream{stream}
 {
-  assert(!m_stream.bad());
+  contract_pre(m_stream.good());
 }
 
 void CompilationConfigWriter::writeConfig()

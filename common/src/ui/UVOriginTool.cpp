@@ -40,6 +40,8 @@
 #include "ui/InputState.h"
 #include "ui/UVViewHelper.h"
 
+#include "kd/contracts.h"
+
 #include "vm/distance.h"
 #include "vm/intersection.h"
 #include "vm/line.h"
@@ -93,7 +95,7 @@ vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
 
 vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
 {
-  assert(helper.valid());
+  contract_pre(helper.valid());
 
   if (vm::is_zero(delta, vm::Cf::almost_zero()))
   {
@@ -348,8 +350,8 @@ void UVOriginTool::pick(const InputState& inputState, mdl::PickResult& pickResul
       const auto xDistance = vm::distance(pickRay, xHandle);
       const auto yDistance = vm::distance(pickRay, yHandle);
 
-      assert(!xDistance.parallel);
-      assert(!yDistance.parallel);
+      contract_assert(!xDistance.parallel);
+      contract_assert(!yDistance.parallel);
 
       const auto maxDistance =
         MaxPickDistance / static_cast<double>(m_helper.cameraZoom());
@@ -375,7 +377,7 @@ std::unique_ptr<GestureTracker> UVOriginTool::acceptMouseDrag(
 {
   using namespace mdl::HitFilters;
 
-  assert(m_helper.valid());
+  contract_pre(m_helper.valid());
 
   if (
     !inputState.modifierKeysPressed(ModifierKeys::None)

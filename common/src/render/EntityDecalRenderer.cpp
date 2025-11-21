@@ -33,6 +33,7 @@
 #include "mdl/UVCoordSystem.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 
@@ -320,7 +321,7 @@ void EntityDecalRenderer::validateDecalData(
   }
 
   const auto spec = getDecalSpecification(entityNode);
-  ensure(spec, "entity has a decal specification");
+  contract_assert(spec != std::nullopt);
 
   const auto& editorContext = m_map.editorContext();
   const auto* world = m_map.world();
@@ -370,7 +371,7 @@ void EntityDecalRenderer::validateDecalData(
       if (vm::intersect_bbox_polygon(
             shrunkBounds, facePolygon.begin(), facePolygon.end()))
       {
-        assert(data.material);
+        contract_assert(data.material);
         const auto decalPolygon =
           createDecalBrushFace(entityNode, brush, face, *data.material);
         if (!decalPolygon.empty())
@@ -393,7 +394,8 @@ void EntityDecalRenderer::validateDecalData(
   if (!vertices.empty() && !indices.empty())
   {
     // upload the geometry into the VBO
-    assert(m_vertexArray != nullptr);
+    contract_assert(m_vertexArray != nullptr);
+
     auto [vertBlock, vertDest] =
       m_vertexArray->getPointerToInsertVerticesAt(vertices.size());
     std::memcpy(vertDest, vertices.data(), vertices.size() * sizeof(*vertDest));

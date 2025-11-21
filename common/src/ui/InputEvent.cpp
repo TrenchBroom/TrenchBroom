@@ -21,13 +21,11 @@
 
 #include <QApplication>
 
-#include "Ensure.h"
-
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/reflection_impl.h"
 
 #include <iostream>
-#include <string_view>
 
 namespace tb::ui
 {
@@ -464,7 +462,7 @@ void InputEventRecorder::recordEvent(const QNativeGestureEvent& qEvent)
     }
     else if (*type == GestureEvent::Type::End)
     {
-      ensure(m_activeGestures > 0, "a gesture is active");
+      contract_assert(m_activeGestures > 0);
 
       --m_activeGestures;
       if (m_activeGestures > 0)

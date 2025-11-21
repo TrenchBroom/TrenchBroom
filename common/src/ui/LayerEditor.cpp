@@ -42,6 +42,7 @@
 #include "ui/LayerListBox.h"
 #include "ui/QtUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <algorithm>
@@ -139,7 +140,8 @@ bool LayerEditor::canToggleLayerVisible() const
 
 void LayerEditor::toggleLayerVisible(mdl::LayerNode* layerNode)
 {
-  ensure(layerNode != nullptr, "layer is null");
+  contract_pre(layerNode != nullptr);
+
   if (!layerNode->hidden())
   {
     hideNodes(m_map, std::vector<mdl::Node*>{layerNode});
@@ -157,7 +159,8 @@ bool LayerEditor::canToggleLayerLocked() const
 
 void LayerEditor::toggleLayerLocked(mdl::LayerNode* layerNode)
 {
-  ensure(layerNode != nullptr, "layer is null");
+  contract_pre(layerNode != nullptr);
+
   if (!layerNode->locked())
   {
     lockNodes(m_map, std::vector<mdl::Node*>{layerNode});
@@ -170,7 +173,8 @@ void LayerEditor::toggleLayerLocked(mdl::LayerNode* layerNode)
 
 void LayerEditor::toggleOmitLayerFromExport(mdl::LayerNode* layerNode)
 {
-  ensure(layerNode != nullptr, "layer is null");
+  contract_pre(layerNode != nullptr);
+
   setOmitLayerFromExport(m_map, layerNode, !layerNode->layer().omitFromExport());
 }
 
@@ -182,7 +186,7 @@ void LayerEditor::isolateLayer(mdl::LayerNode* layer)
 void LayerEditor::onMoveSelectedNodesToLayer()
 {
   auto* layerNode = m_layerList->selectedLayer();
-  ensure(layerNode != nullptr, "layer is null");
+  contract_assert(layerNode != nullptr);
 
   moveSelectedNodesToLayer(m_map, layerNode);
 }
@@ -199,7 +203,7 @@ bool LayerEditor::canMoveSelectedNodesToLayer() const
 void LayerEditor::onSelectAllInLayer()
 {
   auto* layerNode = m_layerList->selectedLayer();
-  ensure(layerNode != nullptr, "layer is null");
+  contract_assert(layerNode != nullptr);
 
   selectAllInLayers(m_map, {layerNode});
 }
@@ -248,7 +252,7 @@ void LayerEditor::onAddLayer()
 void LayerEditor::onRemoveLayer()
 {
   auto* layerNode = m_layerList->selectedLayer();
-  ensure(layerNode != nullptr, "layer is null");
+  contract_assert(layerNode != nullptr);
 
   auto* defaultLayerNode = m_map.world()->defaultLayer();
 
@@ -317,11 +321,12 @@ bool LayerEditor::canMoveLayer(const int direction) const
   return false;
 }
 
-void LayerEditor::moveLayer(mdl::LayerNode* layerNode, int direction)
+void LayerEditor::moveLayer(mdl::LayerNode* layerNode, const int direction)
 {
+  contract_pre(direction == 0 || layerNode != nullptr);
+
   if (direction != 0)
   {
-    ensure(layerNode != nullptr, "layer is null");
     mdl::moveLayer(m_map, layerNode, direction);
   }
 }

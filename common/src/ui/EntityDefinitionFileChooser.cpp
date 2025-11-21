@@ -36,6 +36,7 @@
 #include "ui/TitledPanel.h"
 #include "ui/ViewUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/vector_utils.h"
 
@@ -220,7 +221,7 @@ void EntityDefinitionFileChooser::updateControls()
   }
   else
   {
-    assert(spec && spec->type == mdl::EntityDefinitionFileSpec::Type::External);
+    contract_assert(spec && spec->type == mdl::EntityDefinitionFileSpec::Type::External);
 
     m_builtin->clearSelection();
     m_externalLabel->setText(io::pathAsQString(spec->path));

@@ -19,7 +19,6 @@
 
 #include "ClipToolController.h"
 
-#include "Ensure.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -36,6 +35,7 @@
 #include "ui/ClipTool.h"
 #include "ui/HandleDragTracker.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 #include "kd/vector_utils.h"
 
@@ -274,8 +274,9 @@ public:
     {
       hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
     }
+
     const auto faceHandle = mdl::hitToFaceHandle(hit);
-    ensure(faceHandle, "hit is not a match");
+    contract_assert(faceHandle);
 
     return selectHelpVectors(faceHandle->node(), faceHandle->face(), clipPoint);
   }
@@ -304,7 +305,7 @@ protected:
   explicit PartBase(std::unique_ptr<PartDelegateBase> delegate)
     : m_delegate{std::move(delegate)}
   {
-    ensure(m_delegate != nullptr, "delegate is null");
+    contract_pre(m_delegate != nullptr);
   }
 
 public:

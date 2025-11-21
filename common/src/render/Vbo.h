@@ -22,7 +22,8 @@
 #include "render/GL.h"
 #include "render/VboManager.h"
 
-#include <cassert>
+#include "kd/contracts.h"
+
 #include <type_traits>
 #include <vector>
 
@@ -93,7 +94,7 @@ public:
   size_t writeArray(const size_t address, const T* array, const size_t count)
   {
     const auto size = count * sizeof(T);
-    assert(address + size <= m_capacity);
+    contract_assert(address + size <= m_capacity);
 
     static_assert(std::is_trivially_copyable<T>::value);
     static_assert(std::is_standard_layout<T>::value);

@@ -45,6 +45,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/QtUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/reflection_impl.h"
 #include "kd/string_utils.h"
@@ -52,7 +53,6 @@
 #include <fmt/format.h>
 
 #include <algorithm>
-#include <cassert>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -85,8 +85,8 @@ bool isPropertyReadOnly(const mdl::Entity& entity, const std::string& key)
 
 bool isPropertyKeyMutable(const mdl::Entity& entity, const std::string& key)
 {
-  assert(!mdl::isGroup(entity.classname(), entity.properties()));
-  assert(!mdl::isLayer(entity.classname(), entity.properties()));
+  contract_pre(!mdl::isGroup(entity.classname(), entity.properties()));
+  contract_pre(!mdl::isLayer(entity.classname(), entity.properties()));
 
   if (isPropertyReadOnly(entity, key))
   {
@@ -112,8 +112,8 @@ bool isPropertyKeyMutable(const mdl::Entity& entity, const std::string& key)
 
 bool isPropertyValueMutable(const mdl::Entity& entity, const std::string& key)
 {
-  assert(!mdl::isGroup(entity.classname(), entity.properties()));
-  assert(!mdl::isLayer(entity.classname(), entity.properties()));
+  contract_pre(!mdl::isGroup(entity.classname(), entity.properties()));
+  contract_pre(!mdl::isLayer(entity.classname(), entity.properties()));
 
   if (isPropertyReadOnly(entity, key))
   {
@@ -255,7 +255,7 @@ PropertyRow mergeRows(PropertyRow row, const mdl::EntityNodeBase& entityNode)
 
 PropertyRow makeRow(std::string key, const std::vector<mdl::EntityNodeBase*>& entityNodes)
 {
-  ensure(!entityNodes.empty(), "entityNodes contains at least one node");
+  contract_pre(!entityNodes.empty());
 
   return std::accumulate(
     std::next(entityNodes.begin()),
@@ -1009,7 +1009,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
                << mapStringToUnicode(m_map.encoding(), newAddition.key));
 
     const auto oldIndex = kdl::index_of(m_rows, oldDeletion);
-    ensure(oldIndex, "deleted row must be found");
+    contract_assert(oldIndex != std::nullopt);
 
     m_rows.at(*oldIndex) = newAddition;
 
@@ -1052,7 +1052,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
 
     const auto firstNewRow = static_cast<int>(m_rows.size());
     const auto lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
-    assert(lastNewRow >= firstNewRow);
+    contract_assert(lastNewRow >= firstNewRow);
 
     beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
     for (const auto& key : diff.added)
@@ -1074,7 +1074,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
     {
       const auto& row = oldRowMap.at(key);
       const auto index = kdl::index_of(m_rows, row);
-      assert(index);
+      contract_assert(index);
 
       beginRemoveRows(QModelIndex{}, static_cast<int>(*index), static_cast<int>(*index));
       m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));
@@ -1093,7 +1093,7 @@ bool EntityPropertyModel::renameProperty(
   const std::string& newKey,
   const std::vector<mdl::EntityNodeBase*>& /* nodes */)
 {
-  ensure(rowIndex < m_rows.size(), "row index out of bounds");
+  contract_pre(rowIndex < m_rows.size());
 
   const auto& row = m_rows.at(rowIndex);
   const auto& oldKey = row.key;
@@ -1103,10 +1103,8 @@ bool EntityPropertyModel::renameProperty(
     return true;
   }
 
-  ensure(
-    row.keyMutable,
-    "tried to rename immutable name"); // EntityPropertyModel::flags prevents
-                                       // us from renaming immutable names
+  // EntityPropertyModel::flags prevents us from renaming immutable names
+  contract_assert(row.keyMutable);
 
   if (hasRowWithPropertyKey(newKey))
   {
@@ -1140,7 +1138,7 @@ bool EntityPropertyModel::updateProperty(
   const std::string& newValue,
   const std::vector<mdl::EntityNodeBase*>& nodes)
 {
-  ensure(rowIndex < m_rows.size(), "row index out of bounds");
+  contract_pre(rowIndex < m_rows.size());
 
   auto hasChange = false;
   const auto& key = m_rows.at(rowIndex).key;
@@ -1148,10 +1146,9 @@ bool EntityPropertyModel::updateProperty(
   {
     if (const auto* oldValue = node->entity().property(key))
     {
-      ensure(
-        isPropertyValueMutable(node->entity(), key),
-        "tried to modify immutable property value"); // this should be guaranteed by
-                                                     // the PropertyRow constructor
+      // this should be guaranteed by the PropertyRow constructor
+      contract_assert(isPropertyValueMutable(node->entity(), key));
+
       if (*oldValue != newValue)
       {
         hasChange = true;
@@ -1173,7 +1170,7 @@ bool EntityPropertyModel::updateProperty(
 
 bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool newValue)
 {
-  ensure(rowIndex < m_rows.size(), "row index out of bounds");
+  contract_pre(rowIndex < m_rows.size());
 
   const auto& key = m_rows.at(rowIndex).key;
   return setProtectedEntityProperty(m_map, key, newValue);

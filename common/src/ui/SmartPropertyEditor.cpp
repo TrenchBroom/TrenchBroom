@@ -22,6 +22,8 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 
+#include "kd/contracts.h"
+
 #include <vector>
 
 namespace tb::ui
@@ -37,7 +39,8 @@ SmartPropertyEditor::~SmartPropertyEditor() = default;
 
 void SmartPropertyEditor::activate(const std::string& propertyKey)
 {
-  assert(!m_active);
+  contract_pre(!m_active);
+
   m_propertyKey = propertyKey;
   m_active = true;
 }
@@ -76,7 +79,8 @@ const std::vector<mdl::EntityNodeBase*> SmartPropertyEditor::nodes() const
 
 void SmartPropertyEditor::addOrUpdateProperty(const std::string& value)
 {
-  assert(m_active);
+  contract_pre(m_active);
+
   setEntityProperty(map(), m_propertyKey, value);
 }
 

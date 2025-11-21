@@ -33,6 +33,7 @@
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 
 #include "vm/scalar.h"
@@ -359,7 +360,7 @@ int ViewPreferencePane::findThemeIndex(const QString& theme)
 
 void ViewPreferencePane::layoutChanged(const int index)
 {
-  assert(index >= 0 && index < 4);
+  contract_pre(index >= 0 && index < 4);
 
   auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::MapViewLayout, index);
@@ -408,7 +409,8 @@ void ViewPreferencePane::enableMsaaChanged(const int state)
 void ViewPreferencePane::filterModeChanged(const int value)
 {
   const auto index = static_cast<size_t>(value);
-  assert(index < FilterModes.size());
+  contract_assert(index < FilterModes.size());
+
   const auto minFilter = FilterModes[index].minFilter;
   const auto magFilter = FilterModes[index].magFilter;
 

@@ -23,6 +23,7 @@
 #include <QSurfaceFormat>
 #include <QtGlobal>
 
+#include "Contracts.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "io/SystemPaths.h"
@@ -34,6 +35,8 @@ extern void qt_set_sequence_auto_mnemonic(bool b);
 
 int main(int argc, char* argv[])
 {
+  tb::setContractViolationHandler();
+
   // Set OpenGL defaults
   // Needs to be done here before QApplication is created
   // (see: https://doc.qt.io/qt-5/qsurfaceformat.html#setDefaultFormat)

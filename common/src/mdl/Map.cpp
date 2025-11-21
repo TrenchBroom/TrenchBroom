@@ -19,7 +19,6 @@
 
 #include "Map.h"
 
-#include "Ensure.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "io/DiskIO.h"
@@ -97,6 +96,7 @@
 #include "mdl/WorldNode.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/string_utils.h"
@@ -106,7 +106,6 @@
 #include <fmt/std.h>
 
 #include <algorithm>
-#include <cassert>
 #include <cstdlib>
 #include <memory>
 #include <ranges>
@@ -683,13 +682,13 @@ Result<void> Map::saveAs(const std::filesystem::path& path)
 
 Result<void> Map::saveTo(const std::filesystem::path& path)
 {
+  contract_pre(game() != nullptr);
+  contract_pre(world() != nullptr);
+
   if (!path.is_absolute())
   {
     return Error{"Path must be absolute"};
   }
-
-  ensure(m_game.get() != nullptr, "game is null");
-  ensure(m_world, "world is null");
 
   io::Disk::withOutputStream(path, [&](auto& stream) {
     io::writeMapHeader(stream, m_game->config().name, m_world->mapFormat());
@@ -785,7 +784,8 @@ void Map::incModificationCount(const size_t delta)
 
 void Map::decModificationCount(const size_t delta)
 {
-  assert(m_modificationCount >= delta);
+  contract_pre(m_modificationCount >= delta);
+
   m_modificationCount -= delta;
   modificationStateDidChangeNotifier();
 }
@@ -873,7 +873,7 @@ const std::optional<vm::bbox3d>& Map::selectionBounds() const
 
 void Map::registerSmartTags()
 {
-  ensure(game() != nullptr, "game is null");
+  contract_pre(game() != nullptr);
 
   m_tagManager->clearSmartTags();
   m_tagManager->registerSmartTags(game()->config().smartTags);
@@ -980,8 +980,8 @@ void Map::updateFaceTagsAfterResourcesWhereProcessed(
 
 void Map::registerValidators()
 {
-  ensure(m_world, "world is null");
-  ensure(m_game != nullptr, "game is null");
+  contract_pre(game() != nullptr);
+  contract_pre(world() != nullptr);
 
   m_world->registerValidator(std::make_unique<MissingClassnameValidator>());
   m_world->registerValidator(std::make_unique<MissingDefinitionValidator>());
@@ -1200,7 +1200,8 @@ void Map::updateGameSearchPaths()
 
 void Map::initializeNodeIndex()
 {
-  ensure(m_world, "world node is set");
+  contract_pre(world() != nullptr);
+
   addToNodeIndex({world()}, true);
 }
 
@@ -1232,7 +1233,8 @@ void Map::removeFromNodeIndex(const std::vector<Node*>& nodes, const bool recurs
 
 void Map::initializeEntityLinks()
 {
-  ensure(m_world, "world node is set");
+  contract_pre(world() != nullptr);
+
   addEntityLinks({world()}, true);
 }
 

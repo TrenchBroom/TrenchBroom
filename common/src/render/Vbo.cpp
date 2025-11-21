@@ -19,8 +19,6 @@
 
 #include "Vbo.h"
 
-#include <cassert>
-
 namespace tb::render
 {
 
@@ -28,7 +26,7 @@ Vbo::Vbo(const GLenum type, const size_t capacity, const GLenum usage)
   : m_type{type}
   , m_capacity{capacity}
 {
-  assert(m_type == GL_ELEMENT_ARRAY_BUFFER || m_type == GL_ARRAY_BUFFER);
+  contract_pre(m_type == GL_ELEMENT_ARRAY_BUFFER || m_type == GL_ARRAY_BUFFER);
 
   glAssert(glGenBuffers(1, &m_bufferId));
   glAssert(glBindBuffer(m_type, m_bufferId));
@@ -37,14 +35,14 @@ Vbo::Vbo(const GLenum type, const size_t capacity, const GLenum usage)
 
 void Vbo::free()
 {
-  assert(m_bufferId != 0);
+  contract_pre(m_bufferId != 0);
   glAssert(glDeleteBuffers(1, &m_bufferId));
   m_bufferId = 0;
 }
 
 Vbo::~Vbo()
 {
-  assert(m_bufferId == 0);
+  contract_pre(m_bufferId == 0);
 }
 
 size_t Vbo::offset() const
@@ -59,13 +57,15 @@ size_t Vbo::capacity() const
 
 void Vbo::bind() const
 {
-  assert(m_bufferId != 0);
+  contract_pre(m_bufferId != 0);
+
   glAssert(glBindBuffer(m_type, m_bufferId));
 }
 
 void Vbo::unbind() const
 {
-  assert(m_bufferId != 0);
+  contract_pre(m_bufferId != 0);
+
   glAssert(glBindBuffer(m_type, 0));
 }
 

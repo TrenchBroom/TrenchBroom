@@ -45,6 +45,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/vector_set.h"
 
@@ -135,10 +136,11 @@ SmartColorEditor::SmartColorEditor(mdl::Map& map, QWidget* parent)
 
 void SmartColorEditor::createGui()
 {
-  assert(m_floatRadio == nullptr);
-  assert(m_byteRadio == nullptr);
-  assert(m_colorPicker == nullptr);
-  assert(m_colorHistory == nullptr);
+  contract_pre(m_radioGroup == nullptr);
+  contract_pre(m_floatRadio == nullptr);
+  contract_pre(m_byteRadio == nullptr);
+  contract_pre(m_colorPicker == nullptr);
+  contract_pre(m_colorHistory == nullptr);
 
   auto* rangeTxt = new QLabel{tr("Color range")};
   makeEmphasized(rangeTxt);
@@ -199,10 +201,11 @@ void SmartColorEditor::createGui()
 
 void SmartColorEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
-  ensure(m_floatRadio != nullptr, "floatRadio is null");
-  ensure(m_byteRadio != nullptr, "byteRadio is null");
-  ensure(m_colorPicker != nullptr, "colorPicker is null");
-  ensure(m_colorHistory != nullptr, "colorHistory is null");
+  contract_pre(m_radioGroup != nullptr);
+  contract_pre(m_floatRadio != nullptr);
+  contract_pre(m_byteRadio != nullptr);
+  contract_pre(m_colorPicker != nullptr);
+  contract_pre(m_colorHistory != nullptr);
 
   updateColorRange(nodes);
   updateColorHistory();

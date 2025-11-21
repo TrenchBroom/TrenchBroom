@@ -19,7 +19,6 @@
 
 #include "Palette.h"
 
-#include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "io/File.h"
@@ -27,9 +26,9 @@
 #include "io/Reader.h"
 #include "mdl/TextureBuffer.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/reflection_impl.h"
-#include "kd/string_format.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -71,7 +70,7 @@ bool Palette::indexedToRgba(
   const PaletteTransparency transparency,
   Color& averageColor) const
 {
-  ensure(rgbaImage.size() == 4 * pixelCount, "incorrect destination buffer size");
+  contract_pre(rgbaImage.size() == 4 * pixelCount);
 
   const unsigned char* paletteData = (transparency == PaletteTransparency::Opaque)
                                        ? m_data->opaqueData.data()

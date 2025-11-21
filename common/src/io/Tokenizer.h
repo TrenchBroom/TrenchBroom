@@ -23,12 +23,12 @@
 #include "Token.h"
 #include "io/ParserException.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"
 
 #include <fmt/format.h>
 
-#include <cassert>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -125,7 +125,8 @@ protected:
 
   size_t offset(const char* ptr) const
   {
-    assert(ptr >= m_begin);
+    contract_pre(ptr >= m_begin);
+
     return size_t(ptr - m_begin);
   }
 
@@ -197,8 +198,8 @@ public:
 
   void adoptState(const TokenizerState& state)
   {
-    assert(state.cur >= m_begin);
-    assert(state.cur <= m_end);
+    contract_pre(state.cur >= m_begin);
+    contract_pre(state.cur <= m_end);
 
     m_state.cur = state.cur;
     m_state.line = state.line;

@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "Polyhedron.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 
 #include "vm/constants.h"
@@ -73,7 +74,8 @@ Polyhedron_Face<T, FP, VP>::Polyhedron_Face(
   m_link{this}
 #endif
 {
-  assert(m_boundary.size() >= 3);
+  contract_pre(m_boundary.size() >= 3);
+
   countAndSetFace(m_boundary.front(), m_boundary.back(), this);
 }
 
@@ -324,7 +326,7 @@ vm::plane_status Polyhedron_Face<T, FP, VP>::pointStatus(
 template <typename T, typename FP, typename VP>
 bool Polyhedron_Face<T, FP, VP>::coplanar(const Face* other, const T epsilon) const
 {
-  assert(other != nullptr);
+  contract_pre(other != nullptr);
 
   // Test if the normals are colinear by checking their enclosed angle.
   if (T(1) - vm::dot(normal(), other->normal()) >= vm::constants<T>::colinear_epsilon())
@@ -384,8 +386,8 @@ template <typename T, typename FP, typename VP>
 template <typename H>
 void Polyhedron_Face<T, FP, VP>::insertIntoBoundaryAfter(HalfEdge* after, H&& edges)
 {
-  assert(after != nullptr);
-  assert(after->face() == this);
+  contract_pre(after != nullptr);
+  contract_pre(after->face() == this);
 
   countAndSetFace(edges.front(), edges.back(), this);
   m_boundary.insert(HalfEdgeList::iter(after->next()), std::forward<H>(edges));
@@ -395,10 +397,10 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron_Face<T, FP, VP>::HalfEdgeList Polyhedron_Face<T, FP, VP>::
   removeFromBoundary(HalfEdge* from, HalfEdge* to)
 {
-  assert(from != nullptr);
-  assert(to != nullptr);
-  assert(from->face() == this);
-  assert(to->face() == this);
+  contract_pre(from != nullptr);
+  contract_pre(to != nullptr);
+  contract_pre(from->face() == this);
+  contract_pre(to->face() == this);
 
   const auto removeCount = countAndUnsetFace(from, to);
   return m_boundary.remove(
@@ -417,10 +419,10 @@ template <typename H>
 typename Polyhedron_Face<T, FP, VP>::HalfEdgeList Polyhedron_Face<T, FP, VP>::
   replaceBoundary(HalfEdge* from, HalfEdge* to, H&& with)
 {
-  assert(from != nullptr);
-  assert(to != nullptr);
-  assert(from->face() == this);
-  assert(to->face() == this);
+  contract_pre(from != nullptr);
+  contract_pre(to != nullptr);
+  contract_pre(from->face() == this);
+  contract_pre(to->face() == this);
 
   const auto removeCount = countAndUnsetFace(from, to);
   countAndSetFace(with.front(), with.back(), this);
@@ -463,8 +465,8 @@ std::size_t Polyhedron_Face<T, FP, VP>::countAndUnsetFace(HalfEdge* from, HalfEd
 template <typename T, typename FP, typename VP>
 std::size_t Polyhedron_Face<T, FP, VP>::countSharedVertices(const Face* other) const
 {
-  assert(other != nullptr);
-  assert(other != this);
+  contract_pre(other != nullptr);
+  contract_pre(other != this);
 
   auto myVertices = std::unordered_set<Vertex*>();
   for (auto* halfEdge : m_boundary)
@@ -501,7 +503,7 @@ private:
     : m_type{type}
     , m_distance{distance}
   {
-    assert(!vm::is_nan(m_distance));
+    contract_pre(!vm::is_nan(m_distance));
   }
 
 public:

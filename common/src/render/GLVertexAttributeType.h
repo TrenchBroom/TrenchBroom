@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "Ensure.h"
 #include "Macros.h"
 #include "render/GL.h"
 #include "render/ShaderProgram.h"
+
+#include "kd/contracts.h"
 
 #include "vm/vec.h"
 
@@ -53,7 +54,7 @@ public:
     const size_t stride,
     const size_t offset)
   {
-    ensure(program != nullptr, "must have a program bound to use generic attributes");
+    contract_pre(program != nullptr);
 
     const auto attributeIndex = program->findAttributeLocation(A::name);
     glAssert(glEnableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
@@ -68,7 +69,7 @@ public:
 
   static void cleanup(ShaderProgram* program, const size_t /* index */)
   {
-    ensure(program != nullptr, "must have a program bound to use generic attributes");
+    contract_pre(program != nullptr);
 
     const auto attributeIndex = program->findAttributeLocation(A::name);
     glAssert(glDisableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
@@ -137,7 +138,8 @@ public:
     const size_t stride,
     const size_t offset)
   {
-    assert(S == 3);
+    static_assert(S == 3);
+
     glAssert(glEnableClientState(GL_NORMAL_ARRAY));
     glAssert(glNormalPointer(
       D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));

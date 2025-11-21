@@ -26,6 +26,8 @@
 #include "render/RenderContext.h"
 #include "render/Shaders.h"
 
+#include "kd/contracts.h"
+
 namespace tb::render
 {
 
@@ -54,7 +56,8 @@ void LinkRenderer::doPrepareVertices(VboManager& vboManager)
 
 void LinkRenderer::doRender(RenderContext& renderContext)
 {
-  assert(m_valid);
+  contract_pre(m_valid);
+
   renderLines(renderContext);
   renderArrows(renderContext);
 }
@@ -108,7 +111,8 @@ static void addArrow(
 static std::vector<LinkRenderer::ArrowVertex> getArrows(
   const std::vector<LinkRenderer::LineVertex>& links)
 {
-  assert((links.size() % 2) == 0);
+  contract_pre((links.size() % 2) == 0);
+
   auto arrows = std::vector<LinkRenderer::ArrowVertex>{};
   for (size_t i = 0; i < links.size(); i += 2)
   {

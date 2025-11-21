@@ -23,6 +23,8 @@
 #include "mdl/Map.h"
 #include "mdl/TransactionScope.h"
 
+#include "kd/contracts.h"
+
 namespace tb::mdl
 {
 
@@ -63,7 +65,8 @@ void Transaction::finish(const bool commit)
 
 bool Transaction::commit()
 {
-  assert(m_state == State::Running);
+  contract_pre(m_state == State::Running);
+
   if (m_map.commitTransaction())
   {
     m_state = State::Committed;
@@ -76,13 +79,15 @@ bool Transaction::commit()
 
 void Transaction::rollback()
 {
-  assert(m_state == State::Running);
+  contract_pre(m_state == State::Running);
+
   m_map.rollbackTransaction();
 }
 
 void Transaction::cancel()
 {
-  assert(m_state == State::Running);
+  contract_pre(m_state == State::Running);
+
   m_map.cancelTransaction();
   m_state = State::Cancelled;
 }

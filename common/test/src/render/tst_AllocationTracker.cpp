@@ -62,17 +62,6 @@ TEST_CASE("AllocationTrackerTest.constructWithZeroCapacity")
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.invalidAllocate")
-{
-  AllocationTracker t(100);
-
-  CHECK_THROWS(t.allocate(0));
-
-  CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}}));
-  CHECK(t.usedBlocks() == (std::vector<AllocationTracker::Range>{}));
-  CHECK_FALSE(t.hasAllocations());
-}
-
 TEST_CASE("AllocationTrackerTest.fiveAllocations")
 {
   AllocationTracker t(500);

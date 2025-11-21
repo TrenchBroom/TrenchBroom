@@ -24,8 +24,9 @@
 #include <QPainter>
 #include <QSizePolicy>
 
+#include "kd/contracts.h"
+
 #include <algorithm>
-#include <cassert>
 
 namespace tb::ui
 {
@@ -34,7 +35,7 @@ ColorTable::ColorTable(const int cellSize, QWidget* parent)
   : QWidget{parent}
   , m_cellSize{cellSize}
 {
-  assert(m_cellSize > 0);
+  contract_pre(m_cellSize > 0);
 
   auto sizePolicy = QSizePolicy{QSizePolicy::Expanding, QSizePolicy::Preferred};
   sizePolicy.setHeightForWidth(true);

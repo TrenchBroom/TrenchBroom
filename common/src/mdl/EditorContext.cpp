@@ -19,7 +19,6 @@
 
 #include "EditorContext.h"
 
-#include "Ensure.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushFace.h"
@@ -32,6 +31,8 @@
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
+
+#include "kd/contracts.h"
 
 namespace tb::mdl
 {
@@ -116,7 +117,7 @@ GroupNode* EditorContext::currentGroup() const
 
 void EditorContext::pushGroup(GroupNode& groupNode)
 {
-  assert(!m_currentGroup || groupNode.containingGroup() == m_currentGroup);
+  contract_pre(!m_currentGroup || groupNode.containingGroup() == m_currentGroup);
 
   if (m_currentGroup)
   {
@@ -128,7 +129,7 @@ void EditorContext::pushGroup(GroupNode& groupNode)
 
 void EditorContext::popGroup()
 {
-  ensure(m_currentGroup, "currentGroup is null");
+  contract_pre(m_currentGroup != nullptr);
 
   m_currentGroup->close();
   m_currentGroup = m_currentGroup->containingGroup();

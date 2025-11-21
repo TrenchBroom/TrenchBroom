@@ -22,6 +22,8 @@
 #include "ui/MoveHandleDragTracker.h"
 #include "ui/PickRequest.h"
 
+#include "kd/contracts.h"
+
 #include "vm/approx.h"
 
 #include "catch/CatchConfig.h"
@@ -43,7 +45,7 @@ public:
     : m_value(value)
     , m_epsilon(epsilon)
   {
-    assert(epsilon >= double(0));
+    contract_pre(epsilon >= double(0));
   }
   explicit approx(const DragState value)
     : approx(value, vm::constants<double>::almost_zero())

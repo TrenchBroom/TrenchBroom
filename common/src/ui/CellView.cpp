@@ -547,13 +547,13 @@ bool CellView::dndEnabled()
 
 QPixmap CellView::dndImage(const Cell&)
 {
-  assert(false);
+  contract_assert(false);
   return QPixmap{};
 }
 
 QString CellView::dndData(const Cell&)
 {
-  assert(false);
+  contract_assert(false);
   return "";
 }
 

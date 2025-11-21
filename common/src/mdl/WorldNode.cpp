@@ -19,7 +19,6 @@
 
 #include "WorldNode.h"
 
-#include "Ensure.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
@@ -32,6 +31,7 @@
 #include "octree.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
 #include "kd/k.h"
 #include "kd/overload.h"
 
@@ -87,13 +87,15 @@ const WorldNode::NodeTree& WorldNode::nodeTree() const
 
 LayerNode* WorldNode::defaultLayer()
 {
-  ensure(m_defaultLayer != nullptr, "defaultLayer is null");
+  contract_pre(m_defaultLayer != nullptr);
+
   return m_defaultLayer;
 }
 
 const LayerNode* WorldNode::defaultLayer() const
 {
-  ensure(m_defaultLayer != nullptr, "defaultLayer is null");
+  contract_pre(m_defaultLayer != nullptr);
+
   return m_defaultLayer;
 }
 
@@ -167,7 +169,8 @@ void WorldNode::createDefaultLayer()
 {
   m_defaultLayer = new LayerNode{Layer{"Default Layer", K(defaultLayer)}};
   addChild(m_defaultLayer);
-  assert(m_defaultLayer->layer().sortIndex() == Layer::defaultLayerSortIndex());
+
+  contract_post(m_defaultLayer->layer().sortIndex() == Layer::defaultLayerSortIndex());
 }
 
 std::vector<const Validator*> WorldNode::registeredValidators() const
@@ -275,9 +278,9 @@ Node* WorldNode::doClone(const vm::bbox3d& /* worldBounds */) const
 
 Node* WorldNode::doCloneRecursively(const vm::bbox3d& worldBounds) const
 {
-  const auto& myChildren = children();
-  assert(myChildren[0] == m_defaultLayer);
+  contract_pre(children().front() == m_defaultLayer);
 
+  const auto& myChildren = children();
   auto* worldNode = static_cast<WorldNode*>(clone(worldBounds));
   worldNode->defaultLayer()->addChildren(
     cloneRecursively(worldBounds, m_defaultLayer->children()));
@@ -352,9 +355,7 @@ void WorldNode::doDescendantWasAdded(Node* node, const size_t /* depth */)
   const auto updatePersistentId = [&](auto* persistentNode) {
     if (const auto persistentNodeId = persistentNode->persistentId())
     {
-      ensure(
-        *persistentNodeId < std::numeric_limits<IdType>::max(),
-        "Persistent ID available");
+      contract_assert(*persistentNodeId < std::numeric_limits<IdType>::max());
       m_nextPersistentId = std::max(m_nextPersistentId, *persistentNodeId + 1u);
     }
     else

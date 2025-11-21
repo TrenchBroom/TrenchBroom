@@ -33,6 +33,7 @@
 #include "mdl/Texture.h"
 
 #include "kd/collection_utils.h"
+#include "kd/contracts.h"
 #include "kd/result.h"
 #include "kd/task_manager.h"
 
@@ -165,7 +166,7 @@ void checkFaceUVsEqual(const BrushFace& face, const BrushFace& other)
 
 void checkBrushUVsEqual(const Brush& brush, const Brush& other)
 {
-  assert(brush.faceCount() == other.faceCount());
+  contract_pre(brush.faceCount() == other.faceCount());
 
   for (size_t i = 0; i < brush.faceCount(); ++i)
   {

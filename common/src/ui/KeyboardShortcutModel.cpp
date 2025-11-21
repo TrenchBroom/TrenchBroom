@@ -26,6 +26,7 @@
 #include "ui/Actions.h"
 #include "ui/MapDocument.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/set_adapter.h"
 #include "kd/vector_utils.h"
@@ -188,7 +189,8 @@ void KeyboardShortcutModel::initializeViewActions()
 
 void KeyboardShortcutModel::initializeTagActions()
 {
-  assert(m_document);
+  contract_pre(m_document);
+
   m_document->visitTagActions([&](const Action& action) {
     m_actions.push_back(ActionInfo{"Tags" / io::pathFromQString(action.label()), action});
   });
@@ -196,7 +198,8 @@ void KeyboardShortcutModel::initializeTagActions()
 
 void KeyboardShortcutModel::initializeEntityDefinitionActions()
 {
-  assert(m_document);
+  contract_pre(m_document);
+
   m_document->visitEntityDefinitionActions([&](const Action& action) {
     m_actions.push_back(
       ActionInfo{"Entity Definitions" / io::pathFromQString(action.label()), action});
@@ -221,7 +224,8 @@ void KeyboardShortcutModel::updateConflicts()
 const KeyboardShortcutModel::ActionInfo& KeyboardShortcutModel::actionInfo(
   const int index) const
 {
-  assert(index < totalActionCount());
+  contract_pre(index < totalActionCount());
+
   return m_actions[static_cast<size_t>(index)];
 }
 

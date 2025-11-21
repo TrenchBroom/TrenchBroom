@@ -41,6 +41,8 @@
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
 
+#include "kd/contracts.h"
+
 #include <algorithm>
 #include <unordered_set>
 #include <vector>
@@ -208,7 +210,8 @@ public:
     }
     else
     {
-      assert(m_map.selection().hasNodes());
+      contract_assert(m_map.selection().hasNodes());
+
       const auto hit =
         firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
       if (hit.isMatch())

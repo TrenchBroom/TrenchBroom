@@ -24,6 +24,8 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Polyhedron.h"
 
+#include "kd/contracts.h"
+
 #include <algorithm>
 
 namespace tb::render
@@ -113,7 +115,7 @@ void BrushRendererBrushCache::validateVertexCache(const mdl::BrushNode& brushNod
   {
     const auto faceIndex1 = currentEdge->firstFace()->payload();
     const auto faceIndex2 = currentEdge->secondFace()->payload();
-    assert(faceIndex1 && faceIndex2);
+    contract_assert(faceIndex1 && faceIndex2);
 
     const auto& face1 = brush.face(*faceIndex1);
     const auto& face2 = brush.face(*faceIndex2);
@@ -131,21 +133,24 @@ void BrushRendererBrushCache::validateVertexCache(const mdl::BrushNode& brushNod
 const std::vector<BrushRendererBrushCache::Vertex>& BrushRendererBrushCache::
   cachedVertices() const
 {
-  assert(m_rendererCacheValid);
+  contract_pre(m_rendererCacheValid);
+
   return m_cachedVertices;
 }
 
 const std::vector<BrushRendererBrushCache::CachedFace>& BrushRendererBrushCache::
   cachedFacesSortedByMaterial() const
 {
-  assert(m_rendererCacheValid);
+  contract_pre(m_rendererCacheValid);
+
   return m_cachedFacesSortedByMaterial;
 }
 
 const std::vector<BrushRendererBrushCache::CachedEdge>& BrushRendererBrushCache::
   cachedEdges() const
 {
-  assert(m_rendererCacheValid);
+  contract_pre(m_rendererCacheValid);
+
   return m_cachedEdges;
 }
 

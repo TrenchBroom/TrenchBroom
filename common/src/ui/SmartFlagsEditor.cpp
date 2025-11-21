@@ -30,10 +30,10 @@
 #include "ui/FlagsEditor.h"
 #include "ui/ViewUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/set_temp.h"
 #include "kd/string_utils.h"
 
-#include <cassert>
 #include <vector>
 
 namespace tb::ui
@@ -47,7 +47,7 @@ SmartFlagsEditor::SmartFlagsEditor(mdl::Map& map, QWidget* parent)
 
 void SmartFlagsEditor::createGui()
 {
-  assert(m_scrolledWindow == nullptr);
+  contract_pre(m_scrolledWindow == nullptr);
 
   m_scrolledWindow = new QScrollArea{};
 
@@ -64,7 +64,8 @@ void SmartFlagsEditor::createGui()
 
 void SmartFlagsEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
-  assert(!nodes.empty());
+  contract_pre(!nodes.empty());
+
   if (!m_ignoreUpdates)
   {
     auto labels = QStringList{};

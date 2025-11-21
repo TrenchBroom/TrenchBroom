@@ -19,11 +19,11 @@
 
 #include "BrushBuilder.h"
 
-#include "Ensure.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "render/RenderUtils.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
@@ -34,7 +34,6 @@
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
-#include <cassert>
 #include <cmath>
 #include <ranges>
 #include <string>
@@ -193,7 +192,7 @@ namespace
 {
 auto makeEdgeAlignedCircle(const size_t numSides, const vm::bbox2d& bounds)
 {
-  ensure(numSides > 2, "shape has at least three sides");
+  contract_pre(numSides > 2);
 
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size())
@@ -216,7 +215,7 @@ auto makeEdgeAlignedCircle(const size_t numSides, const vm::bbox2d& bounds)
 
 auto makeVertexAlignedCircle(const size_t numSides, const vm::bbox2d& bounds)
 {
-  ensure(numSides > 2, "shape has at least three sides");
+  contract_pre(numSides > 2);
 
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size())
@@ -430,7 +429,8 @@ auto makeHollowCylinderFragmentVertices(
   const size_t i,
   const vm::bbox3d& boundsXY)
 {
-  assert(outerCircle.size() == innerCircle.size());
+  contract_pre(outerCircle.size() == innerCircle.size());
+
   const auto numSides = outerCircle.size();
 
   const auto po = outerCircle[(i + 0) % numSides];
@@ -469,8 +469,7 @@ Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
 
   return makeHollowCylinderInnerCircle(outerCircle, thickness, circleShape, boundsXY.xy())
     .and_then([&](const auto& innerCircle) {
-      ensure(
-        innerCircle.size() == outerCircle.size(), "inner circle has same size as outer");
+      contract_assert(innerCircle.size() == outerCircle.size());
 
       const auto numFragments = outerCircle.size();
 

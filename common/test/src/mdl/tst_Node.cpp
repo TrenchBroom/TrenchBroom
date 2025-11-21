@@ -290,10 +290,7 @@ TEST_CASE("NodeTest.addRemoveChild")
   auto* grandChildNode1 = new MockNode{};
   auto* grandChildNode2 = new MockNode{};
 
-  // NOTE: Node::doAddChild only calls canAddChild in debug builds
-#ifndef NDEBUG
   childNode->expectCall(DoCanAddChild{true, grandChildNode1});
-#endif
   grandChildNode1->expectCall(DoParentWillChange{});
   grandChildNode1->expectCall(DoAncestorWillChange{});
   grandChildNode1->expectCall(DoParentDidChange{});
@@ -304,9 +301,7 @@ TEST_CASE("NodeTest.addRemoveChild")
   CHECK(grandChildNode1->parent() == childNode);
   CHECK(kdl::vec_contains(childNode->children(), grandChildNode1));
 
-#ifndef NDEBUG
   rootNode.expectCall(DoCanAddChild{true, childNode});
-#endif
   childNode->expectCall(DoParentWillChange{});
   childNode->expectCall(DoAncestorWillChange{});
   childNode->expectCall(DoParentDidChange{});
@@ -320,9 +315,7 @@ TEST_CASE("NodeTest.addRemoveChild")
   CHECK(childNode->parent() == &rootNode);
   CHECK(kdl::vec_contains(rootNode.children(), childNode));
 
-#ifndef NDEBUG
   childNode->expectCall(DoCanAddChild{true, grandChildNode2});
-#endif
   grandChildNode2->expectCall(DoParentWillChange{});
   grandChildNode2->expectCall(DoAncestorWillChange{});
   grandChildNode2->expectCall(DoParentDidChange{});
@@ -335,9 +328,7 @@ TEST_CASE("NodeTest.addRemoveChild")
   CHECK(grandChildNode2->parent() == childNode);
   CHECK(kdl::vec_contains(childNode->children(), grandChildNode2));
 
-#ifndef NDEBUG
   rootNode.expectCall(DoCanRemoveChild{true, childNode});
-#endif
   childNode->expectCall(DoParentWillChange{});
   childNode->expectCall(DoAncestorWillChange{});
   childNode->expectCall(DoParentDidChange{});
@@ -355,9 +346,7 @@ TEST_CASE("NodeTest.addRemoveChild")
   CHECK(childNode->childCount() == 2u);
   CHECK(childNode->familySize() == 3u);
 
-#ifndef NDEBUG
   rootNode.expectCall(DoCanAddChild{true, childNode});
-#endif
   childNode->expectCall(DoParentWillChange{});
   childNode->expectCall(DoAncestorWillChange{});
   childNode->expectCall(DoParentDidChange{});

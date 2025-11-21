@@ -33,6 +33,7 @@
 #include "ui/SmartPropertyEditor.h"
 #include "ui/SmartWadEditor.h"
 
+#include "kd/contracts.h"
 #include "kd/functional.h"
 #include "kd/string_compare.h"
 
@@ -114,7 +115,7 @@ bool SmartPropertyEditorManager::isDefaultEditorActive() const
 
 void SmartPropertyEditorManager::createEditors()
 {
-  assert(m_editors.empty());
+  contract_pre(m_editors.empty());
 
   registerEditor(
     makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Flags>(),
@@ -179,7 +180,6 @@ SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(
   }
 
   // should never happen
-  assert(false);
   return defaultEditor();
 }
 

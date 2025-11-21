@@ -37,6 +37,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 
@@ -119,7 +120,7 @@ void selectTouchingNodes(Map& map, const vm::axis::type cameraAxis, const bool d
   const auto maxPlane = vm::plane3d{max, cameraAbsDirection};
 
   const auto& selectionBrushNodes = map.selection().brushes;
-  assert(!selectionBrushNodes.empty());
+  contract_assert(!selectionBrushNodes.empty());
 
   const auto brushBuilder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 

@@ -21,10 +21,10 @@
 
 #include "io/DiskIO.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 
-#include <cassert>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -37,8 +37,8 @@ Shader::Shader(std::string name, const GLenum type, const GLuint shaderId)
   , m_type{type}
   , m_shaderId{shaderId}
 {
-  assert(m_type == GL_VERTEX_SHADER || m_type == GL_FRAGMENT_SHADER);
-  assert(m_shaderId != 0);
+  contract_pre(m_type == GL_VERTEX_SHADER || m_type == GL_FRAGMENT_SHADER);
+  contract_pre(m_shaderId != 0);
 }
 
 Shader::Shader(Shader&& other) noexcept
@@ -67,7 +67,8 @@ Shader::~Shader()
 
 void Shader::attach(const GLuint programId) const
 {
-  assert(m_shaderId != 0);
+  contract_pre(m_shaderId != 0);
+
   glAssert(glAttachShader(programId, m_shaderId));
 }
 

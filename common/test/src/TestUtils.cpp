@@ -19,7 +19,6 @@
 
 #include "TestUtils.h"
 
-#include "Ensure.h"
 #include "TestLogger.h"
 #include "io/DiskIO.h"
 #include "io/GameConfigParser.h"
@@ -40,6 +39,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 
 #include "vm/polygon.h"
@@ -498,12 +498,10 @@ int getComponentOfPixel(
   const std::size_t y,
   const Component component)
 {
-  const auto format = texture.format();
-
-  ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
+  contract_pre(texture.format() == GL_BGRA || texture.format() == GL_RGBA);
 
   std::size_t componentIndex = 0;
-  if (format == GL_RGBA)
+  if (texture.format() == GL_RGBA)
   {
     switch (component)
     {
@@ -541,9 +539,9 @@ int getComponentOfPixel(
   }
 
   const auto& mip0DataBuffer = texture.buffersIfLoaded().at(0);
-  assert(texture.width() * texture.height() * 4 == mip0DataBuffer.size());
-  assert(x < texture.width());
-  assert(y < texture.height());
+  contract_assert(texture.width() * texture.height() * 4 == mip0DataBuffer.size());
+  contract_assert(x < texture.width());
+  contract_assert(y < texture.height());
 
   const uint8_t* mip0Data = mip0DataBuffer.data();
   return static_cast<int>(
@@ -586,7 +584,8 @@ void checkColor(
 int getComponentOfPixel(
   const mdl::Material& material, std::size_t x, std::size_t y, Component component)
 {
-  ensure(material.texture(), "expected material to have a texture");
+  contract_pre(material.texture() != nullptr);
+
   return getComponentOfPixel(*material.texture(), x, y, component);
 }
 
@@ -600,7 +599,8 @@ void checkColor(
   const int a,
   const ColorMatch match)
 {
-  ensure(material.texture(), "expected material to have a texture");
+  contract_pre(material.texture() != nullptr);
+
   return checkColor(*material.texture(), x, y, r, g, b, a, match);
 }
 } // namespace tb

@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "Ensure.h"
 #include "Result.h"
 #include "io/FileSystem.h"
 #include "io/FileSystemMetadata.h"
 
+#include "kd/contracts.h"
 #include "kd/path_hash.h"
 #include "kd/result.h"
 
@@ -104,7 +104,7 @@ public:
   explicit ImageFileSystem(std::shared_ptr<FileType> file)
     : m_file{std::move(file)}
   {
-    ensure(m_file, "file must not be null");
+    contract_pre(m_file != nullptr);
   }
 };
 

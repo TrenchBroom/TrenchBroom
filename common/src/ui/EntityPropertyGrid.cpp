@@ -46,6 +46,7 @@
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"
 #include "kd/vector_set.h"
@@ -130,7 +131,7 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
   m_model->updateFromMap();
 
   const auto row = m_model->rowIndexForPropertyKey(newPropertyKey);
-  ensure(row != -1, "row should have been inserted");
+  contract_assert(row != -1);
 
   // Select the newly inserted property key
   const auto mappedIndex =

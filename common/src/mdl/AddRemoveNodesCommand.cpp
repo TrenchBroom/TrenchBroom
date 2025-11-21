@@ -19,7 +19,6 @@
 
 #include "AddRemoveNodesCommand.h"
 
-#include "Ensure.h"
 #include "Macros.h"
 #include "mdl/AddRemoveNodesUtils.h"
 #include "mdl/Map.h"
@@ -29,16 +28,6 @@
 
 namespace tb::mdl
 {
-
-std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  Node* parent, const std::vector<Node*>& children)
-{
-  ensure(parent != nullptr, "parent is null");
-  auto nodes = std::map<Node*, std::vector<Node*>>{};
-  nodes[parent] = children;
-
-  return add(nodes);
-}
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   const std::map<Node*, std::vector<Node*>>& nodes)

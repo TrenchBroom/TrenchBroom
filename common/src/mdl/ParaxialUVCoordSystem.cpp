@@ -19,16 +19,16 @@
 
 #include "ParaxialUVCoordSystem.h"
 
-#include "Ensure.h"
 #include "mdl/BrushFace.h"
 #include "mdl/ParallelUVCoordSystem.h"
+
+#include "kd/contracts.h"
 
 #include "vm/plane.h"
 #include "vm/quat.h"
 #include "vm/vec.h"
 
 #include <array>
-#include <cassert>
 #include <cmath>
 #include <optional>
 
@@ -224,8 +224,7 @@ std::optional<ParaxialAttribsNoOffset> extractParaxialAttribs(
 
       // recheck, they should be perpendicular now
       const auto newCosAngle = vm::dot(vm::normalize(uVec), vm::normalize(vVec));
-      assert(fabs(newCosAngle) <= 0.001);
-      unused(newCosAngle);
+      contract_assert(fabs(newCosAngle) <= 0.001);
 
       // update M
       M[0][0] = uVec[0];
@@ -544,7 +543,7 @@ std::unique_ptr<UVCoordSystemSnapshot> ParaxialUVCoordSystem::takeSnapshot() con
 
 void ParaxialUVCoordSystem::restoreSnapshot(const UVCoordSystemSnapshot& /* snapshot */)
 {
-  ensure(false, "unsupported");
+  contract_assert(false);
 }
 
 vm::vec3d ParaxialUVCoordSystem::uAxis() const
@@ -614,7 +613,7 @@ void ParaxialUVCoordSystem::transform(
 {
   const auto offset = transformation * vm::vec3d{0, 0};
   auto newBoundaryNormal = newBoundary.normal;
-  assert(vm::is_unit(newBoundaryNormal, vm::Cd::almost_zero()));
+  contract_assert(vm::is_unit(newBoundaryNormal, vm::Cd::almost_zero()));
 
   // fix some rounding errors - if the old and new texture axes are almost the same, use
   // the old axis
@@ -658,7 +657,7 @@ void ParaxialUVCoordSystem::transform(
     // project the transformed texture axes onto the new texture projection plane
     const auto projectedTransformedUAxis = newUVPlane.project_point(transformedUAxis);
     const auto projectedTransformedVAxis = newUVPlane.project_point(transformedVAxis);
-    assert(
+    contract_assert(
       !vm::is_nan(projectedTransformedUAxis) && !vm::is_nan(projectedTransformedVAxis));
 
     const auto normalizedUAxis = vm::normalize(projectedTransformedUAxis);
@@ -668,8 +667,8 @@ void ParaxialUVCoordSystem::transform(
     // transformed, projected and normalized texture axes
     const auto cosU = float(vm::dot(newBaseUAxis, normalizedUAxis));
     const auto cosV = float(vm::dot(newBaseVAxis, normalizedVAxis));
-    assert(!vm::is_nan(cosU));
-    assert(!vm::is_nan(cosV));
+    contract_assert(!vm::is_nan(cosU));
+    contract_assert(!vm::is_nan(cosV));
 
     auto radU = std::acos(cosU);
     if (vm::dot(vm::cross(newBaseUAxis, normalizedUAxis), newUVNormal) < 0.0)
@@ -729,11 +728,11 @@ void ParaxialUVCoordSystem::transform(
     const auto newOffset = vm::correct(
       attribs.modOffset(oldInvariantUVCoords - newInvariantUVCoords, textureSize), 4);
 
-    assert(!vm::is_nan(newOffset));
-    assert(!vm::is_nan(newScale));
-    assert(!vm::is_nan(newRotation));
-    assert(!vm::is_zero(newScale.x(), vm::Cf::almost_zero()));
-    assert(!vm::is_zero(newScale.y(), vm::Cf::almost_zero()));
+    contract_assert(!vm::is_nan(newOffset));
+    contract_assert(!vm::is_nan(newScale));
+    contract_assert(!vm::is_nan(newRotation));
+    contract_assert(!vm::is_zero(newScale.x(), vm::Cf::almost_zero()));
+    contract_assert(!vm::is_zero(newScale.y(), vm::Cf::almost_zero()));
 
     attribs.setOffset(newOffset);
     attribs.setScale(newScale);

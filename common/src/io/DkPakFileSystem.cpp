@@ -22,6 +22,7 @@
 #include "io/File.h"
 #include "io/ReaderException.h"
 
+#include "kd/contracts.h"
 #include "kd/result.h"
 #include "kd/string_format.h"
 
@@ -88,8 +89,8 @@ Result<std::unique_ptr<char[]>> decompress(
         const auto offset = reader.readSize<unsigned char>();
         auto* from = curTarget - (offset + 2);
 
-        assert(from >= begin);
-        assert(from <= curTarget - len);
+        contract_assert(from >= begin);
+        contract_assert(from <= curTarget - len);
 
         std::memcpy(curTarget, from, len);
         curTarget += len;

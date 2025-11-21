@@ -28,11 +28,11 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_set.h"
 
 #include <fmt/format.h>
 
-#include <cassert>
 #include <sstream>
 #include <string>
 
@@ -146,7 +146,7 @@ void sanitizeLayerSortIndicies(mdl::WorldNode& worldNode, ParserStatus& /* statu
     validLayers.push_back(layerNode);
   }
 
-  assert(invalidLayers.size() + validLayers.size() == customLayers.size());
+  contract_assert(invalidLayers.size() + validLayers.size() == customLayers.size());
 
   // Renumber the invalid layers
   auto nextValidLayerIndex =

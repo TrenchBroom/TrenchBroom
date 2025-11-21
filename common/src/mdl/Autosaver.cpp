@@ -27,6 +27,7 @@
 #include "io/TraversalMode.h"
 #include "mdl/Map.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/enumerate_view.h"
 #include "kd/result.h"
@@ -38,7 +39,6 @@
 #include <fmt/format.h>
 
 #include <algorithm>
-#include <cassert>
 #include <ranges>
 
 namespace tb::mdl
@@ -154,7 +154,7 @@ void Autosaver::triggerAutosave()
 void Autosaver::autosave()
 {
   const auto& mapPath = m_map.path();
-  assert(io::Disk::pathInfo(mapPath) == io::PathInfo::File);
+  contract_assert(io::Disk::pathInfo(mapPath) == io::PathInfo::File);
 
   const auto mapFilename = mapPath.filename();
   const auto mapBasename = mapPath.stem();
@@ -166,7 +166,8 @@ void Autosaver::autosave()
            | kdl::and_then([&](auto remainingBackups) {
                return cleanBackups(fs, remainingBackups, mapBasename)
                       | kdl::and_then([&]() {
-                          assert(remainingBackups.size() < m_maxBackups);
+                          contract_assert(remainingBackups.size() < m_maxBackups);
+
                           const auto backupNo = remainingBackups.size() + 1;
                           return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
                         });

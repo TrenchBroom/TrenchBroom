@@ -19,7 +19,6 @@
 
 #include "ReadFreeImageTexture.h"
 
-#include "Ensure.h"
 #include "FreeImage.h"
 #include "io/ImageLoaderImpl.h"
 #include "io/MaterialUtils.h"
@@ -27,6 +26,7 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
 
+#include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/resource.h"
@@ -36,7 +36,6 @@
 
 #include <fmt/format.h>
 
-#include <cassert>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -76,7 +75,7 @@ constexpr GLenum freeImage32BPPFormatToGLFormat()
 
 Color getAverageColor(const mdl::TextureBuffer& buffer, const GLenum format)
 {
-  ensure(format == GL_RGBA || format == GL_BGRA, "format is GL_RGBA or GL_BGRA");
+  contract_pre(format == GL_RGBA || format == GL_BGRA);
 
   const auto r = size_t(format == GL_RGBA ? 0 : 2);
   const auto g = size_t(1);
@@ -164,7 +163,7 @@ Result<mdl::Texture> readFreeImageTextureFromMemory(
       return Error{"Unsupported pixel format"};
     }
 
-    assert(FreeImage_GetLine(*image) / FreeImage_GetWidth(*image) == 4);
+    contract_assert(FreeImage_GetLine(*image) / FreeImage_GetWidth(*image) == 4);
 
     auto* outBytes = buffers.at(0).data();
     const auto outBytesPerRow = int(imageWidth * 4);
@@ -216,7 +215,7 @@ std::vector<std::string> getSupportedFreeImageExtensions()
   auto result = std::vector<std::string>{};
 
   const auto count = FreeImage_GetFIFCount();
-  assert(count >= 0);
+  contract_assert(count >= 0);
 
   for (int i = 0; i < count; ++i)
   {

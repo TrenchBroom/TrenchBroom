@@ -384,7 +384,7 @@ TEST_CASE("Map_Nodes")
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{oldParent, {entityNode}}});
 
-      assert(entityNode->parent() == oldParent);
+      REQUIRE(entityNode->parent() == oldParent);
       CHECK(reparentNodes(map, {{newParent, {entityNode}}}));
       CHECK(entityNode->parent() == newParent);
 

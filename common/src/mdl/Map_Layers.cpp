@@ -19,7 +19,6 @@
 
 #include "mdl/Map_Layers.h"
 
-#include "Ensure.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Map.h"
@@ -32,6 +31,7 @@
 #include "mdl/SetCurrentLayerCommand.h"
 #include "mdl/Transaction.h"
 
+#include "kd/contracts.h"
 #include "kd/range_utils.h"
 
 #include <algorithm>
@@ -89,9 +89,10 @@ bool moveLayerByOne(Map& map, LayerNode* layerNode, const MoveDirection directio
 
 void setCurrentLayer(Map& map, LayerNode* layerNode)
 {
+  contract_pre(layerNode != nullptr);
+
   auto* currentLayer = map.editorContext().currentLayer();
-  ensure(currentLayer != nullptr, "old currentLayer is not null");
-  ensure(layerNode != nullptr, "new currentLayer is not null");
+  contract_assert(currentLayer != nullptr);
 
   auto transaction = Transaction{map, "Set Current Layer"};
 
@@ -133,7 +134,7 @@ void renameLayer(Map& map, LayerNode* layerNode, const std::string& name)
 
 void moveLayer(Map& map, LayerNode* layer, const int offset)
 {
-  ensure(layer != map.world()->defaultLayer(), "attempted to move default layer");
+  contract_pre(layer != map.world()->defaultLayer());
 
   auto transaction = Transaction{map, "Move Layer"};
 
@@ -151,7 +152,7 @@ void moveLayer(Map& map, LayerNode* layer, const int offset)
 
 bool canMoveLayer(const Map& map, LayerNode* layerNode, const int offset)
 {
-  ensure(layerNode != nullptr, "null layer");
+  contract_pre(layerNode != nullptr);
 
   auto* worldNode = map.world();
   if (layerNode == worldNode->defaultLayer())
@@ -178,7 +179,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
   auto nodesToSelect = std::vector<Node*>{};
 
   const auto addBrushOrPatchNode = [&](auto* node) {
-    assert(node->selected());
+    contract_pre(node->selected());
 
     if (!node->containedInGroup())
     {
@@ -206,7 +207,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
       [](WorldNode*) {},
       [](LayerNode*) {},
       [&](GroupNode* groupNode) {
-        assert(groupNode->selected());
+        contract_pre(groupNode->selected());
 
         if (!groupNode->containedInGroup())
         {
@@ -215,7 +216,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
         }
       },
       [&](EntityNode* entityNode) {
-        assert(entityNode->selected());
+        contract_pre(entityNode->selected());
 
         if (!entityNode->containedInGroup())
         {
@@ -246,7 +247,8 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
 
 bool canMoveSelectedNodesToLayer(const Map& map, LayerNode* layerNode)
 {
-  ensure(layerNode != nullptr, "null layer");
+  contract_pre(layerNode != nullptr);
+
   const auto& nodes = map.selection().nodes;
 
   const auto isAnyNodeInGroup = std::ranges::any_of(

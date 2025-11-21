@@ -21,9 +21,9 @@
 #pragma once
 
 #include "kd/collection_utils.h"
+#include "kd/contracts.h"
 
 #include <algorithm>
-#include <cassert>
 #include <functional>
 #include <iterator>
 #include <type_traits>
@@ -98,9 +98,11 @@ std::vector<T> vec_from(T t, Rest... rest)
 template <typename T, typename I>
 const T& vec_at(const std::vector<T>& v, const I index)
 {
-  assert(index >= 0);
+  contract_pre(index >= 0);
+
   const auto index_s = static_cast<typename std::vector<T>::size_type>(index);
-  assert(index_s < v.size());
+  contract_assert(index_s < v.size());
+
   return v[index_s];
 }
 
@@ -117,9 +119,11 @@ const T& vec_at(const std::vector<T>& v, const I index)
 template <typename T, typename I>
 T& vec_at(std::vector<T>& v, const I index)
 {
-  assert(index >= 0);
+  contract_pre(index >= 0);
+
   const auto index_s = static_cast<typename std::vector<T>::size_type>(index);
-  assert(index_s < v.size());
+  contract_assert(index_s < v.size());
+
   return v[index_s];
 }
 
@@ -135,7 +139,8 @@ T& vec_at(std::vector<T>& v, const I index)
 template <typename T>
 T vec_pop_back(std::vector<T>& v)
 {
-  assert(!v.empty());
+  contract_pre(!v.empty());
+
   T result = std::move(v.back());
   v.pop_back();
   return result;
@@ -153,7 +158,8 @@ T vec_pop_back(std::vector<T>& v)
 template <typename T>
 T vec_pop_front(std::vector<T>& v)
 {
-  assert(!v.empty());
+  contract_pre(!v.empty());
+
   T result = std::move(v.front());
   v.erase(v.begin(), v.begin() + 1);
   return result;
@@ -355,7 +361,7 @@ template <typename T, typename A>
 std::vector<T, A> vec_slice(
   const std::vector<T, A>& v, const std::size_t offset, const std::size_t count)
 {
-  assert(offset + count <= v.size());
+  contract_pre(offset + count <= v.size());
 
   std::vector<T, A> result;
   result.reserve(count);
@@ -386,7 +392,7 @@ template <typename T, typename A>
 std::vector<T, A> vec_slice(
   std::vector<T, A>&& v, const std::size_t offset, const std::size_t count)
 {
-  assert(offset + count <= v.size());
+  contract_pre(offset + count <= v.size());
 
   std::vector<T, A> result;
   result.reserve(count);
@@ -415,7 +421,8 @@ std::vector<T, A> vec_slice(
 template <typename T, typename A>
 std::vector<T, A> vec_slice_prefix(const std::vector<T, A>& v, const std::size_t count)
 {
-  assert(count <= v.size());
+  contract_pre(count <= v.size());
+
   return vec_slice(v, 0u, count);
 }
 
@@ -435,7 +442,8 @@ std::vector<T, A> vec_slice_prefix(const std::vector<T, A>& v, const std::size_t
 template <typename T, typename A>
 std::vector<T, A> vec_slice_prefix(std::vector<T, A>&& v, const std::size_t count)
 {
-  assert(count <= v.size());
+  contract_pre(count <= v.size());
+
   return vec_slice(std::move(v), 0u, count);
 }
 
@@ -455,7 +463,8 @@ std::vector<T, A> vec_slice_prefix(std::vector<T, A>&& v, const std::size_t coun
 template <typename T, typename A>
 std::vector<T, A> vec_slice_suffix(const std::vector<T, A>& v, const std::size_t count)
 {
-  assert(count <= v.size());
+  contract_pre(count <= v.size());
+
   return vec_slice(v, v.size() - count, count);
 }
 
@@ -475,7 +484,8 @@ std::vector<T, A> vec_slice_suffix(const std::vector<T, A>& v, const std::size_t
 template <typename T, typename A>
 std::vector<T, A> vec_slice_suffix(std::vector<T, A>&& v, const std::size_t count)
 {
-  assert(count <= v.size());
+  contract_pre(count <= v.size());
+
   return vec_slice(std::move(v), v.size() - count, count);
 }
 
@@ -515,7 +525,8 @@ template <typename T, typename A>
 std::vector<T, A> vec_erase_at(
   std::vector<T, A> v, const typename std::vector<T, A>::size_type i)
 {
-  assert(i < v.size());
+  contract_pre(i < v.size());
+
   auto it =
     std::next(std::begin(v), static_cast<typename std::vector<T, A>::difference_type>(i));
   v.erase(it);

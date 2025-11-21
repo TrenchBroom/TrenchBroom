@@ -44,6 +44,8 @@
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
+
 #include <vector>
 
 namespace tb::ui
@@ -385,7 +387,8 @@ QWidget* ViewEditor::createBrushesPanel(QWidget* parent)
     &ViewEditor::showBrushesChanged);
 
   auto* innerLayout = qobject_cast<QBoxLayout*>(inner->layout());
-  ensure(innerLayout, "inner sizer is null");
+  contract_assert(innerLayout);
+
   innerLayout->insertWidget(0, m_showBrushesCheckBox);
 
   return panel;
@@ -422,7 +425,7 @@ void ViewEditor::createEmptyTagFilter(QWidget* parent)
 
 void ViewEditor::createTagFilter(QWidget* parent, const std::vector<mdl::SmartTag>& tags)
 {
-  assert(!tags.empty());
+  contract_pre(!tags.empty());
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);

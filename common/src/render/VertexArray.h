@@ -19,13 +19,13 @@
 
 #pragma once
 
-#include "Ensure.h"
 #include "render/GL.h"
 #include "render/GLVertex.h"
 #include "render/ShaderManager.h"
 #include "render/Vbo.h"
 #include "render/VboManager.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <memory>
@@ -85,7 +85,8 @@ private:
 
     void setup() override
     {
-      ensure(m_vbo, "block is null");
+      contract_pre(m_vbo);
+
       m_vbo->bind();
       VertexSpec::setup(m_vboManager->shaderManager().currentProgram(), m_vbo->offset());
     }

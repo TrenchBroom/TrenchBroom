@@ -40,6 +40,8 @@
 #include "ui/ThreePaneMapView.h"
 #include "ui/TwoPaneMapView.h"
 
+#include "kd/contracts.h"
+
 namespace tb::ui
 {
 SwitchableMapViewContainer::SwitchableMapViewContainer(
@@ -147,7 +149,8 @@ bool SwitchableMapViewContainer::canToggleAssembleBrushTool() const
 
 void SwitchableMapViewContainer::toggleAssembleBrushTool()
 {
-  assert(canToggleAssembleBrushTool());
+  contract_pre(canToggleAssembleBrushTool());
+
   m_toolBox->toggleAssembleBrushTool();
 }
 
@@ -164,7 +167,8 @@ bool SwitchableMapViewContainer::canToggleClipTool() const
 
 void SwitchableMapViewContainer::toggleClipTool()
 {
-  assert(canToggleClipTool());
+  contract_pre(canToggleClipTool());
+
   m_toolBox->toggleClipTool();
 }
 
@@ -186,7 +190,8 @@ bool SwitchableMapViewContainer::canToggleRotateTool() const
 
 void SwitchableMapViewContainer::toggleRotateTool()
 {
-  assert(canToggleRotateTool());
+  contract_pre(canToggleRotateTool());
+
   m_toolBox->toggleRotateTool();
 }
 
@@ -208,7 +213,8 @@ bool SwitchableMapViewContainer::canToggleScaleTool() const
 
 void SwitchableMapViewContainer::toggleScaleTool()
 {
-  assert(canToggleScaleTool());
+  contract_pre(canToggleScaleTool());
+
   m_toolBox->toggleScaleTool();
 }
 
@@ -220,7 +226,8 @@ bool SwitchableMapViewContainer::canToggleShearTool() const
 
 void SwitchableMapViewContainer::toggleShearTool()
 {
-  assert(canToggleShearTool());
+  contract_pre(canToggleShearTool());
+
   m_toolBox->toggleShearTool();
 }
 
@@ -253,19 +260,22 @@ bool SwitchableMapViewContainer::faceToolActive() const
 
 void SwitchableMapViewContainer::toggleVertexTool()
 {
-  assert(canToggleVertexTools());
+  contract_pre(canToggleVertexTools());
+
   m_toolBox->toggleVertexTool();
 }
 
 void SwitchableMapViewContainer::toggleEdgeTool()
 {
-  assert(canToggleVertexTools());
+  contract_pre(canToggleVertexTools());
+
   m_toolBox->toggleEdgeTool();
 }
 
 void SwitchableMapViewContainer::toggleFaceTool()
 {
-  assert(canToggleVertexTools());
+  contract_pre(canToggleVertexTools());
+
   m_toolBox->toggleFaceTool();
 }
 
@@ -309,7 +319,7 @@ bool SwitchableMapViewContainer::canMoveCameraToPreviousTracePoint() const
 
 void SwitchableMapViewContainer::moveCameraToNextTracePoint()
 {
-  assert(m_document.isPointFileLoaded());
+  contract_pre(m_document.isPointFileLoaded());
 
   if (auto* pointTrace = m_document.pointTrace())
   {
@@ -320,7 +330,7 @@ void SwitchableMapViewContainer::moveCameraToNextTracePoint()
 
 void SwitchableMapViewContainer::moveCameraToPreviousTracePoint()
 {
-  assert(m_document.isPointFileLoaded());
+  contract_pre(m_document.isPointFileLoaded());
 
   if (auto* pointTrace = m_document.pointTrace())
   {

@@ -37,6 +37,7 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
 
+#include "kd/contracts.h"
 #include "kd/map_utils.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
@@ -140,7 +141,7 @@ std::optional<EdgeInfo> getEdgeInfo(
 
   const auto leftFaceIndex = edge->firstFace()->payload();
   const auto rightFaceIndex = edge->secondFace()->payload();
-  assert(leftFaceIndex && rightFaceIndex);
+  contract_assert(leftFaceIndex && rightFaceIndex);
 
   const auto& leftFace = brushNode->brush().face(*leftFaceIndex);
   const auto& rightFace = brushNode->brush().face(*rightFaceIndex);
@@ -313,7 +314,7 @@ std::vector<ExtrudeDragHandle> getDragHandles(
     return {};
   }
 
-  assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
+  contract_assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
   const auto& data = hit.target<const ExtrudeHitData&>();
 
   return collectCoplanarFaces(nodes, data.face)
@@ -371,7 +372,8 @@ std::vector<mdl::BrushFaceHandle> ExtrudeTool::getDragFaces(
  */
 void ExtrudeTool::beginExtrude()
 {
-  ensure(!m_dragging, "may not be called during a drag");
+  contract_pre(!m_dragging);
+
   m_dragging = true;
   m_map.startTransaction("Resize Brushes", mdl::TransactionScope::LongRunning);
 }
@@ -570,7 +572,7 @@ std::vector<vm::polygon3d> getPolygons(const std::vector<ExtrudeDragHandle>& dra
 
 bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragState)
 {
-  ensure(m_dragging, "may only be called during a drag");
+  contract_pre(m_dragging);
 
   if (dragState.splitBrushes)
   {
@@ -604,14 +606,15 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
 
 void ExtrudeTool::beginMove()
 {
-  ensure(!m_dragging, "may not be called during a drag");
+  contract_pre(!m_dragging);
+
   m_dragging = true;
   m_map.startTransaction("Move Faces", mdl::TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
-  ensure(m_dragging, "may only be called during a drag");
+  contract_pre(m_dragging);
 
   m_map.rollbackTransaction();
   if (transformFaces(
@@ -635,7 +638,7 @@ bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
 
 void ExtrudeTool::commit(const ExtrudeDragState& dragState)
 {
-  ensure(m_dragging, "may only be called during a drag");
+  contract_pre(m_dragging);
 
   if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
@@ -651,7 +654,7 @@ void ExtrudeTool::commit(const ExtrudeDragState& dragState)
 
 void ExtrudeTool::cancel()
 {
-  ensure(m_dragging, "may only be called during a drag");
+  contract_pre(m_dragging);
 
   m_map.cancelTransaction();
   m_proposedDragHandles.clear();

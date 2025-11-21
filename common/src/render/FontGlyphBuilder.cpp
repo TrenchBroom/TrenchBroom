@@ -19,9 +19,10 @@
 
 #include "FontGlyphBuilder.h"
 
-#include "Ensure.h"
 #include "render/FontGlyph.h"
 #include "render/FontTexture.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 #include <cstring>
@@ -39,7 +40,7 @@ FontGlyphBuilder::FontGlyphBuilder(
   , m_x{m_margin}
   , m_y{m_margin}
 {
-  ensure(m_textureBuffer != nullptr, "textureBuffer is null");
+  contract_pre(m_textureBuffer != nullptr);
 }
 
 FontGlyph FontGlyphBuilder::createGlyph(
@@ -78,7 +79,8 @@ void FontGlyphBuilder::drawGlyph(
   for (size_t r = 0; r < height; ++r)
   {
     const auto index = (r + y) * m_textureSize + x;
-    assert(index + width < m_textureSize * m_textureSize);
+    contract_assert(index + width < m_textureSize * m_textureSize);
+
     std::memcpy(m_textureBuffer + index, glyphBuffer + r * pitch, width);
   }
 }

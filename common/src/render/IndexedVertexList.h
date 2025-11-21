@@ -21,6 +21,7 @@
 
 #include "render/GL.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <vector>
@@ -62,15 +63,17 @@ public:
 
   void addVertex(const typename T::Vertex& vertex)
   {
-    assert(m_allowDynamicGrowth || m_vertices.capacity() > m_vertices.size());
+    contract_pre(m_allowDynamicGrowth || m_vertices.capacity() > m_vertices.size());
+
     m_vertices.push_back(vertex);
   }
 
   void addVertices(const typename T::Vertex::List& vertices)
   {
-    assert(
+    contract_pre(
       m_allowDynamicGrowth
       || vertices.size() <= m_vertices.capacity() - m_vertices.size());
+
     m_vertices = kdl::vec_concat(std::move(m_vertices), vertices);
   }
 
@@ -82,15 +85,16 @@ public:
 
   void addPrimitives(const IndexedVertexList& primitives)
   {
-    assert(
+    contract_pre(
       m_allowDynamicGrowth
       || primitives.vertices().size() <= m_vertices.capacity() - m_vertices.size());
-    assert(
+    contract_pre(
       m_allowDynamicGrowth
       || primitives.indices().size() <= m_indices.capacity() - m_indices.size());
-    assert(
+    contract_pre(
       m_allowDynamicGrowth
       || primitives.counts().size() <= m_counts.capacity() - m_counts.size());
+
     m_vertices = kdl::vec_concat(std::move(m_vertices), primitives.vertices());
     m_indices = kdl::vec_concat(std::move(m_indices), primitives.indices());
     m_counts = kdl::vec_concat(std::move(m_counts), primitives.counts());
@@ -101,8 +105,8 @@ public:
   {
     if (m_primStart < m_vertices.size())
     {
-      assert(m_allowDynamicGrowth || m_indices.capacity() > m_indices.size());
-      assert(m_allowDynamicGrowth || m_counts.capacity() > m_counts.size());
+      contract_assert(m_allowDynamicGrowth || m_indices.capacity() > m_indices.size());
+      contract_assert(m_allowDynamicGrowth || m_counts.capacity() > m_counts.size());
 
       m_indices.push_back(static_cast<GLint>(m_primStart));
       m_counts.push_back(static_cast<GLsizei>(m_vertices.size() - m_primStart));
@@ -116,7 +120,8 @@ public:
 
   size_t primCount() const
   {
-    assert(m_indices.size() == m_counts.size());
+    contract_assert(m_indices.size() == m_counts.size());
+
     return m_indices.size();
   }
 

@@ -125,20 +125,20 @@ void FourPaneMapView::onSplitterMoved(
   auto* moved = qobject_cast<QSplitter*>(QObject::sender());
   auto* other = (moved == m_leftVSplitter) ? m_rightVSplitter : m_leftVSplitter;
 
-  assert(index == 1);
-  assert(moved == m_leftVSplitter || moved == m_rightVSplitter);
+  contract_assert(index == 1);
+  contract_assert(moved == m_leftVSplitter || moved == m_rightVSplitter);
 
   other->setSizes(moved->sizes());
 }
 
 void FourPaneMapView::maximizeView(MapView* view)
 {
-  assert(
+  contract_pre(
     view == m_mapView3D || view == m_mapViewXY || view == m_mapViewXZ
     || view == m_mapViewYZ);
 
   QWidget* viewAsWidget = dynamic_cast<MapViewBase*>(view);
-  assert(viewAsWidget != nullptr);
+  contract_assert(viewAsWidget != nullptr);
 
   const bool inLeft = m_leftVSplitter->isAncestorOf(viewAsWidget);
   if (inLeft)

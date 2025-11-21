@@ -44,6 +44,7 @@
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/contracts.h"
 #include "kd/string_utils.h"
 
 #include <string>
@@ -240,7 +241,7 @@ void LaunchGameEngineDialog::editGameEngines()
 void LaunchGameEngineDialog::launchEngine()
 {
   const auto* profile = m_gameEngineList->selectedProfile();
-  ensure(profile != nullptr, "profile is null");
+  contract_assert(profile != nullptr);
 
   launchGameEngineProfile(*profile, variables())
     | kdl::transform_error([](const auto& e) {

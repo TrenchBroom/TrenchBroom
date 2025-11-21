@@ -19,7 +19,7 @@
 
 #include "PickRequest.h"
 
-#include "Ensure.h"
+#include "kd/contracts.h"
 
 namespace tb::ui
 {
@@ -38,7 +38,8 @@ const vm::ray3d& PickRequest::pickRay() const
 
 const render::Camera& PickRequest::camera() const
 {
-  ensure(m_camera != nullptr, "camera is null");
+  contract_assert(m_camera != nullptr);
+
   return *m_camera;
 }
 

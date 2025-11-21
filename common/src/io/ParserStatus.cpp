@@ -23,12 +23,14 @@
 #include "Logger.h"
 #include "io/ParserException.h"
 
-#include <cassert>
+#include "kd/contracts.h"
+
 #include <sstream>
 #include <string>
 
 namespace tb::io
 {
+
 ParserStatus::ParserStatus(Logger& logger, std::string prefix)
   : m_logger{logger}
   , m_prefix{std::move(prefix)}
@@ -39,7 +41,8 @@ ParserStatus::~ParserStatus() {}
 
 void ParserStatus::progress(const double progress)
 {
-  assert(progress >= 0.0 && progress <= 1.0);
+  contract_pre(progress >= 0.0 && progress <= 1.0);
+
   doProgress(progress);
 }
 

@@ -39,6 +39,7 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"
 
+#include "kd/contracts.h"
 #include "kd/functional.h"
 #include "kd/path_hash.h"
 #include "kd/path_utils.h"
@@ -405,7 +406,7 @@ std::vector<mdl::MaterialCollection> groupMaterialsIntoCollections(
            return lhs.collectionName() == rhs.collectionName();
          })
          | std::views::transform([&](auto groupedMaterials) {
-             assert(!groupedMaterials.empty());
+             contract_assert(!groupedMaterials.empty());
 
              auto materialCollectionName = groupedMaterials.front().collectionName();
 

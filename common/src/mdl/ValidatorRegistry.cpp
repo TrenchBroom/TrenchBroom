@@ -19,9 +19,9 @@
 
 #include "ValidatorRegistry.h"
 
-#include "Ensure.h"
 #include "mdl/Validator.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -57,8 +57,9 @@ std::vector<const IssueQuickFix*> ValidatorRegistry::quickFixes(
 
 void ValidatorRegistry::registerValidator(std::unique_ptr<Validator> validator)
 {
-  ensure(validator != nullptr, "validator is null");
-  assert(!kdl::vec_contains(m_validators, validator));
+  contract_pre(validator != nullptr);
+  contract_pre(!kdl::vec_contains(m_validators, validator));
+
   m_validators.push_back(std::move(validator));
 }
 

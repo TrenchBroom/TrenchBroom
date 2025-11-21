@@ -42,6 +42,7 @@
 #include "ui/Lasso.h"
 #include "ui/Tool.h"
 
+#include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
@@ -52,7 +53,6 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <cassert>
 #include <map>
 #include <ranges>
 #include <string>
@@ -148,7 +148,8 @@ public:
 public: // Handle selection
   bool select(const std::vector<mdl::Hit>& hits, const bool addToSelection)
   {
-    assert(!hits.empty());
+    contract_pre(!hits.empty());
+
     if (const auto& firstHit = hits.front(); firstHit.type() == handleManager().hitType())
     {
       if (!addToSelection)
@@ -230,7 +231,8 @@ public: // performing moves
 
   virtual bool startMove(const std::vector<mdl::Hit>& hits)
   {
-    assert(!hits.empty());
+    contract_pre(!hits.empty());
+
 
     // Delesect all handles if any of the hit handles is not already selected.
     for (const auto& hit : hits)
@@ -328,8 +330,9 @@ public: // csg convex merge
 
   virtual H getHandlePosition(const mdl::Hit& hit) const
   {
-    assert(hit.isMatch());
-    assert(hit.hasType(handleManager().hitType()));
+    contract_pre(hit.isMatch());
+    contract_pre(hit.hasType(handleManager().hitType()));
+
     return hit.target<H>();
   }
 

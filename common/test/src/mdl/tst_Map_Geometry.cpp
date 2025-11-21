@@ -41,6 +41,7 @@
 #include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/ranges/zip_view.h"
 
@@ -1138,8 +1139,8 @@ TEST_CASE("Map_Geometry")
       auto* brushNode3 = entityNode->children().back();
 
       // check our assumption about the order of the entities' children
-      assert(brushNode3 != brushNode1);
-      assert(brushNode3 != brushNode2);
+      contract_assert(brushNode3 != brushNode1);
+      contract_assert(brushNode3 != brushNode2);
 
       const auto face1Verts = face1.vertexPositions();
       const auto face2Verts = face2.vertexPositions();

@@ -19,7 +19,6 @@
 
 #include "SetBrushFaceAttributesTool.h"
 
-#include "Ensure.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -38,6 +37,8 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
+
+#include "kd/contracts.h"
 
 #include <vector>
 
@@ -184,17 +185,16 @@ std::optional<mdl::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
 
   auto* newTargetBrushNode =
     dynamic_cast<mdl::BrushNode*>(linkedTargetBrushNodesInSourceGroup.front());
-  ensure(newTargetBrushNode, "linked nodes are consistent");
+  contract_assert(newTargetBrushNode);
 
   const auto* oldTargetContainingGroupNode = oldTargetBrushNode.containingGroup();
-  assert(oldTargetContainingGroupNode);
+  contract_assert(oldTargetContainingGroupNode);
 
   const auto* newTargetContainingGroupNode = newTargetBrushNode->containingGroup();
-  assert(newTargetContainingGroupNode);
+  contract_assert(newTargetContainingGroupNode);
 
-  ensure(
-    oldTargetContainingGroupNode->linkId() == newTargetContainingGroupNode->linkId(),
-    "containing groups are linked");
+  contract_assert(
+    oldTargetContainingGroupNode->linkId() == newTargetContainingGroupNode->linkId());
 
   const auto oldTargetTransformation =
     vm::invert(oldTargetContainingGroupNode->group().transformation());
@@ -387,10 +387,10 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
 {
   using namespace mdl::HitFilters;
 
-  assert(canCopyAttributesFromSelection(inputState));
+  contract_pre(canCopyAttributesFromSelection(inputState));
 
   const auto selectedFaces = m_map.selection().brushFaces;
-  assert(!selectedFaces.empty());
+  contract_assert(!selectedFaces.empty());
 
   const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
   if (const auto targetFaceHandle = mdl::hitToFaceHandle(hit))

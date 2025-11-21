@@ -37,6 +37,7 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -45,7 +46,6 @@
 #include "vm/vec_ext.h"
 
 #include <algorithm>
-#include <cassert>
 #include <memory>
 #include <ranges>
 
@@ -219,11 +219,9 @@ public:
     const DragState& dragState,
     const vm::vec3d& proposedHandlePosition) override
   {
-    auto polyhedron = m_oldPolyhedron;
-    assert(polyhedron.polygon());
+    contract_pre(m_oldPolyhedron.polygon());
 
     const auto delta = proposedHandlePosition - dragState.initialHandlePosition;
-
     const auto* face = m_oldPolyhedron.faces().front();
     const auto points = face->vertexPositions() + delta;
 

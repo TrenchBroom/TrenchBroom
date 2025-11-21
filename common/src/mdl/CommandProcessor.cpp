@@ -21,13 +21,12 @@
 
 #include <QDateTime>
 
-#include "Ensure.h"
-#include "Exceptions.h"
 #include "Notifier.h"
 #include "mdl/Command.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UndoableCommand.h"
 
+#include "kd/contracts.h"
 #include "kd/set_temp.h"
 #include "kd/vector_utils.h"
 
@@ -85,7 +84,7 @@ private:
     for (auto& command : m_commands)
     {
       notifyCommandIfNotType<TransactionCommand>(m_commandDoNotifier, *command);
-      ensure(command->performDo(map), "Transaction can be redone successfully");
+      contract_assert(command->performDo(map));
       notifyCommandIfNotType<TransactionCommand>(m_commandDoneNotifier, *command);
     }
     return true;
@@ -102,7 +101,7 @@ private:
     {
       auto& command = *it;
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoNotifier, *command);
-      ensure(command->performUndo(map), "Transaction can be undone successfully");
+      contract_assert(command->performUndo(map));
       notifyCommandIfNotType<TransactionCommand>(m_commandUndoneNotifier, *command);
     }
     return true;
@@ -212,14 +211,14 @@ void CommandProcessor::startTransaction(std::string name, const TransactionScope
 
 void CommandProcessor::commitTransaction()
 {
-  ensure(!m_transactionStack.empty(), "a transaction is currently executing");
+  contract_pre(!m_transactionStack.empty());
 
   createAndStoreTransaction();
 }
 
 void CommandProcessor::rollbackTransaction()
 {
-  ensure(!m_transactionStack.empty(), "a transaction is currently executing");
+  contract_pre(!m_transactionStack.empty());
 
   auto& transaction = m_transactionStack.back();
   for (auto it = std::rbegin(transaction.commands), end = std::rend(transaction.commands);
@@ -256,8 +255,8 @@ bool CommandProcessor::executeAndStore(std::unique_ptr<UndoableCommand> command)
 
 bool CommandProcessor::undo()
 {
-  ensure(m_transactionStack.empty(), "no running transaction");
-  ensure(!m_undoStack.empty(), "undo stack is not empty");
+  contract_pre(m_transactionStack.empty());
+  contract_pre(!m_undoStack.empty());
 
   auto command = popFromUndoStack();
   const auto result = undoCommand(*command);
@@ -272,8 +271,8 @@ bool CommandProcessor::undo()
 
 bool CommandProcessor::redo()
 {
-  ensure(m_transactionStack.empty(), "no running transaction");
-  ensure(!m_redoStack.empty(), "undo stack is not empty");
+  contract_pre(m_transactionStack.empty());
+  contract_pre(!m_redoStack.empty());
 
   auto command = popFromRedoStack();
   const auto result = executeCommand(*command);
@@ -286,7 +285,7 @@ bool CommandProcessor::redo()
 
 void CommandProcessor::clear()
 {
-  assert(m_transactionStack.empty());
+  contract_pre(m_transactionStack.empty());
 
   m_undoStack.clear();
   m_redoStack.clear();
@@ -357,7 +356,8 @@ bool CommandProcessor::storeCommand(
 bool CommandProcessor::pushTransactionCommand(
   std::unique_ptr<UndoableCommand> command, const bool collate)
 {
-  assert(!m_transactionStack.empty());
+  contract_pre(!m_transactionStack.empty());
+
   auto& transaction = m_transactionStack.back();
   if (!transaction.commands.empty())
   {
@@ -374,7 +374,7 @@ bool CommandProcessor::pushTransactionCommand(
 
 void CommandProcessor::createAndStoreTransaction()
 {
-  assert(!m_transactionStack.empty());
+  contract_pre(!m_transactionStack.empty());
 
   auto transaction = kdl::vec_pop_back(m_transactionStack);
   if (!transaction.commands.empty())
@@ -412,7 +412,7 @@ std::unique_ptr<UndoableCommand> CommandProcessor::createTransaction(
 bool CommandProcessor::pushToUndoStack(
   std::unique_ptr<UndoableCommand> command, const bool collate)
 {
-  assert(m_transactionStack.empty());
+  contract_pre(m_transactionStack.empty());
 
   const auto timestamp = std::chrono::system_clock::now();
   const auto setLastCommandTimestamp = kdl::set_later{m_lastCommandTimestamp, timestamp};
@@ -432,8 +432,8 @@ bool CommandProcessor::pushToUndoStack(
 
 std::unique_ptr<UndoableCommand> CommandProcessor::popFromUndoStack()
 {
-  assert(m_transactionStack.empty());
-  assert(!m_undoStack.empty());
+  contract_pre(m_transactionStack.empty());
+  contract_pre(!m_undoStack.empty());
 
   return kdl::vec_pop_back(m_undoStack);
 }
@@ -447,14 +447,15 @@ bool CommandProcessor::collatable(
 
 void CommandProcessor::pushToRedoStack(std::unique_ptr<UndoableCommand> command)
 {
-  assert(m_transactionStack.empty());
+  contract_pre(m_transactionStack.empty());
+
   m_redoStack.push_back(std::move(command));
 }
 
 std::unique_ptr<UndoableCommand> CommandProcessor::popFromRedoStack()
 {
-  assert(m_transactionStack.empty());
-  assert(!m_redoStack.empty());
+  contract_pre(m_transactionStack.empty());
+  contract_pre(!m_redoStack.empty());
 
   return kdl::vec_pop_back(m_redoStack);
 }

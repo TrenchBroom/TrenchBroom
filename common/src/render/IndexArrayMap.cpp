@@ -21,6 +21,8 @@
 
 #include "render/IndexArray.h"
 
+#include "kd/contracts.h"
+
 namespace tb::render
 {
 
@@ -33,7 +35,8 @@ IndexArrayMap::IndexArrayRange::IndexArrayRange(
 
 size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count)
 {
-  assert(capacity - count >= i_count);
+  contract_pre(capacity - count >= i_count);
+
   const auto result = offset + count;
   count += i_count;
   return result;
@@ -95,7 +98,8 @@ IndexArrayMap::Size IndexArrayMap::size() const
 size_t IndexArrayMap::add(const PrimType primType, const size_t count)
 {
   auto it = m_ranges.find(primType);
-  assert(it != std::end(m_ranges));
+  contract_assert(it != std::end(m_ranges));
+
   return it->second.add(count);
 }
 

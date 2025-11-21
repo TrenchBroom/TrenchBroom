@@ -19,9 +19,10 @@
 
 #include "FileLogger.h"
 
-#include "Ensure.h"
 #include "io/DiskIO.h"
 #include "io/SystemPaths.h"
+
+#include "kd/contracts.h"
 
 #include <cassert>
 
@@ -45,7 +46,7 @@ std::ofstream openLogFile(const std::filesystem::path& path)
 FileLogger::FileLogger(const std::filesystem::path& filePath)
   : m_stream{openLogFile(filePath)}
 {
-  ensure(m_stream, "log file could not be opened");
+  contract_assert(m_stream.is_open());
 }
 
 FileLogger& FileLogger::instance()
@@ -56,7 +57,6 @@ FileLogger& FileLogger::instance()
 
 void FileLogger::doLog(const LogLevel /* level */, const std::string_view message)
 {
-  assert(m_stream);
   if (m_stream)
   {
     m_stream << message << std::endl;

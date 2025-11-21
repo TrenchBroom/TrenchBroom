@@ -36,6 +36,7 @@
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
 
+#include "kd/contracts.h"
 #include "kd/k.h"
 
 #include <string>
@@ -69,7 +70,7 @@ bool CreateEntityTool::createEntity(const std::string& classname)
 
 void CreateEntityTool::removeEntity()
 {
-  ensure(m_entity != nullptr, "entity is not null");
+  contract_pre(m_entity != nullptr);
 
   m_map.cancelTransaction();
   m_entity = nullptr;
@@ -77,7 +78,7 @@ void CreateEntityTool::removeEntity()
 
 void CreateEntityTool::commitEntity()
 {
-  ensure(m_entity != nullptr, "entity is not null");
+  contract_pre(m_entity != nullptr);
 
   m_map.commitTransaction();
   m_entity = nullptr;
@@ -85,7 +86,7 @@ void CreateEntityTool::commitEntity()
 
 void CreateEntityTool::updateEntityPosition2D(const vm::ray3d& pickRay)
 {
-  ensure(m_entity != nullptr, "entity is not null");
+  contract_pre(m_entity != nullptr);
 
   const auto toMin = m_referenceBounds.min - pickRay.origin;
   const auto toMax = m_referenceBounds.max - pickRay.origin;
@@ -109,7 +110,7 @@ void CreateEntityTool::updateEntityPosition3D(
 {
   using namespace mdl::HitFilters;
 
-  ensure(m_entity != nullptr, "entity is not null");
+  contract_pre(m_entity != nullptr);
 
   auto delta = vm::vec3d{};
   const auto& grid = m_map.grid();

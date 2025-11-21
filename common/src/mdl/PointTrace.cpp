@@ -19,8 +19,7 @@
 
 #include "PointTrace.h"
 
-#include "Ensure.h"
-
+#include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/distance.h"
@@ -28,7 +27,6 @@
 #include "vm/vec_io.h"
 
 #include <algorithm>
-#include <cassert>
 #include <istream>
 #include <ranges>
 
@@ -38,7 +36,7 @@ namespace tb::mdl
 PointTrace::PointTrace(std::vector<vm::vec3f> points)
   : m_points{std::move(points)}
 {
-  ensure(!m_points.empty(), "Point trace is not empty");
+  contract_pre(!m_points.empty());
 }
 
 bool PointTrace::hasNextPoint() const
@@ -90,7 +88,7 @@ namespace
 
 std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
 {
-  assert(points.size() > 1);
+  contract_pre(points.size() > 1);
 
   auto result = std::vector<vm::vec3f>{points[0]};
 
@@ -122,7 +120,7 @@ std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
     ++it;
   }
 
-  assert(result.size() > 1);
+  contract_post(result.size() > 1);
   return result;
 }
 

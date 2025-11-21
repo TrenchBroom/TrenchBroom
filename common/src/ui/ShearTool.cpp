@@ -20,7 +20,6 @@
 
 #include "ShearTool.h"
 
-#include "Ensure.h"
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
@@ -30,6 +29,8 @@
 #include "mdl/TransactionScope.h"
 #include "render/Camera.h"
 #include "ui/ScaleTool.h"
+
+#include "kd/contracts.h"
 
 #include "vm/intersection.h"
 
@@ -69,7 +70,8 @@ void ShearTool::pickBackSides(
     // The hit point is the closest point on the pick ray to one of the edges of the face.
     // For face dragging, we'll project the pick ray onto the line through this point and
     // having the face normal.
-    assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
+    contract_assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
+
     pickResult.addHit(mdl::Hit{
       ShearToolSideHitType,
       result.distAlongRay,
@@ -120,7 +122,7 @@ void ShearTool::pick3D(
   auto localPickResult = mdl::PickResult{};
 
   // these handles only work in 3D.
-  assert(camera.perspectiveProjection());
+  contract_assert(camera.perspectiveProjection());
 
   // sides
   for (const auto& side : allSides())
@@ -147,7 +149,8 @@ void ShearTool::pick3D(
 vm::bbox3d ShearTool::bounds() const
 {
   const auto& bounds = m_map.selectionBounds();
-  ensure(bounds, "selection bounds are available");
+  contract_assert(bounds != std::nullopt);
+
   return *bounds;
 }
 
@@ -159,9 +162,9 @@ vm::bbox3d ShearTool::bboxAtDragStart() const
 
 void ShearTool::startShearWithHit(const mdl::Hit& hit)
 {
-  ensure(hit.isMatch(), "must start with matching hit");
-  ensure(hit.type() == ShearToolSideHitType, "wrong hit type");
-  ensure(!m_resizing, "must not be resizing already");
+  contract_pre(hit.isMatch());
+  contract_pre(hit.type() == ShearToolSideHitType);
+  contract_pre(!m_resizing);
 
   m_bboxAtDragStart = bounds();
   m_dragStartHit = hit;
@@ -173,7 +176,7 @@ void ShearTool::startShearWithHit(const mdl::Hit& hit)
 
 void ShearTool::commitShear()
 {
-  ensure(m_resizing, "must be resizing already");
+  contract_pre(m_resizing);
 
   if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
   {
@@ -188,7 +191,7 @@ void ShearTool::commitShear()
 
 void ShearTool::cancelShear()
 {
-  ensure(m_resizing, "must be resizing already");
+  contract_pre(m_resizing);
 
   m_map.cancelTransaction();
   m_resizing = false;
@@ -196,7 +199,7 @@ void ShearTool::cancelShear()
 
 void ShearTool::shearByDelta(const vm::vec3d& delta)
 {
-  ensure(m_resizing, "must be resizing already");
+  contract_pre(m_resizing);
 
   m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 

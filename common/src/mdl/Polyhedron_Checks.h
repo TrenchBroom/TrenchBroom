@@ -19,6 +19,8 @@
 
 #include "Polyhedron.h"
 
+#include "kd/contracts.h"
+
 namespace tb::mdl
 {
 template <typename T, typename FP, typename VP>
@@ -441,9 +443,10 @@ bool Polyhedron<T, FP, VP>::checkEdgeLengths(const T minLength) const
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::checkLeavingEdges(const Vertex* v) const
 {
-  assert(v != nullptr);
+  contract_pre(v != nullptr);
+  contract_pre(v->leaving() != nullptr);
+
   const auto* firstEdge = v->leaving();
-  assert(firstEdge != nullptr);
   const auto* curEdge = firstEdge;
 
   do

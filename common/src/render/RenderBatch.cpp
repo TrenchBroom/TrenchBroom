@@ -19,10 +19,10 @@
 
 #include "RenderBatch.h"
 
-#include "Ensure.h"
 #include "render/Renderable.h"
 #include "render/VboManager.h"
 
+#include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 namespace tb::render
@@ -113,7 +113,8 @@ void RenderBatch::render(RenderContext& renderContext)
 
 void RenderBatch::doAdd(Renderable* renderable)
 {
-  ensure(renderable != nullptr, "renderable is null");
+  contract_pre(renderable != nullptr);
+
   m_batch.push_back(renderable);
 }
 

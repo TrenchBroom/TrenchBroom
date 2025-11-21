@@ -29,6 +29,8 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/contracts.h"
+
 namespace tb::mdl
 {
 
@@ -46,10 +48,11 @@ SoftMapBounds softMapBounds(const Map& map)
  */
 void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
 {
-  auto* worldNode = map.world();
-  ensure(worldNode, "world is set");
+  contract_pre(map.world() != nullptr);
 
+  auto* worldNode = map.world();
   auto entity = worldNode->entity();
+
   switch (bounds.source)
   {
   case SoftMapBoundsType::Map:
@@ -120,10 +123,11 @@ std::vector<std::string> enabledMods(const Map& map)
 
 void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 {
-  auto* worldNode = map.world();
-  ensure(worldNode, "world is set");
+  contract_pre(map.world());
 
+  auto* worldNode = map.world();
   auto entity = worldNode->entity();
+
   if (mods.empty())
   {
     entity.removeProperty(EntityPropertyKeys::Mods);
@@ -139,10 +143,9 @@ void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 
 std::string defaultMod(const Map& map)
 {
-  const auto* game = map.game();
-  ensure(game, "game is set");
+  contract_pre(map.game());
 
-  return game->defaultMod();
+  return map.game()->defaultMod();
 }
 
 } // namespace tb::mdl

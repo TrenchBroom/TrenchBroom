@@ -19,8 +19,9 @@
 
 #include "render/BrushRendererArrays.h"
 
+#include "kd/contracts.h"
+
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <stdexcept>
 
@@ -136,7 +137,7 @@ std::pair<AllocationTracker::Block*, GLuint*> BrushIndexArray::
 
   // insert again
   block = m_allocationTracker.allocate(elementCount);
-  assert(block != nullptr);
+  contract_assert(block != nullptr);
 
   auto* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
   return {block, dest};
@@ -153,7 +154,8 @@ void BrushIndexArray::zeroElementsWithKey(AllocationTracker::Block* key)
 
 void BrushIndexArray::render(const PrimType primType) const
 {
-  assert(m_indexHolder.prepared());
+  contract_pre(m_indexHolder.prepared());
+
   m_indexHolder.render(primType, 0, m_indexHolder.size());
 }
 
@@ -165,7 +167,7 @@ bool BrushIndexArray::prepared() const
 void BrushIndexArray::prepare(VboManager& vboManager)
 {
   m_indexHolder.prepare(vboManager);
-  assert(m_indexHolder.prepared());
+  contract_post(m_indexHolder.prepared());
 }
 
 void BrushIndexArray::setupIndices()
@@ -200,7 +202,7 @@ std::pair<AllocationTracker::Block*, BrushVertexArray::Vertex*> BrushVertexArray
 
   // insert again
   block = m_allocationTracker.allocate(vertexCount);
-  assert(block != nullptr);
+  contract_assert(block != nullptr);
 
   auto* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
   return {block, dest};
@@ -234,7 +236,7 @@ bool BrushVertexArray::prepared() const
 void BrushVertexArray::prepare(VboManager& vboManager)
 {
   m_vertexHolder.prepare(vboManager);
-  assert(m_vertexHolder.prepared());
+  contract_post(m_vertexHolder.prepared());
 }
 
 } // namespace tb::render

@@ -28,6 +28,7 @@
 #include "io/ParserStatus.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kd/contracts.h"
 #include "kd/invoke.h"
 #include "kd/result.h"
 #include "kd/string_compare.h"
@@ -240,19 +241,22 @@ public:
 
 void FgdParser::pushIncludePath(std::filesystem::path path)
 {
-  assert(!isRecursiveInclude(path));
+  contract_pre(!isRecursiveInclude(path));
+
   m_paths.push_back(std::move(path));
 }
 
 void FgdParser::popIncludePath()
 {
-  assert(!m_paths.empty());
+  contract_pre(!m_paths.empty());
+
   m_paths.pop_back();
 }
 
 std::filesystem::path FgdParser::currentRoot() const
 {
-  assert(m_paths.empty() || !m_paths.back().empty());
+  contract_pre(m_paths.empty() || !m_paths.back().empty());
+
   return !m_paths.empty() ? m_paths.back().parent_path() : std::filesystem::path{};
 }
 
@@ -1116,7 +1120,7 @@ std::string FgdParser::parseString()
 std::vector<EntityDefinitionClassInfo> FgdParser::parseInclude(ParserStatus& status)
 {
   auto token = m_tokenizer.nextToken(FgdToken::Word);
-  assert(kdl::ci::str_is_equal(token.data(), "@include"));
+  contract_assert(kdl::ci::str_is_equal(token.data(), "@include"));
 
   token = m_tokenizer.nextToken(FgdToken::String);
   return handleInclude(status, token.data());

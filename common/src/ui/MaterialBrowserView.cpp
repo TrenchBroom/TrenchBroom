@@ -40,6 +40,7 @@
 #include "render/Transformation.h"
 #include "render/VertexArray.h"
 
+#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
 #include "kd/string_utils.h"
@@ -158,7 +159,7 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
 {
   const auto& fontPath = pref(Preferences::RendererFontPath());
   const auto fontSize = pref(Preferences::BrowserFontSize);
-  assert(fontSize > 0);
+  contract_assert(fontSize > 0);
 
   const auto font = render::FontDescriptor{fontPath, size_t(fontSize)};
 

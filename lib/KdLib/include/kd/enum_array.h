@@ -20,8 +20,9 @@
 
 #pragma once
 
+#include "kd/contracts.h"
+
 #include <array>
-#include <cassert>
 #include <cstddef>
 #include <initializer_list>
 #include <utility>
@@ -96,7 +97,7 @@ public:
   const T& get(const Enum index) const
   {
     const auto i = static_cast<std::size_t>(index);
-    assert(i < Size);
+    contract_assert(i < Size);
     return m_array[i];
   }
 
@@ -111,7 +112,7 @@ public:
   T& get(const Enum index)
   {
     const auto i = static_cast<std::size_t>(index);
-    assert(i < Size);
+    contract_assert(i < Size);
     return m_array[i];
   }
 

@@ -22,6 +22,8 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
 
+#include "kd/contracts.h"
+
 #include "vm/approx.h"
 #include "vm/vec.h"
 
@@ -49,7 +51,7 @@ public:
     : m_value{value}
     , m_epsilon{epsilon}
   {
-    assert(epsilon >= double(0));
+    contract_pre(epsilon >= double(0));
   }
   constexpr explicit approx(const GP value)
     : approx{value, constants<double>::almost_zero()}
