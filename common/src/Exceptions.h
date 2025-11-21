@@ -43,10 +43,4 @@ public:
   using Exception::Exception;
 };
 
-class FileFormatException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 } // namespace tb
