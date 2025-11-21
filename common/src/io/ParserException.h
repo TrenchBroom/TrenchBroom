@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Exceptions.h"
 #include "FileLocation.h"
 
 #include <optional>
@@ -28,10 +27,10 @@
 namespace tb
 {
 
-class ParserException : public Exception
+class ParserException : public std::runtime_error
 {
 public:
-  using Exception::Exception;
+  using std::runtime_error::runtime_error;
 
   explicit ParserException(
     const std::optional<FileLocation>& location, const std::string& str = "");

@@ -19,7 +19,6 @@
 
 #include "ELParser.h"
 
-#include "Exceptions.h"
 #include "FileLocation.h"
 #include "el/Expression.h"
 #include "el/Value.h"
@@ -352,7 +351,7 @@ Result<el::ExpressionNode> ELParser::parse()
     }
     return result;
   }
-  catch (const Exception& e)
+  catch (const ParserException& e)
   {
     return Error{e.what()};
   }

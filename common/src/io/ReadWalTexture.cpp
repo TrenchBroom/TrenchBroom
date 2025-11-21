@@ -241,7 +241,7 @@ Result<mdl::Texture> readWalTexture(
     }
     return readQ2Wal(reader, palette);
   }
-  catch (const Exception& e)
+  catch (const ReaderException& e)
   {
     return Error{e.what()};
   }
