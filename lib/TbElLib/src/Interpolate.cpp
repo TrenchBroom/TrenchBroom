@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Interpolate.h"
+#include "el/Interpolate.h"
 
 #include "el/ELParser.h"
 #include "el/EvaluationContext.h"

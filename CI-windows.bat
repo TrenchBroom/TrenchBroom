@@ -38,6 +38,11 @@ TbBaseLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
+cd lib\TbElLib\test
+TbElLibTest.exe
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+cd "%BUILD_DIR%"
+
 cd lib\VmLib\test
 VmLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR

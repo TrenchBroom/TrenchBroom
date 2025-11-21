@@ -17,10 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ELParser.h"
+#include "el/ELParser.h"
 
 #include "FileLocation.h"
 #include "ParserException.h"
+#include "Result.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/Value.h"
@@ -352,7 +353,7 @@ Result<ExpressionNode> ELParser::parse()
     }
     return result;
   }
-  catch (const Exception& e)
+  catch (const ParserException& e)
   {
     return Error{e.what()};
   }

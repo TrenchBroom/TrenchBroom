@@ -17,7 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
+#include "el/Exceptions.h"
+
 #include "el/Expression.h"
 #include "el/Types.h"
 #include "el/Value.h"
