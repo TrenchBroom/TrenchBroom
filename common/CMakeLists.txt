@@ -1,8 +1,6 @@
 set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
-        ${COMMON_SOURCE_DIR}/Color.cpp
-        ${COMMON_SOURCE_DIR}/ColorChannel.cpp
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/el/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
@@ -12,7 +10,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/el/Value.cpp
         ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
-        ${COMMON_SOURCE_DIR}/FileLocation.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/io/AseLoader.cpp
         ${COMMON_SOURCE_DIR}/io/AssimpLoader.cpp
@@ -234,7 +231,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/VertexHandleManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.cpp
-        ${COMMON_SOURCE_DIR}/NotifierConnection.cpp
         ${COMMON_SOURCE_DIR}/octree.cpp
         ${COMMON_SOURCE_DIR}/Preference.cpp
         ${COMMON_SOURCE_DIR}/PreferenceManager.cpp
@@ -513,11 +509,6 @@ set(COMMON_SOURCE
 )
 
 set(COMMON_HEADER
-        ${COMMON_SOURCE_DIR}/Color.h
-        ${COMMON_SOURCE_DIR}/ColorChannel.h
-        ${COMMON_SOURCE_DIR}/ColorComponentType.h
-        ${COMMON_SOURCE_DIR}/ColorT.h
-        ${COMMON_SOURCE_DIR}/ColorVariantT.h
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/el/EL_Forward.h
         ${COMMON_SOURCE_DIR}/el/ELExceptions.h
@@ -527,9 +518,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/el/Types.h
         ${COMMON_SOURCE_DIR}/el/Value.h
         ${COMMON_SOURCE_DIR}/el/VariableStore.h
-        ${COMMON_SOURCE_DIR}/Error.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
-        ${COMMON_SOURCE_DIR}/FileLocation.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/io/AseLoader.h
         ${COMMON_SOURCE_DIR}/io/AssimpLoader.h
@@ -608,7 +597,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ZipFileSystem.h
         ${COMMON_SOURCE_DIR}/Logger.h
         ${COMMON_SOURCE_DIR}/LoggerCache.h
-        ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
@@ -786,8 +774,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/VisibilityState.h
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.h
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.h
-        ${COMMON_SOURCE_DIR}/Notifier.h
-        ${COMMON_SOURCE_DIR}/NotifierConnection.h
         ${COMMON_SOURCE_DIR}/octree.h
         ${COMMON_SOURCE_DIR}/Preference.h
         ${COMMON_SOURCE_DIR}/PreferenceManager.h
@@ -869,7 +855,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/VboManager.h
         ${COMMON_SOURCE_DIR}/render/VertexArray.h
         ${COMMON_SOURCE_DIR}/render/VertexListBuilder.h
-        ${COMMON_SOURCE_DIR}/Result.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
@@ -1080,7 +1065,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PUBLIC TbBaseLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE GLEW::GLEW OpenGL::GL UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)

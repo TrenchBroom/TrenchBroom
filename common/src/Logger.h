@@ -60,16 +60,9 @@ public:
   virtual ~Logger();
 
   stream debug();
-  void debug(std::string_view message);
-
   stream info();
-  void info(std::string_view message);
-
   stream warn();
-  void warn(std::string_view message);
-
   stream error();
-  void error(std::string_view message);
 
   void log(LogLevel level, std::string_view message);
 

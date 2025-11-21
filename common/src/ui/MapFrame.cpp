@@ -1412,7 +1412,7 @@ mdl::PasteType MapFrame::paste()
 
   if (qtext.isEmpty())
   {
-    logger().error("Clipboard is empty");
+    logger().error() << "Clipboard is empty";
     return mdl::PasteType::Failed;
   }
 
