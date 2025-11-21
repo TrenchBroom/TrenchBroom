@@ -1,5 +1,5 @@
 add_library(TbElTestUtilsLib STATIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/ELTestUtils.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/TestUtils.cpp
 )
 
 target_include_directories(TbElTestUtilsLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

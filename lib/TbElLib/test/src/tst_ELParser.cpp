@@ -18,7 +18,7 @@
  */
 
 #include "el/ELParser.h"
-#include "el/ELTestUtils.h"
+#include "el/TestUtils.h"
 
 #include <string>
 
