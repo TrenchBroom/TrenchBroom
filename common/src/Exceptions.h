@@ -37,12 +37,6 @@ public:
   const char* what() const noexcept override;
 };
 
-class NodeTreeException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 class GameException : public Exception
 {
 public:

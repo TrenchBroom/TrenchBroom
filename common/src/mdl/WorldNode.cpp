@@ -391,26 +391,16 @@ void WorldNode::doDescendantWillBeRemoved(Node* node, const size_t /* depth */)
 {
   if (m_updateNodeTree)
   {
-    const auto doRemove = [&](auto* nodeToRemove) {
-      if (!m_nodeTree->remove(nodeToRemove))
-      {
-        auto str = std::stringstream();
-        str << "Node not found with bounds " << nodeToRemove->physicalBounds() << ": "
-            << nodeToRemove;
-        throw NodeTreeException{str.str()};
-      }
-    };
-
     node->accept(kdl::overload(
       [&](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
       [&](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
       [&](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
       [&](auto&& thisLambda, EntityNode* entity) {
-        doRemove(entity);
+        contract_assert(m_nodeTree->remove(entity));
         entity->visitChildren(thisLambda);
       },
-      [&](BrushNode* brush) { doRemove(brush); },
-      [&](PatchNode* patch) { doRemove(patch); }));
+      [&](BrushNode* brush) { contract_assert(m_nodeTree->remove(brush)); },
+      [&](PatchNode* patch) { contract_assert(m_nodeTree->remove(patch)); }));
   }
 }
 
