@@ -63,7 +63,7 @@ auto parseExpressions(
   return expressionPositions | std::views::transform([&](const auto& expressionPosition) {
            const auto [start, length] = expressionPosition;
            const auto expressionStr = str.substr(start + 2, length - 3);
-           auto parser = io::ELParser{io::ELParser::Mode::Strict, expressionStr};
+           auto parser = ELParser{ELParser::Mode::Strict, expressionStr};
            return parser.parse();
          })
          | kdl::fold;

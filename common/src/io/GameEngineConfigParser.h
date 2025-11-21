@@ -32,7 +32,7 @@ namespace tb::io
 class GameEngineConfigParser
 {
 private:
-  ELParser m_elParser;
+  el::ELParser m_elParser;
 
 public:
   explicit GameEngineConfigParser(std::string_view str);

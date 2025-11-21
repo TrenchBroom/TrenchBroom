@@ -64,7 +64,7 @@ ModelSpecification getModelSpecification(
   const ModelDefinition& modelDefinition, const std::string& entityPropertiesStr)
 {
   return el::withEvaluationContext([&](auto& context) {
-           const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
+           const auto entityPropertiesMap = el::ELParser::parseStrict(entityPropertiesStr)
                                               .value()
                                               .evaluate(context)
                                               .mapValue(context);
@@ -108,7 +108,7 @@ void assertDecalDefinition(
   const std::string& entityPropertiesStr)
 {
   el::withEvaluationContext([&](auto& context) {
-    const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
+    const auto entityPropertiesMap = el::ELParser::parseStrict(entityPropertiesStr)
                                        .value()
                                        .evaluate(context)
                                        .mapValue(context);

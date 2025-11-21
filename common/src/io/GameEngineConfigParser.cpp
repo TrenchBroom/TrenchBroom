@@ -71,7 +71,7 @@ Result<mdl::GameEngineConfig> parseGameEngineConfig(
 } // namespace
 
 GameEngineConfigParser::GameEngineConfigParser(const std::string_view str)
-  : m_elParser{ELParser::Mode::Strict, str}
+  : m_elParser{el::ELParser::Mode::Strict, str}
 {
 }
 

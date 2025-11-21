@@ -33,7 +33,7 @@
 #include <sstream>
 #include <string>
 
-namespace tb::io
+namespace tb::el
 {
 namespace
 {
@@ -331,17 +331,17 @@ TokenizerState ELParser::tokenizerState() const
   return m_tokenizer.snapshot();
 }
 
-Result<el::ExpressionNode> ELParser::parseStrict(const std::string& str)
+Result<ExpressionNode> ELParser::parseStrict(const std::string& str)
 {
   return ELParser{Mode::Strict, str}.parse();
 }
 
-Result<el::ExpressionNode> ELParser::parseLenient(const std::string& str)
+Result<ExpressionNode> ELParser::parseLenient(const std::string& str)
 {
   return ELParser(Mode::Lenient, str).parse();
 }
 
-Result<el::ExpressionNode> ELParser::parse()
+Result<ExpressionNode> ELParser::parse()
 {
   try
   {
@@ -358,7 +358,7 @@ Result<el::ExpressionNode> ELParser::parse()
   }
 }
 
-el::ExpressionNode ELParser::parseExpression()
+ExpressionNode ELParser::parseExpression()
 {
   if (m_tokenizer.peekToken().hasType(ELToken::OParen))
   {
@@ -367,15 +367,14 @@ el::ExpressionNode ELParser::parseExpression()
   return parseTerm();
 }
 
-el::ExpressionNode ELParser::parseGroupedTerm()
+ExpressionNode ELParser::parseGroupedTerm()
 {
   auto token = m_tokenizer.nextToken(ELToken::OParen);
   auto expression = parseTerm();
   m_tokenizer.nextToken(ELToken::CParen);
 
-  auto lhs = el::ExpressionNode{
-    el::UnaryExpression{el::UnaryOperation::Group, std::move(expression)},
-    token.location()};
+  auto lhs = ExpressionNode{
+    UnaryExpression{UnaryOperation::Group, std::move(expression)}, token.location()};
   if (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
   {
     return parseCompoundTerm(lhs);
@@ -383,7 +382,7 @@ el::ExpressionNode ELParser::parseGroupedTerm()
   return lhs;
 }
 
-el::ExpressionNode ELParser::parseTerm()
+ExpressionNode ELParser::parseTerm()
 {
   m_tokenizer.peekToken(ELToken::SimpleTerm | ELToken::DoubleOBrace);
 
@@ -395,7 +394,7 @@ el::ExpressionNode ELParser::parseTerm()
   return lhs;
 }
 
-el::ExpressionNode ELParser::parseSimpleTermOrSwitch()
+ExpressionNode ELParser::parseSimpleTermOrSwitch()
 {
   const auto token = m_tokenizer.peekToken(ELToken::SimpleTerm | ELToken::DoubleOBrace);
   if (token.hasType(ELToken::SimpleTerm))
@@ -405,7 +404,7 @@ el::ExpressionNode ELParser::parseSimpleTermOrSwitch()
   return parseSwitch();
 }
 
-el::ExpressionNode ELParser::parseSimpleTermOrSubscript()
+ExpressionNode ELParser::parseSimpleTermOrSubscript()
 {
   auto term = parseSimpleTerm();
 
@@ -417,7 +416,7 @@ el::ExpressionNode ELParser::parseSimpleTermOrSubscript()
   return term;
 }
 
-el::ExpressionNode ELParser::parseSimpleTerm()
+ExpressionNode ELParser::parseSimpleTerm()
 {
   const auto token = m_tokenizer.peekToken(ELToken::SimpleTerm);
   if (token.hasType(ELToken::UnaryOperator))
@@ -435,12 +434,12 @@ el::ExpressionNode ELParser::parseSimpleTerm()
   return parseLiteral();
 }
 
-el::ExpressionNode ELParser::parseSubscript(el::ExpressionNode lhs)
+ExpressionNode ELParser::parseSubscript(ExpressionNode lhs)
 {
   const auto token = m_tokenizer.nextToken(ELToken::OBracket);
   const auto location = token.location();
 
-  auto elements = std::vector<el::ExpressionNode>{};
+  auto elements = std::vector<ExpressionNode>{};
   if (!m_tokenizer.peekToken().hasType(ELToken::CBracket))
   {
     do
@@ -456,18 +455,17 @@ el::ExpressionNode ELParser::parseSubscript(el::ExpressionNode lhs)
 
   auto rhs = elements.size() == 1u
                ? std::move(elements.front())
-               : el::ExpressionNode{el::ArrayExpression{std::move(elements)}, location};
-  return el::ExpressionNode{
-    el::SubscriptExpression{std::move(lhs), std::move(rhs)}, location};
+               : ExpressionNode{ArrayExpression{std::move(elements)}, location};
+  return ExpressionNode{SubscriptExpression{std::move(lhs), std::move(rhs)}, location};
 }
 
-el::ExpressionNode ELParser::parseVariable()
+ExpressionNode ELParser::parseVariable()
 {
   const auto token = m_tokenizer.nextToken(ELToken::Name);
-  return el::ExpressionNode{el::VariableExpression{token.data()}, token.location()};
+  return ExpressionNode{VariableExpression{token.data()}, token.location()};
 }
 
-el::ExpressionNode ELParser::parseLiteral()
+ExpressionNode ELParser::parseLiteral()
 {
   const auto token =
     m_tokenizer.peekToken(ELToken::Literal | ELToken::OBracket | ELToken::OBrace);
@@ -475,28 +473,26 @@ el::ExpressionNode ELParser::parseLiteral()
   if (token.hasType(ELToken::String))
   {
     m_tokenizer.nextToken();
-    // Escaping happens in el::Value::appendToStream
+    // Escaping happens in Value::appendToStream
     auto value = kdl::str_unescape(token.data(), "\\\"");
-    return el::ExpressionNode{
-      el::LiteralExpression{el::Value{std::move(value)}}, token.location()};
+    return ExpressionNode{LiteralExpression{Value{std::move(value)}}, token.location()};
   }
   if (token.hasType(ELToken::Number))
   {
     m_tokenizer.nextToken();
-    return el::ExpressionNode{
-      el::LiteralExpression{el::Value{token.toFloat<el::NumberType>()}},
-      token.location()};
+    return ExpressionNode{
+      LiteralExpression{Value{token.toFloat<NumberType>()}}, token.location()};
   }
   if (token.hasType(ELToken::Boolean))
   {
     m_tokenizer.nextToken();
-    return el::ExpressionNode{
-      el::LiteralExpression{el::Value{token.data() == "true"}}, token.location()};
+    return ExpressionNode{
+      LiteralExpression{Value{token.data() == "true"}}, token.location()};
   }
   if (token.hasType(ELToken::Null))
   {
     m_tokenizer.nextToken();
-    return el::ExpressionNode{el::LiteralExpression{el::Value::Null}, token.location()};
+    return ExpressionNode{LiteralExpression{Value::Null}, token.location()};
   }
 
   if (token.hasType(ELToken::OBracket))
@@ -506,12 +502,12 @@ el::ExpressionNode ELParser::parseLiteral()
   return parseMap();
 }
 
-el::ExpressionNode ELParser::parseArray()
+ExpressionNode ELParser::parseArray()
 {
   const auto token = m_tokenizer.nextToken(ELToken::OBracket);
   const auto location = token.location();
 
-  auto elements = std::vector<el::ExpressionNode>{};
+  auto elements = std::vector<ExpressionNode>{};
   if (!m_tokenizer.peekToken().hasType(ELToken::CBracket))
   {
     do
@@ -525,32 +521,32 @@ el::ExpressionNode ELParser::parseArray()
     m_tokenizer.nextToken();
   }
 
-  return el::ExpressionNode{el::ArrayExpression{std::move(elements)}, location};
+  return ExpressionNode{ArrayExpression{std::move(elements)}, location};
 }
 
-el::ExpressionNode ELParser::parseExpressionOrBoundedRange()
+ExpressionNode ELParser::parseExpressionOrBoundedRange()
 {
   auto expression = parseExpression();
   if (m_tokenizer.peekToken().hasType(ELToken::Range))
   {
     auto token = m_tokenizer.nextToken();
-    expression = el::ExpressionNode{
-      el::BinaryExpression{
-        el::BinaryOperation::BoundedRange, std::move(expression), parseExpression()},
+    expression = ExpressionNode{
+      BinaryExpression{
+        BinaryOperation::BoundedRange, std::move(expression), parseExpression()},
       token.location()};
   }
 
   return expression;
 }
 
-el::ExpressionNode ELParser::parseExpressionOrAnyRange()
+ExpressionNode ELParser::parseExpressionOrAnyRange()
 {
-  auto expression = std::optional<el::ExpressionNode>{};
+  auto expression = std::optional<ExpressionNode>{};
   if (m_tokenizer.peekToken().hasType(ELToken::Range))
   {
     auto token = m_tokenizer.nextToken();
-    expression = el::ExpressionNode{
-      el::UnaryExpression{el::UnaryOperation::RightBoundedRange, parseExpression()},
+    expression = ExpressionNode{
+      UnaryExpression{UnaryOperation::RightBoundedRange, parseExpression()},
       token.location()};
   }
   else
@@ -561,16 +557,15 @@ el::ExpressionNode ELParser::parseExpressionOrAnyRange()
       auto token = m_tokenizer.nextToken();
       if (m_tokenizer.peekToken().hasType(ELToken::SimpleTerm))
       {
-        expression = el::ExpressionNode{
-          el::BinaryExpression{
-            el::BinaryOperation::BoundedRange, std::move(*expression), parseExpression()},
+        expression = ExpressionNode{
+          BinaryExpression{
+            BinaryOperation::BoundedRange, std::move(*expression), parseExpression()},
           token.location()};
       }
       else
       {
-        expression = el::ExpressionNode{
-          el::UnaryExpression{
-            el::UnaryOperation::LeftBoundedRange, std::move(*expression)},
+        expression = ExpressionNode{
+          UnaryExpression{UnaryOperation::LeftBoundedRange, std::move(*expression)},
           token.location()};
       }
     }
@@ -579,9 +574,9 @@ el::ExpressionNode ELParser::parseExpressionOrAnyRange()
   return *expression;
 }
 
-el::ExpressionNode ELParser::parseMap()
+ExpressionNode ELParser::parseMap()
 {
-  auto elements = std::map<std::string, el::ExpressionNode>{};
+  auto elements = std::map<std::string, ExpressionNode>{};
 
   auto token = m_tokenizer.nextToken(ELToken::OBrace);
   const auto location = token.location();
@@ -603,16 +598,16 @@ el::ExpressionNode ELParser::parseMap()
     m_tokenizer.nextToken();
   }
 
-  return el::ExpressionNode{el::MapExpression{std::move(elements)}, location};
+  return ExpressionNode{MapExpression{std::move(elements)}, location};
 }
 
-el::ExpressionNode ELParser::parseUnaryOperator()
+ExpressionNode ELParser::parseUnaryOperator()
 {
-  static const auto TokenMap = std::unordered_map<ELToken::Type, el::UnaryOperation>{
-    {ELToken::Addition, el::UnaryOperation::Plus},
-    {ELToken::Subtraction, el::UnaryOperation::Minus},
-    {ELToken::LogicalNegation, el::UnaryOperation::LogicalNegation},
-    {ELToken::BitwiseNegation, el::UnaryOperation::BitwiseNegation},
+  static const auto TokenMap = std::unordered_map<ELToken::Type, UnaryOperation>{
+    {ELToken::Addition, UnaryOperation::Plus},
+    {ELToken::Subtraction, UnaryOperation::Minus},
+    {ELToken::LogicalNegation, UnaryOperation::LogicalNegation},
+    {ELToken::BitwiseNegation, UnaryOperation::BitwiseNegation},
   };
 
   const auto token = m_tokenizer.nextToken(ELToken::UnaryOperator);
@@ -620,20 +615,20 @@ el::ExpressionNode ELParser::parseUnaryOperator()
   if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
   {
     const auto op = it->second;
-    return el::ExpressionNode{
-      el::UnaryExpression{op, parseSimpleTermOrSwitch()}, token.location()};
+    return ExpressionNode{
+      UnaryExpression{op, parseSimpleTermOrSwitch()}, token.location()};
   }
   throw ParserException{
     token.location(),
     fmt::format("Unhandled unary operator: {}", m_tokenizer.tokenName(token.type()))};
 }
 
-el::ExpressionNode ELParser::parseSwitch()
+ExpressionNode ELParser::parseSwitch()
 {
   auto token = m_tokenizer.nextToken(ELToken::DoubleOBrace);
 
   const auto location = token.location();
-  auto subExpressions = std::vector<el::ExpressionNode>{};
+  auto subExpressions = std::vector<ExpressionNode>{};
 
   token = m_tokenizer.peekToken(ELToken::SimpleTerm | ELToken::DoubleCBrace);
   if (token.hasType(ELToken::SimpleTerm))
@@ -649,32 +644,32 @@ el::ExpressionNode ELParser::parseSwitch()
     m_tokenizer.nextToken();
   }
 
-  return el::ExpressionNode{el::SwitchExpression{std::move(subExpressions)}, location};
+  return ExpressionNode{SwitchExpression{std::move(subExpressions)}, location};
 }
 
-el::ExpressionNode ELParser::parseCompoundTerm(el::ExpressionNode lhs)
+ExpressionNode ELParser::parseCompoundTerm(ExpressionNode lhs)
 {
-  static const auto TokenMap = std::unordered_map<ELToken::Type, el::BinaryOperation>{
-    {ELToken::Addition, el::BinaryOperation::Addition},
-    {ELToken::Subtraction, el::BinaryOperation::Subtraction},
-    {ELToken::Multiplication, el::BinaryOperation::Multiplication},
-    {ELToken::Division, el::BinaryOperation::Division},
-    {ELToken::Modulus, el::BinaryOperation::Modulus},
-    {ELToken::LogicalAnd, el::BinaryOperation::LogicalAnd},
-    {ELToken::LogicalOr, el::BinaryOperation::LogicalOr},
-    {ELToken::BitwiseAnd, el::BinaryOperation::BitwiseAnd},
-    {ELToken::BitwiseXOr, el::BinaryOperation::BitwiseXOr},
-    {ELToken::BitwiseOr, el::BinaryOperation::BitwiseOr},
-    {ELToken::BitwiseShiftLeft, el::BinaryOperation::BitwiseShiftLeft},
-    {ELToken::BitwiseShiftRight, el::BinaryOperation::BitwiseShiftRight},
-    {ELToken::Less, el::BinaryOperation::Less},
-    {ELToken::LessOrEqual, el::BinaryOperation::LessOrEqual},
-    {ELToken::Greater, el::BinaryOperation::Greater},
-    {ELToken::GreaterOrEqual, el::BinaryOperation::GreaterOrEqual},
-    {ELToken::Equal, el::BinaryOperation::Equal},
-    {ELToken::NotEqual, el::BinaryOperation::NotEqual},
-    {ELToken::Range, el::BinaryOperation::BoundedRange},
-    {ELToken::Case, el::BinaryOperation::Case},
+  static const auto TokenMap = std::unordered_map<ELToken::Type, BinaryOperation>{
+    {ELToken::Addition, BinaryOperation::Addition},
+    {ELToken::Subtraction, BinaryOperation::Subtraction},
+    {ELToken::Multiplication, BinaryOperation::Multiplication},
+    {ELToken::Division, BinaryOperation::Division},
+    {ELToken::Modulus, BinaryOperation::Modulus},
+    {ELToken::LogicalAnd, BinaryOperation::LogicalAnd},
+    {ELToken::LogicalOr, BinaryOperation::LogicalOr},
+    {ELToken::BitwiseAnd, BinaryOperation::BitwiseAnd},
+    {ELToken::BitwiseXOr, BinaryOperation::BitwiseXOr},
+    {ELToken::BitwiseOr, BinaryOperation::BitwiseOr},
+    {ELToken::BitwiseShiftLeft, BinaryOperation::BitwiseShiftLeft},
+    {ELToken::BitwiseShiftRight, BinaryOperation::BitwiseShiftRight},
+    {ELToken::Less, BinaryOperation::Less},
+    {ELToken::LessOrEqual, BinaryOperation::LessOrEqual},
+    {ELToken::Greater, BinaryOperation::Greater},
+    {ELToken::GreaterOrEqual, BinaryOperation::GreaterOrEqual},
+    {ELToken::Equal, BinaryOperation::Equal},
+    {ELToken::NotEqual, BinaryOperation::NotEqual},
+    {ELToken::Range, BinaryOperation::BoundedRange},
+    {ELToken::Case, BinaryOperation::Case},
   };
 
   while (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
@@ -683,8 +678,8 @@ el::ExpressionNode ELParser::parseCompoundTerm(el::ExpressionNode lhs)
     if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
     {
       const auto op = it->second;
-      lhs = el::ExpressionNode{
-        el::BinaryExpression{op, std::move(lhs), parseSimpleTermOrSwitch()},
+      lhs = ExpressionNode{
+        BinaryExpression{op, std::move(lhs), parseSimpleTermOrSwitch()},
         token.location()};
     }
     else
@@ -699,4 +694,4 @@ el::ExpressionNode ELParser::parseCompoundTerm(el::ExpressionNode lhs)
   return lhs;
 }
 
-} // namespace tb::io
+} // namespace tb::el

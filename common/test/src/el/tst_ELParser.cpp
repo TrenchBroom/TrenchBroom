@@ -26,10 +26,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb::el
 {
-using namespace el;
-
 namespace
 {
 
@@ -318,4 +316,4 @@ asdf)")
   }
 }
 
-} // namespace tb::io
+} // namespace tb::el

@@ -52,7 +52,7 @@ auto evaluate(const std::string& expression, const MapType& variables = {})
 {
   return withEvaluationContext(
     [&](auto& context) {
-      return io::ELParser::parseStrict(expression).value().evaluate(context);
+      return ELParser::parseStrict(expression).value().evaluate(context);
     },
     VariableTable{variables});
 }
@@ -61,7 +61,7 @@ std::vector<std::string> preorderVisit(const std::string& str)
 {
   auto result = std::vector<std::string>{};
 
-  io::ELParser::parseStrict(str).value().accept(kdl::overload(
+  ELParser::parseStrict(str).value().accept(kdl::overload(
     [&](const LiteralExpression& literalExpression) {
       result.push_back(fmt::format("{}", fmt::streamed(literalExpression)));
     },
@@ -1189,7 +1189,7 @@ TEST_CASE("Expression")
                            expression_ = expression,
                            expectedExpression_ = expectedExpression](auto& context) {
       CHECK(
-        io::ELParser::parseStrict(expression_).value().optimize(context)
+        ELParser::parseStrict(expression_).value().optimize(context)
         == expectedExpression_);
     }).ignore();
   }

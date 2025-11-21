@@ -571,7 +571,7 @@ Result<mdl::GameConfig> parseGameConfig(
 } // namespace
 
 GameConfigParser::GameConfigParser(const std::string_view str, std::filesystem::path path)
-  : m_elParser{ELParser::Mode::Strict, str}
+  : m_elParser{el::ELParser::Mode::Strict, str}
   , m_path{std::move(path)}
 {
 }

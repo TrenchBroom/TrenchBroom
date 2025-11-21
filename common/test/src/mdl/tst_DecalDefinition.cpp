@@ -36,7 +36,7 @@ namespace
 {
 DecalDefinition makeDecalDefinition(const std::string& expression)
 {
-  auto parser = io::ELParser{io::ELParser::Mode::Strict, expression};
+  auto parser = el::ELParser{el::ELParser::Mode::Strict, expression};
   return DecalDefinition{parser.parse().value()};
 }
 } // namespace
