@@ -40,21 +40,9 @@ Logger::stream Logger::debug()
   return Logger::stream{*this, LogLevel::Debug};
 }
 
-void Logger::debug([[maybe_unused]] const std::string_view message)
-{
-#ifndef NDEBUG
-  log(LogLevel::Debug, message);
-#endif
-}
-
 Logger::stream Logger::info()
 {
   return stream{*this, LogLevel::Info};
-}
-
-void Logger::info(const std::string_view message)
-{
-  log(LogLevel::Info, message);
 }
 
 Logger::stream Logger::warn()
@@ -62,19 +50,9 @@ Logger::stream Logger::warn()
   return stream{*this, LogLevel::Warn};
 }
 
-void Logger::warn(const std::string_view message)
-{
-  log(LogLevel::Warn, message);
-}
-
 Logger::stream Logger::error()
 {
   return stream{*this, LogLevel::Error};
-}
-
-void Logger::error(const std::string_view message)
-{
-  log(LogLevel::Error, message);
 }
 
 void Logger::log(const LogLevel level, const std::string_view message)

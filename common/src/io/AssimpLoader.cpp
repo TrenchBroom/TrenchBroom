@@ -282,10 +282,10 @@ std::vector<mdl::Texture> loadTexturesForMaterial(
   }
   else
   {
-    logger.error(fmt::format(
+    logger.error() << fmt::format(
       "No diffuse textures found for material {} of model '{}', loading fallback texture",
       materialIndex,
-      modelPath));
+      modelPath);
 
     textures.push_back(loadFallbackOrDefaultTexture(fs, logger));
   }
