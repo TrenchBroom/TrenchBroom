@@ -21,7 +21,7 @@
 
 #include "ParserException.h"
 #include "ParserStatus.h"
-#include "io/ELParser.h"
+#include "el/ELParser.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "mdl/ModelDefinition.h"
 

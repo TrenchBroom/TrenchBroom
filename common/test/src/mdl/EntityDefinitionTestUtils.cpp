@@ -20,9 +20,9 @@
 #include "EntityDefinitionTestUtils.h"
 
 #include "TestParserStatus.h"
+#include "el/ELParser.h"
 #include "el/EvaluationContext.h"
 #include "el/VariableStore.h"
-#include "io/ELParser.h"
 #include "io/EntityDefinitionParser.h"
 #include "mdl/EntityDefinition.h"
 

@@ -18,13 +18,13 @@
  */
 
 #include "Matchers.h"
+#include "el/ELParser.h"
 #include "el/ELTestUtils.h"
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
-#include "io/ELParser.h"
 
 #include <fmt/ostream.h>
 

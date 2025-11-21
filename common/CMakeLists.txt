@@ -2,6 +2,7 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
+        ${COMMON_SOURCE_DIR}/el/ELParser.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
         ${COMMON_SOURCE_DIR}/el/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/el/Expression.cpp
@@ -22,7 +23,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/DiskIO.cpp
         ${COMMON_SOURCE_DIR}/io/DkmLoader.cpp
         ${COMMON_SOURCE_DIR}/io/DkPakFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/io/ELParser.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionLoader.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.cpp
@@ -505,6 +505,7 @@ set(COMMON_SOURCE
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
+        ${COMMON_SOURCE_DIR}/el/ELParser.h
         ${COMMON_SOURCE_DIR}/el/Exceptions.h
         ${COMMON_SOURCE_DIR}/el/Expression.h
         ${COMMON_SOURCE_DIR}/el/Forward.h
@@ -525,7 +526,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/DiskIO.h
         ${COMMON_SOURCE_DIR}/io/DkmLoader.h
         ${COMMON_SOURCE_DIR}/io/DkPakFileSystem.h
-        ${COMMON_SOURCE_DIR}/io/ELParser.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionLoader.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.h

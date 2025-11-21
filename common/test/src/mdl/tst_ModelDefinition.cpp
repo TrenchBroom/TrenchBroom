@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/ELParser.h"
 #include "el/Expression.h"
 #include "el/VariableStore.h"
-#include "io/ELParser.h"
 #include "mdl/ModelDefinition.h"
 
 #include <map>

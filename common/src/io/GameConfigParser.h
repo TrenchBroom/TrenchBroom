@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "io/ELParser.h"
+#include "el/ELParser.h"
 #include "mdl/GameConfig.h"
 
 #include <filesystem>

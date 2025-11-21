@@ -21,6 +21,7 @@
 
 #include "FileLocation.h"
 #include "ParserException.h"
+#include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 
