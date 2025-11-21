@@ -22,11 +22,11 @@
 #include "AssimpLoader.h"
 
 #include "Logger.h"
+#include "ParserException.h"
 #include "ReaderException.h"
 #include "io/File.h"
 #include "io/FileSystem.h"
 #include "io/MaterialUtils.h"
-#include "io/ParserException.h"
 #include "io/PathInfo.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/ResourceUtils.h"

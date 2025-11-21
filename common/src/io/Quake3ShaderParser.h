@@ -19,9 +19,9 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
+#include "Tokenizer.h"
 
 #include <string_view>
 

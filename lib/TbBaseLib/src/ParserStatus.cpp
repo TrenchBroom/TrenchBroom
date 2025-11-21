@@ -28,7 +28,7 @@
 #include <sstream>
 #include <string>
 
-namespace tb::io
+namespace tb
 {
 
 ParserStatus::ParserStatus(Logger& logger, std::string prefix)
@@ -137,4 +137,4 @@ void ParserStatus::doLog(const LogLevel level, const std::string& str)
   m_logger.log(level, str);
 }
 
-} // namespace tb::io
+} // namespace tb

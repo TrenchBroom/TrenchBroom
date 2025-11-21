@@ -22,6 +22,7 @@
 #include "FileLocation.h"
 
 #include <optional>
+#include <stdexcept>
 #include <string>
 
 namespace tb

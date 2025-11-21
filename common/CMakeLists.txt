@@ -59,7 +59,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/NodeWriter.cpp
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
-        ${COMMON_SOURCE_DIR}/io/ParserException.cpp
         ${COMMON_SOURCE_DIR}/io/ParserStatus.cpp
         ${COMMON_SOURCE_DIR}/io/PathInfo.cpp
         ${COMMON_SOURCE_DIR}/io/PathMatcher.cpp
@@ -568,8 +567,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/NodeWriter.h
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.h
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
-        ${COMMON_SOURCE_DIR}/io/Parser.h
-        ${COMMON_SOURCE_DIR}/io/ParserException.h
         ${COMMON_SOURCE_DIR}/io/ParserStatus.h
         ${COMMON_SOURCE_DIR}/io/PathInfo.h
         ${COMMON_SOURCE_DIR}/io/PathMatcher.h
@@ -588,8 +585,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/SprLoader.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/io/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/io/Token.h
-        ${COMMON_SOURCE_DIR}/io/Tokenizer.h
         ${COMMON_SOURCE_DIR}/io/TraversalMode.h
         ${COMMON_SOURCE_DIR}/io/VirtualFileSystem.h
         ${COMMON_SOURCE_DIR}/io/WadFileSystem.h

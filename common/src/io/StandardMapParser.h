@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
+#include "Tokenizer.h"
 #include "io/MapParser.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 #include "mdl/MapFormat.h"
 
 #include "kd/vector_set_forward.h"

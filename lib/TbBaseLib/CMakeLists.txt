@@ -5,6 +5,7 @@ add_library(TbBaseLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorChannel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/FileLocation.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/NotifierConnection.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ParserException.cpp
 )
 
 target_include_directories(TbBaseLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
