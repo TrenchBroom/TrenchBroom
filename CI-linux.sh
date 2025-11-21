@@ -36,14 +36,17 @@ cmake --build . --config Release -- -j $(nproc) || exit 1
 
 BUILD_DIR=$(pwd)
 
-cd "$BUILD_DIR/lib/VmLib/test"
-./VmLibTest || exit 1
-
 cd "$BUILD_DIR/lib/KdLib/test"
 ./KdLibTest || exit 1
 
 cd "$BUILD_DIR/lib/UpdateLib/test"
 ./UpdateLibTest || exit 1
+
+cd "$BUILD_DIR/lib/TbBaseLib/test"
+./TbBaseLibTest || exit 1
+
+cd "$BUILD_DIR/lib/VmLib/test"
+./VmLibTest || exit 1
 
 cd "$BUILD_DIR/common/test"
 xvfb-run -a ./common-test || exit 1

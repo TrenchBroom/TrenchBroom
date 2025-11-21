@@ -23,11 +23,6 @@ IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 set BUILD_DIR="%cd%"
 
-cd lib\VmLib\test
-VmLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
 cd lib\KdLib\test
 KdLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
@@ -35,6 +30,16 @@ cd "%BUILD_DIR%"
 
 cd lib\UpdateLib\test
 UpdateLibTest.exe
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+cd "%BUILD_DIR%"
+
+cd lib\TbBaseLib\test
+TbBaseLibTest.exe
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+cd "%BUILD_DIR%"
+
+cd lib\VmLib\test
+VmLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
