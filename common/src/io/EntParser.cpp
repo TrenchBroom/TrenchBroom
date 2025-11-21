@@ -707,7 +707,7 @@ mdl::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
 
   const auto model = parseString(element, "model");
 
-  auto parser = ELParser{ELParser::Mode::Lenient, model};
+  auto parser = el::ELParser{el::ELParser::Mode::Lenient, model};
   return parser.parse() | kdl::transform_error([&](auto) {
            const auto lineNum = static_cast<size_t>(element.GetLineNum());
            return el::ExpressionNode{

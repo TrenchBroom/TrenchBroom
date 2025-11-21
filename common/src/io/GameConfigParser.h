@@ -40,7 +40,7 @@ namespace tb::io
 class GameConfigParser
 {
 private:
-  ELParser m_elParser;
+  el::ELParser m_elParser;
   std::filesystem::path m_path;
 
 public:

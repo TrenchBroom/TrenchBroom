@@ -187,7 +187,7 @@ Result<mdl::CompilationConfig> parseCompilationConfig(
 } // namespace
 
 CompilationConfigParser::CompilationConfigParser(const std::string_view str)
-  : m_elParser{ELParser::Mode::Strict, str}
+  : m_elParser{el::ELParser::Mode::Strict, str}
 {
 }
 

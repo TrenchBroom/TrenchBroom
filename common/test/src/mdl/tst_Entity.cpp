@@ -185,7 +185,7 @@ TEST_CASE("EntityTest")
 
   SECTION("modelSpecification")
   {
-    const auto modelExpression = io::ELParser::parseStrict(R"({{ 
+    const auto modelExpression = el::ELParser::parseStrict(R"({{ 
       spawnflags == 0 -> "maps/b_shell0.bsp",
       spawnflags == 1 -> "maps/b_shell1.bsp",
                          "maps/b_shell2.bsp"
@@ -215,7 +215,7 @@ TEST_CASE("EntityTest")
   SECTION("decalSpecification")
   {
     const auto decalExpression =
-      io::ELParser::parseStrict(R"({ texture: texture })").value();
+      el::ELParser::parseStrict(R"({ texture: texture })").value();
 
     const auto definition = EntityDefinition{
       "some_name",
@@ -801,7 +801,7 @@ TEST_CASE("EntityTest")
   {
     // see https://github.com/TrenchBroom/TrenchBroom/issues/3914
 
-    const auto modelExpression = io::ELParser{io::ELParser::Mode::Strict, R"(
+    const auto modelExpression = el::ELParser{el::ELParser::Mode::Strict, R"(
 {{
   spawnflags & 2 ->   ":maps/b_bh100.bsp",
   spawnflags & 1 ->   ":maps/b_bh10.bsp",

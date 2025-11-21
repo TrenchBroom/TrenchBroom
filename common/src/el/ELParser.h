@@ -29,7 +29,7 @@
 #include <iosfwd>
 #include <string>
 
-namespace tb::io
+namespace tb::el
 {
 namespace ELToken
 {
@@ -115,28 +115,28 @@ public:
   ELParser(ELParser::Mode mode, std::string_view str, size_t line = 1, size_t column = 1);
   TokenizerState tokenizerState() const;
 
-  static Result<el::ExpressionNode> parseStrict(const std::string& str);
-  static Result<el::ExpressionNode> parseLenient(const std::string& str);
+  static Result<ExpressionNode> parseStrict(const std::string& str);
+  static Result<ExpressionNode> parseLenient(const std::string& str);
 
-  Result<el::ExpressionNode> parse();
+  Result<ExpressionNode> parse();
 
 private:
-  el::ExpressionNode parseExpression();
-  el::ExpressionNode parseGroupedTerm();
-  el::ExpressionNode parseTerm();
-  el::ExpressionNode parseSimpleTermOrSwitch();
-  el::ExpressionNode parseSimpleTermOrSubscript();
-  el::ExpressionNode parseSimpleTerm();
-  el::ExpressionNode parseSubscript(el::ExpressionNode lhs);
-  el::ExpressionNode parseVariable();
-  el::ExpressionNode parseLiteral();
-  el::ExpressionNode parseArray();
-  el::ExpressionNode parseExpressionOrBoundedRange();
-  el::ExpressionNode parseExpressionOrAnyRange();
-  el::ExpressionNode parseMap();
-  el::ExpressionNode parseUnaryOperator();
-  el::ExpressionNode parseSwitch();
-  el::ExpressionNode parseCompoundTerm(el::ExpressionNode lhs);
+  ExpressionNode parseExpression();
+  ExpressionNode parseGroupedTerm();
+  ExpressionNode parseTerm();
+  ExpressionNode parseSimpleTermOrSwitch();
+  ExpressionNode parseSimpleTermOrSubscript();
+  ExpressionNode parseSimpleTerm();
+  ExpressionNode parseSubscript(ExpressionNode lhs);
+  ExpressionNode parseVariable();
+  ExpressionNode parseLiteral();
+  ExpressionNode parseArray();
+  ExpressionNode parseExpressionOrBoundedRange();
+  ExpressionNode parseExpressionOrAnyRange();
+  ExpressionNode parseMap();
+  ExpressionNode parseUnaryOperator();
+  ExpressionNode parseSwitch();
+  ExpressionNode parseCompoundTerm(ExpressionNode lhs);
 };
 
-} // namespace tb::io
+} // namespace tb::el
