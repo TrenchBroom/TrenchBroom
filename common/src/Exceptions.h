@@ -37,12 +37,6 @@ public:
   const char* what() const noexcept override;
 };
 
-class RenderException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 class NodeTreeException : public Exception
 {
 public:
