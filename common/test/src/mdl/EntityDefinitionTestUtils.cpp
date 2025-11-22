@@ -19,11 +19,11 @@
 
 #include "EntityDefinitionTestUtils.h"
 
+#include "TestParserStatus.h"
 #include "el/EvaluationContext.h"
 #include "el/VariableStore.h"
 #include "io/ELParser.h"
 #include "io/EntityDefinitionParser.h"
-#include "io/TestParserStatus.h"
 #include "mdl/EntityDefinition.h"
 
 #include "kd/contracts.h"
@@ -39,7 +39,7 @@ namespace tb::mdl
 ModelSpecification getModelSpecification(
   io::EntityDefinitionParser& parser, const std::string& entityPropertiesStr)
 {
-  auto status = io::TestParserStatus{};
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   REQUIRE(definitions);
   CHECK(definitions.value().size() == 1u);
@@ -79,7 +79,7 @@ void assertDecalDefinition(
   io::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr)
 {
-  auto status = io::TestParserStatus{};
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   REQUIRE(definitions);
   CHECK(definitions.value().size() == 1u);

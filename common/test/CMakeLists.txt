@@ -12,8 +12,6 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/TestEnvironment.h"
         "${COMMON_TEST_SOURCE_DIR}/io/TestFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/TestFileSystem.h"
-        "${COMMON_TEST_SOURCE_DIR}/io/TestParserStatus.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/TestParserStatus.h"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.h"
         "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.cpp"
@@ -35,7 +33,6 @@ set(COMMON_TEST_UTILS_SOURCE
 )
 
 set(COMMON_TEST_SOURCE
-        "${COMMON_TEST_SOURCE_DIR}/catch/tst_Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/el/ELTestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/el/tst_EL.cpp"
@@ -185,10 +182,10 @@ set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt6::Test)
+target_link_libraries(common-test-utils PRIVATE common TbBaseTestUtilsLib Catch2::Catch2 Qt6::Test)
 
 macro(configure_test_target TARGET)
-    target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2 UpdateLib fmt::fmt-header-only)
+    target_link_libraries(${TARGET} PRIVATE common common-test-utils TbBaseTestUtilsLib Catch2::Catch2 UpdateLib fmt::fmt-header-only)
     set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
     target_link_libraries(${TARGET} PRIVATE CompilerConfig)

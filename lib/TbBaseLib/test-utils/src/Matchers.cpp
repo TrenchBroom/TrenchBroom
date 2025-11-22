@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,34 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "Matchers.h"
 
-#include "Logger.h"
-#include "ParserStatus.h"
+#include "kd/string_compare.h"
 
-#include <map>
-#include <string>
-#include <vector>
-
-namespace tb::io
+namespace tb
 {
 
-class TestParserStatus : public ParserStatus
+GlobMatcher::GlobMatcher(std::string glob)
+  : m_glob{std::move(glob)}
 {
-private:
-  static NullLogger _logger;
-  std::map<LogLevel, std::vector<std::string>> m_messages;
+}
 
-public:
-  TestParserStatus();
+bool GlobMatcher::match(const std::string& value) const
+{
+  return kdl::cs::str_matches_glob(value, m_glob);
+}
 
-public:
-  size_t countStatus(LogLevel level) const;
-  const std::vector<std::string>& messages(LogLevel level) const;
+std::string GlobMatcher::describe() const
+{
+  auto ss = std::stringstream{};
+  ss << "matches glob \"" << m_glob << "\"";
+  return ss.str();
+}
 
-private:
-  void doProgress(double progress) override;
-  void doLog(LogLevel level, const std::string& str) override;
-};
+GlobMatcher MatchesGlob(std::string glob)
+{
+  return GlobMatcher{std::move(glob)};
+}
 
-} // namespace tb::io
+} // namespace tb

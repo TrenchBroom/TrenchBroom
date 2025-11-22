@@ -45,6 +45,9 @@ cd "$BUILD_DIR/lib/UpdateLib/test"
 cd "$BUILD_DIR/lib/TbBaseLib/test"
 ./TbBaseLibTest || exit 1
 
+cd "$BUILD_DIR/lib/TbBaseLib/test-utils/test"
+./TbBaseTestUtilsLibTest || exit 1
+
 cd "$BUILD_DIR/lib/VmLib/test"
 ./VmLibTest || exit 1
 

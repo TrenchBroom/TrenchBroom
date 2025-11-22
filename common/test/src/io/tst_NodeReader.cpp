@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestParserStatus.h"
 #include "io/NodeReader.h"
-#include "io/TestParserStatus.h"
 #include "mdl/BrushNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/ParaxialUVCoordSystem.h"
@@ -36,7 +36,7 @@ TEST_CASE("NodeReader")
 {
   auto taskManager = kdl::task_manager{};
   const auto worldBounds = vm::bbox3d{4096.0};
-  auto status = io::TestParserStatus{};
+  auto status = TestParserStatus{};
 
   SECTION("parseFaceAsNode")
   {

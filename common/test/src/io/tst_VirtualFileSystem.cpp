@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Matchers.h"
 #include "io/File.h"
 #include "io/FileSystemMetadata.h"
 #include "io/TestFileSystem.h"
@@ -29,7 +30,6 @@
 #include <fmt/std.h>
 
 #include "catch/CatchConfig.h"
-#include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
 
