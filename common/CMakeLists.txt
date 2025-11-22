@@ -4,21 +4,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/fs/DiskFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/fs/DiskIO.cpp
-        ${COMMON_SOURCE_DIR}/fs/DkPakFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/fs/File.cpp
-        ${COMMON_SOURCE_DIR}/fs/FileSystem.cpp
-        ${COMMON_SOURCE_DIR}/fs/FileSystemMetadata.cpp
-        ${COMMON_SOURCE_DIR}/fs/IdPakFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/fs/ImageFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/fs/PathInfo.cpp
-        ${COMMON_SOURCE_DIR}/fs/PathMatcher.cpp
-        ${COMMON_SOURCE_DIR}/fs/Reader.cpp
-        ${COMMON_SOURCE_DIR}/fs/TraversalMode.cpp
-        ${COMMON_SOURCE_DIR}/fs/VirtualFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/fs/WadFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/fs/ZipFileSystem.cpp
         ${COMMON_SOURCE_DIR}/io/AseLoader.cpp
         ${COMMON_SOURCE_DIR}/io/AssimpLoader.cpp
         ${COMMON_SOURCE_DIR}/io/BrushFaceReader.cpp
@@ -498,22 +483,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/fs/DiskFileSystem.h
-        ${COMMON_SOURCE_DIR}/fs/DiskIO.h
-        ${COMMON_SOURCE_DIR}/fs/DkPakFileSystem.h
-        ${COMMON_SOURCE_DIR}/fs/File.h
-        ${COMMON_SOURCE_DIR}/fs/FileSystem.h
-        ${COMMON_SOURCE_DIR}/fs/FileSystemMetadata.h
-        ${COMMON_SOURCE_DIR}/fs/IdPakFileSystem.h
-        ${COMMON_SOURCE_DIR}/fs/ImageFileSystem.h
-        ${COMMON_SOURCE_DIR}/fs/PathInfo.h
-        ${COMMON_SOURCE_DIR}/fs/PathMatcher.h
-        ${COMMON_SOURCE_DIR}/fs/Reader.h
-        ${COMMON_SOURCE_DIR}/fs/ReaderException.h
-        ${COMMON_SOURCE_DIR}/fs/TraversalMode.h
-        ${COMMON_SOURCE_DIR}/fs/VirtualFileSystem.h
-        ${COMMON_SOURCE_DIR}/fs/WadFileSystem.h
-        ${COMMON_SOURCE_DIR}/fs/ZipFileSystem.h
         ${COMMON_SOURCE_DIR}/io/AseLoader.h
         ${COMMON_SOURCE_DIR}/io/AssimpLoader.h
         ${COMMON_SOURCE_DIR}/io/BrushFaceReader.h
@@ -1033,7 +1002,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC TbBaseLib TbElLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PUBLIC TbBaseLib TbElLib TbFsLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE GLEW::GLEW OpenGL::GL UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)

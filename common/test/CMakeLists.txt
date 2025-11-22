@@ -6,13 +6,6 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/Matchers.h"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.h"
-        "${COMMON_TEST_SOURCE_DIR}/fs/ObjectFile.h"
-        "${COMMON_TEST_SOURCE_DIR}/fs/TestEnvironment.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/TestEnvironment.h"
-        "${COMMON_TEST_SOURCE_DIR}/fs/TestFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/TestFileSystem.h"
-        "${COMMON_TEST_SOURCE_DIR}/fs/TestUtils.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/TestUtils.h"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.h"
         "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.cpp"
@@ -35,13 +28,6 @@ set(COMMON_TEST_UTILS_SOURCE
 
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_StringMakers.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/tst_DiskFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/tst_DiskIO.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/tst_FileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/tst_ImageFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/tst_Reader.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/tst_TestFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/fs/tst_VirtualFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AseLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AssimpLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_BspLoader.cpp"
@@ -178,10 +164,10 @@ set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test-utils PRIVATE common TbBaseTestUtilsLib Catch2::Catch2 Qt6::Test)
+target_link_libraries(common-test-utils PRIVATE common TbBaseTestUtilsLib TbFsTestUtilsLib Catch2::Catch2 Qt6::Test)
 
 macro(configure_test_target TARGET)
-    target_link_libraries(${TARGET} PRIVATE common common-test-utils TbBaseTestUtilsLib TbElTestUtilsLib Catch2::Catch2 UpdateLib fmt::fmt-header-only)
+    target_link_libraries(${TARGET} PRIVATE common common-test-utils TbBaseTestUtilsLib TbElTestUtilsLib TbFsTestUtilsLib Catch2::Catch2 UpdateLib fmt::fmt-header-only)
     set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
     target_link_libraries(${TARGET} PRIVATE CompilerConfig)

@@ -1,0 +1,10 @@
+add_executable(TbFsTestUtilsLibTest)
+
+target_sources(TbFsTestUtilsLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TestFileSystem.cpp
+)
+
+add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
+
+target_link_libraries(TbFsTestUtilsLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
+target_link_libraries(TbFsTestUtilsLibTest PRIVATE Catch2::Catch2WithMain TbBaseTestUtilsLib TbFsTestUtilsLib)

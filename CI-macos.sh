@@ -78,6 +78,12 @@ cd "$BUILD_DIR/lib/TbBaseLib/test-utils/test"
 cd "$BUILD_DIR/lib/TbElLib/test"
 ./TbElLibTest || exit 1
 
+cd "$BUILD_DIR/lib/TbFsLib/test"
+./TbFsLibTest || exit 1
+
+cd "$BUILD_DIR/lib/TbFsLib/test-utils/test"
+./TbFsTestUtilsLibTest || exit 1
+
 cd "$BUILD_DIR/lib/VmLib/test"
 ./VmLibTest || exit 1
 
