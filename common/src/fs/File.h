@@ -29,7 +29,7 @@
 #include <memory>
 #include <mutex>
 
-namespace tb::io
+namespace tb::fs
 {
 /**
  * Represents an opened (logical) file. A logical file can be backed by a physical file on
@@ -148,4 +148,4 @@ public:
   size_t size() const override;
 };
 
-} // namespace tb::io
+} // namespace tb::fs

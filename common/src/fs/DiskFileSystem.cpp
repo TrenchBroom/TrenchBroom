@@ -34,7 +34,7 @@
 #include <memory>
 #include <string>
 
-namespace tb::io
+namespace tb::fs
 {
 
 DiskFileSystem::DiskFileSystem(const std::filesystem::path& root)
@@ -141,4 +141,4 @@ Result<void> WritableDiskFileSystem::doRenameDirectory(
          | kdl::and_then(Disk::renameDirectory);
 }
 
-} // namespace tb::io
+} // namespace tb::fs

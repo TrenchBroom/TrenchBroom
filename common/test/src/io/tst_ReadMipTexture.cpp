@@ -70,7 +70,7 @@ TEST_CASE("readIdMipTexture")
   // clang-format on
 
   const auto palettePath = "fixture/test/palette.lmp";
-  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
@@ -78,7 +78,7 @@ TEST_CASE("readIdMipTexture")
 
   const auto wadPath =
     std::filesystem::current_path() / "fixture/test/io/Wad/cr8_czg.wad";
-  auto wadFS = WadFileSystem{Disk::openFile(wadPath) | kdl::value()};
+  auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
   REQUIRE(wadFS.reload());
 
   const auto file = wadFS.openFile(textureName + ".D") | kdl::value();
@@ -101,12 +101,12 @@ TEST_CASE("readHlMipTexture")
   }));
   // clang-format on
 
-  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
 
   auto logger = TestLogger{};
 
   const auto wadPath = std::filesystem::current_path() / "fixture/test/io/HL/hl.wad";
-  auto wadFS = WadFileSystem{Disk::openFile(wadPath) | kdl::value()};
+  auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
   REQUIRE(wadFS.reload());
 
   const auto file = wadFS.openFile(textureName + ".C") | kdl::value();

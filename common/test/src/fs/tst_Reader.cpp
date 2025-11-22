@@ -30,7 +30,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb::fs
 {
 namespace
 {
@@ -231,4 +231,4 @@ TEST_CASE("FileReaderTest.subReader")
 {
   subReader(file()->reader());
 }
-} // namespace tb::io
+} // namespace tb::fs

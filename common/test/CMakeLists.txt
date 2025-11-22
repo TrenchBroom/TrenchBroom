@@ -11,6 +11,8 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/fs/TestEnvironment.h"
         "${COMMON_TEST_SOURCE_DIR}/fs/TestFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/fs/TestFileSystem.h"
+        "${COMMON_TEST_SOURCE_DIR}/fs/TestUtils.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/fs/TestUtils.h"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.h"
         "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.cpp"

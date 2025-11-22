@@ -37,6 +37,11 @@ namespace tb
 {
 class Logger;
 
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
 namespace mdl
 {
 class Material;
@@ -46,10 +51,9 @@ struct MaterialConfig;
 
 namespace io
 {
-class FileSystem;
 
 Result<mdl::Material> loadMaterial(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath,
   const mdl::CreateTextureResource& createResource,
@@ -57,7 +61,7 @@ Result<mdl::Material> loadMaterial(
   const std::optional<Result<mdl::Palette>>& paletteResult);
 
 Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const mdl::CreateTextureResource& createResource,
   kdl::task_manager& taskManager,

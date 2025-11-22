@@ -210,7 +210,7 @@ TEST_CASE("loadPalette")
 
   const auto basePath = std::filesystem::current_path() / "fixture/test/mdl/Palette/";
   const auto filePath = basePath / filename;
-  const auto file = io::Disk::openFile(filePath) | kdl::value();
+  const auto file = fs::Disk::openFile(filePath) | kdl::value();
 
   const auto expectedPalette = makePalette(expectedPaletteData, PaletteColorFormat::Rgb);
 

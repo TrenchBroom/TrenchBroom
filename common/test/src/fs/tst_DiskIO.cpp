@@ -37,7 +37,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
-namespace tb::io
+namespace tb::fs
 {
 using namespace Catch::Matchers;
 
@@ -103,52 +103,56 @@ TEST_CASE("DiskIO")
 
   SECTION("fixPath")
   {
-    CHECK(Disk::fixPath("asdf/blah") == "asdf/blah");
-    CHECK(Disk::fixPath("/../../test") == "/test");
+    CHECK(fs::Disk::fixPath("asdf/blah") == "asdf/blah");
+    CHECK(fs::Disk::fixPath("/../../test") == "/test");
 
-    if (Disk::isCaseSensitive())
+    if (fs::Disk::isCaseSensitive())
     {
-      CHECK(Disk::fixPath(env.dir() / "TEST.txt") == env.dir() / "test.txt");
+      CHECK(fs::Disk::fixPath(env.dir() / "TEST.txt") == env.dir() / "test.txt");
       CHECK(
-        Disk::fixPath(env.dir() / "anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")
+        fs::Disk::fixPath(env.dir() / "anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")
         == env.dir() / "anotherDir/subDirTest/test2.map");
     }
   }
 
   SECTION("pathInfo")
   {
-    CHECK(Disk::pathInfo("asdf/bleh") == PathInfo::Unknown);
-    CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.map") == PathInfo::Unknown);
-    CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map/asdf") == PathInfo::Unknown);
-
-    CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
-    CHECK(Disk::pathInfo(env.dir() / "ANOTHERDIR") == PathInfo::Directory);
-    CHECK(Disk::pathInfo(env.dir() / "anotherDir/subDirTest") == PathInfo::Directory);
-
-    CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
-    CHECK(Disk::pathInfo(env.dir() / "anotherDir/TEST3.map") == PathInfo::File);
+    CHECK(fs::Disk::pathInfo("asdf/bleh") == fs::PathInfo::Unknown);
+    CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir/asdf.map") == fs::PathInfo::Unknown);
     CHECK(
-      Disk::pathInfo(env.dir() / "anotherDir/subDirTest/test2.map") == PathInfo::File);
+      fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map/asdf")
+      == fs::PathInfo::Unknown);
 
-    CHECK(Disk::pathInfo(env.dir() / "linkedDir") == PathInfo::Directory);
-    CHECK(Disk::pathInfo(env.dir() / "linkedTest2.map") == PathInfo::File);
+    CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
+    CHECK(fs::Disk::pathInfo(env.dir() / "ANOTHERDIR") == fs::PathInfo::Directory);
+    CHECK(
+      fs::Disk::pathInfo(env.dir() / "anotherDir/subDirTest") == fs::PathInfo::Directory);
+
+    CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
+    CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir/TEST3.map") == fs::PathInfo::File);
+    CHECK(
+      fs::Disk::pathInfo(env.dir() / "anotherDir/subDirTest/test2.map")
+      == fs::PathInfo::File);
+
+    CHECK(fs::Disk::pathInfo(env.dir() / "linkedDir") == fs::PathInfo::Directory);
+    CHECK(fs::Disk::pathInfo(env.dir() / "linkedTest2.map") == fs::PathInfo::File);
   }
 
   SECTION("find")
   {
     CHECK(
-      Disk::find("asdf/bleh", TraversalMode::Flat)
+      fs::Disk::find("asdf/bleh", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Failed to open {}: path does not denote a directory",
         std::filesystem::path{"asdf/bleh"})}});
     CHECK(
-      Disk::find(env.dir() / "does/not/exist", TraversalMode::Flat)
+      fs::Disk::find(env.dir() / "does/not/exist", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Failed to open {}: path does not denote a directory",
         env.dir() / "does/not/exist")}});
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode::Flat) | kdl::value(),
+      fs::Disk::find(env.dir(), fs::TraversalMode::Flat) | kdl::value(),
       UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
@@ -160,7 +164,7 @@ TEST_CASE("DiskIO")
       }));
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode::Recursive) | kdl::value(),
+      fs::Disk::find(env.dir(), fs::TraversalMode::Recursive) | kdl::value(),
       UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
@@ -176,7 +180,7 @@ TEST_CASE("DiskIO")
       }));
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode{0}) | kdl::value(),
+      fs::Disk::find(env.dir(), TraversalMode{0}) | kdl::value(),
       UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
@@ -188,7 +192,7 @@ TEST_CASE("DiskIO")
       }));
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode{1}) | kdl::value(),
+      fs::Disk::find(env.dir(), TraversalMode{1}) | kdl::value(),
       UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
@@ -207,26 +211,26 @@ TEST_CASE("DiskIO")
   {
 
     CHECK(
-      Disk::openFile("asdf/bleh")
+      fs::Disk::openFile("asdf/bleh")
       == Result<std::shared_ptr<CFile>>{Error{fmt::format(
         "Failed to open {}: path does not denote a file",
         std::filesystem::path{"asdf/bleh"})}});
     CHECK(
-      Disk::openFile(env.dir() / "does/not/exist")
+      fs::Disk::openFile(env.dir() / "does/not/exist")
       == Result<std::shared_ptr<CFile>>{Error{fmt::format(
         "Failed to open {}: path does not denote a file",
         env.dir() / "does/not/exist")}});
 
     CHECK(
-      Disk::openFile(env.dir() / "does_not_exist.txt")
+      fs::Disk::openFile(env.dir() / "does_not_exist.txt")
       == Result<std::shared_ptr<CFile>>{Error{fmt::format(
         "Failed to open {}: path does not denote a file",
         env.dir() / "does_not_exist.txt")}});
 
-    CHECK(Disk::openFile(env.dir() / "test.txt"));
-    CHECK(Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map"));
-    CHECK(Disk::openFile(env.dir() / "linkedDir/test2.map"));
-    CHECK(Disk::openFile(env.dir() / "linkedTest2.map"));
+    CHECK(fs::Disk::openFile(env.dir() / "test.txt"));
+    CHECK(fs::Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map"));
+    CHECK(fs::Disk::openFile(env.dir() / "linkedDir/test2.map"));
+    CHECK(fs::Disk::openFile(env.dir() / "linkedTest2.map"));
   }
 
   SECTION("withStream")
@@ -234,62 +238,63 @@ TEST_CASE("DiskIO")
     SECTION("withInputStream")
     {
       CHECK(
-        Disk::withInputStream(env.dir() / "does not exist.txt", readAll)
+        fs::Disk::withInputStream(env.dir() / "does not exist.txt", readAll)
         == Error{"Failed to open stream"});
 
-      CHECK(Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
+      CHECK(fs::Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
       CHECK(
-        Disk::withInputStream(env.dir() / "linkedTest2.map", readAll)
+        fs::Disk::withInputStream(env.dir() / "linkedTest2.map", readAll)
         == "//test file\n{}");
     }
 
     SECTION("withOutputStream")
     {
-      REQUIRE(Disk::withOutputStream(
+      REQUIRE(fs::Disk::withOutputStream(
         env.dir() / "test.txt", std::ios::out | std::ios::app, [](auto& stream) {
           stream << "\nmore content";
         }));
       CHECK(
-        Disk::withInputStream(env.dir() / "test.txt", readAll)
+        fs::Disk::withInputStream(env.dir() / "test.txt", readAll)
         == "some content\nmore content");
 
-      REQUIRE(Disk::withOutputStream(env.dir() / "some_other_name.txt", [](auto& stream) {
-        stream << "some text...";
-      }));
+      REQUIRE(fs::Disk::withOutputStream(
+        env.dir() / "some_other_name.txt",
+        [](auto& stream) { stream << "some text..."; }));
       CHECK(
-        Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
+        fs::Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
         == "some text...");
 
-      REQUIRE(Disk::withOutputStream(
+      REQUIRE(fs::Disk::withOutputStream(
         env.dir() / "linkedTest2.map", std::ios::out | std::ios::app, [](auto& stream) {
           stream << "\nwow even more content";
         }));
       CHECK(
-        Disk::withInputStream(env.dir() / "test2.map", readAll)
+        fs::Disk::withInputStream(env.dir() / "test2.map", readAll)
         == "//test file\n{}\nwow even more content");
       CHECK(
-        Disk::withInputStream(env.dir() / "linkedTest2.map", readAll)
+        fs::Disk::withInputStream(env.dir() / "linkedTest2.map", readAll)
         == "//test file\n{}\nwow even more content");
     }
   }
 
   SECTION("createDirectory")
   {
-    CHECK(Disk::createDirectory(env.dir() / "anotherDir") == Result<bool>{false});
+    CHECK(fs::Disk::createDirectory(env.dir() / "anotherDir") == Result<bool>{false});
 
-    CHECK(Disk::createDirectory(env.dir() / "yetAnotherDir") == Result<bool>{true});
+    CHECK(fs::Disk::createDirectory(env.dir() / "yetAnotherDir") == Result<bool>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir"));
 
     CHECK(
-      Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory")
+      fs::Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory")
       == Result<bool>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
 
-    CHECK(Disk::createDirectory(env.dir() / "linkedDir/nestedDir") == Result<bool>{true});
+    CHECK(
+      fs::Disk::createDirectory(env.dir() / "linkedDir/nestedDir") == Result<bool>{true});
     CHECK(std::filesystem::exists(env.dir() / "linkedDir/nestedDir"));
 
     CHECK(
-      Disk::createDirectory(env.dir() / "test.txt")
+      fs::Disk::createDirectory(env.dir() / "test.txt")
       == Result<bool>{Error{fmt::format(
         "Failed to create {}: path denotes a file", env.dir() / "test.txt")}});
 
@@ -297,45 +302,45 @@ TEST_CASE("DiskIO")
     // These tests don't work on Windows due to differences in permissions
     const auto setPermissions =
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
-    CHECK(Disk::createDirectory(env.dir() / "anotherDir/nestedDir").is_error());
+    CHECK(fs::Disk::createDirectory(env.dir() / "anotherDir/nestedDir").is_error());
 #endif
   }
 
   SECTION("deleteFile")
   {
-    REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-    CHECK(Disk::deleteFile(env.dir() / "test.txt") == Result<bool>{true});
-    CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
+    REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+    CHECK(fs::Disk::deleteFile(env.dir() / "test.txt") == Result<bool>{true});
+    CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::Unknown);
 
     CHECK(
-      Disk::deleteFile(env.dir() / "anotherDir")
+      fs::Disk::deleteFile(env.dir() / "anotherDir")
       == Result<bool>{Error{fmt::format(
         "Failed to delete {}: path denotes a directory", env.dir() / "anotherDir")}});
-    CHECK(Disk::deleteFile(env.dir() / "does_not_exist") == Result<bool>{false});
+    CHECK(fs::Disk::deleteFile(env.dir() / "does_not_exist") == Result<bool>{false});
 
 #ifndef _WIN32
     // These tests don't work on Windows due to differences in permissions
     const auto setPermissions =
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
-    REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
-    CHECK(Disk::deleteFile(env.dir() / "anotherDir/test3.map").is_error());
+    REQUIRE(fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
+    CHECK(fs::Disk::deleteFile(env.dir() / "anotherDir/test3.map").is_error());
 #endif
 
     SECTION("Delete symlink")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "linkedTest2.map") == PathInfo::File);
-      CHECK(Disk::deleteFile(env.dir() / "linkedTest2.map") == Result<bool>{true});
-      CHECK(Disk::pathInfo(env.dir() / "linkedTest2.map") == PathInfo::Unknown);
-      CHECK(Disk::pathInfo(env.dir() / "test2.map") == PathInfo::File);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "linkedTest2.map") == fs::PathInfo::File);
+      CHECK(fs::Disk::deleteFile(env.dir() / "linkedTest2.map") == Result<bool>{true});
+      CHECK(fs::Disk::pathInfo(env.dir() / "linkedTest2.map") == fs::PathInfo::Unknown);
+      CHECK(fs::Disk::pathInfo(env.dir() / "test2.map") == fs::PathInfo::File);
     }
 
     SECTION("Delete linked file")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "test2.map") == PathInfo::File);
-      CHECK(Disk::deleteFile(env.dir() / "test2.map") == Result<bool>{true});
-      CHECK(Disk::pathInfo(env.dir() / "linkedTest2.map") == PathInfo::Unknown);
-      CHECK(Disk::pathInfo(env.dir() / "test2.map") == PathInfo::Unknown);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "test2.map") == fs::PathInfo::File);
+      CHECK(fs::Disk::deleteFile(env.dir() / "test2.map") == Result<bool>{true});
+      CHECK(fs::Disk::pathInfo(env.dir() / "linkedTest2.map") == fs::PathInfo::Unknown);
+      CHECK(fs::Disk::pathInfo(env.dir() / "test2.map") == fs::PathInfo::Unknown);
     }
   }
 
@@ -343,10 +348,11 @@ TEST_CASE("DiskIO")
   {
     SECTION("copy non existing file")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "does_not_exist.txt") == PathInfo::Unknown);
+      REQUIRE(
+        fs::Disk::pathInfo(env.dir() / "does_not_exist.txt") == fs::PathInfo::Unknown);
 
       CHECK(
-        Disk::copyFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1")
+        fs::Disk::copyFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to copy {}: path does not denote a file",
           env.dir() / "does_not_exist.txt")}});
@@ -354,77 +360,84 @@ TEST_CASE("DiskIO")
 
     SECTION("copy directory")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
 
       CHECK(
-        Disk::copyFile(env.dir() / "anotherDir", env.dir() / "dir1")
+        fs::Disk::copyFile(env.dir() / "anotherDir", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to copy {}: path does not denote a file", env.dir() / "anotherDir")}});
     }
 
     SECTION("copy file into directory")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::Unknown);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+      REQUIRE(
+        fs::Disk::pathInfo(env.dir() / "anotherDir/test.txt") == fs::PathInfo::Unknown);
 
       CHECK(
-        Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir")
+        fs::Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir")
         == Result<void>{});
 
-      CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-      CHECK(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::File);
+      CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+      CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir/test.txt") == fs::PathInfo::File);
     }
 
     SECTION("copy file to non existing file")
     {
       SECTION("when the file can be created")
       {
-        REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
+        REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+        REQUIRE(
+          fs::Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == fs::PathInfo::Unknown);
 
         CHECK(
-          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
+          fs::Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
           == Result<void>{});
 
-        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-        CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::File);
+        CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+        CHECK(
+          fs::Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == fs::PathInfo::File);
       }
 
       SECTION("when the file cannot be created")
       {
 #ifndef _WIN32
         // These tests don't work on Windows due to differences in permissions
-        REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
+        REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+        REQUIRE(
+          fs::Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == fs::PathInfo::Unknown);
 
         const auto setPermissions =
           SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
-        CHECK(Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
-                .is_error());
-        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        CHECK(
+          fs::Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
+            .is_error());
+        CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
 #endif
       }
     }
 
     SECTION("copy file over existing file")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
       REQUIRE(
-        Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+        fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
+      REQUIRE(
+        fs::Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
         != "some content");
 
       SECTION("when the file can be overwritten")
       {
         CHECK(
-          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
+          fs::Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
           == Result<void>{});
 
-        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-        CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+        CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
         CHECK(
-          Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+          fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
+        CHECK(
+          fs::Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
           == "some content");
       }
 
@@ -435,9 +448,10 @@ TEST_CASE("DiskIO")
         const auto setPermissions = SetPermissions{
           env.dir() / "anotherDir/test3.map", std::filesystem::perms::none};
 
-        CHECK(Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
-                .is_error());
-        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        CHECK(
+          fs::Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
+            .is_error());
+        CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
 #endif
       }
     }
@@ -447,10 +461,11 @@ TEST_CASE("DiskIO")
   {
     SECTION("move non existing file")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "does_not_exist.txt") == PathInfo::Unknown);
+      REQUIRE(
+        fs::Disk::pathInfo(env.dir() / "does_not_exist.txt") == fs::PathInfo::Unknown);
 
       CHECK(
-        Disk::moveFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1")
+        fs::Disk::moveFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to move {}: path does not denote a file",
           env.dir() / "does_not_exist.txt")}});
@@ -458,78 +473,85 @@ TEST_CASE("DiskIO")
 
     SECTION("move directory")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
 
       CHECK(
-        Disk::moveFile(env.dir() / "anotherDir", env.dir() / "dir1")
+        fs::Disk::moveFile(env.dir() / "anotherDir", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to move {}: path does not denote a file", env.dir() / "anotherDir")}});
-      CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+      CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
     }
 
     SECTION("move file into directory")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::Unknown);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+      REQUIRE(
+        fs::Disk::pathInfo(env.dir() / "anotherDir/test.txt") == fs::PathInfo::Unknown);
 
       CHECK(
-        Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir")
+        fs::Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir")
         == Result<void>{});
 
-      CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
-      CHECK(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::File);
+      CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::Unknown);
+      CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir/test.txt") == fs::PathInfo::File);
     }
 
     SECTION("move file to non existing file")
     {
       SECTION("when the file can be created")
       {
-        REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
+        REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+        REQUIRE(
+          fs::Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == fs::PathInfo::Unknown);
 
         CHECK(
-          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
+          fs::Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
           == Result<void>{});
 
-        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
-        CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::File);
+        CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::Unknown);
+        CHECK(
+          fs::Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == fs::PathInfo::File);
       }
 
       SECTION("when the file cannot be created")
       {
 #ifndef _WIN32
         // These tests don't work on Windows due to differences in permissions
-        REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
+        REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
+        REQUIRE(
+          fs::Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == fs::PathInfo::Unknown);
 
         const auto setPermissions =
           SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
-        CHECK(Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
-                .is_error());
-        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        CHECK(
+          fs::Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
+            .is_error());
+        CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
 #endif
       }
     }
 
     SECTION("move file over existing file")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
       REQUIRE(
-        Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+        fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
+      REQUIRE(
+        fs::Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
         != "some content");
 
       SECTION("when the file can be overwritten")
       {
         CHECK(
-          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
+          fs::Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
           == Result<void>{});
 
-        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
-        CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+        CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::Unknown);
         CHECK(
-          Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+          fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
+        CHECK(
+          fs::Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
           == "some content");
       }
 
@@ -540,9 +562,10 @@ TEST_CASE("DiskIO")
         const auto setPermissions =
           SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
-        CHECK(Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
-                .is_error());
-        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        CHECK(
+          fs::Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
+            .is_error());
+        CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
 #endif
       }
     }
@@ -552,10 +575,10 @@ TEST_CASE("DiskIO")
   {
     SECTION("rename non existing directory")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "does_not_exist") == PathInfo::Unknown);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "does_not_exist") == fs::PathInfo::Unknown);
 
       CHECK(
-        Disk::renameDirectory(
+        fs::Disk::renameDirectory(
           env.dir() / "does_not_exist", env.dir() / "dir1/does_not_exist")
         == Result<void>{Error{fmt::format(
           "Failed to rename {}: path does not denote a directory",
@@ -564,76 +587,77 @@ TEST_CASE("DiskIO")
 
     SECTION("rename file")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
 
       CHECK(
-        Disk::renameDirectory(env.dir() / "test.txt", env.dir() / "dir1")
+        fs::Disk::renameDirectory(env.dir() / "test.txt", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to rename {}: path does not denote a directory",
           env.dir() / "test.txt")}});
-      CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
     }
 
     SECTION("target is existing file")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
-      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
 
       CHECK(
-        Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "test.txt")
+        fs::Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "test.txt")
         == Result<void>{Error{fmt::format(
           "Failed to rename {} to {}: target path already exists",
           env.dir() / "anotherDir",
           env.dir() / "test.txt")}});
 
-      CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
-      CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
+      CHECK(fs::Disk::pathInfo(env.dir() / "test.txt") == fs::PathInfo::File);
     }
 
     SECTION("target is existing directory")
     {
-      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
-      REQUIRE(Disk::pathInfo(env.dir() / "dir1") == PathInfo::Directory);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
+      REQUIRE(fs::Disk::pathInfo(env.dir() / "dir1") == fs::PathInfo::Directory);
 
       CHECK(
-        Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1")
+        fs::Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to rename {} to {}: target path already exists",
           env.dir() / "anotherDir",
           env.dir() / "dir1")}});
 
-      CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
-      CHECK(Disk::pathInfo(env.dir() / "dir1") == PathInfo::Directory);
+      CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
+      CHECK(fs::Disk::pathInfo(env.dir() / "dir1") == fs::PathInfo::Directory);
     }
 
     SECTION("rename directory")
     {
       SECTION("when the directory can be created")
       {
-        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
-        REQUIRE(Disk::pathInfo(env.dir() / "dir1/newDir1") == PathInfo::Unknown);
+        REQUIRE(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
+        REQUIRE(fs::Disk::pathInfo(env.dir() / "dir1/newDir1") == fs::PathInfo::Unknown);
 
         CHECK(
-          Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1/newDir1")
+          fs::Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1/newDir1")
           == Result<void>{});
 
-        CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Unknown);
-        CHECK(Disk::pathInfo(env.dir() / "dir1/newDir1") == PathInfo::Directory);
+        CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Unknown);
+        CHECK(fs::Disk::pathInfo(env.dir() / "dir1/newDir1") == fs::PathInfo::Directory);
       }
 
       SECTION("when the directory cannot be created")
       {
 #ifndef _WIN32
         // These tests don't work on Windows due to differences in permissions
-        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
-        REQUIRE(Disk::pathInfo(env.dir() / "dir1/newDir1") == PathInfo::Unknown);
+        REQUIRE(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
+        REQUIRE(fs::Disk::pathInfo(env.dir() / "dir1/newDir1") == fs::PathInfo::Unknown);
 
         const auto setPermissions =
           SetPermissions{env.dir() / "dir1", std::filesystem::perms::owner_exec};
 
-        CHECK(Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1/newDir1")
-                .is_error());
-        CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+        CHECK(
+          fs::Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1/newDir1")
+            .is_error());
+        CHECK(fs::Disk::pathInfo(env.dir() / "anotherDir") == fs::PathInfo::Directory);
 #endif
       }
     }
@@ -644,22 +668,24 @@ TEST_CASE("DiskIO")
     const auto rootPaths =
       std::vector<std::filesystem::path>{env.dir(), env.dir() / "anotherDir"};
 
-    CHECK(Disk::resolvePath(rootPaths, "test.txt") == env.dir() / "test.txt");
+    CHECK(fs::Disk::resolvePath(rootPaths, "test.txt") == env.dir() / "test.txt");
     CHECK(
-      Disk::resolvePath(rootPaths, "test3.map") == env.dir() / "anotherDir/test3.map");
+      fs::Disk::resolvePath(rootPaths, "test3.map")
+      == env.dir() / "anotherDir/test3.map");
     CHECK(
-      Disk::resolvePath(rootPaths, "subDirTest/test2.map")
+      fs::Disk::resolvePath(rootPaths, "subDirTest/test2.map")
       == env.dir() / "anotherDir/subDirTest/test2.map");
-    CHECK(Disk::resolvePath(rootPaths, "/asfd/blah") == "");
-    CHECK(Disk::resolvePath(rootPaths, "adk3kdk/bhb") == "");
+    CHECK(fs::Disk::resolvePath(rootPaths, "/asfd/blah") == "");
+    CHECK(fs::Disk::resolvePath(rootPaths, "adk3kdk/bhb") == "");
 
     CHECK(
-      Disk::resolvePath(rootPaths, "linkedTest2.map") == env.dir() / "linkedTest2.map");
+      fs::Disk::resolvePath(rootPaths, "linkedTest2.map")
+      == env.dir() / "linkedTest2.map");
 
     CHECK(
-      Disk::resolvePath(rootPaths, "linkedDir/test2.map")
+      fs::Disk::resolvePath(rootPaths, "linkedDir/test2.map")
       == env.dir() / "linkedDir/test2.map");
   }
 }
 
-} // namespace tb::io
+} // namespace tb::fs

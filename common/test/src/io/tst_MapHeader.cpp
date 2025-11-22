@@ -30,7 +30,7 @@ namespace tb::io
 {
 TEST_CASE("readMapHeader")
 {
-  auto env = io::TestEnvironment{};
+  auto env = fs::TestEnvironment{};
 
   using namespace std::string_literals;
 

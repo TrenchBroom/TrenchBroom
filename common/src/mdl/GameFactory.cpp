@@ -61,16 +61,16 @@ Result<void> migrateConfigFiles(
   const auto legacyDir = userGameDir / config.name;
   const auto newDir = userGameDir / config.configFileFolder();
 
-  if (io::Disk::pathInfo(legacyDir) == io::PathInfo::Directory)
+  if (fs::Disk::pathInfo(legacyDir) == fs::PathInfo::Directory)
   {
-    switch (io::Disk::pathInfo(newDir))
+    switch (fs::Disk::pathInfo(newDir))
     {
-    case io::PathInfo::File:
+    case fs::PathInfo::File:
       return Error{"User config folder for '" + config.name + "' is a file"};
-    case io::PathInfo::Directory:
+    case fs::PathInfo::Directory:
       break;
-    case io::PathInfo::Unknown:
-      return io::Disk::renameDirectory(legacyDir, newDir);
+    case fs::PathInfo::Unknown:
+      return fs::Disk::renameDirectory(legacyDir, newDir);
     }
   }
   return Result<void>{};
@@ -238,20 +238,20 @@ Result<void> GameFactory::initializeFileSystem(const GamePathConfig& gamePathCon
   const auto& userGameDir = gamePathConfig.userGameDir;
   const auto& gameConfigSearchDirs = gamePathConfig.gameConfigSearchDirs;
 
-  auto virtualFs = io::VirtualFileSystem{};
+  auto virtualFs = fs::VirtualFileSystem{};
 
   // All of the current search paths from highest to lowest priority
   for (auto it = gameConfigSearchDirs.rbegin(); it != gameConfigSearchDirs.rend(); ++it)
   {
     const auto path = *it;
-    virtualFs.mount({}, std::make_unique<io::DiskFileSystem>(path));
+    virtualFs.mount({}, std::make_unique<fs::DiskFileSystem>(path));
   }
 
   m_userGameDir = userGameDir;
-  return io::Disk::createDirectory(m_userGameDir) | kdl::transform([&](auto) {
-           m_configFs = std::make_unique<io::WritableVirtualFileSystem>(
+  return fs::Disk::createDirectory(m_userGameDir) | kdl::transform([&](auto) {
+           m_configFs = std::make_unique<fs::WritableVirtualFileSystem>(
              std::move(virtualFs),
-             std::make_unique<io::WritableDiskFileSystem>(m_userGameDir));
+             std::make_unique<fs::WritableDiskFileSystem>(m_userGameDir));
          });
 }
 
@@ -260,8 +260,8 @@ Result<std::vector<std::string>> GameFactory::loadGameConfigs(
 {
   return m_configFs->find(
            {},
-           io::TraversalMode::Recursive,
-           io::makeFilenamePathMatcher("GameConfig.cfg"))
+           fs::TraversalMode::Recursive,
+           fs::makeFilenamePathMatcher("GameConfig.cfg"))
          | kdl::transform([&](auto configFiles) {
              return configFiles | std::views::transform([&](const auto& configFilePath) {
                       return loadGameConfig(gamePathConfig, configFilePath);
@@ -310,7 +310,7 @@ Result<void> GameFactory::loadGameConfig(
 void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
 {
   const auto path = gameConfig.configFileFolder() / "CompilationProfiles.cfg";
-  if (m_configFs->pathInfo(path) == io::PathInfo::File)
+  if (m_configFs->pathInfo(path) == fs::PathInfo::File)
   {
     m_configFs->openFile(path) | kdl::and_then([&](auto profilesFile) {
       auto reader = profilesFile->reader().buffer();
@@ -328,7 +328,7 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
 void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
 {
   const auto path = gameConfig.configFileFolder() / "GameEngineProfiles.cfg";
-  if (m_configFs->pathInfo(path) == io::PathInfo::File)
+  if (m_configFs->pathInfo(path) == fs::PathInfo::File)
   {
     m_configFs->openFile(path) | kdl::and_then([&](auto profilesFile) {
       auto reader = profilesFile->reader().buffer();
@@ -344,7 +344,7 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
 }
 
 static Result<std::filesystem::path> backupFile(
-  io::WritableFileSystem& fs, const std::filesystem::path& path)
+  fs::WritableFileSystem& fs, const std::filesystem::path& path)
 {
   const auto backupPath = kdl::path_add_extension(path, ".bak");
   return fs.copyFile(path, backupPath) | kdl::transform([&]() { return backupPath; });

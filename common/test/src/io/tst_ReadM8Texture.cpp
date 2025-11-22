@@ -37,7 +37,7 @@ namespace tb::io
 
 TEST_CASE("ReadM8TextureTest.testBasicLoading")
 {
-  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
   const auto file = fs.openFile("fixture/test/io/M8/test.m8") | kdl::value();
 
   auto reader = file->reader().buffer();

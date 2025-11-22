@@ -64,7 +64,7 @@ Palette::Palette(std::shared_ptr<PaletteData> data)
 }
 
 bool Palette::indexedToRgba(
-  io::Reader& reader,
+  fs::Reader& reader,
   const size_t pixelCount,
   TextureBuffer& rgbaImage,
   const PaletteTransparency transparency,
@@ -185,14 +185,14 @@ Result<Palette> makePalette(
 namespace
 {
 
-Result<Palette> loadLmp(io::Reader& reader)
+Result<Palette> loadLmp(fs::Reader& reader)
 {
   auto data = std::vector<unsigned char>(reader.size());
   reader.read(data.data(), data.size());
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 
-Result<Palette> loadPcx(io::Reader& reader)
+Result<Palette> loadPcx(fs::Reader& reader)
 {
   auto data = std::vector<unsigned char>(768);
   reader.seekFromEnd(data.size());
@@ -200,7 +200,7 @@ Result<Palette> loadPcx(io::Reader& reader)
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 
-Result<Palette> loadBmp(io::Reader& reader)
+Result<Palette> loadBmp(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   auto imageLoader =
@@ -212,7 +212,7 @@ Result<Palette> loadBmp(io::Reader& reader)
 
 } // namespace
 
-Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& path)
+Result<Palette> loadPalette(const fs::File& file, const std::filesystem::path& path)
 {
   try
   {
@@ -236,13 +236,13 @@ Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& p
     return Error{
       fmt::format("Could not load palette file {}: Unknown palette format", path)};
   }
-  catch (const io::ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{fmt::format("Could not load palette file {}: {}", path, e.what())};
   }
 }
 
-Result<Palette> loadPalette(io::Reader& reader, const PaletteColorFormat colorFormat)
+Result<Palette> loadPalette(fs::Reader& reader, const PaletteColorFormat colorFormat)
 {
   try
   {
@@ -250,7 +250,7 @@ Result<Palette> loadPalette(io::Reader& reader, const PaletteColorFormat colorFo
     reader.read(data.data(), data.size());
     return makePalette(data, colorFormat);
   }
-  catch (const io::ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     using namespace std::string_literals;
     return Error{"Could not load palette: "s + e.what()};

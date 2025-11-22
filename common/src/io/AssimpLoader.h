@@ -33,6 +33,11 @@ struct aiMesh;
 
 namespace tb
 {
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
 namespace mdl
 {
 class Material;
@@ -40,7 +45,6 @@ class Material;
 
 namespace io
 {
-class FileSystem;
 
 struct AssimpMeshWithTransforms
 {
@@ -53,10 +57,10 @@ class AssimpLoader : public EntityModelLoader
 {
 private:
   std::filesystem::path m_path;
-  const FileSystem& m_fs;
+  const fs::FileSystem& m_fs;
 
 public:
-  AssimpLoader(std::filesystem::path path, const FileSystem& fs);
+  AssimpLoader(std::filesystem::path path, const fs::FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path);
 

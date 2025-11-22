@@ -27,7 +27,7 @@
 #include <cstdio>
 #include <cstring>
 
-namespace tb::io
+namespace tb::fs
 {
 
 File::File() = default;
@@ -216,4 +216,4 @@ size_t FileView::size() const
   return m_length;
 }
 
-} // namespace tb::io
+} // namespace tb::fs

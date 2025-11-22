@@ -117,7 +117,7 @@ GLenum convertDx10FormatToGLFormat(const size_t dx10Format)
   }
 }
 
-void readDdsMips(Reader& reader, mdl::TextureBufferList& buffers)
+void readDdsMips(fs::Reader& reader, mdl::TextureBufferList& buffers)
 {
   for (size_t i = 0, mipLevels = buffers.size(); i < mipLevels; ++i)
   {
@@ -127,7 +127,7 @@ void readDdsMips(Reader& reader, mdl::TextureBufferList& buffers)
 
 } // namespace
 
-Result<mdl::Texture> readDdsTexture(Reader& reader)
+Result<mdl::Texture> readDdsTexture(fs::Reader& reader)
 {
   try
   {
@@ -258,7 +258,7 @@ Result<mdl::Texture> readDdsTexture(Reader& reader)
       mdl::NoEmbeddedDefaults{},
       std::move(buffers)};
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

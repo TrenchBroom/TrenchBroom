@@ -103,7 +103,7 @@ std::filesystem::path crashReportBasePath()
   // ensure it doesn't exist
   auto index = 0;
   auto testCrashLogPath = crashLogPath;
-  while (io::Disk::pathInfo(testCrashLogPath) == io::PathInfo::File)
+  while (fs::Disk::pathInfo(testCrashLogPath) == fs::PathInfo::File)
   {
     ++index;
 
@@ -143,12 +143,12 @@ void CrashHandler(const int /* signum */)
   const auto basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  io::Disk::createDirectory(basePath.parent_path()) | kdl::transform([&](auto) {
+  fs::Disk::createDirectory(basePath.parent_path()) | kdl::transform([&](auto) {
     const auto reportPath = kdl::path_add_extension(basePath, ".txt");
     auto logPath = kdl::path_add_extension(basePath, ".log");
     auto mapPath = kdl::path_add_extension(basePath, ".map");
 
-    io::Disk::withOutputStream(reportPath, [&](auto& stream) {
+    fs::Disk::withOutputStream(reportPath, [&](auto& stream) {
       stream << report;
       std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
     }) | kdl::transform_error([](const auto& e) {

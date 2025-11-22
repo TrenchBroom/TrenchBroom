@@ -32,7 +32,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
-namespace tb::io::Disk
+namespace tb::fs::Disk
 {
 namespace
 {
@@ -337,4 +337,4 @@ std::filesystem::path resolvePath(
   return {};
 }
 
-} // namespace tb::io::Disk
+} // namespace tb::fs::Disk

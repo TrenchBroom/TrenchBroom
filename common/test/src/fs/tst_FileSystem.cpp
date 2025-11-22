@@ -31,7 +31,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb::fs
 {
 
 TEST_CASE("FileSystem")
@@ -66,14 +66,14 @@ TEST_CASE("FileSystem")
   SECTION("pathInfo")
   {
 #if defined(_WIN32)
-    CHECK(fs.pathInfo("c:\\") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("c:\\foo") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("c:") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("/") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("/foo") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("c:\\") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("c:\\foo") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("c:") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("/") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("/foo") == fs::PathInfo::Unknown);
 #else
-    CHECK(fs.pathInfo("/") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("/foo") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("/") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("/foo") == fs::PathInfo::Unknown);
 #endif
   }
 
@@ -81,35 +81,35 @@ TEST_CASE("FileSystem")
   {
 #if defined(_WIN32)
     CHECK(
-      fs.find("c:\\", TraversalMode::Flat)
+      fs.find("c:\\", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{
         Error{fmt::format("Path {} is absolute", std::filesystem::path{"c:\\"})}});
     CHECK(
-      fs.find("c:\\foo", TraversalMode::Flat)
+      fs.find("c:\\foo", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{
         Error{fmt::format("Path {} is absolute", std::filesystem::path{"c:\\foo"})}});
 #else
     CHECK(
-      fs.find("/", TraversalMode::Flat)
+      fs.find("/", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{
         Error{fmt::format("Path {} is absolute", std::filesystem::path{"/"})}});
     CHECK(
-      fs.find("/foo", TraversalMode::Flat)
+      fs.find("/foo", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{
         Error{fmt::format("Path {} is absolute", std::filesystem::path{"/foo"})}});
 #endif
     CHECK(
-      fs.find("does_not_exist", TraversalMode::Flat)
+      fs.find("does_not_exist", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Path {} does not denote a directory",
         std::filesystem::path{"does_not_exist"})}});
     CHECK(
-      fs.find("root_file.map", TraversalMode::Flat)
+      fs.find("root_file.map", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Path {} does not denote a directory", std::filesystem::path{"root_file.map"})}});
 
     CHECK(
-      fs.find("", TraversalMode::Flat)
+      fs.find("", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir",
         "root_file.map",
@@ -117,7 +117,7 @@ TEST_CASE("FileSystem")
       }});
 
     CHECK(
-      fs.find("", TraversalMode::Recursive)
+      fs.find("", fs::TraversalMode::Recursive)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir",
         "some_dir/nested_dir",
@@ -130,7 +130,7 @@ TEST_CASE("FileSystem")
       }});
 
     CHECK(
-      fs.find("some_dir", TraversalMode::Flat)
+      fs.find("some_dir", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir/nested_dir",
         "some_dir/some_dir_file_1.TXT",
@@ -138,7 +138,7 @@ TEST_CASE("FileSystem")
       }});
 
     CHECK(
-      fs.find("some_dir", TraversalMode::Recursive)
+      fs.find("some_dir", fs::TraversalMode::Recursive)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir/nested_dir",
         "some_dir/nested_dir/nested_dir_file_2.map",
@@ -148,7 +148,8 @@ TEST_CASE("FileSystem")
       }});
 
     CHECK(
-      fs.find("", TraversalMode::Recursive, makeExtensionPathMatcher({".txt", ".map"}))
+      fs.find(
+        "", fs::TraversalMode::Recursive, makeExtensionPathMatcher({".txt", ".map"}))
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir/nested_dir/nested_dir_file_2.map",
         "some_dir/nested_dir/nested_dir_file_1.txt",
@@ -186,4 +187,4 @@ TEST_CASE("FileSystem")
   }
 }
 
-} // namespace tb::io
+} // namespace tb::fs

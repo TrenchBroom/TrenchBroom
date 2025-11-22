@@ -21,7 +21,7 @@
 
 #include "kd/reflection_impl.h"
 
-namespace tb::io
+namespace tb::fs
 {
 
 const TraversalMode TraversalMode::Flat = TraversalMode{0};
@@ -38,4 +38,4 @@ std::optional<TraversalMode> TraversalMode::reduceDepth(size_t depthToSubtract) 
 }
 
 
-} // namespace tb::io
+} // namespace tb::fs

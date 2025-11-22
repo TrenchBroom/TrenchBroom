@@ -28,6 +28,12 @@
 
 namespace tb
 {
+namespace fs
+{
+class FileSystem;
+class Reader;
+} // namespace fs
+
 namespace mdl
 {
 class Material;
@@ -35,8 +41,6 @@ class Material;
 
 namespace io
 {
-class FileSystem;
-class Reader;
 
 using LoadMaterialFunc = std::function<mdl::Material(const std::filesystem::path&)>;
 
@@ -44,13 +48,13 @@ class Md3Loader : public EntityModelLoader
 {
 private:
   std::string m_name;
-  const Reader& m_reader;
+  const fs::Reader& m_reader;
   LoadMaterialFunc m_loadMaterial;
 
 public:
-  Md3Loader(std::string name, const Reader& reader, LoadMaterialFunc loadMaterial);
+  Md3Loader(std::string name, const fs::Reader& reader, LoadMaterialFunc loadMaterial);
 
-  static bool canParse(const std::filesystem::path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
 
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };

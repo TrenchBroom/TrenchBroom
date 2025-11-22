@@ -21,7 +21,7 @@
 
 #include <ostream>
 
-namespace tb::io
+namespace tb::fs
 {
 
 std::ostream& operator<<(std::ostream& lhs, const FileSystemMetadata& rhs)
@@ -30,4 +30,4 @@ std::ostream& operator<<(std::ostream& lhs, const FileSystemMetadata& rhs)
   return lhs;
 }
 
-} // namespace tb::io
+} // namespace tb::fs

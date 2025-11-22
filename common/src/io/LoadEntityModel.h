@@ -29,6 +29,11 @@ namespace tb
 {
 class Logger;
 
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
 namespace mdl
 {
 class EntityModel;
@@ -38,19 +43,18 @@ struct MaterialConfig;
 
 namespace io
 {
-class FileSystem;
 
 using LoadMaterialFunc = std::function<mdl::Material(const std::filesystem::path&)>;
 
 Result<mdl::EntityModel> loadEntityModelSync(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   Logger& logger);
 
 mdl::EntityModel loadEntityModelAsync(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,

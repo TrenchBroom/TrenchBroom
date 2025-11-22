@@ -52,7 +52,7 @@ using namespace Catch::Matchers;
 namespace
 {
 
-io::TestEnvironment makeTestEnvironment()
+fs::TestEnvironment makeTestEnvironment()
 {
   // have a non-ASCII character in the directory name to help catch
   // filename encoding bugs
@@ -61,7 +61,7 @@ io::TestEnvironment makeTestEnvironment()
                     + hiraganaLetterSmallA)
                      .toStdString();
 
-  return io::TestEnvironment{dir, [](auto& env) {
+  return fs::TestEnvironment{dir, [](auto& env) {
                                env.createDirectory("dir");
 
                                env.createFile("test.1.map", "some content");
@@ -75,7 +75,7 @@ io::TestEnvironment makeTestEnvironment()
 TEST_CASE("makeBackupPathMatcher")
 {
   const auto env = makeTestEnvironment();
-  auto fs = io::DiskFileSystem{env.dir()};
+  auto fs = fs::DiskFileSystem{env.dir()};
 
   const auto matcher = makeBackupPathMatcher("test");
   const auto getPathInfo = [&](const auto& p) { return fs.pathInfo(p); };
@@ -97,7 +97,7 @@ TEST_CASE("Autosaver")
   auto& map = fixture.map();
   fixture.create();
 
-  auto env = io::TestEnvironment{};
+  auto env = fs::TestEnvironment{};
 
   const auto loadFile = [&](const auto& path) { return env.loadFile(path); };
 

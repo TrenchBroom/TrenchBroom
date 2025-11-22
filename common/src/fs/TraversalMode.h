@@ -23,7 +23,7 @@
 
 #include <optional>
 
-namespace tb::io
+namespace tb::fs
 {
 
 struct TraversalMode
@@ -38,4 +38,4 @@ struct TraversalMode
   std::optional<TraversalMode> reduceDepth(size_t depthToSubtract) const;
 };
 
-} // namespace tb::io
+} // namespace tb::fs

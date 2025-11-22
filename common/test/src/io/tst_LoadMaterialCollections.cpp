@@ -20,6 +20,7 @@
 #include "Logger.h"
 #include "TestUtils.h"
 #include "fs/DiskFileSystem.h"
+#include "fs/TestUtils.h"
 #include "fs/VirtualFileSystem.h"
 #include "fs/WadFileSystem.h"
 #include "io/LoadMaterialCollections.h"
@@ -130,7 +131,7 @@ auto createResource(mdl::ResourceLoader<mdl::Texture> resourceLoader)
 
 TEST_CASE("loadMaterial")
 {
-  auto fs = VirtualFileSystem{};
+  auto fs = fs::VirtualFileSystem{};
   auto logger = NullLogger{};
 
   const auto workDir = std::filesystem::current_path();
@@ -138,7 +139,7 @@ TEST_CASE("loadMaterial")
   auto taskManager = kdl::task_manager{};
 
   const auto testDir = workDir / "fixture/test/io/LoadMaterial";
-  fs.mount("", std::make_unique<DiskFileSystem>(testDir));
+  fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
   const auto materialConfig = mdl::MaterialConfig{
     "textures",
@@ -161,7 +162,7 @@ TEST_CASE("loadMaterial")
 
 TEST_CASE("loadMaterialCollections")
 {
-  auto fs = VirtualFileSystem{};
+  auto fs = fs::VirtualFileSystem{};
   auto logger = NullLogger{};
 
   const auto workDir = std::filesystem::current_path();
@@ -171,8 +172,8 @@ TEST_CASE("loadMaterialCollections")
   SECTION("WAD file")
   {
     const auto wadPath = workDir / "fixture/test/io/Wad/cr8_czg.wad";
-    fs.mount("", std::make_unique<DiskFileSystem>(workDir)); // to find the palette
-    fs.mount("textures", openFS<WadFileSystem>(wadPath));
+    fs.mount("", std::make_unique<fs::DiskFileSystem>(workDir)); // to find the palette
+    fs.mount("textures", fs::openFS<fs::WadFileSystem>(wadPath));
 
     const auto materialConfig = mdl::MaterialConfig{
       "textures",
@@ -217,7 +218,7 @@ TEST_CASE("loadMaterialCollections")
     SECTION("Multiple WAD files with name conflicts")
     {
       const auto additionalWadPath = workDir / "fixture/test/io/Wad/cr8_a_excerpt.wad";
-      fs.mount("textures", openFS<WadFileSystem>(additionalWadPath));
+      fs.mount("textures", fs::openFS<fs::WadFileSystem>(additionalWadPath));
 
       // Overriding is determined by load order: Wads that are loaded later override
       // materials from other wads that were loaded before. But the material collections
@@ -271,7 +272,7 @@ TEST_CASE("loadMaterialCollections")
       SECTION("Shader with image")
       {
         const auto testDir = workDir / "fixture/test/io/Shader/loader/shader_with_image";
-        fs.mount("", std::make_unique<DiskFileSystem>(testDir));
+        fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
         const auto materialConfig = mdl::MaterialConfig{
           "textures",
@@ -300,7 +301,7 @@ TEST_CASE("loadMaterialCollections")
       {
         const auto testDir =
           workDir / "fixture/test/io/Shader/loader/shader_with_image_same_name";
-        fs.mount("", std::make_unique<DiskFileSystem>(testDir));
+        fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
         const auto materialConfig = mdl::MaterialConfig{
           "textures",
@@ -334,8 +335,8 @@ TEST_CASE("loadMaterialCollections")
 
         // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
         // automatically used when no texture can be found for a shader.
-        fs.mount("", std::make_unique<DiskFileSystem>(fallbackDir));
-        fs.mount("", std::make_unique<DiskFileSystem>(testDir));
+        fs.mount("", std::make_unique<fs::DiskFileSystem>(fallbackDir));
+        fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
         const auto materialConfig = mdl::MaterialConfig{
           "textures",
@@ -369,7 +370,7 @@ TEST_CASE("loadMaterialCollections")
     SECTION("Skip malformed shader files")
     {
       const auto testDir = workDir / "fixture/test/io/Shader/loader/malformed_shader";
-      fs.mount("", std::make_unique<DiskFileSystem>(testDir));
+      fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
       const auto materialConfig = mdl::MaterialConfig{
         "textures",
@@ -400,8 +401,8 @@ TEST_CASE("loadMaterialCollections")
 
       // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
       // automatically used when no texture can be found for a shader.
-      fs.mount("", std::make_unique<DiskFileSystem>(fallbackDir));
-      fs.mount("", std::make_unique<DiskFileSystem>(testDir));
+      fs.mount("", std::make_unique<fs::DiskFileSystem>(fallbackDir));
+      fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
       const auto materialConfig = mdl::MaterialConfig{
         "textures",

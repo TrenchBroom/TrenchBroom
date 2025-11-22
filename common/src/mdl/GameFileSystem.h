@@ -32,10 +32,10 @@ namespace mdl
 {
 struct GameConfig;
 
-class GameFileSystem : public io::VirtualFileSystem
+class GameFileSystem : public fs::VirtualFileSystem
 {
 private:
-  std::vector<io::VirtualMountPointId> m_wadMountPoints;
+  std::vector<fs::VirtualMountPointId> m_wadMountPoints;
 
 public:
   void initialize(

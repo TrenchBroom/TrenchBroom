@@ -33,7 +33,7 @@
 #include <unordered_map>
 #include <variant>
 
-namespace tb::io
+namespace tb::fs
 {
 class CFile;
 class File;
@@ -118,4 +118,4 @@ Result<std::unique_ptr<T>> createImageFileSystem(Args&&... args)
   return fs->reload() | kdl::transform([&]() { return std::move(fs); });
 }
 
-} // namespace tb::io
+} // namespace tb::fs

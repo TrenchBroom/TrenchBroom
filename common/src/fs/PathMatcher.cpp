@@ -25,7 +25,7 @@
 
 #include <algorithm>
 
-namespace tb::io
+namespace tb::fs
 {
 
 PathMatcher makeExtensionPathMatcher(std::vector<std::filesystem::path> extensions_)
@@ -60,4 +60,4 @@ bool matchAnyPath(const std::filesystem::path&, const GetPathInfo&)
   return true;
 }
 
-} // namespace tb::io
+} // namespace tb::fs

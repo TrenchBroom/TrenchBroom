@@ -51,7 +51,7 @@ void GameFileSystem::initialize(
 
   addDefaultAssetPaths(config, logger);
 
-  if (!gamePath.empty() && io::Disk::pathInfo(gamePath) == io::PathInfo::Directory)
+  if (!gamePath.empty() && fs::Disk::pathInfo(gamePath) == fs::PathInfo::Directory)
   {
     addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
   }
@@ -83,7 +83,7 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
   for (const auto& defaultFolderPath : defaultFolderPaths)
   {
     const auto defaultAssetsPath = defaultFolderPath / std::filesystem::path("assets");
-    if (io::Disk::pathInfo(defaultAssetsPath) == io::PathInfo::Directory)
+    if (fs::Disk::pathInfo(defaultAssetsPath) == fs::PathInfo::Directory)
     {
       addFileSystemPath(defaultAssetsPath, logger);
     }
@@ -111,7 +111,7 @@ void GameFileSystem::addSearchPath(
   const std::filesystem::path& searchPath,
   Logger& logger)
 {
-  const auto fixedPath = io::Disk::fixPath(gamePath / searchPath);
+  const auto fixedPath = fs::Disk::fixPath(gamePath / searchPath);
   addFileSystemPath(fixedPath, logger);
   addFileSystemPackages(config, fixedPath, logger);
 }
@@ -119,37 +119,37 @@ void GameFileSystem::addSearchPath(
 void GameFileSystem::addFileSystemPath(const std::filesystem::path& path, Logger& logger)
 {
   logger.info() << "Adding file system path " << path;
-  mount("", std::make_unique<io::DiskFileSystem>(path));
+  mount("", std::make_unique<fs::DiskFileSystem>(path));
 }
 
 namespace
 {
-Result<std::unique_ptr<io::FileSystem>> createImageFileSystem(
+Result<std::unique_ptr<fs::FileSystem>> createImageFileSystem(
   const std::string& packageFormat, const std::filesystem::path& path)
 {
   const auto setMetadataAndCast = [&](auto fs) {
-    fs->setMetadata(io::makeImageFileSystemMetadata(path));
-    return std::unique_ptr<io::FileSystem>{std::move(fs)};
+    fs->setMetadata(fs::makeImageFileSystemMetadata(path));
+    return std::unique_ptr<fs::FileSystem>{std::move(fs)};
   };
 
   if (kdl::ci::str_is_equal(packageFormat, "idpak"))
   {
-    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
-             return io::createImageFileSystem<io::IdPakFileSystem>(std::move(file));
+    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
+             return fs::createImageFileSystem<fs::IdPakFileSystem>(std::move(file));
            })
            | kdl::transform(setMetadataAndCast);
   }
   else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
   {
-    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
-             return io::createImageFileSystem<io::DkPakFileSystem>(std::move(file));
+    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
+             return fs::createImageFileSystem<fs::DkPakFileSystem>(std::move(file));
            })
            | kdl::transform(setMetadataAndCast);
   }
   else if (kdl::ci::str_is_equal(packageFormat, "zip"))
   {
-    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
-             return io::createImageFileSystem<io::ZipFileSystem>(std::move(file));
+    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
+             return fs::createImageFileSystem<fs::ZipFileSystem>(std::move(file));
            })
            | kdl::transform(setMetadataAndCast);
   }
@@ -166,13 +166,13 @@ void GameFileSystem::addFileSystemPackages(
   const auto& packageExtensions = packageFormatConfig.extensions;
   const auto& packageFormat = packageFormatConfig.format;
 
-  if (io::Disk::pathInfo(searchPath) == io::PathInfo::Directory)
+  if (fs::Disk::pathInfo(searchPath) == fs::PathInfo::Directory)
   {
-    const auto diskFS = io::DiskFileSystem{searchPath};
+    const auto diskFS = fs::DiskFileSystem{searchPath};
     diskFS.find(
       std::filesystem::path{},
-      io::TraversalMode::Flat,
-      io::makeExtensionPathMatcher(packageExtensions))
+      fs::TraversalMode::Flat,
+      fs::makeExtensionPathMatcher(packageExtensions))
       | kdl::and_then([&](auto packagePaths) {
           std::ranges::sort(packagePaths);
           return packagePaths | kdl::views::as_rvalue
@@ -204,11 +204,11 @@ void GameFileSystem::mountWads(
 {
   for (const auto& wadPath : wadPaths)
   {
-    const auto resolvedWadPath = io::Disk::resolvePath(wadSearchPaths, wadPath);
-    io::Disk::openFile(resolvedWadPath) | kdl::and_then([](auto file) {
-      return io::createImageFileSystem<io::WadFileSystem>(std::move(file));
+    const auto resolvedWadPath = fs::Disk::resolvePath(wadSearchPaths, wadPath);
+    fs::Disk::openFile(resolvedWadPath) | kdl::and_then([](auto file) {
+      return fs::createImageFileSystem<fs::WadFileSystem>(std::move(file));
     }) | kdl::transform([&](auto fs) {
-      fs->setMetadata(io::makeImageFileSystemMetadata(resolvedWadPath));
+      fs->setMetadata(fs::makeImageFileSystemMetadata(resolvedWadPath));
       m_wadMountPoints.push_back(mount(rootPath, std::move(fs)));
     }) | kdl::transform_error([&](auto e) {
       logger.error() << "Could not load wad file at '" << wadPath << "': " << e.msg;

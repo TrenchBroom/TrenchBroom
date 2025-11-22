@@ -49,7 +49,7 @@ struct SprPicture
   size_t height;
 };
 
-SprPicture parsePicture(Reader& reader, const mdl::Palette& palette)
+SprPicture parsePicture(fs::Reader& reader, const mdl::Palette& palette)
 {
   const auto xOffset = reader.readInt<int32_t>();
   const auto yOffset = reader.readInt<int32_t>();
@@ -80,7 +80,7 @@ SprPicture parsePicture(Reader& reader, const mdl::Palette& palette)
   return SprPicture{std::move(material), xOffset, yOffset, width, height};
 }
 
-void skipPicture(Reader& reader)
+void skipPicture(fs::Reader& reader)
 {
   /* const auto xOffset = */ reader.readInt<int32_t>();
   /* const auto yOffset = */ reader.readInt<int32_t>();
@@ -90,7 +90,7 @@ void skipPicture(Reader& reader)
   reader.seekForward(width * height);
 }
 
-SprPicture parsePictureFrame(Reader& reader, const mdl::Palette& palette)
+SprPicture parsePictureFrame(fs::Reader& reader, const mdl::Palette& palette)
 {
   const auto group = reader.readInt<int32_t>();
   if (group == 0)
@@ -111,7 +111,7 @@ SprPicture parsePictureFrame(Reader& reader, const mdl::Palette& palette)
   return picture;
 }
 
-Result<mdl::Orientation> parseSpriteOrientationType(Reader& reader)
+Result<mdl::Orientation> parseSpriteOrientationType(fs::Reader& reader)
 {
   const auto type = reader.readInt<int32_t>();
   if (type < 0 || type > 4)
@@ -138,7 +138,7 @@ enum class RenderMode : int32_t
   AlphaTest = 3
 };
 
-Result<RenderMode> parseSpriteRenderMode(const int version, Reader& reader)
+Result<RenderMode> parseSpriteRenderMode(const int version, fs::Reader& reader)
 {
   if (version != 2)
   {
@@ -203,7 +203,7 @@ std::vector<unsigned char> processGoldsourcePalette(
 }
 
 Result<mdl::Palette> parseEmbeddedPalette(
-  Reader& reader,
+  fs::Reader& reader,
   const RenderMode renderMode,
   const int version,
   const mdl::Palette& defaultPalette)
@@ -227,14 +227,15 @@ Result<mdl::Palette> parseEmbeddedPalette(
 
 } // namespace
 
-SprLoader::SprLoader(std::string name, const Reader& reader, const mdl::Palette& palette)
+SprLoader::SprLoader(
+  std::string name, const fs::Reader& reader, const mdl::Palette& palette)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_palette{palette}
 {
 }
 
-bool SprLoader::canParse(const std::filesystem::path& path, Reader reader)
+bool SprLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".spr"))
   {
@@ -336,7 +337,7 @@ Result<mdl::EntityModelData> SprLoader::load(Logger& /* logger */)
       });
     });
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

@@ -26,7 +26,7 @@
 #include <string>
 #include <string_view>
 
-namespace tb::io
+namespace tb::fs
 {
 class BufferedReader;
 class BufferReaderSource;
@@ -434,4 +434,4 @@ public:
    */
   std::string_view stringView() const;
 };
-} // namespace tb::io
+} // namespace tb::fs

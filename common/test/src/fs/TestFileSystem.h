@@ -31,7 +31,7 @@
 #include <unordered_map>
 #include <variant>
 
-namespace tb::io
+namespace tb::fs
 {
 
 struct Object
@@ -88,4 +88,4 @@ private:
     const std::filesystem::path& path) const override;
 };
 
-} // namespace tb::io
+} // namespace tb::fs

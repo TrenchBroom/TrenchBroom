@@ -33,7 +33,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb::fs
 {
 
 TEST_CASE("TestFileSystem")
@@ -82,14 +82,14 @@ TEST_CASE("TestFileSystem")
 
   SECTION("pathInfo")
   {
-    CHECK(fs.pathInfo("root_file_1") == PathInfo::File);
-    CHECK(fs.pathInfo("some_dir") == PathInfo::Directory);
-    CHECK(fs.pathInfo("does_not_exist") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("some_dir/some_dir_file_1") == PathInfo::File);
-    CHECK(fs.pathInfo("some_dir/nested_dir") == PathInfo::Directory);
-    CHECK(fs.pathInfo("some_dir/does_not_exist") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("some_dir/nested_dir/nested_dir_file_1") == PathInfo::File);
-    CHECK(fs.pathInfo("some_dir/nested_dir/does_not_exist") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("root_file_1") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("some_dir") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("does_not_exist") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("some_dir/some_dir_file_1") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("some_dir/nested_dir") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("some_dir/does_not_exist") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("some_dir/nested_dir/nested_dir_file_1") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("some_dir/nested_dir/does_not_exist") == fs::PathInfo::Unknown);
   }
 
   SECTION("metadata")
@@ -109,13 +109,13 @@ TEST_CASE("TestFileSystem")
   SECTION("find")
   {
     CHECK(
-      fs.find("does_not_exist", TraversalMode::Flat)
+      fs.find("does_not_exist", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Path {} does not denote a directory",
         std::filesystem::path{"does_not_exist"})}});
 
     CHECK(
-      fs.find("", TraversalMode::Flat)
+      fs.find("", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir",
         "root_file_1",
@@ -123,7 +123,7 @@ TEST_CASE("TestFileSystem")
       }});
 
     CHECK(
-      fs.find("some_dir", TraversalMode::Flat)
+      fs.find("some_dir", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir/nested_dir",
         "some_dir/some_dir_file_1",
@@ -131,14 +131,14 @@ TEST_CASE("TestFileSystem")
       }});
 
     CHECK(
-      fs.find("some_dir/nested_dir", TraversalMode::Flat)
+      fs.find("some_dir/nested_dir", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir/nested_dir/nested_dir_file_1",
         "some_dir/nested_dir/nested_dir_file_2",
       }});
 
     CHECK(
-      fs.find("", TraversalMode::Recursive)
+      fs.find("", fs::TraversalMode::Recursive)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir",
         "some_dir/nested_dir",
@@ -186,4 +186,4 @@ TEST_CASE("TestFileSystem")
   }
 }
 
-} // namespace tb::io
+} // namespace tb::fs

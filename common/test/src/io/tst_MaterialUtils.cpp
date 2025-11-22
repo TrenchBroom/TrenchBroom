@@ -59,7 +59,7 @@ TEST_CASE("getMaterialNameFromPathSuffix")
 
 TEST_CASE("findMaterialFile")
 {
-  auto env = TestEnvironment{};
+  auto env = fs::TestEnvironment{};
   env.createDirectory("textures");
   env.createFile("textures/test.png", "");
   env.createFile("textures/test.jpg", "");
@@ -67,7 +67,7 @@ TEST_CASE("findMaterialFile")
 
   const auto extensions = std::vector<std::filesystem::path>{".png", ".jpg"};
 
-  auto diskFS = DiskFileSystem{env.dir()};
+  auto diskFS = fs::DiskFileSystem{env.dir()};
   CHECK(
     findMaterialFile(diskFS, "asdf/test.png", extensions)
     == Result<std::filesystem::path>{std::filesystem::path{"asdf/test.png"}});
@@ -88,7 +88,7 @@ TEST_CASE("findMaterialFile")
 TEST_CASE("makeReadTextureErrorHandler")
 {
   auto logger = NullLogger{};
-  auto diskFS = DiskFileSystem{
+  auto diskFS = fs::DiskFileSystem{
     std::filesystem::current_path() / "fixture/test/io/ReadTextureErrorHandler"};
 
   const auto file = diskFS.openFile("textures/corruptPngTest.png") | kdl::value();

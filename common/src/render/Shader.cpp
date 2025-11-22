@@ -77,7 +77,7 @@ namespace
 
 Result<std::vector<std::string>> loadSource(const std::filesystem::path& path)
 {
-  return io::Disk::withInputStream(path, [](auto& stream) {
+  return fs::Disk::withInputStream(path, [](auto& stream) {
     std::string line;
     std::vector<std::string> lines;
 

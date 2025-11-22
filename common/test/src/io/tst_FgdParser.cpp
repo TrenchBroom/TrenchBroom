@@ -45,14 +45,15 @@ TEST_CASE("FgdParser")
   {
     const auto basePath = std::filesystem::current_path() / "fixture/games/";
     const auto cfgFiles =
-      Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".fgd"}))
+      fs::Disk::find(
+        basePath, fs::TraversalMode::Recursive, fs::makeExtensionPathMatcher({".fgd"}))
       | kdl::value();
 
     for (const auto& path : cfgFiles)
     {
       CAPTURE(path);
 
-      auto file = Disk::openFile(path) | kdl::value();
+      auto file = fs::Disk::openFile(path) | kdl::value();
       auto reader = file->reader().buffer();
 
       auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};
@@ -1172,7 +1173,7 @@ model({"path"
   {
     const auto path =
       std::filesystem::current_path() / "fixture/test/io/Fgd/parseInclude/host.fgd";
-    auto file = Disk::openFile(path) | kdl::value();
+    auto file = fs::Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
     auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};
@@ -1191,7 +1192,7 @@ model({"path"
   {
     const auto path =
       std::filesystem::current_path() / "fixture/test/io/Fgd/parseNestedInclude/host.fgd";
-    auto file = Disk::openFile(path) | kdl::value();
+    auto file = fs::Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
     auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};
@@ -1212,7 +1213,7 @@ model({"path"
   {
     const auto path = std::filesystem::current_path()
                       / "fixture/test/io/Fgd/parseRecursiveInclude/host.fgd";
-    auto file = Disk::openFile(path) | kdl::value();
+    auto file = fs::Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
     auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};

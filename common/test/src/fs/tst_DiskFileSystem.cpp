@@ -38,7 +38,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 
-namespace tb::io
+namespace tb::fs
 {
 
 namespace
@@ -89,56 +89,57 @@ TEST_CASE("DiskFileSystemTest")
   SECTION("pathInfo")
   {
 #if defined _WIN32
-    CHECK(fs.pathInfo("c:\\") == PathInfo::Directory);
-    CHECK(fs.pathInfo("C:\\does_not_exist_i_hope.txt") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("c:\\") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("C:\\does_not_exist_i_hope.txt") == fs::PathInfo::Unknown);
 #else
-    CHECK(fs.pathInfo("/") == PathInfo::Directory);
-    CHECK(fs.pathInfo("/does_not_exist_i_hope.txt") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("/") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("/does_not_exist_i_hope.txt") == fs::PathInfo::Unknown);
 #endif
-    CHECK(fs.pathInfo("..") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("..") == fs::PathInfo::Unknown);
 
-    CHECK(fs.pathInfo(".") == PathInfo::Directory);
-    CHECK(fs.pathInfo("anotherDir") == PathInfo::Directory);
-    CHECK(fs.pathInfo("anotherDir/subDirTest") == PathInfo::Directory);
-    CHECK(fs.pathInfo("anotherDir/./subDirTest/..") == PathInfo::Directory);
-    CHECK(fs.pathInfo("ANOTHerDir") == PathInfo::Directory);
-    CHECK(fs.pathInfo("test.txt") == PathInfo::File);
-    CHECK(fs.pathInfo("fasdf") == PathInfo::Unknown);
+    CHECK(fs.pathInfo(".") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("anotherDir") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("anotherDir/subDirTest") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("anotherDir/./subDirTest/..") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("ANOTHerDir") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("test.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("fasdf") == fs::PathInfo::Unknown);
 
-    CHECK(fs.pathInfo("test.txt") == PathInfo::File);
-    CHECK(fs.pathInfo("./test.txt") == PathInfo::File);
-    CHECK(fs.pathInfo("anotherDir/test3.map") == PathInfo::File);
+    CHECK(fs.pathInfo("test.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("./test.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("anotherDir/test3.map") == fs::PathInfo::File);
     CHECK(
-      fs.pathInfo("anotherDir/./subDirTest/../subDirTest/test2.map") == PathInfo::File);
-    CHECK(fs.pathInfo("ANOtherDir/test3.MAP") == PathInfo::File);
-    CHECK(fs.pathInfo("anotherDir/whatever.txt") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("fdfdf.blah") == PathInfo::Unknown);
+      fs.pathInfo("anotherDir/./subDirTest/../subDirTest/test2.map")
+      == fs::PathInfo::File);
+    CHECK(fs.pathInfo("ANOtherDir/test3.MAP") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("anotherDir/whatever.txt") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("fdfdf.blah") == fs::PathInfo::Unknown);
   }
 
   SECTION("find")
   {
 #if defined _WIN32
     CHECK(
-      fs.find("c:\\", TraversalMode::Flat)
+      fs.find("c:\\", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{
         Error{fmt::format("Path {} is absolute", std::filesystem::path{"c:\\"})}});
 #else
     CHECK(
-      fs.find("/", TraversalMode::Flat)
+      fs.find("/", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{
         Error{fmt::format("Path {} is absolute", std::filesystem::path{"/"})}});
 #endif
     CHECK(
-      fs.find("..", TraversalMode::Flat)
+      fs.find("..", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Path {} does not denote a directory", std::filesystem::path{".."})}});
     CHECK(
-      fs.find("asdf/bleh", TraversalMode::Flat)
+      fs.find("asdf/bleh", fs::TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Path {} does not denote a directory", std::filesystem::path{"asdf/bleh"})}});
 
     CHECK_THAT(
-      fs.find(".", TraversalMode::Flat),
+      fs.find(".", fs::TraversalMode::Flat),
       MatchesPathsResult({
         "anotherDir",
         "dir1",
@@ -148,14 +149,14 @@ TEST_CASE("DiskFileSystemTest")
       }));
 
     CHECK_THAT(
-      fs.find("anotherDir", TraversalMode::Flat),
+      fs.find("anotherDir", fs::TraversalMode::Flat),
       MatchesPathsResult({
         "anotherDir/subDirTest",
         "anotherDir/test3.map",
       }));
 
     CHECK_THAT(
-      fs.find(".", TraversalMode::Recursive),
+      fs.find(".", fs::TraversalMode::Recursive),
       MatchesPathsResult({
         "anotherDir",
         "anotherDir/subDirTest",
@@ -168,7 +169,7 @@ TEST_CASE("DiskFileSystemTest")
       }));
 
     CHECK_THAT(
-      fs.find(".", TraversalMode::Recursive),
+      fs.find(".", fs::TraversalMode::Recursive),
       MatchesPathsResult({
         "anotherDir",
         "anotherDir/subDirTest",
@@ -209,7 +210,7 @@ TEST_CASE("DiskFileSystemTest")
 
     const auto checkOpenFile = [&](const auto& path) {
       const auto file = fs.openFile(path) | kdl::value();
-      const auto expected = Disk::openFile(env.dir() / path) | kdl::value();
+      const auto expected = fs::Disk::openFile(env.dir() / path) | kdl::value();
       CHECK(
         file->reader().readString(file->size())
         == expected->reader().readString(expected->size()));
@@ -261,15 +262,16 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK(fs.createDirectory("dir1") == Result<bool>{false});
 
     CHECK(fs.createDirectory("newDir") == Result<bool>{true});
-    CHECK(fs.pathInfo("newDir") == PathInfo::Directory);
+    CHECK(fs.pathInfo("newDir") == fs::PathInfo::Directory);
 
     CHECK(fs.createDirectory("newDir/someOtherDir") == Result<bool>{true});
-    CHECK(fs.pathInfo("newDir/someOtherDir") == PathInfo::Directory);
+    CHECK(fs.pathInfo("newDir/someOtherDir") == fs::PathInfo::Directory);
 
     CHECK(
       fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir")
       == Result<bool>{true});
-    CHECK(fs.pathInfo("someDir/someOtherDir/.././yetAnotherDir") == PathInfo::Directory);
+    CHECK(
+      fs.pathInfo("someDir/someOtherDir/.././yetAnotherDir") == fs::PathInfo::Directory);
   }
 
   SECTION("deleteFile")
@@ -312,15 +314,15 @@ TEST_CASE("WritableDiskFileSystemTest")
 
     CHECK(fs.deleteFile("asdf.txt") == Result<bool>{false});
     CHECK(fs.deleteFile("test.txt") == Result<bool>{true});
-    CHECK(fs.pathInfo("test.txt") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("test.txt") == fs::PathInfo::Unknown);
 
     CHECK(fs.deleteFile("anotherDir/test3.map") == Result<bool>{true});
-    CHECK(fs.pathInfo("anotherDir/test3.map") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("anotherDir/test3.map") == fs::PathInfo::Unknown);
 
     CHECK(
       fs.deleteFile("anotherDir/subDirTest/.././subDirTest/./test2.map")
       == Result<bool>{true});
-    CHECK(fs.pathInfo("anotherDir/subDirTest/test2.map") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("anotherDir/subDirTest/test2.map") == fs::PathInfo::Unknown);
   }
 
   SECTION("moveFile")
@@ -350,18 +352,18 @@ TEST_CASE("WritableDiskFileSystemTest")
 #endif
 
     CHECK(fs.moveFile("test.txt", "test2.txt") == Result<void>{});
-    CHECK(fs.pathInfo("test.txt") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
+    CHECK(fs.pathInfo("test.txt") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("test2.txt") == fs::PathInfo::File);
 
     CHECK(fs.moveFile("test2.txt", "test2.map") == Result<void>{});
-    CHECK(fs.pathInfo("test2.txt") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("test2.map") == PathInfo::File);
+    CHECK(fs.pathInfo("test2.txt") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("test2.map") == fs::PathInfo::File);
     // we're trusting that the file is actually overwritten (should really test the
     // contents here...)
 
     CHECK(fs.moveFile("test2.map", "dir1/test2.map") == Result<void>{});
-    CHECK(fs.pathInfo("test2.map") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("dir1/test2.map") == PathInfo::File);
+    CHECK(fs.pathInfo("test2.map") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("dir1/test2.map") == fs::PathInfo::File);
   }
 
   SECTION("renameDirectory")
@@ -390,8 +392,8 @@ TEST_CASE("WritableDiskFileSystemTest")
 #endif
 
     CHECK(fs.renameDirectory("anotherDir", "dir1/newDir") == Result<void>{});
-    CHECK(fs.pathInfo("anotherDir") == PathInfo::Unknown);
-    CHECK(fs.pathInfo("dir1/newDir") == PathInfo::Directory);
+    CHECK(fs.pathInfo("anotherDir") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("dir1/newDir") == fs::PathInfo::Directory);
   }
 
   SECTION("copyFile")
@@ -421,19 +423,19 @@ TEST_CASE("WritableDiskFileSystemTest")
 #endif
 
     CHECK(fs.copyFile("test.txt", "test2.txt") == Result<void>{});
-    CHECK(fs.pathInfo("test.txt") == PathInfo::File);
-    CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
+    CHECK(fs.pathInfo("test.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("test2.txt") == fs::PathInfo::File);
 
     CHECK(fs.copyFile("test2.txt", "test2.map") == Result<void>{});
-    CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
-    CHECK(fs.pathInfo("test2.map") == PathInfo::File);
+    CHECK(fs.pathInfo("test2.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("test2.map") == fs::PathInfo::File);
     // we're trusting that the file is actually overwritten (should really test the
     // contents here...)
 
     CHECK(fs.copyFile("test2.map", "dir1/test2.map") == Result<void>{});
-    CHECK(fs.pathInfo("test2.map") == PathInfo::File);
-    CHECK(fs.pathInfo("dir1/test2.map") == PathInfo::File);
+    CHECK(fs.pathInfo("test2.map") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("dir1/test2.map") == fs::PathInfo::File);
   }
 }
 
-} // namespace tb::io
+} // namespace tb::fs

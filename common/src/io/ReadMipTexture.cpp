@@ -41,9 +41,9 @@ static constexpr size_t TextureNameLength = 16;
 namespace
 {
 
-using GetMipPalette = std::function<Result<mdl::Palette>(Reader& reader)>;
+using GetMipPalette = std::function<Result<mdl::Palette>(fs::Reader& reader)>;
 
-Result<mdl::Palette> readHlMipPalette(Reader& reader)
+Result<mdl::Palette> readHlMipPalette(fs::Reader& reader)
 {
   reader.seekFromBegin(0);
   reader.seekFromBegin(MipLayout::TextureNameLength);
@@ -63,7 +63,7 @@ Result<mdl::Palette> readHlMipPalette(Reader& reader)
 }
 
 Result<mdl::Texture> readMipTexture(
-  Reader& reader, const GetMipPalette& getMipPalette, const mdl::TextureMask mask)
+  fs::Reader& reader, const GetMipPalette& getMipPalette, const mdl::TextureMask mask)
 {
   static const auto MipLevels = size_t(4);
 
@@ -119,7 +119,7 @@ Result<mdl::Texture> readMipTexture(
                std::move(buffers)};
            });
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }
@@ -127,26 +127,26 @@ Result<mdl::Texture> readMipTexture(
 
 } // namespace
 
-std::string readMipTextureName(Reader& reader)
+std::string readMipTextureName(fs::Reader& reader)
 {
   try
   {
     auto nameReader = reader.buffer();
     return nameReader.readString(MipLayout::TextureNameLength);
   }
-  catch (const ReaderException&)
+  catch (const fs::ReaderException&)
   {
     return "";
   }
 }
 
 Result<mdl::Texture> readIdMipTexture(
-  Reader& reader, const mdl::Palette& palette, const mdl::TextureMask mask)
+  fs::Reader& reader, const mdl::Palette& palette, const mdl::TextureMask mask)
 {
-  return readMipTexture(reader, [&](Reader&) { return palette; }, mask);
+  return readMipTexture(reader, [&](fs::Reader&) { return palette; }, mask);
 }
 
-Result<mdl::Texture> readHlMipTexture(Reader& reader, const mdl::TextureMask mask)
+Result<mdl::Texture> readHlMipTexture(fs::Reader& reader, const mdl::TextureMask mask)
 {
   return readMipTexture(reader, readHlMipPalette, mask);
 }

@@ -32,7 +32,7 @@
 #include <cassert>
 #include <memory>
 
-namespace tb::io
+namespace tb::fs
 {
 namespace
 {
@@ -311,4 +311,4 @@ std::unordered_map<std::string, FileSystemMetadata> makeImageFileSystemMetadata(
   };
 }
 
-} // namespace tb::io
+} // namespace tb::fs

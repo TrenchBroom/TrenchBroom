@@ -30,7 +30,7 @@
 #include <cstring>
 #include <memory>
 
-namespace tb::io
+namespace tb::fs
 {
 namespace DkPakLayout
 {
@@ -159,4 +159,4 @@ Result<void> DkPakFileSystem::doReadDirectory()
     return Error{e.what()};
   }
 }
-} // namespace tb::io
+} // namespace tb::fs

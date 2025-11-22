@@ -24,6 +24,11 @@
 
 namespace tb
 {
+namespace fs
+{
+class Reader;
+} // namespace fs
+
 namespace mdl
 {
 class Texture;
@@ -31,9 +36,8 @@ class Texture;
 
 namespace io
 {
-class Reader;
 
-Result<mdl::Texture> readDdsTexture(Reader& reader);
+Result<mdl::Texture> readDdsTexture(fs::Reader& reader);
 
 } // namespace io
 } // namespace tb

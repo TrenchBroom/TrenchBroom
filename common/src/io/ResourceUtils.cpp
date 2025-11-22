@@ -50,7 +50,7 @@
 namespace tb::io
 {
 
-mdl::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
+mdl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
 {
   // recursion guard
   static auto executing = false;
@@ -76,7 +76,8 @@ mdl::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
   return mdl::Texture{32, 32};
 }
 
-mdl::Material loadDefaultMaterial(const FileSystem& fs, std::string name, Logger& logger)
+mdl::Material loadDefaultMaterial(
+  const fs::FileSystem& fs, std::string name, Logger& logger)
 {
   auto textureResource = createTextureResource(loadDefaultTexture(fs, logger));
   return mdl::Material{std::move(name), std::move(textureResource)};

@@ -27,7 +27,7 @@
 #include "kd/string_format.h"
 #include "kd/string_utils.h"
 
-namespace tb::io
+namespace tb::fs
 {
 namespace WadLayout
 {
@@ -128,4 +128,4 @@ Result<void> WadFileSystem::doReadDirectory()
     return Error{e.what()};
   }
 }
-} // namespace tb::io
+} // namespace tb::fs

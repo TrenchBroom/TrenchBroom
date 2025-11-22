@@ -28,7 +28,7 @@
 #include <functional>
 #include <string>
 
-namespace tb::io
+namespace tb::fs
 {
 
 class TestEnvironment
@@ -74,10 +74,10 @@ public:
       std::filesystem::remove(path, error);
     }};
 
-    io::Disk::withOutputStream(path, [&](auto& stream) { stream << contents; })
+    Disk::withOutputStream(path, [&](auto& stream) { stream << contents; })
       | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
     return f(path);
   }
 };
 
-} // namespace tb::io
+} // namespace tb::fs

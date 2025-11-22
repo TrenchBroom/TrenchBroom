@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::io
+namespace tb::fs
 {
 
 enum class PathInfo;
@@ -38,4 +38,4 @@ PathMatcher makePathInfoPathMatcher(std::vector<PathInfo> pathInfos);
 
 bool matchAnyPath(const std::filesystem::path& path, const GetPathInfo& getPathInfo);
 
-} // namespace tb::io
+} // namespace tb::fs

@@ -57,10 +57,10 @@ auto loadFont(FT_Library library, const FontDescriptor& fontDescriptor)
                           ? fontDescriptor.path()
                           : io::SystemPaths::findResourceFile(fontDescriptor.path());
 
-  return io::Disk::openFile(fontPath)
+  return fs::Disk::openFile(fontPath)
          | kdl::and_then(
            [&](
-             auto file) -> Result<std::pair<kdl::resource<FT_Face>, io::BufferedReader>> {
+             auto file) -> Result<std::pair<kdl::resource<FT_Face>, fs::BufferedReader>> {
              auto reader = file->reader().buffer();
 
              auto face = FT_Face{};

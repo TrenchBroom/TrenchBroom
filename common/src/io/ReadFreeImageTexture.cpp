@@ -197,7 +197,7 @@ Result<mdl::Texture> readFreeImageTextureFromMemory(
   }
 }
 
-Result<mdl::Texture> readFreeImageTexture(Reader& reader)
+Result<mdl::Texture> readFreeImageTexture(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   const auto* begin = bufferedReader.begin();

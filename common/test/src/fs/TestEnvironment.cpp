@@ -34,7 +34,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 
-namespace tb::io
+namespace tb::fs
 {
 
 namespace
@@ -149,4 +149,4 @@ std::string TestEnvironment::loadFile(const std::filesystem::path& path) const
   return std::string{std::istreambuf_iterator<char>{stream}, {}};
 }
 
-} // namespace tb::io
+} // namespace tb::fs

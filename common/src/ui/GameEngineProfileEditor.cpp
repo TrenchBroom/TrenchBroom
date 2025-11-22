@@ -134,9 +134,9 @@ bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const
   try
   {
     const auto path = io::pathFromQString(str);
-    return io::Disk::pathInfo(path) == io::PathInfo::File
+    return fs::Disk::pathInfo(path) == fs::PathInfo::File
 #ifdef __APPLE__
-           || (io::Disk::pathInfo(path) == io::PathInfo::Directory 
+           || (fs::Disk::pathInfo(path) == fs::PathInfo::Directory 
            && kdl::ci::str_is_equal(path.extension().string(), ".app"))
 #endif
       ;

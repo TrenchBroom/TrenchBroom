@@ -26,7 +26,7 @@
 
 #include <mutex>
 
-namespace tb::io
+namespace tb::fs
 {
 class CFile;
 
@@ -43,4 +43,4 @@ public:
 private:
   Result<void> doReadDirectory() override;
 };
-} // namespace tb::io
+} // namespace tb::fs

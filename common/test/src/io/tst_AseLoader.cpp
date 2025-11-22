@@ -58,8 +58,8 @@ TEST_CASE("AseLoader")
 
   const auto defaultAssetsPath =
     std::filesystem::current_path() / "fixture/test/io/ResourceUtils/assets";
-  auto fs = VirtualFileSystem{};
-  fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
+  auto fs = fs::VirtualFileSystem{};
+  fs.mount("", std::make_unique<fs::DiskFileSystem>(defaultAssetsPath));
 
   auto taskManager = kdl::task_manager{};
 
@@ -67,7 +67,7 @@ TEST_CASE("AseLoader")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/wedge_with_shader";
-    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
@@ -109,7 +109,7 @@ TEST_CASE("AseLoader")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/fallback_to_materialname";
-    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
@@ -140,7 +140,7 @@ TEST_CASE("AseLoader")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/load_default_material";
-    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
@@ -188,8 +188,8 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
 
   const auto defaultAssetsPath =
     std::filesystem::current_path() / "fixture/test/io/ResourceUtils/assets";
-  auto fs = VirtualFileSystem{};
-  fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
+  auto fs = fs::VirtualFileSystem{};
+  fs.mount("", std::make_unique<fs::DiskFileSystem>(defaultAssetsPath));
 
   auto taskManager = kdl::task_manager{};
 
@@ -197,7 +197,7 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/steelstorm_player";
-    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
@@ -223,7 +223,7 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/no_scene_directive";
-    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
@@ -249,7 +249,7 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/index_out_of_bounds";
-    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();

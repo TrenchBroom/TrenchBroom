@@ -23,6 +23,7 @@
 #include "fs/DkPakFileSystem.h"
 #include "fs/IdPakFileSystem.h"
 #include "fs/PathInfo.h"
+#include "fs/TestUtils.h"
 #include "fs/TraversalMode.h"
 #include "fs/WadFileSystem.h"
 #include "fs/ZipFileSystem.h"
@@ -34,7 +35,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-namespace tb::io
+namespace tb::fs
 {
 
 const auto cr8_czg_03_contents = std::vector<unsigned char>{
@@ -833,17 +834,17 @@ TEST_CASE("Hierarchical ImageFileSystems")
 
   SECTION("pathInfo")
   {
-    CHECK(fs->pathInfo("pics") == PathInfo::Directory);
-    CHECK(fs->pathInfo("PICS") == PathInfo::Directory);
-    CHECK(fs->pathInfo("pics/tag1.pcx") == PathInfo::File);
-    CHECK(fs->pathInfo("PICS/TAG1.pcX") == PathInfo::File);
-    CHECK(fs->pathInfo("does_not_exist") == PathInfo::Unknown);
+    CHECK(fs->pathInfo("pics") == fs::PathInfo::Directory);
+    CHECK(fs->pathInfo("PICS") == fs::PathInfo::Directory);
+    CHECK(fs->pathInfo("pics/tag1.pcx") == fs::PathInfo::File);
+    CHECK(fs->pathInfo("PICS/TAG1.pcX") == fs::PathInfo::File);
+    CHECK(fs->pathInfo("does_not_exist") == fs::PathInfo::Unknown);
   }
 
   SECTION("find")
   {
     CHECK_THAT(
-      fs->find("", TraversalMode::Flat),
+      fs->find("", fs::TraversalMode::Flat),
       MatchesPathsResult({
         "bear.cfg",
         "pics",
@@ -852,14 +853,14 @@ TEST_CASE("Hierarchical ImageFileSystems")
       }));
 
     CHECK_THAT(
-      fs->find("pics", TraversalMode::Flat),
+      fs->find("pics", fs::TraversalMode::Flat),
       MatchesPathsResult({
         "pics/tag2.pcx",
         "pics/tag1.pcx",
       }));
 
     CHECK_THAT(
-      fs->find("", TraversalMode::Recursive),
+      fs->find("", fs::TraversalMode::Recursive),
       MatchesPathsResult({
         "amnet.cfg",
         "textures",
@@ -952,15 +953,16 @@ TEST_CASE("Flat ImageFileSystems")
 
   SECTION("pathInfo")
   {
-    CHECK(fs->pathInfo("cr8_czg_1.D") == PathInfo::File);
-    CHECK(fs->pathInfo("speedM_1.D") == PathInfo::File);
-    CHECK(fs->pathInfo("SpEeDm_1.D") == PathInfo::File);
-    CHECK(fs->pathInfo("does_not_exist") == PathInfo::Unknown);
+    CHECK(fs->pathInfo("cr8_czg_1.D") == fs::PathInfo::File);
+    CHECK(fs->pathInfo("speedM_1.D") == fs::PathInfo::File);
+    CHECK(fs->pathInfo("SpEeDm_1.D") == fs::PathInfo::File);
+    CHECK(fs->pathInfo("does_not_exist") == fs::PathInfo::Unknown);
   }
 
   SECTION("directoryContents")
   {
-    const auto traversalMode = GENERATE(TraversalMode::Flat, TraversalMode::Recursive);
+    const auto traversalMode =
+      GENERATE(fs::TraversalMode::Flat, fs::TraversalMode::Recursive);
     CAPTURE(traversalMode);
 
     CHECK_THAT(
@@ -1014,4 +1016,4 @@ TEST_CASE("WadFileSystem")
   }
 }
 
-} // namespace tb::io
+} // namespace tb::fs

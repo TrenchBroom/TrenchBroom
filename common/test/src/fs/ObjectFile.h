@@ -21,7 +21,7 @@
 
 #include "fs/File.h"
 
-namespace tb::io
+namespace tb::fs
 {
 
 /**
@@ -64,4 +64,4 @@ public:
   const T& object() const { return m_object; }
 };
 
-} // namespace tb::io
+} // namespace tb::fs

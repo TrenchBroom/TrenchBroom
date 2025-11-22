@@ -28,7 +28,7 @@
 
 #include <algorithm>
 
-namespace tb::io
+namespace tb::fs
 {
 
 kdl_reflect_impl(Object);
@@ -88,7 +88,7 @@ const Entry* TestFileSystem::findEntry(std::filesystem::path path) const
 PathInfo TestFileSystem::pathInfo(const std::filesystem::path& path) const
 {
   const auto* entry = findEntry(path);
-  return entry ? getEntryType(*entry) : PathInfo::Unknown;
+  return entry ? getEntryType(*entry) : fs::PathInfo::Unknown;
 }
 
 const FileSystemMetadata* TestFileSystem::metadata(
@@ -158,4 +158,4 @@ Result<std::shared_ptr<File>> TestFileSystem::doOpenFile(
   return Error{};
 }
 
-} // namespace tb::io
+} // namespace tb::fs

@@ -26,7 +26,7 @@
 #include <memory>
 #include <string>
 
-namespace tb::io
+namespace tb::fs
 {
 
 class DiskFileSystem : public virtual FileSystem
@@ -85,4 +85,4 @@ private:
 #pragma warning(pop)
 #endif
 
-} // namespace tb::io
+} // namespace tb::fs

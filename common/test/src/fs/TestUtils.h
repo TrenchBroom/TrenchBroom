@@ -19,37 +19,29 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
+#include "fs/DiskIO.h"
+#include "fs/ImageFileSystem.h"
 
 #include <filesystem>
 #include <string>
 
-namespace tb
-{
-namespace fs
-{
-class FileSystem;
-class Reader;
-} // namespace fs
-
-namespace io
+namespace tb::fs
 {
 
-// see http://tfc.duke.free.fr/coding/md2-specs-en.html
-class DkmLoader : public EntityModelLoader
+template <typename FS>
+auto openFS(const std::filesystem::path& path)
 {
-private:
-  std::string m_name;
-  const fs::Reader& m_reader;
-  const fs::FileSystem& m_fs;
+  return Disk::openFile(path) | kdl::and_then([](auto file) {
+           return createImageFileSystem<FS>(std::move(file));
+         })
+         | kdl::transform([&](auto fs) {
+             fs->setMetadata(makeImageFileSystemMetadata(path));
+             return fs;
+           })
+         | kdl::value();
+}
 
-public:
-  DkmLoader(std::string name, const fs::Reader& reader, const fs::FileSystem& fs);
+std::string readTextFile(const std::filesystem::path& path);
+Result<std::string> readTextFile(const FileSystem& fs, const std::filesystem::path& path);
 
-  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
-
-} // namespace io
-} // namespace tb
+} // namespace tb::fs

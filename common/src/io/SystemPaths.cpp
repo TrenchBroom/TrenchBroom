@@ -85,21 +85,21 @@ std::filesystem::path findResourceFile(const std::filesystem::path& file)
   // Special case for running debug builds on Linux, we want to search
   // next to the executable for resources
   const auto relativeToExecutable = appDirectory() / file;
-  if (Disk::pathInfo(relativeToExecutable) == PathInfo::File)
+  if (fs::Disk::pathInfo(relativeToExecutable) == fs::PathInfo::File)
   {
     return relativeToExecutable;
   }
 
   // Compatibility with wxWidgets
   const auto inUserDataDir = userDataDirectory() / file;
-  if (Disk::pathInfo(inUserDataDir) == PathInfo::File)
+  if (fs::Disk::pathInfo(inUserDataDir) == fs::PathInfo::File)
   {
     return inUserDataDir;
   }
 
   // Compatibility with AppImage runtime
   const auto inAppImageDir = appImageDirectory() / file;
-  if (Disk::pathInfo(inAppImageDir) == PathInfo::File)
+  if (fs::Disk::pathInfo(inAppImageDir) == fs::PathInfo::File)
   {
     return inAppImageDir;
   }

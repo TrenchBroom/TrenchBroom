@@ -28,7 +28,7 @@ namespace tb::mdl
 {
 class Map;
 
-io::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename);
+fs::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename);
 
 class Autosaver
 {

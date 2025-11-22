@@ -26,7 +26,7 @@
 #include <memory>
 #include <vector>
 
-namespace tb::io
+namespace tb::fs
 {
 
 class VirtualMountPointId
@@ -113,4 +113,4 @@ private:
     const std::filesystem::path& destPath) override;
 };
 
-} // namespace tb::io
+} // namespace tb::fs

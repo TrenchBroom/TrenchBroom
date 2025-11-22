@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::io
+namespace tb::fs
 {
 
 /**
@@ -373,4 +373,4 @@ std::string_view BufferedReader::stringView() const
 {
   return std::string_view{begin(), size()};
 }
-} // namespace tb::io
+} // namespace tb::fs

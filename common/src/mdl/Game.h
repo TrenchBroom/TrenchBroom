@@ -34,7 +34,7 @@ namespace tb
 {
 class Logger;
 
-namespace io
+namespace fs
 {
 class FileSystem;
 }
@@ -57,7 +57,7 @@ class Game : public io::EntityDefinitionLoader
 {
 public: // game configuration
   virtual const GameConfig& config() const = 0;
-  virtual const io::FileSystem& gameFileSystem() const = 0;
+  virtual const fs::FileSystem& gameFileSystem() const = 0;
 
   bool isGamePathPreference(const std::filesystem::path& prefPath) const;
 

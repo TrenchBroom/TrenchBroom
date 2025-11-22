@@ -21,7 +21,7 @@
 
 #include "Exceptions.h"
 
-namespace tb::io
+namespace tb::fs
 {
 
 class ReaderException : public Exception
@@ -30,4 +30,4 @@ public:
   using Exception::Exception;
 };
 
-} // namespace tb::io
+} // namespace tb::fs

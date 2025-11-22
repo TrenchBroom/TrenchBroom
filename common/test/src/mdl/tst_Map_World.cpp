@@ -125,7 +125,7 @@ TEST_CASE("Map_World")
 
       SECTION("Map is persistent")
       {
-        auto env = io::TestEnvironment{};
+        auto env = fs::TestEnvironment{};
 
         const auto filename = "test.map";
         env.createFile(filename, R"(// Game: Test

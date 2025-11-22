@@ -32,6 +32,11 @@ namespace tb
 {
 class Logger;
 
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
 namespace mdl
 {
 struct MaterialConfig;
@@ -40,10 +45,9 @@ class Quake3Shader;
 
 namespace io
 {
-class FileSystem;
 
 Result<std::vector<mdl::Quake3Shader>> loadShaders(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   kdl::task_manager& taskManager,
   Logger& logger);

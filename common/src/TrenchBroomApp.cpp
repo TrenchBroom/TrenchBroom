@@ -92,7 +92,7 @@ namespace
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
   const std::filesystem::path& path)
 {
-  return io::Disk::withInputStream(path, io::readMapHeader)
+  return fs::Disk::withInputStream(path, io::readMapHeader)
          | kdl::transform(
            [&](auto detectedGameNameAndMapFormat)
              -> std::optional<std::tuple<std::string, mdl::MapFormat>> {
@@ -162,7 +162,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   m_frameManager = std::make_unique<FrameManager>(useSDI());
 
   m_recentDocuments = std::make_unique<RecentDocuments>(
-    10, [](const auto& path) { return io::Disk::pathInfo(path) == io::PathInfo::File; });
+    10, [](const auto& path) { return fs::Disk::pathInfo(path) == fs::PathInfo::File; });
   connect(
     m_recentDocuments.get(),
     &RecentDocuments::loadDocument,
@@ -405,7 +405,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
     path.is_absolute() ? path : std::filesystem::absolute(path, ec).lexically_normal();
 
   const auto checkFileExists = [&]() {
-    return io::Disk::pathInfo(absPath) == io::PathInfo::File
+    return fs::Disk::pathInfo(absPath) == fs::PathInfo::File
              ? Result<void>{}
              : Result<void>{Error{fmt::format("{} not found", path)}};
   };

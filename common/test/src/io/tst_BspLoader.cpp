@@ -41,12 +41,12 @@ TEST_CASE("BspLoaderTest.loadValidHlBsp")
   auto logger = NullLogger{};
 
   const auto palettePath = "fixture/test/palette.lmp";
-  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile(palettePath) | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   const auto bspPath = std::filesystem::current_path() / "fixture/test/io/Bsp/hl.bsp";
-  const auto bspFile = Disk::openFile(bspPath) | kdl::value();
+  const auto bspFile = fs::Disk::openFile(bspPath) | kdl::value();
 
   auto reader = bspFile->reader().buffer();
   auto loader = BspLoader("hl", reader, palette, fs);
@@ -67,13 +67,13 @@ TEST_CASE("BspLoaderTest.loadInvalidBsp")
   auto logger = NullLogger{};
 
   const auto palettePath = "fixture/test/palette.lmp";
-  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile(palettePath) | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   const auto bspPath =
     std::filesystem::current_path() / "fixture/test/io/Bsp/invalid_version.bsp";
-  const auto bspFile = Disk::openFile(bspPath) | kdl::value();
+  const auto bspFile = fs::Disk::openFile(bspPath) | kdl::value();
 
   auto reader = bspFile->reader().buffer();
   auto loader = BspLoader("invalid_version", reader, palette, fs);

@@ -26,6 +26,11 @@
 
 namespace tb
 {
+namespace fs
+{
+class Reader;
+} // namespace fs
+
 namespace mdl
 {
 class Texture;
@@ -33,10 +38,9 @@ class Texture;
 
 namespace io
 {
-class Reader;
 
 Result<mdl::Texture> readWalTexture(
-  Reader& reader, const std::optional<mdl::Palette>& palette);
+  fs::Reader& reader, const std::optional<mdl::Palette>& palette);
 
 } // namespace io
 } // namespace tb

@@ -145,7 +145,7 @@ void MapDocument::loadPointFile(std::filesystem::path path)
     unloadPointFile();
   }
 
-  io::Disk::withInputStream(path, [&](auto& stream) {
+  fs::Disk::withInputStream(path, [&](auto& stream) {
     return mdl::loadPointFile(stream) | kdl::transform([&](auto trace) {
              info() << "Loaded point file " << path;
              m_pointFile = PointFile{std::move(trace), std::move(path)};
@@ -200,7 +200,7 @@ void MapDocument::loadPortalFile(std::filesystem::path path)
     unloadPortalFile();
   }
 
-  io::Disk::withInputStream(path, [&](auto& stream) {
+  fs::Disk::withInputStream(path, [&](auto& stream) {
     return mdl::loadPortalFile(stream) | kdl::transform([&](auto portalFile) {
              info() << "Loaded portal file " << path;
              m_portalFile = {std::move(portalFile), std::move(path)};

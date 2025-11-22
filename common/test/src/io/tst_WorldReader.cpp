@@ -1396,7 +1396,7 @@ common/caulk
   {
     const auto mapPath =
       std::filesystem::current_path() / "fixture/test/io/Map/Heretic2Quark.map";
-    const auto file = Disk::openFile(mapPath) | kdl::value();
+    const auto file = fs::Disk::openFile(mapPath) | kdl::value();
     auto fileReader = file->reader().buffer();
 
     auto worldReader = WorldReader{fileReader.stringView(), mdl::MapFormat::Quake2, {}};

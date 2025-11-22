@@ -52,7 +52,7 @@ class MockGame : public Game
 {
 private:
   MockGameConfig m_config;
-  std::unique_ptr<io::VirtualFileSystem> m_fs;
+  std::unique_ptr<fs::VirtualFileSystem> m_fs;
   mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
   std::unordered_map<std::filesystem::path, std::vector<EntityDefinition>>
     m_entityDefinitions;
@@ -64,7 +64,7 @@ public:
   const GameConfig& config() const override;
   GameConfig& config();
 
-  const io::FileSystem& gameFileSystem() const override;
+  const fs::FileSystem& gameFileSystem() const override;
 
   std::filesystem::path gamePath() const override;
   void setGamePath(const std::filesystem::path& gamePath, Logger& logger) override;

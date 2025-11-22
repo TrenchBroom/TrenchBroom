@@ -29,16 +29,21 @@ namespace tb
 {
 class Logger;
 
-namespace io
+namespace fs
 {
 class FileSystem;
+class Reader;
+} // namespace fs
+
+namespace io
+{
 
 mdl::Material loadSkin(
-  const std::filesystem::path& path, const FileSystem& fs, Logger& logger);
+  const std::filesystem::path& path, const fs::FileSystem& fs, Logger& logger);
 
 mdl::Material loadSkin(
   const std::filesystem::path& path,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const std::optional<mdl::Palette>& palette,
   Logger& logger);
 

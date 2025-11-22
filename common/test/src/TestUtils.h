@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "fs/DiskIO.h"
-#include "fs/ImageFileSystem.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Node.h"
 #include "mdl/Selection.h"
@@ -48,27 +46,6 @@ namespace mdl
 class Material;
 class Texture;
 } // namespace mdl
-
-namespace io
-{
-
-template <typename FS>
-auto openFS(const std::filesystem::path& path)
-{
-  return Disk::openFile(path) | kdl::and_then([](auto file) {
-           return createImageFileSystem<FS>(std::move(file));
-         })
-         | kdl::transform([&](auto fs) {
-             fs->setMetadata(io::makeImageFileSystemMetadata(path));
-             return fs;
-           })
-         | kdl::value();
-}
-
-std::string readTextFile(const std::filesystem::path& path);
-Result<std::string> readTextFile(const FileSystem& fs, const std::filesystem::path& path);
-
-} // namespace io
 
 namespace mdl
 {

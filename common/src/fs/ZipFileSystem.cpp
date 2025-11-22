@@ -29,7 +29,7 @@
 #include <memory>
 #include <string>
 
-namespace tb::io
+namespace tb::fs
 {
 
 namespace
@@ -113,4 +113,4 @@ Result<void> ZipFileSystem::doReadDirectory()
   return kdl::void_success;
 }
 
-} // namespace tb::io
+} // namespace tb::fs

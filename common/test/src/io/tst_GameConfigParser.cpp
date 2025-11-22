@@ -42,14 +42,15 @@ TEST_CASE("GameConfigParser")
   {
     const auto basePath = std::filesystem::current_path() / "fixture/games/";
     const auto cfgFiles =
-      Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".cfg"}))
+      fs::Disk::find(
+        basePath, fs::TraversalMode::Recursive, fs::makeExtensionPathMatcher({".cfg"}))
       | kdl::value();
 
     for (const auto& path : cfgFiles)
     {
       CAPTURE(path);
 
-      auto file = Disk::openFile(path) | kdl::value();
+      auto file = fs::Disk::openFile(path) | kdl::value();
       auto reader = file->reader().buffer();
 
       GameConfigParser parser(reader.stringView(), path);

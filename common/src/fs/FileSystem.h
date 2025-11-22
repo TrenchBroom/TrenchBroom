@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::io
+namespace tb::fs
 {
 enum class PathInfo;
 struct TraversalMode;
@@ -111,4 +111,4 @@ private:
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
 };
 
-} // namespace tb::io
+} // namespace tb::fs

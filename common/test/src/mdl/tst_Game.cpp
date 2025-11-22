@@ -19,6 +19,7 @@
 
 #include "Logger.h"
 #include "TestUtils.h"
+#include "fs/TestUtils.h"
 #include "io/GameConfigParser.h"
 #include "mdl/GameImpl.h"
 
@@ -45,7 +46,7 @@ TEST_CASE("GameTest.loadCorruptPackages")
   {
     const auto configPath =
       std::filesystem::current_path() / "fixture/games/" / game / "GameConfig.cfg";
-    const auto configStr = io::readTextFile(configPath);
+    const auto configStr = fs::readTextFile(configPath);
     auto configParser = io::GameConfigParser(configStr, configPath);
     auto config = configParser.parse().value();
 

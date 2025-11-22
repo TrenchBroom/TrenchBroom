@@ -39,7 +39,7 @@
 #include <ranges>
 #include <unordered_map>
 
-namespace tb::io
+namespace tb::fs
 {
 
 namespace
@@ -390,4 +390,4 @@ Result<void> WritableVirtualFileSystem::doRenameDirectory(
   return m_writableFs.renameDirectory(sourcePath, destPath);
 }
 
-} // namespace tb::io
+} // namespace tb::fs

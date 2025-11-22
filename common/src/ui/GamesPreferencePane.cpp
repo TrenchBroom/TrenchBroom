@@ -114,7 +114,7 @@ void GamesPreferencePane::showUserConfigDirClicked()
   auto& gameFactory = mdl::GameFactory::instance();
   auto path = gameFactory.userGameConfigsPath().lexically_normal();
 
-  io::Disk::createDirectory(path) | kdl::transform([&](auto) {
+  fs::Disk::createDirectory(path) | kdl::transform([&](auto) {
     const auto url = QUrl::fromLocalFile(io::pathAsQPath(path));
     QDesktopServices::openUrl(url);
   }) | kdl::transform_error([&](auto e) {

@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::io
+namespace tb::fs
 {
 
 FileSystem::~FileSystem() = default;
@@ -162,4 +162,4 @@ Result<void> WritableFileSystem::renameDirectory(
   return doRenameDirectory(sourcePath, destPath);
 }
 
-} // namespace tb::io
+} // namespace tb::fs

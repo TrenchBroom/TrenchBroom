@@ -265,7 +265,7 @@ struct DkmMesh
   std::vector<DkmMeshVertex> vertices;
 };
 
-auto parseSkins(Reader reader, const size_t count)
+auto parseSkins(fs::Reader reader, const size_t count)
 {
   auto skins = std::vector<std::string>{};
   skins.reserve(count);
@@ -278,7 +278,7 @@ auto parseSkins(Reader reader, const size_t count)
   return skins;
 }
 
-auto parseUnpackedVertex(Reader& reader)
+auto parseUnpackedVertex(fs::Reader& reader)
 {
   const auto x = reader.readUnsignedChar<char>();
   const auto y = reader.readUnsignedChar<char>();
@@ -287,7 +287,7 @@ auto parseUnpackedVertex(Reader& reader)
   return DkmVertex{x, y, z, normalIndex};
 }
 
-auto parsePackedVertex(Reader& reader)
+auto parsePackedVertex(fs::Reader& reader)
 {
   const auto packedPosition = reader.read<uint32_t, uint32_t>();
   const auto normalIndex = reader.readUnsignedChar<char>();
@@ -299,7 +299,7 @@ auto parsePackedVertex(Reader& reader)
   };
 }
 
-auto parseVertices(Reader& reader, const size_t vertexCount, const int version)
+auto parseVertices(fs::Reader& reader, const size_t vertexCount, const int version)
 {
   contract_pre(version == 1 || version == 2);
 
@@ -330,7 +330,7 @@ auto parseVertices(Reader& reader, const size_t vertexCount, const int version)
 }
 
 auto parseFrame(
-  Reader reader,
+  fs::Reader reader,
   const size_t /* frameIndex */,
   const size_t vertexCount,
   const int version)
@@ -348,7 +348,7 @@ auto parseFrame(
   };
 }
 
-auto parseMeshVertices(Reader& reader, const size_t count)
+auto parseMeshVertices(fs::Reader& reader, const size_t count)
 {
   auto vertices = std::vector<DkmMeshVertex>{};
   vertices.reserve(count);
@@ -364,7 +364,7 @@ auto parseMeshVertices(Reader& reader, const size_t count)
   return vertices;
 }
 
-auto parseMeshes(Reader reader, const size_t /* commandCount */)
+auto parseMeshes(fs::Reader reader, const size_t /* commandCount */)
 {
   auto meshes = std::vector<DkmMesh>{};
 
@@ -393,10 +393,10 @@ auto parseMeshes(Reader reader, const size_t /* commandCount */)
  * instead. That's why we try to find a matching file name by disregarding the
  * extension.
  */
-Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem& fs)
+Result<std::filesystem::path> findSkin(const std::string& skin, const fs::FileSystem& fs)
 {
   const auto skinPath = std::filesystem::path{skin};
-  if (fs.pathInfo(skinPath) == PathInfo::File)
+  if (fs.pathInfo(skinPath) == fs::PathInfo::File)
   {
     return skinPath;
   }
@@ -405,7 +405,7 @@ Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem
   if (kdl::path_has_extension(kdl::path_to_lower(skinPath), ".bmp"))
   {
     const auto walPath = kdl::path_replace_extension(skinPath, ".wal");
-    if (fs.pathInfo(walPath) == PathInfo::File)
+    if (fs.pathInfo(walPath) == fs::PathInfo::File)
     {
       return walPath;
     }
@@ -415,7 +415,9 @@ Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem
   const auto folder = skinPath.parent_path();
   const auto basename = skinPath.stem();
   return fs.find(
-           folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"))
+           folder,
+           fs::TraversalMode::Flat,
+           fs::makeFilenamePathMatcher(basename.string() + ".*"))
          | kdl::transform(
            [&](auto items) { return items.size() == 1 ? items.front() : skinPath; });
 }
@@ -423,7 +425,7 @@ Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem
 Result<void> loadSkins(
   mdl::EntityModelSurface& surface,
   const std::vector<std::string>& skins,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   Logger& logger)
 {
   const auto findAndLoadSkin = [&](const auto& skin) {
@@ -491,14 +493,14 @@ void buildFrame(
 
 } // namespace
 
-DkmLoader::DkmLoader(std::string name, const Reader& reader, const FileSystem& fs)
+DkmLoader::DkmLoader(std::string name, const fs::Reader& reader, const fs::FileSystem& fs)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_fs{fs}
 {
 }
 
-bool DkmLoader::canParse(const std::filesystem::path& path, Reader reader)
+bool DkmLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".dkm"))
   {
@@ -574,7 +576,7 @@ Result<mdl::EntityModelData> DkmLoader::load(Logger& logger)
       return std::move(data);
     });
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

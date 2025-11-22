@@ -46,7 +46,7 @@ size_t readMipOffsets(
   size_t offsets[],
   const size_t width,
   const size_t height,
-  Reader& reader)
+  fs::Reader& reader)
 {
   const auto mipLevels = std::min(
     std::min(size_t(std::log2(width)), size_t(std::log2(height))) + 1, maxMipLevels);
@@ -68,7 +68,7 @@ std::tuple<mdl::TextureBufferList, bool> readMips(
   const size_t offsets[],
   const size_t width,
   const size_t height,
-  Reader& reader,
+  fs::Reader& reader,
   Color& averageColor,
   const mdl::PaletteTransparency transparency)
 {
@@ -103,7 +103,8 @@ std::tuple<mdl::TextureBufferList, bool> readMips(
   return {std::move(buffers), hasTransparency};
 }
 
-Result<mdl::Texture> readQ2Wal(Reader& reader, const std::optional<mdl::Palette>& palette)
+Result<mdl::Texture> readQ2Wal(
+  fs::Reader& reader, const std::optional<mdl::Palette>& palette)
 {
   static const auto MaxMipLevels = size_t(4);
   auto averageColor = Color{RgbaF{}};
@@ -156,13 +157,13 @@ Result<mdl::Texture> readQ2Wal(Reader& reader, const std::optional<mdl::Palette>
       std::move(embeddedDefaults),
       std::move(buffers)};
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }
 }
 
-Result<mdl::Texture> readDkWal(Reader& reader)
+Result<mdl::Texture> readDkWal(fs::Reader& reader)
 {
   static const auto MaxMipLevels = size_t(9);
   auto averageColor = Color{RgbaF{}};
@@ -219,7 +220,7 @@ Result<mdl::Texture> readDkWal(Reader& reader)
                  std::move(buffers)};
              });
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }
@@ -228,7 +229,7 @@ Result<mdl::Texture> readDkWal(Reader& reader)
 } // namespace
 
 Result<mdl::Texture> readWalTexture(
-  Reader& reader, const std::optional<mdl::Palette>& palette)
+  fs::Reader& reader, const std::optional<mdl::Palette>& palette)
 {
   try
   {
@@ -241,7 +242,7 @@ Result<mdl::Texture> readWalTexture(
     }
     return readQ2Wal(reader, palette);
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

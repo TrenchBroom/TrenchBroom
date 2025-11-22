@@ -130,7 +130,7 @@ Result<std::unique_ptr<WorldNode>> loadMap(
     config.entityConfig.scaleExpression, config.entityConfig.setDefaultProperties};
 
   auto parserStatus = SimpleParserStatus{logger};
-  return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
+  return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
            auto fileReader = file->reader().buffer();
            if (mapFormat == MapFormat::Unknown)
            {
@@ -168,7 +168,7 @@ Result<std::unique_ptr<WorldNode>> createMap(
     const auto initialMapFilePath = config.findInitialMap(formatName(format));
     if (
       !initialMapFilePath.empty()
-      && io::Disk::pathInfo(initialMapFilePath) == io::PathInfo::File)
+      && fs::Disk::pathInfo(initialMapFilePath) == fs::PathInfo::File)
     {
       return loadMap(
         config, format, worldBounds, initialMapFilePath, taskManager, logger);
@@ -690,7 +690,7 @@ Result<void> Map::saveTo(const std::filesystem::path& path)
     return Error{"Path must be absolute"};
   }
 
-  io::Disk::withOutputStream(path, [&](auto& stream) {
+  fs::Disk::withOutputStream(path, [&](auto& stream) {
     io::writeMapHeader(stream, m_game->config().name, m_world->mapFormat());
 
     auto writer = io::NodeWriter{*m_world, stream};
@@ -708,9 +708,9 @@ Result<void> Map::exportAs(const io::ExportOptions& options) const
   return std::visit(
     kdl::overload(
       [&](const io::ObjExportOptions& objOptions) {
-        return io::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
+        return fs::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
           const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
-          return io::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
+          return fs::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
             auto writer = io::NodeWriter{
               *m_world,
               std::make_unique<io::ObjSerializer>(
@@ -721,7 +721,7 @@ Result<void> Map::exportAs(const io::ExportOptions& options) const
         });
       },
       [&](const io::MapExportOptions& mapOptions) {
-        return io::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
+        return fs::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
           auto writer = io::NodeWriter{*m_world, stream};
           writer.setExporting(true);
           writer.writeMap(m_taskManager);
@@ -753,7 +753,7 @@ void Map::clear()
 
 bool Map::persistent() const
 {
-  return m_path.is_absolute() && io::Disk::pathInfo(m_path) == io::PathInfo::File;
+  return m_path.is_absolute() && fs::Disk::pathInfo(m_path) == fs::PathInfo::File;
 }
 
 std::string Map::filename() const

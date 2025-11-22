@@ -23,7 +23,7 @@
 
 #include <ostream>
 
-namespace tb::io
+namespace tb::fs
 {
 
 std::ostream& operator<<(std::ostream& lhs, const PathInfo& rhs)
@@ -44,4 +44,4 @@ std::ostream& operator<<(std::ostream& lhs, const PathInfo& rhs)
   return lhs;
 }
 
-} // namespace tb::io
+} // namespace tb::fs

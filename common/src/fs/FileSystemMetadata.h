@@ -23,7 +23,7 @@
 #include <iosfwd>
 #include <variant>
 
-namespace tb::io
+namespace tb::fs
 {
 namespace FileSystemMetadataKeys
 {
@@ -34,4 +34,4 @@ using FileSystemMetadata = std::variant<std::filesystem::path>;
 
 std::ostream& operator<<(std::ostream& lhs, const FileSystemMetadata& rhs);
 
-} // namespace tb::io
+} // namespace tb::fs

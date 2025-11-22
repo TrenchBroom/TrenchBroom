@@ -38,8 +38,8 @@ namespace
 
 auto loadTexture(const std::string& name)
 {
-  auto diskFS =
-    DiskFileSystem{std::filesystem::current_path() / "fixture" / "test" / "io" / "Image"};
+  auto diskFS = fs::DiskFileSystem{
+    std::filesystem::current_path() / "fixture" / "test" / "io" / "Image"};
 
   return diskFS.openFile(name) | kdl::and_then([](const auto& file) {
            auto reader = file->reader().buffer();

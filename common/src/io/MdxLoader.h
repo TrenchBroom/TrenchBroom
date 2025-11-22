@@ -28,10 +28,14 @@ namespace tb
 {
 class Logger;
 
-namespace io
+namespace fs
 {
 class FileSystem;
 class Reader;
+} // namespace fs
+
+namespace io
+{
 
 // see
 // https://web.archive.org/web/20020404103848/http://members.cheapnet.co.uk/~tical/misc/mdx.htm
@@ -39,13 +43,13 @@ class MdxLoader : public EntityModelLoader
 {
 private:
   std::string m_name;
-  const Reader& m_reader;
-  const FileSystem& m_fs;
+  const fs::Reader& m_reader;
+  const fs::FileSystem& m_fs;
 
 public:
-  MdxLoader(std::string name, const Reader& reader, const FileSystem& fs);
+  MdxLoader(std::string name, const fs::Reader& reader, const fs::FileSystem& fs);
 
-  static bool canParse(const std::filesystem::path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
 
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };

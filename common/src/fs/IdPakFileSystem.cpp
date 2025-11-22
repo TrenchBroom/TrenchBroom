@@ -26,7 +26,7 @@
 #include "kd/result.h"
 #include "kd/string_format.h"
 
-namespace tb::io
+namespace tb::fs
 {
 namespace PakLayout
 {
@@ -77,4 +77,4 @@ Result<void> IdPakFileSystem::doReadDirectory()
   }
 }
 
-} // namespace tb::io
+} // namespace tb::fs

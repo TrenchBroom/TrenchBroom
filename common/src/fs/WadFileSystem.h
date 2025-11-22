@@ -22,7 +22,7 @@
 #include "Result.h"
 #include "fs/ImageFileSystem.h"
 
-namespace tb::io
+namespace tb::fs
 {
 class FileSystem;
 class OwningBufferFile;
@@ -36,4 +36,4 @@ private:
   Result<void> doReadDirectory() override;
 };
 
-} // namespace tb::io
+} // namespace tb::fs

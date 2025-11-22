@@ -21,7 +21,7 @@
 
 #include <iosfwd>
 
-namespace tb::io
+namespace tb::fs
 {
 
 enum class PathInfo
@@ -33,4 +33,4 @@ enum class PathInfo
 
 std::ostream& operator<<(std::ostream& lhs, const PathInfo& rhs);
 
-} // namespace tb::io
+} // namespace tb::fs

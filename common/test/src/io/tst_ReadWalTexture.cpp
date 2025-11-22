@@ -41,7 +41,7 @@ constexpr auto fixturePath = "fixture/test/io/Wal";
 TEST_CASE("readWalTexture")
 {
   const auto palettePath = "fixture/test/colormap.pcx";
-  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/colormap.pcx") | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 

@@ -45,7 +45,7 @@ namespace
 {
 
 Result<std::vector<mdl::Quake3Shader>> loadShader(
-  const FileSystem& fs, const std::filesystem::path& path, Logger& logger)
+  const fs::FileSystem& fs, const std::filesystem::path& path, Logger& logger)
 {
   return fs.openFile(path) | kdl::and_then([&](auto file) {
            auto bufferedReader = file->reader().buffer();
@@ -62,20 +62,20 @@ Result<std::vector<mdl::Quake3Shader>> loadShader(
 } // namespace
 
 Result<std::vector<mdl::Quake3Shader>> loadShaders(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   kdl::task_manager& taskManager,
   Logger& logger)
 {
-  if (fs.pathInfo(materialConfig.shaderSearchPath) != PathInfo::Directory)
+  if (fs.pathInfo(materialConfig.shaderSearchPath) != fs::PathInfo::Directory)
   {
     return std::vector<mdl::Quake3Shader>{};
   }
 
   return fs.find(
            materialConfig.shaderSearchPath,
-           TraversalMode::Flat,
-           makeExtensionPathMatcher({".shader"}))
+           fs::TraversalMode::Flat,
+           fs::makeExtensionPathMatcher({".shader"}))
          | kdl::and_then([&](auto paths) {
              auto tasks =
                paths | std::views::transform([&](const auto& path) {

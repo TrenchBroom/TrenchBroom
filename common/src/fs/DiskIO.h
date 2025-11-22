@@ -32,7 +32,7 @@
 #include <fstream>
 #include <memory>
 
-namespace tb::io
+namespace tb::fs
 {
 enum class PathInfo;
 struct TraversalMode;
@@ -103,4 +103,4 @@ std::filesystem::path resolvePath(
   const std::filesystem::path& path);
 
 } // namespace Disk
-} // namespace tb::io
+} // namespace tb::fs

@@ -25,26 +25,36 @@
 #include <filesystem>
 #include <string>
 
-namespace tb::io
+namespace tb
+{
+namespace fs
 {
 class FileSystem;
 class Reader;
+} // namespace fs
+
+namespace io
+{
 
 class BspLoader : public EntityModelLoader
 {
 private:
   std::string m_name;
-  const Reader& m_reader;
+  const fs::Reader& m_reader;
   const mdl::Palette m_palette;
-  const FileSystem& m_fs;
+  const fs::FileSystem& m_fs;
 
 public:
   BspLoader(
-    std::string name, const Reader& reader, mdl::Palette palette, const FileSystem& fs);
+    std::string name,
+    const fs::Reader& reader,
+    mdl::Palette palette,
+    const fs::FileSystem& fs);
 
-  static bool canParse(const std::filesystem::path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
 
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

@@ -26,6 +26,11 @@
 
 namespace tb
 {
+namespace fs
+{
+class Reader;
+} // namespace fs
+
 namespace mdl
 {
 class Palette;
@@ -33,21 +38,18 @@ class Palette;
 
 namespace io
 {
-class File;
-class FileSystem;
-class Reader;
 
 class SprLoader : public EntityModelLoader
 {
 private:
   std::string m_name;
-  const Reader& m_reader;
+  const fs::Reader& m_reader;
   const mdl::Palette& m_palette;
 
 public:
-  SprLoader(std::string name, const Reader& reader, const mdl::Palette& palette);
+  SprLoader(std::string name, const fs::Reader& reader, const mdl::Palette& palette);
 
-  static bool canParse(const std::filesystem::path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
 
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };

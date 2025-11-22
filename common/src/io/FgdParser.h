@@ -38,6 +38,11 @@ class ParserStatus;
 
 struct FileLocation;
 
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
 namespace mdl
 {
 class DecalDefinition;
@@ -54,8 +59,6 @@ enum class ColorType
 };
 
 enum class EntityDefinitionClassType;
-
-class FileSystem;
 
 struct EntityDefinitionClassInfo;
 
@@ -93,7 +96,7 @@ private:
   using Token = FgdTokenizer::Token;
 
   std::vector<std::filesystem::path> m_paths;
-  std::unique_ptr<FileSystem> m_fs;
+  std::unique_ptr<fs::FileSystem> m_fs;
 
   FgdTokenizer m_tokenizer;
 

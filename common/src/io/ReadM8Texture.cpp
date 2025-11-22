@@ -42,7 +42,7 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<mdl::Texture> readM8Texture(Reader& reader)
+Result<mdl::Texture> readM8Texture(fs::Reader& reader)
 {
   try
   {
@@ -127,7 +127,7 @@ Result<mdl::Texture> readM8Texture(Reader& reader)
                  std::move(buffers)};
              });
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

@@ -33,7 +33,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb::fs
 {
 
 TEST_CASE("VirtualFileSystem")
@@ -56,18 +56,18 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo("") == PathInfo::Unknown);
-      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("") == fs::PathInfo::Unknown);
+      CHECK(vfs.pathInfo("foo/bar") == fs::PathInfo::Unknown);
     }
 
     SECTION("find")
     {
       CHECK(
-        vfs.find("", TraversalMode::Flat)
+        vfs.find("", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
           "Path {} does not denote a directory", std::filesystem::path{""})}});
       CHECK(
-        vfs.find("foo/bar", TraversalMode::Flat)
+        vfs.find("foo/bar", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
           "Path {} does not denote a directory", std::filesystem::path{"foo/bar"})}});
       ;
@@ -130,11 +130,11 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo("") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
-      CHECK(vfs.pathInfo("foo/baz") == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/baz") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("foo/baz") == fs::PathInfo::Unknown);
     }
 
     SECTION("metadata")
@@ -149,23 +149,23 @@ TEST_CASE("VirtualFileSystem")
     SECTION("find")
     {
       CHECK(
-        vfs.find("", TraversalMode::Flat)
+        vfs.find("", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo",
           "bar",
         }});
       CHECK(
-        vfs.find("foo", TraversalMode::Flat)
+        vfs.find("foo", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar",
         }});
       CHECK(
-        vfs.find("foo/bar", TraversalMode::Flat)
+        vfs.find("foo/bar", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar/baz",
         }});
       CHECK(
-        vfs.find("", TraversalMode::Recursive)
+        vfs.find("", fs::TraversalMode::Recursive)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo",
           "foo/bar",
@@ -286,21 +286,21 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo("") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
-      CHECK(vfs.pathInfo("bar") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("bar/foo") == PathInfo::File);
-      CHECK(vfs.pathInfo("bar/bat") == PathInfo::File);
-      CHECK(vfs.pathInfo("bar/baz") == PathInfo::File);
-      CHECK(vfs.pathInfo("baz") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("bar/foo") == PathInfo::File);
-      CHECK(vfs.pathInfo("bar/baz") == PathInfo::File);
-      CHECK(vfs.pathInfo("bar/cat") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("bat") == PathInfo::Unknown);
-      CHECK(vfs.pathInfo("bar/dat") == PathInfo::Unknown);
-      CHECK(vfs.pathInfo("bat/foo") == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/baz") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("bar") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("bar/foo") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("bar/bat") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("bar/baz") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("baz") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("bar/foo") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("bar/baz") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("bar/cat") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("bat") == fs::PathInfo::Unknown);
+      CHECK(vfs.pathInfo("bar/dat") == fs::PathInfo::Unknown);
+      CHECK(vfs.pathInfo("bat/foo") == fs::PathInfo::Unknown);
     }
 
     SECTION("metadata")
@@ -317,23 +317,23 @@ TEST_CASE("VirtualFileSystem")
     SECTION("find")
     {
       CHECK(
-        vfs.find("", TraversalMode::Flat)
+        vfs.find("", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo",
           "bar",
           "baz",
         }});
       CHECK(
-        vfs.find("foo", TraversalMode::Flat)
+        vfs.find("foo", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar",
         }});
       CHECK(
-        vfs.find("foo/bar", TraversalMode::Flat)
+        vfs.find("foo/bar", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{
           std::vector<std::filesystem::path>{"foo/bar/baz"}});
       CHECK(
-        vfs.find("bar", TraversalMode::Flat)
+        vfs.find("bar", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "bar/foo",
           "bar/bat",
@@ -341,7 +341,7 @@ TEST_CASE("VirtualFileSystem")
           "bar/cat",
         }});
       CHECK(
-        vfs.find("", TraversalMode::Recursive)
+        vfs.find("", fs::TraversalMode::Recursive)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo",
           "foo/bar",
@@ -447,13 +447,13 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo("") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
-      CHECK(vfs.pathInfo("bar") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("bar/foo") == PathInfo::File);
-      CHECK(vfs.pathInfo("baz") == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/baz") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("bar") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("bar/foo") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("baz") == fs::PathInfo::Unknown);
     }
 
     SECTION("metadata")
@@ -469,28 +469,28 @@ TEST_CASE("VirtualFileSystem")
     SECTION("find")
     {
       CHECK(
-        vfs.find("", TraversalMode::Flat)
+        vfs.find("", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo",
           "bar",
         }});
       CHECK(
-        vfs.find("foo", TraversalMode::Flat)
+        vfs.find("foo", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar",
         }});
       CHECK(
-        vfs.find("foo/bar", TraversalMode::Flat)
+        vfs.find("foo/bar", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar/baz",
         }});
       CHECK(
-        vfs.find("bar", TraversalMode::Flat)
+        vfs.find("bar", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "bar/foo",
         }});
       CHECK(
-        vfs.find("", TraversalMode::Recursive)
+        vfs.find("", fs::TraversalMode::Recursive)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo",
           "foo/bar",
@@ -578,11 +578,11 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo("") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar/foo") == PathInfo::File);
-      CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
+      CHECK(vfs.pathInfo("") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/foo") == fs::PathInfo::File);
+      CHECK(vfs.pathInfo("foo/bar/baz") == fs::PathInfo::File);
     }
 
     SECTION("metadata")
@@ -597,23 +597,23 @@ TEST_CASE("VirtualFileSystem")
     SECTION("find")
     {
       CHECK(
-        vfs.find("", TraversalMode::Flat)
+        vfs.find("", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo",
         }});
       CHECK(
-        vfs.find("foo", TraversalMode::Flat)
+        vfs.find("foo", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar",
         }});
       CHECK(
-        vfs.find("foo/bar", TraversalMode::Flat)
+        vfs.find("foo/bar", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar/baz",
           "foo/bar/foo",
         }});
       CHECK(
-        vfs.find("", TraversalMode::Recursive)
+        vfs.find("", fs::TraversalMode::Recursive)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar/baz",
           "foo",
@@ -695,8 +695,8 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo("foo/bar/f") == PathInfo::Directory);
-      CHECK(vfs.pathInfo("foo/bar/g") == PathInfo::File);
+      CHECK(vfs.pathInfo("foo/bar/f") == fs::PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/g") == fs::PathInfo::File);
     }
 
     SECTION("metadata")
@@ -715,17 +715,17 @@ TEST_CASE("VirtualFileSystem")
     SECTION("find")
     {
       CHECK(
-        vfs.find("", TraversalMode::Flat)
+        vfs.find("", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo",
         }});
       CHECK(
-        vfs.find("foo", TraversalMode::Flat)
+        vfs.find("foo", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar",
         }});
       CHECK(
-        vfs.find("foo/bar", TraversalMode::Flat)
+        vfs.find("foo/bar", fs::TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar/a",
           "foo/bar/e",
@@ -736,7 +736,7 @@ TEST_CASE("VirtualFileSystem")
           "foo/bar/g",
         }});
       CHECK(
-        vfs.find("", TraversalMode::Recursive)
+        vfs.find("", fs::TraversalMode::Recursive)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar/a",
           "foo/bar/e",
@@ -777,4 +777,4 @@ TEST_CASE("VirtualFileSystem")
   }
 }
 
-} // namespace tb::io
+} // namespace tb::fs
