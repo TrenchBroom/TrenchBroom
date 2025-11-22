@@ -31,7 +31,6 @@
 
 namespace tb::io
 {
-class FileSystem;
 enum class PathInfo;
 struct TraversalMode;
 
