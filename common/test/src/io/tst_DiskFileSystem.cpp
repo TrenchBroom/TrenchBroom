@@ -20,6 +20,7 @@
 #include <QFileInfo>
 #include <QString>
 
+#include "Matchers.h"
 #include "io/DiskFileSystem.h"
 #include "io/DiskIO.h"
 #include "io/File.h"
@@ -33,7 +34,6 @@
 #include <filesystem>
 
 #include "catch/CatchConfig.h"
-#include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
 

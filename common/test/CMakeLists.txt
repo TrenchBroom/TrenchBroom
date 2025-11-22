@@ -35,7 +35,6 @@ set(COMMON_TEST_UTILS_SOURCE
 )
 
 set(COMMON_TEST_SOURCE
-        "${COMMON_TEST_SOURCE_DIR}/catch/tst_Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/el/ELTestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/el/tst_EL.cpp"
@@ -188,7 +187,7 @@ target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt6::Test)
 
 macro(configure_test_target TARGET)
-    target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2 UpdateLib fmt::fmt-header-only)
+    target_link_libraries(${TARGET} PRIVATE common common-test-utils TbBaseTestUtilsLib Catch2::Catch2 UpdateLib fmt::fmt-header-only)
     set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
     target_link_libraries(${TARGET} PRIVATE CompilerConfig)
