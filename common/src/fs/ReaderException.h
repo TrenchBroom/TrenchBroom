@@ -19,15 +19,15 @@
 
 #pragma once
 
-#include "Exceptions.h"
+#include <stdexcept>
 
 namespace tb::fs
 {
 
-class ReaderException : public Exception
+class ReaderException : public std::runtime_error
 {
 public:
-  using Exception::Exception;
+  using std::runtime_error::runtime_error;
 };
 
 } // namespace tb::fs
