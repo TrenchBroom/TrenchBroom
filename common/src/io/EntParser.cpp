@@ -21,14 +21,14 @@
 
 #include "Color.h"
 #include "FileLocation.h"
-#include "el/ELExceptions.h"
+#include "ParserException.h"
+#include "el/ELParser.h"
+#include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/Types.h"
 #include "el/Value.h"
-#include "io/ELParser.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/ParseModelDefinition.h"
-#include "io/ParserException.h"
 #include "io/ParserStatus.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/PropertyDefinition.h"
@@ -707,7 +707,7 @@ mdl::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
 
   const auto model = parseString(element, "model");
 
-  auto parser = ELParser{ELParser::Mode::Lenient, model};
+  auto parser = el::ELParser{el::ELParser::Mode::Lenient, model};
   return parser.parse() | kdl::transform_error([&](auto) {
            const auto lineNum = static_cast<size_t>(element.GetLineNum());
            return el::ExpressionNode{

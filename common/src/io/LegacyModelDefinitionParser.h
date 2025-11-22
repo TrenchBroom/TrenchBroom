@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
-#include "el/EL_Forward.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
+#include "Tokenizer.h"
+#include "el/Forward.h"
 
 #include <string_view>
 

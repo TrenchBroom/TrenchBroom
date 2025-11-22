@@ -19,12 +19,12 @@
 
 #include "FgdParser.h"
 
+#include "ParserException.h"
 #include "el/Expression.h"
 #include "io/DiskFileSystem.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "io/ParseModelDefinition.h"
-#include "io/ParserException.h"
 #include "io/ParserStatus.h"
 #include "mdl/PropertyDefinition.h"
 

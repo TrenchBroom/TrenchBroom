@@ -19,9 +19,9 @@
 
 #include "CompilationConfigParser.h"
 
+#include "ParserException.h"
 #include "el/EvaluationContext.h"
 #include "el/Value.h"
-#include "io/ParserException.h"
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
@@ -187,7 +187,7 @@ Result<mdl::CompilationConfig> parseCompilationConfig(
 } // namespace
 
 CompilationConfigParser::CompilationConfigParser(const std::string_view str)
-  : m_elParser{ELParser::Mode::Strict, str}
+  : m_elParser{el::ELParser::Mode::Strict, str}
 {
 }
 

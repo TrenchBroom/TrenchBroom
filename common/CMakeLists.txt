@@ -2,13 +2,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
-        ${COMMON_SOURCE_DIR}/el/ELExceptions.cpp
-        ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
-        ${COMMON_SOURCE_DIR}/el/Expression.cpp
-        ${COMMON_SOURCE_DIR}/el/Interpolate.cpp
-        ${COMMON_SOURCE_DIR}/el/Types.cpp
-        ${COMMON_SOURCE_DIR}/el/Value.cpp
-        ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/io/AseLoader.cpp
@@ -22,7 +15,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/DiskIO.cpp
         ${COMMON_SOURCE_DIR}/io/DkmLoader.cpp
         ${COMMON_SOURCE_DIR}/io/DkPakFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/io/ELParser.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionLoader.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.cpp
@@ -59,7 +51,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/NodeWriter.cpp
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
-        ${COMMON_SOURCE_DIR}/io/ParserException.cpp
         ${COMMON_SOURCE_DIR}/io/ParserStatus.cpp
         ${COMMON_SOURCE_DIR}/io/PathInfo.cpp
         ${COMMON_SOURCE_DIR}/io/PathMatcher.cpp
@@ -510,14 +501,6 @@ set(COMMON_SOURCE
 
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
-        ${COMMON_SOURCE_DIR}/el/EL_Forward.h
-        ${COMMON_SOURCE_DIR}/el/ELExceptions.h
-        ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
-        ${COMMON_SOURCE_DIR}/el/Expression.h
-        ${COMMON_SOURCE_DIR}/el/Interpolate.h
-        ${COMMON_SOURCE_DIR}/el/Types.h
-        ${COMMON_SOURCE_DIR}/el/Value.h
-        ${COMMON_SOURCE_DIR}/el/VariableStore.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/io/AseLoader.h
@@ -531,7 +514,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/DiskIO.h
         ${COMMON_SOURCE_DIR}/io/DkmLoader.h
         ${COMMON_SOURCE_DIR}/io/DkPakFileSystem.h
-        ${COMMON_SOURCE_DIR}/io/ELParser.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionLoader.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.h
@@ -568,8 +550,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/NodeWriter.h
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.h
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
-        ${COMMON_SOURCE_DIR}/io/Parser.h
-        ${COMMON_SOURCE_DIR}/io/ParserException.h
         ${COMMON_SOURCE_DIR}/io/ParserStatus.h
         ${COMMON_SOURCE_DIR}/io/PathInfo.h
         ${COMMON_SOURCE_DIR}/io/PathMatcher.h
@@ -588,8 +568,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/SprLoader.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/io/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/io/Token.h
-        ${COMMON_SOURCE_DIR}/io/Tokenizer.h
         ${COMMON_SOURCE_DIR}/io/TraversalMode.h
         ${COMMON_SOURCE_DIR}/io/VirtualFileSystem.h
         ${COMMON_SOURCE_DIR}/io/WadFileSystem.h
@@ -1065,7 +1043,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC TbBaseLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PUBLIC TbBaseLib TbElLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE GLEW::GLEW OpenGL::GL UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)

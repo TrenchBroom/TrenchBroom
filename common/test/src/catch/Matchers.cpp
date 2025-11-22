@@ -33,36 +33,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kd/string_compare.h"
-
 #include <algorithm>
-
-namespace tb
-{
-
-GlobMatcher::GlobMatcher(std::string glob)
-  : m_glob{std::move(glob)}
-{
-}
-
-bool GlobMatcher::match(const std::string& value) const
-{
-  return kdl::cs::str_matches_glob(value, m_glob);
-}
-
-std::string GlobMatcher::describe() const
-{
-  auto ss = std::stringstream{};
-  ss << "matches glob \"" << m_glob << "\"";
-  return ss.str();
-}
-
-GlobMatcher MatchesGlob(std::string glob)
-{
-  return GlobMatcher{std::move(glob)};
-}
-
-} // namespace tb
 
 namespace tb::mdl
 {

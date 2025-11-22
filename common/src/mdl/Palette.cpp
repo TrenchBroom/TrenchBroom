@@ -24,6 +24,7 @@
 #include "io/File.h"
 #include "io/ImageLoader.h"
 #include "io/Reader.h"
+#include "io/ReaderException.h"
 #include "mdl/TextureBuffer.h"
 
 #include "kd/contracts.h"
@@ -236,7 +237,7 @@ Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& p
     return Error{
       fmt::format("Could not load palette file {}: Unknown palette format", path)};
   }
-  catch (const Exception& e)
+  catch (const io::ReaderException& e)
   {
     return Error{fmt::format("Could not load palette file {}: {}", path, e.what())};
   }
@@ -250,7 +251,7 @@ Result<Palette> loadPalette(io::Reader& reader, const PaletteColorFormat colorFo
     reader.read(data.data(), data.size());
     return makePalette(data, colorFormat);
   }
-  catch (const Exception& e)
+  catch (const io::ReaderException& e)
   {
     using namespace std::string_literals;
     return Error{"Could not load palette: "s + e.what()};

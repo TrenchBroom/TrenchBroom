@@ -21,7 +21,7 @@
 
 #include "FileLocation.h"
 #include "Logger.h"
-#include "io/ParserException.h"
+#include "ParserException.h"
 
 #include "kd/contracts.h"
 

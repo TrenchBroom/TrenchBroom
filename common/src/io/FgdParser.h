@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Color.h"
+#include "Parser.h"
+#include "Tokenizer.h"
 #include "io/EntityDefinitionParser.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 
 #include "vm/bbox.h"
 

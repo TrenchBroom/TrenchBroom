@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
+#include "Tokenizer.h"
 #include "io/EntityModelLoader.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 #include "mdl/Material.h"
 
 #include <array>

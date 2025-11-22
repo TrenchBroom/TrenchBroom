@@ -19,9 +19,9 @@
 
 #include "GameConfigParser.h"
 
+#include "ParserException.h"
 #include "el/EvaluationContext.h"
 #include "el/Value.h"
-#include "io/ParserException.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Tag.h"
 #include "mdl/TagAttribute.h"
@@ -571,7 +571,7 @@ Result<mdl::GameConfig> parseGameConfig(
 } // namespace
 
 GameConfigParser::GameConfigParser(const std::string_view str, std::filesystem::path path)
-  : m_elParser{ELParser::Mode::Strict, str}
+  : m_elParser{el::ELParser::Mode::Strict, str}
   , m_path{std::move(path)}
 {
 }
