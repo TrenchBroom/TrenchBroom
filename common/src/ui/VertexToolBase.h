@@ -58,18 +58,20 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Grid;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 class Lasso;
 class MapDocument;
@@ -644,4 +646,5 @@ protected:
   }
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

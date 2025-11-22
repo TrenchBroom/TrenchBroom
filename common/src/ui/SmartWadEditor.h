@@ -25,13 +25,14 @@ class QAbstractButton;
 class QListWidget;
 class QWidget;
 
-
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class SmartWadEditor : public SmartPropertyEditor
@@ -68,4 +69,5 @@ private slots:
   void updateButtons();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

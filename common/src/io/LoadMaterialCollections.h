@@ -36,16 +36,15 @@ class task_manager;
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::mdl
+namespace mdl
 {
 class Material;
 class MaterialCollection;
 struct MaterialConfig;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 class FileSystem;
 
@@ -64,4 +63,5 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
   kdl::task_manager& taskManager,
   Logger& logger);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

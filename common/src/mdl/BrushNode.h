@@ -34,12 +34,14 @@
 #include <string>
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class BrushRendererBrushCache;
 }
 
-namespace tb::mdl
+namespace mdl
 {
 class BrushFace;
 class GroupNode;
@@ -168,4 +170,5 @@ private:
 bool operator==(const BrushNode& lhs, const BrushNode& rhs);
 bool operator!=(const BrushNode& lhs, const BrushNode& rhs);
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

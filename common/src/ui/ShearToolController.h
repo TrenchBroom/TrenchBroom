@@ -24,14 +24,16 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class GestureTracker;
 class ShearTool;
@@ -99,4 +101,5 @@ private:
     mdl::PickResult& pickResult) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

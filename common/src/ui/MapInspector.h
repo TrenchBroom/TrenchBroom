@@ -33,13 +33,15 @@ class QLabel;
 class QLineEdit;
 class QRadioButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 class Node;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class CollapsibleTitledPanel;
 
@@ -97,4 +99,5 @@ private:
   void updateGui();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

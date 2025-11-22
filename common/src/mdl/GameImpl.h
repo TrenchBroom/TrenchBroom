@@ -30,9 +30,8 @@
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::mdl
+namespace mdl
 {
 struct EntityPropertyConfig;
 
@@ -93,4 +92,5 @@ private:
     const EntityNodeBase& node, const std::string& baseName) const;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

@@ -26,14 +26,16 @@
 
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class EntityNode;
 class Map;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class CreateEntityTool : public Tool
@@ -55,4 +57,5 @@ public:
     const vm::ray3d& pickRay, const mdl::PickResult& pickResult);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -23,12 +23,14 @@
 
 #include <unordered_map>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
 }
 
-namespace tb::render
+namespace render
 {
 class IndexArray;
 class MaterialRenderFunc;
@@ -141,4 +143,5 @@ public:
   void render(IndexArray& indexArray, MaterialRenderFunc& func);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

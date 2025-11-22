@@ -36,19 +36,21 @@
 #include <bitset>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Grid;
 class Map;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 class ScaleToolPage;
 
@@ -307,4 +309,5 @@ private:
   QWidget* doCreatePage(QWidget* parent) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

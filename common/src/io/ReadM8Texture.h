@@ -21,12 +21,14 @@
 
 #include "Result.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Texture;
 }
 
-namespace tb::io
+namespace io
 {
 class Reader;
 
@@ -35,4 +37,5 @@ class Reader;
  */
 Result<mdl::Texture> readM8Texture(Reader& reader);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

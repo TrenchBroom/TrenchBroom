@@ -30,12 +30,14 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class DrawShapeToolExtensionPage : public QWidget
@@ -133,4 +135,5 @@ private:
   size_t m_currentExtensionIndex = 0;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

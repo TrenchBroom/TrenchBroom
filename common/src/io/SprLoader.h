@@ -24,12 +24,14 @@
 #include <filesystem>
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Palette;
 }
 
-namespace tb::io
+namespace io
 {
 class File;
 class FileSystem;
@@ -50,4 +52,5 @@ public:
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

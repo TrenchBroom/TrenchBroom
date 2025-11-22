@@ -25,12 +25,14 @@
 #include <memory>
 #include <unordered_map>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
 }
 
-namespace tb::render
+namespace render
 {
 class BrushIndexArray;
 class BrushVertexArray;
@@ -69,4 +71,5 @@ private:
   void doRender(RenderContext& context) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

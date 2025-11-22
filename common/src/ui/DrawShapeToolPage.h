@@ -27,12 +27,14 @@
 class QStackedLayout;
 class QToolButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 class DrawShapeToolExtensionManager;
 
@@ -61,4 +63,5 @@ private:
   void currentExtensionDidChange(size_t index);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

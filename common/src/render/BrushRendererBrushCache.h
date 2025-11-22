@@ -23,14 +23,16 @@
 
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushNode;
 class BrushFace;
 class Material;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 
 class BrushRendererBrushCache
@@ -88,4 +90,5 @@ public:
   const std::vector<CachedEdge>& cachedEdges() const;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

@@ -24,17 +24,19 @@
 #include <filesystem>
 #include <optional>
 
-namespace tb::el
+namespace tb
+{
+namespace el
 {
 class VariableStore;
 }
 
-namespace tb::mdl
+namespace mdl
 {
 struct GameEngineProfile;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 Result<void> launchGameEngineProfile(
@@ -42,4 +44,5 @@ Result<void> launchGameEngineProfile(
   const el::VariableStore& variables,
   const std::optional<std::filesystem::path>& logFilePath = std::nullopt);
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

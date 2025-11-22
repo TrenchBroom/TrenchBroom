@@ -28,7 +28,9 @@
 #include <vector>
 
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BezierPatch;
 class Brush;
@@ -37,9 +39,9 @@ class BrushFace;
 class EntityProperty;
 class Node;
 class PatchNode;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 
 class MapFileSerializer : public NodeSerializer
@@ -89,4 +91,5 @@ private: // threadsafe
   PrecomputedString writePatch(const mdl::BezierPatch& patch) const;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

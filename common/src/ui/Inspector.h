@@ -21,12 +21,14 @@
 
 #include <QWidget>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 class FaceInspector;
 class EntityInspector;
@@ -68,4 +70,5 @@ public:
   bool restoreState(const QByteArray& state);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

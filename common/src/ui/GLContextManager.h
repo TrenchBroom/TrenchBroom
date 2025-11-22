@@ -24,14 +24,16 @@
 #include <memory>
 #include <string>
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 
 class GLContextManager
@@ -66,4 +68,5 @@ public:
   deleteCopyAndMove(GLContextManager);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

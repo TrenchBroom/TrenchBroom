@@ -47,9 +47,8 @@ class QToolBar;
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class Autosaver;
 class Game;
@@ -62,9 +61,9 @@ class Node;
 enum class PasteType;
 
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class Action;
 class Console;
@@ -187,7 +186,7 @@ private: // notification handlers
   void toolDeactivated(Tool& tool);
   void toolHandleSelectionChanged(Tool& tool);
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void currentLayerDidChange(const tb::mdl::LayerNode* layer);
+  void currentLayerDidChange(const mdl::LayerNode* layer);
   void groupWasOpened(mdl::GroupNode& group);
   void groupWasClosed(mdl::GroupNode& group);
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
@@ -440,4 +439,5 @@ public:
   ~DebugPaletteWindow() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -23,12 +23,14 @@
 
 #include <map>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
 }
 
-namespace tb::render
+namespace render
 {
 class MaterialRenderFunc;
 class VertexArray;
@@ -189,4 +191,5 @@ private:
   bool isCurrent(const Material* material) const;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

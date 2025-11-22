@@ -29,19 +29,21 @@
 #include <optional>
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class PickResult;
 }
 
-namespace tb::render
+namespace render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class PickRequest;
 class ToolController;
@@ -137,4 +139,5 @@ private:
   deleteCopyAndMove(ToolBoxConnector);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -30,14 +30,16 @@ class QCheckBox;
 class QComboBox;
 class QPushButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class RotateTool;
 class SpinControl;
@@ -86,4 +88,5 @@ private:
   vm::vec3d getAxis() const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

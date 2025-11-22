@@ -23,13 +23,15 @@
 
 class QSplitter;
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class MapRenderer;
 class VboManager;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class CyclingMapView;
 class GLContextManager;
@@ -71,4 +73,5 @@ private: // implement MultiPaneMapView subclassing interface
   void restoreViews() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

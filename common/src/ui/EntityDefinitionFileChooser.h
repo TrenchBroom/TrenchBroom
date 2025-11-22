@@ -27,12 +27,14 @@ class QPushButton;
 class QListWidget;
 class QLabel;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class SingleSelectionListWidget : public QListWidget
@@ -86,4 +88,5 @@ private:
   void reloadExternalClicked();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

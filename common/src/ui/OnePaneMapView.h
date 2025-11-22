@@ -21,12 +21,14 @@
 
 #include "ui/MultiPaneMapView.h"
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class MapRenderer;
 }
 
-namespace tb::ui
+namespace ui
 {
 class CyclingMapView;
 class GLContextManager;
@@ -59,4 +61,5 @@ private: // implement MultiPaneMapView subclassing interface
   void restoreViews() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -23,12 +23,14 @@
 
 class QSplitter;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 class EntityBrowser;
 class EntityPropertyEditor;
@@ -54,4 +56,5 @@ private:
     mdl::Map& map, GLContextManager& contextManager, QWidget* parent);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

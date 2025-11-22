@@ -28,16 +28,15 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class EntityModel;
 class Material;
 struct MaterialConfig;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 class FileSystem;
 
@@ -58,4 +57,5 @@ mdl::EntityModel loadEntityModelAsync(
   const mdl::CreateEntityModelDataResource& createResource,
   Logger& logger);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

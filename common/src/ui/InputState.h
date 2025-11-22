@@ -22,12 +22,14 @@
 #include "mdl/PickResult.h"
 #include "ui/PickRequest.h"
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 using ModifierKeyState = unsigned int;
 namespace ModifierKeys
@@ -169,4 +171,5 @@ public:
   void setPickResult(mdl::PickResult pickResult);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -27,9 +27,8 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 struct GameConfig;
 
@@ -73,4 +72,6 @@ private:
     Logger& logger);
   void unmountWads();
 };
-} // namespace tb::mdl
+
+} // namespace mdl
+} // namespace tb

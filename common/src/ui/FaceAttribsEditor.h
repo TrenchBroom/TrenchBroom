@@ -30,15 +30,17 @@ class QLabel;
 class QLineEdit;
 class QGridLayout;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFaceHandle;
 class Map;
 class Node;
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class FlagsPopupEditor;
 class GLContextManager;
@@ -136,4 +138,5 @@ private:
   std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

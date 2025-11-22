@@ -27,12 +27,14 @@ class QLabel;
 class QPushButton;
 class QTextEdit;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct CompilationProfile;
 }
 
-namespace tb::ui
+namespace ui
 {
 class CompilationProfileManager;
 class MapFrame;
@@ -76,4 +78,5 @@ private:
   void saveProfile();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

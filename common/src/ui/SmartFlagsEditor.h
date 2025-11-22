@@ -27,13 +27,14 @@ class QString;
 class QWidget;
 class QScrollArea;
 
-
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 class FlagsEditor;
 
@@ -67,4 +68,5 @@ private:
   void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -27,16 +27,15 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class EditorContext;
 class EntityModelManager;
 class EntityNode;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class RenderBatch;
 struct ShaderConfig;
@@ -111,4 +110,5 @@ private:
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

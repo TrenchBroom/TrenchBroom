@@ -24,12 +24,14 @@
 class QLineEdit;
 class QStackedWidget;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct GameEngineProfile;
 }
 
-namespace tb::ui
+namespace ui
 {
 /**
  * Editor widget for a single game engine profile.
@@ -68,4 +70,5 @@ signals:
   void profileChanged();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

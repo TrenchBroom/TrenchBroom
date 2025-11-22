@@ -27,12 +27,14 @@
 
 class QKeyEvent;
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class PerspectiveCamera;
 }
 
-namespace tb::ui
+namespace ui
 {
 class FlyModeHelper;
 
@@ -135,4 +137,5 @@ public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

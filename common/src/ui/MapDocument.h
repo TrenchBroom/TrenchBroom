@@ -39,7 +39,9 @@ namespace kdl
 class task_manager;
 } // namespace kdl
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 enum class MapFormat;
 
@@ -47,9 +49,9 @@ class Game;
 class Map;
 class Node;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class ViewEffectsService;
 class AsyncTaskRunner;
@@ -157,4 +159,5 @@ private: // observers
   void entityDefinitionsDidChange();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

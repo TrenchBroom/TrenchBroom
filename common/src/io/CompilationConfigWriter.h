@@ -25,13 +25,15 @@
 #include <iosfwd>
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct CompilationConfig;
 struct CompilationProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 
 class CompilationConfigWriter
@@ -56,4 +58,5 @@ private:
   deleteCopyAndMove(CompilationConfigWriter);
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

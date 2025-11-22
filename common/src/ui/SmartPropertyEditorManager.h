@@ -29,17 +29,19 @@
 
 class QStackedLayout;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class EntityNodeBase;
 class Map;
 class Node;
 
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
 
-namespace tb::ui
+namespace ui
 {
 class SmartPropertyEditor;
 
@@ -83,4 +85,5 @@ private:
   void updateEditor();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

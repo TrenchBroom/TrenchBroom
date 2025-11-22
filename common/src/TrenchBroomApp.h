@@ -41,9 +41,8 @@ class Updater;
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::ui
+namespace ui
 {
 class FrameManager;
 class MapDocument;
@@ -119,4 +118,5 @@ signals:
   void recentDocumentsDidChange();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

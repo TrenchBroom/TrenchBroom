@@ -24,16 +24,19 @@
 
 #include <optional>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Texture;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 class Reader;
 
 Result<mdl::Texture> readWalTexture(
   Reader& reader, const std::optional<mdl::Palette>& palette);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

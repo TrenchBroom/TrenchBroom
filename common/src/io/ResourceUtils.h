@@ -28,15 +28,14 @@ class QPixmap;
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class Material;
 class Texture;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 class FileSystem;
 
@@ -71,4 +70,5 @@ QPixmap loadSVGPixmap(const std::filesystem::path& imagePath);
  */
 QIcon loadSVGIcon(const std::filesystem::path& imagePath);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

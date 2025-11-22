@@ -24,19 +24,21 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushNode;
 class Map;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class EdgeTool : public VertexToolBase<vm::segment3d>
@@ -71,4 +73,5 @@ public:
   void removeSelection();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

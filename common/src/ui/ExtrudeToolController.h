@@ -21,13 +21,15 @@
 
 #include "ui/ToolController.h"
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class GestureTracker;
 class ExtrudeTool;
@@ -90,4 +92,5 @@ private:
   bool doHandleInput(const InputState& inputState) const override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

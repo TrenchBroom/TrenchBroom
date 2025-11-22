@@ -33,15 +33,14 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::io
+namespace io
 {
 class Path;
 class VirtualFileSystem;
-} // namespace tb::io
+} // namespace io
 
-namespace tb::mdl
+namespace mdl
 {
 
 struct MockGameConfig : public GameConfig
@@ -99,4 +98,5 @@ public:
       entityDefinitionFiles);
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

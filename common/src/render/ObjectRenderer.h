@@ -31,9 +31,8 @@
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::mdl
+namespace mdl
 {
 class BrushNode;
 class EditorContext;
@@ -43,9 +42,9 @@ class EntityNode;
 class GroupNode;
 class Node;
 class PatchNode;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class FontManager;
 class RenderBatch;
@@ -118,4 +117,5 @@ public: // rendering
   deleteCopy(ObjectRenderer);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

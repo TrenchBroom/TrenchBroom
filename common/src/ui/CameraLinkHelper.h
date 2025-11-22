@@ -23,12 +23,14 @@
 
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class CameraLinkHelper
@@ -53,4 +55,5 @@ public:
   virtual void linkCamera(CameraLinkHelper& linkHelper) = 0;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

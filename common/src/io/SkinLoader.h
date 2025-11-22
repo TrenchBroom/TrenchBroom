@@ -28,9 +28,8 @@
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::io
+namespace io
 {
 class FileSystem;
 
@@ -43,4 +42,5 @@ mdl::Material loadSkin(
   const std::optional<mdl::Palette>& palette,
   Logger& logger);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

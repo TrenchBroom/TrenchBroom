@@ -31,16 +31,15 @@ class QTextEdit;
 namespace tb
 {
 class VariableTable;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class Map;
 
 struct CompilationProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class CompilationRunner;
 class MapDocument;
@@ -82,4 +81,5 @@ signals:
   void compilationEnded();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

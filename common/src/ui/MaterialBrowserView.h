@@ -28,15 +28,17 @@
 
 class QScrollBar;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 class Material;
 class MaterialCollection;
 class ResourceId;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class GLContextManager;
@@ -120,4 +122,5 @@ signals:
   void materialSelected(const mdl::Material* material);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

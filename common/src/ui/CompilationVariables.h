@@ -23,12 +23,14 @@
 
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 namespace CompilationVariableNames
@@ -73,4 +75,5 @@ public:
   explicit LaunchGameEngineVariables(const mdl::Map& map);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

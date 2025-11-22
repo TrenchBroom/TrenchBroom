@@ -23,12 +23,14 @@
 
 class QWidget;
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class MapRenderer;
 }
 
-namespace tb::ui
+namespace ui
 {
 class FlashSelectionAnimation : public Animation
 {
@@ -46,4 +48,5 @@ private:
 };
 
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

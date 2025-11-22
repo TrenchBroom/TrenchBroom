@@ -34,15 +34,14 @@ class Logger;
 
 template <typename T>
 class Preference;
-} // namespace tb
 
-namespace tb::io
+namespace io
 {
 class Path;
 class WritableVirtualFileSystem;
-} // namespace tb::io
+} // namespace io
 
-namespace tb::mdl
+namespace mdl
 {
 struct CompilationConfig;
 struct GameConfig;
@@ -162,4 +161,5 @@ private:
     GameConfig& gameConfig, GameEngineConfig gameEngineConfig, Logger& logger);
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

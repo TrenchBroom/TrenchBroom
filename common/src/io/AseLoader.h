@@ -36,14 +36,13 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class EntityModelData;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 namespace AseToken
 {
@@ -186,4 +185,5 @@ private: // model construction
   std::filesystem::path fixMaterialPath(std::filesystem::path path) const;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

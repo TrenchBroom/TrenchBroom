@@ -23,14 +23,16 @@
 
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Palette;
 class Texture;
 enum class TextureMask;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 class Reader;
 
@@ -41,4 +43,5 @@ Result<mdl::Texture> readIdMipTexture(
 
 Result<mdl::Texture> readHlMipTexture(Reader& reader, mdl::TextureMask mask);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

@@ -25,19 +25,21 @@
 #include <memory>
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Hit;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class GestureTracker;
 class DropTracker;
@@ -128,4 +130,5 @@ private: // subclassing interface
     const InputState& inputState, const std::string& payload) const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

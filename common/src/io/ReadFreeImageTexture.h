@@ -25,13 +25,15 @@
 
 #include <filesystem>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Texture;
 class TextureBuffer;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 
 class Reader;
@@ -44,4 +46,5 @@ Result<mdl::Texture> readFreeImageTexture(Reader& reader);
 
 bool isSupportedFreeImageExtension(const std::filesystem::path& extension);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

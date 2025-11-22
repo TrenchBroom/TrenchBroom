@@ -27,7 +27,9 @@
 #include <unordered_map>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushNode;
 class BrushFaceHandle;
@@ -37,9 +39,9 @@ class Map;
 class Node;
 class ResourceId;
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class EntityDecalRenderer;
 class EntityLinkRenderer;
@@ -150,4 +152,5 @@ private: // notification
   void preferenceDidChange(const std::filesystem::path& path);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

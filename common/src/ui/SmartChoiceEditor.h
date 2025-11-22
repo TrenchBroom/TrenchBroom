@@ -29,13 +29,15 @@ class QLabel;
 class QWidget;
 
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class ChoicePropertyDefinition;
 class Map;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class SmartChoiceEditor : public SmartPropertyEditor
@@ -56,4 +58,5 @@ private:
   void doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

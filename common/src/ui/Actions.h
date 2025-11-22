@@ -35,14 +35,16 @@
 #include <variant>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct EntityDefinition;
 class Map;
 class SmartTag;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class MapDocument;
 class MapFrame;
@@ -288,4 +290,5 @@ private:
 
 std::vector<size_t> findConflicts(const std::vector<const Action*>& actions);
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

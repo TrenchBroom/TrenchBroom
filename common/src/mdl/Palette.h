@@ -30,13 +30,15 @@
 #include <memory>
 #include <vector>
 
-namespace tb::io
+namespace tb
+{
+namespace io
 {
 class File;
 class Reader;
-} // namespace tb::io
+} // namespace io
 
-namespace tb::mdl
+namespace mdl
 {
 class TextureBuffer;
 
@@ -112,4 +114,5 @@ Result<Palette> makePalette(
 Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& path);
 Result<Palette> loadPalette(io::Reader& reader, PaletteColorFormat colorFormat);
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

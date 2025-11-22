@@ -33,14 +33,13 @@
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::io
+namespace io
 {
 class FileSystem;
 }
 
-namespace tb::mdl
+namespace mdl
 {
 class BrushFace;
 class BrushFaceAttributes;
@@ -95,4 +94,6 @@ public: // mods
   virtual Result<std::vector<std::string>> availableMods() const = 0;
   virtual std::string defaultMod() const = 0;
 };
-} // namespace tb::mdl
+
+} // namespace mdl
+} // namespace tb

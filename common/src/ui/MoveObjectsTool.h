@@ -23,13 +23,15 @@
 
 #include "vm/vec.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Grid;
 class Map;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class InputState;
 
@@ -62,4 +64,5 @@ private:
   bool duplicateObjects(const InputState& inputState) const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

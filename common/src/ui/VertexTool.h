@@ -25,20 +25,22 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class Camera;
 class RenderContext;
 class RenderBatch;
 class RenderService;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class Lasso;
 
@@ -117,4 +119,5 @@ private: // General helper methods
   void resetModeAfterDeselection();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

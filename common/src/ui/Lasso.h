@@ -27,14 +27,16 @@
 
 #include <ranges>
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 
 class Lasso
@@ -80,4 +82,5 @@ private:
   vm::bbox2d getBox(const vm::mat4x4d& transform) const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

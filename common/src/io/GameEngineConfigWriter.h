@@ -24,13 +24,15 @@
 
 #include <iosfwd>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct GameEngineConfig;
 struct GameEngineProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 
 class GameEngineConfigWriter
@@ -51,4 +53,5 @@ private:
   deleteCopyAndMove(GameEngineConfigWriter);
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

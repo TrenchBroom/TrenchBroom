@@ -31,12 +31,14 @@ struct aiNode;
 struct aiScene;
 struct aiMesh;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 class FileSystem;
 
@@ -61,4 +63,5 @@ public:
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

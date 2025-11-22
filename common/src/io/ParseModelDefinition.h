@@ -29,6 +29,7 @@
 
 namespace tb::io
 {
+
 template <typename TokenType>
 Result<el::ExpressionNode> ensureNextToken(
   Tokenizer<TokenType>& tokenizer,

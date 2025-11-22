@@ -37,9 +37,8 @@ class task_manager;
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class Game;
 class Map;
@@ -83,4 +82,5 @@ public:
   Map& map();
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

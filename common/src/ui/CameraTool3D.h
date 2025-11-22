@@ -24,12 +24,14 @@
 
 #include <memory>
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class PerspectiveCamera;
 }
 
-namespace tb::ui
+namespace ui
 {
 class GestureTracker;
 
@@ -53,4 +55,5 @@ private:
   bool cancel() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -23,12 +23,14 @@
 
 #include "vm/vec.h"
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 class CameraAnimation : public Animation
 {
@@ -59,4 +61,5 @@ private:
   void doUpdate(double progress) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

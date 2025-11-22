@@ -33,23 +33,25 @@
 
 class QWidget;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFaceHandle;
 class Map;
 class Node;
 
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class ActiveShader;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class UVRotateTool;
 class UVOriginTool;
@@ -127,4 +129,5 @@ private:
   mdl::PickResult pick(const vm::ray3d& pickRay) const override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

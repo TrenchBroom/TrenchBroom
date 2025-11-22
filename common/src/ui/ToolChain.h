@@ -22,18 +22,20 @@
 #include <memory>
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class PickResult;
 }
 
-namespace tb::render
+namespace render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class GestureTracker;
 class DropTracker;
@@ -84,4 +86,5 @@ private:
   bool chainEndsHere() const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

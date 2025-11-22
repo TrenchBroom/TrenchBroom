@@ -27,14 +27,16 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class RotateHandle
 {
@@ -158,4 +160,5 @@ public:
     render::RenderContext& renderContext, render::RenderBatch& renderBatch, HitArea area);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

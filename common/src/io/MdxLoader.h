@@ -27,9 +27,8 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::io
+namespace io
 {
 class FileSystem;
 class Reader;
@@ -51,4 +50,5 @@ public:
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

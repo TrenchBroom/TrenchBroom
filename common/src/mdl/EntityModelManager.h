@@ -39,15 +39,14 @@ class task_manager;
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::render
+namespace render
 {
 class MaterialRenderer;
 class VboManager;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::mdl
+namespace mdl
 {
 class EntityModelFrame;
 class EntityNode;
@@ -102,4 +101,5 @@ private:
   void prepareRenderers(render::VboManager& vboManager);
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

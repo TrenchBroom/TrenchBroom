@@ -34,12 +34,14 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct PropertyDefinition;
 }
 
-namespace tb::io
+namespace io
 {
 enum class EntityDefinitionClassType
 {
@@ -83,4 +85,5 @@ bool addPropertyDefinition(
   std::vector<mdl::PropertyDefinition>& propertyDefinitions,
   mdl::PropertyDefinition propertyDefinition);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

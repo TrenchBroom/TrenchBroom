@@ -26,12 +26,14 @@
 #include <functional>
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
 }
 
-namespace tb::io
+namespace io
 {
 class FileSystem;
 class Reader;
@@ -53,4 +55,5 @@ public:
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

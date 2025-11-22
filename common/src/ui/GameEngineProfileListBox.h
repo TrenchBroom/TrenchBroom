@@ -21,13 +21,15 @@
 
 #include "ui/ControlListBox.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct GameEngineConfig;
 struct GameEngineProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class ElidedLabel;
 
@@ -85,4 +87,5 @@ signals:
   void profileSelected(mdl::GameEngineProfile& profile);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

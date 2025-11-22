@@ -25,12 +25,14 @@
 
 class QKeyEvent;
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class FlyModeHelper
@@ -68,4 +70,5 @@ private:
   float moveSpeed() const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

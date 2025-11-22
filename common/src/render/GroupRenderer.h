@@ -25,13 +25,15 @@
 
 #include "kd/vector_set.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class EditorContext;
 class GroupNode;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class RenderBatch;
 class RenderContext;
@@ -111,4 +113,5 @@ private:
   Color groupColor(const mdl::GroupNode& group) const;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

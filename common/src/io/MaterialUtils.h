@@ -34,15 +34,14 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class Material;
 enum class TextureMask;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 class File;
 class FileSystem;
@@ -90,4 +89,5 @@ inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
 
 mdl::TextureMask getTextureMaskFromName(std::string_view name);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

@@ -36,18 +36,17 @@ namespace tb
 {
 template <typename T, typename U>
 class octree;
-}
 
-namespace tb::render
+namespace render
 {
 enum class PrimType;
 class IndexRangeMap;
 class MaterialIndexRangeMap;
 class MaterialIndexRangeRenderer;
 class MaterialRenderer;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::mdl
+namespace mdl
 {
 class Material;
 class MaterialCollection;
@@ -459,4 +458,5 @@ public:
   const EntityModelDataResource& dataResource() const;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

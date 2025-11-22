@@ -60,12 +60,14 @@ class QToolButton;
 class QVBoxLayout;
 class QWidget;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 enum class MapTextEncoding;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class SyncHeightEventFilter : public QObject
@@ -342,4 +344,5 @@ std::optional<vm::vec<T, S>> parse(const QString& str)
   return result;
 }
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb
