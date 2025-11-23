@@ -686,6 +686,13 @@ TEST_CASE("DiskIO")
       fs::Disk::resolvePath(rootPaths, "linkedDir/test2.map")
       == env.dir() / "linkedDir/test2.map");
   }
+
+  SECTION("makeUniqueFilename")
+  {
+    CHECK(fs::Disk::makeUniqueFilename("/does/not/exist").is_success());
+    CHECK(
+      fs::Disk::makeUniqueFilename(std::filesystem::temp_directory_path()).is_success());
+  }
 }
 
 } // namespace tb::fs

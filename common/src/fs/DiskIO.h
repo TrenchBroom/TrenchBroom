@@ -102,5 +102,8 @@ std::filesystem::path resolvePath(
   const std::vector<std::filesystem::path>& searchPaths,
   const std::filesystem::path& path);
 
+Result<std::filesystem::path> makeUniqueFilename(
+  const std::filesystem::path& directoryPath);
+
 } // namespace Disk
 } // namespace tb::fs

@@ -28,6 +28,7 @@
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/string_format.h"
+#include "kd/string_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -94,6 +95,7 @@ PathInfo pathInfoForFixedPath(const std::filesystem::path& fixedPath)
            ? PathInfo::File
            : PathInfo::Unknown;
 }
+
 
 } // namespace
 
@@ -335,6 +337,26 @@ std::filesystem::path resolvePath(
     }
   }
   return {};
+}
+
+Result<std::filesystem::path> makeUniqueFilename(
+  const std::filesystem::path& directoryPath)
+{
+  auto filename = kdl::str_make_random(32);
+
+  auto ec = std::error_code{};
+  while (std::filesystem::exists(directoryPath / filename, ec) && !ec)
+  {
+    filename = kdl::str_make_random(32);
+  }
+
+  if (ec)
+  {
+    return Error{fmt::format(
+      "Failed to generate a unique filename at '{}': {}", directoryPath, ec.message())};
+  }
+
+  return filename;
 }
 
 } // namespace tb::fs::Disk
