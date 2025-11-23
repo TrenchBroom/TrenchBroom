@@ -20,6 +20,9 @@
 
 #include "kd/string_utils.h"
 
+#include <algorithm>
+#include <random>
+
 #if defined(__APPLE__)
 #include "fast_float/fast_float.h"
 #endif
@@ -313,6 +316,23 @@ std::optional<double> str_to_double(std::string_view str)
            ? std::optional{value}
            : std::nullopt;
 #endif
+}
+
+std::string str_make_random(const size_t length)
+{
+  static constexpr std::string_view charset =
+    "0123456789"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz";
+
+  static thread_local auto generator = std::mt19937{std::random_device{}()};
+  auto distribution = std::uniform_int_distribution<size_t>{0, charset.size() - 1};
+
+  auto result = std::string{};
+  result.resize(length);
+  std::ranges::generate(result, [&]() { return charset[distribution(generator)]; });
+
+  return result;
 }
 
 } // namespace kdl
