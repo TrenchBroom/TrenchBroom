@@ -31,7 +31,6 @@
 
 namespace tb::io
 {
-class ParserStatus;
 
 template <typename TokenType>
 class Parser
