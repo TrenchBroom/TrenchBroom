@@ -20,11 +20,12 @@
 #include "MockGame.h"
 
 #include "TestUtils.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/TestUtils.h"
+#include "fs/VirtualFileSystem.h"
+#include "fs/WadFileSystem.h"
 #include "io/BrushFaceReader.h"
-#include "io/DiskFileSystem.h"
 #include "io/NodeReader.h"
-#include "io/VirtualFileSystem.h"
-#include "io/WadFileSystem.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionFileSpec.h"
@@ -59,9 +60,9 @@ MockGameConfig::MockGameConfig()
 
 MockGame::MockGame(MockGameConfig config)
   : m_config{std::move(config)}
-  , m_fs{std::make_unique<io::VirtualFileSystem>()}
+  , m_fs{std::make_unique<fs::VirtualFileSystem>()}
 {
-  m_fs->mount("", std::make_unique<io::DiskFileSystem>(std::filesystem::current_path()));
+  m_fs->mount("", std::make_unique<fs::DiskFileSystem>(std::filesystem::current_path()));
 }
 
 MockGame::~MockGame() = default;
@@ -76,7 +77,7 @@ GameConfig& MockGame::config()
   return m_config;
 }
 
-const io::FileSystem& MockGame::gameFileSystem() const
+const fs::FileSystem& MockGame::gameFileSystem() const
 {
   return *m_fs;
 }
@@ -113,12 +114,12 @@ void MockGame::reloadWads(
   Logger&)
 {
   m_fs->unmountAll();
-  m_fs->mount("", std::make_unique<io::DiskFileSystem>(std::filesystem::current_path()));
+  m_fs->mount("", std::make_unique<fs::DiskFileSystem>(std::filesystem::current_path()));
 
   for (const auto& wadPath : wadPaths)
   {
     const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
-    m_fs->mount("textures", io::openFS<io::WadFileSystem>(absoluteWadPath));
+    m_fs->mount("textures", fs::openFS<fs::WadFileSystem>(absoluteWadPath));
   }
 }
 

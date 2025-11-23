@@ -26,12 +26,14 @@
 class QAbstractButton;
 class QPoint;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct CompilationProfile;
 }
 
-namespace tb::ui
+namespace ui
 {
 class CompilationProfileListBox;
 class CompilationProfileEditor;
@@ -81,4 +83,5 @@ signals:
   void profileChanged();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

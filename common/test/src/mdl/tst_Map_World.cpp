@@ -18,8 +18,8 @@
  */
 
 #include "MapFixture.h"
+#include "fs/TestEnvironment.h"
 #include "io/SystemPaths.h"
-#include "io/TestEnvironment.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
 #include "mdl/WorldNode.h"
@@ -125,7 +125,7 @@ TEST_CASE("Map_World")
 
       SECTION("Map is persistent")
       {
-        auto env = io::TestEnvironment{};
+        auto env = fs::TestEnvironment{};
 
         const auto filename = "test.map";
         env.createFile(filename, R"(// Game: Test

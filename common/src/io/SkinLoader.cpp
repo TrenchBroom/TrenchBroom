@@ -21,7 +21,7 @@
 
 #include "Logger.h"
 #include "Result.h"
-#include "io/FileSystem.h"
+#include "fs/FileSystem.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/ReadWalTexture.h"
@@ -35,14 +35,14 @@ namespace tb::io
 {
 
 mdl::Material loadSkin(
-  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
+  const std::filesystem::path& path, const fs::FileSystem& fs, Logger& logger)
 {
   return loadSkin(path, fs, std::nullopt, logger);
 }
 
 mdl::Material loadSkin(
   const std::filesystem::path& path,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const std::optional<mdl::Palette>& palette,
   Logger& logger)
 {

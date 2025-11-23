@@ -31,12 +31,14 @@ class QLayout;
 class QLineEdit;
 class QWidget;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct CompilationProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class MapDocument;
 class MultiCompletionLineEdit;
@@ -205,4 +207,5 @@ signals:
   void taskContextMenuRequested(const QPoint& globalPos, mdl::CompilationTask& task);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

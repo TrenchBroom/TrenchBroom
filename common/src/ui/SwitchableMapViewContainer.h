@@ -25,12 +25,14 @@
 #include "NotifierConnection.h"
 #include "ui/MapView.h"
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class MapRenderer;
 }
 
-namespace tb::ui
+namespace ui
 {
 class ClipTool;
 class EdgeTool;
@@ -145,4 +147,5 @@ public: // implement ViewEffectsService interface
   deleteCopyAndMove(SwitchableMapViewContainer);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

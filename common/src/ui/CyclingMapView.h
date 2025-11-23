@@ -29,14 +29,13 @@ class QStackedLayout;
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::render
+namespace render
 {
 class MapRenderer;
 }
 
-namespace tb::ui
+namespace ui
 {
 class GLContextManager;
 class MapDocument;
@@ -114,4 +113,5 @@ public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

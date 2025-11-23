@@ -26,12 +26,14 @@
 #include <memory>
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class CompilationContext
@@ -64,4 +66,5 @@ public:
   }
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

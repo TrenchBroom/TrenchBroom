@@ -25,13 +25,15 @@
 class QSplitter;
 class QWidget;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 class Material;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class CollapsibleTitledPanel;
 class FaceAttribsEditor;
@@ -71,4 +73,5 @@ private:
   void mapWasLoaded(mdl::Map& map);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

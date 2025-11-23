@@ -28,7 +28,9 @@ namespace kdl
 class task_manager;
 }
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushNode;
 class BrushFace;
@@ -36,9 +38,9 @@ class EntityNode;
 class LayerNode;
 class Node;
 class WorldNode;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 class NodeSerializer;
 
@@ -75,4 +77,5 @@ public:
     const std::vector<mdl::BrushFace>& faces, kdl::task_manager& taskManager);
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

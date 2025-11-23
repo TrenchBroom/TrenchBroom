@@ -22,15 +22,22 @@
 
 #include "Result.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace fs
+{
+class Reader;
+} // namespace fs
+
+namespace mdl
 {
 class Texture;
 }
 
-namespace tb::io
+namespace io
 {
-class Reader;
 
-Result<mdl::Texture> readDdsTexture(Reader& reader);
+Result<mdl::Texture> readDdsTexture(fs::Reader& reader);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

@@ -31,7 +31,9 @@ class QCheckBox;
 class QWidget;
 class QButtonGroup;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class EditorContext;
 class EntityDefinitionManager;
@@ -39,9 +41,9 @@ class Map;
 class SmartTag;
 
 struct EntityDefinition;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class MapDocument;
 class PopupButton;
@@ -164,4 +166,5 @@ public:
   explicit ViewPopupEditor(MapDocument& document, QWidget* parent = nullptr);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

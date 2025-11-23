@@ -28,14 +28,16 @@
 
 class QStackedLayout;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class ClipTool;
 class AssembleBrushTool;
@@ -141,4 +143,5 @@ private: // notification
   void updateToolPage();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

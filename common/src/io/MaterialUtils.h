@@ -34,24 +34,26 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
+namespace mdl
 {
 class Material;
 enum class TextureMask;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class File;
-class FileSystem;
 
 std::string getMaterialNameFromPathSuffix(
   const std::filesystem::path& path, size_t prefixLength);
 
 Result<std::filesystem::path> findMaterialFile(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const std::filesystem::path& materialPath,
   const std::vector<std::filesystem::path>& extensions);
 
@@ -67,7 +69,7 @@ struct ReadMaterialError
   kdl_reflect_decl(ReadMaterialError, materialName, msg);
 };
 
-inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
+inline auto makeReadTextureErrorHandler(const fs::FileSystem& fs, Logger& logger)
 {
   return [&](Error e) {
     logger.error() << "Could not open texture file: " << e.msg;
@@ -75,7 +77,7 @@ inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
   };
 }
 
-inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
+inline auto makeReadMaterialErrorHandler(const fs::FileSystem& fs, Logger& logger)
 {
   return kdl::overload(
     [&](Error e) {
@@ -90,4 +92,5 @@ inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
 
 mdl::TextureMask getTextureMaskFromName(std::string_view name);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

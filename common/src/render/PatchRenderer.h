@@ -26,13 +26,15 @@
 
 #include "kd/vector_set.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class EditorContext;
 class PatchNode;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class RenderBatch;
 class RenderContext;
@@ -123,4 +125,5 @@ private: // implement IndexedRenderable interface
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

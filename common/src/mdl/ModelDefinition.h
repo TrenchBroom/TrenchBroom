@@ -32,9 +32,8 @@
 namespace tb
 {
 struct FileLocation;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 
 namespace ModelSpecificationKeys
@@ -99,4 +98,5 @@ vm::vec3d safeGetModelScale(
   const el::VariableStore& variableStore,
   const std::optional<el::ExpressionNode>& defaultScaleExpression);
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

@@ -19,7 +19,7 @@
  */
 
 #include "TestUtils.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/ReadDdsTexture.h"
 #include "mdl/Palette.h"
 #include "mdl/Texture.h"
@@ -41,7 +41,7 @@ namespace
 mdl::Texture loadTexture(const std::string& name)
 {
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/io/Dds/";
-  auto diskFS = DiskFileSystem{ddsPath};
+  auto diskFS = fs::DiskFileSystem{ddsPath};
 
   const auto file = diskFS.openFile(name) | kdl::value();
   auto reader = file->reader().buffer();

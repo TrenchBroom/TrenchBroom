@@ -25,23 +25,29 @@
 
 #include <filesystem>
 
-namespace tb::mdl
+namespace tb
+{
+namespace fs
+{
+class Reader;
+} // namespace fs
+
+namespace mdl
 {
 class Texture;
 class TextureBuffer;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-
-class Reader;
 
 Color getAverageColor(const mdl::TextureBuffer& buffer, GLenum format);
 
 Result<mdl::Texture> readFreeImageTextureFromMemory(const uint8_t* begin, size_t size);
 
-Result<mdl::Texture> readFreeImageTexture(Reader& reader);
+Result<mdl::Texture> readFreeImageTexture(fs::Reader& reader);
 
 bool isSupportedFreeImageExtension(const std::filesystem::path& extension);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

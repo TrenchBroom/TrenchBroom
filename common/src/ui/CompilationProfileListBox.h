@@ -23,13 +23,15 @@
 
 class QPoint;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct CompilationConfig;
 struct CompilationProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class ElidedLabel;
 
@@ -72,4 +74,5 @@ signals:
     const QPoint& globalPos, mdl::CompilationProfile& profile);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

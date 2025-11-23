@@ -32,15 +32,17 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFaceHandle;
 class Map;
 class Material;
 class Node;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class GLContextManager;
 class MaterialBrowserView;
@@ -95,4 +97,5 @@ private:
   void updateSelectedMaterial();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -32,17 +32,16 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class EditorContext;
 class EntityModel;
 class EntityModelManager;
 class EntityNode;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class AttrString;
 
@@ -150,4 +149,5 @@ private:
   const Color& boundsColor(const mdl::EntityNode* entityNode) const;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

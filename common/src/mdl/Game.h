@@ -33,14 +33,13 @@
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::io
+namespace fs
 {
 class FileSystem;
 }
 
-namespace tb::mdl
+namespace mdl
 {
 class BrushFace;
 class BrushFaceAttributes;
@@ -58,7 +57,7 @@ class Game : public io::EntityDefinitionLoader
 {
 public: // game configuration
   virtual const GameConfig& config() const = 0;
-  virtual const io::FileSystem& gameFileSystem() const = 0;
+  virtual const fs::FileSystem& gameFileSystem() const = 0;
 
   bool isGamePathPreference(const std::filesystem::path& prefPath) const;
 
@@ -95,4 +94,6 @@ public: // mods
   virtual Result<std::vector<std::string>> availableMods() const = 0;
   virtual std::string defaultMod() const = 0;
 };
-} // namespace tb::mdl
+
+} // namespace mdl
+} // namespace tb

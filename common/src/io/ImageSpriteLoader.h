@@ -24,23 +24,32 @@
 #include <filesystem>
 #include <string>
 
-namespace tb::io
+namespace tb
+{
+namespace fs
 {
 class File;
 class FileSystem;
+} // namespace fs
+
+namespace io
+{
 
 class ImageSpriteLoader : public EntityModelLoader
 {
 private:
   std::string m_name;
-  std::shared_ptr<File> m_file;
-  const FileSystem& m_fs;
+  std::shared_ptr<fs::File> m_file;
+  const fs::FileSystem& m_fs;
 
 public:
-  ImageSpriteLoader(std::string name, std::shared_ptr<File> file, const FileSystem& fs);
+  ImageSpriteLoader(
+    std::string name, std::shared_ptr<fs::File> file, const fs::FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path);
 
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
-} // namespace tb::io
+
+} // namespace io
+} // namespace tb

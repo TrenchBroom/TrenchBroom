@@ -31,14 +31,20 @@ struct aiNode;
 struct aiScene;
 struct aiMesh;
 
-namespace tb::mdl
+namespace tb
 {
-class Material;
-} // namespace tb::mdl
-
-namespace tb::io
+namespace fs
 {
 class FileSystem;
+} // namespace fs
+
+namespace mdl
+{
+class Material;
+} // namespace mdl
+
+namespace io
+{
 
 struct AssimpMeshWithTransforms
 {
@@ -51,14 +57,15 @@ class AssimpLoader : public EntityModelLoader
 {
 private:
   std::filesystem::path m_path;
-  const FileSystem& m_fs;
+  const fs::FileSystem& m_fs;
 
 public:
-  AssimpLoader(std::filesystem::path path, const FileSystem& fs);
+  AssimpLoader(std::filesystem::path path, const fs::FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path);
 
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

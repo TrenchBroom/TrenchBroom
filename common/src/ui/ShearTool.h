@@ -31,19 +31,21 @@
 
 #include <optional>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Grid;
 class Map;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class ShearTool : public Tool
@@ -105,4 +107,5 @@ public:
   void setConstrainVertical(bool constrainVertical);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

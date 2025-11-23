@@ -7,10 +7,12 @@ Checks: >
   misc-move-constructor-init,
   misc-unused-alias-decls,
   misc-unused-using-decls,
+  misc-use-anonymous-namespace
   modernize-concat-nested-namespaces,
   modernize-raw-string-literal,
   modernize-make-shared,
   modernize-make-unique,
+  modernize-concat-nested-namespaces
   modernize-pass-by-value,
   modernize-return-braced-init-list,
   modernize-type-traits,

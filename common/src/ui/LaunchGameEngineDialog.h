@@ -26,12 +26,14 @@
 
 class QPushButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct GameEngineProfile;
 }
 
-namespace tb::ui
+namespace ui
 {
 class GameEngineProfileListBox;
 class MapDocument;
@@ -73,4 +75,5 @@ private:
   void saveConfig();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

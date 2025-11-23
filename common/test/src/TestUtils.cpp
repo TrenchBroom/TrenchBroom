@@ -20,9 +20,10 @@
 #include "TestUtils.h"
 
 #include "TestLogger.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
+#include "fs/ReaderException.h"
+#include "fs/TestUtils.h"
 #include "io/GameConfigParser.h"
-#include "io/ReaderException.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -165,37 +166,6 @@ std::unique_ptr<kdl::task_manager> createTestTaskManager()
 {
   return std::make_unique<kdl::task_manager>(1);
 }
-
-namespace io
-{
-std::string readTextFile(const std::filesystem::path& path)
-{
-  const auto fixedPath = Disk::fixPath(path);
-  return Disk::withInputStream(
-           fixedPath,
-           [](auto& stream) {
-             return std::string{
-               (std::istreambuf_iterator<char>(stream)),
-               std::istreambuf_iterator<char>()};
-           })
-         | kdl::value();
-}
-
-Result<std::string> readTextFile(const FileSystem& fs, const std::filesystem::path& path)
-{
-  try
-  {
-    return fs.openFile(path) | kdl::transform([](const auto file) {
-             return file->reader().readString(file->size());
-           });
-  }
-  catch (const ReaderException& e)
-  {
-    return Error{fmt::format("Failed to read file {}: {}", path, e.what())};
-  }
-}
-
-} // namespace io
 
 namespace mdl
 {
@@ -361,7 +331,7 @@ std::unique_ptr<Game> loadGame(const std::string& gameName)
     std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
   const auto gamePath =
     std::filesystem::current_path() / "fixture/test/mdl/Game" / gameName;
-  const auto configStr = io::readTextFile(configPath);
+  const auto configStr = fs::readTextFile(configPath);
   auto configParser = io::GameConfigParser(configStr, configPath);
   auto config = configParser.parse().value();
   auto game = std::make_unique<mdl::GameImpl>(std::move(config), gamePath, logger);

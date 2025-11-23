@@ -19,10 +19,10 @@
 
 #include "ImageSpriteLoader.h"
 
-#include "io/File.h"
+#include "fs/File.h"
+#include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
-#include "io/ReaderException.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
@@ -40,7 +40,8 @@ namespace tb::io
 namespace
 {
 
-auto loadMaterial(const FileSystem& fs, File& file, std::string name, Logger& logger)
+auto loadMaterial(
+  const fs::FileSystem& fs, fs::File& file, std::string name, Logger& logger)
 {
   auto reader = file.reader().buffer();
   return readFreeImageTexture(reader)
@@ -94,7 +95,7 @@ void createFrame(mdl::EntityModelData& modelData)
 } // namespace
 
 ImageSpriteLoader::ImageSpriteLoader(
-  std::string name, std::shared_ptr<File> file, const FileSystem& fs)
+  std::string name, std::shared_ptr<fs::File> file, const fs::FileSystem& fs)
   : m_name{std::move(name)}
   , m_file{std::move(file)}
   , m_fs{fs}
@@ -122,7 +123,7 @@ Result<mdl::EntityModelData> ImageSpriteLoader::load(Logger& logger)
                return data;
              });
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

@@ -18,7 +18,7 @@
  */
 
 #include "Logger.h"
-#include "io/TestEnvironment.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameFactory.h"
 
@@ -40,7 +40,7 @@ const auto gamesPath = std::filesystem::path{"games"};
 const auto userPath = std::filesystem::path{"user"};
 
 void writeGameConfig(
-  io::TestEnvironment& env, const std::string& gameDirectory, const std::string& gameName)
+  fs::TestEnvironment& env, const std::string& gameDirectory, const std::string& gameName)
 {
   env.createDirectory(gamesPath / gameDirectory);
   env.createFile(
@@ -76,7 +76,7 @@ void writeGameConfig(
       gameName));
 }
 
-void writeCompilationProfile(io::TestEnvironment& env, const std::string& directory)
+void writeCompilationProfile(fs::TestEnvironment& env, const std::string& directory)
 {
   env.createDirectory(userPath / directory);
   env.createFile(userPath / directory / "CompilationProfiles.cfg", R"({
@@ -96,7 +96,7 @@ void writeCompilationProfile(io::TestEnvironment& env, const std::string& direct
 })");
 }
 
-void writeGameEngineProfile(io::TestEnvironment& env, const std::string& directory)
+void writeGameEngineProfile(fs::TestEnvironment& env, const std::string& directory)
 {
   env.createDirectory(userPath / directory);
   env.createFile(userPath / directory / "GameEngineProfiles.cfg", R"({
@@ -111,7 +111,7 @@ void writeGameEngineProfile(io::TestEnvironment& env, const std::string& directo
 })");
 }
 
-void setupTestEnvironment(io::TestEnvironment& env)
+void setupTestEnvironment(fs::TestEnvironment& env)
 {
   env.createDirectory(gamesPath);
   env.createDirectory(userPath);
@@ -160,7 +160,7 @@ void setupTestEnvironment(io::TestEnvironment& env)
 
 TEST_CASE("GameFactory")
 {
-  auto env = io::TestEnvironment{setupTestEnvironment};
+  auto env = fs::TestEnvironment{setupTestEnvironment};
   auto& gameFactory = GameFactory::instance();
   gameFactory.reset();
 

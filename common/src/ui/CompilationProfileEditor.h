@@ -25,12 +25,14 @@ class QAbstractButton;
 class QLineEdit;
 class QStackedWidget;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct CompilationProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class CompilationTaskListBox;
 class MapDocument;
@@ -88,4 +90,5 @@ signals:
   void profileChanged();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

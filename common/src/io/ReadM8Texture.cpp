@@ -20,8 +20,8 @@
 #include "ReadM8Texture.h"
 
 #include "Color.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "mdl/Palette.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
@@ -42,7 +42,7 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<mdl::Texture> readM8Texture(Reader& reader)
+Result<mdl::Texture> readM8Texture(fs::Reader& reader)
 {
   try
   {
@@ -127,7 +127,7 @@ Result<mdl::Texture> readM8Texture(Reader& reader)
                  std::move(buffers)};
              });
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

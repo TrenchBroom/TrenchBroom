@@ -32,15 +32,17 @@ class QShortcut;
 class QSortFilterProxyModel;
 class QToolButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class EntityNode;
 class Map;
 class Node;
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class EntityPropertyModel;
 class EntityPropertyTable;
@@ -110,4 +112,5 @@ signals:
   void currentRowChanged();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

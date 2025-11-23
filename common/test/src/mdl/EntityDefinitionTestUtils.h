@@ -26,12 +26,14 @@
 
 #include <string>
 
-namespace tb::io
+namespace tb
+{
+namespace io
 {
 class EntityDefinitionParser;
 }
 
-namespace tb::mdl
+namespace mdl
 {
 struct EntityDefinition;
 class ModelDefinition;
@@ -81,4 +83,6 @@ void assertDecalDefinition(
   auto parser = Parser{defStr, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
   assertDecalDefinition(expected, parser, entityPropertiesStr);
 }
-} // namespace tb::mdl
+
+} // namespace mdl
+} // namespace tb

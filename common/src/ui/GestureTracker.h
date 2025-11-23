@@ -19,13 +19,15 @@
 
 #pragma once
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class InputState;
 
@@ -79,4 +81,5 @@ public:
     render::RenderBatch& renderBatch) const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

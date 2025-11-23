@@ -24,9 +24,8 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::ui
+namespace ui
 {
 class Console;
 class IssueBrowser;
@@ -51,4 +50,5 @@ public:
   bool restoreState(const QByteArray& state);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

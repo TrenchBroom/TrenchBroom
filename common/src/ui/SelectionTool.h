@@ -24,18 +24,20 @@
 
 #include <memory>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 class Node;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class RenderContext;
 }
 
-namespace tb::ui
+namespace ui
 {
 class GestureTracker;
 
@@ -62,4 +64,5 @@ public:
   bool cancel() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

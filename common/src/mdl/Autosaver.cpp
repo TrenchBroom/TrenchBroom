@@ -20,11 +20,11 @@
 #include "Autosaver.h"
 
 #include "Logger.h"
-#include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
-#include "io/FileSystem.h"
-#include "io/PathInfo.h"
-#include "io/TraversalMode.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
+#include "fs/FileSystem.h"
+#include "fs/PathInfo.h"
+#include "fs/TraversalMode.h"
 #include "mdl/Map.h"
 
 #include "kd/contracts.h"
@@ -46,27 +46,27 @@ namespace tb::mdl
 namespace
 {
 
-Result<io::WritableDiskFileSystem> createBackupFileSystem(
+Result<fs::WritableDiskFileSystem> createBackupFileSystem(
   const std::filesystem::path& mapPath)
 {
   const auto basePath = mapPath.parent_path();
   const auto autosavePath = basePath / "autosave";
 
-  return io::Disk::createDirectory(autosavePath)
-         | kdl::transform([&](auto) { return io::WritableDiskFileSystem{autosavePath}; });
+  return fs::Disk::createDirectory(autosavePath)
+         | kdl::transform([&](auto) { return fs::WritableDiskFileSystem{autosavePath}; });
 }
 
 Result<std::vector<std::filesystem::path>> collectBackups(
-  const io::FileSystem& fs, const std::filesystem::path& mapBasename)
+  const fs::FileSystem& fs, const std::filesystem::path& mapBasename)
 {
-  return fs.find({}, io::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
+  return fs.find({}, fs::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
          | kdl::transform(
            [](auto backupPaths) { return kdl::vec_sort(std::move(backupPaths)); });
 }
 
 Result<std::vector<std::filesystem::path>> thinBackups(
   Logger& logger,
-  io::WritableDiskFileSystem& fs,
+  fs::WritableDiskFileSystem& fs,
   const std::vector<std::filesystem::path>& backups,
   const size_t maxBackups)
 {
@@ -96,7 +96,7 @@ std::filesystem::path makeBackupName(
 }
 
 Result<void> cleanBackups(
-  io::WritableDiskFileSystem& fs,
+  fs::WritableDiskFileSystem& fs,
   const std::vector<std::filesystem::path>& backups,
   const std::filesystem::path& mapBasename)
 {
@@ -115,7 +115,7 @@ Result<void> cleanBackups(
 
 } // namespace
 
-io::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename_)
+fs::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename_)
 {
   return
     [mapBasename = std::move(mapBasename_)](const auto& path, const auto& getPathInfo) {
@@ -124,7 +124,7 @@ io::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename_)
       const auto backupExtension = backupName.extension().string();
       const auto backupNum = backupExtension.empty() ? "" : backupExtension.substr(1);
 
-      return getPathInfo(path) == io::PathInfo::File
+      return getPathInfo(path) == fs::PathInfo::File
              && kdl::path_to_lower(path.extension()) == ".map"
              && backupBasename == mapBasename && kdl::str_is_numeric(backupNum)
              && kdl::str_to_size(backupNum).value_or(0u) > 0u;
@@ -154,7 +154,7 @@ void Autosaver::triggerAutosave()
 void Autosaver::autosave()
 {
   const auto& mapPath = m_map.path();
-  contract_assert(io::Disk::pathInfo(mapPath) == io::PathInfo::File);
+  contract_assert(fs::Disk::pathInfo(mapPath) == fs::PathInfo::File);
 
   const auto mapFilename = mapPath.filename();
   const auto mapBasename = mapPath.stem();

@@ -20,11 +20,11 @@
 #include "LoadEntityModel.h"
 
 #include "Result.h"
+#include "fs/FileSystem.h"
 #include "io/AseLoader.h"
 #include "io/AssimpLoader.h"
 #include "io/BspLoader.h"
 #include "io/DkmLoader.h"
-#include "io/FileSystem.h"
 #include "io/ImageSpriteLoader.h"
 #include "io/Md2Loader.h"
 #include "io/Md3Loader.h"
@@ -46,7 +46,7 @@ namespace tb::io
 namespace
 {
 
-auto loadPalette(const FileSystem& fs, const mdl::MaterialConfig& materialConfig)
+auto loadPalette(const fs::FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   const auto& path = materialConfig.palette;
   return fs.openFile(path)
@@ -54,7 +54,7 @@ auto loadPalette(const FileSystem& fs, const mdl::MaterialConfig& materialConfig
 }
 
 Result<mdl::EntityModelData> loadEntityModelData(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
@@ -132,7 +132,7 @@ Result<mdl::EntityModelData> loadEntityModelData(
 }
 
 mdl::ResourceLoader<mdl::EntityModelData> makeEntityModelDataResourceLoader(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
@@ -146,7 +146,7 @@ mdl::ResourceLoader<mdl::EntityModelData> makeEntityModelDataResourceLoader(
 } // namespace
 
 Result<mdl::EntityModel> loadEntityModelSync(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
@@ -162,7 +162,7 @@ Result<mdl::EntityModel> loadEntityModelSync(
 }
 
 mdl::EntityModel loadEntityModelAsync(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,

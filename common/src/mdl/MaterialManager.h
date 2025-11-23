@@ -35,10 +35,10 @@ namespace tb
 {
 class Logger;
 
-namespace io
+namespace fs
 {
 class FileSystem;
-} // namespace io
+} // namespace fs
 
 namespace mdl
 {
@@ -66,7 +66,7 @@ public:
   ~MaterialManager();
 
   void reload(
-    const io::FileSystem& fs,
+    const fs::FileSystem& fs,
     const MaterialConfig& materialConfig,
     const CreateTextureResource& createResource,
     kdl::task_manager& taskManager);

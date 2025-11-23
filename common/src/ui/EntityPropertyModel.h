@@ -30,13 +30,15 @@
 
 class QObject;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class EntityNodeBase;
 class Map;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 enum class ValueState
@@ -197,4 +199,5 @@ public: // EntityPropertyGrid helpers
   bool lessThan(size_t rowIndexA, size_t rowIndexB) const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

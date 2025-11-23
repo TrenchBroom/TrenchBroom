@@ -28,17 +28,20 @@ class QPixmap;
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
+namespace mdl
 {
 class Material;
 class Texture;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class FileSystem;
 
 static const auto DefaultTexturePath = std::filesystem::path{"textures/__TB_empty.png"};
 
@@ -50,7 +53,7 @@ static const auto DefaultTexturePath = std::filesystem::path{"textures/__TB_empt
  * @param name the name of the texture to be returned
  * @return the default texture
  */
-mdl::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger);
+mdl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger);
 
 /**
  * Loads a default material from the given file system. If the default material cannot be
@@ -60,7 +63,8 @@ mdl::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger);
  * @param name the name of the material to be returned
  * @return the default material
  */
-mdl::Material loadDefaultMaterial(const FileSystem& fs, std::string name, Logger& logger);
+mdl::Material loadDefaultMaterial(
+  const fs::FileSystem& fs, std::string name, Logger& logger);
 
 QPixmap loadPixmapResource(const std::filesystem::path& imagePath);
 
@@ -71,4 +75,5 @@ QPixmap loadSVGPixmap(const std::filesystem::path& imagePath);
  */
 QIcon loadSVGIcon(const std::filesystem::path& imagePath);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

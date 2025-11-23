@@ -29,13 +29,15 @@
 class QListWidget;
 class QAbstractButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 class Node;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class MaterialCollectionEditor : public QWidget
@@ -88,4 +90,5 @@ private:
   std::vector<std::filesystem::path> enabledMaterialCollections() const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

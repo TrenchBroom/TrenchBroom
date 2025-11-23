@@ -32,12 +32,14 @@ class QListWidget;
 class QWidget;
 class QAbstractButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class ModEditor : public QWidget
@@ -88,4 +90,5 @@ private:
   void filterBoxChanged();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

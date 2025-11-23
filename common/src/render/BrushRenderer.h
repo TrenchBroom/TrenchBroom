@@ -32,14 +32,16 @@
 #include <unordered_set>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushNode;
 class BrushFace;
 class EditorContext;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 
 class BrushRenderer
@@ -314,4 +316,5 @@ private:
   deleteCopyAndMove(BrushRenderer);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

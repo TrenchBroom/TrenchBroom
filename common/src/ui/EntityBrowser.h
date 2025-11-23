@@ -31,14 +31,16 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 class Node;
 class ResourceId;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class EntityBrowserView;
 class GLContextManager;
@@ -78,4 +80,5 @@ private:
   void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

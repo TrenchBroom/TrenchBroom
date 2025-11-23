@@ -29,12 +29,14 @@
 #include <string>
 #include <string_view>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFaceAttributes;
 }
 
-namespace tb::io
+namespace io
 {
 
 class GameConfigParser
@@ -54,4 +56,5 @@ public:
 std::optional<vm::bbox3d> parseSoftMapBoundsString(const std::string& string);
 std::string serializeSoftMapBoundsString(const vm::bbox3d& bounds);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

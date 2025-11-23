@@ -19,7 +19,7 @@
 
 #include "FileLogger.h"
 
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
 #include "io/SystemPaths.h"
 
 #include "kd/contracts.h"

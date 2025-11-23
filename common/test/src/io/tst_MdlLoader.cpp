@@ -18,10 +18,10 @@
  */
 
 #include "Logger.h"
-#include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
+#include "fs/Reader.h"
 #include "io/MdlLoader.h"
-#include "io/Reader.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Palette.h"
 
@@ -39,12 +39,12 @@ TEST_CASE("MdlLoaderTest.loadValidMdl")
   auto logger = NullLogger{};
 
   const auto palettePath = "fixture/test/palette.lmp";
-  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   const auto mdlPath = std::filesystem::current_path() / "fixture/test/io/Mdl/armor.mdl";
-  const auto mdlFile = Disk::openFile(mdlPath) | kdl::value();
+  const auto mdlFile = fs::Disk::openFile(mdlPath) | kdl::value();
 
   auto reader = mdlFile->reader().buffer();
   auto loader = MdlLoader("armor", reader, palette);
@@ -65,13 +65,13 @@ TEST_CASE("MdlLoaderTest.loadInvalidMdl")
   auto logger = NullLogger{};
 
   const auto palettePath = "fixture/test/palette.lmp";
-  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   const auto mdlPath =
     std::filesystem::current_path() / "fixture/test/io/Mdl/invalid.mdl";
-  const auto mdlFile = Disk::openFile(mdlPath) | kdl::value();
+  const auto mdlFile = fs::Disk::openFile(mdlPath) | kdl::value();
 
   auto reader = mdlFile->reader().buffer();
   auto loader = MdlLoader("armor", reader, palette);

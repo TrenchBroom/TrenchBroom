@@ -25,35 +25,41 @@
 #include <filesystem>
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace fs
+{
+class FileSystem;
+class Reader;
+} // namespace fs
+
+namespace mdl
 {
 class Palette;
 }
 
-namespace tb::io
+namespace io
 {
-class FileSystem;
-class Reader;
-
 // see http://tfc.duke.free.fr/coding/md2-specs-en.html
 class Md2Loader : public EntityModelLoader
 {
 private:
   std::string m_name;
-  const Reader& m_reader;
+  const fs::Reader& m_reader;
   const mdl::Palette& m_palette;
-  const FileSystem& m_fs;
+  const fs::FileSystem& m_fs;
 
 public:
   Md2Loader(
     std::string name,
-    const Reader& reader,
+    const fs::Reader& reader,
     const mdl::Palette& palette,
-    const FileSystem& fs);
+    const fs::FileSystem& fs);
 
-  static bool canParse(const std::filesystem::path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
 
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

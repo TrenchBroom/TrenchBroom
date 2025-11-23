@@ -350,4 +350,13 @@ std::optional<float> str_to_float(std::string_view str);
  */
 std::optional<double> str_to_double(std::string_view str);
 
+/**
+ * Generates a string of random characters of the given length. Uses only ASCII characters
+ * (upper and lower case) and numbers.
+ *
+ * @param length the length of the returned string
+ * @return a string of random characters of the given length
+ */
+std::string str_make_random(size_t length);
+
 } // namespace kdl

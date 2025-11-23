@@ -25,12 +25,12 @@
 #include <QtGlobal>
 
 #include "el/Exceptions.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
+#include "fs/PathInfo.h"
+#include "fs/PathMatcher.h"
+#include "fs/TraversalMode.h"
 #include "io/ExportOptions.h"
-#include "io/PathInfo.h"
-#include "io/PathMatcher.h"
 #include "io/PathQt.h"
-#include "io/TraversalMode.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/Map.h"
@@ -122,7 +122,7 @@ void CompilationExportMapTaskRunner::doExecute()
 
     if (!m_context.test())
     {
-      return io::Disk::createDirectory(targetPath.parent_path())
+      return fs::Disk::createDirectory(targetPath.parent_path())
              | kdl::and_then([&](auto) {
                  const auto options = io::MapExportOptions{targetPath};
                  return m_context.map().exportAs(options);
@@ -159,10 +159,10 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
         const auto sourceDirPath = sourcePath.parent_path();
         const auto sourcePathMatcher = kdl::logical_and(
-          io::makePathInfoPathMatcher({io::PathInfo::File}),
-          io::makeFilenamePathMatcher(sourcePath.filename().string()));
+          fs::makePathInfoPathMatcher({fs::PathInfo::File}),
+          fs::makeFilenamePathMatcher(sourcePath.filename().string()));
 
-        return io::Disk::find(sourceDirPath, io::TraversalMode::Flat, sourcePathMatcher)
+        return fs::Disk::find(sourceDirPath, fs::TraversalMode::Flat, sourcePathMatcher)
                | kdl::and_then([&](const auto& pathsToCopy) {
                    const auto pathStrsToCopy =
                      pathsToCopy | std::views::transform([](const auto& path) {
@@ -177,12 +177,12 @@ void CompilationCopyFilesTaskRunner::doExecute()
                              << "\n";
                    if (!m_context.test())
                    {
-                     return io::Disk::createDirectory(targetPath)
+                     return fs::Disk::createDirectory(targetPath)
                             | kdl::and_then([&](auto) {
                                 return pathsToCopy
                                        | std::views::transform(
                                          [&](const auto& pathToCopy) {
-                                           return io::Disk::copyFile(
+                                           return fs::Disk::copyFile(
                                              pathToCopy, targetPath);
                                          })
                                        | kdl::fold;
@@ -222,9 +222,9 @@ void CompilationRenameFileTaskRunner::doExecute()
                   << io::pathAsQString(targetPath) << "'\n";
         if (!m_context.test())
         {
-          return io::Disk::createDirectory(targetPath.parent_path())
+          return fs::Disk::createDirectory(targetPath.parent_path())
                  | kdl::and_then(
-                   [&](auto) { return io::Disk::moveFile(sourcePath, targetPath); });
+                   [&](auto) { return fs::Disk::moveFile(sourcePath, targetPath); });
         }
         return Result<void>{};
       })
@@ -254,10 +254,10 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
     const auto targetDirPath = targetPath.parent_path();
     const auto targetPathMatcher = kdl::logical_and(
-      io::makePathInfoPathMatcher({io::PathInfo::File}),
-      io::makeFilenamePathMatcher(targetPath.filename().string()));
+      fs::makePathInfoPathMatcher({fs::PathInfo::File}),
+      fs::makeFilenamePathMatcher(targetPath.filename().string()));
 
-    return io::Disk::find(targetDirPath, io::TraversalMode::Recursive, targetPathMatcher)
+    return fs::Disk::find(targetDirPath, fs::TraversalMode::Recursive, targetPathMatcher)
            | kdl::transform([&](const auto& pathsToDelete) {
                const auto pathStrsToDelete =
                  pathsToDelete | std::views::transform([](const auto& path) {
@@ -271,7 +271,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
                if (!m_context.test())
                {
-                 return pathsToDelete | std::views::transform(io::Disk::deleteFile)
+                 return pathsToDelete | std::views::transform(fs::Disk::deleteFile)
                         | kdl::fold;
                }
                return Result<std::vector<bool>>{std::vector<bool>{}};

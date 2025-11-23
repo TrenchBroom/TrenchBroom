@@ -24,12 +24,14 @@
 
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::render
+namespace render
 {
 
 class GroupLinkRenderer : public LinkRenderer
@@ -45,4 +47,5 @@ private:
   deleteCopy(GroupLinkRenderer);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

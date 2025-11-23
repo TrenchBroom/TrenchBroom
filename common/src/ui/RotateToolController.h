@@ -21,13 +21,15 @@
 
 #include "ui/ToolController.h"
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class RotateTool;
 
@@ -85,4 +87,5 @@ private:
     render::RenderContext& renderContext, render::RenderBatch& renderBatch) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

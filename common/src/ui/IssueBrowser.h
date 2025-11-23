@@ -28,15 +28,17 @@ class QCheckBox;
 class QStackedLayout;
 class QWidget;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFaceHandle;
 class Issue;
 class Map;
 class Node;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class FlagsPopupEditor;
 class IssueBrowserView;
@@ -82,4 +84,5 @@ private:
   void filterChanged(size_t index, int value, int setFlag, int mixedFlag);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

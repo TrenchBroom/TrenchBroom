@@ -18,7 +18,7 @@
  */
 
 #include "TestParserStatus.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/Quake3ShaderParser.h"
 #include "mdl/Quake3Shader.h"
 
@@ -570,7 +570,7 @@ TEST_CASE("Quake3ShaderParser (Regression)", "[regression]")
     // the parser.
 
     const auto workDir = std::filesystem::current_path();
-    auto fs = DiskFileSystem{workDir / "fixture/test/io/Shader/parser"};
+    auto fs = fs::DiskFileSystem{workDir / "fixture/test/io/Shader/parser"};
     auto testFile = fs.openFile("am_cf_models.shader") | kdl::value();
     auto reader = testFile->reader().buffer();
 

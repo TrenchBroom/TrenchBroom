@@ -45,9 +45,8 @@ class task_manager;
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::mdl
+namespace mdl
 {
 enum class MapFormat;
 enum class MapTextEncoding;
@@ -418,4 +417,5 @@ private: // observers
   void transactionUndone(const std::string& name);
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

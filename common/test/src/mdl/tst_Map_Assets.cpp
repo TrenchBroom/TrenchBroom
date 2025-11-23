@@ -19,7 +19,7 @@
 
 #include "MapFixture.h"
 #include "TestUtils.h"
-#include "io/TestEnvironment.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
@@ -322,7 +322,7 @@ TEST_CASE("Map_Assets")
 
     const auto fgdFilename = "Test.fgd";
 
-    auto env = io::TestEnvironment{};
+    auto env = fs::TestEnvironment{};
     env.createFile(fgdFilename, R"x(
 @SolidClass = worldspawn : "World entity"
 [

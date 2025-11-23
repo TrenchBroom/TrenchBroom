@@ -28,14 +28,16 @@ class QLabel;
 class QAbstractButton;
 class QListWidget;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class LayerNode;
 class Map;
 class Node;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class LayerListBoxWidget : public ControlListBoxItemRenderer
@@ -115,4 +117,5 @@ signals:
   void layerLockToggled(mdl::LayerNode* layer);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

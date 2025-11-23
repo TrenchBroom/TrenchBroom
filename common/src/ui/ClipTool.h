@@ -31,7 +31,9 @@
 #include <optional>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFace;
 class BrushFaceHandle;
@@ -41,17 +43,17 @@ class Node;
 class PickResult;
 
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class BrushRenderer;
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class ClipStrategy;
 
@@ -174,4 +176,5 @@ private:
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& nodes);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

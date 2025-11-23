@@ -25,14 +25,16 @@
 
 class QPushButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFaceHandle;
 class Map;
 class Material;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class GLContextManager;
@@ -62,4 +64,5 @@ private slots:
   void updateReplaceButton();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

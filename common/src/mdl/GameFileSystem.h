@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "io/VirtualFileSystem.h"
+#include "fs/VirtualFileSystem.h"
 
 #include <filesystem>
 #include <vector>
@@ -27,16 +27,15 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 struct GameConfig;
 
-class GameFileSystem : public io::VirtualFileSystem
+class GameFileSystem : public fs::VirtualFileSystem
 {
 private:
-  std::vector<io::VirtualMountPointId> m_wadMountPoints;
+  std::vector<fs::VirtualMountPointId> m_wadMountPoints;
 
 public:
   void initialize(
@@ -73,4 +72,6 @@ private:
     Logger& logger);
   void unmountWads();
 };
-} // namespace tb::mdl
+
+} // namespace mdl
+} // namespace tb

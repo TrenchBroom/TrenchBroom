@@ -24,25 +24,32 @@
 #include <filesystem>
 #include <string>
 
-namespace tb::io
+namespace tb
+{
+namespace fs
 {
 class FileSystem;
 class Reader;
+} // namespace fs
+
+namespace io
+{
 
 // see http://tfc.duke.free.fr/coding/md2-specs-en.html
 class DkmLoader : public EntityModelLoader
 {
 private:
   std::string m_name;
-  const Reader& m_reader;
-  const FileSystem& m_fs;
+  const fs::Reader& m_reader;
+  const fs::FileSystem& m_fs;
 
 public:
-  DkmLoader(std::string name, const Reader& reader, const FileSystem& fs);
+  DkmLoader(std::string name, const fs::Reader& reader, const fs::FileSystem& fs);
 
-  static bool canParse(const std::filesystem::path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
 
   Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

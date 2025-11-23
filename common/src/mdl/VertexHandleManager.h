@@ -34,12 +34,14 @@
 #include <ranges>
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 }
 
-namespace tb::mdl
+namespace mdl
 {
 class Grid;
 
@@ -702,4 +704,5 @@ private:
   bool isIncident(const Handle& handle, const BrushNode* brushNode) const override;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

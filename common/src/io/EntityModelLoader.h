@@ -25,9 +25,8 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::io
+namespace io
 {
 
 class EntityModelLoader
@@ -38,4 +37,5 @@ public:
   virtual Result<mdl::EntityModelData> load(Logger& logger) = 0;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

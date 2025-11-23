@@ -20,8 +20,8 @@
 #include "MdlLoader.h"
 
 #include "Color.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
@@ -251,7 +251,7 @@ auto unpackFrameVertex(
 }
 
 auto parseFrameVertices(
-  Reader reader,
+  fs::Reader reader,
   const std::vector<MdlSkinVertex>& vertices,
   const vm::vec3f& origin,
   const vm::vec3f& scale)
@@ -304,7 +304,7 @@ auto makeFrameTriangles(
 }
 
 void doParseFrame(
-  Reader reader,
+  fs::Reader reader,
   mdl::EntityModelData& model,
   mdl::EntityModelSurface& surface,
   const std::vector<MdlSkinTriangle>& triangles,
@@ -337,7 +337,7 @@ void doParseFrame(
 }
 
 void parseFrame(
-  Reader& reader,
+  fs::Reader& reader,
   mdl::EntityModelData& model,
   mdl::EntityModelSurface& surface,
   const std::vector<MdlSkinTriangle>& triangles,
@@ -387,7 +387,7 @@ void parseFrame(
   }
 }
 
-std::vector<MdlSkinTriangle> parseTriangles(Reader& reader, size_t count)
+std::vector<MdlSkinTriangle> parseTriangles(fs::Reader& reader, size_t count)
 {
   auto triangles = std::vector<MdlSkinTriangle>{};
   triangles.reserve(count);
@@ -403,7 +403,7 @@ std::vector<MdlSkinTriangle> parseTriangles(Reader& reader, size_t count)
   return triangles;
 }
 
-std::vector<MdlSkinVertex> parseVertices(Reader& reader, size_t count)
+std::vector<MdlSkinVertex> parseVertices(fs::Reader& reader, size_t count)
 {
   auto vertices = std::vector<MdlSkinVertex>{};
   vertices.reserve(count);
@@ -420,7 +420,7 @@ std::vector<MdlSkinVertex> parseVertices(Reader& reader, size_t count)
 }
 
 mdl::Material parseSkin(
-  Reader& reader,
+  fs::Reader& reader,
   const size_t width,
   const size_t height,
   const int flags,
@@ -475,7 +475,7 @@ mdl::Material parseSkin(
 }
 
 void parseSkins(
-  Reader& reader,
+  fs::Reader& reader,
   mdl::EntityModelSurface& surface,
   const size_t count,
   const size_t width,
@@ -499,14 +499,15 @@ void parseSkins(
 
 } // namespace
 
-MdlLoader::MdlLoader(std::string name, const Reader& reader, const mdl::Palette& palette)
+MdlLoader::MdlLoader(
+  std::string name, const fs::Reader& reader, const mdl::Palette& palette)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_palette{palette}
 {
 }
 
-bool MdlLoader::canParse(const std::filesystem::path& path, Reader reader)
+bool MdlLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".mdl"))
   {
@@ -569,7 +570,7 @@ Result<mdl::EntityModelData> MdlLoader::load(Logger& /* logger */)
 
     return data;
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

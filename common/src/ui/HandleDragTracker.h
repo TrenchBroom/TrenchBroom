@@ -34,12 +34,14 @@
 #include <optional>
 #include <type_traits>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Grid;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 /**
@@ -531,4 +533,5 @@ HandlePositionProposer makeBrushFaceHandleProposer(const mdl::Grid& grid);
 HandlePositionProposer makeHandlePositionProposer(
   DragHandlePicker pickHandlePosition, DragHandleSnapper snapHandlePosition);
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

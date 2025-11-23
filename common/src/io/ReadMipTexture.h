@@ -23,22 +23,29 @@
 
 #include <string>
 
-namespace tb::mdl
+namespace tb
+{
+namespace fs
+{
+class Reader;
+} // namespace fs
+
+namespace mdl
 {
 class Palette;
 class Texture;
 enum class TextureMask;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class Reader;
 
-std::string readMipTextureName(Reader& reader);
+std::string readMipTextureName(fs::Reader& reader);
 
 Result<mdl::Texture> readIdMipTexture(
-  Reader& reader, const mdl::Palette& palette, mdl::TextureMask mask);
+  fs::Reader& reader, const mdl::Palette& palette, mdl::TextureMask mask);
 
-Result<mdl::Texture> readHlMipTexture(Reader& reader, mdl::TextureMask mask);
+Result<mdl::Texture> readHlMipTexture(fs::Reader& reader, mdl::TextureMask mask);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

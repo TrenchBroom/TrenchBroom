@@ -11,10 +11,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/CompilationConfigParser.cpp
         ${COMMON_SOURCE_DIR}/io/CompilationConfigWriter.cpp
         ${COMMON_SOURCE_DIR}/io/DefParser.cpp
-        ${COMMON_SOURCE_DIR}/io/DiskFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/io/DiskIO.cpp
         ${COMMON_SOURCE_DIR}/io/DkmLoader.cpp
-        ${COMMON_SOURCE_DIR}/io/DkPakFileSystem.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionLoader.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.cpp
@@ -22,14 +19,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/EntParser.cpp
         ${COMMON_SOURCE_DIR}/io/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/io/FgdParser.cpp
-        ${COMMON_SOURCE_DIR}/io/File.cpp
-        ${COMMON_SOURCE_DIR}/io/FileSystem.cpp
-        ${COMMON_SOURCE_DIR}/io/FileSystemMetadata.cpp
         ${COMMON_SOURCE_DIR}/io/GameConfigParser.cpp
         ${COMMON_SOURCE_DIR}/io/GameEngineConfigParser.cpp
         ${COMMON_SOURCE_DIR}/io/GameEngineConfigWriter.cpp
-        ${COMMON_SOURCE_DIR}/io/IdPakFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/io/ImageFileSystem.cpp
         ${COMMON_SOURCE_DIR}/io/ImageLoader.cpp
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.cpp
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.cpp
@@ -51,12 +43,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/NodeWriter.cpp
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
-        ${COMMON_SOURCE_DIR}/io/PathInfo.cpp
-        ${COMMON_SOURCE_DIR}/io/PathMatcher.cpp
         ${COMMON_SOURCE_DIR}/io/PathQt.cpp
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/io/ReadDdsTexture.cpp
-        ${COMMON_SOURCE_DIR}/io/Reader.cpp
         ${COMMON_SOURCE_DIR}/io/ReadFreeImageTexture.cpp
         ${COMMON_SOURCE_DIR}/io/ReadM8Texture.cpp
         ${COMMON_SOURCE_DIR}/io/ReadMipTexture.cpp
@@ -66,11 +55,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/SprLoader.cpp
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/io/SystemPaths.cpp
-        ${COMMON_SOURCE_DIR}/io/TraversalMode.cpp
-        ${COMMON_SOURCE_DIR}/io/VirtualFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/io/WadFileSystem.cpp
         ${COMMON_SOURCE_DIR}/io/WorldReader.cpp
-        ${COMMON_SOURCE_DIR}/io/ZipFileSystem.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
@@ -505,10 +490,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/CompilationConfigParser.h
         ${COMMON_SOURCE_DIR}/io/CompilationConfigWriter.h
         ${COMMON_SOURCE_DIR}/io/DefParser.h
-        ${COMMON_SOURCE_DIR}/io/DiskFileSystem.h
-        ${COMMON_SOURCE_DIR}/io/DiskIO.h
         ${COMMON_SOURCE_DIR}/io/DkmLoader.h
-        ${COMMON_SOURCE_DIR}/io/DkPakFileSystem.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionLoader.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.h
@@ -516,14 +498,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/EntParser.h
         ${COMMON_SOURCE_DIR}/io/ExportOptions.h
         ${COMMON_SOURCE_DIR}/io/FgdParser.h
-        ${COMMON_SOURCE_DIR}/io/File.h
-        ${COMMON_SOURCE_DIR}/io/FileSystem.h
-        ${COMMON_SOURCE_DIR}/io/FileSystemMetadata.h
         ${COMMON_SOURCE_DIR}/io/GameConfigParser.h
         ${COMMON_SOURCE_DIR}/io/GameEngineConfigParser.h
         ${COMMON_SOURCE_DIR}/io/GameEngineConfigWriter.h
-        ${COMMON_SOURCE_DIR}/io/IdPakFileSystem.h
-        ${COMMON_SOURCE_DIR}/io/ImageFileSystem.h
         ${COMMON_SOURCE_DIR}/io/ImageLoader.h
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.h
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.h
@@ -545,13 +522,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/NodeWriter.h
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.h
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
-        ${COMMON_SOURCE_DIR}/io/PathInfo.h
-        ${COMMON_SOURCE_DIR}/io/PathMatcher.h
         ${COMMON_SOURCE_DIR}/io/PathQt.h
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.h
         ${COMMON_SOURCE_DIR}/io/ReadDdsTexture.h
-        ${COMMON_SOURCE_DIR}/io/Reader.h
-        ${COMMON_SOURCE_DIR}/io/ReaderException.h
         ${COMMON_SOURCE_DIR}/io/ReadFreeImageTexture.h
         ${COMMON_SOURCE_DIR}/io/ReadM8Texture.h
         ${COMMON_SOURCE_DIR}/io/ReadMipTexture.h
@@ -561,11 +534,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/SprLoader.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/io/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/io/TraversalMode.h
-        ${COMMON_SOURCE_DIR}/io/VirtualFileSystem.h
-        ${COMMON_SOURCE_DIR}/io/WadFileSystem.h
         ${COMMON_SOURCE_DIR}/io/WorldReader.h
-        ${COMMON_SOURCE_DIR}/io/ZipFileSystem.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
@@ -1033,7 +1002,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC TbBaseLib TbElLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PUBLIC TbBaseLib TbElLib TbFsLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE GLEW::GLEW OpenGL::GL UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)

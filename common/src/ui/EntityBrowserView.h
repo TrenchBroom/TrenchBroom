@@ -35,9 +35,8 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class Map;
 class ResourceId;
@@ -46,16 +45,16 @@ enum class EntityDefinitionSortOrder;
 enum class Orientation;
 
 struct EntityDefinition;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class FontDescriptor;
 class MaterialRenderer;
 class Transformation;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 
 using EntityGroupData = std::string;
@@ -146,4 +145,5 @@ private:
   const EntityCellData& cellData(const Cell& cell) const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

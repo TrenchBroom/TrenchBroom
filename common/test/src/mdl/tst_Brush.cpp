@@ -20,6 +20,7 @@
 #include "Matchers.h"
 #include "TestParserStatus.h"
 #include "TestUtils.h"
+#include "fs/TestUtils.h"
 #include "io/NodeReader.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
@@ -3292,7 +3293,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
     // see https://github.com/TrenchBroom/TrenchBroom/issues/2789
     const auto path =
       std::filesystem::current_path() / "fixture/test/mdl/Brush/curvetut-crash.map";
-    const auto data = io::readTextFile(path);
+    const auto data = fs::readTextFile(path);
     REQUIRE(!data.empty());
 
     auto status = TestParserStatus{};
@@ -3360,7 +3361,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
 
     const auto path =
       std::filesystem::current_path() / "fixture/test/mdl/Brush/weirdcurvemerge.map";
-    const auto data = io::readTextFile(path);
+    const auto data = fs::readTextFile(path);
     REQUIRE(!data.empty());
 
     auto status = TestParserStatus{};
@@ -3508,7 +3509,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
 
     const auto subtrahendPath =
       std::filesystem::current_path() / "fixture/test/mdl/Brush/subtrahend.map";
-    const auto subtrahendStr = io::readTextFile(subtrahendPath);
+    const auto subtrahendStr = fs::readTextFile(subtrahendPath);
 
     auto status = TestParserStatus{};
     const auto minuendNodes = io::NodeReader::read(

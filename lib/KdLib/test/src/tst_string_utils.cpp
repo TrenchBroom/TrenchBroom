@@ -306,5 +306,12 @@ TEST_CASE("string_utils")
     CHECK(str_to_double(" ") == std::nullopt);
     CHECK(str_to_double("") == std::nullopt);
   }
+
+  SECTION("string_format_test.str_make_random")
+  {
+    CHECK(str_make_random(32).length() == 32);
+    CHECK(str_make_random(32) != str_make_random(32));
+  }
 }
+
 } // namespace kdl

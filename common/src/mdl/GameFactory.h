@@ -34,15 +34,13 @@ class Logger;
 
 template <typename T>
 class Preference;
-} // namespace tb
 
-namespace tb::io
+namespace fs
 {
-class Path;
 class WritableVirtualFileSystem;
-} // namespace tb::io
+} // namespace fs
 
-namespace tb::mdl
+namespace mdl
 {
 struct CompilationConfig;
 struct GameConfig;
@@ -61,7 +59,7 @@ private:
   using GamePathMap = std::map<std::string, Preference<std::filesystem::path>>;
 
   std::filesystem::path m_userGameDir;
-  std::unique_ptr<io::WritableVirtualFileSystem> m_configFs;
+  std::unique_ptr<fs::WritableVirtualFileSystem> m_configFs;
 
   std::vector<std::string> m_names;
   ConfigMap m_configs;
@@ -162,4 +160,5 @@ private:
     GameConfig& gameConfig, GameEngineConfig gameEngineConfig, Logger& logger);
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

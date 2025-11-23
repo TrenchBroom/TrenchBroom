@@ -30,9 +30,8 @@
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::mdl
+namespace mdl
 {
 struct EntityPropertyConfig;
 
@@ -53,7 +52,7 @@ public: // implement EntityDefinitionLoader interface:
 
 public: // implement Game interface
   const GameConfig& config() const override;
-  const io::FileSystem& gameFileSystem() const override;
+  const fs::FileSystem& gameFileSystem() const override;
 
   std::filesystem::path gamePath() const override;
 
@@ -93,4 +92,5 @@ private:
     const EntityNodeBase& node, const std::string& baseName) const;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

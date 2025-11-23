@@ -27,14 +27,16 @@ class QSpinBox;
 class QWidget;
 class QAbstractButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class GLContextManager;
 class UVView;
@@ -83,4 +85,5 @@ private:
   void subDivisionChanged();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -24,20 +24,22 @@
 
 #include "vm/scalar.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Grid;
 class Map;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 
 class RotateTool : public Tool
@@ -99,4 +101,5 @@ private:
   QWidget* doCreatePage(QWidget* parent) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

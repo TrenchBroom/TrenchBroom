@@ -20,8 +20,8 @@
 #include "Md3Loader.h"
 
 #include "Logger.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"                // IWYU pragma: keep
 #include "render/IndexRangeMapBuilder.h" // IWYU pragma: keep
@@ -68,7 +68,7 @@ struct Md3Triangle
 };
 
 
-auto parseShaders(Reader reader, const size_t shaderCount)
+auto parseShaders(fs::Reader reader, const size_t shaderCount)
 {
   auto shaders = std::vector<std::filesystem::path>{};
   shaders.reserve(shaderCount);
@@ -94,7 +94,7 @@ void loadSurfaceMaterials(
 }
 
 Result<void> parseSurfaces(
-  Reader reader,
+  fs::Reader reader,
   const size_t surfaceCount,
   const size_t frameCount,
   mdl::EntityModelData& model,
@@ -135,7 +135,7 @@ Result<void> parseSurfaces(
   return Result<void>{};
 }
 
-auto& parseFrame(Reader reader, mdl::EntityModelData& model)
+auto& parseFrame(fs::Reader reader, mdl::EntityModelData& model)
 {
   const auto minBounds = reader.readVec<float, 3>();
   const auto maxBounds = reader.readVec<float, 3>();
@@ -146,7 +146,7 @@ auto& parseFrame(Reader reader, mdl::EntityModelData& model)
   return model.addFrame(frameName, vm::bbox3f{minBounds, maxBounds});
 }
 
-auto parseVertexPositions(Reader reader, const size_t vertexCount)
+auto parseVertexPositions(fs::Reader reader, const size_t vertexCount)
 {
   auto positions = std::vector<vm::vec3f>{};
   positions.reserve(vertexCount);
@@ -163,7 +163,7 @@ auto parseVertexPositions(Reader reader, const size_t vertexCount)
   return positions;
 }
 
-auto parseUV(Reader reader, const size_t vertexCount)
+auto parseUV(fs::Reader reader, const size_t vertexCount)
 {
   auto uv = std::vector<vm::vec2f>{};
   uv.reserve(vertexCount);
@@ -197,7 +197,7 @@ auto buildVertices(
   return vertices;
 }
 
-auto parseTriangles(Reader reader, const size_t triangleCount)
+auto parseTriangles(fs::Reader reader, const size_t triangleCount)
 {
   auto triangles = std::vector<Md3Triangle>{};
   triangles.reserve(triangleCount);
@@ -248,7 +248,7 @@ void buildFrameSurface(
 }
 
 Result<void> parseFrameSurfaces(
-  Reader reader, mdl::EntityModelFrame& frame, mdl::EntityModelData& model)
+  fs::Reader reader, mdl::EntityModelFrame& frame, mdl::EntityModelData& model)
 {
   for (size_t i = 0; i < model.surfaceCount(); ++i)
   {
@@ -302,14 +302,14 @@ Result<void> parseFrameSurfaces(
 } // namespace
 
 Md3Loader::Md3Loader(
-  std::string name, const Reader& reader, LoadMaterialFunc loadMaterial)
+  std::string name, const fs::Reader& reader, LoadMaterialFunc loadMaterial)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_loadMaterial{std::move(loadMaterial)}
 {
 }
 
-bool Md3Loader::canParse(const std::filesystem::path& path, Reader reader)
+bool Md3Loader::canParse(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".md3"))
   {
@@ -375,7 +375,7 @@ Result<mdl::EntityModelData> Md3Loader::load(Logger&)
                       | kdl::fold | kdl::transform([&]() { return std::move(data); });
              });
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

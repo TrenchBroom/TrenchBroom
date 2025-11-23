@@ -19,9 +19,9 @@
 
 #include "MaterialUtils.h"
 
-#include "io/FileSystem.h"
-#include "io/PathInfo.h"
-#include "io/TraversalMode.h"
+#include "fs/FileSystem.h"
+#include "fs/PathInfo.h"
+#include "fs/TraversalMode.h"
 #include "mdl/TextureBuffer.h"
 
 #include "kd/functional.h"
@@ -42,26 +42,26 @@ std::string getMaterialNameFromPathSuffix(
 }
 
 Result<std::filesystem::path> findMaterialFile(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const std::filesystem::path& materialPath,
   const std::vector<std::filesystem::path>& extensions)
 {
-  if (fs.pathInfo(materialPath) == PathInfo::File)
+  if (fs.pathInfo(materialPath) == fs::PathInfo::File)
   {
     return materialPath;
   }
 
-  if (fs.pathInfo(materialPath.parent_path()) != PathInfo::Directory)
+  if (fs.pathInfo(materialPath.parent_path()) != fs::PathInfo::Directory)
   {
     return materialPath;
   }
 
   const auto matcher = kdl::logical_and(
-    makeFilenamePathMatcher(
+    fs::makeFilenamePathMatcher(
       kdl::path_remove_extension(materialPath.filename()).string() + ".*"),
-    makeExtensionPathMatcher(extensions));
+    fs::makeExtensionPathMatcher(extensions));
 
-  return fs.find(materialPath.parent_path(), TraversalMode::Flat, matcher)
+  return fs.find(materialPath.parent_path(), fs::TraversalMode::Flat, matcher)
          | kdl::transform([&](const auto& candidates) {
              return !candidates.empty() ? candidates.front() : materialPath;
            });

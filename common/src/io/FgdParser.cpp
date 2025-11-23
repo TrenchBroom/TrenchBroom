@@ -22,7 +22,7 @@
 #include "ParserException.h"
 #include "ParserStatus.h"
 #include "el/Expression.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "io/ParseModelDefinition.h"
@@ -212,7 +212,7 @@ FgdParser::FgdParser(
 {
   if (!path.empty() && path.is_absolute())
   {
-    m_fs = std::make_unique<DiskFileSystem>(path.parent_path());
+    m_fs = std::make_unique<fs::DiskFileSystem>(path.parent_path());
     pushIncludePath(path.filename());
   }
 }

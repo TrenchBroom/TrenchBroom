@@ -31,12 +31,14 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct CompilationProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 class CompilationContext;
 
@@ -209,4 +211,5 @@ signals:
   deleteCopyAndMove(CompilationRunner);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

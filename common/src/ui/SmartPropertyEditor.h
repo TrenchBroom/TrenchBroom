@@ -24,13 +24,15 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class EntityNodeBase;
 class Map;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class SmartPropertyEditor : public QWidget
@@ -63,4 +65,5 @@ private:
   virtual void doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes) = 0;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

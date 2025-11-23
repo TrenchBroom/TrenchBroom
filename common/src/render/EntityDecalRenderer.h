@@ -29,7 +29,9 @@
 #include <unordered_map>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFace;
 class BrushNode;
@@ -38,9 +40,9 @@ class Map;
 class Material;
 class Node;
 struct DecalSpecification;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 
 class EntityDecalRenderer
@@ -114,4 +116,5 @@ public: // rendering
   deleteCopy(EntityDecalRenderer);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

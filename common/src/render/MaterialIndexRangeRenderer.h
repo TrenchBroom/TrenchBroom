@@ -25,12 +25,14 @@
 #include <memory>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
 }
 
-namespace tb::render
+namespace render
 {
 class VboManager;
 class MaterialRenderFunc;
@@ -81,4 +83,5 @@ public:
   void render(MaterialRenderFunc& func) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

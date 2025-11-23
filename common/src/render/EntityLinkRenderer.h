@@ -25,12 +25,14 @@
 
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::render
+namespace render
 {
 
 class EntityLinkRenderer : public LinkRenderer
@@ -52,4 +54,5 @@ private:
   deleteCopy(EntityLinkRenderer);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

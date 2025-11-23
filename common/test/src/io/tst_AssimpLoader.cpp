@@ -19,8 +19,8 @@
  */
 
 #include "Logger.h"
+#include "fs/DiskFileSystem.h"
 #include "io/AssimpLoader.h"
-#include "io/DiskFileSystem.h"
 #include "mdl/EntityModel.h"
 
 #include "vm/approx.h"
@@ -41,7 +41,7 @@ TEST_CASE("AssimpLoader")
   SECTION("cube")
   {
     const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
-    auto fs = std::make_shared<DiskFileSystem>(basePath);
+    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
 
     SECTION("dae")
     {
@@ -84,7 +84,7 @@ TEST_CASE("AssimpLoader")
 
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/assimp/alignment";
-    auto fs = std::make_shared<DiskFileSystem>(basePath);
+    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
 
     auto loader = AssimpLoader{modelPath, *fs};
 

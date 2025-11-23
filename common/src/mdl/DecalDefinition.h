@@ -27,9 +27,8 @@
 namespace tb
 {
 struct FileLocation;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 
 namespace DecalSpecificationKeys
@@ -76,4 +75,5 @@ public:
   kdl_reflect_decl(DecalDefinition, m_expression);
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

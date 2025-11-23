@@ -18,7 +18,7 @@
  */
 
 #include "Logger.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
 #include "io/ResourceUtils.h"
 #include "mdl/Material.h"
 
@@ -34,7 +34,7 @@ namespace tb::io
 
 TEST_CASE("ResourceUtilsTest.loadDefaultMaterial")
 {
-  auto fs = std::make_shared<DiskFileSystem>(
+  auto fs = std::make_shared<fs::DiskFileSystem>(
     std::filesystem::current_path() / "fixture/test/io/ResourceUtils/assets");
   NullLogger logger;
 

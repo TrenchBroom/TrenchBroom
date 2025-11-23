@@ -25,12 +25,14 @@
 
 class QAbstractButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct GameEngineProfile;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class GameEngineProfileEditor;
@@ -59,4 +61,5 @@ private slots:
   void currentProfileChanged(mdl::GameEngineProfile* profile);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

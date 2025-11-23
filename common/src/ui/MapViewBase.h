@@ -35,7 +35,9 @@ class QShortcut;
 class QString;
 class QAction;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 struct EntityDefinition;
 class Command;
@@ -47,9 +49,9 @@ struct SelectionChange;
 class SmartTag;
 class UndoableCommand;
 enum class EntityDefinitionType;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class Camera;
 class Compass;
@@ -58,9 +60,9 @@ class PrimitiveRenderer;
 class RenderBatch;
 class RenderContext;
 enum class RenderMode;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class Action;
 class AnimationManager;
@@ -371,4 +373,5 @@ private:
   bool canMakeStructural() const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

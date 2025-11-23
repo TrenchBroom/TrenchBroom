@@ -30,12 +30,14 @@
 #include <utility>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
 }
 
-namespace tb::render
+namespace render
 {
 
 vm::vec3f gridColorForMaterial(const mdl::Material* material);
@@ -205,4 +207,5 @@ VertsAndNormals circle3D(float radius, size_t segments);
 VertsAndNormals cylinder(float radius, float length, size_t segments);
 VertsAndNormals cone(float radius, float length, size_t segments);
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

@@ -28,7 +28,6 @@
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/string_format.h"
-#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>
@@ -47,7 +46,7 @@ MaterialManager::MaterialManager(Logger& logger)
 MaterialManager::~MaterialManager() = default;
 
 void MaterialManager::reload(
-  const io::FileSystem& fs,
+  const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const CreateTextureResource& createResource,
   kdl::task_manager& taskManager)

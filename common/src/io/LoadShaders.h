@@ -31,22 +31,26 @@ class task_manager;
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::mdl
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
+namespace mdl
 {
 struct MaterialConfig;
 class Quake3Shader;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class FileSystem;
 
 Result<std::vector<mdl::Quake3Shader>> loadShaders(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   kdl::task_manager& taskManager,
   Logger& logger);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

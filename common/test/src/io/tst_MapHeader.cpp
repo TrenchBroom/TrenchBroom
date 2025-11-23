@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "fs/TestEnvironment.h"
 #include "io/MapHeader.h"
-#include "io/TestEnvironment.h"
 
 #include <sstream>
 
@@ -30,7 +30,7 @@ namespace tb::io
 {
 TEST_CASE("readMapHeader")
 {
-  auto env = io::TestEnvironment{};
+  auto env = fs::TestEnvironment{};
 
   using namespace std::string_literals;
 

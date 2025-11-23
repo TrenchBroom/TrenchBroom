@@ -24,12 +24,14 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace ui
 {
 class MapViewActivationTracker;
 class MapViewBase;
@@ -75,4 +77,6 @@ public:
    */
   virtual void refreshViews() = 0;
 };
-} // namespace tb::ui
+
+} // namespace ui
+} // namespace tb

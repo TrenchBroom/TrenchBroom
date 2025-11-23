@@ -23,11 +23,11 @@
 
 #include "Logger.h"
 #include "ParserException.h"
-#include "ReaderException.h"
-#include "io/File.h"
-#include "io/FileSystem.h"
+#include "fs/File.h"
+#include "fs/FileSystem.h"
+#include "fs/PathInfo.h"
+#include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
-#include "io/PathInfo.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/ResourceUtils.h"
 #include "mdl/BrushFaceAttributes.h"
@@ -70,11 +70,11 @@ class AssimpIOStream : public Assimp::IOStream
   friend class AssimpIOSystem;
 
 private:
-  std::shared_ptr<File> m_file;
-  Reader m_reader;
+  std::shared_ptr<fs::File> m_file;
+  fs::Reader m_reader;
 
 public:
-  explicit AssimpIOStream(std::shared_ptr<File> file)
+  explicit AssimpIOStream(std::shared_ptr<fs::File> file)
     : m_file{std::move(file)}
     , m_reader{m_file->reader()}
   {
@@ -115,7 +115,7 @@ public:
         break;
       }
     }
-    catch (const ReaderException& /*e*/)
+    catch (const fs::ReaderException& /*e*/)
     {
       return aiReturn_FAILURE;
     }
@@ -133,17 +133,17 @@ public:
 class AssimpIOSystem : public Assimp::IOSystem
 {
 private:
-  const FileSystem& m_fs;
+  const fs::FileSystem& m_fs;
 
 public:
-  explicit AssimpIOSystem(const FileSystem& fs)
+  explicit AssimpIOSystem(const fs::FileSystem& fs)
     : m_fs{fs}
   {
   }
 
   bool Exists(const char* path) const override
   {
-    return m_fs.pathInfo(std::filesystem::path{path}) == PathInfo::File;
+    return m_fs.pathInfo(std::filesystem::path{path}) == fs::PathInfo::File;
   }
 
   char getOsSeparator() const override
@@ -168,7 +168,7 @@ public:
   }
 };
 
-std::optional<mdl::Texture> loadFallbackTexture(const FileSystem& fs)
+std::optional<mdl::Texture> loadFallbackTexture(const fs::FileSystem& fs)
 {
   static const auto NoTextureName = mdl::BrushFaceAttributes::NoMaterialName;
 
@@ -187,7 +187,7 @@ std::optional<mdl::Texture> loadFallbackTexture(const FileSystem& fs)
          });
 }
 
-mdl::Texture loadFallbackOrDefaultTexture(const FileSystem& fs, Logger& logger)
+mdl::Texture loadFallbackOrDefaultTexture(const fs::FileSystem& fs, Logger& logger)
 {
   if (auto fallbackTexture = loadFallbackTexture(fs))
   {
@@ -197,7 +197,7 @@ mdl::Texture loadFallbackOrDefaultTexture(const FileSystem& fs, Logger& logger)
 }
 
 mdl::Texture loadTextureFromFileSystem(
-  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
+  const std::filesystem::path& path, const fs::FileSystem& fs, Logger& logger)
 {
   return fs.openFile(path) | kdl::and_then([](auto file) {
            auto reader = file->reader().buffer();
@@ -224,7 +224,7 @@ mdl::Texture loadUncompressedEmbeddedTexture(
 }
 
 mdl::Texture loadCompressedEmbeddedTexture(
-  const aiTexel& data, const size_t size, const FileSystem& fs, Logger& logger)
+  const aiTexel& data, const size_t size, const fs::FileSystem& fs, Logger& logger)
 {
   return readFreeImageTextureFromMemory(reinterpret_cast<const uint8_t*>(&data), size)
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
@@ -234,7 +234,7 @@ mdl::Texture loadTexture(
   const aiTexture* texture,
   const std::filesystem::path& texturePath,
   const std::filesystem::path& modelPath,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   Logger& logger)
 {
   if (!texture)
@@ -259,7 +259,7 @@ std::vector<mdl::Texture> loadTexturesForMaterial(
   const aiScene& scene,
   const size_t materialIndex,
   const std::filesystem::path& modelPath,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   Logger& logger)
 {
   auto textures = std::vector<mdl::Texture>{};
@@ -793,7 +793,7 @@ Result<void> loadSceneFrame(
 
 } // namespace
 
-AssimpLoader::AssimpLoader(std::filesystem::path path, const FileSystem& fs)
+AssimpLoader::AssimpLoader(std::filesystem::path path, const fs::FileSystem& fs)
   : m_path{std::move(path)}
   , m_fs{fs}
 {

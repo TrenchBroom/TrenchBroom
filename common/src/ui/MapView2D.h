@@ -24,21 +24,23 @@
 
 #include "vm/vec.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class PickResult;
 }
 
-namespace tb::render
+namespace render
 {
 class MapRenderer;
 class OrthographicCamera;
 class RenderBatch;
 class RenderContext;
 enum class RenderMode;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 
 class MapView2D : public MapViewBase
@@ -130,4 +132,5 @@ public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

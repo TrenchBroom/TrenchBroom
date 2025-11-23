@@ -19,8 +19,8 @@
 
 #include "MdxLoader.h"
 
-#include "io/Reader.h"
-#include "io/ReaderException.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "io/SkinLoader.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"
@@ -252,7 +252,7 @@ struct MdxMesh
 };
 
 
-auto parseSkins(Reader reader, const size_t skinCount)
+auto parseSkins(fs::Reader reader, const size_t skinCount)
 {
   auto skins = std::vector<std::string>{};
   skins.reserve(skinCount);
@@ -265,7 +265,7 @@ auto parseSkins(Reader reader, const size_t skinCount)
   return skins;
 }
 
-auto parseVertices(Reader& reader, const size_t vertexCount)
+auto parseVertices(fs::Reader& reader, const size_t vertexCount)
 {
   auto vertices = std::vector<MdxVertex>{};
   vertices.reserve(vertexCount);
@@ -282,7 +282,8 @@ auto parseVertices(Reader& reader, const size_t vertexCount)
   return vertices;
 }
 
-auto parseFrame(Reader reader, const size_t /* frameIndex */, const size_t vertexCount)
+auto parseFrame(
+  fs::Reader reader, const size_t /* frameIndex */, const size_t vertexCount)
 {
   const auto scale = reader.readVec<float, 3>();
   const auto offset = reader.readVec<float, 3>();
@@ -292,7 +293,7 @@ auto parseFrame(Reader reader, const size_t /* frameIndex */, const size_t verte
   return MdxFrame{scale, offset, std::move(name), std::move(vertices)};
 }
 
-auto parseMeshVertices(Reader& reader, const size_t count)
+auto parseMeshVertices(fs::Reader& reader, const size_t count)
 {
   auto vertices = std::vector<MdxMeshVertex>{};
   vertices.reserve(count);
@@ -308,7 +309,7 @@ auto parseMeshVertices(Reader& reader, const size_t count)
   return vertices;
 }
 
-auto parseMeshes(Reader reader, const size_t commandCount)
+auto parseMeshes(fs::Reader reader, const size_t commandCount)
 {
   auto meshes = std::vector<MdxMesh>{};
 
@@ -331,7 +332,7 @@ auto parseMeshes(Reader reader, const size_t commandCount)
 void loadSkins(
   mdl::EntityModelSurface& surface,
   const std::vector<std::string>& skins,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   Logger& logger)
 {
   auto materials = std::vector<mdl::Material>{};
@@ -406,14 +407,14 @@ void buildFrame(
 
 } // namespace
 
-MdxLoader::MdxLoader(std::string name, const Reader& reader, const FileSystem& fs)
+MdxLoader::MdxLoader(std::string name, const fs::Reader& reader, const fs::FileSystem& fs)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_fs{fs}
 {
 }
 
-bool MdxLoader::canParse(const std::filesystem::path& path, Reader reader)
+bool MdxLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".mdx"))
   {
@@ -488,7 +489,7 @@ Result<mdl::EntityModelData> MdxLoader::load(Logger& logger)
 
     return data;
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

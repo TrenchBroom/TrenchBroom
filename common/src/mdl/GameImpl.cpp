@@ -20,18 +20,18 @@
 #include "GameImpl.h"
 
 #include "Logger.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
+#include "fs/PathInfo.h"
+#include "fs/TraversalMode.h"
 #include "io/BrushFaceReader.h"
 #include "io/DefParser.h"
-#include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
 #include "io/EntParser.h"
 #include "io/FgdParser.h"
 #include "io/GameConfigParser.h"
 #include "io/LoadEntityModel.h"
 #include "io/NodeReader.h"
-#include "io/PathInfo.h"
 #include "io/SystemPaths.h"
-#include "io/TraversalMode.h"
 #include "io/WorldReader.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
@@ -72,7 +72,7 @@ Result<std::vector<EntityDefinition>> GameImpl::loadEntityDefinitions(
 
   if (extension == ".fgd")
   {
-    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
+    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              auto parser = io::FgdParser{reader.stringView(), defaultColor, path};
              return parser.parseDefinitions(status);
@@ -80,7 +80,7 @@ Result<std::vector<EntityDefinition>> GameImpl::loadEntityDefinitions(
   }
   if (extension == ".def")
   {
-    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
+    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              auto parser = io::DefParser{reader.stringView(), defaultColor};
              return parser.parseDefinitions(status);
@@ -88,7 +88,7 @@ Result<std::vector<EntityDefinition>> GameImpl::loadEntityDefinitions(
   }
   if (extension == ".ent")
   {
-    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
+    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              auto parser = io::EntParser{reader.stringView(), defaultColor};
              return parser.parseDefinitions(status);
@@ -103,7 +103,7 @@ const GameConfig& GameImpl::config() const
   return m_config;
 }
 
-const io::FileSystem& GameImpl::gameFileSystem() const
+const fs::FileSystem& GameImpl::gameFileSystem() const
 {
   return m_fs;
 }
@@ -139,7 +139,7 @@ Game::PathErrors GameImpl::checkAdditionalSearchPaths(
   for (const auto& searchPath : searchPaths)
   {
     const auto absPath = m_gamePath / searchPath;
-    if (!absPath.is_absolute() || io::Disk::pathInfo(absPath) != io::PathInfo::Directory)
+    if (!absPath.is_absolute() || fs::Disk::pathInfo(absPath) != fs::PathInfo::Directory)
     {
       result.emplace(searchPath, fmt::format("Directory not found: {}", searchPath));
     }
@@ -205,22 +205,22 @@ std::filesystem::path GameImpl::findEntityDefinitionFile(
     return spec.path;
   }
 
-  return io::Disk::resolvePath(searchPaths, spec.path);
+  return fs::Disk::resolvePath(searchPaths, spec.path);
 }
 
 Result<std::vector<std::string>> GameImpl::availableMods() const
 {
-  if (m_gamePath.empty() || io::Disk::pathInfo(m_gamePath) != io::PathInfo::Directory)
+  if (m_gamePath.empty() || fs::Disk::pathInfo(m_gamePath) != fs::PathInfo::Directory)
   {
     return Result<std::vector<std::string>>{std::vector<std::string>{}};
   }
 
   const auto& defaultMod = m_config.fileSystemConfig.searchPath.filename().string();
-  const auto fs = io::DiskFileSystem{m_gamePath};
+  const auto fs = fs::DiskFileSystem{m_gamePath};
   return fs.find(
            "",
-           io::TraversalMode::Flat,
-           io::makePathInfoPathMatcher({io::PathInfo::Directory}))
+           fs::TraversalMode::Flat,
+           fs::makePathInfoPathMatcher({fs::PathInfo::Directory}))
          | kdl::transform([](const auto& subDirs) {
              return subDirs | std::views::transform([](const auto& subDir) {
                       return subDir.filename().string();

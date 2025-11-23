@@ -29,13 +29,14 @@ class QWidget;
 class QPushButton;
 class QRadioButton;
 
-
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 class ColorButton;
 class ColorTable;
@@ -71,4 +72,5 @@ private:
   void colorTableSelected(QColor color);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -36,21 +36,24 @@ class task_manager;
 namespace tb
 {
 class Logger;
-} // namespace tb
 
-namespace tb::mdl
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
+namespace mdl
 {
 class Material;
 class MaterialCollection;
 struct MaterialConfig;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class FileSystem;
 
 Result<mdl::Material> loadMaterial(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath,
   const mdl::CreateTextureResource& createResource,
@@ -58,10 +61,11 @@ Result<mdl::Material> loadMaterial(
   const std::optional<Result<mdl::Palette>>& paletteResult);
 
 Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const mdl::CreateTextureResource& createResource,
   kdl::task_manager& taskManager,
   Logger& logger);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

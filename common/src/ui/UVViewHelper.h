@@ -29,22 +29,24 @@
 
 #include <optional>
 
-namespace tb::render
+namespace tb
+{
+namespace render
 {
 class ActiveShader;
 class Camera;
 class OrthographicCamera;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::mdl
+namespace mdl
 {
 class BrushFace;
 class Material;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class UVViewHelper
@@ -123,4 +125,5 @@ private:
   vm::vec3d transformFromCamera(const vm::vec3d& point) const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

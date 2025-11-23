@@ -28,12 +28,14 @@
 class QModelIndex;
 class QVariant;
 
-namespace tb::el
+namespace tb
+{
+namespace el
 {
 class VariableStore;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class VariableStoreModel : public QAbstractListModel
@@ -51,4 +53,5 @@ public:
   QVariant data(const QModelIndex& index, int role) const override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

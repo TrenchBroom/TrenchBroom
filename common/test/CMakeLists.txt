@@ -6,11 +6,6 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/Matchers.h"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.h"
-        "${COMMON_TEST_SOURCE_DIR}/io/ObjectFile.h"
-        "${COMMON_TEST_SOURCE_DIR}/io/TestEnvironment.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/TestEnvironment.h"
-        "${COMMON_TEST_SOURCE_DIR}/io/TestFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/TestFileSystem.h"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.h"
         "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.cpp"
@@ -38,15 +33,11 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_BspLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_CompilationConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_DefParser.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_DiskFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_DiskIO.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_EntityDefinitionParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_EntParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_FgdParser.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_FileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_GameConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_GameEngineConfigParser.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_ImageFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_LoadMaterialCollections.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_MapHeader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_MaterialUtils.cpp"
@@ -58,15 +49,12 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_PathQt.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_Quake3ShaderParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ReadDdsTexture.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_Reader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ReadFreeImageTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ReadM8Texture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ReadMipTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ReadWalTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ResourceUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_SystemPaths.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_TestFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_VirtualFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_WorldReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_AssetUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Autosaver.cpp"
@@ -176,10 +164,10 @@ set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test-utils PRIVATE common TbBaseTestUtilsLib Catch2::Catch2 Qt6::Test)
+target_link_libraries(common-test-utils PRIVATE common TbBaseTestUtilsLib TbFsTestUtilsLib Catch2::Catch2 Qt6::Test)
 
 macro(configure_test_target TARGET)
-    target_link_libraries(${TARGET} PRIVATE common common-test-utils TbBaseTestUtilsLib TbElTestUtilsLib Catch2::Catch2 UpdateLib fmt::fmt-header-only)
+    target_link_libraries(${TARGET} PRIVATE common common-test-utils TbBaseTestUtilsLib TbElTestUtilsLib TbFsTestUtilsLib Catch2::Catch2 UpdateLib fmt::fmt-header-only)
     set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
     target_link_libraries(${TARGET} PRIVATE CompilerConfig)

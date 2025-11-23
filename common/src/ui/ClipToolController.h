@@ -21,20 +21,22 @@
 
 #include "ui/ToolController.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushFace;
 class BrushNode;
 class PickResult;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 class ClipTool;
 
@@ -75,4 +77,5 @@ public:
   explicit ClipToolController3D(ClipTool& tool);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

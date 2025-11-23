@@ -19,9 +19,9 @@
 
 #include "TestParserStatus.h"
 #include "el/TestUtils.h"
-#include "io/DiskIO.h"
+#include "fs/DiskIO.h"
+#include "fs/TraversalMode.h"
 #include "io/EntParser.h"
-#include "io/TraversalMode.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
@@ -41,14 +41,15 @@ TEST_CASE("EntParser")
   {
     const auto basePath = std::filesystem::current_path() / "fixture/games/";
     const auto cfgFiles =
-      Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".ent"}))
+      fs::Disk::find(
+        basePath, fs::TraversalMode::Recursive, fs::makeExtensionPathMatcher({".ent"}))
       | kdl::value();
 
     for (const auto& path : cfgFiles)
     {
       CAPTURE(path);
 
-      auto file = Disk::openFile(path) | kdl::value();
+      auto file = fs::Disk::openFile(path) | kdl::value();
       auto reader = file->reader().buffer();
 
       auto parser = EntParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};

@@ -32,12 +32,14 @@
 #include <unordered_set>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushNode;
 }
 
-namespace tb::ui
+namespace ui
 {
 class Tool;
 
@@ -439,4 +441,5 @@ private:
   const Tool& tool() const override { return m_tool; }
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

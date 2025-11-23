@@ -24,12 +24,14 @@
 
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
 }
 
-namespace tb::render
+namespace render
 {
 /**
  * Builds index array map by recording rendering primitives. The corded data can be used
@@ -193,4 +195,5 @@ private:
   void add(const Material* material, PrimType primType, const IndexList& indices);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

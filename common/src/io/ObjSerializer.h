@@ -32,16 +32,18 @@
 #include <variant>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushNode;
 class BrushFace;
 class EntityProperty;
 class Material;
 class Node;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
 
 class ObjSerializer : public NodeSerializer
@@ -155,4 +157,5 @@ private:
   void doPatch(const mdl::PatchNode* patchNode) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

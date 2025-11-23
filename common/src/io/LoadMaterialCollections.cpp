@@ -20,18 +20,18 @@
 #include "LoadMaterialCollections.h"
 
 #include "Logger.h"
-#include "io/FileSystem.h"
+#include "fs/FileSystem.h"
+#include "fs/PathInfo.h"
+#include "fs/PathMatcher.h"
+#include "fs/TraversalMode.h"
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
-#include "io/PathInfo.h"
-#include "io/PathMatcher.h"
 #include "io/ReadDdsTexture.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/ReadM8Texture.h"
 #include "io/ReadMipTexture.h"
 #include "io/ReadWalTexture.h"
 #include "io/ResourceUtils.h"
-#include "io/TraversalMode.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialCollection.h"
 #include "mdl/Palette.h"
@@ -66,7 +66,7 @@ namespace
 {
 
 std::optional<Result<mdl::Palette>> loadPalette(
-  const FileSystem& fs, const mdl::MaterialConfig& materialConfig)
+  const fs::FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   if (materialConfig.palette.empty())
   {
@@ -87,12 +87,12 @@ bool shouldExclude(
 }
 
 Result<std::vector<std::filesystem::path>> findTexturePaths(
-  const FileSystem& fs, const mdl::MaterialConfig& materialConfig)
+  const fs::FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   return fs.find(
            materialConfig.root,
-           TraversalMode::Recursive,
-           makeExtensionPathMatcher(materialConfig.extensions))
+           fs::TraversalMode::Recursive,
+           fs::makeExtensionPathMatcher(materialConfig.extensions))
          | kdl::transform([&](auto paths) {
              return paths | std::views::filter([&](const auto& path) {
                       return !shouldExclude(
@@ -103,7 +103,7 @@ Result<std::vector<std::filesystem::path>> findTexturePaths(
 }
 
 Result<std::vector<std::filesystem::path>> findAllMaterialPaths(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::vector<mdl::Quake3Shader>& shaders)
 {
@@ -128,7 +128,7 @@ Result<std::vector<std::filesystem::path>> findAllMaterialPaths(
 
 Result<std::filesystem::path> findShaderTexture(
   const std::filesystem::path& texturePath,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig)
 {
   if (texturePath.empty())
@@ -139,7 +139,7 @@ Result<std::filesystem::path> findShaderTexture(
   if (
     kdl::vec_contains(
       materialConfig.extensions, kdl::str_to_lower(texturePath.extension().string()))
-    && fs.pathInfo(texturePath) == PathInfo::File)
+    && fs.pathInfo(texturePath) == fs::PathInfo::File)
   {
     return texturePath;
   }
@@ -148,10 +148,10 @@ Result<std::filesystem::path> findShaderTexture(
   const auto basename = texturePath.stem().string();
   return fs.find(
            texturePath.parent_path(),
-           TraversalMode::Flat,
+           fs::TraversalMode::Flat,
            kdl::logical_and(
-             makeFilenamePathMatcher(basename + ".*"),
-             makeExtensionPathMatcher(materialConfig.extensions)))
+             fs::makeFilenamePathMatcher(basename + ".*"),
+             fs::makeExtensionPathMatcher(materialConfig.extensions)))
          | kdl::and_then([&](auto candidates) -> Result<std::filesystem::path> {
              if (!candidates.empty())
              {
@@ -163,7 +163,7 @@ Result<std::filesystem::path> findShaderTexture(
 
 Result<std::filesystem::path> findShaderTexture(
   const std::vector<mdl::Quake3ShaderStage>& stages,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig)
 {
   auto path = stages | kdl::first([&](const auto& stage) {
@@ -178,7 +178,7 @@ Result<std::filesystem::path> findShaderTexture(
 
 Result<std::filesystem::path> findShaderTexture(
   const mdl::Quake3Shader& shader,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig)
 {
   return findShaderTexture(shader.editorImage, fs, materialConfig)
@@ -193,7 +193,7 @@ Result<std::filesystem::path> findShaderTexture(
 
 Result<mdl::Material> loadShaderMaterial(
   const mdl::Quake3Shader& shader,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const mdl::CreateTextureResource& createResource)
 {
@@ -256,7 +256,7 @@ Result<mdl::Texture> loadTexture(
   const std::filesystem::path& path,
   const std::string& name,
   const std::vector<std::filesystem::path>& extensions,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
   return findMaterialFile(fs, path, extensions)
@@ -332,7 +332,7 @@ mdl::ResourceLoader<mdl::Texture> makeTextureResourceLoader(
   const std::filesystem::path& path,
   const std::string& name,
   const std::vector<std::filesystem::path>& extensions,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
   return [&, path, name, paletteResult]() -> Result<mdl::Texture> {
@@ -345,15 +345,15 @@ mdl::ResourceLoader<mdl::Texture> makeTextureResourceLoader(
 
 Result<mdl::Material> loadTextureMaterial(
   const std::filesystem::path& texturePath,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const mdl::CreateTextureResource& createResource,
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
   const auto prefixLength = kdl::path_length(materialConfig.root);
   const auto pathMatcher = !materialConfig.extensions.empty()
-                             ? makeExtensionPathMatcher(materialConfig.extensions)
-                             : matchAnyPath;
+                             ? fs::makeExtensionPathMatcher(materialConfig.extensions)
+                             : fs::matchAnyPath;
   auto name = getMaterialNameFromPathSuffix(texturePath, prefixLength);
 
   auto textureLoader = makeTextureResourceLoader(
@@ -363,7 +363,7 @@ Result<mdl::Material> loadTextureMaterial(
 }
 
 std::string materialCollectionName(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath)
 {
@@ -377,7 +377,7 @@ std::string materialCollectionName(
   }
 
   if (const auto* metadata =
-        fs.metadata(materialPath, io::FileSystemMetadataKeys::ImageFilePath);
+        fs.metadata(materialPath, fs::FileSystemMetadataKeys::ImageFilePath);
       metadata && std::holds_alternative<std::filesystem::path>(*metadata))
   {
     if (const auto imageFileName = std::get<std::filesystem::path>(*metadata).filename();
@@ -429,7 +429,7 @@ std::vector<mdl::MaterialCollection> groupMaterialsIntoCollections(
 
 
 Result<mdl::Material> loadMaterial(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath,
   const mdl::CreateTextureResource& createResource,
@@ -456,7 +456,7 @@ Result<mdl::Material> loadMaterial(
 }
 
 Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const mdl::CreateTextureResource& createResource,
   kdl::task_manager& taskManager,

@@ -25,7 +25,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "MapFixture.h"
 #include "TrenchBroomApp.h"
 #include "el/VariableStore.h"
-#include "io/TestEnvironment.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/EntityNode.h"
@@ -299,7 +299,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
   auto& map = fixture.map();
   fixture.create({.game = mdl::LoadGameFixture{"Quake"}});
 
-  auto testEnvironment = io::TestEnvironment{};
+  auto testEnvironment = fs::TestEnvironment{};
 
   const auto testWorkDir = testEnvironment.dir().string();
   auto variables = CompilationVariables{map, testWorkDir};
@@ -346,7 +346,7 @@ TEST_CASE("CompilationCopyFilesTaskRunner")
   auto& map = fixture.map();
   fixture.create();
 
-  auto testEnvironment = io::TestEnvironment{};
+  auto testEnvironment = fs::TestEnvironment{};
 
   const auto testWorkDir = testEnvironment.dir().string();
   auto variables = CompilationVariables{map, testWorkDir};
@@ -396,7 +396,7 @@ TEST_CASE("CompilationRenameFileTaskRunner")
   auto& map = fixture.map();
   fixture.create();
 
-  auto testEnvironment = io::TestEnvironment{};
+  auto testEnvironment = fs::TestEnvironment{};
 
   const auto testWorkDir = testEnvironment.dir().string();
   auto variables = CompilationVariables{map, testWorkDir};
@@ -462,7 +462,7 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
 
   auto context = CompilationContext{map, variables, outputAdapter, false};
 
-  auto testEnvironment = io::TestEnvironment{};
+  auto testEnvironment = fs::TestEnvironment{};
 
   SECTION("deleteTargetPattern")
   {
@@ -513,7 +513,7 @@ TEST_CASE("CompilationRunner")
 
   auto context = CompilationContext{map, variables, outputAdapter, false};
 
-  auto testEnvironment = io::TestEnvironment{};
+  auto testEnvironment = fs::TestEnvironment{};
 
   SECTION("stopAfterFirstError")
   {

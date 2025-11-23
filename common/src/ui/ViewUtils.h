@@ -29,22 +29,22 @@ class QString;
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 class MapDocument;
 
 void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
-bool loadEntityDefinitionFile(tb::mdl::Map& map, QWidget* parent, const QString& path);
+bool loadEntityDefinitionFile(mdl::Map& map, QWidget* parent, const QString& path);
 
 std::string queryGroupName(QWidget* parent, const std::string& suggestion);
 std::string queryLayerName(QWidget* parent, const std::string& suggestion);
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

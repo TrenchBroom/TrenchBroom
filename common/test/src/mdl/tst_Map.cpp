@@ -23,7 +23,7 @@
 #include "MockGame.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
-#include "io/TestEnvironment.h"
+#include "fs/TestEnvironment.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -530,7 +530,7 @@ TEST_CASE("Map")
     auto fixture = MapFixture{};
     auto& map = fixture.map();
 
-    auto env = io::TestEnvironment{};
+    auto env = fs::TestEnvironment{};
 
     const auto filename = "test.map";
     env.createFile(filename, R"(// Game: Test
@@ -601,7 +601,7 @@ TEST_CASE("Map")
     auto modificationStateDidChange =
       Observer<void>{map.modificationStateDidChangeNotifier};
 
-    auto env = io::TestEnvironment{};
+    auto env = fs::TestEnvironment{};
 
     const auto path = env.dir() / "test.map";
     REQUIRE(map.saveAs(path));
@@ -630,7 +630,7 @@ TEST_CASE("Map")
     auto fixture = MapFixture{};
     auto& map = fixture.map();
 
-    auto env = io::TestEnvironment{};
+    auto env = fs::TestEnvironment{};
 
     SECTION("Export as obj")
     {
@@ -746,7 +746,7 @@ TEST_CASE("Map")
 
     SECTION("A loaded map is persistent")
     {
-      auto env = io::TestEnvironment{};
+      auto env = fs::TestEnvironment{};
 
       const auto filename = "test.map";
       env.createFile(filename, R"(// Game: Test
@@ -793,7 +793,7 @@ TEST_CASE("Map")
 
     SECTION("Saving resets the modified flag")
     {
-      auto env = io::TestEnvironment{};
+      auto env = fs::TestEnvironment{};
       REQUIRE(map.saveAs(env.dir() / "test.map"));
 
       CHECK(!map.modified());

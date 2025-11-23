@@ -18,13 +18,13 @@
  */
 
 #include "Logger.h"
-#include "io/DiskFileSystem.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/Reader.h"
+#include "fs/VirtualFileSystem.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
 #include "io/Md3Loader.h"
-#include "io/Reader.h"
-#include "io/VirtualFileSystem.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"
@@ -47,7 +47,7 @@ TEST_CASE("Md3Loader")
 {
   auto logger = NullLogger{};
   auto taskManager = kdl::task_manager{};
-  auto fs = VirtualFileSystem{};
+  auto fs = fs::VirtualFileSystem{};
 
   const auto materialConfig = mdl::MaterialConfig{
     {},
@@ -62,7 +62,7 @@ TEST_CASE("Md3Loader")
   {
     fs.mount(
       "",
-      std::make_unique<DiskFileSystem>(
+      std::make_unique<fs::DiskFileSystem>(
         std::filesystem::current_path() / "fixture/test/io/Md3/bfg"));
 
     const auto shaders =
@@ -121,7 +121,7 @@ TEST_CASE("Md3Loader (Regression)", "[regression]")
 {
   auto logger = NullLogger{};
   auto taskManager = kdl::task_manager{};
-  auto fs = VirtualFileSystem{};
+  auto fs = fs::VirtualFileSystem{};
 
   const auto materialConfig = mdl::MaterialConfig{
     {},
@@ -136,7 +136,7 @@ TEST_CASE("Md3Loader (Regression)", "[regression]")
   {
     fs.mount(
       "",
-      std::make_unique<DiskFileSystem>(
+      std::make_unique<fs::DiskFileSystem>(
         std::filesystem::current_path() / "fixture/test/io/Md3/armor"));
 
     const auto shaders =

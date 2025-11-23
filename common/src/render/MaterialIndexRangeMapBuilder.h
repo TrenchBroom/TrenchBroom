@@ -25,12 +25,14 @@
 
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Material;
 }
 
-namespace tb::render
+namespace render
 {
 
 /**
@@ -283,4 +285,5 @@ private:
   }
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

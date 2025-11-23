@@ -25,12 +25,14 @@
 
 #include <memory>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::ui
+namespace ui
 {
 
 class GestureTracker;
@@ -60,4 +62,5 @@ private:
   bool cancel() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

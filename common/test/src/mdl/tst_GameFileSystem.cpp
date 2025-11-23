@@ -19,7 +19,8 @@
 
 #include "Logger.h"
 #include "TestUtils.h"
-#include "io/PathInfo.h"
+#include "fs/PathInfo.h"
+#include "fs/TestUtils.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameFileSystem.h"
 
@@ -82,39 +83,39 @@ TEST_CASE("GameFileSystem")
   {
     fs.initialize(config, fixturePath, {}, logger);
 
-    CHECK(fs.pathInfo("id1_pak0_1.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("id1_pak0_2.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("id1_pak0_loose_file.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("mod1_pak0_1.txt") == io::PathInfo::Unknown);
+    CHECK(fs.pathInfo("id1_pak0_1.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("id1_pak0_2.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("id1_pak0_loose_file.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("mod1_pak0_1.txt") == fs::PathInfo::Unknown);
   }
 
   SECTION("Packages files override loose files")
   {
     fs.initialize(config, fixturePath, {}, logger);
 
-    CHECK(io::readTextFile(fs, "id1_pak0_loose_file.txt") == "pak0");
+    CHECK(fs::readTextFile(fs, "id1_pak0_loose_file.txt") == "pak0");
   }
 
   SECTION("Mounts packages in additional search paths")
   {
     fs.initialize(config, fixturePath, {fixturePath / "mod1"}, logger);
 
-    CHECK(fs.pathInfo("id1_pak0_1.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("id1_pak0_2.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("id1_pak0_loose_file.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("mod1_pak0_1.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("mod1_pak0_2.txt") == io::PathInfo::File);
+    CHECK(fs.pathInfo("id1_pak0_1.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("id1_pak0_2.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("id1_pak0_loose_file.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("mod1_pak0_1.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("mod1_pak0_2.txt") == fs::PathInfo::File);
   }
 
   SECTION("Additional search paths override game path")
   {
     fs.initialize(config, fixturePath, {fixturePath / "mod1"}, logger);
 
-    CHECK(io::readTextFile(fs, "id1_pak0_loose_file.txt") == "mod1");
-    CHECK(io::readTextFile(fs, "id1_pak0_1.txt") == "id1_pak0_1");
-    CHECK(io::readTextFile(fs, "id1_pak0_2.txt") == "mod1_pak0_2");
-    CHECK(io::readTextFile(fs, "mod1_pak0_1.txt") == "mod1_pak0_1");
-    CHECK(io::readTextFile(fs, "mod1_pak0_2.txt") == "mod1_pak1_2");
+    CHECK(fs::readTextFile(fs, "id1_pak0_loose_file.txt") == "mod1");
+    CHECK(fs::readTextFile(fs, "id1_pak0_1.txt") == "id1_pak0_1");
+    CHECK(fs::readTextFile(fs, "id1_pak0_2.txt") == "mod1_pak0_2");
+    CHECK(fs::readTextFile(fs, "mod1_pak0_1.txt") == "mod1_pak0_1");
+    CHECK(fs::readTextFile(fs, "mod1_pak0_2.txt") == "mod1_pak1_2");
   }
 
   SECTION("Game path is case insensitive")
@@ -143,10 +144,10 @@ TEST_CASE("GameFileSystem")
 
     fs.initialize(ucConfig, fixturePath, {}, logger);
 
-    CHECK(fs.pathInfo("id1_pak0_1.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("id1_pak0_2.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("id1_pak0_loose_file.txt") == io::PathInfo::File);
-    CHECK(fs.pathInfo("mod1_pak0_1.txt") == io::PathInfo::Unknown);
+    CHECK(fs.pathInfo("id1_pak0_1.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("id1_pak0_2.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("id1_pak0_loose_file.txt") == fs::PathInfo::File);
+    CHECK(fs.pathInfo("mod1_pak0_1.txt") == fs::PathInfo::Unknown);
   }
 }
 

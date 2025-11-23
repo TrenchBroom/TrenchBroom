@@ -20,10 +20,10 @@
 #include "BspLoader.h"
 
 #include "Logger.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadMipTexture.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
 #include "io/ResourceUtils.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"
@@ -97,10 +97,10 @@ struct FaceInfo
 
 
 std::vector<mdl::Material> parseMaterials(
-  Reader reader,
+  fs::Reader reader,
   const int version,
   const mdl::Palette& palette,
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   Logger& logger)
 {
   const auto materialCount = reader.readSize<int32_t>();
@@ -135,7 +135,7 @@ std::vector<mdl::Material> parseMaterials(
   return result;
 }
 
-std::vector<MaterialInfo> parseMaterialInfos(Reader reader, const size_t count)
+std::vector<MaterialInfo> parseMaterialInfos(fs::Reader reader, const size_t count)
 {
   auto result = std::vector<MaterialInfo>(count);
   for (size_t i = 0; i < count; ++i)
@@ -150,7 +150,7 @@ std::vector<MaterialInfo> parseMaterialInfos(Reader reader, const size_t count)
   return result;
 }
 
-std::vector<vm::vec3f> parseVertices(Reader reader, const size_t vertexCount)
+std::vector<vm::vec3f> parseVertices(fs::Reader reader, const size_t vertexCount)
 {
   auto result = std::vector<vm::vec3f>(vertexCount);
   for (size_t i = 0; i < vertexCount; ++i)
@@ -160,7 +160,7 @@ std::vector<vm::vec3f> parseVertices(Reader reader, const size_t vertexCount)
   return result;
 }
 
-std::vector<EdgeInfo> parseEdgeInfos(Reader reader, const size_t edgeInfoCount)
+std::vector<EdgeInfo> parseEdgeInfos(fs::Reader reader, const size_t edgeInfoCount)
 {
   auto result = std::vector<EdgeInfo>(edgeInfoCount);
   for (size_t i = 0; i < edgeInfoCount; ++i)
@@ -171,7 +171,7 @@ std::vector<EdgeInfo> parseEdgeInfos(Reader reader, const size_t edgeInfoCount)
   return result;
 }
 
-std::vector<FaceInfo> parseFaceInfos(Reader reader, const size_t faceInfoCount)
+std::vector<FaceInfo> parseFaceInfos(fs::Reader reader, const size_t faceInfoCount)
 {
   auto result = std::vector<FaceInfo>(faceInfoCount);
   for (size_t i = 0; i < faceInfoCount; ++i)
@@ -185,7 +185,7 @@ std::vector<FaceInfo> parseFaceInfos(Reader reader, const size_t faceInfoCount)
   return result;
 }
 
-std::vector<int> parseFaceEdges(Reader reader, const size_t faceEdgeCount)
+std::vector<int> parseFaceEdges(fs::Reader reader, const size_t faceEdgeCount)
 {
   auto result = std::vector<int>(faceEdgeCount);
   for (size_t i = 0; i < faceEdgeCount; ++i)
@@ -213,7 +213,7 @@ vm::vec2f uvCoords(
 }
 
 void parseFrame(
-  Reader reader,
+  fs::Reader reader,
   const size_t frameIndex,
   mdl::EntityModelData& modelData,
   const std::vector<MaterialInfo>& materialInfos,
@@ -286,7 +286,10 @@ void parseFrame(
 } // namespace
 
 BspLoader::BspLoader(
-  std::string name, const Reader& reader, mdl::Palette palette, const FileSystem& fs)
+  std::string name,
+  const fs::Reader& reader,
+  mdl::Palette palette,
+  const fs::FileSystem& fs)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_palette{std::move(palette)}
@@ -294,7 +297,7 @@ BspLoader::BspLoader(
 {
 }
 
-bool BspLoader::canParse(const std::filesystem::path& path, Reader reader)
+bool BspLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".bsp"))
   {
@@ -385,7 +388,7 @@ Result<mdl::EntityModelData> BspLoader::load(Logger& logger)
 
     return data;
   }
-  catch (const ReaderException& e)
+  catch (const fs::ReaderException& e)
   {
     return Error{e.what()};
   }

@@ -25,12 +25,14 @@
 
 #include "vm/bbox.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 }
 
-namespace tb::render
+namespace render
 {
 class BoundsGuideRenderer : public DirectRenderable
 {
@@ -54,4 +56,5 @@ private:
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

@@ -20,9 +20,9 @@
 #include "ReadFreeImageTexture.h"
 
 #include "FreeImage.h"
+#include "fs/Reader.h"
 #include "io/ImageLoaderImpl.h"
 #include "io/MaterialUtils.h"
-#include "io/Reader.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
 
@@ -197,7 +197,7 @@ Result<mdl::Texture> readFreeImageTextureFromMemory(
   }
 }
 
-Result<mdl::Texture> readFreeImageTexture(Reader& reader)
+Result<mdl::Texture> readFreeImageTexture(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   const auto* begin = bufferedReader.begin();

@@ -24,21 +24,23 @@
 
 #include <memory>
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class BrushNode;
 class Grid;
 class Map;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::render
+namespace render
 {
 class BrushRenderer;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::render
+} // namespace render
 
-namespace tb::ui
+namespace ui
 {
 
 class CreateBrushesToolBase : public Tool
@@ -72,4 +74,5 @@ private:
   deleteCopyAndMove(CreateBrushesToolBase);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

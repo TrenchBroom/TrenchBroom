@@ -33,14 +33,16 @@ class QLineEdit;
 class QComboBox;
 class QAbstractButton;
 
-namespace tb::mdl
+namespace tb
+{
+namespace mdl
 {
 class Map;
 
 struct SelectionChange;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::ui
+namespace ui
 {
 
 class ScaleToolPage : public QWidget
@@ -77,4 +79,5 @@ private:
   void applyScale();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -28,34 +28,38 @@
 namespace tb
 {
 class Logger;
-}
 
-namespace tb::mdl
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
+namespace mdl
 {
 class EntityModel;
 class Material;
 struct MaterialConfig;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class FileSystem;
 
 using LoadMaterialFunc = std::function<mdl::Material(const std::filesystem::path&)>;
 
 Result<mdl::EntityModel> loadEntityModelSync(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   Logger& logger);
 
 mdl::EntityModel loadEntityModelAsync(
-  const FileSystem& fs,
+  const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   const mdl::CreateEntityModelDataResource& createResource,
   Logger& logger);
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb
