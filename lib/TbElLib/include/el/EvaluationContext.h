@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include "Exceptions.h"
+#include "Expression.h"
 #include "FileLocation.h"
 #include "Macros.h"
 #include "Result.h"
-#include "el/ELExceptions.h"
-#include "el/Expression.h"
-#include "el/Value.h"
+#include "Value.h"
 
 #include <memory>
 #include <optional>

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/ELParser.h"
 #include "el/VariableStore.h"
-#include "io/ELParser.h"
 #include "mdl/DecalDefinition.h"
 
 #include <map>
@@ -36,7 +36,7 @@ namespace
 {
 DecalDefinition makeDecalDefinition(const std::string& expression)
 {
-  auto parser = io::ELParser{io::ELParser::Mode::Strict, expression};
+  auto parser = el::ELParser{el::ELParser::Mode::Strict, expression};
   return DecalDefinition{parser.parse().value()};
 }
 } // namespace

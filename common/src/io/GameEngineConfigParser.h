@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "io/ELParser.h"
+#include "el/ELParser.h"
 #include "mdl/GameEngineConfig.h"
 
 #include <string_view>
@@ -32,7 +32,7 @@ namespace tb::io
 class GameEngineConfigParser
 {
 private:
-  ELParser m_elParser;
+  el::ELParser m_elParser;
 
 public:
   explicit GameEngineConfigParser(std::string_view str);

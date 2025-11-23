@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VariableStore.h"
+#include "el/VariableStore.h"
 
-#include "el/ELExceptions.h"
+#include "el/Exceptions.h"
 #include "el/Value.h"
 
 #include "kd/ranges/to.h"

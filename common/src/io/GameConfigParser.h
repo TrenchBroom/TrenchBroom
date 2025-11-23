@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "io/ELParser.h"
+#include "el/ELParser.h"
 #include "mdl/GameConfig.h"
 
 #include <filesystem>
@@ -40,7 +40,7 @@ namespace tb::io
 class GameConfigParser
 {
 private:
-  ELParser m_elParser;
+  el::ELParser m_elParser;
   std::filesystem::path m_path;
 
 public:

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "el/Value.h" // required by VariableTable::Table declaration
+#include "Value.h" // required by VariableTable::Table declaration
 
 #include <iosfwd>
 #include <map>

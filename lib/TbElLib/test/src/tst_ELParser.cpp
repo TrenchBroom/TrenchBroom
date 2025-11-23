@@ -17,19 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "el/ELTestUtils.h"
-#include "io/ELParser.h"
+#include "el/ELParser.h"
+#include "el/TestUtils.h"
 
 #include <string>
 
-#include "catch/CatchConfig.h"
-
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb::el
 {
-using namespace el;
-
 namespace
 {
 
@@ -318,4 +314,4 @@ asdf)")
   }
 }
 
-} // namespace tb::io
+} // namespace tb::el

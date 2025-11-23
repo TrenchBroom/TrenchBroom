@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Value.h"
+#include "el/Value.h"
 
-#include "el/ELExceptions.h"
 #include "el/EvaluationContext.h"
+#include "el/Exceptions.h"
 
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
@@ -602,7 +602,7 @@ void Value::appendToStream(
     kdl::overload(
       [&](const BooleanType& b) { str << (b ? "true" : "false"); },
       [&](const StringType& s) {
-        // Unescaping happens in io::ELParser::parseLiteral
+        // Unescaping happens in ELParser::parseLiteral
         str << "\"" << kdl::str_escape(s, "\\\"") << "\"";
       },
       [&](const NumberType& n) {

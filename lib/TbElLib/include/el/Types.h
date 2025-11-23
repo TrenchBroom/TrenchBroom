@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "el/EL_Forward.h"
+#include "Forward.h"
 
 #include "kd/reflection_decl.h"
 

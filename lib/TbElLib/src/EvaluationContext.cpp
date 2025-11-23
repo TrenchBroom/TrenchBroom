@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EvaluationContext.h"
+#include "el/EvaluationContext.h"
 
 #include "el/Value.h"
 #include "el/VariableStore.h"

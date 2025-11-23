@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Interpolate.h"
+#include "el/Interpolate.h"
 
+#include "el/ELParser.h"
 #include "el/EvaluationContext.h"
 #include "el/Expression.h"
 #include "el/Value.h"
-#include "io/ELParser.h"
 
 #include "kd/result_fold.h"
 #include "kd/string_utils.h"
@@ -63,7 +63,7 @@ auto parseExpressions(
   return expressionPositions | std::views::transform([&](const auto& expressionPosition) {
            const auto [start, length] = expressionPosition;
            const auto expressionStr = str.substr(start + 2, length - 3);
-           auto parser = io::ELParser{io::ELParser::Mode::Strict, expressionStr};
+           auto parser = ELParser{ELParser::Mode::Strict, expressionStr};
            return parser.parse();
          })
          | kdl::fold;

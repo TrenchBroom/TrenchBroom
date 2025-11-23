@@ -21,7 +21,7 @@
 
 #include "ParserException.h"
 #include "ParserStatus.h"
-#include "io/ELParser.h"
+#include "el/ELParser.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "mdl/ModelDefinition.h"
 
@@ -53,7 +53,8 @@ auto parseElModelExpression(
   const auto line = location.line;
   const auto column = *location.column;
 
-  auto parser = ELParser{ELParser::Mode::Lenient, tokenizer.remainder(), line, column};
+  auto parser =
+    el::ELParser{el::ELParser::Mode::Lenient, tokenizer.remainder(), line, column};
   return parser.parse() | kdl::and_then([&](auto expression) {
            // advance our tokenizer by the amount that the `parser` parsed
            tokenizer.adoptState(parser.tokenizerState());

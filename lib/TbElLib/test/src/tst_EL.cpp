@@ -17,14 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "el/ELExceptions.h"
 #include "el/EvaluationContext.h"
+#include "el/Exceptions.h"
 #include "el/Types.h"
 #include "el/Value.h"
 
 #include <string>
-
-#include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
 

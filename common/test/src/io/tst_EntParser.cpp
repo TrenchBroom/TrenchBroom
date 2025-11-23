@@ -18,7 +18,7 @@
  */
 
 #include "TestParserStatus.h"
-#include "el/ELTestUtils.h"
+#include "el/TestUtils.h"
 #include "io/DiskIO.h"
 #include "io/EntParser.h"
 #include "io/TraversalMode.h"

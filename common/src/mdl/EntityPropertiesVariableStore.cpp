@@ -19,7 +19,7 @@
 
 #include "EntityPropertiesVariableStore.h"
 
-#include "el/ELExceptions.h"
+#include "el/Exceptions.h"
 #include "el/Value.h"
 #include "mdl/Entity.h"
 

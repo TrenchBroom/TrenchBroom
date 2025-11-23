@@ -18,7 +18,7 @@
  */
 
 #include "TestParserStatus.h"
-#include "el/ELTestUtils.h"
+#include "el/TestUtils.h"
 #include "io/DiskIO.h"
 #include "io/FgdParser.h"
 #include "io/Reader.h"
