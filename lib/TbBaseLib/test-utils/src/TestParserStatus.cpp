@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace tb::io
+namespace tb
 {
 
 NullLogger TestParserStatus::_logger;
@@ -52,4 +52,4 @@ void TestParserStatus::doLog(const LogLevel level, const std::string& str)
   m_messages[level].push_back(str);
 }
 
-} // namespace tb::io
+} // namespace tb

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,30 +19,29 @@
 
 #pragma once
 
-#include "io/EntityDefinitionParser.h"
+#include "kd/result_io.h" // IWYU pragma: keep
 
-#include <string_view>
-#include <vector>
+#include "vm/bbox_io.h"  // IWYU pragma: keep
+#include "vm/line_io.h"  // IWYU pragma: keep
+#include "vm/mat_io.h"   // IWYU pragma: keep
+#include "vm/plane_io.h" // IWYU pragma: keep
+#include "vm/ray_io.h"   // IWYU pragma: keep
+#include "vm/vec_io.h"   // IWYU pragma: keep
 
-namespace tb
+#include <catch2/catch_test_macros.hpp>
+
+namespace Catch
 {
-class ParserStatus;
 
-namespace io
+template <typename Value, typename... Errors>
+struct StringMaker<kdl::result<Value, Errors...>>
 {
-struct EntityDefinitionClassInfo;
-
-class EntParser : public EntityDefinitionParser
-{
-private:
-  std::string_view m_str;
-
-public:
-  EntParser(std::string_view str, const Color& defaultEntityColor);
-
-private:
-  std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
+  static std::string convert(const kdl::result<Value, Errors...>& result)
+  {
+    auto str = std::stringstream{};
+    str << result;
+    return str.str();
+  }
 };
 
-} // namespace io
-} // namespace tb
+} // namespace Catch

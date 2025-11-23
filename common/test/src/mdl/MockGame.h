@@ -90,7 +90,7 @@ public:
   std::string defaultMod() const override;
 
   Result<std::vector<EntityDefinition>> loadEntityDefinitions(
-    io::ParserStatus& status, const std::filesystem::path& path) const override;
+    ParserStatus& status, const std::filesystem::path& path) const override;
 
   void setSmartTags(std::vector<SmartTag> smartTags);
   void setDefaultFaceAttributes(const BrushFaceAttributes& newDefaults);

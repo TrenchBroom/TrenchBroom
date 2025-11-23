@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "io/ParserException.h"
-#include "io/Token.h"
+#include "ParserException.h"
+#include "Token.h"
 
 #include "kd/string_utils.h"
 
@@ -29,9 +29,8 @@
 #include <string>
 #include <vector>
 
-namespace tb::io
+namespace tb
 {
-class ParserStatus;
 
 template <typename TokenType>
 class Parser
@@ -71,4 +70,4 @@ protected:
   }
 };
 
-} // namespace tb::io
+} // namespace tb

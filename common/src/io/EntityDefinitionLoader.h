@@ -24,14 +24,17 @@
 #include <filesystem>
 #include <vector>
 
-namespace tb::mdl
-{
-struct EntityDefinition;
-} // namespace tb::mdl
-
-namespace tb::io
+namespace tb
 {
 class ParserStatus;
+
+namespace mdl
+{
+struct EntityDefinition;
+} // namespace mdl
+
+namespace io
+{
 
 class EntityDefinitionLoader
 {
@@ -41,4 +44,6 @@ public:
   virtual Result<std::vector<mdl::EntityDefinition>> loadEntityDefinitions(
     ParserStatus& status, const std::filesystem::path& path) const = 0;
 };
-} // namespace tb::io
+
+} // namespace io
+} // namespace tb

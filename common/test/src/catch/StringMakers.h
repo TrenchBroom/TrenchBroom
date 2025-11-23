@@ -49,17 +49,6 @@ std::string convertToString(const Node* node);
 namespace Catch
 {
 
-template <typename Value, typename... Errors>
-struct StringMaker<kdl::result<Value, Errors...>>
-{
-  static std::string convert(const kdl::result<Value, Errors...>& result)
-  {
-    auto str = std::stringstream{};
-    str << result;
-    return str.str();
-  }
-};
-
 template <>
 struct StringMaker<tb::mdl::WorldNode>
 {

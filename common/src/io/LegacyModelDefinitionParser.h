@@ -19,16 +19,19 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
+#include "Tokenizer.h"
 #include "el/EL_Forward.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
 
 #include <string_view>
 
-namespace tb::io
+namespace tb
 {
 class ParserStatus;
+
+namespace io
+{
 
 namespace MdlToken
 {
@@ -72,4 +75,5 @@ private:
   el::ExpressionNode parseNamedValue(const std::string& name);
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

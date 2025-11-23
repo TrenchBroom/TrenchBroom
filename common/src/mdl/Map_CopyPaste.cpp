@@ -20,11 +20,11 @@
 #include "Map_CopyPaste.h"
 
 #include "Logger.h"
+#include "SimpleParserStatus.h"
 #include "Uuid.h"
 #include "io/BrushFaceReader.h"
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
-#include "io/SimpleParserStatus.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
@@ -272,7 +272,7 @@ std::string serializeSelectedBrushFaces(Map& map)
 
 PasteType paste(Map& map, const std::string& str)
 {
-  auto parserStatus = io::SimpleParserStatus{map.logger()};
+  auto parserStatus = SimpleParserStatus{map.logger()};
 
   // Try parsing as entities, then as brushes, in all compatible formats
   return io::NodeReader::read(

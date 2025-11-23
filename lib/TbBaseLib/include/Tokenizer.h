@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Macros.h"
+#include "ParserException.h"
 #include "Token.h"
-#include "io/ParserException.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -34,7 +34,7 @@
 #include <tuple>
 #include <unordered_map>
 
-namespace tb::io
+namespace tb
 {
 
 struct TokenizerState
@@ -606,4 +606,4 @@ protected:
   virtual Token emitToken() = 0;
 };
 
-} // namespace tb::io
+} // namespace tb

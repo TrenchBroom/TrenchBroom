@@ -39,7 +39,11 @@ namespace kdl
 class task_manager;
 }
 
-namespace tb::mdl
+namespace tb
+{
+class ParserStatus;
+
+namespace mdl
 {
 class BrushNode;
 class EntityNode;
@@ -50,12 +54,10 @@ class LayerNode;
 enum class MapFormat;
 class Node;
 class WorldNode;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-
-class ParserStatus;
 
 /**
  * Abstract superclass containing common code for:
@@ -217,4 +219,5 @@ private: // subclassing interface - these will be called in the order that nodes
   virtual void onBrushFace(mdl::BrushFace face, ParserStatus& status);
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

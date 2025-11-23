@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,18 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SimpleParserStatus.h"
+#include "Matchers.h"
 
-#include <string>
+#include "kd/string_compare.h"
 
-namespace tb::io
+namespace tb
 {
 
-SimpleParserStatus::SimpleParserStatus(Logger& logger, std::string prefix)
-  : ParserStatus{logger, std::move(prefix)}
+GlobMatcher::GlobMatcher(std::string glob)
+  : m_glob{std::move(glob)}
 {
 }
 
-void SimpleParserStatus::doProgress(const double /* progress */) {}
+bool GlobMatcher::match(const std::string& value) const
+{
+  return kdl::cs::str_matches_glob(value, m_glob);
+}
 
-} // namespace tb::io
+std::string GlobMatcher::describe() const
+{
+  auto ss = std::stringstream{};
+  ss << "matches glob \"" << m_glob << "\"";
+  return ss.str();
+}
+
+GlobMatcher MatchesGlob(std::string glob)
+{
+  return GlobMatcher{std::move(glob)};
+}
+
+} // namespace tb

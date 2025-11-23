@@ -19,12 +19,11 @@
 
 #pragma once
 
-#include "Color.h"
+#include "CachingLogger.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "mdl/PointTrace.h"
 #include "ui/Actions.h"
-#include "ui/CachingLogger.h"
 
 #include "vm/bbox.h"
 #include "vm/polygon.h"

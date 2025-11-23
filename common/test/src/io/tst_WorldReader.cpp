@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestParserStatus.h"
 #include "TestUtils.h"
 #include "io/DiskIO.h"
-#include "io/TestParserStatus.h"
 #include "io/WorldReader.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
@@ -1942,7 +1942,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 {
   auto taskManager = kdl::task_manager{};
   const auto worldBounds = vm::bbox3d{8192.0};
-  auto status = io::TestParserStatus{};
+  auto status = TestParserStatus{};
 
   SECTION("1424")
   {

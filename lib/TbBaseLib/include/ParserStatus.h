@@ -26,10 +26,7 @@ namespace tb
 struct FileLocation;
 class Logger;
 enum class LogLevel;
-} // namespace tb
 
-namespace tb::io
-{
 class ParserStatus
 {
 private:
@@ -69,4 +66,4 @@ private:
   virtual void doLog(LogLevel level, const std::string& str);
 };
 
-} // namespace tb::io
+} // namespace tb

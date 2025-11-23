@@ -31,9 +31,12 @@ namespace kdl
 class task_manager;
 }
 
-namespace tb::io
+namespace tb
 {
 class ParserStatus;
+
+namespace io
+{
 
 /**
  * MapReader subclass for loading the clipboard contents, rather than an entire .map
@@ -87,4 +90,5 @@ private: // implement MapReader interface
     ParserStatus& status) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

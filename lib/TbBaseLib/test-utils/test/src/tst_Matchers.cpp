@@ -22,8 +22,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include "catch/CatchConfig.h"
-
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb

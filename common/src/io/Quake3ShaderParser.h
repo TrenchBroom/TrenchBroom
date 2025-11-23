@@ -19,21 +19,24 @@
 
 #pragma once
 
+#include "Parser.h"
 #include "Result.h"
-#include "io/Parser.h"
-#include "io/Tokenizer.h"
+#include "Tokenizer.h"
 
 #include <string_view>
 
-namespace tb::mdl
+namespace tb
+{
+class ParserStatus;
+
+namespace mdl
 {
 class Quake3Shader;
 class Quake3ShaderStage;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class ParserStatus;
 
 namespace Quake3ShaderToken
 {
@@ -76,4 +79,5 @@ private:
   void skipRemainderOfEntry();
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

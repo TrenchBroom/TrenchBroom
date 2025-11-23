@@ -19,7 +19,7 @@
 
 #include "NodeReader.h"
 
-#include "io/ParserStatus.h"
+#include "ParserStatus.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"

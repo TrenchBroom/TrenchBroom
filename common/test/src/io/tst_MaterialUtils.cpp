@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "Matchers.h"
 #include "io/DiskFileSystem.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
@@ -29,7 +30,6 @@
 #include <filesystem>
 
 #include "catch/CatchConfig.h"
-#include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>

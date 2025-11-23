@@ -25,7 +25,11 @@
 #include <string_view>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+class ParserStatus;
+
+namespace mdl
 {
 class BrushNode;
 class BrushFace;
@@ -33,11 +37,10 @@ class EntityProperty;
 class LayerNode;
 enum class MapFormat;
 class Node;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class ParserStatus;
 
 /**
  * Used for pasting brush faces (i.e. their UVs only)
@@ -64,4 +67,5 @@ private: // implement MapReader interface
   void onBrushFace(mdl::BrushFace face, ParserStatus& status) override;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

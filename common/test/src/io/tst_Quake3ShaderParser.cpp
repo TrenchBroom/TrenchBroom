@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestParserStatus.h"
 #include "io/DiskFileSystem.h"
 #include "io/Quake3ShaderParser.h"
-#include "io/TestParserStatus.h"
 #include "mdl/Quake3Shader.h"
 
 #include "catch/CatchConfig.h"

@@ -19,10 +19,10 @@
 
 #include "EntityDefinitionParser.h"
 
-#include "Exceptions.h"
 #include "Macros.h"
+#include "ParserException.h"
+#include "ParserStatus.h"
 #include "io/EntityDefinitionClassInfo.h"
-#include "io/ParserStatus.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
@@ -500,7 +500,7 @@ Result<std::vector<mdl::EntityDefinition>> EntityDefinitionParser::parseDefiniti
     const auto classInfos = parseClassInfos(status);
     return createDefinitions(status, classInfos, m_defaultEntityColor);
   }
-  catch (const Exception& e)
+  catch (const ParserException& e)
   {
     return Error{e.what()};
   }

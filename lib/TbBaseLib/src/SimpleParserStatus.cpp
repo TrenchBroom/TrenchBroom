@@ -17,32 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "SimpleParserStatus.h"
 
-#include "io/EntityDefinitionParser.h"
-
-#include <string_view>
-#include <vector>
+#include <string>
 
 namespace tb
 {
-class ParserStatus;
 
-namespace io
+SimpleParserStatus::SimpleParserStatus(Logger& logger, std::string prefix)
+  : ParserStatus{logger, std::move(prefix)}
 {
-struct EntityDefinitionClassInfo;
+}
 
-class EntParser : public EntityDefinitionParser
-{
-private:
-  std::string_view m_str;
+void SimpleParserStatus::doProgress(const double /* progress */) {}
 
-public:
-  EntParser(std::string_view str, const Color& defaultEntityColor);
-
-private:
-  std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
-};
-
-} // namespace io
 } // namespace tb

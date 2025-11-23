@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestParserStatus.h"
 #include "TestUtils.h"
 #include "io/NodeReader.h"
-#include "io/TestParserStatus.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -651,7 +651,7 @@ TEST_CASE("BrushFace")
 
     const auto worldBounds = vm::bbox3d{4096.0};
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
@@ -714,7 +714,7 @@ TEST_CASE("BrushFace")
 
     const auto worldBounds = vm::bbox3d{4096.0};
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
@@ -791,7 +791,7 @@ TEST_CASE("BrushFace")
 
     const auto worldBounds = vm::bbox3d{4096.0};
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
@@ -881,7 +881,7 @@ TEST_CASE("BrushFace")
 
     const auto worldBounds = vm::bbox3d{4096.0};
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);

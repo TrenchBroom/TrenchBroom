@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestParserStatus.h"
 #include "el/Expression.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/EntityDefinitionParser.h"
-#include "io/TestParserStatus.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/PropertyDefinition.h"
 

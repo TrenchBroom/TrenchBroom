@@ -17,16 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "io/Token.h"
-#include "io/Tokenizer.h"
+#include "Token.h"
+#include "Tokenizer.h"
 
 #include "kd/contracts.h"
 
 #include "vm/approx.h"
 
 #include <string>
-
-#include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -19,6 +19,7 @@
 
 
 #include "MapFixture.h"
+#include "Matchers.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TestFactory.h"

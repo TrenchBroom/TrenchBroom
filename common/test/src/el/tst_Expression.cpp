@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Matchers.h"
 #include "el/ELExceptions.h"
 #include "el/ELTestUtils.h"
 #include "el/EvaluationContext.h"

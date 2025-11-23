@@ -19,20 +19,32 @@
 
 #pragma once
 
-#include "io/ParserStatus.h"
+#include "Logger.h"
+#include "ParserStatus.h"
 
+#include <map>
 #include <string>
+#include <vector>
 
-namespace tb::io
+namespace tb
 {
 
-class SimpleParserStatus : public ParserStatus
+class TestParserStatus : public ParserStatus
 {
+private:
+  static NullLogger _logger;
+  std::map<LogLevel, std::vector<std::string>> m_messages;
+
 public:
-  explicit SimpleParserStatus(Logger& logger, std::string prefix = "");
+  TestParserStatus();
+
+public:
+  size_t countStatus(LogLevel level) const;
+  const std::vector<std::string>& messages(LogLevel level) const;
 
 private:
   void doProgress(double progress) override;
+  void doLog(LogLevel level, const std::string& str) override;
 };
 
-} // namespace tb::io
+} // namespace tb

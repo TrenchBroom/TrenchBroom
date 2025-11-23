@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestParserStatus.h"
 #include "io/DefParser.h"
 #include "io/DiskIO.h"
 #include "io/PathMatcher.h"
-#include "io/TestParserStatus.h"
 #include "io/TraversalMode.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionTestUtils.h"

@@ -19,7 +19,7 @@
 
 #include "WorldReader.h"
 
-#include "io/ParserStatus.h"
+#include "ParserStatus.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityProperties.h"

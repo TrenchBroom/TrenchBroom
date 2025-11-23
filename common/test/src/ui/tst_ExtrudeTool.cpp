@@ -19,6 +19,7 @@
  */
 
 #include "MapFixture.h"
+#include "Matchers.h"
 #include "TestUtils.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
@@ -40,7 +41,6 @@
 #include "ui/ExtrudeTool.h"
 
 #include "kd/result.h"
-#include "kd/vector_utils.h"
 
 #include "vm/approx.h"
 #include "vm/ray.h"
@@ -51,7 +51,6 @@
 #include <ranges>
 
 #include "catch/CatchConfig.h"
-#include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>

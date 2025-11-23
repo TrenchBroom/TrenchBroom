@@ -29,18 +29,18 @@
 
 namespace tb
 {
-struct FileLocation;
-}
+class ParserStatus;
 
-namespace tb::mdl
+struct FileLocation;
+
+namespace mdl
 {
 class EntityProperty;
 class BrushFaceAttributes;
-} // namespace tb::mdl
+} // namespace mdl
 
-namespace tb::io
+namespace io
 {
-class ParserStatus;
 
 class MapParser
 {
@@ -84,4 +84,5 @@ protected: // subclassing interface for users of the parser
     ParserStatus& status) = 0;
 };
 
-} // namespace tb::io
+} // namespace io
+} // namespace tb

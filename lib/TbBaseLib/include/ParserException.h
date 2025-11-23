@@ -19,32 +19,22 @@
 
 #pragma once
 
-#include "Logger.h"
-#include "io/ParserStatus.h"
+#include "FileLocation.h"
 
-#include <map>
+#include <optional>
+#include <stdexcept>
 #include <string>
-#include <vector>
 
-namespace tb::io
+namespace tb
 {
 
-class TestParserStatus : public ParserStatus
+class ParserException : public std::runtime_error
 {
-private:
-  static NullLogger _logger;
-  std::map<LogLevel, std::vector<std::string>> m_messages;
-
 public:
-  TestParserStatus();
+  using std::runtime_error::runtime_error;
 
-public:
-  size_t countStatus(LogLevel level) const;
-  const std::vector<std::string>& messages(LogLevel level) const;
-
-private:
-  void doProgress(double progress) override;
-  void doLog(LogLevel level, const std::string& str) override;
+  explicit ParserException(
+    const std::optional<FileLocation>& location, const std::string& str = "");
 };
 
-} // namespace tb::io
+} // namespace tb

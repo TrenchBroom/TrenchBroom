@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Matchers.h"
+#include "TestParserStatus.h"
 #include "TestUtils.h"
 #include "io/NodeReader.h"
-#include "io/TestParserStatus.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -44,7 +45,6 @@
 #include <vector>
 
 #include "catch/CatchConfig.h"
-#include "catch/Matchers.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -227,7 +227,7 @@ void assertCannotSnapTo(
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto status = io::TestParserStatus{};
+  auto status = TestParserStatus{};
 
   const auto nodes =
     io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
@@ -250,7 +250,7 @@ void assertSnapTo(
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto status = io::TestParserStatus{};
+  auto status = TestParserStatus{};
 
   const auto nodes =
     io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
@@ -2763,7 +2763,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
       ( 384 240 320 ) ( 208 240 320 ) ( 208 64 320 ) sky1 0 0 0 1 1
       })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     const auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
@@ -2828,7 +2828,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
     ( 1199.73437537143649934 -1850.52292721460958091 299.11555748386712139 ) ( 1195.3323608207340385 -1812.61180985669875554 293.31661882168685906 ) ( 404.63242807195160822 -1696.09174007488900315 211.96202895796943722 ) rock4_2 -3.78198003768920898 21.7248992919921875 349.865997314453125 0.9932439923286438 0.99966299533843994
     })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, vm::bbox3d{4096.0}, {}, status, taskManager);
@@ -2873,7 +2873,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
 }
 )";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
@@ -3227,7 +3227,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
 }
 )";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
@@ -3295,7 +3295,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
     const auto data = io::readTextFile(path);
     REQUIRE(!data.empty());
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
@@ -3363,7 +3363,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
     const auto data = io::readTextFile(path);
     REQUIRE(!data.empty());
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
 
     const auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
@@ -3471,7 +3471,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
         ( -16 -16 -0 ) ( 16 16 -0 ) ( -16 16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1
     })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     const auto minuendNodes = io::NodeReader::read(
       minuendStr, MapFormat::Valve, worldBounds, {}, status, taskManager);
     const auto subtrahendNodes = io::NodeReader::read(
@@ -3510,7 +3510,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
       std::filesystem::current_path() / "fixture/test/mdl/Brush/subtrahend.map";
     const auto subtrahendStr = io::readTextFile(subtrahendPath);
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     const auto minuendNodes = io::NodeReader::read(
       minuendStr, MapFormat::Standard, worldBounds, {}, status, taskManager);
     const auto subtrahendNodes = io::NodeReader::read(
@@ -3559,7 +3559,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
       ( 115.03720474205866253 -79.9415525105817153 136.81957548817854331 ) ( 103.72349624307389604 -99.53747045284714545 136.81957548817854331 ) ( 159.14912208527792359 -131.53747045284714545 247.67082717258671209 ) __TB_empty 0.81418418884277344 0.94775390625 -0 1.22474479675292969 0.90138781070709229
       })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     const auto minuendNodes = io::NodeReader::read(
       minuendStr, MapFormat::Standard, worldBounds, {}, status, taskManager);
     const auto subtrahendNodes = io::NodeReader::read(
@@ -3598,7 +3598,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
       ( 0 1395.1726195011288 -977.63914778921753 ) ( -0.81895101070404053 1395.1726195011288 -977.63914778921753 ) ( 0 1395.7464829478413 -976.82019677851349 ) skip [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
     })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
@@ -3657,7 +3657,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
       ( 1024 -7886.438924 -32 ) ( 1024 -7886.438924 32 ) ( 0 -4779.068455 0 ) clip 0.0 0.0 0.00 1 1
     })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
@@ -3798,7 +3798,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
       ( -236.67923339392109 0 828.37735539191272 ) ( -236.67923339392109 -0.96152395009994507 828.37735539191272 ) ( -235.71770944382115 0 828.65207650774028 ) __TB_empty 0 0 0 1 1
     })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
@@ -3843,7 +3843,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
       ( 68.79999542236328 0 -206.39999389648438 ) ( 68.79999542236328 -0.9486833214759827 -206.39999389648438 ) ( 69.74867874383926 0 -206.08376613259315 ) e1u1/temp [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
     })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
@@ -3893,7 +3893,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
       ( 256 2656.005 -16 ) ( 0 2912.006 0 ) ( 256 2656.005 16 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
     })";
 
-    auto status = io::TestParserStatus{};
+    auto status = TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Quake2, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);

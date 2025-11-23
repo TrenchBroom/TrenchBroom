@@ -19,22 +19,20 @@
 
 #pragma once
 
-#include "Exceptions.h"
-#include "FileLocation.h"
+#include "ParserStatus.h"
 
-#include <optional>
 #include <string>
 
 namespace tb
 {
 
-class ParserException : public Exception
+class SimpleParserStatus : public ParserStatus
 {
 public:
-  using Exception::Exception;
+  explicit SimpleParserStatus(Logger& logger, std::string prefix = "");
 
-  explicit ParserException(
-    const std::optional<FileLocation>& location, const std::string& str = "");
+private:
+  void doProgress(double progress) override;
 };
 
 } // namespace tb

@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "Exceptions.h"
 #include "FileLocation.h"
 
-#include <string>
+#include <optional>
+#include <stdexcept>
 #include <string_view>
 
 namespace tb::el
@@ -31,13 +31,13 @@ class ExpressionNode;
 class Value;
 enum class ValueType;
 
-class Exception : public tb::Exception
+class Exception : public std::runtime_error
 {
 public:
-  using tb::Exception::Exception;
+  using std::runtime_error::runtime_error;
 };
 
-class InterpolationError : public tb::Exception
+class InterpolationError : public Exception
 {
 public:
   using Exception::Exception;
@@ -48,7 +48,7 @@ class ConversionError : public Exception
 public:
   ConversionError(
     const std::optional<FileLocation>& fileLocation,
-    const std::string& value,
+    std::string_view value,
     ValueType from,
     ValueType to);
 };
@@ -58,7 +58,7 @@ class DereferenceError : public Exception
 public:
   DereferenceError(
     const std::optional<FileLocation>& fileLocation,
-    const std::string& value,
+    std::string_view value,
     ValueType from,
     ValueType to);
 };
@@ -66,7 +66,6 @@ public:
 class EvaluationError : public Exception
 {
 public:
-  EvaluationError();
   EvaluationError(const ExpressionNode& expression, std::string_view reason);
   EvaluationError(const std::optional<FileLocation>& location, std::string_view message);
 };
@@ -85,7 +84,7 @@ public:
   IndexError(
     const std::optional<FileLocation>& location,
     const Value& indexableValue,
-    const std::string& key);
+    std::string_view key);
 };
 
 class IndexOutOfBoundsError : public EvaluationError
@@ -100,7 +99,7 @@ public:
   IndexOutOfBoundsError(
     const std::optional<FileLocation>& location,
     const Value& indexableValue,
-    const std::string& key);
+    std::string_view key);
 };
 
 } // namespace tb::el

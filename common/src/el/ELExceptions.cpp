@@ -25,14 +25,12 @@
 
 #include <fmt/format.h>
 
-#include <string>
-
 namespace tb::el
 {
 
 ConversionError::ConversionError(
   const std::optional<FileLocation>& fileLocation,
-  const std::string& value,
+  const std::string_view value,
   const ValueType from,
   const ValueType to)
   : Exception{prependLocation(
@@ -47,7 +45,7 @@ ConversionError::ConversionError(
 
 DereferenceError::DereferenceError(
   const std::optional<FileLocation>& fileLocation,
-  const std::string& value,
+  const std::string_view value,
   const ValueType from,
   const ValueType to)
   : Exception{prependLocation(
@@ -59,8 +57,6 @@ DereferenceError::DereferenceError(
         typeName(to)))}
 {
 }
-
-EvaluationError::EvaluationError() = default;
 
 EvaluationError::EvaluationError(
   const ExpressionNode& expression, const std::string_view reason)
@@ -101,7 +97,7 @@ IndexError::IndexError(
 IndexError::IndexError(
   const std::optional<FileLocation>& location,
   const Value& indexableValue,
-  const std::string& key)
+  const std::string_view key)
   : EvaluationError{
       location,
       fmt::format(
@@ -130,7 +126,7 @@ IndexOutOfBoundsError::IndexOutOfBoundsError(
 IndexOutOfBoundsError::IndexOutOfBoundsError(
   const std::optional<FileLocation>& location,
   const Value& indexableValue,
-  const std::string& key)
+  const std::string_view key)
   : EvaluationError{
       location, fmt::format("'{}' not found in '{}'", key, indexableValue.describe())}
 {
