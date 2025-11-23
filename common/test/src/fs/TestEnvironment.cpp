@@ -40,6 +40,14 @@ namespace tb::fs
 namespace
 {
 
+auto makeSandboxPath(const std::filesystem::path& dir)
+{
+  return Disk::makeUniqueFilename(dir)
+         | kdl::transform([&](const auto& filename) { return dir / filename; })
+         | kdl::if_error([](const auto& e) { throw std::runtime_error{e.msg}; })
+         | kdl::value();
+}
+
 auto addNonAsciiDirs(const std::filesystem::path& rootPath)
 {
   // have a non-ASCII character in the directory name to help catch
@@ -53,7 +61,7 @@ auto addNonAsciiDirs(const std::filesystem::path& rootPath)
 
 TestEnvironment::TestEnvironment(
   const std::filesystem::path& dir, const SetupFunction& setup)
-  : m_sandboxPath{std::filesystem::current_path() / generateUuid()}
+  : m_sandboxPath{makeSandboxPath(std::filesystem::current_path())}
   , m_dir{addNonAsciiDirs(m_sandboxPath) / dir}
 {
   if (!dir.is_relative())

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Uuid.h"
 #include "fs/DiskIO.h"
 
 #include "kd/invoke.h"
@@ -67,16 +66,21 @@ public:
   template <typename F>
   auto withTempFile(const std::string& contents, const F& f)
   {
-    const auto path = m_dir / generateUuid();
-    auto removeFile = kdl::invoke_later{[&]() {
-      // ignore errors
-      auto error = std::error_code{};
-      std::filesystem::remove(path, error);
-    }};
+    return Disk::makeUniqueFilename(m_dir) | kdl::transform([&](const auto filename) {
+             const auto path = m_dir / filename;
 
-    Disk::withOutputStream(path, [&](auto& stream) { stream << contents; })
-      | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
-    return f(path);
+             auto removeFile = kdl::invoke_later{[&]() {
+               // ignore errors
+               auto error = std::error_code{};
+               std::filesystem::remove(path, error);
+             }};
+
+             Disk::withOutputStream(path, [&](auto& stream) { stream << contents; })
+               | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
+             return f(path);
+           })
+           | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; })
+           | kdl::value();
   }
 };
 
