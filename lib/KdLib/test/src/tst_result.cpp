@@ -2695,7 +2695,7 @@ TEST_CASE("result")
       {
         using res = result<int, Error1, Error2>;
         using err = std::variant<Error1, Error2>;
-        using out = multi_value<std::vector<int>, std::vector<err>>;
+        using out = std::tuple<std::vector<int>, std::vector<err>>;
 
         SECTION("empty range")
         {
