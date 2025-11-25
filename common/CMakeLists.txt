@@ -106,6 +106,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/GameEngineProfile.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameFactory.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameFileSystem.cpp
+        ${COMMON_SOURCE_DIR}/mdl/GameInfo.cpp
+        ${COMMON_SOURCE_DIR}/mdl/GameManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/Grid.cpp
         ${COMMON_SOURCE_DIR}/mdl/Group.cpp
         ${COMMON_SOURCE_DIR}/mdl/GroupNode.cpp
@@ -591,6 +593,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/GameEngineProfile.h
         ${COMMON_SOURCE_DIR}/mdl/GameFactory.h
         ${COMMON_SOURCE_DIR}/mdl/GameFileSystem.h
+        ${COMMON_SOURCE_DIR}/mdl/GameInfo.h
+        ${COMMON_SOURCE_DIR}/mdl/GameManager.h
         ${COMMON_SOURCE_DIR}/mdl/Grid.h
         ${COMMON_SOURCE_DIR}/mdl/Group.h
         ${COMMON_SOURCE_DIR}/mdl/GroupNode.h

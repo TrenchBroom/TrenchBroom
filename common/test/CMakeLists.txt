@@ -76,6 +76,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Game.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_GameFactory.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_GameFileSystem.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_GameManager.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Grid.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Group.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_GroupNode.cpp"
