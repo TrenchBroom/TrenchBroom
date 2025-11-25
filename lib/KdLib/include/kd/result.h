@@ -324,11 +324,8 @@ public:
    * of this result
    * @param v the value
    */
-  template <
-    typename T,
-    typename std::enable_if_t<std::disjunction_v<
-      std::is_convertible<T, Value>,
-      std::is_convertible<T, Errors>...>>* = nullptr>
+  template <typename T>
+    requires(std::is_convertible_v<T, Value> || (std::is_convertible_v<T, Errors> || ...))
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
@@ -1107,11 +1104,8 @@ public:
    * @tparam T the type of the error, must match one of the error types of this result
    * @param r the error
    */
-  template <
-    typename T,
-    typename std::enable_if_t<std::disjunction_v<
-      std::is_same<int, int>, // avoid empty disjunction if Errors is empty
-      std::is_convertible<T, Errors>...>>* = nullptr>
+  template <typename T>
+    requires(std::is_convertible_v<T, Errors> || ...)
   // NOLINTNEXTLINE
   result(T&& r)
     : m_value{std::forward<T>(r)}
@@ -1650,11 +1644,10 @@ public:
    * types of this result
    * @param v the value
    */
-  template <
-    typename T,
-    typename std::enable_if_t<std::disjunction_v<
-      std::is_convertible<T, multi_value<Values...>>,
-      std::is_convertible<T, Errors>...>>* = nullptr>
+  template <typename T>
+    requires(
+      std::is_convertible_v<T, multi_value<Values...>>
+      || (std::is_convertible_v<T, Errors> || ...))
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
@@ -2401,11 +2394,9 @@ public:
    * of the error types of this result
    * @param v the value
    */
-  template <
-    typename T,
-    typename std::enable_if_t<std::disjunction_v<
-      std::is_convertible<T, value_type>,
-      std::is_convertible<T, Errors>...>>* = nullptr>
+  template <typename T>
+    requires(
+      std::is_convertible_v<T, value_type> || (std::is_convertible_v<T, Errors> || ...))
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
