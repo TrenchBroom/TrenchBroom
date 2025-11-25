@@ -26,6 +26,7 @@
 #include "Color.h"
 
 #include "kd/contracts.h"
+#include "kd/reflection_impl.h"
 
 #include <filesystem>
 
@@ -138,6 +139,8 @@ private:
   T m_defaultValue;
   T m_value;
   bool m_valid = false;
+
+  kdl_reflect_inline(Preference, m_path, m_defaultValue, m_value, m_valid);
 
 public:
   Preference(
