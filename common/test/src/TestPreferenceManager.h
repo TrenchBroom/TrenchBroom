@@ -36,7 +36,7 @@ public:
   void discardChanges() override;
 
 private:
-  void validatePreference(PreferenceBase&) override;
+  void validatePreference(const PreferenceBase&) override;
   void savePreference(PreferenceBase&) override;
 };
 

@@ -102,7 +102,7 @@ public:
    * Public API for getting the value of a preference.
    */
   template <typename T>
-  const T& get(Preference<T>& preference)
+  const T& get(const Preference<T>& preference)
   {
     validatePreference(preference);
     return preference.value();
@@ -145,7 +145,7 @@ public:
   virtual void discardChanges() = 0;
 
 private:
-  virtual void validatePreference(PreferenceBase&) = 0;
+  virtual void validatePreference(const PreferenceBase&) = 0;
   virtual void savePreference(PreferenceBase&) = 0;
 };
 
@@ -194,18 +194,18 @@ private:
   void showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion);
   void loadCacheFromDisk();
   void invalidatePreferences();
-  void loadPreferenceFromCache(PreferenceBase& pref);
-  void savePreferenceToCache(PreferenceBase& pref);
+  void loadPreferenceFromCache(const PreferenceBase& pref);
+  void savePreferenceToCache(const PreferenceBase& pref);
 
 private:
-  void validatePreference(PreferenceBase&) override;
+  void validatePreference(const PreferenceBase&) override;
   void savePreference(PreferenceBase&) override;
 
   deleteCopyAndMove(AppPreferenceManager);
 };
 
 template <typename T>
-const T& pref(Preference<T>& preference)
+const T& pref(const Preference<T>& preference)
 {
   PreferenceManager& prefs = PreferenceManager::instance();
   return prefs.get(preference);

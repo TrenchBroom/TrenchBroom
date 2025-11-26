@@ -38,7 +38,7 @@ void TestPreferenceManager::saveChanges() {}
 
 void TestPreferenceManager::discardChanges() {}
 
-void TestPreferenceManager::validatePreference(PreferenceBase& preference)
+void TestPreferenceManager::validatePreference(const PreferenceBase& preference)
 {
   preference.setValid(true);
 }
