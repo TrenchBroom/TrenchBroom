@@ -26,7 +26,6 @@
 #include "mdl/SoftMapBounds.h"
 
 #include <filesystem>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -66,10 +65,6 @@ public: // game configuration
 
   virtual void setAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger) = 0;
-
-  using PathErrors = std::map<std::filesystem::path, std::string>;
-  virtual PathErrors checkAdditionalSearchPaths(
-    const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
   /**
    * Returns the soft map bounds specified in the given World entity, or if unset, the

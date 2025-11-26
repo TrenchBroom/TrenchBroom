@@ -102,12 +102,6 @@ void MockGame::setAdditionalSearchPaths(
 {
 }
 
-Game::PathErrors MockGame::checkAdditionalSearchPaths(
-  const std::vector<std::filesystem::path>& /* searchPaths */) const
-{
-  return {};
-}
-
 void MockGame::reloadWads(
   const std::filesystem::path&,
   const std::vector<std::filesystem::path>& wadPaths,

@@ -71,8 +71,6 @@ public:
   SoftMapBounds extractSoftMapBounds(const Entity& entity) const override;
   void setAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger) override;
-  PathErrors checkAdditionalSearchPaths(
-    const std::vector<std::filesystem::path>& searchPaths) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,

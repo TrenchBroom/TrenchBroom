@@ -132,21 +132,6 @@ void GameImpl::setAdditionalSearchPaths(
   }
 }
 
-Game::PathErrors GameImpl::checkAdditionalSearchPaths(
-  const std::vector<std::filesystem::path>& searchPaths) const
-{
-  auto result = PathErrors{};
-  for (const auto& searchPath : searchPaths)
-  {
-    const auto absPath = m_gamePath / searchPath;
-    if (!absPath.is_absolute() || fs::Disk::pathInfo(absPath) != fs::PathInfo::Directory)
-    {
-      result.emplace(searchPath, fmt::format("Directory not found: {}", searchPath));
-    }
-  }
-  return result;
-}
-
 SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
 {
   if (const auto* mapValue = entity.property(EntityPropertyKeys::SoftMapBounds))
