@@ -297,7 +297,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.map();
-  fixture.create({.game = mdl::LoadGameFixture{"Quake"}});
+  fixture.create();
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -499,12 +499,17 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
 
 TEST_CASE("CompilationRunner")
 {
+  auto gameConfig = mdl::MockGameConfig{};
+  gameConfig.forceEmptyNewMap = false;
+  gameConfig.fileFormats = std::vector<mdl::MapFormatConfig>{
+    {"Valve", {}},
+  };
+
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.map();
-
   fixture.load(
     "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map",
-    {.game = mdl::LoadGameFixture{"Quake"}});
+    {.game = mdl::MockGameFixture{.config = gameConfig}});
 
   const auto testWorkDir = std::string{"/some/path"};
   auto variables = CompilationVariables{map, testWorkDir};

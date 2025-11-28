@@ -237,9 +237,7 @@ TEST_CASE("ExtrudeTool")
     // clang-format on
 
     const auto mapPath = "fixture/test/ui/ExtrudeToolTest" / mapName;
-    fixture.load(
-      mapPath,
-      {.mapFormat = mdl::MapFormat::Valve, .game = mdl::LoadGameFixture{"Quake"}});
+    fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
 
     selectAllNodes(map);
 
@@ -285,9 +283,7 @@ TEST_CASE("ExtrudeTool")
 
 
     const auto mapPath = "fixture/test/ui/ExtrudeToolTest/splitBrushes.map";
-    fixture.load(
-      mapPath,
-      {.mapFormat = mdl::MapFormat::Valve, .game = mdl::LoadGameFixture{"Quake"}});
+    fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
 
     selectAllNodes(map);
 
