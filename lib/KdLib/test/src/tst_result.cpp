@@ -751,6 +751,116 @@ TEST_CASE("result")
       }
     }
 
+    SECTION("reference result")
+    {
+      auto i = 1;
+
+      SECTION("non const lvalue reference result")
+      {
+        const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+        const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
+        auto nonConstLValueSuccess = result<int&, Error1, Error2>{i};
+        auto nonConstLValueError = result<int&, Error1, Error2>{Error1{}};
+
+        SECTION("with non void result")
+        {
+          CHECK(
+            constLValueSuccess.join(result<float, Error3>{2.0f})
+            == result<multi_value<int&, float>, Error1, Error2, Error3>{
+              multi_value{i, 2.0f}});
+          CHECK(
+            constLValueSuccess.join(result<float, Error3>{Error3{}})
+            == result<multi_value<int&, float>, Error1, Error2, Error3>{Error3{}});
+
+          CHECK(
+            constLValueError.join(result<float, Error3>{2.0f})
+            == result<multi_value<int&, float>, Error1, Error2, Error3>{Error1{}});
+          CHECK(
+            constLValueError.join(result<float, Error3>{Error3{}})
+            == result<multi_value<int&, float>, Error1, Error2, Error3>{Error1{}});
+
+          CHECK(
+            nonConstLValueSuccess.join(result<float, Error3>{2.0f})
+            == result<multi_value<int&, float>, Error1, Error2, Error3>{
+              multi_value{i, 2.0f}});
+          CHECK(
+            nonConstLValueSuccess.join(result<float, Error3>{Error3{}})
+            == result<multi_value<int&, float>, Error1, Error2, Error3>{Error3{}});
+
+          CHECK(
+            nonConstLValueError.join(result<float, Error3>{2.0f})
+            == result<multi_value<int&, float>, Error1, Error2, Error3>{Error1{}});
+          CHECK(
+            nonConstLValueError.join(result<float, Error3>{Error3{}})
+            == result<multi_value<int&, float>, Error1, Error2, Error3>{Error1{}});
+        }
+      }
+
+      SECTION("const lvalue reference result")
+      {
+        const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+        const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
+        auto nonConstLValueSuccess = result<const int&, Error1, Error2>{i};
+        auto nonConstLValueError = result<const int&, Error1, Error2>{Error1{}};
+
+        SECTION("with non void result")
+        {
+          CHECK(
+            constLValueSuccess.join(result<float, Error3>{2.0f})
+            == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+              multi_value{i, 2.0f}});
+          CHECK(
+            constLValueSuccess.join(result<float, Error3>{Error3{}})
+            == result<multi_value<const int&, float>, Error1, Error2, Error3>{Error3{}});
+
+          CHECK(
+            constLValueError.join(result<float, Error3>{2.0f})
+            == result<multi_value<const int&, float>, Error1, Error2, Error3>{Error1{}});
+          CHECK(
+            constLValueError.join(result<float, Error3>{Error3{}})
+            == result<multi_value<const int&, float>, Error1, Error2, Error3>{Error1{}});
+
+          CHECK(
+            nonConstLValueSuccess.join(result<float, Error3>{2.0f})
+            == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+              multi_value{i, 2.0f}});
+          CHECK(
+            nonConstLValueSuccess.join(result<float, Error3>{Error3{}})
+            == result<multi_value<const int&, float>, Error1, Error2, Error3>{Error3{}});
+
+          CHECK(
+            nonConstLValueError.join(result<float, Error3>{2.0f})
+            == result<multi_value<const int&, float>, Error1, Error2, Error3>{Error1{}});
+          CHECK(
+            nonConstLValueError.join(result<float, Error3>{Error3{}})
+            == result<multi_value<const int&, float>, Error1, Error2, Error3>{Error1{}});
+        }
+      }
+
+      SECTION("with multi-valued result")
+      {
+        CHECK(
+          result<MoveOnly, Error1, Error2>{MoveOnly{}}.join(
+            result<multi_value<int, float>, Error3>{multi_value{1, 2.0f}})
+          == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+            multi_value{MoveOnly{}, 1, 2.0f}});
+
+        CHECK(
+          result<MoveOnly, Error1, Error2>{MoveOnly{}}.join(
+            result<multi_value<int, float>, Error3>{Error3{}})
+          == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{Error3{}});
+
+        CHECK(
+          result<MoveOnly, Error1, Error2>{Error1{}}.join(
+            result<multi_value<int, float>, Error3>{multi_value{1, 2.0f}})
+          == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{Error1{}});
+        CHECK(
+          result<MoveOnly, Error1, Error2>{Error1{}}.join(
+            result<multi_value<int, float>, Error3>{Error3{}})
+          == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{Error1{}});
+      }
+    }
+
     SECTION("multi-valued result")
     {
       const auto constLValueSuccess =
@@ -2585,7 +2695,7 @@ TEST_CASE("result")
       {
         using res = result<int, Error1, Error2>;
         using err = std::variant<Error1, Error2>;
-        using out = multi_value<std::vector<int>, std::vector<err>>;
+        using out = std::tuple<std::vector<int>, std::vector<err>>;
 
         SECTION("empty range")
         {

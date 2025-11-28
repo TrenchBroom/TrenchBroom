@@ -25,6 +25,7 @@
 
 #include <iterator>
 #include <optional>
+#include <tuple>
 #include <vector>
 
 namespace kdl
@@ -144,7 +145,7 @@ auto collect_results(I cur, S end)
   }
   else
   {
-    using out_type = multi_value<out_value_vector_type, out_error_vector_type>;
+    using out_type = std::tuple<out_value_vector_type, out_error_vector_type>;
 
     auto values = out_value_vector_type{};
     auto errors = out_error_vector_type{};

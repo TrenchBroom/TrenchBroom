@@ -137,9 +137,10 @@ struct multi_value
   }
 
   template <typename Value1, typename Value2>
-  static multi_value make(Value1 v1, Value2 v2)
+  static multi_value make(Value1&& v1, Value2&& v2)
   {
-    return multi_value{std::tuple<Values...>{std::move(v1), std::move(v2)}};
+    return multi_value{
+      std::tuple<Values...>{std::forward<Value1>(v1), std::forward<Value2>(v2)}};
   }
 
   template <typename Value1, typename... Values2>
@@ -324,11 +325,8 @@ public:
    * of this result
    * @param v the value
    */
-  template <
-    typename T,
-    typename std::enable_if_t<std::disjunction_v<
-      std::is_convertible<T, Value>,
-      std::is_convertible<T, Errors>...>>* = nullptr>
+  template <typename T>
+    requires(std::is_convertible_v<T, Value> || (std::is_convertible_v<T, Errors> || ...))
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
@@ -1073,6 +1071,8 @@ template <is_reference Reference, typename... Errors>
 class [[nodiscard]] result<Reference, Errors...>
 {
 public:
+  using NonConstReference = std::remove_const_t<Reference>;
+
   using value_type = reference_value<Reference>;
   using error_variant = std::variant<Errors...>;
   static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
@@ -1102,16 +1102,25 @@ public:
   }
 
   /**
+   * Creates a new result that wraps the given reference.
+   *
+   * @param r the reference
+   */
+  // NOLINTNEXTLINE
+  result(NonConstReference r)
+    requires(std::is_const_v<Reference>)
+    : m_value{reference_value<Reference>{r}}
+  {
+  }
+
+  /**
    * Creates a new result that wraps the given error.
    *
    * @tparam T the type of the error, must match one of the error types of this result
    * @param r the error
    */
-  template <
-    typename T,
-    typename std::enable_if_t<std::disjunction_v<
-      std::is_same<int, int>, // avoid empty disjunction if Errors is empty
-      std::is_convertible<T, Errors>...>>* = nullptr>
+  template <typename T>
+    requires(std::is_convertible_v<T, Errors> || ...)
   // NOLINTNEXTLINE
   result(T&& r)
     : m_value{std::forward<T>(r)}
@@ -1189,6 +1198,78 @@ public:
   auto visit(const Visitor& visitor) &&
   {
     return std::visit(reference_visitor{visitor}, std::move(m_value));
+  }
+
+  template <typename R>
+  auto join(R other) const&
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<Reference, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](const value_type& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(v.value, std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  template <typename R>
+  auto join(R other) &
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<Reference, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](value_type& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(v.value, std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  template <typename R>
+  auto join(R other) &&
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<Reference, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](value_type&& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(std::move(v), std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
   }
 
 #ifdef _MSC_VER
@@ -1650,11 +1731,10 @@ public:
    * types of this result
    * @param v the value
    */
-  template <
-    typename T,
-    typename std::enable_if_t<std::disjunction_v<
-      std::is_convertible<T, multi_value<Values...>>,
-      std::is_convertible<T, Errors>...>>* = nullptr>
+  template <typename T>
+    requires(
+      std::is_convertible_v<T, multi_value<Values...>>
+      || (std::is_convertible_v<T, Errors> || ...))
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
@@ -2401,11 +2481,9 @@ public:
    * of the error types of this result
    * @param v the value
    */
-  template <
-    typename T,
-    typename std::enable_if_t<std::disjunction_v<
-      std::is_convertible<T, value_type>,
-      std::is_convertible<T, Errors>...>>* = nullptr>
+  template <typename T>
+    requires(
+      std::is_convertible_v<T, value_type> || (std::is_convertible_v<T, Errors> || ...))
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
