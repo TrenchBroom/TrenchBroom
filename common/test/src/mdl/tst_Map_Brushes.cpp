@@ -321,7 +321,7 @@ TEST_CASE("Map_Brushes")
       defaultFaceAttrs.setYScale(2.0f);
 
       auto fixtureConfig = MapFixtureConfig{};
-      fixtureConfig.gameConfig.faceAttribsConfig.defaults = defaultFaceAttrs;
+      fixtureConfig.gameInfo.gameConfig.faceAttribsConfig.defaults = defaultFaceAttrs;
 
       fixture.create(fixtureConfig);
 

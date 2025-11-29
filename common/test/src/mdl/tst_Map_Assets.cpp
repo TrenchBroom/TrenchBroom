@@ -67,7 +67,7 @@ TEST_CASE("Map_Assets")
     CAPTURE(entityProperty);
 
     auto fixtureConfig = MapFixtureConfig{};
-    fixtureConfig.gameConfig.entityConfig.defFilePaths =
+    fixtureConfig.gameInfo.gameConfig.entityConfig.defFilePaths =
       std::vector<std::filesystem::path>{
         "Quake.def",
         "ad.fgd",
@@ -104,7 +104,7 @@ TEST_CASE("Map_Assets")
     CAPTURE(entityDefinitionFileSpec);
 
     auto fixtureConfig = MapFixtureConfig{};
-    fixtureConfig.gameConfig.entityConfig.defFilePaths =
+    fixtureConfig.gameInfo.gameConfig.entityConfig.defFilePaths =
       std::vector<std::filesystem::path>{
         "Quake.def",
         "ad.fgd",

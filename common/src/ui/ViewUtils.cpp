@@ -24,10 +24,11 @@
 #include <QString>
 #include <QWidget>
 
+#include "PreferenceManager.h"
 #include "io/PathQt.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/Game.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "ui/ChoosePathTypeDialog.h"
@@ -61,8 +62,7 @@ void combineFlags(
 bool loadEntityDefinitionFile(mdl::Map& map, QWidget* parent, const QString& pathStr)
 {
   const auto& game = *map.game();
-  const auto& gameFactory = mdl::GameFactory::instance();
-  const auto gamePath = gameFactory.gamePath(game.config().name);
+  const auto gamePath = pref(game.info().gamePathPreference);
   const auto docPath = map.path();
 
   const auto absPath = io::pathFromQString(pathStr);

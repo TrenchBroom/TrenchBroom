@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"

@@ -27,9 +27,11 @@
 #include <QPushButton>
 #include <QTextEdit>
 
+#include "TrenchBroomApp.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/Game.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameInfo.h"
+#include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "ui/CompilationProfileManager.h"
 #include "ui/CompilationRunner.h"
@@ -259,9 +261,12 @@ void CompilationDialog::saveProfile()
 {
   const auto& map = m_mapFrame->document().map();
   const auto& gameName = map.game()->config().name;
-  auto& gameFactory = mdl::GameFactory::instance();
-  gameFactory.saveCompilationConfig(
-    gameName, m_profileManager->config(), m_mapFrame->logger());
+
+  auto& app = TrenchBroomApp::instance();
+  auto& gameManager = app.gameManager();
+  gameManager.updateCompilationConfig(
+    gameName, m_profileManager->config(), m_mapFrame->logger())
+    | kdl::transform_error([&](const auto& e) { m_mapFrame->logger().error() << e.msg; });
 }
 
 } // namespace tb::ui

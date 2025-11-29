@@ -30,6 +30,7 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityDefinitionUtils.h"
 #include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/WorldNode.h"
 #include "ui/EntityBrowserView.h"
@@ -183,7 +184,8 @@ void EntityBrowser::entityDefinitionsDidChange()
 
 void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (m_map.game()->isGamePathPreference(path))
+  if (const auto* game = m_map.game();
+      game && path == pref(game->info().gamePathPreference))
   {
     reload();
   }

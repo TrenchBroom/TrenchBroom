@@ -24,6 +24,7 @@
 
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Map.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/SmartChoiceEditor.h"

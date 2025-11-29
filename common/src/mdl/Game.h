@@ -21,7 +21,6 @@
 
 #include "Result.h"
 #include "mdl/EntityDefinitionFileSpec.h"
-#include "mdl/GameConfig.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/SoftMapBounds.h"
 
@@ -39,27 +38,23 @@ class Entity;
 class EntityNodeBase;
 
 struct EntityPropertyConfig;
+struct GameInfo;
 
 class Game
 {
 private:
-  GameConfig m_config;
+  const GameInfo& m_gameInfo;
   GameFileSystem m_fs;
-  std::filesystem::path m_gamePath;
-  std::vector<std::filesystem::path> m_additionalSearchPaths;
 
 public:
-  Game(GameConfig config, std::filesystem::path gamePath, Logger& logger);
+  Game(const GameInfo& gameInfo, Logger& logger);
 
-  bool isGamePathPreference(const std::filesystem::path& prefPath) const;
-
+public:
+  const GameInfo& info() const;
   const GameConfig& config() const;
   const fs::FileSystem& gameFileSystem() const;
 
-  std::filesystem::path gamePath() const;
-
-  void setGamePath(const std::filesystem::path& gamePath, Logger& logger);
-  void setAdditionalSearchPaths(
+  void updateFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
 
   SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
@@ -79,7 +74,8 @@ public:
   std::string defaultMod() const;
 
 private:
-  void initializeFileSystem(Logger& logger);
+  void initializeFileSystem(
+    const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
 
   EntityPropertyConfig entityPropertyConfig() const;
 

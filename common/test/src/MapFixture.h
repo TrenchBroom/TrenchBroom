@@ -21,7 +21,7 @@
 
 #include "GameConfigFixture.h"
 #include "Macros.h"
-#include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/MapFormat.h"
 
 #include <filesystem>
@@ -46,23 +46,11 @@ struct MapFixtureConfig
 {
   // nullopt means use the default (Standard for new map, Unknown for loading)
   std::optional<MapFormat> mapFormat = std::nullopt;
-  GameConfig gameConfig = DefaultGameConfig;
-  std::filesystem::path gamePath = "";
+  GameInfo gameInfo = DefaultGameInfo;
 };
 
-static const auto QuakeFixtureConfig = MapFixtureConfig{
-  .mapFormat = MapFormat::Valve,
-  .gameConfig = QuakeGameConfig,
-  .gamePath =
-    std::filesystem::current_path() / "fixture" / "test" / "mdl" / "Game" / "Quake",
-};
-
-static const auto Quake2FixtureConfig = MapFixtureConfig{
-  .mapFormat = MapFormat::Quake2,
-  .gameConfig = Quake2GameConfig,
-  .gamePath =
-    std::filesystem::current_path() / "fixture" / "test" / "mdl" / "Game" / "Quake2",
-};
+extern const MapFixtureConfig QuakeFixtureConfig;
+extern const MapFixtureConfig Quake2FixtureConfig;
 
 class MapFixture
 {
@@ -71,14 +59,16 @@ private:
   std::unique_ptr<Logger> m_logger;
   std::unique_ptr<Map> m_map;
 
+  std::optional<MapFixtureConfig> m_config;
+
 public:
   explicit MapFixture();
   ~MapFixture();
 
   defineMove(MapFixture);
 
-  void create(const MapFixtureConfig& = {});
-  void load(const std::filesystem::path& path, const MapFixtureConfig& = {});
+  void create(MapFixtureConfig = {});
+  void load(const std::filesystem::path& path, MapFixtureConfig = {});
 
   Map& map();
 };

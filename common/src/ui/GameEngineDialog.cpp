@@ -23,9 +23,9 @@
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 
-#include "FileLogger.h"
-#include "mdl/GameConfig.h"
-#include "mdl/GameFactory.h"
+#include "Logger.h"
+#include "TrenchBroomApp.h"
+#include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
 #include "ui/CurrentGameIndicator.h"
 #include "ui/GameEngineProfileManager.h"
@@ -36,9 +36,10 @@
 namespace tb::ui
 {
 
-GameEngineDialog::GameEngineDialog(std::string gameName, QWidget* parent)
+GameEngineDialog::GameEngineDialog(std::string gameName, Logger& logger, QWidget* parent)
   : QDialog{parent}
   , m_gameName{std::move(gameName)}
+  , m_logger{logger}
 {
   setWindowTitle("Game Engines");
   setWindowIconTB(this);
@@ -47,11 +48,14 @@ GameEngineDialog::GameEngineDialog(std::string gameName, QWidget* parent)
 
 void GameEngineDialog::createGui()
 {
+  auto& app = TrenchBroomApp::instance();
+  const auto& gameManager = app.gameManager();
+
   auto* gameIndicator = new CurrentGameIndicator{m_gameName};
 
-  auto& gameFactory = mdl::GameFactory::instance();
-  auto& gameConfig = gameFactory.gameConfig(m_gameName);
-  m_profileManager = new GameEngineProfileManager{gameConfig.gameEngineConfig};
+  const auto* gameInfo = gameManager.gameInfo(m_gameName);
+  contract_assert(gameInfo != nullptr);
+  m_profileManager = new GameEngineProfileManager{gameInfo->gameConfig.gameEngineConfig};
 
   auto* buttons = new QDialogButtonBox{QDialogButtonBox::Close};
 
@@ -80,9 +84,11 @@ void GameEngineDialog::done(const int r)
 
 void GameEngineDialog::saveConfig()
 {
-  auto& logger = FileLogger::instance();
-  auto& gameFactory = mdl::GameFactory::instance();
-  gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config(), logger);
+  auto& app = TrenchBroomApp::instance();
+  auto& gameManager = app.gameManager();
+
+  gameManager.updateGameEngineConfig(m_gameName, m_profileManager->config(), m_logger)
+    | kdl::transform_error([&](const auto& e) { m_logger.error() << e.msg; });
 }
 
 } // namespace tb::ui

@@ -28,7 +28,6 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Game.h"
-#include "mdl/GameFactory.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/MaterialManager.h"

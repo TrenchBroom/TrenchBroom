@@ -145,7 +145,7 @@ TEST_CASE("Map_Entities")
     SECTION("Default entity properties")
     {
       auto fixtureConfig = MapFixtureConfig{};
-      fixtureConfig.gameConfig.entityConfig.setDefaultProperties = true;
+      fixtureConfig.gameInfo.gameConfig.entityConfig.setDefaultProperties = true;
       fixture.create(fixtureConfig);
 
       map.entityDefinitionManager().setDefinitions({
@@ -266,7 +266,7 @@ TEST_CASE("Map_Entities")
     SECTION("Default entity properties")
     {
       auto fixtureConfig = MapFixtureConfig{};
-      fixtureConfig.gameConfig.entityConfig.setDefaultProperties = true;
+      fixtureConfig.gameInfo.gameConfig.entityConfig.setDefaultProperties = true;
       fixture.create(fixtureConfig);
 
       map.entityDefinitionManager().setDefinitions({

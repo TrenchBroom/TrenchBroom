@@ -19,11 +19,13 @@
 
 #include "mdl/Map_World.h"
 
+#include "PreferenceManager.h"
 #include "io/GameConfigParser.h"
 #include "io/SystemPaths.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Transaction.h"
@@ -91,7 +93,7 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
 
   if (const auto* game = map.game())
   {
-    if (const auto gamePath = game->gamePath(); !gamePath.empty())
+    if (const auto gamePath = pref(game->info().gamePathPreference); !gamePath.empty())
     {
       searchPaths.push_back(gamePath);
     }

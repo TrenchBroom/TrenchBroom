@@ -24,6 +24,7 @@
 #include "mdl/EntityModel.h"
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"
@@ -69,9 +70,7 @@ TEST_CASE("EntityModel")
   SECTION("intersect")
   {
     auto logger = TestLogger{};
-
-    const auto gamePath = std::filesystem::current_path() / "fixture/test/mdl/Game/Quake";
-    auto game = std::make_unique<Game>(QuakeGameConfig, gamePath, logger);
+    auto game = std::make_unique<Game>(QuakeGameInfo, logger);
 
     const auto path = std::filesystem::path{"cube.bsp"};
     const auto loadMaterial = [](auto) -> Material {

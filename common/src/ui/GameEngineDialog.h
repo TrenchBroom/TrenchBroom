@@ -26,9 +26,12 @@
 class QKeyEvent;
 class QCloseEvent;
 
-namespace tb::ui
+namespace tb
 {
+class Logger;
 
+namespace ui
+{
 class GameEngineProfileManager;
 
 /**
@@ -39,10 +42,12 @@ class GameEngineDialog : public QDialog
   Q_OBJECT
 private:
   const std::string m_gameName;
+  Logger& m_logger;
   GameEngineProfileManager* m_profileManager = nullptr;
 
 public:
-  explicit GameEngineDialog(std::string gameName, QWidget* parent = nullptr);
+  explicit GameEngineDialog(
+    std::string gameName, Logger& logger, QWidget* parent = nullptr);
 public slots: // QDialog overrides
   void done(int r) override;
 
@@ -51,4 +56,5 @@ private:
   void saveConfig();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -26,6 +26,7 @@
 #include <QtGlobal>
 
 #include "mdl/Game.h" // IWYU pragma: keep
+#include "mdl/GameConfig.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"

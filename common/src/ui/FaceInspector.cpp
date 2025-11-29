@@ -25,7 +25,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/Game.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Material.h"
@@ -48,8 +48,7 @@ namespace
 
 void resetMaterialBrowserInfo(mdl::Map& map, QWidget* materialBrowserInfo)
 {
-  const auto& game = *map.game();
-  const auto& gameConfig = mdl::GameFactory::instance().gameConfig(game.config().name);
+  const auto& gameConfig = map.game()->config();
   materialBrowserInfo->setVisible(gameConfig.materialConfig.property != std::nullopt);
 }
 

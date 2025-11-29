@@ -27,10 +27,12 @@
 #include <QProcess>
 #include <QPushButton>
 
-#include "mdl/Game.h" // IWYU pragma: keep
+#include "TrenchBroomApp.h"
+#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameInfo.h"
+#include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
@@ -65,13 +67,11 @@ void LaunchGameEngineDialog::createGui()
   setWindowTitle("Launch Engine");
 
   const auto& map = m_document.map();
-  const auto& gameName = map.game()->config().name;
-  auto* gameIndicator = new CurrentGameIndicator{gameName};
+  const auto& gameConfig = map.game()->config();
+  auto* gameIndicator = new CurrentGameIndicator{gameConfig.name};
 
   auto* midPanel = new QWidget{this};
 
-  auto& gameFactory = mdl::GameFactory::instance();
-  const auto& gameConfig = gameFactory.gameConfig(gameName);
   m_config = gameConfig.gameEngineConfig;
   m_gameEngineList = new GameEngineProfileListBox{m_config};
   m_gameEngineList->setEmptyText(
@@ -179,12 +179,9 @@ void LaunchGameEngineDialog::createGui()
 void LaunchGameEngineDialog::reloadConfig()
 {
   const auto& map = m_document.map();
-  const auto& gameName = map.game()->config().name;
+  const auto& gameConfig = map.game()->config();
 
-  auto& gameFactory = mdl::GameFactory::instance();
-  const auto& gameConfig = gameFactory.gameConfig(gameName);
   m_config = gameConfig.gameEngineConfig;
-
   m_gameEngineList->setConfig(m_config);
 }
 
@@ -216,7 +213,9 @@ void LaunchGameEngineDialog::editGameEngines()
   saveConfig();
 
   const auto& map = m_document.map();
-  auto dialog = GameEngineDialog{map.game()->config().name, this};
+  const auto& gameConfig = map.game()->config();
+
+  auto dialog = GameEngineDialog{gameConfig.name, m_document.logger(), this};
   dialog.exec();
 
   const auto previousRow = m_gameEngineList->currentRow();
@@ -260,10 +259,14 @@ void LaunchGameEngineDialog::done(const int r)
 
 void LaunchGameEngineDialog::saveConfig()
 {
-  auto& map = m_document.map();
+  auto& app = TrenchBroomApp::instance();
+  auto& gameManager = app.gameManager();
+
+  const auto& map = m_document.map();
   const auto& gameName = map.game()->config().name;
-  auto& gameFactory = mdl::GameFactory::instance();
-  gameFactory.saveGameEngineConfig(gameName, m_config, map.logger());
+
+  gameManager.updateGameEngineConfig(gameName, m_config, m_document.logger())
+    | kdl::transform_error([&](const auto& e) { m_document.logger().error() << e.msg; });
 }
 
 } // namespace tb::ui

@@ -24,6 +24,7 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"

@@ -34,11 +34,20 @@ namespace
 std::unique_ptr<Game> createGame(const MapFixtureConfig& mapFixtureConfig)
 {
   auto logger = NullLogger{};
-  return std::make_unique<Game>(
-    mapFixtureConfig.gameConfig, mapFixtureConfig.gamePath, logger);
+  return std::make_unique<Game>(mapFixtureConfig.gameInfo, logger);
 }
 
 } // namespace
+
+const MapFixtureConfig QuakeFixtureConfig = MapFixtureConfig{
+  .mapFormat = MapFormat::Valve,
+  .gameInfo = QuakeGameInfo,
+};
+
+const MapFixtureConfig Quake2FixtureConfig = MapFixtureConfig{
+  .mapFormat = MapFormat::Quake2,
+  .gameInfo = Quake2GameInfo,
+};
 
 MapFixture::MapFixture()
   : m_taskManager{createTestTaskManager()}
@@ -50,20 +59,24 @@ MapFixture::MapFixture()
 
 MapFixture::~MapFixture() = default;
 
-void MapFixture::create(const MapFixtureConfig& config)
+void MapFixture::create(MapFixtureConfig config)
 {
-  const auto mapFormat = config.mapFormat.value_or(MapFormat::Standard);
-  auto game = createGame(config);
+  m_config = std::move(config);
+
+  const auto mapFormat = m_config->mapFormat.value_or(MapFormat::Standard);
+  auto game = createGame(*m_config);
 
   contract_assert(m_map->create(mapFormat, vm::bbox3d{8192.0}, std::move(game)));
 }
 
-void MapFixture::load(const std::filesystem::path& path, const MapFixtureConfig& config)
+void MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config)
 {
+  m_config = std::move(config);
+
   const auto absPath = path.is_absolute() ? path : std::filesystem::current_path() / path;
 
-  const auto mapFormat = config.mapFormat.value_or(MapFormat::Unknown);
-  auto game = createGame(config);
+  const auto mapFormat = m_config->mapFormat.value_or(MapFormat::Unknown);
+  auto game = createGame(*m_config);
 
   m_map->load(mapFormat, vm::bbox3d{8192.0}, std::move(game), absPath)
     .transform_error([](const auto& e) { throw std::runtime_error{e.msg}; });

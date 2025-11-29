@@ -19,106 +19,13 @@
 
 #pragma once
 
-#include "mdl/GameConfig.h"
-
-#include <optional>
-
-namespace kdl
-{
-class task_manager;
-}
+#include "mdl/GameInfo.h"
 
 namespace tb::mdl
 {
 
-const auto DefaultGameConfig = GameConfig{
-  .name = "Test",
-  .path = {},
-  .icon = {},
-  .experimental = false,
-  .fileFormats = {},
-  .fileSystemConfig = {},
-  .materialConfig = {"textures", {".D"}, "fixture/test/palette.lmp", {}, "", {}},
-  .entityConfig = {},
-  .faceAttribsConfig = {},
-  .smartTags = {},
-  .softMapBounds = {},
-  .compilationTools = {},
-  .forceEmptyNewMap = true,
-};
-
-const auto QuakeGameConfig = GameConfig{
-  .name = "Quake",
-  .path = {},
-  .icon = "Icon.png",
-  .experimental = false,
-  .fileFormats =
-    {
-      {.format = "Valve", .initialMap = ""},
-      {.format = "Standard", .initialMap = ""},
-    },
-  .fileSystemConfig =
-    {
-      .searchPath = "id1",
-      .packageFormat = {.extensions = {".pak"}, .format = "idpak"},
-    },
-  .materialConfig =
-    {
-      .root = "textures",
-      .extensions = {".D"},
-      .palette = "gfx/palette.lmp",
-      .property = "wad",
-      .shaderSearchPath = "",
-      .excludes = {},
-    },
-  .entityConfig =
-    {
-      .defFilePaths = {"Quake.fgd", "Quoth2.fgd", "Rubicon2.def", "Teamfortress.fgd"},
-      .defaultColor = RgbaF{0.6f, 0.6f, 0.6f, 1.0f},
-      .scaleExpression = std::nullopt,
-    },
-  .faceAttribsConfig = {},
-  .smartTags = {},
-  .softMapBounds = vm::bbox3d{4096.0},
-  .compilationTools = {},
-  .forceEmptyNewMap = true,
-};
-
-const auto Quake2GameConfig = GameConfig{
-  .name = "Quake 2",
-  .path = {},
-  .icon = "Icon.png",
-  .experimental = false,
-  .fileFormats =
-    {
-      {.format = "Quake2", .initialMap = ""},
-      {.format = "Quake2 (Valve)", .initialMap = ""},
-    },
-  .fileSystemConfig =
-    {
-      .searchPath = "baseq2",
-      .packageFormat = {.extensions = {".pak"}, .format = "idpak"},
-    },
-  .materialConfig =
-    {
-      .root = "textures",
-      .extensions = {".wal"},
-      .palette = "pics/colormap.pcx",
-      .property = std::nullopt,
-      .shaderSearchPath = "",
-      .excludes = {},
-    },
-  .entityConfig =
-    {
-      .defFilePaths = {"Quake2.fgd"},
-      .defaultColor = RgbaF{0.6f, 0.6f, 0.6f, 1.0f},
-      .scaleExpression = std::nullopt,
-    },
-  .faceAttribsConfig = {},
-  .smartTags = {},
-  .softMapBounds = {},
-  .compilationTools = {},
-  .forceEmptyNewMap = true,
-};
+extern const GameInfo DefaultGameInfo;
+extern const GameInfo QuakeGameInfo;
+extern const GameInfo Quake2GameInfo;
 
 } // namespace tb::mdl

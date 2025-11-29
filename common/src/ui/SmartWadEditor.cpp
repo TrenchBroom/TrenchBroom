@@ -23,9 +23,11 @@
 #include <QListWidget>
 #include <QToolButton>
 
+#include "PreferenceManager.h"
 #include "io/PathQt.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
@@ -147,15 +149,15 @@ void SmartWadEditor::addWads()
       FileDialogDir::MaterialCollection, pathQStr);
 
     const auto absWadPath = io::pathFromQString(pathQStr);
-    auto pathDialog =
-      ChoosePathTypeDialog{window(), absWadPath, map().path(), map().game()->gamePath()};
+    const auto gamePath = pref(map().game()->info().gamePathPreference);
+    auto pathDialog = ChoosePathTypeDialog{window(), absWadPath, map().path(), gamePath};
 
     const int result = pathDialog.exec();
     if (result == QDialog::Accepted)
     {
       auto wadPaths = getWadPaths(nodes(), propertyKey());
-      wadPaths.push_back(convertToPathType(
-        pathDialog.pathType(), absWadPath, map().path(), map().game()->gamePath()));
+      wadPaths.push_back(
+        convertToPathType(pathDialog.pathType(), absWadPath, map().path(), gamePath));
 
       setEntityProperty(map(), propertyKey(), getWadPathStr(wadPaths));
       m_wadPaths->setCurrentRow(

@@ -27,7 +27,7 @@
 
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
 #include "ui/GameListBox.h"
 #include "ui/QtUtils.h"
@@ -251,9 +251,12 @@ QWidget* GameDialog::createSelectionPanel()
 
 void GameDialog::updateMapFormats(const std::string& gameName)
 {
-  const auto& gameFactory = mdl::GameFactory::instance();
+  auto& app = TrenchBroomApp::instance();
+  const auto& gameManager = app.gameManager();
+
+  const auto* gameInfo = gameManager.gameInfo(gameName);
   const auto fileFormats =
-    gameName.empty() ? std::vector<std::string>{} : gameFactory.fileFormats(gameName);
+    gameInfo ? gameInfo->gameConfig.fileFormats : std::vector<mdl::MapFormatConfig>{};
 
   m_mapFormatComboBox->clear();
   if (m_dialogType == DialogType::Open)
@@ -264,9 +267,9 @@ void GameDialog::updateMapFormats(const std::string& gameName)
 
   for (const auto& fileFormat : fileFormats)
   {
-    const auto mapFormat = mdl::formatFromName(fileFormat);
+    const auto mapFormat = mdl::formatFromName(fileFormat.format);
     m_mapFormatComboBox->addItem(
-      QString::fromStdString(fileFormat), formatToUserData(mapFormat));
+      QString::fromStdString(fileFormat.format), formatToUserData(mapFormat));
   }
 
   m_mapFormatComboBox->setEnabled(m_mapFormatComboBox->count() > 1);
