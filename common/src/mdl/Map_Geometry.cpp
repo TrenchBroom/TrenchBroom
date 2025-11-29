@@ -275,6 +275,7 @@ TransformVerticesResult transformVertices(
   }
 
   kdl::vec_sort_and_remove_duplicates(newVertexPositions);
+  const auto hasRemainingVertices = !newVertexPositions.empty();
 
   auto commandName =
     kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
@@ -283,14 +284,13 @@ TransformVerticesResult transformVertices(
   const auto changedLinkedGroups = collectContainingGroups(
     *newNodes | std::views::keys | kdl::ranges::to<std::vector>());
 
-  auto commandOwner = std::make_unique<BrushVertexCommand>(
+  auto command = std::make_unique<BrushVertexCommand>(
     std::move(commandName),
     std::move(*newNodes),
     std::move(vertexPositions),
     std::move(newVertexPositions));
-  const auto* command = commandOwner.get();
 
-  if (!map.executeAndStore(std::move(commandOwner)))
+  if (!map.executeAndStore(std::move(command)))
   {
     transaction.cancel();
     return TransformVerticesResult{false, false};
@@ -303,7 +303,7 @@ TransformVerticesResult transformVertices(
     return TransformVerticesResult{false, false};
   }
 
-  return {true, command->hasRemainingHandles()};
+  return {true, hasRemainingVertices};
 }
 
 bool transformEdges(
