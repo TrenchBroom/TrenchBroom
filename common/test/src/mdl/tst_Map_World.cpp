@@ -45,7 +45,7 @@ TEST_CASE("Map_World")
 
     SECTION("World node without soft map bounds key")
     {
-      fixture.create({.game = LoadGameFixture{"Quake"}});
+      fixture.create(QuakeFixtureConfig);
 
       CHECK(
         softMapBounds(map) == SoftMapBounds{SoftMapBoundsType::Game, vm::bbox3d{4096.0}});
@@ -53,7 +53,7 @@ TEST_CASE("Map_World")
 
     SECTION("World node with soft map bounds key")
     {
-      fixture.create({.game = LoadGameFixture{"Quake"}});
+      fixture.create(QuakeFixtureConfig);
 
       {
         auto* worldNode = map.world();
@@ -81,7 +81,7 @@ TEST_CASE("Map_World")
        "-1024 -1024 -1024 1024 1024 1024"},
     }));
 
-    fixture.create({.game = LoadGameFixture{"Quake"}});
+    fixture.create(QuakeFixtureConfig);
 
     setSoftMapBounds(map, softBounds);
 
@@ -111,7 +111,9 @@ TEST_CASE("Map_World")
 
       SECTION("Map is transient")
       {
-        fixture.create();
+        auto fixtureConfig = MapFixtureConfig{};
+        fixtureConfig.gamePath = ".";
+        fixture.create(fixtureConfig);
 
         REQUIRE(!map.persistent());
 
@@ -138,9 +140,10 @@ TEST_CASE("Map_World")
 
         const auto path = env.dir() / filename;
 
-        auto gameConfig = MockGameConfig{};
-        gameConfig.fileFormats = {{"Valve", ""}};
-        fixture.load(path, {.game = MockGameFixture{std::move(gameConfig)}});
+        auto fixtureConfig = MapFixtureConfig{};
+        fixtureConfig.gameConfig.fileFormats = {{"Valve", ""}};
+        fixtureConfig.gamePath = ".";
+        fixture.load(path, fixtureConfig);
 
         CHECK(
           externalSearchPaths(map)
@@ -246,9 +249,9 @@ TEST_CASE("Map_World")
 
   SECTION("defaultMod")
   {
-    fixture.create();
+    fixture.create(QuakeFixtureConfig);
 
-    CHECK(defaultMod(map) == "defaultMod");
+    CHECK(defaultMod(map) == "id1");
   }
 }
 

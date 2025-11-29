@@ -499,17 +499,15 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
 
 TEST_CASE("CompilationRunner")
 {
-  auto gameConfig = mdl::MockGameConfig{};
-  gameConfig.forceEmptyNewMap = false;
-  gameConfig.fileFormats = std::vector<mdl::MapFormatConfig>{
+  auto fixtureConfig = mdl::MapFixtureConfig{};
+  fixtureConfig.gameConfig.forceEmptyNewMap = false;
+  fixtureConfig.gameConfig.fileFormats = std::vector<mdl::MapFormatConfig>{
     {"Valve", {}},
   };
 
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.map();
-  fixture.load(
-    "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map",
-    {.game = mdl::MockGameFixture{.config = gameConfig}});
+  fixture.load("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map", fixtureConfig);
 
   const auto testWorkDir = std::string{"/some/path"};
   auto variables = CompilationVariables{map, testWorkDir};

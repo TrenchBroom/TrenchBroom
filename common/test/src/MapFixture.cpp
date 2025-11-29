@@ -21,33 +21,21 @@
 
 #include "Logger.h"
 #include "TestUtils.h"
+#include "mdl/GameImpl.h"
 #include "mdl/Map.h"
-#include "mdl/MockGame.h"
 #include "mdl/Resource.h"
 
 #include "kd/contracts.h"
-#include "kd/overload.h"
 
 namespace tb::mdl
 {
 namespace
 {
-std::unique_ptr<Game> createGame(const MapFixtureConfig& config)
+std::unique_ptr<Game> createGame(const MapFixtureConfig& mapFixtureConfig)
 {
-  return std::visit(
-    kdl::overload(
-      [](const MockGameFixture& mockGameConfig) -> std::unique_ptr<Game> {
-        auto game = std::make_unique<MockGame>();
-        if (const auto& gameConfig = mockGameConfig.config)
-        {
-          game->config() = *gameConfig;
-        }
-        return game;
-      },
-      [](const LoadGameFixture& loadGameConfig) -> std::unique_ptr<Game> {
-        return loadGame(loadGameConfig.name);
-      }),
-    config.game);
+  auto logger = NullLogger{};
+  return std::make_unique<GameImpl>(
+    mapFixtureConfig.gameConfig, mapFixtureConfig.gamePath, logger);
 }
 
 } // namespace

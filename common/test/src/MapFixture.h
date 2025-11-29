@@ -19,15 +19,14 @@
 
 #pragma once
 
+#include "GameConfigFixture.h"
 #include "Macros.h"
+#include "mdl/GameConfig.h"
 #include "mdl/MapFormat.h"
-#include "mdl/MockGame.h"
 
 #include <filesystem>
 #include <memory>
 #include <optional>
-#include <string>
-#include <variant>
 
 namespace kdl
 {
@@ -43,24 +42,26 @@ namespace mdl
 class Game;
 class Map;
 
-struct LoadGameFixture
-{
-  std::string name;
-};
-
-struct MockGameFixture
-{
-  std::optional<MockGameConfig> config;
-};
-
-using GameFixture = std::variant<MockGameFixture, LoadGameFixture>;
-
 struct MapFixtureConfig
 {
   // nullopt means use the default (Standard for new map, Unknown for loading)
   std::optional<MapFormat> mapFormat = std::nullopt;
+  GameConfig gameConfig = DefaultGameConfig;
+  std::filesystem::path gamePath = "";
+};
 
-  GameFixture game = MockGameFixture{};
+static const auto QuakeFixtureConfig = MapFixtureConfig{
+  .mapFormat = MapFormat::Valve,
+  .gameConfig = QuakeGameConfig,
+  .gamePath =
+    std::filesystem::current_path() / "fixture" / "test" / "mdl" / "Game" / "Quake",
+};
+
+static const auto Quake2FixtureConfig = MapFixtureConfig{
+  .mapFormat = MapFormat::Quake2,
+  .gameConfig = Quake2GameConfig,
+  .gamePath =
+    std::filesystem::current_path() / "fixture" / "test" / "mdl" / "Game" / "Quake2",
 };
 
 class MapFixture

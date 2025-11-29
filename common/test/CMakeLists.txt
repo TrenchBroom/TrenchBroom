@@ -6,6 +6,7 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/Matchers.h"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.h"
+        "${COMMON_TEST_SOURCE_DIR}/GameConfigFixture.h"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/MapFixture.h"
         "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.cpp"
