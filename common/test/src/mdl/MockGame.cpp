@@ -24,10 +24,7 @@
 #include "fs/TestUtils.h"
 #include "fs/VirtualFileSystem.h"
 #include "fs/WadFileSystem.h"
-#include "io/BrushFaceReader.h"
-#include "io/NodeReader.h"
 #include "mdl/Entity.h"
-#include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialManager.h"
@@ -144,22 +141,6 @@ std::string MockGame::defaultMod() const
   return "defaultMod";
 }
 
-Result<std::vector<EntityDefinition>> MockGame::loadEntityDefinitions(
-  ParserStatus& /* status */, const std::filesystem::path& path) const
-{
-  if (m_entityDefinitions.empty())
-  {
-    return std::vector<EntityDefinition>{};
-  }
-
-  if (const auto i = m_entityDefinitions.find(path); i != m_entityDefinitions.end())
-  {
-    return i->second;
-  }
-
-  return Error{fmt::format("Unknown entity definition file: {}", path)};
-}
-
 void MockGame::setSmartTags(std::vector<SmartTag> smartTags)
 {
   m_config.smartTags = std::move(smartTags);
@@ -168,13 +149,6 @@ void MockGame::setSmartTags(std::vector<SmartTag> smartTags)
 void MockGame::setDefaultFaceAttributes(const BrushFaceAttributes& defaultFaceAttributes)
 {
   m_config.faceAttribsConfig.defaults = defaultFaceAttributes;
-}
-
-void MockGame::setEntityDefinitionFiles(
-  std::unordered_map<std::filesystem::path, std::vector<EntityDefinition>>
-    entityDefinitionFiles)
-{
-  m_entityDefinitions = std::move(entityDefinitionFiles);
 }
 
 } // namespace tb::mdl

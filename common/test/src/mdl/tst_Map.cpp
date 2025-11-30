@@ -71,40 +71,6 @@ using namespace Catch::Matchers;
 namespace
 {
 
-class MockGame : public GameImpl
-{
-private:
-  std::unordered_map<std::filesystem::path, std::vector<EntityDefinition>>
-    m_entityDefinitionFiles;
-
-public:
-  using GameImpl::GameImpl;
-
-  Result<std::vector<EntityDefinition>> loadEntityDefinitions(
-    ParserStatus&, const std::filesystem::path& path) const override
-  {
-    if (m_entityDefinitionFiles.empty())
-    {
-      return std::vector<EntityDefinition>{};
-    }
-
-    if (const auto i = m_entityDefinitionFiles.find(path);
-        i != m_entityDefinitionFiles.end())
-    {
-      return i->second;
-    }
-
-    return Error{fmt::format("Unknown entity definition file: {}", path)};
-  }
-
-  void setEntityDefinitionFiles(
-    std::unordered_map<std::filesystem::path, std::vector<EntityDefinition>>
-      entityDefinitionFiles)
-  {
-    m_entityDefinitionFiles = std::move(entityDefinitionFiles);
-  }
-};
-
 class TestCallback : public TagMatcherCallback
 {
 private:
@@ -298,32 +264,19 @@ TEST_CASE("Map")
 
     SECTION("Loads default entity definition file")
     {
-      const auto entityDefinitionFilePath =
-        std::filesystem::path{"/some/folder/Quake.fgd"};
-      const auto entityDefinition = EntityDefinition{
-        "some_name",
-        {},
-        {},
-        {
-          PropertyDefinition{"some_prop", PropertyValueTypes::LinkTarget{}, {}, {}},
-        },
-        {},
-        1};
+      auto env = fs::TestEnvironment{};
+      env.createFile("Quake.fgd", R"(@SolidClass = some_entity : "Some Entity" [])");
 
       auto gameConfig = DefaultGameConfig;
-      gameConfig.fileFormats = std::vector<MapFormatConfig>{
-        {"Valve", {}},
-      };
-      gameConfig.entityConfig.defFilePaths.emplace_back(entityDefinitionFilePath);
+      gameConfig.path = env.dir() / "GameConfig.cfg";
+      gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<MockGame>(std::move(gameConfig), "", logger);
-      game->setEntityDefinitionFiles({
-        {entityDefinitionFilePath, {entityDefinition}},
-      });
+      auto game = std::make_unique<GameImpl>(std::move(gameConfig), env.dir(), logger);
 
       REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, std::move(game)));
 
-      CHECK(map.entityDefinitionManager().definitions() == std::vector{entityDefinition});
+      REQUIRE(map.entityDefinitionManager().definitions().size() == 1);
+      CHECK(map.entityDefinitionManager().definitions().front().name == "some_entity");
     }
   }
 
@@ -482,28 +435,14 @@ TEST_CASE("Map")
 
     SECTION("Loads default entity definition file")
     {
-      const auto entityDefinitionFilePath =
-        std::filesystem::path{"/some/folder/Quake.fgd"};
-      const auto entityDefinition = EntityDefinition{
-        "some_name",
-        {},
-        {},
-        {
-          PropertyDefinition{"some_prop", PropertyValueTypes::LinkTarget{}, {}, {}},
-        },
-        {},
-        1};
+      auto env = fs::TestEnvironment{};
+      env.createFile("Quake.fgd", R"(@SolidClass = some_entity : "Some Entity" [])");
 
-      auto gameConfig = DefaultGameConfig;
-      gameConfig.fileFormats = std::vector<MapFormatConfig>{
-        {"Valve", {}},
-      };
-      gameConfig.entityConfig.defFilePaths.emplace_back(entityDefinitionFilePath);
+      auto gameConfig = QuakeGameConfig;
+      gameConfig.path = env.dir() / "GameConfig.cfg";
+      gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<MockGame>(std::move(gameConfig), "", logger);
-      game->setEntityDefinitionFiles({
-        {entityDefinitionFilePath, {entityDefinition}},
-      });
+      auto game = std::make_unique<GameImpl>(std::move(gameConfig), env.dir(), logger);
 
       REQUIRE(map.load(
         MapFormat::Unknown,
@@ -511,7 +450,8 @@ TEST_CASE("Map")
         std::move(game),
         makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
 
-      CHECK(map.entityDefinitionManager().definitions() == std::vector{entityDefinition});
+      REQUIRE(map.entityDefinitionManager().definitions().size() == 1);
+      CHECK(map.entityDefinitionManager().definitions().front().name == "some_entity");
     }
   }
 
@@ -2135,29 +2075,23 @@ TEST_CASE("Map")
     {
       using namespace EntityPropertyKeys;
 
-      const auto entityDefinitionFilePath =
-        std::filesystem::path{"/some/folder/Quake.fgd"};
+      auto env = fs::TestEnvironment{};
+      env.createFile("Quake.fgd", R"(@PointClass = some_entity : "Some Entity" [])");
 
-      auto gameConfig = DefaultGameConfig;
-      gameConfig.fileFormats = std::vector<MapFormatConfig>{
-        {"Valve", {}},
-      };
-      gameConfig.entityConfig.defFilePaths.emplace_back(entityDefinitionFilePath);
+      auto gameConfig = QuakeGameConfig;
+      gameConfig.path = env.dir() / "GameConfig.cfg";
+      gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<MockGame>(std::move(gameConfig), "", logger);
-      game->setEntityDefinitionFiles({
-        {entityDefinitionFilePath,
-         {{"some_name", {}, {}, {}, PointEntityDefinition{}, 1}}},
-      });
+      auto game = std::make_unique<GameImpl>(std::move(gameConfig), env.dir(), logger);
 
       REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, std::move(game)));
 
       CHECK(
         map.entityDefinitionManager().definitions()
         == std::vector{EntityDefinition{
-          "some_name",
-          {},
-          {},
+          "some_entity",
+          RgbaF{0.6f, 0.6f, 0.6f, 1.0f},
+          "Some Entity",
           {
             PropertyDefinition{
               Target,
@@ -2181,7 +2115,7 @@ TEST_CASE("Map")
               "generated by TrenchBroom"},
 
           },
-          PointEntityDefinition{},
+          PointEntityDefinition{vm::bbox3d{8.0}, {}, {}},
           1}});
     }
   }

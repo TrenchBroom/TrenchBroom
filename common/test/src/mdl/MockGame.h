@@ -22,7 +22,6 @@
 #include "Result.h"
 #include "fs/VirtualFileSystem.h"
 #include "mdl/BrushFaceAttributes.h"
-#include "mdl/EntityDefinition.h"
 #include "mdl/Game.h"
 
 #include <filesystem>
@@ -54,8 +53,6 @@ private:
   MockGameConfig m_config;
   std::unique_ptr<fs::VirtualFileSystem> m_fs;
   mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
-  std::unordered_map<std::filesystem::path, std::vector<EntityDefinition>>
-    m_entityDefinitions;
 
 public:
   explicit MockGame(MockGameConfig config = {});
@@ -86,14 +83,8 @@ public:
   Result<std::vector<std::string>> availableMods() const override;
   std::string defaultMod() const override;
 
-  Result<std::vector<EntityDefinition>> loadEntityDefinitions(
-    ParserStatus& status, const std::filesystem::path& path) const override;
-
   void setSmartTags(std::vector<SmartTag> smartTags);
   void setDefaultFaceAttributes(const BrushFaceAttributes& newDefaults);
-  void setEntityDefinitionFiles(
-    std::unordered_map<std::filesystem::path, std::vector<EntityDefinition>>
-      entityDefinitionFiles);
 };
 
 } // namespace mdl

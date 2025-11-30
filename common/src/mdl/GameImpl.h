@@ -46,10 +46,6 @@ private:
 public:
   GameImpl(GameConfig config, std::filesystem::path gamePath, Logger& logger);
 
-public: // implement EntityDefinitionLoader interface:
-  Result<std::vector<EntityDefinition>> loadEntityDefinitions(
-    ParserStatus& status, const std::filesystem::path& path) const override;
-
 public: // implement Game interface
   const GameConfig& config() const override;
   const fs::FileSystem& gameFileSystem() const override;

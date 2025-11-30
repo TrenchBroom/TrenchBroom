@@ -26,6 +26,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.cpp
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.cpp
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.cpp
         ${COMMON_SOURCE_DIR}/io/LoadShaders.cpp
@@ -505,6 +506,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.h
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.h
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.h
+        ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.h
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.h
         ${COMMON_SOURCE_DIR}/io/LoadShaders.h

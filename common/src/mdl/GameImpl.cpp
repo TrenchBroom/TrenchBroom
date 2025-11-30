@@ -24,17 +24,12 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
-#include "io/BrushFaceReader.h"
-#include "io/DefParser.h"
-#include "io/EntParser.h"
 #include "io/FgdParser.h"
 #include "io/GameConfigParser.h"
 #include "io/LoadEntityModel.h"
-#include "io/NodeReader.h"
 #include "io/SystemPaths.h"
 #include "io/WorldReader.h"
 #include "mdl/Entity.h"
-#include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
@@ -62,40 +57,6 @@ GameImpl::GameImpl(GameConfig config, std::filesystem::path gamePath, Logger& lo
   , m_gamePath{std::move(gamePath)}
 {
   initializeFileSystem(logger);
-}
-
-Result<std::vector<EntityDefinition>> GameImpl::loadEntityDefinitions(
-  ParserStatus& status, const std::filesystem::path& path) const
-{
-  const auto extension = kdl::path_to_lower(path.extension());
-  const auto& defaultColor = m_config.entityConfig.defaultColor;
-
-  if (extension == ".fgd")
-  {
-    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
-             auto reader = file->reader().buffer();
-             auto parser = io::FgdParser{reader.stringView(), defaultColor, path};
-             return parser.parseDefinitions(status);
-           });
-  }
-  if (extension == ".def")
-  {
-    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
-             auto reader = file->reader().buffer();
-             auto parser = io::DefParser{reader.stringView(), defaultColor};
-             return parser.parseDefinitions(status);
-           });
-  }
-  if (extension == ".ent")
-  {
-    return fs::Disk::openFile(path) | kdl::and_then([&](auto file) {
-             auto reader = file->reader().buffer();
-             auto parser = io::EntParser{reader.stringView(), defaultColor};
-             return parser.parseDefinitions(status);
-           });
-  }
-
-  return Error{fmt::format("Unknown entity definition format: {}", path)};
 }
 
 const GameConfig& GameImpl::config() const

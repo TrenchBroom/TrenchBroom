@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Result.h"
-#include "io/EntityDefinitionLoader.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameConfig.h"
 #include "mdl/SoftMapBounds.h"
@@ -52,9 +51,11 @@ struct CompilationConfig;
 struct EntityDefinitionFileSpec;
 struct FlagsConfig;
 
-class Game : public io::EntityDefinitionLoader
+class Game
 {
 public: // game configuration
+  virtual ~Game();
+
   virtual const GameConfig& config() const = 0;
   virtual const fs::FileSystem& gameFileSystem() const = 0;
 

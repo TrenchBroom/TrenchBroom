@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,19 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Game.h"
+#pragma once
 
-#include "mdl/GameFactory.h"
+#include "Color.h"
+#include "Result.h"
+#include "mdl/EntityDefinition.h"
 
-namespace tb::mdl
+#include <filesystem>
+
+namespace tb
+{
+class ParserStatus;
+
+namespace io
 {
 
-Game::~Game() = default;
+Result<std::vector<mdl::EntityDefinition>> loadEntityDefinitions(
+  const std::filesystem::path& path, const Color& defaultColor, ParserStatus& status);
 
-bool Game::isGamePathPreference(const std::filesystem::path& prefPath) const
-{
-  const auto& gameFactory = GameFactory::instance();
-  return gameFactory.isGamePathPreference(config().name, prefPath);
-}
-
-} // namespace tb::mdl
+} // namespace io
+} // namespace tb
