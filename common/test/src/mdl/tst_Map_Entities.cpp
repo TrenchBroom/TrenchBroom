@@ -144,9 +144,9 @@ TEST_CASE("Map_Entities")
 
     SECTION("Default entity properties")
     {
-      auto gameConfig = MockGameConfig{};
-      gameConfig.entityConfig.setDefaultProperties = true;
-      fixture.create({.game = MockGameFixture{std::move(gameConfig)}});
+      auto fixtureConfig = MapFixtureConfig{};
+      fixtureConfig.gameConfig.entityConfig.setDefaultProperties = true;
+      fixture.create(fixtureConfig);
 
       map.entityDefinitionManager().setDefinitions({
         EntityDefinition{
@@ -265,9 +265,9 @@ TEST_CASE("Map_Entities")
 
     SECTION("Default entity properties")
     {
-      auto gameConfig = MockGameConfig{};
-      gameConfig.entityConfig.setDefaultProperties = true;
-      fixture.create({.game = MockGameFixture{std::move(gameConfig)}});
+      auto fixtureConfig = MapFixtureConfig{};
+      fixtureConfig.gameConfig.entityConfig.setDefaultProperties = true;
+      fixture.create(fixtureConfig);
 
       map.entityDefinitionManager().setDefinitions({
         EntityDefinition{

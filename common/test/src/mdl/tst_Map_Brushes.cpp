@@ -245,7 +245,7 @@ TEST_CASE("Map_Brushes")
 
       fixture.load(
         "fixture/test/ui/ChangeBrushFaceAttributesTest/lavaAndWater.map",
-        {.game = LoadGameFixture{"Quake2"}});
+        Quake2FixtureConfig);
 
       REQUIRE(map.editorContext().currentLayer() != nullptr);
 
@@ -300,7 +300,7 @@ TEST_CASE("Map_Brushes")
 
     SECTION("Setting a material keeps the surface flags unset")
     {
-      fixture.create({.mapFormat = MapFormat::Valve, .game = LoadGameFixture{"Quake"}});
+      fixture.create(QuakeFixtureConfig);
 
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
@@ -320,11 +320,10 @@ TEST_CASE("Map_Brushes")
       defaultFaceAttrs.setXScale(0.5f);
       defaultFaceAttrs.setYScale(2.0f);
 
-      auto gameConfig = MockGameConfig{};
-      gameConfig.faceAttribsConfig.defaults = defaultFaceAttrs;
+      auto fixtureConfig = MapFixtureConfig{};
+      fixtureConfig.gameConfig.faceAttribsConfig.defaults = defaultFaceAttrs;
 
-      fixture.create(
-        {.mapFormat = MapFormat::Valve, .game = MockGameFixture{std::move(gameConfig)}});
+      fixture.create(fixtureConfig);
 
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});

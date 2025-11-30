@@ -313,7 +313,7 @@ void AppPreferenceManager::invalidatePreferences()
 /**
  * Updates the given PreferenceBase from m_cache.
  */
-void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
+void AppPreferenceManager::loadPreferenceFromCache(const PreferenceBase& pref)
 {
   if (pref.persistencePolicy() != PreferencePersistencePolicy::Persistent)
   {
@@ -351,7 +351,7 @@ void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
   pref.setValid(true);
 }
 
-void AppPreferenceManager::savePreferenceToCache(PreferenceBase& pref)
+void AppPreferenceManager::savePreferenceToCache(const PreferenceBase& pref)
 {
   if (pref.isDefault())
   {
@@ -368,7 +368,7 @@ void AppPreferenceManager::savePreferenceToCache(PreferenceBase& pref)
   m_cache[pref.path()] = pref.writeToJson(format);
 }
 
-void AppPreferenceManager::validatePreference(PreferenceBase& preference)
+void AppPreferenceManager::validatePreference(const PreferenceBase& preference)
 {
   contract_pre(isMainThread());
 

@@ -20,13 +20,12 @@
 #pragma once
 
 #include "Result.h"
-#include "io/EntityDefinitionLoader.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameFileSystem.h"
 #include "mdl/SoftMapBounds.h"
 
 #include <filesystem>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -34,65 +33,63 @@ namespace tb
 {
 class Logger;
 
-namespace fs
-{
-class FileSystem;
-}
-
 namespace mdl
 {
-class BrushFace;
-class BrushFaceAttributes;
 class Entity;
 class EntityNodeBase;
-class MaterialManager;
-class Node;
-class SmartTag;
-class WorldNode;
-struct CompilationConfig;
-struct EntityDefinitionFileSpec;
-struct FlagsConfig;
 
-class Game : public io::EntityDefinitionLoader
+struct EntityPropertyConfig;
+
+class Game
 {
-public: // game configuration
-  virtual const GameConfig& config() const = 0;
-  virtual const fs::FileSystem& gameFileSystem() const = 0;
+private:
+  GameConfig m_config;
+  GameFileSystem m_fs;
+  std::filesystem::path m_gamePath;
+  std::vector<std::filesystem::path> m_additionalSearchPaths;
+
+public:
+  Game(GameConfig config, std::filesystem::path gamePath, Logger& logger);
 
   bool isGamePathPreference(const std::filesystem::path& prefPath) const;
 
-  virtual std::filesystem::path gamePath() const = 0;
-  virtual void setGamePath(const std::filesystem::path& gamePath, Logger& logger) = 0;
+  const GameConfig& config() const;
+  const fs::FileSystem& gameFileSystem() const;
 
-  virtual void setAdditionalSearchPaths(
-    const std::vector<std::filesystem::path>& searchPaths, Logger& logger) = 0;
+  std::filesystem::path gamePath() const;
 
-  using PathErrors = std::map<std::filesystem::path, std::string>;
-  virtual PathErrors checkAdditionalSearchPaths(
-    const std::vector<std::filesystem::path>& searchPaths) const = 0;
+  void setGamePath(const std::filesystem::path& gamePath, Logger& logger);
+  void setAdditionalSearchPaths(
+    const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
 
-  /**
-   * Returns the soft map bounds specified in the given World entity, or if unset, the
-   * value from softMapBounds()
-   */
-  virtual SoftMapBounds extractSoftMapBounds(const Entity& entity) const = 0;
+  SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
 
-public: // material collection handling
-  virtual void reloadWads(
+  void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
-    Logger& logger) = 0;
+    Logger& logger);
 
-public: // entity definition handling
-  virtual bool isEntityDefinitionFile(const std::filesystem::path& path) const = 0;
-  virtual std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const = 0;
-  virtual std::filesystem::path findEntityDefinitionFile(
+  bool isEntityDefinitionFile(const std::filesystem::path& path) const;
+  std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
+  std::filesystem::path findEntityDefinitionFile(
     const EntityDefinitionFileSpec& spec,
-    const std::vector<std::filesystem::path>& searchPaths) const = 0;
+    const std::vector<std::filesystem::path>& searchPaths) const;
 
-public: // mods
-  virtual Result<std::vector<std::string>> availableMods() const = 0;
-  virtual std::string defaultMod() const = 0;
+  Result<std::vector<std::string>> availableMods() const;
+  std::string defaultMod() const;
+
+private:
+  void initializeFileSystem(Logger& logger);
+
+  EntityPropertyConfig entityPropertyConfig() const;
+
+  void writeLongAttribute(
+    EntityNodeBase& node,
+    const std::string& baseName,
+    const std::string& value,
+    size_t maxLength) const;
+  std::string readLongAttribute(
+    const EntityNodeBase& node, const std::string& baseName) const;
 };
 
 } // namespace mdl

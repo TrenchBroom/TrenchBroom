@@ -28,7 +28,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
-#include "mdl/GameImpl.h"
+#include "mdl/Game.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
 #include "mdl/Material.h"
@@ -334,7 +334,7 @@ std::unique_ptr<Game> loadGame(const std::string& gameName)
   const auto configStr = fs::readTextFile(configPath);
   auto configParser = io::GameConfigParser(configStr, configPath);
   auto config = configParser.parse().value();
-  auto game = std::make_unique<mdl::GameImpl>(std::move(config), gamePath, logger);
+  auto game = std::make_unique<mdl::Game>(std::move(config), gamePath, logger);
 
   return game;
 }

@@ -26,6 +26,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.cpp
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.cpp
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.cpp
         ${COMMON_SOURCE_DIR}/io/LoadShaders.cpp
@@ -105,7 +106,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/GameEngineProfile.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameFactory.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/mdl/GameImpl.cpp
         ${COMMON_SOURCE_DIR}/mdl/Grid.cpp
         ${COMMON_SOURCE_DIR}/mdl/Group.cpp
         ${COMMON_SOURCE_DIR}/mdl/GroupNode.cpp
@@ -505,6 +505,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.h
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.h
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.h
+        ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.h
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.h
         ${COMMON_SOURCE_DIR}/io/LoadShaders.h
@@ -590,7 +591,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/GameEngineProfile.h
         ${COMMON_SOURCE_DIR}/mdl/GameFactory.h
         ${COMMON_SOURCE_DIR}/mdl/GameFileSystem.h
-        ${COMMON_SOURCE_DIR}/mdl/GameImpl.h
         ${COMMON_SOURCE_DIR}/mdl/Grid.h
         ${COMMON_SOURCE_DIR}/mdl/Group.h
         ${COMMON_SOURCE_DIR}/mdl/GroupNode.h

@@ -54,7 +54,7 @@ TEST_CASE("Map_EntityLinks")
   auto fixture = MapFixture{};
   auto& map = fixture.map();
 
-  fixture.create({.game = MockGameFixture{}});
+  fixture.create();
 
   constexpr auto sourceClassname = "source_definition";
   constexpr auto targetClassname = "target_definition";

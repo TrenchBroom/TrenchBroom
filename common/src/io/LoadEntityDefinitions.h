@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,32 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestPreferenceManager.h"
+#pragma once
 
-#include "Preferences.h"
+#include "Color.h"
+#include "Result.h"
+#include "mdl/EntityDefinition.h"
+
+#include <filesystem>
 
 namespace tb
 {
+class ParserStatus;
 
-void TestPreferenceManager::initialize()
+namespace io
 {
-  set(Preferences::AskForAutoUpdates, false);
-}
 
-bool TestPreferenceManager::saveInstantly() const
-{
-  return false;
-}
+Result<std::vector<mdl::EntityDefinition>> loadEntityDefinitions(
+  const std::filesystem::path& path, const Color& defaultColor, ParserStatus& status);
 
-void TestPreferenceManager::saveChanges() {}
-
-void TestPreferenceManager::discardChanges() {}
-
-void TestPreferenceManager::validatePreference(const PreferenceBase& preference)
-{
-  preference.setValid(true);
-}
-
-void TestPreferenceManager::savePreference(PreferenceBase&) {}
-
+} // namespace io
 } // namespace tb

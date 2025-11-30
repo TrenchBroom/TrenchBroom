@@ -17,10 +17,8 @@
  along with TrenchBroom. If not, see <http:www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
 #include "Logger.h"
 #include "MapFixture.h"
-#include "MockGame.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "fs/TestEnvironment.h"
@@ -32,6 +30,7 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Game.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -110,7 +109,9 @@ TEST_CASE("Map")
       auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
 
       REQUIRE(map.create(
-        MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+        MapFormat::Standard,
+        vm::bbox3d{8192.0},
+        std::make_unique<Game>(DefaultGameConfig, "", logger)));
 
       REQUIRE(map.world() != nullptr);
       CHECK(
@@ -131,7 +132,9 @@ TEST_CASE("Map")
         map.incModificationCount();
 
         REQUIRE(map.create(
-          MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+          MapFormat::Standard,
+          vm::bbox3d{8192.0},
+          std::make_unique<Game>(DefaultGameConfig, "", logger)));
 
         CHECK(map.modificationCount() == 0);
         CHECK(mapWasCreated.collected == std::set{&map});
@@ -141,13 +144,13 @@ TEST_CASE("Map")
 
     SECTION("Loads the initial map if configured")
     {
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.forceEmptyNewMap = false;
       gameConfig.path = "fixture/test/mdl/Map/GameConfig.cfg";
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {"initialMap.map"}},
       };
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
 
@@ -168,12 +171,12 @@ TEST_CASE("Map")
 
     SECTION("Sets Valve version property")
     {
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.forceEmptyNewMap = false;
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {"initialMap.map"}},
       };
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
 
@@ -185,13 +188,13 @@ TEST_CASE("Map")
 
     SECTION("Sets material config property")
     {
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.forceEmptyNewMap = false;
       gameConfig.materialConfig.property = "wad";
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {"initialMap.map"}},
       };
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
 
@@ -202,12 +205,12 @@ TEST_CASE("Map")
 
     SECTION("Creates an initial brush if configured")
     {
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.forceEmptyNewMap = false;
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Standard", {}},
       };
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       REQUIRE(map.create(MapFormat::Valve, vm::bbox3d{8192.0}, std::move(game)));
 
@@ -237,9 +240,9 @@ TEST_CASE("Map")
         },
       });
 
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.entityConfig.setDefaultProperties = true;
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, std::move(game)));
 
@@ -261,32 +264,19 @@ TEST_CASE("Map")
 
     SECTION("Loads default entity definition file")
     {
-      const auto entityDefinitionFilePath =
-        std::filesystem::path{"/some/folder/Quake.fgd"};
-      const auto entityDefinition = EntityDefinition{
-        "some_name",
-        {},
-        {},
-        {
-          PropertyDefinition{"some_prop", PropertyValueTypes::LinkTarget{}, {}, {}},
-        },
-        {},
-        1};
+      auto env = fs::TestEnvironment{};
+      env.createFile("Quake.fgd", R"(@SolidClass = some_entity : "Some Entity" [])");
 
-      auto gameConfig = MockGameConfig{};
-      gameConfig.fileFormats = std::vector<MapFormatConfig>{
-        {"Valve", {}},
-      };
-      gameConfig.entityConfig.defFilePaths.emplace_back(entityDefinitionFilePath);
+      auto gameConfig = DefaultGameConfig;
+      gameConfig.path = env.dir() / "GameConfig.cfg";
+      gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
-      game->setEntityDefinitionFiles({
-        {entityDefinitionFilePath, {entityDefinition}},
-      });
+      auto game = std::make_unique<Game>(std::move(gameConfig), env.dir(), logger);
 
       REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, std::move(game)));
 
-      CHECK(map.entityDefinitionManager().definitions() == std::vector{entityDefinition});
+      REQUIRE(map.entityDefinitionManager().definitions().size() == 1);
+      CHECK(map.entityDefinitionManager().definitions().front().name == "some_entity");
     }
   }
 
@@ -309,14 +299,16 @@ TEST_CASE("Map")
       if (!mapWasEmpty)
       {
         REQUIRE(map.create(
-          MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+          MapFormat::Standard,
+          vm::bbox3d{8192.0},
+          std::make_unique<Game>(DefaultGameConfig, "", logger)));
       }
 
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {}},
       };
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       mapWasCleared.collected.clear();
       REQUIRE(map.load(
@@ -334,11 +326,11 @@ TEST_CASE("Map")
       const auto worldBounds = vm::bbox3d{8192.0};
       const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
 
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {}},
       };
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       REQUIRE(map.worldBounds() != worldBounds);
       REQUIRE(map.game() == nullptr);
@@ -355,7 +347,9 @@ TEST_CASE("Map")
     {
       // create a map and add an entity
       REQUIRE(map.create(
-        MapFormat::Standard, vm::bbox3d{8192.0}, std::make_unique<MockGame>()));
+        MapFormat::Standard,
+        vm::bbox3d{8192.0},
+        std::make_unique<Game>(DefaultGameConfig, "", logger)));
       REQUIRE(map.world()->defaultLayer()->children() == std::vector<Node*>{});
 
       auto* initialEntityNode = new EntityNode{{}};
@@ -363,11 +357,11 @@ TEST_CASE("Map")
       REQUIRE(
         map.world()->defaultLayer()->children() == std::vector<Node*>{initialEntityNode});
 
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {}},
       };
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
 
@@ -383,13 +377,13 @@ TEST_CASE("Map")
 
     SECTION("Format detection")
     {
-      auto gameConfig = MockGameConfig{};
+      auto gameConfig = DefaultGameConfig;
       gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {}},
         {"Standard", {}},
         {"Quake3", {}},
       };
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
+      auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
       SECTION("Detect Valve Format Map")
       {
@@ -441,28 +435,14 @@ TEST_CASE("Map")
 
     SECTION("Loads default entity definition file")
     {
-      const auto entityDefinitionFilePath =
-        std::filesystem::path{"/some/folder/Quake.fgd"};
-      const auto entityDefinition = EntityDefinition{
-        "some_name",
-        {},
-        {},
-        {
-          PropertyDefinition{"some_prop", PropertyValueTypes::LinkTarget{}, {}, {}},
-        },
-        {},
-        1};
+      auto env = fs::TestEnvironment{};
+      env.createFile("Quake.fgd", R"(@SolidClass = some_entity : "Some Entity" [])");
 
-      auto gameConfig = MockGameConfig{};
-      gameConfig.fileFormats = std::vector<MapFormatConfig>{
-        {"Valve", {}},
-      };
-      gameConfig.entityConfig.defFilePaths.emplace_back(entityDefinitionFilePath);
+      auto gameConfig = QuakeGameConfig;
+      gameConfig.path = env.dir() / "GameConfig.cfg";
+      gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
-      game->setEntityDefinitionFiles({
-        {entityDefinitionFilePath, {entityDefinition}},
-      });
+      auto game = std::make_unique<Game>(std::move(gameConfig), env.dir(), logger);
 
       REQUIRE(map.load(
         MapFormat::Unknown,
@@ -470,7 +450,8 @@ TEST_CASE("Map")
         std::move(game),
         makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
 
-      CHECK(map.entityDefinitionManager().definitions() == std::vector{entityDefinition});
+      REQUIRE(map.entityDefinitionManager().definitions().size() == 1);
+      CHECK(map.entityDefinitionManager().definitions().front().name == "some_entity");
     }
   }
 
@@ -480,11 +461,11 @@ TEST_CASE("Map")
     auto logger = NullLogger{};
     auto map = Map{*taskManager, logger};
 
-    auto gameConfig = MockGameConfig{};
+    auto gameConfig = DefaultGameConfig;
     gameConfig.fileFormats = std::vector<MapFormatConfig>{
       {"Valve", {}},
     };
-    auto game = std::make_unique<MockGame>(std::move(gameConfig));
+    auto game = std::make_unique<Game>(std::move(gameConfig), "", logger);
 
     const auto worldBounds = vm::bbox3d{8192.0};
     const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
@@ -547,9 +528,9 @@ TEST_CASE("Map")
 
     const auto path = env.dir() / filename;
 
-    auto gameConfig = MockGameConfig{};
-    gameConfig.fileFormats = {{"Valve", ""}};
-    fixture.load(path, {.game = MockGameFixture{std::move(gameConfig)}});
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameConfig.fileFormats = {{"Valve", ""}};
+    fixture.load(path, fixtureConfig);
 
     REQUIRE(map.persistent());
     REQUIRE(map.path() == path);
@@ -676,7 +657,7 @@ TEST_CASE("Map")
       const auto newDocumentPath = std::filesystem::path{"test.map"};
 
       {
-        fixture.create({.game = LoadGameFixture{"Quake"}});
+        fixture.create(QuakeFixtureConfig);
 
         auto layer = mdl::Layer{"Layer"};
         layer.setOmitFromExport(true);
@@ -688,9 +669,7 @@ TEST_CASE("Map")
         REQUIRE(env.fileExists(newDocumentPath));
       }
 
-      fixture.load(
-        env.dir() / newDocumentPath,
-        {.mapFormat = MapFormat::Standard, .game = LoadGameFixture{"Quake"}});
+      fixture.load(env.dir() / newDocumentPath, QuakeFixtureConfig);
       CHECK(map.world()->customLayers().empty());
     }
   }
@@ -762,10 +741,7 @@ TEST_CASE("Map")
 )");
 
       const auto path = env.dir() / filename;
-
-      auto gameConfig = MockGameConfig{};
-      gameConfig.fileFormats = {{"Valve", ""}};
-      fixture.load(path, {.game = MockGameFixture{std::move(gameConfig)}});
+      fixture.load(path, QuakeFixtureConfig);
 
       CHECK(map.persistent());
 
@@ -1101,8 +1077,8 @@ TEST_CASE("Map")
     const auto multiParamsMatch =
       kdl::vector_set<std::string>{"some_parm", "parm1", "parm3"};
 
-    auto gameConfig = MockGameConfig{};
-    gameConfig.smartTags = {
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameConfig.smartTags = {
       SmartTag{
         "material",
         {},
@@ -1141,7 +1117,7 @@ TEST_CASE("Map")
 
     auto fixture = MapFixture{};
     auto& map = fixture.map();
-    fixture.create({.game = MockGameFixture{gameConfig}});
+    fixture.create(fixtureConfig);
 
     map.entityDefinitionManager().setDefinitions({
       {"brush_entity", Color{}, "this is a brush entity", {}},
@@ -1213,8 +1189,8 @@ TEST_CASE("Map")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/2905
 
-      gameConfig = MockGameConfig{};
-      gameConfig.smartTags = {
+      auto fixtureConfigWithDuplicateTags = MapFixtureConfig{};
+      fixtureConfigWithDuplicateTags.gameConfig.smartTags = {
         SmartTag{
           "material",
           {},
@@ -1226,8 +1202,7 @@ TEST_CASE("Map")
           std::make_unique<SurfaceParmTagMatcher>("some_other_material"),
         },
       };
-      CHECK_THROWS_AS(
-        fixture.create({.game = MockGameFixture{gameConfig}}), std::logic_error);
+      CHECK_THROWS_AS(fixture.create(fixtureConfigWithDuplicateTags), std::logic_error);
     }
 
     SECTION("addNodes initializes brush tags")
@@ -2100,29 +2075,23 @@ TEST_CASE("Map")
     {
       using namespace EntityPropertyKeys;
 
-      const auto entityDefinitionFilePath =
-        std::filesystem::path{"/some/folder/Quake.fgd"};
+      auto env = fs::TestEnvironment{};
+      env.createFile("Quake.fgd", R"(@PointClass = some_entity : "Some Entity" [])");
 
-      auto gameConfig = MockGameConfig{};
-      gameConfig.fileFormats = std::vector<MapFormatConfig>{
-        {"Valve", {}},
-      };
-      gameConfig.entityConfig.defFilePaths.emplace_back(entityDefinitionFilePath);
+      auto gameConfig = QuakeGameConfig;
+      gameConfig.path = env.dir() / "GameConfig.cfg";
+      gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<MockGame>(std::move(gameConfig));
-      game->setEntityDefinitionFiles({
-        {entityDefinitionFilePath,
-         {{"some_name", {}, {}, {}, PointEntityDefinition{}, 1}}},
-      });
+      auto game = std::make_unique<Game>(std::move(gameConfig), env.dir(), logger);
 
       REQUIRE(map.create(MapFormat::Standard, vm::bbox3d{8192.0}, std::move(game)));
 
       CHECK(
         map.entityDefinitionManager().definitions()
         == std::vector{EntityDefinition{
-          "some_name",
-          {},
-          {},
+          "some_entity",
+          RgbaF{0.6f, 0.6f, 0.6f, 1.0f},
+          "Some Entity",
           {
             PropertyDefinition{
               Target,
@@ -2146,7 +2115,7 @@ TEST_CASE("Map")
               "generated by TrenchBroom"},
 
           },
-          PointEntityDefinition{},
+          PointEntityDefinition{vm::bbox3d{8.0}, {}, {}},
           1}});
     }
   }

@@ -20,7 +20,7 @@
 #include "MapFixture.h"
 #include "TestUtils.h"
 #include "fs/TestEnvironment.h"
-#include "mdl/BrushFace.h"
+#include "mdl/BrushFace.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -66,14 +66,14 @@ TEST_CASE("Map_Assets")
 
     CAPTURE(entityProperty);
 
-    auto mockGameConfig = MockGameConfig{};
-    mockGameConfig.entityConfig.defFilePaths = std::vector<std::filesystem::path>{
-      "Quake.def",
-      "ad.fgd",
-      "Quoth.fgd",
-    };
-
-    fixture.create({.game = MockGameFixture{std::move(mockGameConfig)}});
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameConfig.entityConfig.defFilePaths =
+      std::vector<std::filesystem::path>{
+        "Quake.def",
+        "ad.fgd",
+        "Quoth.fgd",
+      };
+    fixture.create(fixtureConfig);
 
     if (entityProperty)
     {
@@ -103,14 +103,14 @@ TEST_CASE("Map_Assets")
 
     CAPTURE(entityDefinitionFileSpec);
 
-    auto mockGameConfig = MockGameConfig{};
-    mockGameConfig.entityConfig.defFilePaths = std::vector<std::filesystem::path>{
-      "Quake.def",
-      "ad.fgd",
-      "Quoth.fgd",
-    };
-
-    fixture.create({.game = MockGameFixture{std::move(mockGameConfig)}});
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameConfig.entityConfig.defFilePaths =
+      std::vector<std::filesystem::path>{
+        "Quake.def",
+        "ad.fgd",
+        "Quoth.fgd",
+      };
+    fixture.create(fixtureConfig);
 
     setEntityDefinitionFile(map, entityDefinitionFileSpec);
 
@@ -127,7 +127,7 @@ TEST_CASE("Map_Assets")
 
   SECTION("enabledMaterialCollections")
   {
-    fixture.create({.mapFormat = MapFormat::Quake2, .game = LoadGameFixture{"Quake2"}});
+    fixture.create(Quake2FixtureConfig);
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
@@ -197,7 +197,7 @@ TEST_CASE("Map_Assets")
 
   SECTION("disabledMaterialCollections")
   {
-    fixture.create({.mapFormat = MapFormat::Quake2, .game = LoadGameFixture{"Quake2"}});
+    fixture.create(Quake2FixtureConfig);
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
@@ -226,8 +226,7 @@ TEST_CASE("Map_Assets")
 
   SECTION("setEnabledMaterialCollections")
   {
-    fixture.create({.mapFormat = MapFormat::Quake2, .game = LoadGameFixture{"Quake2"}});
-
+    fixture.create(Quake2FixtureConfig);
 
     const auto collectionPaths =
       map.materialManager().collections()
@@ -282,8 +281,7 @@ TEST_CASE("Map_Assets")
       Observer<void>{map.materialCollectionsDidChangeNotifier};
 
     fixture.load(
-      "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map",
-      {.mapFormat = MapFormat::Quake2, .game = LoadGameFixture{"Quake2"}});
+      "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
 
     const auto faces = map.world()->defaultLayer()->children()
                        | std::views::transform([&](const auto* node) {

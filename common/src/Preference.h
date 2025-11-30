@@ -26,6 +26,7 @@
 #include "Color.h"
 
 #include "kd/contracts.h"
+#include "kd/reflection_impl.h"
 
 #include <filesystem>
 
@@ -95,11 +96,11 @@ public:
   PreferencePersistencePolicy persistencePolicy() const;
 
 public: // private to PreferenceManager
-  virtual void resetToDefault() = 0;
+  virtual void resetToDefault() const = 0;
   virtual bool valid() const = 0;
-  virtual void setValid(bool _valid) = 0;
+  virtual void setValid(bool _valid) const = 0;
   virtual bool loadFromJson(
-    const PreferenceSerializer& format, const QJsonValue& value) = 0;
+    const PreferenceSerializer& format, const QJsonValue& value) const = 0;
   virtual QJsonValue writeToJson(const PreferenceSerializer& format) const = 0;
   virtual bool isDefault() const = 0;
 };
@@ -136,8 +137,10 @@ class Preference : public PreferenceBase
 private:
   std::filesystem::path m_path;
   T m_defaultValue;
-  T m_value;
-  bool m_valid = false;
+  mutable T m_value;
+  mutable bool m_valid = false;
+
+  kdl_reflect_inline(Preference, m_path, m_defaultValue, m_value, m_valid);
 
 public:
   Preference(
@@ -171,11 +174,11 @@ public: // PreferenceManager private
     m_value = value;
   }
 
-  void resetToDefault() override { m_value = m_defaultValue; }
+  void resetToDefault() const override { m_value = m_defaultValue; }
 
   bool valid() const override { return m_valid; }
 
-  void setValid(const bool _valid) override { m_valid = _valid; }
+  void setValid(const bool _valid) const override { m_valid = _valid; }
 
   const T& value() const
   {
@@ -184,7 +187,8 @@ public: // PreferenceManager private
     return m_value;
   }
 
-  bool loadFromJson(const PreferenceSerializer& format, const QJsonValue& value) override
+  bool loadFromJson(
+    const PreferenceSerializer& format, const QJsonValue& value) const override
   {
     auto result = T{};
     if (format.readFromJson(value, result))

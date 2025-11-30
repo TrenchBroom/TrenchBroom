@@ -25,6 +25,7 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "io/GameConfigParser.h"
+#include "io/LoadEntityDefinitions.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/MapHeader.h"
 #include "io/NodeReader.h"
@@ -1037,10 +1038,11 @@ void Map::loadEntityDefinitions()
 {
   if (const auto spec = entityDefinitionFile(*this))
   {
-    auto status = SimpleParserStatus{m_logger};
     const auto path = game()->findEntityDefinitionFile(*spec, externalSearchPaths(*this));
+    const auto& defaultColor = game()->config().entityConfig.defaultColor;
+    auto status = SimpleParserStatus{m_logger};
 
-    game()->loadEntityDefinitions(status, path)
+    io::loadEntityDefinitions(path, defaultColor, status)
       | kdl::transform([&](auto entityDefinitions) {
           m_logger.info() << fmt::format(
             "Loaded entity definition file {}", path.filename());

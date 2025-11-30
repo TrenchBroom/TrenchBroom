@@ -19,6 +19,8 @@
 
 #include "MissingModValidator.h"
 
+#include "fs/DiskIO.h"
+#include "fs/PathInfo.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
@@ -117,13 +119,19 @@ void MissingModValidator::doValidate(
     mods
     | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
     | kdl::ranges::to<std::vector>();
-  const auto errors = m_game.checkAdditionalSearchPaths(additionalSearchPaths);
 
-  for (const auto& [searchPath, message] : errors)
+
+  for (const auto& searchPath : additionalSearchPaths)
   {
-    const auto mod = searchPath.string();
-    issues.push_back(std::make_unique<MissingModIssue>(
-      entityNode, mod, fmt::format("Mod '{}' could not be used: {}", mod, message)));
+    const auto absPath = m_game.gamePath() / searchPath;
+    if (!absPath.is_absolute() || fs::Disk::pathInfo(absPath) != fs::PathInfo::Directory)
+    {
+      const auto mod = searchPath.string();
+      issues.push_back(std::make_unique<MissingModIssue>(
+        entityNode,
+        mod,
+        fmt::format("Mod '{}' could not be used (directory not found)", mod)));
+    }
   }
 
   m_lastMods = std::move(mods);
