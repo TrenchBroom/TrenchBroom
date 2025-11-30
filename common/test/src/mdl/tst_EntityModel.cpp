@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapFixture.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 #include "io/LoadEntityModel.h"
@@ -68,7 +69,9 @@ TEST_CASE("EntityModel")
   SECTION("intersect")
   {
     auto logger = TestLogger{};
-    auto game = loadGame("Quake");
+
+    const auto gamePath = std::filesystem::current_path() / "fixture/test/mdl/Game/Quake";
+    auto game = std::make_unique<Game>(QuakeGameConfig, gamePath, logger);
 
     const auto path = std::filesystem::path{"cube.bsp"};
     const auto loadMaterial = [](auto) -> Material {

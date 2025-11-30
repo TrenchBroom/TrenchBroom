@@ -19,10 +19,6 @@
 
 #include "TestUtils.h"
 
-#include "TestLogger.h"
-#include "fs/DiskIO.h"
-#include "fs/ReaderException.h"
-#include "fs/TestUtils.h"
 #include "io/GameConfigParser.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
@@ -35,7 +31,6 @@
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Resource.h"
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
@@ -322,21 +317,6 @@ void transformNode(
       patch.transform(transformation);
       patchNode->setPatch(std::move(patch));
     }));
-}
-
-std::unique_ptr<Game> loadGame(const std::string& gameName)
-{
-  TestLogger logger;
-  const auto configPath =
-    std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
-  const auto gamePath =
-    std::filesystem::current_path() / "fixture/test/mdl/Game" / gameName;
-  const auto configStr = fs::readTextFile(configPath);
-  auto configParser = io::GameConfigParser(configStr, configPath);
-  auto config = configParser.parse().value();
-  auto game = std::make_unique<mdl::Game>(std::move(config), gamePath, logger);
-
-  return game;
 }
 
 const mdl::BrushFace* findFaceByPoints(

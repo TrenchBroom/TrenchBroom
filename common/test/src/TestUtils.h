@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "mdl/MapFormat.h"
 #include "mdl/Node.h"
 #include "mdl/Selection.h"
 
@@ -28,7 +27,6 @@
 #include "vm/polygon.h"
 #include "vm/segment.h"
 
-#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -112,8 +110,6 @@ void assertMaterial(
 
 void transformNode(
   Node& node, const vm::mat4x4d& transformation, const vm::bbox3d& worldBounds);
-
-std::unique_ptr<Game> loadGame(const std::string& gameName);
 
 const mdl::BrushFace* findFaceByPoints(
   const std::vector<mdl::BrushFace>& faces,
