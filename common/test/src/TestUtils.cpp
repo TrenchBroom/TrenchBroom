@@ -423,45 +423,6 @@ Selection makeSelection(const std::vector<BrushFaceHandle>& brushFaces)
 
 } // namespace mdl
 
-namespace ui
-{
-DocumentGameConfig loadMapDocument(
-  const std::filesystem::path& mapPath,
-  const std::string& gameName,
-  const mdl::MapFormat mapFormat)
-{
-  auto taskManager = createTestTaskManager();
-  auto document = std::make_shared<MapDocument>(*taskManager);
-  auto& map = document->map();
-
-  auto game = mdl::loadGame(gameName);
-  map.load(
-    mapFormat,
-    vm::bbox3d{8192.0},
-    std::move(game),
-    std::filesystem::current_path() / mapPath)
-    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
-
-  map.processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
-
-  return {document, std::move(taskManager)};
-}
-
-DocumentGameConfig newMapDocument(
-  const std::string& gameName, const mdl::MapFormat mapFormat)
-{
-  auto taskManager = createTestTaskManager();
-  auto document = std::make_shared<MapDocument>(*taskManager);
-  auto& map = document->map();
-
-  auto game = mdl::loadGame(gameName);
-  map.create(mapFormat, vm::bbox3d{8192.0}, std::move(game))
-    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
-
-  return {document, std::move(taskManager)};
-}
-} // namespace ui
-
 int getComponentOfPixel(
   const mdl::Texture& texture,
   const std::size_t x,

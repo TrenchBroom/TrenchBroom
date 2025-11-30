@@ -166,24 +166,6 @@ Selection makeSelection(const std::vector<BrushFaceHandle>& brushFaces);
 
 } // namespace mdl
 
-namespace ui
-{
-class MapDocument;
-
-struct DocumentGameConfig
-{
-  std::shared_ptr<MapDocument> document;
-  std::unique_ptr<kdl::task_manager> taskManager;
-};
-
-DocumentGameConfig loadMapDocument(
-  const std::filesystem::path& mapPath,
-  const std::string& gameName,
-  mdl::MapFormat mapFormat);
-
-DocumentGameConfig newMapDocument(const std::string& gameName, mdl::MapFormat mapFormat);
-} // namespace ui
-
 enum class Component
 {
   R,
