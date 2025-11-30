@@ -21,7 +21,7 @@
 #include "TestUtils.h"
 #include "fs/TestUtils.h"
 #include "io/GameConfigParser.h"
-#include "mdl/GameImpl.h"
+#include "mdl/Game.h"
 
 #include <filesystem>
 
@@ -55,7 +55,7 @@ TEST_CASE("GameTest.loadCorruptPackages")
     auto logger = NullLogger();
     UNSCOPED_INFO(
       "Should not throw when loading corrupted package file for game " << game);
-    CHECK_NOTHROW(GameImpl(config, gamePath, logger));
+    CHECK_NOTHROW(Game(config, gamePath, logger));
   }
 }
 

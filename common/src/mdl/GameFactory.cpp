@@ -33,7 +33,6 @@
 #include "io/GameEngineConfigWriter.h"
 #include "mdl/Game.h"
 #include "mdl/GameConfig.h"
-#include "mdl/GameImpl.h"
 
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
@@ -128,7 +127,7 @@ size_t GameFactory::gameCount() const
 
 std::unique_ptr<Game> GameFactory::createGame(const std::string& gameName, Logger& logger)
 {
-  return std::make_unique<GameImpl>(gameConfig(gameName), gamePath(gameName), logger);
+  return std::make_unique<Game>(gameConfig(gameName), gamePath(gameName), logger);
 }
 
 std::vector<std::string> GameFactory::fileFormats(const std::string& gameName) const

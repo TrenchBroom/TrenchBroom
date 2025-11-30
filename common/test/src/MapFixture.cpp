@@ -21,7 +21,7 @@
 
 #include "Logger.h"
 #include "TestUtils.h"
-#include "mdl/GameImpl.h"
+#include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Resource.h"
 
@@ -34,7 +34,7 @@ namespace
 std::unique_ptr<Game> createGame(const MapFixtureConfig& mapFixtureConfig)
 {
   auto logger = NullLogger{};
-  return std::make_unique<GameImpl>(
+  return std::make_unique<Game>(
     mapFixtureConfig.gameConfig, mapFixtureConfig.gamePath, logger);
 }
 
