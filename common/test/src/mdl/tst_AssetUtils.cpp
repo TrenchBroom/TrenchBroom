@@ -17,10 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
 #include "Result.h"
 #include "TestLogger.h"
-#include "el/Exceptions.h"
 #include "mdl/AssetUtils.h"
 
 #include <optional>
