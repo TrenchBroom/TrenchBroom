@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Exceptions.h"
 #include "Macros.h"
 #include "Polyhedron.h"
 
@@ -27,6 +26,8 @@
 
 #include "vm/plane.h"
 #include "vm/util.h"
+
+#include <exception>
 
 namespace tb::mdl
 {
@@ -179,7 +180,7 @@ std::optional<typename Polyhedron<T, FP, VP>::ClipResult::FailureReason> Polyhed
 }
 
 template <typename T, typename FP, typename VP>
-class Polyhedron<T, FP, VP>::NoSeamException : public Exception
+class Polyhedron<T, FP, VP>::NoSeamException : public std::exception
 {
 private:
   std::vector<Edge*> m_splitFaces;
@@ -191,6 +192,11 @@ public:
   }
 
   const std::vector<Edge*>& splitFaces() const { return m_splitFaces; }
+
+  const char* what() const noexcept override
+  {
+    return "Failed to find a seam for polyhedron splitting";
+  }
 };
 
 template <typename T, typename FP, typename VP>
