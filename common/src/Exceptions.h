@@ -37,10 +37,4 @@ public:
   const char* what() const noexcept override;
 };
 
-class GameException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 } // namespace tb
