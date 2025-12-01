@@ -10,7 +10,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
 
   target_compile_options(CompilerConfig INTERFACE -Wall -Wextra
     -pedantic # warn on language extensions
-    -Wshadow # warn the user if a variable declaration shadows one from a parent context
+    -Wshadow-all # warn the user if a variable declaration shadows one from a parent context
     -Wnon-virtual-dtor # warn the user if a class with virtual functions has a non-virtual destructor
     -Wold-style-cast # warn for c-style casts
     -Wcast-align # warn for potential performance problem casts
