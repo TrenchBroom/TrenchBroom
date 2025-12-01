@@ -2,7 +2,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
-        ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/io/AseLoader.cpp
         ${COMMON_SOURCE_DIR}/io/AssimpLoader.cpp
@@ -482,7 +481,6 @@ set(COMMON_SOURCE
 
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
-        ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/io/AseLoader.h
         ${COMMON_SOURCE_DIR}/io/AssimpLoader.h
