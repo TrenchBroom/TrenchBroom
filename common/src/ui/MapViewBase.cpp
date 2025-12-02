@@ -39,6 +39,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/HitAdapter.h"

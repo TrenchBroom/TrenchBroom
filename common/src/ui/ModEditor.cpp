@@ -29,6 +29,7 @@
 #include "Notifier.h"
 #include "PreferenceManager.h"
 #include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
 #include "ui/BorderLine.h"
@@ -187,7 +188,8 @@ void ModEditor::modsDidChange()
 
 void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (m_map.game()->isGamePathPreference(path))
+  if (const auto* game = m_map.game();
+      game && path == pref(game->info().gamePathPreference))
   {
     updateAvailableMods();
     updateMods();

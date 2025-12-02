@@ -65,13 +65,15 @@ class GamePreferencePane : public QWidget
 {
   Q_OBJECT
 private:
+  MapDocument* m_document = nullptr;
   std::string m_gameName;
   QLineEdit* m_gamePathText = nullptr;
   QPushButton* m_chooseGamePathButton = nullptr;
   std::vector<std::tuple<std::string, QLineEdit*>> m_toolPathEditors;
 
 public:
-  explicit GamePreferencePane(std::string gameName, QWidget* parent = nullptr);
+  explicit GamePreferencePane(
+    MapDocument* document, std::string gameName, QWidget* parent = nullptr);
 
 private:
   void createGui();

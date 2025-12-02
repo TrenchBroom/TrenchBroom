@@ -19,11 +19,14 @@
 
 #include "GameListBox.h"
 
+#include "PreferenceManager.h"
+#include "TrenchBroomApp.h"
 #include "io/ResourceUtils.h"
 #include "mdl/GameConfig.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameManager.h"
 
 #include "kd/contracts.h"
+#include "kd/range_utils.h"
 
 #include <filesystem>
 #include <string>
@@ -31,6 +34,34 @@
 
 namespace tb::ui
 {
+namespace
+{
+auto makeGameDisplayInfo(const mdl::GameInfo& gameInfo)
+{
+  auto gameName = gameInfo.gameConfig.name;
+
+  auto iconPath = gameInfo.gameConfig.findConfigFile(gameInfo.gameConfig.icon);
+  if (iconPath.empty())
+  {
+    iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
+  }
+
+  auto title = QString::fromStdString(
+    gameInfo.gameConfig.name
+    + (gameInfo.gameConfig.experimental ? " (experimental)" : ""));
+
+  const auto gamePath = pref(gameInfo.gamePathPreference);
+  auto subTitle = QString::fromStdString(
+    gamePath.empty() ? std::string("Game not found") : gamePath.string());
+
+  return GameDisplayInfo{
+    std::move(gameName),
+    io::loadPixmapResource(iconPath),
+    std::move(title),
+    std::move(subTitle),
+  };
+}
+} // namespace
 
 GameListBox::GameListBox(QWidget* parent)
   : ImageListBox{"No Games Found", true, parent}
@@ -40,12 +71,13 @@ GameListBox::GameListBox(QWidget* parent)
 
 std::string GameListBox::selectedGameName() const
 {
-  const auto& gameFactory = mdl::GameFactory::instance();
-  const auto& gameList = gameFactory.gameList();
+  auto& app = TrenchBroomApp::instance();
+  const auto& gameManager = app.gameManager();
+  const auto& gameInfos = gameManager.gameInfos();
 
   const auto index = currentRow();
-  return index >= 0 && index < static_cast<int>(gameList.size())
-           ? gameList[static_cast<size_t>(index)]
+  return index >= 0 && index < static_cast<int>(gameInfos.size())
+           ? gameInfos[static_cast<size_t>(index)].gameConfig.name
            : "";
 }
 
@@ -56,81 +88,65 @@ void GameListBox::selectGame(const size_t index)
 
 void GameListBox::reloadGameInfos()
 {
+  auto& app = TrenchBroomApp::instance();
+  const auto& gameManager = app.gameManager();
+
   const auto currentGameName = selectedGameName();
+  m_displayInfos.clear();
 
-  m_gameInfos.clear();
-
-  const auto& gameFactory = mdl::GameFactory::instance();
-  for (const auto& gameName : gameFactory.gameList())
-  {
-    m_gameInfos.push_back(makeGameInfo(gameName));
-  }
+  std::ranges::transform(
+    gameManager.gameInfos(), std::back_inserter(m_displayInfos), makeGameDisplayInfo);
 
   reload();
 
-  const auto& gameList = gameFactory.gameList();
-  for (size_t i = 0u; i < gameList.size(); ++i)
+  if (
+    const auto selectedGameIndex = kdl::index_of(
+      gameManager.gameInfos(),
+      [&](const auto& gameInfo) { return gameInfo.gameConfig.name == currentGameName; }))
   {
-    if (gameList[i] == currentGameName)
-    {
-      selectGame(i);
-      break;
-    }
+    selectGame(*selectedGameIndex);
   }
 }
 
 void GameListBox::updateGameInfos()
 {
-  for (auto& gameInfo : m_gameInfos)
+  auto& app = TrenchBroomApp::instance();
+  const auto& gameManager = app.gameManager();
+
+  for (auto& displayInfo : m_displayInfos)
   {
-    gameInfo = makeGameInfo(gameInfo.name);
+    if (const auto* gameInfo = gameManager.gameInfo(displayInfo.name))
+    {
+      displayInfo = makeGameDisplayInfo(*gameInfo);
+    }
   }
   updateItems();
 }
 
-GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
-{
-  const auto& gameFactory = mdl::GameFactory::instance();
-  const auto gamePath = gameFactory.gamePath(gameName);
-  auto iconPath = gameFactory.iconPath(gameName);
-  if (iconPath.empty())
-  {
-    iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
-  }
-  const auto experimental = gameFactory.gameConfig(gameName).experimental;
-
-  return Info{
-    gameName,
-    io::loadPixmapResource(iconPath),
-    QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
-    QString::fromStdString(
-      gamePath.empty() ? std::string("Game not found") : gamePath.string())};
-}
-
 size_t GameListBox::itemCount() const
 {
-  return m_gameInfos.size();
+  return m_displayInfos.size();
 }
 
 QPixmap GameListBox::image(const size_t index) const
 {
-  contract_pre(index < m_gameInfos.size());
+  contract_pre(index < m_displayInfos.size());
 
-  return m_gameInfos[index].image;
+  return m_displayInfos[index].image;
 }
 
 QString GameListBox::title(const size_t n) const
 {
-  contract_pre(n < m_gameInfos.size());
+  contract_pre(n < m_displayInfos.size());
 
-  return m_gameInfos[n].title;
+  return m_displayInfos[n].title;
 }
 
 QString GameListBox::subtitle(const size_t n) const
 {
-  contract_pre(n < m_gameInfos.size());
+  contract_pre(n < m_displayInfos.size());
 
-  return m_gameInfos[n].subtitle;
+  return m_displayInfos[n].subtitle;
 }
 
 void GameListBox::selectedRowChanged(const int index)
@@ -138,7 +154,7 @@ void GameListBox::selectedRowChanged(const int index)
   if (index >= 0 && index < count())
   {
     emit currentGameChanged(
-      QString::fromStdString(m_gameInfos[static_cast<size_t>(index)].name));
+      QString::fromStdString(m_displayInfos[static_cast<size_t>(index)].name));
   }
 }
 
@@ -146,7 +162,7 @@ void GameListBox::doubleClicked(const size_t index)
 {
   if (index < static_cast<size_t>(count()))
   {
-    emit selectCurrentGame(QString::fromStdString(m_gameInfos[index].name));
+    emit selectCurrentGame(QString::fromStdString(m_displayInfos[index].name));
   }
 }
 

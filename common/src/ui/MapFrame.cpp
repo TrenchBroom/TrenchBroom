@@ -53,7 +53,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Game.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
@@ -2475,7 +2475,7 @@ void MapFrame::dropEvent(QDropEvent* event)
     window(),
     io::pathFromQString(urls.front().toLocalFile()),
     map.path(),
-    game->gamePath()};
+    pref(game->info().gamePathPreference)};
 
   const auto result = pathDialog.exec();
   if (result != QDialog::Accepted)
@@ -2489,7 +2489,7 @@ void MapFrame::dropEvent(QDropEvent* event)
       pathDialog.pathType(),
       io::pathFromQString(url.toLocalFile()),
       map.path(),
-      game->gamePath());
+      pref(game->info().gamePathPreference));
   });
 
   const auto newWadPathsStr = kdl::str_join(

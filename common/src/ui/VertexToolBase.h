@@ -27,6 +27,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Hit.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"

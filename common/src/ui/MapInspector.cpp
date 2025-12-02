@@ -26,6 +26,7 @@
 #include <QRadioButton>
 
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep

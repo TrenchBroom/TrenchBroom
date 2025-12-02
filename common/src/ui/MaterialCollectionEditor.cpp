@@ -26,6 +26,7 @@
 #include "PreferenceManager.h"
 #include "io/PathQt.h"
 #include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Node.h"
@@ -275,7 +276,8 @@ void MaterialCollectionEditor::modsDidChange()
 
 void MaterialCollectionEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (m_map.game()->isGamePathPreference(path))
+  if (const auto* game = m_map.game();
+      game && path == pref(game->info().gamePathPreference))
   {
     updateAllMaterialCollections();
     updateButtons();

@@ -19,10 +19,6 @@
 
 #include "TestUtils.h"
 
-#include "TestLogger.h"
-#include "fs/DiskIO.h"
-#include "fs/ReaderException.h"
-#include "fs/TestUtils.h"
 #include "io/GameConfigParser.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
@@ -35,7 +31,6 @@
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Resource.h"
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
@@ -324,21 +319,6 @@ void transformNode(
     }));
 }
 
-std::unique_ptr<Game> loadGame(const std::string& gameName)
-{
-  TestLogger logger;
-  const auto configPath =
-    std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
-  const auto gamePath =
-    std::filesystem::current_path() / "fixture/test/mdl/Game" / gameName;
-  const auto configStr = fs::readTextFile(configPath);
-  auto configParser = io::GameConfigParser(configStr, configPath);
-  auto config = configParser.parse().value();
-  auto game = std::make_unique<mdl::Game>(std::move(config), gamePath, logger);
-
-  return game;
-}
-
 const mdl::BrushFace* findFaceByPoints(
   const std::vector<mdl::BrushFace>& faces,
   const vm::vec3d& point0,
@@ -422,45 +402,6 @@ Selection makeSelection(const std::vector<BrushFaceHandle>& brushFaces)
 }
 
 } // namespace mdl
-
-namespace ui
-{
-DocumentGameConfig loadMapDocument(
-  const std::filesystem::path& mapPath,
-  const std::string& gameName,
-  const mdl::MapFormat mapFormat)
-{
-  auto taskManager = createTestTaskManager();
-  auto document = std::make_shared<MapDocument>(*taskManager);
-  auto& map = document->map();
-
-  auto game = mdl::loadGame(gameName);
-  map.load(
-    mapFormat,
-    vm::bbox3d{8192.0},
-    std::move(game),
-    std::filesystem::current_path() / mapPath)
-    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
-
-  map.processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
-
-  return {document, std::move(taskManager)};
-}
-
-DocumentGameConfig newMapDocument(
-  const std::string& gameName, const mdl::MapFormat mapFormat)
-{
-  auto taskManager = createTestTaskManager();
-  auto document = std::make_shared<MapDocument>(*taskManager);
-  auto& map = document->map();
-
-  auto game = mdl::loadGame(gameName);
-  map.create(mapFormat, vm::bbox3d{8192.0}, std::move(game))
-    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
-
-  return {document, std::move(taskManager)};
-}
-} // namespace ui
 
 int getComponentOfPixel(
   const mdl::Texture& texture,

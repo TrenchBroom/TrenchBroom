@@ -41,6 +41,11 @@ std::filesystem::path appDirectory();
  */
 std::filesystem::path userDataDirectory();
 
+/**
+ * Returns the directory where user game packages are stored.
+ */
+std::filesystem::path userGamesDirectory();
+
 std::filesystem::path tempDirectory();
 
 std::filesystem::path logFilePath();

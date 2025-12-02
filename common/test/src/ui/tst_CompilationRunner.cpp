@@ -500,8 +500,8 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
 TEST_CASE("CompilationRunner")
 {
   auto fixtureConfig = mdl::MapFixtureConfig{};
-  fixtureConfig.gameConfig.forceEmptyNewMap = false;
-  fixtureConfig.gameConfig.fileFormats = std::vector<mdl::MapFormatConfig>{
+  fixtureConfig.gameInfo.gameConfig.forceEmptyNewMap = false;
+  fixtureConfig.gameInfo.gameConfig.fileFormats = std::vector<mdl::MapFormatConfig>{
     {"Valve", {}},
   };
 

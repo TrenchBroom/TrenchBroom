@@ -28,7 +28,8 @@
 #include "io/MapHeader.h"
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
-#include "mdl/GameFactory.h"
+#include "mdl/Game.h" // IWYU pragma: keep
+#include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "ui/AboutDialog.h"
@@ -70,8 +71,6 @@
 #include <QTimer>
 #include <QUrl>
 
-#include "kd/string_utils.h"
-
 #include <fmt/format.h>
 #include <fmt/std.h>
 
@@ -97,11 +96,15 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndForma
            [&](auto detectedGameNameAndMapFormat)
              -> std::optional<std::tuple<std::string, mdl::MapFormat>> {
              auto [gameName, mapFormat] = detectedGameNameAndMapFormat;
-             const auto& gameFactory = mdl::GameFactory::instance();
+             const auto& gameManager = TrenchBroomApp::instance().gameManager();
+             const auto gameList = gameManager.gameInfos()
+                                   | std::views::transform([](const auto& gameInfo) {
+                                       return gameInfo.gameConfig.name;
+                                     })
+                                   | kdl::ranges::to<std::vector>();
 
              if (
-               gameName == std::nullopt
-               || !kdl::vec_contains(gameFactory.gameList(), *gameName)
+               gameName == std::nullopt || !kdl::vec_contains(gameList, *gameName)
                || mapFormat == mdl::MapFormat::Unknown)
              {
                auto queriedGameNameAndMapFormat = GameDialog::showOpenDocumentDialog();
@@ -149,11 +152,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   setOrganizationName("");
   setOrganizationDomain("io.github.trenchbroom");
 
-  if (!initializeGameFactory())
-  {
-    QCoreApplication::exit(1);
-    return;
-  }
+  m_gameManager = createGameManager();
 
   loadStyleSheets();
   loadStyle();
@@ -212,6 +211,37 @@ TrenchBroomApp::~TrenchBroomApp()
   PreferenceManager::destroyInstance();
 }
 
+std::unique_ptr<mdl::GameManager> TrenchBroomApp::createGameManager()
+{
+  return mdl::initializeGameManager(
+           io::SystemPaths::findResourceDirectories("games"),
+           io::SystemPaths::userGamesDirectory())
+         | kdl::transform([](auto gameManager, const auto& warnings) {
+             if (!warnings.empty())
+             {
+               const auto msg = fmt::format(
+                 R"(Some game configurations could not be loaded. The following errors occurred:
+
+{})",
+                 kdl::str_join(warnings, "\n\n"));
+
+               QMessageBox::critical(
+                 nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
+             }
+
+             return std::make_unique<mdl::GameManager>(std::move(gameManager));
+           })
+         | kdl::if_error([](auto e) {
+             const auto msg =
+               fmt::format(R"(Game configurations could not be loaded: {})", e.msg);
+
+             QMessageBox::critical(
+               nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
+             QCoreApplication::exit(1);
+           })
+         | kdl::value();
+}
+
 void TrenchBroomApp::askForAutoUpdates()
 {
   if (pref(Preferences::AskForAutoUpdates))
@@ -257,6 +287,12 @@ void TrenchBroomApp::parseCommandLineAndShowFrame()
 
   openFilesOrWelcomeFrame(parser.positionalArguments());
 }
+
+mdl::GameManager& TrenchBroomApp::gameManager()
+{
+  return *m_gameManager;
+}
+
 
 upd::Updater& TrenchBroomApp::updater()
 {
@@ -413,7 +449,6 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
   auto* frame = static_cast<MapFrame*>(nullptr);
   try
   {
-    auto& gameFactory = mdl::GameFactory::instance();
     return checkFileExists() | kdl::or_else([&](const auto& e) {
              m_recentDocuments->removePath(absPath);
              return Result<void>{e};
@@ -427,8 +462,8 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 
                frame = m_frameManager->newFrame(m_taskManager);
 
-               auto [gameName, mapFormat] = *gameNameAndMapFormat;
-               auto game = gameFactory.createGame(gameName, frame->logger());
+               const auto [gameName, mapFormat] = *gameNameAndMapFormat;
+               auto game = gameManager().createGame(gameName, frame->logger());
                contract_assert(game != nullptr);
 
                closeWelcomeWindow();
@@ -476,30 +511,6 @@ void TrenchBroomApp::openAbout()
   AboutDialog::showAboutDialog();
 }
 
-bool TrenchBroomApp::initializeGameFactory()
-{
-  const auto gamePathConfig = mdl::GamePathConfig{
-    io::SystemPaths::findResourceDirectories("games"),
-    io::SystemPaths::userDataDirectory() / "games",
-  };
-  auto& gameFactory = mdl::GameFactory::instance();
-  return gameFactory.initialize(gamePathConfig) | kdl::transform([](auto errors) {
-           if (!errors.empty())
-           {
-             const auto msg = fmt::format(
-               R"(Some game configurations could not be loaded. The following errors occurred:
-
-{})",
-               kdl::str_join(errors, "\n\n"));
-
-             QMessageBox::critical(
-               nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
-           }
-         })
-         | kdl::if_error([](auto e) { qCritical() << QString::fromStdString(e.msg); })
-         | kdl::is_success();
-}
-
 bool TrenchBroomApp::newDocument()
 {
   auto* frame = static_cast<MapFrame*>(nullptr);
@@ -515,8 +526,7 @@ bool TrenchBroomApp::newDocument()
 
     frame = m_frameManager->newFrame(m_taskManager);
 
-    auto& gameFactory = mdl::GameFactory::instance();
-    auto game = gameFactory.createGame(gameName, frame->logger());
+    auto game = gameManager().createGame(gameName, frame->logger());
     contract_assert(game != nullptr);
 
     closeWelcomeWindow();

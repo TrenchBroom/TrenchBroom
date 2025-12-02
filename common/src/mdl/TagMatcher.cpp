@@ -25,6 +25,7 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Entities.h"

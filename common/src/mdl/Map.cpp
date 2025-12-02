@@ -49,7 +49,7 @@
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Game.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/InvalidUVScaleValidator.h"
@@ -1193,11 +1193,20 @@ void Map::unsetEntityModels(const std::vector<Node*>& nodes)
 
 void Map::updateGameSearchPaths()
 {
-  m_game->setAdditionalSearchPaths(
-    enabledMods(*this) | std::views::transform([](const auto& mod) {
-      return std::filesystem::path{mod};
-    }) | kdl::ranges::to<std::vector>(),
-    m_logger);
+  updateGameFileSystem();
+}
+
+void Map::updateGameFileSystem()
+{
+  if (m_game)
+  {
+    const auto searchPaths =
+      enabledMods(*this)
+      | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
+      | kdl::ranges::to<std::vector>();
+
+    m_game->updateFileSystem(searchPaths, m_logger);
+  }
 }
 
 void Map::initializeNodeIndex()
@@ -1660,11 +1669,9 @@ void Map::modsDidChange()
 
 void Map::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (m_game && m_game->isGamePathPreference(path))
+  if (m_game && path == pref(m_game->info().gamePathPreference))
   {
-    const auto& gameFactory = GameFactory::instance();
-    const auto newGamePath = gameFactory.gamePath(m_game->config().name);
-    m_game->setGamePath(newGamePath, m_logger);
+    updateGameFileSystem();
 
     clearEntityModels();
     setEntityModels();

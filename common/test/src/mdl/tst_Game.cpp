@@ -22,6 +22,7 @@
 #include "fs/TestUtils.h"
 #include "io/GameConfigParser.h"
 #include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 
 #include <filesystem>
 
@@ -48,14 +49,19 @@ TEST_CASE("GameTest.loadCorruptPackages")
       std::filesystem::current_path() / "fixture/games/" / game / "GameConfig.cfg";
     const auto configStr = fs::readTextFile(configPath);
     auto configParser = io::GameConfigParser(configStr, configPath);
-    auto config = configParser.parse().value();
+
+    auto gameInfo = makeGameInfo(configParser.parse().value());
 
     const auto gamePath =
       std::filesystem::current_path() / "fixture/test/mdl/Game/CorruptPak";
+
+    gameInfo.gamePathPreference.setValue(gamePath);
+    gameInfo.gamePathPreference.setValid(true);
+
     auto logger = NullLogger();
     UNSCOPED_INFO(
       "Should not throw when loading corrupted package file for game " << game);
-    CHECK_NOTHROW(Game(config, gamePath, logger));
+    CHECK_NOTHROW(Game(gameInfo, logger));
   }
 }
 

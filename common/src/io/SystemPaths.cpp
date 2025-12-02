@@ -69,6 +69,11 @@ std::filesystem::path userDataDirectory()
 #endif
 }
 
+std::filesystem::path userGamesDirectory()
+{
+  return userDataDirectory() / "games";
+}
+
 std::filesystem::path tempDirectory()
 {
   return io::pathFromQString(

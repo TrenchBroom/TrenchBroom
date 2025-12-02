@@ -17,12 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapFixture.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 #include "io/LoadEntityModel.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"
@@ -68,7 +70,7 @@ TEST_CASE("EntityModel")
   SECTION("intersect")
   {
     auto logger = TestLogger{};
-    auto game = loadGame("Quake");
+    auto game = std::make_unique<Game>(QuakeGameInfo, logger);
 
     const auto path = std::filesystem::path{"cube.bsp"};
     const auto loadMaterial = [](auto) -> Material {

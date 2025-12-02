@@ -112,7 +112,7 @@ TEST_CASE("Map_World")
       SECTION("Map is transient")
       {
         auto fixtureConfig = MapFixtureConfig{};
-        fixtureConfig.gamePath = ".";
+        fixtureConfig.gameInfo.gamePathPreference.setValue(".");
         fixture.create(fixtureConfig);
 
         REQUIRE(!map.persistent());
@@ -141,8 +141,8 @@ TEST_CASE("Map_World")
         const auto path = env.dir() / filename;
 
         auto fixtureConfig = MapFixtureConfig{};
-        fixtureConfig.gameConfig.fileFormats = {{"Valve", ""}};
-        fixtureConfig.gamePath = ".";
+        fixtureConfig.gameInfo.gameConfig.fileFormats = {{"Valve", ""}};
+        fixtureConfig.gameInfo.gamePathPreference.setValue(".");
         fixture.load(path, fixtureConfig);
 
         CHECK(

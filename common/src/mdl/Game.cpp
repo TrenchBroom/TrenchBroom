@@ -20,6 +20,7 @@
 #include "Game.h"
 
 #include "Logger.h"
+#include "PreferenceManager.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
@@ -34,7 +35,7 @@
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/GameConfig.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameInfo.h"
 #include "mdl/MaterialManager.h"
 
 #include "kd/path_utils.h"
@@ -53,22 +54,21 @@
 
 namespace tb::mdl
 {
-Game::Game(GameConfig config, std::filesystem::path gamePath, Logger& logger)
-  : m_config{std::move(config)}
-  , m_gamePath{std::move(gamePath)}
+
+Game::Game(const GameInfo& gameInfo, Logger& logger)
+  : m_gameInfo{gameInfo}
 {
-  initializeFileSystem(logger);
+  initializeFileSystem({}, logger);
 }
 
-bool Game::isGamePathPreference(const std::filesystem::path& prefPath) const
+const GameInfo& Game::info() const
 {
-  const auto& gameFactory = GameFactory::instance();
-  return gameFactory.isGamePathPreference(config().name, prefPath);
+  return m_gameInfo;
 }
 
 const GameConfig& Game::config() const
 {
-  return m_config;
+  return m_gameInfo.gameConfig;
 }
 
 const fs::FileSystem& Game::gameFileSystem() const
@@ -76,28 +76,10 @@ const fs::FileSystem& Game::gameFileSystem() const
   return m_fs;
 }
 
-std::filesystem::path Game::gamePath() const
-{
-  return m_gamePath;
-}
-
-void Game::setGamePath(const std::filesystem::path& gamePath, Logger& logger)
-{
-  if (gamePath != m_gamePath)
-  {
-    m_gamePath = gamePath;
-    initializeFileSystem(logger);
-  }
-}
-
-void Game::setAdditionalSearchPaths(
+void Game::updateFileSystem(
   const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
-  if (searchPaths != m_additionalSearchPaths)
-  {
-    m_additionalSearchPaths = searchPaths;
-    initializeFileSystem(logger);
-  }
+  initializeFileSystem(searchPaths, logger);
 }
 
 SoftMapBounds Game::extractSoftMapBounds(const Entity& entity) const
@@ -120,11 +102,12 @@ void Game::reloadWads(
   Logger& logger)
 {
   const auto searchPaths = std::vector<std::filesystem::path>{
-    documentPath.parent_path(), // Search for assets relative to the map file.
-    m_gamePath,                 // Search for assets relative to the location of the game.
+    documentPath.parent_path(),      // Search for assets relative to the map file.
+    pref(info().gamePathPreference), // Search for assets relative to the location of the
+                                     // game.
     io::SystemPaths::appDirectory(), // Search for assets relative to the application.
   };
-  m_fs.reloadWads(m_config.materialConfig.root, searchPaths, wadPaths, logger);
+  m_fs.reloadWads(config().materialConfig.root, searchPaths, wadPaths, logger);
 }
 
 bool Game::isEntityDefinitionFile(const std::filesystem::path& path) const
@@ -138,7 +121,7 @@ bool Game::isEntityDefinitionFile(const std::filesystem::path& path) const
 
 std::vector<EntityDefinitionFileSpec> Game::allEntityDefinitionFiles() const
 {
-  return m_config.entityConfig.defFilePaths | std::views::transform([](const auto& path) {
+  return config().entityConfig.defFilePaths | std::views::transform([](const auto& path) {
            return EntityDefinitionFileSpec::makeBuiltin(path);
          })
          | kdl::ranges::to<std::vector>();
@@ -150,7 +133,7 @@ std::filesystem::path Game::findEntityDefinitionFile(
 {
   if (spec.type == EntityDefinitionFileSpec::Type::Builtin)
   {
-    return m_config.findConfigFile(spec.path);
+    return config().findConfigFile(spec.path);
   }
 
   if (spec.path.is_absolute())
@@ -163,13 +146,14 @@ std::filesystem::path Game::findEntityDefinitionFile(
 
 Result<std::vector<std::string>> Game::availableMods() const
 {
-  if (m_gamePath.empty() || fs::Disk::pathInfo(m_gamePath) != fs::PathInfo::Directory)
+  const auto gamePath = pref(info().gamePathPreference);
+  if (gamePath.empty() || fs::Disk::pathInfo(gamePath) != fs::PathInfo::Directory)
   {
     return Result<std::vector<std::string>>{std::vector<std::string>{}};
   }
 
-  const auto& defaultMod = m_config.fileSystemConfig.searchPath.filename().string();
-  const auto fs = fs::DiskFileSystem{m_gamePath};
+  const auto& defaultMod = config().fileSystemConfig.searchPath.filename().string();
+  const auto fs = fs::DiskFileSystem{gamePath};
   return fs.find(
            "",
            fs::TraversalMode::Flat,
@@ -189,18 +173,20 @@ Result<std::vector<std::string>> Game::availableMods() const
 
 std::string Game::defaultMod() const
 {
-  return m_config.fileSystemConfig.searchPath.string();
+  return config().fileSystemConfig.searchPath.string();
 }
 
-void Game::initializeFileSystem(Logger& logger)
+void Game::initializeFileSystem(
+  const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
-  m_fs.initialize(m_config, m_gamePath, m_additionalSearchPaths, logger);
+  const auto gamePath = pref(info().gamePathPreference);
+  m_fs.initialize(config(), gamePath, searchPaths, logger);
 }
 
 EntityPropertyConfig Game::entityPropertyConfig() const
 {
   return {
-    m_config.entityConfig.scaleExpression, m_config.entityConfig.setDefaultProperties};
+    config().entityConfig.scaleExpression, config().entityConfig.setDefaultProperties};
 }
 
 void Game::writeLongAttribute(
@@ -244,4 +230,5 @@ std::string Game::readLongAttribute(
 
   return valueStr.str();
 }
+
 } // namespace tb::mdl

@@ -19,12 +19,14 @@
 
 #include "MissingModValidator.h"
 
+#include "PreferenceManager.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
@@ -123,7 +125,7 @@ void MissingModValidator::doValidate(
 
   for (const auto& searchPath : additionalSearchPaths)
   {
-    const auto absPath = m_game.gamePath() / searchPath;
+    const auto absPath = pref(m_game.info().gamePathPreference) / searchPath;
     if (!absPath.is_absolute() || fs::Disk::pathInfo(absPath) != fs::PathInfo::Directory)
     {
       const auto mod = searchPath.string();

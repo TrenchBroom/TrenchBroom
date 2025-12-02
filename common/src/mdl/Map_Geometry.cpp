@@ -30,6 +30,7 @@
 #include "mdl/BrushVertexCommands.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"

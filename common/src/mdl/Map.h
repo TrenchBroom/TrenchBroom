@@ -346,6 +346,9 @@ private: // Asset management
 
   void updateGameSearchPaths();
 
+private:
+  void updateGameFileSystem();
+
 private: // index management
   void initializeNodeIndex();
   void addToNodeIndex(const std::vector<Node*>& nodes, bool recurse);

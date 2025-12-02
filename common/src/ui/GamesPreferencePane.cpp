@@ -32,11 +32,14 @@
 #include <QWidget>
 
 #include "FileLogger.h"
+#include "PreferenceManager.h"
+#include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
 #include "io/PathQt.h"
 #include "io/ResourceUtils.h"
+#include "io/SystemPaths.h"
 #include "mdl/GameConfig.h"
-#include "mdl/GameFactory.h"
+#include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/GameEngineDialog.h"
@@ -111,8 +114,7 @@ void GamesPreferencePane::createGui()
 
 void GamesPreferencePane::showUserConfigDirClicked()
 {
-  auto& gameFactory = mdl::GameFactory::instance();
-  auto path = gameFactory.userGameConfigsPath().lexically_normal();
+  const auto path = io::SystemPaths::userGamesDirectory().lexically_normal();
 
   fs::Disk::createDirectory(path) | kdl::transform([&](auto) {
     const auto url = QUrl::fromLocalFile(io::pathAsQPath(path));
@@ -154,7 +156,7 @@ void GamesPreferencePane::updateControls()
   {
     // build a new current page
     delete m_currentGamePage;
-    m_currentGamePage = new GamePreferencePane{desiredGame};
+    m_currentGamePage = new GamePreferencePane{m_document, desiredGame};
 
     m_stackedWidget->addWidget(m_currentGamePage);
     m_stackedWidget->setCurrentWidget(m_currentGamePage);
@@ -174,8 +176,10 @@ bool GamesPreferencePane::validate()
 
 // GamePreferencePane
 
-GamePreferencePane::GamePreferencePane(std::string gameName, QWidget* parent)
+GamePreferencePane::GamePreferencePane(
+  MapDocument* document, std::string gameName, QWidget* parent)
   : QWidget{parent}
+  , m_document{document}
   , m_gameName{std::move(gameName)}
 {
   createGui();
@@ -239,40 +243,46 @@ void GamePreferencePane::createGui()
 
   layout->addSection(tr("Compilation Tools"));
 
-  auto& gameFactory = mdl::GameFactory::instance();
-  const auto& gameConfig = gameFactory.gameConfig(m_gameName);
+  auto& app = TrenchBroomApp::instance();
+  const auto& gameManager = app.gameManager();
+  const auto* gameInfo = gameManager.gameInfo(m_gameName);
+  contract_assert(gameInfo);
 
-  for (auto& tool : gameConfig.compilationTools)
+  for (auto& tool : gameInfo->gameConfig.compilationTools)
   {
     const auto toolName = tool.name;
+    auto& toolPathPref = mdl::compilationToolPathPreference(*gameInfo, toolName);
+
     auto* edit = new QLineEdit{};
-    edit->setText(
-      io::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
+    edit->setText(io::pathAsQString(pref(toolPathPref)));
     if (tool.description)
     {
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
-    connect(edit, &QLineEdit::editingFinished, this, [this, toolName, edit]() {
-      mdl::GameFactory::instance().setCompilationToolPath(
-        m_gameName, toolName, io::pathFromQString(edit->text()));
+    connect(edit, &QLineEdit::editingFinished, this, [gameInfo, toolName, edit]() {
+      auto& prefs = PreferenceManager::instance();
+      auto& toolPathPref_ = mdl::compilationToolPathPreference(*gameInfo, toolName);
+      prefs.set(toolPathPref_, io::pathFromQString(edit->text()));
     });
 
     auto* browseButton = new QPushButton{"..."};
-    connect(browseButton, &QPushButton::clicked, this, [this, toolName, edit]() {
-      const auto pathStr = QFileDialog::getOpenFileName(
-        this,
-        tr("%1 Path").arg(QString::fromStdString(toolName)),
-        fileDialogDefaultDirectory(FileDialogDir::CompileTool));
-      if (!pathStr.isEmpty())
-      {
-        edit->setText(pathStr);
-        if (mdl::GameFactory::instance().setCompilationToolPath(
-              m_gameName, toolName, io::pathFromQString(pathStr)))
+    connect(
+      browseButton, &QPushButton::clicked, this, [this, gameInfo, toolName, edit]() {
+        const auto pathStr = QFileDialog::getOpenFileName(
+          this,
+          tr("%1 Path").arg(QString::fromStdString(toolName)),
+          fileDialogDefaultDirectory(FileDialogDir::CompileTool));
+        if (!pathStr.isEmpty())
         {
-          emit requestUpdate();
+          edit->setText(pathStr);
+          auto& prefs = PreferenceManager::instance();
+          auto& toolPathPref_ = mdl::compilationToolPathPreference(*gameInfo, toolName);
+          if (prefs.set(toolPathPref_, io::pathFromQString(edit->text())))
+          {
+            emit requestUpdate();
+          }
         }
-      }
-    });
+      });
 
     auto* rowLayout = new QHBoxLayout{};
     rowLayout->setContentsMargins(QMargins{});
@@ -300,11 +310,15 @@ void GamePreferencePane::chooseGamePathClicked()
 
 void GamePreferencePane::updateGamePath(const QString& str)
 {
+  auto& app = TrenchBroomApp::instance();
+  auto& gameManager = app.gameManager();
+  auto* gameInfo = gameManager.gameInfo(m_gameName);
+  contract_assert(gameInfo);
+
   updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
 
-  const auto gamePath = io::pathFromQString(str);
-  auto& gameFactory = mdl::GameFactory::instance();
-  if (gameFactory.setGamePath(m_gameName, gamePath))
+  auto& prefs = PreferenceManager::instance();
+  if (prefs.set(gameInfo->gamePathPreference, io::pathFromQString(str)))
   {
     emit requestUpdate();
   }
@@ -312,7 +326,8 @@ void GamePreferencePane::updateGamePath(const QString& str)
 
 void GamePreferencePane::configureEnginesClicked()
 {
-  auto dialog = GameEngineDialog{m_gameName, this};
+  auto& logger = m_document ? m_document->logger() : FileLogger::instance();
+  auto dialog = GameEngineDialog{m_gameName, logger, this};
   dialog.exec();
 }
 
@@ -323,17 +338,21 @@ const std::string& GamePreferencePane::gameName() const
 
 void GamePreferencePane::updateControls()
 {
-  auto& gameFactory = mdl::GameFactory::instance();
+  auto& app = TrenchBroomApp::instance();
+  const auto& gameManager = app.gameManager();
+  const auto* gameInfo = gameManager.gameInfo(m_gameName);
+  contract_assert(gameInfo);
 
   // Refresh tool paths from preferences
   for (const auto& [toolName, toolPathEditor] : m_toolPathEditors)
   {
-    toolPathEditor->setText(
-      io::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
+    const auto& toolPathPref = mdl::compilationToolPathPreference(*gameInfo, toolName);
+    const auto& toolPath = pref(toolPathPref);
+    toolPathEditor->setText(io::pathAsQString(toolPath));
   }
 
   // Refresh game path
-  const auto gamePath = gameFactory.gamePath(m_gameName);
+  const auto gamePath = pref(gameInfo->gamePathPreference);
   m_gamePathText->setText(io::pathAsQString(gamePath));
 }
 
