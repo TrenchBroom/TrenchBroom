@@ -44,7 +44,7 @@ class Command;
 class GroupNode;
 class Map;
 class Node;
-struct Selection;
+class Selection;
 struct SelectionChange;
 class SmartTag;
 class UndoableCommand;

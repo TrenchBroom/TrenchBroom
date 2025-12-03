@@ -2214,9 +2214,10 @@ const mdl::Material* materialToReveal(const mdl::Map& map)
 {
   const auto& selection = map.selection();
 
-  const auto* firstMaterial = selection.allBrushFaces().front().face().material();
+  const auto& allBrushFaces = selection.allBrushFaces();
+  const auto* firstMaterial = allBrushFaces.front().face().material();
   const auto allFacesHaveIdenticalMaterial = std::ranges::all_of(
-    selection.allBrushFaces(),
+    allBrushFaces,
     [&](const auto& face) { return face.face().material() == firstMaterial; });
 
   return allFacesHaveIdenticalMaterial ? firstMaterial : nullptr;

@@ -133,7 +133,7 @@ private:
   size_t m_lastSaveModificationCount = 0;
   size_t m_modificationCount = 0;
 
-  mutable std::optional<Selection> m_cachedSelection;
+  Selection m_selection;
   mutable std::optional<vm::bbox3d> m_cachedSelectionBounds;
   std::optional<vm::bbox3d> m_lastSelectionBounds;
 
