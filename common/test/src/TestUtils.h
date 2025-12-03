@@ -184,8 +184,8 @@ Child* getChildAs(const Node& node)
   return getFirstChildOfType<Child>(children);
 }
 
-Selection makeSelection(const std::vector<Node*>& nodes);
-Selection makeSelection(const std::vector<BrushFaceHandle>& brushFaces);
+Selection makeSelection(const Map& map, const std::vector<Node*>& nodes);
+Selection makeSelection(const Map& map, const std::vector<BrushFaceHandle>& brushFaces);
 
 } // namespace mdl
 

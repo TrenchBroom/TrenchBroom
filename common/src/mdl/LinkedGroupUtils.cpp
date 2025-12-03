@@ -32,6 +32,7 @@
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/task_manager.h"
+#include "kdl/vector_set.h"
 
 #include <algorithm>
 #include <string_view>

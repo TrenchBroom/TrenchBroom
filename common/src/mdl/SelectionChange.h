@@ -23,8 +23,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <vector>
-
 namespace tb::mdl
 {
 class Node;

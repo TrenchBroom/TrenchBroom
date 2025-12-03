@@ -17,34 +17,115 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/BezierPatch.h"
-#include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
-#include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
-#include "mdl/LayerNode.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
+#include <ostream>
 #include <vector>
 
 #include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
 {
+namespace
+{
+
+enum class SelectionItem
+{
+  nothing,
+  outerGroupNode,
+  entityNode,
+  brushNode,
+  patchNode,
+  brushFace,
+};
+
+std::ostream& operator<<(std::ostream& lhs, const SelectionItem rhs)
+{
+  switch (rhs)
+  {
+  case SelectionItem::nothing:
+    lhs << "nothing";
+    break;
+  case SelectionItem::outerGroupNode:
+    lhs << "outerGroupNode";
+    break;
+  case SelectionItem::entityNode:
+    lhs << "entityNode";
+    break;
+  case SelectionItem::brushNode:
+    lhs << "brushNode";
+    break;
+  case SelectionItem::patchNode:
+    lhs << "patchNode";
+    break;
+  case SelectionItem::brushFace:
+    lhs << "brushFace";
+    break;
+  }
+  return lhs;
+}
+
+} // namespace
+
+using namespace Catch::Matchers;
+
 TEST_CASE("Selection")
 {
+  auto fixture = MapFixture{};
+  auto& map = fixture.map();
+  fixture.create();
+
+  auto* worldNode = map.world();
+  auto brushBuilder = BrushBuilder{worldNode->mapFormat(), map.worldBounds()};
+
+  auto* outerGroupNode = new GroupNode{Group{"outer"}};
+  auto* innerGroupNode = new GroupNode{Group{"inner"}};
+
+  auto* entityNode = new EntityNode{{}};
+  auto* brushNode =
+    brushBuilder.createCube(64.0, "material")
+      .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
+      .value()
+      .release();
+
+  // clang-format off
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+  // clang-format on
+
+  auto* brushEntityNode = new EntityNode{{}};
+  auto* entityBrushNode =
+    brushBuilder.createCube(64.0, "material")
+      .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
+      .value()
+      .release();
+
+  auto* otherGroupNode = new GroupNode{Group{"other"}};
+  auto* groupedEntityNode = new EntityNode{{}};
+
   /*
    worldNode
      outerGroupNode
@@ -58,332 +139,383 @@ TEST_CASE("Selection")
        groupedEntityNode
   */
 
-  const auto worldBounds = vm::bbox3d{8192.0};
-  auto worldNode = WorldNode{{}, {}, MapFormat::Valve};
-  auto brushBuilder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+  innerGroupNode->addChildren({patchNode});
+  outerGroupNode->addChildren({innerGroupNode, brushNode});
+  brushEntityNode->addChildren({entityBrushNode});
+  otherGroupNode->addChildren({groupedEntityNode});
 
-  auto& layerNode = *worldNode.defaultLayer();
+  addNodes(
+    map,
+    {{parentForNodes(map),
+      {outerGroupNode, entityNode, brushEntityNode, otherGroupNode}}});
 
-  auto& outerGroupNode =
-    dynamic_cast<GroupNode&>(layerNode.addChild(new GroupNode{Group{"outer"}}));
-  auto& innerGroupNode =
-    dynamic_cast<GroupNode&>(outerGroupNode.addChild(new GroupNode{Group{"inner"}}));
+  const auto selectItem = [&](const auto selectionItem) {
+    switch (selectionItem)
+    {
+    case SelectionItem::nothing:
+      deselectAll(map);
+      break;
+    case SelectionItem::outerGroupNode:
+      selectNodes(map, {outerGroupNode});
+      break;
+    case SelectionItem::entityNode:
+      selectNodes(map, {entityNode});
+      break;
+    case SelectionItem::brushNode:
+      selectNodes(map, {brushNode});
+      break;
+    case SelectionItem::patchNode:
+      selectNodes(map, {patchNode});
+      break;
+    case SelectionItem::brushFace:
+      selectBrushFaces(map, {{brushNode, 0}});
+      break;
+    }
+  };
 
-  auto& entityNode = dynamic_cast<EntityNode&>(layerNode.addChild(new EntityNode{{}}));
-  auto& brushNode = dynamic_cast<BrushNode&>(outerGroupNode.addChild(
-    brushBuilder.createCube(64.0, "material")
-      .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
-      .value()
-      .release()));
-
-  // clang-format off
-  auto& patchNode = dynamic_cast<PatchNode&>(innerGroupNode.addChild(new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}}));
-  // clang-format on
-
-  auto& brushEntityNode =
-    dynamic_cast<EntityNode&>(layerNode.addChild(new EntityNode{{}}));
-  auto& entityBrushNode = dynamic_cast<BrushNode&>(brushEntityNode.addChild(
-    brushBuilder.createCube(64.0, "material")
-      .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
-      .value()
-      .release()));
-
-  auto& otherGroupNode =
-    dynamic_cast<GroupNode&>(layerNode.addChild(new GroupNode{Group{"other"}}));
-  auto& groupedEntityNode =
-    dynamic_cast<EntityNode&>(otherGroupNode.addChild(new EntityNode{{}}));
+  const auto selectItems = [&](const auto& selectionItems) {
+    for (const auto& selectionItem : selectionItems)
+    {
+      selectItem(selectionItem);
+    }
+  };
 
   SECTION("hasAny")
   {
-    CHECK_FALSE(Selection{}.hasAny());
-    CHECK(makeSelection({&outerGroupNode}).hasAny());
-    CHECK(makeSelection({&entityNode}).hasAny());
-    CHECK(makeSelection({&brushNode}).hasAny());
-    CHECK(makeSelection({&patchNode}).hasAny());
-    CHECK(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasAny());
+    using T = std::tuple<SelectionItem, bool>;
+    const auto [selectionItem, expectedHasAny] = GENERATE(values<T>({
+      {SelectionItem::nothing, false},
+      {SelectionItem::outerGroupNode, true},
+      {SelectionItem::entityNode, true},
+      {SelectionItem::brushNode, true},
+      {SelectionItem::patchNode, true},
+      {SelectionItem::brushFace, true},
+    }));
+
+    CAPTURE(selectionItem);
+
+    selectItem(selectionItem);
+    CHECK(map.selection().hasAny() == expectedHasAny);
   }
 
   SECTION("hasNodes")
   {
-    CHECK_FALSE(Selection{}.hasNodes());
-    CHECK(makeSelection({&outerGroupNode}).hasNodes());
-    CHECK(makeSelection({&entityNode}).hasNodes());
-    CHECK(makeSelection({&brushNode}).hasNodes());
-    CHECK(makeSelection({&patchNode}).hasNodes());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasNodes());
+    using T = std::tuple<SelectionItem, bool>;
+    const auto [selectionItem, expected] = GENERATE(values<T>({
+      {SelectionItem::nothing, false},
+      {SelectionItem::outerGroupNode, true},
+      {SelectionItem::entityNode, true},
+      {SelectionItem::brushNode, true},
+      {SelectionItem::patchNode, true},
+      {SelectionItem::brushFace, false},
+    }));
+
+    CAPTURE(selectionItem);
+
+    selectItem(selectionItem);
+    CHECK(map.selection().hasNodes() == expected);
   }
 
   SECTION("hasGroups")
   {
-    CHECK_FALSE(Selection{}.hasGroups());
-    CHECK(makeSelection({&outerGroupNode}).hasGroups());
-    CHECK(makeSelection({&outerGroupNode, &entityNode}).hasGroups());
-    CHECK_FALSE(makeSelection({&entityNode}).hasGroups());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasGroups());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::outerGroupNode}, true},
+      {{SelectionItem::outerGroupNode, SelectionItem::entityNode}, true},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasGroups() == expected);
   }
 
   SECTION("hasOnlyGroups")
   {
-    CHECK_FALSE(Selection{}.hasOnlyGroups());
-    CHECK(makeSelection({&outerGroupNode}).hasOnlyGroups());
-    CHECK_FALSE(makeSelection({&outerGroupNode, &entityNode}).hasOnlyGroups());
-    CHECK_FALSE(makeSelection({&entityNode}).hasOnlyGroups());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasOnlyGroups());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::outerGroupNode}, true},
+      {{SelectionItem::outerGroupNode, SelectionItem::entityNode}, false},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasOnlyGroups() == expected);
   }
 
   SECTION("hasEntities")
   {
-    CHECK_FALSE(Selection{}.hasEntities());
-    CHECK(makeSelection({&entityNode}).hasEntities());
-    CHECK(makeSelection({&entityNode, &brushNode}).hasEntities());
-    CHECK_FALSE(makeSelection({&brushNode}).hasEntities());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasEntities());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::entityNode}, true},
+      {{SelectionItem::entityNode, SelectionItem::brushNode}, true},
+      {{SelectionItem::brushNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasEntities() == expected);
   }
 
   SECTION("hasOnlyEntities")
   {
-    CHECK_FALSE(Selection{}.hasOnlyEntities());
-    CHECK(makeSelection({&entityNode}).hasOnlyEntities());
-    CHECK_FALSE(makeSelection({&entityNode, &brushNode}).hasOnlyEntities());
-    CHECK_FALSE(makeSelection({&brushNode}).hasOnlyEntities());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasOnlyEntities());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::entityNode}, true},
+      {{SelectionItem::entityNode, SelectionItem::brushNode}, false},
+      {{SelectionItem::brushNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasOnlyEntities() == expected);
   }
 
   SECTION("hasBrushes")
   {
-    CHECK_FALSE(Selection{}.hasBrushes());
-    CHECK(makeSelection({&brushNode}).hasBrushes());
-    CHECK(makeSelection({&brushNode, &entityNode}).hasBrushes());
-    CHECK_FALSE(makeSelection({&entityNode}).hasBrushes());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasBrushes());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::brushNode}, true},
+      {{SelectionItem::entityNode, SelectionItem::brushNode}, true},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasBrushes() == expected);
   }
 
   SECTION("hasOnlyBrushes")
   {
-    CHECK_FALSE(Selection{}.hasOnlyBrushes());
-    CHECK(makeSelection({&brushNode}).hasOnlyBrushes());
-    CHECK_FALSE(makeSelection({&brushNode, &entityNode}).hasOnlyBrushes());
-    CHECK_FALSE(makeSelection({&entityNode}).hasOnlyBrushes());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasOnlyBrushes());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::brushNode}, true},
+      {{SelectionItem::entityNode, SelectionItem::brushNode}, false},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasOnlyBrushes() == expected);
   }
 
   SECTION("hasPatches")
   {
-    CHECK_FALSE(Selection{}.hasPatches());
-    CHECK(makeSelection({&patchNode}).hasPatches());
-    CHECK(makeSelection({&patchNode, &entityNode}).hasPatches());
-    CHECK_FALSE(makeSelection({&entityNode}).hasPatches());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasPatches());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::patchNode}, true},
+      {{SelectionItem::entityNode, SelectionItem::patchNode}, true},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasPatches() == expected);
   }
 
   SECTION("hasOnlyPatches")
   {
-    CHECK_FALSE(Selection{}.hasOnlyPatches());
-    CHECK(makeSelection({&patchNode}).hasOnlyPatches());
-    CHECK_FALSE(makeSelection({&patchNode, &entityNode}).hasOnlyPatches());
-    CHECK_FALSE(makeSelection({&entityNode}).hasOnlyPatches());
-    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasOnlyPatches());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::patchNode}, true},
+      {{SelectionItem::entityNode, SelectionItem::patchNode}, false},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasOnlyPatches() == expected);
   }
 
   SECTION("hasBrushFaces")
   {
-    CHECK_FALSE(Selection{}.hasBrushFaces());
-    CHECK_FALSE(makeSelection({&outerGroupNode}).hasBrushFaces());
-    CHECK_FALSE(makeSelection({&entityNode}).hasBrushFaces());
-    CHECK_FALSE(makeSelection({&brushNode}).hasBrushFaces());
-    CHECK_FALSE(makeSelection({&patchNode}).hasBrushFaces());
-    CHECK(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasBrushFaces());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::entityNode, SelectionItem::patchNode}, false},
+      {{SelectionItem::brushNode}, false},
+      {{SelectionItem::brushFace}, true},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasBrushFaces() == expected);
   }
 
   SECTION("hasAnyBrushFaces")
   {
-    CHECK_FALSE(Selection{}.hasAnyBrushFaces());
-    CHECK_FALSE(makeSelection({&outerGroupNode}).hasAnyBrushFaces());
-    CHECK_FALSE(makeSelection({&entityNode}).hasAnyBrushFaces());
-    CHECK(makeSelection({&brushNode}).hasAnyBrushFaces());
-    CHECK(makeSelection({&brushNode, &entityNode}).hasAnyBrushFaces());
-    CHECK_FALSE(makeSelection({&patchNode}).hasAnyBrushFaces());
-    CHECK(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasAnyBrushFaces());
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::entityNode, SelectionItem::brushNode}, true},
+      {{SelectionItem::brushNode}, true},
+      {{SelectionItem::brushFace}, true},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasAnyBrushFaces() == expected);
   }
 
   SECTION("allEntities")
   {
-    auto selection = Selection{};
-    selection.cachedAllEntities = std::vector<EntityNodeBase*>{&entityNode};
-    CHECK(selection.allEntities() == std::vector<EntityNodeBase*>{&entityNode});
+    SECTION("nothing selected")
+    {
+      CHECK_THAT(
+        map.selection().allEntities(),
+        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+    }
+
+    SECTION("outer group node selected")
+    {
+      selectNodes(map, {outerGroupNode});
+      CHECK_THAT(
+        map.selection().allEntities(),
+        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+    }
+
+    SECTION("entity node selected")
+    {
+      selectNodes(map, {entityNode});
+      CHECK_THAT(
+        map.selection().allEntities(),
+        UnorderedEquals(std::vector<EntityNodeBase*>{entityNode}));
+    }
+
+    SECTION("mixed selection")
+    {
+      selectNodes(map, {entityNode, brushNode});
+      CHECK_THAT(
+        map.selection().allEntities(),
+        UnorderedEquals(std::vector<EntityNodeBase*>{entityNode}));
+    }
+
+    SECTION("other group selected")
+    {
+      selectNodes(map, {otherGroupNode});
+      CHECK(
+        map.selection().allEntities() == std::vector<EntityNodeBase*>{groupedEntityNode});
+    }
+
+    SECTION("nested entity selected")
+    {
+      selectNodes(map, {groupedEntityNode});
+      CHECK_THAT(
+        map.selection().allEntities(),
+        UnorderedEquals(std::vector<EntityNodeBase*>{groupedEntityNode}));
+    }
+
+    SECTION("face selected")
+    {
+      selectBrushFaces(map, {{brushNode, 0}});
+      CHECK_THAT(
+        map.selection().allEntities(),
+        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+    }
   }
 
   SECTION("allBrushes")
   {
-    auto selection = Selection{};
-    selection.cachedAllBrushes = std::vector<BrushNode*>{&brushNode};
-    CHECK(selection.allBrushes() == std::vector<BrushNode*>{&brushNode});
+    SECTION("selection is empty")
+    {
+      CHECK_THAT(
+        map.selection().allBrushes(), UnorderedEquals(std::vector<BrushNode*>{}));
+    }
+
+    SECTION("nothing selected")
+    {
+      CHECK_THAT(
+        map.selection().allBrushes(), UnorderedEquals(std::vector<BrushNode*>{}));
+    }
+
+    SECTION("outer group node selected")
+    {
+      selectNodes(map, {outerGroupNode});
+      CHECK_THAT(
+        map.selection().allBrushes(),
+        UnorderedEquals(std::vector<BrushNode*>{brushNode}));
+    }
+
+    SECTION("entity node selected")
+    {
+      selectNodes(map, {entityNode});
+      CHECK_THAT(
+        map.selection().allBrushes(), UnorderedEquals(std::vector<BrushNode*>{}));
+    }
+
+    SECTION("mixed selection")
+    {
+      selectNodes(map, {entityNode, brushNode});
+      CHECK_THAT(
+        map.selection().allBrushes(),
+        UnorderedEquals(std::vector<BrushNode*>{brushNode}));
+    }
+
+    SECTION("entity brush selected")
+    {
+      selectNodes(map, {entityBrushNode});
+      CHECK_THAT(
+        map.selection().allBrushes(),
+        UnorderedEquals(std::vector<BrushNode*>{entityBrushNode}));
+    }
+
+    SECTION("face selected")
+    {
+      selectBrushFaces(map, {{brushNode, 0}});
+      CHECK_THAT(
+        map.selection().allBrushes(), UnorderedEquals(std::vector<BrushNode*>{}));
+    }
   }
 
-  SECTION("computeSelection")
+  SECTION("allBrushFaces")
   {
-    CHECK(computeSelection(worldNode) == Selection{});
-
-    SECTION("face selection")
+    SECTION("face selected")
     {
-      brushNode.selectFace(0);
+      selectBrushFaces(map, {{brushNode, 0}});
       CHECK(
-        computeSelection(worldNode) == makeSelection({BrushFaceHandle{&brushNode, 0}}));
+        map.selection().allBrushFaces()
+        == std::vector<BrushFaceHandle>{BrushFaceHandle{brushNode, 0}});
     }
 
-    SECTION("node selection")
+    SECTION("brush selected")
     {
-      brushNode.select();
-      CHECK(computeSelection(worldNode) == makeSelection({&brushNode}));
-
-      outerGroupNode.select();
-      CHECK(computeSelection(worldNode) == makeSelection({&outerGroupNode, &brushNode}));
-
-      entityNode.select();
-      CHECK(
-        computeSelection(worldNode)
-        == makeSelection({&outerGroupNode, &brushNode, &entityNode}));
+      selectNodes(map, {brushNode});
+      CHECK(map.selection().allBrushFaces().size() == 6);
     }
 
-    SECTION("allEntities")
+    SECTION("mixed selection")
     {
-      SECTION("selection is empty")
-      {
-        CHECK(Selection{}.allEntities() == std::vector<EntityNodeBase*>{});
-      }
-
-      SECTION("nothing selected")
-      {
-        CHECK(
-          computeSelection(worldNode).allEntities()
-          == std::vector<EntityNodeBase*>{&worldNode});
-      }
-
-      SECTION("outer group node selected")
-      {
-        outerGroupNode.select();
-        CHECK(
-          computeSelection(worldNode).allEntities()
-          == std::vector<EntityNodeBase*>{&worldNode});
-      }
-
-      SECTION("entity node selected")
-      {
-        entityNode.select();
-        CHECK(
-          computeSelection(worldNode).allEntities()
-          == std::vector<EntityNodeBase*>{&entityNode});
-      }
-
-      SECTION("mixed selection")
-      {
-        brushNode.select();
-        entityNode.select();
-        CHECK(
-          computeSelection(worldNode).allEntities()
-          == std::vector<EntityNodeBase*>{&entityNode});
-      }
-
-      SECTION("other group selected")
-      {
-        otherGroupNode.select();
-        CHECK(
-          computeSelection(worldNode).allEntities()
-          == std::vector<EntityNodeBase*>{&groupedEntityNode});
-      }
-
-      SECTION("nested entity selected")
-      {
-        groupedEntityNode.select();
-        CHECK(
-          computeSelection(worldNode).allEntities()
-          == std::vector<EntityNodeBase*>{&groupedEntityNode});
-      }
-
-      SECTION("face selected")
-      {
-        brushNode.selectFace(0);
-        CHECK(
-          computeSelection(worldNode).allEntities()
-          == std::vector<EntityNodeBase*>{&worldNode});
-      }
-    }
-
-    SECTION("allBrushes")
-    {
-      SECTION("selection is empty")
-      {
-        CHECK(Selection{}.allBrushes() == std::vector<BrushNode*>{});
-      }
-
-      SECTION("nothing selected")
-      {
-        CHECK(computeSelection(worldNode).allBrushes() == std::vector<BrushNode*>{});
-      }
-
-      SECTION("outer group node selected")
-      {
-        outerGroupNode.select();
-        CHECK(
-          computeSelection(worldNode).allBrushes()
-          == std::vector<BrushNode*>{&brushNode});
-      }
-
-      SECTION("entity node selected")
-      {
-        entityNode.select();
-        CHECK(computeSelection(worldNode).allBrushes() == std::vector<BrushNode*>{});
-      }
-
-      SECTION("mixed selection")
-      {
-        brushNode.select();
-        entityNode.select();
-        CHECK(
-          computeSelection(worldNode).allBrushes()
-          == std::vector<BrushNode*>{&brushNode});
-      }
-
-      SECTION("entity brush selected")
-      {
-        entityBrushNode.select();
-        CHECK(
-          computeSelection(worldNode).allBrushes()
-          == std::vector<BrushNode*>{&entityBrushNode});
-      }
-
-      SECTION("face selected")
-      {
-        brushNode.selectFace(0);
-        CHECK(computeSelection(worldNode).allBrushes() == std::vector<BrushNode*>{});
-      }
-    }
-
-    SECTION("allBrushFaces")
-    {
-      SECTION("face selected")
-      {
-        brushNode.selectFace(0);
-        CHECK(
-          computeSelection(worldNode).allBrushFaces()
-          == std::vector<BrushFaceHandle>{BrushFaceHandle{&brushNode, 0}});
-      }
-
-      SECTION("brush selected")
-      {
-        brushNode.select();
-        CHECK(computeSelection(worldNode).allBrushFaces().size() == 6);
-      }
-
-      SECTION("mixed selection")
-      {
-        entityNode.select();
-        brushNode.select();
-        CHECK(computeSelection(worldNode).allBrushFaces().size() == 6);
-      }
+      selectNodes(map, {entityNode, brushNode});
+      CHECK(map.selection().allBrushFaces().size() == 6);
     }
   }
 }

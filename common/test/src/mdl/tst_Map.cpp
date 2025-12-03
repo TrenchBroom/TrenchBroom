@@ -722,7 +722,7 @@ TEST_CASE("Map")
     CHECK(!map.canUndoCommand());
     CHECK(!map.canRepeatCommands());
     CHECK(!map.editorContext().blockSelection());
-    CHECK(map.selection() == Selection{});
+    CHECK(map.selection() == Selection{map});
     CHECK(map.world() == nullptr);
     CHECK(map.game() != nullptr);
     CHECK(map.modificationCount() == 0);
