@@ -23,8 +23,6 @@
 
 #include "NotifierConnection.h"
 
-#include <vector>
-
 class QAbstractButton;
 class QLabel;
 class QLineEdit;
@@ -32,10 +30,7 @@ class QGridLayout;
 
 namespace tb::mdl
 {
-class BrushFaceHandle;
 class Map;
-class Node;
-struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -111,12 +106,7 @@ private:
 
   void connectObservers();
 
-  void mapWasCreated(mdl::Map&);
-  void mapWasLoaded(mdl::Map&);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void materialCollectionsDidChange();
+  void documentDidChange();
 
   void updateControls();
   void updateControlsDelayed();

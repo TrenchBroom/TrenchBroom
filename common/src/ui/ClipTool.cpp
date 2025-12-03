@@ -973,40 +973,10 @@ bool ClipTool::doRemove()
 void ClipTool::connectObservers()
 {
   m_notifierConnection +=
-    m_map.selectionDidChangeNotifier.connect(this, &ClipTool::selectionDidChange);
-  m_notifierConnection +=
-    m_map.nodesWillChangeNotifier.connect(this, &ClipTool::nodesWillChange);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &ClipTool::nodesDidChange);
-  m_notifierConnection +=
-    m_map.brushFacesDidChangeNotifier.connect(this, &ClipTool::brushFacesDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &ClipTool::documentDidChange);
 }
 
-void ClipTool::selectionDidChange(const mdl::SelectionChange&)
-{
-  if (!m_ignoreNotifications)
-  {
-    update();
-  }
-}
-
-void ClipTool::nodesWillChange(const std::vector<mdl::Node*>&)
-{
-  if (!m_ignoreNotifications)
-  {
-    update();
-  }
-}
-
-void ClipTool::nodesDidChange(const std::vector<mdl::Node*>&)
-{
-  if (!m_ignoreNotifications)
-  {
-    update();
-  }
-}
-
-void ClipTool::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
+void ClipTool::documentDidChange()
 {
   if (!m_ignoreNotifications)
   {

@@ -33,8 +33,6 @@ class QPushButton;
 namespace tb::mdl
 {
 class Map;
-
-struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -70,9 +68,7 @@ private:
   void createGui();
   void updateGui();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
+  void documentDidChange();
 
   void rotationCenterDidChange(const vm::vec3d& center);
   void rotationCenterWasUsed(const vm::vec3d& center);

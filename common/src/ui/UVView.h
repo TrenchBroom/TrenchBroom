@@ -29,17 +29,12 @@
 #include "ui/UVViewHelper.h"
 
 #include <filesystem>
-#include <vector>
 
 class QWidget;
 
 namespace tb::mdl
 {
-class BrushFaceHandle;
 class Map;
-class Node;
-
-struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -91,10 +86,7 @@ private:
 
   void connectObservers();
 
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void mapWasCleared(mdl::Map& map);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
+  void documentDidChange();
   void gridDidChange();
   void cameraDidChange(const render::Camera* camera);
   void preferenceDidChange(const std::filesystem::path& path);

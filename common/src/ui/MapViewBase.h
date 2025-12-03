@@ -38,14 +38,11 @@ class QAction;
 namespace tb::mdl
 {
 struct EntityDefinition;
-class Command;
 class GroupNode;
 class Map;
 class Node;
 class Selection;
-struct SelectionChange;
 class SmartTag;
-class UndoableCommand;
 enum class EntityDefinitionType;
 } // namespace tb::mdl
 
@@ -138,11 +135,8 @@ private:
 
   void createActionsAndUpdatePicking();
 
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void documentDidChange();
   void toolChanged(Tool& tool);
-  void commandDone(mdl::Command& command);
-  void commandUndone(mdl::UndoableCommand& command);
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void materialCollectionsDidChange();
   void entityDefinitionsDidChange();
   void modsDidChange();

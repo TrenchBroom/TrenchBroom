@@ -24,7 +24,6 @@
 #include "NotifierConnection.h"
 
 #include <string>
-#include <vector>
 
 class QTextEdit;
 class QSplitter;
@@ -33,16 +32,10 @@ namespace tb
 {
 namespace mdl
 {
+class Map;
+
 struct EntityDefinition;
 struct PropertyDefinition;
-} // namespace mdl
-
-namespace mdl
-{
-class Map;
-class Node;
-
-struct SelectionChange;
 } // namespace mdl
 
 namespace ui
@@ -75,9 +68,7 @@ private:
   void OnCurrentRowChanged();
 
   void connectObservers();
-
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void documentDidChange();
 
   void updateIfSelectedEntityDefinitionChanged();
   void updateDocumentationAndSmartEditor();

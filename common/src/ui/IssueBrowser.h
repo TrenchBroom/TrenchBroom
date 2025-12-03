@@ -22,18 +22,14 @@
 #include "NotifierConnection.h"
 #include "ui/TabBook.h"
 
-#include <vector>
-
 class QCheckBox;
 class QStackedLayout;
 class QWidget;
 
 namespace tb::mdl
 {
-class BrushFaceHandle;
 class Issue;
 class Map;
-class Node;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -65,13 +61,8 @@ public:
 
 private:
   void connectObservers();
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
   void mapWasSaved(mdl::Map& map);
-  void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
-  void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
+  void documentDidChange();
   void issueIgnoreChanged(mdl::Issue* issue);
 
   void reload();

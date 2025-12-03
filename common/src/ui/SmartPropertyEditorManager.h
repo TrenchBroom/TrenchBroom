@@ -33,11 +33,7 @@ namespace tb::mdl
 {
 class EntityNodeBase;
 class Map;
-class Node;
-
-struct SelectionChange;
 } // namespace tb::mdl
-
 
 namespace tb::ui
 {
@@ -71,8 +67,7 @@ private:
 
   void connectObservers();
 
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void documentDidChange();
 
   SmartPropertyEditor* selectEditor(
     const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes) const;

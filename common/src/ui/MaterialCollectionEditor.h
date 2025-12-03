@@ -73,11 +73,7 @@ private:
 
   void connectObservers();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void materialCollectionsDidChange();
-  void modsDidChange();
+  void documentDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 
   void updateAllMaterialCollections();

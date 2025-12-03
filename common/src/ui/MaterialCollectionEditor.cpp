@@ -28,7 +28,6 @@
 #include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
-#include "mdl/Node.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
 #include "ui/QtUtils.h"
@@ -224,50 +223,15 @@ void MaterialCollectionEditor::updateButtons()
 
 void MaterialCollectionEditor::connectObservers()
 {
-  m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &MaterialCollectionEditor::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &MaterialCollectionEditor::mapWasLoaded);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &MaterialCollectionEditor::nodesDidChange);
-  m_notifierConnection += m_map.materialCollectionsDidChangeNotifier.connect(
-    this, &MaterialCollectionEditor::materialCollectionsDidChange);
-  m_notifierConnection +=
-    m_map.modsDidChangeNotifier.connect(this, &MaterialCollectionEditor::modsDidChange);
+  m_notifierConnection += m_map.documentDidChangeNotifier.connect(
+    this, &MaterialCollectionEditor::documentDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::preferenceDidChange);
 }
 
-void MaterialCollectionEditor::mapWasCreated(mdl::Map&)
-{
-  updateAllMaterialCollections();
-  updateButtons();
-}
-
-void MaterialCollectionEditor::mapWasLoaded(mdl::Map&)
-{
-  updateAllMaterialCollections();
-  updateButtons();
-}
-
-void MaterialCollectionEditor::nodesDidChange(const std::vector<mdl::Node*>& nodes)
-{
-  if (kdl::vec_contains(nodes, m_map.world()))
-  {
-    updateAllMaterialCollections();
-    updateButtons();
-  }
-}
-
-void MaterialCollectionEditor::materialCollectionsDidChange()
-{
-  updateAllMaterialCollections();
-  updateButtons();
-}
-
-void MaterialCollectionEditor::modsDidChange()
+void MaterialCollectionEditor::documentDidChange()
 {
   updateAllMaterialCollections();
   updateButtons();

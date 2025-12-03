@@ -311,30 +311,13 @@ void MapPropertiesEditor::createGui()
 
 void MapPropertiesEditor::connectObservers()
 {
-  m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &MapPropertiesEditor::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &MapPropertiesEditor::mapWasLoaded);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &MapPropertiesEditor::nodesDidChange);
+  m_notifierConnection += m_map.documentDidChangeNotifier.connect(
+    this, &MapPropertiesEditor::documentDidChange);
 }
 
-void MapPropertiesEditor::mapWasCreated(mdl::Map&)
+void MapPropertiesEditor::documentDidChange()
 {
   updateGui();
-}
-
-void MapPropertiesEditor::mapWasLoaded(mdl::Map&)
-{
-  updateGui();
-}
-
-void MapPropertiesEditor::nodesDidChange(const std::vector<mdl::Node*>& nodes)
-{
-  if (kdl::vec_contains(nodes, m_map.world()))
-  {
-    updateGui();
-  }
 }
 
 /**

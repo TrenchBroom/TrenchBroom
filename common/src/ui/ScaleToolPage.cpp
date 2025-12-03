@@ -53,7 +53,7 @@ ScaleToolPage::ScaleToolPage(mdl::Map& map, QWidget* parent)
 void ScaleToolPage::connectObservers()
 {
   m_notifierConnection +=
-    m_map.selectionDidChangeNotifier.connect(this, &ScaleToolPage::selectionDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &ScaleToolPage::documentDidChange);
 }
 
 void ScaleToolPage::activate()
@@ -132,7 +132,7 @@ std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
   }
 }
 
-void ScaleToolPage::selectionDidChange(const mdl::SelectionChange&)
+void ScaleToolPage::documentDidChange()
 {
   updateGui();
 }

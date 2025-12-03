@@ -151,18 +151,11 @@ void SmartPropertyEditorManager::registerEditor(
 
 void SmartPropertyEditorManager::connectObservers()
 {
-  m_notifierConnection += m_map.selectionDidChangeNotifier.connect(
-    this, &SmartPropertyEditorManager::selectionDidChange);
-  m_notifierConnection += m_map.nodesDidChangeNotifier.connect(
-    this, &SmartPropertyEditorManager::nodesDidChange);
+  m_notifierConnection += m_map.documentDidChangeNotifier.connect(
+    this, &SmartPropertyEditorManager::documentDidChange);
 }
 
-void SmartPropertyEditorManager::selectionDidChange(const mdl::SelectionChange&)
-{
-  switchEditor(m_propertyKey, m_map.selection().allEntities());
-}
-
-void SmartPropertyEditorManager::nodesDidChange(const std::vector<mdl::Node*>&)
+void SmartPropertyEditorManager::documentDidChange()
 {
   switchEditor(m_propertyKey, m_map.selection().allEntities());
 }
