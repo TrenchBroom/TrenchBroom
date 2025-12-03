@@ -32,8 +32,6 @@
 #include "ui/IssueBrowserView.h"
 #include "ui/MapDocument.h"
 
-#include <utility>
-
 namespace tb::ui
 {
 
@@ -77,29 +75,9 @@ void IssueBrowser::connectObservers()
 {
   auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &IssueBrowser::mapWasCreated);
-  m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &IssueBrowser::mapWasLoaded);
-  m_notifierConnection +=
     map.mapWasSavedNotifier.connect(this, &IssueBrowser::mapWasSaved);
   m_notifierConnection +=
-    map.nodesWereAddedNotifier.connect(this, &IssueBrowser::nodesWereAdded);
-  m_notifierConnection +=
-    map.nodesWereRemovedNotifier.connect(this, &IssueBrowser::nodesWereRemoved);
-  m_notifierConnection +=
-    map.nodesDidChangeNotifier.connect(this, &IssueBrowser::nodesDidChange);
-  m_notifierConnection +=
-    map.brushFacesDidChangeNotifier.connect(this, &IssueBrowser::brushFacesDidChange);
-}
-
-void IssueBrowser::mapWasCreated(mdl::Map&)
-{
-  reload();
-}
-
-void IssueBrowser::mapWasLoaded(mdl::Map&)
-{
-  reload();
+    map.documentDidChangeNotifier.connect(this, &IssueBrowser::documentDidChange);
 }
 
 void IssueBrowser::mapWasSaved(mdl::Map&)
@@ -107,24 +85,9 @@ void IssueBrowser::mapWasSaved(mdl::Map&)
   m_view->update();
 }
 
-void IssueBrowser::nodesWereAdded(const std::vector<mdl::Node*>&)
+void IssueBrowser::documentDidChange()
 {
-  m_view->reload();
-}
-
-void IssueBrowser::nodesWereRemoved(const std::vector<mdl::Node*>&)
-{
-  m_view->reload();
-}
-
-void IssueBrowser::nodesDidChange(const std::vector<mdl::Node*>&)
-{
-  m_view->reload();
-}
-
-void IssueBrowser::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
-{
-  m_view->reload();
+  reload();
 }
 
 void IssueBrowser::issueIgnoreChanged(mdl::Issue*)

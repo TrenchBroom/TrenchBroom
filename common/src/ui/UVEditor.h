@@ -32,8 +32,6 @@ namespace tb
 namespace mdl
 {
 class Map;
-
-struct SelectionChange;
 } // namespace mdl
 
 namespace ui
@@ -72,7 +70,7 @@ private:
 private:
   void createGui(GLContextManager& contextManager);
 
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
+  void documentDidChange();
 
   void connectObservers();
 

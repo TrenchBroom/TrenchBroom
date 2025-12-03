@@ -58,18 +58,11 @@ void EntityPropertyEditor::OnCurrentRowChanged()
 
 void EntityPropertyEditor::connectObservers()
 {
-  m_notifierConnection += m_map.selectionDidChangeNotifier.connect(
-    this, &EntityPropertyEditor::selectionDidChange);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &EntityPropertyEditor::nodesDidChange);
+  m_notifierConnection += m_map.documentDidChangeNotifier.connect(
+    this, &EntityPropertyEditor::documentDidChange);
 }
 
-void EntityPropertyEditor::selectionDidChange(const mdl::SelectionChange&)
-{
-  updateIfSelectedEntityDefinitionChanged();
-}
-
-void EntityPropertyEditor::nodesDidChange(const std::vector<mdl::Node*>&)
+void EntityPropertyEditor::documentDidChange()
 {
   updateIfSelectedEntityDefinitionChanged();
 }

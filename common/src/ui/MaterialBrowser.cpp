@@ -184,19 +184,7 @@ void MaterialBrowser::bindEvents()
 void MaterialBrowser::connectObservers()
 {
   m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &MaterialBrowser::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &MaterialBrowser::mapWasLoaded);
-  m_notifierConnection +=
-    m_map.nodesWereAddedNotifier.connect(this, &MaterialBrowser::nodesWereAdded);
-  m_notifierConnection +=
-    m_map.nodesWereRemovedNotifier.connect(this, &MaterialBrowser::nodesWereRemoved);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &MaterialBrowser::nodesDidChange);
-  m_notifierConnection += m_map.brushFacesDidChangeNotifier.connect(
-    this, &MaterialBrowser::brushFacesDidChange);
-  m_notifierConnection += m_map.materialCollectionsDidChangeNotifier.connect(
-    this, &MaterialBrowser::materialCollectionsDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &MaterialBrowser::documentDidChange);
   m_notifierConnection += m_map.currentMaterialNameDidChangeNotifier.connect(
     this, &MaterialBrowser::currentMaterialNameDidChange);
 
@@ -205,37 +193,7 @@ void MaterialBrowser::connectObservers()
     this, &MaterialBrowser::preferenceDidChange);
 }
 
-void MaterialBrowser::mapWasCreated(mdl::Map&)
-{
-  reload();
-}
-
-void MaterialBrowser::mapWasLoaded(mdl::Map&)
-{
-  reload();
-}
-
-void MaterialBrowser::nodesWereAdded(const std::vector<mdl::Node*>&)
-{
-  reload();
-}
-
-void MaterialBrowser::nodesWereRemoved(const std::vector<mdl::Node*>&)
-{
-  reload();
-}
-
-void MaterialBrowser::nodesDidChange(const std::vector<mdl::Node*>&)
-{
-  reload();
-}
-
-void MaterialBrowser::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
-{
-  reload();
-}
-
-void MaterialBrowser::materialCollectionsDidChange()
+void MaterialBrowser::documentDidChange()
 {
   reload();
 }

@@ -38,8 +38,6 @@ namespace tb
 namespace mdl
 {
 class Map;
-
-struct SelectionChange;
 } // namespace mdl
 
 namespace ui
@@ -74,7 +72,7 @@ private:
   bool canScale() const;
   std::optional<vm::vec3d> getScaleFactors() const;
 
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
+  void documentDidChange();
 
   void applyScale();
 };

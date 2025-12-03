@@ -25,7 +25,6 @@
 #include "vm/bbox.h"
 
 #include <optional>
-#include <vector>
 
 class QWidget;
 class QCheckBox;
@@ -38,7 +37,6 @@ namespace tb
 namespace mdl
 {
 class Map;
-class Node;
 } // namespace mdl
 
 namespace ui
@@ -93,9 +91,7 @@ private:
 private:
   void connectObservers();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void documentDidChange();
   void updateGui();
 };
 

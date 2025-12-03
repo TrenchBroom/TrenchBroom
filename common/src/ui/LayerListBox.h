@@ -34,7 +34,6 @@ namespace mdl
 {
 class LayerNode;
 class Map;
-class Node;
 } // namespace mdl
 
 namespace ui
@@ -100,8 +99,7 @@ private:
 private:
   void connectObservers();
 
-  void mapDidChange(mdl::Map& map);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void documentDidChange();
   void currentLayerDidChange(const mdl::LayerNode* layer);
 
   const LayerListBoxWidget* widgetAtRow(int row) const;

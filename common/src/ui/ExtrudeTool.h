@@ -43,9 +43,7 @@ class BrushFace;
 class Grid;
 class Hit;
 class Map;
-class Node;
 class PickResult;
-struct SelectionChange;
 } // namespace mdl
 
 namespace render
@@ -159,8 +157,7 @@ public:
 
 private:
   void connectObservers();
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
+  void documentDidChange();
 };
 } // namespace ui
 } // namespace tb
