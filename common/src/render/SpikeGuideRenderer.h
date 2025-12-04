@@ -28,35 +28,24 @@
 
 #include <vector>
 
-namespace tb
+namespace tb::render
 {
-namespace mdl
-{
-class Map;
-class Picker;
-} // namespace mdl
 
-namespace render
-{
 class SpikeGuideRenderer : public DirectRenderable
 {
 private:
   Color m_color;
 
   using SpikeVertex = GLVertexTypes::P3C4::Vertex;
-  using PointVertex = GLVertexTypes::P3C4::Vertex;
 
   std::vector<SpikeVertex> m_spikeVertices;
-  std::vector<PointVertex> m_pointVertices;
-
   VertexArray m_spikeArray;
-  VertexArray m_pointArray;
 
   bool m_valid = false;
 
 public:
   void setColor(const Color& color);
-  void add(const vm::ray3d& ray, double length, const mdl::Map& map);
+  void add(const vm::ray3d& ray);
   void clear();
 
 private:
@@ -64,10 +53,8 @@ private:
   void doRender(RenderContext& renderContext) override;
 
 private:
-  void addPoint(const vm::vec3d& position);
-  void addSpike(const vm::ray3d& ray, double length, double maxLength);
+  void addSpike(const vm::ray3d& ray);
 
   void validate();
 };
-} // namespace render
-} // namespace tb
+} // namespace tb::render

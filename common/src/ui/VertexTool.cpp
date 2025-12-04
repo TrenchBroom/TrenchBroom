@@ -44,7 +44,6 @@ namespace tb::ui
 VertexTool::VertexTool(mdl::Map& map)
   : VertexToolBase{map}
   , m_mode{Mode::Move}
-  , m_guideRenderer{map}
 {
 }
 
