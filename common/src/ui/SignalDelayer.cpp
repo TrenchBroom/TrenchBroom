@@ -26,8 +26,20 @@
 namespace tb::ui
 {
 
-SignalDelayer::SignalDelayer(QObject* parent)
+using namespace std::chrono_literals;
+
+SignalDelayer::SignalDelayer(const std::chrono::milliseconds delay, QObject* parent)
   : QObject{parent}
+  , m_timer{new QTimer{this}}
+{
+  m_timer->setInterval(delay);
+  m_timer->setSingleShot(true);
+
+  connect(m_timer, &QTimer::timeout, this, [&]() { emit processSignal(); });
+}
+
+SignalDelayer::SignalDelayer(QObject* parent)
+  : SignalDelayer{0ms, parent}
 {
 }
 
@@ -40,16 +52,7 @@ void SignalDelayer::queueSignal()
     qWarning() << "queueSignal called with nothing connected to processSignal";
   }
 
-  if (!m_isQueued)
-  {
-    m_isQueued = true;
-
-    QTimer::singleShot(0, this, [&]() {
-      m_isQueued = false;
-
-      emit processSignal();
-    });
-  }
+  m_timer->start();
 }
 
 } // namespace tb::ui
