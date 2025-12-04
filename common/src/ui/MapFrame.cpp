@@ -127,6 +127,8 @@
 namespace tb::ui
 {
 
+using namespace std::chrono_literals;
+
 MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> document)
   : m_frameManager{frameManager}
   , m_document{std::move(document)}
@@ -135,9 +137,9 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
   , m_contextManager{std::make_unique<GLContextManager>()}
-  , m_updateTitleSignalDelayer{new SignalDelayer{this}}
+  , m_updateTitleSignalDelayer{new SignalDelayer{500ms, this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
-  , m_updateStatusBarSignalDelayer{new SignalDelayer{this}}
+  , m_updateStatusBarSignalDelayer{new SignalDelayer{500ms, this}}
 {
   contract_pre(m_document != nullptr);
 
