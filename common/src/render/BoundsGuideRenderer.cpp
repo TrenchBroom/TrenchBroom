@@ -19,18 +19,11 @@
 
 #include "BoundsGuideRenderer.h"
 
-#include "mdl/Map.h"
-
 #include "vm/ray.h"
 
 namespace tb::render
 {
 const double BoundsGuideRenderer::SpikeLength = 512.0;
-
-BoundsGuideRenderer::BoundsGuideRenderer(mdl::Map& map)
-  : m_map{map}
-{
-}
 
 void BoundsGuideRenderer::setColor(const Color& color)
 {
@@ -48,174 +41,102 @@ void BoundsGuideRenderer::setBounds(const vm::bbox3d& bounds)
     m_bounds = bounds;
     m_spikeRenderer.clear();
 
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
-        vm::vec3d{-1, 0, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
-        vm::vec3d{0, -1, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
-        vm::vec3d{0, 0, -1}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
-        vm::vec3d{-1, 0, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
-        vm::vec3d{0, -1, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
-        vm::vec3d{0, 0, 1}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
-        vm::vec3d{-1, 0, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
-        vm::vec3d{0, 1, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
-        vm::vec3d{0, 0, -1}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
-        vm::vec3d{-1, 0, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
-        vm::vec3d{0, 1, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
-        vm::vec3d{0, 0, 1}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
-        vm::vec3d{1, 0, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
-        vm::vec3d{0, -1, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
-        vm::vec3d{0, 0, -1}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
-        vm::vec3d{1, 0, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
-        vm::vec3d{0, -1, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
-        vm::vec3d{0, 0, 1}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
-        vm::vec3d{1, 0, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
-        vm::vec3d{0, 1, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
-        vm::vec3d{0, 0, -1}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
-        vm::vec3d{1, 0, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
-        vm::vec3d{0, 1, 0}},
-      SpikeLength,
-      m_map);
-    m_spikeRenderer.add(
-      vm::ray3d{
-        m_bounds.corner_position(
-          vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
-        vm::vec3d{0, 0, 1}},
-      SpikeLength,
-      m_map);
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
+      vm::vec3d{-1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
+      vm::vec3d{0, -1, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
+      vm::vec3d{0, 0, -1}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
+      vm::vec3d{-1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
+      vm::vec3d{0, -1, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
+      vm::vec3d{0, 0, 1}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
+      vm::vec3d{-1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
+      vm::vec3d{0, 1, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
+      vm::vec3d{0, 0, -1}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
+      vm::vec3d{-1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
+      vm::vec3d{0, 1, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::min, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
+      vm::vec3d{0, 0, 1}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
+      vm::vec3d{1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
+      vm::vec3d{0, -1, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::min),
+      vm::vec3d{0, 0, -1}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
+      vm::vec3d{1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
+      vm::vec3d{0, -1, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::min, vm::bbox3d::corner::max),
+      vm::vec3d{0, 0, 1}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
+      vm::vec3d{1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
+      vm::vec3d{0, 1, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::min),
+      vm::vec3d{0, 0, -1}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
+      vm::vec3d{1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
+      vm::vec3d{0, 1, 0}});
+    m_spikeRenderer.add(vm::ray3d{
+      m_bounds.corner_position(
+        vm::bbox3d::corner::max, vm::bbox3d::corner::max, vm::bbox3d::corner::max),
+      vm::vec3d{0, 0, 1}});
   }
 }
 

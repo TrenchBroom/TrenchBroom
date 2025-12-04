@@ -19,12 +19,6 @@
 
 #include "SpikeGuideRenderer.h"
 
-#include "mdl/BrushNode.h"
-#include "mdl/Hit.h"
-#include "mdl/HitFilter.h"
-#include "mdl/Map.h"
-#include "mdl/Map_Picking.h"
-#include "mdl/PickResult.h"
 #include "render/ActiveShader.h"
 #include "render/PrimType.h"
 #include "render/RenderContext.h"
@@ -43,37 +37,16 @@ void SpikeGuideRenderer::setColor(const Color& color)
   m_valid = false;
 }
 
-void SpikeGuideRenderer::add(
-  const vm::ray3d& ray, const double length, const mdl::Map& map)
+void SpikeGuideRenderer::add(const vm::ray3d& ray)
 {
-  using namespace mdl::HitFilters;
-
-  auto pickResult = mdl::PickResult::byDistance();
-  pick(map, ray, pickResult);
-
-  if (const auto& hit =
-        pickResult.first(type(mdl::BrushNode::BrushHitType) && minDistance(1.0));
-      hit.isMatch())
-  {
-    if (hit.distance() <= length)
-    {
-      addPoint(vm::point_at_distance(ray, hit.distance() - 0.01));
-    }
-    addSpike(ray, vm::min(length, hit.distance()), length);
-  }
-  else
-  {
-    addSpike(ray, length, length);
-  }
+  addSpike(ray);
   m_valid = false;
 }
 
 void SpikeGuideRenderer::clear()
 {
   m_spikeVertices.clear();
-  m_pointVertices.clear();
   m_spikeArray = VertexArray{};
-  m_pointArray = VertexArray{};
   m_valid = true;
 }
 
@@ -83,7 +56,6 @@ void SpikeGuideRenderer::doPrepareVertices(VboManager& vboManager)
   {
     validate();
   }
-  m_pointArray.prepare(vboManager);
   m_spikeArray.prepare(vboManager);
 }
 
@@ -91,31 +63,25 @@ void SpikeGuideRenderer::doRender(RenderContext& renderContext)
 {
   auto shader = ActiveShader{renderContext.shaderManager(), Shaders::VaryingPCShader};
   m_spikeArray.render(PrimType::Lines);
-
-  glAssert(glPointSize(3.0f));
-  m_pointArray.render(PrimType::Points);
-  glAssert(glPointSize(1.0f));
 }
 
-void SpikeGuideRenderer::addPoint(const vm::vec3d& position)
+void SpikeGuideRenderer::addSpike(const vm::ray3d& ray)
 {
-  m_pointVertices.emplace_back(vm::vec3f(position), m_color.to<RgbaF>().toVec());
-}
-
-void SpikeGuideRenderer::addSpike(
-  const vm::ray3d& ray, const double length, const double maxLength)
-{
-  const auto mix = static_cast<float>(maxLength / length / 2.0);
+  constexpr auto mix = 0.5;
+  constexpr auto maxLength = 1024.0;
 
   m_spikeVertices.emplace_back(vm::vec3f(ray.origin), m_color.to<RgbaF>().toVec());
   m_spikeVertices.emplace_back(
-    vm::vec3f{vm::point_at_distance(ray, length)},
+    vm::vec3f{vm::point_at_distance(ray, maxLength * 0.75)}, m_color.to<RgbaF>().toVec());
+  m_spikeVertices.emplace_back(
+    vm::vec3f{vm::point_at_distance(ray, maxLength * 0.75)}, m_color.to<RgbaF>().toVec());
+  m_spikeVertices.emplace_back(
+    vm::vec3f{vm::point_at_distance(ray, maxLength)},
     blendColor(m_color.to<RgbaF>(), mix).toVec());
 }
 
 void SpikeGuideRenderer::validate()
 {
-  m_pointArray = VertexArray::move(std::move(m_pointVertices));
   m_spikeArray = VertexArray::move(std::move(m_spikeVertices));
   m_valid = true;
 }

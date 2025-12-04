@@ -428,7 +428,7 @@ constexpr std::optional<T> intersect_ray_bbox(const ray<T, S>& r, const bbox<T, 
     // find the closest plane that was hit
     for (size_t i = 1; i < S; ++i)
     {
-      if (distances[i] < distances[bestPlane])
+      if (distances[i] > T(0) && distances[i] < distances[bestPlane])
       {
         bestPlane = i;
       }

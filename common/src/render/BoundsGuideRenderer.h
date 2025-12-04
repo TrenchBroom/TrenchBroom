@@ -25,11 +25,6 @@
 
 #include "vm/bbox.h"
 
-namespace tb::mdl
-{
-class Map;
-}
-
 namespace tb::render
 {
 class BoundsGuideRenderer : public DirectRenderable
@@ -37,15 +32,11 @@ class BoundsGuideRenderer : public DirectRenderable
 private:
   static const double SpikeLength;
 
-  mdl::Map& m_map;
-
   Color m_color;
   vm::bbox3d m_bounds;
   SpikeGuideRenderer m_spikeRenderer;
 
 public:
-  explicit BoundsGuideRenderer(mdl::Map& map);
-
   void setColor(const Color& color);
   void setBounds(const vm::bbox3d& bounds);
 

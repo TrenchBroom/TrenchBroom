@@ -24,12 +24,6 @@
 
 namespace tb::render
 {
-const double PointGuideRenderer::SpikeLength = 512.0;
-
-PointGuideRenderer::PointGuideRenderer(mdl::Map& map)
-  : m_map{map}
-{
-}
 
 void PointGuideRenderer::setColor(const Color& color)
 {
@@ -46,12 +40,12 @@ void PointGuideRenderer::setPosition(const vm::vec3d& position)
   {
     m_spikeRenderer.clear();
 
-    m_spikeRenderer.add(vm::ray3d{position, {1, 0, 0}}, SpikeLength, m_map);
-    m_spikeRenderer.add(vm::ray3d{position, {-1, 0, 0}}, SpikeLength, m_map);
-    m_spikeRenderer.add(vm::ray3d{position, {0, 1, 0}}, SpikeLength, m_map);
-    m_spikeRenderer.add(vm::ray3d{position, {0, -1, 0}}, SpikeLength, m_map);
-    m_spikeRenderer.add(vm::ray3d{position, {0, 0, 1}}, SpikeLength, m_map);
-    m_spikeRenderer.add(vm::ray3d{position, {0, 0, -1}}, SpikeLength, m_map);
+    m_spikeRenderer.add(vm::ray3d{position, {1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{position, {-1, 0, 0}});
+    m_spikeRenderer.add(vm::ray3d{position, {0, 1, 0}});
+    m_spikeRenderer.add(vm::ray3d{position, {0, -1, 0}});
+    m_spikeRenderer.add(vm::ray3d{position, {0, 0, 1}});
+    m_spikeRenderer.add(vm::ray3d{position, {0, 0, -1}});
 
     m_position = position;
   }
