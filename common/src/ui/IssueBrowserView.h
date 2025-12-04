@@ -41,6 +41,7 @@ namespace ui
 {
 class IssueBrowserModel;
 class MapDocument;
+class SignalDelayer;
 
 class IssueBrowserView : public QWidget
 {
@@ -55,6 +56,8 @@ private:
 
   QTableView* m_tableView = nullptr;
   IssueBrowserModel* m_tableModel = nullptr;
+
+  SignalDelayer* m_validateSignalDelayer = nullptr;
 
 public:
   explicit IssueBrowserView(MapDocument& document, QWidget* parent = nullptr);
