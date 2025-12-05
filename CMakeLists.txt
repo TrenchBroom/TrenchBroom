@@ -76,7 +76,7 @@ if(COMPILER_IS_MSVC)
   # target_link_options(common INTERFACE "/STACK:${TB_STACK_SIZE}")
 endif()
 
-# Enable ASAN if possible and requested
+# Enable sanitizers if possible and requested
 if(TB_ENABLE_ASAN)
   message(STATUS "Enabling ASan")
 
@@ -85,6 +85,28 @@ if(TB_ENABLE_ASAN)
     add_link_options(-fsanitize=address)
   else()
     message(WARNING "TB isn't set up to enable ASan for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+endif()
+
+if(TB_ENABLE_TSAN)
+  message(STATUS "Enabling TSan")
+
+  if(COMPILER_IS_CLANG OR COMPILER_IS_GNU)
+    add_compile_options(-fsanitize=thread)
+    add_link_options(-fsanitize=thread)
+  else()
+    message(WARNING "TB isn't set up to enable TSan for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+endif()
+
+if(TB_ENABLE_UBSAN)
+  message(STATUS "Enabling UBSan")
+
+  if(COMPILER_IS_CLANG OR COMPILER_IS_GNU)
+    add_compile_options(-fsanitize=undefined)
+    add_link_options(-fsanitize=undefined)
+  else()
+    message(WARNING "TB isn't set up to enable UBSan for compiler ${CMAKE_CXX_COMPILER_ID}")
   endif()
 endif()
 
