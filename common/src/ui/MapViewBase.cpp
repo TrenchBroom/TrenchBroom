@@ -151,21 +151,7 @@ void MapViewBase::connectObservers()
 {
   auto& map = m_document.map();
   m_notifierConnection +=
-    map.nodesWereAddedNotifier.connect(this, &MapViewBase::nodesDidChange);
-  m_notifierConnection +=
-    map.nodesWereRemovedNotifier.connect(this, &MapViewBase::nodesDidChange);
-  m_notifierConnection +=
-    map.nodesDidChangeNotifier.connect(this, &MapViewBase::nodesDidChange);
-  m_notifierConnection +=
-    map.nodeVisibilityDidChangeNotifier.connect(this, &MapViewBase::nodesDidChange);
-  m_notifierConnection +=
-    map.nodeLockingDidChangeNotifier.connect(this, &MapViewBase::nodesDidChange);
-  m_notifierConnection +=
-    map.commandDoneNotifier.connect(this, &MapViewBase::commandDone);
-  m_notifierConnection +=
-    map.commandUndoneNotifier.connect(this, &MapViewBase::commandUndone);
-  m_notifierConnection +=
-    map.selectionDidChangeNotifier.connect(this, &MapViewBase::selectionDidChange);
+    map.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
   m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
     this, &MapViewBase::materialCollectionsDidChange);
   m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
@@ -174,12 +160,6 @@ void MapViewBase::connectObservers()
     map.modsDidChangeNotifier.connect(this, &MapViewBase::modsDidChange);
   m_notifierConnection += map.editorContextDidChangeNotifier.connect(
     this, &MapViewBase::editorContextDidChange);
-  m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &MapViewBase::mapWasCreated);
-  m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &MapViewBase::mapWasLoaded);
-  m_notifierConnection +=
-    map.mapWasClearedNotifier.connect(this, &MapViewBase::mapWasCleared);
   m_notifierConnection +=
     m_document.pointFileWasLoadedNotifier.connect(this, &MapViewBase::pointFileDidChange);
   m_notifierConnection += m_document.pointFileWasUnloadedNotifier.connect(
@@ -213,9 +193,10 @@ void MapViewBase::createActionsAndUpdatePicking()
   updatePickResult();
 }
 
-void MapViewBase::nodesDidChange(const std::vector<mdl::Node*>&)
+void MapViewBase::documentDidChange()
 {
   updatePickResult();
+  updateActionStates();
   update();
 }
 
@@ -226,25 +207,6 @@ void MapViewBase::toolChanged(Tool&)
   update();
 }
 
-void MapViewBase::commandDone(mdl::Command&)
-{
-  updateActionStatesDelayed();
-  updatePickResult();
-  update();
-}
-
-void MapViewBase::commandUndone(mdl::UndoableCommand&)
-{
-  updateActionStatesDelayed();
-  updatePickResult();
-  update();
-}
-
-void MapViewBase::selectionDidChange(const mdl::SelectionChange&)
-{
-  updateActionStatesDelayed();
-}
-
 void MapViewBase::materialCollectionsDidChange()
 {
   update();
@@ -253,8 +215,6 @@ void MapViewBase::materialCollectionsDidChange()
 void MapViewBase::entityDefinitionsDidChange()
 {
   createActions();
-  updateActionStates();
-  update();
 }
 
 void MapViewBase::modsDidChange()

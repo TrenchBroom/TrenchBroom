@@ -1102,7 +1102,7 @@ TEST_CASE("Map_Geometry")
 
       selectNodes(map, {brushNode1, brushNode2});
       CHECK(csgConvexMerge(map));
-      CHECK(entityNode->children().size() == 1u);
+      REQUIRE(entityNode->children().size() == 1u);
 
       auto* brushNode3 = entityNode->children().front();
       CHECK(brushNode3->logicalBounds() == vm::bbox3d{{0, 0, 0}, {64, 64, 64}});
@@ -1123,26 +1123,28 @@ TEST_CASE("Map_Geometry")
         | kdl::value()};
       addNodes(map, {{entityNode, {brushNode1}}});
       addNodes(map, {{parentForNodes(map), {brushNode2}}});
-      CHECK(entityNode->children().size() == 1u);
+      REQUIRE(entityNode->children().size() == 1u);
 
-      const auto faceIndex = 0u;
-      const auto& face1 = brushNode1->brush().face(faceIndex);
-      const auto& face2 = brushNode2->brush().face(faceIndex);
+      const auto oFace1Index = brushNode1->brush().findFace(vm::vec3d{-1, 0, 0});
+      const auto oFace2Index = brushNode2->brush().findFace(vm::vec3d{+1, 0, 0});
 
-      selectBrushFaces(map, {{brushNode1, faceIndex}, {brushNode2, faceIndex}});
+      REQUIRE(oFace1Index);
+      REQUIRE(oFace2Index);
+
+      selectBrushFaces(map, {{brushNode1, *oFace1Index}, {brushNode2, *oFace2Index}});
       CHECK(csgConvexMerge(map));
-      CHECK(
-        entityNode->children().size()
-        == 2u); // added to the parent of the first brush, original brush is not deleted
+
+      // added to the parent of the first brush, original brush is not deleted
+      REQUIRE(entityNode->children().size() == 2u);
 
       auto* brushNode3 = entityNode->children().back();
 
       // check our assumption about the order of the entities' children
-      assert(brushNode3 != brushNode1);
-      assert(brushNode3 != brushNode2);
+      REQUIRE(brushNode3 != brushNode1);
+      REQUIRE(brushNode3 != brushNode2);
 
-      const auto face1Verts = face1.vertexPositions();
-      const auto face2Verts = face2.vertexPositions();
+      const auto face1Verts = brushNode1->brush().face(*oFace1Index).vertexPositions();
+      const auto face2Verts = brushNode2->brush().face(*oFace2Index).vertexPositions();
 
       const auto bounds = vm::merge(
         vm::bbox3d::merge_all(std::begin(face1Verts), std::end(face1Verts)),

@@ -209,33 +209,16 @@ void LayerListBox::updateSelectionForRemoval()
 void LayerListBox::connectObservers()
 {
   m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &LayerListBox::mapDidChange);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &LayerListBox::mapDidChange);
-  m_notifierConnection +=
-    m_map.mapWasClearedNotifier.connect(this, &LayerListBox::mapDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &LayerListBox::documentDidChange);
   m_notifierConnection += m_map.currentLayerDidChangeNotifier.connect(
     this, &LayerListBox::currentLayerDidChange);
-  m_notifierConnection +=
-    m_map.nodesWereAddedNotifier.connect(this, &LayerListBox::nodesDidChange);
-  m_notifierConnection +=
-    m_map.nodesWereRemovedNotifier.connect(this, &LayerListBox::nodesDidChange);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
-  m_notifierConnection +=
-    m_map.nodeVisibilityDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
-  m_notifierConnection +=
-    m_map.nodeLockingDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
 }
 
-void LayerListBox::mapDidChange(mdl::Map&)
+void LayerListBox::documentDidChange()
 {
-  reload();
-}
-
-void LayerListBox::nodesDidChange(const std::vector<mdl::Node*>&)
-{
-  const auto documentLayers = m_map.world()->allLayersUserSorted();
+  auto* worldNode = m_map.world();
+  const auto documentLayers =
+    worldNode ? worldNode->allLayersUserSorted() : std::vector<mdl::LayerNode*>{};
 
   if (layers() != documentLayers)
   {

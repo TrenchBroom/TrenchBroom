@@ -509,49 +509,14 @@ void FaceAttribsEditor::bindEvents()
 void FaceAttribsEditor::connectObservers()
 {
   m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &FaceAttribsEditor::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &FaceAttribsEditor::mapWasLoaded);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &FaceAttribsEditor::nodesDidChange);
-  m_notifierConnection += m_map.brushFacesDidChangeNotifier.connect(
-    this, &FaceAttribsEditor::brushFacesDidChange);
-  m_notifierConnection += m_map.selectionDidChangeNotifier.connect(
-    this, &FaceAttribsEditor::selectionDidChange);
-  m_notifierConnection += m_map.materialCollectionsDidChangeNotifier.connect(
-    this, &FaceAttribsEditor::materialCollectionsDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &FaceAttribsEditor::documentDidChange);
   m_notifierConnection += m_map.grid().gridDidChangeNotifier.connect(
     this, &FaceAttribsEditor::updateIncrements);
 }
 
-void FaceAttribsEditor::mapWasCreated(mdl::Map&)
-{
-  updateControls();
-}
-
-void FaceAttribsEditor::mapWasLoaded(mdl::Map&)
-{
-  updateControls();
-}
-
-void FaceAttribsEditor::nodesDidChange(const std::vector<mdl::Node*>&)
+void FaceAttribsEditor::documentDidChange()
 {
   updateControlsDelayed();
-}
-
-void FaceAttribsEditor::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
-{
-  updateControlsDelayed();
-}
-
-void FaceAttribsEditor::selectionDidChange(const mdl::SelectionChange&)
-{
-  updateControlsDelayed();
-}
-
-void FaceAttribsEditor::materialCollectionsDidChange()
-{
-  updateControls();
 }
 
 static void disableAndSetPlaceholder(QDoubleSpinBox* box, const QString& text)

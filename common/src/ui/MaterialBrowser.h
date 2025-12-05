@@ -25,7 +25,6 @@
 
 #include <filesystem>
 #include <string>
-#include <vector>
 
 class QPushButton;
 class QComboBox;
@@ -34,10 +33,8 @@ class QScrollBar;
 
 namespace tb::mdl
 {
-class BrushFaceHandle;
 class Map;
 class Material;
-class Node;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -81,13 +78,7 @@ private:
 
   void connectObservers();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
-  void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
-  void materialCollectionsDidChange();
+  void documentDidChange();
   void currentMaterialNameDidChange(const std::string& materialName);
   void preferenceDidChange(const std::filesystem::path& path);
 

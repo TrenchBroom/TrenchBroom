@@ -67,13 +67,7 @@ private:
   void createGui(GLContextManager& contextManager);
 
   void connectObservers();
-
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-
-  void modsDidChange();
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void entityDefinitionsDidChange();
+  void documentDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
   void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
 };

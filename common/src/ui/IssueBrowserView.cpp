@@ -38,6 +38,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
+#include "ui/SignalDelayer.h"
 
 #include "kdl/overload.h"
 #include "kdl/vector_set.h"
@@ -45,14 +46,18 @@
 
 #include <fmt/format.h>
 
+#include <chrono>
 #include <vector>
 
 namespace tb::ui
 {
 
+using namespace std::chrono_literals;
+
 IssueBrowserView::IssueBrowserView(MapDocument& document, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
+  , m_validateSignalDelayer{new SignalDelayer{500ms, this}}
 {
   createGui();
   bindEvents();
@@ -271,6 +276,12 @@ void IssueBrowserView::bindEvents()
     &QItemSelectionModel::selectionChanged,
     this,
     &IssueBrowserView::itemSelectionChanged);
+
+  connect(
+    m_validateSignalDelayer,
+    &SignalDelayer::processSignal,
+    this,
+    &IssueBrowserView::validate);
 }
 
 void IssueBrowserView::itemRightClicked(const QPoint& pos)
@@ -326,9 +337,10 @@ void IssueBrowserView::hideIssues()
 void IssueBrowserView::invalidate()
 {
   m_valid = false;
+  setEnabled(false);
   m_tableModel->setIssues({});
 
-  QMetaObject::invokeMethod(this, "validate", Qt::QueuedConnection);
+  m_validateSignalDelayer->queueSignal();
 }
 
 void IssueBrowserView::validate()
@@ -337,6 +349,7 @@ void IssueBrowserView::validate()
   {
     updateIssues();
     m_valid = true;
+    setEnabled(true);
   }
 }
 

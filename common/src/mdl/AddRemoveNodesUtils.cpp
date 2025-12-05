@@ -32,12 +32,6 @@ namespace tb::mdl
 
 void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
-  const auto parents =
-    collectNodesAndAncestors(nodes | std::views::keys | kdl::ranges::to<std::vector>());
-
-  auto notifyParents = NotifyBeforeAndAfter{
-    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
-
   auto addedNodes = std::vector<Node*>{};
   for (const auto& [parent, children] : nodes)
   {
@@ -50,12 +44,6 @@ void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& ma
 
 void removeNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
-  const auto parents =
-    collectNodesAndAncestors(nodes | std::views::keys | kdl::ranges::to<std::vector>());
-
-  auto notifyParents = NotifyBeforeAndAfter{
-    map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, parents};
-
   const auto allChildren =
     nodes | std::views::values | std::views::join | kdl::ranges::to<std::vector>();
 

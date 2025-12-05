@@ -138,15 +138,7 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 void EntityBrowser::connectObservers()
 {
   m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &EntityBrowser::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &EntityBrowser::mapWasLoaded);
-  m_notifierConnection +=
-    m_map.modsDidChangeNotifier.connect(this, &EntityBrowser::modsDidChange);
-  m_notifierConnection += m_map.entityDefinitionsDidChangeNotifier.connect(
-    this, &EntityBrowser::entityDefinitionsDidChange);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &EntityBrowser::nodesDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
   m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowser::resourcesWereProcessed);
 
@@ -155,28 +147,7 @@ void EntityBrowser::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &EntityBrowser::preferenceDidChange);
 }
 
-void EntityBrowser::mapWasCreated(mdl::Map&)
-{
-  reload();
-}
-
-void EntityBrowser::mapWasLoaded(mdl::Map&)
-{
-  reload();
-}
-
-void EntityBrowser::modsDidChange()
-{
-  reload();
-}
-
-void EntityBrowser::nodesDidChange(const std::vector<mdl::Node*>&)
-{
-  // to handle definition usage count changes
-  reload();
-}
-
-void EntityBrowser::entityDefinitionsDidChange()
+void EntityBrowser::documentDidChange()
 {
   reload();
 }

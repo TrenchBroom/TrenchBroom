@@ -21,6 +21,10 @@
 
 #include <QObject>
 
+#include <chrono>
+
+class QTimer;
+
 namespace tb::ui
 {
 
@@ -32,9 +36,10 @@ class SignalDelayer : public QObject
 {
   Q_OBJECT
 private:
-  bool m_isQueued = false;
+  QTimer* m_timer = nullptr;
 
 public:
+  explicit SignalDelayer(std::chrono::milliseconds delay, QObject* parent = nullptr);
   explicit SignalDelayer(QObject* parent = nullptr);
 
 public slots:

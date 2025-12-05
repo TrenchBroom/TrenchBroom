@@ -39,8 +39,6 @@ class Grid;
 class Map;
 class Node;
 class PickResult;
-
-struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -168,10 +166,7 @@ private:
   bool doRemove();
 
   void connectObservers();
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void nodesWillChange(const std::vector<mdl::Node*>& nodes);
-  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& nodes);
+  void documentDidChange();
 };
 
 } // namespace tb::ui

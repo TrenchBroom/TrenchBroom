@@ -551,7 +551,7 @@ void MapView3D::renderMap(
     auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
 
-    auto* guideRenderer = new render::BoundsGuideRenderer{m_document.map()};
+    auto* guideRenderer = new render::BoundsGuideRenderer{};
     guideRenderer->setColor(pref(Preferences::SelectionBoundsColor));
     guideRenderer->setBounds(*bounds);
     renderBatch.addOneShot(guideRenderer);

@@ -25,11 +25,6 @@
 
 #include "vm/vec.h"
 
-namespace tb::mdl
-{
-class Map;
-}
-
 namespace tb::render
 {
 class RenderContext;
@@ -38,17 +33,11 @@ class VboManager;
 class PointGuideRenderer : public DirectRenderable
 {
 private:
-  static const double SpikeLength;
-
-  mdl::Map& m_map;
-
   Color m_color;
   vm::vec3d m_position;
   SpikeGuideRenderer m_spikeRenderer;
 
 public:
-  explicit PointGuideRenderer(mdl::Map& map);
-
   void setColor(const Color& color);
   void setPosition(const vm::vec3d& position);
 

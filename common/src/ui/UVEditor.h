@@ -30,8 +30,6 @@ class QAbstractButton;
 namespace tb::mdl
 {
 class Map;
-
-struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -70,7 +68,7 @@ private:
 private:
   void createGui(GLContextManager& contextManager);
 
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
+  void documentDidChange();
 
   void connectObservers();
 

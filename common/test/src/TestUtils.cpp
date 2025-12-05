@@ -415,9 +415,9 @@ void setLinkId(Node& node, std::string linkId)
     [&](Object* object) { object->setLinkId(std::move(linkId)); }));
 }
 
-Selection makeSelection(const std::vector<Node*>& nodes)
+Selection makeSelection(const Map& map, const std::vector<Node*>& nodes)
 {
-  auto selection = mdl::Selection{};
+  auto selection = mdl::Selection{map};
 
   mdl::Node::visitAll(
     nodes,
@@ -444,9 +444,9 @@ Selection makeSelection(const std::vector<Node*>& nodes)
   return selection;
 }
 
-Selection makeSelection(const std::vector<BrushFaceHandle>& brushFaces)
+Selection makeSelection(const Map& map, const std::vector<BrushFaceHandle>& brushFaces)
 {
-  auto selection = Selection{};
+  auto selection = Selection{map};
   selection.brushFaces = brushFaces;
   return selection;
 }

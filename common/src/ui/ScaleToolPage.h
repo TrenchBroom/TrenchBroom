@@ -36,8 +36,6 @@ class QAbstractButton;
 namespace tb::mdl
 {
 class Map;
-
-struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -72,7 +70,7 @@ private:
   bool canScale() const;
   std::optional<vm::vec3d> getScaleFactors() const;
 
-  void selectionDidChange(const mdl::SelectionChange& selectionChange);
+  void documentDidChange();
 
   void applyScale();
 };

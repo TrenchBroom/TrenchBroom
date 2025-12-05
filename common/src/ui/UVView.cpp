@@ -187,13 +187,7 @@ void UVView::createTools()
 void UVView::connectObservers()
 {
   m_notifierConnection +=
-    m_map.mapWasClearedNotifier.connect(this, &UVView::mapWasCleared);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &UVView::nodesDidChange);
-  m_notifierConnection +=
-    m_map.brushFacesDidChangeNotifier.connect(this, &UVView::brushFacesDidChange);
-  m_notifierConnection +=
-    m_map.selectionDidChangeNotifier.connect(this, &UVView::selectionDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &UVView::documentDidChange);
   m_notifierConnection +=
     m_map.grid().gridDidChangeNotifier.connect(this, &UVView::gridDidChange);
 
@@ -205,7 +199,7 @@ void UVView::connectObservers()
     m_camera.cameraDidChangeNotifier.connect(this, &UVView::cameraDidChange);
 }
 
-void UVView::selectionDidChange(const mdl::SelectionChange&)
+void UVView::documentDidChange()
 {
   const auto faces = m_map.selection().brushFaces;
   if (faces.size() != 1)
@@ -226,23 +220,6 @@ void UVView::selectionDidChange(const mdl::SelectionChange&)
     m_toolBox.disable();
   }
 
-  update();
-}
-
-void UVView::mapWasCleared(mdl::Map&)
-{
-  m_helper.setFaceHandle(std::nullopt);
-  m_toolBox.disable();
-  update();
-}
-
-void UVView::nodesDidChange(const std::vector<mdl::Node*>&)
-{
-  update();
-}
-
-void UVView::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
-{
   update();
 }
 

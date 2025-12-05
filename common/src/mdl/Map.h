@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Color.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
@@ -136,7 +135,7 @@ private:
   size_t m_lastSaveModificationCount = 0;
   size_t m_modificationCount = 0;
 
-  mutable std::optional<Selection> m_cachedSelection;
+  Selection m_selection;
   mutable std::optional<vm::bbox3d> m_cachedSelectionBounds;
   std::optional<vm::bbox3d> m_lastSelectionBounds;
 
@@ -149,6 +148,8 @@ public: // notification
   Notifier<UndoableCommand&> commandUndoFailedNotifier;
   Notifier<const std::string&> transactionDoneNotifier;
   Notifier<const std::string&> transactionUndoneNotifier;
+
+  Notifier<> documentDidChangeNotifier;
 
   Notifier<Map&> mapWillBeClearedNotifier;
   Notifier<Map&> mapWasClearedNotifier;
@@ -399,6 +400,7 @@ private: // observers
   void connectObservers();
   void mapWasCreated(Map& map);
   void mapWasLoaded(Map& map);
+  void mapWasCleared(Map& map);
   void nodesWereAdded(const std::vector<Node*>& nodes);
   void nodesWillBeRemoved(const std::vector<Node*>& nodes);
   void nodesWereRemoved(const std::vector<Node*>& nodes);
