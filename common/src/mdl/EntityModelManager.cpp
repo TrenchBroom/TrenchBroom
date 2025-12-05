@@ -19,7 +19,6 @@
 
 #include "EntityModelManager.h"
 
-#include "Exceptions.h"
 #include "Logger.h"
 #include "io/LoadEntityModel.h"
 #include "io/LoadMaterialCollections.h"
@@ -85,7 +84,7 @@ void EntityModelManager::setGame(const Game* game, kdl::task_manager& taskManage
 render::MaterialRenderer* EntityModelManager::renderer(
   const ModelSpecification& spec) const
 {
-  if (auto* entityModel = safeGetModel(spec.path))
+  if (auto* entityModel = model(spec.path))
   {
     auto it = m_renderers.find(spec);
     if (it != std::end(m_renderers))
@@ -121,9 +120,9 @@ render::MaterialRenderer* EntityModelManager::renderer(
 
 const EntityModelFrame* EntityModelManager::frame(const ModelSpecification& spec) const
 {
-  if (auto* model = this->safeGetModel(spec.path))
+  if (auto* entityModel = model(spec.path))
   {
-    if (const auto* entityModelData = model->data())
+    if (const auto* entityModelData = entityModel->data())
     {
       return entityModelData->frame(spec.frameIndex);
     }
@@ -149,9 +148,9 @@ const EntityModel* EntityModelManager::model(const std::filesystem::path& path) 
              m_logger.debug() << "Loading entity model " << path;
              return &(pos->second);
            })
-           | kdl::if_error([&](auto e) {
+           | kdl::transform_error([&](auto e) {
                m_logger.error() << e.msg;
-               throw GameException{e.msg};
+               return nullptr;
              })
            | kdl::value();
   }
@@ -174,19 +173,6 @@ const std::vector<const EntityModel*> EntityModelManager::
 
   return m_models | views::values | views::filter(filterByResourceId)
          | views::transform(toPointer) | kdl::ranges::to<std::vector>();
-}
-
-const EntityModel* EntityModelManager::safeGetModel(
-  const std::filesystem::path& path) const
-{
-  try
-  {
-    return model(path);
-  }
-  catch (const GameException&)
-  {
-    return nullptr;
-  }
 }
 
 Result<EntityModel> EntityModelManager::loadModel(

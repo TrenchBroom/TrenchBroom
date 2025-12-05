@@ -19,7 +19,6 @@
 
 #include "ImageLoaderImpl.h"
 
-#include "Exceptions.h"
 #include "Macros.h"
 
 #include "kd/contracts.h"

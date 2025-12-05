@@ -19,7 +19,6 @@
 
 #include "WorldNode.h"
 
-#include "Exceptions.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
