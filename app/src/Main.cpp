@@ -82,10 +82,8 @@ int main(int argc, char* argv[])
   tb::ui::TrenchBroomApp app(argc, argv);
 
   app.askForAutoUpdates();
-  app.parseCommandLineAndShowFrame();
-
-  // start the update check only now after we have asked the user whether they want to
-  // enable the automatic check and once we have set the draft update preference
   app.triggerAutoUpdateCheck();
+  app.openFilesOrWelcomeFrame();
+
   return app.exec();
 }

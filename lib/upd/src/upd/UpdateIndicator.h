@@ -23,6 +23,8 @@
 
 #include "upd/UpdateController.h"
 
+class QString;
+
 namespace upd
 {
 
@@ -42,6 +44,9 @@ public:
 
 private:
   void updateUI(const UpdateControllerState& state);
+  void linkActivated(const QString& uri);
+
+  void stateChanged(const UpdateControllerState& state);
 };
 
 } // namespace upd

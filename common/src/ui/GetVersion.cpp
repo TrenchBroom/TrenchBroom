@@ -21,12 +21,25 @@
 
 #include "Version.h"
 
+#include <optional>
+
 namespace tb::ui
 {
+namespace
+{
+
+auto overrideBuildVersion = std::optional<QString>{};
+
+}
+
+void setBuildVersion(QString buildVersion)
+{
+  overrideBuildVersion = std::move(buildVersion);
+}
 
 QString getBuildVersion()
 {
-  return VERSION_STR;
+  return overrideBuildVersion.value_or(VERSION_STR);
 }
 
 QString getBuildIdStr()

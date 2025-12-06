@@ -24,6 +24,8 @@
 namespace tb::ui
 {
 
+void setBuildVersion(QString buildVersion);
+
 QString getBuildVersion();
 QString getBuildIdStr();
 QString getBuildType();
