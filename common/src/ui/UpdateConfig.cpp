@@ -19,6 +19,7 @@
 
 #include "UpdateConfig.h"
 
+#include <QDir>                      // IWYU pragma: keep
 #include <QFileInfo>                 // IWYU pragma: keep
 #include <QNtfsPermissionCheckGuard> // IWYU pragma: keep
 #include <QProcess>
@@ -82,6 +83,27 @@ std::optional<std::filesystem::path> getAppFolderPath()
 #endif
 }
 
+[[maybe_unused]] bool checkPathWritable(const std::filesystem::path& path)
+{
+  auto info = QFileInfo{path};
+  if (info.exists() && !info.isWritable())
+  {
+    return false;
+  }
+
+  auto dir = info.dir();
+  do
+  {
+    auto dirInfo = QFileInfo{};
+    if (dirInfo.exists() && !dirInfo.isWritable())
+    {
+      return false;
+    }
+  } while (dir.cdUp());
+
+  return true;
+}
+
 bool getRequiresAdminPrivileges([[maybe_unused]] const std::filesystem::path& targetPath)
 {
 #if defined _WIN32
@@ -89,11 +111,7 @@ bool getRequiresAdminPrivileges([[maybe_unused]] const std::filesystem::path& ta
   const auto permissionGuard = QNtfsPermissionCheckGuard{};
   Q_ASSERT(qAreNtfsPermissionChecksEnabled());
 
-  const auto targetInfo = QFileInfo{targetPath};
-  if (targetInfo.exists() && !targetInfo.isWritable())
-  {
-    return true;
-  }
+  return !checkPathWritable(targetPath);
 #endif
   return false;
 }
@@ -195,10 +213,11 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
   auto checkForUpdates = makeCheckForUpdates(*currentVersion);
 
   const auto scriptPath = getScriptPath();
-  const auto requiresAdminPrivileges = getRequiresAdminPrivileges(*appFolderPath);
   const auto relativeAppPath = getRelativeAppPath();
   const auto workDirPath = getWorkDirPath();
   const auto logFilePath = getLogFilePath();
+
+  const auto requiresAdminPrivileges = getRequiresAdminPrivileges(*appFolderPath);
 
   return upd::UpdateConfig{
     std::move(checkForUpdates),
