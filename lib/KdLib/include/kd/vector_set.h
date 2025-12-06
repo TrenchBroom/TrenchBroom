@@ -47,8 +47,8 @@ public:
    * @param alloc the allocator to use for the underlying vector, defaults to a newly
    * created instance of Allocator
    */
-  explicit vector_set(
-    const Compare& cmp = Compare(), const Allocator& alloc = Allocator())
+  // NOLINTNEXTLINE(google-explicit-constructor)
+  vector_set(const Compare& cmp = Compare(), const Allocator& alloc = Allocator())
     : base(std::vector<T, Allocator>(alloc), cmp)
   {
   }

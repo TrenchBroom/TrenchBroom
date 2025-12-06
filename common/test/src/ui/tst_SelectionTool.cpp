@@ -105,7 +105,7 @@ TEST_CASE("SelectionTool")
           THEN("The group gets selected")
           {
             CHECK(map.selection().brushFaces.empty());
-            CHECK(map.selection() == mdl::makeSelection({groupNode}));
+            CHECK(map.selection() == mdl::makeSelection(map, {groupNode}));
           }
         }
 
@@ -219,7 +219,7 @@ TEST_CASE("SelectionTool")
           THEN("The brush gets selected")
           {
             CHECK(map.selection().brushFaces.empty());
-            CHECK(map.selection() == mdl::makeSelection({brushNode}));
+            CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
           }
 
           AND_WHEN("I click on the selected brushagain")
@@ -231,7 +231,7 @@ TEST_CASE("SelectionTool")
             THEN("The brush remains selected")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK(map.selection() == mdl::makeSelection({brushNode}));
+              CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
             }
           }
 
@@ -273,7 +273,7 @@ TEST_CASE("SelectionTool")
           THEN("All nodes are selected")
           {
             CHECK(map.selection().brushFaces.empty());
-            CHECK(map.selection() == mdl::makeSelection({brushNode, entityNode}));
+            CHECK(map.selection() == mdl::makeSelection(map, {brushNode, entityNode}));
           }
         }
 
@@ -323,7 +323,7 @@ TEST_CASE("SelectionTool")
             THEN("The brush gets selected")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK(map.selection() == mdl::makeSelection({brushNode}));
+              CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
             }
           }
 
@@ -337,7 +337,7 @@ TEST_CASE("SelectionTool")
             THEN("The brush gets selected")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK(map.selection() == mdl::makeSelection({brushNode}));
+              CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
             }
           }
         }
@@ -387,7 +387,7 @@ TEST_CASE("SelectionTool")
             THEN("The brush gets selected")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK(map.selection() == mdl::makeSelection({brushNode}));
+              CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
             }
           }
 
@@ -401,7 +401,7 @@ TEST_CASE("SelectionTool")
             THEN("The brush and entity both get selected")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK(map.selection() == mdl::makeSelection({brushNode, entityNode}));
+              CHECK(map.selection() == mdl::makeSelection(map, {entityNode, brushNode}));
             }
           }
         }
@@ -546,7 +546,7 @@ TEST_CASE("SelectionTool")
           THEN("The visible brush gets selected")
           {
             CHECK(map.selection().brushFaces.empty());
-            CHECK(map.selection() == mdl::makeSelection({visibleBrushNode}));
+            CHECK(map.selection() == mdl::makeSelection(map, {visibleBrushNode}));
           }
         }
       }

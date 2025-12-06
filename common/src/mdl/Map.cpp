@@ -86,6 +86,7 @@
 #include "mdl/PushSelection.h"
 #include "mdl/RepeatStack.h"
 #include "mdl/ResourceManager.h"
+#include "mdl/SelectionChange.h"
 #include "mdl/SoftMapBoundsValidator.h"
 #include "mdl/TagManager.h"
 #include "mdl/Transaction.h"
@@ -464,6 +465,7 @@ Map::Map(kdl::task_manager& taskManager, Logger& logger)
   , m_currentMaterialName{BrushFaceAttributes::NoMaterialName}
   , m_repeatStack{std::make_unique<RepeatStack>()}
   , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
+  , m_selection{*this}
 {
   connectObservers();
 }
@@ -743,7 +745,9 @@ void Map::clear()
     m_nodeIndex->clear();
     m_entityLinkManager->clear();
     m_editorContext->reset();
-    m_cachedSelection = std::nullopt;
+    m_selection.clear();
+    m_cachedSelectionBounds = std::nullopt;
+    m_lastSelectionBounds = std::nullopt;
     clearAssets();
     clearWorld();
     clearModificationCount();
@@ -837,11 +841,7 @@ void Map::clearWorld()
 
 const Selection& Map::selection() const
 {
-  if (!m_cachedSelection)
-  {
-    m_cachedSelection = m_world ? computeSelection(*m_world.get()) : Selection{};
-  }
-  return *m_cachedSelection;
+  return m_selection;
 }
 
 const vm::bbox3d Map::referenceBounds() const
@@ -1469,6 +1469,7 @@ void Map::connectObservers()
 {
   m_notifierConnection += mapWasCreatedNotifier.connect(this, &Map::mapWasCreated);
   m_notifierConnection += mapWasLoadedNotifier.connect(this, &Map::mapWasLoaded);
+  m_notifierConnection += mapWasClearedNotifier.connect(this, &Map::mapWasCleared);
 
   m_notifierConnection += nodesWereAddedNotifier.connect(this, &Map::nodesWereAdded);
   m_notifierConnection +=
@@ -1536,8 +1537,11 @@ void Map::mapWasCreated(Map&)
   initializeNodeIndex();
   initializeEntityLinks();
 
-  m_cachedSelection = std::nullopt;
+  m_selection.clear();
   m_cachedSelectionBounds = std::nullopt;
+  m_lastSelectionBounds = std::nullopt;
+
+  documentDidChangeNotifier();
 }
 
 void Map::mapWasLoaded(Map&)
@@ -1546,9 +1550,74 @@ void Map::mapWasLoaded(Map&)
   initializeNodeIndex();
   initializeEntityLinks();
 
-  m_cachedSelection = std::nullopt;
+  m_selection.clear();
   m_cachedSelectionBounds = std::nullopt;
+  m_lastSelectionBounds = std::nullopt;
+
+  documentDidChangeNotifier();
 }
+
+void Map::mapWasCleared(Map&)
+{
+  documentDidChangeNotifier();
+}
+
+namespace
+{
+
+SelectionChange computeSelectionChangeForAddedNodes(const std::vector<Node*>& nodes)
+{
+  auto selectionChange = SelectionChange{};
+
+  for (auto* node : nodes)
+  {
+    if (node->selected())
+    {
+      selectionChange.selectedNodes.push_back(node);
+    }
+    else if (auto* brushNode = dynamic_cast<BrushNode*>(node))
+    {
+      const auto& brush = brushNode->brush();
+      for (size_t i = 0; i < brush.faceCount(); ++i)
+      {
+        if (brush.face(i).selected())
+        {
+          selectionChange.selectedBrushFaces.emplace_back(brushNode, i);
+        }
+      }
+    }
+  }
+
+  return selectionChange;
+}
+
+SelectionChange computeSelectionChangeForRemovedNodes(const std::vector<Node*>& nodes)
+{
+  auto selectionChange = SelectionChange{};
+
+  for (auto* node : nodes)
+  {
+    if (node->selected())
+    {
+      selectionChange.deselectedNodes.push_back(node);
+    }
+    else if (auto* brushNode = dynamic_cast<BrushNode*>(node))
+    {
+      const auto& brush = brushNode->brush();
+      for (size_t i = 0; i < brush.faceCount(); ++i)
+      {
+        if (brush.face(i).selected())
+        {
+          selectionChange.deselectedBrushFaces.emplace_back(brushNode, i);
+        }
+      }
+    }
+  }
+
+  return selectionChange;
+}
+
+} // namespace
 
 void Map::nodesWereAdded(const std::vector<Node*>& nodes)
 {
@@ -1560,7 +1629,7 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
   addToNodeIndex(nodes, true);
   addEntityLinks(nodes, true);
 
-  m_cachedSelection = std::nullopt;
+  m_selection.update(computeSelectionChangeForAddedNodes(nodes));
   m_cachedSelectionBounds = std::nullopt;
 }
 
@@ -1577,7 +1646,7 @@ void Map::nodesWereRemoved(const std::vector<Node*>& nodes)
   unsetEntityDefinitions(nodes);
   unsetMaterials(nodes);
 
-  m_cachedSelection = std::nullopt;
+  m_selection.update(computeSelectionChangeForRemovedNodes(nodes));
   m_cachedSelectionBounds = std::nullopt;
 }
 
@@ -1596,7 +1665,7 @@ void Map::nodesDidChange(const std::vector<Node*>& nodes)
   addToNodeIndex(nodes, false);
   addEntityLinks(nodes, false);
 
-  m_cachedSelection = std::nullopt;
+  m_selection.invalidate();
   m_cachedSelectionBounds = std::nullopt;
 }
 
@@ -1618,10 +1687,10 @@ void Map::selectionWillChange()
   }
 }
 
-void Map::selectionDidChange(const SelectionChange&)
+void Map::selectionDidChange(const SelectionChange& selectionChange)
 {
   m_repeatStack->clearOnNextPush();
-  m_cachedSelection = std::nullopt;
+  m_selection.update(selectionChange);
   m_cachedSelectionBounds = std::nullopt;
 }
 
@@ -1694,11 +1763,21 @@ void Map::commandUndone(UndoableCommand& command)
 void Map::transactionDone(const std::string& name)
 {
   m_logger.debug() << "Transaction '" << name << "' executed";
+
+  if (m_commandProcessor->isCurrentDocumentStateObservable())
+  {
+    documentDidChangeNotifier();
+  }
 }
 
 void Map::transactionUndone(const std::string& name)
 {
   m_logger.debug() << "Transaction '" << name << "' undone";
+
+  if (m_commandProcessor->isCurrentDocumentStateObservable())
+  {
+    documentDidChangeNotifier();
+  }
 }
 
 } // namespace tb::mdl

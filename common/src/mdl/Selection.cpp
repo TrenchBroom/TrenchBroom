@@ -25,9 +25,11 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/Map.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PatchNode.h"
+#include "mdl/SelectionChange.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/overload.h"
@@ -116,9 +118,75 @@ std::vector<BrushFaceHandle> computeAllBrushFaces(
   return faceSelectionWithLinkedGroupConstraints(worldNode, faces).facesToSelect;
 }
 
+template <typename T, std::ranges::range S>
+auto applyChange(std::vector<T>& s1, S&& remove, S&& add)
+{
+  for (const auto& x : remove)
+  {
+    std::erase(s1, x);
+  }
+  s1.insert(s1.end(), add.begin(), add.end());
+}
+
+template <typename T>
+auto makeNodeFilter()
+{
+  return std::views::transform([](auto* n) { return dynamic_cast<T*>(n); })
+         | std::views::filter([](auto* n) { return n != nullptr; });
+}
+
 } // namespace
 
 kdl_reflect_impl(Selection);
+
+Selection::Selection(const Map& map)
+  : m_map{map}
+{
+}
+
+void Selection::update(const SelectionChange& selectionChange)
+{
+  applyChange(nodes, selectionChange.deselectedNodes, selectionChange.selectedNodes);
+  applyChange(
+    groups,
+    selectionChange.deselectedNodes | makeNodeFilter<GroupNode>(),
+    selectionChange.selectedNodes | makeNodeFilter<GroupNode>());
+  applyChange(
+    entities,
+    selectionChange.deselectedNodes | makeNodeFilter<EntityNode>(),
+    selectionChange.selectedNodes | makeNodeFilter<EntityNode>());
+  applyChange(
+    brushes,
+    selectionChange.deselectedNodes | makeNodeFilter<BrushNode>(),
+    selectionChange.selectedNodes | makeNodeFilter<BrushNode>());
+  applyChange(
+    patches,
+    selectionChange.deselectedNodes | makeNodeFilter<PatchNode>(),
+    selectionChange.selectedNodes | makeNodeFilter<PatchNode>());
+
+  applyChange(
+    brushFaces, selectionChange.deselectedBrushFaces, selectionChange.selectedBrushFaces);
+
+  invalidate();
+}
+
+void Selection::clear()
+{
+  nodes.clear();
+  groups.clear();
+  entities.clear();
+  brushes.clear();
+  patches.clear();
+
+  invalidate();
+}
+
+void Selection::invalidate()
+{
+  m_cachedAllEntities = std::nullopt;
+  m_cachedAllEntities = std::nullopt;
+  m_cachedAllBrushFaces = std::nullopt;
+}
 
 bool Selection::hasAny() const
 {
@@ -182,73 +250,36 @@ bool Selection::hasAnyBrushFaces() const
 
 const std::vector<EntityNodeBase*>& Selection::allEntities() const
 {
-  return cachedAllEntities;
+  if (!m_cachedAllEntities)
+  {
+    auto* worldNode = m_map.world();
+    m_cachedAllEntities =
+      worldNode ? computeAllEntities(*this, *worldNode) : std::vector<EntityNodeBase*>{};
+  }
+
+  return *m_cachedAllEntities;
 }
 
 const std::vector<BrushNode*>& Selection::allBrushes() const
 {
-  return cachedAllBrushes;
+  if (!m_cachedAllBrushes)
+  {
+    m_cachedAllBrushes = computeAllBrushes(*this);
+  }
+
+  return *m_cachedAllBrushes;
 }
 
 const std::vector<BrushFaceHandle>& Selection::allBrushFaces() const
 {
-  return cachedAllBrushFaces;
-}
+  if (!m_cachedAllBrushFaces)
+  {
+    auto* worldNode = m_map.world();
+    m_cachedAllBrushFaces = worldNode ? computeAllBrushFaces(*this, *worldNode)
+                                      : std::vector<BrushFaceHandle>{};
+  }
 
-Selection computeSelection(WorldNode& rootNode)
-{
-  auto selection = Selection{};
-
-  rootNode.accept(kdl::overload(
-    [&](
-      auto&& thisLambda, WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
-    [&](
-      auto&& thisLambda, LayerNode* layerNode) { layerNode->visitChildren(thisLambda); },
-    [&](auto&& thisLambda, GroupNode* groupNode) {
-      if (groupNode->selected())
-      {
-        selection.nodes.push_back(groupNode);
-        selection.groups.push_back(groupNode);
-      }
-      groupNode->visitChildren(thisLambda);
-    },
-    [&](auto&& thisLambda, EntityNode* entityNode) {
-      if (entityNode->selected())
-      {
-        selection.nodes.push_back(entityNode);
-        selection.entities.push_back(entityNode);
-      }
-      entityNode->visitChildren(thisLambda);
-    },
-    [&](BrushNode* brushNode) {
-      if (brushNode->selected())
-      {
-        selection.nodes.push_back(brushNode);
-        selection.brushes.push_back(brushNode);
-      }
-
-      const auto& faces = brushNode->brush().faces();
-      for (size_t i = 0; i < faces.size(); ++i)
-      {
-        if (faces[i].selected())
-        {
-          selection.brushFaces.emplace_back(brushNode, i);
-        }
-      }
-    },
-    [&](PatchNode* patchNode) {
-      if (patchNode->selected())
-      {
-        selection.nodes.push_back(patchNode);
-        selection.patches.push_back(patchNode);
-      }
-    }));
-
-  selection.cachedAllEntities = computeAllEntities(selection, rootNode);
-  selection.cachedAllBrushes = computeAllBrushes(selection);
-  selection.cachedAllBrushFaces = computeAllBrushFaces(selection, rootNode);
-
-  return selection;
+  return *m_cachedAllBrushFaces;
 }
 
 } // namespace tb::mdl

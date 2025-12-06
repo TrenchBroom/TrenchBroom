@@ -139,7 +139,7 @@ void UVEditor::createGui(GLContextManager& contextManager)
   updateButtons();
 }
 
-void UVEditor::selectionDidChange(const mdl::SelectionChange&)
+void UVEditor::documentDidChange()
 {
   updateButtons();
 }
@@ -147,7 +147,7 @@ void UVEditor::selectionDidChange(const mdl::SelectionChange&)
 void UVEditor::connectObservers()
 {
   m_notifierConnection +=
-    m_map.selectionDidChangeNotifier.connect(this, &UVEditor::selectionDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &UVEditor::documentDidChange);
 }
 
 void UVEditor::resetUVClicked()

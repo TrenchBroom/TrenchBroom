@@ -26,6 +26,7 @@
 #include "mdl/NodeQueries.h"
 
 #include "kd/contracts.h"
+#include "kd/overload.h"
 #include "kd/ranges/chunk_by_view.h"
 #include "kd/ranges/to.h"
 #include "kd/ranges/zip_transform_view.h"

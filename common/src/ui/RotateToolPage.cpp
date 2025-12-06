@@ -61,11 +61,7 @@ RotateToolPage::RotateToolPage(mdl::Map& map, RotateTool& tool, QWidget* parent)
 void RotateToolPage::connectObservers()
 {
   m_notifierConnection +=
-    m_map.selectionDidChangeNotifier.connect(this, &RotateToolPage::selectionDidChange);
-  m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &RotateToolPage::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &RotateToolPage::mapWasLoaded);
+    m_map.documentDidChangeNotifier.connect(this, &RotateToolPage::documentDidChange);
 
   m_notifierConnection += m_tool.rotationCenterDidChangeNotifier.connect(
     this, &RotateToolPage::rotationCenterDidChange);
@@ -175,17 +171,7 @@ void RotateToolPage::updateGui()
   }
 }
 
-void RotateToolPage::mapWasCreated(mdl::Map&)
-{
-  updateGui();
-}
-
-void RotateToolPage::mapWasLoaded(mdl::Map&)
-{
-  updateGui();
-}
-
-void RotateToolPage::selectionDidChange(const mdl::SelectionChange&)
+void RotateToolPage::documentDidChange()
 {
   updateGui();
 }

@@ -23,6 +23,7 @@
 
 #include "kd/reflection_decl.h"
 
+#include <optional>
 #include <vector>
 
 namespace tb::mdl
@@ -32,12 +33,22 @@ class EntityNode;
 class EntityNodeBase;
 class GroupNode;
 class LayerNode;
+class Map;
 class Node;
 class PatchNode;
 class WorldNode;
 
-struct Selection
+struct SelectionChange;
+
+class Selection
 {
+private:
+  const Map& m_map;
+  mutable std::optional<std::vector<EntityNodeBase*>> m_cachedAllEntities;
+  mutable std::optional<std::vector<BrushNode*>> m_cachedAllBrushes;
+  mutable std::optional<std::vector<BrushFaceHandle>> m_cachedAllBrushFaces;
+
+public:
   std::vector<Node*> nodes;
   std::vector<GroupNode*> groups;
   std::vector<EntityNode*> entities;
@@ -45,11 +56,13 @@ struct Selection
   std::vector<PatchNode*> patches;
   std::vector<BrushFaceHandle> brushFaces;
 
-  std::vector<EntityNodeBase*> cachedAllEntities;
-  std::vector<BrushNode*> cachedAllBrushes;
-  std::vector<BrushFaceHandle> cachedAllBrushFaces;
-
   kdl_reflect_decl(Selection, nodes, groups, entities, brushes, patches, brushFaces);
+
+  explicit Selection(const Map& map);
+
+  void update(const SelectionChange& selectionChange);
+  void clear();
+  void invalidate();
 
   bool hasAny() const;
   bool hasNodes() const;
@@ -89,7 +102,5 @@ struct Selection
 
   const std::vector<BrushFaceHandle>& allBrushFaces() const;
 };
-
-Selection computeSelection(WorldNode& rootNode);
 
 } // namespace tb::mdl

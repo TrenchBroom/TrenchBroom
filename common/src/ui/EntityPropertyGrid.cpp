@@ -384,35 +384,10 @@ void EntityPropertyGrid::createGui()
 void EntityPropertyGrid::connectObservers()
 {
   m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &EntityPropertyGrid::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &EntityPropertyGrid::mapWasLoaded);
-  m_notifierConnection +=
-    m_map.nodesDidChangeNotifier.connect(this, &EntityPropertyGrid::nodesDidChange);
-  m_notifierConnection += m_map.selectionWillChangeNotifier.connect(
-    this, &EntityPropertyGrid::selectionWillChange);
-  m_notifierConnection += m_map.selectionDidChangeNotifier.connect(
-    this, &EntityPropertyGrid::selectionDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &EntityPropertyGrid::documentDidChange);
 }
 
-void EntityPropertyGrid::mapWasCreated(mdl::Map&)
-{
-  updateControls();
-}
-
-void EntityPropertyGrid::mapWasLoaded(mdl::Map&)
-{
-  updateControls();
-}
-
-void EntityPropertyGrid::nodesDidChange(const std::vector<mdl::Node*>&)
-{
-  updateControls();
-}
-
-void EntityPropertyGrid::selectionWillChange() {}
-
-void EntityPropertyGrid::selectionDidChange(const mdl::SelectionChange&)
+void EntityPropertyGrid::documentDidChange()
 {
   updateControls();
 }

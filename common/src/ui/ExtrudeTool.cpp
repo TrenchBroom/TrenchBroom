@@ -664,24 +664,10 @@ void ExtrudeTool::cancel()
 void ExtrudeTool::connectObservers()
 {
   m_notifierConnection +=
-    m_map.nodesWereAddedNotifier.connect(this, &ExtrudeTool::nodesDidChange);
-  m_notifierConnection +=
-    m_map.nodesWillChangeNotifier.connect(this, &ExtrudeTool::nodesDidChange);
-  m_notifierConnection +=
-    m_map.nodesWillBeRemovedNotifier.connect(this, &ExtrudeTool::nodesDidChange);
-  m_notifierConnection +=
-    m_map.selectionDidChangeNotifier.connect(this, &ExtrudeTool::selectionDidChange);
+    m_map.documentDidChangeNotifier.connect(this, &ExtrudeTool::documentDidChange);
 }
 
-void ExtrudeTool::nodesDidChange(const std::vector<mdl::Node*>&)
-{
-  if (!m_dragging)
-  {
-    m_proposedDragHandles.clear();
-  }
-}
-
-void ExtrudeTool::selectionDidChange(const mdl::SelectionChange&)
+void ExtrudeTool::documentDidChange()
 {
   if (!m_dragging)
   {

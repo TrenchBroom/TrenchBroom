@@ -58,10 +58,8 @@ void DrawShapeToolExtensionPage::addApplyButton(mdl::Map& map)
 
   addWidget(applyButton);
 
-  m_notifierConnection +=
-    map.selectionDidChangeNotifier.connect([&map, applyButton](const auto&) {
-      applyButton->setEnabled(map.selection().hasNodes());
-    });
+  m_notifierConnection += map.documentDidChangeNotifier.connect(
+    [&map, applyButton]() { applyButton->setEnabled(map.selection().hasNodes()); });
 }
 
 vm::axis::type ShapeParameters::axis() const
