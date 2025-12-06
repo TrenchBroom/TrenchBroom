@@ -22,7 +22,6 @@
 #include "Result.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameFileSystem.h"
-#include "mdl/SoftMapBounds.h"
 
 #include <filesystem>
 #include <string>
@@ -56,8 +55,6 @@ public:
 
   void updateFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
-
-  SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
 
   void reloadWads(
     const std::filesystem::path& documentPath,

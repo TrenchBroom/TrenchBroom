@@ -26,7 +26,6 @@
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
 #include "io/FgdParser.h"
-#include "io/GameConfigParser.h"
 #include "io/LoadEntityModel.h"
 #include "io/SystemPaths.h"
 #include "io/WorldReader.h"
@@ -80,20 +79,6 @@ void Game::updateFileSystem(
   const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
   initializeFileSystem(searchPaths, logger);
-}
-
-SoftMapBounds Game::extractSoftMapBounds(const Entity& entity) const
-{
-  if (const auto* mapValue = entity.property(EntityPropertyKeys::SoftMapBounds))
-  {
-    return *mapValue == EntityPropertyValues::NoSoftMapBounds
-             ? SoftMapBounds{SoftMapBoundsType::Map, std::nullopt}
-             : SoftMapBounds{
-                 SoftMapBoundsType::Map, io::parseSoftMapBoundsString(*mapValue)};
-  }
-
-  // Not set in map -> use Game value
-  return SoftMapBounds{SoftMapBoundsType::Game, config().softMapBounds};
 }
 
 void Game::reloadWads(

@@ -35,13 +35,32 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
+{
+  if (const auto* mapValue = entity.property(EntityPropertyKeys::SoftMapBounds))
+  {
+    return *mapValue == EntityPropertyValues::NoSoftMapBounds
+             ? SoftMapBounds{SoftMapBoundsType::Map, std::nullopt}
+             : SoftMapBounds{
+                 SoftMapBoundsType::Map, io::parseSoftMapBoundsString(*mapValue)};
+  }
+
+  // Not set in map -> use Game value
+  return SoftMapBounds{SoftMapBoundsType::Game, gameConfig.softMapBounds};
+}
+
+} // namespace
 
 SoftMapBounds softMapBounds(const Map& map)
 {
   if (const auto* worldNode = map.world())
   {
-    return map.game()->extractSoftMapBounds(worldNode->entity());
+    return extractSoftMapBounds(worldNode->entity(), map.game()->config());
   }
+
   return {SoftMapBoundsType::Game, std::nullopt};
 }
 

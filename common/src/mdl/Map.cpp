@@ -999,7 +999,7 @@ void Map::registerValidators()
   m_world->registerValidator(std::make_unique<NonIntegerVerticesValidator>());
   m_world->registerValidator(std::make_unique<MixedBrushContentsValidator>());
   m_world->registerValidator(std::make_unique<WorldBoundsValidator>(worldBounds()));
-  m_world->registerValidator(std::make_unique<SoftMapBoundsValidator>(*m_game, *m_world));
+  m_world->registerValidator(std::make_unique<SoftMapBoundsValidator>(*this));
   m_world->registerValidator(std::make_unique<EmptyPropertyKeyValidator>());
   m_world->registerValidator(std::make_unique<EmptyPropertyValueValidator>());
   m_world->registerValidator(
