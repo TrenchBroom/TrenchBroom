@@ -29,7 +29,7 @@ jobs:
             tb-arch: default-arch
         include:
           - os: macos-15-intel
-            tb-build-type: asan
+            tb-build-type: sanitize
           - os: windows-2022
             tb-arch: x64
     env:
@@ -167,12 +167,16 @@ jobs:
       - name: macOS - Set up signing environment
         if: ${{ startsWith(matrix.os, 'macos') }}
         run: |
-            if [[ "${{ matrix.tb-build-type }}" == "asan" ]]; then
-              echo "TB_ENABLE_ASAN=true" >> $GITHUB_ENV
+            if [[ "${{ matrix.tb-build-type }}" == "sanitize" ]]; then
+              echo "TB_ENABLE_ASAN=1" >> $GITHUB_ENV
+              echo "TB_ENABLE_TSAN=0" >> $GITHUB_ENV
+              echo "TB_ENABLE_UBSAN=1" >> $GITHUB_ENV
             else
-              echo "TB_ENABLE_ASAN=false" >> $GITHUB_ENV
+              echo "TB_ENABLE_ASAN=0" >> $GITHUB_ENV
+              echo "TB_ENABLE_TSAN=0" >> $GITHUB_ENV
+              echo "TB_ENABLE_UBSAN=0" >> $GITHUB_ENV
             fi
-            if [[ "${{ matrix.tb-build-type }}" != "asan" ]] && 
+            if [[ "${{ matrix.tb-build-type }}" != "sanitize" ]] && 
                [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}" ]] && 
                [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}" ]] && 
                [[ -n "${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" ]] &&
@@ -227,7 +231,7 @@ jobs:
 
       - name: macOS - Upload artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ startsWith(matrix.os, 'macos') && matrix.tb-build-type != 'asan' }}
+        if: ${{ startsWith(matrix.os, 'macos') && matrix.tb-build-type != 'sanitize' }}
         with:
           name: ${{ matrix.os }}
           path: |
@@ -240,7 +244,7 @@ jobs:
       # based on a glob, so use https://github.com/softprops/action-gh-release
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.tb-build-type != 'asan' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.tb-build-type != 'sanitize' }}
         with:
           draft: true
           files: |

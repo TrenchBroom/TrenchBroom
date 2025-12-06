@@ -23,12 +23,14 @@ export MACOSX_DEPLOYMENT_TARGET=12.0
 # Build TB
 
 TB_BUILD_TYPE="Release"
-if [[ $TB_ENABLE_ASAN == "true" ]] ; then
-    TB_BUILD_TYPE="Debug"
+if [[ $TB_ENABLE_ASAN == "1" || $TB_ENABLE_TSAN == "1" || $TB_ENABLE_UBSAN == "1" ]] ; then
+  TB_BUILD_TYPE="Debug"
 fi
 
 echo "TB_BUILD_TYPE: $TB_BUILD_TYPE"
 echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN"
+echo "TB_ENABLE_TSAN: $TB_ENABLE_TSAN"
+echo "TB_ENABLE_UBSAN: $TB_ENABLE_UBSAN"
 echo "TB_SIGN_MAC_BUNDLE: $TB_SIGN_MAC_BUNDLE"
 
 # Note: The app bundle and the archive should be signed and notarized, otherwise macOS'
@@ -51,6 +53,8 @@ cmake .. \
   -DTB_ENABLE_CCACHE=0 \
   -DTB_ENABLE_PCH=0 \
   -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN" \
+  -DTB_ENABLE_TSAN="$TB_ENABLE_TSAN" \
+  -DTB_ENABLE_UBSAN="$TB_ENABLE_UBSAN" \
   -DTB_RUN_MACDEPLOYQT=1 \
   -DTB_SIGN_MAC_BUNDLE=$TB_SIGN_MAC_BUNDLE \
   -DTB_SIGN_IDENTITY="$TB_SIGN_IDENTITY" \
@@ -90,7 +94,7 @@ cd "$BUILD_DIR/lib/VmLib/test"
 cd "$BUILD_DIR/common/test"
 ./common-test || exit 1
 
-if [[ $TB_ENABLE_ASAN == "false" ]] ; then
+if [[ $TB_ENABLE_ASAN == "0" && $TB_ENABLE_UBSAN == "0" ]] ; then
   cd "$BUILD_DIR"
 
   # see https://github.com/actions/runner-images/issues/7522
