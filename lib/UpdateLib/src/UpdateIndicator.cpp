@@ -35,22 +35,33 @@ UpdateIndicator::UpdateIndicator(UpdateController& updateController, QWidget* pa
   , m_updateController{updateController}
 {
   updateUI(m_updateController.state());
+
   connect(
     &m_updateController,
     &UpdateController::stateChanged,
-    [this](const UpdateControllerState& state) { updateUI(state); });
-  connect(this, &QLabel::linkActivated, [&](const auto& uri) {
-    if (uri == "upd://checkForUpdates")
-    {
-      m_updateController.checkForUpdates();
-    }
+    this,
+    &UpdateIndicator::stateChanged);
 
-    auto dialog = UpdateDialog{m_updateController};
-    dialog.exec();
-  });
+  connect(this, &QLabel::linkActivated, this, &UpdateIndicator::linkActivated);
 }
 
 UpdateIndicator::~UpdateIndicator() = default;
+
+void UpdateIndicator::stateChanged(const UpdateControllerState& state)
+{
+  updateUI(state);
+}
+
+void UpdateIndicator::linkActivated(const QString& uri)
+{
+  if (uri == "upd://checkForUpdates")
+  {
+    m_updateController.checkForUpdates();
+  }
+
+  auto dialog = UpdateDialog{m_updateController};
+  dialog.exec();
+}
 
 void UpdateIndicator::updateUI(const UpdateControllerState& state)
 {
