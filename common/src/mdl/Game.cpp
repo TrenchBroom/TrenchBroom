@@ -83,14 +83,6 @@ void Game::updateFileSystem(
   initializeFileSystem(searchPaths, logger);
 }
 
-std::vector<EntityDefinitionFileSpec> Game::allEntityDefinitionFiles() const
-{
-  return config().entityConfig.defFilePaths | std::views::transform([](const auto& path) {
-           return EntityDefinitionFileSpec::makeBuiltin(path);
-         })
-         | kdl::ranges::to<std::vector>();
-}
-
 std::filesystem::path Game::findEntityDefinitionFile(
   const EntityDefinitionFileSpec& spec,
   const std::vector<std::filesystem::path>& searchPaths) const

@@ -29,6 +29,7 @@
 #include "io/PathQt.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "ui/BorderLine.h"
@@ -38,10 +39,25 @@
 
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
+#include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
 namespace tb::ui
 {
+namespace
+{
+
+std::vector<mdl::EntityDefinitionFileSpec> allEntityDefinitionFiles(
+  const mdl::GameConfig& gameConfig)
+{
+  return gameConfig.entityConfig.defFilePaths
+         | std::views::transform([](const auto& path) {
+             return mdl::EntityDefinitionFileSpec::makeBuiltin(path);
+           })
+         | kdl::ranges::to<std::vector>();
+}
+
+} // namespace
 
 SingleSelectionListWidget::SingleSelectionListWidget(QWidget* parent)
   : QListWidget{parent}
@@ -179,7 +195,7 @@ void EntityDefinitionFileChooser::updateControls()
   m_builtin->setAllowDeselectAll(false);
 
   const auto& game = *m_map.game();
-  auto specs = game.allEntityDefinitionFiles();
+  auto specs = allEntityDefinitionFiles(game.config());
   specs = kdl::vec_sort(std::move(specs));
 
   for (const auto& spec : specs)
