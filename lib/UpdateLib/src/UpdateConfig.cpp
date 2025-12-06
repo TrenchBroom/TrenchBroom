@@ -30,13 +30,15 @@ QString describeUpdateConfig(const UpdateConfig& config)
   GitHub Repo   : %2
   Update Script : %3
   App Dir       : %4
-  Binary Path   : %5
-  Work Dir      : %6
-  Log File      : %7)"}
+  Readonly      : %5
+  Binary Path   : %6
+  Work Dir      : %7
+  Log File      : %8)"}
     .arg(config.ghOrgName)
     .arg(config.ghRepoName)
     .arg(config.updateScriptPath)
     .arg(config.appFolderPath)
+    .arg(config.requiresAdminPrivileges)
     .arg(config.relativeAppPath)
     .arg(config.workDirPath)
     .arg(config.logFilePath);
