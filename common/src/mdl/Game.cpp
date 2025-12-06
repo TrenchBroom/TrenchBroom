@@ -22,20 +22,12 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "io/LoadEntityModel.h"
-#include "io/WorldReader.h"
-#include "mdl/Entity.h"
-#include "mdl/EntityNodeBase.h"
-#include "mdl/EntityProperties.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/MaterialManager.h"
 
 #include "kd/const_overload.h"
 
-#include <fmt/format.h>
-#include <fmt/std.h>
-
-#include <string>
 #include <vector>
 
 namespace tb::mdl
@@ -78,54 +70,6 @@ void Game::initializeFileSystem(
 {
   const auto gamePath = pref(info().gamePathPreference);
   m_fs.initialize(config(), gamePath, searchPaths, logger);
-}
-
-EntityPropertyConfig Game::entityPropertyConfig() const
-{
-  return {
-    config().entityConfig.scaleExpression, config().entityConfig.setDefaultProperties};
-}
-
-void Game::writeLongAttribute(
-  EntityNodeBase& node,
-  const std::string& baseName,
-  const std::string& value,
-  const size_t maxLength) const
-{
-  auto entity = node.entity();
-  entity.removeNumberedProperty(baseName);
-
-  auto nameStr = std::stringstream{};
-  for (size_t i = 0; i <= value.size() / maxLength; ++i)
-  {
-    nameStr.str("");
-    nameStr << baseName << i + 1;
-    entity.addOrUpdateProperty(nameStr.str(), value.substr(i * maxLength, maxLength));
-  }
-
-  node.setEntity(std::move(entity));
-}
-
-std::string Game::readLongAttribute(
-  const EntityNodeBase& node, const std::string& baseName) const
-{
-  size_t index = 1;
-  auto nameStr = std::stringstream{};
-  auto valueStr = std::stringstream{};
-  nameStr << baseName << index;
-
-  const auto& entity = node.entity();
-  while (entity.hasProperty(nameStr.str()))
-  {
-    if (const auto* value = entity.property(nameStr.str()))
-    {
-      valueStr << *value;
-    }
-    nameStr.str("");
-    nameStr << baseName << ++index;
-  }
-
-  return valueStr.str();
 }
 
 } // namespace tb::mdl

@@ -19,11 +19,9 @@
 
 #pragma once
 
-#include "Result.h"
 #include "mdl/GameFileSystem.h"
 
 #include <filesystem>
-#include <string>
 #include <vector>
 
 namespace tb
@@ -59,16 +57,6 @@ public:
 private:
   void initializeFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
-
-  EntityPropertyConfig entityPropertyConfig() const;
-
-  void writeLongAttribute(
-    EntityNodeBase& node,
-    const std::string& baseName,
-    const std::string& value,
-    size_t maxLength) const;
-  std::string readLongAttribute(
-    const EntityNodeBase& node, const std::string& baseName) const;
 };
 
 } // namespace mdl
