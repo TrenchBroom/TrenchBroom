@@ -57,7 +57,6 @@ public:
   void updateFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
 
-  bool isEntityDefinitionFile(const std::filesystem::path& path) const;
   std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
   std::filesystem::path findEntityDefinitionFile(
     const EntityDefinitionFileSpec& spec,

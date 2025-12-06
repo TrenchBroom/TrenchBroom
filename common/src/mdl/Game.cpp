@@ -25,7 +25,6 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
-#include "io/FgdParser.h"
 #include "io/LoadEntityModel.h"
 #include "io/WorldReader.h"
 #include "mdl/Entity.h"
@@ -37,7 +36,6 @@
 #include "mdl/MaterialManager.h"
 
 #include "kd/const_overload.h"
-#include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
@@ -46,7 +44,6 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
-#include <algorithm>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -84,15 +81,6 @@ void Game::updateFileSystem(
   const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
   initializeFileSystem(searchPaths, logger);
-}
-
-bool Game::isEntityDefinitionFile(const std::filesystem::path& path) const
-{
-  static const auto extensions = {".fgd", ".def", ".ent"};
-
-  return std::ranges::any_of(extensions, [&](const auto& extension) {
-    return kdl::path_has_extension(kdl::path_to_lower(path), extension);
-  });
 }
 
 std::vector<EntityDefinitionFileSpec> Game::allEntityDefinitionFiles() const
