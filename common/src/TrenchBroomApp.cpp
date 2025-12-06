@@ -37,6 +37,7 @@
 #include "ui/CrashReporter.h"
 #include "ui/FrameManager.h"
 #include "ui/GameDialog.h"
+#include "ui/GetVersion.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
@@ -96,6 +97,10 @@ auto parseCommandLine(const auto* app)
     "Look for configuration files in 'config' folder next to the executable."));
   parser->addOption(QCommandLineOption(
     "enableDraftReleaseUpdates", "Enable preference option to update to draft releases"));
+  parser->addOption(QCommandLineOption(
+    "overrideBuildVersion",
+    "Override the build version used by the updater (format: 2025.3 or 2025.3-RC1)",
+    "version"));
   parser->process(*app);
 
   if (parser->isSet("enableDraftReleaseUpdates"))
@@ -103,6 +108,11 @@ auto parseCommandLine(const auto* app)
     auto& prefs = PreferenceManager::instance();
     prefs.set(Preferences::EnableDraftReleaseUpdates, true);
     prefs.set(Preferences::IncludeDraftReleaseUpdates, true);
+  }
+
+  if (parser->isSet("overrideBuildVersion"))
+  {
+    setBuildVersion(parser->value("overrideBuildVersion"));
   }
 
   return parser;
