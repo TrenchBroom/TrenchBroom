@@ -228,6 +228,24 @@ void setWorldDefaultProperties(
   }
 }
 
+auto findEntityDefinitionFile(
+  const GameConfig& gameConfig,
+  const EntityDefinitionFileSpec& spec,
+  const std::vector<std::filesystem::path>& searchPaths)
+{
+  if (spec.type == EntityDefinitionFileSpec::Type::Builtin)
+  {
+    return gameConfig.findConfigFile(spec.path);
+  }
+
+  if (spec.path.is_absolute())
+  {
+    return spec.path;
+  }
+
+  return fs::Disk::resolvePath(searchPaths, spec.path);
+}
+
 auto makeInitializeNodeTagsVisitor(TagManager& tagManager)
 {
   return kdl::overload(
@@ -1043,8 +1061,11 @@ void Map::loadEntityDefinitions()
 {
   if (const auto spec = entityDefinitionFile(*this))
   {
-    const auto path = game()->findEntityDefinitionFile(*spec, externalSearchPaths(*this));
-    const auto& defaultColor = game()->config().entityConfig.defaultColor;
+    const auto& gameConfig = game()->config();
+
+    const auto path =
+      findEntityDefinitionFile(gameConfig, *spec, externalSearchPaths(*this));
+    const auto& defaultColor = gameConfig.entityConfig.defaultColor;
     auto status = SimpleParserStatus{m_logger};
 
     io::loadEntityDefinitions(path, defaultColor, status)

@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Result.h"
-#include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameFileSystem.h"
 
 #include <filesystem>
@@ -56,10 +55,6 @@ public:
 
   void updateFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
-
-  std::filesystem::path findEntityDefinitionFile(
-    const EntityDefinitionFileSpec& spec,
-    const std::vector<std::filesystem::path>& searchPaths) const;
 
   Result<std::vector<std::string>> availableMods() const;
   std::string defaultMod() const;

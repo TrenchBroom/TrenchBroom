@@ -28,7 +28,6 @@
 #include "io/LoadEntityModel.h"
 #include "io/WorldReader.h"
 #include "mdl/Entity.h"
-#include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/GameConfig.h"
@@ -81,23 +80,6 @@ void Game::updateFileSystem(
   const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
   initializeFileSystem(searchPaths, logger);
-}
-
-std::filesystem::path Game::findEntityDefinitionFile(
-  const EntityDefinitionFileSpec& spec,
-  const std::vector<std::filesystem::path>& searchPaths) const
-{
-  if (spec.type == EntityDefinitionFileSpec::Type::Builtin)
-  {
-    return config().findConfigFile(spec.path);
-  }
-
-  if (spec.path.is_absolute())
-  {
-    return spec.path;
-  }
-
-  return fs::Disk::resolvePath(searchPaths, spec.path);
 }
 
 Result<std::vector<std::string>> Game::availableMods() const
