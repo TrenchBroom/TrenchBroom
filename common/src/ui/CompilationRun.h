@@ -42,7 +42,6 @@ struct CompilationProfile;
 namespace ui
 {
 class CompilationRunner;
-class MapDocument;
 
 class CompilationRun : public QObject
 {

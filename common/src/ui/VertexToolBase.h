@@ -75,7 +75,6 @@ class Camera;
 namespace ui
 {
 class Lasso;
-class MapDocument;
 
 template <typename H>
 class VertexToolBase : public Tool
