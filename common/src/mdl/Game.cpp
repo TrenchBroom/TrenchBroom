@@ -27,7 +27,6 @@
 #include "fs/TraversalMode.h"
 #include "io/FgdParser.h"
 #include "io/LoadEntityModel.h"
-#include "io/SystemPaths.h"
 #include "io/WorldReader.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionFileSpec.h"
@@ -37,6 +36,7 @@
 #include "mdl/GameInfo.h"
 #include "mdl/MaterialManager.h"
 
+#include "kd/const_overload.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"
@@ -70,29 +70,20 @@ const GameConfig& Game::config() const
   return m_gameInfo.gameConfig;
 }
 
-const fs::FileSystem& Game::gameFileSystem() const
+const GameFileSystem& Game::gameFileSystem() const
 {
   return m_fs;
+}
+
+GameFileSystem& Game::gameFileSystem()
+{
+  return KDL_CONST_OVERLOAD(gameFileSystem());
 }
 
 void Game::updateFileSystem(
   const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
   initializeFileSystem(searchPaths, logger);
-}
-
-void Game::reloadWads(
-  const std::filesystem::path& documentPath,
-  const std::vector<std::filesystem::path>& wadPaths,
-  Logger& logger)
-{
-  const auto searchPaths = std::vector<std::filesystem::path>{
-    documentPath.parent_path(),      // Search for assets relative to the map file.
-    pref(info().gamePathPreference), // Search for assets relative to the location of the
-                                     // game.
-    io::SystemPaths::appDirectory(), // Search for assets relative to the application.
-  };
-  m_fs.reloadWads(config().materialConfig.root, searchPaths, wadPaths, logger);
 }
 
 bool Game::isEntityDefinitionFile(const std::filesystem::path& path) const

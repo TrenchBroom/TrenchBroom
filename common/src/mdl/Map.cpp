@@ -31,6 +31,7 @@
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
 #include "io/ObjSerializer.h"
+#include "io/SystemPaths.h"
 #include "io/WorldReader.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -1092,10 +1093,19 @@ void Map::loadMaterials()
 {
   if (const auto* wadStr = m_world->entity().property(EntityPropertyKeys::Wad))
   {
+    const auto searchPaths = std::vector<std::filesystem::path>{
+      path().parent_path(),                    // relative to the map file
+      pref(m_game->info().gamePathPreference), // relative to game path
+      io::SystemPaths::appDirectory(),         // relative to the application
+    };
+
     const auto wadPaths = kdl::str_split(*wadStr, ";")
                           | kdl::ranges::to<std::vector<std::filesystem::path>>();
-    m_game->reloadWads(path(), wadPaths, m_logger);
+
+    m_game->gameFileSystem().reloadWads(
+      m_game->config().materialConfig.root, searchPaths, wadPaths, m_logger);
   }
+
   m_materialManager->reload(
     m_game->gameFileSystem(),
     m_game->config().materialConfig,

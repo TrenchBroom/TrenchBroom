@@ -51,15 +51,11 @@ public:
 public:
   const GameInfo& info() const;
   const GameConfig& config() const;
-  const fs::FileSystem& gameFileSystem() const;
+  const GameFileSystem& gameFileSystem() const;
+  GameFileSystem& gameFileSystem();
 
   void updateFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
-
-  void reloadWads(
-    const std::filesystem::path& documentPath,
-    const std::vector<std::filesystem::path>& wadPaths,
-    Logger& logger);
 
   bool isEntityDefinitionFile(const std::filesystem::path& path) const;
   std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
