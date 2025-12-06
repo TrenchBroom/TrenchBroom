@@ -91,8 +91,11 @@ namespace
 auto parseCommandLine(const auto* app)
 {
   auto parser = std::make_unique<QCommandLineParser>();
-  parser->addOption(QCommandLineOption("portable"));
-  parser->addOption(QCommandLineOption("enableDraftReleaseUpdates"));
+  parser->addOption(QCommandLineOption(
+    "portable",
+    "Look for configuration files in 'config' folder next to the executable."));
+  parser->addOption(QCommandLineOption(
+    "enableDraftReleaseUpdates", "Enable preference option to update to draft releases"));
   parser->process(*app);
 
   if (parser->isSet("enableDraftReleaseUpdates"))
