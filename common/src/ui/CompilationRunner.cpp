@@ -36,7 +36,6 @@
 #include "mdl/Map.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationVariables.h"
-#include "ui/MapDocument.h" // IWYU pragma: keep
 
 #include "kd/cmd_utils.h"
 #include "kd/contracts.h"

@@ -32,7 +32,6 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "ui/ChoosePathTypeDialog.h"
-#include "ui/MapDocument.h"
 
 #include "kd/path_utils.h"
 #include "kd/string_compare.h"

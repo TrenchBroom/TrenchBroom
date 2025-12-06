@@ -27,7 +27,6 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/VertexHandleManager.h"
 #include "render/RenderBatch.h"
-#include "ui/MapDocument.h"
 
 #include "kd/const_overload.h"
 #include "kd/contracts.h"

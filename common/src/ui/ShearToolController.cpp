@@ -30,7 +30,6 @@
 #include "render/RenderService.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
-#include "ui/MapDocument.h"
 #include "ui/ScaleTool.h"
 #include "ui/ShearTool.h"
 

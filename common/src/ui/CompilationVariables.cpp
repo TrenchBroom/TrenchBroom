@@ -25,7 +25,6 @@
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
-#include "ui/MapDocument.h"
 
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"

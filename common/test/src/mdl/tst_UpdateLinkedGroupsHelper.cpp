@@ -30,7 +30,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 
 #include "kd/overload.h"
 

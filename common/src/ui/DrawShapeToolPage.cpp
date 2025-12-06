@@ -27,7 +27,6 @@
 
 #include "io/ResourceUtils.h"
 #include "ui/DrawShapeToolExtension.h"
-#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 

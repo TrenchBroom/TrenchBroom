@@ -39,7 +39,6 @@
 #include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
-#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 

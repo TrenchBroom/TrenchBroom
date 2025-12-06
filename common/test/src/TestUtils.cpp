@@ -33,7 +33,6 @@
 #include "mdl/PatchNode.h"
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 #include "kd/result.h"

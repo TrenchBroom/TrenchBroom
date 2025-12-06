@@ -24,7 +24,6 @@
 #include "mdl/Map.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UndoableCommand.h"
-#include "ui/MapDocument.h"
 
 #include "kd/vector_utils.h"
 

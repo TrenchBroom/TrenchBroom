@@ -31,7 +31,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
-#include "ui/MapDocument.h"
 
 #include "catch/CatchConfig.h"
 

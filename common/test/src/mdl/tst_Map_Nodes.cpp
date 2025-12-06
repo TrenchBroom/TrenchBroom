@@ -39,7 +39,6 @@
 #include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 
 #include "kd/overload.h"
 
