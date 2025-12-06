@@ -18,10 +18,10 @@
  */
 
 #include "Macros.h"
-#include "MapFixture.h"
 #include "NotifierConnection.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UndoableCommand.h"
 

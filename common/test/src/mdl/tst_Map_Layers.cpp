@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
@@ -29,6 +28,7 @@
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Layers.h"
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"

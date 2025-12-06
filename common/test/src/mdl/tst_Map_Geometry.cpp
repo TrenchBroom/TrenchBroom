@@ -18,7 +18,6 @@
  */
 
 
-#include "MapFixture.h"
 #include "Matchers.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -33,6 +32,7 @@
 #include "mdl/Grid.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"

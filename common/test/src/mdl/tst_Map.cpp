@@ -18,7 +18,6 @@
  */
 
 #include "Logger.h"
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "fs/TestEnvironment.h"
@@ -34,6 +33,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Entities.h"

@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Grid.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Picking.h"
 #include "mdl/PasteType.h"

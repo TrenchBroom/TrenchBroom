@@ -22,7 +22,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QtTest/QSignalSpy>
 
 #include "CmdTool.h"
-#include "MapFixture.h"
 #include "TrenchBroomApp.h"
 #include "el/VariableStore.h"
 #include "fs/TestEnvironment.h"
@@ -30,6 +29,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "mdl/CompilationTask.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationRunner.h"

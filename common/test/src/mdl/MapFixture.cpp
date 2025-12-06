@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
+#include "mdl/MapFixture.h"
 
 #include "Logger.h"
 #include "TestUtils.h"

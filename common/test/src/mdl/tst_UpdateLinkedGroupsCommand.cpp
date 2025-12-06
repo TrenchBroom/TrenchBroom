@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "mdl/BrushNode.h" // IWYU pragma: keep
 #include "mdl/CurrentGroupCommand.h"
 #include "mdl/GroupNode.h" // IWYU pragma: keep
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"

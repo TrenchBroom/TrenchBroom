@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "fs/TestEnvironment.h"
 #include "io/SystemPaths.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_World.h"
 #include "mdl/WorldNode.h"
 

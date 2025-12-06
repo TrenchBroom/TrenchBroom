@@ -18,7 +18,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EmptyPropertyKeyValidator.h"
@@ -31,6 +30,7 @@
 #include "mdl/IssueQuickFix.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"

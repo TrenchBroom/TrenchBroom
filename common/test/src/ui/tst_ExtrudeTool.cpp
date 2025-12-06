@@ -18,7 +18,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "Matchers.h"
 #include "TestUtils.h"
 #include "mdl/Brush.h"
@@ -31,6 +30,7 @@
 #include "mdl/Game.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Picking.h"
 #include "mdl/Map_Selection.h"
