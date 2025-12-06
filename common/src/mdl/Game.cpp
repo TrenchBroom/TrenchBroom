@@ -21,10 +21,6 @@
 
 #include "Logger.h"
 #include "PreferenceManager.h"
-#include "fs/DiskFileSystem.h"
-#include "fs/DiskIO.h"
-#include "fs/PathInfo.h"
-#include "fs/TraversalMode.h"
 #include "io/LoadEntityModel.h"
 #include "io/WorldReader.h"
 #include "mdl/Entity.h"
@@ -35,15 +31,10 @@
 #include "mdl/MaterialManager.h"
 
 #include "kd/const_overload.h"
-#include "kd/ranges/as_rvalue_view.h"
-#include "kd/ranges/to.h"
-#include "kd/result.h"
-#include "kd/string_compare.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
 
-#include <ranges>
 #include <string>
 #include <vector>
 
@@ -80,33 +71,6 @@ void Game::updateFileSystem(
   const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
   initializeFileSystem(searchPaths, logger);
-}
-
-Result<std::vector<std::string>> Game::availableMods() const
-{
-  const auto gamePath = pref(info().gamePathPreference);
-  if (gamePath.empty() || fs::Disk::pathInfo(gamePath) != fs::PathInfo::Directory)
-  {
-    return Result<std::vector<std::string>>{std::vector<std::string>{}};
-  }
-
-  const auto& defaultMod = config().fileSystemConfig.searchPath.filename().string();
-  const auto fs = fs::DiskFileSystem{gamePath};
-  return fs.find(
-           "",
-           fs::TraversalMode::Flat,
-           fs::makePathInfoPathMatcher({fs::PathInfo::Directory}))
-         | kdl::transform([](const auto& subDirs) {
-             return subDirs | std::views::transform([](const auto& subDir) {
-                      return subDir.filename().string();
-                    });
-           })
-         | kdl::transform([&](auto mods) {
-             return mods | std::views::filter([&](const auto& mod) {
-                      return !kdl::ci::str_is_equal(mod, defaultMod);
-                    })
-                    | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
-           });
 }
 
 std::string Game::defaultMod() const

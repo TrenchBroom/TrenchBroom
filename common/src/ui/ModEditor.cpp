@@ -28,6 +28,10 @@
 #include "Logger.h"
 #include "Notifier.h"
 #include "PreferenceManager.h"
+#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
+#include "fs/PathInfo.h"
+#include "fs/TraversalMode.h"
 #include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
@@ -39,6 +43,7 @@
 
 #include "kd/collection_utils.h"
 #include "kd/contracts.h"
+#include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/string_compare.h"
@@ -48,6 +53,36 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+Result<std::vector<std::string>> findAvailableMods(const mdl::GameInfo& gameInfo)
+{
+  const auto gamePath = pref(gameInfo.gamePathPreference);
+  if (gamePath.empty() || fs::Disk::pathInfo(gamePath) != fs::PathInfo::Directory)
+  {
+    return Result<std::vector<std::string>>{std::vector<std::string>{}};
+  }
+
+  const auto defaultMod =
+    gameInfo.gameConfig.fileSystemConfig.searchPath.filename().string();
+  const auto fs = fs::DiskFileSystem{gamePath};
+  return fs.find(
+           "",
+           fs::TraversalMode::Flat,
+           fs::makePathInfoPathMatcher({fs::PathInfo::Directory}))
+         | kdl::transform([&](const auto& subDirs) {
+             return subDirs | std::views::transform([](const auto& subDir) {
+                      return subDir.filename().string();
+                    })
+                    | std::views::filter([&](const auto& mod) {
+                        return !kdl::ci::str_is_equal(mod, defaultMod);
+                      })
+                    | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
+           });
+}
+
+} // namespace
 
 ModEditor::ModEditor(mdl::Map& map, QWidget* parent)
   : QWidget{parent}
@@ -200,7 +235,7 @@ void ModEditor::updateAvailableMods()
 {
   if (const auto* game = m_map.game())
   {
-    game->availableMods() | kdl::transform([&](auto availableMods) {
+    findAvailableMods(game->info()) | kdl::transform([&](auto availableMods) {
       m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
     }) | kdl::transform_error([&](auto e) {
       m_availableMods.clear();

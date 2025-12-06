@@ -56,7 +56,6 @@ public:
   void updateFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
 
-  Result<std::vector<std::string>> availableMods() const;
   std::string defaultMod() const;
 
 private:
