@@ -27,6 +27,7 @@
 #include <memory>
 #include <vector>
 
+class QCommandLineParser;
 class QMenu;
 class QNetworkAccessManager;
 class QSettings;
@@ -58,6 +59,7 @@ class TrenchBroomApp : public QApplication
 {
   Q_OBJECT
 private:
+  std::unique_ptr<QCommandLineParser> m_commandLineParser;
   QNetworkAccessManager* m_networkManager = nullptr;
   upd::HttpClient* m_httpClient = nullptr;
   upd::Updater* m_updater = nullptr;
@@ -80,11 +82,11 @@ public:
   void askForAutoUpdates();
   void triggerAutoUpdateCheck();
 
-  void parseCommandLineAndShowFrame();
-
   mdl::GameManager& gameManager();
   upd::Updater& updater();
   FrameManager* frameManager();
+
+  void openFilesOrWelcomeFrame();
 
 private:
   static QPalette darkPalette();
@@ -113,7 +115,6 @@ public:
 #ifdef __APPLE__
   bool event(QEvent* event) override;
 #endif
-  void openFilesOrWelcomeFrame(const QStringList& fileNames);
 
   void showWelcomeWindow();
   void closeWelcomeWindow();
