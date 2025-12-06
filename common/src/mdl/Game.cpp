@@ -73,11 +73,6 @@ void Game::updateFileSystem(
   initializeFileSystem(searchPaths, logger);
 }
 
-std::string Game::defaultMod() const
-{
-  return config().fileSystemConfig.searchPath.string();
-}
-
 void Game::initializeFileSystem(
   const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {

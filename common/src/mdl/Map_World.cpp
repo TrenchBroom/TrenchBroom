@@ -166,7 +166,7 @@ std::string defaultMod(const Map& map)
 {
   contract_pre(map.game());
 
-  return map.game()->defaultMod();
+  return map.game()->config().fileSystemConfig.searchPath.string();
 }
 
 } // namespace tb::mdl
