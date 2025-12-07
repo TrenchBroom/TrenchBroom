@@ -287,6 +287,8 @@ void MapDocument::transactionUndone(const std::string&, const bool observable)
 
 void MapDocument::mapWasCreated(mdl::Map&)
 {
+  m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
+
   createTagActions();
   createEntityDefinitionActions();
 
@@ -296,6 +298,8 @@ void MapDocument::mapWasCreated(mdl::Map&)
 
 void MapDocument::mapWasLoaded(mdl::Map&)
 {
+  m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
+
   createTagActions();
   createEntityDefinitionActions();
 
@@ -310,6 +314,8 @@ void MapDocument::mapWasSaved(mdl::Map&)
 
 void MapDocument::mapWasCleared(mdl::Map&)
 {
+  m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
+
   clearTagActions();
   clearEntityDefinitionActions();
 

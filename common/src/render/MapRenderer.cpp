@@ -205,12 +205,10 @@ MapRenderer::MapRenderer(mdl::Map& map)
 {
   connectObservers();
   setupRenderers();
+  updateAllNodes();
 }
 
-MapRenderer::~MapRenderer()
-{
-  clear();
-}
+MapRenderer::~MapRenderer() = default;
 
 void MapRenderer::overrideSelectionColors(const Color& color, const float mix)
 {
@@ -246,24 +244,6 @@ void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
   renderDefaultTransparent(renderContext, renderBatch);
   renderLockedTransparent(renderContext, renderBatch);
   renderSelectionTransparent(renderContext, renderBatch);
-}
-
-void MapRenderer::reload()
-{
-  clear();
-  updateAllNodes();
-  invalidateEntityLinkRenderer();
-}
-
-void MapRenderer::clear()
-{
-  m_defaultRenderer->clear();
-  m_selectionRenderer->clear();
-  m_lockedRenderer->clear();
-  m_entityDecalRenderer->clear();
-  m_entityLinkRenderer->invalidate();
-  m_groupLinkRenderer->invalidate();
-  m_trackedNodes.clear();
 }
 
 class SetupGL : public Renderable
@@ -612,7 +592,10 @@ void MapRenderer::removeNodeRecursive(mdl::Node* node)
  */
 void MapRenderer::updateAllNodes()
 {
-  updateAndInvalidateNodeRecursive(m_map.world());
+  if (auto* worldNode = m_map.world())
+  {
+    updateAndInvalidateNodeRecursive(worldNode);
+  }
 }
 
 /**
@@ -660,12 +643,6 @@ void MapRenderer::reloadEntityModels()
 void MapRenderer::connectObservers()
 {
   m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &MapRenderer::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &MapRenderer::mapWasLoaded);
-  m_notifierConnection +=
-    m_map.mapWasClearedNotifier.connect(this, &MapRenderer::mapWasCleared);
-  m_notifierConnection +=
     m_map.nodesWereAddedNotifier.connect(this, &MapRenderer::nodesWereAdded);
   m_notifierConnection +=
     m_map.nodesWereRemovedNotifier.connect(this, &MapRenderer::nodesWereRemoved);
@@ -697,21 +674,6 @@ void MapRenderer::connectObservers()
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &MapRenderer::preferenceDidChange);
-}
-
-void MapRenderer::mapWasCreated(mdl::Map&)
-{
-  reload();
-}
-
-void MapRenderer::mapWasLoaded(mdl::Map&)
-{
-  reload();
-}
-
-void MapRenderer::mapWasCleared(mdl::Map&)
-{
-  clear();
 }
 
 void MapRenderer::nodesWereAdded(const std::vector<mdl::Node*>& nodes)
