@@ -159,7 +159,7 @@ void MapViewBase::connectObservers()
   m_notifierConnection +=
     map.mapWasClearedNotifier.connect(this, &MapViewBase::mapWasCleared);
   m_notifierConnection +=
-    map.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
+    m_document.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
   m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
     this, &MapViewBase::materialCollectionsDidChange);
   m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(

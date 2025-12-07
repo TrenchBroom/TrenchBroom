@@ -387,7 +387,7 @@ void EntityPropertyGrid::createGui()
 
 void EntityPropertyGrid::connectObservers()
 {
-  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &EntityPropertyGrid::documentDidChange);
 }
 

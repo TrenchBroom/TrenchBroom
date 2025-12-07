@@ -147,8 +147,6 @@ public: // notification
   Notifier<const std::string&, bool> transactionDoneNotifier;
   Notifier<const std::string&, bool> transactionUndoneNotifier;
 
-  Notifier<> documentDidChangeNotifier;
-
   Notifier<Map&> mapWillBeClearedNotifier;
   Notifier<Map&> mapWasClearedNotifier;
   Notifier<Map&> mapWasCreatedNotifier;
@@ -400,7 +398,6 @@ private: // observers
   void connectObservers();
   void mapWasCreated(Map& map);
   void mapWasLoaded(Map& map);
-  void mapWasCleared(Map& map);
   void nodesWereAdded(const std::vector<Node*>& nodes);
   void nodesWillBeRemoved(const std::vector<Node*>& nodes);
   void nodesWereRemoved(const std::vector<Node*>& nodes);

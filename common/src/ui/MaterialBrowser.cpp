@@ -186,8 +186,8 @@ void MaterialBrowser::connectObservers()
 {
   auto& map = m_document.map();
 
-  m_notifierConnection +=
-    map.documentDidChangeNotifier.connect(this, &MaterialBrowser::documentDidChange);
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
+    this, &MaterialBrowser::documentDidChange);
   m_notifierConnection += map.currentMaterialNameDidChangeNotifier.connect(
     this, &MaterialBrowser::currentMaterialNameDidChange);
 

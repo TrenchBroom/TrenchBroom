@@ -241,6 +241,10 @@ void MapDocument::unloadPortalFile()
 void MapDocument::connectObservers()
 {
   m_notifierConnection +=
+    m_map->transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
+  m_notifierConnection +=
+    m_map->transactionUndoneNotifier.connect(this, &MapDocument::transactionUndone);
+  m_notifierConnection +=
     m_map->mapWasCreatedNotifier.connect(this, &MapDocument::mapWasCreated);
   m_notifierConnection +=
     m_map->mapWasLoadedNotifier.connect(this, &MapDocument::mapWasLoaded);
@@ -254,18 +258,40 @@ void MapDocument::mapWasCreated(mdl::Map&)
 {
   createTagActions();
   createEntityDefinitionActions();
+
+  documentDidChangeNotifier();
+}
+
+void MapDocument::transactionDone(const std::string&, const bool observable)
+{
+  if (observable)
+  {
+    documentDidChangeNotifier();
+  }
+}
+
+void MapDocument::transactionUndone(const std::string&, const bool observable)
+{
+  if (observable)
+  {
+    documentDidChangeNotifier();
+  }
 }
 
 void MapDocument::mapWasLoaded(mdl::Map&)
 {
   createTagActions();
   createEntityDefinitionActions();
+
+  documentDidChangeNotifier();
 }
 
 void MapDocument::mapWasCleared(mdl::Map&)
 {
   clearTagActions();
   clearEntityDefinitionActions();
+
+  documentDidChangeNotifier();
 }
 
 void MapDocument::entityDefinitionsDidChange()

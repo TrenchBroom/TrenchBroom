@@ -74,6 +74,8 @@ public:
   static const vm::bbox3d DefaultWorldBounds;
   static const std::string DefaultDocumentName;
 
+  Notifier<> documentDidChangeNotifier;
+
   Notifier<> pointFileWasLoadedNotifier;
   Notifier<> pointFileWasUnloadedNotifier;
 
@@ -153,6 +155,9 @@ public: // portal file management
 
 private: // observers
   void connectObservers();
+
+  void transactionDone(const std::string& name, bool observable);
+  void transactionUndone(const std::string& name, bool observable);
   void mapWasCreated(mdl::Map& map);
   void mapWasLoaded(mdl::Map& map);
   void mapWasCleared(mdl::Map& map);

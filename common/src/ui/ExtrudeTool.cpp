@@ -670,8 +670,8 @@ void ExtrudeTool::cancel()
 
 void ExtrudeTool::connectObservers()
 {
-  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
-    this, &ExtrudeTool::documentDidChange);
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect(this, &ExtrudeTool::documentDidChange);
 }
 
 void ExtrudeTool::documentDidChange()

@@ -1504,7 +1504,6 @@ void Map::connectObservers()
 {
   m_notifierConnection += mapWasCreatedNotifier.connect(this, &Map::mapWasCreated);
   m_notifierConnection += mapWasLoadedNotifier.connect(this, &Map::mapWasLoaded);
-  m_notifierConnection += mapWasClearedNotifier.connect(this, &Map::mapWasCleared);
 
   m_notifierConnection += nodesWereAddedNotifier.connect(this, &Map::nodesWereAdded);
   m_notifierConnection +=
@@ -1575,8 +1574,6 @@ void Map::mapWasCreated(Map&)
   m_selection.clear();
   m_cachedSelectionBounds = std::nullopt;
   m_lastSelectionBounds = std::nullopt;
-
-  documentDidChangeNotifier();
 }
 
 void Map::mapWasLoaded(Map&)
@@ -1588,13 +1585,6 @@ void Map::mapWasLoaded(Map&)
   m_selection.clear();
   m_cachedSelectionBounds = std::nullopt;
   m_lastSelectionBounds = std::nullopt;
-
-  documentDidChangeNotifier();
-}
-
-void Map::mapWasCleared(Map&)
-{
-  documentDidChangeNotifier();
 }
 
 namespace
@@ -1795,24 +1785,14 @@ void Map::commandUndone(UndoableCommand& command)
   m_logger.debug() << "Command '" << command.name() << "' undone";
 }
 
-void Map::transactionDone(const std::string& name, const bool observable)
+void Map::transactionDone(const std::string& name, const bool)
 {
   m_logger.debug() << "Transaction '" << name << "' executed";
-
-  if (observable)
-  {
-    documentDidChangeNotifier();
-  }
 }
 
-void Map::transactionUndone(const std::string& name, const bool observable)
+void Map::transactionUndone(const std::string& name, const bool)
 {
   m_logger.debug() << "Transaction '" << name << "' undone";
-
-  if (observable)
-  {
-    documentDidChangeNotifier();
-  }
 }
 
 } // namespace tb::mdl

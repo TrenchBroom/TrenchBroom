@@ -59,7 +59,7 @@ void EntityPropertyEditor::OnCurrentRowChanged()
 
 void EntityPropertyEditor::connectObservers()
 {
-  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &EntityPropertyEditor::documentDidChange);
 }
 

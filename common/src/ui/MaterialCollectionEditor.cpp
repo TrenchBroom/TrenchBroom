@@ -225,7 +225,7 @@ void MaterialCollectionEditor::updateButtons()
 
 void MaterialCollectionEditor::connectObservers()
 {
-  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::documentDidChange);
 
   auto& prefs = PreferenceManager::instance();

@@ -77,7 +77,7 @@ void IssueBrowser::connectObservers()
   m_notifierConnection +=
     map.mapWasSavedNotifier.connect(this, &IssueBrowser::mapWasSaved);
   m_notifierConnection +=
-    map.documentDidChangeNotifier.connect(this, &IssueBrowser::documentDidChange);
+    m_document.documentDidChangeNotifier.connect(this, &IssueBrowser::documentDidChange);
 }
 
 void IssueBrowser::mapWasSaved(mdl::Map&)

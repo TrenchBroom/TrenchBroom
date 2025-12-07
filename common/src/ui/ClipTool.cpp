@@ -984,8 +984,8 @@ bool ClipTool::doRemove()
 
 void ClipTool::connectObservers()
 {
-  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
-    this, &ClipTool::documentDidChange);
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect(this, &ClipTool::documentDidChange);
 }
 
 void ClipTool::documentDidChange()

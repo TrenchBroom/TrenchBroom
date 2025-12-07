@@ -155,7 +155,7 @@ void SmartPropertyEditorManager::registerEditor(
 
 void SmartPropertyEditorManager::connectObservers()
 {
-  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &SmartPropertyEditorManager::documentDidChange);
 }
 

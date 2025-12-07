@@ -141,7 +141,7 @@ void EntityBrowser::connectObservers()
   auto& map = m_document.map();
 
   m_notifierConnection +=
-    map.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
+    m_document.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
   m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowser::resourcesWereProcessed);
 
