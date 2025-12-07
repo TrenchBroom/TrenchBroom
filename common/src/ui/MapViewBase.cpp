@@ -151,15 +151,16 @@ void MapViewBase::bindEvents()
 
 void MapViewBase::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &MapViewBase::mapWasCreated);
+    m_document.documentWasCreatedNotifier.connect(this, &MapViewBase::documentWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &MapViewBase::mapWasLoaded);
+    m_document.documentWasLoadedNotifier.connect(this, &MapViewBase::documentWasLoaded);
   m_notifierConnection +=
-    map.mapWasClearedNotifier.connect(this, &MapViewBase::mapWasCleared);
+    m_document.documentWasClearedNotifier.connect(this, &MapViewBase::documentWasCleared);
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
+
+  auto& map = m_document.map();
   m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
     this, &MapViewBase::materialCollectionsDidChange);
   m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
@@ -199,6 +200,24 @@ void MapViewBase::createActionsAndUpdatePicking()
   createActions();
   updateActionStates();
   updatePickResult();
+}
+
+void MapViewBase::documentWasCreated()
+{
+  createActionsAndUpdatePicking();
+  update();
+}
+
+void MapViewBase::documentWasLoaded()
+{
+  createActionsAndUpdatePicking();
+  update();
+}
+
+void MapViewBase::documentWasCleared()
+{
+  createActionsAndUpdatePicking();
+  update();
 }
 
 void MapViewBase::documentDidChange()
@@ -259,24 +278,6 @@ void MapViewBase::preferenceDidChange(const std::filesystem::path& path)
   }
 
   updateActionBindings();
-  update();
-}
-
-void MapViewBase::mapWasCreated(mdl::Map&)
-{
-  createActionsAndUpdatePicking();
-  update();
-}
-
-void MapViewBase::mapWasLoaded(mdl::Map&)
-{
-  createActionsAndUpdatePicking();
-  update();
-}
-
-void MapViewBase::mapWasCleared(mdl::Map&)
-{
-  createActionsAndUpdatePicking();
   update();
 }
 

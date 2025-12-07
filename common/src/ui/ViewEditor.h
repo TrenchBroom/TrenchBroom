@@ -37,7 +37,6 @@ namespace mdl
 {
 class EditorContext;
 class EntityDefinitionManager;
-class Map;
 class SmartTag;
 
 struct EntityDefinition;
@@ -115,8 +114,9 @@ public:
 private:
   void connectObservers();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
+  void documentWasCreated();
+  void documentWasLoaded();
+  void documentWasCleared();
   void editorContextDidChange();
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);

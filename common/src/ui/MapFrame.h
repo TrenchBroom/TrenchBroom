@@ -171,10 +171,10 @@ private: // gui creation
 private: // notification handlers
   void connectObservers();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void mapWasSaved(mdl::Map& map);
-  void mapWasCleared(mdl::Map& map);
+  void documentWasCreated();
+  void documentWasLoaded();
+  void documentWasSaved();
+  void documentWasCleared();
   void mapModificationStateDidChange();
 
   void transactionDone(const std::string& name, bool observable);

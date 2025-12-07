@@ -196,9 +196,11 @@ void ModEditor::connectObservers()
   auto& map = m_document.map();
 
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &ModEditor::mapWasCreated);
+    m_document.documentWasCreatedNotifier.connect(this, &ModEditor::documentWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &ModEditor::mapWasLoaded);
+    m_document.documentWasLoadedNotifier.connect(this, &ModEditor::documentWasLoaded);
+  m_notifierConnection +=
+    m_document.documentWasClearedNotifier.connect(this, &ModEditor::documentWasCleared);
   m_notifierConnection +=
     map.modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
 
@@ -207,13 +209,19 @@ void ModEditor::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &ModEditor::preferenceDidChange);
 }
 
-void ModEditor::mapWasCreated(mdl::Map&)
+void ModEditor::documentWasCreated()
 {
   updateAvailableMods();
   updateMods();
 }
 
-void ModEditor::mapWasLoaded(mdl::Map&)
+void ModEditor::documentWasLoaded()
+{
+  updateAvailableMods();
+  updateMods();
+}
+
+void ModEditor::documentWasCleared()
 {
   updateAvailableMods();
   updateMods();

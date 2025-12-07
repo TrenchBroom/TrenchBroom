@@ -234,9 +234,12 @@ void ViewEditor::connectObservers()
 {
   auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &ViewEditor::mapWasCreated);
+    m_document.documentWasCreatedNotifier.connect(this, &ViewEditor::documentWasCreated);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &ViewEditor::mapWasLoaded);
+    m_document.documentWasLoadedNotifier.connect(this, &ViewEditor::documentWasLoaded);
+  m_notifierConnection +=
+    m_document.documentWasClearedNotifier.connect(this, &ViewEditor::documentWasCleared);
+
   m_notifierConnection +=
     map.editorContextDidChangeNotifier.connect(this, &ViewEditor::editorContextDidChange);
   m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
@@ -247,13 +250,19 @@ void ViewEditor::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &ViewEditor::preferenceDidChange);
 }
 
-void ViewEditor::mapWasCreated(mdl::Map&)
+void ViewEditor::documentWasCreated()
 {
   createGui();
   refreshGui();
 }
 
-void ViewEditor::mapWasLoaded(mdl::Map&)
+void ViewEditor::documentWasLoaded()
+{
+  createGui();
+  refreshGui();
+}
+
+void ViewEditor::documentWasCleared()
 {
   createGui();
   refreshGui();

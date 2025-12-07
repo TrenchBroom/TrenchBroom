@@ -249,17 +249,11 @@ void MapDocument::connectObservers()
   m_notifierConnection +=
     m_map->mapWasLoadedNotifier.connect(this, &MapDocument::mapWasLoaded);
   m_notifierConnection +=
+    m_map->mapWasSavedNotifier.connect(this, &MapDocument::mapWasSaved);
+  m_notifierConnection +=
     m_map->mapWasClearedNotifier.connect(this, &MapDocument::mapWasCleared);
   m_notifierConnection += m_map->entityDefinitionsDidChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsDidChange);
-}
-
-void MapDocument::mapWasCreated(mdl::Map&)
-{
-  createTagActions();
-  createEntityDefinitionActions();
-
-  documentDidChangeNotifier();
 }
 
 void MapDocument::transactionDone(const std::string&, const bool observable)
@@ -278,12 +272,27 @@ void MapDocument::transactionUndone(const std::string&, const bool observable)
   }
 }
 
+void MapDocument::mapWasCreated(mdl::Map&)
+{
+  createTagActions();
+  createEntityDefinitionActions();
+
+  documentWasCreatedNotifier();
+  documentDidChangeNotifier();
+}
+
 void MapDocument::mapWasLoaded(mdl::Map&)
 {
   createTagActions();
   createEntityDefinitionActions();
 
+  documentWasLoadedNotifier();
   documentDidChangeNotifier();
+}
+
+void MapDocument::mapWasSaved(mdl::Map&)
+{
+  documentWasSavedNotifier();
 }
 
 void MapDocument::mapWasCleared(mdl::Map&)
@@ -291,6 +300,7 @@ void MapDocument::mapWasCleared(mdl::Map&)
   clearTagActions();
   clearEntityDefinitionActions();
 
+  documentWasClearedNotifier();
   documentDidChangeNotifier();
 }
 

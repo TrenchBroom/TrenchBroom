@@ -137,7 +137,11 @@ private:
 
   void createActionsAndUpdatePicking();
 
+  void documentWasCreated();
+  void documentWasLoaded();
+  void documentWasCleared();
   void documentDidChange();
+
   void toolChanged(Tool& tool);
   void materialCollectionsDidChange();
   void entityDefinitionsDidChange();
@@ -147,9 +151,6 @@ private:
   void pointFileDidChange();
   void portalFileDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void mapWasCleared(mdl::Map& map);
 
 private: // shortcut setup
   void createActions();

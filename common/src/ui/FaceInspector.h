@@ -29,7 +29,6 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
 class Material;
 } // namespace mdl
 
@@ -70,8 +69,8 @@ private:
   void materialSelected(const mdl::Material* material);
 
   void connectObservers();
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
+  void documentWasCreated();
+  void documentWasLoaded();
 };
 
 } // namespace ui

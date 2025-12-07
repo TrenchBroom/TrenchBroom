@@ -198,22 +198,20 @@ void FaceInspector::materialSelected(const mdl::Material* material)
 
 void FaceInspector::connectObservers()
 {
-  auto& map = m_document.map();
-
+  m_notifierConnection += m_document.documentWasCreatedNotifier.connect(
+    this, &FaceInspector::documentWasCreated);
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &FaceInspector::mapWasCreated);
-  m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &FaceInspector::mapWasLoaded);
+    m_document.documentWasLoadedNotifier.connect(this, &FaceInspector::documentWasLoaded);
 }
 
-void FaceInspector::mapWasCreated(mdl::Map& map)
+void FaceInspector::documentWasCreated()
 {
-  resetMaterialBrowserInfo(map, m_materialBrowserInfo);
+  resetMaterialBrowserInfo(m_document.map(), m_materialBrowserInfo);
 }
 
-void FaceInspector::mapWasLoaded(mdl::Map& map)
+void FaceInspector::documentWasLoaded()
 {
-  resetMaterialBrowserInfo(map, m_materialBrowserInfo);
+  resetMaterialBrowserInfo(m_document.map(), m_materialBrowserInfo);
 }
 
 } // namespace tb::ui

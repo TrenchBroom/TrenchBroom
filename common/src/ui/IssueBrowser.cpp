@@ -73,14 +73,13 @@ QWidget* IssueBrowser::createTabBarPage(QWidget* parent)
 
 void IssueBrowser::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasSavedNotifier.connect(this, &IssueBrowser::mapWasSaved);
+    m_document.documentWasSavedNotifier.connect(this, &IssueBrowser::documentWasSaved);
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &IssueBrowser::documentDidChange);
 }
 
-void IssueBrowser::mapWasSaved(mdl::Map&)
+void IssueBrowser::documentWasSaved()
 {
   m_view->update();
 }

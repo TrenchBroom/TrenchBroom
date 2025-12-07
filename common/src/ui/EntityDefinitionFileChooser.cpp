@@ -167,22 +167,21 @@ void EntityDefinitionFileChooser::bindEvents()
 
 void EntityDefinitionFileChooser::connectObservers()
 {
-  auto& map = m_document.map();
+  m_notifierConnection += m_document.documentWasCreatedNotifier.connect(
+    this, &EntityDefinitionFileChooser::documentWasCreated);
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &EntityDefinitionFileChooser::documentWasLoaded);
 
-  m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasCreated);
-  m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasLoaded);
-  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.map().entityDefinitionsDidChangeNotifier.connect(
     this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
 }
 
-void EntityDefinitionFileChooser::mapWasCreated(mdl::Map&)
+void EntityDefinitionFileChooser::documentWasCreated()
 {
   updateControls();
 }
 
-void EntityDefinitionFileChooser::mapWasLoaded(mdl::Map&)
+void EntityDefinitionFileChooser::documentWasLoaded()
 {
   updateControls();
 }

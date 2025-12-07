@@ -32,8 +32,6 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
-
 struct SelectionChange;
 } // namespace mdl
 
@@ -137,8 +135,9 @@ private: // notification
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
+  void documentWasCreated();
+  void documentWasLoaded();
+  void documentWasCleared();
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void updateToolPage();

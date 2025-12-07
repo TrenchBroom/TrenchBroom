@@ -331,10 +331,13 @@ void MapViewToolBox::connectObservers()
   m_notifierConnection +=
     toolDeactivatedNotifier.connect(this, &MapViewToolBox::toolDeactivated);
 
-  m_notifierConnection +=
-    m_document.map().mapWasCreatedNotifier.connect(this, &MapViewToolBox::mapWasCreated);
-  m_notifierConnection +=
-    m_document.map().mapWasLoadedNotifier.connect(this, &MapViewToolBox::mapWasLoaded);
+  m_notifierConnection += m_document.documentWasCreatedNotifier.connect(
+    this, &MapViewToolBox::documentWasCreated);
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &MapViewToolBox::documentWasLoaded);
+  m_notifierConnection += m_document.documentWasClearedNotifier.connect(
+    this, &MapViewToolBox::documentWasCleared);
+
   m_notifierConnection += m_document.map().selectionDidChangeNotifier.connect(
     this, &MapViewToolBox::selectionDidChange);
 }
@@ -357,12 +360,17 @@ void MapViewToolBox::updateEditorContext()
   editorContext.setBlockSelection(assembleBrushToolActive());
 }
 
-void MapViewToolBox::mapWasCreated(mdl::Map&)
+void MapViewToolBox::documentWasCreated()
 {
   deactivateAllTools();
 }
 
-void MapViewToolBox::mapWasLoaded(mdl::Map&)
+void MapViewToolBox::documentWasLoaded()
+{
+  deactivateAllTools();
+}
+
+void MapViewToolBox::documentWasCleared()
 {
   deactivateAllTools();
 }

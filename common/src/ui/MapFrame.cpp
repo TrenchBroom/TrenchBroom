@@ -723,13 +723,16 @@ void MapFrame::connectObservers()
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &MapFrame::preferenceDidChange);
 
+  m_notifierConnection +=
+    m_document->documentWasCreatedNotifier.connect(this, &MapFrame::documentWasCreated);
+  m_notifierConnection +=
+    m_document->documentWasLoadedNotifier.connect(this, &MapFrame::documentWasLoaded);
+  m_notifierConnection +=
+    m_document->documentWasSavedNotifier.connect(this, &MapFrame::documentWasSaved);
+  m_notifierConnection +=
+    m_document->documentWasClearedNotifier.connect(this, &MapFrame::documentWasCleared);
+
   auto& map = m_document->map();
-  m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &MapFrame::mapWasCreated);
-  m_notifierConnection += map.mapWasLoadedNotifier.connect(this, &MapFrame::mapWasLoaded);
-  m_notifierConnection += map.mapWasSavedNotifier.connect(this, &MapFrame::mapWasSaved);
-  m_notifierConnection +=
-    map.mapWasClearedNotifier.connect(this, &MapFrame::mapWasCleared);
   m_notifierConnection += map.modificationStateDidChangeNotifier.connect(
     this, &MapFrame::mapModificationStateDidChange);
   m_notifierConnection +=
@@ -770,22 +773,14 @@ void MapFrame::connectObservers()
       this, &MapFrame::toolHandleSelectionChanged);
 }
 
-void MapFrame::mapWasCreated(mdl::Map&)
+void MapFrame::documentWasCreated()
 {
   updateTitle();
   updateActionState();
   updateUndoRedoActions();
 }
 
-void MapFrame::mapWasLoaded(mdl::Map&)
-{
-  updateTitle();
-  updateActionState();
-  updateUndoRedoActions();
-  updateRecentDocumentsMenu();
-}
-
-void MapFrame::mapWasSaved(mdl::Map&)
+void MapFrame::documentWasLoaded()
 {
   updateTitle();
   updateActionState();
@@ -793,7 +788,15 @@ void MapFrame::mapWasSaved(mdl::Map&)
   updateRecentDocumentsMenu();
 }
 
-void MapFrame::mapWasCleared(mdl::Map&)
+void MapFrame::documentWasSaved()
+{
+  updateTitle();
+  updateActionState();
+  updateUndoRedoActions();
+  updateRecentDocumentsMenu();
+}
+
+void MapFrame::documentWasCleared()
 {
   updateTitle();
   updateActionState();
