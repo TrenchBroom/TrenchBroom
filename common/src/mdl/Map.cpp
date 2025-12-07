@@ -1533,11 +1533,6 @@ void Map::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &Map::preferenceDidChange);
   m_notifierConnection += m_editorContext->editorContextDidChangeNotifier.connect(
     editorContextDidChangeNotifier);
-  m_notifierConnection += commandDoneNotifier.connect(this, &Map::commandDone);
-  m_notifierConnection += commandUndoneNotifier.connect(this, &Map::commandUndone);
-  m_notifierConnection += transactionDoneNotifier.connect(this, &Map::transactionDone);
-  m_notifierConnection +=
-    transactionUndoneNotifier.connect(this, &Map::transactionUndone);
 
   m_notifierConnection +=
     resourcesWereProcessedNotifier.connect(this, &Map::resourcesWereProcessed);
@@ -1769,26 +1764,6 @@ void Map::preferenceDidChange(const std::filesystem::path& path)
     reloadMaterials();
     setMaterials();
   }
-}
-
-void Map::commandDone(Command& command)
-{
-  m_logger.debug() << "Command '" << command.name() << "' executed";
-}
-
-void Map::commandUndone(UndoableCommand& command)
-{
-  m_logger.debug() << "Command '" << command.name() << "' undone";
-}
-
-void Map::transactionDone(const std::string& name, const bool)
-{
-  m_logger.debug() << "Transaction '" << name << "' executed";
-}
-
-void Map::transactionUndone(const std::string& name, const bool)
-{
-  m_logger.debug() << "Transaction '" << name << "' undone";
 }
 
 } // namespace tb::mdl

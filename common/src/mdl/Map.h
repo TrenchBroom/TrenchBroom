@@ -413,10 +413,6 @@ private: // observers
   void modsWillChange();
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void commandDone(Command& command);
-  void commandUndone(UndoableCommand& command);
-  void transactionDone(const std::string& name, bool observable);
-  void transactionUndone(const std::string& name, bool observable);
 };
 
 } // namespace mdl
