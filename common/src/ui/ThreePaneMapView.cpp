@@ -36,13 +36,12 @@ namespace tb::ui
 ThreePaneMapView::ThreePaneMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_document{document}
 {
-  createGui(toolBox, mapRenderer, contextManager);
+  createGui(toolBox, contextManager);
 }
 
 ThreePaneMapView::~ThreePaneMapView()
@@ -52,9 +51,7 @@ ThreePaneMapView::~ThreePaneMapView()
 }
 
 void ThreePaneMapView::createGui(
-  MapViewToolBox& toolBox,
-  render::MapRenderer& mapRenderer,
-  GLContextManager& contextManager)
+  MapViewToolBox& toolBox, GLContextManager& contextManager)
 {
   m_hSplitter = new Splitter{DrawKnob::No};
   m_hSplitter->setObjectName("ThreePaneMapView_HorizontalSplitter");
@@ -62,11 +59,11 @@ void ThreePaneMapView::createGui(
   m_vSplitter = new Splitter{Qt::Vertical, DrawKnob::No};
   m_vSplitter->setObjectName("ThreePaneMapView_VerticalSplitter");
 
-  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager};
-  m_mapViewXY = new MapView2D{
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XY};
-  m_mapViewZZ = new CyclingMapView{
-    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ};
+  m_mapView3D = new MapView3D{m_document, toolBox, contextManager};
+  m_mapViewXY =
+    new MapView2D{m_document, toolBox, contextManager, MapView2D::ViewPlane::XY};
+  m_mapViewZZ =
+    new CyclingMapView{m_document, toolBox, contextManager, CyclingMapView::View_ZZ};
 
   m_mapView3D->linkCamera(m_linkHelper);
   m_mapViewXY->linkCamera(m_linkHelper);

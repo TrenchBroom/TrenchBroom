@@ -100,14 +100,10 @@ namespace tb::ui
 const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
 MapViewBase::MapViewBase(
-  MapDocument& document,
-  MapViewToolBox& toolBox,
-  render::MapRenderer& renderer,
-  GLContextManager& contextManager)
+  MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager)
   : RenderView{contextManager}
   , m_document{document}
   , m_toolBox{toolBox}
-  , m_renderer{renderer}
   , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_updateActionStatesSignalDelayer{new SignalDelayer{this}}
 {
@@ -910,7 +906,8 @@ ActionContext::Type MapViewBase::actionContext() const
 
 void MapViewBase::flashSelection()
 {
-  auto animation = std::make_unique<FlashSelectionAnimation>(m_renderer, this, 180);
+  auto animation =
+    std::make_unique<FlashSelectionAnimation>(m_document.mapRenderer(), this, 180);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
@@ -1000,7 +997,7 @@ void MapViewBase::renderContents()
   auto renderBatch = render::RenderBatch{vboManager()};
 
   renderGrid(renderContext, renderBatch);
-  renderMap(m_renderer, renderContext, renderBatch);
+  renderMap(m_document.mapRenderer(), renderContext, renderBatch);
   renderTools(m_toolBox, renderContext, renderBatch);
 
   renderCoordinateSystem(renderContext, renderBatch);

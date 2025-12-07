@@ -69,10 +69,9 @@ namespace tb::ui
 MapView2D::MapView2D(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  render::MapRenderer& renderer,
   GLContextManager& contextManager,
   ViewPlane viewPlane)
-  : MapViewBase{document, toolBox, renderer, contextManager}
+  : MapViewBase{document, toolBox, contextManager}
   , m_camera{std::make_unique<render::OrthographicCamera>()}
 {
   connectObservers();

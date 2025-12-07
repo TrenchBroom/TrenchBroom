@@ -38,7 +38,6 @@ namespace tb::ui
 CyclingMapView::CyclingMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   const int views,
   QWidget* parent)
@@ -46,33 +45,30 @@ CyclingMapView::CyclingMapView(
   , m_document{document}
 {
   setObjectName("CyclingMapView");
-  createGui(toolBox, mapRenderer, contextManager, views);
+  createGui(toolBox, contextManager, views);
 }
 
 void CyclingMapView::createGui(
-  MapViewToolBox& toolBox,
-  render::MapRenderer& mapRenderer,
-  GLContextManager& contextManager,
-  const int views)
+  MapViewToolBox& toolBox, GLContextManager& contextManager, const int views)
 {
   if (views & View_3D)
   {
-    addMapView(new MapView3D{m_document, toolBox, mapRenderer, contextManager});
+    addMapView(new MapView3D{m_document, toolBox, contextManager});
   }
   if (views & View_XY)
   {
-    addMapView(new MapView2D{
-      m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XY});
+    addMapView(
+      new MapView2D{m_document, toolBox, contextManager, MapView2D::ViewPlane::XY});
   }
   if (views & View_XZ)
   {
-    addMapView(new MapView2D{
-      m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XZ});
+    addMapView(
+      new MapView2D{m_document, toolBox, contextManager, MapView2D::ViewPlane::XZ});
   }
   if (views & View_YZ)
   {
-    addMapView(new MapView2D{
-      m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::YZ});
+    addMapView(
+      new MapView2D{m_document, toolBox, contextManager, MapView2D::ViewPlane::YZ});
   }
 
   m_layout = new QStackedLayout{};

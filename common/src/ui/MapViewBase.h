@@ -80,7 +80,6 @@ public:
 protected:
   MapDocument& m_document;
   MapViewToolBox& m_toolBox;
-  render::MapRenderer& m_renderer;
 
   std::unique_ptr<AnimationManager> m_animationManager;
 
@@ -103,10 +102,7 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    MapDocument& document,
-    MapViewToolBox& toolBox,
-    render::MapRenderer& renderer,
-    GLContextManager& contextManager);
+    MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager);
 
   void setCompass(std::unique_ptr<render::Compass> compass);
 

@@ -51,6 +51,11 @@ class Node;
 class PickResult;
 } // namespace mdl
 
+namespace render
+{
+class MapRenderer;
+}
+
 namespace ui
 {
 class ViewEffectsService;
@@ -97,6 +102,8 @@ private:
 
   ViewEffectsService* m_viewEffectsService = nullptr;
 
+  std::unique_ptr<render::MapRenderer> m_mapRenderer;
+
   NotifierConnection m_notifierConnection;
 
 public:
@@ -106,6 +113,9 @@ public:
 public: // accessors and such
   mdl::Map& map();
   const mdl::Map& map() const;
+
+  render::MapRenderer& mapRenderer();
+  const render::MapRenderer& mapRenderer() const;
 
   Logger& logger();
 

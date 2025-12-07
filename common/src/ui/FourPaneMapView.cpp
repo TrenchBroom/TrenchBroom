@@ -33,13 +33,12 @@ namespace tb::ui
 FourPaneMapView::FourPaneMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_document{document}
 {
-  createGui(toolBox, mapRenderer, contextManager);
+  createGui(toolBox, contextManager);
 }
 
 FourPaneMapView::~FourPaneMapView()
@@ -49,10 +48,7 @@ FourPaneMapView::~FourPaneMapView()
   saveWindowState(m_rightVSplitter);
 }
 
-void FourPaneMapView::createGui(
-  MapViewToolBox& toolBox,
-  render::MapRenderer& mapRenderer,
-  GLContextManager& contextManager)
+void FourPaneMapView::createGui(MapViewToolBox& toolBox, GLContextManager& contextManager)
 {
   m_hSplitter = new Splitter{DrawKnob::No};
   m_hSplitter->setObjectName("FourPaneMapView_HorizontalSplitter");
@@ -63,13 +59,13 @@ void FourPaneMapView::createGui(
   m_rightVSplitter = new Splitter{Qt::Vertical, DrawKnob::No};
   m_rightVSplitter->setObjectName("FourPaneMapView_RightVerticalSplitter");
 
-  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager};
-  m_mapViewXY = new MapView2D{
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XY};
-  m_mapViewXZ = new MapView2D{
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XZ};
-  m_mapViewYZ = new MapView2D{
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::YZ};
+  m_mapView3D = new MapView3D{m_document, toolBox, contextManager};
+  m_mapViewXY =
+    new MapView2D{m_document, toolBox, contextManager, MapView2D::ViewPlane::XY};
+  m_mapViewXZ =
+    new MapView2D{m_document, toolBox, contextManager, MapView2D::ViewPlane::XZ};
+  m_mapViewYZ =
+    new MapView2D{m_document, toolBox, contextManager, MapView2D::ViewPlane::YZ};
 
   m_mapView3D->linkCamera(m_linkHelper);
   m_mapViewXY->linkCamera(m_linkHelper);

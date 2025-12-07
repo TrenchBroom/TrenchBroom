@@ -36,6 +36,7 @@
 #include "mdl/TagManager.h"
 #include "mdl/Transaction.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
+#include "render/MapRenderer.h"
 #include "ui/Actions.h"
 #include "ui/ViewEffectsService.h"
 
@@ -63,6 +64,7 @@ const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
 MapDocument::MapDocument(kdl::task_manager& taskManager)
   : m_map{std::make_unique<mdl::Map>(taskManager, *this)}
+  , m_mapRenderer{std::make_unique<render::MapRenderer>(*m_map)}
 {
   connectObservers();
 }
@@ -89,6 +91,15 @@ const mdl::Map& MapDocument::map() const
   return *m_map;
 }
 
+render::MapRenderer& MapDocument::mapRenderer()
+{
+  return *m_mapRenderer;
+}
+
+const render::MapRenderer& MapDocument::mapRenderer() const
+{
+  return *m_mapRenderer;
+}
 
 Logger& MapDocument::logger()
 {

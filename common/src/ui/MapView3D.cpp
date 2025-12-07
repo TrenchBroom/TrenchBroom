@@ -74,11 +74,8 @@ namespace tb::ui
 {
 
 MapView3D::MapView3D(
-  MapDocument& document,
-  MapViewToolBox& toolBox,
-  render::MapRenderer& renderer,
-  GLContextManager& contextManager)
-  : MapViewBase{document, toolBox, renderer, contextManager}
+  MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager)
+  : MapViewBase{document, toolBox, contextManager}
   , m_camera{std::make_unique<render::PerspectiveCamera>()}
   , m_flyModeHelper{std::make_unique<FlyModeHelper>(*m_camera)}
 {
