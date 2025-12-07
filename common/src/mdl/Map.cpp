@@ -957,32 +957,36 @@ void Map::updateAllFaceTags()
 void Map::updateFaceTagsAfterResourcesWhereProcessed(
   const std::vector<ResourceId>& resourceIds)
 {
-  // Some textures contain embedded default values for surface flags and such, so we must
-  // update the face tags after the resources have been processed.
+  if (auto* worldNode = world())
+  {
+    // Some textures contain embedded default values for surface flags and such, so we
+    // must update the face tags after the resources have been processed.
 
-  const auto materials = m_materialManager->findMaterialsByTextureResourceId(resourceIds);
-  const auto materialSet =
-    std::unordered_set<const Material*>{materials.begin(), materials.end()};
+    const auto materials =
+      m_materialManager->findMaterialsByTextureResourceId(resourceIds);
+    const auto materialSet =
+      std::unordered_set<const Material*>{materials.begin(), materials.end()};
 
-  m_world->accept(kdl::overload(
-    [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
-    [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
-    [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
-    [](auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
-    [&](BrushNode* brushNode) {
-      const auto& faces = brushNode->brush().faces();
-      for (size_t i = 0; i < faces.size(); ++i)
-      {
+    worldNode->accept(kdl::overload(
+      [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
+      [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
+      [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
+      [](auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
+      [&](BrushNode* brushNode) {
+        const auto& faces = brushNode->brush().faces();
+        for (size_t i = 0; i < faces.size(); ++i)
         {
-          const auto& face = faces[i];
-          if (materialSet.contains(face.material()))
           {
-            brushNode->updateFaceTags(i, *m_tagManager);
+            const auto& face = faces[i];
+            if (materialSet.contains(face.material()))
+            {
+              brushNode->updateFaceTags(i, *m_tagManager);
+            }
           }
         }
-      }
-    },
-    [](PatchNode*) {}));
+      },
+      [](PatchNode*) {}));
+  }
 }
 
 void Map::registerValidators()

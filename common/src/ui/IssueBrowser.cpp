@@ -103,17 +103,19 @@ void IssueBrowser::reload()
 
 void IssueBrowser::updateFilterFlags()
 {
-  const auto& map = m_document.map();
-  const auto* world = map.world();
-  const auto validators = world->registeredValidators();
-
   auto flags = QList<int>{};
   auto labels = QStringList{};
 
-  for (const auto* validator : validators)
+  const auto& map = m_document.map();
+  if (const auto* world = map.world())
   {
-    flags.push_back(validator->type());
-    labels.push_back(QString::fromStdString(validator->description()));
+    const auto validators = world->registeredValidators();
+
+    for (const auto* validator : validators)
+    {
+      flags.push_back(validator->type());
+      labels.push_back(QString::fromStdString(validator->description()));
+    }
   }
 
   m_filterEditor->setFlags(flags, labels);

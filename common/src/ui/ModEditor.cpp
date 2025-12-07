@@ -196,12 +196,15 @@ void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 
 void ModEditor::updateAvailableMods()
 {
-  m_map.game()->availableMods() | kdl::transform([&](auto availableMods) {
-    m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
-  }) | kdl::transform_error([&](auto e) {
-    m_availableMods.clear();
-    m_map.logger().error() << "Could not update available mods: " << e.msg;
-  });
+  if (const auto* game = m_map.game())
+  {
+    game->availableMods() | kdl::transform([&](auto availableMods) {
+      m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
+    }) | kdl::transform_error([&](auto e) {
+      m_availableMods.clear();
+      m_map.logger().error() << "Could not update available mods: " << e.msg;
+    });
+  }
 }
 
 void ModEditor::updateMods()
