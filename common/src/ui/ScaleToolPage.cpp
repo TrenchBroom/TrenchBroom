@@ -29,6 +29,7 @@
 
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ScaleTool.h"
 #include "ui/ViewConstants.h"
@@ -41,9 +42,9 @@
 namespace tb::ui
 {
 
-ScaleToolPage::ScaleToolPage(mdl::Map& map, QWidget* parent)
+ScaleToolPage::ScaleToolPage(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui();
   connectObservers();
@@ -52,13 +53,14 @@ ScaleToolPage::ScaleToolPage(mdl::Map& map, QWidget* parent)
 
 void ScaleToolPage::connectObservers()
 {
-  m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &ScaleToolPage::documentDidChange);
+  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
+    this, &ScaleToolPage::documentDidChange);
 }
 
 void ScaleToolPage::activate()
 {
-  const auto suggestedSize = m_map.selectionBounds().value_or(vm::bbox3d{}).size();
+  const auto suggestedSize =
+    m_document.map().selectionBounds().value_or(vm::bbox3d{}).size();
 
   m_sizeTextBox->setText(toString(suggestedSize));
   m_factorsTextBox->setText(toString(vm::vec3d{1, 1, 1}));
@@ -111,7 +113,7 @@ void ScaleToolPage::updateGui()
 
 bool ScaleToolPage::canScale() const
 {
-  return m_map.selection().hasNodes();
+  return m_document.map().selection().hasNodes();
 }
 
 std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
@@ -119,7 +121,7 @@ std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
   switch (m_scaleFactorsOrSize->currentIndex())
   {
   case 0:
-    if (const auto& selectionBounds = m_map.selectionBounds())
+    if (const auto& selectionBounds = m_document.map().selectionBounds())
     {
       if (const auto desiredSize = parse<double, 3>(m_sizeTextBox->text()))
       {
@@ -143,9 +145,11 @@ void ScaleToolPage::applyScale()
   {
     if (const auto scaleFactors = getScaleFactors())
     {
-      if (const auto& selectionBounds = m_map.selectionBounds())
+      auto& map = m_document.map();
+
+      if (const auto& selectionBounds = map.selectionBounds())
       {
-        scaleSelection(m_map, selectionBounds->center(), *scaleFactors);
+        scaleSelection(map, selectionBounds->center(), *scaleFactors);
       }
     }
   }

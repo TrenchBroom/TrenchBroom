@@ -33,21 +33,15 @@ class QLineEdit;
 class QComboBox;
 class QAbstractButton;
 
-namespace tb
+namespace tb::ui
 {
-namespace mdl
-{
-class Map;
-} // namespace mdl
-
-namespace ui
-{
+class MapDocument;
 
 class ScaleToolPage : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   QStackedLayout* m_book = nullptr;
 
@@ -60,7 +54,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ScaleToolPage(mdl::Map& map, QWidget* parent = nullptr);
+  explicit ScaleToolPage(MapDocument& document, QWidget* parent = nullptr);
   void activate();
 
 private:
@@ -77,5 +71,4 @@ private:
   void applyScale();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

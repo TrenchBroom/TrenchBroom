@@ -34,11 +34,11 @@ namespace tb
 namespace mdl
 {
 class ChoicePropertyDefinition;
-class Map;
 } // namespace mdl
 
 namespace ui
 {
+class MapDocument;
 
 class SmartChoiceEditor : public SmartPropertyEditor
 {
@@ -48,7 +48,7 @@ private:
   bool m_ignoreEditTextChanged = false;
 
 public:
-  explicit SmartChoiceEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit SmartChoiceEditor(MapDocument& document, QWidget* parent = nullptr);
 
   void comboBoxActivated(int index);
   void comboBoxEditTextChanged(const QString& text);

@@ -22,7 +22,6 @@
 #include "mdl/Grid.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
-#include "mdl/MapFixture.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Picking.h"
 #include "mdl/PasteType.h"
@@ -30,6 +29,7 @@
 #include "render/PerspectiveCamera.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
+#include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
 
@@ -59,7 +59,8 @@ void updatePickState(
 
 TEST_CASE("ClipToolController")
 {
-  auto fixture = mdl::MapFixture{};
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.document();
   auto& map = fixture.map();
   fixture.create();
 
@@ -81,7 +82,7 @@ TEST_CASE("ClipToolController")
             )";
   REQUIRE(paste(map, data) == mdl::PasteType::Node);
 
-  auto tool = ClipTool{map};
+  auto tool = ClipTool{document};
   auto controller = ClipToolController3D{tool};
 
   CHECK(tool.activate());

@@ -32,16 +32,10 @@ class QLabel;
 class QLineEdit;
 class QRadioButton;
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-} // namespace mdl
-
-namespace ui
+namespace tb::ui
 {
 class CollapsibleTitledPanel;
+class MapDocument;
 
 class MapInspector : public TabBookPage
 {
@@ -51,14 +45,14 @@ private:
   CollapsibleTitledPanel* m_modEditor = nullptr;
 
 public:
-  explicit MapInspector(mdl::Map& map, QWidget* parent = nullptr);
+  explicit MapInspector(MapDocument& document, QWidget* parent = nullptr);
   ~MapInspector() override;
 
 private:
-  void createGui(mdl::Map& map);
-  QWidget* createLayerEditor(mdl::Map& map);
-  CollapsibleTitledPanel* createMapPropertiesEditor(mdl::Map& map);
-  CollapsibleTitledPanel* createModEditor(mdl::Map& map);
+  void createGui(MapDocument& document);
+  QWidget* createLayerEditor(MapDocument& document);
+  CollapsibleTitledPanel* createMapPropertiesEditor(MapDocument& document);
+  CollapsibleTitledPanel* createModEditor(MapDocument& document);
 };
 
 /**
@@ -68,7 +62,7 @@ class MapPropertiesEditor : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   bool m_updatingGui = false;
 
   QRadioButton* m_softBoundsDisabled = nullptr;
@@ -82,7 +76,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapPropertiesEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit MapPropertiesEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   std::optional<vm::bbox3d> parseLineEdits();
@@ -95,5 +89,4 @@ private:
   void updateGui();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

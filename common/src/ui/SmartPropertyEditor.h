@@ -29,24 +29,24 @@ namespace tb
 namespace mdl
 {
 class EntityNodeBase;
-class Map;
 } // namespace mdl
 
 namespace ui
 {
+class MapDocument;
 
 class SmartPropertyEditor : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   std::string m_propertyKey;
   std::vector<mdl::EntityNodeBase*> m_nodes;
   bool m_active = false;
 
 public:
-  explicit SmartPropertyEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit SmartPropertyEditor(MapDocument& document, QWidget* parent = nullptr);
   ~SmartPropertyEditor() override;
 
   bool usesPropertyKey(const std::string& propertyKey) const;
@@ -56,7 +56,7 @@ public:
   void deactivate();
 
 protected:
-  mdl::Map& map();
+  MapDocument& document();
   const std::string& propertyKey() const;
   const std::vector<mdl::EntityNodeBase*> nodes() const;
   void addOrUpdateProperty(const std::string& value);

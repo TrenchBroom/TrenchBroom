@@ -102,8 +102,6 @@ void MapView3D::initializeCamera()
 
 void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
 {
-  auto& map = m_document.map();
-
   addToolController(std::make_unique<CameraTool3D>(*m_camera));
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
@@ -119,10 +117,10 @@ void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(std::make_unique<FaceToolController>(toolBox.faceTool()));
   addToolController(
     std::make_unique<CreateEntityToolController3D>(toolBox.createEntityTool()));
-  addToolController(std::make_unique<SetBrushFaceAttributesTool>(map));
-  addToolController(std::make_unique<SelectionTool>(map));
+  addToolController(std::make_unique<SetBrushFaceAttributesTool>(m_document));
+  addToolController(std::make_unique<SelectionTool>(m_document));
   addToolController(
-    std::make_unique<DrawShapeToolController3D>(toolBox.drawShapeTool(), map));
+    std::make_unique<DrawShapeToolController3D>(toolBox.drawShapeTool(), m_document));
 }
 
 void MapView3D::connectObservers()

@@ -24,16 +24,10 @@
 
 #include <memory>
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
+namespace tb::ui
 {
 class GestureTracker;
+class MapDocument;
 
 /**
  * Functionality summary:
@@ -51,10 +45,10 @@ class GestureTracker;
 class SetBrushFaceAttributesTool : public ToolController, public Tool
 {
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
 public:
-  explicit SetBrushFaceAttributesTool(mdl::Map& map);
+  explicit SetBrushFaceAttributesTool(MapDocument& document);
 
 private:
   Tool& tool() override;
@@ -71,5 +65,4 @@ private:
   bool canCopyAttributesFromSelection(const InputState& inputState) const;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

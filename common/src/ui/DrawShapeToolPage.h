@@ -27,14 +27,7 @@
 class QStackedLayout;
 class QToolButton;
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
+namespace tb::ui
 {
 class DrawShapeToolExtensionManager;
 
@@ -42,7 +35,6 @@ class DrawShapeToolPage : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
   DrawShapeToolExtensionManager& m_extensionManager;
 
   QToolButton* m_extensionButton = nullptr;
@@ -54,14 +46,11 @@ public:
   Notifier<> applyParametersNotifier;
 
   explicit DrawShapeToolPage(
-    mdl::Map& map,
-    DrawShapeToolExtensionManager& extensionManager,
-    QWidget* parent = nullptr);
+    DrawShapeToolExtensionManager& extensionManager, QWidget* parent = nullptr);
 
 private:
   void createGui();
   void currentExtensionDidChange(size_t index);
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

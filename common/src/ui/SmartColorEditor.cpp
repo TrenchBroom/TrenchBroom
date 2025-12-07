@@ -42,6 +42,7 @@
 #include "ui/BorderLine.h"
 #include "ui/ColorButton.h"
 #include "ui/ColorTable.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -128,8 +129,8 @@ std::vector<QColor> collectColors(
 
 } // namespace
 
-SmartColorEditor::SmartColorEditor(mdl::Map& map, QWidget* parent)
-  : SmartPropertyEditor{map, parent}
+SmartColorEditor::SmartColorEditor(MapDocument& document, QWidget* parent)
+  : SmartPropertyEditor{document, parent}
 {
   createGui();
 }
@@ -270,10 +271,11 @@ void SmartColorEditor::updateColorRange(const std::vector<mdl::EntityNodeBase*>&
 
 void SmartColorEditor::updateColorHistory()
 {
-  m_colorHistory->setColors(collectColors(std::vector{map().world()}, propertyKey()));
+  auto& map = document().map();
 
-  const auto selectedColors =
-    collectColors(map().selection().allEntities(), propertyKey());
+  m_colorHistory->setColors(collectColors(std::vector{map.world()}, propertyKey()));
+
+  const auto selectedColors = collectColors(map.selection().allEntities(), propertyKey());
   m_colorHistory->setSelection(selectedColors);
   m_colorPicker->setColor(
     !selectedColors.empty() ? selectedColors.back() : QColor(Qt::black));
@@ -284,17 +286,17 @@ void SmartColorEditor::setColor(const QColor& qColor)
   const auto rawColor = fromQColor(qColor);
   const auto requestedColor =
     m_floatRadio->isChecked() ? Rgb{rawColor.to<RgbF>()} : Rgb{rawColor.to<RgbB>()};
-  setEntityColorProperty(map(), propertyKey(), requestedColor);
+  setEntityColorProperty(document().map(), propertyKey(), requestedColor);
 }
 
 void SmartColorEditor::floatRangeRadioButtonClicked()
 {
-  convertEntityColorRange(map(), propertyKey(), mdl::ColorRange::Float);
+  convertEntityColorRange(document().map(), propertyKey(), mdl::ColorRange::Float);
 }
 
 void SmartColorEditor::byteRangeRadioButtonClicked()
 {
-  convertEntityColorRange(map(), propertyKey(), mdl::ColorRange::Byte);
+  convertEntityColorRange(document().map(), propertyKey(), mdl::ColorRange::Byte);
 }
 
 void SmartColorEditor::colorPickerChanged(const QColor& color)

@@ -394,7 +394,7 @@ void MapFrame::createGui()
   // SwitchableMapViewContainer should have constructed a MapViewBase
   contract_assert(m_currentMapView);
 
-  m_inspector = new Inspector{document().map(), *m_contextManager};
+  m_inspector = new Inspector{document(), *m_contextManager};
   m_inspector->setObjectName("Inspector");
 
   m_mapView->connectTopWidgets(m_inspector);
@@ -1682,7 +1682,7 @@ bool MapFrame::canRenameSelectedGroups() const
 
 void MapFrame::replaceMaterial()
 {
-  auto dialog = ReplaceMaterialDialog{document().map(), *m_contextManager, this};
+  auto dialog = ReplaceMaterialDialog{document(), *m_contextManager, this};
   dialog.exec();
 }
 

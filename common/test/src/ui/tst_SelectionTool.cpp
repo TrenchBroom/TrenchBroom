@@ -29,7 +29,6 @@
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
-#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Picking.h"
 #include "mdl/Map_Selection.h"
@@ -37,6 +36,7 @@
 #include "mdl/WorldNode.h"
 #include "render/OrthographicCamera.h"
 #include "ui/InputState.h"
+#include "ui/MapDocumentFixture.h"
 #include "ui/PickRequest.h"
 #include "ui/SelectionTool.h"
 
@@ -53,7 +53,8 @@ using namespace Catch::Matchers;
 
 TEST_CASE("SelectionTool")
 {
-  auto fixture = mdl::MapFixture{};
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.document();
   auto& map = fixture.map();
   fixture.create();
 
@@ -65,7 +66,7 @@ TEST_CASE("SelectionTool")
       map.worldBounds(),
       map.game()->config().faceAttribsConfig.defaults};
 
-    auto tool = SelectionTool{map};
+    auto tool = SelectionTool{document};
 
     GIVEN("A group node")
     {
@@ -461,7 +462,7 @@ TEST_CASE("SelectionTool")
       map.worldBounds(),
       map.game()->config().faceAttribsConfig.defaults};
 
-    auto tool = SelectionTool{map};
+    auto tool = SelectionTool{document};
 
     GIVEN("A brush visible behind the hidden face of another brush")
     {

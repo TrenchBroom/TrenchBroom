@@ -19,8 +19,8 @@
 
 #include "SmartPropertyEditor.h"
 
-#include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
+#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 
@@ -29,9 +29,9 @@
 namespace tb::ui
 {
 
-SmartPropertyEditor::SmartPropertyEditor(mdl::Map& map, QWidget* parent)
+SmartPropertyEditor::SmartPropertyEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
@@ -62,9 +62,9 @@ bool SmartPropertyEditor::usesPropertyKey(const std::string& propertyKey) const
   return m_propertyKey == propertyKey;
 }
 
-mdl::Map& SmartPropertyEditor::map()
+MapDocument& SmartPropertyEditor::document()
 {
-  return m_map;
+  return m_document;
 }
 
 const std::string& SmartPropertyEditor::propertyKey() const
@@ -81,7 +81,7 @@ void SmartPropertyEditor::addOrUpdateProperty(const std::string& value)
 {
   contract_pre(m_active);
 
-  setEntityProperty(map(), m_propertyKey, value);
+  setEntityProperty(document().map(), m_propertyKey, value);
 }
 
 } // namespace tb::ui

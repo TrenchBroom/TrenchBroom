@@ -30,15 +30,9 @@ class QCheckBox;
 class QComboBox;
 class QPushButton;
 
-namespace tb
+namespace tb::ui
 {
-namespace mdl
-{
-class Map;
-} // namespace mdl
-
-namespace ui
-{
+class MapDocument;
 class RotateTool;
 class SpinControl;
 
@@ -46,7 +40,7 @@ class RotateToolPage : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   RotateTool& m_tool;
 
   QComboBox* m_recentlyUsedCentersList = nullptr;
@@ -62,7 +56,7 @@ private:
   std::vector<vm::vec3d> m_recentlyUsedCenters;
 
 public:
-  RotateToolPage(mdl::Map& map, RotateTool& tool, QWidget* parent = nullptr);
+  RotateToolPage(MapDocument& document, RotateTool& tool, QWidget* parent = nullptr);
 
 private:
   void connectObservers();
@@ -84,5 +78,4 @@ private:
   vm::vec3d getAxis() const;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

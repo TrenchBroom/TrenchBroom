@@ -39,6 +39,7 @@
 #include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 
@@ -232,10 +233,10 @@ public:
 
 } // namespace
 
-SelectionTool::SelectionTool(mdl::Map& map)
+SelectionTool::SelectionTool(MapDocument& document)
   : ToolController{}
   , Tool{true}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
@@ -253,7 +254,8 @@ bool SelectionTool::mouseClick(const InputState& inputState)
 {
   using namespace mdl::HitFilters;
 
-  const auto& editorContext = m_map.editorContext();
+  auto& map = m_document.map();
+  const auto& editorContext = map.editorContext();
 
   if (!handleClick(inputState, editorContext))
   {
@@ -272,18 +274,18 @@ bool SelectionTool::mouseClick(const InputState& inputState)
       {
         if (isMultiClick(inputState))
         {
-          const auto objects = m_map.selection().hasNodes();
+          const auto objects = map.selection().hasNodes();
           if (objects)
           {
             if (brushNode->selected())
             {
-              deselectBrushFaces(m_map, {*faceHandle});
+              deselectBrushFaces(map, {*faceHandle});
             }
             else
             {
-              auto transaction = mdl::Transaction{m_map, "Select Brush Face"};
-              convertToFaceSelection(m_map);
-              selectBrushFaces(m_map, {*faceHandle});
+              auto transaction = mdl::Transaction{map, "Select Brush Face"};
+              convertToFaceSelection(map);
+              selectBrushFaces(map, {*faceHandle});
               transaction.commit();
             }
           }
@@ -291,26 +293,26 @@ bool SelectionTool::mouseClick(const InputState& inputState)
           {
             if (face.selected())
             {
-              deselectBrushFaces(m_map, {*faceHandle});
+              deselectBrushFaces(map, {*faceHandle});
             }
             else
             {
-              selectBrushFaces(m_map, {*faceHandle});
+              selectBrushFaces(map, {*faceHandle});
             }
           }
         }
         else
         {
-          auto transaction = mdl::Transaction{m_map, "Select Brush Face"};
-          deselectAll(m_map);
-          selectBrushFaces(m_map, {*faceHandle});
+          auto transaction = mdl::Transaction{map, "Select Brush Face"};
+          deselectAll(map);
+          selectBrushFaces(map, {*faceHandle});
           transaction.commit();
         }
       }
     }
     else
     {
-      deselectAll(m_map);
+      deselectAll(map);
     }
   }
   else
@@ -326,31 +328,31 @@ bool SelectionTool::mouseClick(const InputState& inputState)
         {
           if (node->selected())
           {
-            deselectNodes(m_map, {node});
+            deselectNodes(map, {node});
           }
           else
           {
-            auto transaction = mdl::Transaction{m_map, "Select Object"};
-            if (m_map.selection().hasBrushFaces())
+            auto transaction = mdl::Transaction{map, "Select Object"};
+            if (map.selection().hasBrushFaces())
             {
-              deselectAll(m_map);
+              deselectAll(map);
             }
-            selectNodes(m_map, {node});
+            selectNodes(map, {node});
             transaction.commit();
           }
         }
         else
         {
-          auto transaction = mdl::Transaction{m_map, "Select Object"};
-          deselectAll(m_map);
-          selectNodes(m_map, {node});
+          auto transaction = mdl::Transaction{map, "Select Object"};
+          deselectAll(map);
+          selectNodes(map, {node});
           transaction.commit();
         }
       }
     }
     else
     {
-      deselectAll(m_map);
+      deselectAll(map);
     }
   }
 
@@ -361,7 +363,8 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
 {
   using namespace mdl::HitFilters;
 
-  const auto& editorContext = m_map.editorContext();
+  auto& map = m_document.map();
+  const auto& editorContext = map.editorContext();
 
   if (!handleClick(inputState, editorContext))
   {
@@ -379,17 +382,17 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       {
         if (isMultiClick(inputState))
         {
-          if (m_map.selection().hasNodes())
+          if (map.selection().hasNodes())
           {
-            convertToFaceSelection(m_map);
+            convertToFaceSelection(map);
           }
-          selectBrushFaces(m_map, mdl::toHandles(brushNode));
+          selectBrushFaces(map, mdl::toHandles(brushNode));
         }
         else
         {
-          auto transaction = mdl::Transaction{m_map, "Select Brush Faces"};
-          deselectAll(m_map);
-          selectBrushFaces(m_map, mdl::toHandles(brushNode));
+          auto transaction = mdl::Transaction{map, "Select Brush Faces"};
+          deselectAll(map);
+          selectBrushFaces(map, mdl::toHandles(brushNode));
           transaction.commit();
         }
       }
@@ -397,7 +400,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
   }
   else
   {
-    const auto* currentGroup = m_map.editorContext().currentGroup();
+    const auto* currentGroup = map.editorContext().currentGroup();
     const auto inGroup = currentGroup != nullptr;
     const auto hit =
       firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
@@ -413,7 +416,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
         {
           if (editorContext.selectable(*groupNode))
           {
-            openGroup(m_map, *groupNode);
+            openGroup(map, *groupNode);
           }
         }
         else
@@ -425,17 +428,17 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
             const auto siblings = collectSelectableChildren(editorContext, container);
             if (isMultiClick(inputState))
             {
-              if (m_map.selection().hasBrushFaces())
+              if (map.selection().hasBrushFaces())
               {
-                deselectAll(m_map);
+                deselectAll(map);
               }
-              selectNodes(m_map, siblings);
+              selectNodes(map, siblings);
             }
             else
             {
-              auto transaction = mdl::Transaction{m_map, "Select Brushes"};
-              deselectAll(m_map);
-              selectNodes(m_map, siblings);
+              auto transaction = mdl::Transaction{map, "Select Brushes"};
+              deselectAll(map);
+              selectNodes(map, siblings);
               transaction.commit();
             }
           }
@@ -443,12 +446,12 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       }
       else if (inGroup)
       {
-        closeGroup(m_map);
+        closeGroup(map);
       }
     }
     else if (inGroup)
     {
-      closeGroup(m_map);
+      closeGroup(map);
     }
   }
 
@@ -457,15 +460,17 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
 
 void SelectionTool::mouseScroll(const InputState& inputState)
 {
+  auto& map = m_document.map();
+
   if (inputState.checkModifierKeys(
         ModifierKeyPressed::Yes, ModifierKeyPressed::Yes, ModifierKeyPressed::No))
   {
-    adjustGrid(inputState, m_map.grid());
+    adjustGrid(inputState, map.grid());
   }
   else if (inputState.checkModifierKeys(
              ModifierKeyPressed::Yes, ModifierKeyPressed::No, ModifierKeyPressed::No))
   {
-    drillSelection(inputState, m_map);
+    drillSelection(inputState, map);
   }
 }
 
@@ -474,7 +479,8 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
 {
   using namespace mdl::HitFilters;
 
-  const auto& editorContext = m_map.editorContext();
+  auto& map = m_document.map();
+  const auto& editorContext = map.editorContext();
 
   if (!handleClick(inputState, editorContext) || !isMultiClick(inputState))
   {
@@ -490,18 +496,18 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
       const auto& face = faceHandle->face();
       if (editorContext.selectable(*brushNode, face))
       {
-        m_map.startTransaction(
+        map.startTransaction(
           "Drag Select Brush Faces", mdl::TransactionScope::LongRunning);
-        if (m_map.selection().hasAny() && !m_map.selection().hasBrushFaces())
+        if (map.selection().hasAny() && !map.selection().hasBrushFaces())
         {
-          deselectAll(m_map);
+          deselectAll(map);
         }
         if (!face.selected())
         {
-          selectBrushFaces(m_map, {*faceHandle});
+          selectBrushFaces(map, {*faceHandle});
         }
 
-        return std::make_unique<PaintSelectionDragTracker>(m_map);
+        return std::make_unique<PaintSelectionDragTracker>(map);
       }
     }
   }
@@ -517,17 +523,17 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
     auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
     if (editorContext.selectable(*node))
     {
-      m_map.startTransaction("Drag Select Objects", mdl::TransactionScope::LongRunning);
-      if (m_map.selection().hasAny() && !m_map.selection().hasNodes())
+      map.startTransaction("Drag Select Objects", mdl::TransactionScope::LongRunning);
+      if (map.selection().hasAny() && !map.selection().hasNodes())
       {
-        deselectAll(m_map);
+        deselectAll(map);
       }
       if (!node->selected())
       {
-        selectNodes(m_map, {node});
+        selectNodes(map, {node});
       }
 
-      return std::make_unique<PaintSelectionDragTracker>(m_map);
+      return std::make_unique<PaintSelectionDragTracker>(map);
     }
   }
 

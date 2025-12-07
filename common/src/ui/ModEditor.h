@@ -41,12 +41,13 @@ class Map;
 
 namespace ui
 {
+class MapDocument;
 
 class ModEditor : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   QListWidget* m_availableModList = nullptr;
   QListWidget* m_enabledModList = nullptr;
@@ -61,7 +62,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ModEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit ModEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();

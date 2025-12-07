@@ -50,8 +50,7 @@ SwitchableMapViewContainer::SwitchableMapViewContainer(
   , m_document{document}
   , m_contextManager{contextManager}
   , m_mapViewBar{new MapViewBar(m_document)}
-  , m_toolBox{std::make_unique<MapViewToolBox>(
-      m_document.map(), m_mapViewBar->toolBook())}
+  , m_toolBox{std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())}
   , m_mapRenderer{std::make_unique<render::MapRenderer>(m_document.map())}
   , m_activationTracker{std::make_unique<MapViewActivationTracker>()}
 {

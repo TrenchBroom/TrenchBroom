@@ -23,9 +23,9 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
-#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "ui/MapDocumentFixture.h"
 #include "ui/RotateTool.h"
 
 #include "catch/CatchConfig.h"
@@ -37,11 +37,12 @@ namespace tb::ui
 
 TEST_CASE("RotateTool")
 {
-  auto fixture = mdl::MapFixture{};
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.document();
   auto& map = fixture.map();
   fixture.create();
 
-  auto tool = RotateTool{map};
+  auto tool = RotateTool{document};
   tool.activate();
 
   SECTION("resetRotationCenter")

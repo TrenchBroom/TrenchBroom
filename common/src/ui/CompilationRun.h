@@ -23,7 +23,6 @@
 
 #include "Result.h"
 
-#include <memory>
 #include <string>
 
 class QTextEdit;

@@ -29,14 +29,7 @@ class QWidget;
 class QPushButton;
 class QRadioButton;
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
+namespace tb::ui
 {
 class ColorButton;
 class ColorTable;
@@ -55,7 +48,7 @@ private:
   ColorTable* m_colorHistory = nullptr;
 
 public:
-  explicit SmartColorEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit SmartColorEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();
@@ -72,5 +65,4 @@ private:
   void colorTableSelected(QColor color);
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

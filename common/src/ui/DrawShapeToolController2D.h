@@ -23,27 +23,20 @@
 
 #include <memory>
 
-namespace tb
+namespace tb::ui
 {
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
-{
-
 class DrawShapeTool;
 class GestureTracker;
+class MapDocument;
 
 class DrawShapeToolController2D : public ToolController
 {
 private:
   DrawShapeTool& m_tool;
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
 public:
-  DrawShapeToolController2D(DrawShapeTool& tool, mdl::Map& map);
+  DrawShapeToolController2D(DrawShapeTool& tool, MapDocument& document);
 
 private:
   Tool& tool() override;
@@ -54,5 +47,4 @@ private:
   bool cancel() override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

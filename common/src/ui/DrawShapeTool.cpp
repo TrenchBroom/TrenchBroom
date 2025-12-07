@@ -28,6 +28,7 @@
 #include "mdl/Transaction.h"
 #include "ui/DrawShapeToolExtension.h"
 #include "ui/DrawShapeToolPage.h"
+#include "ui/MapDocument.h"
 
 #include "kd/ranges/to.h"
 #include "kd/result.h"
@@ -37,9 +38,9 @@
 namespace tb::ui
 {
 
-DrawShapeTool::DrawShapeTool(mdl::Map& map)
-  : CreateBrushesToolBase{true, map}
-  , m_extensionManager{map}
+DrawShapeTool::DrawShapeTool(MapDocument& document)
+  : CreateBrushesToolBase{true, document}
+  , m_extensionManager{document}
 {
 }
 
@@ -53,13 +54,13 @@ void DrawShapeTool::update(const vm::bbox3d& bounds)
       | kdl::ranges::to<std::vector>());
   }) | kdl::transform_error([&](auto e) {
     clearBrushes();
-    m_map.logger().error() << "Could not update brushes: " << e;
+    m_document.logger().error() << "Could not update brushes: " << e;
   });
 }
 
 bool DrawShapeTool::cancel()
 {
-  if (m_map.selection().hasAny())
+  if (m_document.map().selection().hasAny())
   {
     // Let the map view deselect before we switch the shapes
     return false;
@@ -70,9 +71,10 @@ bool DrawShapeTool::cancel()
 
 QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
 {
-  auto* page = new DrawShapeToolPage{m_map, m_extensionManager, parent};
-  m_notifierConnection += page->applyParametersNotifier.connect([&]() {
-    if (const auto& selectionBounds = m_map.selectionBounds())
+  auto* page = new DrawShapeToolPage{m_extensionManager, parent};
+  m_notifierConnection += page->applyParametersNotifier.connect([this]() {
+    auto& map = m_document.map();
+    if (const auto& selectionBounds = map.selectionBounds())
     {
       m_extensionManager.createBrushes(*selectionBounds)
         | kdl::transform([](auto brushes) {
@@ -82,23 +84,23 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
                    | kdl::ranges::to<std::vector>();
           })
         | kdl::transform([&](auto brushNodes) {
-            auto transaction = mdl::Transaction{m_map, "Update Brushes"};
+            auto transaction = mdl::Transaction{map, "Update Brushes"};
 
-            removeSelectedNodes(m_map);
+            removeSelectedNodes(map);
             const auto addedNodes = addNodes(
-              m_map,
+              map,
               {
-                {parentForNodes(m_map),
-                 brushNodes | std::views::transform([](auto& node) {
-                   return static_cast<mdl::Node*>(node.release());
-                 }) | kdl::ranges::to<std::vector>()},
+                {parentForNodes(map), brushNodes | std::views::transform([](auto& node) {
+                                        return static_cast<mdl::Node*>(node.release());
+                                      }) | kdl::ranges::to<std::vector>()},
               });
-            selectNodes(m_map, addedNodes);
+            selectNodes(map, addedNodes);
 
             transaction.commit();
           })
-        | kdl::transform_error(
-          [&](auto e) { m_map.logger().error() << "Could not update brushes: " << e; });
+        | kdl::transform_error([&](auto e) {
+            m_document.logger().error() << "Could not update brushes: " << e;
+          });
     }
   });
 

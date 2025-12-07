@@ -29,11 +29,12 @@
 namespace tb::ui
 {
 class FaceHandleManager;
+class MapDocument;
 
 class FaceTool : public VertexToolBase<vm::polygon3d>
 {
 public:
-  explicit FaceTool(mdl::Map& map);
+  explicit FaceTool(MapDocument& document);
 
 public:
   std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;

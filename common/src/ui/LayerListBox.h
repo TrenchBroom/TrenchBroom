@@ -33,17 +33,17 @@ namespace tb
 namespace mdl
 {
 class LayerNode;
-class Map;
 } // namespace mdl
 
 namespace ui
 {
+class MapDocument;
 
 class LayerListBoxWidget : public ControlListBoxItemRenderer
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   mdl::LayerNode* m_layer = nullptr;
   QAbstractButton* m_activeButton = nullptr;
   QLabel* m_nameText = nullptr;
@@ -53,7 +53,8 @@ private:
   QAbstractButton* m_lockButton = nullptr;
 
 public:
-  LayerListBoxWidget(mdl::Map& map, mdl::LayerNode* layer, QWidget* parent = nullptr);
+  LayerListBoxWidget(
+    MapDocument& document, mdl::LayerNode* layer, QWidget* parent = nullptr);
 
   void updateItem() override;
 
@@ -78,12 +79,12 @@ class LayerListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit LayerListBox(mdl::Map& map, QWidget* parent = nullptr);
+  explicit LayerListBox(MapDocument& document, QWidget* parent = nullptr);
 
   mdl::LayerNode* selectedLayer() const;
   void setSelectedLayer(mdl::LayerNode* layer);

@@ -35,11 +35,11 @@ namespace tb
 namespace mdl
 {
 class EntityNodeBase;
-class Map;
 } // namespace mdl
 
 namespace ui
 {
+class MapDocument;
 
 enum class ValueState
 {
@@ -146,10 +146,10 @@ private:
   std::vector<PropertyRow> m_rows;
   bool m_showDefaultRows;
   bool m_shouldShowProtectedProperties;
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
 public:
-  explicit EntityPropertyModel(mdl::Map& map, QObject* parent = nullptr);
+  explicit EntityPropertyModel(MapDocument& document, QObject* parent = nullptr);
 
   bool showDefaultRows() const;
   void setShowDefaultRows(bool showDefaultRows);

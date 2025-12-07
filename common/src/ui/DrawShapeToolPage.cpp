@@ -34,9 +34,8 @@ namespace tb::ui
 {
 
 DrawShapeToolPage::DrawShapeToolPage(
-  mdl::Map& map, DrawShapeToolExtensionManager& extensionManager, QWidget* parent)
+  DrawShapeToolExtensionManager& extensionManager, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
   , m_extensionManager{extensionManager}
 {
   createGui();

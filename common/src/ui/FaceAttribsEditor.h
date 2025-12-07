@@ -28,17 +28,11 @@ class QLabel;
 class QLineEdit;
 class QGridLayout;
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-} // namespace mdl
-
-namespace ui
+namespace tb::ui
 {
 class FlagsPopupEditor;
 class GLContextManager;
+class MapDocument;
 class SignalDelayer;
 class SpinControl;
 class UVEditor;
@@ -47,7 +41,7 @@ class FaceAttribsEditor : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   UVEditor* m_uvEditor = nullptr;
   QLabel* m_materialName = nullptr;
@@ -82,7 +76,7 @@ private:
 
 public:
   FaceAttribsEditor(
-    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 
@@ -128,5 +122,4 @@ private:
   std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

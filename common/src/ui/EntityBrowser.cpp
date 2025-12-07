@@ -34,6 +34,7 @@
 #include "mdl/Map.h"
 #include "mdl/WorldNode.h"
 #include "ui/EntityBrowserView.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -44,9 +45,9 @@ namespace tb::ui
 {
 
 EntityBrowser::EntityBrowser(
-  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui(contextManager);
   connectObservers();
@@ -56,7 +57,7 @@ void EntityBrowser::reload()
 {
   if (m_view)
   {
-    if (const auto* worldNode = m_map.world())
+    if (const auto* worldNode = m_document.map().world())
     {
       m_view->setDefaultModelScaleExpression(
         worldNode->entityPropertyConfig().defaultModelScaleExpression);
@@ -70,8 +71,7 @@ void EntityBrowser::reload()
 void EntityBrowser::createGui(GLContextManager& contextManager)
 {
   m_scrollBar = new QScrollBar{Qt::Vertical};
-
-  m_view = new EntityBrowserView{m_scrollBar, contextManager, m_map};
+  m_view = new EntityBrowserView{m_scrollBar, contextManager, m_document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
@@ -138,9 +138,11 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 
 void EntityBrowser::connectObservers()
 {
+  auto& map = m_document.map();
+
   m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
-  m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
+    map.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
+  m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowser::resourcesWereProcessed);
 
   auto& prefs = PreferenceManager::instance();
@@ -155,7 +157,7 @@ void EntityBrowser::documentDidChange()
 
 void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (const auto* game = m_map.game();
+  if (const auto* game = m_document.map().game();
       game && path == pref(game->info().gamePathPreference))
   {
     reload();

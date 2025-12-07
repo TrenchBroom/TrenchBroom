@@ -22,12 +22,12 @@
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
-#include "mdl/MapFixture.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/PasteType.h"
 #include "mdl/WorldNode.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
+#include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
 
@@ -38,7 +38,8 @@ namespace tb::ui
 
 TEST_CASE("ClipTool")
 {
-  auto fixture = mdl::MapFixture{};
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.document();
   auto& map = fixture.map();
   fixture.create();
 
@@ -71,7 +72,7 @@ TEST_CASE("ClipTool")
 
     const auto originalLinkId = originalBrushNode->linkId();
 
-    auto tool = ClipTool{map};
+    auto tool = ClipTool{document};
     REQUIRE(tool.activate());
 
     tool.addPoint(vm::vec3d{0, 16, 16}, {});

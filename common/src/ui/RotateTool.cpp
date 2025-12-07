@@ -26,15 +26,16 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/TransactionScope.h"
+#include "ui/MapDocument.h"
 #include "ui/RotateHandle.h"
 #include "ui/RotateToolPage.h"
 
 namespace tb::ui
 {
 
-RotateTool::RotateTool(mdl::Map& map)
+RotateTool::RotateTool(MapDocument& document)
   : Tool{false}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
@@ -46,7 +47,7 @@ bool RotateTool::doActivate()
 
 const mdl::Grid& RotateTool::grid() const
 {
-  return m_map.grid();
+  return m_document.map().grid();
 }
 
 void RotateTool::updateToolPageAxis(const RotateHandle::HitArea area)
@@ -78,15 +79,17 @@ void RotateTool::setRotationCenter(const vm::vec3d& position)
 
 void RotateTool::resetRotationCenter()
 {
-  const auto& selection = m_map.selection();
+  auto& map = m_document.map();
+
+  const auto& selection = map.selection();
   if (selection.hasOnlyEntities() && selection.entities.size() == 1)
   {
     const auto& entityNode = *selection.entities.front();
     setRotationCenter(entityNode.entity().origin());
   }
-  else if (const auto& bounds = m_map.selectionBounds())
+  else if (const auto& bounds = map.selectionBounds())
   {
-    const auto position = m_map.grid().snap(bounds->center());
+    const auto position = map.grid().snap(bounds->center());
     setRotationCenter(position);
   }
 }
@@ -103,30 +106,31 @@ double RotateTool::minorHandleRadius(const render::Camera& camera) const
 
 void RotateTool::beginRotation()
 {
-  m_map.startTransaction("Rotate Objects", mdl::TransactionScope::LongRunning);
+  m_document.map().startTransaction("Rotate Objects", mdl::TransactionScope::LongRunning);
 }
 
 void RotateTool::commitRotation()
 {
-  m_map.commitTransaction();
+  m_document.map().commitTransaction();
   rotationCenterWasUsedNotifier(rotationCenter());
 }
 
 void RotateTool::cancelRotation()
 {
-  m_map.cancelTransaction();
+  m_document.map().cancelTransaction();
 }
 
 double RotateTool::snapRotationAngle(const double angle) const
 {
-  return m_map.grid().snapAngle(angle);
+  return m_document.map().grid().snapAngle(angle);
 }
 
 void RotateTool::applyRotation(
   const vm::vec3d& center, const vm::vec3d& axis, const double angle)
 {
-  m_map.rollbackTransaction();
-  rotateSelection(m_map, center, axis, angle);
+  auto& map = m_document.map();
+  map.rollbackTransaction();
+  rotateSelection(map, center, axis, angle);
 }
 
 mdl::Hit RotateTool::pick2D(const vm::ray3d& pickRay, const render::Camera& camera)
@@ -173,7 +177,7 @@ void RotateTool::renderHighlight3D(
 
 QWidget* RotateTool::doCreatePage(QWidget* parent)
 {
-  return new RotateToolPage{m_map, *this, parent};
+  return new RotateToolPage{m_document, *this, parent};
 }
 
 } // namespace tb::ui

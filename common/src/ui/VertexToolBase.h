@@ -41,6 +41,7 @@
 #include "render/RenderBatch.h"
 #include "render/RenderService.h"
 #include "ui/Lasso.h"
+#include "ui/MapDocument.h"
 #include "ui/Tool.h"
 
 #include "kd/contracts.h"
@@ -75,6 +76,7 @@ class Camera;
 namespace ui
 {
 class Lasso;
+class MapDocument;
 
 template <typename H>
 class VertexToolBase : public Tool
@@ -88,7 +90,7 @@ public:
   };
 
 protected:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
 private:
   size_t m_changeCount = 0;
@@ -100,9 +102,9 @@ protected:
   bool m_dragging = false;
 
 protected:
-  explicit VertexToolBase(mdl::Map& map)
+  explicit VertexToolBase(MapDocument& document)
     : Tool{false}
-    , m_map{map}
+    , m_document{document}
   {
   }
 
@@ -110,11 +112,11 @@ public:
   ~VertexToolBase() override = default;
 
 public:
-  const mdl::Grid& grid() const { return m_map.grid(); }
+  const mdl::Grid& grid() const { return m_document.map().grid(); }
 
   const std::vector<mdl::BrushNode*>& selectedBrushes() const
   {
-    return m_map.selection().brushes;
+    return m_document.map().selection().brushes;
   }
 
 public:
@@ -235,7 +237,6 @@ public: // performing moves
   {
     contract_pre(!hits.empty());
 
-
     // Delesect all handles if any of the hit handles is not already selected.
     for (const auto& hit : hits)
     {
@@ -258,7 +259,7 @@ public: // performing moves
     }
     refreshViews();
 
-    m_map.startTransaction(actionName(), mdl::TransactionScope::LongRunning);
+    m_document.map().startTransaction(actionName(), mdl::TransactionScope::LongRunning);
 
     m_dragHandlePosition = getHandlePosition(hits.front());
     m_dragging = true;
@@ -270,14 +271,14 @@ public: // performing moves
 
   virtual void endMove()
   {
-    m_map.commitTransaction();
+    m_document.map().commitTransaction();
     m_dragging = false;
     --m_ignoreChangeNotifications;
   }
 
   virtual void cancelMove()
   {
-    m_map.cancelTransaction();
+    m_document.map().cancelTransaction();
     m_dragging = false;
     --m_ignoreChangeNotifications;
   }
@@ -303,23 +304,24 @@ public: // csg convex merge
       return;
     }
 
-    auto game = m_map.game();
+    auto& map = m_document.map();
+    auto game = map.game();
 
     const auto builder = mdl::BrushBuilder{
-      m_map.world()->mapFormat(),
-      m_map.worldBounds(),
+      map.world()->mapFormat(),
+      map.worldBounds(),
       game->config().faceAttribsConfig.defaults};
-    builder.createBrush(polyhedron, m_map.currentMaterialName())
+    builder.createBrush(polyhedron, map.currentMaterialName())
       | kdl::transform([&](auto b) {
-          for (const auto* selectedBrushNode : m_map.selection().brushes)
+          for (const auto* selectedBrushNode : map.selection().brushes)
           {
             b.cloneFaceAttributesFrom(selectedBrushNode->brush());
           }
 
-          auto* newParent = parentForNodes(m_map, m_map.selection().nodes);
-          auto transaction = mdl::Transaction{m_map, "CSG Convex Merge"};
+          auto* newParent = parentForNodes(map, map.selection().nodes);
+          auto transaction = mdl::Transaction{map, "CSG Convex Merge"};
           deselectAll();
-          if (addNodes(m_map, {{newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
+          if (addNodes(map, {{newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
           {
             transaction.cancel();
             return;
@@ -327,7 +329,7 @@ public: // csg convex merge
           transaction.commit();
         })
       | kdl::transform_error(
-        [&](auto e) { m_map.logger().error() << "Could not create brush: " << e.msg; });
+        [&](auto e) { map.logger().error() << "Could not create brush: " << e.msg; });
   }
 
   virtual H getHandlePosition(const mdl::Hit& hit) const
@@ -345,7 +347,7 @@ public:
   {
     const auto ignoreChangeNotifications = kdl::inc_temp{m_ignoreChangeNotifications};
 
-    auto transaction = mdl::Transaction{m_map, actionName()};
+    auto transaction = mdl::Transaction{m_document.map(), actionName()};
     move(delta);
     transaction.commit();
   }
@@ -485,24 +487,26 @@ protected: // Tool interface
 private: // Observers and state management
   void connectObservers()
   {
+    auto& map = m_document.map();
+
     m_notifierConnection +=
-      m_map.selectionDidChangeNotifier.connect(this, &VertexToolBase::selectionDidChange);
+      map.selectionDidChangeNotifier.connect(this, &VertexToolBase::selectionDidChange);
     m_notifierConnection +=
-      m_map.nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
+      map.nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
     m_notifierConnection +=
-      m_map.nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
+      map.nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
     m_notifierConnection +=
-      m_map.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
+      map.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
     m_notifierConnection +=
-      m_map.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
+      map.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
     m_notifierConnection +=
-      m_map.commandDoFailedNotifier.connect(this, &VertexToolBase::commandDoFailed);
+      map.commandDoFailedNotifier.connect(this, &VertexToolBase::commandDoFailed);
     m_notifierConnection +=
-      m_map.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
+      map.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
     m_notifierConnection +=
-      m_map.commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
+      map.commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
     m_notifierConnection +=
-      m_map.commandUndoFailedNotifier.connect(this, &VertexToolBase::commandUndoFailed);
+      map.commandUndoFailedNotifier.connect(this, &VertexToolBase::commandUndoFailed);
   }
 
   void commandDo(mdl::Command& command) { commandDoOrUndo(command); }

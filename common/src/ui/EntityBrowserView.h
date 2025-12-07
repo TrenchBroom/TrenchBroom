@@ -38,7 +38,6 @@ class Logger;
 
 namespace mdl
 {
-class Map;
 class ResourceId;
 
 enum class EntityDefinitionSortOrder;
@@ -56,6 +55,7 @@ class Transformation;
 
 namespace ui
 {
+class MapDocument;
 
 using EntityGroupData = std::string;
 
@@ -84,7 +84,7 @@ private:
   static constexpr auto CameraDirection = vm::vec3f{-1, 0, 0};
   static constexpr auto CameraUp = vm::vec3f{0, 0, 1};
 
-  mdl::Map& m_map;
+  MapDocument& m_document;
   std::optional<el::ExpressionNode> m_defaultScaleModelExpression;
   vm::quatf m_rotation;
 
@@ -97,7 +97,7 @@ private:
 
 public:
   EntityBrowserView(
-    QScrollBar* scrollBar, GLContextManager& contextManager, mdl::Map& map);
+    QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document);
   ~EntityBrowserView() override;
 
 public:

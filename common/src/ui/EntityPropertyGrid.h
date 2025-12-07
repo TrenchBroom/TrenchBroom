@@ -32,17 +32,11 @@ class QShortcut;
 class QSortFilterProxyModel;
 class QToolButton;
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-} // namespace mdl
-
-namespace ui
+namespace tb::ui
 {
 class EntityPropertyModel;
 class EntityPropertyTable;
+class MapDocument;
 
 struct PropertyGridSelection
 {
@@ -58,7 +52,7 @@ class EntityPropertyGrid : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   EntityPropertyModel* m_model;
   QSortFilterProxyModel* m_proxyModel;
@@ -73,7 +67,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityPropertyGrid(mdl::Map& map, QWidget* parent = nullptr);
+  explicit EntityPropertyGrid(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void backupSelection();
@@ -103,5 +97,4 @@ signals:
   void currentRowChanged();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

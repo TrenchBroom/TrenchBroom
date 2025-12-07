@@ -25,6 +25,7 @@
 #include "ui/DrawShapeTool.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 
 #include "vm/intersection.h"
 
@@ -197,9 +198,10 @@ private:
 
 } // namespace
 
-DrawShapeToolController2D::DrawShapeToolController2D(DrawShapeTool& tool, mdl::Map& map)
+DrawShapeToolController2D::DrawShapeToolController2D(
+  DrawShapeTool& tool, MapDocument& document)
   : m_tool{tool}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
@@ -229,12 +231,13 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
     return nullptr;
   }
 
-  if (m_map.selection().hasAny())
+  auto& map = m_document.map();
+  if (map.selection().hasAny())
   {
     return nullptr;
   }
 
-  const auto& bounds = m_map.referenceBounds();
+  const auto& bounds = map.referenceBounds();
   const auto& camera = inputState.camera();
   const auto plane = vm::plane3d{
     bounds.min, vm::vec3d{vm::get_abs_max_component_axis(camera.direction())}};
@@ -244,7 +247,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
     const auto initialHandlePosition =
       vm::point_at_distance(inputState.pickRay(), *distance);
     return createHandleDragTracker(
-      DrawShapeDragDelegate{m_tool, m_map.worldBounds(), m_map.referenceBounds()},
+      DrawShapeDragDelegate{m_tool, map.worldBounds(), map.referenceBounds()},
       inputState,
       initialHandlePosition,
       initialHandlePosition);

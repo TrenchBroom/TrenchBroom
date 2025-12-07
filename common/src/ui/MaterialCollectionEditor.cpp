@@ -31,6 +31,7 @@
 #include "mdl/Map_Assets.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
@@ -42,9 +43,9 @@
 namespace tb::ui
 {
 
-MaterialCollectionEditor::MaterialCollectionEditor(mdl::Map& map, QWidget* parent)
+MaterialCollectionEditor::MaterialCollectionEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui();
   connectObservers();
@@ -65,7 +66,7 @@ void MaterialCollectionEditor::addSelectedMaterialCollections()
 
   enabledCollections = kdl::vec_sort_and_remove_duplicates(std::move(enabledCollections));
 
-  setEnabledMaterialCollections(m_map, enabledCollections);
+  setEnabledMaterialCollections(m_document.map(), enabledCollections);
 }
 
 void MaterialCollectionEditor::removeSelectedMaterialCollections()
@@ -86,12 +87,12 @@ void MaterialCollectionEditor::removeSelectedMaterialCollections()
     enabledCollections = kdl::vec_erase_at(std::move(enabledCollections), index);
   }
 
-  setEnabledMaterialCollections(m_map, enabledCollections);
+  setEnabledMaterialCollections(m_document.map(), enabledCollections);
 }
 
 void MaterialCollectionEditor::reloadMaterialCollections()
 {
-  mdl::reloadMaterialCollections(m_map);
+  mdl::reloadMaterialCollections(m_document.map());
 }
 
 void MaterialCollectionEditor::availableMaterialCollectionSelectionChanged()
@@ -224,7 +225,7 @@ void MaterialCollectionEditor::updateButtons()
 
 void MaterialCollectionEditor::connectObservers()
 {
-  m_notifierConnection += m_map.documentDidChangeNotifier.connect(
+  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::documentDidChange);
 
   auto& prefs = PreferenceManager::instance();
@@ -240,7 +241,7 @@ void MaterialCollectionEditor::documentDidChange()
 
 void MaterialCollectionEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (const auto* game = m_map.game();
+  if (const auto* game = m_document.map().game();
       game && path == pref(game->info().gamePathPreference))
   {
     updateAllMaterialCollections();
@@ -287,13 +288,13 @@ void MaterialCollectionEditor::updateEnabledMaterialCollections()
 std::vector<std::filesystem::path> MaterialCollectionEditor::
   availableMaterialCollections() const
 {
-  return disabledMaterialCollections(m_map);
+  return disabledMaterialCollections(m_document.map());
 }
 
 std::vector<std::filesystem::path> MaterialCollectionEditor::enabledMaterialCollections()
   const
 {
-  return mdl::enabledMaterialCollections(m_map);
+  return mdl::enabledMaterialCollections(m_document.map());
 }
 
 } // namespace tb::ui

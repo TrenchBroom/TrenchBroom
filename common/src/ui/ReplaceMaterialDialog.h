@@ -30,21 +30,20 @@ namespace tb
 namespace mdl
 {
 class BrushFaceHandle;
-class Map;
 class Material;
 } // namespace mdl
 
 namespace ui
 {
-
 class GLContextManager;
+class MapDocument;
 class MaterialBrowser;
 
 class ReplaceMaterialDialog : public QDialog
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   MaterialBrowser* m_subjectBrowser = nullptr;
   MaterialBrowser* m_replacementBrowser = nullptr;
@@ -52,7 +51,7 @@ private:
 
 public:
   ReplaceMaterialDialog(
-    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
 private:
   void accept() override;

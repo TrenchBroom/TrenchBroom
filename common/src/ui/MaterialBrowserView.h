@@ -32,7 +32,6 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
 class Material;
 class MaterialCollection;
 class ResourceId;
@@ -40,8 +39,9 @@ class ResourceId;
 
 namespace ui
 {
-
 class GLContextManager;
+class MapDocument;
+
 using MaterialGroupData = std::string;
 
 enum class MaterialSortOrder
@@ -54,7 +54,7 @@ class MaterialBrowserView : public CellView
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   bool m_group = false;
   bool m_hideUnused = false;
   MaterialSortOrder m_sortOrder = MaterialSortOrder::Name;
@@ -66,7 +66,7 @@ private:
 
 public:
   MaterialBrowserView(
-    QScrollBar* scrollBar, GLContextManager& contextManager, mdl::Map& map);
+    QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document);
   ~MaterialBrowserView() override;
 
   void setSortOrder(MaterialSortOrder sortOrder);

@@ -19,11 +19,8 @@
 
 #pragma once
 
-#include "GameConfigFixture.h"
 #include "Macros.h"
-#include "mdl/GameInfo.h"
 #include "mdl/MapFixture.h"
-#include "mdl/MapFormat.h"
 
 #include <filesystem>
 #include <memory>

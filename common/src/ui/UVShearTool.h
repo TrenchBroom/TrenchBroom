@@ -25,17 +25,10 @@
 
 #include <memory>
 
-namespace tb
+namespace tb::ui
 {
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
-{
-
 class GestureTracker;
+class MapDocument;
 class UVViewHelper;
 
 class UVShearTool : public ToolController, public Tool
@@ -45,11 +38,11 @@ private:
   static const mdl::HitType::Type YHandleHitType;
 
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   UVViewHelper& m_helper;
 
 public:
-  UVShearTool(mdl::Map& map, UVViewHelper& helper);
+  UVShearTool(MapDocument& document, UVViewHelper& helper);
 
 private:
   Tool& tool() override;
@@ -62,5 +55,4 @@ private:
   bool cancel() override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

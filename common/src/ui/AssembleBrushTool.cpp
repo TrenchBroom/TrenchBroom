@@ -28,6 +28,7 @@
 #include "mdl/Map.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/WorldNode.h"
+#include "ui/MapDocument.h"
 
 #include "kd/result.h"
 #include "kd/vector_utils.h"
@@ -35,8 +36,8 @@
 namespace tb::ui
 {
 
-AssembleBrushTool::AssembleBrushTool(mdl::Map& map)
-  : CreateBrushesToolBase{false, map}
+AssembleBrushTool::AssembleBrushTool(MapDocument& document)
+  : CreateBrushesToolBase{false, document}
   , m_polyhedron{std::make_unique<mdl::Polyhedron3>()}
 {
 }
@@ -51,19 +52,19 @@ void AssembleBrushTool::update(const mdl::Polyhedron3& polyhedron)
   *m_polyhedron = polyhedron;
   if (m_polyhedron->closed())
   {
-    const auto game = m_map.game();
+    const auto game = m_document.map().game();
     const auto builder = mdl::BrushBuilder{
-      m_map.world()->mapFormat(),
-      m_map.worldBounds(),
+      m_document.map().world()->mapFormat(),
+      m_document.map().worldBounds(),
       game->config().faceAttribsConfig.defaults};
 
-    builder.createBrush(*m_polyhedron, m_map.currentMaterialName())
+    builder.createBrush(*m_polyhedron, m_document.map().currentMaterialName())
       | kdl::transform([&](auto b) {
           updateBrushes(kdl::vec_from(std::make_unique<mdl::BrushNode>(std::move(b))));
         })
       | kdl::transform_error([&](auto e) {
           clearBrushes();
-          m_map.logger().error() << "Could not update brush: " << e.msg;
+          m_document.logger().error() << "Could not update brush: " << e.msg;
         });
   }
   else

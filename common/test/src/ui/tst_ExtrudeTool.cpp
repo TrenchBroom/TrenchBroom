@@ -30,7 +30,6 @@
 #include "mdl/Game.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
-#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Picking.h"
 #include "mdl/Map_Selection.h"
@@ -39,6 +38,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 #include "ui/ExtrudeTool.h"
+#include "ui/MapDocumentFixture.h"
 
 #include "kd/result.h"
 
@@ -91,11 +91,12 @@ mdl::PickResult performPick(mdl::Map& map, ExtrudeTool& tool, const vm::ray3d& p
 
 TEST_CASE("ExtrudeTool")
 {
-  auto fixture = mdl::MapFixture{};
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.document();
   auto& map = fixture.map();
   fixture.create();
 
-  auto tool = ExtrudeTool{map};
+  auto tool = ExtrudeTool{document};
 
   SECTION("pick2D")
   {

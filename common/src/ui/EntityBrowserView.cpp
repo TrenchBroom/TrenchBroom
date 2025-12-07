@@ -41,6 +41,7 @@
 #include "render/TextureFont.h"
 #include "render/Transformation.h"
 #include "render/VertexArray.h"
+#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 #include "kd/string_compare.h"
@@ -59,16 +60,16 @@ namespace tb::ui
 {
 
 EntityBrowserView::EntityBrowserView(
-  QScrollBar* scrollBar, GLContextManager& contextManager, mdl::Map& map)
+  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
   : CellView{contextManager, scrollBar}
-  , m_map{map}
+  , m_document{document}
   , m_sortOrder{mdl::EntityDefinitionSortOrder::Name}
 {
   const auto hRotation = vm::quatf{vm::vec3f{0, 0, 1}, vm::to_radians(-30.0f)};
   const auto vRotation = vm::quatf{vm::vec3f{0, 1, 0}, vm::to_radians(20.0f)};
   m_rotation = vRotation * hRotation;
 
-  m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
+  m_notifierConnection += m_document.map().resourcesWereProcessedNotifier.connect(
     this, &EntityBrowserView::resourcesWereProcessed);
 }
 
@@ -140,7 +141,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   contract_assert(fontSize > 0);
 
-  const auto& entityDefinitionManager = m_map.entityDefinitionManager();
+  const auto& entityDefinitionManager = m_document.map().entityDefinitionManager();
   const auto font = render::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
 
   if (m_group)
@@ -212,6 +213,8 @@ void EntityBrowserView::addEntityToLayout(
   const mdl::EntityDefinition& definition,
   const render::FontDescriptor& font)
 {
+  auto& map = m_document.map();
+
   if (
     (!m_hideUnused || definition.usageCount() > 0)
     && matchesFilterText(definition, m_filterText))
@@ -224,7 +227,7 @@ void EntityBrowserView::addEntityToLayout(
       fontManager().selectFontSize(font, definition.name, maxCellWidth, 5);
     const auto actualSize = fontManager().font(actualFont).measure(definition.name);
     const auto spec =
-      mdl::safeGetModelSpecification(m_map.logger(), definition.name, [&]() {
+      mdl::safeGetModelSpecification(map.logger(), definition.name, [&]() {
         return pointEntityDefinition.modelDefinition.defaultModelSpecification();
       });
 
@@ -238,7 +241,7 @@ void EntityBrowserView::addEntityToLayout(
     auto transform = vm::mat4x4f{};
     auto modelOrientation = mdl::Orientation::Oriented;
 
-    const auto& entityModelManager = m_map.entityModelManager();
+    const auto& entityModelManager = map.entityModelManager();
     const auto* model = entityModelManager.model(spec.path);
     const auto* modelData = model ? model->data() : nullptr;
     const auto* modelFrame = modelData ? modelData->frame(spec.frameIndex) : nullptr;
@@ -363,7 +366,7 @@ void EntityBrowserView::renderModels(
 {
   glAssert(glFrontFace(GL_CW));
 
-  auto& entityModelManager = m_map.entityModelManager();
+  auto& entityModelManager = m_document.map().entityModelManager();
   entityModelManager.prepare(vboManager());
 
   auto shader = render::ActiveShader{shaderManager(), render::Shaders::EntityModelShader};

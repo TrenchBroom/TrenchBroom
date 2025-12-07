@@ -19,9 +19,9 @@
  */
 
 #include "TestFactory.h"
-#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "ui/MapDocumentFixture.h"
 #include "ui/ScaleTool.h"
 
 #include "kd/ranges/to.h"
@@ -36,7 +36,8 @@ namespace tb::ui
 
 TEST_CASE("ScaleTool")
 {
-  auto fixture = mdl::MapFixture{};
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.document();
   auto& map = fixture.map();
   fixture.create();
 
@@ -50,7 +51,7 @@ TEST_CASE("ScaleTool")
   constexpr size_t iBrushNode = 1;
   constexpr size_t iPatchNode = 2;
 
-  auto tool = ScaleTool{map};
+  auto tool = ScaleTool{document};
 
   SECTION("applies")
   {

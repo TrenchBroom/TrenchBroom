@@ -43,6 +43,7 @@ class RenderService;
 namespace ui
 {
 class Lasso;
+class MapDocument;
 
 class VertexTool : public VertexToolBase<vm::vec3d>
 {
@@ -59,7 +60,7 @@ private:
   mutable render::PointGuideRenderer m_guideRenderer;
 
 public:
-  explicit VertexTool(mdl::Map& map);
+  explicit VertexTool(MapDocument& document);
 
 public:
   std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::vec3d& handle) const;

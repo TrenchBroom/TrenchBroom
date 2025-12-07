@@ -34,6 +34,7 @@
 #include "ui/ClickableLabel.h"
 #include "ui/CollapsibleTitledPanel.h"
 #include "ui/LayerEditor.h"
+#include "ui/MapDocument.h"
 #include "ui/ModEditor.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
@@ -81,10 +82,10 @@ QString formatVec(const std::optional<vm::bbox3d>& bbox, const bool max)
 
 // MapInspector
 
-MapInspector::MapInspector(mdl::Map& map, QWidget* parent)
+MapInspector::MapInspector(MapDocument& document, QWidget* parent)
   : TabBookPage{parent}
 {
-  createGui(map);
+  createGui(document);
 }
 
 MapInspector::~MapInspector()
@@ -93,16 +94,16 @@ MapInspector::~MapInspector()
   saveWindowState(m_modEditor);
 }
 
-void MapInspector::createGui(mdl::Map& map)
+void MapInspector::createGui(MapDocument& document)
 {
-  m_mapPropertiesEditor = createMapPropertiesEditor(map);
-  m_modEditor = createModEditor(map);
+  m_mapPropertiesEditor = createMapPropertiesEditor(document);
+  m_modEditor = createModEditor(document);
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
   sizer->setSpacing(0);
 
-  sizer->addWidget(createLayerEditor(map), 1);
+  sizer->addWidget(createLayerEditor(document), 1);
   sizer->addWidget(new BorderLine{}, 0);
   sizer->addWidget(m_mapPropertiesEditor, 0);
   sizer->addWidget(new BorderLine{}, 0);
@@ -110,10 +111,10 @@ void MapInspector::createGui(mdl::Map& map)
   setLayout(sizer);
 }
 
-QWidget* MapInspector::createLayerEditor(mdl::Map& map)
+QWidget* MapInspector::createLayerEditor(MapDocument& document)
 {
   auto* titledPanel = new TitledPanel{tr("Layers")};
-  auto* layerEditor = new LayerEditor{map};
+  auto* layerEditor = new LayerEditor{document};
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
@@ -123,12 +124,12 @@ QWidget* MapInspector::createLayerEditor(mdl::Map& map)
   return titledPanel;
 }
 
-CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(mdl::Map& map)
+CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(MapDocument& document)
 {
   auto* titledPanel = new CollapsibleTitledPanel{tr("Map Properties")};
   titledPanel->setObjectName("MapInspector_MapPropertiesPanel");
 
-  auto* editor = new MapPropertiesEditor{map};
+  auto* editor = new MapPropertiesEditor{document};
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
@@ -140,12 +141,12 @@ CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(mdl::Map& map)
   return titledPanel;
 }
 
-CollapsibleTitledPanel* MapInspector::createModEditor(mdl::Map& map)
+CollapsibleTitledPanel* MapInspector::createModEditor(MapDocument& document)
 {
   auto* titledPanel = new CollapsibleTitledPanel{tr("Mods")};
   titledPanel->setObjectName("MapInspector_ModsPanel");
 
-  auto* modEditor = new ModEditor{map};
+  auto* modEditor = new ModEditor{document};
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
@@ -159,9 +160,9 @@ CollapsibleTitledPanel* MapInspector::createModEditor(mdl::Map& map)
 
 // MapPropertiesEditor
 
-MapPropertiesEditor::MapPropertiesEditor(mdl::Map& map, QWidget* parent)
+MapPropertiesEditor::MapPropertiesEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui();
   connectObservers();
@@ -264,13 +265,13 @@ void MapPropertiesEditor::createGui()
   connect(m_softBoundsDisabled, &QAbstractButton::clicked, this, [&](const auto checked) {
     if (checked)
     {
-      setSoftMapBounds(m_map, {mdl::SoftMapBoundsType::Map, std::nullopt});
+      setSoftMapBounds(m_document.map(), {mdl::SoftMapBoundsType::Map, std::nullopt});
     }
   });
   connect(m_softBoundsFromGame, &QAbstractButton::clicked, this, [&](const auto checked) {
     if (checked)
     {
-      setSoftMapBounds(m_map, {mdl::SoftMapBoundsType::Game, std::nullopt});
+      setSoftMapBounds(m_document.map(), {mdl::SoftMapBoundsType::Game, std::nullopt});
     }
   });
   connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [&](const auto checked) {
@@ -284,7 +285,7 @@ void MapPropertiesEditor::createGui()
       // text fields have a valid value entered.
       if (const auto parsed = parseLineEdits())
       {
-        setSoftMapBounds(m_map, {mdl::SoftMapBoundsType::Map, *parsed});
+        setSoftMapBounds(m_document.map(), {mdl::SoftMapBoundsType::Map, *parsed});
       }
     }
   });
@@ -298,7 +299,7 @@ void MapPropertiesEditor::createGui()
     {
       if (const auto parsed = parseLineEdits())
       {
-        setSoftMapBounds(m_map, {mdl::SoftMapBoundsType::Map, *parsed});
+        setSoftMapBounds(m_document.map(), {mdl::SoftMapBoundsType::Map, *parsed});
       }
     }
   };
@@ -312,7 +313,7 @@ void MapPropertiesEditor::createGui()
 
 void MapPropertiesEditor::connectObservers()
 {
-  m_notifierConnection += m_map.documentDidChangeNotifier.connect(
+  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
     this, &MapPropertiesEditor::documentDidChange);
 }
 
@@ -328,13 +329,14 @@ void MapPropertiesEditor::updateGui()
 {
   const kdl::set_temp flagChange(m_updatingGui, true);
 
-  if (const auto game = m_map.game())
+  auto& map = m_document.map();
+  if (const auto game = map.game())
   {
     const auto gameBounds = game->config().softMapBounds;
     m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
     m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
 
-    const auto bounds = softMapBounds(m_map);
+    const auto bounds = softMapBounds(map);
 
     if (bounds.source == mdl::SoftMapBoundsType::Map && !bounds.bounds)
     {

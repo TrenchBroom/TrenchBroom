@@ -27,6 +27,7 @@
 #include "mdl/GameConfig.h"
 #include "mdl/Map.h"
 #include "mdl/PropertyDefinition.h"
+#include "ui/MapDocument.h"
 #include "ui/SmartChoiceEditor.h"
 #include "ui/SmartColorEditor.h"
 #include "ui/SmartDefaultPropertyEditor.h"
@@ -84,9 +85,10 @@ SmartPropertyEditorMatcher makeSmartPropertyEditorKeyMatcher(
 
 } // namespace
 
-SmartPropertyEditorManager::SmartPropertyEditorManager(mdl::Map& map, QWidget* parent)
+SmartPropertyEditorManager::SmartPropertyEditorManager(
+  MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
   , m_stackedLayout{new QStackedLayout{this}}
 {
   setLayout(m_stackedLayout);
@@ -120,28 +122,28 @@ void SmartPropertyEditorManager::createEditors()
 
   registerEditor(
     makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Flags>(),
-    new SmartFlagsEditor{m_map, this});
+    new SmartFlagsEditor{m_document, this});
   registerEditor(
     makeSmartTypeWithSameDefinitionEditorMatcher<mdl::PropertyValueTypes::Choice>(),
-    new SmartChoiceEditor{m_map, this});
+    new SmartChoiceEditor{m_document, this});
   registerEditor(
     [&](const auto& propertyKey, const auto& nodes) {
       return nodes.size() == 1
              && nodes.front()->entity().classname()
                   == mdl::EntityPropertyValues::WorldspawnClassname
-             && propertyKey == m_map.game()->config().materialConfig.property;
+             && propertyKey == m_document.map().game()->config().materialConfig.property;
     },
-    new SmartWadEditor{m_map, this});
+    new SmartWadEditor{m_document, this});
   registerEditor(
     kdl::logical_or(
       makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
       makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<RgbF>>(),
       makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<RgbB>>(),
       makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<Rgb>>()),
-    new SmartColorEditor{m_map, this});
+    new SmartColorEditor{m_document, this});
   registerEditor(
     [](const auto&, const auto&) { return true; },
-    new SmartDefaultPropertyEditor{m_map, this});
+    new SmartDefaultPropertyEditor{m_document, this});
 }
 
 void SmartPropertyEditorManager::registerEditor(
@@ -153,13 +155,13 @@ void SmartPropertyEditorManager::registerEditor(
 
 void SmartPropertyEditorManager::connectObservers()
 {
-  m_notifierConnection += m_map.documentDidChangeNotifier.connect(
+  m_notifierConnection += m_document.map().documentDidChangeNotifier.connect(
     this, &SmartPropertyEditorManager::documentDidChange);
 }
 
 void SmartPropertyEditorManager::documentDidChange()
 {
-  switchEditor(m_propertyKey, m_map.selection().allEntities());
+  switchEditor(m_propertyKey, m_document.map().selection().allEntities());
 }
 
 SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(
@@ -211,7 +213,7 @@ void SmartPropertyEditorManager::updateEditor()
 {
   if (activeEditor())
   {
-    activeEditor()->update(m_map.selection().allEntities());
+    activeEditor()->update(m_document.map().selection().allEntities());
   }
 }
 

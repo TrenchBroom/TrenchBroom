@@ -25,6 +25,7 @@
 
 namespace tb::ui
 {
+class MapDocument;
 
 class DrawShapeTool : public CreateBrushesToolBase
 {
@@ -32,7 +33,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit DrawShapeTool(mdl::Map& map);
+  explicit DrawShapeTool(MapDocument& document);
   void update(const vm::bbox3d& bounds);
 
   bool cancel();

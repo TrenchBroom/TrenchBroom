@@ -124,8 +124,6 @@ void MapView2D::initializeCamera(const ViewPlane viewPlane)
 
 void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
 {
-  auto& map = m_document.map();
-
   addToolController(std::make_unique<CameraTool2D>(*m_camera));
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
@@ -139,9 +137,9 @@ void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(std::make_unique<FaceToolController>(toolBox.faceTool()));
   addToolController(
     std::make_unique<CreateEntityToolController2D>(toolBox.createEntityTool()));
-  addToolController(std::make_unique<SelectionTool>(map));
+  addToolController(std::make_unique<SelectionTool>(m_document));
   addToolController(
-    std::make_unique<DrawShapeToolController2D>(toolBox.drawShapeTool(), map));
+    std::make_unique<DrawShapeToolController2D>(toolBox.drawShapeTool(), m_document));
 }
 
 void MapView2D::connectObservers()

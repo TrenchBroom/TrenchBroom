@@ -35,6 +35,7 @@
 #include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
+#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 #include "kd/k.h"
@@ -44,26 +45,27 @@
 namespace tb::ui
 {
 
-CreateEntityTool::CreateEntityTool(mdl::Map& map)
+CreateEntityTool::CreateEntityTool(MapDocument& document)
   : Tool{K(initiallyActive)}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
 bool CreateEntityTool::createEntity(const std::string& classname)
 {
-  const auto& definitionManager = m_map.entityDefinitionManager();
+  auto& map = m_document.map();
+  const auto& definitionManager = map.entityDefinitionManager();
   const auto* definition = definitionManager.definition(classname);
   if (!definition || getType(*definition) != mdl::EntityDefinitionType::Point)
   {
     return false;
   }
 
-  m_referenceBounds = m_map.referenceBounds();
+  m_referenceBounds = map.referenceBounds();
 
-  m_map.startTransaction(
+  map.startTransaction(
     "Create '" + definition->name + "'", mdl::TransactionScope::LongRunning);
-  m_entity = createPointEntity(m_map, *definition, {0, 0, 0});
+  m_entity = createPointEntity(map, *definition, {0, 0, 0});
 
   return m_entity != nullptr;
 }
@@ -72,7 +74,7 @@ void CreateEntityTool::removeEntity()
 {
   contract_pre(m_entity != nullptr);
 
-  m_map.cancelTransaction();
+  m_document.map().cancelTransaction();
   m_entity = nullptr;
 }
 
@@ -80,7 +82,7 @@ void CreateEntityTool::commitEntity()
 {
   contract_pre(m_entity != nullptr);
 
-  m_map.commitTransaction();
+  m_document.map().commitTransaction();
   m_entity = nullptr;
 }
 
@@ -95,13 +97,14 @@ void CreateEntityTool::updateEntityPosition2D(const vm::ray3d& pickRay)
                         : m_referenceBounds.max;
   const auto dragPlane = vm::plane3d(anchor, -pickRay.direction);
 
-  const auto& grid = m_map.grid();
+  auto& map = m_document.map();
+  const auto& grid = map.grid();
   const auto delta = grid.moveDeltaForBounds(
-    dragPlane, m_entity->logicalBounds(), m_map.worldBounds(), pickRay);
+    dragPlane, m_entity->logicalBounds(), map.worldBounds(), pickRay);
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    translateSelection(m_map, delta);
+    translateSelection(map, delta);
   }
 }
 
@@ -112,14 +115,16 @@ void CreateEntityTool::updateEntityPosition3D(
 
   contract_pre(m_entity != nullptr);
 
+  auto& map = m_document.map();
+
   auto delta = vm::vec3d{};
-  const auto& grid = m_map.grid();
+  const auto& grid = map.grid();
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType));
   if (const auto faceHandle = mdl::hitToFaceHandle(hit))
   {
     const auto& face = faceHandle->face();
     delta = grid.moveDeltaForBounds(
-      face.boundary(), m_entity->logicalBounds(), m_map.worldBounds(), pickRay);
+      face.boundary(), m_entity->logicalBounds(), map.worldBounds(), pickRay);
   }
   else
   {
@@ -131,7 +136,7 @@ void CreateEntityTool::updateEntityPosition3D(
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    translateSelection(m_map, delta);
+    translateSelection(map, delta);
   }
 }
 

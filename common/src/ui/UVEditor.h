@@ -27,23 +27,17 @@ class QSpinBox;
 class QWidget;
 class QAbstractButton;
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-} // namespace mdl
-
-namespace ui
+namespace tb::ui
 {
 class GLContextManager;
+class MapDocument;
 class UVView;
 
 class UVEditor : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   UVView* m_uvView = nullptr;
   QSpinBox* m_xSubDivisionEditor = nullptr;
@@ -60,7 +54,7 @@ private:
 
 public:
   explicit UVEditor(
-    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 
@@ -83,5 +77,4 @@ private:
   void subDivisionChanged();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

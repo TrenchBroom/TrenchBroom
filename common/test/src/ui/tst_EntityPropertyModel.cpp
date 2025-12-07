@@ -19,10 +19,10 @@
 
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/Map.h"
-#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "ui/EntityPropertyModel.h"
+#include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
 
@@ -33,7 +33,8 @@ namespace tb::ui
 
 TEST_CASE("EntityPropertyModel")
 {
-  auto fixture = mdl::MapFixture{};
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.document();
   auto& map = fixture.map();
   fixture.create();
 
@@ -119,7 +120,7 @@ TEST_CASE("EntityPropertyModel")
        }},
     });
 
-  auto model = EntityPropertyModel{map};
+  auto model = EntityPropertyModel{document};
 
   SECTION("constructor")
   {

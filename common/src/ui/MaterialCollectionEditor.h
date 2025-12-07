@@ -29,22 +29,15 @@
 class QListWidget;
 class QAbstractButton;
 
-namespace tb
+namespace tb::ui
 {
-namespace mdl
-{
-class Map;
-class Node;
-} // namespace mdl
-
-namespace ui
-{
+class MapDocument;
 
 class MaterialCollectionEditor : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   QListWidget* m_availableCollectionsList = nullptr;
   QListWidget* m_enabledCollectionsList = nullptr;
@@ -56,7 +49,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MaterialCollectionEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit MaterialCollectionEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void addSelectedMaterialCollections();
@@ -86,5 +79,4 @@ private:
   std::vector<std::filesystem::path> enabledMaterialCollections() const;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui
