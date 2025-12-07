@@ -121,6 +121,16 @@ namespace tb::mdl
 namespace
 {
 
+template <typename Resource>
+auto makeCreateResource(ResourceManager& resourceManager)
+{
+  return [&](auto resourceLoader) {
+    auto resource = std::make_shared<Resource>(std::move(resourceLoader));
+    resourceManager.addResource(resource);
+    return resource;
+  };
+}
+
 Result<std::unique_ptr<WorldNode>> loadMap(
   const GameConfig& config,
   const MapFormat mapFormat,
@@ -464,14 +474,9 @@ Map::Map(kdl::task_manager& taskManager, Logger& logger)
   , m_resourceManager{std::make_unique<ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
-      [&](auto resourceLoader) {
-        auto resource =
-          std::make_shared<EntityModelDataResource>(std::move(resourceLoader));
-        m_resourceManager->addResource(resource);
-        return resource;
-      },
-      m_logger)}
-  , m_materialManager{std::make_unique<MaterialManager>(m_logger)}
+      makeCreateResource<EntityModelDataResource>(*m_resourceManager), m_logger)}
+  , m_materialManager{std::make_unique<MaterialManager>(
+      makeCreateResource<TextureResource>(*m_resourceManager), m_logger)}
   , m_tagManager{std::make_unique<TagManager>()}
   , m_editorContext{std::make_unique<EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
@@ -1128,14 +1133,7 @@ void Map::loadMaterials()
   }
 
   m_materialManager->reload(
-    m_game->gameFileSystem(),
-    m_game->config().materialConfig,
-    [&](auto resourceLoader) {
-      auto resource = std::make_shared<TextureResource>(std::move(resourceLoader));
-      m_resourceManager->addResource(resource);
-      return resource;
-    },
-    m_taskManager);
+    m_game->gameFileSystem(), m_game->config().materialConfig, m_taskManager);
 }
 
 void Map::clearMaterials()

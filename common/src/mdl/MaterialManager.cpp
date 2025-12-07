@@ -38,8 +38,9 @@
 namespace tb::mdl
 {
 
-MaterialManager::MaterialManager(Logger& logger)
-  : m_logger{logger}
+MaterialManager::MaterialManager(CreateTextureResource createResource, Logger& logger)
+  : m_createResource{std::move(createResource)}
+  , m_logger{logger}
 {
 }
 
@@ -48,11 +49,10 @@ MaterialManager::~MaterialManager() = default;
 void MaterialManager::reload(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
-  const CreateTextureResource& createResource,
   kdl::task_manager& taskManager)
 {
   clear();
-  io::loadMaterialCollections(fs, materialConfig, createResource, taskManager, m_logger)
+  io::loadMaterialCollections(fs, materialConfig, m_createResource, taskManager, m_logger)
     | kdl::transform([&](auto materialCollections) {
         for (auto& collection : materialCollections)
         {

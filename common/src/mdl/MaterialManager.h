@@ -54,6 +54,7 @@ class ResourceId;
 class MaterialManager
 {
 private:
+  CreateTextureResource m_createResource;
   Logger& m_logger;
 
   std::vector<MaterialCollection> m_collections;
@@ -62,13 +63,12 @@ private:
   std::vector<const Material*> m_materials;
 
 public:
-  explicit MaterialManager(Logger& logger);
+  MaterialManager(CreateTextureResource createResource, Logger& logger);
   ~MaterialManager();
 
   void reload(
     const fs::FileSystem& fs,
     const MaterialConfig& materialConfig,
-    const CreateTextureResource& createResource,
     kdl::task_manager& taskManager);
 
   // for testing
