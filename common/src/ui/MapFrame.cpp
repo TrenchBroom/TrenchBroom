@@ -805,7 +805,7 @@ void MapFrame::mapModificationStateDidChange()
   updateTitleDelayed();
 }
 
-void MapFrame::transactionDone(const std::string& /* name */)
+void MapFrame::transactionDone(const std::string&, const bool)
 {
   QTimer::singleShot(0, this, [this]() {
     // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
@@ -819,7 +819,7 @@ void MapFrame::transactionDone(const std::string& /* name */)
   });
 }
 
-void MapFrame::transactionUndone(const std::string& /* name */)
+void MapFrame::transactionUndone(const std::string&, const bool)
 {
   QTimer::singleShot(0, this, [this]() {
     // FIXME: see MapFrame::transactionDone

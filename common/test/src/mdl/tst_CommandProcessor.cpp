@@ -126,11 +126,11 @@ private:
   {
     m_notifications.emplace_back(CommandNotif::CommandUndoFailed, command.name());
   }
-  void transactionDone(const std::string& transactionName)
+  void transactionDone(const std::string& transactionName, const bool)
   {
     m_notifications.emplace_back(CommandNotif::TransactionDone, transactionName);
   }
-  void transactionUndone(const std::string& transactionName)
+  void transactionUndone(const std::string& transactionName, const bool)
   {
     m_notifications.emplace_back(CommandNotif::TransactionUndone, transactionName);
   }

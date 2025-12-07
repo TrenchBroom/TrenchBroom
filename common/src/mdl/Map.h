@@ -144,8 +144,8 @@ public: // notification
   Notifier<UndoableCommand&> commandUndoNotifier;
   Notifier<UndoableCommand&> commandUndoneNotifier;
   Notifier<UndoableCommand&> commandUndoFailedNotifier;
-  Notifier<const std::string&> transactionDoneNotifier;
-  Notifier<const std::string&> transactionUndoneNotifier;
+  Notifier<const std::string&, bool> transactionDoneNotifier;
+  Notifier<const std::string&, bool> transactionUndoneNotifier;
 
   Notifier<> documentDidChangeNotifier;
 
@@ -419,8 +419,8 @@ private: // observers
   void preferenceDidChange(const std::filesystem::path& path);
   void commandDone(Command& command);
   void commandUndone(UndoableCommand& command);
-  void transactionDone(const std::string& name);
-  void transactionUndone(const std::string& name);
+  void transactionDone(const std::string& name, bool observable);
+  void transactionUndone(const std::string& name, bool observable);
 };
 
 } // namespace mdl

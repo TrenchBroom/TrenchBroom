@@ -1795,21 +1795,21 @@ void Map::commandUndone(UndoableCommand& command)
   m_logger.debug() << "Command '" << command.name() << "' undone";
 }
 
-void Map::transactionDone(const std::string& name)
+void Map::transactionDone(const std::string& name, const bool observable)
 {
   m_logger.debug() << "Transaction '" << name << "' executed";
 
-  if (m_commandProcessor->isCurrentDocumentStateObservable())
+  if (observable)
   {
     documentDidChangeNotifier();
   }
 }
 
-void Map::transactionUndone(const std::string& name)
+void Map::transactionUndone(const std::string& name, const bool observable)
 {
   m_logger.debug() << "Transaction '" << name << "' undone";
 
-  if (m_commandProcessor->isCurrentDocumentStateObservable())
+  if (observable)
   {
     documentDidChangeNotifier();
   }

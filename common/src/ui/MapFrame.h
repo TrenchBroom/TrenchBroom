@@ -177,8 +177,8 @@ private: // notification handlers
   void mapWasCleared(mdl::Map& map);
   void mapModificationStateDidChange();
 
-  void transactionDone(const std::string&);
-  void transactionUndone(const std::string&);
+  void transactionDone(const std::string& name, bool observable);
+  void transactionUndone(const std::string& name, bool observable);
 
   void preferenceDidChange(const std::filesystem::path& path);
   void gridDidChange();
