@@ -764,8 +764,6 @@ void Map::clear()
 
   if (m_world)
   {
-    mapWillBeClearedNotifier(*this);
-
     m_nodeIndex->clear();
     m_entityLinkManager->clear();
     m_editorContext->reset();

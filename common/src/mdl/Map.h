@@ -147,7 +147,6 @@ public: // notification
   Notifier<const std::string&, bool> transactionDoneNotifier;
   Notifier<const std::string&, bool> transactionUndoneNotifier;
 
-  Notifier<Map&> mapWillBeClearedNotifier;
   Notifier<Map&> mapWasClearedNotifier;
   Notifier<Map&> mapWasCreatedNotifier;
   Notifier<Map&> mapWasLoadedNotifier;

@@ -691,7 +691,6 @@ TEST_CASE("Map")
 
     map.editorContext().setBlockSelection(true);
 
-    auto mapWillBeCleared = Observer<Map&>{map.mapWillBeClearedNotifier};
     auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
 
     REQUIRE(map.canUndoCommand());
@@ -710,7 +709,6 @@ TEST_CASE("Map")
     CHECK(map.modificationCount() == 0);
     CHECK(!map.modified());
 
-    CHECK(mapWillBeCleared.collected == std::set{&map});
     CHECK(mapWasCleared.collected == std::set{&map});
   }
 
