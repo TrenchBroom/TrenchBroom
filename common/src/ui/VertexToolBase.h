@@ -26,6 +26,7 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
+#include "mdl/CommandProcessor.h"
 #include "mdl/Game.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Hit.h"
@@ -495,18 +496,20 @@ private: // Observers and state management
       map.nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
     m_notifierConnection +=
       map.nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
+
+    auto& commandProcessor = map.commandProcessor();
     m_notifierConnection +=
-      map.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
+      commandProcessor.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
     m_notifierConnection +=
-      map.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
+      commandProcessor.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
+    m_notifierConnection += commandProcessor.commandDoFailedNotifier.connect(
+      this, &VertexToolBase::commandDoFailed);
     m_notifierConnection +=
-      map.commandDoFailedNotifier.connect(this, &VertexToolBase::commandDoFailed);
-    m_notifierConnection +=
-      map.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
-    m_notifierConnection +=
-      map.commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
-    m_notifierConnection +=
-      map.commandUndoFailedNotifier.connect(this, &VertexToolBase::commandUndoFailed);
+      commandProcessor.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
+    m_notifierConnection += commandProcessor.commandUndoneNotifier.connect(
+      this, &VertexToolBase::commandUndone);
+    m_notifierConnection += commandProcessor.commandUndoFailedNotifier.connect(
+      this, &VertexToolBase::commandUndoFailed);
   }
 
   void commandDo(mdl::Command& command) { commandDoOrUndo(command); }

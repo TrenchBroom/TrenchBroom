@@ -732,13 +732,18 @@ void MapFrame::connectObservers()
   m_notifierConnection +=
     m_document->documentWasClearedNotifier.connect(this, &MapFrame::documentWasCleared);
 
+  m_notifierConnection +=
+    m_document->pointFileWasLoadedNotifier.connect(this, &MapFrame::pointFileDidChange);
+  m_notifierConnection +=
+    m_document->pointFileWasUnloadedNotifier.connect(this, &MapFrame::pointFileDidChange);
+  m_notifierConnection +=
+    m_document->portalFileWasLoadedNotifier.connect(this, &MapFrame::portalFileDidChange);
+  m_notifierConnection += m_document->portalFileWasUnloadedNotifier.connect(
+    this, &MapFrame::portalFileDidChange);
+
   auto& map = m_document->map();
   m_notifierConnection += map.modificationStateDidChangeNotifier.connect(
     this, &MapFrame::mapModificationStateDidChange);
-  m_notifierConnection +=
-    map.transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
-  m_notifierConnection +=
-    map.transactionUndoneNotifier.connect(this, &MapFrame::transactionUndone);
   m_notifierConnection +=
     map.selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
   m_notifierConnection +=
@@ -751,14 +756,12 @@ void MapFrame::connectObservers()
     map.nodeVisibilityDidChangeNotifier.connect(this, &MapFrame::nodeVisibilityDidChange);
   m_notifierConnection +=
     map.editorContextDidChangeNotifier.connect(this, &MapFrame::editorContextDidChange);
+
+  auto& commandProcessor = map.commandProcessor();
   m_notifierConnection +=
-    m_document->pointFileWasLoadedNotifier.connect(this, &MapFrame::pointFileDidChange);
-  m_notifierConnection +=
-    m_document->pointFileWasUnloadedNotifier.connect(this, &MapFrame::pointFileDidChange);
-  m_notifierConnection +=
-    m_document->portalFileWasLoadedNotifier.connect(this, &MapFrame::portalFileDidChange);
-  m_notifierConnection += m_document->portalFileWasUnloadedNotifier.connect(
-    this, &MapFrame::portalFileDidChange);
+    commandProcessor.transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
+  m_notifierConnection += commandProcessor.transactionUndoneNotifier.connect(
+    this, &MapFrame::transactionUndone);
 
   auto& grid = map.grid();
   m_notifierConnection +=

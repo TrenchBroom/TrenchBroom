@@ -138,15 +138,6 @@ private:
   std::optional<vm::bbox3d> m_lastSelectionBounds;
 
 public: // notification
-  Notifier<Command&> commandDoNotifier;
-  Notifier<Command&> commandDoneNotifier;
-  Notifier<Command&> commandDoFailedNotifier;
-  Notifier<UndoableCommand&> commandUndoNotifier;
-  Notifier<UndoableCommand&> commandUndoneNotifier;
-  Notifier<UndoableCommand&> commandUndoFailedNotifier;
-  Notifier<const std::string&, bool> transactionDoneNotifier;
-  Notifier<const std::string&, bool> transactionUndoneNotifier;
-
   Notifier<Map&> mapWasClearedNotifier;
   Notifier<Map&> mapWasCreatedNotifier;
   Notifier<Map&> mapWasLoadedNotifier;
@@ -233,6 +224,9 @@ public: // misc
 
   const std::string& currentMaterialName() const;
   void setCurrentMaterialName(const std::string& currentMaterialName);
+
+  CommandProcessor& commandProcessor();
+  const CommandProcessor& commandProcessor() const;
 
   template <typename NodeType = Node>
   std::vector<NodeType*> findNodes(std::string_view pattern) const

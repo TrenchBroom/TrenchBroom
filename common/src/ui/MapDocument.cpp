@@ -241,10 +241,6 @@ void MapDocument::unloadPortalFile()
 void MapDocument::connectObservers()
 {
   m_notifierConnection +=
-    m_map->transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
-  m_notifierConnection +=
-    m_map->transactionUndoneNotifier.connect(this, &MapDocument::transactionUndone);
-  m_notifierConnection +=
     m_map->mapWasCreatedNotifier.connect(this, &MapDocument::mapWasCreated);
   m_notifierConnection +=
     m_map->mapWasLoadedNotifier.connect(this, &MapDocument::mapWasLoaded);
@@ -254,6 +250,12 @@ void MapDocument::connectObservers()
     m_map->mapWasClearedNotifier.connect(this, &MapDocument::mapWasCleared);
   m_notifierConnection += m_map->entityDefinitionsDidChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsDidChange);
+
+  auto& commandProcessor = m_map->commandProcessor();
+  m_notifierConnection +=
+    commandProcessor.transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
+  m_notifierConnection += commandProcessor.transactionUndoneNotifier.connect(
+    this, &MapDocument::transactionUndone);
 }
 
 void MapDocument::transactionDone(const std::string&, const bool observable)

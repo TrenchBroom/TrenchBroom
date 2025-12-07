@@ -633,6 +633,16 @@ void Map::setCurrentMaterialName(const std::string& currentMaterialName)
   }
 }
 
+CommandProcessor& Map::commandProcessor()
+{
+  return *m_commandProcessor;
+}
+
+const CommandProcessor& Map::commandProcessor() const
+{
+  return *m_commandProcessor;
+}
+
 const EntityLinkManager& Map::entityLinkManager() const
 {
   return *m_entityLinkManager;
@@ -1536,24 +1546,6 @@ void Map::connectObservers()
 
   m_notifierConnection +=
     resourcesWereProcessedNotifier.connect(this, &Map::resourcesWereProcessed);
-
-  // command processing
-  m_notifierConnection +=
-    m_commandProcessor->commandDoNotifier.connect(commandDoNotifier);
-  m_notifierConnection +=
-    m_commandProcessor->commandDoneNotifier.connect(commandDoneNotifier);
-  m_notifierConnection +=
-    m_commandProcessor->commandDoFailedNotifier.connect(commandDoFailedNotifier);
-  m_notifierConnection +=
-    m_commandProcessor->commandUndoNotifier.connect(commandUndoNotifier);
-  m_notifierConnection +=
-    m_commandProcessor->commandUndoneNotifier.connect(commandUndoneNotifier);
-  m_notifierConnection +=
-    m_commandProcessor->commandUndoFailedNotifier.connect(commandUndoFailedNotifier);
-  m_notifierConnection +=
-    m_commandProcessor->transactionDoneNotifier.connect(transactionDoneNotifier);
-  m_notifierConnection +=
-    m_commandProcessor->transactionUndoneNotifier.connect(transactionUndoneNotifier);
 }
 
 void Map::mapWasCreated(Map&)
