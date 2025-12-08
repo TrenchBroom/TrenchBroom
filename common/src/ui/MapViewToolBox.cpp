@@ -338,7 +338,7 @@ void MapViewToolBox::connectObservers()
   m_notifierConnection += m_document.documentWasClearedNotifier.connect(
     this, &MapViewToolBox::documentWasCleared);
 
-  m_notifierConnection += m_document.map().selectionDidChangeNotifier.connect(
+  m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
     this, &MapViewToolBox::selectionDidChange);
 }
 

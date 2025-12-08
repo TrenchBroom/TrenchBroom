@@ -69,7 +69,7 @@ EntityBrowserView::EntityBrowserView(
   const auto vRotation = vm::quatf{vm::vec3f{0, 1, 0}, vm::to_radians(20.0f)};
   m_rotation = vRotation * hRotation;
 
-  m_notifierConnection += m_document.map().resourcesWereProcessedNotifier.connect(
+  m_notifierConnection += m_document.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowserView::resourcesWereProcessed);
 }
 

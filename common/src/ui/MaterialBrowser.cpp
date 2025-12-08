@@ -184,11 +184,9 @@ void MaterialBrowser::bindEvents()
 
 void MaterialBrowser::connectObservers()
 {
-  auto& map = m_document.map();
-
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &MaterialBrowser::documentDidChange);
-  m_notifierConnection += map.currentMaterialNameDidChangeNotifier.connect(
+  m_notifierConnection += m_document.currentMaterialNameDidChangeNotifier.connect(
     this, &MaterialBrowser::currentMaterialNameDidChange);
 
   auto& prefs = PreferenceManager::instance();

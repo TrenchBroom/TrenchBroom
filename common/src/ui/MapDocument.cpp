@@ -28,6 +28,7 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Game.h"
+#include "mdl/Grid.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/MaterialManager.h"
@@ -297,7 +298,6 @@ void MapDocument::connectMapObservers()
     m_map->nodesWereRemovedNotifier.connect(nodesWereRemovedNotifier);
   m_notifierConnection += m_map->nodesWillChangeNotifier.connect(nodesWillChangeNotifier);
   m_notifierConnection += m_map->nodesDidChangeNotifier.connect(nodesDidChangeNotifier);
-  m_notifierConnection += m_map->nodesDidChangeNotifier.connect(nodesDidChangeNotifier);
   m_notifierConnection +=
     m_map->nodeLockingDidChangeNotifier.connect(nodeLockingDidChangeNotifier);
   m_notifierConnection += m_map->groupWasOpenedNotifier.connect(groupWasOpenedNotifier);
@@ -316,6 +316,9 @@ void MapDocument::connectMapObservers()
     m_map->entityDefinitionsDidChangeNotifier.connect(entityDefinitionsDidChangeNotifier);
   m_notifierConnection += m_map->modsWillChangeNotifier.connect(modsWillChangeNotifier);
   m_notifierConnection += m_map->modsDidChangeNotifier.connect(modsDidChangeNotifier);
+
+  auto& grid = m_map->grid();
+  m_notifierConnection += grid.gridDidChangeNotifier.connect(gridDidChangeNotifier);
 
   auto& commandProcessor = m_map->commandProcessor();
   m_notifierConnection += commandProcessor.commandDoNotifier.connect(commandDoNotifier);

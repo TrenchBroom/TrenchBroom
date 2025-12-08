@@ -193,8 +193,6 @@ void ModEditor::updateButtons()
 
 void ModEditor::connectObservers()
 {
-  auto& map = m_document.map();
-
   m_notifierConnection +=
     m_document.documentWasCreatedNotifier.connect(this, &ModEditor::documentWasCreated);
   m_notifierConnection +=
@@ -202,7 +200,7 @@ void ModEditor::connectObservers()
   m_notifierConnection +=
     m_document.documentWasClearedNotifier.connect(this, &ModEditor::documentWasCleared);
   m_notifierConnection +=
-    map.modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
+    m_document.modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=

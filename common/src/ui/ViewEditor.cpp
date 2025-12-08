@@ -232,7 +232,6 @@ ViewEditor::ViewEditor(MapDocument& document, QWidget* parent)
 
 void ViewEditor::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
     m_document.documentWasCreatedNotifier.connect(this, &ViewEditor::documentWasCreated);
   m_notifierConnection +=
@@ -240,9 +239,9 @@ void ViewEditor::connectObservers()
   m_notifierConnection +=
     m_document.documentWasClearedNotifier.connect(this, &ViewEditor::documentWasCleared);
 
-  m_notifierConnection +=
-    map.editorContextDidChangeNotifier.connect(this, &ViewEditor::editorContextDidChange);
-  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
+    this, &ViewEditor::editorContextDidChange);
+  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
     this, &ViewEditor::entityDefinitionsDidChange);
 
   auto& prefs = PreferenceManager::instance();

@@ -63,11 +63,9 @@ MaterialBrowserView::MaterialBrowserView(
   : CellView{contextManager, scrollBar}
   , m_document{document}
 {
-  auto& map = m_document.map();
-
-  m_notifierConnection += map.materialUsageCountsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
-  m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
+  m_notifierConnection += m_document.resourcesWereProcessedNotifier.connect(
     this, &MaterialBrowserView::resourcesWereProcessed);
 }
 

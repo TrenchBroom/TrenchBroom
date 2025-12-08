@@ -138,11 +138,9 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 
 void EntityBrowser::connectObservers()
 {
-  auto& map = m_document.map();
-
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
-  m_notifierConnection += map.resourcesWereProcessedNotifier.connect(
+  m_notifierConnection += m_document.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowser::resourcesWereProcessed);
 
   auto& prefs = PreferenceManager::instance();

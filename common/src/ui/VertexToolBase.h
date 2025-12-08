@@ -488,27 +488,24 @@ protected: // Tool interface
 private: // Observers and state management
   void connectObservers()
   {
-    auto& map = m_document.map();
+    m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
+      this, &VertexToolBase::selectionDidChange);
+    m_notifierConnection +=
+      m_document.nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
+    m_notifierConnection +=
+      m_document.nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
 
     m_notifierConnection +=
-      map.selectionDidChangeNotifier.connect(this, &VertexToolBase::selectionDidChange);
+      m_document.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
     m_notifierConnection +=
-      map.nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
+      m_document.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
     m_notifierConnection +=
-      map.nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
-
-    auto& commandProcessor = map.commandProcessor();
+      m_document.commandDoFailedNotifier.connect(this, &VertexToolBase::commandDoFailed);
     m_notifierConnection +=
-      commandProcessor.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
+      m_document.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
     m_notifierConnection +=
-      commandProcessor.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
-    m_notifierConnection += commandProcessor.commandDoFailedNotifier.connect(
-      this, &VertexToolBase::commandDoFailed);
-    m_notifierConnection +=
-      commandProcessor.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
-    m_notifierConnection += commandProcessor.commandUndoneNotifier.connect(
-      this, &VertexToolBase::commandUndone);
-    m_notifierConnection += commandProcessor.commandUndoFailedNotifier.connect(
+      m_document.commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
+    m_notifierConnection += m_document.commandUndoFailedNotifier.connect(
       this, &VertexToolBase::commandUndoFailed);
   }
 

@@ -741,31 +741,28 @@ void MapFrame::connectObservers()
   m_notifierConnection += m_document->portalFileWasUnloadedNotifier.connect(
     this, &MapFrame::portalFileDidChange);
 
-  auto& map = m_document->map();
-  m_notifierConnection += map.modificationStateDidChangeNotifier.connect(
+  m_notifierConnection += m_document->modificationStateDidChangeNotifier.connect(
     this, &MapFrame::mapModificationStateDidChange);
   m_notifierConnection +=
-    map.selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
+    m_document->selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
+  m_notifierConnection += m_document->currentLayerDidChangeNotifier.connect(
+    this, &MapFrame::currentLayerDidChange);
   m_notifierConnection +=
-    map.currentLayerDidChangeNotifier.connect(this, &MapFrame::currentLayerDidChange);
+    m_document->groupWasOpenedNotifier.connect(this, &MapFrame::groupWasOpened);
   m_notifierConnection +=
-    map.groupWasOpenedNotifier.connect(this, &MapFrame::groupWasOpened);
-  m_notifierConnection +=
-    map.groupWasClosedNotifier.connect(this, &MapFrame::groupWasClosed);
-  m_notifierConnection +=
-    map.nodeVisibilityDidChangeNotifier.connect(this, &MapFrame::nodeVisibilityDidChange);
-  m_notifierConnection +=
-    map.editorContextDidChangeNotifier.connect(this, &MapFrame::editorContextDidChange);
+    m_document->groupWasClosedNotifier.connect(this, &MapFrame::groupWasClosed);
+  m_notifierConnection += m_document->nodeVisibilityDidChangeNotifier.connect(
+    this, &MapFrame::nodeVisibilityDidChange);
+  m_notifierConnection += m_document->editorContextDidChangeNotifier.connect(
+    this, &MapFrame::editorContextDidChange);
 
-  auto& commandProcessor = map.commandProcessor();
   m_notifierConnection +=
-    commandProcessor.transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
-  m_notifierConnection += commandProcessor.transactionUndoneNotifier.connect(
-    this, &MapFrame::transactionUndone);
+    m_document->transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
+  m_notifierConnection +=
+    m_document->transactionUndoneNotifier.connect(this, &MapFrame::transactionUndone);
 
-  auto& grid = map.grid();
   m_notifierConnection +=
-    grid.gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
+    m_document->gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
 
   m_notifierConnection += m_mapView->mapViewToolBox().toolActivatedNotifier.connect(
     this, &MapFrame::toolActivated);

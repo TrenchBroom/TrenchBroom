@@ -172,7 +172,7 @@ void EntityDefinitionFileChooser::connectObservers()
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
     this, &EntityDefinitionFileChooser::documentWasLoaded);
 
-  m_notifierConnection += m_document.map().entityDefinitionsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
     this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
 }
 

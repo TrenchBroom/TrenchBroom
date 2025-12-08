@@ -156,14 +156,13 @@ void MapViewBase::connectObservers()
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
 
-  auto& map = m_document.map();
-  m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.materialCollectionsDidChangeNotifier.connect(
     this, &MapViewBase::materialCollectionsDidChange);
-  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
     this, &MapViewBase::entityDefinitionsDidChange);
   m_notifierConnection +=
-    map.modsDidChangeNotifier.connect(this, &MapViewBase::modsDidChange);
-  m_notifierConnection += map.editorContextDidChangeNotifier.connect(
+    m_document.modsDidChangeNotifier.connect(this, &MapViewBase::modsDidChange);
+  m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
     this, &MapViewBase::editorContextDidChange);
   m_notifierConnection +=
     m_document.pointFileWasLoadedNotifier.connect(this, &MapViewBase::pointFileDidChange);
@@ -174,9 +173,8 @@ void MapViewBase::connectObservers()
   m_notifierConnection += m_document.portalFileWasUnloadedNotifier.connect(
     this, &MapViewBase::portalFileDidChange);
 
-  auto& grid = map.grid();
   m_notifierConnection +=
-    grid.gridDidChangeNotifier.connect(this, &MapViewBase::gridDidChange);
+    m_document.gridDidChangeNotifier.connect(this, &MapViewBase::gridDidChange);
 
   m_notifierConnection +=
     m_toolBox.toolActivatedNotifier.connect(this, &MapViewBase::toolChanged);

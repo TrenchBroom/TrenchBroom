@@ -124,6 +124,8 @@ public:
   Notifier<> modsWillChangeNotifier;
   Notifier<> modsDidChangeNotifier;
 
+  Notifier<> gridDidChangeNotifier;
+
   Notifier<mdl::Command&> commandDoNotifier;
   Notifier<mdl::Command&> commandDoneNotifier;
   Notifier<mdl::Command&> commandDoFailedNotifier;
