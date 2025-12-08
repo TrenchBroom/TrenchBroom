@@ -201,7 +201,7 @@ void MaterialBrowser::documentDidChange()
   reload();
 }
 
-void MaterialBrowser::currentMaterialNameDidChange(const std::string& /* materialName */)
+void MaterialBrowser::currentMaterialNameDidChange()
 {
   updateSelectedMaterial();
 }

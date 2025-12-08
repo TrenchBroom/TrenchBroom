@@ -629,7 +629,7 @@ void Map::setCurrentMaterialName(const std::string& currentMaterialName)
   if (m_currentMaterialName != currentMaterialName)
   {
     m_currentMaterialName = currentMaterialName;
-    currentMaterialNameDidChangeNotifier(m_currentMaterialName);
+    currentMaterialNameDidChangeNotifier();
   }
 }
 

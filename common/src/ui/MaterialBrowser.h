@@ -81,7 +81,7 @@ private:
   void connectObservers();
 
   void documentDidChange();
-  void currentMaterialNameDidChange(const std::string& materialName);
+  void currentMaterialNameDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 
   void reload();
