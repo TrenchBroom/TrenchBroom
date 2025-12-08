@@ -97,35 +97,6 @@ namespace tb::ui
 namespace
 {
 
-auto parseCommandLine(const auto* app)
-{
-  auto parser = std::make_unique<QCommandLineParser>();
-  parser->addOption(QCommandLineOption(
-    "portable",
-    "Look for configuration files in 'config' folder next to the executable."));
-  parser->addOption(QCommandLineOption(
-    "enableDraftReleaseUpdates", "Enable preference option to update to draft releases"));
-  parser->addOption(QCommandLineOption(
-    "overrideBuildVersion",
-    "Override the build version used by the updater (format: 2025.3 or 2025.3-RC1)",
-    "version"));
-  parser->process(*app);
-
-  if (parser->isSet("enableDraftReleaseUpdates"))
-  {
-    auto& prefs = PreferenceManager::instance();
-    prefs.set(Preferences::EnableDraftReleaseUpdates, true);
-    prefs.set(Preferences::IncludeDraftReleaseUpdates, true);
-  }
-
-  if (parser->isSet("overrideBuildVersion"))
-  {
-    setBuildVersion(parser->value("overrideBuildVersion"));
-  }
-
-  return parser;
-}
-
 // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
 MapDocument* topDocument()
 {
@@ -183,7 +154,6 @@ LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPt
 
 TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   : QApplication{argc, argv}
-  , m_commandLineParser{parseCommandLine(this)}
   , m_networkManager{new QNetworkAccessManager{this}}
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
@@ -305,6 +275,23 @@ void TrenchBroomApp::triggerAutoUpdateCheck()
   }
 }
 
+void TrenchBroomApp::parseCommandLineAndShowFrame()
+{
+  auto parser = QCommandLineParser{};
+  parser.addOption(QCommandLineOption("portable"));
+  parser.addOption(QCommandLineOption("enableDraftReleaseUpdates"));
+  parser.process(*this);
+
+  if (parser.isSet("enableDraftReleaseUpdates"))
+  {
+    auto& prefs = PreferenceManager::instance();
+    prefs.set(Preferences::EnableDraftReleaseUpdates, true);
+    prefs.set(Preferences::IncludeDraftReleaseUpdates, true);
+  }
+
+  openFilesOrWelcomeFrame(parser.positionalArguments());
+}
+
 upd::Updater& TrenchBroomApp::updater()
 {
   return *m_updater;
@@ -313,29 +300,6 @@ upd::Updater& TrenchBroomApp::updater()
 FrameManager* TrenchBroomApp::frameManager()
 {
   return m_frameManager.get();
-}
-
-void TrenchBroomApp::openFilesOrWelcomeFrame()
-{
-  const auto fileNames = m_commandLineParser->positionalArguments();
-
-  const auto filesToOpen =
-    useSDI() && !fileNames.empty() ? QStringList{fileNames.front()} : fileNames;
-
-  auto anyDocumentOpened = false;
-  for (const auto& fileName : filesToOpen)
-  {
-    const auto path = io::pathFromQString(fileName);
-    if (!path.empty() && openDocument(path))
-    {
-      anyDocumentOpened = true;
-    }
-  }
-
-  if (!anyDocumentOpened)
-  {
-    showWelcomeWindow();
-  }
 }
 
 QPalette TrenchBroomApp::darkPalette()
@@ -709,6 +673,27 @@ bool TrenchBroomApp::event(QEvent* event)
   return QApplication::event(event);
 }
 #endif
+
+void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
+{
+  const auto filesToOpen =
+    useSDI() && !fileNames.empty() ? QStringList{fileNames.front()} : fileNames;
+
+  auto anyDocumentOpened = false;
+  for (const auto& fileName : filesToOpen)
+  {
+    const auto path = io::pathFromQString(fileName);
+    if (!path.empty() && openDocument(path))
+    {
+      anyDocumentOpened = true;
+    }
+  }
+
+  if (!anyDocumentOpened)
+  {
+    showWelcomeWindow();
+  }
+}
 
 void TrenchBroomApp::showWelcomeWindow()
 {
