@@ -252,13 +252,19 @@ void MapDocument::unloadPortalFile()
 void MapDocument::connectObservers()
 {
   m_notifierConnection +=
-    m_map->mapWasCreatedNotifier.connect(this, &MapDocument::mapWasCreated);
+    m_map->mapWasCreatedNotifier.connect(documentWasCreatedNotifier);
+  m_notifierConnection += m_map->mapWasLoadedNotifier.connect(documentWasLoadedNotifier);
+  m_notifierConnection += m_map->mapWasSavedNotifier.connect(documentWasSavedNotifier);
   m_notifierConnection +=
-    m_map->mapWasLoadedNotifier.connect(this, &MapDocument::mapWasLoaded);
+    m_map->mapWasClearedNotifier.connect(documentWasClearedNotifier);
+
   m_notifierConnection +=
-    m_map->mapWasSavedNotifier.connect(this, &MapDocument::mapWasSaved);
+    documentWasCreatedNotifier.connect(this, &MapDocument::documentWasCreated);
   m_notifierConnection +=
-    m_map->mapWasClearedNotifier.connect(this, &MapDocument::mapWasCleared);
+    documentWasLoadedNotifier.connect(this, &MapDocument::documentWasLoaded);
+  m_notifierConnection +=
+    documentWasClearedNotifier.connect(this, &MapDocument::documentWasCleared);
+
   m_notifierConnection += m_map->entityDefinitionsDidChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsDidChange);
 
@@ -285,41 +291,33 @@ void MapDocument::transactionUndone(const std::string&, const bool observable)
   }
 }
 
-void MapDocument::mapWasCreated()
+void MapDocument::documentWasCreated()
 {
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
 
   createTagActions();
   createEntityDefinitionActions();
 
-  documentWasCreatedNotifier();
   documentDidChangeNotifier();
 }
 
-void MapDocument::mapWasLoaded()
+void MapDocument::documentWasLoaded()
 {
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
 
   createTagActions();
   createEntityDefinitionActions();
 
-  documentWasLoadedNotifier();
   documentDidChangeNotifier();
 }
 
-void MapDocument::mapWasSaved()
-{
-  documentWasSavedNotifier();
-}
-
-void MapDocument::mapWasCleared()
+void MapDocument::documentWasCleared()
 {
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
 
   clearTagActions();
   clearEntityDefinitionActions();
 
-  documentWasClearedNotifier();
   documentDidChangeNotifier();
 }
 
