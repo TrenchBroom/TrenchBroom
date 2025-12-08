@@ -657,8 +657,6 @@ void MapRenderer::connectObservers()
   m_notifierConnection +=
     m_map.groupWasClosedNotifier.connect(this, &MapRenderer::groupWasClosed);
   m_notifierConnection +=
-    m_map.brushFacesDidChangeNotifier.connect(this, &MapRenderer::brushFacesDidChange);
-  m_notifierConnection +=
     m_map.selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
   m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
     this, &MapRenderer::resourcesWereProcessed);
@@ -741,14 +739,6 @@ void MapRenderer::groupWasClosed(mdl::GroupNode&)
 {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
-}
-
-void MapRenderer::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces)
-{
-  for (const auto& face : faces)
-  {
-    updateAndInvalidateNode(face.node());
-  }
 }
 
 void MapRenderer::selectionDidChange(const mdl::SelectionChange& selectionChange)

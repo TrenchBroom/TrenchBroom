@@ -1517,8 +1517,6 @@ void Map::connectObservers()
   m_notifierConnection += nodesWereRemovedNotifier.connect(this, &Map::nodesWereRemoved);
   m_notifierConnection += nodesWillChangeNotifier.connect(this, &Map::nodesWillChange);
   m_notifierConnection += nodesDidChangeNotifier.connect(this, &Map::nodesDidChange);
-  m_notifierConnection +=
-    brushFacesDidChangeNotifier.connect(this, &Map::brushFacesDidChange);
 
   m_notifierConnection +=
     selectionDidChangeNotifier.connect(this, &Map::selectionDidChange);

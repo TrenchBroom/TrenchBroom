@@ -163,8 +163,6 @@ public: // notification
   Notifier<GroupNode&> groupWasOpenedNotifier;
   Notifier<GroupNode&> groupWasClosedNotifier;
 
-  Notifier<const std::vector<BrushFaceHandle>&> brushFacesDidChangeNotifier;
-
   Notifier<const std::vector<ResourceId>&> resourcesWereProcessedNotifier;
 
   Notifier<> materialCollectionsWillChangeNotifier;

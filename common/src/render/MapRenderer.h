@@ -130,8 +130,6 @@ private: // notification
   void groupWasOpened(mdl::GroupNode& group);
   void groupWasClosed(mdl::GroupNode& group);
 
-  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
-
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds);
