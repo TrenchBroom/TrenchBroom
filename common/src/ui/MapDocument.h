@@ -172,10 +172,10 @@ private: // observers
 
   void transactionDone(const std::string& name, bool observable);
   void transactionUndone(const std::string& name, bool observable);
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void mapWasSaved(mdl::Map& map);
-  void mapWasCleared(mdl::Map& map);
+  void mapWasCreated();
+  void mapWasLoaded();
+  void mapWasSaved();
+  void mapWasCleared();
   void entityDefinitionsDidChange();
 };
 

@@ -661,7 +661,7 @@ Result<void> Map::create(
                worldBounds, std::move(worldNode), std::move(game), DefaultDocumentName);
              setWorldDefaultProperties(*m_world, *m_entityDefinitionManager);
              clearModificationCount();
-             mapWasCreatedNotifier(*this);
+             mapWasCreatedNotifier();
            });
 }
 
@@ -683,7 +683,7 @@ Result<void> Map::load(
   return loadMap(game->config(), mapFormat, worldBounds, path, m_taskManager, m_logger)
          | kdl::transform([&](auto worldNode) {
              setWorld(worldBounds, std::move(worldNode), std::move(game), path);
-             mapWasLoadedNotifier(*this);
+             mapWasLoadedNotifier();
            });
 }
 
@@ -713,7 +713,7 @@ Result<void> Map::saveAs(const std::filesystem::path& path)
   return saveTo(path).transform([&]() {
     setLastSaveModificationCount();
     setPath(path);
-    mapWasSavedNotifier(*this);
+    mapWasSavedNotifier();
   });
 }
 
@@ -784,7 +784,7 @@ void Map::clear()
     clearWorld();
     clearModificationCount();
 
-    mapWasClearedNotifier(*this);
+    mapWasClearedNotifier();
   }
 }
 
@@ -1546,7 +1546,7 @@ void Map::connectObservers()
     resourcesWereProcessedNotifier.connect(this, &Map::resourcesWereProcessed);
 }
 
-void Map::mapWasCreated(Map&)
+void Map::mapWasCreated()
 {
   initializeAllNodeTags();
   initializeNodeIndex();
@@ -1557,7 +1557,7 @@ void Map::mapWasCreated(Map&)
   m_lastSelectionBounds = std::nullopt;
 }
 
-void Map::mapWasLoaded(Map&)
+void Map::mapWasLoaded()
 {
   initializeAllNodeTags();
   initializeNodeIndex();

@@ -285,7 +285,7 @@ void MapDocument::transactionUndone(const std::string&, const bool observable)
   }
 }
 
-void MapDocument::mapWasCreated(mdl::Map&)
+void MapDocument::mapWasCreated()
 {
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
 
@@ -296,7 +296,7 @@ void MapDocument::mapWasCreated(mdl::Map&)
   documentDidChangeNotifier();
 }
 
-void MapDocument::mapWasLoaded(mdl::Map&)
+void MapDocument::mapWasLoaded()
 {
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
 
@@ -307,12 +307,12 @@ void MapDocument::mapWasLoaded(mdl::Map&)
   documentDidChangeNotifier();
 }
 
-void MapDocument::mapWasSaved(mdl::Map&)
+void MapDocument::mapWasSaved()
 {
   documentWasSavedNotifier();
 }
 
-void MapDocument::mapWasCleared(mdl::Map&)
+void MapDocument::mapWasCleared()
 {
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
 

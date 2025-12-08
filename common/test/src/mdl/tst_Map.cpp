@@ -105,8 +105,8 @@ TEST_CASE("Map")
 
     SECTION("Calling create sets worldspawn and notifies observers")
     {
-      auto mapWasCreated = Observer<Map&>{map.mapWasCreatedNotifier};
-      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+      auto mapWasCreated = Observer<void>{map.mapWasCreatedNotifier};
+      auto mapWasCleared = Observer<void>{map.mapWasClearedNotifier};
 
       REQUIRE(map.create(
         MapFormat::Standard,
@@ -122,12 +122,12 @@ TEST_CASE("Map")
       CHECK(!map.worldBounds().is_empty());
       CHECK(!map.persistent());
       CHECK(map.path() == "unnamed.map");
-      CHECK(mapWasCreated.collected == std::set{&map});
-      CHECK(mapWasCleared.collected.empty());
+      CHECK(mapWasCreated.called);
+      CHECK(!mapWasCleared.called);
 
       SECTION("Calling create again clears the map and resets the modification count")
       {
-        mapWasCreated.collected.clear();
+        mapWasCreated.reset();
 
         map.incModificationCount();
 
@@ -137,8 +137,8 @@ TEST_CASE("Map")
           std::make_unique<Game>(DefaultGameInfo, logger)));
 
         CHECK(map.modificationCount() == 0);
-        CHECK(mapWasCreated.collected == std::set{&map});
-        CHECK(mapWasCleared.collected == std::set{&map});
+        CHECK(mapWasCreated.called);
+        CHECK(mapWasCleared.called);
       }
     }
 
@@ -291,8 +291,8 @@ TEST_CASE("Map")
 
     SECTION("Notifies observers")
     {
-      auto mapWasLoaded = Observer<Map&>{map.mapWasLoadedNotifier};
-      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+      auto mapWasLoaded = Observer<void>{map.mapWasLoadedNotifier};
+      auto mapWasCleared = Observer<void>{map.mapWasClearedNotifier};
 
       const auto mapWasEmpty = GENERATE(false, true);
 
@@ -310,15 +310,15 @@ TEST_CASE("Map")
       };
       auto game = std::make_unique<Game>(gameInfo, logger);
 
-      mapWasCleared.collected.clear();
+      mapWasCleared.reset();
       REQUIRE(map.load(
         MapFormat::Unknown,
         vm::bbox3d{8192.0},
         std::move(game),
         makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
 
-      CHECK(mapWasCleared.collected == (mapWasEmpty ? std::set<Map*>{} : std::set{&map}));
-      CHECK(mapWasLoaded.collected == std::set{&map});
+      CHECK(mapWasCleared.called == !mapWasEmpty);
+      CHECK(mapWasLoaded.called);
     }
 
     SECTION("Sets world bounds, game and file path")
@@ -363,7 +363,7 @@ TEST_CASE("Map")
       };
       auto game = std::make_unique<Game>(gameInfo, logger);
 
-      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+      auto mapWasCleared = Observer<void>{map.mapWasClearedNotifier};
 
       REQUIRE(map.load(
         MapFormat::Unknown,
@@ -372,7 +372,7 @@ TEST_CASE("Map")
         makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map")));
 
       CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
-      CHECK(mapWasCleared.collected == std::set{&map});
+      CHECK(mapWasCleared.called);
     }
 
     SECTION("Format detection")
@@ -481,13 +481,13 @@ TEST_CASE("Map")
 
     SECTION("Notifies observers")
     {
-      auto mapWasLoaded = Observer<Map&>{map.mapWasLoadedNotifier};
-      auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+      auto mapWasLoaded = Observer<void>{map.mapWasLoadedNotifier};
+      auto mapWasCleared = Observer<void>{map.mapWasClearedNotifier};
 
       REQUIRE(map.reload());
 
-      CHECK(mapWasCleared.collected == std::set{&map});
-      CHECK(mapWasLoaded.collected == std::set{&map});
+      CHECK(mapWasCleared.called);
+      CHECK(mapWasLoaded.called);
     }
 
     SECTION("Updates world, world bounds, game and file path")
@@ -541,13 +541,13 @@ TEST_CASE("Map")
     auto* entityNode = new EntityNode{Entity{{{"name", "entity2"}}}};
     addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-    auto mapWasSaved = Observer<Map&>{map.mapWasSavedNotifier};
+    auto mapWasSaved = Observer<void>{map.mapWasSavedNotifier};
     auto modificationStateDidChange =
       Observer<void>{map.modificationStateDidChangeNotifier};
 
     REQUIRE(map.save());
 
-    CHECK(mapWasSaved.collected == std::set{&map});
+    CHECK(mapWasSaved.called);
     CHECK(modificationStateDidChange.called);
     CHECK(map.persistent());
     CHECK(map.path() == path);
@@ -581,7 +581,7 @@ TEST_CASE("Map")
     addNodes(map, {{parentForNodes(map), {entityNode}}});
     REQUIRE(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
 
-    auto mapWasSaved = Observer<Map&>{map.mapWasSavedNotifier};
+    auto mapWasSaved = Observer<void>{map.mapWasSavedNotifier};
     auto modificationStateDidChange =
       Observer<void>{map.modificationStateDidChangeNotifier};
 
@@ -590,7 +590,7 @@ TEST_CASE("Map")
     const auto path = env.dir() / "test.map";
     REQUIRE(map.saveAs(path));
 
-    CHECK(mapWasSaved.collected == std::set{&map});
+    CHECK(mapWasSaved.called);
     CHECK(modificationStateDidChange.called);
     CHECK(map.persistent());
     CHECK(map.path() == path);
@@ -691,7 +691,7 @@ TEST_CASE("Map")
 
     map.editorContext().setBlockSelection(true);
 
-    auto mapWasCleared = Observer<Map&>{map.mapWasClearedNotifier};
+    auto mapWasCleared = Observer<void>{map.mapWasClearedNotifier};
 
     REQUIRE(map.canUndoCommand());
     REQUIRE(map.canRepeatCommands());
@@ -709,7 +709,7 @@ TEST_CASE("Map")
     CHECK(map.modificationCount() == 0);
     CHECK(!map.modified());
 
-    CHECK(mapWasCleared.collected == std::set{&map});
+    CHECK(mapWasCleared.called);
   }
 
   SECTION("persistent")

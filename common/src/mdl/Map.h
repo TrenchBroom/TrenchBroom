@@ -138,10 +138,10 @@ private:
   std::optional<vm::bbox3d> m_lastSelectionBounds;
 
 public: // notification
-  Notifier<Map&> mapWasClearedNotifier;
-  Notifier<Map&> mapWasCreatedNotifier;
-  Notifier<Map&> mapWasLoadedNotifier;
-  Notifier<Map&> mapWasSavedNotifier;
+  Notifier<> mapWasCreatedNotifier;
+  Notifier<> mapWasLoadedNotifier;
+  Notifier<> mapWasSavedNotifier;
+  Notifier<> mapWasClearedNotifier;
   Notifier<> modificationStateDidChangeNotifier;
 
   Notifier<> editorContextDidChangeNotifier;
@@ -387,8 +387,8 @@ public: // command processing
 
 private: // observers
   void connectObservers();
-  void mapWasCreated(Map& map);
-  void mapWasLoaded(Map& map);
+  void mapWasCreated();
+  void mapWasLoaded();
   void nodesWereAdded(const std::vector<Node*>& nodes);
   void nodesWillBeRemoved(const std::vector<Node*>& nodes);
   void nodesWereRemoved(const std::vector<Node*>& nodes);
