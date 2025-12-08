@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "CachingLogger.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "mdl/PointTrace.h"
@@ -41,6 +40,8 @@ class task_manager;
 
 namespace tb
 {
+class Logger;
+
 namespace mdl
 {
 enum class MapFormat;
@@ -63,8 +64,9 @@ class MapRenderer;
 
 namespace ui
 {
-class ViewEffectsService;
 class AsyncTaskRunner;
+class CachingLogger;
+class ViewEffectsService;
 
 struct PointFile
 {
@@ -78,7 +80,7 @@ struct PortalFile
   std::filesystem::path path;
 };
 
-class MapDocument : public CachingLogger
+class MapDocument
 {
 public:
   static const vm::bbox3d DefaultWorldBounds;
@@ -142,6 +144,8 @@ public:
   Notifier<> portalFileWasUnloadedNotifier;
 
 private:
+  std::unique_ptr<CachingLogger> m_logger;
+
   std::unique_ptr<mdl::Map> m_map;
 
   std::optional<PointFile> m_pointFile;
@@ -158,7 +162,7 @@ private:
 
 public:
   explicit MapDocument(kdl::task_manager& taskManager);
-  ~MapDocument() override;
+  ~MapDocument();
 
 public: // accessors and such
   mdl::Map& map();
@@ -168,6 +172,7 @@ public: // accessors and such
   const render::MapRenderer& mapRenderer() const;
 
   Logger& logger();
+  void setParentLogger(Logger* parentLogger);
 
   void setViewEffectsService(ViewEffectsService* viewEffectsService);
 

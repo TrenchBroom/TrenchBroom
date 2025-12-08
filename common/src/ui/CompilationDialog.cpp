@@ -27,10 +27,10 @@
 #include <QPushButton>
 #include <QTextEdit>
 
+#include "Logger.h"
 #include "TrenchBroomApp.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/Game.h"
-#include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "ui/CompilationProfileManager.h"

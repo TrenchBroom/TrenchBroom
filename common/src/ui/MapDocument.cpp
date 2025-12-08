@@ -19,6 +19,7 @@
 
 #include "ui/MapDocument.h"
 
+#include "CachingLogger.h"
 #include "fs/DiskIO.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/NodeReader.h"
@@ -64,7 +65,8 @@ const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
 const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
 MapDocument::MapDocument(kdl::task_manager& taskManager)
-  : m_map{std::make_unique<mdl::Map>(taskManager, *this)}
+  : m_logger{std::make_unique<CachingLogger>()}
+  , m_map{std::make_unique<mdl::Map>(taskManager, logger())}
   , m_mapRenderer{std::make_unique<render::MapRenderer>(*m_map)}
 {
   connectObservers();
@@ -104,7 +106,12 @@ const render::MapRenderer& MapDocument::mapRenderer() const
 
 Logger& MapDocument::logger()
 {
-  return *this;
+  return *m_logger;
+}
+
+void MapDocument::setParentLogger(Logger* parentLogger)
+{
+  m_logger->setParentLogger(parentLogger);
 }
 
 mdl::PointTrace* MapDocument::pointTrace()
@@ -158,12 +165,12 @@ void MapDocument::loadPointFile(std::filesystem::path path)
 
   fs::Disk::withInputStream(path, [&](auto& stream) {
     return mdl::loadPointFile(stream) | kdl::transform([&](auto trace) {
-             info() << "Loaded point file " << path;
+             logger().info() << "Loaded point file " << path;
              m_pointFile = PointFile{std::move(trace), std::move(path)};
              pointFileWasLoadedNotifier();
            });
   }) | kdl::transform_error([&](auto e) {
-    error() << "Couldn't load portal file " << path << ": " << e.msg;
+    logger().error() << "Couldn't load portal file " << path << ": " << e.msg;
     m_pointFile = {};
   });
 }
@@ -191,7 +198,7 @@ void MapDocument::unloadPointFile()
 
   m_pointFile = std::nullopt;
 
-  info() << "Unloaded point file";
+  logger().info() << "Unloaded point file";
   pointFileWasUnloadedNotifier();
 }
 
@@ -213,12 +220,12 @@ void MapDocument::loadPortalFile(std::filesystem::path path)
 
   fs::Disk::withInputStream(path, [&](auto& stream) {
     return mdl::loadPortalFile(stream) | kdl::transform([&](auto portalFile) {
-             info() << "Loaded portal file " << path;
+             logger().info() << "Loaded portal file " << path;
              m_portalFile = {std::move(portalFile), std::move(path)};
              portalFileWasLoadedNotifier();
            });
   }) | kdl::transform_error([&](auto e) {
-    error() << "Couldn't load portal file " << path << ": " << e.msg;
+    logger().error() << "Couldn't load portal file " << path << ": " << e.msg;
     m_portalFile = std::nullopt;
   });
 }
@@ -246,7 +253,7 @@ void MapDocument::unloadPortalFile()
 
   m_portalFile = std::nullopt;
 
-  info() << "Unloaded portal file";
+  logger().info() << "Unloaded portal file";
   portalFileWasUnloadedNotifier();
 }
 

@@ -27,6 +27,7 @@
 #include <QProcess>
 #include <QPushButton>
 
+#include "Logger.h"
 #include "TrenchBroomApp.h"
 #include "mdl/Game.h"
 #include "mdl/GameConfig.h"
