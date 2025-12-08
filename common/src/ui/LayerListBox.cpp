@@ -236,7 +236,7 @@ void LayerListBox::documentDidChange()
   updateItems();
 }
 
-void LayerListBox::currentLayerDidChange(const mdl::LayerNode*)
+void LayerListBox::currentLayerDidChange()
 {
   updateItems();
 }

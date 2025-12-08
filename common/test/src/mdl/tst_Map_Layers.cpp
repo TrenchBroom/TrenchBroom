@@ -70,8 +70,7 @@ TEST_CASE("Map_Layers")
   {
     SECTION("Switching layers notifies map observers")
     {
-      auto currentLayerDidChange =
-        Observer<const LayerNode*>{map.currentLayerDidChangeNotifier};
+      auto currentLayerDidChange = Observer<void>{map.currentLayerDidChangeNotifier};
 
       auto* defaultLayerNode = map.world()->defaultLayer();
       auto* layerNode = new LayerNode{Layer{"test1"}};
@@ -81,18 +80,17 @@ TEST_CASE("Map_Layers")
 
       setCurrentLayer(map, layerNode);
       CHECK(map.editorContext().currentLayer() == layerNode);
-      CHECK(currentLayerDidChange.collected == std::set<const LayerNode*>{layerNode});
+      CHECK(currentLayerDidChange.called);
       currentLayerDidChange.reset();
 
       map.undoCommand();
       CHECK(map.editorContext().currentLayer() == defaultLayerNode);
-      CHECK(
-        currentLayerDidChange.collected == std::set<const LayerNode*>{defaultLayerNode});
+      CHECK(currentLayerDidChange.called);
       currentLayerDidChange.reset();
 
       map.redoCommand();
       CHECK(map.editorContext().currentLayer() == layerNode);
-      CHECK(currentLayerDidChange.collected == std::set<const LayerNode*>{layerNode});
+      CHECK(currentLayerDidChange.called);
     }
 
     SECTION("Switching layers is collated into a single undo step")

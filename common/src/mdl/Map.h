@@ -145,7 +145,7 @@ public: // notification
   Notifier<> modificationStateDidChangeNotifier;
 
   Notifier<> editorContextDidChangeNotifier;
-  Notifier<const LayerNode*> currentLayerDidChangeNotifier;
+  Notifier<> currentLayerDidChangeNotifier;
   Notifier<const std::string&> currentMaterialNameDidChangeNotifier;
 
   Notifier<> selectionWillChangeNotifier;

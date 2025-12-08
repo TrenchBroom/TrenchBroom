@@ -871,7 +871,7 @@ void MapFrame::selectionDidChange(const mdl::SelectionChange&)
   updateStatusBarDelayed();
 }
 
-void MapFrame::currentLayerDidChange(const tb::mdl::LayerNode*)
+void MapFrame::currentLayerDidChange()
 {
   updateStatusBarDelayed();
 }

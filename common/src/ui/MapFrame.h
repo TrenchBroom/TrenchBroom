@@ -186,7 +186,7 @@ private: // notification handlers
   void toolDeactivated(Tool& tool);
   void toolHandleSelectionChanged(Tool& tool);
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void currentLayerDidChange(const mdl::LayerNode* layer);
+  void currentLayerDidChange();
   void groupWasOpened(mdl::GroupNode& group);
   void groupWasClosed(mdl::GroupNode& group);
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);

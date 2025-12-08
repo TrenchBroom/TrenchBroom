@@ -101,7 +101,7 @@ private:
   void connectObservers();
 
   void documentDidChange();
-  void currentLayerDidChange(const mdl::LayerNode* layer);
+  void currentLayerDidChange();
 
   const LayerListBoxWidget* widgetAtRow(int row) const;
   mdl::LayerNode* layerForRow(int row) const;
