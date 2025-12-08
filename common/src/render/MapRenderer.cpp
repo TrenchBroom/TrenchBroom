@@ -729,13 +729,13 @@ void MapRenderer::nodeLockingDidChange(const std::vector<mdl::Node*>& nodes)
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasOpened(mdl::GroupNode&)
+void MapRenderer::groupWasOpened()
 {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasClosed(mdl::GroupNode&)
+void MapRenderer::groupWasClosed()
 {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();

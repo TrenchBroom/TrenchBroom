@@ -876,12 +876,12 @@ void MapFrame::currentLayerDidChange()
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasOpened(mdl::GroupNode&)
+void MapFrame::groupWasOpened()
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasClosed(mdl::GroupNode&)
+void MapFrame::groupWasClosed()
 {
   updateStatusBarDelayed();
 }

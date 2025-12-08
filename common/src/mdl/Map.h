@@ -160,8 +160,8 @@ public: // notification
   Notifier<const std::vector<Node*>&> nodeVisibilityDidChangeNotifier;
   Notifier<const std::vector<Node*>&> nodeLockingDidChangeNotifier;
 
-  Notifier<GroupNode&> groupWasOpenedNotifier;
-  Notifier<GroupNode&> groupWasClosedNotifier;
+  Notifier<> groupWasOpenedNotifier;
+  Notifier<> groupWasClosedNotifier;
 
   Notifier<const std::vector<ResourceId>&> resourcesWereProcessedNotifier;
 

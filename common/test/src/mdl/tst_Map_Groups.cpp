@@ -121,13 +121,13 @@ TEST_CASE("Map_Groups")
 
     SECTION("Opens group and notifies observers")
     {
-      auto groupWasOpened = Observer<GroupNode&>{map.groupWasOpenedNotifier};
+      auto groupWasOpened = Observer<void>{map.groupWasOpenedNotifier};
 
       openGroup(map, *outerGroupNode);
       CHECK(outerGroupNode->opened());
       CHECK(innerGroupNode->closed());
 
-      CHECK(groupWasOpened.collected == std::set{outerGroupNode});
+      CHECK(groupWasOpened.called);
     }
 
     SECTION("Locks world but keeps group unlocked")
@@ -165,13 +165,13 @@ TEST_CASE("Map_Groups")
 
     SECTION("Closes group and notifies observers")
     {
-      auto groupWasClosed = Observer<GroupNode&>{map.groupWasClosedNotifier};
+      auto groupWasClosed = Observer<void>{map.groupWasClosedNotifier};
 
       closeGroup(map);
       CHECK(outerGroupNode->closed());
       CHECK(innerGroupNode->closed());
 
-      CHECK(groupWasClosed.collected == std::set{outerGroupNode});
+      CHECK(groupWasClosed.called);
     }
 
     SECTION("Resets locking state and unlocks world when closing outer")

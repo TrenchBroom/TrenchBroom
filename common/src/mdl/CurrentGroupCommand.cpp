@@ -30,7 +30,7 @@ namespace
 void doPushGroup(GroupNode& groupNode, Map& map)
 {
   map.editorContext().pushGroup(groupNode);
-  map.groupWasOpenedNotifier(groupNode);
+  map.groupWasOpenedNotifier();
 }
 
 GroupNode& doPopGroup(Map& map)
@@ -38,7 +38,7 @@ GroupNode& doPopGroup(Map& map)
   auto& editorContext = map.editorContext();
   auto& previousGroup = *editorContext.currentGroup();
   editorContext.popGroup();
-  map.groupWasClosedNotifier(previousGroup);
+  map.groupWasClosedNotifier();
   return previousGroup;
 }
 
