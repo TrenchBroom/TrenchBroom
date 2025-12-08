@@ -45,10 +45,15 @@ namespace mdl
 {
 enum class MapFormat;
 
+class Command;
 class Game;
 class Map;
 class Node;
 class PickResult;
+class ResourceId;
+class UndoableCommand;
+
+struct SelectionChange;
 } // namespace mdl
 
 namespace render
@@ -84,6 +89,49 @@ public:
   Notifier<> documentWasSavedNotifier;
   Notifier<> documentWasClearedNotifier;
   Notifier<> documentDidChangeNotifier;
+
+  Notifier<> modificationStateDidChangeNotifier;
+
+  Notifier<> editorContextDidChangeNotifier;
+  Notifier<> currentLayerDidChangeNotifier;
+  Notifier<> currentMaterialNameDidChangeNotifier;
+
+  Notifier<> selectionWillChangeNotifier;
+  Notifier<const mdl::SelectionChange&> selectionDidChangeNotifier;
+
+  Notifier<const std::vector<mdl::Node*>&> nodesWereAddedNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodesWillBeRemovedNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodesWereRemovedNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodesWillChangeNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodesDidChangeNotifier;
+
+  Notifier<const std::vector<mdl::Node*>&> nodeVisibilityDidChangeNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodeLockingDidChangeNotifier;
+
+  Notifier<> groupWasOpenedNotifier;
+  Notifier<> groupWasClosedNotifier;
+
+  Notifier<const std::vector<mdl::ResourceId>&> resourcesWereProcessedNotifier;
+
+  Notifier<> materialCollectionsWillChangeNotifier;
+  Notifier<> materialCollectionsDidChangeNotifier;
+
+  Notifier<> materialUsageCountsDidChangeNotifier;
+
+  Notifier<> entityDefinitionsWillChangeNotifier;
+  Notifier<> entityDefinitionsDidChangeNotifier;
+
+  Notifier<> modsWillChangeNotifier;
+  Notifier<> modsDidChangeNotifier;
+
+  Notifier<mdl::Command&> commandDoNotifier;
+  Notifier<mdl::Command&> commandDoneNotifier;
+  Notifier<mdl::Command&> commandDoFailedNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoneNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoFailedNotifier;
+  Notifier<const std::string&, bool> transactionDoneNotifier;
+  Notifier<const std::string&, bool> transactionUndoneNotifier;
 
   Notifier<> pointFileWasLoadedNotifier;
   Notifier<> pointFileWasUnloadedNotifier;
@@ -169,6 +217,7 @@ public: // portal file management
 
 private: // observers
   void connectObservers();
+  void connectMapObservers();
 
   void transactionDone(const std::string& name, bool observable);
   void transactionUndone(const std::string& name, bool observable);

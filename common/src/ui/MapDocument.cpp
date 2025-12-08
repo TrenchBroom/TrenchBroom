@@ -251,12 +251,7 @@ void MapDocument::unloadPortalFile()
 
 void MapDocument::connectObservers()
 {
-  m_notifierConnection +=
-    m_map->mapWasCreatedNotifier.connect(documentWasCreatedNotifier);
-  m_notifierConnection += m_map->mapWasLoadedNotifier.connect(documentWasLoadedNotifier);
-  m_notifierConnection += m_map->mapWasSavedNotifier.connect(documentWasSavedNotifier);
-  m_notifierConnection +=
-    m_map->mapWasClearedNotifier.connect(documentWasClearedNotifier);
+  connectMapObservers();
 
   m_notifierConnection +=
     documentWasCreatedNotifier.connect(this, &MapDocument::documentWasCreated);
@@ -265,14 +260,79 @@ void MapDocument::connectObservers()
   m_notifierConnection +=
     documentWasClearedNotifier.connect(this, &MapDocument::documentWasCleared);
 
-  m_notifierConnection += m_map->entityDefinitionsDidChangeNotifier.connect(
+  m_notifierConnection +=
+    transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
+  m_notifierConnection +=
+    transactionUndoneNotifier.connect(this, &MapDocument::transactionUndone);
+
+  m_notifierConnection += entityDefinitionsDidChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsDidChange);
+}
+
+void MapDocument::connectMapObservers()
+{
+  m_notifierConnection +=
+    m_map->mapWasCreatedNotifier.connect(documentWasCreatedNotifier);
+  m_notifierConnection += m_map->mapWasLoadedNotifier.connect(documentWasLoadedNotifier);
+  m_notifierConnection += m_map->mapWasSavedNotifier.connect(documentWasSavedNotifier);
+  m_notifierConnection +=
+    m_map->mapWasClearedNotifier.connect(documentWasClearedNotifier);
+
+  m_notifierConnection +=
+    m_map->modificationStateDidChangeNotifier.connect(modificationStateDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->editorContextDidChangeNotifier.connect(editorContextDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->currentLayerDidChangeNotifier.connect(currentLayerDidChangeNotifier);
+  m_notifierConnection += m_map->currentMaterialNameDidChangeNotifier.connect(
+    currentMaterialNameDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->selectionWillChangeNotifier.connect(selectionWillChangeNotifier);
+  m_notifierConnection +=
+    m_map->selectionDidChangeNotifier.connect(selectionDidChangeNotifier);
+  m_notifierConnection += m_map->nodesWereAddedNotifier.connect(nodesWereAddedNotifier);
+  m_notifierConnection +=
+    m_map->nodesWillBeRemovedNotifier.connect(nodesWillBeRemovedNotifier);
+  m_notifierConnection +=
+    m_map->nodesWereRemovedNotifier.connect(nodesWereRemovedNotifier);
+  m_notifierConnection += m_map->nodesWillChangeNotifier.connect(nodesWillChangeNotifier);
+  m_notifierConnection += m_map->nodesDidChangeNotifier.connect(nodesDidChangeNotifier);
+  m_notifierConnection += m_map->nodesDidChangeNotifier.connect(nodesDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->nodeLockingDidChangeNotifier.connect(nodeLockingDidChangeNotifier);
+  m_notifierConnection += m_map->groupWasOpenedNotifier.connect(groupWasOpenedNotifier);
+  m_notifierConnection += m_map->groupWasClosedNotifier.connect(groupWasClosedNotifier);
+  m_notifierConnection +=
+    m_map->resourcesWereProcessedNotifier.connect(resourcesWereProcessedNotifier);
+  m_notifierConnection += m_map->materialCollectionsWillChangeNotifier.connect(
+    materialCollectionsWillChangeNotifier);
+  m_notifierConnection += m_map->materialCollectionsDidChangeNotifier.connect(
+    materialCollectionsDidChangeNotifier);
+  m_notifierConnection += m_map->materialUsageCountsDidChangeNotifier.connect(
+    materialUsageCountsDidChangeNotifier);
+  m_notifierConnection += m_map->entityDefinitionsWillChangeNotifier.connect(
+    entityDefinitionsWillChangeNotifier);
+  m_notifierConnection +=
+    m_map->entityDefinitionsDidChangeNotifier.connect(entityDefinitionsDidChangeNotifier);
+  m_notifierConnection += m_map->modsWillChangeNotifier.connect(modsWillChangeNotifier);
+  m_notifierConnection += m_map->modsDidChangeNotifier.connect(modsDidChangeNotifier);
 
   auto& commandProcessor = m_map->commandProcessor();
+  m_notifierConnection += commandProcessor.commandDoNotifier.connect(commandDoNotifier);
   m_notifierConnection +=
-    commandProcessor.transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
-  m_notifierConnection += commandProcessor.transactionUndoneNotifier.connect(
-    this, &MapDocument::transactionUndone);
+    commandProcessor.commandDoneNotifier.connect(commandDoneNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandDoFailedNotifier.connect(commandDoFailedNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandUndoNotifier.connect(commandUndoNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandUndoneNotifier.connect(commandUndoneNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandUndoFailedNotifier.connect(commandUndoFailedNotifier);
+  m_notifierConnection +=
+    commandProcessor.transactionDoneNotifier.connect(transactionDoneNotifier);
+  m_notifierConnection +=
+    commandProcessor.transactionUndoneNotifier.connect(transactionUndoneNotifier);
 }
 
 void MapDocument::transactionDone(const std::string&, const bool observable)
