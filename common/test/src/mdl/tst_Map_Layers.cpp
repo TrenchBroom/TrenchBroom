@@ -82,13 +82,13 @@ TEST_CASE("Map_Layers")
       setCurrentLayer(map, layerNode);
       CHECK(map.editorContext().currentLayer() == layerNode);
       CHECK(currentLayerDidChange.collected == std::set<const LayerNode*>{layerNode});
-      currentLayerDidChange.collected.clear();
+      currentLayerDidChange.reset();
 
       map.undoCommand();
       CHECK(map.editorContext().currentLayer() == defaultLayerNode);
       CHECK(
         currentLayerDidChange.collected == std::set<const LayerNode*>{defaultLayerNode});
-      currentLayerDidChange.collected.clear();
+      currentLayerDidChange.reset();
 
       map.redoCommand();
       CHECK(map.editorContext().currentLayer() == layerNode);

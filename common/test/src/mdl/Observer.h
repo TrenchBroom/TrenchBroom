@@ -32,6 +32,8 @@ struct Observer
   std::set<C> collected;
 
   void operator()(C c) { collected.insert(std::forward<C>(c)); }
+
+  void reset() { collected.clear(); }
 };
 
 template <>
@@ -40,12 +42,14 @@ struct Observer<void>
   NotifierConnection connection;
   bool called = false;
 
-  void operator()() { called = true; }
-
   explicit Observer(Notifier<>& notifier)
   {
     connection += notifier.connect(this, &Observer::operator());
   }
+
+  void operator()() { called = true; }
+
+  void reset() { called = false; }
 };
 
 template <typename C>
@@ -54,12 +58,14 @@ struct Observer<C*>
   NotifierConnection connection;
   std::set<C*> collected;
 
-  void operator()(C* c) { collected.insert(c); }
-
   explicit Observer(Notifier<C*>& notifier)
   {
     connection += notifier.connect(this, &Observer::operator());
   }
+
+  void operator()(C* c) { collected.insert(c); }
+
+  void reset() { collected.clear(); }
 };
 
 template <typename C>
@@ -82,15 +88,17 @@ struct Observer<Collection<T>>
   NotifierConnection connection;
   std::set<T> collected;
 
+  explicit Observer(Notifier<const Collection<T>&>& notifier)
+  {
+    connection += notifier.connect(this, &Observer::operator());
+  }
+
   void operator()(const Collection<T>& collection)
   {
     collected.insert(collection.begin(), collection.end());
   }
 
-  explicit Observer(Notifier<const Collection<T>&>& notifier)
-  {
-    connection += notifier.connect(this, &Observer::operator());
-  }
+  void reset() { collected.clear(); }
 };
 
 
