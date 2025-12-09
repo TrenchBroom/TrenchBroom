@@ -19,7 +19,7 @@
 
 #include "MapDocumentFixture.h"
 
-#include "Logger.h"
+#include "LoggingHub.h"
 #include "TestUtils.h"
 #include "mdl/Game.h"
 #include "mdl/Map.h"
@@ -42,15 +42,12 @@ std::unique_ptr<mdl::Game> createGame(const mdl::MapFixtureConfig& mapFixtureCon
 
 MapDocumentFixture::MapDocumentFixture()
   : m_taskManager{createTestTaskManager()}
-  , m_logger{std::make_unique<NullLogger>()}
-  , m_document{std::make_unique<MapDocument>(*m_taskManager)}
 {
-  m_document->map().setIsCommandCollationEnabled(false);
 }
 
 MapDocumentFixture::~MapDocumentFixture() = default;
 
-void MapDocumentFixture::create(mdl::MapFixtureConfig config)
+MapDocument& MapDocumentFixture::create(mdl::MapFixtureConfig config)
 {
   m_config = std::move(config);
 
@@ -58,10 +55,22 @@ void MapDocumentFixture::create(mdl::MapFixtureConfig config)
   auto game = createGame(*m_config);
 
   contract_assert(
-    m_document->map().create(mapFormat, vm::bbox3d{8192.0}, std::move(game)));
+    MapDocument::createDocument(
+      mapFormat,
+      std::move(game),
+      vm::bbox3d{8192.0},
+      *m_taskManager,
+      std::make_unique<LoggingHub>())
+    | kdl::transform([&](auto document) {
+        m_document = std::move(document);
+        m_document->map().setIsCommandCollationEnabled(false);
+      })
+    | kdl::is_success());
+
+  return *m_document;
 }
 
-void MapDocumentFixture::load(
+MapDocument& MapDocumentFixture::load(
   const std::filesystem::path& path, mdl::MapFixtureConfig config)
 {
   m_config = std::move(config);
@@ -71,20 +80,23 @@ void MapDocumentFixture::load(
   const auto mapFormat = m_config->mapFormat.value_or(mdl::MapFormat::Unknown);
   auto game = createGame(*m_config);
 
-  m_document->map()
-    .load(mapFormat, vm::bbox3d{8192.0}, std::move(game), absPath)
-    .transform_error([](const auto& e) { throw std::runtime_error{e.msg}; });
-  m_document->map().processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
-}
+  contract_assert(
+    MapDocument::loadDocument(
+      absPath,
+      mapFormat,
+      std::move(game),
+      vm::bbox3d{8192.0},
+      *m_taskManager,
+      std::make_unique<LoggingHub>())
+    | kdl::transform([&](auto document) {
+        m_document = std::move(document);
+        m_document->map().setIsCommandCollationEnabled(false);
+        m_document->map().processResourcesSync(
+          mdl::ProcessContext{false, [](auto, auto) {}});
+      })
+    | kdl::is_success());
 
-MapDocument& MapDocumentFixture::document()
-{
   return *m_document;
-}
-
-mdl::Map& MapDocumentFixture::map()
-{
-  return m_document->map();
 }
 
 } // namespace tb::ui

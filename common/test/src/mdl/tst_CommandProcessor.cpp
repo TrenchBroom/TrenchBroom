@@ -249,8 +249,7 @@ TEST_CASE("CommandProcessor")
   using namespace std::chrono_literals;
 
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   constexpr auto collationInterval = 100ms;
   auto commandProcessor = CommandProcessor{map, collationInterval};

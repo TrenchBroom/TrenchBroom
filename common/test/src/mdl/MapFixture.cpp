@@ -52,24 +52,31 @@ const MapFixtureConfig Quake2FixtureConfig = MapFixtureConfig{
 MapFixture::MapFixture()
   : m_taskManager{createTestTaskManager()}
   , m_logger{std::make_unique<NullLogger>()}
-  , m_map{std::make_unique<Map>(*m_taskManager, *m_logger)}
 {
-  m_map->setIsCommandCollationEnabled(false);
 }
 
 MapFixture::~MapFixture() = default;
 
-void MapFixture::create(MapFixtureConfig config)
+Map& MapFixture::create(MapFixtureConfig config)
 {
   m_config = std::move(config);
 
   const auto mapFormat = m_config->mapFormat.value_or(MapFormat::Standard);
   auto game = createGame(*m_config);
 
-  contract_assert(m_map->create(mapFormat, vm::bbox3d{8192.0}, std::move(game)));
+  contract_assert(
+    Map::createMap(
+      mapFormat, std::move(game), vm::bbox3d{8129.0}, *m_taskManager, *m_logger)
+    | kdl::transform([&](auto map) {
+        m_map = std::move(map);
+        m_map->setIsCommandCollationEnabled(false);
+      })
+    | kdl::is_success());
+
+  return *m_map;
 }
 
-void MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config)
+Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config)
 {
   m_config = std::move(config);
 
@@ -78,13 +85,16 @@ void MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
   const auto mapFormat = m_config->mapFormat.value_or(MapFormat::Unknown);
   auto game = createGame(*m_config);
 
-  m_map->load(mapFormat, vm::bbox3d{8192.0}, std::move(game), absPath)
-    .transform_error([](const auto& e) { throw std::runtime_error{e.msg}; });
-  m_map->processResourcesSync(ProcessContext{false, [](auto, auto) {}});
-}
+  contract_assert(
+    Map::loadMap(
+      absPath, mapFormat, std::move(game), vm::bbox3d{8129.0}, *m_taskManager, *m_logger)
+    | kdl::transform([&](auto map) {
+        m_map = std::move(map);
+        m_map->setIsCommandCollationEnabled(false);
+        m_map->processResourcesSync(ProcessContext{false, [](auto, auto) {}});
+      })
+    | kdl::is_success());
 
-Map& MapFixture::map()
-{
   return *m_map;
 }
 

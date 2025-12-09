@@ -135,7 +135,6 @@ private:
 
   void documentWasCreated();
   void documentWasLoaded();
-  void documentWasCleared();
   void documentDidChange();
 
   void toolChanged(Tool& tool);

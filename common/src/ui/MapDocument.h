@@ -41,11 +41,13 @@ class task_manager;
 namespace tb
 {
 class Logger;
+class LoggingHub;
 
 namespace mdl
 {
 enum class MapFormat;
 
+class Autosaver;
 class Command;
 class Game;
 class Map;
@@ -84,12 +86,10 @@ class MapDocument
 {
 public:
   static const vm::bbox3d DefaultWorldBounds;
-  static const std::string DefaultDocumentName;
 
   Notifier<> documentWasCreatedNotifier;
   Notifier<> documentWasLoadedNotifier;
   Notifier<> documentWasSavedNotifier;
-  Notifier<> documentWasClearedNotifier;
   Notifier<> documentDidChangeNotifier;
 
   Notifier<> modificationStateDidChangeNotifier;
@@ -144,9 +144,11 @@ public:
   Notifier<> portalFileWasUnloadedNotifier;
 
 private:
-  std::unique_ptr<CachingLogger> m_logger;
+  kdl::task_manager* m_taskManager;
+  std::unique_ptr<LoggingHub> m_loggingHub;
 
   std::unique_ptr<mdl::Map> m_map;
+  std::unique_ptr<mdl::Autosaver> m_autosaver;
 
   std::optional<PointFile> m_pointFile;
   std::optional<PortalFile> m_portalFile;
@@ -161,8 +163,46 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapDocument(kdl::task_manager& taskManager);
+  explicit MapDocument(
+    kdl::task_manager& taskManager, std::unique_ptr<LoggingHub> loggingHub);
+
+  MapDocument(MapDocument&&) noexcept;
+  MapDocument& operator=(MapDocument&&) noexcept;
+
+  static Result<std::unique_ptr<MapDocument>> createDocument(
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    std::unique_ptr<LoggingHub> loggingHub);
+
+  static Result<std::unique_ptr<MapDocument>> loadDocument(
+    std::filesystem::path path,
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    std::unique_ptr<LoggingHub> loggingHub);
+
   ~MapDocument();
+
+  Result<void> create(
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds);
+
+  Result<void> load(
+    std::filesystem::path path,
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds);
+
+  Result<void> reload();
+
+  void triggerAutosave();
+
+private:
+  void setMap(std::unique_ptr<mdl::Map>);
 
 public: // accessors and such
   mdl::Map& map();
@@ -172,7 +212,7 @@ public: // accessors and such
   const render::MapRenderer& mapRenderer() const;
 
   Logger& logger();
-  void setParentLogger(Logger* parentLogger);
+  void setTargetLogger(Logger* parentLogger);
 
   void setViewEffectsService(ViewEffectsService* viewEffectsService);
 

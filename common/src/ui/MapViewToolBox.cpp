@@ -335,8 +335,6 @@ void MapViewToolBox::connectObservers()
     this, &MapViewToolBox::documentWasCreated);
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
     this, &MapViewToolBox::documentWasLoaded);
-  m_notifierConnection += m_document.documentWasClearedNotifier.connect(
-    this, &MapViewToolBox::documentWasCleared);
 
   m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
     this, &MapViewToolBox::selectionDidChange);
@@ -366,11 +364,6 @@ void MapViewToolBox::documentWasCreated()
 }
 
 void MapViewToolBox::documentWasLoaded()
-{
-  deactivateAllTools();
-}
-
-void MapViewToolBox::documentWasCleared()
 {
   deactivateAllTools();
 }

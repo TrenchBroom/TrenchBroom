@@ -32,7 +32,6 @@
 #include "mdl/Game.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
-#include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "ui/BorderLine.h"

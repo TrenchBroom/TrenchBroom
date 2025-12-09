@@ -59,8 +59,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Selection")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 

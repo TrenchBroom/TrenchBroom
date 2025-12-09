@@ -140,7 +140,7 @@ auto makeNodeFilter()
 kdl_reflect_impl(Selection);
 
 Selection::Selection(const Map& map)
-  : m_map{map}
+  : m_map{&map}
 {
 }
 
@@ -252,7 +252,7 @@ const std::vector<EntityNodeBase*>& Selection::allEntities() const
 {
   if (!m_cachedAllEntities)
   {
-    auto* worldNode = m_map.world();
+    auto* worldNode = m_map->world();
     m_cachedAllEntities =
       worldNode ? computeAllEntities(*this, *worldNode) : std::vector<EntityNodeBase*>{};
   }
@@ -274,7 +274,7 @@ const std::vector<BrushFaceHandle>& Selection::allBrushFaces() const
 {
   if (!m_cachedAllBrushFaces)
   {
-    auto* worldNode = m_map.world();
+    auto* worldNode = m_map->world();
     m_cachedAllBrushFaces = worldNode ? computeAllBrushFaces(*this, *worldNode)
                                       : std::vector<BrushFaceHandle>{};
   }

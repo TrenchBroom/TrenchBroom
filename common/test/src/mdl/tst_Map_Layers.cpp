@@ -63,8 +63,7 @@ void setLayerSortIndex(LayerNode& layerNode, int sortIndex)
 TEST_CASE("Map_Layers")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("setCurrentLayer")
   {

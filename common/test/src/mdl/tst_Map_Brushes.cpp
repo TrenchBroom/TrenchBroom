@@ -42,11 +42,10 @@ namespace tb::mdl
 TEST_CASE("Map_Brushes")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
 
   SECTION("createBrush")
   {
-    fixture.create();
+    auto& map = fixture.create();
 
     SECTION("valid brush")
     {
@@ -86,10 +85,10 @@ TEST_CASE("Map_Brushes")
 
   SECTION("setBrushFaceAttributes")
   {
-    fixture.create();
-
     SECTION("Setting all attributes")
     {
+      auto& map = fixture.create();
+
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
@@ -208,6 +207,8 @@ TEST_CASE("Map_Brushes")
 
     SECTION("Undo and redo")
     {
+      auto& map = fixture.create();
+
       auto* brushNode = createBrushNode(map, "original");
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
@@ -242,7 +243,7 @@ TEST_CASE("Map_Brushes")
       const int WaterFlag = 32;
       const int LavaFlag = 8;
 
-      fixture.load(
+      auto& map = fixture.load(
         "fixture/test/ui/ChangeBrushFaceAttributesTest/lavaAndWater.map",
         Quake2FixtureConfig);
 
@@ -299,7 +300,7 @@ TEST_CASE("Map_Brushes")
 
     SECTION("Setting a material keeps the surface flags unset")
     {
-      fixture.create(QuakeFixtureConfig);
+      auto& map = fixture.create(QuakeFixtureConfig);
 
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
@@ -322,7 +323,7 @@ TEST_CASE("Map_Brushes")
       auto fixtureConfig = MapFixtureConfig{};
       fixtureConfig.gameInfo.gameConfig.faceAttribsConfig.defaults = defaultFaceAttrs;
 
-      fixture.create(fixtureConfig);
+      auto& map = fixture.create(fixtureConfig);
 
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
@@ -359,6 +360,8 @@ TEST_CASE("Map_Brushes")
     SECTION("Linked groups")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
+
+      auto& map = fixture.create();
 
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});

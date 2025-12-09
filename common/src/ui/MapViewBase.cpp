@@ -152,8 +152,6 @@ void MapViewBase::connectObservers()
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect(this, &MapViewBase::documentWasLoaded);
   m_notifierConnection +=
-    m_document.documentWasClearedNotifier.connect(this, &MapViewBase::documentWasCleared);
-  m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
 
   m_notifierConnection += m_document.materialCollectionsDidChangeNotifier.connect(
@@ -203,12 +201,6 @@ void MapViewBase::documentWasCreated()
 }
 
 void MapViewBase::documentWasLoaded()
-{
-  createActionsAndUpdatePicking();
-  update();
-}
-
-void MapViewBase::documentWasCleared()
 {
   createActionsAndUpdatePicking();
   update();

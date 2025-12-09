@@ -45,8 +45,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_NodeVisibility")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("isolateSelectedNodes")
   {

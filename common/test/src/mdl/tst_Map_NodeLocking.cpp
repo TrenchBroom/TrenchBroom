@@ -46,8 +46,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_NodeLocking")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("lockNodes")
   {

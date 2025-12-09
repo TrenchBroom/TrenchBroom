@@ -46,11 +46,11 @@ namespace tb::mdl
 TEST_CASE("Map_CopyPaste")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
 
   SECTION("serializeSelectedNodes")
   {
+    auto& map = fixture.create();
+
     const auto builder = BrushBuilder{
       map.world()->mapFormat(),
       map.worldBounds(),
@@ -104,6 +104,8 @@ TEST_CASE("Map_CopyPaste")
 
   SECTION("serializeSelectedBrushFaces")
   {
+    auto& map = fixture.create();
+
     const auto builder = BrushBuilder{
       map.world()->mapFormat(),
       map.worldBounds(),
@@ -168,6 +170,7 @@ TEST_CASE("Map_CopyPaste")
 }
 })";
 
+      auto& map = fixture.create();
       const auto& worldNode = *map.world();
       REQUIRE_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
 
@@ -204,6 +207,7 @@ TEST_CASE("Map_CopyPaste")
 }
 })";
 
+      auto& map = fixture.create();
       const auto& worldNode = *map.world();
       REQUIRE_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
 
@@ -241,6 +245,7 @@ TEST_CASE("Map_CopyPaste")
 }
 })";
 
+      auto& map = fixture.create();
       const auto& worldNode = *map.world();
       REQUIRE_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
 
@@ -275,6 +280,7 @@ TEST_CASE("Map_CopyPaste")
 }
 })";
 
+      auto& map = fixture.create();
       const auto& worldNode = *map.world();
       REQUIRE_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
 
@@ -299,6 +305,7 @@ TEST_CASE("Map_CopyPaste")
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
 })";
 
+      auto& map = fixture.create();
       const auto& worldNode = *map.world();
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
@@ -311,8 +318,6 @@ TEST_CASE("Map_CopyPaste")
 
     SECTION("Paste single patch")
     {
-      fixture.create({.mapFormat = MapFormat::Quake3});
-
       const auto data = R"(
 {
 patchDef2
@@ -329,6 +334,7 @@ common/caulk
 }
 })";
 
+      auto& map = fixture.create({.mapFormat = MapFormat::Quake3});
       const auto& worldNode = *map.world();
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
@@ -342,6 +348,8 @@ common/caulk
     SECTION("Paste and translate a group")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/2776
+
+      auto& map = fixture.create();
 
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
       const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
@@ -377,7 +385,9 @@ common/caulk
 "origin" "0 0 0"
 })"};
 
+      auto& map = fixture.create();
       auto* brushNode = createBrushNode(map);
+
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       selectNodes(map, {brushNode});
 
@@ -406,6 +416,7 @@ common/caulk
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
 })";
 
+      auto& map = fixture.create();
       const auto& worldNode = *map.world();
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
@@ -430,6 +441,8 @@ common/caulk
 
     SECTION("Paste resets duplicate group IDs")
     {
+      auto& map = fixture.create();
+
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
@@ -474,6 +487,8 @@ common/caulk
 
     SECTION("Paste resets duplicate link IDs")
     {
+      auto& map = fixture.create();
+
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       selectNodes(map, {brushNode});

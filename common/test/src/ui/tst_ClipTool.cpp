@@ -27,6 +27,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
+#include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
@@ -39,9 +40,8 @@ namespace tb::ui
 TEST_CASE("ClipTool")
 {
   auto fixture = MapDocumentFixture{};
-  auto& document = fixture.document();
-  auto& map = fixture.map();
-  fixture.create();
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   SECTION("Clipped brushes get new link IDs")
   {

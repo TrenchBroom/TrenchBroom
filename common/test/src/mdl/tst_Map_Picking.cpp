@@ -50,8 +50,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Picking")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 

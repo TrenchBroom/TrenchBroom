@@ -43,7 +43,8 @@ struct SelectionChange;
 class Selection
 {
 private:
-  const Map& m_map;
+  // pointer to enable move semantics
+  const Map* m_map;
   mutable std::optional<std::vector<EntityNodeBase*>> m_cachedAllEntities;
   mutable std::optional<std::vector<BrushNode*>> m_cachedAllBrushes;
   mutable std::optional<std::vector<BrushFaceHandle>> m_cachedAllBrushFaces;

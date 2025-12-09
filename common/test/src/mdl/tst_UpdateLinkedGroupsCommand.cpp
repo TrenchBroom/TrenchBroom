@@ -37,8 +37,7 @@ namespace tb::mdl
 TEST_CASE("UpdateLinkedGroupsCommand")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   const auto createLinkedGroup = [&]() {
     auto brushNode = createBrushNode(map);

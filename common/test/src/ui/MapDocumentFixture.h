@@ -43,7 +43,6 @@ class MapDocumentFixture
 {
 private:
   std::unique_ptr<kdl::task_manager> m_taskManager;
-  std::unique_ptr<Logger> m_logger;
   std::unique_ptr<MapDocument> m_document;
 
   std::optional<mdl::MapFixtureConfig> m_config;
@@ -54,11 +53,8 @@ public:
 
   defineMove(MapDocumentFixture);
 
-  void create(mdl::MapFixtureConfig = {});
-  void load(const std::filesystem::path& path, mdl::MapFixtureConfig = {});
-
-  MapDocument& document();
-  mdl::Map& map();
+  MapDocument& create(mdl::MapFixtureConfig = {});
+  MapDocument& load(const std::filesystem::path& path, mdl::MapFixtureConfig = {});
 };
 
 } // namespace ui

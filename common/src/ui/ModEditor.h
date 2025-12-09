@@ -67,7 +67,6 @@ private:
 
   void documentWasCreated();
   void documentWasLoaded();
-  void documentWasCleared();
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 

@@ -50,8 +50,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Entities")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   map.entityDefinitionManager().setDefinitions({
     {"point_entity",
@@ -146,9 +145,9 @@ TEST_CASE("Map_Entities")
     {
       auto fixtureConfig = MapFixtureConfig{};
       fixtureConfig.gameInfo.gameConfig.entityConfig.setDefaultProperties = true;
-      fixture.create(fixtureConfig);
 
-      map.entityDefinitionManager().setDefinitions({
+      auto& mapWithDefaultProperties = fixture.create(fixtureConfig);
+      mapWithDefaultProperties.entityDefinitionManager().setDefinitions({
         EntityDefinition{
           "some_name",
           Color{},
@@ -165,9 +164,10 @@ TEST_CASE("Map_Entities")
       });
 
       const auto& definitionWithDefaults =
-        map.entityDefinitionManager().definitions().front();
+        mapWithDefaultProperties.entityDefinitionManager().definitions().front();
 
-      auto* entityNode = createPointEntity(map, definitionWithDefaults, {0, 0, 0});
+      auto* entityNode =
+        createPointEntity(mapWithDefaultProperties, definitionWithDefaults, {0, 0, 0});
       REQUIRE(entityNode != nullptr);
       CHECK_THAT(
         entityNode->entity().properties(),
@@ -267,9 +267,9 @@ TEST_CASE("Map_Entities")
     {
       auto fixtureConfig = MapFixtureConfig{};
       fixtureConfig.gameInfo.gameConfig.entityConfig.setDefaultProperties = true;
-      fixture.create(fixtureConfig);
 
-      map.entityDefinitionManager().setDefinitions({
+      auto& mapWithDefaultProperties = fixture.create(fixtureConfig);
+      mapWithDefaultProperties.entityDefinitionManager().setDefinitions({
         EntityDefinition{
           "some_name",
           Color{},
@@ -281,13 +281,16 @@ TEST_CASE("Map_Entities")
       });
 
       const auto& definitionWithDefaults =
-        map.entityDefinitionManager().definitions().front();
+        mapWithDefaultProperties.entityDefinitionManager().definitions().front();
 
-      auto* brushNode = createBrushNode(map, "some_material");
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      auto* brushNode = createBrushNode(mapWithDefaultProperties, "some_material");
+      addNodes(
+        mapWithDefaultProperties,
+        {{parentForNodes(mapWithDefaultProperties), {brushNode}}});
 
-      selectNodes(map, {brushNode});
-      auto* entityNode = createBrushEntity(map, definitionWithDefaults);
+      selectNodes(mapWithDefaultProperties, {brushNode});
+      auto* entityNode =
+        createBrushEntity(mapWithDefaultProperties, definitionWithDefaults);
       REQUIRE(entityNode != nullptr);
       CHECK_THAT(
         entityNode->entity().properties(),

@@ -29,6 +29,7 @@
 #include "render/PerspectiveCamera.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
+#include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
@@ -60,9 +61,8 @@ void updatePickState(
 TEST_CASE("ClipToolController")
 {
   auto fixture = MapDocumentFixture{};
-  auto& document = fixture.document();
-  auto& map = fixture.map();
-  fixture.create();
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/2602
   const auto data = R"(

@@ -23,6 +23,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/ShearTool.h"
 
@@ -41,9 +42,8 @@ namespace tb::ui
 TEST_CASE("ShearTool")
 {
   auto fixture = MapDocumentFixture{};
-  auto& document = fixture.document();
-  auto& map = fixture.map();
-  fixture.create();
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   auto* brushNode = mdl::createBrushNode(map);

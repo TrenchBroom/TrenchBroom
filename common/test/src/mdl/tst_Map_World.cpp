@@ -34,18 +34,12 @@ namespace tb::mdl
 TEST_CASE("Map_World")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
 
   SECTION("softMapBounds")
   {
-    SECTION("No world node")
-    {
-      CHECK(softMapBounds(map) == SoftMapBounds{SoftMapBoundsType::Game, std::nullopt});
-    }
-
     SECTION("World node without soft map bounds key")
     {
-      fixture.create(QuakeFixtureConfig);
+      auto& map = fixture.create(QuakeFixtureConfig);
 
       CHECK(
         softMapBounds(map) == SoftMapBounds{SoftMapBoundsType::Game, vm::bbox3d{4096.0}});
@@ -53,7 +47,7 @@ TEST_CASE("Map_World")
 
     SECTION("World node with soft map bounds key")
     {
-      fixture.create(QuakeFixtureConfig);
+      auto& map = fixture.create(QuakeFixtureConfig);
 
       {
         auto* worldNode = map.world();
@@ -81,7 +75,7 @@ TEST_CASE("Map_World")
        "-1024 -1024 -1024 1024 1024 1024"},
     }));
 
-    fixture.create(QuakeFixtureConfig);
+    auto& map = fixture.create(QuakeFixtureConfig);
 
     setSoftMapBounds(map, softBounds);
 
@@ -100,20 +94,13 @@ TEST_CASE("Map_World")
 
   SECTION("externalSearchPaths")
   {
-    SECTION("No world node")
-    {
-      CHECK(externalSearchPaths(map) == std::vector{io::SystemPaths::appDirectory()});
-    }
-
-
     SECTION("With node")
     {
-
       SECTION("Map is transient")
       {
         auto fixtureConfig = MapFixtureConfig{};
         fixtureConfig.gameInfo.gamePathPreference.setValue(".");
-        fixture.create(fixtureConfig);
+        auto& map = fixture.create(fixtureConfig);
 
         REQUIRE(!map.persistent());
 
@@ -143,7 +130,8 @@ TEST_CASE("Map_World")
         auto fixtureConfig = MapFixtureConfig{};
         fixtureConfig.gameInfo.gameConfig.fileFormats = {{"Valve", ""}};
         fixtureConfig.gameInfo.gamePathPreference.setValue(".");
-        fixture.load(path, fixtureConfig);
+
+        auto& map = fixture.load(path, fixtureConfig);
 
         CHECK(
           externalSearchPaths(map)
@@ -170,14 +158,9 @@ TEST_CASE("Map_World")
 
     SECTION("When passing a map")
     {
-      SECTION("No world node")
-      {
-        CHECK(enabledMods(map).empty());
-      }
-
       SECTION("With world node")
       {
-        fixture.create();
+        auto& map = fixture.create();
 
         CHECK(enabledMods(map).empty());
 
@@ -195,7 +178,7 @@ TEST_CASE("Map_World")
 
   SECTION("setEnabledMods")
   {
-    fixture.create();
+    auto& map = fixture.create();
 
     const auto* worldNode = map.world();
     const auto& world = worldNode->entity();
@@ -249,7 +232,7 @@ TEST_CASE("Map_World")
 
   SECTION("defaultMod")
   {
-    fixture.create(QuakeFixtureConfig);
+    auto& map = fixture.create(QuakeFixtureConfig);
 
     CHECK(defaultMod(map) == "id1");
   }

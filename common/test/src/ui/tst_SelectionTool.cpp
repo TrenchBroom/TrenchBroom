@@ -36,6 +36,7 @@
 #include "mdl/WorldNode.h"
 #include "render/OrthographicCamera.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/PickRequest.h"
 #include "ui/SelectionTool.h"
@@ -54,9 +55,8 @@ using namespace Catch::Matchers;
 TEST_CASE("SelectionTool")
 {
   auto fixture = MapDocumentFixture{};
-  auto& document = fixture.document();
-  auto& map = fixture.map();
-  fixture.create();
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   SECTION("clicking")
   {

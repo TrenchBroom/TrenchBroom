@@ -198,8 +198,6 @@ void ModEditor::connectObservers()
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect(this, &ModEditor::documentWasLoaded);
   m_notifierConnection +=
-    m_document.documentWasClearedNotifier.connect(this, &ModEditor::documentWasCleared);
-  m_notifierConnection +=
     m_document.modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
 
   auto& prefs = PreferenceManager::instance();
@@ -214,12 +212,6 @@ void ModEditor::documentWasCreated()
 }
 
 void ModEditor::documentWasLoaded()
-{
-  updateAvailableMods();
-  updateMods();
-}
-
-void ModEditor::documentWasCleared()
 {
   updateAvailableMods();
   updateMods();

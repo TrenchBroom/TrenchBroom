@@ -117,8 +117,7 @@ public:
 TEST_CASE("CompilationRunToolTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("runMissingTool")
   {
@@ -296,8 +295,7 @@ escaped str)"));
 TEST_CASE("CompilationExportMapTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -343,8 +341,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
 TEST_CASE("CompilationCopyFilesTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -393,8 +390,7 @@ TEST_CASE("CompilationCopyFilesTaskRunner")
 TEST_CASE("CompilationRenameFileTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -453,8 +449,7 @@ TEST_CASE("CompilationRenameFileTaskRunner")
 TEST_CASE("CompilationDeleteFilesTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
@@ -506,8 +501,8 @@ TEST_CASE("CompilationRunner")
   };
 
   auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.load("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map", fixtureConfig);
+  auto& map = fixture.load(
+    "fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map", fixtureConfig);
 
   const auto testWorkDir = std::string{"/some/path"};
   auto variables = CompilationVariables{map, testWorkDir};

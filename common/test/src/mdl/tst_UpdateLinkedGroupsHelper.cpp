@@ -28,6 +28,7 @@
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h"
 
@@ -123,16 +124,16 @@ TEST_CASE("checkLinkedGroupsToUpdate")
 
 TEST_CASE("UpdateLinkedGroupsHelper")
 {
+  bool deleted = false;
+
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("Ownership")
   {
     auto* groupNode = new GroupNode{Group{""}};
     setLinkId(*groupNode, "asdf");
 
-    bool deleted = false;
     auto* entityNode = new TestNode{Entity{}, deleted};
     groupNode->addChild(entityNode);
 
@@ -159,11 +160,6 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       }
       CHECK_FALSE(deleted);
     }
-
-
-    // Need to clear the map and delete all nodes, otherwise the TestNode destructor
-    // will access the deleted variable when its no longer valid.
-    map.clear();
   }
 
   SECTION("applyLinkedGroupUpdates")

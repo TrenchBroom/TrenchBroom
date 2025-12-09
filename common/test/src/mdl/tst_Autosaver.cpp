@@ -94,8 +94,7 @@ TEST_CASE("Autosaver")
   using namespace std::chrono_literals;
 
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   auto env = fs::TestEnvironment{};
 

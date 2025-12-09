@@ -19,6 +19,7 @@
 
 #include "TrenchBroomApp.h"
 
+#include "LoggingHub.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Result.h"
@@ -446,58 +447,41 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
              : Result<void>{Error{fmt::format("{} not found", path)}};
   };
 
-  auto* frame = static_cast<MapFrame*>(nullptr);
-  try
-  {
-    return checkFileExists() | kdl::or_else([&](const auto& e) {
-             m_recentDocuments->removePath(absPath);
-             return Result<void>{e};
+  return checkFileExists() | kdl::or_else([&](const auto& e) {
+           m_recentDocuments->removePath(absPath);
+           return Result<void>{e};
+         })
+         | kdl::and_then([&]() {
+             const auto gameNameAndMapFormat = detectOrQueryGameAndFormat(absPath);
+             if (!gameNameAndMapFormat)
+             {
+               return Result<bool>{false};
+             }
+
+             auto loggingHub = std::make_unique<LoggingHub>();
+
+             const auto [gameName, mapFormat] = *gameNameAndMapFormat;
+             auto game = gameManager().createGame(gameName, *loggingHub);
+             contract_assert(game != nullptr);
+
+             return m_frameManager->loadDocument(
+                      absPath,
+                      mapFormat,
+                      std::move(game),
+                      MapDocument::DefaultWorldBounds,
+                      m_taskManager,
+                      std::move(loggingHub))
+                    | kdl::transform([&]() {
+                        closeWelcomeWindow();
+                        return true;
+                      });
            })
-           | kdl::and_then([&]() {
-               const auto gameNameAndMapFormat = detectOrQueryGameAndFormat(absPath);
-               if (!gameNameAndMapFormat)
-               {
-                 return Result<bool>{false};
-               }
-
-               frame = m_frameManager->newFrame(m_taskManager);
-
-               const auto [gameName, mapFormat] = *gameNameAndMapFormat;
-               auto game = gameManager().createGame(gameName, frame->logger());
-               contract_assert(game != nullptr);
-
-               closeWelcomeWindow();
-
-               return frame->openDocument(std::move(game), mapFormat, absPath);
-             })
-           | kdl::transform_error([&](const auto& e) {
-               if (frame)
-               {
-                 frame->close();
-               }
-               QMessageBox::critical(
-                 nullptr, "TrenchBroom", e.msg.c_str(), QMessageBox::Ok);
-               return false;
-             })
-           | kdl::value();
-  }
-  catch (const std::exception& e)
-  {
-    if (frame)
-    {
-      frame->close();
-    }
-    QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
-    return false;
-  }
-  catch (...)
-  {
-    if (frame)
-    {
-      frame->close();
-    }
-    throw;
-  }
+         | kdl::transform_error([&](const auto& e) {
+             QMessageBox::critical(
+               nullptr, "TrenchBroom", e.msg.c_str(), QMessageBox::Ok);
+             return false;
+           })
+         | kdl::value();
 }
 
 void TrenchBroomApp::openPreferences()
@@ -513,42 +497,34 @@ void TrenchBroomApp::openAbout()
 
 bool TrenchBroomApp::newDocument()
 {
-  auto* frame = static_cast<MapFrame*>(nullptr);
-  try
+  const auto gameNameAndMapFormat = GameDialog::showNewDocumentDialog();
+  if (!gameNameAndMapFormat)
   {
-    const auto gameNameAndMapFormat = GameDialog::showNewDocumentDialog();
-    if (!gameNameAndMapFormat)
-    {
-      return false;
-    }
-
-    const auto [gameName, mapFormat] = *gameNameAndMapFormat;
-
-    frame = m_frameManager->newFrame(m_taskManager);
-
-    auto game = gameManager().createGame(gameName, frame->logger());
-    contract_assert(game != nullptr);
-
-    closeWelcomeWindow();
-    return frame->newDocument(std::move(game), mapFormat)
-           | kdl::transform_error([&](auto e) {
-               frame->close();
-
-               QMessageBox::critical(nullptr, "", QString::fromStdString(e.msg));
-               return false;
-             })
-           | kdl::value();
-  }
-  catch (const std::exception& e)
-  {
-    if (frame)
-    {
-      frame->close();
-    }
-
-    QMessageBox::critical(nullptr, "", e.what());
     return false;
   }
+
+  auto loggingHub = std::make_unique<LoggingHub>();
+
+  const auto [gameName, mapFormat] = *gameNameAndMapFormat;
+  auto game = gameManager().createGame(gameName, *loggingHub);
+  contract_assert(game != nullptr);
+
+  return m_frameManager->createDocument(
+           mapFormat,
+           std::move(game),
+           MapDocument::DefaultWorldBounds,
+           m_taskManager,
+           std::move(loggingHub))
+         | kdl::transform([&]() {
+             closeWelcomeWindow();
+             return true;
+           })
+         | kdl::transform_error([&](const auto& e) {
+             QMessageBox::critical(
+               nullptr, "TrenchBroom", e.msg.c_str(), QMessageBox::Ok);
+             return false;
+           })
+         | kdl::value();
 }
 
 void TrenchBroomApp::openDocument()

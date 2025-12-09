@@ -116,7 +116,6 @@ private:
 
   void documentWasCreated();
   void documentWasLoaded();
-  void documentWasCleared();
   void editorContextDidChange();
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);

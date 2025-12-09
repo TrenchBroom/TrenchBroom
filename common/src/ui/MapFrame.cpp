@@ -133,7 +133,6 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   : m_frameManager{frameManager}
   , m_document{std::move(document)}
   , m_lastInputTime{std::chrono::system_clock::now()}
-  , m_autosaver{std::make_unique<mdl::Autosaver>(m_document->map())}
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
   , m_contextManager{std::make_unique<GLContextManager>()}
@@ -158,7 +157,7 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   updateUndoRedoActions();
   updateToolBarWidgets();
 
-  m_document->setParentLogger(m_console);
+  m_document->setTargetLogger(m_console);
   m_document->setViewEffectsService(m_mapView);
 
   m_autosaveTimer->start(1000);
@@ -189,7 +188,7 @@ MapFrame::~MapFrame()
   // The MapDocument's CachingLogger has a pointer to m_console, which
   // is about to be destroyed (DestroyChildren()). Clear the pointer
   // so we don't try to log to a dangling pointer (#1885).
-  m_document->setParentLogger(nullptr);
+  m_document->setTargetLogger(nullptr);
 
   m_mapView->deactivateCurrentTool();
 
@@ -205,7 +204,7 @@ MapFrame::~MapFrame()
   qDeleteAll(std::rbegin(children), std::rend(children));
 
   // let's trigger a final autosave before releasing the document
-  m_autosaver->triggerAutosave();
+  m_document->triggerAutosave();
 
   m_document->setViewEffectsService(nullptr);
   m_document.reset();
@@ -729,8 +728,6 @@ void MapFrame::connectObservers()
     m_document->documentWasLoadedNotifier.connect(this, &MapFrame::documentWasLoaded);
   m_notifierConnection +=
     m_document->documentWasSavedNotifier.connect(this, &MapFrame::documentWasSaved);
-  m_notifierConnection +=
-    m_document->documentWasClearedNotifier.connect(this, &MapFrame::documentWasCleared);
 
   m_notifierConnection +=
     m_document->pointFileWasLoadedNotifier.connect(this, &MapFrame::pointFileDidChange);
@@ -794,13 +791,6 @@ void MapFrame::documentWasSaved()
   updateActionState();
   updateUndoRedoActions();
   updateRecentDocumentsMenu();
-}
-
-void MapFrame::documentWasCleared()
-{
-  updateTitle();
-  updateActionState();
-  updateUndoRedoActions();
 }
 
 void MapFrame::mapModificationStateDidChange()
@@ -951,8 +941,7 @@ Result<bool> MapFrame::newDocument(
     return false;
   }
 
-  auto& map = m_document->map();
-  return map.create(mapFormat, MapDocument::DefaultWorldBounds, std::move(game))
+  return m_document->create(mapFormat, std::move(game), MapDocument::DefaultWorldBounds)
          | kdl::transform([]() { return true; });
 }
 
@@ -966,9 +955,9 @@ Result<bool> MapFrame::openDocument(
     return false;
   }
 
-  auto& map = m_document->map();
   const auto startTime = std::chrono::high_resolution_clock::now();
-  return map.load(mapFormat, MapDocument::DefaultWorldBounds, std::move(game), path)
+  return m_document->load(
+           path, mapFormat, std::move(game), MapDocument::DefaultWorldBounds)
          | kdl::transform([&]() {
              const auto endTime = std::chrono::high_resolution_clock::now();
 
@@ -1053,7 +1042,7 @@ void MapFrame::revertDocument()
   auto& map = m_document->map();
   if (map.persistent() && confirmRevertDocument())
   {
-    map.reload() | kdl::transform_error([&](auto e) {
+    m_document->reload() | kdl::transform_error([&](auto e) {
       logger().error() << "Failed to revert document: " << e.msg;
     });
   }
@@ -2585,7 +2574,7 @@ void MapFrame::triggerAutosave()
     QGuiApplication::mouseButtons() == Qt::NoButton
     && std::chrono::system_clock::now() - m_lastInputTime > 2s)
   {
-    m_autosaver->triggerAutosave();
+    m_document->triggerAutosave();
   }
 }
 

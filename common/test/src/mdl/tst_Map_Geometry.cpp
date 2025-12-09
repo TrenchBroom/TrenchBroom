@@ -42,7 +42,6 @@
 #include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
 
-#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/ranges/zip_view.h"
 
@@ -113,11 +112,11 @@ bool hasEmptyName(const std::vector<std::string>& names)
 TEST_CASE("Map_Geometry")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
 
   SECTION("transformSelection")
   {
+    auto& map = fixture.create();
+
     GIVEN("A node to transform")
     {
       using CreateNode = std::function<Node*(const Map&)>;
@@ -275,6 +274,8 @@ TEST_CASE("Map_Geometry")
 
   SECTION("translateSelection")
   {
+    auto& map = fixture.create();
+
     GIVEN("An entity")
     {
       auto* entityNode = new EntityNode{Entity{}};
@@ -297,6 +298,8 @@ TEST_CASE("Map_Geometry")
 
   SECTION("rotateSelection")
   {
+    auto& map = fixture.create();
+
     SECTION("objects")
     {
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
@@ -469,6 +472,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("scaleSelection")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     const auto initialBBox = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
@@ -529,6 +533,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("shearSelection")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     SECTION("cube")
@@ -624,6 +629,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("flipSelection")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     auto* brushNode1 = new BrushNode{
@@ -655,6 +661,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("transformVertices")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
@@ -734,6 +741,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("transformEdges")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
@@ -820,6 +828,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("transformFaces")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
@@ -918,6 +927,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("addVertex")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
@@ -958,6 +968,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("removeVertices")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
@@ -1025,6 +1036,8 @@ TEST_CASE("Map_Geometry")
 
   SECTION("snapVertices")
   {
+    auto& map = fixture.create();
+
     SECTION("Don't crash when snapping vertices")
     {
       // see https://github.com/TrenchBroom/TrenchBroom/issues/2244
@@ -1087,6 +1100,7 @@ TEST_CASE("Map_Geometry")
   {
     SECTION("Merge two brushes")
     {
+      auto& map = fixture.create();
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
@@ -1112,6 +1126,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("Merge two faces")
     {
+      auto& map = fixture.create();
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
@@ -1157,8 +1172,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("Texture alignment")
     {
-      fixture.create({.mapFormat = MapFormat::Valve});
-
+      auto& map = fixture.create({.mapFormat = MapFormat::Valve});
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
@@ -1201,6 +1215,7 @@ TEST_CASE("Map_Geometry")
   {
     SECTION("Subtract multiple brushes")
     {
+      auto& map = fixture.create();
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
@@ -1246,6 +1261,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("Undo restores selection")
     {
+      auto& map = fixture.create();
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
@@ -1271,7 +1287,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("Texture alignment")
     {
-      fixture.create({.mapFormat = MapFormat::Valve});
+      auto& map = fixture.create({.mapFormat = MapFormat::Valve});
 
       const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
@@ -1318,7 +1334,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("Regression tests")
     {
-      fixture.load(
+      auto& map = fixture.load(
         "fixture/test/mdl/Map/csgSubtractFailure.map", {.mapFormat = MapFormat::Valve});
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
@@ -1353,7 +1369,8 @@ TEST_CASE("Map_Geometry")
 
   SECTION("csgHollow")
   {
-    fixture.load("fixture/test/mdl/Map/csgHollow.map", {.mapFormat = MapFormat::Valve});
+    auto& map =
+      fixture.load("fixture/test/mdl/Map/csgHollow.map", {.mapFormat = MapFormat::Valve});
 
     REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
     REQUIRE(!map.modified());
@@ -1382,6 +1399,7 @@ TEST_CASE("Map_Geometry")
 
   SECTION("extrudeBrushes")
   {
+    auto& map = fixture.create();
     const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
 
     auto* brushNode1 = new BrushNode{

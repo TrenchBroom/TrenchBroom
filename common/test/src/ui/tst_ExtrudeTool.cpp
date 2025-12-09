@@ -38,6 +38,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 #include "ui/ExtrudeTool.h"
+#include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 
 #include "kd/result.h"
@@ -92,14 +93,14 @@ mdl::PickResult performPick(mdl::Map& map, ExtrudeTool& tool, const vm::ray3d& p
 TEST_CASE("ExtrudeTool")
 {
   auto fixture = MapDocumentFixture{};
-  auto& document = fixture.document();
-  auto& map = fixture.map();
-  fixture.create();
-
-  auto tool = ExtrudeTool{document};
 
   SECTION("pick2D")
   {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
     auto builder = mdl::BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
@@ -157,6 +158,11 @@ TEST_CASE("ExtrudeTool")
 
   SECTION("pick3D")
   {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
     auto builder = mdl::BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
@@ -238,7 +244,10 @@ TEST_CASE("ExtrudeTool")
     // clang-format on
 
     const auto mapPath = "fixture/test/ui/ExtrudeToolTest" / mapName;
-    fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
+    auto& document = fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
 
     selectAllNodes(map);
 
@@ -284,7 +293,10 @@ TEST_CASE("ExtrudeTool")
 
 
     const auto mapPath = "fixture/test/ui/ExtrudeToolTest/splitBrushes.map";
-    fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
+    auto& document = fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
 
     selectAllNodes(map);
 

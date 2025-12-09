@@ -61,8 +61,7 @@ public:
 TEST_CASE("Validation")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create({.mapFormat = MapFormat::Valve});
+  auto& map = fixture.create({.mapFormat = MapFormat::Valve});
 
   map.entityDefinitionManager().setDefinitions({
     {"point_entity",

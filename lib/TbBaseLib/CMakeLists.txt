@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 
 add_library(TbBaseLib STATIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/CachingLogger.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Color.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorChannel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/FileLocation.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Logger.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LoggerCache.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/LoggingHub.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/NotifierConnection.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParserException.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParserStatus.cpp

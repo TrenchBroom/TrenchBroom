@@ -52,9 +52,7 @@ TEST_CASE("Map_EntityLinks")
   using namespace EntityPropertyKeys;
 
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-
-  fixture.create();
+  auto& map = fixture.create();
 
   constexpr auto sourceClassname = "source_definition";
   constexpr auto targetClassname = "target_definition";

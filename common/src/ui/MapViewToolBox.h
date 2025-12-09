@@ -137,7 +137,6 @@ private: // notification
   void updateEditorContext();
   void documentWasCreated();
   void documentWasLoaded();
-  void documentWasCleared();
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void updateToolPage();

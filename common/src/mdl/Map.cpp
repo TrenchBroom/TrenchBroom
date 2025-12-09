@@ -131,9 +131,9 @@ auto makeCreateResource(ResourceManager& resourceManager)
   };
 }
 
-Result<std::unique_ptr<WorldNode>> loadMap(
-  const GameConfig& config,
+Result<std::unique_ptr<WorldNode>> loadWorldNode(
   const MapFormat mapFormat,
+  const GameConfig& config,
   const vm::bbox3d& worldBounds,
   const std::filesystem::path& path,
   kdl::task_manager& taskManager,
@@ -169,9 +169,9 @@ Result<std::unique_ptr<WorldNode>> loadMap(
          });
 }
 
-Result<std::unique_ptr<WorldNode>> createMap(
-  const GameConfig& config,
+Result<std::unique_ptr<WorldNode>> createWorldNode(
   const MapFormat format,
+  const GameConfig& config,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
   Logger& logger)
@@ -183,8 +183,8 @@ Result<std::unique_ptr<WorldNode>> createMap(
       !initialMapFilePath.empty()
       && fs::Disk::pathInfo(initialMapFilePath) == fs::PathInfo::File)
     {
-      return loadMap(
-        config, format, worldBounds, initialMapFilePath, taskManager, logger);
+      return loadWorldNode(
+        format, config, worldBounds, initialMapFilePath, taskManager, logger);
     }
   }
 
@@ -465,22 +465,46 @@ private:
 
 } // namespace
 
-const vm::bbox3d Map::DefaultWorldBounds(-32768.0, 32768.0);
 const std::string Map::DefaultDocumentName("unnamed.map");
 
-Map::Map(kdl::task_manager& taskManager, Logger& logger)
-  : m_logger{logger}
-  , m_taskManager{taskManager}
+Map::Map(
+  std::unique_ptr<Game> game,
+  std::unique_ptr<WorldNode> worldNode,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  Logger& logger)
+  : Map{
+      std::move(game),
+      std::move(worldNode),
+      worldBounds,
+      DefaultDocumentName,
+      taskManager,
+      logger}
+{
+  setWorldDefaultProperties(*m_world, *m_entityDefinitionManager);
+}
+
+Map::Map(
+  std::unique_ptr<Game> game,
+  std::unique_ptr<WorldNode> worldNode,
+  const vm::bbox3d& worldBounds,
+  std::filesystem::path path,
+  kdl::task_manager& taskManager,
+  Logger& logger)
+  : m_logger{&logger}
+  , m_taskManager{&taskManager}
   , m_resourceManager{std::make_unique<ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
-      makeCreateResource<EntityModelDataResource>(*m_resourceManager), m_logger)}
+      makeCreateResource<EntityModelDataResource>(*m_resourceManager), logger)}
   , m_materialManager{std::make_unique<MaterialManager>(
-      makeCreateResource<TextureResource>(*m_resourceManager), m_logger)}
+      makeCreateResource<TextureResource>(*m_resourceManager), logger)}
   , m_tagManager{std::make_unique<TagManager>()}
   , m_editorContext{std::make_unique<EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
-  , m_worldBounds{DefaultWorldBounds}
+  , m_game{std::move(game)}
+  , m_worldBounds{worldBounds}
+  , m_world{std::move(worldNode)}
   , m_nodeIndex{std::make_unique<NodeIndex>()}
   , m_entityLinkManager{std::make_unique<EntityLinkManager>(*m_nodeIndex)}
   , m_vertexHandles{std::make_unique<VertexHandleManager>()}
@@ -489,24 +513,81 @@ Map::Map(kdl::task_manager& taskManager, Logger& logger)
   , m_currentMaterialName{BrushFaceAttributes::NoMaterialName}
   , m_repeatStack{std::make_unique<RepeatStack>()}
   , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
+  , m_path{std::move(path)}
   , m_selection{*this}
 {
   connectObservers();
+
+  entityModelManager().setGame(m_game.get(), *m_taskManager);
+  editorContext().setCurrentLayer(world()->defaultLayer());
+
+  updateGameSearchPaths();
+
+  loadAssets();
+  registerValidators();
+  registerSmartTags();
+
+  initializeAllNodeTags();
+  initializeNodeIndex();
+  initializeEntityLinks();
 }
 
-Map::~Map()
+Map::~Map() = default;
+
+Map::Map(Map&&) noexcept = default;
+Map& Map::operator=(Map&&) noexcept = default;
+
+Result<std::unique_ptr<Map>> Map::createMap(
+  MapFormat mapFormat,
+  std::unique_ptr<Game> game,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  Logger& logger)
 {
-  clearWorld();
+  logger.info() << "Creating new document";
+
+  return createWorldNode(mapFormat, game->config(), worldBounds, taskManager, logger)
+         | kdl::transform([&](auto worldNode) {
+             return std::make_unique<Map>(
+               std::move(game), std::move(worldNode), worldBounds, taskManager, logger);
+           });
+}
+
+Result<std::unique_ptr<Map>> Map::loadMap(
+  std::filesystem::path path,
+  MapFormat mapFormat,
+  std::unique_ptr<Game> game,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  Logger& logger)
+{
+  if (!path.is_absolute())
+  {
+    return Error{"Path must be absolute"};
+  }
+
+  logger.info() << "Loading document from " << path;
+
+  return loadWorldNode(mapFormat, game->config(), worldBounds, path, taskManager, logger)
+         | kdl::transform([&](auto worldNode) {
+             return std::make_unique<Map>(
+               std::move(game),
+               std::move(worldNode),
+               worldBounds,
+               std::move(path),
+               taskManager,
+               logger);
+           });
 }
 
 Logger& Map::logger()
 {
-  return m_logger;
+  return *m_logger;
 }
 
 kdl::task_manager& Map::taskManager()
 {
-  return m_taskManager;
+  return *m_taskManager;
 }
 
 EntityDefinitionManager& Map::entityDefinitionManager()
@@ -648,59 +729,19 @@ const EntityLinkManager& Map::entityLinkManager() const
   return *m_entityLinkManager;
 }
 
-Result<void> Map::create(
-  const MapFormat mapFormat, const vm::bbox3d& worldBounds, std::unique_ptr<Game> game)
-{
-  m_logger.info() << "Creating new document";
-
-  clear();
-
-  return createMap(game->config(), mapFormat, m_worldBounds, m_taskManager, m_logger)
-         | kdl::transform([&](auto worldNode) {
-             setWorld(
-               worldBounds, std::move(worldNode), std::move(game), DefaultDocumentName);
-             setWorldDefaultProperties(*m_world, *m_entityDefinitionManager);
-             clearModificationCount();
-             mapWasCreatedNotifier();
-           });
-}
-
-Result<void> Map::load(
-  const MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
-  std::unique_ptr<Game> game,
-  const std::filesystem::path& path)
-{
-  if (!path.is_absolute())
-  {
-    return Error{"Path must be absolute"};
-  }
-
-  m_logger.info() << fmt::format("Loading document from {}", path);
-
-  clear();
-
-  return loadMap(game->config(), mapFormat, worldBounds, path, m_taskManager, m_logger)
-         | kdl::transform([&](auto worldNode) {
-             setWorld(worldBounds, std::move(worldNode), std::move(game), path);
-             mapWasLoadedNotifier();
-           });
-}
-
-Result<void> Map::reload()
+Result<std::unique_ptr<Map>> Map::reload()
 {
   if (!persistent())
   {
-    return Result<void>{Error{"Cannot reload transient document"}};
+    return Error{"Cannot reload transient document"};
   }
 
-  const auto mapFormat = m_world->mapFormat();
-  const auto worldBounds = m_worldBounds;
   const auto path = m_path;
+  const auto mapFormat = m_world->mapFormat();
   auto game = std::move(m_game);
+  const auto worldBounds = m_worldBounds;
 
-  clear();
-  return load(mapFormat, worldBounds, std::move(game), path);
+  return loadMap(path, mapFormat, std::move(game), worldBounds, taskManager(), logger());
 }
 
 Result<void> Map::save()
@@ -727,14 +768,16 @@ Result<void> Map::saveTo(const std::filesystem::path& path)
     return Error{"Path must be absolute"};
   }
 
+  logger().info() << "Saving document to " << path;
+
   fs::Disk::withOutputStream(path, [&](auto& stream) {
     io::writeMapHeader(stream, m_game->config().name, m_world->mapFormat());
 
     auto writer = io::NodeWriter{*m_world, stream};
     writer.setExporting(false);
-    writer.writeMap(m_taskManager);
+    writer.writeMap(taskManager());
   }) | kdl::transform_error([&](const auto& e) {
-    m_logger.error() << "Could not save document: " << e.msg;
+    logger().error() << "Could not save document: " << e.msg;
   });
 
   return Result<void>{};
@@ -753,7 +796,7 @@ Result<void> Map::exportAs(const io::ExportOptions& options) const
               std::make_unique<io::ObjSerializer>(
                 objStream, mtlStream, mtlPath.filename().string(), objOptions)};
             writer.setExporting(true);
-            writer.writeMap(m_taskManager);
+            writer.writeMap(*m_taskManager);
           });
         });
       },
@@ -761,31 +804,10 @@ Result<void> Map::exportAs(const io::ExportOptions& options) const
         return fs::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
           auto writer = io::NodeWriter{*m_world, stream};
           writer.setExporting(true);
-          writer.writeMap(m_taskManager);
+          writer.writeMap(*m_taskManager);
         });
       }),
     options);
-}
-
-void Map::clear()
-{
-  clearRepeatableCommands();
-  m_commandProcessor->clear();
-
-  if (m_world)
-  {
-    m_nodeIndex->clear();
-    m_entityLinkManager->clear();
-    m_editorContext->reset();
-    m_selection.clear();
-    m_cachedSelectionBounds = std::nullopt;
-    m_lastSelectionBounds = std::nullopt;
-    clearAssets();
-    clearWorld();
-    clearModificationCount();
-
-    mapWasClearedNotifier();
-  }
 }
 
 bool Map::persistent() const
@@ -842,33 +864,6 @@ void Map::clearModificationCount()
 {
   m_lastSaveModificationCount = m_modificationCount = 0;
   modificationStateDidChangeNotifier();
-}
-
-void Map::setWorld(
-  const vm::bbox3d& worldBounds,
-  std::unique_ptr<WorldNode> worldNode,
-  std::unique_ptr<Game> game,
-  const std::filesystem::path& path)
-{
-  m_worldBounds = worldBounds;
-  m_world = std::move(worldNode);
-  m_game = std::move(game);
-
-  entityModelManager().setGame(m_game.get(), taskManager());
-  editorContext().setCurrentLayer(world()->defaultLayer());
-
-  updateGameSearchPaths();
-  setPath(path);
-
-  loadAssets();
-  registerValidators();
-  registerSmartTags();
-}
-
-void Map::clearWorld()
-{
-  m_world.reset();
-  editorContext().reset();
 }
 
 const Selection& Map::selection() const
@@ -1079,11 +1074,11 @@ void Map::loadEntityDefinitions()
     const auto path =
       findEntityDefinitionFile(gameConfig, *spec, externalSearchPaths(*this));
     const auto& defaultColor = gameConfig.entityConfig.defaultColor;
-    auto status = SimpleParserStatus{m_logger};
+    auto status = SimpleParserStatus{logger()};
 
     io::loadEntityDefinitions(path, defaultColor, status)
       | kdl::transform([&](auto entityDefinitions) {
-          m_logger.info() << fmt::format(
+          logger().info() << fmt::format(
             "Loaded entity definition file {}", path.filename());
 
           addOrSetDefaultEntityLinkProperties(entityDefinitions);
@@ -1095,11 +1090,11 @@ void Map::loadEntityDefinitions()
           switch (spec->type)
           {
           case EntityDefinitionFileSpec::Type::Builtin:
-            m_logger.error() << "Could not load builtin entity definition file '"
+            logger().error() << "Could not load builtin entity definition file '"
                              << spec->path << "': " << e.msg;
             break;
           case EntityDefinitionFileSpec::Type::External:
-            m_logger.error() << "Could not load external entity definition file '"
+            logger().error() << "Could not load external entity definition file '"
                              << spec->path << "': " << e.msg;
             break;
           }
@@ -1137,11 +1132,11 @@ void Map::loadMaterials()
                           | kdl::ranges::to<std::vector<std::filesystem::path>>();
 
     m_game->gameFileSystem().reloadWads(
-      m_game->config().materialConfig.root, searchPaths, wadPaths, m_logger);
+      m_game->config().materialConfig.root, searchPaths, wadPaths, logger());
   }
 
   m_materialManager->reload(
-    m_game->gameFileSystem(), m_game->config().materialConfig, m_taskManager);
+    m_game->gameFileSystem(), m_game->config().materialConfig, taskManager());
 }
 
 void Map::clearMaterials()
@@ -1214,12 +1209,12 @@ void Map::clearEntityModels()
 
 void Map::setEntityModels()
 {
-  m_world->accept(makeSetEntityModelsVisitor(*m_entityModelManager, m_logger));
+  m_world->accept(makeSetEntityModelsVisitor(*m_entityModelManager, logger()));
 }
 
 void Map::setEntityModels(const std::vector<Node*>& nodes)
 {
-  Node::visitAll(nodes, makeSetEntityModelsVisitor(*m_entityModelManager, m_logger));
+  Node::visitAll(nodes, makeSetEntityModelsVisitor(*m_entityModelManager, logger()));
 }
 
 void Map::unsetEntityModels()
@@ -1246,7 +1241,7 @@ void Map::updateGameFileSystem()
       | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
       | kdl::ranges::to<std::vector>();
 
-    m_game->updateFileSystem(searchPaths, m_logger);
+    m_game->updateFileSystem(searchPaths, logger());
   }
 }
 
@@ -1363,7 +1358,7 @@ void Map::processResourcesAsync(const ProcessContext& processContext)
   using namespace std::chrono_literals;
 
   const auto processedResourceIds = m_resourceManager->process(
-    [&](auto task) { return m_taskManager.run_task(std::move(task)); },
+    [&](auto task) { return taskManager().run_task(std::move(task)); },
     processContext,
     20ms);
 
@@ -1479,7 +1474,7 @@ bool Map::commitTransaction()
 
 void Map::cancelTransaction()
 {
-  m_logger.debug() << "Cancelling transaction";
+  logger().debug() << "Cancelling transaction";
   m_commandProcessor->rollbackTransaction();
   m_repeatStack->rollbackTransaction();
   m_commandProcessor->commitTransaction();
@@ -1508,9 +1503,6 @@ bool Map::executeAndStore(std::unique_ptr<UndoableCommand>&& command)
 
 void Map::connectObservers()
 {
-  m_notifierConnection += mapWasCreatedNotifier.connect(this, &Map::mapWasCreated);
-  m_notifierConnection += mapWasLoadedNotifier.connect(this, &Map::mapWasLoaded);
-
   m_notifierConnection += nodesWereAddedNotifier.connect(this, &Map::nodesWereAdded);
   m_notifierConnection +=
     nodesWillBeRemovedNotifier.connect(this, &Map::nodesWillBeRemoved);
@@ -1546,31 +1538,8 @@ void Map::connectObservers()
     resourcesWereProcessedNotifier.connect(this, &Map::resourcesWereProcessed);
 }
 
-void Map::mapWasCreated()
-{
-  initializeAllNodeTags();
-  initializeNodeIndex();
-  initializeEntityLinks();
-
-  m_selection.clear();
-  m_cachedSelectionBounds = std::nullopt;
-  m_lastSelectionBounds = std::nullopt;
-}
-
-void Map::mapWasLoaded()
-{
-  initializeAllNodeTags();
-  initializeNodeIndex();
-  initializeEntityLinks();
-
-  m_selection.clear();
-  m_cachedSelectionBounds = std::nullopt;
-  m_lastSelectionBounds = std::nullopt;
-}
-
 namespace
 {
-
 SelectionChange computeSelectionChangeForAddedNodes(const std::vector<Node*>& nodes)
 {
   auto selectionChange = SelectionChange{};

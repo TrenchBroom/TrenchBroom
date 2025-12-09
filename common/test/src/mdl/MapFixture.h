@@ -67,10 +67,8 @@ public:
 
   defineMove(MapFixture);
 
-  void create(MapFixtureConfig = {});
-  void load(const std::filesystem::path& path, MapFixtureConfig = {});
-
-  Map& map();
+  Map& create(MapFixtureConfig = {});
+  Map& load(const std::filesystem::path& path, MapFixtureConfig = {});
 };
 
 } // namespace mdl

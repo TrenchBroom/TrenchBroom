@@ -60,7 +60,7 @@ enum class SelectionItem
   brushFace,
 };
 
-std::ostream& operator<<(std::ostream& lhs, const SelectionItem rhs)
+[[maybe_unused]] std::ostream& operator<<(std::ostream& lhs, const SelectionItem rhs)
 {
   switch (rhs)
   {
@@ -93,8 +93,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Selection")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   auto* worldNode = map.world();
   auto brushBuilder = BrushBuilder{worldNode->mapFormat(), map.worldBounds()};

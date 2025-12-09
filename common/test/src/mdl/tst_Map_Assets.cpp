@@ -48,7 +48,6 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Assets")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
 
   SECTION("entityDefinitionFile")
   {
@@ -73,7 +72,8 @@ TEST_CASE("Map_Assets")
         "ad.fgd",
         "Quoth.fgd",
       };
-    fixture.create(fixtureConfig);
+
+    auto& map = fixture.create(fixtureConfig);
 
     if (entityProperty)
     {
@@ -85,11 +85,6 @@ TEST_CASE("Map_Assets")
 
   SECTION("setEntityDefinitionFile")
   {
-    auto entityDefinitionsWillChange =
-      Observer<void>{map.entityDefinitionsWillChangeNotifier};
-    auto entityDefinitionsDidChange =
-      Observer<void>{map.entityDefinitionsDidChangeNotifier};
-
     using T = std::tuple<EntityDefinitionFileSpec, std::string>;
 
     const auto [entityDefinitionFileSpec, expectedPropertyValue] = GENERATE(values<T>({
@@ -110,7 +105,13 @@ TEST_CASE("Map_Assets")
         "ad.fgd",
         "Quoth.fgd",
       };
-    fixture.create(fixtureConfig);
+
+    auto& map = fixture.create(fixtureConfig);
+
+    auto entityDefinitionsWillChange =
+      Observer<void>{map.entityDefinitionsWillChangeNotifier};
+    auto entityDefinitionsDidChange =
+      Observer<void>{map.entityDefinitionsDidChangeNotifier};
 
     setEntityDefinitionFile(map, entityDefinitionFileSpec);
 
@@ -127,7 +128,7 @@ TEST_CASE("Map_Assets")
 
   SECTION("enabledMaterialCollections")
   {
-    fixture.create(Quake2FixtureConfig);
+    auto& map = fixture.create(Quake2FixtureConfig);
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
@@ -197,7 +198,7 @@ TEST_CASE("Map_Assets")
 
   SECTION("disabledMaterialCollections")
   {
-    fixture.create(Quake2FixtureConfig);
+    auto& map = fixture.create(Quake2FixtureConfig);
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
@@ -226,7 +227,7 @@ TEST_CASE("Map_Assets")
 
   SECTION("setEnabledMaterialCollections")
   {
-    fixture.create(Quake2FixtureConfig);
+    auto& map = fixture.create(Quake2FixtureConfig);
 
     const auto collectionPaths =
       map.materialManager().collections()
@@ -275,13 +276,13 @@ TEST_CASE("Map_Assets")
 
   SECTION("reloadMaterialCollections")
   {
+    auto& map = fixture.load(
+      "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
+
     auto materialCollectionsWillChange =
       Observer<void>{map.materialCollectionsWillChangeNotifier};
     auto materialCollectionsDidChange =
       Observer<void>{map.materialCollectionsDidChangeNotifier};
-
-    fixture.load(
-      "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
 
     const auto faces = map.world()->defaultLayer()->children()
                        | std::views::transform([&](const auto* node) {
@@ -313,11 +314,6 @@ TEST_CASE("Map_Assets")
 
   SECTION("reloadEntityDefinitions")
   {
-    auto entityDefinitionsWillChange =
-      Observer<void>{map.entityDefinitionsWillChangeNotifier};
-    auto entityDefinitionsDidChange =
-      Observer<void>{map.entityDefinitionsDidChangeNotifier};
-
     const auto fgdFilename = "Test.fgd";
 
     auto env = fs::TestEnvironment{};
@@ -328,7 +324,12 @@ TEST_CASE("Map_Assets")
 ]
     )x");
 
-    fixture.create();
+    auto& map = fixture.create();
+
+    auto entityDefinitionsWillChange =
+      Observer<void>{map.entityDefinitionsWillChangeNotifier};
+    auto entityDefinitionsDidChange =
+      Observer<void>{map.entityDefinitionsDidChangeNotifier};
 
     setEntityDefinitionFile(
       map, EntityDefinitionFileSpec::makeExternal(env.dir() / fgdFilename));

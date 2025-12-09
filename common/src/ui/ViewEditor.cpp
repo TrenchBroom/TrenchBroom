@@ -33,7 +33,6 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionGroup.h"
 #include "mdl/EntityDefinitionManager.h"
-#include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Tag.h"
 #include "mdl/TagType.h"
@@ -236,8 +235,6 @@ void ViewEditor::connectObservers()
     m_document.documentWasCreatedNotifier.connect(this, &ViewEditor::documentWasCreated);
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect(this, &ViewEditor::documentWasLoaded);
-  m_notifierConnection +=
-    m_document.documentWasClearedNotifier.connect(this, &ViewEditor::documentWasCleared);
 
   m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
     this, &ViewEditor::editorContextDidChange);
@@ -256,12 +253,6 @@ void ViewEditor::documentWasCreated()
 }
 
 void ViewEditor::documentWasLoaded()
-{
-  createGui();
-  refreshGui();
-}
-
-void ViewEditor::documentWasCleared()
 {
   createGui();
   refreshGui();

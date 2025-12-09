@@ -55,9 +55,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Groups")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-
-  fixture.create();
+  auto& map = fixture.create();
 
   map.entityDefinitionManager().setDefinitions({
     {"point_entity",

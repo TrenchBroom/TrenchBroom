@@ -25,6 +25,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/RotateTool.h"
 
@@ -38,9 +39,8 @@ namespace tb::ui
 TEST_CASE("RotateTool")
 {
   auto fixture = MapDocumentFixture{};
-  auto& document = fixture.document();
-  auto& map = fixture.map();
-  fixture.create();
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   auto tool = RotateTool{document};
   tool.activate();

@@ -50,7 +50,6 @@ class Logger;
 
 namespace mdl
 {
-class Autosaver;
 class Game;
 class GroupNode;
 class LayerNode;
@@ -87,7 +86,6 @@ private:
   std::unique_ptr<MapDocument> m_document;
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
-  std::unique_ptr<mdl::Autosaver> m_autosaver;
   QTimer* m_autosaveTimer = nullptr;
   QTimer* m_processResourcesTimer = nullptr;
 
@@ -174,7 +172,6 @@ private: // notification handlers
   void documentWasCreated();
   void documentWasLoaded();
   void documentWasSaved();
-  void documentWasCleared();
   void mapModificationStateDidChange();
 
   void transactionDone(const std::string& name, bool observable);

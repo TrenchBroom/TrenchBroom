@@ -38,8 +38,7 @@ namespace tb::mdl
 TEST_CASE("Transaction")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   REQUIRE_FALSE(map.selection().hasNodes());
 

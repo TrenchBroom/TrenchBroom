@@ -50,9 +50,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_NodeIndex")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("creating the world indexes the world node")
   {

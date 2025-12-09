@@ -89,13 +89,14 @@ struct SoftMapBounds;
 class Map
 {
 public:
-  static const vm::bbox3d DefaultWorldBounds;
   static const std::string DefaultDocumentName;
 
 private:
-  Logger& m_logger;
+  // pointer to enable move semantics
+  Logger* m_logger;
 
-  kdl::task_manager& m_taskManager;
+  // pointer to enable move semantics
+  kdl::task_manager* m_taskManager;
 
   std::unique_ptr<ResourceManager> m_resourceManager;
   std::unique_ptr<EntityDefinitionManager> m_entityDefinitionManager;
@@ -138,10 +139,8 @@ private:
   std::optional<vm::bbox3d> m_lastSelectionBounds;
 
 public: // notification
-  Notifier<> mapWasCreatedNotifier;
-  Notifier<> mapWasLoadedNotifier;
   Notifier<> mapWasSavedNotifier;
-  Notifier<> mapWasClearedNotifier;
+
   Notifier<> modificationStateDidChangeNotifier;
 
   Notifier<> editorContextDidChangeNotifier;
@@ -180,8 +179,40 @@ private:
   NotifierConnection m_notifierConnection;
 
 public: // misc
-  explicit Map(kdl::task_manager& taskManager, Logger& logger);
+  Map(
+    std::unique_ptr<Game> game,
+    std::unique_ptr<WorldNode> worldNode,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    Logger& logger);
+
+  Map(
+    std::unique_ptr<Game> game,
+    std::unique_ptr<WorldNode> worldNode,
+    const vm::bbox3d& worldBounds,
+    std::filesystem::path path,
+    kdl::task_manager& taskManager,
+    Logger& logger);
+
   ~Map();
+
+  Map(Map&&) noexcept;
+  Map& operator=(Map&&) noexcept;
+
+  static Result<std::unique_ptr<Map>> createMap(
+    MapFormat mapFormat,
+    std::unique_ptr<Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    Logger& logger);
+
+  static Result<std::unique_ptr<Map>> loadMap(
+    std::filesystem::path path,
+    MapFormat mapFormat,
+    std::unique_ptr<Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    Logger& logger);
 
   Logger& logger();
 
@@ -236,20 +267,12 @@ public: // misc
   const EntityLinkManager& entityLinkManager() const;
 
 public: // persistence
-  Result<void> create(
-    MapFormat mapFormat, const vm::bbox3d& worldBounds, std::unique_ptr<Game> game);
-  Result<void> load(
-    MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
-    std::unique_ptr<Game> game,
-    const std::filesystem::path& path);
-  Result<void> reload();
+  Result<std::unique_ptr<Map>> reload();
+
   Result<void> save();
   Result<void> saveAs(const std::filesystem::path& path);
   Result<void> saveTo(const std::filesystem::path& path);
   Result<void> exportAs(const io::ExportOptions& options) const;
-
-  void clear();
 
   bool persistent() const;
   std::string filename() const;
@@ -265,13 +288,6 @@ private:
   void setPath(const std::filesystem::path& path);
   void setLastSaveModificationCount();
   void clearModificationCount();
-
-  void setWorld(
-    const vm::bbox3d& worldBounds,
-    std::unique_ptr<WorldNode> worldNode,
-    std::unique_ptr<Game> game,
-    const std::filesystem::path& path);
-  void clearWorld();
 
 public: // selection management
   const Selection& selection() const;
@@ -387,8 +403,6 @@ public: // command processing
 
 private: // observers
   void connectObservers();
-  void mapWasCreated();
-  void mapWasLoaded();
   void nodesWereAdded(const std::vector<Node*>& nodes);
   void nodesWillBeRemoved(const std::vector<Node*>& nodes);
   void nodesWereRemoved(const std::vector<Node*>& nodes);

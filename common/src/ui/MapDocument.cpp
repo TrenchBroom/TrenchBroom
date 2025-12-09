@@ -19,12 +19,13 @@
 
 #include "ui/MapDocument.h"
 
-#include "CachingLogger.h"
+#include "LoggingHub.h"
 #include "fs/DiskIO.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
 #include "io/WorldReader.h"
+#include "mdl/Autosaver.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityModelManager.h"
@@ -62,14 +63,41 @@ namespace tb::ui
 {
 
 const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
-const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
-MapDocument::MapDocument(kdl::task_manager& taskManager)
-  : m_logger{std::make_unique<CachingLogger>()}
-  , m_map{std::make_unique<mdl::Map>(taskManager, logger())}
-  , m_mapRenderer{std::make_unique<render::MapRenderer>(*m_map)}
+MapDocument::MapDocument(
+  kdl::task_manager& taskManager, std::unique_ptr<LoggingHub> loggingHub)
+  : m_taskManager{&taskManager}
+  , m_loggingHub{std::move(loggingHub)}
 {
   connectObservers();
+}
+
+MapDocument::MapDocument(MapDocument&&) noexcept = default;
+MapDocument& MapDocument::operator=(MapDocument&&) noexcept = default;
+
+Result<std::unique_ptr<MapDocument>> MapDocument::createDocument(
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  std::unique_ptr<LoggingHub> loggingHub)
+{
+  auto document = std::make_unique<MapDocument>(taskManager, std::move(loggingHub));
+  return document->create(mapFormat, std::move(game), worldBounds)
+         | kdl::transform([&]() { return std::move(document); });
+}
+
+Result<std::unique_ptr<MapDocument>> MapDocument::loadDocument(
+  std::filesystem::path path,
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  std::unique_ptr<LoggingHub> loggingHub)
+{
+  auto document = std::make_unique<MapDocument>(taskManager, std::move(loggingHub));
+  return document->load(std::move(path), mapFormat, std::move(game), worldBounds)
+         | kdl::transform([&]() { return std::move(document); });
 }
 
 MapDocument::~MapDocument()
@@ -82,6 +110,55 @@ MapDocument::~MapDocument()
   {
     unloadPortalFile();
   }
+}
+
+Result<void> MapDocument::create(
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds)
+{
+  return mdl::Map::createMap(
+           mapFormat, std::move(game), worldBounds, *m_taskManager, logger())
+         | kdl::transform([&](auto map) {
+             setMap(std::move(map));
+             documentWasCreatedNotifier();
+           });
+}
+
+Result<void> MapDocument::load(
+  std::filesystem::path path,
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds)
+{
+  return mdl::Map::loadMap(
+           path, mapFormat, std::move(game), worldBounds, *m_taskManager, logger())
+         | kdl::transform([&](auto map) {
+             setMap(std::move(map));
+             documentWasLoadedNotifier();
+           });
+}
+
+Result<void> MapDocument::reload()
+{
+  return m_map->reload() | kdl::transform([&](auto map) {
+           setMap(std::move(map));
+           documentWasLoadedNotifier();
+         });
+}
+
+void MapDocument::triggerAutosave()
+{
+  m_autosaver->triggerAutosave();
+}
+
+void MapDocument::setMap(std::unique_ptr<mdl::Map> map)
+{
+  m_map = std::move(map);
+  m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
+  m_autosaver = std::make_unique<mdl::Autosaver>(*m_map);
+
+  connectMapObservers();
 }
 
 mdl::Map& MapDocument::map()
@@ -106,12 +183,12 @@ const render::MapRenderer& MapDocument::mapRenderer() const
 
 Logger& MapDocument::logger()
 {
-  return *m_logger;
+  return *m_loggingHub;
 }
 
-void MapDocument::setParentLogger(Logger* parentLogger)
+void MapDocument::setTargetLogger(Logger* targetLogger)
 {
-  m_logger->setParentLogger(parentLogger);
+  m_loggingHub->setTargetLogger(targetLogger);
 }
 
 mdl::PointTrace* MapDocument::pointTrace()
@@ -259,14 +336,10 @@ void MapDocument::unloadPortalFile()
 
 void MapDocument::connectObservers()
 {
-  connectMapObservers();
-
   m_notifierConnection +=
     documentWasCreatedNotifier.connect(this, &MapDocument::documentWasCreated);
   m_notifierConnection +=
     documentWasLoadedNotifier.connect(this, &MapDocument::documentWasLoaded);
-  m_notifierConnection +=
-    documentWasClearedNotifier.connect(this, &MapDocument::documentWasCleared);
 
   m_notifierConnection +=
     transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
@@ -279,13 +352,9 @@ void MapDocument::connectObservers()
 
 void MapDocument::connectMapObservers()
 {
-  m_notifierConnection +=
-    m_map->mapWasCreatedNotifier.connect(documentWasCreatedNotifier);
-  m_notifierConnection += m_map->mapWasLoadedNotifier.connect(documentWasLoadedNotifier);
-  m_notifierConnection += m_map->mapWasSavedNotifier.connect(documentWasSavedNotifier);
-  m_notifierConnection +=
-    m_map->mapWasClearedNotifier.connect(documentWasClearedNotifier);
+  contract_assert(m_map != nullptr);
 
+  m_notifierConnection += m_map->mapWasSavedNotifier.connect(documentWasSavedNotifier);
   m_notifierConnection +=
     m_map->modificationStateDidChangeNotifier.connect(modificationStateDidChangeNotifier);
   m_notifierConnection +=
@@ -377,16 +446,6 @@ void MapDocument::documentWasLoaded()
 
   createTagActions();
   createEntityDefinitionActions();
-
-  documentDidChangeNotifier();
-}
-
-void MapDocument::documentWasCleared()
-{
-  m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
-
-  clearTagActions();
-  clearEntityDefinitionActions();
 
   documentDidChangeNotifier();
 }

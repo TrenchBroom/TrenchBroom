@@ -21,6 +21,11 @@
 
 #include <QObject>
 
+#include "Result.h"
+
+#include "vm/bbox.h"
+
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -29,7 +34,17 @@ namespace kdl
 class task_manager;
 }
 
-namespace tb::ui
+namespace tb
+{
+class LoggingHub;
+
+namespace mdl
+{
+enum class MapFormat;
+class Game;
+} // namespace mdl
+
+namespace ui
 {
 class MapDocument;
 class MapFrame;
@@ -45,7 +60,21 @@ public:
   explicit FrameManager(bool singleFrame);
   ~FrameManager() override;
 
-  MapFrame* newFrame(kdl::task_manager& taskManager);
+  Result<void> createDocument(
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    std::unique_ptr<LoggingHub> loggingHub);
+
+  Result<void> loadDocument(
+    std::filesystem::path path,
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    std::unique_ptr<LoggingHub> loggingHub);
+
   bool closeAllFrames();
 
   std::vector<MapFrame*> frames() const;
@@ -54,11 +83,13 @@ public:
 
 private:
   void onFocusChange(QWidget* old, QWidget* now);
-  MapFrame* createOrReuseFrame(kdl::task_manager& taskManager);
+
+  bool shouldCreateFrameForDocument() const;
   MapFrame* createFrame(std::unique_ptr<MapDocument> document);
   void removeFrame(MapFrame* frame);
 
   friend class MapFrame;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb
