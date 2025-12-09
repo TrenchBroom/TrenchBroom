@@ -702,7 +702,7 @@ void MapViewBase::makeStructural()
   const auto& selectedBrushes = map.selection().brushes;
   std::ranges::copy_if(
     selectedBrushes, std::back_inserter(toReparent), [&](const auto* brushNode) {
-      return brushNode->entity() != &map.world();
+      return brushNode->entity() != &map.worldNode();
     });
 
   auto transaction = mdl::Transaction{map, "Make Structural"};
@@ -1214,7 +1214,7 @@ void MapViewBase::showPopupMenuLater()
   const auto selectedObjectLayers = mdl::collectContainingLayersUserSorted(nodes);
 
   auto* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
-  for (auto* layerNode : map.world().allLayersUserSorted())
+  for (auto* layerNode : map.worldNode().allLayersUserSorted())
   {
     auto* action = moveSelectionTo->addAction(
       QString::fromStdString(layerNode->name()), this, [&map, layerNode] {
@@ -1554,7 +1554,7 @@ mdl::Node* MapViewBase::findNewParentEntityForBrushes(
     auto* brush = faceHandle->node();
     auto* newParent = brush->entity();
 
-    if (newParent && newParent != &map.world() && canReparentNodes(nodes, newParent))
+    if (newParent && newParent != &map.worldNode() && canReparentNodes(nodes, newParent))
     {
       return newParent;
     }
@@ -1623,7 +1623,7 @@ void MapViewBase::reparentNodes(
 
   auto& map = m_document.map();
   const auto inputNodes =
-    preserveEntities ? collectEntitiesForNodes(nodes, map.world()) : nodes;
+    preserveEntities ? collectEntitiesForNodes(nodes, map.worldNode()) : nodes;
 
   const auto reparentableNodes = collectReparentableNodes(inputNodes, newParent);
   contract_assert(!reparentableNodes.empty());
@@ -1667,7 +1667,7 @@ bool MapViewBase::canMakeStructural() const
   {
     const auto& brushes = map.selection().brushes;
     return std::ranges::any_of(brushes, [&](const auto* brush) {
-      return brush->hasAnyTag() || brush->entity() != &map.world()
+      return brush->hasAnyTag() || brush->entity() != &map.worldNode()
              || brush->anyFaceHasAnyTag();
     });
   }

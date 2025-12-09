@@ -103,7 +103,7 @@ TEST_CASE("ExtrudeTool")
 
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
-    auto builder = mdl::BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
     auto* brushNode1 =
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
@@ -165,7 +165,7 @@ TEST_CASE("ExtrudeTool")
 
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
-    auto builder = mdl::BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
     auto* brushNode1 =
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
@@ -317,7 +317,7 @@ TEST_CASE("ExtrudeTool")
         .front();
 
     const auto* funcDetailNode =
-      (mdl::filterEntityNodes(mdl::collectDescendants({&map.world()}))
+      (mdl::filterEntityNodes(mdl::collectDescendants({&map.worldNode()}))
        | std::views::filter(
          [](const auto* node) { return node->entity().classname() == "func_detail"; }))
         .front();

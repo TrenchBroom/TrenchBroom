@@ -68,7 +68,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
 
   const auto game = map.game();
   const auto builder = mdl::BrushBuilder{
-    map.world().mapFormat(),
+    map.worldNode().mapFormat(),
     map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
 
@@ -286,7 +286,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
   const auto game = map.game();
 
   const auto builder = mdl::BrushBuilder{
-    map.world().mapFormat(),
+    map.worldNode().mapFormat(),
     map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
   return parameters.hollow()
@@ -343,7 +343,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
   const auto game = map.game();
 
   const auto builder = mdl::BrushBuilder{
-    map.world().mapFormat(),
+    map.worldNode().mapFormat(),
     map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
   return builder
@@ -410,7 +410,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
   const auto game = map.game();
 
   const auto builder = mdl::BrushBuilder{
-    map.world().mapFormat(),
+    map.worldNode().mapFormat(),
     map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
 
@@ -486,7 +486,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
   const auto game = map.game();
 
   const auto builder = mdl::BrushBuilder{
-    map.world().mapFormat(),
+    map.worldNode().mapFormat(),
     map.worldBounds(),
     game->config().faceAttribsConfig.defaults};
   return builder

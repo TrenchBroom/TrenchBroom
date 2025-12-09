@@ -309,7 +309,7 @@ public: // csg convex merge
     auto game = map.game();
 
     const auto builder = mdl::BrushBuilder{
-      map.world().mapFormat(),
+      map.worldNode().mapFormat(),
       map.worldBounds(),
       game->config().faceAttribsConfig.defaults};
     builder.createBrush(polyhedron, map.currentMaterialName())

@@ -75,7 +75,7 @@ std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Entity& entit
 
 std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Map& map)
 {
-  return entityDefinitionFile(map.world().entity())
+  return entityDefinitionFile(map.worldNode().entity())
          | kdl::optional_or_else([&]() { return defaultEntityDefinitionFile(map); });
 
   return std::nullopt;
@@ -86,17 +86,17 @@ void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)
   // to avoid backslashes being misinterpreted as escape sequences
   const auto formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
-  auto entity = map.world().entity();
+  auto entity = map.worldNode().entity();
   entity.addOrUpdateProperty(EntityPropertyKeys::EntityDefinitions, formatted);
   updateNodeContents(
-    map, "Set Entity Definitions", {{&map.world(), NodeContents{std::move(entity)}}}, {});
+    map, "Set Entity Definitions", {{&map.worldNode(), NodeContents{std::move(entity)}}}, {});
 }
 
 std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)
 {
   if (
     const auto* materialCollectionStr =
-      map.world().entity().property(EntityPropertyKeys::EnabledMaterialCollections))
+      map.worldNode().entity().property(EntityPropertyKeys::EnabledMaterialCollections))
   {
     const auto strs = kdl::str_split(*materialCollectionStr, ";");
     return kdl::vec_sort_and_remove_duplicates(
@@ -149,7 +149,7 @@ void setEnabledMaterialCollections(
 
 void reloadMaterialCollections(Map& map)
 {
-  const auto nodes = std::vector<Node*>{&map.world()};
+  const auto nodes = std::vector<Node*>{&map.worldNode()};
   const auto notifyNodes =
     NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
   const auto notifyMaterialCollections = NotifyBeforeAndAfter{
@@ -161,7 +161,7 @@ void reloadMaterialCollections(Map& map)
 
 void reloadEntityDefinitions(Map& map)
 {
-  const auto nodes = std::vector<Node*>{&map.world()};
+  const auto nodes = std::vector<Node*>{&map.worldNode()};
   const auto notifyNodes =
     NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
   const auto notifyEntityDefinitions = NotifyBeforeAndAfter{

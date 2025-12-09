@@ -252,7 +252,7 @@ const std::vector<EntityNodeBase*>& Selection::allEntities() const
 {
   if (!m_cachedAllEntities)
   {
-    m_cachedAllEntities = computeAllEntities(*this, m_map->world());
+    m_cachedAllEntities = computeAllEntities(*this, m_map->worldNode());
   }
 
   return *m_cachedAllEntities;
@@ -272,7 +272,7 @@ const std::vector<BrushFaceHandle>& Selection::allBrushFaces() const
 {
   if (!m_cachedAllBrushFaces)
   {
-    m_cachedAllBrushFaces = computeAllBrushFaces(*this, m_map->world());
+    m_cachedAllBrushFaces = computeAllBrushFaces(*this, m_map->worldNode());
   }
 
   return *m_cachedAllBrushFaces;

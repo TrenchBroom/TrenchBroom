@@ -240,7 +240,7 @@ auto getAllLinks(
   auto visitor = CollectAllLinksVisitor{
     map.entityLinkManager(), map.editorContext(), defaultColor, selectedColor};
 
-  map.world().accept(kdl::overload(
+  map.worldNode().accept(kdl::overload(
     [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       worldNode->visitChildren(thisLambda);
     },

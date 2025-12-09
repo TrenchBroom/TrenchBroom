@@ -54,7 +54,7 @@ TEST_CASE("Map_NodeIndex")
 
   SECTION("creating the world indexes the world node")
   {
-    CHECK(map.findNodes("classname") == std::vector<Node*>{&map.world()});
+    CHECK(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
   }
 
   SECTION("adding nodes updates the index")
@@ -68,7 +68,7 @@ TEST_CASE("Map_NodeIndex")
 
     addNodes(map, {{parentForNodes(map), {groupNode}}});
 
-    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.world()});
+    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
 
     CHECK(map.findNodes("some_key") == std::vector<Node*>{entityNode});
     CHECK(map.findNodes("group") == std::vector<Node*>{groupNode});
@@ -85,7 +85,7 @@ TEST_CASE("Map_NodeIndex")
 
     addNodes(map, {{parentForNodes(map), {groupNode}}});
 
-    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.world()});
+    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
     REQUIRE(map.findNodes("some_key") == std::vector<Node*>{entityNode});
     REQUIRE(map.findNodes("group") == std::vector<Node*>{groupNode});
 
@@ -93,7 +93,7 @@ TEST_CASE("Map_NodeIndex")
     {
       removeNodes(map, {groupNode});
 
-      REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.world()});
+      REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
 
       CHECK(map.findNodes("some_key") == std::vector<Node*>{});
       CHECK(map.findNodes("group") == std::vector<Node*>{});
@@ -107,7 +107,7 @@ TEST_CASE("Map_NodeIndex")
 
       removeNodes(map, {entityNode});
 
-      REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.world()});
+      REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
 
       CHECK(map.findNodes("some_key") == std::vector<Node*>{});
       CHECK(map.findNodes("group") == std::vector<Node*>{groupNode});
@@ -126,7 +126,7 @@ TEST_CASE("Map_NodeIndex")
     addNodes(map, {{parentForNodes(map), {groupNode}}});
     selectNodes(map, {entityNode});
 
-    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.world()});
+    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
     REQUIRE(map.findNodes("some_key") == std::vector<Node*>{entityNode});
     REQUIRE(map.findNodes("group") == std::vector<Node*>{groupNode});
 

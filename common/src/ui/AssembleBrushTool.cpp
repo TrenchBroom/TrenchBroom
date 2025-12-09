@@ -54,7 +54,7 @@ void AssembleBrushTool::update(const mdl::Polyhedron3& polyhedron)
   {
     const auto game = m_document.map().game();
     const auto builder = mdl::BrushBuilder{
-      m_document.map().world().mapFormat(),
+      m_document.map().worldNode().mapFormat(),
       m_document.map().worldBounds(),
       game->config().faceAttribsConfig.defaults};
 

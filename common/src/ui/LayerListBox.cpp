@@ -220,7 +220,7 @@ void LayerListBox::connectObservers()
 
 void LayerListBox::documentDidChange()
 {
-  auto& worldNode = m_document.map().world();
+  auto& worldNode = m_document.map().worldNode();
   const auto documentLayers = worldNode.allLayersUserSorted();
 
   if (layers() != documentLayers)
@@ -242,13 +242,13 @@ void LayerListBox::currentLayerDidChange()
 
 size_t LayerListBox::itemCount() const
 {
-  return m_document.map().world().allLayers().size();
+  return m_document.map().worldNode().allLayers().size();
 }
 
 ControlListBoxItemRenderer* LayerListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
-  auto& worldNode = m_document.map().world();
+  auto& worldNode = m_document.map().worldNode();
 
   auto* layerNode = index > 0 ? worldNode.customLayersUserSorted().at(index - 1)
                               : worldNode.defaultLayer();

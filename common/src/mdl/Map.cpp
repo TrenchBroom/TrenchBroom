@@ -437,7 +437,8 @@ bool updateLinkedGroups(Map& map)
 {
   if (map.isCurrentDocumentStateObservable())
   {
-    if (const auto allChangedLinkedGroups = collectGroupsWithPendingChanges(map.world());
+    if (const auto allChangedLinkedGroups =
+          collectGroupsWithPendingChanges(map.worldNode());
         !allChangedLinkedGroups.empty())
     {
       setHasPendingChanges(allChangedLinkedGroups, false);
@@ -481,7 +482,7 @@ Map::Map(
       taskManager,
       logger}
 {
-  setWorldDefaultProperties(*m_world, *m_entityDefinitionManager);
+  setWorldDefaultProperties(*m_worldNode, *m_entityDefinitionManager);
 }
 
 Map::Map(
@@ -504,7 +505,7 @@ Map::Map(
   , m_grid{std::make_unique<Grid>(4)}
   , m_game{std::move(game)}
   , m_worldBounds{worldBounds}
-  , m_world{std::move(worldNode)}
+  , m_worldNode{std::move(worldNode)}
   , m_nodeIndex{std::make_unique<NodeIndex>()}
   , m_entityLinkManager{std::make_unique<EntityLinkManager>(*m_nodeIndex)}
   , m_vertexHandles{std::make_unique<VertexHandleManager>()}
@@ -519,7 +520,7 @@ Map::Map(
   connectObservers();
 
   entityModelManager().setGame(m_game.get(), *m_taskManager);
-  editorContext().setCurrentLayer(world().defaultLayer());
+  editorContext().setCurrentLayer(m_worldNode->defaultLayer());
 
   updateGameSearchPaths();
 
@@ -660,14 +661,14 @@ const vm::bbox3d& Map::worldBounds() const
   return m_worldBounds;
 }
 
-const WorldNode& Map::world() const
+const WorldNode& Map::worldNode() const
 {
-  return *m_world;
+  return *m_worldNode;
 }
 
-WorldNode& Map::world()
+WorldNode& Map::worldNode()
 {
-  return *m_world;
+  return *m_worldNode;
 }
 
 MapTextEncoding Map::encoding() const
@@ -742,7 +743,7 @@ Result<std::unique_ptr<Map>> Map::reload()
   }
 
   const auto path = m_path;
-  const auto mapFormat = m_world->mapFormat();
+  const auto mapFormat = m_worldNode->mapFormat();
   auto game = std::move(m_game);
   const auto worldBounds = m_worldBounds;
 
@@ -775,9 +776,9 @@ Result<void> Map::saveTo(const std::filesystem::path& path)
   logger().info() << "Saving document to " << path;
 
   fs::Disk::withOutputStream(path, [&](auto& stream) {
-    io::writeMapHeader(stream, m_game->config().name, m_world->mapFormat());
+    io::writeMapHeader(stream, m_game->config().name, m_worldNode->mapFormat());
 
-    auto writer = io::NodeWriter{*m_world, stream};
+    auto writer = io::NodeWriter{*m_worldNode, stream};
     writer.setExporting(false);
     writer.writeMap(taskManager());
   }) | kdl::transform_error([&](const auto& e) {
@@ -796,7 +797,7 @@ Result<void> Map::exportAs(const io::ExportOptions& options) const
           const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
           return fs::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
             auto writer = io::NodeWriter{
-              *m_world,
+              *m_worldNode,
               std::make_unique<io::ObjSerializer>(
                 objStream, mtlStream, mtlPath.filename().string(), objOptions)};
             writer.setExporting(true);
@@ -806,7 +807,7 @@ Result<void> Map::exportAs(const io::ExportOptions& options) const
       },
       [&](const io::MapExportOptions& mapOptions) {
         return fs::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
-          auto writer = io::NodeWriter{*m_world, stream};
+          auto writer = io::NodeWriter{*m_worldNode, stream};
           writer.setExporting(true);
           writer.writeMap(*m_taskManager);
         });
@@ -938,7 +939,7 @@ const SmartTag& Map::smartTag(const size_t index) const
 
 void Map::initializeAllNodeTags()
 {
-  m_world->accept(makeInitializeNodeTagsVisitor(*m_tagManager));
+  m_worldNode->accept(makeInitializeNodeTagsVisitor(*m_tagManager));
 }
 
 void Map::initializeNodeTags(const std::vector<Node*>& nodes)
@@ -970,7 +971,7 @@ void Map::updateFaceTags(const std::vector<BrushFaceHandle>& faceHandles)
 
 void Map::updateAllFaceTags()
 {
-  m_world->accept(kdl::overload(
+  m_worldNode->accept(kdl::overload(
     [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
     [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
     [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
@@ -989,7 +990,7 @@ void Map::updateFaceTagsAfterResourcesWhereProcessed(
   const auto materialSet =
     std::unordered_set<const Material*>{materials.begin(), materials.end()};
 
-  world().accept(kdl::overload(
+  worldNode().accept(kdl::overload(
     [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
     [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
     [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
@@ -1014,29 +1015,31 @@ void Map::registerValidators()
 {
   contract_pre(game() != nullptr);
 
-  m_world->registerValidator(std::make_unique<MissingClassnameValidator>());
-  m_world->registerValidator(std::make_unique<MissingDefinitionValidator>());
-  m_world->registerValidator(std::make_unique<MissingModValidator>(*m_game));
-  m_world->registerValidator(std::make_unique<EmptyGroupValidator>());
-  m_world->registerValidator(std::make_unique<EmptyBrushEntityValidator>());
-  m_world->registerValidator(std::make_unique<PointEntityWithBrushesValidator>());
-  m_world->registerValidator(std::make_unique<LinkSourceValidator>(*m_entityLinkManager));
-  m_world->registerValidator(std::make_unique<LinkTargetValidator>(*m_entityLinkManager));
-  m_world->registerValidator(std::make_unique<NonIntegerVerticesValidator>());
-  m_world->registerValidator(std::make_unique<MixedBrushContentsValidator>());
-  m_world->registerValidator(std::make_unique<WorldBoundsValidator>(worldBounds()));
-  m_world->registerValidator(std::make_unique<SoftMapBoundsValidator>(*this));
-  m_world->registerValidator(std::make_unique<EmptyPropertyKeyValidator>());
-  m_world->registerValidator(std::make_unique<EmptyPropertyValueValidator>());
-  m_world->registerValidator(
+  m_worldNode->registerValidator(std::make_unique<MissingClassnameValidator>());
+  m_worldNode->registerValidator(std::make_unique<MissingDefinitionValidator>());
+  m_worldNode->registerValidator(std::make_unique<MissingModValidator>(*m_game));
+  m_worldNode->registerValidator(std::make_unique<EmptyGroupValidator>());
+  m_worldNode->registerValidator(std::make_unique<EmptyBrushEntityValidator>());
+  m_worldNode->registerValidator(std::make_unique<PointEntityWithBrushesValidator>());
+  m_worldNode->registerValidator(
+    std::make_unique<LinkSourceValidator>(*m_entityLinkManager));
+  m_worldNode->registerValidator(
+    std::make_unique<LinkTargetValidator>(*m_entityLinkManager));
+  m_worldNode->registerValidator(std::make_unique<NonIntegerVerticesValidator>());
+  m_worldNode->registerValidator(std::make_unique<MixedBrushContentsValidator>());
+  m_worldNode->registerValidator(std::make_unique<WorldBoundsValidator>(worldBounds()));
+  m_worldNode->registerValidator(std::make_unique<SoftMapBoundsValidator>(*this));
+  m_worldNode->registerValidator(std::make_unique<EmptyPropertyKeyValidator>());
+  m_worldNode->registerValidator(std::make_unique<EmptyPropertyValueValidator>());
+  m_worldNode->registerValidator(
     std::make_unique<LongPropertyKeyValidator>(m_game->config().maxPropertyLength));
-  m_world->registerValidator(
+  m_worldNode->registerValidator(
     std::make_unique<LongPropertyValueValidator>(m_game->config().maxPropertyLength));
-  m_world->registerValidator(
+  m_worldNode->registerValidator(
     std::make_unique<PropertyKeyWithDoubleQuotationMarksValidator>());
-  m_world->registerValidator(
+  m_worldNode->registerValidator(
     std::make_unique<PropertyValueWithDoubleQuotationMarksValidator>());
-  m_world->registerValidator(std::make_unique<InvalidUVScaleValidator>());
+  m_worldNode->registerValidator(std::make_unique<InvalidUVScaleValidator>());
 }
 
 void Map::setIssueHidden(const Issue& issue, const bool hidden)
@@ -1119,7 +1122,7 @@ void Map::reloadMaterials()
 
 void Map::loadMaterials()
 {
-  if (const auto* wadStr = m_world->entity().property(EntityPropertyKeys::Wad))
+  if (const auto* wadStr = m_worldNode->entity().property(EntityPropertyKeys::Wad))
   {
     const auto searchPaths = std::vector<std::filesystem::path>{
       path().parent_path(),                    // relative to the map file
@@ -1146,7 +1149,7 @@ void Map::clearMaterials()
 
 void Map::setMaterials()
 {
-  m_world->accept(makeSetMaterialsVisitor(*m_materialManager));
+  m_worldNode->accept(makeSetMaterialsVisitor(*m_materialManager));
   materialUsageCountsDidChangeNotifier();
 }
 
@@ -1170,7 +1173,7 @@ void Map::setMaterials(const std::vector<BrushFaceHandle>& faceHandles)
 
 void Map::unsetMaterials()
 {
-  m_world->accept(makeUnsetMaterialsVisitor());
+  m_worldNode->accept(makeUnsetMaterialsVisitor());
   materialUsageCountsDidChangeNotifier();
 }
 
@@ -1182,7 +1185,7 @@ void Map::unsetMaterials(const std::vector<Node*>& nodes)
 
 void Map::setEntityDefinitions()
 {
-  m_world->accept(makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
+  m_worldNode->accept(makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
 }
 
 void Map::setEntityDefinitions(const std::vector<Node*>& nodes)
@@ -1192,7 +1195,7 @@ void Map::setEntityDefinitions(const std::vector<Node*>& nodes)
 
 void Map::unsetEntityDefinitions()
 {
-  m_world->accept(makeUnsetEntityDefinitionsVisitor());
+  m_worldNode->accept(makeUnsetEntityDefinitionsVisitor());
 }
 
 void Map::unsetEntityDefinitions(const std::vector<Node*>& nodes)
@@ -1208,7 +1211,7 @@ void Map::clearEntityModels()
 
 void Map::setEntityModels()
 {
-  m_world->accept(makeSetEntityModelsVisitor(*m_entityModelManager, logger()));
+  m_worldNode->accept(makeSetEntityModelsVisitor(*m_entityModelManager, logger()));
 }
 
 void Map::setEntityModels(const std::vector<Node*>& nodes)
@@ -1218,7 +1221,7 @@ void Map::setEntityModels(const std::vector<Node*>& nodes)
 
 void Map::unsetEntityModels()
 {
-  m_world->accept(makeUnsetEntityModelsVisitor());
+  m_worldNode->accept(makeUnsetEntityModelsVisitor());
 }
 
 void Map::unsetEntityModels(const std::vector<Node*>& nodes)
@@ -1246,7 +1249,7 @@ void Map::updateGameFileSystem()
 
 void Map::initializeNodeIndex()
 {
-  addToNodeIndex({&world()}, true);
+  addToNodeIndex({&worldNode()}, true);
 }
 
 void Map::addToNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
@@ -1277,7 +1280,7 @@ void Map::removeFromNodeIndex(const std::vector<Node*>& nodes, const bool recurs
 
 void Map::initializeEntityLinks()
 {
-  addEntityLinks({&world()}, true);
+  addEntityLinks({&worldNode()}, true);
 }
 
 void Map::clearEntityLinks()

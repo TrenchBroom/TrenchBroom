@@ -137,7 +137,7 @@ void IssueBrowserView::updateSelection()
 void IssueBrowserView::updateIssues()
 {
   auto& map = m_document.map();
-  const auto validators = map.world().registeredValidators();
+  const auto validators = map.worldNode().registeredValidators();
 
   auto issues = std::vector<const mdl::Issue*>{};
   const auto collectIssues = [&](auto* node) {
@@ -152,7 +152,7 @@ void IssueBrowserView::updateIssues()
     }
   };
 
-  map.world().accept(kdl::overload(
+  map.worldNode().accept(kdl::overload(
     [&](auto&& thisLambda, mdl::WorldNode* worldNode) {
       collectIssues(worldNode);
       worldNode->visitChildren(thisLambda);
@@ -228,7 +228,7 @@ std::vector<const mdl::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
     issueTypes &= issue->type();
   }
 
-  return m_document.map().world().quickFixes(issueTypes);
+  return m_document.map().worldNode().quickFixes(issueTypes);
 }
 
 mdl::IssueType IssueBrowserView::issueTypeMask() const

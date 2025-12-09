@@ -27,13 +27,13 @@ namespace tb::mdl
 
 void pick(Map& map, const vm::ray3d& pickRay, PickResult& pickResult)
 {
-  map.world().pick(map.editorContext(), pickRay, pickResult);
+  map.worldNode().pick(map.editorContext(), pickRay, pickResult);
 }
 
 std::vector<Node*> findNodesContaining(Map& map, const vm::vec3d& point)
 {
   auto result = std::vector<Node*>{};
-  map.world().findNodesContaining(point, result);
+  map.worldNode().findNodesContaining(point, result);
   return result;
 }
 

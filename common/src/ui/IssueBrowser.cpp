@@ -106,7 +106,7 @@ void IssueBrowser::updateFilterFlags()
   auto labels = QStringList{};
 
   const auto& map = m_document.map();
-  const auto validators = map.world().registeredValidators();
+  const auto validators = map.worldNode().registeredValidators();
 
   for (const auto* validator : validators)
   {

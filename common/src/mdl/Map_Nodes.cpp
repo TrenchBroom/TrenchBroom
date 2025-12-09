@@ -270,7 +270,7 @@ std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>&
 {
   contract_assert(std::ranges::all_of(nodes, [&](const auto& parentAndChildren) {
     const auto& [parent, children] = parentAndChildren;
-    return parent == &map.world() || parent->isDescendantOf(&map.world());
+    return parent == &map.worldNode() || parent->isDescendantOf(&map.worldNode());
   }));
 
   auto transaction = Transaction{map, "Add Objects"};
@@ -338,7 +338,7 @@ void duplicateSelectedNodes(Map& map)
   }
 
   resetLinkIdsOfNonGroupedNodes(nodesToAdd);
-  copyAndSetLinkIds(nodesToAdd, map.world(), map.logger());
+  copyAndSetLinkIds(nodesToAdd, map.worldNode(), map.logger());
 
   {
     auto transaction = Transaction{map, "Duplicate Objects"};

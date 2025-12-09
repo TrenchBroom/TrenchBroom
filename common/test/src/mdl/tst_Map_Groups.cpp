@@ -71,7 +71,7 @@ TEST_CASE("Map_Groups")
   {
     SECTION("Map is empty")
     {
-      CHECK(currentGroupOrWorld(map) == &map.world());
+      CHECK(currentGroupOrWorld(map) == &map.worldNode());
     }
 
     SECTION("Map contains nodes")
@@ -86,7 +86,7 @@ TEST_CASE("Map_Groups")
 
       SECTION("No group is opened")
       {
-        CHECK(currentGroupOrWorld(map) == &map.world());
+        CHECK(currentGroupOrWorld(map) == &map.worldNode());
       }
 
       SECTION("Outer group is opened")
@@ -132,7 +132,7 @@ TEST_CASE("Map_Groups")
     {
       openGroup(map, *outerGroupNode);
 
-      CHECK(map.world().lockState() == LockState::Locked);
+      CHECK(map.worldNode().lockState() == LockState::Locked);
       CHECK(outerGroupNode->lockState() == LockState::Unlocked);
     }
 
@@ -176,7 +176,7 @@ TEST_CASE("Map_Groups")
     {
       closeGroup(map);
 
-      CHECK(map.world().lockState() == LockState::Unlocked);
+      CHECK(map.worldNode().lockState() == LockState::Unlocked);
       CHECK(outerGroupNode->lockState() == LockState::Inherited);
     }
 
@@ -293,8 +293,8 @@ TEST_CASE("Map_Groups")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.world(), {layerNode1}}});
-      addNodes(map, {{&map.world(), {layerNode2}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode2}}});
 
       setCurrentLayer(map, layerNode1);
       auto* entityNode = createPointEntity(map, pointEntityDefinition, {0, 0, 0});
@@ -438,7 +438,7 @@ TEST_CASE("Map_Groups")
 
     SECTION("Ungrouping leaves a brush entity selected")
     {
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* entityNode1 = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode1}}});
@@ -518,7 +518,7 @@ TEST_CASE("Map_Groups")
 
 
       REQUIRE_THAT(
-        map.world().defaultLayer()->children(),
+        map.worldNode().defaultLayer()->children(),
         UnorderedEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
@@ -529,7 +529,7 @@ TEST_CASE("Map_Groups")
 
         ungroupSelectedNodes(map);
         CHECK_THAT(
-          map.world().defaultLayer()->children(),
+          map.worldNode().defaultLayer()->children(),
           UnorderedEquals(
             std::vector<Node*>{groupNode, linkedGroupNode, linkedBrushNode2}));
         CHECK(groupNode->linkId() == linkedGroupNode->linkId());
@@ -546,7 +546,7 @@ TEST_CASE("Map_Groups")
 
         ungroupSelectedNodes(map);
         CHECK_THAT(
-          map.world().defaultLayer()->children(),
+          map.worldNode().defaultLayer()->children(),
           UnorderedEquals(
             std::vector<Node*>{groupNode, linkedBrushNode, linkedBrushNode2}));
 
@@ -568,7 +568,7 @@ TEST_CASE("Map_Groups")
 
         ungroupSelectedNodes(map);
         CHECK_THAT(
-          map.world().defaultLayer()->children(),
+          map.worldNode().defaultLayer()->children(),
           UnorderedEquals(
             std::vector<Node*>{brushNode, linkedBrushNode, linkedBrushNode2}));
 
@@ -583,7 +583,7 @@ TEST_CASE("Map_Groups")
 
       map.undoCommand();
       CHECK_THAT(
-        map.world().defaultLayer()->children(),
+        map.worldNode().defaultLayer()->children(),
         UnorderedEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
       CHECK(groupNode->linkId() == originalGroupLinkId);

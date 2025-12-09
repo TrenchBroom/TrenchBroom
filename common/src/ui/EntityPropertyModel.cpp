@@ -384,7 +384,7 @@ std::vector<std::string> getAllPropertyKeys(const mdl::Map& map)
     result.insert(keys.begin(), keys.end());
   };
 
-  map.world().accept(kdl::overload(
+  map.worldNode().accept(kdl::overload(
     [&](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       addEntityKeys(*worldNode);
       worldNode->visitChildren(thisLambda);
@@ -456,7 +456,7 @@ template <typename... ValueType>
 std::vector<std::string> getAllValuesForPropertyValueTypes(const mdl::Map& map)
 {
   auto result = kdl::vector_set<std::string>();
-  map.world().accept(kdl::overload(
+  map.worldNode().accept(kdl::overload(
     [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       worldNode->visitChildren(thisLambda);
     },

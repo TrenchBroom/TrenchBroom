@@ -56,7 +56,7 @@ auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
 
 SoftMapBounds softMapBounds(const Map& map)
 {
-  return extractSoftMapBounds(map.world().entity(), map.game()->config());
+  return extractSoftMapBounds(map.worldNode().entity(), map.game()->config());
 }
 
 /**
@@ -64,7 +64,7 @@ SoftMapBounds softMapBounds(const Map& map)
  */
 void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
 {
-  auto& worldNode = map.world();
+  auto& worldNode = map.worldNode();
   auto entity = worldNode.entity();
 
   switch (bounds.source)
@@ -127,12 +127,12 @@ std::vector<std::string> enabledMods(const Entity& entity)
 
 std::vector<std::string> enabledMods(const Map& map)
 {
-  return enabledMods(map.world().entity());
+  return enabledMods(map.worldNode().entity());
 }
 
 void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 {
-  auto& worldNode = map.world();
+  auto& worldNode = map.worldNode();
   auto entity = worldNode.entity();
 
   if (mods.empty())

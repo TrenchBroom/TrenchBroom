@@ -118,7 +118,7 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
   auto faces = map.selection().allBrushFaces();
   if (faces.empty())
   {
-    faces = mdl::collectBrushFaces({&map.world()});
+    faces = mdl::collectBrushFaces({&map.worldNode()});
   }
 
   return faces | std::views::filter([&](const auto& handle) {

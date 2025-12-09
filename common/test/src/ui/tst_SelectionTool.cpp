@@ -60,7 +60,7 @@ TEST_CASE("SelectionTool")
 
   SECTION("clicking")
   {
-    const auto& worldNode = map.world();
+    const auto& worldNode = map.worldNode();
     auto builder = mdl::BrushBuilder{
       worldNode.mapFormat(),
       map.worldBounds(),
@@ -456,7 +456,7 @@ TEST_CASE("SelectionTool")
 
   SECTION("clickingThroughHidden")
   {
-    const auto& worldNode = map.world();
+    const auto& worldNode = map.worldNode();
     auto builder = mdl::BrushBuilder{
       worldNode.mapFormat(),
       map.worldBounds(),

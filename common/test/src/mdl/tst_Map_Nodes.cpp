@@ -73,14 +73,14 @@ TEST_CASE("Map_Nodes")
     auto* groupedEntityNode = new EntityNode{Entity{}};
     auto* defaultLayerEntityNode = new EntityNode{Entity{}};
 
-    addNodes(map, {{&map.world(), {customLayerNode}}});
+    addNodes(map, {{&map.worldNode(), {customLayerNode}}});
     addNodes(map, {{customLayerNode, {groupNode}}});
     addNodes(map, {{groupNode, {groupedEntityNode}}});
-    addNodes(map, {{map.world().defaultLayer(), {defaultLayerEntityNode}}});
+    addNodes(map, {{map.worldNode().defaultLayer(), {defaultLayerEntityNode}}});
 
     SECTION("Returns default layer if no group is open")
     {
-      CHECK(parentForNodes(map) == map.world().defaultLayer());
+      CHECK(parentForNodes(map) == map.worldNode().defaultLayer());
     }
 
     SECTION("Returns currently opened group, if any")
@@ -102,8 +102,8 @@ TEST_CASE("Map_Nodes")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.world(), {layerNode1}}});
-      addNodes(map, {{&map.world(), {layerNode2}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode2}}});
 
       setCurrentLayer(map, layerNode1);
 
@@ -140,8 +140,8 @@ TEST_CASE("Map_Nodes")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.world(), {layerNode1}}});
-      addNodes(map, {{&map.world(), {layerNode2}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode2}}});
 
       setCurrentLayer(map, layerNode1);
 
@@ -296,8 +296,8 @@ TEST_CASE("Map_Nodes")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.world(), {layerNode1}}});
-      addNodes(map, {{&map.world(), {layerNode2}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode2}}});
 
       setCurrentLayer(map, layerNode1);
       auto* entityNode = createPointEntity(map, pointEntityDefinition, {0, 0, 0});
@@ -319,7 +319,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Nodes duplicated in a hidden layer become visible")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
-      addNodes(map, {{&map.world(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
 
       setCurrentLayer(map, layerNode1);
       hideLayers(map, {layerNode1});
@@ -363,10 +363,10 @@ TEST_CASE("Map_Nodes")
     SECTION("Cannot reparent layer to layer")
     {
       auto* layer1 = new LayerNode{Layer{"Layer 1"}};
-      addNodes(map, {{&map.world(), {layer1}}});
+      addNodes(map, {{&map.worldNode(), {layer1}}});
 
       auto* layer2 = new LayerNode{Layer{"Layer 2"}};
-      addNodes(map, {{&map.world(), {layer2}}});
+      addNodes(map, {{&map.worldNode(), {layer2}}});
 
       CHECK_FALSE(reparentNodes(map, {{layer2, {layer1}}}));
     }
@@ -374,10 +374,10 @@ TEST_CASE("Map_Nodes")
     SECTION("Reparent between layers")
     {
       auto* oldParent = new LayerNode{Layer{"Layer 1"}};
-      addNodes(map, {{&map.world(), {oldParent}}});
+      addNodes(map, {{&map.worldNode(), {oldParent}}});
 
       auto* newParent = new LayerNode{Layer{"Layer 2"}};
-      addNodes(map, {{&map.world(), {newParent}}});
+      addNodes(map, {{&map.worldNode(), {newParent}}});
 
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{oldParent, {entityNode}}});
@@ -768,13 +768,13 @@ TEST_CASE("Map_Nodes")
     SECTION("Remove layer")
     {
       auto* layer = new LayerNode{Layer{"Layer 1"}};
-      addNodes(map, {{&map.world(), {layer}}});
+      addNodes(map, {{&map.worldNode(), {layer}}});
 
       removeNodes(map, {layer});
       CHECK(layer->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(layer->parent() == &map.world());
+      CHECK(layer->parent() == &map.worldNode());
     }
 
     SECTION("Remove empty group")
@@ -795,7 +795,7 @@ TEST_CASE("Map_Nodes")
       map.undoCommand();
       CHECK(map.editorContext().currentGroup() == group);
       CHECK(brush->parent() == group);
-      CHECK(group->parent() == map.world().defaultLayer());
+      CHECK(group->parent() == map.worldNode().defaultLayer());
     }
 
     SECTION("Recursively remove empty groups")
@@ -823,13 +823,13 @@ TEST_CASE("Map_Nodes")
       CHECK(map.editorContext().currentGroup() == inner);
       CHECK(brush->parent() == inner);
       CHECK(inner->parent() == outer);
-      CHECK(outer->parent() == map.world().defaultLayer());
+      CHECK(outer->parent() == map.worldNode().defaultLayer());
     }
 
     SECTION("Remove empty brush entitiy")
     {
       auto* layer = new LayerNode{Layer{"Layer 1"}};
-      addNodes(map, {{&map.world(), {layer}}});
+      addNodes(map, {{&map.worldNode(), {layer}}});
 
       auto* entity = new EntityNode{Entity{}};
       addNodes(map, {{layer, {entity}}});
@@ -928,7 +928,7 @@ TEST_CASE("Map_Nodes")
 
     removeSelectedNodes(map);
     CHECK(map.selection().nodes == std::vector<Node*>{});
-    CHECK(map.world().defaultLayer()->children() == std::vector<Node*>{});
+    CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{});
   }
 
   SECTION("updateNodeContents")

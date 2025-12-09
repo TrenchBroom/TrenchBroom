@@ -118,7 +118,7 @@ TEST_CASE("Map_Assets")
     CHECK(entityDefinitionsWillChange.called);
     CHECK(entityDefinitionsDidChange.called);
 
-    const auto& worldNode = map.world();
+    const auto& worldNode = map.worldNode();
     const auto& entity = worldNode.entity();
     const auto* propertyValue = entity.property(EntityPropertyKeys::EntityDefinitions);
 
@@ -132,7 +132,7 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
-    const auto& worldNode = map.world();
+    const auto& worldNode = map.worldNode();
 
     SECTION("When no material collections are explicitly enabled")
     {
@@ -201,7 +201,7 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
-    const auto& worldNode = map.world();
+    const auto& worldNode = map.worldNode();
 
     SECTION("When no material collections are explicitly enabled")
     {
@@ -234,7 +234,7 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(collectionPaths.size() == 3);
 
-    const auto& worldNode = map.world();
+    const auto& worldNode = map.worldNode();
 
     const auto getEnabledMaterialCollections = [&] {
       return worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections);
@@ -281,7 +281,7 @@ TEST_CASE("Map_Assets")
     auto materialCollectionsDidChange =
       Observer<void>{map.materialCollectionsDidChangeNotifier};
 
-    const auto faces = map.world().defaultLayer()->children()
+    const auto faces = map.worldNode().defaultLayer()->children()
                        | std::views::transform([&](const auto* node) {
                            const auto* brushNode =
                              dynamic_cast<const mdl::BrushNode*>(node);

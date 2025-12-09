@@ -231,14 +231,14 @@ void LayerEditor::onAddLayer()
     auto layer = mdl::Layer{name};
 
     // Sort it at the bottom of the list
-    const auto customLayers = map.world().customLayersUserSorted();
+    const auto customLayers = map.worldNode().customLayersUserSorted();
     layer.setSortIndex(
       !customLayers.empty() ? customLayers.back()->layer().sortIndex() + 1 : 0);
 
     auto* layerNode = new mdl::LayerNode{std::move(layer)};
 
     auto transaction = mdl::Transaction{map, "Create Layer " + layerNode->name()};
-    if (addNodes(map, {{&map.world(), {layerNode}}}).empty())
+    if (addNodes(map, {{&map.worldNode(), {layerNode}}}).empty())
     {
       transaction.cancel();
       return;
@@ -259,7 +259,7 @@ void LayerEditor::onRemoveLayer()
   contract_assert(layerNode != nullptr);
 
   auto& map = m_document.map();
-  auto* defaultLayerNode = map.world().defaultLayer();
+  auto* defaultLayerNode = map.worldNode().defaultLayer();
 
   auto transaction = mdl::Transaction{map, "Remove Layer " + layerNode->name()};
   deselectAll(map);
@@ -289,7 +289,7 @@ bool LayerEditor::canRemoveLayer() const
   if (const auto* layerNode = m_layerList->selectedLayer();
       layerNode && findVisibleAndUnlockedLayer(layerNode))
   {
-    return (layerNode != m_document.map().world().defaultLayer());
+    return (layerNode != m_document.map().worldNode().defaultLayer());
   }
 
   return false;
@@ -312,7 +312,7 @@ bool LayerEditor::canRenameLayer() const
 {
   if (const auto* layerNode = m_layerList->selectedLayer())
   {
-    return (layerNode != m_document.map().world().defaultLayer());
+    return (layerNode != m_document.map().worldNode().defaultLayer());
   }
   return false;
 }
@@ -340,13 +340,13 @@ void LayerEditor::onShowAllLayers()
 {
   auto& map = m_document.map();
 
-  const auto layers = map.world().allLayers();
+  const auto layers = map.worldNode().allLayers();
   resetNodeVisibility(map, kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canShowAllLayers() const
 {
-  const auto layers = m_document.map().world().allLayers();
+  const auto layers = m_document.map().worldNode().allLayers();
   return std::ranges::any_of(
     layers, [](const auto* layerNode) { return !layerNode->visible(); });
 }
@@ -355,13 +355,13 @@ void LayerEditor::onHideAllLayers()
 {
   auto& map = m_document.map();
 
-  const auto layers = map.world().allLayers();
+  const auto layers = map.worldNode().allLayers();
   hideNodes(map, kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canHideAllLayers() const
 {
-  const auto layers = m_document.map().world().allLayers();
+  const auto layers = m_document.map().worldNode().allLayers();
   return std::ranges::any_of(layers, [](const auto* layer) { return layer->visible(); });
 }
 
@@ -369,13 +369,13 @@ void LayerEditor::onLockAllLayers()
 {
   auto& map = m_document.map();
 
-  const auto layers = map.world().allLayers();
+  const auto layers = map.worldNode().allLayers();
   lockNodes(map, kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canLockAllLayers() const
 {
-  const auto layers = m_document.map().world().allLayers();
+  const auto layers = m_document.map().worldNode().allLayers();
   return std::ranges::any_of(layers, [](const auto* layer) { return !layer->locked(); });
 }
 
@@ -383,13 +383,13 @@ void LayerEditor::onUnlockAllLayers()
 {
   auto& map = m_document.map();
 
-  const auto layers = map.world().allLayers();
+  const auto layers = map.worldNode().allLayers();
   resetNodeLockingState(map, kdl::vec_static_cast<mdl::Node*>(layers));
 }
 
 bool LayerEditor::canUnlockAllLayers() const
 {
-  const auto layers = m_document.map().world().allLayers();
+  const auto layers = m_document.map().worldNode().allLayers();
   return std::ranges::any_of(layers, [](const auto* layer) { return layer->locked(); });
 }
 
@@ -398,12 +398,14 @@ mdl::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(
 {
   auto& map = m_document.map();
 
-  if (!map.world().defaultLayer()->locked() && !map.world().defaultLayer()->hidden())
+  if (
+    !map.worldNode().defaultLayer()->locked()
+    && !map.worldNode().defaultLayer()->hidden())
   {
-    return map.world().defaultLayer();
+    return map.worldNode().defaultLayer();
   }
 
-  const auto& layers = map.world().customLayers();
+  const auto& layers = map.worldNode().customLayers();
   for (auto* layerNode : layers)
   {
     if (layerNode != except && !layerNode->locked() && !layerNode->hidden())

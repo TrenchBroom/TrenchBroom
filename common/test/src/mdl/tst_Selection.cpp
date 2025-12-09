@@ -95,7 +95,7 @@ TEST_CASE("Selection")
   auto fixture = MapFixture{};
   auto& map = fixture.create();
 
-  auto& worldNode = map.world();
+  auto& worldNode = map.worldNode();
   auto brushBuilder = BrushBuilder{worldNode.mapFormat(), map.worldBounds()};
 
   auto* outerGroupNode = new GroupNode{Group{"outer"}};

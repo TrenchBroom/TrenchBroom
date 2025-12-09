@@ -149,7 +149,7 @@ TEST_CASE("ClipToolController")
 
   // Check the clip result
   // TODO: would be better to check the clip plane but it's not public
-  const auto& objects = map.world().defaultLayer()->children();
+  const auto& objects = map.worldNode().defaultLayer()->children();
   REQUIRE(objects.size() == 1u);
 
   auto* brush = dynamic_cast<mdl::BrushNode*>(objects.at(0));

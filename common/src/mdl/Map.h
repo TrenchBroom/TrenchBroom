@@ -109,7 +109,7 @@ private:
 
   std::unique_ptr<Game> m_game;
   vm::bbox3d m_worldBounds;
-  std::unique_ptr<WorldNode> m_world;
+  std::unique_ptr<WorldNode> m_worldNode;
   std::unique_ptr<NodeIndex> m_nodeIndex;
   std::unique_ptr<EntityLinkManager> m_entityLinkManager;
 
@@ -239,8 +239,8 @@ public: // misc
   const Game* game() const;
   const vm::bbox3d& worldBounds() const;
 
-  const WorldNode& world() const;
-  WorldNode& world();
+  const WorldNode& worldNode() const;
+  WorldNode& worldNode();
 
   MapTextEncoding encoding() const;
 

@@ -58,7 +58,7 @@ void EntityBrowser::reload()
   if (m_view)
   {
     m_view->setDefaultModelScaleExpression(
-      m_document.map().world().entityPropertyConfig().defaultModelScaleExpression);
+      m_document.map().worldNode().entityPropertyConfig().defaultModelScaleExpression);
 
     m_view->invalidate();
     m_view->update();

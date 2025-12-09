@@ -71,9 +71,9 @@ TEST_CASE("Map_Layers")
     {
       auto currentLayerDidChange = Observer<void>{map.currentLayerDidChangeNotifier};
 
-      auto* defaultLayerNode = map.world().defaultLayer();
+      auto* defaultLayerNode = map.worldNode().defaultLayer();
       auto* layerNode = new LayerNode{Layer{"test1"}};
-      addNodes(map, {{&map.world(), {layerNode}}});
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
 
       REQUIRE(map.editorContext().currentLayer() == defaultLayerNode);
 
@@ -94,11 +94,11 @@ TEST_CASE("Map_Layers")
 
     SECTION("Switching layers is collated into a single undo step")
     {
-      auto* defaultLayerNode = map.world().defaultLayer();
+      auto* defaultLayerNode = map.worldNode().defaultLayer();
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.world(), {layerNode1}}});
-      addNodes(map, {{&map.world(), {layerNode2}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode2}}});
       CHECK(map.editorContext().currentLayer() == defaultLayerNode);
 
       setCurrentLayer(map, layerNode1);
@@ -121,8 +121,8 @@ TEST_CASE("Map_Layers")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.world(), {layerNode1}}});
-      addNodes(map, {{&map.world(), {layerNode2}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode2}}});
 
       setCurrentLayer(map, layerNode1);
 
@@ -171,8 +171,8 @@ TEST_CASE("Map_Layers")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.world(), {layerNode1}}});
-      addNodes(map, {{&map.world(), {layerNode2}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode2}}});
 
       setCurrentLayer(map, layerNode1);
 
@@ -220,7 +220,7 @@ TEST_CASE("Map_Layers")
   SECTION("renameLayer")
   {
     auto* layerNode = new LayerNode{Layer{"test1"}};
-    addNodes(map, {{&map.world(), {layerNode}}});
+    addNodes(map, {{&map.worldNode(), {layerNode}}});
     CHECK(layerNode->name() == "test1");
 
     renameLayer(map, layerNode, "test2");
@@ -240,12 +240,12 @@ TEST_CASE("Map_Layers")
     setLayerSortIndex(*layerNode1, 1);
     setLayerSortIndex(*layerNode2, 2);
 
-    addNodes(map, {{&map.world(), {layerNode0, layerNode1, layerNode2}}});
+    addNodes(map, {{&map.worldNode(), {layerNode0, layerNode1, layerNode2}}});
 
     SECTION("canMoveLayer")
     {
       // defaultLayer() can never be moved
-      CHECK(!canMoveLayer(map, map.world().defaultLayer(), 1));
+      CHECK(!canMoveLayer(map, map.worldNode().defaultLayer(), 1));
       CHECK(canMoveLayer(map, layerNode0, 0));
       CHECK(!canMoveLayer(map, layerNode0, -1));
       CHECK(canMoveLayer(map, layerNode0, 1));
@@ -289,9 +289,9 @@ TEST_CASE("Map_Layers")
   SECTION("moveSelectedNodesToLayer")
   {
     auto* customLayer = new LayerNode{Layer{"layer"}};
-    addNodes(map, {{&map.world(), {customLayer}}});
+    addNodes(map, {{&map.worldNode(), {customLayer}}});
 
-    auto* defaultLayer = map.world().defaultLayer();
+    auto* defaultLayer = map.worldNode().defaultLayer();
 
     GIVEN("A top level node")
     {
@@ -414,7 +414,7 @@ TEST_CASE("Map_Layers")
 
     SECTION("Hide default layer")
     {
-      auto& layerNode = *map.world().defaultLayer();
+      auto& layerNode = *map.worldNode().defaultLayer();
       addNodes(map, {{&layerNode, {entityNode}}});
       REQUIRE(layerNode.visible());
       REQUIRE(entityNode->visible());
@@ -438,7 +438,7 @@ TEST_CASE("Map_Layers")
     SECTION("Hide custom layer")
     {
       auto* layerNode = new LayerNode{Layer{"custom layer"}};
-      addNodes(map, {{&map.world(), {layerNode}}});
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
       addNodes(map, {{layerNode, {entityNode}}});
       REQUIRE(layerNode->visible());
       REQUIRE(entityNode->visible());
@@ -451,14 +451,14 @@ TEST_CASE("Map_Layers")
 
   SECTION("isolateLayers")
   {
-    auto& defaultLayerNode = *map.world().defaultLayer();
+    auto& defaultLayerNode = *map.worldNode().defaultLayer();
     auto* defaultLayerEntityNode = new EntityNode{Entity{}};
     auto* customLayerNode = new LayerNode{Layer{"custom layer"}};
     auto* customLayerEntityNode = new EntityNode{Entity{}};
     auto* otherLayerNode = new LayerNode{Layer{"other layer"}};
 
     addNodes(map, {{&defaultLayerNode, {defaultLayerEntityNode}}});
-    addNodes(map, {{&map.world(), {customLayerNode, otherLayerNode}}});
+    addNodes(map, {{&map.worldNode(), {customLayerNode, otherLayerNode}}});
     addNodes(map, {{customLayerNode, {customLayerEntityNode}}});
 
     REQUIRE(defaultLayerNode.visible());
@@ -517,7 +517,7 @@ TEST_CASE("Map_Layers")
 
   SECTION("setOmitLayersFromExport")
   {
-    auto& defaultLayerNode = *map.world().defaultLayer();
+    auto& defaultLayerNode = *map.worldNode().defaultLayer();
     REQUIRE(!defaultLayerNode.layer().omitFromExport());
 
     setOmitLayerFromExport(map, &defaultLayerNode, true);

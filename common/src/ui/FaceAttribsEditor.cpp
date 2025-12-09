@@ -802,7 +802,7 @@ void FaceAttribsEditor::hideContentFlagsEditor()
 
 bool FaceAttribsEditor::hasColorAttribs() const
 {
-  return m_document.map().world().mapFormat() == mdl::MapFormat::Daikatana;
+  return m_document.map().worldNode().mapFormat() == mdl::MapFormat::Daikatana;
 }
 
 void FaceAttribsEditor::showColorAttribEditor()

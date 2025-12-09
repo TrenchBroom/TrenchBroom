@@ -325,7 +325,7 @@ void EntityDecalRenderer::validateDecalData(
   contract_assert(spec != std::nullopt);
 
   const auto& editorContext = m_map.editorContext();
-  const auto& worldNode = m_map.world();
+  const auto& worldNode = m_map.worldNode();
 
   // collect all the brush nodes that touch the entity's bbox
   const auto entityBounds = entityNode.physicalBounds();

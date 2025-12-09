@@ -37,7 +37,7 @@ BrushNode* createBrushNode(
   const std::string& materialName,
   const std::function<void(Brush&)>& brushFunc)
 {
-  const auto& worldNode = map.world();
+  const auto& worldNode = map.worldNode();
   auto builder = BrushBuilder{
     worldNode.mapFormat(),
     map.worldBounds(),

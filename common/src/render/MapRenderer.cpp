@@ -600,7 +600,7 @@ void MapRenderer::removeNodeRecursive(mdl::Node& node)
  */
 void MapRenderer::updateAllNodes()
 {
-  updateAndInvalidateNodeRecursive(m_map.world());
+  updateAndInvalidateNodeRecursive(m_map.worldNode());
 }
 
 /**

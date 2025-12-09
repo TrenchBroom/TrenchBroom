@@ -224,7 +224,7 @@ TEST_CASE("Map_Geometry")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3784
 
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
@@ -302,7 +302,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("objects")
     {
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* brushNode1 = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {30, 31, 31}}, "material")
@@ -392,7 +392,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("vertices")
     {
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* brushNode = new BrushNode{
         builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
@@ -473,7 +473,7 @@ TEST_CASE("Map_Geometry")
   SECTION("scaleSelection")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     const auto initialBBox = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
     const auto doubleBBox = vm::bbox3d{2.0 * initialBBox.min, 2.0 * initialBBox.max};
@@ -534,7 +534,7 @@ TEST_CASE("Map_Geometry")
   SECTION("shearSelection")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     SECTION("cube")
     {
@@ -630,7 +630,7 @@ TEST_CASE("Map_Geometry")
   SECTION("flipSelection")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     auto* brushNode1 = new BrushNode{
       builder.createCuboid(vm::bbox3d{{0, 0, 0}, {30, 31, 31}}, "material")
@@ -662,7 +662,7 @@ TEST_CASE("Map_Geometry")
   SECTION("transformVertices")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
       builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
@@ -742,7 +742,7 @@ TEST_CASE("Map_Geometry")
   SECTION("transformEdges")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
       builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
@@ -829,7 +829,7 @@ TEST_CASE("Map_Geometry")
   SECTION("transformFaces")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
       builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
@@ -928,7 +928,7 @@ TEST_CASE("Map_Geometry")
   SECTION("addVertex")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
       builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
@@ -969,7 +969,7 @@ TEST_CASE("Map_Geometry")
   SECTION("removeVertices")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     auto* brushNode = new BrushNode{
       builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
@@ -1101,7 +1101,7 @@ TEST_CASE("Map_Geometry")
     SECTION("Merge two brushes")
     {
       auto& map = fixture.create();
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
@@ -1127,7 +1127,7 @@ TEST_CASE("Map_Geometry")
     SECTION("Merge two faces")
     {
       auto& map = fixture.create();
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
@@ -1173,7 +1173,7 @@ TEST_CASE("Map_Geometry")
     SECTION("Texture alignment")
     {
       auto& map = fixture.create({.mapFormat = MapFormat::Valve});
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
@@ -1216,7 +1216,7 @@ TEST_CASE("Map_Geometry")
     SECTION("Subtract multiple brushes")
     {
       auto& map = fixture.create();
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
@@ -1262,7 +1262,7 @@ TEST_CASE("Map_Geometry")
     SECTION("Undo restores selection")
     {
       auto& map = fixture.create();
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
@@ -1289,7 +1289,7 @@ TEST_CASE("Map_Geometry")
     {
       auto& map = fixture.create({.mapFormat = MapFormat::Valve});
 
-      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
@@ -1400,7 +1400,7 @@ TEST_CASE("Map_Geometry")
   SECTION("extrudeBrushes")
   {
     auto& map = fixture.create();
-    const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     auto* brushNode1 = new BrushNode{
       builder.createCuboid(vm::bbox3d{{-64, -32, -32}, {0, 32, 32}}, "material")
