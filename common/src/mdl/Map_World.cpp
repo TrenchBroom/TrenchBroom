@@ -31,8 +31,6 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
-#include "kd/contracts.h"
-
 namespace tb::mdl
 {
 namespace
@@ -56,7 +54,7 @@ auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
 
 SoftMapBounds softMapBounds(const Map& map)
 {
-  return extractSoftMapBounds(map.worldNode().entity(), map.game()->config());
+  return extractSoftMapBounds(map.worldNode().entity(), map.game().config());
 }
 
 /**
@@ -103,12 +101,9 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
     searchPaths.push_back(mapPath.parent_path());
   }
 
-  if (const auto* game = map.game())
+  if (const auto gamePath = pref(map.game().info().gamePathPreference); !gamePath.empty())
   {
-    if (const auto gamePath = pref(game->info().gamePathPreference); !gamePath.empty())
-    {
-      searchPaths.push_back(gamePath);
-    }
+    searchPaths.push_back(gamePath);
   }
 
   searchPaths.push_back(io::SystemPaths::appDirectory());
@@ -150,9 +145,7 @@ void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 
 std::string defaultMod(const Map& map)
 {
-  contract_pre(map.game());
-
-  return map.game()->config().fileSystemConfig.searchPath.string();
+  return map.game().config().fileSystemConfig.searchPath.string();
 }
 
 } // namespace tb::mdl

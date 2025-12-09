@@ -224,8 +224,7 @@ void ModEditor::modsDidChange()
 
 void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (const auto* game = m_document.map().game();
-      game && path == pref(game->info().gamePathPreference))
+  if (path == pref(m_document.map().game().info().gamePathPreference))
   {
     updateAvailableMods();
     updateMods();
@@ -235,15 +234,12 @@ void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 void ModEditor::updateAvailableMods()
 {
   auto& map = m_document.map();
-  if (const auto* game = map.game())
-  {
-    findAvailableMods(game->info()) | kdl::transform([&](auto availableMods) {
-      m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
-    }) | kdl::transform_error([&](auto e) {
-      m_availableMods.clear();
-      map.logger().error() << "Could not update available mods: " << e.msg;
-    });
-  }
+  findAvailableMods(map.game().info()) | kdl::transform([&](auto availableMods) {
+    m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
+  }) | kdl::transform_error([&](auto e) {
+    m_availableMods.clear();
+    map.logger().error() << "Could not update available mods: " << e.msg;
+  });
 }
 
 void ModEditor::updateMods()

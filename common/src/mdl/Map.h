@@ -236,7 +236,7 @@ public: // misc
   Grid& grid();
   const Grid& grid() const;
 
-  const Game* game() const;
+  const Game& game() const;
   const vm::bbox3d& worldBounds() const;
 
   const WorldNode& worldNode() const;

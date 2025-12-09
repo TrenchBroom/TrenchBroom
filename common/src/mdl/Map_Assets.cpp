@@ -50,12 +50,9 @@ namespace
 
 std::optional<EntityDefinitionFileSpec> defaultEntityDefinitionFile(const Map& map)
 {
-  if (const auto* game = map.game())
+  if (const auto paths = map.game().config().entityConfig.defFilePaths; !paths.empty())
   {
-    if (const auto paths = game->config().entityConfig.defFilePaths; !paths.empty())
-    {
-      return mdl::EntityDefinitionFileSpec::makeBuiltin(paths.front());
-    }
+    return mdl::EntityDefinitionFileSpec::makeBuiltin(paths.front());
   }
 
   return std::nullopt;
@@ -89,7 +86,10 @@ void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)
   auto entity = map.worldNode().entity();
   entity.addOrUpdateProperty(EntityPropertyKeys::EntityDefinitions, formatted);
   updateNodeContents(
-    map, "Set Entity Definitions", {{&map.worldNode(), NodeContents{std::move(entity)}}}, {});
+    map,
+    "Set Entity Definitions",
+    {{&map.worldNode(), NodeContents{std::move(entity)}}},
+    {});
 }
 
 std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)

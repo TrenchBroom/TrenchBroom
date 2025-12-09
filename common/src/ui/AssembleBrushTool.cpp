@@ -52,11 +52,10 @@ void AssembleBrushTool::update(const mdl::Polyhedron3& polyhedron)
   *m_polyhedron = polyhedron;
   if (m_polyhedron->closed())
   {
-    const auto game = m_document.map().game();
     const auto builder = mdl::BrushBuilder{
       m_document.map().worldNode().mapFormat(),
       m_document.map().worldBounds(),
-      game->config().faceAttribsConfig.defaults};
+      m_document.map().game().config().faceAttribsConfig.defaults};
 
     builder.createBrush(*m_polyhedron, m_document.map().currentMaterialName())
       | kdl::transform([&](auto b) {

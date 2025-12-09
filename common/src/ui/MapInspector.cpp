@@ -330,38 +330,35 @@ void MapPropertiesEditor::updateGui()
   const kdl::set_temp flagChange(m_updatingGui, true);
 
   auto& map = m_document.map();
-  if (const auto game = map.game())
+  const auto gameBounds = map.game().config().softMapBounds;
+  m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
+  m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
+
+  const auto bounds = softMapBounds(map);
+
+  if (bounds.source == mdl::SoftMapBoundsType::Map && !bounds.bounds)
   {
-    const auto gameBounds = game->config().softMapBounds;
-    m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
-    m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
+    m_softBoundsDisabled->setChecked(true);
 
-    const auto bounds = softMapBounds(map);
+    m_softBoundsFromMapMinEdit->setEnabled(false);
+    m_softBoundsFromMapMaxEdit->setEnabled(false);
+  }
+  else if (bounds.source == mdl::SoftMapBoundsType::Map)
+  {
+    m_softBoundsFromMap->setChecked(true);
 
-    if (bounds.source == mdl::SoftMapBoundsType::Map && !bounds.bounds)
-    {
-      m_softBoundsDisabled->setChecked(true);
+    m_softBoundsFromMapMinEdit->setEnabled(true);
+    m_softBoundsFromMapMaxEdit->setEnabled(true);
 
-      m_softBoundsFromMapMinEdit->setEnabled(false);
-      m_softBoundsFromMapMaxEdit->setEnabled(false);
-    }
-    else if (bounds.source == mdl::SoftMapBoundsType::Map)
-    {
-      m_softBoundsFromMap->setChecked(true);
+    m_softBoundsFromMapMinEdit->setText(formatVec(bounds.bounds, false));
+    m_softBoundsFromMapMaxEdit->setText(formatVec(bounds.bounds, true));
+  }
+  else
+  {
+    m_softBoundsFromGame->setChecked(true);
 
-      m_softBoundsFromMapMinEdit->setEnabled(true);
-      m_softBoundsFromMapMaxEdit->setEnabled(true);
-
-      m_softBoundsFromMapMinEdit->setText(formatVec(bounds.bounds, false));
-      m_softBoundsFromMapMaxEdit->setText(formatVec(bounds.bounds, true));
-    }
-    else
-    {
-      m_softBoundsFromGame->setChecked(true);
-
-      m_softBoundsFromMapMinEdit->setEnabled(false);
-      m_softBoundsFromMapMaxEdit->setEnabled(false);
-    }
+    m_softBoundsFromMapMinEdit->setEnabled(false);
+    m_softBoundsFromMapMaxEdit->setEnabled(false);
   }
 }
 

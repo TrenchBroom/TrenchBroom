@@ -527,7 +527,7 @@ QString describeSelection(const mdl::Map& map)
 
   auto pipeSeparatedSections = QStringList{};
 
-  pipeSeparatedSections << QString::fromStdString(map.game()->config().name)
+  pipeSeparatedSections << QString::fromStdString(map.game().config().name)
                         << QString::fromStdString(
                              mdl::formatName(map.worldNode().mapFormat()))
                         << QString::fromStdString(editorContext.currentLayer()->name());
@@ -2428,9 +2428,9 @@ bool MapFrame::canLaunch() const
 void MapFrame::dragEnterEvent(QDragEnterEvent* event)
 {
   const auto& map = m_document->map();
-  const auto game = map.game();
+  const auto& game = map.game();
   if (
-    game->config().materialConfig.property && event->mimeData()->hasUrls()
+    game.config().materialConfig.property && event->mimeData()->hasUrls()
     && std::ranges::all_of(event->mimeData()->urls(), [](const auto& url) {
          if (!url.isLocalFile())
          {
@@ -2454,8 +2454,8 @@ void MapFrame::dropEvent(QDropEvent* event)
   }
 
   auto& map = m_document->map();
-  const auto game = map.game();
-  const auto& wadPropertyKey = game->config().materialConfig.property;
+  const auto& game = map.game();
+  const auto& wadPropertyKey = game.config().materialConfig.property;
   if (!wadPropertyKey)
   {
     return;
@@ -2470,7 +2470,7 @@ void MapFrame::dropEvent(QDropEvent* event)
     window(),
     io::pathFromQString(urls.front().toLocalFile()),
     map.path(),
-    pref(game->info().gamePathPreference)};
+    pref(game.info().gamePathPreference)};
 
   const auto result = pathDialog.exec();
   if (result != QDialog::Accepted)
@@ -2484,7 +2484,7 @@ void MapFrame::dropEvent(QDropEvent* event)
       pathDialog.pathType(),
       io::pathFromQString(url.toLocalFile()),
       map.path(),
-      pref(game->info().gamePathPreference));
+      pref(game.info().gamePathPreference));
   });
 
   const auto newWadPathsStr = kdl::str_join(

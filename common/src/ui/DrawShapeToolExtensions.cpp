@@ -66,11 +66,10 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
 {
   auto& map = m_document.map();
 
-  const auto game = map.game();
   const auto builder = mdl::BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    game->config().faceAttribsConfig.defaults};
+    map.game().config().faceAttribsConfig.defaults};
 
   return builder.createCuboid(bounds, map.currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
@@ -283,12 +282,11 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto& map = m_document.map();
-  const auto game = map.game();
 
   const auto builder = mdl::BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    game->config().faceAttribsConfig.defaults};
+    map.game().config().faceAttribsConfig.defaults};
   return parameters.hollow()
            ? builder.createHollowCylinder(
                bounds,
@@ -340,12 +338,11 @@ Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto& map = m_document.map();
-  const auto game = map.game();
 
   const auto builder = mdl::BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    game->config().faceAttribsConfig.defaults};
+    map.game().config().faceAttribsConfig.defaults};
   return builder
     .createCone(
       bounds, parameters.circleShape(), parameters.axis(), map.currentMaterialName())
@@ -407,12 +404,11 @@ Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto& map = m_document.map();
-  const auto game = map.game();
 
   const auto builder = mdl::BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    game->config().faceAttribsConfig.defaults};
+    map.game().config().faceAttribsConfig.defaults};
 
   return builder.createIcoSphere(bounds, parameters.accuracy(), map.currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
@@ -483,12 +479,11 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto& map = m_document.map();
-  const auto game = map.game();
 
   const auto builder = mdl::BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    game->config().faceAttribsConfig.defaults};
+    map.game().config().faceAttribsConfig.defaults};
   return builder
     .createUVSphere(
       bounds,

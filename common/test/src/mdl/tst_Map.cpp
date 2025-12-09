@@ -260,7 +260,6 @@ TEST_CASE("Map")
         path, MapFormat::Unknown, std::move(game), worldBounds, *taskManager, logger)
         | kdl::transform([&](auto map) {
             CHECK(map->worldBounds() == worldBounds);
-            CHECK(map->game() != nullptr);
             CHECK(map->path() == path);
             CHECK(map->persistent());
           })
@@ -389,7 +388,7 @@ TEST_CASE("Map")
       path, MapFormat::Unknown, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
       | kdl::and_then([&](auto map) {
           REQUIRE(map->worldBounds() == worldBounds);
-          REQUIRE(map->game() == gamePtr);
+          REQUIRE(&map->game() == gamePtr);
           REQUIRE(map->path() == path);
           REQUIRE(map->persistent());
 
@@ -402,7 +401,7 @@ TEST_CASE("Map")
 
           return map->reload() | kdl::transform([&](auto reloadedMap) {
                    CHECK(reloadedMap->worldBounds() == worldBounds);
-                   CHECK(reloadedMap->game() == gamePtr);
+                   CHECK(&reloadedMap->game() == gamePtr);
                    CHECK(reloadedMap->path() == path);
                    CHECK(reloadedMap->persistent());
                    CHECK(!reloadedMap->modified());

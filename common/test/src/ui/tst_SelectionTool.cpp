@@ -64,7 +64,7 @@ TEST_CASE("SelectionTool")
     auto builder = mdl::BrushBuilder{
       worldNode.mapFormat(),
       map.worldBounds(),
-      map.game()->config().faceAttribsConfig.defaults};
+      map.game().config().faceAttribsConfig.defaults};
 
     auto tool = SelectionTool{document};
 
@@ -460,7 +460,7 @@ TEST_CASE("SelectionTool")
     auto builder = mdl::BrushBuilder{
       worldNode.mapFormat(),
       map.worldBounds(),
-      map.game()->config().faceAttribsConfig.defaults};
+      map.game().config().faceAttribsConfig.defaults};
 
     auto tool = SelectionTool{document};
 

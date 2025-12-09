@@ -651,9 +651,9 @@ const Grid& Map::grid() const
   return *m_grid;
 }
 
-const Game* Map::game() const
+const Game& Map::game() const
 {
-  return m_game.get();
+  return *m_game;
 }
 
 const vm::bbox3d& Map::worldBounds() const
@@ -766,8 +766,6 @@ Result<void> Map::saveAs(const std::filesystem::path& path)
 
 Result<void> Map::saveTo(const std::filesystem::path& path)
 {
-  contract_pre(game() != nullptr);
-
   if (!path.is_absolute())
   {
     return Error{"Path must be absolute"};
@@ -776,7 +774,7 @@ Result<void> Map::saveTo(const std::filesystem::path& path)
   logger().info() << "Saving document to " << path;
 
   fs::Disk::withOutputStream(path, [&](auto& stream) {
-    io::writeMapHeader(stream, m_game->config().name, m_worldNode->mapFormat());
+    io::writeMapHeader(stream, game().config().name, m_worldNode->mapFormat());
 
     auto writer = io::NodeWriter{*m_worldNode, stream};
     writer.setExporting(false);
@@ -906,10 +904,8 @@ const std::optional<vm::bbox3d>& Map::selectionBounds() const
 
 void Map::registerSmartTags()
 {
-  contract_pre(game() != nullptr);
-
   m_tagManager->clearSmartTags();
-  m_tagManager->registerSmartTags(game()->config().smartTags);
+  m_tagManager->registerSmartTags(game().config().smartTags);
 }
 
 const std::vector<SmartTag>& Map::smartTags() const
@@ -1013,8 +1009,6 @@ void Map::updateFaceTagsAfterResourcesWhereProcessed(
 
 void Map::registerValidators()
 {
-  contract_pre(game() != nullptr);
-
   m_worldNode->registerValidator(std::make_unique<MissingClassnameValidator>());
   m_worldNode->registerValidator(std::make_unique<MissingDefinitionValidator>());
   m_worldNode->registerValidator(std::make_unique<MissingModValidator>(*m_game));
@@ -1032,9 +1026,9 @@ void Map::registerValidators()
   m_worldNode->registerValidator(std::make_unique<EmptyPropertyKeyValidator>());
   m_worldNode->registerValidator(std::make_unique<EmptyPropertyValueValidator>());
   m_worldNode->registerValidator(
-    std::make_unique<LongPropertyKeyValidator>(m_game->config().maxPropertyLength));
+    std::make_unique<LongPropertyKeyValidator>(game().config().maxPropertyLength));
   m_worldNode->registerValidator(
-    std::make_unique<LongPropertyValueValidator>(m_game->config().maxPropertyLength));
+    std::make_unique<LongPropertyValueValidator>(game().config().maxPropertyLength));
   m_worldNode->registerValidator(
     std::make_unique<PropertyKeyWithDoubleQuotationMarksValidator>());
   m_worldNode->registerValidator(
@@ -1071,7 +1065,7 @@ void Map::loadEntityDefinitions()
 {
   if (const auto spec = entityDefinitionFile(*this))
   {
-    const auto& gameConfig = game()->config();
+    const auto& gameConfig = game().config();
 
     const auto path =
       findEntityDefinitionFile(gameConfig, *spec, externalSearchPaths(*this));
@@ -1125,20 +1119,20 @@ void Map::loadMaterials()
   if (const auto* wadStr = m_worldNode->entity().property(EntityPropertyKeys::Wad))
   {
     const auto searchPaths = std::vector<std::filesystem::path>{
-      path().parent_path(),                    // relative to the map file
-      pref(m_game->info().gamePathPreference), // relative to game path
-      io::SystemPaths::appDirectory(),         // relative to the application
+      path().parent_path(),                   // relative to the map file
+      pref(game().info().gamePathPreference), // relative to game path
+      io::SystemPaths::appDirectory(),        // relative to the application
     };
 
     const auto wadPaths = kdl::str_split(*wadStr, ";")
                           | kdl::ranges::to<std::vector<std::filesystem::path>>();
 
     m_game->gameFileSystem().reloadWads(
-      m_game->config().materialConfig.root, searchPaths, wadPaths, logger());
+      game().config().materialConfig.root, searchPaths, wadPaths, logger());
   }
 
   m_materialManager->reload(
-    m_game->gameFileSystem(), m_game->config().materialConfig, taskManager());
+    game().gameFileSystem(), game().config().materialConfig, taskManager());
 }
 
 void Map::clearMaterials()
@@ -1711,7 +1705,7 @@ void Map::modsDidChange()
 
 void Map::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (m_game && path == pref(m_game->info().gamePathPreference))
+  if (m_game && path == pref(game().info().gamePathPreference))
   {
     updateGameFileSystem();
 

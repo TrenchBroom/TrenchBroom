@@ -131,7 +131,7 @@ void SmartPropertyEditorManager::createEditors()
       return nodes.size() == 1
              && nodes.front()->entity().classname()
                   == mdl::EntityPropertyValues::WorldspawnClassname
-             && propertyKey == m_document.map().game()->config().materialConfig.property;
+             && propertyKey == m_document.map().game().config().materialConfig.property;
     },
     new SmartWadEditor{m_document, this});
   registerEditor(

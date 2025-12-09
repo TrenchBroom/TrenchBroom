@@ -37,8 +37,8 @@
 #include "kd/string_compare.h"
 #include "kd/string_format.h"
 
+#include <algorithm>
 #include <filesystem>
-#include <ranges>
 
 namespace tb::ui
 {
@@ -75,7 +75,7 @@ void combineFlags(
 
 bool loadEntityDefinitionFile(mdl::Map& map, QWidget* parent, const QString& pathStr)
 {
-  const auto& game = *map.game();
+  const auto& game = map.game();
   const auto gamePath = pref(game.info().gamePathPreference);
   const auto docPath = map.path();
 

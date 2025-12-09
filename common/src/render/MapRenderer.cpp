@@ -818,8 +818,7 @@ void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
 {
   setupRenderers();
 
-  if (const auto* game = m_map.game();
-      game && path == pref(game->info().gamePathPreference))
+  if (path == pref(m_map.game().info().gamePathPreference))
   {
     reloadEntityModels();
     invalidateRenderers(Renderer::All);

@@ -310,7 +310,7 @@ void FlagsTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
   }
   else
   {
-    const auto options = m_getFlagNames(*map.game(), m_flags);
+    const auto options = m_getFlagNames(map.game(), m_flags);
     const auto selectedOptionIndex = callback.selectOption(options);
     if (selectedOptionIndex == options.size())
     {

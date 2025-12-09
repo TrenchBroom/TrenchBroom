@@ -306,12 +306,12 @@ public: // csg convex merge
     }
 
     auto& map = m_document.map();
-    auto game = map.game();
+    auto& game = map.game();
 
     const auto builder = mdl::BrushBuilder{
       map.worldNode().mapFormat(),
       map.worldBounds(),
-      game->config().faceAttribsConfig.defaults};
+      game.config().faceAttribsConfig.defaults};
     builder.createBrush(polyhedron, map.currentMaterialName())
       | kdl::transform([&](auto b) {
           for (const auto* selectedBrushNode : map.selection().brushes)

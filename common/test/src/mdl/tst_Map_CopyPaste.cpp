@@ -54,7 +54,7 @@ TEST_CASE("Map_CopyPaste")
     const auto builder = BrushBuilder{
       map.worldNode().mapFormat(),
       map.worldBounds(),
-      map.game()->config().faceAttribsConfig.defaults};
+      map.game().config().faceAttribsConfig.defaults};
 
     auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
     auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
@@ -109,7 +109,7 @@ TEST_CASE("Map_CopyPaste")
     const auto builder = BrushBuilder{
       map.worldNode().mapFormat(),
       map.worldBounds(),
-      map.game()->config().faceAttribsConfig.defaults};
+      map.game().config().faceAttribsConfig.defaults};
 
     auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
 

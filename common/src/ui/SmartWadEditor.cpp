@@ -152,7 +152,7 @@ void SmartWadEditor::addWads()
       FileDialogDir::MaterialCollection, pathQStr);
 
     const auto absWadPath = io::pathFromQString(pathQStr);
-    const auto gamePath = pref(map.game()->info().gamePathPreference);
+    const auto gamePath = pref(map.game().info().gamePathPreference);
     auto pathDialog = ChoosePathTypeDialog{window(), absWadPath, map.path(), gamePath};
 
     const int result = pathDialog.exec();

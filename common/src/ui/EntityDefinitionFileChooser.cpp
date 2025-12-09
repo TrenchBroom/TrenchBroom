@@ -198,9 +198,7 @@ void EntityDefinitionFileChooser::updateControls()
   m_builtin->setAllowDeselectAll(false);
 
   const auto& map = m_document.map();
-  const auto& game = *map.game();
-
-  auto specs = allEntityDefinitionFiles(game.config());
+  auto specs = allEntityDefinitionFiles(map.game().config());
   specs = kdl::vec_sort(std::move(specs));
 
   for (const auto& spec : specs)

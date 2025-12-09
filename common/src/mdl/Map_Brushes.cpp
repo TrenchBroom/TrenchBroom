@@ -41,7 +41,7 @@ bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
   const auto builder = BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    map.game()->config().faceAttribsConfig.defaults};
+    map.game().config().faceAttribsConfig.defaults};
 
   return builder.createBrush(points, map.currentMaterialName())
          | kdl::and_then([&](auto b) -> Result<void> {

@@ -49,7 +49,7 @@ namespace
 
 void resetMaterialBrowserInfo(mdl::Map& map, QWidget* materialBrowserInfo)
 {
-  const auto& gameConfig = map.game()->config();
+  const auto& gameConfig = map.game().config();
   materialBrowserInfo->setVisible(gameConfig.materialConfig.property != std::nullopt);
 }
 

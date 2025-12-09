@@ -66,7 +66,7 @@ void CompilationDialog::createGui()
   setWindowTitle("Compile");
 
   auto& document = m_mapFrame->document();
-  const auto& game = *document.map().game();
+  const auto& game = document.map().game();
   const auto& compilationConfig = game.config().compilationConfig;
 
   m_profileManager = new CompilationProfileManager{document, compilationConfig};
@@ -260,7 +260,7 @@ void CompilationDialog::profileChanged()
 void CompilationDialog::saveProfile()
 {
   const auto& map = m_mapFrame->document().map();
-  const auto& gameName = map.game()->config().name;
+  const auto& gameName = map.game().config().name;
 
   auto& app = TrenchBroomApp::instance();
   auto& gameManager = app.gameManager();

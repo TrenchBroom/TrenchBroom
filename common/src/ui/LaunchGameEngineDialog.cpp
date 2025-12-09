@@ -67,7 +67,7 @@ void LaunchGameEngineDialog::createGui()
   setWindowTitle("Launch Engine");
 
   const auto& map = m_document.map();
-  const auto& gameConfig = map.game()->config();
+  const auto& gameConfig = map.game().config();
   auto* gameIndicator = new CurrentGameIndicator{gameConfig.name};
 
   auto* midPanel = new QWidget{this};
@@ -179,7 +179,7 @@ void LaunchGameEngineDialog::createGui()
 void LaunchGameEngineDialog::reloadConfig()
 {
   const auto& map = m_document.map();
-  const auto& gameConfig = map.game()->config();
+  const auto& gameConfig = map.game().config();
 
   m_config = gameConfig.gameEngineConfig;
   m_gameEngineList->setConfig(m_config);
@@ -213,7 +213,7 @@ void LaunchGameEngineDialog::editGameEngines()
   saveConfig();
 
   const auto& map = m_document.map();
-  const auto& gameConfig = map.game()->config();
+  const auto& gameConfig = map.game().config();
 
   auto dialog = GameEngineDialog{gameConfig.name, m_document.logger(), this};
   dialog.exec();
@@ -263,7 +263,7 @@ void LaunchGameEngineDialog::saveConfig()
   auto& gameManager = app.gameManager();
 
   const auto& map = m_document.map();
-  const auto& gameName = map.game()->config().name;
+  const auto& gameName = map.game().config().name;
 
   gameManager.updateGameEngineConfig(gameName, m_config, m_document.logger())
     | kdl::transform_error([&](const auto& e) { m_document.logger().error() << e.msg; });

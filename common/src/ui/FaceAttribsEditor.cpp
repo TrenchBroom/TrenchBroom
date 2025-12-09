@@ -762,14 +762,14 @@ void FaceAttribsEditor::updateControlsDelayed()
 
 bool FaceAttribsEditor::hasSurfaceFlags() const
 {
-  const auto game = m_document.map().game();
-  return !game->config().faceAttribsConfig.surfaceFlags.flags.empty();
+  const auto& game = m_document.map().game();
+  return !game.config().faceAttribsConfig.surfaceFlags.flags.empty();
 }
 
 bool FaceAttribsEditor::hasContentFlags() const
 {
-  const auto game = m_document.map().game();
-  return !game->config().faceAttribsConfig.contentFlags.flags.empty();
+  const auto& game = m_document.map().game();
+  return !game.config().faceAttribsConfig.contentFlags.flags.empty();
 }
 
 void FaceAttribsEditor::showSurfaceFlagsEditor()
@@ -840,16 +840,16 @@ std::tuple<QList<int>, QStringList, QStringList> getFlags(
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFlags()
   const
 {
-  const auto game = m_document.map().game();
-  const auto& surfaceFlags = game->config().faceAttribsConfig.surfaceFlags;
+  const auto& game = m_document.map().game();
+  const auto& surfaceFlags = game.config().faceAttribsConfig.surfaceFlags;
   return getFlags(surfaceFlags.flags);
 }
 
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFlags()
   const
 {
-  const auto game = m_document.map().game();
-  const auto& contentFlags = game->config().faceAttribsConfig.contentFlags;
+  const auto& game = m_document.map().game();
+  const auto& contentFlags = game.config().faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);
 }
 
