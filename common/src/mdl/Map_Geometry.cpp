@@ -124,7 +124,7 @@ bool transformSelection(
 
   const auto alignmentLock = pref(Preferences::AlignmentLock);
   const auto updateAngleProperty =
-    map.world()->entityPropertyConfig().updateAnglePropertyAfterTransform;
+    map.world().entityPropertyConfig().updateAnglePropertyAfterTransform;
 
   auto tasks =
     nodesToTransform | std::views::transform([&](auto& node) {
@@ -146,7 +146,7 @@ bool transformSelection(
             const auto* containingGroup = brushNode->containingGroup();
             const bool lockAlignment =
             alignmentLock
-            || (containingGroup && containingGroup->closed() && collectLinkedNodes({map.world()}, *brushNode).size() > 1);
+            || (containingGroup && containingGroup->closed() && collectLinkedNodes({&map.world()}, *brushNode).size() > 1);
 
             auto brush = brushNode->brush();
             return brush.transform(map.worldBounds(), transformation, lockAlignment)
@@ -653,7 +653,7 @@ bool csgConvexMerge(Map& map)
   }
 
   const auto builder = BrushBuilder{
-    map.world()->mapFormat(),
+    map.world().mapFormat(),
     map.worldBounds(),
     map.game()->config().faceAttribsConfig.defaults};
   return builder.createBrush(polyhedron, map.currentMaterialName())
@@ -727,7 +727,7 @@ bool csgSubtract(Map& map)
   return minuendNodes | std::views::transform([&](auto* minuendNode) {
            const auto& minuend = minuendNode->brush();
            auto currentSubtractionResults = minuend.subtract(
-             map.world()->mapFormat(),
+             map.world().mapFormat(),
              map.worldBounds(),
              map.currentMaterialName(),
              subtrahends);
@@ -836,7 +836,7 @@ bool csgHollow(Map& map)
           didHollowAnything = true;
 
           return originalBrush.subtract(
-                   map.world()->mapFormat(),
+                   map.world().mapFormat(),
                    map.worldBounds(),
                    map.currentMaterialName(),
                    shrunkenBrush)

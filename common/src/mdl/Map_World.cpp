@@ -56,12 +56,7 @@ auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
 
 SoftMapBounds softMapBounds(const Map& map)
 {
-  if (const auto* worldNode = map.world())
-  {
-    return extractSoftMapBounds(worldNode->entity(), map.game()->config());
-  }
-
-  return {SoftMapBoundsType::Game, std::nullopt};
+  return extractSoftMapBounds(map.world().entity(), map.game()->config());
 }
 
 /**
@@ -69,10 +64,8 @@ SoftMapBounds softMapBounds(const Map& map)
  */
 void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
 {
-  contract_pre(map.world() != nullptr);
-
-  auto* worldNode = map.world();
-  auto entity = worldNode->entity();
+  auto& worldNode = map.world();
+  auto entity = worldNode.entity();
 
   switch (bounds.source)
   {
@@ -99,7 +92,7 @@ void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
   }
 
   updateNodeContents(
-    map, "Set Soft Map Bounds", {{worldNode, NodeContents(std::move(entity))}}, {});
+    map, "Set Soft Map Bounds", {{&worldNode, NodeContents{std::move(entity)}}}, {});
 }
 
 std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
@@ -134,20 +127,13 @@ std::vector<std::string> enabledMods(const Entity& entity)
 
 std::vector<std::string> enabledMods(const Map& map)
 {
-  if (const auto* worldNode = map.world())
-  {
-    return enabledMods(worldNode->entity());
-  }
-
-  return {};
+  return enabledMods(map.world().entity());
 }
 
 void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 {
-  contract_pre(map.world());
-
-  auto* worldNode = map.world();
-  auto entity = worldNode->entity();
+  auto& worldNode = map.world();
+  auto entity = worldNode.entity();
 
   if (mods.empty())
   {
@@ -159,7 +145,7 @@ void setEnabledMods(Map& map, const std::vector<std::string>& mods)
     entity.addOrUpdateProperty(EntityPropertyKeys::Mods, newValue);
   }
   updateNodeContents(
-    map, "Set Enabled Mods", {{worldNode, NodeContents(std::move(entity))}}, {});
+    map, "Set Enabled Mods", {{&worldNode, NodeContents(std::move(entity))}}, {});
 }
 
 std::string defaultMod(const Map& map)

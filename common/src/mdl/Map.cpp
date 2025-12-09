@@ -437,7 +437,7 @@ bool updateLinkedGroups(Map& map)
 {
   if (map.isCurrentDocumentStateObservable())
   {
-    if (const auto allChangedLinkedGroups = collectGroupsWithPendingChanges(*map.world());
+    if (const auto allChangedLinkedGroups = collectGroupsWithPendingChanges(map.world());
         !allChangedLinkedGroups.empty())
     {
       setHasPendingChanges(allChangedLinkedGroups, false);
@@ -519,7 +519,7 @@ Map::Map(
   connectObservers();
 
   entityModelManager().setGame(m_game.get(), *m_taskManager);
-  editorContext().setCurrentLayer(world()->defaultLayer());
+  editorContext().setCurrentLayer(world().defaultLayer());
 
   updateGameSearchPaths();
 
@@ -660,9 +660,14 @@ const vm::bbox3d& Map::worldBounds() const
   return m_worldBounds;
 }
 
-WorldNode* Map::world() const
+const WorldNode& Map::world() const
 {
-  return m_world.get();
+  return *m_world;
+}
+
+WorldNode& Map::world()
+{
+  return *m_world;
 }
 
 MapTextEncoding Map::encoding() const
@@ -761,7 +766,6 @@ Result<void> Map::saveAs(const std::filesystem::path& path)
 Result<void> Map::saveTo(const std::filesystem::path& path)
 {
   contract_pre(game() != nullptr);
-  contract_pre(world() != nullptr);
 
   if (!path.is_absolute())
   {
@@ -978,42 +982,37 @@ void Map::updateAllFaceTags()
 void Map::updateFaceTagsAfterResourcesWhereProcessed(
   const std::vector<ResourceId>& resourceIds)
 {
-  if (auto* worldNode = world())
-  {
-    // Some textures contain embedded default values for surface flags and such, so we
-    // must update the face tags after the resources have been processed.
+  // Some textures contain embedded default values for surface flags and such, so we
+  // must update the face tags after the resources have been processed.
 
-    const auto materials =
-      m_materialManager->findMaterialsByTextureResourceId(resourceIds);
-    const auto materialSet =
-      std::unordered_set<const Material*>{materials.begin(), materials.end()};
+  const auto materials = m_materialManager->findMaterialsByTextureResourceId(resourceIds);
+  const auto materialSet =
+    std::unordered_set<const Material*>{materials.begin(), materials.end()};
 
-    worldNode->accept(kdl::overload(
-      [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
-      [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
-      [](auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
-      [&](BrushNode* brushNode) {
-        const auto& faces = brushNode->brush().faces();
-        for (size_t i = 0; i < faces.size(); ++i)
+  world().accept(kdl::overload(
+    [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
+    [](auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
+    [&](BrushNode* brushNode) {
+      const auto& faces = brushNode->brush().faces();
+      for (size_t i = 0; i < faces.size(); ++i)
+      {
         {
+          const auto& face = faces[i];
+          if (materialSet.contains(face.material()))
           {
-            const auto& face = faces[i];
-            if (materialSet.contains(face.material()))
-            {
-              brushNode->updateFaceTags(i, *m_tagManager);
-            }
+            brushNode->updateFaceTags(i, *m_tagManager);
           }
         }
-      },
-      [](PatchNode*) {}));
-  }
+      }
+    },
+    [](PatchNode*) {}));
 }
 
 void Map::registerValidators()
 {
   contract_pre(game() != nullptr);
-  contract_pre(world() != nullptr);
 
   m_world->registerValidator(std::make_unique<MissingClassnameValidator>());
   m_world->registerValidator(std::make_unique<MissingDefinitionValidator>());
@@ -1247,9 +1246,7 @@ void Map::updateGameFileSystem()
 
 void Map::initializeNodeIndex()
 {
-  contract_pre(world() != nullptr);
-
-  addToNodeIndex({world()}, true);
+  addToNodeIndex({&world()}, true);
 }
 
 void Map::addToNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
@@ -1280,9 +1277,7 @@ void Map::removeFromNodeIndex(const std::vector<Node*>& nodes, const bool recurs
 
 void Map::initializeEntityLinks()
 {
-  contract_pre(world() != nullptr);
-
-  addEntityLinks({world()}, true);
+  addEntityLinks({&world()}, true);
 }
 
 void Map::clearEntityLinks()

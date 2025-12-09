@@ -56,7 +56,7 @@ void isolateSelectedNodes(Map& map)
     }
   };
 
-  map.world()->accept(kdl::overload(
+  map.world().accept(kdl::overload(
     [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
     [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
     [&](auto&& thisLambda, GroupNode* group) {
@@ -97,7 +97,7 @@ void hideNodes(Map& map, std::vector<Node*> nodes)
 
 void showAllNodes(Map& map)
 {
-  resetNodeVisibility(map, mdl::collectDescendants(map.world()->allLayers()));
+  resetNodeVisibility(map, mdl::collectDescendants(map.world().allLayers()));
 }
 
 void showNodes(Map& map, const std::vector<Node*>& nodes)

@@ -104,11 +104,11 @@ private:
   void setupSelectionRenderer(ObjectRenderer& renderer);
   void setupLockedRenderer(ObjectRenderer& renderer);
 
-  static int determineDesiredRenderers(mdl::Node* node);
-  void updateAndInvalidateNode(mdl::Node* node);
-  void updateAndInvalidateNodeRecursive(mdl::Node* node);
-  void removeNode(mdl::Node* node);
-  void removeNodeRecursive(mdl::Node* node);
+  static int determineDesiredRenderers(mdl::Node& node);
+  void updateAndInvalidateNode(mdl::Node& node);
+  void updateAndInvalidateNodeRecursive(mdl::Node& node);
+  void removeNode(mdl::Node& node);
+  void removeNodeRecursive(mdl::Node& node);
   void updateAllNodes();
 
   void invalidateRenderers(Renderer renderers);

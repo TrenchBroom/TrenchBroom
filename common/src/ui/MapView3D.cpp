@@ -208,7 +208,7 @@ PickRequest MapView3D::pickRequest(const float x, const float y) const
 
 mdl::PickResult MapView3D::pick(const vm::ray3d& pickRay) const
 {
-  const auto& map = m_document.map();
+  auto& map = m_document.map();
   auto pickResult = mdl::PickResult::byDistance();
 
   mdl::pick(map, pickRay, pickResult);
@@ -226,7 +226,7 @@ vm::vec3d MapView3D::pasteObjectsDelta(
 {
   using namespace mdl::HitFilters;
 
-  const auto& map = m_document.map();
+  auto& map = m_document.map();
   const auto& grid = map.grid();
 
   const auto pos = QCursor::pos();

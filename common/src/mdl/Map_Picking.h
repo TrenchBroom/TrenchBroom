@@ -29,7 +29,7 @@ class Map;
 class Node;
 class PickResult;
 
-void pick(const Map& map, const vm::ray3d& pickRay, PickResult& pickResult);
-std::vector<Node*> findNodesContaining(const Map& map, const vm::vec3d& point);
+void pick(Map& map, const vm::ray3d& pickRay, PickResult& pickResult);
+std::vector<Node*> findNodesContaining(Map& map, const vm::vec3d& point);
 
 } // namespace tb::mdl

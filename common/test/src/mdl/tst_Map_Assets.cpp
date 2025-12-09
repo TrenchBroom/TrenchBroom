@@ -118,8 +118,8 @@ TEST_CASE("Map_Assets")
     CHECK(entityDefinitionsWillChange.called);
     CHECK(entityDefinitionsDidChange.called);
 
-    const auto* worldNode = map.world();
-    const auto& entity = worldNode->entity();
+    const auto& worldNode = map.world();
+    const auto& entity = worldNode.entity();
     const auto* propertyValue = entity.property(EntityPropertyKeys::EntityDefinitions);
 
     REQUIRE(propertyValue);
@@ -132,13 +132,12 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
-    const auto* worldNode = map.world();
-    REQUIRE(worldNode);
+    const auto& worldNode = map.world();
 
     SECTION("When no material collections are explicitly enabled")
     {
       REQUIRE(
-        worldNode->entity().property(EntityPropertyKeys::EnabledMaterialCollections)
+        worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections)
         == nullptr);
 
       CHECK(
@@ -202,13 +201,12 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
-    const auto* worldNode = map.world();
-    REQUIRE(worldNode);
+    const auto& worldNode = map.world();
 
     SECTION("When no material collections are explicitly enabled")
     {
       REQUIRE(
-        worldNode->entity().property(EntityPropertyKeys::EnabledMaterialCollections)
+        worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections)
         == nullptr);
 
       CHECK(disabledMaterialCollections(map) == std::vector<std::filesystem::path>{});
@@ -236,11 +234,10 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(collectionPaths.size() == 3);
 
-    const auto* worldNode = map.world();
-    REQUIRE(worldNode);
+    const auto& worldNode = map.world();
 
     const auto getEnabledMaterialCollections = [&] {
-      return worldNode->entity().property(EntityPropertyKeys::EnabledMaterialCollections);
+      return worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections);
     };
 
     REQUIRE(!getEnabledMaterialCollections());
@@ -284,7 +281,7 @@ TEST_CASE("Map_Assets")
     auto materialCollectionsDidChange =
       Observer<void>{map.materialCollectionsDidChangeNotifier};
 
-    const auto faces = map.world()->defaultLayer()->children()
+    const auto faces = map.world().defaultLayer()->children()
                        | std::views::transform([&](const auto* node) {
                            const auto* brushNode =
                              dynamic_cast<const mdl::BrushNode*>(node);

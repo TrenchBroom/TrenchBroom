@@ -238,7 +238,9 @@ public: // misc
 
   const Game* game() const;
   const vm::bbox3d& worldBounds() const;
-  WorldNode* world() const;
+
+  const WorldNode& world() const;
+  WorldNode& world();
 
   MapTextEncoding encoding() const;
 

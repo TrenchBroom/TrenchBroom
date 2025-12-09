@@ -93,22 +93,22 @@ public:
   /**
    * Adds a node if its not already present and invalidates it.
    */
-  void updateNode(mdl::Node* node);
+  void updateNode(mdl::Node& node);
 
   /**
    * Removes a node. Calling with an unknown node is allowed, but ignored.
    */
-  void removeNode(mdl::Node* node);
+  void removeNode(mdl::Node& node);
 
 private:
-  void updateEntity(const mdl::EntityNode* entityNode);
-  void removeEntity(const mdl::EntityNode* entityNode);
-  void updateBrush(const mdl::BrushNode* brushNode);
-  void removeBrush(const mdl::BrushNode* brushNode);
+  void updateEntity(const mdl::EntityNode& entityNode);
+  void removeEntity(const mdl::EntityNode& entityNode);
+  void updateBrush(const mdl::BrushNode& brushNode);
+  void removeBrush(const mdl::BrushNode& brushNode);
 
   void invalidateDecalData(EntityDecalData& data) const;
 
-  void validateDecalData(const mdl::EntityNode* entityNode, EntityDecalData& data) const;
+  void validateDecalData(const mdl::EntityNode& entityNode, EntityDecalData& data) const;
 
 public: // rendering
   void render(RenderContext& renderContext, RenderBatch& renderBatch);

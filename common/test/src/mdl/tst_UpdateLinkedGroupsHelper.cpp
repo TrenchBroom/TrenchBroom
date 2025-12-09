@@ -460,7 +460,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
           == vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
 
         auto* newNestedLinkedInnerGroupNode =
-          findGroupByName(*map.world(), "nestedLinkedInnerGroupNode");
+          findGroupByName(map.world(), "nestedLinkedInnerGroupNode");
         CHECK(
           newNestedLinkedInnerGroupNode->group().transformation()
           == vm::translation_matrix(vm::vec3d(32.0, 16.0, 0.0)));
@@ -522,7 +522,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
         == vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
 
       auto* newNestedLinkedInnerGroupNode =
-        findGroupByName(*map.world(), "nestedLinkedInnerGroupNode");
+        findGroupByName(map.world(), "nestedLinkedInnerGroupNode");
       REQUIRE(newNestedLinkedInnerGroupNode != nullptr);
       CHECK(
         newNestedLinkedInnerGroupNode->group().transformation()

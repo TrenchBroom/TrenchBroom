@@ -60,9 +60,9 @@ TEST_CASE("SelectionTool")
 
   SECTION("clicking")
   {
-    const auto* world = map.world();
+    const auto& worldNode = map.world();
     auto builder = mdl::BrushBuilder{
-      world->mapFormat(),
+      worldNode.mapFormat(),
       map.worldBounds(),
       map.game()->config().faceAttribsConfig.defaults};
 
@@ -456,9 +456,9 @@ TEST_CASE("SelectionTool")
 
   SECTION("clickingThroughHidden")
   {
-    const auto* world = map.world();
+    const auto& worldNode = map.world();
     auto builder = mdl::BrushBuilder{
-      world->mapFormat(),
+      worldNode.mapFormat(),
       map.worldBounds(),
       map.game()->config().faceAttribsConfig.defaults};
 

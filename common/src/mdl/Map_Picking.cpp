@@ -25,21 +25,15 @@
 namespace tb::mdl
 {
 
-void pick(const Map& map, const vm::ray3d& pickRay, PickResult& pickResult)
+void pick(Map& map, const vm::ray3d& pickRay, PickResult& pickResult)
 {
-  if (auto* worldNode = map.world())
-  {
-    worldNode->pick(map.editorContext(), pickRay, pickResult);
-  }
+  map.world().pick(map.editorContext(), pickRay, pickResult);
 }
 
-std::vector<Node*> findNodesContaining(const Map& map, const vm::vec3d& point)
+std::vector<Node*> findNodesContaining(Map& map, const vm::vec3d& point)
 {
   auto result = std::vector<Node*>{};
-  if (auto* worldNode = map.world())
-  {
-    worldNode->findNodesContaining(point, result);
-  }
+  map.world().findNodesContaining(point, result);
   return result;
 }
 

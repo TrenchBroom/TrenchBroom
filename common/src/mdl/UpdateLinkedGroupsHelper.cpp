@@ -182,7 +182,7 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   const auto& worldBounds = map.worldBounds();
   return changedLinkedGroups | std::views::transform([&](const auto* groupNode) {
            const auto groupNodesToUpdate = kdl::vec_erase(
-             collectGroupsWithLinkId({map.world()}, groupNode->linkId()), groupNode);
+             collectGroupsWithLinkId({&map.world()}, groupNode->linkId()), groupNode);
 
            return updateLinkedGroups(
              *groupNode, groupNodesToUpdate, worldBounds, map.taskManager());

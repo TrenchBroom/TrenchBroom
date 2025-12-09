@@ -220,9 +220,9 @@ void copyAndSetLinkIds(
 bool pasteNodes(Map& map, const std::vector<Node*>& nodes)
 {
   const auto nodesToAdd = extractNodesToPaste(nodes, parentForNodes(map));
-  fixRedundantPersistentIds(nodesToAdd, allPersistentGroupIds(*map.world()));
+  fixRedundantPersistentIds(nodesToAdd, allPersistentGroupIds(map.world()));
   fixRecursiveLinkedGroups(nodesToAdd, map.logger());
-  copyAndSetLinkIds(nodesToAdd, *map.world(), map.logger());
+  copyAndSetLinkIds(nodesToAdd, map.world(), map.logger());
 
   auto transaction = Transaction{map, "Paste Nodes"};
 
@@ -253,7 +253,7 @@ bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 std::string serializeSelectedNodes(Map& map)
 {
   auto stream = std::stringstream{};
-  auto writer = io::NodeWriter{*map.world(), stream};
+  auto writer = io::NodeWriter{map.world(), stream};
   writer.writeNodes(map.selection().nodes, map.taskManager());
   return stream.str();
 }
@@ -261,7 +261,7 @@ std::string serializeSelectedNodes(Map& map)
 std::string serializeSelectedBrushFaces(Map& map)
 {
   auto stream = std::stringstream{};
-  auto writer = io::NodeWriter{*map.world(), stream};
+  auto writer = io::NodeWriter{map.world(), stream};
   writer.writeBrushFaces(
     map.selection().brushFaces | std::views::transform([](const auto& h) {
       return h.face();
@@ -277,9 +277,9 @@ PasteType paste(Map& map, const std::string& str)
   // Try parsing as entities, then as brushes, in all compatible formats
   return io::NodeReader::read(
            str,
-           map.world()->mapFormat(),
+           map.world().mapFormat(),
            map.worldBounds(),
-           map.world()->entityPropertyConfig(),
+           map.world().entityPropertyConfig(),
            parserStatus,
            map.taskManager())
          | kdl::transform([&](auto nodes) {
@@ -287,7 +287,7 @@ PasteType paste(Map& map, const std::string& str)
            })
          | kdl::or_else([&](const auto& nodeError) {
              // Try parsing as brush faces
-             auto reader = io::BrushFaceReader{str, map.world()->mapFormat()};
+             auto reader = io::BrushFaceReader{str, map.world().mapFormat()};
              return reader.read(map.worldBounds(), parserStatus)
                     | kdl::transform([&](const auto& faces) {
                         return !faces.empty() && pasteBrushFaces(map, faces)

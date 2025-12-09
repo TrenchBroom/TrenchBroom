@@ -114,11 +114,11 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
   const auto* subject = m_subjectBrowser->selectedMaterial();
   contract_assert(subject != nullptr);
 
-  const auto& map = m_document.map();
+  auto& map = m_document.map();
   auto faces = map.selection().allBrushFaces();
   if (faces.empty())
   {
-    faces = mdl::collectBrushFaces({map.world()});
+    faces = mdl::collectBrushFaces({&map.world()});
   }
 
   return faces | std::views::filter([&](const auto& handle) {

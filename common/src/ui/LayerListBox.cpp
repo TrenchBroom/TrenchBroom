@@ -220,9 +220,8 @@ void LayerListBox::connectObservers()
 
 void LayerListBox::documentDidChange()
 {
-  auto* worldNode = m_document.map().world();
-  const auto documentLayers =
-    worldNode ? worldNode->allLayersUserSorted() : std::vector<mdl::LayerNode*>{};
+  auto& worldNode = m_document.map().world();
+  const auto documentLayers = worldNode.allLayersUserSorted();
 
   if (layers() != documentLayers)
   {
@@ -243,20 +242,16 @@ void LayerListBox::currentLayerDidChange()
 
 size_t LayerListBox::itemCount() const
 {
-  if (const auto* worldNode = m_document.map().world())
-  {
-    return worldNode->allLayers().size();
-  }
-  return 0;
+  return m_document.map().world().allLayers().size();
 }
 
 ControlListBoxItemRenderer* LayerListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
-  auto* worldNode = m_document.map().world();
+  auto& worldNode = m_document.map().world();
 
-  auto* layerNode = index > 0 ? worldNode->customLayersUserSorted().at(index - 1)
-                              : worldNode->defaultLayer();
+  auto* layerNode = index > 0 ? worldNode.customLayersUserSorted().at(index - 1)
+                              : worldNode.defaultLayer();
 
   auto* renderer = new LayerListBoxWidget{m_document, layerNode, parent};
   connect(

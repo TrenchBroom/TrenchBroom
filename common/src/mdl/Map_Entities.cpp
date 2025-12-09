@@ -100,7 +100,7 @@ EntityNode* createPointEntity(
 
   auto entity = Entity{{{EntityPropertyKeys::Classname, definition.name}}};
 
-  if (map.world()->entityPropertyConfig().setDefaultProperties)
+  if (map.world().entityPropertyConfig().setDefaultProperties)
   {
     mdl::setDefaultProperties(definition, entity, SetDefaultPropertyMode::SetAll);
   }
@@ -139,7 +139,7 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
   // if all brushes belong to the same entity, and that entity is not worldspawn, copy
   // its properties
   auto entity =
-    (brushes.front()->entity() != map.world()
+    (brushes.front()->entity() != &map.world()
      && std::all_of(
        std::next(brushes.begin()),
        brushes.end(),
@@ -149,7 +149,7 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
 
   entity.addOrUpdateProperty(EntityPropertyKeys::Classname, definition.name);
 
-  if (map.world()->entityPropertyConfig().setDefaultProperties)
+  if (map.world().entityPropertyConfig().setDefaultProperties)
   {
     mdl::setDefaultProperties(definition, entity, SetDefaultPropertyMode::SetAll);
   }
@@ -341,8 +341,7 @@ bool setProtectedEntityProperty(Map& map, const std::string& key, const bool val
     else if (!value && kdl::vec_contains(protectedProperties, key))
     {
       if (
-        const auto newValue =
-          findUnprotectedPropertyValue(key, *entityNode, *map.world()))
+        const auto newValue = findUnprotectedPropertyValue(key, *entityNode, map.world()))
       {
         entity.addOrUpdateProperty(key, *newValue);
       }
@@ -372,7 +371,7 @@ bool clearProtectedEntityProperties(Map& map)
       continue;
     }
 
-    const auto linkedEntities = collectLinkedNodes({map.world()}, *entityNode);
+    const auto linkedEntities = collectLinkedNodes({&map.world()}, *entityNode);
     if (linkedEntities.size() <= 1)
     {
       continue;
@@ -403,7 +402,7 @@ bool canClearProtectedEntityProperties(const Map& map)
   const auto entityNodes = map.selection().allEntities();
   if (
     entityNodes.empty()
-    || (entityNodes.size() == 1u && entityNodes.front() == map.world()))
+    || (entityNodes.size() == 1u && entityNodes.front() == &map.world()))
   {
     return false;
   }

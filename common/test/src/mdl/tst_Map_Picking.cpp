@@ -52,7 +52,7 @@ TEST_CASE("Map_Picking")
   auto fixture = MapFixture{};
   auto& map = fixture.create();
 
-  const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+  const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
 
   SECTION("pick")
   {

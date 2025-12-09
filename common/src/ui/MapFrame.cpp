@@ -529,7 +529,7 @@ QString describeSelection(const mdl::Map& map)
 
   pipeSeparatedSections << QString::fromStdString(map.game()->config().name)
                         << QString::fromStdString(
-                             mdl::formatName(map.world()->mapFormat()))
+                             mdl::formatName(map.world().mapFormat()))
                         << QString::fromStdString(editorContext.currentLayer()->name());
 
   // open groups
@@ -639,7 +639,7 @@ QString describeSelection(const mdl::Map& map)
   size_t hiddenBrushes = 0u;
   size_t hiddenPatches = 0u;
 
-  map.world()->accept(kdl::overload(
+  map.world().accept(kdl::overload(
     [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       worldNode->visitChildren(thisLambda);
     },
@@ -2461,7 +2461,7 @@ void MapFrame::dropEvent(QDropEvent* event)
     return;
   }
 
-  const auto* wadPathsStr = map.world()->entity().property(*wadPropertyKey);
+  const auto* wadPathsStr = map.world().entity().property(*wadPropertyKey);
   auto wadPaths = wadPathsStr ? kdl::str_split(*wadPathsStr, ";")
                                   | kdl::ranges::to<std::vector<std::filesystem::path>>()
                               : std::vector<std::filesystem::path>{};

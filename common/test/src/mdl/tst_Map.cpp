@@ -108,9 +108,8 @@ TEST_CASE("Map")
         *taskManager,
         logger)
         | kdl::transform([](auto map) {
-            REQUIRE(map->world() != nullptr);
             CHECK(
-              map->world()->entity()
+              map->world().entity()
               == Entity{{
                 {EntityPropertyKeys::Classname,
                  EntityPropertyValues::WorldspawnClassname},
@@ -135,7 +134,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Valve, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
-            const auto* defaultLayerNode = map->world()->defaultLayer();
+            const auto* defaultLayerNode = map->world().defaultLayer();
             REQUIRE(defaultLayerNode->children().size() == 1);
 
             const auto* brushNode =
@@ -146,7 +145,7 @@ TEST_CASE("Map")
               brushNode->brush().bounds() == vm::bbox3d{{-32, -32, -64}, {32, 32, 64}});
 
             const auto* valveVersionProperty =
-              map->world()->entity().property(EntityPropertyKeys::ValveVersion);
+              map->world().entity().property(EntityPropertyKeys::ValveVersion);
             REQUIRE(valveVersionProperty);
             CHECK(*valveVersionProperty == "220");
           })
@@ -166,7 +165,7 @@ TEST_CASE("Map")
         MapFormat::Valve, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
             const auto* valveVersionProperty =
-              map->world()->entity().property(EntityPropertyKeys::ValveVersion);
+              map->world().entity().property(EntityPropertyKeys::ValveVersion);
             REQUIRE(valveVersionProperty);
             CHECK(*valveVersionProperty == "220");
           })
@@ -186,7 +185,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Valve, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
-            const auto* materialConfigProperty = map->world()->entity().property("wad");
+            const auto* materialConfigProperty = map->world().entity().property("wad");
             REQUIRE(materialConfigProperty);
             CHECK(*materialConfigProperty == "");
           })
@@ -205,7 +204,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Valve, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
-            const auto* defaultLayerNode = map->world()->defaultLayer();
+            const auto* defaultLayerNode = map->world().defaultLayer();
             REQUIRE(defaultLayerNode->children().size() == 1);
 
             const auto* brushNode =
@@ -287,8 +286,8 @@ TEST_CASE("Map")
           *taskManager,
           logger)
           | kdl::transform([&](auto map) {
-              CHECK(map->world()->mapFormat() == mdl::MapFormat::Valve);
-              CHECK(map->world()->defaultLayer()->childCount() == 1);
+              CHECK(map->world().mapFormat() == mdl::MapFormat::Valve);
+              CHECK(map->world().defaultLayer()->childCount() == 1);
             })
           | kdl::transform_error([](auto e) { FAIL(e.msg); });
       }
@@ -303,8 +302,8 @@ TEST_CASE("Map")
           *taskManager,
           logger)
           | kdl::transform([&](auto map) {
-              CHECK(map->world()->mapFormat() == mdl::MapFormat::Standard);
-              CHECK(map->world()->defaultLayer()->childCount() == 1);
+              CHECK(map->world().mapFormat() == mdl::MapFormat::Standard);
+              CHECK(map->world().defaultLayer()->childCount() == 1);
             })
           | kdl::transform_error([](auto e) { FAIL(e.msg); });
       }
@@ -321,8 +320,8 @@ TEST_CASE("Map")
           | kdl::transform([&](auto map) {
               // an empty map detects as Valve because Valve is listed first in the game
               // config
-              CHECK(map->world()->mapFormat() == mdl::MapFormat::Valve);
-              CHECK(map->world()->defaultLayer()->childCount() == 0);
+              CHECK(map->world().mapFormat() == mdl::MapFormat::Valve);
+              CHECK(map->world().defaultLayer()->childCount() == 0);
             })
           | kdl::transform_error([](auto e) { FAIL(e.msg); });
       }
@@ -396,7 +395,7 @@ TEST_CASE("Map")
           auto* transientEntityNode = new EntityNode{{}};
           addNodes(*map, {{parentForNodes(*map), {transientEntityNode}}});
           REQUIRE(
-            map->world()->defaultLayer()->children()
+            map->world().defaultLayer()->children()
             == std::vector<Node*>{transientEntityNode});
           REQUIRE(map->modified());
 
@@ -407,7 +406,7 @@ TEST_CASE("Map")
                    CHECK(reloadedMap->persistent());
                    CHECK(!reloadedMap->modified());
                    CHECK(
-                     reloadedMap->world()->defaultLayer()->children()
+                     reloadedMap->world().defaultLayer()->children()
                      == std::vector<Node*>{});
                  });
         })
@@ -481,7 +480,7 @@ TEST_CASE("Map")
 
     auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
     addNodes(map, {{parentForNodes(map), {entityNode}}});
-    REQUIRE(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+    REQUIRE(map.world().defaultLayer()->children() == std::vector<Node*>{entityNode});
 
     auto mapWasSaved = Observer<void>{map.mapWasSavedNotifier};
     auto modificationStateDidChange =
@@ -520,7 +519,7 @@ TEST_CASE("Map")
     {
       auto& map = fixture.create();
 
-      const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
 
       auto* brushNode = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
@@ -566,14 +565,14 @@ TEST_CASE("Map")
         layer.setOmitFromExport(true);
 
         auto* layerNode = new mdl::LayerNode{std::move(layer)};
-        addNodes(map, {{map.world(), {layerNode}}});
+        addNodes(map, {{&map.world(), {layerNode}}});
 
         REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / newDocumentPath}));
         REQUIRE(env.fileExists(newDocumentPath));
       }
 
       auto& map = fixture.load(env.dir() / newDocumentPath, QuakeFixtureConfig);
-      CHECK(map.world()->customLayers().empty());
+      CHECK(map.world().customLayers().empty());
     }
   }
 
@@ -730,7 +729,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{&map.world()}));
           }
         }
 
@@ -742,7 +741,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{&map.world()}));
           }
         }
 
@@ -754,7 +753,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{&map.world()}));
           }
         }
 
@@ -766,7 +765,7 @@ TEST_CASE("Map")
           {
             CHECK_THAT(
               map.selection().allEntities(),
-              UnorderedEquals(std::vector<EntityNodeBase*>{map.world()}));
+              UnorderedEquals(std::vector<EntityNodeBase*>{&map.world()}));
           }
         }
 
@@ -880,9 +879,9 @@ TEST_CASE("Map")
 
       addNodes(
         map,
-        {{map.world()->defaultLayer(),
+        {{map.world().defaultLayer(),
           {brushNodeInDefaultLayer, brushEntityNode, pointEntityNode, outerGroupNode}},
-         {map.world(), {customLayerNode}}});
+         {&map.world(), {customLayerNode}}});
 
       addNodes(
         map,
@@ -894,10 +893,10 @@ TEST_CASE("Map")
 
       addNodes(map, {{innerGroupNode, {brushNodeInNestedGroup}}});
 
-      const auto getPath = [&](const Node* node) { return node->pathFrom(*map.world()); };
+      const auto getPath = [&](const Node* node) { return node->pathFrom(map.world()); };
       const auto resolvePaths = [&](const auto& paths) {
         return paths | std::views::transform([&](const auto& path) {
-                 return map.world()->resolvePath(path);
+                 return map.world().resolvePath(path);
                })
                | kdl::ranges::to<std::vector>();
       };

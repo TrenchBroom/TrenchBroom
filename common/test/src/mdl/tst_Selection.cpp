@@ -95,8 +95,8 @@ TEST_CASE("Selection")
   auto fixture = MapFixture{};
   auto& map = fixture.create();
 
-  auto* worldNode = map.world();
-  auto brushBuilder = BrushBuilder{worldNode->mapFormat(), map.worldBounds()};
+  auto& worldNode = map.world();
+  auto brushBuilder = BrushBuilder{worldNode.mapFormat(), map.worldBounds()};
 
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
@@ -391,7 +391,7 @@ TEST_CASE("Selection")
     {
       CHECK_THAT(
         map.selection().allEntities(),
-        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+        UnorderedEquals(std::vector<EntityNodeBase*>{&worldNode}));
     }
 
     SECTION("outer group node selected")
@@ -399,7 +399,7 @@ TEST_CASE("Selection")
       selectNodes(map, {outerGroupNode});
       CHECK_THAT(
         map.selection().allEntities(),
-        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+        UnorderedEquals(std::vector<EntityNodeBase*>{&worldNode}));
     }
 
     SECTION("entity node selected")
@@ -438,7 +438,7 @@ TEST_CASE("Selection")
       selectBrushFaces(map, {{brushNode, 0}});
       CHECK_THAT(
         map.selection().allEntities(),
-        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+        UnorderedEquals(std::vector<EntityNodeBase*>{&worldNode}));
     }
   }
 

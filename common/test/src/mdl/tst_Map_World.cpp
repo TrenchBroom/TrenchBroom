@@ -50,11 +50,11 @@ TEST_CASE("Map_World")
       auto& map = fixture.create(QuakeFixtureConfig);
 
       {
-        auto* worldNode = map.world();
-        auto world = worldNode->entity();
+        auto& worldNode = map.world();
+        auto world = worldNode.entity();
         world.addOrUpdateProperty(
           EntityPropertyKeys::SoftMapBounds, "-2048 -2048 -2048 2048 2048 2048");
-        worldNode->setEntity(std::move(world));
+        worldNode.setEntity(std::move(world));
       }
 
       CHECK(
@@ -79,8 +79,8 @@ TEST_CASE("Map_World")
 
     setSoftMapBounds(map, softBounds);
 
-    auto* worldNode = map.world();
-    const auto& world = worldNode->entity();
+    auto& worldNode = map.world();
+    const auto& world = worldNode.entity();
 
     REQUIRE(
       world.hasProperty(EntityPropertyKeys::SoftMapBounds)
@@ -165,10 +165,10 @@ TEST_CASE("Map_World")
         CHECK(enabledMods(map).empty());
 
         {
-          auto* worldNode = map.world();
-          auto world = worldNode->entity();
+          auto& worldNode = map.world();
+          auto world = worldNode.entity();
           world.addOrUpdateProperty(EntityPropertyKeys::Mods, "mod1;mod2;mod3");
-          worldNode->setEntity(std::move(world));
+          worldNode.setEntity(std::move(world));
         }
 
         CHECK(enabledMods(map) == std::vector<std::string>{"mod1", "mod2", "mod3"});
@@ -180,8 +180,8 @@ TEST_CASE("Map_World")
   {
     auto& map = fixture.create();
 
-    const auto* worldNode = map.world();
-    const auto& world = worldNode->entity();
+    const auto& worldNode = map.world();
+    const auto& world = worldNode.entity();
 
     REQUIRE(!world.hasProperty(EntityPropertyKeys::Mods));
     REQUIRE(enabledMods(map).empty());

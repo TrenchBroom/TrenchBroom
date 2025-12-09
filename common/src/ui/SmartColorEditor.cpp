@@ -273,7 +273,7 @@ void SmartColorEditor::updateColorHistory()
 {
   auto& map = document().map();
 
-  m_colorHistory->setColors(collectColors(std::vector{map.world()}, propertyKey()));
+  m_colorHistory->setColors(collectColors(std::vector{&map.world()}, propertyKey()));
 
   const auto selectedColors = collectColors(map.selection().allEntities(), propertyKey());
   m_colorHistory->setSelection(selectedColors);

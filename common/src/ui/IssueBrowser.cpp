@@ -106,15 +106,12 @@ void IssueBrowser::updateFilterFlags()
   auto labels = QStringList{};
 
   const auto& map = m_document.map();
-  if (const auto* world = map.world())
-  {
-    const auto validators = world->registeredValidators();
+  const auto validators = map.world().registeredValidators();
 
-    for (const auto* validator : validators)
-    {
-      flags.push_back(validator->type());
-      labels.push_back(QString::fromStdString(validator->description()));
-    }
+  for (const auto* validator : validators)
+  {
+    flags.push_back(validator->type());
+    labels.push_back(QString::fromStdString(validator->description()));
   }
 
   m_filterEditor->setFlags(flags, labels);

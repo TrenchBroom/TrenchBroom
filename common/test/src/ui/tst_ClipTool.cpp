@@ -64,7 +64,7 @@ TEST_CASE("ClipTool")
 )";
     REQUIRE(paste(map, data) == mdl::PasteType::Node);
 
-    const auto* defaultLayer = map.world()->defaultLayer();
+    const auto* defaultLayer = map.world().defaultLayer();
 
     const auto* originalBrushNode =
       dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().front());

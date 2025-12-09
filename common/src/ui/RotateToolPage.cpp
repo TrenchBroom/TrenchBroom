@@ -166,11 +166,8 @@ void RotateToolPage::updateGui()
 
   m_rotateButton->setEnabled(map.selection().hasNodes());
 
-  if (const auto* worldNode = map.world())
-  {
-    m_updateAnglePropertyAfterTransformCheckBox->setChecked(
-      worldNode->entityPropertyConfig().updateAnglePropertyAfterTransform);
-  }
+  m_updateAnglePropertyAfterTransformCheckBox->setChecked(
+    map.world().entityPropertyConfig().updateAnglePropertyAfterTransform);
 }
 
 void RotateToolPage::documentDidChange()
@@ -247,7 +244,7 @@ void RotateToolPage::rotateClicked()
 
 void RotateToolPage::updateAnglePropertyAfterTransformClicked()
 {
-  m_document.map().world()->entityPropertyConfig().updateAnglePropertyAfterTransform =
+  m_document.map().world().entityPropertyConfig().updateAnglePropertyAfterTransform =
     m_updateAnglePropertyAfterTransformCheckBox->isChecked();
 }
 

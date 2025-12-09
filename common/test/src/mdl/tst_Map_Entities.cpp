@@ -101,7 +101,7 @@ TEST_CASE("Map_Entities")
   REQUIRE(largeEntityDefinition);
   REQUIRE(brushEntityDefinition);
 
-  const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+  const auto builder = BrushBuilder{map.world().mapFormat(), map.worldBounds()};
 
   SECTION("createPointEntity")
   {
@@ -110,7 +110,7 @@ TEST_CASE("Map_Entities")
       auto* entityNode =
         createPointEntity(map, *pointEntityDefinition, vm::vec3d{16.0, 32.0, 48.0});
       CHECK(entityNode != nullptr);
-      CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+      CHECK(map.world().defaultLayer()->children() == std::vector<Node*>{entityNode});
       CHECK(entityNode->entity().definition() == pointEntityDefinition);
       CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
       CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
@@ -118,11 +118,11 @@ TEST_CASE("Map_Entities")
       SECTION("Undo and redo")
       {
         map.undoCommand();
-        CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+        CHECK(map.world().defaultLayer()->children() == std::vector<Node*>{});
         CHECK(map.selection().nodes == std::vector<Node*>{});
 
         map.redoCommand();
-        CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+        CHECK(map.world().defaultLayer()->children() == std::vector<Node*>{entityNode});
         CHECK(entityNode->entity().definition() == pointEntityDefinition);
         CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
         CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
@@ -223,7 +223,7 @@ TEST_CASE("Map_Entities")
       selectNodes(map, {brushNode});
       auto* entityNode = createBrushEntity(map, *brushEntityDefinition);
       CHECK(entityNode != nullptr);
-      CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+      CHECK(map.world().defaultLayer()->children() == std::vector<Node*>{entityNode});
       CHECK(entityNode->children() == std::vector<Node*>{brushNode});
       CHECK(entityNode->entity().definition() == brushEntityDefinition);
       CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
@@ -231,11 +231,11 @@ TEST_CASE("Map_Entities")
       SECTION("Undo and redo")
       {
         map.undoCommand();
-        CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{brushNode});
+        CHECK(map.world().defaultLayer()->children() == std::vector<Node*>{brushNode});
         CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
 
         map.redoCommand();
-        CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+        CHECK(map.world().defaultLayer()->children() == std::vector<Node*>{entityNode});
         CHECK(entityNode->children() == std::vector<Node*>{brushNode});
         CHECK(entityNode->entity().definition() == brushEntityDefinition);
         CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
