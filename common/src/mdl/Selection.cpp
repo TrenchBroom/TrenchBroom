@@ -184,7 +184,7 @@ void Selection::clear()
 void Selection::invalidate()
 {
   m_cachedAllEntities = std::nullopt;
-  m_cachedAllEntities = std::nullopt;
+  m_cachedAllBrushes = std::nullopt;
   m_cachedAllBrushFaces = std::nullopt;
 }
 
