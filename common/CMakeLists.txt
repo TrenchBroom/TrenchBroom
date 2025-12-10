@@ -99,7 +99,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/EntityProperties.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityPropertiesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/mdl/EntityRotation.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Game.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameConfig.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameEngineConfig.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameEngineProfile.cpp
@@ -584,7 +583,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/EntityProperties.h
         ${COMMON_SOURCE_DIR}/mdl/EntityPropertiesVariableStore.h
         ${COMMON_SOURCE_DIR}/mdl/EntityRotation.h
-        ${COMMON_SOURCE_DIR}/mdl/Game.h
         ${COMMON_SOURCE_DIR}/mdl/GameConfig.h
         ${COMMON_SOURCE_DIR}/mdl/GameEngineConfig.h
         ${COMMON_SOURCE_DIR}/mdl/GameEngineProfile.h
