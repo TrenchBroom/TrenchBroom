@@ -498,7 +498,10 @@ Map::Map(
   , m_resourceManager{std::make_unique<ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
-      makeCreateResource<EntityModelDataResource>(*m_resourceManager), logger)}
+      m_game->info(),
+      m_game->gameFileSystem(),
+      makeCreateResource<EntityModelDataResource>(*m_resourceManager),
+      logger)}
   , m_materialManager{std::make_unique<MaterialManager>(
       makeCreateResource<TextureResource>(*m_resourceManager), logger)}
   , m_tagManager{std::make_unique<TagManager>()}
@@ -519,7 +522,6 @@ Map::Map(
 {
   connectObservers();
 
-  entityModelManager().setGame(m_game.get(), m_taskManager);
   editorContext().setCurrentLayer(m_worldNode->defaultLayer());
 
   updateGameSearchPaths();
