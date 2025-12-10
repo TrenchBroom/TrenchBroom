@@ -69,7 +69,6 @@ private:
   void materialSelected(const mdl::Material* material);
 
   void connectObservers();
-  void documentWasCreated();
   void documentWasLoaded();
 };
 

@@ -87,7 +87,6 @@ class MapDocument
 public:
   static const vm::bbox3d DefaultWorldBounds;
 
-  Notifier<> documentWasCreatedNotifier;
   Notifier<> documentWasLoadedNotifier;
   Notifier<> documentWasSavedNotifier;
   Notifier<> documentDidChangeNotifier;
@@ -268,7 +267,6 @@ private: // observers
 
   void transactionDone(const std::string& name, bool observable);
   void transactionUndone(const std::string& name, bool observable);
-  void documentWasCreated();
   void documentWasLoaded();
   void documentWasCleared();
   void entityDefinitionsDidChange();

@@ -71,7 +71,6 @@ private:
 
   void connectObservers();
 
-  void documentWasCreated();
   void documentWasLoaded();
   void entityDefinitionsDidChange();
 

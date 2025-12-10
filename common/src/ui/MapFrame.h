@@ -169,7 +169,6 @@ private: // gui creation
 private: // notification handlers
   void connectObservers();
 
-  void documentWasCreated();
   void documentWasLoaded();
   void documentWasSaved();
   void mapModificationStateDidChange();

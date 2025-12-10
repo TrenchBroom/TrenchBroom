@@ -133,7 +133,6 @@ private:
 
   void createActionsAndUpdatePicking();
 
-  void documentWasCreated();
   void documentWasLoaded();
   void documentDidChange();
 

@@ -114,7 +114,6 @@ public:
 private:
   void connectObservers();
 
-  void documentWasCreated();
   void documentWasLoaded();
   void editorContextDidChange();
   void entityDefinitionsDidChange();

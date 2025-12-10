@@ -65,7 +65,6 @@ private slots:
 private:
   void connectObservers();
 
-  void documentWasCreated();
   void documentWasLoaded();
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);

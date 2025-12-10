@@ -121,7 +121,7 @@ Result<void> MapDocument::create(
            mapFormat, std::move(game), worldBounds, *m_taskManager, logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));
-             documentWasCreatedNotifier();
+             documentWasLoadedNotifier();
            });
 }
 
@@ -337,8 +337,6 @@ void MapDocument::unloadPortalFile()
 void MapDocument::connectObservers()
 {
   m_notifierConnection +=
-    documentWasCreatedNotifier.connect(this, &MapDocument::documentWasCreated);
-  m_notifierConnection +=
     documentWasLoadedNotifier.connect(this, &MapDocument::documentWasLoaded);
 
   m_notifierConnection +=
@@ -428,16 +426,6 @@ void MapDocument::transactionUndone(const std::string&, const bool observable)
   {
     documentDidChangeNotifier();
   }
-}
-
-void MapDocument::documentWasCreated()
-{
-  m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
-
-  createTagActions();
-  createEntityDefinitionActions();
-
-  documentDidChangeNotifier();
 }
 
 void MapDocument::documentWasLoaded()

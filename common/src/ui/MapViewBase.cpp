@@ -148,8 +148,6 @@ void MapViewBase::bindEvents()
 void MapViewBase::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasCreatedNotifier.connect(this, &MapViewBase::documentWasCreated);
-  m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect(this, &MapViewBase::documentWasLoaded);
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
@@ -192,12 +190,6 @@ void MapViewBase::createActionsAndUpdatePicking()
   createActions();
   updateActionStates();
   updatePickResult();
-}
-
-void MapViewBase::documentWasCreated()
-{
-  createActionsAndUpdatePicking();
-  update();
 }
 
 void MapViewBase::documentWasLoaded()

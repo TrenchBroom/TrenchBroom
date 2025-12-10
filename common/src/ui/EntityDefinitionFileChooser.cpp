@@ -167,18 +167,11 @@ void EntityDefinitionFileChooser::bindEvents()
 
 void EntityDefinitionFileChooser::connectObservers()
 {
-  m_notifierConnection += m_document.documentWasCreatedNotifier.connect(
-    this, &EntityDefinitionFileChooser::documentWasCreated);
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
     this, &EntityDefinitionFileChooser::documentWasLoaded);
 
   m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
     this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
-}
-
-void EntityDefinitionFileChooser::documentWasCreated()
-{
-  updateControls();
 }
 
 void EntityDefinitionFileChooser::documentWasLoaded()

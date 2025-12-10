@@ -232,8 +232,6 @@ ViewEditor::ViewEditor(MapDocument& document, QWidget* parent)
 void ViewEditor::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasCreatedNotifier.connect(this, &ViewEditor::documentWasCreated);
-  m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect(this, &ViewEditor::documentWasLoaded);
 
   m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
@@ -244,12 +242,6 @@ void ViewEditor::connectObservers()
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &ViewEditor::preferenceDidChange);
-}
-
-void ViewEditor::documentWasCreated()
-{
-  createGui();
-  refreshGui();
 }
 
 void ViewEditor::documentWasLoaded()

@@ -331,8 +331,6 @@ void MapViewToolBox::connectObservers()
   m_notifierConnection +=
     toolDeactivatedNotifier.connect(this, &MapViewToolBox::toolDeactivated);
 
-  m_notifierConnection += m_document.documentWasCreatedNotifier.connect(
-    this, &MapViewToolBox::documentWasCreated);
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
     this, &MapViewToolBox::documentWasLoaded);
 
@@ -356,11 +354,6 @@ void MapViewToolBox::updateEditorContext()
 {
   auto& editorContext = m_document.map().editorContext();
   editorContext.setBlockSelection(assembleBrushToolActive());
-}
-
-void MapViewToolBox::documentWasCreated()
-{
-  deactivateAllTools();
 }
 
 void MapViewToolBox::documentWasLoaded()

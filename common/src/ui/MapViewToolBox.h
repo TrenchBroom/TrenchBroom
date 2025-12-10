@@ -135,7 +135,6 @@ private: // notification
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
-  void documentWasCreated();
   void documentWasLoaded();
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 

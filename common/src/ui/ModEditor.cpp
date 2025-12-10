@@ -194,8 +194,6 @@ void ModEditor::updateButtons()
 void ModEditor::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasCreatedNotifier.connect(this, &ModEditor::documentWasCreated);
-  m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect(this, &ModEditor::documentWasLoaded);
   m_notifierConnection +=
     m_document.modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
@@ -203,12 +201,6 @@ void ModEditor::connectObservers()
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &ModEditor::preferenceDidChange);
-}
-
-void ModEditor::documentWasCreated()
-{
-  updateAvailableMods();
-  updateMods();
 }
 
 void ModEditor::documentWasLoaded()

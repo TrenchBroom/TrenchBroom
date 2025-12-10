@@ -198,15 +198,8 @@ void FaceInspector::materialSelected(const mdl::Material* material)
 
 void FaceInspector::connectObservers()
 {
-  m_notifierConnection += m_document.documentWasCreatedNotifier.connect(
-    this, &FaceInspector::documentWasCreated);
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect(this, &FaceInspector::documentWasLoaded);
-}
-
-void FaceInspector::documentWasCreated()
-{
-  resetMaterialBrowserInfo(m_document.map(), m_materialBrowserInfo);
 }
 
 void FaceInspector::documentWasLoaded()

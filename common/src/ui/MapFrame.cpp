@@ -723,8 +723,6 @@ void MapFrame::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &MapFrame::preferenceDidChange);
 
   m_notifierConnection +=
-    m_document->documentWasCreatedNotifier.connect(this, &MapFrame::documentWasCreated);
-  m_notifierConnection +=
     m_document->documentWasLoadedNotifier.connect(this, &MapFrame::documentWasLoaded);
   m_notifierConnection +=
     m_document->documentWasSavedNotifier.connect(this, &MapFrame::documentWasSaved);
@@ -768,13 +766,6 @@ void MapFrame::connectObservers()
   m_notifierConnection +=
     m_mapView->mapViewToolBox().toolHandleSelectionChangedNotifier.connect(
       this, &MapFrame::toolHandleSelectionChanged);
-}
-
-void MapFrame::documentWasCreated()
-{
-  updateTitle();
-  updateActionState();
-  updateUndoRedoActions();
 }
 
 void MapFrame::documentWasLoaded()
