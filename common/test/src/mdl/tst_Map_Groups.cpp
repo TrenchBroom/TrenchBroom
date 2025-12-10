@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Observer.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -35,7 +36,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
-#include "mdl/Observer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 

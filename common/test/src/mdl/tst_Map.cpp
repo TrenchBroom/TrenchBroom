@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "Observer.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "fs/TestEnvironment.h"
@@ -43,7 +44,6 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
-#include "mdl/Observer.h"
 #include "mdl/PasteType.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TextureResource.h"

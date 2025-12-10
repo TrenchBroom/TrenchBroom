@@ -24,7 +24,7 @@
 
 #include <set>
 
-namespace tb::mdl
+namespace tb
 {
 template <typename C>
 struct Observer
@@ -102,4 +102,4 @@ struct Observer<Collection<T>>
 };
 
 
-} // namespace tb::mdl
+} // namespace tb
