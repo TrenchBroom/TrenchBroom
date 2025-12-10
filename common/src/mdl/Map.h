@@ -92,8 +92,10 @@ public:
   static const std::string DefaultDocumentName;
 
 private:
-  Logger& m_logger;
+  std::unique_ptr<Game> m_game;
+
   kdl::task_manager& m_taskManager;
+  Logger& m_logger;
 
   std::unique_ptr<ResourceManager> m_resourceManager;
   std::unique_ptr<EntityDefinitionManager> m_entityDefinitionManager;
@@ -104,9 +106,9 @@ private:
   std::unique_ptr<EditorContext> m_editorContext;
   std::unique_ptr<Grid> m_grid;
 
-  std::unique_ptr<Game> m_game;
-  vm::bbox3d m_worldBounds;
   std::unique_ptr<WorldNode> m_worldNode;
+  vm::bbox3d m_worldBounds;
+
   std::unique_ptr<NodeIndex> m_nodeIndex;
   std::unique_ptr<EntityLinkManager> m_entityLinkManager;
 

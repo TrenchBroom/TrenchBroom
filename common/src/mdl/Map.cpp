@@ -492,8 +492,9 @@ Map::Map(
   std::filesystem::path path,
   kdl::task_manager& taskManager,
   Logger& logger)
-  : m_logger{logger}
+  : m_game{std::move(game)}
   , m_taskManager{taskManager}
+  , m_logger{logger}
   , m_resourceManager{std::make_unique<ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
@@ -503,9 +504,8 @@ Map::Map(
   , m_tagManager{std::make_unique<TagManager>()}
   , m_editorContext{std::make_unique<EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
-  , m_game{std::move(game)}
-  , m_worldBounds{worldBounds}
   , m_worldNode{std::move(worldNode)}
+  , m_worldBounds{worldBounds}
   , m_nodeIndex{std::make_unique<NodeIndex>()}
   , m_entityLinkManager{std::make_unique<EntityLinkManager>(*m_nodeIndex)}
   , m_vertexHandles{std::make_unique<VertexHandleManager>()}
