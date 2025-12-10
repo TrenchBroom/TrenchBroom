@@ -96,9 +96,9 @@ IssueQuickFix makeRemoveModsQuickFix()
 }
 } // namespace
 
-MissingModValidator::MissingModValidator(const Game& game)
+MissingModValidator::MissingModValidator(const GameInfo& gameInfo)
   : Validator{Type, "Missing mod directory"}
-  , m_game{game}
+  , m_gameInfo{gameInfo}
 {
   addQuickFix(makeRemoveModsQuickFix());
 }
@@ -125,7 +125,7 @@ void MissingModValidator::doValidate(
 
   for (const auto& searchPath : additionalSearchPaths)
   {
-    const auto absPath = pref(m_game.info().gamePathPreference) / searchPath;
+    const auto absPath = pref(m_gameInfo.gamePathPreference) / searchPath;
     if (!absPath.is_absolute() || fs::Disk::pathInfo(absPath) != fs::PathInfo::Directory)
     {
       const auto mod = searchPath.string();

@@ -1010,7 +1010,7 @@ void Map::registerValidators()
 {
   m_worldNode->registerValidator(std::make_unique<MissingClassnameValidator>());
   m_worldNode->registerValidator(std::make_unique<MissingDefinitionValidator>());
-  m_worldNode->registerValidator(std::make_unique<MissingModValidator>(*m_game));
+  m_worldNode->registerValidator(std::make_unique<MissingModValidator>(game().info()));
   m_worldNode->registerValidator(std::make_unique<EmptyGroupValidator>());
   m_worldNode->registerValidator(std::make_unique<EmptyBrushEntityValidator>());
   m_worldNode->registerValidator(std::make_unique<PointEntityWithBrushesValidator>());
