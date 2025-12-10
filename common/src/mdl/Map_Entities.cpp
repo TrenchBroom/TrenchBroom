@@ -24,7 +24,7 @@
 #include "mdl/EntityColorPropertyValue.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"

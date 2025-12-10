@@ -25,8 +25,8 @@
 #include <QToolButton>
 #include <QtGlobal>
 
-#include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
@@ -158,14 +158,14 @@ void UVEditor::resetUVClicked()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAll(map.game().config().faceAttribsConfig.defaults));
+    map, mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
 }
 
 void UVEditor::resetUVToWorldClicked()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAllToParaxial(map.game().config().faceAttribsConfig.defaults));
+    map, mdl::resetAllToParaxial(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
 }
 
 void UVEditor::flipUVHClicked()

@@ -24,9 +24,7 @@
 #include <QPointer>
 
 #include "NotifierConnection.h"
-#include "Result.h"
 #include "io/ExportOptions.h"
-#include "mdl/MapFormat.h"
 
 #include <chrono>
 #include <filesystem>
@@ -50,7 +48,6 @@ class Logger;
 
 namespace mdl
 {
-class Game;
 class GroupNode;
 class LayerNode;
 class Map;
@@ -194,11 +191,6 @@ private: // menu event handlers
   void bindEvents();
 
 public:
-  Result<bool> newDocument(std::unique_ptr<mdl::Game> game, mdl::MapFormat mapFormat);
-  Result<bool> openDocument(
-    std::unique_ptr<mdl::Game> game,
-    mdl::MapFormat mapFormat,
-    const std::filesystem::path& path);
   bool saveDocument();
   bool saveDocumentAs();
   void revertDocument();

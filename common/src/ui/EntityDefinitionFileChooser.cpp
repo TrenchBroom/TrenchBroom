@@ -28,8 +28,8 @@
 
 #include "io/PathQt.h"
 #include "mdl/EntityDefinitionFileSpec.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "ui/BorderLine.h"
@@ -191,7 +191,7 @@ void EntityDefinitionFileChooser::updateControls()
   m_builtin->setAllowDeselectAll(false);
 
   const auto& map = m_document.map();
-  auto specs = allEntityDefinitionFiles(map.game().config());
+  auto specs = allEntityDefinitionFiles(map.gameInfo().gameConfig);
   specs = kdl::vec_sort(std::move(specs));
 
   for (const auto& spec : specs)

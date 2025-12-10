@@ -26,15 +26,15 @@
 
 namespace tb::mdl
 {
-class Game;
+struct GameInfo;
 
 class MissingModValidator : public Validator
 {
-  const Game& m_game;
+  const GameInfo& m_gameInfo;
   mutable std::vector<std::string> m_lastMods;
 
 public:
-  explicit MissingModValidator(const Game& game);
+  explicit MissingModValidator(const GameInfo& gameInfo);
 
 private:
   void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)

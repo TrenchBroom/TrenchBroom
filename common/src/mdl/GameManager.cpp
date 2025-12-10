@@ -30,7 +30,7 @@
 #include "io/GameConfigParser.h"
 #include "io/GameEngineConfigParser.h"
 #include "io/GameEngineConfigWriter.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 
 #include "kd/const_overload.h"
 #include "kd/path_utils.h"
@@ -318,16 +318,6 @@ const GameInfo* GameManager::gameInfo(const std::string_view gameName) const
 GameInfo* GameManager::gameInfo(const std::string_view gameName)
 {
   return KDL_CONST_OVERLOAD(gameInfo(gameName));
-}
-
-std::unique_ptr<Game> GameManager::createGame(
-  const std::string_view gameName, Logger& logger) const
-{
-  if (const auto* info = gameInfo(gameName))
-  {
-    return std::make_unique<Game>(*info, logger);
-  }
-  return nullptr;
 }
 
 Result<void> GameManager::updateCompilationConfig(

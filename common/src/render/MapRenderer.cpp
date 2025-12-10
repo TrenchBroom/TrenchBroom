@@ -27,7 +27,6 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
@@ -818,7 +817,7 @@ void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
 {
   setupRenderers();
 
-  if (path == pref(m_map.game().info().gamePathPreference))
+  if (path == pref(m_map.gameInfo().gamePathPreference))
   {
     reloadEntityModels();
     invalidateRenderers(Renderer::All);

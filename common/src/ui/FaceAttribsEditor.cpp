@@ -27,8 +27,8 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
@@ -764,14 +764,14 @@ void FaceAttribsEditor::updateControlsDelayed()
 
 bool FaceAttribsEditor::hasSurfaceFlags() const
 {
-  const auto& game = m_document.map().game();
-  return !game.config().faceAttribsConfig.surfaceFlags.flags.empty();
+  const auto& gameInfo = m_document.map().gameInfo();
+  return !gameInfo.gameConfig.faceAttribsConfig.surfaceFlags.flags.empty();
 }
 
 bool FaceAttribsEditor::hasContentFlags() const
 {
-  const auto& game = m_document.map().game();
-  return !game.config().faceAttribsConfig.contentFlags.flags.empty();
+  const auto& gameInfo = m_document.map().gameInfo();
+  return !gameInfo.gameConfig.faceAttribsConfig.contentFlags.flags.empty();
 }
 
 void FaceAttribsEditor::showSurfaceFlagsEditor()
@@ -842,16 +842,16 @@ std::tuple<QList<int>, QStringList, QStringList> getFlags(
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFlags()
   const
 {
-  const auto& game = m_document.map().game();
-  const auto& surfaceFlags = game.config().faceAttribsConfig.surfaceFlags;
+  const auto& gameInfo = m_document.map().gameInfo();
+  const auto& surfaceFlags = gameInfo.gameConfig.faceAttribsConfig.surfaceFlags;
   return getFlags(surfaceFlags.flags);
 }
 
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFlags()
   const
 {
-  const auto& game = m_document.map().game();
-  const auto& contentFlags = game.config().faceAttribsConfig.contentFlags;
+  const auto& gameInfo = m_document.map().gameInfo();
+  const auto& contentFlags = gameInfo.gameConfig.faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);
 }
 

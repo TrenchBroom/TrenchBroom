@@ -36,12 +36,10 @@ class task_manager;
 
 namespace tb
 {
-class LoggingHub;
-
 namespace mdl
 {
 enum class MapFormat;
-class Game;
+struct GameInfo;
 } // namespace mdl
 
 namespace ui
@@ -62,18 +60,16 @@ public:
 
   Result<void> createDocument(
     mdl::MapFormat mapFormat,
-    std::unique_ptr<mdl::Game> game,
+    const mdl::GameInfo& gameInfo,
     const vm::bbox3d& worldBounds,
-    kdl::task_manager& taskManager,
-    std::unique_ptr<LoggingHub> loggingHub);
+    kdl::task_manager& taskManager);
 
   Result<void> loadDocument(
     std::filesystem::path path,
     mdl::MapFormat mapFormat,
-    std::unique_ptr<mdl::Game> game,
+    const mdl::GameInfo& gameInfo,
     const vm::bbox3d& worldBounds,
-    kdl::task_manager& taskManager,
-    std::unique_ptr<LoggingHub> loggingHub);
+    kdl::task_manager& taskManager);
 
   bool closeAllFrames();
 

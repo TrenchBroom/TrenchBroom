@@ -21,8 +21,7 @@
 
 #include <QApplication>
 
-#include "LoggingHub.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 
@@ -54,48 +53,39 @@ MapFrame* FrameManager::topFrame() const
 
 Result<void> FrameManager::createDocument(
   mdl::MapFormat mapFormat,
-  std::unique_ptr<mdl::Game> game,
+  const mdl::GameInfo& gameInfo,
   const vm::bbox3d& worldBounds,
-  kdl::task_manager& taskManager,
-  std::unique_ptr<LoggingHub> loggingHub)
+  kdl::task_manager& taskManager)
 {
   if (shouldCreateFrameForDocument())
   {
-    return MapDocument::createDocument(
-             mapFormat, std::move(game), worldBounds, taskManager, std::move(loggingHub))
+    return MapDocument::createDocument(mapFormat, gameInfo, worldBounds, taskManager)
            | kdl::transform([&](auto document) { createFrame(std::move(document)); });
   }
 
   auto* frame = topFrame();
   contract_assert(frame != nullptr);
 
-  return frame->document().create(mapFormat, std::move(game), worldBounds);
+  return frame->document().create(mapFormat, gameInfo, worldBounds);
 }
 
 Result<void> FrameManager::loadDocument(
   std::filesystem::path path,
   mdl::MapFormat mapFormat,
-  std::unique_ptr<mdl::Game> game,
+  const mdl::GameInfo& gameInfo,
   const vm::bbox3d& worldBounds,
-  kdl::task_manager& taskManager,
-  std::unique_ptr<LoggingHub> loggingHub)
+  kdl::task_manager& taskManager)
 {
   if (shouldCreateFrameForDocument())
   {
-    return MapDocument::loadDocument(
-             path,
-             mapFormat,
-             std::move(game),
-             worldBounds,
-             taskManager,
-             std::move(loggingHub))
+    return MapDocument::loadDocument(path, mapFormat, gameInfo, worldBounds, taskManager)
            | kdl::transform([&](auto document) { createFrame(std::move(document)); });
   }
 
   auto* frame = topFrame();
   contract_assert(frame != nullptr);
 
-  return frame->document().load(path, mapFormat, std::move(game), worldBounds);
+  return frame->document().load(path, mapFormat, gameInfo, worldBounds);
 }
 
 bool FrameManager::closeAllFrames()

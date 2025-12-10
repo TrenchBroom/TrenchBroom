@@ -19,9 +19,7 @@
 
 #include "MapDocumentFixture.h"
 
-#include "LoggingHub.h"
 #include "TestUtils.h"
-#include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Resource.h"
 #include "ui/MapDocument.h"
@@ -30,15 +28,6 @@
 
 namespace tb::ui
 {
-namespace
-{
-std::unique_ptr<mdl::Game> createGame(const mdl::MapFixtureConfig& mapFixtureConfig)
-{
-  auto logger = NullLogger{};
-  return std::make_unique<mdl::Game>(mapFixtureConfig.gameInfo, logger);
-}
-
-} // namespace
 
 MapDocumentFixture::MapDocumentFixture()
   : m_taskManager{createTestTaskManager()}
@@ -52,15 +41,10 @@ MapDocument& MapDocumentFixture::create(mdl::MapFixtureConfig config)
   m_config = std::move(config);
 
   const auto mapFormat = m_config->mapFormat.value_or(mdl::MapFormat::Standard);
-  auto game = createGame(*m_config);
 
   contract_assert(
     MapDocument::createDocument(
-      mapFormat,
-      std::move(game),
-      vm::bbox3d{8192.0},
-      *m_taskManager,
-      std::make_unique<LoggingHub>())
+      mapFormat, m_config->gameInfo, vm::bbox3d{8192.0}, *m_taskManager)
     | kdl::transform([&](auto document) {
         m_document = std::move(document);
         m_document->map().setIsCommandCollationEnabled(false);
@@ -78,16 +62,10 @@ MapDocument& MapDocumentFixture::load(
   const auto absPath = path.is_absolute() ? path : std::filesystem::current_path() / path;
 
   const auto mapFormat = m_config->mapFormat.value_or(mdl::MapFormat::Unknown);
-  auto game = createGame(*m_config);
 
   contract_assert(
     MapDocument::loadDocument(
-      absPath,
-      mapFormat,
-      std::move(game),
-      vm::bbox3d{8192.0},
-      *m_taskManager,
-      std::make_unique<LoggingHub>())
+      absPath, mapFormat, m_config->gameInfo, vm::bbox3d{8192.0}, *m_taskManager)
     | kdl::transform([&](auto document) {
         m_document = std::move(document);
         m_document->map().setIsCommandCollationEnabled(false);

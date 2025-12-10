@@ -37,8 +37,9 @@ namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
-class Game;
 class Map;
+
+struct GameInfo;
 
 class MaterialTagMatcher : public TagMatcher
 {
@@ -88,7 +89,8 @@ class FlagsTagMatcher : public TagMatcher
 protected:
   using GetFlags = std::function<int(const BrushFace&)>;
   using SetFlags = std::function<UpdateBrushFaceAttributes(int)>;
-  using GetFlagNames = std::function<std::vector<std::string>(const Game& game, int)>;
+  using GetFlagNames =
+    std::function<std::vector<std::string>(const GameInfo& gameInfo, int)>;
 
 protected:
   int m_flags;

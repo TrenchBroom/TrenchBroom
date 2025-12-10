@@ -40,6 +40,11 @@ namespace tb
 {
 class Logger;
 
+namespace fs
+{
+class FileSystem;
+}
+
 namespace render
 {
 class MaterialRenderer;
@@ -50,17 +55,20 @@ namespace mdl
 {
 class EntityModelFrame;
 class EntityNode;
-class Game;
-enum class Orientation;
 class Quake3Shader;
+
+enum class Orientation;
+
+struct GameInfo;
 
 class EntityModelManager
 {
 private:
+  const GameInfo& m_gameInfo;
+  const fs::FileSystem& m_gameFileSystem;
+
   CreateEntityModelDataResource m_createResource;
   Logger& m_logger;
-
-  const Game* m_game = nullptr;
 
   // Cache Quake 3 shaders to use when loading models
   std::vector<Quake3Shader> m_shaders;
@@ -74,13 +82,15 @@ private:
   mutable std::vector<render::MaterialRenderer*> m_unpreparedRenderers;
 
 public:
-  EntityModelManager(CreateEntityModelDataResource createResource, Logger& logger);
+  EntityModelManager(
+    const GameInfo& gameInfo,
+    const fs::FileSystem& gameFilesystem,
+    CreateEntityModelDataResource createResource,
+    Logger& logger);
   ~EntityModelManager();
 
   void clear();
   void reloadShaders(kdl::task_manager& taskManager);
-
-  void setGame(const Game* game, kdl::task_manager& taskManager);
 
   render::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 

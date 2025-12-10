@@ -51,7 +51,6 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
-#include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
@@ -527,7 +526,7 @@ QString describeSelection(const mdl::Map& map)
 
   auto pipeSeparatedSections = QStringList{};
 
-  pipeSeparatedSections << QString::fromStdString(map.game().config().name)
+  pipeSeparatedSections << QString::fromStdString(map.gameInfo().gameConfig.name)
                         << QString::fromStdString(
                              mdl::formatName(map.worldNode().mapFormat()))
                         << QString::fromStdString(editorContext.currentLayer()->name());
@@ -922,44 +921,6 @@ void MapFrame::bindEvents()
     &SignalDelayer::processSignal,
     this,
     &MapFrame::updateStatusBar);
-}
-
-Result<bool> MapFrame::newDocument(
-  std::unique_ptr<mdl::Game> game, const mdl::MapFormat mapFormat)
-{
-  if (!confirmOrDiscardChanges() || !closeCompileDialog())
-  {
-    return false;
-  }
-
-  return m_document->create(mapFormat, std::move(game), MapDocument::DefaultWorldBounds)
-         | kdl::transform([]() { return true; });
-}
-
-Result<bool> MapFrame::openDocument(
-  std::unique_ptr<mdl::Game> game,
-  const mdl::MapFormat mapFormat,
-  const std::filesystem::path& path)
-{
-  if (!confirmOrDiscardChanges() || !closeCompileDialog())
-  {
-    return false;
-  }
-
-  const auto startTime = std::chrono::high_resolution_clock::now();
-  return m_document->load(
-           path, mapFormat, std::move(game), MapDocument::DefaultWorldBounds)
-         | kdl::transform([&]() {
-             const auto endTime = std::chrono::high_resolution_clock::now();
-
-             logger().info() << "Loaded " << path << " in "
-                             << std::chrono::duration_cast<std::chrono::milliseconds>(
-                                  endTime - startTime)
-                                  .count()
-                             << "ms";
-
-             return true;
-           });
 }
 
 bool MapFrame::saveDocument()
@@ -2419,9 +2380,8 @@ bool MapFrame::canLaunch() const
 void MapFrame::dragEnterEvent(QDragEnterEvent* event)
 {
   const auto& map = m_document->map();
-  const auto& game = map.game();
   if (
-    game.config().materialConfig.property && event->mimeData()->hasUrls()
+    map.gameInfo().gameConfig.materialConfig.property && event->mimeData()->hasUrls()
     && std::ranges::all_of(event->mimeData()->urls(), [](const auto& url) {
          if (!url.isLocalFile())
          {
@@ -2445,8 +2405,8 @@ void MapFrame::dropEvent(QDropEvent* event)
   }
 
   auto& map = m_document->map();
-  const auto& game = map.game();
-  const auto& wadPropertyKey = game.config().materialConfig.property;
+  const auto& gameInfo = map.gameInfo();
+  const auto& wadPropertyKey = gameInfo.gameConfig.materialConfig.property;
   if (!wadPropertyKey)
   {
     return;
@@ -2461,7 +2421,7 @@ void MapFrame::dropEvent(QDropEvent* event)
     window(),
     io::pathFromQString(urls.front().toLocalFile()),
     map.path(),
-    pref(game.info().gamePathPreference)};
+    pref(gameInfo.gamePathPreference)};
 
   const auto result = pathDialog.exec();
   if (result != QDialog::Accepted)
@@ -2475,7 +2435,7 @@ void MapFrame::dropEvent(QDropEvent* event)
       pathDialog.pathType(),
       io::pathFromQString(url.toLocalFile()),
       map.path(),
-      pref(game.info().gamePathPreference));
+      pref(gameInfo.gamePathPreference));
   });
 
   const auto newWadPathsStr = kdl::str_join(

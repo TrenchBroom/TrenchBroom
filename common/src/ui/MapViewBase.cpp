@@ -38,8 +38,8 @@
 #include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/HitAdapter.h"
@@ -541,14 +541,14 @@ void MapViewBase::resetUV()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAll(map.game().config().faceAttribsConfig.defaults));
+    map, mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
 }
 
 void MapViewBase::resetUVToWorld()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAllToParaxial(map.game().config().faceAttribsConfig.defaults));
+    map, mdl::resetAllToParaxial(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
 }
 
 void MapViewBase::assembleBrush()

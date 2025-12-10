@@ -25,8 +25,8 @@
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
 #include "mdl/EntityModel.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Quake3Shader.h"
 #include "render/MaterialIndexRangeRenderer.h"
 
@@ -37,8 +37,13 @@
 namespace tb::mdl
 {
 EntityModelManager::EntityModelManager(
-  CreateEntityModelDataResource createResource, Logger& logger)
-  : m_createResource{std::move(createResource)}
+  const GameInfo& gameInfo,
+  const fs::FileSystem& gameFileSystem,
+  CreateEntityModelDataResource createResource,
+  Logger& logger)
+  : m_gameInfo{gameInfo}
+  , m_gameFileSystem{gameFileSystem}
+  , m_createResource{std::move(createResource)}
   , m_logger{logger}
 {
 }
@@ -63,22 +68,12 @@ void EntityModelManager::reloadShaders(kdl::task_manager& taskManager)
 {
   m_shaders.clear();
 
-  if (m_game)
-  {
-    m_shaders =
-      io::loadShaders(
-        m_game->gameFileSystem(), m_game->config().materialConfig, taskManager, m_logger)
-      | kdl::if_error(
-        [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
-      | kdl::value_or(std::vector<Quake3Shader>{});
-  }
-}
-
-void EntityModelManager::setGame(const Game* game, kdl::task_manager& taskManager)
-{
-  clear();
-  m_game = game;
-  reloadShaders(taskManager);
+  m_shaders =
+    io::loadShaders(
+      m_gameFileSystem, m_gameInfo.gameConfig.materialConfig, taskManager, m_logger)
+    | kdl::if_error(
+      [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
+    | kdl::value_or(std::vector<Quake3Shader>{});
 }
 
 render::MaterialRenderer* EntityModelManager::renderer(
@@ -178,26 +173,31 @@ const std::vector<const EntityModel*> EntityModelManager::
 Result<EntityModel> EntityModelManager::loadModel(
   const std::filesystem::path& modelPath) const
 {
-  if (m_game)
-  {
-    const auto& fs = m_game->gameFileSystem();
-    const auto& materialConfig = m_game->config().materialConfig;
+  const auto& materialConfig = m_gameInfo.gameConfig.materialConfig;
 
-    const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
-    };
+  const auto createResource = [](auto resourceLoader) {
+    return createResourceSync(std::move(resourceLoader));
+  };
 
-    const auto loadMaterial = [&](const auto& materialPath) {
-      return io::loadMaterial(
-               fs, materialConfig, materialPath, createResource, m_shaders, std::nullopt)
-             | kdl::or_else(io::makeReadMaterialErrorHandler(fs, m_logger))
-             | kdl::value();
-    };
+  const auto loadMaterial = [&](const auto& materialPath) {
+    return io::loadMaterial(
+             m_gameFileSystem,
+             materialConfig,
+             materialPath,
+             createResource,
+             m_shaders,
+             std::nullopt)
+           | kdl::or_else(io::makeReadMaterialErrorHandler(m_gameFileSystem, m_logger))
+           | kdl::value();
+  };
 
-    return io::loadEntityModelAsync(
-      fs, materialConfig, modelPath, loadMaterial, m_createResource, m_logger);
-  }
-  return Error{"Game is not set"};
+  return io::loadEntityModelAsync(
+    m_gameFileSystem,
+    materialConfig,
+    modelPath,
+    loadMaterial,
+    m_createResource,
+    m_logger);
 }
 
 void EntityModelManager::prepare(render::VboManager& vboManager)

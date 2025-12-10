@@ -25,8 +25,8 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
@@ -332,7 +332,7 @@ void MapPropertiesEditor::updateGui()
   const kdl::set_temp flagChange(m_updatingGui, true);
 
   auto& map = m_document.map();
-  const auto gameBounds = map.game().config().softMapBounds;
+  const auto gameBounds = map.gameInfo().gameConfig.softMapBounds;
   m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
   m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
 

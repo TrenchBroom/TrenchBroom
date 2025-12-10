@@ -26,7 +26,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"

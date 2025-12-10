@@ -23,8 +23,8 @@
 #include "Logger.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/WorldNode.h"
@@ -55,7 +55,7 @@ void AssembleBrushTool::update(const mdl::Polyhedron3& polyhedron)
     const auto builder = mdl::BrushBuilder{
       m_document.map().worldNode().mapFormat(),
       m_document.map().worldBounds(),
-      m_document.map().game().config().faceAttribsConfig.defaults};
+      m_document.map().gameInfo().gameConfig.faceAttribsConfig.defaults};
 
     builder.createBrush(*m_polyhedron, m_document.map().currentMaterialName())
       | kdl::transform([&](auto b) {

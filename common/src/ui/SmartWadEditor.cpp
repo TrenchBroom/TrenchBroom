@@ -26,7 +26,6 @@
 #include "PreferenceManager.h"
 #include "io/PathQt.h"
 #include "mdl/EntityNodeBase.h"
-#include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
@@ -152,7 +151,7 @@ void SmartWadEditor::addWads()
       FileDialogDir::MaterialCollection, pathQStr);
 
     const auto absWadPath = io::pathFromQString(pathQStr);
-    const auto gamePath = pref(map.game().info().gamePathPreference);
+    const auto gamePath = pref(map.gameInfo().gamePathPreference);
     auto pathDialog = ChoosePathTypeDialog{window(), absWadPath, map.path(), gamePath};
 
     const int result = pathDialog.exec();

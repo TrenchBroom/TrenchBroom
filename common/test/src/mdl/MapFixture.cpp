@@ -21,7 +21,6 @@
 
 #include "Logger.h"
 #include "TestUtils.h"
-#include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Resource.h"
 
@@ -29,15 +28,6 @@
 
 namespace tb::mdl
 {
-namespace
-{
-std::unique_ptr<Game> createGame(const MapFixtureConfig& mapFixtureConfig)
-{
-  auto logger = NullLogger{};
-  return std::make_unique<Game>(mapFixtureConfig.gameInfo, logger);
-}
-
-} // namespace
 
 const MapFixtureConfig QuakeFixtureConfig = MapFixtureConfig{
   .mapFormat = MapFormat::Valve,
@@ -62,11 +52,10 @@ Map& MapFixture::create(MapFixtureConfig config)
   m_config = std::move(config);
 
   const auto mapFormat = m_config->mapFormat.value_or(MapFormat::Standard);
-  auto game = createGame(*m_config);
 
   contract_assert(
     Map::createMap(
-      mapFormat, std::move(game), vm::bbox3d{8129.0}, *m_taskManager, *m_logger)
+      mapFormat, m_config->gameInfo, vm::bbox3d{8129.0}, *m_taskManager, *m_logger)
     | kdl::transform([&](auto map) {
         m_map = std::move(map);
         m_map->setIsCommandCollationEnabled(false);
@@ -83,11 +72,15 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
   const auto absPath = path.is_absolute() ? path : std::filesystem::current_path() / path;
 
   const auto mapFormat = m_config->mapFormat.value_or(MapFormat::Unknown);
-  auto game = createGame(*m_config);
 
   contract_assert(
     Map::loadMap(
-      absPath, mapFormat, std::move(game), vm::bbox3d{8129.0}, *m_taskManager, *m_logger)
+      absPath,
+      mapFormat,
+      m_config->gameInfo,
+      vm::bbox3d{8129.0},
+      *m_taskManager,
+      *m_logger)
     | kdl::transform([&](auto map) {
         m_map = std::move(map);
         m_map->setIsCommandCollationEnabled(false);

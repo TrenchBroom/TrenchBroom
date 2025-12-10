@@ -22,7 +22,7 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -54,7 +54,7 @@ TEST_CASE("Map_CopyPaste")
     const auto builder = BrushBuilder{
       map.worldNode().mapFormat(),
       map.worldBounds(),
-      map.game().config().faceAttribsConfig.defaults};
+      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
 
     auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
     auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
@@ -109,7 +109,7 @@ TEST_CASE("Map_CopyPaste")
     const auto builder = BrushBuilder{
       map.worldNode().mapFormat(),
       map.worldBounds(),
-      map.game().config().faceAttribsConfig.defaults};
+      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
 
     auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
 

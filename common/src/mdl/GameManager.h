@@ -37,7 +37,6 @@ class WritableFileSystem;
 
 namespace mdl
 {
-class Game;
 
 class GameManager
 {
@@ -58,8 +57,6 @@ public:
 
   const GameInfo* gameInfo(std::string_view gameName) const;
   GameInfo* gameInfo(std::string_view gameName);
-
-  std::unique_ptr<Game> createGame(std::string_view gameName, Logger& logger) const;
 
   Result<void> updateCompilationConfig(
     std::string_view gameName, CompilationConfig compilationConfig, Logger& logger);

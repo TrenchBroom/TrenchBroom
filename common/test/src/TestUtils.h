@@ -50,7 +50,6 @@ namespace mdl
 class Brush;
 class BrushFace;
 class BrushNode;
-class Game;
 struct GameConfig;
 class GroupNode;
 class Node;
