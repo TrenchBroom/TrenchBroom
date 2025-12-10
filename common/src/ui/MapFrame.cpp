@@ -924,44 +924,6 @@ void MapFrame::bindEvents()
     &MapFrame::updateStatusBar);
 }
 
-Result<bool> MapFrame::newDocument(
-  std::unique_ptr<mdl::Game> game, const mdl::MapFormat mapFormat)
-{
-  if (!confirmOrDiscardChanges() || !closeCompileDialog())
-  {
-    return false;
-  }
-
-  return m_document->create(mapFormat, std::move(game), MapDocument::DefaultWorldBounds)
-         | kdl::transform([]() { return true; });
-}
-
-Result<bool> MapFrame::openDocument(
-  std::unique_ptr<mdl::Game> game,
-  const mdl::MapFormat mapFormat,
-  const std::filesystem::path& path)
-{
-  if (!confirmOrDiscardChanges() || !closeCompileDialog())
-  {
-    return false;
-  }
-
-  const auto startTime = std::chrono::high_resolution_clock::now();
-  return m_document->load(
-           path, mapFormat, std::move(game), MapDocument::DefaultWorldBounds)
-         | kdl::transform([&]() {
-             const auto endTime = std::chrono::high_resolution_clock::now();
-
-             logger().info() << "Loaded " << path << " in "
-                             << std::chrono::duration_cast<std::chrono::milliseconds>(
-                                  endTime - startTime)
-                                  .count()
-                             << "ms";
-
-             return true;
-           });
-}
-
 bool MapFrame::saveDocument()
 {
   auto& map = m_document->map();

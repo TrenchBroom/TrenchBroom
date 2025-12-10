@@ -49,7 +49,7 @@
 #include "mdl/EntityLinkManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
+#include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
@@ -120,6 +120,23 @@ namespace tb::mdl
 {
 namespace
 {
+
+void updateGameFileSystem(
+  GameFileSystem& fs,
+  const GameInfo& gameInfo,
+  const std::vector<std::filesystem::path>& searchPaths,
+  Logger& logger)
+{
+  const auto gamePath = pref(gameInfo.gamePathPreference);
+  fs.initialize(gameInfo.gameConfig, gamePath, searchPaths, logger);
+}
+
+auto createGameFileSystem(const GameInfo& gameInfo, Logger& logger)
+{
+  auto fs = std::make_unique<GameFileSystem>();
+  updateGameFileSystem(*fs, gameInfo, {}, logger);
+  return fs;
+}
 
 template <typename Resource>
 auto makeCreateResource(ResourceManager& resourceManager)
@@ -469,13 +486,13 @@ private:
 const std::string Map::DefaultDocumentName("unnamed.map");
 
 Map::Map(
-  std::unique_ptr<Game> game,
+  const GameInfo& gameInfo,
   std::unique_ptr<WorldNode> worldNode,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
   Logger& logger)
   : Map{
-      std::move(game),
+      gameInfo,
       std::move(worldNode),
       worldBounds,
       DefaultDocumentName,
@@ -486,20 +503,21 @@ Map::Map(
 }
 
 Map::Map(
-  std::unique_ptr<Game> game,
+  const GameInfo& gameInfo,
   std::unique_ptr<WorldNode> worldNode,
   const vm::bbox3d& worldBounds,
   std::filesystem::path path,
   kdl::task_manager& taskManager,
   Logger& logger)
-  : m_game{std::move(game)}
+  : m_gameInfo{gameInfo}
+  , m_gameFileSystem{createGameFileSystem(m_gameInfo, logger)}
   , m_taskManager{taskManager}
   , m_logger{logger}
   , m_resourceManager{std::make_unique<ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
-      m_game->info(),
-      m_game->gameFileSystem(),
+      m_gameInfo,
+      *m_gameFileSystem,
       makeCreateResource<EntityModelDataResource>(*m_resourceManager),
       logger)}
   , m_materialManager{std::make_unique<MaterialManager>(
@@ -539,24 +557,24 @@ Map::~Map() = default;
 
 Result<std::unique_ptr<Map>> Map::createMap(
   MapFormat mapFormat,
-  std::unique_ptr<Game> game,
+  const GameInfo& gameInfo,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
   Logger& logger)
 {
   logger.info() << "Creating new document";
 
-  return createWorldNode(mapFormat, game->config(), worldBounds, taskManager, logger)
+  return createWorldNode(mapFormat, gameInfo.gameConfig, worldBounds, taskManager, logger)
          | kdl::transform([&](auto worldNode) {
              return std::make_unique<Map>(
-               std::move(game), std::move(worldNode), worldBounds, taskManager, logger);
+               gameInfo, std::move(worldNode), worldBounds, taskManager, logger);
            });
 }
 
 Result<std::unique_ptr<Map>> Map::loadMap(
   std::filesystem::path path,
   MapFormat mapFormat,
-  std::unique_ptr<Game> game,
+  const GameInfo& gameInfo,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
   Logger& logger)
@@ -568,10 +586,11 @@ Result<std::unique_ptr<Map>> Map::loadMap(
 
   logger.info() << "Loading document from " << path;
 
-  return loadWorldNode(mapFormat, game->config(), worldBounds, path, taskManager, logger)
+  return loadWorldNode(
+           mapFormat, gameInfo.gameConfig, worldBounds, path, taskManager, logger)
          | kdl::transform([&](auto worldNode) {
              return std::make_unique<Map>(
-               std::move(game),
+               gameInfo,
                std::move(worldNode),
                worldBounds,
                std::move(path),
@@ -650,9 +669,9 @@ const Grid& Map::grid() const
   return *m_grid;
 }
 
-const Game& Map::game() const
+const GameInfo& Map::gameInfo() const
 {
-  return *m_game;
+  return m_gameInfo;
 }
 
 const vm::bbox3d& Map::worldBounds() const
@@ -743,10 +762,9 @@ Result<std::unique_ptr<Map>> Map::reload()
 
   const auto path = m_path;
   const auto mapFormat = m_worldNode->mapFormat();
-  auto game = std::move(m_game);
   const auto worldBounds = m_worldBounds;
 
-  return loadMap(path, mapFormat, std::move(game), worldBounds, taskManager(), logger());
+  return loadMap(path, mapFormat, gameInfo(), worldBounds, taskManager(), logger());
 }
 
 Result<void> Map::save()
@@ -773,7 +791,7 @@ Result<void> Map::saveTo(const std::filesystem::path& path)
   logger().info() << "Saving document to " << path;
 
   fs::Disk::withOutputStream(path, [&](auto& stream) {
-    io::writeMapHeader(stream, game().config().name, m_worldNode->mapFormat());
+    io::writeMapHeader(stream, gameInfo().gameConfig.name, m_worldNode->mapFormat());
 
     auto writer = io::NodeWriter{*m_worldNode, stream};
     writer.setExporting(false);
@@ -904,7 +922,7 @@ const std::optional<vm::bbox3d>& Map::selectionBounds() const
 void Map::registerSmartTags()
 {
   m_tagManager->clearSmartTags();
-  m_tagManager->registerSmartTags(game().config().smartTags);
+  m_tagManager->registerSmartTags(gameInfo().gameConfig.smartTags);
 }
 
 const std::vector<SmartTag>& Map::smartTags() const
@@ -1010,7 +1028,7 @@ void Map::registerValidators()
 {
   m_worldNode->registerValidator(std::make_unique<MissingClassnameValidator>());
   m_worldNode->registerValidator(std::make_unique<MissingDefinitionValidator>());
-  m_worldNode->registerValidator(std::make_unique<MissingModValidator>(game().info()));
+  m_worldNode->registerValidator(std::make_unique<MissingModValidator>(gameInfo()));
   m_worldNode->registerValidator(std::make_unique<EmptyGroupValidator>());
   m_worldNode->registerValidator(std::make_unique<EmptyBrushEntityValidator>());
   m_worldNode->registerValidator(std::make_unique<PointEntityWithBrushesValidator>());
@@ -1025,9 +1043,9 @@ void Map::registerValidators()
   m_worldNode->registerValidator(std::make_unique<EmptyPropertyKeyValidator>());
   m_worldNode->registerValidator(std::make_unique<EmptyPropertyValueValidator>());
   m_worldNode->registerValidator(
-    std::make_unique<LongPropertyKeyValidator>(game().config().maxPropertyLength));
-  m_worldNode->registerValidator(
-    std::make_unique<LongPropertyValueValidator>(game().config().maxPropertyLength));
+    std::make_unique<LongPropertyKeyValidator>(gameInfo().gameConfig.maxPropertyLength));
+  m_worldNode->registerValidator(std::make_unique<LongPropertyValueValidator>(
+    gameInfo().gameConfig.maxPropertyLength));
   m_worldNode->registerValidator(
     std::make_unique<PropertyKeyWithDoubleQuotationMarksValidator>());
   m_worldNode->registerValidator(
@@ -1064,7 +1082,7 @@ void Map::loadEntityDefinitions()
 {
   if (const auto spec = entityDefinitionFile(*this))
   {
-    const auto& gameConfig = game().config();
+    const auto& gameConfig = gameInfo().gameConfig;
 
     const auto path =
       findEntityDefinitionFile(gameConfig, *spec, externalSearchPaths(*this));
@@ -1127,11 +1145,11 @@ void Map::loadMaterials()
                           | kdl::ranges::to<std::vector<std::filesystem::path>>();
 
     m_game->gameFileSystem().reloadWads(
-      game().config().materialConfig.root, searchPaths, wadPaths, logger());
+      gameInfo().gameConfig.materialConfig.root, searchPaths, wadPaths, logger());
   }
 
   m_materialManager->reload(
-    game().gameFileSystem(), game().config().materialConfig, taskManager());
+    game().gameFileSystem(), gameInfo().gameConfig.materialConfig, taskManager());
 }
 
 void Map::clearMaterials()
@@ -1229,15 +1247,12 @@ void Map::updateGameSearchPaths()
 
 void Map::updateGameFileSystem()
 {
-  if (m_game)
-  {
-    const auto searchPaths =
-      enabledMods(*this)
-      | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
-      | kdl::ranges::to<std::vector>();
+  const auto searchPaths =
+    enabledMods(*this)
+    | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
+    | kdl::ranges::to<std::vector>();
 
-    m_game->updateFileSystem(searchPaths, logger());
-  }
+  m_game->updateFileSystem(searchPaths, logger());
 }
 
 void Map::initializeNodeIndex()

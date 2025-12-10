@@ -63,7 +63,8 @@ class EntityDefinitionManager;
 class EntityLinkManager;
 class EntityModelManager;
 class FaceHandleManager;
-class Game;
+class GameInfo;
+class GameFileSystem;
 class Grid;
 class GroupNode;
 class Issue;
@@ -92,7 +93,8 @@ public:
   static const std::string DefaultDocumentName;
 
 private:
-  std::unique_ptr<Game> m_game;
+  const GameInfo& m_gameInfo;
+  std::unique_ptr<GameFileSystem> m_gameFileSystem;
 
   kdl::task_manager& m_taskManager;
   Logger& m_logger;
@@ -179,14 +181,14 @@ private:
 
 public: // misc
   Map(
-    std::unique_ptr<Game> game,
+    const GameInfo& gameInfo,
     std::unique_ptr<WorldNode> worldNode,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
     Logger& logger);
 
   Map(
-    std::unique_ptr<Game> game,
+    const GameInfo& gameInfo,
     std::unique_ptr<WorldNode> worldNode,
     const vm::bbox3d& worldBounds,
     std::filesystem::path path,
@@ -197,7 +199,7 @@ public: // misc
 
   static Result<std::unique_ptr<Map>> createMap(
     MapFormat mapFormat,
-    std::unique_ptr<Game> game,
+    const GameInfo& gameInfo,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
     Logger& logger);
@@ -205,7 +207,7 @@ public: // misc
   static Result<std::unique_ptr<Map>> loadMap(
     std::filesystem::path path,
     MapFormat mapFormat,
-    std::unique_ptr<Game> game,
+    const GameInfo& gameInfo,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
     Logger& logger);
@@ -232,7 +234,8 @@ public: // misc
   Grid& grid();
   const Grid& grid() const;
 
-  const Game& game() const;
+  const GameInfo& gameInfo() const;
+
   const vm::bbox3d& worldBounds() const;
 
   const WorldNode& worldNode() const;

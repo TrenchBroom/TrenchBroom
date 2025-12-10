@@ -194,11 +194,6 @@ private: // menu event handlers
   void bindEvents();
 
 public:
-  Result<bool> newDocument(std::unique_ptr<mdl::Game> game, mdl::MapFormat mapFormat);
-  Result<bool> openDocument(
-    std::unique_ptr<mdl::Game> game,
-    mdl::MapFormat mapFormat,
-    const std::filesystem::path& path);
   bool saveDocument();
   bool saveDocumentAs();
   void revertDocument();
