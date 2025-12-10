@@ -24,8 +24,8 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h" // IWYU pragma: keep
+#include "mdl/GameInfo.h"   // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Entities.h"
@@ -310,7 +310,7 @@ void FlagsTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
   }
   else
   {
-    const auto options = m_getFlagNames(map.game(), m_flags);
+    const auto options = m_getFlagNames(map.gameInfo(), m_flags);
     const auto selectedOptionIndex = callback.selectOption(options);
     if (selectedOptionIndex == options.size())
     {
@@ -369,8 +369,8 @@ ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags)
       [](const auto flags) {
         return UpdateBrushFaceAttributes{.surfaceContents = ClearFlagBits{flags}};
       },
-      [](const auto& game, const auto flags) {
-        return game.config().faceAttribsConfig.contentFlags.flagNames(flags);
+      [](const auto& gameInfo, const auto flags) {
+        return gameInfo.gameConfig.faceAttribsConfig.contentFlags.flagNames(flags);
       }}
 {
 }
@@ -390,8 +390,8 @@ SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int i_flags)
       [](const auto flags) {
         return UpdateBrushFaceAttributes{.surfaceFlags = ClearFlagBits{flags}};
       },
-      [](const auto& game, const auto flags) {
-        return game.config().faceAttribsConfig.surfaceFlags.flagNames(flags);
+      [](const auto& gameInfo, const auto flags) {
+        return gameInfo.gameConfig.faceAttribsConfig.surfaceFlags.flagNames(flags);
       }}
 {
 }

@@ -49,13 +49,13 @@ enum class MapFormat;
 
 class Autosaver;
 class Command;
-class Game;
 class Map;
 class Node;
 class PickResult;
 class ResourceId;
 class UndoableCommand;
 
+struct GameInfo;
 struct SelectionChange;
 } // namespace mdl
 
@@ -162,38 +162,35 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapDocument(
-    kdl::task_manager& taskManager, std::unique_ptr<LoggingHub> loggingHub);
+  explicit MapDocument(kdl::task_manager& taskManager);
 
   MapDocument(MapDocument&&) noexcept;
   MapDocument& operator=(MapDocument&&) noexcept;
 
   static Result<std::unique_ptr<MapDocument>> createDocument(
     mdl::MapFormat mapFormat,
-    std::unique_ptr<mdl::Game> game,
+    const mdl::GameInfo& gameInfo,
     const vm::bbox3d& worldBounds,
-    kdl::task_manager& taskManager,
-    std::unique_ptr<LoggingHub> loggingHub);
+    kdl::task_manager& taskManager);
 
   static Result<std::unique_ptr<MapDocument>> loadDocument(
     std::filesystem::path path,
     mdl::MapFormat mapFormat,
-    std::unique_ptr<mdl::Game> game,
+    const mdl::GameInfo& gameInfo,
     const vm::bbox3d& worldBounds,
-    kdl::task_manager& taskManager,
-    std::unique_ptr<LoggingHub> loggingHub);
+    kdl::task_manager& taskManager);
 
   ~MapDocument();
 
   Result<void> create(
     mdl::MapFormat mapFormat,
-    std::unique_ptr<mdl::Game> game,
+    const mdl::GameInfo& gameInfo,
     const vm::bbox3d& worldBounds);
 
   Result<void> load(
     std::filesystem::path path,
     mdl::MapFormat mapFormat,
-    std::unique_ptr<mdl::Game> game,
+    const mdl::GameInfo& gameInfo,
     const vm::bbox3d& worldBounds);
 
   Result<void> reload();

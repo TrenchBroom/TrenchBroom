@@ -23,8 +23,8 @@
 #include <QWidget>
 
 #include "mdl/EntityNodeBase.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/MapDocument.h"
@@ -131,7 +131,8 @@ void SmartPropertyEditorManager::createEditors()
       return nodes.size() == 1
              && nodes.front()->entity().classname()
                   == mdl::EntityPropertyValues::WorldspawnClassname
-             && propertyKey == m_document.map().game().config().materialConfig.property;
+             && propertyKey
+                  == m_document.map().gameInfo().gameConfig.materialConfig.property;
     },
     new SmartWadEditor{m_document, this});
   registerEditor(

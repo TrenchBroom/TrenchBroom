@@ -25,7 +25,6 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
-#include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"

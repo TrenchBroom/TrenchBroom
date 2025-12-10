@@ -29,8 +29,8 @@
 #include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
@@ -655,7 +655,7 @@ bool csgConvexMerge(Map& map)
   const auto builder = BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    map.game().config().faceAttribsConfig.defaults};
+    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
   return builder.createBrush(polyhedron, map.currentMaterialName())
          | kdl::transform([&](auto b) {
              b.cloneFaceAttributesFrom(

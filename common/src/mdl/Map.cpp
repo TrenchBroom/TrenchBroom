@@ -1136,20 +1136,20 @@ void Map::loadMaterials()
   if (const auto* wadStr = m_worldNode->entity().property(EntityPropertyKeys::Wad))
   {
     const auto searchPaths = std::vector<std::filesystem::path>{
-      path().parent_path(),                   // relative to the map file
-      pref(game().info().gamePathPreference), // relative to game path
-      io::SystemPaths::appDirectory(),        // relative to the application
+      path().parent_path(),                // relative to the map file
+      pref(gameInfo().gamePathPreference), // relative to game path
+      io::SystemPaths::appDirectory(),     // relative to the application
     };
 
     const auto wadPaths = kdl::str_split(*wadStr, ";")
                           | kdl::ranges::to<std::vector<std::filesystem::path>>();
 
-    m_game->gameFileSystem().reloadWads(
+    m_gameFileSystem->reloadWads(
       gameInfo().gameConfig.materialConfig.root, searchPaths, wadPaths, logger());
   }
 
   m_materialManager->reload(
-    game().gameFileSystem(), gameInfo().gameConfig.materialConfig, taskManager());
+    *m_gameFileSystem, gameInfo().gameConfig.materialConfig, taskManager());
 }
 
 void Map::clearMaterials()
@@ -1252,7 +1252,7 @@ void Map::updateGameFileSystem()
     | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
     | kdl::ranges::to<std::vector>();
 
-  m_game->updateFileSystem(searchPaths, logger());
+  mdl::updateGameFileSystem(*m_gameFileSystem, gameInfo(), searchPaths, logger());
 }
 
 void Map::initializeNodeIndex()
@@ -1719,7 +1719,7 @@ void Map::modsDidChange()
 
 void Map::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (m_game && path == pref(game().info().gamePathPreference))
+  if (path == pref(gameInfo().gamePathPreference))
   {
     updateGameFileSystem();
 

@@ -27,7 +27,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"

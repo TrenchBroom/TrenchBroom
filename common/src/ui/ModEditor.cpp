@@ -32,7 +32,6 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
-#include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
@@ -216,7 +215,7 @@ void ModEditor::modsDidChange()
 
 void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (path == pref(m_document.map().game().info().gamePathPreference))
+  if (path == pref(m_document.map().gameInfo().gamePathPreference))
   {
     updateAvailableMods();
     updateMods();
@@ -226,7 +225,7 @@ void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 void ModEditor::updateAvailableMods()
 {
   auto& map = m_document.map();
-  findAvailableMods(map.game().info()) | kdl::transform([&](auto availableMods) {
+  findAvailableMods(map.gameInfo()) | kdl::transform([&](auto availableMods) {
     m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
   }) | kdl::transform_error([&](auto e) {
     m_availableMods.clear();

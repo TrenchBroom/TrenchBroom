@@ -19,7 +19,6 @@
 
 #include "TrenchBroomApp.h"
 
-#include "LoggingHub.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Result.h"
@@ -28,7 +27,7 @@
 #include "io/MapHeader.h"
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
-#include "mdl/Game.h" // IWYU pragma: keep
+#include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
@@ -77,7 +76,6 @@
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
-#include <exception>
 #include <memory>
 #include <optional>
 #include <string>
@@ -458,19 +456,16 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
                return Result<bool>{false};
              }
 
-             auto loggingHub = std::make_unique<LoggingHub>();
-
              const auto [gameName, mapFormat] = *gameNameAndMapFormat;
-             auto game = gameManager().createGame(gameName, *loggingHub);
-             contract_assert(game != nullptr);
+             const auto* gameInfo = gameManager().gameInfo(gameName);
+             contract_assert(gameInfo != nullptr);
 
              return m_frameManager->loadDocument(
                       absPath,
                       mapFormat,
-                      std::move(game),
+                      *gameInfo,
                       MapDocument::DefaultWorldBounds,
-                      m_taskManager,
-                      std::move(loggingHub))
+                      m_taskManager)
                     | kdl::transform([&]() {
                         closeWelcomeWindow();
                         return true;
@@ -503,18 +498,12 @@ bool TrenchBroomApp::newDocument()
     return false;
   }
 
-  auto loggingHub = std::make_unique<LoggingHub>();
-
   const auto [gameName, mapFormat] = *gameNameAndMapFormat;
-  auto game = gameManager().createGame(gameName, *loggingHub);
-  contract_assert(game != nullptr);
+  const auto* gameInfo = gameManager().gameInfo(gameName);
+  contract_assert(gameInfo != nullptr);
 
   return m_frameManager->createDocument(
-           mapFormat,
-           std::move(game),
-           MapDocument::DefaultWorldBounds,
-           m_taskManager,
-           std::move(loggingHub))
+           mapFormat, *gameInfo, MapDocument::DefaultWorldBounds, m_taskManager)
          | kdl::transform([&]() {
              closeWelcomeWindow();
              return true;

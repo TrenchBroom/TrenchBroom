@@ -63,7 +63,6 @@ class EntityDefinitionManager;
 class EntityLinkManager;
 class EntityModelManager;
 class FaceHandleManager;
-class GameInfo;
 class GameFileSystem;
 class Grid;
 class GroupNode;
@@ -83,6 +82,7 @@ class UVCoordSystemSnapshot;
 class VertexHandleManager;
 class WorldNode;
 
+struct GameInfo;
 struct ProcessContext;
 struct SelectionChange;
 struct SoftMapBounds;

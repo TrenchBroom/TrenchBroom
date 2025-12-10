@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameConfigFixture.h"
+#include "PreferenceManager.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 #include "io/LoadEntityModel.h"
 #include "mdl/EntityModel.h"
-#include "mdl/Game.h" // IWYU pragma: keep
-#include "mdl/GameConfig.h"
+#include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
-#include "mdl/MapFixture.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"
@@ -69,8 +69,11 @@ TEST_CASE("EntityModel")
 {
   SECTION("intersect")
   {
+    const auto& gameInfo = QuakeGameInfo;
+
     auto logger = TestLogger{};
-    auto game = std::make_unique<Game>(QuakeGameInfo, logger);
+    auto fs = GameFileSystem{};
+    fs.initialize(gameInfo.gameConfig, pref(gameInfo.gamePathPreference), {}, logger);
 
     const auto path = std::filesystem::path{"cube.bsp"};
     const auto loadMaterial = [](auto) -> Material {
@@ -78,7 +81,7 @@ TEST_CASE("EntityModel")
     };
 
     auto model = io::loadEntityModelSync(
-      game->gameFileSystem(), game->config().materialConfig, path, loadMaterial, logger);
+      fs, gameInfo.gameConfig.materialConfig, path, loadMaterial, logger);
 
     auto& frame = model.value().data()->frames().at(0);
 

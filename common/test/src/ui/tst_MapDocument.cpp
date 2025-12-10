@@ -19,7 +19,6 @@
 
 #include "Logger.h"
 #include "Observer.h"
-#include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "ui/MapDocument.h"
@@ -44,15 +43,12 @@ TEST_CASE("MapDocument")
 
     const auto* previousMap = &document.map();
 
-    auto game = std::make_unique<mdl::Game>(mdl::QuakeGameInfo, logger);
-    auto* gamePtr = game.get();
-
-    document.create(mdl::MapFormat::Daikatana, std::move(game), vm::bbox3d{8192.0})
+    document.create(mdl::MapFormat::Daikatana, mdl::QuakeGameInfo, vm::bbox3d{8192.0})
       | kdl::transform([&]() {
           SECTION("creates a new map with the given game")
           {
             CHECK(&document.map() != previousMap);
-            CHECK(&document.map().game() == gamePtr);
+            CHECK(&document.map().gameInfo() == &mdl::QuakeGameInfo);
           }
 
           SECTION("calls notifiers")
@@ -72,16 +68,14 @@ TEST_CASE("MapDocument")
     const auto path =
       std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
 
-    auto game = std::make_unique<mdl::Game>(mdl::QuakeGameInfo, logger);
-    auto* gamePtr = game.get();
 
-    document.load(path, mdl::MapFormat::Unknown, std::move(game), vm::bbox3d{8192.0})
+    document.load(path, mdl::MapFormat::Unknown, mdl::QuakeGameInfo, vm::bbox3d{8192.0})
       | kdl::transform([&]() {
           SECTION("loads map at given path")
           {
             CHECK(&document.map() != previousMap);
             CHECK(document.map().path() == path);
-            CHECK(&document.map().game() == gamePtr);
+            CHECK(&document.map().gameInfo() == &mdl::QuakeGameInfo);
           }
 
           SECTION("calls notifiers")
@@ -97,10 +91,8 @@ TEST_CASE("MapDocument")
     const auto path =
       std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
 
-    auto game = std::make_unique<mdl::Game>(mdl::QuakeGameInfo, logger);
-
-    REQUIRE(
-      document.load(path, mdl::MapFormat::Unknown, std::move(game), vm::bbox3d{8192.0}));
+    REQUIRE(document.load(
+      path, mdl::MapFormat::Unknown, mdl::QuakeGameInfo, vm::bbox3d{8192.0}));
 
     REQUIRE(document.map().path() == path);
 
@@ -115,14 +107,13 @@ TEST_CASE("MapDocument")
     auto documentWasLoaded = Observer<void>{document.documentWasLoadedNotifier};
 
     const auto* previousMap = &document.map();
-    const auto* previousGame = &document.map().game();
 
     document.reload() | kdl::transform([&]() {
       SECTION("reloads map")
       {
         CHECK(&document.map() != previousMap);
         CHECK(document.map().path() == path);
-        CHECK(&document.map().game() == previousGame);
+        CHECK(&document.map().gameInfo() == &mdl::QuakeGameInfo);
         CHECK(!document.map().modified());
       }
 

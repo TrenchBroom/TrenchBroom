@@ -20,7 +20,7 @@
 #include "SwapNodeContentsCommand.h"
 
 #include "Notifier.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_World.h"

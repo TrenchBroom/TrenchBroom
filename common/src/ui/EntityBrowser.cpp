@@ -29,7 +29,6 @@
 #include "PreferenceManager.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityDefinitionUtils.h"
-#include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/WorldNode.h"
@@ -154,7 +153,7 @@ void EntityBrowser::documentDidChange()
 
 void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (path == pref(m_document.map().game().info().gamePathPreference))
+  if (path == pref(m_document.map().gameInfo().gamePathPreference))
   {
     reload();
   }

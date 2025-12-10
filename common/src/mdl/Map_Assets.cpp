@@ -21,8 +21,8 @@
 
 #include "Logger.h"
 #include "mdl/EntityModelManager.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
@@ -50,7 +50,8 @@ namespace
 
 std::optional<EntityDefinitionFileSpec> defaultEntityDefinitionFile(const Map& map)
 {
-  if (const auto paths = map.game().config().entityConfig.defFilePaths; !paths.empty())
+  if (const auto paths = map.gameInfo().gameConfig.entityConfig.defFilePaths;
+      !paths.empty())
   {
     return mdl::EntityDefinitionFileSpec::makeBuiltin(paths.front());
   }

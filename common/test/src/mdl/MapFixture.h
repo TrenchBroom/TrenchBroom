@@ -39,7 +39,6 @@ class Logger;
 
 namespace mdl
 {
-class Game;
 class Map;
 
 struct MapFixtureConfig

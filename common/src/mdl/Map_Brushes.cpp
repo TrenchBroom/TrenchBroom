@@ -24,8 +24,8 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
@@ -41,7 +41,7 @@ bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
   const auto builder = BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    map.game().config().faceAttribsConfig.defaults};
+    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
 
   return builder.createBrush(points, map.currentMaterialName())
          | kdl::and_then([&](auto b) -> Result<void> {

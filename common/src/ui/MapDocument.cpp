@@ -29,7 +29,7 @@
 #include "mdl/CommandProcessor.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityModelManager.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
@@ -64,10 +64,9 @@ namespace tb::ui
 
 const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
 
-MapDocument::MapDocument(
-  kdl::task_manager& taskManager, std::unique_ptr<LoggingHub> loggingHub)
+MapDocument::MapDocument(kdl::task_manager& taskManager)
   : m_taskManager{&taskManager}
-  , m_loggingHub{std::move(loggingHub)}
+  , m_loggingHub{std::make_unique<LoggingHub>()}
 {
   connectObservers();
 }
@@ -77,26 +76,24 @@ MapDocument& MapDocument::operator=(MapDocument&&) noexcept = default;
 
 Result<std::unique_ptr<MapDocument>> MapDocument::createDocument(
   mdl::MapFormat mapFormat,
-  std::unique_ptr<mdl::Game> game,
+  const mdl::GameInfo& gameInfo,
   const vm::bbox3d& worldBounds,
-  kdl::task_manager& taskManager,
-  std::unique_ptr<LoggingHub> loggingHub)
+  kdl::task_manager& taskManager)
 {
-  auto document = std::make_unique<MapDocument>(taskManager, std::move(loggingHub));
-  return document->create(mapFormat, std::move(game), worldBounds)
+  auto document = std::make_unique<MapDocument>(taskManager);
+  return document->create(mapFormat, gameInfo, worldBounds)
          | kdl::transform([&]() { return std::move(document); });
 }
 
 Result<std::unique_ptr<MapDocument>> MapDocument::loadDocument(
   std::filesystem::path path,
   mdl::MapFormat mapFormat,
-  std::unique_ptr<mdl::Game> game,
+  const mdl::GameInfo& gameInfo,
   const vm::bbox3d& worldBounds,
-  kdl::task_manager& taskManager,
-  std::unique_ptr<LoggingHub> loggingHub)
+  kdl::task_manager& taskManager)
 {
-  auto document = std::make_unique<MapDocument>(taskManager, std::move(loggingHub));
-  return document->load(std::move(path), mapFormat, std::move(game), worldBounds)
+  auto document = std::make_unique<MapDocument>(taskManager);
+  return document->load(std::move(path), mapFormat, gameInfo, worldBounds)
          | kdl::transform([&]() { return std::move(document); });
 }
 
@@ -113,12 +110,9 @@ MapDocument::~MapDocument()
 }
 
 Result<void> MapDocument::create(
-  mdl::MapFormat mapFormat,
-  std::unique_ptr<mdl::Game> game,
-  const vm::bbox3d& worldBounds)
+  mdl::MapFormat mapFormat, const mdl::GameInfo& gameInfo, const vm::bbox3d& worldBounds)
 {
-  return mdl::Map::createMap(
-           mapFormat, std::move(game), worldBounds, *m_taskManager, logger())
+  return mdl::Map::createMap(mapFormat, gameInfo, worldBounds, *m_taskManager, logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));
              documentWasLoadedNotifier();
@@ -128,11 +122,11 @@ Result<void> MapDocument::create(
 Result<void> MapDocument::load(
   std::filesystem::path path,
   mdl::MapFormat mapFormat,
-  std::unique_ptr<mdl::Game> game,
+  const mdl::GameInfo& gameInfo,
   const vm::bbox3d& worldBounds)
 {
   return mdl::Map::loadMap(
-           path, mapFormat, std::move(game), worldBounds, *m_taskManager, logger())
+           path, mapFormat, gameInfo, worldBounds, *m_taskManager, logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));
              documentWasLoadedNotifier();

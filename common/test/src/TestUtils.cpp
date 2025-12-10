@@ -24,7 +24,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
 #include "mdl/Material.h"

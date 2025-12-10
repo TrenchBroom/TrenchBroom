@@ -25,7 +25,6 @@
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
 #include "mdl/EntityModel.h"
-#include "mdl/Game.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Quake3Shader.h"

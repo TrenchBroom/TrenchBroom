@@ -28,7 +28,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Material.h"
@@ -209,7 +208,7 @@ void MaterialBrowser::currentMaterialNameDidChange()
 void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
   if (
-    path == pref(m_document.map().game().info().gamePathPreference)
+    path == pref(m_document.map().gameInfo().gamePathPreference)
     || path == Preferences::MaterialBrowserIconSize.path())
   {
     reload();

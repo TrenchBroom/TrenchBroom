@@ -30,7 +30,7 @@
 #include "Logger.h"
 #include "TrenchBroomApp.h"
 #include "mdl/CompilationProfile.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "ui/CompilationProfileManager.h"
@@ -66,8 +66,7 @@ void CompilationDialog::createGui()
   setWindowTitle("Compile");
 
   auto& document = m_mapFrame->document();
-  const auto& game = document.map().game();
-  const auto& compilationConfig = game.config().compilationConfig;
+  const auto& compilationConfig = document.map().gameInfo().gameConfig.compilationConfig;
 
   m_profileManager = new CompilationProfileManager{document, compilationConfig};
 
@@ -260,7 +259,7 @@ void CompilationDialog::profileChanged()
 void CompilationDialog::saveProfile()
 {
   const auto& map = m_mapFrame->document().map();
-  const auto& gameName = map.game().config().name;
+  const auto& gameName = map.gameInfo().gameConfig.name;
 
   auto& app = TrenchBroomApp::instance();
   auto& gameManager = app.gameManager();

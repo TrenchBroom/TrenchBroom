@@ -25,7 +25,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
@@ -64,7 +64,7 @@ TEST_CASE("SelectionTool")
     auto builder = mdl::BrushBuilder{
       worldNode.mapFormat(),
       map.worldBounds(),
-      map.game().config().faceAttribsConfig.defaults};
+      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
 
     auto tool = SelectionTool{document};
 
@@ -460,7 +460,7 @@ TEST_CASE("SelectionTool")
     auto builder = mdl::BrushBuilder{
       worldNode.mapFormat(),
       map.worldBounds(),
-      map.game().config().faceAttribsConfig.defaults};
+      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
 
     auto tool = SelectionTool{document};
 

@@ -30,7 +30,7 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
-#include "mdl/Game.h"
+#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -102,11 +102,7 @@ TEST_CASE("Map")
     SECTION("Calling create sets worldspawn and notifies observers")
     {
       Map::createMap(
-        MapFormat::Standard,
-        std::make_unique<Game>(DefaultGameInfo, logger),
-        vm::bbox3d{8192.0},
-        *taskManager,
-        logger)
+        MapFormat::Standard, DefaultGameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
             CHECK(
               map->worldNode().entity()
@@ -129,10 +125,8 @@ TEST_CASE("Map")
       gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {"initialMap.map"}},
       };
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
-      Map::createMap(
-        MapFormat::Valve, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
+      Map::createMap(MapFormat::Valve, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
             const auto* defaultLayerNode = map->worldNode().defaultLayer();
             REQUIRE(defaultLayerNode->children().size() == 1);
@@ -159,10 +153,8 @@ TEST_CASE("Map")
       gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {"initialMap.map"}},
       };
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
-      Map::createMap(
-        MapFormat::Valve, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
+      Map::createMap(MapFormat::Valve, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
             const auto* valveVersionProperty =
               map->worldNode().entity().property(EntityPropertyKeys::ValveVersion);
@@ -180,10 +172,8 @@ TEST_CASE("Map")
       gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {"initialMap.map"}},
       };
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
-      Map::createMap(
-        MapFormat::Valve, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
+      Map::createMap(MapFormat::Valve, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
             const auto* materialConfigProperty =
               map->worldNode().entity().property("wad");
@@ -200,10 +190,8 @@ TEST_CASE("Map")
       gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Standard", {}},
       };
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
-      Map::createMap(
-        MapFormat::Valve, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
+      Map::createMap(MapFormat::Valve, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
             const auto* defaultLayerNode = map->worldNode().defaultLayer();
             REQUIRE(defaultLayerNode->children().size() == 1);
@@ -227,10 +215,9 @@ TEST_CASE("Map")
       gameInfo.gameConfig.path = env.dir() / "GameConfig.cfg";
       gameInfo.gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
       Map::createMap(
-        MapFormat::Standard, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
+        MapFormat::Standard, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
             REQUIRE(map->entityDefinitionManager().definitions().size() == 1);
             CHECK(
@@ -254,10 +241,8 @@ TEST_CASE("Map")
       gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {}},
       };
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
-      Map::loadMap(
-        path, MapFormat::Unknown, std::move(game), worldBounds, *taskManager, logger)
+      Map::loadMap(path, MapFormat::Unknown, gameInfo, worldBounds, *taskManager, logger)
         | kdl::transform([&](auto map) {
             CHECK(map->worldBounds() == worldBounds);
             CHECK(map->path() == path);
@@ -274,14 +259,13 @@ TEST_CASE("Map")
         {"Standard", {}},
         {"Quake3", {}},
       };
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
       SECTION("Detect Valve Format Map")
       {
         Map::loadMap(
           makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
           MapFormat::Unknown,
-          std::move(game),
+          gameInfo,
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -297,7 +281,7 @@ TEST_CASE("Map")
         Map::loadMap(
           makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
           MapFormat::Unknown,
-          std::move(game),
+          gameInfo,
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -313,7 +297,7 @@ TEST_CASE("Map")
         Map::loadMap(
           makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
           MapFormat::Unknown,
-          std::move(game),
+          gameInfo,
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -332,7 +316,7 @@ TEST_CASE("Map")
         CHECK(!Map::loadMap(
           makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
           MapFormat::Unknown,
-          std::move(game),
+          gameInfo,
           vm::bbox3d{8192.0},
           *taskManager,
           logger));
@@ -351,12 +335,11 @@ TEST_CASE("Map")
       };
       gameInfo.gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
       Map::loadMap(
         makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
         MapFormat::Unknown,
-        std::move(game),
+        gameInfo,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -378,17 +361,15 @@ TEST_CASE("Map")
     gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
       {"Valve", {}},
     };
-    auto game = std::make_unique<Game>(gameInfo, logger);
-    auto* gamePtr = game.get();
 
     const auto worldBounds = vm::bbox3d{8192.0};
     const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
 
     Map::loadMap(
-      path, MapFormat::Unknown, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
+      path, MapFormat::Unknown, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
       | kdl::and_then([&](auto map) {
           REQUIRE(map->worldBounds() == worldBounds);
-          REQUIRE(&map->game() == gamePtr);
+          REQUIRE(&map->gameInfo() == &gameInfo);
           REQUIRE(map->path() == path);
           REQUIRE(map->persistent());
 
@@ -401,7 +382,7 @@ TEST_CASE("Map")
 
           return map->reload() | kdl::transform([&](auto reloadedMap) {
                    CHECK(reloadedMap->worldBounds() == worldBounds);
-                   CHECK(&reloadedMap->game() == gamePtr);
+                   CHECK(&reloadedMap->gameInfo() == &gameInfo);
                    CHECK(reloadedMap->path() == path);
                    CHECK(reloadedMap->persistent());
                    CHECK(!reloadedMap->modified());
@@ -1933,10 +1914,9 @@ TEST_CASE("Map")
       gameInfo.gameConfig.path = env.dir() / "GameConfig.cfg";
       gameInfo.gameConfig.entityConfig.defFilePaths.emplace_back("Quake.fgd");
 
-      auto game = std::make_unique<Game>(gameInfo, logger);
 
       Map::createMap(
-        MapFormat::Standard, std::move(game), vm::bbox3d{8192.0}, *taskManager, logger)
+        MapFormat::Standard, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
         | kdl::transform([](auto map) {
             CHECK(
               map->entityDefinitionManager().definitions()

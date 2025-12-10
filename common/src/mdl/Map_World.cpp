@@ -24,7 +24,6 @@
 #include "io/SystemPaths.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
-#include "mdl/Game.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
@@ -54,7 +53,7 @@ auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
 
 SoftMapBounds softMapBounds(const Map& map)
 {
-  return extractSoftMapBounds(map.worldNode().entity(), map.game().config());
+  return extractSoftMapBounds(map.worldNode().entity(), map.gameInfo().gameConfig);
 }
 
 /**
@@ -101,7 +100,7 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
     searchPaths.push_back(mapPath.parent_path());
   }
 
-  if (const auto gamePath = pref(map.game().info().gamePathPreference); !gamePath.empty())
+  if (const auto gamePath = pref(map.gameInfo().gamePathPreference); !gamePath.empty())
   {
     searchPaths.push_back(gamePath);
   }
@@ -145,7 +144,7 @@ void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 
 std::string defaultMod(const Map& map)
 {
-  return map.game().config().fileSystemConfig.searchPath.string();
+  return map.gameInfo().gameConfig.fileSystemConfig.searchPath.string();
 }
 
 } // namespace tb::mdl

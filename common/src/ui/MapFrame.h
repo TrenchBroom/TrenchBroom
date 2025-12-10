@@ -24,9 +24,7 @@
 #include <QPointer>
 
 #include "NotifierConnection.h"
-#include "Result.h"
 #include "io/ExportOptions.h"
-#include "mdl/MapFormat.h"
 
 #include <chrono>
 #include <filesystem>
@@ -50,7 +48,6 @@ class Logger;
 
 namespace mdl
 {
-class Game;
 class GroupNode;
 class LayerNode;
 class Map;
