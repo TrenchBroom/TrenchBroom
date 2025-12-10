@@ -54,6 +54,8 @@ ScaleToolPage::ScaleToolPage(MapDocument& document, QWidget* parent)
 void ScaleToolPage::connectObservers()
 {
   m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect(this, &ScaleToolPage::documentDidChange);
+  m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &ScaleToolPage::documentDidChange);
 }
 

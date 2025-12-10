@@ -149,6 +149,8 @@ void UVEditor::documentDidChange()
 void UVEditor::connectObservers()
 {
   m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect(this, &UVEditor::documentDidChange);
+  m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &UVEditor::documentDidChange);
 }
 

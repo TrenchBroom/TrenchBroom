@@ -136,6 +136,8 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 void EntityBrowser::connectObservers()
 {
   m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect(this, &EntityBrowser::documentDidChange);
+  m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
   m_notifierConnection += m_document.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowser::resourcesWereProcessed);

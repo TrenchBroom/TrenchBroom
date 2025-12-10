@@ -184,6 +184,8 @@ void MaterialBrowser::bindEvents()
 
 void MaterialBrowser::connectObservers()
 {
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &MaterialBrowser::documentDidChange);
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &MaterialBrowser::documentDidChange);
   m_notifierConnection += m_document.currentMaterialNameDidChangeNotifier.connect(

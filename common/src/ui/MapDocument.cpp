@@ -434,8 +434,6 @@ void MapDocument::documentWasLoaded()
 
   createTagActions();
   createEntityDefinitionActions();
-
-  documentDidChangeNotifier();
 }
 
 void MapDocument::entityDefinitionsDidChange()

@@ -213,6 +213,8 @@ void LayerListBox::connectObservers()
   auto& map = m_document.map();
 
   m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect(this, &LayerListBox::documentDidChange);
+  m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &LayerListBox::documentDidChange);
   m_notifierConnection +=
     map.currentLayerDidChangeNotifier.connect(this, &LayerListBox::currentLayerDidChange);

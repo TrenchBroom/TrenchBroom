@@ -61,6 +61,8 @@ RotateToolPage::RotateToolPage(MapDocument& document, RotateTool& tool, QWidget*
 
 void RotateToolPage::connectObservers()
 {
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &RotateToolPage::documentDidChange);
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &RotateToolPage::documentDidChange);
 

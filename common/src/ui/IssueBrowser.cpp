@@ -74,6 +74,8 @@ QWidget* IssueBrowser::createTabBarPage(QWidget* parent)
 void IssueBrowser::connectObservers()
 {
   m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect(this, &IssueBrowser::documentDidChange);
+  m_notifierConnection +=
     m_document.documentWasSavedNotifier.connect(this, &IssueBrowser::documentWasSaved);
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &IssueBrowser::documentDidChange);

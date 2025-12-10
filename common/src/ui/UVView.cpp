@@ -190,6 +190,8 @@ void UVView::connectObservers()
   auto& map = m_document.map();
 
   m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect(this, &UVView::documentDidChange);
+  m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &UVView::documentDidChange);
   m_notifierConnection +=
     map.grid().gridDidChangeNotifier.connect(this, &UVView::gridDidChange);

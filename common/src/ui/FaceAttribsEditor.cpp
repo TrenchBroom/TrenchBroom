@@ -526,6 +526,8 @@ void FaceAttribsEditor::connectObservers()
 {
   auto& map = m_document.map();
 
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &FaceAttribsEditor::documentDidChange);
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &FaceAttribsEditor::documentDidChange);
   m_notifierConnection +=

@@ -60,6 +60,10 @@ void DrawShapeToolExtensionPage::addApplyButton(MapDocument& document)
   addWidget(applyButton);
 
   m_notifierConnection +=
+    document.documentWasLoadedNotifier.connect([&document, applyButton]() {
+      applyButton->setEnabled(document.map().selection().hasNodes());
+    });
+  m_notifierConnection +=
     document.documentDidChangeNotifier.connect([&document, applyButton]() {
       applyButton->setEnabled(document.map().selection().hasNodes());
     });

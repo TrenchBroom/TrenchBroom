@@ -225,6 +225,8 @@ void MaterialCollectionEditor::updateButtons()
 
 void MaterialCollectionEditor::connectObservers()
 {
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &MaterialCollectionEditor::documentDidChange);
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::documentDidChange);
 

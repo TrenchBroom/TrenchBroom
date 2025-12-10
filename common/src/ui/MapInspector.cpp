@@ -313,6 +313,8 @@ void MapPropertiesEditor::createGui()
 
 void MapPropertiesEditor::connectObservers()
 {
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &MapPropertiesEditor::documentDidChange);
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &MapPropertiesEditor::documentDidChange);
 }
