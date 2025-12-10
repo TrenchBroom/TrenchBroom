@@ -43,7 +43,8 @@ struct SelectionChange;
 class Selection
 {
 private:
-  const Map& m_map;
+  // pointer to enable move semantics
+  Map* m_map;
   mutable std::optional<std::vector<EntityNodeBase*>> m_cachedAllEntities;
   mutable std::optional<std::vector<BrushNode*>> m_cachedAllBrushes;
   mutable std::optional<std::vector<BrushFaceHandle>> m_cachedAllBrushFaces;
@@ -58,7 +59,7 @@ public:
 
   kdl_reflect_decl(Selection, nodes, groups, entities, brushes, patches, brushFaces);
 
-  explicit Selection(const Map& map);
+  explicit Selection(Map& map);
 
   void update(const SelectionChange& selectionChange);
   void clear();

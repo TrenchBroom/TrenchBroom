@@ -49,7 +49,7 @@ enum class MoveDirection
 
 bool moveLayerByOne(Map& map, LayerNode* layerNode, const MoveDirection direction)
 {
-  const auto sorted = map.world()->customLayersUserSorted();
+  const auto sorted = map.worldNode().customLayersUserSorted();
 
   const auto maybeIndex = kdl::index_of(sorted, layerNode);
   if (!maybeIndex.has_value())
@@ -134,7 +134,7 @@ void renameLayer(Map& map, LayerNode* layerNode, const std::string& name)
 
 void moveLayer(Map& map, LayerNode* layer, const int offset)
 {
-  contract_pre(layer != map.world()->defaultLayer());
+  contract_pre(layer != map.worldNode().defaultLayer());
 
   auto transaction = Transaction{map, "Move Layer"};
 
@@ -154,13 +154,13 @@ bool canMoveLayer(const Map& map, LayerNode* layerNode, const int offset)
 {
   contract_pre(layerNode != nullptr);
 
-  auto* worldNode = map.world();
-  if (layerNode == worldNode->defaultLayer())
+  const auto& worldNode = map.worldNode();
+  if (layerNode == worldNode.defaultLayer())
   {
     return false;
   }
 
-  const auto sorted = worldNode->customLayersUserSorted();
+  const auto sorted = worldNode.customLayersUserSorted();
   const auto maybeIndex = kdl::index_of(sorted, layerNode);
   if (!maybeIndex.has_value())
   {
@@ -184,7 +184,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
     if (!node->containedInGroup())
     {
       auto* entityNode = node->entity();
-      if (entityNode == map.world())
+      if (entityNode == &map.worldNode())
       {
         nodesToMove.push_back(node);
         nodesToSelect.push_back(node);
@@ -273,7 +273,7 @@ bool canHideLayers(const std::vector<LayerNode*>& layers)
 
 void isolateLayers(Map& map, const std::vector<LayerNode*>& layers)
 {
-  const auto allLayers = map.world()->allLayers();
+  const auto allLayers = map.worldNode().allLayers();
 
   auto transaction = Transaction{map, "Isolate Layers"};
   hideNodes(map, kdl::vec_static_cast<Node*>(allLayers));
@@ -283,7 +283,7 @@ void isolateLayers(Map& map, const std::vector<LayerNode*>& layers)
 
 bool canIsolateLayers(const Map& map, const std::vector<LayerNode*>& layers)
 {
-  const auto allLayers = map.world()->allLayers();
+  const auto allLayers = map.worldNode().allLayers();
   return std::ranges::any_of(allLayers, [&](const auto* layer) {
     return kdl::vec_contains(layers, layer) != layer->visible();
   });

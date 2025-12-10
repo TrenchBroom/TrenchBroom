@@ -133,7 +133,6 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   : m_frameManager{frameManager}
   , m_document{std::move(document)}
   , m_lastInputTime{std::chrono::system_clock::now()}
-  , m_autosaver{std::make_unique<mdl::Autosaver>(m_document->map())}
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
   , m_contextManager{std::make_unique<GLContextManager>()}
@@ -158,7 +157,7 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   updateUndoRedoActions();
   updateToolBarWidgets();
 
-  m_document->setParentLogger(m_console);
+  m_document->setTargetLogger(m_console);
   m_document->setViewEffectsService(m_mapView);
 
   m_autosaveTimer->start(1000);
@@ -189,7 +188,7 @@ MapFrame::~MapFrame()
   // The MapDocument's CachingLogger has a pointer to m_console, which
   // is about to be destroyed (DestroyChildren()). Clear the pointer
   // so we don't try to log to a dangling pointer (#1885).
-  m_document->setParentLogger(nullptr);
+  m_document->setTargetLogger(nullptr);
 
   m_mapView->deactivateCurrentTool();
 
@@ -205,7 +204,7 @@ MapFrame::~MapFrame()
   qDeleteAll(std::rbegin(children), std::rend(children));
 
   // let's trigger a final autosave before releasing the document
-  m_autosaver->triggerAutosave();
+  m_document->triggerAutosave();
 
   m_document->setViewEffectsService(nullptr);
   m_document.reset();
@@ -394,7 +393,7 @@ void MapFrame::createGui()
   // SwitchableMapViewContainer should have constructed a MapViewBase
   contract_assert(m_currentMapView);
 
-  m_inspector = new Inspector{document().map(), *m_contextManager};
+  m_inspector = new Inspector{document(), *m_contextManager};
   m_inspector->setObjectName("Inspector");
 
   m_mapView->connectTopWidgets(m_inspector);
@@ -528,9 +527,9 @@ QString describeSelection(const mdl::Map& map)
 
   auto pipeSeparatedSections = QStringList{};
 
-  pipeSeparatedSections << QString::fromStdString(map.game()->config().name)
+  pipeSeparatedSections << QString::fromStdString(map.game().config().name)
                         << QString::fromStdString(
-                             mdl::formatName(map.world()->mapFormat()))
+                             mdl::formatName(map.worldNode().mapFormat()))
                         << QString::fromStdString(editorContext.currentLayer()->name());
 
   // open groups
@@ -640,7 +639,7 @@ QString describeSelection(const mdl::Map& map)
   size_t hiddenBrushes = 0u;
   size_t hiddenPatches = 0u;
 
-  map.world()->accept(kdl::overload(
+  map.worldNode().accept(kdl::overload(
     [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       worldNode->visitChildren(thisLambda);
     },
@@ -723,31 +722,11 @@ void MapFrame::connectObservers()
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &MapFrame::preferenceDidChange);
 
-  auto& map = m_document->map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &MapFrame::mapWasCreated);
-  m_notifierConnection += map.mapWasLoadedNotifier.connect(this, &MapFrame::mapWasLoaded);
-  m_notifierConnection += map.mapWasSavedNotifier.connect(this, &MapFrame::mapWasSaved);
+    m_document->documentWasLoadedNotifier.connect(this, &MapFrame::documentWasLoaded);
   m_notifierConnection +=
-    map.mapWasClearedNotifier.connect(this, &MapFrame::mapWasCleared);
-  m_notifierConnection += map.modificationStateDidChangeNotifier.connect(
-    this, &MapFrame::mapModificationStateDidChange);
-  m_notifierConnection +=
-    map.transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
-  m_notifierConnection +=
-    map.transactionUndoneNotifier.connect(this, &MapFrame::transactionUndone);
-  m_notifierConnection +=
-    map.selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
-  m_notifierConnection +=
-    map.currentLayerDidChangeNotifier.connect(this, &MapFrame::currentLayerDidChange);
-  m_notifierConnection +=
-    map.groupWasOpenedNotifier.connect(this, &MapFrame::groupWasOpened);
-  m_notifierConnection +=
-    map.groupWasClosedNotifier.connect(this, &MapFrame::groupWasClosed);
-  m_notifierConnection +=
-    map.nodeVisibilityDidChangeNotifier.connect(this, &MapFrame::nodeVisibilityDidChange);
-  m_notifierConnection +=
-    map.editorContextDidChangeNotifier.connect(this, &MapFrame::editorContextDidChange);
+    m_document->documentWasSavedNotifier.connect(this, &MapFrame::documentWasSaved);
+
   m_notifierConnection +=
     m_document->pointFileWasLoadedNotifier.connect(this, &MapFrame::pointFileDidChange);
   m_notifierConnection +=
@@ -757,9 +736,28 @@ void MapFrame::connectObservers()
   m_notifierConnection += m_document->portalFileWasUnloadedNotifier.connect(
     this, &MapFrame::portalFileDidChange);
 
-  auto& grid = map.grid();
+  m_notifierConnection += m_document->modificationStateDidChangeNotifier.connect(
+    this, &MapFrame::mapModificationStateDidChange);
   m_notifierConnection +=
-    grid.gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
+    m_document->selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
+  m_notifierConnection += m_document->currentLayerDidChangeNotifier.connect(
+    this, &MapFrame::currentLayerDidChange);
+  m_notifierConnection +=
+    m_document->groupWasOpenedNotifier.connect(this, &MapFrame::groupWasOpened);
+  m_notifierConnection +=
+    m_document->groupWasClosedNotifier.connect(this, &MapFrame::groupWasClosed);
+  m_notifierConnection += m_document->nodeVisibilityDidChangeNotifier.connect(
+    this, &MapFrame::nodeVisibilityDidChange);
+  m_notifierConnection += m_document->editorContextDidChangeNotifier.connect(
+    this, &MapFrame::editorContextDidChange);
+
+  m_notifierConnection +=
+    m_document->transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
+  m_notifierConnection +=
+    m_document->transactionUndoneNotifier.connect(this, &MapFrame::transactionUndone);
+
+  m_notifierConnection +=
+    m_document->gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
 
   m_notifierConnection += m_mapView->mapViewToolBox().toolActivatedNotifier.connect(
     this, &MapFrame::toolActivated);
@@ -770,14 +768,7 @@ void MapFrame::connectObservers()
       this, &MapFrame::toolHandleSelectionChanged);
 }
 
-void MapFrame::mapWasCreated(mdl::Map&)
-{
-  updateTitle();
-  updateActionState();
-  updateUndoRedoActions();
-}
-
-void MapFrame::mapWasLoaded(mdl::Map&)
+void MapFrame::documentWasLoaded()
 {
   updateTitle();
   updateActionState();
@@ -785,19 +776,12 @@ void MapFrame::mapWasLoaded(mdl::Map&)
   updateRecentDocumentsMenu();
 }
 
-void MapFrame::mapWasSaved(mdl::Map&)
+void MapFrame::documentWasSaved()
 {
   updateTitle();
   updateActionState();
   updateUndoRedoActions();
   updateRecentDocumentsMenu();
-}
-
-void MapFrame::mapWasCleared(mdl::Map&)
-{
-  updateTitle();
-  updateActionState();
-  updateUndoRedoActions();
 }
 
 void MapFrame::mapModificationStateDidChange()
@@ -805,7 +789,7 @@ void MapFrame::mapModificationStateDidChange()
   updateTitleDelayed();
 }
 
-void MapFrame::transactionDone(const std::string& /* name */)
+void MapFrame::transactionDone(const std::string&, const bool)
 {
   QTimer::singleShot(0, this, [this]() {
     // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
@@ -819,7 +803,7 @@ void MapFrame::transactionDone(const std::string& /* name */)
   });
 }
 
-void MapFrame::transactionUndone(const std::string& /* name */)
+void MapFrame::transactionUndone(const std::string&, const bool)
 {
   QTimer::singleShot(0, this, [this]() {
     // FIXME: see MapFrame::transactionDone
@@ -865,17 +849,17 @@ void MapFrame::selectionDidChange(const mdl::SelectionChange&)
   updateStatusBarDelayed();
 }
 
-void MapFrame::currentLayerDidChange(const tb::mdl::LayerNode*)
+void MapFrame::currentLayerDidChange()
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasOpened(mdl::GroupNode&)
+void MapFrame::groupWasOpened()
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasClosed(mdl::GroupNode&)
+void MapFrame::groupWasClosed()
 {
   updateStatusBarDelayed();
 }
@@ -948,8 +932,7 @@ Result<bool> MapFrame::newDocument(
     return false;
   }
 
-  auto& map = m_document->map();
-  return map.create(mapFormat, MapDocument::DefaultWorldBounds, std::move(game))
+  return m_document->create(mapFormat, std::move(game), MapDocument::DefaultWorldBounds)
          | kdl::transform([]() { return true; });
 }
 
@@ -963,9 +946,9 @@ Result<bool> MapFrame::openDocument(
     return false;
   }
 
-  auto& map = m_document->map();
   const auto startTime = std::chrono::high_resolution_clock::now();
-  return map.load(mapFormat, MapDocument::DefaultWorldBounds, std::move(game), path)
+  return m_document->load(
+           path, mapFormat, std::move(game), MapDocument::DefaultWorldBounds)
          | kdl::transform([&]() {
              const auto endTime = std::chrono::high_resolution_clock::now();
 
@@ -1050,7 +1033,7 @@ void MapFrame::revertDocument()
   auto& map = m_document->map();
   if (map.persistent() && confirmRevertDocument())
   {
-    map.reload() | kdl::transform_error([&](auto e) {
+    m_document->reload() | kdl::transform_error([&](auto e) {
       logger().error() << "Failed to revert document: " << e.msg;
     });
   }
@@ -1682,7 +1665,7 @@ bool MapFrame::canRenameSelectedGroups() const
 
 void MapFrame::replaceMaterial()
 {
-  auto dialog = ReplaceMaterialDialog{document().map(), *m_contextManager, this};
+  auto dialog = ReplaceMaterialDialog{document(), *m_contextManager, this};
   dialog.exec();
 }
 
@@ -2436,9 +2419,9 @@ bool MapFrame::canLaunch() const
 void MapFrame::dragEnterEvent(QDragEnterEvent* event)
 {
   const auto& map = m_document->map();
-  const auto game = map.game();
+  const auto& game = map.game();
   if (
-    game->config().materialConfig.property && event->mimeData()->hasUrls()
+    game.config().materialConfig.property && event->mimeData()->hasUrls()
     && std::ranges::all_of(event->mimeData()->urls(), [](const auto& url) {
          if (!url.isLocalFile())
          {
@@ -2462,14 +2445,14 @@ void MapFrame::dropEvent(QDropEvent* event)
   }
 
   auto& map = m_document->map();
-  const auto game = map.game();
-  const auto& wadPropertyKey = game->config().materialConfig.property;
+  const auto& game = map.game();
+  const auto& wadPropertyKey = game.config().materialConfig.property;
   if (!wadPropertyKey)
   {
     return;
   }
 
-  const auto* wadPathsStr = map.world()->entity().property(*wadPropertyKey);
+  const auto* wadPathsStr = map.worldNode().entity().property(*wadPropertyKey);
   auto wadPaths = wadPathsStr ? kdl::str_split(*wadPathsStr, ";")
                                   | kdl::ranges::to<std::vector<std::filesystem::path>>()
                               : std::vector<std::filesystem::path>{};
@@ -2478,7 +2461,7 @@ void MapFrame::dropEvent(QDropEvent* event)
     window(),
     io::pathFromQString(urls.front().toLocalFile()),
     map.path(),
-    pref(game->info().gamePathPreference)};
+    pref(game.info().gamePathPreference)};
 
   const auto result = pathDialog.exec();
   if (result != QDialog::Accepted)
@@ -2492,7 +2475,7 @@ void MapFrame::dropEvent(QDropEvent* event)
       pathDialog.pathType(),
       io::pathFromQString(url.toLocalFile()),
       map.path(),
-      pref(game->info().gamePathPreference));
+      pref(game.info().gamePathPreference));
   });
 
   const auto newWadPathsStr = kdl::str_join(
@@ -2582,7 +2565,7 @@ void MapFrame::triggerAutosave()
     QGuiApplication::mouseButtons() == Qt::NoButton
     && std::chrono::system_clock::now() - m_lastInputTime > 2s)
   {
-    m_autosaver->triggerAutosave();
+    m_document->triggerAutosave();
   }
 }
 

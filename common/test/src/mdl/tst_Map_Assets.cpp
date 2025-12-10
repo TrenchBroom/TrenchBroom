@@ -17,17 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
+#include "Observer.h"
 #include "TestUtils.h"
 #include "fs/TestEnvironment.h"
 #include "mdl/BrushFace.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/MaterialManager.h"
-#include "mdl/Observer.h"
 #include "mdl/WorldNode.h"
 
 #include <algorithm>
@@ -48,7 +48,6 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Assets")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
 
   SECTION("entityDefinitionFile")
   {
@@ -73,7 +72,8 @@ TEST_CASE("Map_Assets")
         "ad.fgd",
         "Quoth.fgd",
       };
-    fixture.create(fixtureConfig);
+
+    auto& map = fixture.create(fixtureConfig);
 
     if (entityProperty)
     {
@@ -85,11 +85,6 @@ TEST_CASE("Map_Assets")
 
   SECTION("setEntityDefinitionFile")
   {
-    auto entityDefinitionsWillChange =
-      Observer<void>{map.entityDefinitionsWillChangeNotifier};
-    auto entityDefinitionsDidChange =
-      Observer<void>{map.entityDefinitionsDidChangeNotifier};
-
     using T = std::tuple<EntityDefinitionFileSpec, std::string>;
 
     const auto [entityDefinitionFileSpec, expectedPropertyValue] = GENERATE(values<T>({
@@ -110,15 +105,21 @@ TEST_CASE("Map_Assets")
         "ad.fgd",
         "Quoth.fgd",
       };
-    fixture.create(fixtureConfig);
+
+    auto& map = fixture.create(fixtureConfig);
+
+    auto entityDefinitionsWillChange =
+      Observer<void>{map.entityDefinitionsWillChangeNotifier};
+    auto entityDefinitionsDidChange =
+      Observer<void>{map.entityDefinitionsDidChangeNotifier};
 
     setEntityDefinitionFile(map, entityDefinitionFileSpec);
 
     CHECK(entityDefinitionsWillChange.called);
     CHECK(entityDefinitionsDidChange.called);
 
-    const auto* worldNode = map.world();
-    const auto& entity = worldNode->entity();
+    const auto& worldNode = map.worldNode();
+    const auto& entity = worldNode.entity();
     const auto* propertyValue = entity.property(EntityPropertyKeys::EntityDefinitions);
 
     REQUIRE(propertyValue);
@@ -127,17 +128,16 @@ TEST_CASE("Map_Assets")
 
   SECTION("enabledMaterialCollections")
   {
-    fixture.create(Quake2FixtureConfig);
+    auto& map = fixture.create(Quake2FixtureConfig);
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
-    const auto* worldNode = map.world();
-    REQUIRE(worldNode);
+    const auto& worldNode = map.worldNode();
 
     SECTION("When no material collections are explicitly enabled")
     {
       REQUIRE(
-        worldNode->entity().property(EntityPropertyKeys::EnabledMaterialCollections)
+        worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections)
         == nullptr);
 
       CHECK(
@@ -197,17 +197,16 @@ TEST_CASE("Map_Assets")
 
   SECTION("disabledMaterialCollections")
   {
-    fixture.create(Quake2FixtureConfig);
+    auto& map = fixture.create(Quake2FixtureConfig);
 
     REQUIRE(map.materialManager().collections().size() == 3);
 
-    const auto* worldNode = map.world();
-    REQUIRE(worldNode);
+    const auto& worldNode = map.worldNode();
 
     SECTION("When no material collections are explicitly enabled")
     {
       REQUIRE(
-        worldNode->entity().property(EntityPropertyKeys::EnabledMaterialCollections)
+        worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections)
         == nullptr);
 
       CHECK(disabledMaterialCollections(map) == std::vector<std::filesystem::path>{});
@@ -226,7 +225,7 @@ TEST_CASE("Map_Assets")
 
   SECTION("setEnabledMaterialCollections")
   {
-    fixture.create(Quake2FixtureConfig);
+    auto& map = fixture.create(Quake2FixtureConfig);
 
     const auto collectionPaths =
       map.materialManager().collections()
@@ -235,11 +234,10 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(collectionPaths.size() == 3);
 
-    const auto* worldNode = map.world();
-    REQUIRE(worldNode);
+    const auto& worldNode = map.worldNode();
 
     const auto getEnabledMaterialCollections = [&] {
-      return worldNode->entity().property(EntityPropertyKeys::EnabledMaterialCollections);
+      return worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections);
     };
 
     REQUIRE(!getEnabledMaterialCollections());
@@ -275,15 +273,15 @@ TEST_CASE("Map_Assets")
 
   SECTION("reloadMaterialCollections")
   {
+    auto& map = fixture.load(
+      "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
+
     auto materialCollectionsWillChange =
       Observer<void>{map.materialCollectionsWillChangeNotifier};
     auto materialCollectionsDidChange =
       Observer<void>{map.materialCollectionsDidChangeNotifier};
 
-    fixture.load(
-      "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
-
-    const auto faces = map.world()->defaultLayer()->children()
+    const auto faces = map.worldNode().defaultLayer()->children()
                        | std::views::transform([&](const auto* node) {
                            const auto* brushNode =
                              dynamic_cast<const mdl::BrushNode*>(node);
@@ -313,11 +311,6 @@ TEST_CASE("Map_Assets")
 
   SECTION("reloadEntityDefinitions")
   {
-    auto entityDefinitionsWillChange =
-      Observer<void>{map.entityDefinitionsWillChangeNotifier};
-    auto entityDefinitionsDidChange =
-      Observer<void>{map.entityDefinitionsDidChangeNotifier};
-
     const auto fgdFilename = "Test.fgd";
 
     auto env = fs::TestEnvironment{};
@@ -328,7 +321,12 @@ TEST_CASE("Map_Assets")
 ]
     )x");
 
-    fixture.create();
+    auto& map = fixture.create();
+
+    auto entityDefinitionsWillChange =
+      Observer<void>{map.entityDefinitionsWillChangeNotifier};
+    auto entityDefinitionsDidChange =
+      Observer<void>{map.entityDefinitionsDidChangeNotifier};
 
     setEntityDefinitionFile(
       map, EntityDefinitionFileSpec::makeExternal(env.dir() / fgdFilename));

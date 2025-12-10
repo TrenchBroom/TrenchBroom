@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -25,23 +25,22 @@
 #include <mutex>
 #include <string_view>
 
-namespace tb::ui
+namespace tb
 {
 
-class CachingLogger : public Logger
+class LoggingHub : public Logger
 {
 private:
   LoggerCache m_cache;
   std::mutex m_cacheMutex;
 
-  Logger* m_parentLogger = nullptr;
+  Logger* m_targetLogger = nullptr;
 
 public:
-  void setParentLogger(Logger* logger);
+  void setTargetLogger(Logger* targetLogger);
 
 private:
   void doLog(LogLevel level, std::string_view message) override;
-  bool cacheMessage(LogLevel level, std::string_view message);
 };
 
-} // namespace tb::ui
+} // namespace tb

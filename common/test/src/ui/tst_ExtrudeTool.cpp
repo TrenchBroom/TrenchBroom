@@ -18,7 +18,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "Matchers.h"
 #include "TestUtils.h"
 #include "mdl/Brush.h"
@@ -39,6 +38,8 @@
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 #include "ui/ExtrudeTool.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentFixture.h"
 
 #include "kd/result.h"
 
@@ -91,17 +92,18 @@ mdl::PickResult performPick(mdl::Map& map, ExtrudeTool& tool, const vm::ray3d& p
 
 TEST_CASE("ExtrudeTool")
 {
-  auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
-
-  auto tool = ExtrudeTool{map};
+  auto fixture = MapDocumentFixture{};
 
   SECTION("pick2D")
   {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
-    auto builder = mdl::BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
     auto* brushNode1 =
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
@@ -156,9 +158,14 @@ TEST_CASE("ExtrudeTool")
 
   SECTION("pick3D")
   {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
-    auto builder = mdl::BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
     auto* brushNode1 =
       new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
@@ -237,7 +244,10 @@ TEST_CASE("ExtrudeTool")
     // clang-format on
 
     const auto mapPath = "fixture/test/ui/ExtrudeToolTest" / mapName;
-    fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
+    auto& document = fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
 
     selectAllNodes(map);
 
@@ -283,7 +293,10 @@ TEST_CASE("ExtrudeTool")
 
 
     const auto mapPath = "fixture/test/ui/ExtrudeToolTest/splitBrushes.map";
-    fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
+    auto& document = fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
 
     selectAllNodes(map);
 
@@ -304,7 +317,7 @@ TEST_CASE("ExtrudeTool")
         .front();
 
     const auto* funcDetailNode =
-      (mdl::filterEntityNodes(mdl::collectDescendants({map.world()}))
+      (mdl::filterEntityNodes(mdl::collectDescendants({&map.worldNode()}))
        | std::views::filter(
          [](const auto* node) { return node->entity().classname() == "func_detail"; }))
         .front();

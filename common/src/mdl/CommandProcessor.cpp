@@ -264,7 +264,7 @@ bool CommandProcessor::undo()
   {
     const auto commandName = command->name();
     pushToRedoStack(std::move(command));
-    transactionUndoneNotifier(commandName);
+    transactionUndoneNotifier(commandName, isCurrentDocumentStateObservable());
   }
   return result;
 }
@@ -315,7 +315,7 @@ bool CommandProcessor::executeCommand(Command& command)
     notifyCommandIfNotType<TransactionCommand>(commandDoneNotifier, command);
     if (m_transactionStack.empty())
     {
-      transactionDoneNotifier(command.name());
+      transactionDoneNotifier(command.name(), isCurrentDocumentStateObservable());
     }
   }
   else
@@ -393,7 +393,7 @@ void CommandProcessor::createAndStoreTransaction()
     {
       pushTransactionCommand(std::move(command), true);
     }
-    transactionDoneNotifier(transaction.name);
+    transactionDoneNotifier(transaction.name, isCurrentDocumentStateObservable());
   }
 }
 

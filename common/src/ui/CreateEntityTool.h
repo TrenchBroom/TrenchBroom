@@ -31,22 +31,22 @@ namespace tb
 namespace mdl
 {
 class EntityNode;
-class Map;
 class PickResult;
 } // namespace mdl
 
 namespace ui
 {
+class MapDocument;
 
 class CreateEntityTool : public Tool
 {
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   mdl::EntityNode* m_entity = nullptr;
   vm::bbox3d m_referenceBounds;
 
 public:
-  explicit CreateEntityTool(mdl::Map& map);
+  explicit CreateEntityTool(MapDocument& document);
 
   bool createEntity(const std::string& classname);
   void removeEntity();

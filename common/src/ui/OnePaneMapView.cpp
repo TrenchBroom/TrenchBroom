@@ -29,22 +29,18 @@ namespace tb::ui
 OnePaneMapView::OnePaneMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_document{document}
 {
-  createGui(toolBox, mapRenderer, contextManager);
+  createGui(toolBox, contextManager);
 }
 
-void OnePaneMapView::createGui(
-  MapViewToolBox& toolBox,
-  render::MapRenderer& mapRenderer,
-  GLContextManager& contextManager)
+void OnePaneMapView::createGui(MapViewToolBox& toolBox, GLContextManager& contextManager)
 {
-  m_mapView = new CyclingMapView{
-    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ALL};
+  m_mapView =
+    new CyclingMapView{m_document, toolBox, contextManager, CyclingMapView::View_ALL};
   m_mapView->linkCamera(m_linkHelper);
   addMapView(m_mapView);
 

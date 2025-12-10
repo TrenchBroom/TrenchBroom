@@ -34,12 +34,12 @@ namespace tb
 namespace mdl
 {
 class EntityNodeBase;
-class Map;
 } // namespace mdl
 
 
 namespace ui
 {
+class MapDocument;
 class SmartPropertyEditor;
 
 using SmartPropertyEditorMatcher =
@@ -48,7 +48,7 @@ using SmartPropertyEditorMatcher =
 class SmartPropertyEditorManager : public QWidget
 {
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   std::vector<std::tuple<SmartPropertyEditorMatcher, SmartPropertyEditor*>> m_editors;
   std::string m_propertyKey;
@@ -57,7 +57,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit SmartPropertyEditorManager(mdl::Map& map, QWidget* parent = nullptr);
+  explicit SmartPropertyEditorManager(MapDocument& document, QWidget* parent = nullptr);
 
   void switchEditor(
     const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes);

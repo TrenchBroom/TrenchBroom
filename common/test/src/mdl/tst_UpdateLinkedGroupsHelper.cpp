@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
@@ -27,10 +26,11 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 
 #include "kd/overload.h"
 
@@ -124,16 +124,16 @@ TEST_CASE("checkLinkedGroupsToUpdate")
 
 TEST_CASE("UpdateLinkedGroupsHelper")
 {
+  bool deleted = false;
+
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("Ownership")
   {
     auto* groupNode = new GroupNode{Group{""}};
     setLinkId(*groupNode, "asdf");
 
-    bool deleted = false;
     auto* entityNode = new TestNode{Entity{}, deleted};
     groupNode->addChild(entityNode);
 
@@ -160,11 +160,6 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       }
       CHECK_FALSE(deleted);
     }
-
-
-    // Need to clear the map and delete all nodes, otherwise the TestNode destructor
-    // will access the deleted variable when its no longer valid.
-    map.clear();
   }
 
   SECTION("applyLinkedGroupUpdates")
@@ -465,7 +460,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
           == vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
 
         auto* newNestedLinkedInnerGroupNode =
-          findGroupByName(*map.world(), "nestedLinkedInnerGroupNode");
+          findGroupByName(map.worldNode(), "nestedLinkedInnerGroupNode");
         CHECK(
           newNestedLinkedInnerGroupNode->group().transformation()
           == vm::translation_matrix(vm::vec3d(32.0, 16.0, 0.0)));
@@ -527,7 +522,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
         == vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
 
       auto* newNestedLinkedInnerGroupNode =
-        findGroupByName(*map.world(), "nestedLinkedInnerGroupNode");
+        findGroupByName(map.worldNode(), "nestedLinkedInnerGroupNode");
       REQUIRE(newNestedLinkedInnerGroupNode != nullptr);
       CHECK(
         newNestedLinkedInnerGroupNode->group().transformation()

@@ -100,14 +100,10 @@ namespace tb::ui
 const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
 MapViewBase::MapViewBase(
-  MapDocument& document,
-  MapViewToolBox& toolBox,
-  render::MapRenderer& renderer,
-  GLContextManager& contextManager)
+  MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager)
   : RenderView{contextManager}
   , m_document{document}
   , m_toolBox{toolBox}
-  , m_renderer{renderer}
   , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_updateActionStatesSignalDelayer{new SignalDelayer{this}}
 {
@@ -151,22 +147,18 @@ void MapViewBase::bindEvents()
 
 void MapViewBase::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &MapViewBase::mapWasCreated);
+    m_document.documentWasLoadedNotifier.connect(this, &MapViewBase::documentWasLoaded);
   m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &MapViewBase::mapWasLoaded);
-  m_notifierConnection +=
-    map.mapWasClearedNotifier.connect(this, &MapViewBase::mapWasCleared);
-  m_notifierConnection +=
-    map.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
-  m_notifierConnection += map.materialCollectionsDidChangeNotifier.connect(
+    m_document.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
+
+  m_notifierConnection += m_document.materialCollectionsDidChangeNotifier.connect(
     this, &MapViewBase::materialCollectionsDidChange);
-  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
     this, &MapViewBase::entityDefinitionsDidChange);
   m_notifierConnection +=
-    map.modsDidChangeNotifier.connect(this, &MapViewBase::modsDidChange);
-  m_notifierConnection += map.editorContextDidChangeNotifier.connect(
+    m_document.modsDidChangeNotifier.connect(this, &MapViewBase::modsDidChange);
+  m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
     this, &MapViewBase::editorContextDidChange);
   m_notifierConnection +=
     m_document.pointFileWasLoadedNotifier.connect(this, &MapViewBase::pointFileDidChange);
@@ -177,9 +169,8 @@ void MapViewBase::connectObservers()
   m_notifierConnection += m_document.portalFileWasUnloadedNotifier.connect(
     this, &MapViewBase::portalFileDidChange);
 
-  auto& grid = map.grid();
   m_notifierConnection +=
-    grid.gridDidChangeNotifier.connect(this, &MapViewBase::gridDidChange);
+    m_document.gridDidChangeNotifier.connect(this, &MapViewBase::gridDidChange);
 
   m_notifierConnection +=
     m_toolBox.toolActivatedNotifier.connect(this, &MapViewBase::toolChanged);
@@ -199,6 +190,12 @@ void MapViewBase::createActionsAndUpdatePicking()
   createActions();
   updateActionStates();
   updatePickResult();
+}
+
+void MapViewBase::documentWasLoaded()
+{
+  createActionsAndUpdatePicking();
+  update();
 }
 
 void MapViewBase::documentDidChange()
@@ -259,24 +256,6 @@ void MapViewBase::preferenceDidChange(const std::filesystem::path& path)
   }
 
   updateActionBindings();
-  update();
-}
-
-void MapViewBase::mapWasCreated(mdl::Map&)
-{
-  createActionsAndUpdatePicking();
-  update();
-}
-
-void MapViewBase::mapWasLoaded(mdl::Map&)
-{
-  createActionsAndUpdatePicking();
-  update();
-}
-
-void MapViewBase::mapWasCleared(mdl::Map&)
-{
-  createActionsAndUpdatePicking();
   update();
 }
 
@@ -562,14 +541,14 @@ void MapViewBase::resetUV()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAll(map.game()->config().faceAttribsConfig.defaults));
+    map, mdl::resetAll(map.game().config().faceAttribsConfig.defaults));
 }
 
 void MapViewBase::resetUVToWorld()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAllToParaxial(map.game()->config().faceAttribsConfig.defaults));
+    map, mdl::resetAllToParaxial(map.game().config().faceAttribsConfig.defaults));
 }
 
 void MapViewBase::assembleBrush()
@@ -715,7 +694,7 @@ void MapViewBase::makeStructural()
   const auto& selectedBrushes = map.selection().brushes;
   std::ranges::copy_if(
     selectedBrushes, std::back_inserter(toReparent), [&](const auto* brushNode) {
-      return brushNode->entity() != map.world();
+      return brushNode->entity() != &map.worldNode();
     });
 
   auto transaction = mdl::Transaction{map, "Make Structural"};
@@ -909,7 +888,8 @@ ActionContext::Type MapViewBase::actionContext() const
 
 void MapViewBase::flashSelection()
 {
-  auto animation = std::make_unique<FlashSelectionAnimation>(m_renderer, this, 180);
+  auto animation =
+    std::make_unique<FlashSelectionAnimation>(m_document.mapRenderer(), this, 180);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
@@ -999,7 +979,7 @@ void MapViewBase::renderContents()
   auto renderBatch = render::RenderBatch{vboManager()};
 
   renderGrid(renderContext, renderBatch);
-  renderMap(m_renderer, renderContext, renderBatch);
+  renderMap(m_document.mapRenderer(), renderContext, renderBatch);
   renderTools(m_toolBox, renderContext, renderBatch);
 
   renderCoordinateSystem(renderContext, renderBatch);
@@ -1226,7 +1206,7 @@ void MapViewBase::showPopupMenuLater()
   const auto selectedObjectLayers = mdl::collectContainingLayersUserSorted(nodes);
 
   auto* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
-  for (auto* layerNode : map.world()->allLayersUserSorted())
+  for (auto* layerNode : map.worldNode().allLayersUserSorted())
   {
     auto* action = moveSelectionTo->addAction(
       QString::fromStdString(layerNode->name()), this, [&map, layerNode] {
@@ -1566,7 +1546,7 @@ mdl::Node* MapViewBase::findNewParentEntityForBrushes(
     auto* brush = faceHandle->node();
     auto* newParent = brush->entity();
 
-    if (newParent && newParent != map.world() && canReparentNodes(nodes, newParent))
+    if (newParent && newParent != &map.worldNode() && canReparentNodes(nodes, newParent))
     {
       return newParent;
     }
@@ -1602,11 +1582,11 @@ bool MapViewBase::canReparentNodes(
  * duplicates removed).
  */
 static std::vector<mdl::Node*> collectEntitiesForNodes(
-  const std::vector<mdl::Node*>& selectedNodes, const mdl::WorldNode* world)
+  const std::vector<mdl::Node*>& selectedNodes, const mdl::WorldNode& worldNode)
 {
   auto result = std::vector<mdl::Node*>{};
   const auto addNode = [&](auto&& thisLambda, auto* node) {
-    if (node->entity() == world)
+    if (node->entity() == &worldNode)
     {
       result.push_back(node);
     }
@@ -1635,7 +1615,7 @@ void MapViewBase::reparentNodes(
 
   auto& map = m_document.map();
   const auto inputNodes =
-    preserveEntities ? collectEntitiesForNodes(nodes, map.world()) : nodes;
+    preserveEntities ? collectEntitiesForNodes(nodes, map.worldNode()) : nodes;
 
   const auto reparentableNodes = collectReparentableNodes(inputNodes, newParent);
   contract_assert(!reparentableNodes.empty());
@@ -1679,7 +1659,7 @@ bool MapViewBase::canMakeStructural() const
   {
     const auto& brushes = map.selection().brushes;
     return std::ranges::any_of(brushes, [&](const auto* brush) {
-      return brush->hasAnyTag() || brush->entity() != map.world()
+      return brush->hasAnyTag() || brush->entity() != &map.worldNode()
              || brush->anyFaceHasAnyTag();
     });
   }

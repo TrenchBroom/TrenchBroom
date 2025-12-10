@@ -31,18 +31,30 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
-#include "kd/contracts.h"
-
 namespace tb::mdl
 {
+namespace
+{
+
+auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
+{
+  if (const auto* mapValue = entity.property(EntityPropertyKeys::SoftMapBounds))
+  {
+    return *mapValue == EntityPropertyValues::NoSoftMapBounds
+             ? SoftMapBounds{SoftMapBoundsType::Map, std::nullopt}
+             : SoftMapBounds{
+                 SoftMapBoundsType::Map, io::parseSoftMapBoundsString(*mapValue)};
+  }
+
+  // Not set in map -> use Game value
+  return SoftMapBounds{SoftMapBoundsType::Game, gameConfig.softMapBounds};
+}
+
+} // namespace
 
 SoftMapBounds softMapBounds(const Map& map)
 {
-  if (const auto* worldNode = map.world())
-  {
-    return map.game()->extractSoftMapBounds(worldNode->entity());
-  }
-  return {SoftMapBoundsType::Game, std::nullopt};
+  return extractSoftMapBounds(map.worldNode().entity(), map.game().config());
 }
 
 /**
@@ -50,10 +62,8 @@ SoftMapBounds softMapBounds(const Map& map)
  */
 void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
 {
-  contract_pre(map.world() != nullptr);
-
-  auto* worldNode = map.world();
-  auto entity = worldNode->entity();
+  auto& worldNode = map.worldNode();
+  auto entity = worldNode.entity();
 
   switch (bounds.source)
   {
@@ -80,7 +90,7 @@ void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
   }
 
   updateNodeContents(
-    map, "Set Soft Map Bounds", {{worldNode, NodeContents(std::move(entity))}}, {});
+    map, "Set Soft Map Bounds", {{&worldNode, NodeContents{std::move(entity)}}}, {});
 }
 
 std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
@@ -91,12 +101,9 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
     searchPaths.push_back(mapPath.parent_path());
   }
 
-  if (const auto* game = map.game())
+  if (const auto gamePath = pref(map.game().info().gamePathPreference); !gamePath.empty())
   {
-    if (const auto gamePath = pref(game->info().gamePathPreference); !gamePath.empty())
-    {
-      searchPaths.push_back(gamePath);
-    }
+    searchPaths.push_back(gamePath);
   }
 
   searchPaths.push_back(io::SystemPaths::appDirectory());
@@ -115,20 +122,13 @@ std::vector<std::string> enabledMods(const Entity& entity)
 
 std::vector<std::string> enabledMods(const Map& map)
 {
-  if (const auto* worldNode = map.world())
-  {
-    return enabledMods(worldNode->entity());
-  }
-
-  return {};
+  return enabledMods(map.worldNode().entity());
 }
 
 void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 {
-  contract_pre(map.world());
-
-  auto* worldNode = map.world();
-  auto entity = worldNode->entity();
+  auto& worldNode = map.worldNode();
+  auto entity = worldNode.entity();
 
   if (mods.empty())
   {
@@ -140,14 +140,12 @@ void setEnabledMods(Map& map, const std::vector<std::string>& mods)
     entity.addOrUpdateProperty(EntityPropertyKeys::Mods, newValue);
   }
   updateNodeContents(
-    map, "Set Enabled Mods", {{worldNode, NodeContents(std::move(entity))}}, {});
+    map, "Set Enabled Mods", {{&worldNode, NodeContents(std::move(entity))}}, {});
 }
 
 std::string defaultMod(const Map& map)
 {
-  contract_pre(map.game());
-
-  return map.game()->defaultMod();
+  return map.game().config().fileSystemConfig.searchPath.string();
 }
 
 } // namespace tb::mdl

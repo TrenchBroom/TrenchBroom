@@ -26,9 +26,9 @@
 namespace tb::render
 {
 
-void ObjectRenderer::addNode(mdl::Node* node)
+void ObjectRenderer::addNode(mdl::Node& node)
 {
-  node->accept(kdl::overload(
+  node.accept(kdl::overload(
     [](mdl::WorldNode*) {},
     [](mdl::LayerNode*) {},
     [&](mdl::GroupNode* group) { m_groupRenderer.addGroup(group); },
@@ -37,9 +37,9 @@ void ObjectRenderer::addNode(mdl::Node* node)
     [&](mdl::PatchNode* patch) { m_patchRenderer.addPatch(patch); }));
 }
 
-void ObjectRenderer::removeNode(mdl::Node* node)
+void ObjectRenderer::removeNode(mdl::Node& node)
 {
-  node->accept(kdl::overload(
+  node.accept(kdl::overload(
     [](mdl::WorldNode*) {},
     [](mdl::LayerNode*) {},
     [&](mdl::GroupNode* group) { m_groupRenderer.removeGroup(group); },
@@ -61,9 +61,9 @@ void ObjectRenderer::invalidateEntityModels(
   m_entityRenderer.invalidateEntityModels(entityModels);
 }
 
-void ObjectRenderer::invalidateNode(mdl::Node* node)
+void ObjectRenderer::invalidateNode(mdl::Node& node)
 {
-  node->accept(kdl::overload(
+  node.accept(kdl::overload(
     [](mdl::WorldNode*) {},
     [](mdl::LayerNode*) {},
     [&](mdl::GroupNode* group) { m_groupRenderer.invalidateGroup(group); },

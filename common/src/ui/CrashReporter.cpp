@@ -156,8 +156,7 @@ void CrashHandler(const int /* signum */)
     });
 
     // save the map
-    if (const auto document = TrenchBroomApp::instance().topDocument();
-        document && document->map().game())
+    if (const auto document = TrenchBroomApp::instance().topDocument())
     {
       document->map().saveTo(mapPath) | kdl::transform([&]() {
         std::cerr << "wrote map to " << mapPath.string() << std::endl;

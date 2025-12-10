@@ -25,15 +25,9 @@ class QAbstractButton;
 class QListWidget;
 class QWidget;
 
-namespace tb
+namespace tb::ui
 {
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
-{
+class MapDocument;
 
 class SmartWadEditor : public SmartPropertyEditor
 {
@@ -48,7 +42,7 @@ private:
   QAbstractButton* m_reloadWadsButton = nullptr;
 
 public:
-  explicit SmartWadEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit SmartWadEditor(MapDocument& document, QWidget* parent = nullptr);
 
   void addWads();
   void removeSelectedWads();
@@ -69,5 +63,4 @@ private slots:
   void updateButtons();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

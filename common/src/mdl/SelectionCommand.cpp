@@ -70,7 +70,7 @@ void doDeselectBrushFaces(const std::vector<BrushFaceHandle>& faces, Map& map)
   map.selectionWillChangeNotifier();
 
   const auto implicitlyLockedGroups = kdl::vec_sort(
-    collectGroups({map.world()}) | std::views::filter([](const auto* groupNode) {
+    collectGroups({&map.worldNode()}) | std::views::filter([](const auto* groupNode) {
       return groupNode->lockedByOtherSelection();
     })
     | kdl::ranges::to<std::vector>());
@@ -97,7 +97,7 @@ void doDeselectBrushFaces(const std::vector<BrushFaceHandle>& faces, Map& map)
   // The strategy is to figure out what needs to be locked given selection().brushFaces,
   // and then un-implicitly-lock all other linked groups.
   const auto groupsToLock = kdl::vec_sort(
-    faceSelectionWithLinkedGroupConstraints(*map.world(), map.selection().brushFaces)
+    faceSelectionWithLinkedGroupConstraints(map.worldNode(), map.selection().brushFaces)
       .groupsToLock);
   for (auto* node : groupsToLock)
   {
@@ -127,9 +127,8 @@ void doDeselectAll(Map& map)
 
 void doSelectNodes(const std::vector<Node*>& nodes, Map& map)
 {
-  contract_pre(map.world() != nullptr);
   contract_pre(std::ranges::all_of(nodes, [&](const auto* node) {
-    return node->isDescendantOf(map.world()) || node == map.world();
+    return node->isDescendantOf(&map.worldNode()) || node == &map.worldNode();
   }));
 
   map.selectionWillChangeNotifier();
@@ -159,7 +158,8 @@ void doSelectBrushFaces(const std::vector<BrushFaceHandle>& faces, Map& map)
 {
   map.selectionWillChangeNotifier();
 
-  const auto constrained = faceSelectionWithLinkedGroupConstraints(*map.world(), faces);
+  const auto constrained =
+    faceSelectionWithLinkedGroupConstraints(map.worldNode(), faces);
 
   for (auto* node : constrained.groupsToLock)
   {

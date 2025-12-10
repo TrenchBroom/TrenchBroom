@@ -205,12 +205,10 @@ MapRenderer::MapRenderer(mdl::Map& map)
 {
   connectObservers();
   setupRenderers();
+  updateAllNodes();
 }
 
-MapRenderer::~MapRenderer()
-{
-  clear();
-}
+MapRenderer::~MapRenderer() = default;
 
 void MapRenderer::overrideSelectionColors(const Color& color, const float mix)
 {
@@ -246,24 +244,6 @@ void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
   renderDefaultTransparent(renderContext, renderBatch);
   renderLockedTransparent(renderContext, renderBatch);
   renderSelectionTransparent(renderContext, renderBatch);
-}
-
-void MapRenderer::reload()
-{
-  clear();
-  updateAllNodes();
-  invalidateEntityLinkRenderer();
-}
-
-void MapRenderer::clear()
-{
-  m_defaultRenderer->clear();
-  m_selectionRenderer->clear();
-  m_lockedRenderer->clear();
-  m_entityDecalRenderer->clear();
-  m_entityLinkRenderer->invalidate();
-  m_groupLinkRenderer->invalidate();
-  m_trackedNodes.clear();
 }
 
 class SetupGL : public Renderable
@@ -425,11 +405,11 @@ static bool selected(const mdl::Node* node)
   return node->selected() || node->descendantSelected() || node->parentSelected();
 }
 
-int MapRenderer::determineDesiredRenderers(mdl::Node* node)
+int MapRenderer::determineDesiredRenderers(mdl::Node& node)
 {
   int result = 0;
 
-  node->accept(kdl::overload(
+  node.accept(kdl::overload(
     [](mdl::WorldNode*) {},
     [](mdl::LayerNode*) {},
     [&](mdl::GroupNode* group) {
@@ -497,12 +477,12 @@ int MapRenderer::determineDesiredRenderers(mdl::Node* node)
  * - Add to desired renderers, if not already present
  * - Invalidate, for any renderers it was already present in
  */
-void MapRenderer::updateAndInvalidateNode(mdl::Node* node)
+void MapRenderer::updateAndInvalidateNode(mdl::Node& node)
 {
   const auto desiredRenderers = determineDesiredRenderers(node);
   int currentRenderers = 0;
 
-  if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end())
+  if (auto it = m_trackedNodes.find(&node); it != m_trackedNodes.end())
   {
     currentRenderers = it->second;
   }
@@ -530,40 +510,44 @@ void MapRenderer::updateAndInvalidateNode(mdl::Node* node)
   updateForRenderer(Renderer::Locked, m_lockedRenderer.get());
 
   // Update the metadata to reflect the changes that we made above
-  m_trackedNodes[node] = desiredRenderers;
+  m_trackedNodes[&node] = desiredRenderers;
 
   m_entityDecalRenderer->updateNode(node);
 }
 
-void MapRenderer::updateAndInvalidateNodeRecursive(mdl::Node* node)
+void MapRenderer::updateAndInvalidateNodeRecursive(mdl::Node& node)
 {
-  node->accept(kdl::overload(
-    [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
-    [](auto&& thisLambda, mdl::LayerNode* layer) { layer->visitChildren(thisLambda); },
-    [&](auto&& thisLambda, mdl::GroupNode* group) {
-      updateAndInvalidateNode(group);
-      group->visitChildren(thisLambda);
+  node.accept(kdl::overload(
+    [](auto&& thisLambda, mdl::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, mdl::EntityNode* entity) {
-      updateAndInvalidateNode(entity);
-      entity->visitChildren(thisLambda);
+    [](auto&& thisLambda, mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
     },
-    [&](mdl::BrushNode* brush) { updateAndInvalidateNode(brush); },
-    [&](mdl::PatchNode* patchNode) { updateAndInvalidateNode(patchNode); }));
+    [&](auto&& thisLambda, mdl::GroupNode* groupNode) {
+      updateAndInvalidateNode(*groupNode);
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, mdl::EntityNode* entityNode) {
+      updateAndInvalidateNode(*entityNode);
+      entityNode->visitChildren(thisLambda);
+    },
+    [&](mdl::BrushNode* brushNode) { updateAndInvalidateNode(*brushNode); },
+    [&](mdl::PatchNode* patchNode) { updateAndInvalidateNode(*patchNode); }));
 
   // Due to the definition of `selected()` above, we also need to update the parent.
   // (not recursively, though, so this has little performance impact.)
   // This handles clicking on a brush in a brush entity -> the entity label needs to
   // render as selected.
-  if (node->parent())
+  if (node.parent())
   {
-    updateAndInvalidateNode(node->parent());
+    updateAndInvalidateNode(*node.parent());
   }
 }
 
-void MapRenderer::removeNode(mdl::Node* node)
+void MapRenderer::removeNode(mdl::Node& node)
 {
-  if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end())
+  if (auto it = m_trackedNodes.find(&node); it != m_trackedNodes.end())
   {
     const auto renderers = it->second;
 
@@ -590,21 +574,25 @@ void MapRenderer::removeNode(mdl::Node* node)
   }
 }
 
-void MapRenderer::removeNodeRecursive(mdl::Node* node)
+void MapRenderer::removeNodeRecursive(mdl::Node& node)
 {
-  node->accept(kdl::overload(
-    [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
-    [](auto&& thisLambda, mdl::LayerNode* layer) { layer->visitChildren(thisLambda); },
-    [&](auto&& thisLambda, mdl::GroupNode* group) {
-      removeNode(group);
-      group->visitChildren(thisLambda);
+  node.accept(kdl::overload(
+    [](auto&& thisLambda, mdl::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, mdl::EntityNode* entity) {
-      removeNode(entity);
-      entity->visitChildren(thisLambda);
+    [](auto&& thisLambda, mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
     },
-    [&](mdl::BrushNode* brush) { removeNode(brush); },
-    [&](mdl::PatchNode* patchNode) { removeNode(patchNode); }));
+    [&](auto&& thisLambda, mdl::GroupNode* groupNode) {
+      removeNode(*groupNode);
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, mdl::EntityNode* entityNode) {
+      removeNode(*entityNode);
+      entityNode->visitChildren(thisLambda);
+    },
+    [&](mdl::BrushNode* brushNode) { removeNode(*brushNode); },
+    [&](mdl::PatchNode* patchNode) { removeNode(*patchNode); }));
 }
 
 /**
@@ -612,7 +600,7 @@ void MapRenderer::removeNodeRecursive(mdl::Node* node)
  */
 void MapRenderer::updateAllNodes()
 {
-  updateAndInvalidateNodeRecursive(m_map.world());
+  updateAndInvalidateNodeRecursive(m_map.worldNode());
 }
 
 /**
@@ -660,12 +648,6 @@ void MapRenderer::reloadEntityModels()
 void MapRenderer::connectObservers()
 {
   m_notifierConnection +=
-    m_map.mapWasCreatedNotifier.connect(this, &MapRenderer::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &MapRenderer::mapWasLoaded);
-  m_notifierConnection +=
-    m_map.mapWasClearedNotifier.connect(this, &MapRenderer::mapWasCleared);
-  m_notifierConnection +=
     m_map.nodesWereAddedNotifier.connect(this, &MapRenderer::nodesWereAdded);
   m_notifierConnection +=
     m_map.nodesWereRemovedNotifier.connect(this, &MapRenderer::nodesWereRemoved);
@@ -679,8 +661,6 @@ void MapRenderer::connectObservers()
     m_map.groupWasOpenedNotifier.connect(this, &MapRenderer::groupWasOpened);
   m_notifierConnection +=
     m_map.groupWasClosedNotifier.connect(this, &MapRenderer::groupWasClosed);
-  m_notifierConnection +=
-    m_map.brushFacesDidChangeNotifier.connect(this, &MapRenderer::brushFacesDidChange);
   m_notifierConnection +=
     m_map.selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
   m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
@@ -699,28 +679,13 @@ void MapRenderer::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &MapRenderer::preferenceDidChange);
 }
 
-void MapRenderer::mapWasCreated(mdl::Map&)
-{
-  reload();
-}
-
-void MapRenderer::mapWasLoaded(mdl::Map&)
-{
-  reload();
-}
-
-void MapRenderer::mapWasCleared(mdl::Map&)
-{
-  clear();
-}
-
 void MapRenderer::nodesWereAdded(const std::vector<mdl::Node*>& nodes)
 {
   for (auto* node : nodes)
   {
     // The nodes passed in don't include recursive children, so we need to visit them
     // ourselves.
-    updateAndInvalidateNodeRecursive(node);
+    updateAndInvalidateNodeRecursive(*node);
   }
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
@@ -732,7 +697,7 @@ void MapRenderer::nodesWereRemoved(const std::vector<mdl::Node*>& nodes)
   {
     // The nodes passed in don't include recursive children, so we need to visit them
     // ourselves. Otherwise deleting a group doesn't delete the brushes within.
-    removeNodeRecursive(node);
+    removeNodeRecursive(*node);
   }
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
@@ -745,7 +710,7 @@ void MapRenderer::nodesDidChange(const std::vector<mdl::Node*>& nodes)
     // We update the ancestors along with the nodes, i.e. the world node. So, don't update
     // recursively here as it would cause the entire map to be invalidated on every
     // change.
-    updateAndInvalidateNode(node);
+    updateAndInvalidateNode(*node);
   }
   invalidateEntityLinkRenderer();
   invalidateGroupLinkRenderer();
@@ -755,7 +720,7 @@ void MapRenderer::nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes)
 {
   for (auto* node : nodes)
   {
-    updateAndInvalidateNodeRecursive(node);
+    updateAndInvalidateNodeRecursive(*node);
   }
   invalidateEntityLinkRenderer();
 }
@@ -764,50 +729,42 @@ void MapRenderer::nodeLockingDidChange(const std::vector<mdl::Node*>& nodes)
 {
   for (auto* node : nodes)
   {
-    updateAndInvalidateNodeRecursive(node);
+    updateAndInvalidateNodeRecursive(*node);
   }
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasOpened(mdl::GroupNode&)
+void MapRenderer::groupWasOpened()
 {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasClosed(mdl::GroupNode&)
+void MapRenderer::groupWasClosed()
 {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
-}
-
-void MapRenderer::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces)
-{
-  for (const auto& face : faces)
-  {
-    updateAndInvalidateNode(face.node());
-  }
 }
 
 void MapRenderer::selectionDidChange(const mdl::SelectionChange& selectionChange)
 {
   for (const auto& face : selectionChange.deselectedBrushFaces)
   {
-    updateAndInvalidateNode(face.node());
+    updateAndInvalidateNode(*face.node());
   }
   for (const auto& face : selectionChange.selectedBrushFaces)
   {
-    updateAndInvalidateNode(face.node());
+    updateAndInvalidateNode(*face.node());
   }
   // These need to be recursive otherwise selecting a Group doesn't render the contents
   // selected
   for (auto* node : selectionChange.deselectedNodes)
   {
-    updateAndInvalidateNodeRecursive(node);
+    updateAndInvalidateNodeRecursive(*node);
   }
   for (auto* node : selectionChange.selectedNodes)
   {
-    updateAndInvalidateNodeRecursive(node);
+    updateAndInvalidateNodeRecursive(*node);
   }
 
   invalidateEntityLinkRenderer();
@@ -861,8 +818,7 @@ void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
 {
   setupRenderers();
 
-  if (const auto* game = m_map.game();
-      game && path == pref(game->info().gamePathPreference))
+  if (path == pref(m_map.game().info().gamePathPreference))
   {
     reloadEntityModels();
     invalidateRenderers(Renderer::All);

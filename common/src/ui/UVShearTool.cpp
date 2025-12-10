@@ -29,6 +29,7 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 #include "ui/UVViewHelper.h"
 
 #include "kd/contracts.h"
@@ -215,10 +216,10 @@ public:
 const mdl::HitType::Type UVShearTool::XHandleHitType = mdl::HitType::freeType();
 const mdl::HitType::Type UVShearTool::YHandleHitType = mdl::HitType::freeType();
 
-UVShearTool::UVShearTool(mdl::Map& map, UVViewHelper& helper)
+UVShearTool::UVShearTool(MapDocument& document, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_map{map}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -287,7 +288,7 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
   }
 
   return std::make_unique<UVShearDragTracker>(
-    m_map, m_helper, selector, xAxis, yAxis, *initialHit);
+    m_document.map(), m_helper, selector, xAxis, yAxis, *initialHit);
 }
 
 bool UVShearTool::cancel()

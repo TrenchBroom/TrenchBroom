@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "mdl/BrushNode.h" // IWYU pragma: keep
 #include "mdl/CurrentGroupCommand.h"
 #include "mdl/GroupNode.h" // IWYU pragma: keep
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
@@ -37,8 +37,7 @@ namespace tb::mdl
 TEST_CASE("UpdateLinkedGroupsCommand")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   const auto createLinkedGroup = [&]() {
     auto brushNode = createBrushNode(map);

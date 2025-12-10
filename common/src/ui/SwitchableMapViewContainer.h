@@ -25,14 +25,7 @@
 #include "NotifierConnection.h"
 #include "ui/MapView.h"
 
-namespace tb
-{
-namespace render
-{
-class MapRenderer;
-}
-
-namespace ui
+namespace tb::ui
 {
 class ClipTool;
 class EdgeTool;
@@ -56,8 +49,6 @@ private:
 
   MapViewBar* m_mapViewBar = nullptr;
   std::unique_ptr<MapViewToolBox> m_toolBox;
-
-  std::unique_ptr<render::MapRenderer> m_mapRenderer;
 
   MultiPaneMapView* m_mapView = nullptr;
   std::unique_ptr<MapViewActivationTracker> m_activationTracker;
@@ -147,5 +138,4 @@ public: // implement ViewEffectsService interface
   deleteCopyAndMove(SwitchableMapViewContainer);
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

@@ -183,9 +183,8 @@ bool Node::isDescendantOf(const Node* node) const
 
 bool Node::isDescendantOf(const std::vector<Node*>& nodes) const
 {
-  return any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) {
-    return isDescendantOf(node);
-  });
+  return std::ranges::any_of(
+    nodes, [this](const Node* node) { return isDescendantOf(node); });
 }
 
 std::vector<Node*> Node::findDescendants(const std::vector<Node*>& nodes) const

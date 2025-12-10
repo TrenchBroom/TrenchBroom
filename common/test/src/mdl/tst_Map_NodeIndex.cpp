@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http:www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
@@ -26,6 +25,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Entities.h"
@@ -50,13 +50,11 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_NodeIndex")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("creating the world indexes the world node")
   {
-    CHECK(map.findNodes("classname") == std::vector<Node*>{map.world()});
+    CHECK(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
   }
 
   SECTION("adding nodes updates the index")
@@ -70,7 +68,7 @@ TEST_CASE("Map_NodeIndex")
 
     addNodes(map, {{parentForNodes(map), {groupNode}}});
 
-    REQUIRE(map.findNodes("classname") == std::vector<Node*>{map.world()});
+    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
 
     CHECK(map.findNodes("some_key") == std::vector<Node*>{entityNode});
     CHECK(map.findNodes("group") == std::vector<Node*>{groupNode});
@@ -87,7 +85,7 @@ TEST_CASE("Map_NodeIndex")
 
     addNodes(map, {{parentForNodes(map), {groupNode}}});
 
-    REQUIRE(map.findNodes("classname") == std::vector<Node*>{map.world()});
+    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
     REQUIRE(map.findNodes("some_key") == std::vector<Node*>{entityNode});
     REQUIRE(map.findNodes("group") == std::vector<Node*>{groupNode});
 
@@ -95,7 +93,7 @@ TEST_CASE("Map_NodeIndex")
     {
       removeNodes(map, {groupNode});
 
-      REQUIRE(map.findNodes("classname") == std::vector<Node*>{map.world()});
+      REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
 
       CHECK(map.findNodes("some_key") == std::vector<Node*>{});
       CHECK(map.findNodes("group") == std::vector<Node*>{});
@@ -109,7 +107,7 @@ TEST_CASE("Map_NodeIndex")
 
       removeNodes(map, {entityNode});
 
-      REQUIRE(map.findNodes("classname") == std::vector<Node*>{map.world()});
+      REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
 
       CHECK(map.findNodes("some_key") == std::vector<Node*>{});
       CHECK(map.findNodes("group") == std::vector<Node*>{groupNode});
@@ -128,7 +126,7 @@ TEST_CASE("Map_NodeIndex")
     addNodes(map, {{parentForNodes(map), {groupNode}}});
     selectNodes(map, {entityNode});
 
-    REQUIRE(map.findNodes("classname") == std::vector<Node*>{map.world()});
+    REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
     REQUIRE(map.findNodes("some_key") == std::vector<Node*>{entityNode});
     REQUIRE(map.findNodes("group") == std::vector<Node*>{groupNode});
 

@@ -25,7 +25,6 @@
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
-#include "ui/MapDocument.h"
 
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
@@ -53,7 +52,7 @@ const std::string APP_DIR_PATH = "APP_DIR_PATH";
 CommonVariables::CommonVariables(const mdl::Map& map)
 {
   const auto filename = map.path().filename();
-  const auto gamePath = pref(map.game()->info().gamePathPreference);
+  const auto gamePath = pref(map.game().info().gamePathPreference);
 
   auto mods = std::vector<std::string>{};
   mods.push_back(defaultMod(map));
@@ -68,10 +67,10 @@ CommonVariables::CommonVariables(const mdl::Map& map)
       mods | std::views::transform([](const auto& mod) { return el::Value{mod}; })
       | kdl::ranges::to<std::vector>()});
 
-  for (const auto& tool : map.game()->config().compilationTools)
+  for (const auto& tool : map.game().config().compilationTools)
   {
     const auto toolPath =
-      pref(mdl::compilationToolPathPreference(map.game()->info(), tool.name));
+      pref(mdl::compilationToolPathPreference(map.game().info(), tool.name));
 
     // e.g. variable name might be "qbsp", and the value is the path to the user's local
     // qbsp executable

@@ -25,7 +25,6 @@
 #include "Preferences.h"
 #include "mdl/Map.h"
 #include "mdl/PointTrace.h"
-#include "render/MapRenderer.h"
 #include "ui/FourPaneMapView.h"
 #include "ui/GLContextManager.h"
 #include "ui/Inspector.h"
@@ -50,9 +49,7 @@ SwitchableMapViewContainer::SwitchableMapViewContainer(
   , m_document{document}
   , m_contextManager{contextManager}
   , m_mapViewBar{new MapViewBar(m_document)}
-  , m_toolBox{std::make_unique<MapViewToolBox>(
-      m_document.map(), m_mapViewBar->toolBook())}
-  , m_mapRenderer{std::make_unique<render::MapRenderer>(m_document.map())}
+  , m_toolBox{std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())}
   , m_activationTracker{std::make_unique<MapViewActivationTracker>()}
 {
   setObjectName("SwitchableMapViewContainer");
@@ -96,20 +93,16 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
   switch (viewId)
   {
   case MapViewLayout::OnePane:
-    m_mapView =
-      new OnePaneMapView{m_document, *m_toolBox, *m_mapRenderer, m_contextManager};
+    m_mapView = new OnePaneMapView{m_document, *m_toolBox, m_contextManager};
     break;
   case MapViewLayout::TwoPanes:
-    m_mapView =
-      new TwoPaneMapView{m_document, *m_toolBox, *m_mapRenderer, m_contextManager};
+    m_mapView = new TwoPaneMapView{m_document, *m_toolBox, m_contextManager};
     break;
   case MapViewLayout::ThreePanes:
-    m_mapView =
-      new ThreePaneMapView{m_document, *m_toolBox, *m_mapRenderer, m_contextManager};
+    m_mapView = new ThreePaneMapView{m_document, *m_toolBox, m_contextManager};
     break;
   case MapViewLayout::FourPanes:
-    m_mapView =
-      new FourPaneMapView{m_document, *m_toolBox, *m_mapRenderer, m_contextManager};
+    m_mapView = new FourPaneMapView{m_document, *m_toolBox, m_contextManager};
     break;
     switchDefault();
   }

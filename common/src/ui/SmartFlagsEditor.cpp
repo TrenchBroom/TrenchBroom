@@ -28,6 +28,7 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/FlagsEditor.h"
+#include "ui/MapDocument.h"
 #include "ui/ViewUtils.h"
 
 #include "kd/contracts.h"
@@ -39,8 +40,8 @@
 namespace tb::ui
 {
 
-SmartFlagsEditor::SmartFlagsEditor(mdl::Map& map, QWidget* parent)
-  : SmartPropertyEditor{map, parent}
+SmartFlagsEditor::SmartFlagsEditor(MapDocument& document, QWidget* parent)
+  : SmartPropertyEditor{document, parent}
 {
   createGui();
 }
@@ -177,7 +178,7 @@ void SmartFlagsEditor::flagChanged(
   {
     const auto ignoreUpdates = kdl::set_temp{m_ignoreUpdates};
     const auto set = m_flagsEditor->isFlagSet(index);
-    updateEntitySpawnflag(map(), propertyKey(), index, set);
+    updateEntitySpawnflag(document().map(), propertyKey(), index, set);
   }
 }
 

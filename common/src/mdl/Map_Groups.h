@@ -28,7 +28,7 @@ class GroupNode;
 class Map;
 class Node;
 
-Node* currentGroupOrWorld(const Map& map);
+Node* currentGroupOrWorld(Map& map);
 
 void openGroup(Map& map, GroupNode& groupNode);
 void closeGroup(Map& map);

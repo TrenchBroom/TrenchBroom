@@ -89,13 +89,14 @@ struct SoftMapBounds;
 class Map
 {
 public:
-  static const vm::bbox3d DefaultWorldBounds;
   static const std::string DefaultDocumentName;
 
 private:
-  Logger& m_logger;
+  // pointer to enable move semantics
+  Logger* m_logger;
 
-  kdl::task_manager& m_taskManager;
+  // pointer to enable move semantics
+  kdl::task_manager* m_taskManager;
 
   std::unique_ptr<ResourceManager> m_resourceManager;
   std::unique_ptr<EntityDefinitionManager> m_entityDefinitionManager;
@@ -108,7 +109,7 @@ private:
 
   std::unique_ptr<Game> m_game;
   vm::bbox3d m_worldBounds;
-  std::unique_ptr<WorldNode> m_world;
+  std::unique_ptr<WorldNode> m_worldNode;
   std::unique_ptr<NodeIndex> m_nodeIndex;
   std::unique_ptr<EntityLinkManager> m_entityLinkManager;
 
@@ -138,27 +139,13 @@ private:
   std::optional<vm::bbox3d> m_lastSelectionBounds;
 
 public: // notification
-  Notifier<Command&> commandDoNotifier;
-  Notifier<Command&> commandDoneNotifier;
-  Notifier<Command&> commandDoFailedNotifier;
-  Notifier<UndoableCommand&> commandUndoNotifier;
-  Notifier<UndoableCommand&> commandUndoneNotifier;
-  Notifier<UndoableCommand&> commandUndoFailedNotifier;
-  Notifier<const std::string&> transactionDoneNotifier;
-  Notifier<const std::string&> transactionUndoneNotifier;
+  Notifier<> mapWasSavedNotifier;
 
-  Notifier<> documentDidChangeNotifier;
-
-  Notifier<Map&> mapWillBeClearedNotifier;
-  Notifier<Map&> mapWasClearedNotifier;
-  Notifier<Map&> mapWasCreatedNotifier;
-  Notifier<Map&> mapWasLoadedNotifier;
-  Notifier<Map&> mapWasSavedNotifier;
   Notifier<> modificationStateDidChangeNotifier;
 
   Notifier<> editorContextDidChangeNotifier;
-  Notifier<const LayerNode*> currentLayerDidChangeNotifier;
-  Notifier<const std::string&> currentMaterialNameDidChangeNotifier;
+  Notifier<> currentLayerDidChangeNotifier;
+  Notifier<> currentMaterialNameDidChangeNotifier;
 
   Notifier<> selectionWillChangeNotifier;
   Notifier<const SelectionChange&> selectionDidChangeNotifier;
@@ -172,10 +159,8 @@ public: // notification
   Notifier<const std::vector<Node*>&> nodeVisibilityDidChangeNotifier;
   Notifier<const std::vector<Node*>&> nodeLockingDidChangeNotifier;
 
-  Notifier<GroupNode&> groupWasOpenedNotifier;
-  Notifier<GroupNode&> groupWasClosedNotifier;
-
-  Notifier<const std::vector<BrushFaceHandle>&> brushFacesDidChangeNotifier;
+  Notifier<> groupWasOpenedNotifier;
+  Notifier<> groupWasClosedNotifier;
 
   Notifier<const std::vector<ResourceId>&> resourcesWereProcessedNotifier;
 
@@ -194,8 +179,40 @@ private:
   NotifierConnection m_notifierConnection;
 
 public: // misc
-  explicit Map(kdl::task_manager& taskManager, Logger& logger);
+  Map(
+    std::unique_ptr<Game> game,
+    std::unique_ptr<WorldNode> worldNode,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    Logger& logger);
+
+  Map(
+    std::unique_ptr<Game> game,
+    std::unique_ptr<WorldNode> worldNode,
+    const vm::bbox3d& worldBounds,
+    std::filesystem::path path,
+    kdl::task_manager& taskManager,
+    Logger& logger);
+
   ~Map();
+
+  Map(Map&&) noexcept;
+  Map& operator=(Map&&) noexcept;
+
+  static Result<std::unique_ptr<Map>> createMap(
+    MapFormat mapFormat,
+    std::unique_ptr<Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    Logger& logger);
+
+  static Result<std::unique_ptr<Map>> loadMap(
+    std::filesystem::path path,
+    MapFormat mapFormat,
+    std::unique_ptr<Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    Logger& logger);
 
   Logger& logger();
 
@@ -219,9 +236,11 @@ public: // misc
   Grid& grid();
   const Grid& grid() const;
 
-  const Game* game() const;
+  const Game& game() const;
   const vm::bbox3d& worldBounds() const;
-  WorldNode* world() const;
+
+  const WorldNode& worldNode() const;
+  WorldNode& worldNode();
 
   MapTextEncoding encoding() const;
 
@@ -237,6 +256,9 @@ public: // misc
   const std::string& currentMaterialName() const;
   void setCurrentMaterialName(const std::string& currentMaterialName);
 
+  CommandProcessor& commandProcessor();
+  const CommandProcessor& commandProcessor() const;
+
   template <typename NodeType = Node>
   std::vector<NodeType*> findNodes(std::string_view pattern) const
   {
@@ -247,20 +269,12 @@ public: // misc
   const EntityLinkManager& entityLinkManager() const;
 
 public: // persistence
-  Result<void> create(
-    MapFormat mapFormat, const vm::bbox3d& worldBounds, std::unique_ptr<Game> game);
-  Result<void> load(
-    MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
-    std::unique_ptr<Game> game,
-    const std::filesystem::path& path);
-  Result<void> reload();
+  Result<std::unique_ptr<Map>> reload();
+
   Result<void> save();
   Result<void> saveAs(const std::filesystem::path& path);
   Result<void> saveTo(const std::filesystem::path& path);
   Result<void> exportAs(const io::ExportOptions& options) const;
-
-  void clear();
 
   bool persistent() const;
   std::string filename() const;
@@ -276,13 +290,6 @@ private:
   void setPath(const std::filesystem::path& path);
   void setLastSaveModificationCount();
   void clearModificationCount();
-
-  void setWorld(
-    const vm::bbox3d& worldBounds,
-    std::unique_ptr<WorldNode> worldNode,
-    std::unique_ptr<Game> game,
-    const std::filesystem::path& path);
-  void clearWorld();
 
 public: // selection management
   const Selection& selection() const;
@@ -398,9 +405,6 @@ public: // command processing
 
 private: // observers
   void connectObservers();
-  void mapWasCreated(Map& map);
-  void mapWasLoaded(Map& map);
-  void mapWasCleared(Map& map);
   void nodesWereAdded(const std::vector<Node*>& nodes);
   void nodesWillBeRemoved(const std::vector<Node*>& nodes);
   void nodesWereRemoved(const std::vector<Node*>& nodes);
@@ -417,10 +421,6 @@ private: // observers
   void modsWillChange();
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void commandDone(Command& command);
-  void commandUndone(UndoableCommand& command);
-  void transactionDone(const std::string& name);
-  void transactionUndone(const std::string& name);
 };
 
 } // namespace mdl

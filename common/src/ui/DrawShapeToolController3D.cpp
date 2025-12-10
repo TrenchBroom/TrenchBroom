@@ -29,6 +29,7 @@
 #include "ui/DrawShapeTool.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 
 #include "vm/bbox.h"
 #include "vm/line.h"
@@ -225,9 +226,10 @@ private:
 
 } // namespace
 
-DrawShapeToolController3D::DrawShapeToolController3D(DrawShapeTool& tool, mdl::Map& map)
+DrawShapeToolController3D::DrawShapeToolController3D(
+  DrawShapeTool& tool, MapDocument& document)
   : m_tool{tool}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
@@ -257,7 +259,8 @@ std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
     return nullptr;
   }
 
-  if (m_map.selection().hasAny())
+  auto& map = m_document.map();
+  if (map.selection().hasAny())
   {
     return nullptr;
   }
@@ -267,7 +270,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
     hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
 
   return createHandleDragTracker(
-    DrawShapeDragDelegate{m_tool, m_map.worldBounds()},
+    DrawShapeDragDelegate{m_tool, map.worldBounds()},
     inputState,
     initialHandlePosition,
     initialHandlePosition);

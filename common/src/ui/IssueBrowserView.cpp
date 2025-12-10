@@ -46,7 +46,7 @@
 
 #include <fmt/format.h>
 
-#include <chrono>
+#include <chrono> // IWYU pragma: keep
 #include <vector>
 
 namespace tb::ui
@@ -136,49 +136,46 @@ void IssueBrowserView::updateSelection()
 
 void IssueBrowserView::updateIssues()
 {
-  const auto& map = m_document.map();
-  if (auto* worldNode = map.world())
-  {
-    const auto validators = worldNode->registeredValidators();
+  auto& map = m_document.map();
+  const auto validators = map.worldNode().registeredValidators();
 
-    auto issues = std::vector<const mdl::Issue*>{};
-    const auto collectIssues = [&](auto* node) {
-      for (auto* issue : node->issues(validators))
+  auto issues = std::vector<const mdl::Issue*>{};
+  const auto collectIssues = [&](auto* node) {
+    for (auto* issue : node->issues(validators))
+    {
+      if (
+        m_showHiddenIssues
+        || (!issue->hidden() && (issue->type() & m_hiddenIssueTypes) == 0))
       {
-        if (
-          m_showHiddenIssues
-          || (!issue->hidden() && (issue->type() & m_hiddenIssueTypes) == 0))
-        {
-          issues.push_back(issue);
-        }
+        issues.push_back(issue);
       }
-    };
+    }
+  };
 
-    worldNode->accept(kdl::overload(
-      [&](auto&& thisLambda, mdl::WorldNode* world) {
-        collectIssues(world);
-        world->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, mdl::LayerNode* layer) {
-        collectIssues(layer);
-        layer->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, mdl::GroupNode* group) {
-        collectIssues(group);
-        group->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, mdl::EntityNode* entity) {
-        collectIssues(entity);
-        entity->visitChildren(thisLambda);
-      },
-      [&](mdl::BrushNode* brush) { collectIssues(brush); },
-      [&](mdl::PatchNode* patch) { collectIssues(patch); }));
+  map.worldNode().accept(kdl::overload(
+    [&](auto&& thisLambda, mdl::WorldNode* worldNode) {
+      collectIssues(worldNode);
+      worldNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, mdl::LayerNode* layerNode) {
+      collectIssues(layerNode);
+      layerNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, mdl::GroupNode* groupNode) {
+      collectIssues(groupNode);
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, mdl::EntityNode* entityNode) {
+      collectIssues(entityNode);
+      entityNode->visitChildren(thisLambda);
+    },
+    [&](mdl::BrushNode* brushNode) { collectIssues(brushNode); },
+    [&](mdl::PatchNode* patchNode) { collectIssues(patchNode); }));
 
-    issues = kdl::vec_sort(std::move(issues), [](const auto* lhs, const auto* rhs) {
-      return lhs->seqId() > rhs->seqId();
-    });
-    m_tableModel->setIssues(std::move(issues));
-  }
+  issues = kdl::vec_sort(std::move(issues), [](const auto* lhs, const auto* rhs) {
+    return lhs->seqId() > rhs->seqId();
+  });
+  m_tableModel->setIssues(std::move(issues));
 }
 
 void IssueBrowserView::applyQuickFix(const mdl::IssueQuickFix& quickFix)
@@ -231,9 +228,7 @@ std::vector<const mdl::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
     issueTypes &= issue->type();
   }
 
-  auto& map = m_document.map();
-  const auto* worldNode = map.world();
-  return worldNode->quickFixes(issueTypes);
+  return m_document.map().worldNode().quickFixes(issueTypes);
 }
 
 mdl::IssueType IssueBrowserView::issueTypeMask() const

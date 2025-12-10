@@ -17,13 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentFixture.h"
 #include "ui/ShearTool.h"
 
 #include "kd/ranges/to.h"
@@ -40,9 +41,9 @@ namespace tb::ui
 
 TEST_CASE("ShearTool")
 {
-  auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   auto* brushNode = mdl::createBrushNode(map);
@@ -54,7 +55,7 @@ TEST_CASE("ShearTool")
   constexpr size_t iBrushNode = 1;
   constexpr size_t iPatchNode = 2;
 
-  auto tool = ShearTool{map};
+  auto tool = ShearTool{document};
 
   SECTION("applies")
   {

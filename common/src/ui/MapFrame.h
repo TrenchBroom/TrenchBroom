@@ -50,7 +50,6 @@ class Logger;
 
 namespace mdl
 {
-class Autosaver;
 class Game;
 class GroupNode;
 class LayerNode;
@@ -87,7 +86,6 @@ private:
   std::unique_ptr<MapDocument> m_document;
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
-  std::unique_ptr<mdl::Autosaver> m_autosaver;
   QTimer* m_autosaveTimer = nullptr;
   QTimer* m_processResourcesTimer = nullptr;
 
@@ -171,14 +169,12 @@ private: // gui creation
 private: // notification handlers
   void connectObservers();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void mapWasSaved(mdl::Map& map);
-  void mapWasCleared(mdl::Map& map);
+  void documentWasLoaded();
+  void documentWasSaved();
   void mapModificationStateDidChange();
 
-  void transactionDone(const std::string&);
-  void transactionUndone(const std::string&);
+  void transactionDone(const std::string& name, bool observable);
+  void transactionUndone(const std::string& name, bool observable);
 
   void preferenceDidChange(const std::filesystem::path& path);
   void gridDidChange();
@@ -186,9 +182,9 @@ private: // notification handlers
   void toolDeactivated(Tool& tool);
   void toolHandleSelectionChanged(Tool& tool);
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
-  void currentLayerDidChange(const mdl::LayerNode* layer);
-  void groupWasOpened(mdl::GroupNode& group);
-  void groupWasClosed(mdl::GroupNode& group);
+  void currentLayerDidChange();
+  void groupWasOpened();
+  void groupWasClosed();
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
   void editorContextDidChange();
   void pointFileDidChange();

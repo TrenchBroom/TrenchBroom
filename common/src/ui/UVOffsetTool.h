@@ -24,26 +24,20 @@
 
 #include <memory>
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
+namespace tb::ui
 {
 class GestureTracker;
+class MapDocument;
 class UVViewHelper;
 
 class UVOffsetTool : public ToolController, public Tool
 {
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   const UVViewHelper& m_helper;
 
 public:
-  UVOffsetTool(mdl::Map& map, const UVViewHelper& helper);
+  UVOffsetTool(MapDocument& document, const UVViewHelper& helper);
 
 private:
   Tool& tool() override;
@@ -54,5 +48,4 @@ private:
   bool cancel() override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

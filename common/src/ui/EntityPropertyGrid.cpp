@@ -43,6 +43,7 @@
 #include "ui/EntityPropertyItemDelegate.h"
 #include "ui/EntityPropertyModel.h"
 #include "ui/EntityPropertyTable.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -61,9 +62,9 @@
 namespace tb::ui
 {
 
-EntityPropertyGrid::EntityPropertyGrid(mdl::Map& map, QWidget* parent)
+EntityPropertyGrid::EntityPropertyGrid(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui();
   connectObservers();
@@ -117,10 +118,11 @@ void EntityPropertyGrid::restoreSelection()
 
 void EntityPropertyGrid::addProperty(const bool defaultToProtected)
 {
-  const auto newPropertyKey =
-    newPropertyKeyForEntityNodes(m_map.selection().allEntities());
+  auto& map = m_document.map();
 
-  if (!setEntityProperty(m_map, newPropertyKey, "", defaultToProtected))
+  const auto newPropertyKey = newPropertyKeyForEntityNodes(map.selection().allEntities());
+
+  if (!setEntityProperty(map, newPropertyKey, "", defaultToProtected))
   {
     // Setting a property can fail if a linked group update would be inconsistent
     return;
@@ -156,12 +158,13 @@ void EntityPropertyGrid::removeSelectedProperties()
     | kdl::ranges::to<std::vector>();
   const auto numRows = propertyKeys.size();
 
+  auto& map = m_document.map();
   auto transaction = mdl::Transaction{
-    m_map, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
+    map, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
 
   for (const auto& propertyKey : propertyKeys)
   {
-    if (!removeEntityProperty(m_map, propertyKey))
+    if (!removeEntityProperty(map, propertyKey))
     {
       transaction.cancel();
       return;
@@ -229,7 +232,7 @@ void EntityPropertyGrid::createGui()
 {
   m_table = new EntityPropertyTable{};
 
-  m_model = new EntityPropertyModel{m_map, this};
+  m_model = new EntityPropertyModel{m_document, this};
 
   // ensure the table takes ownership of the model in setModel
   // FIXME: why? this looks unnecessary
@@ -288,13 +291,14 @@ void EntityPropertyGrid::createGui()
 
   auto* setDefaultPropertiesMenu = new QMenu{this};
   setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [&]() {
-    setDefaultEntityProperties(m_map, mdl::SetDefaultPropertyMode::SetExisting);
+    setDefaultEntityProperties(
+      m_document.map(), mdl::SetDefaultPropertyMode::SetExisting);
   });
   setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [&]() {
-    setDefaultEntityProperties(m_map, mdl::SetDefaultPropertyMode::SetMissing);
+    setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
   });
   setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
-    setDefaultEntityProperties(m_map, mdl::SetDefaultPropertyMode::SetMissing);
+    setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
   });
 
   m_setDefaultPropertiesButton =
@@ -383,8 +387,10 @@ void EntityPropertyGrid::createGui()
 
 void EntityPropertyGrid::connectObservers()
 {
-  m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &EntityPropertyGrid::documentDidChange);
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &EntityPropertyGrid::documentDidChange);
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
+    this, &EntityPropertyGrid::documentDidChange);
 }
 
 void EntityPropertyGrid::documentDidChange()
@@ -423,7 +429,7 @@ void EntityPropertyGrid::ensureSelectionVisible()
 
 void EntityPropertyGrid::updateControlsEnabled()
 {
-  const auto nodes = m_map.selection().allEntities();
+  const auto nodes = m_document.map().selection().allEntities();
   const auto canUpdateLinkedGroups =
     mdl::canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));
   m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);

@@ -30,6 +30,7 @@
 #include "mdl/Map.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/EntityPropertyGrid.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/SmartPropertyEditorManager.h"
 #include "ui/Splitter.h"
@@ -38,9 +39,9 @@
 
 namespace tb::ui
 {
-EntityPropertyEditor::EntityPropertyEditor(mdl::Map& map, QWidget* parent)
+EntityPropertyEditor::EntityPropertyEditor(MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui();
   connectObservers();
@@ -58,7 +59,9 @@ void EntityPropertyEditor::OnCurrentRowChanged()
 
 void EntityPropertyEditor::connectObservers()
 {
-  m_notifierConnection += m_map.documentDidChangeNotifier.connect(
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &EntityPropertyEditor::documentDidChange);
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     this, &EntityPropertyEditor::documentDidChange);
 }
 
@@ -70,7 +73,7 @@ void EntityPropertyEditor::documentDidChange()
 void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()
 {
   const auto* entityDefinition =
-    mdl::selectEntityDefinition(m_map.selection().allEntities());
+    mdl::selectEntityDefinition(m_document.map().selection().allEntities());
 
   if (entityDefinition != m_currentDefinition)
   {
@@ -83,7 +86,8 @@ void EntityPropertyEditor::updateDocumentationAndSmartEditor()
 {
   const auto& propertyKey = m_propertyGrid->selectedRowName();
 
-  m_smartEditorManager->switchEditor(propertyKey, m_map.selection().allEntities());
+  m_smartEditorManager->switchEditor(
+    propertyKey, m_document.map().selection().allEntities());
 
   updateDocumentation(propertyKey);
 
@@ -150,7 +154,7 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
 
   if (
     const auto* entityDefinition =
-      mdl::selectEntityDefinition(m_map.selection().allEntities()))
+      mdl::selectEntityDefinition(m_document.map().selection().allEntities()))
   {
     auto normalFormat = QTextCharFormat{};
     auto boldFormat = QTextCharFormat{};
@@ -234,8 +238,8 @@ void EntityPropertyEditor::createGui()
   // users' view settings.
   m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 
-  m_propertyGrid = new EntityPropertyGrid{m_map};
-  m_smartEditorManager = new SmartPropertyEditorManager{m_map};
+  m_propertyGrid = new EntityPropertyGrid{m_document};
+  m_smartEditorManager = new SmartPropertyEditorManager{m_document};
   m_documentationText = new QTextEdit{};
   m_documentationText->setReadOnly(true);
 

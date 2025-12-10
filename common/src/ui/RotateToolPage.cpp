@@ -33,6 +33,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/RotateTool.h"
 #include "ui/SpinControl.h"
@@ -48,9 +49,9 @@
 namespace tb::ui
 {
 
-RotateToolPage::RotateToolPage(mdl::Map& map, RotateTool& tool, QWidget* parent)
+RotateToolPage::RotateToolPage(MapDocument& document, RotateTool& tool, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
   , m_tool{tool}
 {
   createGui();
@@ -60,8 +61,10 @@ RotateToolPage::RotateToolPage(mdl::Map& map, RotateTool& tool, QWidget* parent)
 
 void RotateToolPage::connectObservers()
 {
-  m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &RotateToolPage::documentDidChange);
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &RotateToolPage::documentDidChange);
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
+    this, &RotateToolPage::documentDidChange);
 
   m_notifierConnection += m_tool.rotationCenterDidChangeNotifier.connect(
     this, &RotateToolPage::rotationCenterDidChange);
@@ -159,16 +162,14 @@ void RotateToolPage::createGui()
 
 void RotateToolPage::updateGui()
 {
-  const auto& grid = m_map.grid();
+  auto& map = m_document.map();
+  const auto& grid = map.grid();
   m_angle->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
 
-  m_rotateButton->setEnabled(m_map.selection().hasNodes());
+  m_rotateButton->setEnabled(map.selection().hasNodes());
 
-  if (const auto* worldNode = m_map.world())
-  {
-    m_updateAnglePropertyAfterTransformCheckBox->setChecked(
-      worldNode->entityPropertyConfig().updateAnglePropertyAfterTransform);
-  }
+  m_updateAnglePropertyAfterTransformCheckBox->setChecked(
+    map.worldNode().entityPropertyConfig().updateAnglePropertyAfterTransform);
 }
 
 void RotateToolPage::documentDidChange()
@@ -240,12 +241,12 @@ void RotateToolPage::rotateClicked()
   const auto axis = getAxis();
   const auto angle = vm::to_radians(m_angle->value());
 
-  rotateSelection(m_map, center, axis, angle);
+  rotateSelection(m_document.map(), center, axis, angle);
 }
 
 void RotateToolPage::updateAnglePropertyAfterTransformClicked()
 {
-  m_map.world()->entityPropertyConfig().updateAnglePropertyAfterTransform =
+  m_document.map().worldNode().entityPropertyConfig().updateAnglePropertyAfterTransform =
     m_updateAnglePropertyAfterTransformCheckBox->isChecked();
 }
 

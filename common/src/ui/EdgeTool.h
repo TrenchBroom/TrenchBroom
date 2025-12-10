@@ -29,7 +29,6 @@ namespace tb
 namespace mdl
 {
 class BrushNode;
-class Map;
 class PickResult;
 } // namespace mdl
 
@@ -40,11 +39,12 @@ class Camera;
 
 namespace ui
 {
+class MapDocument;
 
 class EdgeTool : public VertexToolBase<vm::segment3d>
 {
 public:
-  explicit EdgeTool(mdl::Map& map);
+  explicit EdgeTool(MapDocument& document);
 
 public:
   std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;

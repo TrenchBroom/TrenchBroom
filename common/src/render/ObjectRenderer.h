@@ -72,11 +72,11 @@ public:
   }
 
 public: // object management
-  void addNode(mdl::Node* node);
-  void removeNode(mdl::Node* node);
+  void addNode(mdl::Node& node);
+  void removeNode(mdl::Node& node);
   void invalidateMaterials(const std::vector<const mdl::Material*>& materials);
   void invalidateEntityModels(const std::vector<const mdl::EntityModel*>& entityModels);
-  void invalidateNode(mdl::Node* node);
+  void invalidateNode(mdl::Node& node);
   void invalidate();
   void clear();
   void reloadModels();

@@ -73,14 +73,15 @@ QWidget* IssueBrowser::createTabBarPage(QWidget* parent)
 
 void IssueBrowser::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasSavedNotifier.connect(this, &IssueBrowser::mapWasSaved);
+    m_document.documentWasLoadedNotifier.connect(this, &IssueBrowser::documentDidChange);
   m_notifierConnection +=
-    map.documentDidChangeNotifier.connect(this, &IssueBrowser::documentDidChange);
+    m_document.documentWasSavedNotifier.connect(this, &IssueBrowser::documentWasSaved);
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect(this, &IssueBrowser::documentDidChange);
 }
 
-void IssueBrowser::mapWasSaved(mdl::Map&)
+void IssueBrowser::documentWasSaved()
 {
   m_view->update();
 }
@@ -107,15 +108,12 @@ void IssueBrowser::updateFilterFlags()
   auto labels = QStringList{};
 
   const auto& map = m_document.map();
-  if (const auto* world = map.world())
-  {
-    const auto validators = world->registeredValidators();
+  const auto validators = map.worldNode().registeredValidators();
 
-    for (const auto* validator : validators)
-    {
-      flags.push_back(validator->type());
-      labels.push_back(QString::fromStdString(validator->description()));
-    }
+  for (const auto* validator : validators)
+  {
+    flags.push_back(validator->type());
+    labels.push_back(QString::fromStdString(validator->description()));
   }
 
   m_filterEditor->setFlags(flags, labels);

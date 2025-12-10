@@ -38,7 +38,6 @@ namespace mdl
 class BrushFace;
 class BrushFaceHandle;
 class Grid;
-class Map;
 class Node;
 class PickResult;
 } // namespace mdl
@@ -54,6 +53,7 @@ class RenderContext;
 namespace ui
 {
 class ClipStrategy;
+class MapDocument;
 
 class ClipTool : public Tool
 {
@@ -69,7 +69,7 @@ private:
   };
 
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   ClipSide m_clipSide = ClipSide::Front;
   std::unique_ptr<ClipStrategy> m_strategy;
@@ -86,7 +86,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ClipTool(mdl::Map& map);
+  explicit ClipTool(MapDocument& document);
   ~ClipTool() override;
 
   const mdl::Grid& grid() const;

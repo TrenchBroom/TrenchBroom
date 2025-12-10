@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 #include "io/LoadEntityModel.h"
@@ -25,6 +24,7 @@
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"

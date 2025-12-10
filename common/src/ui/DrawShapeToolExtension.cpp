@@ -24,6 +24,7 @@
 
 #include "mdl/Map.h"
 #include "ui/DrawShapeToolExtensions.h"
+#include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
@@ -50,7 +51,7 @@ void DrawShapeToolExtensionPage::addWidget(QWidget* widget)
   boxLayout->insertWidget(boxLayout->count() - 1, widget, 0, Qt::AlignVCenter);
 }
 
-void DrawShapeToolExtensionPage::addApplyButton(mdl::Map& map)
+void DrawShapeToolExtensionPage::addApplyButton(MapDocument& document)
 {
   auto* applyButton = new QPushButton{tr("Apply")};
   applyButton->setEnabled(false);
@@ -58,8 +59,14 @@ void DrawShapeToolExtensionPage::addApplyButton(mdl::Map& map)
 
   addWidget(applyButton);
 
-  m_notifierConnection += map.documentDidChangeNotifier.connect(
-    [&map, applyButton]() { applyButton->setEnabled(map.selection().hasNodes()); });
+  m_notifierConnection +=
+    document.documentWasLoadedNotifier.connect([&document, applyButton]() {
+      applyButton->setEnabled(document.map().selection().hasNodes());
+    });
+  m_notifierConnection +=
+    document.documentDidChangeNotifier.connect([&document, applyButton]() {
+      applyButton->setEnabled(document.map().selection().hasNodes());
+    });
 }
 
 vm::axis::type ShapeParameters::axis() const
@@ -146,15 +153,15 @@ void ShapeParameters::setAccuracy(const size_t accuracy)
   }
 }
 
-DrawShapeToolExtension::DrawShapeToolExtension(mdl::Map& map)
-  : m_map{map}
+DrawShapeToolExtension::DrawShapeToolExtension(MapDocument& document)
+  : m_document{document}
 {
 }
 
 DrawShapeToolExtension::~DrawShapeToolExtension() = default;
 
-DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(mdl::Map& map)
-  : m_extensions{createDrawShapeToolExtensions(map)}
+DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(MapDocument& document)
+  : m_extensions{createDrawShapeToolExtensions(document)}
 {
   contract_pre(!m_extensions.empty());
 }

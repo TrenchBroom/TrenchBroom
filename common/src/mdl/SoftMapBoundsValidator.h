@@ -25,18 +25,15 @@
 
 namespace tb::mdl
 {
-class WorldNode;
-class Game;
-class Node;
+class Map;
 
 class SoftMapBoundsValidator : public Validator
 {
 private:
-  const Game& m_game;
-  const WorldNode& m_world;
+  const Map& m_map;
 
 public:
-  explicit SoftMapBoundsValidator(const Game& game, const WorldNode& world);
+  explicit SoftMapBoundsValidator(const Map& map);
 
 private:
   void doValidate(

@@ -42,7 +42,6 @@ namespace mdl
 class BrushFace;
 class Grid;
 class Hit;
-class Map;
 class PickResult;
 } // namespace mdl
 
@@ -53,6 +52,7 @@ class Camera;
 
 namespace ui
 {
+class MapDocument;
 
 /**
  * Similar to mdl::BrushFaceHandle but caches the Brush state at the beginning of the
@@ -110,7 +110,7 @@ public:
   static const mdl::HitType::Type ExtrudeHitType;
 
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   /**
    * Propsed drag handles for the next drag. Should only be accessed when m_dragging is
@@ -123,7 +123,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ExtrudeTool(mdl::Map& map);
+  explicit ExtrudeTool(MapDocument& document);
 
   bool applies() const;
 

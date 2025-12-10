@@ -33,7 +33,6 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionGroup.h"
 #include "mdl/EntityDefinitionManager.h"
-#include "mdl/Game.h"
 #include "mdl/Map.h"
 #include "mdl/Tag.h"
 #include "mdl/TagType.h"
@@ -232,14 +231,12 @@ ViewEditor::ViewEditor(MapDocument& document, QWidget* parent)
 
 void ViewEditor::connectObservers()
 {
-  auto& map = m_document.map();
   m_notifierConnection +=
-    map.mapWasCreatedNotifier.connect(this, &ViewEditor::mapWasCreated);
-  m_notifierConnection +=
-    map.mapWasLoadedNotifier.connect(this, &ViewEditor::mapWasLoaded);
-  m_notifierConnection +=
-    map.editorContextDidChangeNotifier.connect(this, &ViewEditor::editorContextDidChange);
-  m_notifierConnection += map.entityDefinitionsDidChangeNotifier.connect(
+    m_document.documentWasLoadedNotifier.connect(this, &ViewEditor::documentWasLoaded);
+
+  m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
+    this, &ViewEditor::editorContextDidChange);
+  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
     this, &ViewEditor::entityDefinitionsDidChange);
 
   auto& prefs = PreferenceManager::instance();
@@ -247,13 +244,7 @@ void ViewEditor::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &ViewEditor::preferenceDidChange);
 }
 
-void ViewEditor::mapWasCreated(mdl::Map&)
-{
-  createGui();
-  refreshGui();
-}
-
-void ViewEditor::mapWasLoaded(mdl::Map&)
+void ViewEditor::documentWasLoaded()
 {
   createGui();
   refreshGui();

@@ -18,7 +18,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EmptyPropertyKeyValidator.h"
@@ -31,6 +30,7 @@
 #include "mdl/IssueQuickFix.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
@@ -61,8 +61,7 @@ public:
 TEST_CASE("Validation")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create({.mapFormat = MapFormat::Valve});
+  auto& map = fixture.create({.mapFormat = MapFormat::Valve});
 
   map.entityDefinitionManager().setDefinitions({
     {"point_entity",
@@ -86,7 +85,7 @@ TEST_CASE("Validation")
     auto validators = std::vector<const Validator*>{emptyPropertyKeyValidator.get()};
 
     auto issues = std::vector<const Issue*>{};
-    map.world()->accept(kdl::overload(
+    map.worldNode().accept(kdl::overload(
       [&](auto&& thisLambda, WorldNode* worldNode) {
         issues = kdl::vec_concat(std::move(issues), worldNode->issues(validators));
         worldNode->visitChildren(thisLambda);
@@ -115,7 +114,7 @@ TEST_CASE("Validation")
     const auto* issue = issues.at(0);
     CHECK(issue->type() == emptyPropertyKeyValidator->type());
 
-    auto fixes = map.world()->quickFixes(issue->type());
+    auto fixes = map.worldNode().quickFixes(issue->type());
     REQUIRE(fixes.size() == 1);
 
     const auto* quickFix = fixes.at(0);
@@ -137,7 +136,7 @@ TEST_CASE("Validation")
     auto validators = std::vector<const Validator*>{emptyPropertyValueValidator.get()};
 
     auto issues = std::vector<const Issue*>{};
-    map.world()->accept(kdl::overload(
+    map.worldNode().accept(kdl::overload(
       [&](auto&& thisLambda, WorldNode* worldNode) {
         issues = kdl::vec_concat(std::move(issues), worldNode->issues(validators));
         worldNode->visitChildren(thisLambda);
@@ -166,7 +165,7 @@ TEST_CASE("Validation")
     const auto* issue = issues.at(0);
     CHECK(issue->type() == emptyPropertyValueValidator->type());
 
-    auto fixes = map.world()->quickFixes(issue->type());
+    auto fixes = map.worldNode().quickFixes(issue->type());
     REQUIRE(fixes.size() == 1);
 
     const auto* quickFix = fixes.at(0);

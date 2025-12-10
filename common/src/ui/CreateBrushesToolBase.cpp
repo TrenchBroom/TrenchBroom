@@ -28,6 +28,7 @@
 #include "mdl/Transaction.h"
 #include "render/BrushRenderer.h"
 #include "render/SelectionBoundsRenderer.h"
+#include "ui/MapDocument.h"
 
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"
@@ -37,9 +38,10 @@
 namespace tb::ui
 {
 
-CreateBrushesToolBase::CreateBrushesToolBase(const bool initiallyActive, mdl::Map& map)
+CreateBrushesToolBase::CreateBrushesToolBase(
+  const bool initiallyActive, MapDocument& document)
   : Tool{initiallyActive}
-  , m_map{map}
+  , m_document{document}
   , m_brushRenderer{std::make_unique<render::BrushRenderer>()}
 {
 }
@@ -48,7 +50,7 @@ CreateBrushesToolBase::~CreateBrushesToolBase() = default;
 
 const mdl::Grid& CreateBrushesToolBase::grid() const
 {
-  return m_map.grid();
+  return m_document.map().grid();
 }
 
 void CreateBrushesToolBase::createBrushes()
@@ -61,10 +63,11 @@ void CreateBrushesToolBase::createBrushes()
       | kdl::ranges::to<std::vector<mdl::Node*>>();
     clearBrushes();
 
-    auto transaction = mdl::Transaction{m_map, "Create Brush"};
-    deselectAll(m_map);
-    auto addedNodes = addNodes(m_map, {{parentForNodes(m_map), nodesToAdd}});
-    selectNodes(m_map, addedNodes);
+    auto transaction = mdl::Transaction{m_document.map(), "Create Brush"};
+    deselectAll(m_document.map());
+    auto addedNodes =
+      addNodes(m_document.map(), {{parentForNodes(m_document.map()), nodesToAdd}});
+    selectNodes(m_document.map(), addedNodes);
     transaction.commit();
 
     doBrushesWereCreated();

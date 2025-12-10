@@ -30,15 +30,9 @@
 #include <string>
 #include <vector>
 
-namespace tb
+namespace tb::ui
 {
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
-{
+class MapDocument;
 
 class DrawShapeToolExtensionPage : public QWidget
 {
@@ -53,7 +47,7 @@ public:
 
 protected:
   void addWidget(QWidget* widget);
-  void addApplyButton(mdl::Map& map);
+  void addApplyButton(MapDocument& document);
 };
 
 class ShapeParameters
@@ -100,9 +94,9 @@ public:
 class DrawShapeToolExtension
 {
 protected:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
-  explicit DrawShapeToolExtension(mdl::Map& map);
+  explicit DrawShapeToolExtension(MapDocument& document);
 
 public:
   virtual ~DrawShapeToolExtension();
@@ -119,7 +113,7 @@ class DrawShapeToolExtensionManager
 public:
   Notifier<size_t> currentExtensionDidChangeNotifier;
 
-  explicit DrawShapeToolExtensionManager(mdl::Map& map);
+  explicit DrawShapeToolExtensionManager(MapDocument& document);
 
   const std::vector<DrawShapeToolExtension*> extensions() const;
 
@@ -135,5 +129,4 @@ private:
   size_t m_currentExtensionIndex = 0;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

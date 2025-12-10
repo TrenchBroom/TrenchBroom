@@ -29,7 +29,6 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
 class PickResult;
 } // namespace mdl
 
@@ -41,8 +40,8 @@ class RenderContext;
 
 namespace ui
 {
-
 class GestureTracker;
+class MapDocument;
 class UVViewHelper;
 
 class UVScaleTool : public ToolController, public Tool
@@ -52,11 +51,11 @@ public:
   static const mdl::HitType::Type YHandleHitType;
 
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   UVViewHelper& m_helper;
 
 public:
-  UVScaleTool(mdl::Map& map, UVViewHelper& helper);
+  UVScaleTool(MapDocument& document, UVViewHelper& helper);
 
 private:
   Tool& tool() override;

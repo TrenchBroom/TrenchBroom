@@ -24,6 +24,7 @@
 
 namespace tb::ui
 {
+class MapDocument;
 
 class AssembleBrushTool : public CreateBrushesToolBase
 {
@@ -31,7 +32,7 @@ private:
   std::unique_ptr<mdl::Polyhedron3> m_polyhedron;
 
 public:
-  explicit AssembleBrushTool(mdl::Map& map);
+  explicit AssembleBrushTool(MapDocument& document);
 
   const mdl::Polyhedron3& polyhedron() const;
   void update(const mdl::Polyhedron3& polyhedron);

@@ -34,6 +34,7 @@
 #include "mdl/Map.h"
 #include "mdl/WorldNode.h"
 #include "ui/EntityBrowserView.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -44,9 +45,9 @@ namespace tb::ui
 {
 
 EntityBrowser::EntityBrowser(
-  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui(contextManager);
   connectObservers();
@@ -56,22 +57,18 @@ void EntityBrowser::reload()
 {
   if (m_view)
   {
-    if (const auto* worldNode = m_map.world())
-    {
-      m_view->setDefaultModelScaleExpression(
-        worldNode->entityPropertyConfig().defaultModelScaleExpression);
+    m_view->setDefaultModelScaleExpression(
+      m_document.map().worldNode().entityPropertyConfig().defaultModelScaleExpression);
 
-      m_view->invalidate();
-      m_view->update();
-    }
+    m_view->invalidate();
+    m_view->update();
   }
 }
 
 void EntityBrowser::createGui(GLContextManager& contextManager)
 {
   m_scrollBar = new QScrollBar{Qt::Vertical};
-
-  m_view = new EntityBrowserView{m_scrollBar, contextManager, m_map};
+  m_view = new EntityBrowserView{m_scrollBar, contextManager, m_document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
@@ -139,8 +136,10 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 void EntityBrowser::connectObservers()
 {
   m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
-  m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
+    m_document.documentWasLoadedNotifier.connect(this, &EntityBrowser::documentDidChange);
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
+  m_notifierConnection += m_document.resourcesWereProcessedNotifier.connect(
     this, &EntityBrowser::resourcesWereProcessed);
 
   auto& prefs = PreferenceManager::instance();
@@ -155,8 +154,7 @@ void EntityBrowser::documentDidChange()
 
 void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (const auto* game = m_map.game();
-      game && path == pref(game->info().gamePathPreference))
+  if (path == pref(m_document.map().game().info().gamePathPreference))
   {
     reload();
   }

@@ -28,12 +28,12 @@ namespace tb
 namespace mdl
 {
 class Grid;
-class Map;
 } // namespace mdl
 
 namespace ui
 {
 class InputState;
+class MapDocument;
 
 class MoveObjectsTool : public Tool
 {
@@ -46,11 +46,11 @@ public:
   };
 
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   bool m_duplicateObjects = false;
 
 public:
-  explicit MoveObjectsTool(mdl::Map& map);
+  explicit MoveObjectsTool(MapDocument& document);
 
 public:
   const mdl::Grid& grid() const;

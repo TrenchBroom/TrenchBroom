@@ -74,11 +74,8 @@ namespace tb::ui
 {
 
 MapView3D::MapView3D(
-  MapDocument& document,
-  MapViewToolBox& toolBox,
-  render::MapRenderer& renderer,
-  GLContextManager& contextManager)
-  : MapViewBase{document, toolBox, renderer, contextManager}
+  MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager)
+  : MapViewBase{document, toolBox, contextManager}
   , m_camera{std::make_unique<render::PerspectiveCamera>()}
   , m_flyModeHelper{std::make_unique<FlyModeHelper>(*m_camera)}
 {
@@ -102,8 +99,6 @@ void MapView3D::initializeCamera()
 
 void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
 {
-  auto& map = m_document.map();
-
   addToolController(std::make_unique<CameraTool3D>(*m_camera));
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
@@ -119,10 +114,10 @@ void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(std::make_unique<FaceToolController>(toolBox.faceTool()));
   addToolController(
     std::make_unique<CreateEntityToolController3D>(toolBox.createEntityTool()));
-  addToolController(std::make_unique<SetBrushFaceAttributesTool>(map));
-  addToolController(std::make_unique<SelectionTool>(map));
+  addToolController(std::make_unique<SetBrushFaceAttributesTool>(m_document));
+  addToolController(std::make_unique<SelectionTool>(m_document));
   addToolController(
-    std::make_unique<DrawShapeToolController3D>(toolBox.drawShapeTool(), map));
+    std::make_unique<DrawShapeToolController3D>(toolBox.drawShapeTool(), m_document));
 }
 
 void MapView3D::connectObservers()
@@ -213,7 +208,7 @@ PickRequest MapView3D::pickRequest(const float x, const float y) const
 
 mdl::PickResult MapView3D::pick(const vm::ray3d& pickRay) const
 {
-  const auto& map = m_document.map();
+  auto& map = m_document.map();
   auto pickResult = mdl::PickResult::byDistance();
 
   mdl::pick(map, pickRay, pickResult);
@@ -231,7 +226,7 @@ vm::vec3d MapView3D::pasteObjectsDelta(
 {
   using namespace mdl::HitFilters;
 
-  const auto& map = m_document.map();
+  auto& map = m_document.map();
   const auto& grid = map.grid();
 
   const auto pos = QCursor::pos();

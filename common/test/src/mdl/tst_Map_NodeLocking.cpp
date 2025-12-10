@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
@@ -27,6 +26,7 @@
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
@@ -46,15 +46,14 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_NodeLocking")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   SECTION("lockNodes")
   {
     SECTION("Layer nodes")
     {
       auto* layerNode = new LayerNode{Layer{"layer"}};
-      addNodes(map, {{map.world(), {layerNode}}});
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
 
       REQUIRE_FALSE(layerNode->locked());
 
@@ -127,7 +126,7 @@ TEST_CASE("Map_NodeLocking")
       deselectAll(map);
 
       auto* layerNode = new LayerNode{Layer{"layer"}};
-      addNodes(map, {{map.world(), {layerNode}}});
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
 
       const auto originalModificationCount = map.modificationCount();
 
@@ -151,11 +150,12 @@ TEST_CASE("Map_NodeLocking")
       auto* unlockedBrushNode = createBrushNode(map);
 
       auto* layerNode = new LayerNode{Layer{"layer"}};
-      addNodes(map, {{map.world(), {layerNode}}});
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
 
       addNodes(map, {{layerNode, {unlockedBrushNode}}});
       addNodes(
-        map, {{map.world()->defaultLayer(), {selectedBrushNode, unselectedBrushNode}}});
+        map,
+        {{map.worldNode().defaultLayer(), {selectedBrushNode, unselectedBrushNode}}});
 
       SECTION("Node selection")
       {
@@ -168,7 +168,7 @@ TEST_CASE("Map_NodeLocking")
             unlockedBrushNode,
           }));
 
-        lockNodes(map, {map.world()->defaultLayer()});
+        lockNodes(map, {map.worldNode().defaultLayer()});
         CHECK_THAT(
           map.selection().nodes, UnorderedEquals(std::vector<Node*>{unlockedBrushNode}));
 
@@ -198,7 +198,7 @@ TEST_CASE("Map_NodeLocking")
             {unlockedBrushNode, 0},
           }));
 
-        lockNodes(map, {map.world()->defaultLayer()});
+        lockNodes(map, {map.worldNode().defaultLayer()});
         CHECK_THAT(
           map.selection().brushFaces,
           UnorderedEquals(std::vector<BrushFaceHandle>{

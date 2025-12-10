@@ -19,7 +19,6 @@
 
 #include <QString>
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/TestEnvironment.h"
@@ -29,6 +28,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/LayerNode.h" // IWYU pragma: keep
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 
 #include "kd/vector_utils.h"
@@ -94,8 +94,7 @@ TEST_CASE("Autosaver")
   using namespace std::chrono_literals;
 
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   auto env = fs::TestEnvironment{};
 

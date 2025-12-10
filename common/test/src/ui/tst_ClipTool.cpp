@@ -18,7 +18,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
@@ -28,6 +27,8 @@
 #include "mdl/WorldNode.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
 
@@ -38,9 +39,9 @@ namespace tb::ui
 
 TEST_CASE("ClipTool")
 {
-  auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   SECTION("Clipped brushes get new link IDs")
   {
@@ -63,7 +64,7 @@ TEST_CASE("ClipTool")
 )";
     REQUIRE(paste(map, data) == mdl::PasteType::Node);
 
-    const auto* defaultLayer = map.world()->defaultLayer();
+    const auto* defaultLayer = map.worldNode().defaultLayer();
 
     const auto* originalBrushNode =
       dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().front());
@@ -71,7 +72,7 @@ TEST_CASE("ClipTool")
 
     const auto originalLinkId = originalBrushNode->linkId();
 
-    auto tool = ClipTool{map};
+    auto tool = ClipTool{document};
     REQUIRE(tool.activate());
 
     tool.addPoint(vm::vec3d{0, 16, 16}, {});

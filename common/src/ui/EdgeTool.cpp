@@ -21,6 +21,7 @@
 
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
+#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 #include "kd/string_format.h"
@@ -28,8 +29,8 @@
 namespace tb::ui
 {
 
-EdgeTool::EdgeTool(mdl::Map& map)
-  : VertexToolBase{map}
+EdgeTool::EdgeTool(MapDocument& document)
+  : VertexToolBase{document}
 {
 }
 
@@ -49,12 +50,12 @@ void EdgeTool::pick(
 
 mdl::EdgeHandleManager& EdgeTool::handleManager()
 {
-  return m_map.edgeHandles();
+  return m_document.map().edgeHandles();
 }
 
 const mdl::EdgeHandleManager& EdgeTool::handleManager() const
 {
-  return m_map.edgeHandles();
+  return m_document.map().edgeHandles();
 }
 
 std::tuple<vm::vec3d, vm::vec3d> EdgeTool::handlePositionAndHitPoint(
@@ -70,9 +71,11 @@ std::tuple<vm::vec3d, vm::vec3d> EdgeTool::handlePositionAndHitPoint(
 
 EdgeTool::MoveResult EdgeTool::move(const vm::vec3d& delta)
 {
-  auto handles = m_map.edgeHandles().selectedHandles();
+  auto& map = m_document.map();
+
+  auto handles = map.edgeHandles().selectedHandles();
   const auto transform = vm::translation_matrix(delta);
-  if (transformEdges(m_map, std::move(handles), transform))
+  if (transformEdges(map, std::move(handles), transform))
   {
     m_dragHandlePosition = m_dragHandlePosition.transform(transform);
     return MoveResult::Continue;
@@ -88,7 +91,9 @@ std::string EdgeTool::actionName() const
 
 void EdgeTool::removeSelection()
 {
-  const auto handles = m_map.edgeHandles().selectedHandles();
+  auto& map = m_document.map();
+
+  const auto handles = map.edgeHandles().selectedHandles();
   auto vertexPositions = std::vector<vm::vec3d>{};
   vertexPositions.reserve(2 * vertexPositions.size());
   vm::segment3d::get_vertices(
@@ -96,7 +101,7 @@ void EdgeTool::removeSelection()
 
   const auto commandName =
     kdl::str_plural(handles.size(), "Remove Brush Edge", "Remove Brush Edges");
-  removeVertices(m_map, commandName, std::move(vertexPositions));
+  removeVertices(map, commandName, std::move(vertexPositions));
 }
 
 } // namespace tb::ui

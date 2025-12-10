@@ -237,25 +237,22 @@ auto getAllLinks(
 {
   auto links = std::vector<LinkRenderer::LineVertex>{};
 
-  if (map.world())
-  {
-    auto visitor = CollectAllLinksVisitor{
-      map.entityLinkManager(), map.editorContext(), defaultColor, selectedColor};
+  auto visitor = CollectAllLinksVisitor{
+    map.entityLinkManager(), map.editorContext(), defaultColor, selectedColor};
 
-    map.world()->accept(kdl::overload(
-      [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
-        worldNode->visitChildren(thisLambda);
-      },
-      [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
-        layerNode->visitChildren(thisLambda);
-      },
-      [](auto&& thisLambda, const mdl::GroupNode* groupNode) {
-        groupNode->visitChildren(thisLambda);
-      },
-      [&](const mdl::EntityNode* entityNode) { visitor.visit(*entityNode, links); },
-      [](const mdl::BrushNode*) {},
-      [](const mdl::PatchNode*) {}));
-  }
+  map.worldNode().accept(kdl::overload(
+    [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const mdl::GroupNode* groupNode) {
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](const mdl::EntityNode* entityNode) { visitor.visit(*entityNode, links); },
+    [](const mdl::BrushNode*) {},
+    [](const mdl::PatchNode*) {}));
 
   return links;
 }

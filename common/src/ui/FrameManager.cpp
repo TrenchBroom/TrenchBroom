@@ -21,6 +21,8 @@
 
 #include <QApplication>
 
+#include "LoggingHub.h"
+#include "mdl/Game.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 
@@ -40,11 +42,6 @@ FrameManager::FrameManager(const bool singleFrame)
 
 FrameManager::~FrameManager() = default;
 
-MapFrame* FrameManager::newFrame(kdl::task_manager& taskManager)
-{
-  return createOrReuseFrame(taskManager);
-}
-
 std::vector<MapFrame*> FrameManager::frames() const
 {
   return m_frames;
@@ -53,6 +50,52 @@ std::vector<MapFrame*> FrameManager::frames() const
 MapFrame* FrameManager::topFrame() const
 {
   return m_frames.empty() ? nullptr : m_frames.front();
+}
+
+Result<void> FrameManager::createDocument(
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  std::unique_ptr<LoggingHub> loggingHub)
+{
+  if (shouldCreateFrameForDocument())
+  {
+    return MapDocument::createDocument(
+             mapFormat, std::move(game), worldBounds, taskManager, std::move(loggingHub))
+           | kdl::transform([&](auto document) { createFrame(std::move(document)); });
+  }
+
+  auto* frame = topFrame();
+  contract_assert(frame != nullptr);
+
+  return frame->document().create(mapFormat, std::move(game), worldBounds);
+}
+
+Result<void> FrameManager::loadDocument(
+  std::filesystem::path path,
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  std::unique_ptr<LoggingHub> loggingHub)
+{
+  if (shouldCreateFrameForDocument())
+  {
+    return MapDocument::loadDocument(
+             path,
+             mapFormat,
+             std::move(game),
+             worldBounds,
+             taskManager,
+             std::move(loggingHub))
+           | kdl::transform([&](auto document) { createFrame(std::move(document)); });
+  }
+
+  auto* frame = topFrame();
+  contract_assert(frame != nullptr);
+
+  return frame->document().load(path, mapFormat, std::move(game), worldBounds);
 }
 
 bool FrameManager::closeAllFrames()
@@ -94,20 +137,15 @@ void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
   }
 }
 
-MapFrame* FrameManager::createOrReuseFrame(kdl::task_manager& taskManager)
+bool FrameManager::shouldCreateFrameForDocument() const
 {
-  contract_pre(!m_singleFrame || m_frames.size() <= 1);
-
-  if (!m_singleFrame || m_frames.empty())
-  {
-    auto document = std::make_unique<MapDocument>(taskManager);
-    createFrame(std::move(document));
-  }
-  return topFrame();
+  return !m_singleFrame || m_frames.empty();
 }
 
 MapFrame* FrameManager::createFrame(std::unique_ptr<MapDocument> document)
 {
+  contract_pre(document != nullptr);
+
   auto* frame = new MapFrame{*this, std::move(document)};
   frame->positionOnScreen(topFrame());
   m_frames.insert(m_frames.begin(), frame);

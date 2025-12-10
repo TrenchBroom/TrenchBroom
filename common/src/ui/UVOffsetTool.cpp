@@ -26,6 +26,7 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 #include "ui/UVView.h"
 
 #include "kd/contracts.h"
@@ -128,10 +129,10 @@ public:
 
 } // namespace
 
-UVOffsetTool::UVOffsetTool(mdl::Map& map, const UVViewHelper& helper)
+UVOffsetTool::UVOffsetTool(MapDocument& document, const UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_map{map}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -158,7 +159,7 @@ std::unique_ptr<GestureTracker> UVOffsetTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVOffsetDragTracker>(m_map, m_helper, inputState);
+  return std::make_unique<UVOffsetDragTracker>(m_document.map(), m_helper, inputState);
 }
 
 bool UVOffsetTool::cancel()

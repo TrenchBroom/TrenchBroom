@@ -39,6 +39,7 @@
 #include "render/TextureFont.h"
 #include "render/Transformation.h"
 #include "render/VertexArray.h"
+#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -58,13 +59,13 @@ namespace tb::ui
 {
 
 MaterialBrowserView::MaterialBrowserView(
-  QScrollBar* scrollBar, GLContextManager& contextManager, mdl::Map& map)
+  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
   : CellView{contextManager, scrollBar}
-  , m_map{map}
+  , m_document{document}
 {
-  m_notifierConnection += m_map.materialUsageCountsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
-  m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
+  m_notifierConnection += m_document.resourcesWereProcessedNotifier.connect(
     this, &MaterialBrowserView::resourcesWereProcessed);
 }
 
@@ -212,10 +213,11 @@ void MaterialBrowserView::addMaterialToLayout(
 
 std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
-  const auto enabledMaterialCollections = mdl::enabledMaterialCollections(m_map);
+  const auto& map = m_document.map();
+  const auto enabledMaterialCollections = mdl::enabledMaterialCollections(map);
 
   auto result = std::vector<const mdl::MaterialCollection*>{};
-  for (const auto& collection : m_map.materialManager().collections())
+  for (const auto& collection : map.materialManager().collections())
   {
     if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
     {
@@ -455,11 +457,11 @@ void MaterialBrowserView::doContextMenu(
   {
     auto menu = QMenu{this};
     menu.addAction(tr("Select Faces"), this, [&, material = &cellData(*cell)]() {
-      selectBrushFacesWithMaterial(m_map, material->name());
+      selectBrushFacesWithMaterial(m_document.map(), material->name());
     });
 
     menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
-      selectBrushesWithMaterial(m_map, material->name());
+      selectBrushesWithMaterial(m_document.map(), material->name());
     });
 
     menu.exec(event->globalPos());

@@ -37,7 +37,6 @@ class Map;
 
 namespace ui
 {
-class MapDocument;
 
 void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 

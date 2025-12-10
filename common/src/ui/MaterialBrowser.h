@@ -35,13 +35,13 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
 class Material;
 } // namespace mdl
 
 namespace ui
 {
 class GLContextManager;
+class MapDocument;
 class MaterialBrowserView;
 enum class MaterialSortOrder;
 
@@ -49,7 +49,7 @@ class MaterialBrowser : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   QComboBox* m_sortOrderChoice = nullptr;
   QPushButton* m_groupButton = nullptr;
   QPushButton* m_usedButton = nullptr;
@@ -61,7 +61,7 @@ private:
 
 public:
   MaterialBrowser(
-    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   const mdl::Material* selectedMaterial() const;
   void setSelectedMaterial(const mdl::Material* selectedMaterial);
@@ -81,7 +81,7 @@ private:
   void connectObservers();
 
   void documentDidChange();
-  void currentMaterialNameDidChange(const std::string& materialName);
+  void currentMaterialNameDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 
   void reload();

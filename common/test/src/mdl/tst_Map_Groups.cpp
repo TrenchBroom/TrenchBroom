@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
+#include "Observer.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -29,13 +29,13 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
-#include "mdl/Observer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -55,9 +55,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Groups")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-
-  fixture.create();
+  auto& map = fixture.create();
 
   map.entityDefinitionManager().setDefinitions({
     {"point_entity",
@@ -73,7 +71,7 @@ TEST_CASE("Map_Groups")
   {
     SECTION("Map is empty")
     {
-      CHECK(currentGroupOrWorld(map) == map.world());
+      CHECK(currentGroupOrWorld(map) == &map.worldNode());
     }
 
     SECTION("Map contains nodes")
@@ -88,7 +86,7 @@ TEST_CASE("Map_Groups")
 
       SECTION("No group is opened")
       {
-        CHECK(currentGroupOrWorld(map) == map.world());
+        CHECK(currentGroupOrWorld(map) == &map.worldNode());
       }
 
       SECTION("Outer group is opened")
@@ -121,20 +119,20 @@ TEST_CASE("Map_Groups")
 
     SECTION("Opens group and notifies observers")
     {
-      auto groupWasOpened = Observer<GroupNode&>{map.groupWasOpenedNotifier};
+      auto groupWasOpened = Observer<void>{map.groupWasOpenedNotifier};
 
       openGroup(map, *outerGroupNode);
       CHECK(outerGroupNode->opened());
       CHECK(innerGroupNode->closed());
 
-      CHECK(groupWasOpened.collected == std::set{outerGroupNode});
+      CHECK(groupWasOpened.called);
     }
 
     SECTION("Locks world but keeps group unlocked")
     {
       openGroup(map, *outerGroupNode);
 
-      CHECK(map.world()->lockState() == LockState::Locked);
+      CHECK(map.worldNode().lockState() == LockState::Locked);
       CHECK(outerGroupNode->lockState() == LockState::Unlocked);
     }
 
@@ -165,20 +163,20 @@ TEST_CASE("Map_Groups")
 
     SECTION("Closes group and notifies observers")
     {
-      auto groupWasClosed = Observer<GroupNode&>{map.groupWasClosedNotifier};
+      auto groupWasClosed = Observer<void>{map.groupWasClosedNotifier};
 
       closeGroup(map);
       CHECK(outerGroupNode->closed());
       CHECK(innerGroupNode->closed());
 
-      CHECK(groupWasClosed.collected == std::set{outerGroupNode});
+      CHECK(groupWasClosed.called);
     }
 
     SECTION("Resets locking state and unlocks world when closing outer")
     {
       closeGroup(map);
 
-      CHECK(map.world()->lockState() == LockState::Unlocked);
+      CHECK(map.worldNode().lockState() == LockState::Unlocked);
       CHECK(outerGroupNode->lockState() == LockState::Inherited);
     }
 
@@ -295,8 +293,8 @@ TEST_CASE("Map_Groups")
     {
       auto* layerNode1 = new LayerNode{Layer{"test1"}};
       auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{map.world(), {layerNode1}}});
-      addNodes(map, {{map.world(), {layerNode2}}});
+      addNodes(map, {{&map.worldNode(), {layerNode1}}});
+      addNodes(map, {{&map.worldNode(), {layerNode2}}});
 
       setCurrentLayer(map, layerNode1);
       auto* entityNode = createPointEntity(map, pointEntityDefinition, {0, 0, 0});
@@ -440,7 +438,7 @@ TEST_CASE("Map_Groups")
 
     SECTION("Ungrouping leaves a brush entity selected")
     {
-      const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
       auto* entityNode1 = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode1}}});
@@ -520,7 +518,7 @@ TEST_CASE("Map_Groups")
 
 
       REQUIRE_THAT(
-        map.world()->defaultLayer()->children(),
+        map.worldNode().defaultLayer()->children(),
         UnorderedEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
@@ -531,7 +529,7 @@ TEST_CASE("Map_Groups")
 
         ungroupSelectedNodes(map);
         CHECK_THAT(
-          map.world()->defaultLayer()->children(),
+          map.worldNode().defaultLayer()->children(),
           UnorderedEquals(
             std::vector<Node*>{groupNode, linkedGroupNode, linkedBrushNode2}));
         CHECK(groupNode->linkId() == linkedGroupNode->linkId());
@@ -548,7 +546,7 @@ TEST_CASE("Map_Groups")
 
         ungroupSelectedNodes(map);
         CHECK_THAT(
-          map.world()->defaultLayer()->children(),
+          map.worldNode().defaultLayer()->children(),
           UnorderedEquals(
             std::vector<Node*>{groupNode, linkedBrushNode, linkedBrushNode2}));
 
@@ -570,7 +568,7 @@ TEST_CASE("Map_Groups")
 
         ungroupSelectedNodes(map);
         CHECK_THAT(
-          map.world()->defaultLayer()->children(),
+          map.worldNode().defaultLayer()->children(),
           UnorderedEquals(
             std::vector<Node*>{brushNode, linkedBrushNode, linkedBrushNode2}));
 
@@ -585,7 +583,7 @@ TEST_CASE("Map_Groups")
 
       map.undoCommand();
       CHECK_THAT(
-        map.world()->defaultLayer()->children(),
+        map.worldNode().defaultLayer()->children(),
         UnorderedEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
       CHECK(groupNode->linkId() == originalGroupLinkId);

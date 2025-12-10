@@ -122,7 +122,7 @@ void GamesPreferencePane::showUserConfigDirClicked()
   }) | kdl::transform_error([&](auto e) {
     if (m_document)
     {
-      m_document->error() << e.msg;
+      m_document->logger().error() << e.msg;
     }
     else
     {

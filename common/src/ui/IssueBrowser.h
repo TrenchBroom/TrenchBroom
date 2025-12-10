@@ -31,7 +31,6 @@ namespace tb
 namespace mdl
 {
 class Issue;
-class Map;
 } // namespace mdl
 
 namespace ui
@@ -63,7 +62,7 @@ public:
 
 private:
   void connectObservers();
-  void mapWasSaved(mdl::Map& map);
+  void documentWasSaved();
   void documentDidChange();
   void issueIgnoreChanged(mdl::Issue* issue);
 

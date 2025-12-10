@@ -24,7 +24,7 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Game.h"
-#include "mdl/GameInfo.h"
+#include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
@@ -37,11 +37,11 @@ BrushNode* createBrushNode(
   const std::string& materialName,
   const std::function<void(Brush&)>& brushFunc)
 {
-  const auto* worldNode = map.world();
+  const auto& worldNode = map.worldNode();
   auto builder = BrushBuilder{
-    worldNode->mapFormat(),
+    worldNode.mapFormat(),
     map.worldBounds(),
-    map.game()->config().faceAttribsConfig.defaults};
+    map.game().config().faceAttribsConfig.defaults};
 
   auto brush = builder.createCube(32.0, materialName) | kdl::value();
   brushFunc(brush);

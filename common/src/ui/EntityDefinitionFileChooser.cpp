@@ -29,19 +29,36 @@
 #include "io/PathQt.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/Game.h"
+#include "mdl/GameConfig.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "ui/BorderLine.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
+#include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
 namespace tb::ui
 {
+namespace
+{
+
+std::vector<mdl::EntityDefinitionFileSpec> allEntityDefinitionFiles(
+  const mdl::GameConfig& gameConfig)
+{
+  return gameConfig.entityConfig.defFilePaths
+         | std::views::transform([](const auto& path) {
+             return mdl::EntityDefinitionFileSpec::makeBuiltin(path);
+           })
+         | kdl::ranges::to<std::vector>();
+}
+
+} // namespace
 
 SingleSelectionListWidget::SingleSelectionListWidget(QWidget* parent)
   : QListWidget{parent}
@@ -76,9 +93,10 @@ bool SingleSelectionListWidget::allowDeselectAll() const
 
 // EntityDefinitionFileChooser
 
-EntityDefinitionFileChooser::EntityDefinitionFileChooser(mdl::Map& map, QWidget* parent)
+EntityDefinitionFileChooser::EntityDefinitionFileChooser(
+  MapDocument& document, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui();
   bindEvents();
@@ -149,20 +167,14 @@ void EntityDefinitionFileChooser::bindEvents()
 
 void EntityDefinitionFileChooser::connectObservers()
 {
-  m_notifierConnection += m_map.mapWasCreatedNotifier.connect(
-    this, &EntityDefinitionFileChooser::mapWasCreated);
-  m_notifierConnection +=
-    m_map.mapWasLoadedNotifier.connect(this, &EntityDefinitionFileChooser::mapWasLoaded);
-  m_notifierConnection += m_map.entityDefinitionsDidChangeNotifier.connect(
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &EntityDefinitionFileChooser::documentWasLoaded);
+
+  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
     this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
 }
 
-void EntityDefinitionFileChooser::mapWasCreated(mdl::Map&)
-{
-  updateControls();
-}
-
-void EntityDefinitionFileChooser::mapWasLoaded(mdl::Map&)
+void EntityDefinitionFileChooser::documentWasLoaded()
 {
   updateControls();
 }
@@ -178,8 +190,8 @@ void EntityDefinitionFileChooser::updateControls()
   m_builtin->clear();
   m_builtin->setAllowDeselectAll(false);
 
-  const auto& game = *m_map.game();
-  auto specs = game.allEntityDefinitionFiles();
+  const auto& map = m_document.map();
+  auto specs = allEntityDefinitionFiles(map.game().config());
   specs = kdl::vec_sort(std::move(specs));
 
   for (const auto& spec : specs)
@@ -193,7 +205,7 @@ void EntityDefinitionFileChooser::updateControls()
     m_builtin->addItem(item);
   }
 
-  const auto spec = entityDefinitionFile(m_map);
+  const auto spec = entityDefinitionFile(map);
   if (!spec || spec->type == mdl::EntityDefinitionFileSpec::Type::Builtin)
   {
     if (spec)
@@ -241,14 +253,15 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
 {
   if (!m_builtin->selectedItems().isEmpty())
   {
+    auto& map = m_document.map();
 
     auto* item = m_builtin->selectedItems().first();
     const auto specStr = item->data(Qt::UserRole).value<QString>();
     if (const auto spec = mdl::EntityDefinitionFileSpec::parse(specStr.toStdString()))
     {
-      if (entityDefinitionFile(m_map) != *spec)
+      if (entityDefinitionFile(map) != *spec)
       {
-        setEntityDefinitionFile(m_map, *spec);
+        setEntityDefinitionFile(map, *spec);
       }
     }
   }
@@ -269,13 +282,13 @@ void EntityDefinitionFileChooser::chooseExternalClicked()
   {
     updateFileDialogDefaultDirectoryWithFilename(
       FileDialogDir::EntityDefinition, fileName);
-    loadEntityDefinitionFile(m_map, this, fileName);
+    loadEntityDefinitionFile(m_document.map(), this, fileName);
   }
 }
 
 void EntityDefinitionFileChooser::reloadExternalClicked()
 {
-  reloadEntityDefinitions(m_map);
+  reloadEntityDefinitions(m_document.map());
 }
 
 } // namespace tb::ui

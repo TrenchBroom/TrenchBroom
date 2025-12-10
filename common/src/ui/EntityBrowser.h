@@ -35,7 +35,6 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
 class Node;
 class ResourceId;
 } // namespace mdl
@@ -44,12 +43,13 @@ namespace ui
 {
 class EntityBrowserView;
 class GLContextManager;
+class MapDocument;
 
 class EntityBrowser : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   QComboBox* m_sortOrderChoice = nullptr;
   QPushButton* m_groupButton = nullptr;
   QPushButton* m_usedButton = nullptr;
@@ -61,7 +61,7 @@ private:
 
 public:
   EntityBrowser(
-    mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
 
   void reload();
 

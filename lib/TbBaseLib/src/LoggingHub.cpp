@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,43 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CachingLogger.h"
+#include "LoggingHub.h"
 
-namespace tb::ui
+namespace tb
 {
 
-void CachingLogger::setParentLogger(Logger* parentLogger)
+void LoggingHub::setTargetLogger(Logger* targetLogger)
 {
   const auto lock = std::lock_guard{m_cacheMutex};
 
-  m_parentLogger = parentLogger;
-  if (m_parentLogger)
+  m_targetLogger = targetLogger;
+  if (m_targetLogger)
   {
     m_cache.getCachedMessages([this](const auto level, const auto& message) {
-      m_parentLogger->log(level, message);
+      m_targetLogger->log(level, message);
     });
   }
 }
 
-void CachingLogger::doLog(const LogLevel level, const std::string_view message)
-{
-  if (!cacheMessage(level, message))
-  {
-    m_parentLogger->log(level, message);
-  }
-}
-
-bool CachingLogger::cacheMessage(const LogLevel level, const std::string_view message)
+void LoggingHub::doLog(const LogLevel level, const std::string_view message)
 {
   auto lock = std::lock_guard{m_cacheMutex};
 
-  if (!m_parentLogger)
+  if (m_targetLogger)
+  {
+    m_targetLogger->log(level, message);
+  }
+  else
   {
     m_cache.cacheMessage(level, message);
-    return true;
   }
-
-  return false;
 }
 
-} // namespace tb::ui
+} // namespace tb

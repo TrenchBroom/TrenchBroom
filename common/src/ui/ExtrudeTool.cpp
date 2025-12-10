@@ -36,6 +36,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
+#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 #include "kd/map_utils.h"
@@ -86,9 +87,9 @@ kdl_reflect_impl(ExtrudeHitData);
 
 const mdl::HitType::Type ExtrudeTool::ExtrudeHitType = mdl::HitType::freeType();
 
-ExtrudeTool::ExtrudeTool(mdl::Map& map)
+ExtrudeTool::ExtrudeTool(MapDocument& document)
   : Tool{true}
-  , m_map{map}
+  , m_document{document}
   , m_dragging{false}
 {
   connectObservers();
@@ -96,12 +97,12 @@ ExtrudeTool::ExtrudeTool(mdl::Map& map)
 
 bool ExtrudeTool::applies() const
 {
-  return m_map.selection().hasBrushes();
+  return m_document.map().selection().hasBrushes();
 }
 
 const mdl::Grid& ExtrudeTool::grid() const
 {
-  return m_map.grid();
+  return m_document.map().grid();
 }
 
 namespace
@@ -195,7 +196,8 @@ mdl::Hit ExtrudeTool::pick2D(
     return mdl::Hit::NoHit;
   }
 
-  const auto edgeInfo = findClosestHorizonEdge(m_map.selection().nodes, pickRay);
+  const auto edgeInfo =
+    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -242,7 +244,8 @@ mdl::Hit ExtrudeTool::pick3D(
         hit.hitPoint()}};
   }
 
-  const auto edgeInfo = findClosestHorizonEdge(m_map.selection().nodes, pickRay);
+  const auto edgeInfo =
+    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -328,17 +331,18 @@ void ExtrudeTool::updateProposedDragHandles(const mdl::PickResult& pickResult)
 {
   using namespace mdl::HitFilters;
 
+  auto& map = m_document.map();
   if (m_dragging)
   {
     // FIXME: this should be turned into an ensure failure, but it's easy to make it
     // fail currently by spamming drags/modifiers. Indicates a bug in
     // ExtrudeToolController thinking we are not dragging when we actually still are.
-    m_map.logger().error() << "updateProposedDragHandles called during a drag";
+    map.logger().error() << "updateProposedDragHandles called during a drag";
     return;
   }
 
   const auto& hit = pickResult.first(type(ExtrudeHitType));
-  const auto& nodes = m_map.selection().nodes;
+  const auto& nodes = map.selection().nodes;
 
   auto newDragHandles = getDragHandles(nodes, hit);
   if (newDragHandles != m_proposedDragHandles)
@@ -375,7 +379,7 @@ void ExtrudeTool::beginExtrude()
   contract_pre(!m_dragging);
 
   m_dragging = true;
-  m_map.startTransaction("Resize Brushes", mdl::TransactionScope::LongRunning);
+  m_document.map().startTransaction("Resize Brushes", mdl::TransactionScope::LongRunning);
 }
 
 namespace
@@ -574,19 +578,20 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
 {
   contract_pre(m_dragging);
 
+  auto& map = m_document.map();
   if (dragState.splitBrushes)
   {
     if (
-      splitBrushesOutward(m_map, handleDelta, dragState)
-      || splitBrushesInward(m_map, handleDelta, dragState))
+      splitBrushesOutward(map, handleDelta, dragState)
+      || splitBrushesInward(map, handleDelta, dragState))
     {
       return true;
     }
   }
   else
   {
-    m_map.rollbackTransaction();
-    if (extrudeBrushes(m_map, getPolygons(dragState.initialDragHandles), handleDelta))
+    map.rollbackTransaction();
+    if (extrudeBrushes(map, getPolygons(dragState.initialDragHandles), handleDelta))
     {
       dragState.totalDelta = handleDelta;
     }
@@ -595,7 +600,7 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
       // extrudeBrushes() fails if some brushes were completely clipped away.
       // In that case, restore the last m_totalDelta to be successfully applied.
       extrudeBrushes(
-        m_map, getPolygons(dragState.initialDragHandles), dragState.totalDelta);
+        map, getPolygons(dragState.initialDragHandles), dragState.totalDelta);
     }
   }
 
@@ -609,16 +614,17 @@ void ExtrudeTool::beginMove()
   contract_pre(!m_dragging);
 
   m_dragging = true;
-  m_map.startTransaction("Move Faces", mdl::TransactionScope::LongRunning);
+  m_document.map().startTransaction("Move Faces", mdl::TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
   contract_pre(m_dragging);
 
-  m_map.rollbackTransaction();
+  auto& map = m_document.map();
+  map.rollbackTransaction();
   if (transformFaces(
-        m_map, getPolygons(dragState.initialDragHandles), vm::translation_matrix(delta)))
+        map, getPolygons(dragState.initialDragHandles), vm::translation_matrix(delta)))
   {
     dragState.totalDelta = delta;
   }
@@ -626,7 +632,7 @@ bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
   {
     // restore the last successful position
     transformFaces(
-      m_map,
+      map,
       getPolygons(dragState.initialDragHandles),
       vm::translation_matrix(dragState.totalDelta));
   }
@@ -640,13 +646,14 @@ void ExtrudeTool::commit(const ExtrudeDragState& dragState)
 {
   contract_pre(m_dragging);
 
+  auto& map = m_document.map();
   if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
-    m_map.cancelTransaction();
+    map.cancelTransaction();
   }
   else
   {
-    m_map.commitTransaction();
+    map.commitTransaction();
   }
   m_proposedDragHandles.clear();
   m_dragging = false;
@@ -656,7 +663,7 @@ void ExtrudeTool::cancel()
 {
   contract_pre(m_dragging);
 
-  m_map.cancelTransaction();
+  m_document.map().cancelTransaction();
   m_proposedDragHandles.clear();
   m_dragging = false;
 }
@@ -664,7 +671,9 @@ void ExtrudeTool::cancel()
 void ExtrudeTool::connectObservers()
 {
   m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &ExtrudeTool::documentDidChange);
+    m_document.documentWasLoadedNotifier.connect(this, &ExtrudeTool::documentDidChange);
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect(this, &ExtrudeTool::documentDidChange);
 }
 
 void ExtrudeTool::documentDidChange()

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -30,6 +29,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
@@ -59,10 +59,9 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Selection")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
-  auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+  auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
   map.entityDefinitionManager().setDefinitions({
     {"brush_entity", Color{}, "this is a brush entity", {}},
@@ -269,7 +268,7 @@ TEST_CASE("Map_Selection")
     SECTION("Select touching group")
     {
       auto* layerNode = new LayerNode{Layer{"Layer 1"}};
-      addNodes(map, {{map.world(), {layerNode}}});
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
 
       auto* groupNode = new GroupNode{Group{"Unnamed"}};
       addNodes(map, {{layerNode, {groupNode}}});
@@ -399,7 +398,7 @@ TEST_CASE("Map_Selection")
     SECTION("Select contained group")
     {
       auto* layerNode = new LayerNode{Layer{"Layer 1"}};
-      addNodes(map, {{map.world(), {layerNode}}});
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
 
       auto* groupNode = new GroupNode{Group{"Unnamed"}};
       addNodes(map, {{layerNode, {groupNode}}});
@@ -486,7 +485,7 @@ TEST_CASE("Map_Selection")
     addNodes(
       map,
       {
-        {map.world()->defaultLayer(),
+        {map.worldNode().defaultLayer(),
          {brush, pointEntity, patch, brushEntity, outerGroup}},
       });
 
@@ -657,7 +656,7 @@ TEST_CASE("Map_Selection")
 
   SECTION("selectAllInLayers")
   {
-    auto* defaultLayer = map.world()->defaultLayer();
+    auto* defaultLayer = map.worldNode().defaultLayer();
     auto* customLayer1 = new LayerNode{Layer{"1"}};
     auto* customLayer2 = new LayerNode{Layer{"2"}};
 
@@ -665,7 +664,7 @@ TEST_CASE("Map_Selection")
     auto* entityNodeInCustomLayer1 = new EntityNode{{}};
     auto* entityNodeInCustomLayer2 = new EntityNode{{}};
 
-    addNodes(map, {{map.world(), {customLayer1, customLayer2}}});
+    addNodes(map, {{&map.worldNode(), {customLayer1, customLayer2}}});
     addNodes(
       map,
       {

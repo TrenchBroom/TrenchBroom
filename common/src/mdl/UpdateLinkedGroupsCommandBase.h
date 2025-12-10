@@ -28,7 +28,6 @@
 
 namespace tb::mdl
 {
-class MapDocument;
 
 class UpdateLinkedGroupsCommandBase : public UndoableCommand
 {

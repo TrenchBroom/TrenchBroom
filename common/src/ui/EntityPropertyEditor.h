@@ -32,8 +32,6 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
-
 struct EntityDefinition;
 struct PropertyDefinition;
 } // namespace mdl
@@ -41,6 +39,7 @@ struct PropertyDefinition;
 namespace ui
 {
 class EntityPropertyGrid;
+class MapDocument;
 class SmartPropertyEditorManager;
 
 /**
@@ -51,7 +50,7 @@ class EntityPropertyEditor : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   QSplitter* m_splitter = nullptr;
   EntityPropertyGrid* m_propertyGrid = nullptr;
   SmartPropertyEditorManager* m_smartEditorManager = nullptr;
@@ -61,7 +60,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityPropertyEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit EntityPropertyEditor(MapDocument& document, QWidget* parent = nullptr);
   ~EntityPropertyEditor() override;
 
 private:

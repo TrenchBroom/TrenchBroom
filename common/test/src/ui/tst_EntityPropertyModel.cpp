@@ -17,12 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "ui/EntityPropertyModel.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
 
@@ -33,9 +34,9 @@ namespace tb::ui
 
 TEST_CASE("EntityPropertyModel")
 {
-  auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   auto* entityNode1 = new mdl::EntityNode{mdl::Entity{{
     {"some_key", "some_value"},
@@ -119,7 +120,7 @@ TEST_CASE("EntityPropertyModel")
        }},
     });
 
-  auto model = EntityPropertyModel{map};
+  auto model = EntityPropertyModel{document};
 
   SECTION("constructor")
   {

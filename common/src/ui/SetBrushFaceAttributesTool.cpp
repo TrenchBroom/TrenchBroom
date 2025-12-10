@@ -37,6 +37,7 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 
@@ -48,10 +49,10 @@ namespace tb::ui
 static const std::string TransferFaceAttributesTransactionName =
   "Transfer Face Attributes";
 
-SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(mdl::Map& map)
+SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(MapDocument& document)
   : ToolController{}
   , Tool{true}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
@@ -80,6 +81,8 @@ bool SetBrushFaceAttributesTool::mouseDoubleClick(const InputState& inputState)
 {
   if (canCopyAttributesFromSelection(inputState))
   {
+    auto& map = m_document.map();
+
     // The typical use case is, mouseClick() previously copied the selected attributes to
     // the clicked face, and now the second click has arrived so we're about to copy the
     // selected attributes to the whole brush. To make undo/redo more intuitivie, undo the
@@ -88,10 +91,10 @@ bool SetBrushFaceAttributesTool::mouseDoubleClick(const InputState& inputState)
 
     // The last click may not have been handled by this tool, see:
     // https://github.com/TrenchBroom/TrenchBroom/issues/3332
-    if (const auto* undoCommandName = m_map.undoCommandName();
+    if (const auto* undoCommandName = map.undoCommandName();
         undoCommandName && *undoCommandName == TransferFaceAttributesTransactionName)
     {
-      m_map.undoCommand();
+      map.undoCommand();
 
       copyAttributesFromSelection(inputState, true);
       return true;
@@ -365,16 +368,15 @@ std::unique_ptr<GestureTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
   }
 
   // Need to have a selected face to start painting alignment
-  const auto& selectedFaces = m_map.selection().brushFaces;
+  auto& map = m_document.map();
+  const auto& selectedFaces = map.selection().brushFaces;
   if (selectedFaces.size() != 1)
   {
     return nullptr;
   }
 
-  m_map.startTransaction(
-    "Drag Apply Face Attributes", mdl::TransactionScope::LongRunning);
-  return std::make_unique<SetBrushFaceAttributesDragTracker>(
-    m_map, selectedFaces.front());
+  map.startTransaction("Drag Apply Face Attributes", mdl::TransactionScope::LongRunning);
+  return std::make_unique<SetBrushFaceAttributesDragTracker>(map, selectedFaces.front());
 }
 
 bool SetBrushFaceAttributesTool::cancel()
@@ -389,7 +391,8 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
 
   contract_pre(canCopyAttributesFromSelection(inputState));
 
-  const auto selectedFaces = m_map.selection().brushFaces;
+  auto& map = m_document.map();
+  const auto selectedFaces = map.selection().brushFaces;
   contract_assert(!selectedFaces.empty());
 
   const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
@@ -401,7 +404,7 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
                               : std::vector<mdl::BrushFaceHandle>{*targetFaceHandle};
 
     transferFaceAttributes(
-      m_map, inputState, sourceFaceHandle, targetList, sourceFaceHandle);
+      map, inputState, sourceFaceHandle, targetList, sourceFaceHandle);
   }
 }
 
@@ -415,7 +418,7 @@ bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(
     return false;
   }
 
-  const auto selectedFaces = m_map.selection().brushFaces;
+  const auto selectedFaces = m_document.map().selection().brushFaces;
   if (selectedFaces.size() != 1)
   {
     return false;

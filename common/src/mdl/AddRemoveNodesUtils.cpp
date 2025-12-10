@@ -22,7 +22,6 @@
 #include "Notifier.h"
 #include "mdl/Map.h"
 #include "mdl/Node.h"
-#include "mdl/NodeQueries.h"
 
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"

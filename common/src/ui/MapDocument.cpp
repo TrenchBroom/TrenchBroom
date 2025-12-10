@@ -19,15 +19,18 @@
 
 #include "ui/MapDocument.h"
 
+#include "LoggingHub.h"
 #include "fs/DiskIO.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
 #include "io/WorldReader.h"
+#include "mdl/Autosaver.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Game.h"
+#include "mdl/Grid.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/MaterialManager.h"
@@ -36,6 +39,7 @@
 #include "mdl/TagManager.h"
 #include "mdl/Transaction.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
+#include "render/MapRenderer.h"
 #include "ui/Actions.h"
 #include "ui/ViewEffectsService.h"
 
@@ -59,12 +63,41 @@ namespace tb::ui
 {
 
 const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
-const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
-MapDocument::MapDocument(kdl::task_manager& taskManager)
-  : m_map{std::make_unique<mdl::Map>(taskManager, *this)}
+MapDocument::MapDocument(
+  kdl::task_manager& taskManager, std::unique_ptr<LoggingHub> loggingHub)
+  : m_taskManager{&taskManager}
+  , m_loggingHub{std::move(loggingHub)}
 {
   connectObservers();
+}
+
+MapDocument::MapDocument(MapDocument&&) noexcept = default;
+MapDocument& MapDocument::operator=(MapDocument&&) noexcept = default;
+
+Result<std::unique_ptr<MapDocument>> MapDocument::createDocument(
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  std::unique_ptr<LoggingHub> loggingHub)
+{
+  auto document = std::make_unique<MapDocument>(taskManager, std::move(loggingHub));
+  return document->create(mapFormat, std::move(game), worldBounds)
+         | kdl::transform([&]() { return std::move(document); });
+}
+
+Result<std::unique_ptr<MapDocument>> MapDocument::loadDocument(
+  std::filesystem::path path,
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
+  std::unique_ptr<LoggingHub> loggingHub)
+{
+  auto document = std::make_unique<MapDocument>(taskManager, std::move(loggingHub));
+  return document->load(std::move(path), mapFormat, std::move(game), worldBounds)
+         | kdl::transform([&]() { return std::move(document); });
 }
 
 MapDocument::~MapDocument()
@@ -79,6 +112,55 @@ MapDocument::~MapDocument()
   }
 }
 
+Result<void> MapDocument::create(
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds)
+{
+  return mdl::Map::createMap(
+           mapFormat, std::move(game), worldBounds, *m_taskManager, logger())
+         | kdl::transform([&](auto map) {
+             setMap(std::move(map));
+             documentWasLoadedNotifier();
+           });
+}
+
+Result<void> MapDocument::load(
+  std::filesystem::path path,
+  mdl::MapFormat mapFormat,
+  std::unique_ptr<mdl::Game> game,
+  const vm::bbox3d& worldBounds)
+{
+  return mdl::Map::loadMap(
+           path, mapFormat, std::move(game), worldBounds, *m_taskManager, logger())
+         | kdl::transform([&](auto map) {
+             setMap(std::move(map));
+             documentWasLoadedNotifier();
+           });
+}
+
+Result<void> MapDocument::reload()
+{
+  return m_map->reload() | kdl::transform([&](auto map) {
+           setMap(std::move(map));
+           documentWasLoadedNotifier();
+         });
+}
+
+void MapDocument::triggerAutosave()
+{
+  m_autosaver->triggerAutosave();
+}
+
+void MapDocument::setMap(std::unique_ptr<mdl::Map> map)
+{
+  m_map = std::move(map);
+  m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
+  m_autosaver = std::make_unique<mdl::Autosaver>(*m_map);
+
+  connectMapObservers();
+}
+
 mdl::Map& MapDocument::map()
 {
   return *m_map;
@@ -89,10 +171,24 @@ const mdl::Map& MapDocument::map() const
   return *m_map;
 }
 
+render::MapRenderer& MapDocument::mapRenderer()
+{
+  return *m_mapRenderer;
+}
+
+const render::MapRenderer& MapDocument::mapRenderer() const
+{
+  return *m_mapRenderer;
+}
 
 Logger& MapDocument::logger()
 {
-  return *this;
+  return *m_loggingHub;
+}
+
+void MapDocument::setTargetLogger(Logger* targetLogger)
+{
+  m_loggingHub->setTargetLogger(targetLogger);
 }
 
 mdl::PointTrace* MapDocument::pointTrace()
@@ -146,12 +242,12 @@ void MapDocument::loadPointFile(std::filesystem::path path)
 
   fs::Disk::withInputStream(path, [&](auto& stream) {
     return mdl::loadPointFile(stream) | kdl::transform([&](auto trace) {
-             info() << "Loaded point file " << path;
+             logger().info() << "Loaded point file " << path;
              m_pointFile = PointFile{std::move(trace), std::move(path)};
              pointFileWasLoadedNotifier();
            });
   }) | kdl::transform_error([&](auto e) {
-    error() << "Couldn't load portal file " << path << ": " << e.msg;
+    logger().error() << "Couldn't load portal file " << path << ": " << e.msg;
     m_pointFile = {};
   });
 }
@@ -179,7 +275,7 @@ void MapDocument::unloadPointFile()
 
   m_pointFile = std::nullopt;
 
-  info() << "Unloaded point file";
+  logger().info() << "Unloaded point file";
   pointFileWasUnloadedNotifier();
 }
 
@@ -201,12 +297,12 @@ void MapDocument::loadPortalFile(std::filesystem::path path)
 
   fs::Disk::withInputStream(path, [&](auto& stream) {
     return mdl::loadPortalFile(stream) | kdl::transform([&](auto portalFile) {
-             info() << "Loaded portal file " << path;
+             logger().info() << "Loaded portal file " << path;
              m_portalFile = {std::move(portalFile), std::move(path)};
              portalFileWasLoadedNotifier();
            });
   }) | kdl::transform_error([&](auto e) {
-    error() << "Couldn't load portal file " << path << ": " << e.msg;
+    logger().error() << "Couldn't load portal file " << path << ": " << e.msg;
     m_portalFile = std::nullopt;
   });
 }
@@ -234,38 +330,110 @@ void MapDocument::unloadPortalFile()
 
   m_portalFile = std::nullopt;
 
-  info() << "Unloaded portal file";
+  logger().info() << "Unloaded portal file";
   portalFileWasUnloadedNotifier();
 }
 
 void MapDocument::connectObservers()
 {
   m_notifierConnection +=
-    m_map->mapWasCreatedNotifier.connect(this, &MapDocument::mapWasCreated);
+    documentWasLoadedNotifier.connect(this, &MapDocument::documentWasLoaded);
+
   m_notifierConnection +=
-    m_map->mapWasLoadedNotifier.connect(this, &MapDocument::mapWasLoaded);
+    transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
   m_notifierConnection +=
-    m_map->mapWasClearedNotifier.connect(this, &MapDocument::mapWasCleared);
-  m_notifierConnection += m_map->entityDefinitionsDidChangeNotifier.connect(
+    transactionUndoneNotifier.connect(this, &MapDocument::transactionUndone);
+
+  m_notifierConnection += entityDefinitionsDidChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsDidChange);
 }
 
-void MapDocument::mapWasCreated(mdl::Map&)
+void MapDocument::connectMapObservers()
 {
-  createTagActions();
-  createEntityDefinitionActions();
+  contract_assert(m_map != nullptr);
+
+  m_notifierConnection += m_map->mapWasSavedNotifier.connect(documentWasSavedNotifier);
+  m_notifierConnection +=
+    m_map->modificationStateDidChangeNotifier.connect(modificationStateDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->editorContextDidChangeNotifier.connect(editorContextDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->currentLayerDidChangeNotifier.connect(currentLayerDidChangeNotifier);
+  m_notifierConnection += m_map->currentMaterialNameDidChangeNotifier.connect(
+    currentMaterialNameDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->selectionWillChangeNotifier.connect(selectionWillChangeNotifier);
+  m_notifierConnection +=
+    m_map->selectionDidChangeNotifier.connect(selectionDidChangeNotifier);
+  m_notifierConnection += m_map->nodesWereAddedNotifier.connect(nodesWereAddedNotifier);
+  m_notifierConnection +=
+    m_map->nodesWillBeRemovedNotifier.connect(nodesWillBeRemovedNotifier);
+  m_notifierConnection +=
+    m_map->nodesWereRemovedNotifier.connect(nodesWereRemovedNotifier);
+  m_notifierConnection += m_map->nodesWillChangeNotifier.connect(nodesWillChangeNotifier);
+  m_notifierConnection += m_map->nodesDidChangeNotifier.connect(nodesDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->nodeLockingDidChangeNotifier.connect(nodeLockingDidChangeNotifier);
+  m_notifierConnection += m_map->groupWasOpenedNotifier.connect(groupWasOpenedNotifier);
+  m_notifierConnection += m_map->groupWasClosedNotifier.connect(groupWasClosedNotifier);
+  m_notifierConnection +=
+    m_map->resourcesWereProcessedNotifier.connect(resourcesWereProcessedNotifier);
+  m_notifierConnection += m_map->materialCollectionsWillChangeNotifier.connect(
+    materialCollectionsWillChangeNotifier);
+  m_notifierConnection += m_map->materialCollectionsDidChangeNotifier.connect(
+    materialCollectionsDidChangeNotifier);
+  m_notifierConnection += m_map->materialUsageCountsDidChangeNotifier.connect(
+    materialUsageCountsDidChangeNotifier);
+  m_notifierConnection += m_map->entityDefinitionsWillChangeNotifier.connect(
+    entityDefinitionsWillChangeNotifier);
+  m_notifierConnection +=
+    m_map->entityDefinitionsDidChangeNotifier.connect(entityDefinitionsDidChangeNotifier);
+  m_notifierConnection += m_map->modsWillChangeNotifier.connect(modsWillChangeNotifier);
+  m_notifierConnection += m_map->modsDidChangeNotifier.connect(modsDidChangeNotifier);
+
+  auto& grid = m_map->grid();
+  m_notifierConnection += grid.gridDidChangeNotifier.connect(gridDidChangeNotifier);
+
+  auto& commandProcessor = m_map->commandProcessor();
+  m_notifierConnection += commandProcessor.commandDoNotifier.connect(commandDoNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandDoneNotifier.connect(commandDoneNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandDoFailedNotifier.connect(commandDoFailedNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandUndoNotifier.connect(commandUndoNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandUndoneNotifier.connect(commandUndoneNotifier);
+  m_notifierConnection +=
+    commandProcessor.commandUndoFailedNotifier.connect(commandUndoFailedNotifier);
+  m_notifierConnection +=
+    commandProcessor.transactionDoneNotifier.connect(transactionDoneNotifier);
+  m_notifierConnection +=
+    commandProcessor.transactionUndoneNotifier.connect(transactionUndoneNotifier);
 }
 
-void MapDocument::mapWasLoaded(mdl::Map&)
+void MapDocument::transactionDone(const std::string&, const bool observable)
 {
-  createTagActions();
-  createEntityDefinitionActions();
+  if (observable)
+  {
+    documentDidChangeNotifier();
+  }
 }
 
-void MapDocument::mapWasCleared(mdl::Map&)
+void MapDocument::transactionUndone(const std::string&, const bool observable)
 {
-  clearTagActions();
-  clearEntityDefinitionActions();
+  if (observable)
+  {
+    documentDidChangeNotifier();
+  }
+}
+
+void MapDocument::documentWasLoaded()
+{
+  m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
+
+  createTagActions();
+  createEntityDefinitionActions();
 }
 
 void MapDocument::entityDefinitionsDidChange()

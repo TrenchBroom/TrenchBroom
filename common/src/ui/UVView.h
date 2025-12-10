@@ -34,11 +34,6 @@ class QWidget;
 
 namespace tb
 {
-namespace mdl
-{
-class Map;
-} // namespace mdl
-
 namespace render
 {
 class ActiveShader;
@@ -48,6 +43,7 @@ class RenderContext;
 
 namespace ui
 {
+class MapDocument;
 class UVRotateTool;
 class UVOriginTool;
 class UVScaleTool;
@@ -67,7 +63,7 @@ public:
   static const mdl::HitType::Type FaceHitType;
 
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   render::OrthographicCamera m_camera;
   UVViewHelper m_helper;
@@ -77,7 +73,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  UVView(mdl::Map& map, GLContextManager& contextManager);
+  UVView(MapDocument& document, GLContextManager& contextManager);
 
   void setSubDivisions(const vm::vec2i& subDivisions);
 

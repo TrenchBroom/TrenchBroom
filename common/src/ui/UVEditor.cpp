@@ -30,6 +30,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/UVView.h"
 #include "ui/ViewConstants.h"
@@ -37,9 +38,10 @@
 namespace tb::ui
 {
 
-UVEditor::UVEditor(mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
+UVEditor::UVEditor(
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui(contextManager);
   connectObservers();
@@ -52,7 +54,7 @@ bool UVEditor::cancelMouseDrag()
 
 void UVEditor::updateButtons()
 {
-  const bool enabled = !m_map.selection().allBrushFaces().empty();
+  const bool enabled = !m_document.map().selection().allBrushFaces().empty();
 
   m_resetUVButton->setEnabled(enabled);
   m_resetUVToWorldButton->setEnabled(enabled);
@@ -64,7 +66,7 @@ void UVEditor::updateButtons()
 
 void UVEditor::createGui(GLContextManager& contextManager)
 {
-  m_uvView = new UVView{m_map, contextManager};
+  m_uvView = new UVView{m_document, contextManager};
 
   m_resetUVButton = createBitmapButton("ResetUV.svg", tr("Reset UV alignment"), this);
   m_resetUVToWorldButton = createBitmapButton(
@@ -147,39 +149,43 @@ void UVEditor::documentDidChange()
 void UVEditor::connectObservers()
 {
   m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &UVEditor::documentDidChange);
+    m_document.documentWasLoadedNotifier.connect(this, &UVEditor::documentDidChange);
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect(this, &UVEditor::documentDidChange);
 }
 
 void UVEditor::resetUVClicked()
 {
+  auto& map = m_document.map();
   setBrushFaceAttributes(
-    m_map, mdl::resetAll(m_map.game()->config().faceAttribsConfig.defaults));
+    map, mdl::resetAll(map.game().config().faceAttribsConfig.defaults));
 }
 
 void UVEditor::resetUVToWorldClicked()
 {
+  auto& map = m_document.map();
   setBrushFaceAttributes(
-    m_map, mdl::resetAllToParaxial(m_map.game()->config().faceAttribsConfig.defaults));
+    map, mdl::resetAllToParaxial(map.game().config().faceAttribsConfig.defaults));
 }
 
 void UVEditor::flipUVHClicked()
 {
-  setBrushFaceAttributes(m_map, {.xScale = mdl::MultiplyValue{-1.0f}});
+  setBrushFaceAttributes(m_document.map(), {.xScale = mdl::MultiplyValue{-1.0f}});
 }
 
 void UVEditor::flipUVVClicked()
 {
-  setBrushFaceAttributes(m_map, {.yScale = mdl::MultiplyValue{-1.0f}});
+  setBrushFaceAttributes(m_document.map(), {.yScale = mdl::MultiplyValue{-1.0f}});
 }
 
 void UVEditor::rotateUVCCWClicked()
 {
-  setBrushFaceAttributes(m_map, {.rotation = mdl::AddValue{90.0f}});
+  setBrushFaceAttributes(m_document.map(), {.rotation = mdl::AddValue{90.0f}});
 }
 
 void UVEditor::rotateUVCWClicked()
 {
-  setBrushFaceAttributes(m_map, {.rotation = mdl::AddValue{-90.0f}});
+  setBrushFaceAttributes(m_document.map(), {.rotation = mdl::AddValue{-90.0f}});
 }
 
 void UVEditor::subDivisionChanged()

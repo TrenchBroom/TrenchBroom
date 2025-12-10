@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Grid.h"
@@ -30,6 +29,8 @@
 #include "render/PerspectiveCamera.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
 
@@ -40,8 +41,7 @@ namespace tb::ui
 namespace
 {
 
-void updatePickState(
-  InputState& inputState, const render::Camera& camera, const mdl::Map& map)
+void updatePickState(InputState& inputState, const render::Camera& camera, mdl::Map& map)
 {
   mdl::PickResult pickResult = mdl::PickResult::byDistance();
   const PickRequest pickRequest(
@@ -59,9 +59,9 @@ void updatePickState(
 
 TEST_CASE("ClipToolController")
 {
-  auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/2602
   const auto data = R"(
@@ -81,7 +81,7 @@ TEST_CASE("ClipToolController")
             )";
   REQUIRE(paste(map, data) == mdl::PasteType::Node);
 
-  auto tool = ClipTool{map};
+  auto tool = ClipTool{document};
   auto controller = ClipToolController3D{tool};
 
   CHECK(tool.activate());
@@ -149,7 +149,7 @@ TEST_CASE("ClipToolController")
 
   // Check the clip result
   // TODO: would be better to check the clip plane but it's not public
-  const auto& objects = map.world()->defaultLayer()->children();
+  const auto& objects = map.worldNode().defaultLayer()->children();
   REQUIRE(objects.size() == 1u);
 
   auto* brush = dynamic_cast<mdl::BrushNode*>(objects.at(0));

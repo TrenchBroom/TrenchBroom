@@ -28,6 +28,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "render/Camera.h"
+#include "ui/MapDocument.h"
 #include "ui/ScaleTool.h"
 
 #include "kd/contracts.h"
@@ -39,9 +40,9 @@ namespace tb::ui
 
 const mdl::HitType::Type ShearTool::ShearToolSideHitType = mdl::HitType::freeType();
 
-ShearTool::ShearTool(mdl::Map& map)
+ShearTool::ShearTool(MapDocument& document)
   : Tool{false}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
@@ -49,12 +50,12 @@ ShearTool::~ShearTool() = default;
 
 const mdl::Grid& ShearTool::grid() const
 {
-  return m_map.grid();
+  return m_document.map().grid();
 }
 
 bool ShearTool::applies() const
 {
-  return m_map.selection().hasNodes();
+  return m_document.map().selection().hasNodes();
 }
 
 void ShearTool::pickBackSides(
@@ -148,7 +149,7 @@ void ShearTool::pick3D(
 
 vm::bbox3d ShearTool::bounds() const
 {
-  const auto& bounds = m_map.selectionBounds();
+  const auto& bounds = m_document.map().selectionBounds();
   contract_assert(bounds != std::nullopt);
 
   return *bounds;
@@ -170,7 +171,7 @@ void ShearTool::startShearWithHit(const mdl::Hit& hit)
   m_dragStartHit = hit;
   m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
-  m_map.startTransaction("Shear Objects", mdl::TransactionScope::LongRunning);
+  m_document.map().startTransaction("Shear Objects", mdl::TransactionScope::LongRunning);
   m_resizing = true;
 }
 
@@ -178,13 +179,14 @@ void ShearTool::commitShear()
 {
   contract_pre(m_resizing);
 
+  auto& map = m_document.map();
   if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
   {
-    m_map.cancelTransaction();
+    map.cancelTransaction();
   }
   else
   {
-    m_map.commitTransaction();
+    map.commitTransaction();
   }
   m_resizing = false;
 }
@@ -193,7 +195,7 @@ void ShearTool::cancelShear()
 {
   contract_pre(m_resizing);
 
-  m_map.cancelTransaction();
+  m_document.map().cancelTransaction();
   m_resizing = false;
 }
 
@@ -206,7 +208,7 @@ void ShearTool::shearByDelta(const vm::vec3d& delta)
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
     const auto side = m_dragStartHit.target<BBoxSide>();
-    shearSelection(m_map, bounds(), side.normal, delta);
+    shearSelection(m_document.map(), bounds(), side.normal, delta);
   }
 }
 

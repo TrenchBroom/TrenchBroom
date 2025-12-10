@@ -32,8 +32,6 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
-
 struct SelectionChange;
 } // namespace mdl
 
@@ -43,6 +41,7 @@ class ClipTool;
 class AssembleBrushTool;
 class CreateEntityTool;
 class DrawShapeTool;
+class MapDocument;
 class MoveObjectsTool;
 class ExtrudeTool;
 class RotateTool;
@@ -55,7 +54,7 @@ class FaceTool;
 class MapViewToolBox : public ToolBox
 {
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   std::unique_ptr<ClipTool> m_clipTool;
   std::unique_ptr<AssembleBrushTool> m_assembleBrushTool;
@@ -73,7 +72,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  MapViewToolBox(mdl::Map& map, QStackedLayout* bookCtrl);
+  MapViewToolBox(MapDocument& map, QStackedLayout* bookCtrl);
   ~MapViewToolBox() override;
 
 public: // tools
@@ -136,8 +135,7 @@ private: // notification
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
+  void documentWasLoaded();
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void updateToolPage();

@@ -80,7 +80,6 @@ public:
 protected:
   MapDocument& m_document;
   MapViewToolBox& m_toolBox;
-  render::MapRenderer& m_renderer;
 
   std::unique_ptr<AnimationManager> m_animationManager;
 
@@ -103,10 +102,7 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    MapDocument& document,
-    MapViewToolBox& toolBox,
-    render::MapRenderer& renderer,
-    GLContextManager& contextManager);
+    MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager);
 
   void setCompass(std::unique_ptr<render::Compass> compass);
 
@@ -137,7 +133,9 @@ private:
 
   void createActionsAndUpdatePicking();
 
+  void documentWasLoaded();
   void documentDidChange();
+
   void toolChanged(Tool& tool);
   void materialCollectionsDidChange();
   void entityDefinitionsDidChange();
@@ -147,9 +145,6 @@ private:
   void pointFileDidChange();
   void portalFileDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void mapWasCleared(mdl::Map& map);
 
 private: // shortcut setup
   void createActions();

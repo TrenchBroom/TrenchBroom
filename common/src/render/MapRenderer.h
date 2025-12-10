@@ -88,9 +88,6 @@ public: // rendering
   void render(RenderContext& renderContext, RenderBatch& renderBatch);
 
 private:
-  void reload();
-  void clear();
-
   void setupGL(RenderBatch& renderBatch);
   void renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
@@ -107,11 +104,11 @@ private:
   void setupSelectionRenderer(ObjectRenderer& renderer);
   void setupLockedRenderer(ObjectRenderer& renderer);
 
-  static int determineDesiredRenderers(mdl::Node* node);
-  void updateAndInvalidateNode(mdl::Node* node);
-  void updateAndInvalidateNodeRecursive(mdl::Node* node);
-  void removeNode(mdl::Node* node);
-  void removeNodeRecursive(mdl::Node* node);
+  static int determineDesiredRenderers(mdl::Node& node);
+  void updateAndInvalidateNode(mdl::Node& node);
+  void updateAndInvalidateNodeRecursive(mdl::Node& node);
+  void removeNode(mdl::Node& node);
+  void removeNodeRecursive(mdl::Node& node);
   void updateAllNodes();
 
   void invalidateRenderers(Renderer renderers);
@@ -123,10 +120,6 @@ private:
 private: // notification
   void connectObservers();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void mapWasCleared(mdl::Map& map);
-
   void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
@@ -134,10 +127,8 @@ private: // notification
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
   void nodeLockingDidChange(const std::vector<mdl::Node*>& nodes);
 
-  void groupWasOpened(mdl::GroupNode& group);
-  void groupWasClosed(mdl::GroupNode& group);
-
-  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
+  void groupWasOpened();
+  void groupWasClosed();
 
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 

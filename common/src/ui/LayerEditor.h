@@ -28,18 +28,18 @@ namespace tb
 namespace mdl
 {
 class LayerNode;
-class Map;
 } // namespace mdl
 
 namespace ui
 {
 class LayerListBox;
+class MapDocument;
 
 class LayerEditor : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   LayerListBox* m_layerList = nullptr;
 
   QAbstractButton* m_addLayerButton = nullptr;
@@ -48,7 +48,7 @@ private:
   QAbstractButton* m_moveLayerDownButton = nullptr;
 
 public:
-  explicit LayerEditor(mdl::Map& map, QWidget* parent = nullptr);
+  explicit LayerEditor(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void onSetCurrentLayer(mdl::LayerNode* layer);

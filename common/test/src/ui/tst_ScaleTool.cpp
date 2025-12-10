@@ -18,10 +18,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentFixture.h"
 #include "ui/ScaleTool.h"
 
 #include "kd/ranges/to.h"
@@ -36,9 +37,9 @@ namespace tb::ui
 
 TEST_CASE("ScaleTool")
 {
-  auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   auto* brushNode = mdl::createBrushNode(map);
@@ -50,7 +51,7 @@ TEST_CASE("ScaleTool")
   constexpr size_t iBrushNode = 1;
   constexpr size_t iPatchNode = 2;
 
-  auto tool = ScaleTool{map};
+  auto tool = ScaleTool{document};
 
   SECTION("applies")
   {

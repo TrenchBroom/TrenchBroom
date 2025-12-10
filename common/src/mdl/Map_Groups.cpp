@@ -52,11 +52,11 @@ namespace
 {
 
 std::vector<Node*> collectGroupableNodes(
-  const std::vector<Node*>& selectedNodes, const EntityNodeBase* world)
+  const std::vector<Node*>& selectedNodes, const EntityNodeBase& world)
 {
   std::vector<Node*> result;
   const auto addNode = [&](auto&& thisLambda, auto* node) {
-    if (node->entity() == world)
+    if (node->entity() == &world)
     {
       result.push_back(node);
     }
@@ -133,10 +133,10 @@ void unlinkGroups(Map& map, const std::vector<GroupNode*>& groupNodes)
 
 } // namespace
 
-Node* currentGroupOrWorld(const Map& map)
+Node* currentGroupOrWorld(Map& map)
 {
   Node* result = map.editorContext().currentGroup();
-  return result ? result : map.world();
+  return result ? result : &map.worldNode();
 }
 
 void openGroup(Map& map, GroupNode& groupNode)
@@ -151,7 +151,7 @@ void openGroup(Map& map, GroupNode& groupNode)
   }
   else
   {
-    lockNodes(map, {map.world()});
+    lockNodes(map, {&map.worldNode()});
   }
   unlockNodes(map, {&groupNode});
   map.executeAndStore(CurrentGroupCommand::push(&groupNode));
@@ -175,7 +175,7 @@ void closeGroup(Map& map)
   }
   else
   {
-    unlockNodes(map, {map.world()});
+    unlockNodes(map, {&map.worldNode()});
   }
 
   transaction.commit();
@@ -188,7 +188,7 @@ GroupNode* groupSelectedNodes(Map& map, const std::string& name)
     return nullptr;
   }
 
-  const auto nodes = collectGroupableNodes(map.selection().nodes, map.world());
+  const auto nodes = collectGroupableNodes(map.selection().nodes, map.worldNode());
   if (nodes.empty())
   {
     return nullptr;
@@ -352,7 +352,7 @@ void separateSelectedLinkedGroups(Map& map, const bool relinkGroups)
 
   for (const auto& linkedGroupId : selectedLinkIds)
   {
-    auto linkedGroups = collectGroupsWithLinkId({map.world()}, linkedGroupId);
+    auto linkedGroups = collectGroupsWithLinkId({&map.worldNode()}, linkedGroupId);
 
     // partition the linked groups into selected and unselected ones
     auto selectedLinkedGroups = std::vector<GroupNode*>{};
@@ -403,7 +403,8 @@ void separateSelectedLinkedGroups(Map& map, const bool relinkGroups)
 bool canSeparateSelectedLinkedGroups(const Map& map)
 {
   return std::ranges::any_of(map.selection().groups, [&](const auto* groupNode) {
-    const auto linkedGroups = collectNodesWithLinkId({map.world()}, groupNode->linkId());
+    const auto linkedGroups = collectNodesWithLinkId(
+      {const_cast<WorldNode*>(&map.worldNode())}, groupNode->linkId());
     return linkedGroups.size() > 1u
            && std::ranges::any_of(linkedGroups, [](const auto* linkedGroupNode) {
                 return !linkedGroupNode->selected();

@@ -33,6 +33,7 @@
 #include "mdl/Map.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
+#include "ui/MapDocument.h"
 #include "ui/MaterialBrowserView.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
@@ -44,9 +45,9 @@ namespace tb::ui
 {
 
 MaterialBrowser::MaterialBrowser(
-  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_map{map}
+  , m_document{document}
 {
   createGui(contextManager);
   bindEvents();
@@ -111,7 +112,7 @@ void MaterialBrowser::createGui(GLContextManager& contextManager)
   auto* browserPanel = new QWidget{};
   m_scrollBar = new QScrollBar{Qt::Vertical};
 
-  m_view = new MaterialBrowserView{m_scrollBar, contextManager, m_map};
+  m_view = new MaterialBrowserView{m_scrollBar, contextManager, m_document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
@@ -183,9 +184,11 @@ void MaterialBrowser::bindEvents()
 
 void MaterialBrowser::connectObservers()
 {
-  m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &MaterialBrowser::documentDidChange);
-  m_notifierConnection += m_map.currentMaterialNameDidChangeNotifier.connect(
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &MaterialBrowser::documentDidChange);
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
+    this, &MaterialBrowser::documentDidChange);
+  m_notifierConnection += m_document.currentMaterialNameDidChangeNotifier.connect(
     this, &MaterialBrowser::currentMaterialNameDidChange);
 
   auto& prefs = PreferenceManager::instance();
@@ -198,16 +201,16 @@ void MaterialBrowser::documentDidChange()
   reload();
 }
 
-void MaterialBrowser::currentMaterialNameDidChange(const std::string& /* materialName */)
+void MaterialBrowser::currentMaterialNameDidChange()
 {
   updateSelectedMaterial();
 }
 
 void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (const auto* game = m_map.game();
-      (game && path == pref(game->info().gamePathPreference))
-      || path == Preferences::MaterialBrowserIconSize.path())
+  if (
+    path == pref(m_document.map().game().info().gamePathPreference)
+    || path == Preferences::MaterialBrowserIconSize.path())
   {
     reload();
   }
@@ -229,8 +232,10 @@ void MaterialBrowser::reload()
 
 void MaterialBrowser::updateSelectedMaterial()
 {
-  const auto& materialName = m_map.currentMaterialName();
-  const auto* material = m_map.materialManager().material(materialName);
+  auto& map = m_document.map();
+
+  const auto& materialName = map.currentMaterialName();
+  const auto* material = map.materialManager().material(materialName);
   m_view->setSelectedMaterial(material);
 }
 

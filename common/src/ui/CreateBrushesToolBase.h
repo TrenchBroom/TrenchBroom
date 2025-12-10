@@ -30,7 +30,6 @@ namespace mdl
 {
 class BrushNode;
 class Grid;
-class Map;
 } // namespace mdl
 
 namespace render
@@ -42,18 +41,19 @@ class RenderContext;
 
 namespace ui
 {
+class MapDocument;
 
 class CreateBrushesToolBase : public Tool
 {
 protected:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
 private:
   std::vector<std::unique_ptr<mdl::BrushNode>> m_brushNodes;
   std::unique_ptr<render::BrushRenderer> m_brushRenderer;
 
 public:
-  CreateBrushesToolBase(bool initiallyActive, mdl::Map& map);
+  CreateBrushesToolBase(bool initiallyActive, MapDocument& document);
   ~CreateBrushesToolBase() override;
 
 public:

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -29,6 +28,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
@@ -50,8 +50,7 @@ using namespace Catch::Matchers;
 TEST_CASE("Map_Entities")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   map.entityDefinitionManager().setDefinitions({
     {"point_entity",
@@ -102,7 +101,7 @@ TEST_CASE("Map_Entities")
   REQUIRE(largeEntityDefinition);
   REQUIRE(brushEntityDefinition);
 
-  const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+  const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
   SECTION("createPointEntity")
   {
@@ -111,7 +110,7 @@ TEST_CASE("Map_Entities")
       auto* entityNode =
         createPointEntity(map, *pointEntityDefinition, vm::vec3d{16.0, 32.0, 48.0});
       CHECK(entityNode != nullptr);
-      CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+      CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
       CHECK(entityNode->entity().definition() == pointEntityDefinition);
       CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
       CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
@@ -119,11 +118,12 @@ TEST_CASE("Map_Entities")
       SECTION("Undo and redo")
       {
         map.undoCommand();
-        CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{});
+        CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{});
         CHECK(map.selection().nodes == std::vector<Node*>{});
 
         map.redoCommand();
-        CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+        CHECK(
+          map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
         CHECK(entityNode->entity().definition() == pointEntityDefinition);
         CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
         CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
@@ -146,9 +146,9 @@ TEST_CASE("Map_Entities")
     {
       auto fixtureConfig = MapFixtureConfig{};
       fixtureConfig.gameInfo.gameConfig.entityConfig.setDefaultProperties = true;
-      fixture.create(fixtureConfig);
 
-      map.entityDefinitionManager().setDefinitions({
+      auto& mapWithDefaultProperties = fixture.create(fixtureConfig);
+      mapWithDefaultProperties.entityDefinitionManager().setDefinitions({
         EntityDefinition{
           "some_name",
           Color{},
@@ -165,9 +165,10 @@ TEST_CASE("Map_Entities")
       });
 
       const auto& definitionWithDefaults =
-        map.entityDefinitionManager().definitions().front();
+        mapWithDefaultProperties.entityDefinitionManager().definitions().front();
 
-      auto* entityNode = createPointEntity(map, definitionWithDefaults, {0, 0, 0});
+      auto* entityNode =
+        createPointEntity(mapWithDefaultProperties, definitionWithDefaults, {0, 0, 0});
       REQUIRE(entityNode != nullptr);
       CHECK_THAT(
         entityNode->entity().properties(),
@@ -223,7 +224,7 @@ TEST_CASE("Map_Entities")
       selectNodes(map, {brushNode});
       auto* entityNode = createBrushEntity(map, *brushEntityDefinition);
       CHECK(entityNode != nullptr);
-      CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+      CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
       CHECK(entityNode->children() == std::vector<Node*>{brushNode});
       CHECK(entityNode->entity().definition() == brushEntityDefinition);
       CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
@@ -231,11 +232,13 @@ TEST_CASE("Map_Entities")
       SECTION("Undo and redo")
       {
         map.undoCommand();
-        CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{brushNode});
+        CHECK(
+          map.worldNode().defaultLayer()->children() == std::vector<Node*>{brushNode});
         CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
 
         map.redoCommand();
-        CHECK(map.world()->defaultLayer()->children() == std::vector<Node*>{entityNode});
+        CHECK(
+          map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
         CHECK(entityNode->children() == std::vector<Node*>{brushNode});
         CHECK(entityNode->entity().definition() == brushEntityDefinition);
         CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
@@ -267,9 +270,9 @@ TEST_CASE("Map_Entities")
     {
       auto fixtureConfig = MapFixtureConfig{};
       fixtureConfig.gameInfo.gameConfig.entityConfig.setDefaultProperties = true;
-      fixture.create(fixtureConfig);
 
-      map.entityDefinitionManager().setDefinitions({
+      auto& mapWithDefaultProperties = fixture.create(fixtureConfig);
+      mapWithDefaultProperties.entityDefinitionManager().setDefinitions({
         EntityDefinition{
           "some_name",
           Color{},
@@ -281,13 +284,16 @@ TEST_CASE("Map_Entities")
       });
 
       const auto& definitionWithDefaults =
-        map.entityDefinitionManager().definitions().front();
+        mapWithDefaultProperties.entityDefinitionManager().definitions().front();
 
-      auto* brushNode = createBrushNode(map, "some_material");
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      auto* brushNode = createBrushNode(mapWithDefaultProperties, "some_material");
+      addNodes(
+        mapWithDefaultProperties,
+        {{parentForNodes(mapWithDefaultProperties), {brushNode}}});
 
-      selectNodes(map, {brushNode});
-      auto* entityNode = createBrushEntity(map, definitionWithDefaults);
+      selectNodes(mapWithDefaultProperties, {brushNode});
+      auto* entityNode =
+        createBrushEntity(mapWithDefaultProperties, definitionWithDefaults);
       REQUIRE(entityNode != nullptr);
       CHECK_THAT(
         entityNode->entity().properties(),

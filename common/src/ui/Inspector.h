@@ -21,18 +21,12 @@
 
 #include <QWidget>
 
-namespace tb
-{
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
+namespace tb::ui
 {
 class FaceInspector;
 class EntityInspector;
 class GLContextManager;
+class MapDocument;
 class MapInspector;
 class MapViewBar;
 class SyncHeightEventFilter;
@@ -57,7 +51,8 @@ private:
   SyncHeightEventFilter* m_syncTabBarEventFilter = nullptr;
 
 public:
-  Inspector(mdl::Map& map, GLContextManager& contextManager, QWidget* parent = nullptr);
+  Inspector(
+    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
   ~Inspector() override;
 
   void connectTopWidgets(MapViewBar* mapViewBar);
@@ -70,5 +65,4 @@ public:
   bool restoreState(const QByteArray& state);
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

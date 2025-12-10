@@ -19,13 +19,9 @@
 
 #pragma once
 
-#include "Result.h"
-#include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameFileSystem.h"
-#include "mdl/SoftMapBounds.h"
 
 #include <filesystem>
-#include <string>
 #include <vector>
 
 namespace tb
@@ -52,40 +48,15 @@ public:
 public:
   const GameInfo& info() const;
   const GameConfig& config() const;
-  const fs::FileSystem& gameFileSystem() const;
+  const GameFileSystem& gameFileSystem() const;
+  GameFileSystem& gameFileSystem();
 
   void updateFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
 
-  SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
-
-  void reloadWads(
-    const std::filesystem::path& documentPath,
-    const std::vector<std::filesystem::path>& wadPaths,
-    Logger& logger);
-
-  bool isEntityDefinitionFile(const std::filesystem::path& path) const;
-  std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
-  std::filesystem::path findEntityDefinitionFile(
-    const EntityDefinitionFileSpec& spec,
-    const std::vector<std::filesystem::path>& searchPaths) const;
-
-  Result<std::vector<std::string>> availableMods() const;
-  std::string defaultMod() const;
-
 private:
   void initializeFileSystem(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
-
-  EntityPropertyConfig entityPropertyConfig() const;
-
-  void writeLongAttribute(
-    EntityNodeBase& node,
-    const std::string& baseName,
-    const std::string& value,
-    size_t maxLength) const;
-  std::string readLongAttribute(
-    const EntityNodeBase& node, const std::string& baseName) const;
 };
 
 } // namespace mdl

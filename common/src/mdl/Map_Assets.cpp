@@ -50,12 +50,9 @@ namespace
 
 std::optional<EntityDefinitionFileSpec> defaultEntityDefinitionFile(const Map& map)
 {
-  if (const auto* game = map.game())
+  if (const auto paths = map.game().config().entityConfig.defFilePaths; !paths.empty())
   {
-    if (const auto paths = game->config().entityConfig.defFilePaths; !paths.empty())
-    {
-      return mdl::EntityDefinitionFileSpec::makeBuiltin(paths.front());
-    }
+    return mdl::EntityDefinitionFileSpec::makeBuiltin(paths.front());
   }
 
   return std::nullopt;
@@ -75,11 +72,8 @@ std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Entity& entit
 
 std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Map& map)
 {
-  if (const auto* worldNode = map.world())
-  {
-    return entityDefinitionFile(worldNode->entity())
-           | kdl::optional_or_else([&]() { return defaultEntityDefinitionFile(map); });
-  }
+  return entityDefinitionFile(map.worldNode().entity())
+         | kdl::optional_or_else([&]() { return defaultEntityDefinitionFile(map); });
 
   return std::nullopt;
 }
@@ -89,49 +83,43 @@ void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)
   // to avoid backslashes being misinterpreted as escape sequences
   const auto formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
-  auto entity = map.world()->entity();
+  auto entity = map.worldNode().entity();
   entity.addOrUpdateProperty(EntityPropertyKeys::EntityDefinitions, formatted);
   updateNodeContents(
-    map, "Set Entity Definitions", {{map.world(), NodeContents{std::move(entity)}}}, {});
+    map,
+    "Set Entity Definitions",
+    {{&map.worldNode(), NodeContents{std::move(entity)}}},
+    {});
 }
 
 std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)
 {
-  if (const auto* worldNode = map.world())
+  if (
+    const auto* materialCollectionStr =
+      map.worldNode().entity().property(EntityPropertyKeys::EnabledMaterialCollections))
   {
-    if (
-      const auto* materialCollectionStr =
-        worldNode->entity().property(EntityPropertyKeys::EnabledMaterialCollections))
-    {
-      const auto strs = kdl::str_split(*materialCollectionStr, ";");
-      return kdl::vec_sort_and_remove_duplicates(
-        strs | std::views::transform([](const auto& str) {
-          return std::filesystem::path{str};
-        })
-        | kdl::ranges::to<std::vector>());
-    }
-
-    // Otherwise, enable all material collections
+    const auto strs = kdl::str_split(*materialCollectionStr, ";");
     return kdl::vec_sort_and_remove_duplicates(
-      map.materialManager().collections()
-      | std::views::transform([](const auto& collection) { return collection.path(); })
+      strs
+      | std::views::transform([](const auto& str) { return std::filesystem::path{str}; })
       | kdl::ranges::to<std::vector>());
   }
-  return {};
+
+  // Otherwise, enable all material collections
+  return kdl::vec_sort_and_remove_duplicates(
+    map.materialManager().collections()
+    | std::views::transform([](const auto& collection) { return collection.path(); })
+    | kdl::ranges::to<std::vector>());
 }
 
 std::vector<std::filesystem::path> disabledMaterialCollections(const Map& map)
 {
-  if (map.world())
-  {
-    auto materialCollections = kdl::vec_sort_and_remove_duplicates(
-      map.materialManager().collections()
-      | std::views::transform([](const auto& collection) { return collection.path(); })
-      | kdl::ranges::to<std::vector>());
+  auto materialCollections = kdl::vec_sort_and_remove_duplicates(
+    map.materialManager().collections()
+    | std::views::transform([](const auto& collection) { return collection.path(); })
+    | kdl::ranges::to<std::vector>());
 
-    return kdl::set_difference(materialCollections, enabledMaterialCollections(map));
-  }
-  return {};
+  return kdl::set_difference(materialCollections, enabledMaterialCollections(map));
 }
 
 void setEnabledMaterialCollections(
@@ -161,7 +149,7 @@ void setEnabledMaterialCollections(
 
 void reloadMaterialCollections(Map& map)
 {
-  const auto nodes = std::vector<Node*>{map.world()};
+  const auto nodes = std::vector<Node*>{&map.worldNode()};
   const auto notifyNodes =
     NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
   const auto notifyMaterialCollections = NotifyBeforeAndAfter{
@@ -173,7 +161,7 @@ void reloadMaterialCollections(Map& map)
 
 void reloadEntityDefinitions(Map& map)
 {
-  const auto nodes = std::vector<Node*>{map.world()};
+  const auto nodes = std::vector<Node*>{&map.worldNode()};
   const auto notifyNodes =
     NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
   const auto notifyEntityDefinitions = NotifyBeforeAndAfter{

@@ -43,6 +43,7 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
@@ -383,7 +384,7 @@ std::vector<std::string> getAllPropertyKeys(const mdl::Map& map)
     result.insert(keys.begin(), keys.end());
   };
 
-  map.world()->accept(kdl::overload(
+  map.worldNode().accept(kdl::overload(
     [&](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       addEntityKeys(*worldNode);
       worldNode->visitChildren(thisLambda);
@@ -455,7 +456,7 @@ template <typename... ValueType>
 std::vector<std::string> getAllValuesForPropertyValueTypes(const mdl::Map& map)
 {
   auto result = kdl::vector_set<std::string>();
-  map.world()->accept(kdl::overload(
+  map.worldNode().accept(kdl::overload(
     [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
       worldNode->visitChildren(thisLambda);
     },
@@ -569,11 +570,11 @@ kdl_reflect_impl(PropertyRow);
 
 // EntityPropertyModel
 
-EntityPropertyModel::EntityPropertyModel(mdl::Map& map, QObject* parent)
+EntityPropertyModel::EntityPropertyModel(MapDocument& document, QObject* parent)
   : QAbstractTableModel{parent}
   , m_showDefaultRows{true}
   , m_shouldShowProtectedProperties{false}
-  , m_map{map}
+  , m_document{document}
 {
   updateFromMap();
 }
@@ -622,11 +623,13 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
     return {};
   }
 
+  auto& map = m_document.map();
+
   const auto& row = m_rows[static_cast<size_t>(index.row())];
   auto result = std::vector<std::string>{};
   if (index.column() == ColumnKey)
   {
-    result = getAllPropertyKeys(m_map);
+    result = getAllPropertyKeys(map);
   }
   else if (index.column() == ColumnValue)
   {
@@ -634,16 +637,16 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
     {
     case LinkType::Source:
       result =
-        getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkTarget>(m_map);
+        getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkTarget>(map);
       break;
     case LinkType::Target:
       result =
-        getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkSource>(m_map);
+        getAllValuesForPropertyValueTypes<mdl::PropertyValueTypes::LinkSource>(map);
       break;
     case LinkType::None:
       if (row.key == mdl::EntityPropertyKeys::Classname)
       {
-        result = getAllClassnames(m_map);
+        result = getAllClassnames(map);
       }
       break;
     }
@@ -668,7 +671,7 @@ void EntityPropertyModel::updateFromMap()
 {
   MODEL_LOG(qDebug() << "updateFromMapDocument");
 
-  const auto entityNodes = m_map.selection().allEntities();
+  const auto entityNodes = m_document.map().selection().allEntities();
   const auto rowsMap = rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
   setRows(rowsMap);
@@ -732,6 +735,8 @@ Qt::ItemFlags EntityPropertyModel::flags(const QModelIndex& index) const
 
 QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) const
 {
+  auto& map = m_document.map();
+
   if (
     !index.isValid() || index.row() < 0 || index.row() >= static_cast<int>(m_rows.size())
     || index.column() < 0 || index.column() >= NumColumns)
@@ -804,11 +809,11 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   {
     if (index.column() == ColumnKey)
     {
-      return QVariant{mapStringToUnicode(m_map.encoding(), row.key)};
+      return QVariant{mapStringToUnicode(map.encoding(), row.key)};
     }
     else if (index.column() == ColumnValue)
     {
-      return QVariant{mapStringToUnicode(m_map.encoding(), row.value)};
+      return QVariant{mapStringToUnicode(map.encoding(), row.value)};
     }
   }
 
@@ -841,7 +846,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     {
       if (!row.tooltip.empty())
       {
-        return QVariant{mapStringToUnicode(m_map.encoding(), row.tooltip)};
+        return QVariant{mapStringToUnicode(map.encoding(), row.tooltip)};
       }
     }
   }
@@ -860,8 +865,10 @@ bool EntityPropertyModel::setData(
     return false;
   }
 
+  auto& map = m_document.map();
+
   const auto rowIndex = static_cast<size_t>(index.row());
-  const auto nodes = m_map.selection().allEntities();
+  const auto nodes = map.selection().allEntities();
   if (nodes.empty())
   {
     return false;
@@ -875,7 +882,7 @@ bool EntityPropertyModel::setData(
                << mapStringToUnicode(m_map.encoding(), propertyRow.key) << " to "
                << value.toString());
 
-    const auto newName = mapStringFromUnicode(m_map.encoding(), value.toString());
+    const auto newName = mapStringFromUnicode(map.encoding(), value.toString());
     if (renameProperty(rowIndex, newName, nodes))
     {
       return true;
@@ -888,7 +895,7 @@ bool EntityPropertyModel::setData(
                << " to " << value.toString());
 
     if (updateProperty(
-          rowIndex, mapStringFromUnicode(m_map.encoding(), value.toString()), nodes))
+          rowIndex, mapStringFromUnicode(map.encoding(), value.toString()), nodes))
     {
       return true;
     }
@@ -1106,6 +1113,7 @@ bool EntityPropertyModel::renameProperty(
   // EntityPropertyModel::flags prevents us from renaming immutable names
   contract_assert(row.keyMutable);
 
+  auto& map = m_document.map();
   if (hasRowWithPropertyKey(newKey))
   {
     const auto& rowToOverwrite =
@@ -1121,7 +1129,7 @@ bool EntityPropertyModel::renameProperty(
     msgBox.setWindowTitle(tr("Error"));
     msgBox.setText(
       tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
-        .arg(mapStringToUnicode(m_map.encoding(), newKey)));
+        .arg(mapStringToUnicode(map.encoding(), newKey)));
     msgBox.setIcon(QMessageBox::Critical);
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     if (msgBox.exec() == QMessageBox::No)
@@ -1130,7 +1138,7 @@ bool EntityPropertyModel::renameProperty(
     }
   }
 
-  return renameEntityProperty(m_map, oldKey, newKey);
+  return renameEntityProperty(map, oldKey, newKey);
 }
 
 bool EntityPropertyModel::updateProperty(
@@ -1165,7 +1173,7 @@ bool EntityPropertyModel::updateProperty(
     return true;
   }
 
-  return setEntityProperty(m_map, key, newValue);
+  return setEntityProperty(m_document.map(), key, newValue);
 }
 
 bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool newValue)
@@ -1173,7 +1181,7 @@ bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool
   contract_pre(rowIndex < m_rows.size());
 
   const auto& key = m_rows.at(rowIndex).key;
-  return setProtectedEntityProperty(m_map, key, newValue);
+  return setProtectedEntityProperty(m_document.map(), key, newValue);
 }
 
 bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const

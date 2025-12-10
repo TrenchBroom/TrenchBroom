@@ -29,7 +29,6 @@ namespace tb
 namespace mdl
 {
 class Grid;
-class Map;
 } // namespace mdl
 
 namespace render
@@ -41,11 +40,12 @@ class RenderContext;
 
 namespace ui
 {
+class MapDocument;
 
 class RotateTool : public Tool
 {
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   RotateHandle m_handle;
   double m_angle = vm::to_radians(15.0);
 
@@ -54,7 +54,7 @@ public:
   Notifier<vm::vec3d> rotationCenterWasUsedNotifier;
   Notifier<RotateHandle::HitArea> handleHitAreaDidChangeNotifier;
 
-  explicit RotateTool(mdl::Map& map);
+  explicit RotateTool(MapDocument& document);
 
   bool doActivate() override;
 

@@ -69,10 +69,9 @@ namespace tb::ui
 MapView2D::MapView2D(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  render::MapRenderer& renderer,
   GLContextManager& contextManager,
   ViewPlane viewPlane)
-  : MapViewBase{document, toolBox, renderer, contextManager}
+  : MapViewBase{document, toolBox, contextManager}
   , m_camera{std::make_unique<render::OrthographicCamera>()}
 {
   connectObservers();
@@ -124,8 +123,6 @@ void MapView2D::initializeCamera(const ViewPlane viewPlane)
 
 void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
 {
-  auto& map = m_document.map();
-
   addToolController(std::make_unique<CameraTool2D>(*m_camera));
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
@@ -139,9 +136,9 @@ void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(std::make_unique<FaceToolController>(toolBox.faceTool()));
   addToolController(
     std::make_unique<CreateEntityToolController2D>(toolBox.createEntityTool()));
-  addToolController(std::make_unique<SelectionTool>(map));
+  addToolController(std::make_unique<SelectionTool>(m_document));
   addToolController(
-    std::make_unique<DrawShapeToolController2D>(toolBox.drawShapeTool(), map));
+    std::make_unique<DrawShapeToolController2D>(toolBox.drawShapeTool(), m_document));
 }
 
 void MapView2D::connectObservers()
@@ -162,7 +159,7 @@ PickRequest MapView2D::pickRequest(const float x, const float y) const
 
 mdl::PickResult MapView2D::pick(const vm::ray3d& pickRay) const
 {
-  const auto& map = m_document.map();
+  auto& map = m_document.map();
   const auto axis = vm::find_abs_max_component(pickRay.direction);
 
   auto pickResult = mdl::PickResult::bySize(axis);

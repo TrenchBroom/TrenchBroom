@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -27,6 +26,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
@@ -46,15 +46,15 @@ namespace tb::mdl
 TEST_CASE("Map_CopyPaste")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
 
   SECTION("serializeSelectedNodes")
   {
+    auto& map = fixture.create();
+
     const auto builder = BrushBuilder{
-      map.world()->mapFormat(),
+      map.worldNode().mapFormat(),
       map.worldBounds(),
-      map.game()->config().faceAttribsConfig.defaults};
+      map.game().config().faceAttribsConfig.defaults};
 
     auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
     auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
@@ -104,10 +104,12 @@ TEST_CASE("Map_CopyPaste")
 
   SECTION("serializeSelectedBrushFaces")
   {
+    auto& map = fixture.create();
+
     const auto builder = BrushBuilder{
-      map.world()->mapFormat(),
+      map.worldNode().mapFormat(),
       map.worldBounds(),
-      map.game()->config().faceAttribsConfig.defaults};
+      map.game().config().faceAttribsConfig.defaults};
 
     auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
 
@@ -168,7 +170,8 @@ TEST_CASE("Map_CopyPaste")
 }
 })";
 
-      const auto& worldNode = *map.world();
+      auto& map = fixture.create();
+      const auto& worldNode = map.worldNode();
       REQUIRE_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
@@ -204,7 +207,8 @@ TEST_CASE("Map_CopyPaste")
 }
 })";
 
-      const auto& worldNode = *map.world();
+      auto& map = fixture.create();
+      const auto& worldNode = map.worldNode();
       REQUIRE_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
@@ -241,7 +245,8 @@ TEST_CASE("Map_CopyPaste")
 }
 })";
 
-      const auto& worldNode = *map.world();
+      auto& map = fixture.create();
+      const auto& worldNode = map.worldNode();
       REQUIRE_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
@@ -275,7 +280,8 @@ TEST_CASE("Map_CopyPaste")
 }
 })";
 
-      const auto& worldNode = *map.world();
+      auto& map = fixture.create();
+      const auto& worldNode = map.worldNode();
       REQUIRE_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
@@ -299,7 +305,8 @@ TEST_CASE("Map_CopyPaste")
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
 })";
 
-      const auto& worldNode = *map.world();
+      auto& map = fixture.create();
+      const auto& worldNode = map.worldNode();
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
       REQUIRE(defaultLayerNode.childCount() == 0u);
@@ -311,8 +318,6 @@ TEST_CASE("Map_CopyPaste")
 
     SECTION("Paste single patch")
     {
-      fixture.create({.mapFormat = MapFormat::Quake3});
-
       const auto data = R"(
 {
 patchDef2
@@ -329,7 +334,8 @@ common/caulk
 }
 })";
 
-      const auto& worldNode = *map.world();
+      auto& map = fixture.create({.mapFormat = MapFormat::Quake3});
+      const auto& worldNode = map.worldNode();
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
       REQUIRE(defaultLayerNode.childCount() == 0u);
@@ -343,7 +349,9 @@ common/caulk
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/2776
 
-      const auto builder = BrushBuilder{map.world()->mapFormat(), map.worldBounds()};
+      auto& map = fixture.create();
+
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
       const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
       auto* brushNode1 =
@@ -377,7 +385,9 @@ common/caulk
 "origin" "0 0 0"
 })"};
 
+      auto& map = fixture.create();
       auto* brushNode = createBrushNode(map);
+
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       selectNodes(map, {brushNode});
 
@@ -406,7 +416,8 @@ common/caulk
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
 })";
 
-      const auto& worldNode = *map.world();
+      auto& map = fixture.create();
+      const auto& worldNode = map.worldNode();
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();
       REQUIRE(map.selection().brushes.size() == 0u);
@@ -430,6 +441,8 @@ common/caulk
 
     SECTION("Paste resets duplicate group IDs")
     {
+      auto& map = fixture.create();
+
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
@@ -450,7 +463,7 @@ common/caulk
         REQUIRE(paste(map, str) == PasteType::Node);
 
         auto* pastedGroupNode =
-          dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children().back());
+          dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children().back());
         REQUIRE(pastedGroupNode != nullptr);
         REQUIRE(pastedGroupNode != groupNode);
 
@@ -464,7 +477,7 @@ common/caulk
         REQUIRE(paste(map, str) == PasteType::Node);
 
         auto* pastedGroupNode =
-          dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children().back());
+          dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children().back());
         REQUIRE(pastedGroupNode != nullptr);
         REQUIRE(pastedGroupNode != groupNode);
 
@@ -474,6 +487,8 @@ common/caulk
 
     SECTION("Paste resets duplicate link IDs")
     {
+      auto& map = fixture.create();
+
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       selectNodes(map, {brushNode});
@@ -528,10 +543,10 @@ common/caulk
           removeSelectedNodes(map);
 
           CHECK(paste(map, data) == PasteType::Node);
-          CHECK(map.world()->defaultLayer()->childCount() == 1);
+          CHECK(map.worldNode().defaultLayer()->childCount() == 1);
 
           const auto* pastedGroupNode =
-            dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children().back());
+            dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children().back());
           REQUIRE(pastedGroupNode);
 
           CHECK(pastedGroupNode->linkId() == originalGroupLinkId);
@@ -543,10 +558,10 @@ common/caulk
           removeSelectedNodes(map);
 
           CHECK(paste(map, data) == PasteType::Node);
-          CHECK(map.world()->defaultLayer()->childCount() == 2);
+          CHECK(map.worldNode().defaultLayer()->childCount() == 2);
 
           const auto* pastedGroupNode =
-            dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children().back());
+            dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children().back());
           REQUIRE(pastedGroupNode);
 
           CHECK(pastedGroupNode->linkId() != originalGroupLinkId);
@@ -561,10 +576,10 @@ common/caulk
         SECTION("If more than one linked group exists")
         {
           CHECK(paste(map, data) == PasteType::Node);
-          CHECK(map.world()->defaultLayer()->childCount() == 3);
+          CHECK(map.worldNode().defaultLayer()->childCount() == 3);
 
           const auto* pastedGroupNode =
-            dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children().back());
+            dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children().back());
           REQUIRE(pastedGroupNode);
 
           CHECK(pastedGroupNode->linkId() == originalGroupLinkId);
@@ -622,14 +637,14 @@ common/caulk
           removeSelectedNodes(map);
 
           CHECK(paste(map, data) == PasteType::Node);
-          CHECK(map.world()->defaultLayer()->childCount() == 3);
+          CHECK(map.worldNode().defaultLayer()->childCount() == 3);
 
           const auto* pastedGroupNode1 =
-            dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children()[1]);
+            dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children()[1]);
           REQUIRE(pastedGroupNode1);
 
           const auto* pastedGroupNode2 =
-            dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children()[2]);
+            dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children()[2]);
           REQUIRE(pastedGroupNode2);
 
           CHECK(pastedGroupNode1->linkId() != originalGroupLinkId);
@@ -654,14 +669,14 @@ common/caulk
         SECTION("If both original groups exist")
         {
           CHECK(paste(map, data) == PasteType::Node);
-          CHECK(map.world()->defaultLayer()->childCount() == 4);
+          CHECK(map.worldNode().defaultLayer()->childCount() == 4);
 
           const auto* pastedGroupNode1 =
-            dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children()[2]);
+            dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children()[2]);
           REQUIRE(pastedGroupNode1);
 
           const auto* pastedGroupNode2 =
-            dynamic_cast<GroupNode*>(map.world()->defaultLayer()->children()[3]);
+            dynamic_cast<GroupNode*>(map.worldNode().defaultLayer()->children()[3]);
           REQUIRE(pastedGroupNode2);
 
           CHECK(pastedGroupNode1->linkId() == originalGroupLinkId);

@@ -40,6 +40,7 @@
 #include "render/Shaders.h"
 #include "render/VboManager.h"
 #include "render/VertexArray.h"
+#include "ui/MapDocument.h"
 #include "ui/UVCameraTool.h"
 #include "ui/UVOffsetTool.h"
 #include "ui/UVOriginTool.h"
@@ -147,9 +148,9 @@ private:
 
 const mdl::HitType::Type UVView::FaceHitType = mdl::HitType::freeType();
 
-UVView::UVView(mdl::Map& map, GLContextManager& contextManager)
+UVView::UVView(MapDocument& document, GLContextManager& contextManager)
   : RenderView{contextManager}
-  , m_map{map}
+  , m_document{document}
   , m_helper{m_camera}
 {
   setToolBox(m_toolBox);
@@ -176,20 +177,24 @@ bool UVView::event(QEvent* event)
 
 void UVView::createTools()
 {
-  addToolController(std::make_unique<UVRotateTool>(m_map, m_helper));
+  addToolController(std::make_unique<UVRotateTool>(m_document, m_helper));
   addToolController(std::make_unique<UVOriginTool>(m_helper));
-  addToolController(std::make_unique<UVScaleTool>(m_map, m_helper));
-  addToolController(std::make_unique<UVShearTool>(m_map, m_helper));
-  addToolController(std::make_unique<UVOffsetTool>(m_map, m_helper));
+  addToolController(std::make_unique<UVScaleTool>(m_document, m_helper));
+  addToolController(std::make_unique<UVShearTool>(m_document, m_helper));
+  addToolController(std::make_unique<UVOffsetTool>(m_document, m_helper));
   addToolController(std::make_unique<UVCameraTool>(m_camera));
 }
 
 void UVView::connectObservers()
 {
+  auto& map = m_document.map();
+
   m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &UVView::documentDidChange);
+    m_document.documentWasLoadedNotifier.connect(this, &UVView::documentDidChange);
   m_notifierConnection +=
-    m_map.grid().gridDidChangeNotifier.connect(this, &UVView::gridDidChange);
+    m_document.documentDidChangeNotifier.connect(this, &UVView::documentDidChange);
+  m_notifierConnection +=
+    map.grid().gridDidChangeNotifier.connect(this, &UVView::gridDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
@@ -201,7 +206,7 @@ void UVView::connectObservers()
 
 void UVView::documentDidChange()
 {
-  const auto faces = m_map.selection().brushFaces;
+  const auto faces = m_document.map().selection().brushFaces;
   if (faces.size() != 1)
   {
     m_helper.setFaceHandle(std::nullopt);

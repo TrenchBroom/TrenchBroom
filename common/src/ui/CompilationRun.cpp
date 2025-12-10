@@ -24,7 +24,6 @@
 #include "ui/CompilationContext.h"
 #include "ui/CompilationRunner.h"
 #include "ui/CompilationVariables.h"
-#include "ui/MapDocument.h"
 #include "ui/TextOutputAdapter.h"
 
 #include "kd/contracts.h"

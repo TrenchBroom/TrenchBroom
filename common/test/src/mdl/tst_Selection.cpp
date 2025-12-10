@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
@@ -28,6 +27,7 @@
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
@@ -60,7 +60,7 @@ enum class SelectionItem
   brushFace,
 };
 
-std::ostream& operator<<(std::ostream& lhs, const SelectionItem rhs)
+[[maybe_unused]] std::ostream& operator<<(std::ostream& lhs, const SelectionItem rhs)
 {
   switch (rhs)
   {
@@ -93,11 +93,10 @@ using namespace Catch::Matchers;
 TEST_CASE("Selection")
 {
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
-  auto* worldNode = map.world();
-  auto brushBuilder = BrushBuilder{worldNode->mapFormat(), map.worldBounds()};
+  auto& worldNode = map.worldNode();
+  auto brushBuilder = BrushBuilder{worldNode.mapFormat(), map.worldBounds()};
 
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
@@ -392,7 +391,7 @@ TEST_CASE("Selection")
     {
       CHECK_THAT(
         map.selection().allEntities(),
-        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+        UnorderedEquals(std::vector<EntityNodeBase*>{&worldNode}));
     }
 
     SECTION("outer group node selected")
@@ -400,7 +399,7 @@ TEST_CASE("Selection")
       selectNodes(map, {outerGroupNode});
       CHECK_THAT(
         map.selection().allEntities(),
-        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+        UnorderedEquals(std::vector<EntityNodeBase*>{&worldNode}));
     }
 
     SECTION("entity node selected")
@@ -439,7 +438,7 @@ TEST_CASE("Selection")
       selectBrushFaces(map, {{brushNode, 0}});
       CHECK_THAT(
         map.selection().allEntities(),
-        UnorderedEquals(std::vector<EntityNodeBase*>{worldNode}));
+        UnorderedEquals(std::vector<EntityNodeBase*>{&worldNode}));
     }
   }
 

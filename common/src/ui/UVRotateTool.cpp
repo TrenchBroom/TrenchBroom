@@ -40,6 +40,7 @@
 #include "render/VboManager.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 #include "ui/UVViewHelper.h"
 
 #include "kd/contracts.h"
@@ -300,10 +301,10 @@ std::optional<float> computeInitialAngle(
 
 const mdl::HitType::Type UVRotateTool::AngleHandleHitType = mdl::HitType::freeType();
 
-UVRotateTool::UVRotateTool(mdl::Map& map, UVViewHelper& helper)
+UVRotateTool::UVRotateTool(MapDocument& document, UVViewHelper& helper)
   : ToolController{}
   , Tool{true}
-  , m_map{map}
+  , m_document{document}
   , m_helper{helper}
 {
 }
@@ -375,7 +376,7 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVRotateDragTracker>(m_map, m_helper, *initialAngle);
+  return std::make_unique<UVRotateDragTracker>(m_document.map(), m_helper, *initialAngle);
 }
 
 void UVRotateTool::render(

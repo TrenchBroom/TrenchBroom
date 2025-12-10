@@ -33,7 +33,6 @@
 #include "mdl/PatchNode.h"
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
 #include "kd/result.h"
@@ -365,7 +364,7 @@ void setLinkId(Node& node, std::string linkId)
     [&](Object* object) { object->setLinkId(std::move(linkId)); }));
 }
 
-Selection makeSelection(const Map& map, const std::vector<Node*>& nodes)
+Selection makeSelection(Map& map, const std::vector<Node*>& nodes)
 {
   auto selection = mdl::Selection{map};
 
@@ -394,7 +393,7 @@ Selection makeSelection(const Map& map, const std::vector<Node*>& nodes)
   return selection;
 }
 
-Selection makeSelection(const Map& map, const std::vector<BrushFaceHandle>& brushFaces)
+Selection makeSelection(Map& map, const std::vector<BrushFaceHandle>& brushFaces)
 {
   auto selection = Selection{map};
   selection.brushFaces = brushFaces;

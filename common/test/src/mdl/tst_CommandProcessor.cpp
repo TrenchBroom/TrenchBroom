@@ -18,13 +18,12 @@
  */
 
 #include "Macros.h"
-#include "MapFixture.h"
 #include "NotifierConnection.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/Map.h"
+#include "mdl/MapFixture.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UndoableCommand.h"
-#include "ui/MapDocument.h"
 
 #include "kd/vector_utils.h"
 
@@ -127,11 +126,11 @@ private:
   {
     m_notifications.emplace_back(CommandNotif::CommandUndoFailed, command.name());
   }
-  void transactionDone(const std::string& transactionName)
+  void transactionDone(const std::string& transactionName, const bool)
   {
     m_notifications.emplace_back(CommandNotif::TransactionDone, transactionName);
   }
-  void transactionUndone(const std::string& transactionName)
+  void transactionUndone(const std::string& transactionName, const bool)
   {
     m_notifications.emplace_back(CommandNotif::TransactionUndone, transactionName);
   }
@@ -250,8 +249,7 @@ TEST_CASE("CommandProcessor")
   using namespace std::chrono_literals;
 
   auto fixture = MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto& map = fixture.create();
 
   constexpr auto collationInterval = 100ms;
   auto commandProcessor = CommandProcessor{map, collationInterval};

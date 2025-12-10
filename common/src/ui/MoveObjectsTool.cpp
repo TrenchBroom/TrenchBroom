@@ -25,6 +25,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/TransactionScope.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
 
 #include "vm/bbox.h"
 
@@ -33,25 +34,27 @@
 namespace tb::ui
 {
 
-MoveObjectsTool::MoveObjectsTool(mdl::Map& map)
+MoveObjectsTool::MoveObjectsTool(MapDocument& document)
   : Tool{true}
-  , m_map{map}
+  , m_document{document}
 {
 }
 
 const mdl::Grid& MoveObjectsTool::grid() const
 {
-  return m_map.grid();
+  return m_document.map().grid();
 }
 
 bool MoveObjectsTool::startMove(const InputState& inputState)
 {
-  if (!m_map.selection().brushFaces.empty())
+  auto& map = m_document.map();
+
+  if (!map.selection().brushFaces.empty())
   {
     return false;
   }
 
-  m_map.startTransaction(
+  map.startTransaction(
     duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects",
     mdl::TransactionScope::LongRunning);
   m_duplicateObjects = duplicateObjects(inputState);
@@ -61,8 +64,10 @@ bool MoveObjectsTool::startMove(const InputState& inputState)
 MoveObjectsTool::MoveResult MoveObjectsTool::move(
   const InputState&, const vm::vec3d& delta)
 {
-  const auto& worldBounds = m_map.worldBounds();
-  const auto bounds = m_map.selectionBounds();
+  auto& map = m_document.map();
+
+  const auto& worldBounds = map.worldBounds();
+  const auto bounds = map.selectionBounds();
   if (!bounds)
   {
     return MoveResult::Cancel;
@@ -76,20 +81,20 @@ MoveObjectsTool::MoveResult MoveObjectsTool::move(
   if (m_duplicateObjects)
   {
     m_duplicateObjects = false;
-    duplicateSelectedNodes(m_map);
+    duplicateSelectedNodes(map);
   }
 
-  return translateSelection(m_map, delta) ? MoveResult::Continue : MoveResult::Deny;
+  return translateSelection(map, delta) ? MoveResult::Continue : MoveResult::Deny;
 }
 
 void MoveObjectsTool::endMove(const InputState&)
 {
-  m_map.commitTransaction();
+  m_document.map().commitTransaction();
 }
 
 void MoveObjectsTool::cancelMove()
 {
-  m_map.cancelTransaction();
+  m_document.map().cancelTransaction();
 }
 
 bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const

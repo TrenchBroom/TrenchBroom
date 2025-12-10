@@ -32,15 +32,29 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "ui/ChoosePathTypeDialog.h"
-#include "ui/MapDocument.h"
 
+#include "kd/path_utils.h"
 #include "kd/string_compare.h"
 #include "kd/string_format.h"
 
+#include <algorithm>
 #include <filesystem>
 
 namespace tb::ui
 {
+namespace
+{
+
+bool isEntityDefinitionFile(const std::filesystem::path& path)
+{
+  static const auto extensions = {".fgd", ".def", ".ent"};
+
+  return std::ranges::any_of(extensions, [&](const auto& extension) {
+    return kdl::path_has_extension(kdl::path_to_lower(path), extension);
+  });
+}
+
+} // namespace
 
 void combineFlags(
   const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags)
@@ -61,12 +75,12 @@ void combineFlags(
 
 bool loadEntityDefinitionFile(mdl::Map& map, QWidget* parent, const QString& pathStr)
 {
-  const auto& game = *map.game();
+  const auto& game = map.game();
   const auto gamePath = pref(game.info().gamePathPreference);
   const auto docPath = map.path();
 
   const auto absPath = io::pathFromQString(pathStr);
-  if (game.isEntityDefinitionFile(absPath))
+  if (isEntityDefinitionFile(absPath))
   {
     auto pathDialog = ChoosePathTypeDialog{parent->window(), absPath, docPath, gamePath};
     if (pathDialog.exec() == QDialog::Accepted)

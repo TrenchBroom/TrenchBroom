@@ -28,7 +28,6 @@ namespace tb
 {
 namespace mdl
 {
-class Map;
 class Node;
 } // namespace mdl
 
@@ -40,14 +39,15 @@ class RenderContext;
 namespace ui
 {
 class GestureTracker;
+class MapDocument;
 
 class SelectionTool : public ToolController, public Tool
 {
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
 public:
-  explicit SelectionTool(mdl::Map& map);
+  explicit SelectionTool(MapDocument& document);
 
   Tool& tool() override;
   const Tool& tool() const override;

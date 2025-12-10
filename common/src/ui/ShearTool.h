@@ -36,7 +36,6 @@ namespace tb
 namespace mdl
 {
 class Grid;
-class Map;
 class PickResult;
 } // namespace mdl
 
@@ -47,6 +46,7 @@ class Camera;
 
 namespace ui
 {
+class MapDocument;
 
 class ShearTool : public Tool
 {
@@ -54,7 +54,7 @@ public:
   static const mdl::HitType::Type ShearToolSideHitType;
 
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   bool m_resizing = false;
   bool m_constrainVertical = false;
   vm::bbox3d m_bboxAtDragStart;
@@ -62,7 +62,7 @@ private:
   vm::vec3d m_dragCumulativeDelta;
 
 public:
-  explicit ShearTool(mdl::Map& map);
+  explicit ShearTool(MapDocument& document);
   ~ShearTool() override;
 
   const mdl::Grid& grid() const;

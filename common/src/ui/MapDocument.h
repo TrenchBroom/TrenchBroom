@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "CachingLogger.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "mdl/PointTrace.h"
@@ -41,20 +40,35 @@ class task_manager;
 
 namespace tb
 {
+class Logger;
+class LoggingHub;
+
 namespace mdl
 {
 enum class MapFormat;
 
+class Autosaver;
+class Command;
 class Game;
 class Map;
 class Node;
 class PickResult;
+class ResourceId;
+class UndoableCommand;
+
+struct SelectionChange;
 } // namespace mdl
+
+namespace render
+{
+class MapRenderer;
+}
 
 namespace ui
 {
-class ViewEffectsService;
 class AsyncTaskRunner;
+class CachingLogger;
+class ViewEffectsService;
 
 struct PointFile
 {
@@ -68,11 +82,59 @@ struct PortalFile
   std::filesystem::path path;
 };
 
-class MapDocument : public CachingLogger
+class MapDocument
 {
 public:
   static const vm::bbox3d DefaultWorldBounds;
-  static const std::string DefaultDocumentName;
+
+  Notifier<> documentWasLoadedNotifier;
+  Notifier<> documentWasSavedNotifier;
+  Notifier<> documentDidChangeNotifier;
+
+  Notifier<> modificationStateDidChangeNotifier;
+
+  Notifier<> editorContextDidChangeNotifier;
+  Notifier<> currentLayerDidChangeNotifier;
+  Notifier<> currentMaterialNameDidChangeNotifier;
+
+  Notifier<> selectionWillChangeNotifier;
+  Notifier<const mdl::SelectionChange&> selectionDidChangeNotifier;
+
+  Notifier<const std::vector<mdl::Node*>&> nodesWereAddedNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodesWillBeRemovedNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodesWereRemovedNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodesWillChangeNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodesDidChangeNotifier;
+
+  Notifier<const std::vector<mdl::Node*>&> nodeVisibilityDidChangeNotifier;
+  Notifier<const std::vector<mdl::Node*>&> nodeLockingDidChangeNotifier;
+
+  Notifier<> groupWasOpenedNotifier;
+  Notifier<> groupWasClosedNotifier;
+
+  Notifier<const std::vector<mdl::ResourceId>&> resourcesWereProcessedNotifier;
+
+  Notifier<> materialCollectionsWillChangeNotifier;
+  Notifier<> materialCollectionsDidChangeNotifier;
+
+  Notifier<> materialUsageCountsDidChangeNotifier;
+
+  Notifier<> entityDefinitionsWillChangeNotifier;
+  Notifier<> entityDefinitionsDidChangeNotifier;
+
+  Notifier<> modsWillChangeNotifier;
+  Notifier<> modsDidChangeNotifier;
+
+  Notifier<> gridDidChangeNotifier;
+
+  Notifier<mdl::Command&> commandDoNotifier;
+  Notifier<mdl::Command&> commandDoneNotifier;
+  Notifier<mdl::Command&> commandDoFailedNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoneNotifier;
+  Notifier<mdl::UndoableCommand&> commandUndoFailedNotifier;
+  Notifier<const std::string&, bool> transactionDoneNotifier;
+  Notifier<const std::string&, bool> transactionUndoneNotifier;
 
   Notifier<> pointFileWasLoadedNotifier;
   Notifier<> pointFileWasUnloadedNotifier;
@@ -81,7 +143,11 @@ public:
   Notifier<> portalFileWasUnloadedNotifier;
 
 private:
+  kdl::task_manager* m_taskManager;
+  std::unique_ptr<LoggingHub> m_loggingHub;
+
   std::unique_ptr<mdl::Map> m_map;
+  std::unique_ptr<mdl::Autosaver> m_autosaver;
 
   std::optional<PointFile> m_pointFile;
   std::optional<PortalFile> m_portalFile;
@@ -91,17 +157,61 @@ private:
 
   ViewEffectsService* m_viewEffectsService = nullptr;
 
+  std::unique_ptr<render::MapRenderer> m_mapRenderer;
+
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapDocument(kdl::task_manager& taskManager);
-  ~MapDocument() override;
+  explicit MapDocument(
+    kdl::task_manager& taskManager, std::unique_ptr<LoggingHub> loggingHub);
+
+  MapDocument(MapDocument&&) noexcept;
+  MapDocument& operator=(MapDocument&&) noexcept;
+
+  static Result<std::unique_ptr<MapDocument>> createDocument(
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    std::unique_ptr<LoggingHub> loggingHub);
+
+  static Result<std::unique_ptr<MapDocument>> loadDocument(
+    std::filesystem::path path,
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds,
+    kdl::task_manager& taskManager,
+    std::unique_ptr<LoggingHub> loggingHub);
+
+  ~MapDocument();
+
+  Result<void> create(
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds);
+
+  Result<void> load(
+    std::filesystem::path path,
+    mdl::MapFormat mapFormat,
+    std::unique_ptr<mdl::Game> game,
+    const vm::bbox3d& worldBounds);
+
+  Result<void> reload();
+
+  void triggerAutosave();
+
+private:
+  void setMap(std::unique_ptr<mdl::Map>);
 
 public: // accessors and such
   mdl::Map& map();
   const mdl::Map& map() const;
 
+  render::MapRenderer& mapRenderer();
+  const render::MapRenderer& mapRenderer() const;
+
   Logger& logger();
+  void setTargetLogger(Logger* parentLogger);
 
   void setViewEffectsService(ViewEffectsService* viewEffectsService);
 
@@ -153,9 +263,12 @@ public: // portal file management
 
 private: // observers
   void connectObservers();
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
-  void mapWasCleared(mdl::Map& map);
+  void connectMapObservers();
+
+  void transactionDone(const std::string& name, bool observable);
+  void transactionUndone(const std::string& name, bool observable);
+  void documentWasLoaded();
+  void documentWasCleared();
   void entityDefinitionsDidChange();
 };
 

@@ -31,6 +31,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/WorldNode.h"
+#include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -41,9 +42,9 @@ namespace tb::ui
 // LayerListBoxWidget
 
 LayerListBoxWidget::LayerListBoxWidget(
-  mdl::Map& map, mdl::LayerNode* layer, QWidget* parent)
+  MapDocument& document, mdl::LayerNode* layer, QWidget* parent)
   : ControlListBoxItemRenderer(parent)
-  , m_map{map}
+  , m_document{document}
   , m_layer{layer}
   , m_activeButton{new QRadioButton{}}
   , m_nameText{new QLabel{QString::fromStdString(m_layer->name())}}
@@ -109,7 +110,8 @@ void LayerListBoxWidget::updateItem()
  */
 void LayerListBoxWidget::updateLayerItem()
 {
-  const auto& editorContext = m_map.editorContext();
+  auto& map = m_document.map();
+  const auto& editorContext = map.editorContext();
 
   // Update labels
   m_nameText->setText(tr("%1").arg(QString::fromStdString(m_layer->name())));
@@ -164,9 +166,9 @@ bool LayerListBoxWidget::eventFilter(QObject* target, QEvent* event)
 
 // LayerListBox
 
-LayerListBox::LayerListBox(mdl::Map& map, QWidget* parent)
+LayerListBox::LayerListBox(MapDocument& document, QWidget* parent)
   : ControlListBox{"", true, parent}
-  , m_map{map}
+  , m_document{document}
 {
   connectObservers();
 }
@@ -208,17 +210,20 @@ void LayerListBox::updateSelectionForRemoval()
 
 void LayerListBox::connectObservers()
 {
+  auto& map = m_document.map();
+
   m_notifierConnection +=
-    m_map.documentDidChangeNotifier.connect(this, &LayerListBox::documentDidChange);
-  m_notifierConnection += m_map.currentLayerDidChangeNotifier.connect(
-    this, &LayerListBox::currentLayerDidChange);
+    m_document.documentWasLoadedNotifier.connect(this, &LayerListBox::documentDidChange);
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect(this, &LayerListBox::documentDidChange);
+  m_notifierConnection +=
+    map.currentLayerDidChangeNotifier.connect(this, &LayerListBox::currentLayerDidChange);
 }
 
 void LayerListBox::documentDidChange()
 {
-  auto* worldNode = m_map.world();
-  const auto documentLayers =
-    worldNode ? worldNode->allLayersUserSorted() : std::vector<mdl::LayerNode*>{};
+  auto& worldNode = m_document.map().worldNode();
+  const auto documentLayers = worldNode.allLayersUserSorted();
 
   if (layers() != documentLayers)
   {
@@ -232,29 +237,25 @@ void LayerListBox::documentDidChange()
   updateItems();
 }
 
-void LayerListBox::currentLayerDidChange(const mdl::LayerNode*)
+void LayerListBox::currentLayerDidChange()
 {
   updateItems();
 }
 
 size_t LayerListBox::itemCount() const
 {
-  if (const auto* worldNode = m_map.world())
-  {
-    return worldNode->allLayers().size();
-  }
-  return 0;
+  return m_document.map().worldNode().allLayers().size();
 }
 
 ControlListBoxItemRenderer* LayerListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
-  auto* worldNode = m_map.world();
+  auto& worldNode = m_document.map().worldNode();
 
-  auto* layerNode = index > 0 ? worldNode->customLayersUserSorted().at(index - 1)
-                              : worldNode->defaultLayer();
+  auto* layerNode = index > 0 ? worldNode.customLayersUserSorted().at(index - 1)
+                              : worldNode.defaultLayer();
 
-  auto* renderer = new LayerListBoxWidget{m_map, layerNode, parent};
+  auto* renderer = new LayerListBoxWidget{m_document, layerNode, parent};
   connect(
     renderer,
     &LayerListBoxWidget::layerActiveClicked,

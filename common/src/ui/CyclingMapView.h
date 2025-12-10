@@ -30,11 +30,6 @@ namespace tb
 {
 class Logger;
 
-namespace render
-{
-class MapRenderer;
-}
-
 namespace ui
 {
 class GLContextManager;
@@ -65,17 +60,12 @@ public:
   CyclingMapView(
     MapDocument& document,
     MapViewToolBox& toolBox,
-    render::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
     int views,
     QWidget* parent = nullptr);
 
 private:
-  void createGui(
-    MapViewToolBox& toolBox,
-    render::MapRenderer& mapRenderer,
-    GLContextManager& contextManager,
-    int views);
+  void createGui(MapViewToolBox& toolBox, GLContextManager& contextManager, int views);
   void addMapView(MapViewBase* mapView);
 
 private:

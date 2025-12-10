@@ -49,9 +49,9 @@ namespace
 {
 
 std::optional<mdl::DecalSpecification> getDecalSpecification(
-  const mdl::EntityNode* entityNode)
+  const mdl::EntityNode& entityNode)
 {
-  return entityNode->entity().decalSpecification() | kdl::transform([](auto decalSpec) {
+  return entityNode.entity().decalSpecification() | kdl::transform([](auto decalSpec) {
            return !decalSpec.materialName.empty()
                     ? std::make_optional(std::move(decalSpec))
                     : std::nullopt;
@@ -61,8 +61,8 @@ std::optional<mdl::DecalSpecification> getDecalSpecification(
 
 using Vertex = render::GLVertexTypes::P3NT2::Vertex;
 std::vector<Vertex> createDecalBrushFace(
-  const mdl::EntityNode* entityNode,
-  const mdl::BrushNode* brush,
+  const mdl::EntityNode& entityNode,
+  const mdl::BrushNode& brushNode,
   const mdl::BrushFace& face,
   const mdl::Material& material)
 {
@@ -81,7 +81,7 @@ std::vector<Vertex> createDecalBrushFace(
 
   // create the geometry for the decal
   const auto plane = face.boundary();
-  const auto origin = entityNode->physicalBounds().center();
+  const auto origin = entityNode.physicalBounds().center();
   const auto center = plane.project_point(origin);
 
   // re-project the vertices in case the UV axes are not on the face plane
@@ -122,7 +122,7 @@ std::vector<Vertex> createDecalBrushFace(
   attrs.setYOffset(float(yOffs));
 
   // clip the decal geometry against every other plane in the brush
-  for (const auto& f : brush->brush().faces())
+  for (const auto& f : brushNode.brush().faces())
   {
     if (&f == &face)
     {
@@ -171,39 +171,39 @@ void EntityDecalRenderer::clear()
   m_faceRenderer = FaceRenderer{m_vertexArray, m_faces, m_faceColor};
 }
 
-void EntityDecalRenderer::updateNode(mdl::Node* node)
+void EntityDecalRenderer::updateNode(mdl::Node& node)
 {
-  node->accept(kdl::overload(
+  node.accept(kdl::overload(
     [](mdl::WorldNode*) {},
     [](mdl::LayerNode*) {},
     [](mdl::GroupNode*) {},
-    [&](const mdl::EntityNode* entity) { updateEntity(entity); },
-    [&](const mdl::BrushNode* brush) { updateBrush(brush); },
+    [&](const mdl::EntityNode* entity) { updateEntity(*entity); },
+    [&](const mdl::BrushNode* brush) { updateBrush(*brush); },
     [](mdl::PatchNode*) {}));
 }
 
-void EntityDecalRenderer::removeNode(mdl::Node* node)
+void EntityDecalRenderer::removeNode(mdl::Node& node)
 {
-  node->accept(kdl::overload(
+  node.accept(kdl::overload(
     [](mdl::WorldNode*) {},
     [](mdl::LayerNode*) {},
     [](mdl::GroupNode*) {},
-    [&](const mdl::EntityNode* entity) { removeEntity(entity); },
-    [&](const mdl::BrushNode* brush) { removeBrush(brush); },
+    [&](const mdl::EntityNode* entity) { removeEntity(*entity); },
+    [&](const mdl::BrushNode* brush) { removeBrush(*brush); },
     [](mdl::PatchNode*) {}));
 }
 
-void EntityDecalRenderer::updateEntity(const mdl::EntityNode* entityNode)
+void EntityDecalRenderer::updateEntity(const mdl::EntityNode& entityNode)
 {
   // if the entity isn't visible, don't create decal geometry for it
   const auto& editorContext = m_map.editorContext();
 
   // check if the entity has a decal specification
   const auto spec =
-    editorContext.visible(*entityNode) ? getDecalSpecification(entityNode) : std::nullopt;
+    editorContext.visible(entityNode) ? getDecalSpecification(entityNode) : std::nullopt;
 
   // see if we are tracking this entity
-  const auto entity = m_entities.find(entityNode);
+  const auto entity = m_entities.find(&entityNode);
   const auto isTracking = entity != std::end(m_entities);
   if (isTracking && spec)
   {
@@ -218,13 +218,13 @@ void EntityDecalRenderer::updateEntity(const mdl::EntityNode* entityNode)
   else if (spec.has_value())
   {
     // entity is not being tracked and has a decal specification, start tracking it
-    m_entities.insert({entityNode, EntityDecalData{}});
+    m_entities.insert({&entityNode, EntityDecalData{}});
   }
 }
 
-void EntityDecalRenderer::removeEntity(const mdl::EntityNode* entityNode)
+void EntityDecalRenderer::removeEntity(const mdl::EntityNode& entityNode)
 {
-  if (const auto it = m_entities.find(entityNode); it != std::end(m_entities))
+  if (const auto it = m_entities.find(&entityNode); it != std::end(m_entities))
   {
     // make sure the entity data is cleaned up
     invalidateDecalData(it->second);
@@ -232,7 +232,7 @@ void EntityDecalRenderer::removeEntity(const mdl::EntityNode* entityNode)
   }
 }
 
-void EntityDecalRenderer::updateBrush(const mdl::BrushNode* brushNode)
+void EntityDecalRenderer::updateBrush(const mdl::BrushNode& brushNode)
 {
   // invalidate any entities that intersect this brush or are tracking this brush
   for (auto& [ent, data] : m_entities)
@@ -245,9 +245,9 @@ void EntityDecalRenderer::updateBrush(const mdl::BrushNode* brushNode)
 
     // if the brush is not visible, then it doesn't (currently) intersect
     const auto& editorContext = m_map.editorContext();
-    const auto intersects =
-      editorContext.visible(*brushNode) && brushNode->intersects(ent);
-    const auto tracked = std::ranges::find(data.brushes, brushNode) != data.brushes.end();
+    const auto intersects = editorContext.visible(brushNode) && brushNode.intersects(ent);
+    const auto tracked =
+      std::ranges::find(data.brushes, &brushNode) != data.brushes.end();
 
     // if this brush is tracked by this entity or intersects, we'll need to
     // recalculate the geometry
@@ -258,7 +258,7 @@ void EntityDecalRenderer::updateBrush(const mdl::BrushNode* brushNode)
   }
 }
 
-void EntityDecalRenderer::removeBrush(const mdl::BrushNode* brushNode)
+void EntityDecalRenderer::removeBrush(const mdl::BrushNode& brushNode)
 {
   // invalidate any entities that are tracking this brush
   for (auto& [ent, data] : m_entities)
@@ -270,7 +270,8 @@ void EntityDecalRenderer::removeBrush(const mdl::BrushNode* brushNode)
     }
 
     // if this brush is tracked by this entity, remove it and recalculate
-    const auto tracked = std::ranges::find(data.brushes, brushNode) != data.brushes.end();
+    const auto tracked =
+      std::ranges::find(data.brushes, &brushNode) != data.brushes.end();
     if (tracked)
     {
       invalidateDecalData(data);
@@ -312,7 +313,7 @@ void EntityDecalRenderer::invalidateDecalData(EntityDecalData& data) const
 }
 
 void EntityDecalRenderer::validateDecalData(
-  const mdl::EntityNode* entityNode, EntityDecalData& data) const
+  const mdl::EntityNode& entityNode, EntityDecalData& data) const
 {
   if (data.validated)
   {
@@ -324,11 +325,11 @@ void EntityDecalRenderer::validateDecalData(
   contract_assert(spec != std::nullopt);
 
   const auto& editorContext = m_map.editorContext();
-  const auto* world = m_map.world();
+  const auto& worldNode = m_map.worldNode();
 
   // collect all the brush nodes that touch the entity's bbox
-  const auto entityBounds = entityNode->physicalBounds();
-  const auto intersectors = world->nodeTree().find_intersectors(entityBounds);
+  const auto entityBounds = entityNode.physicalBounds();
+  const auto intersectors = worldNode.nodeTree().find_intersectors(entityBounds);
 
   // track them in the entity
   data.brushes.clear();
@@ -362,9 +363,9 @@ void EntityDecalRenderer::validateDecalData(
   auto vertices = std::vector<Vertex>{};
   auto indices = std::vector<size_t>{};
 
-  for (const auto& brush : data.brushes)
+  for (const auto* brushNode : data.brushes)
   {
-    for (const auto& face : brush->brush().faces())
+    for (const auto& face : brushNode->brush().faces())
     {
       // see if this decal can be projected onto this face
       const auto facePolygon = face.geometry()->vertexPositions();
@@ -373,7 +374,7 @@ void EntityDecalRenderer::validateDecalData(
       {
         contract_assert(data.material);
         const auto decalPolygon =
-          createDecalBrushFace(entityNode, brush, face, *data.material);
+          createDecalBrushFace(entityNode, *brushNode, face, *data.material);
         if (!decalPolygon.empty())
         {
           // add the geometry to be uploaded into the VBO
@@ -428,7 +429,7 @@ void EntityDecalRenderer::render(RenderContext&, RenderBatch& renderBatch)
   // update any invalidated entities if required
   for (auto& [ent, data] : m_entities)
   {
-    validateDecalData(ent, data);
+    validateDecalData(*ent, data);
   }
 
   m_faceRenderer.render(renderBatch);

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFixture.h"
 #include "TestUtils.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
@@ -37,6 +36,8 @@
 #include "mdl/WorldNode.h"
 #include "render/OrthographicCamera.h"
 #include "ui/InputState.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentFixture.h"
 #include "ui/PickRequest.h"
 #include "ui/SelectionTool.h"
 
@@ -53,19 +54,19 @@ using namespace Catch::Matchers;
 
 TEST_CASE("SelectionTool")
 {
-  auto fixture = mdl::MapFixture{};
-  auto& map = fixture.map();
-  fixture.create();
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.create();
+  auto& map = document.map();
 
   SECTION("clicking")
   {
-    const auto* world = map.world();
+    const auto& worldNode = map.worldNode();
     auto builder = mdl::BrushBuilder{
-      world->mapFormat(),
+      worldNode.mapFormat(),
       map.worldBounds(),
-      map.game()->config().faceAttribsConfig.defaults};
+      map.game().config().faceAttribsConfig.defaults};
 
-    auto tool = SelectionTool{map};
+    auto tool = SelectionTool{document};
 
     GIVEN("A group node")
     {
@@ -455,13 +456,13 @@ TEST_CASE("SelectionTool")
 
   SECTION("clickingThroughHidden")
   {
-    const auto* world = map.world();
+    const auto& worldNode = map.worldNode();
     auto builder = mdl::BrushBuilder{
-      world->mapFormat(),
+      worldNode.mapFormat(),
       map.worldBounds(),
-      map.game()->config().faceAttribsConfig.defaults};
+      map.game().config().faceAttribsConfig.defaults};
 
-    auto tool = SelectionTool{map};
+    auto tool = SelectionTool{document};
 
     GIVEN("A brush visible behind the hidden face of another brush")
     {

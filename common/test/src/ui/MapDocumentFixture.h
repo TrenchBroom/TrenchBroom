@@ -19,10 +19,8 @@
 
 #pragma once
 
-#include "GameConfigFixture.h"
 #include "Macros.h"
-#include "mdl/GameInfo.h"
-#include "mdl/MapFormat.h"
+#include "mdl/MapFixture.h"
 
 #include <filesystem>
 #include <memory>
@@ -37,41 +35,27 @@ namespace tb
 {
 class Logger;
 
-namespace mdl
+namespace ui
 {
-class Game;
-class Map;
+class MapDocument;
 
-struct MapFixtureConfig
-{
-  // nullopt means use the default (Standard for new map, Unknown for loading)
-  std::optional<MapFormat> mapFormat = std::nullopt;
-  GameInfo gameInfo = DefaultGameInfo;
-};
-
-extern const MapFixtureConfig QuakeFixtureConfig;
-extern const MapFixtureConfig Quake2FixtureConfig;
-
-class MapFixture
+class MapDocumentFixture
 {
 private:
   std::unique_ptr<kdl::task_manager> m_taskManager;
-  std::unique_ptr<Logger> m_logger;
-  std::unique_ptr<Map> m_map;
+  std::unique_ptr<MapDocument> m_document;
 
-  std::optional<MapFixtureConfig> m_config;
+  std::optional<mdl::MapFixtureConfig> m_config;
 
 public:
-  explicit MapFixture();
-  ~MapFixture();
+  explicit MapDocumentFixture();
+  ~MapDocumentFixture();
 
-  defineMove(MapFixture);
+  defineMove(MapDocumentFixture);
 
-  void create(MapFixtureConfig = {});
-  void load(const std::filesystem::path& path, MapFixtureConfig = {});
-
-  Map& map();
+  MapDocument& create(mdl::MapFixtureConfig = {});
+  MapDocument& load(const std::filesystem::path& path, mdl::MapFixtureConfig = {});
 };
 
-} // namespace mdl
+} // namespace ui
 } // namespace tb

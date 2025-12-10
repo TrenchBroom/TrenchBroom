@@ -27,15 +27,9 @@ class QPushButton;
 class QListWidget;
 class QLabel;
 
-namespace tb
+namespace tb::ui
 {
-namespace mdl
-{
-class Map;
-}
-
-namespace ui
-{
+class MapDocument;
 
 class SingleSelectionListWidget : public QListWidget
 {
@@ -59,7 +53,7 @@ class EntityDefinitionFileChooser : public QWidget
 {
   Q_OBJECT
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
 
   SingleSelectionListWidget* m_builtin = nullptr;
   QLabel* m_externalLabel = nullptr;
@@ -69,7 +63,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityDefinitionFileChooser(mdl::Map& map, QWidget* parent = nullptr);
+  explicit EntityDefinitionFileChooser(MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();
@@ -77,8 +71,7 @@ private:
 
   void connectObservers();
 
-  void mapWasCreated(mdl::Map& map);
-  void mapWasLoaded(mdl::Map& map);
+  void documentWasLoaded();
   void entityDefinitionsDidChange();
 
   void updateControls();
@@ -88,5 +81,4 @@ private:
   void reloadExternalClicked();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

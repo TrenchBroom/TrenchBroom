@@ -32,10 +32,10 @@ namespace tb::ui
 {
 
 EntityInspector::EntityInspector(
-  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
 {
-  createGui(map, contextManager);
+  createGui(document, contextManager);
 }
 
 EntityInspector::~EntityInspector()
@@ -43,13 +43,13 @@ EntityInspector::~EntityInspector()
   saveWindowState(m_splitter);
 }
 
-void EntityInspector::createGui(mdl::Map& map, GLContextManager& contextManager)
+void EntityInspector::createGui(MapDocument& document, GLContextManager& contextManager)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
 
-  m_splitter->addWidget(createAttributeEditor(map, m_splitter));
-  m_splitter->addWidget(createEntityBrowser(map, contextManager, m_splitter));
+  m_splitter->addWidget(createAttributeEditor(document, m_splitter));
+  m_splitter->addWidget(createEntityBrowser(document, contextManager, m_splitter));
 
   // when the window resizes, keep the attribute editor size constant
   m_splitter->setStretchFactor(0, 0);
@@ -64,26 +64,26 @@ void EntityInspector::createGui(mdl::Map& map, GLContextManager& contextManager)
   restoreWindowState(m_splitter);
 }
 
-QWidget* EntityInspector::createAttributeEditor(mdl::Map& map, QWidget* parent)
+QWidget* EntityInspector::createAttributeEditor(MapDocument& document, QWidget* parent)
 {
-  m_attributeEditor = new EntityPropertyEditor{map, parent};
+  m_attributeEditor = new EntityPropertyEditor{document, parent};
   return m_attributeEditor;
 }
 
 QWidget* EntityInspector::createEntityBrowser(
-  mdl::Map& map, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
 {
   auto* panel = new SwitchableTitledPanel{
     tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};
 
-  m_entityBrowser = new EntityBrowser{map, contextManager};
+  m_entityBrowser = new EntityBrowser{document, contextManager};
 
   auto* entityBrowserLayout = new QVBoxLayout{};
   entityBrowserLayout->setContentsMargins(0, 0, 0, 0);
   entityBrowserLayout->addWidget(m_entityBrowser, 1);
   panel->getPanel(0)->setLayout(entityBrowserLayout);
 
-  auto* entityDefinitionFileEditor = new EntityDefinitionFileChooser{map};
+  auto* entityDefinitionFileEditor = new EntityDefinitionFileChooser{document};
 
   auto* entityDefinitionFileEditorLayout = new QVBoxLayout{};
   entityDefinitionFileEditorLayout->setContentsMargins(0, 0, 0, 0);

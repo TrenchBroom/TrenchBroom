@@ -41,7 +41,6 @@ namespace tb
 namespace mdl
 {
 class Grid;
-class Map;
 class PickResult;
 } // namespace mdl
 
@@ -52,6 +51,7 @@ class Camera;
 
 namespace ui
 {
+class MapDocument;
 class ScaleToolPage;
 
 /**
@@ -232,7 +232,7 @@ public:
   static const mdl::HitType::Type AnyHitType;
 
 private:
-  mdl::Map& m_map;
+  MapDocument& m_document;
   ScaleToolPage* m_toolPage = nullptr;
   bool m_resizing = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
@@ -242,7 +242,7 @@ private:
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
 
 public:
-  explicit ScaleTool(mdl::Map& map);
+  explicit ScaleTool(MapDocument& document);
   ~ScaleTool() override;
 
   bool doActivate() override;

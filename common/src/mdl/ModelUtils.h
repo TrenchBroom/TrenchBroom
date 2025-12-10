@@ -75,6 +75,7 @@ std::vector<mdl::Node*> hitsToNodesWithGroupPicking(const std::vector<Hit>& hits
 const Node* findOutermostClosedGroupOrNode(const Node* node);
 
 std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes);
+
 std::vector<GroupNode*> collectContainingGroups(const std::vector<Node*>& nodes);
 
 std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);

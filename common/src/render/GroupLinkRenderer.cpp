@@ -56,7 +56,8 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
     const auto& editorContext = m_map.editorContext();
 
     const auto& linkId = groupNode->linkId();
-    const auto linkedGroupNodes = mdl::collectGroupsWithLinkId({m_map.world()}, linkId);
+    const auto linkedGroupNodes =
+      mdl::collectGroupsWithLinkId({&m_map.worldNode()}, linkId);
 
     const auto linkColor = pref(Preferences::LinkedGroupColor);
     const auto sourcePosition = getLinkAnchorPosition(*groupNode);
