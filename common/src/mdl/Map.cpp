@@ -492,8 +492,8 @@ Map::Map(
   std::filesystem::path path,
   kdl::task_manager& taskManager,
   Logger& logger)
-  : m_logger{&logger}
-  , m_taskManager{&taskManager}
+  : m_logger{logger}
+  , m_taskManager{taskManager}
   , m_resourceManager{std::make_unique<ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
@@ -519,7 +519,7 @@ Map::Map(
 {
   connectObservers();
 
-  entityModelManager().setGame(m_game.get(), *m_taskManager);
+  entityModelManager().setGame(m_game.get(), m_taskManager);
   editorContext().setCurrentLayer(m_worldNode->defaultLayer());
 
   updateGameSearchPaths();
@@ -534,9 +534,6 @@ Map::Map(
 }
 
 Map::~Map() = default;
-
-Map::Map(Map&&) noexcept = default;
-Map& Map::operator=(Map&&) noexcept = default;
 
 Result<std::unique_ptr<Map>> Map::createMap(
   MapFormat mapFormat,
@@ -583,12 +580,12 @@ Result<std::unique_ptr<Map>> Map::loadMap(
 
 Logger& Map::logger()
 {
-  return *m_logger;
+  return m_logger;
 }
 
 kdl::task_manager& Map::taskManager()
 {
-  return *m_taskManager;
+  return m_taskManager;
 }
 
 EntityDefinitionManager& Map::entityDefinitionManager()
@@ -799,7 +796,7 @@ Result<void> Map::exportAs(const io::ExportOptions& options) const
               std::make_unique<io::ObjSerializer>(
                 objStream, mtlStream, mtlPath.filename().string(), objOptions)};
             writer.setExporting(true);
-            writer.writeMap(*m_taskManager);
+            writer.writeMap(m_taskManager);
           });
         });
       },
@@ -807,7 +804,7 @@ Result<void> Map::exportAs(const io::ExportOptions& options) const
         return fs::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
           auto writer = io::NodeWriter{*m_worldNode, stream};
           writer.setExporting(true);
-          writer.writeMap(*m_taskManager);
+          writer.writeMap(m_taskManager);
         });
       }),
     options);

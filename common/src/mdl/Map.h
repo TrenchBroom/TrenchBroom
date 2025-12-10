@@ -92,11 +92,8 @@ public:
   static const std::string DefaultDocumentName;
 
 private:
-  // pointer to enable move semantics
-  Logger* m_logger;
-
-  // pointer to enable move semantics
-  kdl::task_manager* m_taskManager;
+  Logger& m_logger;
+  kdl::task_manager& m_taskManager;
 
   std::unique_ptr<ResourceManager> m_resourceManager;
   std::unique_ptr<EntityDefinitionManager> m_entityDefinitionManager;
@@ -195,9 +192,6 @@ public: // misc
     Logger& logger);
 
   ~Map();
-
-  Map(Map&&) noexcept;
-  Map& operator=(Map&&) noexcept;
 
   static Result<std::unique_ptr<Map>> createMap(
     MapFormat mapFormat,
