@@ -1196,7 +1196,7 @@ monster_vermis: "Vermis"
 @PointClass base(Targetname) model({ "path": ":progs/teleport.mdl" }) = func_teleporttrain : "Moving teleport destination" 
 [
 	speed(integer) : "Speed (units per second)" : 64
-	target(target_source) : "First stop target"
+	target(target_destination) : "First stop target"
 ]
 
 @SolidClass base(Targetname, Deathtype, Selfshadow) = func_train : "Moving platform" 
@@ -1207,7 +1207,7 @@ monster_vermis: "Vermis"
 		1: "Ratchet Metal"
 	]
 	speed(integer) : "Speed (units per second)" : 64
-	target(target_source) : "First stop target"
+	target(target_destination) : "First stop target"
 	dmg(integer) : "Damage on crush" : 0
 	count(integer) : "Number of clones" : 0
 	spawnflags(Flags) =
@@ -1220,7 +1220,7 @@ monster_vermis: "Vermis"
 @PointClass base(Targetname) size(16 16 16) = 
 	path_corner : "Moving platform stop"
 [
-	target(target_source) : "Next stop target"
+	target(target_destination) : "Next stop target"
 	wait(integer) : "Wait" : 0
 	event(target_source) : "Event to fire on arrival"
 	duration(integer) : "Movetime for next motion(if set)"
@@ -1230,14 +1230,14 @@ monster_vermis: "Vermis"
 @PointClass base(Targetname) size(16 16 16) = 
 	path_corner_precise : "Advanced monster waypoint"
 [
-	target(target_source) : "Next waypoint"
+	target(target_destination) : "Next waypoint"
 	wait(integer) : "Wait" : 0
 ]
 
 @PointClass base(Targetname) size(16 16 16) = 
 	path_corner_contact : "Monster waypoint"
 [
-	target(target_source) : "Next waypoint"
+	target(target_destination) : "Next waypoint"
 ]
 
 @SolidClass base(Targetname, Deathtype) = func_togglewall : "Toggleable wall" 
@@ -1581,4 +1581,5 @@ monster_vermis: "Vermis"
 @PointClass base(func_door_button) = func_door_button_point : "Door-mounted Button"[]
 @PointClass base(func_togglewall) = func_togglewall_point : "Toggleable wall" []
 @PointClass base(rotate_object) = rotate_object_point : "Visible rotating object" []
+
 @PointClass base(func_movewall) = func_movewall_point : "Func movewall" []
