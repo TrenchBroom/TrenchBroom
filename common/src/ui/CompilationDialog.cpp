@@ -66,7 +66,7 @@ void CompilationDialog::createGui()
   setWindowTitle("Compile");
 
   auto& document = m_mapFrame->document();
-  const auto& compilationConfig = document.map().gameInfo().gameConfig.compilationConfig;
+  const auto& compilationConfig = document.map().gameInfo().compilationConfig;
 
   m_profileManager = new CompilationProfileManager{document, compilationConfig};
 
