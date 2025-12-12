@@ -67,12 +67,12 @@ void LaunchGameEngineDialog::createGui()
   setWindowTitle("Launch Engine");
 
   const auto& map = m_document.map();
-  const auto& gameConfig = map.gameInfo().gameConfig;
-  auto* gameIndicator = new CurrentGameIndicator{gameConfig.name};
+  const auto& gameInfo = map.gameInfo();
+  auto* gameIndicator = new CurrentGameIndicator{gameInfo.gameConfig.name};
 
   auto* midPanel = new QWidget{this};
 
-  m_config = gameConfig.gameEngineConfig;
+  m_config = gameInfo.gameEngineConfig;
   m_gameEngineList = new GameEngineProfileListBox{m_config};
   m_gameEngineList->setEmptyText(
     R"(Click the 'Configure engines...' button to create a game engine profile.)");
@@ -179,9 +179,9 @@ void LaunchGameEngineDialog::createGui()
 void LaunchGameEngineDialog::reloadConfig()
 {
   const auto& map = m_document.map();
-  const auto& gameConfig = map.gameInfo().gameConfig;
+  const auto& gameInfo = map.gameInfo();
 
-  m_config = gameConfig.gameEngineConfig;
+  m_config = gameInfo.gameEngineConfig;
   m_gameEngineList->setConfig(m_config);
 }
 

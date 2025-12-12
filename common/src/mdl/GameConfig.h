@@ -22,8 +22,6 @@
 #include "Color.h"
 #include "el/Expression.h"
 #include "mdl/BrushFaceAttributes.h"
-#include "mdl/CompilationConfig.h"
-#include "mdl/GameEngineConfig.h"
 #include "mdl/Tag.h"
 
 #include "kd/reflection_decl.h"
@@ -140,11 +138,6 @@ struct GameConfig
   std::vector<CompilationTool> compilationTools;
   bool forceEmptyNewMap = false;
 
-  CompilationConfig compilationConfig = {};
-  GameEngineConfig gameEngineConfig = {};
-  bool compilationConfigParseFailed = false;
-  bool gameEngineConfigParseFailed = false;
-
   size_t maxPropertyLength = 1023;
 
   kdl_reflect_decl(
@@ -161,10 +154,6 @@ struct GameConfig
     smartTags,
     softMapBounds,
     compilationTools,
-    compilationConfig,
-    gameEngineConfig,
-    compilationConfigParseFailed,
-    gameEngineConfigParseFailed,
     maxPropertyLength);
 
   /** Returns a folder name to use for user configuration files. */

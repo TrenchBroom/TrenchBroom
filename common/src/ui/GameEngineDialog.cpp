@@ -55,7 +55,7 @@ void GameEngineDialog::createGui()
 
   const auto* gameInfo = gameManager.gameInfo(m_gameName);
   contract_assert(gameInfo != nullptr);
-  m_profileManager = new GameEngineProfileManager{gameInfo->gameConfig.gameEngineConfig};
+  m_profileManager = new GameEngineProfileManager{gameInfo->gameEngineConfig};
 
   auto* buttons = new QDialogButtonBox{QDialogButtonBox::Close};
 
