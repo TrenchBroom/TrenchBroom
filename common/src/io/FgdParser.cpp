@@ -400,6 +400,7 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
       kdl::ci::str_is_equal(typeName, "model")
       || kdl::ci::str_is_equal(typeName, "studio")
       || kdl::ci::str_is_equal(typeName, "studioprop")
+      || kdl::ci::str_is_equal(typeName, "lightprop")
       || kdl::ci::str_is_equal(typeName, "sprite")
       || kdl::ci::str_is_equal(typeName, "iconsprite"))
     {
@@ -407,8 +408,7 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
       {
         status.warn(token.location(), "Found multiple model properties");
       }
-      classInfo.modelDefinition =
-        parseModel(status, kdl::ci::str_is_equal(typeName, "sprite"));
+      classInfo.modelDefinition = parseModel(status);
     }
     else if (kdl::ci::str_is_equal(typeName, "decal"))
     {
@@ -479,21 +479,14 @@ std::vector<std::string> FgdParser::parseSuperClasses()
 }
 
 mdl::ModelDefinition FgdParser::parseModel(
-  ParserStatus& status, const bool allowEmptyExpression)
+  ParserStatus& status)
 {
   m_tokenizer.nextToken(FgdToken::OParenthesis);
 
-  if (allowEmptyExpression && m_tokenizer.peekToken().hasType(FgdToken::CParenthesis))
+  if (m_tokenizer.peekToken().hasType(FgdToken::CParenthesis))
   {
-    const auto location = m_tokenizer.location();
     m_tokenizer.skipToken();
-
-    auto defaultModel = el::MapExpression{{
-      {"path", el::ExpressionNode{el::VariableExpression{"model"}, location}},
-      {"scale", el::ExpressionNode{el::VariableExpression{"scale"}, location}},
-    }};
-    auto defaultExp = el::ExpressionNode{std::move(defaultModel), location};
-    return mdl::ModelDefinition{std::move(defaultExp)};
+    return mdl::ModelDefinition();
   }
 
   return io::parseModelDefinition(m_tokenizer, status, FgdToken::CParenthesis)

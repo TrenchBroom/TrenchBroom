@@ -132,7 +132,7 @@ private:
   void skipMainClass();
 
   std::vector<std::string> parseSuperClasses();
-  mdl::ModelDefinition parseModel(ParserStatus& status, bool allowEmptyExpression);
+  mdl::ModelDefinition parseModel(ParserStatus& status);
   mdl::DecalDefinition parseDecal();
   std::string parseNamedValue(ParserStatus& status, const std::string& name);
   void skipClassProperty(ParserStatus& status);

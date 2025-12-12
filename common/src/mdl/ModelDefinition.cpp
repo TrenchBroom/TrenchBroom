@@ -64,16 +64,29 @@ size_t index(el::EvaluationContext& context, const el::Value& value)
 
 ModelSpecification convertToModel(el::EvaluationContext& context, const el::Value& value)
 {
+  std::optional<std::filesystem::path> modelPath;
+  std::optional<size_t> skinIndex;
+  std::optional<size_t> frameIndex;
+
+  // Check first for model/skin/sequence from the entity key-values
+  el::Value p = context.variableValue("model");
+  if (p.type() == el::ValueType::String && p.length()>0) modelPath = path(context, p);
+  el::Value s = context.variableValue("skin");
+  if (s.convertibleTo(el::ValueType::Number)) skinIndex = index(context, s);
+  el::Value f = context.variableValue("sequence");
+  if (f.convertibleTo(el::ValueType::Number)) frameIndex = index(context, f);
+
+  // Load the model settings as defined by the class property
   switch (value.type())
   {
   case el::ValueType::Map:
-    return ModelSpecification{
-      path(context, value.atOrDefault(context, ModelSpecificationKeys::Path)),
-      index(context, value.atOrDefault(context, ModelSpecificationKeys::Skin)),
-      index(context, value.atOrDefault(context, ModelSpecificationKeys::Frame)),
-    };
+    if (!modelPath.has_value()) modelPath = path(context, value.atOrDefault(context, ModelSpecificationKeys::Path));
+    if (!skinIndex.has_value()) skinIndex = index(context, value.atOrDefault(context, ModelSpecificationKeys::Skin));
+    if (!frameIndex.has_value()) frameIndex = index(context, value.atOrDefault(context, ModelSpecificationKeys::Frame));
+    break;
   case el::ValueType::String:
-    return ModelSpecification{path(context, value), 0, 0};
+    if (!modelPath.has_value()) modelPath = path(context, value);
+    break;
   case el::ValueType::Boolean:
   case el::ValueType::Number:
   case el::ValueType::Array:
@@ -81,6 +94,15 @@ ModelSpecification convertToModel(el::EvaluationContext& context, const el::Valu
   case el::ValueType::Null:
   case el::ValueType::Undefined:
     break;
+  }
+
+  if (modelPath.has_value())
+  {
+    // Default values
+    if (!skinIndex.has_value()) skinIndex = 0;
+    if (!frameIndex.has_value()) frameIndex = 0;
+
+    return ModelSpecification{modelPath.value(), skinIndex.value(), frameIndex.value()};
   }
 
   return ModelSpecification{};
@@ -187,6 +209,14 @@ Result<vm::vec3d> ModelDefinition::scale(
 {
   return el::withEvaluationContext(
     [&](auto& context) {
+      // Check first for scale key-value from the entity
+      el::Value s = context.variableValue("scale");
+      if (s.type() == el::ValueType::Number || (s.type() == el::ValueType::String && s.length()>0))
+      {
+        const auto scale = convertToScale(context, s);
+        if (scale) return *scale;
+      }
+
       const auto value = m_expression.evaluate(context);
 
       switch (value.type())
