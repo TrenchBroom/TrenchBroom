@@ -341,10 +341,9 @@ They rip pieces of their flesh off themselves and throw them as their attack. Th
 	[ speed(integer) : "Speed" : 40 ]
 @PointClass base(Appearflags) size(0 0 0, 32 32 64) model({ "path": ":maps/b_explob.bsp" }) = misc_explobox : "Large exploding container" []
 @PointClass base(Appearflags) size(0 0 0, 32 32 32) model({ "path": ":maps/b_exbox2.bsp" }) = misc_explobox2 : "Small exploding container" []
-@PointClass base(Appearflags) size(-8 -8 -8, 8 8 8) model({ "path": ":progs/teleport.mdl" }) = misc_teleporttrain : "Flying teleporter destination"
+@PointClass base(Appearflags, Targetname) size(-8 -8 -8, 8 8 8) model({ "path": ":progs/teleport.mdl" }) = misc_teleporttrain : "Flying teleporter destination"
 [
-	target(string) : "First stop target"
-	targetname(target_source) : "Name"
+	target(target_destination) : "First stop target"
 ]
 @PointClass base(Appearflags, Targetname) model(
 	{{
@@ -462,7 +461,7 @@ Fires continous stream of spikes with options to delay the 1st shot and then set
 [
 	speed(integer) : "Speed" : 40
 	lip(integer) : "Lip" : 4
-	target(target_source) : "Target"
+	target(target_destination) : "Target"
 	health(integer) : "Health (shootable)"
 	sounds(choices) : "Sounds" =
 	[
@@ -484,14 +483,14 @@ Fires continous stream of spikes with options to delay the 1st shot and then set
 		1: "Ratchet Metal"
 	]
 	speed(integer) : "Speed (units per second)" : 64
-	target(target_source) : "Target to start at"
+	target(target_destination) : "Target to start at"
 	dmg(integer) : "Damage on block" : 2
 ]
 
 @PointClass base(Appearflags, Targetname) size(16 16 16) color(0 255 255) =
 	path_corner : "Waypoint for platforms and monsters"
 [
-	target(target_source) : "Next target"
+	target(target_destination) : "Next target"
 	wait(integer) : "Wait" : 0
 ]
 
