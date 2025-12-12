@@ -1,0 +1,11 @@
+{
+  "Prefs/Values/Integer value": 108,
+  "Prefs/Values/Float value": 0.425781,
+  "Prefs/Values/Bool value": true,
+  "Prefs/Values/String value": "this and that",
+  "Prefs/Values/Color value": "0.290196 0.643137 0.486275 1",
+  "Prefs/Paths/Equal sign": "/home/ericwa/foo=bar",
+  "Prefs/Paths/With spaces": "/home/ericwa/Quake 3 Arena",
+  "Prefs/Key sequences/Single key": "W",
+  "Prefs/Key sequences/Multiple keys": "Ctrl+Alt+W"
+}

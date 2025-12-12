@@ -416,6 +416,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.cpp
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.cpp
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.cpp
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QtUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.cpp
@@ -935,6 +938,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.h
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.h
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.h
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.h
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.h
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.h
         ${COMMON_SOURCE_DIR}/ui/QtUtils.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.h

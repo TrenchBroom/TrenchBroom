@@ -137,6 +137,8 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_LaunchGameEngine.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_MapDocument.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_MoveHandleDragTracker.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_QPreferenceStore.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_QPreferenceStoreUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_QtUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RecentDocuments.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RotateTool.cpp"
