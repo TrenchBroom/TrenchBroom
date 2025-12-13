@@ -209,22 +209,11 @@ extern Preference<QString> EntityLinkMode;
  * or if we wanted to do a Path to Preference lookup.
  */
 const std::vector<PreferenceBase*>& staticPreferences();
-const std::map<std::filesystem::path, PreferenceBase*>& staticPreferencesMap();
+
 /**
  * Returns the subset of staticPreferences() that are key sequences, used by
  * dump-shortcuts.
  */
 std::vector<Preference<QKeySequence>*> keyPreferences();
-
-extern DynamicPreferencePattern<QString> GamesPath;
-extern DynamicPreferencePattern<QString> GamesToolPath;
-extern DynamicPreferencePattern<QString> GamesDefaultEngine;
-extern DynamicPreferencePattern<QKeySequence> FiltersTagsToggle;
-extern DynamicPreferencePattern<QKeySequence> TagsEnable;
-extern DynamicPreferencePattern<QKeySequence> TagsDisable;
-extern DynamicPreferencePattern<QKeySequence> FiltersEntitiesToggleVisible;
-extern DynamicPreferencePattern<QKeySequence> EntitiesCreate;
-
-const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns();
 
 } // namespace tb::Preferences
