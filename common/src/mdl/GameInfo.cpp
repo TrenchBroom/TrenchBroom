@@ -19,8 +19,6 @@
 
 #include "GameInfo.h"
 
-#include "PreferenceManager.h"
-
 #include "kd/reflection_impl.h"
 
 namespace tb::mdl
@@ -39,15 +37,6 @@ GameInfo makeGameInfo(GameConfig gameConfig)
     Preference<std::filesystem::path>{gamePathPrefPath, {}},
     Preference<std::filesystem::path>{defaultEnginePrefPath, {}},
   };
-}
-
-Preference<std::filesystem::path>& compilationToolPathPreference(
-  const GameInfo& gameInfo, const std::string_view toolName)
-{
-  auto& prefs = PreferenceManager::instance();
-  return prefs.dynamicPreference(
-    std::filesystem::path{"Games"} / gameInfo.gameConfig.name / "Tool Path" / toolName,
-    std::filesystem::path{});
 }
 
 } // namespace tb::mdl

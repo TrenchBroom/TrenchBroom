@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Color.h"
+#include "Preference.h"
 #include "el/Expression.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/Tag.h"
@@ -118,6 +119,7 @@ struct CompilationTool
 {
   std::string name;
   std::optional<std::string> description;
+  Preference<std::filesystem::path> pathPreference;
 
   kdl_reflect_decl(CompilationTool, name, description);
 };

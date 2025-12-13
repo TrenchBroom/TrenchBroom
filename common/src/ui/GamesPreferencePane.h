@@ -25,7 +25,14 @@ class QLineEdit;
 class QPushButton;
 class QStackedWidget;
 
-namespace tb::ui
+namespace tb
+{
+namespace mdl
+{
+struct CompilationTool;
+}
+
+namespace ui
 {
 class GameListBox;
 class GamePreferencePane;
@@ -69,7 +76,7 @@ private:
   std::string m_gameName;
   QLineEdit* m_gamePathText = nullptr;
   QPushButton* m_chooseGamePathButton = nullptr;
-  std::vector<std::tuple<std::string, QLineEdit*>> m_toolPathEditors;
+  std::vector<std::tuple<mdl::CompilationTool*, QLineEdit*>> m_toolPathEditors;
 
 public:
   explicit GamePreferencePane(
@@ -97,4 +104,5 @@ signals:
   void requestUpdate();
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

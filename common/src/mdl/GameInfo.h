@@ -57,7 +57,4 @@ struct GameInfo
 
 GameInfo makeGameInfo(GameConfig gameConfig);
 
-Preference<std::filesystem::path>& compilationToolPathPreference(
-  const GameInfo& gameInfo, std::string_view tool);
-
 } // namespace tb::mdl

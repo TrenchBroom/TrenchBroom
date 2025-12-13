@@ -244,30 +244,31 @@ void GamePreferencePane::createGui()
   layout->addSection(tr("Compilation Tools"));
 
   auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.gameManager();
-  const auto* gameInfo = gameManager.gameInfo(m_gameName);
+  auto& gameManager = app.gameManager();
+  auto* gameInfo = gameManager.gameInfo(m_gameName);
   contract_assert(gameInfo);
 
   for (auto& tool : gameInfo->gameConfig.compilationTools)
   {
     const auto toolName = tool.name;
-    auto& toolPathPref = mdl::compilationToolPathPreference(*gameInfo, toolName);
+    auto& toolPathPref = tool.pathPreference;
 
     auto* edit = new QLineEdit{};
-    edit->setText(io::pathAsQString(pref(toolPathPref)));
+    edit->setText(io::pathAsQString(pref(tool.pathPreference)));
     if (tool.description)
     {
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
-    connect(edit, &QLineEdit::editingFinished, this, [gameInfo, toolName, edit]() {
+    connect(edit, &QLineEdit::editingFinished, this, [&toolPathPref, edit]() {
       auto& prefs = PreferenceManager::instance();
-      auto& toolPathPref_ = mdl::compilationToolPathPreference(*gameInfo, toolName);
-      prefs.set(toolPathPref_, io::pathFromQString(edit->text()));
+      prefs.set(toolPathPref, io::pathFromQString(edit->text()));
     });
+
+    m_toolPathEditors.emplace_back(&tool, edit);
 
     auto* browseButton = new QPushButton{"..."};
     connect(
-      browseButton, &QPushButton::clicked, this, [this, gameInfo, toolName, edit]() {
+      browseButton, &QPushButton::clicked, this, [this, &toolPathPref, toolName, edit]() {
         const auto pathStr = QFileDialog::getOpenFileName(
           this,
           tr("%1 Path").arg(QString::fromStdString(toolName)),
@@ -276,8 +277,7 @@ void GamePreferencePane::createGui()
         {
           edit->setText(pathStr);
           auto& prefs = PreferenceManager::instance();
-          auto& toolPathPref_ = mdl::compilationToolPathPreference(*gameInfo, toolName);
-          if (prefs.set(toolPathPref_, io::pathFromQString(edit->text())))
+          if (prefs.set(toolPathPref, io::pathFromQString(edit->text())))
           {
             emit requestUpdate();
           }
@@ -294,8 +294,6 @@ void GamePreferencePane::createGui()
   }
 
   setLayout(layout);
-
-  updateControls();
 }
 
 void GamePreferencePane::chooseGamePathClicked()
@@ -344,10 +342,9 @@ void GamePreferencePane::updateControls()
   contract_assert(gameInfo);
 
   // Refresh tool paths from preferences
-  for (const auto& [toolName, toolPathEditor] : m_toolPathEditors)
+  for (const auto& [tool, toolPathEditor] : m_toolPathEditors)
   {
-    const auto& toolPathPref = mdl::compilationToolPathPreference(*gameInfo, toolName);
-    const auto& toolPath = pref(toolPathPref);
+    const auto& toolPath = pref(tool->pathPreference);
     toolPathEditor->setText(io::pathAsQString(toolPath));
   }
 
