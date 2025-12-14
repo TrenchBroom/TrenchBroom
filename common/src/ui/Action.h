@@ -65,6 +65,8 @@ private:
   std::optional<std::filesystem::path> m_iconPath;
   std::optional<QString> m_statusTip;
 
+  bool m_isMenuAction;
+
 public:
   Action(
     std::filesystem::path preferencePath,
@@ -109,6 +111,9 @@ public:
   const std::optional<std::filesystem::path>& iconPath() const;
 
   const std::optional<QString>& statusTip() const;
+
+  bool isMenuAction() const;
+  void setIsMenuAction(bool isMenuAction);
 
   deleteCopy(Action);
 

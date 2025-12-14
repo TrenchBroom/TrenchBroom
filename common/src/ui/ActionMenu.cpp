@@ -38,6 +38,7 @@ void Menu::addSeparator()
 const Action& Menu::addItem(Action& action, const MenuEntryType entryType_)
 {
   entries.emplace_back(MenuAction{action, entryType_});
+  action.setIsMenuAction(true);
   return action;
 }
 

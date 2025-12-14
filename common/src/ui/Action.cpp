@@ -180,6 +180,16 @@ const std::optional<QString>& Action::statusTip() const
   return m_statusTip;
 }
 
+bool Action::isMenuAction() const
+{
+  return m_isMenuAction;
+}
+
+void Action::setIsMenuAction(const bool isMenuAction)
+{
+  m_isMenuAction = isMenuAction;
+}
+
 std::vector<size_t> findConflicts(const std::vector<const Action*>& actions)
 {
   auto entries = std::map<const Action*, size_t, ActionConflictCmp>{};
