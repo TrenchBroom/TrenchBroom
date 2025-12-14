@@ -2000,8 +2000,7 @@ void ActionManager::createToolbar()
   m_toolBar.addSeparator();
 }
 
-const Action& ActionManager::existingAction(
-  const std::filesystem::path& preferencePath) const
+Action& ActionManager::existingAction(const std::filesystem::path& preferencePath)
 {
   auto it = m_actions.find(preferencePath);
   contract_assert(it != m_actions.end());
@@ -2009,7 +2008,7 @@ const Action& ActionManager::existingAction(
   return it->second;
 }
 
-const Action& ActionManager::addAction(Action action)
+Action& ActionManager::addAction(Action action)
 {
   auto [it, didInsert] = m_actions.insert({action.preferencePath(), std::move(action)});
   contract_assert(didInsert);

@@ -35,7 +35,7 @@ void Menu::addSeparator()
   entries.emplace_back(MenuSeparator{});
 }
 
-const Action& Menu::addItem(const Action& action, const MenuEntryType entryType_)
+const Action& Menu::addItem(Action& action, const MenuEntryType entryType_)
 {
   entries.emplace_back(MenuAction{action, entryType_});
   return action;

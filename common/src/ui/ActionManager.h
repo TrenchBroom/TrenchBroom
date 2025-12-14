@@ -121,9 +121,9 @@ private:
   Menu& createMainMenu(std::string name);
 
   void createToolbar();
-  const Action& existingAction(const std::filesystem::path& preferencePath) const;
+  Action& existingAction(const std::filesystem::path& preferencePath);
 
-  const Action& addAction(Action action);
+  Action& addAction(Action action);
 };
 
 } // namespace tb::ui

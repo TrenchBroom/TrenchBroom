@@ -50,7 +50,7 @@ struct MenuSeparator
 
 struct MenuAction
 {
-  const Action& action;
+  Action& action;
   MenuEntryType entryType;
 };
 
@@ -65,8 +65,7 @@ struct Menu
   std::vector<MenuEntry> entries;
 
   void addSeparator();
-  const Action& addItem(
-    const Action& action, MenuEntryType entryType = MenuEntryType::None);
+  const Action& addItem(Action& action, MenuEntryType entryType = MenuEntryType::None);
   Menu& addMenu(std::string name, MenuEntryType entryType = MenuEntryType::None);
 
   template <typename Visitor>
