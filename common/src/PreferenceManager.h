@@ -31,7 +31,6 @@
 #include "Preference.h"
 #include "Result.h"
 
-#include "kd/contracts.h"
 #include "kd/reflection_decl.h"
 #include "kd/vector_set.h"
 
@@ -42,7 +41,6 @@
 #include <iosfwd>
 #include <map>
 #include <memory>
-#include <vector>
 
 class QTextStream;
 class QFileSystemWatcher;
@@ -56,9 +54,6 @@ class PreferenceManager : public QObject
 private:
   static std::unique_ptr<PreferenceManager> m_instance;
   static bool m_initialized;
-
-protected:
-  std::map<std::filesystem::path, std::unique_ptr<PreferenceBase>> m_dynamicPreferences;
 
 public:
   Notifier<const std::filesystem::path&> preferenceDidChangeNotifier;
@@ -77,25 +72,6 @@ public:
   {
     m_instance.reset();
     m_initialized = false;
-  }
-
-  template <typename T>
-  Preference<T>& dynamicPreference(const std::filesystem::path& path, T&& defaultValue)
-  {
-    auto it = m_dynamicPreferences.find(path);
-    if (it == std::end(m_dynamicPreferences))
-    {
-      bool success = false;
-      std::tie(it, success) = m_dynamicPreferences.emplace(
-        path, std::make_unique<Preference<T>>(path, std::forward<T>(defaultValue)));
-      contract_assert(success);
-    }
-
-    const auto& prefPtr = it->second;
-    auto* prefBase = prefPtr.get();
-    auto* pref = dynamic_cast<Preference<T>*>(prefBase);
-    contract_assert(pref != nullptr);
-    return *pref;
   }
 
   /**
@@ -154,8 +130,6 @@ class AppPreferenceManager : public PreferenceManager
   Q_OBJECT
 private:
   using UnsavedPreferences = kdl::vector_set<PreferenceBase*>;
-  using DynamicPreferences =
-    std::map<std::filesystem::path, std::unique_ptr<PreferenceBase>>;
 
   std::filesystem::path m_preferencesFilePath;
   bool m_saveInstantly;

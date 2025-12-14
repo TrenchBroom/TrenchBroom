@@ -189,6 +189,4 @@ PreferencePersistencePolicy PreferenceBase::persistencePolicy() const
   return m_persistencePolicy;
 }
 
-DynamicPreferencePatternBase::~DynamicPreferencePatternBase() = default;
-
 } // namespace tb
