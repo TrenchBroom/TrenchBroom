@@ -23,7 +23,9 @@
 #include <QToolBar>
 
 #include "io/ResourceUtils.h"
-#include "ui/Actions.h"
+#include "ui/Action.h"
+#include "ui/ActionManager.h"
+#include "ui/ActionMenu.h"
 
 #include "kd/contracts.h"
 

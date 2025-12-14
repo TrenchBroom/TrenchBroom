@@ -22,7 +22,7 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "mdl/PointTrace.h"
-#include "ui/Actions.h"
+#include "ui/Action.h"
 
 #include "vm/bbox.h"
 #include "vm/polygon.h"

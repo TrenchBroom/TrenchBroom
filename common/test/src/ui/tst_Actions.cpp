@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/Actions.h"
+#include "ui/Action.h"
+#include "ui/ActionManager.h"
+#include "ui/ActionMenu.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"

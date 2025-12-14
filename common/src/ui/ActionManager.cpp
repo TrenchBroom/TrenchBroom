@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Actions.h"
+#include "ActionManager.h"
 
 #include <QKeySequence>
 #include <QString>
@@ -30,15 +30,15 @@
 #include "mdl/Grid.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
-#include "mdl/Map_Groups.h"
-#include "mdl/Map_Selection.h"
+#include "mdl/Map_Groups.h"    // IWYU pragma: keep
+#include "mdl/Map_Selection.h" // IWYU pragma: keep
 #include "mdl/Tag.h"
+#include "ui/ActionExecutionContext.h"
 #include "ui/Inspector.h"
-#include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
+#include "ui/MapView.h"
 #include "ui/MapViewBase.h"
 
-#include "kd/const_overload.h"
 #include "kd/contracts.h"
 
 #include "vm/util.h"
@@ -48,230 +48,6 @@
 
 namespace tb::ui
 {
-// ActionExecutionContext
-
-ActionExecutionContext::ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView)
-  : m_actionContext(mapView != nullptr ? mapView->actionContext() : ActionContext::Any)
-  , m_frame{mapFrame}
-  , m_mapView{mapView}
-{
-  contract_pre(m_frame == nullptr || m_mapView != nullptr);
-}
-
-bool ActionExecutionContext::hasDocument() const
-{
-  return m_frame != nullptr;
-}
-
-bool ActionExecutionContext::hasActionContext(
-  const ActionContext::Type actionContext) const
-{
-  if (actionContext == ActionContext::Any || m_actionContext == ActionContext::Any)
-  {
-    return true;
-  }
-
-  if (hasDocument())
-  {
-    return actionContextMatches(m_actionContext, actionContext);
-  }
-  return false;
-}
-
-const MapFrame& ActionExecutionContext::frame() const
-{
-  contract_pre(hasDocument());
-
-  return *m_frame;
-}
-
-MapFrame& ActionExecutionContext::frame()
-{
-  return KDL_CONST_OVERLOAD(frame());
-}
-
-const MapViewBase& ActionExecutionContext::view() const
-{
-  contract_pre(hasDocument());
-  contract_pre(m_mapView != nullptr);
-
-  return *m_mapView;
-}
-
-MapViewBase& ActionExecutionContext::view()
-{
-  return KDL_CONST_OVERLOAD(view());
-}
-
-const MapDocument& ActionExecutionContext::document() const
-{
-  return frame().document();
-}
-
-MapDocument& ActionExecutionContext::document()
-{
-  return KDL_CONST_OVERLOAD(document());
-}
-
-const mdl::Map& ActionExecutionContext::map() const
-{
-  return document().map();
-}
-
-mdl::Map& ActionExecutionContext::map()
-{
-  return KDL_CONST_OVERLOAD(map());
-}
-
-// Action
-
-Action::Action(
-  std::filesystem::path preferencePath,
-  QString label,
-  const ActionContext::Type actionContext,
-  QKeySequence defaultShortcut,
-  ExecuteFn execute,
-  EnabledFn enabled,
-  std::optional<CheckedFn> checked,
-  std::optional<std::filesystem::path> iconPath,
-  std::optional<QString> statusTip)
-  : m_label{std::move(label)}
-  , m_preferencePath{std::move(preferencePath)}
-  , m_actionContext{actionContext}
-  , m_defaultShortcut{defaultShortcut}
-  , m_execute{std::move(execute)}
-  , m_enabled{std::move(enabled)}
-  , m_checked{std::move(checked)}
-  , m_iconPath{std::move(iconPath)}
-  , m_statusTip{std::move(statusTip)}
-{
-}
-
-Action::Action(
-  std::filesystem::path preferencePath,
-  QString label,
-  const ActionContext::Type actionContext,
-  QKeySequence defaultShortcut,
-  ExecuteFn execute,
-  EnabledFn enabled,
-  std::optional<std::filesystem::path> iconPath,
-  std::optional<QString> statusTip)
-  : Action{
-      std::move(preferencePath),
-      std::move(label),
-      actionContext,
-      defaultShortcut,
-      std::move(execute),
-      std::move(enabled),
-      std::nullopt,
-      std::move(iconPath),
-      std::move(statusTip)}
-{
-}
-
-Action::Action(
-  std::filesystem::path preferencePath,
-  QString label,
-  ActionContext::Type actionContext,
-  ExecuteFn execute,
-  EnabledFn enabled)
-  : Action{
-      std::move(preferencePath),
-      std::move(label),
-      actionContext,
-      QKeySequence{},
-      std::move(execute),
-      std::move(enabled),
-      std::nullopt,
-      std::nullopt,
-      std::nullopt}
-{
-}
-
-const QString& Action::label() const
-{
-  return m_label;
-}
-
-const std::filesystem::path& Action::preferencePath() const
-{
-  return m_preferencePath;
-}
-
-ActionContext::Type Action::actionContext() const
-{
-  return m_actionContext;
-}
-
-QKeySequence Action::keySequence() const
-{
-  auto& prefs = PreferenceManager::instance();
-  auto& pref = prefs.dynamicPreference(m_preferencePath, QKeySequence{m_defaultShortcut});
-  return prefs.get(pref);
-}
-
-void Action::setKeySequence(const QKeySequence& keySequence) const
-{
-  auto& prefs = PreferenceManager::instance();
-  auto& pref = prefs.dynamicPreference(m_preferencePath, QKeySequence{m_defaultShortcut});
-  prefs.set(pref, keySequence);
-}
-
-void Action::resetKeySequence() const
-{
-  setKeySequence(m_defaultShortcut);
-}
-
-void Action::execute(ActionExecutionContext& context) const
-{
-  if (enabled(context))
-  {
-    m_execute(context);
-  }
-}
-
-bool Action::enabled(const ActionExecutionContext& context) const
-{
-  return context.hasActionContext(m_actionContext) && m_enabled(context);
-}
-
-bool Action::checkable() const
-{
-  return m_checked != std::nullopt;
-}
-
-bool Action::checked(const ActionExecutionContext& context) const
-{
-  return m_checked && (*m_checked)(context);
-}
-
-const std::optional<std::filesystem::path>& Action::iconPath() const
-{
-  return m_iconPath;
-}
-
-const std::optional<QString>& Action::statusTip() const
-{
-  return m_statusTip;
-}
-
-void Menu::addSeparator()
-{
-  entries.emplace_back(MenuSeparator{});
-}
-
-const Action& Menu::addItem(const Action& action, const MenuEntryType entryType_)
-{
-  entries.emplace_back(MenuAction{action, entryType_});
-  return action;
-}
-
-Menu& Menu::addMenu(std::string name_, const MenuEntryType entryType_)
-{
-  return std::get<Menu>(entries.emplace_back(Menu{std::move(name_), entryType_, {}}));
-}
-
-// ActionManager
 
 ActionManager::ActionManager()
 {
@@ -2239,53 +2015,6 @@ const Action& ActionManager::addAction(Action action)
   contract_assert(didInsert);
 
   return it->second;
-}
-
-namespace
-{
-
-struct ActionConflictCmp
-{
-  bool operator()(const Action* lhs, const Action* rhs) const
-  {
-    if (actionContextMatches(lhs->actionContext(), rhs->actionContext()))
-    {
-      // if the two have the same sequence, they would be in conflict, so we compare the
-      // sequences
-      const auto lhsKeySequence = lhs->keySequence();
-      const auto rhsKeySequence = rhs->keySequence();
-      return lhsKeySequence < rhsKeySequence;
-    }
-    // otherwise, we just compare by the action context
-    return lhs->actionContext() < rhs->actionContext();
-  }
-};
-
-} // namespace
-
-std::vector<size_t> findConflicts(const std::vector<const Action*>& actions)
-{
-  auto entries = std::map<const Action*, size_t, ActionConflictCmp>{};
-  auto conflicts = std::vector<size_t>{};
-
-  for (size_t i = 0; i < actions.size(); ++i)
-  {
-    const auto& action = *actions[i];
-    const auto keySequence = action.keySequence();
-    if (keySequence.count() > 0)
-    {
-      const auto [it, noConflict] = entries.emplace(&action, i);
-      if (!noConflict)
-      {
-        // found a duplicate, so there are conflicts
-        const auto otherIndex = it->second;
-        conflicts.emplace_back(otherIndex);
-        conflicts.emplace_back(i);
-      }
-    }
-  }
-
-  return conflicts;
 }
 
 } // namespace tb::ui

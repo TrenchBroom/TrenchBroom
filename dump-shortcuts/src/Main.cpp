@@ -19,6 +19,7 @@
 
 #include <QApplication>
 #include <QFileInfo>
+#include <QKeySequence>
 #include <QSettings>
 #include <QTextStream>
 
@@ -26,9 +27,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "io/PathQt.h"
-#include "ui/Actions.h"
-
-#include "kd/contracts.h"
+#include "ui/ActionManager.h"
+#include "ui/ActionMenu.h"
 
 #include <array>
 #include <tuple>

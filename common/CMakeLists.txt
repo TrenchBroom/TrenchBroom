@@ -278,9 +278,12 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Thread.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
+        ${COMMON_SOURCE_DIR}/ui/Action.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionBuilder.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionContext.cpp
-        ${COMMON_SOURCE_DIR}/ui/Actions.cpp
+        ${COMMON_SOURCE_DIR}/ui/ActionExecutionContext.cpp
+        ${COMMON_SOURCE_DIR}/ui/ActionManager.cpp
+        ${COMMON_SOURCE_DIR}/ui/ActionMenu.cpp
         ${COMMON_SOURCE_DIR}/ui/Animation.cpp
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.cpp
@@ -794,9 +797,12 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
+        ${COMMON_SOURCE_DIR}/ui/Action.h
         ${COMMON_SOURCE_DIR}/ui/ActionBuilder.h
         ${COMMON_SOURCE_DIR}/ui/ActionContext.h
-        ${COMMON_SOURCE_DIR}/ui/Actions.h
+        ${COMMON_SOURCE_DIR}/ui/ActionExecutionContext.h
+        ${COMMON_SOURCE_DIR}/ui/ActionManager.h
+        ${COMMON_SOURCE_DIR}/ui/ActionMenu.h
         ${COMMON_SOURCE_DIR}/ui/Animation.h
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.h

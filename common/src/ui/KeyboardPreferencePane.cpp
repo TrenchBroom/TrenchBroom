@@ -28,7 +28,7 @@
 #include <QTableView>
 #include <QTimer>
 
-#include "ui/Actions.h"
+#include "ui/ActionManager.h"
 #include "ui/KeyboardShortcutItemDelegate.h"
 #include "ui/KeyboardShortcutModel.h"
 #include "ui/MapDocument.h"

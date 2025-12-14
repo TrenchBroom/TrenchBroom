@@ -22,8 +22,10 @@
 #include <QBrush>
 
 #include "io/PathQt.h"
+#include "ui/Action.h"
 #include "ui/ActionContext.h"
-#include "ui/Actions.h"
+#include "ui/ActionManager.h"
+#include "ui/ActionMenu.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
