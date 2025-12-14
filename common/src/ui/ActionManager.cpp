@@ -44,7 +44,6 @@
 #include "vm/util.h"
 
 #include <string>
-#include <unordered_set>
 
 namespace tb::ui
 {
@@ -121,30 +120,6 @@ std::vector<Action> ActionManager::createEntityDefinitionActions(
   }
 
   return result;
-}
-
-void ActionManager::visitMapViewActions(const ActionVisitor& visitor) const
-{
-  // Gather the set of all Actions that are used in menus/toolbars
-
-  auto menuActions = std::unordered_set<const Action*>{};
-  const auto collectActionsVisitor = kdl::overload(
-    [](const MenuSeparator&) {},
-    [&](const MenuAction& actionItem) { menuActions.insert(&actionItem.action); },
-    [](const auto& thisLambda, const Menu& menu) { menu.visitEntries(thisLambda); });
-
-  visitMainMenu(collectActionsVisitor);
-  visitToolBar(collectActionsVisitor);
-
-  for (const auto& [path, tAction] : m_actions)
-  {
-    unused(path);
-    if (menuActions.count(&tAction) == 0)
-    {
-      // This action is not used in a menu, so visit it
-      visitor(tAction);
-    }
-  }
 }
 
 const std::unordered_map<std::filesystem::path, Action, kdl::path_hash>& ActionManager::

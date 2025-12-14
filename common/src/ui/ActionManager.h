@@ -96,7 +96,17 @@ public:
   /**
    * Visits actions not used in the menu or toolbar.
    */
-  void visitMapViewActions(const ActionVisitor& visitor) const;
+  void visitMapViewActions(const ActionVisitor& visitor) const
+  {
+    for (const auto& [path, action] : m_actions)
+    {
+      unused(path);
+      if (!action.isMenuAction())
+      {
+        visitor(action);
+      }
+    }
+  }
 
   const std::unordered_map<std::filesystem::path, Action, kdl::path_hash>& actionsMap()
     const;
