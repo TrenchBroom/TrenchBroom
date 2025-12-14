@@ -214,21 +214,20 @@ public: // accessors and such
 
 public: // tag and entity definition actions
   template <typename ActionVisitor>
-  void visitTagActions(const ActionVisitor& visitor) const
+  void visitTagActions(ActionVisitor&& visitor) const
   {
-    visitActions(visitor, m_tagActions);
+    visitActions(std::forward<ActionVisitor>(visitor), m_tagActions);
   }
 
   template <typename ActionVisitor>
-  void visitEntityDefinitionActions(const ActionVisitor& visitor) const
+  void visitEntityDefinitionActions(ActionVisitor&& visitor) const
   {
-    visitActions(visitor, m_entityDefinitionActions);
+    visitActions(std::forward<ActionVisitor>(visitor), m_entityDefinitionActions);
   }
 
 private: // tag and entity definition actions
   template <typename ActionVisitor>
-  void visitActions(
-    const ActionVisitor& visitor, const std::vector<Action>& actions) const
+  void visitActions(ActionVisitor&& visitor, const std::vector<Action>& actions) const
   {
     for (const auto& action : actions)
     {

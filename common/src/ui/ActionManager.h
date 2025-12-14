@@ -30,14 +30,11 @@
 #include "kd/path_hash.h"
 
 #include <filesystem>
-#include <functional>
 #include <string>
 #include <vector>
 
 namespace tb::ui
 {
-
-using ActionVisitor = std::function<void(const Action&)>;
 
 class ActionManager
 {
@@ -79,7 +76,7 @@ public:
     const std::vector<mdl::EntityDefinition>& entityDefinitions) const;
 
   template <typename MenuVisitor>
-  void visitMainMenu(const MenuVisitor& visitor) const
+  void visitMainMenu(MenuVisitor&& visitor) const
   {
     for (const auto& menu : m_mainMenu)
     {
@@ -88,7 +85,7 @@ public:
   }
 
   template <typename MenuVisitor>
-  void visitToolBar(const MenuVisitor& visitor) const
+  void visitToolBar(MenuVisitor&& visitor) const
   {
     m_toolBar.visitEntries(visitor);
   }
@@ -96,7 +93,8 @@ public:
   /**
    * Visits actions not used in the menu or toolbar.
    */
-  void visitMapViewActions(const ActionVisitor& visitor) const
+  template <typename ActionVisitor>
+  void visitMapViewActions(ActionVisitor&& visitor) const
   {
     for (const auto& [path, action] : m_actions)
     {

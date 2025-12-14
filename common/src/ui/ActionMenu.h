@@ -69,7 +69,7 @@ struct Menu
   Menu& addMenu(std::string name, MenuEntryType entryType = MenuEntryType::None);
 
   template <typename Visitor>
-  void visitEntries(const Visitor& visitor) const
+  void visitEntries(Visitor&& visitor) const
   {
     for (const auto& entry : entries)
     {
