@@ -23,6 +23,7 @@
 #include <QString>
 
 #include "Macros.h"
+#include "Preference.h"
 #include "ui/ActionContext.h"
 
 #include <filesystem>
@@ -54,9 +55,8 @@ class Action
 {
 private:
   QString m_label;
-  std::filesystem::path m_preferencePath;
   ActionContext::Type m_actionContext;
-  QKeySequence m_defaultShortcut;
+  Preference<QKeySequence> m_shortcutPreference;
 
   ExecuteFn m_execute;
   EnabledFn m_enabled;
@@ -97,11 +97,10 @@ public:
     EnabledFn enabled);
 
   const QString& label() const;
-  const std::filesystem::path& preferencePath() const;
   ActionContext::Type actionContext() const;
-  QKeySequence keySequence() const;
-  void setKeySequence(const QKeySequence& keySequence) const;
-  void resetKeySequence() const;
+
+  const Preference<QKeySequence>& preference() const;
+  Preference<QKeySequence>& preference();
 
   void execute(ActionExecutionContext& context) const;
   bool enabled(const ActionExecutionContext& context) const;

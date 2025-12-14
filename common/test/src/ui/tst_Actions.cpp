@@ -104,7 +104,8 @@ struct StringMaker<tb::ui::ActionConflict>
   {
     const auto& [action1, action2] = value;
     auto str = std::stringstream{};
-    str << action1->preferencePath() << " conflicts with " << action2->preferencePath();
+    str << action1->preference().path() << " conflicts with "
+        << action2->preference().path();
     return str.str();
   }
 };

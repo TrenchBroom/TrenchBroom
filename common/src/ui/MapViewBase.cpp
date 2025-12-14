@@ -271,7 +271,7 @@ void MapViewBase::createActions()
   m_shortcuts.clear();
 
   auto visitor = [this](const Action& action) {
-    const auto keySequence = action.keySequence();
+    const auto& keySequence = pref(action.preference());
 
     auto* shortcut = new QShortcut{this};
     shortcut->setContext(Qt::WidgetWithChildrenShortcut);
@@ -297,7 +297,7 @@ void MapViewBase::updateActionBindings()
 {
   for (auto& [shortcut, action] : m_shortcuts)
   {
-    shortcut->setKey(action->keySequence());
+    shortcut->setKey(pref(action->preference()));
   }
 }
 

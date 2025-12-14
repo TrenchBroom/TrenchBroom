@@ -22,6 +22,8 @@
 #include "PreferenceManager.h"
 #include "ui/ActionExecutionContext.h"
 
+#include "kd/const_overload.h"
+
 #include <map>
 #include <vector>
 
@@ -39,8 +41,8 @@ struct ActionConflictCmp
     {
       // if the two have the same sequence, they would be in conflict, so we compare the
       // sequences
-      const auto lhsKeySequence = lhs->keySequence();
-      const auto rhsKeySequence = rhs->keySequence();
+      const auto& lhsKeySequence = pref(lhs->preference());
+      const auto& rhsKeySequence = pref(rhs->preference());
       return lhsKeySequence < rhsKeySequence;
     }
     // otherwise, we just compare by the action context
@@ -61,9 +63,8 @@ Action::Action(
   std::optional<std::filesystem::path> iconPath,
   std::optional<QString> statusTip)
   : m_label{std::move(label)}
-  , m_preferencePath{std::move(preferencePath)}
   , m_actionContext{actionContext}
-  , m_defaultShortcut{defaultShortcut}
+  , m_shortcutPreference{std::move(preferencePath), defaultShortcut}
   , m_execute{std::move(execute)}
   , m_enabled{std::move(enabled)}
   , m_checked{std::move(checked)}
@@ -118,33 +119,19 @@ const QString& Action::label() const
   return m_label;
 }
 
-const std::filesystem::path& Action::preferencePath() const
-{
-  return m_preferencePath;
-}
-
 ActionContext::Type Action::actionContext() const
 {
   return m_actionContext;
 }
 
-QKeySequence Action::keySequence() const
+const Preference<QKeySequence>& Action::preference() const
 {
-  auto& prefs = PreferenceManager::instance();
-  auto& pref = prefs.dynamicPreference(m_preferencePath, QKeySequence{m_defaultShortcut});
-  return prefs.get(pref);
+  return m_shortcutPreference;
 }
 
-void Action::setKeySequence(const QKeySequence& keySequence) const
+Preference<QKeySequence>& Action::preference()
 {
-  auto& prefs = PreferenceManager::instance();
-  auto& pref = prefs.dynamicPreference(m_preferencePath, QKeySequence{m_defaultShortcut});
-  prefs.set(pref, keySequence);
-}
-
-void Action::resetKeySequence() const
-{
-  setKeySequence(m_defaultShortcut);
+  return KDL_CONST_OVERLOAD(preference());
 }
 
 void Action::execute(ActionExecutionContext& context) const
@@ -198,7 +185,7 @@ std::vector<size_t> findConflicts(const std::vector<const Action*>& actions)
   for (size_t i = 0; i < actions.size(); ++i)
   {
     const auto& action = *actions[i];
-    const auto keySequence = action.keySequence();
+    const auto& keySequence = pref(action.preference());
     if (keySequence.count() > 0)
     {
       const auto [it, noConflict] = entries.emplace(&action, i);

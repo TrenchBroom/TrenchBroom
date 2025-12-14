@@ -137,7 +137,7 @@ public:
   const std::unordered_map<std::filesystem::path, Action, kdl::path_hash>& actionsMap()
     const;
 
-  void resetAllKeySequences() const;
+  void resetAllKeySequences();
 
 private:
   void initialize();

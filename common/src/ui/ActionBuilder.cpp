@@ -22,6 +22,7 @@
 #include <QMenuBar>
 #include <QToolBar>
 
+#include "PreferenceManager.h"
 #include "io/ResourceUtils.h"
 #include "ui/Action.h"
 #include "ui/ActionManager.h"
@@ -34,11 +35,12 @@ namespace tb::ui
 
 void updateActionKeySequence(QAction& qAction, const Action& tAction)
 {
-  if (!tAction.keySequence().isEmpty())
+  const auto& shortcutPreference = pref(tAction.preference());
+  if (!shortcutPreference.isEmpty())
   {
     const auto tooltip = QObject::tr("%1 (%2)")
                            .arg(tAction.label())
-                           .arg(tAction.keySequence().toString(QKeySequence::NativeText));
+                           .arg(shortcutPreference.toString(QKeySequence::NativeText));
     qAction.setToolTip(tooltip);
   }
   else
@@ -46,7 +48,7 @@ void updateActionKeySequence(QAction& qAction, const Action& tAction)
     qAction.setToolTip(tAction.label());
   }
 
-  qAction.setShortcut(tAction.keySequence());
+  qAction.setShortcut(shortcutPreference);
 }
 
 namespace

@@ -21,6 +21,7 @@
 
 #include <QBrush>
 
+#include "PreferenceManager.h"
 #include "io/PathQt.h"
 #include "ui/Action.h"
 #include "ui/ActionContext.h"
@@ -91,7 +92,7 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     const auto& actionInfo = this->actionInfo(index.row());
     if (index.column() == 0)
     {
-      return actionInfo.action.keySequence();
+      return pref(actionInfo.action.preference());
     }
     if (index.column() == 1)
     {
@@ -114,9 +115,11 @@ bool KeyboardShortcutModel::setData(
     return false;
   }
 
+  auto& prefs = PreferenceManager::instance();
+
   // We take a copy here on purpose in order to set the key further below.
   auto& actionInfo = this->actionInfo(index.row());
-  actionInfo.action.setKeySequence(value.value<QKeySequence>());
+  prefs.set(actionInfo.action.preference(), value.value<QKeySequence>());
 
   updateConflicts();
 

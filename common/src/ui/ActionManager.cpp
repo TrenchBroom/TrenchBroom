@@ -128,17 +128,19 @@ const std::unordered_map<std::filesystem::path, Action, kdl::path_hash>& ActionM
   return m_actions;
 }
 
-void ActionManager::resetAllKeySequences() const
+void ActionManager::resetAllKeySequences()
 {
+  auto& prefs = PreferenceManager::instance();
+
   const auto resetVisitor = kdl::overload(
-    [](const MenuSeparator&) {},
-    [](const MenuAction& actionItem) { actionItem.action.resetKeySequence(); },
-    [](const auto& thisLambda, const Menu& menu) { menu.visitEntries(thisLambda); });
+    [](MenuSeparator&) {},
+    [&](MenuAction& actionItem) { prefs.resetToDefault(actionItem.action.preference()); },
+    [](auto& thisLambda, Menu& menu) { menu.visitEntries(thisLambda); });
 
   visitMainMenu(resetVisitor);
   visitToolBar(resetVisitor);
 
-  visitMapViewActions([](const auto& action) { action.resetKeySequence(); });
+  visitMapViewActions([&](auto& action) { prefs.resetToDefault(action.preference()); });
 }
 
 void ActionManager::initialize()
@@ -1985,7 +1987,8 @@ Action& ActionManager::existingAction(const std::filesystem::path& preferencePat
 
 Action& ActionManager::addAction(Action action)
 {
-  auto [it, didInsert] = m_actions.insert({action.preferencePath(), std::move(action)});
+  auto path = action.preference().path();
+  auto [it, didInsert] = m_actions.emplace(std::move(path), std::move(action));
   contract_assert(didInsert);
 
   return it->second;
