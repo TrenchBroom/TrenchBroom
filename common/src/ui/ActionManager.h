@@ -85,7 +85,22 @@ public:
   }
 
   template <typename MenuVisitor>
+  void visitMainMenu(MenuVisitor&& visitor)
+  {
+    for (auto& menu : m_mainMenu)
+    {
+      visitor(visitor, menu);
+    }
+  }
+
+  template <typename MenuVisitor>
   void visitToolBar(MenuVisitor&& visitor) const
+  {
+    m_toolBar.visitEntries(visitor);
+  }
+
+  template <typename MenuVisitor>
+  void visitToolBar(MenuVisitor&& visitor)
   {
     m_toolBar.visitEntries(visitor);
   }
@@ -97,6 +112,19 @@ public:
   void visitMapViewActions(ActionVisitor&& visitor) const
   {
     for (const auto& [path, action] : m_actions)
+    {
+      unused(path);
+      if (!action.isMenuAction())
+      {
+        visitor(action);
+      }
+    }
+  }
+
+  template <typename ActionVisitor>
+  void visitMapViewActions(ActionVisitor&& visitor)
+  {
+    for (auto& [path, action] : m_actions)
     {
       unused(path);
       if (!action.isMenuAction())

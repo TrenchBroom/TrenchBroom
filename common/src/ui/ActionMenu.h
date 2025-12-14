@@ -81,6 +81,20 @@ struct Menu
         entry);
     }
   }
+
+  template <typename Visitor>
+  void visitEntries(Visitor&& visitor)
+  {
+    for (auto& entry : entries)
+    {
+      std::visit(
+        kdl::overload(
+          [&](MenuSeparator& separatorItem) { visitor(separatorItem); },
+          [&](MenuAction& actionItem) { visitor(actionItem); },
+          [&](Menu& menu) { visitor(visitor, menu); }),
+        entry);
+    }
+  }
 };
 
 } // namespace tb::ui
