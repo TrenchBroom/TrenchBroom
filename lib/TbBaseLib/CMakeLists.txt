@@ -10,6 +10,9 @@ add_library(TbBaseLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/NotifierConnection.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParserException.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParserStatus.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Preference.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/PreferenceManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/PreferenceStore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/SimpleParserStatus.cpp
 )
 

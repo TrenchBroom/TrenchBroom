@@ -1,6 +1,7 @@
 add_library(TbBaseTestUtilsLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Matchers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/TestParserStatus.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/TestPreferenceStore.cpp
 )
 
 target_include_directories(TbBaseTestUtilsLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
