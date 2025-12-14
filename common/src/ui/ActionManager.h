@@ -63,7 +63,7 @@ private:
 public:
   deleteCopyAndMove(ActionManager);
 
-  static const ActionManager& instance();
+  static ActionManager& instance();
 
   /**
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.

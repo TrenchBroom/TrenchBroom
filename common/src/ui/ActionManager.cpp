@@ -53,9 +53,9 @@ ActionManager::ActionManager()
   initialize();
 }
 
-const ActionManager& ActionManager::instance()
+ActionManager& ActionManager::instance()
 {
-  static const auto instance = ActionManager();
+  static auto instance = ActionManager();
   return instance;
 }
 

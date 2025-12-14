@@ -182,8 +182,8 @@ void KeyboardShortcutModel::initializeMenuActions()
 
 void KeyboardShortcutModel::initializeViewActions()
 {
-  const auto& actionManager = ActionManager::instance();
-  actionManager.visitMapViewActions([&](const Action& action) {
+  auto& actionManager = ActionManager::instance();
+  actionManager.visitMapViewActions([&](Action& action) {
     m_actions.push_back(
       ActionInfo{"Map View" / io::pathFromQString(action.label()), action});
   });
@@ -193,7 +193,7 @@ void KeyboardShortcutModel::initializeTagActions()
 {
   contract_pre(m_document);
 
-  m_document->visitTagActions([&](const Action& action) {
+  m_document->visitTagActions([&](Action& action) {
     m_actions.push_back(ActionInfo{"Tags" / io::pathFromQString(action.label()), action});
   });
 }
@@ -202,7 +202,7 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 {
   contract_pre(m_document);
 
-  m_document->visitEntityDefinitionActions([&](const Action& action) {
+  m_document->visitEntityDefinitionActions([&](Action& action) {
     m_actions.push_back(
       ActionInfo{"Entity Definitions" / io::pathFromQString(action.label()), action});
   });
@@ -210,10 +210,10 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 
 void KeyboardShortcutModel::updateConflicts()
 {
-  const auto allActions =
-    m_actions
-    | std::views::transform([](const auto& actionInfo) { return &actionInfo.action; })
-    | kdl::ranges::to<std::vector>();
+  const auto allActions = m_actions | std::views::transform([](const auto& actionInfo) {
+                            return const_cast<const Action*>(&actionInfo.action);
+                          })
+                          | kdl::ranges::to<std::vector>();
 
   m_conflicts = kdl::vec_static_cast<int>(findConflicts(allActions));
   for (const auto& row : m_conflicts)

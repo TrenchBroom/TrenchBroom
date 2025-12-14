@@ -41,7 +41,7 @@ private:
      * Path displayed to the user, unrelated to the preference path.
      */
     const std::filesystem::path displayPath;
-    const Action& action;
+    Action& action;
   };
 
   MapDocument* m_document;
