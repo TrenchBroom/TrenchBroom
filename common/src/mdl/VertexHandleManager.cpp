@@ -19,8 +19,6 @@
 
 #include "VertexHandleManager.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "mdl/BrushFace.h"
 #include "mdl/Grid.h"
 #include "mdl/Polyhedron.h"
@@ -38,13 +36,14 @@ VertexHandleManagerBase::~VertexHandleManagerBase() = default;
 const HitType::Type VertexHandleManager::HandleHitType = HitType::freeType();
 
 void VertexHandleManager::pick(
-  const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const
+  const vm::ray3d& pickRay,
+  const render::Camera& camera,
+  const double handleRadius,
+  PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
-    if (
-      const auto distance = camera.pickPointHandle(
-        pickRay, position, double(pref(Preferences::HandleRadius))))
+    if (const auto distance = camera.pickPointHandle(pickRay, position, handleRadius))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *distance);
       const auto error = vm::squared_distance(pickRay, position).distance;
@@ -88,22 +87,22 @@ const HitType::Type EdgeHandleManager::HandleHitType = HitType::freeType();
 void EdgeHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
+  const double handleRadius,
   const Grid& grid,
   PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
     if (
-      const auto edgeDist = camera.pickLineSegmentHandle(
-        pickRay, position, double(pref(Preferences::HandleRadius))))
+      const auto edgeDist = camera.pickLineSegmentHandle(pickRay, position, handleRadius))
     {
       if (
         const auto pointHandle =
           grid.snap(vm::point_at_distance(pickRay, *edgeDist), position))
       {
         if (
-          const auto pointDist = camera.pickPointHandle(
-            pickRay, *pointHandle, double(pref(Preferences::HandleRadius))))
+          const auto pointDist =
+            camera.pickPointHandle(pickRay, *pointHandle, handleRadius))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
           pickResult.addHit(
@@ -115,15 +114,16 @@ void EdgeHandleManager::pickGridHandle(
 }
 
 void EdgeHandleManager::pickCenterHandle(
-  const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const
+  const vm::ray3d& pickRay,
+  const render::Camera& camera,
+  const double handleRadius,
+  PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
     const auto pointHandle = position.center();
 
-    if (
-      const auto pointDist = camera.pickPointHandle(
-        pickRay, pointHandle, double(pref(Preferences::HandleRadius))))
+    if (const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, handleRadius))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
       pickResult.addHit(Hit{HandleHitType, *pointDist, hitPoint, position});
@@ -166,6 +166,7 @@ const HitType::Type FaceHandleManager::HandleHitType = HitType::freeType();
 void FaceHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
+  const double handleRadius,
   const Grid& grid,
   PickResult& pickResult) const
 {
@@ -183,8 +184,8 @@ void FaceHandleManager::pickGridHandle(
           grid.snap(vm::point_at_distance(pickRay, *distance), *plane);
 
         if (
-          const auto pointDist = camera.pickPointHandle(
-            pickRay, pointHandle, double(pref(Preferences::HandleRadius))))
+          const auto pointDist =
+            camera.pickPointHandle(pickRay, pointHandle, handleRadius))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
           pickResult.addHit(
@@ -196,15 +197,16 @@ void FaceHandleManager::pickGridHandle(
 }
 
 void FaceHandleManager::pickCenterHandle(
-  const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const
+  const vm::ray3d& pickRay,
+  const render::Camera& camera,
+  const double handleRadius,
+  PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
   {
     const auto pointHandle = position.center();
 
-    if (
-      const auto pointDist = camera.pickPointHandle(
-        pickRay, pointHandle, double(pref(Preferences::HandleRadius))))
+    if (const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, handleRadius))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
       pickResult.addHit(Hit{HandleHitType, *pointDist, hitPoint, position});

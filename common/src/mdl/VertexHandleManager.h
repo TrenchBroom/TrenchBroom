@@ -577,10 +577,14 @@ public:
    *
    * @param pickRay the picking ray
    * @param camera the camera
+   * @param handleRadius the radius of the vertex handles
    * @param pickResult the picking result to add the hits to
    */
   void pick(
-    const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const;
+    const vm::ray3d& pickRay,
+    const render::Camera& camera,
+    double handleRadius,
+    PickResult& pickResult) const;
 
 public:
   void addHandles(const BrushNode* brushNode) override;
@@ -619,12 +623,14 @@ public:
    *
    * @param pickRay the picking ray
    * @param camera the camera
+   * @param handleRadius the radius of the vertex handles
    * @param grid the current grid
    * @param pickResult the picking result to add the hits to
    */
   void pickGridHandle(
     const vm::ray3d& pickRay,
     const render::Camera& camera,
+    double handleRadius,
     const Grid& grid,
     PickResult& pickResult) const;
 
@@ -633,10 +639,14 @@ public:
    *
    * @param pickRay the picking ray
    * @param camera the camera
+   * @param handleRadius the radius of the vertex handles
    * @param pickResult the picking result to add the hits to
    */
   void pickCenterHandle(
-    const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const;
+    const vm::ray3d& pickRay,
+    const render::Camera& camera,
+    double handleRadius,
+    PickResult& pickResult) const;
 
 public:
   void addHandles(const BrushNode* brushNode) override;
@@ -675,12 +685,14 @@ public:
    *
    * @param pickRay the picking ray
    * @param camera the camera
+   * @param handleRadius the radius of the vertex handles
    * @param grid the current grid
    * @param pickResult the picking result to add the hits to
    */
   void pickGridHandle(
     const vm::ray3d& pickRay,
     const render::Camera& camera,
+    double handleRadius,
     const Grid& grid,
     PickResult& pickResult) const;
 
@@ -689,10 +701,14 @@ public:
    *
    * @param pickRay the picking ray
    * @param camera the camera
+   * @param handleRadius the radius of the vertex handles
    * @param pickResult the picking result to add the hits to
    */
   void pickCenterHandle(
-    const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const;
+    const vm::ray3d& pickRay,
+    const render::Camera& camera,
+    double handleRadius,
+    PickResult& pickResult) const;
 
 public:
   void addHandles(const BrushNode* brushNode) override;
