@@ -83,6 +83,16 @@ void EditorContext::setEntityDefinitionHidden(
   }
 }
 
+bool EditorContext::showPointEntities() const
+{
+  return m_showPointEntities;
+}
+
+void EditorContext::setShowPointEntities(const bool showPointEntities)
+{
+  m_showPointEntities = showPointEntities;
+}
+
 bool EditorContext::blockSelection() const
 {
   return m_blockSelection;
@@ -187,7 +197,7 @@ bool EditorContext::visible(const EntityNode& entityNode) const
     return false;
   }
 
-  if (entityNode.entity().pointEntity() && !pref(Preferences::ShowPointEntities))
+  if (entityNode.entity().pointEntity() && !m_showPointEntities)
   {
     return false;
   }

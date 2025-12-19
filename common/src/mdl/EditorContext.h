@@ -44,6 +44,8 @@ private:
   TagType::Type m_hiddenTags = 0;
   kdl::dynamic_bitset m_hiddenEntityDefinitions;
 
+  bool m_showPointEntities = true;
+
   bool m_blockSelection = false;
 
   LayerNode* m_currentLayer = nullptr;
@@ -63,6 +65,9 @@ public:
   bool entityDefinitionHidden(const EntityNodeBase& entityNode) const;
   bool entityDefinitionHidden(const EntityDefinition& definition) const;
   void setEntityDefinitionHidden(const EntityDefinition& definition, bool hidden);
+
+  bool showPointEntities() const;
+  void setShowPointEntities(bool showPointEntities);
 
   bool blockSelection() const;
   void setBlockSelection(bool blockSelection);

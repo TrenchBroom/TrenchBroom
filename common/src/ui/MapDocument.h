@@ -200,6 +200,8 @@ public:
 private:
   void setMap(std::unique_ptr<mdl::Map>);
 
+  void updateMapFromPreferences();
+
 public: // accessors and such
   mdl::Map& map();
   const mdl::Map& map() const;
@@ -281,6 +283,7 @@ private: // observers
   void documentWasLoaded();
   void documentWasCleared();
   void entityDefinitionsDidChange();
+  void preferenceDidChange(const std::filesystem::path& preferencePath);
 };
 
 } // namespace ui

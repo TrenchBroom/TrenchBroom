@@ -20,6 +20,8 @@
 #include "ui/MapDocument.h"
 
 #include "LoggingHub.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "fs/DiskIO.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/NodeReader.h"
@@ -27,6 +29,7 @@
 #include "io/WorldReader.h"
 #include "mdl/Autosaver.h"
 #include "mdl/CommandProcessor.h"
+#include "mdl/EditorContext.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/GameInfo.h"
@@ -152,7 +155,13 @@ void MapDocument::setMap(std::unique_ptr<mdl::Map> map)
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
   m_autosaver = std::make_unique<mdl::Autosaver>(*m_map);
 
+  updateMapFromPreferences();
   connectMapObservers();
+}
+
+void MapDocument::updateMapFromPreferences()
+{
+  m_map->editorContext().setShowPointEntities(pref(Preferences::ShowPointEntities));
 }
 
 mdl::Map& MapDocument::map()
@@ -340,6 +349,10 @@ void MapDocument::connectObservers()
 
   m_notifierConnection += entityDefinitionsDidChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsDidChange);
+
+  auto& prefs = PreferenceManager::instance();
+  m_notifierConnection +=
+    prefs.preferenceDidChangeNotifier.connect(this, &MapDocument::preferenceDidChange);
 }
 
 void MapDocument::connectMapObservers()
@@ -433,6 +446,11 @@ void MapDocument::documentWasLoaded()
 void MapDocument::entityDefinitionsDidChange()
 {
   createEntityDefinitionActions();
+}
+
+void MapDocument::preferenceDidChange(const std::filesystem::path&)
+{
+  updateMapFromPreferences();
 }
 
 } // namespace tb::ui
