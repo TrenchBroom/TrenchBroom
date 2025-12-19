@@ -41,13 +41,19 @@ class WorldNode;
 class EditorContext
 {
 private:
-  TagType::Type m_hiddenTags;
+  TagType::Type m_hiddenTags = 0;
   kdl::dynamic_bitset m_hiddenEntityDefinitions;
 
-  bool m_blockSelection;
+  bool m_showPointEntities = true;
+  bool m_showBrushes = true;
+
+  bool m_blockSelection = false;
 
   LayerNode* m_currentLayer = nullptr;
   GroupNode* m_currentGroup = nullptr;
+
+  bool m_alignmentLock = false;
+  bool m_uvLock = false;
 
 public:
   Notifier<> editorContextDidChangeNotifier;
@@ -64,6 +70,12 @@ public:
   bool entityDefinitionHidden(const EntityDefinition& definition) const;
   void setEntityDefinitionHidden(const EntityDefinition& definition, bool hidden);
 
+  bool showPointEntities() const;
+  void setShowPointEntities(bool showPointEntities);
+
+  bool showBrushes() const;
+  void setShowBrushes(bool showBrushes);
+
   bool blockSelection() const;
   void setBlockSelection(bool blockSelection);
 
@@ -74,6 +86,13 @@ public:
   GroupNode* currentGroup() const;
   void pushGroup(GroupNode& groupNode);
   void popGroup();
+
+public:
+  bool alignmentLock() const;
+  void setAlignmentLock(bool alignmentLock);
+
+  bool uvLock() const;
+  void setUVLock(bool uvLock);
 
 public:
   bool visible(const Node& node) const;

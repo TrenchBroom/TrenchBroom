@@ -43,9 +43,10 @@ std::vector<mdl::BrushNode*> EdgeTool::findIncidentBrushes(
 void EdgeTool::pick(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
+  const double handleRadius,
   mdl::PickResult& pickResult) const
 {
-  handleManager().pickCenterHandle(pickRay, camera, pickResult);
+  handleManager().pickCenterHandle(pickRay, camera, handleRadius, pickResult);
 }
 
 mdl::EdgeHandleManager& EdgeTool::handleManager()

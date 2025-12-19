@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "mdl/HitType.h"
 #include "render/Camera.h"
 #include "render/RenderContext.h"
@@ -182,7 +184,11 @@ protected:
 
     void pick(const InputState& inputState, mdl::PickResult& pickResult) override
     {
-      m_tool.pick(inputState.pickRay(), inputState.camera(), pickResult);
+      m_tool.pick(
+        inputState.pickRay(),
+        inputState.camera(),
+        pref(Preferences::HandleRadius),
+        pickResult);
     }
 
     bool mouseClick(const InputState& inputState) override

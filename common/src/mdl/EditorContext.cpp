@@ -19,8 +19,6 @@
 
 #include "EditorContext.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
@@ -37,10 +35,7 @@
 namespace tb::mdl
 {
 
-EditorContext::EditorContext()
-{
-  reset();
-}
+EditorContext::EditorContext() = default;
 
 void EditorContext::reset()
 {
@@ -84,6 +79,26 @@ void EditorContext::setEntityDefinitionHidden(
     m_hiddenEntityDefinitions[definition.index] = hidden;
     editorContextDidChangeNotifier();
   }
+}
+
+bool EditorContext::showPointEntities() const
+{
+  return m_showPointEntities;
+}
+
+void EditorContext::setShowPointEntities(const bool showPointEntities)
+{
+  m_showPointEntities = showPointEntities;
+}
+
+bool EditorContext::showBrushes() const
+{
+  return m_showBrushes;
+}
+
+void EditorContext::setShowBrushes(const bool showBrushes)
+{
+  m_showBrushes = showBrushes;
 }
 
 bool EditorContext::blockSelection() const
@@ -139,6 +154,26 @@ void EditorContext::popGroup()
   }
 }
 
+bool EditorContext::alignmentLock() const
+{
+  return m_alignmentLock;
+}
+
+void EditorContext::setAlignmentLock(const bool alignmentLock)
+{
+  m_alignmentLock = alignmentLock;
+}
+
+bool EditorContext::uvLock() const
+{
+  return m_uvLock;
+}
+
+void EditorContext::setUVLock(const bool uvLock)
+{
+  m_uvLock = uvLock;
+}
+
 bool EditorContext::visible(const Node& node) const
 {
   return node.accept(kdl::overload(
@@ -190,7 +225,7 @@ bool EditorContext::visible(const EntityNode& entityNode) const
     return false;
   }
 
-  if (entityNode.entity().pointEntity() && !pref(Preferences::ShowPointEntities))
+  if (entityNode.entity().pointEntity() && !m_showPointEntities)
   {
     return false;
   }
@@ -210,7 +245,7 @@ bool EditorContext::visible(const BrushNode& brushNode) const
     return true;
   }
 
-  if (!pref(Preferences::ShowBrushes))
+  if (!m_showBrushes)
   {
     return false;
   }

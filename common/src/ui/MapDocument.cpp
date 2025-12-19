@@ -20,6 +20,8 @@
 #include "ui/MapDocument.h"
 
 #include "LoggingHub.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "fs/DiskIO.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/NodeReader.h"
@@ -27,6 +29,7 @@
 #include "io/WorldReader.h"
 #include "mdl/Autosaver.h"
 #include "mdl/CommandProcessor.h"
+#include "mdl/EditorContext.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/GameInfo.h"
@@ -112,7 +115,14 @@ MapDocument::~MapDocument()
 Result<void> MapDocument::create(
   mdl::MapFormat mapFormat, const mdl::GameInfo& gameInfo, const vm::bbox3d& worldBounds)
 {
-  return mdl::Map::createMap(mapFormat, gameInfo, worldBounds, *m_taskManager, logger())
+  auto gamePath = pref(gameInfo.gamePathPreference);
+  return mdl::Map::createMap(
+           mapFormat,
+           gameInfo,
+           std::move(gamePath),
+           worldBounds,
+           *m_taskManager,
+           logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));
              documentWasLoadedNotifier();
@@ -125,8 +135,15 @@ Result<void> MapDocument::load(
   const mdl::GameInfo& gameInfo,
   const vm::bbox3d& worldBounds)
 {
+  auto gamePath = pref(gameInfo.gamePathPreference);
   return mdl::Map::loadMap(
-           path, mapFormat, gameInfo, worldBounds, *m_taskManager, logger())
+           path,
+           mapFormat,
+           gameInfo,
+           std::move(gamePath),
+           worldBounds,
+           *m_taskManager,
+           logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));
              documentWasLoadedNotifier();
@@ -152,7 +169,18 @@ void MapDocument::setMap(std::unique_ptr<mdl::Map> map)
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
   m_autosaver = std::make_unique<mdl::Autosaver>(*m_map);
 
+  updateMapFromPreferences();
   connectMapObservers();
+}
+
+void MapDocument::updateMapFromPreferences()
+{
+  m_map->setGamePath(pref(m_map->gameInfo().gamePathPreference));
+
+  m_map->editorContext().setShowPointEntities(pref(Preferences::ShowPointEntities));
+  m_map->editorContext().setShowBrushes(pref(Preferences::ShowBrushes));
+  m_map->editorContext().setAlignmentLock(pref(Preferences::AlignmentLock));
+  m_map->editorContext().setUVLock(pref(Preferences::UVLock));
 }
 
 mdl::Map& MapDocument::map()
@@ -340,6 +368,10 @@ void MapDocument::connectObservers()
 
   m_notifierConnection += entityDefinitionsDidChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsDidChange);
+
+  auto& prefs = PreferenceManager::instance();
+  m_notifierConnection +=
+    prefs.preferenceDidChangeNotifier.connect(this, &MapDocument::preferenceDidChange);
 }
 
 void MapDocument::connectMapObservers()
@@ -433,6 +465,11 @@ void MapDocument::documentWasLoaded()
 void MapDocument::entityDefinitionsDidChange()
 {
   createEntityDefinitionActions();
+}
+
+void MapDocument::preferenceDidChange(const std::filesystem::path&)
+{
+  updateMapFromPreferences();
 }
 
 } // namespace tb::ui

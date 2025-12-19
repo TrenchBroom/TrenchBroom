@@ -20,7 +20,6 @@
 #include "Map.h"
 
 #include "Logger.h"
-#include "PreferenceManager.h"
 #include "SimpleParserStatus.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
@@ -124,17 +123,18 @@ namespace
 void updateGameFileSystem(
   GameFileSystem& fs,
   const GameInfo& gameInfo,
+  const std::filesystem::path& gamePath,
   const std::vector<std::filesystem::path>& searchPaths,
   Logger& logger)
 {
-  const auto gamePath = pref(gameInfo.gamePathPreference);
   fs.initialize(gameInfo.gameConfig, gamePath, searchPaths, logger);
 }
 
-auto createGameFileSystem(const GameInfo& gameInfo, Logger& logger)
+auto createGameFileSystem(
+  const GameInfo& gameInfo, const std::filesystem::path& gamePath, Logger& logger)
 {
   auto fs = std::make_unique<GameFileSystem>();
-  updateGameFileSystem(*fs, gameInfo, {}, logger);
+  updateGameFileSystem(*fs, gameInfo, gamePath, {}, logger);
   return fs;
 }
 
@@ -487,12 +487,14 @@ const std::string Map::DefaultDocumentName("unnamed.map");
 
 Map::Map(
   const GameInfo& gameInfo,
+  std::filesystem::path gamePath,
   std::unique_ptr<WorldNode> worldNode,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
   Logger& logger)
   : Map{
       gameInfo,
+      std::move(gamePath),
       std::move(worldNode),
       worldBounds,
       DefaultDocumentName,
@@ -504,13 +506,15 @@ Map::Map(
 
 Map::Map(
   const GameInfo& gameInfo,
+  std::filesystem::path gamePath,
   std::unique_ptr<WorldNode> worldNode,
   const vm::bbox3d& worldBounds,
   std::filesystem::path path,
   kdl::task_manager& taskManager,
   Logger& logger)
   : m_gameInfo{gameInfo}
-  , m_gameFileSystem{createGameFileSystem(m_gameInfo, logger)}
+  , m_gamePath{gamePath}
+  , m_gameFileSystem{createGameFileSystem(m_gameInfo, m_gamePath, logger)}
   , m_taskManager{taskManager}
   , m_logger{logger}
   , m_resourceManager{std::make_unique<ResourceManager>()}
@@ -558,6 +562,7 @@ Map::~Map() = default;
 Result<std::unique_ptr<Map>> Map::createMap(
   MapFormat mapFormat,
   const GameInfo& gameInfo,
+  std::filesystem::path gamePath,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
   Logger& logger)
@@ -567,7 +572,12 @@ Result<std::unique_ptr<Map>> Map::createMap(
   return createWorldNode(mapFormat, gameInfo.gameConfig, worldBounds, taskManager, logger)
          | kdl::transform([&](auto worldNode) {
              return std::make_unique<Map>(
-               gameInfo, std::move(worldNode), worldBounds, taskManager, logger);
+               gameInfo,
+               std::move(gamePath),
+               std::move(worldNode),
+               worldBounds,
+               taskManager,
+               logger);
            });
 }
 
@@ -575,6 +585,7 @@ Result<std::unique_ptr<Map>> Map::loadMap(
   std::filesystem::path path,
   MapFormat mapFormat,
   const GameInfo& gameInfo,
+  std::filesystem::path gamePath,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
   Logger& logger)
@@ -591,6 +602,7 @@ Result<std::unique_ptr<Map>> Map::loadMap(
          | kdl::transform([&](auto worldNode) {
              return std::make_unique<Map>(
                gameInfo,
+               std::move(gamePath),
                std::move(worldNode),
                worldBounds,
                std::move(path),
@@ -753,6 +765,27 @@ const EntityLinkManager& Map::entityLinkManager() const
   return *m_entityLinkManager;
 }
 
+const std::filesystem::path& Map::gamePath() const
+{
+  return m_gamePath;
+}
+
+void Map::setGamePath(std::filesystem::path gamePath)
+{
+  if (gamePath != m_gamePath)
+  {
+    m_gamePath = std::move(gamePath);
+
+    updateGameFileSystem();
+
+    clearEntityModels();
+    setEntityModels();
+
+    reloadMaterials();
+    setMaterials();
+  }
+}
+
 Result<std::unique_ptr<Map>> Map::reload()
 {
   if (!persistent())
@@ -764,7 +797,8 @@ Result<std::unique_ptr<Map>> Map::reload()
   const auto mapFormat = m_worldNode->mapFormat();
   const auto worldBounds = m_worldBounds;
 
-  return loadMap(path, mapFormat, gameInfo(), worldBounds, taskManager(), logger());
+  return loadMap(
+    path, mapFormat, gameInfo(), gamePath(), worldBounds, taskManager(), logger());
 }
 
 Result<void> Map::save()
@@ -1028,7 +1062,7 @@ void Map::registerValidators()
 {
   m_worldNode->registerValidator(std::make_unique<MissingClassnameValidator>());
   m_worldNode->registerValidator(std::make_unique<MissingDefinitionValidator>());
-  m_worldNode->registerValidator(std::make_unique<MissingModValidator>(gameInfo()));
+  m_worldNode->registerValidator(std::make_unique<MissingModValidator>(*this));
   m_worldNode->registerValidator(std::make_unique<EmptyGroupValidator>());
   m_worldNode->registerValidator(std::make_unique<EmptyBrushEntityValidator>());
   m_worldNode->registerValidator(std::make_unique<PointEntityWithBrushesValidator>());
@@ -1136,9 +1170,9 @@ void Map::loadMaterials()
   if (const auto* wadStr = m_worldNode->entity().property(EntityPropertyKeys::Wad))
   {
     const auto searchPaths = std::vector<std::filesystem::path>{
-      path().parent_path(),                // relative to the map file
-      pref(gameInfo().gamePathPreference), // relative to game path
-      io::SystemPaths::appDirectory(),     // relative to the application
+      path().parent_path(),            // relative to the map file
+      gamePath(),                      // relative to game path
+      io::SystemPaths::appDirectory(), // relative to the application
     };
 
     const auto wadPaths = kdl::str_split(*wadStr, ";")
@@ -1252,7 +1286,8 @@ void Map::updateGameFileSystem()
     | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
     | kdl::ranges::to<std::vector>();
 
-  mdl::updateGameFileSystem(*m_gameFileSystem, gameInfo(), searchPaths, logger());
+  mdl::updateGameFileSystem(
+    *m_gameFileSystem, gameInfo(), gamePath(), searchPaths, logger());
 }
 
 void Map::initializeNodeIndex()
@@ -1534,9 +1569,6 @@ void Map::connectObservers()
   m_notifierConnection += modsWillChangeNotifier.connect(this, &Map::modsWillChange);
   m_notifierConnection += modsDidChangeNotifier.connect(this, &Map::modsDidChange);
 
-  auto& prefs = PreferenceManager::instance();
-  m_notifierConnection +=
-    prefs.preferenceDidChangeNotifier.connect(this, &Map::preferenceDidChange);
   m_notifierConnection += m_editorContext->editorContextDidChangeNotifier.connect(
     editorContextDidChangeNotifier);
 
@@ -1715,20 +1747,6 @@ void Map::modsDidChange()
   setEntityDefinitions();
   setEntityModels();
   updateAllFaceTags();
-}
-
-void Map::preferenceDidChange(const std::filesystem::path& path)
-{
-  if (path == pref(gameInfo().gamePathPreference))
-  {
-    updateGameFileSystem();
-
-    clearEntityModels();
-    setEntityModels();
-
-    reloadMaterials();
-    setMaterials();
-  }
 }
 
 } // namespace tb::mdl

@@ -55,7 +55,12 @@ Map& MapFixture::create(MapFixtureConfig config)
 
   contract_assert(
     Map::createMap(
-      mapFormat, m_config->gameInfo, vm::bbox3d{8129.0}, *m_taskManager, *m_logger)
+      mapFormat,
+      m_config->gameInfo,
+      m_config->gameInfo.gamePathPreference.value(),
+      vm::bbox3d{8129.0},
+      *m_taskManager,
+      *m_logger)
     | kdl::transform([&](auto map) {
         m_map = std::move(map);
         m_map->setIsCommandCollationEnabled(false);
@@ -78,6 +83,7 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
       absPath,
       mapFormat,
       m_config->gameInfo,
+      m_config->gameInfo.gamePathPreference.value(),
       vm::bbox3d{8129.0},
       *m_taskManager,
       *m_logger)

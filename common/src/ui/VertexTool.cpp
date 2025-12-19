@@ -68,14 +68,15 @@ std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
 void VertexTool::pick(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
+  const double handleRadius,
   mdl::PickResult& pickResult) const
 {
   auto& map = m_document.map();
   const auto& grid = map.grid();
 
-  map.vertexHandles().pick(pickRay, camera, pickResult);
-  map.edgeHandles().pickGridHandle(pickRay, camera, grid, pickResult);
-  map.faceHandles().pickGridHandle(pickRay, camera, grid, pickResult);
+  map.vertexHandles().pick(pickRay, camera, handleRadius, pickResult);
+  map.edgeHandles().pickGridHandle(pickRay, camera, handleRadius, grid, pickResult);
+  map.faceHandles().pickGridHandle(pickRay, camera, handleRadius, grid, pickResult);
 }
 
 bool VertexTool::deselectAll()

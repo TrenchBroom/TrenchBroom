@@ -19,13 +19,11 @@
 
 #include "MissingModValidator.h"
 
-#include "PreferenceManager.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
-#include "mdl/GameInfo.h"
 #include "mdl/Issue.h"
 #include "mdl/IssueQuickFix.h"
 #include "mdl/Map.h"
@@ -95,9 +93,9 @@ IssueQuickFix makeRemoveModsQuickFix()
 }
 } // namespace
 
-MissingModValidator::MissingModValidator(const GameInfo& gameInfo)
+MissingModValidator::MissingModValidator(const Map& map)
   : Validator{Type, "Missing mod directory"}
-  , m_gameInfo{gameInfo}
+  , m_map{map}
 {
   addQuickFix(makeRemoveModsQuickFix());
 }
@@ -124,7 +122,7 @@ void MissingModValidator::doValidate(
 
   for (const auto& searchPath : additionalSearchPaths)
   {
-    const auto absPath = pref(m_gameInfo.gamePathPreference) / searchPath;
+    const auto absPath = m_map.gamePath() / searchPath;
     if (!absPath.is_absolute() || fs::Disk::pathInfo(absPath) != fs::PathInfo::Directory)
     {
       const auto mod = searchPath.string();

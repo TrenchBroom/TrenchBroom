@@ -30,11 +30,11 @@ struct GameInfo;
 
 class MissingModValidator : public Validator
 {
-  const GameInfo& m_gameInfo;
+  const Map& m_map;
   mutable std::vector<std::string> m_lastMods;
 
 public:
-  explicit MissingModValidator(const GameInfo& gameInfo);
+  explicit MissingModValidator(const Map& map);
 
 private:
   void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)
