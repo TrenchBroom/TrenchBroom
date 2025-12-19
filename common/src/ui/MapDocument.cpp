@@ -115,7 +115,14 @@ MapDocument::~MapDocument()
 Result<void> MapDocument::create(
   mdl::MapFormat mapFormat, const mdl::GameInfo& gameInfo, const vm::bbox3d& worldBounds)
 {
-  return mdl::Map::createMap(mapFormat, gameInfo, worldBounds, *m_taskManager, logger())
+  auto gamePath = pref(gameInfo.gamePathPreference);
+  return mdl::Map::createMap(
+           mapFormat,
+           gameInfo,
+           std::move(gamePath),
+           worldBounds,
+           *m_taskManager,
+           logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));
              documentWasLoadedNotifier();
@@ -128,8 +135,15 @@ Result<void> MapDocument::load(
   const mdl::GameInfo& gameInfo,
   const vm::bbox3d& worldBounds)
 {
+  auto gamePath = pref(gameInfo.gamePathPreference);
   return mdl::Map::loadMap(
-           path, mapFormat, gameInfo, worldBounds, *m_taskManager, logger())
+           path,
+           mapFormat,
+           gameInfo,
+           std::move(gamePath),
+           worldBounds,
+           *m_taskManager,
+           logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));
              documentWasLoadedNotifier();
@@ -161,6 +175,8 @@ void MapDocument::setMap(std::unique_ptr<mdl::Map> map)
 
 void MapDocument::updateMapFromPreferences()
 {
+  m_map->setGamePath(pref(m_map->gameInfo().gamePathPreference));
+
   m_map->editorContext().setShowPointEntities(pref(Preferences::ShowPointEntities));
   m_map->editorContext().setShowBrushes(pref(Preferences::ShowBrushes));
   m_map->editorContext().setAlignmentLock(pref(Preferences::AlignmentLock));

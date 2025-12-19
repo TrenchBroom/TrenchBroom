@@ -94,6 +94,7 @@ public:
 
 private:
   const GameInfo& m_gameInfo;
+  std::filesystem::path m_gamePath;
   std::unique_ptr<GameFileSystem> m_gameFileSystem;
 
   kdl::task_manager& m_taskManager;
@@ -182,6 +183,7 @@ private:
 public: // misc
   Map(
     const GameInfo& gameInfo,
+    std::filesystem::path gamePath,
     std::unique_ptr<WorldNode> worldNode,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
@@ -189,6 +191,7 @@ public: // misc
 
   Map(
     const GameInfo& gameInfo,
+    std::filesystem::path gamePath,
     std::unique_ptr<WorldNode> worldNode,
     const vm::bbox3d& worldBounds,
     std::filesystem::path path,
@@ -200,6 +203,7 @@ public: // misc
   static Result<std::unique_ptr<Map>> createMap(
     MapFormat mapFormat,
     const GameInfo& gameInfo,
+    std::filesystem::path gamePath,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
     Logger& logger);
@@ -208,6 +212,7 @@ public: // misc
     std::filesystem::path path,
     MapFormat mapFormat,
     const GameInfo& gameInfo,
+    std::filesystem::path gamePath,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
     Logger& logger);
@@ -266,6 +271,11 @@ public: // misc
   }
 
   const EntityLinkManager& entityLinkManager() const;
+
+public: // game path
+  // This is updated whenever the game path is changed via the preferences
+  const std::filesystem::path& gamePath() const;
+  void setGamePath(std::filesystem::path gamePath);
 
 public: // persistence
   Result<std::unique_ptr<Map>> reload();
@@ -419,7 +429,6 @@ private: // observers
   void entityDefinitionsDidChange();
   void modsWillChange();
   void modsDidChange();
-  void preferenceDidChange(const std::filesystem::path& path);
 };
 
 } // namespace mdl

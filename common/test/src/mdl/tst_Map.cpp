@@ -102,7 +102,12 @@ TEST_CASE("Map")
     SECTION("Calling create sets worldspawn and notifies observers")
     {
       Map::createMap(
-        MapFormat::Standard, DefaultGameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
+        MapFormat::Standard,
+        DefaultGameInfo,
+        DefaultGameInfo.gamePathPreference.value(),
+        vm::bbox3d{8192.0},
+        *taskManager,
+        logger)
         | kdl::transform([](auto map) {
             CHECK(
               map->worldNode().entity()
@@ -126,7 +131,13 @@ TEST_CASE("Map")
         {"Valve", {"initialMap.map"}},
       };
 
-      Map::createMap(MapFormat::Valve, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
+      Map::createMap(
+        MapFormat::Valve,
+        gameInfo,
+        gameInfo.gamePathPreference.value(),
+        vm::bbox3d{8192.0},
+        *taskManager,
+        logger)
         | kdl::transform([](auto map) {
             const auto* defaultLayerNode = map->worldNode().defaultLayer();
             REQUIRE(defaultLayerNode->children().size() == 1);
@@ -154,7 +165,13 @@ TEST_CASE("Map")
         {"Valve", {"initialMap.map"}},
       };
 
-      Map::createMap(MapFormat::Valve, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
+      Map::createMap(
+        MapFormat::Valve,
+        gameInfo,
+        gameInfo.gamePathPreference.value(),
+        vm::bbox3d{8192.0},
+        *taskManager,
+        logger)
         | kdl::transform([](auto map) {
             const auto* valveVersionProperty =
               map->worldNode().entity().property(EntityPropertyKeys::ValveVersion);
@@ -173,7 +190,13 @@ TEST_CASE("Map")
         {"Valve", {"initialMap.map"}},
       };
 
-      Map::createMap(MapFormat::Valve, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
+      Map::createMap(
+        MapFormat::Valve,
+        gameInfo,
+        gameInfo.gamePathPreference.value(),
+        vm::bbox3d{8192.0},
+        *taskManager,
+        logger)
         | kdl::transform([](auto map) {
             const auto* materialConfigProperty =
               map->worldNode().entity().property("wad");
@@ -191,7 +214,13 @@ TEST_CASE("Map")
         {"Standard", {}},
       };
 
-      Map::createMap(MapFormat::Valve, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
+      Map::createMap(
+        MapFormat::Valve,
+        gameInfo,
+        gameInfo.gamePathPreference.value(),
+        vm::bbox3d{8192.0},
+        *taskManager,
+        logger)
         | kdl::transform([](auto map) {
             const auto* defaultLayerNode = map->worldNode().defaultLayer();
             REQUIRE(defaultLayerNode->children().size() == 1);
@@ -217,7 +246,12 @@ TEST_CASE("Map")
 
 
       Map::createMap(
-        MapFormat::Standard, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
+        MapFormat::Standard,
+        gameInfo,
+        gameInfo.gamePathPreference.value(),
+        vm::bbox3d{8192.0},
+        *taskManager,
+        logger)
         | kdl::transform([](auto map) {
             REQUIRE(map->entityDefinitionManager().definitions().size() == 1);
             CHECK(
@@ -242,7 +276,14 @@ TEST_CASE("Map")
         {"Valve", {}},
       };
 
-      Map::loadMap(path, MapFormat::Unknown, gameInfo, worldBounds, *taskManager, logger)
+      Map::loadMap(
+        path,
+        MapFormat::Unknown,
+        gameInfo,
+        gameInfo.gamePathPreference.value(),
+        worldBounds,
+        *taskManager,
+        logger)
         | kdl::transform([&](auto map) {
             CHECK(map->worldBounds() == worldBounds);
             CHECK(map->path() == path);
@@ -266,6 +307,7 @@ TEST_CASE("Map")
           makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
           MapFormat::Unknown,
           gameInfo,
+          gameInfo.gamePathPreference.value(),
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -282,6 +324,7 @@ TEST_CASE("Map")
           makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
           MapFormat::Unknown,
           gameInfo,
+          gameInfo.gamePathPreference.value(),
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -298,6 +341,7 @@ TEST_CASE("Map")
           makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
           MapFormat::Unknown,
           gameInfo,
+          gameInfo.gamePathPreference.value(),
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -317,6 +361,7 @@ TEST_CASE("Map")
           makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
           MapFormat::Unknown,
           gameInfo,
+          gameInfo.gamePathPreference.value(),
           vm::bbox3d{8192.0},
           *taskManager,
           logger));
@@ -340,6 +385,7 @@ TEST_CASE("Map")
         makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
         MapFormat::Unknown,
         gameInfo,
+        gameInfo.gamePathPreference.value(),
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -366,7 +412,13 @@ TEST_CASE("Map")
     const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
 
     Map::loadMap(
-      path, MapFormat::Unknown, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
+      path,
+      MapFormat::Unknown,
+      gameInfo,
+      gameInfo.gamePathPreference.value(),
+      vm::bbox3d{8192.0},
+      *taskManager,
+      logger)
       | kdl::and_then([&](auto map) {
           REQUIRE(map->worldBounds() == worldBounds);
           REQUIRE(&map->gameInfo() == &gameInfo);
@@ -1916,7 +1968,12 @@ TEST_CASE("Map")
 
 
       Map::createMap(
-        MapFormat::Standard, gameInfo, vm::bbox3d{8192.0}, *taskManager, logger)
+        MapFormat::Standard,
+        gameInfo,
+        gameInfo.gamePathPreference.value(),
+        vm::bbox3d{8192.0},
+        *taskManager,
+        logger)
         | kdl::transform([](auto map) {
             CHECK(
               map->entityDefinitionManager().definitions()
