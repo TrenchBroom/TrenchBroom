@@ -52,6 +52,8 @@ private:
   LayerNode* m_currentLayer = nullptr;
   GroupNode* m_currentGroup = nullptr;
 
+  bool m_alignmentLock = false;
+
 public:
   Notifier<> editorContextDidChangeNotifier;
 
@@ -83,6 +85,10 @@ public:
   GroupNode* currentGroup() const;
   void pushGroup(GroupNode& groupNode);
   void popGroup();
+
+public:
+  bool alignmentLock() const;
+  void setAlignmentLock(bool alignmentLock);
 
 public:
   bool visible(const Node& node) const;

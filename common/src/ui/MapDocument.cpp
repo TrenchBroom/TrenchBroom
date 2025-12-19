@@ -163,6 +163,7 @@ void MapDocument::updateMapFromPreferences()
 {
   m_map->editorContext().setShowPointEntities(pref(Preferences::ShowPointEntities));
   m_map->editorContext().setShowBrushes(pref(Preferences::ShowBrushes));
+  m_map->editorContext().setAlignmentLock(pref(Preferences::AlignmentLock));
 }
 
 mdl::Map& MapDocument::map()

@@ -28,6 +28,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
+#include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -122,7 +123,7 @@ bool transformSelection(
 
   using TransformResult = Result<std::pair<Node*, NodeContents>>;
 
-  const auto alignmentLock = pref(Preferences::AlignmentLock);
+  const auto alignmentLock = map.editorContext().alignmentLock();
   const auto updateAngleProperty =
     map.worldNode().entityPropertyConfig().updateAnglePropertyAfterTransform;
 
@@ -899,7 +900,10 @@ bool extrudeBrushes(
         }
 
         return brush.moveBoundary(
-                 map.worldBounds(), *faceIndex, delta, pref(Preferences::AlignmentLock))
+                 map.worldBounds(),
+                 *faceIndex,
+                 delta,
+                 map.editorContext().alignmentLock())
                | kdl::transform(
                  [&]() { return map.worldBounds().contains(brush.bounds()); })
                | kdl::transform_error([&](auto e) {

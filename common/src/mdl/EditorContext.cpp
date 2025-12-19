@@ -154,6 +154,16 @@ void EditorContext::popGroup()
   }
 }
 
+bool EditorContext::alignmentLock() const
+{
+  return m_alignmentLock;
+}
+
+void EditorContext::setAlignmentLock(const bool alignmentLock)
+{
+  m_alignmentLock = alignmentLock;
+}
+
 bool EditorContext::visible(const Node& node) const
 {
   return node.accept(kdl::overload(
