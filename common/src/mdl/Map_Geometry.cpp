@@ -20,8 +20,6 @@
 #include "mdl/Map_Geometry.h"
 
 #include "Logger.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "mdl/AddRemoveNodesCommand.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/BrushBuilder.h"
@@ -257,7 +255,10 @@ TransformVerticesResult transformVertices(
         }
 
         return brush.transformVertices(
-                 map.worldBounds(), verticesToMove, transform, pref(Preferences::UVLock))
+                 map.worldBounds(),
+                 verticesToMove,
+                 transform,
+                 map.editorContext().uvLock())
                | kdl::transform([&]() {
                    auto newPositions =
                      brush.findClosestVertexPositions(transform * verticesToMove);
@@ -334,7 +335,7 @@ bool transformEdges(
         }
 
         return brush.transformEdges(
-                 map.worldBounds(), edgesToMove, transform, pref(Preferences::UVLock))
+                 map.worldBounds(), edgesToMove, transform, map.editorContext().uvLock())
                | kdl::transform([&]() {
                    auto newPositions = brush.findClosestEdgePositions(
                      edgesToMove | std::views::transform([&](const auto& edge) {
@@ -407,7 +408,7 @@ bool transformFaces(
         }
 
         return brush.transformFaces(
-                 map.worldBounds(), facesToMove, transform, pref(Preferences::UVLock))
+                 map.worldBounds(), facesToMove, transform, map.editorContext().uvLock())
                | kdl::transform([&]() {
                    auto newPositions = brush.findClosestFacePositions(
                      facesToMove | std::views::transform([&](const auto& face) {
@@ -580,7 +581,8 @@ bool snapVertices(Map& map, const double snapTo)
       [&](Brush& originalBrush) {
         if (originalBrush.canSnapVertices(map.worldBounds(), snapTo))
         {
-          originalBrush.snapVertices(map.worldBounds(), snapTo, pref(Preferences::UVLock))
+          originalBrush.snapVertices(
+            map.worldBounds(), snapTo, map.editorContext().uvLock())
             | kdl::transform([&]() { succeededBrushCount += 1; })
             | kdl::transform_error([&](auto e) {
                 map.logger().error() << "Could not snap vertices: " << e.msg;

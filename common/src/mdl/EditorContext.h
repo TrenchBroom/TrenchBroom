@@ -53,6 +53,7 @@ private:
   GroupNode* m_currentGroup = nullptr;
 
   bool m_alignmentLock = false;
+  bool m_uvLock = false;
 
 public:
   Notifier<> editorContextDidChangeNotifier;
@@ -89,6 +90,9 @@ public:
 public:
   bool alignmentLock() const;
   void setAlignmentLock(bool alignmentLock);
+
+  bool uvLock() const;
+  void setUVLock(bool uvLock);
 
 public:
   bool visible(const Node& node) const;

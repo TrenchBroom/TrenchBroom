@@ -164,6 +164,16 @@ void EditorContext::setAlignmentLock(const bool alignmentLock)
   m_alignmentLock = alignmentLock;
 }
 
+bool EditorContext::uvLock() const
+{
+  return m_uvLock;
+}
+
+void EditorContext::setUVLock(const bool uvLock)
+{
+  m_uvLock = uvLock;
+}
+
 bool EditorContext::visible(const Node& node) const
 {
   return node.accept(kdl::overload(
