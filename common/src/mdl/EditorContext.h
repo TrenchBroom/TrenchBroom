@@ -45,6 +45,7 @@ private:
   kdl::dynamic_bitset m_hiddenEntityDefinitions;
 
   bool m_showPointEntities = true;
+  bool m_showBrushes = true;
 
   bool m_blockSelection = false;
 
@@ -68,6 +69,9 @@ public:
 
   bool showPointEntities() const;
   void setShowPointEntities(bool showPointEntities);
+
+  bool showBrushes() const;
+  void setShowBrushes(bool showBrushes);
 
   bool blockSelection() const;
   void setBlockSelection(bool blockSelection);

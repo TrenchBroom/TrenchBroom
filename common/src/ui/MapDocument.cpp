@@ -162,6 +162,7 @@ void MapDocument::setMap(std::unique_ptr<mdl::Map> map)
 void MapDocument::updateMapFromPreferences()
 {
   m_map->editorContext().setShowPointEntities(pref(Preferences::ShowPointEntities));
+  m_map->editorContext().setShowBrushes(pref(Preferences::ShowBrushes));
 }
 
 mdl::Map& MapDocument::map()

@@ -19,8 +19,6 @@
 
 #include "EditorContext.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
@@ -91,6 +89,16 @@ bool EditorContext::showPointEntities() const
 void EditorContext::setShowPointEntities(const bool showPointEntities)
 {
   m_showPointEntities = showPointEntities;
+}
+
+bool EditorContext::showBrushes() const
+{
+  return m_showBrushes;
+}
+
+void EditorContext::setShowBrushes(const bool showBrushes)
+{
+  m_showBrushes = showBrushes;
 }
 
 bool EditorContext::blockSelection() const
@@ -217,7 +225,7 @@ bool EditorContext::visible(const BrushNode& brushNode) const
     return true;
   }
 
-  if (!pref(Preferences::ShowBrushes))
+  if (!m_showBrushes)
   {
     return false;
   }
