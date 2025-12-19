@@ -27,7 +27,6 @@
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
 #include "mdl/Map.h"
-#include "ui/Actions.h"
 #include "ui/CrashDialog.h"
 #include "ui/FrameManager.h"
 #include "ui/GLContextManager.h"

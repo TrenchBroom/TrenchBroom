@@ -303,11 +303,6 @@ void AppPreferenceManager::invalidatePreferences()
   {
     pref->setValid(false);
   }
-  for (auto& [path, prefPtr] : m_dynamicPreferences)
-  {
-    unused(path);
-    prefPtr->setValid(false);
-  }
 }
 
 /**

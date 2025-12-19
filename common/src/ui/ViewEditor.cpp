@@ -227,6 +227,8 @@ ViewEditor::ViewEditor(MapDocument& document, QWidget* parent)
   , m_document{document}
 {
   connectObservers();
+  createGui();
+  refreshGui();
 }
 
 void ViewEditor::connectObservers()

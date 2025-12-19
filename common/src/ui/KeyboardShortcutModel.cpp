@@ -21,9 +21,12 @@
 
 #include <QBrush>
 
+#include "PreferenceManager.h"
 #include "io/PathQt.h"
+#include "ui/Action.h"
 #include "ui/ActionContext.h"
-#include "ui/Actions.h"
+#include "ui/ActionManager.h"
+#include "ui/ActionMenu.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
@@ -89,7 +92,7 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     const auto& actionInfo = this->actionInfo(index.row());
     if (index.column() == 0)
     {
-      return actionInfo.action.keySequence();
+      return pref(actionInfo.action.preference());
     }
     if (index.column() == 1)
     {
@@ -112,9 +115,11 @@ bool KeyboardShortcutModel::setData(
     return false;
   }
 
+  auto& prefs = PreferenceManager::instance();
+
   // We take a copy here on purpose in order to set the key further below.
   auto& actionInfo = this->actionInfo(index.row());
-  actionInfo.action.setKeySequence(value.value<QKeySequence>());
+  prefs.set(actionInfo.action.preference(), value.value<QKeySequence>());
 
   updateConflicts();
 
@@ -180,8 +185,8 @@ void KeyboardShortcutModel::initializeMenuActions()
 
 void KeyboardShortcutModel::initializeViewActions()
 {
-  const auto& actionManager = ActionManager::instance();
-  actionManager.visitMapViewActions([&](const Action& action) {
+  auto& actionManager = ActionManager::instance();
+  actionManager.visitMapViewActions([&](Action& action) {
     m_actions.push_back(
       ActionInfo{"Map View" / io::pathFromQString(action.label()), action});
   });
@@ -191,7 +196,7 @@ void KeyboardShortcutModel::initializeTagActions()
 {
   contract_pre(m_document);
 
-  m_document->visitTagActions([&](const Action& action) {
+  m_document->visitTagActions([&](Action& action) {
     m_actions.push_back(ActionInfo{"Tags" / io::pathFromQString(action.label()), action});
   });
 }
@@ -200,7 +205,7 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 {
   contract_pre(m_document);
 
-  m_document->visitEntityDefinitionActions([&](const Action& action) {
+  m_document->visitEntityDefinitionActions([&](Action& action) {
     m_actions.push_back(
       ActionInfo{"Entity Definitions" / io::pathFromQString(action.label()), action});
   });
@@ -208,10 +213,10 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 
 void KeyboardShortcutModel::updateConflicts()
 {
-  const auto allActions =
-    m_actions
-    | std::views::transform([](const auto& actionInfo) { return &actionInfo.action; })
-    | kdl::ranges::to<std::vector>();
+  const auto allActions = m_actions | std::views::transform([](const auto& actionInfo) {
+                            return const_cast<const Action*>(&actionInfo.action);
+                          })
+                          | kdl::ranges::to<std::vector>();
 
   m_conflicts = kdl::vec_static_cast<int>(findConflicts(allActions));
   for (const auto& row : m_conflicts)

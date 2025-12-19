@@ -105,28 +105,6 @@ public: // private to PreferenceManager
   virtual bool isDefault() const = 0;
 };
 
-class DynamicPreferencePatternBase
-{
-public:
-  virtual ~DynamicPreferencePatternBase();
-  virtual const std::filesystem::path& pathPattern() const = 0;
-};
-
-template <typename T>
-class DynamicPreferencePattern : public DynamicPreferencePatternBase
-{
-private:
-  std::filesystem::path m_pathPattern;
-
-public:
-  explicit DynamicPreferencePattern(std::filesystem::path pathPattern)
-    : m_pathPattern{std::move(pathPattern)}
-  {
-  }
-
-  const std::filesystem::path& pathPattern() const override { return m_pathPattern; }
-};
-
 /**
  * Stores the current value and default value of a preference, in deserialized form.
  * No public API for reading/writing the value, use PreferenceManager instead.

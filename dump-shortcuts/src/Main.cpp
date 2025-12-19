@@ -19,6 +19,7 @@
 
 #include <QApplication>
 #include <QFileInfo>
+#include <QKeySequence>
 #include <QSettings>
 #include <QTextStream>
 
@@ -26,9 +27,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "io/PathQt.h"
-#include "ui/Actions.h"
-
-#include "kd/contracts.h"
+#include "ui/ActionManager.h"
+#include "ui/ActionMenu.h"
 
 #include <array>
 #include <tuple>
@@ -114,10 +114,10 @@ void printMenuShortcuts(QTextStream& out)
   actionManager.visitMainMenu(kdl::overload(
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
-      out << "    '" << io::pathAsGenericQString(actionItem.action.preferencePath())
+      out << "    '" << io::pathAsGenericQString(actionItem.action.preference().path())
           << "': "
           << "{ path: " << toString(currentPath, actionItem.action.label())
-          << ", shortcut: " << toString(actionItem.action.keySequence()) << " },\n";
+          << ", shortcut: " << toString(pref(actionItem.action.preference())) << " },\n";
     },
     [&](const auto& thisLambda, const Menu& menu) {
       currentPath.push_back(QString::fromStdString(menu.name));
@@ -141,11 +141,12 @@ void printActionShortcuts(QTextStream& out)
   actionManager.visitToolBar(kdl::overload(
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
-      printPref(actionItem.action.preferencePath(), actionItem.action.keySequence());
+      printPref(
+        actionItem.action.preference().path(), pref(actionItem.action.preference()));
     },
     [&](const auto& thisLambda, const Menu& menu) { menu.visitEntries(thisLambda); }));
   actionManager.visitMapViewActions([&](const auto& action) {
-    printPref(action.preferencePath(), action.keySequence());
+    printPref(action.preference().path(), pref(action.preference()));
   });
 
   // some keys are just Preferences (e.g. WASD)

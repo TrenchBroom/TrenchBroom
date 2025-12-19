@@ -69,8 +69,7 @@ CommonVariables::CommonVariables(const mdl::Map& map)
 
   for (const auto& tool : map.gameInfo().gameConfig.compilationTools)
   {
-    const auto toolPath =
-      pref(mdl::compilationToolPathPreference(map.gameInfo(), tool.name));
+    const auto toolPath = pref(tool.pathPreference);
 
     // e.g. variable name might be "qbsp", and the value is the path to the user's local
     // qbsp executable

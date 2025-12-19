@@ -17,26 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameInfo.h"
+#include "ActionMenu.h"
 
-#include "kd/reflection_impl.h"
+#include <QKeySequence>
+#include <QString>
 
-namespace tb::mdl
+#include "ui/MapFrame.h"
+#include "ui/MapViewBase.h"
+
+#include <string>
+
+namespace tb::ui
 {
 
-kdl_reflect_impl(GameInfo);
-
-GameInfo makeGameInfo(GameConfig gameConfig)
+void Menu::addSeparator()
 {
-  const auto gamePathPrefPath = std::filesystem::path{"Games"} / gameConfig.name / "Path";
-  const auto defaultEnginePrefPath =
-    std::filesystem::path{"Games"} / gameConfig.name / "Default Engine";
-
-  return GameInfo{
-    std::move(gameConfig),
-    Preference<std::filesystem::path>{gamePathPrefPath, {}},
-    Preference<std::filesystem::path>{defaultEnginePrefPath, {}},
-  };
+  entries.emplace_back(MenuSeparator{});
 }
 
-} // namespace tb::mdl
+const Action& Menu::addItem(Action& action, const MenuEntryType entryType_)
+{
+  entries.emplace_back(MenuAction{action, entryType_});
+  action.setIsMenuAction(true);
+  return action;
+}
+
+Menu& Menu::addMenu(std::string name_, const MenuEntryType entryType_)
+{
+  return std::get<Menu>(entries.emplace_back(Menu{std::move(name_), entryType_, {}}));
+}
+
+} // namespace tb::ui

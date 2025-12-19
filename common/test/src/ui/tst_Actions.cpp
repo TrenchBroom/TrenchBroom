@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/Actions.h"
+#include "ui/Action.h"
+#include "ui/ActionManager.h"
+#include "ui/ActionMenu.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"
@@ -102,7 +104,8 @@ struct StringMaker<tb::ui::ActionConflict>
   {
     const auto& [action1, action2] = value;
     auto str = std::stringstream{};
-    str << action1->preferencePath() << " conflicts with " << action2->preferencePath();
+    str << action1->preference().path() << " conflicts with "
+        << action2->preference().path();
     return str.str();
   }
 };

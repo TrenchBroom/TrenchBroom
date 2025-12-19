@@ -40,7 +40,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "render/MapRenderer.h"
-#include "ui/Actions.h"
+#include "ui/ActionManager.h"
 #include "ui/ViewEffectsService.h"
 
 #include "kd/contracts.h"

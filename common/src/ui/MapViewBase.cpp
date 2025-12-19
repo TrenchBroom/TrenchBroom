@@ -69,7 +69,8 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
-#include "ui/Actions.h"
+#include "ui/ActionExecutionContext.h"
+#include "ui/ActionManager.h"
 #include "ui/Animation.h"
 #include "ui/EnableDisableTagCallback.h"
 #include "ui/FlashSelectionAnimation.h"
@@ -270,7 +271,7 @@ void MapViewBase::createActions()
   m_shortcuts.clear();
 
   auto visitor = [this](const Action& action) {
-    const auto keySequence = action.keySequence();
+    const auto& keySequence = pref(action.preference());
 
     auto* shortcut = new QShortcut{this};
     shortcut->setContext(Qt::WidgetWithChildrenShortcut);
@@ -296,7 +297,7 @@ void MapViewBase::updateActionBindings()
 {
   for (auto& [shortcut, action] : m_shortcuts)
   {
-    shortcut->setKey(action->keySequence());
+    shortcut->setKey(pref(action->preference()));
   }
 }
 

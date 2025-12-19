@@ -76,7 +76,7 @@ void checkVersion(const el::EvaluationContext& context, const el::Value& version
 }
 
 std::vector<mdl::CompilationTool> parseCompilationTools(
-  const el::EvaluationContext& context, const el::Value& value)
+  const el::EvaluationContext& context, const el::Value& value, std::string_view gameName)
 {
   if (value == el::Value::Null)
   {
@@ -84,16 +84,19 @@ std::vector<mdl::CompilationTool> parseCompilationTools(
   }
 
   return value.arrayValue(context) | std::views::transform([&](const auto& entry) {
-           auto name = entry.at(context, "name").stringValue(context);
+           auto toolName = entry.at(context, "name").stringValue(context);
 
            const auto descriptionValue = entry.atOrDefault(context, "description");
            auto description = descriptionValue != el::Value::Null
                                 ? std::optional{descriptionValue.stringValue(context)}
                                 : std::nullopt;
+           auto pathPreference = Preference<std::filesystem::path>{
+             std::filesystem::path{"Games"} / gameName / "Tool Path" / toolName, {}};
 
            return mdl::CompilationTool{
-             std::move(name),
+             std::move(toolName),
              std::move(description),
+             std::move(pathPreference),
            };
          })
          | kdl::ranges::to<std::vector>();
@@ -533,6 +536,8 @@ Result<mdl::GameConfig> parseGameConfig(
 
     checkVersion(context, root.at(context, "version"));
 
+    auto gameName = root.at(context, "name").stringValue(context);
+
     auto mapFormatConfigs =
       parseMapFormatConfigs(context, root.at(context, "fileformats"));
     auto fileSystemConfig =
@@ -544,11 +549,11 @@ Result<mdl::GameConfig> parseGameConfig(
     auto tags = parseTags(context, root.atOrDefault(context, "tags"), faceAttribsConfig);
     auto softMapBounds =
       parseSoftMapBounds(context, root.atOrDefault(context, "softMapBounds"));
-    auto compilationTools =
-      parseCompilationTools(context, root.atOrDefault(context, "compilationTools"));
+    auto compilationTools = parseCompilationTools(
+      context, root.atOrDefault(context, "compilationTools"), gameName);
 
     return mdl::GameConfig{
-      root.at(context, "name").stringValue(context),
+      std::move(gameName),
       configFilePath,
       std::filesystem::path{root.atOrDefault(context, "icon").stringValue(context)},
       root.atOrDefault(context, "experimental").booleanValue(context),

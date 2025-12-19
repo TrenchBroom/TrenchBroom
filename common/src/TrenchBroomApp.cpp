@@ -32,7 +32,7 @@
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "ui/AboutDialog.h"
-#include "ui/Actions.h"
+#include "ui/ActionExecutionContext.h"
 #include "ui/CrashDialog.h"
 #include "ui/CrashReporter.h"
 #include "ui/FrameManager.h"

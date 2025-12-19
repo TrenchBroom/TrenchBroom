@@ -440,21 +440,6 @@ const std::vector<PreferenceBase*>& staticPreferences()
   return list;
 }
 
-const std::map<std::filesystem::path, PreferenceBase*>& staticPreferencesMap()
-{
-  static std::map<std::filesystem::path, PreferenceBase*> map;
-
-  if (map.empty())
-  {
-    for (PreferenceBase* pref : staticPreferences())
-    {
-      map[pref->path()] = pref;
-    }
-  }
-
-  return map;
-}
-
 std::vector<Preference<QKeySequence>*> keyPreferences()
 {
   std::vector<Preference<QKeySequence>*> result;
@@ -469,30 +454,6 @@ std::vector<Preference<QKeySequence>*> keyPreferences()
   }
 
   return result;
-}
-
-DynamicPreferencePattern<QString> GamesPath("Games/*/Path");
-DynamicPreferencePattern<QString> GamesToolPath("Games/*/Tool Path/*");
-DynamicPreferencePattern<QString> GamesDefaultEngine("Games/*/Default Engine");
-DynamicPreferencePattern<QKeySequence> FiltersTagsToggle("Filters/Tags/*/Toggle Visible");
-DynamicPreferencePattern<QKeySequence> TagsEnable("Tags/*/Enable");
-DynamicPreferencePattern<QKeySequence> TagsDisable("Tags/*/Disable");
-DynamicPreferencePattern<QKeySequence> FiltersEntitiesToggleVisible(
-  "Filters/Entities/*/Toggle Visible");
-DynamicPreferencePattern<QKeySequence> EntitiesCreate("Entities/*/Create");
-
-const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns()
-{
-  static const std::vector<DynamicPreferencePatternBase*> list{
-    &GamesPath,
-    &GamesToolPath,
-    &GamesDefaultEngine,
-    &FiltersTagsToggle,
-    &TagsEnable,
-    &TagsDisable,
-    &FiltersEntitiesToggleVisible,
-    &EntitiesCreate};
-  return list;
 }
 
 } // namespace tb::Preferences

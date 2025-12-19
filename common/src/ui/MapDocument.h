@@ -22,7 +22,7 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "mdl/PointTrace.h"
-#include "ui/Actions.h"
+#include "ui/Action.h"
 
 #include "vm/bbox.h"
 #include "vm/polygon.h"
@@ -214,28 +214,42 @@ public: // accessors and such
 
 public: // tag and entity definition actions
   template <typename ActionVisitor>
-  void visitTagActions(const ActionVisitor& visitor) const
+  void visitTagActions(ActionVisitor&& visitor) const
   {
-    visitActions(visitor, m_tagActions);
-  }
-
-  template <typename ActionVisitor>
-  void visitEntityDefinitionActions(const ActionVisitor& visitor) const
-  {
-    visitActions(visitor, m_entityDefinitionActions);
-  }
-
-private: // tag and entity definition actions
-  template <typename ActionVisitor>
-  void visitActions(
-    const ActionVisitor& visitor, const std::vector<Action>& actions) const
-  {
-    for (const auto& action : actions)
+    for (const auto& action : m_tagActions)
     {
       visitor(action);
     }
   }
 
+  template <typename ActionVisitor>
+  void visitTagActions(ActionVisitor&& visitor)
+  {
+    for (auto& action : m_tagActions)
+    {
+      visitor(action);
+    }
+  }
+
+  template <typename ActionVisitor>
+  void visitEntityDefinitionActions(ActionVisitor&& visitor) const
+  {
+    for (const auto& action : m_entityDefinitionActions)
+    {
+      visitor(action);
+    }
+  }
+
+  template <typename ActionVisitor>
+  void visitEntityDefinitionActions(ActionVisitor&& visitor)
+  {
+    for (auto& action : m_entityDefinitionActions)
+    {
+      visitor(action);
+    }
+  }
+
+private: // tag and entity definition actions
   void createTagActions();
   void clearTagActions();
 
