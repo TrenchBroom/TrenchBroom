@@ -41,10 +41,10 @@ class WorldNode;
 class EditorContext
 {
 private:
-  TagType::Type m_hiddenTags;
+  TagType::Type m_hiddenTags = 0;
   kdl::dynamic_bitset m_hiddenEntityDefinitions;
 
-  bool m_blockSelection;
+  bool m_blockSelection = false;
 
   LayerNode* m_currentLayer = nullptr;
   GroupNode* m_currentGroup = nullptr;

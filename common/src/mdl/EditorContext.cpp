@@ -37,10 +37,7 @@
 namespace tb::mdl
 {
 
-EditorContext::EditorContext()
-{
-  reset();
-}
+EditorContext::EditorContext() = default;
 
 void EditorContext::reset()
 {
