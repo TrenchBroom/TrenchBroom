@@ -19,8 +19,6 @@
 
 #include "Preferences.h"
 
-#include <QKeySequence>
-
 #include "ui/MapViewLayout.h"
 
 #include "vm/util.h"

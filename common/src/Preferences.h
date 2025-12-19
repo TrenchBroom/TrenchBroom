@@ -19,6 +19,9 @@
 
 #pragma once
 
+#include <QKeySequence>
+#include <QString>
+
 #include "Color.h"
 #include "Preference.h"
 
