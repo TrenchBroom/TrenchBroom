@@ -20,7 +20,6 @@
 #pragma once
 
 #include <QKeySequence>
-#include <QString>
 
 #include "Color.h"
 #include "Preference.h"
@@ -28,6 +27,7 @@
 #include "vm/util.h"
 
 #include <filesystem>
+#include <string>
 #include <vector>
 
 namespace tb::Preferences
@@ -46,9 +46,9 @@ extern Preference<bool> IncludeDraftReleaseUpdates;
 
 extern Preference<int> MapViewLayout;
 
-QString systemTheme();
-QString darkTheme();
-extern Preference<QString> Theme;
+std::string systemTheme();
+std::string darkTheme();
+extern Preference<std::string> Theme;
 
 extern Preference<bool> ShowAxes;
 extern Preference<Color> SoftMapBoundsColor;
@@ -186,10 +186,10 @@ extern Preference<bool> ShowBrushEntityBounds;
 extern Preference<bool> ShowPointEntityBounds;
 extern Preference<bool> ShowPointEntityModels;
 
-QString faceRenderModeTextured();
-QString faceRenderModeFlat();
-QString faceRenderModeSkip();
-extern Preference<QString> FaceRenderMode;
+std::string faceRenderModeTextured();
+std::string faceRenderModeFlat();
+std::string faceRenderModeSkip();
+extern Preference<std::string> FaceRenderMode;
 
 extern Preference<bool> ShadeFaces;
 extern Preference<bool> ShowFog;
@@ -201,11 +201,11 @@ extern Preference<bool> ShowSoftMapBounds;
 extern Preference<bool> ShowPointEntities;
 extern Preference<bool> ShowBrushes;
 
-QString entityLinkModeAll();
-QString entityLinkModeTransitive();
-QString entityLinkModeDirect();
-QString entityLinkModeNone();
-extern Preference<QString> EntityLinkMode;
+std::string entityLinkModeAll();
+std::string entityLinkModeTransitive();
+std::string entityLinkModeDirect();
+std::string entityLinkModeNone();
+extern Preference<std::string> EntityLinkMode;
 
 /**
  * Returns all Preferences declared in this file. Needed for migrating preference formats

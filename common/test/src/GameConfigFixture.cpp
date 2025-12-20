@@ -28,8 +28,7 @@ GameInfo makeGameInfoFixture(GameConfig gameConfig, std::filesystem::path gamePa
 {
   auto gameInfo = makeGameInfo(std::move(gameConfig));
   gameInfo.gamePathPreference =
-    Preference<std::filesystem::path>{gameInfo.gamePathPreference.path(), gamePath};
-  gameInfo.gamePathPreference.setValid(true);
+    Preference<std::filesystem::path>{gameInfo.gamePathPreference.path, gamePath};
 
   return gameInfo;
 }

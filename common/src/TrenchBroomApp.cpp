@@ -207,6 +207,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
 
 TrenchBroomApp::~TrenchBroomApp()
 {
+  // destroy preference manager before app
   PreferenceManager::destroyInstance();
 }
 

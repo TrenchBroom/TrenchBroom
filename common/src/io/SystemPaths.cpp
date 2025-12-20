@@ -85,6 +85,11 @@ std::filesystem::path logFilePath()
   return userDataDirectory() / "TrenchBroom.log";
 }
 
+std::filesystem::path preferenceFilePath()
+{
+  return userDataDirectory() / "Preferences.json";
+}
+
 std::filesystem::path findResourceFile(const std::filesystem::path& file)
 {
   // Special case for running debug builds on Linux, we want to search

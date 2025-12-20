@@ -27,8 +27,10 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "io/PathQt.h"
+#include "io/SystemPaths.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"
+#include "ui/QPreferenceStore.h"
 
 #include <array>
 #include <tuple>
@@ -114,7 +116,7 @@ void printMenuShortcuts(QTextStream& out)
   actionManager.visitMainMenu(kdl::overload(
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
-      out << "    '" << io::pathAsGenericQString(actionItem.action.preference().path())
+      out << "    '" << io::pathAsGenericQString(actionItem.action.preference().path)
           << "': "
           << "{ path: " << toString(currentPath, actionItem.action.label())
           << ", shortcut: " << toString(pref(actionItem.action.preference())) << " },\n";
@@ -142,17 +144,17 @@ void printActionShortcuts(QTextStream& out)
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
       printPref(
-        actionItem.action.preference().path(), pref(actionItem.action.preference()));
+        actionItem.action.preference().path, pref(actionItem.action.preference()));
     },
     [&](const auto& thisLambda, const Menu& menu) { menu.visitEntries(thisLambda); }));
   actionManager.visitMapViewActions([&](const auto& action) {
-    printPref(action.preference().path(), pref(action.preference()));
+    printPref(action.preference().path, pref(action.preference()));
   });
 
   // some keys are just Preferences (e.g. WASD)
   for (auto* keyPref : Preferences::keyPreferences())
   {
-    printPref(keyPref->path(), keyPref->defaultValue());
+    printPref(keyPref->path, keyPref->defaultValue);
   }
 
   out << "};\n";
@@ -175,7 +177,8 @@ int main(int argc, char* argv[])
 
   auto out = QTextStream{stdout};
 
-  tb::PreferenceManager::createInstance<tb::AppPreferenceManager>();
+  tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
+    tb::io::pathAsQString(tb::io::SystemPaths::preferenceFilePath())));
 
   // QKeySequence requires that an application instance is created!
   auto app = QApplication{argc, argv};

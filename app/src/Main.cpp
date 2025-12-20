@@ -26,7 +26,9 @@
 #include "Contracts.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
+#include "io/PathQt.h"
 #include "io/SystemPaths.h"
+#include "ui/QPreferenceStore.h"
 
 static_assert(
   QT_VERSION >= QT_VERSION_CHECK(6, 8, 0), "TrenchBroom requires Qt 6.8.0 or later");
@@ -81,7 +83,8 @@ int main(int argc, char* argv[])
   }
 
   // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
-  tb::PreferenceManager::createInstance<tb::AppPreferenceManager>();
+  tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
+    tb::io::pathAsQString(tb::io::SystemPaths::preferenceFilePath())));
   tb::ui::TrenchBroomApp app(argc, argv);
 
   app.askForAutoUpdates();

@@ -251,7 +251,7 @@ void MapViewBase::portalFileDidChange()
 
 void MapViewBase::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (path == Preferences::RendererFontSize.path())
+  if (path == Preferences::RendererFontSize.path)
   {
     fontManager().clearCache();
   }

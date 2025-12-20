@@ -449,9 +449,9 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
   auto* inner = panel->getPanel();
 
   const auto FaceRenderModes = std::vector<std::tuple<QString, QString>>{
-    {"Show materials", Preferences::faceRenderModeTextured()},
-    {"Hide materials", Preferences::faceRenderModeFlat()},
-    {"Hide faces", Preferences::faceRenderModeSkip()},
+    {"Show materials", QString::fromStdString(Preferences::faceRenderModeTextured())},
+    {"Hide materials", QString::fromStdString(Preferences::faceRenderModeFlat())},
+    {"Hide faces", QString::fromStdString(Preferences::faceRenderModeSkip())},
   };
 
   m_renderModeRadioGroup = new QButtonGroup{};
@@ -470,10 +470,12 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
 
 
   const auto EntityLinkModes = std::vector<std::tuple<QString, QString>>{
-    {"Show all entity links", Preferences::entityLinkModeAll()},
-    {"Show transitively selected entity links", Preferences::entityLinkModeTransitive()},
-    {"Show directly selected entity links", Preferences::entityLinkModeDirect()},
-    {"Hide entity links", Preferences::entityLinkModeNone()},
+    {"Show all entity links", QString::fromStdString(Preferences::entityLinkModeAll())},
+    {"Show transitively selected entity links",
+     QString::fromStdString(Preferences::entityLinkModeTransitive())},
+    {"Show directly selected entity links",
+     QString::fromStdString(Preferences::entityLinkModeDirect())},
+    {"Hide entity links", QString::fromStdString(Preferences::entityLinkModeNone())},
   };
 
   m_entityLinkRadioGroup = new QButtonGroup{};
@@ -588,11 +590,17 @@ void ViewEditor::refreshBrushesPanel()
 
 void ViewEditor::refreshRendererPanel()
 {
-  checkButtonInGroup(m_renderModeRadioGroup, pref(Preferences::FaceRenderMode), true);
+  checkButtonInGroup(
+    m_renderModeRadioGroup,
+    QString::fromStdString(pref(Preferences::FaceRenderMode)),
+    true);
   m_shadeFacesCheckBox->setChecked(pref(Preferences::ShadeFaces));
   m_showFogCheckBox->setChecked(pref(Preferences::ShowFog));
   m_showEdgesCheckBox->setChecked(pref(Preferences::ShowEdges));
-  checkButtonInGroup(m_entityLinkRadioGroup, pref(Preferences::EntityLinkMode), true);
+  checkButtonInGroup(
+    m_entityLinkRadioGroup,
+    QString::fromStdString(pref(Preferences::EntityLinkMode)),
+    true);
   m_showSoftBoundsCheckBox->setChecked(pref(Preferences::ShowSoftMapBounds));
 }
 

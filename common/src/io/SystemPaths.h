@@ -50,6 +50,8 @@ std::filesystem::path tempDirectory();
 
 std::filesystem::path logFilePath();
 
+std::filesystem::path preferenceFilePath();
+
 std::filesystem::path findResourceFile(const std::filesystem::path& file);
 /**
  * Returns the possible search paths for the requested directory name.

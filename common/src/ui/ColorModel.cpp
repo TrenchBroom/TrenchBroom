@@ -21,6 +21,7 @@
 
 #include <QColorDialog>
 
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "QtUtils.h"
@@ -45,7 +46,7 @@ void ColorModel::initialize()
     auto* colorPref = dynamic_cast<Preference<Color>*>(pref);
     if (
       colorPref != nullptr
-      && colorPref->persistencePolicy() != PreferencePersistencePolicy::ReadOnly)
+      && colorPref->persistencePolicy != PreferencePersistencePolicy::ReadOnly)
     {
       m_colors.emplace_back(colorPref);
     }
@@ -112,9 +113,9 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
     case 0:
       return {}; // Leave first cell empty
     case 1:
-      return io::pathAsQString(kdl::path_front(colorPreference->path()));
+      return io::pathAsQString(kdl::path_front(colorPreference->path));
     case 2:
-      return io::pathAsGenericQString(kdl::path_pop_front(colorPreference->path()));
+      return io::pathAsGenericQString(kdl::path_pop_front(colorPreference->path));
       switchDefault();
     }
   }

@@ -140,10 +140,9 @@ TEST_CASE("GameManager")
             const auto& gameInfo = gameInfos.front();
             CHECK(gameInfo.gameConfig.name == "Quake");
 
-            CHECK(gameInfo.gamePathPreference.path() == "Games/Quake/Path");
+            CHECK(gameInfo.gamePathPreference.path == "Games/Quake/Path");
             CHECK(
-              gameInfo.defaultEnginePathPreference.path()
-              == "Games/Quake/Default Engine");
+              gameInfo.defaultEnginePathPreference.path == "Games/Quake/Default Engine");
 
             CHECK(!gameInfo.compilationConfigParseFailed);
             CHECK(gameInfo.compilationConfig.profiles.size() == 1);

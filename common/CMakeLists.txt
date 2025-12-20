@@ -203,8 +203,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.cpp
         ${COMMON_SOURCE_DIR}/octree.cpp
-        ${COMMON_SOURCE_DIR}/Preference.cpp
-        ${COMMON_SOURCE_DIR}/PreferenceManager.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
         ${COMMON_SOURCE_DIR}/render/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.cpp
@@ -717,8 +715,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.h
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.h
         ${COMMON_SOURCE_DIR}/octree.h
-        ${COMMON_SOURCE_DIR}/Preference.h
-        ${COMMON_SOURCE_DIR}/PreferenceManager.h
         ${COMMON_SOURCE_DIR}/Preferences.h
         ${COMMON_SOURCE_DIR}/render/ActiveShader.h
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.h

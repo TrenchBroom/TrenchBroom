@@ -20,8 +20,6 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/TestFactory.h"
         "${COMMON_TEST_SOURCE_DIR}/TestLogger.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestLogger.h"
-        "${COMMON_TEST_SOURCE_DIR}/TestPreferenceManager.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/TestPreferenceManager.h"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.h"
 )
@@ -124,7 +122,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/render/tst_Camera.cpp"
         "${COMMON_TEST_SOURCE_DIR}/render/tst_Vertex.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_octree.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/tst_Preferences.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ActionContext.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_Actions.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ClipTool.cpp"

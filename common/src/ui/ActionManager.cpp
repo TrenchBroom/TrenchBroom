@@ -1987,7 +1987,7 @@ Action& ActionManager::existingAction(const std::filesystem::path& preferencePat
 
 Action& ActionManager::addAction(Action action)
 {
-  auto path = action.preference().path();
+  auto path = action.preference().path;
   auto [it, didInsert] = m_actions.emplace(std::move(path), std::move(action));
   contract_assert(didInsert);
 
