@@ -19,7 +19,6 @@
 
 #include <QString>
 
-#include "QtPrettyPrinters.h" // IWYU pragma: keep
 #include "io/PathQt.h"
 
 #include <fmt/format.h>

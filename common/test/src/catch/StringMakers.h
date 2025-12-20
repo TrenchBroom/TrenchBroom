@@ -37,6 +37,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+class QJsonValue;
+class QString;
+
+std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const QString& rhs);
+
 namespace tb::mdl
 {
 class Node;
@@ -165,4 +172,5 @@ struct StringMaker<const tb::mdl::PatchNode*>
     return convertToString(value);
   }
 };
+
 } // namespace Catch

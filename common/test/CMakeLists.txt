@@ -15,7 +15,6 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/MockTaskRunner.h"
         "${COMMON_TEST_SOURCE_DIR}/ui/MapDocumentFixture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/MapDocumentFixture.h"
-        "${COMMON_TEST_SOURCE_DIR}/QtPrettyPrinters.h"
         "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestFactory.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestFactory.h"

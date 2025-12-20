@@ -19,6 +19,10 @@
 
 #include "StringMakers.h"
 
+#include <QJsonValue>
+#include <QString>
+#include <QVariant>
+
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushNode.h"
@@ -35,6 +39,20 @@
 #include "kd/overload.h"
 
 #include <sstream>
+
+std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs)
+{
+  const auto asVariant = rhs.toVariant();
+  return lhs << fmt::format(
+           "QJsonValue<{}>({})",
+           asVariant.typeName(),
+           qUtf8Printable(asVariant.toString()));
+}
+
+std::ostream& operator<<(std::ostream& lhs, const QString& rhs)
+{
+  return lhs << qUtf8Printable(rhs);
+}
 
 namespace tb::mdl
 {
