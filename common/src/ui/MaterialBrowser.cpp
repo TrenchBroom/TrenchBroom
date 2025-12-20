@@ -209,7 +209,7 @@ void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
   if (
     path == pref(m_document.map().gameInfo().gamePathPreference)
-    || path == Preferences::MaterialBrowserIconSize.path())
+    || path == Preferences::MaterialBrowserIconSize.path)
   {
     reload();
   }

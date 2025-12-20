@@ -814,7 +814,7 @@ void MapFrame::transactionUndone(const std::string&, const bool)
 
 void MapFrame::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (path == Preferences::MapViewLayout.path())
+  if (path == Preferences::MapViewLayout.path)
   {
     m_mapView->switchToMapView(
       static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));

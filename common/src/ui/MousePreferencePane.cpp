@@ -464,7 +464,7 @@ bool hasConflict(Preference<QKeySequence>& preference)
     &Preferences::CameraFlyDown()};
 
   return std::ranges::any_of(prefs, [&](auto* other) {
-    return preference.path() != other->path() && pref(*other) == pref(preference);
+    return preference.path != other->path && pref(*other) == pref(preference);
   });
 }
 

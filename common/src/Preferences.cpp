@@ -19,8 +19,6 @@
 
 #include "Preferences.h"
 
-#include <QKeySequence>
-
 #include "ui/MapViewLayout.h"
 
 #include "vm/util.h"
@@ -40,15 +38,15 @@ Preference<bool> IncludeDraftReleaseUpdates(
 Preference<int> MapViewLayout(
   "Views/Map view layout", static_cast<int>(ui::MapViewLayout::OnePane));
 
-QString systemTheme()
+std::string systemTheme()
 {
-  return QStringLiteral("System");
+  return "System";
 }
-QString darkTheme()
+std::string darkTheme()
 {
-  return QStringLiteral("Dark");
+  return "Dark";
 }
-Preference<QString> Theme("Theme", systemTheme());
+Preference<std::string> Theme("Theme", systemTheme());
 
 Preference<bool> ShowAxes("render/Show axes", true);
 Preference<Color> SoftMapBoundsColor(
@@ -281,19 +279,19 @@ Preference<bool> ShowBrushEntityBounds("Map view/Show brush entity bounds", true
 Preference<bool> ShowPointEntityBounds("Map view/Show point entity bounds", true);
 Preference<bool> ShowPointEntityModels("Map view/Show point entity models", true);
 
-QString faceRenderModeTextured()
+std::string faceRenderModeTextured()
 {
   return "textured";
 }
-QString faceRenderModeFlat()
+std::string faceRenderModeFlat()
 {
   return "flat";
 }
-QString faceRenderModeSkip()
+std::string faceRenderModeSkip()
 {
   return "skip";
 }
-Preference<QString> FaceRenderMode("Map view/Face render mode", "textured");
+Preference<std::string> FaceRenderMode("Map view/Face render mode", "textured");
 
 Preference<bool> ShadeFaces("Map view/Shade faces", true);
 Preference<bool> ShowFog("Map view/Show fog", false);
@@ -304,23 +302,23 @@ Preference<bool> ShowSoftMapBounds("Map view/Show soft map bounds", true);
 Preference<bool> ShowPointEntities("Map view/Show point entities", true);
 Preference<bool> ShowBrushes("Map view/Show brushes", true);
 
-QString entityLinkModeAll()
+std::string entityLinkModeAll()
 {
   return "all";
 }
-QString entityLinkModeTransitive()
+std::string entityLinkModeTransitive()
 {
   return "transitive";
 }
-QString entityLinkModeDirect()
+std::string entityLinkModeDirect()
 {
   return "direct";
 }
-QString entityLinkModeNone()
+std::string entityLinkModeNone()
 {
   return "none";
 }
-Preference<QString> EntityLinkMode("Map view/Entity link mode", "direct");
+Preference<std::string> EntityLinkMode("Map view/Entity link mode", "direct");
 
 const std::vector<PreferenceBase*>& staticPreferences()
 {

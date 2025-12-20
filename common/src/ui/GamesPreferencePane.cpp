@@ -277,10 +277,8 @@ void GamePreferencePane::createGui()
         {
           edit->setText(pathStr);
           auto& prefs = PreferenceManager::instance();
-          if (prefs.set(toolPathPref, io::pathFromQString(edit->text())))
-          {
-            emit requestUpdate();
-          }
+          prefs.set(toolPathPref, io::pathFromQString(edit->text()));
+          emit requestUpdate();
         }
       });
 
@@ -316,10 +314,8 @@ void GamePreferencePane::updateGamePath(const QString& str)
   updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
 
   auto& prefs = PreferenceManager::instance();
-  if (prefs.set(gameInfo->gamePathPreference, io::pathFromQString(str)))
-  {
-    emit requestUpdate();
-  }
+  prefs.set(gameInfo->gamePathPreference, io::pathFromQString(str));
+  emit requestUpdate();
 }
 
 void GamePreferencePane::configureEnginesClicked()

@@ -29,7 +29,14 @@ namespace tb
 template <typename C>
 struct Observer
 {
-  std::set<C> collected;
+  NotifierConnection connection;
+  std::set<std::remove_cv_t<C>> collected;
+
+  template <typename T>
+  explicit Observer(Notifier<T>& notifier)
+  {
+    connection += notifier.connect(this, &Observer::operator());
+  }
 
   void operator()(C c) { collected.insert(std::forward<C>(c)); }
 

@@ -104,7 +104,10 @@ QWidget* ViewPreferencePane::createViewPreferences()
   makeEmphasized(viewPrefsHeader);
 
   m_themeCombo = new QComboBox{};
-  m_themeCombo->addItems({Preferences::systemTheme(), Preferences::darkTheme()});
+  m_themeCombo->addItems({
+    QString::fromStdString(Preferences::systemTheme()),
+    QString::fromStdString(Preferences::darkTheme()),
+  });
   auto* themeInfo = new QLabel{};
   themeInfo->setText(tr("Requires restart after changing"));
   makeInfo(themeInfo);
@@ -304,7 +307,8 @@ void ViewPreferencePane::updateControls()
 
   m_showAxes->setChecked(pref(Preferences::ShowAxes));
   m_enableMsaa->setChecked(pref(Preferences::EnableMSAA));
-  m_themeCombo->setCurrentIndex(findThemeIndex(pref(Preferences::Theme)));
+  m_themeCombo->setCurrentIndex(
+    findThemeIndex(QString::fromStdString(pref(Preferences::Theme))));
 
   const auto materialBrowserIconSize = pref(Preferences::MaterialBrowserIconSize);
   if (materialBrowserIconSize == 0.25f)
@@ -422,7 +426,7 @@ void ViewPreferencePane::filterModeChanged(const int value)
 void ViewPreferencePane::themeChanged(int /*index*/)
 {
   auto& prefs = PreferenceManager::instance();
-  prefs.set(Preferences::Theme, m_themeCombo->currentText());
+  prefs.set(Preferences::Theme, m_themeCombo->currentText().toStdString());
 }
 
 void ViewPreferencePane::materialBrowserIconSizeChanged(const int index)

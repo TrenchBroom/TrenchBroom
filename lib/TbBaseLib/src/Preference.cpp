@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,27 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "PreferenceManager.h"
+#include "Preference.h"
 
 namespace tb
 {
 
-class TestPreferenceManager : public PreferenceManager
+std::ostream& operator<<(std::ostream& lhs, const PreferencePersistencePolicy rhs)
 {
-public:
-  TestPreferenceManager() = default;
+  switch (rhs)
+  {
+  case PreferencePersistencePolicy::Persistent:
+    lhs << "Persistent";
+    break;
+  case PreferencePersistencePolicy::Transient:
+    lhs << "Transient";
+    break;
+  case PreferencePersistencePolicy::ReadOnly:
+    lhs << "ReadOnly";
+    break;
+  }
 
-  void initialize() override;
+  return lhs;
+}
 
-  bool saveInstantly() const override;
-  void saveChanges() override;
-  void discardChanges() override;
+PreferenceBase::PreferenceBase(
+  std::filesystem::path i_path, PreferencePersistencePolicy i_persistencePolicy)
+  : path{std::move(i_path)}
+  , persistencePolicy{i_persistencePolicy}
+{
+}
 
-private:
-  void validatePreference(const PreferenceBase&) override;
-  void savePreference(PreferenceBase&) override;
-};
+PreferenceBase::~PreferenceBase() = default;
 
 } // namespace tb

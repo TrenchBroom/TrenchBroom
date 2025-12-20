@@ -19,8 +19,6 @@
 
 
 #include "Matchers.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -247,7 +245,7 @@ TEST_CASE("Map_Geometry")
 
       WHEN("One of the groups is transformed with aligment lock off")
       {
-        const auto setPref = TemporarilySetPref{Preferences::AlignmentLock, false};
+        map.editorContext().setAlignmentLock(false);
 
         const auto delta = vm::vec3d{0.125, 0, 0};
         REQUIRE(translateSelection(map, delta));

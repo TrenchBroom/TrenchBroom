@@ -104,7 +104,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Standard,
         DefaultGameInfo,
-        DefaultGameInfo.gamePathPreference.value(),
+        DefaultGameInfo.gamePathPreference.defaultValue,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -134,7 +134,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Valve,
         gameInfo,
-        gameInfo.gamePathPreference.value(),
+        gameInfo.gamePathPreference.defaultValue,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -168,7 +168,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Valve,
         gameInfo,
-        gameInfo.gamePathPreference.value(),
+        gameInfo.gamePathPreference.defaultValue,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -193,7 +193,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Valve,
         gameInfo,
-        gameInfo.gamePathPreference.value(),
+        gameInfo.gamePathPreference.defaultValue,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -217,7 +217,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Valve,
         gameInfo,
-        gameInfo.gamePathPreference.value(),
+        gameInfo.gamePathPreference.defaultValue,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -248,7 +248,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Standard,
         gameInfo,
-        gameInfo.gamePathPreference.value(),
+        gameInfo.gamePathPreference.defaultValue,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -280,7 +280,7 @@ TEST_CASE("Map")
         path,
         MapFormat::Unknown,
         gameInfo,
-        gameInfo.gamePathPreference.value(),
+        gameInfo.gamePathPreference.defaultValue,
         worldBounds,
         *taskManager,
         logger)
@@ -307,7 +307,7 @@ TEST_CASE("Map")
           makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
           MapFormat::Unknown,
           gameInfo,
-          gameInfo.gamePathPreference.value(),
+          gameInfo.gamePathPreference.defaultValue,
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -324,7 +324,7 @@ TEST_CASE("Map")
           makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
           MapFormat::Unknown,
           gameInfo,
-          gameInfo.gamePathPreference.value(),
+          gameInfo.gamePathPreference.defaultValue,
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -341,7 +341,7 @@ TEST_CASE("Map")
           makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
           MapFormat::Unknown,
           gameInfo,
-          gameInfo.gamePathPreference.value(),
+          gameInfo.gamePathPreference.defaultValue,
           vm::bbox3d{8192.0},
           *taskManager,
           logger)
@@ -361,7 +361,7 @@ TEST_CASE("Map")
           makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
           MapFormat::Unknown,
           gameInfo,
-          gameInfo.gamePathPreference.value(),
+          gameInfo.gamePathPreference.defaultValue,
           vm::bbox3d{8192.0},
           *taskManager,
           logger));
@@ -385,7 +385,7 @@ TEST_CASE("Map")
         makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
         MapFormat::Unknown,
         gameInfo,
-        gameInfo.gamePathPreference.value(),
+        gameInfo.gamePathPreference.defaultValue,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -415,7 +415,7 @@ TEST_CASE("Map")
       path,
       MapFormat::Unknown,
       gameInfo,
-      gameInfo.gamePathPreference.value(),
+      gameInfo.gamePathPreference.defaultValue,
       vm::bbox3d{8192.0},
       *taskManager,
       logger)
@@ -1970,7 +1970,7 @@ TEST_CASE("Map")
       Map::createMap(
         MapFormat::Standard,
         gameInfo,
-        gameInfo.gamePathPreference.value(),
+        gameInfo.gamePathPreference.defaultValue,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)

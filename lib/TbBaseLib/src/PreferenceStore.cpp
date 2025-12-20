@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,32 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestPreferenceManager.h"
-
-#include "Preferences.h"
+#include "PreferenceStore.h"
 
 namespace tb
 {
 
-void TestPreferenceManager::initialize()
-{
-  set(Preferences::AskForAutoUpdates, false);
-}
-
-bool TestPreferenceManager::saveInstantly() const
-{
-  return false;
-}
-
-void TestPreferenceManager::saveChanges() {}
-
-void TestPreferenceManager::discardChanges() {}
-
-void TestPreferenceManager::validatePreference(const PreferenceBase& preference)
-{
-  preference.setValid(true);
-}
-
-void TestPreferenceManager::savePreference(PreferenceBase&) {}
+PreferenceStore::~PreferenceStore() = default;
 
 } // namespace tb

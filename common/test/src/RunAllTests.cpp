@@ -20,11 +20,13 @@
 #define CATCH_CONFIG_RUNNER
 
 #include "Contracts.h"
-#include "TestPreferenceManager.h"
+#include "PreferenceManager.h"
+#include "TestPreferenceStore.h"
 #include "TrenchBroomApp.h"
 #include "ui/CrashReporter.h"
 
 #include "kd/contracts.h"
+#include "kd/k.h"
 
 #include <catch2/catch_session.hpp>
 
@@ -32,7 +34,8 @@ int main(int argc, char** argv)
 {
   tb::setContractViolationHandler();
 
-  tb::PreferenceManager::createInstance<tb::TestPreferenceManager>();
+  tb::PreferenceManager::createInstance(
+    std::make_unique<tb::TestPreferenceStore>(), K(saveInstantly));
   tb::ui::TrenchBroomApp app(argc, argv);
 
   tb::ui::setCrashReportGUIEnabled(false);

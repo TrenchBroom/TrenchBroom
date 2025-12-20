@@ -6,6 +6,7 @@ target_sources(TbBaseLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ColorT.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ColorVariantT.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Notifier.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PreferenceManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Tokenizer.cpp
 )
 

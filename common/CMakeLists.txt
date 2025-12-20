@@ -203,8 +203,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.cpp
         ${COMMON_SOURCE_DIR}/octree.cpp
-        ${COMMON_SOURCE_DIR}/Preference.cpp
-        ${COMMON_SOURCE_DIR}/PreferenceManager.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
         ${COMMON_SOURCE_DIR}/render/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.cpp
@@ -416,6 +414,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.cpp
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.cpp
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.cpp
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QtUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.cpp
@@ -714,8 +715,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.h
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.h
         ${COMMON_SOURCE_DIR}/octree.h
-        ${COMMON_SOURCE_DIR}/Preference.h
-        ${COMMON_SOURCE_DIR}/PreferenceManager.h
         ${COMMON_SOURCE_DIR}/Preferences.h
         ${COMMON_SOURCE_DIR}/render/ActiveShader.h
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.h
@@ -935,6 +934,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.h
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.h
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.h
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.h
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.h
+        ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.h
         ${COMMON_SOURCE_DIR}/ui/QtUtils.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.h
