@@ -52,7 +52,7 @@ private:
   LayerNode* m_currentLayer = nullptr;
   GroupNode* m_currentGroup = nullptr;
 
-  bool m_alignmentLock = false;
+  bool m_alignmentLock = true;
   bool m_uvLock = false;
 
 public:
