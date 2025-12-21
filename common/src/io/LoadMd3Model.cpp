@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,50 +17,38 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Md3Loader.h"
+#include "LoadMd3Model.h"
 
-#include "Logger.h"
-#include "fs/Reader.h"
 #include "fs/ReaderException.h"
-#include "mdl/EntityModel.h"
-#include "mdl/Material.h"                // IWYU pragma: keep
-#include "render/IndexRangeMapBuilder.h" // IWYU pragma: keep
+#include "mdl/Material.h" // IWYU pragma: keep
+#include "render/IndexRangeMap.h"
 #include "render/PrimType.h"
 
-#include "kd/contracts.h"
 #include "kd/path_utils.h"
-#include "kd/ranges/to.h"
-#include "kd/result.h"
-#include "kd/result_fold.h" // IWYU pragma: keep
-
-#include <fmt/core.h>
-
-#include <ranges>
-#include <string>
+#include "kd/result_fold.h"
 
 namespace tb::io
 {
 
-namespace Md3Layout
-{
-static const int Ident = (('3' << 24) + ('P' << 16) + ('D' << 8) + 'I');
-static const int Version = 15;
-static const size_t ModelNameLength = 64;
-static const size_t FrameNameLength = 16;
-static const size_t FrameLength = 3 * 3 * sizeof(float) + sizeof(float) + FrameNameLength;
-// static const size_t TagNameLength = 64;
-// static const size_t TagLength = TagNameLength + 4 * 3 * sizeof(float);
-static const size_t SurfaceNameLength = 64;
-static const size_t TriangleLength = 3 * sizeof(int32_t);
-static const size_t ShaderNameLength = 64;
-static const size_t ShaderLength = ShaderNameLength + sizeof(int32_t);
-static const size_t UVLength = 2 * sizeof(float);
-static const size_t VertexLength = 4 * sizeof(int16_t);
-static const float VertexScale = 1.0f / 64.0f;
-} // namespace Md3Layout
-
 namespace
 {
+namespace Md3Layout
+{
+constexpr int Ident = (('3' << 24) + ('P' << 16) + ('D' << 8) + 'I');
+constexpr int Version = 15;
+constexpr size_t ModelNameLength = 64;
+constexpr size_t FrameNameLength = 16;
+constexpr size_t FrameLength = 3 * 3 * sizeof(float) + sizeof(float) + FrameNameLength;
+// constexpr size_t TagNameLength = 64;
+// constexpr size_t TagLength = TagNameLength + 4 * 3 * sizeof(float);
+constexpr size_t SurfaceNameLength = 64;
+constexpr size_t TriangleLength = 3 * sizeof(int32_t);
+constexpr size_t ShaderNameLength = 64;
+constexpr size_t ShaderLength = ShaderNameLength + sizeof(int32_t);
+constexpr size_t UVLength = 2 * sizeof(float);
+constexpr size_t VertexLength = 4 * sizeof(int16_t);
+constexpr float VertexScale = 1.0f / 64.0f;
+} // namespace Md3Layout
 
 struct Md3Triangle
 {
@@ -301,15 +289,7 @@ Result<void> parseFrameSurfaces(
 
 } // namespace
 
-Md3Loader::Md3Loader(
-  std::string name, const fs::Reader& reader, LoadMaterialFunc loadMaterial)
-  : m_name{std::move(name)}
-  , m_reader{reader}
-  , m_loadMaterial{std::move(loadMaterial)}
-{
-}
-
-bool Md3Loader::canParse(const std::filesystem::path& path, fs::Reader reader)
+bool canLoadMd3Model(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".md3"))
   {
@@ -322,12 +302,11 @@ bool Md3Loader::canParse(const std::filesystem::path& path, fs::Reader reader)
   return ident == Md3Layout::Ident && version == Md3Layout::Version;
 }
 
-Result<mdl::EntityModelData> Md3Loader::load(Logger&)
+Result<mdl::EntityModelData> loadMd3Model(
+  fs::Reader reader, LoadMaterialFunc loadMaterial, Logger&)
 {
   try
   {
-    auto reader = m_reader;
-
     const auto ident = reader.readInt<int32_t>();
     const auto version = reader.readInt<int32_t>();
 
@@ -360,7 +339,7 @@ Result<mdl::EntityModelData> Md3Loader::load(Logger&)
              surfaceCount,
              frameCount,
              data,
-             m_loadMaterial)
+             loadMaterial)
            | kdl::and_then([&]() {
                return std::views::iota(0u, frameCount)
                       | std::views::transform([&](const auto i) {

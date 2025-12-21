@@ -22,10 +22,9 @@
 #include "fs/Reader.h"
 #include "fs/VirtualFileSystem.h"
 #include "io/LoadMaterialCollections.h"
+#include "io/LoadMd3Model.h"
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
-#include "io/Md3Loader.h"
-#include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"
 
@@ -43,7 +42,7 @@
 namespace tb::io
 {
 
-TEST_CASE("Md3Loader")
+TEST_CASE("loadMd3Model")
 {
   auto logger = NullLogger{};
   auto taskManager = kdl::task_manager{};
@@ -80,44 +79,43 @@ TEST_CASE("Md3Loader")
 
     const auto md3Path = "models/weapons2/bfg/bfg.md3";
     const auto md3File = fs.openFile(md3Path) | kdl::value();
-
     auto reader = md3File->reader().buffer();
-    auto loader = Md3Loader{"bfg", reader, loadMaterial};
-    auto modelData = loader.load(logger);
 
-    REQUIRE(modelData);
+    loadMd3Model(reader, loadMaterial, logger)
+      | kdl::transform([](const auto& modelData) {
+          CHECK(modelData.frameCount() == 1u);
+          CHECK(modelData.surfaceCount() == 2u);
 
-    CHECK(modelData.value().frameCount() == 1u);
-    CHECK(modelData.value().surfaceCount() == 2u);
+          const auto* frame = modelData.frame("MilkShape 3D");
+          CHECK(frame != nullptr);
+          CHECK(vm::is_equal(
+            vm::bbox3f(
+              vm::vec3f(-10.234375, -10.765625, -9.4375),
+              vm::vec3f(30.34375, 10.765625, 11.609375)),
+            frame->bounds(),
+            0.01f));
 
-    const auto* frame = modelData.value().frame("MilkShape 3D");
-    CHECK(frame != nullptr);
-    CHECK(vm::is_equal(
-      vm::bbox3f(
-        vm::vec3f(-10.234375, -10.765625, -9.4375),
-        vm::vec3f(30.34375, 10.765625, 11.609375)),
-      frame->bounds(),
-      0.01f));
+          const auto* surface1 = modelData.surface("x_bfg");
+          CHECK(surface1 != nullptr);
+          CHECK(surface1->frameCount() == 1u);
+          CHECK(surface1->skinCount() == 1u);
 
-    const auto* surface1 = modelData.value().surface("x_bfg");
-    CHECK(surface1 != nullptr);
-    CHECK(surface1->frameCount() == 1u);
-    CHECK(surface1->skinCount() == 1u);
+          const auto* skin1 = surface1->skin("models/weapons2/bfg/LDAbfg");
+          CHECK(skin1 != nullptr);
 
-    const auto* skin1 = surface1->skin("models/weapons2/bfg/LDAbfg");
-    CHECK(skin1 != nullptr);
+          const auto* surface2 = modelData.surface("x_fx");
+          CHECK(surface2 != nullptr);
+          CHECK(surface2->frameCount() == 1u);
+          CHECK(surface2->skinCount() == 1u);
 
-    const auto* surface2 = modelData.value().surface("x_fx");
-    CHECK(surface2 != nullptr);
-    CHECK(surface2->frameCount() == 1u);
-    CHECK(surface2->skinCount() == 1u);
-
-    const auto* skin2 = surface2->skin("models/weapons2/bfg/LDAbfg_z");
-    CHECK(skin2 != nullptr);
+          const auto* skin2 = surface2->skin("models/weapons2/bfg/LDAbfg_z");
+          CHECK(skin2 != nullptr);
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 }
 
-TEST_CASE("Md3Loader (Regression)", "[regression]")
+TEST_CASE("loadMd3Model (Regression)", "[regression]")
 {
   auto logger = NullLogger{};
   auto taskManager = kdl::task_manager{};
@@ -154,15 +152,14 @@ TEST_CASE("Md3Loader (Regression)", "[regression]")
 
     const auto md3Path = "models/armor_red.md3";
     const auto md3File = fs.openFile(md3Path) | kdl::value();
-
     auto reader = md3File->reader().buffer();
-    auto loader = Md3Loader{"armor_red", reader, loadMaterial};
-    auto modelData = loader.load(logger);
 
-    REQUIRE(modelData);
-
-    CHECK(modelData.value().frameCount() == 30u);
-    CHECK(modelData.value().surfaceCount() == 2u);
+    loadMd3Model(reader, loadMaterial, logger)
+      | kdl::transform([](const auto& modelData) {
+          CHECK(modelData.frameCount() == 30u);
+          CHECK(modelData.surfaceCount() == 2u);
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,45 +19,30 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
-#include "mdl/EntityModel_Forward.h"
+#include "Result.h"
+#include "fs/Reader.h"
+#include "mdl/EntityModel.h"
 
 #include <filesystem>
-#include <functional>
-#include <string>
 
 namespace tb
 {
-namespace fs
-{
-class FileSystem;
-class Reader;
-} // namespace fs
+class Logger;
 
 namespace mdl
 {
-class Material;
+class Palette;
 }
 
 namespace io
 {
 
+bool canLoadMd3Model(const std::filesystem::path& path, fs::Reader reader);
+
 using LoadMaterialFunc = std::function<mdl::Material(const std::filesystem::path&)>;
 
-class Md3Loader : public EntityModelLoader
-{
-private:
-  std::string m_name;
-  const fs::Reader& m_reader;
-  LoadMaterialFunc m_loadMaterial;
-
-public:
-  Md3Loader(std::string name, const fs::Reader& reader, LoadMaterialFunc loadMaterial);
-
-  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
+Result<mdl::EntityModelData> loadMd3Model(
+  fs::Reader reader, LoadMaterialFunc loadMaterial, Logger& logger);
 
 } // namespace io
 } // namespace tb
