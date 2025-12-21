@@ -36,6 +36,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/LoadMipTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadShaders.cpp
         ${COMMON_SOURCE_DIR}/io/LoadSpriteModel.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadWalTexture.cpp
         ${COMMON_SOURCE_DIR}/io/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/MapHeader.cpp
@@ -516,6 +517,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/LoadMipTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadShaders.h
         ${COMMON_SOURCE_DIR}/io/LoadSpriteModel.h
+        ${COMMON_SOURCE_DIR}/io/LoadTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadWalTexture.h
         ${COMMON_SOURCE_DIR}/io/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/io/MapHeader.h
