@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,56 +17,44 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BspLoader.h"
+#include "LoadBspModel.h"
 
-#include "Logger.h"
-#include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "io/LoadMipTexture.h"
 #include "io/MaterialUtils.h"
 #include "io/ResourceUtils.h"
-#include "mdl/EntityModel.h"
 #include "mdl/Material.h"
-#include "mdl/Texture.h"
+#include "mdl/Palette.h"
 #include "render/MaterialIndexRangeMap.h"
 #include "render/MaterialIndexRangeMapBuilder.h"
-#include "render/PrimType.h"
 
 #include "kd/path_utils.h"
-#include "kd/result.h"
-#include "kd/string_format.h"
-
-#include <fmt/format.h>
-
-#include <string>
-#include <vector>
 
 namespace tb::io
 {
-namespace BspLayout
-{
-static const size_t DirMaterialsAddress = 0x14;
-static const size_t DirVerticesAddress = 0x1C;
-static const size_t DirTexInfosAddress = 0x34;
-static const size_t DirFacesAddress = 0x3C;
-static const size_t DirEdgesAddress = 0x64;
-static const size_t DirFaceEdgesAddress = 0x6C;
-static const size_t DirModelAddress = 0x74;
-
-static const size_t FaceSize = 0x14;
-static const size_t FaceEdgeIndex = 0x4;
-static const size_t FaceRest = 0x8;
-
-static const size_t MaterialInfoSize = 0x28;
-static const size_t MaterialInfoRest = 0x4;
-
-static const size_t FaceEdgeSize = 0x4;
-static const size_t ModelSize = 0x40;
-static const size_t ModelFaceIndex = 0x38;
-} // namespace BspLayout
-
 namespace
 {
+namespace BspLayout
+{
+constexpr size_t DirMaterialsAddress = 0x14;
+constexpr size_t DirVerticesAddress = 0x1C;
+constexpr size_t DirTexInfosAddress = 0x34;
+constexpr size_t DirFacesAddress = 0x3C;
+constexpr size_t DirEdgesAddress = 0x64;
+constexpr size_t DirFaceEdgesAddress = 0x6C;
+constexpr size_t DirModelAddress = 0x74;
+
+constexpr size_t FaceSize = 0x14;
+constexpr size_t FaceEdgeIndex = 0x4;
+constexpr size_t FaceRest = 0x8;
+
+constexpr size_t MaterialInfoSize = 0x28;
+constexpr size_t MaterialInfoRest = 0x4;
+
+constexpr size_t FaceEdgeSize = 0x4;
+constexpr size_t ModelSize = 0x40;
+constexpr size_t ModelFaceIndex = 0x38;
+} // namespace BspLayout
 
 bool isBSPVersionSupported(const int version)
 {
@@ -285,19 +273,7 @@ void parseFrame(
 
 } // namespace
 
-BspLoader::BspLoader(
-  std::string name,
-  const fs::Reader& reader,
-  mdl::Palette palette,
-  const fs::FileSystem& fs)
-  : m_name{std::move(name)}
-  , m_reader{reader}
-  , m_palette{std::move(palette)}
-  , m_fs{fs}
-{
-}
-
-bool BspLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
+bool canLoadBspModel(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".bsp"))
   {
@@ -308,11 +284,15 @@ bool BspLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
   return isBSPVersionSupported(version);
 }
 
-Result<mdl::EntityModelData> BspLoader::load(Logger& logger)
+Result<mdl::EntityModelData> loadBspModel(
+  const std::string& name,
+  fs::Reader reader,
+  const mdl::Palette& palette,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   try
   {
-    auto reader = m_reader;
     const auto version = reader.readInt<int32_t>();
     if (!isBSPVersionSupported(version))
     {
@@ -355,9 +335,9 @@ Result<mdl::EntityModelData> BspLoader::load(Logger& logger)
     auto data = mdl::EntityModelData{mdl::PitchType::Normal, mdl::Orientation::Oriented};
 
     auto materials = parseMaterials(
-      reader.subReaderFromBegin(materialsOffset), version, m_palette, m_fs, logger);
+      reader.subReaderFromBegin(materialsOffset), version, palette, fs, logger);
 
-    auto& surface = data.addSurface(m_name, frameCount);
+    auto& surface = data.addSurface(name, frameCount);
     surface.setSkins(std::move(materials));
 
     const auto materialInfos = parseMaterialInfos(

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,42 +19,38 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
-#include "mdl/Palette.h"
+#include "Result.h"
+#include "fs/Reader.h"
+#include "mdl/EntityModel.h"
 
 #include <filesystem>
 #include <string>
 
 namespace tb
 {
+class Logger;
+
 namespace fs
 {
 class FileSystem;
-class Reader;
 } // namespace fs
+
+namespace mdl
+{
+class Palette;
+}
 
 namespace io
 {
 
-class BspLoader : public EntityModelLoader
-{
-private:
-  std::string m_name;
-  const fs::Reader& m_reader;
-  const mdl::Palette m_palette;
-  const fs::FileSystem& m_fs;
+bool canLoadBspModel(const std::filesystem::path& path, fs::Reader reader);
 
-public:
-  BspLoader(
-    std::string name,
-    const fs::Reader& reader,
-    mdl::Palette palette,
-    const fs::FileSystem& fs);
-
-  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
+Result<mdl::EntityModelData> loadBspModel(
+  const std::string& name,
+  fs::Reader reader,
+  const mdl::Palette& palette,
+  const fs::FileSystem& fs,
+  Logger& logger);
 
 } // namespace io
 } // namespace tb
