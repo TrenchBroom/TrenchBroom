@@ -65,62 +65,62 @@ Result<mdl::EntityModelData> loadEntityModelData(
          | kdl::and_then([&](auto file) -> Result<mdl::EntityModelData> {
              auto reader = file->reader().buffer();
 
-             if (io::MdlLoader::canParse(path, reader))
+             if (MdlLoader::canParse(path, reader))
              {
                return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                        auto loader = io::MdlLoader{modelName, reader, palette};
+                        auto loader = MdlLoader{modelName, reader, palette};
                         return loader.load(logger);
                       });
              }
-             if (io::Md2Loader::canParse(path, reader))
+             if (Md2Loader::canParse(path, reader))
              {
                return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                        auto loader = io::Md2Loader{modelName, reader, palette, fs};
+                        auto loader = Md2Loader{modelName, reader, palette, fs};
                         return loader.load(logger);
                       });
              }
-             if (io::BspLoader::canParse(path, reader))
+             if (BspLoader::canParse(path, reader))
              {
                return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                        auto loader = io::BspLoader{modelName, reader, palette, fs};
+                        auto loader = BspLoader{modelName, reader, palette, fs};
                         return loader.load(logger);
                       });
              }
-             if (io::SprLoader::canParse(path, reader))
+             if (SprLoader::canParse(path, reader))
              {
                return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                        auto loader = io::SprLoader{modelName, reader, palette};
+                        auto loader = SprLoader{modelName, reader, palette};
                         return loader.load(logger);
                       });
              }
-             if (io::Md3Loader::canParse(path, reader))
+             if (Md3Loader::canParse(path, reader))
              {
-               auto loader = io::Md3Loader{modelName, reader, loadMaterial};
+               auto loader = Md3Loader{modelName, reader, loadMaterial};
                return loader.load(logger);
              }
-             if (io::MdxLoader::canParse(path, reader))
+             if (MdxLoader::canParse(path, reader))
              {
-               auto loader = io::MdxLoader{modelName, reader, fs};
+               auto loader = MdxLoader{modelName, reader, fs};
                return loader.load(logger);
              }
-             if (io::DkmLoader::canParse(path, reader))
+             if (DkmLoader::canParse(path, reader))
              {
-               auto loader = io::DkmLoader{modelName, reader, fs};
+               auto loader = DkmLoader{modelName, reader, fs};
                return loader.load(logger);
              }
-             if (io::AseLoader::canParse(path))
+             if (AseLoader::canParse(path))
              {
-               auto loader = io::AseLoader{modelName, reader.stringView(), loadMaterial};
+               auto loader = AseLoader{modelName, reader.stringView(), loadMaterial};
                return loader.load(logger);
              }
-             if (io::ImageSpriteLoader::canParse(path))
+             if (ImageSpriteLoader::canParse(path))
              {
-               auto loader = io::ImageSpriteLoader{modelName, file, fs};
+               auto loader = ImageSpriteLoader{modelName, file, fs};
                return loader.load(logger);
              }
-             if (io::AssimpLoader::canParse(path))
+             if (AssimpLoader::canParse(path))
              {
-               auto loader = io::AssimpLoader{path, fs};
+               auto loader = AssimpLoader{path, fs};
                return loader.load(logger);
              }
              return Error{fmt::format("Unknown model format: {}", path)};

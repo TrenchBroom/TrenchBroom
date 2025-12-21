@@ -28,7 +28,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb
 {
 namespace SimpleToken
 {
@@ -276,4 +276,4 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute")
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-} // namespace tb::io
+} // namespace tb

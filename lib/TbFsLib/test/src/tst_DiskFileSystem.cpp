@@ -225,7 +225,7 @@ TEST_CASE("WritableDiskFileSystemTest")
 
     const auto fs = WritableDiskFileSystem{env.dir() / "anotherDir/.."};
     CHECK(fs.makeAbsolute("") == (env.dir() / "anotherDir/..").lexically_normal());
-  } // namespace tb::io
+  }
 
   SECTION("createDirectory")
   {
