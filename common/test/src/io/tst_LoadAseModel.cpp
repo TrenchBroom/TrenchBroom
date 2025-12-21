@@ -21,7 +21,7 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/Reader.h"
 #include "fs/VirtualFileSystem.h"
-#include "io/AseLoader.h"
+#include "io/LoadAseModel.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
@@ -43,7 +43,7 @@
 namespace tb::io
 {
 
-TEST_CASE("AseLoader")
+TEST_CASE("loadAseModel")
 {
   auto logger = NullLogger{};
 
@@ -85,9 +85,8 @@ TEST_CASE("AseLoader")
     const auto aseFile =
       fs.openFile("models/mapobjects/wedges/wedge_45.ase") | kdl::value();
     auto reader = aseFile->reader().buffer();
-    auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto modelResult = loader.load(logger);
+    auto modelResult = loadAseModel("wedge", reader.stringView(), loadMaterial, logger);
     REQUIRE(modelResult);
 
     SECTION("Windows paths are converted to generic paths")
@@ -126,9 +125,8 @@ TEST_CASE("AseLoader")
 
     const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
     auto reader = aseFile->reader().buffer();
-    auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto modelData = loader.load(logger);
+    auto modelData = loadAseModel("wedge", reader.stringView(), loadMaterial, logger);
     REQUIRE(modelData);
 
     // account for the default material
@@ -157,9 +155,8 @@ TEST_CASE("AseLoader")
 
     const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
     auto reader = aseFile->reader().buffer();
-    auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto modelData = loader.load(logger);
+    auto modelData = loadAseModel("wedge", reader.stringView(), loadMaterial, logger);
     REQUIRE(modelData);
 
     // account for the default texture
@@ -173,7 +170,7 @@ TEST_CASE("AseLoader")
   }
 }
 
-TEST_CASE("AseLoader (Regression)", "[regression]")
+TEST_CASE("loadAseModel (Regression)", "[regression]")
 {
   auto logger = NullLogger{};
 
@@ -214,9 +211,8 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
 
     const auto aseFile = fs.openFile("player.ase") | kdl::value();
     auto reader = aseFile->reader().buffer();
-    auto loader = AseLoader{"player", reader.stringView(), loadMaterial};
 
-    CHECK(loader.load(logger));
+    CHECK(loadAseModel("player", reader.stringView(), loadMaterial, logger));
   }
 
   SECTION("2679")
@@ -240,9 +236,8 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
 
     const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
     auto reader = aseFile->reader().buffer();
-    auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    CHECK(loader.load(logger));
+    CHECK(loadAseModel("wedge", reader.stringView(), loadMaterial, logger));
   }
 
   SECTION("2898")
@@ -268,20 +263,16 @@ TEST_CASE("AseLoader (Regression)", "[regression]")
     {
       const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
       auto reader = aseFile->reader().buffer();
-      auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-      auto model = loader.load(logger);
-      CHECK(model);
+      CHECK(loadAseModel("wedge", reader.stringView(), loadMaterial, logger));
     }
 
     SECTION("no UV")
     {
       const auto aseFile = fs.openFile("wedge_45_no_uv.ase") | kdl::value();
       auto reader = aseFile->reader().buffer();
-      auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-      auto model = loader.load(logger);
-      CHECK(model);
+      CHECK(loadAseModel("wedge", reader.stringView(), loadMaterial, logger));
     }
   }
 }

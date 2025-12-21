@@ -26,7 +26,6 @@ set(COMMON_TEST_UTILS_SOURCE
 
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_StringMakers.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_AseLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AssimpLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_BspLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_CompilationConfigParser.cpp"
@@ -36,6 +35,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_FgdParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_GameConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_GameEngineConfigParser.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/io/tst_LoadAseModel.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_LoadDdsTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_LoadFreeImageTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_LoadM8Texture.cpp"
