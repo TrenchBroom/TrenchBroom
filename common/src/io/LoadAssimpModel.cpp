@@ -19,30 +19,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AssimpLoader.h"
+#include "LoadAssimpModel.h"
 
-#include "Logger.h"
 #include "ParserException.h"
 #include "fs/File.h"
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
+#include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "io/LoadFreeImageTexture.h"
 #include "io/MaterialUtils.h"
 #include "io/ResourceUtils.h"
 #include "mdl/BrushFaceAttributes.h"
-#include "mdl/EntityModel.h"
-#include "mdl/Material.h"
 #include "mdl/Texture.h"
+#include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
 
 #include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
-#include "kd/ranges/to.h"
-#include "kd/result.h"
 #include "kd/result_fold.h"
-#include "kd/vector_utils.h"
 
 #include <assimp/IOStream.hpp>
 #include <assimp/IOSystem.hpp>
@@ -52,12 +47,6 @@
 #include <assimp/types.h>
 #include <fmt/format.h>
 #include <fmt/std.h>
-
-#include <optional>
-#include <ranges>
-#include <string_view>
-#include <utility>
-
 
 namespace tb::io
 {
@@ -166,6 +155,13 @@ public:
             | kdl::if_error([](auto e) { throw ParserException{e.msg}; }) | kdl::value())
       .release();
   }
+};
+
+struct AssimpMeshWithTransforms
+{
+  const aiMesh* m_mesh;
+  aiMatrix4x4 m_transform;
+  aiMatrix4x4 m_axisTransform;
 };
 
 std::optional<mdl::Texture> loadFallbackTexture(const fs::FileSystem& fs)
@@ -793,13 +789,7 @@ Result<void> loadSceneFrame(
 
 } // namespace
 
-AssimpLoader::AssimpLoader(std::filesystem::path path, const fs::FileSystem& fs)
-  : m_path{std::move(path)}
-  , m_fs{fs}
-{
-}
-
-bool AssimpLoader::canParse(const std::filesystem::path& path)
+bool canLoadAssimpModel(const std::filesystem::path& path)
 {
   // clang-format off
   static const auto supportedExtensions = std::vector<std::filesystem::path>{
@@ -820,7 +810,8 @@ bool AssimpLoader::canParse(const std::filesystem::path& path)
   return kdl::vec_contains(supportedExtensions, kdl::path_to_lower(path.extension()));
 }
 
-Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
+Result<mdl::EntityModelData> loadAssimpModel(
+  const std::filesystem::path& path, const fs::FileSystem& fs, Logger& logger)
 {
   const auto createMaterial = [](auto texture) {
     auto textureResource = createTextureResource(std::move(texture));
@@ -833,17 +824,17 @@ Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
                                  | aiProcess_FlipWindingOrder | aiProcess_SortByPType
                                  | aiProcess_FlipUVs;
 
-    const auto modelPath = m_path.string();
+    const auto modelPath = path.string();
 
     // Import the file as an Assimp scene and populate our vectors.
     auto importer = Assimp::Importer{};
-    importer.SetIOHandler(new AssimpIOSystem{m_fs});
+    importer.SetIOHandler(new AssimpIOSystem{fs});
 
     const auto* scene = importer.ReadFile(modelPath, assimpFlags);
     if (!scene)
     {
       return Error{fmt::format(
-        "Assimp couldn't import model from '{}': {}", m_path, importer.GetErrorString())};
+        "Assimp couldn't import model from '{}': {}", path, importer.GetErrorString())};
     }
 
     // Create model data.
@@ -866,7 +857,7 @@ Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
 
       // load skins for this surface
       auto materials =
-        loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger)
+        loadTexturesForMaterial(*scene, mesh->mMaterialIndex, path, fs, logger)
         | kdl::views::as_rvalue | std::views::transform(createMaterial)
         | kdl::ranges::to<std::vector>();
       surface.setSkins(std::move(materials));

@@ -21,51 +21,27 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
-
-#include <assimp/matrix4x4.h>
+#include "Result.h"
+#include "mdl/EntityModel.h"
 
 #include <filesystem>
 
-struct aiNode;
-struct aiScene;
-struct aiMesh;
-
 namespace tb
 {
+class Logger;
+
 namespace fs
 {
 class FileSystem;
-} // namespace fs
-
-namespace mdl
-{
-class Material;
-} // namespace mdl
+}
 
 namespace io
 {
 
-struct AssimpMeshWithTransforms
-{
-  const aiMesh* m_mesh;
-  aiMatrix4x4 m_transform;
-  aiMatrix4x4 m_axisTransform;
-};
+bool canLoadAssimpModel(const std::filesystem::path& path);
 
-class AssimpLoader : public EntityModelLoader
-{
-private:
-  std::filesystem::path m_path;
-  const fs::FileSystem& m_fs;
-
-public:
-  AssimpLoader(std::filesystem::path path, const fs::FileSystem& fs);
-
-  static bool canParse(const std::filesystem::path& path);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
+Result<mdl::EntityModelData> loadAssimpModel(
+  const std::filesystem::path& path, const fs::FileSystem& fs, Logger& logger);
 
 } // namespace io
 } // namespace tb

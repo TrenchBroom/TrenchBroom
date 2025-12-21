@@ -20,7 +20,7 @@
 
 #include "Logger.h"
 #include "fs/DiskFileSystem.h"
-#include "io/AssimpLoader.h"
+#include "io/LoadAssimpModel.h"
 #include "mdl/EntityModel.h"
 
 #include "vm/approx.h"
@@ -34,7 +34,7 @@
 namespace tb::io
 {
 
-TEST_CASE("AssimpLoader")
+TEST_CASE("loadAssimpModel")
 {
   auto logger = NullLogger{};
 
@@ -45,8 +45,7 @@ TEST_CASE("AssimpLoader")
 
     SECTION("dae")
     {
-      auto loader = AssimpLoader{"cube.dae", *fs};
-      auto modelData = loader.load(logger);
+      auto modelData = loadAssimpModel("cube.dae", *fs, logger);
       REQUIRE(modelData);
 
       CHECK(modelData.value().frameCount() == 1);
@@ -56,9 +55,7 @@ TEST_CASE("AssimpLoader")
 
     SECTION("mdl")
     {
-      auto loader = AssimpLoader{"cube.mdl", *fs};
-
-      auto modelData = loader.load(logger);
+      auto modelData = loadAssimpModel("cube.mdl", *fs, logger);
       REQUIRE(modelData);
 
       CHECK(modelData.value().surfaceCount() == 4);
@@ -86,9 +83,7 @@ TEST_CASE("AssimpLoader")
       std::filesystem::current_path() / "fixture/test/io/assimp/alignment";
     auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
 
-    auto loader = AssimpLoader{modelPath, *fs};
-
-    auto modelData = loader.load(logger);
+    auto modelData = loadAssimpModel(modelPath, *fs, logger);
     REQUIRE(modelData);
 
     REQUIRE(modelData.value().frameCount() == 1);

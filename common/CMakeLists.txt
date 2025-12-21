@@ -3,7 +3,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/io/AssimpLoader.cpp
         ${COMMON_SOURCE_DIR}/io/BrushFaceReader.cpp
         ${COMMON_SOURCE_DIR}/io/BspLoader.cpp
         ${COMMON_SOURCE_DIR}/io/CompilationConfigParser.cpp
@@ -24,6 +23,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.cpp
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.cpp
         ${COMMON_SOURCE_DIR}/io/LoadAseModel.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadAssimpModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadDdsTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.cpp
@@ -484,7 +484,6 @@ set(COMMON_SOURCE
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/io/AssimpLoader.h
         ${COMMON_SOURCE_DIR}/io/BrushFaceReader.h
         ${COMMON_SOURCE_DIR}/io/BspLoader.h
         ${COMMON_SOURCE_DIR}/io/CompilationConfigParser.h
@@ -505,6 +504,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.h
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.h
         ${COMMON_SOURCE_DIR}/io/LoadAseModel.h
+        ${COMMON_SOURCE_DIR}/io/LoadAssimpModel.h
         ${COMMON_SOURCE_DIR}/io/LoadDdsTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.h

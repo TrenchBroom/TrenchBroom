@@ -21,11 +21,11 @@
 
 #include "Result.h"
 #include "fs/FileSystem.h"
-#include "io/AssimpLoader.h"
 #include "io/BspLoader.h"
 #include "io/DkmLoader.h"
 #include "io/ImageSpriteLoader.h"
 #include "io/LoadAseModel.h"
+#include "io/LoadAssimpModel.h"
 #include "io/Md2Loader.h"
 #include "io/Md3Loader.h"
 #include "io/MdlLoader.h"
@@ -117,10 +117,9 @@ Result<mdl::EntityModelData> loadEntityModelData(
                auto loader = ImageSpriteLoader{modelName, file, fs};
                return loader.load(logger);
              }
-             if (AssimpLoader::canParse(path))
+             if (canLoadAssimpModel(path))
              {
-               auto loader = AssimpLoader{path, fs};
-               return loader.load(logger);
+               return loadAssimpModel(path, fs, logger);
              }
              return Error{fmt::format("Unknown model format: {}", path)};
            })
