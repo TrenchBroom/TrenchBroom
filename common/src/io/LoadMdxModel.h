@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,7 +19,9 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
+#include "Result.h"
+#include "fs/Reader.h"
+#include "mdl/EntityModel.h"
 
 #include <filesystem>
 #include <string>
@@ -31,28 +33,20 @@ class Logger;
 namespace fs
 {
 class FileSystem;
-class Reader;
-} // namespace fs
+}
+
+namespace mdl
+{
+class Palette;
+}
 
 namespace io
 {
 
-// see
-// https://web.archive.org/web/20020404103848/http://members.cheapnet.co.uk/~tical/misc/mdx.htm
-class MdxLoader : public EntityModelLoader
-{
-private:
-  std::string m_name;
-  const fs::Reader& m_reader;
-  const fs::FileSystem& m_fs;
+bool canLoadMdxModel(const std::filesystem::path& path, fs::Reader reader);
 
-public:
-  MdxLoader(std::string name, const fs::Reader& reader, const fs::FileSystem& fs);
-
-  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
+Result<mdl::EntityModelData> loadMdxModel(
+  const std::string& name, fs::Reader reader, const fs::FileSystem& fs, Logger& logger);
 
 } // namespace io
 } // namespace tb

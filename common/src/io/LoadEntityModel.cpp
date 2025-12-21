@@ -29,8 +29,8 @@
 #include "io/LoadMd2Model.h"
 #include "io/LoadMd3Model.h"
 #include "io/LoadMdlModel.h"
+#include "io/LoadMdxModel.h"
 #include "io/LoadSpriteModel.h"
-#include "io/MdxLoader.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"
@@ -93,10 +93,9 @@ Result<mdl::EntityModelData> loadEntityModelData(
              {
                return loadMd3Model(reader, loadMaterial, logger);
              }
-             if (MdxLoader::canParse(path, reader))
+             if (canLoadMdxModel(path, reader))
              {
-               auto loader = MdxLoader{modelName, reader, fs};
-               return loader.load(logger);
+               return loadMdxModel(modelName, reader, fs, logger);
              }
              if (DkmLoader::canParse(path, reader))
              {

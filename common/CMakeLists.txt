@@ -33,6 +33,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/LoadMd2Model.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMd3Model.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMdlModel.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadMdxModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMipTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadShaders.cpp
         ${COMMON_SOURCE_DIR}/io/LoadSpriteModel.cpp
@@ -42,7 +43,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/MapParser.cpp
         ${COMMON_SOURCE_DIR}/io/MapReader.cpp
         ${COMMON_SOURCE_DIR}/io/MaterialUtils.cpp
-        ${COMMON_SOURCE_DIR}/io/MdxLoader.cpp
         ${COMMON_SOURCE_DIR}/io/NodeReader.cpp
         ${COMMON_SOURCE_DIR}/io/NodeSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/NodeWriter.cpp
@@ -514,6 +514,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/LoadMd2Model.h
         ${COMMON_SOURCE_DIR}/io/LoadMd3Model.h
         ${COMMON_SOURCE_DIR}/io/LoadMdlModel.h
+        ${COMMON_SOURCE_DIR}/io/LoadMdxModel.h
         ${COMMON_SOURCE_DIR}/io/LoadMipTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadShaders.h
         ${COMMON_SOURCE_DIR}/io/LoadSpriteModel.h
@@ -523,7 +524,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/MapParser.h
         ${COMMON_SOURCE_DIR}/io/MapReader.h
         ${COMMON_SOURCE_DIR}/io/MaterialUtils.h
-        ${COMMON_SOURCE_DIR}/io/MdxLoader.h
         ${COMMON_SOURCE_DIR}/io/NodeReader.h
         ${COMMON_SOURCE_DIR}/io/NodeSerializer.h
         ${COMMON_SOURCE_DIR}/io/NodeWriter.h
