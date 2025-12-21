@@ -7,7 +7,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/CompilationConfigParser.cpp
         ${COMMON_SOURCE_DIR}/io/CompilationConfigWriter.cpp
         ${COMMON_SOURCE_DIR}/io/DefParser.cpp
-        ${COMMON_SOURCE_DIR}/io/DkmLoader.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.cpp
         ${COMMON_SOURCE_DIR}/io/EntityModelLoader.cpp
@@ -24,6 +23,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/LoadAseModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadAssimpModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadBspModel.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadDkmModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadDdsTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.cpp
@@ -488,7 +488,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/CompilationConfigParser.h
         ${COMMON_SOURCE_DIR}/io/CompilationConfigWriter.h
         ${COMMON_SOURCE_DIR}/io/DefParser.h
-        ${COMMON_SOURCE_DIR}/io/DkmLoader.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.h
         ${COMMON_SOURCE_DIR}/io/EntityModelLoader.h
@@ -505,6 +504,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/LoadAseModel.h
         ${COMMON_SOURCE_DIR}/io/LoadAssimpModel.h
         ${COMMON_SOURCE_DIR}/io/LoadBspModel.h
+        ${COMMON_SOURCE_DIR}/io/LoadDkmModel.h
         ${COMMON_SOURCE_DIR}/io/LoadDdsTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.h

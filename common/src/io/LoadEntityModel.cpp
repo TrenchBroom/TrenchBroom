@@ -21,11 +21,11 @@
 
 #include "Result.h"
 #include "fs/FileSystem.h"
-#include "io/DkmLoader.h"
 #include "io/ImageSpriteLoader.h"
 #include "io/LoadAseModel.h"
 #include "io/LoadAssimpModel.h"
 #include "io/LoadBspModel.h"
+#include "io/LoadDkmModel.h"
 #include "io/LoadMd2Model.h"
 #include "io/LoadMd3Model.h"
 #include "io/LoadMdlModel.h"
@@ -97,10 +97,9 @@ Result<mdl::EntityModelData> loadEntityModelData(
              {
                return loadMdxModel(modelName, reader, fs, logger);
              }
-             if (DkmLoader::canParse(path, reader))
+             if (canLoadDkmModel(path, reader))
              {
-               auto loader = DkmLoader{modelName, reader, fs};
-               return loader.load(logger);
+               return loadDkmModel(modelName, reader, fs, logger);
              }
              if (canLoadAseModel(path))
              {

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,37 +19,34 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
+#include "Result.h"
+#include "fs/Reader.h"
+#include "mdl/EntityModel.h"
 
 #include <filesystem>
 #include <string>
 
 namespace tb
 {
+class Logger;
+
 namespace fs
 {
 class FileSystem;
-class Reader;
-} // namespace fs
+}
+
+namespace mdl
+{
+class Palette;
+}
 
 namespace io
 {
 
-// see http://tfc.duke.free.fr/coding/md2-specs-en.html
-class DkmLoader : public EntityModelLoader
-{
-private:
-  std::string m_name;
-  const fs::Reader& m_reader;
-  const fs::FileSystem& m_fs;
+bool canLoadDkmModel(const std::filesystem::path& path, fs::Reader reader);
 
-public:
-  DkmLoader(std::string name, const fs::Reader& reader, const fs::FileSystem& fs);
-
-  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
+Result<mdl::EntityModelData> loadDkmModel(
+  const std::string& name, fs::Reader reader, const fs::FileSystem& fs, Logger& logger);
 
 } // namespace io
 } // namespace tb
