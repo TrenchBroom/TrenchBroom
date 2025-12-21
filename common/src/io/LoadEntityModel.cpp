@@ -28,9 +28,9 @@
 #include "io/LoadBspModel.h"
 #include "io/LoadMd2Model.h"
 #include "io/LoadMdlModel.h"
+#include "io/LoadSpriteModel.h"
 #include "io/Md3Loader.h"
 #include "io/MdxLoader.h"
-#include "io/SprLoader.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"
@@ -83,11 +83,10 @@ Result<mdl::EntityModelData> loadEntityModelData(
                         return loadBspModel(modelName, reader, palette, fs, logger);
                       });
              }
-             if (SprLoader::canParse(path, reader))
+             if (canLoadSpriteModel(path, reader))
              {
                return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                        auto loader = SprLoader{modelName, reader, palette};
-                        return loader.load(logger);
+                        return loadSpriteModel(modelName, reader, palette, logger);
                       });
              }
              if (Md3Loader::canParse(path, reader))

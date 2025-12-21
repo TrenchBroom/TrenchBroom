@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,22 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "io/SprLoader.h"
+#include "LoadSpriteModel.h"
 
-#include "Color.h"
-#include "fs/Reader.h"
 #include "fs/ReaderException.h"
-#include "mdl/EntityModel.h"
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureBuffer.h"
-#include "mdl/TextureResource.h"
+#include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
 
 #include "kd/path_utils.h"
-#include "kd/result.h"
 
 namespace tb::io
 {
@@ -227,15 +220,7 @@ Result<mdl::Palette> parseEmbeddedPalette(
 
 } // namespace
 
-SprLoader::SprLoader(
-  std::string name, const fs::Reader& reader, const mdl::Palette& palette)
-  : m_name{std::move(name)}
-  , m_reader{reader}
-  , m_palette{palette}
-{
-}
-
-bool SprLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
+bool canLoadSpriteModel(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".spr"))
   {
@@ -248,7 +233,8 @@ bool SprLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
   return ident == "IDSP" && (version == 1 || version == 2);
 }
 
-Result<mdl::EntityModelData> SprLoader::load(Logger& /* logger */)
+Result<mdl::EntityModelData> loadSpriteModel(
+  const std::string& name, fs::Reader reader, const mdl::Palette& palette, Logger&)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 
@@ -258,8 +244,6 @@ Result<mdl::EntityModelData> SprLoader::load(Logger& /* logger */)
 
   try
   {
-    auto reader = m_reader;
-
     const auto ident = reader.readString(4);
     if (ident != "IDSP")
     {
@@ -274,68 +258,74 @@ Result<mdl::EntityModelData> SprLoader::load(Logger& /* logger */)
       return Error{"Unknown SPR version: " + std::to_string(version)};
     }
 
-    return parseSpriteOrientationType(reader).and_then([&](const auto orientationType) {
-      return parseSpriteRenderMode(version, reader).and_then([&](const auto renderMode) {
-        /* const auto radius = */ reader.readFloat<float>();
-        /* const auto maxWidth = */ reader.readSize<int32_t>();
-        /* const auto maxHeight = */ reader.readSize<int32_t>();
-        const auto frameCount = reader.readSize<int32_t>();
-        /* const auto beamLength = */ reader.readFloat<float>();
-        /* const auto synchtype = */ reader.readInt<int32_t>();
+    return parseSpriteOrientationType(reader)
+           | kdl::and_then([&](const auto orientationType) {
+               return parseSpriteRenderMode(version, reader)
+                 .and_then([&](const auto renderMode) {
+                   /* const auto radius = */ reader.readFloat<float>();
+                   /* const auto maxWidth = */ reader.readSize<int32_t>();
+                   /* const auto maxHeight = */ reader.readSize<int32_t>();
+                   const auto frameCount = reader.readSize<int32_t>();
+                   /* const auto beamLength = */ reader.readFloat<float>();
+                   /* const auto synchtype = */ reader.readInt<int32_t>();
 
-        return parseEmbeddedPalette(reader, renderMode, version, m_palette)
-          .transform([&](auto palette) {
-            auto data = mdl::EntityModelData{mdl::PitchType::Normal, orientationType};
-            auto& surface = data.addSurface(m_name, frameCount);
+                   return parseEmbeddedPalette(reader, renderMode, version, palette)
+                     .transform([&](auto embeddedPalette) {
+                       auto data =
+                         mdl::EntityModelData{mdl::PitchType::Normal, orientationType};
+                       auto& surface = data.addSurface(name, frameCount);
 
-            auto materials = std::vector<mdl::Material>{};
-            materials.reserve(frameCount);
+                       auto materials = std::vector<mdl::Material>{};
+                       materials.reserve(frameCount);
 
-            for (size_t i = 0; i < frameCount; ++i)
-            {
-              auto pictureFrame = parsePictureFrame(reader, palette);
-              materials.push_back(std::move(pictureFrame.material));
+                       for (size_t i = 0; i < frameCount; ++i)
+                       {
+                         auto pictureFrame = parsePictureFrame(reader, embeddedPalette);
+                         materials.push_back(std::move(pictureFrame.material));
 
-              const auto w = static_cast<float>(pictureFrame.width);
-              const auto h = static_cast<float>(pictureFrame.height);
-              const auto x1 = static_cast<float>(pictureFrame.x);
-              const auto y1 = static_cast<float>(pictureFrame.y) - h;
-              const auto x2 = x1 + w;
-              const auto y2 = y1 + h;
+                         const auto w = static_cast<float>(pictureFrame.width);
+                         const auto h = static_cast<float>(pictureFrame.height);
+                         const auto x1 = static_cast<float>(pictureFrame.x);
+                         const auto y1 = static_cast<float>(pictureFrame.y) - h;
+                         const auto x2 = x1 + w;
+                         const auto y2 = y1 + h;
 
-              const auto bboxMin =
-                vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
-              const auto bboxMax =
-                vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
-              auto& modelFrame = data.addFrame(std::to_string(i), {bboxMin, bboxMax});
-              modelFrame.setSkinOffset(i);
+                         const auto bboxMin =
+                           vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
+                         const auto bboxMax =
+                           vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
+                         auto& modelFrame =
+                           data.addFrame(std::to_string(i), {bboxMin, bboxMax});
+                         modelFrame.setSkinOffset(i);
 
-              const auto triangles = std::vector<mdl::EntityModelVertex>{
-                mdl::EntityModelVertex{{x1, y1, 0}, {0, 1}},
-                mdl::EntityModelVertex{{x1, y2, 0}, {0, 0}},
-                mdl::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+                         const auto triangles = std::vector<mdl::EntityModelVertex>{
+                           mdl::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+                           mdl::EntityModelVertex{{x1, y2, 0}, {0, 0}},
+                           mdl::EntityModelVertex{{x2, y2, 0}, {1, 0}},
 
-                mdl::EntityModelVertex{{x2, y2, 0}, {1, 0}},
-                mdl::EntityModelVertex{{x2, y1, 0}, {1, 1}},
-                mdl::EntityModelVertex{{x1, y1, 0}, {0, 1}},
-              };
+                           mdl::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+                           mdl::EntityModelVertex{{x2, y1, 0}, {1, 1}},
+                           mdl::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+                         };
 
-              auto size = render::IndexRangeMap::Size{};
-              size.inc(render::PrimType::Triangles, 2);
+                         auto size = render::IndexRangeMap::Size{};
+                         size.inc(render::PrimType::Triangles, 2);
 
-              auto builder =
-                render::IndexRangeMapBuilder<mdl::EntityModelVertex::Type>{6, size};
-              builder.addTriangles(triangles);
+                         auto builder =
+                           render::IndexRangeMapBuilder<mdl::EntityModelVertex::Type>{
+                             6, size};
+                         builder.addTriangles(triangles);
 
-              surface.addMesh(modelFrame, builder.vertices(), builder.indices());
-            }
+                         surface.addMesh(
+                           modelFrame, builder.vertices(), builder.indices());
+                       }
 
-            surface.setSkins(std::move(materials));
+                       surface.setSkins(std::move(materials));
 
-            return data;
-          });
-      });
-    });
+                       return data;
+                     });
+                 });
+             });
   }
   catch (const fs::ReaderException& e)
   {

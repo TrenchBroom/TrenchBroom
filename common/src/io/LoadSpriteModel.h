@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,17 +19,16 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
+#include "Result.h"
+#include "fs/Reader.h"
+#include "mdl/EntityModel.h"
 
 #include <filesystem>
 #include <string>
 
 namespace tb
 {
-namespace fs
-{
-class Reader;
-} // namespace fs
+class Logger;
 
 namespace mdl
 {
@@ -39,20 +38,13 @@ class Palette;
 namespace io
 {
 
-class SprLoader : public EntityModelLoader
-{
-private:
-  std::string m_name;
-  const fs::Reader& m_reader;
-  const mdl::Palette& m_palette;
+bool canLoadSpriteModel(const std::filesystem::path& path, fs::Reader reader);
 
-public:
-  SprLoader(std::string name, const fs::Reader& reader, const mdl::Palette& palette);
-
-  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
+Result<mdl::EntityModelData> loadSpriteModel(
+  const std::string& name,
+  fs::Reader reader,
+  const mdl::Palette& palette,
+  Logger& logger);
 
 } // namespace io
 } // namespace tb
