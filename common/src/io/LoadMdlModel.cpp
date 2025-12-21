@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,210 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MdlLoader.h"
+#include "LoadMdlModel.h"
 
-#include "Color.h"
-#include "fs/Reader.h"
 #include "fs/ReaderException.h"
-#include "mdl/EntityModel.h"
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureBuffer.h"
-#include "mdl/TextureResource.h"
+#include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
 
 #include "kd/path_utils.h"
-#include "kd/ranges/to.h"
-
-#include <fmt/format.h>
-
-#include <string>
-#include <vector>
 
 namespace tb::io
 {
-
-namespace MdlLayout
-{
-static const int Ident = (('O' << 24) + ('P' << 16) + ('D' << 8) + 'I');
-static const int Version6 = 6;
-
-static const unsigned int HeaderNumSkins = 0x30;
-static const unsigned int Skins = 0x54;
-static const unsigned int SimpleFrameName = 0x8;
-static const unsigned int SimpleFrameLength = 0x10;
-static const unsigned int MultiFrameTimes = 0xC;
-// static const unsigned int FrameVertexSize   = 0x4;
-} // namespace MdlLayout
-
 namespace
 {
-const auto Normals = std::vector{
-  vm::vec3f{-0.525731f, 0.000000f, 0.850651f},
-  vm::vec3f{-0.442863f, 0.238856f, 0.864188f},
-  vm::vec3f{-0.295242f, 0.000000f, 0.955423f},
-  vm::vec3f{-0.309017f, 0.500000f, 0.809017f},
-  vm::vec3f{-0.162460f, 0.262866f, 0.951056f},
-  vm::vec3f{-0.000000f, 0.000000f, 1.000000f},
-  vm::vec3f{-0.000000f, 0.850651f, 0.525731f},
-  vm::vec3f{-0.147621f, 0.716567f, 0.681718f},
-  vm::vec3f{-0.147621f, 0.716567f, 0.681718f},
-  vm::vec3f{-0.000000f, 0.525731f, 0.850651f},
-  vm::vec3f{-0.309017f, 0.500000f, 0.809017f},
-  vm::vec3f{-0.525731f, 0.000000f, 0.850651f},
-  vm::vec3f{-0.295242f, 0.000000f, 0.955423f},
-  vm::vec3f{-0.442863f, 0.238856f, 0.864188f},
-  vm::vec3f{-0.162460f, 0.262866f, 0.951056f},
-  vm::vec3f{-0.681718f, 0.147621f, 0.716567f},
-  vm::vec3f{-0.809017f, 0.309017f, 0.500000f},
-  vm::vec3f{-0.587785f, 0.425325f, 0.688191f},
-  vm::vec3f{-0.850651f, 0.525731f, 0.000000f},
-  vm::vec3f{-0.864188f, 0.442863f, 0.238856f},
-  vm::vec3f{-0.716567f, 0.681718f, 0.147621f},
-  vm::vec3f{-0.688191f, 0.587785f, 0.425325f},
-  vm::vec3f{-0.500000f, 0.809017f, 0.309017f},
-  vm::vec3f{-0.238856f, 0.864188f, 0.442863f},
-  vm::vec3f{-0.425325f, 0.688191f, 0.587785f},
-  vm::vec3f{-0.716567f, 0.681718f, -0.147621f},
-  vm::vec3f{-0.500000f, 0.809017f, -0.309017f},
-  vm::vec3f{-0.525731f, 0.850651f, 0.000000f},
-  vm::vec3f{-0.000000f, 0.850651f, -0.525731f},
-  vm::vec3f{-0.238856f, 0.864188f, -0.442863f},
-  vm::vec3f{-0.000000f, 0.955423f, -0.295242f},
-  vm::vec3f{-0.262866f, 0.951056f, -0.162460f},
-  vm::vec3f{-0.000000f, 1.000000f, 0.000000f},
-  vm::vec3f{-0.000000f, 0.955423f, 0.295242f},
-  vm::vec3f{-0.262866f, 0.951056f, 0.162460f},
-  vm::vec3f{-0.238856f, 0.864188f, 0.442863f},
-  vm::vec3f{-0.262866f, 0.951056f, 0.162460f},
-  vm::vec3f{-0.500000f, 0.809017f, 0.309017f},
-  vm::vec3f{-0.238856f, 0.864188f, -0.442863f},
-  vm::vec3f{-0.262866f, 0.951056f, -0.162460f},
-  vm::vec3f{-0.500000f, 0.809017f, -0.309017f},
-  vm::vec3f{-0.850651f, 0.525731f, 0.000000f},
-  vm::vec3f{-0.716567f, 0.681718f, 0.147621f},
-  vm::vec3f{-0.716567f, 0.681718f, -0.147621f},
-  vm::vec3f{-0.525731f, 0.850651f, 0.000000f},
-  vm::vec3f{-0.425325f, 0.688191f, 0.587785f},
-  vm::vec3f{-0.864188f, 0.442863f, 0.238856f},
-  vm::vec3f{-0.688191f, 0.587785f, 0.425325f},
-  vm::vec3f{-0.809017f, 0.309017f, 0.500000f},
-  vm::vec3f{-0.681718f, 0.147621f, 0.716567f},
-  vm::vec3f{-0.587785f, 0.425325f, 0.688191f},
-  vm::vec3f{-0.955423f, 0.295242f, 0.000000f},
-  vm::vec3f{1.000000f, 0.000000f, 0.000000f},
-  vm::vec3f{-0.951056f, 0.162460f, 0.262866f},
-  vm::vec3f{-0.850651f, -0.525731f, 0.000000f},
-  vm::vec3f{-0.955423f, -0.295242f, 0.000000f},
-  vm::vec3f{-0.864188f, -0.442863f, 0.238856f},
-  vm::vec3f{-0.951056f, -0.162460f, 0.262866f},
-  vm::vec3f{-0.809017f, -0.309017f, 0.500000f},
-  vm::vec3f{-0.681718f, -0.147621f, 0.716567f},
-  vm::vec3f{-0.850651f, 0.000000f, 0.525731f},
-  vm::vec3f{-0.864188f, 0.442863f, -0.238856f},
-  vm::vec3f{-0.809017f, 0.309017f, -0.500000f},
-  vm::vec3f{-0.951056f, 0.162460f, -0.262866f},
-  vm::vec3f{-0.525731f, 0.000000f, -0.850651f},
-  vm::vec3f{-0.681718f, 0.147621f, -0.716567f},
-  vm::vec3f{-0.681718f, -0.147621f, -0.716567f},
-  vm::vec3f{-0.850651f, 0.000000f, -0.525731f},
-  vm::vec3f{-0.809017f, -0.309017f, -0.500000f},
-  vm::vec3f{-0.864188f, -0.442863f, -0.238856f},
-  vm::vec3f{-0.951056f, -0.162460f, -0.262866f},
-  vm::vec3f{-0.147621f, 0.716567f, -0.681718f},
-  vm::vec3f{-0.309017f, 0.500000f, -0.809017f},
-  vm::vec3f{-0.425325f, 0.688191f, -0.587785f},
-  vm::vec3f{-0.442863f, 0.238856f, -0.864188f},
-  vm::vec3f{-0.587785f, 0.425325f, -0.688191f},
-  vm::vec3f{-0.688191f, 0.587785f, -0.425325f},
-  vm::vec3f{-0.147621f, 0.716567f, -0.681718f},
-  vm::vec3f{-0.309017f, 0.500000f, -0.809017f},
-  vm::vec3f{-0.000000f, 0.525731f, -0.850651f},
-  vm::vec3f{-0.525731f, 0.000000f, -0.850651f},
-  vm::vec3f{-0.442863f, 0.238856f, -0.864188f},
-  vm::vec3f{-0.295242f, 0.000000f, -0.955423f},
-  vm::vec3f{-0.162460f, 0.262866f, -0.951056f},
-  vm::vec3f{-0.000000f, 0.000000f, -1.000000f},
-  vm::vec3f{-0.295242f, 0.000000f, -0.955423f},
-  vm::vec3f{-0.162460f, 0.262866f, -0.951056f},
-  vm::vec3f{-0.442863f, -0.238856f, -0.864188f},
-  vm::vec3f{-0.309017f, -0.500000f, -0.809017f},
-  vm::vec3f{-0.162460f, -0.262866f, -0.951056f},
-  vm::vec3f{-0.000000f, -0.850651f, -0.525731f},
-  vm::vec3f{-0.147621f, -0.716567f, -0.681718f},
-  vm::vec3f{-0.147621f, -0.716567f, -0.681718f},
-  vm::vec3f{-0.000000f, -0.525731f, -0.850651f},
-  vm::vec3f{-0.309017f, -0.500000f, -0.809017f},
-  vm::vec3f{-0.442863f, -0.238856f, -0.864188f},
-  vm::vec3f{-0.162460f, -0.262866f, -0.951056f},
-  vm::vec3f{-0.238856f, -0.864188f, -0.442863f},
-  vm::vec3f{-0.500000f, -0.809017f, -0.309017f},
-  vm::vec3f{-0.425325f, -0.688191f, -0.587785f},
-  vm::vec3f{-0.716567f, -0.681718f, -0.147621f},
-  vm::vec3f{-0.688191f, -0.587785f, -0.425325f},
-  vm::vec3f{-0.587785f, -0.425325f, -0.688191f},
-  vm::vec3f{-0.000000f, -0.955423f, -0.295242f},
-  vm::vec3f{-0.000000f, -1.000000f, 0.000000f},
-  vm::vec3f{-0.262866f, -0.951056f, -0.162460f},
-  vm::vec3f{-0.000000f, -0.850651f, 0.525731f},
-  vm::vec3f{-0.000000f, -0.955423f, 0.295242f},
-  vm::vec3f{-0.238856f, -0.864188f, 0.442863f},
-  vm::vec3f{-0.262866f, -0.951056f, 0.162460f},
-  vm::vec3f{-0.500000f, -0.809017f, 0.309017f},
-  vm::vec3f{-0.716567f, -0.681718f, 0.147621f},
-  vm::vec3f{-0.525731f, -0.850651f, 0.000000f},
-  vm::vec3f{-0.238856f, -0.864188f, -0.442863f},
-  vm::vec3f{-0.500000f, -0.809017f, -0.309017f},
-  vm::vec3f{-0.262866f, -0.951056f, -0.162460f},
-  vm::vec3f{-0.850651f, -0.525731f, 0.000000f},
-  vm::vec3f{-0.716567f, -0.681718f, -0.147621f},
-  vm::vec3f{-0.716567f, -0.681718f, 0.147621f},
-  vm::vec3f{-0.525731f, -0.850651f, 0.000000f},
-  vm::vec3f{-0.500000f, -0.809017f, 0.309017f},
-  vm::vec3f{-0.238856f, -0.864188f, 0.442863f},
-  vm::vec3f{-0.262866f, -0.951056f, 0.162460f},
-  vm::vec3f{-0.864188f, -0.442863f, 0.238856f},
-  vm::vec3f{-0.809017f, -0.309017f, 0.500000f},
-  vm::vec3f{-0.688191f, -0.587785f, 0.425325f},
-  vm::vec3f{-0.681718f, -0.147621f, 0.716567f},
-  vm::vec3f{-0.442863f, -0.238856f, 0.864188f},
-  vm::vec3f{-0.587785f, -0.425325f, 0.688191f},
-  vm::vec3f{-0.309017f, -0.500000f, 0.809017f},
-  vm::vec3f{-0.147621f, -0.716567f, 0.681718f},
-  vm::vec3f{-0.425325f, -0.688191f, 0.587785f},
-  vm::vec3f{-0.162460f, -0.262866f, 0.951056f},
-  vm::vec3f{-0.442863f, -0.238856f, 0.864188f},
-  vm::vec3f{-0.162460f, -0.262866f, 0.951056f},
-  vm::vec3f{-0.309017f, -0.500000f, 0.809017f},
-  vm::vec3f{-0.147621f, -0.716567f, 0.681718f},
-  vm::vec3f{-0.000000f, -0.525731f, 0.850651f},
-  vm::vec3f{-0.425325f, -0.688191f, 0.587785f},
-  vm::vec3f{-0.587785f, -0.425325f, 0.688191f},
-  vm::vec3f{-0.688191f, -0.587785f, 0.425325f},
-  vm::vec3f{-0.955423f, 0.295242f, 0.000000f},
-  vm::vec3f{-0.951056f, 0.162460f, 0.262866f},
-  vm::vec3f{-1.000000f, 0.000000f, 0.000000f},
-  vm::vec3f{-0.850651f, 0.000000f, 0.525731f},
-  vm::vec3f{-0.955423f, -0.295242f, 0.000000f},
-  vm::vec3f{-0.951056f, -0.162460f, 0.262866f},
-  vm::vec3f{-0.864188f, 0.442863f, -0.238856f},
-  vm::vec3f{-0.951056f, 0.162460f, -0.262866f},
-  vm::vec3f{-0.809017f, 0.309017f, -0.500000f},
-  vm::vec3f{-0.864188f, -0.442863f, -0.238856f},
-  vm::vec3f{-0.951056f, -0.162460f, -0.262866f},
-  vm::vec3f{-0.809017f, -0.309017f, -0.500000f},
-  vm::vec3f{-0.681718f, 0.147621f, -0.716567f},
-  vm::vec3f{-0.681718f, -0.147621f, -0.716567f},
-  vm::vec3f{-0.850651f, 0.000000f, -0.525731f},
-  vm::vec3f{-0.688191f, 0.587785f, -0.425325f},
-  vm::vec3f{-0.587785f, 0.425325f, -0.688191f},
-  vm::vec3f{-0.425325f, 0.688191f, -0.587785f},
-  vm::vec3f{-0.425325f, -0.688191f, -0.587785f},
-  vm::vec3f{-0.587785f, -0.425325f, -0.688191f},
-  vm::vec3f{-0.688191f, -0.587785f, -0.425325f},
-};
+namespace MdlLayout
+{
+constexpr int Ident = (('O' << 24) + ('P' << 16) + ('D' << 8) + 'I');
+constexpr int Version6 = 6;
+
+constexpr unsigned int HeaderNumSkins = 0x30;
+constexpr unsigned int Skins = 0x54;
+constexpr unsigned int SimpleFrameName = 0x8;
+constexpr unsigned int SimpleFrameLength = 0x10;
+constexpr unsigned int MultiFrameTimes = 0xC;
+} // namespace MdlLayout
 
 const int MF_HOLEY = (1 << 14);
 
@@ -499,15 +320,7 @@ void parseSkins(
 
 } // namespace
 
-MdlLoader::MdlLoader(
-  std::string name, const fs::Reader& reader, const mdl::Palette& palette)
-  : m_name{std::move(name)}
-  , m_reader{reader}
-  , m_palette{palette}
-{
-}
-
-bool MdlLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
+bool canLoadMdlModel(const std::filesystem::path& path, fs::Reader reader)
 {
   if (!kdl::path_has_extension(kdl::path_to_lower(path), ".mdl"))
   {
@@ -520,12 +333,11 @@ bool MdlLoader::canParse(const std::filesystem::path& path, fs::Reader reader)
   return ident == MdlLayout::Ident && version == MdlLayout::Version6;
 }
 
-Result<mdl::EntityModelData> MdlLoader::load(Logger& /* logger */)
+Result<mdl::EntityModelData> loadMdlModel(
+  const std::string& name, fs::Reader reader, const mdl::Palette& palette, Logger&)
 {
   try
   {
-    auto reader = m_reader;
-
     const auto ident = reader.readInt<int32_t>();
     const auto version = reader.readInt<int32_t>();
 
@@ -553,11 +365,10 @@ Result<mdl::EntityModelData> MdlLoader::load(Logger& /* logger */)
 
     auto data =
       mdl::EntityModelData{mdl::PitchType::MdlInverted, mdl::Orientation::Oriented};
-    auto& surface = data.addSurface(m_name, frameCount);
+    auto& surface = data.addSurface(name, frameCount);
 
     reader.seekFromBegin(MdlLayout::Skins);
-    parseSkins(
-      reader, surface, skinCount, skinWidth, skinHeight, flags, m_name, m_palette);
+    parseSkins(reader, surface, skinCount, skinWidth, skinHeight, flags, name, palette);
 
     const auto vertices = parseVertices(reader, vertexCount);
     const auto triangles = parseTriangles(reader, triangleCount);

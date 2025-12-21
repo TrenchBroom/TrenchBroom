@@ -26,9 +26,9 @@
 #include "io/ImageSpriteLoader.h"
 #include "io/LoadAseModel.h"
 #include "io/LoadAssimpModel.h"
+#include "io/LoadMdlModel.h"
 #include "io/Md2Loader.h"
 #include "io/Md3Loader.h"
-#include "io/MdlLoader.h"
 #include "io/MdxLoader.h"
 #include "io/SprLoader.h"
 #include "mdl/EntityModel.h"
@@ -65,11 +65,10 @@ Result<mdl::EntityModelData> loadEntityModelData(
          | kdl::and_then([&](auto file) -> Result<mdl::EntityModelData> {
              auto reader = file->reader().buffer();
 
-             if (MdlLoader::canParse(path, reader))
+             if (canLoadMdlModel(path, reader))
              {
                return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                        auto loader = MdlLoader{modelName, reader, palette};
-                        return loader.load(logger);
+                        return loadMdlModel(modelName, reader, palette, logger);
                       });
              }
              if (Md2Loader::canParse(path, reader))
