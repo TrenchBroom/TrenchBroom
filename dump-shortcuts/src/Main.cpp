@@ -175,19 +175,20 @@ int main(int argc, char* argv[])
   // TB, so we can't have shortcuts randomly activating.
   qt_set_sequence_auto_mnemonic(false);
 
-  auto out = QTextStream{stdout};
+  // Needs to be set before creating the preference manager
+  QApplication::setApplicationName("TrenchBroom");
+  // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
+  // which would cause preferences to move from where they were with wx
+  QApplication::setOrganizationName("");
+  QApplication::setOrganizationDomain("io.github.trenchbroom");
 
   tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
     tb::io::pathAsQString(tb::io::SystemPaths::preferenceFilePath())));
 
   // QKeySequence requires that an application instance is created!
   auto app = QApplication{argc, argv};
-  app.setApplicationName("TrenchBroom");
-  // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
-  // which would cause preferences to move from where they were with wx
-  app.setOrganizationName("");
-  app.setOrganizationDomain("io.github.trenchbroom");
 
+  auto out = QTextStream{stdout};
   tb::ui::printKeys(out);
   tb::ui::printMenuShortcuts(out);
   tb::ui::printActionShortcuts(out);
