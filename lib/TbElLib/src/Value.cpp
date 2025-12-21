@@ -632,10 +632,6 @@ void Value::appendToStream(
           {
             str << "\n";
           }
-          else
-          {
-            str << " ";
-          }
           for (size_t i = 0; i < a.size(); ++i)
           {
             str << childIndent;
@@ -656,10 +652,6 @@ void Value::appendToStream(
           if (multiline)
           {
             str << indent;
-          }
-          else
-          {
-            str << " ";
           }
           str << "]";
         }

@@ -127,7 +127,7 @@ Value evaluateUnaryPlus(
   case ValueType::Undefined:
     break;
   }
-  throw EvaluationError{expressionNode, "Invalid type {}"};
+  throw EvaluationError{expressionNode, fmt::format("Invalid type {}", v.typeName())};
 }
 
 Value evaluateUnaryMinus(
@@ -156,7 +156,7 @@ Value evaluateUnaryMinus(
   case ValueType::Undefined:
     break;
   }
-  throw EvaluationError{expressionNode, "Invalid type {}"};
+  throw EvaluationError{expressionNode, fmt::format("Invalid type {}", v.typeName())};
 }
 
 Value evaluateLogicalNegation(
@@ -181,7 +181,7 @@ Value evaluateLogicalNegation(
   case ValueType::Undefined:
     break;
   }
-  throw EvaluationError{expressionNode, "Invalid type {}"};
+  throw EvaluationError{expressionNode, fmt::format("Invalid type {}", v.typeName())};
 }
 
 Value evaluateBitwiseNegation(
@@ -210,7 +210,7 @@ Value evaluateBitwiseNegation(
   case ValueType::Undefined:
     break;
   }
-  throw EvaluationError{expressionNode, "Invalid type {}"};
+  throw EvaluationError{expressionNode, fmt::format("Invalid type {}", v.typeName())};
 }
 
 Value evaluateLeftBoundedRange(EvaluationContext& context, const Value& v)
@@ -1560,7 +1560,7 @@ bool operator!=(const ArrayExpression& lhs, const ArrayExpression& rhs)
 
 std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs)
 {
-  lhs << "[ ";
+  lhs << "[";
   for (size_t i = 0; i < rhs.elements.size(); ++i)
   {
     lhs << rhs.elements[i];
@@ -1569,7 +1569,7 @@ std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs)
       lhs << ", ";
     }
   }
-  lhs << " ]";
+  lhs << "]";
 
   return lhs;
 }
@@ -1587,6 +1587,11 @@ bool operator!=(const MapExpression& lhs, const MapExpression& rhs)
 
 std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs)
 {
+  if (rhs.elements.empty())
+  {
+    return lhs << "{}";
+  }
+
   lhs << "{ ";
   size_t i = 0u;
   for (const auto& [key, expression] : rhs.elements)
