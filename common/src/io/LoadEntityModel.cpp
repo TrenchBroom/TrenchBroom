@@ -21,11 +21,11 @@
 
 #include "Result.h"
 #include "fs/FileSystem.h"
-#include "io/ImageSpriteLoader.h"
 #include "io/LoadAseModel.h"
 #include "io/LoadAssimpModel.h"
 #include "io/LoadBspModel.h"
 #include "io/LoadDkmModel.h"
+#include "io/LoadImageSpriteModel.h"
 #include "io/LoadMd2Model.h"
 #include "io/LoadMd3Model.h"
 #include "io/LoadMdlModel.h"
@@ -105,10 +105,9 @@ Result<mdl::EntityModelData> loadEntityModelData(
              {
                return loadAseModel(modelName, reader.stringView(), loadMaterial, logger);
              }
-             if (ImageSpriteLoader::canParse(path))
+             if (canLoadImageSpriteModel(path))
              {
-               auto loader = ImageSpriteLoader{modelName, file, fs};
-               return loader.load(logger);
+               return loadImageSpriteModel(modelName, reader, fs, logger);
              }
              if (canLoadAssimpModel(path))
              {

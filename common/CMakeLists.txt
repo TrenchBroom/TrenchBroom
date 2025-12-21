@@ -18,7 +18,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/GameEngineConfigWriter.cpp
         ${COMMON_SOURCE_DIR}/io/ImageLoader.cpp
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.cpp
-        ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.cpp
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.cpp
         ${COMMON_SOURCE_DIR}/io/LoadAseModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadAssimpModel.cpp
@@ -28,6 +27,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadFreeImageTexture.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadImageSpriteModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadM8Texture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMd2Model.cpp
@@ -499,7 +499,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/GameEngineConfigWriter.h
         ${COMMON_SOURCE_DIR}/io/ImageLoader.h
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.h
-        ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.h
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.h
         ${COMMON_SOURCE_DIR}/io/LoadAseModel.h
         ${COMMON_SOURCE_DIR}/io/LoadAssimpModel.h
@@ -509,6 +508,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.h
         ${COMMON_SOURCE_DIR}/io/LoadFreeImageTexture.h
+        ${COMMON_SOURCE_DIR}/io/LoadImageSpriteModel.h
         ${COMMON_SOURCE_DIR}/io/LoadM8Texture.h
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.h
         ${COMMON_SOURCE_DIR}/io/LoadMd2Model.h

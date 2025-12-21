@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,37 +19,34 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
+#include "Result.h"
+#include "fs/Reader.h"
+#include "mdl/EntityModel.h"
 
 #include <filesystem>
 #include <string>
 
 namespace tb
 {
+class Logger;
+
 namespace fs
 {
-class File;
 class FileSystem;
 } // namespace fs
+
+namespace mdl
+{
+class Palette;
+}
 
 namespace io
 {
 
-class ImageSpriteLoader : public EntityModelLoader
-{
-private:
-  std::string m_name;
-  std::shared_ptr<fs::File> m_file;
-  const fs::FileSystem& m_fs;
+bool canLoadImageSpriteModel(const std::filesystem::path& path);
 
-public:
-  ImageSpriteLoader(
-    std::string name, std::shared_ptr<fs::File> file, const fs::FileSystem& fs);
-
-  static bool canParse(const std::filesystem::path& path);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
+Result<mdl::EntityModelData> loadImageSpriteModel(
+  const std::string& name, fs::Reader reader, const fs::FileSystem& fs, Logger& logger);
 
 } // namespace io
 } // namespace tb

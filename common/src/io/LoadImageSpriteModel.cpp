@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,23 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ImageSpriteLoader.h"
+#include "LoadImageSpriteModel.h"
 
-#include "fs/File.h"
 #include "fs/ReaderException.h"
 #include "io/LoadFreeImageTexture.h"
 #include "io/MaterialUtils.h"
-#include "mdl/EntityModel.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
+#include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
-
-#include "kd/result.h"
-
-#include "vm/vec.h"
-
-#include <vector>
 
 namespace tb::io
 {
@@ -41,9 +31,8 @@ namespace
 {
 
 auto loadMaterial(
-  const fs::FileSystem& fs, fs::File& file, std::string name, Logger& logger)
+  const fs::FileSystem& fs, fs::Reader& reader, std::string name, Logger& logger)
 {
-  auto reader = file.reader().buffer();
   return loadFreeImageTexture(reader)
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
          | kdl::and_then([&](auto texture) {
@@ -94,34 +83,26 @@ void createFrame(mdl::EntityModelData& modelData)
 
 } // namespace
 
-ImageSpriteLoader::ImageSpriteLoader(
-  std::string name, std::shared_ptr<fs::File> file, const fs::FileSystem& fs)
-  : m_name{std::move(name)}
-  , m_file{std::move(file)}
-  , m_fs{fs}
-{
-}
-
-bool ImageSpriteLoader::canParse(const std::filesystem::path& path)
+bool canLoadImageSpriteModel(const std::filesystem::path& path)
 {
   return isSupportedFreeImageExtension(path.extension());
 }
 
-Result<mdl::EntityModelData> ImageSpriteLoader::load(Logger& logger)
+Result<mdl::EntityModelData> loadImageSpriteModel(
+  const std::string& name, fs::Reader reader, const fs::FileSystem& fs, Logger& logger)
 {
   try
   {
-    return loadMaterial(m_fs, *m_file, m_name, logger)
-           | kdl::transform([&](auto material) {
-               auto data = mdl::EntityModelData{
-                 mdl::PitchType::Normal, mdl::Orientation::ViewPlaneParallel};
+    return loadMaterial(fs, reader, name, logger) | kdl::transform([&](auto material) {
+             auto data = mdl::EntityModelData{
+               mdl::PitchType::Normal, mdl::Orientation::ViewPlaneParallel};
 
-               auto& surface = data.addSurface(m_name, 1);
-               surface.setSkins(kdl::vec_from(std::move(material)));
+             auto& surface = data.addSurface(name, 1);
+             surface.setSkins(kdl::vec_from(std::move(material)));
 
-               createFrame(data);
-               return data;
-             });
+             createFrame(data);
+             return data;
+           });
   }
   catch (const fs::ReaderException& e)
   {
