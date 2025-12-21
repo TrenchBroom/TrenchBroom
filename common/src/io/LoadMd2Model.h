@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,18 +19,20 @@
 
 #pragma once
 
-#include "io/EntityModelLoader.h"
-#include "mdl/EntityModel_Forward.h"
+#include "Result.h"
+#include "fs/Reader.h"
+#include "mdl/EntityModel.h"
 
 #include <filesystem>
 #include <string>
 
 namespace tb
 {
+class Logger;
+
 namespace fs
 {
 class FileSystem;
-class Reader;
 } // namespace fs
 
 namespace mdl
@@ -40,26 +42,15 @@ class Palette;
 
 namespace io
 {
-// see http://tfc.duke.free.fr/coding/md2-specs-en.html
-class Md2Loader : public EntityModelLoader
-{
-private:
-  std::string m_name;
-  const fs::Reader& m_reader;
-  const mdl::Palette& m_palette;
-  const fs::FileSystem& m_fs;
 
-public:
-  Md2Loader(
-    std::string name,
-    const fs::Reader& reader,
-    const mdl::Palette& palette,
-    const fs::FileSystem& fs);
+bool canLoadMd2Model(const std::filesystem::path& path, fs::Reader reader);
 
-  static bool canParse(const std::filesystem::path& path, fs::Reader reader);
-
-  Result<mdl::EntityModelData> load(Logger& logger) override;
-};
+Result<mdl::EntityModelData> loadMd2Model(
+  std::string name,
+  fs::Reader reader,
+  const mdl::Palette& palette,
+  const fs::FileSystem& fs,
+  Logger& logger);
 
 } // namespace io
 } // namespace tb
