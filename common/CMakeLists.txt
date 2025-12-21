@@ -35,6 +35,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/LoadMdxModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMipTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadShaders.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadSkin.cpp
         ${COMMON_SOURCE_DIR}/io/LoadSpriteModel.cpp
         ${COMMON_SOURCE_DIR}/io/LoadTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadWalTexture.cpp
@@ -50,7 +51,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/io/PathQt.cpp
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.cpp
-        ${COMMON_SOURCE_DIR}/io/SkinLoader.cpp
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/io/SystemPaths.cpp
         ${COMMON_SOURCE_DIR}/io/WorldReader.cpp
@@ -516,6 +516,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/LoadMdxModel.h
         ${COMMON_SOURCE_DIR}/io/LoadMipTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadShaders.h
+        ${COMMON_SOURCE_DIR}/io/LoadSkin.h
         ${COMMON_SOURCE_DIR}/io/LoadSpriteModel.h
         ${COMMON_SOURCE_DIR}/io/LoadTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadWalTexture.h
@@ -531,7 +532,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
         ${COMMON_SOURCE_DIR}/io/PathQt.h
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.h
-        ${COMMON_SOURCE_DIR}/io/SkinLoader.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/io/SystemPaths.h
         ${COMMON_SOURCE_DIR}/io/WorldReader.h

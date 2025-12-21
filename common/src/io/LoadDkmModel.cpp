@@ -23,7 +23,7 @@
 #include "fs/PathInfo.h"
 #include "fs/ReaderException.h"
 #include "fs/TraversalMode.h"
-#include "io/SkinLoader.h"
+#include "io/LoadSkin.h"
 #include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
 #include "render/PrimType.h"

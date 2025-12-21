@@ -20,7 +20,7 @@
 #include "LoadMdxModel.h"
 
 #include "fs/ReaderException.h"
-#include "io/SkinLoader.h"
+#include "io/LoadSkin.h"
 #include "mdl/Material.h"
 #include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"

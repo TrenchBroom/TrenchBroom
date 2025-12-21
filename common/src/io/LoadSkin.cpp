@@ -17,18 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SkinLoader.h"
+#include "LoadSkin.h"
 
 #include "Logger.h"
-#include "Result.h"
 #include "fs/FileSystem.h"
-#include "io/LoadFreeImageTexture.h"
-#include "io/LoadWalTexture.h"
+#include "io/LoadTexture.h"
 #include "io/MaterialUtils.h"
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
-
-#include "kd/path_utils.h"
 
 namespace tb::io
 {
@@ -45,25 +41,15 @@ mdl::Material loadSkin(
   const std::optional<mdl::Palette>& palette,
   Logger& logger)
 {
-  return fs.openFile(path)
-         | kdl::and_then([&](auto file) -> Result<mdl::Material, ReadMaterialError> {
-             const auto extension = kdl::path_to_lower(path.extension());
-             auto reader = file->reader().buffer();
-             return (extension == ".wal" ? loadWalTexture(reader, palette)
-                                         : loadFreeImageTexture(reader))
-                    | kdl::transform([&](auto texture) {
-                        auto textureResource = createTextureResource(std::move(texture));
-                        return mdl::Material{
-                          path.stem().string(), std::move(textureResource)};
-                      })
-                    | kdl::or_else([&](auto e) {
-                        return Result<mdl::Material, ReadMaterialError>{
-                          ReadMaterialError{path.stem().string(), std::move(e.msg)}};
-                      });
-           })
+  auto name = path.stem().string();
+
+  return loadTexture(path, name, fs, palette) | kdl::transform([&](auto texture) {
+           auto textureResource = createTextureResource(std::move(texture));
+           return mdl::Material{std::move(name), std::move(textureResource)};
+         })
          | kdl::transform_error([&](auto e) -> mdl::Material {
              logger.error() << "Could not load skin '" << path << "': " << e.msg;
-             return loadDefaultMaterial(fs, path.stem().string(), logger);
+             return loadDefaultMaterial(fs, name, logger);
            })
          | kdl::value();
 }
