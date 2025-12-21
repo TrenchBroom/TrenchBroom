@@ -22,8 +22,7 @@
 #include "Result.h"
 #include "StringMakers.h" // IWYU pragma: keep
 
-#include "kd/overload.h"
-#include "kd/result.h"
+#include "kd/result.h" // IWYU pragma: keep
 #include "kd/std_io.h"
 #include "kd/vector_utils.h"
 
@@ -37,6 +36,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_predicate.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb
@@ -69,101 +69,46 @@ auto MatchesPointer(T expected)
   return PointerMatcher<T>{std::move(expected)};
 }
 
-template <typename M, typename T, typename... E>
-class DelegatingResultMatcher : public Catch::Matchers::MatcherBase<kdl::result<T, E...>>
+template <typename D, typename R>
+class ResultMatcher : public Catch::Matchers::MatcherBase<R>
 {
-  M m_makeMatcher;
-  kdl::result<T, E...> m_expected;
+  D m_delegate;
 
 public:
-  explicit DelegatingResultMatcher(M makeMatcher, kdl::result<T, E...> expected)
-    : m_makeMatcher{std::move(makeMatcher)}
-    , m_expected{std::move(expected)}
+  explicit ResultMatcher(D delegate)
+    : m_delegate{std::move(delegate)}
   {
   }
 
-  bool match(const kdl::result<T, E...>& in) const override
+  bool match(const R& in) const override
   {
-    return m_expected.visit(kdl::overload(
-      [&](const T& lhs) {
-        return in.visit(kdl::overload(
-          [&](const T& rhs) { return m_makeMatcher(lhs).match(rhs); },
-          [](const auto&) { return false; }));
-      },
-      (
-        [&](const E& lhs) {
-          return in.visit(kdl::overload(
-            [&](const E& rhs) { return lhs == rhs; }, [](const auto&) { return false; }));
-        },
-        ...)));
+    return in.transform([&](const auto& value) { return m_delegate.match(value); })
+      .transform_error([](const auto&) { return false; })
+      .value();
   }
 
-  std::string describe() const override
-  {
-    return m_expected.visit(kdl::overload(
-      [&](const T& lhs) { return m_makeMatcher(lhs).describe(); },
-      (
-        [&](const E& lhs) {
-          auto str = std::stringstream{};
-          str << "matches error " << lhs;
-          return str.str();
-        },
-        ...)));
-  }
+  std::string describe() const override { return m_delegate.describe(); }
 };
 
-template <typename T, typename... E>
-class ResultMatcher : public Catch::Matchers::MatcherBase<kdl::result<T, E...>>
+template <typename R, typename M>
+  requires(std::derived_from<M, Catch::Matchers::MatcherBase<typename R::value_type>>)
+auto MatchesResult(M matcher)
 {
-  kdl::result<T, E...> m_expected;
-  bool m_matchErrorMsg;
-
-public:
-  explicit ResultMatcher(kdl::result<T, E...> expected, const bool matchErrorMsg = false)
-    : m_expected{std::move(expected)}
-    , m_matchErrorMsg{matchErrorMsg}
-  {
-  }
-
-  bool match(const kdl::result<T, E...>& in) const override
-  {
-    return m_expected.visit(kdl::overload(
-      [&](const T& lhs) {
-        return in.visit(kdl::overload(
-          [&](const T& rhs) { return lhs == rhs; }, [](const auto&) { return false; }));
-      },
-      (
-        [&](const E& lhs) {
-          return in.visit(kdl::overload(
-            [&](const E& rhs) { return !m_matchErrorMsg || lhs == rhs; },
-            [](const auto&) { return false; }));
-        },
-        ...)));
-  }
-
-  std::string describe() const override
-  {
-    auto str = std::stringstream{};
-    m_expected.visit(kdl::overload(
-      [&](const T& lhs) { str << "matches value " << lhs; },
-      ([&](const E& lhs) { str << "matches error " << lhs; }, ...)));
-    return str.str();
-  }
-};
-
-template <typename T, typename... E>
-auto MatchesResult(kdl::result<T, E...> expected, const bool matchErrorMsg = false)
-{
-  return ResultMatcher<T, E...>{std::move(expected), matchErrorMsg};
+  return ResultMatcher<M, R>{std::move(matcher)};
 }
 
-inline auto MatchesPathsResult(std::vector<std::filesystem::path> paths)
+template <typename R>
+  requires(!std::same_as<typename R::value_type, void>)
+auto MatchesResult(const std::function<bool(const typename R::value_type&)>& predicate)
 {
-  return DelegatingResultMatcher{
-    [](auto&& x) {
-      return Catch::Matchers::UnorderedEquals(std::forward<decltype(x)>(x));
-    },
-    Result<std::vector<std::filesystem::path>>{std::move(paths)}};
+  return MatchesResult<R>(
+    Catch::Matchers::Predicate<typename R::value_type>(predicate, "matches predicate"));
+}
+
+inline auto MatchesPathsResult(const std::vector<std::filesystem::path>& paths)
+{
+  return MatchesResult<Result<std::vector<std::filesystem::path>>>(
+    Catch::Matchers::UnorderedEquals(paths));
 }
 
 template <typename T>

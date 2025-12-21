@@ -18,16 +18,38 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Matchers.h"
+#include "Result.h"
 
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 
 namespace tb
 {
 
-TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher")
+TEST_CASE("ResultMatcher")
+{
+  SECTION("with matcher")
+  {
+    using R = Result<std::vector<std::string>>;
+    const auto actual = std::vector<std::string>{"asdf", "fdsa"};
+    const auto expected = std::vector<std::string>{"fdsa", "asdf"};
+
+    CHECK_THAT(R{actual}, MatchesResult<R>(Catch::Matchers::UnorderedEquals(expected)));
+  }
+
+  SECTION("with predicate")
+  {
+    using R = Result<std::string>;
+
+    CHECK_THAT(
+      R{"asdf"}, MatchesResult<R>([](const auto& value) { return value == "asdf"; }));
+  }
+}
+
+TEST_CASE("UnorderedApproxVecMatches")
 {
   using V = std::vector<vm::vec3d>;
   CHECK_THAT((V{{1, 1, 1}}), UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}}, 0.02));
