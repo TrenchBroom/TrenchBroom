@@ -24,8 +24,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "io/ResourceUtils.h"
 #include "ui/FormWithSectionsLayout.h"
+#include "ui/ImageUtils.h"
 #include "ui/KeySequenceEdit.h"
 #include "ui/QtUtils.h"
 #include "ui/SliderWithLabel.h"
@@ -92,7 +92,7 @@ void MousePreferencePane::createGui()
          m_upKeyConflictIcon,
          m_downKeyConflictIcon})
   {
-    icon->setPixmap(io::loadSVGPixmap("Conflict.svg"));
+    icon->setPixmap(loadSVGPixmap("Conflict.svg"));
     icon->setVisible(false);
     icon->setToolTip("This shortcut is in conflict");
   }

@@ -368,6 +368,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/GLContextManager.cpp
         ${COMMON_SOURCE_DIR}/ui/HandleDragTracker.cpp
         ${COMMON_SOURCE_DIR}/ui/ImageListBox.cpp
+        ${COMMON_SOURCE_DIR}/ui/ImageUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/InfoPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/InputEvent.cpp
         ${COMMON_SOURCE_DIR}/ui/InputState.cpp
@@ -885,6 +886,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/GLContextManager.h
         ${COMMON_SOURCE_DIR}/ui/HandleDragTracker.h
         ${COMMON_SOURCE_DIR}/ui/ImageListBox.h
+        ${COMMON_SOURCE_DIR}/ui/ImageUtils.h
         ${COMMON_SOURCE_DIR}/ui/InfoPanel.h
         ${COMMON_SOURCE_DIR}/ui/InputEvent.h
         ${COMMON_SOURCE_DIR}/ui/InputState.h

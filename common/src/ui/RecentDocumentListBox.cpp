@@ -21,7 +21,7 @@
 
 #include "TrenchBroomApp.h"
 #include "io/PathQt.h"
-#include "io/ResourceUtils.h"
+#include "ui/ImageUtils.h"
 
 #include "kd/contracts.h"
 
@@ -31,7 +31,7 @@ namespace tb::ui
 {
 RecentDocumentListBox::RecentDocumentListBox(QWidget* parent)
   : ImageListBox{"No Recent Documents", true, parent}
-  , m_documentIcon{io::loadPixmapResource("DocIcon.png")}
+  , m_documentIcon{loadPixmap("DocIcon.png")}
 {
   auto& app = ui::TrenchBroomApp::instance();
   connect(

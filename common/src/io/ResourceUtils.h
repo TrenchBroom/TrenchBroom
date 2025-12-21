@@ -22,9 +22,6 @@
 #include <filesystem>
 #include <string>
 
-class QIcon;
-class QPixmap;
-
 namespace tb
 {
 class Logger;
@@ -65,15 +62,6 @@ mdl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger);
  */
 mdl::Material loadDefaultMaterial(
   const fs::FileSystem& fs, std::string name, Logger& logger);
-
-QPixmap loadPixmapResource(const std::filesystem::path& imagePath);
-
-QPixmap loadSVGPixmap(const std::filesystem::path& imagePath);
-
-/**
- * Loads an SVG image into a QIcon
- */
-QIcon loadSVGIcon(const std::filesystem::path& imagePath);
 
 } // namespace io
 } // namespace tb

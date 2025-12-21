@@ -23,10 +23,10 @@
 #include <QToolBar>
 
 #include "PreferenceManager.h"
-#include "io/ResourceUtils.h"
 #include "ui/Action.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"
+#include "ui/ImageUtils.h"
 
 #include "kd/contracts.h"
 
@@ -70,7 +70,7 @@ QAction& findOrCreateQtAction(
   qtAction.setCheckable(tbAction.checkable());
   if (const auto& iconPath = tbAction.iconPath())
   {
-    qtAction.setIcon(io::loadSVGIcon(*iconPath));
+    qtAction.setIcon(loadSVGIcon(*iconPath));
   }
   if (const auto& statusTip = tbAction.statusTip())
   {

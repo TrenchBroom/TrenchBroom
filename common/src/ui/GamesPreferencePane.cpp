@@ -36,7 +36,6 @@
 #include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
 #include "io/PathQt.h"
-#include "io/ResourceUtils.h"
 #include "io/SystemPaths.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
@@ -44,6 +43,7 @@
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/GameEngineDialog.h"
 #include "ui/GameListBox.h"
+#include "ui/ImageUtils.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
@@ -208,7 +208,7 @@ void GamePreferencePane::createGui()
       else
       {
         validDirectoryIcon->setToolTip(tr("Directory not found"));
-        validDirectoryIcon->setIcon(io::loadSVGIcon("IssueBrowser.svg"));
+        validDirectoryIcon->setIcon(loadSVGIcon("IssueBrowser.svg"));
       }
     });
 

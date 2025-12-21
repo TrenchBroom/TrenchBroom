@@ -17,35 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CurrentGameIndicator.h"
+#pragma once
 
+#include <QIcon>
 #include <QPixmap>
-#include <QString>
-
-#include "TrenchBroomApp.h"
-#include "mdl/GameManager.h"
-#include "ui/ImageUtils.h"
 
 #include <filesystem>
 
 namespace tb::ui
 {
 
-CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget* parent)
-  : DialogHeader{parent}
-{
-  const auto& gameManager = TrenchBroomApp::instance().gameManager();
-  if (const auto* gameInfo = gameManager.gameInfo(gameName))
-  {
-    auto iconPath = gameInfo->gameConfig.findConfigFile(gameInfo->gameConfig.icon);
-    if (iconPath.empty())
-    {
-      iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
-    }
-
-    const auto gameIcon = loadPixmap(iconPath);
-    set(QString::fromStdString(gameName), gameIcon);
-  }
-}
+QPixmap loadPixmap(const std::filesystem::path& imagePath);
+QPixmap loadSVGPixmap(const std::filesystem::path& imagePath);
+QIcon loadSVGIcon(const std::filesystem::path& imagePath);
 
 } // namespace tb::ui
