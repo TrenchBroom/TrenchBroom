@@ -30,6 +30,7 @@ class Logger;
 
 namespace mdl
 {
+struct EnvironmentConfig;
 struct GameConfig;
 
 class GameFileSystem : public fs::VirtualFileSystem
@@ -39,6 +40,7 @@ private:
 
 public:
   void initialize(
+    const EnvironmentConfig& environmentConfig,
     const GameConfig& config,
     const std::filesystem::path& gamePath,
     const std::vector<std::filesystem::path>& additionalSearchPaths,
@@ -50,7 +52,8 @@ public:
     Logger& logger);
 
 private:
-  void addDefaultAssetPaths(const GameConfig& config, Logger& logger);
+  void addDefaultAssetPaths(
+    const EnvironmentConfig& environmentConfig, const GameConfig& config, Logger& logger);
   void addGameFileSystems(
     const GameConfig& config,
     const std::filesystem::path& gamePath,

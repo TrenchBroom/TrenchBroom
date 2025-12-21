@@ -30,7 +30,6 @@
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
 #include "io/ObjSerializer.h"
-#include "io/SystemPaths.h"
 #include "io/WorldReader.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -48,6 +47,7 @@
 #include "mdl/EntityLinkManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
+#include "mdl/EnvironmentConfig.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
@@ -122,19 +122,23 @@ namespace
 
 void updateGameFileSystem(
   GameFileSystem& fs,
+  const EnvironmentConfig& environmentConfig,
   const GameInfo& gameInfo,
   const std::filesystem::path& gamePath,
   const std::vector<std::filesystem::path>& searchPaths,
   Logger& logger)
 {
-  fs.initialize(gameInfo.gameConfig, gamePath, searchPaths, logger);
+  fs.initialize(environmentConfig, gameInfo.gameConfig, gamePath, searchPaths, logger);
 }
 
 auto createGameFileSystem(
-  const GameInfo& gameInfo, const std::filesystem::path& gamePath, Logger& logger)
+  const EnvironmentConfig& environmentConfig,
+  const GameInfo& gameInfo,
+  const std::filesystem::path& gamePath,
+  Logger& logger)
 {
   auto fs = std::make_unique<GameFileSystem>();
-  updateGameFileSystem(*fs, gameInfo, gamePath, {}, logger);
+  updateGameFileSystem(*fs, environmentConfig, gameInfo, gamePath, {}, logger);
   return fs;
 }
 
@@ -486,6 +490,7 @@ private:
 const std::string Map::DefaultDocumentName("unnamed.map");
 
 Map::Map(
+  const EnvironmentConfig& environmentConfig,
   const GameInfo& gameInfo,
   std::filesystem::path gamePath,
   std::unique_ptr<WorldNode> worldNode,
@@ -493,6 +498,7 @@ Map::Map(
   kdl::task_manager& taskManager,
   Logger& logger)
   : Map{
+      environmentConfig,
       gameInfo,
       std::move(gamePath),
       std::move(worldNode),
@@ -505,6 +511,7 @@ Map::Map(
 }
 
 Map::Map(
+  const EnvironmentConfig& environmentConfig,
   const GameInfo& gameInfo,
   std::filesystem::path gamePath,
   std::unique_ptr<WorldNode> worldNode,
@@ -512,9 +519,11 @@ Map::Map(
   std::filesystem::path path,
   kdl::task_manager& taskManager,
   Logger& logger)
-  : m_gameInfo{gameInfo}
+  : m_environmentConfig{environmentConfig}
+  , m_gameInfo{gameInfo}
   , m_gamePath{gamePath}
-  , m_gameFileSystem{createGameFileSystem(m_gameInfo, m_gamePath, logger)}
+  , m_gameFileSystem{createGameFileSystem(
+      m_environmentConfig, m_gameInfo, m_gamePath, logger)}
   , m_taskManager{taskManager}
   , m_logger{logger}
   , m_resourceManager{std::make_unique<ResourceManager>()}
@@ -560,6 +569,7 @@ Map::Map(
 Map::~Map() = default;
 
 Result<std::unique_ptr<Map>> Map::createMap(
+  const EnvironmentConfig& environmentConfig,
   const GameInfo& gameInfo,
   std::filesystem::path gamePath,
   MapFormat mapFormat,
@@ -572,6 +582,7 @@ Result<std::unique_ptr<Map>> Map::createMap(
   return createWorldNode(mapFormat, gameInfo.gameConfig, worldBounds, taskManager, logger)
          | kdl::transform([&](auto worldNode) {
              return std::make_unique<Map>(
+               environmentConfig,
                gameInfo,
                std::move(gamePath),
                std::move(worldNode),
@@ -582,6 +593,7 @@ Result<std::unique_ptr<Map>> Map::createMap(
 }
 
 Result<std::unique_ptr<Map>> Map::loadMap(
+  const EnvironmentConfig& environmentConfig,
   const GameInfo& gameInfo,
   std::filesystem::path gamePath,
   MapFormat mapFormat,
@@ -601,6 +613,7 @@ Result<std::unique_ptr<Map>> Map::loadMap(
            mapFormat, gameInfo.gameConfig, worldBounds, path, taskManager, logger)
          | kdl::transform([&](auto worldNode) {
              return std::make_unique<Map>(
+               environmentConfig,
                gameInfo,
                std::move(gamePath),
                std::move(worldNode),
@@ -679,6 +692,11 @@ Grid& Map::grid()
 const Grid& Map::grid() const
 {
   return *m_grid;
+}
+
+const EnvironmentConfig& Map::environmentConfig() const
+{
+  return m_environmentConfig;
 }
 
 const GameInfo& Map::gameInfo() const
@@ -794,6 +812,7 @@ Result<std::unique_ptr<Map>> Map::reload()
   }
 
   return loadMap(
+    environmentConfig(),
     gameInfo(),
     gamePath(),
     m_worldNode->mapFormat(),
@@ -1172,9 +1191,9 @@ void Map::loadMaterials()
   if (const auto* wadStr = m_worldNode->entity().property(EntityPropertyKeys::Wad))
   {
     const auto searchPaths = std::vector<std::filesystem::path>{
-      path().parent_path(),            // relative to the map file
-      gamePath(),                      // relative to game path
-      io::SystemPaths::appDirectory(), // relative to the application
+      path().parent_path(),              // relative to the map file
+      gamePath(),                        // relative to game path
+      environmentConfig().appFolderPath, // relative to the application
     };
 
     const auto wadPaths = kdl::str_split(*wadStr, ";")
@@ -1289,7 +1308,12 @@ void Map::updateGameFileSystem()
     | kdl::ranges::to<std::vector>();
 
   mdl::updateGameFileSystem(
-    *m_gameFileSystem, gameInfo(), gamePath(), searchPaths, logger());
+    *m_gameFileSystem,
+    environmentConfig(),
+    gameInfo(),
+    gamePath(),
+    searchPaths,
+    logger());
 }
 
 void Map::initializeNodeIndex()

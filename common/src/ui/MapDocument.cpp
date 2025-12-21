@@ -78,17 +78,19 @@ MapDocument::MapDocument(MapDocument&&) noexcept = default;
 MapDocument& MapDocument::operator=(MapDocument&&) noexcept = default;
 
 Result<std::unique_ptr<MapDocument>> MapDocument::createDocument(
+  const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
   mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager)
 {
   auto document = std::make_unique<MapDocument>(taskManager);
-  return document->create(gameInfo, mapFormat, worldBounds)
+  return document->create(environmentConfig, gameInfo, mapFormat, worldBounds)
          | kdl::transform([&]() { return std::move(document); });
 }
 
 Result<std::unique_ptr<MapDocument>> MapDocument::loadDocument(
+  const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
   mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
@@ -96,7 +98,8 @@ Result<std::unique_ptr<MapDocument>> MapDocument::loadDocument(
   kdl::task_manager& taskManager)
 {
   auto document = std::make_unique<MapDocument>(taskManager);
-  return document->load(gameInfo, mapFormat, worldBounds, std::move(path))
+  return document->load(
+           environmentConfig, gameInfo, mapFormat, worldBounds, std::move(path))
          | kdl::transform([&]() { return std::move(document); });
 }
 
@@ -113,9 +116,13 @@ MapDocument::~MapDocument()
 }
 
 Result<void> MapDocument::create(
-  const mdl::GameInfo& gameInfo, mdl::MapFormat mapFormat, const vm::bbox3d& worldBounds)
+  const mdl::EnvironmentConfig& environmentConfig,
+  const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
+  const vm::bbox3d& worldBounds)
 {
   return mdl::Map::createMap(
+           environmentConfig,
            gameInfo,
            pref(gameInfo.gamePathPreference),
            mapFormat,
@@ -129,12 +136,14 @@ Result<void> MapDocument::create(
 }
 
 Result<void> MapDocument::load(
+  const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
   mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   std::filesystem::path path)
 {
   return mdl::Map::loadMap(
+           environmentConfig,
            gameInfo,
            pref(gameInfo.gamePathPreference),
            mapFormat,

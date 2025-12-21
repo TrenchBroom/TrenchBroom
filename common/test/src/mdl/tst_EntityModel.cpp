@@ -23,6 +23,7 @@
 #include "TestUtils.h"
 #include "io/LoadEntityModel.h"
 #include "mdl/EntityModel.h"
+#include "mdl/EnvironmentConfig.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Material.h"
@@ -69,11 +70,17 @@ TEST_CASE("EntityModel")
 {
   SECTION("intersect")
   {
+    const auto environmentConfig = EnvironmentConfig{};
     const auto& gameInfo = QuakeGameInfo;
 
     auto logger = TestLogger{};
     auto fs = GameFileSystem{};
-    fs.initialize(gameInfo.gameConfig, pref(gameInfo.gamePathPreference), {}, logger);
+    fs.initialize(
+      environmentConfig,
+      gameInfo.gameConfig,
+      pref(gameInfo.gamePathPreference),
+      {},
+      logger);
 
     const auto path = std::filesystem::path{"cube.bsp"};
     const auto loadMaterial = [](auto) -> Material {

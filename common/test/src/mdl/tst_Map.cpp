@@ -94,6 +94,8 @@ auto makeAbsolute(const auto& path)
 
 TEST_CASE("Map")
 {
+  auto environmentConfig = EnvironmentConfig{};
+
   SECTION("create")
   {
     auto taskManager = createTestTaskManager();
@@ -102,6 +104,7 @@ TEST_CASE("Map")
     SECTION("Calling create sets worldspawn and notifies observers")
     {
       Map::createMap(
+        environmentConfig,
         DefaultGameInfo,
         DefaultGameInfo.gamePathPreference.defaultValue,
         MapFormat::Standard,
@@ -132,6 +135,7 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Valve,
@@ -166,6 +170,7 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Valve,
@@ -191,6 +196,7 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Valve,
@@ -215,6 +221,7 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Valve,
@@ -246,6 +253,7 @@ TEST_CASE("Map")
 
 
       Map::createMap(
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Standard,
@@ -277,6 +285,7 @@ TEST_CASE("Map")
       };
 
       Map::loadMap(
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Unknown,
@@ -304,6 +313,7 @@ TEST_CASE("Map")
       SECTION("Detect Valve Format Map")
       {
         Map::loadMap(
+          environmentConfig,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
           MapFormat::Unknown,
@@ -321,6 +331,7 @@ TEST_CASE("Map")
       SECTION("Detect Standard Format Map")
       {
         Map::loadMap(
+          environmentConfig,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
           MapFormat::Unknown,
@@ -338,6 +349,7 @@ TEST_CASE("Map")
       SECTION("detectEmptyMap")
       {
         Map::loadMap(
+          environmentConfig,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
           MapFormat::Unknown,
@@ -358,6 +370,7 @@ TEST_CASE("Map")
       {
         // map has both Standard and Valve brushes
         CHECK(!Map::loadMap(
+          environmentConfig,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
           MapFormat::Unknown,
@@ -382,6 +395,7 @@ TEST_CASE("Map")
 
 
       Map::loadMap(
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Unknown,
@@ -412,6 +426,7 @@ TEST_CASE("Map")
     const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
 
     Map::loadMap(
+      environmentConfig,
       gameInfo,
       gameInfo.gamePathPreference.defaultValue,
       MapFormat::Unknown,
@@ -1968,6 +1983,7 @@ TEST_CASE("Map")
 
 
       Map::createMap(
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Standard,

@@ -18,7 +18,6 @@
  */
 
 #include "fs/TestEnvironment.h"
-#include "io/SystemPaths.h"
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
 #include "mdl/Map_World.h"
@@ -99,6 +98,8 @@ TEST_CASE("Map_World")
       SECTION("Map is transient")
       {
         auto fixtureConfig = MapFixtureConfig{};
+        fixtureConfig.environmentConfig.appFolderPath = "/some/path";
+
         auto& map = fixture.create(fixtureConfig);
         map.setGamePath(".");
 
@@ -107,8 +108,8 @@ TEST_CASE("Map_World")
         CHECK(
           externalSearchPaths(map)
           == std::vector{
-            std::filesystem::path{"."}, // game path
-            io::SystemPaths::appDirectory(),
+            std::filesystem::path{"."},          // game path
+            std::filesystem::path{"/some/path"}, // app folder path
           });
       }
 
@@ -128,6 +129,7 @@ TEST_CASE("Map_World")
         const auto path = env.dir() / filename;
 
         auto fixtureConfig = MapFixtureConfig{};
+        fixtureConfig.environmentConfig.appFolderPath = "/some/path";
         fixtureConfig.gameInfo.gameConfig.fileFormats = {{"Valve", ""}};
 
         auto& map = fixture.load(path, fixtureConfig);
@@ -136,9 +138,9 @@ TEST_CASE("Map_World")
         CHECK(
           externalSearchPaths(map)
           == std::vector{
-            path.parent_path(),         // map path
-            std::filesystem::path{"."}, // game path
-            io::SystemPaths::appDirectory(),
+            path.parent_path(),                  // map path
+            std::filesystem::path{"."},          // game path
+            std::filesystem::path{"/some/path"}, // app folder path
           });
       }
     }

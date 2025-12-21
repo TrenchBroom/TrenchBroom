@@ -21,6 +21,7 @@
 #include "Logger.h"
 #include "Observer.h"
 #include "TestUtils.h"
+#include "mdl/EnvironmentConfig.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "ui/MapDocument.h"
@@ -35,12 +36,17 @@ namespace tb::ui
 TEST_CASE("MapDocument")
 {
   auto logger = NullLogger{};
+  const auto environmentConfig = mdl::EnvironmentConfig{};
   auto taskManager = createTestTaskManager();
 
   SECTION("createDocument")
   {
     MapDocument::createDocument(
-      mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, *taskManager)
+      environmentConfig,
+      mdl::Quake2GameInfo,
+      mdl::MapFormat::Valve,
+      vm::bbox3d{8192.0},
+      *taskManager)
       | kdl::transform([](auto document) {
           SECTION("creates a new map with the given game")
           {
@@ -52,16 +58,23 @@ TEST_CASE("MapDocument")
 
   SECTION("create")
   {
-    auto document =
-      MapDocument::createDocument(
-        mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, *taskManager)
-      | kdl::value();
+    auto document = MapDocument::createDocument(
+                      environmentConfig,
+                      mdl::Quake2GameInfo,
+                      mdl::MapFormat::Valve,
+                      vm::bbox3d{8192.0},
+                      *taskManager)
+                    | kdl::value();
 
     auto documentWasLoaded = Observer<void>{document->documentWasLoadedNotifier};
 
     const auto* previousMap = &document->map();
 
-    document->create(mdl::QuakeGameInfo, mdl::MapFormat::Daikatana, vm::bbox3d{8192.0})
+    document->create(
+      environmentConfig,
+      mdl::QuakeGameInfo,
+      mdl::MapFormat::Daikatana,
+      vm::bbox3d{8192.0})
       | kdl::transform([&]() {
           SECTION("creates a new map with the given game")
           {
@@ -84,7 +97,12 @@ TEST_CASE("MapDocument")
       std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
 
     MapDocument::loadDocument(
-      mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, path, *taskManager)
+      environmentConfig,
+      mdl::Quake2GameInfo,
+      mdl::MapFormat::Valve,
+      vm::bbox3d{8192.0},
+      path,
+      *taskManager)
       | kdl::transform([&](auto document) {
           SECTION("loads map at given path")
           {
@@ -97,10 +115,13 @@ TEST_CASE("MapDocument")
 
   SECTION("load")
   {
-    auto document =
-      MapDocument::createDocument(
-        mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, *taskManager)
-      | kdl::value();
+    auto document = MapDocument::createDocument(
+                      environmentConfig,
+                      mdl::Quake2GameInfo,
+                      mdl::MapFormat::Valve,
+                      vm::bbox3d{8192.0},
+                      *taskManager)
+                    | kdl::value();
 
     auto documentWasLoaded = Observer<void>{document->documentWasLoadedNotifier};
 
@@ -109,7 +130,12 @@ TEST_CASE("MapDocument")
     const auto path =
       std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
 
-    document->load(mdl::QuakeGameInfo, mdl::MapFormat::Unknown, vm::bbox3d{8192.0}, path)
+    document->load(
+      environmentConfig,
+      mdl::QuakeGameInfo,
+      mdl::MapFormat::Unknown,
+      vm::bbox3d{8192.0},
+      path)
       | kdl::transform([&]() {
           SECTION("loads map at given path")
           {
@@ -128,16 +154,23 @@ TEST_CASE("MapDocument")
 
   SECTION("reload")
   {
-    auto document =
-      MapDocument::createDocument(
-        mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, *taskManager)
-      | kdl::value();
+    auto document = MapDocument::createDocument(
+                      environmentConfig,
+                      mdl::Quake2GameInfo,
+                      mdl::MapFormat::Valve,
+                      vm::bbox3d{8192.0},
+                      *taskManager)
+                    | kdl::value();
 
     const auto path =
       std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
 
     REQUIRE(document->load(
-      mdl::QuakeGameInfo, mdl::MapFormat::Unknown, vm::bbox3d{8192.0}, path));
+      environmentConfig,
+      mdl::QuakeGameInfo,
+      mdl::MapFormat::Unknown,
+      vm::bbox3d{8192.0},
+      path));
 
     REQUIRE(document->map().path() == path);
 

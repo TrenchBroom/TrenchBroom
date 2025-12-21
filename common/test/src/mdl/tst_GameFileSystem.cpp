@@ -21,6 +21,7 @@
 #include "TestUtils.h"
 #include "fs/PathInfo.h"
 #include "fs/TestUtils.h"
+#include "mdl/EnvironmentConfig.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameFileSystem.h"
 
@@ -58,7 +59,8 @@ TEST_CASE("GameFileSystem")
 
   auto fs = GameFileSystem{};
 
-  const auto config = GameConfig{
+  auto environmentConfig = EnvironmentConfig{};
+  const auto gameConfig = GameConfig{
     "some game",
     {},
     {},
@@ -81,7 +83,7 @@ TEST_CASE("GameFileSystem")
 
   SECTION("Mounts packages in game path")
   {
-    fs.initialize(config, fixturePath, {}, logger);
+    fs.initialize(environmentConfig, gameConfig, fixturePath, {}, logger);
 
     CHECK(fs.pathInfo("id1_pak0_1.txt") == fs::PathInfo::File);
     CHECK(fs.pathInfo("id1_pak0_2.txt") == fs::PathInfo::File);
@@ -91,14 +93,15 @@ TEST_CASE("GameFileSystem")
 
   SECTION("Packages files override loose files")
   {
-    fs.initialize(config, fixturePath, {}, logger);
+    fs.initialize(environmentConfig, gameConfig, fixturePath, {}, logger);
 
     CHECK(fs::readTextFile(fs, "id1_pak0_loose_file.txt") == "pak0");
   }
 
   SECTION("Mounts packages in additional search paths")
   {
-    fs.initialize(config, fixturePath, {fixturePath / "mod1"}, logger);
+    fs.initialize(
+      environmentConfig, gameConfig, fixturePath, {fixturePath / "mod1"}, logger);
 
     CHECK(fs.pathInfo("id1_pak0_1.txt") == fs::PathInfo::File);
     CHECK(fs.pathInfo("id1_pak0_2.txt") == fs::PathInfo::File);
@@ -109,7 +112,8 @@ TEST_CASE("GameFileSystem")
 
   SECTION("Additional search paths override game path")
   {
-    fs.initialize(config, fixturePath, {fixturePath / "mod1"}, logger);
+    fs.initialize(
+      environmentConfig, gameConfig, fixturePath, {fixturePath / "mod1"}, logger);
 
     CHECK(fs::readTextFile(fs, "id1_pak0_loose_file.txt") == "mod1");
     CHECK(fs::readTextFile(fs, "id1_pak0_1.txt") == "id1_pak0_1");
@@ -142,7 +146,7 @@ TEST_CASE("GameFileSystem")
       {},
     };
 
-    fs.initialize(ucConfig, fixturePath, {}, logger);
+    fs.initialize(environmentConfig, ucConfig, fixturePath, {}, logger);
 
     CHECK(fs.pathInfo("id1_pak0_1.txt") == fs::PathInfo::File);
     CHECK(fs.pathInfo("id1_pak0_2.txt") == fs::PathInfo::File);

@@ -82,6 +82,7 @@ class UVCoordSystemSnapshot;
 class VertexHandleManager;
 class WorldNode;
 
+struct EnvironmentConfig;
 struct GameInfo;
 struct ProcessContext;
 struct SelectionChange;
@@ -93,6 +94,7 @@ public:
   static const std::string DefaultDocumentName;
 
 private:
+  const EnvironmentConfig& m_environmentConfig;
   const GameInfo& m_gameInfo;
   std::filesystem::path m_gamePath;
   std::unique_ptr<GameFileSystem> m_gameFileSystem;
@@ -182,6 +184,7 @@ private:
 
 public: // misc
   Map(
+    const EnvironmentConfig& environmentConfig,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
     std::unique_ptr<WorldNode> worldNode,
@@ -190,6 +193,7 @@ public: // misc
     Logger& logger);
 
   Map(
+    const EnvironmentConfig& environmentConfig,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
     std::unique_ptr<WorldNode> worldNode,
@@ -201,6 +205,7 @@ public: // misc
   ~Map();
 
   static Result<std::unique_ptr<Map>> createMap(
+    const EnvironmentConfig& environmentConfig,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
     MapFormat mapFormat,
@@ -209,6 +214,7 @@ public: // misc
     Logger& logger);
 
   static Result<std::unique_ptr<Map>> loadMap(
+    const EnvironmentConfig& environmentConfig,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
     MapFormat mapFormat,
@@ -238,6 +244,8 @@ public: // misc
 
   Grid& grid();
   const Grid& grid() const;
+
+  const EnvironmentConfig& environmentConfig() const;
 
   const GameInfo& gameInfo() const;
 

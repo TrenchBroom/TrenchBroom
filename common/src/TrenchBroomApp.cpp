@@ -87,6 +87,17 @@ namespace tb::ui
 namespace
 {
 
+auto makeEnvironmentConfig()
+{
+  return mdl::EnvironmentConfig{
+    .appFolderPath = io::SystemPaths::appDirectory(),
+    .userDataFolderPath = io::SystemPaths::userDataDirectory(),
+    .tempFolderPath = io::SystemPaths::tempDirectory(),
+    .defaultAssetFolderPaths =
+      io::SystemPaths::findResourceDirectories(std::filesystem::path{"defaults"}),
+  };
+}
+
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
   const std::filesystem::path& path)
 {
@@ -133,6 +144,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
   , m_taskManager{std::thread::hardware_concurrency()}
+  , m_environmentConfig{makeEnvironmentConfig()}
 {
   using namespace std::chrono_literals;
 
@@ -280,6 +292,11 @@ void TrenchBroomApp::parseCommandLineAndShowFrame()
   }
 
   openFilesOrWelcomeFrame(parser.positionalArguments());
+}
+
+const mdl::EnvironmentConfig TrenchBroomApp::environmentConfig() const
+{
+  return m_environmentConfig;
 }
 
 mdl::GameManager& TrenchBroomApp::gameManager()
@@ -456,6 +473,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
              contract_assert(gameInfo != nullptr);
 
              return m_frameManager->loadDocument(
+                      m_environmentConfig,
                       *gameInfo,
                       mapFormat,
                       MapDocument::DefaultWorldBounds,
@@ -498,7 +516,11 @@ bool TrenchBroomApp::newDocument()
   contract_assert(gameInfo != nullptr);
 
   return m_frameManager->createDocument(
-           *gameInfo, mapFormat, MapDocument::DefaultWorldBounds, m_taskManager)
+           m_environmentConfig,
+           *gameInfo,
+           mapFormat,
+           MapDocument::DefaultWorldBounds,
+           m_taskManager)
          | kdl::transform([&]() {
              closeWelcomeWindow();
              return true;

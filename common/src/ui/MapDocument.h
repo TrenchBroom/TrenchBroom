@@ -55,6 +55,7 @@ class PickResult;
 class ResourceId;
 class UndoableCommand;
 
+struct EnvironmentConfig;
 struct GameInfo;
 struct SelectionChange;
 } // namespace mdl
@@ -168,12 +169,14 @@ public:
   MapDocument& operator=(MapDocument&&) noexcept;
 
   static Result<std::unique_ptr<MapDocument>> createDocument(
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager);
 
   static Result<std::unique_ptr<MapDocument>> loadDocument(
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
@@ -183,11 +186,13 @@ public:
   ~MapDocument();
 
   Result<void> create(
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds);
 
   Result<void> load(
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,

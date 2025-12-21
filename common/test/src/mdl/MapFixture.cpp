@@ -55,6 +55,7 @@ Map& MapFixture::create(MapFixtureConfig config)
 
   contract_assert(
     Map::createMap(
+      m_config->environmentConfig,
       m_config->gameInfo,
       m_config->gameInfo.gamePathPreference.defaultValue,
       mapFormat,
@@ -80,6 +81,7 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
 
   contract_assert(
     Map::loadMap(
+      m_config->environmentConfig,
       m_config->gameInfo,
       m_config->gameInfo.gamePathPreference.defaultValue,
       mapFormat,
