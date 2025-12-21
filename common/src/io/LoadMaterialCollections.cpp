@@ -61,17 +61,18 @@ namespace tb::io
 namespace
 {
 
-std::optional<Result<mdl::Palette>> loadPalette(
+Result<std::optional<mdl::Palette>> loadPalette(
   const fs::FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   if (materialConfig.palette.empty())
   {
-    return std::nullopt;
+    return Result<std::optional<mdl::Palette>>{std::nullopt};
   }
 
   return fs.openFile(materialConfig.palette) | kdl::and_then([&](auto file) {
            return mdl::loadPalette(*file, materialConfig.palette);
-         });
+         })
+         | kdl::transform([](auto palette) { return std::optional{std::move(palette)}; });
 }
 
 bool shouldExclude(
@@ -253,11 +254,11 @@ Result<mdl::Texture> findAndLoadTexture(
   const std::string& name,
   const std::vector<std::filesystem::path>& extensions,
   const fs::FileSystem& fs,
-  const std::optional<Result<mdl::Palette>>& paletteResult)
+  const std::optional<mdl::Palette>& palette)
 {
   return findMaterialFile(fs, path, extensions)
     .and_then([&](const auto& actualPath) -> Result<mdl::Texture> {
-      return loadTexture(actualPath, name, fs, paletteResult);
+      return loadTexture(actualPath, name, fs, palette);
     });
 }
 
@@ -266,10 +267,10 @@ mdl::ResourceLoader<mdl::Texture> makeTextureResourceLoader(
   const std::string& name,
   const std::vector<std::filesystem::path>& extensions,
   const fs::FileSystem& fs,
-  const std::optional<Result<mdl::Palette>>& paletteResult)
+  const std::optional<mdl::Palette>& palette)
 {
-  return [&, path, name, paletteResult]() -> Result<mdl::Texture> {
-    return findAndLoadTexture(path, name, extensions, fs, paletteResult)
+  return [&, path, name, palette]() -> Result<mdl::Texture> {
+    return findAndLoadTexture(path, name, extensions, fs, palette)
            | kdl::or_else([&](auto e) -> Result<mdl::Texture> {
                return Error{fmt::format("Could not load texture '{}': {}", path, e.msg)};
              });
@@ -281,7 +282,7 @@ Result<mdl::Material> loadTextureMaterial(
   const fs::FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const mdl::CreateTextureResource& createResource,
-  const std::optional<Result<mdl::Palette>>& paletteResult)
+  const std::optional<mdl::Palette>& palette)
 {
   const auto prefixLength = kdl::path_length(materialConfig.root);
   const auto pathMatcher = !materialConfig.extensions.empty()
@@ -289,8 +290,8 @@ Result<mdl::Material> loadTextureMaterial(
                              : fs::matchAnyPath;
   auto name = getMaterialNameFromPathSuffix(texturePath, prefixLength);
 
-  auto textureLoader = makeTextureResourceLoader(
-    texturePath, name, materialConfig.extensions, fs, paletteResult);
+  auto textureLoader =
+    makeTextureResourceLoader(texturePath, name, materialConfig.extensions, fs, palette);
   auto textureResource = createResource(std::move(textureLoader));
   return mdl::Material{std::move(name), std::move(textureResource)};
 }
@@ -367,7 +368,7 @@ Result<mdl::Material> loadMaterial(
   const std::filesystem::path& materialPath,
   const mdl::CreateTextureResource& createResource,
   const std::vector<mdl::Quake3Shader>& shaders,
-  const std::optional<Result<mdl::Palette>>& paletteResult)
+  const std::optional<mdl::Palette>& palette)
 {
   const auto materialPathStem = kdl::path_remove_extension(materialPath);
   const auto iShader = std::ranges::find_if(
@@ -376,7 +377,7 @@ Result<mdl::Material> loadMaterial(
   return (iShader != shaders.end()
             ? loadShaderMaterial(*iShader, fs, materialConfig, createResource)
             : loadTextureMaterial(
-                materialPath, fs, materialConfig, createResource, paletteResult))
+                materialPath, fs, materialConfig, createResource, palette))
          | kdl::transform([&](auto material) {
              fs.makeAbsolute(materialPath)
                | kdl::transform([&](auto absPath) { material.setAbsolutePath(absPath); })
@@ -395,8 +396,6 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
   kdl::task_manager& taskManager,
   Logger& logger)
 {
-  const auto paletteResult = loadPalette(fs, materialConfig);
-
   return loadShaders(fs, materialConfig, taskManager, logger)
          | kdl::transform([&](auto shaders) {
              return shaders | std::views::filter([&](const auto& shader) {
@@ -404,7 +403,8 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
                     })
                     | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
            })
-         | kdl::and_then([&](auto shaders) {
+         | kdl::join(loadPalette(fs, materialConfig))
+         | kdl::and_then([&](auto shaders, auto palette) {
              return findAllMaterialPaths(fs, materialConfig, shaders)
                     | kdl::and_then([&](const auto& materialPaths) {
                         return materialPaths
@@ -415,7 +415,7 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
                                      materialPath,
                                      createResource,
                                      shaders,
-                                     paletteResult);
+                                     palette);
                                  })
                                | kdl::fold;
                       });

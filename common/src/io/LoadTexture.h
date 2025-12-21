@@ -42,7 +42,7 @@ Result<mdl::Texture> loadTexture(
   const std::filesystem::path& path,
   const std::string& name,
   const fs::FileSystem& fs,
-  const std::optional<Result<mdl::Palette>>& paletteResult = std::nullopt);
+  const std::optional<mdl::Palette>& palette = std::nullopt);
 
 } // namespace io
 } // namespace tb
