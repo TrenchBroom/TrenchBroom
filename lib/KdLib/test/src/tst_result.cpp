@@ -2537,6 +2537,402 @@ TEST_CASE("result")
       }
     }
 
+    SECTION("join")
+    {
+      SECTION("non-void result")
+      {
+        const auto constLValueSuccess = result<int, Error1, Error2>{1};
+        const auto constLValueError = result<int, Error1, Error2>{Error1{}};
+        auto nonConstLValueSuccess = result<int, Error1, Error2>{1};
+        auto nonConstLValueError = result<int, Error1, Error2>{Error1{}};
+
+        SECTION("with non void result")
+        {
+          CHECK(
+            (constLValueSuccess | join(result<float, Error3>{2.0f}))
+            == result<multi_value<int, float>, Error1, Error2, Error3>{
+              multi_value{1, 2.0f}});
+          CHECK(
+            (constLValueSuccess | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<int, float>, Error1, Error2, Error3>{Error3{}});
+
+          CHECK(
+            (constLValueError | join(result<float, Error3>{2.0f}))
+            == result<multi_value<int, float>, Error1, Error2, Error3>{Error1{}});
+          CHECK(
+            (constLValueError | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<int, float>, Error1, Error2, Error3>{Error1{}});
+
+          CHECK(
+            (nonConstLValueSuccess | join(result<float, Error3>{2.0f}))
+            == result<multi_value<int, float>, Error1, Error2, Error3>{
+              multi_value{1, 2.0f}});
+          CHECK(
+            (nonConstLValueSuccess | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<int, float>, Error1, Error2, Error3>{Error3{}});
+
+          CHECK(
+            (nonConstLValueError | join(result<float, Error3>{2.0f}))
+            == result<multi_value<int, float>, Error1, Error2, Error3>{Error1{}});
+          CHECK(
+            (nonConstLValueError | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<int, float>, Error1, Error2, Error3>{Error1{}});
+
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{MoveOnly{}}
+             | join(result<float, Error3>{2.0f}))
+            == result<multi_value<MoveOnly, float>, Error1, Error2, Error3>{
+              multi_value{MoveOnly{}, 2.0f}});
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{MoveOnly{}}
+             | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<MoveOnly, float>, Error1, Error2, Error3>{Error3{}});
+
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{Error1{}}
+             | join(result<float, Error3>{2.0f}))
+            == result<multi_value<MoveOnly, float>, Error1, Error2, Error3>{Error1{}});
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{Error1{}}
+             | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<MoveOnly, float>, Error1, Error2, Error3>{Error1{}});
+        }
+
+        SECTION("with multi-valued result")
+        {
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{MoveOnly{}}
+             | join(result<multi_value<int, float>, Error3>{multi_value{1, 2.0f}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              multi_value{MoveOnly{}, 1, 2.0f}});
+
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{MoveOnly{}}
+             | join(result<multi_value<int, float>, Error3>{Error3{}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error3{}});
+
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{Error1{}}
+             | join(result<multi_value<int, float>, Error3>{multi_value{1, 2.0f}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{Error1{}}
+             | join(result<multi_value<int, float>, Error3>{Error3{}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+        }
+      }
+
+      SECTION("reference result")
+      {
+        auto i = 1;
+
+        SECTION("non const lvalue reference result")
+        {
+          const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+          const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
+          auto nonConstLValueSuccess = result<int&, Error1, Error2>{i};
+          auto nonConstLValueError = result<int&, Error1, Error2>{Error1{}};
+
+          SECTION("with non void result")
+          {
+            CHECK(
+              (constLValueSuccess | join(result<float, Error3>{2.0f}))
+              == result<multi_value<int&, float>, Error1, Error2, Error3>{
+                multi_value{i, 2.0f}});
+            CHECK(
+              (constLValueSuccess | join(result<float, Error3>{Error3{}}))
+              == result<multi_value<int&, float>, Error1, Error2, Error3>{Error3{}});
+
+            CHECK(
+              (constLValueError | join(result<float, Error3>{2.0f}))
+              == result<multi_value<int&, float>, Error1, Error2, Error3>{Error1{}});
+            CHECK(
+              (constLValueError | join(result<float, Error3>{Error3{}}))
+              == result<multi_value<int&, float>, Error1, Error2, Error3>{Error1{}});
+
+            CHECK(
+              (nonConstLValueSuccess | join(result<float, Error3>{2.0f}))
+              == result<multi_value<int&, float>, Error1, Error2, Error3>{
+                multi_value{i, 2.0f}});
+            CHECK(
+              (nonConstLValueSuccess | join(result<float, Error3>{Error3{}}))
+              == result<multi_value<int&, float>, Error1, Error2, Error3>{Error3{}});
+
+            CHECK(
+              (nonConstLValueError | join(result<float, Error3>{2.0f}))
+              == result<multi_value<int&, float>, Error1, Error2, Error3>{Error1{}});
+            CHECK(
+              (nonConstLValueError | join(result<float, Error3>{Error3{}}))
+              == result<multi_value<int&, float>, Error1, Error2, Error3>{Error1{}});
+          }
+        }
+
+        SECTION("const lvalue reference result")
+        {
+          const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+          const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
+          auto nonConstLValueSuccess = result<const int&, Error1, Error2>{i};
+          auto nonConstLValueError = result<const int&, Error1, Error2>{Error1{}};
+
+          SECTION("with non void result")
+          {
+            CHECK(
+              (constLValueSuccess | join(result<float, Error3>{2.0f}))
+              == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+                multi_value{i, 2.0f}});
+            CHECK(
+              (constLValueSuccess | join(result<float, Error3>{Error3{}}))
+              == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+                Error3{}});
+
+            CHECK(
+              (constLValueError | join(result<float, Error3>{2.0f}))
+              == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+                Error1{}});
+            CHECK(
+              (constLValueError | join(result<float, Error3>{Error3{}}))
+              == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+                Error1{}});
+
+            CHECK(
+              (nonConstLValueSuccess | join(result<float, Error3>{2.0f}))
+              == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+                multi_value{i, 2.0f}});
+            CHECK(
+              (nonConstLValueSuccess | join(result<float, Error3>{Error3{}}))
+              == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+                Error3{}});
+
+            CHECK(
+              (nonConstLValueError | join(result<float, Error3>{2.0f}))
+              == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+                Error1{}});
+            CHECK(
+              (nonConstLValueError | join(result<float, Error3>{Error3{}}))
+              == result<multi_value<const int&, float>, Error1, Error2, Error3>{
+                Error1{}});
+          }
+        }
+
+        SECTION("with multi-valued result")
+        {
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{MoveOnly{}}
+             | join(result<multi_value<int, float>, Error3>{multi_value{1, 2.0f}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              multi_value{MoveOnly{}, 1, 2.0f}});
+
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{MoveOnly{}}
+             | join(result<multi_value<int, float>, Error3>{Error3{}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error3{}});
+
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{Error1{}}
+             | join(result<multi_value<int, float>, Error3>{multi_value{1, 2.0f}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+          CHECK(
+            (result<MoveOnly, Error1, Error2>{Error1{}}
+             | join(result<multi_value<int, float>, Error3>{Error3{}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+        }
+      }
+
+      SECTION("multi-valued result")
+      {
+        const auto constLValueSuccess =
+          result<multi_value<std::string, int>, Error1, Error2>{multi_value{"asdf", 1}};
+        const auto constLValueError =
+          result<multi_value<std::string, int>, Error1, Error2>{Error1{}};
+        auto nonConstLValueSuccess =
+          result<multi_value<std::string, int>, Error1, Error2>{multi_value{"asdf", 1}};
+        auto nonConstLValueError =
+          result<multi_value<std::string, int>, Error1, Error2>{Error1{}};
+
+        SECTION("with non void result")
+        {
+          CHECK(
+            (constLValueSuccess | join(result<float, Error3>{2.0f}))
+            == result<multi_value<std::string, int, float>, Error1, Error2, Error3>{
+              multi_value{"asdf", 1, 2.0f}});
+          CHECK(
+            (constLValueSuccess | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<std::string, int, float>, Error1, Error2, Error3>{
+              Error3{}});
+
+          CHECK(
+            (constLValueError | join(result<float, Error3>{2.0f}))
+            == result<multi_value<std::string, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+          CHECK(
+            (constLValueError | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<std::string, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+
+          CHECK(
+            (nonConstLValueSuccess | join(result<float, Error3>{2.0f}))
+            == result<multi_value<std::string, int, float>, Error1, Error2, Error3>{
+              multi_value{"asdf", 1, 2.0f}});
+          CHECK(
+            (nonConstLValueSuccess | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<std::string, int, float>, Error1, Error2, Error3>{
+              Error3{}});
+
+          CHECK(
+            (nonConstLValueError | join(result<float, Error3>{2.0f}))
+            == result<multi_value<std::string, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+          CHECK(
+            (nonConstLValueError | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<std::string, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+
+          CHECK(
+            (result<multi_value<MoveOnly, int>, Error1, Error2>{
+               multi_value{MoveOnly{}, 1}}
+             | join(result<float, Error3>{2.0f}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              multi_value{MoveOnly{}, 1, 2.0f}});
+          CHECK(
+            (result<multi_value<MoveOnly, int>, Error1, Error2>{
+               multi_value{MoveOnly{}, 1}}
+             | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error3{}});
+
+          CHECK(
+            (result<multi_value<MoveOnly, int>, Error1, Error2>{Error1{}}
+             | join(result<float, Error3>{2.0f}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+          CHECK(
+            (result<multi_value<MoveOnly, int>, Error1, Error2>{Error1{}}
+             | join(result<float, Error3>{Error3{}}))
+            == result<multi_value<MoveOnly, int, float>, Error1, Error2, Error3>{
+              Error1{}});
+        }
+
+        SECTION("with multi-valued result")
+        {
+          CHECK(
+            (constLValueSuccess
+             | join(result<multi_value<float, MoveOnly>, Error3>{
+               multi_value{2.0f, MoveOnly{}}}))
+            == result<
+              multi_value<std::string, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{multi_value{"asdf", 1, 2.0f, MoveOnly{}}});
+          CHECK(
+            (constLValueSuccess
+             | join(result<multi_value<float, MoveOnly>, Error3>{Error3{}}))
+            == result<
+              multi_value<std::string, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error3{}});
+
+          CHECK(
+            (constLValueError
+             | join(result<multi_value<float, MoveOnly>, Error3>{
+               multi_value{2.0f, MoveOnly{}}}))
+            == result<
+              multi_value<std::string, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error1{}});
+          CHECK(
+            (constLValueError
+             | join(result<multi_value<float, MoveOnly>, Error3>{Error3{}}))
+            == result<
+              multi_value<std::string, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error1{}});
+
+          CHECK(
+            (nonConstLValueSuccess
+             | join(result<multi_value<float, MoveOnly>, Error3>{
+               multi_value{2.0f, MoveOnly{}}}))
+            == result<
+              multi_value<std::string, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{multi_value{"asdf", 1, 2.0f, MoveOnly{}}});
+          CHECK(
+            (nonConstLValueSuccess
+             | join(result<multi_value<float, MoveOnly>, Error3>{Error3{}}))
+            == result<
+              multi_value<std::string, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error3{}});
+
+          CHECK(
+            (nonConstLValueError
+             | join(result<multi_value<float, MoveOnly>, Error3>{
+               multi_value{2.0f, MoveOnly{}}}))
+            == result<
+              multi_value<std::string, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error1{}});
+          CHECK(
+            (nonConstLValueError
+             | join(result<multi_value<float, MoveOnly>, Error3>{Error3{}}))
+            == result<
+              multi_value<std::string, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error1{}});
+
+          CHECK(
+            (result<multi_value<MoveOnly, int>, Error1, Error2>{
+               multi_value{MoveOnly{}, 1}}
+             | join(result<multi_value<float, MoveOnly>, Error3>{
+               multi_value{2.0f, MoveOnly{}}}))
+            == result<
+              multi_value<MoveOnly, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{multi_value{MoveOnly{}, 1, 2.0f, MoveOnly{}}});
+          CHECK(
+            (result<multi_value<MoveOnly, int>, Error1, Error2>{
+               multi_value{MoveOnly{}, 1}}
+             | join(result<multi_value<float, MoveOnly>, Error3>{Error3{}}))
+            == result<
+              multi_value<MoveOnly, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error3{}});
+
+          CHECK(
+            (result<multi_value<MoveOnly, int>, Error1, Error2>{Error1{}}
+             | join(result<multi_value<float, MoveOnly>, Error3>{
+               multi_value{2.0f, MoveOnly{}}}))
+            == result<
+              multi_value<MoveOnly, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error1{}});
+          CHECK(
+            (result<multi_value<MoveOnly, int>, Error1, Error2>{Error1{}}
+             | join(result<multi_value<float, MoveOnly>, Error3>{Error3{}}))
+            == result<
+              multi_value<MoveOnly, int, float, MoveOnly>,
+              Error1,
+              Error2,
+              Error3>{Error1{}});
+        }
+      }
+    }
+
     SECTION("value")
     {
       SECTION("const lvalue success")
