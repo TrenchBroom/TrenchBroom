@@ -20,6 +20,9 @@
 #pragma once
 
 #include "Result.h"
+#include "mdl/Palette.h"
+
+#include <optional>
 
 namespace tb
 {
@@ -31,15 +34,13 @@ class Reader;
 namespace mdl
 {
 class Texture;
-}
+} // namespace mdl
 
 namespace io
 {
 
-/**
- * Heretic 2 .m8 format
- */
-Result<mdl::Texture> readM8Texture(fs::Reader& reader);
+Result<mdl::Texture> loadWalTexture(
+  fs::Reader& reader, const std::optional<mdl::Palette>& palette);
 
 } // namespace io
 } // namespace tb

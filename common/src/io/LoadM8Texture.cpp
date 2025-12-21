@@ -17,9 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ReadM8Texture.h"
-
 #include "Color.h"
+#include "LoadM8Texture.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "mdl/Palette.h"
@@ -42,7 +41,7 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<mdl::Texture> readM8Texture(fs::Reader& reader)
+Result<mdl::Texture> loadM8Texture(fs::Reader& reader)
 {
   try
   {

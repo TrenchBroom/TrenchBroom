@@ -22,8 +22,8 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/WadFileSystem.h"
+#include "io/LoadMipTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ReadMipTexture.h"
 #include "mdl/Palette.h"
 
 #include "kd/result.h"
@@ -39,7 +39,7 @@
 namespace tb::io
 {
 
-TEST_CASE("readIdMipTexture")
+TEST_CASE("loadIdMipTexture")
 {
   using TexInfo = std::tuple<std::string, size_t, size_t>;
 
@@ -84,13 +84,13 @@ TEST_CASE("readIdMipTexture")
   const auto file = wadFS.openFile(textureName + ".D") | kdl::value();
   auto reader = file->reader().buffer();
   const auto texture =
-    readIdMipTexture(reader, palette, mdl::TextureMask::Off) | kdl::value();
+    loadIdMipTexture(reader, palette, mdl::TextureMask::Off) | kdl::value();
 
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
 }
 
-TEST_CASE("readHlMipTexture")
+TEST_CASE("loadHlMipTexture")
 {
   using TexInfo = std::tuple<std::string, size_t, size_t>;
 
@@ -111,7 +111,7 @@ TEST_CASE("readHlMipTexture")
 
   const auto file = wadFS.openFile(textureName + ".C") | kdl::value();
   auto reader = file->reader().buffer();
-  const auto texture = readHlMipTexture(reader, mdl::TextureMask::Off) | kdl::value();
+  const auto texture = loadHlMipTexture(reader, mdl::TextureMask::Off) | kdl::value();
 
   CHECK(logger.countMessages(LogLevel::Error) == 0);
   CHECK(logger.countMessages(LogLevel::Warn) == 0);

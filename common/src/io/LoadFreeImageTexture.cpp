@@ -17,9 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ReadFreeImageTexture.h"
-
 #include "FreeImage.h"
+#include "LoadFreeImageTexture.h"
 #include "fs/Reader.h"
 #include "io/ImageLoaderImpl.h"
 #include "io/MaterialUtils.h"
@@ -108,7 +107,7 @@ Color getAverageColor(const mdl::TextureBuffer& buffer, const GLenum format)
   return RgbaF{average[0], average[1], average[2], average[3]};
 }
 
-Result<mdl::Texture> readFreeImageTextureFromMemory(
+Result<mdl::Texture> loadFreeImageTextureFromMemory(
   const uint8_t* begin, const size_t size)
 {
   try
@@ -197,7 +196,7 @@ Result<mdl::Texture> readFreeImageTextureFromMemory(
   }
 }
 
-Result<mdl::Texture> readFreeImageTexture(fs::Reader& reader)
+Result<mdl::Texture> loadFreeImageTexture(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   const auto* begin = bufferedReader.begin();
@@ -205,7 +204,7 @@ Result<mdl::Texture> readFreeImageTexture(fs::Reader& reader)
   const auto imageSize = size_t(end - begin);
   auto* imageBegin = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
 
-  return readFreeImageTextureFromMemory(imageBegin, imageSize);
+  return loadFreeImageTextureFromMemory(imageBegin, imageSize);
 }
 
 namespace

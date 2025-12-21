@@ -24,13 +24,13 @@
 #include "fs/PathInfo.h"
 #include "fs/PathMatcher.h"
 #include "fs/TraversalMode.h"
+#include "io/LoadDdsTexture.h"
+#include "io/LoadFreeImageTexture.h"
+#include "io/LoadM8Texture.h"
+#include "io/LoadMipTexture.h"
 #include "io/LoadShaders.h"
+#include "io/LoadWalTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ReadDdsTexture.h"
-#include "io/ReadFreeImageTexture.h"
-#include "io/ReadM8Texture.h"
-#include "io/ReadMipTexture.h"
-#include "io/ReadWalTexture.h"
 #include "io/ResourceUtils.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialCollection.h"
@@ -201,7 +201,7 @@ Result<mdl::Material> loadShaderMaterial(
            return [&, path = std::move(path_)]() {
              return fs.openFile(path) | kdl::and_then([&](auto file) {
                       auto reader = file->reader().buffer();
-                      return readFreeImageTexture(reader).transform([](auto texture) {
+                      return loadFreeImageTexture(reader).transform([](auto texture) {
                         texture.setMask(mdl::TextureMask::Off);
                         return texture;
                       });
@@ -273,7 +273,7 @@ Result<mdl::Texture> loadTexture(
                | kdl::and_then([&](auto file, const auto& palette) {
                    auto reader = file->reader().buffer();
                    const auto mask = getTextureMaskFromName(name);
-                   return readIdMipTexture(reader, palette, mask);
+                   return loadIdMipTexture(reader, palette, mask);
                  });
       }
       else if (extension == ".c")
@@ -281,7 +281,7 @@ Result<mdl::Texture> loadTexture(
         const auto mask = getTextureMaskFromName(name);
         return fs.openFile(actualPath) | kdl::and_then([&](auto file) {
                  auto reader = file->reader().buffer();
-                 return readHlMipTexture(reader, mask);
+                 return loadHlMipTexture(reader, mask);
                });
       }
       else if (extension == ".wal")
@@ -299,28 +299,28 @@ Result<mdl::Texture> loadTexture(
 
         return fs.openFile(actualPath) | kdl::and_then([&](auto file) {
                  auto reader = file->reader().buffer();
-                 return readWalTexture(reader, palette);
+                 return loadWalTexture(reader, palette);
                });
       }
       else if (extension == ".m8")
       {
         return fs.openFile(actualPath) | kdl::and_then([&](auto file) {
                  auto reader = file->reader().buffer();
-                 return readM8Texture(reader);
+                 return loadM8Texture(reader);
                });
       }
       else if (extension == ".dds")
       {
         return fs.openFile(actualPath) | kdl::and_then([&](auto file) {
                  auto reader = file->reader().buffer();
-                 return readDdsTexture(reader);
+                 return loadDdsTexture(reader);
                });
       }
       else if (isSupportedFreeImageExtension(extension))
       {
         return fs.openFile(actualPath) | kdl::and_then([&](auto file) {
                  auto reader = file->reader().buffer();
-                 return readFreeImageTexture(reader);
+                 return loadFreeImageTexture(reader);
                });
       }
 

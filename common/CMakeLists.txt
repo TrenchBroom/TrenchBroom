@@ -24,10 +24,15 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.cpp
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.cpp
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadDdsTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.cpp
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadFreeImageTexture.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadM8Texture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadMipTexture.cpp
         ${COMMON_SOURCE_DIR}/io/LoadShaders.cpp
+        ${COMMON_SOURCE_DIR}/io/LoadWalTexture.cpp
         ${COMMON_SOURCE_DIR}/io/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/MapHeader.cpp
         ${COMMON_SOURCE_DIR}/io/MapParser.cpp
@@ -44,11 +49,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/io/PathQt.cpp
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.cpp
-        ${COMMON_SOURCE_DIR}/io/ReadDdsTexture.cpp
-        ${COMMON_SOURCE_DIR}/io/ReadFreeImageTexture.cpp
-        ${COMMON_SOURCE_DIR}/io/ReadM8Texture.cpp
-        ${COMMON_SOURCE_DIR}/io/ReadMipTexture.cpp
-        ${COMMON_SOURCE_DIR}/io/ReadWalTexture.cpp
         ${COMMON_SOURCE_DIR}/io/ResourceUtils.cpp
         ${COMMON_SOURCE_DIR}/io/SkinLoader.cpp
         ${COMMON_SOURCE_DIR}/io/SprLoader.cpp
@@ -505,10 +505,15 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ImageLoaderImpl.h
         ${COMMON_SOURCE_DIR}/io/ImageSpriteLoader.h
         ${COMMON_SOURCE_DIR}/io/LegacyModelDefinitionParser.h
+        ${COMMON_SOURCE_DIR}/io/LoadDdsTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityDefinitions.h
         ${COMMON_SOURCE_DIR}/io/LoadEntityModel.h
+        ${COMMON_SOURCE_DIR}/io/LoadFreeImageTexture.h
+        ${COMMON_SOURCE_DIR}/io/LoadM8Texture.h
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.h
+        ${COMMON_SOURCE_DIR}/io/LoadMipTexture.h
         ${COMMON_SOURCE_DIR}/io/LoadShaders.h
+        ${COMMON_SOURCE_DIR}/io/LoadWalTexture.h
         ${COMMON_SOURCE_DIR}/io/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/io/MapHeader.h
         ${COMMON_SOURCE_DIR}/io/MapParser.h
@@ -525,11 +530,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
         ${COMMON_SOURCE_DIR}/io/PathQt.h
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.h
-        ${COMMON_SOURCE_DIR}/io/ReadDdsTexture.h
-        ${COMMON_SOURCE_DIR}/io/ReadFreeImageTexture.h
-        ${COMMON_SOURCE_DIR}/io/ReadM8Texture.h
-        ${COMMON_SOURCE_DIR}/io/ReadMipTexture.h
-        ${COMMON_SOURCE_DIR}/io/ReadWalTexture.h
         ${COMMON_SOURCE_DIR}/io/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/io/SkinLoader.h
         ${COMMON_SOURCE_DIR}/io/SprLoader.h

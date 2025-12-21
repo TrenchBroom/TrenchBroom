@@ -22,8 +22,8 @@
 #include "Logger.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
+#include "io/LoadMipTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ReadMipTexture.h"
 #include "io/ResourceUtils.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"
@@ -122,8 +122,8 @@ std::vector<mdl::Material> parseMaterials(
     const auto mask = getTextureMaskFromName(materialName);
 
     result.push_back(
-      (version == 29 ? readIdMipTexture(textureReader, palette, mask)
-                     : readHlMipTexture(textureReader, mask))
+      (version == 29 ? loadIdMipTexture(textureReader, palette, mask)
+                     : loadHlMipTexture(textureReader, mask))
       | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
       | kdl::transform([&](auto texture) {
           auto textureResource = createTextureResource(std::move(texture));

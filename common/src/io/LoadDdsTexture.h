@@ -1,5 +1,6 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2023 iOrange
+ Copyright (C) 2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,9 +21,6 @@
 #pragma once
 
 #include "Result.h"
-#include "mdl/Palette.h"
-
-#include <optional>
 
 namespace tb
 {
@@ -34,13 +32,12 @@ class Reader;
 namespace mdl
 {
 class Texture;
-} // namespace mdl
+}
 
 namespace io
 {
 
-Result<mdl::Texture> readWalTexture(
-  fs::Reader& reader, const std::optional<mdl::Palette>& palette);
+Result<mdl::Texture> loadDdsTexture(fs::Reader& reader);
 
 } // namespace io
 } // namespace tb

@@ -17,9 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ReadWalTexture.h"
-
 #include "Color.h"
+#include "LoadWalTexture.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
@@ -228,7 +227,7 @@ Result<mdl::Texture> readDkWal(fs::Reader& reader)
 
 } // namespace
 
-Result<mdl::Texture> readWalTexture(
+Result<mdl::Texture> loadWalTexture(
   fs::Reader& reader, const std::optional<mdl::Palette>& palette)
 {
   try

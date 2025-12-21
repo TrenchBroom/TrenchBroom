@@ -20,7 +20,7 @@
 
 #include "TestUtils.h"
 #include "fs/DiskFileSystem.h"
-#include "io/ReadDdsTexture.h"
+#include "io/LoadDdsTexture.h"
 #include "mdl/Palette.h"
 #include "mdl/Texture.h"
 
@@ -45,7 +45,7 @@ mdl::Texture loadTexture(const std::string& name)
 
   const auto file = diskFS.openFile(name) | kdl::value();
   auto reader = file->reader().buffer();
-  return readDdsTexture(reader) | kdl::value();
+  return loadDdsTexture(reader) | kdl::value();
 }
 
 void assertTexture(
@@ -61,7 +61,7 @@ void assertTexture(
 
 } // namespace
 
-TEST_CASE("ReadDdsTextureTest.testLoadDds")
+TEST_CASE("loadDdsTexture")
 {
   assertTexture("dds_rgb.dds", 128, 128, GL_BGR);
   assertTexture("dds_rgba.dds", 128, 128, GL_BGRA);

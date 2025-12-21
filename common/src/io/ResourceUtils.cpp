@@ -33,8 +33,8 @@
 #include "Logger.h"
 #include "Thread.h"
 #include "fs/FileSystem.h"
+#include "io/LoadFreeImageTexture.h"
 #include "io/PathQt.h"
-#include "io/ReadFreeImageTexture.h"
 #include "io/SystemPaths.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
@@ -60,7 +60,7 @@ mdl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
 
     return fs.openFile(DefaultTexturePath) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
-             return readFreeImageTexture(reader);
+             return loadFreeImageTexture(reader);
            })
            | kdl::transform_error([&](auto e) {
                logger.error() << "Could not load default texture: " << e.msg;

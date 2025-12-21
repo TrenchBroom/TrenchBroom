@@ -1,6 +1,5 @@
 /*
- Copyright (C) 2023 iOrange
- Copyright (C) 2023 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -37,7 +36,10 @@ class Texture;
 namespace io
 {
 
-Result<mdl::Texture> readDdsTexture(fs::Reader& reader);
+/**
+ * Heretic 2 .m8 format
+ */
+Result<mdl::Texture> loadM8Texture(fs::Reader& reader);
 
 } // namespace io
 } // namespace tb

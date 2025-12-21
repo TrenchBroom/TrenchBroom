@@ -19,11 +19,9 @@
 
 #pragma once
 
-#include "Color.h"
 #include "Result.h"
-#include "render/GL.h"
 
-#include <filesystem>
+#include <string>
 
 namespace tb
 {
@@ -34,20 +32,20 @@ class Reader;
 
 namespace mdl
 {
+class Palette;
 class Texture;
-class TextureBuffer;
+enum class TextureMask;
 } // namespace mdl
 
 namespace io
 {
 
-Color getAverageColor(const mdl::TextureBuffer& buffer, GLenum format);
+std::string readMipTextureName(fs::Reader& reader);
 
-Result<mdl::Texture> readFreeImageTextureFromMemory(const uint8_t* begin, size_t size);
+Result<mdl::Texture> loadIdMipTexture(
+  fs::Reader& reader, const mdl::Palette& palette, mdl::TextureMask mask);
 
-Result<mdl::Texture> readFreeImageTexture(fs::Reader& reader);
-
-bool isSupportedFreeImageExtension(const std::filesystem::path& extension);
+Result<mdl::Texture> loadHlMipTexture(fs::Reader& reader, mdl::TextureMask mask);
 
 } // namespace io
 } // namespace tb

@@ -17,9 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ReadMipTexture.h"
-
 #include "Color.h"
+#include "LoadMipTexture.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
@@ -140,13 +139,13 @@ std::string readMipTextureName(fs::Reader& reader)
   }
 }
 
-Result<mdl::Texture> readIdMipTexture(
+Result<mdl::Texture> loadIdMipTexture(
   fs::Reader& reader, const mdl::Palette& palette, const mdl::TextureMask mask)
 {
   return readMipTexture(reader, [&](fs::Reader&) { return palette; }, mask);
 }
 
-Result<mdl::Texture> readHlMipTexture(fs::Reader& reader, const mdl::TextureMask mask)
+Result<mdl::Texture> loadHlMipTexture(fs::Reader& reader, const mdl::TextureMask mask)
 {
   return readMipTexture(reader, readHlMipPalette, mask);
 }

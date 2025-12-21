@@ -21,8 +21,8 @@
 
 #include "fs/File.h"
 #include "fs/ReaderException.h"
+#include "io/LoadFreeImageTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ReadFreeImageTexture.h"
 #include "mdl/EntityModel.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
@@ -44,7 +44,7 @@ auto loadMaterial(
   const fs::FileSystem& fs, fs::File& file, std::string name, Logger& logger)
 {
   auto reader = file.reader().buffer();
-  return readFreeImageTexture(reader)
+  return loadFreeImageTexture(reader)
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
          | kdl::and_then([&](auto texture) {
              auto textureResource = createTextureResource(std::move(texture));

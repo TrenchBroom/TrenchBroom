@@ -21,8 +21,8 @@
 #include "Matchers.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/TestEnvironment.h"
-#include "io/LoadFreeImageTexture.h"
-#include "io/MaterialUtils.h"
+#include "mdl/LoadFreeImageTexture.h"
+#include "mdl/MaterialUtils.h"
 
 #include "kd/result.h"
 #include "kd/result_io.h" // IWYU pragma: keep
@@ -34,7 +34,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-namespace tb::io
+namespace tb::mdl
 {
 
 TEST_CASE("getMaterialNameFromPathSuffix")
@@ -93,7 +93,7 @@ TEST_CASE("makeReadTextureErrorHandler")
 
   const auto file = diskFS.openFile("textures/corruptPngTest.png") | kdl::value();
   auto reader = file->reader().buffer();
-  auto result = loadFreeImageTexture(reader);
+  auto result = readFreeImageTexture(reader);
   REQUIRE(result.is_error());
 
   const auto defaultTexture = std::move(result)
@@ -103,4 +103,4 @@ TEST_CASE("makeReadTextureErrorHandler")
   CHECK(defaultTexture.height() == 32);
 }
 
-} // namespace tb::io
+} // namespace tb::mdl

@@ -18,8 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ReadDdsTexture.h"
-
+#include "LoadDdsTexture.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "io/MaterialUtils.h"
@@ -127,7 +126,7 @@ void readDdsMips(fs::Reader& reader, mdl::TextureBufferList& buffers)
 
 } // namespace
 
-Result<mdl::Texture> readDdsTexture(fs::Reader& reader)
+Result<mdl::Texture> loadDdsTexture(fs::Reader& reader)
 {
   try
   {

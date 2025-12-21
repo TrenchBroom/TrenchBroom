@@ -19,7 +19,7 @@
 
 #include "TestUtils.h"
 #include "fs/DiskFileSystem.h"
-#include "io/ReadFreeImageTexture.h"
+#include "mdl/LoadFreeImageTexture.h"
 #include "mdl/Texture.h"
 
 #include "kd/result.h"
@@ -31,7 +31,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb::mdl
 {
 namespace
 {
@@ -159,4 +159,4 @@ TEST_CASE("isSupportedFreeImageExtension")
   CHECK_FALSE(isSupportedFreeImageExtension("jpg"));
 }
 
-} // namespace tb::io
+} // namespace tb::mdl

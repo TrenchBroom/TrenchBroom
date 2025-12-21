@@ -22,9 +22,9 @@
 #include "Logger.h"
 #include "Result.h"
 #include "fs/FileSystem.h"
+#include "io/LoadFreeImageTexture.h"
+#include "io/LoadWalTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ReadFreeImageTexture.h"
-#include "io/ReadWalTexture.h"
 #include "io/ResourceUtils.h"
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
@@ -50,8 +50,8 @@ mdl::Material loadSkin(
          | kdl::and_then([&](auto file) -> Result<mdl::Material, ReadMaterialError> {
              const auto extension = kdl::path_to_lower(path.extension());
              auto reader = file->reader().buffer();
-             return (extension == ".wal" ? readWalTexture(reader, palette)
-                                         : readFreeImageTexture(reader))
+             return (extension == ".wal" ? loadWalTexture(reader, palette)
+                                         : loadFreeImageTexture(reader))
                     | kdl::transform([&](auto texture) {
                         auto textureResource = createTextureResource(std::move(texture));
                         return mdl::Material{

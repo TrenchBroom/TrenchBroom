@@ -19,7 +19,7 @@
 
 #include "TestUtils.h"
 #include "fs/DiskFileSystem.h"
-#include "io/ReadM8Texture.h"
+#include "io/LoadM8Texture.h"
 #include "mdl/Palette.h"
 #include "mdl/Texture.h"
 
@@ -35,13 +35,13 @@
 namespace tb::io
 {
 
-TEST_CASE("ReadM8TextureTest.testBasicLoading")
+TEST_CASE("loadM8Texture")
 {
   auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
   const auto file = fs.openFile("fixture/test/io/M8/test.m8") | kdl::value();
 
   auto reader = file->reader().buffer();
-  auto texture = readM8Texture(reader) | kdl::value();
+  auto texture = loadM8Texture(reader) | kdl::value();
 
   CHECK(texture.width() == 64);
   CHECK(texture.height() == 64);

@@ -18,7 +18,7 @@
  */
 
 #include "fs/DiskFileSystem.h"
-#include "io/ReadWalTexture.h"
+#include "io/LoadWalTexture.h"
 #include "mdl/Palette.h"
 #include "mdl/Texture.h"
 
@@ -38,7 +38,7 @@ namespace
 constexpr auto fixturePath = "fixture/test/io/Wal";
 }
 
-TEST_CASE("readWalTexture")
+TEST_CASE("loadWalTexture")
 {
   const auto palettePath = "fixture/test/colormap.pcx";
   auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
@@ -71,7 +71,7 @@ TEST_CASE("readWalTexture")
   auto reader = file->reader().buffer();
 
   const auto name = path.stem().generic_string();
-  const auto texture = readWalTexture(reader, palette) | kdl::value();
+  const auto texture = loadWalTexture(reader, palette) | kdl::value();
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
   CHECK(texture.embeddedDefaults() == embeddedDefaults);
