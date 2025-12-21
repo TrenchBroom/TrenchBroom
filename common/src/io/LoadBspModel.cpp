@@ -22,7 +22,6 @@
 #include "fs/ReaderException.h"
 #include "io/LoadMipTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ResourceUtils.h"
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
 #include "render/MaterialIndexRangeMap.h"

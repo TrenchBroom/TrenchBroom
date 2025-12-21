@@ -85,6 +85,16 @@ TEST_CASE("findMaterialFile")
     == Result<std::filesystem::path>{std::filesystem::path{"textures/other.png"}});
 }
 
+TEST_CASE("loadDefaultMaterial")
+{
+  auto fs = std::make_shared<fs::DiskFileSystem>(
+    std::filesystem::current_path() / "fixture/test/io/ResourceUtils/assets");
+  NullLogger logger;
+
+  auto material = loadDefaultMaterial(*fs, "some_name", logger);
+  CHECK(material.name() == "some_name");
+}
+
 TEST_CASE("makeReadTextureErrorHandler")
 {
   auto logger = NullLogger{};

@@ -51,7 +51,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ObjSerializer.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_PathQt.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_Quake3ShaderParser.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_ResourceUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_SystemPaths.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_WorldReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_AssetUtils.cpp"

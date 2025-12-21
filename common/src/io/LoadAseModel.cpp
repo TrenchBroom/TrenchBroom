@@ -22,7 +22,7 @@
 #include "Logger.h"
 #include "Parser.h"
 #include "Tokenizer.h"
-#include "io/ResourceUtils.h"
+#include "io/MaterialUtils.h"
 #include "mdl/Material.h" // IWYU pragma: keep
 #include "render/MaterialIndexRangeMap.h"
 #include "render/MaterialIndexRangeMapBuilder.h"

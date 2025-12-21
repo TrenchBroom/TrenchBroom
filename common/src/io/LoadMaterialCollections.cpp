@@ -31,7 +31,6 @@
 #include "io/LoadShaders.h"
 #include "io/LoadWalTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ResourceUtils.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialCollection.h"
 #include "mdl/Palette.h"

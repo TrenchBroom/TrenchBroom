@@ -19,14 +19,20 @@
 
 #include "MaterialUtils.h"
 
+#include "Logger.h"
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
+#include "io/LoadFreeImageTexture.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
+#include "mdl/TextureResource.h"
 
 #include "kd/functional.h"
 #include "kd/path_utils.h"
 #include "kd/reflection_impl.h"
+#include "kd/set_temp.h"
 #include "kd/string_compare.h"
 
 namespace tb::io
@@ -83,6 +89,39 @@ kdl_reflect_impl(ReadMaterialError);
 mdl::TextureMask getTextureMaskFromName(std::string_view name)
 {
   return kdl::cs::str_is_prefix(name, "{") ? mdl::TextureMask::On : mdl::TextureMask::Off;
+}
+
+mdl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
+{
+  // recursion guard
+  static auto executing = false;
+  if (!executing)
+  {
+    const auto set_executing = kdl::set_temp{executing};
+
+    return fs.openFile(DefaultTexturePath) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return loadFreeImageTexture(reader);
+           })
+           | kdl::transform_error([&](auto e) {
+               logger.error() << "Could not load default texture: " << e.msg;
+               return mdl::Texture{32, 32};
+             })
+           | kdl::value();
+  }
+  else
+  {
+    logger.error() << "Could not load default texture";
+  }
+
+  return mdl::Texture{32, 32};
+}
+
+mdl::Material loadDefaultMaterial(
+  const fs::FileSystem& fs, std::string name, Logger& logger)
+{
+  auto textureResource = createTextureResource(loadDefaultTexture(fs, logger));
+  return mdl::Material{std::move(name), std::move(textureResource)};
 }
 
 } // namespace tb::io

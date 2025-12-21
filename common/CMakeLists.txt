@@ -49,7 +49,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/io/PathQt.cpp
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.cpp
-        ${COMMON_SOURCE_DIR}/io/ResourceUtils.cpp
         ${COMMON_SOURCE_DIR}/io/SkinLoader.cpp
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/io/SystemPaths.cpp
@@ -530,7 +529,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
         ${COMMON_SOURCE_DIR}/io/PathQt.h
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.h
-        ${COMMON_SOURCE_DIR}/io/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/io/SkinLoader.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/io/SystemPaths.h

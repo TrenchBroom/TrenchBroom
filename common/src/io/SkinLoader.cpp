@@ -25,7 +25,6 @@
 #include "io/LoadFreeImageTexture.h"
 #include "io/LoadWalTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ResourceUtils.h"
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
 

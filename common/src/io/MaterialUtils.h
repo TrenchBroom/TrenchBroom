@@ -21,7 +21,6 @@
 
 #include "Logger.h"
 #include "Result.h"
-#include "io/ResourceUtils.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 
@@ -43,11 +42,15 @@ class FileSystem;
 namespace mdl
 {
 class Material;
+class Texture;
+
 enum class TextureMask;
 } // namespace mdl
 
 namespace io
 {
+
+static const auto DefaultTexturePath = std::filesystem::path{"textures/__TB_empty.png"};
 
 std::string getMaterialNameFromPathSuffix(
   const std::filesystem::path& path, size_t prefixLength);
@@ -68,6 +71,27 @@ struct ReadMaterialError
 
   kdl_reflect_decl(ReadMaterialError, materialName, msg);
 };
+
+/**
+ * Loads a default texture from the given file system. If the default texture cannot be
+ * found or opened, an empty texture is returned.
+ *
+ * @param fs the file system used to locate the texture file
+ * @param name the name of the texture to be returned
+ * @return the default texture
+ */
+mdl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger);
+
+/**
+ * Loads a default material from the given file system. If the default material cannot be
+ * found or opened, an empty material is returned.
+ *
+ * @param fs the file system used to locate the material file
+ * @param name the name of the material to be returned
+ * @return the default material
+ */
+mdl::Material loadDefaultMaterial(
+  const fs::FileSystem& fs, std::string name, Logger& logger);
 
 inline auto makeReadTextureErrorHandler(const fs::FileSystem& fs, Logger& logger)
 {

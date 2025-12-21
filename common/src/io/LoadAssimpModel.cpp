@@ -29,7 +29,6 @@
 #include "fs/ReaderException.h"
 #include "io/LoadFreeImageTexture.h"
 #include "io/MaterialUtils.h"
-#include "io/ResourceUtils.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/Texture.h"
 #include "render/IndexRangeMap.h"
