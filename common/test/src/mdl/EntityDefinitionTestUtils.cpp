@@ -23,8 +23,8 @@
 #include "el/ELParser.h"
 #include "el/EvaluationContext.h"
 #include "el/VariableStore.h"
-#include "io/EntityDefinitionParser.h"
 #include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionParser.h"
 
 #include "kd/contracts.h"
 
@@ -36,8 +36,9 @@
 
 namespace tb::mdl
 {
+
 ModelSpecification getModelSpecification(
-  io::EntityDefinitionParser& parser, const std::string& entityPropertiesStr)
+  EntityDefinitionParser& parser, const std::string& entityPropertiesStr)
 {
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
@@ -76,7 +77,7 @@ ModelSpecification getModelSpecification(
 
 void assertDecalDefinition(
   const DecalSpecification& expected,
-  io::EntityDefinitionParser& parser,
+  EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr)
 {
   auto status = TestParserStatus{};
@@ -116,4 +117,5 @@ void assertDecalDefinition(
     CHECK(actual.decalSpecification(variableStore) == expected);
   }).ignore();
 }
+
 } // namespace tb::mdl

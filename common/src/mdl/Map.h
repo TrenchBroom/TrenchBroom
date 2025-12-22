@@ -22,8 +22,8 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
-#include "io/ExportOptions.h"
 #include "mdl/BrushFaceHandle.h"
+#include "mdl/ExportOptions.h"
 #include "mdl/NodeIndex.h"
 #include "mdl/ResourceId.h"
 #include "mdl/Selection.h"
@@ -291,7 +291,7 @@ public: // persistence
   Result<void> save();
   Result<void> saveAs(const std::filesystem::path& path);
   Result<void> saveTo(const std::filesystem::path& path);
-  Result<void> exportAs(const io::ExportOptions& options) const;
+  Result<void> exportAs(const ExportOptions& options) const;
 
   bool persistent() const;
   std::string filename() const;

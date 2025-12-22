@@ -42,7 +42,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
-#include "io/ExportOptions.h"
 #include "mdl/Autosaver.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -50,6 +49,7 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/ExportOptions.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
@@ -1026,11 +1026,11 @@ bool MapFrame::exportDocumentAsMap()
     return false;
   }
 
-  const auto options = io::MapExportOptions{pathFromQString(newFileName)};
+  const auto options = mdl::MapExportOptions{pathFromQString(newFileName)};
   return exportDocument(options);
 }
 
-bool MapFrame::exportDocument(const io::ExportOptions& options)
+bool MapFrame::exportDocument(const mdl::ExportOptions& options)
 {
   const auto& map = m_document->map();
   const auto exportPath = std::visit([](const auto& o) { return o.exportPath; }, options);

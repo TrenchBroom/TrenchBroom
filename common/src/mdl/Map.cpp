@@ -23,14 +23,6 @@
 #include "SimpleParserStatus.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
-#include "io/GameConfigParser.h"
-#include "io/LoadEntityDefinitions.h"
-#include "io/LoadMaterialCollections.h"
-#include "io/MapHeader.h"
-#include "io/NodeReader.h"
-#include "io/NodeWriter.h"
-#include "io/ObjSerializer.h"
-#include "io/WorldReader.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -48,6 +40,7 @@
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EnvironmentConfig.h"
+#include "mdl/GameConfigParser.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
@@ -58,10 +51,13 @@
 #include "mdl/LinkSourceValidator.h"
 #include "mdl/LinkTargetValidator.h"
 #include "mdl/LinkedGroupUtils.h"
+#include "mdl/LoadEntityDefinitions.h"
+#include "mdl/LoadMaterialCollections.h"
 #include "mdl/LongPropertyKeyValidator.h"
 #include "mdl/LongPropertyValueValidator.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
+#include "mdl/MapHeader.h"
 #include "mdl/MapTextEncoding.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
@@ -78,7 +74,10 @@
 #include "mdl/Node.h"
 #include "mdl/NodeIndex.h"
 #include "mdl/NodeQueries.h"
+#include "mdl/NodeReader.h"
+#include "mdl/NodeWriter.h"
 #include "mdl/NonIntegerVerticesValidator.h"
+#include "mdl/ObjSerializer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PointEntityWithBrushesValidator.h"
 #include "mdl/PropertyKeyWithDoubleQuotationMarksValidator.h"
@@ -97,6 +96,7 @@
 #include "mdl/WorldBoundsValidator.h"
 #include "mdl/WorldNode.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
+#include "mdl/WorldReader.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
@@ -175,7 +175,7 @@ Result<std::unique_ptr<WorldNode>> loadWorldNode(
                })
                | kdl::ranges::to<std::vector>();
 
-             return io::WorldReader::tryRead(
+             return WorldReader::tryRead(
                fileReader.stringView(),
                possibleFormats,
                worldBounds,
@@ -185,7 +185,7 @@ Result<std::unique_ptr<WorldNode>> loadWorldNode(
            }
 
            auto worldReader =
-             io::WorldReader{fileReader.stringView(), mapFormat, entityPropertyConfig};
+             WorldReader{fileReader.stringView(), mapFormat, entityPropertyConfig};
            return worldReader.read(worldBounds, parserStatus, taskManager);
          });
 }
@@ -846,9 +846,9 @@ Result<void> Map::saveTo(const std::filesystem::path& path)
   logger().info() << "Saving document to " << path;
 
   fs::Disk::withOutputStream(path, [&](auto& stream) {
-    io::writeMapHeader(stream, gameInfo().gameConfig.name, m_worldNode->mapFormat());
+    writeMapHeader(stream, gameInfo().gameConfig.name, m_worldNode->mapFormat());
 
-    auto writer = io::NodeWriter{*m_worldNode, stream};
+    auto writer = NodeWriter{*m_worldNode, stream};
     writer.setExporting(false);
     writer.writeMap(taskManager());
   }) | kdl::transform_error([&](const auto& e) {
@@ -858,26 +858,26 @@ Result<void> Map::saveTo(const std::filesystem::path& path)
   return Result<void>{};
 }
 
-Result<void> Map::exportAs(const io::ExportOptions& options) const
+Result<void> Map::exportAs(const ExportOptions& options) const
 {
   return std::visit(
     kdl::overload(
-      [&](const io::ObjExportOptions& objOptions) {
+      [&](const ObjExportOptions& objOptions) {
         return fs::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
           const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
           return fs::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
-            auto writer = io::NodeWriter{
+            auto writer = NodeWriter{
               *m_worldNode,
-              std::make_unique<io::ObjSerializer>(
+              std::make_unique<ObjSerializer>(
                 objStream, mtlStream, mtlPath.filename().string(), objOptions)};
             writer.setExporting(true);
             writer.writeMap(m_taskManager);
           });
         });
       },
-      [&](const io::MapExportOptions& mapOptions) {
+      [&](const MapExportOptions& mapOptions) {
         return fs::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
-          auto writer = io::NodeWriter{*m_worldNode, stream};
+          auto writer = NodeWriter{*m_worldNode, stream};
           writer.setExporting(true);
           writer.writeMap(m_taskManager);
         });
@@ -1144,7 +1144,7 @@ void Map::loadEntityDefinitions()
     const auto& defaultColor = gameConfig.entityConfig.defaultColor;
     auto status = SimpleParserStatus{logger()};
 
-    io::loadEntityDefinitions(path, defaultColor, status)
+    mdl::loadEntityDefinitions(path, defaultColor, status)
       | kdl::transform([&](auto entityDefinitions) {
           logger().info() << fmt::format(
             "Loaded entity definition file {}", path.filename());

@@ -28,7 +28,7 @@
 #include <QRadioButton>
 
 #include "QtUtils.h"
-#include "io/ExportOptions.h"
+#include "mdl/ExportOptions.h"
 #include "mdl/Map.h"
 #include "ui/BorderLine.h"
 #include "ui/DialogHeader.h"
@@ -141,11 +141,11 @@ void ObjExportDialog::createGui()
     }
   });
   connect(m_exportButton, &QPushButton::clicked, this, [&]() {
-    io::ObjExportOptions options;
+    mdl::ObjExportOptions options;
     options.exportPath = pathFromQString(m_exportPathEdit->text());
     options.mtlPathMode = m_relativeToGamePathRadioButton->isChecked()
-                            ? io::ObjMtlPathMode::RelativeToGamePath
-                            : io::ObjMtlPathMode::RelativeToExportPath;
+                            ? mdl::ObjMtlPathMode::RelativeToGamePath
+                            : mdl::ObjMtlPathMode::RelativeToExportPath;
     m_mapFrame->exportDocument(options);
     close();
   });

@@ -19,7 +19,6 @@
 
 #include "TestParserStatus.h"
 #include "TestUtils.h"
-#include "io/NodeReader.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -31,6 +30,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/MapFormat.h"
+#include "mdl/NodeReader.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
 
@@ -353,8 +353,8 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( 656 754.57864 1021.42136 ) ( -84592 754.57864 1021.42136 ) ( 656 61034.01582 -59258.01582 ) skip 1 2 0 -666 470.93310 //TX2
       })";
 
-    auto nodes = io::NodeReader::read(
-      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    auto nodes =
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     CHECK(nodes.value().size() == 1u);
@@ -379,8 +379,8 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( 16 1389.42136 957.42136 ) ( 85264 1389.42136 957.42136 ) ( 16 -58890.01582 -59322.01582 ) skip 0 -3 0 666 -470.93310 //TX2
       })";
 
-    auto nodes = io::NodeReader::read(
-      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    auto nodes =
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
     CHECK(nodes.value().size() == 1u);
 
@@ -487,7 +487,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       })";
 
     auto nodes =
-      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
     CHECK(nodes.value().size() == 1u);
 
@@ -508,8 +508,8 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( -1248.00004 -2144 1061.33328 ) ( -1248.00004 -2272 1061.33328 ) ( -1120 -2144 976 ) rock_1732 1248 2144 0 1 -1 //TX1
       })";
 
-    auto nodes = io::NodeReader::read(
-      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    auto nodes =
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
     CHECK(nodes.value().empty());
 
@@ -539,7 +539,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( 82.285690308  0  0          ) ( 96 16  0 ) (  0            0  0          ) rock5_2 0 0 0 1 1
       })";
 
-    auto nodes = io::NodeReader::read(
+    auto nodes = NodeReader::read(
       data,
       MapFormat::Standard,
       worldBounds,
@@ -590,7 +590,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( -67 328 878 ) ( -77 465 890 ) ( -69 515 908 ) rock4_2 -1 33 0 1 1
       })";
 
-    auto nodes = io::NodeReader::read(
+    auto nodes = NodeReader::read(
       data,
       MapFormat::Standard,
       worldBounds,
@@ -618,7 +618,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       ( -483 1777 253 ) ( -459 1579 -115 ) ( -183 1692 95 ) *water1 -0 -0 -0 1 1
       })";
 
-    auto nodes = io::NodeReader::read(
+    auto nodes = NodeReader::read(
       data,
       MapFormat::Standard,
       worldBounds,
@@ -710,8 +710,8 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 }
 )";
 
-    CHECK_NOTHROW(io::NodeReader::read(
-      data, MapFormat::Standard, worldBounds, {}, status, taskManager));
+    CHECK_NOTHROW(
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager));
   }
 
   SECTION("2491")
@@ -729,8 +729,8 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
     }
     )";
 
-    CHECK_NOTHROW(io::NodeReader::read(
-      data, MapFormat::Standard, worldBounds, {}, status, taskManager));
+    CHECK_NOTHROW(
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager));
   }
 
   SECTION("2686")
@@ -767,7 +767,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
             )";
 
     CHECK_NOTHROW(
-      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager));
+      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager));
   }
 
   SECTION("4100")
@@ -795,7 +795,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
 })";
 
     CHECK_NOTHROW(
-      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager));
+      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager));
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/1893
@@ -843,7 +843,7 @@ TEST_CASE("BrushNode (Regression)", "[regression]")
       })";
 
     auto nodes =
-      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     CHECK(nodes.value().size() == 1u);

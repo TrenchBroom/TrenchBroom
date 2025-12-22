@@ -20,7 +20,7 @@
 #include "MaterialManager.h"
 
 #include "Logger.h"
-#include "io/LoadMaterialCollections.h"
+#include "mdl/LoadMaterialCollections.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialCollection.h"
 
@@ -52,7 +52,7 @@ void MaterialManager::reload(
   kdl::task_manager& taskManager)
 {
   clear();
-  io::loadMaterialCollections(fs, materialConfig, m_createResource, taskManager, m_logger)
+  loadMaterialCollections(fs, materialConfig, m_createResource, taskManager, m_logger)
     | kdl::transform([&](auto materialCollections) {
         for (auto& collection : materialCollections)
         {

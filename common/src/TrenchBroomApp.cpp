@@ -24,11 +24,11 @@
 #include "Result.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
-#include "io/MapHeader.h"
 #include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
+#include "mdl/MapHeader.h"
 #include "ui/AboutDialog.h"
 #include "ui/ActionExecutionContext.h"
 #include "ui/CrashDialog.h"
@@ -101,7 +101,7 @@ auto makeEnvironmentConfig()
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
   const std::filesystem::path& path)
 {
-  return fs::Disk::withInputStream(path, io::readMapHeader)
+  return fs::Disk::withInputStream(path, mdl::readMapHeader)
          | kdl::transform(
            [&](auto detectedGameNameAndMapFormat)
              -> std::optional<std::tuple<std::string, mdl::MapFormat>> {

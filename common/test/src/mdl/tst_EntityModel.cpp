@@ -21,11 +21,11 @@
 #include "PreferenceManager.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
-#include "io/LoadEntityModel.h"
 #include "mdl/EntityModel.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
+#include "mdl/LoadEntityModel.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 #include "mdl/TextureResource.h"
@@ -87,7 +87,7 @@ TEST_CASE("EntityModel")
       throw std::runtime_error{"should not be called"};
     };
 
-    auto model = io::loadEntityModelSync(
+    auto model = loadEntityModelSync(
       fs, gameInfo.gameConfig.materialConfig, path, loadMaterial, logger);
 
     auto& frame = model.value().data()->frames().at(0);

@@ -29,9 +29,9 @@
 #include "fs/PathInfo.h"
 #include "fs/PathMatcher.h"
 #include "fs/TraversalMode.h"
-#include "io/ExportOptions.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/ExportOptions.h"
 #include "mdl/Map.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationVariables.h"
@@ -123,7 +123,7 @@ void CompilationExportMapTaskRunner::doExecute()
     {
       return fs::Disk::createDirectory(targetPath.parent_path())
              | kdl::and_then([&](auto) {
-                 const auto options = io::MapExportOptions{targetPath};
+                 const auto options = mdl::MapExportOptions{targetPath};
                  return m_context.map().exportAs(options);
                });
     }

@@ -577,9 +577,9 @@ TEST_CASE("Map")
       const auto objFilename = "test.obj";
       const auto mtlFilename = "test.mtl";
 
-      REQUIRE(map.exportAs(io::ObjExportOptions{
+      REQUIRE(map.exportAs(ObjExportOptions{
         env.dir() / objFilename,
-        io::ObjMtlPathMode::RelativeToExportPath,
+        ObjMtlPathMode::RelativeToExportPath,
       }));
 
       CHECK(env.fileExists(objFilename));
@@ -596,7 +596,7 @@ TEST_CASE("Map")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       const auto filename = "test.map";
-      REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / filename}));
+      REQUIRE(map.exportAs(MapExportOptions{env.dir() / filename}));
       CHECK(env.fileExists(filename));
       CHECK(!map.persistent());
       CHECK(map.path() == "unnamed.map");
@@ -615,7 +615,7 @@ TEST_CASE("Map")
         auto* layerNode = new mdl::LayerNode{std::move(layer)};
         addNodes(map, {{&map.worldNode(), {layerNode}}});
 
-        REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / newDocumentPath}));
+        REQUIRE(map.exportAs(MapExportOptions{env.dir() / newDocumentPath}));
         REQUIRE(env.fileExists(newDocumentPath));
       }
 

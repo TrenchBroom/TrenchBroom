@@ -19,7 +19,7 @@
 
 #include "el/Expression.h"
 #include "el/Value.h"
-#include "io/NodeWriter.h"
+#include "mdl/NodeWriter.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"

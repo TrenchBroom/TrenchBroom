@@ -26,23 +26,18 @@
 
 #include <string>
 
-namespace tb
+namespace tb::mdl
 {
-namespace io
-{
-class EntityDefinitionParser;
-}
-
-namespace mdl
-{
-struct EntityDefinition;
-class ModelDefinition;
-struct ModelSpecification;
 class DecalDefinition;
+class EntityDefinitionParser;
+class ModelDefinition;
+
 struct DecalSpecification;
+struct EntityDefinition;
+struct ModelSpecification;
 
 ModelSpecification getModelSpecification(
-  io::EntityDefinitionParser& parser, const std::string& entityPropertiesStr = "{}");
+  EntityDefinitionParser& parser, const std::string& entityPropertiesStr = "{}");
 ModelSpecification getModelSpecification(
   const EntityDefinition& definition, const std::string& entityPropertiesStr = "{}");
 ModelSpecification getModelSpecification(
@@ -61,7 +56,7 @@ ModelSpecification getModelSpecification(
 
 void assertDecalDefinition(
   const DecalSpecification& expected,
-  io::EntityDefinitionParser& parser,
+  EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr = "{}");
 void assertDecalDefinition(
   const DecalSpecification& expected,
@@ -84,5 +79,4 @@ void assertDecalDefinition(
   assertDecalDefinition(expected, parser, entityPropertiesStr);
 }
 
-} // namespace mdl
-} // namespace tb
+} // namespace tb::mdl
