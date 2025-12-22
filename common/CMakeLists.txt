@@ -12,7 +12,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/DefParser.cpp
         ${COMMON_SOURCE_DIR}/io/DkmLoader.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.cpp
-        ${COMMON_SOURCE_DIR}/io/EntityDefinitionLoader.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.cpp
         ${COMMON_SOURCE_DIR}/io/EntityModelLoader.cpp
         ${COMMON_SOURCE_DIR}/io/EntParser.cpp
@@ -494,7 +493,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/DefParser.h
         ${COMMON_SOURCE_DIR}/io/DkmLoader.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.h
-        ${COMMON_SOURCE_DIR}/io/EntityDefinitionLoader.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.h
         ${COMMON_SOURCE_DIR}/io/EntityModelLoader.h
         ${COMMON_SOURCE_DIR}/io/EntParser.h
