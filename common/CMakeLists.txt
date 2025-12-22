@@ -9,7 +9,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/DefParser.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.cpp
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.cpp
-        ${COMMON_SOURCE_DIR}/io/EntityModelLoader.cpp
         ${COMMON_SOURCE_DIR}/io/EntParser.cpp
         ${COMMON_SOURCE_DIR}/io/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/io/FgdParser.cpp
@@ -490,7 +489,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/DefParser.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionClassInfo.h
         ${COMMON_SOURCE_DIR}/io/EntityDefinitionParser.h
-        ${COMMON_SOURCE_DIR}/io/EntityModelLoader.h
         ${COMMON_SOURCE_DIR}/io/EntParser.h
         ${COMMON_SOURCE_DIR}/io/ExportOptions.h
         ${COMMON_SOURCE_DIR}/io/FgdParser.h
