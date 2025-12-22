@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Grid.h"
@@ -28,7 +29,6 @@
 #include "mdl/Polyhedron.h"
 #include "render/Camera.h"
 #include "render/EdgeRenderer.h"
-#include "render/GLVertexType.h"
 #include "render/PrimType.h"
 #include "render/RenderContext.h"
 #include "render/VertexArray.h"
@@ -98,7 +98,7 @@ namespace
 {
 auto buildEdgeRenderer(const std::vector<mdl::BrushFaceHandle>& dragHandles)
 {
-  using Vertex = render::GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
   auto vertices = std::vector<Vertex>{};
 
   for (const auto& dragHandle : dragHandles)

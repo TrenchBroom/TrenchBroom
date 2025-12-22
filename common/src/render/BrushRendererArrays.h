@@ -19,13 +19,13 @@
 
 #pragma once
 
+#include "gl/GL.h"
+#include "gl/ShaderManager.h" // IWYU pragma: keep
+#include "gl/Vbo.h"
+#include "gl/VboManager.h"
+#include "gl/VertexType.h"
 #include "render/AllocationTracker.h"
-#include "render/GL.h"
-#include "render/GLVertexType.h"
 #include "render/PrimType.h"
-#include "render/ShaderManager.h" // IWYU pragma: keep
-#include "render/Vbo.h"
-#include "render/VboManager.h"
 
 #include "kd/contracts.h"
 
@@ -68,11 +68,11 @@ template <typename T>
 class VboHolder
 {
 protected:
-  VboType m_type;
+  gl::VboType m_type;
   std::vector<T> m_snapshot;
   DirtyRangeTracker m_dirtyRange;
-  VboManager* m_vboManager;
-  Vbo* m_vbo;
+  gl::VboManager* m_vboManager;
+  gl::Vbo* m_vbo;
 
 private:
   void freeBlock()
@@ -84,7 +84,7 @@ private:
     }
   }
 
-  void allocateBlock(VboManager& vboManager)
+  void allocateBlock(gl::VboManager& vboManager)
   {
     if (m_vboManager != nullptr)
     {
@@ -97,7 +97,7 @@ private:
 
     contract_assert(m_vbo == nullptr);
     m_vbo = m_vboManager->allocateVbo(
-      m_type, m_snapshot.size() * sizeof(T), VboUsage::DynamicDraw);
+      m_type, m_snapshot.size() * sizeof(T), gl::VboUsage::DynamicDraw);
     contract_assert(m_vbo != nullptr);
 
     m_vbo->writeElements(0, m_snapshot);
@@ -108,7 +108,7 @@ private:
   }
 
 public:
-  explicit VboHolder(const VboType type)
+  explicit VboHolder(const gl::VboType type)
     : m_type(type)
     , m_snapshot()
     , m_dirtyRange(0)
@@ -120,7 +120,7 @@ public:
   /**
    * NOTE: This destructively moves the contents of `elements` into the Holder.
    */
-  VboHolder(const VboType type, std::vector<T>& elements)
+  VboHolder(const gl::VboType type, std::vector<T>& elements)
     : m_type(type)
     , m_snapshot()
     , m_dirtyRange(elements.size())
@@ -169,7 +169,7 @@ public:
     return m_dirtyRange.clean();
   }
 
-  void prepare(VboManager& vboManager)
+  void prepare(gl::VboManager& vboManager)
   {
     if (empty())
     {
@@ -277,7 +277,7 @@ public:
 
   void render(PrimType primType) const;
   bool prepared() const;
-  void prepare(VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
 
   void setupIndices();
   void cleanupIndices();
@@ -288,7 +288,7 @@ class VertexArrayInterface
 public:
   virtual ~VertexArrayInterface() = 0;
   virtual bool setupVertices() = 0;
-  virtual void prepareVertices(VboManager& vboManager) = 0;
+  virtual void prepareVertices(gl::VboManager& vboManager) = 0;
   virtual void cleanupVertices() = 0;
 };
 
@@ -297,7 +297,7 @@ class VertexHolder : public VboHolder<V>, public VertexArrayInterface
 {
 public:
   VertexHolder()
-    : VboHolder<V>(VboType::ArrayBuffer)
+    : VboHolder<V>(gl::VboType::ArrayBuffer)
   {
   }
 
@@ -320,7 +320,7 @@ public:
     return true;
   }
 
-  void prepareVertices(VboManager& vboManager) override
+  void prepareVertices(gl::VboManager& vboManager) override
   {
     VboHolder<V>::prepare(vboManager);
   }
@@ -345,7 +345,7 @@ public:
 class BrushVertexArray
 {
 private:
-  using Vertex = render::GLVertexTypes::P3NT2::Vertex;
+  using Vertex = gl::VertexTypes::P3NT2::Vertex;
 
   VertexHolder<Vertex> m_vertexHolder;
   AllocationTracker m_allocationTracker;
@@ -373,6 +373,6 @@ public:
 
   // uploading the VBO
   bool prepared() const;
-  void prepare(VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
 };
 } // namespace tb::render

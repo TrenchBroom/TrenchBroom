@@ -19,14 +19,13 @@
 
 #include "EntityRenderer.h"
 
-#include "AttrString.h"
+#include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "render/Camera.h"
-#include "render/GLVertexType.h"
 #include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
@@ -391,7 +390,7 @@ void EntityRenderer::invalidateBounds()
 namespace
 {
 
-auto makeWireFrameBoundsVertexBuilder(std::vector<GLVertexTypes::P3::Vertex>& vertices)
+auto makeWireFrameBoundsVertexBuilder(std::vector<gl::VertexTypes::P3::Vertex>& vertices)
 {
   return [&](const vm::vec3d& v1, const vm::vec3d& v2) {
     vertices.emplace_back(vm::vec3f{v1});
@@ -400,7 +399,7 @@ auto makeWireFrameBoundsVertexBuilder(std::vector<GLVertexTypes::P3::Vertex>& ve
 }
 
 auto makeColoredWireFrameBoundsVertexBuilder(
-  std::vector<GLVertexTypes::P3C4::Vertex>& vertices, const Color& color)
+  std::vector<gl::VertexTypes::P3C4::Vertex>& vertices, const Color& color)
 {
   return [&](const vm::vec3d& v1, const vm::vec3d& v2) {
     vertices.emplace_back(vm::vec3f{v1}, color.to<RgbaF>().toVec());
@@ -409,7 +408,7 @@ auto makeColoredWireFrameBoundsVertexBuilder(
 }
 
 auto makeColoredSolidBoundsVertexBuilder(
-  std::vector<GLVertexTypes::P3NC4::Vertex>& vertices, const Color& color)
+  std::vector<gl::VertexTypes::P3NC4::Vertex>& vertices, const Color& color)
 {
   return [&](
            const vm::vec3d& v1,
@@ -428,12 +427,12 @@ auto makeColoredSolidBoundsVertexBuilder(
 
 void EntityRenderer::validateBounds()
 {
-  auto solidVertices = std::vector<GLVertexTypes::P3NC4::Vertex>{};
+  auto solidVertices = std::vector<gl::VertexTypes::P3NC4::Vertex>{};
   solidVertices.reserve(36 * m_entities.size());
 
   if (m_overrideBoundsColor)
   {
-    using Vertex = GLVertexTypes::P3::Vertex;
+    using Vertex = gl::VertexTypes::P3::Vertex;
     auto pointEntityWireframeVertices = std::vector<Vertex>{};
     auto brushEntityWireframeVertices = std::vector<Vertex>{};
 
@@ -473,7 +472,7 @@ void EntityRenderer::validateBounds()
   }
   else
   {
-    using Vertex = GLVertexTypes::P3C4::Vertex;
+    using Vertex = gl::VertexTypes::P3C4::Vertex;
     auto pointEntityWireframeVertices = std::vector<Vertex>{};
     auto brushEntityWireframeVertices = std::vector<Vertex>{};
 
@@ -519,13 +518,13 @@ void EntityRenderer::validateBounds()
   m_boundsValid = true;
 }
 
-AttrString EntityRenderer::entityString(const mdl::EntityNode* entityNode) const
+gl::AttrString EntityRenderer::entityString(const mdl::EntityNode* entityNode) const
 {
   const auto& classname = entityNode->entity().classname();
   // const mdl::AttributeValue& targetname =
   // entity->attribute(mdl::AttributeNames::Targetname);
 
-  auto str = AttrString{};
+  auto str = gl::AttrString{};
   str.appendCentered(classname);
   // if (!targetname.empty())
   // str.appendCentered(targetname);

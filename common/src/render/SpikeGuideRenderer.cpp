@@ -19,11 +19,11 @@
 
 #include "SpikeGuideRenderer.h"
 
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
+#include "gl/VboManager.h"
 #include "render/PrimType.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
-#include "render/VboManager.h"
 
 #include "vm/ray.h"
 #include "vm/vec.h"
@@ -50,7 +50,7 @@ void SpikeGuideRenderer::clear()
   m_valid = true;
 }
 
-void SpikeGuideRenderer::doPrepareVertices(VboManager& vboManager)
+void SpikeGuideRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   if (!m_valid)
   {
@@ -61,7 +61,8 @@ void SpikeGuideRenderer::doPrepareVertices(VboManager& vboManager)
 
 void SpikeGuideRenderer::doRender(RenderContext& renderContext)
 {
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::VaryingPCShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPCShader};
   m_spikeArray.render(PrimType::Lines);
 }
 

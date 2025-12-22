@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Color.h"
-#include "render/FontDescriptor.h"
-#include "render/GLVertexType.h"
+#include "gl/FontDescriptor.h"
+#include "gl/VertexType.h"
 #include "render/Renderable.h"
 #include "render/VertexArray.h"
 
@@ -29,9 +29,16 @@
 
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class AttrString;
+class VboManager;
+} // namespace gl
+
+namespace render
+{
 class RenderContext;
 class TextAnchor;
 
@@ -63,10 +70,10 @@ private:
     VertexArray rectArray;
   };
 
-  using TextVertex = GLVertexTypes::P3UV2C4::Vertex;
-  using RectVertex = GLVertexTypes::P3C4::Vertex;
+  using TextVertex = gl::VertexTypes::P3UV2C4::Vertex;
+  using RectVertex = gl::VertexTypes::P3C4::Vertex;
 
-  FontDescriptor m_fontDescriptor;
+  gl::FontDescriptor m_fontDescriptor;
   float m_maxViewDistance;
   float m_minZoomFactor;
   vm::vec2f m_inset;
@@ -76,7 +83,7 @@ private:
 
 public:
   explicit TextRenderer(
-    FontDescriptor fontDescriptor,
+    gl::FontDescriptor fontDescriptor,
     float maxViewDistance = DefaultMaxViewDistance,
     float minZoomFactor = DefaultMinZoomFactor,
     const vm::vec2f& inset = DefaultInset);
@@ -85,13 +92,13 @@ public:
     RenderContext& renderContext,
     const Color& textColor,
     const Color& backgroundColor,
-    const AttrString& string,
+    const gl::AttrString& string,
     const TextAnchor& position);
   void renderStringOnTop(
     RenderContext& renderContext,
     const Color& textColor,
     const Color& backgroundColor,
-    const AttrString& string,
+    const gl::AttrString& string,
     const TextAnchor& position);
 
 private:
@@ -99,13 +106,13 @@ private:
     RenderContext& renderContext,
     const Color& textColor,
     const Color& backgroundColor,
-    const AttrString& string,
+    const gl::AttrString& string,
     const TextAnchor& position,
     bool onTop);
 
   bool isVisible(
     RenderContext& renderContext,
-    const AttrString& string,
+    const gl::AttrString& string,
     const TextAnchor& position,
     float distance,
     bool onTop) const;
@@ -113,11 +120,11 @@ private:
     const RenderContext& renderContext, float distance, bool onTop) const;
   void addEntry(EntryCollection& collection, const Entry& entry);
 
-  vm::vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
+  vm::vec2f stringSize(RenderContext& renderContext, const gl::AttrString& string) const;
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
-  void prepare(EntryCollection& collection, bool onTop, VboManager& vboManager);
+  void doPrepareVertices(gl::VboManager& vboManager) override;
+  void prepare(EntryCollection& collection, bool onTop, gl::VboManager& vboManager);
 
   void addEntry(
     const Entry& entry,
@@ -131,4 +138,5 @@ private:
   void clear();
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

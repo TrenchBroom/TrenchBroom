@@ -383,7 +383,7 @@ void buildFrame(
       vertexCount += mesh.vertices.size();
       const auto vertices = getVertices(frame, mesh.vertices);
 
-      bounds.add(vertices.begin(), vertices.end(), render::GetVertexComponent<0>());
+      bounds.add(vertices.begin(), vertices.end(), gl::GetVertexComponent<0>());
       if (mesh.type == render::PrimType::TriangleStrip)
       {
         builder.addTriangleStrip(vertices);

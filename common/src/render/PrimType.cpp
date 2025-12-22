@@ -20,7 +20,7 @@
 #include "PrimType.h"
 
 #include "Macros.h"
-#include "render/GL.h"
+#include "gl/GL.h"
 
 namespace tb::render
 {

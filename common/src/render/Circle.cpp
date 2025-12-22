@@ -19,7 +19,7 @@
 
 #include "Circle.h"
 
-#include "render/GLVertexType.h"
+#include "gl/VertexType.h"
 #include "render/PrimType.h"
 #include "render/RenderUtils.h"
 
@@ -91,7 +91,7 @@ bool Circle::prepared() const
   return m_array.prepared();
 }
 
-void Circle::prepare(VboManager& vboManager)
+void Circle::prepare(gl::VboManager& vboManager)
 {
   m_array.prepare(vboManager);
 }
@@ -107,7 +107,7 @@ void Circle::init2D(
   const float startAngle,
   const float angleLength)
 {
-  using Vertex = GLVertexTypes::P2::Vertex;
+  using Vertex = gl::VertexTypes::P2::Vertex;
 
   auto positions = circle2D(radius, startAngle, angleLength, segments);
   if (m_filled)
@@ -124,7 +124,7 @@ void Circle::init3D(
   const float startAngle,
   const float angleLength)
 {
-  using Vertex = GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
 
   auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
   if (m_filled)

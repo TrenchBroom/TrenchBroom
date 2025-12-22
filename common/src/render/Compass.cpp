@@ -21,16 +21,16 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
+#include "gl/Vertex.h"
+#include "gl/VertexType.h"
 #include "render/Camera.h"
-#include "render/GLVertex.h"
-#include "render/GLVertexType.h"
 #include "render/IndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
-#include "render/Shaders.h"
 #include "render/Transformation.h"
 #include "render/VertexArray.h"
 
@@ -62,7 +62,7 @@ void Compass::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void Compass::doPrepareVertices(VboManager& vboManager)
+void Compass::doPrepareVertices(gl::VboManager& vboManager)
 {
   if (!m_prepared)
   {
@@ -138,7 +138,7 @@ void Compass::makeArrows()
     headCap.normals[i] = vm::mat4x4f::rot_180_x() * headCap.normals[i];
   }
 
-  using Vertex = GLVertexTypes::P3N::Vertex;
+  using Vertex = gl::VertexTypes::P3N::Vertex;
   auto shaftVertices = Vertex::toList(
     shaft.vertices.size(), std::begin(shaft.vertices), std::begin(shaft.normals));
   auto headVertices = Vertex::toList(
@@ -168,7 +168,7 @@ void Compass::makeArrows()
 
 void Compass::makeBackground()
 {
-  using Vertex = GLVertexTypes::P2::Vertex;
+  using Vertex = gl::VertexTypes::P2::Vertex;
   auto circ = circle2D(
     (m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::two_pi(), m_segments);
   auto verts = Vertex::toList(circ.size(), std::begin(circ));
@@ -208,7 +208,7 @@ void Compass::renderBackground(RenderContext& renderContext)
   const auto rotate =
     MultiplyModelMatrix{renderContext.transformation(), vm::mat4x4f::rot_90_x_ccw()};
   auto shader =
-    ActiveShader{renderContext.shaderManager(), Shaders::CompassBackgroundShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassBackgroundShader};
 
   shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
   m_backgroundRenderer.render();
@@ -220,7 +220,8 @@ void Compass::renderBackground(RenderContext& renderContext)
 void Compass::renderSolidAxis(
   RenderContext& renderContext, const vm::mat4x4f& transformation, const Color& color)
 {
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::CompassShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassShader};
   shader.set("CameraPosition", vm::vec3f{0, 500, 0});
   shader.set("LightDirection", vm::normalize(vm::vec3f{0, 0.5, 1}));
   shader.set("LightDiffuse", RgbaF{1.0f, 1.0f, 1.0f, 1.0f});
@@ -243,7 +244,7 @@ void Compass::renderAxisOutline(
   glAssert(glPolygonMode(GL_FRONT, GL_LINE));
 
   auto shader =
-    ActiveShader{renderContext.shaderManager(), Shaders::CompassOutlineShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassOutlineShader};
   shader.set("Color", color);
   renderAxis(renderContext, transformation);
 

@@ -25,11 +25,17 @@
 
 #include <map>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class VboManager;
+}
+
+namespace render
 {
 class ActiveShader;
 class RenderContext;
-class VboManager;
 
 class PointHandleRenderer : public DirectRenderable
 {
@@ -49,7 +55,7 @@ public:
   void addHighlight(const Color& color, const vm::vec3f& position);
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
   void renderHandles(
     RenderContext& renderContext, const HandleMap& map, Circle& circle, float opacity);
@@ -57,4 +63,5 @@ private:
   void clear();
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

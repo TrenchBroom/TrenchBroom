@@ -24,19 +24,19 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
+#include "gl/FontManager.h"
 #include "gl/Material.h"
 #include "gl/MaterialCollection.h"
 #include "gl/MaterialManager.h"
+#include "gl/Shaders.h"
 #include "gl/Texture.h"
+#include "gl/TextureFont.h"
+#include "gl/VertexType.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Selection.h"
-#include "render/ActiveShader.h"
-#include "render/FontManager.h"
-#include "render/GLVertexType.h"
 #include "render/PrimType.h"
-#include "render/Shaders.h"
-#include "render/TextureFont.h"
 #include "render/Transformation.h"
 #include "render/VertexArray.h"
 #include "ui/MapDocument.h"
@@ -162,7 +162,7 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   contract_assert(fontSize > 0);
 
-  const auto font = render::FontDescriptor{fontPath, size_t(fontSize)};
+  const auto font = gl::FontDescriptor{fontPath, size_t(fontSize)};
 
   if (m_group)
   {
@@ -181,7 +181,7 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
 void MaterialBrowserView::addMaterialsToLayout(
   Layout& layout,
   const std::vector<const gl::Material*>& materials,
-  const render::FontDescriptor& font)
+  const gl::FontDescriptor& font)
 {
   for (const auto* material : materials)
   {
@@ -190,7 +190,7 @@ void MaterialBrowserView::addMaterialsToLayout(
 }
 
 void MaterialBrowserView::addMaterialToLayout(
-  Layout& layout, const gl::Material& material, const render::FontDescriptor& font)
+  Layout& layout, const gl::Material& material, const gl::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
@@ -319,7 +319,7 @@ const Color& MaterialBrowserView::getBackgroundColor()
 
 void MaterialBrowserView::renderBounds(Layout& layout, const float y, const float height)
 {
-  using BoundsVertex = render::GLVertexTypes::P2C4::Vertex;
+  using BoundsVertex = gl::VertexTypes::P2C4::Vertex;
   auto vertices = std::vector<BoundsVertex>{};
 
   for (const auto& group : layout.groups())
@@ -355,7 +355,7 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
 
   auto vertexArray = render::VertexArray::move(std::move(vertices));
   auto shader =
-    render::ActiveShader{shaderManager(), render::Shaders::MaterialBrowserBorderShader};
+    gl::ActiveShader{shaderManager(), gl::Shaders::MaterialBrowserBorderShader};
 
   vertexArray.prepare(vboManager());
   vertexArray.render(render::PrimType::Quads);
@@ -377,10 +377,9 @@ const Color& MaterialBrowserView::materialColor(const gl::Material& material) co
 void MaterialBrowserView::renderMaterials(
   Layout& layout, const float y, const float height)
 {
-  using Vertex = render::GLVertexTypes::P2UV2::Vertex;
+  using Vertex = gl::VertexTypes::P2UV2::Vertex;
 
-  auto shader =
-    render::ActiveShader{shaderManager(), render::Shaders::MaterialBrowserShader};
+  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::MaterialBrowserShader};
   shader.set("ApplyTinting", false);
   shader.set("Material", 0);
   shader.set("Brightness", pref(Preferences::Brightness));

@@ -79,12 +79,12 @@ bool DirtyRangeTracker::clean() const
 // IndexHolder
 
 IndexHolder::IndexHolder()
-  : VboHolder<Index>(VboType::ElementArrayBuffer)
+  : VboHolder<Index>(gl::VboType::ElementArrayBuffer)
 {
 }
 
 IndexHolder::IndexHolder(std::vector<Index>& elements)
-  : VboHolder<Index>(VboType::ElementArrayBuffer, elements)
+  : VboHolder<Index>(gl::VboType::ElementArrayBuffer, elements)
 {
 }
 
@@ -100,7 +100,8 @@ void IndexHolder::render(const PrimType primType, const size_t offset, size_t co
   const auto* renderOffset =
     reinterpret_cast<GLvoid*>(m_vbo->offset() + sizeof(Index) * offset);
 
-  glAssert(glDrawElements(toGL(primType), renderCount, glType<Index>(), renderOffset));
+  glAssert(
+    glDrawElements(toGL(primType), renderCount, gl::glType<Index>(), renderOffset));
 }
 
 std::shared_ptr<IndexHolder> IndexHolder::swap(std::vector<IndexHolder::Index>& elements)
@@ -164,7 +165,7 @@ bool BrushIndexArray::prepared() const
   return m_indexHolder.prepared();
 }
 
-void BrushIndexArray::prepare(VboManager& vboManager)
+void BrushIndexArray::prepare(gl::VboManager& vboManager)
 {
   m_indexHolder.prepare(vboManager);
   contract_post(m_indexHolder.prepared());
@@ -233,7 +234,7 @@ bool BrushVertexArray::prepared() const
   return m_vertexHolder.prepared();
 }
 
-void BrushVertexArray::prepare(VboManager& vboManager)
+void BrushVertexArray::prepare(gl::VboManager& vboManager)
 {
   m_vertexHolder.prepare(vboManager);
   contract_post(m_vertexHolder.prepared());

@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "render/GL.h"
+#include "gl/GL.h"
+#include "gl/Vbo.h"
+#include "gl/VboManager.h"
 #include "render/PrimType.h"
-#include "render/Vbo.h"
-#include "render/VboManager.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"
@@ -52,7 +52,7 @@ private:
     virtual size_t indexCount() const = 0;
     virtual size_t sizeInBytes() const = 0;
 
-    virtual void prepare(VboManager& vboManager) = 0;
+    virtual void prepare(gl::VboManager& vboManager) = 0;
     virtual void setup() = 0;
     virtual void cleanup() = 0;
 
@@ -70,8 +70,8 @@ private:
     using IndexList = std::vector<Index>;
 
   private:
-    VboManager* m_vboManager;
-    Vbo* m_vbo;
+    gl::VboManager* m_vboManager;
+    gl::Vbo* m_vbo;
     size_t m_indexCount;
 
   public:
@@ -79,12 +79,12 @@ private:
 
     size_t sizeInBytes() const override { return sizeof(Index) * m_indexCount; }
 
-    void prepare(VboManager& vboManager) override
+    void prepare(gl::VboManager& vboManager) override
     {
       if (m_indexCount > 0 && m_vbo == nullptr)
       {
         m_vboManager = &vboManager;
-        m_vbo = vboManager.allocateVbo(VboType::ElementArrayBuffer, sizeInBytes());
+        m_vbo = vboManager.allocateVbo(gl::VboType::ElementArrayBuffer, sizeInBytes());
         m_vbo->writeBuffer(0, doGetIndices());
       }
     }
@@ -109,7 +109,8 @@ private:
     ~Holder() override
     {
       // TODO: Revisit this revisiting OpenGL resource management. We should not store the
-      // VboManager, since it represents a safe time to delete the OpenGL buffer object.
+      // gl::VboManager, since it represents a safe time to delete the OpenGL buffer
+      // object.
       if (m_vbo != nullptr)
       {
         m_vboManager->destroyVbo(m_vbo);
@@ -147,7 +148,7 @@ private:
     {
     }
 
-    void prepare(VboManager& vboManager)
+    void prepare(gl::VboManager& vboManager)
     {
       Holder<Index>::prepare(vboManager);
       kdl::vec_clear_to_zero(m_indices);
@@ -270,7 +271,7 @@ public:
    * @param vboManager the vertex buffer object to upload the contents of this index array
    * into
    */
-  void prepare(VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
 
   /**
    * Sets this index array up for rendering. If this index array is only rendered once,

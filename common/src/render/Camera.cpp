@@ -424,7 +424,7 @@ vm::quatf Camera::clampRotationToUpright(const vm::quatf& rotation) const
 
 void Camera::renderFrustum(
   RenderContext& renderContext,
-  VboManager& vboManager,
+  gl::VboManager& vboManager,
   const float size,
   const Color& color) const
 {

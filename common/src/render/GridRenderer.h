@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "render/GLVertexType.h"
+#include "gl/VertexType.h"
 #include "render/Renderable.h"
 #include "render/VertexArray.h"
 
@@ -27,16 +27,22 @@
 
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class VboManager;
+}
+
+namespace render
 {
 class OrthographicCamera;
 class RenderContext;
-class VboManager;
 
 class GridRenderer : public DirectRenderable
 {
 private:
-  using Vertex = GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
   VertexArray m_vertexArray;
 
 public:
@@ -46,8 +52,9 @@ private:
   static std::vector<Vertex> vertices(
     const OrthographicCamera& camera, const vm::bbox3d& worldBounds);
 
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

@@ -34,8 +34,9 @@ class Logger;
 
 namespace gl
 {
+class FontManager;
 class Material;
-}
+} // namespace gl
 
 namespace mdl
 {
@@ -51,7 +52,6 @@ class PatchNode;
 
 namespace render
 {
-class FontManager;
 class RenderBatch;
 
 class ObjectRenderer

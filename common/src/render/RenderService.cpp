@@ -19,11 +19,11 @@
 
 #include "RenderService.h"
 
-#include "AttrString.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/AttrString.h"
+#include "gl/FontDescriptor.h"
 #include "render/Camera.h"
-#include "render/FontDescriptor.h"
 #include "render/PointHandleRenderer.h"
 #include "render/PrimitiveRenderer.h"
 #include "render/RenderBatch.h"
@@ -42,9 +42,9 @@ namespace tb::render
 namespace
 {
 
-render::FontDescriptor makeRenderServiceFont()
+auto makeRenderServiceFont()
 {
-  return {
+  return gl::FontDescriptor{
     pref(Preferences::RendererFontPath()),
     size_t(pref(Preferences::RendererFontSize)),
   };
@@ -130,13 +130,13 @@ void RenderService::setCullBackfaces()
   m_cullingPolicy = PrimitiveRendererCullingPolicy::CullBackfaces;
 }
 
-void RenderService::renderString(const AttrString& string, const vm::vec3f& position)
+void RenderService::renderString(const gl::AttrString& string, const vm::vec3f& position)
 {
   renderString(
     string, SimpleTextAnchor(position, TextAlignment::Bottom, vm::vec2f(0.0f, 16.0f)));
 }
 
-void RenderService::renderString(const AttrString& string, const TextAnchor& position)
+void RenderService::renderString(const gl::AttrString& string, const TextAnchor& position)
 {
   if (m_occlusionPolicy != PrimitiveRendererOcclusionPolicy::Hide)
   {
@@ -150,7 +150,7 @@ void RenderService::renderString(const AttrString& string, const TextAnchor& pos
   }
 }
 
-void RenderService::renderHeadsUp(const AttrString& string)
+void RenderService::renderHeadsUp(const gl::AttrString& string)
 {
   m_textRenderer->renderStringOnTop(
     m_renderContext, m_foregroundColor, m_backgroundColor, string, HeadsUpTextAnchor());
@@ -158,17 +158,17 @@ void RenderService::renderHeadsUp(const AttrString& string)
 
 void RenderService::renderString(const std::string& string, const vm::vec3f& position)
 {
-  renderString(AttrString{string}, position);
+  renderString(gl::AttrString{string}, position);
 }
 
 void RenderService::renderString(const std::string& string, const TextAnchor& position)
 {
-  renderString(AttrString{string}, position);
+  renderString(gl::AttrString{string}, position);
 }
 
 void RenderService::renderHeadsUp(const std::string& string)
 {
-  renderHeadsUp(AttrString{string});
+  renderHeadsUp(gl::AttrString{string});
 }
 
 void RenderService::renderHandles(const std::vector<vm::vec3f>& positions)

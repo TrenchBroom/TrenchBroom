@@ -22,6 +22,12 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "el/VariableStore.h"
+#include "gl/ActiveShader.h"
+#include "gl/FontDescriptor.h"
+#include "gl/FontManager.h"
+#include "gl/GL.h"
+#include "gl/Shaders.h"
+#include "gl/TextureFont.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionGroup.h"
@@ -30,15 +36,9 @@
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Map.h"
-#include "render/ActiveShader.h"
-#include "render/FontDescriptor.h"
-#include "render/FontManager.h"
-#include "render/GL.h"
 #include "render/MaterialIndexRangeRenderer.h"
 #include "render/PrimType.h"
 #include "render/RenderUtils.h"
-#include "render/Shaders.h"
-#include "render/TextureFont.h"
 #include "render/Transformation.h"
 #include "render/VertexArray.h"
 #include "ui/MapDocument.h"
@@ -142,7 +142,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   contract_assert(fontSize > 0);
 
   const auto& entityDefinitionManager = m_document.map().entityDefinitionManager();
-  const auto font = render::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
+  const auto font = gl::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
 
   if (m_group)
   {
@@ -187,7 +187,7 @@ void EntityBrowserView::resourcesWereProcessed(const std::vector<gl::ResourceId>
 void EntityBrowserView::addEntitiesToLayout(
   Layout& layout,
   const std::vector<const mdl::EntityDefinition*>& definitions,
-  const render::FontDescriptor& font)
+  const gl::FontDescriptor& font)
 {
   for (const auto* definition : definitions)
   {
@@ -209,9 +209,7 @@ bool matchesFilterText(
 } // namespace
 
 void EntityBrowserView::addEntityToLayout(
-  Layout& layout,
-  const mdl::EntityDefinition& definition,
-  const render::FontDescriptor& font)
+  Layout& layout, const mdl::EntityDefinition& definition, const gl::FontDescriptor& font)
 {
   auto& map = m_document.map();
 
@@ -318,7 +316,7 @@ const Color& EntityBrowserView::getBackgroundColor()
 
 void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height)
 {
-  using BoundsVertex = render::GLVertexTypes::P3C4::Vertex;
+  using BoundsVertex = gl::VertexTypes::P3C4::Vertex;
   auto vertices = std::vector<BoundsVertex>{};
 
   for (const auto& group : layout.groups())
@@ -351,7 +349,7 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
     }
   }
 
-  auto shader = render::ActiveShader{shaderManager(), render::Shaders::VaryingPCShader};
+  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPCShader};
   auto vertexArray = render::VertexArray::move(std::move(vertices));
 
   vertexArray.prepare(vboManager());
@@ -369,7 +367,7 @@ void EntityBrowserView::renderModels(
   auto& entityModelManager = m_document.map().entityModelManager();
   entityModelManager.prepare(vboManager());
 
-  auto shader = render::ActiveShader{shaderManager(), render::Shaders::EntityModelShader};
+  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::EntityModelShader};
   shader.set("ApplyTinting", false);
   shader.set("Brightness", pref(Preferences::Brightness));
   shader.set("GrayScale", false);

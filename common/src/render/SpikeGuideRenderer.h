@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "render/GLVertexType.h"
+#include "gl/VertexType.h"
 #include "render/Renderable.h"
 #include "render/VertexArray.h"
 
@@ -36,7 +36,7 @@ class SpikeGuideRenderer : public DirectRenderable
 private:
   Color m_color;
 
-  using SpikeVertex = GLVertexTypes::P3C4::Vertex;
+  using SpikeVertex = gl::VertexTypes::P3C4::Vertex;
 
   std::vector<SpikeVertex> m_spikeVertices;
   VertexArray m_spikeArray;
@@ -49,7 +49,7 @@ public:
   void clear();
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 
 private:

@@ -51,7 +51,7 @@ public:
     float angleLength);
 
   bool prepared() const;
-  void prepare(VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
   void render();
 
 private:

@@ -32,7 +32,7 @@ IndexRangeRenderer::IndexRangeRenderer(VertexArray vertexArray, IndexRangeMap in
 {
 }
 
-void IndexRangeRenderer::prepare(VboManager& vboManager)
+void IndexRangeRenderer::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }

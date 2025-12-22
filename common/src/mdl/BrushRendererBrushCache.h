@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "render/GLVertexType.h"
+#include "gl/VertexType.h"
 
 #include <vector>
 
@@ -38,7 +38,7 @@ class BrushFace;
 class BrushRendererBrushCache
 {
 public:
-  using VertexSpec = render::GLVertexTypes::P3NT2;
+  using VertexSpec = gl::VertexTypes::P3NT2;
   using Vertex = VertexSpec::Vertex;
 
   struct CachedFace

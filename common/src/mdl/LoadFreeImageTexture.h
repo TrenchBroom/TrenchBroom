@@ -21,7 +21,7 @@
 
 #include "Color.h"
 #include "Result.h"
-#include "render/GL.h"
+#include "gl/GL.h"
 
 #include <filesystem>
 

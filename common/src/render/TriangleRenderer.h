@@ -53,7 +53,7 @@ public:
   void setTintColor(const Color& tintColor);
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& context) override;
 };
 

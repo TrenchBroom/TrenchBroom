@@ -50,7 +50,7 @@ bool VertexArray::prepared() const
   return m_prepared;
 }
 
-void VertexArray::prepare(VboManager& vboManager)
+void VertexArray::prepare(gl::VboManager& vboManager)
 {
   if (!prepared() && !empty())
   {
@@ -108,8 +108,8 @@ void VertexArray::render(const PrimType primType, const GLint index, const GLsiz
 
 void VertexArray::render(
   const PrimType primType,
-  const GLIndices& indices,
-  const GLCounts& counts,
+  const gl::Indices& indices,
+  const gl::Counts& counts,
   const GLint primCount)
 {
   contract_pre(prepared());
@@ -133,7 +133,7 @@ void VertexArray::render(
 }
 
 void VertexArray::render(
-  const PrimType primType, const GLIndices& indices, const GLsizei count)
+  const PrimType primType, const gl::Indices& indices, const GLsizei count)
 {
   contract_pre(prepared());
 

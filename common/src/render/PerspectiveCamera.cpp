@@ -20,12 +20,12 @@
 #include "PerspectiveCamera.h"
 
 #include "Color.h"
-#include "render/ActiveShader.h"
-#include "render/GLVertexType.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
+#include "gl/VboManager.h"
+#include "gl/VertexType.h"
 #include "render/PrimType.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
-#include "render/VboManager.h"
 #include "render/VertexArray.h"
 
 #include "kd/contracts.h"
@@ -138,11 +138,11 @@ void PerspectiveCamera::doComputeFrustumPlanes(
 
 void PerspectiveCamera::doRenderFrustum(
   RenderContext& renderContext,
-  VboManager& vboManager,
+  gl::VboManager& vboManager,
   const float size,
   const Color& color) const
 {
-  using Vertex = GLVertexTypes::P3C4::Vertex;
+  using Vertex = gl::VertexTypes::P3C4::Vertex;
   auto triangleVertices = std::vector<Vertex>{};
   auto lineVertices = std::vector<Vertex>{};
   triangleVertices.reserve(6);
@@ -176,7 +176,8 @@ void PerspectiveCamera::doRenderFrustum(
   triangleArray.prepare(vboManager);
   lineArray.prepare(vboManager);
 
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::VaryingPCShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPCShader};
   triangleArray.render(PrimType::TriangleFan);
   lineArray.render(PrimType::Lines);
 }

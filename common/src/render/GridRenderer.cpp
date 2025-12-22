@@ -21,11 +21,11 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
 #include "render/OrthographicCamera.h"
 #include "render/PrimType.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
 
 #include "vm/bbox.h"
 #include "vm/vec.h"
@@ -72,7 +72,7 @@ std::vector<GridRenderer::Vertex> GridRenderer::vertices(
   }
 }
 
-void GridRenderer::doPrepareVertices(VboManager& vboManager)
+void GridRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
@@ -83,7 +83,8 @@ void GridRenderer::doRender(RenderContext& renderContext)
   {
     const auto& camera = renderContext.camera();
 
-    auto shader = ActiveShader{renderContext.shaderManager(), Shaders::Grid2DShader};
+    auto shader =
+      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::Grid2DShader};
     shader.set("Normal", -camera.direction());
     shader.set("RenderGrid", renderContext.showGrid());
     shader.set("GridSize", static_cast<float>(renderContext.gridSize()));

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "render/GL.h"
+#include "gl/GL.h"
 #include "render/PrimType.h"
 
 #include "kd/enum_array.h"
@@ -45,11 +45,11 @@ private:
     /**
      * The offsets of the ranges stored here.
      */
-    GLIndices indices;
+    gl::Indices indices;
     /**
      * The lengths of the ranges stored here.
      */
-    GLCounts counts;
+    gl::Counts counts;
 
     IndicesAndCounts();
     IndicesAndCounts(size_t index, size_t count);

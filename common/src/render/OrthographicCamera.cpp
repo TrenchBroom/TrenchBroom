@@ -103,7 +103,7 @@ void OrthographicCamera::doComputeFrustumPlanes(
 
 void OrthographicCamera::doRenderFrustum(
   RenderContext&,
-  VboManager& /* vboManager */,
+  gl::VboManager& /* vboManager */,
   const float /* size */,
   const Color& /* color */) const
 {

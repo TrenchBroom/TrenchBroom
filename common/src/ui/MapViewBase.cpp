@@ -29,6 +29,8 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/FontDescriptor.h"
+#include "gl/FontManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
@@ -62,8 +64,6 @@
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
 #include "render/Compass.h"
-#include "render/FontDescriptor.h"
-#include "render/FontManager.h"
 #include "render/MapRenderer.h"
 #include "render/PrimitiveRenderer.h"
 #include "render/RenderBatch.h"
@@ -944,7 +944,7 @@ void MapViewBase::renderContents()
 
   const auto& fontPath = pref(Preferences::RendererFontPath());
   const auto fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
-  const auto fontDescriptor = render::FontDescriptor{fontPath, fontSize};
+  const auto fontDescriptor = gl::FontDescriptor{fontPath, fontSize};
 
   const auto& map = m_document.map();
   const auto& grid = map.grid();

@@ -25,10 +25,16 @@
 
 #include "vm/vec.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class VboManager;
+}
+
+namespace render
 {
 class RenderContext;
-class VboManager;
 
 class PointGuideRenderer : public DirectRenderable
 {
@@ -42,8 +48,9 @@ public:
   void setPosition(const vm::vec3d& position);
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

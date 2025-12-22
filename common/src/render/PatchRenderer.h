@@ -38,7 +38,6 @@ namespace render
 {
 class RenderBatch;
 class RenderContext;
-class VboManager;
 
 class PatchRenderer : public IndexedRenderable
 {
@@ -121,7 +120,7 @@ private:
   void validate();
 
 private: // implement IndexedRenderable interface
-  void prepareVerticesAndIndices(VboManager& vboManager) override;
+  void prepareVerticesAndIndices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
 

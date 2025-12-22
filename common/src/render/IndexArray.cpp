@@ -54,7 +54,7 @@ bool IndexArray::prepared() const
   return m_prepared;
 }
 
-void IndexArray::prepare(VboManager& vboManager)
+void IndexArray::prepare(gl::VboManager& vboManager)
 {
   if (!prepared() && !empty())
   {

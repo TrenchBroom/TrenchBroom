@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "render/GL.h"
+#include "gl/GL.h"
 #include "render/IndexArrayMap.h"
 
 #include <vector>

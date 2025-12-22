@@ -32,10 +32,16 @@
 
 #include <optional>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class VboManager;
+}
+
+namespace render
 {
 class RenderContext;
-class VboManager;
 
 class Camera
 {
@@ -172,7 +178,7 @@ public:
 
   void renderFrustum(
     RenderContext& renderContext,
-    VboManager& vboManager,
+    gl::VboManager& vboManager,
     float size,
     const Color& color) const;
   float pickFrustum(float size, const vm::ray3f& ray) const;
@@ -213,7 +219,7 @@ private:
 
   virtual void doRenderFrustum(
     RenderContext& renderContext,
-    VboManager& vboManager,
+    gl::VboManager& vboManager,
     float size,
     const Color& color) const = 0;
   virtual float doPickFrustum(float size, const vm::ray3f& ray) const = 0;
@@ -222,4 +228,5 @@ private:
   virtual void doUpdateZoom() = 0;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

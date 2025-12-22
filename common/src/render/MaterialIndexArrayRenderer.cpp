@@ -37,7 +37,7 @@ bool MaterialIndexArrayRenderer::empty() const
   return m_indexArray.empty();
 }
 
-void MaterialIndexArrayRenderer::prepare(VboManager& vboManager)
+void MaterialIndexArrayRenderer::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
   m_indexArray.prepare(vboManager);

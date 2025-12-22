@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "render/GL.h"
-#include "render/GLVertex.h"
-#include "render/ShaderManager.h"
-#include "render/Vbo.h"
-#include "render/VboManager.h"
+#include "gl/GL.h"
+#include "gl/ShaderManager.h"
+#include "gl/Vbo.h"
+#include "gl/VboManager.h"
+#include "gl/Vertex.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"
@@ -55,7 +55,7 @@ private:
     virtual size_t vertexCount() const = 0;
     virtual size_t sizeInBytes() const = 0;
 
-    virtual void prepare(VboManager& vboManager) = 0;
+    virtual void prepare(gl::VboManager& vboManager) = 0;
     virtual void setup() = 0;
     virtual void cleanup() = 0;
   };
@@ -64,8 +64,8 @@ private:
   class Holder : public BaseHolder
   {
   private:
-    VboManager* m_vboManager = nullptr;
-    Vbo* m_vbo = nullptr;
+    gl::VboManager* m_vboManager = nullptr;
+    gl::Vbo* m_vbo = nullptr;
     size_t m_vertexCount = 0;
 
   public:
@@ -73,12 +73,12 @@ private:
 
     size_t sizeInBytes() const override { return VertexSpec::Size * m_vertexCount; }
 
-    void prepare(VboManager& vboManager) override
+    void prepare(gl::VboManager& vboManager) override
     {
       if (m_vertexCount > 0 && m_vbo == nullptr)
       {
         m_vboManager = &vboManager;
-        m_vbo = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());
+        m_vbo = vboManager.allocateVbo(gl::VboType::ArrayBuffer, sizeInBytes());
         m_vbo->writeBuffer(0, doGetVertices());
       }
     }
@@ -141,7 +141,7 @@ private:
     {
     }
 
-    void prepare(VboManager& vboManager) override
+    void prepare(gl::VboManager& vboManager) override
     {
       Holder<VertexSpec>::prepare(vboManager);
       kdl::vec_clear_to_zero(m_vertices);
@@ -191,10 +191,10 @@ public:
    * @return the vertex array
    */
   template <typename... Attrs>
-  static VertexArray copy(const std::vector<GLVertex<Attrs...>>& vertices)
+  static VertexArray copy(const std::vector<gl::GLVertex<Attrs...>>& vertices)
   {
     return VertexArray(
-      std::make_shared<ByValueHolder<typename GLVertex<Attrs...>::Type>>(vertices));
+      std::make_shared<ByValueHolder<typename gl::GLVertex<Attrs...>::Type>>(vertices));
   }
 
   /**
@@ -205,10 +205,11 @@ public:
    * @return the vertex array
    */
   template <typename... Attrs>
-  static VertexArray move(std::vector<GLVertex<Attrs...>>&& vertices)
+  static VertexArray move(std::vector<gl::GLVertex<Attrs...>>&& vertices)
   {
-    return VertexArray(std::make_shared<ByValueHolder<typename GLVertex<Attrs...>::Type>>(
-      std::move(vertices)));
+    return VertexArray(
+      std::make_shared<ByValueHolder<typename gl::GLVertex<Attrs...>::Type>>(
+        std::move(vertices)));
   }
 
   /**
@@ -225,10 +226,10 @@ public:
    * @return the vertex array
    */
   template <typename... Attrs>
-  static VertexArray ref(const std::vector<GLVertex<Attrs...>>& vertices)
+  static VertexArray ref(const std::vector<gl::GLVertex<Attrs...>>& vertices)
   {
     return VertexArray(
-      std::make_shared<ByRefHolder<typename GLVertex<Attrs...>::Type>>(vertices));
+      std::make_shared<ByRefHolder<typename gl::GLVertex<Attrs...>::Type>>(vertices));
   }
 
   /**
@@ -267,7 +268,7 @@ public:
    * @param vboManager the vertex buffer object to upload the contents of this vertex
    * array into
    */
-  void prepare(VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
 
   /**
    * Sets this vertex array up for rendering. If this vertex array is only rendered once,
@@ -312,7 +313,10 @@ public:
    * @param primCount the number of ranges to render
    */
   void render(
-    PrimType primType, const GLIndices& indices, const GLCounts& counts, GLint primCount);
+    PrimType primType,
+    const gl::Indices& indices,
+    const gl::Counts& counts,
+    GLint primCount);
 
   /**
    * Renders a number of primitives of the given type, the vertices of which are indicates
@@ -322,7 +326,7 @@ public:
    * @param indices the indices of the vertices to render
    * @param count the number of vertices to render
    */
-  void render(PrimType primType, const GLIndices& indices, GLsizei count);
+  void render(PrimType primType, const gl::Indices& indices, GLsizei count);
   void cleanup();
 
 private:

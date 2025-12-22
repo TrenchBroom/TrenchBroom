@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "render/GLVertexType.h"
+#include "gl/VertexType.h"
 #include "render/IndexRangeRenderer.h"
 #include "render/Renderable.h"
 
@@ -29,9 +29,15 @@
 #include <map>
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class ActiveShader;
+}
+
+namespace render
+{
 template <typename VertexSpec>
 class IndexRangeMapBuilder;
 class IndexRangeRenderer;
@@ -53,7 +59,7 @@ class PrimitiveRenderer : public DirectRenderable
 {
 public:
 private:
-  using Vertex = GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
 
   struct LineRenderAttributes
   {
@@ -64,7 +70,8 @@ private:
     std::partial_ordering operator<=>(const LineRenderAttributes& other) const;
     bool operator==(const LineRenderAttributes& other) const;
 
-    void render(IndexRangeRenderer& renderer, ActiveShader& shader, float dpiScale) const;
+    void render(
+      IndexRangeRenderer& renderer, gl::ActiveShader& shader, float dpiScale) const;
   };
 
   using LineMeshMap = std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Type>>;
@@ -89,7 +96,7 @@ private:
     std::partial_ordering operator<=>(const TriangleRenderAttributes& other) const;
     bool operator==(const TriangleRenderAttributes& other) const;
 
-    void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
+    void render(IndexRangeRenderer& renderer, gl::ActiveShader& shader) const;
   };
 
   using TriangleMeshMap =
@@ -164,12 +171,14 @@ public:
     const vm::vec3f& end);
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
-  void prepareLines(VboManager& vboManager);
-  void prepareTriangles(VboManager& vboManager);
+  void doPrepareVertices(gl::VboManager& vboManager) override;
+  void prepareLines(gl::VboManager& vboManager);
+  void prepareTriangles(gl::VboManager& vboManager);
 
   void doRender(RenderContext& renderContext) override;
   void renderLines(RenderContext& renderContext);
   void renderTriangles(RenderContext& renderContext);
 };
-} // namespace tb::render
+
+} // namespace render
+} // namespace tb

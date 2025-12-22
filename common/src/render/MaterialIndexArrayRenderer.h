@@ -23,9 +23,15 @@
 #include "render/MaterialIndexArrayMap.h"
 #include "render/VertexArray.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class VboManager;
+}
+
+namespace render
+{
 class MaterialRenderFunc;
 
 class MaterialIndexArrayRenderer
@@ -42,8 +48,9 @@ public:
 
   bool empty() const;
 
-  void prepare(VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
   void render(MaterialRenderFunc& func);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

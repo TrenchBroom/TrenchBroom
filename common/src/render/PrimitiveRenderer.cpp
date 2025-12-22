@@ -20,10 +20,10 @@
 #include "PrimitiveRenderer.h"
 
 #include "Color.h"
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
-#include "render/Shaders.h"
 
 #include "kd/contracts.h"
 
@@ -63,7 +63,7 @@ bool PrimitiveRenderer::LineRenderAttributes::operator==(
 }
 
 void PrimitiveRenderer::LineRenderAttributes::render(
-  IndexRangeRenderer& renderer, ActiveShader& shader, const float dpiScale) const
+  IndexRangeRenderer& renderer, gl::ActiveShader& shader, const float dpiScale) const
 {
   glAssert(glLineWidth(m_lineWidth * dpiScale));
   switch (m_occlusionPolicy)
@@ -128,7 +128,7 @@ bool PrimitiveRenderer::TriangleRenderAttributes::operator==(
 }
 
 void PrimitiveRenderer::TriangleRenderAttributes::render(
-  IndexRangeRenderer& renderer, ActiveShader& shader) const
+  IndexRangeRenderer& renderer, gl::ActiveShader& shader) const
 {
   if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces)
   {
@@ -322,13 +322,13 @@ void PrimitiveRenderer::renderCylinder(
     .addTriangleStrip(Vertex::toList(vertices.size(), vertices.begin()));
 }
 
-void PrimitiveRenderer::doPrepareVertices(VboManager& vboManager)
+void PrimitiveRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   prepareLines(vboManager);
   prepareTriangles(vboManager);
 }
 
-void PrimitiveRenderer::prepareLines(VboManager& vboManager)
+void PrimitiveRenderer::prepareLines(gl::VboManager& vboManager)
 {
   for (auto& [attributes, mesh] : m_lineMeshes)
   {
@@ -338,7 +338,7 @@ void PrimitiveRenderer::prepareLines(VboManager& vboManager)
   }
 }
 
-void PrimitiveRenderer::prepareTriangles(VboManager& vboManager)
+void PrimitiveRenderer::prepareTriangles(gl::VboManager& vboManager)
 {
   for (auto& [attributes, mesh] : m_triangleMeshes)
   {
@@ -357,7 +357,7 @@ void PrimitiveRenderer::doRender(RenderContext& renderContext)
 void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 {
   auto shader =
-    ActiveShader{renderContext.shaderManager(), Shaders::VaryingPUniformCShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
 
   for (auto& [attributes, renderer] : m_lineMeshRenderers)
   {
@@ -369,7 +369,7 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)
 {
   auto shader =
-    ActiveShader{renderContext.shaderManager(), Shaders::VaryingPUniformCShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
 
   for (auto& [attributes, renderer] : m_triangleMeshRenderers)
   {

@@ -19,10 +19,10 @@
 
 #include "TriangleRenderer.h"
 
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
 #include "render/Camera.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
 
 #include <utility>
 
@@ -62,7 +62,7 @@ void TriangleRenderer::setTintColor(const Color& tintColor)
   m_tintColor = tintColor;
 }
 
-void TriangleRenderer::doPrepareVertices(VboManager& vboManager)
+void TriangleRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
@@ -71,7 +71,7 @@ void TriangleRenderer::doRender(RenderContext& context)
 {
   if (m_vertexArray.vertexCount() != 0)
   {
-    auto shader = ActiveShader{context.shaderManager(), Shaders::TriangleShader};
+    auto shader = gl::ActiveShader{context.shaderManager(), gl::Shaders::TriangleShader};
     shader.set("ApplyTinting", m_applyTinting);
     shader.set("TintColor", m_tintColor);
     shader.set("UseColor", m_useColor);

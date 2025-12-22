@@ -20,8 +20,8 @@
 #pragma once
 
 #include "NotifierConnection.h"
+#include "gl/FontDescriptor.h"
 #include "gl/ResourceId.h"
-#include "render/FontDescriptor.h"
 #include "ui/CellView.h"
 
 #include <string>
@@ -90,9 +90,9 @@ private:
   void addMaterialsToLayout(
     Layout& layout,
     const std::vector<const gl::Material*>& materials,
-    const render::FontDescriptor& font);
+    const gl::FontDescriptor& font);
   void addMaterialToLayout(
-    Layout& layout, const gl::Material& material, const render::FontDescriptor& font);
+    Layout& layout, const gl::Material& material, const gl::FontDescriptor& font);
 
   std::vector<const gl::MaterialCollection*> getCollections() const;
   std::vector<const gl::Material*> getMaterials(

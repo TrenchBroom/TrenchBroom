@@ -3,13 +3,30 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
+        ${COMMON_SOURCE_DIR}/gl/ActiveShader.cpp
+        ${COMMON_SOURCE_DIR}/gl/AttrString.cpp
+        ${COMMON_SOURCE_DIR}/gl/FontDescriptor.cpp
+        ${COMMON_SOURCE_DIR}/gl/FontFactory.cpp
+        ${COMMON_SOURCE_DIR}/gl/FontGlyph.cpp
+        ${COMMON_SOURCE_DIR}/gl/FontGlyphBuilder.cpp
+        ${COMMON_SOURCE_DIR}/gl/FontManager.cpp
+        ${COMMON_SOURCE_DIR}/gl/FontTexture.cpp
+        ${COMMON_SOURCE_DIR}/gl/FreeTypeFontFactory.cpp
+        ${COMMON_SOURCE_DIR}/gl/GL.cpp
         ${COMMON_SOURCE_DIR}/gl/Material.cpp
         ${COMMON_SOURCE_DIR}/gl/MaterialCollection.cpp
         ${COMMON_SOURCE_DIR}/gl/MaterialManager.cpp
         ${COMMON_SOURCE_DIR}/gl/ResourceId.cpp
+        ${COMMON_SOURCE_DIR}/gl/Shader.cpp
+        ${COMMON_SOURCE_DIR}/gl/ShaderManager.cpp
+        ${COMMON_SOURCE_DIR}/gl/ShaderProgram.cpp
+        ${COMMON_SOURCE_DIR}/gl/Shaders.cpp
         ${COMMON_SOURCE_DIR}/gl/Texture.cpp
         ${COMMON_SOURCE_DIR}/gl/TextureBuffer.cpp
+        ${COMMON_SOURCE_DIR}/gl/TextureFont.cpp
         ${COMMON_SOURCE_DIR}/gl/TextureResource.cpp
+        ${COMMON_SOURCE_DIR}/gl/Vbo.cpp
+        ${COMMON_SOURCE_DIR}/gl/VboManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
@@ -201,9 +218,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/octree.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
-        ${COMMON_SOURCE_DIR}/render/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.cpp
-        ${COMMON_SOURCE_DIR}/render/AttrString.cpp
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.cpp
@@ -218,14 +233,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/EntityModelRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/EntityRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/FaceRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/FontDescriptor.cpp
-        ${COMMON_SOURCE_DIR}/render/FontFactory.cpp
-        ${COMMON_SOURCE_DIR}/render/FontGlyph.cpp
-        ${COMMON_SOURCE_DIR}/render/FontGlyphBuilder.cpp
-        ${COMMON_SOURCE_DIR}/render/FontManager.cpp
-        ${COMMON_SOURCE_DIR}/render/FontTexture.cpp
-        ${COMMON_SOURCE_DIR}/render/FreeTypeFontFactory.cpp
-        ${COMMON_SOURCE_DIR}/render/GL.cpp
         ${COMMON_SOURCE_DIR}/render/GridRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/GroupLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/GroupRenderer.cpp
@@ -255,19 +262,12 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/RenderService.cpp
         ${COMMON_SOURCE_DIR}/render/RenderUtils.cpp
         ${COMMON_SOURCE_DIR}/render/SelectionBoundsRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/Shader.cpp
-        ${COMMON_SOURCE_DIR}/render/ShaderManager.cpp
-        ${COMMON_SOURCE_DIR}/render/ShaderProgram.cpp
-        ${COMMON_SOURCE_DIR}/render/Shaders.cpp
         ${COMMON_SOURCE_DIR}/render/Sphere.cpp
         ${COMMON_SOURCE_DIR}/render/SpikeGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/TextAnchor.cpp
         ${COMMON_SOURCE_DIR}/render/TextRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/TextureFont.cpp
         ${COMMON_SOURCE_DIR}/render/Transformation.cpp
         ${COMMON_SOURCE_DIR}/render/TriangleRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/Vbo.cpp
-        ${COMMON_SOURCE_DIR}/render/VboManager.cpp
         ${COMMON_SOURCE_DIR}/render/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/Thread.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
@@ -484,16 +484,37 @@ set(COMMON_SOURCE
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
+        ${COMMON_SOURCE_DIR}/gl/ActiveShader.h
+        ${COMMON_SOURCE_DIR}/gl/AttrString.h
         ${COMMON_SOURCE_DIR}/gl/CreateResource.h
+        ${COMMON_SOURCE_DIR}/gl/FontDescriptor.h
+        ${COMMON_SOURCE_DIR}/gl/FontFactory.h
+        ${COMMON_SOURCE_DIR}/gl/FontGlyph.h
+        ${COMMON_SOURCE_DIR}/gl/FontGlyphBuilder.h
+        ${COMMON_SOURCE_DIR}/gl/FontManager.h
+        ${COMMON_SOURCE_DIR}/gl/FontTexture.h
+        ${COMMON_SOURCE_DIR}/gl/FreeTypeFontFactory.h
+        ${COMMON_SOURCE_DIR}/gl/GL.h
         ${COMMON_SOURCE_DIR}/gl/Material.h
         ${COMMON_SOURCE_DIR}/gl/MaterialCollection.h
         ${COMMON_SOURCE_DIR}/gl/MaterialManager.h
         ${COMMON_SOURCE_DIR}/gl/ResourceManager.h
         ${COMMON_SOURCE_DIR}/gl/Resource.h
         ${COMMON_SOURCE_DIR}/gl/ResourceId.h
+        ${COMMON_SOURCE_DIR}/gl/Shader.h
+        ${COMMON_SOURCE_DIR}/gl/ShaderConfig.h
+        ${COMMON_SOURCE_DIR}/gl/ShaderManager.h
+        ${COMMON_SOURCE_DIR}/gl/ShaderProgram.h
+        ${COMMON_SOURCE_DIR}/gl/Shaders.h
         ${COMMON_SOURCE_DIR}/gl/Texture.h
         ${COMMON_SOURCE_DIR}/gl/TextureBuffer.h
+        ${COMMON_SOURCE_DIR}/gl/TextureFont.h
         ${COMMON_SOURCE_DIR}/gl/TextureResource.h
+        ${COMMON_SOURCE_DIR}/gl/Vertex.h
+        ${COMMON_SOURCE_DIR}/gl/VertexAttributeType.h
+        ${COMMON_SOURCE_DIR}/gl/VertexType.h
+        ${COMMON_SOURCE_DIR}/gl/Vbo.h
+        ${COMMON_SOURCE_DIR}/gl/VboManager.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
@@ -713,9 +734,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/WorldReader.h
         ${COMMON_SOURCE_DIR}/octree.h
         ${COMMON_SOURCE_DIR}/Preferences.h
-        ${COMMON_SOURCE_DIR}/render/ActiveShader.h
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.h
-        ${COMMON_SOURCE_DIR}/render/AttrString.h
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.h
@@ -730,17 +749,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/EntityModelRenderer.h
         ${COMMON_SOURCE_DIR}/render/EntityRenderer.h
         ${COMMON_SOURCE_DIR}/render/FaceRenderer.h
-        ${COMMON_SOURCE_DIR}/render/FontDescriptor.h
-        ${COMMON_SOURCE_DIR}/render/FontFactory.h
-        ${COMMON_SOURCE_DIR}/render/FontGlyph.h
-        ${COMMON_SOURCE_DIR}/render/FontGlyphBuilder.h
-        ${COMMON_SOURCE_DIR}/render/FontManager.h
-        ${COMMON_SOURCE_DIR}/render/FontTexture.h
-        ${COMMON_SOURCE_DIR}/render/FreeTypeFontFactory.h
-        ${COMMON_SOURCE_DIR}/render/GL.h
-        ${COMMON_SOURCE_DIR}/render/GLVertex.h
-        ${COMMON_SOURCE_DIR}/render/GLVertexAttributeType.h
-        ${COMMON_SOURCE_DIR}/render/GLVertexType.h
         ${COMMON_SOURCE_DIR}/render/GridRenderer.h
         ${COMMON_SOURCE_DIR}/render/GroupLinkRenderer.h
         ${COMMON_SOURCE_DIR}/render/GroupRenderer.h
@@ -773,20 +781,12 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/RenderService.h
         ${COMMON_SOURCE_DIR}/render/RenderUtils.h
         ${COMMON_SOURCE_DIR}/render/SelectionBoundsRenderer.h
-        ${COMMON_SOURCE_DIR}/render/Shader.h
-        ${COMMON_SOURCE_DIR}/render/ShaderConfig.h
-        ${COMMON_SOURCE_DIR}/render/ShaderManager.h
-        ${COMMON_SOURCE_DIR}/render/ShaderProgram.h
-        ${COMMON_SOURCE_DIR}/render/Shaders.h
         ${COMMON_SOURCE_DIR}/render/Sphere.h
         ${COMMON_SOURCE_DIR}/render/SpikeGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/TextAnchor.h
         ${COMMON_SOURCE_DIR}/render/TextRenderer.h
-        ${COMMON_SOURCE_DIR}/render/TextureFont.h
         ${COMMON_SOURCE_DIR}/render/Transformation.h
         ${COMMON_SOURCE_DIR}/render/TriangleRenderer.h
-        ${COMMON_SOURCE_DIR}/render/Vbo.h
-        ${COMMON_SOURCE_DIR}/render/VboManager.h
         ${COMMON_SOURCE_DIR}/render/VertexArray.h
         ${COMMON_SOURCE_DIR}/render/VertexListBuilder.h
         ${COMMON_SOURCE_DIR}/Thread.h

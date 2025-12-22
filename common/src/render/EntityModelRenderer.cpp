@@ -22,19 +22,19 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
-#include "render/ActiveShader.h"
 #include "render/Camera.h"
 #include "render/MaterialIndexRangeRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
-#include "render/Shaders.h"
 #include "render/Transformation.h"
 
 #include "vm/mat.h"
@@ -150,7 +150,7 @@ void EntityModelRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void EntityModelRenderer::doPrepareVertices(VboManager& vboManager)
+void EntityModelRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   m_entityModelManager.prepare(vboManager);
 }
@@ -164,7 +164,8 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
     glAssert(glEnable(GL_TEXTURE_2D));
     glAssert(glActiveTexture(GL_TEXTURE0));
 
-    auto shader = ActiveShader{renderContext.shaderManager(), Shaders::EntityModelShader};
+    auto shader =
+      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::EntityModelShader};
     shader.set("Brightness", prefs.get(Preferences::Brightness));
     shader.set("ApplyTinting", m_applyTinting);
     shader.set("TintColor", m_tintColor);

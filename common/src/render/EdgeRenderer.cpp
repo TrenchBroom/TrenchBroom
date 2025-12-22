@@ -21,13 +21,13 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
 #include "render/BrushRendererArrays.h"
 #include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
-#include "render/Shaders.h"
 
 namespace tb::render
 {
@@ -87,7 +87,8 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
   }
 
   {
-    auto shader = ActiveShader{renderContext.shaderManager(), Shaders::EdgeShader};
+    auto shader =
+      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::EdgeShader};
     shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
     shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
     shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
@@ -181,7 +182,7 @@ DirectEdgeRenderer::Render::Render(
 {
 }
 
-void DirectEdgeRenderer::Render::doPrepareVertices(VboManager& vboManager)
+void DirectEdgeRenderer::Render::doPrepareVertices(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
@@ -231,7 +232,7 @@ IndexedEdgeRenderer::Render::Render(
 {
 }
 
-void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(VboManager& vboManager)
+void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(gl::VboManager& vboManager)
 {
   m_vertexArray->prepare(vboManager);
   m_indexArray->prepare(vboManager);

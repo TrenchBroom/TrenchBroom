@@ -106,7 +106,7 @@ public:
   void render(RenderBatch& renderBatch);
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
 

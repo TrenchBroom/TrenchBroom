@@ -22,10 +22,10 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
-#include "render/GLVertexType.h"
+#include "gl/VboManager.h"
+#include "gl/VertexType.h"
 #include "render/PrimType.h"
 #include "render/Transformation.h"
-#include "render/VboManager.h"
 #include "render/VertexArray.h"
 #include "ui/CrashReporter.h"
 #include "ui/GLContextManager.h"
@@ -223,17 +223,17 @@ void RenderView::paintGL()
   }
 }
 
-render::VboManager& RenderView::vboManager()
+gl::VboManager& RenderView::vboManager()
 {
   return m_glContext->vboManager();
 }
 
-render::FontManager& RenderView::fontManager()
+gl::FontManager& RenderView::fontManager()
 {
   return m_glContext->fontManager();
 }
 
-render::ShaderManager& RenderView::shaderManager()
+gl::ShaderManager& RenderView::shaderManager()
 {
   return m_glContext->shaderManager();
 }
@@ -310,7 +310,7 @@ void RenderView::renderFocusIndicator()
 
     glAssert(glDisable(GL_DEPTH_TEST));
 
-    using Vertex = render::GLVertexTypes::P3C4::Vertex;
+    using Vertex = gl::VertexTypes::P3C4::Vertex;
     auto array = render::VertexArray::move(std::vector{
       // top
       Vertex{{0.0f, 0.0f, 0.0f}, outer.toVec()},

@@ -21,15 +21,15 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
-#include "render/ActiveShader.h"
 #include "render/Circle.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
 #include "render/Renderable.h"
-#include "render/Shaders.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 #include "ui/MoveHandleDragTracker.h"
@@ -71,7 +71,7 @@ public:
   }
 
 private:
-  void doPrepareVertices(render::VboManager& vboManager) override
+  void doPrepareVertices(gl::VboManager& vboManager) override
   {
     m_circle.prepare(vboManager);
   }
@@ -86,8 +86,8 @@ private:
 
     auto translation = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::translation_matrix(vm::vec3f{m_position})};
-    auto shader = render::ActiveShader{
-      renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
+    auto shader = gl::ActiveShader{
+      renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     shader.set("Color", RgbaF{1.0f, 1.0f, 1.0f, 0.2f});
     m_circle.render();
 

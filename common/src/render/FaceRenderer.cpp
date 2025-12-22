@@ -21,16 +21,16 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
 #include "gl/Material.h"
+#include "gl/Shaders.h"
 #include "gl/Texture.h"
-#include "render/ActiveShader.h"
 #include "render/BrushRendererArrays.h"
 #include "render/Camera.h"
 #include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
-#include "render/Shaders.h"
 
 namespace tb::render
 {
@@ -41,7 +41,7 @@ namespace
 class RenderFunc : public MaterialRenderFunc
 {
 private:
-  ActiveShader& m_shader;
+  gl::ActiveShader& m_shader;
   bool m_applyMaterial;
   Color m_defaultColor;
   int m_minFilter;
@@ -49,7 +49,7 @@ private:
 
 public:
   RenderFunc(
-    ActiveShader& shader,
+    gl::ActiveShader& shader,
     const bool applyMaterial,
     Color defaultColor,
     const int minFilter,
@@ -125,7 +125,7 @@ void FaceRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void FaceRenderer::prepareVerticesAndIndices(VboManager& vboManager)
+void FaceRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
 {
   m_vertexArray->prepare(vboManager);
 
@@ -140,7 +140,7 @@ void FaceRenderer::doRender(RenderContext& context)
   if (!m_indexArrayMap->empty() && m_vertexArray->setupVertices())
   {
     auto& shaderManager = context.shaderManager();
-    auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
+    auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
     auto& prefs = PreferenceManager::instance();
 
     const auto applyMaterial = context.showMaterials();

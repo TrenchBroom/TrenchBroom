@@ -49,7 +49,7 @@ bool MaterialIndexRangeRenderer::empty() const
   return m_vertexArray.empty();
 }
 
-void MaterialIndexRangeRenderer::prepare(VboManager& vboManager)
+void MaterialIndexRangeRenderer::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
@@ -83,7 +83,7 @@ bool MultiMaterialIndexRangeRenderer::empty() const
   return true;
 }
 
-void MultiMaterialIndexRangeRenderer::prepare(VboManager& vboManager)
+void MultiMaterialIndexRangeRenderer::prepare(gl::VboManager& vboManager)
 {
   for (auto& renderer : m_renderers)
   {

@@ -23,9 +23,15 @@
 #include "render/IndexRangeMapBuilder.h"
 #include "render/VertexArray.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class VboManager;
+}
+
+namespace render
+{
 
 class IndexRangeRenderer
 {
@@ -44,8 +50,9 @@ public:
 
   IndexRangeRenderer(VertexArray vertexArray, IndexRangeMap indexArray);
 
-  void prepare(VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
   void render();
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Color.h"
+#include "gl/AttrString.h"
 #include "render/EdgeRenderer.h"
 #include "render/EntityModelRenderer.h"
 #include "render/Renderable.h"
@@ -43,7 +44,6 @@ class EntityNode;
 
 namespace render
 {
-class AttrString;
 
 class EntityRenderer
 {
@@ -145,7 +145,7 @@ private:
   void invalidateBounds();
   void validateBounds();
 
-  AttrString entityString(const mdl::EntityNode* entityNode) const;
+  gl::AttrString entityString(const mdl::EntityNode* entityNode) const;
   const Color& boundsColor(const mdl::EntityNode* entityNode) const;
 };
 

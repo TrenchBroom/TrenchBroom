@@ -35,12 +35,12 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace render
+} // namespace gl
 
 namespace ui
 {
@@ -82,9 +82,9 @@ protected: // QWindow overrides
   bool event(QEvent* event) override;
 
 protected:
-  render::VboManager& vboManager();
-  render::FontManager& fontManager();
-  render::ShaderManager& shaderManager();
+  gl::VboManager& vboManager();
+  gl::FontManager& fontManager();
+  gl::ShaderManager& shaderManager();
 
   int depthBits() const;
   bool multisample() const;

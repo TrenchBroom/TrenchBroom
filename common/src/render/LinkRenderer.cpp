@@ -19,12 +19,12 @@
 
 #include "LinkRenderer.h"
 
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
 #include "render/Camera.h"
 #include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
 
 #include "kd/contracts.h"
 
@@ -43,7 +43,7 @@ void LinkRenderer::invalidate()
   m_valid = false;
 }
 
-void LinkRenderer::doPrepareVertices(VboManager& vboManager)
+void LinkRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   if (!m_valid)
   {
@@ -64,7 +64,8 @@ void LinkRenderer::doRender(RenderContext& renderContext)
 
 void LinkRenderer::renderLines(RenderContext& renderContext)
 {
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::LinkLineShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::LinkLineShader};
   shader.set("CameraPosition", renderContext.camera().position());
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);
@@ -80,7 +81,8 @@ void LinkRenderer::renderLines(RenderContext& renderContext)
 
 void LinkRenderer::renderArrows(RenderContext& renderContext)
 {
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::LinkArrowShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::LinkArrowShader};
   shader.set("CameraPosition", renderContext.camera().position());
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);

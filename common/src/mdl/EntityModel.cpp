@@ -155,9 +155,9 @@ void EntityModelFrame::addToSpacialTree(
     for (size_t i = 0; i < count; i += 3)
     {
       auto bounds = vm::bbox3f::builder{};
-      const auto& p1 = render::getVertexComponent<0>(vertices[index + i + 0]);
-      const auto& p2 = render::getVertexComponent<0>(vertices[index + i + 1]);
-      const auto& p3 = render::getVertexComponent<0>(vertices[index + i + 2]);
+      const auto& p1 = gl::getVertexComponent<0>(vertices[index + i + 0]);
+      const auto& p2 = gl::getVertexComponent<0>(vertices[index + i + 1]);
+      const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 2]);
       bounds.add(p1);
       bounds.add(p2);
       bounds.add(p3);
@@ -177,12 +177,12 @@ void EntityModelFrame::addToSpacialTree(
 
     m_tris.reserve(m_tris.size() + (count - 2) * 3);
 
-    const auto& p1 = render::getVertexComponent<0>(vertices[index]);
+    const auto& p1 = gl::getVertexComponent<0>(vertices[index]);
     for (size_t i = 1; i < count - 1; ++i)
     {
       auto bounds = vm::bbox3f::builder{};
-      const auto& p2 = render::getVertexComponent<0>(vertices[index + i]);
-      const auto& p3 = render::getVertexComponent<0>(vertices[index + i + 1]);
+      const auto& p2 = gl::getVertexComponent<0>(vertices[index + i]);
+      const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 1]);
       bounds.add(p1);
       bounds.add(p2);
       bounds.add(p3);
@@ -204,9 +204,9 @@ void EntityModelFrame::addToSpacialTree(
     for (size_t i = 0; i < count - 2; ++i)
     {
       auto bounds = vm::bbox3f::builder{};
-      const auto& p1 = render::getVertexComponent<0>(vertices[index + i + 0]);
-      const auto& p2 = render::getVertexComponent<0>(vertices[index + i + 1]);
-      const auto& p3 = render::getVertexComponent<0>(vertices[index + i + 2]);
+      const auto& p1 = gl::getVertexComponent<0>(vertices[index + i + 0]);
+      const auto& p2 = gl::getVertexComponent<0>(vertices[index + i + 1]);
+      const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 2]);
       bounds.add(p1);
       bounds.add(p2);
       bounds.add(p3);

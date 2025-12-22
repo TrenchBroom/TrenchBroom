@@ -19,9 +19,9 @@
 
 #include "RenderUtils.h"
 
+#include "gl/GL.h"
 #include "gl/Material.h"
 #include "gl/Texture.h"
-#include "render/GL.h"
 
 #include "kd/contracts.h"
 

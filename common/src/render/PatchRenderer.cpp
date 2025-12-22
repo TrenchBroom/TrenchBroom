@@ -21,20 +21,20 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
 #include "gl/Material.h"
+#include "gl/Shaders.h"
 #include "gl/Texture.h"
+#include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
 #include "mdl/PatchNode.h"
-#include "render/ActiveShader.h"
 #include "render/Camera.h"
-#include "render/GLVertexType.h"
 #include "render/IndexRangeMapBuilder.h"
 #include "render/MaterialIndexArrayMapBuilder.h"
 #include "render/MaterialIndexArrayRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
-#include "render/Shaders.h"
 #include "render/VertexArray.h"
 
 #include "kd/contracts.h"
@@ -173,7 +173,7 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
     }
   }
 
-  using Vertex = GLVertexTypes::P3NT2::Vertex;
+  using Vertex = gl::VertexTypes::P3NT2::Vertex;
   auto vertices = std::vector<Vertex>{};
   vertices.reserve(vertexCount);
 
@@ -248,7 +248,7 @@ static DirectEdgeRenderer buildEdgeRenderer(
   }
 
   auto indexRangeMapBuilder =
-    IndexRangeMapBuilder<GLVertexTypes::P3>{vertexCount, indexRangeMapSize};
+    IndexRangeMapBuilder<gl::VertexTypes::P3>{vertexCount, indexRangeMapSize};
 
   for (const auto* patchNode : patchNodes)
   {
@@ -256,7 +256,7 @@ static DirectEdgeRenderer buildEdgeRenderer(
     {
       const auto& grid = patchNode->grid();
 
-      auto edgeLoopVertices = std::vector<GLVertexTypes::P3::Vertex>{};
+      auto edgeLoopVertices = std::vector<gl::VertexTypes::P3::Vertex>{};
       edgeLoopVertices.reserve((grid.pointRowCount + grid.pointColumnCount - 2u) * 2u);
 
       // walk around the patch to collect the edge vertices
@@ -314,7 +314,7 @@ void PatchRenderer::validate()
   }
 }
 
-void PatchRenderer::prepareVerticesAndIndices(VboManager& vboManager)
+void PatchRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
 {
   m_patchMeshRenderer.prepare(vboManager);
 }
@@ -323,14 +323,14 @@ namespace
 {
 struct RenderFunc : public MaterialRenderFunc
 {
-  ActiveShader& shader;
+  gl::ActiveShader& shader;
   bool applyMaterial;
   const Color& defaultColor;
   int minFilter;
   int magFilter;
 
   RenderFunc(
-    ActiveShader& i_shader,
+    gl::ActiveShader& i_shader,
     const bool i_applyMaterial,
     const Color& i_defaultColor,
     const int i_minFilter,
@@ -372,7 +372,7 @@ struct RenderFunc : public MaterialRenderFunc
 void PatchRenderer::doRender(RenderContext& context)
 {
   auto& shaderManager = context.shaderManager();
-  auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
+  auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
   auto& prefs = PreferenceManager::instance();
 
   const bool applyMaterial = context.showMaterials();

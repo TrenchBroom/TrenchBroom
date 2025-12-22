@@ -21,24 +21,24 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
 #include "gl/Material.h"
+#include "gl/Shaders.h"
 #include "gl/Texture.h"
+#include "gl/VboManager.h"
+#include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
-#include "render/ActiveShader.h"
 #include "render/Camera.h"
 #include "render/EdgeRenderer.h"
 #include "render/FaceRenderer.h"
-#include "render/GLVertexType.h"
 #include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
 #include "render/Renderable.h"
-#include "render/Shaders.h"
-#include "render/VboManager.h"
 #include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 #include "ui/UVCameraTool.h"
@@ -64,7 +64,7 @@ namespace
 class RenderMaterial : public render::DirectRenderable
 {
 private:
-  using Vertex = render::GLVertexTypes::P3NT2::Vertex;
+  using Vertex = gl::VertexTypes::P3NT2::Vertex;
 
   const UVViewHelper& m_helper;
   render::VertexArray m_vertexArray;
@@ -104,7 +104,7 @@ private:
   }
 
 private:
-  void doPrepareVertices(render::VboManager& vboManager) override
+  void doPrepareVertices(gl::VboManager& vboManager) override
   {
     m_vertexArray.prepare(vboManager);
   }
@@ -124,7 +124,7 @@ private:
     material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 
     auto shader =
-      render::ActiveShader{renderContext.shaderManager(), render::Shaders::UVViewShader};
+      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::UVViewShader};
     shader.set("ApplyMaterial", true);
     shader.set("Color", texture->averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
@@ -319,7 +319,7 @@ void UVView::renderMaterial(render::RenderContext&, render::RenderBatch& renderB
 
 void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch)
 {
-  using Vertex = render::GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
 
   contract_pre(m_helper.valid());
 
@@ -338,7 +338,7 @@ void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch
 
 void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBatch)
 {
-  using Vertex = render::GLVertexTypes::P3C4::Vertex;
+  using Vertex = gl::VertexTypes::P3C4::Vertex;
 
   contract_pre(m_helper.valid());
 

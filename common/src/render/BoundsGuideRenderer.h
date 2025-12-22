@@ -42,7 +42,7 @@ public:
   void setBounds(const vm::bbox3d& bounds);
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
 

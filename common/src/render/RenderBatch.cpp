@@ -19,8 +19,8 @@
 
 #include "RenderBatch.h"
 
+#include "gl/VboManager.h"
 #include "render/Renderable.h"
-#include "render/VboManager.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"
@@ -36,13 +36,13 @@ private:
   IndexedRenderable& m_wrappee;
 
 public:
-  IndexedRenderableWrapper(VboManager&, IndexedRenderable& wrappee)
+  IndexedRenderableWrapper(gl::VboManager&, IndexedRenderable& wrappee)
     : m_wrappee{wrappee}
   {
   }
 
 private:
-  void prepareVerticesAndIndices(VboManager& vboManager) override
+  void prepareVerticesAndIndices(gl::VboManager& vboManager) override
   {
     m_wrappee.prepareVerticesAndIndices(vboManager);
   }
@@ -55,7 +55,7 @@ private:
 
 } // namespace
 
-RenderBatch::RenderBatch(VboManager& vboManager)
+RenderBatch::RenderBatch(gl::VboManager& vboManager)
   : m_vboManager{vboManager}
 {
 }

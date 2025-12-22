@@ -21,11 +21,11 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
+#include "gl/VboManager.h"
 #include "render/Camera.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
-#include "render/VboManager.h"
 
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
@@ -49,7 +49,7 @@ void PointHandleRenderer::addHighlight(const Color& color, const vm::vec3f& posi
   m_highlights[color].push_back(position);
 }
 
-void PointHandleRenderer::doPrepareVertices(VboManager& vboManager)
+void PointHandleRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   m_handle.prepare(vboManager);
   m_highlight.prepare(vboManager);
@@ -97,7 +97,8 @@ void PointHandleRenderer::renderHandles(
   RenderContext& renderContext, const HandleMap& map, Circle& circle, const float opacity)
 {
   const auto& camera = renderContext.camera();
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::HandleShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::HandleShader};
 
   for (const auto& [color, positions] : map)
   {

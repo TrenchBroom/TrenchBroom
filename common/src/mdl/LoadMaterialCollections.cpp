@@ -237,8 +237,8 @@ Result<gl::Material> loadShaderMaterial(
                if (stage.blendFunc.enable())
                {
                  material.setBlendFunc(
-                   glGetEnum(stage.blendFunc.srcFactor),
-                   glGetEnum(stage.blendFunc.destFactor));
+                   gl::getEnum(stage.blendFunc.srcFactor),
+                   gl::getEnum(stage.blendFunc.destFactor));
                }
                else
                {

@@ -59,7 +59,7 @@ std::optional<mdl::DecalSpecification> getDecalSpecification(
          | kdl::value_or(std::nullopt);
 }
 
-using Vertex = render::GLVertexTypes::P3NT2::Vertex;
+using Vertex = gl::VertexTypes::P3NT2::Vertex;
 std::vector<Vertex> createDecalBrushFace(
   const mdl::EntityNode& entityNode,
   const mdl::BrushNode& brushNode,

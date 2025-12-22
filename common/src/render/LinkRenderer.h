@@ -19,20 +19,26 @@
 
 #pragma once
 
-#include "render/GLVertexType.h"
+#include "gl/VertexType.h"
 #include "render/Renderable.h"
 #include "render/VertexArray.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class VboManager;
+}
+
+namespace render
 {
 class RenderContext;
 class RenderBatch;
-class VboManager;
 
 class LinkRenderer : public DirectRenderable
 {
 public:
-  using LineVertex = GLVertexTypes::P3C4::Vertex;
+  using LineVertex = gl::VertexTypes::P3C4::Vertex;
 
   struct ArrowPositionName
   {
@@ -44,12 +50,13 @@ public:
     static inline const auto name = std::string{"lineDir"};
   };
 
-  using ArrowVertex = GLVertexType<
-    GLVertexAttributeTypes::P3, // vertex of the arrow (exposed in shader as gl_Vertex)
-    GLVertexAttributeTypes::C4, // arrow color (exposed in shader as gl_Color)
-    GLVertexAttributeUser<ArrowPositionName, GL_FLOAT, 3, false>,    // arrow position
-    GLVertexAttributeUser<LineDirName, GL_FLOAT, 3, false>>::Vertex; // direction the
-                                                                     // arrow is pointing
+  using ArrowVertex = gl::VertexType<
+    gl::VertexAttributeTypes::P3, // vertex of the arrow (exposed in shader as gl_Vertex)
+    gl::VertexAttributeTypes::C4, // arrow color (exposed in shader as gl_Color)
+    gl::GLVertexAttributeUser<ArrowPositionName, GL_FLOAT, 3, false>,    // arrow position
+    gl::GLVertexAttributeUser<LineDirName, GL_FLOAT, 3, false>>::Vertex; // direction the
+                                                                         // arrow is
+                                                                         // pointing
 private:
   VertexArray m_lines;
   VertexArray m_arrows;
@@ -63,7 +70,7 @@ public:
   void invalidate();
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 
   void renderLines(RenderContext& renderContext);
@@ -76,4 +83,5 @@ private:
   deleteCopy(LinkRenderer);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

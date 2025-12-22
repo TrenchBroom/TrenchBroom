@@ -60,7 +60,7 @@ private:
 
   void doRenderFrustum(
     RenderContext& renderContext,
-    VboManager& vboManager,
+    gl::VboManager& vboManager,
     float size,
     const Color& color) const override;
   float doPickFrustum(float size, const vm::ray3f& ray) const override;

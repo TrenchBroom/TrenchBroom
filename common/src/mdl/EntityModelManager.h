@@ -46,10 +46,14 @@ namespace fs
 class FileSystem;
 }
 
+namespace gl
+{
+class VboManager;
+}
+
 namespace render
 {
 class MaterialRenderer;
-class VboManager;
 } // namespace render
 
 namespace mdl
@@ -105,10 +109,10 @@ private:
   Result<EntityModel> loadModel(const std::filesystem::path& path) const;
 
 public:
-  void prepare(render::VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
 
 private:
-  void prepareRenderers(render::VboManager& vboManager);
+  void prepareRenderers(gl::VboManager& vboManager);
 };
 
 } // namespace mdl

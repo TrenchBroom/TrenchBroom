@@ -301,8 +301,7 @@ void buildFrame(
       vertexCount += md2Mesh.vertices.size();
       const auto vertices = getVertices(frame, md2Mesh.vertices);
 
-      bounds.add(
-        std::begin(vertices), std::end(vertices), render::GetVertexComponent<0>());
+      bounds.add(std::begin(vertices), std::end(vertices), gl::GetVertexComponent<0>());
 
       if (md2Mesh.type == render::PrimType::TriangleFan)
       {
