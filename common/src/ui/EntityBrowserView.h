@@ -21,6 +21,7 @@
 
 #include "NotifierConnection.h"
 #include "el/Expression.h"
+#include "gl/ResourceId.h"
 #include "render/FontDescriptor.h"
 #include "render/GLVertexType.h"
 #include "ui/CellView.h"
@@ -38,8 +39,6 @@ class Logger;
 
 namespace mdl
 {
-class ResourceId;
-
 enum class EntityDefinitionSortOrder;
 enum class Orientation;
 
@@ -116,7 +115,7 @@ private:
   bool dndEnabled() override;
   QString dndData(const Cell& cell) override;
 
-  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<gl::ResourceId>& resources);
 
   void addEntitiesToLayout(
     Layout& layout,

@@ -24,6 +24,7 @@
 #include "fs/PathInfo.h"
 #include "fs/PathMatcher.h"
 #include "fs/TraversalMode.h"
+#include "gl/Resource.h"
 #include "mdl/GameConfig.h"
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/LoadShaders.h"
@@ -261,7 +262,7 @@ Result<Texture> findAndLoadTexture(
     });
 }
 
-ResourceLoader<Texture> makeTextureResourceLoader(
+gl::ResourceLoader<Texture> makeTextureResourceLoader(
   const std::filesystem::path& path,
   const std::string& name,
   const std::vector<std::filesystem::path>& extensions,

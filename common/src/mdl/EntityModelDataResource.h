@@ -19,18 +19,17 @@
 
 #pragma once
 
-#include "mdl/CreateResource.h"
+#include "gl/CreateResource.h"
+#include "gl/Resource.h"
 
 #include <memory>
 
 namespace tb::mdl
 {
-template <typename T>
-class Resource;
 class EntityModelData;
 
-using EntityModelDataResource = Resource<EntityModelData>;
-using CreateEntityModelDataResource = CreateResource<EntityModelData>;
+using EntityModelDataResource = gl::Resource<EntityModelData>;
+using CreateEntityModelDataResource = gl::CreateResource<EntityModelData>;
 
 std::shared_ptr<EntityModelDataResource> createEntityModelDataResource(
   EntityModelData entityModelData);

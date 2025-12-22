@@ -68,7 +68,7 @@ TEST_CASE("loadMd3Model")
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
+      return gl::createResourceSync(std::move(resourceLoader));
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {
@@ -141,7 +141,7 @@ TEST_CASE("loadMd3Model (Regression)", "[regression]")
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
+      return gl::createResourceSync(std::move(resourceLoader));
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {

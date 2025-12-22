@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "mdl/CreateResource.h"
-#include "mdl/Resource.h"
+#include "gl/CreateResource.h"
+#include "gl/Resource.h"
 #include "mdl/Texture.h"
 
 #include <memory>
@@ -28,8 +28,8 @@
 namespace tb::mdl
 {
 
-using TextureResource = Resource<Texture>;
-using CreateTextureResource = CreateResource<Texture>;
+using TextureResource = gl::Resource<Texture>;
+using CreateTextureResource = gl::CreateResource<Texture>;
 
 std::shared_ptr<TextureResource> createTextureResource(Texture texture);
 

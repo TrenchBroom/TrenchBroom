@@ -132,7 +132,7 @@ void MaterialBrowserView::revealMaterial(const mdl::Material* material)
   });
 }
 
-void MaterialBrowserView::resourcesWereProcessed(const std::vector<mdl::ResourceId>&)
+void MaterialBrowserView::resourcesWereProcessed(const std::vector<gl::ResourceId>&)
 {
   reloadMaterials();
 }

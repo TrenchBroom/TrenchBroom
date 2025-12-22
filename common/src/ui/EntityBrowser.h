@@ -22,6 +22,7 @@
 #include <QWidget>
 
 #include "NotifierConnection.h"
+#include "gl/ResourceId.h"
 
 #include <filesystem>
 #include <vector>
@@ -36,7 +37,6 @@ namespace tb
 namespace mdl
 {
 class Node;
-class ResourceId;
 } // namespace mdl
 
 namespace ui
@@ -71,7 +71,7 @@ private:
   void connectObservers();
   void documentDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<gl::ResourceId>& resources);
 };
 
 } // namespace ui

@@ -23,6 +23,7 @@
 #include "SimpleParserStatus.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
+#include "gl/ResourceManager.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -84,7 +85,6 @@
 #include "mdl/PropertyValueWithDoubleQuotationMarksValidator.h"
 #include "mdl/PushSelection.h"
 #include "mdl/RepeatStack.h"
-#include "mdl/ResourceManager.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/SoftMapBoundsValidator.h"
 #include "mdl/TagManager.h"
@@ -143,7 +143,7 @@ auto createGameFileSystem(
 }
 
 template <typename Resource>
-auto makeCreateResource(ResourceManager& resourceManager)
+auto makeCreateResource(gl::ResourceManager& resourceManager)
 {
   return [&](auto resourceLoader) {
     auto resource = std::make_shared<Resource>(std::move(resourceLoader));
@@ -526,7 +526,7 @@ Map::Map(
       m_environmentConfig, m_gameInfo, m_gamePath, logger)}
   , m_taskManager{taskManager}
   , m_logger{logger}
-  , m_resourceManager{std::make_unique<ResourceManager>()}
+  , m_resourceManager{std::make_unique<gl::ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
       m_gameInfo,
@@ -1049,7 +1049,7 @@ void Map::updateAllFaceTags()
 }
 
 void Map::updateFaceTagsAfterResourcesWhereProcessed(
-  const std::vector<ResourceId>& resourceIds)
+  const std::vector<gl::ResourceId>& resourceIds)
 {
   // Some textures contain embedded default values for surface flags and such, so we
   // must update the face tags after the resources have been processed.
@@ -1396,14 +1396,14 @@ void Map::removeEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
   }
 }
 
-void Map::processResourcesSync(const ProcessContext& processContext)
+void Map::processResourcesSync(const gl::ProcessContext& processContext)
 {
-  auto allProcessedResourceIds = std::vector<ResourceId>{};
+  auto allProcessedResourceIds = std::vector<gl::ResourceId>{};
   while (m_resourceManager->needsProcessing())
   {
     auto processedResourceIds = m_resourceManager->process(
       [](auto task) {
-        auto promise = std::promise<std::unique_ptr<TaskResult>>{};
+        auto promise = std::promise<std::unique_ptr<gl::TaskResult>>{};
         promise.set_value(task());
         return promise.get_future();
       },
@@ -1420,7 +1420,7 @@ void Map::processResourcesSync(const ProcessContext& processContext)
   }
 }
 
-void Map::processResourcesAsync(const ProcessContext& processContext)
+void Map::processResourcesAsync(const gl::ProcessContext& processContext)
 {
   using namespace std::chrono_literals;
 
@@ -1713,7 +1713,7 @@ void Map::brushFacesDidChange(const std::vector<BrushFaceHandle>& brushFaces)
   updateFaceTags(brushFaces);
 }
 
-void Map::resourcesWereProcessed(const std::vector<ResourceId>& resourceIds)
+void Map::resourcesWereProcessed(const std::vector<gl::ResourceId>& resourceIds)
 {
   updateFaceTagsAfterResourcesWhereProcessed(resourceIds);
 }

@@ -17,32 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "ResourceId.h"
 
-#include "kd/reflection_decl.h"
+#include "Uuid.h"
 
-#include <string>
+#include "kd/reflection_impl.h"
 
-namespace tb::mdl
+namespace tb::gl
 {
 
-class ResourceId
+kdl_reflect_impl(ResourceId);
+
+ResourceId::ResourceId()
+  : m_id{generateUuid()}
 {
-private:
-  std::string m_id;
+}
 
-  kdl_reflect_decl(ResourceId, m_id);
+} // namespace tb::gl
 
-  friend struct std::hash<ResourceId>;
-
-public:
-  ResourceId();
-};
-
-} // namespace tb::mdl
-
-template <>
-struct std::hash<tb::mdl::ResourceId>
+std::size_t std::hash<tb::gl::ResourceId>::operator()(
+  const tb::gl::ResourceId& resourceId) const noexcept
 {
-  std::size_t operator()(const tb::mdl::ResourceId& resourceId) const noexcept;
-};
+  return std::hash<std::string>{}(resourceId.m_id);
+}

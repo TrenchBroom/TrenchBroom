@@ -23,10 +23,10 @@
 #include "fs/TestUtils.h"
 #include "fs/VirtualFileSystem.h"
 #include "fs/WadFileSystem.h"
+#include "gl/Resource.h"
 #include "mdl/GameConfig.h"
 #include "mdl/LoadMaterialCollections.h"
 #include "mdl/MaterialCollection.h"
-#include "mdl/Resource.h"
 #include "mdl/Texture.h"
 
 #include "kd/ranges/to.h"
@@ -120,7 +120,7 @@ auto MatchesMaterialCollections(std::vector<MaterialCollectionInfo> expected)
   return MaterialCollectionsMatcher{std::move(expected)};
 }
 
-auto createResource(mdl::ResourceLoader<mdl::Texture> resourceLoader)
+auto createResource(gl::ResourceLoader<mdl::Texture> resourceLoader)
 {
   auto resource = std::make_shared<mdl::TextureResource>(std::move(resourceLoader));
   resource->loadSync();

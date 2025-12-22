@@ -20,6 +20,7 @@
 #pragma once
 
 #include "NotifierConnection.h"
+#include "gl/ResourceId.h"
 #include "render/FontDescriptor.h"
 #include "ui/CellView.h"
 
@@ -34,7 +35,6 @@ namespace mdl
 {
 class Material;
 class MaterialCollection;
-class ResourceId;
 } // namespace mdl
 
 namespace ui
@@ -80,7 +80,7 @@ public:
   void revealMaterial(const mdl::Material* material);
 
 private:
-  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<gl::ResourceId>& resources);
 
   void reloadMaterials();
 

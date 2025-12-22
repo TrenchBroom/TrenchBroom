@@ -163,7 +163,7 @@ void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
   }
 }
 
-void EntityBrowser::resourcesWereProcessed(const std::vector<mdl::ResourceId>&)
+void EntityBrowser::resourcesWereProcessed(const std::vector<gl::ResourceId>&)
 {
   reload();
 }

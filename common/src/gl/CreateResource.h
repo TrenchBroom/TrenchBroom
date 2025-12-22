@@ -17,26 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ResourceId.h"
+#pragma once
 
-#include "Uuid.h"
+#include "Resource.h"
 
-#include "kd/reflection_impl.h"
+#include <memory>
 
-namespace tb::mdl
+namespace tb::gl
 {
+template <typename T>
+using CreateResource = std::function<std::shared_ptr<Resource<T>>(ResourceLoader<T>)>;
 
-kdl_reflect_impl(ResourceId);
-
-ResourceId::ResourceId()
-  : m_id{generateUuid()}
+template <typename T>
+auto createResourceSync(ResourceLoader<T> resourceLoader)
 {
+  auto resource = std::make_shared<Resource<T>>(std::move(resourceLoader));
+  resource->loadSync();
+  return resource;
 }
 
-} // namespace tb::mdl
-
-std::size_t std::hash<tb::mdl::ResourceId>::operator()(
-  const tb::mdl::ResourceId& resourceId) const noexcept
-{
-  return std::hash<std::string>{}(resourceId.m_id);
-}
+} // namespace tb::gl

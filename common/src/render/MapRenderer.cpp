@@ -770,7 +770,7 @@ void MapRenderer::selectionDidChange(const mdl::SelectionChange& selectionChange
   invalidateGroupLinkRenderer();
 }
 
-void MapRenderer::resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds)
+void MapRenderer::resourcesWereProcessed(const std::vector<gl::ResourceId>& resourceIds)
 {
   const auto& materialManager = m_map.materialManager();
   const auto materials = materialManager.findMaterialsByTextureResourceId(resourceIds);

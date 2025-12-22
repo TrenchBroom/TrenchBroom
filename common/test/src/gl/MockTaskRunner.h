@@ -19,21 +19,39 @@
 
 #pragma once
 
-#include "Resource.h"
+#include "gl/Resource.h"
 
+#include "kd/vector_utils.h"
+
+#include <future>
 #include <memory>
 
-namespace tb::mdl
+namespace tb::gl
 {
-template <typename T>
-using CreateResource = std::function<std::shared_ptr<Resource<T>>(ResourceLoader<T>)>;
 
-template <typename T>
-auto createResourceSync(ResourceLoader<T> resourceLoader)
+struct MockTaskRunner
 {
-  auto resource = std::make_shared<Resource<T>>(std::move(resourceLoader));
-  resource->loadSync();
-  return resource;
-}
+  auto run(Task task)
+  {
+    auto promise = std::promise<std::unique_ptr<TaskResult>>{};
+    auto future = promise.get_future();
+    tasks.emplace_back(std::move(promise), std::move(task));
+    return future;
+  }
 
-} // namespace tb::mdl
+  void resolveNextPromise()
+  {
+    auto [promise, task] = kdl::vec_pop_front(tasks);
+    promise.set_value(task());
+  }
+
+  void resolveLastPromise()
+  {
+    auto [promise, task] = kdl::vec_pop_back(tasks);
+    promise.set_value(task());
+  }
+
+  std::vector<std::tuple<std::promise<std::unique_ptr<TaskResult>>, Task>> tasks;
+};
+
+} // namespace tb::gl

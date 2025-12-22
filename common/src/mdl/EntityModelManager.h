@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Result.h"
+#include "gl/ResourceId.h"
 #include "mdl/EntityModel.h"
 #include "mdl/ModelSpecification.h"
 
@@ -98,7 +99,7 @@ public:
   const EntityModel* model(const std::filesystem::path& path) const;
 
   const std::vector<const EntityModel*> findEntityModelsByTextureResourceId(
-    const std::vector<ResourceId>& resourceIds) const;
+    const std::vector<gl::ResourceId>& resourceIds) const;
 
 private:
   Result<EntityModel> loadModel(const std::filesystem::path& path) const;

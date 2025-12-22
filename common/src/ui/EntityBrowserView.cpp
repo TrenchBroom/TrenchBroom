@@ -178,7 +178,7 @@ QString EntityBrowserView::dndData(const Cell& cell)
   return prefix + name;
 }
 
-void EntityBrowserView::resourcesWereProcessed(const std::vector<mdl::ResourceId>&)
+void EntityBrowserView::resourcesWereProcessed(const std::vector<gl::ResourceId>&)
 {
   invalidate();
   update();

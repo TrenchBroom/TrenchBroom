@@ -42,6 +42,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "gl/Resource.h"
 #include "mdl/Autosaver.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -69,7 +70,6 @@
 #include "mdl/Node.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Resource.h"
 #include "mdl/WorldNode.h"
 #include "ui/Action.h"
 #include "ui/ActionBuilder.h"
@@ -2534,7 +2534,7 @@ void MapFrame::triggerAutosave()
 void MapFrame::triggerProcessResources()
 {
   auto& map = m_document->map();
-  map.processResourcesAsync(mdl::ProcessContext{
+  map.processResourcesAsync(tb::gl::ProcessContext{
     true, [&](const auto&, const auto& error) { logger().error() << error; }});
 }
 

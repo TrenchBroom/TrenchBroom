@@ -3,6 +3,7 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
+        ${COMMON_SOURCE_DIR}/gl/ResourceId.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
@@ -165,7 +166,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/mdl/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/RepeatStack.cpp
-        ${COMMON_SOURCE_DIR}/mdl/ResourceId.cpp
         ${COMMON_SOURCE_DIR}/mdl/Selection.cpp
         ${COMMON_SOURCE_DIR}/mdl/SelectionChange.cpp
         ${COMMON_SOURCE_DIR}/mdl/SelectionCommand.cpp
@@ -484,6 +484,10 @@ set(COMMON_SOURCE
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
+        ${COMMON_SOURCE_DIR}/gl/CreateResource.h
+        ${COMMON_SOURCE_DIR}/gl/ResourceManager.h
+        ${COMMON_SOURCE_DIR}/gl/Resource.h
+        ${COMMON_SOURCE_DIR}/gl/ResourceId.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
@@ -511,7 +515,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/CompilationConfigWriter.h
         ${COMMON_SOURCE_DIR}/mdl/CompilationProfile.h
         ${COMMON_SOURCE_DIR}/mdl/CompilationTask.h
-        ${COMMON_SOURCE_DIR}/mdl/CreateResource.h
         ${COMMON_SOURCE_DIR}/mdl/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/mdl/DecalDefinition.h
         ${COMMON_SOURCE_DIR}/mdl/DefParser.h
@@ -671,8 +674,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/Quake3ShaderParser.h
         ${COMMON_SOURCE_DIR}/mdl/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/RepeatStack.h
-        ${COMMON_SOURCE_DIR}/mdl/Resource.h
-        ${COMMON_SOURCE_DIR}/mdl/ResourceId.h
         ${COMMON_SOURCE_DIR}/mdl/Selection.h
         ${COMMON_SOURCE_DIR}/mdl/SelectionChange.h
         ${COMMON_SOURCE_DIR}/mdl/SelectionCommand.h

@@ -18,9 +18,9 @@
  */
 
 #include "Result.h"
-#include "mdl/MockTaskRunner.h"
-#include "mdl/Resource.h"
-#include "mdl/ResourceManager.h"
+#include "gl/MockTaskRunner.h"
+#include "gl/Resource.h"
+#include "gl/ResourceManager.h"
 
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
@@ -32,7 +32,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-namespace tb::mdl
+namespace tb::gl
 {
 namespace
 {
@@ -295,4 +295,4 @@ TEST_CASE("ResourceManager")
   }
 }
 
-} // namespace tb::mdl
+} // namespace tb::gl

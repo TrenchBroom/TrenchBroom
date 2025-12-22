@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include "mdl/Resource.h"
+#include "gl/Resource.h"
+#include "gl/ResourceId.h"
 
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
@@ -30,7 +31,7 @@
 #include <ranges>
 #include <vector>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 class ResourceWrapperBase
@@ -149,4 +150,4 @@ public:
   }
 };
 
-} // namespace tb::mdl
+} // namespace tb::gl

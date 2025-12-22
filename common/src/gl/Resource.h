@@ -33,7 +33,7 @@
 #include <memory>
 #include <variant>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 template <typename T>
@@ -378,4 +378,4 @@ std::ostream& operator<<(std::ostream& lhs, const std::shared_ptr<Resource<T>>& 
   return lhs;
 }
 
-} // namespace tb::mdl
+} // namespace tb::gl

@@ -20,6 +20,7 @@
 #include "EntityModelManager.h"
 
 #include "Logger.h"
+#include "gl/CreateResource.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -154,12 +155,13 @@ const EntityModel* EntityModelManager::model(const std::filesystem::path& path) 
 }
 
 const std::vector<const EntityModel*> EntityModelManager::
-  findEntityModelsByTextureResourceId(const std::vector<ResourceId>& resourceIds) const
+  findEntityModelsByTextureResourceId(
+    const std::vector<gl::ResourceId>& resourceIds) const
 {
   using namespace std::ranges;
 
   const auto filterByResourceId =
-    [resourceIdSet = std::unordered_set<ResourceId>{
+    [resourceIdSet = std::unordered_set<gl::ResourceId>{
        resourceIds.begin(), resourceIds.end()}](const auto& model) {
       return resourceIdSet.contains(model.dataResource().id());
     };
@@ -176,7 +178,7 @@ Result<EntityModel> EntityModelManager::loadModel(
   const auto& materialConfig = m_gameInfo.gameConfig.materialConfig;
 
   const auto createResource = [](auto resourceLoader) {
-    return createResourceSync(std::move(resourceLoader));
+    return gl::createResourceSync(std::move(resourceLoader));
   };
 
   const auto loadMaterial = [&](const auto& materialPath) {

@@ -19,39 +19,30 @@
 
 #pragma once
 
-#include "mdl/Resource.h"
+#include "kd/reflection_decl.h"
 
-#include "kd/vector_utils.h"
+#include <string>
 
-#include <future>
-#include <memory>
-
-namespace tb::mdl
+namespace tb::gl
 {
 
-struct MockTaskRunner
+class ResourceId
 {
-  auto run(Task task)
-  {
-    auto promise = std::promise<std::unique_ptr<TaskResult>>{};
-    auto future = promise.get_future();
-    tasks.emplace_back(std::move(promise), std::move(task));
-    return future;
-  }
+private:
+  std::string m_id;
 
-  void resolveNextPromise()
-  {
-    auto [promise, task] = kdl::vec_pop_front(tasks);
-    promise.set_value(task());
-  }
+  kdl_reflect_decl(ResourceId, m_id);
 
-  void resolveLastPromise()
-  {
-    auto [promise, task] = kdl::vec_pop_back(tasks);
-    promise.set_value(task());
-  }
+  friend struct std::hash<ResourceId>;
 
-  std::vector<std::tuple<std::promise<std::unique_ptr<TaskResult>>, Task>> tasks;
+public:
+  ResourceId();
 };
 
-} // namespace tb::mdl
+} // namespace tb::gl
+
+template <>
+struct std::hash<tb::gl::ResourceId>
+{
+  std::size_t operator()(const tb::gl::ResourceId& resourceId) const noexcept;
+};

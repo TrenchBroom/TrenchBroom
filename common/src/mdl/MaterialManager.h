@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "gl/ResourceId.h"
 #include "mdl/MaterialCollection.h"
 #include "mdl/TextureResource.h"
 
@@ -42,14 +43,10 @@ class FileSystem;
 
 namespace mdl
 {
-struct MaterialConfig;
-}
-
-namespace mdl
-{
 class Material;
 class MaterialCollection;
-class ResourceId;
+
+struct MaterialConfig;
 
 class MaterialManager
 {
@@ -84,7 +81,7 @@ public:
   Material* material(const std::string& name);
 
   const std::vector<const Material*> findMaterialsByTextureResourceId(
-    const std::vector<ResourceId>& textureResourceIds) const;
+    const std::vector<gl::ResourceId>& textureResourceIds) const;
 
   const std::vector<const Material*>& materials() const;
   const std::vector<MaterialCollection>& collections() const;

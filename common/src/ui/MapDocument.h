@@ -21,6 +21,7 @@
 
 #include "Notifier.h"
 #include "NotifierConnection.h"
+#include "gl/ResourceId.h"
 #include "mdl/PointTrace.h"
 #include "ui/Action.h"
 
@@ -52,7 +53,6 @@ class Command;
 class Map;
 class Node;
 class PickResult;
-class ResourceId;
 class UndoableCommand;
 
 struct EnvironmentConfig;
@@ -113,7 +113,7 @@ public:
   Notifier<> groupWasOpenedNotifier;
   Notifier<> groupWasClosedNotifier;
 
-  Notifier<const std::vector<mdl::ResourceId>&> resourcesWereProcessedNotifier;
+  Notifier<const std::vector<gl::ResourceId>&> resourcesWereProcessedNotifier;
 
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;

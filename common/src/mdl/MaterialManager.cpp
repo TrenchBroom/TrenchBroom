@@ -103,10 +103,10 @@ Material* MaterialManager::material(const std::string& name)
 }
 
 const std::vector<const Material*> MaterialManager::findMaterialsByTextureResourceId(
-  const std::vector<ResourceId>& textureResourceIds) const
+  const std::vector<gl::ResourceId>& textureResourceIds) const
 {
-  const auto resourceIdSet =
-    std::unordered_set<ResourceId>{textureResourceIds.begin(), textureResourceIds.end()};
+  const auto resourceIdSet = std::unordered_set<gl::ResourceId>{
+    textureResourceIds.begin(), textureResourceIds.end()};
 
   return m_materials | std::views::filter([&](const auto* material) {
            return resourceIdSet.count(material->textureResource().id()) > 0;
