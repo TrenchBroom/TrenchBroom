@@ -82,6 +82,13 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Needs to be set before creating the preference manager
+  QApplication::setApplicationName("TrenchBroom");
+  // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
+  // which would cause preferences to move from where they were with wx
+  QApplication::setOrganizationName("");
+  QApplication::setOrganizationDomain("io.github.trenchbroom");
+
   // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
   tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
     tb::io::pathAsQString(tb::io::SystemPaths::preferenceFilePath())));

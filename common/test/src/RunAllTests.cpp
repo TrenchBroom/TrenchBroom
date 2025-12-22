@@ -34,6 +34,11 @@ int main(int argc, char** argv)
 {
   tb::setContractViolationHandler();
 
+  // Needs to be set for the QSettings instance used by RecentDocuments
+  QApplication::setApplicationName("TrenchBroom");
+  QApplication::setOrganizationName("");
+  QApplication::setOrganizationDomain("io.github.trenchbroom");
+
   tb::PreferenceManager::createInstance(
     std::make_unique<tb::TestPreferenceStore>(), K(saveInstantly));
   tb::ui::TrenchBroomApp app(argc, argv);
