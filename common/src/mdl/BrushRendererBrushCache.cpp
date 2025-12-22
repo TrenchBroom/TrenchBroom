@@ -28,7 +28,7 @@
 
 #include <algorithm>
 
-namespace tb::render
+namespace tb::mdl
 {
 
 BrushRendererBrushCache::CachedFace::CachedFace(
@@ -154,4 +154,4 @@ const std::vector<BrushRendererBrushCache::CachedEdge>& BrushRendererBrushCache:
   return m_cachedEdges;
 }
 
-} // namespace tb::render
+} // namespace tb::mdl

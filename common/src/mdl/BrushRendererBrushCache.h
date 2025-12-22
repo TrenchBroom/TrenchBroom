@@ -34,10 +34,6 @@ namespace mdl
 {
 class BrushNode;
 class BrushFace;
-} // namespace mdl
-
-namespace render
-{
 
 class BrushRendererBrushCache
 {
@@ -48,17 +44,17 @@ public:
   struct CachedFace
   {
     const gl::Material* material;
-    const mdl::BrushFace* face;
+    const BrushFace* face;
     size_t vertexCount;
     size_t indexOfFirstVertexRelativeToBrush;
 
-    CachedFace(const mdl::BrushFace* i_face, size_t i_indexOfFirstVertexRelativeToBrush);
+    CachedFace(const BrushFace* i_face, size_t i_indexOfFirstVertexRelativeToBrush);
   };
 
   struct CachedEdge
   {
-    const mdl::BrushFace* face1;
-    const mdl::BrushFace* face2;
+    const BrushFace* face1;
+    const BrushFace* face2;
     size_t vertexIndex1RelativeToBrush;
     size_t vertexIndex2RelativeToBrush;
   };
@@ -84,7 +80,7 @@ public:
    * different rendering styles (default/selected/locked), or need to re-evaluate the
    * BrushRenderer::Filter to exclude certain faces/edges.
    */
-  void validateVertexCache(const mdl::BrushNode& brushNode);
+  void validateVertexCache(const BrushNode& brushNode);
 
   /**
    * Returns all vertices for all faces of the brush.
@@ -94,5 +90,5 @@ public:
   const std::vector<CachedEdge>& cachedEdges() const;
 };
 
-} // namespace render
+} // namespace mdl
 } // namespace tb

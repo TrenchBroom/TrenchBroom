@@ -23,11 +23,11 @@
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
+#include "mdl/BrushRendererBrushCache.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TagAttribute.h"
 #include "render/BrushRendererArrays.h"
-#include "render/BrushRendererBrushCache.h"
 #include "render/RenderContext.h"
 
 #include "kd/contracts.h"
@@ -417,7 +417,7 @@ static void addTriIndicesForPolygon(
 }
 
 static inline bool shouldRenderEdge(
-  const BrushRendererBrushCache::CachedEdge& edge,
+  const mdl::BrushRendererBrushCache::CachedEdge& edge,
   const BrushRenderer::Filter::EdgeRenderPolicy policy)
 {
   using EdgeRenderPolicy = BrushRenderer::Filter::EdgeRenderPolicy;

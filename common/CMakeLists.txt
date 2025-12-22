@@ -22,6 +22,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReader.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReference.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.cpp
+        ${COMMON_SOURCE_DIR}/mdl/BrushRendererBrushCache.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.cpp
         ${COMMON_SOURCE_DIR}/mdl/CircleShape.cpp
         ${COMMON_SOURCE_DIR}/mdl/ColorRange.cpp
@@ -206,7 +207,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.cpp
-        ${COMMON_SOURCE_DIR}/render/BrushRendererBrushCache.cpp
         ${COMMON_SOURCE_DIR}/render/Camera.cpp
         ${COMMON_SOURCE_DIR}/render/Circle.cpp
         ${COMMON_SOURCE_DIR}/render/Compass.cpp
@@ -510,6 +510,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReference.h
         ${COMMON_SOURCE_DIR}/mdl/BrushGeometry.h
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.h
+        ${COMMON_SOURCE_DIR}/mdl/BrushRendererBrushCache.h
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.h
         ${COMMON_SOURCE_DIR}/mdl/CircleShape.h
         ${COMMON_SOURCE_DIR}/mdl/ColorRange.h
@@ -718,7 +719,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.h
-        ${COMMON_SOURCE_DIR}/render/BrushRendererBrushCache.h
         ${COMMON_SOURCE_DIR}/render/Camera.h
         ${COMMON_SOURCE_DIR}/render/Circle.h
         ${COMMON_SOURCE_DIR}/render/Compass.h

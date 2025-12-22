@@ -41,14 +41,10 @@ namespace gl
 class Material;
 }
 
-namespace render
-{
-class BrushRendererBrushCache;
-}
-
 namespace mdl
 {
 class BrushFace;
+class BrushRendererBrushCache;
 class GroupNode;
 class LayerNode;
 class ModelFactory;
@@ -63,9 +59,8 @@ public:
   using EdgeList = BrushEdgeList;
 
 private:
-  mutable std::unique_ptr<render::BrushRendererBrushCache>
-    m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
-  Brush m_brush;               // must be destroyed before the brush renderer cache
+  mutable std::unique_ptr<BrushRendererBrushCache> m_brushRendererBrushCache;
+  Brush m_brush; // must be destroyed before the brush renderer cache
   size_t m_selectedFaceCount = 0u;
 
 public:
@@ -132,7 +127,7 @@ public: // renderer cache
    * Only exposed to be called by BrushFace
    */
   void invalidateVertexCache();
-  render::BrushRendererBrushCache& brushRendererBrushCache() const;
+  BrushRendererBrushCache& brushRendererBrushCache() const;
 
 private: // implement Taggable interface
 public:

@@ -23,6 +23,7 @@
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
+#include "mdl/BrushRendererBrushCache.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
@@ -33,7 +34,6 @@
 #include "mdl/TagVisitor.h"
 #include "mdl/Validator.h"
 #include "mdl/WorldNode.h"
-#include "render/BrushRendererBrushCache.h"
 
 #include "kd/const_overload.h"
 #include "kd/overload.h"
@@ -51,7 +51,7 @@ namespace tb::mdl
 const HitType::Type BrushNode::BrushHitType = HitType::freeType();
 
 BrushNode::BrushNode(Brush brush)
-  : m_brushRendererBrushCache(std::make_unique<render::BrushRendererBrushCache>())
+  : m_brushRendererBrushCache(std::make_unique<BrushRendererBrushCache>())
   , m_brush(std::move(brush))
 {
   clearSelectedFaces();
@@ -398,7 +398,7 @@ void BrushNode::invalidateVertexCache()
   m_brushRendererBrushCache->invalidateVertexCache();
 }
 
-render::BrushRendererBrushCache& BrushNode::brushRendererBrushCache() const
+BrushRendererBrushCache& BrushNode::brushRendererBrushCache() const
 {
   return *m_brushRendererBrushCache;
 }
