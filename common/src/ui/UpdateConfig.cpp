@@ -27,8 +27,8 @@
 #include "Macros.h" // IWYU pragma: keep
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "io/PathQt.h"
 #include "ui/GetVersion.h"
+#include "ui/QPathUtils.h"
 #include "ui/SystemPaths.h"
 #include "ui/UpdateVersion.h"
 #include "update/InstallUpdate.h"
@@ -225,12 +225,12 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
 
     "TrenchBroom",
     "TrenchBroom",
-    io::pathAsQPath(scriptPath),
-    io::pathAsQPath(*appFolderPath),
+    pathAsQPath(scriptPath),
+    pathAsQPath(*appFolderPath),
     requiresAdminPrivileges,
-    io::pathAsQPath(relativeAppPath),
-    io::pathAsQPath(workDirPath),
-    io::pathAsQPath(logFilePath),
+    pathAsQPath(relativeAppPath),
+    pathAsQPath(workDirPath),
+    pathAsQPath(logFilePath),
   };
 }
 

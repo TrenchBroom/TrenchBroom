@@ -23,7 +23,7 @@
 #include "Observer.h"
 #include "TrenchBroomApp.h"
 #include "fs/TestEnvironment.h"
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
 
 #include <chrono> // IWYU pragma: keep
@@ -68,7 +68,7 @@ TEST_CASE("QPreferenceStore")
 
   SECTION("missing preference file")
   {
-    auto preferenceStore = QPreferenceStore{io::pathAsQString(preferenceFilePath), 50ms};
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
 
     auto value = std::string{};
     CHECK(!preferenceStore.load("some/path", value));
@@ -82,7 +82,7 @@ TEST_CASE("QPreferenceStore")
 }
 )");
 
-    auto preferenceStore = QPreferenceStore{io::pathAsQString(preferenceFilePath), 50ms};
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
 
     auto value = std::string{};
     CHECK(preferenceStore.load("some/path", value));
@@ -91,7 +91,7 @@ TEST_CASE("QPreferenceStore")
 
   SECTION("preferences aren't saved immediately")
   {
-    auto preferenceStore = QPreferenceStore{io::pathAsQString(preferenceFilePath), 500ms};
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 500ms};
 
     preferenceStore.save("some/path", "asdf"s);
     CHECK(!env.fileExists(preferenceFilename));
@@ -101,7 +101,7 @@ TEST_CASE("QPreferenceStore")
 #if !defined(_WIN32) && !defined(_WIN64)
   SECTION("preferences are saved after a delay")
   {
-    auto preferenceStore = QPreferenceStore{io::pathAsQString(preferenceFilePath), 100ms};
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 100ms};
 
     preferenceStore.save("some/path", "asdf"s);
     const auto startTime = std::chrono::steady_clock::now();
@@ -118,7 +118,7 @@ TEST_CASE("QPreferenceStore")
 
   SECTION("preferences save delay extends when new values are set")
   {
-    auto preferenceStore = QPreferenceStore{io::pathAsQString(preferenceFilePath), 500ms};
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 500ms};
 
     preferenceStore.save("some/path", "asdf"s);
     const auto startTime = std::chrono::steady_clock::now();
@@ -147,7 +147,7 @@ TEST_CASE("QPreferenceStore")
 }
 )");
 
-    auto preferenceStore = QPreferenceStore{io::pathAsQString(preferenceFilePath), 500ms};
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 500ms};
     auto preferencesWereReloaded = Observer<const std::vector<std::filesystem::path>>{
       preferenceStore.preferencesWereReloadedNotifier};
 
@@ -186,7 +186,7 @@ TEST_CASE("Preference lock file")
 #endif
   std::filesystem::create_directories(lockFilePath.parent_path());
 
-  auto lockFile = QLockFile{io::pathAsQPath(lockFilePath)};
+  auto lockFile = QLockFile{pathAsQPath(lockFilePath)};
   CHECK(lockFile.lock());
 }
 

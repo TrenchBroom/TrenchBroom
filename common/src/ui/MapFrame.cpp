@@ -43,7 +43,6 @@
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
 #include "io/ExportOptions.h"
-#include "io/PathQt.h"
 #include "mdl/Autosaver.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -94,6 +93,7 @@
 #include "ui/MapViewBase.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/ObjExportDialog.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/RenderView.h"
 #include "ui/ReplaceMaterialDialog.h"
@@ -260,8 +260,8 @@ void MapFrame::updateTitle()
 {
   const auto& map = m_document->map();
   setWindowModified(map.modified());
-  setWindowTitle(tr("%1[*] - TrenchBroom").arg(io::pathAsQString(map.filename())));
-  setWindowFilePath(io::pathAsQPath(map.path()));
+  setWindowTitle(tr("%1[*] - TrenchBroom").arg(pathAsQString(map.filename())));
+  setWindowFilePath(pathAsQPath(map.path()));
 }
 
 void MapFrame::updateTitleDelayed()
@@ -962,13 +962,13 @@ bool MapFrame::saveDocumentAs()
   const auto fileName = originalPath.filename();
 
   const auto newFileName = QFileDialog::getSaveFileName(
-    this, tr("Save map file"), io::pathAsQPath(originalPath), "Map files (*.map)");
+    this, tr("Save map file"), pathAsQPath(originalPath), "Map files (*.map)");
   if (newFileName.isEmpty())
   {
     return false;
   }
 
-  const auto path = io::pathFromQString(newFileName);
+  const auto path = pathFromQString(newFileName);
 
   const auto startTime = std::chrono::high_resolution_clock::now();
   return map.saveAs(path) | kdl::transform([&]() {
@@ -1020,13 +1020,13 @@ bool MapFrame::exportDocumentAsMap()
   const auto& originalPath = map.path();
 
   const auto newFileName = QFileDialog::getSaveFileName(
-    this, tr("Export Map file"), io::pathAsQPath(originalPath), "Map files (*.map)");
+    this, tr("Export Map file"), pathAsQPath(originalPath), "Map files (*.map)");
   if (newFileName.isEmpty())
   {
     return false;
   }
 
-  const auto options = io::MapExportOptions{io::pathFromQString(newFileName)};
+  const auto options = io::MapExportOptions{pathFromQString(newFileName)};
   return exportDocument(options);
 }
 
@@ -1073,7 +1073,7 @@ bool MapFrame::confirmOrDiscardChanges()
     this,
     "TrenchBroom",
     tr("%1 has been modified. Do you want to save the changes?")
-      .arg(io::pathAsQString(map.filename())),
+      .arg(pathAsQString(map.filename())),
     QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
   if (result == QMessageBox::Yes)
@@ -1098,8 +1098,8 @@ bool MapFrame::confirmRevertDocument()
   messageBox.setWindowTitle("TrenchBroom");
   messageBox.setIcon(QMessageBox::Question);
   messageBox.setText(tr("Revert %1 to %2?")
-                       .arg(io::pathAsQString(map.filename()))
-                       .arg(io::pathAsQString(map.path())));
+                       .arg(pathAsQString(map.filename()))
+                       .arg(pathAsQString(map.path())));
   messageBox.setInformativeText(
     tr("This will discard all unsaved changes and reload the document from disk."));
 
@@ -1116,7 +1116,7 @@ void MapFrame::loadPointFile()
 {
   const auto& map = m_document->map();
   const auto path = map.path();
-  const auto defaultDir = !path.empty() ? io::pathAsQPath(path.parent_path()) : QString{};
+  const auto defaultDir = !path.empty() ? pathAsQPath(path.parent_path()) : QString{};
 
   const auto fileName = QFileDialog::getOpenFileName(
     this,
@@ -1126,7 +1126,7 @@ void MapFrame::loadPointFile()
 
   if (!fileName.isEmpty())
   {
-    m_document->loadPointFile(io::pathFromQString(fileName));
+    m_document->loadPointFile(pathFromQString(fileName));
   }
 }
 
@@ -1160,14 +1160,14 @@ void MapFrame::loadPortalFile()
 {
   const auto& map = m_document->map();
   const auto path = map.path();
-  const auto defaultDir = !path.empty() ? io::pathAsQPath(path.parent_path()) : QString{};
+  const auto defaultDir = !path.empty() ? pathAsQPath(path.parent_path()) : QString{};
 
   const auto fileName = QFileDialog::getOpenFileName(
     this, tr("Load Portal File"), defaultDir, "Portal files (*.prt);;Any files (*.*)");
 
   if (!fileName.isEmpty())
   {
-    m_document->loadPortalFile(io::pathFromQString(fileName));
+    m_document->loadPortalFile(pathFromQString(fileName));
   }
 }
 
@@ -2421,7 +2421,7 @@ void MapFrame::dropEvent(QDropEvent* event)
 
   auto pathDialog = ChoosePathTypeDialog{
     window(),
-    io::pathFromQString(urls.front().toLocalFile()),
+    pathFromQString(urls.front().toLocalFile()),
     map.path(),
     pref(gameInfo.gamePathPreference)};
 
@@ -2435,7 +2435,7 @@ void MapFrame::dropEvent(QDropEvent* event)
   std::ranges::transform(urls, std::back_inserter(wadPathsToAdd), [&](const auto& url) {
     return convertToPathType(
       pathDialog.pathType(),
-      io::pathFromQString(url.toLocalFile()),
+      pathFromQString(url.toLocalFile()),
       map.path(),
       pref(gameInfo.gamePathPreference));
   });

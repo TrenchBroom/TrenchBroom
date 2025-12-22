@@ -29,13 +29,13 @@
 
 #include "QtUtils.h"
 #include "io/ExportOptions.h"
-#include "io/PathQt.h"
 #include "mdl/Map.h"
 #include "ui/BorderLine.h"
 #include "ui/DialogHeader.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/MapDocument.h" // IWYU pragma: keep
 #include "ui/MapFrame.h"
+#include "ui/QPathUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
@@ -142,7 +142,7 @@ void ObjExportDialog::createGui()
   });
   connect(m_exportButton, &QPushButton::clicked, this, [&]() {
     io::ObjExportOptions options;
-    options.exportPath = io::pathFromQString(m_exportPathEdit->text());
+    options.exportPath = pathFromQString(m_exportPathEdit->text());
     options.mtlPathMode = m_relativeToGamePathRadioButton->isChecked()
                             ? io::ObjMtlPathMode::RelativeToGamePath
                             : io::ObjMtlPathMode::RelativeToExportPath;
@@ -156,7 +156,7 @@ void ObjExportDialog::updateExportPath()
   const auto& map = m_mapFrame->document().map();
   const auto& originalPath = map.path();
   const auto objPath = kdl::path_replace_extension(originalPath, ".obj");
-  m_exportPathEdit->setText(io::pathAsQString(objPath));
+  m_exportPathEdit->setText(pathAsQString(objPath));
 }
 
 } // namespace tb::ui

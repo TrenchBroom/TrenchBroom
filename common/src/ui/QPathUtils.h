@@ -23,7 +23,7 @@
 
 #include <filesystem>
 
-namespace tb::io
+namespace tb::ui
 {
 
 /**
@@ -48,4 +48,4 @@ QString pathAsGenericQString(const std::filesystem::path& path);
  */
 std::filesystem::path pathFromQString(const QString& path);
 
-} // namespace tb::io
+} // namespace tb::ui

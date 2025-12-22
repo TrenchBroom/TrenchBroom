@@ -27,7 +27,7 @@
 
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 
 #include <algorithm>
 #include <vector>
@@ -46,12 +46,12 @@ std::filesystem::path appImageDirectory()
 
 std::filesystem::path appFile()
 {
-  return io::pathFromQString(QCoreApplication::applicationFilePath());
+  return pathFromQString(QCoreApplication::applicationFilePath());
 }
 
 std::filesystem::path appDirectory()
 {
-  return io::pathFromQString(QCoreApplication::applicationDirPath());
+  return pathFromQString(QCoreApplication::applicationDirPath());
 }
 
 std::filesystem::path userDataDirectory()
@@ -62,9 +62,9 @@ std::filesystem::path userDataDirectory()
   }
 #if defined __linux__ || defined __FreeBSD__
   // Compatibility with wxWidgets
-  return io::pathFromQString(QDir::homePath()) / ".TrenchBroom";
+  return pathFromQString(QDir::homePath()) / ".TrenchBroom";
 #else
-  return io::pathFromQString(
+  return pathFromQString(
     QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 #endif
 }
@@ -76,8 +76,7 @@ std::filesystem::path userGamesDirectory()
 
 std::filesystem::path tempDirectory()
 {
-  return io::pathFromQString(
-    QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+  return pathFromQString(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
 }
 
 std::filesystem::path logFilePath()
@@ -114,9 +113,9 @@ std::filesystem::path findResourceFile(const std::filesystem::path& file)
     return inAppImageDir;
   }
 
-  return io::pathFromQString(QStandardPaths::locate(
+  return pathFromQString(QStandardPaths::locate(
     QStandardPaths::AppDataLocation,
-    io::pathAsQPath(file),
+    pathAsQPath(file),
     QStandardPaths::LocateOption::LocateFile));
 }
 
@@ -134,12 +133,12 @@ std::vector<std::filesystem::path> findResourceDirectories(
 
   const auto dirs = QStandardPaths::locateAll(
     QStandardPaths::AppDataLocation,
-    io::pathAsQPath(directory),
+    pathAsQPath(directory),
     QStandardPaths::LocateOption::LocateDirectory);
 
   for (const auto& dir : dirs)
   {
-    const auto path = io::pathFromQString(dir);
+    const auto path = pathFromQString(dir);
     if (std::ranges::find(result, path) == result.end())
     {
       result.push_back(path);

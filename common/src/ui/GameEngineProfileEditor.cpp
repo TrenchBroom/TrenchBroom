@@ -28,8 +28,8 @@
 
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
-#include "io/PathQt.h"
 #include "mdl/GameEngineProfile.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -97,7 +97,7 @@ void GameEngineProfileEditor::updatePath(const QString& str)
   const auto valid = isValidEnginePath(str);
   if (valid)
   {
-    m_profile->path = io::pathFromQString(str);
+    m_profile->path = pathFromQString(str);
     if (m_profile->name.empty())
     {
       m_profile->name = m_profile->path.stem().string();
@@ -126,14 +126,14 @@ void GameEngineProfileEditor::setProfile(mdl::GameEngineProfile* profile)
 void GameEngineProfileEditor::refresh()
 {
   m_nameEdit->setText(m_profile ? QString::fromStdString(m_profile->name) : "");
-  m_pathEdit->setText(m_profile ? io::pathAsQString(m_profile->path) : "");
+  m_pathEdit->setText(m_profile ? pathAsQString(m_profile->path) : "");
 }
 
 bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const
 {
   try
   {
-    const auto path = io::pathFromQString(str);
+    const auto path = pathFromQString(str);
     return fs::Disk::pathInfo(path) == fs::PathInfo::File
 #ifdef __APPLE__
            || (fs::Disk::pathInfo(path) == fs::PathInfo::Directory 

@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PathQt.h"
+#include "QPathUtils.h"
 
 #include <QFileInfo>
 
 #include "kd/path_utils.h"
 
-namespace tb::io
+namespace tb::ui
 {
 
 QString pathAsQPath(const std::filesystem::path& path)
@@ -58,4 +58,4 @@ std::filesystem::path pathFromQString(const QString& path)
 #endif
 }
 
-} // namespace tb::io
+} // namespace tb::ui

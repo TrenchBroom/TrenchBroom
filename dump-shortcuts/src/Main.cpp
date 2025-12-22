@@ -26,9 +26,9 @@
 #include "KeyStrings.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "io/PathQt.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"
+#include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
 #include "ui/SystemPaths.h"
 
@@ -116,8 +116,7 @@ void printMenuShortcuts(QTextStream& out)
   actionManager.visitMainMenu(kdl::overload(
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
-      out << "    '" << io::pathAsGenericQString(actionItem.action.preference().path)
-          << "': "
+      out << "    '" << pathAsGenericQString(actionItem.action.preference().path) << "': "
           << "{ path: " << toString(currentPath, actionItem.action.label())
           << ", shortcut: " << toString(pref(actionItem.action.preference())) << " },\n";
     },
@@ -135,7 +134,7 @@ void printActionShortcuts(QTextStream& out)
   out << "const actions = {\n";
 
   auto printPref = [&out](const auto& prefPath, const auto& keySequence) {
-    out << "    '" << io::pathAsGenericQString(prefPath) << "': ";
+    out << "    '" << pathAsGenericQString(prefPath) << "': ";
     out << toString(keySequence) << ",\n";
   };
 
@@ -183,7 +182,7 @@ int main(int argc, char* argv[])
   QApplication::setOrganizationDomain("io.github.trenchbroom");
 
   tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
-    tb::io::pathAsQString(tb::ui::SystemPaths::preferenceFilePath())));
+    tb::ui::pathAsQString(tb::ui::SystemPaths::preferenceFilePath())));
 
   // QKeySequence requires that an application instance is created!
   auto app = QApplication{argc, argv};

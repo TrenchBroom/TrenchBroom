@@ -25,10 +25,10 @@
 #include <QPushButton>
 #include <QUrl>
 
-#include "io/PathQt.h"
 #include "ui/DialogHeader.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/GetVersion.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 
 namespace tb::ui
@@ -60,9 +60,9 @@ void CrashDialog::createGui(
   text1->setWordWrap(true);
 
   auto* reasonText = new QLabel{QString::fromStdString(reason)};
-  auto* reportPathText = new QLabel{io::pathAsQString(reportPath)};
-  auto* mapPathText = new QLabel{io::pathAsQString(mapPath)};
-  auto* logPathText = new QLabel{io::pathAsQString(logPath)};
+  auto* reportPathText = new QLabel{pathAsQString(reportPath)};
+  auto* mapPathText = new QLabel{pathAsQString(mapPath)};
+  auto* logPathText = new QLabel{pathAsQString(logPath)};
   auto* versionText = new QLabel{getBuildVersion()};
   auto* buildText = new QLabel{getBuildIdStr()};
 

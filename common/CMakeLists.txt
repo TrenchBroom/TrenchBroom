@@ -49,7 +49,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/NodeWriter.cpp
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
-        ${COMMON_SOURCE_DIR}/io/PathQt.cpp
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/io/WorldReader.cpp
@@ -412,6 +411,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.cpp
+        ${COMMON_SOURCE_DIR}/ui/QPathUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.cpp
@@ -530,7 +530,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/NodeWriter.h
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.h
         ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
-        ${COMMON_SOURCE_DIR}/io/PathQt.h
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/io/WorldReader.h
@@ -931,6 +930,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.h
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.h
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.h
+        ${COMMON_SOURCE_DIR}/ui/QPathUtils.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.h

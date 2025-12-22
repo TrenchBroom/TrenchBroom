@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 #include "ui/QPreferenceStoreUtils.h"
 
 #include "catch/CatchConfig.h"
@@ -29,7 +29,7 @@ namespace tb::ui
 namespace
 {
 
-const auto preferenceFile = io::pathAsQString(
+const auto preferenceFile = pathAsQString(
   std::filesystem::current_path() / "fixture" / "test" / "ui" / "QPreferenceStoreUtils"
   / "preferences.json");
 

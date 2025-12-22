@@ -35,7 +35,6 @@
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
-#include "io/PathQt.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
@@ -44,6 +43,7 @@
 #include "ui/GameListBox.h"
 #include "ui/ImageUtils.h"
 #include "ui/MapDocument.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/SystemPaths.h"
 #include "ui/ViewConstants.h"
@@ -117,7 +117,7 @@ void GamesPreferencePane::showUserConfigDirClicked()
   const auto path = SystemPaths::userGamesDirectory().lexically_normal();
 
   fs::Disk::createDirectory(path) | kdl::transform([&](auto) {
-    const auto url = QUrl::fromLocalFile(io::pathAsQPath(path));
+    const auto url = QUrl::fromLocalFile(pathAsQPath(path));
     QDesktopServices::openUrl(url);
   }) | kdl::transform_error([&](auto e) {
     if (m_document)
@@ -254,14 +254,14 @@ void GamePreferencePane::createGui()
     auto& toolPathPref = tool.pathPreference;
 
     auto* edit = new QLineEdit{};
-    edit->setText(io::pathAsQString(pref(tool.pathPreference)));
+    edit->setText(pathAsQString(pref(tool.pathPreference)));
     if (tool.description)
     {
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
     connect(edit, &QLineEdit::editingFinished, this, [&toolPathPref, edit]() {
       auto& prefs = PreferenceManager::instance();
-      prefs.set(toolPathPref, io::pathFromQString(edit->text()));
+      prefs.set(toolPathPref, pathFromQString(edit->text()));
     });
 
     m_toolPathEditors.emplace_back(&tool, edit);
@@ -277,7 +277,7 @@ void GamePreferencePane::createGui()
         {
           edit->setText(pathStr);
           auto& prefs = PreferenceManager::instance();
-          prefs.set(toolPathPref, io::pathFromQString(edit->text()));
+          prefs.set(toolPathPref, pathFromQString(edit->text()));
           emit requestUpdate();
         }
       });
@@ -314,7 +314,7 @@ void GamePreferencePane::updateGamePath(const QString& str)
   updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
 
   auto& prefs = PreferenceManager::instance();
-  prefs.set(gameInfo->gamePathPreference, io::pathFromQString(str));
+  prefs.set(gameInfo->gamePathPreference, pathFromQString(str));
   emit requestUpdate();
 }
 
@@ -341,12 +341,12 @@ void GamePreferencePane::updateControls()
   for (const auto& [tool, toolPathEditor] : m_toolPathEditors)
   {
     const auto& toolPath = pref(tool->pathPreference);
-    toolPathEditor->setText(io::pathAsQString(toolPath));
+    toolPathEditor->setText(pathAsQString(toolPath));
   }
 
   // Refresh game path
   const auto gamePath = pref(gameInfo->gamePathPreference);
-  m_gamePathText->setText(io::pathAsQString(gamePath));
+  m_gamePathText->setText(pathAsQString(gamePath));
 }
 
 } // namespace tb::ui

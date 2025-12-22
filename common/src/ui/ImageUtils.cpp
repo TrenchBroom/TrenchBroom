@@ -29,7 +29,7 @@
 #include <QThread>
 
 #include "Thread.h"
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 #include "ui/SystemPaths.h"
 
 #include "kd/contracts.h"
@@ -46,7 +46,7 @@ QString imagePathToString(const std::filesystem::path& imagePath)
   const auto fullPath = imagePath.is_absolute()
                           ? imagePath
                           : SystemPaths::findResourceFile("images" / imagePath);
-  return io::pathAsQPath(fullPath);
+  return pathAsQPath(fullPath);
 }
 
 QImage createDisabledState(const QImage& image)
@@ -214,7 +214,7 @@ QIcon loadSVGIcon(const std::filesystem::path& imagePath)
     }
     else
     {
-      qWarning() << "Couldn't find image for path: " << io::pathAsQString(imagePath);
+      qWarning() << "Couldn't find image for path: " << pathAsQString(imagePath);
     }
   }
 

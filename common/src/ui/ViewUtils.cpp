@@ -25,12 +25,12 @@
 #include <QWidget>
 
 #include "PreferenceManager.h"
-#include "io/PathQt.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "ui/ChoosePathTypeDialog.h"
+#include "ui/QPathUtils.h"
 
 #include "kd/path_utils.h"
 #include "kd/string_compare.h"
@@ -77,7 +77,7 @@ bool loadEntityDefinitionFile(mdl::Map& map, QWidget* parent, const QString& pat
   const auto gamePath = pref(map.gameInfo().gamePathPreference);
   const auto docPath = map.path();
 
-  const auto absPath = io::pathFromQString(pathStr);
+  const auto absPath = pathFromQString(pathStr);
   if (isEntityDefinitionFile(absPath))
   {
     auto pathDialog = ChoosePathTypeDialog{parent->window(), absPath, docPath, gamePath};

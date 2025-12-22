@@ -21,10 +21,10 @@
 
 #include <QBoxLayout>
 
-#include "io/PathQt.h"
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
 #include "ui/ElidedLabel.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 
 namespace tb::ui
@@ -64,7 +64,7 @@ void GameEngineProfileItemRenderer::createGui()
 void GameEngineProfileItemRenderer::refresh()
 {
   m_nameLabel->setText(m_profile ? QString::fromStdString(m_profile->name) : "");
-  m_pathLabel->setText(m_profile ? io::pathAsQString(m_profile->path) : "");
+  m_pathLabel->setText(m_profile ? pathAsQString(m_profile->path) : "");
 }
 
 void GameEngineProfileItemRenderer::profileWillBeRemoved()

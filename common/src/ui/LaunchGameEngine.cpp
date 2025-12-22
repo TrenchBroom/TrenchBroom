@@ -24,8 +24,8 @@
 #include <QStringList>
 
 #include "el/Interpolate.h"
-#include "io/PathQt.h"
 #include "mdl/GameEngineProfile.h"
+#include "ui/QPathUtils.h"
 
 #include "kd/cmd_utils.h"
 
@@ -56,14 +56,14 @@ Result<void> launchGameEngineProfile(
   const el::VariableStore& variables,
   const std::optional<std::filesystem::path>& logFilePath)
 {
-  const auto workDir = io::pathAsQString(profile.path.parent_path());
+  const auto workDir = pathAsQString(profile.path.parent_path());
   return arguments(profile, variables) | kdl::and_then([&](const auto& engineArguments) {
            auto process = QProcess{};
            process.setWorkingDirectory(workDir);
 
            if (logFilePath)
            {
-             const auto qLogFilePath = io::pathAsQString(*logFilePath);
+             const auto qLogFilePath = pathAsQString(*logFilePath);
              process.setStandardOutputFile(qLogFilePath);
              process.setStandardErrorFile(qLogFilePath);
            }
@@ -80,7 +80,7 @@ Result<void> launchGameEngineProfile(
              // We have to launch apps via the 'open' command so that we can properly
              // pass parameters.
              auto launchArguments = QStringList{};
-             launchArguments << "-a" << io::pathAsQString(profile.path) << "--args";
+             launchArguments << "-a" << pathAsQString(profile.path) << "--args";
              launchArguments.append(engineArguments);
 
              process.setProgram("/usr/bin/open");
@@ -88,7 +88,7 @@ Result<void> launchGameEngineProfile(
            }
            else
            {
-             process.setProgram(io::pathAsQString(profile.path));
+             process.setProgram(pathAsQString(profile.path));
              process.setArguments(engineArguments);
            }
 

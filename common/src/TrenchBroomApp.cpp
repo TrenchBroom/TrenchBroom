@@ -25,7 +25,6 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "io/MapHeader.h"
-#include "io/PathQt.h"
 #include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
@@ -40,6 +39,7 @@
 #include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
 #include "ui/PreferenceDialog.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/RecentDocuments.h"
 #include "ui/SystemPaths.h"
@@ -363,7 +363,7 @@ QPalette TrenchBroomApp::darkPalette()
 bool TrenchBroomApp::loadStyleSheets()
 {
   const auto path = ui::SystemPaths::findResourceFile("stylesheets/base.qss");
-  if (auto file = QFile{io::pathAsQPath(path)}; file.exists())
+  if (auto file = QFile{ui::pathAsQPath(path)}; file.exists())
   {
     // closed automatically by destructor
     file.open(QFile::ReadOnly | QFile::Text);
@@ -541,7 +541,7 @@ void TrenchBroomApp::openDocument()
     fileDialogDefaultDirectory(FileDialogDir::Map),
     "Map files (*.map);;Any files (*.*)");
 
-  if (const auto path = io::pathFromQString(pathStr); !path.empty())
+  if (const auto path = ui::pathFromQString(pathStr); !path.empty())
   {
     updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
     openDocument(path);
@@ -551,7 +551,7 @@ void TrenchBroomApp::openDocument()
 void TrenchBroomApp::showManual()
 {
   const auto manualPath = ui::SystemPaths::findResourceFile("manual/index.html");
-  const auto manualPathUrl = QUrl::fromLocalFile(io::pathAsQString(manualPath));
+  const auto manualPathUrl = QUrl::fromLocalFile(ui::pathAsQString(manualPath));
   QDesktopServices::openUrl(manualPathUrl);
 }
 
@@ -619,7 +619,7 @@ void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
   auto anyDocumentOpened = false;
   for (const auto& fileName : filesToOpen)
   {
-    const auto path = io::pathFromQString(fileName);
+    const auto path = ui::pathFromQString(fileName);
     if (!path.empty() && openDocument(path))
     {
       anyDocumentOpened = true;

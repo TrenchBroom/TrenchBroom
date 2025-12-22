@@ -26,7 +26,7 @@
 #include "Contracts.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
 #include "ui/SystemPaths.h"
 
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
   // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
   tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
-    tb::io::pathAsQString(tb::ui::SystemPaths::preferenceFilePath())));
+    tb::ui::pathAsQString(tb::ui::SystemPaths::preferenceFilePath())));
   tb::ui::TrenchBroomApp app(argc, argv);
 
   app.askForAutoUpdates();

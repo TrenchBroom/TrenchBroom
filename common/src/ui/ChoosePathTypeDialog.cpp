@@ -24,9 +24,9 @@
 #include <QRadioButton>
 
 #include "Macros.h"
-#include "io/PathQt.h"
 #include "ui/BorderLine.h"
 #include "ui/DialogHeader.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/SystemPaths.h"
 #include "ui/ViewConstants.h"
@@ -92,7 +92,7 @@ void ChoosePathTypeDialog::createGui(
   makeEmphasized(m_absRadio);
   m_absRadio->setChecked(true);
 
-  auto* absolutePathText = makeInfo(new QLabel{io::pathAsQString(absPath)});
+  auto* absolutePathText = makeInfo(new QLabel{pathAsQString(absPath)});
 
   m_docRelativeRadio = new QRadioButton{tr("Relative to map file")};
   makeEmphasized(m_docRelativeRadio);
@@ -100,7 +100,7 @@ void ChoosePathTypeDialog::createGui(
 
   auto* mapRelativePathText = makeInfo(new QLabel{
     docRelativePath.empty() ? tr("Could not build a path.")
-                            : io::pathAsQString(docRelativePath)});
+                            : pathAsQString(docRelativePath)});
 
   m_appRelativeRadio = new QRadioButton{tr("Relative to application executable")};
   makeEmphasized(m_appRelativeRadio);
@@ -108,7 +108,7 @@ void ChoosePathTypeDialog::createGui(
 
   auto* appRelativePathText = makeInfo(new QLabel{
     appRelativePath.empty() ? tr("Could not build a path.")
-                            : io::pathAsQString(appRelativePath)});
+                            : pathAsQString(appRelativePath)});
 
   m_gameRelativeRadio = new QRadioButton{tr("Relative to game directory")};
   makeEmphasized(m_gameRelativeRadio);
@@ -116,7 +116,7 @@ void ChoosePathTypeDialog::createGui(
 
   auto* gameRelativePathText = makeInfo(new QLabel{
     gameRelativePath.empty() ? tr("Could not build a path.")
-                             : io::pathAsQString(gameRelativePath)});
+                             : pathAsQString(gameRelativePath)});
 
   auto* okCancelButtons =
     new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel};

@@ -30,12 +30,12 @@
 #include "fs/PathMatcher.h"
 #include "fs/TraversalMode.h"
 #include "io/ExportOptions.h"
-#include "io/PathQt.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/Map.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationVariables.h"
+#include "ui/QPathUtils.h"
 
 #include "kd/cmd_utils.h"
 #include "kd/contracts.h"
@@ -117,7 +117,7 @@ void CompilationExportMapTaskRunner::doExecute()
 
   interpolate(m_task.targetSpec).and_then([&](const auto& interpolated) {
     const auto targetPath = kdl::parse_path(interpolated);
-    m_context << "#### Exporting map file '" << io::pathAsQString(targetPath) << "'\n";
+    m_context << "#### Exporting map file '" << pathAsQString(targetPath) << "'\n";
 
     if (!m_context.test())
     {
@@ -169,8 +169,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
                      })
                      | kdl::ranges::to<std::vector>();
 
-                   m_context << "#### Copying to '" << io::pathAsQString(targetPath)
-                             << "/': "
+                   m_context << "#### Copying to '" << pathAsQString(targetPath) << "/': "
                              << QString::fromStdString(
                                   kdl::str_join(pathStrsToCopy, ", "))
                              << "\n";
@@ -217,8 +216,8 @@ void CompilationRenameFileTaskRunner::doExecute()
         const auto sourcePath = kdl::parse_path(interpolatedSource);
         const auto targetPath = kdl::parse_path(interpolatedTarget);
 
-        m_context << "#### Renaming '" << io::pathAsQString(sourcePath) << "' to '"
-                  << io::pathAsQString(targetPath) << "'\n";
+        m_context << "#### Renaming '" << pathAsQString(sourcePath) << "' to '"
+                  << pathAsQString(targetPath) << "'\n";
         if (!m_context.test())
         {
           return fs::Disk::createDirectory(targetPath.parent_path())
@@ -328,7 +327,7 @@ void CompilationRunToolTaskRunner::startProcess()
       .and_then(
         [&](const auto& workDir, const auto& program, const auto& parameters)
           -> Result<void> {
-          const auto programStr = io::pathAsQString(kdl::parse_path(program));
+          const auto programStr = pathAsQString(kdl::parse_path(program));
           const auto parameterStrs =
             parameters | std::views::transform([](const auto& p) {
               return QString::fromStdString(p);

@@ -19,7 +19,7 @@
 
 #include <QString>
 
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -32,7 +32,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-namespace tb::io
+namespace tb::ui
 {
 
 TEST_CASE("pathAsQPath")
@@ -165,4 +165,4 @@ TEST_CASE("pathFromQString")
   }
 }
 
-} // namespace tb::io
+} // namespace tb::ui
