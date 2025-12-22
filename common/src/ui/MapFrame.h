@@ -46,12 +46,16 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class Material;
+}
+
 namespace mdl
 {
 class GroupNode;
 class LayerNode;
 class Map;
-class Material;
 class Node;
 
 enum class PasteType;
@@ -385,7 +389,7 @@ public:
   bool canRevealMaterial() const;
   void revealMaterial();
 
-  void revealMaterial(const mdl::Material* material);
+  void revealMaterial(const gl::Material* material);
 
   void debugPrintVertices();
   void debugCreateBrush();

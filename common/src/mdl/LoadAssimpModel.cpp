@@ -27,10 +27,10 @@
 #include "fs/PathInfo.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
+#include "gl/Texture.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/MaterialUtils.h"
-#include "mdl/Texture.h"
 #include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
 
@@ -163,7 +163,7 @@ struct AssimpMeshWithTransforms
   aiMatrix4x4 m_axisTransform;
 };
 
-std::optional<Texture> loadFallbackTexture(const fs::FileSystem& fs)
+std::optional<gl::Texture> loadFallbackTexture(const fs::FileSystem& fs)
 {
   static const auto NoTextureName = BrushFaceAttributes::NoMaterialName;
 
@@ -182,7 +182,7 @@ std::optional<Texture> loadFallbackTexture(const fs::FileSystem& fs)
          });
 }
 
-Texture loadFallbackOrDefaultTexture(const fs::FileSystem& fs, Logger& logger)
+gl::Texture loadFallbackOrDefaultTexture(const fs::FileSystem& fs, Logger& logger)
 {
   if (auto fallbackTexture = loadFallbackTexture(fs))
   {
@@ -191,7 +191,7 @@ Texture loadFallbackOrDefaultTexture(const fs::FileSystem& fs, Logger& logger)
   return loadDefaultTexture(fs, logger);
 }
 
-Texture loadTextureFromFileSystem(
+gl::Texture loadTextureFromFileSystem(
   const std::filesystem::path& path, const fs::FileSystem& fs, Logger& logger)
 {
   return fs.openFile(path) | kdl::and_then([](auto file) {
@@ -201,10 +201,10 @@ Texture loadTextureFromFileSystem(
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
 
-Texture loadUncompressedEmbeddedTexture(
+gl::Texture loadUncompressedEmbeddedTexture(
   const aiTexel& data, const size_t width, const size_t height)
 {
-  auto buffer = TextureBuffer{width * height * sizeof(aiTexel)};
+  auto buffer = gl::TextureBuffer{width * height * sizeof(aiTexel)};
   std::memcpy(buffer.data(), &data, width * height * sizeof(aiTexel));
 
   const auto averageColor = getAverageColor(buffer, GL_BGRA);
@@ -213,19 +213,19 @@ Texture loadUncompressedEmbeddedTexture(
     height,
     averageColor,
     GL_BGRA,
-    TextureMask::On,
-    NoEmbeddedDefaults{},
+    gl::TextureMask::On,
+    gl::NoEmbeddedDefaults{},
     std::move(buffer)};
 }
 
-Texture loadCompressedEmbeddedTexture(
+gl::Texture loadCompressedEmbeddedTexture(
   const aiTexel& data, const size_t size, const fs::FileSystem& fs, Logger& logger)
 {
   return loadFreeImageTextureFromMemory(reinterpret_cast<const uint8_t*>(&data), size)
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
 
-Texture loadTexture(
+gl::Texture loadTexture(
   const aiTexture* texture,
   const std::filesystem::path& texturePath,
   const std::filesystem::path& modelPath,
@@ -250,14 +250,14 @@ Texture loadTexture(
   return loadCompressedEmbeddedTexture(*texture->pcData, texture->mWidth, fs, logger);
 }
 
-std::vector<Texture> loadTexturesForMaterial(
+std::vector<gl::Texture> loadTexturesForMaterial(
   const aiScene& scene,
   const size_t materialIndex,
   const std::filesystem::path& modelPath,
   const fs::FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Texture>{};
+  auto textures = std::vector<gl::Texture>{};
 
   // Is there even a single diffuse texture? If not, fail and load fallback texture.
   const auto textureCount =
@@ -813,7 +813,7 @@ Result<EntityModelData> loadAssimpModel(
 {
   const auto createMaterial = [](auto texture) {
     auto textureResource = createTextureResource(std::move(texture));
-    return Material{"", std::move(textureResource)};
+    return gl::Material{"", std::move(textureResource)};
   };
 
   try

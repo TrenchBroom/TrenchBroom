@@ -19,10 +19,10 @@
 
 #include "ObjSerializer.h"
 
+#include "gl/Material.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ExportOptions.h"
-#include "mdl/Material.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Polyhedron.h"
 
@@ -110,7 +110,7 @@ static void writeMtlFile(
   const std::vector<ObjSerializer::Object>& objects,
   const ObjExportOptions& options)
 {
-  auto usedMaterials = std::map<std::string, const Material*>{};
+  auto usedMaterials = std::map<std::string, const gl::Material*>{};
 
   for (const auto& object : objects)
   {

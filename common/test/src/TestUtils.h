@@ -39,11 +39,11 @@ bool uvListsEqual(
 
 std::unique_ptr<kdl::task_manager> createTestTaskManager();
 
-namespace mdl
+namespace gl
 {
 class Material;
 class Texture;
-} // namespace mdl
+} // namespace gl
 
 namespace mdl
 {
@@ -176,9 +176,9 @@ enum class ColorMatch
 };
 
 int getComponentOfPixel(
-  const mdl::Texture& texture, std::size_t x, std::size_t y, Component component);
+  const gl::Texture& texture, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const mdl::Texture& texture,
+  const gl::Texture& texture,
   std::size_t x,
   std::size_t y,
   int r,
@@ -188,9 +188,9 @@ void checkColor(
   ColorMatch match = ColorMatch::Exact);
 
 int getComponentOfPixel(
-  const mdl::Material& material, std::size_t x, std::size_t y, Component component);
+  const gl::Material& material, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const mdl::Material& material,
+  const gl::Material& material,
   std::size_t x,
   std::size_t y,
   int r,

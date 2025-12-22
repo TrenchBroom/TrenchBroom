@@ -28,7 +28,7 @@
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 namespace
@@ -366,4 +366,4 @@ void Texture::setFilterMode(const int minFilter, const int magFilter) const
   }
 }
 
-} // namespace tb::mdl
+} // namespace tb::gl

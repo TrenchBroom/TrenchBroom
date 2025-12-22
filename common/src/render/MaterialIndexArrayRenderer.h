@@ -23,14 +23,7 @@
 #include "render/MaterialIndexArrayMap.h"
 #include "render/VertexArray.h"
 
-namespace tb
-{
-namespace mdl
-{
-class Material;
-}
-
-namespace render
+namespace tb::render
 {
 class VboManager;
 class MaterialRenderFunc;
@@ -53,5 +46,4 @@ public:
   void render(MaterialRenderFunc& func);
 };
 
-} // namespace render
-} // namespace tb
+} // namespace tb::render

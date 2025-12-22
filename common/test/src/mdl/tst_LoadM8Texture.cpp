@@ -19,9 +19,9 @@
 
 #include "TestUtils.h"
 #include "fs/DiskFileSystem.h"
+#include "gl/Texture.h"
 #include "mdl/LoadM8Texture.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
 
 #include "kd/result.h"
 

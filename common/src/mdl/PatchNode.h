@@ -29,10 +29,16 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-namespace tb::mdl
+namespace tb
+{
+namespace gl
+{
+class Material;
+}
+
+namespace mdl
 {
 class EntityNodeBase;
-class Material;
 
 struct PatchGrid
 {
@@ -85,7 +91,7 @@ public:
   const BezierPatch& patch() const;
   BezierPatch setPatch(BezierPatch patch);
 
-  void setMaterial(Material* material);
+  void setMaterial(gl::Material* material);
 
   const PatchGrid& grid() const;
 
@@ -125,4 +131,5 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

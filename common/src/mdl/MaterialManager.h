@@ -20,8 +20,8 @@
 #pragma once
 
 #include "gl/ResourceId.h"
+#include "gl/TextureResource.h"
 #include "mdl/MaterialCollection.h"
-#include "mdl/TextureResource.h"
 
 #include <string>
 #include <unordered_map>
@@ -36,6 +36,11 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class Material;
+}
+
 namespace fs
 {
 class FileSystem;
@@ -43,7 +48,6 @@ class FileSystem;
 
 namespace mdl
 {
-class Material;
 class MaterialCollection;
 
 struct MaterialConfig;
@@ -51,16 +55,16 @@ struct MaterialConfig;
 class MaterialManager
 {
 private:
-  CreateTextureResource m_createResource;
+  gl::CreateTextureResource m_createResource;
   Logger& m_logger;
 
   std::vector<MaterialCollection> m_collections;
 
-  std::unordered_map<std::string, Material*> m_materialsByName;
-  std::vector<const Material*> m_materials;
+  std::unordered_map<std::string, gl::Material*> m_materialsByName;
+  std::vector<const gl::Material*> m_materials;
 
 public:
-  MaterialManager(CreateTextureResource createResource, Logger& logger);
+  MaterialManager(gl::CreateTextureResource createResource, Logger& logger);
   ~MaterialManager();
 
   void reload(
@@ -77,17 +81,18 @@ private:
 public:
   void clear();
 
-  const Material* material(const std::string& name) const;
-  Material* material(const std::string& name);
+  const gl::Material* material(const std::string& name) const;
+  gl::Material* material(const std::string& name);
 
-  const std::vector<const Material*> findMaterialsByTextureResourceId(
+  const std::vector<const gl::Material*> findMaterialsByTextureResourceId(
     const std::vector<gl::ResourceId>& textureResourceIds) const;
 
-  const std::vector<const Material*>& materials() const;
+  const std::vector<const gl::Material*>& materials() const;
   const std::vector<MaterialCollection>& collections() const;
 
 private:
   void updateMaterials();
 };
+
 } // namespace mdl
 } // namespace tb

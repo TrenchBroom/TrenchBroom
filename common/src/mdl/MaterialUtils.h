@@ -21,8 +21,8 @@
 
 #include "Logger.h"
 #include "Result.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 
 #include "kd/reflection_decl.h"
 
@@ -41,8 +41,6 @@ class FileSystem;
 
 namespace mdl
 {
-class Material;
-class Texture;
 
 enum class TextureMask;
 
@@ -76,7 +74,7 @@ struct ReadMaterialError
  * @param name the name of the texture to be returned
  * @return the default texture
  */
-Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger);
+gl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger);
 
 /**
  * Loads a default material from the given file system. If the default material cannot be
@@ -86,13 +84,14 @@ Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger);
  * @param name the name of the material to be returned
  * @return the default material
  */
-Material loadDefaultMaterial(const fs::FileSystem& fs, std::string name, Logger& logger);
+gl::Material loadDefaultMaterial(
+  const fs::FileSystem& fs, std::string name, Logger& logger);
 
 inline auto makeReadTextureErrorHandler(const fs::FileSystem& fs, Logger& logger)
 {
   return [&](Error e) {
     logger.error() << "Could not open texture file: " << e.msg;
-    return Result<Texture>{loadDefaultTexture(fs, logger)};
+    return Result<gl::Texture>{loadDefaultTexture(fs, logger)};
   };
 }
 
@@ -101,15 +100,15 @@ inline auto makeReadMaterialErrorHandler(const fs::FileSystem& fs, Logger& logge
   return kdl::overload(
     [&](Error e) {
       logger.error() << "Could not open material file: " << e.msg;
-      return Result<Material>{loadDefaultMaterial(fs, "", logger)};
+      return Result<gl::Material>{loadDefaultMaterial(fs, "", logger)};
     },
     [&](ReadMaterialError e) {
       logger.error() << "Could not read material '" << e.materialName << "': " << e.msg;
-      return Result<Material>{loadDefaultMaterial(fs, e.materialName, logger)};
+      return Result<gl::Material>{loadDefaultMaterial(fs, e.materialName, logger)};
     });
 }
 
-TextureMask getTextureMaskFromName(std::string_view name);
+gl::TextureMask getTextureMaskFromName(std::string_view name);
 
 } // namespace mdl
 } // namespace tb

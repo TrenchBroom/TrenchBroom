@@ -20,8 +20,8 @@
 #include "LoadBspModel.h"
 
 #include "fs/ReaderException.h"
+#include "gl/Material.h"
 #include "mdl/LoadMipTexture.h"
-#include "mdl/Material.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 #include "render/MaterialIndexRangeMap.h"
@@ -83,7 +83,7 @@ struct FaceInfo
 };
 
 
-std::vector<Material> parseMaterials(
+std::vector<gl::Material> parseMaterials(
   fs::Reader reader,
   const int version,
   const Palette& palette,
@@ -91,7 +91,7 @@ std::vector<Material> parseMaterials(
   Logger& logger)
 {
   const auto materialCount = reader.readSize<int32_t>();
-  auto result = std::vector<Material>{};
+  auto result = std::vector<gl::Material>{};
   result.reserve(materialCount);
 
   for (size_t i = 0; i < materialCount; ++i)
@@ -114,7 +114,7 @@ std::vector<Material> parseMaterials(
       | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
       | kdl::transform([&](auto texture) {
           auto textureResource = createTextureResource(std::move(texture));
-          return Material{std::move(materialName), std::move(textureResource)};
+          return gl::Material{std::move(materialName), std::move(textureResource)};
         })
       | kdl::value());
   }
@@ -183,7 +183,7 @@ std::vector<int> parseFaceEdges(fs::Reader reader, const size_t faceEdgeCount)
 }
 
 vm::vec2f uvCoords(
-  const vm::vec3f& vertex, const MaterialInfo& materialInfo, const Material* material)
+  const vm::vec3f& vertex, const MaterialInfo& materialInfo, const gl::Material* material)
 {
   if (const auto* texture = getTexture(material))
   {

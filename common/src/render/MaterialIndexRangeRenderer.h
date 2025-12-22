@@ -27,7 +27,7 @@
 
 namespace tb
 {
-namespace mdl
+namespace gl
 {
 class Material;
 }
@@ -58,7 +58,7 @@ public:
   MaterialIndexRangeRenderer();
   MaterialIndexRangeRenderer(VertexArray vertexArray, MaterialIndexRangeMap indexRange);
   MaterialIndexRangeRenderer(
-    VertexArray vertexArray, const mdl::Material* material, IndexRangeMap indexRange);
+    VertexArray vertexArray, const gl::Material* material, IndexRangeMap indexRange);
   ~MaterialIndexRangeRenderer() override;
 
   bool empty() const override;

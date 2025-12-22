@@ -34,6 +34,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Material;
+}
+
 namespace mdl
 {
 class BrushNode;
@@ -125,9 +130,9 @@ private:
   {
     AllocationTracker::Block* vertexHolderKey;
     AllocationTracker::Block* edgeIndicesKey;
-    std::vector<std::pair<const mdl::Material*, AllocationTracker::Block*>>
+    std::vector<std::pair<const gl::Material*, AllocationTracker::Block*>>
       opaqueFaceIndicesKeys;
-    std::vector<std::pair<const mdl::Material*, AllocationTracker::Block*>>
+    std::vector<std::pair<const gl::Material*, AllocationTracker::Block*>>
       transparentFaceIndicesKeys;
   };
   /**
@@ -149,7 +154,7 @@ private:
   std::shared_ptr<BrushIndexArray> m_edgeIndices;
 
   using MaterialToBrushIndicesMap =
-    std::unordered_map<const mdl::Material*, std::shared_ptr<BrushIndexArray>>;
+    std::unordered_map<const gl::Material*, std::shared_ptr<BrushIndexArray>>;
   std::shared_ptr<MaterialToBrushIndicesMap> m_transparentFaces;
   std::shared_ptr<MaterialToBrushIndicesMap> m_opaqueFaces;
 
@@ -200,9 +205,9 @@ public:
    * lingering Material* pointers.
    */
   void invalidate();
-  void invalidateMaterials(const std::vector<const mdl::Material*>& materials);
+  void invalidateMaterials(const std::vector<const gl::Material*>& materials);
   void invalidateBrush(const mdl::BrushNode* brush);
-  void invalidateMaterial(const mdl::Material& material);
+  void invalidateMaterial(const gl::Material& material);
   bool valid() const;
 
   /**

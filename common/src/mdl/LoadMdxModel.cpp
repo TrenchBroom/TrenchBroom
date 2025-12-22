@@ -20,8 +20,8 @@
 #include "LoadMdxModel.h"
 
 #include "fs/ReaderException.h"
+#include "gl/Material.h"
 #include "mdl/LoadSkin.h"
-#include "mdl/Material.h"
 #include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
 #include "render/PrimType.h"
@@ -251,7 +251,7 @@ void loadSkins(
   const fs::FileSystem& fs,
   Logger& logger)
 {
-  auto materials = std::vector<Material>{};
+  auto materials = std::vector<gl::Material>{};
   materials.reserve(skins.size());
 
   for (const auto& skin : skins)

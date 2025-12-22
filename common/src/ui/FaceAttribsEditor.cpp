@@ -25,6 +25,8 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/GameConfig.h"
@@ -33,8 +35,6 @@
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Map_Brushes.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"

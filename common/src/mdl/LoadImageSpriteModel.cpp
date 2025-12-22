@@ -37,8 +37,8 @@ auto loadMaterial(
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
          | kdl::and_then([&](auto texture) {
              auto textureResource = createTextureResource(std::move(texture));
-             return Result<Material>{
-               Material{std::move(name), std::move(textureResource)}};
+             return Result<gl::Material>{
+               gl::Material{std::move(name), std::move(textureResource)}};
            });
 }
 

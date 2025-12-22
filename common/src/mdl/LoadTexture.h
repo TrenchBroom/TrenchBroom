@@ -21,7 +21,6 @@
 
 #include "Result.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
 
 #include <filesystem>
 #include <optional>
@@ -29,6 +28,10 @@
 
 namespace tb
 {
+namespace gl
+{
+class Texture;
+}
 
 namespace fs
 {
@@ -38,7 +41,7 @@ class FileSystem;
 namespace mdl
 {
 
-Result<Texture> loadTexture(
+Result<gl::Texture> loadTexture(
   const std::filesystem::path& path,
   const std::string& name,
   const fs::FileSystem& fs,

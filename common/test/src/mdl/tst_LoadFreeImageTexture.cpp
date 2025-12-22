@@ -19,8 +19,8 @@
 
 #include "TestUtils.h"
 #include "fs/DiskFileSystem.h"
+#include "gl/Texture.h"
 #include "mdl/LoadFreeImageTexture.h"
-#include "mdl/Texture.h"
 
 #include "kd/result.h"
 
@@ -53,12 +53,12 @@ void assertTexture(const std::string& name, const size_t width, const size_t hei
     CHECK(texture.width() == width);
     CHECK(texture.height() == height);
     CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-    CHECK(texture.mask() == mdl::TextureMask::Off);
+    CHECK(texture.mask() == gl::TextureMask::Off);
   }) | kdl::transform_error([](const auto& e) { FAIL(e.msg); });
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2474
-void testImageContents(Result<mdl::Texture> result, const ColorMatch match)
+void testImageContents(Result<gl::Texture> result, const ColorMatch match)
 {
   result | kdl::transform([&](const auto& texture) {
     const std::size_t w = 64u;
@@ -68,7 +68,7 @@ void testImageContents(Result<mdl::Texture> result, const ColorMatch match)
     CHECK(texture.height() == h);
     CHECK(texture.buffersIfLoaded().size() == 1u);
     CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-    CHECK(texture.mask() == mdl::TextureMask::Off);
+    CHECK(texture.mask() == gl::TextureMask::Off);
 
     for (std::size_t y = 0; y < h; ++y)
     {
@@ -124,7 +124,7 @@ TEST_CASE("loadFreeImageTexture")
     CHECK(texture.height() == h);
     CHECK(texture.buffersIfLoaded().size() == 1u);
     CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-    CHECK(texture.mask() == mdl::TextureMask::On);
+    CHECK(texture.mask() == gl::TextureMask::On);
 
     auto& mip0Data = texture.buffersIfLoaded().at(0);
     CHECK(mip0Data.size() == w * h * 4);

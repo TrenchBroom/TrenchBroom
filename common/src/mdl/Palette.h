@@ -32,6 +32,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class TextureBuffer;
+}
+
 namespace fs
 {
 class File;
@@ -40,7 +45,6 @@ class Reader;
 
 namespace mdl
 {
-class TextureBuffer;
 
 struct PaletteData
 {
@@ -99,7 +103,7 @@ public:
   bool indexedToRgba(
     fs::Reader& reader,
     size_t pixelCount,
-    TextureBuffer& rgbaImage,
+    gl::TextureBuffer& rgbaImage,
     PaletteTransparency transparency,
     Color& averageColor) const;
 

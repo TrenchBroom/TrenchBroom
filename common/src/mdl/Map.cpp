@@ -534,7 +534,7 @@ Map::Map(
       makeCreateResource<EntityModelDataResource>(*m_resourceManager),
       logger)}
   , m_materialManager{std::make_unique<MaterialManager>(
-      makeCreateResource<TextureResource>(*m_resourceManager), logger)}
+      makeCreateResource<gl::TextureResource>(*m_resourceManager), logger)}
   , m_tagManager{std::make_unique<TagManager>()}
   , m_editorContext{std::make_unique<EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
@@ -1056,7 +1056,7 @@ void Map::updateFaceTagsAfterResourcesWhereProcessed(
 
   const auto materials = m_materialManager->findMaterialsByTextureResourceId(resourceIds);
   const auto materialSet =
-    std::unordered_set<const Material*>{materials.begin(), materials.end()};
+    std::unordered_set<const gl::Material*>{materials.begin(), materials.end()};
 
   worldNode().accept(kdl::overload(
     [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },

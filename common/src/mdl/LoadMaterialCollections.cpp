@@ -25,6 +25,8 @@
 #include "fs/PathMatcher.h"
 #include "fs/TraversalMode.h"
 #include "gl/Resource.h"
+#include "gl/Texture.h"
+#include "gl/TextureResource.h"
 #include "mdl/GameConfig.h"
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/LoadShaders.h"
@@ -33,8 +35,6 @@
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 #include "mdl/Quake3Shader.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureResource.h"
 
 #include "kd/contracts.h"
 #include "kd/functional.h"
@@ -189,18 +189,18 @@ Result<std::filesystem::path> findShaderTexture(
          | kdl::transform_error([&](auto) { return DefaultTexturePath; });
 }
 
-Result<Material> loadShaderMaterial(
+Result<gl::Material> loadShaderMaterial(
   const Quake3Shader& shader,
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
-  const CreateTextureResource& createResource)
+  const gl::CreateTextureResource& createResource)
 {
   return findShaderTexture(shader, fs, materialConfig) | kdl::transform([&](auto path_) {
            return [&, path = std::move(path_)]() {
              return fs.openFile(path) | kdl::and_then([&](auto file) {
                       auto reader = file->reader().buffer();
                       return loadFreeImageTexture(reader).transform([](auto texture) {
-                        texture.setMask(TextureMask::Off);
+                        texture.setMask(gl::TextureMask::Off);
                         return texture;
                       });
                     });
@@ -212,7 +212,8 @@ Result<Material> loadShaderMaterial(
                getMaterialNameFromPathSuffix(shader.shaderPath, prefixLength);
 
              auto textureResource = createResource(std::move(textureLoader));
-             auto material = Material{std::move(shaderName), std::move(textureResource)};
+             auto material =
+               gl::Material{std::move(shaderName), std::move(textureResource)};
              material.setSurfaceParms(shader.surfaceParms);
 
              // Note that Quake 3 has a different understanding of front and back, so we
@@ -220,13 +221,13 @@ Result<Material> loadShaderMaterial(
              switch (shader.culling)
              {
              case Quake3Shader::Culling::Front:
-               material.setCulling(MaterialCulling::Back);
+               material.setCulling(gl::MaterialCulling::Back);
                break;
              case Quake3Shader::Culling::Back:
-               material.setCulling(MaterialCulling::Front);
+               material.setCulling(gl::MaterialCulling::Front);
                break;
              case Quake3Shader::Culling::None:
-               material.setCulling(MaterialCulling::None);
+               material.setCulling(gl::MaterialCulling::None);
                break;
              }
 
@@ -249,7 +250,7 @@ Result<Material> loadShaderMaterial(
            });
 }
 
-Result<Texture> findAndLoadTexture(
+Result<gl::Texture> findAndLoadTexture(
   const std::filesystem::path& path,
   const std::string& name,
   const std::vector<std::filesystem::path>& extensions,
@@ -257,31 +258,31 @@ Result<Texture> findAndLoadTexture(
   const std::optional<Palette>& palette)
 {
   return findMaterialFile(fs, path, extensions)
-    .and_then([&](const auto& actualPath) -> Result<Texture> {
+    .and_then([&](const auto& actualPath) -> Result<gl::Texture> {
       return loadTexture(actualPath, name, fs, palette);
     });
 }
 
-gl::ResourceLoader<Texture> makeTextureResourceLoader(
+gl::ResourceLoader<gl::Texture> makeTextureResourceLoader(
   const std::filesystem::path& path,
   const std::string& name,
   const std::vector<std::filesystem::path>& extensions,
   const fs::FileSystem& fs,
   const std::optional<Palette>& palette)
 {
-  return [&, path, name, palette]() -> Result<Texture> {
+  return [&, path, name, palette]() -> Result<gl::Texture> {
     return findAndLoadTexture(path, name, extensions, fs, palette)
-           | kdl::or_else([&](auto e) -> Result<Texture> {
+           | kdl::or_else([&](auto e) -> Result<gl::Texture> {
                return Error{fmt::format("Could not load texture '{}': {}", path, e.msg)};
              });
   };
 }
 
-Result<Material> loadTextureMaterial(
+Result<gl::Material> loadTextureMaterial(
   const std::filesystem::path& texturePath,
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
-  const CreateTextureResource& createResource,
+  const gl::CreateTextureResource& createResource,
   const std::optional<Palette>& palette)
 {
   const auto prefixLength = kdl::path_length(materialConfig.root);
@@ -293,7 +294,7 @@ Result<Material> loadTextureMaterial(
   auto textureLoader =
     makeTextureResourceLoader(texturePath, name, materialConfig.extensions, fs, palette);
   auto textureResource = createResource(std::move(textureLoader));
-  return Material{std::move(name), std::move(textureResource)};
+  return gl::Material{std::move(name), std::move(textureResource)};
 }
 
 std::string materialCollectionName(
@@ -328,7 +329,7 @@ std::string materialCollectionName(
 }
 
 std::vector<MaterialCollection> groupMaterialsIntoCollections(
-  std::vector<Material> materials)
+  std::vector<gl::Material> materials)
 {
   materials = kdl::vec_sort(std::move(materials), [&](const auto& lhs, const auto& rhs) {
     return lhs.collectionName() < rhs.collectionName()   ? true
@@ -344,7 +345,7 @@ std::vector<MaterialCollection> groupMaterialsIntoCollections(
 
              auto materialCollectionName = groupedMaterials.front().collectionName();
 
-             auto materialsForCollection = std::vector<Material>(
+             auto materialsForCollection = std::vector<gl::Material>(
                std::move_iterator{groupedMaterials.begin()},
                std::move_iterator{groupedMaterials.end()});
 
@@ -362,11 +363,11 @@ std::vector<MaterialCollection> groupMaterialsIntoCollections(
 } // namespace
 
 
-Result<Material> loadMaterial(
+Result<gl::Material> loadMaterial(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath,
-  const CreateTextureResource& createResource,
+  const gl::CreateTextureResource& createResource,
   const std::vector<Quake3Shader>& shaders,
   const std::optional<Palette>& palette)
 {
@@ -392,7 +393,7 @@ Result<Material> loadMaterial(
 Result<std::vector<MaterialCollection>> loadMaterialCollections(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
-  const CreateTextureResource& createResource,
+  const gl::CreateTextureResource& createResource,
   kdl::task_manager& taskManager,
   Logger& logger)
 {

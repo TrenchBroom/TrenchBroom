@@ -32,14 +32,14 @@ size_t MaterialIndexArrayMap::Size::indexCount() const
 }
 
 void MaterialIndexArrayMap::Size::inc(
-  const Material* material, const PrimType primType, const size_t count)
+  const gl::Material* material, const PrimType primType, const size_t count)
 {
   m_sizes[material].inc(primType, count);
   m_indexCount += count;
 }
 
 void MaterialIndexArrayMap::Size::inc(
-  const MaterialIndexArrayMap::Material* material, const IndexArrayMap::Size& size)
+  const gl::Material* material, const IndexArrayMap::Size& size)
 {
   m_sizes[material].inc(size);
   m_indexCount += size.indexCount();
@@ -74,7 +74,7 @@ MaterialIndexArrayMap::Size MaterialIndexArrayMap::size() const
 }
 
 size_t MaterialIndexArrayMap::add(
-  const Material* material, const PrimType primType, const size_t count)
+  const gl::Material* material, const PrimType primType, const size_t count)
 {
   auto it = m_ranges.find(material);
   contract_assert(it != std::end(m_ranges));

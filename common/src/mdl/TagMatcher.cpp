@@ -19,6 +19,7 @@
 
 #include "TagMatcher.h"
 
+#include "gl/Material.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
@@ -31,7 +32,6 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
-#include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/Selection.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
@@ -110,7 +110,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
 {
   const auto& materialManager = map.materialManager();
   const auto& allMaterials = materialManager.materials();
-  auto matchingMaterials = std::vector<const Material*>{};
+  auto matchingMaterials = std::vector<const gl::Material*>{};
 
   std::ranges::copy_if(
     allMaterials, std::back_inserter(matchingMaterials), [this](auto* material) {
@@ -121,7 +121,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
     return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
   });
 
-  const Material* material = nullptr;
+  const gl::Material* material = nullptr;
   if (matchingMaterials.empty())
   {
     return;
@@ -185,7 +185,7 @@ void MaterialNameTagMatcher::appendToStream(std::ostream& str) const
                           << "m_pattern" << m_pattern;
 }
 
-bool MaterialNameTagMatcher::matchesMaterial(const Material* material) const
+bool MaterialNameTagMatcher::matchesMaterial(const gl::Material* material) const
 {
   return material && matchesMaterialName(material->name());
 }
@@ -236,7 +236,7 @@ void SurfaceParmTagMatcher::appendToStream(std::ostream& str) const
                           << "m_parameters" << m_parameters;
 }
 
-bool SurfaceParmTagMatcher::matchesMaterial(const Material* material) const
+bool SurfaceParmTagMatcher::matchesMaterial(const gl::Material* material) const
 {
   if (material)
   {

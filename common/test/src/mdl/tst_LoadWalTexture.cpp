@@ -18,9 +18,9 @@
  */
 
 #include "fs/DiskFileSystem.h"
+#include "gl/Texture.h"
 #include "mdl/LoadWalTexture.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
 
 #include "kd/result.h"
 
@@ -45,21 +45,20 @@ TEST_CASE("loadWalTexture")
   auto paletteFile = fs.openFile("fixture/test/colormap.pcx") | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
-  using TexInfo =
-    std::tuple<std::filesystem::path, size_t, size_t, mdl::EmbeddedDefaults>;
+  using TexInfo = std::tuple<std::filesystem::path, size_t, size_t, gl::EmbeddedDefaults>;
 
   // clang-format off
   const auto 
   [path,                  width, height, embeddedDefaults] = GENERATE(values<TexInfo>({
-  { "rtz/b_pv_v1a1.wal",  128,   256,    mdl::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_pv_v1a2.wal",  128,   256,    mdl::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_pv_v1a3.wal",  128,   128,    mdl::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_rc_v16.wal",   128,   128,    mdl::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_rc_v16w.wal",  128,   128,    mdl::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_rc_v28.wal",   128,    64,    mdl::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_rc_v4.wal",    128,   128,    mdl::Q2EmbeddedDefaults{0, 0, 0} },
-  { "lavatest.wal",       64,     64,    mdl::Q2EmbeddedDefaults{9, 8, 700} },
-  { "watertest.wal",      64,     64,    mdl::Q2EmbeddedDefaults{9, 32, 120} },
+  { "rtz/b_pv_v1a1.wal",  128,   256,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_pv_v1a2.wal",  128,   256,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_pv_v1a3.wal",  128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v16.wal",   128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v16w.wal",  128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v28.wal",   128,    64,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v4.wal",    128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+  { "lavatest.wal",       64,     64,    gl::Q2EmbeddedDefaults{9, 8, 700} },
+  { "watertest.wal",      64,     64,    gl::Q2EmbeddedDefaults{9, 32, 120} },
   }));
   // clang-format on
 

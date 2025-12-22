@@ -21,8 +21,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "render/ActiveShader.h"
 #include "render/BrushRendererArrays.h"
 #include "render/Camera.h"
@@ -62,9 +62,9 @@ public:
   {
   }
 
-  void before(const mdl::Material* material) override
+  void before(const gl::Material* material) override
   {
-    if (const auto* texture = getTexture(material))
+    if (const auto* texture = gl::getTexture(material))
     {
       material->activate(m_minFilter, m_magFilter);
       m_shader.set("ApplyMaterial", m_applyMaterial);
@@ -77,7 +77,7 @@ public:
     }
   }
 
-  void after(const mdl::Material* material) override
+  void after(const gl::Material* material) override
   {
     if (material)
     {
@@ -189,7 +189,7 @@ void FaceRenderer::doRender(RenderContext& context)
       if (brushIndexHolderPtr->hasValidIndices())
       {
         const auto* texture = getTexture(material);
-        const auto enableMasked = texture && texture->mask() == mdl::TextureMask::On;
+        const auto enableMasked = texture && texture->mask() == gl::TextureMask::On;
 
         // set any per-material uniforms
         shader.set("GridColor", gridColorForMaterial(material));

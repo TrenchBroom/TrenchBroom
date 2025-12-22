@@ -2158,7 +2158,7 @@ void MapFrame::showLaunchEngineDialog()
 namespace
 {
 
-const mdl::Material* materialToReveal(const mdl::Map& map)
+const gl::Material* materialToReveal(const mdl::Map& map)
 {
   const auto& selection = map.selection();
 
@@ -2186,7 +2186,7 @@ void MapFrame::revealMaterial()
   }
 }
 
-void MapFrame::revealMaterial(const mdl::Material* material)
+void MapFrame::revealMaterial(const gl::Material* material)
 {
   m_inspector->switchToPage(InspectorPage::Face);
   m_inspector->faceInspector()->revealMaterial(material);

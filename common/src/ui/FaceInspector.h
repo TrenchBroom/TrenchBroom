@@ -27,10 +27,10 @@ class QWidget;
 
 namespace tb
 {
-namespace mdl
+namespace gl
 {
 class Material;
-} // namespace mdl
+} // namespace gl
 
 namespace ui
 {
@@ -58,7 +58,7 @@ public:
   ~FaceInspector() override;
 
   bool cancelMouseDrag();
-  void revealMaterial(const mdl::Material* material);
+  void revealMaterial(const gl::Material* material);
 
 private:
   void createGui(GLContextManager& contextManager);
@@ -66,7 +66,7 @@ private:
   QWidget* createMaterialBrowser(GLContextManager& contextManager);
   QWidget* createMaterialBrowserInfo();
 
-  void materialSelected(const mdl::Material* material);
+  void materialSelected(const gl::Material* material);
 
   void connectObservers();
   void documentWasLoaded();

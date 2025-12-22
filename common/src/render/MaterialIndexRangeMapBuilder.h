@@ -27,7 +27,7 @@
 
 namespace tb
 {
-namespace mdl
+namespace gl
 {
 class Material;
 }
@@ -47,7 +47,6 @@ class MaterialIndexRangeMapBuilder
 public:
   using Vertex = typename VertexSpec::Vertex;
   using VertexList = std::vector<Vertex>;
-  using Material = mdl::Material;
 
 private:
   using IndexData = typename VertexListBuilder<VertexSpec>::Range;
@@ -105,7 +104,7 @@ public:
    * @param material the material to use
    * @param v the position of the point to add
    */
-  void addPoint(const Material* material, const Vertex& v)
+  void addPoint(const gl::Material* material, const Vertex& v)
   {
     add(material, render::PrimType::Points, m_vertexListBuilder.addPoint(v));
   }
@@ -116,7 +115,7 @@ public:
    * @param material the material to use
    * @param vertices the positions of the points to add
    */
-  void addPoints(const Material* material, const VertexList& vertices)
+  void addPoints(const gl::Material* material, const VertexList& vertices)
   {
     add(material, render::PrimType::Points, m_vertexListBuilder.addPoints(vertices));
   }
@@ -128,7 +127,7 @@ public:
    * @param v1 the position of the first end point
    * @param v2 the position of the second end point
    */
-  void addLine(const Material* material, const Vertex& v1, const Vertex& v2)
+  void addLine(const gl::Material* material, const Vertex& v1, const Vertex& v2)
   {
     add(material, render::PrimType::Lines, m_vertexListBuilder.addLine(v1, v2));
   }
@@ -140,7 +139,7 @@ public:
    * @param material the material to use
    * @param vertices the end points of the lines to add
    */
-  void addLines(const Material* material, const VertexList& vertices)
+  void addLines(const gl::Material* material, const VertexList& vertices)
   {
     add(material, render::PrimType::Lines, m_vertexListBuilder.addLines(vertices));
   }
@@ -151,7 +150,7 @@ public:
    * @param material the material to use
    * @param vertices the end points of the lines to add
    */
-  void addLineStrip(const Material* material, const VertexList& vertices)
+  void addLineStrip(const gl::Material* material, const VertexList& vertices)
   {
     add(
       material, render::PrimType::LineStrip, m_vertexListBuilder.addLineStrip(vertices));
@@ -163,7 +162,7 @@ public:
    * @param material the material to use
    * @param vertices the end points of the lines to add
    */
-  void addLineLoop(const Material* material, const VertexList& vertices)
+  void addLineLoop(const gl::Material* material, const VertexList& vertices)
   {
     add(material, render::PrimType::LineLoop, m_vertexListBuilder.addLineLoop(vertices));
   }
@@ -177,7 +176,7 @@ public:
    * @param v3 the position of the third corner
    */
   void addTriangle(
-    const Material* material, const Vertex& v1, const Vertex& v2, const Vertex& v3)
+    const gl::Material* material, const Vertex& v1, const Vertex& v2, const Vertex& v3)
   {
     add(
       material, render::PrimType::Triangles, m_vertexListBuilder.addTriangle(v1, v2, v3));
@@ -190,7 +189,7 @@ public:
    * @param material the material to use
    * @param vertices the corner positions
    */
-  void addTriangles(const Material* material, const VertexList& vertices)
+  void addTriangles(const gl::Material* material, const VertexList& vertices)
   {
     add(
       material, render::PrimType::Triangles, m_vertexListBuilder.addTriangles(vertices));
@@ -202,7 +201,7 @@ public:
    * @param material the material to use
    * @param vertices the vertex positions
    */
-  void addTriangleFan(const Material* material, const VertexList& vertices)
+  void addTriangleFan(const gl::Material* material, const VertexList& vertices)
   {
     add(
       material,
@@ -216,7 +215,7 @@ public:
    * @param material the material to use
    * @param vertices the vertex positions
    */
-  void addTriangleStrip(const Material* material, const VertexList& vertices)
+  void addTriangleStrip(const gl::Material* material, const VertexList& vertices)
   {
     add(
       material,
@@ -234,7 +233,7 @@ public:
    * @param v4 the position of the fourth corner
    */
   void addQuad(
-    const Material* material,
+    const gl::Material* material,
     const Vertex& v1,
     const Vertex& v2,
     const Vertex& v3,
@@ -250,7 +249,7 @@ public:
    * @param material the material to use
    * @param vertices the corner positions
    */
-  void addQuads(const Material* material, const VertexList& vertices)
+  void addQuads(const gl::Material* material, const VertexList& vertices)
   {
     add(material, render::PrimType::Quads, m_vertexListBuilder.addQuads(vertices));
   }
@@ -261,7 +260,7 @@ public:
    * @param material the material to use
    * @param vertices the vertex positions
    */
-  void addQuadStrip(const Material* material, const VertexList& vertices)
+  void addQuadStrip(const gl::Material* material, const VertexList& vertices)
   {
     add(
       material, render::PrimType::QuadStrip, m_vertexListBuilder.addQuadStrip(vertices));
@@ -273,13 +272,13 @@ public:
    * @param material the material to use
    * @param vertices the croner positions
    */
-  void addPolygon(const Material* material, const VertexList& vertices)
+  void addPolygon(const gl::Material* material, const VertexList& vertices)
   {
     add(material, render::PrimType::Polygon, m_vertexListBuilder.addPolygon(vertices));
   }
 
 private:
-  void add(const Material* material, const PrimType primType, const IndexData& data)
+  void add(const gl::Material* material, const PrimType primType, const IndexData& data)
   {
     m_indexRange.add(material, primType, data.index, data.count);
   }

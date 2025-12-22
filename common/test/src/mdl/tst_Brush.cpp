@@ -21,13 +21,13 @@
 #include "TestParserStatus.h"
 #include "TestUtils.h"
 #include "fs/TestUtils.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/Material.h"
 #include "mdl/NodeReader.h"
-#include "mdl/Texture.h"
 
 #include "kd/ranges/to.h"
 #include "kd/result.h"
@@ -2204,8 +2204,8 @@ TEST_CASE("Brush")
 
       const auto worldBounds = vm::bbox3d{4096.0};
 
-      auto textureResource = createTextureResource(Texture{64, 64});
-      auto testMaterial = Material{"testMaterial", std::move(textureResource)};
+      auto textureResource = gl::createTextureResource(gl::Texture{64, 64});
+      auto testMaterial = gl::Material{"testMaterial", std::move(textureResource)};
 
       auto builder = BrushBuilder{format, worldBounds};
       auto brush = builder.createCube(64.0, "") | kdl::value();

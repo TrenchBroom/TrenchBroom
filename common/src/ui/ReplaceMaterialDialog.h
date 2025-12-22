@@ -27,10 +27,14 @@ class QPushButton;
 
 namespace tb
 {
+namespace gl
+{
+class Material;
+}
+
 namespace mdl
 {
 class BrushFaceHandle;
-class Material;
 } // namespace mdl
 
 namespace ui
@@ -58,8 +62,8 @@ private:
   std::vector<mdl::BrushFaceHandle> getApplicableFaces() const;
   void createGui(GLContextManager& contextManager);
 private slots:
-  void subjectSelected(const mdl::Material* subject);
-  void replacementSelected(const mdl::Material* replacement);
+  void subjectSelected(const gl::Material* subject);
+  void replacementSelected(const gl::Material* replacement);
   void updateReplaceButton();
 };
 

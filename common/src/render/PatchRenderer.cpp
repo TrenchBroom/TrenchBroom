@@ -21,10 +21,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/EditorContext.h"
-#include "mdl/Material.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Texture.h"
 #include "render/ActiveShader.h"
 #include "render/Camera.h"
 #include "render/GLVertexType.h"
@@ -343,7 +343,7 @@ struct RenderFunc : public MaterialRenderFunc
   {
   }
 
-  void before(const mdl::Material* material) override
+  void before(const gl::Material* material) override
   {
     shader.set("GridColor", gridColorForMaterial(material));
     if (const auto* texture = getTexture(material))
@@ -359,7 +359,7 @@ struct RenderFunc : public MaterialRenderFunc
     }
   }
 
-  void after(const mdl::Material* material) override
+  void after(const gl::Material* material) override
   {
     if (material)
     {

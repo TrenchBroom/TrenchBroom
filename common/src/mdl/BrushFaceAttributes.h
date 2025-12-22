@@ -31,7 +31,6 @@
 
 namespace tb::mdl
 {
-class Material;
 
 class BrushFaceAttributes
 {

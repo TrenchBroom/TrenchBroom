@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "mdl/Material.h"
 #include "mdl/Tag.h"
 #include "mdl/TagVisitor.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
@@ -33,7 +32,14 @@
 #include <string_view>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace gl
+{
+class Material;
+}
+
+namespace mdl
 {
 class BrushNode;
 class BrushFace;
@@ -49,7 +55,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  virtual bool matchesMaterial(const Material* material) const = 0;
+  virtual bool matchesMaterial(const gl::Material* material) const = 0;
 };
 
 class MaterialNameTagMatcher : public MaterialTagMatcher
@@ -64,7 +70,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesMaterial(const Material* material) const override;
+  bool matchesMaterial(const gl::Material* material) const override;
   bool matchesMaterialName(std::string_view materialName) const;
 };
 
@@ -81,7 +87,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesMaterial(const Material* material) const override;
+  bool matchesMaterial(const gl::Material* material) const override;
 };
 
 class FlagsTagMatcher : public TagMatcher
@@ -155,4 +161,5 @@ private:
   bool matchesClassname(const std::string& classname) const;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 TextureBuffer::TextureBuffer() = default;
@@ -167,4 +167,4 @@ void resizeMips(
   }
 }
 
-} // namespace tb::mdl
+} // namespace tb::gl

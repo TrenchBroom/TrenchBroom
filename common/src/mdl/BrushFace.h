@@ -40,9 +40,15 @@
 #include <ranges>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace gl
 {
 class Material;
+}
+
+namespace mdl
+{
 class UVCoordSystem;
 class UVCoordSystemSnapshot;
 enum class WrapStyle;
@@ -86,7 +92,7 @@ private:
   vm::plane3d m_boundary;
   BrushFaceAttributes m_attributes;
 
-  AssetReference<Material> m_materialReference;
+  AssetReference<gl::Material> m_materialReference;
   std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
   BrushFaceGeometry* m_geometry = nullptr;
 
@@ -202,11 +208,11 @@ public:
   void resetUVCoordSystemCache();
   const UVCoordSystem& uvCoordSystem() const;
 
-  const Material* material() const;
+  const gl::Material* material() const;
   vm::vec2f textureSize() const;
   vm::vec2f modOffset(const vm::vec2f& offset) const;
 
-  bool setMaterial(Material* material);
+  bool setMaterial(gl::Material* material);
 
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;
@@ -289,4 +295,5 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

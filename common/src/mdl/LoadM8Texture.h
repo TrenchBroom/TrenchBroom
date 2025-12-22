@@ -23,6 +23,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Texture;
+}
+
 namespace fs
 {
 class Reader;
@@ -30,12 +35,11 @@ class Reader;
 
 namespace mdl
 {
-class Texture;
 
 /**
  * Heretic 2 .m8 format
  */
-Result<Texture> loadM8Texture(fs::Reader& reader);
+Result<gl::Texture> loadM8Texture(fs::Reader& reader);
 
 } // namespace mdl
 } // namespace tb

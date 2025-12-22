@@ -19,19 +19,18 @@
 
 #include "TestUtils.h"
 
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GameConfigParser.h"
-#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
-#include "mdl/Material.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
@@ -403,7 +402,7 @@ Selection makeSelection(Map& map, const std::vector<BrushFaceHandle>& brushFaces
 } // namespace mdl
 
 int getComponentOfPixel(
-  const mdl::Texture& texture,
+  const gl::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const Component component)
@@ -459,7 +458,7 @@ int getComponentOfPixel(
 }
 
 void checkColor(
-  const mdl::Texture& texture,
+  const gl::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const int r,
@@ -492,7 +491,7 @@ void checkColor(
 }
 
 int getComponentOfPixel(
-  const mdl::Material& material, std::size_t x, std::size_t y, Component component)
+  const gl::Material& material, std::size_t x, std::size_t y, Component component)
 {
   contract_pre(material.texture() != nullptr);
 
@@ -500,7 +499,7 @@ int getComponentOfPixel(
 }
 
 void checkColor(
-  const mdl::Material& material,
+  const gl::Material& material,
   const std::size_t x,
   const std::size_t y,
   const int r,

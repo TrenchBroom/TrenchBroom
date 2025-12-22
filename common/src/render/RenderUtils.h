@@ -32,7 +32,7 @@
 
 namespace tb
 {
-namespace mdl
+namespace gl
 {
 class Material;
 }
@@ -40,7 +40,7 @@ class Material;
 namespace render
 {
 
-vm::vec3f gridColorForMaterial(const mdl::Material* material);
+vm::vec3f gridColorForMaterial(const gl::Material* material);
 
 void glSetEdgeOffset(double f);
 void glResetEdgeOffset();
@@ -56,8 +56,8 @@ class MaterialRenderFunc
 {
 public:
   virtual ~MaterialRenderFunc();
-  virtual void before(const mdl::Material* material);
-  virtual void after(const mdl::Material* material);
+  virtual void before(const gl::Material* material);
+  virtual void after(const gl::Material* material);
 };
 
 class DefaultMaterialRenderFunc : public MaterialRenderFunc
@@ -69,8 +69,8 @@ private:
 public:
   DefaultMaterialRenderFunc(int minFilter, int magFilter);
 
-  void before(const mdl::Material* material) override;
-  void after(const mdl::Material* material) override;
+  void before(const gl::Material* material) override;
+  void after(const gl::Material* material) override;
 };
 
 std::vector<vm::vec2f> circle2D(float radius, size_t segments);

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "mdl/TextureResource.h"
+#include "gl/TextureResource.h"
 #include "render/GL.h"
 
 #include "kd/reflection_decl.h"
@@ -30,7 +30,7 @@
 #include <set>
 #include <string>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 enum class TextureType
@@ -170,4 +170,4 @@ public:
 const Texture* getTexture(const Material* material);
 Texture* getTexture(Material* material);
 
-} // namespace tb::mdl
+} // namespace tb::gl

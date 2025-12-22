@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "mdl/Material.h"
+#include "gl/Material.h"
 #include "mdl/Palette.h"
 
 #include <filesystem>
@@ -38,10 +38,10 @@ class Reader;
 namespace mdl
 {
 
-Material loadSkin(
+gl::Material loadSkin(
   const std::filesystem::path& path, const fs::FileSystem& fs, Logger& logger);
 
-Material loadSkin(
+gl::Material loadSkin(
   const std::filesystem::path& path,
   const fs::FileSystem& fs,
   const std::optional<Palette>& palette,

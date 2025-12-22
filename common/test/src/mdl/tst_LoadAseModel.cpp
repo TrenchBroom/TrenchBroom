@@ -21,12 +21,12 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/Reader.h"
 #include "fs/VirtualFileSystem.h"
+#include "gl/Material.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/LoadAseModel.h"
 #include "mdl/LoadMaterialCollections.h"
 #include "mdl/LoadShaders.h"
-#include "mdl/Material.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 

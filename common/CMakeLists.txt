@@ -3,7 +3,11 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
+        ${COMMON_SOURCE_DIR}/gl/Material.cpp
         ${COMMON_SOURCE_DIR}/gl/ResourceId.cpp
+        ${COMMON_SOURCE_DIR}/gl/Texture.cpp
+        ${COMMON_SOURCE_DIR}/gl/TextureBuffer.cpp
+        ${COMMON_SOURCE_DIR}/gl/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
@@ -127,7 +131,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/MapHeader.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapParser.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapReader.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Material.cpp
         ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.cpp
         ${COMMON_SOURCE_DIR}/mdl/MaterialManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/MaterialUtils.cpp
@@ -182,9 +185,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/TagManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/mdl/TagVisitor.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Texture.cpp
-        ${COMMON_SOURCE_DIR}/mdl/TextureBuffer.cpp
-        ${COMMON_SOURCE_DIR}/mdl/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/mdl/Transaction.cpp
         ${COMMON_SOURCE_DIR}/mdl/UndoableCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/UpdateBrushFaceAttributes.cpp
@@ -485,9 +485,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/gl/CreateResource.h
+        ${COMMON_SOURCE_DIR}/gl/Material.h
         ${COMMON_SOURCE_DIR}/gl/ResourceManager.h
         ${COMMON_SOURCE_DIR}/gl/Resource.h
         ${COMMON_SOURCE_DIR}/gl/ResourceId.h
+        ${COMMON_SOURCE_DIR}/gl/Texture.h
+        ${COMMON_SOURCE_DIR}/gl/TextureBuffer.h
+        ${COMMON_SOURCE_DIR}/gl/TextureResource.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
@@ -617,7 +621,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/MapHeader.h
         ${COMMON_SOURCE_DIR}/mdl/MapParser.h
         ${COMMON_SOURCE_DIR}/mdl/MapReader.h
-        ${COMMON_SOURCE_DIR}/mdl/Material.h
         ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.h
         ${COMMON_SOURCE_DIR}/mdl/MaterialManager.h
         ${COMMON_SOURCE_DIR}/mdl/MaterialUtils.h
@@ -691,9 +694,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/TagMatcher.h
         ${COMMON_SOURCE_DIR}/mdl/TagType.h
         ${COMMON_SOURCE_DIR}/mdl/TagVisitor.h
-        ${COMMON_SOURCE_DIR}/mdl/Texture.h
-        ${COMMON_SOURCE_DIR}/mdl/TextureBuffer.h
-        ${COMMON_SOURCE_DIR}/mdl/TextureResource.h
         ${COMMON_SOURCE_DIR}/mdl/Transaction.h
         ${COMMON_SOURCE_DIR}/mdl/TransactionScope.h
         ${COMMON_SOURCE_DIR}/mdl/UndoableCommand.h

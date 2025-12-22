@@ -17,16 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TextureResource.h"
+#pragma once
 
-#include "mdl/Texture.h"
+#include "gl/CreateResource.h"
+#include "gl/Resource.h"
+#include "gl/Texture.h"
 
-namespace tb::mdl
+#include <memory>
+
+namespace tb::gl
 {
 
-std::shared_ptr<TextureResource> createTextureResource(Texture texture)
-{
-  return std::make_shared<TextureResource>(std::move(texture));
-}
+using TextureResource = Resource<Texture>;
+using CreateTextureResource = CreateResource<Texture>;
 
-} // namespace tb::mdl
+std::shared_ptr<TextureResource> createTextureResource(Texture texture);
+
+} // namespace tb::gl

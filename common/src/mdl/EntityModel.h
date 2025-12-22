@@ -19,6 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "gl/Material.h"
 #include "mdl/EntityModelDataResource.h"
 #include "mdl/EntityModel_Forward.h"
 #include "octree.h"
@@ -48,7 +49,6 @@ class MaterialRenderer;
 
 namespace mdl
 {
-class Material;
 class MaterialCollection;
 
 enum class PitchType
@@ -243,7 +243,7 @@ public:
    *
    * @param skins the materials to set
    */
-  void setSkins(std::vector<Material> skins);
+  void setSkins(std::vector<gl::Material> skins);
 
   /**
    * Returns the number of frame meshes in this surface, should match the model's frame
@@ -266,7 +266,7 @@ public:
    * @param name the name of the skin to find
    * @return the skin with the given name, or null if no such skin was found
    */
-  const Material* skin(const std::string& name) const;
+  const gl::Material* skin(const std::string& name) const;
 
   /**
    * Returns the skin with the given index.
@@ -274,7 +274,7 @@ public:
    * @param index the index of the skin to find
    * @return the skin with the given index, or null if the index is out of bounds
    */
-  const Material* skin(size_t index) const;
+  const gl::Material* skin(size_t index) const;
 
   std::unique_ptr<render::MaterialIndexRangeRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;

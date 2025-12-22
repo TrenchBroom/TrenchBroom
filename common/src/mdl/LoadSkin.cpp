@@ -22,20 +22,19 @@
 #include "Logger.h"
 #include "fs/FileSystem.h"
 #include "mdl/LoadTexture.h"
-#include "mdl/Material.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
 namespace tb::mdl
 {
 
-Material loadSkin(
+gl::Material loadSkin(
   const std::filesystem::path& path, const fs::FileSystem& fs, Logger& logger)
 {
   return loadSkin(path, fs, std::nullopt, logger);
 }
 
-Material loadSkin(
+gl::Material loadSkin(
   const std::filesystem::path& path,
   const fs::FileSystem& fs,
   const std::optional<Palette>& palette,
@@ -45,9 +44,9 @@ Material loadSkin(
 
   return loadTexture(path, name, fs, palette) | kdl::transform([&](auto texture) {
            auto textureResource = createTextureResource(std::move(texture));
-           return Material{std::move(name), std::move(textureResource)};
+           return gl::Material{std::move(name), std::move(textureResource)};
          })
-         | kdl::transform_error([&](auto e) -> Material {
+         | kdl::transform_error([&](auto e) {
              logger.error() << "Could not load skin '" << path << "': " << e.msg;
              return loadDefaultMaterial(fs, name, logger);
            })

@@ -84,7 +84,7 @@ TEST_CASE("loadIdMipTexture")
   const auto file = wadFS.openFile(textureName + ".D") | kdl::value();
   auto reader = file->reader().buffer();
   const auto texture =
-    loadIdMipTexture(reader, palette, mdl::TextureMask::Off) | kdl::value();
+    loadIdMipTexture(reader, palette, gl::TextureMask::Off) | kdl::value();
 
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
@@ -111,7 +111,7 @@ TEST_CASE("loadHlMipTexture")
 
   const auto file = wadFS.openFile(textureName + ".C") | kdl::value();
   auto reader = file->reader().buffer();
-  const auto texture = loadHlMipTexture(reader, mdl::TextureMask::Off) | kdl::value();
+  const auto texture = loadHlMipTexture(reader, gl::TextureMask::Off) | kdl::value();
 
   CHECK(logger.countMessages(LogLevel::Error) == 0);
   CHECK(logger.countMessages(LogLevel::Warn) == 0);

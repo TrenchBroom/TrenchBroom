@@ -29,6 +29,11 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class Material;
+}
+
 namespace fs
 {
 class FileSystem;
@@ -37,10 +42,9 @@ class FileSystem;
 namespace mdl
 {
 class EntityModel;
-class Material;
 struct MaterialConfig;
 
-using LoadMaterialFunc = std::function<Material(const std::filesystem::path&)>;
+using LoadMaterialFunc = std::function<gl::Material(const std::filesystem::path&)>;
 
 Result<EntityModel> loadEntityModelSync(
   const fs::FileSystem& fs,

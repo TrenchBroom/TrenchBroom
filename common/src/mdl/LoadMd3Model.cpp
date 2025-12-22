@@ -20,7 +20,7 @@
 #include "LoadMd3Model.h"
 
 #include "fs/ReaderException.h"
-#include "mdl/Material.h" // IWYU pragma: keep
+#include "gl/Material.h" // IWYU pragma: keep
 #include "render/IndexRangeMap.h"
 #include "render/PrimType.h"
 

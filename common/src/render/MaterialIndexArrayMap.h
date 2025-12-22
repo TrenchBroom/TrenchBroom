@@ -25,7 +25,7 @@
 
 namespace tb
 {
-namespace mdl
+namespace gl
 {
 class Material;
 }
@@ -42,11 +42,8 @@ class MaterialRenderFunc;
  */
 class MaterialIndexArrayMap
 {
-public:
-  using Material = mdl::Material;
-
 private:
-  using MaterialToIndexArrayMap = std::unordered_map<const Material*, IndexArrayMap>;
+  using MaterialToIndexArrayMap = std::unordered_map<const gl::Material*, IndexArrayMap>;
 
 public:
   /**
@@ -58,7 +55,7 @@ public:
   private:
     friend class MaterialIndexArrayMap;
 
-    using MaterialToSize = std::unordered_map<const Material*, IndexArrayMap::Size>;
+    using MaterialToSize = std::unordered_map<const gl::Material*, IndexArrayMap::Size>;
     MaterialToSize m_sizes;
     size_t m_indexCount = 0;
 
@@ -70,7 +67,7 @@ public:
      * @param primType the primitive type
      * @param count the number of primitives to account for
      */
-    void inc(const Material* material, PrimType primType, size_t count);
+    void inc(const gl::Material* material, PrimType primType, size_t count);
 
     /**
      * Increase the storage by the given size.
@@ -78,7 +75,7 @@ public:
      * @param material the material
      * @param size the size to increment by
      */
-    void inc(const Material* material, const IndexArrayMap::Size& size);
+    void inc(const gl::Material* material, const IndexArrayMap::Size& size);
 
     /**
      * The total number of indices that have been accounted for.
@@ -129,7 +126,7 @@ public:
    * @return the offset of the next block that would be recorded for the given primitive
    * type
    */
-  size_t add(const Material* material, PrimType primType, size_t count);
+  size_t add(const gl::Material* material, PrimType primType, size_t count);
 
   /**
    * Renders the recorded primitives using the indices stored in the given index array.

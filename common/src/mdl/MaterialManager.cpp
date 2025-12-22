@@ -20,8 +20,8 @@
 #include "MaterialManager.h"
 
 #include "Logger.h"
+#include "gl/Material.h"
 #include "mdl/LoadMaterialCollections.h"
-#include "mdl/Material.h"
 #include "mdl/MaterialCollection.h"
 
 #include "kd/const_overload.h"
@@ -38,7 +38,7 @@
 namespace tb::mdl
 {
 
-MaterialManager::MaterialManager(CreateTextureResource createResource, Logger& logger)
+MaterialManager::MaterialManager(gl::CreateTextureResource createResource, Logger& logger)
   : m_createResource{std::move(createResource)}
   , m_logger{logger}
 {
@@ -91,18 +91,18 @@ void MaterialManager::clear()
   // Remove logging because it might fail when the document is already destroyed.
 }
 
-const Material* MaterialManager::material(const std::string& name) const
+const gl::Material* MaterialManager::material(const std::string& name) const
 {
   auto it = m_materialsByName.find(kdl::str_to_lower(name));
   return it != m_materialsByName.end() ? it->second : nullptr;
 }
 
-Material* MaterialManager::material(const std::string& name)
+gl::Material* MaterialManager::material(const std::string& name)
 {
   return KDL_CONST_OVERLOAD(material(name));
 }
 
-const std::vector<const Material*> MaterialManager::findMaterialsByTextureResourceId(
+const std::vector<const gl::Material*> MaterialManager::findMaterialsByTextureResourceId(
   const std::vector<gl::ResourceId>& textureResourceIds) const
 {
   const auto resourceIdSet = std::unordered_set<gl::ResourceId>{
@@ -114,7 +114,7 @@ const std::vector<const Material*> MaterialManager::findMaterialsByTextureResour
          | kdl::ranges::to<std::vector>();
 }
 
-const std::vector<const Material*>& MaterialManager::materials() const
+const std::vector<const gl::Material*>& MaterialManager::materials() const
 {
   return m_materials;
 }
@@ -149,7 +149,7 @@ void MaterialManager::updateMaterials()
 
   m_materials =
     m_materialsByName | std::views::values
-    | std::views::transform([](auto* t) { return const_cast<const Material*>(t); })
+    | std::views::transform([](auto* t) { return const_cast<const gl::Material*>(t); })
     | kdl::ranges::to<std::vector>();
 }
 } // namespace tb::mdl

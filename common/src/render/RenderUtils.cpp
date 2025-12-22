@@ -19,8 +19,8 @@
 
 #include "RenderUtils.h"
 
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "render/GL.h"
 
 #include "kd/contracts.h"
@@ -32,7 +32,7 @@ namespace
 constexpr auto EdgeOffset = 0.0001;
 }
 
-vm::vec3f gridColorForMaterial(const mdl::Material* material)
+vm::vec3f gridColorForMaterial(const gl::Material* material)
 {
   if (const auto* texture = getTexture(material))
   {
@@ -85,8 +85,8 @@ void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::v
 }
 
 MaterialRenderFunc::~MaterialRenderFunc() = default;
-void MaterialRenderFunc::before(const mdl::Material* /* material */) {}
-void MaterialRenderFunc::after(const mdl::Material* /* material */) {}
+void MaterialRenderFunc::before(const gl::Material* /* material */) {}
+void MaterialRenderFunc::after(const gl::Material* /* material */) {}
 
 DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
   const int minFilter, const int magFilter)
@@ -95,7 +95,7 @@ DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
 {
 }
 
-void DefaultMaterialRenderFunc::before(const mdl::Material* material)
+void DefaultMaterialRenderFunc::before(const gl::Material* material)
 {
   if (material)
   {
@@ -103,7 +103,7 @@ void DefaultMaterialRenderFunc::before(const mdl::Material* material)
   }
 }
 
-void DefaultMaterialRenderFunc::after(const mdl::Material* material)
+void DefaultMaterialRenderFunc::after(const gl::Material* material)
 {
   if (material)
   {

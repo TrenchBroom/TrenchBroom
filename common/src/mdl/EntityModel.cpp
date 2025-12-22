@@ -19,8 +19,8 @@
 
 #include "EntityModel.h"
 
+#include "gl/Texture.h"
 #include "mdl/MaterialCollection.h"
-#include "mdl/Texture.h"
 #include "render/IndexRangeMap.h"
 #include "render/MaterialIndexRangeMap.h"
 #include "render/MaterialIndexRangeRenderer.h"
@@ -265,7 +265,7 @@ public:
    * @return the renderer
    */
   std::unique_ptr<render::MaterialIndexRangeRenderer> buildRenderer(
-    const Material* skin) const
+    const gl::Material* skin) const
   {
     const auto vertexArray = render::VertexArray::ref(m_vertices);
     return doBuildRenderer(skin, vertexArray);
@@ -280,7 +280,7 @@ private:
    * @return the renderer
    */
   virtual std::unique_ptr<render::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* skin, const render::VertexArray& vertices) const = 0;
+    const gl::Material* skin, const render::VertexArray& vertices) const = 0;
 };
 
 // EntityModelData::IndexedMesh
@@ -321,7 +321,7 @@ public:
 
 private:
   std::unique_ptr<render::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* skin, const render::VertexArray& vertices) const override
+    const gl::Material* skin, const render::VertexArray& vertices) const override
   {
     const render::MaterialIndexRangeMap indices(skin, m_indices);
     return std::make_unique<render::MaterialIndexRangeRenderer>(vertices, indices);
@@ -357,7 +357,7 @@ public:
     , m_indices{std::move(indices)}
   {
     m_indices.forEachPrimitive([&](
-                                 const Material* /* material */,
+                                 const gl::Material* /* material */,
                                  const render::PrimType primType,
                                  const size_t index,
                                  const size_t count) {
@@ -367,7 +367,7 @@ public:
 
 private:
   std::unique_ptr<render::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* /* skin */, const render::VertexArray& vertices) const override
+    const gl::Material* /* skin */, const render::VertexArray& vertices) const override
   {
     return std::make_unique<render::MaterialIndexRangeRenderer>(vertices, m_indices);
   }
@@ -437,7 +437,7 @@ void EntityModelSurface::addMesh(
     frame, std::move(vertices), std::move(indices));
 }
 
-void EntityModelSurface::setSkins(std::vector<Material> skins)
+void EntityModelSurface::setSkins(std::vector<gl::Material> skins)
 {
   m_skins = std::make_unique<MaterialCollection>(std::move(skins));
 }
@@ -452,12 +452,12 @@ size_t EntityModelSurface::skinCount() const
   return m_skins->materialCount();
 }
 
-const Material* EntityModelSurface::skin(const std::string& name) const
+const gl::Material* EntityModelSurface::skin(const std::string& name) const
 {
   return m_skins->materialByName(name);
 }
 
-const Material* EntityModelSurface::skin(const size_t index) const
+const gl::Material* EntityModelSurface::skin(const size_t index) const
 {
   return m_skins->materialByIndex(index);
 }

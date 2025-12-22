@@ -22,13 +22,13 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+#include "gl/Material.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
-#include "mdl/Material.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/BorderLine.h"
 #include "ui/FaceAttribsEditor.h"
@@ -74,7 +74,7 @@ bool FaceInspector::cancelMouseDrag()
   return m_faceAttribsEditor->cancelMouseDrag();
 }
 
-void FaceInspector::revealMaterial(const mdl::Material* material)
+void FaceInspector::revealMaterial(const gl::Material* material)
 {
   m_materialBrowser->revealMaterial(material);
   m_materialBrowser->setSelectedMaterial(material);
@@ -166,7 +166,7 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
   return panel;
 }
 
-void FaceInspector::materialSelected(const mdl::Material* material)
+void FaceInspector::materialSelected(const gl::Material* material)
 {
   auto& map = m_document.map();
   const auto faces = map.selection().allBrushFaces();

@@ -20,14 +20,14 @@
 #include "Material.h"
 
 #include "Macros.h"
-#include "mdl/Texture.h"
+#include "gl/Texture.h"
 
 #include "kd/contracts.h"
 #include "kd/reflection_impl.h"
 
 #include <ostream>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs)
@@ -300,4 +300,4 @@ Texture* getTexture(Material* material)
   return material ? material->texture() : nullptr;
 }
 
-} // namespace tb::mdl
+} // namespace tb::gl

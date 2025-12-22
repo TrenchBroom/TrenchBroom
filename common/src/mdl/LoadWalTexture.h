@@ -26,6 +26,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Texture;
+}
+
 namespace fs
 {
 class Reader;
@@ -33,9 +38,9 @@ class Reader;
 
 namespace mdl
 {
-class Texture;
 
-Result<Texture> loadWalTexture(fs::Reader& reader, const std::optional<Palette>& palette);
+Result<gl::Texture> loadWalTexture(
+  fs::Reader& reader, const std::optional<Palette>& palette);
 
 } // namespace mdl
 } // namespace tb

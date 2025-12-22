@@ -36,6 +36,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Material;
+}
+
 namespace render
 {
 class BrushRendererBrushCache;
@@ -46,7 +51,6 @@ namespace mdl
 class BrushFace;
 class GroupNode;
 class LayerNode;
-class Material;
 class ModelFactory;
 
 class BrushNode : public Node, public Object
@@ -81,7 +85,7 @@ public:
 
   void updateFaceTags(size_t faceIndex, TagManager& tagManager);
 
-  void setFaceMaterial(size_t faceIndex, Material* material);
+  void setFaceMaterial(size_t faceIndex, gl::Material* material);
 
   bool contains(const Node* node) const;
   bool intersects(const Node* node) const;

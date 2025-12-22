@@ -22,9 +22,9 @@
 #include "Color.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
+#include "gl/Texture.h"
+#include "gl/TextureBuffer.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureBuffer.h"
 
 #include "kd/result.h"
 
@@ -42,7 +42,7 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<Texture> loadM8Texture(fs::Reader& reader)
+Result<gl::Texture> loadM8Texture(fs::Reader& reader)
 {
   try
   {
@@ -87,7 +87,7 @@ Result<Texture> loadM8Texture(fs::Reader& reader)
                reader.seekForward(4); // value
 
                auto mip0AverageColor = Color{RgbaF{}};
-               auto buffers = TextureBufferList{};
+               auto buffers = gl::TextureBufferList{};
                for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
                {
                  const auto w = widths[mipLevel];
@@ -100,7 +100,7 @@ Result<Texture> loadM8Texture(fs::Reader& reader)
 
                  reader.seekFromBegin(offsets[mipLevel]);
 
-                 auto rgbaImage = TextureBuffer{4 * w * h};
+                 auto rgbaImage = gl::TextureBuffer{4 * w * h};
 
                  auto averageColor = Color{RgbaF{}};
                  palette.indexedToRgba(
@@ -113,13 +113,13 @@ Result<Texture> loadM8Texture(fs::Reader& reader)
                  }
                }
 
-               return Texture{
+               return gl::Texture{
                  widths[0],
                  heights[0],
                  mip0AverageColor,
                  GL_RGBA,
-                 TextureMask::Off,
-                 NoEmbeddedDefaults{},
+                 gl::TextureMask::Off,
+                 gl::NoEmbeddedDefaults{},
                  std::move(buffers)};
              });
   }

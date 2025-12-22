@@ -31,6 +31,17 @@
 
 namespace tb
 {
+namespace gl
+{
+class Material;
+}
+
+namespace mdl
+{
+class BrushFace;
+class PickResult;
+} // namespace mdl
+
 namespace render
 {
 class ActiveShader;
@@ -38,13 +49,6 @@ class Camera;
 class OrthographicCamera;
 class RenderContext;
 } // namespace render
-
-namespace mdl
-{
-class BrushFace;
-class Material;
-class PickResult;
-} // namespace mdl
 
 namespace ui
 {
@@ -69,7 +73,7 @@ public:
 
   bool valid() const;
   const mdl::BrushFace* face() const;
-  const mdl::Material* material() const;
+  const gl::Material* material() const;
   void setFaceHandle(std::optional<mdl::BrushFaceHandle> faceHandle);
   void cameraViewportChanged();
 

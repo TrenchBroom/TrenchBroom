@@ -25,11 +25,15 @@
 
 namespace tb
 {
+namespace gl
+{
+class Material;
+}
+
 namespace mdl
 {
 class BrushNode;
 class BrushFace;
-class Material;
 } // namespace mdl
 
 namespace render
@@ -43,7 +47,7 @@ public:
 
   struct CachedFace
   {
-    const mdl::Material* material;
+    const gl::Material* material;
     const mdl::BrushFace* face;
     size_t vertexCount;
     size_t indexOfFirstVertexRelativeToBrush;

@@ -28,9 +28,9 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Material.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
-#include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowserView.h"
@@ -54,17 +54,17 @@ MaterialBrowser::MaterialBrowser(
   reload();
 }
 
-const mdl::Material* MaterialBrowser::selectedMaterial() const
+const gl::Material* MaterialBrowser::selectedMaterial() const
 {
   return m_view->selectedMaterial();
 }
 
-void MaterialBrowser::setSelectedMaterial(const mdl::Material* selectedMaterial)
+void MaterialBrowser::setSelectedMaterial(const gl::Material* selectedMaterial)
 {
   m_view->setSelectedMaterial(selectedMaterial);
 }
 
-void MaterialBrowser::revealMaterial(const mdl::Material* material)
+void MaterialBrowser::revealMaterial(const gl::Material* material)
 {
   setFilterText("");
   m_view->revealMaterial(material);

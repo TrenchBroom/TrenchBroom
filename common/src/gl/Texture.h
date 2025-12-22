@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "mdl/TextureBuffer.h"
+#include "gl/TextureBuffer.h"
 #include "render/GL.h"
 
 #include "kd/reflection_decl.h"
@@ -28,7 +28,7 @@
 #include <variant>
 #include <vector>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 enum class TextureMask
@@ -161,4 +161,4 @@ private:
   void setFilterMode(int minFilter, int magFilter) const;
 };
 
-} // namespace tb::mdl
+} // namespace tb::gl

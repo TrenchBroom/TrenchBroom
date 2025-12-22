@@ -21,10 +21,10 @@
 
 #include "FreeImage.h"
 #include "fs/Reader.h"
+#include "gl/Texture.h"
+#include "gl/TextureBuffer.h"
 #include "mdl/ImageLoaderImpl.h"
 #include "mdl/MaterialUtils.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureBuffer.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
@@ -73,7 +73,7 @@ constexpr GLenum freeImage32BPPFormatToGLFormat()
 
 } // namespace
 
-Color getAverageColor(const TextureBuffer& buffer, const GLenum format)
+Color getAverageColor(const gl::TextureBuffer& buffer, const GLenum format)
 {
   contract_pre(format == GL_RGBA || format == GL_BGRA);
 
@@ -108,7 +108,8 @@ Color getAverageColor(const TextureBuffer& buffer, const GLenum format)
   return RgbaF{average[0], average[1], average[2], average[3]};
 }
 
-Result<Texture> loadFreeImageTextureFromMemory(const uint8_t* begin, const size_t size)
+Result<gl::Texture> loadFreeImageTextureFromMemory(
+  const uint8_t* begin, const size_t size)
 {
   try
   {
@@ -147,7 +148,7 @@ Result<Texture> loadFreeImageTextureFromMemory(const uint8_t* begin, const size_
     constexpr auto mipCount = 1u;
     constexpr auto format = freeImage32BPPFormatToGLFormat();
 
-    auto buffers = TextureBufferList{mipCount};
+    auto buffers = gl::TextureBufferList{mipCount};
     setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
 
     if (
@@ -178,16 +179,16 @@ Result<Texture> loadFreeImageTextureFromMemory(const uint8_t* begin, const size_
       TRUE);
 
 
-    const auto textureMask = masked ? TextureMask::On : TextureMask::Off;
+    const auto textureMask = masked ? gl::TextureMask::On : gl::TextureMask::Off;
     const auto averageColor = getAverageColor(buffers.at(0), format);
 
-    return Texture{
+    return gl::Texture{
       imageWidth,
       imageHeight,
       averageColor,
       format,
       textureMask,
-      NoEmbeddedDefaults{},
+      gl::NoEmbeddedDefaults{},
       std::move(buffers)};
   }
   catch (const std::exception& e)
@@ -196,7 +197,7 @@ Result<Texture> loadFreeImageTextureFromMemory(const uint8_t* begin, const size_
   }
 }
 
-Result<Texture> loadFreeImageTexture(fs::Reader& reader)
+Result<gl::Texture> loadFreeImageTexture(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   const auto* begin = bufferedReader.begin();
