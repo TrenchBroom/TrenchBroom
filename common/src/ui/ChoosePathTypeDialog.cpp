@@ -25,10 +25,10 @@
 
 #include "Macros.h"
 #include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "ui/BorderLine.h"
 #include "ui/DialogHeader.h"
 #include "ui/QtUtils.h"
+#include "ui/SystemPaths.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
@@ -49,7 +49,7 @@ std::filesystem::path convertToPathType(
   case PathType::GameRelative:
     return absPath.lexically_relative(gamePath);
   case PathType::AppRelative:
-    return absPath.lexically_relative(io::SystemPaths::appDirectory());
+    return absPath.lexically_relative(SystemPaths::appDirectory());
     switchDefault();
   }
 }

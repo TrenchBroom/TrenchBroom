@@ -30,7 +30,7 @@
 
 #include "Thread.h"
 #include "io/PathQt.h"
-#include "io/SystemPaths.h"
+#include "ui/SystemPaths.h"
 
 #include "kd/contracts.h"
 
@@ -45,7 +45,7 @@ QString imagePathToString(const std::filesystem::path& imagePath)
 {
   const auto fullPath = imagePath.is_absolute()
                           ? imagePath
-                          : io::SystemPaths::findResourceFile("images" / imagePath);
+                          : SystemPaths::findResourceFile("images" / imagePath);
   return io::pathAsQPath(fullPath);
 }
 

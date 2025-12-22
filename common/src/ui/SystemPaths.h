@@ -22,7 +22,7 @@
 #include <filesystem>
 #include <vector>
 
-namespace tb::io::SystemPaths
+namespace tb::ui::SystemPaths
 {
 /**
  * Returns the path to the TrenchBroom executable.
@@ -64,4 +64,4 @@ void setPortable();
 void setPortable(bool newState);
 bool isPortable();
 
-} // namespace tb::io::SystemPaths
+} // namespace tb::ui::SystemPaths

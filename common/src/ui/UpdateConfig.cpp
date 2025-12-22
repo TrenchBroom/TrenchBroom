@@ -28,8 +28,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "ui/GetVersion.h"
+#include "ui/SystemPaths.h"
 #include "ui/UpdateVersion.h"
 #include "update/InstallUpdate.h"
 #include "update/Unzip.h"
@@ -47,9 +47,9 @@ namespace
 bool shouldEnableUpdating()
 {
 #if defined(_WIN32)
-  return io::SystemPaths::appFile().filename() == "TrenchBroom.exe";
+  return SystemPaths::appFile().filename() == "TrenchBroom.exe";
 #elif defined(__APPLE__)
-  return io::SystemPaths::appFile().filename() == "TrenchBroom";
+  return SystemPaths::appFile().filename() == "TrenchBroom";
 #else
   return std::getenv("APPIMAGE") != nullptr;
 #endif
@@ -58,20 +58,19 @@ bool shouldEnableUpdating()
 auto getScriptPath()
 {
 #if defined(_WIN32)
-  return io::SystemPaths::findResourceFile(
+  return SystemPaths::findResourceFile(
     std::filesystem::path{"update/install_update.bat"});
 #else
-  return io::SystemPaths::findResourceFile(
-    std::filesystem::path{"update/install_update.sh"});
+  return SystemPaths::findResourceFile(std::filesystem::path{"update/install_update.sh"});
 #endif
 }
 
 std::optional<std::filesystem::path> getAppFolderPath()
 {
 #if defined(_WIN32)
-  return io::SystemPaths::appDirectory();
+  return SystemPaths::appDirectory();
 #elif defined(__APPLE__)
-  return io::SystemPaths::appDirectory().parent_path().parent_path();
+  return SystemPaths::appDirectory().parent_path().parent_path();
 #else
   auto appImage = std::string_view{std::getenv("APPIMAGE")};
   if (!appImage.empty() && appImage.back() == '/')
@@ -129,12 +128,12 @@ auto getRelativeAppPath()
 
 auto getWorkDirPath()
 {
-  return io::SystemPaths::tempDirectory() / "TrenchBroom-update";
+  return SystemPaths::tempDirectory() / "TrenchBroom-update";
 }
 
 auto getLogFilePath()
 {
-  return io::SystemPaths::userDataDirectory() / "TrenchBroom-update.log";
+  return SystemPaths::userDataDirectory() / "TrenchBroom-update.log";
 }
 
 auto makeCheckForUpdates(const UpdateVersion& currentVersion)

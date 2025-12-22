@@ -25,7 +25,6 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "mdl/Map.h"
 #include "ui/CrashDialog.h"
 #include "ui/FrameManager.h"
@@ -36,6 +35,7 @@
 #include "ui/MapViewBase.h"
 #include "ui/PreferenceDialog.h"
 #include "ui/QtUtils.h"
+#include "ui/SystemPaths.h"
 
 #include "kd/path_utils.h"
 
@@ -170,7 +170,7 @@ void CrashHandler(const int /* signum */)
 
     // Copy the log file
     auto ec = std::error_code{};
-    if (!std::filesystem::copy_file(io::SystemPaths::logFilePath(), logPath, ec) || ec)
+    if (!std::filesystem::copy_file(SystemPaths::logFilePath(), logPath, ec) || ec)
     {
       logPath = std::filesystem::path{};
     }

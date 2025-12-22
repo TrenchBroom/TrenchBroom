@@ -19,8 +19,8 @@
 
 #include "ShaderManager.h"
 
-#include "io/SystemPaths.h"
 #include "render/ShaderConfig.h"
+#include "ui/SystemPaths.h"
 
 #include "kd/contracts.h"
 #include "kd/result.h"
@@ -95,7 +95,7 @@ Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
   }
 
   const auto shaderPath =
-    io::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
+    ui::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
 
   return render::loadShader(shaderPath, type) | kdl::transform([&](auto shader) {
            const auto [insertIt, inserted] = m_shaders.emplace(name, std::move(shader));

@@ -27,10 +27,10 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"
 #include "ui/QPreferenceStore.h"
+#include "ui/SystemPaths.h"
 
 #include <array>
 #include <tuple>
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
   QApplication::setOrganizationDomain("io.github.trenchbroom");
 
   tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
-    tb::io::pathAsQString(tb::io::SystemPaths::preferenceFilePath())));
+    tb::io::pathAsQString(tb::ui::SystemPaths::preferenceFilePath())));
 
   // QKeySequence requires that an application instance is created!
   auto app = QApplication{argc, argv};

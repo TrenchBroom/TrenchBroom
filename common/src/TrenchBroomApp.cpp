@@ -26,7 +26,6 @@
 #include "fs/PathInfo.h"
 #include "io/MapHeader.h"
 #include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
@@ -43,6 +42,7 @@
 #include "ui/PreferenceDialog.h"
 #include "ui/QtUtils.h"
 #include "ui/RecentDocuments.h"
+#include "ui/SystemPaths.h"
 #include "ui/UpdateConfig.h"
 #include "ui/WelcomeWindow.h"
 #include "update/QtHttpClient.h"
@@ -90,11 +90,11 @@ namespace
 auto makeEnvironmentConfig()
 {
   return mdl::EnvironmentConfig{
-    .appFolderPath = io::SystemPaths::appDirectory(),
-    .userDataFolderPath = io::SystemPaths::userDataDirectory(),
-    .tempFolderPath = io::SystemPaths::tempDirectory(),
+    .appFolderPath = ui::SystemPaths::appDirectory(),
+    .userDataFolderPath = ui::SystemPaths::userDataDirectory(),
+    .tempFolderPath = ui::SystemPaths::tempDirectory(),
     .defaultAssetFolderPaths =
-      io::SystemPaths::findResourceDirectories(std::filesystem::path{"defaults"}),
+      ui::SystemPaths::findResourceDirectories(std::filesystem::path{"defaults"}),
   };
 }
 
@@ -220,8 +220,8 @@ TrenchBroomApp::~TrenchBroomApp()
 std::unique_ptr<mdl::GameManager> TrenchBroomApp::createGameManager()
 {
   return mdl::initializeGameManager(
-           io::SystemPaths::findResourceDirectories("games"),
-           io::SystemPaths::userGamesDirectory())
+           ui::SystemPaths::findResourceDirectories("games"),
+           ui::SystemPaths::userGamesDirectory())
          | kdl::transform([](auto gameManager, const auto& warnings) {
              if (!warnings.empty())
              {
@@ -362,7 +362,7 @@ QPalette TrenchBroomApp::darkPalette()
 
 bool TrenchBroomApp::loadStyleSheets()
 {
-  const auto path = io::SystemPaths::findResourceFile("stylesheets/base.qss");
+  const auto path = ui::SystemPaths::findResourceFile("stylesheets/base.qss");
   if (auto file = QFile{io::pathAsQPath(path)}; file.exists())
   {
     // closed automatically by destructor
@@ -550,7 +550,7 @@ void TrenchBroomApp::openDocument()
 
 void TrenchBroomApp::showManual()
 {
-  const auto manualPath = io::SystemPaths::findResourceFile("manual/index.html");
+  const auto manualPath = ui::SystemPaths::findResourceFile("manual/index.html");
   const auto manualPathUrl = QUrl::fromLocalFile(io::pathAsQString(manualPath));
   QDesktopServices::openUrl(manualPathUrl);
 }
@@ -567,9 +567,9 @@ void TrenchBroomApp::showAboutDialog()
 
 void TrenchBroomApp::debugShowCrashReportDialog()
 {
-  const auto reportPath = io::SystemPaths::userDataDirectory() / "crashreport.txt";
-  const auto mapPath = io::SystemPaths::userDataDirectory() / "crashreport.map";
-  const auto logPath = io::SystemPaths::userDataDirectory() / "crashreport.log";
+  const auto reportPath = ui::SystemPaths::userDataDirectory() / "crashreport.txt";
+  const auto mapPath = ui::SystemPaths::userDataDirectory() / "crashreport.map";
+  const auto logPath = ui::SystemPaths::userDataDirectory() / "crashreport.log";
 
   auto dialog = CrashDialog{"Debug crash", reportPath, mapPath, logPath};
   dialog.exec();

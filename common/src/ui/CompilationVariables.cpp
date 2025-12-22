@@ -20,11 +20,11 @@
 #include "CompilationVariables.h"
 
 #include "PreferenceManager.h"
-#include "io/SystemPaths.h"
 #include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
+#include "ui/SystemPaths.h"
 
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
@@ -82,7 +82,7 @@ CommonCompilationVariables::CommonCompilationVariables(const mdl::Map& map)
 {
   const auto filename = map.path().filename();
   const auto filePath = map.path().parent_path();
-  const auto appPath = io::SystemPaths::appDirectory();
+  const auto appPath = SystemPaths::appDirectory();
 
   using namespace CompilationVariableNames;
   set(MAP_FULL_NAME, el::Value{filename.string()});

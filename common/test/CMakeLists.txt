@@ -51,7 +51,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ObjSerializer.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_PathQt.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_Quake3ShaderParser.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/io/tst_SystemPaths.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_WorldReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_AssetUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Autosaver.cpp"
@@ -141,6 +140,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ScaleTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ShearTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_SelectionTool.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_SystemPaths.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_TextOutputAdapter.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_UpdateVersion.cpp"
 )

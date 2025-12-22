@@ -20,7 +20,7 @@
 #include "FileLogger.h"
 
 #include "fs/DiskIO.h"
-#include "io/SystemPaths.h"
+#include "ui/SystemPaths.h"
 
 #include "kd/contracts.h"
 
@@ -50,7 +50,7 @@ FileLogger::FileLogger(const std::filesystem::path& filePath)
 
 FileLogger& FileLogger::instance()
 {
-  static auto Instance = FileLogger{io::SystemPaths::logFilePath()};
+  static auto Instance = FileLogger{ui::SystemPaths::logFilePath()};
   return Instance;
 }
 

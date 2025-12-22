@@ -18,13 +18,13 @@
  */
 
 
-#include "io/SystemPaths.h"
+#include "ui/SystemPaths.h"
 
 #include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::io
+namespace tb::ui
 {
 
 TEST_CASE("Portable flag begins false")
@@ -50,4 +50,4 @@ TEST_CASE("userDataDirectory is changed by setPortable")
   SystemPaths::setPortable(false);
 }
 
-} // namespace tb::io
+} // namespace tb::ui

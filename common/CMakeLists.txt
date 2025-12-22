@@ -52,7 +52,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/PathQt.cpp
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.cpp
-        ${COMMON_SOURCE_DIR}/io/SystemPaths.cpp
         ${COMMON_SOURCE_DIR}/io/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
@@ -445,6 +444,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/Splitter.cpp
         ${COMMON_SOURCE_DIR}/ui/SwitchableMapViewContainer.cpp
         ${COMMON_SOURCE_DIR}/ui/SwitchableTitledPanel.cpp
+        ${COMMON_SOURCE_DIR}/ui/SystemPaths.cpp
         ${COMMON_SOURCE_DIR}/ui/TabBar.cpp
         ${COMMON_SOURCE_DIR}/ui/TabBook.cpp
         ${COMMON_SOURCE_DIR}/ui/TextOutputAdapter.cpp
@@ -533,7 +533,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/PathQt.h
         ${COMMON_SOURCE_DIR}/io/Quake3ShaderParser.h
         ${COMMON_SOURCE_DIR}/io/StandardMapParser.h
-        ${COMMON_SOURCE_DIR}/io/SystemPaths.h
         ${COMMON_SOURCE_DIR}/io/WorldReader.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
@@ -964,6 +963,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/Splitter.h
         ${COMMON_SOURCE_DIR}/ui/SwitchableMapViewContainer.h
         ${COMMON_SOURCE_DIR}/ui/SwitchableTitledPanel.h
+        ${COMMON_SOURCE_DIR}/ui/SystemPaths.h
         ${COMMON_SOURCE_DIR}/ui/TabBar.h
         ${COMMON_SOURCE_DIR}/ui/TabBook.h
         ${COMMON_SOURCE_DIR}/ui/TextOutputAdapter.h

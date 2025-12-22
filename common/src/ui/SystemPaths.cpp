@@ -32,7 +32,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace tb::io::SystemPaths
+namespace tb::ui::SystemPaths
 {
 namespace
 {
@@ -165,4 +165,4 @@ void setPortable(bool newState)
   portableState = newState;
 }
 
-} // namespace tb::io::SystemPaths
+} // namespace tb::ui::SystemPaths

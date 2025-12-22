@@ -36,7 +36,6 @@
 #include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
 #include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
@@ -46,6 +45,7 @@
 #include "ui/ImageUtils.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
+#include "ui/SystemPaths.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
@@ -114,7 +114,7 @@ void GamesPreferencePane::createGui()
 
 void GamesPreferencePane::showUserConfigDirClicked()
 {
-  const auto path = io::SystemPaths::userGamesDirectory().lexically_normal();
+  const auto path = SystemPaths::userGamesDirectory().lexically_normal();
 
   fs::Disk::createDirectory(path) | kdl::transform([&](auto) {
     const auto url = QUrl::fromLocalFile(io::pathAsQPath(path));

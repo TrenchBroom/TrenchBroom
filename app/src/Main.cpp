@@ -27,8 +27,8 @@
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "ui/QPreferenceStore.h"
+#include "ui/SystemPaths.h"
 
 static_assert(
   QT_VERSION >= QT_VERSION_CHECK(6, 8, 0), "TrenchBroom requires Qt 6.8.0 or later");
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     {
       if (strcmp(argv[i], "--portable") == 0)
       {
-        tb::io::SystemPaths::setPortable();
+        tb::ui::SystemPaths::setPortable();
         QSettings::setPath(
           QSettings::IniFormat, QSettings::UserScope, QString("./config"));
       }
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
   // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
   tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
-    tb::io::pathAsQString(tb::io::SystemPaths::preferenceFilePath())));
+    tb::io::pathAsQString(tb::ui::SystemPaths::preferenceFilePath())));
   tb::ui::TrenchBroomApp app(argc, argv);
 
   app.askForAutoUpdates();
