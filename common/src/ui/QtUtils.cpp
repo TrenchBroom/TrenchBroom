@@ -49,9 +49,9 @@
 
 #include "Color.h"
 #include "Macros.h"
-#include "io/ResourceUtils.h"
 #include "mdl/MapTextEncoding.h"
 #include "ui/BorderLine.h"
+#include "ui/ImageUtils.h"
 #include "ui/MapFrame.h"
 #include "ui/ViewConstants.h"
 
@@ -357,7 +357,7 @@ QColor toQColor(const Color& color)
 QToolButton* createBitmapButton(
   const std::filesystem::path& imagePath, const QString& tooltip, QWidget* parent)
 {
-  return createBitmapButton(io::loadSVGIcon(imagePath), tooltip, parent);
+  return createBitmapButton(loadSVGIcon(imagePath), tooltip, parent);
 }
 
 QToolButton* createBitmapButton(
@@ -470,7 +470,7 @@ void setWindowIconTB(QWidget* window)
 {
   contract_pre(window != nullptr);
 
-  window->setWindowIcon(QIcon{io::loadPixmapResource("AppIcon.png")});
+  window->setWindowIcon(QIcon{loadPixmap("AppIcon.png")});
 }
 
 void setDebugBackgroundColor(QWidget* widget, const QColor& color)
@@ -506,7 +506,7 @@ QLineEdit* createSearchBox()
   widget->setClearButtonEnabled(true);
   widget->setPlaceholderText(QLineEdit::tr("Search..."));
 
-  const auto icon = io::loadSVGIcon("Search.svg");
+  const auto icon = loadSVGIcon("Search.svg");
   widget->addAction(icon, QLineEdit::LeadingPosition);
   return widget;
 }

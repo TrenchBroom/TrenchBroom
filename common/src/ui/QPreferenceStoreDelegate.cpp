@@ -32,7 +32,7 @@
 #include <QTimer>
 
 #include "Macros.h"
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 
 #include <unordered_map>
 
@@ -188,7 +188,7 @@ bool QPreferenceStoreDelegate::load(
     const auto& jsonValue = iValue->second;
     if (jsonValue.isString())
     {
-      value = io::pathFromQString(jsonValue.toString());
+      value = pathFromQString(jsonValue.toString());
       return true;
     }
   }
@@ -255,7 +255,7 @@ void QPreferenceStoreDelegate::save(
 void QPreferenceStoreDelegate::save(
   const std::filesystem::path& path, const std::filesystem::path& value)
 {
-  m_cache.emplace(path, QJsonValue{io::pathAsQString(value)});
+  m_cache.emplace(path, QJsonValue{pathAsQString(value)});
   triggerSaveChanges();
 }
 

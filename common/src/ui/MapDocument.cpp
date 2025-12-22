@@ -23,10 +23,10 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "fs/DiskIO.h"
-#include "io/LoadMaterialCollections.h"
-#include "io/NodeReader.h"
-#include "io/NodeWriter.h"
-#include "io/WorldReader.h"
+#include "mdl/LoadMaterialCollections.h"
+#include "mdl/NodeReader.h"
+#include "mdl/NodeWriter.h"
+#include "mdl/WorldReader.h"
 #include "mdl/Autosaver.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/EditorContext.h"
@@ -78,25 +78,28 @@ MapDocument::MapDocument(MapDocument&&) noexcept = default;
 MapDocument& MapDocument::operator=(MapDocument&&) noexcept = default;
 
 Result<std::unique_ptr<MapDocument>> MapDocument::createDocument(
-  mdl::MapFormat mapFormat,
+  const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager)
 {
   auto document = std::make_unique<MapDocument>(taskManager);
-  return document->create(mapFormat, gameInfo, worldBounds)
+  return document->create(environmentConfig, gameInfo, mapFormat, worldBounds)
          | kdl::transform([&]() { return std::move(document); });
 }
 
 Result<std::unique_ptr<MapDocument>> MapDocument::loadDocument(
-  std::filesystem::path path,
-  mdl::MapFormat mapFormat,
+  const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
+  std::filesystem::path path,
   kdl::task_manager& taskManager)
 {
   auto document = std::make_unique<MapDocument>(taskManager);
-  return document->load(std::move(path), mapFormat, gameInfo, worldBounds)
+  return document->load(
+           environmentConfig, gameInfo, mapFormat, worldBounds, std::move(path))
          | kdl::transform([&]() { return std::move(document); });
 }
 
@@ -113,13 +116,16 @@ MapDocument::~MapDocument()
 }
 
 Result<void> MapDocument::create(
-  mdl::MapFormat mapFormat, const mdl::GameInfo& gameInfo, const vm::bbox3d& worldBounds)
+  const mdl::EnvironmentConfig& environmentConfig,
+  const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
+  const vm::bbox3d& worldBounds)
 {
-  auto gamePath = pref(gameInfo.gamePathPreference);
   return mdl::Map::createMap(
-           mapFormat,
+           environmentConfig,
            gameInfo,
-           std::move(gamePath),
+           pref(gameInfo.gamePathPreference),
+           mapFormat,
            worldBounds,
            *m_taskManager,
            logger())
@@ -130,18 +136,19 @@ Result<void> MapDocument::create(
 }
 
 Result<void> MapDocument::load(
-  std::filesystem::path path,
-  mdl::MapFormat mapFormat,
+  const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
-  const vm::bbox3d& worldBounds)
+  mdl::MapFormat mapFormat,
+  const vm::bbox3d& worldBounds,
+  std::filesystem::path path)
 {
-  auto gamePath = pref(gameInfo.gamePathPreference);
   return mdl::Map::loadMap(
-           path,
-           mapFormat,
+           environmentConfig,
            gameInfo,
-           std::move(gamePath),
+           pref(gameInfo.gamePathPreference),
+           mapFormat,
            worldBounds,
+           std::move(path),
            *m_taskManager,
            logger())
          | kdl::transform([&](auto map) {

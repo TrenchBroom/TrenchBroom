@@ -23,7 +23,7 @@
 #include "fs/File.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
-#include "io/ImageLoader.h"
+#include "mdl/ImageLoader.h"
 #include "mdl/TextureBuffer.h"
 
 #include "kd/contracts.h"
@@ -204,9 +204,9 @@ Result<Palette> loadBmp(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   auto imageLoader =
-    io::ImageLoader{io::ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
+    ImageLoader{ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
   auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
-                                       : imageLoader.loadPixels(io::ImageLoader::RGB);
+                                       : imageLoader.loadPixels(ImageLoader::RGB);
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 

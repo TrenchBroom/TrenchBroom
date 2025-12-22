@@ -24,8 +24,6 @@
 #include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
-#include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "mdl/Map.h"
 #include "ui/CrashDialog.h"
 #include "ui/FrameManager.h"
@@ -35,7 +33,9 @@
 #include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
 #include "ui/PreferenceDialog.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
+#include "ui/SystemPaths.h"
 
 #include "kd/path_utils.h"
 
@@ -95,7 +95,7 @@ std::filesystem::path crashReportBasePath()
   const auto mapPath = savedMapPath();
   const auto crashLogPath = !mapPath.empty()
                               ? mapPath.parent_path() / mapPath.stem() += "-crash.txt"
-                              : io::pathFromQString(QStandardPaths::writableLocation(
+                              : pathFromQString(QStandardPaths::writableLocation(
                                   QStandardPaths::DocumentsLocation))
                                   / "trenchbroom-crash.txt";
 
@@ -170,7 +170,7 @@ void CrashHandler(const int /* signum */)
 
     // Copy the log file
     auto ec = std::error_code{};
-    if (!std::filesystem::copy_file(io::SystemPaths::logFilePath(), logPath, ec) || ec)
+    if (!std::filesystem::copy_file(SystemPaths::logFilePath(), logPath, ec) || ec)
     {
       logPath = std::filesystem::path{};
     }

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "io/EntityDefinitionClassInfo.h"
+#include "mdl/EntityDefinitionClassInfo.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityProperties.h"

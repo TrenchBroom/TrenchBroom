@@ -22,8 +22,8 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
-#include "io/ExportOptions.h"
 #include "mdl/BrushFaceHandle.h"
+#include "mdl/ExportOptions.h"
 #include "mdl/NodeIndex.h"
 #include "mdl/ResourceId.h"
 #include "mdl/Selection.h"
@@ -82,6 +82,7 @@ class UVCoordSystemSnapshot;
 class VertexHandleManager;
 class WorldNode;
 
+struct EnvironmentConfig;
 struct GameInfo;
 struct ProcessContext;
 struct SelectionChange;
@@ -93,6 +94,7 @@ public:
   static const std::string DefaultDocumentName;
 
 private:
+  const EnvironmentConfig& m_environmentConfig;
   const GameInfo& m_gameInfo;
   std::filesystem::path m_gamePath;
   std::unique_ptr<GameFileSystem> m_gameFileSystem;
@@ -182,6 +184,7 @@ private:
 
 public: // misc
   Map(
+    const EnvironmentConfig& environmentConfig,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
     std::unique_ptr<WorldNode> worldNode,
@@ -190,6 +193,7 @@ public: // misc
     Logger& logger);
 
   Map(
+    const EnvironmentConfig& environmentConfig,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
     std::unique_ptr<WorldNode> worldNode,
@@ -201,19 +205,21 @@ public: // misc
   ~Map();
 
   static Result<std::unique_ptr<Map>> createMap(
-    MapFormat mapFormat,
+    const EnvironmentConfig& environmentConfig,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
+    MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
     Logger& logger);
 
   static Result<std::unique_ptr<Map>> loadMap(
-    std::filesystem::path path,
-    MapFormat mapFormat,
+    const EnvironmentConfig& environmentConfig,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
+    MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
+    std::filesystem::path path,
     kdl::task_manager& taskManager,
     Logger& logger);
 
@@ -238,6 +244,8 @@ public: // misc
 
   Grid& grid();
   const Grid& grid() const;
+
+  const EnvironmentConfig& environmentConfig() const;
 
   const GameInfo& gameInfo() const;
 
@@ -283,7 +291,7 @@ public: // persistence
   Result<void> save();
   Result<void> saveAs(const std::filesystem::path& path);
   Result<void> saveTo(const std::filesystem::path& path);
-  Result<void> exportAs(const io::ExportOptions& options) const;
+  Result<void> exportAs(const ExportOptions& options) const;
 
   bool persistent() const;
   std::string filename() const;

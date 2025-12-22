@@ -23,8 +23,8 @@
 #include <QString>
 
 #include "TrenchBroomApp.h"
-#include "io/ResourceUtils.h"
 #include "mdl/GameManager.h"
+#include "ui/ImageUtils.h"
 
 #include <filesystem>
 
@@ -43,7 +43,7 @@ CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget*
       iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
     }
 
-    const auto gameIcon = io::loadPixmapResource(iconPath);
+    const auto gameIcon = loadPixmap(iconPath);
     set(QString::fromStdString(gameName), gameIcon);
   }
 }

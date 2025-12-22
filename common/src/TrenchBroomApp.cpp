@@ -24,13 +24,11 @@
 #include "Result.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
-#include "io/MapHeader.h"
-#include "io/PathQt.h"
-#include "io/SystemPaths.h"
 #include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
+#include "mdl/MapHeader.h"
 #include "ui/AboutDialog.h"
 #include "ui/ActionExecutionContext.h"
 #include "ui/CrashDialog.h"
@@ -41,8 +39,10 @@
 #include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
 #include "ui/PreferenceDialog.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/RecentDocuments.h"
+#include "ui/SystemPaths.h"
 #include "ui/UpdateConfig.h"
 #include "ui/WelcomeWindow.h"
 #include "update/QtHttpClient.h"
@@ -87,10 +87,21 @@ namespace tb::ui
 namespace
 {
 
+auto makeEnvironmentConfig()
+{
+  return mdl::EnvironmentConfig{
+    .appFolderPath = ui::SystemPaths::appDirectory(),
+    .userDataFolderPath = ui::SystemPaths::userDataDirectory(),
+    .tempFolderPath = ui::SystemPaths::tempDirectory(),
+    .defaultAssetFolderPaths =
+      ui::SystemPaths::findResourceDirectories(std::filesystem::path{"defaults"}),
+  };
+}
+
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
   const std::filesystem::path& path)
 {
-  return fs::Disk::withInputStream(path, io::readMapHeader)
+  return fs::Disk::withInputStream(path, mdl::readMapHeader)
          | kdl::transform(
            [&](auto detectedGameNameAndMapFormat)
              -> std::optional<std::tuple<std::string, mdl::MapFormat>> {
@@ -133,6 +144,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
   , m_taskManager{std::thread::hardware_concurrency()}
+  , m_environmentConfig{makeEnvironmentConfig()}
 {
   using namespace std::chrono_literals;
 
@@ -208,8 +220,8 @@ TrenchBroomApp::~TrenchBroomApp()
 std::unique_ptr<mdl::GameManager> TrenchBroomApp::createGameManager()
 {
   return mdl::initializeGameManager(
-           io::SystemPaths::findResourceDirectories("games"),
-           io::SystemPaths::userGamesDirectory())
+           ui::SystemPaths::findResourceDirectories("games"),
+           ui::SystemPaths::userGamesDirectory())
          | kdl::transform([](auto gameManager, const auto& warnings) {
              if (!warnings.empty())
              {
@@ -282,6 +294,11 @@ void TrenchBroomApp::parseCommandLineAndShowFrame()
   openFilesOrWelcomeFrame(parser.positionalArguments());
 }
 
+const mdl::EnvironmentConfig TrenchBroomApp::environmentConfig() const
+{
+  return m_environmentConfig;
+}
+
 mdl::GameManager& TrenchBroomApp::gameManager()
 {
   return *m_gameManager;
@@ -345,8 +362,8 @@ QPalette TrenchBroomApp::darkPalette()
 
 bool TrenchBroomApp::loadStyleSheets()
 {
-  const auto path = io::SystemPaths::findResourceFile("stylesheets/base.qss");
-  if (auto file = QFile{io::pathAsQPath(path)}; file.exists())
+  const auto path = ui::SystemPaths::findResourceFile("stylesheets/base.qss");
+  if (auto file = QFile{ui::pathAsQPath(path)}; file.exists())
   {
     // closed automatically by destructor
     file.open(QFile::ReadOnly | QFile::Text);
@@ -431,7 +448,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
   // if std::filesystem::absolute fails, the file won't be found and we'll log it later
   auto ec = std::error_code{};
-  const auto absPath =
+  auto absPath =
     path.is_absolute() ? path : std::filesystem::absolute(path, ec).lexically_normal();
 
   const auto checkFileExists = [&]() {
@@ -456,10 +473,11 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
              contract_assert(gameInfo != nullptr);
 
              return m_frameManager->loadDocument(
-                      absPath,
-                      mapFormat,
+                      m_environmentConfig,
                       *gameInfo,
+                      mapFormat,
                       MapDocument::DefaultWorldBounds,
+                      std::move(absPath),
                       m_taskManager)
                     | kdl::transform([&]() {
                         closeWelcomeWindow();
@@ -498,7 +516,11 @@ bool TrenchBroomApp::newDocument()
   contract_assert(gameInfo != nullptr);
 
   return m_frameManager->createDocument(
-           mapFormat, *gameInfo, MapDocument::DefaultWorldBounds, m_taskManager)
+           m_environmentConfig,
+           *gameInfo,
+           mapFormat,
+           MapDocument::DefaultWorldBounds,
+           m_taskManager)
          | kdl::transform([&]() {
              closeWelcomeWindow();
              return true;
@@ -519,7 +541,7 @@ void TrenchBroomApp::openDocument()
     fileDialogDefaultDirectory(FileDialogDir::Map),
     "Map files (*.map);;Any files (*.*)");
 
-  if (const auto path = io::pathFromQString(pathStr); !path.empty())
+  if (const auto path = ui::pathFromQString(pathStr); !path.empty())
   {
     updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
     openDocument(path);
@@ -528,8 +550,8 @@ void TrenchBroomApp::openDocument()
 
 void TrenchBroomApp::showManual()
 {
-  const auto manualPath = io::SystemPaths::findResourceFile("manual/index.html");
-  const auto manualPathUrl = QUrl::fromLocalFile(io::pathAsQString(manualPath));
+  const auto manualPath = ui::SystemPaths::findResourceFile("manual/index.html");
+  const auto manualPathUrl = QUrl::fromLocalFile(ui::pathAsQString(manualPath));
   QDesktopServices::openUrl(manualPathUrl);
 }
 
@@ -545,9 +567,9 @@ void TrenchBroomApp::showAboutDialog()
 
 void TrenchBroomApp::debugShowCrashReportDialog()
 {
-  const auto reportPath = io::SystemPaths::userDataDirectory() / "crashreport.txt";
-  const auto mapPath = io::SystemPaths::userDataDirectory() / "crashreport.map";
-  const auto logPath = io::SystemPaths::userDataDirectory() / "crashreport.log";
+  const auto reportPath = ui::SystemPaths::userDataDirectory() / "crashreport.txt";
+  const auto mapPath = ui::SystemPaths::userDataDirectory() / "crashreport.map";
+  const auto logPath = ui::SystemPaths::userDataDirectory() / "crashreport.log";
 
   auto dialog = CrashDialog{"Debug crash", reportPath, mapPath, logPath};
   dialog.exec();
@@ -597,7 +619,7 @@ void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
   auto anyDocumentOpened = false;
   for (const auto& fileName : filesToOpen)
   {
-    const auto path = io::pathFromQString(fileName);
+    const auto path = ui::pathFromQString(fileName);
     if (!path.empty() && openDocument(path))
     {
       anyDocumentOpened = true;

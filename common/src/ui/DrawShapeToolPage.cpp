@@ -25,8 +25,8 @@
 #include <QStackedLayout>
 #include <QToolButton>
 
-#include "io/ResourceUtils.h"
 #include "ui/DrawShapeToolExtension.h"
+#include "ui/ImageUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -74,7 +74,7 @@ void DrawShapeToolPage::createGui()
     for (size_t i = 0; i < extensions.size(); ++i)
     {
       auto* extension = extensions[i];
-      auto icon = io::loadSVGIcon(extension->iconPath());
+      auto icon = loadSVGIcon(extension->iconPath());
 
       auto* action =
         menu.addAction(icon, QString::fromStdString(extension->name()), [&, i]() {
@@ -89,7 +89,7 @@ void DrawShapeToolPage::createGui()
 
 void DrawShapeToolPage::currentExtensionDidChange(const size_t index)
 {
-  auto icon = io::loadSVGIcon(m_extensionManager.currentExtension().iconPath());
+  auto icon = loadSVGIcon(m_extensionManager.currentExtension().iconPath());
   m_extensionButton->setIcon(icon);
   m_extensionPages->setCurrentIndex(int(index));
 }

@@ -19,10 +19,10 @@
 
 #include "mdl/Map_World.h"
 
-#include "io/GameConfigParser.h"
-#include "io/SystemPaths.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
+#include "mdl/EnvironmentConfig.h"
+#include "mdl/GameConfigParser.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
@@ -40,8 +40,7 @@ auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
   {
     return *mapValue == EntityPropertyValues::NoSoftMapBounds
              ? SoftMapBounds{SoftMapBoundsType::Map, std::nullopt}
-             : SoftMapBounds{
-                 SoftMapBoundsType::Map, io::parseSoftMapBoundsString(*mapValue)};
+             : SoftMapBounds{SoftMapBoundsType::Map, parseSoftMapBoundsString(*mapValue)};
   }
 
   // Not set in map -> use Game value
@@ -76,8 +75,7 @@ void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
     else
     {
       entity.addOrUpdateProperty(
-        EntityPropertyKeys::SoftMapBounds,
-        io::serializeSoftMapBoundsString(*bounds.bounds));
+        EntityPropertyKeys::SoftMapBounds, serializeSoftMapBoundsString(*bounds.bounds));
     }
     break;
   case SoftMapBoundsType::Game:
@@ -104,7 +102,7 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
     searchPaths.push_back(gamePath);
   }
 
-  searchPaths.push_back(io::SystemPaths::appDirectory());
+  searchPaths.push_back(map.environmentConfig().appFolderPath);
   return searchPaths;
 }
 

@@ -21,6 +21,7 @@
 
 #include "GameConfigFixture.h"
 #include "Macros.h"
+#include "mdl/EnvironmentConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/MapFormat.h"
 
@@ -46,6 +47,7 @@ struct MapFixtureConfig
   // nullopt means use the default (Standard for new map, Unknown for loading)
   std::optional<MapFormat> mapFormat = std::nullopt;
   GameInfo gameInfo = DefaultGameInfo;
+  EnvironmentConfig environmentConfig = {};
 };
 
 extern const MapFixtureConfig QuakeFixtureConfig;

@@ -23,7 +23,7 @@
 #include <QSettings>
 #include <QVariant>
 
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
@@ -47,7 +47,7 @@ std::vector<std::filesystem::path> loadRecentDocuments(const size_t max)
     const auto value = settings.value(key);
     if (value.isValid())
     {
-      result.push_back(io::pathFromQString(value.toString()));
+      result.push_back(pathFromQString(value.toString()));
     }
     else
     {
@@ -66,7 +66,7 @@ void saveRecentDocuments(const std::vector<std::filesystem::path>& paths)
   for (size_t i = 0; i < paths.size(); ++i)
   {
     const auto key = QString::fromStdString("RecentDocuments/" + std::to_string(i));
-    const auto value = QVariant{io::pathAsQString(paths[i])};
+    const auto value = QVariant{pathAsQString(paths[i])};
     settings.setValue(key, value);
   }
 }
@@ -188,8 +188,7 @@ void RecentDocuments::createMenuItems(QMenu& menu)
 {
   for (const auto& path : m_filteredDocuments)
   {
-    menu.addAction(
-      io::pathAsQString(path.filename()), [&, path]() { loadDocument(path); });
+    menu.addAction(pathAsQString(path.filename()), [&, path]() { loadDocument(path); });
   }
 }
 

@@ -21,9 +21,9 @@
 
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
-#include "io/ResourceUtils.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
+#include "ui/ImageUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
@@ -56,7 +56,7 @@ auto makeGameDisplayInfo(const mdl::GameInfo& gameInfo)
 
   return GameDisplayInfo{
     std::move(gameName),
-    io::loadPixmapResource(iconPath),
+    loadPixmap(iconPath),
     std::move(title),
     std::move(subTitle),
   };

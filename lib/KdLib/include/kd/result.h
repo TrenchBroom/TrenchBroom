@@ -3001,6 +3001,19 @@ auto operator|(R&& r, const result_if_error<F>& i)
   return std::forward<R>(r).if_error(i.if_error);
 }
 
+template <typename R>
+struct result_join
+{
+  R join_result;
+};
+
+template <typename R, typename F>
+auto operator|(R&& r, result_join<F> j)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).join(std::move(j.join_result));
+}
+
 struct result_value
 {
 };
@@ -3081,6 +3094,13 @@ template <typename F>
 auto transform_error(F f)
 {
   return detail::result_transform_error<F>{std::move(f)};
+}
+
+template <typename R>
+  requires(is_result_v<R>)
+auto join(R r)
+{
+  return detail::result_join<R>{std::move(r)};
 }
 
 template <typename F>

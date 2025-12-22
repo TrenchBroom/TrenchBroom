@@ -20,13 +20,13 @@
 #include "EntityModelManager.h"
 
 #include "Logger.h"
-#include "io/LoadEntityModel.h"
-#include "io/LoadMaterialCollections.h"
-#include "io/LoadShaders.h"
-#include "io/MaterialUtils.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
+#include "mdl/LoadEntityModel.h"
+#include "mdl/LoadMaterialCollections.h"
+#include "mdl/LoadShaders.h"
+#include "mdl/MaterialUtils.h"
 #include "mdl/Quake3Shader.h"
 #include "render/MaterialIndexRangeRenderer.h"
 
@@ -69,7 +69,7 @@ void EntityModelManager::reloadShaders(kdl::task_manager& taskManager)
   m_shaders.clear();
 
   m_shaders =
-    io::loadShaders(
+    loadShaders(
       m_gameFileSystem, m_gameInfo.gameConfig.materialConfig, taskManager, m_logger)
     | kdl::if_error(
       [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
@@ -180,18 +180,18 @@ Result<EntityModel> EntityModelManager::loadModel(
   };
 
   const auto loadMaterial = [&](const auto& materialPath) {
-    return io::loadMaterial(
+    return mdl::loadMaterial(
              m_gameFileSystem,
              materialConfig,
              materialPath,
              createResource,
              m_shaders,
              std::nullopt)
-           | kdl::or_else(io::makeReadMaterialErrorHandler(m_gameFileSystem, m_logger))
+           | kdl::or_else(makeReadMaterialErrorHandler(m_gameFileSystem, m_logger))
            | kdl::value();
   };
 
-  return io::loadEntityModelAsync(
+  return mdl::loadEntityModelAsync(
     m_gameFileSystem,
     materialConfig,
     modelPath,

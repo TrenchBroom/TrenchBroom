@@ -55,9 +55,10 @@ Map& MapFixture::create(MapFixtureConfig config)
 
   contract_assert(
     Map::createMap(
-      mapFormat,
+      m_config->environmentConfig,
       m_config->gameInfo,
       m_config->gameInfo.gamePathPreference.defaultValue,
+      mapFormat,
       vm::bbox3d{8129.0},
       *m_taskManager,
       *m_logger)
@@ -80,11 +81,12 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
 
   contract_assert(
     Map::loadMap(
-      absPath,
-      mapFormat,
+      m_config->environmentConfig,
       m_config->gameInfo,
       m_config->gameInfo.gamePathPreference.defaultValue,
+      mapFormat,
       vm::bbox3d{8129.0},
+      absPath,
       *m_taskManager,
       *m_logger)
     | kdl::transform([&](auto map) {

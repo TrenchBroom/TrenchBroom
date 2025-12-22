@@ -94,6 +94,8 @@ auto makeAbsolute(const auto& path)
 
 TEST_CASE("Map")
 {
+  auto environmentConfig = EnvironmentConfig{};
+
   SECTION("create")
   {
     auto taskManager = createTestTaskManager();
@@ -102,9 +104,10 @@ TEST_CASE("Map")
     SECTION("Calling create sets worldspawn and notifies observers")
     {
       Map::createMap(
-        MapFormat::Standard,
+        environmentConfig,
         DefaultGameInfo,
         DefaultGameInfo.gamePathPreference.defaultValue,
+        MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -132,9 +135,10 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
-        MapFormat::Valve,
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -166,9 +170,10 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
-        MapFormat::Valve,
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -191,9 +196,10 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
-        MapFormat::Valve,
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -215,9 +221,10 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
-        MapFormat::Valve,
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -246,9 +253,10 @@ TEST_CASE("Map")
 
 
       Map::createMap(
-        MapFormat::Standard,
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -277,11 +285,12 @@ TEST_CASE("Map")
       };
 
       Map::loadMap(
-        path,
-        MapFormat::Unknown,
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Unknown,
         worldBounds,
+        path,
         *taskManager,
         logger)
         | kdl::transform([&](auto map) {
@@ -304,11 +313,12 @@ TEST_CASE("Map")
       SECTION("Detect Valve Format Map")
       {
         Map::loadMap(
-          makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
-          MapFormat::Unknown,
+          environmentConfig,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
+          MapFormat::Unknown,
           vm::bbox3d{8192.0},
+          makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
           *taskManager,
           logger)
           | kdl::transform([&](auto map) {
@@ -321,11 +331,12 @@ TEST_CASE("Map")
       SECTION("Detect Standard Format Map")
       {
         Map::loadMap(
-          makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
-          MapFormat::Unknown,
+          environmentConfig,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
+          MapFormat::Unknown,
           vm::bbox3d{8192.0},
+          makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
           *taskManager,
           logger)
           | kdl::transform([&](auto map) {
@@ -338,11 +349,12 @@ TEST_CASE("Map")
       SECTION("detectEmptyMap")
       {
         Map::loadMap(
-          makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
-          MapFormat::Unknown,
+          environmentConfig,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
+          MapFormat::Unknown,
           vm::bbox3d{8192.0},
+          makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
           *taskManager,
           logger)
           | kdl::transform([&](auto map) {
@@ -358,11 +370,12 @@ TEST_CASE("Map")
       {
         // map has both Standard and Valve brushes
         CHECK(!Map::loadMap(
-          makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
-          MapFormat::Unknown,
+          environmentConfig,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
+          MapFormat::Unknown,
           vm::bbox3d{8192.0},
+          makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
           *taskManager,
           logger));
       }
@@ -382,11 +395,12 @@ TEST_CASE("Map")
 
 
       Map::loadMap(
-        makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
-        MapFormat::Unknown,
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Unknown,
         vm::bbox3d{8192.0},
+        makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
         *taskManager,
         logger)
         | kdl::transform([&](auto map) {
@@ -412,11 +426,12 @@ TEST_CASE("Map")
     const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
 
     Map::loadMap(
-      path,
-      MapFormat::Unknown,
+      environmentConfig,
       gameInfo,
       gameInfo.gamePathPreference.defaultValue,
+      MapFormat::Unknown,
       vm::bbox3d{8192.0},
+      path,
       *taskManager,
       logger)
       | kdl::and_then([&](auto map) {
@@ -562,9 +577,9 @@ TEST_CASE("Map")
       const auto objFilename = "test.obj";
       const auto mtlFilename = "test.mtl";
 
-      REQUIRE(map.exportAs(io::ObjExportOptions{
+      REQUIRE(map.exportAs(ObjExportOptions{
         env.dir() / objFilename,
-        io::ObjMtlPathMode::RelativeToExportPath,
+        ObjMtlPathMode::RelativeToExportPath,
       }));
 
       CHECK(env.fileExists(objFilename));
@@ -581,7 +596,7 @@ TEST_CASE("Map")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       const auto filename = "test.map";
-      REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / filename}));
+      REQUIRE(map.exportAs(MapExportOptions{env.dir() / filename}));
       CHECK(env.fileExists(filename));
       CHECK(!map.persistent());
       CHECK(map.path() == "unnamed.map");
@@ -600,7 +615,7 @@ TEST_CASE("Map")
         auto* layerNode = new mdl::LayerNode{std::move(layer)};
         addNodes(map, {{&map.worldNode(), {layerNode}}});
 
-        REQUIRE(map.exportAs(io::MapExportOptions{env.dir() / newDocumentPath}));
+        REQUIRE(map.exportAs(MapExportOptions{env.dir() / newDocumentPath}));
         REQUIRE(env.fileExists(newDocumentPath));
       }
 
@@ -1968,9 +1983,10 @@ TEST_CASE("Map")
 
 
       Map::createMap(
-        MapFormat::Standard,
+        environmentConfig,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)

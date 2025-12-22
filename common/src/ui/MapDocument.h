@@ -55,6 +55,7 @@ class PickResult;
 class ResourceId;
 class UndoableCommand;
 
+struct EnvironmentConfig;
 struct GameInfo;
 struct SelectionChange;
 } // namespace mdl
@@ -168,30 +169,34 @@ public:
   MapDocument& operator=(MapDocument&&) noexcept;
 
   static Result<std::unique_ptr<MapDocument>> createDocument(
-    mdl::MapFormat mapFormat,
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
+    mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager);
 
   static Result<std::unique_ptr<MapDocument>> loadDocument(
-    std::filesystem::path path,
-    mdl::MapFormat mapFormat,
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
+    mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
+    std::filesystem::path path,
     kdl::task_manager& taskManager);
 
   ~MapDocument();
 
   Result<void> create(
-    mdl::MapFormat mapFormat,
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
+    mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds);
 
   Result<void> load(
-    std::filesystem::path path,
-    mdl::MapFormat mapFormat,
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
-    const vm::bbox3d& worldBounds);
+    mdl::MapFormat mapFormat,
+    const vm::bbox3d& worldBounds,
+    std::filesystem::path path);
 
   Result<void> reload();
 

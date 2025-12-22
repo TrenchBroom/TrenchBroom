@@ -20,8 +20,8 @@
 #include "RecentDocumentListBox.h"
 
 #include "TrenchBroomApp.h"
-#include "io/PathQt.h"
-#include "io/ResourceUtils.h"
+#include "ui/ImageUtils.h"
+#include "ui/QPathUtils.h"
 
 #include "kd/contracts.h"
 
@@ -31,7 +31,7 @@ namespace tb::ui
 {
 RecentDocumentListBox::RecentDocumentListBox(QWidget* parent)
   : ImageListBox{"No Recent Documents", true, parent}
-  , m_documentIcon{io::loadPixmapResource("DocIcon.png")}
+  , m_documentIcon{loadPixmap("DocIcon.png")}
 {
   auto& app = ui::TrenchBroomApp::instance();
   connect(
@@ -64,7 +64,7 @@ QString RecentDocumentListBox::title(const size_t index) const
   const auto& recentDocuments = app.recentDocuments();
   contract_assert(index < recentDocuments.size());
 
-  return io::pathAsQString(recentDocuments[index].filename());
+  return pathAsQString(recentDocuments[index].filename());
 }
 
 QString RecentDocumentListBox::subtitle(const size_t index) const
@@ -73,7 +73,7 @@ QString RecentDocumentListBox::subtitle(const size_t index) const
   const auto& recentDocuments = app.recentDocuments();
   contract_assert(index < recentDocuments.size());
 
-  return io::pathAsQString(recentDocuments[index]);
+  return pathAsQString(recentDocuments[index]);
 }
 
 void RecentDocumentListBox::doubleClicked(const size_t index)

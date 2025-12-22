@@ -22,12 +22,12 @@
 #include "Macros.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
-#include "io/SystemPaths.h"
 #include "render/FontDescriptor.h"
 #include "render/FontGlyph.h"
 #include "render/FontGlyphBuilder.h"
 #include "render/FontTexture.h"
 #include "render/TextureFont.h"
+#include "ui/SystemPaths.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -55,7 +55,7 @@ auto loadFont(FT_Library library, const FontDescriptor& fontDescriptor)
 {
   const auto fontPath = fontDescriptor.path().is_absolute()
                           ? fontDescriptor.path()
-                          : io::SystemPaths::findResourceFile(fontDescriptor.path());
+                          : ui::SystemPaths::findResourceFile(fontDescriptor.path());
 
   return fs::Disk::openFile(fontPath)
          | kdl::and_then(

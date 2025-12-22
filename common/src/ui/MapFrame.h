@@ -24,7 +24,7 @@
 #include <QPointer>
 
 #include "NotifierConnection.h"
-#include "io/ExportOptions.h"
+#include "mdl/ExportOptions.h"
 
 #include <chrono>
 #include <filesystem>
@@ -196,7 +196,7 @@ public:
   void revertDocument();
   bool exportDocumentAsObj();
   bool exportDocumentAsMap();
-  bool exportDocument(const io::ExportOptions& options);
+  bool exportDocument(const mdl::ExportOptions& options);
 
 private:
   bool confirmOrDiscardChanges();

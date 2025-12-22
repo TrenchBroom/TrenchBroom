@@ -51,7 +51,7 @@ const GameInfo DefaultGameInfo = makeGameInfoFixture(
     .compilationTools = {},
     .forceEmptyNewMap = true,
   },
-  "");
+  std::filesystem::current_path());
 
 const GameInfo QuakeGameInfo = makeGameInfoFixture(
   {

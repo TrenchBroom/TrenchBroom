@@ -24,13 +24,13 @@
 #include <QVBoxLayout>
 
 #include "PreferenceManager.h"
-#include "io/PathQt.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
@@ -269,7 +269,7 @@ void updateListBox(QListWidget* box, const std::vector<std::filesystem::path>& p
   box->clear();
   for (const auto& path : paths)
   {
-    box->addItem(io::pathAsQString(path));
+    box->addItem(pathAsQString(path));
   }
 }
 

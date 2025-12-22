@@ -24,7 +24,6 @@
 #include <QToolButton>
 
 #include "PreferenceManager.h"
-#include "io/PathQt.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
@@ -33,6 +32,7 @@
 #include "ui/BorderLine.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/MapDocument.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/TitleBar.h"
 #include "ui/ViewConstants.h"
@@ -150,7 +150,7 @@ void SmartWadEditor::addWads()
     updateFileDialogDefaultDirectoryWithFilename(
       FileDialogDir::MaterialCollection, pathQStr);
 
-    const auto absWadPath = io::pathFromQString(pathQStr);
+    const auto absWadPath = pathFromQString(pathQStr);
     const auto gamePath = pref(map.gameInfo().gamePathPreference);
     auto pathDialog = ChoosePathTypeDialog{window(), absWadPath, map.path(), gamePath};
 
@@ -285,7 +285,7 @@ void SmartWadEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nod
 
   for (const auto& path : getWadPaths(nodes, propertyKey()))
   {
-    m_wadPaths->addItem(io::pathAsQString(path));
+    m_wadPaths->addItem(pathAsQString(path));
   }
 
   for (const auto& [index, text] : cachedSelection)

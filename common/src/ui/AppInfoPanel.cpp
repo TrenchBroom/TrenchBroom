@@ -27,10 +27,10 @@
 #include <QVBoxLayout>
 
 #include "TrenchBroomApp.h"
-#include "io/ResourceUtils.h"
 #include "ui/BorderLine.h"
 #include "ui/ClickableLabel.h"
 #include "ui/GetVersion.h"
+#include "ui/ImageUtils.h"
 #include "ui/QtUtils.h"
 #include "update/Updater.h"
 
@@ -40,7 +40,7 @@ namespace tb::ui
 AppInfoPanel::AppInfoPanel(QWidget* parent)
   : QWidget{parent}
 {
-  auto appIconImage = io::loadPixmapResource("AppIcon.png");
+  auto appIconImage = loadPixmap("AppIcon.png");
   auto* appIcon = new QLabel{};
   appIcon->setPixmap(appIconImage);
 

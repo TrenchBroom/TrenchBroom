@@ -28,7 +28,7 @@
 #include "fs/TraversalMode.h"
 #include "fs/WadFileSystem.h"
 #include "fs/ZipFileSystem.h"
-#include "io/SystemPaths.h"
+#include "mdl/EnvironmentConfig.h"
 #include "mdl/GameConfig.h"
 
 #include "kd/ranges/as_rvalue_view.h"
@@ -42,18 +42,19 @@ namespace tb::mdl
 {
 
 void GameFileSystem::initialize(
-  const GameConfig& config,
+  const EnvironmentConfig& environmentConfig,
+  const GameConfig& gameConfig,
   const std::filesystem::path& gamePath,
   const std::vector<std::filesystem::path>& additionalSearchPaths,
   Logger& logger)
 {
   unmountAll();
 
-  addDefaultAssetPaths(config, logger);
+  addDefaultAssetPaths(environmentConfig, gameConfig, logger);
 
   if (!gamePath.empty() && fs::Disk::pathInfo(gamePath) == fs::PathInfo::Directory)
   {
-    addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
+    addGameFileSystems(gameConfig, gamePath, additionalSearchPaths, logger);
   }
 }
 
@@ -67,14 +68,14 @@ void GameFileSystem::reloadWads(
   mountWads(rootPath, wadSearchPaths, wadPaths, logger);
 }
 
-void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logger)
+void GameFileSystem::addDefaultAssetPaths(
+  const EnvironmentConfig& environmentConfig, const GameConfig& config, Logger& logger)
 {
   // There are two ways of providing default assets: The 'defaults/assets' folder in
   // TrenchBroom's resources folder, and the 'assets' folder in the game configuration
   // folders. We add filesystems for both types here.
 
-  auto defaultFolderPaths =
-    io::SystemPaths::findResourceDirectories(std::filesystem::path("defaults"));
+  auto defaultFolderPaths = environmentConfig.defaultAssetFolderPaths;
   if (!config.path.empty())
   {
     defaultFolderPaths.push_back(config.path.parent_path());

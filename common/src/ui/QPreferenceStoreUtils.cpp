@@ -30,7 +30,7 @@
 #include <QSaveFile>
 #include <QTimer>
 
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 
 #include "kd/reflection_impl.h"
 
@@ -82,7 +82,7 @@ ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData)
   auto result = PreferenceValues{};
   for (auto it = object.constBegin(); it != object.constEnd(); ++it)
   {
-    result[io::pathFromQString(it.key())] = it.value();
+    result[pathFromQString(it.key())] = it.value();
   }
   return result;
 }
@@ -92,7 +92,7 @@ QByteArray writePreferencesToJson(const PreferenceValues& preferenceValues)
   auto rootObject = QJsonObject{};
   for (const auto& [path, preferenceValue] : preferenceValues)
   {
-    rootObject[io::pathAsGenericQString(path)] = preferenceValue;
+    rootObject[pathAsGenericQString(path)] = preferenceValue;
   }
 
   auto document = QJsonDocument{rootObject};

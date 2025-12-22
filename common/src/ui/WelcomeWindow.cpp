@@ -25,9 +25,9 @@
 #include <QPushButton>
 
 #include "TrenchBroomApp.h"
-#include "io/PathQt.h"
 #include "ui/AppInfoPanel.h"
 #include "ui/BorderLine.h"
+#include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/RecentDocumentListBox.h"
 #include "ui/ViewConstants.h"
@@ -139,7 +139,7 @@ void WelcomeWindow::openOtherDocument()
     tr("Open Map"),
     fileDialogDefaultDirectory(FileDialogDir::Map),
     "Map files (*.map);;Any files (*.*)");
-  const auto path = io::pathFromQString(pathStr);
+  const auto path = pathFromQString(pathStr);
 
   if (!path.empty())
   {

@@ -21,6 +21,8 @@
 
 #include <QApplication>
 
+#include "mdl/EnvironmentConfig.h"
+
 #include "kd/task_manager.h"
 
 #include <filesystem>
@@ -44,8 +46,9 @@ class Logger;
 
 namespace mdl
 {
+struct EnvironmentConfig;
 class GameManager;
-}
+} // namespace mdl
 
 namespace ui
 {
@@ -62,6 +65,7 @@ private:
   upd::HttpClient* m_httpClient = nullptr;
   upd::Updater* m_updater = nullptr;
   kdl::task_manager m_taskManager = kdl::task_manager{256};
+  mdl::EnvironmentConfig m_environmentConfig;
   std::unique_ptr<mdl::GameManager> m_gameManager;
   std::unique_ptr<FrameManager> m_frameManager;
   std::unique_ptr<RecentDocuments> m_recentDocuments;
@@ -82,6 +86,7 @@ public:
 
   void parseCommandLineAndShowFrame();
 
+  const mdl::EnvironmentConfig environmentConfig() const;
   mdl::GameManager& gameManager();
   upd::Updater& updater();
   FrameManager* frameManager();

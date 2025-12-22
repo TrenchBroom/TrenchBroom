@@ -25,7 +25,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "QtUtils.h"
-#include "io/PathQt.h"
+#include "ui/QPathUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
@@ -113,9 +113,9 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
     case 0:
       return {}; // Leave first cell empty
     case 1:
-      return io::pathAsQString(kdl::path_front(colorPreference->path));
+      return pathAsQString(kdl::path_front(colorPreference->path));
     case 2:
-      return io::pathAsGenericQString(kdl::path_pop_front(colorPreference->path));
+      return pathAsGenericQString(kdl::path_pop_front(colorPreference->path));
       switchDefault();
     }
   }

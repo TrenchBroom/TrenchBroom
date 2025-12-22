@@ -19,7 +19,7 @@
 
 #include "TestUtils.h"
 
-#include "io/GameConfigParser.h"
+#include "mdl/GameConfigParser.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"

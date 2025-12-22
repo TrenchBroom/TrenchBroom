@@ -39,6 +39,8 @@ namespace tb
 namespace mdl
 {
 enum class MapFormat;
+
+struct EnvironmentConfig;
 struct GameInfo;
 } // namespace mdl
 
@@ -59,16 +61,18 @@ public:
   ~FrameManager() override;
 
   Result<void> createDocument(
-    mdl::MapFormat mapFormat,
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
+    mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager);
 
   Result<void> loadDocument(
-    std::filesystem::path path,
-    mdl::MapFormat mapFormat,
+    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
+    mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
+    std::filesystem::path path,
     kdl::task_manager& taskManager);
 
   bool closeAllFrames();
