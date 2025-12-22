@@ -27,22 +27,22 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 class MaterialCollection
 {
 private:
   std::filesystem::path m_path;
-  std::vector<gl::Material> m_materials;
+  std::vector<Material> m_materials;
 
   kdl_reflect_decl(MaterialCollection, m_path, m_materials);
 
 public:
   MaterialCollection();
-  explicit MaterialCollection(std::vector<gl::Material> materials);
+  explicit MaterialCollection(std::vector<Material> materials);
   explicit MaterialCollection(std::filesystem::path path);
-  MaterialCollection(std::filesystem::path path, std::vector<gl::Material> materials);
+  MaterialCollection(std::filesystem::path path, std::vector<Material> materials);
 
   MaterialCollection(const MaterialCollection&) = delete;
   MaterialCollection& operator=(const MaterialCollection&) = delete;
@@ -53,14 +53,14 @@ public:
   const std::filesystem::path& path() const;
   size_t materialCount() const;
 
-  const std::vector<gl::Material>& materials() const;
-  std::vector<gl::Material>& materials();
+  const std::vector<Material>& materials() const;
+  std::vector<Material>& materials();
 
-  const gl::Material* materialByIndex(size_t index) const;
-  gl::Material* materialByIndex(size_t index);
+  const Material* materialByIndex(size_t index) const;
+  Material* materialByIndex(size_t index);
 
-  const gl::Material* materialByName(const std::string& name) const;
-  gl::Material* materialByName(const std::string& name);
+  const Material* materialByName(const std::string& name) const;
+  Material* materialByName(const std::string& name);
 };
 
-} // namespace tb::mdl
+} // namespace tb::gl

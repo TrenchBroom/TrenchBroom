@@ -4,6 +4,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/gl/Material.cpp
+        ${COMMON_SOURCE_DIR}/gl/MaterialCollection.cpp
+        ${COMMON_SOURCE_DIR}/gl/MaterialManager.cpp
         ${COMMON_SOURCE_DIR}/gl/ResourceId.cpp
         ${COMMON_SOURCE_DIR}/gl/Texture.cpp
         ${COMMON_SOURCE_DIR}/gl/TextureBuffer.cpp
@@ -131,8 +133,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/MapHeader.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapParser.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapReader.cpp
-        ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.cpp
-        ${COMMON_SOURCE_DIR}/mdl/MaterialManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/MaterialUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/MissingClassnameValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/MissingDefinitionValidator.cpp
@@ -486,6 +486,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/gl/CreateResource.h
         ${COMMON_SOURCE_DIR}/gl/Material.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialCollection.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialManager.h
         ${COMMON_SOURCE_DIR}/gl/ResourceManager.h
         ${COMMON_SOURCE_DIR}/gl/Resource.h
         ${COMMON_SOURCE_DIR}/gl/ResourceId.h
@@ -621,8 +623,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/MapHeader.h
         ${COMMON_SOURCE_DIR}/mdl/MapParser.h
         ${COMMON_SOURCE_DIR}/mdl/MapReader.h
-        ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.h
-        ${COMMON_SOURCE_DIR}/mdl/MaterialManager.h
         ${COMMON_SOURCE_DIR}/mdl/MaterialUtils.h
         ${COMMON_SOURCE_DIR}/mdl/MissingClassnameValidator.h
         ${COMMON_SOURCE_DIR}/mdl/MissingDefinitionValidator.h

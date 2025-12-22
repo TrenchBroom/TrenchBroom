@@ -20,6 +20,7 @@
 #include "Observer.h"
 #include "TestUtils.h"
 #include "fs/TestEnvironment.h"
+#include "gl/MaterialManager.h"
 #include "mdl/BrushFace.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
@@ -27,7 +28,6 @@
 #include "mdl/MapFixture.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/WorldNode.h"
 
 #include <algorithm>

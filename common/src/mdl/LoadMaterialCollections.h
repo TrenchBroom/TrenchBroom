@@ -40,7 +40,8 @@ class Logger;
 namespace gl
 {
 class Material;
-}
+class MaterialCollection;
+} // namespace gl
 
 namespace fs
 {
@@ -49,7 +50,6 @@ class FileSystem;
 
 namespace mdl
 {
-class MaterialCollection;
 struct MaterialConfig;
 
 Result<gl::Material> loadMaterial(
@@ -60,7 +60,7 @@ Result<gl::Material> loadMaterial(
   const std::vector<Quake3Shader>& shaders,
   const std::optional<Palette>& palette);
 
-Result<std::vector<MaterialCollection>> loadMaterialCollections(
+Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const gl::CreateTextureResource& createResource,

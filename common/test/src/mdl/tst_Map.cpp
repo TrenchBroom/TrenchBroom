@@ -23,6 +23,7 @@
 #include "TestUtils.h"
 #include "fs/TestEnvironment.h"
 #include "gl/Material.h"
+#include "gl/MaterialManager.h"
 #include "gl/TextureResource.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
@@ -44,7 +45,6 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/PasteType.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TransactionScope.h"
@@ -1048,7 +1048,7 @@ TEST_CASE("Map")
       auto materials =
         kdl::vec_from(std::move(materialA), std::move(materialB), std::move(materialC));
 
-      auto collections = kdl::vec_from(MaterialCollection{std::move(materials)});
+      auto collections = kdl::vec_from(gl::MaterialCollection{std::move(materials)});
 
       materialManager.setMaterialCollections(std::move(collections));
     }

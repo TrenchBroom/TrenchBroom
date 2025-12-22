@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "gl/MaterialCollection.h"
 #include "gl/ResourceId.h"
-#include "mdl/MaterialCollection.h"
 
 #include <string>
 #include <unordered_map>
@@ -33,10 +33,6 @@ class Logger;
 namespace gl
 {
 class Material;
-}
-
-namespace mdl
-{
 class MaterialCollection;
 
 class MaterialManager
@@ -46,8 +42,8 @@ private:
 
   std::vector<MaterialCollection> m_collections;
 
-  std::unordered_map<std::string, gl::Material*> m_materialsByName;
-  std::vector<const gl::Material*> m_materials;
+  std::unordered_map<std::string, Material*> m_materialsByName;
+  std::vector<const Material*> m_materials;
 
 public:
   explicit MaterialManager(Logger& logger);
@@ -57,13 +53,13 @@ public:
 
   void clear();
 
-  const gl::Material* material(const std::string& name) const;
-  gl::Material* material(const std::string& name);
+  const Material* material(const std::string& name) const;
+  Material* material(const std::string& name);
 
-  const std::vector<const gl::Material*> findMaterialsByTextureResourceId(
-    const std::vector<gl::ResourceId>& textureResourceIds) const;
+  const std::vector<const Material*> findMaterialsByTextureResourceId(
+    const std::vector<ResourceId>& textureResourceIds) const;
 
-  const std::vector<const gl::Material*>& materials() const;
+  const std::vector<const Material*>& materials() const;
   const std::vector<MaterialCollection>& collections() const;
 
 private:
@@ -71,5 +67,5 @@ private:
   void updateMaterials();
 };
 
-} // namespace mdl
+} // namespace gl
 } // namespace tb

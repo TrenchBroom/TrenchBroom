@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/MaterialManager.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -31,7 +32,6 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PatchNode.h"

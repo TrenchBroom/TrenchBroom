@@ -34,12 +34,8 @@ namespace tb
 namespace gl
 {
 class Material;
-}
-
-namespace mdl
-{
 class MaterialCollection;
-} // namespace mdl
+} // namespace gl
 
 namespace ui
 {
@@ -98,9 +94,9 @@ private:
   void addMaterialToLayout(
     Layout& layout, const gl::Material& material, const render::FontDescriptor& font);
 
-  std::vector<const mdl::MaterialCollection*> getCollections() const;
+  std::vector<const gl::MaterialCollection*> getCollections() const;
   std::vector<const gl::Material*> getMaterials(
-    const mdl::MaterialCollection& collection) const;
+    const gl::MaterialCollection& collection) const;
   std::vector<const gl::Material*> getMaterials() const;
 
   std::vector<const gl::Material*> filterMaterials(

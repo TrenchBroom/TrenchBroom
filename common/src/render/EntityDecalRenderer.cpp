@@ -21,6 +21,7 @@
 
 #include "BrushRendererArrays.h"
 #include "gl/Material.h"
+#include "gl/MaterialManager.h"
 #include "gl/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -28,7 +29,6 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/UVCoordSystem.h"
 #include "mdl/WorldNode.h"

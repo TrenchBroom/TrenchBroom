@@ -25,12 +25,12 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/Material.h"
+#include "gl/MaterialCollection.h"
+#include "gl/MaterialManager.h"
 #include "gl/Texture.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Selection.h"
-#include "mdl/MaterialCollection.h"
-#include "mdl/MaterialManager.h"
 #include "render/ActiveShader.h"
 #include "render/FontManager.h"
 #include "render/GLVertexType.h"
@@ -211,12 +211,12 @@ void MaterialBrowserView::addMaterialToLayout(
     titleHeight + 4.0f);
 }
 
-std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
+std::vector<const gl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
   const auto& map = m_document.map();
   const auto enabledMaterialCollections = mdl::enabledMaterialCollections(map);
 
-  auto result = std::vector<const mdl::MaterialCollection*>{};
+  auto result = std::vector<const gl::MaterialCollection*>{};
   for (const auto& collection : map.materialManager().collections())
   {
     if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
@@ -228,7 +228,7 @@ std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections(
 }
 
 std::vector<const gl::Material*> MaterialBrowserView::getMaterials(
-  const mdl::MaterialCollection& collection) const
+  const gl::MaterialCollection& collection) const
 {
   return sortMaterials(filterMaterials(
     collection.materials() | std::views::transform([](const auto& t) { return &t; })

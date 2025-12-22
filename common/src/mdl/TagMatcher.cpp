@@ -20,6 +20,7 @@
 #include "TagMatcher.h"
 
 #include "gl/Material.h"
+#include "gl/MaterialManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
@@ -32,7 +33,6 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/Selection.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep

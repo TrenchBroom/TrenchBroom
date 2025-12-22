@@ -23,11 +23,11 @@
 #include "fs/TestUtils.h"
 #include "fs/VirtualFileSystem.h"
 #include "fs/WadFileSystem.h"
+#include "gl/MaterialCollection.h"
 #include "gl/Resource.h"
 #include "gl/Texture.h"
 #include "mdl/GameConfig.h"
 #include "mdl/LoadMaterialCollections.h"
-#include "mdl/MaterialCollection.h"
 
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
@@ -65,7 +65,7 @@ struct MaterialCollectionInfo
 };
 
 MaterialCollectionInfo makeMaterialCollectionInfo(
-  const mdl::MaterialCollection& materialCollection)
+  const gl::MaterialCollection& materialCollection)
 {
   const auto toMaterialInfo = [](const auto& material) -> std::optional<MaterialInfo> {
     if (const auto* texture = material.texture())
@@ -86,7 +86,7 @@ MaterialCollectionInfo makeMaterialCollectionInfo(
 }
 
 class MaterialCollectionsMatcher
-  : public Catch::Matchers::MatcherBase<Result<std::vector<mdl::MaterialCollection>>>
+  : public Catch::Matchers::MatcherBase<Result<std::vector<gl::MaterialCollection>>>
 {
 private:
   std::vector<MaterialCollectionInfo> m_expected;
@@ -97,7 +97,7 @@ public:
   {
   }
 
-  bool match(const Result<std::vector<mdl::MaterialCollection>>& result) const override
+  bool match(const Result<std::vector<gl::MaterialCollection>>& result) const override
   {
     return result | kdl::transform([&](const auto& materialCollections) {
              return std::ranges::equal(

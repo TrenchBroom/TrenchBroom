@@ -38,6 +38,11 @@ namespace tb
 template <typename T, typename U>
 class octree;
 
+namespace gl
+{
+class MaterialCollection;
+}
+
 namespace render
 {
 enum class PrimType;
@@ -49,8 +54,6 @@ class MaterialRenderer;
 
 namespace mdl
 {
-class MaterialCollection;
-
 enum class PitchType
 {
   Normal,
@@ -180,7 +183,7 @@ class EntityModelSurface
 private:
   std::string m_name;
   std::vector<std::unique_ptr<EntityModelMesh>> m_meshes;
-  std::unique_ptr<MaterialCollection> m_skins;
+  std::unique_ptr<gl::MaterialCollection> m_skins;
 
   kdl_reflect_decl(EntityModelSurface, m_name, m_meshes, m_skins);
 

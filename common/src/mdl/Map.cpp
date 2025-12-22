@@ -23,6 +23,7 @@
 #include "SimpleParserStatus.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
+#include "gl/MaterialManager.h"
 #include "gl/ResourceManager.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BrushBuilder.h"
@@ -66,7 +67,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Map_World.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/MissingClassnameValidator.h"
 #include "mdl/MissingDefinitionValidator.h"
 #include "mdl/MissingModValidator.h"
@@ -323,7 +323,7 @@ auto makeClearNodeTagsVisitor()
     [](PatchNode* patch) { patch->clearTags(); });
 }
 
-auto makeSetMaterialsVisitor(MaterialManager& manager)
+auto makeSetMaterialsVisitor(gl::MaterialManager& manager)
 {
   return kdl::overload(
     [](auto&& thisLambda, WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
@@ -533,7 +533,7 @@ Map::Map(
       *m_gameFileSystem,
       makeCreateResource<EntityModelDataResource>(*m_resourceManager),
       logger)}
-  , m_materialManager{std::make_unique<MaterialManager>(logger)}
+  , m_materialManager{std::make_unique<gl::MaterialManager>(logger)}
   , m_tagManager{std::make_unique<TagManager>()}
   , m_editorContext{std::make_unique<EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
@@ -653,12 +653,12 @@ const EntityModelManager& Map::entityModelManager() const
   return *m_entityModelManager;
 }
 
-MaterialManager& Map::materialManager()
+gl::MaterialManager& Map::materialManager()
 {
   return *m_materialManager;
 }
 
-const MaterialManager& Map::materialManager() const
+const gl::MaterialManager& Map::materialManager() const
 {
   return *m_materialManager;
 }

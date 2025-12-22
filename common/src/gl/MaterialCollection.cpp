@@ -26,14 +26,14 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 kdl_reflect_impl(MaterialCollection);
 
 MaterialCollection::MaterialCollection() = default;
 
-MaterialCollection::MaterialCollection(std::vector<gl::Material> materials)
+MaterialCollection::MaterialCollection(std::vector<Material> materials)
   : m_materials{std::move(materials)}
 {
 }
@@ -44,7 +44,7 @@ MaterialCollection::MaterialCollection(std::filesystem::path path)
 }
 
 MaterialCollection::MaterialCollection(
-  std::filesystem::path path, std::vector<gl::Material> materials)
+  std::filesystem::path path, std::vector<Material> materials)
   : m_path{std::move(path)}
   , m_materials{std::move(materials)}
 {
@@ -60,36 +60,36 @@ size_t MaterialCollection::materialCount() const
   return m_materials.size();
 }
 
-const std::vector<gl::Material>& MaterialCollection::materials() const
+const std::vector<Material>& MaterialCollection::materials() const
 {
   return m_materials;
 }
 
-std::vector<gl::Material>& MaterialCollection::materials()
+std::vector<Material>& MaterialCollection::materials()
 {
   return m_materials;
 }
 
-const gl::Material* MaterialCollection::materialByIndex(const size_t index) const
+const Material* MaterialCollection::materialByIndex(const size_t index) const
 {
   return index < m_materials.size() ? &m_materials[index] : nullptr;
 }
 
-gl::Material* MaterialCollection::materialByIndex(const size_t index)
+Material* MaterialCollection::materialByIndex(const size_t index)
 {
   return KDL_CONST_OVERLOAD(materialByIndex(index));
 }
 
-const gl::Material* MaterialCollection::materialByName(const std::string& name) const
+const Material* MaterialCollection::materialByName(const std::string& name) const
 {
   const auto it = std::ranges::find_if(
     m_materials, [&](const auto& material) { return material.name() == name; });
   return it != m_materials.end() ? &*it : nullptr;
 }
 
-gl::Material* MaterialCollection::materialByName(const std::string& name)
+Material* MaterialCollection::materialByName(const std::string& name)
 {
   return KDL_CONST_OVERLOAD(materialByName(name));
 }
 
-} // namespace tb::mdl
+} // namespace tb::gl

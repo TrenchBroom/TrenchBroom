@@ -48,6 +48,7 @@ class Logger;
 
 namespace gl
 {
+class MaterialManager;
 class ResourceManager;
 
 struct ProcessContext;
@@ -75,7 +76,6 @@ class Grid;
 class GroupNode;
 class Issue;
 class LayerNode;
-class MaterialManager;
 class Node;
 class NodeIndex;
 class PickResult;
@@ -110,7 +110,7 @@ private:
   std::unique_ptr<gl::ResourceManager> m_resourceManager;
   std::unique_ptr<EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<EntityModelManager> m_entityModelManager;
-  std::unique_ptr<MaterialManager> m_materialManager;
+  std::unique_ptr<gl::MaterialManager> m_materialManager;
   std::unique_ptr<TagManager> m_tagManager;
 
   std::unique_ptr<EditorContext> m_editorContext;
@@ -238,8 +238,8 @@ public: // misc
   EntityModelManager& entityModelManager();
   const EntityModelManager& entityModelManager() const;
 
-  MaterialManager& materialManager();
-  const MaterialManager& materialManager() const;
+  gl::MaterialManager& materialManager();
+  const gl::MaterialManager& materialManager() const;
 
   TagManager& tagManager();
   const TagManager& tagManager() const;

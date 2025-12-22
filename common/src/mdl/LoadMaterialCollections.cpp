@@ -24,6 +24,7 @@
 #include "fs/PathInfo.h"
 #include "fs/PathMatcher.h"
 #include "fs/TraversalMode.h"
+#include "gl/MaterialCollection.h"
 #include "gl/Resource.h"
 #include "gl/Texture.h"
 #include "gl/TextureResource.h"
@@ -31,7 +32,6 @@
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/LoadShaders.h"
 #include "mdl/LoadTexture.h"
-#include "mdl/MaterialCollection.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 #include "mdl/Quake3Shader.h"
@@ -328,7 +328,7 @@ std::string materialCollectionName(
   return materialConfig.root.generic_string();
 }
 
-std::vector<MaterialCollection> groupMaterialsIntoCollections(
+std::vector<gl::MaterialCollection> groupMaterialsIntoCollections(
   std::vector<gl::Material> materials)
 {
   materials = kdl::vec_sort(std::move(materials), [&](const auto& lhs, const auto& rhs) {
@@ -354,7 +354,7 @@ std::vector<MaterialCollection> groupMaterialsIntoCollections(
                  return lhs.relativePath() < rhs.relativePath();
                });
 
-             return MaterialCollection{
+             return gl::MaterialCollection{
                std::move(materialCollectionName), std::move(materialsForCollection)};
            })
          | kdl::ranges::to<std::vector>();
@@ -390,7 +390,7 @@ Result<gl::Material> loadMaterial(
            });
 }
 
-Result<std::vector<MaterialCollection>> loadMaterialCollections(
+Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const gl::CreateTextureResource& createResource,

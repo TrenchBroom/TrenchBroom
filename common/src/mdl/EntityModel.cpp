@@ -19,8 +19,8 @@
 
 #include "EntityModel.h"
 
+#include "gl/MaterialCollection.h"
 #include "gl/Texture.h"
-#include "mdl/MaterialCollection.h"
 #include "render/IndexRangeMap.h"
 #include "render/MaterialIndexRangeMap.h"
 #include "render/MaterialIndexRangeRenderer.h"
@@ -382,7 +382,7 @@ kdl_reflect_impl(EntityModelSurface);
 EntityModelSurface::EntityModelSurface(std::string name, const size_t frameCount)
   : m_name{std::move(name)}
   , m_meshes{frameCount}
-  , m_skins{std::make_unique<MaterialCollection>()}
+  , m_skins{std::make_unique<gl::MaterialCollection>()}
 {
 }
 
@@ -439,7 +439,7 @@ void EntityModelSurface::addMesh(
 
 void EntityModelSurface::setSkins(std::vector<gl::Material> skins)
 {
-  m_skins = std::make_unique<MaterialCollection>(std::move(skins));
+  m_skins = std::make_unique<gl::MaterialCollection>(std::move(skins));
 }
 
 size_t EntityModelSurface::frameCount() const

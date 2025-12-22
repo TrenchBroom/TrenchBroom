@@ -20,6 +20,7 @@
 #include "mdl/Map_Assets.h"
 
 #include "Logger.h"
+#include "gl/MaterialManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -28,7 +29,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Map_World.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/PushSelection.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep

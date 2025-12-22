@@ -21,8 +21,8 @@
 
 #include "Logger.h"
 #include "gl/Material.h"
+#include "gl/MaterialCollection.h"
 #include "mdl/LoadMaterialCollections.h"
-#include "mdl/MaterialCollection.h"
 
 #include "kd/const_overload.h"
 #include "kd/ranges/to.h"
@@ -33,7 +33,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace tb::mdl
+namespace tb::gl
 {
 
 MaterialManager::MaterialManager(Logger& logger)
@@ -61,22 +61,22 @@ void MaterialManager::clear()
   // Remove logging because it might fail when the document is already destroyed.
 }
 
-const gl::Material* MaterialManager::material(const std::string& name) const
+const Material* MaterialManager::material(const std::string& name) const
 {
   auto it = m_materialsByName.find(kdl::str_to_lower(name));
   return it != m_materialsByName.end() ? it->second : nullptr;
 }
 
-gl::Material* MaterialManager::material(const std::string& name)
+Material* MaterialManager::material(const std::string& name)
 {
   return KDL_CONST_OVERLOAD(material(name));
 }
 
-const std::vector<const gl::Material*> MaterialManager::findMaterialsByTextureResourceId(
-  const std::vector<gl::ResourceId>& textureResourceIds) const
+const std::vector<const Material*> MaterialManager::findMaterialsByTextureResourceId(
+  const std::vector<ResourceId>& textureResourceIds) const
 {
-  const auto resourceIdSet = std::unordered_set<gl::ResourceId>{
-    textureResourceIds.begin(), textureResourceIds.end()};
+  const auto resourceIdSet =
+    std::unordered_set<ResourceId>{textureResourceIds.begin(), textureResourceIds.end()};
 
   return m_materials | std::views::filter([&](const auto* material) {
            return resourceIdSet.count(material->textureResource().id()) > 0;
@@ -84,7 +84,7 @@ const std::vector<const gl::Material*> MaterialManager::findMaterialsByTextureRe
          | kdl::ranges::to<std::vector>();
 }
 
-const std::vector<const gl::Material*>& MaterialManager::materials() const
+const std::vector<const Material*>& MaterialManager::materials() const
 {
   return m_materials;
 }
@@ -127,7 +127,7 @@ void MaterialManager::updateMaterials()
 
   m_materials =
     m_materialsByName | std::views::values
-    | std::views::transform([](auto* t) { return const_cast<const gl::Material*>(t); })
+    | std::views::transform([](auto* t) { return const_cast<const Material*>(t); })
     | kdl::ranges::to<std::vector>();
 }
-} // namespace tb::mdl
+} // namespace tb::gl

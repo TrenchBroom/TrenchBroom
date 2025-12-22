@@ -19,6 +19,7 @@
 
 #include "TestFactory.h"
 #include "TestUtils.h"
+#include "gl/MaterialManager.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
@@ -36,7 +37,6 @@
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
