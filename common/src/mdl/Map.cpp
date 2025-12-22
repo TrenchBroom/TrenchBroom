@@ -533,8 +533,7 @@ Map::Map(
       *m_gameFileSystem,
       makeCreateResource<EntityModelDataResource>(*m_resourceManager),
       logger)}
-  , m_materialManager{std::make_unique<MaterialManager>(
-      makeCreateResource<gl::TextureResource>(*m_resourceManager), logger)}
+  , m_materialManager{std::make_unique<MaterialManager>(logger)}
   , m_tagManager{std::make_unique<TagManager>()}
   , m_editorContext{std::make_unique<EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
@@ -1203,8 +1202,20 @@ void Map::loadMaterials()
       gameInfo().gameConfig.materialConfig.root, searchPaths, wadPaths, logger());
   }
 
-  m_materialManager->reload(
-    *m_gameFileSystem, gameInfo().gameConfig.materialConfig, taskManager());
+  m_materialManager->clear();
+
+  loadMaterialCollections(
+    *m_gameFileSystem,
+    gameInfo().gameConfig.materialConfig,
+    makeCreateResource<gl::TextureResource>(*m_resourceManager),
+    taskManager(),
+    m_logger)
+    | kdl::transform([&](auto materialCollections) {
+        m_materialManager->setMaterialCollections(std::move(materialCollections));
+      })
+    | kdl::transform_error([&](auto e) {
+        m_logger.error() << "Could not reload material collections: " + e.msg;
+      });
 }
 
 void Map::clearMaterials()

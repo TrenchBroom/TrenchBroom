@@ -26,10 +26,8 @@
 
 #include "kd/const_overload.h"
 #include "kd/ranges/to.h"
-#include "kd/result.h"
 #include "kd/string_format.h"
 
-#include <algorithm>
 #include <ranges>
 #include <string>
 #include <unordered_set>
@@ -38,32 +36,12 @@
 namespace tb::mdl
 {
 
-MaterialManager::MaterialManager(gl::CreateTextureResource createResource, Logger& logger)
-  : m_createResource{std::move(createResource)}
-  , m_logger{logger}
+MaterialManager::MaterialManager(Logger& logger)
+  : m_logger{logger}
 {
 }
 
 MaterialManager::~MaterialManager() = default;
-
-void MaterialManager::reload(
-  const fs::FileSystem& fs,
-  const MaterialConfig& materialConfig,
-  kdl::task_manager& taskManager)
-{
-  clear();
-  loadMaterialCollections(fs, materialConfig, m_createResource, taskManager, m_logger)
-    | kdl::transform([&](auto materialCollections) {
-        for (auto& collection : materialCollections)
-        {
-          addMaterialCollection(std::move(collection));
-        }
-        updateMaterials();
-      })
-    | kdl::transform_error([&](auto e) {
-        m_logger.error() << "Could not reload material collections: " + e.msg;
-      });
-}
 
 void MaterialManager::setMaterialCollections(std::vector<MaterialCollection> collections)
 {
@@ -72,14 +50,6 @@ void MaterialManager::setMaterialCollections(std::vector<MaterialCollection> col
     addMaterialCollection(std::move(collection));
   }
   updateMaterials();
-}
-
-void MaterialManager::addMaterialCollection(MaterialCollection collection)
-{
-  const auto index = m_collections.size();
-  m_collections.push_back(std::move(collection));
-
-  m_logger.debug() << "Added material collection " << m_collections[index].path();
 }
 
 void MaterialManager::clear()
@@ -122,6 +92,14 @@ const std::vector<const gl::Material*>& MaterialManager::materials() const
 const std::vector<MaterialCollection>& MaterialManager::collections() const
 {
   return m_collections;
+}
+
+void MaterialManager::addMaterialCollection(MaterialCollection collection)
+{
+  const auto index = m_collections.size();
+  m_collections.push_back(std::move(collection));
+
+  m_logger.debug() << "Added material collection " << m_collections[index].path();
 }
 
 void MaterialManager::updateMaterials()

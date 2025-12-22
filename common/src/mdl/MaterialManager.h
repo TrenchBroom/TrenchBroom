@@ -20,17 +20,11 @@
 #pragma once
 
 #include "gl/ResourceId.h"
-#include "gl/TextureResource.h"
 #include "mdl/MaterialCollection.h"
 
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-namespace kdl
-{
-class task_manager;
-}
 
 namespace tb
 {
@@ -41,21 +35,13 @@ namespace gl
 class Material;
 }
 
-namespace fs
-{
-class FileSystem;
-} // namespace fs
-
 namespace mdl
 {
 class MaterialCollection;
 
-struct MaterialConfig;
-
 class MaterialManager
 {
 private:
-  gl::CreateTextureResource m_createResource;
   Logger& m_logger;
 
   std::vector<MaterialCollection> m_collections;
@@ -64,21 +50,11 @@ private:
   std::vector<const gl::Material*> m_materials;
 
 public:
-  MaterialManager(gl::CreateTextureResource createResource, Logger& logger);
+  explicit MaterialManager(Logger& logger);
   ~MaterialManager();
 
-  void reload(
-    const fs::FileSystem& fs,
-    const MaterialConfig& materialConfig,
-    kdl::task_manager& taskManager);
-
-  // for testing
   void setMaterialCollections(std::vector<MaterialCollection> collections);
 
-private:
-  void addMaterialCollection(MaterialCollection collection);
-
-public:
   void clear();
 
   const gl::Material* material(const std::string& name) const;
@@ -91,6 +67,7 @@ public:
   const std::vector<MaterialCollection>& collections() const;
 
 private:
+  void addMaterialCollection(MaterialCollection collection);
   void updateMaterials();
 };
 
