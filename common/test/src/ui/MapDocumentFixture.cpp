@@ -44,7 +44,7 @@ MapDocument& MapDocumentFixture::create(mdl::MapFixtureConfig config)
 
   contract_assert(
     MapDocument::createDocument(
-      mapFormat, m_config->gameInfo, vm::bbox3d{8192.0}, *m_taskManager)
+      m_config->gameInfo, mapFormat, vm::bbox3d{8192.0}, *m_taskManager)
     | kdl::transform([&](auto document) {
         m_document = std::move(document);
         m_document->map().setIsCommandCollationEnabled(false);
@@ -65,7 +65,7 @@ MapDocument& MapDocumentFixture::load(
 
   contract_assert(
     MapDocument::loadDocument(
-      absPath, mapFormat, m_config->gameInfo, vm::bbox3d{8192.0}, *m_taskManager)
+      m_config->gameInfo, mapFormat, vm::bbox3d{8192.0}, absPath, *m_taskManager)
     | kdl::transform([&](auto document) {
         m_document = std::move(document);
         m_document->map().setIsCommandCollationEnabled(false);

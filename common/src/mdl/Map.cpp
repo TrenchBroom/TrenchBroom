@@ -560,9 +560,9 @@ Map::Map(
 Map::~Map() = default;
 
 Result<std::unique_ptr<Map>> Map::createMap(
-  MapFormat mapFormat,
   const GameInfo& gameInfo,
   std::filesystem::path gamePath,
+  MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
   Logger& logger)
@@ -582,11 +582,11 @@ Result<std::unique_ptr<Map>> Map::createMap(
 }
 
 Result<std::unique_ptr<Map>> Map::loadMap(
-  std::filesystem::path path,
-  MapFormat mapFormat,
   const GameInfo& gameInfo,
   std::filesystem::path gamePath,
+  MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
+  std::filesystem::path path,
   kdl::task_manager& taskManager,
   Logger& logger)
 {
@@ -793,12 +793,14 @@ Result<std::unique_ptr<Map>> Map::reload()
     return Error{"Cannot reload transient document"};
   }
 
-  const auto path = m_path;
-  const auto mapFormat = m_worldNode->mapFormat();
-  const auto worldBounds = m_worldBounds;
-
   return loadMap(
-    path, mapFormat, gameInfo(), gamePath(), worldBounds, taskManager(), logger());
+    gameInfo(),
+    gamePath(),
+    m_worldNode->mapFormat(),
+    m_worldBounds,
+    m_path,
+    taskManager(),
+    logger());
 }
 
 Result<void> Map::save()

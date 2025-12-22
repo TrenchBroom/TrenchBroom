@@ -201,19 +201,19 @@ public: // misc
   ~Map();
 
   static Result<std::unique_ptr<Map>> createMap(
-    MapFormat mapFormat,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
+    MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
     Logger& logger);
 
   static Result<std::unique_ptr<Map>> loadMap(
-    std::filesystem::path path,
-    MapFormat mapFormat,
     const GameInfo& gameInfo,
     std::filesystem::path gamePath,
+    MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
+    std::filesystem::path path,
     kdl::task_manager& taskManager,
     Logger& logger);
 

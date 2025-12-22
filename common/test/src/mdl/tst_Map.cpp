@@ -102,9 +102,9 @@ TEST_CASE("Map")
     SECTION("Calling create sets worldspawn and notifies observers")
     {
       Map::createMap(
-        MapFormat::Standard,
         DefaultGameInfo,
         DefaultGameInfo.gamePathPreference.defaultValue,
+        MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -132,9 +132,9 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
-        MapFormat::Valve,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -166,9 +166,9 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
-        MapFormat::Valve,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -191,9 +191,9 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
-        MapFormat::Valve,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -215,9 +215,9 @@ TEST_CASE("Map")
       };
 
       Map::createMap(
-        MapFormat::Valve,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -246,9 +246,9 @@ TEST_CASE("Map")
 
 
       Map::createMap(
-        MapFormat::Standard,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)
@@ -277,11 +277,11 @@ TEST_CASE("Map")
       };
 
       Map::loadMap(
-        path,
-        MapFormat::Unknown,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Unknown,
         worldBounds,
+        path,
         *taskManager,
         logger)
         | kdl::transform([&](auto map) {
@@ -304,11 +304,11 @@ TEST_CASE("Map")
       SECTION("Detect Valve Format Map")
       {
         Map::loadMap(
-          makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
-          MapFormat::Unknown,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
+          MapFormat::Unknown,
           vm::bbox3d{8192.0},
+          makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
           *taskManager,
           logger)
           | kdl::transform([&](auto map) {
@@ -321,11 +321,11 @@ TEST_CASE("Map")
       SECTION("Detect Standard Format Map")
       {
         Map::loadMap(
-          makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
-          MapFormat::Unknown,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
+          MapFormat::Unknown,
           vm::bbox3d{8192.0},
+          makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
           *taskManager,
           logger)
           | kdl::transform([&](auto map) {
@@ -338,11 +338,11 @@ TEST_CASE("Map")
       SECTION("detectEmptyMap")
       {
         Map::loadMap(
-          makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
-          MapFormat::Unknown,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
+          MapFormat::Unknown,
           vm::bbox3d{8192.0},
+          makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
           *taskManager,
           logger)
           | kdl::transform([&](auto map) {
@@ -358,11 +358,11 @@ TEST_CASE("Map")
       {
         // map has both Standard and Valve brushes
         CHECK(!Map::loadMap(
-          makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
-          MapFormat::Unknown,
           gameInfo,
           gameInfo.gamePathPreference.defaultValue,
+          MapFormat::Unknown,
           vm::bbox3d{8192.0},
+          makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
           *taskManager,
           logger));
       }
@@ -382,11 +382,11 @@ TEST_CASE("Map")
 
 
       Map::loadMap(
-        makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
-        MapFormat::Unknown,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Unknown,
         vm::bbox3d{8192.0},
+        makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
         *taskManager,
         logger)
         | kdl::transform([&](auto map) {
@@ -412,11 +412,11 @@ TEST_CASE("Map")
     const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
 
     Map::loadMap(
-      path,
-      MapFormat::Unknown,
       gameInfo,
       gameInfo.gamePathPreference.defaultValue,
+      MapFormat::Unknown,
       vm::bbox3d{8192.0},
+      path,
       *taskManager,
       logger)
       | kdl::and_then([&](auto map) {
@@ -1968,9 +1968,9 @@ TEST_CASE("Map")
 
 
       Map::createMap(
-        MapFormat::Standard,
         gameInfo,
         gameInfo.gamePathPreference.defaultValue,
+        MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
         logger)

@@ -52,40 +52,41 @@ MapFrame* FrameManager::topFrame() const
 }
 
 Result<void> FrameManager::createDocument(
-  mdl::MapFormat mapFormat,
   const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager)
 {
   if (shouldCreateFrameForDocument())
   {
-    return MapDocument::createDocument(mapFormat, gameInfo, worldBounds, taskManager)
+    return MapDocument::createDocument(gameInfo, mapFormat, worldBounds, taskManager)
            | kdl::transform([&](auto document) { createFrame(std::move(document)); });
   }
 
   auto* frame = topFrame();
   contract_assert(frame != nullptr);
 
-  return frame->document().create(mapFormat, gameInfo, worldBounds);
+  return frame->document().create(gameInfo, mapFormat, worldBounds);
 }
 
 Result<void> FrameManager::loadDocument(
-  std::filesystem::path path,
-  mdl::MapFormat mapFormat,
   const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
+  std::filesystem::path path,
   kdl::task_manager& taskManager)
 {
   if (shouldCreateFrameForDocument())
   {
-    return MapDocument::loadDocument(path, mapFormat, gameInfo, worldBounds, taskManager)
+    return MapDocument::loadDocument(
+             gameInfo, mapFormat, worldBounds, std::move(path), taskManager)
            | kdl::transform([&](auto document) { createFrame(std::move(document)); });
   }
 
   auto* frame = topFrame();
   contract_assert(frame != nullptr);
 
-  return frame->document().load(path, mapFormat, gameInfo, worldBounds);
+  return frame->document().load(gameInfo, mapFormat, worldBounds, std::move(path));
 }
 
 bool FrameManager::closeAllFrames()

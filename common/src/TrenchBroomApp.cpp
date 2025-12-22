@@ -431,7 +431,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
   // if std::filesystem::absolute fails, the file won't be found and we'll log it later
   auto ec = std::error_code{};
-  const auto absPath =
+  auto absPath =
     path.is_absolute() ? path : std::filesystem::absolute(path, ec).lexically_normal();
 
   const auto checkFileExists = [&]() {
@@ -456,10 +456,10 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
              contract_assert(gameInfo != nullptr);
 
              return m_frameManager->loadDocument(
-                      absPath,
-                      mapFormat,
                       *gameInfo,
+                      mapFormat,
                       MapDocument::DefaultWorldBounds,
+                      std::move(absPath),
                       m_taskManager)
                     | kdl::transform([&]() {
                         closeWelcomeWindow();
@@ -498,7 +498,7 @@ bool TrenchBroomApp::newDocument()
   contract_assert(gameInfo != nullptr);
 
   return m_frameManager->createDocument(
-           mapFormat, *gameInfo, MapDocument::DefaultWorldBounds, m_taskManager)
+           *gameInfo, mapFormat, MapDocument::DefaultWorldBounds, m_taskManager)
          | kdl::transform([&]() {
              closeWelcomeWindow();
              return true;

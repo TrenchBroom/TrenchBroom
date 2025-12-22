@@ -17,12 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameConfigFixture.h"
 #include "Logger.h"
 #include "Observer.h"
+#include "TestUtils.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "ui/MapDocument.h"
-#include "ui/MapDocumentFixture.h"
 
 #include "catch/CatchConfig.h"
 
@@ -34,21 +35,38 @@ namespace tb::ui
 TEST_CASE("MapDocument")
 {
   auto logger = NullLogger{};
-  auto fixture = MapDocumentFixture{};
-  auto& document = fixture.create();
+  auto taskManager = createTestTaskManager();
+
+  SECTION("createDocument")
+  {
+    MapDocument::createDocument(
+      mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, *taskManager)
+      | kdl::transform([](auto document) {
+          SECTION("creates a new map with the given game")
+          {
+            CHECK(&document->map().gameInfo() == &mdl::Quake2GameInfo);
+          }
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
 
   SECTION("create")
   {
-    auto documentWasLoaded = Observer<void>{document.documentWasLoadedNotifier};
+    auto document =
+      MapDocument::createDocument(
+        mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, *taskManager)
+      | kdl::value();
 
-    const auto* previousMap = &document.map();
+    auto documentWasLoaded = Observer<void>{document->documentWasLoadedNotifier};
 
-    document.create(mdl::MapFormat::Daikatana, mdl::QuakeGameInfo, vm::bbox3d{8192.0})
+    const auto* previousMap = &document->map();
+
+    document->create(mdl::QuakeGameInfo, mdl::MapFormat::Daikatana, vm::bbox3d{8192.0})
       | kdl::transform([&]() {
           SECTION("creates a new map with the given game")
           {
-            CHECK(&document.map() != previousMap);
-            CHECK(&document.map().gameInfo() == &mdl::QuakeGameInfo);
+            CHECK(&document->map() != previousMap);
+            CHECK(&document->map().gameInfo() == &mdl::QuakeGameInfo);
           }
 
           SECTION("calls notifiers")
@@ -59,23 +77,45 @@ TEST_CASE("MapDocument")
       | kdl::transform_error([](auto e) { FAIL(e.msg); });
   }
 
+
+  SECTION("loadDocument")
+  {
+    const auto path =
+      std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
+
+    MapDocument::loadDocument(
+      mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, path, *taskManager)
+      | kdl::transform([&](auto document) {
+          SECTION("loads map at given path")
+          {
+            CHECK(document->map().path() == path);
+            CHECK(&document->map().gameInfo() == &mdl::Quake2GameInfo);
+          }
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
   SECTION("load")
   {
-    auto documentWasLoaded = Observer<void>{document.documentWasLoadedNotifier};
+    auto document =
+      MapDocument::createDocument(
+        mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, *taskManager)
+      | kdl::value();
 
-    const auto* previousMap = &document.map();
+    auto documentWasLoaded = Observer<void>{document->documentWasLoadedNotifier};
+
+    const auto* previousMap = &document->map();
 
     const auto path =
       std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
 
-
-    document.load(path, mdl::MapFormat::Unknown, mdl::QuakeGameInfo, vm::bbox3d{8192.0})
+    document->load(mdl::QuakeGameInfo, mdl::MapFormat::Unknown, vm::bbox3d{8192.0}, path)
       | kdl::transform([&]() {
           SECTION("loads map at given path")
           {
-            CHECK(&document.map() != previousMap);
-            CHECK(document.map().path() == path);
-            CHECK(&document.map().gameInfo() == &mdl::QuakeGameInfo);
+            CHECK(&document->map() != previousMap);
+            CHECK(document->map().path() == path);
+            CHECK(&document->map().gameInfo() == &mdl::QuakeGameInfo);
           }
 
           SECTION("calls notifiers")
@@ -88,33 +128,38 @@ TEST_CASE("MapDocument")
 
   SECTION("reload")
   {
+    auto document =
+      MapDocument::createDocument(
+        mdl::Quake2GameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, *taskManager)
+      | kdl::value();
+
     const auto path =
       std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
 
-    REQUIRE(document.load(
-      path, mdl::MapFormat::Unknown, mdl::QuakeGameInfo, vm::bbox3d{8192.0}));
+    REQUIRE(document->load(
+      mdl::QuakeGameInfo, mdl::MapFormat::Unknown, vm::bbox3d{8192.0}, path));
 
-    REQUIRE(document.map().path() == path);
+    REQUIRE(document->map().path() == path);
 
     auto* transientEntityNode = new mdl::EntityNode{{}};
     addNodes(
-      document.map(), {{mdl::parentForNodes(document.map()), {transientEntityNode}}});
+      document->map(), {{mdl::parentForNodes(document->map()), {transientEntityNode}}});
     REQUIRE(
-      document.map().worldNode().defaultLayer()->children()
+      document->map().worldNode().defaultLayer()->children()
       == std::vector<mdl::Node*>{transientEntityNode});
-    REQUIRE(document.map().modified());
+    REQUIRE(document->map().modified());
 
-    auto documentWasLoaded = Observer<void>{document.documentWasLoadedNotifier};
+    auto documentWasLoaded = Observer<void>{document->documentWasLoadedNotifier};
 
-    const auto* previousMap = &document.map();
+    const auto* previousMap = &document->map();
 
-    document.reload() | kdl::transform([&]() {
+    document->reload() | kdl::transform([&]() {
       SECTION("reloads map")
       {
-        CHECK(&document.map() != previousMap);
-        CHECK(document.map().path() == path);
-        CHECK(&document.map().gameInfo() == &mdl::QuakeGameInfo);
-        CHECK(!document.map().modified());
+        CHECK(&document->map() != previousMap);
+        CHECK(document->map().path() == path);
+        CHECK(&document->map().gameInfo() == &mdl::QuakeGameInfo);
+        CHECK(!document->map().modified());
       }
 
       SECTION("calls notifiers")

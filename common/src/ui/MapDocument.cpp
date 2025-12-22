@@ -78,25 +78,25 @@ MapDocument::MapDocument(MapDocument&&) noexcept = default;
 MapDocument& MapDocument::operator=(MapDocument&&) noexcept = default;
 
 Result<std::unique_ptr<MapDocument>> MapDocument::createDocument(
-  mdl::MapFormat mapFormat,
   const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager)
 {
   auto document = std::make_unique<MapDocument>(taskManager);
-  return document->create(mapFormat, gameInfo, worldBounds)
+  return document->create(gameInfo, mapFormat, worldBounds)
          | kdl::transform([&]() { return std::move(document); });
 }
 
 Result<std::unique_ptr<MapDocument>> MapDocument::loadDocument(
-  std::filesystem::path path,
-  mdl::MapFormat mapFormat,
   const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
+  std::filesystem::path path,
   kdl::task_manager& taskManager)
 {
   auto document = std::make_unique<MapDocument>(taskManager);
-  return document->load(std::move(path), mapFormat, gameInfo, worldBounds)
+  return document->load(gameInfo, mapFormat, worldBounds, std::move(path))
          | kdl::transform([&]() { return std::move(document); });
 }
 
@@ -113,13 +113,12 @@ MapDocument::~MapDocument()
 }
 
 Result<void> MapDocument::create(
-  mdl::MapFormat mapFormat, const mdl::GameInfo& gameInfo, const vm::bbox3d& worldBounds)
+  const mdl::GameInfo& gameInfo, mdl::MapFormat mapFormat, const vm::bbox3d& worldBounds)
 {
-  auto gamePath = pref(gameInfo.gamePathPreference);
   return mdl::Map::createMap(
-           mapFormat,
            gameInfo,
-           std::move(gamePath),
+           pref(gameInfo.gamePathPreference),
+           mapFormat,
            worldBounds,
            *m_taskManager,
            logger())
@@ -130,18 +129,17 @@ Result<void> MapDocument::create(
 }
 
 Result<void> MapDocument::load(
-  std::filesystem::path path,
-  mdl::MapFormat mapFormat,
   const mdl::GameInfo& gameInfo,
-  const vm::bbox3d& worldBounds)
+  mdl::MapFormat mapFormat,
+  const vm::bbox3d& worldBounds,
+  std::filesystem::path path)
 {
-  auto gamePath = pref(gameInfo.gamePathPreference);
   return mdl::Map::loadMap(
-           path,
-           mapFormat,
            gameInfo,
-           std::move(gamePath),
+           pref(gameInfo.gamePathPreference),
+           mapFormat,
            worldBounds,
+           std::move(path),
            *m_taskManager,
            logger())
          | kdl::transform([&](auto map) {
