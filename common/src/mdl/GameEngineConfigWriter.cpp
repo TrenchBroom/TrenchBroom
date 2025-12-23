@@ -55,8 +55,7 @@ el::Value GameEngineConfigWriter::writeProfiles(const GameEngineConfig& config) 
     | kdl::ranges::to<std::vector>()};
 }
 
-el::Value GameEngineConfigWriter::writeProfile(
-  const GameEngineProfile& profile) const
+el::Value GameEngineConfigWriter::writeProfile(const GameEngineProfile& profile) const
 {
   return el::Value{el::MapType{
     {"name", el::Value{profile.name}},

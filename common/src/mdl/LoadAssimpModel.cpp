@@ -27,9 +27,9 @@
 #include "fs/PathInfo.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
+#include "mdl/BrushFaceAttributes.h"
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/MaterialUtils.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/Texture.h"
 #include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
@@ -626,8 +626,7 @@ AssimpComputedMeshData computeMeshData(
 
   auto size = render::IndexRangeMap::Size{};
   size.inc(render::PrimType::Triangles, numTriangles);
-  auto builder =
-    render::IndexRangeMapBuilder<EntityModelVertex::Type>{numIndices, size};
+  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{numIndices, size};
 
   for (unsigned int i = 0; i < numTriangles; ++i)
   {

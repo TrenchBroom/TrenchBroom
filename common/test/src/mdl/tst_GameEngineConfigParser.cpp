@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/GameEngineConfigParser.h"
 #include "mdl/GameEngineConfig.h"
+#include "mdl/GameEngineConfigParser.h"
 
 #include "catch/CatchConfig.h"
 

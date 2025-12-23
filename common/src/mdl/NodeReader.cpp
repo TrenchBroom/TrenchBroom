@@ -102,8 +102,7 @@ Result<std::vector<Node*>> NodeReader::readAsFormat(
   return entityReader.readEntities(worldBounds, status, taskManager)
          | kdl::transform([&]() {
              status.info(
-               "Parsed successfully as " + formatName(sourceMapFormat)
-               + " entities");
+               "Parsed successfully as " + formatName(sourceMapFormat) + " entities");
              return entityReader.m_nodes;
            })
          | kdl::or_else([&](const auto& entityReaderError) {
@@ -144,8 +143,7 @@ void NodeReader::onLayerNode(std::unique_ptr<Node> layerNode, ParserStatus&)
   m_nodes.push_back(layerNode.release());
 }
 
-void NodeReader::onNode(
-  Node* parentNode, std::unique_ptr<Node> node, ParserStatus&)
+void NodeReader::onNode(Node* parentNode, std::unique_ptr<Node> node, ParserStatus&)
 {
   if (parentNode != nullptr)
   {

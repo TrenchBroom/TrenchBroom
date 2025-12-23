@@ -22,8 +22,8 @@
 #include "Logger.h"
 #include "fs/FileSystem.h"
 #include "mdl/LoadTexture.h"
-#include "mdl/MaterialUtils.h"
 #include "mdl/Material.h"
+#include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
 namespace tb::mdl

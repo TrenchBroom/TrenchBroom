@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/ExportOptions.h"
-#include "mdl/NodeWriter.h"
-#include "mdl/ObjSerializer.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
+#include "mdl/ExportOptions.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Material.h"
+#include "mdl/NodeWriter.h"
+#include "mdl/ObjSerializer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"

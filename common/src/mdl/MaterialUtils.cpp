@@ -117,8 +117,7 @@ Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
   return Texture{32, 32};
 }
 
-Material loadDefaultMaterial(
-  const fs::FileSystem& fs, std::string name, Logger& logger)
+Material loadDefaultMaterial(const fs::FileSystem& fs, std::string name, Logger& logger)
 {
   auto textureResource = createTextureResource(loadDefaultTexture(fs, logger));
   return Material{std::move(name), std::move(textureResource)};

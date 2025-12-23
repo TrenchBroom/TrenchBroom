@@ -21,8 +21,8 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
-#include "mdl/LoadMdlModel.h"
 #include "mdl/EntityModel.h"
+#include "mdl/LoadMdlModel.h"
 #include "mdl/Palette.h"
 
 #include "kd/result.h"

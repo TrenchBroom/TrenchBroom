@@ -19,6 +19,7 @@
  */
 
 #include "LoadDdsTexture.h"
+
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "mdl/MaterialUtils.h"

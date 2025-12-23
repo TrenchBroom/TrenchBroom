@@ -19,11 +19,11 @@
 
 #include "TestUtils.h"
 
-#include "mdl/GameConfigParser.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
+#include "mdl/GameConfigParser.h"
 #include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"

@@ -89,8 +89,7 @@ void NodeSerializer::defaultLayer(const WorldNode& world)
   const auto& defaultLayer = defaultLayerNode->layer();
   if (const auto color = defaultLayer.color())
   {
-    worldEntity.addOrUpdateProperty(
-      EntityPropertyKeys::LayerColor, color->toString());
+    worldEntity.addOrUpdateProperty(EntityPropertyKeys::LayerColor, color->toString());
   }
   else
   {
@@ -276,8 +275,7 @@ std::vector<EntityProperty> NodeSerializer::parentProperties(const Node* node)
   return properties;
 }
 
-std::vector<EntityProperty> NodeSerializer::layerProperties(
-  const LayerNode* layerNode)
+std::vector<EntityProperty> NodeSerializer::layerProperties(const LayerNode* layerNode)
 {
   std::vector<EntityProperty> result = {
     {EntityPropertyKeys::Classname, EntityPropertyValues::LayerClassname},
@@ -311,8 +309,7 @@ std::vector<EntityProperty> NodeSerializer::layerProperties(
   return result;
 }
 
-std::vector<EntityProperty> NodeSerializer::groupProperties(
-  const GroupNode* groupNode)
+std::vector<EntityProperty> NodeSerializer::groupProperties(const GroupNode* groupNode)
 {
   auto result = std::vector<EntityProperty>{
     {EntityPropertyKeys::Classname, EntityPropertyValues::GroupClassname},

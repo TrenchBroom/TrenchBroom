@@ -17,8 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FreeImage.h"
 #include "LoadFreeImageTexture.h"
+
+#include "FreeImage.h"
 #include "fs/Reader.h"
 #include "mdl/ImageLoaderImpl.h"
 #include "mdl/MaterialUtils.h"
@@ -107,8 +108,7 @@ Color getAverageColor(const TextureBuffer& buffer, const GLenum format)
   return RgbaF{average[0], average[1], average[2], average[3]};
 }
 
-Result<Texture> loadFreeImageTextureFromMemory(
-  const uint8_t* begin, const size_t size)
+Result<Texture> loadFreeImageTextureFromMemory(const uint8_t* begin, const size_t size)
 {
   try
   {

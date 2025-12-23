@@ -21,8 +21,8 @@
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
 #include "fs/TraversalMode.h"
-#include "mdl/GameConfigParser.h"
 #include "mdl/GameConfig.h"
+#include "mdl/GameConfigParser.h"
 #include "mdl/Tag.h"
 #include "mdl/TagMatcher.h"
 
