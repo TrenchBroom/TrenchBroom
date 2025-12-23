@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Color.h"
 #include "Notifier.h"
 
 #include "kd/reflection_decl.h"
@@ -41,7 +40,6 @@ class VboManager;
 
 namespace render
 {
-class RenderContext;
 
 class Camera
 {
@@ -176,11 +174,6 @@ public:
    */
   vm::quatf clampRotationToUpright(const vm::quatf& rotation) const;
 
-  void renderFrustum(
-    RenderContext& renderContext,
-    gl::VboManager& vboManager,
-    float size,
-    const Color& color) const;
   float pickFrustum(float size, const vm::ray3f& ray) const;
 
   std::optional<double> pickPointHandle(
@@ -217,11 +210,6 @@ private:
     vm::plane3f& bottomPlane,
     vm::plane3f& leftPlane) const = 0;
 
-  virtual void doRenderFrustum(
-    RenderContext& renderContext,
-    gl::VboManager& vboManager,
-    float size,
-    const Color& color) const = 0;
   virtual float doPickFrustum(float size, const vm::ray3f& ray) const = 0;
   virtual float doGetPerspectiveScalingFactor(const vm::vec3f& position) const = 0;
   virtual bool isValidZoom(float zoom) const;

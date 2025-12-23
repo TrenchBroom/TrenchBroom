@@ -19,15 +19,6 @@
 
 #include "PerspectiveCamera.h"
 
-#include "Color.h"
-#include "gl/ActiveShader.h"
-#include "gl/PrimType.h"
-#include "gl/Shaders.h"
-#include "gl/VboManager.h"
-#include "gl/VertexArray.h"
-#include "gl/VertexType.h"
-#include "render/RenderContext.h"
-
 #include "kd/contracts.h"
 
 #include "vm/intersection.h"
@@ -36,7 +27,6 @@
 #include "vm/vec.h"
 
 #include <limits>
-#include <vector>
 
 namespace tb::render
 {
@@ -134,52 +124,6 @@ void PerspectiveCamera::doComputeFrustumPlanes(
 
   d = center - right() * frustum.x() - position();
   leftPlane = vm::plane3f(position(), normalize(cross(up(), d)));
-}
-
-void PerspectiveCamera::doRenderFrustum(
-  RenderContext& renderContext,
-  gl::VboManager& vboManager,
-  const float size,
-  const Color& color) const
-{
-  using Vertex = gl::VertexTypes::P3C4::Vertex;
-  auto triangleVertices = std::vector<Vertex>{};
-  auto lineVertices = std::vector<Vertex>{};
-  triangleVertices.reserve(6);
-  lineVertices.reserve(8 * 2);
-
-  vm::vec3f verts[4];
-  getFrustumVertices(size, verts);
-
-  triangleVertices.emplace_back(position(), RgbaF{color.to<RgbF>(), 0.7f}.toVec());
-  for (size_t i = 0; i < 4; ++i)
-  {
-    triangleVertices.emplace_back(verts[i], RgbaF{color.to<RgbF>(), 0.2f}.toVec());
-  }
-  triangleVertices.emplace_back(verts[0], RgbaF{color.to<RgbF>(), 0.2f}.toVec());
-
-  for (size_t i = 0; i < 4; ++i)
-  {
-    lineVertices.emplace_back(position(), color.to<RgbaF>().toVec());
-    lineVertices.emplace_back(verts[i], color.to<RgbaF>().toVec());
-  }
-
-  for (size_t i = 0; i < 4; ++i)
-  {
-    lineVertices.emplace_back(verts[i], color.to<RgbaF>().toVec());
-    lineVertices.emplace_back(verts[vm::succ(i, 4)], color.to<RgbaF>().toVec());
-  }
-
-  auto triangleArray = gl::VertexArray::ref(triangleVertices);
-  auto lineArray = gl::VertexArray::ref(lineVertices);
-
-  triangleArray.prepare(vboManager);
-  lineArray.prepare(vboManager);
-
-  auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPCShader};
-  triangleArray.render(gl::PrimType::TriangleFan);
-  lineArray.render(gl::PrimType::Lines);
 }
 
 float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) const

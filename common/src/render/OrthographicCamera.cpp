@@ -101,14 +101,6 @@ void OrthographicCamera::doComputeFrustumPlanes(
   leftPlane = vm::plane3f{center - w2 * right(), -right()};
 }
 
-void OrthographicCamera::doRenderFrustum(
-  RenderContext&,
-  gl::VboManager& /* vboManager */,
-  const float /* size */,
-  const Color& /* color */) const
-{
-}
-
 float OrthographicCamera::doPickFrustum(
   const float /* size */, const vm::ray3f& /* ray */) const
 {

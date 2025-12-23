@@ -58,11 +58,6 @@ private:
     vm::plane3f& bottomPlane,
     vm::plane3f& leftPlane) const override;
 
-  void doRenderFrustum(
-    RenderContext& renderContext,
-    gl::VboManager& vboManager,
-    float size,
-    const Color& color) const override;
   float doPickFrustum(float size, const vm::ray3f& ray) const override;
   float doGetPerspectiveScalingFactor(const vm::vec3f& position) const override;
   void doUpdateZoom() override;
