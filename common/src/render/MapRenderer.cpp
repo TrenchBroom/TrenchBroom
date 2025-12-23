@@ -44,7 +44,6 @@
 #include "render/ObjectRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 
 #include "kd/overload.h"
 #include "kd/path_utils.h"
@@ -254,7 +253,7 @@ private:
     glAssert(glEnable(GL_CULL_FACE));
     glAssert(glEnable(GL_DEPTH_TEST));
     glAssert(glDepthFunc(GL_LEQUAL));
-    glResetEdgeOffset();
+    gl::glResetEdgeOffset();
   }
 };
 

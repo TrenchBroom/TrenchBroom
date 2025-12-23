@@ -25,9 +25,9 @@
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/TextureFont.h"
+#include "mdl/BasicShapes.h"
 #include "render/Camera.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 #include "render/TextAnchor.h"
 
 #include "vm/mat_ext.h"
@@ -176,7 +176,7 @@ void TextRenderer::addEntry(EntryCollection& collection, const Entry& entry)
 {
   collection.entries.push_back(entry);
   collection.textVertexCount += entry.vertices.size();
-  collection.rectVertexCount += roundedRect2DVertexCount(RectCornerSegments);
+  collection.rectVertexCount += mdl::roundedRect2DVertexCount(RectCornerSegments);
 }
 
 vm::vec2f TextRenderer::stringSize(
@@ -239,7 +239,7 @@ void TextRenderer::addEntry(
   }
 
   const auto rect =
-    roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
+    mdl::roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
   for (size_t i = 0; i < rect.size(); ++i)
   {
     const auto& vertex = rect[i];

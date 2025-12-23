@@ -28,6 +28,11 @@
 
 namespace tb::gl
 {
+namespace
+{
+constexpr auto EdgeOffset = 0.0001;
+}
+
 void glCheckError(const std::string& msg)
 {
   const GLenum error = glGetError();
@@ -143,4 +148,15 @@ std::string glGetEnumName(const GLenum enum_)
     return "Unknown OpenGL enum";
   }
 }
+
+void glSetEdgeOffset(const double f)
+{
+  glAssert(glDepthRange(0.0, 1.0 - EdgeOffset * f));
+}
+
+void glResetEdgeOffset()
+{
+  glAssert(glDepthRange(EdgeOffset, 1.0));
+}
+
 } // namespace tb::gl

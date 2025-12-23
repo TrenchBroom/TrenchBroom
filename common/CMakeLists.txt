@@ -44,6 +44,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
+        ${COMMON_SOURCE_DIR}/mdl/BasicShapes.cpp
         ${COMMON_SOURCE_DIR}/mdl/BezierPatch.cpp
         ${COMMON_SOURCE_DIR}/mdl/Brush.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushBuilder.cpp
@@ -263,7 +264,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/RenderBatch.cpp
         ${COMMON_SOURCE_DIR}/render/RenderContext.cpp
         ${COMMON_SOURCE_DIR}/render/RenderService.cpp
-        ${COMMON_SOURCE_DIR}/render/RenderUtils.cpp
         ${COMMON_SOURCE_DIR}/render/SelectionBoundsRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/Sphere.cpp
         ${COMMON_SOURCE_DIR}/render/SpikeGuideRenderer.cpp
@@ -540,6 +540,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/AssetReference.h
         ${COMMON_SOURCE_DIR}/mdl/AssetUtils.h
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.h
+        ${COMMON_SOURCE_DIR}/mdl/BasicShapes.h
         ${COMMON_SOURCE_DIR}/mdl/BezierPatch.h
         ${COMMON_SOURCE_DIR}/mdl/Brush.h
         ${COMMON_SOURCE_DIR}/mdl/BrushBuilder.h
@@ -784,7 +785,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/RenderBatch.h
         ${COMMON_SOURCE_DIR}/render/RenderContext.h
         ${COMMON_SOURCE_DIR}/render/RenderService.h
-        ${COMMON_SOURCE_DIR}/render/RenderUtils.h
         ${COMMON_SOURCE_DIR}/render/SelectionBoundsRenderer.h
         ${COMMON_SOURCE_DIR}/render/Sphere.h
         ${COMMON_SOURCE_DIR}/render/SpikeGuideRenderer.h

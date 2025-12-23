@@ -22,8 +22,8 @@
 #include "Color.h"
 #include "gl/ActiveShader.h"
 #include "gl/Shaders.h"
+#include "mdl/BasicShapes.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 
 #include "kd/contracts.h"
 
@@ -216,10 +216,10 @@ void PrimitiveRenderer::renderCoordinateSystemXY(
 {
   vm::vec3f start, end;
 
-  coordinateSystemVerticesX(bounds, start, end);
+  mdl::coordinateSystemVerticesX(bounds, start, end);
   renderLine(x, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesY(bounds, start, end);
+  mdl::coordinateSystemVerticesY(bounds, start, end);
   renderLine(y, lineWidth, occlusionPolicy, start, end);
 }
 
@@ -232,10 +232,10 @@ void PrimitiveRenderer::renderCoordinateSystemXZ(
 {
   vm::vec3f start, end;
 
-  coordinateSystemVerticesX(bounds, start, end);
+  mdl::coordinateSystemVerticesX(bounds, start, end);
   renderLine(x, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesZ(bounds, start, end);
+  mdl::coordinateSystemVerticesZ(bounds, start, end);
   renderLine(z, lineWidth, occlusionPolicy, start, end);
 }
 
@@ -248,10 +248,10 @@ void PrimitiveRenderer::renderCoordinateSystemYZ(
 {
   vm::vec3f start, end;
 
-  coordinateSystemVerticesY(bounds, start, end);
+  mdl::coordinateSystemVerticesY(bounds, start, end);
   renderLine(y, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesZ(bounds, start, end);
+  mdl::coordinateSystemVerticesZ(bounds, start, end);
   renderLine(z, lineWidth, occlusionPolicy, start, end);
 }
 
@@ -265,13 +265,13 @@ void PrimitiveRenderer::renderCoordinateSystem3D(
 {
   vm::vec3f start, end;
 
-  coordinateSystemVerticesX(bounds, start, end);
+  mdl::coordinateSystemVerticesX(bounds, start, end);
   renderLine(x, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesY(bounds, start, end);
+  mdl::coordinateSystemVerticesY(bounds, start, end);
   renderLine(y, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesZ(bounds, start, end);
+  mdl::coordinateSystemVerticesZ(bounds, start, end);
   renderLine(z, lineWidth, occlusionPolicy, start, end);
 }
 
@@ -315,7 +315,7 @@ void PrimitiveRenderer::renderCylinder(
   const auto rotation = vm::rotation_matrix(vm::vec3f{0, 0, 1}, dir);
   const auto transform = translation * rotation;
 
-  const auto cylinder = render::cylinder(radius, len, segments);
+  const auto cylinder = mdl::cylinder(radius, len, segments);
   const auto vertices = transform * cylinder.vertices;
 
   m_triangleMeshes[TriangleRenderAttributes{color, occlusionPolicy, cullingPolicy}]

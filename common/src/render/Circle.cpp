@@ -21,7 +21,7 @@
 
 #include "gl/PrimType.h"
 #include "gl/VertexType.h"
-#include "render/RenderUtils.h"
+#include "mdl/BasicShapes.h"
 
 #include "kd/contracts.h"
 
@@ -66,7 +66,8 @@ Circle::Circle(
   contract_pre(radius > 0.0f);
   contract_pre(segments > 0);
 
-  const auto [startAngle, angleLength] = startAngleAndLength(axis, startAxis, endAxis);
+  const auto [startAngle, angleLength] =
+    mdl::startAngleAndLength(axis, startAxis, endAxis);
   init3D(radius, segments, axis, startAngle, angleLength);
 }
 
@@ -109,7 +110,7 @@ void Circle::init2D(
 {
   using Vertex = gl::VertexTypes::P2::Vertex;
 
-  auto positions = circle2D(radius, startAngle, angleLength, segments);
+  auto positions = mdl::circle2D(radius, startAngle, angleLength, segments);
   if (m_filled)
   {
     positions.push_back(vm::vec2f{0, 0});
@@ -127,7 +128,7 @@ void Circle::init3D(
 {
   using Vertex = gl::VertexTypes::P3::Vertex;
 
-  auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
+  auto positions = mdl::circle2D(radius, axis, startAngle, angleLength, segments);
   if (m_filled)
   {
     positions.emplace_back(vm::vec3f{0, 0, 0});

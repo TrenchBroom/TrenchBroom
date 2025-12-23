@@ -28,10 +28,10 @@
 #include "gl/Vertex.h"
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
+#include "mdl/BasicShapes.h"
 #include "render/Camera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 #include "render/Transformation.h"
 
 #include "vm/mat.h"
@@ -112,26 +112,26 @@ void Compass::makeArrows()
     vm::vec3f{0.0f, 0.0f, -(m_shaftLength + m_headLength) / 2.0f + 2.0f};
   const auto headOffset = vm::vec3f{0.0f, 0.0f, m_shaftLength} + shaftOffset;
 
-  auto shaft = cylinder(m_shaftRadius, m_shaftLength, m_segments);
+  auto shaft = mdl::cylinder(m_shaftRadius, m_shaftLength, m_segments);
   for (size_t i = 0; i < shaft.vertices.size(); ++i)
   {
     shaft.vertices[i] = shaft.vertices[i] + shaftOffset;
   }
 
-  auto head = cone(m_headRadius, m_headLength, m_segments);
+  auto head = mdl::cone(m_headRadius, m_headLength, m_segments);
   for (size_t i = 0; i < head.vertices.size(); ++i)
   {
     head.vertices[i] = head.vertices[i] + headOffset;
   }
 
-  auto shaftCap = circle3D(m_shaftRadius, m_segments);
+  auto shaftCap = mdl::circle3D(m_shaftRadius, m_segments);
   for (size_t i = 0; i < shaftCap.vertices.size(); ++i)
   {
     shaftCap.vertices[i] = vm::mat4x4f::rot_180_x() * shaftCap.vertices[i] + shaftOffset;
     shaftCap.normals[i] = vm::mat4x4f::rot_180_x() * shaftCap.normals[i];
   }
 
-  auto headCap = circle3D(m_headRadius, m_segments);
+  auto headCap = mdl::circle3D(m_headRadius, m_segments);
   for (size_t i = 0; i < headCap.vertices.size(); ++i)
   {
     headCap.vertices[i] = vm::mat4x4f::rot_180_x() * headCap.vertices[i] + headOffset;
@@ -169,7 +169,7 @@ void Compass::makeArrows()
 void Compass::makeBackground()
 {
   using Vertex = gl::VertexTypes::P2::Vertex;
-  auto circ = circle2D(
+  auto circ = mdl::circle2D(
     (m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::two_pi(), m_segments);
   auto verts = Vertex::toList(circ.size(), std::begin(circ));
 

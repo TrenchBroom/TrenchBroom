@@ -27,7 +27,6 @@
 #include "render/BrushRendererArrays.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 
 namespace tb::render
 {
@@ -76,7 +75,7 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
 {
   if (m_params.offset != 0.0)
   {
-    glSetEdgeOffset(m_params.offset);
+    gl::glSetEdgeOffset(m_params.offset);
   }
 
   glAssert(glLineWidth(m_params.width * renderContext.dpiScale()));
@@ -111,7 +110,7 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
 
   if (m_params.offset != 0.0)
   {
-    glResetEdgeOffset();
+    gl::glResetEdgeOffset();
   }
 }
 

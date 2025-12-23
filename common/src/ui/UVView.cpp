@@ -38,7 +38,6 @@
 #include "render/FaceRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 #include "render/Renderable.h"
 #include "ui/MapDocument.h"
 #include "ui/UVCameraTool.h"
@@ -130,7 +129,7 @@ private:
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
     shader.set("GridSizes", texture->sizef());
-    shader.set("GridColor", vm::vec4f{render::gridColorForMaterial(material), 0.6f});
+    shader.set("GridColor", RgbaF{gl::gridColorForMaterial(material), 0.6f});
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});

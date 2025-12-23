@@ -31,7 +31,6 @@
 #include "render/Camera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 
 namespace tb::render
 {
@@ -193,7 +192,7 @@ void FaceRenderer::doRender(RenderContext& context)
         const auto enableMasked = texture && texture->mask() == gl::TextureMask::On;
 
         // set any per-material uniforms
-        shader.set("GridColor", gridColorForMaterial(material));
+        shader.set("GridColor", material);
         shader.set("EnableMasked", enableMasked);
 
         func.before(material);

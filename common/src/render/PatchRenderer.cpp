@@ -36,7 +36,6 @@
 #include "render/Camera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"

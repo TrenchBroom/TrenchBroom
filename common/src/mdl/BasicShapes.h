@@ -30,20 +30,8 @@
 #include <utility>
 #include <vector>
 
-namespace tb
+namespace tb::mdl
 {
-namespace gl
-{
-class Material;
-}
-
-namespace render
-{
-
-vm::vec3f gridColorForMaterial(const gl::Material* material);
-
-void glSetEdgeOffset(double f);
-void glResetEdgeOffset();
 
 void coordinateSystemVerticesX(
   const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
@@ -186,5 +174,4 @@ VertsAndNormals circle3D(float radius, size_t segments);
 VertsAndNormals cylinder(float radius, float length, size_t segments);
 VertsAndNormals cone(float radius, float length, size_t segments);
 
-} // namespace render
-} // namespace tb
+} // namespace tb::mdl

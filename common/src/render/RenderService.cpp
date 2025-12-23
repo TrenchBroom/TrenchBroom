@@ -23,12 +23,12 @@
 #include "Preferences.h"
 #include "gl/AttrString.h"
 #include "gl/FontDescriptor.h"
+#include "mdl/BasicShapes.h"
 #include "render/Camera.h"
 #include "render/PointHandleRenderer.h"
 #include "render/PrimitiveRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 #include "render/TextAnchor.h"
 #include "render/TextRenderer.h"
 
@@ -355,7 +355,8 @@ void RenderService::renderCircle(
   const vm::vec3f& startAxis,
   const vm::vec3f& endAxis)
 {
-  const auto [startAngle, angleLength] = startAngleAndLength(normal, startAxis, endAxis);
+  const auto [startAngle, angleLength] =
+    mdl::startAngleAndLength(normal, startAxis, endAxis);
   renderCircle(position, normal, segments, radius, startAngle, angleLength);
 }
 
@@ -368,7 +369,7 @@ void RenderService::renderCircle(
   const float angleLength)
 {
   const auto positions =
-    circle2D(radius, normal, startAngle, angleLength, segments) + position;
+    mdl::circle2D(radius, normal, startAngle, angleLength, segments) + position;
   m_primitiveRenderer->renderLineStrip(
     m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
 }
@@ -381,7 +382,8 @@ void RenderService::renderFilledCircle(
   const vm::vec3f& startAxis,
   const vm::vec3f& endAxis)
 {
-  const auto [startAngle, angleLength] = startAngleAndLength(normal, startAxis, endAxis);
+  const auto [startAngle, angleLength] =
+    mdl::startAngleAndLength(normal, startAxis, endAxis);
   renderFilledCircle(position, normal, segments, radius, startAngle, angleLength);
 }
 
@@ -394,7 +396,7 @@ void RenderService::renderFilledCircle(
   const float angleLength)
 {
   const auto positions =
-    circle2D(radius, normal, startAngle, angleLength, segments) + position;
+    mdl::circle2D(radius, normal, startAngle, angleLength, segments) + position;
   m_primitiveRenderer->renderFilledPolygon(
     m_foregroundColor, m_occlusionPolicy, m_cullingPolicy, positions);
 }

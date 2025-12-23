@@ -17,51 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RenderUtils.h"
-
-#include "gl/GL.h"
-#include "gl/Material.h"
-#include "gl/Texture.h"
+#include "BasicShapes.h"
 
 #include "kd/contracts.h"
 
-namespace tb::render
+namespace tb::mdl
 {
-namespace
-{
-constexpr auto EdgeOffset = 0.0001;
-}
-
-vm::vec3f gridColorForMaterial(const gl::Material* material)
-{
-  if (const auto* texture = getTexture(material))
-  {
-    const auto averageColor = texture->averageColor().to<RgbF>();
-    const auto brightness =
-      (averageColor.get<ColorChannel::r>() + averageColor.get<ColorChannel::g>()
-       + averageColor.get<ColorChannel::b>())
-      / 3.0f;
-
-    if (brightness > 0.50f)
-    {
-      // bright material grid color
-      return vm::vec3f{0, 0, 0};
-    }
-  }
-
-  // dark material grid color
-  return vm::vec3f{1, 1, 1};
-}
-
-void glSetEdgeOffset(const double f)
-{
-  glAssert(glDepthRange(0.0, 1.0 - EdgeOffset * f));
-}
-
-void glResetEdgeOffset()
-{
-  glAssert(glDepthRange(EdgeOffset, 1.0));
-}
 
 void coordinateSystemVerticesX(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end)
 {
@@ -432,4 +393,4 @@ VertsAndNormals cone(const float radius, const float length, const size_t segmen
   return {std::move(vertices), std::move(normals)};
 }
 
-} // namespace tb::render
+} // namespace tb::mdl

@@ -21,7 +21,7 @@
 
 #include "gl/PrimType.h"
 #include "gl/VertexType.h"
-#include "render/RenderUtils.h"
+#include "mdl/BasicShapes.h"
 
 namespace tb::render
 {
@@ -30,7 +30,7 @@ Sphere::Sphere(const float radius, const size_t iterations)
 {
   using Vertex = gl::VertexTypes::P3::Vertex;
 
-  const auto positions = sphere(radius, iterations);
+  const auto positions = mdl::sphere(radius, iterations);
   m_array =
     gl::VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }

@@ -36,6 +36,9 @@ std::string glGetErrorMessage(GLenum code);
 GLenum getEnum(const std::string& name);
 std::string glGetEnumName(GLenum _enum);
 
+void glSetEdgeOffset(double f);
+void glResetEdgeOffset();
+
 // #define GL_DEBUG 1
 // #define GL_LOG 1
 
