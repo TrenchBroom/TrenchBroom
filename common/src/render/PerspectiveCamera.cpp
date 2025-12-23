@@ -69,42 +69,8 @@ void PerspectiveCamera::setFov(const float fov)
   }
 }
 
-vm::ray3f PerspectiveCamera::doGetPickRay(const vm::vec3f& point) const
-{
-  const auto direction = vm::normalize(point - position());
-  return {position(), direction};
-}
 
-float PerspectiveCamera::computeZoomedFov(const float zoom, const float fov)
-{
-  // Piecewise definition of a function to get a natural feeling zoom
-  // - for values below 0.7, use the square root.
-  // - for values above 1.2, use the negated inverse (approaches 0 smoothly)
-  // - for values in between, linearly interpolate between both
-  const auto f1 = std::sqrt(zoom);
-  const auto f2 = (-1.0f / zoom + 2.0f);
-  const auto z = zoom < 0.7f   ? f1
-                 : zoom < 1.2f ? vm::mix(f1, f2, 2.0f * (zoom - 0.7f))
-                               : f2;
-
-  return fov * z;
-}
-
-Camera::ProjectionType PerspectiveCamera::doGetProjectionType() const
-{
-  return ProjectionType::Perspective;
-}
-
-void PerspectiveCamera::doValidateMatrices(
-  vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const
-{
-  const auto& viewport = this->viewport();
-  projectionMatrix = vm::perspective_matrix(
-    zoomedFov(), nearPlane(), farPlane(), viewport.width, viewport.height);
-  viewMatrix = vm::view_matrix(direction(), up()) * vm::translation_matrix(-position());
-}
-
-void PerspectiveCamera::doComputeFrustumPlanes(
+void PerspectiveCamera::frustumPlanes(
   vm::plane3f& topPlane,
   vm::plane3f& rightPlane,
   vm::plane3f& bottomPlane,
@@ -126,7 +92,19 @@ void PerspectiveCamera::doComputeFrustumPlanes(
   leftPlane = vm::plane3f(position(), normalize(cross(up(), d)));
 }
 
-float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) const
+vm::ray3f PerspectiveCamera::pickRay(const vm::vec3f& point) const
+{
+  const auto direction = vm::normalize(point - position());
+  return {position(), direction};
+}
+
+float PerspectiveCamera::perspectiveScalingFactor(const vm::vec3f& position) const
+{
+  const auto perpDist = perpendicularDistanceTo(position);
+  return perpDist / viewportFrustumDistance();
+}
+
+float PerspectiveCamera::pickFrustum(const float size, const vm::ray3f& ray) const
 {
   vm::vec3f verts[4];
   getFrustumVertices(size, verts);
@@ -142,6 +120,35 @@ float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) c
     }
   }
   return minDistance;
+}
+
+float PerspectiveCamera::computeZoomedFov(const float zoom, const float fov)
+{
+  // Piecewise definition of a function to get a natural feeling zoom
+  // - for values below 0.7, use the square root.
+  // - for values above 1.2, use the negated inverse (approaches 0 smoothly)
+  // - for values in between, linearly interpolate between both
+  const auto f1 = std::sqrt(zoom);
+  const auto f2 = (-1.0f / zoom + 2.0f);
+  const auto z = zoom < 0.7f   ? f1
+                 : zoom < 1.2f ? vm::mix(f1, f2, 2.0f * (zoom - 0.7f))
+                               : f2;
+
+  return fov * z;
+}
+
+Camera::ProjectionType PerspectiveCamera::projectionType() const
+{
+  return ProjectionType::Perspective;
+}
+
+void PerspectiveCamera::doValidateMatrices(
+  vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const
+{
+  const auto& viewport = this->viewport();
+  projectionMatrix = vm::perspective_matrix(
+    zoomedFov(), nearPlane(), farPlane(), viewport.width, viewport.height);
+  viewMatrix = vm::view_matrix(direction(), up()) * vm::translation_matrix(-position());
 }
 
 void PerspectiveCamera::getFrustumVertices(const float size, vm::vec3f (&verts)[4]) const
@@ -169,12 +176,6 @@ vm::vec2f PerspectiveCamera::getFrustum() const
   const auto h =
     v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
   return vm::vec2f{h, v};
-}
-
-float PerspectiveCamera::doGetPerspectiveScalingFactor(const vm::vec3f& position) const
-{
-  const auto perpDist = perpendicularDistanceTo(position);
-  return perpDist / viewportFrustumDistance();
 }
 
 float PerspectiveCamera::viewportFrustumDistance() const

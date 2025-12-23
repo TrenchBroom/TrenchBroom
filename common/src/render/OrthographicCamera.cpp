@@ -62,30 +62,7 @@ std::vector<vm::vec3d> OrthographicCamera::viewportVertices() const
   };
 }
 
-Camera::ProjectionType OrthographicCamera::doGetProjectionType() const
-{
-  return ProjectionType::Orthographic;
-}
-
-void OrthographicCamera::doValidateMatrices(
-  vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const
-{
-  const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
-  const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
-
-  projectionMatrix = vm::ortho_matrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
-  viewMatrix = vm::view_matrix(direction(), up()) * vm::translation_matrix(-position());
-}
-
-vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const
-{
-  const auto v = point - position();
-  const auto d = dot(v, direction());
-  const auto o = point - d * direction();
-  return {o, direction()};
-}
-
-void OrthographicCamera::doComputeFrustumPlanes(
+void OrthographicCamera::frustumPlanes(
   vm::plane3f& topPlane,
   vm::plane3f& rightPlane,
   vm::plane3f& bottomPlane,
@@ -101,16 +78,38 @@ void OrthographicCamera::doComputeFrustumPlanes(
   leftPlane = vm::plane3f{center - w2 * right(), -right()};
 }
 
-float OrthographicCamera::doPickFrustum(
+vm::ray3f OrthographicCamera::pickRay(const vm::vec3f& point) const
+{
+  const auto v = point - position();
+  const auto d = dot(v, direction());
+  const auto o = point - d * direction();
+  return {o, direction()};
+}
+
+float OrthographicCamera::perspectiveScalingFactor(const vm::vec3f& /* position */) const
+{
+  return 1.0f / zoom();
+}
+
+float OrthographicCamera::pickFrustum(
   const float /* size */, const vm::ray3f& /* ray */) const
 {
   return vm::nan<float>();
 }
 
-float OrthographicCamera::doGetPerspectiveScalingFactor(
-  const vm::vec3f& /* position */) const
+Camera::ProjectionType OrthographicCamera::projectionType() const
 {
-  return 1.0f / zoom();
+  return ProjectionType::Orthographic;
+}
+
+void OrthographicCamera::doValidateMatrices(
+  vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const
+{
+  const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
+  const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
+
+  projectionMatrix = vm::ortho_matrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
+  viewMatrix = vm::view_matrix(direction(), up()) * vm::translation_matrix(-position());
 }
 
 void OrthographicCamera::doUpdateZoom()

@@ -184,12 +184,6 @@ const vm::mat4x4f Camera::verticalBillboardMatrix() const
     1.0f);
 }
 
-void Camera::frustumPlanes(
-  vm::plane3f& top, vm::plane3f& right, vm::plane3f& bottom, vm::plane3f& left) const
-{
-  doComputeFrustumPlanes(top, right, bottom, left);
-}
-
 vm::ray3f Camera::viewRay() const
 {
   return {m_position, m_direction};
@@ -197,12 +191,7 @@ vm::ray3f Camera::viewRay() const
 
 vm::ray3f Camera::pickRay(const float x, const float y) const
 {
-  return doGetPickRay(unproject(x, y, 0.5f));
-}
-
-vm::ray3f Camera::pickRay(const vm::vec3f& point) const
-{
-  return doGetPickRay(point);
+  return pickRay(unproject(x, y, 0.5f));
 }
 
 float Camera::distanceTo(const vm::vec3f& point) const
@@ -229,11 +218,6 @@ vm::vec3f Camera::defaultPoint(const float x, const float y) const
 {
   const vm::ray3f ray = pickRay(x, y);
   return defaultPoint(ray);
-}
-
-float Camera::perspectiveScalingFactor(const vm::vec3f& position) const
-{
-  return doGetPerspectiveScalingFactor(position);
 }
 
 vm::vec3f Camera::project(const vm::vec3f& point) const
@@ -423,11 +407,6 @@ vm::quatf Camera::clampRotationToUpright(const vm::quatf& rotation) const
 }
 
 
-float Camera::pickFrustum(const float size, const vm::ray3f& ray) const
-{
-  return doPickFrustum(size, ray);
-}
-
 std::optional<double> Camera::pickPointHandle(
   const vm::ray3d& pickRay,
   const vm::vec3d& handlePosition,
@@ -478,11 +457,6 @@ Camera::Camera(
   contract_pre(vm::is_unit(up, vm::Cf::almost_zero()));
 
   setDirection(direction, up);
-}
-
-Camera::ProjectionType Camera::projectionType() const
-{
-  return doGetProjectionType();
 }
 
 void Camera::validateMatrices() const

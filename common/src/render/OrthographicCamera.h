@@ -46,20 +46,24 @@ public:
   const Viewport& zoomedViewport() const;
   std::vector<vm::vec3d> viewportVertices() const;
 
-private:
-  ProjectionType doGetProjectionType() const override;
-
-  void doValidateMatrices(
-    vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const override;
-  vm::ray3f doGetPickRay(const vm::vec3f& point) const override;
-  void doComputeFrustumPlanes(
+  void frustumPlanes(
     vm::plane3f& topPlane,
     vm::plane3f& rightPlane,
     vm::plane3f& bottomPlane,
     vm::plane3f& leftPlane) const override;
 
-  float doPickFrustum(float size, const vm::ray3f& ray) const override;
-  float doGetPerspectiveScalingFactor(const vm::vec3f& position) const override;
+  using Camera::pickRay;
+  vm::ray3f pickRay(const vm::vec3f& point) const override;
+
+  float perspectiveScalingFactor(const vm::vec3f& position) const override;
+
+  float pickFrustum(float size, const vm::ray3f& ray) const override;
+
+private:
+  ProjectionType projectionType() const override;
+
+  void doValidateMatrices(
+    vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const override;
   void doUpdateZoom() override;
 };
 

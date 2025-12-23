@@ -121,15 +121,16 @@ public:
   const vm::mat4x4f& viewMatrix() const;
   const vm::mat4x4f orthogonalBillboardMatrix() const;
   const vm::mat4x4f verticalBillboardMatrix() const;
-  void frustumPlanes(
+
+  virtual void frustumPlanes(
     vm::plane3f& topPlane,
     vm::plane3f& rightPlane,
     vm::plane3f& bottomPlane,
-    vm::plane3f& leftPlane) const;
+    vm::plane3f& leftPlane) const = 0;
 
   vm::ray3f viewRay() const;
   vm::ray3f pickRay(float x, float y) const;
-  vm::ray3f pickRay(const vm::vec3f& point) const;
+  virtual vm::ray3f pickRay(const vm::vec3f& point) const = 0;
   float distanceTo(const vm::vec3f& point) const;
   float squaredDistanceTo(const vm::vec3f& point) const;
   float perpendicularDistanceTo(const vm::vec3f& point) const;
@@ -143,7 +144,7 @@ public:
     return vm::point_at_distance(ray, distance);
   }
 
-  float perspectiveScalingFactor(const vm::vec3f& position) const;
+  virtual float perspectiveScalingFactor(const vm::vec3f& position) const = 0;
   vm::vec3f project(const vm::vec3f& point) const;
   vm::vec3f unproject(const vm::vec3f& point) const;
   vm::vec3f unproject(float x, float y, float depth) const;
@@ -174,7 +175,7 @@ public:
    */
   vm::quatf clampRotationToUpright(const vm::quatf& rotation) const;
 
-  float pickFrustum(float size, const vm::ray3f& ray) const;
+  virtual float pickFrustum(float size, const vm::ray3f& ray) const = 0;
 
   std::optional<double> pickPointHandle(
     const vm::ray3d& pickRay, const vm::vec3d& handlePosition, double handleRadius) const;
@@ -194,24 +195,14 @@ protected:
     const vm::vec3f& up);
 
 private:
-  ProjectionType projectionType() const;
+  virtual ProjectionType projectionType() const = 0;
 
   void validateMatrices() const;
 
 private:
-  virtual ProjectionType doGetProjectionType() const = 0;
-
   virtual void doValidateMatrices(
     vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const = 0;
-  virtual vm::ray3f doGetPickRay(const vm::vec3f& point) const = 0;
-  virtual void doComputeFrustumPlanes(
-    vm::plane3f& topPlane,
-    vm::plane3f& rightPlane,
-    vm::plane3f& bottomPlane,
-    vm::plane3f& leftPlane) const = 0;
 
-  virtual float doPickFrustum(float size, const vm::ray3f& ray) const = 0;
-  virtual float doGetPerspectiveScalingFactor(const vm::vec3f& position) const = 0;
   virtual bool isValidZoom(float zoom) const;
   virtual void doUpdateZoom() = 0;
 };
