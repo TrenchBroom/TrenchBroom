@@ -47,7 +47,7 @@ TEST_CASE("MapDocument")
       mdl::MapFormat::Valve,
       vm::bbox3d{8192.0},
       *taskManager)
-      | kdl::transform([](auto document) {
+      | kdl::transform([&](auto document) {
           SECTION("creates a new map with the given game")
           {
             CHECK(&document->map().gameInfo() == &mdl::Quake2GameInfo);
