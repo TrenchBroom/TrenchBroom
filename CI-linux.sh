@@ -57,6 +57,9 @@ cd "$BUILD_DIR/lib/TbFsLib/test"
 cd "$BUILD_DIR/lib/TbFsLib/test-utils/test"
 ./TbFsTestUtilsLibTest || exit 1
 
+cd "$BUILD_DIR/lib/TbGlLib/test"
+./TbGlLibTest || exit 1
+
 cd "$BUILD_DIR/lib/VmLib/test"
 ./VmLibTest || exit 1
 

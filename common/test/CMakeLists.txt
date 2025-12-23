@@ -8,7 +8,6 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/StringMakers.h"
         "${COMMON_TEST_SOURCE_DIR}/GameConfigFixture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/GameConfigFixture.h"
-        "${COMMON_TEST_SOURCE_DIR}/gl/MockTaskRunner.h"
         "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.h"
         "${COMMON_TEST_SOURCE_DIR}/mdl/MapFixture.cpp"
@@ -26,10 +25,6 @@ set(COMMON_TEST_UTILS_SOURCE
 
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_StringMakers.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/gl/tst_Camera.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/gl/tst_Resource.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/gl/tst_ResourceManager.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/gl/tst_Vertex.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_AssetUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Autosaver.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_BezierPatch.cpp"

@@ -3,47 +3,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/gl/ActiveShader.cpp
-        ${COMMON_SOURCE_DIR}/gl/AttrString.cpp
-        ${COMMON_SOURCE_DIR}/gl/Camera.cpp
-        ${COMMON_SOURCE_DIR}/gl/ContextManager.cpp
-        ${COMMON_SOURCE_DIR}/gl/FontDescriptor.cpp
-        ${COMMON_SOURCE_DIR}/gl/FontFactory.cpp
-        ${COMMON_SOURCE_DIR}/gl/FontGlyph.cpp
-        ${COMMON_SOURCE_DIR}/gl/FontGlyphBuilder.cpp
-        ${COMMON_SOURCE_DIR}/gl/FontManager.cpp
-        ${COMMON_SOURCE_DIR}/gl/FontTexture.cpp
-        ${COMMON_SOURCE_DIR}/gl/FreeTypeFontFactory.cpp
-        ${COMMON_SOURCE_DIR}/gl/GL.cpp
-        ${COMMON_SOURCE_DIR}/gl/IndexArray.cpp
-        ${COMMON_SOURCE_DIR}/gl/IndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/gl/IndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/gl/IndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/gl/IndexRangeRenderer.cpp
-        ${COMMON_SOURCE_DIR}/gl/Material.cpp
-        ${COMMON_SOURCE_DIR}/gl/MaterialCollection.cpp
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayRenderer.cpp
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeRenderer.cpp
-        ${COMMON_SOURCE_DIR}/gl/MaterialManager.cpp
-        ${COMMON_SOURCE_DIR}/gl/MaterialRenderFunc.cpp
-        ${COMMON_SOURCE_DIR}/gl/OrthographicCamera.cpp
-        ${COMMON_SOURCE_DIR}/gl/PerspectiveCamera.cpp
-        ${COMMON_SOURCE_DIR}/gl/PrimType.cpp
-        ${COMMON_SOURCE_DIR}/gl/ResourceId.cpp
-        ${COMMON_SOURCE_DIR}/gl/Shader.cpp
-        ${COMMON_SOURCE_DIR}/gl/ShaderManager.cpp
-        ${COMMON_SOURCE_DIR}/gl/ShaderProgram.cpp
-        ${COMMON_SOURCE_DIR}/gl/Shaders.cpp
-        ${COMMON_SOURCE_DIR}/gl/Texture.cpp
-        ${COMMON_SOURCE_DIR}/gl/TextureBuffer.cpp
-        ${COMMON_SOURCE_DIR}/gl/TextureFont.cpp
-        ${COMMON_SOURCE_DIR}/gl/TextureResource.cpp
-        ${COMMON_SOURCE_DIR}/gl/Vbo.cpp
-        ${COMMON_SOURCE_DIR}/gl/VboManager.cpp
-        ${COMMON_SOURCE_DIR}/gl/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
@@ -485,58 +444,6 @@ set(COMMON_SOURCE
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/gl/ActiveShader.h
-        ${COMMON_SOURCE_DIR}/gl/AttrString.h
-        ${COMMON_SOURCE_DIR}/gl/Camera.h
-        ${COMMON_SOURCE_DIR}/gl/ContextManager.h
-        ${COMMON_SOURCE_DIR}/gl/CreateResource.h
-        ${COMMON_SOURCE_DIR}/gl/FontDescriptor.h
-        ${COMMON_SOURCE_DIR}/gl/FontFactory.h
-        ${COMMON_SOURCE_DIR}/gl/FontGlyph.h
-        ${COMMON_SOURCE_DIR}/gl/FontGlyphBuilder.h
-        ${COMMON_SOURCE_DIR}/gl/FontManager.h
-        ${COMMON_SOURCE_DIR}/gl/FontTexture.h
-        ${COMMON_SOURCE_DIR}/gl/FreeTypeFontFactory.h
-        ${COMMON_SOURCE_DIR}/gl/GL.h
-        ${COMMON_SOURCE_DIR}/gl/IndexArray.h
-        ${COMMON_SOURCE_DIR}/gl/IndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/gl/IndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/gl/IndexedVertexList.h
-        ${COMMON_SOURCE_DIR}/gl/IndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/gl/IndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/gl/IndexRangeRenderer.h
-        ${COMMON_SOURCE_DIR}/gl/Material.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialCollection.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayRenderer.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeRenderer.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialManager.h
-        ${COMMON_SOURCE_DIR}/gl/MaterialRenderFunc.h
-        ${COMMON_SOURCE_DIR}/gl/OrthographicCamera.h
-        ${COMMON_SOURCE_DIR}/gl/PerspectiveCamera.h
-        ${COMMON_SOURCE_DIR}/gl/PrimType.h
-        ${COMMON_SOURCE_DIR}/gl/ResourceManager.h
-        ${COMMON_SOURCE_DIR}/gl/Resource.h
-        ${COMMON_SOURCE_DIR}/gl/ResourceId.h
-        ${COMMON_SOURCE_DIR}/gl/Shader.h
-        ${COMMON_SOURCE_DIR}/gl/ShaderConfig.h
-        ${COMMON_SOURCE_DIR}/gl/ShaderManager.h
-        ${COMMON_SOURCE_DIR}/gl/ShaderProgram.h
-        ${COMMON_SOURCE_DIR}/gl/Shaders.h
-        ${COMMON_SOURCE_DIR}/gl/Texture.h
-        ${COMMON_SOURCE_DIR}/gl/TextureBuffer.h
-        ${COMMON_SOURCE_DIR}/gl/TextureFont.h
-        ${COMMON_SOURCE_DIR}/gl/TextureResource.h
-        ${COMMON_SOURCE_DIR}/gl/Vertex.h
-        ${COMMON_SOURCE_DIR}/gl/VertexArray.h
-        ${COMMON_SOURCE_DIR}/gl/VertexAttributeType.h
-        ${COMMON_SOURCE_DIR}/gl/VertexListBuilder.h
-        ${COMMON_SOURCE_DIR}/gl/VertexType.h
-        ${COMMON_SOURCE_DIR}/gl/Vbo.h
-        ${COMMON_SOURCE_DIR}/gl/VboManager.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/mdl/ApplyAndSwap.h
@@ -1009,8 +916,8 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC TbBaseLib TbElLib TbFsLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
-  PRIVATE GLEW::GLEW OpenGL::GL UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
+  PUBLIC TbBaseLib TbElLib TbFsLib TbGlLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PRIVATE UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)
 

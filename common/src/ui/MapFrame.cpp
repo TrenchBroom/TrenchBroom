@@ -100,6 +100,7 @@
 #include "ui/SignalDelayer.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableMapViewContainer.h"
+#include "ui/SystemPaths.h"
 #include "ui/VertexTool.h"
 #include "ui/ViewUtils.h"
 #include "update/Updater.h"
@@ -136,7 +137,8 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   , m_lastInputTime{std::chrono::system_clock::now()}
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
-  , m_contextManager{std::make_unique<gl::ContextManager>()}
+  , m_contextManager{std::make_unique<gl::ContextManager>(
+      [](const auto& path) { return SystemPaths::findResourceFile(path); })}
   , m_updateTitleSignalDelayer{new SignalDelayer{500ms, this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
   , m_updateStatusBarSignalDelayer{new SignalDelayer{500ms, this}}
