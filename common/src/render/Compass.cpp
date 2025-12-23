@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/Camera.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
@@ -29,7 +30,6 @@
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "mdl/BasicShapes.h"
-#include "render/Camera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/Transformation.h"
@@ -191,7 +191,7 @@ void Compass::makeBackground()
   m_backgroundOutlineRenderer = gl::IndexRangeRenderer{outlineBuilder};
 }
 
-vm::mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const
+vm::mat4x4f Compass::cameraRotationMatrix(const gl::Camera& camera) const
 {
   auto rotation = vm::mat4x4f{};
   rotation[0] = vm::vec4f{camera.right()};

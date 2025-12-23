@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/Camera.h"
+#include "gl/Camera.h"
 
 #include "kd/set_temp.h"
 #include "kd/vector_utils.h"
@@ -30,7 +30,7 @@
 
 namespace tb::ui
 {
-void CameraLinkHelper::addCamera(render::Camera* camera)
+void CameraLinkHelper::addCamera(gl::Camera* camera)
 {
   contract_pre(camera != nullptr);
   contract_pre(!kdl::vec_contains(m_cameras, camera));
@@ -40,7 +40,7 @@ void CameraLinkHelper::addCamera(render::Camera* camera)
     camera->cameraDidChangeNotifier.connect(this, &CameraLinkHelper::cameraDidChange);
 }
 
-void CameraLinkHelper::updateCameras(const render::Camera* masterCamera)
+void CameraLinkHelper::updateCameras(const gl::Camera* masterCamera)
 {
   for (auto* camera : m_cameras)
   {
@@ -58,7 +58,7 @@ void CameraLinkHelper::updateCameras(const render::Camera* masterCamera)
   }
 }
 
-void CameraLinkHelper::cameraDidChange(const render::Camera* camera)
+void CameraLinkHelper::cameraDidChange(const gl::Camera* camera)
 {
   if (!m_ignoreNotifications && pref(Preferences::Link2DCameras))
   {

@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/Camera.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
 #include "gl/MaterialIndexArrayMapBuilder.h"
@@ -33,7 +34,6 @@
 #include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
 #include "mdl/PatchNode.h"
-#include "render/Camera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 

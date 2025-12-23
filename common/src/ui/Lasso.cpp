@@ -19,7 +19,7 @@
 
 #include "Lasso.h"
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 #include "render/RenderService.h"
 
 #include "kd/optional_utils.h"
@@ -33,7 +33,7 @@
 namespace tb::ui
 {
 
-Lasso::Lasso(const render::Camera& camera, const double distance, const vm::vec3d& point)
+Lasso::Lasso(const gl::Camera& camera, const double distance, const vm::vec3d& point)
   : m_camera{camera}
   , m_distance{distance}
   , m_start{point}

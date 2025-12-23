@@ -19,6 +19,7 @@
 
 #include "EntityRenderer.h"
 
+#include "gl/Camera.h"
 #include "gl/PrimType.h"
 #include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
@@ -26,7 +27,6 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
-#include "render/Camera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"

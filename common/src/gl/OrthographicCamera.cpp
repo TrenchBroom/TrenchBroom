@@ -24,7 +24,7 @@
 #include "vm/plane.h"
 #include "vm/vec.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
 OrthographicCamera::OrthographicCamera()
@@ -123,4 +123,4 @@ void OrthographicCamera::doUpdateZoom()
   };
 }
 
-} // namespace tb::render
+} // namespace tb::gl

@@ -21,11 +21,11 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/PerspectiveCamera.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
-#include "render/PerspectiveCamera.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 
@@ -76,12 +76,12 @@ bool shouldAdjustFlySpeed(const InputState& inputState)
       ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::No));
 }
 
-float adjustSpeedToZoom(const render::PerspectiveCamera& camera, const float speed)
+float adjustSpeedToZoom(const gl::PerspectiveCamera& camera, const float speed)
 {
   return speed * vm::min(1.0f, camera.zoomedFov() / camera.fov());
 }
 
-float lookSpeedH(const render::PerspectiveCamera& camera)
+float lookSpeedH(const gl::PerspectiveCamera& camera)
 {
   auto speed = pref(Preferences::CameraLookSpeed) / -50.0f;
   if (pref(Preferences::CameraLookInvertH))
@@ -91,7 +91,7 @@ float lookSpeedH(const render::PerspectiveCamera& camera)
   return adjustSpeedToZoom(camera, speed);
 }
 
-float lookSpeedV(const render::PerspectiveCamera& camera)
+float lookSpeedV(const gl::PerspectiveCamera& camera)
 {
   auto speed = pref(Preferences::CameraLookSpeed) / -50.0f;
   if (pref(Preferences::CameraLookInvertV))
@@ -101,7 +101,7 @@ float lookSpeedV(const render::PerspectiveCamera& camera)
   return adjustSpeedToZoom(camera, speed);
 }
 
-float panSpeedH(const render::PerspectiveCamera& camera)
+float panSpeedH(const gl::PerspectiveCamera& camera)
 {
   auto speed = pref(Preferences::CameraPanSpeed);
   if (pref(Preferences::CameraPanInvertH))
@@ -111,7 +111,7 @@ float panSpeedH(const render::PerspectiveCamera& camera)
   return adjustSpeedToZoom(camera, speed);
 }
 
-float panSpeedV(const render::PerspectiveCamera& camera)
+float panSpeedV(const gl::PerspectiveCamera& camera)
 {
   auto speed = pref(Preferences::CameraPanSpeed);
   if (pref(Preferences::CameraPanInvertV))
@@ -121,7 +121,7 @@ float panSpeedV(const render::PerspectiveCamera& camera)
   return adjustSpeedToZoom(camera, speed);
 }
 
-float moveSpeed(const render::PerspectiveCamera& camera, const bool altMode)
+float moveSpeed(const gl::PerspectiveCamera& camera, const bool altMode)
 {
   auto speed = pref(Preferences::CameraMoveSpeed) * 20.0f;
   if (altMode && pref(Preferences::CameraAltMoveInvert))
@@ -134,11 +134,11 @@ float moveSpeed(const render::PerspectiveCamera& camera, const bool altMode)
 class OrbitDragTracker : public GestureTracker
 {
 private:
-  render::PerspectiveCamera& m_camera;
+  gl::PerspectiveCamera& m_camera;
   vm::vec3f m_orbitCenter;
 
 public:
-  OrbitDragTracker(render::PerspectiveCamera& camera, const vm::vec3f& orbitCenter)
+  OrbitDragTracker(gl::PerspectiveCamera& camera, const vm::vec3f& orbitCenter)
     : m_camera{camera}
     , m_orbitCenter{orbitCenter}
   {
@@ -175,10 +175,10 @@ public:
 class LookDragTracker : public GestureTracker
 {
 private:
-  render::PerspectiveCamera& m_camera;
+  gl::PerspectiveCamera& m_camera;
 
 public:
-  explicit LookDragTracker(render::PerspectiveCamera& camera)
+  explicit LookDragTracker(gl::PerspectiveCamera& camera)
     : m_camera{camera}
   {
   }
@@ -219,10 +219,10 @@ public:
 class PanDragTracker : public GestureTracker
 {
 private:
-  render::PerspectiveCamera& m_camera;
+  gl::PerspectiveCamera& m_camera;
 
 public:
-  explicit PanDragTracker(render::PerspectiveCamera& camera)
+  explicit PanDragTracker(gl::PerspectiveCamera& camera)
     : m_camera{camera}
   {
   }
@@ -259,7 +259,7 @@ public:
 
 } // namespace
 
-CameraTool3D::CameraTool3D(render::PerspectiveCamera& camera)
+CameraTool3D::CameraTool3D(gl::PerspectiveCamera& camera)
   : ToolController{}
   , Tool{true}
   , m_camera{camera}

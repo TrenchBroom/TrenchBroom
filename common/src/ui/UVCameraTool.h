@@ -26,7 +26,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class OrthographicCamera;
 }
@@ -38,10 +38,10 @@ class GestureTracker;
 class UVCameraTool : public ToolController, public Tool
 {
 private:
-  render::OrthographicCamera& m_camera;
+  gl::OrthographicCamera& m_camera;
 
 public:
-  explicit UVCameraTool(render::OrthographicCamera& camera);
+  explicit UVCameraTool(gl::OrthographicCamera& camera);
 
 private:
   Tool& tool() override;

@@ -33,6 +33,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+}
+
 namespace mdl
 {
 class BrushFace;
@@ -45,7 +50,6 @@ class PickResult;
 namespace render
 {
 class BrushRenderer;
-class Camera;
 class RenderBatch;
 class RenderContext;
 } // namespace render
@@ -94,7 +98,7 @@ public:
   void toggleSide();
 
   void pick(
-    const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult);
+    const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult);
 
   void render(
     render::RenderContext& renderContext,

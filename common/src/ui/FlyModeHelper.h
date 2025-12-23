@@ -27,7 +27,7 @@ class QKeyEvent;
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
 }
@@ -38,7 +38,7 @@ namespace ui
 class FlyModeHelper
 {
 private:
-  render::Camera& m_camera;
+  gl::Camera& m_camera;
 
   bool m_forward = false;
   bool m_backward = false;
@@ -52,7 +52,7 @@ private:
   int64_t m_lastPollTime;
 
 public:
-  explicit FlyModeHelper(render::Camera& camera);
+  explicit FlyModeHelper(gl::Camera& camera);
 
   void pollAndUpdate();
 

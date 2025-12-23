@@ -63,16 +63,16 @@
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+}
+
 namespace mdl
 {
 class Grid;
 class PickResult;
 } // namespace mdl
-
-namespace render
-{
-class Camera;
-}
 
 namespace ui
 {
@@ -147,7 +147,7 @@ public:
 
   virtual void pick(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     double handleRadius,
     mdl::PickResult& pickResult) const = 0;
 

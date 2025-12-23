@@ -131,7 +131,7 @@ public: // implement MapView interface
   void selectTall() override;
   vm::vec3d pasteObjectsDelta(
     const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const override;
-  void reset2dCameras(const render::Camera& masterCamera, bool animate) override;
+  void reset2dCameras(const gl::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
   void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void moveCameraToCurrentTracePoint() override;

@@ -21,9 +21,15 @@
 
 #include "vm/vec.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class Camera;
+}
+
+namespace render
+{
 
 namespace TextAlignment
 {
@@ -39,16 +45,16 @@ class TextAnchor
 {
 public:
   virtual ~TextAnchor();
-  virtual vm::vec3f offset(const Camera& camera, const vm::vec2f& size) const = 0;
-  virtual vm::vec3f position(const Camera& camera) const = 0;
+  virtual vm::vec3f offset(const gl::Camera& camera, const vm::vec2f& size) const = 0;
+  virtual vm::vec3f position(const gl::Camera& camera) const = 0;
 };
 
 class TextAnchor3D : public TextAnchor
 {
 public:
   ~TextAnchor3D() override;
-  vm::vec3f offset(const Camera& camera, const vm::vec2f& size) const override;
-  vm::vec3f position(const Camera& camera) const override;
+  vm::vec3f offset(const gl::Camera& camera, const vm::vec2f& size) const override;
+  vm::vec3f position(const gl::Camera& camera) const override;
 
 private:
   vm::vec2f alignmentFactors(TextAlignment::Type a) const;
@@ -77,4 +83,6 @@ private:
   TextAlignment::Type alignment() const override;
   vm::vec2f extraOffsets(TextAlignment::Type a) const override;
 };
-} // namespace tb::render
+
+} // namespace render
+} // namespace tb

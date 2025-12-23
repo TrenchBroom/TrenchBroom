@@ -31,6 +31,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+}
+
 namespace mdl
 {
 class PickResult;
@@ -38,7 +43,6 @@ class PickResult;
 
 namespace render
 {
-class Camera;
 class RenderBatch;
 class RenderContext;
 } // namespace render

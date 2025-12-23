@@ -85,8 +85,7 @@ void MultiPaneMapView::selectTall()
   }
 }
 
-void MultiPaneMapView::reset2dCameras(
-  const render::Camera& masterCamera, const bool animate)
+void MultiPaneMapView::reset2dCameras(const gl::Camera& masterCamera, const bool animate)
 {
   for (auto* mapView : m_mapViews)
   {

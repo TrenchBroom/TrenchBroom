@@ -24,9 +24,15 @@
 #include "render/Renderable.h"
 
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class Camera;
+}
+
+namespace render
+{
 class RenderBatch;
 
 class Compass : public DirectRenderable
@@ -57,7 +63,7 @@ private:
   void makeArrows();
   void makeBackground();
 
-  vm::mat4x4f cameraRotationMatrix(const Camera& camera) const;
+  vm::mat4x4f cameraRotationMatrix(const gl::Camera& camera) const;
 
 protected:
   void renderBackground(RenderContext& renderContext);
@@ -72,4 +78,5 @@ private:
     RenderContext& renderContext, const vm::mat4x4f& cameraTransformation) = 0;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

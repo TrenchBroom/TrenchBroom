@@ -21,12 +21,12 @@
 
 #include "gl/ActiveShader.h"
 #include "gl/AttrString.h"
+#include "gl/Camera.h"
 #include "gl/FontManager.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/TextureFont.h"
 #include "mdl/BasicShapes.h"
-#include "render/Camera.h"
 #include "render/RenderContext.h"
 #include "render/TextAnchor.h"
 

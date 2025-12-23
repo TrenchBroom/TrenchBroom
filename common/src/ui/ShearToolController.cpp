@@ -22,10 +22,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
-#include "render/Camera.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
 #include "ui/HandleDragTracker.h"
@@ -314,7 +314,7 @@ ShearToolController2D::ShearToolController2D(ShearTool& tool)
 }
 
 void ShearToolController2D::doPick(
-  const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult)
 {
   m_tool.pick2D(pickRay, camera, pickResult);
 }
@@ -327,7 +327,7 @@ ShearToolController3D::ShearToolController3D(ShearTool& tool)
 }
 
 void ShearToolController3D::doPick(
-  const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult)
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }

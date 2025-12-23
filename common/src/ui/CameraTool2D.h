@@ -26,7 +26,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class OrthographicCamera;
 }
@@ -38,11 +38,11 @@ class GestureTracker;
 class CameraTool2D : public ToolController, public Tool
 {
 private:
-  render::OrthographicCamera& m_camera;
+  gl::OrthographicCamera& m_camera;
   vm::vec2f m_lastMousePos;
 
 public:
-  explicit CameraTool2D(render::OrthographicCamera& camera);
+  explicit CameraTool2D(gl::OrthographicCamera& camera);
 
 private:
   Tool& tool() override;

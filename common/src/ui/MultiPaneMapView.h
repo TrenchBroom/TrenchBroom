@@ -56,7 +56,7 @@ public: // implement MapView interface
   MapViewBase* firstMapViewBase() override;
   bool canSelectTall() override;
   void selectTall() override;
-  void reset2dCameras(const render::Camera& masterCamera, bool animate) override;
+  void reset2dCameras(const gl::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
   void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void moveCameraToCurrentTracePoint() override;

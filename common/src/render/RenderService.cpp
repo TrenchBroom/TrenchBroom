@@ -22,9 +22,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/AttrString.h"
+#include "gl/Camera.h"
 #include "gl/FontDescriptor.h"
 #include "mdl/BasicShapes.h"
-#include "render/Camera.h"
 #include "render/PointHandleRenderer.h"
 #include "render/PrimitiveRenderer.h"
 #include "render/RenderBatch.h"
@@ -53,18 +53,18 @@ auto makeRenderServiceFont()
 class HeadsUpTextAnchor : public TextAnchor
 {
 private:
-  vm::vec3f offset(const Camera& camera, const vm::vec2f& size) const override
+  vm::vec3f offset(const gl::Camera& camera, const vm::vec2f& size) const override
   {
     const auto off = getOffset(camera);
     return vm::vec3f{off.xy() - size.xy() / 2.0f, off.z()};
   }
 
-  vm::vec3f position(const Camera& camera) const override
+  vm::vec3f position(const gl::Camera& camera) const override
   {
     return camera.unproject(getOffset(camera));
   }
 
-  vm::vec3f getOffset(const Camera& camera) const
+  vm::vec3f getOffset(const gl::Camera& camera) const
   {
     const auto w = static_cast<float>(camera.viewport().width);
     const auto h = static_cast<float>(camera.viewport().height);

@@ -19,14 +19,14 @@
 
 #include "RenderContext.h"
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 
 namespace tb::render
 {
 
 RenderContext::RenderContext(
   const RenderMode renderMode,
-  const Camera& camera,
+  const gl::Camera& camera,
   gl::FontManager& fontManager,
   gl::ShaderManager& shaderManager)
   : m_renderMode{renderMode}
@@ -47,7 +47,7 @@ bool RenderContext::render3D() const
   return m_renderMode == RenderMode::Render3D;
 }
 
-const Camera& RenderContext::camera() const
+const gl::Camera& RenderContext::camera() const
 {
   return m_camera;
 }

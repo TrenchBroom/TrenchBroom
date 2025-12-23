@@ -42,7 +42,7 @@ std::vector<mdl::BrushNode*> FaceTool::findIncidentBrushes(
 
 void FaceTool::pick(
   const vm::ray3d& pickRay,
-  const render::Camera& camera,
+  const gl::Camera& camera,
   const double handleRadius,
   mdl::PickResult& pickResult) const
 {

@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
 #include "gl/PrimType.h"
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
@@ -29,7 +30,6 @@
 #include "mdl/Grid.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
-#include "render/Camera.h"
 #include "render/EdgeRenderer.h"
 #include "render/RenderContext.h"
 #include "ui/ExtrudeTool.h"

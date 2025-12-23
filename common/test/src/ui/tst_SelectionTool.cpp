@@ -18,6 +18,7 @@
  */
 
 #include "TestUtils.h"
+#include "gl/OrthographicCamera.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -34,7 +35,6 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
-#include "render/OrthographicCamera.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
@@ -78,7 +78,7 @@ TEST_CASE("SelectionTool")
       addNodes(map, {{parentForNodes(map), {groupNode}}});
       addNodes(map, {{groupNode, {brushNode, entityNode}}});
 
-      auto camera = render::OrthographicCamera{};
+      auto camera = gl::OrthographicCamera{};
 
       AND_GIVEN("A pick ray that points at the top face of the brush")
       {
@@ -146,7 +146,7 @@ TEST_CASE("SelectionTool")
 
       addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
 
-      auto camera = render::OrthographicCamera{};
+      auto camera = gl::OrthographicCamera{};
 
       AND_GIVEN("A pick ray that points at the top face of the brush")
       {
@@ -504,7 +504,7 @@ TEST_CASE("SelectionTool")
       CHECK_FALSE(map.editorContext().visible(
         *hiddenBrushNode, hiddenBrushNode->brush().face(hiddenTopFaceIndex)));
 
-      auto camera = render::OrthographicCamera{};
+      auto camera = gl::OrthographicCamera{};
       AND_GIVEN("A pick ray that points at the top face of the brushes")
       {
         camera.moveTo({0, 0, 128});

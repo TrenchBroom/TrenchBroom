@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/OrthographicCamera.h"
+#include "gl/OrthographicCamera.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 
@@ -37,8 +37,7 @@ bool shouldZoom(const InputState& inputState)
     && inputState.modifierKeysPressed(ModifierKeys::None));
 }
 
-void zoom(
-  render::OrthographicCamera& camera, const vm::vec2f& mousePos, const float factor)
+void zoom(gl::OrthographicCamera& camera, const vm::vec2f& mousePos, const float factor)
 {
   const auto oldWorldPos = camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
 
@@ -52,11 +51,11 @@ void zoom(
 class PanDragTracker : public GestureTracker
 {
 private:
-  render::OrthographicCamera& m_camera;
+  gl::OrthographicCamera& m_camera;
   vm::vec2f m_lastMousePos;
 
 public:
-  PanDragTracker(render::OrthographicCamera& camera, const vm::vec2f& lastMousePos)
+  PanDragTracker(gl::OrthographicCamera& camera, const vm::vec2f& lastMousePos)
     : m_camera{camera}
     , m_lastMousePos{lastMousePos}
   {
@@ -82,11 +81,11 @@ public:
 class ZoomDragTracker : public GestureTracker
 {
 private:
-  render::OrthographicCamera& m_camera;
+  gl::OrthographicCamera& m_camera;
   vm::vec2f m_lastMousePos;
 
 public:
-  ZoomDragTracker(render::OrthographicCamera& camera, const vm::vec2f& lastMousePos)
+  ZoomDragTracker(gl::OrthographicCamera& camera, const vm::vec2f& lastMousePos)
     : m_camera{camera}
     , m_lastMousePos{lastMousePos}
   {
@@ -121,7 +120,7 @@ bool shouldDragZoom(const InputState& inputState)
 
 } // namespace
 
-CameraTool2D::CameraTool2D(render::OrthographicCamera& camera)
+CameraTool2D::CameraTool2D(gl::OrthographicCamera& camera)
   : ToolController{}
   , Tool{true}
   , m_camera{camera}

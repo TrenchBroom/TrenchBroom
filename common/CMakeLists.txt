@@ -5,6 +5,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/gl/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/gl/AttrString.cpp
+        ${COMMON_SOURCE_DIR}/gl/Camera.cpp
         ${COMMON_SOURCE_DIR}/gl/ContextManager.cpp
         ${COMMON_SOURCE_DIR}/gl/FontDescriptor.cpp
         ${COMMON_SOURCE_DIR}/gl/FontFactory.cpp
@@ -28,6 +29,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/gl/MaterialManager.cpp
         ${COMMON_SOURCE_DIR}/gl/MaterialRenderFunc.cpp
+        ${COMMON_SOURCE_DIR}/gl/OrthographicCamera.cpp
+        ${COMMON_SOURCE_DIR}/gl/PerspectiveCamera.cpp
         ${COMMON_SOURCE_DIR}/gl/PrimType.cpp
         ${COMMON_SOURCE_DIR}/gl/ResourceId.cpp
         ${COMMON_SOURCE_DIR}/gl/Shader.cpp
@@ -237,7 +240,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.cpp
-        ${COMMON_SOURCE_DIR}/render/Camera.cpp
         ${COMMON_SOURCE_DIR}/render/Circle.cpp
         ${COMMON_SOURCE_DIR}/render/Compass.cpp
         ${COMMON_SOURCE_DIR}/render/Compass2D.cpp
@@ -254,9 +256,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/LinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/MapRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/ObjectRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/OrthographicCamera.cpp
         ${COMMON_SOURCE_DIR}/render/PatchRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/PerspectiveCamera.cpp
         ${COMMON_SOURCE_DIR}/render/PointGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/PointHandleRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/PrimitiveRenderer.cpp
@@ -487,6 +487,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/gl/ActiveShader.h
         ${COMMON_SOURCE_DIR}/gl/AttrString.h
+        ${COMMON_SOURCE_DIR}/gl/Camera.h
         ${COMMON_SOURCE_DIR}/gl/ContextManager.h
         ${COMMON_SOURCE_DIR}/gl/CreateResource.h
         ${COMMON_SOURCE_DIR}/gl/FontDescriptor.h
@@ -514,6 +515,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/gl/MaterialManager.h
         ${COMMON_SOURCE_DIR}/gl/MaterialRenderFunc.h
+        ${COMMON_SOURCE_DIR}/gl/OrthographicCamera.h
+        ${COMMON_SOURCE_DIR}/gl/PerspectiveCamera.h
         ${COMMON_SOURCE_DIR}/gl/PrimType.h
         ${COMMON_SOURCE_DIR}/gl/ResourceManager.h
         ${COMMON_SOURCE_DIR}/gl/Resource.h
@@ -758,7 +761,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.h
-        ${COMMON_SOURCE_DIR}/render/Camera.h
         ${COMMON_SOURCE_DIR}/render/Circle.h
         ${COMMON_SOURCE_DIR}/render/Compass.h
         ${COMMON_SOURCE_DIR}/render/Compass2D.h
@@ -775,9 +777,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/LinkRenderer.h
         ${COMMON_SOURCE_DIR}/render/MapRenderer.h
         ${COMMON_SOURCE_DIR}/render/ObjectRenderer.h
-        ${COMMON_SOURCE_DIR}/render/OrthographicCamera.h
         ${COMMON_SOURCE_DIR}/render/PatchRenderer.h
-        ${COMMON_SOURCE_DIR}/render/PerspectiveCamera.h
         ${COMMON_SOURCE_DIR}/render/PointGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/PointHandleRenderer.h
         ${COMMON_SOURCE_DIR}/render/PrimitiveRenderer.h

@@ -20,9 +20,9 @@
 #pragma once
 
 #include "NotifierConnection.h"
+#include "gl/OrthographicCamera.h"
 #include "mdl/HitType.h"
 #include "mdl/PickResult.h"
-#include "render/OrthographicCamera.h"
 #include "ui/RenderView.h"
 #include "ui/ToolBox.h"
 #include "ui/ToolBoxConnector.h"
@@ -65,7 +65,7 @@ public:
 private:
   MapDocument& m_document;
 
-  render::OrthographicCamera m_camera;
+  gl::OrthographicCamera m_camera;
   UVViewHelper m_helper;
 
   ToolBox m_toolBox;
@@ -86,7 +86,7 @@ private:
 
   void documentDidChange();
   void gridDidChange();
-  void cameraDidChange(const render::Camera* camera);
+  void cameraDidChange(const gl::Camera* camera);
   void preferenceDidChange(const std::filesystem::path& path);
 
   void updateViewport(int x, int y, int width, int height) override;

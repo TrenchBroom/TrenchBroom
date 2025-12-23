@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Hit.h"
@@ -34,7 +35,6 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 #include "render/BrushRenderer.h"
-#include "render/Camera.h"
 #include "render/RenderService.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
@@ -68,7 +68,7 @@ public:
 
   virtual void pick(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     mdl::PickResult& pickResult) const = 0;
   virtual void render(
     render::RenderContext& renderContext,
@@ -126,7 +126,7 @@ private:
 public:
   void pick(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     mdl::PickResult& pickResult) const override
   {
     for (size_t i = 0; i < m_points.size(); ++i)
@@ -415,7 +415,7 @@ private:
   std::optional<mdl::BrushFaceHandle> m_faceHandle;
 
 public:
-  void pick(const vm::ray3d&, const render::Camera&, mdl::PickResult&) const override {}
+  void pick(const vm::ray3d&, const gl::Camera&, mdl::PickResult&) const override {}
 
   void render(
     render::RenderContext& renderContext,
@@ -534,7 +534,7 @@ void ClipTool::toggleSide()
 }
 
 void ClipTool::pick(
-  const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult)
 {
   if (m_strategy)
   {

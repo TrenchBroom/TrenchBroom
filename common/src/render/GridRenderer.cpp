@@ -22,9 +22,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/OrthographicCamera.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
-#include "render/OrthographicCamera.h"
 #include "render/RenderContext.h"
 
 #include "vm/bbox.h"
@@ -33,13 +33,13 @@
 namespace tb::render
 {
 GridRenderer::GridRenderer(
-  const OrthographicCamera& camera, const vm::bbox3d& worldBounds)
+  const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds)
   : m_vertexArray(gl::VertexArray::move(vertices(camera, worldBounds)))
 {
 }
 
 std::vector<GridRenderer::Vertex> GridRenderer::vertices(
-  const OrthographicCamera& camera, const vm::bbox3d& worldBounds)
+  const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds)
 {
   const auto& viewport = camera.zoomedViewport();
   const auto w = float(viewport.width) / 2.0f;

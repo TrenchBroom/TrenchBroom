@@ -22,9 +22,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/Camera.h"
 #include "gl/Shaders.h"
 #include "gl/VboManager.h"
-#include "render/Camera.h"
 #include "render/RenderContext.h"
 
 #include "vm/mat_ext.h"

@@ -26,6 +26,7 @@ set(COMMON_TEST_UTILS_SOURCE
 
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_StringMakers.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/gl/tst_Camera.cpp"
         "${COMMON_TEST_SOURCE_DIR}/gl/tst_Resource.cpp"
         "${COMMON_TEST_SOURCE_DIR}/gl/tst_ResourceManager.cpp"
         "${COMMON_TEST_SOURCE_DIR}/gl/tst_Vertex.cpp"
@@ -117,7 +118,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_WorldNode.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_WorldReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/render/tst_AllocationTracker.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/render/tst_Camera.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_octree.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ActionContext.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_Actions.cpp"

@@ -45,7 +45,7 @@ private:
 public:
   void pick(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     double handleRadius,
     mdl::PickResult& pickResult) const override;
 

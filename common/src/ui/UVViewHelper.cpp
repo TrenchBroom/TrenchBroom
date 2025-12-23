@@ -20,11 +20,11 @@
 #include "UVViewHelper.h"
 
 #include "gl/Material.h"
+#include "gl/OrthographicCamera.h"
 #include "gl/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
-#include "render/OrthographicCamera.h"
 
 #include "kd/contracts.h"
 
@@ -36,7 +36,7 @@
 namespace tb::ui
 {
 
-UVViewHelper::UVViewHelper(render::OrthographicCamera& camera)
+UVViewHelper::UVViewHelper(gl::OrthographicCamera& camera)
   : m_camera{camera}
 {
 }
@@ -133,7 +133,7 @@ void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
   m_origin = fromFace * vm::vec3d{originInFaceCoords};
 }
 
-const render::OrthographicCamera& UVViewHelper::camera() const
+const gl::OrthographicCamera& UVViewHelper::camera() const
 {
   return m_camera;
 }

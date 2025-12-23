@@ -20,9 +20,9 @@
 #include "LinkRenderer.h"
 
 #include "gl/ActiveShader.h"
+#include "gl/Camera.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
-#include "render/Camera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 

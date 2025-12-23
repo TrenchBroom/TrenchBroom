@@ -22,8 +22,8 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
 #include "mdl/Hit.h"
-#include "render/Camera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
@@ -69,7 +69,7 @@ RotateHandle::Handle::Handle(const vm::vec3d& position)
 
 RotateHandle::Handle::~Handle() = default;
 
-double RotateHandle::Handle::scalingFactor(const render::Camera& camera) const
+double RotateHandle::Handle::scalingFactor(const gl::Camera& camera) const
 {
   return double(camera.perspectiveScalingFactor(vm::vec3f{m_position}));
 }
@@ -85,7 +85,7 @@ double RotateHandle::Handle::minorRadius()
 }
 
 mdl::Hit RotateHandle::Handle::pickCenterHandle(
-  const vm::ray3d& pickRay, const render::Camera& camera) const
+  const vm::ray3d& pickRay, const gl::Camera& camera) const
 {
   if (
     const auto distance = camera.pickPointHandle(
@@ -98,7 +98,7 @@ mdl::Hit RotateHandle::Handle::pickCenterHandle(
 }
 
 mdl::Hit RotateHandle::Handle::pickRotateHandle(
-  const vm::ray3d& pickRay, const render::Camera& camera, const HitArea area) const
+  const vm::ray3d& pickRay, const gl::Camera& camera, const HitArea area) const
 {
   const auto transform = handleTransform(camera, area);
 
@@ -122,7 +122,7 @@ mdl::Hit RotateHandle::Handle::pickRotateHandle(
 }
 
 vm::mat4x4d RotateHandle::Handle::handleTransform(
-  const render::Camera& camera, const HitArea area) const
+  const gl::Camera& camera, const HitArea area) const
 {
   const auto scalingFactor = this->scalingFactor(camera);
   if (scalingFactor <= double(0))
@@ -147,7 +147,7 @@ vm::mat4x4d RotateHandle::Handle::handleTransform(
 }
 
 mdl::Hit RotateHandle::Handle2D::pick(
-  const vm::ray3d& pickRay, const render::Camera& camera) const
+  const vm::ray3d& pickRay, const gl::Camera& camera) const
 {
   switch (vm::find_abs_max_component(camera.direction()))
   {
@@ -167,7 +167,7 @@ mdl::Hit RotateHandle::Handle2D::pick(
 }
 
 mdl::Hit RotateHandle::Handle2D::pickRotateHandle(
-  const vm::ray3d& pickRay, const render::Camera& camera, const HitArea area) const
+  const vm::ray3d& pickRay, const gl::Camera& camera, const HitArea area) const
 {
   // Work around imprecision caused by 2D cameras being positioned at map bounds
   // by placing the ray origin on the same plane as the handle itself.
@@ -259,7 +259,7 @@ void RotateHandle::Handle2D::renderHighlight(
 }
 
 mdl::Hit RotateHandle::Handle3D::pick(
-  const vm::ray3d& pickRay, const render::Camera& camera) const
+  const vm::ray3d& pickRay, const gl::Camera& camera) const
 {
   return mdl::selectClosest(
     pickCenterHandle(pickRay, camera),
@@ -349,7 +349,7 @@ void RotateHandle::Handle3D::renderHighlight(
 }
 
 mdl::Hit RotateHandle::Handle3D::pickRotateHandle(
-  const vm::ray3d& pickRay, const render::Camera& camera, const HitArea area) const
+  const vm::ray3d& pickRay, const gl::Camera& camera, const HitArea area) const
 {
   if (const auto hit = Handle::pickRotateHandle(pickRay, camera, area); hit.isMatch())
   {
@@ -383,24 +383,22 @@ void RotateHandle::setPosition(const vm::vec3d& position)
   m_position = position;
 }
 
-mdl::Hit RotateHandle::pick2D(
-  const vm::ray3d& pickRay, const render::Camera& camera) const
+mdl::Hit RotateHandle::pick2D(const vm::ray3d& pickRay, const gl::Camera& camera) const
 {
   return m_handle2D.pick(pickRay, camera);
 }
 
-mdl::Hit RotateHandle::pick3D(
-  const vm::ray3d& pickRay, const render::Camera& camera) const
+mdl::Hit RotateHandle::pick3D(const vm::ray3d& pickRay, const gl::Camera& camera) const
 {
   return m_handle3D.pick(pickRay, camera);
 }
 
-double RotateHandle::majorHandleRadius(const render::Camera& camera) const
+double RotateHandle::majorHandleRadius(const gl::Camera& camera) const
 {
   return Handle::majorRadius() * m_handle3D.scalingFactor(camera);
 }
 
-double RotateHandle::minorHandleRadius(const render::Camera& camera) const
+double RotateHandle::minorHandleRadius(const gl::Camera& camera) const
 {
   return Handle::minorRadius() * m_handle3D.scalingFactor(camera);
 }

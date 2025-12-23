@@ -33,8 +33,10 @@ namespace tb
 {
 namespace gl
 {
+class Camera;
 class Material;
-}
+class OrthographicCamera;
+} // namespace gl
 
 namespace mdl
 {
@@ -44,9 +46,6 @@ class PickResult;
 
 namespace render
 {
-class ActiveShader;
-class Camera;
-class OrthographicCamera;
 class RenderContext;
 } // namespace render
 
@@ -56,7 +55,7 @@ namespace ui
 class UVViewHelper
 {
 private:
-  render::OrthographicCamera& m_camera;
+  gl::OrthographicCamera& m_camera;
   bool m_zoomValid = false;
 
   std::optional<mdl::BrushFaceHandle> m_faceHandle;
@@ -69,7 +68,7 @@ private:
   vm::vec3d m_origin;
 
 public:
-  explicit UVViewHelper(render::OrthographicCamera& camera);
+  explicit UVViewHelper(gl::OrthographicCamera& camera);
 
   bool valid() const;
   const mdl::BrushFace* face() const;
@@ -86,7 +85,7 @@ public:
   const vm::vec2f originInUVCoords() const;
   void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
-  const render::OrthographicCamera& camera() const;
+  const gl::OrthographicCamera& camera() const;
   float cameraZoom() const;
 
   void pickUVGrid(

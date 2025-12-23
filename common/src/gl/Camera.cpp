@@ -28,7 +28,7 @@
 
 #include <cmath>
 
-namespace tb::render
+namespace tb::gl
 {
 
 kdl_reflect_impl(Camera::Viewport);
@@ -473,4 +473,4 @@ bool Camera::isValidZoom(const float zoom) const
   return zoom >= 0.02f && zoom <= 100.0f;
 }
 
-} // namespace tb::render
+} // namespace tb::gl

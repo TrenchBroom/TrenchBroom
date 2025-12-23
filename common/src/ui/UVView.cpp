@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/Camera.h"
 #include "gl/Material.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
@@ -33,7 +34,6 @@
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
-#include "render/Camera.h"
 #include "render/EdgeRenderer.h"
 #include "render/FaceRenderer.h"
 #include "render/RenderBatch.h"
@@ -237,7 +237,7 @@ void UVView::preferenceDidChange(const std::filesystem::path&)
   update();
 }
 
-void UVView::cameraDidChange(const render::Camera*)
+void UVView::cameraDidChange(const gl::Camera*)
 {
   update();
 }

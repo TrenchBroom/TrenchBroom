@@ -394,7 +394,7 @@ vm::vec3d SwitchableMapViewContainer::pasteObjectsDelta(
 }
 
 void SwitchableMapViewContainer::reset2dCameras(
-  const render::Camera& masterCamera, const bool animate)
+  const gl::Camera& masterCamera, const bool animate)
 {
   m_mapView->reset2dCameras(masterCamera, animate);
 }

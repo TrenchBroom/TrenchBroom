@@ -19,6 +19,7 @@
 
 #include "CreateEntityTool.h"
 
+#include "gl/Camera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
@@ -34,7 +35,6 @@
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
-#include "render/Camera.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
@@ -129,7 +129,7 @@ void CreateEntityTool::updateEntityPosition3D(
   else
   {
     const auto newPosition = vm::point_at_distance(
-      pickRay, static_cast<double>(render::Camera::DefaultPointDistance));
+      pickRay, static_cast<double>(gl::Camera::DefaultPointDistance));
     const auto boundsCenter = m_entity->logicalBounds().center();
     delta = grid.moveDeltaForPoint(boundsCenter, newPosition - boundsCenter);
   }

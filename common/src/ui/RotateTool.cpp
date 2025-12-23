@@ -94,12 +94,12 @@ void RotateTool::resetRotationCenter()
   }
 }
 
-double RotateTool::majorHandleRadius(const render::Camera& camera) const
+double RotateTool::majorHandleRadius(const gl::Camera& camera) const
 {
   return m_handle.majorHandleRadius(camera);
 }
 
-double RotateTool::minorHandleRadius(const render::Camera& camera) const
+double RotateTool::minorHandleRadius(const gl::Camera& camera) const
 {
   return m_handle.minorHandleRadius(camera);
 }
@@ -133,12 +133,12 @@ void RotateTool::applyRotation(
   rotateSelection(map, center, axis, angle);
 }
 
-mdl::Hit RotateTool::pick2D(const vm::ray3d& pickRay, const render::Camera& camera)
+mdl::Hit RotateTool::pick2D(const vm::ray3d& pickRay, const gl::Camera& camera)
 {
   return m_handle.pick2D(pickRay, camera);
 }
 
-mdl::Hit RotateTool::pick3D(const vm::ray3d& pickRay, const render::Camera& camera)
+mdl::Hit RotateTool::pick3D(const vm::ray3d& pickRay, const gl::Camera& camera)
 {
   return m_handle.pick3D(pickRay, camera);
 }

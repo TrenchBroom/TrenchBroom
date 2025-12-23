@@ -24,7 +24,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/Camera.h"
+#include "gl/Camera.h"
 
 #include "vm/vec.h"
 
@@ -56,7 +56,7 @@ bool eventMatchesShortcut(const QKeySequence& shortcut, QKeyEvent* event)
 
 } // namespace
 
-FlyModeHelper::FlyModeHelper(render::Camera& camera)
+FlyModeHelper::FlyModeHelper(gl::Camera& camera)
   : m_camera{camera}
   , m_lastPollTime{msecsSinceReference()}
 {

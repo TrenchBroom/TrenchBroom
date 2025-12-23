@@ -29,7 +29,7 @@ class QKeyEvent;
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class PerspectiveCamera;
 }
@@ -42,7 +42,7 @@ class MapView3D : public MapViewBase
 {
   Q_OBJECT
 private:
-  std::unique_ptr<render::PerspectiveCamera> m_camera;
+  std::unique_ptr<gl::PerspectiveCamera> m_camera;
   std::unique_ptr<FlyModeHelper> m_flyModeHelper;
   bool m_ignoreCameraChangeEvents = false;
 
@@ -59,7 +59,7 @@ private:
 
 private: // notification
   void connectObservers();
-  void cameraDidChange(const render::Camera* camera);
+  void cameraDidChange(const gl::Camera* camera);
   void preferenceDidChange(const std::filesystem::path& path);
 
 protected: // QWidget overrides
@@ -92,7 +92,7 @@ private: // implement MapView interface
   bool canSelectTall() override;
   void selectTall() override;
 
-  void reset2dCameras(const render::Camera& masterCamera, bool animate) override;
+  void reset2dCameras(const gl::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
 
   vm::vec3f focusCameraOnObjectsPosition(const std::vector<mdl::Node*>& nodes);
@@ -108,7 +108,7 @@ private: // implement MapView interface
   void moveCameraToCurrentTracePoint() override;
 
 private: // implement MapViewBase interface
-  render::Camera& camera() override;
+  gl::Camera& camera() override;
 
   vm::vec3d moveDirection(vm::direction direction) const override;
   size_t flipAxis(vm::direction direction) const override;

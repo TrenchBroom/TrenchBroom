@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "render/PerspectiveCamera.h"
+#include "gl/PerspectiveCamera.h"
 
 #include "catch/CatchConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::render
+namespace tb::gl
 {
 
 TEST_CASE("CameraTest.testInvalidUp")
@@ -72,4 +72,4 @@ TEST_CASE("CameraTest.testYawWhenPitchedDown")
   CHECK_FALSE(vm::is_nan(c.up()));
 }
 
-} // namespace tb::render
+} // namespace tb::gl

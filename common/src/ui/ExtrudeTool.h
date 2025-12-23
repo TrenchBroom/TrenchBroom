@@ -37,6 +37,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+}
+
 namespace mdl
 {
 class BrushFace;
@@ -44,11 +49,6 @@ class Grid;
 class Hit;
 class PickResult;
 } // namespace mdl
-
-namespace render
-{
-class Camera;
-}
 
 namespace ui
 {

@@ -29,9 +29,13 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
+}
+
+namespace render
+{
 class RenderBatch;
 class RenderContext;
 } // namespace render
@@ -42,13 +46,13 @@ namespace ui
 class Lasso
 {
 private:
-  const render::Camera& m_camera;
+  const gl::Camera& m_camera;
   const double m_distance;
   const vm::vec3d m_start;
   vm::vec3d m_cur;
 
 public:
-  Lasso(const render::Camera& camera, double distance, const vm::vec3d& point);
+  Lasso(const gl::Camera& camera, double distance, const vm::vec3d& point);
 
   void update(const vm::vec3d& point);
 

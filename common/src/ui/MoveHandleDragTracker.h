@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/Camera.h"
+#include "gl/Camera.h"
 #include "render/RenderService.h"
 #include "render/TextAnchor.h"
 #include "ui/HandleDragTracker.h"
@@ -413,7 +413,7 @@ private:
 
   static bool isVerticalMove(const InputState& inputState)
   {
-    const render::Camera& camera = inputState.camera();
+    const gl::Camera& camera = inputState.camera();
     return camera.perspectiveProjection()
            && inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::Alt);
   }

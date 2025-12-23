@@ -20,8 +20,8 @@
 #include "TriangleRenderer.h"
 
 #include "gl/ActiveShader.h"
+#include "gl/Camera.h"
 #include "gl/Shaders.h"
-#include "render/Camera.h"
 #include "render/RenderContext.h"
 
 #include <utility>

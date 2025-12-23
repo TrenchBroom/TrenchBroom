@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
 class PerspectiveCamera : public Camera
@@ -73,4 +73,4 @@ private:
   void doUpdateZoom() override;
 };
 
-} // namespace tb::render
+} // namespace tb::gl

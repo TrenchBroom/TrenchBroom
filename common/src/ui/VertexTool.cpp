@@ -67,7 +67,7 @@ std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
 
 void VertexTool::pick(
   const vm::ray3d& pickRay,
-  const render::Camera& camera,
+  const gl::Camera& camera,
   const double handleRadius,
   mdl::PickResult& pickResult) const
 {

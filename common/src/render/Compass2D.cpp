@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/Camera.h"
+#include "gl/Camera.h"
 #include "render/RenderContext.h"
 
 namespace tb::render

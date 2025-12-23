@@ -28,7 +28,7 @@
 
 #include <limits>
 
-namespace tb::render
+namespace tb::gl
 {
 
 PerspectiveCamera::PerspectiveCamera() = default;
@@ -192,4 +192,4 @@ bool PerspectiveCamera::isValidZoom(const float zoom) const
 
 void PerspectiveCamera::doUpdateZoom() {}
 
-} // namespace tb::render
+} // namespace tb::gl

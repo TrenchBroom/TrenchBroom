@@ -19,13 +19,13 @@
 
 #include "DrawShapeToolController3D.h"
 
+#include "gl/Camera.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/PickResult.h"
-#include "render/Camera.h"
 #include "ui/DrawShapeTool.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"

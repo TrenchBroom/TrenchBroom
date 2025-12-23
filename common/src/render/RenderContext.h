@@ -29,13 +29,13 @@ namespace tb
 {
 namespace gl
 {
+class Camera;
 class FontManager;
 class ShaderManager;
 } // namespace gl
 
 namespace render
 {
-class Camera;
 
 enum class RenderMode
 {
@@ -56,7 +56,7 @@ private:
 
   // general context for any rendering view
   RenderMode m_renderMode;
-  const Camera& m_camera;
+  const gl::Camera& m_camera;
   Transformation m_transformation;
   gl::FontManager& m_fontManager;
   gl::ShaderManager& m_shaderManager;
@@ -93,7 +93,7 @@ private:
 public:
   RenderContext(
     RenderMode renderMode,
-    const Camera& camera,
+    const gl::Camera& camera,
     gl::FontManager& fontManager,
     gl::ShaderManager& shaderManager);
 
@@ -102,7 +102,7 @@ public:
   bool render2D() const;
   bool render3D() const;
 
-  const Camera& camera() const;
+  const gl::Camera& camera() const;
   Transformation& transformation();
   gl::FontManager& fontManager();
   gl::ShaderManager& shaderManager();

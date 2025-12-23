@@ -22,6 +22,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
@@ -29,7 +30,6 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
-#include "render/Camera.h"
 #include "ui/MapDocument.h"
 #include "ui/ScaleToolPage.h"
 
@@ -592,7 +592,7 @@ bool ScaleTool::applies() const
 }
 
 BackSide pickBackSideOfBox(
-  const vm::ray3d& pickRay, const render::Camera& /* camera */, const vm::bbox3d& box)
+  const vm::ray3d& pickRay, const gl::Camera& /* camera */, const vm::bbox3d& box)
 {
   auto closestDistToRay = std::numeric_limits<double>::max();
   auto bestDistAlongRay = std::numeric_limits<double>::max();
@@ -636,9 +636,7 @@ BackSide pickBackSideOfBox(
 }
 
 void ScaleTool::pickBackSides(
-  const vm::ray3d& pickRay,
-  const render::Camera& camera,
-  mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
 {
   // select back sides. Used for both 2D and 3D.
   if (pickResult.empty())
@@ -659,9 +657,7 @@ void ScaleTool::pickBackSides(
 }
 
 void ScaleTool::pick2D(
-  const vm::ray3d& pickRay,
-  const render::Camera& camera,
-  mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
 
@@ -708,9 +704,7 @@ void ScaleTool::pick2D(
 }
 
 void ScaleTool::pick3D(
-  const vm::ray3d& pickRay,
-  const render::Camera& camera,
-  mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
 

@@ -19,6 +19,7 @@
 
 #include "ClipToolController.h"
 
+#include "gl/Camera.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -30,7 +31,6 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
-#include "render/Camera.h"
 #include "render/RenderContext.h"
 #include "ui/ClipTool.h"
 #include "ui/HandleDragTracker.h"

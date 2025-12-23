@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ContextManager.h"
+#include "gl/PerspectiveCamera.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -38,7 +39,6 @@
 #include "render/BoundsGuideRenderer.h"
 #include "render/Compass3D.h"
 #include "render/MapRenderer.h"
-#include "render/PerspectiveCamera.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/SelectionBoundsRenderer.h"
@@ -76,7 +76,7 @@ namespace tb::ui
 MapView3D::MapView3D(
   MapDocument& document, MapViewToolBox& toolBox, gl::ContextManager& contextManager)
   : MapViewBase{document, toolBox, contextManager}
-  , m_camera{std::make_unique<render::PerspectiveCamera>()}
+  , m_camera{std::make_unique<gl::PerspectiveCamera>()}
   , m_flyModeHelper{std::make_unique<FlyModeHelper>(*m_camera)}
 {
   bindEvents();
@@ -130,7 +130,7 @@ void MapView3D::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &MapView3D::preferenceDidChange);
 }
 
-void MapView3D::cameraDidChange(const render::Camera* /* camera */)
+void MapView3D::cameraDidChange(const gl::Camera* /* camera */)
 {
   if (!m_ignoreCameraChangeEvents)
   {
@@ -270,7 +270,7 @@ bool MapView3D::canSelectTall()
 
 void MapView3D::selectTall() {}
 
-void MapView3D::reset2dCameras(const render::Camera&, const bool)
+void MapView3D::reset2dCameras(const gl::Camera&, const bool)
 {
   // nothing to do
 }
@@ -330,8 +330,7 @@ vm::vec3f computeCameraTargetPosition(const std::vector<mdl::Node*>& nodes)
   return center / float(count);
 }
 
-float computeCameraOffset(
-  const render::Camera& camera, const std::vector<mdl::Node*>& nodes)
+float computeCameraOffset(const gl::Camera& camera, const std::vector<mdl::Node*>& nodes)
 {
   vm::plane3f frustumPlanes[4];
   camera.frustumPlanes(
@@ -443,7 +442,7 @@ void MapView3D::moveCameraToCurrentTracePoint()
   }
 }
 
-render::Camera& MapView3D::camera()
+gl::Camera& MapView3D::camera()
 {
   return *m_camera;
 }
@@ -512,7 +511,7 @@ vm::vec3d MapView3D::computePointEntityPosition(const vm::bbox3d& bounds) const
   }
   else
   {
-    const auto newPosition = render::Camera::defaultPoint(pickRay());
+    const auto newPosition = gl::Camera::defaultPoint(pickRay());
     const auto defCenter = bounds.center();
     return grid.moveDeltaForPoint(defCenter, newPosition - defCenter);
   }

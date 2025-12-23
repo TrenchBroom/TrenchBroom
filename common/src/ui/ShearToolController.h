@@ -26,9 +26,13 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
+}
+
+namespace render
+{
 class RenderBatch;
 class RenderContext;
 } // namespace render
@@ -53,9 +57,7 @@ private:
 
   void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
   virtual void doPick(
-    const vm::ray3d& pickRay,
-    const render::Camera& camera,
-    mdl::PickResult& pickResult) = 0;
+    const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) = 0;
 
   void mouseMove(const InputState& inputState) override;
 
@@ -85,7 +87,7 @@ public:
 private:
   void doPick(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     mdl::PickResult& pickResult) override;
 };
 
@@ -97,7 +99,7 @@ public:
 private:
   void doPick(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     mdl::PickResult& pickResult) override;
 };
 

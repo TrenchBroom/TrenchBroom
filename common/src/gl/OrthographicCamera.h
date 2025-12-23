@@ -19,13 +19,13 @@
 
 #pragma once
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 
 #include "vm/ray.h"
 
 #include <vector>
 
-namespace tb::render
+namespace tb::gl
 {
 
 class OrthographicCamera : public Camera
@@ -67,4 +67,4 @@ private:
   void doUpdateZoom() override;
 };
 
-} // namespace tb::render
+} // namespace tb::gl

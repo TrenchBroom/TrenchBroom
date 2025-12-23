@@ -31,14 +31,7 @@
 
 #include <optional>
 
-namespace tb
-{
-namespace gl
-{
-class VboManager;
-}
-
-namespace render
+namespace tb::gl
 {
 
 class Camera
@@ -207,5 +200,4 @@ private:
   virtual void doUpdateZoom() = 0;
 };
 
-} // namespace render
-} // namespace tb
+} // namespace tb::gl

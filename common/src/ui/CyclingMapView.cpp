@@ -22,7 +22,7 @@
 #include <QShortcut>
 #include <QStackedLayout>
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 #include "ui/MapDocument.h"
 #include "ui/MapView2D.h"
 #include "ui/MapView3D.h"
@@ -133,7 +133,7 @@ void CyclingMapView::selectTall()
   m_currentMapView->selectTall();
 }
 
-void CyclingMapView::reset2dCameras(const render::Camera& masterCamera, bool animate)
+void CyclingMapView::reset2dCameras(const gl::Camera& masterCamera, bool animate)
 {
   for (auto* mapView : m_mapViews)
   {
