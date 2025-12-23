@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Color.h"
-#include "render/IndexRangeMap.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/VertexArray.h"
 #include "render/Renderable.h"
-#include "render/VertexArray.h"
 
 namespace tb::render
 {
@@ -31,8 +31,8 @@ class RenderContext;
 class TriangleRenderer : public DirectRenderable
 {
 private:
-  VertexArray m_vertexArray;
-  IndexRangeMap m_indexArray;
+  gl::VertexArray m_vertexArray;
+  gl::IndexRangeMap m_indexArray;
 
   Color m_color;
   bool m_useColor = false;
@@ -41,8 +41,8 @@ private:
 
 public:
   TriangleRenderer();
-  TriangleRenderer(VertexArray vertexArray, IndexRangeMap indexArray);
-  TriangleRenderer(VertexArray vertexArray, PrimType primType);
+  TriangleRenderer(gl::VertexArray vertexArray, gl::IndexRangeMap indexArray);
+  TriangleRenderer(gl::VertexArray vertexArray, gl::PrimType primType);
 
   TriangleRenderer(const TriangleRenderer& other) = default;
   TriangleRenderer& operator=(const TriangleRenderer& other) = default;

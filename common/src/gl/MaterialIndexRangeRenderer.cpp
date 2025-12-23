@@ -21,7 +21,7 @@
 
 #include <utility>
 
-namespace tb::render
+namespace tb::gl
 {
 
 MaterialRenderer::~MaterialRenderer() = default;
@@ -36,7 +36,7 @@ MaterialIndexRangeRenderer::MaterialIndexRangeRenderer(
 }
 
 MaterialIndexRangeRenderer::MaterialIndexRangeRenderer(
-  VertexArray vertexArray, const gl::Material* material, IndexRangeMap indexRange)
+  VertexArray vertexArray, const Material* material, IndexRangeMap indexRange)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexRange{material, std::move(indexRange)}
 {
@@ -49,7 +49,7 @@ bool MaterialIndexRangeRenderer::empty() const
   return m_vertexArray.empty();
 }
 
-void MaterialIndexRangeRenderer::prepare(gl::VboManager& vboManager)
+void MaterialIndexRangeRenderer::prepare(VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
@@ -83,7 +83,7 @@ bool MultiMaterialIndexRangeRenderer::empty() const
   return true;
 }
 
-void MultiMaterialIndexRangeRenderer::prepare(gl::VboManager& vboManager)
+void MultiMaterialIndexRangeRenderer::prepare(VboManager& vboManager)
 {
   for (auto& renderer : m_renderers)
   {
@@ -99,4 +99,4 @@ void MultiMaterialIndexRangeRenderer::render(MaterialRenderFunc& func)
   }
 }
 
-} // namespace tb::render
+} // namespace tb::gl

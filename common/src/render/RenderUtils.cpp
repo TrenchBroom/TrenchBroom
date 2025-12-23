@@ -84,33 +84,6 @@ void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::v
   end = vm::vec3f{center.x(), center.y(), bounds.max.z()};
 }
 
-MaterialRenderFunc::~MaterialRenderFunc() = default;
-void MaterialRenderFunc::before(const gl::Material* /* material */) {}
-void MaterialRenderFunc::after(const gl::Material* /* material */) {}
-
-DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
-  const int minFilter, const int magFilter)
-  : m_minFilter{minFilter}
-  , m_magFilter{magFilter}
-{
-}
-
-void DefaultMaterialRenderFunc::before(const gl::Material* material)
-{
-  if (material)
-  {
-    material->activate(m_minFilter, m_magFilter);
-  }
-}
-
-void DefaultMaterialRenderFunc::after(const gl::Material* material)
-{
-  if (material)
-  {
-    material->deactivate();
-  }
-}
-
 std::vector<vm::vec2f> circle2D(const float radius, const size_t segments)
 {
   auto vertices = circle2D(radius, 0.0f, vm::Cf::two_pi(), segments);

@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "render/PrimType.h"
+#include "gl/PrimType.h"
 
 #include <unordered_map>
 
-namespace tb::render
+namespace tb::gl
 {
 class IndexArray;
 
@@ -159,4 +159,4 @@ public:
   void render(IndexArray& indexArray) const;
 };
 
-} // namespace tb::render
+} // namespace tb::gl

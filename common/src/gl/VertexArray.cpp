@@ -19,11 +19,11 @@
 
 #include "VertexArray.h"
 
-#include "render/PrimType.h"
+#include "gl/PrimType.h"
 
 #include "kd/contracts.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
 VertexArray::BaseHolder::~BaseHolder() = default;
@@ -50,7 +50,7 @@ bool VertexArray::prepared() const
   return m_prepared;
 }
 
-void VertexArray::prepare(gl::VboManager& vboManager)
+void VertexArray::prepare(VboManager& vboManager)
 {
   if (!prepared() && !empty())
   {
@@ -108,8 +108,8 @@ void VertexArray::render(const PrimType primType, const GLint index, const GLsiz
 
 void VertexArray::render(
   const PrimType primType,
-  const gl::Indices& indices,
-  const gl::Counts& counts,
+  const Indices& indices,
+  const Counts& counts,
   const GLint primCount)
 {
   contract_pre(prepared());
@@ -133,7 +133,7 @@ void VertexArray::render(
 }
 
 void VertexArray::render(
-  const PrimType primType, const gl::Indices& indices, const GLsizei count)
+  const PrimType primType, const Indices& indices, const GLsizei count)
 {
   contract_pre(prepared());
 
@@ -158,4 +158,4 @@ VertexArray::VertexArray(std::shared_ptr<BaseHolder> holder)
 {
 }
 
-} // namespace tb::render
+} // namespace tb::gl

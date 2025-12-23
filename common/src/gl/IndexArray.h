@@ -20,16 +20,16 @@
 #pragma once
 
 #include "gl/GL.h"
+#include "gl/PrimType.h"
 #include "gl/Vbo.h"
 #include "gl/VboManager.h"
-#include "render/PrimType.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"
 
 #include <memory>
 
-namespace tb::render
+namespace tb::gl
 {
 /**
  * Represents an array of indices. Optionally, multiple instances of this class can share
@@ -52,7 +52,7 @@ private:
     virtual size_t indexCount() const = 0;
     virtual size_t sizeInBytes() const = 0;
 
-    virtual void prepare(gl::VboManager& vboManager) = 0;
+    virtual void prepare(VboManager& vboManager) = 0;
     virtual void setup() = 0;
     virtual void cleanup() = 0;
 
@@ -70,8 +70,8 @@ private:
     using IndexList = std::vector<Index>;
 
   private:
-    gl::VboManager* m_vboManager;
-    gl::Vbo* m_vbo;
+    VboManager* m_vboManager;
+    Vbo* m_vbo;
     size_t m_indexCount;
 
   public:
@@ -79,12 +79,12 @@ private:
 
     size_t sizeInBytes() const override { return sizeof(Index) * m_indexCount; }
 
-    void prepare(gl::VboManager& vboManager) override
+    void prepare(VboManager& vboManager) override
     {
       if (m_indexCount > 0 && m_vbo == nullptr)
       {
         m_vboManager = &vboManager;
-        m_vbo = vboManager.allocateVbo(gl::VboType::ElementArrayBuffer, sizeInBytes());
+        m_vbo = vboManager.allocateVbo(VboType::ElementArrayBuffer, sizeInBytes());
         m_vbo->writeBuffer(0, doGetIndices());
       }
     }
@@ -109,7 +109,7 @@ private:
     ~Holder() override
     {
       // TODO: Revisit this revisiting OpenGL resource management. We should not store the
-      // gl::VboManager, since it represents a safe time to delete the OpenGL buffer
+      // VboManager, since it represents a safe time to delete the OpenGL buffer
       // object.
       if (m_vbo != nullptr)
       {
@@ -148,7 +148,7 @@ private:
     {
     }
 
-    void prepare(gl::VboManager& vboManager)
+    void prepare(VboManager& vboManager)
     {
       Holder<Index>::prepare(vboManager);
       kdl::vec_clear_to_zero(m_indices);
@@ -271,7 +271,7 @@ public:
    * @param vboManager the vertex buffer object to upload the contents of this index array
    * into
    */
-  void prepare(gl::VboManager& vboManager);
+  void prepare(VboManager& vboManager);
 
   /**
    * Sets this index array up for rendering. If this index array is only rendered once,
@@ -304,4 +304,4 @@ public:
 private:
   explicit IndexArray(BaseHolder::Ptr holder);
 };
-} // namespace tb::render
+} // namespace tb::gl

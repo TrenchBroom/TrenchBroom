@@ -27,12 +27,12 @@
 #include "fs/PathInfo.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
 #include "gl/Texture.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/MaterialUtils.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
 
 #include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
@@ -292,7 +292,7 @@ struct AssimpComputedMeshData
 {
   size_t m_meshIndex;
   std::vector<EntityModelVertex> m_vertices;
-  render::IndexRangeMap m_indices;
+  gl::IndexRangeMap m_indices;
 };
 
 struct AssimpBoneInformation
@@ -624,9 +624,9 @@ AssimpComputedMeshData computeMeshData(
   const auto numTriangles = mesh.m_mesh->mNumFaces;
   const auto numIndices = numTriangles * 3;
 
-  auto size = render::IndexRangeMap::Size{};
-  size.inc(render::PrimType::Triangles, numTriangles);
-  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{numIndices, size};
+  auto size = gl::IndexRangeMap::Size{};
+  size.inc(gl::PrimType::Triangles, numTriangles);
+  auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{numIndices, size};
 
   for (unsigned int i = 0; i < numTriangles; ++i)
   {

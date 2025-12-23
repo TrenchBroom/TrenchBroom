@@ -19,7 +19,7 @@
 
 #include "MaterialIndexArrayRenderer.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
 MaterialIndexArrayRenderer::MaterialIndexArrayRenderer() = default;
@@ -37,7 +37,7 @@ bool MaterialIndexArrayRenderer::empty() const
   return m_indexArray.empty();
 }
 
-void MaterialIndexArrayRenderer::prepare(gl::VboManager& vboManager)
+void MaterialIndexArrayRenderer::prepare(VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
   m_indexArray.prepare(vboManager);
@@ -56,4 +56,4 @@ void MaterialIndexArrayRenderer::render(MaterialRenderFunc& func)
   }
 }
 
-} // namespace tb::render
+} // namespace tb::gl

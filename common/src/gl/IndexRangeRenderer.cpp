@@ -17,40 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "IndexRangeRenderer.h"
 
-#include "render/IndexArray.h"
-#include "render/MaterialIndexArrayMap.h"
-#include "render/VertexArray.h"
+#include <utility>
 
-namespace tb
+namespace tb::gl
 {
-namespace gl
+
+IndexRangeRenderer::IndexRangeRenderer() = default;
+
+IndexRangeRenderer::IndexRangeRenderer(VertexArray vertexArray, IndexRangeMap indexArray)
+  : m_vertexArray{std::move(vertexArray)}
+  , m_indexArray{std::move(indexArray)}
 {
-class VboManager;
 }
 
-namespace render
+void IndexRangeRenderer::prepare(VboManager& vboManager)
 {
-class MaterialRenderFunc;
+  m_vertexArray.prepare(vboManager);
+}
 
-class MaterialIndexArrayRenderer
+void IndexRangeRenderer::render()
 {
-private:
-  VertexArray m_vertexArray;
-  IndexArray m_indexArray;
-  MaterialIndexArrayMap m_indexRanges;
+  if (m_vertexArray.setup())
+  {
+    m_indexArray.render(m_vertexArray);
+    m_vertexArray.cleanup();
+  }
+}
 
-public:
-  MaterialIndexArrayRenderer();
-  MaterialIndexArrayRenderer(
-    VertexArray vertexArray, IndexArray indexArray, MaterialIndexArrayMap indexArrayMap);
-
-  bool empty() const;
-
-  void prepare(gl::VboManager& vboManager);
-  void render(MaterialRenderFunc& func);
-};
-
-} // namespace render
-} // namespace tb
+} // namespace tb::gl

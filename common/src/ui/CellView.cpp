@@ -30,12 +30,12 @@
 #include "gl/ActiveShader.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/TextureFont.h"
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
-#include "render/PrimType.h"
 #include "render/Transformation.h"
-#include "render/VertexArray.h"
 #include "ui/CellLayout.h"
 #include "ui/RenderView.h"
 
@@ -429,9 +429,9 @@ void CellView::renderTitleBackgrounds(float y, float height)
   auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPUniformCShader};
   shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
-  auto vertexArray = render::VertexArray::move(std::move(vertices));
+  auto vertexArray = gl::VertexArray::move(std::move(vertices));
   vertexArray.prepare(vboManager());
-  vertexArray.render(render::PrimType::Quads);
+  vertexArray.render(gl::PrimType::Quads);
 }
 
 namespace
@@ -513,13 +513,13 @@ auto collectStringVertices(
 
 void CellView::renderTitleStrings(float y, float height)
 {
-  using StringRendererMap = std::map<gl::FontDescriptor, render::VertexArray>;
+  using StringRendererMap = std::map<gl::FontDescriptor, gl::VertexArray>;
   auto stringRenderers = StringRendererMap{};
 
   for (const auto& [descriptor, vertices] :
        collectStringVertices(m_layout, y, height, fontManager()))
   {
-    stringRenderers[descriptor] = render::VertexArray::ref(vertices);
+    stringRenderers[descriptor] = gl::VertexArray::ref(vertices);
     stringRenderers[descriptor].prepare(vboManager());
   }
 
@@ -530,7 +530,7 @@ void CellView::renderTitleStrings(float y, float height)
   {
     auto& font = fontManager().font(descriptor);
     font.activate();
-    vertexArray.render(render::PrimType::Quads);
+    vertexArray.render(gl::PrimType::Quads);
     font.deactivate();
   }
 }

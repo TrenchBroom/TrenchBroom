@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "render/VertexArray.h"
+#include "gl/VertexArray.h"
 
 namespace tb
 {
@@ -34,7 +34,7 @@ namespace render
 class Sphere
 {
 private:
-  VertexArray m_array;
+  gl::VertexArray m_array;
 
 public:
   Sphere(float radius, size_t iterations);

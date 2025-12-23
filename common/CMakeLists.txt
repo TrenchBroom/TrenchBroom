@@ -14,9 +14,21 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/gl/FontTexture.cpp
         ${COMMON_SOURCE_DIR}/gl/FreeTypeFontFactory.cpp
         ${COMMON_SOURCE_DIR}/gl/GL.cpp
+        ${COMMON_SOURCE_DIR}/gl/IndexArray.cpp
+        ${COMMON_SOURCE_DIR}/gl/IndexArrayMap.cpp
+        ${COMMON_SOURCE_DIR}/gl/IndexArrayMapBuilder.cpp
+        ${COMMON_SOURCE_DIR}/gl/IndexRangeMap.cpp
+        ${COMMON_SOURCE_DIR}/gl/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/gl/Material.cpp
         ${COMMON_SOURCE_DIR}/gl/MaterialCollection.cpp
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayMap.cpp
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayMapBuilder.cpp
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayRenderer.cpp
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeMap.cpp
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/gl/MaterialManager.cpp
+        ${COMMON_SOURCE_DIR}/gl/MaterialRenderFunc.cpp
+        ${COMMON_SOURCE_DIR}/gl/PrimType.cpp
         ${COMMON_SOURCE_DIR}/gl/ResourceId.cpp
         ${COMMON_SOURCE_DIR}/gl/Shader.cpp
         ${COMMON_SOURCE_DIR}/gl/ShaderManager.cpp
@@ -28,6 +40,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/gl/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/gl/Vbo.cpp
         ${COMMON_SOURCE_DIR}/gl/VboManager.cpp
+        ${COMMON_SOURCE_DIR}/gl/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
@@ -237,18 +250,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/GridRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/GroupLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/GroupRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexArray.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/LinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/MapRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/ObjectRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/OrthographicCamera.cpp
         ${COMMON_SOURCE_DIR}/render/PatchRenderer.cpp
@@ -256,7 +259,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/PointGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/PointHandleRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/PrimitiveRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/PrimType.cpp
         ${COMMON_SOURCE_DIR}/render/Renderable.cpp
         ${COMMON_SOURCE_DIR}/render/RenderBatch.cpp
         ${COMMON_SOURCE_DIR}/render/RenderContext.cpp
@@ -269,7 +271,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/TextRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/Transformation.cpp
         ${COMMON_SOURCE_DIR}/render/TriangleRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/Thread.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
@@ -496,9 +497,24 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/gl/FontTexture.h
         ${COMMON_SOURCE_DIR}/gl/FreeTypeFontFactory.h
         ${COMMON_SOURCE_DIR}/gl/GL.h
+        ${COMMON_SOURCE_DIR}/gl/IndexArray.h
+        ${COMMON_SOURCE_DIR}/gl/IndexArrayMap.h
+        ${COMMON_SOURCE_DIR}/gl/IndexArrayMapBuilder.h
+        ${COMMON_SOURCE_DIR}/gl/IndexedVertexList.h
+        ${COMMON_SOURCE_DIR}/gl/IndexRangeMap.h
+        ${COMMON_SOURCE_DIR}/gl/IndexRangeMapBuilder.h
+        ${COMMON_SOURCE_DIR}/gl/IndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/gl/Material.h
         ${COMMON_SOURCE_DIR}/gl/MaterialCollection.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayMap.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayMapBuilder.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexArrayRenderer.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeMap.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeMapBuilder.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/gl/MaterialManager.h
+        ${COMMON_SOURCE_DIR}/gl/MaterialRenderFunc.h
+        ${COMMON_SOURCE_DIR}/gl/PrimType.h
         ${COMMON_SOURCE_DIR}/gl/ResourceManager.h
         ${COMMON_SOURCE_DIR}/gl/Resource.h
         ${COMMON_SOURCE_DIR}/gl/ResourceId.h
@@ -512,7 +528,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/gl/TextureFont.h
         ${COMMON_SOURCE_DIR}/gl/TextureResource.h
         ${COMMON_SOURCE_DIR}/gl/Vertex.h
+        ${COMMON_SOURCE_DIR}/gl/VertexArray.h
         ${COMMON_SOURCE_DIR}/gl/VertexAttributeType.h
+        ${COMMON_SOURCE_DIR}/gl/VertexListBuilder.h
         ${COMMON_SOURCE_DIR}/gl/VertexType.h
         ${COMMON_SOURCE_DIR}/gl/Vbo.h
         ${COMMON_SOURCE_DIR}/gl/VboManager.h
@@ -753,21 +771,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/GridRenderer.h
         ${COMMON_SOURCE_DIR}/render/GroupLinkRenderer.h
         ${COMMON_SOURCE_DIR}/render/GroupRenderer.h
-        ${COMMON_SOURCE_DIR}/render/IndexArray.h
-        ${COMMON_SOURCE_DIR}/render/IndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/render/IndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/render/IndexedVertexList.h
-        ${COMMON_SOURCE_DIR}/render/IndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/render/IndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/render/IndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/render/LinkRenderer.h
         ${COMMON_SOURCE_DIR}/render/MapRenderer.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayRenderer.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/render/ObjectRenderer.h
         ${COMMON_SOURCE_DIR}/render/OrthographicCamera.h
         ${COMMON_SOURCE_DIR}/render/PatchRenderer.h
@@ -775,7 +780,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/PointGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/PointHandleRenderer.h
         ${COMMON_SOURCE_DIR}/render/PrimitiveRenderer.h
-        ${COMMON_SOURCE_DIR}/render/PrimType.h
         ${COMMON_SOURCE_DIR}/render/Renderable.h
         ${COMMON_SOURCE_DIR}/render/RenderBatch.h
         ${COMMON_SOURCE_DIR}/render/RenderContext.h
@@ -788,8 +792,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/TextRenderer.h
         ${COMMON_SOURCE_DIR}/render/Transformation.h
         ${COMMON_SOURCE_DIR}/render/TriangleRenderer.h
-        ${COMMON_SOURCE_DIR}/render/VertexArray.h
-        ${COMMON_SOURCE_DIR}/render/VertexListBuilder.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h

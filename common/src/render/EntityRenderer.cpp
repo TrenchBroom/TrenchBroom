@@ -19,6 +19,7 @@
 
 #include "EntityRenderer.h"
 
+#include "gl/PrimType.h"
 #include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
@@ -26,7 +27,6 @@
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "render/Camera.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
@@ -466,9 +466,11 @@ void EntityRenderer::validateBounds()
     }
 
     m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer{
-      VertexArray::move(std::move(pointEntityWireframeVertices)), PrimType::Lines};
+      gl::VertexArray::move(std::move(pointEntityWireframeVertices)),
+      gl::PrimType::Lines};
     m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer{
-      VertexArray::move(std::move(brushEntityWireframeVertices)), PrimType::Lines};
+      gl::VertexArray::move(std::move(brushEntityWireframeVertices)),
+      gl::PrimType::Lines};
   }
   else
   {
@@ -508,13 +510,15 @@ void EntityRenderer::validateBounds()
     }
 
     m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(
-      VertexArray::move(std::move(pointEntityWireframeVertices)), PrimType::Lines);
+      gl::VertexArray::move(std::move(pointEntityWireframeVertices)),
+      gl::PrimType::Lines);
     m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(
-      VertexArray::move(std::move(brushEntityWireframeVertices)), PrimType::Lines);
+      gl::VertexArray::move(std::move(brushEntityWireframeVertices)),
+      gl::PrimType::Lines);
   }
 
-  m_solidBoundsRenderer =
-    TriangleRenderer{VertexArray::move(std::move(solidVertices)), PrimType::Quads};
+  m_solidBoundsRenderer = TriangleRenderer{
+    gl::VertexArray::move(std::move(solidVertices)), gl::PrimType::Quads};
   m_boundsValid = true;
 }
 

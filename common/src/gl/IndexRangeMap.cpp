@@ -19,12 +19,12 @@
 
 #include "IndexRangeMap.h"
 
-#include "render/PrimType.h"
-#include "render/VertexArray.h"
+#include "gl/PrimType.h"
+#include "gl/VertexArray.h"
 
 #include "kd/vector_utils.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
 IndexRangeMap::IndicesAndCounts::IndicesAndCounts() = default;
@@ -204,4 +204,4 @@ void IndexRangeMap::forEachPrimitive(
   }
 }
 
-} // namespace tb::render
+} // namespace tb::gl

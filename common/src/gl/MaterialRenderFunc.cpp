@@ -17,37 +17,40 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Sphere.h"
+#include "MaterialRenderFunc.h"
 
-#include "gl/PrimType.h"
-#include "gl/VertexType.h"
-#include "render/RenderUtils.h"
+#include "gl/GL.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
-Sphere::Sphere(const float radius, const size_t iterations)
-{
-  using Vertex = gl::VertexTypes::P3::Vertex;
+MaterialRenderFunc::~MaterialRenderFunc() = default;
+void MaterialRenderFunc::before(const Material*) {}
+void MaterialRenderFunc::after(const Material*) {}
 
-  const auto positions = sphere(radius, iterations);
-  m_array =
-    gl::VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
+DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
+  const int minFilter, const int magFilter)
+  : m_minFilter{minFilter}
+  , m_magFilter{magFilter}
+{
 }
 
-bool Sphere::prepared() const
+void DefaultMaterialRenderFunc::before(const Material* material)
 {
-  return m_array.prepared();
+  if (material)
+  {
+    material->activate(m_minFilter, m_magFilter);
+  }
 }
 
-void Sphere::prepare(gl::VboManager& vboManager)
+void DefaultMaterialRenderFunc::after(const Material* material)
 {
-  m_array.prepare(vboManager);
+  if (material)
+  {
+    material->deactivate();
+  }
 }
 
-void Sphere::render()
-{
-  m_array.render(gl::PrimType::Triangles);
-}
-
-} // namespace tb::render
+} // namespace tb::gl

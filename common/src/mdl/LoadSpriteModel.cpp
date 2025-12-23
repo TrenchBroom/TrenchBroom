@@ -20,10 +20,10 @@
 #include "LoadSpriteModel.h"
 
 #include "fs/ReaderException.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
 #include "mdl/Palette.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
 
 #include "kd/path_utils.h"
 
@@ -307,11 +307,11 @@ Result<EntityModelData> loadSpriteModel(
                            EntityModelVertex{{x1, y1, 0}, {0, 1}},
                          };
 
-                         auto size = render::IndexRangeMap::Size{};
-                         size.inc(render::PrimType::Triangles, 2);
+                         auto size = gl::IndexRangeMap::Size{};
+                         size.inc(gl::PrimType::Triangles, 2);
 
                          auto builder =
-                           render::IndexRangeMapBuilder<EntityModelVertex::Type>{6, size};
+                           gl::IndexRangeMapBuilder<EntityModelVertex::Type>{6, size};
                          builder.addTriangles(triangles);
 
                          surface.addMesh(

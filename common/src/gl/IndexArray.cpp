@@ -23,7 +23,7 @@
 
 #include <utility>
 
-namespace tb::render
+namespace tb::gl
 {
 
 void IndexArray::BaseHolder::render(
@@ -54,7 +54,7 @@ bool IndexArray::prepared() const
   return m_prepared;
 }
 
-void IndexArray::prepare(gl::VboManager& vboManager)
+void IndexArray::prepare(VboManager& vboManager)
 {
   if (!prepared() && !empty())
   {
@@ -113,4 +113,4 @@ IndexArray::IndexArray(BaseHolder::Ptr holder)
 {
 }
 
-} // namespace tb::render
+} // namespace tb::gl

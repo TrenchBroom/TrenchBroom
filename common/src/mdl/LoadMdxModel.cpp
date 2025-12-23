@@ -20,11 +20,11 @@
 #include "LoadMdxModel.h"
 
 #include "fs/ReaderException.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
+#include "gl/PrimType.h"
 #include "mdl/LoadSkin.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
 
 #include "kd/path_utils.h"
 
@@ -163,7 +163,7 @@ struct MdxMeshVertex
 
 struct MdxMesh
 {
-  render::PrimType type;
+  gl::PrimType type;
   std::vector<MdxMeshVertex> vertices;
 };
 
@@ -235,7 +235,7 @@ auto parseMeshes(fs::Reader reader, const size_t commandCount)
     /* const auto subObjectId = */ reader.readInt<int32_t>();
 
     const auto type =
-      vertexCount < 0 ? render::PrimType::TriangleFan : render::PrimType::TriangleStrip;
+      vertexCount < 0 ? gl::PrimType::TriangleFan : gl::PrimType::TriangleStrip;
     auto vertices = parseMeshVertices(reader, size_t(std::abs(vertexCount)));
     meshes.push_back({type, std::move(vertices)});
 
@@ -284,7 +284,7 @@ void buildFrame(
   const std::vector<MdxMesh>& meshes)
 {
   size_t vertexCount = 0;
-  auto size = render::IndexRangeMap::Size{};
+  auto size = gl::IndexRangeMap::Size{};
   for (const auto& md2Mesh : meshes)
   {
     vertexCount += md2Mesh.vertices.size();
@@ -293,7 +293,7 @@ void buildFrame(
 
   auto bounds = vm::bbox3f::builder{};
 
-  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
+  auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
   for (const auto& md2Mesh : meshes)
   {
     if (!md2Mesh.vertices.empty())
@@ -303,11 +303,11 @@ void buildFrame(
 
       bounds.add(std::begin(vertices), std::end(vertices), gl::GetVertexComponent<0>());
 
-      if (md2Mesh.type == render::PrimType::TriangleFan)
+      if (md2Mesh.type == gl::PrimType::TriangleFan)
       {
         builder.addTriangleFan(vertices);
       }
-      else if (md2Mesh.type == render::PrimType::TriangleStrip)
+      else if (md2Mesh.type == gl::PrimType::TriangleStrip)
       {
         builder.addTriangleStrip(vertices);
       }

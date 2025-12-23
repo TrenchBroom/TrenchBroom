@@ -21,7 +21,9 @@
 #include "PreferenceManager.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
+#include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
+#include "gl/MaterialIndexRangeRenderer.h"
 #include "gl/Texture.h"
 #include "gl/TextureResource.h"
 #include "mdl/EntityModel.h"
@@ -29,8 +31,6 @@
 #include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
 #include "mdl/LoadEntityModel.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/MaterialIndexRangeRenderer.h"
 
 #include "vm/approx.h"
 #include "vm/bbox.h"
@@ -53,12 +53,12 @@ gl::Material makeDummyMaterial(std::string name)
   return gl::Material{std::move(name), std::move(textureResource)};
 }
 
-render::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()
+gl::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()
 {
-  auto size = render::IndexRangeMap::Size{};
-  size.inc(render::PrimType::Triangles, 1);
+  auto size = gl::IndexRangeMap::Size{};
+  size.inc(gl::PrimType::Triangles, 1);
 
-  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{3, size};
+  auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{3, size};
   builder.addTriangle(EntityModelVertex{}, EntityModelVertex{}, EntityModelVertex{});
 
   return builder;

@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
@@ -31,7 +32,6 @@
 #include "mdl/Polyhedron.h"
 #include "render/Circle.h"
 #include "render/EdgeRenderer.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/Renderable.h"
@@ -181,8 +181,8 @@ void renderLineHandles(
   render::RenderBatch& renderBatch)
 {
   auto edgeRenderer = render::DirectEdgeRenderer{
-    render::VertexArray::move(getHandleVertices(helper, highlightHandles)),
-    render::PrimType::Lines};
+    gl::VertexArray::move(getHandleVertices(helper, highlightHandles)),
+    gl::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 0.5f);
 }
 

@@ -23,11 +23,11 @@
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
 #include "gl/ContextManager.h"
+#include "gl/PrimType.h"
 #include "gl/VboManager.h"
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
-#include "render/PrimType.h"
 #include "render/Transformation.h"
-#include "render/VertexArray.h"
 #include "ui/CrashReporter.h"
 #include "ui/InputEvent.h"
 #include "ui/QtUtils.h"
@@ -311,7 +311,7 @@ void RenderView::renderFocusIndicator()
     glAssert(glDisable(GL_DEPTH_TEST));
 
     using Vertex = gl::VertexTypes::P3C4::Vertex;
-    auto array = render::VertexArray::move(std::vector{
+    auto array = gl::VertexArray::move(std::vector{
       // top
       Vertex{{0.0f, 0.0f, 0.0f}, outer.toVec()},
       Vertex{{w, 0.0f, 0.0f}, outer.toVec()},
@@ -338,7 +338,7 @@ void RenderView::renderFocusIndicator()
     });
 
     array.prepare(vboManager());
-    array.render(render::PrimType::Quads);
+    array.render(gl::PrimType::Quads);
     glAssert(glEnable(GL_DEPTH_TEST));
   }
 }

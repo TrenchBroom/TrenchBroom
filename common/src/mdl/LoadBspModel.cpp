@@ -21,11 +21,11 @@
 
 #include "fs/ReaderException.h"
 #include "gl/Material.h"
+#include "gl/MaterialIndexRangeMap.h"
+#include "gl/MaterialIndexRangeMapBuilder.h"
 #include "mdl/LoadMipTexture.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
-#include "render/MaterialIndexRangeMap.h"
-#include "render/MaterialIndexRangeMapBuilder.h"
 
 #include "kd/path_utils.h"
 
@@ -215,7 +215,7 @@ void parseFrame(
   const auto modelFaceIndex = reader.readSize<int32_t>();
   const auto modelFaceCount = reader.readSize<int32_t>();
   auto totalVertexCount = size_t(0);
-  auto size = render::MaterialIndexRangeMap::Size{};
+  auto size = gl::MaterialIndexRangeMap::Size{};
 
   for (size_t i = 0; i < modelFaceCount; ++i)
   {
@@ -224,15 +224,14 @@ void parseFrame(
     if (const auto* skin = surface.skin(materialInfo.materialIndex))
     {
       const auto faceVertexCount = faceInfo.edgeCount;
-      size.inc(skin, render::PrimType::Polygon, faceVertexCount);
+      size.inc(skin, gl::PrimType::Polygon, faceVertexCount);
       totalVertexCount += faceVertexCount;
     }
   }
 
   auto bounds = vm::bbox3f::builder{};
 
-  auto builder =
-    render::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
+  auto builder = gl::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
   for (size_t i = 0; i < modelFaceCount; ++i)
   {
     const auto& faceInfo = faceInfos[modelFaceIndex + i];

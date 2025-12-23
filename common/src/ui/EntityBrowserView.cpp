@@ -26,8 +26,12 @@
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
 #include "gl/GL.h"
+#include "gl/MaterialIndexRangeRenderer.h"
+#include "gl/MaterialRenderFunc.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/TextureFont.h"
+#include "gl/VertexArray.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionGroup.h"
@@ -36,11 +40,7 @@
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Map.h"
-#include "render/MaterialIndexRangeRenderer.h"
-#include "render/PrimType.h"
-#include "render/RenderUtils.h"
 #include "render/Transformation.h"
-#include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
@@ -234,7 +234,7 @@ void EntityBrowserView::addEntityToLayout(
       el::NullVariableStore{},
       m_defaultScaleModelExpression)};
 
-    auto* modelRenderer = static_cast<render::MaterialRenderer*>(nullptr);
+    auto* modelRenderer = static_cast<gl::MaterialRenderer*>(nullptr);
     auto bounds = vm::bbox3f{};
     auto transform = vm::mat4x4f{};
     auto modelOrientation = mdl::Orientation::Oriented;
@@ -350,10 +350,10 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
   }
 
   auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPCShader};
-  auto vertexArray = render::VertexArray::move(std::move(vertices));
+  auto vertexArray = gl::VertexArray::move(std::move(vertices));
 
   vertexArray.prepare(vboManager());
-  vertexArray.render(render::PrimType::Lines);
+  vertexArray.render(gl::PrimType::Lines);
 }
 
 void EntityBrowserView::renderModels(
@@ -399,7 +399,7 @@ void EntityBrowserView::renderModels(
               const auto multMatrix =
                 render::MultiplyModelMatrix{transformation, itemTrans};
 
-              auto renderFunc = render::DefaultMaterialRenderFunc{
+              auto renderFunc = gl::DefaultMaterialRenderFunc{
                 pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)};
               modelRenderer->render(renderFunc);
             }

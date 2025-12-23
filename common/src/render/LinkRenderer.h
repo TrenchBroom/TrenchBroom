@@ -19,9 +19,9 @@
 
 #pragma once
 
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "render/Renderable.h"
-#include "render/VertexArray.h"
 
 namespace tb
 {
@@ -58,8 +58,8 @@ public:
                                                                          // arrow is
                                                                          // pointing
 private:
-  VertexArray m_lines;
-  VertexArray m_arrows;
+  gl::VertexArray m_lines;
+  gl::VertexArray m_arrows;
 
   bool m_valid = false;
 

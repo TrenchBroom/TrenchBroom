@@ -19,19 +19,13 @@
 
 #pragma once
 
-#include "render/IndexRangeMap.h"
+#include "gl/IndexRangeMap.h"
 
 #include <map>
 
-namespace tb
-{
-namespace gl
+namespace tb::gl
 {
 class Material;
-}
-
-namespace render
-{
 class MaterialRenderFunc;
 class VertexArray;
 
@@ -47,7 +41,7 @@ class VertexArray;
 class MaterialIndexRangeMap
 {
 private:
-  using MaterialToIndexRangeMap = std::map<const gl::Material*, IndexRangeMap>;
+  using MaterialToIndexRangeMap = std::map<const Material*, IndexRangeMap>;
   using MaterialToIndexRangeMapPtr = std::shared_ptr<MaterialToIndexRangeMap>;
 
 public:
@@ -64,7 +58,7 @@ public:
   private:
     friend class MaterialIndexRangeMap;
 
-    using MaterialToSize = std::map<const gl::Material*, IndexRangeMap::Size>;
+    using MaterialToSize = std::map<const Material*, IndexRangeMap::Size>;
     MaterialToSize m_sizes;
     MaterialToSize::iterator m_current;
 
@@ -81,7 +75,7 @@ public:
      * @param primType the primitive type
      * @param vertexCount the number of vertices to count
      */
-    void inc(const gl::Material* material, PrimType primType, size_t vertexCount = 1);
+    void inc(const Material* material, PrimType primType, size_t vertexCount = 1);
 
     /**
      * Increase the storage by the given size.
@@ -91,8 +85,8 @@ public:
     void inc(const Size& other);
 
   private:
-    IndexRangeMap::Size& findCurrent(const gl::Material* material);
-    bool isCurrent(const gl::Material* material) const;
+    IndexRangeMap::Size& findCurrent(const Material* material);
+    bool isCurrent(const Material* material) const;
 
     void initialize(MaterialToIndexRangeMap& data) const;
   };
@@ -123,7 +117,7 @@ public:
    * @param material the material
    * @param primitives an index range map containing the primitives
    */
-  MaterialIndexRangeMap(const gl::Material* material, IndexRangeMap primitives);
+  MaterialIndexRangeMap(const Material* material, IndexRangeMap primitives);
 
   /**
    * Creates a new index range map containing a single range of the given primitive type
@@ -135,7 +129,7 @@ public:
    * @param vertexCount the number of vertices in the range
    */
   MaterialIndexRangeMap(
-    const gl::Material* material, PrimType primType, size_t index, size_t vertexCount);
+    const Material* material, PrimType primType, size_t index, size_t vertexCount);
 
   /**
    * Records a range of primitives at the given index with the given length and using the
@@ -146,8 +140,7 @@ public:
    * @param index the start index of the range
    * @param vertexCount the number of vertices in the range
    */
-  void add(
-    const gl::Material* material, PrimType primType, size_t index, size_t vertexCount);
+  void add(const Material* material, PrimType primType, size_t index, size_t vertexCount);
 
   /**
    * Records ranges of primitives using the given material.
@@ -155,7 +148,7 @@ public:
    * @param material the material to use
    * @param primitives an index range map containing the primitives
    */
-  void add(const gl::Material* material, IndexRangeMap primitives);
+  void add(const Material* material, IndexRangeMap primitives);
 
   /**
    * Adds all ranges stored in the given index range map to this one.
@@ -181,13 +174,12 @@ public:
    * @param func the function to invoke
    */
   void forEachPrimitive(
-    std::function<void(
-      const gl::Material* material, PrimType, size_t index, size_t count)> func) const;
+    std::function<void(const Material* material, PrimType, size_t index, size_t count)>
+      func) const;
 
 private:
-  IndexRangeMap& findCurrent(const gl::Material* material);
-  bool isCurrent(const gl::Material* material) const;
+  IndexRangeMap& findCurrent(const Material* material);
+  bool isCurrent(const Material* material) const;
 };
 
-} // namespace render
-} // namespace tb
+} // namespace tb::gl

@@ -22,9 +22,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "render/OrthographicCamera.h"
-#include "render/PrimType.h"
 #include "render/RenderContext.h"
 
 #include "vm/bbox.h"
@@ -34,7 +34,7 @@ namespace tb::render
 {
 GridRenderer::GridRenderer(
   const OrthographicCamera& camera, const vm::bbox3d& worldBounds)
-  : m_vertexArray(VertexArray::move(vertices(camera, worldBounds)))
+  : m_vertexArray(gl::VertexArray::move(vertices(camera, worldBounds)))
 {
 }
 
@@ -92,7 +92,7 @@ void GridRenderer::doRender(RenderContext& renderContext)
     shader.set("GridColor", pref(Preferences::GridColor2D));
     shader.set("CameraZoom", camera.zoom());
 
-    m_vertexArray.render(PrimType::Quads);
+    m_vertexArray.render(gl::PrimType::Quads);
   }
 }
 

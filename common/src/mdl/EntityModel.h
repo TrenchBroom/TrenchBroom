@@ -40,17 +40,14 @@ class octree;
 
 namespace gl
 {
-class MaterialCollection;
-}
-
-namespace render
-{
-enum class PrimType;
 class IndexRangeMap;
+class MaterialCollection;
 class MaterialIndexRangeMap;
 class MaterialIndexRangeRenderer;
 class MaterialRenderer;
-} // namespace render
+
+enum class PrimType;
+} // namespace gl
 
 namespace mdl
 {
@@ -163,7 +160,7 @@ public:
    */
   void addToSpacialTree(
     const std::vector<EntityModelVertex>& vertices,
-    render::PrimType primType,
+    gl::PrimType primType,
     size_t index,
     size_t count);
 };
@@ -227,7 +224,7 @@ public:
   void addMesh(
     EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    render::IndexRangeMap indices);
+    gl::IndexRangeMap indices);
 
   /**
    * Adds a new material mesh to this surface.
@@ -239,7 +236,7 @@ public:
   void addMesh(
     EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    render::MaterialIndexRangeMap indices);
+    gl::MaterialIndexRangeMap indices);
 
   /**
    * Sets the given materials as skins to this surface.
@@ -279,7 +276,7 @@ public:
    */
   const gl::Material* skin(size_t index) const;
 
-  std::unique_ptr<render::MaterialIndexRangeRenderer> buildRenderer(
+  std::unique_ptr<gl::MaterialIndexRangeRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;
 };
 
@@ -322,7 +319,7 @@ public:
    * @param frameIndex the index of the frame to render
    * @return the renderer
    */
-  std::unique_ptr<render::MaterialRenderer> buildRenderer(
+  std::unique_ptr<gl::MaterialRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;
 
   /**

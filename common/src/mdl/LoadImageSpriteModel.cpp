@@ -20,10 +20,10 @@
 #include "LoadImageSpriteModel.h"
 
 #include "fs/ReaderException.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/MaterialUtils.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
 
 namespace tb::mdl
 {
@@ -71,10 +71,10 @@ void createFrame(EntityModelData& modelData)
       EntityModelVertex{{x1, y1, 0}, {0, 1}},
     };
 
-    auto size = render::IndexRangeMap::Size{};
-    size.inc(render::PrimType::Triangles, 2);
+    auto size = gl::IndexRangeMap::Size{};
+    size.inc(gl::PrimType::Triangles, 2);
 
-    auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{6, size};
+    auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{6, size};
     builder.addTriangles(triangles);
 
     surface.addMesh(frame, builder.vertices(), builder.indices());

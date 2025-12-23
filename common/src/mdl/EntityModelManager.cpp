@@ -21,6 +21,7 @@
 
 #include "Logger.h"
 #include "gl/CreateResource.h"
+#include "gl/MaterialIndexRangeRenderer.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -29,7 +30,6 @@
 #include "mdl/LoadShaders.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Quake3Shader.h"
-#include "render/MaterialIndexRangeRenderer.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -77,8 +77,7 @@ void EntityModelManager::reloadShaders(kdl::task_manager& taskManager)
     | kdl::value_or(std::vector<Quake3Shader>{});
 }
 
-render::MaterialRenderer* EntityModelManager::renderer(
-  const ModelSpecification& spec) const
+gl::MaterialRenderer* EntityModelManager::renderer(const ModelSpecification& spec) const
 {
   if (auto* entityModel = model(spec.path))
   {

@@ -20,11 +20,11 @@
 #pragma once
 
 #include "gl/GL.h"
-#include "render/IndexArrayMap.h"
+#include "gl/IndexArrayMap.h"
 
 #include <vector>
 
-namespace tb::render
+namespace tb::gl
 {
 
 /**
@@ -181,4 +181,4 @@ private:
   void add(PrimType primType, const IndexList& indices);
 };
 
-} // namespace tb::render
+} // namespace tb::gl

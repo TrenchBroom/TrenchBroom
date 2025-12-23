@@ -63,7 +63,7 @@ bool PrimitiveRenderer::LineRenderAttributes::operator==(
 }
 
 void PrimitiveRenderer::LineRenderAttributes::render(
-  IndexRangeRenderer& renderer, gl::ActiveShader& shader, const float dpiScale) const
+  gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader, const float dpiScale) const
 {
   glAssert(glLineWidth(m_lineWidth * dpiScale));
   switch (m_occlusionPolicy)
@@ -128,7 +128,7 @@ bool PrimitiveRenderer::TriangleRenderAttributes::operator==(
 }
 
 void PrimitiveRenderer::TriangleRenderAttributes::render(
-  IndexRangeRenderer& renderer, gl::ActiveShader& shader) const
+  gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader) const
 {
   if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces)
   {
@@ -333,7 +333,7 @@ void PrimitiveRenderer::prepareLines(gl::VboManager& vboManager)
   for (auto& [attributes, mesh] : m_lineMeshes)
   {
     auto& renderer =
-      m_lineMeshRenderers.emplace(attributes, IndexRangeRenderer{mesh}).first->second;
+      m_lineMeshRenderers.emplace(attributes, gl::IndexRangeRenderer{mesh}).first->second;
     renderer.prepare(vboManager);
   }
 }
@@ -343,7 +343,8 @@ void PrimitiveRenderer::prepareTriangles(gl::VboManager& vboManager)
   for (auto& [attributes, mesh] : m_triangleMeshes)
   {
     auto& renderer =
-      m_triangleMeshRenderers.emplace(attributes, IndexRangeRenderer{mesh}).first->second;
+      m_triangleMeshRenderers.emplace(attributes, gl::IndexRangeRenderer{mesh})
+        .first->second;
     renderer.prepare(vboManager);
   }
 }

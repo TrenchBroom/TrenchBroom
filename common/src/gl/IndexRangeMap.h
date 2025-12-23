@@ -20,14 +20,14 @@
 #pragma once
 
 #include "gl/GL.h"
-#include "render/PrimType.h"
+#include "gl/PrimType.h"
 
 #include "kd/enum_array.h"
 
 #include <functional>
 #include <memory>
 
-namespace tb::render
+namespace tb::gl
 {
 class VertexArray;
 
@@ -45,11 +45,11 @@ private:
     /**
      * The offsets of the ranges stored here.
      */
-    gl::Indices indices;
+    Indices indices;
     /**
      * The lengths of the ranges stored here.
      */
-    gl::Counts counts;
+    Counts counts;
 
     IndicesAndCounts();
     IndicesAndCounts(size_t index, size_t count);
@@ -165,4 +165,4 @@ public:
     std::function<void(PrimType, size_t index, size_t count)> func) const;
 };
 
-} // namespace tb::render
+} // namespace tb::gl

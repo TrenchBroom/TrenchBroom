@@ -19,6 +19,7 @@
 
 #include "UVScaleTool.h"
 
+#include "gl/PrimType.h"
 #include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushGeometry.h"
@@ -30,7 +31,6 @@
 #include "mdl/TransactionScope.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "render/EdgeRenderer.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
@@ -164,8 +164,8 @@ void renderHighlight(
   static const auto color = RgbaF{1.0f, 0.0f, 0.0f, 1.0f};
 
   auto handleRenderer = render::DirectEdgeRenderer{
-    render::VertexArray::move(getHandleVertices(helper, handle, selector)),
-    render::PrimType::Lines};
+    gl::VertexArray::move(getHandleVertices(helper, handle, selector)),
+    gl::PrimType::Lines};
   handleRenderer.render(renderBatch, color, 1.0f);
 }
 

@@ -19,13 +19,13 @@
 
 #include "MaterialIndexArrayMapBuilder.h"
 
-#include "render/PrimType.h"
+#include "gl/PrimType.h"
 
 #include "kd/contracts.h"
 
 #include <algorithm>
 
-namespace tb::render
+namespace tb::gl
 {
 
 MaterialIndexArrayMapBuilder::MaterialIndexArrayMapBuilder(
@@ -45,20 +45,20 @@ MaterialIndexArrayMap& MaterialIndexArrayMapBuilder::ranges()
   return m_ranges;
 }
 
-void MaterialIndexArrayMapBuilder::addPoint(const gl::Material* material, const Index i)
+void MaterialIndexArrayMapBuilder::addPoint(const Material* material, const Index i)
 {
   const auto offset = m_ranges.add(material, PrimType::Points, 1);
   m_indices[offset] = i;
 }
 
 void MaterialIndexArrayMapBuilder::addPoints(
-  const gl::Material* material, const IndexList& indices)
+  const Material* material, const IndexList& indices)
 {
   add(material, PrimType::Points, indices);
 }
 
 void MaterialIndexArrayMapBuilder::addLine(
-  const gl::Material* material, const Index i1, const Index i2)
+  const Material* material, const Index i1, const Index i2)
 {
   const size_t offset = m_ranges.add(material, PrimType::Lines, 2);
   m_indices[offset + 0] = i1;
@@ -66,7 +66,7 @@ void MaterialIndexArrayMapBuilder::addLine(
 }
 
 void MaterialIndexArrayMapBuilder::addLines(
-  const gl::Material* material, const IndexList& indices)
+  const Material* material, const IndexList& indices)
 {
   contract_pre(indices.size() % 2 == 0);
 
@@ -74,7 +74,7 @@ void MaterialIndexArrayMapBuilder::addLines(
 }
 
 void MaterialIndexArrayMapBuilder::addTriangle(
-  const gl::Material* material, const Index i1, const Index i2, const Index i3)
+  const Material* material, const Index i1, const Index i2, const Index i3)
 {
   const size_t offset = m_ranges.add(material, PrimType::Triangles, 3);
   m_indices[offset + 0] = i1;
@@ -83,7 +83,7 @@ void MaterialIndexArrayMapBuilder::addTriangle(
 }
 
 void MaterialIndexArrayMapBuilder::addTriangles(
-  const gl::Material* material, const IndexList& indices)
+  const Material* material, const IndexList& indices)
 {
   contract_pre(indices.size() % 3 == 0);
 
@@ -91,7 +91,7 @@ void MaterialIndexArrayMapBuilder::addTriangles(
 }
 
 void MaterialIndexArrayMapBuilder::addQuad(
-  const gl::Material* material,
+  const Material* material,
   const Index,
   const Index i1,
   const Index i2,
@@ -106,7 +106,7 @@ void MaterialIndexArrayMapBuilder::addQuad(
 }
 
 void MaterialIndexArrayMapBuilder::addQuads(
-  const gl::Material* material, const IndexList& indices)
+  const Material* material, const IndexList& indices)
 {
   contract_pre(indices.size() % 4 == 0);
 
@@ -114,7 +114,7 @@ void MaterialIndexArrayMapBuilder::addQuads(
 }
 
 void MaterialIndexArrayMapBuilder::addQuads(
-  const gl::Material* material, const Index baseIndex, const size_t vertexCount)
+  const Material* material, const Index baseIndex, const size_t vertexCount)
 {
   contract_pre(vertexCount % 4 == 0);
 
@@ -130,7 +130,7 @@ void MaterialIndexArrayMapBuilder::addQuads(
 }
 
 void MaterialIndexArrayMapBuilder::addPolygon(
-  const gl::Material* material, const IndexList& indices)
+  const Material* material, const IndexList& indices)
 {
   const auto count = indices.size();
 
@@ -148,7 +148,7 @@ void MaterialIndexArrayMapBuilder::addPolygon(
 }
 
 void MaterialIndexArrayMapBuilder::addPolygon(
-  const gl::Material* material, const Index baseIndex, const size_t vertexCount)
+  const Material* material, const Index baseIndex, const size_t vertexCount)
 {
   auto polyIndices = IndexList{};
   polyIndices.reserve(3 * (vertexCount - 2));
@@ -164,7 +164,7 @@ void MaterialIndexArrayMapBuilder::addPolygon(
 }
 
 void MaterialIndexArrayMapBuilder::add(
-  const gl::Material* material, const PrimType primType, const IndexList& indices)
+  const Material* material, const PrimType primType, const IndexList& indices)
 {
   const auto offset = m_ranges.add(material, primType, indices.size());
   auto dest = std::begin(m_indices);
@@ -172,4 +172,4 @@ void MaterialIndexArrayMapBuilder::add(
   std::ranges::copy(indices, dest);
 }
 
-} // namespace tb::render
+} // namespace tb::gl

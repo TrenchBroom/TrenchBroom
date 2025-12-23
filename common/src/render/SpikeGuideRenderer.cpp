@@ -20,9 +20,9 @@
 #include "SpikeGuideRenderer.h"
 
 #include "gl/ActiveShader.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/VboManager.h"
-#include "render/PrimType.h"
 #include "render/RenderContext.h"
 
 #include "vm/ray.h"
@@ -46,7 +46,7 @@ void SpikeGuideRenderer::add(const vm::ray3d& ray)
 void SpikeGuideRenderer::clear()
 {
   m_spikeVertices.clear();
-  m_spikeArray = VertexArray{};
+  m_spikeArray = gl::VertexArray{};
   m_valid = true;
 }
 
@@ -63,7 +63,7 @@ void SpikeGuideRenderer::doRender(RenderContext& renderContext)
 {
   auto shader =
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPCShader};
-  m_spikeArray.render(PrimType::Lines);
+  m_spikeArray.render(gl::PrimType::Lines);
 }
 
 void SpikeGuideRenderer::addSpike(const vm::ray3d& ray)
@@ -83,7 +83,7 @@ void SpikeGuideRenderer::addSpike(const vm::ray3d& ray)
 
 void SpikeGuideRenderer::validate()
 {
-  m_spikeArray = VertexArray::move(std::move(m_spikeVertices));
+  m_spikeArray = gl::VertexArray::move(std::move(m_spikeVertices));
   m_valid = true;
 }
 

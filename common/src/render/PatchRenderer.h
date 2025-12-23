@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Color.h"
+#include "gl/MaterialIndexArrayRenderer.h"
 #include "render/EdgeRenderer.h"
-#include "render/MaterialIndexArrayRenderer.h"
 #include "render/Renderable.h"
 
 #include "kd/vector_set.h"
@@ -47,7 +47,7 @@ private:
   bool m_valid = true;
   kdl::vector_set<const mdl::PatchNode*> m_patchNodes;
 
-  MaterialIndexArrayRenderer m_patchMeshRenderer;
+  gl::MaterialIndexArrayRenderer m_patchMeshRenderer;
   DirectEdgeRenderer m_edgeRenderer;
 
   Color m_defaultColor;

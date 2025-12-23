@@ -52,27 +52,6 @@ void coordinateSystemVerticesY(
 void coordinateSystemVerticesZ(
   const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
 
-class MaterialRenderFunc
-{
-public:
-  virtual ~MaterialRenderFunc();
-  virtual void before(const gl::Material* material);
-  virtual void after(const gl::Material* material);
-};
-
-class DefaultMaterialRenderFunc : public MaterialRenderFunc
-{
-private:
-  int m_minFilter;
-  int m_magFilter;
-
-public:
-  DefaultMaterialRenderFunc(int minFilter, int magFilter);
-
-  void before(const gl::Material* material) override;
-  void after(const gl::Material* material) override;
-};
-
 std::vector<vm::vec2f> circle2D(float radius, size_t segments);
 std::vector<vm::vec2f> circle2D(
   float radius, float startAngle, float angleLength, size_t segments);

@@ -19,19 +19,13 @@
 
 #pragma once
 
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/VertexArray.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/VertexArray.h"
 
-namespace tb
-{
-namespace gl
+namespace tb::gl
 {
 class VboManager;
-}
-
-namespace render
-{
 
 class IndexRangeRenderer
 {
@@ -50,9 +44,8 @@ public:
 
   IndexRangeRenderer(VertexArray vertexArray, IndexRangeMap indexArray);
 
-  void prepare(gl::VboManager& vboManager);
+  void prepare(VboManager& vboManager);
   void render();
 };
 
-} // namespace render
-} // namespace tb
+} // namespace tb::gl

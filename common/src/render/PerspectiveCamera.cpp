@@ -21,12 +21,12 @@
 
 #include "Color.h"
 #include "gl/ActiveShader.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/VboManager.h"
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
-#include "render/PrimType.h"
 #include "render/RenderContext.h"
-#include "render/VertexArray.h"
 
 #include "kd/contracts.h"
 
@@ -170,16 +170,16 @@ void PerspectiveCamera::doRenderFrustum(
     lineVertices.emplace_back(verts[vm::succ(i, 4)], color.to<RgbaF>().toVec());
   }
 
-  auto triangleArray = VertexArray::ref(triangleVertices);
-  auto lineArray = VertexArray::ref(lineVertices);
+  auto triangleArray = gl::VertexArray::ref(triangleVertices);
+  auto lineArray = gl::VertexArray::ref(lineVertices);
 
   triangleArray.prepare(vboManager);
   lineArray.prepare(vboManager);
 
   auto shader =
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPCShader};
-  triangleArray.render(PrimType::TriangleFan);
-  lineArray.render(PrimType::Lines);
+  triangleArray.render(gl::PrimType::TriangleFan);
+  lineArray.render(gl::PrimType::Lines);
 }
 
 float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) const

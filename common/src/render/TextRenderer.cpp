@@ -22,10 +22,10 @@
 #include "gl/ActiveShader.h"
 #include "gl/AttrString.h"
 #include "gl/FontManager.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/TextureFont.h"
 #include "render/Camera.h"
-#include "render/PrimType.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
 #include "render/TextAnchor.h"
@@ -207,8 +207,8 @@ void TextRenderer::prepare(
     addEntry(entry, onTop, textVertices, rectVertices);
   }
 
-  collection.textArray = VertexArray::move(std::move(textVertices));
-  collection.rectArray = VertexArray::move(std::move(rectVertices));
+  collection.textArray = gl::VertexArray::move(std::move(textVertices));
+  collection.rectArray = gl::VertexArray::move(std::move(rectVertices));
 
   collection.textArray.prepare(vboManager);
   collection.rectArray.prepare(vboManager);
@@ -278,7 +278,7 @@ void TextRenderer::render(EntryCollection& collection, RenderContext& renderCont
 
   auto backgroundShader =
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::TextBackgroundShader};
-  collection.rectArray.render(PrimType::Triangles);
+  collection.rectArray.render(gl::PrimType::Triangles);
 
   glAssert(glEnable(GL_TEXTURE_2D));
 
@@ -286,7 +286,7 @@ void TextRenderer::render(EntryCollection& collection, RenderContext& renderCont
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::ColoredTextShader};
   textShader.set("Texture", 0);
   font.activate();
-  collection.textArray.render(PrimType::Quads);
+  collection.textArray.render(gl::PrimType::Quads);
   font.deactivate();
 }
 

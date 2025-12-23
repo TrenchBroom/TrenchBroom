@@ -37,6 +37,11 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class MaterialRenderer;
+}
+
 namespace mdl
 {
 enum class EntityDefinitionSortOrder;
@@ -48,7 +53,6 @@ struct EntityDefinition;
 namespace render
 {
 class FontDescriptor;
-class MaterialRenderer;
 class Transformation;
 } // namespace render
 
@@ -60,7 +64,7 @@ using EntityGroupData = std::string;
 
 struct EntityCellData
 {
-  using EntityRenderer = render::MaterialRenderer;
+  using EntityRenderer = gl::MaterialRenderer;
   const mdl::EntityDefinition& entityDefinition;
   EntityRenderer* modelRenderer;
   mdl::Orientation modelOrientation;
@@ -74,7 +78,7 @@ class EntityBrowserView : public CellView
 {
   Q_OBJECT
 private:
-  using EntityRenderer = render::MaterialRenderer;
+  using EntityRenderer = gl::MaterialRenderer;
 
   using TextVertex = gl::VertexTypes::P2UV2C4::Vertex;
   using StringMap = std::map<gl::FontDescriptor, std::vector<TextVertex>>;

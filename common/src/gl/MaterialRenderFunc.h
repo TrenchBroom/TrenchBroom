@@ -19,42 +19,29 @@
 
 #pragma once
 
-#include "gl/VertexArray.h"
-#include "gl/VertexType.h"
-#include "render/Renderable.h"
-
-#include "vm/bbox.h"
-
-#include <vector>
-
-namespace tb
+namespace tb::gl
 {
-namespace gl
-{
-class VboManager;
-}
+class Material;
 
-namespace render
+class MaterialRenderFunc
 {
-class OrthographicCamera;
-class RenderContext;
-
-class GridRenderer : public DirectRenderable
-{
-private:
-  using Vertex = gl::VertexTypes::P3::Vertex;
-  gl::VertexArray m_vertexArray;
-
 public:
-  GridRenderer(const OrthographicCamera& camera, const vm::bbox3d& worldBounds);
-
-private:
-  static std::vector<Vertex> vertices(
-    const OrthographicCamera& camera, const vm::bbox3d& worldBounds);
-
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
+  virtual ~MaterialRenderFunc();
+  virtual void before(const Material* material);
+  virtual void after(const Material* material);
 };
 
-} // namespace render
-} // namespace tb
+class DefaultMaterialRenderFunc : public MaterialRenderFunc
+{
+private:
+  int m_minFilter;
+  int m_magFilter;
+
+public:
+  DefaultMaterialRenderFunc(int minFilter, int magFilter);
+
+  void before(const Material* material) override;
+  void after(const Material* material) override;
+};
+
+} // namespace tb::gl

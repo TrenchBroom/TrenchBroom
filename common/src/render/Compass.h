@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "render/IndexRangeRenderer.h"
+#include "gl/IndexRangeRenderer.h"
 #include "render/Renderable.h"
 
 
@@ -38,9 +38,9 @@ private:
   static const float m_headLength;
   static const float m_headRadius;
 
-  IndexRangeRenderer m_arrowRenderer;
-  IndexRangeRenderer m_backgroundRenderer;
-  IndexRangeRenderer m_backgroundOutlineRenderer;
+  gl::IndexRangeRenderer m_arrowRenderer;
+  gl::IndexRangeRenderer m_backgroundRenderer;
+  gl::IndexRangeRenderer m_backgroundOutlineRenderer;
   bool m_prepared = false;
 
 public:

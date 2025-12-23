@@ -20,12 +20,12 @@
 #pragma once
 
 #include "gl/GL.h"
+#include "gl/PrimType.h"
 #include "gl/ShaderManager.h" // IWYU pragma: keep
 #include "gl/Vbo.h"
 #include "gl/VboManager.h"
 #include "gl/VertexType.h"
 #include "render/AllocationTracker.h"
-#include "render/PrimType.h"
 
 #include "kd/contracts.h"
 
@@ -233,7 +233,7 @@ public:
    */
   explicit IndexHolder(std::vector<Index>& elements);
   void zeroRange(size_t offsetWithinBlock, size_t count);
-  void render(PrimType primType, size_t offset, size_t count) const;
+  void render(gl::PrimType primType, size_t offset, size_t count) const;
 
   static std::shared_ptr<IndexHolder> swap(std::vector<Index>& elements);
 };
@@ -275,7 +275,7 @@ public:
    */
   void zeroElementsWithKey(AllocationTracker::Block* key);
 
-  void render(PrimType primType) const;
+  void render(gl::PrimType primType) const;
   bool prepared() const;
   void prepare(gl::VboManager& vboManager);
 

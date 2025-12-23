@@ -29,16 +29,16 @@
 #include "gl/Material.h"
 #include "gl/MaterialCollection.h"
 #include "gl/MaterialManager.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/Texture.h"
 #include "gl/TextureFont.h"
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Selection.h"
-#include "render/PrimType.h"
 #include "render/Transformation.h"
-#include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
@@ -353,12 +353,12 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
     }
   }
 
-  auto vertexArray = render::VertexArray::move(std::move(vertices));
+  auto vertexArray = gl::VertexArray::move(std::move(vertices));
   auto shader =
     gl::ActiveShader{shaderManager(), gl::Shaders::MaterialBrowserBorderShader};
 
   vertexArray.prepare(vboManager());
-  vertexArray.render(render::PrimType::Quads);
+  vertexArray.render(gl::PrimType::Quads);
 }
 
 const Color& MaterialBrowserView::materialColor(const gl::Material& material) const
@@ -397,7 +397,7 @@ void MaterialBrowserView::renderMaterials(
             const auto& bounds = cell.itemBounds();
             const auto& material = cellData(cell);
 
-            auto vertexArray = render::VertexArray::move(std::vector<Vertex>{
+            auto vertexArray = gl::VertexArray::move(std::vector<Vertex>{
               Vertex{{bounds.left(), height - (bounds.top() - y)}, {0, 0}},
               Vertex{{bounds.left(), height - (bounds.bottom() - y)}, {0, 1}},
               Vertex{{bounds.right(), height - (bounds.bottom() - y)}, {1, 1}},
@@ -408,7 +408,7 @@ void MaterialBrowserView::renderMaterials(
               pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
 
             vertexArray.prepare(vboManager());
-            vertexArray.render(render::PrimType::Quads);
+            vertexArray.render(gl::PrimType::Quads);
 
             material.deactivate();
           }

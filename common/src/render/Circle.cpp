@@ -19,8 +19,8 @@
 
 #include "Circle.h"
 
+#include "gl/PrimType.h"
 #include "gl/VertexType.h"
-#include "render/PrimType.h"
 #include "render/RenderUtils.h"
 
 #include "kd/contracts.h"
@@ -98,7 +98,7 @@ void Circle::prepare(gl::VboManager& vboManager)
 
 void Circle::render()
 {
-  m_array.render(m_filled ? PrimType::TriangleFan : PrimType::LineLoop);
+  m_array.render(m_filled ? gl::PrimType::TriangleFan : gl::PrimType::LineLoop);
 }
 
 void Circle::init2D(
@@ -114,7 +114,8 @@ void Circle::init2D(
   {
     positions.push_back(vm::vec2f{0, 0});
   }
-  m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
+  m_array =
+    gl::VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
 
 void Circle::init3D(
@@ -131,7 +132,8 @@ void Circle::init3D(
   {
     positions.emplace_back(vm::vec3f{0, 0, 0});
   }
-  m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
+  m_array =
+    gl::VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
 
 } // namespace tb::render

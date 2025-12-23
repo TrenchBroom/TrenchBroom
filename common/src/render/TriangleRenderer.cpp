@@ -30,13 +30,15 @@ namespace tb::render
 {
 TriangleRenderer::TriangleRenderer() = default;
 
-TriangleRenderer::TriangleRenderer(VertexArray vertexArray, IndexRangeMap indexArray)
+TriangleRenderer::TriangleRenderer(
+  gl::VertexArray vertexArray, gl::IndexRangeMap indexArray)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArray{std::move(indexArray)}
 {
 }
 
-TriangleRenderer::TriangleRenderer(VertexArray vertexArray, const PrimType primType)
+TriangleRenderer::TriangleRenderer(
+  gl::VertexArray vertexArray, const gl::PrimType primType)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArray{primType, 0, m_vertexArray.vertexCount()}
 {

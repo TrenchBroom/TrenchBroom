@@ -19,13 +19,13 @@
 
 #include "IndexArrayMapBuilder.h"
 
-#include "render/PrimType.h"
+#include "gl/PrimType.h"
 
 #include "kd/contracts.h"
 
 #include <algorithm>
 
-namespace tb::render
+namespace tb::gl
 {
 IndexArrayMapBuilder::IndexArrayMapBuilder(const IndexArrayMap::Size& size)
   : m_ranges{size}
@@ -159,4 +159,4 @@ void IndexArrayMapBuilder::add(const PrimType primType, const IndexList& indices
   std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
   std::ranges::copy(indices, dest);
 }
-} // namespace tb::render
+} // namespace tb::gl

@@ -23,6 +23,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/MaterialIndexRangeRenderer.h"
+#include "gl/MaterialRenderFunc.h"
 #include "gl/Shaders.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/EditorContext.h"
@@ -31,10 +33,8 @@
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "render/Camera.h"
-#include "render/MaterialIndexRangeRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 #include "render/Transformation.h"
 
 #include "vm/mat.h"
@@ -210,7 +210,7 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
 
       shader.set("ModelMatrix", transformation);
 
-      auto renderFunc = DefaultMaterialRenderFunc{
+      auto renderFunc = gl::DefaultMaterialRenderFunc{
         renderContext.minFilterMode(), renderContext.magFilterMode()};
       renderer->render(renderFunc);
     }

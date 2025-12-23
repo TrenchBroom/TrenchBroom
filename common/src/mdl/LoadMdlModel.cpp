@@ -20,10 +20,10 @@
 #include "LoadMdlModel.h"
 
 #include "fs/ReaderException.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
 #include "mdl/Palette.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
 
 #include "kd/path_utils.h"
 
@@ -146,11 +146,11 @@ void doParseFrame(
   const auto frameTriangles =
     makeFrameTriangles(triangles, vertices, positions, skinWidth, skinHeight);
 
-  auto size = render::IndexRangeMap::Size{};
-  size.inc(render::PrimType::Triangles, frameTriangles.size());
+  auto size = gl::IndexRangeMap::Size{};
+  size.inc(gl::PrimType::Triangles, frameTriangles.size());
 
-  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{
-    frameTriangles.size() * 3, size};
+  auto builder =
+    gl::IndexRangeMapBuilder<EntityModelVertex::Type>{frameTriangles.size() * 3, size};
   builder.addTriangles(frameTriangles);
 
   auto& frame = model.addFrame(std::move(name), bounds.bounds());

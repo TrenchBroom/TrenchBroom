@@ -19,11 +19,11 @@
 
 #include "MaterialIndexRangeMap.h"
 
-#include "render/RenderUtils.h"
+#include "gl/MaterialRenderFunc.h"
 
 #include "kd/contracts.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
 MaterialIndexRangeMap::Size::Size()
@@ -32,7 +32,7 @@ MaterialIndexRangeMap::Size::Size()
 }
 
 void MaterialIndexRangeMap::Size::inc(
-  const gl::Material* material, const PrimType primType, const size_t vertexCount)
+  const Material* material, const PrimType primType, const size_t vertexCount)
 {
   auto& sizeForKey = findCurrent(material);
   sizeForKey.inc(primType, vertexCount);
@@ -47,8 +47,7 @@ void MaterialIndexRangeMap::Size::inc(const MaterialIndexRangeMap::Size& other)
   }
 }
 
-IndexRangeMap::Size& MaterialIndexRangeMap::Size::findCurrent(
-  const gl::Material* material)
+IndexRangeMap::Size& MaterialIndexRangeMap::Size::findCurrent(const Material* material)
 {
   if (!isCurrent(material))
   {
@@ -58,7 +57,7 @@ IndexRangeMap::Size& MaterialIndexRangeMap::Size::findCurrent(
   return m_current->second;
 }
 
-bool MaterialIndexRangeMap::Size::isCurrent(const gl::Material* material) const
+bool MaterialIndexRangeMap::Size::isCurrent(const Material* material) const
 {
   if (m_current == std::end(m_sizes))
   {
@@ -91,14 +90,14 @@ MaterialIndexRangeMap::MaterialIndexRangeMap(const Size& size)
 }
 
 MaterialIndexRangeMap::MaterialIndexRangeMap(
-  const gl::Material* material, IndexRangeMap primitives)
+  const Material* material, IndexRangeMap primitives)
   : MaterialIndexRangeMap()
 {
   add(material, std::move(primitives));
 }
 
 MaterialIndexRangeMap::MaterialIndexRangeMap(
-  const gl::Material* material,
+  const Material* material,
   const PrimType primType,
   const size_t index,
   const size_t vertexCount)
@@ -108,7 +107,7 @@ MaterialIndexRangeMap::MaterialIndexRangeMap(
 }
 
 void MaterialIndexRangeMap::add(
-  const gl::Material* material,
+  const Material* material,
   const PrimType primType,
   const size_t index,
   const size_t vertexCount)
@@ -117,7 +116,7 @@ void MaterialIndexRangeMap::add(
   current.add(primType, index, vertexCount);
 }
 
-void MaterialIndexRangeMap::add(const gl::Material* material, IndexRangeMap primitives)
+void MaterialIndexRangeMap::add(const Material* material, IndexRangeMap primitives)
 {
   m_data->insert(std::make_pair(material, std::move(primitives)));
 }
@@ -142,7 +141,7 @@ void MaterialIndexRangeMap::render(VertexArray& vertexArray, MaterialRenderFunc&
 }
 
 void MaterialIndexRangeMap::forEachPrimitive(
-  std::function<void(const gl::Material*, PrimType, size_t, size_t)> func) const
+  std::function<void(const Material*, PrimType, size_t, size_t)> func) const
 {
   for (const auto& entry : *m_data)
   {
@@ -157,7 +156,7 @@ void MaterialIndexRangeMap::forEachPrimitive(
   }
 }
 
-IndexRangeMap& MaterialIndexRangeMap::findCurrent(const gl::Material* material)
+IndexRangeMap& MaterialIndexRangeMap::findCurrent(const Material* material)
 {
   if (!isCurrent(material))
   {
@@ -168,7 +167,7 @@ IndexRangeMap& MaterialIndexRangeMap::findCurrent(const gl::Material* material)
   return m_current->second;
 }
 
-bool MaterialIndexRangeMap::isCurrent(const gl::Material* material) const
+bool MaterialIndexRangeMap::isCurrent(const Material* material) const
 {
   if (m_current == m_data->end())
   {
@@ -179,4 +178,4 @@ bool MaterialIndexRangeMap::isCurrent(const gl::Material* material) const
   const auto* currentMaterial = m_current->first;
   return !cmp(material, currentMaterial) && !cmp(currentMaterial, material);
 }
-} // namespace tb::render
+} // namespace tb::gl

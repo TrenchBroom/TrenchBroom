@@ -19,23 +19,17 @@
 
 #pragma once
 
-#include "render/MaterialIndexRangeMap.h"
-#include "render/VertexArray.h"
+#include "gl/MaterialIndexRangeMap.h"
+#include "gl/VertexArray.h"
 
 #include <memory>
 #include <vector>
 
-namespace tb
-{
-namespace gl
+namespace tb::gl
 {
 class Material;
-class VboManager;
-} // namespace gl
-
-namespace render
-{
 class MaterialRenderFunc;
+class VboManager;
 
 class MaterialRenderer
 {
@@ -44,7 +38,7 @@ public:
 
   virtual bool empty() const = 0;
 
-  virtual void prepare(gl::VboManager& vboManager) = 0;
+  virtual void prepare(VboManager& vboManager) = 0;
   virtual void render(MaterialRenderFunc& func) = 0;
 };
 
@@ -58,12 +52,12 @@ public:
   MaterialIndexRangeRenderer();
   MaterialIndexRangeRenderer(VertexArray vertexArray, MaterialIndexRangeMap indexRange);
   MaterialIndexRangeRenderer(
-    VertexArray vertexArray, const gl::Material* material, IndexRangeMap indexRange);
+    VertexArray vertexArray, const Material* material, IndexRangeMap indexRange);
   ~MaterialIndexRangeRenderer() override;
 
   bool empty() const override;
 
-  void prepare(gl::VboManager& vboManager) override;
+  void prepare(VboManager& vboManager) override;
   void render(MaterialRenderFunc& func) override;
 };
 
@@ -79,9 +73,8 @@ public:
 
   bool empty() const override;
 
-  void prepare(gl::VboManager& vboManager) override;
+  void prepare(VboManager& vboManager) override;
   void render(MaterialRenderFunc& func) override;
 };
 
-} // namespace render
-} // namespace tb
+} // namespace tb::gl

@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "gl/GL.h"
 
-namespace tb::render
+namespace tb::gl
 {
 unsigned int toGL(const PrimType primType)
 {
@@ -52,4 +52,4 @@ unsigned int toGL(const PrimType primType)
   }
 }
 
-} // namespace tb::render
+} // namespace tb::gl

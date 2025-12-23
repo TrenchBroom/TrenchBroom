@@ -17,33 +17,42 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IndexRangeRenderer.h"
+#pragma once
 
-#include <utility>
+#include <cstddef>
 
-namespace tb::render
+namespace tb::gl
 {
-
-IndexRangeRenderer::IndexRangeRenderer() = default;
-
-IndexRangeRenderer::IndexRangeRenderer(VertexArray vertexArray, IndexRangeMap indexArray)
-  : m_vertexArray{std::move(vertexArray)}
-  , m_indexArray{std::move(indexArray)}
+enum class PrimType
 {
-}
+  Points,
+  Lines,
+  Triangles,
+  Quads,
+  LineStrip,
+  LineLoop,
+  TriangleFan,
+  TriangleStrip,
+  QuadStrip,
+  Polygon
+};
 
-void IndexRangeRenderer::prepare(gl::VboManager& vboManager)
-{
-  m_vertexArray.prepare(vboManager);
-}
+constexpr std::size_t PrimTypeCount = 10u;
+constexpr PrimType PrimTypeValues[PrimTypeCount] = {
+  PrimType::Points,
+  PrimType::Lines,
+  PrimType::Triangles,
+  PrimType::Quads,
+  PrimType::LineStrip,
+  PrimType::LineLoop,
+  PrimType::TriangleFan,
+  PrimType::TriangleStrip,
+  PrimType::QuadStrip,
+  PrimType::Polygon};
 
-void IndexRangeRenderer::render()
-{
-  if (m_vertexArray.setup())
-  {
-    m_indexArray.render(m_vertexArray);
-    m_vertexArray.cleanup();
-  }
-}
+/**
+ * Maps the given primitive type to its corresponding OpenGL enum.
+ */
+unsigned int toGL(PrimType primType);
 
-} // namespace tb::render
+} // namespace tb::gl

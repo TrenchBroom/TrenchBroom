@@ -19,19 +19,14 @@
 
 #pragma once
 
-#include "render/IndexArrayMap.h"
+#include "gl/IndexArrayMap.h"
 
 #include <unordered_map>
 
-namespace tb
-{
-namespace gl
+namespace tb::gl
 {
 class Material;
-}
 
-namespace render
-{
 class IndexArray;
 class MaterialRenderFunc;
 
@@ -43,7 +38,7 @@ class MaterialRenderFunc;
 class MaterialIndexArrayMap
 {
 private:
-  using MaterialToIndexArrayMap = std::unordered_map<const gl::Material*, IndexArrayMap>;
+  using MaterialToIndexArrayMap = std::unordered_map<const Material*, IndexArrayMap>;
 
 public:
   /**
@@ -55,7 +50,7 @@ public:
   private:
     friend class MaterialIndexArrayMap;
 
-    using MaterialToSize = std::unordered_map<const gl::Material*, IndexArrayMap::Size>;
+    using MaterialToSize = std::unordered_map<const Material*, IndexArrayMap::Size>;
     MaterialToSize m_sizes;
     size_t m_indexCount = 0;
 
@@ -67,7 +62,7 @@ public:
      * @param primType the primitive type
      * @param count the number of primitives to account for
      */
-    void inc(const gl::Material* material, PrimType primType, size_t count);
+    void inc(const Material* material, PrimType primType, size_t count);
 
     /**
      * Increase the storage by the given size.
@@ -75,7 +70,7 @@ public:
      * @param material the material
      * @param size the size to increment by
      */
-    void inc(const gl::Material* material, const IndexArrayMap::Size& size);
+    void inc(const Material* material, const IndexArrayMap::Size& size);
 
     /**
      * The total number of indices that have been accounted for.
@@ -126,7 +121,7 @@ public:
    * @return the offset of the next block that would be recorded for the given primitive
    * type
    */
-  size_t add(const gl::Material* material, PrimType primType, size_t count);
+  size_t add(const Material* material, PrimType primType, size_t count);
 
   /**
    * Renders the recorded primitives using the indices stored in the given index array.
@@ -140,5 +135,4 @@ public:
   void render(IndexArray& indexArray, MaterialRenderFunc& func);
 };
 
-} // namespace render
-} // namespace tb
+} // namespace tb::gl

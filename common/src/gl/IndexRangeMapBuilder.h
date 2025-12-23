@@ -19,20 +19,13 @@
 
 #pragma once
 
-#include "render/MaterialIndexRangeMap.h"
-#include "render/PrimType.h"
-#include "render/VertexListBuilder.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/PrimType.h"
+#include "gl/VertexListBuilder.h"
 
 #include <vector>
 
-namespace tb
-{
-namespace gl
-{
-class Material;
-}
-
-namespace render
+namespace tb::gl
 {
 
 /**
@@ -42,20 +35,25 @@ namespace render
  * ranges stored in the constructed index range map.
  */
 template <typename VertexSpec>
-class MaterialIndexRangeMapBuilder
+class IndexRangeMapBuilder
 {
-public:
+private:
   using Vertex = typename VertexSpec::Vertex;
   using VertexList = std::vector<Vertex>;
-
-private:
   using IndexData = typename VertexListBuilder<VertexSpec>::Range;
 
 private:
   VertexListBuilder<VertexSpec> m_vertexListBuilder;
-  MaterialIndexRangeMap m_indexRange;
+  IndexRangeMap m_indexRange;
 
 public:
+  /**
+   * Creates a new index range map builder that can grow dynamically to account for the
+   * recorded primitives. Be aware that dynamic growth my incur a performance cost as
+   * buffers are reallocated when their capacity is exhausted.
+   */
+  IndexRangeMapBuilder() = default; // default constructors allow dynamic growth
+
   /**
    * Creates a new index range map builder that initializes its data structures to the
    * given sizes.
@@ -63,10 +61,10 @@ public:
    * @param vertexCount the total number of vertices to expect
    * @param indexRangeSize the size of the index range map to expect
    */
-  MaterialIndexRangeMapBuilder(
-    const size_t vertexCount, const MaterialIndexRangeMap::Size& indexRangeSize)
-    : m_vertexListBuilder(vertexCount)
-    , m_indexRange(indexRangeSize)
+  IndexRangeMapBuilder(
+    const size_t vertexCount, const IndexRangeMap::Size& indexRangeSize)
+    : m_vertexListBuilder{vertexCount}
+    , m_indexRange{indexRangeSize}
   {
   }
 
@@ -89,200 +87,169 @@ public:
    *
    * @return the recorded index ranges
    */
-  const MaterialIndexRangeMap& indices() const { return m_indexRange; }
+  const IndexRangeMap& indices() const { return m_indexRange; }
 
   /**
    * Returns the recorded index ranges.
    *
    * @return the recorded index ranges
    */
-  MaterialIndexRangeMap& indices() { return m_indexRange; }
+  IndexRangeMap& indices() { return m_indexRange; }
 
   /**
    * Adds a point primitive at the given position.
    *
-   * @param material the material to use
    * @param v the position of the point to add
    */
-  void addPoint(const gl::Material* material, const Vertex& v)
+  void addPoint(const Vertex& v)
   {
-    add(material, render::PrimType::Points, m_vertexListBuilder.addPoint(v));
+    add(PrimType::Points, m_vertexListBuilder.addPoint(v));
   }
 
   /**
    * Adds multiple point primitives at the given positions.
    *
-   * @param material the material to use
    * @param vertices the positions of the points to add
    */
-  void addPoints(const gl::Material* material, const VertexList& vertices)
+  void addPoints(const VertexList& vertices)
   {
-    add(material, render::PrimType::Points, m_vertexListBuilder.addPoints(vertices));
+    add(PrimType::Points, m_vertexListBuilder.addPoints(vertices));
   }
 
   /**
    * Adds a line with the given end points.
    *
-   * @param material the material to use
    * @param v1 the position of the first end point
    * @param v2 the position of the second end point
    */
-  void addLine(const gl::Material* material, const Vertex& v1, const Vertex& v2)
+  void addLine(const Vertex& v1, const Vertex& v2)
   {
-    add(material, render::PrimType::Lines, m_vertexListBuilder.addLine(v1, v2));
+    add(PrimType::Lines, m_vertexListBuilder.addLine(v1, v2));
   }
 
   /**
    * Adds multiple lines with the given endpoints. Each line to be added consists of two
    * consecutive of the given list, so for each line, two elements of the list are used.
    *
-   * @param material the material to use
    * @param vertices the end points of the lines to add
    */
-  void addLines(const gl::Material* material, const VertexList& vertices)
+  void addLines(const VertexList& vertices)
   {
-    add(material, render::PrimType::Lines, m_vertexListBuilder.addLines(vertices));
+    add(PrimType::Lines, m_vertexListBuilder.addLines(vertices));
   }
 
   /**
    * Adds a line strip with the given points.
    *
-   * @param material the material to use
    * @param vertices the end points of the lines to add
    */
-  void addLineStrip(const gl::Material* material, const VertexList& vertices)
+  void addLineStrip(const VertexList& vertices)
   {
-    add(
-      material, render::PrimType::LineStrip, m_vertexListBuilder.addLineStrip(vertices));
+    add(PrimType::LineStrip, m_vertexListBuilder.addLineStrip(vertices));
   }
 
   /**
    * Adds a line loop with the given points.
    *
-   * @param material the material to use
    * @param vertices the end points of the lines to add
    */
-  void addLineLoop(const gl::Material* material, const VertexList& vertices)
+  void addLineLoop(const VertexList& vertices)
   {
-    add(material, render::PrimType::LineLoop, m_vertexListBuilder.addLineLoop(vertices));
+    add(PrimType::LineLoop, m_vertexListBuilder.addLineLoop(vertices));
   }
 
   /**
    * Adds a triangle with the given corners.
    *
-   * @param material the material to use
    * @param v1 the position of the first corner
    * @param v2 the position of the second corner
    * @param v3 the position of the third corner
    */
-  void addTriangle(
-    const gl::Material* material, const Vertex& v1, const Vertex& v2, const Vertex& v3)
+  void addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3)
   {
-    add(
-      material, render::PrimType::Triangles, m_vertexListBuilder.addTriangle(v1, v2, v3));
+    add(PrimType::Triangles, m_vertexListBuilder.addTriangle(v1, v2, v3));
   }
 
   /**
-   * Adds multiple triangles using the corner positions in the given list. For
-   * each triangle, three positions are used.
+   * Adds multiple triangles using the corner positions in the given list. For each
+   * triangle, three positions are used.
    *
-   * @param material the material to use
    * @param vertices the corner positions
    */
-  void addTriangles(const gl::Material* material, const VertexList& vertices)
+  void addTriangles(const VertexList& vertices)
   {
-    add(
-      material, render::PrimType::Triangles, m_vertexListBuilder.addTriangles(vertices));
+    add(PrimType::Triangles, m_vertexListBuilder.addTriangles(vertices));
   }
 
   /**
    * Adds a triangle fan using the positions of the vertices in the given list.
    *
-   * @param material the material to use
    * @param vertices the vertex positions
    */
-  void addTriangleFan(const gl::Material* material, const VertexList& vertices)
+  void addTriangleFan(const VertexList& vertices)
   {
-    add(
-      material,
-      render::PrimType::TriangleFan,
-      m_vertexListBuilder.addTriangleFan(vertices));
+    add(PrimType::TriangleFan, m_vertexListBuilder.addTriangleFan(vertices));
   }
 
   /**
    * Adds a triangle strip using the positions of the vertices in the given list.
    *
-   * @param material the material to use
    * @param vertices the vertex positions
    */
-  void addTriangleStrip(const gl::Material* material, const VertexList& vertices)
+  void addTriangleStrip(const VertexList& vertices)
   {
-    add(
-      material,
-      render::PrimType::TriangleStrip,
-      m_vertexListBuilder.addTriangleStrip(vertices));
+    add(PrimType::TriangleStrip, m_vertexListBuilder.addTriangleStrip(vertices));
   }
 
   /**
    * Adds a quad with the given corners.
    *
-   * @param material the material to use
    * @param v1 the position of the first corner
    * @param v2 the position of the second corner
    * @param v3 the position of the third corner
    * @param v4 the position of the fourth corner
    */
-  void addQuad(
-    const gl::Material* material,
-    const Vertex& v1,
-    const Vertex& v2,
-    const Vertex& v3,
-    const Vertex& v4)
+  void addQuad(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4)
   {
-    add(material, render::PrimType::Quads, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
+    add(PrimType::Quads, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
   }
 
   /**
-   * Adds multiple quads using the corner positions in the given list. For each
-   * quad, four positions are used.
+   * Adds multiple quads using the corner positions in the given list. For each quad, four
+   * positions are used.
    *
-   * @param material the material to use
    * @param vertices the corner positions
    */
-  void addQuads(const gl::Material* material, const VertexList& vertices)
+  void addQuads(const VertexList& vertices)
   {
-    add(material, render::PrimType::Quads, m_vertexListBuilder.addQuads(vertices));
+    add(PrimType::Quads, m_vertexListBuilder.addQuads(vertices));
   }
 
   /**
    * Adds a quad strip using the positions of the vertices in the given list.
    *
-   * @param material the material to use
    * @param vertices the vertex positions
    */
-  void addQuadStrip(const gl::Material* material, const VertexList& vertices)
+  void addQuadStrip(const VertexList& vertices)
   {
-    add(
-      material, render::PrimType::QuadStrip, m_vertexListBuilder.addQuadStrip(vertices));
+    add(PrimType::QuadStrip, m_vertexListBuilder.addQuadStrip(vertices));
   }
 
   /**
    * Adds a polygon with the given corners.
    *
-   * @param material the material to use
    * @param vertices the croner positions
    */
-  void addPolygon(const gl::Material* material, const VertexList& vertices)
+  void addPolygon(const VertexList& vertices)
   {
-    add(material, render::PrimType::Polygon, m_vertexListBuilder.addPolygon(vertices));
+    add(PrimType::Polygon, m_vertexListBuilder.addPolygon(vertices));
   }
 
 private:
-  void add(const gl::Material* material, const PrimType primType, const IndexData& data)
+  void add(const PrimType primType, const IndexData& data)
   {
-    m_indexRange.add(material, primType, data.index, data.count);
+    m_indexRange.add(primType, data.index, data.count);
   }
 };
 
-} // namespace render
-} // namespace tb
+} // namespace tb::gl

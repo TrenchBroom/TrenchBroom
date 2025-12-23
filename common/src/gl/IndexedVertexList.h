@@ -26,7 +26,7 @@
 
 #include <vector>
 
-namespace tb::render
+namespace tb::gl
 {
 
 template <typename T>
@@ -145,4 +145,4 @@ public:
   }
 };
 
-} // namespace tb::render
+} // namespace tb::gl

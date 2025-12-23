@@ -94,7 +94,8 @@ void IndexHolder::zeroRange(const size_t offsetWithinBlock, const size_t count)
   std::memset(dest, 0, count * sizeof(Index));
 }
 
-void IndexHolder::render(const PrimType primType, const size_t offset, size_t count) const
+void IndexHolder::render(
+  const gl::PrimType primType, const size_t offset, size_t count) const
 {
   const auto renderCount = static_cast<GLsizei>(count);
   const auto* renderOffset =
@@ -153,7 +154,7 @@ void BrushIndexArray::zeroElementsWithKey(AllocationTracker::Block* key)
   m_indexHolder.zeroRange(pos, size);
 }
 
-void BrushIndexArray::render(const PrimType primType) const
+void BrushIndexArray::render(const gl::PrimType primType) const
 {
   contract_pre(m_indexHolder.prepared());
 

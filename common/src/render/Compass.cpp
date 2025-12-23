@@ -22,17 +22,17 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/Vertex.h"
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "render/Camera.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
 #include "render/Transformation.h"
-#include "render/VertexArray.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -152,18 +152,18 @@ void Compass::makeArrows()
 
   const auto vertexCount = shaftVertices.size() + headVertices.size()
                            + shaftCapVertices.size() + headCapVertices.size();
-  auto indexArraySize = IndexRangeMap::Size{};
-  indexArraySize.inc(PrimType::TriangleStrip);
-  indexArraySize.inc(PrimType::TriangleFan, 2);
-  indexArraySize.inc(PrimType::Triangles, headVertices.size() / 3);
+  auto indexArraySize = gl::IndexRangeMap::Size{};
+  indexArraySize.inc(gl::PrimType::TriangleStrip);
+  indexArraySize.inc(gl::PrimType::TriangleFan, 2);
+  indexArraySize.inc(gl::PrimType::Triangles, headVertices.size() / 3);
 
-  auto builder = IndexRangeMapBuilder<Vertex::Type>{vertexCount, indexArraySize};
+  auto builder = gl::IndexRangeMapBuilder<Vertex::Type>{vertexCount, indexArraySize};
   builder.addTriangleStrip(shaftVertices);
   builder.addTriangleFan(shaftCapVertices);
   builder.addTriangleFan(headCapVertices);
   builder.addTriangles(headVertices);
 
-  m_arrowRenderer = IndexRangeRenderer{builder};
+  m_arrowRenderer = gl::IndexRangeRenderer{builder};
 }
 
 void Compass::makeBackground()
@@ -173,22 +173,22 @@ void Compass::makeBackground()
     (m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::two_pi(), m_segments);
   auto verts = Vertex::toList(circ.size(), std::begin(circ));
 
-  auto backgroundSize = IndexRangeMap::Size{};
-  backgroundSize.inc(PrimType::TriangleFan);
+  auto backgroundSize = gl::IndexRangeMap::Size{};
+  backgroundSize.inc(gl::PrimType::TriangleFan);
 
   auto backgroundBuilder =
-    IndexRangeMapBuilder<Vertex::Type>{verts.size(), backgroundSize};
+    gl::IndexRangeMapBuilder<Vertex::Type>{verts.size(), backgroundSize};
   backgroundBuilder.addTriangleFan(verts);
 
-  m_backgroundRenderer = IndexRangeRenderer{backgroundBuilder};
+  m_backgroundRenderer = gl::IndexRangeRenderer{backgroundBuilder};
 
-  auto outlineSize = IndexRangeMap::Size{};
-  outlineSize.inc(PrimType::LineLoop);
+  auto outlineSize = gl::IndexRangeMap::Size{};
+  outlineSize.inc(gl::PrimType::LineLoop);
 
-  auto outlineBuilder = IndexRangeMapBuilder<Vertex::Type>{verts.size(), outlineSize};
+  auto outlineBuilder = gl::IndexRangeMapBuilder<Vertex::Type>{verts.size(), outlineSize};
   outlineBuilder.addLineLoop(verts);
 
-  m_backgroundOutlineRenderer = IndexRangeRenderer{outlineBuilder};
+  m_backgroundOutlineRenderer = gl::IndexRangeRenderer{outlineBuilder};
 }
 
 vm::mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const

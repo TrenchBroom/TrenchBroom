@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Color.h"
+#include "gl/IndexRangeRenderer.h"
 #include "gl/VertexType.h"
-#include "render/IndexRangeRenderer.h"
 #include "render/Renderable.h"
 
 #include "vm/bbox.h"
@@ -34,13 +34,13 @@ namespace tb
 namespace gl
 {
 class ActiveShader;
-}
-
-namespace render
-{
 template <typename VertexSpec>
 class IndexRangeMapBuilder;
 class IndexRangeRenderer;
+} // namespace gl
+
+namespace render
+{
 
 enum class PrimitiveRendererOcclusionPolicy
 {
@@ -71,13 +71,14 @@ private:
     bool operator==(const LineRenderAttributes& other) const;
 
     void render(
-      IndexRangeRenderer& renderer, gl::ActiveShader& shader, float dpiScale) const;
+      gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader, float dpiScale) const;
   };
 
-  using LineMeshMap = std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Type>>;
+  using LineMeshMap =
+    std::map<LineRenderAttributes, gl::IndexRangeMapBuilder<Vertex::Type>>;
   LineMeshMap m_lineMeshes;
 
-  using LineMeshRendererMap = std::map<LineRenderAttributes, IndexRangeRenderer>;
+  using LineMeshRendererMap = std::map<LineRenderAttributes, gl::IndexRangeRenderer>;
   LineMeshRendererMap m_lineMeshRenderers;
 
   class TriangleRenderAttributes
@@ -96,14 +97,15 @@ private:
     std::partial_ordering operator<=>(const TriangleRenderAttributes& other) const;
     bool operator==(const TriangleRenderAttributes& other) const;
 
-    void render(IndexRangeRenderer& renderer, gl::ActiveShader& shader) const;
+    void render(gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader) const;
   };
 
   using TriangleMeshMap =
-    std::map<TriangleRenderAttributes, IndexRangeMapBuilder<Vertex::Type>>;
+    std::map<TriangleRenderAttributes, gl::IndexRangeMapBuilder<Vertex::Type>>;
   TriangleMeshMap m_triangleMeshes;
 
-  using TriangleMeshRendererMap = std::map<TriangleRenderAttributes, IndexRangeRenderer>;
+  using TriangleMeshRendererMap =
+    std::map<TriangleRenderAttributes, gl::IndexRangeRenderer>;
   TriangleMeshRendererMap m_triangleMeshRenderers;
 
 public:

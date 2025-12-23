@@ -19,11 +19,11 @@
 
 #include "MaterialIndexArrayMap.h"
 
-#include "render/RenderUtils.h"
+#include "gl/MaterialRenderFunc.h"
 
 #include "kd/contracts.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
 size_t MaterialIndexArrayMap::Size::indexCount() const
@@ -32,14 +32,14 @@ size_t MaterialIndexArrayMap::Size::indexCount() const
 }
 
 void MaterialIndexArrayMap::Size::inc(
-  const gl::Material* material, const PrimType primType, const size_t count)
+  const Material* material, const PrimType primType, const size_t count)
 {
   m_sizes[material].inc(primType, count);
   m_indexCount += count;
 }
 
 void MaterialIndexArrayMap::Size::inc(
-  const gl::Material* material, const IndexArrayMap::Size& size)
+  const Material* material, const IndexArrayMap::Size& size)
 {
   m_sizes[material].inc(size);
   m_indexCount += size.indexCount();
@@ -74,7 +74,7 @@ MaterialIndexArrayMap::Size MaterialIndexArrayMap::size() const
 }
 
 size_t MaterialIndexArrayMap::add(
-  const gl::Material* material, const PrimType primType, const size_t count)
+  const Material* material, const PrimType primType, const size_t count)
 {
   auto it = m_ranges.find(material);
   contract_assert(it != std::end(m_ranges));
@@ -91,4 +91,4 @@ void MaterialIndexArrayMap::render(IndexArray& indexArray, MaterialRenderFunc& f
   }
 }
 
-} // namespace tb::render
+} // namespace tb::gl

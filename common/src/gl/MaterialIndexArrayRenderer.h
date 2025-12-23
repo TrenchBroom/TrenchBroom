@@ -19,40 +19,31 @@
 
 #pragma once
 
-#include <cstddef>
+#include "gl/IndexArray.h"
+#include "gl/MaterialIndexArrayMap.h"
+#include "gl/VertexArray.h"
 
-namespace tb::render
+namespace tb::gl
 {
-enum class PrimType
+class MaterialRenderFunc;
+class VboManager;
+
+class MaterialIndexArrayRenderer
 {
-  Points,
-  Lines,
-  Triangles,
-  Quads,
-  LineStrip,
-  LineLoop,
-  TriangleFan,
-  TriangleStrip,
-  QuadStrip,
-  Polygon
+private:
+  VertexArray m_vertexArray;
+  IndexArray m_indexArray;
+  MaterialIndexArrayMap m_indexRanges;
+
+public:
+  MaterialIndexArrayRenderer();
+  MaterialIndexArrayRenderer(
+    VertexArray vertexArray, IndexArray indexArray, MaterialIndexArrayMap indexArrayMap);
+
+  bool empty() const;
+
+  void prepare(VboManager& vboManager);
+  void render(MaterialRenderFunc& func);
 };
 
-constexpr std::size_t PrimTypeCount = 10u;
-constexpr PrimType PrimTypeValues[PrimTypeCount] = {
-  PrimType::Points,
-  PrimType::Lines,
-  PrimType::Triangles,
-  PrimType::Quads,
-  PrimType::LineStrip,
-  PrimType::LineLoop,
-  PrimType::TriangleFan,
-  PrimType::TriangleStrip,
-  PrimType::QuadStrip,
-  PrimType::Polygon};
-
-/**
- * Maps the given primitive type to its corresponding OpenGL enum.
- */
-unsigned int toGL(PrimType primType);
-
-} // namespace tb::render
+} // namespace tb::gl

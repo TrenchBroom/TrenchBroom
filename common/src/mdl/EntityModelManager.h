@@ -48,13 +48,9 @@ class FileSystem;
 
 namespace gl
 {
-class VboManager;
-}
-
-namespace render
-{
 class MaterialRenderer;
-} // namespace render
+class VboManager;
+} // namespace gl
 
 namespace mdl
 {
@@ -79,12 +75,11 @@ private:
   std::vector<Quake3Shader> m_shaders;
 
   mutable std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash> m_models;
-  mutable std::
-    unordered_map<ModelSpecification, std::unique_ptr<render::MaterialRenderer>>
-      m_renderers;
+  mutable std::unordered_map<ModelSpecification, std::unique_ptr<gl::MaterialRenderer>>
+    m_renderers;
   mutable std::unordered_set<ModelSpecification> m_rendererMismatches;
 
-  mutable std::vector<render::MaterialRenderer*> m_unpreparedRenderers;
+  mutable std::vector<gl::MaterialRenderer*> m_unpreparedRenderers;
 
 public:
   EntityModelManager(
@@ -97,7 +92,7 @@ public:
   void clear();
   void reloadShaders(kdl::task_manager& taskManager);
 
-  render::MaterialRenderer* renderer(const ModelSpecification& spec) const;
+  gl::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 
   const EntityModelFrame* frame(const ModelSpecification& spec) const;
   const EntityModel* model(const std::filesystem::path& path) const;

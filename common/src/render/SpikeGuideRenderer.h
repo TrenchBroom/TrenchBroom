@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Color.h"
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "render/Renderable.h"
-#include "render/VertexArray.h"
 
 #include "vm/ray.h"
 
@@ -39,7 +39,7 @@ private:
   using SpikeVertex = gl::VertexTypes::P3C4::Vertex;
 
   std::vector<SpikeVertex> m_spikeVertices;
-  VertexArray m_spikeArray;
+  gl::VertexArray m_spikeArray;
 
   bool m_valid = false;
 

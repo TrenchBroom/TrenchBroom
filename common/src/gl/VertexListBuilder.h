@@ -24,7 +24,7 @@
 
 #include <vector>
 
-namespace tb::render
+namespace tb::gl
 {
 
 template <typename VertexSpec>
@@ -192,4 +192,4 @@ private:
   size_t currentIndex() const { return vertexCount(); }
 };
 
-} // namespace tb::render
+} // namespace tb::gl

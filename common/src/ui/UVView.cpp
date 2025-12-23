@@ -23,9 +23,11 @@
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
 #include "gl/Material.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/Texture.h"
 #include "gl/VboManager.h"
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -34,12 +36,10 @@
 #include "render/Camera.h"
 #include "render/EdgeRenderer.h"
 #include "render/FaceRenderer.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
 #include "render/Renderable.h"
-#include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 #include "ui/UVCameraTool.h"
 #include "ui/UVOffsetTool.h"
@@ -67,12 +67,12 @@ private:
   using Vertex = gl::VertexTypes::P3NT2::Vertex;
 
   const UVViewHelper& m_helper;
-  render::VertexArray m_vertexArray;
+  gl::VertexArray m_vertexArray;
 
 public:
   explicit RenderMaterial(const UVViewHelper& helper)
     : m_helper{helper}
-    , m_vertexArray{render::VertexArray::move(getVertices())}
+    , m_vertexArray{gl::VertexArray::move(getVertices())}
   {
   }
 
@@ -138,7 +138,7 @@ private:
     shader.set("CameraZoom", m_helper.cameraZoom());
     shader.set("Material", 0);
 
-    m_vertexArray.render(render::PrimType::Quads);
+    m_vertexArray.render(gl::PrimType::Quads);
 
     material->deactivate();
   }
@@ -330,7 +330,7 @@ void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch
                       | kdl::ranges::to<std::vector>();
 
   auto edgeRenderer = render::DirectEdgeRenderer{
-    render::VertexArray::move(std::move(edgeVertices)), render::PrimType::LineLoop};
+    gl::VertexArray::move(std::move(edgeVertices)), gl::PrimType::LineLoop};
 
   const auto edgeColor = RgbaF{1.0f, 1.0f, 1.0f, 1.0f};
   edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
@@ -352,13 +352,13 @@ void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBat
   const auto length = 32.0f / m_helper.cameraZoom();
 
   auto edgeRenderer = render::DirectEdgeRenderer{
-    render::VertexArray::move(std::vector{
+    gl::VertexArray::move(std::vector{
       Vertex{center, pref(Preferences::XAxisColor).to<RgbaF>().toVec()},
       Vertex{center + length * uAxis, pref(Preferences::XAxisColor).to<RgbaF>().toVec()},
       Vertex{center, pref(Preferences::YAxisColor).to<RgbaF>().toVec()},
       Vertex{center + length * vAxis, pref(Preferences::YAxisColor).to<RgbaF>().toVec()},
     }),
-    render::PrimType::Lines};
+    gl::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 2.0f);
 }
 

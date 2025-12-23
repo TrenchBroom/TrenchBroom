@@ -19,11 +19,11 @@
 
 #include "IndexArrayMap.h"
 
-#include "render/IndexArray.h"
+#include "gl/IndexArray.h"
 
 #include "kd/contracts.h"
 
-namespace tb::render
+namespace tb::gl
 {
 
 IndexArrayMap::IndexArrayRange::IndexArrayRange(
@@ -111,4 +111,4 @@ void IndexArrayMap::render(IndexArray& indexArray) const
   }
 }
 
-} // namespace tb::render
+} // namespace tb::gl

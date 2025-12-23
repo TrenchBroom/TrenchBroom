@@ -22,9 +22,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "render/BrushRendererArrays.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
@@ -174,8 +174,8 @@ void EdgeRenderer::render(
 
 DirectEdgeRenderer::Render::Render(
   const EdgeRenderer::Params& params,
-  VertexArray& vertexArray,
-  IndexRangeMap& indexRanges)
+  gl::VertexArray& vertexArray,
+  gl::IndexRangeMap& indexRanges)
   : RenderBase{params}
   , m_vertexArray{vertexArray}
   , m_indexRanges{indexRanges}
@@ -202,15 +202,17 @@ void DirectEdgeRenderer::Render::doRenderVertices(RenderContext&)
 
 DirectEdgeRenderer::DirectEdgeRenderer() {}
 
-DirectEdgeRenderer::DirectEdgeRenderer(VertexArray vertexArray, IndexRangeMap indexRanges)
+DirectEdgeRenderer::DirectEdgeRenderer(
+  gl::VertexArray vertexArray, gl::IndexRangeMap indexRanges)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexRanges{std::move(indexRanges)}
 {
 }
 
-DirectEdgeRenderer::DirectEdgeRenderer(VertexArray vertexArray, const PrimType primType)
+DirectEdgeRenderer::DirectEdgeRenderer(
+  gl::VertexArray vertexArray, const gl::PrimType primType)
   : m_vertexArray{std::move(vertexArray)}
-  , m_indexRanges{IndexRangeMap{primType, 0, m_vertexArray.vertexCount()}}
+  , m_indexRanges{gl::IndexRangeMap{primType, 0, m_vertexArray.vertexCount()}}
 {
 }
 
@@ -250,7 +252,7 @@ void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext&)
 {
   m_vertexArray->setupVertices();
   m_indexArray->setupIndices();
-  m_indexArray->render(PrimType::Lines);
+  m_indexArray->render(gl::PrimType::Lines);
   m_vertexArray->cleanupVertices();
   m_indexArray->cleanupIndices();
 }

@@ -20,9 +20,9 @@
 #include "LinkRenderer.h"
 
 #include "gl/ActiveShader.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "render/Camera.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 
@@ -72,11 +72,11 @@ void LinkRenderer::renderLines(RenderContext& renderContext)
 
   glAssert(glDisable(GL_DEPTH_TEST));
   shader.set("Alpha", 0.4f);
-  m_lines.render(PrimType::Lines);
+  m_lines.render(gl::PrimType::Lines);
 
   glAssert(glEnable(GL_DEPTH_TEST));
   shader.set("Alpha", 1.0f);
-  m_lines.render(PrimType::Lines);
+  m_lines.render(gl::PrimType::Lines);
 }
 
 void LinkRenderer::renderArrows(RenderContext& renderContext)
@@ -90,11 +90,11 @@ void LinkRenderer::renderArrows(RenderContext& renderContext)
 
   glAssert(glDisable(GL_DEPTH_TEST));
   shader.set("Alpha", 0.4f);
-  m_arrows.render(PrimType::Lines);
+  m_arrows.render(gl::PrimType::Lines);
 
   glAssert(glEnable(GL_DEPTH_TEST));
   shader.set("Alpha", 1.0f);
-  m_arrows.render(PrimType::Lines);
+  m_arrows.render(gl::PrimType::Lines);
 }
 
 static void addArrow(
@@ -159,8 +159,8 @@ void LinkRenderer::validate()
   auto links = getLinks();
   auto arrows = getArrows(links);
 
-  m_lines = VertexArray::move(std::move(links));
-  m_arrows = VertexArray::move(std::move(arrows));
+  m_lines = gl::VertexArray::move(std::move(links));
+  m_arrows = gl::VertexArray::move(std::move(arrows));
 
   m_valid = true;
 }

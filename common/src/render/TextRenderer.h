@@ -21,9 +21,9 @@
 
 #include "Color.h"
 #include "gl/FontDescriptor.h"
+#include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "render/Renderable.h"
-#include "render/VertexArray.h"
 
 #include "vm/vec.h"
 
@@ -66,8 +66,8 @@ private:
     size_t textVertexCount = 0;
     size_t rectVertexCount = 0;
 
-    VertexArray textArray;
-    VertexArray rectArray;
+    gl::VertexArray textArray;
+    gl::VertexArray rectArray;
   };
 
   using TextVertex = gl::VertexTypes::P3UV2C4::Vertex;

@@ -23,11 +23,12 @@
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
 #include "gl/Material.h"
+#include "gl/MaterialRenderFunc.h"
+#include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/Texture.h"
 #include "render/BrushRendererArrays.h"
 #include "render/Camera.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
@@ -38,7 +39,7 @@ namespace tb::render
 namespace
 {
 
-class RenderFunc : public MaterialRenderFunc
+class RenderFunc : public gl::MaterialRenderFunc
 {
 private:
   gl::ActiveShader& m_shader;
@@ -197,7 +198,7 @@ void FaceRenderer::doRender(RenderContext& context)
 
         func.before(material);
         brushIndexHolderPtr->setupIndices();
-        brushIndexHolderPtr->render(PrimType::Triangles);
+        brushIndexHolderPtr->render(gl::PrimType::Triangles);
         brushIndexHolderPtr->cleanupIndices();
         func.after(material);
       }

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "render/VertexArray.h"
+#include "gl/VertexArray.h"
 
 #include "vm/util.h"
 
@@ -29,7 +29,7 @@ namespace tb::render
 class Circle
 {
 private:
-  VertexArray m_array;
+  gl::VertexArray m_array;
   bool m_filled;
 
 public:
