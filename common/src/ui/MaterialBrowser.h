@@ -35,12 +35,12 @@ namespace tb
 {
 namespace gl
 {
+class ContextManager;
 class Material;
 } // namespace gl
 
 namespace ui
 {
-class GLContextManager;
 class MapDocument;
 class MaterialBrowserView;
 enum class MaterialSortOrder;
@@ -61,7 +61,7 @@ private:
 
 public:
   MaterialBrowser(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
 
   const gl::Material* selectedMaterial() const;
   void setSelectedMaterial(const gl::Material* selectedMaterial);
@@ -75,7 +75,7 @@ signals:
   void materialSelected(const gl::Material* material);
 
 private:
-  void createGui(GLContextManager& contextManager);
+  void createGui(gl::ContextManager& contextManager);
   void bindEvents();
 
   void connectObservers();

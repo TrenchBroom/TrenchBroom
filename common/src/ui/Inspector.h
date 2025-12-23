@@ -21,11 +21,17 @@
 
 #include <QWidget>
 
-namespace tb::ui
+namespace tb
+{
+namespace gl
+{
+class ContextManager;
+}
+
+namespace ui
 {
 class FaceInspector;
 class EntityInspector;
-class GLContextManager;
 class MapDocument;
 class MapInspector;
 class MapViewBar;
@@ -52,7 +58,7 @@ private:
 
 public:
   Inspector(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
   ~Inspector() override;
 
   void connectTopWidgets(MapViewBar* mapViewBar);
@@ -65,4 +71,5 @@ public:
   bool restoreState(const QByteArray& state);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -22,13 +22,13 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "gl/ContextManager.h"
 #include "gl/VboManager.h"
 #include "gl/VertexType.h"
 #include "render/PrimType.h"
 #include "render/Transformation.h"
 #include "render/VertexArray.h"
 #include "ui/CrashReporter.h"
-#include "ui/GLContextManager.h"
 #include "ui/InputEvent.h"
 #include "ui/QtUtils.h"
 
@@ -81,7 +81,7 @@
 namespace tb::ui
 {
 
-RenderView::RenderView(GLContextManager& contextManager, QWidget* parent)
+RenderView::RenderView(gl::ContextManager& contextManager, QWidget* parent)
   : QOpenGLWidget{parent}
   , m_glContext{&contextManager}
 {

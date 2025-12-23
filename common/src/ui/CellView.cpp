@@ -89,7 +89,7 @@ void CellView::validate()
   }
 }
 
-CellView::CellView(GLContextManager& contextManager, QScrollBar* scrollBar)
+CellView::CellView(gl::ContextManager& contextManager, QScrollBar* scrollBar)
   : RenderView{contextManager}
   , m_scrollBar{scrollBar}
 {

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GLContextManager.h"
+#include "ContextManager.h"
 
 #include "gl/FontManager.h"
 #include "gl/GL.h"
@@ -35,7 +35,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace tb::ui
+namespace tb::gl
 {
 namespace
 {
@@ -53,27 +53,27 @@ void initializeGlew()
 
 } // namespace
 
-std::string GLContextManager::GLVendor = "unknown";
-std::string GLContextManager::GLRenderer = "unknown";
-std::string GLContextManager::GLVersion = "unknown";
+std::string ContextManager::GLVendor = "unknown";
+std::string ContextManager::GLRenderer = "unknown";
+std::string ContextManager::GLVersion = "unknown";
 
-GLContextManager::GLContextManager()
-  : m_shaderManager{std::make_unique<gl::ShaderManager>()}
-  , m_vboManager{std::make_unique<gl::VboManager>(*m_shaderManager)}
-  , m_fontManager{std::make_unique<gl::FontManager>()}
+ContextManager::ContextManager()
+  : m_shaderManager{std::make_unique<ShaderManager>()}
+  , m_vboManager{std::make_unique<VboManager>(*m_shaderManager)}
+  , m_fontManager{std::make_unique<FontManager>()}
 {
 }
 
-GLContextManager::~GLContextManager() = default;
+ContextManager::~ContextManager() = default;
 
-bool GLContextManager::initialized() const
+bool ContextManager::initialized() const
 {
   return m_initialized;
 }
 
-bool GLContextManager::initialize()
+bool ContextManager::initialize()
 {
-  using namespace gl::Shaders;
+  using namespace Shaders;
 
   if (!m_initialized)
   {
@@ -85,7 +85,7 @@ bool GLContextManager::initialize()
     GLRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
     GLVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
-    const auto shaders = std::vector<gl::ShaderConfig>{
+    const auto shaders = std::vector<ShaderConfig>{
       Grid2DShader,
       VaryingPCShader,
       VaryingPUniformCShader,
@@ -119,19 +119,19 @@ bool GLContextManager::initialize()
   return false;
 }
 
-gl::VboManager& GLContextManager::vboManager()
+VboManager& ContextManager::vboManager()
 {
   return *m_vboManager;
 }
 
-gl::FontManager& GLContextManager::fontManager()
+FontManager& ContextManager::fontManager()
 {
   return *m_fontManager;
 }
 
-gl::ShaderManager& GLContextManager::shaderManager()
+ShaderManager& ContextManager::shaderManager()
 {
   return *m_shaderManager;
 }
 
-} // namespace tb::ui
+} // namespace tb::gl

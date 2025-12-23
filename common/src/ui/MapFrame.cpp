@@ -42,6 +42,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "gl/ContextManager.h"
 #include "gl/Resource.h"
 #include "mdl/Autosaver.h"
 #include "mdl/BrushFace.h"
@@ -84,7 +85,6 @@
 #include "ui/FaceInspector.h"
 #include "ui/FaceTool.h"
 #include "ui/FrameManager.h"
-#include "ui/GLContextManager.h"
 #include "ui/InfoPanel.h"
 #include "ui/Inspector.h"
 #include "ui/LaunchGameEngineDialog.h"
@@ -136,7 +136,7 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   , m_lastInputTime{std::chrono::system_clock::now()}
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
-  , m_contextManager{std::make_unique<GLContextManager>()}
+  , m_contextManager{std::make_unique<gl::ContextManager>()}
   , m_updateTitleSignalDelayer{new SignalDelayer{500ms, this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
   , m_updateStatusBarSignalDelayer{new SignalDelayer{500ms, this}}

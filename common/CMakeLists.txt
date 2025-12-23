@@ -5,6 +5,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/gl/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/gl/AttrString.cpp
+        ${COMMON_SOURCE_DIR}/gl/ContextManager.cpp
         ${COMMON_SOURCE_DIR}/gl/FontDescriptor.cpp
         ${COMMON_SOURCE_DIR}/gl/FontFactory.cpp
         ${COMMON_SOURCE_DIR}/gl/FontGlyph.cpp
@@ -363,7 +364,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/GamesPreferencePane.cpp
         ${COMMON_SOURCE_DIR}/ui/GestureTracker.cpp
         ${COMMON_SOURCE_DIR}/ui/GetVersion.cpp
-        ${COMMON_SOURCE_DIR}/ui/GLContextManager.cpp
         ${COMMON_SOURCE_DIR}/ui/HandleDragTracker.cpp
         ${COMMON_SOURCE_DIR}/ui/ImageListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/ImageUtils.cpp
@@ -486,6 +486,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/gl/ActiveShader.h
         ${COMMON_SOURCE_DIR}/gl/AttrString.h
+        ${COMMON_SOURCE_DIR}/gl/ContextManager.h
         ${COMMON_SOURCE_DIR}/gl/CreateResource.h
         ${COMMON_SOURCE_DIR}/gl/FontDescriptor.h
         ${COMMON_SOURCE_DIR}/gl/FontFactory.h
@@ -882,7 +883,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/GamesPreferencePane.h
         ${COMMON_SOURCE_DIR}/ui/GestureTracker.h
         ${COMMON_SOURCE_DIR}/ui/GetVersion.h
-        ${COMMON_SOURCE_DIR}/ui/GLContextManager.h
         ${COMMON_SOURCE_DIR}/ui/HandleDragTracker.h
         ${COMMON_SOURCE_DIR}/ui/ImageListBox.h
         ${COMMON_SOURCE_DIR}/ui/ImageUtils.h

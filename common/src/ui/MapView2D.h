@@ -63,7 +63,7 @@ public:
   MapView2D(
     MapDocument& document,
     MapViewToolBox& toolBox,
-    GLContextManager& contextManager,
+    gl::ContextManager& contextManager,
     ViewPlane viewPlane);
 
 private:

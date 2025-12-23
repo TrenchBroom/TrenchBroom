@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ContextManager.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -53,7 +54,6 @@
 #include "ui/FaceTool.h" // IWYU pragma: keep
 #include "ui/FaceToolController.h"
 #include "ui/FlyModeHelper.h"
-#include "ui/GLContextManager.h"
 #include "ui/MapDocument.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MoveObjectsToolController.h"
@@ -74,7 +74,7 @@ namespace tb::ui
 {
 
 MapView3D::MapView3D(
-  MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager)
+  MapDocument& document, MapViewToolBox& toolBox, gl::ContextManager& contextManager)
   : MapViewBase{document, toolBox, contextManager}
   , m_camera{std::make_unique<render::PerspectiveCamera>()}
   , m_flyModeHelper{std::make_unique<FlyModeHelper>(*m_camera)}

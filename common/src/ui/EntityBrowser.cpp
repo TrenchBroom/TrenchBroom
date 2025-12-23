@@ -44,7 +44,7 @@ namespace tb::ui
 {
 
 EntityBrowser::EntityBrowser(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
 {
@@ -64,7 +64,7 @@ void EntityBrowser::reload()
   }
 }
 
-void EntityBrowser::createGui(GLContextManager& contextManager)
+void EntityBrowser::createGui(gl::ContextManager& contextManager)
 {
   m_scrollBar = new QScrollBar{Qt::Vertical};
   m_view = new EntityBrowserView{m_scrollBar, contextManager, m_document};

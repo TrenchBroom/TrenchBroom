@@ -33,7 +33,7 @@ namespace tb::ui
 FourPaneMapView::FourPaneMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  GLContextManager& contextManager,
+  gl::ContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_document{document}
@@ -48,7 +48,8 @@ FourPaneMapView::~FourPaneMapView()
   saveWindowState(m_rightVSplitter);
 }
 
-void FourPaneMapView::createGui(MapViewToolBox& toolBox, GLContextManager& contextManager)
+void FourPaneMapView::createGui(
+  MapViewToolBox& toolBox, gl::ContextManager& contextManager)
 {
   m_hSplitter = new Splitter{DrawKnob::No};
   m_hSplitter->setObjectName("FourPaneMapView_HorizontalSplitter");

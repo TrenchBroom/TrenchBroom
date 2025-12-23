@@ -56,7 +56,7 @@ void resetMaterialBrowserInfo(mdl::Map& map, QWidget* materialBrowserInfo)
 } // namespace
 
 FaceInspector::FaceInspector(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
   , m_document{document}
 {
@@ -80,7 +80,7 @@ void FaceInspector::revealMaterial(const gl::Material* material)
   m_materialBrowser->setSelectedMaterial(material);
 }
 
-void FaceInspector::createGui(GLContextManager& contextManager)
+void FaceInspector::createGui(gl::ContextManager& contextManager)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("FaceInspector_Splitter");
@@ -107,13 +107,13 @@ void FaceInspector::createGui(GLContextManager& contextManager)
   restoreWindowState(m_splitter);
 }
 
-QWidget* FaceInspector::createFaceAttribsEditor(GLContextManager& contextManager)
+QWidget* FaceInspector::createFaceAttribsEditor(gl::ContextManager& contextManager)
 {
   m_faceAttribsEditor = new FaceAttribsEditor{m_document, contextManager};
   return m_faceAttribsEditor;
 }
 
-QWidget* FaceInspector::createMaterialBrowser(GLContextManager& contextManager)
+QWidget* FaceInspector::createMaterialBrowser(gl::ContextManager& contextManager)
 {
   auto* panel =
     new SwitchableTitledPanel{tr("Material Browser"), {{tr("Browser"), tr("Settings")}}};

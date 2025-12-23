@@ -59,7 +59,7 @@ namespace tb::ui
 {
 
 MaterialBrowserView::MaterialBrowserView(
-  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
+  QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document)
   : CellView{contextManager, scrollBar}
   , m_document{document}
 {

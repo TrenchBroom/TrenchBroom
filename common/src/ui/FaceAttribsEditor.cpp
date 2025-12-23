@@ -58,7 +58,7 @@ namespace tb::ui
 {
 
 FaceAttribsEditor::FaceAttribsEditor(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
   , m_updateControlsSignalDelayer{new SignalDelayer{this}}
@@ -299,7 +299,7 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
   return wrapper;
 }
 
-void FaceAttribsEditor::createGui(GLContextManager& contextManager)
+void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
 {
   m_uvEditor = new UVEditor{m_document, contextManager};
 

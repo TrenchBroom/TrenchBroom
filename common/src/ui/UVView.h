@@ -73,7 +73,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  UVView(MapDocument& document, GLContextManager& contextManager);
+  UVView(MapDocument& document, gl::ContextManager& contextManager);
 
   void setSubDivisions(const vm::vec2i& subDivisions);
 

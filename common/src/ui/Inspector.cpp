@@ -35,7 +35,7 @@
 namespace tb::ui
 {
 Inspector::Inspector(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
 {
   m_tabBook = new TabBook{};

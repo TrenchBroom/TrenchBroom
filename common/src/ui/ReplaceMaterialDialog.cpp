@@ -73,7 +73,7 @@ void replaceMaterials(
 } // namespace
 
 ReplaceMaterialDialog::ReplaceMaterialDialog(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QDialog{parent}
   , m_document{document}
 {
@@ -127,7 +127,7 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
          | kdl::ranges::to<std::vector>();
 }
 
-void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
+void ReplaceMaterialDialog::createGui(gl::ContextManager& contextManager)
 {
   setWindowIconTB(this);
   setWindowTitle(tr("Replace Material"));

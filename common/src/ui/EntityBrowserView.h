@@ -96,7 +96,7 @@ private:
 
 public:
   EntityBrowserView(
-    QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document);
+    QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document);
   ~EntityBrowserView() override;
 
 public:

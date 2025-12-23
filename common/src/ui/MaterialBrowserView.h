@@ -33,13 +33,13 @@ namespace tb
 {
 namespace gl
 {
+class ContextManager;
 class Material;
 class MaterialCollection;
 } // namespace gl
 
 namespace ui
 {
-class GLContextManager;
 class MapDocument;
 
 using MaterialGroupData = std::string;
@@ -66,7 +66,7 @@ private:
 
 public:
   MaterialBrowserView(
-    QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document);
+    QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document);
   ~MaterialBrowserView() override;
 
   void setSortOrder(MaterialSortOrder sortOrder);

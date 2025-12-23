@@ -31,12 +31,8 @@ namespace gl
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace gl
 
-namespace ui
-{
-
-class GLContextManager
+class ContextManager
 {
 public:
   static std::string GLVendor;
@@ -48,25 +44,25 @@ private:
   std::string m_glRenderer;
   std::string m_glVersion;
 
-  std::unique_ptr<gl::ShaderManager> m_shaderManager;
-  std::unique_ptr<gl::VboManager> m_vboManager;
-  std::unique_ptr<gl::FontManager> m_fontManager;
+  std::unique_ptr<ShaderManager> m_shaderManager;
+  std::unique_ptr<VboManager> m_vboManager;
+  std::unique_ptr<FontManager> m_fontManager;
 
   bool m_initialized = false;
 
 public:
-  GLContextManager();
-  ~GLContextManager();
+  ContextManager();
+  ~ContextManager();
 
   bool initialized() const;
   bool initialize();
 
-  gl::VboManager& vboManager();
-  gl::FontManager& fontManager();
-  gl::ShaderManager& shaderManager();
+  VboManager& vboManager();
+  FontManager& fontManager();
+  ShaderManager& shaderManager();
 
-  deleteCopyAndMove(GLContextManager);
+  deleteCopyAndMove(ContextManager);
 };
 
-} // namespace ui
+} // namespace gl
 } // namespace tb

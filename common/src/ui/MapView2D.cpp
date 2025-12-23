@@ -20,6 +20,7 @@
 #include "MapView2D.h"
 
 #include "Macros.h"
+#include "gl/ContextManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
@@ -48,7 +49,6 @@
 #include "ui/ExtrudeToolController.h"
 #include "ui/FaceTool.h" // IWYU pragma: keep
 #include "ui/FaceToolController.h"
-#include "ui/GLContextManager.h"
 #include "ui/MapDocument.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MoveObjectsToolController.h"
@@ -69,7 +69,7 @@ namespace tb::ui
 MapView2D::MapView2D(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  GLContextManager& contextManager,
+  gl::ContextManager& contextManager,
   ViewPlane viewPlane)
   : MapViewBase{document, toolBox, contextManager}
   , m_camera{std::make_unique<render::OrthographicCamera>()}

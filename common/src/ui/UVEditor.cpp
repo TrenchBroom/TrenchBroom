@@ -39,7 +39,7 @@ namespace tb::ui
 {
 
 UVEditor::UVEditor(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
 {
@@ -64,7 +64,7 @@ void UVEditor::updateButtons()
   m_rotateUVCWButton->setEnabled(enabled);
 }
 
-void UVEditor::createGui(GLContextManager& contextManager)
+void UVEditor::createGui(gl::ContextManager& contextManager)
 {
   m_uvView = new UVView{m_document, contextManager};
 

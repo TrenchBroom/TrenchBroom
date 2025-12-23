@@ -23,10 +23,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ContextManager.h"
 #include "mdl/Map.h"
 #include "mdl/PointTrace.h"
 #include "ui/FourPaneMapView.h"
-#include "ui/GLContextManager.h"
 #include "ui/Inspector.h"
 #include "ui/MapDocument.h"
 #include "ui/MapViewActivationTracker.h"
@@ -44,7 +44,7 @@
 namespace tb::ui
 {
 SwitchableMapViewContainer::SwitchableMapViewContainer(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
   , m_contextManager{contextManager}

@@ -37,6 +37,7 @@ namespace tb
 {
 namespace gl
 {
+class ContextManager;
 class FontManager;
 class ShaderManager;
 class VboManager;
@@ -44,14 +45,13 @@ class VboManager;
 
 namespace ui
 {
-class GLContextManager;
 
 class RenderView : public QOpenGLWidget, public InputEventProcessor
 {
   Q_OBJECT
 private:
   Color m_focusColor;
-  GLContextManager* m_glContext;
+  gl::ContextManager* m_glContext;
   InputEventRecorder m_eventRecorder;
 
 private: // FPS counter
@@ -66,7 +66,7 @@ protected:
   std::string m_currentFPS;
 
 protected:
-  explicit RenderView(GLContextManager& contextManager, QWidget* parent = nullptr);
+  explicit RenderView(gl::ContextManager& contextManager, QWidget* parent = nullptr);
 
 public:
   ~RenderView() override;

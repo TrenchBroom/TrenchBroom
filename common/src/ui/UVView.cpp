@@ -148,7 +148,7 @@ private:
 
 const mdl::HitType::Type UVView::FaceHitType = mdl::HitType::freeType();
 
-UVView::UVView(MapDocument& document, GLContextManager& contextManager)
+UVView::UVView(MapDocument& document, gl::ContextManager& contextManager)
   : RenderView{contextManager}
   , m_document{document}
   , m_helper{m_camera}

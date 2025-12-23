@@ -38,7 +38,7 @@ namespace tb::ui
 CyclingMapView::CyclingMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  GLContextManager& contextManager,
+  gl::ContextManager& contextManager,
   const int views,
   QWidget* parent)
   : MapViewContainer{parent}
@@ -49,7 +49,7 @@ CyclingMapView::CyclingMapView(
 }
 
 void CyclingMapView::createGui(
-  MapViewToolBox& toolBox, GLContextManager& contextManager, const int views)
+  MapViewToolBox& toolBox, gl::ContextManager& contextManager, const int views)
 {
   if (views & View_3D)
   {

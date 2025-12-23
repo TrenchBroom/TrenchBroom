@@ -102,7 +102,7 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager);
+    MapDocument& document, MapViewToolBox& toolBox, gl::ContextManager& contextManager);
 
   void setCompass(std::unique_ptr<render::Compass> compass);
 

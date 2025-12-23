@@ -60,7 +60,7 @@ namespace tb::ui
 {
 
 EntityBrowserView::EntityBrowserView(
-  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
+  QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document)
   : CellView{contextManager, scrollBar}
   , m_document{document}
   , m_sortOrder{mdl::EntityDefinitionSortOrder::Name}

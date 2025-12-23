@@ -44,7 +44,7 @@ namespace tb::ui
 {
 
 MaterialBrowser::MaterialBrowser(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
 {
@@ -106,7 +106,7 @@ void MaterialBrowser::setFilterText(const std::string& filterText)
 /**
  * See EntityBrowser::createGui
  */
-void MaterialBrowser::createGui(GLContextManager& contextManager)
+void MaterialBrowser::createGui(gl::ContextManager& contextManager)
 {
   auto* browserPanel = new QWidget{};
   m_scrollBar = new QScrollBar{Qt::Vertical};

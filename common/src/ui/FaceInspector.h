@@ -29,6 +29,7 @@ namespace tb
 {
 namespace gl
 {
+class ContextManager;
 class Material;
 } // namespace gl
 
@@ -36,7 +37,6 @@ namespace ui
 {
 class CollapsibleTitledPanel;
 class FaceAttribsEditor;
-class GLContextManager;
 class MapDocument;
 class MaterialBrowser;
 
@@ -54,16 +54,16 @@ private:
 
 public:
   FaceInspector(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
   ~FaceInspector() override;
 
   bool cancelMouseDrag();
   void revealMaterial(const gl::Material* material);
 
 private:
-  void createGui(GLContextManager& contextManager);
-  QWidget* createFaceAttribsEditor(GLContextManager& contextManager);
-  QWidget* createMaterialBrowser(GLContextManager& contextManager);
+  void createGui(gl::ContextManager& contextManager);
+  QWidget* createFaceAttribsEditor(gl::ContextManager& contextManager);
+  QWidget* createMaterialBrowser(gl::ContextManager& contextManager);
   QWidget* createMaterialBrowserInfo();
 
   void materialSelected(const gl::Material* material);

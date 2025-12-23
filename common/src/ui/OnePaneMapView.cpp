@@ -29,7 +29,7 @@ namespace tb::ui
 OnePaneMapView::OnePaneMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  GLContextManager& contextManager,
+  gl::ContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_document{document}
@@ -37,7 +37,8 @@ OnePaneMapView::OnePaneMapView(
   createGui(toolBox, contextManager);
 }
 
-void OnePaneMapView::createGui(MapViewToolBox& toolBox, GLContextManager& contextManager)
+void OnePaneMapView::createGui(
+  MapViewToolBox& toolBox, gl::ContextManager& contextManager)
 {
   m_mapView =
     new CyclingMapView{m_document, toolBox, contextManager, CyclingMapView::View_ALL};
