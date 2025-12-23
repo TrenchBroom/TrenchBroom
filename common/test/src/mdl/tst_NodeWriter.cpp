@@ -19,7 +19,6 @@
 
 #include "Matchers.h"
 #include "TestUtils.h"
-#include "mdl/NodeWriter.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
@@ -30,6 +29,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/LockState.h"
 #include "mdl/MapFormat.h"
+#include "mdl/NodeWriter.h"
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
 

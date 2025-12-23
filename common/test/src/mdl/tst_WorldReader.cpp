@@ -20,7 +20,6 @@
 #include "TestParserStatus.h"
 #include "TestUtils.h"
 #include "fs/DiskIO.h"
-#include "mdl/WorldReader.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
@@ -31,6 +30,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
+#include "mdl/WorldReader.h"
 
 #include "kd/task_manager.h"
 

@@ -17,8 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Color.h"
 #include "LoadM8Texture.h"
+
+#include "Color.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "mdl/Palette.h"
@@ -103,11 +104,7 @@ Result<Texture> loadM8Texture(fs::Reader& reader)
 
                  auto averageColor = Color{RgbaF{}};
                  palette.indexedToRgba(
-                   reader,
-                   w * h,
-                   rgbaImage,
-                   PaletteTransparency::Opaque,
-                   averageColor);
+                   reader, w * h, rgbaImage, PaletteTransparency::Opaque, averageColor);
                  buffers.emplace_back(std::move(rgbaImage));
 
                  if (mipLevel == 0)

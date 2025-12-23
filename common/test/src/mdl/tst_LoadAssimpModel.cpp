@@ -20,8 +20,8 @@
 
 #include "Logger.h"
 #include "fs/DiskFileSystem.h"
-#include "mdl/LoadAssimpModel.h"
 #include "mdl/EntityModel.h"
+#include "mdl/LoadAssimpModel.h"
 
 #include "vm/approx.h"
 #include "vm/bbox_io.h" // IWYU pragma: keep

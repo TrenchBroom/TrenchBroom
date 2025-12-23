@@ -19,14 +19,14 @@
 
 #include "NodeWriter.h"
 
-#include "mdl/MapFileSerializer.h"
-#include "mdl/NodeSerializer.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/MapFileSerializer.h"
 #include "mdl/Node.h"
+#include "mdl/NodeSerializer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -97,8 +97,7 @@ NodeWriter::NodeWriter(const WorldNode& world, std::ostream& stream)
 {
 }
 
-NodeWriter::NodeWriter(
-  const WorldNode& world, std::unique_ptr<NodeSerializer> serializer)
+NodeWriter::NodeWriter(const WorldNode& world, std::unique_ptr<NodeSerializer> serializer)
   : m_world{world}
   , m_serializer{std::move(serializer)}
 {

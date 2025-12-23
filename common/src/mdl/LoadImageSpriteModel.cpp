@@ -94,8 +94,8 @@ Result<EntityModelData> loadImageSpriteModel(
   try
   {
     return loadMaterial(fs, reader, name, logger) | kdl::transform([&](auto material) {
-             auto data = EntityModelData{
-               PitchType::Normal, Orientation::ViewPlaneParallel};
+             auto data =
+               EntityModelData{PitchType::Normal, Orientation::ViewPlaneParallel};
 
              auto& surface = data.addSurface(name, 1);
              surface.setSkins(kdl::vec_from(std::move(material)));

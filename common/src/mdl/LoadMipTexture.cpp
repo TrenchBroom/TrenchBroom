@@ -17,8 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Color.h"
 #include "LoadMipTexture.h"
+
+#include "Color.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "mdl/MaterialUtils.h"

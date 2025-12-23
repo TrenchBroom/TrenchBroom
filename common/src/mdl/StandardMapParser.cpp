@@ -269,9 +269,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
 }
 
 void StandardMapParser::parseEntityProperties(
-  std::vector<EntityProperty>& properties,
-  EntityPropertyKeys& keys,
-  ParserStatus& status)
+  std::vector<EntityProperty>& properties, EntityPropertyKeys& keys, ParserStatus& status)
 {
   while (m_tokenizer
            .skipAndPeekToken(
@@ -284,9 +282,7 @@ void StandardMapParser::parseEntityProperties(
 }
 
 void StandardMapParser::parseEntityProperty(
-  std::vector<EntityProperty>& properties,
-  EntityPropertyKeys& keys,
-  ParserStatus& status)
+  std::vector<EntityProperty>& properties, EntityPropertyKeys& keys, ParserStatus& status)
 {
   auto token =
     m_tokenizer.skipAndNextToken(QuakeMapToken::Comment, QuakeMapToken::String);

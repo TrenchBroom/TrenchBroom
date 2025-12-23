@@ -47,8 +47,7 @@ std::string formatParserErrors(
   auto result = std::stringstream{};
   for (const auto& [mapFormat, message] : errors)
   {
-    result << "Error parsing as " << formatName(mapFormat) << ": " << message
-           << "\n";
+    result << "Error parsing as " << formatName(mapFormat) << ": " << message << "\n";
   }
   return result.str();
 }
@@ -182,8 +181,7 @@ Result<std::unique_ptr<WorldNode>> WorldReader::read(
          });
 }
 
-Node* WorldReader::onWorldNode(
-  std::unique_ptr<WorldNode> worldNode, ParserStatus&)
+Node* WorldReader::onWorldNode(std::unique_ptr<WorldNode> worldNode, ParserStatus&)
 {
   // we transfer the properties and the configuration of the default layer, but don't
   // use the given node
@@ -203,8 +201,7 @@ void WorldReader::onLayerNode(std::unique_ptr<Node> layerNode, ParserStatus&)
   m_worldNode->addChild(layerNode.release());
 }
 
-void WorldReader::onNode(
-  Node* parentNode, std::unique_ptr<Node> node, ParserStatus&)
+void WorldReader::onNode(Node* parentNode, std::unique_ptr<Node> node, ParserStatus&)
 {
   if (parentNode)
   {

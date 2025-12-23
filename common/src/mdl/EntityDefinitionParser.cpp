@@ -51,8 +51,8 @@ std::optional<PropertyDefinition> mergePropertyDefinitions(
   // for now, only merge spawnflags
   const auto* superClassFlags =
     std::get_if<PropertyValueTypes::Flags>(&superClassPropertyDefinition.valueType);
-  const auto* inheritingClassFlags = std::get_if<PropertyValueTypes::Flags>(
-    &inheritingClassPropertyDefinition.valueType);
+  const auto* inheritingClassFlags =
+    std::get_if<PropertyValueTypes::Flags>(&inheritingClassPropertyDefinition.valueType);
   if (
     superClassFlags && inheritingClassFlags
     && superClassPropertyDefinition.key == EntityPropertyKeys::Spawnflags

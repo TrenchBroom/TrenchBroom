@@ -21,8 +21,8 @@
 
 #include "fs/ReaderException.h"
 #include "mdl/LoadMipTexture.h"
-#include "mdl/MaterialUtils.h"
 #include "mdl/Material.h"
+#include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 #include "render/MaterialIndexRangeMap.h"
 #include "render/MaterialIndexRangeMapBuilder.h"
@@ -183,9 +183,7 @@ std::vector<int> parseFaceEdges(fs::Reader reader, const size_t faceEdgeCount)
 }
 
 vm::vec2f uvCoords(
-  const vm::vec3f& vertex,
-  const MaterialInfo& materialInfo,
-  const Material* material)
+  const vm::vec3f& vertex, const MaterialInfo& materialInfo, const Material* material)
 {
   if (const auto* texture = getTexture(material))
   {

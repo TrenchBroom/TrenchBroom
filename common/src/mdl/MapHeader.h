@@ -47,7 +47,6 @@ Result<std::pair<std::optional<std::string>, MapFormat>> readMapHeader(
  * Writes comments into the given stream that can be used to identify the game and map
  * format via readMapHeader.
  */
-void writeMapHeader(
-  std::ostream& stream, std::string_view gameName, MapFormat mapFormat);
+void writeMapHeader(std::ostream& stream, std::string_view gameName, MapFormat mapFormat);
 
 } // namespace tb::mdl

@@ -50,8 +50,7 @@ void CompilationConfigWriter::writeConfig()
   m_stream << el::Value{std::move(map)} << "\n";
 }
 
-el::Value CompilationConfigWriter::writeProfiles(
-  const CompilationConfig& config) const
+el::Value CompilationConfigWriter::writeProfiles(const CompilationConfig& config) const
 {
   return el::Value{
     config.profiles
@@ -59,8 +58,7 @@ el::Value CompilationConfigWriter::writeProfiles(
     | kdl::ranges::to<std::vector>()};
 }
 
-el::Value CompilationConfigWriter::writeProfile(
-  const CompilationProfile& profile) const
+el::Value CompilationConfigWriter::writeProfile(const CompilationProfile& profile) const
 {
   return el::Value{el::MapType{
     {"name", el::Value{profile.name}},
@@ -69,8 +67,7 @@ el::Value CompilationConfigWriter::writeProfile(
   }};
 }
 
-el::Value CompilationConfigWriter::writeTasks(
-  const CompilationProfile& profile) const
+el::Value CompilationConfigWriter::writeTasks(const CompilationProfile& profile) const
 {
   const auto writeTask = [](const auto& task) {
     return std::visit(

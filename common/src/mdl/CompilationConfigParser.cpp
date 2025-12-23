@@ -107,8 +107,7 @@ CompilationRunTool parseToolTask(
   };
 }
 
-CompilationTask parseTask(
-  const el::EvaluationContext& context, const el::Value& value)
+CompilationTask parseTask(const el::EvaluationContext& context, const el::Value& value)
 {
   const auto typeName = value.at(context, "type").stringValue(context);
 

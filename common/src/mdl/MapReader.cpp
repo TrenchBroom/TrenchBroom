@@ -321,8 +321,7 @@ CreateNodeResult createWorldNode(
   const MapFormat mapFormat)
 {
   auto entity = Entity{std::move(entityInfo.properties)};
-  auto worldNode =
-    std::make_unique<WorldNode>(entityPropertyConfig, Entity{}, mapFormat);
+  auto worldNode = std::make_unique<WorldNode>(entityPropertyConfig, Entity{}, mapFormat);
 
   const auto [startLine, lineCount] = getFilePosition(entityInfo);
   worldNode->setFilePosition(startLine, lineCount);
@@ -455,8 +454,8 @@ CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
  */
 CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
 {
-  const auto& name = findEntityPropertyOrDefault(
-    entityInfo.properties, EntityPropertyKeys::GroupName);
+  const auto& name =
+    findEntityPropertyOrDefault(entityInfo.properties, EntityPropertyKeys::GroupName);
   if (kdl::str_is_blank(name))
   {
     return NodeError{entityInfo.startLocation, "Skipping group entity: missing name"};
@@ -566,8 +565,8 @@ CreateNodeResult createNodeFromEntityInfo(
   MapReader::EntityInfo entityInfo,
   const MapFormat mapFormat)
 {
-  const auto& classname = findEntityPropertyOrDefault(
-    entityInfo.properties, EntityPropertyKeys::Classname);
+  const auto& classname =
+    findEntityPropertyOrDefault(entityInfo.properties, EntityPropertyKeys::Classname);
   if (isWorldspawn(classname))
   {
     return createWorldNode(std::move(entityInfo), entityPropertyConfig, mapFormat);
@@ -948,8 +947,8 @@ void MapReader::createNodes(ParserStatus& status, kdl::task_manager& taskManager
       {
         if (!defaultParent)
         {
-          auto worldNode = std::unique_ptr<WorldNode>{
-            static_cast<WorldNode*>(nodeInfo->node.release())};
+          auto worldNode =
+            std::unique_ptr<WorldNode>{static_cast<WorldNode*>(nodeInfo->node.release())};
           defaultParent = onWorldNode(std::move(worldNode), status);
         }
         nodeInfo.reset();

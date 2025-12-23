@@ -293,8 +293,7 @@ void buildFrame(
 
   auto bounds = vm::bbox3f::builder{};
 
-  auto builder =
-    render::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
+  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
   for (const auto& md2Mesh : meshes)
   {
     if (!md2Mesh.vertices.empty())

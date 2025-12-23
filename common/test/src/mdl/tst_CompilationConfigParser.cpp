@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/CompilationConfigParser.h"
 #include "mdl/CompilationConfig.h"
+#include "mdl/CompilationConfigParser.h"
 #include "mdl/CompilationTask.h"
 
 #include "catch/CatchConfig.h"

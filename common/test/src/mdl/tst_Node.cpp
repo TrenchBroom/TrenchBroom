@@ -19,7 +19,6 @@
 
 #include "el/Expression.h"
 #include "el/Value.h"
-#include "mdl/NodeWriter.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -30,6 +29,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Node.h"
+#include "mdl/NodeWriter.h"
 #include "mdl/Object.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"

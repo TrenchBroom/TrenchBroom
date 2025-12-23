@@ -25,9 +25,9 @@
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
-#include "mdl/Quake3ShaderParser.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Quake3Shader.h"
+#include "mdl/Quake3ShaderParser.h"
 
 #include "kd/result.h"
 #include "kd/result_fold.h"

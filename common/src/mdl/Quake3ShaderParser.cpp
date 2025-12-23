@@ -202,8 +202,7 @@ void Quake3ShaderParser::parseStage(Quake3Shader& shader, ParserStatus& status)
   m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol, Quake3ShaderToken::CBrace);
 }
 
-void Quake3ShaderParser::parseTexture(
-  Quake3Shader& shader, ParserStatus& /* status */)
+void Quake3ShaderParser::parseTexture(Quake3Shader& shader, ParserStatus& /* status */)
 {
   const auto token =
     m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol, Quake3ShaderToken::String);
@@ -219,8 +218,7 @@ void Quake3ShaderParser::parseTexture(
   }
 }
 
-void Quake3ShaderParser::parseBodyEntry(
-  Quake3Shader& shader, ParserStatus& /* status */)
+void Quake3ShaderParser::parseBodyEntry(Quake3Shader& shader, ParserStatus& /* status */)
 {
   auto token =
     m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol, Quake3ShaderToken::String);
@@ -265,8 +263,7 @@ void Quake3ShaderParser::parseBodyEntry(
   }
 }
 
-void Quake3ShaderParser::parseStageEntry(
-  Quake3ShaderStage& stage, ParserStatus& status)
+void Quake3ShaderParser::parseStageEntry(Quake3ShaderStage& stage, ParserStatus& status)
 {
   auto token =
     m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol, Quake3ShaderToken::String);

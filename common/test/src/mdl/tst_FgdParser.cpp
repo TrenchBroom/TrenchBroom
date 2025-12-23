@@ -22,9 +22,9 @@
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
 #include "fs/TraversalMode.h"
-#include "mdl/FgdParser.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionTestUtils.h"
+#include "mdl/FgdParser.h"
 #include "mdl/PropertyDefinition.h"
 
 #include <algorithm>

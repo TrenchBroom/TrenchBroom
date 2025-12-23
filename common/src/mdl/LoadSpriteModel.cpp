@@ -271,8 +271,7 @@ Result<EntityModelData> loadSpriteModel(
 
                    return parseEmbeddedPalette(reader, renderMode, version, palette)
                      .transform([&](auto embeddedPalette) {
-                       auto data =
-                         EntityModelData{PitchType::Normal, orientationType};
+                       auto data = EntityModelData{PitchType::Normal, orientationType};
                        auto& surface = data.addSurface(name, frameCount);
 
                        auto materials = std::vector<Material>{};
@@ -312,8 +311,7 @@ Result<EntityModelData> loadSpriteModel(
                          size.inc(render::PrimType::Triangles, 2);
 
                          auto builder =
-                           render::IndexRangeMapBuilder<EntityModelVertex::Type>{
-                             6, size};
+                           render::IndexRangeMapBuilder<EntityModelVertex::Type>{6, size};
                          builder.addTriangles(triangles);
 
                          surface.addMesh(

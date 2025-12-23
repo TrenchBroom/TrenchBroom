@@ -375,8 +375,7 @@ void buildFrame(
 
   auto bounds = vm::bbox3f::builder{};
 
-  auto builder =
-    render::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
+  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
   for (const auto& mesh : meshes)
   {
     if (!mesh.vertices.empty())

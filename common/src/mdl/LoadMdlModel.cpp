@@ -249,9 +249,8 @@ Material parseSkin(
   const Palette& palette)
 {
   const auto size = width * height;
-  const auto transparency = (flags & MF_HOLEY)
-                              ? PaletteTransparency::Index255Transparent
-                              : PaletteTransparency::Opaque;
+  const auto transparency = (flags & MF_HOLEY) ? PaletteTransparency::Index255Transparent
+                                               : PaletteTransparency::Opaque;
   const auto mask = (transparency == PaletteTransparency::Index255Transparent)
                       ? TextureMask::On
                       : TextureMask::Off;
@@ -264,13 +263,7 @@ Material parseSkin(
     palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
     auto texture = Texture{
-      width,
-      height,
-      avgColor,
-      GL_RGBA,
-      mask,
-      NoEmbeddedDefaults{},
-      std::move(rgbaImage)};
+      width, height, avgColor, GL_RGBA, mask, NoEmbeddedDefaults{}, std::move(rgbaImage)};
 
     auto textureResource = createTextureResource(std::move(texture));
     return Material{std::move(skinName), std::move(textureResource)};
@@ -283,13 +276,7 @@ Material parseSkin(
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
 
   auto texture = Texture{
-    width,
-    height,
-    avgColor,
-    GL_RGBA,
-    mask,
-    NoEmbeddedDefaults{},
-    std::move(rgbaImage)};
+    width, height, avgColor, GL_RGBA, mask, NoEmbeddedDefaults{}, std::move(rgbaImage)};
 
   auto textureResource = createTextureResource(std::move(texture));
   return Material{std::move(skinName), std::move(textureResource)};
@@ -363,8 +350,7 @@ Result<EntityModelData> loadMdlModel(
     /* const auto syncType = */ reader.readSize<int32_t>();
     const auto flags = reader.readInt<int32_t>();
 
-    auto data =
-      EntityModelData{PitchType::MdlInverted, Orientation::Oriented};
+    auto data = EntityModelData{PitchType::MdlInverted, Orientation::Oriented};
     auto& surface = data.addSurface(name, frameCount);
 
     reader.seekFromBegin(MdlLayout::Skins);

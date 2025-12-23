@@ -17,8 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Color.h"
 #include "LoadWalTexture.h"
+
+#include "Color.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "mdl/MaterialUtils.h"
@@ -102,8 +103,7 @@ std::tuple<TextureBufferList, bool> readMips(
   return {std::move(buffers), hasTransparency};
 }
 
-Result<Texture> readQ2Wal(
-  fs::Reader& reader, const std::optional<Palette>& palette)
+Result<Texture> readQ2Wal(fs::Reader& reader, const std::optional<Palette>& palette)
 {
   static const auto MaxMipLevels = size_t(4);
   auto averageColor = Color{RgbaF{}};
@@ -227,8 +227,7 @@ Result<Texture> readDkWal(fs::Reader& reader)
 
 } // namespace
 
-Result<Texture> loadWalTexture(
-  fs::Reader& reader, const std::optional<Palette>& palette)
+Result<Texture> loadWalTexture(fs::Reader& reader, const std::optional<Palette>& palette)
 {
   try
   {
