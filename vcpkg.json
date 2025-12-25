@@ -38,6 +38,10 @@
       "version>=": "2.2.0#1"
     },
     {
+      "name": "stduuid",
+      "version>=": "1.2.3"
+    },
+    {
       "name": "tinyxml2",
       "version>=": "9.0.0",
       "platform": "!linux"

@@ -438,7 +438,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ViewPreferencePane.cpp
         ${COMMON_SOURCE_DIR}/ui/ViewUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/WelcomeWindow.cpp
-        ${COMMON_SOURCE_DIR}/Uuid.cpp
 )
 
 set(COMMON_HEADER
@@ -909,7 +908,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ViewPreferencePane.h
         ${COMMON_SOURCE_DIR}/ui/ViewUtils.h
         ${COMMON_SOURCE_DIR}/ui/WelcomeWindow.h
-        ${COMMON_SOURCE_DIR}/Uuid.h
 )
 
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
