@@ -18,6 +18,8 @@
  */
 
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"

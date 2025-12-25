@@ -55,22 +55,11 @@ auto addNonAsciiDirs(const std::filesystem::path& rootPath)
 
 } // namespace
 
-TestEnvironment::TestEnvironment(
-  const std::filesystem::path& dir, const SetupFunction& setup)
-  : m_sandboxPath{makeSandboxPath(std::filesystem::current_path())}
-  , m_dir{addNonAsciiDirs(m_sandboxPath) / dir}
-{
-  if (!dir.is_relative())
-  {
-    throw std::runtime_error{fmt::format("'{}' is not a relative path", dir.string())};
-  }
-
-  createTestEnvironment(setup);
-}
-
 TestEnvironment::TestEnvironment(const SetupFunction& setup)
-  : TestEnvironment{Catch::getResultCapture().getCurrentTestName(), setup}
+  : m_sandboxPath{makeSandboxPath(std::filesystem::current_path())}
+  , m_dir{addNonAsciiDirs(m_sandboxPath) / Catch::getResultCapture().getCurrentTestName()}
 {
+  createTestEnvironment(setup);
 }
 
 TestEnvironment::~TestEnvironment()
