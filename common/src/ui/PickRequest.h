@@ -24,7 +24,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
 }
@@ -35,14 +35,14 @@ class PickRequest
 {
 private:
   vm::ray3d m_pickRay;
-  const render::Camera* m_camera = nullptr;
+  const gl::Camera* m_camera = nullptr;
 
 public:
   PickRequest();
-  PickRequest(const vm::ray3d& pickRay, const render::Camera& camera);
+  PickRequest(const vm::ray3d& pickRay, const gl::Camera& camera);
 
   const vm::ray3d& pickRay() const;
-  const render::Camera& camera() const;
+  const gl::Camera& camera() const;
 };
 
 } // namespace ui

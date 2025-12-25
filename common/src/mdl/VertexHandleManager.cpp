@@ -37,7 +37,7 @@ const HitType::Type VertexHandleManager::HandleHitType = HitType::freeType();
 
 void VertexHandleManager::pick(
   const vm::ray3d& pickRay,
-  const render::Camera& camera,
+  const gl::Camera& camera,
   const double handleRadius,
   PickResult& pickResult) const
 {
@@ -86,7 +86,7 @@ const HitType::Type EdgeHandleManager::HandleHitType = HitType::freeType();
 
 void EdgeHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
-  const render::Camera& camera,
+  const gl::Camera& camera,
   const double handleRadius,
   const Grid& grid,
   PickResult& pickResult) const
@@ -115,7 +115,7 @@ void EdgeHandleManager::pickGridHandle(
 
 void EdgeHandleManager::pickCenterHandle(
   const vm::ray3d& pickRay,
-  const render::Camera& camera,
+  const gl::Camera& camera,
   const double handleRadius,
   PickResult& pickResult) const
 {
@@ -165,7 +165,7 @@ const HitType::Type FaceHandleManager::HandleHitType = HitType::freeType();
 
 void FaceHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
-  const render::Camera& camera,
+  const gl::Camera& camera,
   const double handleRadius,
   const Grid& grid,
   PickResult& pickResult) const
@@ -198,7 +198,7 @@ void FaceHandleManager::pickGridHandle(
 
 void FaceHandleManager::pickCenterHandle(
   const vm::ray3d& pickRay,
-  const render::Camera& camera,
+  const gl::Camera& camera,
   const double handleRadius,
   PickResult& pickResult) const
 {

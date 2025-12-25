@@ -20,13 +20,19 @@
 #pragma once
 
 #include "Color.h"
-#include "render/IndexRangeRenderer.h"
+#include "gl/IndexRangeRenderer.h"
 #include "render/Renderable.h"
 
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class Camera;
+}
+
+namespace render
+{
 class RenderBatch;
 
 class Compass : public DirectRenderable
@@ -38,9 +44,9 @@ private:
   static const float m_headLength;
   static const float m_headRadius;
 
-  IndexRangeRenderer m_arrowRenderer;
-  IndexRangeRenderer m_backgroundRenderer;
-  IndexRangeRenderer m_backgroundOutlineRenderer;
+  gl::IndexRangeRenderer m_arrowRenderer;
+  gl::IndexRangeRenderer m_backgroundRenderer;
+  gl::IndexRangeRenderer m_backgroundOutlineRenderer;
   bool m_prepared = false;
 
 public:
@@ -50,14 +56,14 @@ public:
   void render(RenderBatch& renderBatch);
 
 private: // implement Renderable interface
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 
 private:
   void makeArrows();
   void makeBackground();
 
-  vm::mat4x4f cameraRotationMatrix(const Camera& camera) const;
+  vm::mat4x4f cameraRotationMatrix(const gl::Camera& camera) const;
 
 protected:
   void renderBackground(RenderContext& renderContext);
@@ -72,4 +78,5 @@ private:
     RenderContext& renderContext, const vm::mat4x4f& cameraTransformation) = 0;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

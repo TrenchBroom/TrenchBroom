@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Color.h"
-#include "render/GLVertexType.h"
-#include "render/IndexRangeRenderer.h"
+#include "gl/IndexRangeRenderer.h"
+#include "gl/VertexType.h"
 #include "render/Renderable.h"
 
 #include "vm/bbox.h"
@@ -29,12 +29,18 @@
 #include <map>
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class ActiveShader;
 template <typename VertexSpec>
 class IndexRangeMapBuilder;
 class IndexRangeRenderer;
+} // namespace gl
+
+namespace render
+{
 
 enum class PrimitiveRendererOcclusionPolicy
 {
@@ -53,7 +59,7 @@ class PrimitiveRenderer : public DirectRenderable
 {
 public:
 private:
-  using Vertex = GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
 
   struct LineRenderAttributes
   {
@@ -64,13 +70,15 @@ private:
     std::partial_ordering operator<=>(const LineRenderAttributes& other) const;
     bool operator==(const LineRenderAttributes& other) const;
 
-    void render(IndexRangeRenderer& renderer, ActiveShader& shader, float dpiScale) const;
+    void render(
+      gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader, float dpiScale) const;
   };
 
-  using LineMeshMap = std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Type>>;
+  using LineMeshMap =
+    std::map<LineRenderAttributes, gl::IndexRangeMapBuilder<Vertex::Type>>;
   LineMeshMap m_lineMeshes;
 
-  using LineMeshRendererMap = std::map<LineRenderAttributes, IndexRangeRenderer>;
+  using LineMeshRendererMap = std::map<LineRenderAttributes, gl::IndexRangeRenderer>;
   LineMeshRendererMap m_lineMeshRenderers;
 
   class TriangleRenderAttributes
@@ -89,14 +97,15 @@ private:
     std::partial_ordering operator<=>(const TriangleRenderAttributes& other) const;
     bool operator==(const TriangleRenderAttributes& other) const;
 
-    void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
+    void render(gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader) const;
   };
 
   using TriangleMeshMap =
-    std::map<TriangleRenderAttributes, IndexRangeMapBuilder<Vertex::Type>>;
+    std::map<TriangleRenderAttributes, gl::IndexRangeMapBuilder<Vertex::Type>>;
   TriangleMeshMap m_triangleMeshes;
 
-  using TriangleMeshRendererMap = std::map<TriangleRenderAttributes, IndexRangeRenderer>;
+  using TriangleMeshRendererMap =
+    std::map<TriangleRenderAttributes, gl::IndexRangeRenderer>;
   TriangleMeshRendererMap m_triangleMeshRenderers;
 
 public:
@@ -164,12 +173,14 @@ public:
     const vm::vec3f& end);
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
-  void prepareLines(VboManager& vboManager);
-  void prepareTriangles(VboManager& vboManager);
+  void doPrepareVertices(gl::VboManager& vboManager) override;
+  void prepareLines(gl::VboManager& vboManager);
+  void prepareTriangles(gl::VboManager& vboManager);
 
   void doRender(RenderContext& renderContext) override;
   void renderLines(RenderContext& renderContext);
   void renderTriangles(RenderContext& renderContext);
 };
-} // namespace tb::render
+
+} // namespace render
+} // namespace tb

@@ -19,6 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "gl/Material.h"
 #include "mdl/EntityModelDataResource.h"
 #include "mdl/EntityModel_Forward.h"
 #include "octree.h"
@@ -37,20 +38,19 @@ namespace tb
 template <typename T, typename U>
 class octree;
 
-namespace render
+namespace gl
 {
-enum class PrimType;
 class IndexRangeMap;
+class MaterialCollection;
 class MaterialIndexRangeMap;
 class MaterialIndexRangeRenderer;
 class MaterialRenderer;
-} // namespace render
+
+enum class PrimType;
+} // namespace gl
 
 namespace mdl
 {
-class Material;
-class MaterialCollection;
-
 enum class PitchType
 {
   Normal,
@@ -160,7 +160,7 @@ public:
    */
   void addToSpacialTree(
     const std::vector<EntityModelVertex>& vertices,
-    render::PrimType primType,
+    gl::PrimType primType,
     size_t index,
     size_t count);
 };
@@ -180,7 +180,7 @@ class EntityModelSurface
 private:
   std::string m_name;
   std::vector<std::unique_ptr<EntityModelMesh>> m_meshes;
-  std::unique_ptr<MaterialCollection> m_skins;
+  std::unique_ptr<gl::MaterialCollection> m_skins;
 
   kdl_reflect_decl(EntityModelSurface, m_name, m_meshes, m_skins);
 
@@ -224,7 +224,7 @@ public:
   void addMesh(
     EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    render::IndexRangeMap indices);
+    gl::IndexRangeMap indices);
 
   /**
    * Adds a new material mesh to this surface.
@@ -236,14 +236,14 @@ public:
   void addMesh(
     EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    render::MaterialIndexRangeMap indices);
+    gl::MaterialIndexRangeMap indices);
 
   /**
    * Sets the given materials as skins to this surface.
    *
    * @param skins the materials to set
    */
-  void setSkins(std::vector<Material> skins);
+  void setSkins(std::vector<gl::Material> skins);
 
   /**
    * Returns the number of frame meshes in this surface, should match the model's frame
@@ -266,7 +266,7 @@ public:
    * @param name the name of the skin to find
    * @return the skin with the given name, or null if no such skin was found
    */
-  const Material* skin(const std::string& name) const;
+  const gl::Material* skin(const std::string& name) const;
 
   /**
    * Returns the skin with the given index.
@@ -274,9 +274,9 @@ public:
    * @param index the index of the skin to find
    * @return the skin with the given index, or null if the index is out of bounds
    */
-  const Material* skin(size_t index) const;
+  const gl::Material* skin(size_t index) const;
 
-  std::unique_ptr<render::MaterialIndexRangeRenderer> buildRenderer(
+  std::unique_ptr<gl::MaterialIndexRangeRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;
 };
 
@@ -319,7 +319,7 @@ public:
    * @param frameIndex the index of the frame to render
    * @return the renderer
    */
-  std::unique_ptr<render::MaterialRenderer> buildRenderer(
+  std::unique_ptr<gl::MaterialRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;
 
   /**

@@ -21,11 +21,11 @@
 
 #include "fs/FileSystem.h"
 #include "fs/ReaderException.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/Material.h"
+#include "gl/PrimType.h"
 #include "mdl/LoadSkin.h"
-#include "mdl/Material.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
 
 #include "kd/path_utils.h"
 
@@ -163,7 +163,7 @@ struct Md2MeshVertex
 
 struct Md2Mesh
 {
-  render::PrimType type;
+  gl::PrimType type;
   std::vector<Md2MeshVertex> vertices;
 };
 
@@ -236,7 +236,7 @@ auto parseMeshes(fs::Reader reader, const size_t /* commandCount */)
     const auto vertexCount = reader.readInt<int32_t>();
 
     const auto type =
-      vertexCount < 0 ? render::PrimType::TriangleFan : render::PrimType::TriangleStrip;
+      vertexCount < 0 ? gl::PrimType::TriangleFan : gl::PrimType::TriangleStrip;
     auto vertices = parseMeshVertices(reader, size_t(std::abs(vertexCount)));
     meshes.push_back({type, std::move(vertices)});
   }
@@ -251,7 +251,7 @@ void loadSkins(
   const fs::FileSystem& fs,
   Logger& logger)
 {
-  auto materials = std::vector<Material>{};
+  auto materials = std::vector<gl::Material>{};
   materials.reserve(skins.size());
 
   for (const auto& skin : skins)
@@ -285,7 +285,7 @@ void buildFrame(
   const std::vector<Md2Mesh>& meshes)
 {
   size_t vertexCount = 0;
-  auto size = render::IndexRangeMap::Size{};
+  auto size = gl::IndexRangeMap::Size{};
   for (const auto& md2Mesh : meshes)
   {
     vertexCount += md2Mesh.vertices.size();
@@ -294,7 +294,7 @@ void buildFrame(
 
   auto bounds = vm::bbox3f::builder{};
 
-  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
+  auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
   for (const auto& md2Mesh : meshes)
   {
     if (!md2Mesh.vertices.empty())
@@ -302,14 +302,13 @@ void buildFrame(
       vertexCount += md2Mesh.vertices.size();
       const auto vertices = getVertices(frame, md2Mesh.vertices);
 
-      bounds.add(
-        std::begin(vertices), std::end(vertices), render::GetVertexComponent<0>());
+      bounds.add(std::begin(vertices), std::end(vertices), gl::GetVertexComponent<0>());
 
-      if (md2Mesh.type == render::PrimType::TriangleFan)
+      if (md2Mesh.type == gl::PrimType::TriangleFan)
       {
         builder.addTriangleFan(vertices);
       }
-      else if (md2Mesh.type == render::PrimType::TriangleStrip)
+      else if (md2Mesh.type == gl::PrimType::TriangleStrip)
       {
         builder.addTriangleStrip(vertices);
       }

@@ -21,16 +21,16 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Camera.h"
+#include "gl/Material.h"
+#include "gl/MaterialRenderFunc.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
+#include "gl/Texture.h"
 #include "render/BrushRendererArrays.h"
-#include "render/Camera.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
-#include "render/Shaders.h"
 
 namespace tb::render
 {
@@ -38,10 +38,10 @@ namespace tb::render
 namespace
 {
 
-class RenderFunc : public MaterialRenderFunc
+class RenderFunc : public gl::MaterialRenderFunc
 {
 private:
-  ActiveShader& m_shader;
+  gl::ActiveShader& m_shader;
   bool m_applyMaterial;
   Color m_defaultColor;
   int m_minFilter;
@@ -49,7 +49,7 @@ private:
 
 public:
   RenderFunc(
-    ActiveShader& shader,
+    gl::ActiveShader& shader,
     const bool applyMaterial,
     Color defaultColor,
     const int minFilter,
@@ -62,9 +62,9 @@ public:
   {
   }
 
-  void before(const mdl::Material* material) override
+  void before(const gl::Material* material) override
   {
-    if (const auto* texture = getTexture(material))
+    if (const auto* texture = gl::getTexture(material))
     {
       material->activate(m_minFilter, m_magFilter);
       m_shader.set("ApplyMaterial", m_applyMaterial);
@@ -77,7 +77,7 @@ public:
     }
   }
 
-  void after(const mdl::Material* material) override
+  void after(const gl::Material* material) override
   {
     if (material)
     {
@@ -125,7 +125,7 @@ void FaceRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void FaceRenderer::prepareVerticesAndIndices(VboManager& vboManager)
+void FaceRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
 {
   m_vertexArray->prepare(vboManager);
 
@@ -140,7 +140,7 @@ void FaceRenderer::doRender(RenderContext& context)
   if (!m_indexArrayMap->empty() && m_vertexArray->setupVertices())
   {
     auto& shaderManager = context.shaderManager();
-    auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
+    auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
     auto& prefs = PreferenceManager::instance();
 
     const auto applyMaterial = context.showMaterials();
@@ -189,15 +189,15 @@ void FaceRenderer::doRender(RenderContext& context)
       if (brushIndexHolderPtr->hasValidIndices())
       {
         const auto* texture = getTexture(material);
-        const auto enableMasked = texture && texture->mask() == mdl::TextureMask::On;
+        const auto enableMasked = texture && texture->mask() == gl::TextureMask::On;
 
         // set any per-material uniforms
-        shader.set("GridColor", gridColorForMaterial(material));
+        shader.set("GridColor", material);
         shader.set("EnableMasked", enableMasked);
 
         func.before(material);
         brushIndexHolderPtr->setupIndices();
-        brushIndexHolderPtr->render(PrimType::Triangles);
+        brushIndexHolderPtr->render(gl::PrimType::Triangles);
         brushIndexHolderPtr->cleanupIndices();
         func.after(material);
       }

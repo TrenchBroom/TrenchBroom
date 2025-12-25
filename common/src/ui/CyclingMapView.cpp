@@ -22,7 +22,7 @@
 #include <QShortcut>
 #include <QStackedLayout>
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 #include "ui/MapDocument.h"
 #include "ui/MapView2D.h"
 #include "ui/MapView3D.h"
@@ -38,7 +38,7 @@ namespace tb::ui
 CyclingMapView::CyclingMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  GLContextManager& contextManager,
+  gl::ContextManager& contextManager,
   const int views,
   QWidget* parent)
   : MapViewContainer{parent}
@@ -49,7 +49,7 @@ CyclingMapView::CyclingMapView(
 }
 
 void CyclingMapView::createGui(
-  MapViewToolBox& toolBox, GLContextManager& contextManager, const int views)
+  MapViewToolBox& toolBox, gl::ContextManager& contextManager, const int views)
 {
   if (views & View_3D)
   {
@@ -133,7 +133,7 @@ void CyclingMapView::selectTall()
   m_currentMapView->selectTall();
 }
 
-void CyclingMapView::reset2dCameras(const render::Camera& masterCamera, bool animate)
+void CyclingMapView::reset2dCameras(const gl::Camera& masterCamera, bool animate)
 {
   for (auto* mapView : m_mapViews)
   {

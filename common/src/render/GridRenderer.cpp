@@ -21,11 +21,11 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/ActiveShader.h"
-#include "render/OrthographicCamera.h"
-#include "render/PrimType.h"
+#include "gl/ActiveShader.h"
+#include "gl/OrthographicCamera.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
 
 #include "vm/bbox.h"
 #include "vm/vec.h"
@@ -33,13 +33,13 @@
 namespace tb::render
 {
 GridRenderer::GridRenderer(
-  const OrthographicCamera& camera, const vm::bbox3d& worldBounds)
-  : m_vertexArray(VertexArray::move(vertices(camera, worldBounds)))
+  const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds)
+  : m_vertexArray(gl::VertexArray::move(vertices(camera, worldBounds)))
 {
 }
 
 std::vector<GridRenderer::Vertex> GridRenderer::vertices(
-  const OrthographicCamera& camera, const vm::bbox3d& worldBounds)
+  const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds)
 {
   const auto& viewport = camera.zoomedViewport();
   const auto w = float(viewport.width) / 2.0f;
@@ -72,7 +72,7 @@ std::vector<GridRenderer::Vertex> GridRenderer::vertices(
   }
 }
 
-void GridRenderer::doPrepareVertices(VboManager& vboManager)
+void GridRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
@@ -83,7 +83,8 @@ void GridRenderer::doRender(RenderContext& renderContext)
   {
     const auto& camera = renderContext.camera();
 
-    auto shader = ActiveShader{renderContext.shaderManager(), Shaders::Grid2DShader};
+    auto shader =
+      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::Grid2DShader};
     shader.set("Normal", -camera.direction());
     shader.set("RenderGrid", renderContext.showGrid());
     shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
@@ -91,7 +92,7 @@ void GridRenderer::doRender(RenderContext& renderContext)
     shader.set("GridColor", pref(Preferences::GridColor2D));
     shader.set("CameraZoom", camera.zoom());
 
-    m_vertexArray.render(PrimType::Quads);
+    m_vertexArray.render(gl::PrimType::Quads);
   }
 }
 

@@ -20,16 +20,16 @@
 #include "EntityDecalRenderer.h"
 
 #include "BrushRendererArrays.h"
+#include "gl/Material.h"
+#include "gl/MaterialManager.h"
+#include "gl/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/DecalDefinition.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
-#include "mdl/Material.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/ModelUtils.h"
-#include "mdl/Texture.h"
 #include "mdl/UVCoordSystem.h"
 #include "mdl/WorldNode.h"
 
@@ -59,12 +59,12 @@ std::optional<mdl::DecalSpecification> getDecalSpecification(
          | kdl::value_or(std::nullopt);
 }
 
-using Vertex = render::GLVertexTypes::P3NT2::Vertex;
+using Vertex = gl::VertexTypes::P3NT2::Vertex;
 std::vector<Vertex> createDecalBrushFace(
   const mdl::EntityNode& entityNode,
   const mdl::BrushNode& brushNode,
   const mdl::BrushFace& face,
-  const mdl::Material& material)
+  const gl::Material& material)
 {
   const auto* texture = material.texture();
   if (!texture)

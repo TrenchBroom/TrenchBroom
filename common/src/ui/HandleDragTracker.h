@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "gl/Camera.h"
 #include "mdl/HitFilter.h"
-#include "render/Camera.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 

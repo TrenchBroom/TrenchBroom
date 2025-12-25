@@ -19,10 +19,10 @@
 
 #include "TriangleRenderer.h"
 
-#include "render/ActiveShader.h"
-#include "render/Camera.h"
+#include "gl/ActiveShader.h"
+#include "gl/Camera.h"
+#include "gl/Shaders.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
 
 #include <utility>
 
@@ -30,13 +30,15 @@ namespace tb::render
 {
 TriangleRenderer::TriangleRenderer() = default;
 
-TriangleRenderer::TriangleRenderer(VertexArray vertexArray, IndexRangeMap indexArray)
+TriangleRenderer::TriangleRenderer(
+  gl::VertexArray vertexArray, gl::IndexRangeMap indexArray)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArray{std::move(indexArray)}
 {
 }
 
-TriangleRenderer::TriangleRenderer(VertexArray vertexArray, const PrimType primType)
+TriangleRenderer::TriangleRenderer(
+  gl::VertexArray vertexArray, const gl::PrimType primType)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArray{primType, 0, m_vertexArray.vertexCount()}
 {
@@ -62,7 +64,7 @@ void TriangleRenderer::setTintColor(const Color& tintColor)
   m_tintColor = tintColor;
 }
 
-void TriangleRenderer::doPrepareVertices(VboManager& vboManager)
+void TriangleRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
@@ -71,7 +73,7 @@ void TriangleRenderer::doRender(RenderContext& context)
 {
   if (m_vertexArray.vertexCount() != 0)
   {
-    auto shader = ActiveShader{context.shaderManager(), Shaders::TriangleShader};
+    auto shader = gl::ActiveShader{context.shaderManager(), gl::Shaders::TriangleShader};
     shader.set("ApplyTinting", m_applyTinting);
     shader.set("TintColor", m_tintColor);
     shader.set("UseColor", m_useColor);

@@ -19,7 +19,7 @@
 
 #include "CameraAnimation.h"
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 
 #include "vm/vec.h"
 
@@ -28,7 +28,7 @@ namespace tb::ui
 const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
 
 CameraAnimation::CameraAnimation(
-  render::Camera& camera,
+  gl::Camera& camera,
   const vm::vec3f& targetPosition,
   const vm::vec3f& targetDirection,
   const vm::vec3f& targetUp,

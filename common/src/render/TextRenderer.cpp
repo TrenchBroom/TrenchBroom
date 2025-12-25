@@ -19,16 +19,16 @@
 
 #include "TextRenderer.h"
 
-#include "AttrString.h"
-#include "render/ActiveShader.h"
-#include "render/Camera.h"
-#include "render/FontManager.h"
-#include "render/PrimType.h"
+#include "gl/ActiveShader.h"
+#include "gl/AttrString.h"
+#include "gl/Camera.h"
+#include "gl/FontManager.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
+#include "gl/TextureFont.h"
+#include "mdl/BasicShapes.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
-#include "render/Shaders.h"
 #include "render/TextAnchor.h"
-#include "render/TextureFont.h"
 
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
@@ -45,7 +45,7 @@ const size_t TextRenderer::RectCornerSegments = 3;
 const float TextRenderer::RectCornerRadius = 3.0f;
 
 TextRenderer::TextRenderer(
-  FontDescriptor fontDescriptor,
+  gl::FontDescriptor fontDescriptor,
   const float maxViewDistance,
   const float minZoomFactor,
   const vm::vec2f& inset)
@@ -60,7 +60,7 @@ void TextRenderer::renderString(
   RenderContext& renderContext,
   const Color& textColor,
   const Color& backgroundColor,
-  const AttrString& string,
+  const gl::AttrString& string,
   const TextAnchor& position)
 {
   renderString(renderContext, textColor, backgroundColor, string, position, false);
@@ -70,7 +70,7 @@ void TextRenderer::renderStringOnTop(
   RenderContext& renderContext,
   const Color& textColor,
   const Color& backgroundColor,
-  const AttrString& string,
+  const gl::AttrString& string,
   const TextAnchor& position)
 {
   renderString(renderContext, textColor, backgroundColor, string, position, true);
@@ -80,7 +80,7 @@ void TextRenderer::renderString(
   RenderContext& renderContext,
   const Color& textColor,
   const Color& backgroundColor,
-  const AttrString& string,
+  const gl::AttrString& string,
   const TextAnchor& position,
   const bool onTop)
 {
@@ -126,7 +126,7 @@ void TextRenderer::renderString(
 
 bool TextRenderer::isVisible(
   RenderContext& renderContext,
-  const AttrString& string,
+  const gl::AttrString& string,
   const TextAnchor& position,
   const float distance,
   const bool onTop) const
@@ -176,25 +176,25 @@ void TextRenderer::addEntry(EntryCollection& collection, const Entry& entry)
 {
   collection.entries.push_back(entry);
   collection.textVertexCount += entry.vertices.size();
-  collection.rectVertexCount += roundedRect2DVertexCount(RectCornerSegments);
+  collection.rectVertexCount += mdl::roundedRect2DVertexCount(RectCornerSegments);
 }
 
 vm::vec2f TextRenderer::stringSize(
-  RenderContext& renderContext, const AttrString& string) const
+  RenderContext& renderContext, const gl::AttrString& string) const
 {
   auto& fontManager = renderContext.fontManager();
   auto& font = fontManager.font(m_fontDescriptor);
   return vm::round(font.measure(string));
 }
 
-void TextRenderer::doPrepareVertices(VboManager& vboManager)
+void TextRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   prepare(m_entries, false, vboManager);
   prepare(m_entriesOnTop, true, vboManager);
 }
 
 void TextRenderer::prepare(
-  EntryCollection& collection, const bool onTop, VboManager& vboManager)
+  EntryCollection& collection, const bool onTop, gl::VboManager& vboManager)
 {
   auto textVertices = std::vector<TextVertex>{};
   textVertices.reserve(collection.textVertexCount);
@@ -207,8 +207,8 @@ void TextRenderer::prepare(
     addEntry(entry, onTop, textVertices, rectVertices);
   }
 
-  collection.textArray = VertexArray::move(std::move(textVertices));
-  collection.rectArray = VertexArray::move(std::move(rectVertices));
+  collection.textArray = gl::VertexArray::move(std::move(textVertices));
+  collection.rectArray = gl::VertexArray::move(std::move(rectVertices));
 
   collection.textArray.prepare(vboManager);
   collection.rectArray.prepare(vboManager);
@@ -239,7 +239,7 @@ void TextRenderer::addEntry(
   }
 
   const auto rect =
-    roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
+    mdl::roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
   for (size_t i = 0; i < rect.size(); ++i)
   {
     const auto& vertex = rect[i];
@@ -277,16 +277,16 @@ void TextRenderer::render(EntryCollection& collection, RenderContext& renderCont
   glAssert(glDisable(GL_TEXTURE_2D));
 
   auto backgroundShader =
-    ActiveShader{renderContext.shaderManager(), Shaders::TextBackgroundShader};
-  collection.rectArray.render(PrimType::Triangles);
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::TextBackgroundShader};
+  collection.rectArray.render(gl::PrimType::Triangles);
 
   glAssert(glEnable(GL_TEXTURE_2D));
 
   auto textShader =
-    ActiveShader{renderContext.shaderManager(), Shaders::ColoredTextShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::ColoredTextShader};
   textShader.set("Texture", 0);
   font.activate();
-  collection.textArray.render(PrimType::Quads);
+  collection.textArray.render(gl::PrimType::Quads);
   font.deactivate();
 }
 

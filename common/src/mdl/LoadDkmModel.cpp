@@ -23,10 +23,10 @@
 #include "fs/PathInfo.h"
 #include "fs/ReaderException.h"
 #include "fs/TraversalMode.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/PrimType.h"
 #include "mdl/LoadSkin.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
 
 #include "kd/path_utils.h"
 #include "kd/result_fold.h"
@@ -171,7 +171,7 @@ struct DkmMeshVertex
 
 struct DkmMesh
 {
-  render::PrimType type;
+  gl::PrimType type;
   std::vector<DkmMeshVertex> vertices;
 };
 
@@ -287,7 +287,7 @@ auto parseMeshes(fs::Reader reader, const size_t /* commandCount */)
     /* const auto surfaceIndex = */ reader.readSize<int32_t>();
 
     const auto type =
-      vertexCount < 0 ? render::PrimType::TriangleFan : render::PrimType::TriangleStrip;
+      vertexCount < 0 ? gl::PrimType::TriangleFan : gl::PrimType::TriangleStrip;
     auto vertices = parseMeshVertices(reader, size_t(std::abs(vertexCount)));
     meshes.push_back({type, std::move(vertices)});
 
@@ -365,7 +365,7 @@ void buildFrame(
   const std::vector<DkmMesh>& meshes)
 {
   size_t vertexCount = 0;
-  auto size = render::IndexRangeMap::Size{};
+  auto size = gl::IndexRangeMap::Size{};
 
   for (const auto& mesh : meshes)
   {
@@ -375,7 +375,7 @@ void buildFrame(
 
   auto bounds = vm::bbox3f::builder{};
 
-  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
+  auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
   for (const auto& mesh : meshes)
   {
     if (!mesh.vertices.empty())
@@ -383,12 +383,12 @@ void buildFrame(
       vertexCount += mesh.vertices.size();
       const auto vertices = getVertices(frame, mesh.vertices);
 
-      bounds.add(vertices.begin(), vertices.end(), render::GetVertexComponent<0>());
-      if (mesh.type == render::PrimType::TriangleStrip)
+      bounds.add(vertices.begin(), vertices.end(), gl::GetVertexComponent<0>());
+      if (mesh.type == gl::PrimType::TriangleStrip)
       {
         builder.addTriangleStrip(vertices);
       }
-      else if (mesh.type == render::PrimType::TriangleFan)
+      else if (mesh.type == gl::PrimType::TriangleFan)
       {
         builder.addTriangleFan(vertices);
       }

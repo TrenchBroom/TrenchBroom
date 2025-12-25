@@ -25,7 +25,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
 }
@@ -37,7 +37,7 @@ class CameraAnimation : public Animation
 private:
   static const Type AnimationType;
 
-  render::Camera& m_camera;
+  gl::Camera& m_camera;
 
   const vm::vec3f m_startPosition;
   const vm::vec3f m_startDirection;
@@ -50,7 +50,7 @@ private:
 
 public:
   CameraAnimation(
-    render::Camera& camera,
+    gl::Camera& camera,
     const vm::vec3f& targetPosition,
     const vm::vec3f& targetDirection,
     const vm::vec3f& targetUp,

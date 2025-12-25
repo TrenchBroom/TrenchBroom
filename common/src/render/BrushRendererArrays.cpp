@@ -79,12 +79,12 @@ bool DirtyRangeTracker::clean() const
 // IndexHolder
 
 IndexHolder::IndexHolder()
-  : VboHolder<Index>(VboType::ElementArrayBuffer)
+  : VboHolder<Index>(gl::VboType::ElementArrayBuffer)
 {
 }
 
 IndexHolder::IndexHolder(std::vector<Index>& elements)
-  : VboHolder<Index>(VboType::ElementArrayBuffer, elements)
+  : VboHolder<Index>(gl::VboType::ElementArrayBuffer, elements)
 {
 }
 
@@ -94,13 +94,15 @@ void IndexHolder::zeroRange(const size_t offsetWithinBlock, const size_t count)
   std::memset(dest, 0, count * sizeof(Index));
 }
 
-void IndexHolder::render(const PrimType primType, const size_t offset, size_t count) const
+void IndexHolder::render(
+  const gl::PrimType primType, const size_t offset, size_t count) const
 {
   const auto renderCount = static_cast<GLsizei>(count);
   const auto* renderOffset =
     reinterpret_cast<GLvoid*>(m_vbo->offset() + sizeof(Index) * offset);
 
-  glAssert(glDrawElements(toGL(primType), renderCount, glType<Index>(), renderOffset));
+  glAssert(
+    glDrawElements(toGL(primType), renderCount, gl::glType<Index>(), renderOffset));
 }
 
 std::shared_ptr<IndexHolder> IndexHolder::swap(std::vector<IndexHolder::Index>& elements)
@@ -152,7 +154,7 @@ void BrushIndexArray::zeroElementsWithKey(AllocationTracker::Block* key)
   m_indexHolder.zeroRange(pos, size);
 }
 
-void BrushIndexArray::render(const PrimType primType) const
+void BrushIndexArray::render(const gl::PrimType primType) const
 {
   contract_pre(m_indexHolder.prepared());
 
@@ -164,7 +166,7 @@ bool BrushIndexArray::prepared() const
   return m_indexHolder.prepared();
 }
 
-void BrushIndexArray::prepare(VboManager& vboManager)
+void BrushIndexArray::prepare(gl::VboManager& vboManager)
 {
   m_indexHolder.prepare(vboManager);
   contract_post(m_indexHolder.prepared());
@@ -233,7 +235,7 @@ bool BrushVertexArray::prepared() const
   return m_vertexHolder.prepared();
 }
 
-void BrushVertexArray::prepare(VboManager& vboManager)
+void BrushVertexArray::prepare(gl::VboManager& vboManager)
 {
   m_vertexHolder.prepare(vboManager);
   contract_post(m_vertexHolder.prepared());

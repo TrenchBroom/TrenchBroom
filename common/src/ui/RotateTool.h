@@ -26,6 +26,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+}
+
 namespace mdl
 {
 class Grid;
@@ -33,7 +38,6 @@ class Grid;
 
 namespace render
 {
-class Camera;
 class RenderBatch;
 class RenderContext;
 } // namespace render
@@ -69,8 +73,8 @@ public:
   void setRotationCenter(const vm::vec3d& position);
   void resetRotationCenter();
 
-  double majorHandleRadius(const render::Camera& camera) const;
-  double minorHandleRadius(const render::Camera& camera) const;
+  double majorHandleRadius(const gl::Camera& camera) const;
+  double minorHandleRadius(const gl::Camera& camera) const;
 
   void beginRotation();
   void commitRotation();
@@ -79,8 +83,8 @@ public:
   double snapRotationAngle(double angle) const;
   void applyRotation(const vm::vec3d& center, const vm::vec3d& axis, double angle);
 
-  mdl::Hit pick2D(const vm::ray3d& pickRay, const render::Camera& camera);
-  mdl::Hit pick3D(const vm::ray3d& pickRay, const render::Camera& camera);
+  mdl::Hit pick2D(const vm::ray3d& pickRay, const gl::Camera& camera);
+  mdl::Hit pick3D(const vm::ray3d& pickRay, const gl::Camera& camera);
 
   vm::vec3d rotationAxis(RotateHandle::HitArea area) const;
 

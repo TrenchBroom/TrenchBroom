@@ -6,6 +6,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.cpp
+        ${COMMON_SOURCE_DIR}/mdl/BasicShapes.cpp
         ${COMMON_SOURCE_DIR}/mdl/BezierPatch.cpp
         ${COMMON_SOURCE_DIR}/mdl/Brush.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushBuilder.cpp
@@ -15,6 +16,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReader.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReference.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.cpp
+        ${COMMON_SOURCE_DIR}/mdl/BrushRendererBrushCache.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.cpp
         ${COMMON_SOURCE_DIR}/mdl/CircleShape.cpp
         ${COMMON_SOURCE_DIR}/mdl/ColorRange.cpp
@@ -126,9 +128,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/MapHeader.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapParser.cpp
         ${COMMON_SOURCE_DIR}/mdl/MapReader.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Material.cpp
-        ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.cpp
-        ${COMMON_SOURCE_DIR}/mdl/MaterialManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/MaterialUtils.cpp
         ${COMMON_SOURCE_DIR}/mdl/MissingClassnameValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/MissingDefinitionValidator.cpp
@@ -165,7 +164,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/mdl/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/RepeatStack.cpp
-        ${COMMON_SOURCE_DIR}/mdl/ResourceId.cpp
         ${COMMON_SOURCE_DIR}/mdl/Selection.cpp
         ${COMMON_SOURCE_DIR}/mdl/SelectionChange.cpp
         ${COMMON_SOURCE_DIR}/mdl/SelectionCommand.cpp
@@ -182,9 +180,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/TagManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/mdl/TagVisitor.cpp
-        ${COMMON_SOURCE_DIR}/mdl/Texture.cpp
-        ${COMMON_SOURCE_DIR}/mdl/TextureBuffer.cpp
-        ${COMMON_SOURCE_DIR}/mdl/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/mdl/Transaction.cpp
         ${COMMON_SOURCE_DIR}/mdl/UndoableCommand.cpp
         ${COMMON_SOURCE_DIR}/mdl/UpdateBrushFaceAttributes.cpp
@@ -200,14 +195,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/octree.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
-        ${COMMON_SOURCE_DIR}/render/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.cpp
-        ${COMMON_SOURCE_DIR}/render/AttrString.cpp
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.cpp
-        ${COMMON_SOURCE_DIR}/render/BrushRendererBrushCache.cpp
-        ${COMMON_SOURCE_DIR}/render/Camera.cpp
         ${COMMON_SOURCE_DIR}/render/Circle.cpp
         ${COMMON_SOURCE_DIR}/render/Compass.cpp
         ${COMMON_SOURCE_DIR}/render/Compass2D.cpp
@@ -218,57 +209,27 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/render/EntityModelRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/EntityRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/FaceRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/FontDescriptor.cpp
-        ${COMMON_SOURCE_DIR}/render/FontFactory.cpp
-        ${COMMON_SOURCE_DIR}/render/FontGlyph.cpp
-        ${COMMON_SOURCE_DIR}/render/FontGlyphBuilder.cpp
-        ${COMMON_SOURCE_DIR}/render/FontManager.cpp
-        ${COMMON_SOURCE_DIR}/render/FontTexture.cpp
-        ${COMMON_SOURCE_DIR}/render/FreeTypeFontFactory.cpp
-        ${COMMON_SOURCE_DIR}/render/GL.cpp
         ${COMMON_SOURCE_DIR}/render/GridRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/GroupLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/GroupRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexArray.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/render/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/LinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/MapRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/ObjectRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/OrthographicCamera.cpp
         ${COMMON_SOURCE_DIR}/render/PatchRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/PerspectiveCamera.cpp
         ${COMMON_SOURCE_DIR}/render/PointGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/PointHandleRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/PrimitiveRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/PrimType.cpp
         ${COMMON_SOURCE_DIR}/render/Renderable.cpp
         ${COMMON_SOURCE_DIR}/render/RenderBatch.cpp
         ${COMMON_SOURCE_DIR}/render/RenderContext.cpp
         ${COMMON_SOURCE_DIR}/render/RenderService.cpp
-        ${COMMON_SOURCE_DIR}/render/RenderUtils.cpp
         ${COMMON_SOURCE_DIR}/render/SelectionBoundsRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/Shader.cpp
-        ${COMMON_SOURCE_DIR}/render/ShaderManager.cpp
-        ${COMMON_SOURCE_DIR}/render/ShaderProgram.cpp
-        ${COMMON_SOURCE_DIR}/render/Shaders.cpp
         ${COMMON_SOURCE_DIR}/render/Sphere.cpp
         ${COMMON_SOURCE_DIR}/render/SpikeGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/TextAnchor.cpp
         ${COMMON_SOURCE_DIR}/render/TextRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/TextureFont.cpp
         ${COMMON_SOURCE_DIR}/render/Transformation.cpp
         ${COMMON_SOURCE_DIR}/render/TriangleRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/Vbo.cpp
-        ${COMMON_SOURCE_DIR}/render/VboManager.cpp
-        ${COMMON_SOURCE_DIR}/render/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/Thread.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
@@ -363,7 +324,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/GamesPreferencePane.cpp
         ${COMMON_SOURCE_DIR}/ui/GestureTracker.cpp
         ${COMMON_SOURCE_DIR}/ui/GetVersion.cpp
-        ${COMMON_SOURCE_DIR}/ui/GLContextManager.cpp
         ${COMMON_SOURCE_DIR}/ui/HandleDragTracker.cpp
         ${COMMON_SOURCE_DIR}/ui/ImageListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/ImageUtils.cpp
@@ -490,6 +450,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/AssetReference.h
         ${COMMON_SOURCE_DIR}/mdl/AssetUtils.h
         ${COMMON_SOURCE_DIR}/mdl/Autosaver.h
+        ${COMMON_SOURCE_DIR}/mdl/BasicShapes.h
         ${COMMON_SOURCE_DIR}/mdl/BezierPatch.h
         ${COMMON_SOURCE_DIR}/mdl/Brush.h
         ${COMMON_SOURCE_DIR}/mdl/BrushBuilder.h
@@ -500,6 +461,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReference.h
         ${COMMON_SOURCE_DIR}/mdl/BrushGeometry.h
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.h
+        ${COMMON_SOURCE_DIR}/mdl/BrushRendererBrushCache.h
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.h
         ${COMMON_SOURCE_DIR}/mdl/CircleShape.h
         ${COMMON_SOURCE_DIR}/mdl/ColorRange.h
@@ -511,7 +473,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/CompilationConfigWriter.h
         ${COMMON_SOURCE_DIR}/mdl/CompilationProfile.h
         ${COMMON_SOURCE_DIR}/mdl/CompilationTask.h
-        ${COMMON_SOURCE_DIR}/mdl/CreateResource.h
         ${COMMON_SOURCE_DIR}/mdl/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/mdl/DecalDefinition.h
         ${COMMON_SOURCE_DIR}/mdl/DefParser.h
@@ -614,9 +575,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/MapHeader.h
         ${COMMON_SOURCE_DIR}/mdl/MapParser.h
         ${COMMON_SOURCE_DIR}/mdl/MapReader.h
-        ${COMMON_SOURCE_DIR}/mdl/Material.h
-        ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.h
-        ${COMMON_SOURCE_DIR}/mdl/MaterialManager.h
         ${COMMON_SOURCE_DIR}/mdl/MaterialUtils.h
         ${COMMON_SOURCE_DIR}/mdl/MissingClassnameValidator.h
         ${COMMON_SOURCE_DIR}/mdl/MissingDefinitionValidator.h
@@ -671,8 +629,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/Quake3ShaderParser.h
         ${COMMON_SOURCE_DIR}/mdl/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/mdl/RepeatStack.h
-        ${COMMON_SOURCE_DIR}/mdl/Resource.h
-        ${COMMON_SOURCE_DIR}/mdl/ResourceId.h
         ${COMMON_SOURCE_DIR}/mdl/Selection.h
         ${COMMON_SOURCE_DIR}/mdl/SelectionChange.h
         ${COMMON_SOURCE_DIR}/mdl/SelectionCommand.h
@@ -690,9 +646,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/TagMatcher.h
         ${COMMON_SOURCE_DIR}/mdl/TagType.h
         ${COMMON_SOURCE_DIR}/mdl/TagVisitor.h
-        ${COMMON_SOURCE_DIR}/mdl/Texture.h
-        ${COMMON_SOURCE_DIR}/mdl/TextureBuffer.h
-        ${COMMON_SOURCE_DIR}/mdl/TextureResource.h
         ${COMMON_SOURCE_DIR}/mdl/Transaction.h
         ${COMMON_SOURCE_DIR}/mdl/TransactionScope.h
         ${COMMON_SOURCE_DIR}/mdl/UndoableCommand.h
@@ -711,14 +664,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/WorldReader.h
         ${COMMON_SOURCE_DIR}/octree.h
         ${COMMON_SOURCE_DIR}/Preferences.h
-        ${COMMON_SOURCE_DIR}/render/ActiveShader.h
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.h
-        ${COMMON_SOURCE_DIR}/render/AttrString.h
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.h
-        ${COMMON_SOURCE_DIR}/render/BrushRendererBrushCache.h
-        ${COMMON_SOURCE_DIR}/render/Camera.h
         ${COMMON_SOURCE_DIR}/render/Circle.h
         ${COMMON_SOURCE_DIR}/render/Compass.h
         ${COMMON_SOURCE_DIR}/render/Compass2D.h
@@ -729,65 +678,27 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/render/EntityModelRenderer.h
         ${COMMON_SOURCE_DIR}/render/EntityRenderer.h
         ${COMMON_SOURCE_DIR}/render/FaceRenderer.h
-        ${COMMON_SOURCE_DIR}/render/FontDescriptor.h
-        ${COMMON_SOURCE_DIR}/render/FontFactory.h
-        ${COMMON_SOURCE_DIR}/render/FontGlyph.h
-        ${COMMON_SOURCE_DIR}/render/FontGlyphBuilder.h
-        ${COMMON_SOURCE_DIR}/render/FontManager.h
-        ${COMMON_SOURCE_DIR}/render/FontTexture.h
-        ${COMMON_SOURCE_DIR}/render/FreeTypeFontFactory.h
-        ${COMMON_SOURCE_DIR}/render/GL.h
-        ${COMMON_SOURCE_DIR}/render/GLVertex.h
-        ${COMMON_SOURCE_DIR}/render/GLVertexAttributeType.h
-        ${COMMON_SOURCE_DIR}/render/GLVertexType.h
         ${COMMON_SOURCE_DIR}/render/GridRenderer.h
         ${COMMON_SOURCE_DIR}/render/GroupLinkRenderer.h
         ${COMMON_SOURCE_DIR}/render/GroupRenderer.h
-        ${COMMON_SOURCE_DIR}/render/IndexArray.h
-        ${COMMON_SOURCE_DIR}/render/IndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/render/IndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/render/IndexedVertexList.h
-        ${COMMON_SOURCE_DIR}/render/IndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/render/IndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/render/IndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/render/LinkRenderer.h
         ${COMMON_SOURCE_DIR}/render/MapRenderer.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexArrayRenderer.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/render/MaterialIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/render/ObjectRenderer.h
-        ${COMMON_SOURCE_DIR}/render/OrthographicCamera.h
         ${COMMON_SOURCE_DIR}/render/PatchRenderer.h
-        ${COMMON_SOURCE_DIR}/render/PerspectiveCamera.h
         ${COMMON_SOURCE_DIR}/render/PointGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/PointHandleRenderer.h
         ${COMMON_SOURCE_DIR}/render/PrimitiveRenderer.h
-        ${COMMON_SOURCE_DIR}/render/PrimType.h
         ${COMMON_SOURCE_DIR}/render/Renderable.h
         ${COMMON_SOURCE_DIR}/render/RenderBatch.h
         ${COMMON_SOURCE_DIR}/render/RenderContext.h
         ${COMMON_SOURCE_DIR}/render/RenderService.h
-        ${COMMON_SOURCE_DIR}/render/RenderUtils.h
         ${COMMON_SOURCE_DIR}/render/SelectionBoundsRenderer.h
-        ${COMMON_SOURCE_DIR}/render/Shader.h
-        ${COMMON_SOURCE_DIR}/render/ShaderConfig.h
-        ${COMMON_SOURCE_DIR}/render/ShaderManager.h
-        ${COMMON_SOURCE_DIR}/render/ShaderProgram.h
-        ${COMMON_SOURCE_DIR}/render/Shaders.h
         ${COMMON_SOURCE_DIR}/render/Sphere.h
         ${COMMON_SOURCE_DIR}/render/SpikeGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/TextAnchor.h
         ${COMMON_SOURCE_DIR}/render/TextRenderer.h
-        ${COMMON_SOURCE_DIR}/render/TextureFont.h
         ${COMMON_SOURCE_DIR}/render/Transformation.h
         ${COMMON_SOURCE_DIR}/render/TriangleRenderer.h
-        ${COMMON_SOURCE_DIR}/render/Vbo.h
-        ${COMMON_SOURCE_DIR}/render/VboManager.h
-        ${COMMON_SOURCE_DIR}/render/VertexArray.h
-        ${COMMON_SOURCE_DIR}/render/VertexListBuilder.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
@@ -881,7 +792,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/GamesPreferencePane.h
         ${COMMON_SOURCE_DIR}/ui/GestureTracker.h
         ${COMMON_SOURCE_DIR}/ui/GetVersion.h
-        ${COMMON_SOURCE_DIR}/ui/GLContextManager.h
         ${COMMON_SOURCE_DIR}/ui/HandleDragTracker.h
         ${COMMON_SOURCE_DIR}/ui/ImageListBox.h
         ${COMMON_SOURCE_DIR}/ui/ImageUtils.h
@@ -1006,8 +916,8 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC TbBaseLib TbElLib TbFsLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
-  PRIVATE GLEW::GLEW OpenGL::GL UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage freetype assimp::assimp fmt::fmt-header-only)
+  PUBLIC TbBaseLib TbElLib TbFsLib TbGlLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PRIVATE UpdateLib cpptrace::cpptrace tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage assimp::assimp fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)
 

@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include "gl/Camera.h"
 #include "mdl/BrushNode.h"
 #include "mdl/HitType.h"
 #include "mdl/PickResult.h"
-#include "render/Camera.h"
 
 #include "kd/contracts.h"
 #include "kd/map_utils.h"
@@ -36,7 +36,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
 }
@@ -582,7 +582,7 @@ public:
    */
   void pick(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     double handleRadius,
     PickResult& pickResult) const;
 
@@ -629,7 +629,7 @@ public:
    */
   void pickGridHandle(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     double handleRadius,
     const Grid& grid,
     PickResult& pickResult) const;
@@ -644,7 +644,7 @@ public:
    */
   void pickCenterHandle(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     double handleRadius,
     PickResult& pickResult) const;
 
@@ -691,7 +691,7 @@ public:
    */
   void pickGridHandle(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     double handleRadius,
     const Grid& grid,
     PickResult& pickResult) const;
@@ -706,7 +706,7 @@ public:
    */
   void pickCenterHandle(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     double handleRadius,
     PickResult& pickResult) const;
 

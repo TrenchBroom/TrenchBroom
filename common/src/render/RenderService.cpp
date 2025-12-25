@@ -19,16 +19,16 @@
 
 #include "RenderService.h"
 
-#include "AttrString.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/Camera.h"
-#include "render/FontDescriptor.h"
+#include "gl/AttrString.h"
+#include "gl/Camera.h"
+#include "gl/FontDescriptor.h"
+#include "mdl/BasicShapes.h"
 #include "render/PointHandleRenderer.h"
 #include "render/PrimitiveRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 #include "render/TextAnchor.h"
 #include "render/TextRenderer.h"
 
@@ -42,9 +42,9 @@ namespace tb::render
 namespace
 {
 
-render::FontDescriptor makeRenderServiceFont()
+auto makeRenderServiceFont()
 {
-  return {
+  return gl::FontDescriptor{
     pref(Preferences::RendererFontPath()),
     size_t(pref(Preferences::RendererFontSize)),
   };
@@ -53,18 +53,18 @@ render::FontDescriptor makeRenderServiceFont()
 class HeadsUpTextAnchor : public TextAnchor
 {
 private:
-  vm::vec3f offset(const Camera& camera, const vm::vec2f& size) const override
+  vm::vec3f offset(const gl::Camera& camera, const vm::vec2f& size) const override
   {
     const auto off = getOffset(camera);
     return vm::vec3f{off.xy() - size.xy() / 2.0f, off.z()};
   }
 
-  vm::vec3f position(const Camera& camera) const override
+  vm::vec3f position(const gl::Camera& camera) const override
   {
     return camera.unproject(getOffset(camera));
   }
 
-  vm::vec3f getOffset(const Camera& camera) const
+  vm::vec3f getOffset(const gl::Camera& camera) const
   {
     const auto w = static_cast<float>(camera.viewport().width);
     const auto h = static_cast<float>(camera.viewport().height);
@@ -130,13 +130,13 @@ void RenderService::setCullBackfaces()
   m_cullingPolicy = PrimitiveRendererCullingPolicy::CullBackfaces;
 }
 
-void RenderService::renderString(const AttrString& string, const vm::vec3f& position)
+void RenderService::renderString(const gl::AttrString& string, const vm::vec3f& position)
 {
   renderString(
     string, SimpleTextAnchor(position, TextAlignment::Bottom, vm::vec2f(0.0f, 16.0f)));
 }
 
-void RenderService::renderString(const AttrString& string, const TextAnchor& position)
+void RenderService::renderString(const gl::AttrString& string, const TextAnchor& position)
 {
   if (m_occlusionPolicy != PrimitiveRendererOcclusionPolicy::Hide)
   {
@@ -150,7 +150,7 @@ void RenderService::renderString(const AttrString& string, const TextAnchor& pos
   }
 }
 
-void RenderService::renderHeadsUp(const AttrString& string)
+void RenderService::renderHeadsUp(const gl::AttrString& string)
 {
   m_textRenderer->renderStringOnTop(
     m_renderContext, m_foregroundColor, m_backgroundColor, string, HeadsUpTextAnchor());
@@ -158,17 +158,17 @@ void RenderService::renderHeadsUp(const AttrString& string)
 
 void RenderService::renderString(const std::string& string, const vm::vec3f& position)
 {
-  renderString(AttrString{string}, position);
+  renderString(gl::AttrString{string}, position);
 }
 
 void RenderService::renderString(const std::string& string, const TextAnchor& position)
 {
-  renderString(AttrString{string}, position);
+  renderString(gl::AttrString{string}, position);
 }
 
 void RenderService::renderHeadsUp(const std::string& string)
 {
-  renderHeadsUp(AttrString{string});
+  renderHeadsUp(gl::AttrString{string});
 }
 
 void RenderService::renderHandles(const std::vector<vm::vec3f>& positions)
@@ -355,7 +355,8 @@ void RenderService::renderCircle(
   const vm::vec3f& startAxis,
   const vm::vec3f& endAxis)
 {
-  const auto [startAngle, angleLength] = startAngleAndLength(normal, startAxis, endAxis);
+  const auto [startAngle, angleLength] =
+    mdl::startAngleAndLength(normal, startAxis, endAxis);
   renderCircle(position, normal, segments, radius, startAngle, angleLength);
 }
 
@@ -368,7 +369,7 @@ void RenderService::renderCircle(
   const float angleLength)
 {
   const auto positions =
-    circle2D(radius, normal, startAngle, angleLength, segments) + position;
+    mdl::circle2D(radius, normal, startAngle, angleLength, segments) + position;
   m_primitiveRenderer->renderLineStrip(
     m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
 }
@@ -381,7 +382,8 @@ void RenderService::renderFilledCircle(
   const vm::vec3f& startAxis,
   const vm::vec3f& endAxis)
 {
-  const auto [startAngle, angleLength] = startAngleAndLength(normal, startAxis, endAxis);
+  const auto [startAngle, angleLength] =
+    mdl::startAngleAndLength(normal, startAxis, endAxis);
   renderFilledCircle(position, normal, segments, radius, startAngle, angleLength);
 }
 
@@ -394,7 +396,7 @@ void RenderService::renderFilledCircle(
   const float angleLength)
 {
   const auto positions =
-    circle2D(radius, normal, startAngle, angleLength, segments) + position;
+    mdl::circle2D(radius, normal, startAngle, angleLength, segments) + position;
   m_primitiveRenderer->renderFilledPolygon(
     m_foregroundColor, m_occlusionPolicy, m_cullingPolicy, positions);
 }

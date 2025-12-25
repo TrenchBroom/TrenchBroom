@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Result.h"
+#include "gl/ResourceId.h"
 #include "mdl/EntityModel.h"
 #include "mdl/ModelSpecification.h"
 
@@ -45,11 +46,11 @@ namespace fs
 class FileSystem;
 }
 
-namespace render
+namespace gl
 {
 class MaterialRenderer;
 class VboManager;
-} // namespace render
+} // namespace gl
 
 namespace mdl
 {
@@ -74,12 +75,11 @@ private:
   std::vector<Quake3Shader> m_shaders;
 
   mutable std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash> m_models;
-  mutable std::
-    unordered_map<ModelSpecification, std::unique_ptr<render::MaterialRenderer>>
-      m_renderers;
+  mutable std::unordered_map<ModelSpecification, std::unique_ptr<gl::MaterialRenderer>>
+    m_renderers;
   mutable std::unordered_set<ModelSpecification> m_rendererMismatches;
 
-  mutable std::vector<render::MaterialRenderer*> m_unpreparedRenderers;
+  mutable std::vector<gl::MaterialRenderer*> m_unpreparedRenderers;
 
 public:
   EntityModelManager(
@@ -92,22 +92,22 @@ public:
   void clear();
   void reloadShaders(kdl::task_manager& taskManager);
 
-  render::MaterialRenderer* renderer(const ModelSpecification& spec) const;
+  gl::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 
   const EntityModelFrame* frame(const ModelSpecification& spec) const;
   const EntityModel* model(const std::filesystem::path& path) const;
 
   const std::vector<const EntityModel*> findEntityModelsByTextureResourceId(
-    const std::vector<ResourceId>& resourceIds) const;
+    const std::vector<gl::ResourceId>& resourceIds) const;
 
 private:
   Result<EntityModel> loadModel(const std::filesystem::path& path) const;
 
 public:
-  void prepare(render::VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
 
 private:
-  void prepareRenderers(render::VboManager& vboManager);
+  void prepareRenderers(gl::VboManager& vboManager);
 };
 
 } // namespace mdl

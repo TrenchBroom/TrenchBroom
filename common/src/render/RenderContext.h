@@ -19,17 +19,23 @@
 
 #pragma once
 
-#include "GL.h"
 #include "Macros.h"
+#include "gl/GL.h"
 #include "render/Transformation.h"
 
 #include "vm/bbox.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class Camera;
 class FontManager;
 class ShaderManager;
+} // namespace gl
+
+namespace render
+{
 
 enum class RenderMode
 {
@@ -50,10 +56,10 @@ private:
 
   // general context for any rendering view
   RenderMode m_renderMode;
-  const Camera& m_camera;
+  const gl::Camera& m_camera;
   Transformation m_transformation;
-  FontManager& m_fontManager;
-  ShaderManager& m_shaderManager;
+  gl::FontManager& m_fontManager;
+  gl::ShaderManager& m_shaderManager;
 
   int m_textureMinFilter = GL_NEAREST_MIPMAP_NEAREST;
   int m_textureMagFilter = GL_NEAREST;
@@ -87,19 +93,19 @@ private:
 public:
   RenderContext(
     RenderMode renderMode,
-    const Camera& camera,
-    FontManager& fontManager,
-    ShaderManager& shaderManager);
+    const gl::Camera& camera,
+    gl::FontManager& fontManager,
+    gl::ShaderManager& shaderManager);
 
   deleteCopyAndMove(RenderContext);
 
   bool render2D() const;
   bool render3D() const;
 
-  const Camera& camera() const;
+  const gl::Camera& camera() const;
   Transformation& transformation();
-  FontManager& fontManager();
-  ShaderManager& shaderManager();
+  gl::FontManager& fontManager();
+  gl::ShaderManager& shaderManager();
 
   int minFilterMode() const;
   int magFilterMode() const;
@@ -166,4 +172,5 @@ private:
   void setShowSelectionGuide(ShowSelectionGuide showSelectionGuide);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

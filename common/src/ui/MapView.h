@@ -26,7 +26,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
 }
@@ -57,7 +57,7 @@ public:
   virtual vm::vec3d pasteObjectsDelta(
     const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const = 0;
 
-  virtual void reset2dCameras(const render::Camera& masterCamera, bool animate) = 0;
+  virtual void reset2dCameras(const gl::Camera& masterCamera, bool animate) = 0;
   virtual void focusCameraOnSelection(bool animate) = 0;
   virtual void moveCameraToPosition(const vm::vec3f& position, bool animate) = 0;
 

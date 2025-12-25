@@ -26,6 +26,12 @@
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+class OrthographicCamera;
+} // namespace gl
+
 namespace mdl
 {
 class PickResult;
@@ -34,7 +40,6 @@ class PickResult;
 namespace render
 {
 class MapRenderer;
-class OrthographicCamera;
 class RenderBatch;
 class RenderContext;
 enum class RenderMode;
@@ -55,7 +60,7 @@ public:
   };
 
 private:
-  std::unique_ptr<render::OrthographicCamera> m_camera;
+  std::unique_ptr<gl::OrthographicCamera> m_camera;
 
   NotifierConnection m_notifierConnection;
 
@@ -63,7 +68,7 @@ public:
   MapView2D(
     MapDocument& document,
     MapViewToolBox& toolBox,
-    GLContextManager& contextManager,
+    gl::ContextManager& contextManager,
     ViewPlane viewPlane);
 
 private:
@@ -72,7 +77,7 @@ private:
 
 private: // notification
   void connectObservers();
-  void cameraDidChange(const render::Camera* camera);
+  void cameraDidChange(const gl::Camera* camera);
 
 private: // implement ToolBoxConnector interface
   PickRequest pickRequest(float x, float y) const override;
@@ -89,7 +94,7 @@ private: // implement MapView interface
     const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const override;
   bool canSelectTall() override;
   void selectTall() override;
-  void reset2dCameras(const render::Camera& masterCamera, bool animate) override;
+  void reset2dCameras(const gl::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
 
   void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
@@ -103,7 +108,7 @@ private: // implement MapView interface
   void moveCameraToCurrentTracePoint() override;
 
 public: // implement MapViewBase interface
-  render::Camera& camera() override;
+  gl::Camera& camera() override;
 
   vm::vec3d moveDirection(vm::direction direction) const override;
   size_t flipAxis(vm::direction direction) const override;

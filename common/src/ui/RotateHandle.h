@@ -29,9 +29,13 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
+}
+
+namespace render
+{
 class RenderBatch;
 class RenderContext;
 } // namespace render
@@ -62,8 +66,7 @@ private:
     explicit Handle(const vm::vec3d& position);
     virtual ~Handle();
 
-    virtual mdl::Hit pick(
-      const vm::ray3d& pickRay, const render::Camera& camera) const = 0;
+    virtual mdl::Hit pick(const vm::ray3d& pickRay, const gl::Camera& camera) const = 0;
     virtual void renderHandle(
       render::RenderContext& renderContext, render::RenderBatch& renderBatch) const = 0;
     virtual void renderHighlight(
@@ -71,17 +74,16 @@ private:
       render::RenderBatch& renderBatch,
       HitArea area) const = 0;
 
-    double scalingFactor(const render::Camera& camera) const;
+    double scalingFactor(const gl::Camera& camera) const;
     static double majorRadius();
     static double minorRadius();
 
   protected:
-    mdl::Hit pickCenterHandle(
-      const vm::ray3d& pickRay, const render::Camera& camera) const;
+    mdl::Hit pickCenterHandle(const vm::ray3d& pickRay, const gl::Camera& camera) const;
     virtual mdl::Hit pickRotateHandle(
-      const vm::ray3d& pickRay, const render::Camera& camera, HitArea area) const;
+      const vm::ray3d& pickRay, const gl::Camera& camera, HitArea area) const;
 
-    vm::mat4x4d handleTransform(const render::Camera& camera, HitArea area) const;
+    vm::mat4x4d handleTransform(const gl::Camera& camera, HitArea area) const;
   };
 
   class Handle2D : public Handle
@@ -89,7 +91,7 @@ private:
   public:
     using Handle::Handle;
 
-    mdl::Hit pick(const vm::ray3d& pickRay, const render::Camera& camera) const override;
+    mdl::Hit pick(const vm::ray3d& pickRay, const gl::Camera& camera) const override;
     void renderHandle(
       render::RenderContext& renderContext,
       render::RenderBatch& renderBatch) const override;
@@ -100,9 +102,7 @@ private:
 
   protected:
     mdl::Hit pickRotateHandle(
-      const vm::ray3d& pickRay,
-      const render::Camera& camera,
-      HitArea area) const override;
+      const vm::ray3d& pickRay, const gl::Camera& camera, HitArea area) const override;
 
     deleteCopyAndMove(Handle2D);
   };
@@ -112,7 +112,7 @@ private:
   public:
     using Handle::Handle;
 
-    mdl::Hit pick(const vm::ray3d& pickRay, const render::Camera& camera) const override;
+    mdl::Hit pick(const vm::ray3d& pickRay, const gl::Camera& camera) const override;
     void renderHandle(
       render::RenderContext& renderContext,
       render::RenderBatch& renderBatch) const override;
@@ -123,9 +123,7 @@ private:
 
   protected:
     mdl::Hit pickRotateHandle(
-      const vm::ray3d& pickRay,
-      const render::Camera& camera,
-      HitArea area) const override;
+      const vm::ray3d& pickRay, const gl::Camera& camera, HitArea area) const override;
 
     deleteCopyAndMove(Handle3D);
   };
@@ -141,11 +139,11 @@ public:
   const vm::vec3d& position() const;
   void setPosition(const vm::vec3d& position);
 
-  mdl::Hit pick2D(const vm::ray3d& pickRay, const render::Camera& camera) const;
-  mdl::Hit pick3D(const vm::ray3d& pickRay, const render::Camera& camera) const;
+  mdl::Hit pick2D(const vm::ray3d& pickRay, const gl::Camera& camera) const;
+  mdl::Hit pick3D(const vm::ray3d& pickRay, const gl::Camera& camera) const;
 
-  double majorHandleRadius(const render::Camera& camera) const;
-  double minorHandleRadius(const render::Camera& camera) const;
+  double majorHandleRadius(const gl::Camera& camera) const;
+  double minorHandleRadius(const gl::Camera& camera) const;
 
   vm::vec3d rotationAxis(HitArea area) const;
 

@@ -19,9 +19,9 @@
 
 #include "Circle.h"
 
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
-#include "render/RenderUtils.h"
+#include "gl/PrimType.h"
+#include "gl/VertexType.h"
+#include "mdl/BasicShapes.h"
 
 #include "kd/contracts.h"
 
@@ -66,7 +66,8 @@ Circle::Circle(
   contract_pre(radius > 0.0f);
   contract_pre(segments > 0);
 
-  const auto [startAngle, angleLength] = startAngleAndLength(axis, startAxis, endAxis);
+  const auto [startAngle, angleLength] =
+    mdl::startAngleAndLength(axis, startAxis, endAxis);
   init3D(radius, segments, axis, startAngle, angleLength);
 }
 
@@ -91,14 +92,14 @@ bool Circle::prepared() const
   return m_array.prepared();
 }
 
-void Circle::prepare(VboManager& vboManager)
+void Circle::prepare(gl::VboManager& vboManager)
 {
   m_array.prepare(vboManager);
 }
 
 void Circle::render()
 {
-  m_array.render(m_filled ? PrimType::TriangleFan : PrimType::LineLoop);
+  m_array.render(m_filled ? gl::PrimType::TriangleFan : gl::PrimType::LineLoop);
 }
 
 void Circle::init2D(
@@ -107,14 +108,15 @@ void Circle::init2D(
   const float startAngle,
   const float angleLength)
 {
-  using Vertex = GLVertexTypes::P2::Vertex;
+  using Vertex = gl::VertexTypes::P2::Vertex;
 
-  auto positions = circle2D(radius, startAngle, angleLength, segments);
+  auto positions = mdl::circle2D(radius, startAngle, angleLength, segments);
   if (m_filled)
   {
     positions.push_back(vm::vec2f{0, 0});
   }
-  m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
+  m_array =
+    gl::VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
 
 void Circle::init3D(
@@ -124,14 +126,15 @@ void Circle::init3D(
   const float startAngle,
   const float angleLength)
 {
-  using Vertex = GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
 
-  auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
+  auto positions = mdl::circle2D(radius, axis, startAngle, angleLength, segments);
   if (m_filled)
   {
     positions.emplace_back(vm::vec3f{0, 0, 0});
   }
-  m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
+  m_array =
+    gl::VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
 
 } // namespace tb::render

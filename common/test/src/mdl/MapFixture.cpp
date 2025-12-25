@@ -21,8 +21,8 @@
 
 #include "Logger.h"
 #include "TestUtils.h"
+#include "gl/Resource.h"
 #include "mdl/Map.h"
-#include "mdl/Resource.h"
 
 #include "kd/contracts.h"
 
@@ -92,7 +92,7 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
     | kdl::transform([&](auto map) {
         m_map = std::move(map);
         m_map->setIsCommandCollationEnabled(false);
-        m_map->processResourcesSync(ProcessContext{false, [](auto, auto) {}});
+        m_map->processResourcesSync(gl::ProcessContext{false, [](auto, auto) {}});
       })
     | kdl::is_success());
 

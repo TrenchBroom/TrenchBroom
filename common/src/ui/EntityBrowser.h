@@ -22,6 +22,7 @@
 #include <QWidget>
 
 #include "NotifierConnection.h"
+#include "gl/ResourceId.h"
 
 #include <filesystem>
 #include <vector>
@@ -33,16 +34,19 @@ class QScrollBar;
 
 namespace tb
 {
+namespace gl
+{
+class ContextManager;
+}
+
 namespace mdl
 {
 class Node;
-class ResourceId;
 } // namespace mdl
 
 namespace ui
 {
 class EntityBrowserView;
-class GLContextManager;
 class MapDocument;
 
 class EntityBrowser : public QWidget
@@ -61,17 +65,17 @@ private:
 
 public:
   EntityBrowser(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
 
   void reload();
 
 private:
-  void createGui(GLContextManager& contextManager);
+  void createGui(gl::ContextManager& contextManager);
 
   void connectObservers();
   void documentDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<gl::ResourceId>& resources);
 };
 
 } // namespace ui

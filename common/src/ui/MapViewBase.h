@@ -37,6 +37,11 @@ class QAction;
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+}
+
 namespace mdl
 {
 struct EntityDefinition;
@@ -50,12 +55,12 @@ enum class EntityDefinitionType;
 
 namespace render
 {
-class Camera;
 class Compass;
 class MapRenderer;
 class PrimitiveRenderer;
 class RenderBatch;
 class RenderContext;
+
 enum class RenderMode;
 } // namespace render
 
@@ -102,7 +107,7 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager);
+    MapDocument& document, MapViewToolBox& toolBox, gl::ContextManager& contextManager);
 
   void setCompass(std::unique_ptr<render::Compass> compass);
 
@@ -125,7 +130,7 @@ public:
 public:
   void setIsCurrent(bool isCurrent);
 
-  virtual render::Camera& camera() = 0;
+  virtual gl::Camera& camera() = 0;
 
 private:
   void bindEvents();

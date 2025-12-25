@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "AttrString.h"
 #include "Color.h"
+#include "gl/AttrString.h"
 #include "render/EdgeRenderer.h"
 
 #include "kd/vector_set.h"
@@ -109,7 +109,7 @@ private:
 
   bool shouldRenderGroup(const mdl::GroupNode& group) const;
 
-  AttrString groupString(const mdl::GroupNode& group) const;
+  gl::AttrString groupString(const mdl::GroupNode& group) const;
   Color groupColor(const mdl::GroupNode& group) const;
 };
 

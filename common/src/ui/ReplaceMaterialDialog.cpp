@@ -23,12 +23,12 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#include "gl/Material.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Selection.h"
-#include "mdl/Material.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PushSelection.h"
 #include "mdl/Transaction.h"
@@ -73,7 +73,7 @@ void replaceMaterials(
 } // namespace
 
 ReplaceMaterialDialog::ReplaceMaterialDialog(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QDialog{parent}
   , m_document{document}
 {
@@ -127,7 +127,7 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
          | kdl::ranges::to<std::vector>();
 }
 
-void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
+void ReplaceMaterialDialog::createGui(gl::ContextManager& contextManager)
 {
   setWindowIconTB(this);
   setWindowTitle(tr("Replace Material"));
@@ -191,12 +191,12 @@ void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
   setMinimumSize(650, 450);
 }
 
-void ReplaceMaterialDialog::subjectSelected(const mdl::Material* /* subject */)
+void ReplaceMaterialDialog::subjectSelected(const gl::Material* /* subject */)
 {
   updateReplaceButton();
 }
 
-void ReplaceMaterialDialog::replacementSelected(const mdl::Material* /* replacement */)
+void ReplaceMaterialDialog::replacementSelected(const gl::Material* /* replacement */)
 {
   updateReplaceButton();
 }

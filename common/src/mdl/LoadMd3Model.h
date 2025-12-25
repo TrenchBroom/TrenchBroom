@@ -29,13 +29,18 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class Material;
+}
+
 namespace mdl
 {
 class Palette;
 
 bool canLoadMd3Model(const std::filesystem::path& path, fs::Reader reader);
 
-using LoadMaterialFunc = std::function<Material(const std::filesystem::path&)>;
+using LoadMaterialFunc = std::function<gl::Material(const std::filesystem::path&)>;
 
 Result<EntityModelData> loadMd3Model(
   fs::Reader reader, LoadMaterialFunc loadMaterial, Logger& logger);

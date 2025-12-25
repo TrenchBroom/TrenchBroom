@@ -21,6 +21,9 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
+#include "gl/VboManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
@@ -30,14 +33,11 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
-#include "render/ActiveShader.h"
 #include "render/Circle.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/Renderable.h"
-#include "render/Shaders.h"
 #include "render/Transformation.h"
-#include "render/VboManager.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
@@ -135,7 +135,7 @@ public:
   }
 
 private:
-  void doPrepareVertices(render::VboManager& vboManager) override
+  void doPrepareVertices(gl::VboManager& vboManager) override
   {
     m_center.prepare(vboManager);
     m_outer.prepare(vboManager);
@@ -157,8 +157,8 @@ private:
     const auto& handleColor = pref(Preferences::HandleColor);
     const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
-    auto shader = render::ActiveShader{
-      renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
+    auto shader = gl::ActiveShader{
+      renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     const auto toWorldTransform = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{*fromPlane}};
     {

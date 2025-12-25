@@ -32,6 +32,12 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class FontManager;
+class Material;
+} // namespace gl
+
 namespace mdl
 {
 class BrushNode;
@@ -46,7 +52,6 @@ class PatchNode;
 
 namespace render
 {
-class FontManager;
 class RenderBatch;
 
 class ObjectRenderer
@@ -74,7 +79,7 @@ public:
 public: // object management
   void addNode(mdl::Node& node);
   void removeNode(mdl::Node& node);
-  void invalidateMaterials(const std::vector<const mdl::Material*>& materials);
+  void invalidateMaterials(const std::vector<const gl::Material*>& materials);
   void invalidateEntityModels(const std::vector<const mdl::EntityModel*>& entityModels);
   void invalidateNode(mdl::Node& node);
   void invalidate();

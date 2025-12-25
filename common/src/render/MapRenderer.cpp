@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/MaterialManager.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -31,7 +32,6 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PatchNode.h"
@@ -44,7 +44,6 @@
 #include "render/ObjectRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 
 #include "kd/overload.h"
 #include "kd/path_utils.h"
@@ -254,7 +253,7 @@ private:
     glAssert(glEnable(GL_CULL_FACE));
     glAssert(glEnable(GL_DEPTH_TEST));
     glAssert(glDepthFunc(GL_LEQUAL));
-    glResetEdgeOffset();
+    gl::glResetEdgeOffset();
   }
 };
 
@@ -770,7 +769,7 @@ void MapRenderer::selectionDidChange(const mdl::SelectionChange& selectionChange
   invalidateGroupLinkRenderer();
 }
 
-void MapRenderer::resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds)
+void MapRenderer::resourcesWereProcessed(const std::vector<gl::ResourceId>& resourceIds)
 {
   const auto& materialManager = m_map.materialManager();
   const auto materials = materialManager.findMaterialsByTextureResourceId(resourceIds);

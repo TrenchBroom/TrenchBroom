@@ -20,6 +20,8 @@
 #include "EntityModelManager.h"
 
 #include "Logger.h"
+#include "gl/CreateResource.h"
+#include "gl/MaterialIndexRangeRenderer.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -28,7 +30,6 @@
 #include "mdl/LoadShaders.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Quake3Shader.h"
-#include "render/MaterialIndexRangeRenderer.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -76,8 +77,7 @@ void EntityModelManager::reloadShaders(kdl::task_manager& taskManager)
     | kdl::value_or(std::vector<Quake3Shader>{});
 }
 
-render::MaterialRenderer* EntityModelManager::renderer(
-  const ModelSpecification& spec) const
+gl::MaterialRenderer* EntityModelManager::renderer(const ModelSpecification& spec) const
 {
   if (auto* entityModel = model(spec.path))
   {
@@ -154,12 +154,13 @@ const EntityModel* EntityModelManager::model(const std::filesystem::path& path) 
 }
 
 const std::vector<const EntityModel*> EntityModelManager::
-  findEntityModelsByTextureResourceId(const std::vector<ResourceId>& resourceIds) const
+  findEntityModelsByTextureResourceId(
+    const std::vector<gl::ResourceId>& resourceIds) const
 {
   using namespace std::ranges;
 
   const auto filterByResourceId =
-    [resourceIdSet = std::unordered_set<ResourceId>{
+    [resourceIdSet = std::unordered_set<gl::ResourceId>{
        resourceIds.begin(), resourceIds.end()}](const auto& model) {
       return resourceIdSet.contains(model.dataResource().id());
     };
@@ -176,7 +177,7 @@ Result<EntityModel> EntityModelManager::loadModel(
   const auto& materialConfig = m_gameInfo.gameConfig.materialConfig;
 
   const auto createResource = [](auto resourceLoader) {
-    return createResourceSync(std::move(resourceLoader));
+    return gl::createResourceSync(std::move(resourceLoader));
   };
 
   const auto loadMaterial = [&](const auto& materialPath) {
@@ -200,12 +201,12 @@ Result<EntityModel> EntityModelManager::loadModel(
     m_logger);
 }
 
-void EntityModelManager::prepare(render::VboManager& vboManager)
+void EntityModelManager::prepare(gl::VboManager& vboManager)
 {
   prepareRenderers(vboManager);
 }
 
-void EntityModelManager::prepareRenderers(render::VboManager& vboManager)
+void EntityModelManager::prepareRenderers(gl::VboManager& vboManager)
 {
   for (auto* renderer : m_unpreparedRenderers)
   {

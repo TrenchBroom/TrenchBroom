@@ -21,25 +21,24 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
+#include "gl/Camera.h"
+#include "gl/Material.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
+#include "gl/Texture.h"
+#include "gl/VboManager.h"
+#include "gl/VertexArray.h"
+#include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
-#include "render/ActiveShader.h"
-#include "render/Camera.h"
 #include "render/EdgeRenderer.h"
 #include "render/FaceRenderer.h"
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
 #include "render/Renderable.h"
-#include "render/Shaders.h"
-#include "render/VboManager.h"
-#include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 #include "ui/UVCameraTool.h"
 #include "ui/UVOffsetTool.h"
@@ -64,15 +63,15 @@ namespace
 class RenderMaterial : public render::DirectRenderable
 {
 private:
-  using Vertex = render::GLVertexTypes::P3NT2::Vertex;
+  using Vertex = gl::VertexTypes::P3NT2::Vertex;
 
   const UVViewHelper& m_helper;
-  render::VertexArray m_vertexArray;
+  gl::VertexArray m_vertexArray;
 
 public:
   explicit RenderMaterial(const UVViewHelper& helper)
     : m_helper{helper}
-    , m_vertexArray{render::VertexArray::move(getVertices())}
+    , m_vertexArray{gl::VertexArray::move(getVertices())}
   {
   }
 
@@ -104,7 +103,7 @@ private:
   }
 
 private:
-  void doPrepareVertices(render::VboManager& vboManager) override
+  void doPrepareVertices(gl::VboManager& vboManager) override
   {
     m_vertexArray.prepare(vboManager);
   }
@@ -124,13 +123,13 @@ private:
     material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 
     auto shader =
-      render::ActiveShader{renderContext.shaderManager(), render::Shaders::UVViewShader};
+      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::UVViewShader};
     shader.set("ApplyMaterial", true);
     shader.set("Color", texture->averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
     shader.set("GridSizes", texture->sizef());
-    shader.set("GridColor", vm::vec4f{render::gridColorForMaterial(material), 0.6f});
+    shader.set("GridColor", RgbaF{gl::gridColorForMaterial(material), 0.6f});
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});
@@ -138,7 +137,7 @@ private:
     shader.set("CameraZoom", m_helper.cameraZoom());
     shader.set("Material", 0);
 
-    m_vertexArray.render(render::PrimType::Quads);
+    m_vertexArray.render(gl::PrimType::Quads);
 
     material->deactivate();
   }
@@ -148,7 +147,7 @@ private:
 
 const mdl::HitType::Type UVView::FaceHitType = mdl::HitType::freeType();
 
-UVView::UVView(MapDocument& document, GLContextManager& contextManager)
+UVView::UVView(MapDocument& document, gl::ContextManager& contextManager)
   : RenderView{contextManager}
   , m_document{document}
   , m_helper{m_camera}
@@ -238,7 +237,7 @@ void UVView::preferenceDidChange(const std::filesystem::path&)
   update();
 }
 
-void UVView::cameraDidChange(const render::Camera*)
+void UVView::cameraDidChange(const gl::Camera*)
 {
   update();
 }
@@ -319,7 +318,7 @@ void UVView::renderMaterial(render::RenderContext&, render::RenderBatch& renderB
 
 void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch)
 {
-  using Vertex = render::GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
 
   contract_pre(m_helper.valid());
 
@@ -330,7 +329,7 @@ void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch
                       | kdl::ranges::to<std::vector>();
 
   auto edgeRenderer = render::DirectEdgeRenderer{
-    render::VertexArray::move(std::move(edgeVertices)), render::PrimType::LineLoop};
+    gl::VertexArray::move(std::move(edgeVertices)), gl::PrimType::LineLoop};
 
   const auto edgeColor = RgbaF{1.0f, 1.0f, 1.0f, 1.0f};
   edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
@@ -338,7 +337,7 @@ void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch
 
 void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBatch)
 {
-  using Vertex = render::GLVertexTypes::P3C4::Vertex;
+  using Vertex = gl::VertexTypes::P3C4::Vertex;
 
   contract_pre(m_helper.valid());
 
@@ -352,13 +351,13 @@ void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBat
   const auto length = 32.0f / m_helper.cameraZoom();
 
   auto edgeRenderer = render::DirectEdgeRenderer{
-    render::VertexArray::move(std::vector{
+    gl::VertexArray::move(std::vector{
       Vertex{center, pref(Preferences::XAxisColor).to<RgbaF>().toVec()},
       Vertex{center + length * uAxis, pref(Preferences::XAxisColor).to<RgbaF>().toVec()},
       Vertex{center, pref(Preferences::YAxisColor).to<RgbaF>().toVec()},
       Vertex{center + length * vAxis, pref(Preferences::YAxisColor).to<RgbaF>().toVec()},
     }),
-    render::PrimType::Lines};
+    gl::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 2.0f);
 }
 

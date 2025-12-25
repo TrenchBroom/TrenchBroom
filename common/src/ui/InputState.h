@@ -24,7 +24,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
 }
@@ -164,7 +164,7 @@ public:
   const vm::ray3d& pickRay() const;
   const vm::vec3d defaultPoint() const;
   const vm::vec3d defaultPointUnderMouse() const;
-  const render::Camera& camera() const;
+  const gl::Camera& camera() const;
   void setPickRequest(const PickRequest& pickRequest);
 
   const mdl::PickResult& pickResult() const;

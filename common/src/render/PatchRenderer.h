@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Color.h"
+#include "gl/MaterialIndexArrayRenderer.h"
 #include "render/EdgeRenderer.h"
-#include "render/MaterialIndexArrayRenderer.h"
 #include "render/Renderable.h"
 
 #include "kd/vector_set.h"
@@ -38,7 +38,6 @@ namespace render
 {
 class RenderBatch;
 class RenderContext;
-class VboManager;
 
 class PatchRenderer : public IndexedRenderable
 {
@@ -48,7 +47,7 @@ private:
   bool m_valid = true;
   kdl::vector_set<const mdl::PatchNode*> m_patchNodes;
 
-  MaterialIndexArrayRenderer m_patchMeshRenderer;
+  gl::MaterialIndexArrayRenderer m_patchMeshRenderer;
   DirectEdgeRenderer m_edgeRenderer;
 
   Color m_defaultColor;
@@ -121,7 +120,7 @@ private:
   void validate();
 
 private: // implement IndexedRenderable interface
-  void prepareVerticesAndIndices(VboManager& vboManager) override;
+  void prepareVerticesAndIndices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
 

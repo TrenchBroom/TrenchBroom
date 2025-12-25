@@ -19,7 +19,7 @@
 
 #include "BezierPatch.h"
 
-#include "mdl/Material.h"
+#include "gl/Material.h"
 
 #include "kd/const_overload.h"
 #include "kd/contracts.h"
@@ -145,12 +145,12 @@ void BezierPatch::setMaterialName(std::string materialName)
   m_materialName = std::move(materialName);
 }
 
-const Material* BezierPatch::material() const
+const gl::Material* BezierPatch::material() const
 {
   return m_materialReference.get();
 }
 
-bool BezierPatch::setMaterial(Material* material)
+bool BezierPatch::setMaterial(gl::Material* material)
 {
   if (material == this->material())
   {

@@ -20,10 +20,10 @@
 #include "PrimitiveRenderer.h"
 
 #include "Color.h"
-#include "render/ActiveShader.h"
+#include "gl/ActiveShader.h"
+#include "gl/Shaders.h"
+#include "mdl/BasicShapes.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
-#include "render/Shaders.h"
 
 #include "kd/contracts.h"
 
@@ -63,7 +63,7 @@ bool PrimitiveRenderer::LineRenderAttributes::operator==(
 }
 
 void PrimitiveRenderer::LineRenderAttributes::render(
-  IndexRangeRenderer& renderer, ActiveShader& shader, const float dpiScale) const
+  gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader, const float dpiScale) const
 {
   glAssert(glLineWidth(m_lineWidth * dpiScale));
   switch (m_occlusionPolicy)
@@ -128,7 +128,7 @@ bool PrimitiveRenderer::TriangleRenderAttributes::operator==(
 }
 
 void PrimitiveRenderer::TriangleRenderAttributes::render(
-  IndexRangeRenderer& renderer, ActiveShader& shader) const
+  gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader) const
 {
   if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces)
   {
@@ -216,10 +216,10 @@ void PrimitiveRenderer::renderCoordinateSystemXY(
 {
   vm::vec3f start, end;
 
-  coordinateSystemVerticesX(bounds, start, end);
+  mdl::coordinateSystemVerticesX(bounds, start, end);
   renderLine(x, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesY(bounds, start, end);
+  mdl::coordinateSystemVerticesY(bounds, start, end);
   renderLine(y, lineWidth, occlusionPolicy, start, end);
 }
 
@@ -232,10 +232,10 @@ void PrimitiveRenderer::renderCoordinateSystemXZ(
 {
   vm::vec3f start, end;
 
-  coordinateSystemVerticesX(bounds, start, end);
+  mdl::coordinateSystemVerticesX(bounds, start, end);
   renderLine(x, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesZ(bounds, start, end);
+  mdl::coordinateSystemVerticesZ(bounds, start, end);
   renderLine(z, lineWidth, occlusionPolicy, start, end);
 }
 
@@ -248,10 +248,10 @@ void PrimitiveRenderer::renderCoordinateSystemYZ(
 {
   vm::vec3f start, end;
 
-  coordinateSystemVerticesY(bounds, start, end);
+  mdl::coordinateSystemVerticesY(bounds, start, end);
   renderLine(y, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesZ(bounds, start, end);
+  mdl::coordinateSystemVerticesZ(bounds, start, end);
   renderLine(z, lineWidth, occlusionPolicy, start, end);
 }
 
@@ -265,13 +265,13 @@ void PrimitiveRenderer::renderCoordinateSystem3D(
 {
   vm::vec3f start, end;
 
-  coordinateSystemVerticesX(bounds, start, end);
+  mdl::coordinateSystemVerticesX(bounds, start, end);
   renderLine(x, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesY(bounds, start, end);
+  mdl::coordinateSystemVerticesY(bounds, start, end);
   renderLine(y, lineWidth, occlusionPolicy, start, end);
 
-  coordinateSystemVerticesZ(bounds, start, end);
+  mdl::coordinateSystemVerticesZ(bounds, start, end);
   renderLine(z, lineWidth, occlusionPolicy, start, end);
 }
 
@@ -315,35 +315,36 @@ void PrimitiveRenderer::renderCylinder(
   const auto rotation = vm::rotation_matrix(vm::vec3f{0, 0, 1}, dir);
   const auto transform = translation * rotation;
 
-  const auto cylinder = render::cylinder(radius, len, segments);
+  const auto cylinder = mdl::cylinder(radius, len, segments);
   const auto vertices = transform * cylinder.vertices;
 
   m_triangleMeshes[TriangleRenderAttributes{color, occlusionPolicy, cullingPolicy}]
     .addTriangleStrip(Vertex::toList(vertices.size(), vertices.begin()));
 }
 
-void PrimitiveRenderer::doPrepareVertices(VboManager& vboManager)
+void PrimitiveRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   prepareLines(vboManager);
   prepareTriangles(vboManager);
 }
 
-void PrimitiveRenderer::prepareLines(VboManager& vboManager)
+void PrimitiveRenderer::prepareLines(gl::VboManager& vboManager)
 {
   for (auto& [attributes, mesh] : m_lineMeshes)
   {
     auto& renderer =
-      m_lineMeshRenderers.emplace(attributes, IndexRangeRenderer{mesh}).first->second;
+      m_lineMeshRenderers.emplace(attributes, gl::IndexRangeRenderer{mesh}).first->second;
     renderer.prepare(vboManager);
   }
 }
 
-void PrimitiveRenderer::prepareTriangles(VboManager& vboManager)
+void PrimitiveRenderer::prepareTriangles(gl::VboManager& vboManager)
 {
   for (auto& [attributes, mesh] : m_triangleMeshes)
   {
     auto& renderer =
-      m_triangleMeshRenderers.emplace(attributes, IndexRangeRenderer{mesh}).first->second;
+      m_triangleMeshRenderers.emplace(attributes, gl::IndexRangeRenderer{mesh})
+        .first->second;
     renderer.prepare(vboManager);
   }
 }
@@ -357,7 +358,7 @@ void PrimitiveRenderer::doRender(RenderContext& renderContext)
 void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 {
   auto shader =
-    ActiveShader{renderContext.shaderManager(), Shaders::VaryingPUniformCShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
 
   for (auto& [attributes, renderer] : m_lineMeshRenderers)
   {
@@ -369,7 +370,7 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)
 {
   auto shader =
-    ActiveShader{renderContext.shaderManager(), Shaders::VaryingPUniformCShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
 
   for (auto& [attributes, renderer] : m_triangleMeshRenderers)
   {

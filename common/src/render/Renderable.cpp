@@ -30,7 +30,7 @@ void Renderable::render(RenderContext& renderContext)
   doRender(renderContext);
 }
 
-void DirectRenderable::prepareVertices(VboManager& vboManager)
+void DirectRenderable::prepareVertices(gl::VboManager& vboManager)
 {
   doPrepareVertices(vboManager);
 }

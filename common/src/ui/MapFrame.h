@@ -46,12 +46,17 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class ContextManager;
+class Material;
+} // namespace gl
+
 namespace mdl
 {
 class GroupNode;
 class LayerNode;
 class Map;
-class Material;
 class Node;
 
 enum class PasteType;
@@ -64,7 +69,6 @@ namespace ui
 class Action;
 class Console;
 class FrameManager;
-class GLContextManager;
 class InfoPanel;
 class Inspector;
 enum class InspectorPage;
@@ -91,7 +95,7 @@ private:
   QSplitter* m_hSplitter = nullptr;
   QSplitter* m_vSplitter = nullptr;
 
-  std::unique_ptr<GLContextManager> m_contextManager;
+  std::unique_ptr<gl::ContextManager> m_contextManager;
   SwitchableMapViewContainer* m_mapView = nullptr;
   /**
    * Last focused MapViewBase. It's a QPointer to handle changing from e.g. a 2-pane map
@@ -385,7 +389,7 @@ public:
   bool canRevealMaterial() const;
   void revealMaterial();
 
-  void revealMaterial(const mdl::Material* material);
+  void revealMaterial(const gl::Material* material);
 
   void debugPrintVertices();
   void debugCreateBrush();

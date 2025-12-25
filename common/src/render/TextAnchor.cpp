@@ -19,7 +19,7 @@
 
 #include "TextAnchor.h"
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 
 #include "vm/vec.h"
 
@@ -30,7 +30,7 @@ TextAnchor::~TextAnchor() = default;
 
 TextAnchor3D::~TextAnchor3D() = default;
 
-vm::vec3f TextAnchor3D::offset(const Camera& camera, const vm::vec2f& size) const
+vm::vec3f TextAnchor3D::offset(const gl::Camera& camera, const vm::vec2f& size) const
 {
   const auto halfSize = size / 2.0f;
   const auto a = alignment();
@@ -44,7 +44,7 @@ vm::vec3f TextAnchor3D::offset(const Camera& camera, const vm::vec2f& size) cons
          };
 }
 
-vm::vec3f TextAnchor3D::position(const Camera& /* camera */) const
+vm::vec3f TextAnchor3D::position(const gl::Camera& /* camera */) const
 {
   return basePosition();
 }

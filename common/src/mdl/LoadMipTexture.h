@@ -25,6 +25,12 @@
 
 namespace tb
 {
+namespace gl
+{
+class Texture;
+enum class TextureMask;
+} // namespace gl
+
 namespace fs
 {
 class Reader;
@@ -33,15 +39,13 @@ class Reader;
 namespace mdl
 {
 class Palette;
-class Texture;
-enum class TextureMask;
 
 std::string readMipTextureName(fs::Reader& reader);
 
-Result<Texture> loadIdMipTexture(
-  fs::Reader& reader, const Palette& palette, TextureMask mask);
+Result<gl::Texture> loadIdMipTexture(
+  fs::Reader& reader, const Palette& palette, gl::TextureMask mask);
 
-Result<Texture> loadHlMipTexture(fs::Reader& reader, TextureMask mask);
+Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, gl::TextureMask mask);
 
 } // namespace mdl
 } // namespace tb

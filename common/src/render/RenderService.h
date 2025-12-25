@@ -31,9 +31,15 @@
 #include <memory>
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class AttrString;
+}
+
+namespace render
+{
 class PointHandleRenderer;
 class PrimitiveRenderer;
 enum class PrimitiveRendererCullingPolicy;
@@ -78,9 +84,9 @@ public:
   void setShowBackfaces();
   void setCullBackfaces();
 
-  void renderString(const AttrString& string, const vm::vec3f& position);
-  void renderString(const AttrString& string, const TextAnchor& position);
-  void renderHeadsUp(const AttrString& string);
+  void renderString(const gl::AttrString& string, const vm::vec3f& position);
+  void renderString(const gl::AttrString& string, const TextAnchor& position);
+  void renderHeadsUp(const gl::AttrString& string);
 
   void renderString(const std::string& string, const vm::vec3f& position);
   void renderString(const std::string& string, const TextAnchor& position);
@@ -142,4 +148,5 @@ private:
   void flush();
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

@@ -22,9 +22,9 @@
 
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
+#include "gl/Texture.h"
+#include "gl/TextureBuffer.h"
 #include "mdl/MaterialUtils.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureBuffer.h"
 
 #include <fmt/format.h>
 
@@ -117,7 +117,7 @@ GLenum convertDx10FormatToGLFormat(const size_t dx10Format)
   }
 }
 
-void readDdsMips(fs::Reader& reader, TextureBufferList& buffers)
+void readDdsMips(fs::Reader& reader, gl::TextureBufferList& buffers)
 {
   for (size_t i = 0, mipLevels = buffers.size(); i < mipLevels; ++i)
   {
@@ -127,7 +127,7 @@ void readDdsMips(fs::Reader& reader, TextureBufferList& buffers)
 
 } // namespace
 
-Result<Texture> loadDdsTexture(fs::Reader& reader)
+Result<gl::Texture> loadDdsTexture(fs::Reader& reader)
 {
   try
   {
@@ -244,18 +244,18 @@ Result<Texture> loadDdsTexture(fs::Reader& reader)
     }
 
     const auto numMips = mipMapsCount ? mipMapsCount : 1;
-    auto buffers = TextureBufferList{numMips};
+    auto buffers = gl::TextureBufferList{numMips};
 
     setMipBufferSize(buffers, numMips, width, height, format);
     readDdsMips(reader, buffers);
 
-    return Texture{
+    return gl::Texture{
       width,
       height,
       RgbaF{},
       format,
-      TextureMask::Off,
-      NoEmbeddedDefaults{},
+      gl::TextureMask::Off,
+      gl::NoEmbeddedDefaults{},
       std::move(buffers)};
   }
   catch (const fs::ReaderException& e)

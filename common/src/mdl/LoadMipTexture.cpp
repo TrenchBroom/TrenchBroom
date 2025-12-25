@@ -22,10 +22,10 @@
 #include "Color.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
+#include "gl/Texture.h"
+#include "gl/TextureBuffer.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureBuffer.h"
 
 #include "kd/result.h"
 
@@ -62,13 +62,13 @@ Result<Palette> readHlMipPalette(fs::Reader& reader)
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 
-Result<Texture> readMipTexture(
-  fs::Reader& reader, const GetMipPalette& getMipPalette, const TextureMask mask)
+Result<gl::Texture> readMipTexture(
+  fs::Reader& reader, const GetMipPalette& getMipPalette, const gl::TextureMask mask)
 {
   static const auto MipLevels = size_t(4);
 
   auto averageColor = Color{RgbaF{}};
-  auto buffers = TextureBufferList{MipLevels};
+  auto buffers = gl::TextureBufferList{MipLevels};
   size_t offset[MipLevels];
 
   try
@@ -90,7 +90,7 @@ Result<Texture> readMipTexture(
       offset[i] = reader.readSize<int32_t>();
     }
 
-    const auto transparency = mask == TextureMask::On
+    const auto transparency = mask == gl::TextureMask::On
                                 ? PaletteTransparency::Index255Transparent
                                 : PaletteTransparency::Opaque;
 
@@ -109,13 +109,13 @@ Result<Texture> readMipTexture(
                }
              }
 
-             return Texture{
+             return gl::Texture{
                width,
                height,
                averageColor,
                GL_RGBA,
                mask,
-               NoEmbeddedDefaults{},
+               gl::NoEmbeddedDefaults{},
                std::move(buffers)};
            });
   }
@@ -140,13 +140,13 @@ std::string readMipTextureName(fs::Reader& reader)
   }
 }
 
-Result<Texture> loadIdMipTexture(
-  fs::Reader& reader, const Palette& palette, const TextureMask mask)
+Result<gl::Texture> loadIdMipTexture(
+  fs::Reader& reader, const Palette& palette, const gl::TextureMask mask)
 {
   return readMipTexture(reader, [&](fs::Reader&) { return palette; }, mask);
 }
 
-Result<Texture> loadHlMipTexture(fs::Reader& reader, const TextureMask mask)
+Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, const gl::TextureMask mask)
 {
   return readMipTexture(reader, readHlMipPalette, mask);
 }

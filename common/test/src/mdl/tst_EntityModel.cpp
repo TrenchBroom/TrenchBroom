@@ -21,16 +21,16 @@
 #include "PreferenceManager.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/Material.h"
+#include "gl/MaterialIndexRangeRenderer.h"
+#include "gl/Texture.h"
+#include "gl/TextureResource.h"
 #include "mdl/EntityModel.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
 #include "mdl/LoadEntityModel.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureResource.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/MaterialIndexRangeRenderer.h"
 
 #include "vm/approx.h"
 #include "vm/bbox.h"
@@ -47,18 +47,18 @@ namespace tb::mdl
 namespace
 {
 
-Material makeDummyMaterial(std::string name)
+gl::Material makeDummyMaterial(std::string name)
 {
-  auto textureResource = createTextureResource(Texture{1, 1});
-  return Material{std::move(name), std::move(textureResource)};
+  auto textureResource = gl::createTextureResource(gl::Texture{1, 1});
+  return gl::Material{std::move(name), std::move(textureResource)};
 }
 
-render::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()
+gl::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()
 {
-  auto size = render::IndexRangeMap::Size{};
-  size.inc(render::PrimType::Triangles, 1);
+  auto size = gl::IndexRangeMap::Size{};
+  size.inc(gl::PrimType::Triangles, 1);
 
-  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{3, size};
+  auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{3, size};
   builder.addTriangle(EntityModelVertex{}, EntityModelVertex{}, EntityModelVertex{});
 
   return builder;
@@ -83,7 +83,7 @@ TEST_CASE("EntityModel")
       logger);
 
     const auto path = std::filesystem::path{"cube.bsp"};
-    const auto loadMaterial = [](auto) -> Material {
+    const auto loadMaterial = [](auto) -> gl::Material {
       throw std::runtime_error{"should not be called"};
     };
 
@@ -138,7 +138,7 @@ TEST_CASE("EntityModel")
     // Prepare the first surface - it will only have one skin
     auto& surface1 = modelData.addSurface("surface 1", 1);
 
-    auto materials1 = std::vector<Material>{};
+    auto materials1 = std::vector<gl::Material>{};
     materials1.push_back(makeDummyMaterial("skin1"));
     surface1.setSkins(std::move(materials1));
 
@@ -148,7 +148,7 @@ TEST_CASE("EntityModel")
     // The second surface will have two skins
     auto& surface2 = modelData.addSurface("surface 2", 1);
 
-    auto materials2 = std::vector<Material>{};
+    auto materials2 = std::vector<gl::Material>{};
     materials2.push_back(makeDummyMaterial("skin2a"));
     materials2.push_back(makeDummyMaterial("skin2b"));
     surface2.setSkins(std::move(materials2));

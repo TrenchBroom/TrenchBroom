@@ -20,10 +20,10 @@
 #include "LoadSpriteModel.h"
 
 #include "fs/ReaderException.h"
-#include "mdl/Material.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/Material.h"
 #include "mdl/Palette.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
 
 #include "kd/path_utils.h"
 
@@ -35,7 +35,7 @@ namespace
 
 struct SprPicture
 {
-  Material material;
+  gl::Material material;
   int x;
   int y;
   size_t width;
@@ -49,7 +49,7 @@ SprPicture parsePicture(fs::Reader& reader, const Palette& palette)
   const auto width = reader.readSize<int32_t>();
   const auto height = reader.readSize<int32_t>();
 
-  auto rgbaImage = TextureBuffer{4 * width * height};
+  auto rgbaImage = gl::TextureBuffer{4 * width * height};
   auto averageColor = Color{RgbaF{}};
   palette.indexedToRgba(
     reader,
@@ -58,17 +58,17 @@ SprPicture parsePicture(fs::Reader& reader, const Palette& palette)
     PaletteTransparency::Index255Transparent,
     averageColor);
 
-  auto texture = Texture{
+  auto texture = gl::Texture{
     width,
     height,
     averageColor,
     GL_RGBA,
-    TextureMask::On,
-    NoEmbeddedDefaults{},
+    gl::TextureMask::On,
+    gl::NoEmbeddedDefaults{},
     std::move(rgbaImage)};
   auto textureResource = createTextureResource(std::move(texture));
 
-  auto material = Material{"", std::move(textureResource)};
+  auto material = gl::Material{"", std::move(textureResource)};
 
   return SprPicture{std::move(material), xOffset, yOffset, width, height};
 }
@@ -274,7 +274,7 @@ Result<EntityModelData> loadSpriteModel(
                        auto data = EntityModelData{PitchType::Normal, orientationType};
                        auto& surface = data.addSurface(name, frameCount);
 
-                       auto materials = std::vector<Material>{};
+                       auto materials = std::vector<gl::Material>{};
                        materials.reserve(frameCount);
 
                        for (size_t i = 0; i < frameCount; ++i)
@@ -307,11 +307,11 @@ Result<EntityModelData> loadSpriteModel(
                            EntityModelVertex{{x1, y1, 0}, {0, 1}},
                          };
 
-                         auto size = render::IndexRangeMap::Size{};
-                         size.inc(render::PrimType::Triangles, 2);
+                         auto size = gl::IndexRangeMap::Size{};
+                         size.inc(gl::PrimType::Triangles, 2);
 
                          auto builder =
-                           render::IndexRangeMapBuilder<EntityModelVertex::Type>{6, size};
+                           gl::IndexRangeMapBuilder<EntityModelVertex::Type>{6, size};
                          builder.addTriangles(triangles);
 
                          surface.addMesh(

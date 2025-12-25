@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/Camera.h"
+#include "gl/Camera.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
 #include "render/TextAnchor.h"
@@ -48,11 +48,11 @@ class SizeTextAnchor2D : public TextAnchor3D
 private:
   const vm::bbox3d& m_bounds;
   const vm::axis::type m_axis;
-  const Camera& m_camera;
+  const gl::Camera& m_camera;
 
 public:
   SizeTextAnchor2D(
-    const vm::bbox3d& bounds, const vm::axis::type axis, const render::Camera& camera)
+    const vm::bbox3d& bounds, const vm::axis::type axis, const gl::Camera& camera)
     : m_bounds{bounds}
     , m_axis{axis}
     , m_camera{camera}
@@ -104,11 +104,11 @@ class SizeTextAnchor3D : public TextAnchor3D
 private:
   const vm::bbox3d& m_bounds;
   const vm::axis::type m_axis;
-  const Camera& m_camera;
+  const gl::Camera& m_camera;
 
 public:
   SizeTextAnchor3D(
-    const vm::bbox3d& bounds, const vm::axis::type axis, const render::Camera& camera)
+    const vm::bbox3d& bounds, const vm::axis::type axis, const gl::Camera& camera)
     : m_bounds{bounds}
     , m_axis{axis}
     , m_camera{camera}
@@ -297,11 +297,11 @@ class MinMaxTextAnchor3D : public TextAnchor3D
 private:
   const vm::bbox3d& m_bounds;
   const corner m_minMax;
-  const render::Camera& m_camera;
+  const gl::Camera& m_camera;
 
 public:
   MinMaxTextAnchor3D(
-    const vm::bbox3d& bounds, const corner minMax, const render::Camera& camera)
+    const vm::bbox3d& bounds, const corner minMax, const gl::Camera& camera)
     : m_bounds{bounds}
     , m_minMax{minMax}
     , m_camera{camera}

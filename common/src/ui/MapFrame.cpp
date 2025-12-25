@@ -42,6 +42,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "gl/ContextManager.h"
+#include "gl/Resource.h"
 #include "mdl/Autosaver.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -69,7 +71,6 @@
 #include "mdl/Node.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Resource.h"
 #include "mdl/WorldNode.h"
 #include "ui/Action.h"
 #include "ui/ActionBuilder.h"
@@ -84,7 +85,6 @@
 #include "ui/FaceInspector.h"
 #include "ui/FaceTool.h"
 #include "ui/FrameManager.h"
-#include "ui/GLContextManager.h"
 #include "ui/InfoPanel.h"
 #include "ui/Inspector.h"
 #include "ui/LaunchGameEngineDialog.h"
@@ -100,6 +100,7 @@
 #include "ui/SignalDelayer.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableMapViewContainer.h"
+#include "ui/SystemPaths.h"
 #include "ui/VertexTool.h"
 #include "ui/ViewUtils.h"
 #include "update/Updater.h"
@@ -136,7 +137,8 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   , m_lastInputTime{std::chrono::system_clock::now()}
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
-  , m_contextManager{std::make_unique<GLContextManager>()}
+  , m_contextManager{std::make_unique<gl::ContextManager>(
+      [](const auto& path) { return SystemPaths::findResourceFile(path); })}
   , m_updateTitleSignalDelayer{new SignalDelayer{500ms, this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
   , m_updateStatusBarSignalDelayer{new SignalDelayer{500ms, this}}
@@ -2158,7 +2160,7 @@ void MapFrame::showLaunchEngineDialog()
 namespace
 {
 
-const mdl::Material* materialToReveal(const mdl::Map& map)
+const gl::Material* materialToReveal(const mdl::Map& map)
 {
   const auto& selection = map.selection();
 
@@ -2186,7 +2188,7 @@ void MapFrame::revealMaterial()
   }
 }
 
-void MapFrame::revealMaterial(const mdl::Material* material)
+void MapFrame::revealMaterial(const gl::Material* material)
 {
   m_inspector->switchToPage(InspectorPage::Face);
   m_inspector->faceInspector()->revealMaterial(material);
@@ -2534,7 +2536,7 @@ void MapFrame::triggerAutosave()
 void MapFrame::triggerProcessResources()
 {
   auto& map = m_document->map();
-  map.processResourcesAsync(mdl::ProcessContext{
+  map.processResourcesAsync(tb::gl::ProcessContext{
     true, [&](const auto&, const auto& error) { logger().error() << error; }});
 }
 

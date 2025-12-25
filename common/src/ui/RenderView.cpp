@@ -22,13 +22,13 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
+#include "gl/ContextManager.h"
+#include "gl/PrimType.h"
+#include "gl/VboManager.h"
+#include "gl/VertexArray.h"
+#include "gl/VertexType.h"
 #include "render/Transformation.h"
-#include "render/VboManager.h"
-#include "render/VertexArray.h"
 #include "ui/CrashReporter.h"
-#include "ui/GLContextManager.h"
 #include "ui/InputEvent.h"
 #include "ui/QtUtils.h"
 
@@ -81,7 +81,7 @@
 namespace tb::ui
 {
 
-RenderView::RenderView(GLContextManager& contextManager, QWidget* parent)
+RenderView::RenderView(gl::ContextManager& contextManager, QWidget* parent)
   : QOpenGLWidget{parent}
   , m_glContext{&contextManager}
 {
@@ -223,17 +223,17 @@ void RenderView::paintGL()
   }
 }
 
-render::VboManager& RenderView::vboManager()
+gl::VboManager& RenderView::vboManager()
 {
   return m_glContext->vboManager();
 }
 
-render::FontManager& RenderView::fontManager()
+gl::FontManager& RenderView::fontManager()
 {
   return m_glContext->fontManager();
 }
 
-render::ShaderManager& RenderView::shaderManager()
+gl::ShaderManager& RenderView::shaderManager()
 {
   return m_glContext->shaderManager();
 }
@@ -310,8 +310,8 @@ void RenderView::renderFocusIndicator()
 
     glAssert(glDisable(GL_DEPTH_TEST));
 
-    using Vertex = render::GLVertexTypes::P3C4::Vertex;
-    auto array = render::VertexArray::move(std::vector{
+    using Vertex = gl::VertexTypes::P3C4::Vertex;
+    auto array = gl::VertexArray::move(std::vector{
       // top
       Vertex{{0.0f, 0.0f, 0.0f}, outer.toVec()},
       Vertex{{w, 0.0f, 0.0f}, outer.toVec()},
@@ -338,7 +338,7 @@ void RenderView::renderFocusIndicator()
     });
 
     array.prepare(vboManager());
-    array.render(render::PrimType::Quads);
+    array.render(gl::PrimType::Quads);
     glAssert(glEnable(GL_DEPTH_TEST));
   }
 }

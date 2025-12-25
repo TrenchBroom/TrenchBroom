@@ -23,6 +23,8 @@
 #include "SimpleParserStatus.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
+#include "gl/MaterialManager.h"
+#include "gl/ResourceManager.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -65,7 +67,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Map_World.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/MissingClassnameValidator.h"
 #include "mdl/MissingDefinitionValidator.h"
 #include "mdl/MissingModValidator.h"
@@ -84,7 +85,6 @@
 #include "mdl/PropertyValueWithDoubleQuotationMarksValidator.h"
 #include "mdl/PushSelection.h"
 #include "mdl/RepeatStack.h"
-#include "mdl/ResourceManager.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/SoftMapBoundsValidator.h"
 #include "mdl/TagManager.h"
@@ -143,7 +143,7 @@ auto createGameFileSystem(
 }
 
 template <typename Resource>
-auto makeCreateResource(ResourceManager& resourceManager)
+auto makeCreateResource(gl::ResourceManager& resourceManager)
 {
   return [&](auto resourceLoader) {
     auto resource = std::make_shared<Resource>(std::move(resourceLoader));
@@ -323,7 +323,7 @@ auto makeClearNodeTagsVisitor()
     [](PatchNode* patch) { patch->clearTags(); });
 }
 
-auto makeSetMaterialsVisitor(MaterialManager& manager)
+auto makeSetMaterialsVisitor(gl::MaterialManager& manager)
 {
   return kdl::overload(
     [](auto&& thisLambda, WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
@@ -526,15 +526,14 @@ Map::Map(
       m_environmentConfig, m_gameInfo, m_gamePath, logger)}
   , m_taskManager{taskManager}
   , m_logger{logger}
-  , m_resourceManager{std::make_unique<ResourceManager>()}
+  , m_resourceManager{std::make_unique<gl::ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
       m_gameInfo,
       *m_gameFileSystem,
       makeCreateResource<EntityModelDataResource>(*m_resourceManager),
       logger)}
-  , m_materialManager{std::make_unique<MaterialManager>(
-      makeCreateResource<TextureResource>(*m_resourceManager), logger)}
+  , m_materialManager{std::make_unique<gl::MaterialManager>(logger)}
   , m_tagManager{std::make_unique<TagManager>()}
   , m_editorContext{std::make_unique<EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
@@ -654,12 +653,12 @@ const EntityModelManager& Map::entityModelManager() const
   return *m_entityModelManager;
 }
 
-MaterialManager& Map::materialManager()
+gl::MaterialManager& Map::materialManager()
 {
   return *m_materialManager;
 }
 
-const MaterialManager& Map::materialManager() const
+const gl::MaterialManager& Map::materialManager() const
 {
   return *m_materialManager;
 }
@@ -1049,14 +1048,14 @@ void Map::updateAllFaceTags()
 }
 
 void Map::updateFaceTagsAfterResourcesWhereProcessed(
-  const std::vector<ResourceId>& resourceIds)
+  const std::vector<gl::ResourceId>& resourceIds)
 {
   // Some textures contain embedded default values for surface flags and such, so we
   // must update the face tags after the resources have been processed.
 
   const auto materials = m_materialManager->findMaterialsByTextureResourceId(resourceIds);
   const auto materialSet =
-    std::unordered_set<const Material*>{materials.begin(), materials.end()};
+    std::unordered_set<const gl::Material*>{materials.begin(), materials.end()};
 
   worldNode().accept(kdl::overload(
     [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
@@ -1203,8 +1202,20 @@ void Map::loadMaterials()
       gameInfo().gameConfig.materialConfig.root, searchPaths, wadPaths, logger());
   }
 
-  m_materialManager->reload(
-    *m_gameFileSystem, gameInfo().gameConfig.materialConfig, taskManager());
+  m_materialManager->clear();
+
+  loadMaterialCollections(
+    *m_gameFileSystem,
+    gameInfo().gameConfig.materialConfig,
+    makeCreateResource<gl::TextureResource>(*m_resourceManager),
+    taskManager(),
+    m_logger)
+    | kdl::transform([&](auto materialCollections) {
+        m_materialManager->setMaterialCollections(std::move(materialCollections));
+      })
+    | kdl::transform_error([&](auto e) {
+        m_logger.error() << "Could not reload material collections: " + e.msg;
+      });
 }
 
 void Map::clearMaterials()
@@ -1396,14 +1407,14 @@ void Map::removeEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
   }
 }
 
-void Map::processResourcesSync(const ProcessContext& processContext)
+void Map::processResourcesSync(const gl::ProcessContext& processContext)
 {
-  auto allProcessedResourceIds = std::vector<ResourceId>{};
+  auto allProcessedResourceIds = std::vector<gl::ResourceId>{};
   while (m_resourceManager->needsProcessing())
   {
     auto processedResourceIds = m_resourceManager->process(
       [](auto task) {
-        auto promise = std::promise<std::unique_ptr<TaskResult>>{};
+        auto promise = std::promise<std::unique_ptr<gl::TaskResult>>{};
         promise.set_value(task());
         return promise.get_future();
       },
@@ -1420,7 +1431,7 @@ void Map::processResourcesSync(const ProcessContext& processContext)
   }
 }
 
-void Map::processResourcesAsync(const ProcessContext& processContext)
+void Map::processResourcesAsync(const gl::ProcessContext& processContext)
 {
   using namespace std::chrono_literals;
 
@@ -1713,7 +1724,7 @@ void Map::brushFacesDidChange(const std::vector<BrushFaceHandle>& brushFaces)
   updateFaceTags(brushFaces);
 }
 
-void Map::resourcesWereProcessed(const std::vector<ResourceId>& resourceIds)
+void Map::resourcesWereProcessed(const std::vector<gl::ResourceId>& resourceIds)
 {
   updateFaceTagsAfterResourcesWhereProcessed(resourceIds);
 }

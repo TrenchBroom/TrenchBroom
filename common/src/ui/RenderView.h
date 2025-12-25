@@ -35,23 +35,23 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
+class ContextManager;
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace render
+} // namespace gl
 
 namespace ui
 {
-class GLContextManager;
 
 class RenderView : public QOpenGLWidget, public InputEventProcessor
 {
   Q_OBJECT
 private:
   Color m_focusColor;
-  GLContextManager* m_glContext;
+  gl::ContextManager* m_glContext;
   InputEventRecorder m_eventRecorder;
 
 private: // FPS counter
@@ -66,7 +66,7 @@ protected:
   std::string m_currentFPS;
 
 protected:
-  explicit RenderView(GLContextManager& contextManager, QWidget* parent = nullptr);
+  explicit RenderView(gl::ContextManager& contextManager, QWidget* parent = nullptr);
 
 public:
   ~RenderView() override;
@@ -82,9 +82,9 @@ protected: // QWindow overrides
   bool event(QEvent* event) override;
 
 protected:
-  render::VboManager& vboManager();
-  render::FontManager& fontManager();
-  render::ShaderManager& shaderManager();
+  gl::VboManager& vboManager();
+  gl::FontManager& fontManager();
+  gl::ShaderManager& shaderManager();
 
   int depthBits() const;
   bool multisample() const;

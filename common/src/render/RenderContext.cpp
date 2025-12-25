@@ -19,16 +19,16 @@
 
 #include "RenderContext.h"
 
-#include "render/Camera.h"
+#include "gl/Camera.h"
 
 namespace tb::render
 {
 
 RenderContext::RenderContext(
   const RenderMode renderMode,
-  const Camera& camera,
-  FontManager& fontManager,
-  ShaderManager& shaderManager)
+  const gl::Camera& camera,
+  gl::FontManager& fontManager,
+  gl::ShaderManager& shaderManager)
   : m_renderMode{renderMode}
   , m_camera{camera}
   , m_transformation{m_camera.projectionMatrix(), m_camera.viewMatrix()}
@@ -47,7 +47,7 @@ bool RenderContext::render3D() const
   return m_renderMode == RenderMode::Render3D;
 }
 
-const Camera& RenderContext::camera() const
+const gl::Camera& RenderContext::camera() const
 {
   return m_camera;
 }
@@ -57,12 +57,12 @@ Transformation& RenderContext::transformation()
   return m_transformation;
 }
 
-FontManager& RenderContext::fontManager()
+gl::FontManager& RenderContext::fontManager()
 {
   return m_fontManager;
 }
 
-ShaderManager& RenderContext::shaderManager()
+gl::ShaderManager& RenderContext::shaderManager()
 {
   return m_shaderManager;
 }

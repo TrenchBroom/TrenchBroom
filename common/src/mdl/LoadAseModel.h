@@ -30,13 +30,18 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class Material;
+}
+
 namespace mdl
 {
 class Material;
 
 bool canLoadAseModel(const std::filesystem::path& path);
 
-using LoadMaterialFunc = std::function<Material(const std::filesystem::path&)>;
+using LoadMaterialFunc = std::function<gl::Material(const std::filesystem::path&)>;
 
 Result<EntityModelData> loadAseModel(
   std::string name, std::string_view str, LoadMaterialFunc loadMaterial, Logger& logger);

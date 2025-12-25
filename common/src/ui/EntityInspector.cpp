@@ -32,7 +32,7 @@ namespace tb::ui
 {
 
 EntityInspector::EntityInspector(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
 {
   createGui(document, contextManager);
@@ -43,7 +43,7 @@ EntityInspector::~EntityInspector()
   saveWindowState(m_splitter);
 }
 
-void EntityInspector::createGui(MapDocument& document, GLContextManager& contextManager)
+void EntityInspector::createGui(MapDocument& document, gl::ContextManager& contextManager)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
@@ -71,7 +71,7 @@ QWidget* EntityInspector::createAttributeEditor(MapDocument& document, QWidget* 
 }
 
 QWidget* EntityInspector::createEntityBrowser(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
 {
   auto* panel = new SwitchableTitledPanel{
     tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};

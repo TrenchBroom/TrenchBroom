@@ -25,7 +25,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class Camera;
 }
@@ -36,16 +36,16 @@ namespace ui
 class CameraLinkHelper
 {
 private:
-  std::vector<render::Camera*> m_cameras;
+  std::vector<gl::Camera*> m_cameras;
   bool m_ignoreNotifications = false;
   NotifierConnection m_notifierConnection;
 
 public:
-  void addCamera(render::Camera* camera);
-  void updateCameras(const render::Camera* masterCamera);
+  void addCamera(gl::Camera* camera);
+  void updateCameras(const gl::Camera* masterCamera);
 
 private:
-  void cameraDidChange(const render::Camera* camera);
+  void cameraDidChange(const gl::Camera* camera);
 };
 
 class CameraLinkableView

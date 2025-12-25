@@ -49,7 +49,7 @@ void ObjectRenderer::removeNode(mdl::Node& node)
 }
 
 void ObjectRenderer::invalidateMaterials(
-  const std::vector<const mdl::Material*>& materials)
+  const std::vector<const gl::Material*>& materials)
 {
   m_brushRenderer.invalidateMaterials(materials);
   m_patchRenderer.invalidate();

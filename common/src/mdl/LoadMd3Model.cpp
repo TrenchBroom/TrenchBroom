@@ -20,9 +20,9 @@
 #include "LoadMd3Model.h"
 
 #include "fs/ReaderException.h"
-#include "mdl/Material.h" // IWYU pragma: keep
-#include "render/IndexRangeMap.h"
-#include "render/PrimType.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/Material.h" // IWYU pragma: keep
+#include "gl/PrimType.h"
 
 #include "kd/path_utils.h"
 #include "kd/result_fold.h"
@@ -209,8 +209,7 @@ void buildFrameSurface(
 {
   using Vertex = EntityModelVertex;
 
-  auto rangeMap =
-    render::IndexRangeMap{render::PrimType::Triangles, 0, 3 * triangles.size()};
+  auto rangeMap = gl::IndexRangeMap{gl::PrimType::Triangles, 0, 3 * triangles.size()};
   auto frameVertices = std::vector<Vertex>{};
   frameVertices.reserve(3 * triangles.size());
 

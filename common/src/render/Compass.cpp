@@ -21,18 +21,18 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/ActiveShader.h"
-#include "render/Camera.h"
-#include "render/GLVertex.h"
-#include "render/GLVertexType.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/PrimType.h"
+#include "gl/ActiveShader.h"
+#include "gl/Camera.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
+#include "gl/Vertex.h"
+#include "gl/VertexArray.h"
+#include "gl/VertexType.h"
+#include "mdl/BasicShapes.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
-#include "render/Shaders.h"
 #include "render/Transformation.h"
-#include "render/VertexArray.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -62,7 +62,7 @@ void Compass::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void Compass::doPrepareVertices(VboManager& vboManager)
+void Compass::doPrepareVertices(gl::VboManager& vboManager)
 {
   if (!m_prepared)
   {
@@ -112,33 +112,33 @@ void Compass::makeArrows()
     vm::vec3f{0.0f, 0.0f, -(m_shaftLength + m_headLength) / 2.0f + 2.0f};
   const auto headOffset = vm::vec3f{0.0f, 0.0f, m_shaftLength} + shaftOffset;
 
-  auto shaft = cylinder(m_shaftRadius, m_shaftLength, m_segments);
+  auto shaft = mdl::cylinder(m_shaftRadius, m_shaftLength, m_segments);
   for (size_t i = 0; i < shaft.vertices.size(); ++i)
   {
     shaft.vertices[i] = shaft.vertices[i] + shaftOffset;
   }
 
-  auto head = cone(m_headRadius, m_headLength, m_segments);
+  auto head = mdl::cone(m_headRadius, m_headLength, m_segments);
   for (size_t i = 0; i < head.vertices.size(); ++i)
   {
     head.vertices[i] = head.vertices[i] + headOffset;
   }
 
-  auto shaftCap = circle3D(m_shaftRadius, m_segments);
+  auto shaftCap = mdl::circle3D(m_shaftRadius, m_segments);
   for (size_t i = 0; i < shaftCap.vertices.size(); ++i)
   {
     shaftCap.vertices[i] = vm::mat4x4f::rot_180_x() * shaftCap.vertices[i] + shaftOffset;
     shaftCap.normals[i] = vm::mat4x4f::rot_180_x() * shaftCap.normals[i];
   }
 
-  auto headCap = circle3D(m_headRadius, m_segments);
+  auto headCap = mdl::circle3D(m_headRadius, m_segments);
   for (size_t i = 0; i < headCap.vertices.size(); ++i)
   {
     headCap.vertices[i] = vm::mat4x4f::rot_180_x() * headCap.vertices[i] + headOffset;
     headCap.normals[i] = vm::mat4x4f::rot_180_x() * headCap.normals[i];
   }
 
-  using Vertex = GLVertexTypes::P3N::Vertex;
+  using Vertex = gl::VertexTypes::P3N::Vertex;
   auto shaftVertices = Vertex::toList(
     shaft.vertices.size(), std::begin(shaft.vertices), std::begin(shaft.normals));
   auto headVertices = Vertex::toList(
@@ -152,46 +152,46 @@ void Compass::makeArrows()
 
   const auto vertexCount = shaftVertices.size() + headVertices.size()
                            + shaftCapVertices.size() + headCapVertices.size();
-  auto indexArraySize = IndexRangeMap::Size{};
-  indexArraySize.inc(PrimType::TriangleStrip);
-  indexArraySize.inc(PrimType::TriangleFan, 2);
-  indexArraySize.inc(PrimType::Triangles, headVertices.size() / 3);
+  auto indexArraySize = gl::IndexRangeMap::Size{};
+  indexArraySize.inc(gl::PrimType::TriangleStrip);
+  indexArraySize.inc(gl::PrimType::TriangleFan, 2);
+  indexArraySize.inc(gl::PrimType::Triangles, headVertices.size() / 3);
 
-  auto builder = IndexRangeMapBuilder<Vertex::Type>{vertexCount, indexArraySize};
+  auto builder = gl::IndexRangeMapBuilder<Vertex::Type>{vertexCount, indexArraySize};
   builder.addTriangleStrip(shaftVertices);
   builder.addTriangleFan(shaftCapVertices);
   builder.addTriangleFan(headCapVertices);
   builder.addTriangles(headVertices);
 
-  m_arrowRenderer = IndexRangeRenderer{builder};
+  m_arrowRenderer = gl::IndexRangeRenderer{builder};
 }
 
 void Compass::makeBackground()
 {
-  using Vertex = GLVertexTypes::P2::Vertex;
-  auto circ = circle2D(
+  using Vertex = gl::VertexTypes::P2::Vertex;
+  auto circ = mdl::circle2D(
     (m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::two_pi(), m_segments);
   auto verts = Vertex::toList(circ.size(), std::begin(circ));
 
-  auto backgroundSize = IndexRangeMap::Size{};
-  backgroundSize.inc(PrimType::TriangleFan);
+  auto backgroundSize = gl::IndexRangeMap::Size{};
+  backgroundSize.inc(gl::PrimType::TriangleFan);
 
   auto backgroundBuilder =
-    IndexRangeMapBuilder<Vertex::Type>{verts.size(), backgroundSize};
+    gl::IndexRangeMapBuilder<Vertex::Type>{verts.size(), backgroundSize};
   backgroundBuilder.addTriangleFan(verts);
 
-  m_backgroundRenderer = IndexRangeRenderer{backgroundBuilder};
+  m_backgroundRenderer = gl::IndexRangeRenderer{backgroundBuilder};
 
-  auto outlineSize = IndexRangeMap::Size{};
-  outlineSize.inc(PrimType::LineLoop);
+  auto outlineSize = gl::IndexRangeMap::Size{};
+  outlineSize.inc(gl::PrimType::LineLoop);
 
-  auto outlineBuilder = IndexRangeMapBuilder<Vertex::Type>{verts.size(), outlineSize};
+  auto outlineBuilder = gl::IndexRangeMapBuilder<Vertex::Type>{verts.size(), outlineSize};
   outlineBuilder.addLineLoop(verts);
 
-  m_backgroundOutlineRenderer = IndexRangeRenderer{outlineBuilder};
+  m_backgroundOutlineRenderer = gl::IndexRangeRenderer{outlineBuilder};
 }
 
-vm::mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const
+vm::mat4x4f Compass::cameraRotationMatrix(const gl::Camera& camera) const
 {
   auto rotation = vm::mat4x4f{};
   rotation[0] = vm::vec4f{camera.right()};
@@ -208,7 +208,7 @@ void Compass::renderBackground(RenderContext& renderContext)
   const auto rotate =
     MultiplyModelMatrix{renderContext.transformation(), vm::mat4x4f::rot_90_x_ccw()};
   auto shader =
-    ActiveShader{renderContext.shaderManager(), Shaders::CompassBackgroundShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassBackgroundShader};
 
   shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
   m_backgroundRenderer.render();
@@ -220,7 +220,8 @@ void Compass::renderBackground(RenderContext& renderContext)
 void Compass::renderSolidAxis(
   RenderContext& renderContext, const vm::mat4x4f& transformation, const Color& color)
 {
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::CompassShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassShader};
   shader.set("CameraPosition", vm::vec3f{0, 500, 0});
   shader.set("LightDirection", vm::normalize(vm::vec3f{0, 0.5, 1}));
   shader.set("LightDiffuse", RgbaF{1.0f, 1.0f, 1.0f, 1.0f});
@@ -243,7 +244,7 @@ void Compass::renderAxisOutline(
   glAssert(glPolygonMode(GL_FRONT, GL_LINE));
 
   auto shader =
-    ActiveShader{renderContext.shaderManager(), Shaders::CompassOutlineShader};
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassOutlineShader};
   shader.set("Color", color);
   renderAxis(renderContext, transformation);
 

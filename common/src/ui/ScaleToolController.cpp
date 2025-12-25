@@ -22,10 +22,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
-#include "render/Camera.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
 #include "ui/HandleDragTracker.h"
@@ -365,7 +365,7 @@ static void renderDragCorner(
 }
 
 static std::vector<vm::vec3d> visibleCornerHandles(
-  const ScaleTool& tool, const render::Camera& camera)
+  const ScaleTool& tool, const gl::Camera& camera)
 {
   using namespace mdl::HitFilters;
 
@@ -441,9 +441,7 @@ ScaleToolController2D::ScaleToolController2D(ScaleTool& tool)
 }
 
 void ScaleToolController2D::doPick(
-  const vm::ray3d& pickRay,
-  const render::Camera& camera,
-  mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
 {
   m_tool.pick2D(pickRay, camera, pickResult);
 }
@@ -456,9 +454,7 @@ ScaleToolController3D::ScaleToolController3D(ScaleTool& tool)
 }
 
 void ScaleToolController3D::doPick(
-  const vm::ray3d& pickRay,
-  const render::Camera& camera,
-  mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }

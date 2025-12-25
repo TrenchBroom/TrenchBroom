@@ -20,9 +20,9 @@
 
 #include "TestUtils.h"
 #include "fs/DiskFileSystem.h"
+#include "gl/Texture.h"
 #include "mdl/LoadDdsTexture.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
 
 #include "kd/result.h"
 
@@ -38,7 +38,7 @@ namespace tb::mdl
 namespace
 {
 
-mdl::Texture loadTexture(const std::string& name)
+auto loadTexture(const std::string& name)
 {
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/io/Dds/";
   auto diskFS = fs::DiskFileSystem{ddsPath};
@@ -56,7 +56,7 @@ void assertTexture(
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
   CHECK(texture.format() == format);
-  CHECK(texture.mask() == mdl::TextureMask::Off);
+  CHECK(texture.mask() == gl::TextureMask::Off);
 }
 
 } // namespace

@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Result.h"
+#include "gl/TextureResource.h"
 #include "mdl/Palette.h"
 #include "mdl/Quake3Shader.h"
-#include "mdl/TextureResource.h"
 
 #include <filesystem>
 #include <optional>
@@ -37,6 +37,12 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class Material;
+class MaterialCollection;
+} // namespace gl
+
 namespace fs
 {
 class FileSystem;
@@ -44,22 +50,20 @@ class FileSystem;
 
 namespace mdl
 {
-class Material;
-class MaterialCollection;
 struct MaterialConfig;
 
-Result<Material> loadMaterial(
+Result<gl::Material> loadMaterial(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath,
-  const CreateTextureResource& createResource,
+  const gl::CreateTextureResource& createResource,
   const std::vector<Quake3Shader>& shaders,
   const std::optional<Palette>& palette);
 
-Result<std::vector<MaterialCollection>> loadMaterialCollections(
+Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
-  const CreateTextureResource& createResource,
+  const gl::CreateTextureResource& createResource,
   kdl::task_manager& taskManager,
   Logger& logger);
 

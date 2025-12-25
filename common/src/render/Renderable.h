@@ -21,10 +21,16 @@
 
 #include "Macros.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class VboManager;
+}
+
+namespace render
 {
 class RenderContext;
-class VboManager;
 
 class Renderable
 {
@@ -46,10 +52,10 @@ public:
   DirectRenderable();
   ~DirectRenderable() override;
 
-  void prepareVertices(VboManager& vboManager);
+  void prepareVertices(gl::VboManager& vboManager);
 
 private:
-  virtual void doPrepareVertices(VboManager& vboManager) = 0;
+  virtual void doPrepareVertices(gl::VboManager& vboManager) = 0;
 
   defineCopyAndMove(DirectRenderable);
 };
@@ -60,9 +66,10 @@ public:
   IndexedRenderable();
   ~IndexedRenderable() override;
 
-  virtual void prepareVerticesAndIndices(VboManager& vboManager) = 0;
+  virtual void prepareVerticesAndIndices(gl::VboManager& vboManager) = 0;
 
   defineCopyAndMove(IndexedRenderable);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

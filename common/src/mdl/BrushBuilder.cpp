@@ -19,9 +19,9 @@
 
 #include "BrushBuilder.h"
 
+#include "mdl/BasicShapes.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
-#include "render/RenderUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -696,7 +696,7 @@ Result<Brush> BrushBuilder::createUVSphere(
 Result<Brush> BrushBuilder::createIcoSphere(
   const vm::bbox3d& bounds, const size_t iterations, const std::string& textureName) const
 {
-  const auto [sphereVertices_, sphereIndices] = render::sphereMesh<double>(iterations);
+  const auto [sphereVertices_, sphereIndices] = sphereMesh<double>(iterations);
 
   return sphereIndices
          | std::views::transform(

@@ -29,9 +29,15 @@
 #include <string>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace gl
 {
 class Material;
+}
+
+namespace mdl
+{
 
 class BezierPatch
 {
@@ -45,7 +51,7 @@ private:
   vm::bbox3d m_bounds;
 
   std::string m_materialName;
-  AssetReference<Material> m_materialReference;
+  AssetReference<gl::Material> m_materialReference;
 
   kdl_reflect_decl(
     BezierPatch,
@@ -89,12 +95,13 @@ public: // control points:
   const std::string& materialName() const;
   void setMaterialName(std::string materialName);
 
-  const Material* material() const;
-  bool setMaterial(Material* material);
+  const gl::Material* material() const;
+  bool setMaterial(gl::Material* material);
 
   void transform(const vm::mat4x4d& transformation);
 
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

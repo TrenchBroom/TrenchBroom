@@ -21,12 +21,12 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/Reader.h"
 #include "fs/VirtualFileSystem.h"
+#include "gl/Material.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/LoadAseModel.h"
 #include "mdl/LoadMaterialCollections.h"
 #include "mdl/LoadShaders.h"
-#include "mdl/Material.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
@@ -73,7 +73,7 @@ TEST_CASE("loadAseModel")
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
+      return gl::createResourceSync(std::move(resourceLoader));
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {
@@ -114,7 +114,7 @@ TEST_CASE("loadAseModel")
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
+      return gl::createResourceSync(std::move(resourceLoader));
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {
@@ -144,7 +144,7 @@ TEST_CASE("loadAseModel")
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
+      return gl::createResourceSync(std::move(resourceLoader));
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {
@@ -200,7 +200,7 @@ TEST_CASE("loadAseModel (Regression)", "[regression]")
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
+      return gl::createResourceSync(std::move(resourceLoader));
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {
@@ -225,7 +225,7 @@ TEST_CASE("loadAseModel (Regression)", "[regression]")
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
+      return gl::createResourceSync(std::move(resourceLoader));
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {
@@ -250,7 +250,7 @@ TEST_CASE("loadAseModel (Regression)", "[regression]")
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
-      return createResourceSync(std::move(resourceLoader));
+      return gl::createResourceSync(std::move(resourceLoader));
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {

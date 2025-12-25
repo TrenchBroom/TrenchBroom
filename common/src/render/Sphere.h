@@ -19,23 +19,30 @@
 
 #pragma once
 
-#include "render/VertexArray.h"
+#include "gl/VertexArray.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class VboManager;
+}
+
+namespace render
+{
 
 class Sphere
 {
 private:
-  VertexArray m_array;
+  gl::VertexArray m_array;
 
 public:
   Sphere(float radius, size_t iterations);
 
   bool prepared() const;
-  void prepare(VboManager& vboManager);
+  void prepare(gl::VboManager& vboManager);
   void render();
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

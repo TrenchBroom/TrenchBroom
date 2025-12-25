@@ -22,10 +22,10 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
+#include "gl/ResourceId.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/ExportOptions.h"
 #include "mdl/NodeIndex.h"
-#include "mdl/ResourceId.h"
 #include "mdl/Selection.h"
 
 #include "vm/bbox.h"
@@ -45,6 +45,14 @@ class task_manager;
 namespace tb
 {
 class Logger;
+
+namespace gl
+{
+class MaterialManager;
+class ResourceManager;
+
+struct ProcessContext;
+} // namespace gl
 
 namespace mdl
 {
@@ -68,13 +76,11 @@ class Grid;
 class GroupNode;
 class Issue;
 class LayerNode;
-class MaterialManager;
 class Node;
 class NodeIndex;
 class PickResult;
 class PointTrace;
 class RepeatStack;
-class ResourceManager;
 class SmartTag;
 class TagManager;
 class UndoableCommand;
@@ -84,7 +90,6 @@ class WorldNode;
 
 struct EnvironmentConfig;
 struct GameInfo;
-struct ProcessContext;
 struct SelectionChange;
 struct SoftMapBounds;
 
@@ -102,10 +107,10 @@ private:
   kdl::task_manager& m_taskManager;
   Logger& m_logger;
 
-  std::unique_ptr<ResourceManager> m_resourceManager;
+  std::unique_ptr<gl::ResourceManager> m_resourceManager;
   std::unique_ptr<EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<EntityModelManager> m_entityModelManager;
-  std::unique_ptr<MaterialManager> m_materialManager;
+  std::unique_ptr<gl::MaterialManager> m_materialManager;
   std::unique_ptr<TagManager> m_tagManager;
 
   std::unique_ptr<EditorContext> m_editorContext;
@@ -166,7 +171,7 @@ public: // notification
   Notifier<> groupWasOpenedNotifier;
   Notifier<> groupWasClosedNotifier;
 
-  Notifier<const std::vector<ResourceId>&> resourcesWereProcessedNotifier;
+  Notifier<const std::vector<gl::ResourceId>&> resourcesWereProcessedNotifier;
 
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;
@@ -233,8 +238,8 @@ public: // misc
   EntityModelManager& entityModelManager();
   const EntityModelManager& entityModelManager() const;
 
-  MaterialManager& materialManager();
-  const MaterialManager& materialManager() const;
+  gl::MaterialManager& materialManager();
+  const gl::MaterialManager& materialManager() const;
 
   TagManager& tagManager();
   const TagManager& tagManager() const;
@@ -333,7 +338,7 @@ private:
   void updateAllFaceTags();
 
   void updateFaceTagsAfterResourcesWhereProcessed(
-    const std::vector<ResourceId>& resourceIds);
+    const std::vector<gl::ResourceId>& resourceIds);
 
 private: // validation
   void registerValidators();
@@ -387,8 +392,8 @@ private: // entity link management
   void removeEntityLinks(const std::vector<Node*>& nodes, bool recurse);
 
 public: // resource processing
-  void processResourcesSync(const ProcessContext& processContext);
-  void processResourcesAsync(const ProcessContext& processContext);
+  void processResourcesSync(const gl::ProcessContext& processContext);
+  void processResourcesAsync(const gl::ProcessContext& processContext);
   bool needsResourceProcessing() const;
 
 public: // command processing
@@ -428,7 +433,7 @@ private: // observers
   void nodesWillChange(const std::vector<Node*>& nodes);
   void nodesDidChange(const std::vector<Node*>& nodes);
   void brushFacesDidChange(const std::vector<BrushFaceHandle>& brushFaces);
-  void resourcesWereProcessed(const std::vector<ResourceId>&);
+  void resourcesWereProcessed(const std::vector<gl::ResourceId>&);
   void selectionWillChange();
   void selectionDidChange(const SelectionChange& selectionChange);
   void materialCollectionsWillChange();

@@ -21,12 +21,18 @@
 
 #include "Color.h"
 #include "Result.h"
-#include "render/GL.h"
+#include "gl/GL.h"
 
 #include <filesystem>
 
 namespace tb
 {
+namespace gl
+{
+class Texture;
+class TextureBuffer;
+} // namespace gl
+
 namespace fs
 {
 class Reader;
@@ -34,14 +40,12 @@ class Reader;
 
 namespace mdl
 {
-class Texture;
-class TextureBuffer;
 
-Color getAverageColor(const TextureBuffer& buffer, GLenum format);
+Color getAverageColor(const gl::TextureBuffer& buffer, GLenum format);
 
-Result<Texture> loadFreeImageTextureFromMemory(const uint8_t* begin, size_t size);
+Result<gl::Texture> loadFreeImageTextureFromMemory(const uint8_t* begin, size_t size);
 
-Result<Texture> loadFreeImageTexture(fs::Reader& reader);
+Result<gl::Texture> loadFreeImageTexture(fs::Reader& reader);
 
 bool isSupportedFreeImageExtension(const std::filesystem::path& extension);
 

@@ -21,17 +21,17 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
+#include "gl/PrimType.h"
+#include "gl/VertexArray.h"
+#include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Grid.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
-#include "render/Camera.h"
 #include "render/EdgeRenderer.h"
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
 #include "render/RenderContext.h"
-#include "render/VertexArray.h"
 #include "ui/ExtrudeTool.h"
 #include "ui/GestureTracker.h"
 #include "ui/HandleDragTracker.h"
@@ -98,7 +98,7 @@ namespace
 {
 auto buildEdgeRenderer(const std::vector<mdl::BrushFaceHandle>& dragHandles)
 {
-  using Vertex = render::GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
   auto vertices = std::vector<Vertex>{};
 
   for (const auto& dragHandle : dragHandles)
@@ -112,7 +112,7 @@ auto buildEdgeRenderer(const std::vector<mdl::BrushFaceHandle>& dragHandles)
   }
 
   return render::DirectEdgeRenderer{
-    render::VertexArray::move(std::move(vertices)), render::PrimType::Lines};
+    gl::VertexArray::move(std::move(vertices)), gl::PrimType::Lines};
 }
 
 auto buildEdgeRenderer(const std::vector<ExtrudeDragHandle>& dragHandles)

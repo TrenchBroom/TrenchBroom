@@ -19,12 +19,12 @@
 
 #include "EntityModel.h"
 
-#include "mdl/MaterialCollection.h"
-#include "mdl/Texture.h"
-#include "render/IndexRangeMap.h"
-#include "render/MaterialIndexRangeMap.h"
-#include "render/MaterialIndexRangeRenderer.h"
-#include "render/PrimType.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/MaterialCollection.h"
+#include "gl/MaterialIndexRangeMap.h"
+#include "gl/MaterialIndexRangeRenderer.h"
+#include "gl/PrimType.h"
+#include "gl/Texture.h"
 
 #include "kd/const_overload.h"
 #include "kd/contracts.h"
@@ -137,27 +137,27 @@ std::optional<float> EntityModelFrame::intersect(const vm::ray3f& ray) const
 
 void EntityModelFrame::addToSpacialTree(
   const std::vector<EntityModelVertex>& vertices,
-  const render::PrimType primType,
+  const gl::PrimType primType,
   const size_t index,
   const size_t count)
 {
   switch (primType)
   {
-  case render::PrimType::Points:
-  case render::PrimType::Lines:
-  case render::PrimType::LineStrip:
-  case render::PrimType::LineLoop:
+  case gl::PrimType::Points:
+  case gl::PrimType::Lines:
+  case gl::PrimType::LineStrip:
+  case gl::PrimType::LineLoop:
     break;
-  case render::PrimType::Triangles: {
+  case gl::PrimType::Triangles: {
     contract_assert(count % 3 == 0);
 
     m_tris.reserve(m_tris.size() + count);
     for (size_t i = 0; i < count; i += 3)
     {
       auto bounds = vm::bbox3f::builder{};
-      const auto& p1 = render::getVertexComponent<0>(vertices[index + i + 0]);
-      const auto& p2 = render::getVertexComponent<0>(vertices[index + i + 1]);
-      const auto& p3 = render::getVertexComponent<0>(vertices[index + i + 2]);
+      const auto& p1 = gl::getVertexComponent<0>(vertices[index + i + 0]);
+      const auto& p2 = gl::getVertexComponent<0>(vertices[index + i + 1]);
+      const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 2]);
       bounds.add(p1);
       bounds.add(p2);
       bounds.add(p3);
@@ -171,18 +171,18 @@ void EntityModelFrame::addToSpacialTree(
     }
     break;
   }
-  case render::PrimType::Polygon:
-  case render::PrimType::TriangleFan: {
+  case gl::PrimType::Polygon:
+  case gl::PrimType::TriangleFan: {
     contract_assert(count > 2);
 
     m_tris.reserve(m_tris.size() + (count - 2) * 3);
 
-    const auto& p1 = render::getVertexComponent<0>(vertices[index]);
+    const auto& p1 = gl::getVertexComponent<0>(vertices[index]);
     for (size_t i = 1; i < count - 1; ++i)
     {
       auto bounds = vm::bbox3f::builder{};
-      const auto& p2 = render::getVertexComponent<0>(vertices[index + i]);
-      const auto& p3 = render::getVertexComponent<0>(vertices[index + i + 1]);
+      const auto& p2 = gl::getVertexComponent<0>(vertices[index + i]);
+      const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 1]);
       bounds.add(p1);
       bounds.add(p2);
       bounds.add(p3);
@@ -195,18 +195,18 @@ void EntityModelFrame::addToSpacialTree(
     }
     break;
   }
-  case render::PrimType::Quads:
-  case render::PrimType::QuadStrip:
-  case render::PrimType::TriangleStrip: {
+  case gl::PrimType::Quads:
+  case gl::PrimType::QuadStrip:
+  case gl::PrimType::TriangleStrip: {
     contract_assert(count > 2);
 
     m_tris.reserve(m_tris.size() + (count - 2) * 3);
     for (size_t i = 0; i < count - 2; ++i)
     {
       auto bounds = vm::bbox3f::builder{};
-      const auto& p1 = render::getVertexComponent<0>(vertices[index + i + 0]);
-      const auto& p2 = render::getVertexComponent<0>(vertices[index + i + 1]);
-      const auto& p3 = render::getVertexComponent<0>(vertices[index + i + 2]);
+      const auto& p1 = gl::getVertexComponent<0>(vertices[index + i + 0]);
+      const auto& p2 = gl::getVertexComponent<0>(vertices[index + i + 1]);
+      const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 2]);
       bounds.add(p1);
       bounds.add(p2);
       bounds.add(p3);
@@ -264,10 +264,10 @@ public:
    * @param skin the material to use when rendering the mesh
    * @return the renderer
    */
-  std::unique_ptr<render::MaterialIndexRangeRenderer> buildRenderer(
-    const Material* skin) const
+  std::unique_ptr<gl::MaterialIndexRangeRenderer> buildRenderer(
+    const gl::Material* skin) const
   {
-    const auto vertexArray = render::VertexArray::ref(m_vertices);
+    const auto vertexArray = gl::VertexArray::ref(m_vertices);
     return doBuildRenderer(skin, vertexArray);
   }
 
@@ -279,8 +279,8 @@ private:
    * @param vertices the vertices associated with this mesh
    * @return the renderer
    */
-  virtual std::unique_ptr<render::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* skin, const render::VertexArray& vertices) const = 0;
+  virtual std::unique_ptr<gl::MaterialIndexRangeRenderer> doBuildRenderer(
+    const gl::Material* skin, const gl::VertexArray& vertices) const = 0;
 };
 
 // EntityModelData::IndexedMesh
@@ -294,7 +294,7 @@ namespace
 class EntityModelIndexedMesh : public EntityModelMesh
 {
 private:
-  render::IndexRangeMap m_indices;
+  gl::IndexRangeMap m_indices;
 
   kdl_reflect_inline_empty(EntityModelIndexedMesh);
 
@@ -309,22 +309,22 @@ public:
   EntityModelIndexedMesh(
     EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    render::IndexRangeMap indices)
+    gl::IndexRangeMap indices)
     : EntityModelMesh{std::move(vertices)}
     , m_indices{std::move(indices)}
   {
     m_indices.forEachPrimitive(
-      [&](const render::PrimType primType, const size_t index, const size_t count) {
+      [&](const gl::PrimType primType, const size_t index, const size_t count) {
         frame.addToSpacialTree(m_vertices, primType, index, count);
       });
   }
 
 private:
-  std::unique_ptr<render::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* skin, const render::VertexArray& vertices) const override
+  std::unique_ptr<gl::MaterialIndexRangeRenderer> doBuildRenderer(
+    const gl::Material* skin, const gl::VertexArray& vertices) const override
   {
-    const render::MaterialIndexRangeMap indices(skin, m_indices);
-    return std::make_unique<render::MaterialIndexRangeRenderer>(vertices, indices);
+    const gl::MaterialIndexRangeMap indices(skin, m_indices);
+    return std::make_unique<gl::MaterialIndexRangeRenderer>(vertices, indices);
   }
 };
 
@@ -337,7 +337,7 @@ private:
 class EntityModelMaterialMesh : public EntityModelMesh
 {
 private:
-  render::MaterialIndexRangeMap m_indices;
+  gl::MaterialIndexRangeMap m_indices;
 
   kdl_reflect_inline_empty(EntityModelMaterialMesh);
 
@@ -352,13 +352,13 @@ public:
   EntityModelMaterialMesh(
     EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    render::MaterialIndexRangeMap indices)
+    gl::MaterialIndexRangeMap indices)
     : EntityModelMesh{std::move(vertices)}
     , m_indices{std::move(indices)}
   {
     m_indices.forEachPrimitive([&](
-                                 const Material* /* material */,
-                                 const render::PrimType primType,
+                                 const gl::Material* /* material */,
+                                 const gl::PrimType primType,
                                  const size_t index,
                                  const size_t count) {
       frame.addToSpacialTree(m_vertices, primType, index, count);
@@ -366,10 +366,10 @@ public:
   }
 
 private:
-  std::unique_ptr<render::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* /* skin */, const render::VertexArray& vertices) const override
+  std::unique_ptr<gl::MaterialIndexRangeRenderer> doBuildRenderer(
+    const gl::Material* /* skin */, const gl::VertexArray& vertices) const override
   {
-    return std::make_unique<render::MaterialIndexRangeRenderer>(vertices, m_indices);
+    return std::make_unique<gl::MaterialIndexRangeRenderer>(vertices, m_indices);
   }
 };
 
@@ -382,7 +382,7 @@ kdl_reflect_impl(EntityModelSurface);
 EntityModelSurface::EntityModelSurface(std::string name, const size_t frameCount)
   : m_name{std::move(name)}
   , m_meshes{frameCount}
-  , m_skins{std::make_unique<MaterialCollection>()}
+  , m_skins{std::make_unique<gl::MaterialCollection>()}
 {
 }
 
@@ -418,7 +418,7 @@ void EntityModelSurface::drop(const bool glContextAvailable)
 void EntityModelSurface::addMesh(
   EntityModelFrame& frame,
   std::vector<EntityModelVertex> vertices,
-  render::IndexRangeMap indices)
+  gl::IndexRangeMap indices)
 {
   contract_pre(frame.index() < frameCount());
 
@@ -429,7 +429,7 @@ void EntityModelSurface::addMesh(
 void EntityModelSurface::addMesh(
   EntityModelFrame& frame,
   std::vector<EntityModelVertex> vertices,
-  render::MaterialIndexRangeMap indices)
+  gl::MaterialIndexRangeMap indices)
 {
   contract_pre(frame.index() < frameCount());
 
@@ -437,9 +437,9 @@ void EntityModelSurface::addMesh(
     frame, std::move(vertices), std::move(indices));
 }
 
-void EntityModelSurface::setSkins(std::vector<Material> skins)
+void EntityModelSurface::setSkins(std::vector<gl::Material> skins)
 {
-  m_skins = std::make_unique<MaterialCollection>(std::move(skins));
+  m_skins = std::make_unique<gl::MaterialCollection>(std::move(skins));
 }
 
 size_t EntityModelSurface::frameCount() const
@@ -452,17 +452,17 @@ size_t EntityModelSurface::skinCount() const
   return m_skins->materialCount();
 }
 
-const Material* EntityModelSurface::skin(const std::string& name) const
+const gl::Material* EntityModelSurface::skin(const std::string& name) const
 {
   return m_skins->materialByName(name);
 }
 
-const Material* EntityModelSurface::skin(const size_t index) const
+const gl::Material* EntityModelSurface::skin(const size_t index) const
 {
   return m_skins->materialByIndex(index);
 }
 
-std::unique_ptr<render::MaterialIndexRangeRenderer> EntityModelSurface::buildRenderer(
+std::unique_ptr<gl::MaterialIndexRangeRenderer> EntityModelSurface::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {
   contract_pre(frameIndex < frameCount());
@@ -492,10 +492,10 @@ Orientation EntityModelData::orientation() const
   return m_orientation;
 }
 
-std::unique_ptr<render::MaterialRenderer> EntityModelData::buildRenderer(
+std::unique_ptr<gl::MaterialRenderer> EntityModelData::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {
-  auto renderers = std::vector<std::unique_ptr<render::MaterialIndexRangeRenderer>>{};
+  auto renderers = std::vector<std::unique_ptr<gl::MaterialIndexRangeRenderer>>{};
   if (frameIndex >= frameCount())
   {
     return nullptr;
@@ -513,9 +513,9 @@ std::unique_ptr<render::MaterialRenderer> EntityModelData::buildRenderer(
       renderers.push_back(std::move(renderer));
     }
   }
-  return !renderers.empty() ? std::make_unique<render::MultiMaterialIndexRangeRenderer>(
-                                std::move(renderers))
-                            : nullptr;
+  return !renderers.empty()
+           ? std::make_unique<gl::MultiMaterialIndexRangeRenderer>(std::move(renderers))
+           : nullptr;
 }
 
 vm::bbox3f EntityModelData::bounds(const size_t frameIndex) const

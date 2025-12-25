@@ -24,10 +24,10 @@
 #include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
+#include "gl/ContextManager.h"
 #include "mdl/Map.h"
 #include "ui/CrashDialog.h"
 #include "ui/FrameManager.h"
-#include "ui/GLContextManager.h"
 #include "ui/GetVersion.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
@@ -68,9 +68,9 @@ std::string makeCrashReport(const auto& stacktrace, const auto& reason)
   ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
   ss << "Qt:\t" << qVersion() << std::endl;
 
-  ss << "GL_VENDOR:\t" << GLContextManager::GLVendor << std::endl;
-  ss << "GL_RENDERER:\t" << GLContextManager::GLRenderer << std::endl;
-  ss << "GL_VERSION:\t" << GLContextManager::GLVersion << std::endl;
+  ss << "GL_VENDOR:\t" << gl::ContextManager::GLVendor << std::endl;
+  ss << "GL_RENDERER:\t" << gl::ContextManager::GLRenderer << std::endl;
+  ss << "GL_VERSION:\t" << gl::ContextManager::GLVersion << std::endl;
 
   ss << "TrenchBroom Version:\t" << getBuildVersion().toStdString() << std::endl;
   ss << "TrenchBroom Build:\t" << getBuildIdStr().toStdString() << std::endl;

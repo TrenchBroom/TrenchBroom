@@ -19,19 +19,20 @@
 
 #include "Sphere.h"
 
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
-#include "render/RenderUtils.h"
+#include "gl/PrimType.h"
+#include "gl/VertexType.h"
+#include "mdl/BasicShapes.h"
 
 namespace tb::render
 {
 
 Sphere::Sphere(const float radius, const size_t iterations)
 {
-  using Vertex = GLVertexTypes::P3::Vertex;
+  using Vertex = gl::VertexTypes::P3::Vertex;
 
-  const auto positions = sphere(radius, iterations);
-  m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
+  const auto positions = mdl::sphere(radius, iterations);
+  m_array =
+    gl::VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
 
 bool Sphere::prepared() const
@@ -39,14 +40,14 @@ bool Sphere::prepared() const
   return m_array.prepared();
 }
 
-void Sphere::prepare(VboManager& vboManager)
+void Sphere::prepare(gl::VboManager& vboManager)
 {
   m_array.prepare(vboManager);
 }
 
 void Sphere::render()
 {
-  m_array.render(PrimType::Triangles);
+  m_array.render(gl::PrimType::Triangles);
 }
 
 } // namespace tb::render

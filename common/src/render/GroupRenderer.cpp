@@ -21,10 +21,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/PrimType.h"
+#include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
 #include "mdl/GroupNode.h"
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
@@ -207,7 +207,7 @@ void GroupRenderer::validateBounds()
 {
   if (m_overrideColors)
   {
-    auto vertices = std::vector<GLVertexTypes::P3::Vertex>{};
+    auto vertices = std::vector<gl::VertexTypes::P3::Vertex>{};
     vertices.reserve(24 * m_groups.size());
 
     for (const auto* group : m_groups)
@@ -222,11 +222,11 @@ void GroupRenderer::validateBounds()
     }
 
     m_boundsRenderer =
-      DirectEdgeRenderer{VertexArray::move(std::move(vertices)), PrimType::Lines};
+      DirectEdgeRenderer{gl::VertexArray::move(std::move(vertices)), gl::PrimType::Lines};
   }
   else
   {
-    auto vertices = std::vector<GLVertexTypes::P3C4::Vertex>{};
+    auto vertices = std::vector<gl::VertexTypes::P3C4::Vertex>{};
     vertices.reserve(24 * m_groups.size());
 
     for (const auto* group : m_groups)
@@ -242,7 +242,7 @@ void GroupRenderer::validateBounds()
     }
 
     m_boundsRenderer =
-      DirectEdgeRenderer{VertexArray::move(std::move(vertices)), PrimType::Lines};
+      DirectEdgeRenderer{gl::VertexArray::move(std::move(vertices)), gl::PrimType::Lines};
   }
 
   m_boundsValid = true;
@@ -255,9 +255,9 @@ bool GroupRenderer::shouldRenderGroup(const mdl::GroupNode& groupNode) const
   return parentGroup == currentGroup && m_editorContext.visible(groupNode);
 }
 
-AttrString GroupRenderer::groupString(const mdl::GroupNode& groupNode) const
+gl::AttrString GroupRenderer::groupString(const mdl::GroupNode& groupNode) const
 {
-  return AttrString{groupNode.name()};
+  return gl::AttrString{groupNode.name()};
 }
 
 Color GroupRenderer::groupColor(const mdl::GroupNode&) const

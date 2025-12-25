@@ -24,21 +24,21 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
+#include "gl/FontManager.h"
+#include "gl/Material.h"
+#include "gl/MaterialCollection.h"
+#include "gl/MaterialManager.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
+#include "gl/Texture.h"
+#include "gl/TextureFont.h"
+#include "gl/VertexArray.h"
+#include "gl/VertexType.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Selection.h"
-#include "mdl/Material.h"
-#include "mdl/MaterialCollection.h"
-#include "mdl/MaterialManager.h"
-#include "mdl/Texture.h"
-#include "render/ActiveShader.h"
-#include "render/FontManager.h"
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
-#include "render/Shaders.h"
-#include "render/TextureFont.h"
 #include "render/Transformation.h"
-#include "render/VertexArray.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
@@ -59,7 +59,7 @@ namespace tb::ui
 {
 
 MaterialBrowserView::MaterialBrowserView(
-  QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document)
+  QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document)
   : CellView{contextManager, scrollBar}
   , m_document{document}
 {
@@ -110,12 +110,12 @@ void MaterialBrowserView::setFilterText(const std::string& filterText)
   }
 }
 
-const mdl::Material* MaterialBrowserView::selectedMaterial() const
+const gl::Material* MaterialBrowserView::selectedMaterial() const
 {
   return m_selectedMaterial;
 }
 
-void MaterialBrowserView::setSelectedMaterial(const mdl::Material* selectedMaterial)
+void MaterialBrowserView::setSelectedMaterial(const gl::Material* selectedMaterial)
 {
   if (m_selectedMaterial != selectedMaterial)
   {
@@ -124,7 +124,7 @@ void MaterialBrowserView::setSelectedMaterial(const mdl::Material* selectedMater
   }
 }
 
-void MaterialBrowserView::revealMaterial(const mdl::Material* material)
+void MaterialBrowserView::revealMaterial(const gl::Material* material)
 {
   scrollToCell([&](const Cell& cell) {
     const auto& cellMaterial = cellData(cell);
@@ -132,7 +132,7 @@ void MaterialBrowserView::revealMaterial(const mdl::Material* material)
   });
 }
 
-void MaterialBrowserView::resourcesWereProcessed(const std::vector<mdl::ResourceId>&)
+void MaterialBrowserView::resourcesWereProcessed(const std::vector<gl::ResourceId>&)
 {
   reloadMaterials();
 }
@@ -162,7 +162,7 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   contract_assert(fontSize > 0);
 
-  const auto font = render::FontDescriptor{fontPath, size_t(fontSize)};
+  const auto font = gl::FontDescriptor{fontPath, size_t(fontSize)};
 
   if (m_group)
   {
@@ -180,8 +180,8 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
 
 void MaterialBrowserView::addMaterialsToLayout(
   Layout& layout,
-  const std::vector<const mdl::Material*>& materials,
-  const render::FontDescriptor& font)
+  const std::vector<const gl::Material*>& materials,
+  const gl::FontDescriptor& font)
 {
   for (const auto* material : materials)
   {
@@ -190,7 +190,7 @@ void MaterialBrowserView::addMaterialsToLayout(
 }
 
 void MaterialBrowserView::addMaterialToLayout(
-  Layout& layout, const mdl::Material& material, const render::FontDescriptor& font)
+  Layout& layout, const gl::Material& material, const gl::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
@@ -211,12 +211,12 @@ void MaterialBrowserView::addMaterialToLayout(
     titleHeight + 4.0f);
 }
 
-std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
+std::vector<const gl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
   const auto& map = m_document.map();
   const auto enabledMaterialCollections = mdl::enabledMaterialCollections(map);
 
-  auto result = std::vector<const mdl::MaterialCollection*>{};
+  auto result = std::vector<const gl::MaterialCollection*>{};
   for (const auto& collection : map.materialManager().collections())
   {
     if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
@@ -227,17 +227,17 @@ std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections(
   return result;
 }
 
-std::vector<const mdl::Material*> MaterialBrowserView::getMaterials(
-  const mdl::MaterialCollection& collection) const
+std::vector<const gl::Material*> MaterialBrowserView::getMaterials(
+  const gl::MaterialCollection& collection) const
 {
   return sortMaterials(filterMaterials(
     collection.materials() | std::views::transform([](const auto& t) { return &t; })
     | kdl::ranges::to<std::vector>()));
 }
 
-std::vector<const mdl::Material*> MaterialBrowserView::getMaterials() const
+std::vector<const gl::Material*> MaterialBrowserView::getMaterials() const
 {
-  auto materials = std::vector<const mdl::Material*>{};
+  auto materials = std::vector<const gl::Material*>{};
   for (const auto& collection : getCollections())
   {
     for (const auto& material : collection->materials())
@@ -248,8 +248,8 @@ std::vector<const mdl::Material*> MaterialBrowserView::getMaterials() const
   return sortMaterials(filterMaterials(materials));
 }
 
-std::vector<const mdl::Material*> MaterialBrowserView::filterMaterials(
-  std::vector<const mdl::Material*> materials) const
+std::vector<const gl::Material*> MaterialBrowserView::filterMaterials(
+  std::vector<const gl::Material*> materials) const
 {
   if (m_hideUnused)
   {
@@ -268,8 +268,8 @@ std::vector<const mdl::Material*> MaterialBrowserView::filterMaterials(
   return materials;
 }
 
-std::vector<const mdl::Material*> MaterialBrowserView::sortMaterials(
-  std::vector<const mdl::Material*> materials) const
+std::vector<const gl::Material*> MaterialBrowserView::sortMaterials(
+  std::vector<const gl::Material*> materials) const
 {
   const auto compareNames = [](const auto& lhs, const auto& rhs) {
     return kdl::ci::string_less{}(lhs->name(), rhs->name());
@@ -319,7 +319,7 @@ const Color& MaterialBrowserView::getBackgroundColor()
 
 void MaterialBrowserView::renderBounds(Layout& layout, const float y, const float height)
 {
-  using BoundsVertex = render::GLVertexTypes::P2C4::Vertex;
+  using BoundsVertex = gl::VertexTypes::P2C4::Vertex;
   auto vertices = std::vector<BoundsVertex>{};
 
   for (const auto& group : layout.groups())
@@ -353,15 +353,15 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
     }
   }
 
-  auto vertexArray = render::VertexArray::move(std::move(vertices));
+  auto vertexArray = gl::VertexArray::move(std::move(vertices));
   auto shader =
-    render::ActiveShader{shaderManager(), render::Shaders::MaterialBrowserBorderShader};
+    gl::ActiveShader{shaderManager(), gl::Shaders::MaterialBrowserBorderShader};
 
   vertexArray.prepare(vboManager());
-  vertexArray.render(render::PrimType::Quads);
+  vertexArray.render(gl::PrimType::Quads);
 }
 
-const Color& MaterialBrowserView::materialColor(const mdl::Material& material) const
+const Color& MaterialBrowserView::materialColor(const gl::Material& material) const
 {
   if (&material == m_selectedMaterial)
   {
@@ -377,10 +377,9 @@ const Color& MaterialBrowserView::materialColor(const mdl::Material& material) c
 void MaterialBrowserView::renderMaterials(
   Layout& layout, const float y, const float height)
 {
-  using Vertex = render::GLVertexTypes::P2UV2::Vertex;
+  using Vertex = gl::VertexTypes::P2UV2::Vertex;
 
-  auto shader =
-    render::ActiveShader{shaderManager(), render::Shaders::MaterialBrowserShader};
+  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::MaterialBrowserShader};
   shader.set("ApplyTinting", false);
   shader.set("Material", 0);
   shader.set("Brightness", pref(Preferences::Brightness));
@@ -398,7 +397,7 @@ void MaterialBrowserView::renderMaterials(
             const auto& bounds = cell.itemBounds();
             const auto& material = cellData(cell);
 
-            auto vertexArray = render::VertexArray::move(std::vector<Vertex>{
+            auto vertexArray = gl::VertexArray::move(std::vector<Vertex>{
               Vertex{{bounds.left(), height - (bounds.top() - y)}, {0, 0}},
               Vertex{{bounds.left(), height - (bounds.bottom() - y)}, {0, 1}},
               Vertex{{bounds.right(), height - (bounds.bottom() - y)}, {1, 1}},
@@ -409,7 +408,7 @@ void MaterialBrowserView::renderMaterials(
               pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
 
             vertexArray.prepare(vboManager());
-            vertexArray.render(render::PrimType::Quads);
+            vertexArray.render(gl::PrimType::Quads);
 
             material.deactivate();
           }
@@ -468,9 +467,9 @@ void MaterialBrowserView::doContextMenu(
   }
 }
 
-const mdl::Material& MaterialBrowserView::cellData(const Cell& cell) const
+const gl::Material& MaterialBrowserView::cellData(const Cell& cell) const
 {
-  return *cell.itemAs<const mdl::Material*>();
+  return *cell.itemAs<const gl::Material*>();
 }
 
 } // namespace tb::ui

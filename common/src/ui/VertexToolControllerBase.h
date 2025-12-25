@@ -21,8 +21,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
 #include "mdl/HitType.h"
-#include "render/Camera.h"
 #include "render/RenderContext.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/Lasso.h"

@@ -17,17 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ExportOptions.h"
 #include "mdl/LayerNode.h"
-#include "mdl/Material.h"
 #include "mdl/NodeWriter.h"
 #include "mdl/ObjSerializer.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/result.h"
@@ -401,8 +401,8 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   auto taskManager = kdl::task_manager{};
 
   // must outlive map
-  auto textureResource = createTextureResource(mdl::Texture{16, 16});
-  auto material = mdl::Material{"some_material", std::move(textureResource)};
+  auto textureResource = createTextureResource(gl::Texture{16, 16});
+  auto material = gl::Material{"some_material", std::move(textureResource)};
   material.setRelativePath("textures/some_material.png");
 
   auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};

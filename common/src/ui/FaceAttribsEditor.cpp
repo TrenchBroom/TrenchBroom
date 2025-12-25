@@ -25,6 +25,8 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/GameConfig.h"
@@ -33,8 +35,6 @@
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Map_Brushes.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
@@ -58,7 +58,7 @@ namespace tb::ui
 {
 
 FaceAttribsEditor::FaceAttribsEditor(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
   , m_updateControlsSignalDelayer{new SignalDelayer{this}}
@@ -299,7 +299,7 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
   return wrapper;
 }
 
-void FaceAttribsEditor::createGui(GLContextManager& contextManager)
+void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
 {
   m_uvEditor = new UVEditor{m_document, contextManager};
 

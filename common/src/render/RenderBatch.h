@@ -21,18 +21,24 @@
 
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class VboManager;
+}
+
+namespace render
 {
 class Renderable;
 class DirectRenderable;
 class IndexedRenderable;
 class RenderContext;
-class VboManager;
 
 class RenderBatch
 {
 private:
-  VboManager& m_vboManager;
+  gl::VboManager& m_vboManager;
 
   using RenderableList = std::vector<Renderable*>;
   using DirectRenderableList = std::vector<DirectRenderable*>;
@@ -45,7 +51,7 @@ private:
   RenderableList m_oneshots;
 
 public:
-  explicit RenderBatch(VboManager& vboManager);
+  explicit RenderBatch(gl::VboManager& vboManager);
   ~RenderBatch();
 
   void add(Renderable* renderable);
@@ -70,4 +76,5 @@ private:
   void renderRenderables(RenderContext& renderContext);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

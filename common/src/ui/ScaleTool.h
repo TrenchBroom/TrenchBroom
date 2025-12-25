@@ -38,16 +38,16 @@
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+}
+
 namespace mdl
 {
 class Grid;
 class PickResult;
 } // namespace mdl
-
-namespace render
-{
-class Camera;
-}
 
 namespace ui
 {
@@ -221,7 +221,7 @@ struct BackSide
  * to the selected face, as well as that face's normal.
  */
 BackSide pickBackSideOfBox(
-  const vm::ray3d& pickRay, const render::Camera& camera, const vm::bbox3d& box);
+  const vm::ray3d& pickRay, const gl::Camera& camera, const vm::bbox3d& box);
 
 class ScaleTool : public Tool
 {
@@ -254,15 +254,15 @@ public:
 
   void pickBackSides(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     mdl::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     mdl::PickResult& pickResult) const;
   void pick3D(
     const vm::ray3d& pickRay,
-    const render::Camera& camera,
+    const gl::Camera& camera,
     mdl::PickResult& pickResult) const;
 
 public:

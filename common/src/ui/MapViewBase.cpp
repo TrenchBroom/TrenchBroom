@@ -29,6 +29,10 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
+#include "gl/ContextManager.h"
+#include "gl/FontDescriptor.h"
+#include "gl/FontManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
@@ -60,10 +64,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
-#include "render/Camera.h"
 #include "render/Compass.h"
-#include "render/FontDescriptor.h"
-#include "render/FontManager.h"
 #include "render/MapRenderer.h"
 #include "render/PrimitiveRenderer.h"
 #include "render/RenderBatch.h"
@@ -74,7 +75,6 @@
 #include "ui/Animation.h"
 #include "ui/EnableDisableTagCallback.h"
 #include "ui/FlashSelectionAnimation.h"
-#include "ui/GLContextManager.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 #include "ui/MapViewActivationTracker.h"
@@ -101,7 +101,7 @@ namespace tb::ui
 const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
 MapViewBase::MapViewBase(
-  MapDocument& document, MapViewToolBox& toolBox, GLContextManager& contextManager)
+  MapDocument& document, MapViewToolBox& toolBox, gl::ContextManager& contextManager)
   : RenderView{contextManager}
   , m_document{document}
   , m_toolBox{toolBox}
@@ -924,9 +924,9 @@ void MapViewBase::initializeGL()
   if (doInitializeGL())
   {
     auto& logger = m_document.logger();
-    logger.info() << "Renderer info: " << GLContextManager::GLRenderer << " version "
-                  << GLContextManager::GLVersion << " from "
-                  << GLContextManager::GLVendor;
+    logger.info() << "Renderer info: " << gl::ContextManager::GLRenderer << " version "
+                  << gl::ContextManager::GLVersion << " from "
+                  << gl::ContextManager::GLVendor;
     logger.info() << "Depth buffer bits: " << depthBits();
     logger.info() << "Multisampling "
                   << kdl::str_select(multisample(), "enabled", "disabled");
@@ -944,7 +944,7 @@ void MapViewBase::renderContents()
 
   const auto& fontPath = pref(Preferences::RendererFontPath());
   const auto fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
-  const auto fontDescriptor = render::FontDescriptor{fontPath, fontSize};
+  const auto fontDescriptor = gl::FontDescriptor{fontPath, fontSize};
 
   const auto& map = m_document.map();
   const auto& grid = map.grid();

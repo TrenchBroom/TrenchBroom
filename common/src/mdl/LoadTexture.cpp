@@ -17,8 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LoadMaterialCollections.h"
+#include "LoadTexture.h"
+
 #include "fs/FileSystem.h"
+#include "gl/Texture.h"
 #include "mdl/LoadDdsTexture.h"
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/LoadM8Texture.h"
@@ -27,7 +29,6 @@
 #include "mdl/LoadWalTexture.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
-#include "mdl/Texture.h"
 
 #include "kd/path_utils.h"
 #include "kd/result.h"
@@ -40,7 +41,7 @@
 namespace tb::mdl
 {
 
-Result<Texture> loadTexture(
+Result<gl::Texture> loadTexture(
   const std::filesystem::path& path,
   const std::string& name,
   const fs::FileSystem& fs,

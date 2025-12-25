@@ -23,8 +23,8 @@
 #include "fs/File.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
+#include "gl/TextureBuffer.h"
 #include "mdl/ImageLoader.h"
-#include "mdl/TextureBuffer.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
@@ -66,7 +66,7 @@ Palette::Palette(std::shared_ptr<PaletteData> data)
 bool Palette::indexedToRgba(
   fs::Reader& reader,
   const size_t pixelCount,
-  TextureBuffer& rgbaImage,
+  gl::TextureBuffer& rgbaImage,
   const PaletteTransparency transparency,
   Color& averageColor) const
 {

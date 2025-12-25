@@ -20,13 +20,13 @@
 #include "BrushFace.h"
 
 #include "Polyhedron.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/MapFormat.h"
-#include "mdl/Material.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TagVisitor.h"
-#include "mdl/Texture.h"
 #include "mdl/UVCoordSystem.h"
 
 #include "kd/contracts.h"
@@ -424,12 +424,12 @@ struct SurfaceData
   float surfaceValue;
 };
 
-SurfaceData getDefaultSurfaceData(const Material* material)
+SurfaceData getDefaultSurfaceData(const gl::Material* material)
 {
-  if (const auto* texture = getTexture(material))
+  if (const auto* texture = gl::getTexture(material))
   {
     const auto& defaults = texture->embeddedDefaults();
-    if (const auto* q2Defaults = std::get_if<Q2EmbeddedDefaults>(&defaults))
+    if (const auto* q2Defaults = std::get_if<gl::Q2EmbeddedDefaults>(&defaults))
     {
       return {
         q2Defaults->contents,
@@ -442,7 +442,7 @@ SurfaceData getDefaultSurfaceData(const Material* material)
 }
 
 SurfaceData resolveSurfaceData(
-  const BrushFaceAttributes& attributes, const Material* material)
+  const BrushFaceAttributes& attributes, const gl::Material* material)
 {
   const auto defaultSurfaceData = getDefaultSurfaceData(material);
   return {
@@ -486,14 +486,14 @@ const UVCoordSystem& BrushFace::uvCoordSystem() const
   return *m_uvCoordSystem;
 }
 
-const Material* BrushFace::material() const
+const gl::Material* BrushFace::material() const
 {
   return m_materialReference.get();
 }
 
 vm::vec2f BrushFace::textureSize() const
 {
-  if (const auto* texture = getTexture(material()))
+  if (const auto* texture = gl::getTexture(material()))
   {
     return vm::max(texture->sizef(), vm::vec2f{1, 1});
   }
@@ -505,7 +505,7 @@ vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
   return m_attributes.modOffset(offset, textureSize());
 }
 
-bool BrushFace::setMaterial(Material* material)
+bool BrushFace::setMaterial(gl::Material* material)
 {
   if (material == this->material())
   {

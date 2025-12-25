@@ -21,10 +21,16 @@
 
 #include "ui/MultiPaneMapView.h"
 
-namespace tb::ui
+namespace tb
+{
+namespace gl
+{
+class ContextManager;
+}
+
+namespace ui
 {
 class CyclingMapView;
-class GLContextManager;
 class MapDocument;
 class MapViewToolBox;
 
@@ -39,15 +45,16 @@ public:
   explicit OnePaneMapView(
     MapDocument& document,
     MapViewToolBox& toolBox,
-    GLContextManager& contextManager,
+    gl::ContextManager& contextManager,
     QWidget* parent = nullptr);
 
 private:
-  void createGui(MapViewToolBox& toolBox, GLContextManager& contextManager);
+  void createGui(MapViewToolBox& toolBox, gl::ContextManager& contextManager);
 
 private: // implement MultiPaneMapView subclassing interface
   void maximizeView(MapView* view) override;
   void restoreViews() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -23,9 +23,15 @@
 
 class QSplitter;
 
-namespace tb::ui
+namespace tb
 {
-class GLContextManager;
+namespace gl
+{
+class ContextManager;
+}
+
+namespace ui
+{
 class MapDocument;
 class MapView2D;
 class MapView3D;
@@ -50,12 +56,12 @@ public:
   FourPaneMapView(
     MapDocument& document,
     MapViewToolBox& toolBox,
-    GLContextManager& contextManager,
+    gl::ContextManager& contextManager,
     QWidget* parent = nullptr);
   ~FourPaneMapView() override;
 
 private:
-  void createGui(MapViewToolBox& toolBox, GLContextManager& contextManager);
+  void createGui(MapViewToolBox& toolBox, gl::ContextManager& contextManager);
 
 private: // event handlers
   void onSplitterMoved(int pos, int index);
@@ -65,4 +71,5 @@ private: // implement MultiPaneMapView subclassing interface
   void restoreViews() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

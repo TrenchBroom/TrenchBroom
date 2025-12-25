@@ -21,20 +21,20 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
+#include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
-#include "render/ActiveShader.h"
 #include "render/Circle.h"
 #include "render/EdgeRenderer.h"
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/Renderable.h"
-#include "render/Shaders.h"
 #include "render/Transformation.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
@@ -155,7 +155,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   return helper.snapDelta(delta, -distanceInFaceCoords);
 }
 
-using EdgeVertex = render::GLVertexTypes::P3C4::Vertex;
+using EdgeVertex = gl::VertexTypes::P3C4::Vertex;
 
 std::vector<EdgeVertex> getHandleVertices(
   const UVViewHelper& helper, const vm::vec2b& highlightHandle)
@@ -181,8 +181,8 @@ void renderLineHandles(
   render::RenderBatch& renderBatch)
 {
   auto edgeRenderer = render::DirectEdgeRenderer{
-    render::VertexArray::move(getHandleVertices(helper, highlightHandles)),
-    render::PrimType::Lines};
+    gl::VertexArray::move(getHandleVertices(helper, highlightHandles)),
+    gl::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 0.5f);
 }
 
@@ -213,7 +213,7 @@ private:
   }
 
 private:
-  void doPrepareVertices(render::VboManager& vboManager) override
+  void doPrepareVertices(gl::VboManager& vboManager) override
   {
     m_originHandle.prepare(vboManager);
   }
@@ -238,8 +238,8 @@ private:
     const auto centerTransform = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{translation}};
 
-    auto shader = render::ActiveShader{
-      renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
+    auto shader = gl::ActiveShader{
+      renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     shader.set("Color", m_highlight ? highlightColor.to<RgbaF>() : handleColor);
     m_originHandle.render();
   }

@@ -22,6 +22,7 @@
 #include "Color.h"
 #include "Macros.h"
 #include "NotifierConnection.h"
+#include "gl/ResourceId.h"
 
 #include <filesystem>
 #include <unordered_map>
@@ -37,7 +38,6 @@ class GroupNode;
 class LayerNode;
 class Map;
 class Node;
-class ResourceId;
 struct SelectionChange;
 } // namespace mdl
 
@@ -132,7 +132,7 @@ private: // notification
 
   void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
-  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds);
+  void resourcesWereProcessed(const std::vector<gl::ResourceId>& resourceIds);
 
   void materialCollectionsWillChange();
   void entityDefinitionsDidChange();

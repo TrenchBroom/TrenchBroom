@@ -27,7 +27,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/GL.h"
+#include "gl/GL.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/QtUtils.h"
 #include "ui/SliderWithLabel.h"

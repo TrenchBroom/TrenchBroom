@@ -22,6 +22,9 @@
 #include "TestFactory.h"
 #include "TestUtils.h"
 #include "fs/TestEnvironment.h"
+#include "gl/Material.h"
+#include "gl/MaterialManager.h"
+#include "gl/TextureResource.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -42,11 +45,8 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
-#include "mdl/Material.h"
-#include "mdl/MaterialManager.h"
 #include "mdl/PasteType.h"
 #include "mdl/TagMatcher.h"
-#include "mdl/TextureResource.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
@@ -1032,10 +1032,12 @@ TEST_CASE("Map")
 
     auto& materialManager = map.materialManager();
     {
-      auto materialA = Material{"some_material", createTextureResource(Texture{16, 16})};
-      auto materialB = Material{"other_material", createTextureResource(Texture{32, 32})};
-      auto materialC =
-        Material{"yet_another_material", createTextureResource(Texture{64, 64})};
+      auto materialA =
+        gl::Material{"some_material", gl::createTextureResource(gl::Texture{16, 16})};
+      auto materialB =
+        gl::Material{"other_material", gl::createTextureResource(gl::Texture{32, 32})};
+      auto materialC = gl::Material{
+        "yet_another_material", gl::createTextureResource(gl::Texture{64, 64})};
 
       const auto singleParam = std::string{"some_parm"};
       const auto multiParams = std::set<std::string>{"parm1", "parm2"};
@@ -1046,7 +1048,7 @@ TEST_CASE("Map")
       auto materials =
         kdl::vec_from(std::move(materialA), std::move(materialB), std::move(materialC));
 
-      auto collections = kdl::vec_from(MaterialCollection{std::move(materials)});
+      auto collections = kdl::vec_from(gl::MaterialCollection{std::move(materials)});
 
       materialManager.setMaterialCollections(std::move(collections));
     }

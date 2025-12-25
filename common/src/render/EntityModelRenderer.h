@@ -28,6 +28,11 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class MaterialRenderer;
+}
+
 namespace mdl
 {
 class EditorContext;
@@ -39,7 +44,6 @@ namespace render
 {
 class RenderBatch;
 struct ShaderConfig;
-class MaterialRenderer;
 
 class EntityModelRenderer : public DirectRenderable
 {
@@ -49,7 +53,7 @@ private:
   mdl::EntityModelManager& m_entityModelManager;
   const mdl::EditorContext& m_editorContext;
 
-  std::unordered_map<const mdl::EntityNode*, MaterialRenderer*> m_entities;
+  std::unordered_map<const mdl::EntityNode*, gl::MaterialRenderer*> m_entities;
 
   bool m_applyTinting = false;
   Color m_tintColor;
@@ -106,7 +110,7 @@ public:
   void render(RenderBatch& renderBatch);
 
 private:
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
 

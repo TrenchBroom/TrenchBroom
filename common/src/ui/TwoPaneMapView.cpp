@@ -34,7 +34,7 @@ namespace tb::ui
 TwoPaneMapView::TwoPaneMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  GLContextManager& contextManager,
+  gl::ContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_document{document}
@@ -47,7 +47,8 @@ TwoPaneMapView::~TwoPaneMapView()
   saveWindowState(m_splitter);
 }
 
-void TwoPaneMapView::createGui(MapViewToolBox& toolBox, GLContextManager& contextManager)
+void TwoPaneMapView::createGui(
+  MapViewToolBox& toolBox, gl::ContextManager& contextManager)
 {
   // See comment in CyclingMapView::createGui
   m_splitter = new Splitter{DrawKnob::No};

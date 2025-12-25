@@ -33,14 +33,14 @@ class QScrollBar;
 
 namespace tb
 {
-namespace mdl
+namespace gl
 {
+class ContextManager;
 class Material;
-} // namespace mdl
+} // namespace gl
 
 namespace ui
 {
-class GLContextManager;
 class MapDocument;
 class MaterialBrowserView;
 enum class MaterialSortOrder;
@@ -61,21 +61,21 @@ private:
 
 public:
   MaterialBrowser(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
 
-  const mdl::Material* selectedMaterial() const;
-  void setSelectedMaterial(const mdl::Material* selectedMaterial);
-  void revealMaterial(const mdl::Material* material);
+  const gl::Material* selectedMaterial() const;
+  void setSelectedMaterial(const gl::Material* selectedMaterial);
+  void revealMaterial(const gl::Material* material);
 
   void setSortOrder(MaterialSortOrder sortOrder);
   void setGroup(bool group);
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
 signals:
-  void materialSelected(const mdl::Material* material);
+  void materialSelected(const gl::Material* material);
 
 private:
-  void createGui(GLContextManager& contextManager);
+  void createGui(gl::ContextManager& contextManager);
   void bindEvents();
 
   void connectObservers();

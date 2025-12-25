@@ -22,10 +22,10 @@
 #include "Logger.h"
 #include "Parser.h"
 #include "Tokenizer.h"
-#include "mdl/Material.h" // IWYU pragma: keep
+#include "gl/Material.h" // IWYU pragma: keep
+#include "gl/MaterialIndexRangeMap.h"
+#include "gl/MaterialIndexRangeMapBuilder.h"
 #include "mdl/MaterialUtils.h"
-#include "render/MaterialIndexRangeMap.h"
-#include "render/MaterialIndexRangeMapBuilder.h"
 
 #include "kd/k.h"
 #include "kd/path_utils.h"
@@ -669,7 +669,7 @@ private: // parsing
     // Count vertices and build bounds
     auto bounds = vm::bbox3f::builder();
     auto totalVertexCount = size_t(0);
-    auto size = render::MaterialIndexRangeMap::Size{};
+    auto size = gl::MaterialIndexRangeMap::Size{};
     for (const auto& geomObject : scene.geomObjects)
     {
       const auto& mesh = geomObject.mesh;
@@ -685,15 +685,14 @@ private: // parsing
       const auto* material = surface.skin(materialIndex);
 
       const auto vertexCount = mesh.faces.size() * 3;
-      size.inc(material, render::PrimType::Triangles, vertexCount);
+      size.inc(material, gl::PrimType::Triangles, vertexCount);
       totalVertexCount += vertexCount;
     }
 
     auto& frame = data.addFrame(m_name, bounds.bounds());
 
     // Collect vertex data
-    auto builder =
-      render::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
+    auto builder = gl::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
     for (const auto& geomObject : scene.geomObjects)
     {
       const auto& mesh = geomObject.mesh;

@@ -20,10 +20,10 @@
 #include "LoadMdlModel.h"
 
 #include "fs/ReaderException.h"
-#include "mdl/Material.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/Material.h"
 #include "mdl/Palette.h"
-#include "render/IndexRangeMap.h"
-#include "render/IndexRangeMapBuilder.h"
 
 #include "kd/path_utils.h"
 
@@ -146,11 +146,11 @@ void doParseFrame(
   const auto frameTriangles =
     makeFrameTriangles(triangles, vertices, positions, skinWidth, skinHeight);
 
-  auto size = render::IndexRangeMap::Size{};
-  size.inc(render::PrimType::Triangles, frameTriangles.size());
+  auto size = gl::IndexRangeMap::Size{};
+  size.inc(gl::PrimType::Triangles, frameTriangles.size());
 
-  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{
-    frameTriangles.size() * 3, size};
+  auto builder =
+    gl::IndexRangeMapBuilder<EntityModelVertex::Type>{frameTriangles.size() * 3, size};
   builder.addTriangles(frameTriangles);
 
   auto& frame = model.addFrame(std::move(name), bounds.bounds());
@@ -240,7 +240,7 @@ std::vector<MdlSkinVertex> parseVertices(fs::Reader& reader, size_t count)
   return vertices;
 }
 
-Material parseSkin(
+gl::Material parseSkin(
   fs::Reader& reader,
   const size_t width,
   const size_t height,
@@ -252,21 +252,27 @@ Material parseSkin(
   const auto transparency = (flags & MF_HOLEY) ? PaletteTransparency::Index255Transparent
                                                : PaletteTransparency::Opaque;
   const auto mask = (transparency == PaletteTransparency::Index255Transparent)
-                      ? TextureMask::On
-                      : TextureMask::Off;
+                      ? gl::TextureMask::On
+                      : gl::TextureMask::Off;
   auto avgColor = Color{RgbaF{}};
-  auto rgbaImage = TextureBuffer{size * 4};
+  auto rgbaImage = gl::TextureBuffer{size * 4};
 
   const auto skinGroup = reader.readSize<int32_t>();
   if (skinGroup == 0)
   {
     palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
-    auto texture = Texture{
-      width, height, avgColor, GL_RGBA, mask, NoEmbeddedDefaults{}, std::move(rgbaImage)};
+    auto texture = gl::Texture{
+      width,
+      height,
+      avgColor,
+      GL_RGBA,
+      mask,
+      gl::NoEmbeddedDefaults{},
+      std::move(rgbaImage)};
 
     auto textureResource = createTextureResource(std::move(texture));
-    return Material{std::move(skinName), std::move(textureResource)};
+    return gl::Material{std::move(skinName), std::move(textureResource)};
   }
 
   const auto pictureCount = reader.readSize<int32_t>();
@@ -275,11 +281,17 @@ Material parseSkin(
   palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
 
-  auto texture = Texture{
-    width, height, avgColor, GL_RGBA, mask, NoEmbeddedDefaults{}, std::move(rgbaImage)};
+  auto texture = gl::Texture{
+    width,
+    height,
+    avgColor,
+    GL_RGBA,
+    mask,
+    gl::NoEmbeddedDefaults{},
+    std::move(rgbaImage)};
 
   auto textureResource = createTextureResource(std::move(texture));
-  return Material{std::move(skinName), std::move(textureResource)};
+  return gl::Material{std::move(skinName), std::move(textureResource)};
 }
 
 void parseSkins(
@@ -292,7 +304,7 @@ void parseSkins(
   const std::string& modelName,
   const Palette& palette)
 {
-  auto skins = std::vector<Material>{};
+  auto skins = std::vector<gl::Material>{};
   skins.reserve(count);
 
   for (size_t i = 0; i < count; ++i)

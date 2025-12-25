@@ -18,6 +18,7 @@
  */
 
 #include "TestUtils.h"
+#include "gl/PerspectiveCamera.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Grid.h"
 #include "mdl/LayerNode.h"
@@ -26,7 +27,6 @@
 #include "mdl/Map_Picking.h"
 #include "mdl/PasteType.h"
 #include "mdl/WorldNode.h"
-#include "render/PerspectiveCamera.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
 #include "ui/MapDocument.h"
@@ -41,7 +41,7 @@ namespace tb::ui
 namespace
 {
 
-void updatePickState(InputState& inputState, const render::Camera& camera, mdl::Map& map)
+void updatePickState(InputState& inputState, const gl::Camera& camera, mdl::Map& map)
 {
   mdl::PickResult pickResult = mdl::PickResult::byDistance();
   const PickRequest pickRequest(
@@ -88,10 +88,10 @@ TEST_CASE("ClipToolController")
 
   map.grid().setSize(2); // 2^2, so this sets it to grid 4
 
-  const auto viewport = render::Camera::Viewport{0, 0, 1920, 1080};
+  const auto viewport = gl::Camera::Viewport{0, 0, 1920, 1080};
 
   // Camera at 0 -160 64 looking towards +y
-  auto camera = render::PerspectiveCamera{
+  auto camera = gl::PerspectiveCamera{
     90.0f,
     1.0f,
     8000.0f,

@@ -21,6 +21,7 @@
 
 #include "Result.h"
 #include "fs/FileSystem.h"
+#include "gl/Resource.h"
 #include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
 #include "mdl/LoadAseModel.h"
@@ -120,7 +121,7 @@ Result<EntityModelData> loadEntityModelData(
            });
 }
 
-ResourceLoader<EntityModelData> makeEntityModelDataResourceLoader(
+gl::ResourceLoader<EntityModelData> makeEntityModelDataResourceLoader(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const std::filesystem::path& path,

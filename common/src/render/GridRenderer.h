@@ -19,35 +19,42 @@
 
 #pragma once
 
-#include "render/GLVertexType.h"
+#include "gl/VertexArray.h"
+#include "gl/VertexType.h"
 #include "render/Renderable.h"
-#include "render/VertexArray.h"
 
 #include "vm/bbox.h"
 
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
 {
 class OrthographicCamera;
-class RenderContext;
 class VboManager;
+} // namespace gl
+
+namespace render
+{
+class RenderContext;
 
 class GridRenderer : public DirectRenderable
 {
 private:
-  using Vertex = GLVertexTypes::P3::Vertex;
-  VertexArray m_vertexArray;
+  using Vertex = gl::VertexTypes::P3::Vertex;
+  gl::VertexArray m_vertexArray;
 
 public:
-  GridRenderer(const OrthographicCamera& camera, const vm::bbox3d& worldBounds);
+  GridRenderer(const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds);
 
 private:
   static std::vector<Vertex> vertices(
-    const OrthographicCamera& camera, const vm::bbox3d& worldBounds);
+    const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds);
 
-  void doPrepareVertices(VboManager& vboManager) override;
+  void doPrepareVertices(gl::VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

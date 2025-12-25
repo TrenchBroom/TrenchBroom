@@ -30,7 +30,6 @@ namespace tb::mdl
 {
 class LayerNode;
 class Map;
-class Material;
 class Node;
 
 void selectAllNodes(Map& map);

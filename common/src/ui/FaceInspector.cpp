@@ -22,13 +22,13 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+#include "gl/Material.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
-#include "mdl/Material.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/BorderLine.h"
 #include "ui/FaceAttribsEditor.h"
@@ -56,7 +56,7 @@ void resetMaterialBrowserInfo(mdl::Map& map, QWidget* materialBrowserInfo)
 } // namespace
 
 FaceInspector::FaceInspector(
-  MapDocument& document, GLContextManager& contextManager, QWidget* parent)
+  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
   : TabBookPage{parent}
   , m_document{document}
 {
@@ -74,13 +74,13 @@ bool FaceInspector::cancelMouseDrag()
   return m_faceAttribsEditor->cancelMouseDrag();
 }
 
-void FaceInspector::revealMaterial(const mdl::Material* material)
+void FaceInspector::revealMaterial(const gl::Material* material)
 {
   m_materialBrowser->revealMaterial(material);
   m_materialBrowser->setSelectedMaterial(material);
 }
 
-void FaceInspector::createGui(GLContextManager& contextManager)
+void FaceInspector::createGui(gl::ContextManager& contextManager)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("FaceInspector_Splitter");
@@ -107,13 +107,13 @@ void FaceInspector::createGui(GLContextManager& contextManager)
   restoreWindowState(m_splitter);
 }
 
-QWidget* FaceInspector::createFaceAttribsEditor(GLContextManager& contextManager)
+QWidget* FaceInspector::createFaceAttribsEditor(gl::ContextManager& contextManager)
 {
   m_faceAttribsEditor = new FaceAttribsEditor{m_document, contextManager};
   return m_faceAttribsEditor;
 }
 
-QWidget* FaceInspector::createMaterialBrowser(GLContextManager& contextManager)
+QWidget* FaceInspector::createMaterialBrowser(gl::ContextManager& contextManager)
 {
   auto* panel =
     new SwitchableTitledPanel{tr("Material Browser"), {{tr("Browser"), tr("Settings")}}};
@@ -166,7 +166,7 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
   return panel;
 }
 
-void FaceInspector::materialSelected(const mdl::Material* material)
+void FaceInspector::materialSelected(const gl::Material* material)
 {
   auto& map = m_document.map();
   const auto faces = map.selection().allBrushFaces();

@@ -62,7 +62,7 @@ size_t readMipOffsets(
   return mipLevels;
 }
 
-std::tuple<TextureBufferList, bool> readMips(
+std::tuple<gl::TextureBufferList, bool> readMips(
   const Palette& palette,
   const size_t mipLevels,
   const size_t offsets[],
@@ -74,7 +74,7 @@ std::tuple<TextureBufferList, bool> readMips(
 {
   static auto tempColor = Color{RgbaF{}};
 
-  auto buffers = TextureBufferList{};
+  auto buffers = gl::TextureBufferList{};
   setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
   auto hasTransparency = false;
@@ -103,7 +103,7 @@ std::tuple<TextureBufferList, bool> readMips(
   return {std::move(buffers), hasTransparency};
 }
 
-Result<Texture> readQ2Wal(fs::Reader& reader, const std::optional<Palette>& palette)
+Result<gl::Texture> readQ2Wal(fs::Reader& reader, const std::optional<Palette>& palette)
 {
   static const auto MaxMipLevels = size_t(4);
   auto averageColor = Color{RgbaF{}};
@@ -133,7 +133,7 @@ Result<Texture> readQ2Wal(fs::Reader& reader, const std::optional<Palette>& pale
     const auto flags = reader.readInt<int32_t>();
     const auto contents = reader.readInt<int32_t>();
     const auto value = reader.readInt<int32_t>();
-    auto embeddedDefaults = Q2EmbeddedDefaults{flags, contents, value};
+    auto embeddedDefaults = gl::Q2EmbeddedDefaults{flags, contents, value};
 
     auto [buffers, hasTransparency] = readMips(
       *palette,
@@ -147,12 +147,12 @@ Result<Texture> readQ2Wal(fs::Reader& reader, const std::optional<Palette>& pale
 
     unused(hasTransparency);
 
-    return Texture{
+    return gl::Texture{
       width,
       height,
       averageColor,
       GL_RGBA,
-      TextureMask::Off,
+      gl::TextureMask::Off,
       std::move(embeddedDefaults),
       std::move(buffers)};
   }
@@ -162,7 +162,7 @@ Result<Texture> readQ2Wal(fs::Reader& reader, const std::optional<Palette>& pale
   }
 }
 
-Result<Texture> readDkWal(fs::Reader& reader)
+Result<gl::Texture> readDkWal(fs::Reader& reader)
 {
   static const auto MaxMipLevels = size_t(9);
   auto averageColor = Color{RgbaF{}};
@@ -195,7 +195,7 @@ Result<Texture> readDkWal(fs::Reader& reader)
     auto paletteReader = reader.subReaderFromCurrent(3 * 256);
     reader.seekForward(3 * 256); // seek past palette
     const auto value = reader.readInt<int32_t>();
-    auto embeddedDefaults = Q2EmbeddedDefaults{flags, contents, value};
+    auto embeddedDefaults = gl::Q2EmbeddedDefaults{flags, contents, value};
 
     return loadPalette(paletteReader, PaletteColorFormat::Rgb)
            | kdl::transform([&](const auto& palette) {
@@ -209,12 +209,12 @@ Result<Texture> readDkWal(fs::Reader& reader)
                  averageColor,
                  PaletteTransparency::Index255Transparent);
 
-               return Texture{
+               return gl::Texture{
                  width,
                  height,
                  averageColor,
                  GL_RGBA,
-                 hasTransparency ? TextureMask::On : TextureMask::Off,
+                 hasTransparency ? gl::TextureMask::On : gl::TextureMask::Off,
                  std::move(embeddedDefaults),
                  std::move(buffers)};
              });
@@ -227,7 +227,8 @@ Result<Texture> readDkWal(fs::Reader& reader)
 
 } // namespace
 
-Result<Texture> loadWalTexture(fs::Reader& reader, const std::optional<Palette>& palette)
+Result<gl::Texture> loadWalTexture(
+  fs::Reader& reader, const std::optional<Palette>& palette)
 {
   try
   {

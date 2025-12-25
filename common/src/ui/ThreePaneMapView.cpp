@@ -36,7 +36,7 @@ namespace tb::ui
 ThreePaneMapView::ThreePaneMapView(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  GLContextManager& contextManager,
+  gl::ContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_document{document}
@@ -51,7 +51,7 @@ ThreePaneMapView::~ThreePaneMapView()
 }
 
 void ThreePaneMapView::createGui(
-  MapViewToolBox& toolBox, GLContextManager& contextManager)
+  MapViewToolBox& toolBox, gl::ContextManager& contextManager)
 {
   m_hSplitter = new Splitter{DrawKnob::No};
   m_hSplitter->setObjectName("ThreePaneMapView_HorizontalSplitter");

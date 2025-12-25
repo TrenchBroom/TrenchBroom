@@ -27,15 +27,19 @@ class QPushButton;
 
 namespace tb
 {
+namespace gl
+{
+class ContextManager;
+class Material;
+} // namespace gl
+
 namespace mdl
 {
 class BrushFaceHandle;
-class Material;
 } // namespace mdl
 
 namespace ui
 {
-class GLContextManager;
 class MapDocument;
 class MaterialBrowser;
 
@@ -51,15 +55,15 @@ private:
 
 public:
   ReplaceMaterialDialog(
-    MapDocument& document, GLContextManager& contextManager, QWidget* parent = nullptr);
+    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
 
 private:
   void accept() override;
   std::vector<mdl::BrushFaceHandle> getApplicableFaces() const;
-  void createGui(GLContextManager& contextManager);
+  void createGui(gl::ContextManager& contextManager);
 private slots:
-  void subjectSelected(const mdl::Material* subject);
-  void replacementSelected(const mdl::Material* replacement);
+  void subjectSelected(const gl::Material* subject);
+  void replacementSelected(const gl::Material* replacement);
   void updateReplaceButton();
 };
 

@@ -19,12 +19,12 @@
 
 #include "LinkRenderer.h"
 
-#include "render/ActiveShader.h"
-#include "render/Camera.h"
-#include "render/PrimType.h"
+#include "gl/ActiveShader.h"
+#include "gl/Camera.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/Shaders.h"
 
 #include "kd/contracts.h"
 
@@ -43,7 +43,7 @@ void LinkRenderer::invalidate()
   m_valid = false;
 }
 
-void LinkRenderer::doPrepareVertices(VboManager& vboManager)
+void LinkRenderer::doPrepareVertices(gl::VboManager& vboManager)
 {
   if (!m_valid)
   {
@@ -64,23 +64,25 @@ void LinkRenderer::doRender(RenderContext& renderContext)
 
 void LinkRenderer::renderLines(RenderContext& renderContext)
 {
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::LinkLineShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::LinkLineShader};
   shader.set("CameraPosition", renderContext.camera().position());
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);
 
   glAssert(glDisable(GL_DEPTH_TEST));
   shader.set("Alpha", 0.4f);
-  m_lines.render(PrimType::Lines);
+  m_lines.render(gl::PrimType::Lines);
 
   glAssert(glEnable(GL_DEPTH_TEST));
   shader.set("Alpha", 1.0f);
-  m_lines.render(PrimType::Lines);
+  m_lines.render(gl::PrimType::Lines);
 }
 
 void LinkRenderer::renderArrows(RenderContext& renderContext)
 {
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::LinkArrowShader};
+  auto shader =
+    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::LinkArrowShader};
   shader.set("CameraPosition", renderContext.camera().position());
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);
@@ -88,11 +90,11 @@ void LinkRenderer::renderArrows(RenderContext& renderContext)
 
   glAssert(glDisable(GL_DEPTH_TEST));
   shader.set("Alpha", 0.4f);
-  m_arrows.render(PrimType::Lines);
+  m_arrows.render(gl::PrimType::Lines);
 
   glAssert(glEnable(GL_DEPTH_TEST));
   shader.set("Alpha", 1.0f);
-  m_arrows.render(PrimType::Lines);
+  m_arrows.render(gl::PrimType::Lines);
 }
 
 static void addArrow(
@@ -157,8 +159,8 @@ void LinkRenderer::validate()
   auto links = getLinks();
   auto arrows = getArrows(links);
 
-  m_lines = VertexArray::move(std::move(links));
-  m_arrows = VertexArray::move(std::move(arrows));
+  m_lines = gl::VertexArray::move(std::move(links));
+  m_arrows = gl::VertexArray::move(std::move(arrows));
 
   m_valid = true;
 }

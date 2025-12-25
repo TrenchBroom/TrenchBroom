@@ -26,7 +26,7 @@
 
 namespace tb
 {
-namespace render
+namespace gl
 {
 class PerspectiveCamera;
 }
@@ -38,10 +38,10 @@ class GestureTracker;
 class CameraTool3D : public ToolController, public Tool
 {
 private:
-  render::PerspectiveCamera& m_camera;
+  gl::PerspectiveCamera& m_camera;
 
 public:
-  explicit CameraTool3D(render::PerspectiveCamera& camera);
+  explicit CameraTool3D(gl::PerspectiveCamera& camera);
 
 private:
   Tool& tool() override;

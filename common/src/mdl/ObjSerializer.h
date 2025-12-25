@@ -32,12 +32,18 @@
 #include <variant>
 #include <vector>
 
-namespace tb::mdl
+namespace tb
+{
+namespace gl
+{
+class Material;
+}
+
+namespace mdl
 {
 class BrushNode;
 class BrushFace;
 class EntityProperty;
-class Material;
 class Node;
 
 class ObjSerializer : public NodeSerializer
@@ -82,7 +88,7 @@ public:
   {
     std::vector<IndexedVertex> verts;
     std::string materialName;
-    const Material* material;
+    const gl::Material* material;
   };
 
   struct BrushObject
@@ -103,7 +109,7 @@ public:
     size_t patchNo;
     std::vector<PatchQuad> quads;
     std::string materialName;
-    const Material* material;
+    const gl::Material* material;
   };
 
   using Object = std::variant<BrushObject, PatchObject>;
@@ -150,4 +156,5 @@ private:
   void doPatch(const PatchNode* patchNode) override;
 };
 
-} // namespace tb::mdl
+} // namespace mdl
+} // namespace tb

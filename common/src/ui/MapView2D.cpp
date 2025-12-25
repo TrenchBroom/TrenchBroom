@@ -20,6 +20,8 @@
 #include "MapView2D.h"
 
 #include "Macros.h"
+#include "gl/ContextManager.h"
+#include "gl/OrthographicCamera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
@@ -34,7 +36,6 @@
 #include "render/Compass2D.h"
 #include "render/GridRenderer.h"
 #include "render/MapRenderer.h"
-#include "render/OrthographicCamera.h"
 #include "render/RenderContext.h"
 #include "render/SelectionBoundsRenderer.h"
 #include "ui/CameraAnimation.h"
@@ -48,7 +49,6 @@
 #include "ui/ExtrudeToolController.h"
 #include "ui/FaceTool.h" // IWYU pragma: keep
 #include "ui/FaceToolController.h"
-#include "ui/GLContextManager.h"
 #include "ui/MapDocument.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MoveObjectsToolController.h"
@@ -69,10 +69,10 @@ namespace tb::ui
 MapView2D::MapView2D(
   MapDocument& document,
   MapViewToolBox& toolBox,
-  GLContextManager& contextManager,
+  gl::ContextManager& contextManager,
   ViewPlane viewPlane)
   : MapViewBase{document, toolBox, contextManager}
-  , m_camera{std::make_unique<render::OrthographicCamera>()}
+  , m_camera{std::make_unique<gl::OrthographicCamera>()}
 {
   connectObservers();
   initializeCamera(viewPlane);
@@ -147,7 +147,7 @@ void MapView2D::connectObservers()
     m_camera->cameraDidChangeNotifier.connect(this, &MapView2D::cameraDidChange);
 }
 
-void MapView2D::cameraDidChange(const render::Camera*)
+void MapView2D::cameraDidChange(const gl::Camera*)
 {
   update();
 }
@@ -210,7 +210,7 @@ void MapView2D::selectTall()
   selectTouchingNodes(m_document.map(), cameraAxis, true);
 }
 
-void MapView2D::reset2dCameras(const render::Camera& masterCamera, const bool animate)
+void MapView2D::reset2dCameras(const gl::Camera& masterCamera, const bool animate)
 {
   const auto oldPosition = m_camera->position();
   const auto factors = vm::vec3f{1, 1, 1} - vm::abs(masterCamera.direction())
@@ -280,7 +280,7 @@ void MapView2D::moveCameraToCurrentTracePoint()
   }
 }
 
-render::Camera& MapView2D::camera()
+gl::Camera& MapView2D::camera()
 {
   return *m_camera;
 }

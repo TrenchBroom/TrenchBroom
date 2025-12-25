@@ -27,15 +27,15 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "render/ActiveShader.h"
-#include "render/FontDescriptor.h"
-#include "render/FontManager.h"
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
-#include "render/Shaders.h"
-#include "render/TextureFont.h"
+#include "gl/ActiveShader.h"
+#include "gl/FontDescriptor.h"
+#include "gl/FontManager.h"
+#include "gl/PrimType.h"
+#include "gl/Shaders.h"
+#include "gl/TextureFont.h"
+#include "gl/VertexArray.h"
+#include "gl/VertexType.h"
 #include "render/Transformation.h"
-#include "render/VertexArray.h"
 #include "ui/CellLayout.h"
 #include "ui/RenderView.h"
 
@@ -89,7 +89,7 @@ void CellView::validate()
   }
 }
 
-CellView::CellView(GLContextManager& contextManager, QScrollBar* scrollBar)
+CellView::CellView(gl::ContextManager& contextManager, QScrollBar* scrollBar)
   : RenderView{contextManager}
   , m_scrollBar{scrollBar}
 {
@@ -407,7 +407,7 @@ void CellView::setupGL()
 
 void CellView::renderTitleBackgrounds(float y, float height)
 {
-  using Vertex = render::GLVertexTypes::P2::Vertex;
+  using Vertex = gl::VertexTypes::P2::Vertex;
   auto vertices = std::vector<Vertex>{};
 
   for (const auto& group : m_layout.groups())
@@ -426,29 +426,28 @@ void CellView::renderTitleBackgrounds(float y, float height)
     }
   }
 
-  auto shader =
-    render::ActiveShader{shaderManager(), render::Shaders::VaryingPUniformCShader};
+  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPUniformCShader};
   shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
-  auto vertexArray = render::VertexArray::move(std::move(vertices));
+  auto vertexArray = gl::VertexArray::move(std::move(vertices));
   vertexArray.prepare(vboManager());
-  vertexArray.render(render::PrimType::Quads);
+  vertexArray.render(gl::PrimType::Quads);
 }
 
 namespace
 {
 
 auto collectStringVertices(
-  CellLayout& layout, const float y, const float height, render::FontManager& fontManager)
+  CellLayout& layout, const float y, const float height, gl::FontManager& fontManager)
 {
-  using TextVertex = render::GLVertexTypes::P2UV2C4::Vertex;
+  using TextVertex = gl::VertexTypes::P2UV2C4::Vertex;
 
-  auto defaultFont = render::FontDescriptor{
+  auto defaultFont = gl::FontDescriptor{
     pref(Preferences::RendererFontPath()), size_t(pref(Preferences::BrowserFontSize))};
 
   const auto textColor = pref(Preferences::BrowserTextColor);
 
-  auto stringVertices = std::map<render::FontDescriptor, std::vector<TextVertex>>{};
+  auto stringVertices = std::map<gl::FontDescriptor, std::vector<TextVertex>>{};
   for (const auto& group : layout.groups())
   {
     if (group.intersectsY(y, height))
@@ -514,24 +513,24 @@ auto collectStringVertices(
 
 void CellView::renderTitleStrings(float y, float height)
 {
-  using StringRendererMap = std::map<render::FontDescriptor, render::VertexArray>;
+  using StringRendererMap = std::map<gl::FontDescriptor, gl::VertexArray>;
   auto stringRenderers = StringRendererMap{};
 
   for (const auto& [descriptor, vertices] :
        collectStringVertices(m_layout, y, height, fontManager()))
   {
-    stringRenderers[descriptor] = render::VertexArray::ref(vertices);
+    stringRenderers[descriptor] = gl::VertexArray::ref(vertices);
     stringRenderers[descriptor].prepare(vboManager());
   }
 
-  auto shader = render::ActiveShader{shaderManager(), render::Shaders::ColoredTextShader};
+  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::ColoredTextShader};
   shader.set("Texture", 0);
 
   for (auto& [descriptor, vertexArray] : stringRenderers)
   {
     auto& font = fontManager().font(descriptor);
     font.activate();
-    vertexArray.render(render::PrimType::Quads);
+    vertexArray.render(gl::PrimType::Quads);
     font.deactivate();
   }
 }

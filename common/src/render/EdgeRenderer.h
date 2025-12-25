@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Color.h"
-#include "render/IndexRangeMap.h"
+#include "gl/IndexRangeMap.h"
+#include "gl/VertexArray.h"
 #include "render/Renderable.h"
-#include "render/VertexArray.h"
 
 #include <memory>
 
@@ -109,26 +109,27 @@ private:
   class Render : public RenderBase, public DirectRenderable
   {
   private:
-    VertexArray m_vertexArray;
-    IndexRangeMap m_indexRanges;
+    gl::VertexArray m_vertexArray;
+    gl::IndexRangeMap m_indexRanges;
 
   public:
-    Render(const Params& params, VertexArray& vertexArray, IndexRangeMap& indexRanges);
+    Render(
+      const Params& params, gl::VertexArray& vertexArray, gl::IndexRangeMap& indexRanges);
 
   private:
-    void doPrepareVertices(VboManager& vboManager) override;
+    void doPrepareVertices(gl::VboManager& vboManager) override;
     void doRender(RenderContext& renderContext) override;
     void doRenderVertices(RenderContext& renderContext) override;
   };
 
 private:
-  VertexArray m_vertexArray;
-  IndexRangeMap m_indexRanges;
+  gl::VertexArray m_vertexArray;
+  gl::IndexRangeMap m_indexRanges;
 
 public:
   DirectEdgeRenderer();
-  DirectEdgeRenderer(VertexArray vertexArray, IndexRangeMap indexRanges);
-  DirectEdgeRenderer(VertexArray vertexArray, PrimType primType);
+  DirectEdgeRenderer(gl::VertexArray vertexArray, gl::IndexRangeMap indexRanges);
+  DirectEdgeRenderer(gl::VertexArray vertexArray, gl::PrimType primType);
 
 private:
   void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) override;
@@ -150,7 +151,7 @@ private:
       std::shared_ptr<BrushIndexArray> indexArray);
 
   private:
-    void prepareVerticesAndIndices(VboManager& vboManager) override;
+    void prepareVerticesAndIndices(gl::VboManager& vboManager) override;
     void doRender(RenderContext& renderContext) override;
     void doRenderVertices(RenderContext& renderContext) override;
   };

@@ -19,6 +19,8 @@
 
 #include "UVScaleTool.h"
 
+#include "gl/PrimType.h"
+#include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/Hit.h"
@@ -29,8 +31,6 @@
 #include "mdl/TransactionScope.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "render/EdgeRenderer.h"
-#include "render/GLVertexType.h"
-#include "render/PrimType.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
@@ -126,7 +126,7 @@ vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
   return position - distance;
 }
 
-using EdgeVertex = render::GLVertexTypes::P3::Vertex;
+using EdgeVertex = gl::VertexTypes::P3::Vertex;
 
 std::vector<EdgeVertex> getHandleVertices(
   const UVViewHelper& helper, const vm::vec2i& handle, const vm::vec2b& selector)
@@ -164,8 +164,8 @@ void renderHighlight(
   static const auto color = RgbaF{1.0f, 0.0f, 0.0f, 1.0f};
 
   auto handleRenderer = render::DirectEdgeRenderer{
-    render::VertexArray::move(getHandleVertices(helper, handle, selector)),
-    render::PrimType::Lines};
+    gl::VertexArray::move(getHandleVertices(helper, handle, selector)),
+    gl::PrimType::Lines};
   handleRenderer.render(renderBatch, color, 1.0f);
 }
 

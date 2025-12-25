@@ -20,8 +20,8 @@
 #include "MapDocumentFixture.h"
 
 #include "TestUtils.h"
+#include "gl/Resource.h"
 #include "mdl/Map.h"
-#include "mdl/Resource.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
@@ -79,7 +79,7 @@ MapDocument& MapDocumentFixture::load(
         m_document = std::move(document);
         m_document->map().setIsCommandCollationEnabled(false);
         m_document->map().processResourcesSync(
-          mdl::ProcessContext{false, [](auto, auto) {}});
+          gl::ProcessContext{false, [](auto, auto) {}});
       })
     | kdl::is_success());
 

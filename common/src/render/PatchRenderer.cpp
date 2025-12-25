@@ -21,21 +21,21 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
+#include "gl/Camera.h"
+#include "gl/IndexRangeMapBuilder.h"
+#include "gl/Material.h"
+#include "gl/MaterialIndexArrayMapBuilder.h"
+#include "gl/MaterialIndexArrayRenderer.h"
+#include "gl/MaterialRenderFunc.h"
+#include "gl/Shaders.h"
+#include "gl/Texture.h"
+#include "gl/VertexArray.h"
+#include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
-#include "mdl/Material.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Texture.h"
-#include "render/ActiveShader.h"
-#include "render/Camera.h"
-#include "render/GLVertexType.h"
-#include "render/IndexRangeMapBuilder.h"
-#include "render/MaterialIndexArrayMapBuilder.h"
-#include "render/MaterialIndexArrayRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderUtils.h"
-#include "render/Shaders.h"
-#include "render/VertexArray.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -153,12 +153,12 @@ void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatc
   }
 }
 
-static MaterialIndexArrayRenderer buildMeshRenderer(
+static gl::MaterialIndexArrayRenderer buildMeshRenderer(
   const std::vector<const mdl::PatchNode*>& patchNodes,
   const mdl::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
-  auto indexArrayMapSize = MaterialIndexArrayMap::Size{};
+  auto indexArrayMapSize = gl::MaterialIndexArrayMap::Size{};
 
   for (const auto* patchNode : patchNodes)
   {
@@ -169,16 +169,16 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
       const auto* material = patchNode->patch().material();
       const auto quadCount =
         patchNode->grid().quadRowCount() * patchNode->grid().quadColumnCount();
-      indexArrayMapSize.inc(material, PrimType::Triangles, 6u * quadCount);
+      indexArrayMapSize.inc(material, gl::PrimType::Triangles, 6u * quadCount);
     }
   }
 
-  using Vertex = GLVertexTypes::P3NT2::Vertex;
+  using Vertex = gl::VertexTypes::P3NT2::Vertex;
   auto vertices = std::vector<Vertex>{};
   vertices.reserve(vertexCount);
 
-  auto indexArrayMapBuilder = MaterialIndexArrayMapBuilder{indexArrayMapSize};
-  using Index = MaterialIndexArrayMapBuilder::Index;
+  auto indexArrayMapBuilder = gl::MaterialIndexArrayMapBuilder{indexArrayMapSize};
+  using Index = gl::MaterialIndexArrayMapBuilder::Index;
 
   for (const auto* patchNode : patchNodes)
   {
@@ -222,9 +222,9 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
     }
   }
 
-  auto vertexArray = VertexArray::move(std::move(vertices));
-  auto indexArray = IndexArray::move(std::move(indexArrayMapBuilder.indices()));
-  return MaterialIndexArrayRenderer{
+  auto vertexArray = gl::VertexArray::move(std::move(vertices));
+  auto indexArray = gl::IndexArray::move(std::move(indexArrayMapBuilder.indices()));
+  return gl::MaterialIndexArrayRenderer{
     std::move(vertexArray),
     std::move(indexArray),
     std::move(indexArrayMapBuilder.ranges())};
@@ -235,7 +235,7 @@ static DirectEdgeRenderer buildEdgeRenderer(
   const mdl::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
-  auto indexRangeMapSize = IndexRangeMap::Size{};
+  auto indexRangeMapSize = gl::IndexRangeMap::Size{};
 
   for (const auto* patchNode : patchNodes)
   {
@@ -243,12 +243,12 @@ static DirectEdgeRenderer buildEdgeRenderer(
     {
       vertexCount +=
         (patchNode->grid().pointRowCount + patchNode->grid().pointColumnCount - 2u) * 2u;
-      indexRangeMapSize.inc(PrimType::LineLoop, vertexCount);
+      indexRangeMapSize.inc(gl::PrimType::LineLoop, vertexCount);
     }
   }
 
   auto indexRangeMapBuilder =
-    IndexRangeMapBuilder<GLVertexTypes::P3>{vertexCount, indexRangeMapSize};
+    gl::IndexRangeMapBuilder<gl::VertexTypes::P3>{vertexCount, indexRangeMapSize};
 
   for (const auto* patchNode : patchNodes)
   {
@@ -256,7 +256,7 @@ static DirectEdgeRenderer buildEdgeRenderer(
     {
       const auto& grid = patchNode->grid();
 
-      auto edgeLoopVertices = std::vector<GLVertexTypes::P3::Vertex>{};
+      auto edgeLoopVertices = std::vector<gl::VertexTypes::P3::Vertex>{};
       edgeLoopVertices.reserve((grid.pointRowCount + grid.pointColumnCount - 2u) * 2u);
 
       // walk around the patch to collect the edge vertices
@@ -298,7 +298,7 @@ static DirectEdgeRenderer buildEdgeRenderer(
     }
   }
 
-  auto vertexArray = VertexArray::move(std::move(indexRangeMapBuilder.vertices()));
+  auto vertexArray = gl::VertexArray::move(std::move(indexRangeMapBuilder.vertices()));
   auto indexRangeMap = std::move(indexRangeMapBuilder.indices());
   return DirectEdgeRenderer{std::move(vertexArray), std::move(indexRangeMap)};
 }
@@ -314,23 +314,23 @@ void PatchRenderer::validate()
   }
 }
 
-void PatchRenderer::prepareVerticesAndIndices(VboManager& vboManager)
+void PatchRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
 {
   m_patchMeshRenderer.prepare(vboManager);
 }
 
 namespace
 {
-struct RenderFunc : public MaterialRenderFunc
+struct RenderFunc : public gl::MaterialRenderFunc
 {
-  ActiveShader& shader;
+  gl::ActiveShader& shader;
   bool applyMaterial;
   const Color& defaultColor;
   int minFilter;
   int magFilter;
 
   RenderFunc(
-    ActiveShader& i_shader,
+    gl::ActiveShader& i_shader,
     const bool i_applyMaterial,
     const Color& i_defaultColor,
     const int i_minFilter,
@@ -343,7 +343,7 @@ struct RenderFunc : public MaterialRenderFunc
   {
   }
 
-  void before(const mdl::Material* material) override
+  void before(const gl::Material* material) override
   {
     shader.set("GridColor", gridColorForMaterial(material));
     if (const auto* texture = getTexture(material))
@@ -359,7 +359,7 @@ struct RenderFunc : public MaterialRenderFunc
     }
   }
 
-  void after(const mdl::Material* material) override
+  void after(const gl::Material* material) override
   {
     if (material)
     {
@@ -372,7 +372,7 @@ struct RenderFunc : public MaterialRenderFunc
 void PatchRenderer::doRender(RenderContext& context)
 {
   auto& shaderManager = context.shaderManager();
-  auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
+  auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
   auto& prefs = PreferenceManager::instance();
 
   const bool applyMaterial = context.showMaterials();

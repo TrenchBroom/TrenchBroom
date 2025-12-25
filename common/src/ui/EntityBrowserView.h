@@ -21,8 +21,9 @@
 
 #include "NotifierConnection.h"
 #include "el/Expression.h"
-#include "render/FontDescriptor.h"
-#include "render/GLVertexType.h"
+#include "gl/FontDescriptor.h"
+#include "gl/ResourceId.h"
+#include "gl/VertexType.h"
 #include "ui/CellView.h"
 
 #include "vm/bbox.h"
@@ -36,10 +37,13 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class MaterialRenderer;
+}
+
 namespace mdl
 {
-class ResourceId;
-
 enum class EntityDefinitionSortOrder;
 enum class Orientation;
 
@@ -49,7 +53,6 @@ struct EntityDefinition;
 namespace render
 {
 class FontDescriptor;
-class MaterialRenderer;
 class Transformation;
 } // namespace render
 
@@ -61,11 +64,11 @@ using EntityGroupData = std::string;
 
 struct EntityCellData
 {
-  using EntityRenderer = render::MaterialRenderer;
+  using EntityRenderer = gl::MaterialRenderer;
   const mdl::EntityDefinition& entityDefinition;
   EntityRenderer* modelRenderer;
   mdl::Orientation modelOrientation;
-  render::FontDescriptor fontDescriptor;
+  gl::FontDescriptor fontDescriptor;
   vm::bbox3f bounds;
   vm::mat4x4f transform;
   vm::vec3f modelScale;
@@ -75,10 +78,10 @@ class EntityBrowserView : public CellView
 {
   Q_OBJECT
 private:
-  using EntityRenderer = render::MaterialRenderer;
+  using EntityRenderer = gl::MaterialRenderer;
 
-  using TextVertex = render::GLVertexTypes::P2UV2C4::Vertex;
-  using StringMap = std::map<render::FontDescriptor, std::vector<TextVertex>>;
+  using TextVertex = gl::VertexTypes::P2UV2C4::Vertex;
+  using StringMap = std::map<gl::FontDescriptor, std::vector<TextVertex>>;
 
   static constexpr auto CameraPosition = vm::vec3f{256.0f, 0.0f, 0.0f};
   static constexpr auto CameraDirection = vm::vec3f{-1, 0, 0};
@@ -97,7 +100,7 @@ private:
 
 public:
   EntityBrowserView(
-    QScrollBar* scrollBar, GLContextManager& contextManager, MapDocument& document);
+    QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document);
   ~EntityBrowserView() override;
 
 public:
@@ -116,16 +119,16 @@ private:
   bool dndEnabled() override;
   QString dndData(const Cell& cell) override;
 
-  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<gl::ResourceId>& resources);
 
   void addEntitiesToLayout(
     Layout& layout,
     const std::vector<const mdl::EntityDefinition*>& definitions,
-    const render::FontDescriptor& font);
+    const gl::FontDescriptor& font);
   void addEntityToLayout(
     Layout& layout,
     const mdl::EntityDefinition& definition,
-    const render::FontDescriptor& font);
+    const gl::FontDescriptor& font);
 
   void doClear() override;
   void doRender(Layout& layout, float y, float height) override;

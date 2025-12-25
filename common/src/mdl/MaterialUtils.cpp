@@ -23,11 +23,11 @@
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
+#include "gl/TextureBuffer.h"
+#include "gl/TextureResource.h"
 #include "mdl/LoadFreeImageTexture.h"
-#include "mdl/Material.h"
-#include "mdl/Texture.h"
-#include "mdl/TextureBuffer.h"
-#include "mdl/TextureResource.h"
 
 #include "kd/functional.h"
 #include "kd/path_utils.h"
@@ -80,18 +80,18 @@ bool checkTextureDimensions(size_t width, size_t height)
 
 size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)
 {
-  const auto size = sizeAtMipLevel(width, height, mipLevel);
+  const auto size = gl::sizeAtMipLevel(width, height, mipLevel);
   return size.x() * size.y();
 }
 
 kdl_reflect_impl(ReadMaterialError);
 
-TextureMask getTextureMaskFromName(std::string_view name)
+gl::TextureMask getTextureMaskFromName(std::string_view name)
 {
-  return kdl::cs::str_is_prefix(name, "{") ? TextureMask::On : TextureMask::Off;
+  return kdl::cs::str_is_prefix(name, "{") ? gl::TextureMask::On : gl::TextureMask::Off;
 }
 
-Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
+gl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
 {
   // recursion guard
   static auto executing = false;
@@ -105,7 +105,7 @@ Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
            })
            | kdl::transform_error([&](auto e) {
                logger.error() << "Could not load default texture: " << e.msg;
-               return Texture{32, 32};
+               return gl::Texture{32, 32};
              })
            | kdl::value();
   }
@@ -114,13 +114,14 @@ Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
     logger.error() << "Could not load default texture";
   }
 
-  return Texture{32, 32};
+  return gl::Texture{32, 32};
 }
 
-Material loadDefaultMaterial(const fs::FileSystem& fs, std::string name, Logger& logger)
+gl::Material loadDefaultMaterial(
+  const fs::FileSystem& fs, std::string name, Logger& logger)
 {
   auto textureResource = createTextureResource(loadDefaultTexture(fs, logger));
-  return Material{std::move(name), std::move(textureResource)};
+  return gl::Material{std::move(name), std::move(textureResource)};
 }
 
 } // namespace tb::mdl
