@@ -1,0 +1,11 @@
+add_executable(TbMdlTestUtilsLibTest)
+
+target_sources(TbMdlTestUtilsLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_StringMakers.cpp
+)
+
+add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
+
+target_link_libraries(TbMdlTestUtilsLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
+target_link_libraries(TbMdlTestUtilsLibTest PRIVATE Catch2::Catch2WithMain TbBaseTestUtilsLib TbMdlTestUtilsLib)
+

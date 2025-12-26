@@ -1,0 +1,260 @@
+/*
+ Copyright (C) 2010 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "mdl/Palette.h"
+
+#include "Macros.h"
+#include "fs/File.h"
+#include "fs/Reader.h"
+#include "fs/ReaderException.h"
+#include "gl/TextureBuffer.h"
+#include "mdl/ImageLoader.h"
+
+#include "kd/contracts.h"
+#include "kd/path_utils.h"
+#include "kd/reflection_impl.h"
+
+#include <fmt/format.h>
+#include <fmt/std.h>
+
+#include <cstring>
+#include <ostream>
+#include <string>
+
+namespace tb::mdl
+{
+
+kdl_reflect_impl(PaletteData);
+
+std::ostream& operator<<(std::ostream& lhs, const PaletteColorFormat rhs)
+{
+  switch (rhs)
+  {
+  case PaletteColorFormat::Rgb:
+    lhs << "Rgb";
+    break;
+  case PaletteColorFormat::Rgba:
+    lhs << "Rgba";
+    break;
+    switchDefault();
+  }
+
+  return lhs;
+}
+
+Palette::Palette(std::shared_ptr<PaletteData> data)
+  : m_data{std::move(data)}
+{
+}
+
+bool Palette::indexedToRgba(
+  fs::Reader& reader,
+  const size_t pixelCount,
+  gl::TextureBuffer& rgbaImage,
+  const PaletteTransparency transparency,
+  Color& averageColor) const
+{
+  contract_pre(rgbaImage.size() == 4 * pixelCount);
+
+  const unsigned char* paletteData = (transparency == PaletteTransparency::Opaque)
+                                       ? m_data->opaqueData.data()
+                                       : m_data->index255TransparentData.data();
+
+  // Write rgba pixels
+  auto* const rgbaData = rgbaImage.data();
+  for (size_t i = 0; i < pixelCount; ++i)
+  {
+    const int index = reader.readInt<unsigned char>();
+
+    std::memcpy(rgbaData + (i * 4), &paletteData[index * 4], 4);
+  }
+
+  // Check average color
+  uint32_t colorSum[3] = {0, 0, 0};
+  for (size_t i = 0; i < pixelCount; ++i)
+  {
+    colorSum[0] += uint32_t(rgbaData[(i * 4) + 0]);
+    colorSum[1] += uint32_t(rgbaData[(i * 4) + 1]);
+    colorSum[2] += uint32_t(rgbaData[(i * 4) + 2]);
+  }
+  averageColor = RgbaF{
+    float(colorSum[0]) / (255.0f * float(pixelCount)),
+    float(colorSum[1]) / (255.0f * float(pixelCount)),
+    float(colorSum[2]) / (255.0f * float(pixelCount)),
+    1.0f};
+
+  // Check for transparency
+  auto hasTransparency = false;
+  if (transparency == PaletteTransparency::Index255Transparent)
+  {
+    // Take the bitwise AND of the alpha channel of all pixels
+    unsigned char andAlpha = 0xFF;
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+      andAlpha = static_cast<unsigned char>(andAlpha & rgbaData[4 * i + 3]);
+    }
+    hasTransparency = (andAlpha != 0xFF);
+  }
+
+  return hasTransparency;
+}
+
+bool operator==(const Palette& lhs, const Palette& rhs)
+{
+  return lhs.m_data == rhs.m_data || *lhs.m_data == *rhs.m_data;
+}
+
+bool operator!=(const Palette& lhs, const Palette& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const Palette& rhs)
+{
+  auto str = kdl::struct_stream{lhs};
+  str << "Palette"
+      << "m_data";
+  if (rhs.m_data)
+  {
+    str << *rhs.m_data;
+  }
+  else
+  {
+    str << "nullptr";
+  }
+  return lhs;
+}
+
+
+Result<Palette> makePalette(
+  const std::vector<unsigned char>& data, const PaletteColorFormat colorFormat)
+{
+  auto result = std::make_shared<PaletteData>();
+
+  switch (colorFormat)
+  {
+  case PaletteColorFormat::Rgb:
+    // transform data to RGBA
+    result->opaqueData.reserve(data.size() / 3 * 4);
+
+    for (size_t i = 0; i < data.size() / 3; ++i)
+    {
+      const auto r = data[3 * i + 0];
+      const auto g = data[3 * i + 1];
+      const auto b = data[3 * i + 2];
+
+      result->opaqueData.push_back(r);
+      result->opaqueData.push_back(g);
+      result->opaqueData.push_back(b);
+      result->opaqueData.push_back(0xFF);
+    }
+
+    if (!result->opaqueData.empty())
+    {
+      // build index255TransparentData from opaqueData
+      result->index255TransparentData = result->opaqueData;
+      result->index255TransparentData.back() = 0;
+    }
+    break;
+  case PaletteColorFormat::Rgba:
+    // The data is already in RGBA format, don't process it
+    result->opaqueData = data;
+    result->index255TransparentData = data;
+    break;
+  }
+
+  return Palette{std::move(result)};
+}
+
+namespace
+{
+
+Result<Palette> loadLmp(fs::Reader& reader)
+{
+  auto data = std::vector<unsigned char>(reader.size());
+  reader.read(data.data(), data.size());
+  return makePalette(data, PaletteColorFormat::Rgb);
+}
+
+Result<Palette> loadPcx(fs::Reader& reader)
+{
+  auto data = std::vector<unsigned char>(768);
+  reader.seekFromEnd(data.size());
+  reader.read(data.data(), data.size());
+  return makePalette(data, PaletteColorFormat::Rgb);
+}
+
+Result<Palette> loadBmp(fs::Reader& reader)
+{
+  auto bufferedReader = reader.buffer();
+  auto imageLoader =
+    ImageLoader{ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
+  auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
+                                       : imageLoader.loadPixels(ImageLoader::RGB);
+  return makePalette(data, PaletteColorFormat::Rgb);
+}
+
+} // namespace
+
+Result<Palette> loadPalette(const fs::File& file, const std::filesystem::path& path)
+{
+  try
+  {
+    const auto extension = kdl::path_to_lower(path.extension());
+    if (extension == ".lmp")
+    {
+      auto reader = file.reader().buffer();
+      return loadLmp(reader);
+    }
+    if (extension == ".pcx")
+    {
+      auto reader = file.reader().buffer();
+      return loadPcx(reader);
+    }
+    if (extension == ".bmp")
+    {
+      auto reader = file.reader().buffer();
+      return loadBmp(reader);
+    }
+
+    return Error{
+      fmt::format("Could not load palette file {}: Unknown palette format", path)};
+  }
+  catch (const fs::ReaderException& e)
+  {
+    return Error{fmt::format("Could not load palette file {}: {}", path, e.what())};
+  }
+}
+
+Result<Palette> loadPalette(fs::Reader& reader, const PaletteColorFormat colorFormat)
+{
+  try
+  {
+    auto data = std::vector<unsigned char>(reader.size());
+    reader.read(data.data(), data.size());
+    return makePalette(data, colorFormat);
+  }
+  catch (const fs::ReaderException& e)
+  {
+    using namespace std::string_literals;
+    return Error{"Could not load palette: "s + e.what()};
+  }
+}
+
+} // namespace tb::mdl

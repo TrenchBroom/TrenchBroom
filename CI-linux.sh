@@ -60,6 +60,12 @@ cd "$BUILD_DIR/lib/TbFsLib/test-utils/test"
 cd "$BUILD_DIR/lib/TbGlLib/test"
 ./TbGlLibTest || exit 1
 
+cd "$BUILD_DIR/lib/TbMdlLib/test"
+./TbMdlLibTest || exit 1
+
+cd "$BUILD_DIR/lib/TbMdlLib/test-utils/test"
+./TbMdlTestUtilsLibTest || exit 1
+
 cd "$BUILD_DIR/lib/VmLib/test"
 ./VmLibTest || exit 1
 

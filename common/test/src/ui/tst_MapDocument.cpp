@@ -17,13 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameConfigFixture.h"
 #include "Logger.h"
 #include "Observer.h"
-#include "TestUtils.h"
+#include "mdl/EntityNode.h"
 #include "mdl/EnvironmentConfig.h"
+#include "mdl/GameConfigFixture.h"
+#include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/MapFormat.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/TestUtils.h"
+#include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 
 #include "catch/CatchConfig.h"

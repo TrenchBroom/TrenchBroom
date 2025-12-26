@@ -18,9 +18,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestFactory.h"
+#include "mdl/BrushNode.h" // IWYU pragma: keep
+#include "mdl/EntityNode.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/PatchNode.h" // IWYU pragma: keep
+#include "mdl/TestFactory.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/ScaleTool.h"

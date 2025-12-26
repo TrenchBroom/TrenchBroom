@@ -1,0 +1,132 @@
+/*
+ Copyright (C) 2021 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "mdl/BezierPatch.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/CatchConfig.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/Group.h"
+#include "mdl/GroupNode.h"
+#include "mdl/Issue.h"
+#include "mdl/MapFormat.h"
+#include "mdl/PatchNode.h"
+
+#include "kd/result.h"
+
+#include <vector>
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
+
+namespace tb::mdl
+{
+using namespace Catch::Matchers;
+
+namespace
+{
+
+class TestIssue : public Issue
+{
+public:
+  explicit TestIssue(Node& node)
+    : Issue{0, node, ""}
+  {
+  }
+};
+
+} // namespace
+
+TEST_CASE("Issue.addSelectableNodes")
+{
+  const auto worldBounds = vm::bbox3d{8192.0};
+
+  auto outerGroupNode = GroupNode{Group{"outer"}};
+
+  auto* innerGroupNode = new GroupNode{Group{"inner"}};
+  auto* pointEntityNode = new EntityNode{Entity{}};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "material")
+    | kdl::value()};
+
+  auto* brushEntityNode = new EntityNode{Entity{}};
+  auto* entityBrushNode = new BrushNode{
+    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "material")
+    | kdl::value()};
+  brushEntityNode->addChild(entityBrushNode);
+
+  // clang-format off
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+  // clang-format on
+
+  outerGroupNode.addChildren(
+    {innerGroupNode, pointEntityNode, brushNode, brushEntityNode, patchNode});
+
+  const auto getSelectableNodes = [](const auto& issue) {
+    auto nodes = std::vector<Node*>{};
+    issue.addSelectableNodes(nodes);
+    return nodes;
+  };
+
+  const auto hasSelectableNodes = [](const auto& issue) {
+    auto nodes = std::vector<Node*>{};
+    return issue.addSelectableNodes(nodes);
+  };
+
+  CHECK_FALSE(hasSelectableNodes(TestIssue{outerGroupNode}));
+  CHECK_THAT(
+    getSelectableNodes(TestIssue{outerGroupNode}), UnorderedEquals(std::vector<Node*>{}));
+
+  CHECK(hasSelectableNodes(TestIssue{*innerGroupNode}));
+  CHECK_THAT(
+    getSelectableNodes(TestIssue{*innerGroupNode}),
+    UnorderedEquals(std::vector<Node*>{innerGroupNode}));
+
+  CHECK(hasSelectableNodes(TestIssue{*pointEntityNode}));
+  CHECK_THAT(
+    getSelectableNodes(TestIssue{*pointEntityNode}),
+    UnorderedEquals(std::vector<Node*>{pointEntityNode}));
+
+  CHECK(hasSelectableNodes(TestIssue{*brushNode}));
+  CHECK_THAT(
+    getSelectableNodes(TestIssue{*brushNode}),
+    UnorderedEquals(std::vector<Node*>{brushNode}));
+
+  CHECK(hasSelectableNodes(TestIssue{*brushEntityNode}));
+  CHECK_THAT(
+    getSelectableNodes(TestIssue{*brushEntityNode}),
+    UnorderedEquals(std::vector<Node*>{entityBrushNode}));
+
+  CHECK(hasSelectableNodes(TestIssue{*entityBrushNode}));
+  CHECK_THAT(
+    getSelectableNodes(TestIssue{*entityBrushNode}),
+    UnorderedEquals(std::vector<Node*>{entityBrushNode}));
+
+  CHECK(hasSelectableNodes(TestIssue{*patchNode}));
+  CHECK_THAT(
+    getSelectableNodes(TestIssue{*patchNode}),
+    UnorderedEquals(std::vector<Node*>{patchNode}));
+}
+
+} // namespace tb::mdl

@@ -38,9 +38,6 @@ private:
   std::filesystem::path m_dir;
 
 public:
-  explicit TestEnvironment(
-    const std::filesystem::path& dir,
-    const SetupFunction& setup = [](TestEnvironment&) {});
   explicit TestEnvironment(const SetupFunction& setup = [](TestEnvironment&) {});
   ~TestEnvironment();
 
