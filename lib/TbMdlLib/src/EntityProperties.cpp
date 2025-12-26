@@ -30,52 +30,52 @@ namespace tb::mdl
 {
 namespace EntityPropertyKeys
 {
-const std::string Classname = "classname";
-const std::string Origin = "origin";
-const std::string Wad = "wad";
-const std::string Mods = "_tb_mod";
-const std::string EnabledMaterialCollections = "_tb_textures";
-const std::string Spawnflags = "spawnflags";
-const std::string EntityDefinitions = "_tb_def";
-const std::string Angle = "angle";
-const std::string Angles = "angles";
-const std::string Mangle = "mangle";
-const std::string Target = "target";
-const std::string Targetname = "targetname";
-const std::string Killtarget = "killtarget";
-const std::string ProtectedEntityProperties = "_tb_protected_properties";
-const std::string GroupType = "_tb_type";
-const std::string LayerId = "_tb_id";
-const std::string LayerName = "_tb_name";
-const std::string LayerSortIndex = "_tb_layer_sort_index";
-const std::string LayerColor = "_tb_layer_color";
-const std::string LayerLocked = "_tb_layer_locked";
-const std::string LayerHidden = "_tb_layer_hidden";
-const std::string LayerOmitFromExport = "_tb_layer_omit_from_export";
-const std::string Layer = "_tb_layer";
-const std::string GroupId = "_tb_id";
-const std::string GroupName = "_tb_name";
-const std::string Group = "_tb_group";
-const std::string GroupTransformation = "_tb_transformation";
-const std::string LinkId = "_tb_linked_group_id";
-const std::string Message = "_tb_message";
-const std::string ValveVersion = "mapversion";
-const std::string SoftMapBounds = "_tb_soft_map_bounds";
+extern const std::string Classname = "classname";
+extern const std::string Origin = "origin";
+extern const std::string Wad = "wad";
+extern const std::string Mods = "_tb_mod";
+extern const std::string EnabledMaterialCollections = "_tb_textures";
+extern const std::string Spawnflags = "spawnflags";
+extern const std::string EntityDefinitions = "_tb_def";
+extern const std::string Angle = "angle";
+extern const std::string Angles = "angles";
+extern const std::string Mangle = "mangle";
+extern const std::string Target = "target";
+extern const std::string Targetname = "targetname";
+extern const std::string Killtarget = "killtarget";
+extern const std::string ProtectedEntityProperties = "_tb_protected_properties";
+extern const std::string GroupType = "_tb_type";
+extern const std::string LayerId = "_tb_id";
+extern const std::string LayerName = "_tb_name";
+extern const std::string LayerSortIndex = "_tb_layer_sort_index";
+extern const std::string LayerColor = "_tb_layer_color";
+extern const std::string LayerLocked = "_tb_layer_locked";
+extern const std::string LayerHidden = "_tb_layer_hidden";
+extern const std::string LayerOmitFromExport = "_tb_layer_omit_from_export";
+extern const std::string Layer = "_tb_layer";
+extern const std::string GroupId = "_tb_id";
+extern const std::string GroupName = "_tb_name";
+extern const std::string Group = "_tb_group";
+extern const std::string GroupTransformation = "_tb_transformation";
+extern const std::string LinkId = "_tb_linked_group_id";
+extern const std::string Message = "_tb_message";
+extern const std::string ValveVersion = "mapversion";
+extern const std::string SoftMapBounds = "_tb_soft_map_bounds";
 } // namespace EntityPropertyKeys
 
 namespace EntityPropertyValues
 {
-const std::string WorldspawnClassname = "worldspawn";
-const std::string NoClassname = "undefined";
-const std::string LayerClassname = "func_group";
-const std::string GroupClassname = "func_group";
-const std::string GroupTypeLayer = "_tb_layer";
-const std::string GroupTypeGroup = "_tb_group";
-const std::string DefaultValue;
-const std::string NoSoftMapBounds = "none";
-const std::string LayerLockedValue = "1";
-const std::string LayerHiddenValue = "1";
-const std::string LayerOmitFromExportValue = "1";
+extern const std::string WorldspawnClassname = "worldspawn";
+extern const std::string NoClassname = "undefined";
+extern const std::string LayerClassname = "func_group";
+extern const std::string GroupClassname = "func_group";
+extern const std::string GroupTypeLayer = "_tb_layer";
+extern const std::string GroupTypeGroup = "_tb_group";
+extern const std::string DefaultValue = std::string{};
+extern const std::string NoSoftMapBounds = "none";
+extern const std::string LayerLockedValue = "1";
+extern const std::string LayerHiddenValue = "1";
+extern const std::string LayerOmitFromExportValue = "1";
 } // namespace EntityPropertyValues
 
 kdl_reflect_impl(EntityPropertyConfig);

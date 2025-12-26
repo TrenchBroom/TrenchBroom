@@ -22,133 +22,133 @@
 namespace tb::gl::Shaders
 {
 
-const ShaderConfig Grid2DShader = ShaderConfig{
+extern const ShaderConfig Grid2DShader = ShaderConfig{
   "2D Grid",
   {"Grid2D.vertsh"},
   {"Grid.fragsh", "Grid2D.fragsh"},
 };
 
-const ShaderConfig VaryingPCShader = ShaderConfig{
+extern const ShaderConfig VaryingPCShader = ShaderConfig{
   "Varying Position / Color",
   {"VaryingPC.vertsh"},
   {"VaryingPC.fragsh"},
 };
 
-const ShaderConfig VaryingPUniformCShader = ShaderConfig{
+extern const ShaderConfig VaryingPUniformCShader = ShaderConfig{
   "Varying Position / Uniform Color",
   {"VaryingPUniformC.vertsh"},
   {"VaryingPC.fragsh"},
 };
 
-const ShaderConfig MiniMapEdgeShader = ShaderConfig{
+extern const ShaderConfig MiniMapEdgeShader = ShaderConfig{
   "MiniMap Edges",
   {"MiniMapEdge.vertsh"},
   {"MiniMapEdge.fragsh"},
 };
 
-const ShaderConfig EntityModelShader = ShaderConfig{
+extern const ShaderConfig EntityModelShader = ShaderConfig{
   "Entity Model",
   {"EntityModel.vertsh"},
   {"MapBounds.fragsh", "EntityModel.fragsh"},
 };
 
-const ShaderConfig FaceShader = ShaderConfig{
+extern const ShaderConfig FaceShader = ShaderConfig{
   "Face",
   {"Face.vertsh"},
   {"Grid.fragsh", "MapBounds.fragsh", "Face.fragsh"},
 };
 
-const ShaderConfig PatchShader = ShaderConfig{
+extern const ShaderConfig PatchShader = ShaderConfig{
   "Patch",
   {"Face.vertsh"},
   {"Grid.fragsh", "MapBounds.fragsh", "Face.fragsh"},
 };
 
-const ShaderConfig EdgeShader = ShaderConfig{
+extern const ShaderConfig EdgeShader = ShaderConfig{
   "Edge",
   {"Edge.vertsh"},
   {"MapBounds.fragsh", "Edge.fragsh"},
 };
 
-const ShaderConfig ColoredTextShader = ShaderConfig{
+extern const ShaderConfig ColoredTextShader = ShaderConfig{
   "Colored Text",
   {"ColoredText.vertsh"},
   {"Text.fragsh"},
 };
 
-const ShaderConfig TextShader = ShaderConfig{
+extern const ShaderConfig TextShader = ShaderConfig{
   "Text",
   {"Text.vertsh"},
   {"Text.fragsh"},
 };
 
-const ShaderConfig TextBackgroundShader = ShaderConfig{
+extern const ShaderConfig TextBackgroundShader = ShaderConfig{
   "Text Background",
   {"TextBackground.vertsh"},
   {"TextBackground.fragsh"},
 };
 
-const ShaderConfig MaterialBrowserShader = ShaderConfig{
+extern const ShaderConfig MaterialBrowserShader = ShaderConfig{
   "Material Browser",
   {"MaterialBrowser.vertsh"},
   {"MaterialBrowser.fragsh"},
 };
 
-const ShaderConfig MaterialBrowserBorderShader = ShaderConfig{
+extern const ShaderConfig MaterialBrowserBorderShader = ShaderConfig{
   "Material Browser Border",
   {"MaterialBrowserBorder.vertsh"},
   {"MaterialBrowserBorder.fragsh"},
 };
 
-const ShaderConfig HandleShader = ShaderConfig{
+extern const ShaderConfig HandleShader = ShaderConfig{
   "Handle",
   {"Handle.vertsh"},
   {"Handle.fragsh"},
 };
 
-const ShaderConfig ColoredHandleShader = ShaderConfig{
+extern const ShaderConfig ColoredHandleShader = ShaderConfig{
   "Colored Handle",
   {"ColoredHandle.vertsh"},
   {"Handle.fragsh"},
 };
 
-const ShaderConfig CompassShader = ShaderConfig{
+extern const ShaderConfig CompassShader = ShaderConfig{
   "Compass",
   {"Compass.vertsh"},
   {"Compass.fragsh"},
 };
 
-const ShaderConfig CompassOutlineShader = ShaderConfig{
+extern const ShaderConfig CompassOutlineShader = ShaderConfig{
   "Compass Outline",
   {"CompassOutline.vertsh"},
   {"Compass.fragsh"},
 };
 
-const ShaderConfig CompassBackgroundShader = ShaderConfig{
+extern const ShaderConfig CompassBackgroundShader = ShaderConfig{
   "Compass Background",
   {"VaryingPUniformC.vertsh"},
   {"VaryingPC.fragsh"},
 };
 
-const ShaderConfig LinkLineShader = ShaderConfig{
+extern const ShaderConfig LinkLineShader = ShaderConfig{
   "Link Line",
   {"LinkLine.vertsh"},
   {"LinkLine.fragsh"},
 };
 
-const ShaderConfig LinkArrowShader = ShaderConfig{
+extern const ShaderConfig LinkArrowShader = ShaderConfig{
   "Link Arrow",
   {"LinkArrow.vertsh"},
   {"LinkArrow.fragsh"},
 };
 
-const ShaderConfig TriangleShader = ShaderConfig{
+extern const ShaderConfig TriangleShader = ShaderConfig{
   "Shaded Triangles",
   {"Triangle.vertsh"},
   {"Triangle.fragsh"},
 };
 
-const ShaderConfig UVViewShader = ShaderConfig{
+extern const ShaderConfig UVViewShader = ShaderConfig{
   "UV View",
   {"UVView.vertsh"},
   {"UVView.fragsh"},

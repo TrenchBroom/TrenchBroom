@@ -35,7 +35,7 @@ GameInfo makeGameInfoFixture(GameConfig gameConfig, std::filesystem::path gamePa
 
 } // namespace
 
-const GameInfo DefaultGameInfo = makeGameInfoFixture(
+extern const GameInfo DefaultGameInfo = makeGameInfoFixture(
   {
     .name = "Test",
     .path = {},
@@ -54,7 +54,7 @@ const GameInfo DefaultGameInfo = makeGameInfoFixture(
   },
   std::filesystem::current_path());
 
-const GameInfo QuakeGameInfo = makeGameInfoFixture(
+extern const GameInfo QuakeGameInfo = makeGameInfoFixture(
   {
     .name = "Quake",
     .path = {},
@@ -93,7 +93,7 @@ const GameInfo QuakeGameInfo = makeGameInfoFixture(
   },
   std::filesystem::current_path() / "fixture" / "test" / "mdl" / "Game" / "Quake");
 
-const GameInfo Quake2GameInfo = makeGameInfoFixture(
+extern const GameInfo Quake2GameInfo = makeGameInfoFixture(
   {
     .name = "Quake 2",
     .path = {},

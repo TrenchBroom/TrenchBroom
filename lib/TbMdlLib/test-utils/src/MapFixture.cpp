@@ -29,12 +29,12 @@
 namespace tb::mdl
 {
 
-const MapFixtureConfig QuakeFixtureConfig = MapFixtureConfig{
+extern const MapFixtureConfig QuakeFixtureConfig = MapFixtureConfig{
   .mapFormat = MapFormat::Valve,
   .gameInfo = QuakeGameInfo,
 };
 
-const MapFixtureConfig Quake2FixtureConfig = MapFixtureConfig{
+extern const MapFixtureConfig Quake2FixtureConfig = MapFixtureConfig{
   .mapFormat = MapFormat::Quake2,
   .gameInfo = Quake2GameInfo,
 };
