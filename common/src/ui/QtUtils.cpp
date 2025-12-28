@@ -88,11 +88,6 @@ bool widgetOrChildHasFocus(const QWidget* widget)
   return widget == focusWidget || widget->isAncestorOf(focusWidget);
 }
 
-MapFrame* findMapFrame(QWidget* widget)
-{
-  return dynamic_cast<MapFrame*>(widget->window());
-}
-
 QWidget* makeDefault(QWidget* widget)
 {
   widget->setFont(QFont{});

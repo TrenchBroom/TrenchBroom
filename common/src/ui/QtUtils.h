@@ -72,9 +72,6 @@ namespace ui
  */
 bool widgetOrChildHasFocus(const QWidget* widget);
 
-class MapFrame;
-MapFrame* findMapFrame(QWidget* widget);
-
 QToolButton* createBitmapButton(
   const std::filesystem::path& imagePath,
   const QString& tooltip,

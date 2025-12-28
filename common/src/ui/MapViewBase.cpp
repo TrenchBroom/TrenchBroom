@@ -303,7 +303,8 @@ void MapViewBase::updateActionBindings()
 
 void MapViewBase::updateActionStates()
 {
-  auto context = ActionExecutionContext{findMapFrame(this), this};
+  auto* mapFrame = dynamic_cast<MapFrame*>(window());
+  auto context = ActionExecutionContext{mapFrame, this};
   for (auto& [shortcut, action] : m_shortcuts)
   {
     shortcut->setEnabled(hasFocus() && action->enabled(context));
@@ -317,7 +318,8 @@ void MapViewBase::updateActionStatesDelayed()
 
 void MapViewBase::triggerAction(const Action& action)
 {
-  auto context = ActionExecutionContext{findMapFrame(this), this};
+  auto* mapFrame = dynamic_cast<MapFrame*>(window());
+  auto context = ActionExecutionContext{mapFrame, this};
   action.execute(context);
 }
 
@@ -1154,7 +1156,7 @@ void MapViewBase::showPopupMenuLater()
   auto* newGroup = findNewGroupForObjects(nodes);
   auto* mergeGroup = findGroupToMergeGroupsInto(map.selection());
 
-  auto* mapFrame = findMapFrame(this);
+  auto* mapFrame = dynamic_cast<MapFrame*>(window());
 
   auto menu = QMenu{};
   const auto addMainMenuAction = [&](const auto& path) -> QAction* {
