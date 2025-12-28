@@ -37,7 +37,6 @@
 
 #include <filesystem>
 #include <string>
-#include <string_view>
 
 class QButtonGroup;
 class QColor;
@@ -67,8 +66,6 @@ enum class MapTextEncoding;
 
 namespace ui
 {
-
-QString fromStdStringView(std::string_view sv);
 
 /**
  * Return true if the given widget or any of its children currently has focus.

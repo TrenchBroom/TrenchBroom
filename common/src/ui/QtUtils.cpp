@@ -80,11 +80,6 @@ QStringConverter::Encoding codecForEncoding(const mdl::MapTextEncoding encoding)
 
 } // namespace
 
-QString fromStdStringView(std::string_view sv)
-{
-  return QString::fromUtf8(sv.data(), static_cast<int>(sv.size()));
-}
-
 bool widgetOrChildHasFocus(const QWidget* widget)
 {
   contract_pre(widget != nullptr);

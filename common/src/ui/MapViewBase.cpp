@@ -1399,7 +1399,8 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const mdl::EntityDefinitionType type)
 
       for (const auto* definition : creatableDefinitions)
       {
-        const auto label = fromStdStringView(mdl::getShortName(*definition));
+        const auto label =
+          QString::fromStdString(std::string{mdl::getShortName(*definition)});
         QAction* action = nullptr;
 
         switch (type)
