@@ -31,52 +31,52 @@ namespace tb::mdl
 {
 namespace EntityPropertyKeys
 {
-extern const std::string Classname;
-extern const std::string Origin;
-extern const std::string Wad;
-extern const std::string Mods;
-extern const std::string EnabledMaterialCollections;
-extern const std::string Spawnflags;
-extern const std::string EntityDefinitions;
-extern const std::string Angle;
-extern const std::string Angles;
-extern const std::string Mangle;
-extern const std::string Target;
-extern const std::string Targetname;
-extern const std::string Killtarget;
-extern const std::string ProtectedEntityProperties;
-extern const std::string GroupType;
-extern const std::string LayerId;
-extern const std::string LayerName;
-extern const std::string LayerSortIndex;
-extern const std::string LayerColor;
-extern const std::string LayerLocked;
-extern const std::string LayerHidden;
-extern const std::string LayerOmitFromExport;
-extern const std::string Layer;
-extern const std::string GroupId;
-extern const std::string GroupName;
-extern const std::string Group;
-extern const std::string GroupTransformation;
-extern const std::string LinkId;
-extern const std::string Message;
-extern const std::string ValveVersion;
-extern const std::string SoftMapBounds;
+inline const std::string Classname = "classname";
+inline const std::string Origin = "origin";
+inline const std::string Wad = "wad";
+inline const std::string Mods = "_tb_mod";
+inline const std::string EnabledMaterialCollections = "_tb_textures";
+inline const std::string Spawnflags = "spawnflags";
+inline const std::string EntityDefinitions = "_tb_def";
+inline const std::string Angle = "angle";
+inline const std::string Angles = "angles";
+inline const std::string Mangle = "mangle";
+inline const std::string Target = "target";
+inline const std::string Targetname = "targetname";
+inline const std::string Killtarget = "killtarget";
+inline const std::string ProtectedEntityProperties = "_tb_protected_properties";
+inline const std::string GroupType = "_tb_type";
+inline const std::string LayerId = "_tb_id";
+inline const std::string LayerName = "_tb_name";
+inline const std::string LayerSortIndex = "_tb_layer_sort_index";
+inline const std::string LayerColor = "_tb_layer_color";
+inline const std::string LayerLocked = "_tb_layer_locked";
+inline const std::string LayerHidden = "_tb_layer_hidden";
+inline const std::string LayerOmitFromExport = "_tb_layer_omit_from_export";
+inline const std::string Layer = "_tb_layer";
+inline const std::string GroupId = "_tb_id";
+inline const std::string GroupName = "_tb_name";
+inline const std::string Group = "_tb_group";
+inline const std::string GroupTransformation = "_tb_transformation";
+inline const std::string LinkId = "_tb_linked_group_id";
+inline const std::string Message = "_tb_message";
+inline const std::string ValveVersion = "mapversion";
+inline const std::string SoftMapBounds = "_tb_soft_map_bounds";
 } // namespace EntityPropertyKeys
 
 namespace EntityPropertyValues
 {
-extern const std::string WorldspawnClassname;
-extern const std::string NoClassname;
-extern const std::string LayerClassname;
-extern const std::string GroupClassname;
-extern const std::string GroupTypeLayer;
-extern const std::string GroupTypeGroup;
-extern const std::string DefaultValue;
-extern const std::string NoSoftMapBounds;
-extern const std::string LayerLockedValue;
-extern const std::string LayerHiddenValue;
-extern const std::string LayerOmitFromExportValue;
+inline const std::string WorldspawnClassname = "worldspawn";
+inline const std::string NoClassname = "undefined";
+inline const std::string LayerClassname = "func_group";
+inline const std::string GroupClassname = "func_group";
+inline const std::string GroupTypeLayer = "_tb_layer";
+inline const std::string GroupTypeGroup = "_tb_group";
+inline const std::string DefaultValue = std::string{};
+inline const std::string NoSoftMapBounds = "none";
+inline const std::string LayerLockedValue = "1";
+inline const std::string LayerHiddenValue = "1";
+inline const std::string LayerOmitFromExportValue = "1";
 } // namespace EntityPropertyValues
 
 struct EntityPropertyConfig

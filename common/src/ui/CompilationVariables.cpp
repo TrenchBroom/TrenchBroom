@@ -37,18 +37,6 @@
 namespace tb::ui
 {
 
-namespace CompilationVariableNames
-{
-extern const std::string WORK_DIR_PATH = "WORK_DIR_PATH";
-extern const std::string MAP_DIR_PATH = "MAP_DIR_PATH";
-extern const std::string MAP_BASE_NAME = "MAP_BASE_NAME";
-extern const std::string MAP_FULL_NAME = "MAP_FULL_NAME";
-extern const std::string CPU_COUNT = "CPU_COUNT";
-extern const std::string GAME_DIR_PATH = "GAME_DIR_PATH";
-extern const std::string MODS = "MODS";
-extern const std::string APP_DIR_PATH = "APP_DIR_PATH";
-} // namespace CompilationVariableNames
-
 CommonVariables::CommonVariables(const mdl::Map& map)
 {
   const auto filename = map.path().filename();

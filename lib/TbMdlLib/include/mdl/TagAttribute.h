@@ -43,7 +43,9 @@ struct TagAttribute
 
 namespace TagAttributes
 {
-extern const TagAttribute Transparency;
+
+inline const TagAttribute Transparency = TagAttribute{1, "transparent"};
+
 }
 
 } // namespace tb::mdl

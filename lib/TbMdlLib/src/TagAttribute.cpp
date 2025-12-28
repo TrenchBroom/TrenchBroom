@@ -42,10 +42,4 @@ std::ostream& operator<<(std::ostream& str, const TagAttribute& attr)
   return str;
 }
 
-namespace TagAttributes
-{
-
-extern const TagAttribute Transparency = TagAttribute{1, "transparent"};
-
-} // namespace TagAttributes
 } // namespace tb::mdl

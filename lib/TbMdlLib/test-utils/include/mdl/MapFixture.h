@@ -50,8 +50,16 @@ struct MapFixtureConfig
   EnvironmentConfig environmentConfig = {};
 };
 
-extern const MapFixtureConfig QuakeFixtureConfig;
-extern const MapFixtureConfig Quake2FixtureConfig;
+inline const MapFixtureConfig QuakeFixtureConfig = MapFixtureConfig{
+  .mapFormat = MapFormat::Valve,
+  .gameInfo = QuakeGameInfo,
+};
+
+inline const MapFixtureConfig Quake2FixtureConfig = MapFixtureConfig{
+  .mapFormat = MapFormat::Quake2,
+  .gameInfo = Quake2GameInfo,
+};
+
 
 class MapFixture
 {

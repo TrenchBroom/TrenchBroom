@@ -29,16 +29,6 @@
 namespace tb::mdl
 {
 
-extern const MapFixtureConfig QuakeFixtureConfig = MapFixtureConfig{
-  .mapFormat = MapFormat::Valve,
-  .gameInfo = QuakeGameInfo,
-};
-
-extern const MapFixtureConfig Quake2FixtureConfig = MapFixtureConfig{
-  .mapFormat = MapFormat::Quake2,
-  .gameInfo = Quake2GameInfo,
-};
-
 MapFixture::MapFixture()
   : m_taskManager{createTestTaskManager()}
   , m_logger{std::make_unique<NullLogger>()}

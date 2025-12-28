@@ -34,7 +34,6 @@ add_library(TbGlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Shader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ShaderManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ShaderProgram.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Shaders.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Texture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/TextureBuffer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/TextureFont.cpp
