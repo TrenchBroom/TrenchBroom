@@ -177,6 +177,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/Splitter.cpp
         ${COMMON_SOURCE_DIR}/ui/SwitchableMapViewContainer.cpp
         ${COMMON_SOURCE_DIR}/ui/SwitchableTitledPanel.cpp
+        ${COMMON_SOURCE_DIR}/ui/SyncHeightEventFilter.cpp
         ${COMMON_SOURCE_DIR}/ui/SystemPaths.cpp
         ${COMMON_SOURCE_DIR}/ui/TabBar.cpp
         ${COMMON_SOURCE_DIR}/ui/TabBook.cpp
@@ -390,6 +391,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/Splitter.h
         ${COMMON_SOURCE_DIR}/ui/SwitchableMapViewContainer.h
         ${COMMON_SOURCE_DIR}/ui/SwitchableTitledPanel.h
+        ${COMMON_SOURCE_DIR}/ui/SyncHeightEventFilter.h
         ${COMMON_SOURCE_DIR}/ui/SystemPaths.h
         ${COMMON_SOURCE_DIR}/ui/TabBar.h
         ${COMMON_SOURCE_DIR}/ui/TabBook.h

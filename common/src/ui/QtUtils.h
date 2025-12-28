@@ -70,19 +70,6 @@ enum class MapTextEncoding;
 namespace ui
 {
 
-class SyncHeightEventFilter : public QObject
-{
-private:
-  QPointer<QWidget> m_primary;
-  QPointer<QWidget> m_secondary;
-
-public:
-  SyncHeightEventFilter(QWidget* primary, QWidget* secondary, QObject* parent = nullptr);
-  ~SyncHeightEventFilter() override;
-
-  bool eventFilter(QObject* target, QEvent* event) override;
-};
-
 enum class FileDialogDir
 {
   Map,

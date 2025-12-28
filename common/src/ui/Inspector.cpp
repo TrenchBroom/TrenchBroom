@@ -29,6 +29,7 @@
 #include "ui/MapInspector.h"
 #include "ui/MapViewBar.h"
 #include "ui/QtUtils.h"
+#include "ui/SyncHeightEventFilter.h"
 #include "ui/TabBar.h"
 #include "ui/TabBook.h"
 
