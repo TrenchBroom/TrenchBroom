@@ -33,6 +33,7 @@
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/MapDocument.h"
+#include "ui/MiniToolBarLayout.h"
 #include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/TitleBar.h"

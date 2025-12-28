@@ -88,37 +88,6 @@ QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
 QLayout* wrapDialogButtonBox(QWidget* buttonBox);
 QLayout* wrapDialogButtonBox(QLayout* buttonBox);
 
-void addToMiniToolBarLayout(QBoxLayout* layout);
-
-template <typename... Rest>
-void addToMiniToolBarLayout(QBoxLayout* layout, int first, Rest... rest);
-
-template <typename... Rest>
-void addToMiniToolBarLayout(QBoxLayout* layout, QWidget* first, Rest... rest)
-{
-  layout->addWidget(first);
-  addToMiniToolBarLayout(layout, rest...);
-}
-
-template <typename... Rest>
-void addToMiniToolBarLayout(QBoxLayout* layout, int first, Rest... rest)
-{
-  layout->addSpacing(first - LayoutConstants::NarrowHMargin);
-  addToMiniToolBarLayout(layout, rest...);
-}
-
-template <typename... Rest>
-QLayout* createMiniToolBarLayout(QWidget* first, Rest... rest)
-{
-  auto* layout = new QHBoxLayout{};
-  layout->setContentsMargins(
-    LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
-  layout->setSpacing(LayoutConstants::NarrowHMargin);
-  addToMiniToolBarLayout(layout, first, rest...);
-  layout->addStretch(1);
-  return layout;
-}
-
 QWidget* makeDefault(QWidget* widget);
 QWidget* makeEmphasized(QWidget* widget);
 QWidget* makeUnemphasized(QWidget* widget);

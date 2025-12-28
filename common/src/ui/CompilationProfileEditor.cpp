@@ -32,6 +32,7 @@
 #include "ui/CompilationTaskListBox.h"
 #include "ui/CompilationVariables.h"
 #include "ui/MapDocument.h"
+#include "ui/MiniToolBarLayout.h"
 #include "ui/MultiCompletionLineEdit.h"
 #include "ui/QtUtils.h"
 #include "ui/VariableStoreModel.h"

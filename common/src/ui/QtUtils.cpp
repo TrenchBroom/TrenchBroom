@@ -258,8 +258,6 @@ QLayout* wrapDialogButtonBox(QLayout* buttonBox)
   return outerLayout;
 }
 
-void addToMiniToolBarLayout(QBoxLayout*) {}
-
 void setWindowIconTB(QWidget* window)
 {
   contract_pre(window != nullptr);

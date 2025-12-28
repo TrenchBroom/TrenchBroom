@@ -27,6 +27,7 @@
 #include "ui/BorderLine.h"
 #include "ui/GameEngineProfileEditor.h"
 #include "ui/GameEngineProfileListBox.h"
+#include "ui/MiniToolBarLayout.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 
