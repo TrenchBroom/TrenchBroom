@@ -119,18 +119,6 @@ QLayout* createMiniToolBarLayout(QWidget* first, Rest... rest)
   return layout;
 }
 
-template <typename... Rest>
-QLayout* createMiniToolBarLayoutRightAligned(QWidget* first, Rest... rest)
-{
-  auto* layout = new QHBoxLayout{};
-  layout->setContentsMargins(
-    LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
-  layout->setSpacing(LayoutConstants::NarrowHMargin);
-  layout->addStretch(1);
-  addToMiniToolBarLayout(layout, first, rest...);
-  return layout;
-}
-
 QWidget* makeDefault(QWidget* widget);
 QWidget* makeEmphasized(QWidget* widget);
 QWidget* makeUnemphasized(QWidget* widget);

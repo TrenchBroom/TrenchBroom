@@ -81,7 +81,7 @@ void GamesPreferencePane::createGui()
     this,
     &GamesPreferencePane::showUserConfigDirClicked);
 
-  auto* buttonLayout = createMiniToolBarLayoutRightAligned(showUserConfigDirButton);
+  auto* buttonLayout = createMiniToolBarLayout(showUserConfigDirButton);
 
   auto* glbLayout = new QVBoxLayout{};
   glbLayout->addWidget(m_gameListBox);
