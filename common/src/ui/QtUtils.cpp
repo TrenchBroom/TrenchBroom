@@ -218,19 +218,6 @@ QWidget* createDefaultPage(const QString& message, QWidget* parent)
   return container;
 }
 
-float getSliderRatio(const QSlider* slider)
-{
-  return float(slider->value() - slider->minimum())
-         / float(slider->maximum() - slider->minimum());
-}
-
-void setSliderRatio(QSlider* slider, float ratio)
-{
-  const auto value =
-    ratio * float(slider->maximum() - slider->minimum()) + float(slider->minimum());
-  slider->setValue(int(value));
-}
-
 QLayout* wrapDialogButtonBox(QWidget* buttonBox)
 {
   auto* innerLayout = new QHBoxLayout{};

@@ -85,9 +85,6 @@ QToolButton* createBitmapToggleButton(
 
 QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
 
-float getSliderRatio(const QSlider* slider);
-void setSliderRatio(QSlider* slider, float ratio);
-
 QLayout* wrapDialogButtonBox(QWidget* buttonBox);
 QLayout* wrapDialogButtonBox(QLayout* buttonBox);
 

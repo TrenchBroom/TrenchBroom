@@ -67,7 +67,8 @@ int SliderWithLabel::value() const
 
 float SliderWithLabel::ratio() const
 {
-  return getSliderRatio(m_slider);
+  return float(m_slider->value() - m_slider->minimum())
+         / float(m_slider->maximum() - m_slider->minimum());
 }
 
 void SliderWithLabel::setValue(const int value)
@@ -77,7 +78,9 @@ void SliderWithLabel::setValue(const int value)
 
 void SliderWithLabel::setRatio(const float ratio)
 {
-  setSliderRatio(m_slider, ratio);
+  const auto value =
+    ratio * float(m_slider->maximum() - m_slider->minimum()) + float(m_slider->minimum());
+  m_slider->setValue(int(value));
 }
 
 void SliderWithLabel::valueChangedInternal(const int value)
