@@ -39,6 +39,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
+#include "ui/AutoSizeTableRows.h"
 #include "ui/BorderLine.h"
 #include "ui/EntityPropertyItemDelegate.h"
 #include "ui/EntityPropertyModel.h"
@@ -250,7 +251,7 @@ void EntityPropertyGrid::createGui()
   m_table->setItemDelegate(
     new EntityPropertyItemDelegate{m_table, m_model, m_proxyModel, m_table});
 
-  autoResizeRows(m_table);
+  autoSizeTableRows(m_table);
 
   m_table->verticalHeader()->setVisible(false);
   m_table->horizontalHeader()->setSectionResizeMode(

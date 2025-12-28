@@ -308,30 +308,6 @@ void insertTitleBarSeparator(QVBoxLayout* layout)
   unused(layout);
 }
 
-AutoResizeRowsEventFilter::AutoResizeRowsEventFilter(QTableView* tableView)
-  : QObject{tableView}
-  , m_tableView{tableView}
-{
-  m_tableView->installEventFilter(this);
-}
-
-bool AutoResizeRowsEventFilter::eventFilter(QObject* watched, QEvent* event)
-{
-  if (watched == m_tableView && event->type() == QEvent::Show)
-  {
-    m_tableView->resizeRowsToContents();
-    m_tableView->removeEventFilter(this);
-  }
-  return QObject::eventFilter(watched, event);
-}
-
-void autoResizeRows(QTableView* tableView)
-{
-  tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  tableView->installEventFilter(new AutoResizeRowsEventFilter{tableView});
-  tableView->resizeRowsToContents();
-}
-
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget)
 {
   const auto children = widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly);

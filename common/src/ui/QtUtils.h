@@ -113,19 +113,6 @@ void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool che
  */
 void insertTitleBarSeparator(QVBoxLayout* layout);
 
-class AutoResizeRowsEventFilter : public QObject
-{
-  Q_OBJECT
-private:
-  QTableView* m_tableView;
-
-public:
-  explicit AutoResizeRowsEventFilter(QTableView* tableView);
-
-  bool eventFilter(QObject* watched, QEvent* event) override;
-};
-
-void autoResizeRows(QTableView* tableView);
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
 
 void showModelessDialog(QDialog* dialog);

@@ -16,6 +16,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.cpp
+        ${COMMON_SOURCE_DIR}/ui/AutoSizeTableRows.cpp
         ${COMMON_SOURCE_DIR}/ui/BorderLine.cpp
         ${COMMON_SOURCE_DIR}/ui/BorderPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/CameraAnimation.cpp
@@ -233,6 +234,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.h
+        ${COMMON_SOURCE_DIR}/ui/AutoSizeTableRows.h
         ${COMMON_SOURCE_DIR}/ui/BorderLine.h
         ${COMMON_SOURCE_DIR}/ui/BorderPanel.h
         ${COMMON_SOURCE_DIR}/ui/CameraAnimation.h

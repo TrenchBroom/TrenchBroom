@@ -36,6 +36,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
+#include "ui/AutoSizeTableRows.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/SignalDelayer.h"
@@ -75,7 +76,7 @@ void IssueBrowserView::createGui()
   m_tableView->horizontalHeader()->setSectionsClickable(false);
   m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-  autoResizeRows(m_tableView);
+  autoSizeTableRows(m_tableView);
 
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
