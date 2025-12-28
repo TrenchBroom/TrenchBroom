@@ -3,41 +3,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/render/AllocationTracker.cpp
-        ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/BrushRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.cpp
-        ${COMMON_SOURCE_DIR}/render/Circle.cpp
-        ${COMMON_SOURCE_DIR}/render/Compass.cpp
-        ${COMMON_SOURCE_DIR}/render/Compass2D.cpp
-        ${COMMON_SOURCE_DIR}/render/Compass3D.cpp
-        ${COMMON_SOURCE_DIR}/render/EdgeRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/EntityDecalRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/EntityLinkRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/EntityModelRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/EntityRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/FaceRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/GridRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/GroupLinkRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/GroupRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/LinkRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/MapRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/ObjectRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/PatchRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/PointGuideRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/PointHandleRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/PrimitiveRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/Renderable.cpp
-        ${COMMON_SOURCE_DIR}/render/RenderBatch.cpp
-        ${COMMON_SOURCE_DIR}/render/RenderContext.cpp
-        ${COMMON_SOURCE_DIR}/render/RenderService.cpp
-        ${COMMON_SOURCE_DIR}/render/SelectionBoundsRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/Sphere.cpp
-        ${COMMON_SOURCE_DIR}/render/SpikeGuideRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/TextAnchor.cpp
-        ${COMMON_SOURCE_DIR}/render/TextRenderer.cpp
-        ${COMMON_SOURCE_DIR}/render/Transformation.cpp
-        ${COMMON_SOURCE_DIR}/render/TriangleRenderer.cpp
         ${COMMON_SOURCE_DIR}/Thread.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
@@ -251,41 +216,6 @@ set(COMMON_SOURCE
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/render/AllocationTracker.h
-        ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.h
-        ${COMMON_SOURCE_DIR}/render/BrushRenderer.h
-        ${COMMON_SOURCE_DIR}/render/BrushRendererArrays.h
-        ${COMMON_SOURCE_DIR}/render/Circle.h
-        ${COMMON_SOURCE_DIR}/render/Compass.h
-        ${COMMON_SOURCE_DIR}/render/Compass2D.h
-        ${COMMON_SOURCE_DIR}/render/Compass3D.h
-        ${COMMON_SOURCE_DIR}/render/EdgeRenderer.h
-        ${COMMON_SOURCE_DIR}/render/EntityDecalRenderer.h
-        ${COMMON_SOURCE_DIR}/render/EntityLinkRenderer.h
-        ${COMMON_SOURCE_DIR}/render/EntityModelRenderer.h
-        ${COMMON_SOURCE_DIR}/render/EntityRenderer.h
-        ${COMMON_SOURCE_DIR}/render/FaceRenderer.h
-        ${COMMON_SOURCE_DIR}/render/GridRenderer.h
-        ${COMMON_SOURCE_DIR}/render/GroupLinkRenderer.h
-        ${COMMON_SOURCE_DIR}/render/GroupRenderer.h
-        ${COMMON_SOURCE_DIR}/render/LinkRenderer.h
-        ${COMMON_SOURCE_DIR}/render/MapRenderer.h
-        ${COMMON_SOURCE_DIR}/render/ObjectRenderer.h
-        ${COMMON_SOURCE_DIR}/render/PatchRenderer.h
-        ${COMMON_SOURCE_DIR}/render/PointGuideRenderer.h
-        ${COMMON_SOURCE_DIR}/render/PointHandleRenderer.h
-        ${COMMON_SOURCE_DIR}/render/PrimitiveRenderer.h
-        ${COMMON_SOURCE_DIR}/render/Renderable.h
-        ${COMMON_SOURCE_DIR}/render/RenderBatch.h
-        ${COMMON_SOURCE_DIR}/render/RenderContext.h
-        ${COMMON_SOURCE_DIR}/render/RenderService.h
-        ${COMMON_SOURCE_DIR}/render/SelectionBoundsRenderer.h
-        ${COMMON_SOURCE_DIR}/render/Sphere.h
-        ${COMMON_SOURCE_DIR}/render/SpikeGuideRenderer.h
-        ${COMMON_SOURCE_DIR}/render/TextAnchor.h
-        ${COMMON_SOURCE_DIR}/render/TextRenderer.h
-        ${COMMON_SOURCE_DIR}/render/Transformation.h
-        ${COMMON_SOURCE_DIR}/render/TriangleRenderer.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
@@ -502,7 +432,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC TbBaseLib TbElLib TbFsLib TbGlLib TbMdlLib TbPreferencesLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PUBLIC TbBaseLib TbElLib TbFsLib TbGlLib TbMdlLib TbPreferencesLib TbRenderLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE UpdateLib cpptrace::cpptrace fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)

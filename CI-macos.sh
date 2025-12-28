@@ -97,6 +97,9 @@ cd "$BUILD_DIR/lib/TbMdlLib/test"
 cd "$BUILD_DIR/lib/TbMdlLib/test-utils/test"
 ./TbMdlTestUtilsLibTest || exit 1
 
+cd "$BUILD_DIR/lib/TbRenderLib/test"
+./TbRenderLibTest || exit 1
+
 cd "$BUILD_DIR/lib/VmLib/test"
 ./VmLibTest || exit 1
 
