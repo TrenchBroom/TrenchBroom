@@ -113,16 +113,6 @@ void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool che
  */
 void insertTitleBarSeparator(QVBoxLayout* layout);
 
-template <typename I>
-QStringList toQStringList(I cur, I end)
-{
-  auto result = QStringList{};
-  std::transform(cur, end, std::back_inserter(result), [](const auto& str) {
-    return QString::fromStdString(str);
-  });
-  return result;
-}
-
 class AutoResizeRowsEventFilter : public QObject
 {
   Q_OBJECT

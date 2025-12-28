@@ -652,7 +652,8 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
     }
   }
 
-  return toQStringList(std::begin(result), std::end(result));
+  return result | std::views::transform(QString::fromStdString)
+         | kdl::ranges::to<QStringList>();
 }
 
 std::string EntityPropertyModel::propertyKey(const int row) const
