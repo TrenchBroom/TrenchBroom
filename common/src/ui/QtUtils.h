@@ -70,27 +70,7 @@ enum class MapTextEncoding;
 namespace ui
 {
 
-enum class FileDialogDir
-{
-  Map,
-  MaterialCollection,
-  CompileTool,
-  Engine,
-  EntityDefinition,
-  GamePath
-};
-
 QString fromStdStringView(std::string_view sv);
-
-/**
- * Gets the default directory from QSettings to use for the given type of file chooser.
- */
-QString fileDialogDefaultDirectory(FileDialogDir type);
-
-void updateFileDialogDefaultDirectoryWithFilename(
-  FileDialogDir type, const QString& filename);
-void updateFileDialogDefaultDirectoryWithDirectory(
-  FileDialogDir type, const QString& newDefaultDirectory);
 
 QString windowSettingsPath(const QWidget* window, const QString& suffix = "");
 

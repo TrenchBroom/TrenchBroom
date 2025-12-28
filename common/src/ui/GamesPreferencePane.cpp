@@ -38,6 +38,7 @@
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
+#include "ui/FileDialogDefaultDir.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/GameEngineDialog.h"
 #include "ui/GameListBox.h"

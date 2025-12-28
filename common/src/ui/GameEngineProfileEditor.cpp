@@ -29,6 +29,7 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "mdl/GameEngineProfile.h"
+#include "ui/FileDialogDefaultDir.h"
 #include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"

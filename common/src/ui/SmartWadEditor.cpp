@@ -31,6 +31,7 @@
 #include "mdl/Map_Entities.h"
 #include "ui/BorderLine.h"
 #include "ui/ChoosePathTypeDialog.h"
+#include "ui/FileDialogDefaultDir.h"
 #include "ui/MapDocument.h"
 #include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"

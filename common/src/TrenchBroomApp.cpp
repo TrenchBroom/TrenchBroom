@@ -33,6 +33,7 @@
 #include "ui/ActionExecutionContext.h"
 #include "ui/CrashDialog.h"
 #include "ui/CrashReporter.h"
+#include "ui/FileDialogDefaultDir.h"
 #include "ui/FrameManager.h"
 #include "ui/GameDialog.h"
 #include "ui/MapDocument.h"

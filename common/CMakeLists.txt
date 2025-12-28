@@ -81,6 +81,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/FaceInspector.cpp
         ${COMMON_SOURCE_DIR}/ui/FaceTool.cpp
         ${COMMON_SOURCE_DIR}/ui/FaceToolController.cpp
+        ${COMMON_SOURCE_DIR}/ui/FileDialogDefaultDir.cpp
         ${COMMON_SOURCE_DIR}/ui/FlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/FlagsPopupEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/FlashSelectionAnimation.cpp
@@ -294,6 +295,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/FaceInspector.h
         ${COMMON_SOURCE_DIR}/ui/FaceTool.h
         ${COMMON_SOURCE_DIR}/ui/FaceToolController.h
+        ${COMMON_SOURCE_DIR}/ui/FileDialogDefaultDir.h
         ${COMMON_SOURCE_DIR}/ui/FlagsEditor.h
         ${COMMON_SOURCE_DIR}/ui/FlagsPopupEditor.h
         ${COMMON_SOURCE_DIR}/ui/FlashSelectionAnimation.h

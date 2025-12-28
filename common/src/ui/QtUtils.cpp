@@ -78,63 +78,11 @@ QStringConverter::Encoding codecForEncoding(const mdl::MapTextEncoding encoding)
   }
 }
 
-QString fileDialogDirToString(const FileDialogDir dir)
-{
-  switch (dir)
-  {
-  case FileDialogDir::Map:
-    return "Map";
-  case FileDialogDir::MaterialCollection:
-    return "TextureCollection";
-  case FileDialogDir::CompileTool:
-    return "CompileTool";
-  case FileDialogDir::Engine:
-    return "Engine";
-  case FileDialogDir::EntityDefinition:
-    return "EntityDefinition";
-  case FileDialogDir::GamePath:
-    return "GamePath";
-    switchDefault();
-  }
-}
-
-QString fileDialogDefaultDirectorySettingsPath(const FileDialogDir dir)
-{
-  return QString::fromLatin1("FileDialog/%1/DefaultDirectory")
-    .arg(fileDialogDirToString(dir));
-}
-
 } // namespace
 
 QString fromStdStringView(std::string_view sv)
 {
   return QString::fromUtf8(sv.data(), static_cast<int>(sv.size()));
-}
-
-QString fileDialogDefaultDirectory(const FileDialogDir dir)
-{
-  const auto key = fileDialogDefaultDirectorySettingsPath(dir);
-
-  const auto settings = QSettings{};
-  const auto defaultDir = settings.value(key).toString();
-  return defaultDir;
-}
-
-void updateFileDialogDefaultDirectoryWithFilename(
-  FileDialogDir type, const QString& filename)
-{
-  const auto dirQDir = QFileInfo(filename).absoluteDir();
-  const auto dirString = dirQDir.absolutePath();
-  updateFileDialogDefaultDirectoryWithDirectory(type, dirString);
-}
-
-void updateFileDialogDefaultDirectoryWithDirectory(
-  FileDialogDir type, const QString& newDefaultDirectory)
-{
-  const auto key = fileDialogDefaultDirectorySettingsPath(type);
-
-  auto settings = QSettings{};
-  settings.setValue(key, newDefaultDirectory);
 }
 
 QString windowSettingsPath(const QWidget* window, const QString& suffix)

@@ -33,6 +33,7 @@
 #include "mdl/CompilationTask.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
+#include "ui/FileDialogDefaultDir.h"
 #include "ui/MapDocument.h"
 #include "ui/MultiCompletionLineEdit.h"
 #include "ui/QtUtils.h"
