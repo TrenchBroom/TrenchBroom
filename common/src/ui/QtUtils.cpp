@@ -101,10 +101,6 @@ MapFrame* findMapFrame(QWidget* widget)
   return dynamic_cast<MapFrame*>(widget->window());
 }
 
-void setHint(QLineEdit* ctrl, const char* hint)
-{
-  ctrl->setPlaceholderText(hint);
-}
 
 void centerOnScreen(QWidget* window)
 {

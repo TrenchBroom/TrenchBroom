@@ -59,10 +59,10 @@ QWidget* GameEngineProfileEditor::createEditorPage()
   setBaseWindowColor(container);
 
   m_nameEdit = new QLineEdit{};
-  setHint(m_nameEdit, "Choose a name");
+  m_nameEdit->setPlaceholderText(tr("Choose a name"));
 
   m_pathEdit = new QLineEdit{};
-  setHint(m_pathEdit, "Click on the button to choose...");
+  m_pathEdit->setPlaceholderText(tr("Click on the button to choose..."));
 
   auto* button = new QPushButton{"..."};
 

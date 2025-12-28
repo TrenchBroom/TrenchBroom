@@ -138,7 +138,6 @@ QLayout* createMiniToolBarLayoutRightAligned(QWidget* first, Rest... rest)
   return layout;
 }
 
-void setHint(QLineEdit* ctrl, const char* hint);
 void centerOnScreen(QWidget* window);
 
 QWidget* makeDefault(QWidget* widget);
