@@ -101,20 +101,6 @@ MapFrame* findMapFrame(QWidget* widget)
   return dynamic_cast<MapFrame*>(widget->window());
 }
 
-
-void centerOnScreen(QWidget* window)
-{
-  const auto* screen =
-    QGuiApplication::screenAt(window->mapToGlobal(QPoint{window->width() / 2, 0}));
-  if (screen == nullptr)
-  {
-    return;
-  }
-  const auto screenGeometry = screen->availableGeometry();
-  window->setGeometry(QStyle::alignedRect(
-    Qt::LeftToRight, Qt::AlignCenter, window->size(), screenGeometry));
-}
-
 QWidget* makeDefault(QWidget* widget)
 {
   widget->setFont(QFont{});
@@ -176,36 +162,6 @@ QWidget* makeError(QWidget* widget)
   auto palette = widget->palette();
   palette.setColor(QPalette::Normal, QPalette::WindowText, Qt::red);
   palette.setColor(QPalette::Normal, QPalette::Text, Qt::red);
-  widget->setPalette(palette);
-  return widget;
-}
-
-QWidget* makeSelected(QWidget* widget, const QPalette& defaultPalette)
-{
-  auto palette = widget->palette();
-  palette.setColor(
-    QPalette::Normal,
-    QPalette::WindowText,
-    defaultPalette.color(QPalette::Normal, QPalette::HighlightedText));
-  palette.setColor(
-    QPalette::Normal,
-    QPalette::Text,
-    defaultPalette.color(QPalette::Normal, QPalette::HighlightedText));
-  widget->setPalette(palette);
-  return widget;
-}
-
-QWidget* makeUnselected(QWidget* widget, const QPalette& defaultPalette)
-{
-  auto palette = widget->palette();
-  palette.setColor(
-    QPalette::Normal,
-    QPalette::WindowText,
-    defaultPalette.color(QPalette::Normal, QPalette::WindowText));
-  palette.setColor(
-    QPalette::Normal,
-    QPalette::Text,
-    defaultPalette.color(QPalette::Normal, QPalette::Text));
   widget->setPalette(palette);
   return widget;
 }
@@ -348,15 +304,6 @@ void setWindowIconTB(QWidget* window)
   window->setWindowIcon(QIcon{loadPixmap("AppIcon.png")});
 }
 
-void setDebugBackgroundColor(QWidget* widget, const QColor& color)
-{
-  auto p = widget->palette();
-  p.setColor(QPalette::Window, color);
-
-  widget->setAutoFillBackground(true);
-  widget->setPalette(p);
-}
-
 void setDefaultWindowColor(QWidget* widget)
 {
   widget->setAutoFillBackground(true);
@@ -369,12 +316,6 @@ void setBaseWindowColor(QWidget* widget)
   widget->setBackgroundRole(QPalette::Base);
 }
 
-void setHighlightWindowColor(QWidget* widget)
-{
-  widget->setAutoFillBackground(true);
-  widget->setBackgroundRole(QPalette::Highlight);
-}
-
 QLineEdit* createSearchBox()
 {
   auto* widget = new QLineEdit{};
@@ -384,14 +325,6 @@ QLineEdit* createSearchBox()
   const auto icon = loadSVGIcon("Search.svg");
   widget->addAction(icon, QLineEdit::LeadingPosition);
   return widget;
-}
-
-void checkButtonInGroup(QButtonGroup* group, const int id, const bool checked)
-{
-  if (auto* button = group->button(id))
-  {
-    button->setChecked(checked);
-  }
 }
 
 void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked)

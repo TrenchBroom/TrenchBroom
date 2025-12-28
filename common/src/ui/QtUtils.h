@@ -138,8 +138,6 @@ QLayout* createMiniToolBarLayoutRightAligned(QWidget* first, Rest... rest)
   return layout;
 }
 
-void centerOnScreen(QWidget* window);
-
 QWidget* makeDefault(QWidget* widget);
 QWidget* makeEmphasized(QWidget* widget);
 QWidget* makeUnemphasized(QWidget* widget);
@@ -148,21 +146,15 @@ QWidget* makeSmall(QWidget* widget);
 QWidget* makeHeader(QWidget* widget);
 QWidget* makeError(QWidget* widget);
 
-QWidget* makeSelected(QWidget* widget, const QPalette& defaultPalette);
-QWidget* makeUnselected(QWidget* widget, const QPalette& defaultPalette);
-
 Color fromQColor(const QColor& color);
 QColor toQColor(const Color& color);
 void setWindowIconTB(QWidget* window);
-void setDebugBackgroundColor(QWidget* widget, const QColor& color);
 
 void setDefaultWindowColor(QWidget* widget);
 void setBaseWindowColor(QWidget* widget);
-void setHighlightWindowColor(QWidget* widget);
 
 QLineEdit* createSearchBox();
 
-void checkButtonInGroup(QButtonGroup* group, int id, bool checked);
 void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked);
 
 /**
