@@ -41,14 +41,11 @@ ColorModel::ColorModel(QObject* parent)
 
 void ColorModel::initialize()
 {
-  for (auto* pref : Preferences::staticPreferences())
+  for (auto* pref : Preferences::colorPreferences())
   {
-    auto* colorPref = dynamic_cast<Preference<Color>*>(pref);
-    if (
-      colorPref != nullptr
-      && colorPref->persistencePolicy != PreferencePersistencePolicy::ReadOnly)
+    if (pref->persistencePolicy != PreferencePersistencePolicy::ReadOnly)
     {
-      m_colors.emplace_back(colorPref);
+      m_colors.emplace_back(pref);
     }
   }
 

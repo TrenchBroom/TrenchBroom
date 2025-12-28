@@ -38,48 +38,40 @@ Preference<Color>& axisColor(const vm::axis::type axis)
   }
 }
 
-const std::vector<PreferenceBase*>& staticPreferences()
+std::vector<Preference<Color>*> colorPreferences()
 {
-  static const std::vector<PreferenceBase*> list{
-    &MapViewLayout,
-    &Theme,
-    &ShowAxes,
+  return {
+    &SoftMapBoundsColor,
     &BackgroundColor,
-    &AxisLength,
     &XAxisColor,
     &YAxisColor,
     &ZAxisColor,
     &PointFileColor,
     &PortalFileBorderColor,
     &PortalFileFillColor,
-    &ShowFPS,
     &CompassBackgroundColor,
     &CompassBackgroundOutlineColor,
     &CompassAxisOutlineColor,
     &CameraFrustumColor,
     &DefaultGroupColor,
+    &LinkedGroupColor,
     &TutorialOverlayTextColor,
     &TutorialOverlayBackgroundColor,
     &FaceColor,
     &SelectedFaceColor,
     &LockedFaceColor,
-    &TransparentFaceAlpha,
     &EdgeColor,
     &SelectedEdgeColor,
-    &OccludedSelectedEdgeAlpha,
     &LockedEdgeColor,
     &UndefinedEntityColor,
     &SelectionBoundsColor,
     &InfoOverlayTextColor,
     &GroupInfoOverlayTextColor,
     &InfoOverlayBackgroundColor,
-    &WeakInfoOverlayBackgroundAlpha,
     &SelectedInfoOverlayTextColor,
     &SelectedInfoOverlayBackgroundColor,
     &LockedInfoOverlayTextColor,
     &LockedInfoOverlayBackgroundColor,
-    &HandleRadius,
-    &MaximumHandleDistance,
     &HandleColor,
     &OccludedHandleColor,
     &SelectedHandleColor,
@@ -87,12 +79,10 @@ const std::vector<PreferenceBase*>& staticPreferences()
     &ClipHandleColor,
     &ClipFaceColor,
     &ExtrudeHandleColor,
-    &RotateHandleRadius,
     &RotateHandleColor,
     &ScaleHandleColor,
     &ScaleFillColor,
     &ScaleOutlineColor,
-    &ScaleOutlineDimAlpha,
     &ShearFillColor,
     &ShearOutlineColor,
     &MoveTraceColor,
@@ -101,75 +91,27 @@ const std::vector<PreferenceBase*>& staticPreferences()
     &MoveIndicatorFillColor,
     &AngleIndicatorColor,
     &TextureSeamColor,
-    &Brightness,
-    &GridAlpha,
     &GridColor2D,
-    &TextureMinFilter,
-    &TextureMagFilter,
-    &AlignmentLock,
-    &UVLock,
-    &RendererFontPath,
-    &RendererFontSize,
-    &BrowserFontSize,
     &BrowserTextColor,
     &BrowserSubTextColor,
-    &BrowserBackgroundColor,
     &BrowserGroupBackgroundColor,
-    &MaterialBrowserIconSize,
+    &BrowserBackgroundColor,
     &MaterialBrowserDefaultColor,
     &MaterialBrowserSelectedColor,
     &MaterialBrowserUsedColor,
-    &CameraLookSpeed,
-    &CameraLookInvertH,
-    &CameraLookInvertV,
-    &CameraPanSpeed,
-    &CameraPanInvertH,
-    &CameraPanInvertV,
-    &CameraMouseWheelInvert,
-    &CameraMoveSpeed,
-    &CameraEnableAltMove,
-    &CameraAltMoveInvert,
-    &CameraMoveInCursorDir,
-    &CameraFov,
-    &CameraFlyMoveSpeed,
-    &Link2DCameras,
+  };
+}
+
+std::vector<Preference<QKeySequence>*> keyPreferences()
+{
+  return {
     &CameraFlyForward,
     &CameraFlyBackward,
     &CameraFlyLeft,
     &CameraFlyRight,
     &CameraFlyUp,
     &CameraFlyDown,
-    &ShowEntityClassnames,
-    &ShowGroupBounds,
-    &ShowBrushEntityBounds,
-    &ShowPointEntityBounds,
-    &ShowPointEntityModels,
-    &FaceRenderMode,
-    &ShadeFaces,
-    &ShowFog,
-    &ShowEdges,
-    &ShowSoftMapBounds,
-    &ShowPointEntities,
-    &ShowBrushes,
-    &EntityLinkMode};
-
-  return list;
-}
-
-std::vector<Preference<QKeySequence>*> keyPreferences()
-{
-  std::vector<Preference<QKeySequence>*> result;
-
-  for (PreferenceBase* pref : staticPreferences())
-  {
-    auto* keyPref = dynamic_cast<Preference<QKeySequence>*>(pref);
-    if (keyPref != nullptr)
-    {
-      result.push_back(keyPref);
-    }
-  }
-
-  return result;
+  };
 }
 
 } // namespace tb::Preferences

@@ -308,16 +308,8 @@ inline constexpr auto EntityLinkModeNone = std::string{"none"};
 inline auto EntityLinkMode =
   Preference<std::string>{"Map view/Entity link mode", EntityLinkModeDirect};
 
-/**
- * Returns all Preferences declared in this file. Needed for migrating preference formats
- * or if we wanted to do a Path to Preference lookup.
- */
-const std::vector<PreferenceBase*>& staticPreferences();
+std::vector<Preference<Color>*> colorPreferences();
 
-/**
- * Returns the subset of staticPreferences() that are key sequences, used by
- * dump-shortcuts.
- */
 std::vector<Preference<QKeySequence>*> keyPreferences();
 
 } // namespace tb::Preferences

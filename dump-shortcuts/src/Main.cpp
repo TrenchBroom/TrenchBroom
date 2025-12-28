@@ -151,7 +151,7 @@ void printActionShortcuts(QTextStream& out)
   });
 
   // some keys are just Preferences (e.g. WASD)
-  for (auto* keyPref : Preferences::keyPreferences())
+  for (const auto* keyPref : Preferences::keyPreferences())
   {
     printPref(keyPref->path, keyPref->defaultValue);
   }
