@@ -10,7 +10,6 @@ set(COMMON_TEST_UTILS_SOURCE
 )
 
 set(COMMON_TEST_SOURCE
-        "${COMMON_TEST_SOURCE_DIR}/render/tst_AllocationTracker.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ActionContext.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_Actions.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ClipTool.cpp"
