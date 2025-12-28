@@ -23,7 +23,6 @@
 
 #include "Color.h"
 #include "Preference.h"
-#include "ui/MapViewLayout.h"
 
 #include "vm/util.h"
 
@@ -47,8 +46,7 @@ inline auto EnableDraftReleaseUpdates = Preference<bool>{
 inline auto IncludeDraftReleaseUpdates = Preference<bool>{
   "updater/Include draft releases", false, PreferencePersistencePolicy::Transient};
 
-inline auto MapViewLayout =
-  Preference<int>{"Views/Map view layout", static_cast<int>(ui::MapViewLayout::OnePane)};
+inline auto MapViewLayout = Preference<int>{"Views/Map view layout", 0};
 
 inline const auto SystemTheme = std::string{"System"};
 inline const auto DarkTheme = std::string{"Dark"};

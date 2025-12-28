@@ -3,7 +3,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/Preferences.cpp
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.cpp
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.cpp
@@ -252,7 +251,6 @@ set(COMMON_SOURCE
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/Preferences.h
         ${COMMON_SOURCE_DIR}/render/AllocationTracker.h
         ${COMMON_SOURCE_DIR}/render/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/render/BrushRenderer.h
@@ -504,7 +502,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common 
-  PUBLIC TbBaseLib TbElLib TbFsLib TbGlLib TbMdlLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
+  PUBLIC TbBaseLib TbElLib TbFsLib TbGlLib TbMdlLib TbPreferencesLib KdLib VmLib Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
   PRIVATE UpdateLib cpptrace::cpptrace fmt::fmt-header-only)
 
 target_link_libraries(common PRIVATE CompilerConfig PrecompileStdHeaders PrecompileQtHeaders)
