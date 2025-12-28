@@ -274,12 +274,12 @@ void MousePreferencePane::doResetToDefaults()
   prefs.resetToDefault(Preferences::CameraAltMoveInvert);
   prefs.resetToDefault(Preferences::CameraMoveInCursorDir);
 
-  prefs.resetToDefault(Preferences::CameraFlyForward());
-  prefs.resetToDefault(Preferences::CameraFlyBackward());
-  prefs.resetToDefault(Preferences::CameraFlyLeft());
-  prefs.resetToDefault(Preferences::CameraFlyRight());
-  prefs.resetToDefault(Preferences::CameraFlyUp());
-  prefs.resetToDefault(Preferences::CameraFlyDown());
+  prefs.resetToDefault(Preferences::CameraFlyForward);
+  prefs.resetToDefault(Preferences::CameraFlyBackward);
+  prefs.resetToDefault(Preferences::CameraFlyLeft);
+  prefs.resetToDefault(Preferences::CameraFlyRight);
+  prefs.resetToDefault(Preferences::CameraFlyUp);
+  prefs.resetToDefault(Preferences::CameraFlyDown);
 
   prefs.resetToDefault(Preferences::CameraFlyMoveSpeed);
 }
@@ -300,12 +300,12 @@ void MousePreferencePane::updateControls()
   m_invertAltMoveAxisCheckBox->setChecked(pref(Preferences::CameraAltMoveInvert));
   m_moveInCursorDirCheckBox->setChecked(pref(Preferences::CameraMoveInCursorDir));
 
-  m_forwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyForward()));
-  m_backwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyBackward()));
-  m_leftKeyEditor->setKeySequence(pref(Preferences::CameraFlyLeft()));
-  m_rightKeyEditor->setKeySequence(pref(Preferences::CameraFlyRight()));
-  m_upKeyEditor->setKeySequence(pref(Preferences::CameraFlyUp()));
-  m_downKeyEditor->setKeySequence(pref(Preferences::CameraFlyDown()));
+  m_forwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyForward));
+  m_backwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyBackward));
+  m_leftKeyEditor->setKeySequence(pref(Preferences::CameraFlyLeft));
+  m_rightKeyEditor->setKeySequence(pref(Preferences::CameraFlyRight));
+  m_upKeyEditor->setKeySequence(pref(Preferences::CameraFlyUp));
+  m_downKeyEditor->setKeySequence(pref(Preferences::CameraFlyDown));
 
   m_flyMoveSpeedSlider->setRatio(
     pref(Preferences::CameraFlyMoveSpeed) / Preferences::MaxCameraFlyMoveSpeed);
@@ -409,37 +409,37 @@ void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preferenc
 
 void MousePreferencePane::forwardKeyChanged()
 {
-  setKeySequence(m_forwardKeyEditor, Preferences::CameraFlyForward());
+  setKeySequence(m_forwardKeyEditor, Preferences::CameraFlyForward);
   updateConflicts();
 }
 
 void MousePreferencePane::backwardKeyChanged()
 {
-  setKeySequence(m_backwardKeyEditor, Preferences::CameraFlyBackward());
+  setKeySequence(m_backwardKeyEditor, Preferences::CameraFlyBackward);
   updateConflicts();
 }
 
 void MousePreferencePane::leftKeyChanged()
 {
-  setKeySequence(m_leftKeyEditor, Preferences::CameraFlyLeft());
+  setKeySequence(m_leftKeyEditor, Preferences::CameraFlyLeft);
   updateConflicts();
 }
 
 void MousePreferencePane::rightKeyChanged()
 {
-  setKeySequence(m_rightKeyEditor, Preferences::CameraFlyRight());
+  setKeySequence(m_rightKeyEditor, Preferences::CameraFlyRight);
   updateConflicts();
 }
 
 void MousePreferencePane::upKeyChanged()
 {
-  setKeySequence(m_upKeyEditor, Preferences::CameraFlyUp());
+  setKeySequence(m_upKeyEditor, Preferences::CameraFlyUp);
   updateConflicts();
 }
 
 void MousePreferencePane::downKeyChanged()
 {
-  setKeySequence(m_downKeyEditor, Preferences::CameraFlyDown());
+  setKeySequence(m_downKeyEditor, Preferences::CameraFlyDown);
   updateConflicts();
 }
 
@@ -456,12 +456,12 @@ namespace
 bool hasConflict(Preference<QKeySequence>& preference)
 {
   const auto prefs = std::vector<Preference<QKeySequence>*>{
-    &Preferences::CameraFlyForward(),
-    &Preferences::CameraFlyBackward(),
-    &Preferences::CameraFlyLeft(),
-    &Preferences::CameraFlyRight(),
-    &Preferences::CameraFlyUp(),
-    &Preferences::CameraFlyDown()};
+    &Preferences::CameraFlyForward,
+    &Preferences::CameraFlyBackward,
+    &Preferences::CameraFlyLeft,
+    &Preferences::CameraFlyRight,
+    &Preferences::CameraFlyUp,
+    &Preferences::CameraFlyDown};
 
   return std::ranges::any_of(prefs, [&](auto* other) {
     return preference.path != other->path && pref(*other) == pref(preference);
@@ -474,12 +474,12 @@ void MousePreferencePane::updateConflicts()
 {
   for (auto& [preference, icon] :
        std::vector<std::tuple<Preference<QKeySequence>&, QLabel*>>{
-         {Preferences::CameraFlyForward(), m_forwardKeyConflictIcon},
-         {Preferences::CameraFlyBackward(), m_backwardKeyConflictIcon},
-         {Preferences::CameraFlyLeft(), m_leftKeyConflictIcon},
-         {Preferences::CameraFlyRight(), m_rightKeyConflictIcon},
-         {Preferences::CameraFlyUp(), m_upKeyConflictIcon},
-         {Preferences::CameraFlyDown(), m_downKeyConflictIcon},
+         {Preferences::CameraFlyForward, m_forwardKeyConflictIcon},
+         {Preferences::CameraFlyBackward, m_backwardKeyConflictIcon},
+         {Preferences::CameraFlyLeft, m_leftKeyConflictIcon},
+         {Preferences::CameraFlyRight, m_rightKeyConflictIcon},
+         {Preferences::CameraFlyUp, m_upKeyConflictIcon},
+         {Preferences::CameraFlyDown, m_downKeyConflictIcon},
        })
   {
     icon->setVisible(hasConflict(preference));

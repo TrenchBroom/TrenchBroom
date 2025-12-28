@@ -412,7 +412,7 @@ void TrenchBroomApp::loadStyle()
   };
 
   // Apply either the Fusion style + dark palette, or the system style
-  if (pref(Preferences::Theme) == Preferences::darkTheme())
+  if (pref(Preferences::Theme) == Preferences::DarkTheme)
   {
     setStyle(new TrenchBroomProxyStyle{"Fusion"});
     setPalette(darkPalette());

@@ -19,7 +19,6 @@
  */
 
 #include "Matchers.h"
-#include "TestUtils.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -36,6 +35,7 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PickResult.h"
+#include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 #include "ui/ExtrudeTool.h"
 #include "ui/MapDocument.h"

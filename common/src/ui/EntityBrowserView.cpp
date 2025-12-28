@@ -137,7 +137,7 @@ void EntityBrowserView::doInitLayout(Layout& layout)
 
 void EntityBrowserView::doReloadLayout(Layout& layout)
 {
-  const auto& fontPath = pref(Preferences::RendererFontPath());
+  const auto& fontPath = pref(Preferences::RendererFontPath);
   const auto fontSize = pref(Preferences::BrowserFontSize);
   contract_assert(fontSize > 0);
 

@@ -80,12 +80,12 @@ void FlyModeHelper::pollAndUpdate()
 
 void FlyModeHelper::keyDown(QKeyEvent* event)
 {
-  const auto& forward = pref(Preferences::CameraFlyForward());
-  const auto& backward = pref(Preferences::CameraFlyBackward());
-  const auto& left = pref(Preferences::CameraFlyLeft());
-  const auto& right = pref(Preferences::CameraFlyRight());
-  const auto& up = pref(Preferences::CameraFlyUp());
-  const auto& down = pref(Preferences::CameraFlyDown());
+  const auto& forward = pref(Preferences::CameraFlyForward);
+  const auto& backward = pref(Preferences::CameraFlyBackward);
+  const auto& left = pref(Preferences::CameraFlyLeft);
+  const auto& right = pref(Preferences::CameraFlyRight);
+  const auto& up = pref(Preferences::CameraFlyUp);
+  const auto& down = pref(Preferences::CameraFlyDown);
 
   const auto wasAnyKeyDown = anyKeyDown();
 
@@ -131,12 +131,12 @@ void FlyModeHelper::keyDown(QKeyEvent* event)
 
 void FlyModeHelper::keyUp(QKeyEvent* event)
 {
-  const auto& forward = pref(Preferences::CameraFlyForward());
-  const auto& backward = pref(Preferences::CameraFlyBackward());
-  const auto& left = pref(Preferences::CameraFlyLeft());
-  const auto& right = pref(Preferences::CameraFlyRight());
-  const auto& up = pref(Preferences::CameraFlyUp());
-  const auto& down = pref(Preferences::CameraFlyDown());
+  const auto& forward = pref(Preferences::CameraFlyForward);
+  const auto& backward = pref(Preferences::CameraFlyBackward);
+  const auto& left = pref(Preferences::CameraFlyLeft);
+  const auto& right = pref(Preferences::CameraFlyRight);
+  const auto& up = pref(Preferences::CameraFlyUp);
+  const auto& down = pref(Preferences::CameraFlyDown);
 
   if (event->isAutoRepeat())
   {

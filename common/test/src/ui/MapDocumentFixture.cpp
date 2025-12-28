@@ -19,9 +19,9 @@
 
 #include "MapDocumentFixture.h"
 
-#include "TestUtils.h"
 #include "gl/Resource.h"
 #include "mdl/Map.h"
+#include "mdl/TestUtils.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"

@@ -24,26 +24,136 @@
 namespace tb::gl::Shaders
 {
 
-extern const ShaderConfig Grid2DShader;
-extern const ShaderConfig VaryingPCShader;
-extern const ShaderConfig VaryingPUniformCShader;
-extern const ShaderConfig MiniMapEdgeShader;
-extern const ShaderConfig EntityModelShader;
-extern const ShaderConfig FaceShader;
-extern const ShaderConfig PatchShader;
-extern const ShaderConfig EdgeShader;
-extern const ShaderConfig ColoredTextShader;
-extern const ShaderConfig TextBackgroundShader;
-extern const ShaderConfig MaterialBrowserShader;
-extern const ShaderConfig MaterialBrowserBorderShader;
-extern const ShaderConfig HandleShader;
-extern const ShaderConfig ColoredHandleShader;
-extern const ShaderConfig CompassShader;
-extern const ShaderConfig CompassOutlineShader;
-extern const ShaderConfig CompassBackgroundShader;
-extern const ShaderConfig LinkLineShader;
-extern const ShaderConfig LinkArrowShader;
-extern const ShaderConfig TriangleShader;
-extern const ShaderConfig UVViewShader;
+inline const ShaderConfig Grid2DShader = ShaderConfig{
+  "2D Grid",
+  {"Grid2D.vertsh"},
+  {"Grid.fragsh", "Grid2D.fragsh"},
+};
+
+inline const ShaderConfig VaryingPCShader = ShaderConfig{
+  "Varying Position / Color",
+  {"VaryingPC.vertsh"},
+  {"VaryingPC.fragsh"},
+};
+
+inline const ShaderConfig VaryingPUniformCShader = ShaderConfig{
+  "Varying Position / Uniform Color",
+  {"VaryingPUniformC.vertsh"},
+  {"VaryingPC.fragsh"},
+};
+
+inline const ShaderConfig MiniMapEdgeShader = ShaderConfig{
+  "MiniMap Edges",
+  {"MiniMapEdge.vertsh"},
+  {"MiniMapEdge.fragsh"},
+};
+
+inline const ShaderConfig EntityModelShader = ShaderConfig{
+  "Entity Model",
+  {"EntityModel.vertsh"},
+  {"MapBounds.fragsh", "EntityModel.fragsh"},
+};
+
+inline const ShaderConfig FaceShader = ShaderConfig{
+  "Face",
+  {"Face.vertsh"},
+  {"Grid.fragsh", "MapBounds.fragsh", "Face.fragsh"},
+};
+
+inline const ShaderConfig PatchShader = ShaderConfig{
+  "Patch",
+  {"Face.vertsh"},
+  {"Grid.fragsh", "MapBounds.fragsh", "Face.fragsh"},
+};
+
+inline const ShaderConfig EdgeShader = ShaderConfig{
+  "Edge",
+  {"Edge.vertsh"},
+  {"MapBounds.fragsh", "Edge.fragsh"},
+};
+
+inline const ShaderConfig ColoredTextShader = ShaderConfig{
+  "Colored Text",
+  {"ColoredText.vertsh"},
+  {"Text.fragsh"},
+};
+
+inline const ShaderConfig TextShader = ShaderConfig{
+  "Text",
+  {"Text.vertsh"},
+  {"Text.fragsh"},
+};
+
+inline const ShaderConfig TextBackgroundShader = ShaderConfig{
+  "Text Background",
+  {"TextBackground.vertsh"},
+  {"TextBackground.fragsh"},
+};
+
+inline const ShaderConfig MaterialBrowserShader = ShaderConfig{
+  "Material Browser",
+  {"MaterialBrowser.vertsh"},
+  {"MaterialBrowser.fragsh"},
+};
+
+inline const ShaderConfig MaterialBrowserBorderShader = ShaderConfig{
+  "Material Browser Border",
+  {"MaterialBrowserBorder.vertsh"},
+  {"MaterialBrowserBorder.fragsh"},
+};
+
+inline const ShaderConfig HandleShader = ShaderConfig{
+  "Handle",
+  {"Handle.vertsh"},
+  {"Handle.fragsh"},
+};
+
+inline const ShaderConfig ColoredHandleShader = ShaderConfig{
+  "Colored Handle",
+  {"ColoredHandle.vertsh"},
+  {"Handle.fragsh"},
+};
+
+inline const ShaderConfig CompassShader = ShaderConfig{
+  "Compass",
+  {"Compass.vertsh"},
+  {"Compass.fragsh"},
+};
+
+inline const ShaderConfig CompassOutlineShader = ShaderConfig{
+  "Compass Outline",
+  {"CompassOutline.vertsh"},
+  {"Compass.fragsh"},
+};
+
+inline const ShaderConfig CompassBackgroundShader = ShaderConfig{
+  "Compass Background",
+  {"VaryingPUniformC.vertsh"},
+  {"VaryingPC.fragsh"},
+};
+
+inline const ShaderConfig LinkLineShader = ShaderConfig{
+  "Link Line",
+  {"LinkLine.vertsh"},
+  {"LinkLine.fragsh"},
+};
+
+inline const ShaderConfig LinkArrowShader = ShaderConfig{
+  "Link Arrow",
+  {"LinkArrow.vertsh"},
+  {"LinkArrow.fragsh"},
+};
+
+inline const ShaderConfig TriangleShader = ShaderConfig{
+  "Shaded Triangles",
+  {"Triangle.vertsh"},
+  {"Triangle.fragsh"},
+};
+
+inline const ShaderConfig UVViewShader = ShaderConfig{
+  "UV View",
+  {"UVView.vertsh"},
+  {"UVView.fragsh"},
+};
 
 } // namespace tb::gl::Shaders

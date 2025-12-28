@@ -792,17 +792,17 @@ void MapViewBase::toggleShowBrushes()
 
 void MapViewBase::showMaterials()
 {
-  setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeTextured());
+  setPref(Preferences::FaceRenderMode, Preferences::FaceRenderModeTextured);
 }
 
 void MapViewBase::hideMaterials()
 {
-  setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeFlat());
+  setPref(Preferences::FaceRenderMode, Preferences::FaceRenderModeFlat);
 }
 
 void MapViewBase::hideFaces()
 {
-  setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeSkip());
+  setPref(Preferences::FaceRenderMode, Preferences::FaceRenderModeSkip);
 }
 
 void MapViewBase::toggleShadeFaces()
@@ -822,22 +822,22 @@ void MapViewBase::toggleShowEdges()
 
 void MapViewBase::showAllEntityLinks()
 {
-  setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeAll());
+  setPref(Preferences::FaceRenderMode, Preferences::EntityLinkModeAll);
 }
 
 void MapViewBase::showTransitivelySelectedEntityLinks()
 {
-  setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeTransitive());
+  setPref(Preferences::FaceRenderMode, Preferences::EntityLinkModeTransitive);
 }
 
 void MapViewBase::showDirectlySelectedEntityLinks()
 {
-  setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeDirect());
+  setPref(Preferences::FaceRenderMode, Preferences::EntityLinkModeDirect);
 }
 
 void MapViewBase::hideAllEntityLinks()
 {
-  setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeNone());
+  setPref(Preferences::FaceRenderMode, Preferences::EntityLinkModeNone);
 }
 
 bool MapViewBase::event(QEvent* event)
@@ -942,7 +942,7 @@ void MapViewBase::renderContents()
 {
   preRender();
 
-  const auto& fontPath = pref(Preferences::RendererFontPath());
+  const auto& fontPath = pref(Preferences::RendererFontPath);
   const auto fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
   const auto fontDescriptor = gl::FontDescriptor{fontPath, fontSize};
 
@@ -954,9 +954,9 @@ void MapViewBase::renderContents()
   renderContext.setFilterMode(
     pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   renderContext.setShowMaterials(
-    pref(Preferences::FaceRenderMode) == Preferences::faceRenderModeTextured());
+    pref(Preferences::FaceRenderMode) == Preferences::FaceRenderModeTextured);
   renderContext.setShowFaces(
-    pref(Preferences::FaceRenderMode) != Preferences::faceRenderModeSkip());
+    pref(Preferences::FaceRenderMode) != Preferences::FaceRenderModeSkip);
   renderContext.setShowEdges(pref(Preferences::ShowEdges));
   renderContext.setShadeFaces(pref(Preferences::ShadeFaces));
   renderContext.setShowPointEntities(pref(Preferences::ShowPointEntities));

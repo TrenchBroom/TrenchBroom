@@ -45,7 +45,7 @@ namespace
 auto makeRenderServiceFont()
 {
   return gl::FontDescriptor{
-    pref(Preferences::RendererFontPath()),
+    pref(Preferences::RendererFontPath),
     size_t(pref(Preferences::RendererFontSize)),
   };
 }
