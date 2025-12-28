@@ -218,17 +218,6 @@ QWidget* createDefaultPage(const QString& message, QWidget* parent)
   return container;
 }
 
-QSlider* createSlider(const int min, const int max)
-{
-  auto* slider = new QSlider{};
-  slider->setMinimum(min);
-  slider->setMaximum(max);
-  slider->setTickPosition(QSlider::TicksBelow);
-  slider->setTracking(true);
-  slider->setOrientation(Qt::Horizontal);
-  return slider;
-}
-
 float getSliderRatio(const QSlider* slider)
 {
   return float(slider->value() - slider->minimum())

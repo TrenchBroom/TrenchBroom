@@ -33,9 +33,15 @@ namespace tb::ui
 
 SliderWithLabel::SliderWithLabel(const int minimum, const int maximum, QWidget* parent)
   : QWidget{parent}
-  , m_slider{createSlider(minimum, maximum)}
+  , m_slider{new QSlider{}}
   , m_label{new QLabel{}}
 {
+  m_slider->setMinimum(minimum);
+  m_slider->setMaximum(maximum);
+  m_slider->setTickPosition(QSlider::TicksBelow);
+  m_slider->setTracking(true);
+  m_slider->setOrientation(Qt::Horizontal);
+
   const auto maxDigits = int(std::log10(m_slider->maximum())) + 1;
   const auto str = QString{""}.fill('9', maxDigits);
   const auto rect = m_label->fontMetrics().boundingRect(str);
