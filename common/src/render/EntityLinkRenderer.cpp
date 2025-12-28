@@ -276,15 +276,15 @@ auto getDirectSelectedLinks(
 auto getLinks(const mdl::Map& map, const Color& defaultColor, const Color& selectedColor)
 {
   const auto entityLinkMode = pref(Preferences::EntityLinkMode);
-  if (entityLinkMode == Preferences::entityLinkModeAll())
+  if (entityLinkMode == Preferences::EntityLinkModeAll)
   {
     return getAllLinks(map, defaultColor, selectedColor);
   }
-  if (entityLinkMode == Preferences::entityLinkModeTransitive())
+  if (entityLinkMode == Preferences::EntityLinkModeTransitive)
   {
     return getTransitiveSelectedLinks(map, defaultColor, selectedColor);
   }
-  if (entityLinkMode == Preferences::entityLinkModeDirect())
+  if (entityLinkMode == Preferences::EntityLinkModeDirect)
   {
     return getDirectSelectedLinks(map, defaultColor, selectedColor);
   }

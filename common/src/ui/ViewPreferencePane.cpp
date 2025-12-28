@@ -105,8 +105,8 @@ QWidget* ViewPreferencePane::createViewPreferences()
 
   m_themeCombo = new QComboBox{};
   m_themeCombo->addItems({
-    QString::fromStdString(Preferences::systemTheme()),
-    QString::fromStdString(Preferences::darkTheme()),
+    QString::fromStdString(Preferences::SystemTheme),
+    QString::fromStdString(Preferences::DarkTheme),
   });
   auto* themeInfo = new QLabel{};
   themeInfo->setText(tr("Requires restart after changing"));

@@ -449,9 +449,9 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
   auto* inner = panel->getPanel();
 
   const auto FaceRenderModes = std::vector<std::tuple<QString, QString>>{
-    {"Show materials", QString::fromStdString(Preferences::faceRenderModeTextured())},
-    {"Hide materials", QString::fromStdString(Preferences::faceRenderModeFlat())},
-    {"Hide faces", QString::fromStdString(Preferences::faceRenderModeSkip())},
+    {"Show materials", QString::fromStdString(Preferences::FaceRenderModeTextured)},
+    {"Hide materials", QString::fromStdString(Preferences::FaceRenderModeFlat)},
+    {"Hide faces", QString::fromStdString(Preferences::FaceRenderModeSkip)},
   };
 
   m_renderModeRadioGroup = new QButtonGroup{};
@@ -470,12 +470,12 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
 
 
   const auto EntityLinkModes = std::vector<std::tuple<QString, QString>>{
-    {"Show all entity links", QString::fromStdString(Preferences::entityLinkModeAll())},
+    {"Show all entity links", QString::fromStdString(Preferences::EntityLinkModeAll)},
     {"Show transitively selected entity links",
-     QString::fromStdString(Preferences::entityLinkModeTransitive())},
+     QString::fromStdString(Preferences::EntityLinkModeTransitive)},
     {"Show directly selected entity links",
-     QString::fromStdString(Preferences::entityLinkModeDirect())},
-    {"Hide entity links", QString::fromStdString(Preferences::entityLinkModeNone())},
+     QString::fromStdString(Preferences::EntityLinkModeDirect)},
+    {"Hide entity links", QString::fromStdString(Preferences::EntityLinkModeNone)},
   };
 
   m_entityLinkRadioGroup = new QButtonGroup{};
@@ -664,13 +664,13 @@ void ViewEditor::faceRenderModeChanged(const int id)
   switch (id)
   {
   case 1:
-    setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeFlat());
+    setPref(Preferences::FaceRenderMode, Preferences::FaceRenderModeFlat);
     break;
   case 2:
-    setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeSkip());
+    setPref(Preferences::FaceRenderMode, Preferences::FaceRenderModeSkip);
     break;
   default:
-    setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeTextured());
+    setPref(Preferences::FaceRenderMode, Preferences::FaceRenderModeTextured);
     break;
   }
 }
@@ -695,16 +695,16 @@ void ViewEditor::entityLinkModeChanged(const int id)
   switch (id)
   {
   case 0:
-    setPref(Preferences::EntityLinkMode, Preferences::entityLinkModeAll());
+    setPref(Preferences::EntityLinkMode, Preferences::EntityLinkModeAll);
     break;
   case 1:
-    setPref(Preferences::EntityLinkMode, Preferences::entityLinkModeTransitive());
+    setPref(Preferences::EntityLinkMode, Preferences::EntityLinkModeTransitive);
     break;
   case 2:
-    setPref(Preferences::EntityLinkMode, Preferences::entityLinkModeDirect());
+    setPref(Preferences::EntityLinkMode, Preferences::EntityLinkModeDirect);
     break;
   default:
-    setPref(Preferences::EntityLinkMode, Preferences::entityLinkModeNone());
+    setPref(Preferences::EntityLinkMode, Preferences::EntityLinkModeNone);
     break;
   }
 }

@@ -443,7 +443,7 @@ auto collectStringVertices(
   using TextVertex = gl::VertexTypes::P2UV2C4::Vertex;
 
   auto defaultFont = gl::FontDescriptor{
-    pref(Preferences::RendererFontPath()), size_t(pref(Preferences::BrowserFontSize))};
+    pref(Preferences::RendererFontPath), size_t(pref(Preferences::BrowserFontSize))};
 
   const auto textColor = pref(Preferences::BrowserTextColor);
 
