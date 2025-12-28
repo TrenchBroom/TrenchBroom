@@ -39,6 +39,7 @@
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
+#include "ui/WidgetState.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -90,8 +91,8 @@ MapInspector::MapInspector(MapDocument& document, QWidget* parent)
 
 MapInspector::~MapInspector()
 {
-  saveWindowState(m_mapPropertiesEditor);
-  saveWindowState(m_modEditor);
+  saveWidgetState(m_mapPropertiesEditor);
+  saveWidgetState(m_modEditor);
 }
 
 void MapInspector::createGui(MapDocument& document)
@@ -136,7 +137,7 @@ CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(MapDocument& doc
   sizer->addWidget(editor, 1);
   titledPanel->getPanel()->setLayout(sizer);
 
-  restoreWindowState(titledPanel);
+  restoreWidgetState(titledPanel);
 
   return titledPanel;
 }
@@ -153,7 +154,7 @@ CollapsibleTitledPanel* MapInspector::createModEditor(MapDocument& document)
   sizer->addWidget(modEditor, 1);
   titledPanel->getPanel()->setLayout(sizer);
 
-  restoreWindowState(titledPanel);
+  restoreWidgetState(titledPanel);
 
   return titledPanel;
 }

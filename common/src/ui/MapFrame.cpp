@@ -103,6 +103,7 @@
 #include "ui/SystemPaths.h"
 #include "ui/VertexTool.h"
 #include "ui/ViewUtils.h"
+#include "ui/WidgetState.h"
 #include "update/Updater.h"
 
 #include "kd/const_overload.h"
@@ -169,8 +170,8 @@ MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> docu
   connectObservers();
   bindEvents();
 
-  restoreWindowGeometry(this);
-  restoreWindowState(this);
+  restoreWidgetGeometry(this);
+  restoreWidgetState(this);
 
   setAcceptDrops(true);
 }
@@ -218,8 +219,8 @@ MapFrame::~MapFrame()
 
 void MapFrame::positionOnScreen(QWidget* reference)
 {
-  restoreWindowGeometry(this);
-  restoreWindowState(this);
+  restoreWidgetGeometry(this);
+  restoreWidgetState(this);
   if (reference)
   {
     const auto offset = QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
@@ -436,10 +437,10 @@ void MapFrame::createGui()
 
   setCentralWidget(layoutWrapper);
 
-  restoreWindowState(m_hSplitter);
-  restoreWindowState(m_vSplitter);
-  restoreWindowState(m_inspector);
-  restoreWindowState(m_infoPanel);
+  restoreWidgetState(m_hSplitter);
+  restoreWidgetState(m_vSplitter);
+  restoreWidgetState(m_inspector);
+  restoreWidgetState(m_infoPanel);
 }
 
 void MapFrame::createToolBar()
@@ -2473,12 +2474,12 @@ void MapFrame::closeEvent(QCloseEvent* event)
     }
     else
     {
-      saveWindowGeometry(this);
-      saveWindowState(this);
-      saveWindowState(m_hSplitter);
-      saveWindowState(m_vSplitter);
-      saveWindowState(m_inspector);
-      saveWindowState(m_infoPanel);
+      saveWidgetGeometry(this);
+      saveWidgetState(this);
+      saveWidgetState(m_hSplitter);
+      saveWidgetState(m_vSplitter);
+      saveWidgetState(m_inspector);
+      saveWidgetState(m_infoPanel);
 
       m_frameManager.removeFrame(this);
       event->accept();

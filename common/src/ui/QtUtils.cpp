@@ -85,32 +85,6 @@ QString fromStdStringView(std::string_view sv)
   return QString::fromUtf8(sv.data(), static_cast<int>(sv.size()));
 }
 
-QString windowSettingsPath(const QWidget* window, const QString& suffix)
-{
-  contract_pre(window != nullptr);
-  contract_pre(!window->objectName().isEmpty());
-
-  return "Windows/" + window->objectName() + "/" + suffix;
-}
-
-void saveWindowGeometry(QWidget* window)
-{
-  contract_pre(window != nullptr);
-
-  const auto path = windowSettingsPath(window, "Geometry");
-  auto settings = QSettings{};
-  settings.setValue(path, window->saveGeometry());
-}
-
-void restoreWindowGeometry(QWidget* window)
-{
-  contract_pre(window != nullptr);
-
-  const auto path = windowSettingsPath(window, "Geometry");
-  auto settings = QSettings{};
-  window->restoreGeometry(settings.value(path).toByteArray());
-}
-
 bool widgetOrChildHasFocus(const QWidget* widget)
 {
   contract_pre(widget != nullptr);

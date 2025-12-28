@@ -27,6 +27,7 @@
 #include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
+#include "ui/WidgetState.h"
 
 namespace tb::ui
 {
@@ -40,7 +41,7 @@ EntityInspector::EntityInspector(
 
 EntityInspector::~EntityInspector()
 {
-  saveWindowState(m_splitter);
+  saveWidgetState(m_splitter);
 }
 
 void EntityInspector::createGui(MapDocument& document, gl::ContextManager& contextManager)
@@ -61,7 +62,7 @@ void EntityInspector::createGui(MapDocument& document, gl::ContextManager& conte
   layout->addWidget(m_splitter, 1);
   setLayout(layout);
 
-  restoreWindowState(m_splitter);
+  restoreWidgetState(m_splitter);
 }
 
 QWidget* EntityInspector::createAttributeEditor(MapDocument& document, QWidget* parent)

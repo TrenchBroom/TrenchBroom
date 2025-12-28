@@ -27,6 +27,7 @@
 #include "ui/MapView3D.h"
 #include "ui/QtUtils.h"
 #include "ui/Splitter.h"
+#include "ui/WidgetState.h"
 
 namespace tb::ui
 {
@@ -43,9 +44,9 @@ FourPaneMapView::FourPaneMapView(
 
 FourPaneMapView::~FourPaneMapView()
 {
-  saveWindowState(m_hSplitter);
-  saveWindowState(m_leftVSplitter);
-  saveWindowState(m_rightVSplitter);
+  saveWidgetState(m_hSplitter);
+  saveWidgetState(m_leftVSplitter);
+  saveWidgetState(m_rightVSplitter);
 }
 
 void FourPaneMapView::createGui(
@@ -106,9 +107,9 @@ void FourPaneMapView::createGui(
   m_leftVSplitter->setSizes(QList<int>{1, 1});
   m_rightVSplitter->setSizes(QList<int>{1, 1});
 
-  restoreWindowState(m_hSplitter);
-  restoreWindowState(m_leftVSplitter);
-  restoreWindowState(m_rightVSplitter);
+  restoreWidgetState(m_hSplitter);
+  restoreWidgetState(m_leftVSplitter);
+  restoreWidgetState(m_rightVSplitter);
 
   connect(
     m_leftVSplitter, &QSplitter::splitterMoved, this, &FourPaneMapView::onSplitterMoved);

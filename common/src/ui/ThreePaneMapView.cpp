@@ -27,6 +27,7 @@
 #include "ui/MapView3D.h"
 #include "ui/QtUtils.h"
 #include "ui/Splitter.h"
+#include "ui/WidgetState.h"
 
 #include "kd/contracts.h"
 
@@ -46,8 +47,8 @@ ThreePaneMapView::ThreePaneMapView(
 
 ThreePaneMapView::~ThreePaneMapView()
 {
-  saveWindowState(m_hSplitter);
-  saveWindowState(m_vSplitter);
+  saveWidgetState(m_hSplitter);
+  saveWidgetState(m_vSplitter);
 }
 
 void ThreePaneMapView::createGui(
@@ -95,8 +96,8 @@ void ThreePaneMapView::createGui(
   m_hSplitter->setSizes(QList<int>{1, 1});
   m_vSplitter->setSizes(QList<int>{1, 1});
 
-  restoreWindowState(m_hSplitter);
-  restoreWindowState(m_vSplitter);
+  restoreWidgetState(m_hSplitter);
+  restoreWidgetState(m_vSplitter);
 }
 
 void ThreePaneMapView::maximizeView(MapView* view)

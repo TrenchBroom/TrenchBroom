@@ -33,8 +33,6 @@
 #include "Color.h"
 #include "ui/ViewConstants.h"
 
-#include "kd/contracts.h"
-
 #include "vm/vec.h"
 
 #include <filesystem>
@@ -71,31 +69,6 @@ namespace ui
 {
 
 QString fromStdStringView(std::string_view sv);
-
-QString windowSettingsPath(const QWidget* window, const QString& suffix = "");
-
-void saveWindowGeometry(QWidget* window);
-void restoreWindowGeometry(QWidget* window);
-
-template <typename T>
-void saveWindowState(const T* window)
-{
-  contract_pre(window != nullptr);
-
-  const auto path = windowSettingsPath(window, "State");
-  auto settings = QSettings{};
-  settings.setValue(path, window->saveState());
-}
-
-template <typename T>
-void restoreWindowState(T* window)
-{
-  contract_pre(window != nullptr);
-
-  const auto path = windowSettingsPath(window, "State");
-  auto settings = QSettings{};
-  window->restoreState(settings.value(path).toByteArray());
-}
 
 /**
  * Return true if the given widget or any of its children currently has focus.

@@ -31,6 +31,8 @@
 #include "ui/GameEngineProfileManager.h"
 #include "ui/QtUtils.h"
 
+#include "kd/contracts.h"
+
 #include <string>
 
 namespace tb::ui

@@ -38,6 +38,7 @@
 #include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
+#include "ui/WidgetState.h"
 
 #include <algorithm>
 #include <vector>
@@ -66,7 +67,7 @@ FaceInspector::FaceInspector(
 
 FaceInspector::~FaceInspector()
 {
-  saveWindowState(m_splitter);
+  saveWidgetState(m_splitter);
 }
 
 bool FaceInspector::cancelMouseDrag()
@@ -104,7 +105,7 @@ void FaceInspector::createGui(gl::ContextManager& contextManager)
     this,
     &FaceInspector::materialSelected);
 
-  restoreWindowState(m_splitter);
+  restoreWidgetState(m_splitter);
 }
 
 QWidget* FaceInspector::createFaceAttribsEditor(gl::ContextManager& contextManager)
