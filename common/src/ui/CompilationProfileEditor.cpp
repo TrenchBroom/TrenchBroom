@@ -32,6 +32,7 @@
 #include "ui/BorderLine.h"
 #include "ui/CompilationTaskListBox.h"
 #include "ui/CompilationVariables.h"
+#include "ui/EmptyWidget.h"
 #include "ui/MapDocument.h"
 #include "ui/MiniToolBarLayout.h"
 #include "ui/MultiCompletionLineEdit.h"
@@ -54,7 +55,7 @@ CompilationProfileEditor::CompilationProfileEditor(MapDocument& document, QWidge
 
   m_stackedWidget = new QStackedWidget{this};
   m_stackedWidget->addWidget(
-    createDefaultPage("Select a compilation profile", m_stackedWidget));
+    createEmptyWidget("Select a compilation profile", m_stackedWidget));
   m_stackedWidget->addWidget(createEditorPage(m_stackedWidget));
 
   auto* layout = new QHBoxLayout{};

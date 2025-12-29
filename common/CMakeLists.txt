@@ -68,6 +68,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/EdgeTool.cpp
         ${COMMON_SOURCE_DIR}/ui/EdgeToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/ElidedLabel.cpp
+        ${COMMON_SOURCE_DIR}/ui/EmptyWidget.cpp
         ${COMMON_SOURCE_DIR}/ui/EnableDisableTagCallback.cpp
         ${COMMON_SOURCE_DIR}/ui/EntityBrowser.cpp
         ${COMMON_SOURCE_DIR}/ui/EntityBrowserView.cpp
@@ -289,6 +290,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/EdgeTool.h
         ${COMMON_SOURCE_DIR}/ui/EdgeToolController.h
         ${COMMON_SOURCE_DIR}/ui/ElidedLabel.h
+        ${COMMON_SOURCE_DIR}/ui/EmptyWidget.h
         ${COMMON_SOURCE_DIR}/ui/EnableDisableTagCallback.h
         ${COMMON_SOURCE_DIR}/ui/EntityBrowser.h
         ${COMMON_SOURCE_DIR}/ui/EntityBrowserView.h

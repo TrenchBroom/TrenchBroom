@@ -150,19 +150,6 @@ QWidget* makeError(QWidget* widget)
   return widget;
 }
 
-QWidget* createDefaultPage(const QString& message, QWidget* parent)
-{
-  auto* container = new QWidget{parent};
-  auto* layout = new QVBoxLayout{};
-
-  auto* messageLabel = new QLabel{message};
-  makeEmphasized(messageLabel);
-  layout->addWidget(messageLabel, 0, Qt::AlignHCenter | Qt::AlignTop);
-  container->setLayout(layout);
-
-  return container;
-}
-
 void setWindowIconTB(QWidget* window)
 {
   contract_pre(window != nullptr);

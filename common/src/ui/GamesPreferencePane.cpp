@@ -39,6 +39,7 @@
 #include "mdl/GameManager.h"
 #include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
+#include "ui/EmptyWidget.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/GameEngineDialog.h"
@@ -70,7 +71,7 @@ void GamesPreferencePane::createGui()
   m_gameListBox->setMaximumWidth(220);
   m_gameListBox->setMinimumHeight(300);
 
-  m_defaultPage = createDefaultPage(tr("Select a game."));
+  m_defaultPage = createEmptyWidget(tr("Select a game."));
 
   m_stackedWidget = new QStackedWidget{};
   m_stackedWidget->addWidget(m_defaultPage);

@@ -29,6 +29,7 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "mdl/GameEngineProfile.h"
+#include "ui/EmptyWidget.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
@@ -44,7 +45,7 @@ GameEngineProfileEditor::GameEngineProfileEditor(QWidget* parent)
   : QWidget{parent}
 {
   m_stackedWidget = new QStackedWidget{};
-  m_stackedWidget->addWidget(createDefaultPage("Select a game engine profile"));
+  m_stackedWidget->addWidget(createEmptyWidget("Select a game engine profile"));
   m_stackedWidget->addWidget(createEditorPage());
 
   auto* layout = new QVBoxLayout{};
