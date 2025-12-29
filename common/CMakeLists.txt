@@ -56,6 +56,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/CreateEntityToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/CurrentGameIndicator.cpp
         ${COMMON_SOURCE_DIR}/ui/CyclingMapView.cpp
+        ${COMMON_SOURCE_DIR}/ui/DialogButtonLayout.cpp
         ${COMMON_SOURCE_DIR}/ui/DialogHeader.cpp
         ${COMMON_SOURCE_DIR}/ui/DrawShapeTool.cpp
         ${COMMON_SOURCE_DIR}/ui/DrawShapeToolController2D.cpp
@@ -274,6 +275,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/CreateEntityToolController.h
         ${COMMON_SOURCE_DIR}/ui/CurrentGameIndicator.h
         ${COMMON_SOURCE_DIR}/ui/CyclingMapView.h
+        ${COMMON_SOURCE_DIR}/ui/DialogButtonLayout.h
         ${COMMON_SOURCE_DIR}/ui/DialogHeader.h
         ${COMMON_SOURCE_DIR}/ui/DrawShapeTool.h
         ${COMMON_SOURCE_DIR}/ui/DrawShapeToolController2D.h

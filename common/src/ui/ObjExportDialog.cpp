@@ -31,6 +31,7 @@
 #include "mdl/ExportOptions.h"
 #include "mdl/Map.h"
 #include "ui/BorderLine.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/DialogHeader.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/MapDocument.h" // IWYU pragma: keep

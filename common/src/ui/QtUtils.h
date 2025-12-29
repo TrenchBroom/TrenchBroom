@@ -70,9 +70,6 @@ bool widgetOrChildHasFocus(const QWidget* widget);
 
 QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
 
-QLayout* wrapDialogButtonBox(QWidget* buttonBox);
-QLayout* wrapDialogButtonBox(QLayout* buttonBox);
-
 QWidget* makeDefault(QWidget* widget);
 QWidget* makeEmphasized(QWidget* widget);
 QWidget* makeUnemphasized(QWidget* widget);

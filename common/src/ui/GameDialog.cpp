@@ -29,6 +29,7 @@
 #include "TrenchBroomApp.h"
 #include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/GameListBox.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"

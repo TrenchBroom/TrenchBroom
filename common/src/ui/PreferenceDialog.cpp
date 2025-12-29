@@ -34,6 +34,7 @@
 #include "ui/BorderLine.h"
 #endif
 #include "ui/ColorsPreferencePane.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/GamesPreferencePane.h"
 #include "ui/KeyboardPreferencePane.h"
 #include "ui/MousePreferencePane.h"

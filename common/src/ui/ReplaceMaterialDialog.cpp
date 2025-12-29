@@ -35,6 +35,7 @@
 #include "mdl/UpdateBrushFaceAttributes.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"                 // IWYU pragma: keep
 #include "ui/BorderLine.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowser.h"
 #include "ui/QtUtils.h"

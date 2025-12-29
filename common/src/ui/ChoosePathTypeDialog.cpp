@@ -25,6 +25,7 @@
 
 #include "Macros.h"
 #include "ui/BorderLine.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/DialogHeader.h"
 #include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"

@@ -50,10 +50,8 @@
 #include "Color.h"
 #include "Macros.h"
 #include "mdl/MapTextEncoding.h"
-#include "ui/BorderLine.h"
 #include "ui/ImageUtils.h"
 #include "ui/MapFrame.h"
-#include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
 
@@ -183,46 +181,6 @@ QWidget* createDefaultPage(const QString& message, QWidget* parent)
   container->setLayout(layout);
 
   return container;
-}
-
-QLayout* wrapDialogButtonBox(QWidget* buttonBox)
-{
-  auto* innerLayout = new QHBoxLayout{};
-  innerLayout->setContentsMargins(
-    LayoutConstants::DialogButtonLeftMargin,
-    LayoutConstants::DialogButtonTopMargin,
-    LayoutConstants::DialogButtonRightMargin,
-    LayoutConstants::DialogButtonBottomMargin);
-  innerLayout->setSpacing(0);
-  innerLayout->addWidget(buttonBox);
-
-  auto* outerLayout = new QVBoxLayout{};
-  outerLayout->setContentsMargins(QMargins{});
-  outerLayout->setSpacing(0);
-  outerLayout->addWidget(new BorderLine{});
-  outerLayout->addLayout(innerLayout);
-
-  return outerLayout;
-}
-
-QLayout* wrapDialogButtonBox(QLayout* buttonBox)
-{
-  auto* innerLayout = new QHBoxLayout{};
-  innerLayout->setContentsMargins(
-    LayoutConstants::DialogButtonLeftMargin,
-    LayoutConstants::DialogButtonTopMargin,
-    LayoutConstants::DialogButtonRightMargin,
-    LayoutConstants::DialogButtonBottomMargin);
-  innerLayout->setSpacing(0);
-  innerLayout->addLayout(buttonBox);
-
-  auto* outerLayout = new QVBoxLayout{};
-  outerLayout->setContentsMargins(QMargins{});
-  outerLayout->setSpacing(0);
-  outerLayout->addWidget(new BorderLine{});
-  outerLayout->addLayout(innerLayout);
-
-  return outerLayout;
 }
 
 void setWindowIconTB(QWidget* window)
