@@ -54,14 +54,6 @@
 namespace tb::ui
 {
 
-bool widgetOrChildHasFocus(const QWidget* widget)
-{
-  contract_pre(widget != nullptr);
-
-  const auto* focusWidget = QApplication::focusWidget();
-  return widget == focusWidget || widget->isAncestorOf(focusWidget);
-}
-
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget)
 {
   const auto children = widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly);

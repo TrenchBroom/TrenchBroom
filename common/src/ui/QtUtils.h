@@ -61,11 +61,6 @@ enum class MapTextEncoding;
 namespace ui
 {
 
-/**
- * Return true if the given widget or any of its children currently has focus.
- */
-bool widgetOrChildHasFocus(const QWidget* widget);
-
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
 
 } // namespace ui

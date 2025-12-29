@@ -143,6 +143,14 @@ void showModelessDialog(QDialog* dialog)
   dialog->activateWindow();
 }
 
+bool widgetOrChildHasFocus(const QWidget* widget)
+{
+  contract_pre(widget != nullptr);
+
+  const auto* focusWidget = QApplication::focusWidget();
+  return widget == focusWidget || widget->isAncestorOf(focusWidget);
+}
+
 } // namespace
 
 using namespace std::chrono_literals;
