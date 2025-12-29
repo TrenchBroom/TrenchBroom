@@ -68,7 +68,5 @@ bool widgetOrChildHasFocus(const QWidget* widget);
 
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
 
-void showModelessDialog(QDialog* dialog);
-
 } // namespace ui
 } // namespace tb

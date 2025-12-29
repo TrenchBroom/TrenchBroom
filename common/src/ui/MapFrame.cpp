@@ -132,6 +132,18 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+void showModelessDialog(QDialog* dialog)
+{
+  // https://doc.qt.io/qt-5/qdialog.html#code-examples
+  dialog->show();
+  dialog->raise();
+  dialog->activateWindow();
+}
+
+} // namespace
 
 using namespace std::chrono_literals;
 

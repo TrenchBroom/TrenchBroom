@@ -73,12 +73,4 @@ void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget)
   delete widget->layout();
 }
 
-void showModelessDialog(QDialog* dialog)
-{
-  // https://doc.qt.io/qt-5/qdialog.html#code-examples
-  dialog->show();
-  dialog->raise();
-  dialog->activateWindow();
-}
-
 } // namespace tb::ui
