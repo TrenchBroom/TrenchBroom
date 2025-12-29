@@ -61,7 +61,5 @@ enum class MapTextEncoding;
 namespace ui
 {
 
-void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
-
 } // namespace ui
 } // namespace tb

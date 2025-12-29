@@ -17,42 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QtUtils.h"
+#include "QWidgetUtils.h"
 
-#include <QApplication>
-#include <QBoxLayout>
-#include <QButtonGroup>
-#include <QColor>
-#include <QDebug>
-#include <QDialog>
-#include <QDir>
-#include <QFont>
-#include <QGuiApplication>
-#include <QHeaderView>
-#include <QKeySequence>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPalette>
-#include <QResizeEvent>
-#include <QScreen>
-#include <QSettings>
-#include <QStandardPaths>
-#include <QString>
-#include <QStringBuilder>
-#include <QStringDecoder>
-#include <QStringEncoder>
-#include <QTableView>
-#include <QToolButton>
-#include <QVBoxLayout>
-#include <QWindow>
-#include <QtGlobal>
-
-#include "ui/MapFrame.h"
-
-#include "kd/contracts.h"
+#include <QLayout>
+#include <QWidget>
 
 namespace tb::ui
 {
 
+void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget)
+{
+  const auto children = widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly);
+  for (auto* childWidget : children)
+  {
+    childWidget->deleteLater();
+  }
+
+  delete widget->layout();
+}
 
 } // namespace tb::ui
