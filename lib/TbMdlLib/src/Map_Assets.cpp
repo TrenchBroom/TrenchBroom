@@ -75,8 +75,6 @@ std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Map& map)
 {
   return entityDefinitionFile(map.worldNode().entity())
          | kdl::optional_or_else([&]() { return defaultEntityDefinitionFile(map); });
-
-  return std::nullopt;
 }
 
 void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)

@@ -283,10 +283,10 @@ inline auto ShowPointEntityBounds =
 inline auto ShowPointEntityModels =
   Preference<bool>{"Map view/Show point entity models", true};
 
-inline constexpr auto FaceRenderModeTextured = std::string{"textured"};
-inline constexpr auto FaceRenderModeFlat = std::string{"flat"};
-inline constexpr auto FaceRenderModeSkip = std::string{"skip"};
-inline constexpr auto FaceRenderModeAll = std::string{"all"};
+inline constexpr auto FaceRenderModeTextured = "textured";
+inline constexpr auto FaceRenderModeFlat = "flat";
+inline constexpr auto FaceRenderModeSkip = "skip";
+inline constexpr auto FaceRenderModeAll = "all";
 inline auto FaceRenderMode =
   Preference<std::string>{"Map view/Face render mode", FaceRenderModeTextured};
 
@@ -299,10 +299,10 @@ inline auto ShowSoftMapBounds = Preference<bool>{"Map view/Show soft map bounds"
 inline auto ShowPointEntities = Preference<bool>{"Map view/Show point entities", true};
 inline auto ShowBrushes = Preference<bool>{"Map view/Show brushes", true};
 
-inline constexpr auto EntityLinkModeAll = std::string{"all"};
-inline constexpr auto EntityLinkModeTransitive = std::string{"transitive"};
-inline constexpr auto EntityLinkModeDirect = std::string{"direct"};
-inline constexpr auto EntityLinkModeNone = std::string{"none"};
+inline constexpr auto EntityLinkModeAll = "all";
+inline constexpr auto EntityLinkModeTransitive = "transitive";
+inline constexpr auto EntityLinkModeDirect = "direct";
+inline constexpr auto EntityLinkModeNone = "none";
 inline auto EntityLinkMode =
   Preference<std::string>{"Map view/Entity link mode", EntityLinkModeDirect};
 

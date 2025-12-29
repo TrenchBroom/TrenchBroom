@@ -74,7 +74,7 @@ auto tokenNames()
 class AseTokenizer : public Tokenizer<AseToken::Type>
 {
 private:
-  static constexpr const std::string WordDelims = " \t\n\r:";
+  static constexpr const auto WordDelims = " \t\n\r:";
 
 public:
   explicit AseTokenizer(std::string_view str)
