@@ -26,7 +26,7 @@
 #include <fstream>
 #include <string_view>
 
-namespace tb
+namespace tb::ui
 {
 
 class FileLogger : public Logger
@@ -45,4 +45,4 @@ private:
   deleteCopyAndMove(FileLogger);
 };
 
-} // namespace tb
+} // namespace tb::ui

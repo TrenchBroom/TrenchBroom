@@ -31,7 +31,6 @@
 #include <QToolButton>
 #include <QWidget>
 
-#include "FileLogger.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
@@ -41,6 +40,7 @@
 #include "ui/BorderLine.h"
 #include "ui/EmptyWidget.h"
 #include "ui/FileDialogDefaultDir.h"
+#include "ui/FileLogger.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/GameEngineDialog.h"
 #include "ui/GameListBox.h"

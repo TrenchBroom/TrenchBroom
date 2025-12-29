@@ -2,7 +2,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
-        ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/Action.cpp
@@ -85,6 +84,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/FaceTool.cpp
         ${COMMON_SOURCE_DIR}/ui/FaceToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/FileDialogDefaultDir.cpp
+        ${COMMON_SOURCE_DIR}/ui/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/ui/FlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/FlagsPopupEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/FlashSelectionAnimation.cpp
@@ -227,7 +227,6 @@ set(COMMON_SOURCE
 
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
-        ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
         ${COMMON_SOURCE_DIR}/ui/Action.h
@@ -309,6 +308,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/FaceTool.h
         ${COMMON_SOURCE_DIR}/ui/FaceToolController.h
         ${COMMON_SOURCE_DIR}/ui/FileDialogDefaultDir.h
+        ${COMMON_SOURCE_DIR}/ui/FileLogger.h
         ${COMMON_SOURCE_DIR}/ui/FlagsEditor.h
         ${COMMON_SOURCE_DIR}/ui/FlagsPopupEditor.h
         ${COMMON_SOURCE_DIR}/ui/FlashSelectionAnimation.h
