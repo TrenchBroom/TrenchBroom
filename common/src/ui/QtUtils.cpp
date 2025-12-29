@@ -84,16 +84,8 @@ bool widgetOrChildHasFocus(const QWidget* widget)
 {
   contract_pre(widget != nullptr);
 
-  const auto* currentWidget = static_cast<QObject*>(QApplication::focusWidget());
-  while (currentWidget)
-  {
-    if (currentWidget == widget)
-    {
-      return true;
-    }
-    currentWidget = currentWidget->parent();
-  }
-  return false;
+  const auto* focusWidget = QApplication::focusWidget();
+  return widget == focusWidget || widget->isAncestorOf(focusWidget);
 }
 
 MapFrame* findMapFrame(QWidget* widget)
