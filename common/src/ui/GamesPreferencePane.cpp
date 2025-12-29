@@ -37,6 +37,7 @@
 #include "fs/DiskIO.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/FormWithSectionsLayout.h"

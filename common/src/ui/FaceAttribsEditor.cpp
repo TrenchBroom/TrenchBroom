@@ -37,6 +37,7 @@
 #include "mdl/Map_Brushes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/FlagsPopupEditor.h"
 #include "ui/MapDocument.h"

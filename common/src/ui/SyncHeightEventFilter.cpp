@@ -20,6 +20,7 @@
 #include "SyncHeightEventFilter.h"
 
 #include <QEvent>
+#include <QResizeEvent>
 #include <QWidget>
 
 #include "kd/contracts.h"

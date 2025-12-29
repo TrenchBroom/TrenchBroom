@@ -28,6 +28,7 @@
 
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationTaskListBox.h"
 #include "ui/CompilationVariables.h"

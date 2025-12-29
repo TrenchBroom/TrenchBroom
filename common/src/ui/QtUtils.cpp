@@ -172,39 +172,6 @@ QColor toQColor(const Color& color)
     rgbaF.get<ColorChannel::a>());
 }
 
-QToolButton* createBitmapButton(
-  const std::filesystem::path& imagePath, const QString& tooltip, QWidget* parent)
-{
-  return createBitmapButton(loadSVGIcon(imagePath), tooltip, parent);
-}
-
-QToolButton* createBitmapButton(
-  const QIcon& icon, const QString& tooltip, QWidget* parent)
-{
-  // NOTE: QIcon::availableSizes() is not high-dpi friendly, it returns pixels when we
-  // want logical sizes. We rely on the fact that loadIconResourceQt inserts pixmaps in
-  // the order 1x then 2x, so the first pixmap has the logical size.
-  contract_pre(!icon.availableSizes().empty());
-
-  auto* button = new QToolButton{parent};
-  button->setMinimumSize(icon.availableSizes().front());
-  // button->setAutoDefault(false);
-  button->setToolTip(tooltip);
-  button->setIcon(icon);
-  // button->setFlat(true);
-  button->setObjectName("toolButton_borderless");
-
-  return button;
-}
-
-QToolButton* createBitmapToggleButton(
-  const std::filesystem::path& imagePath, const QString& tooltip, QWidget* parent)
-{
-  auto* button = createBitmapButton(imagePath, tooltip, parent);
-  button->setCheckable(true);
-  return button;
-}
-
 QWidget* createDefaultPage(const QString& message, QWidget* parent)
 {
   auto* container = new QWidget{parent};

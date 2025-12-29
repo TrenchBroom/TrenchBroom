@@ -32,7 +32,6 @@
 
 #include "Color.h"
 
-#include <filesystem>
 #include <string>
 
 class QButtonGroup;
@@ -68,17 +67,6 @@ namespace ui
  * Return true if the given widget or any of its children currently has focus.
  */
 bool widgetOrChildHasFocus(const QWidget* widget);
-
-QToolButton* createBitmapButton(
-  const std::filesystem::path& imagePath,
-  const QString& tooltip,
-  QWidget* parent = nullptr);
-QToolButton* createBitmapButton(
-  const QIcon& icon, const QString& tooltip, QWidget* parent = nullptr);
-QToolButton* createBitmapToggleButton(
-  const std::filesystem::path& imagePath,
-  const QString& tooltip,
-  QWidget* parent = nullptr);
 
 QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
 

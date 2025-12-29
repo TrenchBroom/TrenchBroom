@@ -28,6 +28,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/MiniToolBarLayout.h"

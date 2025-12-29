@@ -40,6 +40,7 @@
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
 #include "ui/AutoSizeTableRows.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/EntityPropertyItemDelegate.h"
 #include "ui/EntityPropertyModel.h"

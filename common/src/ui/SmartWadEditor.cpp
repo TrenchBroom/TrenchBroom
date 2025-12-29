@@ -29,6 +29,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/FileDialogDefaultDir.h"

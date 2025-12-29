@@ -24,6 +24,7 @@
 
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/GameEngineProfileEditor.h"
 #include "ui/GameEngineProfileListBox.h"

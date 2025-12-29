@@ -30,6 +30,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "ui/BitmapButton.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/UVView.h"

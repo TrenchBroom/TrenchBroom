@@ -24,6 +24,7 @@
 
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationProfileEditor.h"
 #include "ui/CompilationProfileListBox.h"
