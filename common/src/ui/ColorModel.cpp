@@ -25,6 +25,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "QtUtils.h"
+#include "ui/QColorUtils.h"
 #include "ui/QPathUtils.h"
 
 #include "kd/contracts.h"

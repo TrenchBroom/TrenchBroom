@@ -149,6 +149,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.cpp
+        ${COMMON_SOURCE_DIR}/ui/QColorUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QPathUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.cpp
@@ -369,6 +370,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.h
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.h
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.h
+        ${COMMON_SOURCE_DIR}/ui/QColorUtils.h
         ${COMMON_SOURCE_DIR}/ui/QPathUtils.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.h

@@ -47,7 +47,6 @@
 #include <QWindow>
 #include <QtGlobal>
 
-#include "Color.h"
 #include "Macros.h"
 #include "mdl/MapTextEncoding.h"
 #include "ui/ImageUtils.h"
@@ -149,25 +148,6 @@ QWidget* makeError(QWidget* widget)
   palette.setColor(QPalette::Normal, QPalette::Text, Qt::red);
   widget->setPalette(palette);
   return widget;
-}
-
-Color fromQColor(const QColor& color)
-{
-  return RgbaF{
-    static_cast<float>(color.redF()),
-    static_cast<float>(color.greenF()),
-    static_cast<float>(color.blueF()),
-    static_cast<float>(color.alphaF())};
-}
-
-QColor toQColor(const Color& color)
-{
-  const auto rgbaF = color.to<RgbaF>();
-  return QColor::fromRgbF(
-    rgbaF.get<ColorChannel::r>(),
-    rgbaF.get<ColorChannel::g>(),
-    rgbaF.get<ColorChannel::b>(),
-    rgbaF.get<ColorChannel::a>());
 }
 
 QWidget* createDefaultPage(const QString& message, QWidget* parent)

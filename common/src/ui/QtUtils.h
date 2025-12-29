@@ -30,8 +30,6 @@
 #include <QStringList>
 #include <QWidget>
 
-#include "Color.h"
-
 #include <string>
 
 class QButtonGroup;
@@ -78,8 +76,6 @@ QWidget* makeSmall(QWidget* widget);
 QWidget* makeHeader(QWidget* widget);
 QWidget* makeError(QWidget* widget);
 
-Color fromQColor(const QColor& color);
-QColor toQColor(const Color& color);
 void setWindowIconTB(QWidget* window);
 
 void setDefaultWindowColor(QWidget* widget);

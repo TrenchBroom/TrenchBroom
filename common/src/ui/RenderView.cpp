@@ -75,6 +75,8 @@
 #ifdef _WIN32
 #endif
 
+#include "ui/QColorUtils.h"
+
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 

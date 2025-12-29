@@ -43,6 +43,7 @@
 #include "ui/ColorButton.h"
 #include "ui/ColorTable.h"
 #include "ui/MapDocument.h"
+#include "ui/QColorUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
