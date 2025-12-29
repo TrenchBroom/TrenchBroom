@@ -81,8 +81,6 @@ void setWindowIconTB(QWidget* window);
 void setDefaultWindowColor(QWidget* widget);
 void setBaseWindowColor(QWidget* widget);
 
-QLineEdit* createSearchBox();
-
 void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked);
 
 /**

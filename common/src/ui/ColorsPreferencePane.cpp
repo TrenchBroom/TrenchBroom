@@ -27,6 +27,7 @@
 
 #include "ui/ColorModel.h"
 #include "ui/QtUtils.h"
+#include "ui/SearchBox.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui

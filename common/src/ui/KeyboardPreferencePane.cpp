@@ -33,6 +33,7 @@
 #include "ui/KeyboardShortcutModel.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
+#include "ui/SearchBox.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui

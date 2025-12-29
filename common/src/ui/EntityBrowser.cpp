@@ -35,6 +35,7 @@
 #include "ui/EntityBrowserView.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
+#include "ui/SearchBox.h"
 #include "ui/ViewConstants.h"
 
 // for use in QVariant

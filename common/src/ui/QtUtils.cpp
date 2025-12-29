@@ -182,17 +182,6 @@ void setBaseWindowColor(QWidget* widget)
   widget->setBackgroundRole(QPalette::Base);
 }
 
-QLineEdit* createSearchBox()
-{
-  auto* widget = new QLineEdit{};
-  widget->setClearButtonEnabled(true);
-  widget->setPlaceholderText(QLineEdit::tr("Search..."));
-
-  const auto icon = loadSVGIcon("Search.svg");
-  widget->addAction(icon, QLineEdit::LeadingPosition);
-  return widget;
-}
-
 void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked)
 {
   for (auto* button : group->buttons())
