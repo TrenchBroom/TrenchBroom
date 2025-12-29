@@ -19,6 +19,7 @@
 
 #include "ChoosePathTypeDialog.h"
 
+#include <QBoxLayout>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QRadioButton>
@@ -29,7 +30,6 @@
 #include "ui/DialogHeader.h"
 #include "ui/QPathUtils.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/SystemPaths.h"
 #include "ui/ViewConstants.h"
 

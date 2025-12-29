@@ -36,7 +36,6 @@
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/MapDocument.h"
 #include "ui/MultiCompletionLineEdit.h"
-#include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"

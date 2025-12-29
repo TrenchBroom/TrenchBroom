@@ -27,7 +27,6 @@
 
 #include "ui/BorderLine.h"
 #include "ui/ClickableTitleBar.h"
-#include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
 

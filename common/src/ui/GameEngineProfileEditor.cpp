@@ -33,7 +33,6 @@
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/QPathUtils.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"

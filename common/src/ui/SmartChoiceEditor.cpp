@@ -31,7 +31,6 @@
 #include "mdl/PropertyDefinition.h"
 #include "ui/MapDocument.h"
 #include "ui/QStringUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"

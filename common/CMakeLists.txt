@@ -158,7 +158,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/QStringUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QStyleUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QWidgetUtils.cpp
-        ${COMMON_SOURCE_DIR}/ui/QtUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.cpp
         ${COMMON_SOURCE_DIR}/ui/RenderView.cpp
@@ -384,7 +383,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/QStringUtils.h
         ${COMMON_SOURCE_DIR}/ui/QStyleUtils.h
         ${COMMON_SOURCE_DIR}/ui/QWidgetUtils.h
-        ${COMMON_SOURCE_DIR}/ui/QtUtils.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.h
         ${COMMON_SOURCE_DIR}/ui/RenderView.h

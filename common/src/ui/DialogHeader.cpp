@@ -22,7 +22,6 @@
 #include <QBoxLayout>
 #include <QLabel>
 
-#include "QtUtils.h"
 #include "ui/QStyleUtils.h"
 #include "ui/ViewConstants.h"
 

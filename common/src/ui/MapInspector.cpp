@@ -38,7 +38,6 @@
 #include "ui/ModEditor.h"
 #include "ui/QStyleUtils.h"
 #include "ui/QVecUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
 #include "ui/WidgetState.h"

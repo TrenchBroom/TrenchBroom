@@ -20,6 +20,7 @@
 #include "CompilationDialog.h"
 
 #include <QApplication>
+#include <QBoxLayout>
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -40,7 +41,6 @@
 #include "ui/MapDocument.h" // IWYU pragma: keep
 #include "ui/MapFrame.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"

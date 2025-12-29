@@ -24,7 +24,6 @@
 
 #include "ui/ElidedLabel.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 #include <cassert>

@@ -24,7 +24,6 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "QtUtils.h"
 #include "ui/QColorUtils.h"
 #include "ui/QPathUtils.h"
 

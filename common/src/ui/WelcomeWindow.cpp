@@ -30,7 +30,6 @@
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/QPathUtils.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/RecentDocumentListBox.h"
 #include "ui/ViewConstants.h"
 

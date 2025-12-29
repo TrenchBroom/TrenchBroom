@@ -45,7 +45,6 @@
 #include "ui/ImageUtils.h"
 #include "ui/MapDocument.h"
 #include "ui/QStringUtils.h"
-#include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/range_utils.h"

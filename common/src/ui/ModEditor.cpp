@@ -39,7 +39,6 @@
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/MiniToolBarLayout.h"
-#include "ui/QtUtils.h"
 #include "ui/SearchBox.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"

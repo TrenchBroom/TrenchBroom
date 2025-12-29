@@ -22,7 +22,6 @@
 #include <QGuiApplication>
 
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
 

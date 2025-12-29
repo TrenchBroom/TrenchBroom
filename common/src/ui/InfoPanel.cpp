@@ -26,7 +26,6 @@
 
 #include "ui/Console.h"
 #include "ui/IssueBrowser.h"
-#include "ui/QtUtils.h"
 #include "ui/TabBook.h"
 #include "ui/WidgetState.h"
 

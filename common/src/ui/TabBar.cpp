@@ -24,7 +24,6 @@
 #include <QStackedLayout>
 
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/TabBook.h"
 #include "ui/ViewConstants.h"
 

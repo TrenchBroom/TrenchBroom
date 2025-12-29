@@ -30,7 +30,6 @@
 #include "ui/CompilationProfileListBox.h"
 #include "ui/MiniToolBarLayout.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 
 #include "kd/range_utils.h"

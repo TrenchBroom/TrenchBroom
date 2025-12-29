@@ -28,7 +28,6 @@
 #include "ui/BitmapButton.h"
 #include "ui/DrawShapeToolExtension.h"
 #include "ui/ImageUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui

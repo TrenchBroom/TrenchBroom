@@ -24,7 +24,6 @@
 #include "ui/CyclingMapView.h"
 #include "ui/MapDocument.h"
 #include "ui/MapView3D.h"
-#include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 #include "ui/WidgetState.h"
 

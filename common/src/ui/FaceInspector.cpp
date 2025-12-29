@@ -36,7 +36,6 @@
 #include "ui/MaterialBrowser.h"
 #include "ui/MaterialCollectionEditor.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
 #include "ui/ViewConstants.h"

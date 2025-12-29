@@ -37,7 +37,6 @@
 #include "ui/MiniToolBarLayout.h"
 #include "ui/MultiCompletionLineEdit.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 

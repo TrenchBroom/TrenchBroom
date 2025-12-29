@@ -79,7 +79,6 @@
 #include "ui/MapFrame.h"
 #include "ui/MapViewActivationTracker.h"
 #include "ui/MapViewToolBox.h"
-#include "ui/QtUtils.h"
 #include "ui/SelectionTool.h"
 #include "ui/SignalDelayer.h"
 

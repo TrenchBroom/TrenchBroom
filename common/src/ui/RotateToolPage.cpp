@@ -35,7 +35,6 @@
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/QVecUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/RotateTool.h"
 #include "ui/SpinControl.h"
 #include "ui/ViewConstants.h"

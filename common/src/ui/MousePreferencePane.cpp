@@ -28,7 +28,6 @@
 #include "ui/ImageUtils.h"
 #include "ui/KeySequenceEdit.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
 

@@ -33,7 +33,6 @@
 #include "ui/BitmapButton.h"
 #include "ui/MapDocument.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/UVView.h"
 #include "ui/ViewConstants.h"
 

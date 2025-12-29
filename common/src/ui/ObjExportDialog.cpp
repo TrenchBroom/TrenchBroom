@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 
-#include "QtUtils.h"
 #include "mdl/ExportOptions.h"
 #include "mdl/Map.h"
 #include "ui/BorderLine.h"

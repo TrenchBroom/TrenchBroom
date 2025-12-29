@@ -45,7 +45,6 @@
 #include "ui/MapDocument.h"
 #include "ui/QColorUtils.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"

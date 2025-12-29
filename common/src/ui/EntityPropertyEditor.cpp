@@ -31,7 +31,6 @@
 #include "mdl/PropertyDefinition.h"
 #include "ui/EntityPropertyGrid.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
 #include "ui/SmartPropertyEditorManager.h"
 #include "ui/Splitter.h"
 #include "ui/WidgetState.h"

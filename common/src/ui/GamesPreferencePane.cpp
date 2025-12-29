@@ -48,7 +48,6 @@
 #include "ui/MapDocument.h"
 #include "ui/MiniToolBarLayout.h"
 #include "ui/QPathUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/SystemPaths.h"
 #include "ui/ViewConstants.h"
 

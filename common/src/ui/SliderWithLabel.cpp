@@ -23,7 +23,6 @@
 #include <QLabel>
 #include <QSlider>
 
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 #include <cmath>

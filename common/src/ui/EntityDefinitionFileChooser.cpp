@@ -35,7 +35,6 @@
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/MapDocument.h"
 #include "ui/QPathUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewUtils.h"
 

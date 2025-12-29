@@ -23,7 +23,6 @@
 #include <QLabel>
 
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui

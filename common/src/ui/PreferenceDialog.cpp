@@ -40,7 +40,6 @@
 #include "ui/KeyboardPreferencePane.h"
 #include "ui/MousePreferencePane.h"
 #include "ui/PreferencePane.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewPreferencePane.h"
 
 #include <filesystem>

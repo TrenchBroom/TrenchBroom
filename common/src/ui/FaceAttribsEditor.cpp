@@ -42,7 +42,6 @@
 #include "ui/FlagsPopupEditor.h"
 #include "ui/MapDocument.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/SignalDelayer.h"
 #include "ui/SpinControl.h"
 #include "ui/UVEditor.h"

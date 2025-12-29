@@ -25,7 +25,6 @@
 #include <QWidget>
 
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 
 namespace tb::ui
 {

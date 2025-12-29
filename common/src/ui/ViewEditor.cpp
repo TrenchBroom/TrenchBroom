@@ -41,7 +41,6 @@
 #include "ui/PopupButton.h"
 #include "ui/QStyleUtils.h"
 #include "ui/QWidgetUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
 

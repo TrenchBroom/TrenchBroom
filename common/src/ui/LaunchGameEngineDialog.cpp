@@ -19,6 +19,7 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include <QBoxLayout>
 #include <QCompleter>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -44,7 +45,6 @@
 #include "ui/MapDocument.h"
 #include "ui/MultiCompletionLineEdit.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 

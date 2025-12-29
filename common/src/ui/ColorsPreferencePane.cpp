@@ -19,6 +19,7 @@
 
 #include "ColorsPreferencePane.h"
 
+#include <QBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -27,7 +28,6 @@
 
 #include "ui/ColorModel.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/SearchBox.h"
 #include "ui/ViewConstants.h"
 

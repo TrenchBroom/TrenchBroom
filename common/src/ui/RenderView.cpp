@@ -30,7 +30,6 @@
 #include "render/Transformation.h"
 #include "ui/CrashReporter.h"
 #include "ui/InputEvent.h"
-#include "ui/QtUtils.h"
 
 #include <fmt/format.h>
 

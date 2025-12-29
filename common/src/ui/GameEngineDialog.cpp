@@ -31,7 +31,6 @@
 #include "ui/DialogButtonLayout.h"
 #include "ui/GameEngineProfileManager.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
 

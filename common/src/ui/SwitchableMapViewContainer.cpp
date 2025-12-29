@@ -35,7 +35,6 @@
 #include "ui/MapViewLayout.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/OnePaneMapView.h"
-#include "ui/QtUtils.h"
 #include "ui/ThreePaneMapView.h"
 #include "ui/TwoPaneMapView.h"
 

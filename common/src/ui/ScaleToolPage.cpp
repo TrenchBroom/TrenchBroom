@@ -31,7 +31,6 @@
 #include "mdl/Map_Geometry.h"
 #include "ui/MapDocument.h"
 #include "ui/QVecUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/ScaleTool.h"
 #include "ui/ViewConstants.h"
 

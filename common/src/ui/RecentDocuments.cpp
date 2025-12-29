@@ -24,7 +24,6 @@
 #include <QVariant>
 
 #include "ui/QPathUtils.h"
-#include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"

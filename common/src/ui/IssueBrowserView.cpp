@@ -38,7 +38,6 @@
 #include "mdl/WorldNode.h"
 #include "ui/AutoSizeTableRows.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
 #include "ui/SignalDelayer.h"
 
 #include "kd/overload.h"

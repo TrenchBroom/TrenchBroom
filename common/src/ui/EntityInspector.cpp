@@ -24,7 +24,6 @@
 #include "ui/EntityBrowser.h"
 #include "ui/EntityDefinitionFileChooser.h"
 #include "ui/EntityPropertyEditor.h"
-#include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
 #include "ui/WidgetState.h"

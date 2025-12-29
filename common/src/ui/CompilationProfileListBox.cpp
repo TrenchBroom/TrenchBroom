@@ -25,7 +25,6 @@
 #include "mdl/CompilationProfile.h"
 #include "ui/ElidedLabel.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 
 namespace tb::ui
 {

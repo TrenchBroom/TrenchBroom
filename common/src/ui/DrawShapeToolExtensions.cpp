@@ -19,6 +19,7 @@
 
 #include "DrawShapeToolExtensions.h"
 
+#include <QBoxLayout>
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
@@ -34,7 +35,6 @@
 #include "mdl/WorldNode.h"
 #include "ui/BitmapButton.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui

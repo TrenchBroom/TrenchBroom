@@ -30,7 +30,6 @@
 #include "gl/GL.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
 

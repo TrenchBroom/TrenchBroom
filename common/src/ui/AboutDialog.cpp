@@ -24,7 +24,6 @@
 
 #include "ui/AppInfoPanel.h"
 #include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
 
 namespace tb::ui
 {

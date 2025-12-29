@@ -23,7 +23,6 @@
 #include <QGridLayout>
 
 #include "ui/QWidgetUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
