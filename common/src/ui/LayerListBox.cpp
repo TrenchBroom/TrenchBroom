@@ -33,6 +33,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/BitmapButton.h"
 #include "ui/MapDocument.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -59,7 +60,7 @@ LayerListBoxWidget::LayerListBoxWidget(
   // appearing on the list widget, and instead just cuts off the label for long layer
   // names.
   m_nameText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-  makeInfo(m_infoText);
+  setInfoStyle(m_infoText);
 
   connect(m_omitFromExportButton, &QAbstractButton::clicked, this, [&]() {
     emit layerOmitFromExportToggled(m_layer);
@@ -118,11 +119,11 @@ void LayerListBoxWidget::updateLayerItem()
   m_nameText->setText(tr("%1").arg(QString::fromStdString(m_layer->name())));
   if (editorContext.currentLayer() == m_layer)
   {
-    makeEmphasized(m_nameText);
+    setEmphasizedStyle(m_nameText);
   }
   else
   {
-    makeUnemphasized(m_nameText);
+    setUnemphasizedSTyle(m_nameText);
   }
 
   const auto info = tr("%1 %2")

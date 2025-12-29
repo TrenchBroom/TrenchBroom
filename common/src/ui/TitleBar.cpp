@@ -23,6 +23,7 @@
 #include <QLabel>
 
 #include "ui/ControlListBox.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -44,7 +45,7 @@ TitleBar::TitleBar(
 
   if (boldTitle)
   {
-    makeEmphasized(m_titleLabel);
+    setEmphasizedStyle(m_titleLabel);
   }
 
   auto* layout = new QHBoxLayout{};

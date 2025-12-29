@@ -25,6 +25,7 @@
 #include "mdl/GameEngineProfile.h"
 #include "ui/ElidedLabel.h"
 #include "ui/QPathUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -51,8 +52,8 @@ void GameEngineProfileItemRenderer::createGui()
   m_nameLabel = new ElidedLabel{"not set", Qt::ElideRight};
   m_pathLabel = new ElidedLabel{"not set", Qt::ElideMiddle};
 
-  makeEmphasized(m_nameLabel);
-  makeInfo(m_pathLabel);
+  setEmphasizedStyle(m_nameLabel);
+  setInfoStyle(m_pathLabel);
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(QMargins{});

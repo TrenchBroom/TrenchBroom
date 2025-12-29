@@ -49,7 +49,6 @@
 
 #include "Macros.h"
 #include "mdl/MapTextEncoding.h"
-#include "ui/ImageUtils.h"
 #include "ui/MapFrame.h"
 
 #include "kd/contracts.h"
@@ -85,90 +84,6 @@ bool widgetOrChildHasFocus(const QWidget* widget)
   return widget == focusWidget || widget->isAncestorOf(focusWidget);
 }
 
-QWidget* makeDefault(QWidget* widget)
-{
-  widget->setFont(QFont{});
-  widget->setPalette(QPalette{});
-  return widget;
-}
-
-QWidget* makeEmphasized(QWidget* widget)
-{
-  auto font = widget->font();
-  font.setBold(true);
-  widget->setFont(font);
-  return widget;
-}
-
-QWidget* makeUnemphasized(QWidget* widget)
-{
-  widget->setFont(QFont{});
-  return widget;
-}
-
-QWidget* makeInfo(QWidget* widget)
-{
-  makeDefault(widget);
-
-  widget = makeSmall(widget);
-
-  const auto defaultPalette = QPalette{};
-  auto palette = widget->palette();
-  // Set all color groups (active, inactive, disabled) to use the disabled color, so it's
-  // dimmer
-  palette.setColor(
-    QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
-  palette.setColor(
-    QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::Text));
-  widget->setPalette(palette);
-  return widget;
-}
-
-QWidget* makeSmall(QWidget* widget)
-{
-  widget->setAttribute(Qt::WA_MacSmallSize);
-  return widget;
-}
-
-QWidget* makeHeader(QWidget* widget)
-{
-  makeDefault(widget);
-
-  auto font = widget->font();
-  font.setPointSize(2 * font.pointSize());
-  font.setBold(true);
-  widget->setFont(font);
-  return widget;
-}
-
-QWidget* makeError(QWidget* widget)
-{
-  auto palette = widget->palette();
-  palette.setColor(QPalette::Normal, QPalette::WindowText, Qt::red);
-  palette.setColor(QPalette::Normal, QPalette::Text, Qt::red);
-  widget->setPalette(palette);
-  return widget;
-}
-
-void setWindowIconTB(QWidget* window)
-{
-  contract_pre(window != nullptr);
-
-  window->setWindowIcon(QIcon{loadPixmap("AppIcon.png")});
-}
-
-void setDefaultWindowColor(QWidget* widget)
-{
-  widget->setAutoFillBackground(true);
-  widget->setBackgroundRole(QPalette::Window);
-}
-
-void setBaseWindowColor(QWidget* widget)
-{
-  widget->setAutoFillBackground(true);
-  widget->setBackgroundRole(QPalette::Base);
-}
-
 void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked)
 {
   for (auto* button : group->buttons())
@@ -179,14 +94,6 @@ void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool che
       return;
     }
   }
-}
-
-void insertTitleBarSeparator(QVBoxLayout* layout)
-{
-#ifdef _WIN32
-  layout->insertWidget(0, new BorderLine{}, 1);
-#endif
-  unused(layout);
 }
 
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget)
@@ -222,30 +129,6 @@ std::string mapStringFromUnicode(
   auto encode = QStringEncoder{codec};
 
   return QByteArray{encode(string)}.toStdString();
-}
-
-QString nativeModifierLabel(const int modifier)
-{
-  contract_pre(
-    modifier == Qt::META || modifier == Qt::SHIFT || modifier == Qt::CTRL
-    || modifier == Qt::ALT);
-
-  const auto keySequence = QKeySequence(modifier);
-
-  // QKeySequence doesn't totally support being given just a modifier
-  // but it does seem to handle the key codes like Qt::SHIFT, which
-  // it turns into native text as "Shift+" or the Shift symbol on macOS,
-  // and portable text as "Shift+".
-
-  auto nativeLabel = keySequence.toString(QKeySequence::NativeText);
-  if (nativeLabel.endsWith("+"))
-  {
-    // On Linux we get nativeLabel as something like "Ctrl+"
-    // On macOS it's just the special Command character, with no +
-    nativeLabel.chop(1); // Remove last character
-  }
-
-  return nativeLabel;
 }
 
 } // namespace tb::ui

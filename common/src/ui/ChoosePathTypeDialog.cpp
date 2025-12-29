@@ -28,6 +28,7 @@
 #include "ui/DialogButtonLayout.h"
 #include "ui/DialogHeader.h"
 #include "ui/QPathUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/SystemPaths.h"
 #include "ui/ViewConstants.h"
@@ -90,32 +91,32 @@ void ChoosePathTypeDialog::createGui(
   boldFont.setBold(true);
 
   m_absRadio = new QRadioButton{tr("Absolute")};
-  makeEmphasized(m_absRadio);
+  setEmphasizedStyle(m_absRadio);
   m_absRadio->setChecked(true);
 
-  auto* absolutePathText = makeInfo(new QLabel{pathAsQString(absPath)});
+  auto* absolutePathText = setInfoStyle(new QLabel{pathAsQString(absPath)});
 
   m_docRelativeRadio = new QRadioButton{tr("Relative to map file")};
-  makeEmphasized(m_docRelativeRadio);
+  setEmphasizedStyle(m_docRelativeRadio);
   m_docRelativeRadio->setEnabled(!docRelativePath.empty());
 
-  auto* mapRelativePathText = makeInfo(new QLabel{
+  auto* mapRelativePathText = setInfoStyle(new QLabel{
     docRelativePath.empty() ? tr("Could not build a path.")
                             : pathAsQString(docRelativePath)});
 
   m_appRelativeRadio = new QRadioButton{tr("Relative to application executable")};
-  makeEmphasized(m_appRelativeRadio);
+  setEmphasizedStyle(m_appRelativeRadio);
   m_appRelativeRadio->setEnabled(!appRelativePath.empty());
 
-  auto* appRelativePathText = makeInfo(new QLabel{
+  auto* appRelativePathText = setInfoStyle(new QLabel{
     appRelativePath.empty() ? tr("Could not build a path.")
                             : pathAsQString(appRelativePath)});
 
   m_gameRelativeRadio = new QRadioButton{tr("Relative to game directory")};
-  makeEmphasized(m_gameRelativeRadio);
+  setEmphasizedStyle(m_gameRelativeRadio);
   m_gameRelativeRadio->setEnabled(!gameRelativePath.empty());
 
-  auto* gameRelativePathText = makeInfo(new QLabel{
+  auto* gameRelativePathText = setInfoStyle(new QLabel{
     gameRelativePath.empty() ? tr("Could not build a path.")
                              : pathAsQString(gameRelativePath)});
 

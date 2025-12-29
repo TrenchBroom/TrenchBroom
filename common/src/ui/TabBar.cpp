@@ -23,6 +23,7 @@
 #include <QLabel>
 #include <QStackedLayout>
 
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/TabBook.h"
 #include "ui/ViewConstants.h"
@@ -53,7 +54,7 @@ TabBarButton::TabBarButton(const QString& label, QWidget* parent)
   outerLayout->addSpacing(LayoutConstants::NarrowVMargin);
   outerLayout->addWidget(m_indicator);
 
-  makeEmphasized(m_label);
+  setEmphasizedStyle(m_label);
   m_indicator->setFixedHeight(LayoutConstants::MediumVMargin);
   m_indicator->setAutoFillBackground(true);
 

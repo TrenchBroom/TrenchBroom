@@ -32,6 +32,7 @@
 #include "ui/EmptyWidget.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/QPathUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -110,11 +111,11 @@ void GameEngineProfileEditor::updatePath(const QString& str)
 
   if (valid || str.isEmpty())
   {
-    makeDefault(m_pathEdit);
+    setDefaultStyle(m_pathEdit);
   }
   else
   {
-    makeError(m_pathEdit);
+    setErrorStyle(m_pathEdit);
   }
 }
 

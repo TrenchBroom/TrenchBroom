@@ -23,6 +23,7 @@
 #include <QLabel>
 
 #include "ui/ElidedLabel.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -36,10 +37,10 @@ ImageListBoxItemRenderer::ImageListBoxItemRenderer(
   : ControlListBoxItemRenderer{parent}
 {
   m_titleLabel = new ElidedLabel{title, Qt::ElideRight};
-  makeEmphasized(m_titleLabel);
+  setEmphasizedStyle(m_titleLabel);
 
   m_subtitleLabel = new ElidedLabel{subtitle, Qt::ElideMiddle};
-  makeInfo(m_subtitleLabel);
+  setInfoStyle(m_subtitleLabel);
 
   auto* imageAndTextLayout = new QHBoxLayout{};
   imageAndTextLayout->setContentsMargins(0, 0, 0, 0);

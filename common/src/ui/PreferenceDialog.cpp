@@ -29,6 +29,7 @@
 
 #include "PreferenceManager.h"
 #include "ui/ImageUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/UpdatePreferencePane.h"
 #if !defined __APPLE__
 #include "ui/BorderLine.h"

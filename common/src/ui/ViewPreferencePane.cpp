@@ -29,6 +29,7 @@
 #include "Preferences.h"
 #include "gl/GL.h"
 #include "ui/FormWithSectionsLayout.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
@@ -101,7 +102,7 @@ QWidget* ViewPreferencePane::createViewPreferences()
   auto* viewBox = new QWidget{this};
 
   auto* viewPrefsHeader = new QLabel{"Map Views"};
-  makeEmphasized(viewPrefsHeader);
+  setEmphasizedStyle(viewPrefsHeader);
 
   m_themeCombo = new QComboBox{};
   m_themeCombo->addItems({
@@ -110,7 +111,7 @@ QWidget* ViewPreferencePane::createViewPreferences()
   });
   auto* themeInfo = new QLabel{};
   themeInfo->setText(tr("Requires restart after changing"));
-  makeInfo(themeInfo);
+  setInfoStyle(themeInfo);
   auto* themeLayout = new QHBoxLayout{};
   themeLayout->addWidget(m_themeCombo);
   themeLayout->addSpacing(LayoutConstants::NarrowHMargin);

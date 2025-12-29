@@ -44,6 +44,7 @@
 #include "ui/ColorTable.h"
 #include "ui/MapDocument.h"
 #include "ui/QColorUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -145,7 +146,7 @@ void SmartColorEditor::createGui()
   contract_pre(m_colorHistory == nullptr);
 
   auto* rangeTxt = new QLabel{tr("Color range")};
-  makeEmphasized(rangeTxt);
+  setEmphasizedStyle(rangeTxt);
 
   m_floatRadio = new QRadioButton{tr("Float [0,1]")};
   m_byteRadio = new QRadioButton{tr("Byte [0,255]")};

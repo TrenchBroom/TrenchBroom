@@ -26,6 +26,7 @@
 #include <QVBoxLayout>
 
 #include "ui/BorderLine.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 

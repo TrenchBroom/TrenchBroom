@@ -17,30 +17,35 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EmptyWidget.h"
+#pragma once
 
-#include <QBoxLayout>
-#include <QLabel>
-#include <QString>
-#include <QWidget>
-
-#include "ui/QStyleUtils.h"
-#include "ui/QtUtils.h"
+class QLineEdit;
+class QString;
+class QVBoxLayout;
+class QWidget;
 
 namespace tb::ui
 {
 
-QWidget* createEmptyWidget(const QString& message, QWidget* parent)
-{
-  auto* container = new QWidget{parent};
-  auto* layout = new QVBoxLayout{};
+QWidget* setDefaultStyle(QWidget* widget);
+QWidget* setEmphasizedStyle(QWidget* widget);
+QWidget* setUnemphasizedSTyle(QWidget* widget);
+QWidget* setInfoStyle(QWidget* widget);
+QWidget* setSmallStyle(QWidget* widget);
+QWidget* setHeaderStyle(QWidget* widget);
+QWidget* setErrorStyle(QWidget* widget);
 
-  auto* messageLabel = new QLabel{message};
-  setEmphasizedStyle(messageLabel);
-  layout->addWidget(messageLabel, 0, Qt::AlignHCenter | Qt::AlignTop);
-  container->setLayout(layout);
+void setWindowIconTB(QWidget* window);
 
-  return container;
-}
+void setDefaultWindowColor(QWidget* widget);
+void setBaseWindowColor(QWidget* widget);
+
+/**
+ * Insert a separating line as the first item in the given layout on platforms where
+ * this is necessary.
+ */
+void insertTitleBarSeparator(QVBoxLayout* layout);
+
+QString nativeModifierLabel(int modifier);
 
 } // namespace tb::ui

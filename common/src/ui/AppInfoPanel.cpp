@@ -31,6 +31,7 @@
 #include "ui/ClickableLabel.h"
 #include "ui/GetVersion.h"
 #include "ui/ImageUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 #include "update/Updater.h"
@@ -46,7 +47,7 @@ AppInfoPanel::AppInfoPanel(QWidget* parent)
   appIcon->setPixmap(appIconImage);
 
   auto* appName = new QLabel{tr("TrenchBroom")};
-  makeHeader(appName);
+  setHeaderStyle(appName);
 
   auto* appLine = new BorderLine{};
   auto* appClaim = new QLabel{tr("Level Editor")};
@@ -56,9 +57,9 @@ AppInfoPanel::AppInfoPanel(QWidget* parent)
   auto qtVersion =
     new ClickableLabel{tr("Qt %1").arg(QString::fromLocal8Bit(qVersion()))};
 
-  makeInfo(version);
-  makeInfo(build);
-  makeInfo(qtVersion);
+  setInfoStyle(version);
+  setInfoStyle(build);
+  setInfoStyle(qtVersion);
   build->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
   const auto tooltip = tr("Click to copy to clipboard");
@@ -72,7 +73,7 @@ AppInfoPanel::AppInfoPanel(QWidget* parent)
 
   auto& app = TrenchBroomApp::instance();
   auto* updateIndicator = app.updater().createUpdateIndicator();
-  makeInfo(updateIndicator);
+  setInfoStyle(updateIndicator);
 
   auto* versionLayout = new QHBoxLayout{};
   versionLayout->setContentsMargins(0, 0, 0, 0);

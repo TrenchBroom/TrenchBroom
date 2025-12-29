@@ -66,26 +66,7 @@ namespace ui
  */
 bool widgetOrChildHasFocus(const QWidget* widget);
 
-QWidget* makeDefault(QWidget* widget);
-QWidget* makeEmphasized(QWidget* widget);
-QWidget* makeUnemphasized(QWidget* widget);
-QWidget* makeInfo(QWidget* widget);
-QWidget* makeSmall(QWidget* widget);
-QWidget* makeHeader(QWidget* widget);
-QWidget* makeError(QWidget* widget);
-
-void setWindowIconTB(QWidget* window);
-
-void setDefaultWindowColor(QWidget* widget);
-void setBaseWindowColor(QWidget* widget);
-
 void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked);
-
-/**
- * Insert a separating line as the first item in the given layout on platforms where
- * this is necessary.
- */
-void insertTitleBarSeparator(QVBoxLayout* layout);
 
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
 
@@ -93,16 +74,6 @@ void showModelessDialog(QDialog* dialog);
 
 QString mapStringToUnicode(mdl::MapTextEncoding encoding, const std::string& string);
 std::string mapStringFromUnicode(mdl::MapTextEncoding encoding, const QString& string);
-
-/**
- * Maps one of Qt::META, Qt::SHIFT, Qt::CTRL, Qt::ALT to the
- * label for it on the current OS.
- *
- * @param modifier one of Qt::META, Qt::SHIFT, Qt::CTRL, Qt::ALT
- * @return the native label for this modifier on the current OS
- *         (e.g. "Ctrl" on Windows or the Command symbol on macOS)
- */
-QString nativeModifierLabel(int modifier);
 
 } // namespace ui
 } // namespace tb

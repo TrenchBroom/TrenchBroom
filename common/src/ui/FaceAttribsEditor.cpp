@@ -41,6 +41,7 @@
 #include "ui/BorderLine.h"
 #include "ui/FlagsPopupEditor.h"
 #include "ui/MapDocument.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/SignalDelayer.h"
 #include "ui/SpinControl.h"
@@ -305,51 +306,51 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
   m_uvEditor = new UVEditor{m_document, contextManager};
 
   auto* materialNameLabel = new QLabel{"Material"};
-  makeEmphasized(materialNameLabel);
+  setEmphasizedStyle(materialNameLabel);
   m_materialName = new QLabel{"none"};
   m_materialName->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
   auto* textureSizeLabel = new QLabel{"Size"};
-  makeEmphasized(textureSizeLabel);
+  setEmphasizedStyle(textureSizeLabel);
   m_textureSize = new QLabel{""};
 
   const auto max = std::numeric_limits<double>::max();
   const auto min = -max;
 
   auto* xOffsetLabel = new QLabel{"X Offset"};
-  makeEmphasized(xOffsetLabel);
+  setEmphasizedStyle(xOffsetLabel);
   m_xOffsetEditor = new SpinControl{};
   m_xOffsetEditor->setRange(min, max);
   m_xOffsetEditor->setDigits(0, 6);
 
   auto* yOffsetLabel = new QLabel{"Y Offset"};
-  makeEmphasized(yOffsetLabel);
+  setEmphasizedStyle(yOffsetLabel);
   m_yOffsetEditor = new SpinControl{};
   m_yOffsetEditor->setRange(min, max);
   m_yOffsetEditor->setDigits(0, 6);
 
   auto* xScaleLabel = new QLabel{"X Scale"};
-  makeEmphasized(xScaleLabel);
+  setEmphasizedStyle(xScaleLabel);
   m_xScaleEditor = new SpinControl{};
   m_xScaleEditor->setRange(min, max);
   m_xScaleEditor->setIncrements(0.1, 0.25, 0.01);
   m_xScaleEditor->setDigits(0, 6);
 
   auto* yScaleLabel = new QLabel{"Y Scale"};
-  makeEmphasized(yScaleLabel);
+  setEmphasizedStyle(yScaleLabel);
   m_yScaleEditor = new SpinControl{};
   m_yScaleEditor->setRange(min, max);
   m_yScaleEditor->setIncrements(0.1, 0.25, 0.01);
   m_yScaleEditor->setDigits(0, 6);
 
   auto* rotationLabel = new QLabel{"Angle"};
-  makeEmphasized(rotationLabel);
+  setEmphasizedStyle(rotationLabel);
   m_rotationEditor = new SpinControl{};
   m_rotationEditor->setRange(min, max);
   m_rotationEditor->setDigits(0, 6);
 
   m_surfaceValueLabel = new QLabel{"Value"};
-  makeEmphasized(m_surfaceValueLabel);
+  setEmphasizedStyle(m_surfaceValueLabel);
   m_surfaceValueEditor = new SpinControl{};
   m_surfaceValueEditor->setRange(min, max);
   m_surfaceValueEditor->setIncrements(1.0, 10.0, 100.0);
@@ -360,7 +361,7 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
     createUnsetButtonLayout(m_surfaceValueEditor, m_surfaceValueUnsetButton);
 
   m_surfaceFlagsLabel = new QLabel{"Surface"};
-  makeEmphasized(m_surfaceFlagsLabel);
+  setEmphasizedStyle(m_surfaceFlagsLabel);
   m_surfaceFlagsEditor = new FlagsPopupEditor{2};
   m_surfaceFlagsUnsetButton =
     createBitmapButton("ResetUV.svg", tr("Unset surface flags"));
@@ -368,7 +369,7 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
     createUnsetButtonLayout(m_surfaceFlagsEditor, m_surfaceFlagsUnsetButton);
 
   m_contentFlagsLabel = new QLabel{"Content"};
-  makeEmphasized(m_contentFlagsLabel);
+  setEmphasizedStyle(m_contentFlagsLabel);
   m_contentFlagsEditor = new FlagsPopupEditor{2};
   m_contentFlagsUnsetButton =
     createBitmapButton("ResetUV.svg", tr("Unset content flags"));
@@ -376,7 +377,7 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
     createUnsetButtonLayout(m_contentFlagsEditor, m_contentFlagsUnsetButton);
 
   m_colorLabel = new QLabel{"Color"};
-  makeEmphasized(m_colorLabel);
+  setEmphasizedStyle(m_colorLabel);
   m_colorEditor = new QLineEdit{};
   m_colorUnsetButton = createBitmapButton("ResetUV.svg", tr("Unset color"));
   m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);

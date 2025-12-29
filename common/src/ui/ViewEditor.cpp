@@ -39,6 +39,7 @@
 #include "ui/BorderPanel.h"
 #include "ui/MapDocument.h"
 #include "ui/PopupButton.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
@@ -156,7 +157,7 @@ void EntityDefinitionCheckBoxList::createGui()
 
     // Checkbox for the prefix, e.g. "func"
     auto* groupCB = new QCheckBox{QString::fromStdString(groupName)};
-    makeEmphasized(groupCB);
+    setEmphasizedStyle(groupCB);
     connect(groupCB, &QAbstractButton::clicked, this, [&, i](auto checked) {
       this->groupCheckBoxChanged(i, checked);
     });
@@ -189,9 +190,9 @@ void EntityDefinitionCheckBoxList::createGui()
   scrollArea->setWidget(scrollWidget);
 
   auto* showAllButton = new QPushButton{tr("Show all")};
-  makeEmphasized(showAllButton);
+  setEmphasizedStyle(showAllButton);
   auto* hideAllButton = new QPushButton{tr("Hide all")};
-  makeEmphasized(hideAllButton);
+  setEmphasizedStyle(hideAllButton);
 
   connect(
     showAllButton,
@@ -405,7 +406,7 @@ void ViewEditor::createTagFilter(QWidget* parent)
 void ViewEditor::createEmptyTagFilter(QWidget* parent)
 {
   auto* msg = new QLabel{tr("No tags found")};
-  makeInfo(msg);
+  setInfoStyle(msg);
 
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(
@@ -491,7 +492,7 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
   m_showSoftBoundsCheckBox = new QCheckBox{tr("Show soft bounds")};
 
   auto* restoreDefualtsButton = new QPushButton{tr("Restore Defaults")};
-  makeEmphasized(restoreDefualtsButton);
+  setEmphasizedStyle(restoreDefualtsButton);
 
   connect(
     m_shadeFacesCheckBox,

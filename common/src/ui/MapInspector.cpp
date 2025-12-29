@@ -36,6 +36,7 @@
 #include "ui/LayerEditor.h"
 #include "ui/MapDocument.h"
 #include "ui/ModEditor.h"
+#include "ui/QStyleUtils.h"
 #include "ui/QVecUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/TitledPanel.h"
@@ -191,10 +192,10 @@ void MapPropertiesEditor::createGui()
   auto* minCaptionLabel = new QLabel{tr("Min:")};
   auto* maxCaptionLabel = new QLabel{tr("Max:")};
 
-  makeInfo(minCaptionLabel);
-  makeInfo(maxCaptionLabel);
-  makeInfo(m_softBoundsFromGameMinLabel);
-  makeInfo(m_softBoundsFromGameMaxLabel);
+  setInfoStyle(minCaptionLabel);
+  setInfoStyle(maxCaptionLabel);
+  setInfoStyle(m_softBoundsFromGameMinLabel);
+  setInfoStyle(m_softBoundsFromGameMaxLabel);
 
   auto* softBoundsFromGameValueLayout = new QHBoxLayout{};
   softBoundsFromGameValueLayout->setContentsMargins(0, 0, 0, 0);
