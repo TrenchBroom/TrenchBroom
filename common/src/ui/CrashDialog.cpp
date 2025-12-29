@@ -30,6 +30,7 @@
 #include "ui/GetVersion.h"
 #include "ui/QPathUtils.h"
 #include "ui/QtUtils.h"
+#include "ui/ViewConstants.h"
 
 namespace tb::ui
 {

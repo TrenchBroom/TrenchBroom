@@ -37,6 +37,7 @@
 #include "render/BrushRenderer.h"
 #include "render/RenderService.h"
 #include "ui/MapDocument.h"
+#include "ui/QVecUtils.h"
 #include "ui/QtUtils.h"
 
 #include "kd/map_utils.h"

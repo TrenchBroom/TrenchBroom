@@ -38,6 +38,7 @@
 #include "ui/QtUtils.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
+#include "ui/ViewConstants.h"
 #include "ui/WidgetState.h"
 
 #include <algorithm>

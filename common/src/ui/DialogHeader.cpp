@@ -23,6 +23,7 @@
 #include <QLabel>
 
 #include "QtUtils.h"
+#include "ui/ViewConstants.h"
 
 namespace tb::ui
 {

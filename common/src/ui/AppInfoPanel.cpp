@@ -32,6 +32,7 @@
 #include "ui/GetVersion.h"
 #include "ui/ImageUtils.h"
 #include "ui/QtUtils.h"
+#include "ui/ViewConstants.h"
 #include "update/Updater.h"
 
 namespace tb::ui

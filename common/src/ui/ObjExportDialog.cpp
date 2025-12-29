@@ -36,6 +36,7 @@
 #include "ui/MapDocument.h" // IWYU pragma: keep
 #include "ui/MapFrame.h"
 #include "ui/QPathUtils.h"
+#include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"

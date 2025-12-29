@@ -19,7 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLocale>
 
-#include "ui/QtUtils.h"
+#include "ui/QVecUtils.h"
 
 #include "vm/vec.h"
 
