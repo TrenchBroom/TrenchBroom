@@ -50,6 +50,23 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked)
+{
+  for (auto* button : group->buttons())
+  {
+    if (button->objectName() == objectName)
+    {
+      button->setChecked(checked);
+      return;
+    }
+  }
+}
+
+} // namespace
+
 // EntityDefinitionCheckBoxList
 
 EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(

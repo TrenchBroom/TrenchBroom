@@ -66,8 +66,6 @@ namespace ui
  */
 bool widgetOrChildHasFocus(const QWidget* widget);
 
-void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked);
-
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
 
 void showModelessDialog(QDialog* dialog);

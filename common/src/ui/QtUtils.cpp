@@ -62,18 +62,6 @@ bool widgetOrChildHasFocus(const QWidget* widget)
   return widget == focusWidget || widget->isAncestorOf(focusWidget);
 }
 
-void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked)
-{
-  for (auto* button : group->buttons())
-  {
-    if (button->objectName() == objectName)
-    {
-      button->setChecked(checked);
-      return;
-    }
-  }
-}
-
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget)
 {
   const auto children = widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly);
