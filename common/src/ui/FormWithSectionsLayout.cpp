@@ -22,7 +22,7 @@
 #include <QBoxLayout>
 #include <QLabel>
 
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
@@ -40,13 +40,13 @@ void FormWithSectionsLayout::addSection(const QString& title, const QString& inf
   auto* titleLayout = new QVBoxLayout{};
   titleLayout->setContentsMargins(0, topMargin, LayoutConstants::WideHMargin, 0);
   titleLayout->setSpacing(0);
-  titleLayout->addWidget(makeEmphasized(new QLabel{title}));
+  titleLayout->addWidget(setEmphasizedStyle(new QLabel{title}));
 
   if (!info.isEmpty())
   {
     auto* infoLabel = new QLabel{info};
     infoLabel->setWordWrap(true);
-    makeInfo(infoLabel);
+    setInfoStyle(infoLabel);
 
     titleLayout->addSpacing(LayoutConstants::NarrowVMargin);
     titleLayout->addWidget(infoLabel);

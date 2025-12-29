@@ -21,10 +21,9 @@
 
 #include <QGuiApplication>
 
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 
 #include "kd/contracts.h"
-#include "kd/string_utils.h"
 
 namespace tb::ui
 {
@@ -95,11 +94,11 @@ void SpinControl::setDigits(const int /* minDigits */, const int maxDigits)
 void SpinControl::updateTooltip()
 {
   setToolTip(tr("Increment: %1 (%2: %3, %4: %5)")
-               .arg(QString::fromStdString(kdl::str_to_string(m_regularIncrement)))
+               .arg(m_regularIncrement)
                .arg(nativeModifierLabel(Qt::SHIFT))
-               .arg(QString::fromStdString(kdl::str_to_string(m_shiftIncrement)))
+               .arg(m_shiftIncrement)
                .arg(nativeModifierLabel(Qt::CTRL))
-               .arg(QString::fromStdString(kdl::str_to_string(m_ctrlIncrement))));
+               .arg(m_ctrlIncrement));
 }
 
 } // namespace tb::ui

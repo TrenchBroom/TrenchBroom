@@ -26,8 +26,8 @@
 
 #include "ui/Console.h"
 #include "ui/IssueBrowser.h"
-#include "ui/QtUtils.h"
 #include "ui/TabBook.h"
+#include "ui/WidgetState.h"
 
 namespace tb::ui
 {
@@ -49,12 +49,12 @@ InfoPanel::InfoPanel(MapDocument& document, QWidget* parent)
   sizer->addWidget(m_tabBook);
   setLayout(sizer);
 
-  restoreWindowState(m_tabBook);
+  restoreWidgetState(m_tabBook);
 }
 
 InfoPanel::~InfoPanel()
 {
-  saveWindowState(m_tabBook);
+  saveWidgetState(m_tabBook);
 }
 
 Console* InfoPanel::console() const

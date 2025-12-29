@@ -38,10 +38,10 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/LayerListBox.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"

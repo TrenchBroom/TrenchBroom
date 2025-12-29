@@ -22,7 +22,7 @@
 #include <QLabel>
 #include <QLayout>
 
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
@@ -34,7 +34,7 @@ ClickableTitleBar::ClickableTitleBar(
   , m_stateText{new QLabel{stateText}}
 {
   m_stateText->setFont(m_titleLabel->font());
-  makeInfo(m_stateText);
+  setInfoStyle(m_stateText);
 
   layout()->addWidget(m_stateText);
 }

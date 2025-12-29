@@ -27,15 +27,17 @@
 #include <QPushButton>
 #include <QRadioButton>
 
-#include "QtUtils.h"
 #include "mdl/ExportOptions.h"
 #include "mdl/Map.h"
 #include "ui/BorderLine.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/DialogHeader.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/MapDocument.h" // IWYU pragma: keep
 #include "ui/MapFrame.h"
 #include "ui/QPathUtils.h"
+#include "ui/QStyleUtils.h"
+#include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"

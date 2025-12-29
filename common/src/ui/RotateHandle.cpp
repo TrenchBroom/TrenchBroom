@@ -27,7 +27,7 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
-#include "ui/QtUtils.h"
+#include "ui/QVecUtils.h"
 
 #include "vm/intersection.h"
 #include "vm/mat_ext.h"

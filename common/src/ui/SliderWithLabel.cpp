@@ -23,7 +23,6 @@
 #include <QLabel>
 #include <QSlider>
 
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 #include <cmath>
@@ -33,9 +32,15 @@ namespace tb::ui
 
 SliderWithLabel::SliderWithLabel(const int minimum, const int maximum, QWidget* parent)
   : QWidget{parent}
-  , m_slider{createSlider(minimum, maximum)}
+  , m_slider{new QSlider{}}
   , m_label{new QLabel{}}
 {
+  m_slider->setMinimum(minimum);
+  m_slider->setMaximum(maximum);
+  m_slider->setTickPosition(QSlider::TicksBelow);
+  m_slider->setTracking(true);
+  m_slider->setOrientation(Qt::Horizontal);
+
   const auto maxDigits = int(std::log10(m_slider->maximum())) + 1;
   const auto str = QString{""}.fill('9', maxDigits);
   const auto rect = m_label->fontMetrics().boundingRect(str);
@@ -61,7 +66,8 @@ int SliderWithLabel::value() const
 
 float SliderWithLabel::ratio() const
 {
-  return getSliderRatio(m_slider);
+  return float(m_slider->value() - m_slider->minimum())
+         / float(m_slider->maximum() - m_slider->minimum());
 }
 
 void SliderWithLabel::setValue(const int value)
@@ -71,7 +77,9 @@ void SliderWithLabel::setValue(const int value)
 
 void SliderWithLabel::setRatio(const float ratio)
 {
-  setSliderRatio(m_slider, ratio);
+  const auto value =
+    ratio * float(m_slider->maximum() - m_slider->minimum()) + float(m_slider->minimum());
+  m_slider->setValue(int(value));
 }
 
 void SliderWithLabel::valueChangedInternal(const int value)

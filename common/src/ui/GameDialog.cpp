@@ -29,8 +29,9 @@
 #include "TrenchBroomApp.h"
 #include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/GameListBox.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
@@ -171,7 +172,7 @@ QWidget* GameDialog::createInfoPanel(const QString& title, const QString& infoTe
   auto* infoPanel = new QWidget{};
 
   auto* header = new QLabel{title};
-  makeHeader(header);
+  setHeaderStyle(header);
 
   auto* info = new QLabel{infoText};
   info->setWordWrap(true);
@@ -215,7 +216,7 @@ QWidget* GameDialog::createSelectionPanel()
   m_gameListBox->setToolTip("Double click on a game to select it");
 
   auto* label = new QLabel{"Map Format"};
-  makeEmphasized(label);
+  setEmphasizedStyle(label);
 
   m_mapFormatComboBox = new QComboBox{};
   m_mapFormatComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);

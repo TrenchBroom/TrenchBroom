@@ -19,6 +19,7 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include <QBoxLayout>
 #include <QCompleter>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -37,12 +38,13 @@
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
 #include "ui/CurrentGameIndicator.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/GameEngineDialog.h"
 #include "ui/GameEngineProfileListBox.h"
 #include "ui/LaunchGameEngine.h"
 #include "ui/MapDocument.h"
 #include "ui/MultiCompletionLineEdit.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/VariableStoreModel.h"
 #include "ui/ViewConstants.h"
 
@@ -79,7 +81,7 @@ void LaunchGameEngineDialog::createGui()
   m_gameEngineList->setMinimumSize(250, 280);
 
   auto* header = new QLabel{"Launch Engine"};
-  makeHeader(header);
+  setHeaderStyle(header);
 
   auto* message = new QLabel{
     R"(Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.)"};
@@ -88,7 +90,7 @@ void LaunchGameEngineDialog::createGui()
   auto* openPreferencesButton = new QPushButton{"Configure engines..."};
 
   auto* parameterLabel = new QLabel{"Parameters"};
-  makeEmphasized(parameterLabel);
+  setEmphasizedStyle(parameterLabel);
 
   m_parameterText = new MultiCompletionLineEdit{};
   m_parameterText->setFont(Fonts::fixedWidthFont());

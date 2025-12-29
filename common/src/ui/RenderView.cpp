@@ -30,7 +30,6 @@
 #include "render/Transformation.h"
 #include "ui/CrashReporter.h"
 #include "ui/InputEvent.h"
-#include "ui/QtUtils.h"
 
 #include <fmt/format.h>
 
@@ -74,6 +73,8 @@
 
 #ifdef _WIN32
 #endif
+
+#include "ui/QColorUtils.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"

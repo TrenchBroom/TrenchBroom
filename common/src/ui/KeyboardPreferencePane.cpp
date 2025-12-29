@@ -32,7 +32,8 @@
 #include "ui/KeyboardShortcutItemDelegate.h"
 #include "ui/KeyboardShortcutModel.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
+#include "ui/SearchBox.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
@@ -71,11 +72,11 @@ KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* p
   m_table->setItemDelegate(new KeyboardShortcutItemDelegate());
 
   auto* searchBox = createSearchBox();
-  makeSmall(searchBox);
+  setSmallStyle(searchBox);
 
   auto* infoLabel = new QLabel{
     tr("Double-click an item to begin editing it. Click anywhere else to end editing.")};
-  makeInfo(infoLabel);
+  setInfoStyle(infoLabel);
 
   auto* infoAndSearchLayout = new QHBoxLayout{};
   infoAndSearchLayout->setContentsMargins(

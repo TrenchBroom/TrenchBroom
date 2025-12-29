@@ -25,7 +25,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_QPathUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_QPreferenceStore.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_QPreferenceStoreUtils.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/ui/tst_QtUtils.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_QVecUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RecentDocuments.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RotateTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ScaleTool.cpp"

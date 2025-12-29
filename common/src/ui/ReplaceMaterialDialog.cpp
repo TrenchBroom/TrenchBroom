@@ -19,6 +19,7 @@
 
 #include "ReplaceMaterialDialog.h"
 
+#include <QBoxLayout>
 #include <QDialogButtonBox>
 #include <QMessageBox>
 #include <QPushButton>
@@ -35,9 +36,10 @@
 #include "mdl/UpdateBrushFaceAttributes.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"                 // IWYU pragma: keep
 #include "ui/BorderLine.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowser.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/TitledPanel.h"
 
 #include "kd/contracts.h"

@@ -44,7 +44,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/ImageUtils.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
+#include "ui/QStringUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
@@ -652,7 +652,8 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
     }
   }
 
-  return toQStringList(std::begin(result), std::end(result));
+  return result | std::views::transform(QString::fromStdString)
+         | kdl::ranges::to<QStringList>();
 }
 
 std::string EntityPropertyModel::propertyKey(const int row) const

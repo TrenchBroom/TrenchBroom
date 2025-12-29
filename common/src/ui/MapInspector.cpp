@@ -36,9 +36,11 @@
 #include "ui/LayerEditor.h"
 #include "ui/MapDocument.h"
 #include "ui/ModEditor.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
+#include "ui/QVecUtils.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
+#include "ui/WidgetState.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -90,8 +92,8 @@ MapInspector::MapInspector(MapDocument& document, QWidget* parent)
 
 MapInspector::~MapInspector()
 {
-  saveWindowState(m_mapPropertiesEditor);
-  saveWindowState(m_modEditor);
+  saveWidgetState(m_mapPropertiesEditor);
+  saveWidgetState(m_modEditor);
 }
 
 void MapInspector::createGui(MapDocument& document)
@@ -136,7 +138,7 @@ CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(MapDocument& doc
   sizer->addWidget(editor, 1);
   titledPanel->getPanel()->setLayout(sizer);
 
-  restoreWindowState(titledPanel);
+  restoreWidgetState(titledPanel);
 
   return titledPanel;
 }
@@ -153,7 +155,7 @@ CollapsibleTitledPanel* MapInspector::createModEditor(MapDocument& document)
   sizer->addWidget(modEditor, 1);
   titledPanel->getPanel()->setLayout(sizer);
 
-  restoreWindowState(titledPanel);
+  restoreWidgetState(titledPanel);
 
   return titledPanel;
 }
@@ -189,10 +191,10 @@ void MapPropertiesEditor::createGui()
   auto* minCaptionLabel = new QLabel{tr("Min:")};
   auto* maxCaptionLabel = new QLabel{tr("Max:")};
 
-  makeInfo(minCaptionLabel);
-  makeInfo(maxCaptionLabel);
-  makeInfo(m_softBoundsFromGameMinLabel);
-  makeInfo(m_softBoundsFromGameMaxLabel);
+  setInfoStyle(minCaptionLabel);
+  setInfoStyle(maxCaptionLabel);
+  setInfoStyle(m_softBoundsFromGameMinLabel);
+  setInfoStyle(m_softBoundsFromGameMaxLabel);
 
   auto* softBoundsFromGameValueLayout = new QHBoxLayout{};
   softBoundsFromGameValueLayout->setContentsMargins(0, 0, 0, 0);

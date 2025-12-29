@@ -28,9 +28,10 @@
 #include "ui/FaceInspector.h"
 #include "ui/MapInspector.h"
 #include "ui/MapViewBar.h"
-#include "ui/QtUtils.h"
+#include "ui/SyncHeightEventFilter.h"
 #include "ui/TabBar.h"
 #include "ui/TabBook.h"
+#include "ui/WidgetState.h"
 
 namespace tb::ui
 {
@@ -54,12 +55,12 @@ Inspector::Inspector(
   layout->addWidget(m_tabBook);
   setLayout(layout);
 
-  restoreWindowState(m_tabBook);
+  restoreWidgetState(m_tabBook);
 }
 
 Inspector::~Inspector()
 {
-  saveWindowState(m_tabBook);
+  saveWidgetState(m_tabBook);
 }
 
 void Inspector::connectTopWidgets(MapViewBar* mapViewBar)

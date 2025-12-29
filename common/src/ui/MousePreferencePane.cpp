@@ -27,7 +27,7 @@
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/ImageUtils.h"
 #include "ui/KeySequenceEdit.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
 
@@ -147,8 +147,9 @@ void MousePreferencePane::createGui()
   layout->addRow(tr("Speed"), m_flyMoveSpeedSlider);
   layout->addRow(
     "",
-    makeInfo(new QLabel{"Turn mouse wheel while holding right mouse button in 3D view to "
-                        "adjust speed on the fly."}));
+    setInfoStyle(
+      new QLabel{"Turn mouse wheel while holding right mouse button in 3D view to "
+                 "adjust speed on the fly."}));
 
   setLayout(layout);
   setMinimumWidth(400);

@@ -34,7 +34,6 @@
 #include "ui/MapViewBase.h"
 #include "ui/PreferenceDialog.h"
 #include "ui/QPathUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/SystemPaths.h"
 
 #include "kd/path_utils.h"

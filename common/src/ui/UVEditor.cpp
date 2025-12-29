@@ -30,8 +30,9 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "ui/BitmapButton.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/UVView.h"
 #include "ui/ViewConstants.h"
 
@@ -92,7 +93,7 @@ void UVEditor::createGui(gl::ContextManager& contextManager)
     m_rotateUVCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCWClicked);
 
   auto* gridLabel = new QLabel{"Grid "};
-  makeEmphasized(gridLabel);
+  setEmphasizedStyle(gridLabel);
   m_xSubDivisionEditor = new QSpinBox{};
   m_xSubDivisionEditor->setRange(1, 16);
   m_xSubDivisionEditor->setValue(1);

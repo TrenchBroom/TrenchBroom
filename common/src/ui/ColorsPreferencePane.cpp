@@ -19,6 +19,7 @@
 
 #include "ColorsPreferencePane.h"
 
+#include <QBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -26,7 +27,9 @@
 #include <QTableView>
 
 #include "ui/ColorModel.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
+#include "ui/SearchBox.h"
+#include "ui/ViewConstants.h"
 
 namespace tb::ui
 {
@@ -58,10 +61,10 @@ ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
   m_table->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
 
   auto* searchBox = createSearchBox();
-  makeSmall(searchBox);
+  setSmallStyle(searchBox);
 
   auto* infoLabel = new QLabel{tr("Double-click a color to begin editing it.")};
-  makeInfo(infoLabel);
+  setInfoStyle(infoLabel);
 
   auto* infoAndSearchLayout = new QHBoxLayout{};
   infoAndSearchLayout->setContentsMargins(

@@ -28,8 +28,11 @@
 #include "mdl/GameManager.h"
 #include "ui/BorderLine.h"
 #include "ui/CurrentGameIndicator.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/GameEngineProfileManager.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
+
+#include "kd/contracts.h"
 
 #include <string>
 

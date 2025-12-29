@@ -29,8 +29,10 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "mdl/GameEngineProfile.h"
+#include "ui/EmptyWidget.h"
+#include "ui/FileDialogDefaultDir.h"
 #include "ui/QPathUtils.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
@@ -43,7 +45,7 @@ GameEngineProfileEditor::GameEngineProfileEditor(QWidget* parent)
   : QWidget{parent}
 {
   m_stackedWidget = new QStackedWidget{};
-  m_stackedWidget->addWidget(createDefaultPage("Select a game engine profile"));
+  m_stackedWidget->addWidget(createEmptyWidget("Select a game engine profile"));
   m_stackedWidget->addWidget(createEditorPage());
 
   auto* layout = new QVBoxLayout{};
@@ -58,10 +60,10 @@ QWidget* GameEngineProfileEditor::createEditorPage()
   setBaseWindowColor(container);
 
   m_nameEdit = new QLineEdit{};
-  setHint(m_nameEdit, "Choose a name");
+  m_nameEdit->setPlaceholderText(tr("Choose a name"));
 
   m_pathEdit = new QLineEdit{};
-  setHint(m_pathEdit, "Click on the button to choose...");
+  m_pathEdit->setPlaceholderText(tr("Click on the button to choose..."));
 
   auto* button = new QPushButton{"..."};
 
@@ -108,11 +110,11 @@ void GameEngineProfileEditor::updatePath(const QString& str)
 
   if (valid || str.isEmpty())
   {
-    makeDefault(m_pathEdit);
+    setDefaultStyle(m_pathEdit);
   }
   else
   {
-    makeError(m_pathEdit);
+    setErrorStyle(m_pathEdit);
   }
 }
 

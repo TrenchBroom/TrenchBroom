@@ -34,7 +34,7 @@
 #include "mdl/Map.h"
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowserView.h"
-#include "ui/QtUtils.h"
+#include "ui/SearchBox.h"
 #include "ui/ViewConstants.h"
 
 // for use in QVariant

@@ -37,14 +37,17 @@
 #include "fs/DiskIO.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
+#include "ui/EmptyWidget.h"
+#include "ui/FileDialogDefaultDir.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/GameEngineDialog.h"
 #include "ui/GameListBox.h"
 #include "ui/ImageUtils.h"
 #include "ui/MapDocument.h"
+#include "ui/MiniToolBarLayout.h"
 #include "ui/QPathUtils.h"
-#include "ui/QtUtils.h"
 #include "ui/SystemPaths.h"
 #include "ui/ViewConstants.h"
 
@@ -67,7 +70,7 @@ void GamesPreferencePane::createGui()
   m_gameListBox->setMaximumWidth(220);
   m_gameListBox->setMinimumHeight(300);
 
-  m_defaultPage = createDefaultPage(tr("Select a game."));
+  m_defaultPage = createEmptyWidget(tr("Select a game."));
 
   m_stackedWidget = new QStackedWidget{};
   m_stackedWidget->addWidget(m_defaultPage);
@@ -80,7 +83,7 @@ void GamesPreferencePane::createGui()
     this,
     &GamesPreferencePane::showUserConfigDirClicked);
 
-  auto* buttonLayout = createMiniToolBarLayoutRightAligned(showUserConfigDirButton);
+  auto* buttonLayout = createMiniToolBarLayout(showUserConfigDirButton);
 
   auto* glbLayout = new QVBoxLayout{};
   glbLayout->addWidget(m_gameListBox);

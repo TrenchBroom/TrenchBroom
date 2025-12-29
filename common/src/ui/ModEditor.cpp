@@ -35,9 +35,11 @@
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_World.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
+#include "ui/MiniToolBarLayout.h"
+#include "ui/SearchBox.h"
 #include "ui/TitledPanel.h"
 #include "ui/ViewConstants.h"
 

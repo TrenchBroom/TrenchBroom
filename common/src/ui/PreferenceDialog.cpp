@@ -29,16 +29,17 @@
 
 #include "PreferenceManager.h"
 #include "ui/ImageUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/UpdatePreferencePane.h"
 #if !defined __APPLE__
 #include "ui/BorderLine.h"
 #endif
 #include "ui/ColorsPreferencePane.h"
+#include "ui/DialogButtonLayout.h"
 #include "ui/GamesPreferencePane.h"
 #include "ui/KeyboardPreferencePane.h"
 #include "ui/MousePreferencePane.h"
 #include "ui/PreferencePane.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewPreferencePane.h"
 
 #include <filesystem>

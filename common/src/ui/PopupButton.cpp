@@ -24,7 +24,6 @@
 #include <QWindow>
 
 #include "ui/PopupWindow.h"
-#include "ui/QtUtils.h"
 
 namespace tb::ui
 {

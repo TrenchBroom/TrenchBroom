@@ -22,7 +22,8 @@
 #include <QBoxLayout>
 #include <QLabel>
 
-#include "QtUtils.h"
+#include "ui/QStyleUtils.h"
+#include "ui/ViewConstants.h"
 
 namespace tb::ui
 {
@@ -65,7 +66,7 @@ void DialogHeader::createGui()
 
   m_iconLabel = new QLabel{};
   m_textLabel = new QLabel{};
-  makeHeader(m_textLabel);
+  setHeaderStyle(m_textLabel);
 
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(

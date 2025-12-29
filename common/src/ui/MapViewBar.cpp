@@ -26,7 +26,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 #include "ui/ViewEditor.h"
 

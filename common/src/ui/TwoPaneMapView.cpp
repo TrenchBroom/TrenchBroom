@@ -24,8 +24,8 @@
 #include "ui/CyclingMapView.h"
 #include "ui/MapDocument.h"
 #include "ui/MapView3D.h"
-#include "ui/QtUtils.h"
 #include "ui/Splitter.h"
+#include "ui/WidgetState.h"
 
 #include "kd/contracts.h"
 
@@ -44,7 +44,7 @@ TwoPaneMapView::TwoPaneMapView(
 
 TwoPaneMapView::~TwoPaneMapView()
 {
-  saveWindowState(m_splitter);
+  saveWidgetState(m_splitter);
 }
 
 void TwoPaneMapView::createGui(
@@ -78,7 +78,7 @@ void TwoPaneMapView::createGui(
   m_mapView3D->setMinimumSize(100, 100);
   m_splitter->setSizes(QList<int>{1, 1});
 
-  restoreWindowState(m_splitter);
+  restoreWidgetState(m_splitter);
 }
 
 void TwoPaneMapView::maximizeView(MapView* view)

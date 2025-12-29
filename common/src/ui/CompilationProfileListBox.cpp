@@ -24,7 +24,7 @@
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
 #include "ui/ElidedLabel.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 
 namespace tb::ui
 {
@@ -41,8 +41,8 @@ CompilationProfileItemRenderer::CompilationProfileItemRenderer(
   m_nameText = new ElidedLabel{"", Qt::ElideRight};
   m_taskCountText = new ElidedLabel{"", Qt::ElideMiddle};
 
-  makeEmphasized(m_nameText);
-  makeInfo(m_taskCountText);
+  setEmphasizedStyle(m_nameText);
+  setInfoStyle(m_taskCountText);
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(QMargins{});

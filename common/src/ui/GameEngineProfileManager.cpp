@@ -24,10 +24,11 @@
 
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/GameEngineProfileEditor.h"
 #include "ui/GameEngineProfileListBox.h"
-#include "ui/QtUtils.h"
+#include "ui/MiniToolBarLayout.h"
 #include "ui/TitledPanel.h"
 
 #include "kd/vector_utils.h"

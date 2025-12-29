@@ -22,7 +22,7 @@
 #include <QCheckBox>
 #include <QGridLayout>
 
-#include "ui/QtUtils.h"
+#include "ui/QWidgetUtils.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"

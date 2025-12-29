@@ -31,9 +31,9 @@
 #include "mdl/PropertyDefinition.h"
 #include "ui/EntityPropertyGrid.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
 #include "ui/SmartPropertyEditorManager.h"
 #include "ui/Splitter.h"
+#include "ui/WidgetState.h"
 
 #include <algorithm>
 
@@ -49,7 +49,7 @@ EntityPropertyEditor::EntityPropertyEditor(MapDocument& document, QWidget* paren
 
 EntityPropertyEditor::~EntityPropertyEditor()
 {
-  saveWindowState(m_splitter);
+  saveWidgetState(m_splitter);
 }
 
 void EntityPropertyEditor::OnCurrentRowChanged()
@@ -252,7 +252,7 @@ void EntityPropertyEditor::createGui()
 
   // NOTE: this should be done before setChildrenCollapsible() and setMinimumSize()
   // otherwise it can override them.
-  restoreWindowState(m_splitter);
+  restoreWidgetState(m_splitter);
 
   // should have enough vertical space for at least one row
   m_propertyGrid->setMinimumSize(100, 100);

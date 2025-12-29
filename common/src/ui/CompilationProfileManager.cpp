@@ -24,10 +24,12 @@
 
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationProfileEditor.h"
 #include "ui/CompilationProfileListBox.h"
-#include "ui/QtUtils.h"
+#include "ui/MiniToolBarLayout.h"
+#include "ui/QStyleUtils.h"
 #include "ui/TitledPanel.h"
 
 #include "kd/range_utils.h"

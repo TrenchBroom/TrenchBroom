@@ -28,7 +28,6 @@
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
 #include "ui/FormWithSectionsLayout.h"
-#include "ui/QtUtils.h"
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
 #include "update/Updater.h"

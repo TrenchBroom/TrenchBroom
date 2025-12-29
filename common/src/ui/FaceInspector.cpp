@@ -35,9 +35,11 @@
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowser.h"
 #include "ui/MaterialCollectionEditor.h"
-#include "ui/QtUtils.h"
+#include "ui/QStyleUtils.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableTitledPanel.h"
+#include "ui/ViewConstants.h"
+#include "ui/WidgetState.h"
 
 #include <algorithm>
 #include <vector>
@@ -66,7 +68,7 @@ FaceInspector::FaceInspector(
 
 FaceInspector::~FaceInspector()
 {
-  saveWindowState(m_splitter);
+  saveWidgetState(m_splitter);
 }
 
 bool FaceInspector::cancelMouseDrag()
@@ -104,7 +106,7 @@ void FaceInspector::createGui(gl::ContextManager& contextManager)
     this,
     &FaceInspector::materialSelected);
 
-  restoreWindowState(m_splitter);
+  restoreWidgetState(m_splitter);
 }
 
 QWidget* FaceInspector::createFaceAttribsEditor(gl::ContextManager& contextManager)
@@ -145,7 +147,7 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
     R"(To manage wad files, select the "wad" property of the worldspawn entity to reveal a wad file manager below the entity property table.)")};
 
   label->setWordWrap(true);
-  makeInfo(label);
+  setInfoStyle(label);
 
   auto* labelLayout = new QVBoxLayout{};
   labelLayout->setContentsMargins(

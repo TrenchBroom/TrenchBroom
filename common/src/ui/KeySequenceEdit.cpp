@@ -23,8 +23,8 @@
 #include <QStyle>
 #include <QToolButton>
 
+#include "ui/BitmapButton.h"
 #include "ui/LimitedKeySequenceEdit.h"
-#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui

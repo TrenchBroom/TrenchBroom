@@ -39,12 +39,14 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
+#include "ui/AutoSizeTableRows.h"
+#include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/EntityPropertyItemDelegate.h"
 #include "ui/EntityPropertyModel.h"
 #include "ui/EntityPropertyTable.h"
 #include "ui/MapDocument.h"
-#include "ui/QtUtils.h"
+#include "ui/MiniToolBarLayout.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
@@ -249,7 +251,7 @@ void EntityPropertyGrid::createGui()
   m_table->setItemDelegate(
     new EntityPropertyItemDelegate{m_table, m_model, m_proxyModel, m_table});
 
-  autoResizeRows(m_table);
+  autoSizeTableRows(m_table);
 
   m_table->verticalHeader()->setVisible(false);
   m_table->horizontalHeader()->setSectionResizeMode(

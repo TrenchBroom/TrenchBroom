@@ -16,6 +16,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.cpp
+        ${COMMON_SOURCE_DIR}/ui/AutoSizeTableRows.cpp
+        ${COMMON_SOURCE_DIR}/ui/BitmapButton.cpp
         ${COMMON_SOURCE_DIR}/ui/BorderLine.cpp
         ${COMMON_SOURCE_DIR}/ui/BorderPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/CameraAnimation.cpp
@@ -54,6 +56,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/CreateEntityToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/CurrentGameIndicator.cpp
         ${COMMON_SOURCE_DIR}/ui/CyclingMapView.cpp
+        ${COMMON_SOURCE_DIR}/ui/DialogButtonLayout.cpp
         ${COMMON_SOURCE_DIR}/ui/DialogHeader.cpp
         ${COMMON_SOURCE_DIR}/ui/DrawShapeTool.cpp
         ${COMMON_SOURCE_DIR}/ui/DrawShapeToolController2D.cpp
@@ -65,6 +68,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/EdgeTool.cpp
         ${COMMON_SOURCE_DIR}/ui/EdgeToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/ElidedLabel.cpp
+        ${COMMON_SOURCE_DIR}/ui/EmptyWidget.cpp
         ${COMMON_SOURCE_DIR}/ui/EnableDisableTagCallback.cpp
         ${COMMON_SOURCE_DIR}/ui/EntityBrowser.cpp
         ${COMMON_SOURCE_DIR}/ui/EntityBrowserView.cpp
@@ -81,6 +85,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/FaceInspector.cpp
         ${COMMON_SOURCE_DIR}/ui/FaceTool.cpp
         ${COMMON_SOURCE_DIR}/ui/FaceToolController.cpp
+        ${COMMON_SOURCE_DIR}/ui/FileDialogDefaultDir.cpp
         ${COMMON_SOURCE_DIR}/ui/FlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/FlagsPopupEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/FlashSelectionAnimation.cpp
@@ -130,6 +135,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/MaterialBrowser.cpp
         ${COMMON_SOURCE_DIR}/ui/MaterialBrowserView.cpp
         ${COMMON_SOURCE_DIR}/ui/MaterialCollectionEditor.cpp
+        ${COMMON_SOURCE_DIR}/ui/MiniToolBarLayout.cpp
         ${COMMON_SOURCE_DIR}/ui/ModEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/MousePreferencePane.cpp
         ${COMMON_SOURCE_DIR}/ui/MoveHandleDragTracker.cpp
@@ -144,11 +150,14 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.cpp
+        ${COMMON_SOURCE_DIR}/ui/QColorUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QPathUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.cpp
-        ${COMMON_SOURCE_DIR}/ui/QtUtils.cpp
+        ${COMMON_SOURCE_DIR}/ui/QStringUtils.cpp
+        ${COMMON_SOURCE_DIR}/ui/QStyleUtils.cpp
+        ${COMMON_SOURCE_DIR}/ui/QWidgetUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.cpp
         ${COMMON_SOURCE_DIR}/ui/RenderView.cpp
@@ -160,6 +169,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ScaleTool.cpp
         ${COMMON_SOURCE_DIR}/ui/ScaleToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/ScaleToolPage.cpp
+        ${COMMON_SOURCE_DIR}/ui/SearchBox.cpp
         ${COMMON_SOURCE_DIR}/ui/SelectionTool.cpp
         ${COMMON_SOURCE_DIR}/ui/SetBrushFaceAttributesTool.cpp
         ${COMMON_SOURCE_DIR}/ui/ShearTool.cpp
@@ -177,6 +187,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/Splitter.cpp
         ${COMMON_SOURCE_DIR}/ui/SwitchableMapViewContainer.cpp
         ${COMMON_SOURCE_DIR}/ui/SwitchableTitledPanel.cpp
+        ${COMMON_SOURCE_DIR}/ui/SyncHeightEventFilter.cpp
         ${COMMON_SOURCE_DIR}/ui/SystemPaths.cpp
         ${COMMON_SOURCE_DIR}/ui/TabBar.cpp
         ${COMMON_SOURCE_DIR}/ui/TabBook.cpp
@@ -211,6 +222,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ViewPreferencePane.cpp
         ${COMMON_SOURCE_DIR}/ui/ViewUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/WelcomeWindow.cpp
+        ${COMMON_SOURCE_DIR}/ui/WidgetState.cpp
 )
 
 set(COMMON_HEADER
@@ -229,6 +241,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.h
+        ${COMMON_SOURCE_DIR}/ui/AutoSizeTableRows.h
+        ${COMMON_SOURCE_DIR}/ui/BitmapButton.h
         ${COMMON_SOURCE_DIR}/ui/BorderLine.h
         ${COMMON_SOURCE_DIR}/ui/BorderPanel.h
         ${COMMON_SOURCE_DIR}/ui/CameraAnimation.h
@@ -266,6 +280,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/CreateEntityToolController.h
         ${COMMON_SOURCE_DIR}/ui/CurrentGameIndicator.h
         ${COMMON_SOURCE_DIR}/ui/CyclingMapView.h
+        ${COMMON_SOURCE_DIR}/ui/DialogButtonLayout.h
         ${COMMON_SOURCE_DIR}/ui/DialogHeader.h
         ${COMMON_SOURCE_DIR}/ui/DrawShapeTool.h
         ${COMMON_SOURCE_DIR}/ui/DrawShapeToolController2D.h
@@ -277,6 +292,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/EdgeTool.h
         ${COMMON_SOURCE_DIR}/ui/EdgeToolController.h
         ${COMMON_SOURCE_DIR}/ui/ElidedLabel.h
+        ${COMMON_SOURCE_DIR}/ui/EmptyWidget.h
         ${COMMON_SOURCE_DIR}/ui/EnableDisableTagCallback.h
         ${COMMON_SOURCE_DIR}/ui/EntityBrowser.h
         ${COMMON_SOURCE_DIR}/ui/EntityBrowserView.h
@@ -293,6 +309,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/FaceInspector.h
         ${COMMON_SOURCE_DIR}/ui/FaceTool.h
         ${COMMON_SOURCE_DIR}/ui/FaceToolController.h
+        ${COMMON_SOURCE_DIR}/ui/FileDialogDefaultDir.h
         ${COMMON_SOURCE_DIR}/ui/FlagsEditor.h
         ${COMMON_SOURCE_DIR}/ui/FlagsPopupEditor.h
         ${COMMON_SOURCE_DIR}/ui/FlashSelectionAnimation.h
@@ -343,6 +360,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/MaterialBrowser.h
         ${COMMON_SOURCE_DIR}/ui/MaterialBrowserView.h
         ${COMMON_SOURCE_DIR}/ui/MaterialCollectionEditor.h
+        ${COMMON_SOURCE_DIR}/ui/MiniToolBarLayout.h
         ${COMMON_SOURCE_DIR}/ui/ModEditor.h
         ${COMMON_SOURCE_DIR}/ui/MousePreferencePane.h
         ${COMMON_SOURCE_DIR}/ui/MoveHandleDragTracker.h
@@ -357,11 +375,14 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.h
         ${COMMON_SOURCE_DIR}/ui/PreferenceDialog.h
         ${COMMON_SOURCE_DIR}/ui/PreferencePane.h
+        ${COMMON_SOURCE_DIR}/ui/QColorUtils.h
         ${COMMON_SOURCE_DIR}/ui/QPathUtils.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.h
-        ${COMMON_SOURCE_DIR}/ui/QtUtils.h
+        ${COMMON_SOURCE_DIR}/ui/QStringUtils.h
+        ${COMMON_SOURCE_DIR}/ui/QStyleUtils.h
+        ${COMMON_SOURCE_DIR}/ui/QWidgetUtils.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.h
         ${COMMON_SOURCE_DIR}/ui/RenderView.h
@@ -373,6 +394,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ScaleTool.h
         ${COMMON_SOURCE_DIR}/ui/ScaleToolController.h
         ${COMMON_SOURCE_DIR}/ui/ScaleToolPage.h
+        ${COMMON_SOURCE_DIR}/ui/SearchBox.h
         ${COMMON_SOURCE_DIR}/ui/SelectionTool.h
         ${COMMON_SOURCE_DIR}/ui/SetBrushFaceAttributesTool.h
         ${COMMON_SOURCE_DIR}/ui/ShearTool.h
@@ -390,6 +412,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/Splitter.h
         ${COMMON_SOURCE_DIR}/ui/SwitchableMapViewContainer.h
         ${COMMON_SOURCE_DIR}/ui/SwitchableTitledPanel.h
+        ${COMMON_SOURCE_DIR}/ui/SyncHeightEventFilter.h
         ${COMMON_SOURCE_DIR}/ui/SystemPaths.h
         ${COMMON_SOURCE_DIR}/ui/TabBar.h
         ${COMMON_SOURCE_DIR}/ui/TabBook.h
@@ -426,6 +449,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ViewPreferencePane.h
         ${COMMON_SOURCE_DIR}/ui/ViewUtils.h
         ${COMMON_SOURCE_DIR}/ui/WelcomeWindow.h
+        ${COMMON_SOURCE_DIR}/ui/WidgetState.h
 )
 
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
