@@ -30,6 +30,7 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/MapDocument.h"
+#include "ui/QStringUtils.h"
 #include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 

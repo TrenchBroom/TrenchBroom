@@ -155,6 +155,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.cpp
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.cpp
+        ${COMMON_SOURCE_DIR}/ui/QStringUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QStyleUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QtUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.cpp
@@ -379,6 +380,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStore.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreDelegate.h
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.h
+        ${COMMON_SOURCE_DIR}/ui/QStringUtils.h
         ${COMMON_SOURCE_DIR}/ui/QStyleUtils.h
         ${COMMON_SOURCE_DIR}/ui/QtUtils.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.h

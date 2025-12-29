@@ -94,6 +94,7 @@
 #include "ui/MapViewToolBox.h"
 #include "ui/ObjExportDialog.h"
 #include "ui/QPathUtils.h"
+#include "ui/QStringUtils.h"
 #include "ui/QStyleUtils.h"
 #include "ui/QVecUtils.h"
 #include "ui/QtUtils.h"

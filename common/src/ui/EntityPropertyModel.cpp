@@ -44,6 +44,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/ImageUtils.h"
 #include "ui/MapDocument.h"
+#include "ui/QStringUtils.h"
 #include "ui/QtUtils.h"
 
 #include "kd/contracts.h"
