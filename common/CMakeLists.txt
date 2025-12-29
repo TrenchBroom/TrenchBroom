@@ -3,7 +3,6 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Contracts.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/Thread.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/Action.cpp
@@ -157,6 +156,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QStringUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QStyleUtils.cpp
+        ${COMMON_SOURCE_DIR}/ui/QThreadUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QWidgetUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.cpp
@@ -228,7 +228,6 @@ set(COMMON_SOURCE
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Contracts.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
         ${COMMON_SOURCE_DIR}/ui/Action.h
@@ -382,6 +381,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.h
         ${COMMON_SOURCE_DIR}/ui/QStringUtils.h
         ${COMMON_SOURCE_DIR}/ui/QStyleUtils.h
+        ${COMMON_SOURCE_DIR}/ui/QThreadUtils.h
         ${COMMON_SOURCE_DIR}/ui/QWidgetUtils.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.h

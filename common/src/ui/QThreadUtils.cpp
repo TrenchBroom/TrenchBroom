@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Thread.h"
+#include "QThreadUtils.h"
 
 #include <QApplication>
 #include <QThread>
 
 #include "kd/contracts.h"
 
-namespace tb
+namespace tb::ui
 {
 
 bool isMainThread()
@@ -33,4 +33,4 @@ bool isMainThread()
   return (qApp->thread() == QThread::currentThread());
 }
 
-} // namespace tb
+} // namespace tb::ui

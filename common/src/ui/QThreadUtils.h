@@ -19,7 +19,9 @@
 
 #pragma once
 
-namespace tb
+namespace tb::ui
 {
+
 bool isMainThread();
+
 }

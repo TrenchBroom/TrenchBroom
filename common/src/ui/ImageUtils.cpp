@@ -28,8 +28,8 @@
 #include <QSvgRenderer>
 #include <QThread>
 
-#include "Thread.h"
 #include "ui/QPathUtils.h"
+#include "ui/QThreadUtils.h"
 #include "ui/SystemPaths.h"
 
 #include "kd/contracts.h"
