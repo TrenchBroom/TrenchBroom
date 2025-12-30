@@ -52,6 +52,7 @@ class GameManager;
 
 namespace ui
 {
+class AppController;
 class FrameManager;
 class MapDocument;
 class RecentDocuments;
@@ -61,16 +62,7 @@ class TrenchBroomApp : public QApplication
 {
   Q_OBJECT
 private:
-  QNetworkAccessManager* m_networkManager = nullptr;
-  upd::HttpClient* m_httpClient = nullptr;
-  upd::Updater* m_updater = nullptr;
-  kdl::task_manager m_taskManager = kdl::task_manager{256};
-  mdl::EnvironmentConfig m_environmentConfig;
-  std::unique_ptr<mdl::GameManager> m_gameManager;
-  std::unique_ptr<FrameManager> m_frameManager;
-  std::unique_ptr<RecentDocuments> m_recentDocuments;
-  std::unique_ptr<WelcomeWindow> m_welcomeWindow;
-  QTimer* m_recentDocumentsReloadTimer = nullptr;
+  AppController* m_appController = nullptr;
 
 public:
   static TrenchBroomApp& instance();
@@ -78,13 +70,14 @@ public:
   TrenchBroomApp(int& argc, char** argv);
   ~TrenchBroomApp() override;
 
-  std::unique_ptr<mdl::GameManager> createGameManager();
-
 public:
   void askForAutoUpdates();
   void triggerAutoUpdateCheck();
 
   void parseCommandLineAndShowFrame();
+
+  const AppController& appController() const;
+  AppController& appController();
 
   const mdl::EnvironmentConfig environmentConfig() const;
   mdl::GameManager& gameManager();
@@ -98,6 +91,8 @@ private:
 
 public:
   std::vector<std::filesystem::path> recentDocuments() const;
+  std::vector<std::filesystem::path> recentDocuments();
+
   void addRecentDocumentMenu(QMenu& menu);
   void removeRecentDocumentMenu(QMenu& menu);
   void updateRecentDocument(const std::filesystem::path& path);
@@ -121,14 +116,8 @@ public:
   void openFilesOrWelcomeFrame(const QStringList& fileNames);
 
   void showWelcomeWindow();
-  void closeWelcomeWindow();
 
   MapDocument* topDocument();
-
-private:
-  static bool useSDI();
-signals:
-  void recentDocumentsDidChange();
 };
 
 } // namespace ui

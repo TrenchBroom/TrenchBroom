@@ -28,36 +28,8 @@
 namespace tb::ui
 {
 
-AboutDialog* AboutDialog::instance = nullptr;
-
-void AboutDialog::showAboutDialog()
-{
-  if (!AboutDialog::instance)
-  {
-    AboutDialog::instance = new AboutDialog{};
-    AboutDialog::instance->show();
-  }
-  else
-  {
-    AboutDialog::instance->show();
-    AboutDialog::instance->raise();
-  }
-}
-
-void AboutDialog::closeAboutDialog()
-{
-  if (AboutDialog::instance)
-  {
-    AboutDialog::instance->close();
-  }
-}
-
-AboutDialog::~AboutDialog()
-{
-  instance = nullptr;
-}
-
-AboutDialog::AboutDialog()
+AboutDialog::AboutDialog(AppController& appController)
+  : m_appController{appController}
 {
   // This makes it so the About dialog doesn't prevent the application from quitting
   setAttribute(Qt::WA_QuitOnClose, false);
@@ -115,7 +87,7 @@ Source Sans Pro (Font)<br />
 Font Awesome 5 Free (Icons)<br />)");
   setWindowIconTB(this);
 
-  auto* infoPanel = new AppInfoPanel{};
+  auto* infoPanel = new AppInfoPanel{m_appController};
   auto* creditsText = new QLabel{creditsString};
   creditsText->setWordWrap(true);
   creditsText->setMaximumWidth(300);

@@ -23,13 +23,14 @@
 
 namespace tb::ui
 {
+class AppController;
 
 class AppInfoPanel : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit AppInfoPanel(QWidget* parent = nullptr);
+  explicit AppInfoPanel(AppController& appController, QWidget* parent = nullptr);
 
 private:
   void versionInfoClicked();

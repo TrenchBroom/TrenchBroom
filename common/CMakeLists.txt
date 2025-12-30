@@ -11,6 +11,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ActionManager.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionMenu.cpp
         ${COMMON_SOURCE_DIR}/ui/Animation.cpp
+        ${COMMON_SOURCE_DIR}/ui/AppController.cpp
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.cpp
@@ -236,6 +237,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ActionManager.h
         ${COMMON_SOURCE_DIR}/ui/ActionMenu.h
         ${COMMON_SOURCE_DIR}/ui/Animation.h
+        ${COMMON_SOURCE_DIR}/ui/AppController.h
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.h

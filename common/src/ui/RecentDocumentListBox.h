@@ -27,15 +27,19 @@
 
 namespace tb::ui
 {
+class RecentDocuments;
 
 class RecentDocumentListBox : public ImageListBox
 {
   Q_OBJECT
 private:
+  RecentDocuments& m_recentDocuments;
+
   QPixmap m_documentIcon;
 
 public:
-  explicit RecentDocumentListBox(QWidget* parent = nullptr);
+  explicit RecentDocumentListBox(
+    RecentDocuments& recentDocuments, QWidget* parent = nullptr);
 private slots:
   void recentDocumentsDidChange();
 

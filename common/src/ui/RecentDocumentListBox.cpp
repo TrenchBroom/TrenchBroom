@@ -19,9 +19,9 @@
 
 #include "RecentDocumentListBox.h"
 
-#include "TrenchBroomApp.h"
 #include "ui/ImageUtils.h"
 #include "ui/QPathUtils.h"
+#include "ui/RecentDocuments.h"
 
 #include "kd/contracts.h"
 
@@ -29,14 +29,15 @@
 
 namespace tb::ui
 {
-RecentDocumentListBox::RecentDocumentListBox(QWidget* parent)
+RecentDocumentListBox::RecentDocumentListBox(
+  RecentDocuments& recentDocuments, QWidget* parent)
   : ImageListBox{"No Recent Documents", true, parent}
+  , m_recentDocuments{recentDocuments}
   , m_documentIcon{loadPixmap("DocIcon.png")}
 {
-  auto& app = ui::TrenchBroomApp::instance();
   connect(
-    &app,
-    &TrenchBroomApp::recentDocumentsDidChange,
+    &m_recentDocuments,
+    &RecentDocuments::didChange,
     this,
     &RecentDocumentListBox::recentDocumentsDidChange);
   reload();
@@ -49,8 +50,7 @@ void RecentDocumentListBox::recentDocumentsDidChange()
 
 size_t RecentDocumentListBox::itemCount() const
 {
-  const auto& app = ui::TrenchBroomApp::instance();
-  return app.recentDocuments().size();
+  return m_recentDocuments.recentDocuments().size();
 }
 
 QPixmap RecentDocumentListBox::image(const size_t /* index */) const
@@ -60,8 +60,7 @@ QPixmap RecentDocumentListBox::image(const size_t /* index */) const
 
 QString RecentDocumentListBox::title(const size_t index) const
 {
-  const auto& app = ui::TrenchBroomApp::instance();
-  const auto& recentDocuments = app.recentDocuments();
+  const auto& recentDocuments = m_recentDocuments.recentDocuments();
   contract_assert(index < recentDocuments.size());
 
   return pathAsQString(recentDocuments[index].filename());
@@ -69,8 +68,7 @@ QString RecentDocumentListBox::title(const size_t index) const
 
 QString RecentDocumentListBox::subtitle(const size_t index) const
 {
-  const auto& app = ui::TrenchBroomApp::instance();
-  const auto& recentDocuments = app.recentDocuments();
+  const auto& recentDocuments = m_recentDocuments.recentDocuments();
   contract_assert(index < recentDocuments.size());
 
   return pathAsQString(recentDocuments[index]);
@@ -78,9 +76,7 @@ QString RecentDocumentListBox::subtitle(const size_t index) const
 
 void RecentDocumentListBox::doubleClicked(const size_t index)
 {
-  auto& app = ui::TrenchBroomApp::instance();
-  const auto& recentDocuments = app.recentDocuments();
-
+  const auto& recentDocuments = m_recentDocuments.recentDocuments();
   if (index < recentDocuments.size())
   {
     const auto& documentPath = recentDocuments[index];

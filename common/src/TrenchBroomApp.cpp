@@ -21,19 +21,13 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Result.h"
-#include "fs/DiskIO.h"
-#include "fs/PathInfo.h"
-#include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
-#include "mdl/MapFormat.h"
-#include "mdl/MapHeader.h"
 #include "ui/AboutDialog.h"
 #include "ui/ActionExecutionContext.h"
+#include "ui/AppController.h"
 #include "ui/CrashDialog.h"
 #include "ui/CrashReporter.h"
-#include "ui/FileDialogDefaultDir.h"
 #include "ui/FrameManager.h"
 #include "ui/GameDialog.h"
 #include "ui/MapDocument.h"
@@ -43,13 +37,10 @@
 #include "ui/QPathUtils.h"
 #include "ui/RecentDocuments.h"
 #include "ui/SystemPaths.h"
-#include "ui/UpdateConfig.h"
 #include "ui/WelcomeWindow.h"
-#include "update/QtHttpClient.h"
 #include "update/Updater.h"
 
-#include "kd/contracts.h"
-#include "kd/vector_utils.h"
+#include "kd/const_overload.h"
 #ifdef __APPLE__
 #include "ui/ActionBuilder.h"
 #endif
@@ -73,11 +64,8 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
-#include <chrono>
 #include <csignal>
 #include <cstdlib>
-#include <memory>
-#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -87,48 +75,17 @@ namespace tb::ui
 namespace
 {
 
-auto makeEnvironmentConfig()
+auto createAppController(QObject* parent)
 {
-  return mdl::EnvironmentConfig{
-    .appFolderPath = ui::SystemPaths::appDirectory(),
-    .userDataFolderPath = ui::SystemPaths::userDataDirectory(),
-    .tempFolderPath = ui::SystemPaths::tempDirectory(),
-    .defaultAssetFolderPaths =
-      ui::SystemPaths::findResourceDirectories(std::filesystem::path{"defaults"}),
-  };
-}
+  return AppController::create(parent) | kdl::if_error([](auto e) {
+           const auto msg =
+             fmt::format(R"(Game configurations could not be loaded: {})", e.msg);
 
-std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
-  const std::filesystem::path& path)
-{
-  return fs::Disk::withInputStream(path, mdl::readMapHeader)
-         | kdl::transform(
-           [&](auto detectedGameNameAndMapFormat)
-             -> std::optional<std::tuple<std::string, mdl::MapFormat>> {
-             auto [gameName, mapFormat] = detectedGameNameAndMapFormat;
-             const auto& gameManager = TrenchBroomApp::instance().gameManager();
-             const auto gameList = gameManager.gameInfos()
-                                   | std::views::transform([](const auto& gameInfo) {
-                                       return gameInfo.gameConfig.name;
-                                     })
-                                   | kdl::ranges::to<std::vector>();
-
-             if (
-               gameName == std::nullopt || !kdl::vec_contains(gameList, *gameName)
-               || mapFormat == mdl::MapFormat::Unknown)
-             {
-               auto queriedGameNameAndMapFormat = GameDialog::showOpenDocumentDialog();
-               if (!queriedGameNameAndMapFormat)
-               {
-                 return std::nullopt;
-               }
-
-               std::tie(gameName, mapFormat) = *queriedGameNameAndMapFormat;
-             }
-
-             return std::optional{std::tuple{std::move(*gameName), mapFormat}};
-           })
-         | kdl::transform_error([](const auto&) { return std::nullopt; }) | kdl::value();
+           QMessageBox::critical(
+             nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
+           QCoreApplication::exit(1);
+         })
+         | kdl::value();
 }
 
 } // namespace
@@ -140,11 +97,7 @@ TrenchBroomApp& TrenchBroomApp::instance()
 
 TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   : QApplication{argc, argv}
-  , m_networkManager{new QNetworkAccessManager{this}}
-  , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
-  , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
-  , m_taskManager{std::thread::hardware_concurrency()}
-  , m_environmentConfig{makeEnvironmentConfig()}
+  , m_appController{createAppController(this)}
 {
   using namespace std::chrono_literals;
 
@@ -157,34 +110,8 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
 
   setupCrashReporter();
 
-  m_gameManager = createGameManager();
-
   loadStyleSheets();
   loadStyle();
-
-  // these must be initialized here and not earlier
-  m_frameManager = std::make_unique<FrameManager>(useSDI());
-
-  m_recentDocuments = std::make_unique<RecentDocuments>(
-    10, [](const auto& path) { return fs::Disk::pathInfo(path) == fs::PathInfo::File; });
-  connect(
-    m_recentDocuments.get(),
-    &RecentDocuments::loadDocument,
-    this,
-    [this](const std::filesystem::path& path) { openDocument(path); });
-  connect(
-    m_recentDocuments.get(),
-    &RecentDocuments::didChange,
-    this,
-    &TrenchBroomApp::recentDocumentsDidChange);
-  m_recentDocuments->reload();
-  m_recentDocumentsReloadTimer = new QTimer{};
-  connect(
-    m_recentDocumentsReloadTimer,
-    &QTimer::timeout,
-    m_recentDocuments.get(),
-    &RecentDocuments::reload);
-  m_recentDocumentsReloadTimer->start(1s);
 
 #ifdef __APPLE__
   setQuitOnLastWindowClosed(false);
@@ -217,64 +144,14 @@ TrenchBroomApp::~TrenchBroomApp()
   PreferenceManager::destroyInstance();
 }
 
-std::unique_ptr<mdl::GameManager> TrenchBroomApp::createGameManager()
-{
-  return mdl::initializeGameManager(
-           ui::SystemPaths::findResourceDirectories("games"),
-           ui::SystemPaths::userGamesDirectory())
-         | kdl::transform([](auto gameManager, const auto& warnings) {
-             if (!warnings.empty())
-             {
-               const auto msg = fmt::format(
-                 R"(Some game configurations could not be loaded. The following errors occurred:
-
-{})",
-                 kdl::str_join(warnings, "\n\n"));
-
-               QMessageBox::critical(
-                 nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
-             }
-
-             return std::make_unique<mdl::GameManager>(std::move(gameManager));
-           })
-         | kdl::if_error([](auto e) {
-             const auto msg =
-               fmt::format(R"(Game configurations could not be loaded: {})", e.msg);
-
-             QMessageBox::critical(
-               nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
-             QCoreApplication::exit(1);
-           })
-         | kdl::value();
-}
-
 void TrenchBroomApp::askForAutoUpdates()
 {
-  if (pref(Preferences::AskForAutoUpdates))
-  {
-    auto& prefs = PreferenceManager::instance();
-
-    const auto enableAutoCheck =
-      QMessageBox::question(
-        nullptr,
-        "TrenchBroom",
-        tr(
-          R"(TrenchBroom can check for updates automatically. Would you like to enable this now?)"),
-        QMessageBox::Yes | QMessageBox::No)
-      == QMessageBox::Yes;
-
-    prefs.set(Preferences::AutoCheckForUpdates, enableAutoCheck);
-    prefs.set(Preferences::AskForAutoUpdates, false);
-    prefs.saveChanges();
-  }
+  appController().askForAutoUpdates();
 }
 
 void TrenchBroomApp::triggerAutoUpdateCheck()
 {
-  if (pref(Preferences::AutoCheckForUpdates))
-  {
-    m_updater->checkForUpdates();
-  }
+  appController().triggerAutoUpdateCheck();
 }
 
 void TrenchBroomApp::parseCommandLineAndShowFrame()
@@ -294,25 +171,35 @@ void TrenchBroomApp::parseCommandLineAndShowFrame()
   openFilesOrWelcomeFrame(parser.positionalArguments());
 }
 
+const AppController& TrenchBroomApp::appController() const
+{
+  return *m_appController;
+}
+
+AppController& TrenchBroomApp::appController()
+{
+  return KDL_CONST_OVERLOAD(appController());
+}
+
 const mdl::EnvironmentConfig TrenchBroomApp::environmentConfig() const
 {
-  return m_environmentConfig;
+  return appController().environmentConfig();
 }
 
 mdl::GameManager& TrenchBroomApp::gameManager()
 {
-  return *m_gameManager;
+  return appController().gameManager();
 }
 
 
 upd::Updater& TrenchBroomApp::updater()
 {
-  return *m_updater;
+  return appController().updater();
 }
 
 FrameManager* TrenchBroomApp::frameManager()
 {
-  return m_frameManager.get();
+  return &appController().frameManager();
 }
 
 QPalette TrenchBroomApp::darkPalette()
@@ -426,133 +313,57 @@ void TrenchBroomApp::loadStyle()
 
 std::vector<std::filesystem::path> TrenchBroomApp::recentDocuments() const
 {
-  return m_recentDocuments->recentDocuments();
+  return appController().recentDocuments().recentDocuments();
+}
+
+std::vector<std::filesystem::path> TrenchBroomApp::recentDocuments()
+{
+  return KDL_CONST_OVERLOAD(recentDocuments());
 }
 
 void TrenchBroomApp::addRecentDocumentMenu(QMenu& menu)
 {
-  m_recentDocuments->addMenu(menu);
+  appController().recentDocuments().addMenu(menu);
 }
 
 void TrenchBroomApp::removeRecentDocumentMenu(QMenu& menu)
 {
-  m_recentDocuments->removeMenu(menu);
+  appController().recentDocuments().removeMenu(menu);
 }
 
 void TrenchBroomApp::updateRecentDocument(const std::filesystem::path& path)
 {
-  m_recentDocuments->updatePath(path);
+  appController().recentDocuments().updatePath(path);
 }
 
 bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
-  // if std::filesystem::absolute fails, the file won't be found and we'll log it later
-  auto ec = std::error_code{};
-  auto absPath =
-    path.is_absolute() ? path : std::filesystem::absolute(path, ec).lexically_normal();
-
-  const auto checkFileExists = [&]() {
-    return fs::Disk::pathInfo(absPath) == fs::PathInfo::File
-             ? Result<void>{}
-             : Result<void>{Error{fmt::format("{} not found", path)}};
-  };
-
-  return checkFileExists() | kdl::or_else([&](const auto& e) {
-           m_recentDocuments->removePath(absPath);
-           return Result<void>{e};
-         })
-         | kdl::and_then([&]() {
-             const auto gameNameAndMapFormat = detectOrQueryGameAndFormat(absPath);
-             if (!gameNameAndMapFormat)
-             {
-               return Result<bool>{false};
-             }
-
-             const auto [gameName, mapFormat] = *gameNameAndMapFormat;
-             const auto* gameInfo = gameManager().gameInfo(gameName);
-             contract_assert(gameInfo != nullptr);
-
-             return m_frameManager->loadDocument(
-                      m_environmentConfig,
-                      *gameInfo,
-                      mapFormat,
-                      MapDocument::DefaultWorldBounds,
-                      std::move(absPath),
-                      m_taskManager)
-                    | kdl::transform([&]() {
-                        closeWelcomeWindow();
-                        return true;
-                      });
-           })
-         | kdl::transform_error([&](const auto& e) {
-             QMessageBox::critical(
-               nullptr, "TrenchBroom", e.msg.c_str(), QMessageBox::Ok);
-             return false;
-           })
-         | kdl::value();
+  return appController().openDocument(path);
 }
 
 void TrenchBroomApp::openPreferences()
 {
-  auto dialog = PreferenceDialog{topDocument()};
-  dialog.exec();
+  appController().showPreferences();
 }
 
 void TrenchBroomApp::openAbout()
 {
-  AboutDialog::showAboutDialog();
+  appController().showAboutDialog();
 }
 
 bool TrenchBroomApp::newDocument()
 {
-  const auto gameNameAndMapFormat = GameDialog::showNewDocumentDialog();
-  if (!gameNameAndMapFormat)
-  {
-    return false;
-  }
-
-  const auto [gameName, mapFormat] = *gameNameAndMapFormat;
-  const auto* gameInfo = gameManager().gameInfo(gameName);
-  contract_assert(gameInfo != nullptr);
-
-  return m_frameManager->createDocument(
-           m_environmentConfig,
-           *gameInfo,
-           mapFormat,
-           MapDocument::DefaultWorldBounds,
-           m_taskManager)
-         | kdl::transform([&]() {
-             closeWelcomeWindow();
-             return true;
-           })
-         | kdl::transform_error([&](const auto& e) {
-             QMessageBox::critical(
-               nullptr, "TrenchBroom", e.msg.c_str(), QMessageBox::Ok);
-             return false;
-           })
-         | kdl::value();
+  return appController().newDocument();
 }
 
 void TrenchBroomApp::openDocument()
 {
-  const auto pathStr = QFileDialog::getOpenFileName(
-    nullptr,
-    tr("Open Map"),
-    fileDialogDefaultDirectory(FileDialogDir::Map),
-    "Map files (*.map);;Any files (*.*)");
-
-  if (const auto path = ui::pathFromQString(pathStr); !path.empty())
-  {
-    updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
-    openDocument(path);
-  }
+  appController().openDocument();
 }
 
 void TrenchBroomApp::showManual()
 {
-  const auto manualPath = ui::SystemPaths::findResourceFile("manual/index.html");
-  const auto manualPathUrl = QUrl::fromLocalFile(ui::pathAsQString(manualPath));
-  QDesktopServices::openUrl(manualPathUrl);
+  appController().showManual();
 }
 
 void TrenchBroomApp::showPreferences()
@@ -595,14 +406,13 @@ bool TrenchBroomApp::event(QEvent* event)
     const auto path = std::filesystem::path{openEvent->file().toStdString()};
     if (openDocument(path))
     {
-      closeWelcomeWindow();
       return true;
     }
     return false;
   }
   else if (event->type() == QEvent::ApplicationActivate)
   {
-    if (m_frameManager && m_frameManager->allFramesClosed())
+    if (appController().frameManager().allFramesClosed())
     {
       showWelcomeWindow();
     }
@@ -613,8 +423,9 @@ bool TrenchBroomApp::event(QEvent* event)
 
 void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
 {
-  const auto filesToOpen =
-    useSDI() && !fileNames.empty() ? QStringList{fileNames.front()} : fileNames;
+  const auto filesToOpen = AppController::useSDI && !fileNames.empty()
+                             ? QStringList{fileNames.front()}
+                             : fileNames;
 
   auto anyDocumentOpened = false;
   for (const auto& fileName : filesToOpen)
@@ -634,20 +445,7 @@ void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
 
 void TrenchBroomApp::showWelcomeWindow()
 {
-  if (!m_welcomeWindow)
-  {
-    // must be initialized after m_recentDocuments!
-    m_welcomeWindow = std::make_unique<WelcomeWindow>();
-  }
-  m_welcomeWindow->show();
-}
-
-void TrenchBroomApp::closeWelcomeWindow()
-{
-  if (m_welcomeWindow)
-  {
-    m_welcomeWindow->close();
-  }
+  appController().showWelcomeWindow();
 }
 
 MapDocument* TrenchBroomApp::topDocument()
@@ -660,15 +458,6 @@ MapDocument* TrenchBroomApp::topDocument()
     }
   }
   return nullptr;
-}
-
-bool TrenchBroomApp::useSDI()
-{
-#ifdef _WIN32
-  return true;
-#else
-  return false;
-#endif
 }
 
 } // namespace tb::ui

@@ -27,18 +27,21 @@ class QPushButton;
 
 namespace tb::ui
 {
+class AppController;
 class RecentDocumentListBox;
 
 class WelcomeWindow : public QMainWindow
 {
   Q_OBJECT
 private:
+  AppController& m_appController;
+
   RecentDocumentListBox* m_recentDocumentListBox = nullptr;
   QPushButton* m_createNewDocumentButton = nullptr;
   QPushButton* m_openOtherDocumentButton = nullptr;
 
 public:
-  WelcomeWindow();
+  explicit WelcomeWindow(AppController& appController);
 
 private:
   void createGui();
