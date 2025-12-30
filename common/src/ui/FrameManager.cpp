@@ -33,8 +33,9 @@
 namespace tb::ui
 {
 
-FrameManager::FrameManager(const bool singleFrame)
-  : m_singleFrame{singleFrame}
+FrameManager::FrameManager(const bool singleFrame, QObject* parent)
+  : QObject{parent}
+  , m_singleFrame{singleFrame}
 {
   connect(qApp, &QApplication::focusChanged, this, &FrameManager::onFocusChange);
 }

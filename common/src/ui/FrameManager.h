@@ -57,7 +57,7 @@ private:
   std::vector<MapFrame*> m_frames;
 
 public:
-  explicit FrameManager(bool singleFrame);
+  explicit FrameManager(bool singleFrame, QObject* parent = nullptr);
   ~FrameManager() override;
 
   Result<void> createDocument(
