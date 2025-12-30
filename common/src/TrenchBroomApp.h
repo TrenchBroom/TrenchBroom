@@ -84,11 +84,6 @@ public:
   upd::Updater& updater();
   FrameManager* frameManager();
 
-private:
-  static QPalette darkPalette();
-  bool loadStyleSheets();
-  void loadStyle();
-
 public:
   std::vector<std::filesystem::path> recentDocuments() const;
   std::vector<std::filesystem::path> recentDocuments();
