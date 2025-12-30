@@ -39,6 +39,7 @@
 #include "ui/CrashReporter.h"
 #include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
+#include "ui/RecentDocuments.h"
 #include "ui/SystemPaths.h"
 
 using namespace tb;
@@ -171,7 +172,7 @@ void populateMainMenu(TrenchBroomApp& app)
     action.execute(context);
   });
 
-  app.addRecentDocumentMenu(*menuBuilderResult.recentDocumentsMenu);
+  app.appController().recentDocuments().addMenu(*menuBuilderResult.recentDocumentsMenu);
 
   auto context = ActionExecutionContext{nullptr, nullptr};
   for (auto [tbAction, qtAction] : actionMap)
@@ -309,11 +310,11 @@ int main(int argc, char* argv[])
   populateMainMenu(app);
 #endif
 
-  app.askForAutoUpdates();
+  appController.askForAutoUpdates();
   parseCommandLineAndShowFrame(app, appController);
 
   // start the update check only now after we have asked the user whether they want to
   // enable the automatic check and once we have set the draft update preference
-  app.triggerAutoUpdateCheck();
+  appController.triggerAutoUpdateCheck();
   return app.exec();
 }

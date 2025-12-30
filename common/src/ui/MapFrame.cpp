@@ -76,6 +76,7 @@
 #include "ui/ActionBuilder.h"
 #include "ui/ActionExecutionContext.h"
 #include "ui/ActionManager.h"
+#include "ui/AppController.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/ClipTool.h"
 #include "ui/ColorButton.h"
@@ -97,6 +98,7 @@
 #include "ui/QStringUtils.h"
 #include "ui/QStyleUtils.h"
 #include "ui/QVecUtils.h"
+#include "ui/RecentDocuments.h"
 #include "ui/RenderView.h"
 #include "ui/ReplaceMaterialDialog.h"
 #include "ui/SignalDelayer.h"
@@ -376,13 +378,13 @@ void MapFrame::updateUndoRedoActions()
 void MapFrame::addRecentDocumentsMenu()
 {
   auto& app = TrenchBroomApp::instance();
-  app.addRecentDocumentMenu(*m_recentDocumentsMenu);
+  app.appController().recentDocuments().addMenu(*m_recentDocumentsMenu);
 }
 
 void MapFrame::removeRecentDocumentsMenu()
 {
   auto& app = TrenchBroomApp::instance();
-  app.removeRecentDocumentMenu(*m_recentDocumentsMenu);
+  app.appController().recentDocuments().removeMenu(*m_recentDocumentsMenu);
 }
 
 void MapFrame::updateRecentDocumentsMenu()
@@ -392,7 +394,7 @@ void MapFrame::updateRecentDocumentsMenu()
   if (path.is_absolute())
   {
     auto& app = TrenchBroomApp::instance();
-    app.updateRecentDocument(path);
+    app.appController().recentDocuments().updatePath(path);
   }
 }
 
@@ -507,7 +509,7 @@ void MapFrame::createStatusBar()
 
   m_statusBarLabel = new QLabel{};
   statusBar()->addWidget(m_statusBarLabel, 1);
-  statusBar()->addWidget(app.updater().createUpdateIndicator());
+  statusBar()->addWidget(app.appController().updater().createUpdateIndicator());
 }
 
 namespace

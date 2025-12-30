@@ -835,23 +835,23 @@ Result<void> Map::saveAs(const std::filesystem::path& path)
   });
 }
 
-Result<void> Map::saveTo(const std::filesystem::path& path)
+Result<void> Map::saveTo(const std::filesystem::path& path) const
 {
   if (!path.is_absolute())
   {
     return Error{"Path must be absolute"};
   }
 
-  logger().info() << "Saving document to " << path;
+  m_logger.info() << "Saving document to " << path;
 
   fs::Disk::withOutputStream(path, [&](auto& stream) {
     writeMapHeader(stream, gameInfo().gameConfig.name, m_worldNode->mapFormat());
 
     auto writer = NodeWriter{*m_worldNode, stream};
     writer.setExporting(false);
-    writer.writeMap(taskManager());
+    writer.writeMap(m_taskManager);
   }) | kdl::transform_error([&](const auto& e) {
-    logger().error() << "Could not save document: " << e.msg;
+    m_logger.error() << "Could not save document: " << e.msg;
   });
 
   return Result<void>{};

@@ -35,6 +35,7 @@
 #include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
+#include "ui/AppController.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
 #include "ui/CurrentGameIndicator.h"
@@ -262,7 +263,7 @@ void LaunchGameEngineDialog::done(const int r)
 void LaunchGameEngineDialog::saveConfig()
 {
   auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.gameManager();
+  auto& gameManager = app.appController().gameManager();
 
   const auto& map = m_document.map();
   const auto& gameName = map.gameInfo().gameConfig.name;

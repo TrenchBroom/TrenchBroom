@@ -34,6 +34,7 @@
 #include "mdl/Map_Selection.h" // IWYU pragma: keep
 #include "mdl/Tag.h"
 #include "ui/ActionExecutionContext.h"
+#include "ui/AppController.h"
 #include "ui/Inspector.h"
 #include "ui/MapFrame.h"
 #include "ui/MapView.h"
@@ -786,7 +787,7 @@ void ActionManager::createFileMenu()
     QKeySequence::New,
     [](auto&) {
       auto& app = TrenchBroomApp::instance();
-      app.newDocument();
+      app.appController().newDocument();
     },
     [](const auto&) { return true; },
   }));
@@ -798,7 +799,7 @@ void ActionManager::createFileMenu()
     QKeySequence::Open,
     [](auto&) {
       auto& app = TrenchBroomApp::instance();
-      app.openDocument();
+      app.appController().openDocument();
     },
     [](const auto&) { return true; },
   }));
@@ -1823,7 +1824,7 @@ void ActionManager::createViewMenu()
     QKeySequence::Preferences,
     [](auto&) {
       auto& app = TrenchBroomApp::instance();
-      app.showPreferences();
+      app.appController().showPreferences();
     },
     [](const auto&) { return true; },
   }));
@@ -1901,7 +1902,7 @@ void ActionManager::createDebugMenu()
     QKeySequence{},
     [](auto&) {
       auto& app = TrenchBroomApp::instance();
-      app.debugShowCrashReportDialog();
+      app.appController().debugShowCrashReportDialog();
     },
     [](const auto&) { return true; },
   }));
@@ -1934,7 +1935,7 @@ void ActionManager::createHelpMenu()
     QKeySequence{QKeySequence::HelpContents},
     [](auto&) {
       auto& app = TrenchBroomApp::instance();
-      app.showManual();
+      app.appController().showManual();
     },
     [](const auto&) { return true; },
   }));
@@ -1945,7 +1946,7 @@ void ActionManager::createHelpMenu()
     QKeySequence{},
     [](auto&) {
       auto& app = TrenchBroomApp::instance();
-      app.showAboutDialog();
+      app.appController().showAboutDialog();
     },
     [](const auto&) { return true; },
   }));

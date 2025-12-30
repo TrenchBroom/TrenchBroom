@@ -34,6 +34,7 @@
 #include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
+#include "ui/AppController.h"
 #include "ui/CompilationProfileManager.h"
 #include "ui/CompilationRunner.h"
 #include "ui/DialogButtonLayout.h"
@@ -264,7 +265,7 @@ void CompilationDialog::saveProfile()
   const auto& gameName = map.gameInfo().gameConfig.name;
 
   auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.gameManager();
+  auto& gameManager = app.appController().gameManager();
   gameManager.updateCompilationConfig(
     gameName, m_profileManager->config(), m_mapFrame->logger())
     | kdl::transform_error([&](const auto& e) { m_mapFrame->logger().error() << e.msg; });

@@ -26,6 +26,7 @@
 #include "Logger.h"
 #include "TrenchBroomApp.h"
 #include "mdl/GameManager.h"
+#include "ui/AppController.h"
 #include "ui/BorderLine.h"
 #include "ui/CurrentGameIndicator.h"
 #include "ui/DialogButtonLayout.h"
@@ -52,7 +53,7 @@ GameEngineDialog::GameEngineDialog(std::string gameName, Logger& logger, QWidget
 void GameEngineDialog::createGui()
 {
   auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.gameManager();
+  const auto& gameManager = app.appController().gameManager();
 
   auto* gameIndicator = new CurrentGameIndicator{m_gameName};
 
@@ -88,7 +89,7 @@ void GameEngineDialog::done(const int r)
 void GameEngineDialog::saveConfig()
 {
   auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.gameManager();
+  auto& gameManager = app.appController().gameManager();
 
   gameManager.updateGameEngineConfig(m_gameName, m_profileManager->config(), m_logger)
     | kdl::transform_error([&](const auto& e) { m_logger.error() << e.msg; });

@@ -26,6 +26,7 @@
 #include "fs/PathInfo.h"
 #include "gl/ContextManager.h"
 #include "mdl/Map.h"
+#include "ui/AppController.h"
 #include "ui/CrashDialog.h"
 #include "ui/FrameManager.h"
 #include "ui/GetVersion.h"
@@ -60,6 +61,16 @@ namespace
 bool inReportCrashAndExit = false;
 bool crashReportGuiEnabled = true;
 
+const MapDocument* topDocument()
+{
+  auto& app = TrenchBroomApp::instance();
+  if (const auto* topFrame = app.appController().frameManager().topFrame())
+  {
+    return &topFrame->document();
+  }
+  return nullptr;
+}
+
 std::string makeCrashReport(const auto& stacktrace, const auto& reason)
 {
   auto ss = std::stringstream{};
@@ -84,9 +95,8 @@ std::string makeCrashReport(const auto& stacktrace, const auto& reason)
 // returns the empty path for unsaved maps, or if we can't determine the current map
 std::filesystem::path savedMapPath()
 {
-  const auto document = TrenchBroomApp::instance().topDocument();
-  const auto& map = document->map();
-  return document && map.path().is_absolute() ? map.path() : std::filesystem::path{};
+  const auto* document = topDocument();
+  return document ? document->map().path() : std::filesystem::path{};
 }
 
 std::filesystem::path crashReportBasePath()
@@ -154,7 +164,7 @@ void CrashHandler(const int /* signum */)
     });
 
     // save the map
-    if (const auto document = TrenchBroomApp::instance().topDocument())
+    if (const auto* document = topDocument())
     {
       document->map().saveTo(mapPath) | kdl::transform([&]() {
         std::cerr << "wrote map to " << mapPath.string() << std::endl;

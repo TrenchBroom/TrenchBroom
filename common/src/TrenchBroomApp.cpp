@@ -19,53 +19,18 @@
 
 #include "TrenchBroomApp.h"
 
+#include <QEvent>
+#include <QFileOpenEvent>
+#include <QMessageBox>
+
 #include "PreferenceManager.h"
-#include "Preferences.h"
-#include "mdl/GameManager.h"
-#include "mdl/Map.h"
-#include "ui/AboutDialog.h"
-#include "ui/ActionExecutionContext.h"
 #include "ui/AppController.h"
-#include "ui/CrashDialog.h"
 #include "ui/CrashReporter.h"
 #include "ui/FrameManager.h"
-#include "ui/MapDocument.h"
-#include "ui/MapFrame.h"
-#include "ui/MapViewBase.h"
-#include "ui/PreferenceDialog.h"
-#include "ui/RecentDocuments.h"
-#include "ui/SystemPaths.h"
-#include "ui/WelcomeWindow.h"
-#include "update/Updater.h"
 
 #include "kd/const_overload.h"
-#ifdef __APPLE__
-#include "ui/ActionBuilder.h"
-#endif
-
-#include <QColor>
-#include <QCommandLineParser>
-#include <QDebug>
-#include <QDesktopServices>
-#include <QFile>
-#include <QFileDialog>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QNetworkAccessManager>
-#include <QPalette>
-#include <QProxyStyle>
-#include <QStandardPaths>
-#include <QSysInfo>
-#include <QTimer>
-#include <QUrl>
 
 #include <fmt/format.h>
-#include <fmt/std.h>
-
-#include <csignal>
-#include <cstdlib>
-#include <string>
-#include <vector>
 
 namespace tb::ui
 {
@@ -104,16 +69,6 @@ TrenchBroomApp::~TrenchBroomApp()
   PreferenceManager::destroyInstance();
 }
 
-void TrenchBroomApp::askForAutoUpdates()
-{
-  appController().askForAutoUpdates();
-}
-
-void TrenchBroomApp::triggerAutoUpdateCheck()
-{
-  appController().triggerAutoUpdateCheck();
-}
-
 const AppController& TrenchBroomApp::appController() const
 {
   return *m_appController;
@@ -122,102 +77,6 @@ const AppController& TrenchBroomApp::appController() const
 AppController& TrenchBroomApp::appController()
 {
   return KDL_CONST_OVERLOAD(appController());
-}
-
-const mdl::EnvironmentConfig TrenchBroomApp::environmentConfig() const
-{
-  return appController().environmentConfig();
-}
-
-mdl::GameManager& TrenchBroomApp::gameManager()
-{
-  return appController().gameManager();
-}
-
-
-upd::Updater& TrenchBroomApp::updater()
-{
-  return appController().updater();
-}
-
-FrameManager* TrenchBroomApp::frameManager()
-{
-  return &appController().frameManager();
-}
-
-std::vector<std::filesystem::path> TrenchBroomApp::recentDocuments() const
-{
-  return appController().recentDocuments().recentDocuments();
-}
-
-std::vector<std::filesystem::path> TrenchBroomApp::recentDocuments()
-{
-  return KDL_CONST_OVERLOAD(recentDocuments());
-}
-
-void TrenchBroomApp::addRecentDocumentMenu(QMenu& menu)
-{
-  appController().recentDocuments().addMenu(menu);
-}
-
-void TrenchBroomApp::removeRecentDocumentMenu(QMenu& menu)
-{
-  appController().recentDocuments().removeMenu(menu);
-}
-
-void TrenchBroomApp::updateRecentDocument(const std::filesystem::path& path)
-{
-  appController().recentDocuments().updatePath(path);
-}
-
-bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
-{
-  return appController().openDocument(path);
-}
-
-void TrenchBroomApp::openPreferences()
-{
-  appController().showPreferences();
-}
-
-void TrenchBroomApp::openAbout()
-{
-  appController().showAboutDialog();
-}
-
-bool TrenchBroomApp::newDocument()
-{
-  return appController().newDocument();
-}
-
-void TrenchBroomApp::openDocument()
-{
-  appController().openDocument();
-}
-
-void TrenchBroomApp::showManual()
-{
-  appController().showManual();
-}
-
-void TrenchBroomApp::showPreferences()
-{
-  openPreferences();
-}
-
-void TrenchBroomApp::showAboutDialog()
-{
-  openAbout();
-}
-
-void TrenchBroomApp::debugShowCrashReportDialog()
-{
-  const auto reportPath = ui::SystemPaths::userDataDirectory() / "crashreport.txt";
-  const auto mapPath = ui::SystemPaths::userDataDirectory() / "crashreport.map";
-  const auto logPath = ui::SystemPaths::userDataDirectory() / "crashreport.log";
-
-  auto dialog = CrashDialog{"Debug crash", reportPath, mapPath, logPath};
-  dialog.exec();
 }
 
 /**
@@ -238,7 +97,7 @@ bool TrenchBroomApp::event(QEvent* event)
   {
     const auto* openEvent = static_cast<QFileOpenEvent*>(event);
     const auto path = std::filesystem::path{openEvent->file().toStdString()};
-    if (openDocument(path))
+    if (appController().openDocument(path))
     {
       return true;
     }
@@ -248,28 +107,11 @@ bool TrenchBroomApp::event(QEvent* event)
   {
     if (appController().frameManager().allFramesClosed())
     {
-      showWelcomeWindow();
+      appController().showWelcomeWindow();
     }
   }
   return QApplication::event(event);
 }
 #endif
-
-void TrenchBroomApp::showWelcomeWindow()
-{
-  appController().showWelcomeWindow();
-}
-
-MapDocument* TrenchBroomApp::topDocument()
-{
-  if (const auto* frameManager = this->frameManager())
-  {
-    if (auto* frame = frameManager->topFrame())
-    {
-      return &frame->document();
-    }
-  }
-  return nullptr;
-}
 
 } // namespace tb::ui

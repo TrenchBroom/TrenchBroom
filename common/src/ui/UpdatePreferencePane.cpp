@@ -27,6 +27,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "ui/AppController.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
@@ -79,7 +80,9 @@ To download and install an available update, click on the link labeled "Update a
         const auto value = state == Qt::Checked;
         auto& prefs = PreferenceManager::instance();
         prefs.set(Preferences::IncludePreReleaseUpdates, value);
-        TrenchBroomApp::instance().updater().reset();
+
+        auto& app = TrenchBroomApp::instance();
+        app.appController().updater().reset();
       }
     });
 
@@ -91,7 +94,9 @@ To download and install an available update, click on the link labeled "Update a
         const auto value = state == Qt::Checked;
         auto& prefs = PreferenceManager::instance();
         prefs.set(Preferences::IncludeDraftReleaseUpdates, value);
-        TrenchBroomApp::instance().updater().reset();
+
+        auto& app = TrenchBroomApp::instance();
+        app.appController().updater().reset();
       }
     });
 
@@ -100,7 +105,7 @@ To download and install an available update, click on the link labeled "Update a
 They may contain new features or bug fixes that are not yet part of a stable release.)")};
 
   auto& app = TrenchBroomApp::instance();
-  auto* updateIndicator = app.updater().createUpdateIndicator();
+  auto* updateIndicator = app.appController().updater().createUpdateIndicator();
 
   m_layout = new FormWithSectionsLayout{};
   m_layout->setContentsMargins(

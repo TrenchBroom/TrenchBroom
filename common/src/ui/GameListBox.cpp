@@ -23,6 +23,7 @@
 #include "TrenchBroomApp.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
+#include "ui/AppController.h"
 #include "ui/ImageUtils.h"
 
 #include "kd/contracts.h"
@@ -72,7 +73,7 @@ GameListBox::GameListBox(QWidget* parent)
 std::string GameListBox::selectedGameName() const
 {
   auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.gameManager();
+  const auto& gameManager = app.appController().gameManager();
   const auto& gameInfos = gameManager.gameInfos();
 
   const auto index = currentRow();
@@ -89,7 +90,7 @@ void GameListBox::selectGame(const size_t index)
 void GameListBox::reloadGameInfos()
 {
   auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.gameManager();
+  const auto& gameManager = app.appController().gameManager();
 
   const auto currentGameName = selectedGameName();
   m_displayInfos.clear();
@@ -111,7 +112,7 @@ void GameListBox::reloadGameInfos()
 void GameListBox::updateGameInfos()
 {
   auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.gameManager();
+  const auto& gameManager = app.appController().gameManager();
 
   for (auto& displayInfo : m_displayInfos)
   {

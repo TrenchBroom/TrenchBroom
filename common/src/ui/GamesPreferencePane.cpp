@@ -36,6 +36,7 @@
 #include "fs/DiskIO.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
+#include "ui/AppController.h"
 #include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/EmptyWidget.h"
@@ -247,7 +248,7 @@ void GamePreferencePane::createGui()
   layout->addSection(tr("Compilation Tools"));
 
   auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.gameManager();
+  auto& gameManager = app.appController().gameManager();
   auto* gameInfo = gameManager.gameInfo(m_gameName);
   contract_assert(gameInfo);
 
@@ -310,7 +311,7 @@ void GamePreferencePane::chooseGamePathClicked()
 void GamePreferencePane::updateGamePath(const QString& str)
 {
   auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.gameManager();
+  auto& gameManager = app.appController().gameManager();
   auto* gameInfo = gameManager.gameInfo(m_gameName);
   contract_assert(gameInfo);
 
@@ -336,7 +337,7 @@ const std::string& GamePreferencePane::gameName() const
 void GamePreferencePane::updateControls()
 {
   auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.gameManager();
+  const auto& gameManager = app.appController().gameManager();
   const auto* gameInfo = gameManager.gameInfo(m_gameName);
   contract_assert(gameInfo);
 

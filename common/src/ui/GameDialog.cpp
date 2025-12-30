@@ -28,6 +28,7 @@
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "mdl/GameManager.h"
+#include "ui/AppController.h"
 #include "ui/BorderLine.h"
 #include "ui/DialogButtonLayout.h"
 #include "ui/GameListBox.h"
@@ -121,7 +122,7 @@ void GameDialog::gameSelected(const QString& /* gameName */)
 void GameDialog::openPreferencesClicked()
 {
   auto& app = TrenchBroomApp::instance();
-  app.openPreferences();
+  app.appController().showPreferences();
 }
 
 GameDialog::GameDialog(
@@ -253,7 +254,7 @@ QWidget* GameDialog::createSelectionPanel()
 void GameDialog::updateMapFormats(const std::string& gameName)
 {
   auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.gameManager();
+  const auto& gameManager = app.appController().gameManager();
 
   const auto* gameInfo = gameManager.gameInfo(gameName);
   const auto fileFormats =

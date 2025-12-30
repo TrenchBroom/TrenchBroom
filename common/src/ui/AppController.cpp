@@ -33,6 +33,7 @@
 #include "mdl/GameManager.h"
 #include "mdl/MapHeader.h"
 #include "ui/AboutDialog.h"
+#include "ui/CrashDialog.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/FrameManager.h"
 #include "ui/GameDialog.h"
@@ -369,6 +370,17 @@ void AppController::showAboutDialog()
   m_aboutDialog->show();
   m_aboutDialog->raise();
 }
+
+void AppController::debugShowCrashReportDialog()
+{
+  const auto reportPath = ui::SystemPaths::userDataDirectory() / "crashreport.txt";
+  const auto mapPath = ui::SystemPaths::userDataDirectory() / "crashreport.map";
+  const auto logPath = ui::SystemPaths::userDataDirectory() / "crashreport.log";
+
+  auto dialog = CrashDialog{"Debug crash", reportPath, mapPath, logPath};
+  dialog.exec();
+}
+
 
 void AppController::connectObservers()
 {

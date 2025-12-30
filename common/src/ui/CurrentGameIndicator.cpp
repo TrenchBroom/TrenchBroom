@@ -24,6 +24,7 @@
 
 #include "TrenchBroomApp.h"
 #include "mdl/GameManager.h"
+#include "ui/AppController.h"
 #include "ui/ImageUtils.h"
 
 #include <filesystem>
@@ -34,7 +35,9 @@ namespace tb::ui
 CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget* parent)
   : DialogHeader{parent}
 {
-  const auto& gameManager = TrenchBroomApp::instance().gameManager();
+  auto& app = TrenchBroomApp::instance();
+  const auto& gameManager = app.appController().gameManager();
+
   if (const auto* gameInfo = gameManager.gameInfo(gameName))
   {
     auto iconPath = gameInfo->gameConfig.findConfigFile(gameInfo->gameConfig.icon);

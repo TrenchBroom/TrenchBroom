@@ -119,6 +119,7 @@ public:
   void showManual();
   void showPreferences();
   void showAboutDialog();
+  void debugShowCrashReportDialog();
 
 private:
   void connectObservers();

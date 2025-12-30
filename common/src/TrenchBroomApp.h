@@ -21,42 +21,9 @@
 
 #include <QApplication>
 
-#include "mdl/EnvironmentConfig.h"
-
-#include "kd/task_manager.h"
-
-#include <filesystem>
-#include <memory>
-#include <vector>
-
-class QMenu;
-class QNetworkAccessManager;
-class QSettings;
-class QTimer;
-
-namespace upd
-{
-class HttpClient;
-class Updater;
-} // namespace upd
-
-namespace tb
-{
-class Logger;
-
-namespace mdl
-{
-struct EnvironmentConfig;
-class GameManager;
-} // namespace mdl
-
-namespace ui
+namespace tb::ui
 {
 class AppController;
-class FrameManager;
-class MapDocument;
-class RecentDocuments;
-class WelcomeWindow;
 
 class TrenchBroomApp : public QApplication
 {
@@ -71,46 +38,15 @@ public:
   ~TrenchBroomApp() override;
 
 public:
-  void askForAutoUpdates();
-  void triggerAutoUpdateCheck();
-
   const AppController& appController() const;
   AppController& appController();
 
-  const mdl::EnvironmentConfig environmentConfig() const;
-  mdl::GameManager& gameManager();
-  upd::Updater& updater();
-  FrameManager* frameManager();
-
 public:
-  std::vector<std::filesystem::path> recentDocuments() const;
-  std::vector<std::filesystem::path> recentDocuments();
-
-  void addRecentDocumentMenu(QMenu& menu);
-  void removeRecentDocumentMenu(QMenu& menu);
-  void updateRecentDocument(const std::filesystem::path& path);
-
-  bool openDocument(const std::filesystem::path& path);
-  void openPreferences();
-  void openAbout();
-
-  bool newDocument();
-  void openDocument();
-  void showManual();
-  void showPreferences();
-  void showAboutDialog();
-  void debugShowCrashReportDialog();
-
   bool notify(QObject* receiver, QEvent* event) override;
 
 #ifdef __APPLE__
   bool event(QEvent* event) override;
 #endif
-
-  void showWelcomeWindow();
-
-  MapDocument* topDocument();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui
