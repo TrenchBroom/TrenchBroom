@@ -74,8 +74,6 @@ public:
   void askForAutoUpdates();
   void triggerAutoUpdateCheck();
 
-  void parseCommandLineAndShowFrame();
-
   const AppController& appController() const;
   AppController& appController();
 
@@ -108,7 +106,6 @@ public:
 #ifdef __APPLE__
   bool event(QEvent* event) override;
 #endif
-  void openFilesOrWelcomeFrame(const QStringList& fileNames);
 
   void showWelcomeWindow();
 

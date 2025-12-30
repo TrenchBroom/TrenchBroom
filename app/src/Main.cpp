@@ -18,6 +18,7 @@
  */
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QFile>
 #include <QMenuBar>
 #include <QPalette>
@@ -34,6 +35,7 @@
 #include "ui/Action.h"
 #include "ui/ActionBuilder.h"
 #include "ui/ActionExecutionContext.h"
+#include "ui/AppController.h"
 #include "ui/CrashReporter.h"
 #include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
@@ -182,6 +184,47 @@ void populateMainMenu(TrenchBroomApp& app)
   }
 }
 
+
+void openFilesOrWelcomeFrame(AppController& appController, const QStringList& fileNames)
+{
+  const auto filesToOpen = AppController::useSDI && !fileNames.empty()
+                             ? QStringList{fileNames.front()}
+                             : fileNames;
+
+  auto anyDocumentOpened = false;
+  for (const auto& fileName : filesToOpen)
+  {
+    const auto path = ui::pathFromQString(fileName);
+    if (!path.empty() && appController.openDocument(path))
+    {
+      anyDocumentOpened = true;
+    }
+  }
+
+  if (!anyDocumentOpened)
+  {
+    appController.showWelcomeWindow();
+  }
+}
+
+void parseCommandLineAndShowFrame(QApplication& app, AppController& appController)
+{
+  auto parser = QCommandLineParser{};
+  parser.addOption(QCommandLineOption("portable"));
+  parser.addOption(QCommandLineOption("enableDraftReleaseUpdates"));
+  parser.process(app);
+
+  if (parser.isSet("enableDraftReleaseUpdates"))
+  {
+    auto& prefs = PreferenceManager::instance();
+    prefs.set(Preferences::EnableDraftReleaseUpdates, true);
+    prefs.set(Preferences::IncludeDraftReleaseUpdates, true);
+  }
+
+  openFilesOrWelcomeFrame(appController, parser.positionalArguments());
+}
+
+
 } // namespace
 
 int main(int argc, char* argv[])
@@ -254,6 +297,8 @@ int main(int argc, char* argv[])
 
   TrenchBroomApp app(argc, argv);
 
+  auto& appController = app.appController();
+
   setupCrashReporter();
 
   loadStyleSheets();
@@ -265,7 +310,7 @@ int main(int argc, char* argv[])
 #endif
 
   app.askForAutoUpdates();
-  app.parseCommandLineAndShowFrame();
+  parseCommandLineAndShowFrame(app, appController);
 
   // start the update check only now after we have asked the user whether they want to
   // enable the automatic check and once we have set the draft update preference

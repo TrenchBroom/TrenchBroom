@@ -33,7 +33,6 @@
 #include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
 #include "ui/PreferenceDialog.h"
-#include "ui/QPathUtils.h"
 #include "ui/RecentDocuments.h"
 #include "ui/SystemPaths.h"
 #include "ui/WelcomeWindow.h"
@@ -66,7 +65,6 @@
 #include <csignal>
 #include <cstdlib>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace tb::ui
@@ -114,23 +112,6 @@ void TrenchBroomApp::askForAutoUpdates()
 void TrenchBroomApp::triggerAutoUpdateCheck()
 {
   appController().triggerAutoUpdateCheck();
-}
-
-void TrenchBroomApp::parseCommandLineAndShowFrame()
-{
-  auto parser = QCommandLineParser{};
-  parser.addOption(QCommandLineOption("portable"));
-  parser.addOption(QCommandLineOption("enableDraftReleaseUpdates"));
-  parser.process(*this);
-
-  if (parser.isSet("enableDraftReleaseUpdates"))
-  {
-    auto& prefs = PreferenceManager::instance();
-    prefs.set(Preferences::EnableDraftReleaseUpdates, true);
-    prefs.set(Preferences::IncludeDraftReleaseUpdates, true);
-  }
-
-  openFilesOrWelcomeFrame(parser.positionalArguments());
 }
 
 const AppController& TrenchBroomApp::appController() const
@@ -273,28 +254,6 @@ bool TrenchBroomApp::event(QEvent* event)
   return QApplication::event(event);
 }
 #endif
-
-void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
-{
-  const auto filesToOpen = AppController::useSDI && !fileNames.empty()
-                             ? QStringList{fileNames.front()}
-                             : fileNames;
-
-  auto anyDocumentOpened = false;
-  for (const auto& fileName : filesToOpen)
-  {
-    const auto path = ui::pathFromQString(fileName);
-    if (!path.empty() && openDocument(path))
-    {
-      anyDocumentOpened = true;
-    }
-  }
-
-  if (!anyDocumentOpened)
-  {
-    showWelcomeWindow();
-  }
-}
 
 void TrenchBroomApp::showWelcomeWindow()
 {
