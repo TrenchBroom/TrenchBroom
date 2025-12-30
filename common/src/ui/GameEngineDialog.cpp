@@ -33,16 +33,17 @@
 #include "ui/GameEngineProfileManager.h"
 #include "ui/QStyleUtils.h"
 
-#include "kd/contracts.h"
-
-#include <string>
-
 namespace tb::ui
 {
 
-GameEngineDialog::GameEngineDialog(std::string gameName, Logger& logger, QWidget* parent)
+GameEngineDialog::GameEngineDialog(
+  AppController& appController,
+  const mdl::GameInfo& gameInfo,
+  Logger& logger,
+  QWidget* parent)
   : QDialog{parent}
-  , m_gameName{std::move(gameName)}
+  , m_appController{appController}
+  , m_gameInfo{gameInfo}
   , m_logger{logger}
 {
   setWindowTitle("Game Engines");
@@ -52,15 +53,8 @@ GameEngineDialog::GameEngineDialog(std::string gameName, Logger& logger, QWidget
 
 void GameEngineDialog::createGui()
 {
-  auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.appController().gameManager();
-
-  auto* gameIndicator = new CurrentGameIndicator{m_gameName};
-
-  const auto* gameInfo = gameManager.gameInfo(m_gameName);
-  contract_assert(gameInfo != nullptr);
-  m_profileManager = new GameEngineProfileManager{gameInfo->gameEngineConfig};
-
+  auto* gameIndicator = new CurrentGameIndicator{m_gameInfo};
+  m_profileManager = new GameEngineProfileManager{m_gameInfo.gameEngineConfig};
   auto* buttons = new QDialogButtonBox{QDialogButtonBox::Close};
 
   auto* layout = new QVBoxLayout{};
@@ -88,10 +82,10 @@ void GameEngineDialog::done(const int r)
 
 void GameEngineDialog::saveConfig()
 {
-  auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.appController().gameManager();
+  auto& gameManager = m_appController.gameManager();
 
-  gameManager.updateGameEngineConfig(m_gameName, m_profileManager->config(), m_logger)
+  gameManager.updateGameEngineConfig(
+    m_gameInfo.gameConfig.name, m_profileManager->config(), m_logger)
     | kdl::transform_error([&](const auto& e) { m_logger.error() << e.msg; });
 }
 

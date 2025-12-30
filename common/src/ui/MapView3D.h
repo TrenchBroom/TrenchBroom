@@ -50,7 +50,10 @@ private:
 
 public:
   MapView3D(
-    MapDocument& document, MapViewToolBox& toolBox, gl::ContextManager& contextManager);
+    AppController& appController,
+    MapDocument& document,
+    MapViewToolBox& toolBox,
+    gl::ContextManager& contextManager);
   ~MapView3D() override;
 
 private:

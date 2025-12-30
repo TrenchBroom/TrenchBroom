@@ -36,14 +36,17 @@ struct CompilationProfile;
 
 namespace ui
 {
+class AppController;
 class CompilationProfileManager;
-class MapFrame;
+class MapDocument;
 
 class CompilationDialog : public QDialog
 {
   Q_OBJECT
 private:
-  MapFrame* m_mapFrame = nullptr;
+  AppController& m_appController;
+  MapDocument& m_document;
+
   CompilationProfileManager* m_profileManager = nullptr;
   QPushButton* m_launchButton = nullptr;
   QPushButton* m_compileButton = nullptr;
@@ -55,7 +58,8 @@ private:
   CompilationRun m_run;
 
 public:
-  explicit CompilationDialog(MapFrame* mapFrame);
+  explicit CompilationDialog(
+    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();

@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QCoreApplication>
 #include <QJsonObject>
 #include <QLockFile>
 
 #include "Observer.h"
-#include "TrenchBroomApp.h"
 #include "fs/TestEnvironment.h"
 #include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
@@ -49,7 +49,7 @@ TEST_CASE("QPreferenceStore")
                              const auto endTime, const auto& condition) mutable {
     while (std::chrono::steady_clock::now() < endTime)
     {
-      TrenchBroomApp::instance().processEvents();
+      qApp->processEvents();
 
       auto lock = std::unique_lock{mutex};
       if (conditionVariable.wait_for(lock, 10ms, condition))

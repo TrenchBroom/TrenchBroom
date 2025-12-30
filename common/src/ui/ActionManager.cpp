@@ -24,7 +24,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroomApp.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Grid.h" // IWYU pragma: keep
@@ -34,7 +33,7 @@
 #include "mdl/Map_Selection.h" // IWYU pragma: keep
 #include "mdl/Tag.h"
 #include "ui/ActionExecutionContext.h"
-#include "ui/AppController.h"
+#include "ui/AppController.h" // IWYU pragma: keep
 #include "ui/Inspector.h"
 #include "ui/MapFrame.h"
 #include "ui/MapView.h"
@@ -785,10 +784,7 @@ void ActionManager::createFileMenu()
     QObject::tr("New Document"),
     ActionContext::Any,
     QKeySequence::New,
-    [](auto&) {
-      auto& app = TrenchBroomApp::instance();
-      app.appController().newDocument();
-    },
+    [](auto& context) { context.appController().newDocument(); },
     [](const auto&) { return true; },
   }));
   fileMenu.addSeparator();
@@ -797,10 +793,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Open Document..."),
     ActionContext::Any,
     QKeySequence::Open,
-    [](auto&) {
-      auto& app = TrenchBroomApp::instance();
-      app.appController().openDocument();
-    },
+    [](auto& context) { context.appController().openDocument(); },
     [](const auto&) { return true; },
   }));
   fileMenu.addMenu("Open Recent", MenuEntryType::RecentDocuments);
@@ -1822,10 +1815,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Preferences..."),
     ActionContext::Any,
     QKeySequence::Preferences,
-    [](auto&) {
-      auto& app = TrenchBroomApp::instance();
-      app.appController().showPreferences();
-    },
+    [](auto& context) { context.appController().showPreferences(); },
     [](const auto&) { return true; },
   }));
 }
@@ -1900,10 +1890,7 @@ void ActionManager::createDebugMenu()
     QObject::tr("Show Crash Report Dialog..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto&) {
-      auto& app = TrenchBroomApp::instance();
-      app.appController().debugShowCrashReportDialog();
-    },
+    [](auto& context) { context.appController().debugShowCrashReportDialog(); },
     [](const auto&) { return true; },
   }));
   debugMenu.addItem(addAction(Action{
@@ -1933,10 +1920,7 @@ void ActionManager::createHelpMenu()
     QObject::tr("TrenchBroom Manual"),
     ActionContext::Any,
     QKeySequence{QKeySequence::HelpContents},
-    [](auto&) {
-      auto& app = TrenchBroomApp::instance();
-      app.appController().showManual();
-    },
+    [](auto& context) { context.appController().showManual(); },
     [](const auto&) { return true; },
   }));
   helpMenu.addItem(addAction(Action{
@@ -1944,10 +1928,7 @@ void ActionManager::createHelpMenu()
     QObject::tr("About TrenchBroom"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto&) {
-      auto& app = TrenchBroomApp::instance();
-      app.appController().showAboutDialog();
-    },
+    [](auto& context) { context.appController().showAboutDialog(); },
     [](const auto&) { return true; },
   }));
 }

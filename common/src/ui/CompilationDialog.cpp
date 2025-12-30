@@ -51,12 +51,12 @@
 namespace tb::ui
 {
 
-CompilationDialog::CompilationDialog(MapFrame* mapFrame)
-  : QDialog{mapFrame}
-  , m_mapFrame{mapFrame}
+CompilationDialog::CompilationDialog(
+  AppController& appController, MapDocument& document, QWidget* parent)
+  : QDialog{parent}
+  , m_appController{appController}
+  , m_document{document}
 {
-  contract_pre(mapFrame != nullptr);
-
   createGui();
   setMinimumSize(600, 300);
   resize(800, 600);
@@ -68,10 +68,9 @@ void CompilationDialog::createGui()
   setWindowIconTB(this);
   setWindowTitle("Compile");
 
-  auto& document = m_mapFrame->document();
-  const auto& compilationConfig = document.map().gameInfo().compilationConfig;
+  const auto& compilationConfig = m_document.map().gameInfo().compilationConfig;
 
-  m_profileManager = new CompilationProfileManager{document, compilationConfig};
+  m_profileManager = new CompilationProfileManager{m_document, compilationConfig};
 
   auto* outputPanel = new TitledPanel{tr("Output")};
   m_output = new QTextEdit{};
@@ -144,7 +143,7 @@ void CompilationDialog::createGui()
     m_testCompileButton, &QPushButton::clicked, this, [&]() { startCompilation(true); });
   connect(m_stopCompileButton, &QPushButton::clicked, this, [&]() { stopCompilation(); });
   connect(m_launchButton, &QPushButton::clicked, this, [&]() {
-    LaunchGameEngineDialog dialog(m_mapFrame->document(), this);
+    auto dialog = LaunchGameEngineDialog{m_appController, m_document, this};
     dialog.exec();
   });
   connect(m_closeButton, &QPushButton::clicked, this, &CompilationDialog::close);
@@ -196,7 +195,7 @@ void CompilationDialog::startCompilation(const bool test)
 Result<void> CompilationDialog::runProfile(
   const mdl::CompilationProfile& profile, const bool test)
 {
-  const auto& map = m_mapFrame->document().map();
+  const auto& map = m_document.map();
   return test ? m_run.test(profile, map, m_output) : m_run.run(profile, map, m_output);
 }
 
@@ -261,14 +260,13 @@ void CompilationDialog::profileChanged()
 
 void CompilationDialog::saveProfile()
 {
-  const auto& map = m_mapFrame->document().map();
+  const auto& map = m_document.map();
   const auto& gameName = map.gameInfo().gameConfig.name;
 
-  auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.appController().gameManager();
+  auto& gameManager = m_appController.gameManager();
   gameManager.updateCompilationConfig(
-    gameName, m_profileManager->config(), m_mapFrame->logger())
-    | kdl::transform_error([&](const auto& e) { m_mapFrame->logger().error() << e.msg; });
+    gameName, m_profileManager->config(), m_document.logger())
+    | kdl::transform_error([&](const auto& e) { m_document.logger().error() << e.msg; });
 }
 
 } // namespace tb::ui

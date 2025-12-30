@@ -34,6 +34,7 @@ class ContextManager;
 
 namespace ui
 {
+class AppController;
 class ClipTool;
 class EdgeTool;
 class FaceTool;
@@ -50,6 +51,7 @@ class SwitchableMapViewContainer : public QWidget, public MapView
 {
   Q_OBJECT
 private:
+  AppController& m_appController;
   MapDocument& m_document;
   gl::ContextManager& m_contextManager;
 
@@ -63,7 +65,10 @@ private:
 
 public:
   SwitchableMapViewContainer(
-    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
+    AppController& appController,
+    MapDocument& document,
+    gl::ContextManager& contextManager,
+    QWidget* parent = nullptr);
   ~SwitchableMapViewContainer() override;
 
   void connectTopWidgets(Inspector* inspector);

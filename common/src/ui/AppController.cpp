@@ -94,9 +94,9 @@ auto createGameManager()
            });
 }
 
-auto createFrameManager(bool useSDI, QObject* parent)
+auto createFrameManager(AppController& appController)
 {
-  return new FrameManager{useSDI, parent};
+  return new FrameManager{appController, AppController::useSDI};
 }
 
 auto createRecentDocuments(QObject* parent)
@@ -110,13 +110,14 @@ auto createRecentDocuments(QObject* parent)
 }
 
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
-  const mdl::GameManager& gameManager, const std::filesystem::path& path)
+  AppController& appController, const std::filesystem::path& path)
 {
   return fs::Disk::withInputStream(path, mdl::readMapHeader)
          | kdl::transform(
            [&](auto detectedGameNameAndMapFormat)
              -> std::optional<std::tuple<std::string, mdl::MapFormat>> {
              auto [gameName, mapFormat] = detectedGameNameAndMapFormat;
+             const auto& gameManager = appController.gameManager();
              const auto gameList = gameManager.gameInfos()
                                    | std::views::transform([](const auto& gameInfo) {
                                        return gameInfo.gameConfig.name;
@@ -127,7 +128,8 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndForma
                gameName == std::nullopt || !kdl::vec_contains(gameList, *gameName)
                || mapFormat == mdl::MapFormat::Unknown)
              {
-               auto queriedGameNameAndMapFormat = GameDialog::showOpenDocumentDialog();
+               auto queriedGameNameAndMapFormat =
+                 GameDialog::showOpenDocumentDialog(appController);
                if (!queriedGameNameAndMapFormat)
                {
                  return std::nullopt;
@@ -156,7 +158,7 @@ AppController::AppController(
   , m_recentDocumentsReloadTimer{new QTimer{this}}
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
-  , m_frameManager{createFrameManager(useSDI, this)}
+  , m_frameManager{createFrameManager(*this)}
   , m_recentDocuments{createRecentDocuments(this)}
   , m_welcomeWindow{std::make_unique<WelcomeWindow>(*this)}
   , m_aboutDialog{std::make_unique<AboutDialog>(*this)}
@@ -251,7 +253,7 @@ void AppController::triggerAutoUpdateCheck()
 
 bool AppController::newDocument()
 {
-  const auto gameNameAndMapFormat = GameDialog::showNewDocumentDialog();
+  const auto gameNameAndMapFormat = GameDialog::showNewDocumentDialog(*this);
   if (!gameNameAndMapFormat)
   {
     return false;
@@ -312,8 +314,7 @@ bool AppController::openDocument(const std::filesystem::path& path)
            return Result<void>{e};
          })
          | kdl::and_then([&]() {
-             const auto gameNameAndMapFormat =
-               detectOrQueryGameAndFormat(gameManager(), absPath);
+             const auto gameNameAndMapFormat = detectOrQueryGameAndFormat(*this, absPath);
              if (!gameNameAndMapFormat)
              {
                return Result<bool>{false};
@@ -361,7 +362,7 @@ void AppController::showPreferences()
   auto* topFrame = frameManager().topFrame();
   auto* topDocument = topFrame ? &topFrame->document() : nullptr;
 
-  auto dialog = PreferenceDialog{topDocument};
+  auto dialog = PreferenceDialog{*this, topDocument};
   dialog.exec();
 }
 

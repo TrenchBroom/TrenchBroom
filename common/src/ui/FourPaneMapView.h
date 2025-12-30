@@ -32,6 +32,7 @@ class ContextManager;
 
 namespace ui
 {
+class AppController;
 class MapDocument;
 class MapView2D;
 class MapView3D;
@@ -54,6 +55,7 @@ private:
 
 public:
   FourPaneMapView(
+    AppController& appController,
     MapDocument& document,
     MapViewToolBox& toolBox,
     gl::ContextManager& contextManager,
@@ -61,7 +63,10 @@ public:
   ~FourPaneMapView() override;
 
 private:
-  void createGui(MapViewToolBox& toolBox, gl::ContextManager& contextManager);
+  void createGui(
+    AppController& appController,
+    MapViewToolBox& toolBox,
+    gl::ContextManager& contextManager);
 
 private: // event handlers
   void onSplitterMoved(int pos, int index);

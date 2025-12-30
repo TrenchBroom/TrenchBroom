@@ -22,6 +22,7 @@
 #include <QApplication>
 
 #include "mdl/GameInfo.h"
+#include "ui/AppController.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 
@@ -33,8 +34,9 @@
 namespace tb::ui
 {
 
-FrameManager::FrameManager(const bool singleFrame, QObject* parent)
-  : QObject{parent}
+FrameManager::FrameManager(AppController& appController, const bool singleFrame)
+  : QObject{&appController}
+  , m_appController{appController}
   , m_singleFrame{singleFrame}
 {
   connect(qApp, &QApplication::focusChanged, this, &FrameManager::onFocusChange);
@@ -147,7 +149,7 @@ MapFrame* FrameManager::createFrame(std::unique_ptr<MapDocument> document)
 {
   contract_pre(document != nullptr);
 
-  auto* frame = new MapFrame{*this, std::move(document)};
+  auto* frame = new MapFrame{m_appController, std::move(document)};
   frame->positionOnScreen(topFrame());
   m_frames.insert(m_frames.begin(), frame);
 

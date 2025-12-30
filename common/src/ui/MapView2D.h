@@ -66,6 +66,7 @@ private:
 
 public:
   MapView2D(
+    AppController& appController,
     MapDocument& document,
     MapViewToolBox& toolBox,
     gl::ContextManager& contextManager,

@@ -167,14 +167,15 @@ void populateMainMenu(TrenchBroomApp& app)
   auto* menuBar = new QMenuBar{};
   auto actionMap = std::unordered_map<const Action*, QAction*>{};
 
-  auto menuBuilderResult = populateMenuBar(*menuBar, actionMap, [](const Action& action) {
-    auto context = ActionExecutionContext{nullptr, nullptr};
-    action.execute(context);
-  });
+  auto menuBuilderResult =
+    populateMenuBar(*menuBar, actionMap, [&](const Action& action) {
+      auto context = ActionExecutionContext{app.appController(), nullptr, nullptr};
+      action.execute(context);
+    });
 
   app.appController().recentDocuments().addMenu(*menuBuilderResult.recentDocumentsMenu);
 
-  auto context = ActionExecutionContext{nullptr, nullptr};
+  auto context = ActionExecutionContext{app.appController(), nullptr, nullptr};
   for (auto [tbAction, qtAction] : actionMap)
   {
     qtAction->setEnabled(tbAction->enabled(context));

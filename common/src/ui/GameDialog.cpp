@@ -45,9 +45,10 @@ namespace tb::ui
 {
 
 std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showNewDocumentDialog(
-  QWidget* parent)
+  AppController& appController, QWidget* parent)
 {
   auto dialog = GameDialog{
+    appController,
     "Select Game",
     R"(Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and materials by going to the map inspector, the entity inspector and the face inspector, respectively.)",
     GameDialog::DialogType::New,
@@ -65,9 +66,10 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showNewDocume
 }
 
 std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showOpenDocumentDialog(
-  QWidget* parent)
+  AppController& appController, QWidget* parent)
 {
   auto dialog = GameDialog{
+    appController,
     "Select Game",
     R"(TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.)",
     GameDialog::DialogType::Open,
@@ -86,7 +88,8 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showOpenDocum
 
 std::string GameDialog::currentGameName() const
 {
-  return m_gameListBox->selectedGameName();
+  const auto& currentGameInfo = m_gameListBox->selectedGameInfo();
+  return currentGameInfo ? currentGameInfo->gameConfig.name : "";
 }
 
 static mdl::MapFormat formatFromUserData(const QVariant& variant)
@@ -121,13 +124,17 @@ void GameDialog::gameSelected(const QString& /* gameName */)
 
 void GameDialog::openPreferencesClicked()
 {
-  auto& app = TrenchBroomApp::instance();
-  app.appController().showPreferences();
+  m_appController.showPreferences();
 }
 
 GameDialog::GameDialog(
-  const QString& title, const QString& infoText, const DialogType type, QWidget* parent)
+  AppController& appController,
+  const QString& title,
+  const QString& infoText,
+  const DialogType type,
+  QWidget* parent)
   : QDialog{parent}
+  , m_appController{appController}
   , m_dialogType{type}
 {
   createGui(title, infoText);
@@ -213,7 +220,7 @@ QWidget* GameDialog::createSelectionPanel()
 {
   auto* panel = new QWidget{};
 
-  m_gameListBox = new GameListBox{};
+  m_gameListBox = new GameListBox{m_appController};
   m_gameListBox->setToolTip("Double click on a game to select it");
 
   auto* label = new QLabel{"Map Format"};
@@ -253,8 +260,7 @@ QWidget* GameDialog::createSelectionPanel()
 
 void GameDialog::updateMapFormats(const std::string& gameName)
 {
-  auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.appController().gameManager();
+  const auto& gameManager = m_appController.gameManager();
 
   const auto* gameInfo = gameManager.gameInfo(gameName);
   const auto fileFormats =

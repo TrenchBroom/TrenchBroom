@@ -21,8 +21,6 @@
 
 #include <QDialog>
 
-#include <memory>
-
 class QDialogButtonBox;
 class QStackedWidget;
 class QToolBar;
@@ -30,6 +28,7 @@ class QWidget;
 
 namespace tb::ui
 {
+class AppController;
 class MapDocument;
 class PreferencePane;
 
@@ -39,13 +38,15 @@ class PreferenceDialog : public QDialog
 private:
   enum class PrefPane;
 
+  AppController& m_appController;
   MapDocument* m_document = nullptr;
   QToolBar* m_toolBar = nullptr;
   QStackedWidget* m_stackedWidget = nullptr;
   QDialogButtonBox* m_buttonBox = nullptr;
 
 public:
-  explicit PreferenceDialog(MapDocument* document, QWidget* parent = nullptr);
+  PreferenceDialog(
+    AppController& appController, MapDocument* document, QWidget* parent = nullptr);
 
 protected: // QWidget overrides
   void closeEvent(QCloseEvent* event) override;

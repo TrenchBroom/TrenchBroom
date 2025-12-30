@@ -30,10 +30,12 @@ namespace tb
 namespace mdl
 {
 struct CompilationTool;
-}
+struct GameInfo;
+} // namespace mdl
 
 namespace ui
 {
+class AppController;
 class GameListBox;
 class GamePreferencePane;
 class MapDocument;
@@ -45,6 +47,7 @@ class GamesPreferencePane : public PreferencePane
 {
   Q_OBJECT
 private:
+  AppController& m_appController;
   MapDocument* m_document = nullptr;
   GameListBox* m_gameListBox = nullptr;
   QStackedWidget* m_stackedWidget = nullptr;
@@ -52,7 +55,8 @@ private:
   GamePreferencePane* m_currentGamePage = nullptr;
 
 public:
-  explicit GamesPreferencePane(MapDocument* document, QWidget* parent = nullptr);
+  explicit GamesPreferencePane(
+    AppController& appController, MapDocument* document, QWidget* parent = nullptr);
 
 private:
   void createGui();
@@ -72,15 +76,19 @@ class GamePreferencePane : public QWidget
 {
   Q_OBJECT
 private:
+  AppController& m_appController;
   MapDocument* m_document = nullptr;
-  std::string m_gameName;
+  const mdl::GameInfo& m_gameInfo;
   QLineEdit* m_gamePathText = nullptr;
   QPushButton* m_chooseGamePathButton = nullptr;
-  std::vector<std::tuple<mdl::CompilationTool*, QLineEdit*>> m_toolPathEditors;
+  std::vector<std::tuple<const mdl::CompilationTool*, QLineEdit*>> m_toolPathEditors;
 
 public:
   explicit GamePreferencePane(
-    MapDocument* document, std::string gameName, QWidget* parent = nullptr);
+    AppController& appController,
+    MapDocument* document,
+    const mdl::GameInfo& gameInfo,
+    QWidget* parent = nullptr);
 
 private:
   void createGui();
@@ -92,7 +100,7 @@ private:
   void configureEnginesClicked();
 
 public:
-  const std::string& gameName() const;
+  const mdl::GameInfo& gameInfo() const;
   /**
    * Refresh controls from GameFactory
    */

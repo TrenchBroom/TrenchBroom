@@ -27,6 +27,7 @@
 namespace tb::ui
 {
 OnePaneMapView::OnePaneMapView(
+  AppController& appController,
   MapDocument& document,
   MapViewToolBox& toolBox,
   gl::ContextManager& contextManager,
@@ -34,14 +35,16 @@ OnePaneMapView::OnePaneMapView(
   : MultiPaneMapView{parent}
   , m_document{document}
 {
-  createGui(toolBox, contextManager);
+  createGui(appController, toolBox, contextManager);
 }
 
 void OnePaneMapView::createGui(
-  MapViewToolBox& toolBox, gl::ContextManager& contextManager)
+  AppController& appController,
+  MapViewToolBox& toolBox,
+  gl::ContextManager& contextManager)
 {
-  m_mapView =
-    new CyclingMapView{m_document, toolBox, contextManager, CyclingMapView::View_ALL};
+  m_mapView = new CyclingMapView{
+    appController, m_document, toolBox, contextManager, CyclingMapView::View_ALL};
   m_mapView->linkCamera(m_linkHelper);
   addMapView(m_mapView);
 

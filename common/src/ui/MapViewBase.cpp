@@ -100,8 +100,12 @@ namespace tb::ui
 const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
 MapViewBase::MapViewBase(
-  MapDocument& document, MapViewToolBox& toolBox, gl::ContextManager& contextManager)
+  AppController& appController,
+  MapDocument& document,
+  MapViewToolBox& toolBox,
+  gl::ContextManager& contextManager)
   : RenderView{contextManager}
+  , m_appController{appController}
   , m_document{document}
   , m_toolBox{toolBox}
   , m_animationManager{std::make_unique<AnimationManager>(this)}
@@ -303,7 +307,7 @@ void MapViewBase::updateActionBindings()
 void MapViewBase::updateActionStates()
 {
   auto* mapFrame = dynamic_cast<MapFrame*>(window());
-  auto context = ActionExecutionContext{mapFrame, this};
+  auto context = ActionExecutionContext{m_appController, mapFrame, this};
   for (auto& [shortcut, action] : m_shortcuts)
   {
     shortcut->setEnabled(hasFocus() && action->enabled(context));
@@ -318,7 +322,7 @@ void MapViewBase::updateActionStatesDelayed()
 void MapViewBase::triggerAction(const Action& action)
 {
   auto* mapFrame = dynamic_cast<MapFrame*>(window());
-  auto context = ActionExecutionContext{mapFrame, this};
+  auto context = ActionExecutionContext{m_appController, mapFrame, this};
   action.execute(context);
 }
 

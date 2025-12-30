@@ -64,22 +64,22 @@ auto makeGameDisplayInfo(const mdl::GameInfo& gameInfo)
 }
 } // namespace
 
-GameListBox::GameListBox(QWidget* parent)
+GameListBox::GameListBox(AppController& appController, QWidget* parent)
   : ImageListBox{"No Games Found", true, parent}
+  , m_appController{appController}
 {
   reloadGameInfos();
 }
 
-std::string GameListBox::selectedGameName() const
+const mdl::GameInfo* GameListBox::selectedGameInfo() const
 {
-  auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.appController().gameManager();
+  const auto& gameManager = m_appController.gameManager();
   const auto& gameInfos = gameManager.gameInfos();
 
   const auto index = currentRow();
   return index >= 0 && index < static_cast<int>(gameInfos.size())
-           ? gameInfos[static_cast<size_t>(index)].gameConfig.name
-           : "";
+           ? &gameInfos[static_cast<size_t>(index)]
+           : nullptr;
 }
 
 void GameListBox::selectGame(const size_t index)
@@ -89,10 +89,9 @@ void GameListBox::selectGame(const size_t index)
 
 void GameListBox::reloadGameInfos()
 {
-  auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.appController().gameManager();
+  const auto& gameManager = m_appController.gameManager();
 
-  const auto currentGameName = selectedGameName();
+  const auto* currentGameInfo = selectedGameInfo();
   m_displayInfos.clear();
 
   std::ranges::transform(
@@ -103,7 +102,7 @@ void GameListBox::reloadGameInfos()
   if (
     const auto selectedGameIndex = kdl::index_of(
       gameManager.gameInfos(),
-      [&](const auto& gameInfo) { return gameInfo.gameConfig.name == currentGameName; }))
+      [&](const auto& gameInfo) { return &gameInfo == currentGameInfo; }))
   {
     selectGame(*selectedGameIndex);
   }
@@ -111,8 +110,7 @@ void GameListBox::reloadGameInfos()
 
 void GameListBox::updateGameInfos()
 {
-  auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.appController().gameManager();
+  const auto& gameManager = m_appController.gameManager();
 
   for (auto& displayInfo : m_displayInfos)
   {

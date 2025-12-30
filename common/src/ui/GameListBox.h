@@ -26,8 +26,16 @@
 
 class QPixmap;
 
-namespace tb::ui
+namespace tb
 {
+namespace mdl
+{
+struct GameInfo;
+}
+
+namespace ui
+{
+class AppController;
 
 struct GameDisplayInfo
 {
@@ -41,11 +49,12 @@ class GameListBox : public ImageListBox
 {
   Q_OBJECT
 private:
+  AppController& m_appController;
   std::vector<GameDisplayInfo> m_displayInfos;
 
 public:
-  explicit GameListBox(QWidget* parent = nullptr);
-  std::string selectedGameName() const;
+  explicit GameListBox(AppController& appController, QWidget* parent = nullptr);
+  const mdl::GameInfo* selectedGameInfo() const;
   void selectGame(size_t index);
   void reloadGameInfos();
   void updateGameInfos();
@@ -63,4 +72,5 @@ signals:
   void selectCurrentGame(const QString& gameName);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

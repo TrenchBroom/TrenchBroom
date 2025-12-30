@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QCoreApplication>
 #include <QObject>
 #include <QTextEdit>
 #include <QtTest/QSignalSpy>
 
 #include "CmdTool.h"
-#include "TrenchBroomApp.h"
 #include "el/VariableStore.h"
 #include "fs/TestEnvironment.h"
 #include "mdl/CompilationProfile.h"
@@ -99,7 +99,7 @@ public:
     const auto endTime = std::chrono::system_clock::now() + timeout;
     while (std::chrono::system_clock::now() < endTime)
     {
-      TrenchBroomApp::instance().processEvents();
+      qApp->processEvents();
 
       auto lock = std::unique_lock<std::mutex>{m_mutex};
       if (m_condition.wait_for(lock, 50ms, [&]() { return errored || ended; }))

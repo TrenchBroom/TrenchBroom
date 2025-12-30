@@ -156,8 +156,8 @@ bool widgetOrChildHasFocus(const QWidget* widget)
 
 using namespace std::chrono_literals;
 
-MapFrame::MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> document)
-  : m_frameManager{frameManager}
+MapFrame::MapFrame(AppController& appController, std::unique_ptr<MapDocument> document)
+  : m_appController{appController}
   , m_document{std::move(document)}
   , m_lastInputTime{std::chrono::system_clock::now()}
   , m_autosaveTimer{new QTimer{this}}
@@ -300,7 +300,7 @@ void MapFrame::createMenus()
 {
   auto createMenuResult =
     populateMenuBar(*menuBar(), m_actionMap, [&](const Action& action) {
-      auto context = ActionExecutionContext{this, currentMapViewBase()};
+      auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
       action.execute(context);
     });
 
@@ -321,7 +321,7 @@ void MapFrame::updateShortcuts()
 
 void MapFrame::updateActionState()
 {
-  auto context = ActionExecutionContext{this, currentMapViewBase()};
+  auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
   for (auto [tAction, qAction] : m_actionMap)
   {
     if (qAction == m_undoAction || qAction == m_redoAction)
@@ -377,14 +377,12 @@ void MapFrame::updateUndoRedoActions()
 
 void MapFrame::addRecentDocumentsMenu()
 {
-  auto& app = TrenchBroomApp::instance();
-  app.appController().recentDocuments().addMenu(*m_recentDocumentsMenu);
+  m_appController.recentDocuments().addMenu(*m_recentDocumentsMenu);
 }
 
 void MapFrame::removeRecentDocumentsMenu()
 {
-  auto& app = TrenchBroomApp::instance();
-  app.appController().recentDocuments().removeMenu(*m_recentDocumentsMenu);
+  m_appController.recentDocuments().removeMenu(*m_recentDocumentsMenu);
 }
 
 void MapFrame::updateRecentDocumentsMenu()
@@ -393,8 +391,7 @@ void MapFrame::updateRecentDocumentsMenu()
   const auto path = map.path();
   if (path.is_absolute())
   {
-    auto& app = TrenchBroomApp::instance();
-    app.appController().recentDocuments().updatePath(path);
+    m_appController.recentDocuments().updatePath(path);
   }
 }
 
@@ -415,7 +412,8 @@ void MapFrame::createGui()
   m_infoPanel->setObjectName("MapFrame_InfoPanel");
   m_console = m_infoPanel->console();
 
-  m_mapView = new SwitchableMapViewContainer{document(), *m_contextManager};
+  m_mapView =
+    new SwitchableMapViewContainer{m_appController, document(), *m_contextManager};
   m_currentMapView = m_mapView->firstMapViewBase();
 
   // SwitchableMapViewContainer should have constructed a MapViewBase
@@ -480,7 +478,7 @@ void MapFrame::createToolBar()
   m_toolBar->setIconSize(QSize(24, 24));
 
   populateToolBar(*m_toolBar, m_actionMap, [&](const auto& tbAction) {
-    auto context = ActionExecutionContext{this, currentMapViewBase()};
+    auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
     tbAction.execute(context);
   });
 
@@ -505,11 +503,9 @@ void MapFrame::updateToolBarWidgets()
 
 void MapFrame::createStatusBar()
 {
-  auto& app = TrenchBroomApp::instance();
-
   m_statusBarLabel = new QLabel{};
   statusBar()->addWidget(m_statusBarLabel, 1);
-  statusBar()->addWidget(app.appController().updater().createUpdateIndicator());
+  statusBar()->addWidget(m_appController.updater().createUpdateIndicator());
 }
 
 namespace
@@ -2155,7 +2151,7 @@ void MapFrame::showCompileDialog()
 {
   if (!m_compilationDialog)
   {
-    m_compilationDialog = new CompilationDialog{this};
+    m_compilationDialog = new CompilationDialog{m_appController, *m_document, this};
   }
   showModelessDialog(m_compilationDialog);
 }
@@ -2178,7 +2174,7 @@ bool MapFrame::closeCompileDialog()
 
 void MapFrame::showLaunchEngineDialog()
 {
-  auto dialog = LaunchGameEngineDialog{document(), this};
+  auto dialog = LaunchGameEngineDialog{m_appController, document(), this};
   dialog.exec();
 }
 
@@ -2505,7 +2501,7 @@ void MapFrame::closeEvent(QCloseEvent* event)
       saveWidgetState(m_inspector);
       saveWidgetState(m_infoPanel);
 
-      m_frameManager.removeFrame(this);
+      m_appController.frameManager().removeFrame(this);
       event->accept();
     }
   }

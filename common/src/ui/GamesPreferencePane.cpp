@@ -55,8 +55,10 @@
 namespace tb::ui
 {
 
-GamesPreferencePane::GamesPreferencePane(MapDocument* document, QWidget* parent)
+GamesPreferencePane::GamesPreferencePane(
+  AppController& appController, MapDocument* document, QWidget* parent)
   : PreferencePane{parent}
+  , m_appController{appController}
   , m_document{document}
 {
   createGui();
@@ -66,7 +68,7 @@ GamesPreferencePane::GamesPreferencePane(MapDocument* document, QWidget* parent)
 
 void GamesPreferencePane::createGui()
 {
-  m_gameListBox = new GameListBox{};
+  m_gameListBox = new GameListBox{m_appController};
   m_gameListBox->selectGame(0);
   m_gameListBox->setMaximumWidth(220);
   m_gameListBox->setMinimumHeight(300);
@@ -146,30 +148,33 @@ void GamesPreferencePane::updateControls()
 {
   m_gameListBox->updateGameInfos();
 
-  const auto desiredGame = m_gameListBox->selectedGameName();
-  if (desiredGame.empty())
+  if (const auto* selectedGameInfo = m_gameListBox->selectedGameInfo())
   {
-    m_stackedWidget->setCurrentWidget(m_defaultPage);
-  }
-  else if (m_currentGamePage && m_currentGamePage->gameName() == desiredGame)
-  {
-    // refresh the current page
-    m_currentGamePage->updateControls();
+    if (m_currentGamePage && &m_currentGamePage->gameInfo() == selectedGameInfo)
+    {
+      // refresh the current page
+      m_currentGamePage->updateControls();
+    }
+    else
+    {
+      // build a new current page
+      delete m_currentGamePage;
+      m_currentGamePage =
+        new GamePreferencePane{m_appController, m_document, *selectedGameInfo};
+
+      m_stackedWidget->addWidget(m_currentGamePage);
+      m_stackedWidget->setCurrentWidget(m_currentGamePage);
+
+      connect(
+        m_currentGamePage,
+        &GamePreferencePane::requestUpdate,
+        this,
+        &GamesPreferencePane::updateControls);
+    }
   }
   else
   {
-    // build a new current page
-    delete m_currentGamePage;
-    m_currentGamePage = new GamePreferencePane{m_document, desiredGame};
-
-    m_stackedWidget->addWidget(m_currentGamePage);
-    m_stackedWidget->setCurrentWidget(m_currentGamePage);
-
-    connect(
-      m_currentGamePage,
-      &GamePreferencePane::requestUpdate,
-      this,
-      &GamesPreferencePane::updateControls);
+    m_stackedWidget->setCurrentWidget(m_defaultPage);
   }
 }
 
@@ -181,10 +186,14 @@ bool GamesPreferencePane::validate()
 // GamePreferencePane
 
 GamePreferencePane::GamePreferencePane(
-  MapDocument* document, std::string gameName, QWidget* parent)
+  AppController& appController,
+  MapDocument* document,
+  const mdl::GameInfo& gameInfo,
+  QWidget* parent)
   : QWidget{parent}
+  , m_appController{appController}
   , m_document{document}
-  , m_gameName{std::move(gameName)}
+  , m_gameInfo{gameInfo}
 {
   createGui();
 }
@@ -241,18 +250,13 @@ void GamePreferencePane::createGui()
   layout->setVerticalSpacing(2);
   layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-  layout->addSection(QString::fromStdString(m_gameName));
+  layout->addSection(QString::fromStdString(m_gameInfo.gameConfig.name));
   layout->addRow(tr("Game Path"), gamePathLayout);
   layout->addRow("", configureEnginesButton);
 
   layout->addSection(tr("Compilation Tools"));
 
-  auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.appController().gameManager();
-  auto* gameInfo = gameManager.gameInfo(m_gameName);
-  contract_assert(gameInfo);
-
-  for (auto& tool : gameInfo->gameConfig.compilationTools)
+  for (const auto& tool : m_gameInfo.gameConfig.compilationTools)
   {
     const auto toolName = tool.name;
     auto& toolPathPref = tool.pathPreference;
@@ -310,37 +314,27 @@ void GamePreferencePane::chooseGamePathClicked()
 
 void GamePreferencePane::updateGamePath(const QString& str)
 {
-  auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.appController().gameManager();
-  auto* gameInfo = gameManager.gameInfo(m_gameName);
-  contract_assert(gameInfo);
-
   updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
 
   auto& prefs = PreferenceManager::instance();
-  prefs.set(gameInfo->gamePathPreference, pathFromQString(str));
+  prefs.set(m_gameInfo.gamePathPreference, pathFromQString(str));
   emit requestUpdate();
 }
 
 void GamePreferencePane::configureEnginesClicked()
 {
   auto& logger = m_document ? m_document->logger() : FileLogger::instance();
-  auto dialog = GameEngineDialog{m_gameName, logger, this};
+  auto dialog = GameEngineDialog{m_appController, m_gameInfo, logger, this};
   dialog.exec();
 }
 
-const std::string& GamePreferencePane::gameName() const
+const mdl::GameInfo& GamePreferencePane::gameInfo() const
 {
-  return m_gameName;
+  return m_gameInfo;
 }
 
 void GamePreferencePane::updateControls()
 {
-  auto& app = TrenchBroomApp::instance();
-  const auto& gameManager = app.appController().gameManager();
-  const auto* gameInfo = gameManager.gameInfo(m_gameName);
-  contract_assert(gameInfo);
-
   // Refresh tool paths from preferences
   for (const auto& [tool, toolPathEditor] : m_toolPathEditors)
   {
@@ -349,7 +343,7 @@ void GamePreferencePane::updateControls()
   }
 
   // Refresh game path
-  const auto gamePath = pref(gameInfo->gamePathPreference);
+  const auto gamePath = pref(m_gameInfo.gamePathPreference);
   m_gamePathText->setText(pathAsQString(gamePath));
 }
 
