@@ -32,6 +32,7 @@ class ContextManager;
 
 namespace ui
 {
+class AppController;
 class CyclingMapView;
 class MapDocument;
 class MapView3D;
@@ -49,6 +50,7 @@ private:
 
 public:
   TwoPaneMapView(
+    AppController& appController,
     MapDocument& document,
     MapViewToolBox& toolBox,
     gl::ContextManager& contextManager,
@@ -56,7 +58,10 @@ public:
   ~TwoPaneMapView() override;
 
 private:
-  void createGui(MapViewToolBox& toolBox, gl::ContextManager& contextManager);
+  void createGui(
+    AppController& appController,
+    MapViewToolBox& toolBox,
+    gl::ContextManager& contextManager);
 
 private: // implement MultiPaneMapView subclassing interface
   void maximizeView(MapView* view) override;

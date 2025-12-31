@@ -21,8 +21,6 @@
 
 #include <QDialog>
 
-#include <string>
-
 class QKeyEvent;
 class QCloseEvent;
 
@@ -30,8 +28,14 @@ namespace tb
 {
 class Logger;
 
+namespace mdl
+{
+struct GameInfo;
+}
+
 namespace ui
 {
+class AppController;
 class GameEngineProfileManager;
 
 /**
@@ -41,13 +45,17 @@ class GameEngineDialog : public QDialog
 {
   Q_OBJECT
 private:
-  const std::string m_gameName;
+  AppController& m_appController;
+  const mdl::GameInfo& m_gameInfo;
   Logger& m_logger;
   GameEngineProfileManager* m_profileManager = nullptr;
 
 public:
   explicit GameEngineDialog(
-    std::string gameName, Logger& logger, QWidget* parent = nullptr);
+    AppController& appController,
+    const mdl::GameInfo& gameInfo,
+    Logger& logger,
+    QWidget* parent = nullptr);
 public slots: // QDialog overrides
   void done(int r) override;
 

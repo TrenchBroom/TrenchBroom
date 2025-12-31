@@ -26,7 +26,7 @@
 #include <QStringBuilder>
 #include <QVBoxLayout>
 
-#include "TrenchBroomApp.h"
+#include "ui/AppController.h"
 #include "ui/BorderLine.h"
 #include "ui/ClickableLabel.h"
 #include "ui/GetVersion.h"
@@ -38,7 +38,7 @@
 namespace tb::ui
 {
 
-AppInfoPanel::AppInfoPanel(QWidget* parent)
+AppInfoPanel::AppInfoPanel(AppController& appController, QWidget* parent)
   : QWidget{parent}
 {
   auto appIconImage = loadPixmap("AppIcon.png");
@@ -70,8 +70,7 @@ AppInfoPanel::AppInfoPanel(QWidget* parent)
   connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
   connect(qtVersion, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
 
-  auto& app = TrenchBroomApp::instance();
-  auto* updateIndicator = app.updater().createUpdateIndicator();
+  auto* updateIndicator = appController.updater().createUpdateIndicator();
   setInfoStyle(updateIndicator);
 
   auto* versionLayout = new QHBoxLayout{};

@@ -26,7 +26,7 @@
 
 #include <cassert>
 
-namespace tb
+namespace tb::ui
 {
 namespace
 {
@@ -62,4 +62,4 @@ void FileLogger::doLog(const LogLevel /* level */, const std::string_view messag
   }
 }
 
-} // namespace tb
+} // namespace tb::ui

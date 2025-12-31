@@ -34,6 +34,7 @@ class QWidget;
 
 namespace tb::ui
 {
+class AppController;
 class GameListBox;
 
 class GameDialog : public QDialog
@@ -47,6 +48,7 @@ private:
   };
 
 protected:
+  AppController& m_appController;
   DialogType m_dialogType;
   GameListBox* m_gameListBox = nullptr;
   QComboBox* m_mapFormatComboBox = nullptr;
@@ -57,9 +59,9 @@ protected:
 
 public:
   static std::optional<std::tuple<std::string, mdl::MapFormat>> showNewDocumentDialog(
-    QWidget* parent = nullptr);
+    AppController& appController, QWidget* parent = nullptr);
   static std::optional<std::tuple<std::string, mdl::MapFormat>> showOpenDocumentDialog(
-    QWidget* parent = nullptr);
+    AppController& appController, QWidget* parent = nullptr);
 
   std::string currentGameName() const;
   mdl::MapFormat currentMapFormat() const;
@@ -70,6 +72,7 @@ private slots:
 
 protected:
   GameDialog(
+    AppController& appController,
     const QString& title,
     const QString& infoText,
     DialogType type,

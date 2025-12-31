@@ -295,7 +295,7 @@ public: // persistence
 
   Result<void> save();
   Result<void> saveAs(const std::filesystem::path& path);
-  Result<void> saveTo(const std::filesystem::path& path);
+  Result<void> saveTo(const std::filesystem::path& path) const;
   Result<void> exportAs(const ExportOptions& options) const;
 
   bool persistent() const;

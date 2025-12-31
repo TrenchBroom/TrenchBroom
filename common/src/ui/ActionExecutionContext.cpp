@@ -29,8 +29,10 @@
 namespace tb::ui
 {
 
-ActionExecutionContext::ActionExecutionContext(MapFrame* mapFrame, MapViewBase* mapView)
+ActionExecutionContext::ActionExecutionContext(
+  AppController& appController, MapFrame* mapFrame, MapViewBase* mapView)
   : m_actionContext(mapView != nullptr ? mapView->actionContext() : ActionContext::Any)
+  , m_appController{appController}
   , m_frame{mapFrame}
   , m_mapView{mapView}
 {
@@ -55,6 +57,16 @@ bool ActionExecutionContext::hasActionContext(
     return actionContextMatches(m_actionContext, actionContext);
   }
   return false;
+}
+
+const AppController& ActionExecutionContext::appController() const
+{
+  return m_appController;
+}
+
+AppController& ActionExecutionContext::appController()
+{
+  return KDL_CONST_OVERLOAD(appController());
 }
 
 const MapFrame& ActionExecutionContext::frame() const

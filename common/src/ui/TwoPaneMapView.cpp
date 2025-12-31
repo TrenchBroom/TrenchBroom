@@ -32,6 +32,7 @@
 namespace tb::ui
 {
 TwoPaneMapView::TwoPaneMapView(
+  AppController& appController,
   MapDocument& document,
   MapViewToolBox& toolBox,
   gl::ContextManager& contextManager,
@@ -39,7 +40,7 @@ TwoPaneMapView::TwoPaneMapView(
   : MultiPaneMapView{parent}
   , m_document{document}
 {
-  createGui(toolBox, contextManager);
+  createGui(appController, toolBox, contextManager);
 }
 
 TwoPaneMapView::~TwoPaneMapView()
@@ -48,7 +49,9 @@ TwoPaneMapView::~TwoPaneMapView()
 }
 
 void TwoPaneMapView::createGui(
-  MapViewToolBox& toolBox, gl::ContextManager& contextManager)
+  AppController& appController,
+  MapViewToolBox& toolBox,
+  gl::ContextManager& contextManager)
 {
   // See comment in CyclingMapView::createGui
   m_splitter = new Splitter{DrawKnob::No};
@@ -60,9 +63,9 @@ void TwoPaneMapView::createGui(
   setLayout(layout);
   layout->addWidget(m_splitter);
 
-  m_mapView3D = new MapView3D{m_document, toolBox, contextManager};
-  m_mapView2D =
-    new CyclingMapView{m_document, toolBox, contextManager, CyclingMapView::View_2D};
+  m_mapView3D = new MapView3D{appController, m_document, toolBox, contextManager};
+  m_mapView2D = new CyclingMapView{
+    appController, m_document, toolBox, contextManager, CyclingMapView::View_2D};
 
   m_mapView3D->linkCamera(m_linkHelper);
   m_mapView2D->linkCamera(m_linkHelper);

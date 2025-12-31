@@ -43,8 +43,12 @@
 namespace tb::ui
 {
 SwitchableMapViewContainer::SwitchableMapViewContainer(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+  AppController& appController,
+  MapDocument& document,
+  gl::ContextManager& contextManager,
+  QWidget* parent)
   : QWidget{parent}
+  , m_appController{appController}
   , m_document{document}
   , m_contextManager{contextManager}
   , m_mapViewBar{new MapViewBar(m_document)}
@@ -92,16 +96,20 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
   switch (viewId)
   {
   case MapViewLayout::OnePane:
-    m_mapView = new OnePaneMapView{m_document, *m_toolBox, m_contextManager};
+    m_mapView =
+      new OnePaneMapView{m_appController, m_document, *m_toolBox, m_contextManager};
     break;
   case MapViewLayout::TwoPanes:
-    m_mapView = new TwoPaneMapView{m_document, *m_toolBox, m_contextManager};
+    m_mapView =
+      new TwoPaneMapView{m_appController, m_document, *m_toolBox, m_contextManager};
     break;
   case MapViewLayout::ThreePanes:
-    m_mapView = new ThreePaneMapView{m_document, *m_toolBox, m_contextManager};
+    m_mapView =
+      new ThreePaneMapView{m_appController, m_document, *m_toolBox, m_contextManager};
     break;
   case MapViewLayout::FourPanes:
-    m_mapView = new FourPaneMapView{m_document, *m_toolBox, m_contextManager};
+    m_mapView =
+      new FourPaneMapView{m_appController, m_document, *m_toolBox, m_contextManager};
     break;
     switchDefault();
   }

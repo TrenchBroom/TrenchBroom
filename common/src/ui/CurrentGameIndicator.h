@@ -21,16 +21,22 @@
 
 #include "ui/DialogHeader.h"
 
-#include <string>
+namespace tb
+{
+namespace mdl
+{
+struct GameInfo;
+}
 
-namespace tb::ui
+namespace ui
 {
 
 class CurrentGameIndicator : public DialogHeader
 {
   Q_OBJECT
 public:
-  explicit CurrentGameIndicator(const std::string& gameName, QWidget* parent = nullptr);
+  explicit CurrentGameIndicator(const mdl::GameInfo& gameInfo, QWidget* parent = nullptr);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

@@ -23,21 +23,18 @@
 
 namespace tb::ui
 {
+class AppController;
 
 class AboutDialog : public QDialog
 {
   Q_OBJECT
 private:
-  static AboutDialog* instance;
+  AppController& m_appController;
 
 public:
-  static void showAboutDialog();
-  static void closeAboutDialog();
-
-  ~AboutDialog() override;
+  explicit AboutDialog(AppController& appController);
 
 private:
-  AboutDialog();
   void createGui();
 };
 

@@ -46,6 +46,7 @@ struct GameInfo;
 
 namespace ui
 {
+class AppController;
 class MapDocument;
 class MapFrame;
 
@@ -53,11 +54,12 @@ class FrameManager : public QObject
 {
   Q_OBJECT
 private:
+  AppController& m_appController;
   bool m_singleFrame;
   std::vector<MapFrame*> m_frames;
 
 public:
-  explicit FrameManager(bool singleFrame);
+  FrameManager(AppController& appController, bool singleFrame);
   ~FrameManager() override;
 
   Result<void> createDocument(
@@ -74,8 +76,6 @@ public:
     const vm::bbox3d& worldBounds,
     std::filesystem::path path,
     kdl::task_manager& taskManager);
-
-  bool closeAllFrames();
 
   std::vector<MapFrame*> frames() const;
   MapFrame* topFrame() const;

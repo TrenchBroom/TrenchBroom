@@ -68,6 +68,7 @@ namespace ui
 {
 class Action;
 class AnimationManager;
+class AppController;
 class MapDocument;
 class MapViewToolBox;
 class SignalDelayer;
@@ -83,6 +84,7 @@ public:
   static const int DefaultCameraAnimationDuration;
 
 protected:
+  AppController& m_appController;
   MapDocument& m_document;
   MapViewToolBox& m_toolBox;
 
@@ -107,7 +109,10 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    MapDocument& document, MapViewToolBox& toolBox, gl::ContextManager& contextManager);
+    AppController& appController,
+    MapDocument& document,
+    MapViewToolBox& toolBox,
+    gl::ContextManager& contextManager);
 
   void setCompass(std::unique_ptr<render::Compass> compass);
 

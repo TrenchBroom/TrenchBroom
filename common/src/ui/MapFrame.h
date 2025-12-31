@@ -67,8 +67,8 @@ struct SelectionChange;
 namespace ui
 {
 class Action;
+class AppController;
 class Console;
-class FrameManager;
 class InfoPanel;
 class Inspector;
 enum class InspectorPage;
@@ -83,7 +83,7 @@ class MapFrame : public QMainWindow
 {
   Q_OBJECT
 private:
-  FrameManager& m_frameManager;
+  AppController& m_appController;
   std::unique_ptr<MapDocument> m_document;
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
@@ -129,7 +129,7 @@ private:
   SignalDelayer* m_updateStatusBarSignalDelayer = nullptr;
 
 public:
-  MapFrame(FrameManager& frameManager, std::unique_ptr<MapDocument> document);
+  MapFrame(AppController& appController, std::unique_ptr<MapDocument> document);
   ~MapFrame() override;
 
   void positionOnScreen(QWidget* reference);

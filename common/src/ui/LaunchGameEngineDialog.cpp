@@ -29,12 +29,12 @@
 #include <QPushButton>
 
 #include "Logger.h"
-#include "TrenchBroomApp.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
 #include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"
 #include "mdl/Map.h"
+#include "ui/AppController.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
 #include "ui/CurrentGameIndicator.h"
@@ -56,8 +56,10 @@
 namespace tb::ui
 {
 
-LaunchGameEngineDialog::LaunchGameEngineDialog(MapDocument& document, QWidget* parent)
+LaunchGameEngineDialog::LaunchGameEngineDialog(
+  AppController& appController, MapDocument& document, QWidget* parent)
   : QDialog{parent}
+  , m_appController{appController}
   , m_document{document}
 {
   createGui();
@@ -70,7 +72,7 @@ void LaunchGameEngineDialog::createGui()
 
   const auto& map = m_document.map();
   const auto& gameInfo = map.gameInfo();
-  auto* gameIndicator = new CurrentGameIndicator{gameInfo.gameConfig.name};
+  auto* gameIndicator = new CurrentGameIndicator{gameInfo};
 
   auto* midPanel = new QWidget{this};
 
@@ -214,10 +216,8 @@ void LaunchGameEngineDialog::editGameEngines()
 {
   saveConfig();
 
-  const auto& map = m_document.map();
-  const auto& gameConfig = map.gameInfo().gameConfig;
-
-  auto dialog = GameEngineDialog{gameConfig.name, m_document.logger(), this};
+  auto dialog = GameEngineDialog{
+    m_appController, m_document.map().gameInfo(), m_document.logger(), this};
   dialog.exec();
 
   const auto previousRow = m_gameEngineList->currentRow();
@@ -261,8 +261,7 @@ void LaunchGameEngineDialog::done(const int r)
 
 void LaunchGameEngineDialog::saveConfig()
 {
-  auto& app = TrenchBroomApp::instance();
-  auto& gameManager = app.gameManager();
+  auto& gameManager = m_appController.gameManager();
 
   const auto& map = m_document.map();
   const auto& gameName = map.gameInfo().gameConfig.name;

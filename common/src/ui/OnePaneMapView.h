@@ -30,6 +30,7 @@ class ContextManager;
 
 namespace ui
 {
+class AppController;
 class CyclingMapView;
 class MapDocument;
 class MapViewToolBox;
@@ -43,13 +44,17 @@ private:
 
 public:
   explicit OnePaneMapView(
+    AppController& appController,
     MapDocument& document,
     MapViewToolBox& toolBox,
     gl::ContextManager& contextManager,
     QWidget* parent = nullptr);
 
 private:
-  void createGui(MapViewToolBox& toolBox, gl::ContextManager& contextManager);
+  void createGui(
+    AppController& appController,
+    MapViewToolBox& toolBox,
+    gl::ContextManager& contextManager);
 
 private: // implement MultiPaneMapView subclassing interface
   void maximizeView(MapView* view) override;

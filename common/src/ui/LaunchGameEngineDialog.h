@@ -35,6 +35,7 @@ struct GameEngineProfile;
 
 namespace ui
 {
+class AppController;
 class GameEngineProfileListBox;
 class MapDocument;
 class MultiCompletionLineEdit;
@@ -49,6 +50,7 @@ class MultiCompletionLineEdit;
 class LaunchGameEngineDialog : public QDialog
 {
 private:
+  AppController& m_appController;
   MapDocument& m_document;
   GameEngineProfileListBox* m_gameEngineList{nullptr};
   MultiCompletionLineEdit* m_parameterText{nullptr};
@@ -57,7 +59,8 @@ private:
   mdl::GameEngineConfig m_config;
 
 public:
-  explicit LaunchGameEngineDialog(MapDocument& document, QWidget* parent = nullptr);
+  LaunchGameEngineDialog(
+    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void createGui();

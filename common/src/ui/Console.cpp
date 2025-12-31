@@ -27,9 +27,9 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-#include "FileLogger.h"
 #include "Macros.h"
-#include "Thread.h"
+#include "ui/FileLogger.h"
+#include "ui/QThreadUtils.h"
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"

@@ -37,6 +37,7 @@ class ContextManager;
 
 namespace ui
 {
+class AppController;
 class MapDocument;
 class MapViewToolBox;
 
@@ -62,6 +63,7 @@ private:
 
 public:
   CyclingMapView(
+    AppController& appController,
     MapDocument& document,
     MapViewToolBox& toolBox,
     gl::ContextManager& contextManager,
@@ -69,7 +71,11 @@ public:
     QWidget* parent = nullptr);
 
 private:
-  void createGui(MapViewToolBox& toolBox, gl::ContextManager& contextManager, int views);
+  void createGui(
+    AppController& appController,
+    MapViewToolBox& toolBox,
+    gl::ContextManager& contextManager,
+    int views);
   void addMapView(MapViewBase* mapView);
 
 private:

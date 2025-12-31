@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,20 +17,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Thread.h"
+#pragma once
 
-#include <QApplication>
-#include <QThread>
+#include "Logger.h"
+#include "Macros.h"
 
-#include "kd/contracts.h"
+#include <filesystem>
+#include <fstream>
+#include <string_view>
 
-namespace tb
+namespace tb::ui
 {
 
-bool isMainThread()
+class FileLogger : public Logger
 {
-  contract_pre(qApp != nullptr);
-  return (qApp->thread() == QThread::currentThread());
-}
+private:
+  std::ofstream m_stream;
 
-} // namespace tb
+public:
+  explicit FileLogger(const std::filesystem::path& filePath);
+
+  static FileLogger& instance();
+
+private:
+  void doLog(LogLevel level, std::string_view message) override;
+
+  deleteCopyAndMove(FileLogger);
+};
+
+} // namespace tb::ui

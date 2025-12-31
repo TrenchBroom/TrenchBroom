@@ -19,20 +19,36 @@
 
 #define CATCH_CONFIG_RUNNER
 
-#include "Contracts.h"
+#include <QApplication>
+
 #include "PreferenceManager.h"
 #include "TestPreferenceStore.h"
-#include "TrenchBroomApp.h"
-#include "ui/CrashReporter.h"
 
 #include "kd/contracts.h"
 #include "kd/k.h"
 
 #include <catch2/catch_session.hpp>
+#include <catch2/catch_test_macros.hpp>
+
+namespace
+{
+// for release builds, ensure generates a crash report
+void contractViolated(
+  const std::string_view file,
+  const int line,
+  const std::string_view type,
+  const std::string_view condition)
+{
+  const auto reason =
+    fmt::format("{} line {}: {} '{}' failed", file, line, type, condition);
+  FAIL(reason);
+}
+
+} // namespace
 
 int main(int argc, char** argv)
 {
-  tb::setContractViolationHandler();
+  kd::set_contract_violation_handler(contractViolated);
 
   // Needs to be set for the QSettings instance used by RecentDocuments
   QApplication::setApplicationName("TrenchBroom");
@@ -41,11 +57,8 @@ int main(int argc, char** argv)
 
   tb::PreferenceManager::createInstance(
     std::make_unique<tb::TestPreferenceStore>(), K(saveInstantly));
-  tb::ui::TrenchBroomApp app(argc, argv);
 
-  tb::ui::setCrashReportGUIEnabled(false);
-
-  contract_assert(qApp == &app);
+  auto app = QApplication{argc, argv};
 
   return Catch::Session().run(argc, argv);
 }

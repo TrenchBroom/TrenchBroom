@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2021 Eric Wasylishen
 
  This file is part of TrenchBroom.
 
@@ -19,30 +19,9 @@
 
 #pragma once
 
-#include "Logger.h"
-#include "Macros.h"
-
-#include <filesystem>
-#include <fstream>
-#include <string_view>
-
-namespace tb
+namespace tb::ui
 {
 
-class FileLogger : public Logger
-{
-private:
-  std::ofstream m_stream;
+bool isMainThread();
 
-public:
-  explicit FileLogger(const std::filesystem::path& filePath);
-
-  static FileLogger& instance();
-
-private:
-  void doLog(LogLevel level, std::string_view message) override;
-
-  deleteCopyAndMove(FileLogger);
-};
-
-} // namespace tb
+}

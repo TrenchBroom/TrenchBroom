@@ -22,6 +22,7 @@
 #include <QApplication>
 
 #include "mdl/GameInfo.h"
+#include "ui/AppController.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 
@@ -33,8 +34,10 @@
 namespace tb::ui
 {
 
-FrameManager::FrameManager(const bool singleFrame)
-  : m_singleFrame{singleFrame}
+FrameManager::FrameManager(AppController& appController, const bool singleFrame)
+  : QObject{&appController}
+  , m_appController{appController}
+  , m_singleFrame{singleFrame}
 {
   connect(qApp, &QApplication::focusChanged, this, &FrameManager::onFocusChange);
 }
@@ -98,21 +101,6 @@ Result<void> FrameManager::loadDocument(
     environmentConfig, gameInfo, mapFormat, worldBounds, std::move(path));
 }
 
-bool FrameManager::closeAllFrames()
-{
-  auto framesCopy = m_frames;
-  for (auto* frame : framesCopy)
-  {
-    if (!frame->close())
-    {
-      return false;
-    }
-  }
-
-  contract_post(m_frames.empty());
-  return true;
-}
-
 bool FrameManager::allFramesClosed() const
 {
   return m_frames.empty();
@@ -129,9 +117,7 @@ void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
       if (auto it = std::ranges::find(m_frames, frame);
           it != m_frames.end() && it != m_frames.begin())
       {
-        contract_assert(topFrame() != frame);
-        m_frames.erase(it);
-        m_frames.insert(m_frames.begin(), frame);
+        std::rotate(m_frames.begin(), it, std::next(it));
       }
     }
   }
@@ -146,7 +132,7 @@ MapFrame* FrameManager::createFrame(std::unique_ptr<MapDocument> document)
 {
   contract_pre(document != nullptr);
 
-  auto* frame = new MapFrame{*this, std::move(document)};
+  auto* frame = new MapFrame{m_appController, std::move(document)};
   frame->positionOnScreen(topFrame());
   m_frames.insert(m_frames.begin(), frame);
 

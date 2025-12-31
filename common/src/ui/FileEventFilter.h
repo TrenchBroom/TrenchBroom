@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,39 +19,24 @@
 
 #pragma once
 
-#include <QPixmap>
+#include <QObject>
 
-#include "ui/ImageListBox.h"
-
-#include <filesystem>
+class QEvent;
 
 namespace tb::ui
 {
-class RecentDocuments;
+class AppController;
 
-class RecentDocumentListBox : public ImageListBox
+class FileEventFilter : public QObject
 {
   Q_OBJECT
 private:
-  RecentDocuments& m_recentDocuments;
-
-  QPixmap m_documentIcon;
+  AppController& m_appController;
 
 public:
-  explicit RecentDocumentListBox(
-    RecentDocuments& recentDocuments, QWidget* parent = nullptr);
-private slots:
-  void recentDocumentsDidChange();
+  explicit FileEventFilter(AppController& appController, QObject* parent = nullptr);
 
-private:
-  size_t itemCount() const override;
-  QPixmap image(size_t index) const override;
-  QString title(size_t index) const override;
-  QString subtitle(size_t index) const override;
-
-  void doubleClicked(size_t index) override;
-signals:
-  void loadRecentDocument(const std::filesystem::path& path);
+  bool eventFilter(QObject* watched, QEvent* event) override;
 };
 
 } // namespace tb::ui

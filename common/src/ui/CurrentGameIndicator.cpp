@@ -22,8 +22,7 @@
 #include <QPixmap>
 #include <QString>
 
-#include "TrenchBroomApp.h"
-#include "mdl/GameManager.h"
+#include "mdl/GameInfo.h"
 #include "ui/ImageUtils.h"
 
 #include <filesystem>
@@ -31,21 +30,17 @@
 namespace tb::ui
 {
 
-CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget* parent)
+CurrentGameIndicator::CurrentGameIndicator(const mdl::GameInfo& gameInfo, QWidget* parent)
   : DialogHeader{parent}
 {
-  const auto& gameManager = TrenchBroomApp::instance().gameManager();
-  if (const auto* gameInfo = gameManager.gameInfo(gameName))
+  auto iconPath = gameInfo.gameConfig.findConfigFile(gameInfo.gameConfig.icon);
+  if (iconPath.empty())
   {
-    auto iconPath = gameInfo->gameConfig.findConfigFile(gameInfo->gameConfig.icon);
-    if (iconPath.empty())
-    {
-      iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
-    }
-
-    const auto gameIcon = loadPixmap(iconPath);
-    set(QString::fromStdString(gameName), gameIcon);
+    iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
   }
+
+  const auto gameIcon = loadPixmap(iconPath);
+  set(QString::fromStdString(gameInfo.gameConfig.name), gameIcon);
 }
 
 } // namespace tb::ui

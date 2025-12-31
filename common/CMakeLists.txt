@@ -1,10 +1,6 @@
 set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
-        ${COMMON_SOURCE_DIR}/Contracts.cpp
-        ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/Thread.cpp
-        ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/Action.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionBuilder.cpp
@@ -13,6 +9,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ActionManager.cpp
         ${COMMON_SOURCE_DIR}/ui/ActionMenu.cpp
         ${COMMON_SOURCE_DIR}/ui/Animation.cpp
+        ${COMMON_SOURCE_DIR}/ui/AppController.cpp
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.cpp
@@ -47,6 +44,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/CompilationVariables.cpp
         ${COMMON_SOURCE_DIR}/ui/Console.cpp
         ${COMMON_SOURCE_DIR}/ui/ContainerBar.cpp
+        ${COMMON_SOURCE_DIR}/ui/Contracts.cpp
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/CrashDialog.cpp
@@ -86,6 +84,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/FaceTool.cpp
         ${COMMON_SOURCE_DIR}/ui/FaceToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/FileDialogDefaultDir.cpp
+        ${COMMON_SOURCE_DIR}/ui/FileEventFilter.cpp
+        ${COMMON_SOURCE_DIR}/ui/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/ui/FlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/FlagsPopupEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/FlashSelectionAnimation.cpp
@@ -157,6 +157,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QStringUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QStyleUtils.cpp
+        ${COMMON_SOURCE_DIR}/ui/QThreadUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/QWidgetUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.cpp
@@ -226,10 +227,6 @@ set(COMMON_SOURCE
 )
 
 set(COMMON_HEADER
-        ${COMMON_SOURCE_DIR}/Contracts.h
-        ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/Thread.h
-        ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/ui/AboutDialog.h
         ${COMMON_SOURCE_DIR}/ui/Action.h
         ${COMMON_SOURCE_DIR}/ui/ActionBuilder.h
@@ -238,6 +235,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ActionManager.h
         ${COMMON_SOURCE_DIR}/ui/ActionMenu.h
         ${COMMON_SOURCE_DIR}/ui/Animation.h
+        ${COMMON_SOURCE_DIR}/ui/AppController.h
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushToolController3D.h
@@ -272,6 +270,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/CompilationVariables.h
         ${COMMON_SOURCE_DIR}/ui/Console.h
         ${COMMON_SOURCE_DIR}/ui/ContainerBar.h
+        ${COMMON_SOURCE_DIR}/ui/Contracts.h
         ${COMMON_SOURCE_DIR}/ui/ControlListBox.h
         ${COMMON_SOURCE_DIR}/ui/CrashDialog.h
         ${COMMON_SOURCE_DIR}/ui/CrashReporter.h
@@ -310,6 +309,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/FaceTool.h
         ${COMMON_SOURCE_DIR}/ui/FaceToolController.h
         ${COMMON_SOURCE_DIR}/ui/FileDialogDefaultDir.h
+        ${COMMON_SOURCE_DIR}/ui/FileEventFilter.h
+        ${COMMON_SOURCE_DIR}/ui/FileLogger.h
         ${COMMON_SOURCE_DIR}/ui/FlagsEditor.h
         ${COMMON_SOURCE_DIR}/ui/FlagsPopupEditor.h
         ${COMMON_SOURCE_DIR}/ui/FlashSelectionAnimation.h
@@ -382,6 +383,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/QPreferenceStoreUtils.h
         ${COMMON_SOURCE_DIR}/ui/QStringUtils.h
         ${COMMON_SOURCE_DIR}/ui/QStyleUtils.h
+        ${COMMON_SOURCE_DIR}/ui/QThreadUtils.h
         ${COMMON_SOURCE_DIR}/ui/QWidgetUtils.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/ui/RecentDocuments.h

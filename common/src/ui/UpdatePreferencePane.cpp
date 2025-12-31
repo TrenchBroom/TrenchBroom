@@ -26,7 +26,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroomApp.h"
+#include "ui/AppController.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/SliderWithLabel.h"
 #include "ui/ViewConstants.h"
@@ -35,8 +35,9 @@
 namespace tb::ui
 {
 
-UpdatePreferencePane::UpdatePreferencePane(QWidget* parent)
+UpdatePreferencePane::UpdatePreferencePane(AppController& appController, QWidget* parent)
   : PreferencePane{parent}
+  , m_appController{appController}
 {
   createGui();
 }
@@ -79,7 +80,8 @@ To download and install an available update, click on the link labeled "Update a
         const auto value = state == Qt::Checked;
         auto& prefs = PreferenceManager::instance();
         prefs.set(Preferences::IncludePreReleaseUpdates, value);
-        TrenchBroomApp::instance().updater().reset();
+
+        m_appController.updater().reset();
       }
     });
 
@@ -91,7 +93,8 @@ To download and install an available update, click on the link labeled "Update a
         const auto value = state == Qt::Checked;
         auto& prefs = PreferenceManager::instance();
         prefs.set(Preferences::IncludeDraftReleaseUpdates, value);
-        TrenchBroomApp::instance().updater().reset();
+
+        m_appController.updater().reset();
       }
     });
 
@@ -99,8 +102,7 @@ To download and install an available update, click on the link labeled "Update a
     R"(Pre-releases are versions of TrenchBroom that are not yet considered stable. 
 They may contain new features or bug fixes that are not yet part of a stable release.)")};
 
-  auto& app = TrenchBroomApp::instance();
-  auto* updateIndicator = app.updater().createUpdateIndicator();
+  auto* updateIndicator = m_appController.updater().createUpdateIndicator();
 
   m_layout = new FormWithSectionsLayout{};
   m_layout->setContentsMargins(

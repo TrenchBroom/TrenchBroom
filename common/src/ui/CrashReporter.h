@@ -24,16 +24,14 @@
 
 namespace tb::ui
 {
+class AppController;
 
-void setCrashReportGUIEnabled(bool guiEnabled);
+class CrashReporter
+{
+public:
+  explicit CrashReporter(AppController& appController);
 
-[[noreturn]] void reportCrashAndExit(const std::string& reason);
-
-bool isReportingCrash();
-
-void setupCrashReporter();
-
-using ThrowingFunction = std::function<void()>;
-void runWithCrashReporting(const ThrowingFunction& func);
+  [[noreturn]] void reportCrashAndExit(const std::string& reason);
+};
 
 } // namespace tb::ui
