@@ -73,6 +73,7 @@
 #include "ui/ActionExecutionContext.h"
 #include "ui/ActionManager.h"
 #include "ui/Animation.h"
+#include "ui/AppController.h"
 #include "ui/EnableDisableTagCallback.h"
 #include "ui/FlashSelectionAnimation.h"
 #include "ui/MapDocument.h"
@@ -287,13 +288,13 @@ void MapViewBase::createActions()
     m_shortcuts.emplace_back(shortcut, &action);
   };
 
-  auto& actionManager = ActionManager::instance();
+  const auto& actionManager = m_appController.actionManager();
   // We don't create a QShortcut for actions whose key binding is handled
   // by the menu or toolbar since they would conflict.
   actionManager.visitMapViewActions(visitor);
 
-  m_document.visitTagActions(visitor);
-  m_document.visitEntityDefinitionActions(visitor);
+  m_document.visitTagActions(actionManager, visitor);
+  m_document.visitEntityDefinitionActions(actionManager, visitor);
 }
 
 void MapViewBase::updateActionBindings()

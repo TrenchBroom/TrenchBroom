@@ -53,12 +53,6 @@ ActionManager::ActionManager()
   initialize();
 }
 
-ActionManager& ActionManager::instance()
-{
-  static auto instance = ActionManager();
-  return instance;
-}
-
 std::vector<Action> ActionManager::createTagActions(
   const std::vector<mdl::SmartTag>& tags) const
 {

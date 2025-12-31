@@ -107,12 +107,11 @@ QString toString(const QKeySequence& keySequence)
   return result;
 }
 
-void printMenuShortcuts(QTextStream& out)
+void printMenuShortcuts(ActionManager& actionManager, QTextStream& out)
 {
   out << "const menu = {\n";
 
   auto currentPath = QStringList{};
-  const auto& actionManager = ActionManager::instance();
   actionManager.visitMainMenu(kdl::overload(
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
@@ -129,7 +128,7 @@ void printMenuShortcuts(QTextStream& out)
   out << "};\n";
 }
 
-void printActionShortcuts(QTextStream& out)
+void printActionShortcuts(ActionManager& actionManager, QTextStream& out)
 {
   out << "const actions = {\n";
 
@@ -138,7 +137,6 @@ void printActionShortcuts(QTextStream& out)
     out << toString(keySequence) << ",\n";
   };
 
-  const auto& actionManager = ActionManager::instance();
   actionManager.visitToolBar(kdl::overload(
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
@@ -166,6 +164,9 @@ extern void qt_set_sequence_auto_mnemonic(bool b);
 
 int main(int argc, char* argv[])
 {
+  using namespace tb;
+  using namespace tb::ui;
+
   QSettings::setDefaultFormat(QSettings::IniFormat);
 
   // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the
@@ -181,18 +182,20 @@ int main(int argc, char* argv[])
   QApplication::setOrganizationName("");
   QApplication::setOrganizationDomain("io.github.trenchbroom");
 
-  tb::PreferenceManager::createInstance(std::make_unique<tb::ui::QPreferenceStore>(
-    tb::ui::pathAsQString(tb::ui::SystemPaths::preferenceFilePath())));
+  PreferenceManager::createInstance(
+    std::make_unique<QPreferenceStore>(pathAsQString(SystemPaths::preferenceFilePath())));
 
   // QKeySequence requires that an application instance is created!
   auto app = QApplication{argc, argv};
 
-  auto out = QTextStream{stdout};
-  tb::ui::printKeys(out);
-  tb::ui::printMenuShortcuts(out);
-  tb::ui::printActionShortcuts(out);
+  auto actionManager = ActionManager{};
 
-  tb::PreferenceManager::destroyInstance();
+  auto out = QTextStream{stdout};
+  printKeys(out);
+  printMenuShortcuts(actionManager, out);
+  printActionShortcuts(actionManager, out);
+
+  PreferenceManager::destroyInstance();
 
   out.flush();
   return out.status() == QTextStream::Ok ? 0 : 1;

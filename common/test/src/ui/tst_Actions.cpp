@@ -82,9 +82,10 @@ auto getActionConflicts(
 
 TEST_CASE("Actions")
 {
+  const auto actionManager = ActionManager{};
+
   SECTION("Default actions have no conflicts")
   {
-    const auto& actionManager = ActionManager::instance();
     const auto allActions = collectAllActions(actionManager);
 
     const auto conflicts = getActionConflicts(allActions, findConflicts(allActions));

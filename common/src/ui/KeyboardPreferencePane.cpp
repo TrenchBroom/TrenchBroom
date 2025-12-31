@@ -29,6 +29,7 @@
 #include <QTimer>
 
 #include "ui/ActionManager.h"
+#include "ui/AppController.h"
 #include "ui/KeyboardShortcutItemDelegate.h"
 #include "ui/KeyboardShortcutModel.h"
 #include "ui/MapDocument.h"
@@ -39,10 +40,12 @@
 namespace tb::ui
 {
 
-KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* parent)
+KeyboardPreferencePane::KeyboardPreferencePane(
+  AppController& appController, MapDocument* document, QWidget* parent)
   : PreferencePane{parent}
+  , m_appController{appController}
   , m_table{new QTableView{}}
-  , m_model{new KeyboardShortcutModel{document}}
+  , m_model{new KeyboardShortcutModel{m_appController.actionManager(), document}}
   , m_proxy{new QSortFilterProxyModel{}}
 {
   m_proxy->setSourceModel(m_model);
@@ -109,8 +112,7 @@ bool KeyboardPreferencePane::canResetToDefaults()
 
 void KeyboardPreferencePane::doResetToDefaults()
 {
-  auto& actionManager = ActionManager::instance();
-  actionManager.resetAllKeySequences();
+  m_appController.actionManager().resetAllKeySequences();
   m_model->reset();
 }
 

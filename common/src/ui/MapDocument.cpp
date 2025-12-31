@@ -235,27 +235,34 @@ void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService)
   m_viewEffectsService = viewEffectsService;
 }
 
-void MapDocument::createTagActions()
+std::vector<Action>& MapDocument::cacheTagActions(const ActionManager& actionManager)
 {
-  const auto& actionManager = ActionManager::instance();
-  m_tagActions = actionManager.createTagActions(m_map->tagManager().smartTags());
+  if (!m_cachedTagActions)
+  {
+    m_cachedTagActions = actionManager.createTagActions(m_map->tagManager().smartTags());
+  }
+  return *m_cachedTagActions;
 }
 
 void MapDocument::clearTagActions()
 {
-  m_tagActions.clear();
+  m_cachedTagActions = std::nullopt;
 }
 
-void MapDocument::createEntityDefinitionActions()
+std::vector<Action>& MapDocument::cacheEntityDefinitionActions(
+  const ActionManager& actionManager)
 {
-  const auto& actionManager = ActionManager::instance();
-  m_entityDefinitionActions = actionManager.createEntityDefinitionActions(
-    m_map->entityDefinitionManager().definitions());
+  if (!m_cachedEntityDefinitionActions)
+  {
+    m_cachedEntityDefinitionActions = actionManager.createEntityDefinitionActions(
+      m_map->entityDefinitionManager().definitions());
+  }
+  return *m_cachedEntityDefinitionActions;
 }
 
 void MapDocument::clearEntityDefinitionActions()
 {
-  m_entityDefinitionActions.clear();
+  m_cachedEntityDefinitionActions = std::nullopt;
 }
 
 void MapDocument::loadPointFile(std::filesystem::path path)
@@ -465,13 +472,13 @@ void MapDocument::documentWasLoaded()
 {
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
 
-  createTagActions();
-  createEntityDefinitionActions();
+  clearTagActions();
+  clearEntityDefinitionActions();
 }
 
 void MapDocument::entityDefinitionsDidChange()
 {
-  createEntityDefinitionActions();
+  clearEntityDefinitionActions();
 }
 
 void MapDocument::preferenceDidChange(const std::filesystem::path&)

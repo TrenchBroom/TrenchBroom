@@ -52,6 +52,7 @@ struct EnvironmentConfig;
 namespace ui
 {
 class AboutDialog;
+class ActionManager;
 class FrameManager;
 class RecentDocuments;
 class WelcomeWindow;
@@ -72,6 +73,7 @@ private:
 
   FrameManager* m_frameManager = nullptr;
   RecentDocuments* m_recentDocuments = nullptr;
+  std::unique_ptr<ActionManager> m_actionManager;
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
   std::unique_ptr<AboutDialog> m_aboutDialog;
 
@@ -104,6 +106,8 @@ public:
 
   const RecentDocuments& recentDocuments() const;
   RecentDocuments& recentDocuments();
+
+  ActionManager& actionManager();
 
   void askForAutoUpdates();
   void triggerAutoUpdateCheck();
