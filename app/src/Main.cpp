@@ -19,8 +19,10 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QEvent>
 #include <QFile>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QPalette>
 #include <QProxyStyle>
 #include <QSettings>
@@ -28,15 +30,16 @@
 #include <QSurfaceFormat>
 #include <QtGlobal>
 
-#include "Contracts.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroomApp.h"
 #include "ui/Action.h"
 #include "ui/ActionBuilder.h"
 #include "ui/ActionExecutionContext.h"
 #include "ui/AppController.h"
+#include "ui/Contracts.h"
 #include "ui/CrashReporter.h"
+#include "ui/FileEventFilter.h"
+#include "ui/FrameManager.h"
 #include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
 #include "ui/RecentDocuments.h"
@@ -162,20 +165,34 @@ void loadStyle(QApplication& app)
   }
 }
 
-void populateMainMenu(TrenchBroomApp& app)
+auto createAppController()
+{
+  return AppController::create() | kdl::if_error([](auto e) {
+           const auto msg =
+             fmt::format(R"(Game configurations could not be loaded: {})", e.msg);
+
+           QMessageBox::critical(
+             nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
+           QCoreApplication::exit(1);
+         })
+         | kdl::value();
+}
+
+
+[[maybe_unused]] void populateMainMenu(AppController& appController)
 {
   auto* menuBar = new QMenuBar{};
   auto actionMap = std::unordered_map<const Action*, QAction*>{};
 
   auto menuBuilderResult =
     populateMenuBar(*menuBar, actionMap, [&](const Action& action) {
-      auto context = ActionExecutionContext{app.appController(), nullptr, nullptr};
+      auto context = ActionExecutionContext{appController, nullptr, nullptr};
       action.execute(context);
     });
 
-  app.appController().recentDocuments().addMenu(*menuBuilderResult.recentDocumentsMenu);
+  appController.recentDocuments().addMenu(*menuBuilderResult.recentDocumentsMenu);
 
-  auto context = ActionExecutionContext{app.appController(), nullptr, nullptr};
+  auto context = ActionExecutionContext{appController, nullptr, nullptr};
   for (auto [tbAction, qtAction] : actionMap)
   {
     qtAction->setEnabled(tbAction->enabled(context));
@@ -186,8 +203,12 @@ void populateMainMenu(TrenchBroomApp& app)
   }
 }
 
+[[maybe_unused]] void installFileEventFilter(AppController& appController)
+{
+  qApp->installEventFilter(new FileEventFilter{appController, qApp});
+}
 
-void openFilesOrWelcomeFrame(AppController& appController, const QStringList& fileNames)
+bool openFiles(AppController& appController, const QStringList& fileNames)
 {
   const auto filesToOpen = AppController::useSDI && !fileNames.empty()
                              ? QStringList{fileNames.front()}
@@ -203,18 +224,15 @@ void openFilesOrWelcomeFrame(AppController& appController, const QStringList& fi
     }
   }
 
-  if (!anyDocumentOpened)
-  {
-    appController.showWelcomeWindow();
-  }
+  return anyDocumentOpened;
 }
 
-void parseCommandLineAndShowFrame(QApplication& app, AppController& appController)
+bool parseCommandLineAndOpenFiles(AppController& appController)
 {
   auto parser = QCommandLineParser{};
   parser.addOption(QCommandLineOption("portable"));
   parser.addOption(QCommandLineOption("enableDraftReleaseUpdates"));
-  parser.process(app);
+  parser.process(*qApp);
 
   if (parser.isSet("enableDraftReleaseUpdates"))
   {
@@ -223,7 +241,7 @@ void parseCommandLineAndShowFrame(QApplication& app, AppController& appControlle
     prefs.set(Preferences::IncludeDraftReleaseUpdates, true);
   }
 
-  openFilesOrWelcomeFrame(appController, parser.positionalArguments());
+  return openFiles(appController, parser.positionalArguments());
 }
 
 
@@ -231,8 +249,6 @@ void parseCommandLineAndShowFrame(QApplication& app, AppController& appControlle
 
 int main(int argc, char* argv[])
 {
-  setContractViolationHandler();
-
   // Set OpenGL defaults
   // Needs to be done here before QApplication is created
   // (see: https://doc.qt.io/qt-5/qsurfaceformat.html#setDefaultFormat)
@@ -297,25 +313,27 @@ int main(int argc, char* argv[])
   PreferenceManager::createInstance(
     std::make_unique<QPreferenceStore>(pathAsQString(SystemPaths::preferenceFilePath())));
 
-  TrenchBroomApp app(argc, argv);
-
-  auto& appController = app.appController();
-
-  setupCrashReporter();
+  auto app = QApplication{argc, argv};
+  auto appController = createAppController();
+  auto crashReporter = CrashReporter{*appController};
+  setContractViolationHandler(crashReporter);
 
   loadStyleSheets();
   loadStyle(app);
 
 #ifdef __APPLE__
   app.setQuitOnLastWindowClosed(false);
-  populateMainMenu(app);
+  populateMainMenu(*appController);
+  installFileEventFilter(*appController);
 #endif
 
-  appController.askForAutoUpdates();
-  parseCommandLineAndShowFrame(app, appController);
+  appController->askForAutoUpdates();
+  appController->triggerAutoUpdateCheck();
 
-  // start the update check only now after we have asked the user whether they want to
-  // enable the automatic check and once we have set the draft update preference
-  appController.triggerAutoUpdateCheck();
+  if (!parseCommandLineAndOpenFiles(*appController))
+  {
+    appController->showWelcomeWindow();
+  }
+
   return app.exec();
 }

@@ -19,9 +19,10 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-namespace tb
+namespace tb::ui
 {
+class CrashReporter;
 
-void setContractViolationHandler();
+void setContractViolationHandler(CrashReporter& crashReporter);
 
-}
+} // namespace tb::ui

@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include <QWidget>
+#include <QObject>
 
-class QObject;
+class QEvent;
 class QTableView;
 
 namespace tb::ui

@@ -20,7 +20,6 @@
 #include "GameListBox.h"
 
 #include "PreferenceManager.h"
-#include "TrenchBroomApp.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
 #include "ui/AppController.h"

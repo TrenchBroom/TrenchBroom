@@ -29,7 +29,6 @@
 #include <QTextEdit>
 
 #include "Logger.h"
-#include "TrenchBroomApp.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"

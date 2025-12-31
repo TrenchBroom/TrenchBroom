@@ -21,14 +21,12 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroomApp.h"
 #include "gl/ContextManager.h"
 #include "gl/PrimType.h"
 #include "gl/VboManager.h"
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "render/Transformation.h"
-#include "ui/CrashReporter.h"
 #include "ui/InputEvent.h"
 
 #include <fmt/format.h>

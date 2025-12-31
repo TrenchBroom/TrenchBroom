@@ -21,7 +21,6 @@
 
 #include <QStandardPaths>
 
-#include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "gl/ContextManager.h"
@@ -32,8 +31,6 @@
 #include "ui/GetVersion.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
-#include "ui/MapViewBase.h"
-#include "ui/PreferenceDialog.h"
 #include "ui/QPathUtils.h"
 #include "ui/SystemPaths.h"
 
@@ -58,15 +55,18 @@ namespace tb::ui
 namespace
 {
 
-bool inReportCrashAndExit = false;
-bool crashReportGuiEnabled = true;
+AppController* appControllerForCrashReporter = nullptr;
+bool crashReporterGuiEnabled = true;
+bool crashReporterIsReportingCrash = false;
 
 const MapDocument* topDocument()
 {
-  auto& app = TrenchBroomApp::instance();
-  if (const auto* topFrame = app.appController().frameManager().topFrame())
+  if (appControllerForCrashReporter)
   {
-    return &topFrame->document();
+    if (const auto* topFrame = appControllerForCrashReporter->frameManager().topFrame())
+    {
+      return &topFrame->document();
+    }
   }
   return nullptr;
 }
@@ -122,24 +122,11 @@ std::filesystem::path crashReportBasePath()
   return kdl::path_remove_extension(testCrashLogPath);
 }
 
-#if defined(_WIN32) && defined(_MSC_VER)
-LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
-{
-  reportCrashAndExit(std::to_string(pExceptionPtrs->ExceptionRecord->ExceptionCode));
-  // return EXCEPTION_EXECUTE_HANDLER; unreachable
-}
-#else
-void CrashHandler(const int /* signum */)
-{
-  reportCrashAndExit("SIGSEGV");
-}
-#endif
-
 [[noreturn]] void reportCrashAndExit(
   const cpptrace::stacktrace& stacktrace, const std::string& reason)
 {
   // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
-  if (std::exchange(inReportCrashAndExit, true))
+  if (std::exchange(crashReporterIsReportingCrash, true))
   {
     std::abort();
   }
@@ -184,7 +171,7 @@ void CrashHandler(const int /* signum */)
       logPath = std::filesystem::path{};
     }
 
-    if (crashReportGuiEnabled)
+    if (crashReporterGuiEnabled)
     {
       auto dialog = CrashDialog{reason, reportPath, mapPath, logPath};
       dialog.exec();
@@ -200,25 +187,27 @@ void CrashHandler(const int /* signum */)
   std::abort();
 }
 
+#if defined(_WIN32) && defined(_MSC_VER)
+LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
+{
+  reportCrashAndExit(
+    cpptrace::generate_trace(),
+    std::to_string(pExceptionPtrs->ExceptionRecord->ExceptionCode));
+  // return EXCEPTION_EXECUTE_HANDLER; unreachable
+}
+#else
+void CrashHandler(const int /* signum */)
+{
+  reportCrashAndExit(cpptrace::generate_trace(), "SIGSEGV");
+}
+#endif
+
 } // namespace
 
-void setCrashReportGUIEnabled(const bool guiEnabled)
+CrashReporter::CrashReporter(AppController& appController)
 {
-  crashReportGuiEnabled = guiEnabled;
-}
+  appControllerForCrashReporter = &appController;
 
-void reportCrashAndExit(const std::string& reason)
-{
-  reportCrashAndExit(cpptrace::generate_trace(), reason);
-}
-
-bool isReportingCrash()
-{
-  return inReportCrashAndExit;
-}
-
-void setupCrashReporter()
-{
 #if defined(_WIN32) && defined(_MSC_VER)
   // with MSVC, set our own handler for segfaults so we can access the context
   // pointer, to allow StackWalker to read the backtrace.
@@ -229,20 +218,9 @@ void setupCrashReporter()
 #endif
 }
 
-void runWithCrashReporting(const ThrowingFunction& func)
+[[noreturn]] void CrashReporter::reportCrashAndExit(const std::string& reason)
 {
-  CPPTRACE_TRY
-  {
-    func();
-  }
-  CPPTRACE_CATCH(const std::exception& e)
-  {
-    // Note that this will not catch all exceptions that are thrown from Qt event handlers
-    // because Qt doesn't guarantee that exceptions can propagate through its signal/slot
-    // mechanism. We will have to fix that by getting rid of exceptions altogether or by
-    // wrapping every slot in a try/catch block.
-    reportCrashAndExit(cpptrace::from_current_exception(), e.what());
-  }
+  tb::ui::reportCrashAndExit(cpptrace::generate_trace(), reason);
 }
 
 } // namespace tb::ui

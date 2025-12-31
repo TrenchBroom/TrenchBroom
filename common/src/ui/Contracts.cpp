@@ -24,10 +24,11 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NDEBUG
 #include <cassert>
 
-namespace tb
+namespace tb::ui
 {
 namespace
 {
+CrashReporter* crashReporterForContractViolationHandler = nullptr;
 
 // for debug builds, ensure is just an assertion
 void contractViolated(
@@ -40,17 +41,18 @@ void contractViolated(
 }
 
 } // namespace
-} // namespace tb
+} // namespace tb::ui
 
 #else
 #include "ui/CrashReporter.h"
 
 #include <fmt/format.h>
 
-namespace tb
+namespace tb::ui
 {
 namespace
 {
+CrashReporter* crashReporterForContractViolationHandler = nullptr;
 
 // for release builds, ensure generates a crash report
 void contractViolated(
@@ -61,19 +63,20 @@ void contractViolated(
 {
   const auto reason =
     fmt::format("{} line {}: {} '{}' failed", file, line, type, condition);
-  ui::reportCrashAndExit(reason);
+  crashReporterForContractViolationHandler->reportCrashAndExit(reason);
 }
 
 } // namespace
-} // namespace tb
+} // namespace tb::ui
 #endif
 
-namespace tb
+namespace tb::ui
 {
 
-void setContractViolationHandler()
+void setContractViolationHandler(CrashReporter& crashReporter)
 {
+  crashReporterForContractViolationHandler = &crashReporter;
   kd::set_contract_violation_handler(contractViolated);
 }
 
-} // namespace tb
+} // namespace tb::ui

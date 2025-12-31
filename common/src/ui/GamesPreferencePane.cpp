@@ -32,7 +32,6 @@
 #include <QWidget>
 
 #include "PreferenceManager.h"
-#include "TrenchBroomApp.h"
 #include "fs/DiskIO.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"

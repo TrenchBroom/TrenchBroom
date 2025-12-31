@@ -26,7 +26,6 @@
 #include <QPushButton>
 
 #include "PreferenceManager.h"
-#include "TrenchBroomApp.h"
 #include "mdl/GameManager.h"
 #include "ui/AppController.h"
 #include "ui/BorderLine.h"

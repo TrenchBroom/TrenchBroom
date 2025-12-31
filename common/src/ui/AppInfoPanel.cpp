@@ -26,7 +26,6 @@
 #include <QStringBuilder>
 #include <QVBoxLayout>
 
-#include "TrenchBroomApp.h"
 #include "ui/AppController.h"
 #include "ui/BorderLine.h"
 #include "ui/ClickableLabel.h"

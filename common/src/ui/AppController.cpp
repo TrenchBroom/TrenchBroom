@@ -148,10 +148,8 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndForma
 AppController::AppController(
   std::unique_ptr<kdl::task_manager> taskManager,
   std::unique_ptr<mdl::EnvironmentConfig> environmentConfig,
-  std::unique_ptr<mdl::GameManager> gameManager,
-  QObject* parent)
-  : QObject{parent}
-  , m_taskManager{std::move(taskManager)}
+  std::unique_ptr<mdl::GameManager> gameManager)
+  : m_taskManager{std::move(taskManager)}
   , m_environmentConfig{std::move(environmentConfig)}
   , m_gameManager{std::move(gameManager)}
   , m_networkManager{new QNetworkAccessManager{this}}
@@ -170,18 +168,17 @@ AppController::AppController(
   m_recentDocumentsReloadTimer->start(1s);
 }
 
-Result<AppController*> AppController::create(QObject* parent)
+Result<std::unique_ptr<AppController>> AppController::create()
 {
   return createGameManager() | kdl::transform([&](auto gameManager) {
            auto taskManager =
              std::make_unique<kdl::task_manager>(std::thread::hardware_concurrency());
            auto environmentConfig = createEnvironmentConfig();
 
-           return new AppController{
+           return std::make_unique<AppController>(
              std::move(taskManager),
              std::move(environmentConfig),
-             std::move(gameManager),
-             parent};
+             std::move(gameManager));
          });
 }
 

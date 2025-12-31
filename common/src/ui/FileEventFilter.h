@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,34 +19,24 @@
 
 #pragma once
 
-#include <QApplication>
+#include <QObject>
+
+class QEvent;
 
 namespace tb::ui
 {
 class AppController;
 
-class TrenchBroomApp : public QApplication
+class FileEventFilter : public QObject
 {
   Q_OBJECT
 private:
-  AppController* m_appController = nullptr;
+  AppController& m_appController;
 
 public:
-  static TrenchBroomApp& instance();
+  explicit FileEventFilter(AppController& appController, QObject* parent = nullptr);
 
-  TrenchBroomApp(int& argc, char** argv);
-  ~TrenchBroomApp() override;
-
-public:
-  const AppController& appController() const;
-  AppController& appController();
-
-public:
-  bool notify(QObject* receiver, QEvent* event) override;
-
-#ifdef __APPLE__
-  bool event(QEvent* event) override;
-#endif
+  bool eventFilter(QObject* watched, QEvent* event) override;
 };
 
 } // namespace tb::ui

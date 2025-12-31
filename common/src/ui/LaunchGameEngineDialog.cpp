@@ -29,7 +29,6 @@
 #include <QPushButton>
 
 #include "Logger.h"
-#include "TrenchBroomApp.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
 #include "mdl/GameInfo.h"

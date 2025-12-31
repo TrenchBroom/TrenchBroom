@@ -41,7 +41,6 @@
 #include "Console.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroomApp.h"
 #include "gl/ContextManager.h"
 #include "gl/Resource.h"
 #include "mdl/Autosaver.h"
@@ -2312,8 +2311,7 @@ void MapFrame::debugCrash()
   auto items = QStringList{};
   items << "Null pointer dereference"
         << "Unhandled exception"
-        << "Contract failed"
-        << "Report crash and exit";
+        << "Contract failed";
 
   bool ok;
   const auto item =
@@ -2332,10 +2330,6 @@ void MapFrame::debugCrash()
     else if (idx == 2)
     {
       contract_assert(false);
-    }
-    else if (idx == 3)
-    {
-      tb::ui::reportCrashAndExit("Report crash and exit");
     }
   }
 }

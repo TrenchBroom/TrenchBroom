@@ -75,14 +75,12 @@ private:
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
   std::unique_ptr<AboutDialog> m_aboutDialog;
 
-private:
+public:
   AppController(
     std::unique_ptr<kdl::task_manager> taskManager,
     std::unique_ptr<mdl::EnvironmentConfig> environmentConfig,
-    std::unique_ptr<mdl::GameManager> gameManager,
-    QObject* parent);
+    std::unique_ptr<mdl::GameManager> gameManager);
 
-public:
   static constexpr auto useSDI =
 #ifdef _WIN32
     true;
@@ -90,7 +88,7 @@ public:
     false;
 #endif
 
-  static Result<AppController*> create(QObject* parent);
+  static Result<std::unique_ptr<AppController>> create();
 
   ~AppController() override;
 
