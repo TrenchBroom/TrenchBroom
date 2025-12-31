@@ -101,21 +101,6 @@ Result<void> FrameManager::loadDocument(
     environmentConfig, gameInfo, mapFormat, worldBounds, std::move(path));
 }
 
-bool FrameManager::closeAllFrames()
-{
-  auto framesCopy = m_frames;
-  for (auto* frame : framesCopy)
-  {
-    if (!frame->close())
-    {
-      return false;
-    }
-  }
-
-  contract_post(m_frames.empty());
-  return true;
-}
-
 bool FrameManager::allFramesClosed() const
 {
   return m_frames.empty();

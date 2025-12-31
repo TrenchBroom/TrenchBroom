@@ -77,8 +77,6 @@ public:
     std::filesystem::path path,
     kdl::task_manager& taskManager);
 
-  bool closeAllFrames();
-
   std::vector<MapFrame*> frames() const;
   MapFrame* topFrame() const;
   bool allFramesClosed() const;
