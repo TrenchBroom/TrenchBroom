@@ -19,7 +19,7 @@
 
 #include "ui/GetVersion.h"
 
-#include "Version.h"
+#include "ui/Version.h"
 
 namespace tb::ui
 {
