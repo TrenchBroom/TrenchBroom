@@ -86,6 +86,7 @@ QAction& findOrCreateQtAction(
 } // namespace
 
 PopulateMenuResult populateMenuBar(
+  ActionManager& actionManager,
   QMenuBar& qtMenuBar,
   std::unordered_map<const Action*, QAction*>& actionMap,
   const TriggerFn& triggerFn)
@@ -93,7 +94,6 @@ PopulateMenuResult populateMenuBar(
   auto result = PopulateMenuResult{};
   QMenu* currentMenu = nullptr;
 
-  const auto& actionManager = ActionManager::instance();
   actionManager.visitMainMenu(kdl::overload(
     [&](const MenuSeparator&) {
       contract_assert(currentMenu != nullptr);
@@ -148,11 +148,11 @@ PopulateMenuResult populateMenuBar(
 }
 
 void populateToolBar(
+  ActionManager& actionManager,
   QToolBar& qtToolBar,
   std::unordered_map<const Action*, QAction*>& actionMap,
   const TriggerFn& triggerFn)
 {
-  const auto& actionManager = ActionManager::instance();
   actionManager.visitToolBar(kdl::overload(
     [&](const MenuSeparator&) { qtToolBar.addSeparator(); },
     [&](const MenuAction& actionItem) {

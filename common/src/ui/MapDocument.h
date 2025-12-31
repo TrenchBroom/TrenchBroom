@@ -67,6 +67,7 @@ class MapRenderer;
 
 namespace ui
 {
+class ActionManager;
 class AsyncTaskRunner;
 class CachingLogger;
 class ViewEffectsService;
@@ -153,8 +154,8 @@ private:
   std::optional<PointFile> m_pointFile;
   std::optional<PortalFile> m_portalFile;
 
-  std::vector<Action> m_tagActions;
-  std::vector<Action> m_entityDefinitionActions;
+  std::optional<std::vector<Action>> m_cachedTagActions;
+  std::optional<std::vector<Action>> m_cachedEntityDefinitionActions;
 
   ViewEffectsService* m_viewEffectsService = nullptr;
 
@@ -221,46 +222,29 @@ public: // accessors and such
 
 public: // tag and entity definition actions
   template <typename ActionVisitor>
-  void visitTagActions(ActionVisitor&& visitor) const
+  void visitTagActions(const ActionManager& actionManager, ActionVisitor&& visitor)
   {
-    for (const auto& action : m_tagActions)
+    for (auto& action : cacheTagActions(actionManager))
     {
       visitor(action);
     }
   }
 
   template <typename ActionVisitor>
-  void visitTagActions(ActionVisitor&& visitor)
+  void visitEntityDefinitionActions(
+    const ActionManager& actionManager, ActionVisitor&& visitor)
   {
-    for (auto& action : m_tagActions)
-    {
-      visitor(action);
-    }
-  }
-
-  template <typename ActionVisitor>
-  void visitEntityDefinitionActions(ActionVisitor&& visitor) const
-  {
-    for (const auto& action : m_entityDefinitionActions)
-    {
-      visitor(action);
-    }
-  }
-
-  template <typename ActionVisitor>
-  void visitEntityDefinitionActions(ActionVisitor&& visitor)
-  {
-    for (auto& action : m_entityDefinitionActions)
+    for (auto& action : cacheEntityDefinitionActions(actionManager))
     {
       visitor(action);
     }
   }
 
 private: // tag and entity definition actions
-  void createTagActions();
+  std::vector<Action>& cacheTagActions(const ActionManager& actionManager);
   void clearTagActions();
 
-  void createEntityDefinitionActions();
+  std::vector<Action>& cacheEntityDefinitionActions(const ActionManager& actionManager);
   void clearEntityDefinitionActions();
 
 public: // point file management

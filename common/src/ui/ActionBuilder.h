@@ -29,6 +29,7 @@ class QToolBar;
 namespace tb::ui
 {
 class Action;
+class ActionManager;
 
 using TriggerFn = std::function<void(const Action&)>;
 
@@ -44,11 +45,13 @@ struct PopulateMenuResult
 };
 
 PopulateMenuResult populateMenuBar(
+  ActionManager& actionManager,
   QMenuBar& qtMenuBar,
   std::unordered_map<const Action*, QAction*>& actionMap,
   const TriggerFn& triggerFn);
 
 void populateToolBar(
+  ActionManager& actionManager,
   QToolBar& qtToolBar,
   std::unordered_map<const Action*, QAction*>& actionMap,
   const TriggerFn& triggerFn);

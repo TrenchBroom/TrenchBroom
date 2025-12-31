@@ -268,7 +268,7 @@ Logger& MapFrame::logger() const
 
 QAction* MapFrame::findAction(const std::filesystem::path& path)
 {
-  const auto& actionManager = ActionManager::instance();
+  const auto& actionManager = m_appController.actionManager();
   auto& actionsMap = actionManager.actionsMap();
   if (const auto iAction = actionsMap.find(path); iAction != std::end(actionsMap))
   {
@@ -297,8 +297,8 @@ void MapFrame::updateTitleDelayed()
 
 void MapFrame::createMenus()
 {
-  auto createMenuResult =
-    populateMenuBar(*menuBar(), m_actionMap, [&](const Action& action) {
+  auto createMenuResult = populateMenuBar(
+    m_appController.actionManager(), *menuBar(), m_actionMap, [&](const Action& action) {
       auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
       action.execute(context);
     });
@@ -476,10 +476,11 @@ void MapFrame::createToolBar()
   // 24x24 (we could alternatively render the icons at 32x32).
   m_toolBar->setIconSize(QSize(24, 24));
 
-  populateToolBar(*m_toolBar, m_actionMap, [&](const auto& tbAction) {
-    auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
-    tbAction.execute(context);
-  });
+  populateToolBar(
+    m_appController.actionManager(), *m_toolBar, m_actionMap, [&](const auto& tbAction) {
+      auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
+      tbAction.execute(context);
+    });
 
   m_gridChoice = new QComboBox{};
   for (int i = mdl::Grid::MinSize; i <= mdl::Grid::MaxSize; ++i)

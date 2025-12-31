@@ -39,8 +39,10 @@
 namespace tb::ui
 {
 
-KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document, QObject* parent)
+KeyboardShortcutModel::KeyboardShortcutModel(
+  ActionManager& actionManager, MapDocument* document, QObject* parent)
   : QAbstractTableModel{parent}
+  , m_actionManager{actionManager}
   , m_document{document}
 {
   initializeActions();
@@ -167,10 +169,8 @@ void KeyboardShortcutModel::initializeActions()
 
 void KeyboardShortcutModel::initializeMenuActions()
 {
-  const auto& actionManager = ActionManager::instance();
-
   auto currentPath = std::filesystem::path{};
-  actionManager.visitMainMenu(kdl::overload(
+  m_actionManager.visitMainMenu(kdl::overload(
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
       m_actions.push_back(ActionInfo{
@@ -185,8 +185,7 @@ void KeyboardShortcutModel::initializeMenuActions()
 
 void KeyboardShortcutModel::initializeViewActions()
 {
-  auto& actionManager = ActionManager::instance();
-  actionManager.visitMapViewActions([&](Action& action) {
+  m_actionManager.visitMapViewActions([&](Action& action) {
     m_actions.push_back(ActionInfo{"Map View" / pathFromQString(action.label()), action});
   });
 }
@@ -195,7 +194,7 @@ void KeyboardShortcutModel::initializeTagActions()
 {
   contract_pre(m_document);
 
-  m_document->visitTagActions([&](Action& action) {
+  m_document->visitTagActions(m_actionManager, [&](Action& action) {
     m_actions.push_back(ActionInfo{"Tags" / pathFromQString(action.label()), action});
   });
 }
@@ -204,7 +203,7 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 {
   contract_pre(m_document);
 
-  m_document->visitEntityDefinitionActions([&](Action& action) {
+  m_document->visitEntityDefinitionActions(m_actionManager, [&](Action& action) {
     m_actions.push_back(
       ActionInfo{"Entity Definitions" / pathFromQString(action.label()), action});
   });

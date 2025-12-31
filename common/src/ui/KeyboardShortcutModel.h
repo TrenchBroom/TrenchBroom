@@ -29,6 +29,7 @@ class QObject;
 namespace tb::ui
 {
 class Action;
+class ActionManager;
 class MapDocument;
 
 class KeyboardShortcutModel : public QAbstractTableModel
@@ -44,12 +45,14 @@ private:
     Action& action;
   };
 
+  ActionManager& m_actionManager;
   MapDocument* m_document;
   std::vector<ActionInfo> m_actions;
   std::vector<int> m_conflicts;
 
 public:
-  explicit KeyboardShortcutModel(MapDocument* document, QObject* parent = nullptr);
+  explicit KeyboardShortcutModel(
+    ActionManager& actionManager, MapDocument* document, QObject* parent = nullptr);
 
   void reset();
 

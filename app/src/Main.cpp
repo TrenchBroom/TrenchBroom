@@ -184,8 +184,8 @@ auto createAppController()
   auto* menuBar = new QMenuBar{};
   auto actionMap = std::unordered_map<const Action*, QAction*>{};
 
-  auto menuBuilderResult =
-    populateMenuBar(*menuBar, actionMap, [&](const Action& action) {
+  auto menuBuilderResult = populateMenuBar(
+    appController.actionManager(), *menuBar, actionMap, [&](const Action& action) {
       auto context = ActionExecutionContext{appController, nullptr, nullptr};
       action.execute(context);
     });

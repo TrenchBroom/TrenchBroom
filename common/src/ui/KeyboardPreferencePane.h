@@ -27,6 +27,7 @@ class QSortFilterProxyModel;
 
 namespace tb::ui
 {
+class AppController;
 class KeyboardShortcutModel;
 class MapDocument;
 
@@ -34,12 +35,14 @@ class KeyboardPreferencePane : public PreferencePane
 {
   Q_OBJECT
 private:
+  AppController& m_appController;
   QTableView* m_table = nullptr;
   KeyboardShortcutModel* m_model = nullptr;
   QSortFilterProxyModel* m_proxy = nullptr;
 
 public:
-  explicit KeyboardPreferencePane(MapDocument* document, QWidget* parent = nullptr);
+  explicit KeyboardPreferencePane(
+    AppController& appController, MapDocument* document, QWidget* parent = nullptr);
 
 private:
   bool canResetToDefaults() override;

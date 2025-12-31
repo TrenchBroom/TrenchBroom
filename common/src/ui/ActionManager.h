@@ -57,13 +57,9 @@ private:
    */
   Menu m_toolBar = Menu{"Toolbar", MenuEntryType::None, {}};
 
-private:
-  ActionManager();
-
 public:
+  ActionManager();
   deleteCopyAndMove(ActionManager);
-
-  static ActionManager& instance();
 
   /**
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.

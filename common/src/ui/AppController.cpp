@@ -33,6 +33,7 @@
 #include "mdl/GameManager.h"
 #include "mdl/MapHeader.h"
 #include "ui/AboutDialog.h"
+#include "ui/ActionManager.h"
 #include "ui/CrashDialog.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/FrameManager.h"
@@ -158,6 +159,7 @@ AppController::AppController(
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
   , m_frameManager{createFrameManager(*this)}
   , m_recentDocuments{createRecentDocuments(this)}
+  , m_actionManager{std::make_unique<ActionManager>()}
   , m_welcomeWindow{std::make_unique<WelcomeWindow>(*this)}
   , m_aboutDialog{std::make_unique<AboutDialog>(*this)}
 {
@@ -217,6 +219,11 @@ const RecentDocuments& AppController::recentDocuments() const
 RecentDocuments& AppController::recentDocuments()
 {
   return KDL_CONST_OVERLOAD(recentDocuments());
+}
+
+ActionManager& AppController::actionManager()
+{
+  return *m_actionManager;
 }
 
 void AppController::askForAutoUpdates()
