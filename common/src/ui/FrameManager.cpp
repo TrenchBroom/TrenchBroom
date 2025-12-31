@@ -117,9 +117,7 @@ void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
       if (auto it = std::ranges::find(m_frames, frame);
           it != m_frames.end() && it != m_frames.begin())
       {
-        contract_assert(topFrame() != frame);
-        m_frames.erase(it);
-        m_frames.insert(m_frames.begin(), frame);
+        std::rotate(m_frames.begin(), it, std::next(it));
       }
     }
   }
