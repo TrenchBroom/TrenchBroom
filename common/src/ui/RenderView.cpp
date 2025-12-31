@@ -201,11 +201,6 @@ bool RenderView::event(QEvent* event)
 
 void RenderView::paintGL()
 {
-  if (isReportingCrash())
-  {
-    return;
-  }
-
   render();
 
   // Update stats
