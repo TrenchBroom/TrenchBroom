@@ -26,20 +26,11 @@ namespace tb
 namespace
 {
 
-void dropPersistentValues(auto& values)
+void dropValues(auto& values, const auto& paths)
 {
-  auto iValue = values.begin();
-  while (iValue != values.end())
+  for (const auto& path : paths)
   {
-    const auto& [preference, value] = *iValue;
-    if (preference->persistencePolicy == PreferencePersistencePolicy::Persistent)
-    {
-      iValue = values.erase(iValue);
-    }
-    else
-    {
-      ++iValue;
-    }
+    values.erase(path);
   }
 }
 
@@ -68,7 +59,7 @@ PreferenceManager::PreferenceManager(
 
   m_notifierConnection += m_preferenceStore->preferencesWereReloadedNotifier.connect(
     [&](const std::vector<std::filesystem::path>& changedPreferencePaths) {
-      refreshPersistentValues();
+      refreshValues(changedPreferencePaths);
 
       for (const auto& path : changedPreferencePaths)
       {
@@ -113,10 +104,11 @@ void PreferenceManager::discardChanges()
   m_pendingValues.clear();
 }
 
-void PreferenceManager::refreshPersistentValues()
+void PreferenceManager::refreshValues(
+  const std::vector<std::filesystem::path>& preferencePaths)
 {
-  dropPersistentValues(m_values);
-  dropPersistentValues(m_pendingValues);
+  dropValues(m_values, preferencePaths);
+  dropValues(m_pendingValues, preferencePaths);
 }
 
 void togglePref(Preference<bool>& preference)
