@@ -81,11 +81,11 @@ PreferenceManager::~PreferenceManager() = default;
 
 bool PreferenceManager::shouldSaveInstantly()
 {
-#ifdef __APPLE__
+//#ifdef __APPLE__
   return true;
-#else
-  return false;
-#endif
+//#else
+//  return false;
+//#endif
 }
 
 bool PreferenceManager::saveInstantly() const
