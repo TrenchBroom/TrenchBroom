@@ -242,7 +242,7 @@ TEST_CASE("ExtrudeTool")
     }));
     // clang-format on
 
-    const auto mapPath = "fixture/test/ui/ExtrudeToolTest" / mapName;
+    const auto mapPath = "fixture/test/ui/ExtrudeTool" / mapName;
     auto& document = fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
     auto& map = document.map();
 
@@ -291,7 +291,7 @@ TEST_CASE("ExtrudeTool")
     using namespace mdl::HitFilters;
 
 
-    const auto mapPath = "fixture/test/ui/ExtrudeToolTest/splitBrushes.map";
+    const auto mapPath = "fixture/test/ui/ExtrudeTool/splitBrushes.map";
     auto& document = fixture.load(mapPath, {.mapFormat = mdl::MapFormat::Valve});
     auto& map = document.map();
 

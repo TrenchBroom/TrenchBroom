@@ -97,7 +97,7 @@ TEST_CASE("MapDocument")
   SECTION("loadDocument")
   {
     const auto path =
-      std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
+      std::filesystem::current_path() / "fixture/test/ui/MapDocument/emptyValveMap.map";
 
     MapDocument::loadDocument(
       environmentConfig,
@@ -131,7 +131,7 @@ TEST_CASE("MapDocument")
     const auto* previousMap = &document->map();
 
     const auto path =
-      std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
+      std::filesystem::current_path() / "fixture/test/ui/MapDocument/emptyValveMap.map";
 
     document->load(
       environmentConfig,
@@ -166,7 +166,7 @@ TEST_CASE("MapDocument")
                     | kdl::value();
 
     const auto path =
-      std::filesystem::current_path() / "fixture/test/mdl/Map/emptyValveMap.map";
+      std::filesystem::current_path() / "fixture/test/ui/MapDocument/emptyValveMap.map";
 
     REQUIRE(document->load(
       environmentConfig,
