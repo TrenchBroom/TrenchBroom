@@ -229,33 +229,33 @@ bool QPreferenceStoreDelegate::load(
 
 void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const bool value)
 {
-  m_cache.emplace(path, QJsonValue{value});
+  m_cache[path] = QJsonValue{value};
   triggerSaveChanges();
 }
 
 void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const float value)
 {
-  m_cache.emplace(path, QJsonValue{static_cast<double>(value)});
+  m_cache[path] = QJsonValue{static_cast<double>(value)};
   triggerSaveChanges();
 }
 
 void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const int value)
 {
-  m_cache.emplace(path, QJsonValue{value});
+  m_cache[path] = QJsonValue{value};
   triggerSaveChanges();
 }
 
 void QPreferenceStoreDelegate::save(
   const std::filesystem::path& path, const std::string& value)
 {
-  m_cache.emplace(path, QJsonValue{QString::fromStdString(value)});
+  m_cache[path] = QJsonValue{QString::fromStdString(value)};
   triggerSaveChanges();
 }
 
 void QPreferenceStoreDelegate::save(
   const std::filesystem::path& path, const std::filesystem::path& value)
 {
-  m_cache.emplace(path, QJsonValue{pathAsQString(value)});
+  m_cache[path] = QJsonValue{pathAsQString(value)};
   triggerSaveChanges();
 }
 
@@ -267,7 +267,7 @@ void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const Col
 void QPreferenceStoreDelegate::save(
   const std::filesystem::path& path, const QKeySequence& value)
 {
-  m_cache.emplace(path, QJsonValue{value.toString(QKeySequence::PortableText)});
+  m_cache[path] = QJsonValue{value.toString(QKeySequence::PortableText)};
   triggerSaveChanges();
 }
 

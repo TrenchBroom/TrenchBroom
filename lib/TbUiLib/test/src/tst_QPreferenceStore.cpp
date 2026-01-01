@@ -34,6 +34,7 @@
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::ui
 {
@@ -64,6 +65,48 @@ TEST_CASE("QPreferenceStore")
 
   const auto preferenceFilename = "prefs.json";
   const auto preferenceFilePath = env.dir() / preferenceFilename;
+
+  SECTION("loading and saving preferences")
+  {
+    env.createFile(preferenceFilename, R"({
+  "some/path": "asdf"
+}
+)");
+
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
+
+    SECTION("loading a transient preference returns false")
+    {
+      auto value = std::string{};
+      CHECK(!preferenceStore.load("some/other/path", value));
+      CHECK(value == "");
+    }
+
+    SECTION("loading a persistent preference returns the persistent value")
+    {
+      auto value = std::string{};
+      CHECK(preferenceStore.load("some/path", value));
+      CHECK(value == "asdf");
+    }
+
+    SECTION("saving a preference updates its value")
+    {
+      const auto path = GENERATE("some/path", "some/other/path");
+
+      preferenceStore.save(path, "fdsa"s);
+
+      auto value = std::string{};
+      CHECK(preferenceStore.load(path, value));
+      CHECK(value == "fdsa");
+
+      SECTION("saving the preference again updates its value")
+      {
+        preferenceStore.save(path, "qwer"s);
+        CHECK(preferenceStore.load(path, value));
+        CHECK(value == "qwer");
+      }
+    }
+  }
 
   SECTION("missing preference file")
   {
@@ -134,7 +177,7 @@ TEST_CASE("QPreferenceStore")
       startTime + 1000ms, [&]() { return env.fileExists(preferenceFilename); }));
 
     CHECK(env.loadFile(preferenceFilename) == R"({
-    "some/path": "asdf"
+    "some/path": "fdsa"
 }
 )");
   }
