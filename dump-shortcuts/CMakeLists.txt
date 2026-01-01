@@ -8,7 +8,7 @@ set(DUMP_SHORTCUTS_SOURCE ${DUMP_SHORTCUTS_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MA
 
 add_executable(dump-shortcuts ${DUMP_SHORTCUTS_SOURCE})
 target_include_directories(dump-shortcuts PRIVATE ${DUMP_SHORTCUTS_SOURCE_DIR})
-target_link_libraries(dump-shortcuts PRIVATE common fmt::fmt-header-only)
+target_link_libraries(dump-shortcuts PRIVATE KdLib TbBaseLib TbMdlLib TbPreferencesLib TbUiLib Qt6::Widgets)
 set_target_properties(dump-shortcuts PROPERTIES AUTOMOC TRUE)
 
 target_link_libraries(dump-shortcuts PRIVATE CompilerConfig)

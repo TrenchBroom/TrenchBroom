@@ -1,0 +1,223 @@
+/*
+ Copyright (C) 2010 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ui/SmartPropertyEditorManager.h"
+
+#include <QStackedLayout>
+#include <QWidget>
+
+#include "mdl/EntityNodeBase.h"
+#include "mdl/GameConfig.h"
+#include "mdl/GameInfo.h"
+#include "mdl/Map.h"
+#include "mdl/PropertyDefinition.h"
+#include "ui/MapDocument.h"
+#include "ui/SmartChoiceEditor.h"
+#include "ui/SmartColorEditor.h"
+#include "ui/SmartDefaultPropertyEditor.h"
+#include "ui/SmartFlagsEditor.h"
+#include "ui/SmartPropertyEditor.h"
+#include "ui/SmartWadEditor.h"
+
+#include "kd/contracts.h"
+#include "kd/functional.h"
+#include "kd/string_compare.h"
+
+namespace tb::ui
+{
+namespace
+{
+
+/**
+ * Matches if all of the nodes have a property definition for the give property key that
+ * is of the type passed as a type parameter.
+ */
+template <typename Type>
+SmartPropertyEditorMatcher makeSmartTypeEditorMatcher()
+{
+  return [](const auto& propertyKey, const auto& nodes) {
+    return !nodes.empty() && std::ranges::all_of(nodes, [&](const auto* node) {
+      const auto* propDef = mdl::propertyDefinition(node, propertyKey);
+      return propDef && std::holds_alternative<Type>(propDef->valueType);
+    });
+  };
+}
+
+/**
+ * Matches if all of the nodes have a property definition for the give property key that
+ * is of the type passed as a type parameter, and these property definitions are all
+ * equal.
+ */
+template <typename Type>
+SmartPropertyEditorMatcher makeSmartTypeWithSameDefinitionEditorMatcher()
+{
+  return [](const auto& propertyKey, const auto& nodes) {
+    const auto* propDef = mdl::selectPropertyDefinition(propertyKey, nodes);
+    return propDef && std::holds_alternative<Type>(propDef->valueType);
+  };
+}
+
+SmartPropertyEditorMatcher makeSmartPropertyEditorKeyMatcher(
+  std::vector<std::string> patterns_)
+{
+  return [patterns = std::move(patterns_)](const auto& propertyKey, const auto& nodes) {
+    return !nodes.empty() && std::ranges::any_of(patterns, [&](const auto& pattern) {
+      return kdl::cs::str_matches_glob(propertyKey, pattern);
+    });
+  };
+}
+
+} // namespace
+
+SmartPropertyEditorManager::SmartPropertyEditorManager(
+  MapDocument& document, QWidget* parent)
+  : QWidget{parent}
+  , m_document{document}
+  , m_stackedLayout{new QStackedLayout{this}}
+{
+  setLayout(m_stackedLayout);
+
+  createEditors();
+  activateEditor(defaultEditor(), "");
+  connectObservers();
+}
+
+void SmartPropertyEditorManager::switchEditor(
+  const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes)
+{
+  auto* editor = selectEditor(propertyKey, nodes);
+  activateEditor(editor, propertyKey);
+  updateEditor();
+}
+
+SmartPropertyEditor* SmartPropertyEditorManager::activeEditor() const
+{
+  return static_cast<SmartPropertyEditor*>(m_stackedLayout->currentWidget());
+}
+
+bool SmartPropertyEditorManager::isDefaultEditorActive() const
+{
+  return activeEditor() == defaultEditor();
+}
+
+void SmartPropertyEditorManager::createEditors()
+{
+  contract_pre(m_editors.empty());
+
+  registerEditor(
+    makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Flags>(),
+    new SmartFlagsEditor{m_document, this});
+  registerEditor(
+    makeSmartTypeWithSameDefinitionEditorMatcher<mdl::PropertyValueTypes::Choice>(),
+    new SmartChoiceEditor{m_document, this});
+  registerEditor(
+    [&](const auto& propertyKey, const auto& nodes) {
+      return nodes.size() == 1
+             && nodes.front()->entity().classname()
+                  == mdl::EntityPropertyValues::WorldspawnClassname
+             && propertyKey
+                  == m_document.map().gameInfo().gameConfig.materialConfig.property;
+    },
+    new SmartWadEditor{m_document, this});
+  registerEditor(
+    kdl::logical_or(
+      makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
+      makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<RgbF>>(),
+      makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<RgbB>>(),
+      makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Color<Rgb>>()),
+    new SmartColorEditor{m_document, this});
+  registerEditor(
+    [](const auto&, const auto&) { return true; },
+    new SmartDefaultPropertyEditor{m_document, this});
+}
+
+void SmartPropertyEditorManager::registerEditor(
+  SmartPropertyEditorMatcher matcher, SmartPropertyEditor* editor)
+{
+  m_editors.emplace_back(std::move(matcher), editor);
+  m_stackedLayout->addWidget(editor);
+}
+
+void SmartPropertyEditorManager::connectObservers()
+{
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    this, &SmartPropertyEditorManager::documentDidChange);
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
+    this, &SmartPropertyEditorManager::documentDidChange);
+}
+
+void SmartPropertyEditorManager::documentDidChange()
+{
+  switchEditor(m_propertyKey, m_document.map().selection().allEntities());
+}
+
+SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(
+  const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes) const
+{
+  for (const auto& [matcher, editor] : m_editors)
+  {
+    if (matcher(propertyKey, nodes))
+    {
+      return editor;
+    }
+  }
+
+  // should never happen
+  return defaultEditor();
+}
+
+SmartPropertyEditor* SmartPropertyEditorManager::defaultEditor() const
+{
+  return std::get<1>(m_editors.back());
+}
+
+void SmartPropertyEditorManager::activateEditor(
+  SmartPropertyEditor* editor, const std::string& propertyKey)
+{
+  if (
+    m_stackedLayout->currentWidget() != editor
+    || !activeEditor()->usesPropertyKey(propertyKey))
+  {
+    deactivateEditor();
+
+    m_propertyKey = propertyKey;
+    m_stackedLayout->setCurrentWidget(editor);
+    editor->activate(m_propertyKey);
+  }
+}
+
+void SmartPropertyEditorManager::deactivateEditor()
+{
+  if (activeEditor())
+  {
+    activeEditor()->deactivate();
+    m_stackedLayout->setCurrentIndex(-1);
+    m_propertyKey = "";
+  }
+}
+
+void SmartPropertyEditorManager::updateEditor()
+{
+  if (activeEditor())
+  {
+    activeEditor()->update(m_document.map().selection().allEntities());
+  }
+}
+
+} // namespace tb::ui
