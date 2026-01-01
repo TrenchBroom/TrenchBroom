@@ -114,17 +114,17 @@ if [[ $TB_ENABLE_ASAN == "0" && $TB_ENABLE_UBSAN == "0" ]] ; then
   echo waiting...; while pgrep XProtect; do sleep 3; done;
 
   cpack || exit 1
-  ./app/sign_macos_archive.sh || exit 1
-  ./app/generate_checksum.sh || exit 1
+  ./app/TrenchBroom/sign_macos_archive.sh || exit 1
+  ./app/TrenchBroom/generate_checksum.sh || exit 1
 
   echo "Deployment target (minos):"
-  otool -l ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom | grep minos
+  otool -l ./app/TrenchBroom/TrenchBroom.app/Contents/MacOS/TrenchBroom | grep minos
 
   echo "Shared libraries used:"
-  otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
+  otool -L ./app/TrenchBroom/TrenchBroom.app/Contents/MacOS/TrenchBroom
 
   echo "Binary type:"
-  file ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
+  file ./app/TrenchBroom/TrenchBroom.app/Contents/MacOS/TrenchBroom
 else
     echo "Skipping packaging because this is an ASAN build"
 fi

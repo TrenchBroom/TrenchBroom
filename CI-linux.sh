@@ -77,7 +77,7 @@ cd "$BUILD_DIR/lib/VmLib/test"
 
 cd "$BUILD_DIR"
 
-ldd --verbose ./app/trenchbroom
+ldd --verbose ./app/TrenchBroom/trenchbroom
 
 cpack || exit 1
-./app/generate_checksum.sh
+./app/TrenchBroom/generate_checksum.sh
