@@ -52,7 +52,7 @@ public:
 
 private:
   void initialize();
-  Preference<Color>* getColorPreference(int index) const;
+  const Preference<Color>& getColorPreference(int index) const;
   bool checkIndex(const QModelIndex& index) const;
 };
 
