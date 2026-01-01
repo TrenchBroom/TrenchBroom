@@ -100,11 +100,11 @@ cd "$BUILD_DIR/lib/TbMdlLib/test-utils/test"
 cd "$BUILD_DIR/lib/TbRenderLib/test"
 ./TbRenderLibTest || exit 1
 
+cd "$BUILD_DIR/lib/TbUiLib/test"
+./TbUiLibTest || exit 1
+
 cd "$BUILD_DIR/lib/VmLib/test"
 ./VmLibTest || exit 1
-
-cd "$BUILD_DIR/common/test"
-./common-test || exit 1
 
 if [[ $TB_ENABLE_ASAN == "0" && $TB_ENABLE_UBSAN == "0" ]] ; then
   cd "$BUILD_DIR"

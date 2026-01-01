@@ -1,0 +1,102 @@
+/*
+ Copyright (C) 2010 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ui/CompilationVariables.h"
+
+#include "PreferenceManager.h"
+#include "mdl/GameInfo.h" // IWYU pragma: keep
+#include "mdl/GameInfo.h"
+#include "mdl/Map.h"
+#include "mdl/Map_World.h"
+#include "ui/SystemPaths.h"
+
+#include "kd/path_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/vector_utils.h"
+
+#include <ranges>
+#include <string>
+#include <thread>
+
+namespace tb::ui
+{
+
+CommonVariables::CommonVariables(const mdl::Map& map)
+{
+  const auto filename = map.path().filename();
+  const auto gamePath = pref(map.gameInfo().gamePathPreference);
+
+  auto mods = std::vector<std::string>{};
+  mods.push_back(defaultMod(map));
+  mods = kdl::vec_concat(std::move(mods), enabledMods(map));
+
+  using namespace CompilationVariableNames;
+  set(MAP_BASE_NAME, el::Value{kdl::path_remove_extension(filename).string()});
+  set(GAME_DIR_PATH, el::Value{gamePath.string()});
+  set(
+    MODS,
+    el::Value{
+      mods | std::views::transform([](const auto& mod) { return el::Value{mod}; })
+      | kdl::ranges::to<std::vector>()});
+
+  for (const auto& tool : map.gameInfo().gameConfig.compilationTools)
+  {
+    const auto toolPath = pref(tool.pathPreference);
+
+    // e.g. variable name might be "qbsp", and the value is the path to the user's local
+    // qbsp executable
+    set(tool.name, el::Value{toolPath.string()});
+  }
+}
+
+CommonCompilationVariables::CommonCompilationVariables(const mdl::Map& map)
+  : CommonVariables{map}
+{
+  const auto filename = map.path().filename();
+  const auto filePath = map.path().parent_path();
+  const auto appPath = SystemPaths::appDirectory();
+
+  using namespace CompilationVariableNames;
+  set(MAP_FULL_NAME, el::Value{filename.string()});
+  set(MAP_DIR_PATH, el::Value{filePath.string()});
+  set(APP_DIR_PATH, el::Value{appPath.string()});
+}
+
+CompilationWorkDirVariables::CompilationWorkDirVariables(const mdl::Map& map)
+  : CommonCompilationVariables{map}
+{
+}
+
+CompilationVariables::CompilationVariables(
+  const mdl::Map& map, const std::string& workDir)
+  : CommonCompilationVariables{map}
+{
+  const auto cpuCount = size_t(std::max(std::thread::hardware_concurrency(), 1u));
+
+  using namespace CompilationVariableNames;
+  set(CPU_COUNT, el::Value{cpuCount});
+  set(WORK_DIR_PATH, el::Value{workDir});
+}
+
+LaunchGameEngineVariables::LaunchGameEngineVariables(const mdl::Map& map)
+  : CommonVariables{map}
+{
+}
+
+} // namespace tb::ui

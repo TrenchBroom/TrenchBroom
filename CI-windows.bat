@@ -78,13 +78,13 @@ TbRenderLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
-cd lib\VmLib\test
-VmLibTest.exe
+cd lib\TbUiLib\test
+TbUiLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
-cd common\test
-common-test.exe
+cd lib\VmLib\test
+VmLibTest.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 

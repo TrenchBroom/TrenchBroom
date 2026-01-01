@@ -69,11 +69,11 @@ cd "$BUILD_DIR/lib/TbMdlLib/test-utils/test"
 cd "$BUILD_DIR/lib/TbRenderLib/test"
 ./TbRenderLibTest || exit 1
 
+cd "$BUILD_DIR/lib/TbUiLib/test"
+xvfb-run -a ./TbUiLibTest || exit 1
+
 cd "$BUILD_DIR/lib/VmLib/test"
 ./VmLibTest || exit 1
-
-cd "$BUILD_DIR/common/test"
-xvfb-run -a ./common-test || exit 1
 
 cd "$BUILD_DIR"
 

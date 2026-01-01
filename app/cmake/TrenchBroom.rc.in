@@ -1,4 +1,4 @@
-#include "@CMAKE_BINARY_DIR@/common/Version.h"
+#include "@CMAKE_BINARY_DIR@/lib/TbUiLib/ui/Version.h"
 
 AAAAAAAA                ICON                    "@APP_RESOURCE_DIR@/win32/icons/AppIcon.ico"
 APPICON                 ICON                    "@APP_RESOURCE_DIR@/win32/icons/DocIcon.ico"
