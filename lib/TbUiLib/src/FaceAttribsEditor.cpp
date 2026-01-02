@@ -22,7 +22,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QToolButton>
-#include <QScrollArea>
 #include <QVBoxLayout>
 #include <QtGlobal>
 
@@ -1131,7 +1130,7 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
   faceAttribsLayout->addWidget(m_sinExtFlagsEditorLayout, r, c++, 1, 3);
   ++r;
   c = 0;
-
+  
 
   faceAttribsLayout->setColumnStretch(1, 1);
   faceAttribsLayout->setColumnStretch(3, 1);
@@ -1141,18 +1140,7 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
   outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
   outerLayout->addWidget(m_uvEditor, 1);
   outerLayout->addWidget(new BorderLine{});
-
-  // SiN
-  // wrapper widget to hold the face attribs grid
-  auto* faceAttribsWidget = new QWidget();
-  faceAttribsWidget->setLayout(faceAttribsLayout);
-
-  auto* faceAttribsScroller = new QScrollArea();
-  faceAttribsScroller->setWidget(faceAttribsWidget);
-  faceAttribsScroller->setWidgetResizable(true);
-  faceAttribsScroller->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-
-  outerLayout->addWidget(faceAttribsScroller);
+  outerLayout->addLayout(faceAttribsLayout);
 
   setLayout(outerLayout);
 }
