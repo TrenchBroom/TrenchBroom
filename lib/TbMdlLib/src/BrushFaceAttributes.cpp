@@ -453,4 +453,140 @@ bool BrushFaceAttributes::setSiNDirectAngle(const std::optional<float>& value)
   return false;
 }
 
+// SiN extended
+bool BrushFaceAttributes::hasSiNExtDirectScale() const
+{
+  return m_ext_directscale.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinExtDirectScale() const
+{
+  return m_ext_directscale;
+}
+
+bool BrushFaceAttributes::hasSiNExtPatchScale() const
+{
+  return m_ext_patchscale.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinExtPatchScale() const
+{
+  return m_ext_patchscale;
+}
+
+bool BrushFaceAttributes::hasSiNExtMinLight() const
+{
+  return m_ext_minlight.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinExtMinLight() const
+{
+  return m_ext_minlight;
+}
+
+bool BrushFaceAttributes::hasSiNExtMaxLight() const
+{
+  return m_ext_maxlight.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinExtMaxLight() const
+{
+  return m_ext_maxlight;
+}
+
+bool BrushFaceAttributes::hasSiNExtLuxelScale() const
+{
+  return m_ext_luxel_scale.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinExtLuxelScale() const
+{
+  return m_ext_luxel_scale;
+}
+
+bool BrushFaceAttributes::hasSiNExtMottle() const
+{
+  return m_ext_mottle.has_value();
+}
+
+const std::optional<float>& BrushFaceAttributes::sinExtMottle() const
+{
+  return m_ext_mottle;
+}
+
+bool BrushFaceAttributes::setSiNExtDirectScale(const std::optional<float>& value)
+{
+  if (value != m_ext_directscale)
+  {
+    m_ext_directscale = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNExtPatchScale(const std::optional<float>& value)
+{
+  if (value != m_ext_patchscale)
+  {
+    m_ext_patchscale = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNExtMinLight(const std::optional<float>& value)
+{
+  if (value != m_ext_minlight)
+  {
+    m_ext_minlight = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNExtMaxLight(const std::optional<float>& value)
+{
+  if (value != m_ext_maxlight)
+  {
+    m_ext_maxlight = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNExtLuxelScale(const std::optional<float>& value)
+{
+  if (value != m_ext_luxel_scale)
+  {
+    m_ext_luxel_scale = value;
+    return true;
+  }
+  return false;
+}
+
+bool BrushFaceAttributes::setSiNExtMottle(const std::optional<float>& value)
+{
+  if (value != m_ext_mottle)
+  {
+    m_ext_mottle = value;
+    return true;
+  }
+  return false;
+}
+
+const std::optional<int>& BrushFaceAttributes::extendedFlags() const
+{
+  return m_ext_flags;
+}
+
+bool BrushFaceAttributes::setExtendedFlags(const std::optional<int>& extendedFlags)
+{
+  if (extendedFlags != m_ext_flags)
+  {
+    m_ext_flags = extendedFlags;
+    return true;
+  }
+  return false;
+}
+
 } // namespace tb::mdl

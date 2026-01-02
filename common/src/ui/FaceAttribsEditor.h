@@ -122,6 +122,42 @@ private:
   SpinControl* m_surfaceSiNDirectAngleEditor = nullptr;
   QAbstractButton* m_surfaceSiNDirectAngleUnsetButton = nullptr;
 
+  // SiN Extended
+  QLabel* m_surfaceSiNExtDirectScaleLabel = nullptr;
+  QWidget* m_surfaceSiNExtDirectScaleEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNExtDirectScaleEditor = nullptr;
+  QAbstractButton* m_surfaceSiNExtDirectScaleUnsetButton = nullptr;
+
+  QLabel* m_surfaceSiNExtPatchScaleLabel = nullptr;
+  QWidget* m_surfaceSiNExtPatchScaleEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNExtPatchScaleEditor = nullptr;
+  QAbstractButton* m_surfaceSiNExtPatchScaleUnsetButton = nullptr;
+
+  QLabel* m_surfaceSiNExtMinLightLabel = nullptr;
+  QWidget* m_surfaceSiNExtMinLightEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNExtMinLightEditor = nullptr;
+  QAbstractButton* m_surfaceSiNExtMinLightUnsetButton = nullptr;
+
+  QLabel* m_surfaceSiNExtMaxLightLabel = nullptr;
+  QWidget* m_surfaceSiNExtMaxLightEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNExtMaxLightEditor = nullptr;
+  QAbstractButton* m_surfaceSiNExtMaxLightUnsetButton = nullptr;
+
+  QLabel* m_surfaceSiNExtLuxelScaleLabel = nullptr;
+  QWidget* m_surfaceSiNExtLuxelScaleEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNExtLuxelScaleEditor = nullptr;
+  QAbstractButton* m_surfaceSiNExtLuxelScaleUnsetButton = nullptr;
+
+  QLabel* m_surfaceSiNExtMottleLabel = nullptr;
+  QWidget* m_surfaceSiNExtMottleEditorLayout = nullptr;
+  SpinControl* m_surfaceSiNExtMottleEditor = nullptr;
+  QAbstractButton* m_surfaceSiNExtMottleUnsetButton = nullptr;
+
+  QLabel* m_sinExtFlagsLabel = nullptr;
+  QWidget* m_sinExtFlagsEditorLayout = nullptr;
+  FlagsPopupEditor* m_sinExtFlagsEditor = nullptr;
+  QAbstractButton* m_sinExtFlagsUnsetButton = nullptr;
+
 
   QLabel* m_colorLabel = nullptr;
   QWidget* m_colorEditorLayout = nullptr;
@@ -176,6 +212,23 @@ private:
   void sinDirectAngleChanged(double value);
   void sinDirectAngleUnset();
 
+  // SiN extended
+  void sinExtDirectScaleChanged(double value);
+  void sinExtDirectScaleUnset();
+  void sinExtPatchScaleChanged(double value);
+  void sinExtPatchScaleUnset();
+  void sinExtMinLightChanged(double value);
+  void sinExtMinLightUnset();
+  void sinExtMaxLightChanged(double value);
+  void sinExtMaxLightUnset();
+  void sinExtLuxelScaleChanged(double value);
+  void sinExtLuxelScaleUnset();
+  void sinExtMottleChanged(double value);
+  void sinExtMottleUnset();
+
+  void sinExtFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
+  void sinExtFlagsUnset();
+
   void updateIncrements();
 
 private:
@@ -200,13 +253,14 @@ private:
   void showColorAttribEditor();
   void hideColorAttribEditor();
 
+  std::tuple<QList<int>, QStringList, QStringList> getSurfaceFlags() const;
+  std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
+
   // SiN stuff
   bool hasSiNAttributes() const;
   void showSiNAttribEditor();
   void hideSiNAttribEditor();
-
-  std::tuple<QList<int>, QStringList, QStringList> getSurfaceFlags() const;
-  std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
+  std::tuple<QList<int>, QStringList, QStringList> getExtendedFlags() const;
 };
 
 } // namespace ui

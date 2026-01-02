@@ -317,6 +317,26 @@ namespace SiNWriter
       writeSiNKeyValue(stream, "lightvalue", attribs.surfaceValue());
       writeSiNKeyValue(stream, "nonlitvalue", attribs.sinNonlitValue(), BrushFaceAttributes::SiNDefaultNonLitValue);
       writeSiNKeyValue(stream, "directstyle", attribs.sinDirectStyle());
+
+      // extended flags super last
+      if (attribs.extendedFlags().has_value()) {
+          for (auto &extflag : config.faceAttribsConfig.extendedFlags.flags) {
+              if (extflag.value & attribs.extendedFlags().value()) {
+                  fmt::format_to(
+                    std::ostreambuf_iterator<char>{stream},
+                    " +{}",
+                    extflag.name);
+              }
+          }
+      }
+
+      // extended attributes super duper last
+      writeSiNKeyValue(stream, "ext_directscale", attribs.sinExtDirectScale(), BrushFaceAttributes::SiNDefaultExtDirectScale);
+      writeSiNKeyValue(stream, "ext_patchscale", attribs.sinExtPatchScale(), BrushFaceAttributes::SiNDefaultExtPatchScale);
+      writeSiNKeyValue(stream, "ext_minlight", attribs.sinExtMinLight());
+      writeSiNKeyValue(stream, "ext_maxlight", attribs.sinExtMaxLight(), BrushFaceAttributes::SiNDefaultExtMaxLight);
+      writeSiNKeyValue(stream, "ext_luxel_scale", attribs.sinExtLuxelScale(), BrushFaceAttributes::SiNDefaultExtLuxelScale);
+      writeSiNKeyValue(stream, "ext_mottle", attribs.sinExtMottle(), BrushFaceAttributes::SiNDefaultExtMottle);
   }
 }
 

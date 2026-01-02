@@ -473,57 +473,6 @@ std::optional<Color> BrushFace::resolvedColor() const
   return m_attributes.color();
 }
 
-// SiN
-std::optional<float> BrushFace::resolvedSiNNonlitValue() const
-{
-  return m_attributes.sinNonlitValue();
-}
-
-std::optional<int> BrushFace::resolvedSiNTransAngle() const
-{
-  return m_attributes.sinTransAngle();
-}
-
-std::optional<float> BrushFace::resolvedSiNTransMag() const
-{
-  return m_attributes.sinTransMag();
-}
-
-std::optional<float> BrushFace::resolvedSiNTranslucence() const
-{
-  return m_attributes.sinTranslucence();
-}
-
-std::optional<float> BrushFace::resolvedSiNRestitution() const
-{
-  return m_attributes.sinRestitution();
-}
-
-std::optional<float> BrushFace::resolvedSiNFriction() const
-{
-  return m_attributes.sinFriction();
-}
-
-std::optional<float> BrushFace::resolvedSiNAnimTime() const
-{
-  return m_attributes.sinAnimTime();
-}
-
-std::optional<std::string> BrushFace::resolvedSiNDirectStyle() const
-{
-  return m_attributes.sinDirectStyle();
-}
-
-std::optional<float> BrushFace::resolvedSiNDirect() const
-{
-  return m_attributes.sinDirect();
-}
-
-std::optional<float> BrushFace::resolvedSiNDirectAngle() const
-{
-  return m_attributes.sinDirectAngle();
-}
-
 void BrushFace::resetUVCoordSystemCache()
 {
   if (m_uvCoordSystem)

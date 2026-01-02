@@ -725,7 +725,7 @@
 [
 ]
 
-@PointClass base(InventoryItem) = inventory_keyring : "Key Ring"
+@PointClass size(-4 -4 0, 4 4 4) base(InventoryItem) = inventory_keyring : "Key Ring"
 [
 ]
 
@@ -757,7 +757,7 @@
 [
 ]
 
-@PointClass base(InventoryItem) = inventory_blueprints : "Blueprints"
+@PointClass size(-8 -8 0, 8 8 8) base(InventoryItem) = inventory_blueprints : "Blueprints"
 [
 ]
 
@@ -1080,11 +1080,11 @@
 [
 ]
 
-@PointClass base(Actor) = monster_peon : "Enemy"
+@PointClass size(-40 -40 0, 40 40 104) base(Actor) = monster_peon : "Enemy"
 [
 ]
 
-@PointClass base(monster_peon) = boss_eonandpeon : "Enemy"
+@PointClass size(-40 -40 0, 40 40 104) base(monster_peon) = boss_eonandpeon : "Enemy"
 [
 ]
 
@@ -1096,7 +1096,7 @@
 [
 ]
 
-@PointClass base(Actor) = boss_thrallmaster : "Enemy"
+@PointClass size(-64 -64 0, 64 64 320) base(Actor) = boss_thrallmaster : "Enemy"
 [
 ]
 
@@ -1109,7 +1109,7 @@
 	health(float) : "health, if any"
 ]
 
-@PointClass base(Turret) = trap_camgun : "Camgun"
+@PointClass size(-12 -10 -10, 68 10 10) base(Turret) = trap_camgun : "Camgun"
 [
 	yawrange(float) : "Yaw range" : "180"
 	pitchrange(float) : "Pitch range" : "180"
@@ -1319,11 +1319,11 @@
 [
 ]
 
-@SolidClass base(VehicleBase) = script_wheelsback : "???"
+@SolidClass base(VehicleBase) = script_backwheels : "???"
 [
 ]
 
-@SolidClass base(VehicleBase) = script_wheelsfront : "???"
+@SolidClass base(VehicleBase) = script_frontwheels : "???"
 [
 ]
 
@@ -1334,6 +1334,14 @@
 @SolidClass base(script_vehicle) = script_drivablevehicle : "Drivable"
 [
 	respawntime(float) : "Respawn time in CTF" : "60"
+]
+
+@PointClass size(-40 -40 0, 40 40 64) base(VehicleBase) = ctf_fixedturret : "CTF Fixed Turret"
+[
+]
+
+@PointClass size(-24 -24 -64, 24 24 0) base(VehicleBase) = ctf_turret : "CTF Turret"
+[
 ]
 
 @PointClass base(Trigger) = func_earthquake : "Earthquake"
@@ -1431,36 +1439,28 @@
 ]
 
 // aliases from DEF files
-@PointClass base(Bullet10mm) = Ammo_10mm : "test" [ ]
-@PointClass base(Bullet10mm) = Ammo_Magnum : "test" [ ]
-@PointClass base(Bullet50mm) = Ammo_50mm : "test" [ ]
 @PointClass base(object) = world_acduct : "test" [ ]
 @PointClass base(object) = world_acvent : "test" [ ]
 @PointClass base(object) = items_alarm : "test" [ ]
 @PointClass base(object) = furniture_alter : "test" [ ]
 @PointClass base(object) = items_axepick : "test" [ ]
 @PointClass size(-46 -26 0, 46 26 96) base(script_drivablevehicle) = vehicles_atv : "test" [ ]
-@PointClass base(BackWheels) = vehicles_atv_backtire : "test" [ ]
-@PointClass base(FrontWheels) = vehicles_atv_fronttire : "test" [ ]
+@PointClass base(script_backwheels) = vehicles_atv_backtire : "test" [ ]
+@PointClass base(script_FrontWheels) = vehicles_atv_fronttire : "test" [ ]
 @PointClass base(object) = items_fireaxe : "test" [ ]
-@PointClass base(object) = items_axepick : "test" [ ]
-@PointClass size(-16 -16 0, 16 16 88) base(bacrodai) = Monster_Bachrodai : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 88) base(actor) = Monster_Bachrodai : "test" [ ]
 @PointClass base(object) = items_bag : "test" [ ]
-@PointClass base(object) = items_axepick : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 122) base(object) = plant_banktree : "test" [ ]
 @PointClass base(object) = furniture_barstool : "test" [ ]
 @PointClass size(-1 -4 0, 1 4 8) base(object) = items_battery : "test" [ ]
 @PointClass base(object) = furniture_bchair : "test" [ ]
 @PointClass base(object) = deskitems_beaker : "test" [ ]
 @PointClass base(object) = deskitems_beakerZied : "test" [ ]
-@PointClass base(object) = deskitems_beakerZied : "test" [ ]
 @PointClass size(-18 -18 -8, 18 18 8) base(actor) = Monster_Beecadrone : "test" [ ]
 @PointClass base(object) = deskitems_beercan : "test" [ ]
 @PointClass base(object) = items_bellalarm : "test" [ ]
 @PointClass base(object) = items_belt : "test" [ ]
-@PointClass base(Hoverbike) = vehicles_hoverbike : "test" [ ]
 @PointClass base(object) = world_blockade : "test" [ ]
-@PointClass size(-8 -8 0, 8 8 8) base(item) = inventory_blueprints : "test" [ ]
 @PointClass base(object) = deskitems_blueprints : "test" [ ]
 @PointClass base(object) = deskitems_book_closed : "test" [ ]
 @PointClass base(object) = deskitems_book_closed2 : "test" [ ]
@@ -1468,8 +1468,6 @@
 @PointClass base(object) = deskitems_book_closed4 : "test" [ ]
 @PointClass base(object) = deskitems_book_closed5 : "test" [ ]
 @PointClass base(object) = deskitems_book_open : "test" [ ]
-@PointClass base(object) = deskitems_book_open : "test" [ ]
-@PointClass size(-40 -40 0, 40 40 104) base(EonAndPeon) = Boss_EonAndPeon : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Cinematic_Bouncer : "test" [ ]
 @PointClass base(object) = world_boxfan : "test" [ ]
 @PointClass base(object) = items_briefcase : "test" [ ]
@@ -1477,8 +1475,8 @@
 @PointClass size(-24 -24 0, 24 24 20) base(actor) = Monster_Bug : "test" [ ]
 @PointClass base(object) = items_bulb_on : "test" [ ]
 @PointClass base(object) = items_bulb_off : "test" [ ]
-@PointClass size(-4 -4 0, 4 4 8) base(actor) = items_bulb_on : "test" [ ]
-@PointClass size(-4 -4 0, 4 4 8) base(actor) = items_bulb_off : "test" [ ]
+@PointClass size(-4 -4 0, 4 4 8) base(actor) = items_bulb_toggle_on : "test" [ ]
+@PointClass size(-4 -4 0, 4 4 8) base(actor) = items_bulb_toggle_off : "test" [ ]
 @PointClass base(script_drivablevehicle) = vehicles_bulldozer : "test" [ ]
 @PointClass size(-80 -80 0, 80 80 144) base(script_drivablevehicle) = vehicles_bulldozerZied : "test" [ ]
 @PointClass base(object) = world_bullhorn : "test" [ ]
@@ -1493,8 +1491,6 @@
 @PointClass base(object) = deskitems_calendar1 : "test" [ ]
 @PointClass base(object) = deskitems_calendar2 : "test" [ ]
 @PointClass base(object) = deskitems_calendar3 : "test" [ ]
-@PointClass base(object) = func_securitycamera : "test" [ ]
-@PointClass size(-12 -10 -10, 68 10 10) base(actor) = trap_camgun : "test" [ ]
 @PointClass base(object) = world_barrel : "test" [ ]
 @PointClass base(object) = vehicles_car : "test" [ ]
 @PointClass base(object) = deskitems_playingcards : "test" [ ]
@@ -1512,7 +1508,7 @@
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_ChemFemale : "test" [ ]
 @PointClass size(-8 -8 0, 8 8 64) base(item) = Inventory_ChemBioSuit : "test" [ ]
 @PointClass size(-19 -19 0, 19 19 50) base(actor) = Monster_ChurchCutscene_Grogg : "test" [ ]
-@PointClass size(-22 -22 0, 22 22 70) base(mortician) = Monster_ChurchCutscene_Mortician : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 70) base(monster_mortician) = Monster_ChurchCutscene_Mortician : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 75) base(actor) = Monster_ChurchCutscene_Slim : "test" [ ]
 @PointClass size(-22 -22 0, 22 22 85) base(Actor) = Monster_ChurchCutscene_Splitter : "test" [ ]
 @PointClass size(-24 -24 0, 24 24 72) base(actor) = Monster_ChurchCutscene_Vultorn : "test" [ ]
@@ -1527,10 +1523,10 @@
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Cinematic_ManeroThug : "test" [ ]
 @PointClass size(-24 -24 0, 24 24 80) base(actor) = cinematic_thug : "test" [ ]
 @PointClass size(-12 -12 0, 12 12 138) base(object) = plant_citytree : "test" [ ]
-@PointClass size(-12 -12 0, 12 12 138) base(object) = plant_citytree : "test" [ ]
+@PointClass size(-12 -12 0, 12 12 138) base(object) = plant_citytreebig : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FemaleCivilian : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_PenthousePet1 : "test" [ ]
-@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_PenthousePet1 : "test" [ ]
+@PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_PenthousePet2 : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Showergirl : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_Showgirl : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_PenthousePets : "test" [ ]
@@ -1539,9 +1535,6 @@
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_MaleCivilian : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_DealerBartender : "test" [ ]
 @PointClass size(-4 -4 0, 4 4 8) base(object) = deskitems_clamp : "test" [ ]
-@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Blade : "test" [ ]
-@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Elexis : "test" [ ]
-@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_JC : "test" [ ]
 @PointClass base(powerups_cloak) = Powerup_Cloaking : "test" [ ]
 @PointClass base(object) = 2015_clothes_pile : "test" [ ]
 @PointClass base(object) = furniture_coatrack : "test" [ ]
@@ -1578,12 +1571,9 @@
 @PointClass base(object) = deskitems_cpu_monitoruseable : "test" [ ]
 @PointClass base(object) = vehicles_crane : "test" [ ]
 @PointClass size(-4 -4 0, 4 4 4) base(object) = items_crosshair : "test" [ ]
-@PointClass size(-40 -40 0, 40 40 64) base(CTFDrivableTurret) = ctf_fixedturret : "test" [ ]
-@PointClass base(CTFTurret) = ctf_turret : "test" [ ]
 @PointClass base(object) = 2015_cup : "test" [ ]
 @PointClass base(object) = deskitems_cupandpens : "test" [ ]
 @PointClass size(-14 -14 0, 14 14 82) base(actor) = Monster_ConstrucWorker : "test" [ ]
-@PointClass base(object) = items_axepick : "test" [ ]
 @PointClass size(-40 -40 0, 40 40 104) base(actor) = Monster_DarkCaptain : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_DeadGuy : "test" [ ]
 @PointClass base(object) = deskitems_lamp : "test" [ ]
@@ -1593,7 +1583,6 @@
 @PointClass size(-8 -8 0, 8 8 48) base(actor) = Monster_Eon : "test" [ ]
 @PointClass base(object) = items_statue_elexis : "test" [ ]
 @PointClass size(-32 -32 0, 32 32 80) base(actor) = Monster_EvilBlade : "test" [ ]
-@PointClass base(object) = items_axepick : "test" [ ]
 @PointClass base(object) = 2015_factory_broom : "test" [ ]
 @PointClass base(object) = 2015_factory_oilcan : "test" [ ]
 @PointClass base(object) = 2015_factory_oil_drum : "test" [ ]
@@ -1613,7 +1602,6 @@
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_WaterDress : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Innocent_FDancer_ZisaBastard : "test" [ ]
 @PointClass base(object) = gib_feather : "test" [ ]
-@PointClass base(object) = world_firebarrel : "test" [ ]
 @PointClass base(object) = fx_firegen : "test" [ ]
 @PointClass base(object) = world_firelog : "test" [ ]
 @PointClass base(object) = world_FireExtinguisher : "test" [ ]
@@ -1681,7 +1669,7 @@
 @PointClass base(object) = items_hanglite3 : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Hank : "test" [ ]
 @PointClass base(object) = items_hardhat : "test" [ ]
-@PointClass base(vehicle) = vehicles_HCBoat : "test" [ ]
+@PointClass base(VehicleBase) = vehicles_HCBoat : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer1_AssaultRifle : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer1_Cinematic : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_HCOfficer1_Magnum : "test" [ ]
@@ -1704,34 +1692,30 @@
 @PointClass base(Health) = Health_Soda : "test" [ ]
 @PointClass base(Health) = Health_U4 : "test" [ ]
 @PointClass size(-113 -60 0, 113 60 96) base(script_drivablevehicle) = vehicles_humv : "test" [ ]
-@PointClass base(BackWheels) = vehicles_humv_backtire : "test" [ ]
-@PointClass base(BackWheels) = vehicles_humv_backtire2 : "test" [ ]
-@PointClass base(FrontWheels) = vehicles_humv_fronttire : "test" [ ]
-@PointClass base(FrontWheels) = vehicles_humv_fronttire2 : "test" [ ]
-@PointClass base(FrontWheels) = vehicles_humv_fronttire3 : "test" [ ]
+@PointClass base(script_backwheels) = vehicles_humv_backtire : "test" [ ]
+@PointClass base(script_backwheels) = vehicles_humv_backtire2 : "test" [ ]
+@PointClass base(script_FrontWheels) = vehicles_humv_fronttire : "test" [ ]
+@PointClass base(script_FrontWheels) = vehicles_humv_fronttire2 : "test" [ ]
+@PointClass base(script_FrontWheels) = vehicles_humv_fronttire3 : "test" [ ]
 @PointClass base(object) = vehicles_humvlowpoly : "test" [ ]
 @PointClass size(-113 -60 0, 113 60 96) base(script_drivablevehicle) = vehicles_humv_sintek : "test" [ ]
 @PointClass size(-113 -60 0, 113 60 96) base(script_drivablevehicle) = vehicles_humv_tan : "test" [ ]
 @PointClass base(object) = vehicles_humv_tire : "test" [ ]
-@PointClass base(ChainGun) = weapon_highvelocitygun : "test" [ ]
 @PointClass base(object) = world_hydrant : "test" [ ]
 @PointClass base(object) = deskitems_icecream : "test" [ ]
 @PointClass base(object) = 2015_jacket : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Jessica : "test" [ ]
-@PointClass base(object) = items_axepick : "test" [ ]
-@PointClass size(-4 -4 0, 4 4 4) base(KeyRing) = inventory_keyring : "test" [ ]
 @PointClass size(-20 -24 0, 20 24 72) base(actor) = Neutral_LabWorker : "test" [ ]
 @PointClass base(object) = deskitems_tablelamp : "test" [ ]
-@PointClass base(vehicle) = vehicles_lamprey : "test" [ ]
-@PointClass base(vehicle) = vehicles_lamprey_manero : "test" [ ]
+@PointClass base(VehicleBase) = vehicles_lamprey : "test" [ ]
+@PointClass base(VehicleBase) = vehicles_lamprey_manero : "test" [ ]
 @PointClass base(object) = vehicles_lamprey_rotors : "test" [ ]
-@PointClass base(vehicle) = vehicles_lamprey_sintek : "test" [ ]
+@PointClass base(VehicleBase) = vehicles_lamprey_sintek : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Lansing : "test" [ ]
 @PointClass base(object) = trap_oldlauncher : "test" [ ]
 @PointClass size(-36 -36 0, 36 36 80) base(actor) = trap_missilelauncher_top : "test" [ ]
 @PointClass base(object) = gib_lava_bubble : "test" [ ]
 @PointClass base(object) = gib_lava_rock1 : "test" [ ]
-@PointClass base(Magnum) = weapon_magnum : "test" [ ]
 @PointClass base(object) = world_mailbox : "test" [ ]
 @PointClass size(-4 -8 0, 4 8 72) base(actor) = Monster_Mancini : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Manero : "test" [ ]
@@ -1761,9 +1745,9 @@
 @PointClass base(Ammo_SpiderMines) = Ammo_SpiderMine : "test" [ ]
 @PointClass base(object) = vehicles_minitruck : "test" [ ]
 @PointClass size(-8 -8 0, 8 8 8) base(object) = items_moneybag : "test" [ ]
-@PointClass size(-22 -22 0, 22 22 70) base(mortician) = Monster_Mortician_Normal : "test" [ ]
-@PointClass size(-22 -22 0, 22 22 70) base(mortician) = Monster_Mortician_Druglab : "test" [ ]
-@PointClass size(-22 -22 0, 22 22 70) base(mortician) = Monster_Mortician_Stinger : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 70) base(monster_mortician) = Monster_Mortician_Normal : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 70) base(monster_mortician) = Monster_Mortician_Druglab : "test" [ ]
+@PointClass size(-22 -22 0, 22 22 70) base(monster_mortician) = Monster_Mortician_Stinger : "test" [ ]
 @PointClass base(object) = deskitems_mouse : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_Magnum : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ManeroThug_tommygun : "test" [ ]
@@ -1784,9 +1768,8 @@
 @PointClass base(powerups_oxygen) = Powerup_Oxygen : "test" [ ]
 @PointClass base(weapon_stingerpack) = weapon_stinger : "test" [ ]
 @PointClass size(-40 -12 0, 10 12 256) base(object) = plant_palmtree : "test" [ ]
-@PointClass size(-12 -12 0, 12 12 14) base(ParadoxDiamond) = items_paradox : "test" [ ]
-@PointClass size(-40 -40 0, 40 40 104) base(Peon) = Monster_Peon : "test" [ ]
-@PointClass size(-56 -56 0, 56 56 160) base(Peon) = Monster_PeonShip : "test" [ ]
+@PointClass size(-12 -12 0, 12 12 14) base(inventory_paradoxdiamond) = items_paradox : "test" [ ]
+@PointClass size(-56 -56 0, 56 56 160) base(monster_peon) = Monster_PeonShip : "test" [ ]
 @PointClass base(object) = deskitems_phone1 : "test" [ ]
 @PointClass base(object) = deskitems_phone2 : "test" [ ]
 @PointClass size(-12 -12 0, 12 12 24) base(actor) = Animals_Pigeon : "test" [ ]
@@ -1794,10 +1777,6 @@
 @PointClass base(object) = 2015_pizza_box : "test" [ ]
 @PointClass size(-24 -24 0, 24 24 40) base(object) = plant_plant : "test" [ ]
 @PointClass base(ammo_pulserifle) = Ammo_Plasma : "test" [ ]
-@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Blade : "test" [ ]
-@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Elexis : "test" [ ]
-@PointClass size(-16 -16 0, 16 16 80) base(actor) = Hero_JC : "test" [ ]
-@PointClass size(-32 -32 0, 32 32 80) base(actor) = Hero_Manero : "test" [ ]
 @PointClass base(object) = items_CheesyPoofs : "test" [ ]
 @PointClass base(object) = world_portolet : "test" [ ]
 @PointClass size(-8 -8 0, 8 8 60) base(actor) = Monster_ChurchCutscene_Priest : "test" [ ]
@@ -1834,9 +1813,9 @@
 @PointClass base(object) = plant_shrub : "test" [ ]
 @PointClass base(object) = world_sign_large : "test" [ ]
 @PointClass base(object) = world_sign_small : "test" [ ]
-@PointClass size(-8 -4 0, 8 4 8) base(silencer) = inventory_silencer : "test" [ ]
+@PointClass size(-8 -4 0, 8 4 8) base(powerups_silencer) = inventory_silencer : "test" [ ]
 @PointClass base(actor) = world_sink : "test" [ ]
-@PointClass base(object) = world_sink : "test" [ ]
+@PointClass base(object) = world_sink_item : "test" [ ]
 @PointClass size(-22 -22 0, 22 22 75) base(actor) = Monster_Slim_Normal : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 75) base(actor) = Monster_Slim_Concussion : "test" [ ]
 @PointClass base(object) = items_slotface : "test" [ ]
@@ -1848,10 +1827,9 @@
 @PointClass base(object) = deskitems_software3 : "test" [ ]
 @PointClass base(object) = deskitems_software4 : "test" [ ]
 @PointClass size(-8 -8 -8, 8 8 8) base(actor) = trap_SpiderMine : "test" [ ]
-@PointClass base(object) = info_splinepath : "test" [ ]
 @PointClass base(object) = world_stalagtite : "test" [ ]
 @PointClass base(object) = fx_steamgen : "test" [ ]
-@PointClass size(-9 -9 0, 9 9 240) base(object) = world_streetlight : "test" [ ]
+@PointClass size(-9 -9 0, 9 9 240) base(object) = world_trafflite : "test" [ ]
 @PointClass size(-7 -7 0, 7 7 128) base(object) = world_sign_street : "test" [ ]
 @PointClass base(object) = world_stump : "test" [ ]
 @PointClass size(-69 -54 0, 109 54 80) base(object) = vehicles_Sub : "test" [ ]
@@ -1870,8 +1848,7 @@
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Technician_Marine : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Neutral_Technician_SinTEK : "test" [ ]
 @PointClass base(object) = deskitems_testtube : "test" [ ]
-@PointClass size(-64 -64 0, 64 64 320) base(ThrallMaster) = Boss_ThrallMaster : "test" [ ]
-@PointClass base(goliathobject) = world_rubble : "test" [ ]
+@PointClass base(func_goliathobject) = world_rubble : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_AssaultRifle : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_Flamethrower : "test" [ ]
 @PointClass size(-16 -16 0, 16 16 80) base(actor) = Monster_ThugBald_Gernade : "test" [ ]
@@ -1900,13 +1877,11 @@
 @PointClass base(object) = plant_tree : "test" [ ]
 @PointClass base(object) = vehicles_truck : "test" [ ]
 @PointClass base(object) = 2015_bathtub : "test" [ ]
-@PointClass base(actor) = trap_securityturret : "test" [ ]
 @PointClass base(object) = 2015_tv_crt : "test" [ ]
 @PointClass base(object) = Powerup_U4 : "test" [ ]
-@PointClass base(object) = items_axepick : "test" [ ]
 @PointClass base(Powerups_Mutagen) = Powerup_U4Vial : "test" [ ]
 @PointClass base(actor) = world_urinal : "test" [ ]
-@PointClass base(object) = world_urinal : "test" [ ]
+@PointClass base(object) = world_urinal_item : "test" [ ]
 @PointClass base(object) = fx_uwshock : "test" [ ]
 @PointClass base(object) = vehicles_van : "test" [ ]
 @PointClass size(-32 -32 0, 32 32 72) base(actor) = Monster_Vultorn : "test" [ ]

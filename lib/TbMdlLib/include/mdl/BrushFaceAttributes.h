@@ -39,9 +39,17 @@ class BrushFaceAttributes
 public:
   static const std::string NoMaterialName;
 
+  // SiN
   static constexpr float SiNDefaultNonLitValue = 0.5f;
   static constexpr float SiNDefaultFriction = 1.0f;
   static constexpr float SiNDefaultAnimTime = 0.2f;
+
+  // SiN extended
+  static constexpr float SiNDefaultExtDirectScale = 1.0f;
+  static constexpr float SiNDefaultExtPatchScale = 1.0f;
+  static constexpr float SiNDefaultExtMaxLight = 1.0f;
+  static constexpr float SiNDefaultExtLuxelScale = 1.0f;
+  static constexpr float SiNDefaultExtMottle = 1.0f;
 
 private:
   std::string m_materialName;
@@ -69,6 +77,15 @@ private:
   std::optional<float> m_direct;
   std::optional<float> m_directangle;
 
+  // SiN extended
+  std::optional<float> m_ext_directscale;// = 1.0f;
+  std::optional<float> m_ext_patchscale;// = 1.0f;
+  std::optional<float> m_ext_minlight;
+  std::optional<float> m_ext_maxlight;// = 1.0f;
+  std::optional<float> m_ext_luxel_scale;// = 1.0f;
+  std::optional<float> m_ext_mottle;// = 1.0f;
+  std::optional<int>  m_ext_flags;
+
 public:
   explicit BrushFaceAttributes(std::string_view materialName);
   BrushFaceAttributes(std::string_view materialName, const BrushFaceAttributes& other);
@@ -83,6 +100,7 @@ public:
     m_surfaceFlags,
     m_surfaceValue,
     m_color,
+    // SiN
     m_nonlitvalue,
     m_trans_angle,
     m_trans_mag,
@@ -92,7 +110,14 @@ public:
     m_animtime,
     m_directstyle,
     m_direct,
-    m_directangle
+    m_directangle,
+    m_ext_directscale,
+    m_ext_patchscale,
+    m_ext_minlight,
+    m_ext_maxlight,
+    m_ext_luxel_scale,
+    m_ext_mottle,
+    m_ext_flags
   );
 
   const std::string& materialName() const;
@@ -172,6 +197,35 @@ public:
   bool setSiNDirectStyle(const std::optional<std::string>& value);
   bool setSiNDirect(const std::optional<float>& value);
   bool setSiNDirectAngle(const std::optional<float>& value);
+
+  // extended
+  bool hasSiNExtDirectScale() const;
+  const std::optional<float>& sinExtDirectScale() const;
+
+  bool hasSiNExtPatchScale() const;
+  const std::optional<float>& sinExtPatchScale() const;
+
+  bool hasSiNExtMinLight() const;
+  const std::optional<float>& sinExtMinLight() const;
+
+  bool hasSiNExtMaxLight() const;
+  const std::optional<float>& sinExtMaxLight() const;
+
+  bool hasSiNExtLuxelScale() const;
+  const std::optional<float>& sinExtLuxelScale() const;
+
+  bool hasSiNExtMottle() const;
+  const std::optional<float>& sinExtMottle() const;
+  
+  bool setSiNExtDirectScale(const std::optional<float>& value);
+  bool setSiNExtPatchScale(const std::optional<float>& value);
+  bool setSiNExtMinLight(const std::optional<float>& value);
+  bool setSiNExtMaxLight(const std::optional<float>& value);
+  bool setSiNExtLuxelScale(const std::optional<float>& value);
+  bool setSiNExtMottle(const std::optional<float>& value);
+
+  const std::optional<int>& extendedFlags() const;
+  bool setExtendedFlags(const std::optional<int>& extendedFlags);
 };
 
 } // namespace tb::mdl

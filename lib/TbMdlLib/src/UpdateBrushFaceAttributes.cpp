@@ -99,6 +99,7 @@ UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFaceAttributes& a
     .surfaceFlags = replaceFlagsIfSet(attributes.surfaceFlags()),
     .surfaceValue = setValueIfSet(attributes.surfaceValue()),
     .color = attributes.color(),
+    // SiN
     .sinNonlitValue = attributes.sinNonlitValue(),
     .sinTransAngle = attributes.sinTransAngle(),
     .sinTransMag = attributes.sinTransMag(),
@@ -108,7 +109,15 @@ UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFaceAttributes& a
     .sinAnimTime = attributes.sinAnimTime(),
     .sinDirectStyle = attributes.sinDirectStyle(),
     .sinDirect = attributes.sinDirect(),
-    .sinDirectAngle = attributes.sinDirectAngle()
+    .sinDirectAngle = attributes.sinDirectAngle(),
+    
+    .sinExtDirectScale = attributes.sinExtDirectScale(),
+    .sinExtPatchScale = attributes.sinExtPatchScale(),
+    .sinExtMinLight = attributes.sinExtMinLight(),
+    .sinExtMaxLight = attributes.sinExtMaxLight(),
+    .sinExtLuxelScale = attributes.sinExtLuxelScale(),
+    .sinExtMottle = attributes.sinExtMottle(),
+    .extendedFlags = replaceFlagsIfSet(attributes.extendedFlags())
   };
 }
 
@@ -276,6 +285,44 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
   {
     attributes.setSiNDirectAngle(
       *update.sinDirectAngle);
+  }
+
+  // SiN extended
+  if (update.sinExtDirectScale)
+  {
+    attributes.setSiNExtDirectScale(
+      *update.sinExtDirectScale);
+  }
+  if (update.sinExtPatchScale)
+  {
+    attributes.setSiNExtPatchScale(
+      *update.sinExtPatchScale);
+  }
+  if (update.sinExtMinLight)
+  {
+    attributes.setSiNExtMinLight(
+      *update.sinExtMinLight);
+  }
+  if (update.sinExtMaxLight)
+  {
+    attributes.setSiNExtMaxLight(
+      *update.sinExtMaxLight);
+  }
+  if (update.sinExtLuxelScale)
+  {
+    attributes.setSiNExtLuxelScale(
+      *update.sinExtLuxelScale);
+  }
+  if (update.sinExtMottle)
+  {
+    attributes.setSiNExtMottle(
+      *update.sinExtMottle);
+  }
+
+  if (update.extendedFlags)
+  {
+    attributes.setExtendedFlags(
+      evaluate(update.extendedFlags, brushFace.attributes().extendedFlags().value_or(0)));
   }
 
   brushFace.setAttributes(attributes);

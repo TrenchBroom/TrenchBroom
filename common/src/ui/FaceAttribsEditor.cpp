@@ -22,6 +22,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QToolButton>
+#include <QScrollArea>
 #include <QVBoxLayout>
 #include <QtGlobal>
 
@@ -571,6 +572,207 @@ void FaceAttribsEditor::sinDirectAngleUnset()
   }
 }
 
+// SiN Extended
+void FaceAttribsEditor::sinExtDirectScaleChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtDirectScale = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtDirectScaleUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtDirectScale = std::optional<float>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtPatchScaleChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtPatchScale = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtPatchScaleUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtPatchScale = std::optional<float>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtMinLightChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtMinLight = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtMinLightUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtMinLight = std::optional<float>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtMaxLightChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtMaxLight = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtMaxLightUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtMaxLight = std::optional<float>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtLuxelScaleChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtLuxelScale = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtLuxelScaleUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtLuxelScale = std::optional<float>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtMottleChanged(const double value)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtMottle = float(value)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtMottleUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.sinExtMottle = std::optional<float>(std::nullopt)}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtFlagsUnset()
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(map, {.extendedFlags = mdl::SetFlags{std::nullopt}}))
+  {
+    updateControls();
+  }
+}
+
+void FaceAttribsEditor::sinExtFlagChanged(
+  const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
+{
+  auto& map = m_document.map();
+  if (!map.selection().hasAnyBrushFaces())
+  {
+    return;
+  }
+
+  if (!setBrushFaceAttributes(
+        map,
+        {.extendedFlags = setFlag & value ? mdl::FlagOp{mdl::SetFlagBits{value}}
+                                          : mdl::FlagOp{mdl::ClearFlagBits{value}}}))
+  {
+    updateControls();
+  }
+}
+
 void FaceAttribsEditor::updateIncrements()
 {
   auto& map = m_document.map();
@@ -755,6 +957,58 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
                          m_surfaceSiNDirectAngleEditorLayout,
                          0.0f, 360.0f, 1, 5, 30);
 
+  // Extended
+  setupSiNNumericControl("(Ext) Direct Scale",
+                         m_surfaceSiNExtDirectScaleLabel,
+                         m_surfaceSiNExtDirectScaleEditor,
+                         m_surfaceSiNExtDirectScaleUnsetButton,
+                         m_surfaceSiNExtDirectScaleEditorLayout,
+                         0.0f, max, 0.01f, 0.1f, 0.5f);
+
+  setupSiNNumericControl("(Ext) Patch Scale",
+                         m_surfaceSiNExtPatchScaleLabel,
+                         m_surfaceSiNExtPatchScaleEditor,
+                         m_surfaceSiNExtPatchScaleUnsetButton,
+                         m_surfaceSiNExtPatchScaleEditorLayout,
+                         0.0f, max, 0.01f, 0.1f, 0.5f);
+
+  setupSiNNumericControl("(Ext) Minlight",
+                         m_surfaceSiNExtMinLightLabel,
+                         m_surfaceSiNExtMinLightEditor,
+                         m_surfaceSiNExtMinLightUnsetButton,
+                         m_surfaceSiNExtMinLightEditorLayout,
+                         0.0f, 1.0f, 0.01f, 0.1f, 0.5f);
+
+  setupSiNNumericControl("(Ext) Maxlight",
+                         m_surfaceSiNExtMaxLightLabel,
+                         m_surfaceSiNExtMaxLightEditor,
+                         m_surfaceSiNExtMaxLightUnsetButton,
+                         m_surfaceSiNExtMaxLightEditorLayout,
+                         0.0f, 1.0f, 0.01f, 0.1f, 0.5f);
+
+  setupSiNNumericControl("(Ext) Luxel Scale",
+                         m_surfaceSiNExtLuxelScaleLabel,
+                         m_surfaceSiNExtLuxelScaleEditor,
+                         m_surfaceSiNExtLuxelScaleUnsetButton,
+                         m_surfaceSiNExtLuxelScaleEditorLayout,
+                         0.0f, max, 0.01f, 0.1f, 0.5f);
+
+  setupSiNNumericControl("(Ext) Mottle",
+                         m_surfaceSiNExtMottleLabel,
+                         m_surfaceSiNExtMottleEditor,
+                         m_surfaceSiNExtMottleUnsetButton,
+                         m_surfaceSiNExtMottleEditorLayout,
+                         0.0f, 1.0f, 0.01f, 0.1f, 0.5f);
+
+  m_sinExtFlagsLabel = new QLabel{"Extended"};
+  setEmphasizedStyle(m_sinExtFlagsLabel);
+  m_sinExtFlagsEditor = new FlagsPopupEditor{2};
+  m_sinExtFlagsUnsetButton =
+    createBitmapButton("ResetUV.svg", tr("Unset extended flags"));
+  m_sinExtFlagsEditorLayout =
+    createUnsetButtonLayout(m_sinExtFlagsEditor, m_sinExtFlagsUnsetButton);
+
+
   const Qt::Alignment LabelFlags = Qt::AlignVCenter | Qt::AlignRight;
   const Qt::Alignment ValueFlags = Qt::AlignVCenter;
 
@@ -813,6 +1067,7 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
   ++r;
   c = 0;
 
+  // SiN
   faceAttribsLayout->addWidget(m_surfaceSiNNonlitValueLabel, r, c++, LabelFlags);
   faceAttribsLayout->addWidget(m_surfaceSiNNonlitValueEditorLayout, r, c++, 1, 3);
   ++r;
@@ -851,6 +1106,33 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
   ++r;
   c = 0;
 
+  faceAttribsLayout->addWidget(m_surfaceSiNExtDirectScaleLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtDirectScaleEditorLayout, r, c++);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtPatchScaleLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtPatchScaleEditorLayout, r, c++);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_surfaceSiNExtMinLightLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtMinLightEditorLayout, r, c++);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtMaxLightLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtMaxLightEditorLayout, r, c++);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_surfaceSiNExtLuxelScaleLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtLuxelScaleEditorLayout, r, c++);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtMottleLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_surfaceSiNExtMottleEditorLayout, r, c++);
+  ++r;
+  c = 0;
+
+  faceAttribsLayout->addWidget(m_sinExtFlagsLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_sinExtFlagsEditorLayout, r, c++, 1, 3);
+  ++r;
+  c = 0;
+
+
   faceAttribsLayout->setColumnStretch(1, 1);
   faceAttribsLayout->setColumnStretch(3, 1);
 
@@ -859,7 +1141,18 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
   outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
   outerLayout->addWidget(m_uvEditor, 1);
   outerLayout->addWidget(new BorderLine{});
-  outerLayout->addLayout(faceAttribsLayout);
+
+  // SiN
+  // wrapper widget to hold the face attribs grid
+  auto* faceAttribsWidget = new QWidget();
+  faceAttribsWidget->setLayout(faceAttribsLayout);
+
+  auto* faceAttribsScroller = new QScrollArea();
+  faceAttribsScroller->setWidget(faceAttribsWidget);
+  faceAttribsScroller->setWidgetResizable(true);
+  faceAttribsScroller->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+
+  outerLayout->addWidget(faceAttribsScroller);
 
   setLayout(outerLayout);
 }
@@ -1032,6 +1325,48 @@ void FaceAttribsEditor::bindEvents()
     &QAbstractButton::clicked,
     this,
     &FaceAttribsEditor::sinDirectAngleUnset);
+
+  // SiN extended
+  connect(
+    m_surfaceSiNExtDirectScaleEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinExtDirectScaleChanged);
+  connect(
+    m_surfaceSiNExtPatchScaleEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinExtPatchScaleChanged);
+  connect(
+    m_surfaceSiNExtMinLightEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinExtMinLightChanged);
+  connect(
+    m_surfaceSiNExtMaxLightEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinExtMaxLightChanged);
+  connect(
+    m_surfaceSiNExtLuxelScaleEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinExtLuxelScaleChanged);
+  connect(
+    m_surfaceSiNExtMottleEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    &FaceAttribsEditor::sinExtMottleChanged);
+  connect(
+    m_sinExtFlagsUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::sinExtFlagsUnset);
+  connect(
+    m_sinExtFlagsEditor,
+    &FlagsPopupEditor::flagChanged,
+    this,
+    &FaceAttribsEditor::sinExtFlagChanged);
 }
 
 void FaceAttribsEditor::connectObservers()
@@ -1097,6 +1432,15 @@ void FaceAttribsEditor::updateControls()
   const auto blockSiNDirectEditor = QSignalBlocker{m_surfaceSiNDirectEditor};
   const auto blockSiNDirectAngleEditor = QSignalBlocker{m_surfaceSiNDirectAngleEditor};
 
+  // Extended
+  const auto blockSiNExtDirectScaleEditor = QSignalBlocker{m_surfaceSiNExtDirectScaleEditor};
+  const auto blockSiNExtPatchScaleEditor = QSignalBlocker{m_surfaceSiNExtPatchScaleEditor};
+  const auto blockSiNExtMinLightEditor = QSignalBlocker{m_surfaceSiNExtMinLightEditor};
+  const auto blockSiNExtMaxLightEditor = QSignalBlocker{m_surfaceSiNExtMaxLightEditor};
+  const auto blockSiNExtLuxelScaleEditor = QSignalBlocker{m_surfaceSiNExtLuxelScaleEditor};
+  const auto blockSiNExtMottleEditor = QSignalBlocker{m_surfaceSiNExtMottleEditor};
+  const auto blockSiNExtFlagsEditor = QSignalBlocker{m_sinExtFlagsEditor};
+
   if (hasSurfaceFlags())
   {
     showSurfaceFlagsEditor();
@@ -1126,6 +1470,19 @@ void FaceAttribsEditor::updateControls()
   else
   {
     hideColorAttribEditor();
+  }
+
+  // SiN
+  if (hasSiNAttributes())
+  {
+      const auto [values, labels, tooltips] = getExtendedFlags();
+      m_sinExtFlagsEditor->setFlags(values, labels, tooltips);
+
+      showSiNAttribEditor();
+  }
+  else
+  {
+      hideSiNAttribEditor();
   }
 
   const auto faceHandles = m_document.map().selection().allBrushFaces();
@@ -1199,6 +1556,35 @@ void FaceAttribsEditor::updateControls()
     const auto &sinDirectAngle =    firstFace.attributes().sinDirectAngle();
     auto     hasSiNDirectAngle = firstFace.attributes().hasSiNDirectAngle();
 
+    // SiN extended
+    auto        sinExtDirectScaleMulti = false;
+    const auto &sinExtDirectScale =    firstFace.attributes().sinExtDirectScale();
+    auto     hasSiNExtDirectScale = firstFace.attributes().hasSiNExtDirectScale();
+
+    auto        sinExtPatchScaleMulti = false;
+    const auto &sinExtPatchScale =    firstFace.attributes().sinExtPatchScale();
+    auto     hasSiNExtPatchScale = firstFace.attributes().hasSiNExtPatchScale();
+
+    auto        sinExtMinLightMulti = false;
+    const auto &sinExtMinLight =    firstFace.attributes().sinExtMinLight();
+    auto     hasSiNExtMinLight = firstFace.attributes().hasSiNExtMinLight();
+
+    auto        sinExtMaxLightMulti = false;
+    const auto &sinExtMaxLight =    firstFace.attributes().sinExtMaxLight();
+    auto     hasSiNExtMaxLight = firstFace.attributes().hasSiNExtMaxLight();
+
+    auto        sinExtLuxelScaleMulti = false;
+    const auto &sinExtLuxelScale =    firstFace.attributes().sinExtLuxelScale();
+    auto     hasSiNExtLuxelScale = firstFace.attributes().hasSiNExtLuxelScale();
+
+    auto        sinExtMottleMulti = false;
+    const auto &sinExtMottle =    firstFace.attributes().sinExtMottle();
+    auto     hasSiNExtMottle = firstFace.attributes().hasSiNExtMottle();
+
+    auto setExtFlags = firstFace.attributes().extendedFlags().value_or(0);
+    auto hasExtFlags = firstFace.attributes().extendedFlags().has_value();
+    auto mixedExtFlags = 0;
+
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
       const auto& face = faceHandles[i].face();
@@ -1214,6 +1600,14 @@ void FaceAttribsEditor::updateControls()
       hasSurfaceFlags |= face.attributes().surfaceFlags().has_value();
       hasSurfaceContents |= face.attributes().surfaceContents().has_value();
       hasColorValue |= face.attributes().hasColor();
+
+      combineFlags(
+        sizeof(int) * 8, face.resolvedSurfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
+      combineFlags(
+        sizeof(int) * 8,
+        face.resolvedSurfaceContents(),
+        setSurfaceContents,
+        mixedSurfaceContents);
 
       // SiN
       sinNonlitValueMulti |= (sinNonlitValue != face.attributes().sinNonlitValue());
@@ -1237,13 +1631,24 @@ void FaceAttribsEditor::updateControls()
       sinDirectAngleMulti |= (sinDirectAngle != face.attributes().sinDirectAngle());
       hasSiNDirectAngle |= face.attributes().hasSiNDirectAngle();
 
+      // SiN extended
+      hasExtFlags |= face.attributes().extendedFlags().has_value();
+
+      sinExtDirectScaleMulti |= (sinExtDirectScale != face.attributes().sinExtDirectScale());
+      hasSiNExtDirectScale |= face.attributes().hasSiNExtDirectScale();
+      sinExtPatchScaleMulti |= (sinExtPatchScale != face.attributes().sinExtPatchScale());
+      hasSiNExtPatchScale |= face.attributes().hasSiNExtPatchScale();
+      sinExtMinLightMulti |= (sinExtMinLight != face.attributes().sinExtMinLight());
+      hasSiNExtMinLight |= face.attributes().hasSiNExtMinLight();
+      sinExtMaxLightMulti |= (sinExtMaxLight != face.attributes().sinExtMaxLight());
+      hasSiNExtMaxLight |= face.attributes().hasSiNExtMaxLight();
+      sinExtLuxelScaleMulti |= (sinExtLuxelScale != face.attributes().sinExtLuxelScale());
+      hasSiNExtLuxelScale |= face.attributes().hasSiNExtLuxelScale();
+      sinExtMottleMulti |= (sinExtMottle != face.attributes().sinExtMottle());
+      hasSiNExtMottle |= face.attributes().hasSiNExtMottle();
+
       combineFlags(
-        sizeof(int) * 8, face.resolvedSurfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
-      combineFlags(
-        sizeof(int) * 8,
-        face.resolvedSurfaceContents(),
-        setSurfaceContents,
-        mixedSurfaceContents);
+        sizeof(int) * 8, face.attributes().extendedFlags().value_or(0), setExtFlags, mixedExtFlags);
     }
 
     m_xOffsetEditor->setEnabled(true);
@@ -1371,6 +1776,30 @@ void FaceAttribsEditor::updateControls()
     m_surfaceSiNDirectStyleEditor->setEnabled(true);
     m_surfaceSiNDirectEditor->setEnabled(true);
     m_surfaceSiNDirectAngleEditor->setEnabled(true);
+
+    // SiN Extended
+    setValueOrMulti(m_surfaceSiNExtDirectScaleEditor, sinExtDirectScaleMulti, double(sinExtDirectScale.value_or(mdl::BrushFaceAttributes::SiNDefaultExtDirectScale)));
+    m_surfaceSiNExtDirectScaleUnsetButton->setEnabled(hasSiNExtDirectScale);
+    setValueOrMulti(m_surfaceSiNExtPatchScaleEditor, sinExtPatchScaleMulti, double(sinExtPatchScale.value_or(mdl::BrushFaceAttributes::SiNDefaultExtPatchScale)));
+    m_surfaceSiNExtPatchScaleUnsetButton->setEnabled(hasSiNExtPatchScale);
+    setValueOrMulti(m_surfaceSiNExtMinLightEditor, sinExtMinLightMulti, double(sinExtMinLight.value_or(0)));
+    m_surfaceSiNExtMinLightUnsetButton->setEnabled(hasSiNExtMinLight);
+    setValueOrMulti(m_surfaceSiNExtMaxLightEditor, sinExtMaxLightMulti, double(sinExtMaxLight.value_or(mdl::BrushFaceAttributes::SiNDefaultExtMaxLight)));
+    m_surfaceSiNExtMaxLightUnsetButton->setEnabled(hasSiNExtMaxLight);
+    setValueOrMulti(m_surfaceSiNExtLuxelScaleEditor, sinExtLuxelScaleMulti, double(sinExtLuxelScale.value_or(mdl::BrushFaceAttributes::SiNDefaultExtLuxelScale)));
+    m_surfaceSiNExtLuxelScaleUnsetButton->setEnabled(hasSiNExtLuxelScale);
+    setValueOrMulti(m_surfaceSiNExtMottleEditor, sinExtMottleMulti, double(sinExtMottle.value_or(mdl::BrushFaceAttributes::SiNDefaultExtMottle)));
+    m_surfaceSiNExtMottleUnsetButton->setEnabled(hasSiNExtMottle);
+    
+    m_surfaceSiNExtDirectScaleEditor->setEnabled(true);
+    m_surfaceSiNExtPatchScaleEditor->setEnabled(true);
+    m_surfaceSiNExtMinLightEditor->setEnabled(true);
+    m_surfaceSiNExtMaxLightEditor->setEnabled(true);
+    m_surfaceSiNExtLuxelScaleEditor->setEnabled(true);
+    m_surfaceSiNExtMottleEditor->setEnabled(true);
+
+    m_sinExtFlagsEditor->setEnabled(true);
+    m_sinExtFlagsEditor->setFlagValue(setExtFlags, mixedExtFlags);
   }
   else
   {
@@ -1406,6 +1835,16 @@ void FaceAttribsEditor::updateControls()
     m_surfaceSiNDirectStyleUnsetButton->setEnabled(false);
     disableAndSetPlaceholder(m_surfaceSiNDirectEditor, "n/a");
     disableAndSetPlaceholder(m_surfaceSiNDirectAngleEditor, "n/a");
+    
+    // SiN extended
+    disableAndSetPlaceholder(m_surfaceSiNExtDirectScaleEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNExtPatchScaleEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNExtMinLightEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNExtMaxLightEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNExtLuxelScaleEditor, "n/a");
+    disableAndSetPlaceholder(m_surfaceSiNExtMottleEditor, "n/a");
+    m_sinExtFlagsEditor->setEnabled(false);
+    m_sinExtFlagsUnsetButton->setEnabled(false);
   }
 }
 
@@ -1472,6 +1911,7 @@ void FaceAttribsEditor::hideColorAttribEditor()
   m_colorEditorLayout->hide();
 }
 
+// SiN
 bool FaceAttribsEditor::hasSiNAttributes() const
 {
   return m_document.map().worldNode().mapFormat() == mdl::MapFormat::SiN ||
@@ -1479,30 +1919,6 @@ bool FaceAttribsEditor::hasSiNAttributes() const
 }
 
 void FaceAttribsEditor::showSiNAttribEditor()
-{
-    m_surfaceSiNNonlitValueLabel->hide();
-    m_surfaceSiNNonlitValueEditorLayout->hide();
-    m_surfaceSiNTransAngleLabel->hide();
-    m_surfaceSiNTransAngleEditorLayout->hide();
-    m_surfaceSiNTransMagLabel->hide();
-    m_surfaceSiNTransMagEditorLayout->hide();
-    m_surfaceSiNTranslucenceLabel->hide();
-    m_surfaceSiNTranslucenceEditorLayout->hide();
-    m_surfaceSiNRestitutionLabel->hide();
-    m_surfaceSiNRestitutionEditorLayout->hide();
-    m_surfaceSiNFrictionLabel->hide();
-    m_surfaceSiNFrictionEditorLayout->hide();
-    m_surfaceSiNAnimTimeLabel->hide();
-    m_surfaceSiNAnimTimeEditorLayout->hide();
-    m_surfaceSiNDirectStyleLabel->hide();
-    m_surfaceSiNDirectStyleEditorLayout->hide();
-    m_surfaceSiNDirectLabel->hide();
-    m_surfaceSiNDirectEditorLayout->hide();
-    m_surfaceSiNDirectAngleLabel->hide();
-    m_surfaceSiNDirectAngleEditorLayout->hide();
-}
-  
-void FaceAttribsEditor::hideSiNAttribEditor()
 {
     m_surfaceSiNNonlitValueLabel->show();
     m_surfaceSiNNonlitValueEditorLayout->show();
@@ -1524,6 +1940,60 @@ void FaceAttribsEditor::hideSiNAttribEditor()
     m_surfaceSiNDirectEditorLayout->show();
     m_surfaceSiNDirectAngleLabel->show();
     m_surfaceSiNDirectAngleEditorLayout->show();
+    
+    m_surfaceSiNExtDirectScaleLabel->show();
+    m_surfaceSiNExtDirectScaleEditorLayout->show();
+    m_surfaceSiNExtPatchScaleLabel->show();
+    m_surfaceSiNExtPatchScaleEditorLayout->show();
+    m_surfaceSiNExtMinLightLabel->show();
+    m_surfaceSiNExtMinLightEditorLayout->show();
+    m_surfaceSiNExtMaxLightLabel->show();
+    m_surfaceSiNExtMaxLightEditorLayout->show();
+    m_surfaceSiNExtLuxelScaleLabel->show();
+    m_surfaceSiNExtLuxelScaleEditorLayout->show();
+    m_surfaceSiNExtMottleLabel->show();
+    m_surfaceSiNExtMottleEditorLayout->show();
+    m_sinExtFlagsLabel->show();
+    m_sinExtFlagsEditorLayout->show();
+}
+  
+void FaceAttribsEditor::hideSiNAttribEditor()
+{
+    m_surfaceSiNNonlitValueLabel->hide();
+    m_surfaceSiNNonlitValueEditorLayout->hide();
+    m_surfaceSiNTransAngleLabel->hide();
+    m_surfaceSiNTransAngleEditorLayout->hide();
+    m_surfaceSiNTransMagLabel->hide();
+    m_surfaceSiNTransMagEditorLayout->hide();
+    m_surfaceSiNTranslucenceLabel->hide();
+    m_surfaceSiNTranslucenceEditorLayout->hide();
+    m_surfaceSiNRestitutionLabel->hide();
+    m_surfaceSiNRestitutionEditorLayout->hide();
+    m_surfaceSiNFrictionLabel->hide();
+    m_surfaceSiNFrictionEditorLayout->hide();
+    m_surfaceSiNAnimTimeLabel->hide();
+    m_surfaceSiNAnimTimeEditorLayout->hide();
+    m_surfaceSiNDirectStyleLabel->hide();
+    m_surfaceSiNDirectStyleEditorLayout->hide();
+    m_surfaceSiNDirectLabel->hide();
+    m_surfaceSiNDirectEditorLayout->hide();
+    m_surfaceSiNDirectAngleLabel->hide();
+    m_surfaceSiNDirectAngleEditorLayout->hide();
+    
+    m_surfaceSiNExtDirectScaleLabel->hide();
+    m_surfaceSiNExtDirectScaleEditorLayout->hide();
+    m_surfaceSiNExtPatchScaleLabel->hide();
+    m_surfaceSiNExtPatchScaleEditorLayout->hide();
+    m_surfaceSiNExtMinLightLabel->hide();
+    m_surfaceSiNExtMinLightEditorLayout->hide();
+    m_surfaceSiNExtMaxLightLabel->hide();
+    m_surfaceSiNExtMaxLightEditorLayout->hide();
+    m_surfaceSiNExtLuxelScaleLabel->hide();
+    m_surfaceSiNExtLuxelScaleEditorLayout->hide();
+    m_surfaceSiNExtMottleLabel->hide();
+    m_surfaceSiNExtMottleEditorLayout->hide();
+    m_sinExtFlagsLabel->hide();
+    m_sinExtFlagsEditorLayout->hide();
 }
 
 namespace
@@ -1560,6 +2030,15 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFl
   const auto& gameInfo = m_document.map().gameInfo();
   const auto& contentFlags = gameInfo.gameConfig.faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);
+}
+
+// SiN
+std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getExtendedFlags()
+  const
+{
+  const auto& gameInfo = m_document.map().gameInfo();
+  const auto& extendedFlags = gameInfo.gameConfig.faceAttribsConfig.extendedFlags;
+  return getFlags(extendedFlags.flags);
 }
 
 } // namespace tb::ui

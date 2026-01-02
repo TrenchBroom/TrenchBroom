@@ -647,6 +647,16 @@ void StandardMapParser::parseSiNData(ParserStatus&, mdl::BrushFaceAttributes& at
           for (auto &surfaceflag : m_config.faceAttribsConfig.surfaceFlags.flags) {
               if (surfaceflag.name == flag) {
                   attribs.setSurfaceFlags(attribs.surfaceFlags().value_or(0) | surfaceflag.value);
+              found = true;
+                  break;
+              }
+          }
+      }
+
+      if (!found) {
+          for (auto &extflag : m_config.faceAttribsConfig.extendedFlags.flags) {
+              if (extflag.name == flag) {
+                  attribs.setExtendedFlags(attribs.extendedFlags().value_or(0) | extflag.value);
                   break;
               }
           }
@@ -686,6 +696,18 @@ void StandardMapParser::parseSiNData(ParserStatus&, mdl::BrushFaceAttributes& at
     } else if (lhs.data() == "directstyle") {
         auto rhs = m_tokenizer.nextToken(QuakeMapToken::String);
         attribs.setSiNDirectStyle(rhs.data());
+    } else if (lhs.data() == "ext_directscale") {
+        attribs.setSiNExtDirectScale(parseFloat());
+    } else if (lhs.data() == "ext_patchscale") {
+        attribs.setSiNExtPatchScale(parseFloat());
+    } else if (lhs.data() == "ext_minlight") {
+        attribs.setSiNExtMinLight(parseFloat());
+    } else if (lhs.data() == "ext_maxlight") {
+        attribs.setSiNExtMaxLight(parseFloat());
+    } else if (lhs.data() == "ext_luxel_scale") {
+        attribs.setSiNExtLuxelScale(parseFloat());
+    } else if (lhs.data() == "ext_mottle") {
+        attribs.setSiNExtMottle(parseFloat());
     } else {
         throw ParserException(m_tokenizer.location(), fmt::format("unknown SiN named face attribute \"{}\"", lhs.data()));
     }

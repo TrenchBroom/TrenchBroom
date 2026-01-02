@@ -111,8 +111,10 @@ struct FaceAttribsConfig
   FlagsConfig surfaceFlags;
   FlagsConfig contentFlags;
   BrushFaceAttributes defaults{BrushFaceAttributes::NoMaterialName};
+  // SiN
+  FlagsConfig extendedFlags;
 
-  kdl_reflect_decl(FaceAttribsConfig, surfaceFlags, contentFlags);
+  kdl_reflect_decl(FaceAttribsConfig, surfaceFlags, contentFlags, extendedFlags);
 };
 
 struct CompilationTool

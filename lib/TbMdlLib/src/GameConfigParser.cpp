@@ -375,6 +375,11 @@ BrushFaceAttributes parseFaceAttribsDefaults(
   defaults.setSiNAnimTime(BrushFaceAttributes::SiNDefaultAnimTime);
   defaults.setSiNFriction(BrushFaceAttributes::SiNDefaultFriction);
   defaults.setSiNNonlitValue(BrushFaceAttributes::SiNDefaultNonLitValue);
+  defaults.setSiNExtDirectScale(BrushFaceAttributes::SiNDefaultExtDirectScale);
+  defaults.setSiNExtPatchScale(BrushFaceAttributes::SiNDefaultExtPatchScale);
+  defaults.setSiNExtMaxLight(BrushFaceAttributes::SiNDefaultExtMaxLight);
+  defaults.setSiNExtLuxelScale(BrushFaceAttributes::SiNDefaultExtLuxelScale);
+  defaults.setSiNExtMottle(BrushFaceAttributes::SiNDefaultExtMottle);
 
   return defaults;
 }
@@ -417,6 +422,7 @@ FaceAttribsConfig parseFaceAttribsConfig(
       {},
       {},
       BrushFaceAttributes{BrushFaceAttributes::NoMaterialName},
+      {},
     };
   }
 
@@ -425,10 +431,15 @@ FaceAttribsConfig parseFaceAttribsConfig(
   auto defaults = parseFaceAttribsDefaults(
     context, value.atOrDefault(context, "defaults"), surfaceFlags, contentFlags);
 
+  // SiN
+  auto extendedFlags = parseFlagsConfig(context, value.at(context, "extendedflags"));
+
   return FaceAttribsConfig{
     std::move(surfaceFlags),
     std::move(contentFlags),
     std::move(defaults),
+    // SiN
+    std::move(extendedFlags),
   };
 }
 

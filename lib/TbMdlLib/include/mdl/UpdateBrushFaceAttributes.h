@@ -127,6 +127,14 @@ struct UpdateBrushFaceAttributes
   std::optional<std::optional<std::string>> sinDirectStyle = std::nullopt;
   std::optional<std::optional<float>> sinDirect = std::nullopt;
   std::optional<std::optional<float>> sinDirectAngle = std::nullopt;
+  
+  std::optional<std::optional<float>> sinExtDirectScale = std::nullopt;
+  std::optional<std::optional<float>> sinExtPatchScale = std::nullopt;
+  std::optional<std::optional<float>> sinExtMinLight = std::nullopt;
+  std::optional<std::optional<float>> sinExtMaxLight = std::nullopt;
+  std::optional<std::optional<float>> sinExtLuxelScale = std::nullopt;
+  std::optional<std::optional<float>> sinExtMottle = std::nullopt;
+  std::optional<FlagOp> extendedFlags = std::nullopt;
 
   kdl_reflect_decl(
     UpdateBrushFaceAttributes,
@@ -151,7 +159,14 @@ struct UpdateBrushFaceAttributes
     sinAnimTime,
     sinDirectStyle,
     sinDirect,
-    sinDirectAngle);
+    sinDirectAngle,
+      sinExtDirectScale,
+      sinExtPatchScale,
+      sinExtMinLight,
+      sinExtMaxLight,
+      sinExtLuxelScale,
+      sinExtMottle,
+      extendedFlags);
 };
 
 UpdateBrushFaceAttributes copyAll(const BrushFaceAttributes& attributes);
