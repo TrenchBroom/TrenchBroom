@@ -1,0 +1,100 @@
+/*
+ Copyright (C) 2024 Kristian Duske
+ Copyright (C) 2019 Eric Wasylishen
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "mdl/BrushNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/Map.h"
+#include "mdl/Map_CopyPaste.h"
+#include "mdl/PasteType.h"
+#include "mdl/TestUtils.h"
+#include "mdl/WorldNode.h"
+#include "ui/CatchConfig.h"
+#include "ui/ClipTool.h"
+#include "ui/ClipToolController.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentFixture.h"
+
+#include <catch2/catch_test_macros.hpp>
+
+namespace tb::ui
+{
+
+TEST_CASE("ClipTool")
+{
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.create();
+  auto& map = document.map();
+
+  SECTION("Clipped brushes get new link IDs")
+  {
+    // https://github.com/TrenchBroom/TrenchBroom/issues/4461
+    const auto data = R"(// entity 0
+{
+"mapversion" "220"
+"wad" ""
+"classname" "worldspawn"
+// brush 0
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+}
+}
+)";
+    REQUIRE(paste(map, data) == mdl::PasteType::Node);
+
+    const auto* defaultLayer = map.worldNode().defaultLayer();
+
+    const auto* originalBrushNode =
+      dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().front());
+    REQUIRE(originalBrushNode);
+
+    const auto originalLinkId = originalBrushNode->linkId();
+
+    auto tool = ClipTool{document};
+    REQUIRE(tool.activate());
+
+    tool.addPoint(vm::vec3d{0, 16, 16}, {});
+    tool.addPoint(vm::vec3d{0, -16, 16}, {});
+    tool.addPoint(vm::vec3d{0, -64, 0}, {});
+
+    REQUIRE(tool.canClip());
+    tool.toggleSide();
+    tool.performClip();
+
+    REQUIRE(defaultLayer->childCount() == 2);
+    const auto* clippedBrushNode1 =
+      dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().front());
+    const auto* clippedBrushNode2 =
+      dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().back());
+
+    REQUIRE(clippedBrushNode1);
+    REQUIRE(clippedBrushNode2);
+
+    CHECK(clippedBrushNode1->linkId() != originalLinkId);
+    CHECK(clippedBrushNode2->linkId() != originalLinkId);
+    CHECK(clippedBrushNode1->linkId() != clippedBrushNode2->linkId());
+  }
+}
+
+} // namespace tb::ui

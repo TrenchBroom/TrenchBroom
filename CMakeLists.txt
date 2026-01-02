@@ -171,10 +171,7 @@ get_app_version_str(APP_VERSION_YEAR APP_VERSION_NUMBER APP_VERSION_RC APP_VERSI
 set(APP_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
 
 # Some global variables used in several targets
-set(APP_DIR "${CMAKE_SOURCE_DIR}/app")
-set(APP_RESOURCE_DIR "${APP_DIR}/resources")
+set(TB_RESOURCE_DIR "${CMAKE_SOURCE_DIR}/app/TrenchBroom/resources")
 
 add_subdirectory(lib)
-add_subdirectory(dump-shortcuts)
-add_subdirectory(common)
 add_subdirectory(app)

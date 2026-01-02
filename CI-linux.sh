@@ -69,15 +69,15 @@ cd "$BUILD_DIR/lib/TbMdlLib/test-utils/test"
 cd "$BUILD_DIR/lib/TbRenderLib/test"
 ./TbRenderLibTest || exit 1
 
+cd "$BUILD_DIR/lib/TbUiLib/test"
+xvfb-run -a ./TbUiLibTest || exit 1
+
 cd "$BUILD_DIR/lib/VmLib/test"
 ./VmLibTest || exit 1
 
-cd "$BUILD_DIR/common/test"
-xvfb-run -a ./common-test || exit 1
-
 cd "$BUILD_DIR"
 
-ldd --verbose ./app/trenchbroom
+ldd --verbose ./app/TrenchBroom/trenchbroom
 
 cpack || exit 1
-./app/generate_checksum.sh
+./app/TrenchBroom/generate_checksum.sh
