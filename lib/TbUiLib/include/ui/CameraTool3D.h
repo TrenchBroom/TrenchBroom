@@ -43,7 +43,6 @@ private:
 public:
   explicit CameraTool3D(gl::PerspectiveCamera& camera);
 
-private:
   Tool& tool() override;
   const Tool& tool() const override;
 
