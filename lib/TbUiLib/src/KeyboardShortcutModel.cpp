@@ -94,7 +94,8 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     const auto& actionInfo = this->actionInfo(index.row());
     if (index.column() == 0)
     {
-      return pref(actionInfo.action.preference());
+      auto& prefs = PreferenceManager::instance();
+      return prefs.getPendingValue(actionInfo.action.preference());
     }
     if (index.column() == 1)
     {

@@ -144,12 +144,18 @@ void UpdatePreferencePane::doResetToDefaults()
 
 void UpdatePreferencePane::updateControls()
 {
+  auto& prefs = PreferenceManager::instance();
+
   const auto disableNotifiers = kdl::set_temp{m_disableNotifiers, true};
-  m_autoCheckForUpdates->setChecked(pref(Preferences::AutoCheckForUpdates));
-  m_includePreReleaseUpdates->setChecked(pref(Preferences::IncludePreReleaseUpdates));
-  m_includeDraftReleaseUpdates->setChecked(pref(Preferences::IncludeDraftReleaseUpdates));
+  m_autoCheckForUpdates->setChecked(
+    prefs.getPendingValue(Preferences::AutoCheckForUpdates));
+  m_includePreReleaseUpdates->setChecked(
+    prefs.getPendingValue(Preferences::IncludePreReleaseUpdates));
+  m_includeDraftReleaseUpdates->setChecked(
+    prefs.getPendingValue(Preferences::IncludeDraftReleaseUpdates));
   m_layout->setRowVisible(
-    m_includeDraftReleaseUpdatesRow, pref(Preferences::EnableDraftReleaseUpdates));
+    m_includeDraftReleaseUpdatesRow,
+    prefs.getPendingValue(Preferences::EnableDraftReleaseUpdates));
 }
 
 bool UpdatePreferencePane::validate()

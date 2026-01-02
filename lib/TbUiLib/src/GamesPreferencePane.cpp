@@ -255,19 +255,19 @@ void GamePreferencePane::createGui()
 
   layout->addSection(tr("Compilation Tools"));
 
+  auto& prefs = PreferenceManager::instance();
   for (const auto& tool : m_gameInfo.gameConfig.compilationTools)
   {
     const auto toolName = tool.name;
     auto& toolPathPref = tool.pathPreference;
 
     auto* edit = new QLineEdit{};
-    edit->setText(pathAsQString(pref(tool.pathPreference)));
+    edit->setText(pathAsQString(prefs.getPendingValue(tool.pathPreference)));
     if (tool.description)
     {
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
-    connect(edit, &QLineEdit::editingFinished, this, [&toolPathPref, edit]() {
-      auto& prefs = PreferenceManager::instance();
+    connect(edit, &QLineEdit::editingFinished, this, [&prefs, &toolPathPref, edit]() {
       prefs.set(toolPathPref, pathFromQString(edit->text()));
     });
 
@@ -275,7 +275,10 @@ void GamePreferencePane::createGui()
 
     auto* browseButton = new QPushButton{"..."};
     connect(
-      browseButton, &QPushButton::clicked, this, [this, &toolPathPref, toolName, edit]() {
+      browseButton,
+      &QPushButton::clicked,
+      this,
+      [this, &prefs, &toolPathPref, toolName, edit]() {
         const auto pathStr = QFileDialog::getOpenFileName(
           this,
           tr("%1 Path").arg(QString::fromStdString(toolName)),
@@ -283,7 +286,6 @@ void GamePreferencePane::createGui()
         if (!pathStr.isEmpty())
         {
           edit->setText(pathStr);
-          auto& prefs = PreferenceManager::instance();
           prefs.set(toolPathPref, pathFromQString(edit->text()));
           emit requestUpdate();
         }
@@ -334,15 +336,17 @@ const mdl::GameInfo& GamePreferencePane::gameInfo() const
 
 void GamePreferencePane::updateControls()
 {
+  auto& prefs = PreferenceManager::instance();
+
   // Refresh tool paths from preferences
   for (const auto& [tool, toolPathEditor] : m_toolPathEditors)
   {
-    const auto& toolPath = pref(tool->pathPreference);
+    const auto& toolPath = prefs.getPendingValue(tool->pathPreference);
     toolPathEditor->setText(pathAsQString(toolPath));
   }
 
   // Refresh game path
-  const auto gamePath = pref(m_gameInfo.gamePathPreference);
+  const auto gamePath = prefs.getPendingValue(m_gameInfo.gamePathPreference);
   m_gamePathText->setText(pathAsQString(gamePath));
 }
 

@@ -287,29 +287,42 @@ void MousePreferencePane::doResetToDefaults()
 
 void MousePreferencePane::updateControls()
 {
-  m_lookSpeedSlider->setRatio(pref(Preferences::CameraLookSpeed));
-  m_invertLookHAxisCheckBox->setChecked(pref(Preferences::CameraLookInvertH));
-  m_invertLookVAxisCheckBox->setChecked(pref(Preferences::CameraLookInvertV));
+  auto& prefs = PreferenceManager::instance();
 
-  m_panSpeedSlider->setRatio(pref(Preferences::CameraPanSpeed));
-  m_invertPanHAxisCheckBox->setChecked(pref(Preferences::CameraPanInvertH));
-  m_invertPanVAxisCheckBox->setChecked(pref(Preferences::CameraPanInvertV));
+  m_lookSpeedSlider->setRatio(prefs.getPendingValue(Preferences::CameraLookSpeed));
+  m_invertLookHAxisCheckBox->setChecked(
+    prefs.getPendingValue(Preferences::CameraLookInvertH));
+  m_invertLookVAxisCheckBox->setChecked(
+    prefs.getPendingValue(Preferences::CameraLookInvertV));
 
-  m_moveSpeedSlider->setRatio(pref(Preferences::CameraMoveSpeed));
-  m_invertMouseWheelCheckBox->setChecked(pref(Preferences::CameraMouseWheelInvert));
-  m_enableAltMoveCheckBox->setChecked(pref(Preferences::CameraEnableAltMove));
-  m_invertAltMoveAxisCheckBox->setChecked(pref(Preferences::CameraAltMoveInvert));
-  m_moveInCursorDirCheckBox->setChecked(pref(Preferences::CameraMoveInCursorDir));
+  m_panSpeedSlider->setRatio(prefs.getPendingValue(Preferences::CameraPanSpeed));
+  m_invertPanHAxisCheckBox->setChecked(
+    prefs.getPendingValue(Preferences::CameraPanInvertH));
+  m_invertPanVAxisCheckBox->setChecked(
+    prefs.getPendingValue(Preferences::CameraPanInvertV));
 
-  m_forwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyForward));
-  m_backwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyBackward));
-  m_leftKeyEditor->setKeySequence(pref(Preferences::CameraFlyLeft));
-  m_rightKeyEditor->setKeySequence(pref(Preferences::CameraFlyRight));
-  m_upKeyEditor->setKeySequence(pref(Preferences::CameraFlyUp));
-  m_downKeyEditor->setKeySequence(pref(Preferences::CameraFlyDown));
+  m_moveSpeedSlider->setRatio(prefs.getPendingValue(Preferences::CameraMoveSpeed));
+  m_invertMouseWheelCheckBox->setChecked(
+    prefs.getPendingValue(Preferences::CameraMouseWheelInvert));
+  m_enableAltMoveCheckBox->setChecked(
+    prefs.getPendingValue(Preferences::CameraEnableAltMove));
+  m_invertAltMoveAxisCheckBox->setChecked(
+    prefs.getPendingValue(Preferences::CameraAltMoveInvert));
+  m_moveInCursorDirCheckBox->setChecked(
+    prefs.getPendingValue(Preferences::CameraMoveInCursorDir));
+
+  m_forwardKeyEditor->setKeySequence(
+    prefs.getPendingValue(Preferences::CameraFlyForward));
+  m_backwardKeyEditor->setKeySequence(
+    prefs.getPendingValue(Preferences::CameraFlyBackward));
+  m_leftKeyEditor->setKeySequence(prefs.getPendingValue(Preferences::CameraFlyLeft));
+  m_rightKeyEditor->setKeySequence(prefs.getPendingValue(Preferences::CameraFlyRight));
+  m_upKeyEditor->setKeySequence(prefs.getPendingValue(Preferences::CameraFlyUp));
+  m_downKeyEditor->setKeySequence(prefs.getPendingValue(Preferences::CameraFlyDown));
 
   m_flyMoveSpeedSlider->setRatio(
-    pref(Preferences::CameraFlyMoveSpeed) / Preferences::MaxCameraFlyMoveSpeed);
+    prefs.getPendingValue(Preferences::CameraFlyMoveSpeed)
+    / Preferences::MaxCameraFlyMoveSpeed);
 
   updateConflicts();
 }
@@ -456,7 +469,9 @@ namespace
 
 bool hasConflict(Preference<QKeySequence>& preference)
 {
-  const auto prefs = std::vector<Preference<QKeySequence>*>{
+  auto& prefs = PreferenceManager::instance();
+
+  const auto keyPrefs = std::vector<Preference<QKeySequence>*>{
     &Preferences::CameraFlyForward,
     &Preferences::CameraFlyBackward,
     &Preferences::CameraFlyLeft,
@@ -464,8 +479,9 @@ bool hasConflict(Preference<QKeySequence>& preference)
     &Preferences::CameraFlyUp,
     &Preferences::CameraFlyDown};
 
-  return std::ranges::any_of(prefs, [&](auto* other) {
-    return preference.path != other->path && pref(*other) == pref(preference);
+  return std::ranges::any_of(keyPrefs, [&](auto* other) {
+    return preference.path != other->path
+           && prefs.getPendingValue(*other) == prefs.getPendingValue(preference);
   });
 }
 

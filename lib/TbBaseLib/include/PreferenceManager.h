@@ -59,8 +59,8 @@ private:
   std::unique_ptr<PreferenceStore> m_preferenceStore;
   bool m_saveInstantly;
 
-  std::unordered_map<const PreferenceBase*, std::any> m_values;
-  std::unordered_map<const PreferenceBase*, PendingState> m_pendingValues;
+  std::unordered_map<std::filesystem::path, std::any> m_values;
+  std::unordered_map<std::filesystem::path, PendingState> m_pendingValues;
 
   NotifierConnection m_notifierConnection;
 
@@ -75,7 +75,7 @@ public:
   template <typename T>
   const T& get(const Preference<T>& preference)
   {
-    if (const auto iValue = m_values.find(&preference); iValue != m_values.end())
+    if (const auto iValue = m_values.find(preference.path); iValue != m_values.end())
     {
       return *std::any_cast<T>(&iValue->second);
     }
@@ -83,17 +83,16 @@ public:
     auto value = T{};
     if (m_preferenceStore->load(preference.path, value))
     {
-      return *std::any_cast<T>(&m_values.emplace(&preference, value).first->second);
+      return *std::any_cast<T>(&m_values.emplace(preference.path, value).first->second);
     }
 
-    return *std::any_cast<T>(
-      &m_values.emplace(&preference, preference.defaultValue).first->second);
+    return preference.defaultValue;
   }
 
   template <typename T>
   const T& getPendingValue(const Preference<T>& preference)
   {
-    if (const auto iPendingValue = m_pendingValues.find(&preference);
+    if (const auto iPendingValue = m_pendingValues.find(preference.path);
         iPendingValue != m_pendingValues.end())
     {
       return *std::any_cast<T>(&iPendingValue->second.value);
@@ -149,7 +148,7 @@ private:
         m_preferenceStore->save(preference.path, value);
       }
 
-      m_values[&preference] = std::move(value);
+      m_values[preference.path] = std::move(value);
       preferenceDidChangeNotifier(preference.path);
     }
   }
@@ -157,7 +156,7 @@ private:
   template <typename T>
   void setPendingValue(const Preference<T>& preference, T value)
   {
-    m_pendingValues[&preference] = PendingState{
+    m_pendingValues[preference.path] = PendingState{
       std::any{std::move(value)},
       [&](const auto& anyValue) {
         setValueInstantly(preference, std::any_cast<T>(anyValue));
@@ -165,7 +164,7 @@ private:
     };
   }
 
-  void refreshPersistentValues();
+  void refreshValues(const std::vector<std::filesystem::path>& preferencePaths);
 };
 
 template <typename T>

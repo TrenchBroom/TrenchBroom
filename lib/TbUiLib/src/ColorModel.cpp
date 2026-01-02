@@ -103,16 +103,16 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
 
   if (role == Qt::DisplayRole)
   {
-    const auto* colorPreference = getColorPreference(index.row());
+    const auto& colorPreference = getColorPreference(index.row());
 
     switch (index.column())
     {
     case 0:
       return {}; // Leave first cell empty
     case 1:
-      return pathAsQString(kdl::path_front(colorPreference->path));
+      return pathAsQString(kdl::path_front(colorPreference.path));
     case 2:
-      return pathAsGenericQString(kdl::path_pop_front(colorPreference->path));
+      return pathAsGenericQString(kdl::path_pop_front(colorPreference.path));
       switchDefault();
     }
   }
@@ -120,8 +120,10 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
   // Colorize the first cell background with the associated preference color
   if (role == Qt::BackgroundRole && index.column() == 0)
   {
-    auto* colorPreference = getColorPreference(index.row());
-    auto color = toQColor(pref(*colorPreference));
+    auto& prefs = PreferenceManager::instance();
+
+    const auto& colorPreference = getColorPreference(index.row());
+    auto color = toQColor(prefs.getPendingValue(colorPreference));
     color.setAlpha(255); // Ignore alpha
 
     return QBrush{color};
@@ -138,14 +140,15 @@ bool ColorModel::setData(
     return false;
   }
 
-  auto* colorPreference = getColorPreference(index.row());
-  const auto color = toQColor(pref(*colorPreference));
+  auto& prefs = PreferenceManager::instance();
+
+  const auto& colorPreference = getColorPreference(index.row());
+  const auto color = toQColor(prefs.getPendingValue(colorPreference));
 
   auto newColor = value.value<QColor>();
   newColor.setAlpha(color.alpha()); // Keep initial alpha...
 
-  auto& prefs = PreferenceManager::instance();
-  prefs.set(*colorPreference, fromQColor(newColor));
+  prefs.set(colorPreference, fromQColor(newColor));
 
   emit dataChanged(index, index);
   return true;
@@ -165,9 +168,11 @@ void ColorModel::pickColor(const QModelIndex& mi)
 {
   if (checkIndex(mi))
   {
+    auto& prefs = PreferenceManager::instance();
+
     // Get current color
-    auto* colorPreference = getColorPreference(mi.row());
-    auto color = toQColor(pref(*colorPreference));
+    const auto& colorPreference = getColorPreference(mi.row());
+    auto color = toQColor(prefs.getPendingValue(colorPreference));
 
     // Show dialog
     auto newColor = QColorDialog::getColor(
@@ -184,10 +189,10 @@ void ColorModel::pickColor(const QModelIndex& mi)
   }
 }
 
-Preference<Color>* ColorModel::getColorPreference(const int index) const
+const Preference<Color>& ColorModel::getColorPreference(const int index) const
 {
   contract_pre(index < m_colorsCount);
-  return m_colors[static_cast<size_t>(index)];
+  return *m_colors[static_cast<size_t>(index)];
 }
 
 bool ColorModel::checkIndex(const QModelIndex& index) const

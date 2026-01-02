@@ -293,24 +293,28 @@ void ViewPreferencePane::doResetToDefaults()
 
 void ViewPreferencePane::updateControls()
 {
-  m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
-  m_link2dCameras->setChecked(pref(Preferences::Link2DCameras));
-  m_brightnessSlider->setValue(brightnessToUI(pref(Preferences::Brightness)));
-  m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
-  m_fovSlider->setValue(int(pref(Preferences::CameraFov)));
+  auto& prefs = PreferenceManager::instance();
 
-  const auto filterModeIndex =
-    findFilterMode(
-      pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))
-      .value_or(-1);
+  m_layoutCombo->setCurrentIndex(prefs.getPendingValue(Preferences::MapViewLayout));
+  m_link2dCameras->setChecked(prefs.getPendingValue(Preferences::Link2DCameras));
+  m_brightnessSlider->setValue(
+    brightnessToUI(prefs.getPendingValue(Preferences::Brightness)));
+  m_gridAlphaSlider->setRatio(prefs.getPendingValue(Preferences::GridAlpha));
+  m_fovSlider->setValue(int(prefs.getPendingValue(Preferences::CameraFov)));
+
+  const auto filterModeIndex = findFilterMode(
+                                 prefs.getPendingValue(Preferences::TextureMinFilter),
+                                 prefs.getPendingValue(Preferences::TextureMagFilter))
+                                 .value_or(-1);
   m_filterModeCombo->setCurrentIndex(int(filterModeIndex));
 
-  m_showAxes->setChecked(pref(Preferences::ShowAxes));
-  m_enableMsaa->setChecked(pref(Preferences::EnableMSAA));
+  m_showAxes->setChecked(prefs.getPendingValue(Preferences::ShowAxes));
+  m_enableMsaa->setChecked(prefs.getPendingValue(Preferences::EnableMSAA));
   m_themeCombo->setCurrentIndex(
-    findThemeIndex(QString::fromStdString(pref(Preferences::Theme))));
+    findThemeIndex(QString::fromStdString(prefs.getPendingValue(Preferences::Theme))));
 
-  const auto materialBrowserIconSize = pref(Preferences::MaterialBrowserIconSize);
+  const auto materialBrowserIconSize =
+    prefs.getPendingValue(Preferences::MaterialBrowserIconSize);
   if (materialBrowserIconSize == 0.25f)
   {
     m_materialBrowserIconSizeCombo->setCurrentIndex(0);
@@ -341,7 +345,7 @@ void ViewPreferencePane::updateControls()
   }
 
   m_rendererFontSizeCombo->setCurrentText(
-    QString::asprintf("%i", pref(Preferences::RendererFontSize)));
+    QString::asprintf("%i", prefs.getPendingValue(Preferences::RendererFontSize)));
 }
 
 bool ViewPreferencePane::validate()

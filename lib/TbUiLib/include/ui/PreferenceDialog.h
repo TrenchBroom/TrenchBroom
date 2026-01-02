@@ -21,6 +21,8 @@
 
 #include <QDialog>
 
+#include "NotifierConnection.h"
+
 class QDialogButtonBox;
 class QStackedWidget;
 class QToolBar;
@@ -44,6 +46,8 @@ private:
   QStackedWidget* m_stackedWidget = nullptr;
   QDialogButtonBox* m_buttonBox = nullptr;
 
+  NotifierConnection m_notifierConnection;
+
 public:
   PreferenceDialog(
     AppController& appController, MapDocument* document, QWidget* parent = nullptr);
@@ -56,6 +60,7 @@ private:
   void createGui();
   void switchToPane(PrefPane pane);
   PreferencePane* currentPane() const;
+  void connectObservers();
 private slots:
   void resetToDefaults();
 };

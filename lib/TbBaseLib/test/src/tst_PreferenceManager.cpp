@@ -240,7 +240,7 @@ TEST_CASE("PreferenceManager")
 
       preferenceStore.values["some/path"] = "qwer"s;
       preferenceStore.preferencesWereReloadedNotifier(
-        std::vector<std::filesystem::path>{});
+        std::vector<std::filesystem::path>{"some/path"});
 
       CHECK(preferenceManager.get(stringPref) == "qwer");
       CHECK(preferenceManager.getPendingValue(stringPref) == "qwer");
@@ -370,7 +370,7 @@ TEST_CASE("PreferenceManager")
 
       preferenceStore.values["some/path"] = "qwer"s;
       preferenceStore.preferencesWereReloadedNotifier(
-        std::vector<std::filesystem::path>{});
+        std::vector<std::filesystem::path>{"some/path"});
 
       CHECK(preferenceManager.get(stringPref) == "qwer");
       CHECK(preferenceManager.getPendingValue(stringPref) == "qwer");

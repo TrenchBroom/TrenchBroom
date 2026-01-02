@@ -70,6 +70,8 @@ PreferenceDialog::PreferenceDialog(
   createGui();
   switchToPane(PrefPane::First);
   currentPane()->updateControls();
+
+  connectObservers();
 }
 
 void PreferenceDialog::closeEvent(QCloseEvent* event)
@@ -181,6 +183,13 @@ void PreferenceDialog::switchToPane(const PrefPane pane)
 PreferencePane* PreferenceDialog::currentPane() const
 {
   return static_cast<PreferencePane*>(m_stackedWidget->currentWidget());
+}
+
+void PreferenceDialog::connectObservers()
+{
+  auto& prefs = PreferenceManager::instance();
+  m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
+    [this](const auto&) { currentPane()->updateControls(); });
 }
 
 void PreferenceDialog::resetToDefaults()
