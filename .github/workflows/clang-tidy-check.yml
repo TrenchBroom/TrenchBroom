@@ -74,7 +74,7 @@ jobs:
           version: 18
           style: 'file'  # Use .clang-format config file. 
           tidy-checks: '' # Use .clang-tidy config file.
-          files-changed-only: false
+          files-changed-only: true
           database: ${{github.workspace}}/build
           ignore: 'build|vcpkg-overlay-ports|lib/TbUiLib/src/GetVersion.cpp'
           step-summary: true
