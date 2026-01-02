@@ -46,6 +46,11 @@ namespace
 
 bool shouldEnableUpdating()
 {
+  if (SystemPaths::isPortable())
+  {
+    return false;
+  }
+
 #if defined(_WIN32)
   return SystemPaths::appFile().filename() == "TrenchBroom.exe";
 #elif defined(__APPLE__)
