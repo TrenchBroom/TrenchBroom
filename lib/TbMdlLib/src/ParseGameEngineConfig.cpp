@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/GameEngineConfigParser.h"
+#include "mdl/ParseGameEngineConfig.h"
 
 #include "el/EvaluationContext.h"
+#include "el/ParseExpression.h"
 #include "el/Value.h"
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
@@ -37,8 +38,7 @@ namespace tb::mdl
 namespace
 {
 
-GameEngineProfile parseProfile(
-  const el::EvaluationContext& context, const el::Value& value)
+GameEngineProfile toProfile(const el::EvaluationContext& context, const el::Value& value)
 {
   return {
     value.at(context, "name").stringValue(context),
@@ -47,16 +47,16 @@ GameEngineProfile parseProfile(
   };
 }
 
-std::vector<GameEngineProfile> parseProfiles(
+std::vector<GameEngineProfile> toProfiles(
   const el::EvaluationContext& context, const el::Value& value)
 {
   return value.arrayValue(context) | std::views::transform([&](const auto& profileValue) {
-           return parseProfile(context, profileValue);
+           return toProfile(context, profileValue);
          })
          | kdl::ranges::to<std::vector>();
 }
 
-Result<GameEngineConfig> parseGameEngineConfig(
+Result<GameEngineConfig> toGameEngineConfig(
   el::EvaluationContext& context, const el::ExpressionNode& expression)
 {
   const auto root = expression.evaluate(context);
@@ -67,22 +67,17 @@ Result<GameEngineConfig> parseGameEngineConfig(
     return Error{fmt::format("Unsupported game engine config version {}", version)};
   }
 
-  return GameEngineConfig{parseProfiles(context, root.at(context, "profiles"))};
+  return GameEngineConfig{toProfiles(context, root.at(context, "profiles"))};
 }
 
 } // namespace
 
-GameEngineConfigParser::GameEngineConfigParser(const std::string_view str)
-  : m_str{str}
+Result<GameEngineConfig> parseGameEngineConfig(const std::string_view str)
 {
-}
-
-Result<GameEngineConfig> GameEngineConfigParser::parse()
-{
-  return el::parseExpression(el::ParseMode::Strict, m_str)
+  return el::parseExpression(el::ParseMode::Strict, str)
          | kdl::and_then([&](const auto& expression) {
              return el::withEvaluationContext(
-               [&](auto& context) { return parseGameEngineConfig(context, expression); });
+               [&](auto& context) { return toGameEngineConfig(context, expression); });
            });
 }
 

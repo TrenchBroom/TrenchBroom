@@ -19,9 +19,7 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "Result.h"
-#include "el/ParseExpression.h"
 #include "mdl/GameEngineConfig.h"
 
 #include <string_view>
@@ -29,17 +27,6 @@
 namespace tb::mdl
 {
 
-class GameEngineConfigParser
-{
-private:
-  std::string_view m_str;
-
-public:
-  explicit GameEngineConfigParser(std::string_view str);
-
-  Result<GameEngineConfig> parse();
-
-  deleteCopyAndMove(GameEngineConfigParser);
-};
+Result<GameEngineConfig> parseGameEngineConfig(std::string_view str);
 
 } // namespace tb::mdl

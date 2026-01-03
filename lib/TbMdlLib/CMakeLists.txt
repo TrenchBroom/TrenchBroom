@@ -57,7 +57,6 @@ add_library(TbMdlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameConfigParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineConfig.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineConfigParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineProfile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameInfo.cpp
@@ -147,6 +146,7 @@ add_library(TbMdlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParallelUVCoordSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParaxialUVCoordSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseCompilationConfig.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseGameEngineConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseModelDefinition.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/PatchNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/PickResult.cpp

@@ -26,9 +26,9 @@
 #include "fs/TraversalMode.h"
 #include "fs/VirtualFileSystem.h"
 #include "mdl/GameConfigParser.h"
-#include "mdl/GameEngineConfigParser.h"
 #include "mdl/GameInfo.h"
 #include "mdl/ParseCompilationConfig.h"
+#include "mdl/ParseGameEngineConfig.h"
 
 #include "kd/const_overload.h"
 #include "kd/path_utils.h"
@@ -114,8 +114,7 @@ Result<void> loadGameEngineConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
   {
     return fs.openFile(path) | kdl::and_then([&](auto profilesFile) {
              auto reader = profilesFile->reader().buffer();
-             auto parser = GameEngineConfigParser{reader.stringView()};
-             return parser.parse();
+             return parseGameEngineConfig(reader.stringView());
            })
            | kdl::transform([&](auto gameEngineConfig) {
                gameInfo.gameEngineConfig = std::move(gameEngineConfig);
