@@ -110,6 +110,11 @@ void NodeWriter::setExporting(const bool exporting)
   m_serializer->setExporting(exporting);
 }
 
+void NodeWriter::setStripTbProperties(const bool stripTbProperties)
+{
+  m_serializer->setStripTbProperties(stripTbProperties);
+}
+
 void NodeWriter::writeMap(kdl::task_manager& taskManager)
 {
   m_serializer->beginFile({&m_world}, taskManager);

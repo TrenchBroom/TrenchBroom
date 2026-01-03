@@ -62,6 +62,7 @@ private:
   ObjectNo m_entityNo = 0;
   ObjectNo m_brushNo = 0;
   bool m_exporting = false;
+  bool m_stripTbProperties = false;
 
 public:
   virtual ~NodeSerializer();
@@ -73,6 +74,9 @@ protected:
 public:
   bool exporting() const;
   void setExporting(bool exporting);
+
+  bool stripTbProperties() const;
+  void setStripTbProperties(bool stripTbProperties);
 
 public:
   /**

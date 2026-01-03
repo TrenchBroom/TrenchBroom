@@ -29,6 +29,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/overload.h"
+#include "kd/string_compare.h"
 #include "kd/string_format.h"
 #include "kd/string_utils.h"
 
@@ -61,6 +62,16 @@ bool NodeSerializer::exporting() const
 void NodeSerializer::setExporting(const bool exporting)
 {
   m_exporting = exporting;
+}
+
+bool NodeSerializer::stripTbProperties() const
+{
+  return m_stripTbProperties;
+}
+
+void NodeSerializer::setStripTbProperties(const bool stripTbProperties)
+{
+  m_stripTbProperties = stripTbProperties;
 }
 
 void NodeSerializer::beginFile(
@@ -214,7 +225,12 @@ void NodeSerializer::entityProperties(const std::vector<EntityProperty>& propert
 
 void NodeSerializer::entityProperty(const EntityProperty& property)
 {
-  doEntityProperty(property);
+  if (
+    !m_stripTbProperties
+    || !kdl::cs::str_is_prefix(property.key(), EntityPropertyKeys::TbPrefix))
+  {
+    doEntityProperty(property);
+  }
 }
 
 void NodeSerializer::brushes(const std::vector<BrushNode*>& brushNodes)
