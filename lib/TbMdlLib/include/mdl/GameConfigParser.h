@@ -21,7 +21,6 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "el/ELParser.h"
 #include "mdl/GameConfig.h"
 
 #include <filesystem>
@@ -36,7 +35,7 @@ class BrushFaceAttributes;
 class GameConfigParser
 {
 private:
-  el::ELParser m_elParser;
+  std::string_view m_str;
   std::filesystem::path m_path;
 
 public:

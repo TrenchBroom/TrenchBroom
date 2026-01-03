@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "el/ELParser.h"
 #include "el/Expression.h"
+#include "el/ParseExpression.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
@@ -184,7 +184,7 @@ TEST_CASE("EntityTest")
 
   SECTION("modelSpecification")
   {
-    const auto modelExpression = el::ELParser::parseStrict(R"({{ 
+    const auto modelExpression = el::parseExpression(el::ParseMode::Strict, R"({{ 
       spawnflags == 0 -> "maps/b_shell0.bsp",
       spawnflags == 1 -> "maps/b_shell1.bsp",
                          "maps/b_shell2.bsp"
@@ -214,7 +214,7 @@ TEST_CASE("EntityTest")
   SECTION("decalSpecification")
   {
     const auto decalExpression =
-      el::ELParser::parseStrict(R"({ texture: texture })").value();
+      el::parseExpression(el::ParseMode::Strict, R"({ texture: texture })").value();
 
     const auto definition = EntityDefinition{
       "some_name",
@@ -800,13 +800,12 @@ TEST_CASE("EntityTest")
   {
     // see https://github.com/TrenchBroom/TrenchBroom/issues/3914
 
-    const auto modelExpression = el::ELParser{el::ELParser::Mode::Strict, R"(
+    const auto modelExpression = el::parseExpression(el::ParseMode::Strict, R"(
 {{
   spawnflags & 2 ->   ":maps/b_bh100.bsp",
   spawnflags & 1 ->   ":maps/b_bh10.bsp",
                       ":maps/b_bh25.bsp"
-}})"}
-                                   .parse()
+}})")
                                    .value();
 
     const auto definition = EntityDefinition{

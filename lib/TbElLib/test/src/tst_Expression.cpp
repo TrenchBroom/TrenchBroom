@@ -17,11 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Matchers.h"
-#include "el/ELParser.h"
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
+#include "el/ParseExpression.h"
 #include "el/TestUtils.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
@@ -50,7 +49,7 @@ auto evaluate(const std::string& expression, const MapType& variables = {})
 {
   return withEvaluationContext(
     [&](auto& context) {
-      return ELParser::parseStrict(expression).value().evaluate(context);
+      return parseExpression(ParseMode::Strict, expression).value().evaluate(context);
     },
     VariableTable{variables});
 }
@@ -59,48 +58,50 @@ std::vector<std::string> preorderVisit(const std::string& str)
 {
   auto result = std::vector<std::string>{};
 
-  ELParser::parseStrict(str).value().accept(kdl::overload(
-    [&](const LiteralExpression& literalExpression) {
-      result.push_back(fmt::format("{}", fmt::streamed(literalExpression)));
-    },
-    [&](const VariableExpression& variableExpression) {
-      result.push_back(fmt::format("{}", fmt::streamed(variableExpression)));
-    },
-    [&](const auto& thisLambda, const ArrayExpression& arrayExpression) {
-      result.push_back(fmt::format("{}", fmt::streamed(arrayExpression)));
-      for (const auto& element : arrayExpression.elements)
-      {
-        element.accept(thisLambda);
-      }
-    },
-    [&](const auto& thisLambda, const MapExpression& mapExpression) {
-      result.push_back(fmt::format("{}", fmt::streamed(mapExpression)));
-      for (const auto& [key, element] : mapExpression.elements)
-      {
-        element.accept(thisLambda);
-      }
-    },
-    [&](const auto& thisLambda, const UnaryExpression& unaryExpression) {
-      result.push_back(fmt::format("{}", fmt::streamed(unaryExpression)));
-      unaryExpression.operand.accept(thisLambda);
-    },
-    [&](const auto& thisLambda, const BinaryExpression& binaryExpression) {
-      result.push_back(fmt::format("{}", fmt::streamed(binaryExpression)));
-      binaryExpression.leftOperand.accept(thisLambda);
-      binaryExpression.rightOperand.accept(thisLambda);
-    },
-    [&](const auto& thisLambda, const SubscriptExpression& subscriptExpression) {
-      result.push_back(fmt::format("{}", fmt::streamed(subscriptExpression)));
-      subscriptExpression.leftOperand.accept(thisLambda);
-      subscriptExpression.rightOperand.accept(thisLambda);
-    },
-    [&](const auto& thisLambda, const SwitchExpression& switchExpression) {
-      result.push_back(fmt::format("{}", fmt::streamed(switchExpression)));
-      for (const auto& caseExpression : switchExpression.cases)
-      {
-        caseExpression.accept(thisLambda);
-      }
-    }));
+  parseExpression(ParseMode::Strict, str)
+    .value()
+    .accept(kdl::overload(
+      [&](const LiteralExpression& literalExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(literalExpression)));
+      },
+      [&](const VariableExpression& variableExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(variableExpression)));
+      },
+      [&](const auto& thisLambda, const ArrayExpression& arrayExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(arrayExpression)));
+        for (const auto& element : arrayExpression.elements)
+        {
+          element.accept(thisLambda);
+        }
+      },
+      [&](const auto& thisLambda, const MapExpression& mapExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(mapExpression)));
+        for (const auto& [key, element] : mapExpression.elements)
+        {
+          element.accept(thisLambda);
+        }
+      },
+      [&](const auto& thisLambda, const UnaryExpression& unaryExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(unaryExpression)));
+        unaryExpression.operand.accept(thisLambda);
+      },
+      [&](const auto& thisLambda, const BinaryExpression& binaryExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(binaryExpression)));
+        binaryExpression.leftOperand.accept(thisLambda);
+        binaryExpression.rightOperand.accept(thisLambda);
+      },
+      [&](const auto& thisLambda, const SubscriptExpression& subscriptExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(subscriptExpression)));
+        subscriptExpression.leftOperand.accept(thisLambda);
+        subscriptExpression.rightOperand.accept(thisLambda);
+      },
+      [&](const auto& thisLambda, const SwitchExpression& switchExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(switchExpression)));
+        for (const auto& caseExpression : switchExpression.cases)
+        {
+          caseExpression.accept(thisLambda);
+        }
+      }));
   return result;
 }
 
@@ -1187,7 +1188,7 @@ TEST_CASE("Expression")
                            expression_ = expression,
                            expectedExpression_ = expectedExpression](auto& context) {
       CHECK(
-        ELParser::parseStrict(expression_).value().optimize(context)
+        parseExpression(ParseMode::Strict, expression_).value().optimize(context)
         == expectedExpression_);
     }).ignore();
   }

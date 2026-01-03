@@ -21,6 +21,7 @@
 
 #include "ParserException.h"
 #include "el/EvaluationContext.h"
+#include "el/ParseExpression.h"
 #include "el/Value.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Tag.h"
@@ -570,14 +571,14 @@ Result<GameConfig> parseGameConfig(
 } // namespace
 
 GameConfigParser::GameConfigParser(const std::string_view str, std::filesystem::path path)
-  : m_elParser{el::ELParser::Mode::Strict, str}
+  : m_str{str}
   , m_path{std::move(path)}
 {
 }
 
 Result<GameConfig> GameConfigParser::parse()
 {
-  return m_elParser.parse()
+  return el::parseExpression(el::ParseMode::Strict, m_str)
          | kdl::and_then([&](const auto& expression) -> Result<GameConfig> {
              return el::withEvaluationContext([&](auto& context) {
                return parseGameConfig(context, expression, m_path);

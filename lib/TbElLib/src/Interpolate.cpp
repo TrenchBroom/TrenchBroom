@@ -19,13 +19,16 @@
 
 #include "el/Interpolate.h"
 
-#include "el/ELParser.h"
 #include "el/EvaluationContext.h"
 #include "el/Expression.h"
+#include "el/ParseExpression.h"
 #include "el/Value.h"
 
+#include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 #include "kd/string_utils.h"
+
+#include <fmt/format.h>
 
 #include <ranges>
 #include <sstream>
@@ -63,8 +66,7 @@ auto parseExpressions(
   return expressionPositions | std::views::transform([&](const auto& expressionPosition) {
            const auto [start, length] = expressionPosition;
            const auto expressionStr = str.substr(start + 2, length - 3);
-           auto parser = ELParser{ELParser::Mode::Strict, expressionStr};
-           return parser.parse();
+           return parseExpression(ParseMode::Strict, expressionStr);
          })
          | kdl::fold;
 }

@@ -26,6 +26,8 @@
 
 #include "kd/ranges/to.h"
 
+#include <fmt/format.h>
+
 #include <ranges>
 #include <string>
 #include <vector>
@@ -71,16 +73,17 @@ Result<GameEngineConfig> parseGameEngineConfig(
 } // namespace
 
 GameEngineConfigParser::GameEngineConfigParser(const std::string_view str)
-  : m_elParser{el::ELParser::Mode::Strict, str}
+  : m_str{str}
 {
 }
 
 Result<GameEngineConfig> GameEngineConfigParser::parse()
 {
-  return m_elParser.parse() | kdl::and_then([&](const auto& expression) {
-           return el::withEvaluationContext(
-             [&](auto& context) { return parseGameEngineConfig(context, expression); });
-         });
+  return el::parseExpression(el::ParseMode::Strict, m_str)
+         | kdl::and_then([&](const auto& expression) {
+             return el::withEvaluationContext(
+               [&](auto& context) { return parseGameEngineConfig(context, expression); });
+           });
 }
 
 } // namespace tb::mdl

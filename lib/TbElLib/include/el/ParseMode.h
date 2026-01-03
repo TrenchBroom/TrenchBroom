@@ -19,26 +19,13 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "Result.h"
-#include "mdl/CompilationConfig.h"
-
-#include <string_view>
-
-
-namespace tb::mdl
+namespace tb::el
 {
 
-class CompilationConfigParser
+enum class ParseMode
 {
-  std::string_view m_str;
-
-public:
-  explicit CompilationConfigParser(std::string_view str);
-
-  Result<CompilationConfig> parse();
-
-  deleteCopyAndMove(CompilationConfigParser);
+  Strict,
+  Lenient,
 };
 
-} // namespace tb::mdl
+} // namespace tb::el

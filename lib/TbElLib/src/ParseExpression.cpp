@@ -17,28 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "el/ParseExpression.h"
 
-#include "Macros.h"
-#include "Result.h"
-#include "mdl/CompilationConfig.h"
+#include "el/ELParser.h"
 
-#include <string_view>
-
-
-namespace tb::mdl
+namespace tb::el
 {
 
-class CompilationConfigParser
+Result<ExpressionNode> parseExpression(const ParseMode mode, const std::string_view str)
 {
-  std::string_view m_str;
+  return ELParser{mode, str}.parse();
+}
 
-public:
-  explicit CompilationConfigParser(std::string_view str);
-
-  Result<CompilationConfig> parse();
-
-  deleteCopyAndMove(CompilationConfigParser);
-};
-
-} // namespace tb::mdl
+} // namespace tb::el

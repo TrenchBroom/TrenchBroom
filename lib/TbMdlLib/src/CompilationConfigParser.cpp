@@ -21,6 +21,7 @@
 
 #include "ParserException.h"
 #include "el/EvaluationContext.h"
+#include "el/ParseExpression.h"
 #include "el/Value.h"
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
@@ -186,16 +187,18 @@ Result<CompilationConfig> parseCompilationConfig(
 } // namespace
 
 CompilationConfigParser::CompilationConfigParser(const std::string_view str)
-  : m_elParser{el::ELParser::Mode::Strict, str}
+  : m_str{str}
 {
 }
 
 Result<CompilationConfig> CompilationConfigParser::parse()
 {
-  return m_elParser.parse() | kdl::and_then([&](const auto& expression) {
-           return el::withEvaluationContext(
-             [&](auto& context) { return parseCompilationConfig(context, expression); });
-         });
+  return el::parseExpression(el::ParseMode::Strict, m_str)
+         | kdl::and_then([&](const auto& expression) {
+             return el::withEvaluationContext([&](auto& context) {
+               return parseCompilationConfig(context, expression);
+             });
+           });
 }
 
 } // namespace tb::mdl

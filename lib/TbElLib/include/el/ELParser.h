@@ -21,6 +21,7 @@
 
 #include "Expression.h"
 #include "Forward.h"
+#include "ParseMode.h"
 #include "Parser.h"
 #include "Result.h"
 #include "Tokenizer.h"
@@ -99,24 +100,14 @@ private:
 
 class ELParser : public Parser<ELToken::Type>
 {
-public:
-  enum class Mode
-  {
-    Strict,
-    Lenient
-  };
-
 protected:
-  ELParser::Mode m_mode;
+  ParseMode m_mode;
   ELTokenizer m_tokenizer;
   using Token = ELTokenizer::Token;
 
 public:
-  ELParser(ELParser::Mode mode, std::string_view str, size_t line = 1, size_t column = 1);
+  ELParser(ParseMode mode, std::string_view str, size_t line = 1, size_t column = 1);
   TokenizerState tokenizerState() const;
-
-  static Result<ExpressionNode> parseStrict(const std::string& str);
-  static Result<ExpressionNode> parseLenient(const std::string& str);
 
   Result<ExpressionNode> parse();
 
