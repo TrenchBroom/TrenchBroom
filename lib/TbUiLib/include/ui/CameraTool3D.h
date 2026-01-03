@@ -43,12 +43,10 @@ private:
 public:
   explicit CameraTool3D(gl::PerspectiveCamera& camera);
 
-private:
   Tool& tool() override;
   const Tool& tool() const override;
 
   void mouseScroll(const InputState& inputState) override;
-  void mouseUp(const InputState& inputState) override;
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 

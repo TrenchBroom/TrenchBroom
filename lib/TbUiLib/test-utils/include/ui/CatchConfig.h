@@ -20,3 +20,9 @@
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
 
 #include "ui/StringMakers.h" // IWYU pragma: keep
+
+#include "vm/bbox_io.h" // IWYU pragma: keep
+#include "vm/line_io.h" // IWYU pragma: keep
+#include "vm/mat_io.h"  // IWYU pragma: keep
+#include "vm/ray_io.h"  // IWYU pragma: keep
+#include "vm/vec_io.h"  // IWYU pragma: keep
