@@ -26,7 +26,6 @@
 #include "fs/TraversalMode.h"
 #include "fs/VirtualFileSystem.h"
 #include "mdl/CompilationConfigParser.h"
-#include "mdl/CompilationConfigWriter.h"
 #include "mdl/GameConfigParser.h"
 #include "mdl/GameEngineConfigParser.h"
 #include "mdl/GameEngineConfigWriter.h"
@@ -235,9 +234,7 @@ Result<void> writeCompilationConfig(
 
   return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
            auto stream = std::stringstream{};
-           auto writer = CompilationConfigWriter{compilationConfig, stream};
-           writer.writeConfig();
-
+           stream << toValue(compilationConfig) << "\n";
            return fs.createFileAtomic(profilesPath, stream.str());
          })
          | kdl::transform([&]() {

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "el/Value.h"
 #include "mdl/CompilationProfile.h"
 
 #include "kd/reflection_decl.h"
@@ -32,5 +33,7 @@ struct CompilationConfig
 
   kdl_reflect_decl(CompilationConfig, profiles);
 };
+
+el::Value toValue(const CompilationConfig& config);
 
 } // namespace tb::mdl

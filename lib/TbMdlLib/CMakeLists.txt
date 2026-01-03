@@ -23,7 +23,6 @@ add_library(TbMdlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompareHits.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationConfigParser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationConfigWriter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationProfile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationTask.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CurrentGroupCommand.cpp
