@@ -585,9 +585,22 @@ Result<EntityModelData> loadSiNModel(
             } else if (kdl::ci::str_is_equal("scale", token)) {
                 scale = tokenizer.nextToken(SiNDefToken::Number).toFloat<float>();
             } else if (kdl::ci::str_is_equal("origin", token)) {
-                float x = tokenizer.nextToken(SiNDefToken::Number).toFloat<float>();
-                float y = tokenizer.nextToken(SiNDefToken::Number).toFloat<float>();
-                float z = tokenizer.nextToken(SiNDefToken::Number).toFloat<float>();
+                float x, y, z;
+
+                // fixes some stupid models
+                if (tokenizer.peekToken().type() == SiNDefToken::String)
+                {
+                    auto split = kdl::str_split(tokenizer.nextToken(SiNDefToken::String).data(), ",");
+                    x = atof(split[0].c_str());
+                    y = atof(split[1].c_str());
+                    z = atof(split[2].c_str());
+                }
+                else
+                {
+                    x = tokenizer.nextToken(SiNDefToken::Number).toFloat<float>();
+                    y = tokenizer.nextToken(SiNDefToken::Number).toFloat<float>();
+                    z = tokenizer.nextToken(SiNDefToken::Number).toFloat<float>();
+                }
                 origin = { x, y, z };
             } else if (kdl::ci::str_is_suffix(token, ".sbm")) {
                 model = token;
@@ -835,6 +848,10 @@ Result<EntityModelData> loadSiNModel(
     }
   }
   catch (const fs::ReaderException& e)
+  {
+    return Error{e.what()};
+  }
+  catch (const ParserException& e)
   {
     return Error{e.what()};
   }

@@ -507,6 +507,13 @@ bool BrushRenderer::shouldDrawFaceInTransparentPass(
   {
     return true;
   }
+
+  // SiN
+  if (face.attributes().hasSiNTranslucence() && face.attributes().sinTranslucence().value() > 0.0f)
+  {
+      return true;
+  }
+
   return false;
 }
 

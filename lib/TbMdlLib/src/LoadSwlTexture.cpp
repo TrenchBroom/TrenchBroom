@@ -84,6 +84,9 @@ Result<gl::Texture> loadSwlTexture(fs::Reader& reader)
            | kdl::transform([&](const auto& palette) {
                auto mip0AverageColor = Color{};
                auto buffers = gl::TextureBufferList{};
+
+               bool has_transparency = false;
+
                for (size_t mipLevel = 0; mipLevel < SwlLayout::MipLevels; ++mipLevel)
                {
                  const auto w = width / (size_t(1) << mipLevel);
@@ -100,6 +103,17 @@ Result<gl::Texture> loadSwlTexture(fs::Reader& reader)
                    rgbaImage,
                    mdl::PaletteTransparency::Opaque,
                    averageColor);
+
+                 for (uint32_t i = 0; i < rgbaImage.size() / 4; i++)
+                 {
+                     uint32_t &c = ((uint32_t *) (rgbaImage.data()))[i];
+
+                     // transparency
+                     if (c == 0xFFFF00FF) {
+                         has_transparency = true;
+                         c = 0;
+                     }
+                 }
                  buffers.emplace_back(std::move(rgbaImage));
 
                  if (mipLevel == 0)
@@ -113,7 +127,7 @@ Result<gl::Texture> loadSwlTexture(fs::Reader& reader)
                  height,
                  mip0AverageColor,
                  GL_RGBA,
-                 gl::TextureMask::Off,
+                 has_transparency ? gl::TextureMask::On : gl::TextureMask::Off,
                  gl::NoEmbeddedDefaults{},
                  std::move(buffers)};
              });
