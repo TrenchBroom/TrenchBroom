@@ -148,11 +148,22 @@ Variables are allowed.)");
   setupCompleter(m_targetEditor);
   formLayout->addRow("File Path", m_targetEditor);
 
+  m_stripTbProperties = new QCheckBox{"Strip TrenchBroom specific entity properties"};
+  m_stripTbProperties->setToolTip(
+    tr("Set this checkbox to strip any entity properties starting with _tb_ from the "
+       "exported map file. Some compilers cannot handle these properties."));
+  formLayout->addRow("", m_stripTbProperties);
+
   connect(
     m_targetEditor,
     &QLineEdit::textChanged,
     this,
     &CompilationExportMapTaskEditor::targetSpecChanged);
+  connect(
+    m_stripTbProperties,
+    &QCheckBox::checkStateChanged,
+    this,
+    &CompilationExportMapTaskEditor::stripTbPropertiesChanged);
 }
 
 void CompilationExportMapTaskEditor::updateItem()
@@ -163,6 +174,12 @@ void CompilationExportMapTaskEditor::updateItem()
   if (m_targetEditor->text() != targetSpec)
   {
     m_targetEditor->setText(targetSpec);
+  }
+
+  if (m_stripTbProperties->isChecked() != task().stripTbProperties)
+  {
+    m_stripTbProperties->setCheckState(
+      task().stripTbProperties ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
   }
 }
 
@@ -176,6 +193,12 @@ mdl::CompilationExportMap& CompilationExportMapTaskEditor::task()
 void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
 {
   task().targetSpec = text.toStdString();
+}
+
+void CompilationExportMapTaskEditor::stripTbPropertiesChanged(const int state)
+{
+  const auto value = (state == Qt::Checked);
+  task().stripTbProperties = value;
 }
 
 CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
