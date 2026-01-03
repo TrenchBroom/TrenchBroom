@@ -877,6 +877,7 @@ Result<void> Map::exportAs(const ExportOptions& options) const
         return fs::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
           auto writer = NodeWriter{*m_worldNode, stream};
           writer.setExporting(true);
+          writer.setStripTbProperties(mapOptions.stripTbProperties);
           writer.writeMap(m_taskManager);
         });
       }),
