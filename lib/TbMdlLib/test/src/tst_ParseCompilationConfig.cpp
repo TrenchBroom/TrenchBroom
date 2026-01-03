@@ -165,6 +165,56 @@ TEST_CASE("CompilationConfigParser")
     CHECK(parseCompilationConfig(config).is_error());
   }
 
+  SECTION("parseOneProfileWithNameAndOneExportTask")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'export', 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationExportMap{K(enabled), !K(stripTbProperties), "the target"},
+         }},
+      }});
+  }
+
+  SECTION("parseOneProfileWithNameAndOneExportTaskWithStripProperties")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'export', 'stripTbProperties': true, 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationExportMap{K(enabled), K(stripTbProperties), "the target"},
+         }},
+      }});
+  }
+
   SECTION("parseOneProfileWithNameAndOneCopyTaskWithMissingSource")
   {
     const auto config = R"(

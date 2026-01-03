@@ -42,11 +42,16 @@ namespace
 CompilationExportMap toExportTask(
   const el::EvaluationContext& context, const el::Value& value)
 {
-  const auto enabled = value.contains(context, "enabled")
-                         ? value.at(context, "enabled").booleanValue(context)
-                         : true;
+  const auto enabled =
+    value.atOrDefault(context, "enabled", el::Value{true}).booleanValue(context);
+
+  const auto stripTbProperties =
+    value.atOrDefault(context, "stripTbProperties", el::Value{false})
+      .booleanValue(context);
+
   return {
     enabled,
+    stripTbProperties,
     value.at(context, "target").stringValue(context),
   };
 }
