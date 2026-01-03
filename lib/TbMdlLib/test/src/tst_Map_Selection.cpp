@@ -585,6 +585,18 @@ TEST_CASE("Map_Selection")
     addNodes(map, {{groupNode, {groupedBrushNodeM1}}});
     addNodes(map, {{brushEntityNode, {entityBrushNodeM1}}});
 
+    SECTION("Case insensitivity")
+    {
+      const auto name = GENERATE("material1", "MATERIAL1");
+      CAPTURE(name);
+
+      selectBrushesWithMaterial(map, name);
+
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(std::vector<Node*>{brushNodeM1, entityBrushNodeM1, groupNode}));
+    }
+
     SECTION("No group open")
     {
       selectBrushesWithMaterial(map, "material1");
@@ -842,6 +854,24 @@ TEST_CASE("Map_Selection")
         {groupNode, {groupedBrushNodeM1}},
         {brushEntityNode, {entityBrushNodeM1}},
       });
+
+    SECTION("Case insensitivity")
+    {
+      const auto name = GENERATE("material1", "MATERIAL1");
+      CAPTURE(name);
+
+      selectBrushFacesWithMaterial(map, name);
+
+      const auto expectedBrushFaces = kdl::vec_concat(
+        toHandles(brushNodeM1),
+        toHandles(entityBrushNodeM1),
+        toHandles(groupedBrushNodeM1),
+        toHandles(brushNodeM13) | std::views::filter([](const auto& handle) {
+          return handle.face().attributes().materialName() == "material1";
+        }) | kdl::ranges::to<std::vector>());
+
+      CHECK_THAT(map.selection().brushFaces, UnorderedEquals(expectedBrushFaces));
+    }
 
     SECTION("No group open")
     {
