@@ -239,6 +239,7 @@ bool parseCommandLineAndOpenFiles(AppController& appController)
     auto& prefs = PreferenceManager::instance();
     prefs.set(Preferences::EnableDraftReleaseUpdates, true);
     prefs.set(Preferences::IncludeDraftReleaseUpdates, true);
+    prefs.saveChanges();
   }
 
   return openFiles(appController, parser.positionalArguments());

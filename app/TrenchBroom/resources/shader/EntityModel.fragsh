@@ -48,7 +48,8 @@ void main() {
     
     if (ApplyTinting) {
         gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
-        gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
+        float brightnessCorrection = 1.0 / max(max(abs(TintColor.r), abs(TintColor.g)), abs(TintColor.b));
+        gl_FragColor = clamp(brightnessCorrection * gl_FragColor, 0.0, 1.0);
     }
 
     gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);

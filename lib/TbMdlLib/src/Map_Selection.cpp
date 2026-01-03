@@ -264,7 +264,8 @@ void selectBrushesWithMaterial(Map& map, const std::string_view materialName)
     | std::views::filter([&](const auto& node) {
         return std::ranges::any_of(
           collectSelectableBrushFaces({node}, map.editorContext()), [&](const auto& h) {
-            return kdl::ci::str_is_equal(h.face().attributes().materialName(), materialName);
+            return kdl::ci::str_is_equal(
+              h.face().attributes().materialName(), materialName);
           });
       })
     | kdl::ranges::to<std::vector>();
@@ -381,8 +382,9 @@ void selectBrushFacesWithMaterial(Map& map, const std::string_view materialName)
 {
   const auto faces =
     collectSelectableBrushFaces(std::vector<Node*>{&map.worldNode()}, map.editorContext())
-    | std::views::filter(
-      [&](const auto& h) { return kdl::ci::str_is_equal(h.face().attributes().materialName(), materialName); })
+    | std::views::filter([&](const auto& h) {
+        return kdl::ci::str_is_equal(h.face().attributes().materialName(), materialName);
+      })
     | kdl::ranges::to<std::vector>();
 
   auto transaction = Transaction{map, "Select Faces with Material"};

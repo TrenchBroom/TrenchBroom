@@ -198,9 +198,7 @@ public:
         Preferences::MinCameraFlyMoveSpeed,
         Preferences::MaxCameraFlyMoveSpeed);
 
-      // prefs are only changed when releasing RMB
-      auto& prefs = PreferenceManager::instance();
-      prefs.set(Preferences::CameraFlyMoveSpeed, newSpeed);
+      setPref(Preferences::CameraFlyMoveSpeed, newSpeed);
     }
   }
 
@@ -302,18 +300,6 @@ void CameraTool3D::mouseScroll(const InputState& inputState)
                                    : m_camera.direction();
       const float distance = scrollDist * moveSpeed(m_camera, false);
       m_camera.moveBy(factor * distance * moveDirection);
-    }
-  }
-}
-
-void CameraTool3D::mouseUp(const InputState& inputState)
-{
-  if (inputState.mouseButtonsPressed(MouseButtons::Right))
-  {
-    auto& prefs = PreferenceManager::instance();
-    if (!prefs.saveInstantly())
-    {
-      prefs.saveChanges();
     }
   }
 }

@@ -48,7 +48,7 @@ public:
     assert(epsilon >= T(0));
   }
   constexpr explicit approx(const T value)
-    : approx{value, vm::constants<T>::almost_zero()}
+    : approx{value, constants<T>::almost_zero()}
   {
   }
 
@@ -94,7 +94,7 @@ public:
     assert(epsilon >= T(0));
   }
   constexpr explicit approx(const vec<T, S> value)
-    : approx{value, vm::constants<T>::almost_zero()}
+    : approx{value, constants<T>::almost_zero()}
   {
   }
 
@@ -122,6 +122,12 @@ public:
   }
 };
 
+template <typename T, std::size_t S>
+approx(vec<T, S>) -> approx<vec<T, S>>;
+
+template <typename T, std::size_t S>
+approx(vec<T, S>, T) -> approx<vec<T, S>>;
+
 template <typename T, std::size_t R, std::size_t C>
 class approx<mat<T, R, C>>
 {
@@ -137,7 +143,7 @@ public:
     assert(epsilon >= T(0));
   }
   constexpr explicit approx(const mat<T, R, C> value)
-    : approx{value, vm::constants<T>::almost_zero()}
+    : approx{value, constants<T>::almost_zero()}
   {
   }
 
@@ -165,6 +171,12 @@ public:
   }
 };
 
+template <typename T, std::size_t R, std::size_t C>
+approx(mat<T, R, C>) -> approx<mat<T, R, C>>;
+
+template <typename T, std::size_t R, std::size_t C>
+approx(mat<T, R, C>, T) -> approx<mat<T, R, C>>;
+
 template <typename T, std::size_t S>
 class approx<bbox<T, S>>
 {
@@ -180,7 +192,7 @@ public:
     assert(epsilon >= T(0));
   }
   constexpr explicit approx(const bbox<T, S> value)
-    : approx{value, vm::constants<T>::almost_zero()}
+    : approx{value, constants<T>::almost_zero()}
   {
   }
 
@@ -209,6 +221,12 @@ public:
 };
 
 template <typename T, std::size_t S>
+approx(bbox<T, S>) -> approx<bbox<T, S>>;
+
+template <typename T, std::size_t S>
+approx(bbox<T, S>, T) -> approx<bbox<T, S>>;
+
+template <typename T, std::size_t S>
 class approx<line<T, S>>
 {
 private:
@@ -223,7 +241,7 @@ public:
     assert(epsilon >= T(0));
   }
   constexpr explicit approx(const line<T, S> value)
-    : approx{value, vm::constants<T>::almost_zero()}
+    : approx{value, constants<T>::almost_zero()}
   {
   }
 
@@ -238,6 +256,12 @@ public:
     return str;
   }
 };
+
+template <typename T, std::size_t S>
+approx(line<T, S>) -> approx<line<T, S>>;
+
+template <typename T, std::size_t S>
+approx(line<T, S>, T) -> approx<line<T, S>>;
 
 template <typename T>
 class optional_approx
@@ -254,7 +278,7 @@ public:
     assert(epsilon >= T(0));
   }
   constexpr explicit optional_approx(std::optional<T> value)
-    : optional_approx<T>{std::move(value), vm::constants<T>::almost_zero()}
+    : optional_approx<T>{std::move(value), constants<T>::almost_zero()}
   {
   }
 
