@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "Result.h"
 #include "mdl/GameConfig.h"
 
@@ -30,23 +29,8 @@
 
 namespace tb::mdl
 {
-class BrushFaceAttributes;
 
-class GameConfigParser
-{
-private:
-  std::string_view m_str;
-  std::filesystem::path m_path;
-
-public:
-  explicit GameConfigParser(std::string_view str, std::filesystem::path path = {});
-
-  Result<GameConfig> parse();
-
-  deleteCopyAndMove(GameConfigParser);
-};
-
-std::optional<vm::bbox3d> parseSoftMapBoundsString(const std::string& string);
-std::string serializeSoftMapBoundsString(const vm::bbox3d& bounds);
+Result<GameConfig> parseGameConfig(
+  std::string_view str, const std::filesystem::path& path = {});
 
 } // namespace tb::mdl

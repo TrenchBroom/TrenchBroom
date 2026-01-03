@@ -25,9 +25,9 @@
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
 #include "fs/VirtualFileSystem.h"
-#include "mdl/GameConfigParser.h"
 #include "mdl/GameInfo.h"
 #include "mdl/ParseCompilationConfig.h"
+#include "mdl/ParseGameConfig.h"
 #include "mdl/ParseGameEngineConfig.h"
 
 #include "kd/const_overload.h"
@@ -134,8 +134,7 @@ Result<GameConfig> loadGameConfig(
   return fs.openFile(path).join(fs.makeAbsolute(path))
          | kdl::and_then([&](auto configFile, auto absolutePath) {
              auto reader = configFile->reader().buffer();
-             auto parser = GameConfigParser{reader.stringView(), absolutePath};
-             return parser.parse();
+             return parseGameConfig(reader.stringView(), absolutePath);
            })
          | kdl::transform([&](auto config) {
              migrateConfigFiles(userGameDir, config) | kdl::transform_error([&](auto e) {

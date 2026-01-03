@@ -17,26 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/GameConfigParser.h"
+#include "mdl/ParseGameConfig.h"
 
 #include "ParserException.h"
 #include "el/EvaluationContext.h"
 #include "el/ParseExpression.h"
 #include "el/Value.h"
 #include "mdl/GameConfig.h"
+#include "mdl/SoftMapBounds.h"
 #include "mdl/Tag.h"
 #include "mdl/TagAttribute.h"
 #include "mdl/TagMatcher.h"
 
 #include "kd/ranges/to.h"
 
-#include "vm/vec_io.h"
-
 #include <fmt/format.h>
 
 #include <algorithm>
 #include <ranges>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -111,7 +109,7 @@ std::optional<vm::bbox3d> parseSoftMapBounds(
     return std::nullopt;
   }
 
-  if (const auto bounds = parseSoftMapBoundsString(value.stringValue(context)))
+  if (const auto bounds = mdl::parseSoftMapBounds(value.stringValue(context)))
   {
     return bounds;
   }
@@ -570,36 +568,15 @@ Result<GameConfig> parseGameConfig(
 
 } // namespace
 
-GameConfigParser::GameConfigParser(const std::string_view str, std::filesystem::path path)
-  : m_str{str}
-  , m_path{std::move(path)}
-{
-}
 
-Result<GameConfig> GameConfigParser::parse()
+Result<GameConfig> parseGameConfig(
+  std::string_view str, const std::filesystem::path& path)
 {
-  return el::parseExpression(el::ParseMode::Strict, m_str)
+  return el::parseExpression(el::ParseMode::Strict, str)
          | kdl::and_then([&](const auto& expression) -> Result<GameConfig> {
-             return el::withEvaluationContext([&](auto& context) {
-               return parseGameConfig(context, expression, m_path);
-             });
+             return el::withEvaluationContext(
+               [&](auto& context) { return parseGameConfig(context, expression, path); });
            });
-}
-
-std::optional<vm::bbox3d> parseSoftMapBoundsString(const std::string& string)
-{
-  if (const auto v = vm::parse<double, 6u>(string))
-  {
-    return vm::bbox3d{{(*v)[0], (*v)[1], (*v)[2]}, {(*v)[3], (*v)[4], (*v)[5]}};
-  }
-  return std::nullopt;
-}
-
-std::string serializeSoftMapBoundsString(const vm::bbox3d& bounds)
-{
-  auto result = std::stringstream{};
-  result << bounds.min << " " << bounds.max;
-  return result.str();
 }
 
 } // namespace tb::mdl

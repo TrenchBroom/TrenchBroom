@@ -42,7 +42,6 @@
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EnvironmentConfig.h"
-#include "mdl/GameConfigParser.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"

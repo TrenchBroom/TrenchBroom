@@ -23,7 +23,7 @@
 #include "fs/TraversalMode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/GameConfig.h"
-#include "mdl/GameConfigParser.h"
+#include "mdl/ParseGameConfig.h"
 #include "mdl/Tag.h"
 #include "mdl/TagMatcher.h"
 
@@ -52,28 +52,23 @@ TEST_CASE("GameConfigParser")
       auto file = fs::Disk::openFile(path) | kdl::value();
       auto reader = file->reader().buffer();
 
-      GameConfigParser parser(reader.stringView(), path);
-      CHECK_NOTHROW(parser.parse());
+      CHECK_NOTHROW(parseGameConfig(reader.stringView(), path));
     }
   }
 
   SECTION("parseBlankConfig")
   {
-    const std::string config("   ");
-    GameConfigParser parser(config);
-    CHECK(parser.parse().is_error());
+    CHECK(parseGameConfig("   ").is_error());
   }
 
   SECTION("parseEmptyConfig")
   {
-    const std::string config("  {  } ");
-    GameConfigParser parser(config);
-    CHECK(parser.parse().is_error());
+    CHECK(parseGameConfig("  {  } ").is_error());
   }
 
   SECTION("parseQuakeConfig")
   {
-    const std::string config(R"(
+    const auto config = R"(
 {
     "version": 9,
     "unexpectedKey": [],
@@ -134,10 +129,10 @@ TEST_CASE("GameConfigParser")
         ]
     }
 }
-)");
+)";
 
     CHECK(
-      GameConfigParser(config).parse()
+      parseGameConfig(config)
       == mdl::GameConfig{
         "Quake",
         {},
@@ -188,7 +183,7 @@ TEST_CASE("GameConfigParser")
 
   SECTION("parseQuake2Config")
   {
-    const std::string config(R"%(
+    const auto config = R"%(
 {
     "version": 9,
     "name": "Quake 2",
@@ -395,10 +390,10 @@ TEST_CASE("GameConfigParser")
         ]
     }
 }
-)%");
+)%";
 
     CHECK(
-      GameConfigParser(config).parse()
+      parseGameConfig(config)
       == mdl::GameConfig{
         "Quake 2",
         {},
@@ -501,7 +496,7 @@ TEST_CASE("GameConfigParser")
 
   SECTION("parseExtrasConfig")
   {
-    const std::string config(R"%(
+    const auto config = R"%(
 {
     "version": 9,
     "name": "Extras",
@@ -716,7 +711,7 @@ TEST_CASE("GameConfigParser")
         ]
     }
 }
-)%");
+)%";
 
     mdl::BrushFaceAttributes expectedBrushFaceAttributes("defaultMaterial");
     expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
@@ -728,7 +723,7 @@ TEST_CASE("GameConfigParser")
     expectedBrushFaceAttributes.setColor(RgbB(0, 128, 255));
 
     CHECK(
-      GameConfigParser(config).parse()
+      parseGameConfig(config)
       == mdl::GameConfig{
         "Extras",
         {},
@@ -835,7 +830,7 @@ TEST_CASE("GameConfigParser")
 
   SECTION("parseDuplicateTags")
   {
-    const std::string config(R"(
+    const auto config = R"(
 {
     "version": 9,
     "name": "Quake",
@@ -877,15 +872,14 @@ TEST_CASE("GameConfigParser")
         ]
     }
 }
-)");
+)";
 
-    GameConfigParser parser(config);
-    CHECK(parser.parse().is_error());
+    CHECK(parseGameConfig(config).is_error());
   }
 
   SECTION("parseSetDefaultProperties")
   {
-    const std::string config(R"(
+    const auto config = R"(
 {
     "version": 9,
     "name": "Quake",
@@ -910,10 +904,10 @@ TEST_CASE("GameConfigParser")
         "setDefaultProperties": true
     }
 }
-)");
+)";
 
     CHECK(
-      GameConfigParser(config).parse()
+      parseGameConfig(config)
       == mdl::GameConfig{
         "Quake",
         {},

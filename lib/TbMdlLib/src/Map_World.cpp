@@ -22,7 +22,6 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EnvironmentConfig.h"
-#include "mdl/GameConfigParser.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
@@ -40,7 +39,7 @@ auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
   {
     return *mapValue == EntityPropertyValues::NoSoftMapBounds
              ? SoftMapBounds{SoftMapBoundsType::Map, std::nullopt}
-             : SoftMapBounds{SoftMapBoundsType::Map, parseSoftMapBoundsString(*mapValue)};
+             : SoftMapBounds{SoftMapBoundsType::Map, parseSoftMapBounds(*mapValue)};
   }
 
   // Not set in map -> use Game value
@@ -75,7 +74,7 @@ void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
     else
     {
       entity.addOrUpdateProperty(
-        EntityPropertyKeys::SoftMapBounds, serializeSoftMapBoundsString(*bounds.bounds));
+        EntityPropertyKeys::SoftMapBounds, serializeSoftMapBounds(*bounds.bounds));
     }
     break;
   case SoftMapBoundsType::Game:
