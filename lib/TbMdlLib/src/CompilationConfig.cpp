@@ -36,6 +36,7 @@ el::Value toValue(const CompilationTask& task)
         auto map = el::MapType{};
         map["type"] = el::Value{"export"};
         map["enabled"] = el::Value{exportMap.enabled};
+        map["stripTbProperties"] = el::Value{exportMap.stripTbProperties};
         map["target"] = el::Value{exportMap.targetSpec};
         return map;
       },
