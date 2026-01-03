@@ -42,6 +42,17 @@ DrawShapeTool::DrawShapeTool(MapDocument& document)
   : CreateBrushesToolBase{true, document}
   , m_extensionManager{document}
 {
+  m_notifierConnection += m_extensionManager.applyParametersNotifier.connect([&]() {
+    auto& map = m_document.map();
+    if (const auto bounds = map.selectionBounds())
+    {
+      auto transaction = mdl::Transaction{map, "Apply shape parameters"};
+      update(*bounds);
+      mdl::removeSelectedNodes(map);
+      createBrushes();
+      transaction.commit();
+    }
+  });
 }
 
 void DrawShapeTool::update(const vm::bbox3d& bounds)
