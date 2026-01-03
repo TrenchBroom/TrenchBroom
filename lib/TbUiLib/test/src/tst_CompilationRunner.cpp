@@ -37,6 +37,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CompilationVariables.h"
 #include "ui/TextOutputAdapter.h"
 
+#include "kd/k.h"
 #include "kd/path_utils.h"
 #include "kd/string_utils.h"
 
@@ -126,7 +127,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
 
     auto context = CompilationContext{map, variables, outputAdapter, false};
 
-    auto task = mdl::CompilationRunTool{true, "", "", false};
+    auto task = mdl::CompilationRunTool{K(enabled), "", "", false};
     auto runner = CompilationRunToolTaskRunner{context, task};
 
     auto exec = ExecuteTask{runner};
@@ -157,8 +158,8 @@ TEST_CASE("CompilationRunToolTaskRunner")
     auto context = CompilationContext{map, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-    auto task =
-      mdl::CompilationRunTool{true, toolPath, "--exit 0", treatNonZeroResultCodeAsError};
+    auto task = mdl::CompilationRunTool{
+      K(enabled), toolPath, "--exit 0", treatNonZeroResultCodeAsError};
     auto runner = CompilationRunToolTaskRunner{context, task};
 
     auto exec = ExecuteTask{runner};
@@ -315,7 +316,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
     auto node = new mdl::EntityNode{mdl::Entity{}};
     addNodes(map, {{parentForNodes(map), {node}}});
 
-    auto task = mdl::CompilationExportMap{true, exportPath};
+    auto task = mdl::CompilationExportMap{K(enabled), exportPath};
 
     auto runner = CompilationExportMapTaskRunner{context, task};
     REQUIRE_NOTHROW(runner.execute());
@@ -328,7 +329,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
     auto node = new mdl::EntityNode{mdl::Entity{}};
     addNodes(map, {{parentForNodes(map), {node}}});
 
-    auto task = mdl::CompilationExportMap{true, "${WORK_DIR_PATH/exported.map"};
+    auto task = mdl::CompilationExportMap{K(enabled), "${WORK_DIR_PATH/exported.map"};
 
     auto runner = CompilationExportMapTaskRunner{context, task};
     REQUIRE_NOTHROW(runner.execute());
@@ -379,7 +380,7 @@ TEST_CASE("CompilationCopyFilesTaskRunner")
     const auto targetPath =
       GENERATE("${WORK_DIR_PATH}/target.map", "${WORK_DIR_PATH/target.map}");
 
-    auto task = mdl::CompilationCopyFiles{true, sourcePath, targetPath};
+    auto task = mdl::CompilationCopyFiles{K(enabled), sourcePath, targetPath};
     auto runner = CompilationCopyFilesTaskRunner{context, task};
 
     REQUIRE_NOTHROW(runner.execute());
@@ -438,7 +439,7 @@ TEST_CASE("CompilationRenameFileTaskRunner")
     const auto targetPath =
       GENERATE("${WORK_DIR_PATH}/target.map", "${WORK_DIR_PATH/target.map}");
 
-    auto task = mdl::CompilationRenameFile{true, sourcePath, targetPath};
+    auto task = mdl::CompilationRenameFile{K(enabled), sourcePath, targetPath};
     auto runner = CompilationRenameFileTaskRunner{context, task};
 
     REQUIRE_NOTHROW(runner.execute());
@@ -471,7 +472,7 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
     testEnvironment.createDirectory(dir);
 
     auto task =
-      mdl::CompilationDeleteFiles{true, (testEnvironment.dir() / "*.lit").string()};
+      mdl::CompilationDeleteFiles{K(enabled), (testEnvironment.dir() / "*.lit").string()};
     auto runner = CompilationDeleteFilesTaskRunner{context, task};
 
     REQUIRE_NOTHROW(runner.execute());
@@ -484,7 +485,7 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
 
   SECTION("variable interpolation error")
   {
-    auto task = mdl::CompilationDeleteFiles{true, "${WORK_DIR_PATH/exported.map"};
+    auto task = mdl::CompilationDeleteFiles{K(enabled), "${WORK_DIR_PATH/exported.map"};
     auto runner = CompilationDeleteFilesTaskRunner{context, task};
 
     REQUIRE_NOTHROW(runner.execute());
@@ -525,8 +526,8 @@ TEST_CASE("CompilationRunner")
       "name",
       testEnvironment.dir().string(),
       {
-        mdl::CompilationCopyFiles{true, does_not_exist, "does_not_matter.map"},
-        mdl::CompilationCopyFiles{true, does_exist, should_not_exist},
+        mdl::CompilationCopyFiles{K(enabled), does_not_exist, "does_not_matter.map"},
+        mdl::CompilationCopyFiles{K(enabled), does_exist, should_not_exist},
       }};
 
     auto runner = CompilationRunner{

@@ -22,6 +22,8 @@
 #include "mdl/CompilationTask.h"
 #include "mdl/ParseCompilationConfig.h"
 
+#include "kd/k.h"
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl
@@ -236,7 +238,7 @@ TEST_CASE("CompilationConfigParser")
         {"A profile",
          "",
          {
-           mdl::CompilationCopyFiles{true, "the source", "the target"},
+           mdl::CompilationCopyFiles{K(enabled), "the source", "the target"},
          }},
       }});
   }
@@ -261,7 +263,7 @@ TEST_CASE("CompilationConfigParser")
         {"A profile",
          "",
          {
-           mdl::CompilationRenameFile{true, "the source", "the target"},
+           mdl::CompilationRenameFile{K(enabled), "the source", "the target"},
          }},
       }});
   }
@@ -286,7 +288,7 @@ TEST_CASE("CompilationConfigParser")
         {"A profile",
          "",
          {
-           mdl::CompilationDeleteFiles{true, "the target"},
+           mdl::CompilationDeleteFiles{K(enabled), "the target"},
          }},
       }});
   }
@@ -352,7 +354,11 @@ TEST_CASE("CompilationConfigParser")
         {"A profile",
          "",
          {
-           mdl::CompilationRunTool{true, "tyrbsp.exe", "this and that", false},
+           mdl::CompilationRunTool{
+             K(enabled),
+             "tyrbsp.exe",
+             "this and that",
+             !K(treatNonZeroResultCodeAsError)},
          }},
       }});
   }
@@ -397,10 +403,11 @@ TEST_CASE("CompilationConfigParser")
         {"A profile",
          "",
          {
-           mdl::CompilationRunTool{true, "tyrbsp.exe", "this and that", true},
-           mdl::CompilationCopyFiles{false, "the source", "the target"},
-           mdl::CompilationRenameFile{true, "the source", "the target"},
-           mdl::CompilationDeleteFiles{false, "some other target"},
+           mdl::CompilationRunTool{
+             K(enabled), "tyrbsp.exe", "this and that", K(treatNonZeroResultCodeAsError)},
+           mdl::CompilationCopyFiles{!K(enabled), "the source", "the target"},
+           mdl::CompilationRenameFile{K(enabled), "the source", "the target"},
+           mdl::CompilationDeleteFiles{!K(enabled), "some other target"},
          }},
       }});
   }
@@ -429,7 +436,9 @@ TEST_CASE("CompilationConfigParser")
          "${MAP_DIR_PATH}",
          {
            mdl::CompilationCopyFiles{
-             true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", R"(C:\quake2\chaos\maps\)"},
+             K(enabled),
+             "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp",
+             R"(C:\quake2\chaos\maps\)"},
          }},
       }});
   }
