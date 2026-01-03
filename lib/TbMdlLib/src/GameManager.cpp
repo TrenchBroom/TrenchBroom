@@ -28,7 +28,6 @@
 #include "mdl/CompilationConfigParser.h"
 #include "mdl/GameConfigParser.h"
 #include "mdl/GameEngineConfigParser.h"
-#include "mdl/GameEngineConfigWriter.h"
 #include "mdl/GameInfo.h"
 
 #include "kd/const_overload.h"
@@ -268,9 +267,7 @@ Result<void> writeGameEngineConfig(
 
   return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
            auto stream = std::stringstream{};
-           auto writer = GameEngineConfigWriter{gameEngineConfig, stream};
-           writer.writeConfig();
-
+           stream << toValue(gameEngineConfig) << "\n";
            return fs.createFileAtomic(profilesPath, stream.str());
          })
          | kdl::transform([&]() {

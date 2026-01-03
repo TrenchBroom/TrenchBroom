@@ -59,7 +59,6 @@ add_library(TbMdlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameConfigParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineConfigParser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineConfigWriter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineProfile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameInfo.cpp

@@ -19,11 +19,41 @@
 
 #include "mdl/GameEngineConfig.h"
 
+#include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 
 namespace tb::mdl
 {
+namespace
+{
+
+el::Value toValue(const GameEngineProfile& profile)
+{
+  return el::Value{el::MapType{
+    {"name", el::Value{profile.name}},
+    {"path", el::Value{profile.path.string()}},
+    {"parameters", el::Value{profile.parameterSpec}},
+  }};
+}
+
+el::Value toValue(const std::vector<GameEngineProfile>& profiles)
+{
+  return el::Value{
+    profiles
+    | std::views::transform([&](const auto& profile) { return toValue(profile); })
+    | kdl::ranges::to<std::vector>()};
+}
+
+} // namespace
 
 kdl_reflect_impl(GameEngineConfig);
+
+el::Value toValue(const GameEngineConfig& config)
+{
+  return el::Value{el::MapType{
+    {"version", el::Value{1.0}},
+    {"profiles", toValue(config.profiles)},
+  }};
+}
 
 } // namespace tb::mdl
