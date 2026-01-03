@@ -23,6 +23,8 @@
 #include <QPushButton>
 
 #include "mdl/Map.h"
+#include "mdl/Map_Nodes.h"
+#include "mdl/Transaction.h"
 #include "ui/DrawShapeToolExtensions.h"
 #include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
@@ -59,14 +61,13 @@ void DrawShapeToolExtensionPage::addApplyButton(MapDocument& document)
 
   addWidget(applyButton);
 
-  m_notifierConnection +=
-    document.documentWasLoadedNotifier.connect([&document, applyButton]() {
-      applyButton->setEnabled(document.map().selection().hasNodes());
-    });
-  m_notifierConnection +=
-    document.documentDidChangeNotifier.connect([&document, applyButton]() {
-      applyButton->setEnabled(document.map().selection().hasNodes());
-    });
+  const auto enableApplyButton = [&document, applyButton](const auto&...) {
+    applyButton->setEnabled(document.map().selection().hasNodes());
+  };
+
+  m_notifierConnection += document.documentWasLoadedNotifier.connect(enableApplyButton);
+  m_notifierConnection += document.documentDidChangeNotifier.connect(enableApplyButton);
+  m_notifierConnection += document.selectionDidChangeNotifier.connect(enableApplyButton);
 }
 
 vm::axis::type ShapeParameters::axis() const
@@ -195,7 +196,10 @@ std::vector<DrawShapeToolExtensionPage*> DrawShapeToolExtensionManager::createTo
   QWidget* parent)
 {
   return m_extensions | std::views::transform([&](const auto& extension) {
-           return extension->createToolPage(m_parameters, parent);
+           auto* toolPage = extension->createToolPage(m_parameters, parent);
+           m_notifierConnection +=
+             toolPage->applyParametersNotifier.connect(applyParametersNotifier);
+           return toolPage;
          })
          | kdl::ranges::to<std::vector>();
 }

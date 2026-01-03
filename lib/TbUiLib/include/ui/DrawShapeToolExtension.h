@@ -110,8 +110,16 @@ public:
 
 class DrawShapeToolExtensionManager
 {
+private:
+  ShapeParameters m_parameters;
+  std::vector<std::unique_ptr<DrawShapeToolExtension>> m_extensions;
+  size_t m_currentExtensionIndex = 0;
+
+  NotifierConnection m_notifierConnection;
+
 public:
   Notifier<size_t> currentExtensionDidChangeNotifier;
+  Notifier<> applyParametersNotifier;
 
   explicit DrawShapeToolExtensionManager(MapDocument& document);
 
@@ -122,11 +130,6 @@ public:
 
   std::vector<DrawShapeToolExtensionPage*> createToolPages(QWidget* parent = nullptr);
   Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const;
-
-private:
-  ShapeParameters m_parameters;
-  std::vector<std::unique_ptr<DrawShapeToolExtension>> m_extensions;
-  size_t m_currentExtensionIndex = 0;
 };
 
 } // namespace tb::ui
