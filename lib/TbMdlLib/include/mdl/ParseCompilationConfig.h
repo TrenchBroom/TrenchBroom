@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "Result.h"
 #include "mdl/CompilationConfig.h"
 
@@ -29,16 +28,6 @@
 namespace tb::mdl
 {
 
-class CompilationConfigParser
-{
-  std::string_view m_str;
-
-public:
-  explicit CompilationConfigParser(std::string_view str);
-
-  Result<CompilationConfig> parse();
-
-  deleteCopyAndMove(CompilationConfigParser);
-};
+Result<CompilationConfig> parseCompilationConfig(std::string_view str);
 
 } // namespace tb::mdl

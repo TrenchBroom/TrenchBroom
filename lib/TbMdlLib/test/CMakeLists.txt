@@ -9,7 +9,6 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CommandProcessor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationConfigParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DecalDefinition.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DefParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EditorContext.cpp
@@ -74,6 +73,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ObjSerializer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Octree.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Palette.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParseCompilationConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PatchNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PointTrace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Polyhedron.cpp

@@ -22,7 +22,6 @@ add_library(TbMdlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CommandProcessor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompareHits.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationConfig.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationConfigParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationProfile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationTask.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CurrentGroupCommand.cpp
@@ -147,6 +146,7 @@ add_library(TbMdlLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Palette.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParallelUVCoordSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParaxialUVCoordSystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseCompilationConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseModelDefinition.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/PatchNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/PickResult.cpp

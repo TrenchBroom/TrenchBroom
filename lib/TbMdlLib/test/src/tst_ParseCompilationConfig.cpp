@@ -19,8 +19,8 @@
 
 #include "mdl/CatchConfig.h"
 #include "mdl/CompilationConfig.h"
-#include "mdl/CompilationConfigParser.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/ParseCompilationConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -32,43 +32,37 @@ TEST_CASE("CompilationConfigParser")
   SECTION("parseBlankConfig")
   {
     const auto config = "   ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseEmptyConfig")
   {
     const auto config = "  {  } ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseEmptyConfigWithTrailingGarbage")
   {
     const auto config = "  {  } asdf";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseMissingProfiles")
   {
     const auto config = "  { 'version' : 1 } ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseMissingVersion")
   {
     const auto config = "  { 'profiles': {} } ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseEmptyProfiles")
   {
     const auto config = "  { 'version': 1, 'profiles': [] } ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse() == mdl::CompilationConfig{{}});
+    CHECK(parseCompilationConfig(config) == mdl::CompilationConfig{{}});
   }
 
   SECTION("parseOneProfileWithMissingNameAndMissingTasks")
@@ -81,8 +75,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndMissingTasks")
@@ -97,8 +90,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithMissingNameAndEmptyTasks")
@@ -113,8 +105,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndEmptyTasks")
@@ -131,9 +122,8 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile", "", {}},
       }});
@@ -153,8 +143,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneTaskWithUnknownType")
@@ -171,8 +160,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneCopyTaskWithMissingSource")
@@ -189,8 +177,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneCopyTaskWithMissingTarget")
@@ -207,8 +194,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION(
@@ -227,8 +213,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneCopyTask")
@@ -245,9 +230,8 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
@@ -271,9 +255,8 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
@@ -297,9 +280,8 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
@@ -323,8 +305,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION(
@@ -343,8 +324,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneToolTask")
@@ -366,9 +346,8 @@ TEST_CASE("CompilationConfigParser")
     }]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
@@ -412,9 +391,8 @@ TEST_CASE("CompilationConfigParser")
   }]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
@@ -444,9 +422,8 @@ TEST_CASE("CompilationConfigParser")
   "version": 1
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"Full Compile",
          "${MAP_DIR_PATH}",

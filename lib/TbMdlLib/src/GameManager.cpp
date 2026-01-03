@@ -25,10 +25,10 @@
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
 #include "fs/VirtualFileSystem.h"
-#include "mdl/CompilationConfigParser.h"
 #include "mdl/GameConfigParser.h"
 #include "mdl/GameEngineConfigParser.h"
 #include "mdl/GameInfo.h"
+#include "mdl/ParseCompilationConfig.h"
 
 #include "kd/const_overload.h"
 #include "kd/path_utils.h"
@@ -95,8 +95,7 @@ Result<void> loadCompilationConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
   {
     return fs.openFile(path) | kdl::and_then([&](auto profilesFile) {
              auto reader = profilesFile->reader().buffer();
-             auto parser = CompilationConfigParser{reader.stringView()};
-             return parser.parse();
+             return parseCompilationConfig(reader.stringView());
            })
            | kdl::transform([&](auto compilationConfig) {
                gameInfo.compilationConfig = std::move(compilationConfig);
