@@ -34,57 +34,40 @@ el::Value toValue(const CompilationTask& task)
     kdl::overload(
       [](const CompilationExportMap& exportMap) {
         auto map = el::MapType{};
-        if (!exportMap.enabled)
-        {
-          map["enabled"] = el::Value{false};
-        }
         map["type"] = el::Value{"export"};
+        map["enabled"] = el::Value{exportMap.enabled};
         map["target"] = el::Value{exportMap.targetSpec};
         return map;
       },
       [](const CompilationCopyFiles& copyFiles) {
         auto map = el::MapType{};
-        if (!copyFiles.enabled)
-        {
-          map["enabled"] = el::Value{false};
-        }
         map["type"] = el::Value{"copy"};
+        map["enabled"] = el::Value{copyFiles.enabled};
         map["source"] = el::Value{copyFiles.sourceSpec};
         map["target"] = el::Value{copyFiles.targetSpec};
         return map;
       },
       [](const CompilationRenameFile& renameFile) {
         auto map = el::MapType{};
-        if (!renameFile.enabled)
-        {
-          map["enabled"] = el::Value{false};
-        }
         map["type"] = el::Value{"rename"};
+        map["enabled"] = el::Value{renameFile.enabled};
         map["source"] = el::Value{renameFile.sourceSpec};
         map["target"] = el::Value{renameFile.targetSpec};
         return map;
       },
       [](const CompilationDeleteFiles& deleteFiles) {
         auto map = el::MapType{};
-        if (!deleteFiles.enabled)
-        {
-          map["enabled"] = el::Value{false};
-        }
         map["type"] = el::Value{"delete"};
+        map["enabled"] = el::Value{deleteFiles.enabled};
         map["target"] = el::Value{deleteFiles.targetSpec};
         return map;
       },
       [](const CompilationRunTool& runTool) {
         auto map = el::MapType{};
-        if (!runTool.enabled)
-        {
-          map["enabled"] = el::Value{false};
-        }
-        if (runTool.treatNonZeroResultCodeAsError)
-        {
-          map["treatNonZeroResultCodeAsError"] = el::Value{true};
-        }
         map["type"] = el::Value{"tool"};
+        map["enabled"] = el::Value{runTool.enabled};
+        map["treatNonZeroResultCodeAsError"] =
+          el::Value{runTool.treatNonZeroResultCodeAsError};
         map["tool"] = el::Value{runTool.toolSpec};
         map["parameters"] = el::Value{runTool.parameterSpec};
         return map;
