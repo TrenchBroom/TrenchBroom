@@ -19,37 +19,15 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "el/Forward.h"
+#include "Result.h"
+#include "mdl/CompilationConfig.h"
 
-#include <iosfwd>
-#include <string>
+#include <string_view>
+
 
 namespace tb::mdl
 {
-struct CompilationConfig;
-struct CompilationProfile;
 
-class CompilationConfigWriter
-{
-private:
-  const CompilationConfig& m_config;
-  std::ostream& m_stream;
-
-public:
-  CompilationConfigWriter(const CompilationConfig& config, std::ostream& stream);
-
-  void writeConfig();
-
-private:
-  el::Value writeProfiles(const CompilationConfig& config) const;
-  el::Value writeProfile(const CompilationProfile& profile) const;
-
-  el::Value writeTasks(const CompilationProfile& profile) const;
-
-  std::string escape(const std::string& str) const;
-
-  deleteCopyAndMove(CompilationConfigWriter);
-};
+Result<CompilationConfig> parseCompilationConfig(std::string_view str);
 
 } // namespace tb::mdl

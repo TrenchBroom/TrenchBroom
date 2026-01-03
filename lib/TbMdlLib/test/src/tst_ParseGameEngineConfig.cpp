@@ -19,7 +19,7 @@
 
 #include "mdl/CatchConfig.h"
 #include "mdl/GameEngineConfig.h"
-#include "mdl/GameEngineConfigParser.h"
+#include "mdl/ParseGameEngineConfig.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -29,43 +29,37 @@ namespace tb::mdl
 TEST_CASE("GameEngineConfigParserTest.parseBlankConfig")
 {
   const auto config = R"(   )";
-  auto parser = GameEngineConfigParser{config};
-  CHECK(parser.parse().is_error());
+  CHECK(parseGameEngineConfig(config).is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyConfig")
 {
   const auto config = R"( { } )";
-  auto parser = GameEngineConfigParser{config};
-  CHECK(parser.parse().is_error());
+  CHECK(parseGameEngineConfig(config).is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyConfigWithTrailingGarbage")
 {
   const auto config = R"(  {  } asdf)";
-  auto parser = GameEngineConfigParser{config};
-  CHECK(parser.parse().is_error());
+  CHECK(parseGameEngineConfig(config).is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseMissingProfiles")
 {
   const auto config = R"(  { 'version' : 1 } )";
-  auto parser = GameEngineConfigParser{config};
-  CHECK(parser.parse().is_error());
+  CHECK(parseGameEngineConfig(config).is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseMissingVersion")
 {
   const auto config = R"(  { 'profiles': {} } )";
-  auto parser = GameEngineConfigParser{config};
-  CHECK(parser.parse().is_error());
+  CHECK(parseGameEngineConfig(config).is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyProfiles")
 {
   const auto config = R"(  { 'version': 1, 'profiles': [] } )";
-  auto parser = GameEngineConfigParser{config};
-  CHECK(parser.parse() == mdl::GameEngineConfig{});
+  CHECK(parseGameEngineConfig(config) == mdl::GameEngineConfig{});
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
@@ -79,8 +73,7 @@ TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
 	"version": 1
 }
 )";
-  auto parser = GameEngineConfigParser{config};
-  CHECK(parser.parse().is_error());
+  CHECK(parseGameEngineConfig(config).is_error());
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
@@ -105,9 +98,8 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
 }
 )";
 
-  auto parser = GameEngineConfigParser{config};
   CHECK(
-    parser.parse()
+    parseGameEngineConfig(config)
     == mdl::GameEngineConfig{
       {{"winquake", R"(C:\Quake\winquake.exe)", "-flag1 -flag2"},
        {"glquake", R"(C:\Quake\glquake.exe)", "-flag3 -flag4"}}});

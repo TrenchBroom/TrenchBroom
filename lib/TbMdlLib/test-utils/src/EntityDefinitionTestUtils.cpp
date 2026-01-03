@@ -20,8 +20,8 @@
 #include "mdl/EntityDefinitionTestUtils.h"
 
 #include "TestParserStatus.h"
-#include "el/ELParser.h"
 #include "el/EvaluationContext.h"
+#include "el/ParseExpression.h"
 #include "el/VariableStore.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EntityDefinition.h"
@@ -64,10 +64,11 @@ ModelSpecification getModelSpecification(
   const ModelDefinition& modelDefinition, const std::string& entityPropertiesStr)
 {
   return el::withEvaluationContext([&](auto& context) {
-           const auto entityPropertiesMap = el::ELParser::parseStrict(entityPropertiesStr)
-                                              .value()
-                                              .evaluate(context)
-                                              .mapValue(context);
+           const auto entityPropertiesMap =
+             el::parseExpression(el::ParseMode::Strict, entityPropertiesStr)
+               .value()
+               .evaluate(context)
+               .mapValue(context);
            const auto variableStore = el::VariableTable{entityPropertiesMap};
            return modelDefinition.modelSpecification(variableStore);
          })
@@ -108,10 +109,11 @@ void assertDecalDefinition(
   const std::string& entityPropertiesStr)
 {
   el::withEvaluationContext([&](auto& context) {
-    const auto entityPropertiesMap = el::ELParser::parseStrict(entityPropertiesStr)
-                                       .value()
-                                       .evaluate(context)
-                                       .mapValue(context);
+    const auto entityPropertiesMap =
+      el::parseExpression(el::ParseMode::Strict, entityPropertiesStr)
+        .value()
+        .evaluate(context)
+        .mapValue(context);
     const auto variableStore = el::VariableTable{entityPropertiesMap};
     CHECK(actual.decalSpecification(variableStore) == expected);
   }).ignore();

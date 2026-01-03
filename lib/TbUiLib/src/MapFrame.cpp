@@ -111,6 +111,7 @@
 
 #include "kd/const_overload.h"
 #include "kd/contracts.h"
+#include "kd/k.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"
@@ -1049,7 +1050,8 @@ bool MapFrame::exportDocumentAsMap()
     return false;
   }
 
-  const auto options = mdl::MapExportOptions{pathFromQString(newFileName)};
+  const auto options =
+    mdl::MapExportOptions{pathFromQString(newFileName), !K(stripTbProperties)};
   return exportDocument(options);
 }
 

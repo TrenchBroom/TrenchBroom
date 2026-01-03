@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "el/Value.h"
 #include "mdl/GameEngineProfile.h"
 
 #include "kd/reflection_decl.h"
@@ -34,5 +35,7 @@ struct GameEngineConfig
 
   kdl_reflect_decl(GameEngineConfig, profiles);
 };
+
+el::Value toValue(const GameEngineConfig& config);
 
 } // namespace tb::mdl

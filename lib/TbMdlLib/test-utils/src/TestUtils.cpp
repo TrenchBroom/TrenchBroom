@@ -26,7 +26,6 @@
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EntityNode.h"
-#include "mdl/GameConfigParser.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
 #include "mdl/ParallelUVCoordSystem.h"

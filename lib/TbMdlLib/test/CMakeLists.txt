@@ -9,7 +9,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CommandProcessor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationConfigParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DecalDefinition.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DefParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EditorContext.cpp
@@ -24,8 +24,6 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityRotation.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_FgdParser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GameConfigParser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GameEngineConfigParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GameFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GameManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Grid.cpp
@@ -74,6 +72,9 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ObjSerializer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Octree.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Palette.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParseCompilationConfig.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParseGameConfig.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParseGameEngineConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PatchNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PointTrace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Polyhedron.cpp

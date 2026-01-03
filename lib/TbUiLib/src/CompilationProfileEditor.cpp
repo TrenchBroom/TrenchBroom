@@ -41,6 +41,7 @@
 #include "ui/ViewConstants.h"
 
 #include "kd/contracts.h"
+#include "kd/k.h"
 #include "kd/range_utils.h"
 #include "kd/vector_utils.h"
 
@@ -210,23 +211,26 @@ void CompilationProfileEditor::addTask()
     if (chosenAction == exportMapAction)
     {
       return mdl::CompilationExportMap{
-        true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map"};
+        K(enabled),
+        !K(stripTbProperties),
+        "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map"};
     }
     if (chosenAction == copyFilesAction)
     {
-      return mdl::CompilationCopyFiles{true, "", ""};
+      return mdl::CompilationCopyFiles{K(enabled), "", ""};
     }
     if (chosenAction == renameFileAction)
     {
-      return mdl::CompilationRenameFile{true, "", ""};
+      return mdl::CompilationRenameFile{K(enabled), "", ""};
     }
     if (chosenAction == deleteFilesAction)
     {
-      return mdl::CompilationDeleteFiles{true, ""};
+      return mdl::CompilationDeleteFiles{K(enabled), ""};
     }
     if (chosenAction == runToolAction)
     {
-      return mdl::CompilationRunTool{true, "", "", false};
+      return mdl::CompilationRunTool{
+        K(enabled), "", "", !K(treatNonZeroResultCodeAsError)};
     }
     {
       return std::nullopt;

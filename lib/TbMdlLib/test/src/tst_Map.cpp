@@ -53,6 +53,7 @@
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/k.h"
 #include "kd/vector_utils.h"
 
 #include "vm/approx.h"
@@ -595,8 +596,18 @@ TEST_CASE("Map")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       const auto filename = "test.map";
-      REQUIRE(map.exportAs(MapExportOptions{env.dir() / filename}));
-      CHECK(env.fileExists(filename));
+      REQUIRE(
+        map.exportAs(MapExportOptions{env.dir() / filename, !K(stripTbProperties)}));
+      REQUIRE(env.fileExists(filename));
+      CHECK(env.loadFile(filename) == R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"key" "value"
+}
+)");
       CHECK(!map.persistent());
       CHECK(map.path() == "unnamed.map");
     }
@@ -604,22 +615,45 @@ TEST_CASE("Map")
     SECTION("Omit layers from export")
     {
       const auto newDocumentPath = std::filesystem::path{"test.map"};
+      auto& map = fixture.create(QuakeFixtureConfig);
 
-      {
-        auto& map = fixture.create(QuakeFixtureConfig);
+      auto layer = mdl::Layer{"Layer"};
+      layer.setOmitFromExport(true);
 
-        auto layer = mdl::Layer{"Layer"};
-        layer.setOmitFromExport(true);
+      auto* layerNode = new mdl::LayerNode{std::move(layer)};
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
 
-        auto* layerNode = new mdl::LayerNode{std::move(layer)};
-        addNodes(map, {{&map.worldNode(), {layerNode}}});
+      REQUIRE(map.exportAs(
+        MapExportOptions{env.dir() / newDocumentPath, !K(stripTbProperties)}));
+      REQUIRE(env.fileExists(newDocumentPath));
+      CHECK(env.loadFile(newDocumentPath) == R"(// entity 0
+{
+"classname" "worldspawn"
+}
+)");
+    }
 
-        REQUIRE(map.exportAs(MapExportOptions{env.dir() / newDocumentPath}));
-        REQUIRE(env.fileExists(newDocumentPath));
-      }
+    SECTION("Strip TB properties")
+    {
+      const auto newDocumentPath = std::filesystem::path{"test.map"};
 
-      auto& map = fixture.load(env.dir() / newDocumentPath, QuakeFixtureConfig);
-      CHECK(map.worldNode().customLayers().empty());
+      auto& map = fixture.create(QuakeFixtureConfig);
+
+      auto* layerNode = new mdl::LayerNode{mdl::Layer{"Layer"}};
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
+
+      REQUIRE(map.exportAs(
+        MapExportOptions{env.dir() / newDocumentPath, K(stripTbProperties)}));
+      REQUIRE(env.fileExists(newDocumentPath));
+      CHECK(env.loadFile(newDocumentPath) == R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "func_group"
+}
+)");
     }
   }
 

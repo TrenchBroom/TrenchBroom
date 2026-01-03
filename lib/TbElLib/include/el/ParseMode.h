@@ -19,27 +19,13 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "Result.h"
-#include "el/ELParser.h"
-#include "mdl/GameEngineConfig.h"
-
-#include <string_view>
-
-namespace tb::mdl
+namespace tb::el
 {
 
-class GameEngineConfigParser
+enum class ParseMode
 {
-private:
-  el::ELParser m_elParser;
-
-public:
-  explicit GameEngineConfigParser(std::string_view str);
-
-  Result<GameEngineConfig> parse();
-
-  deleteCopyAndMove(GameEngineConfigParser);
+  Strict,
+  Lenient,
 };
 
-} // namespace tb::mdl
+} // namespace tb::el

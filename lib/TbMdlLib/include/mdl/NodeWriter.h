@@ -54,6 +54,7 @@ public:
   ~NodeWriter();
 
   void setExporting(bool exporting);
+  void setStripTbProperties(bool stripTbProperties);
   void writeMap(kdl::task_manager& taskManager);
 
 private:

@@ -31,37 +31,39 @@ namespace tb::mdl
 {
 namespace EntityPropertyKeys
 {
-inline const std::string Classname = "classname";
-inline const std::string Origin = "origin";
-inline const std::string Wad = "wad";
-inline const std::string Mods = "_tb_mod";
-inline const std::string EnabledMaterialCollections = "_tb_textures";
-inline const std::string Spawnflags = "spawnflags";
-inline const std::string EntityDefinitions = "_tb_def";
 inline const std::string Angle = "angle";
 inline const std::string Angles = "angles";
+inline const std::string Classname = "classname";
+inline const std::string Killtarget = "killtarget";
 inline const std::string Mangle = "mangle";
+inline const std::string Origin = "origin";
+inline const std::string Spawnflags = "spawnflags";
 inline const std::string Target = "target";
 inline const std::string Targetname = "targetname";
-inline const std::string Killtarget = "killtarget";
-inline const std::string ProtectedEntityProperties = "_tb_protected_properties";
-inline const std::string GroupType = "_tb_type";
-inline const std::string LayerId = "_tb_id";
-inline const std::string LayerName = "_tb_name";
-inline const std::string LayerSortIndex = "_tb_layer_sort_index";
-inline const std::string LayerColor = "_tb_layer_color";
-inline const std::string LayerLocked = "_tb_layer_locked";
-inline const std::string LayerHidden = "_tb_layer_hidden";
-inline const std::string LayerOmitFromExport = "_tb_layer_omit_from_export";
-inline const std::string Layer = "_tb_layer";
-inline const std::string GroupId = "_tb_id";
-inline const std::string GroupName = "_tb_name";
-inline const std::string Group = "_tb_group";
-inline const std::string GroupTransformation = "_tb_transformation";
-inline const std::string LinkId = "_tb_linked_group_id";
-inline const std::string Message = "_tb_message";
 inline const std::string ValveVersion = "mapversion";
-inline const std::string SoftMapBounds = "_tb_soft_map_bounds";
+inline const std::string Wad = "wad";
+
+inline const std::string TbPrefix = "_tb_";
+inline const std::string TbEnabledMaterialCollections = TbPrefix + "textures";
+inline const std::string TbEntityDefinitions = TbPrefix + "def";
+inline const std::string TbGroup = TbPrefix + "group";
+inline const std::string TbGroupId = TbPrefix + "id";
+inline const std::string TbGroupName = TbPrefix + "name";
+inline const std::string TbGroupTransformation = TbPrefix + "transformation";
+inline const std::string TbGroupType = TbPrefix + "type";
+inline const std::string TbLayer = TbPrefix + "layer";
+inline const std::string TbLayerColor = TbPrefix + "layer_color";
+inline const std::string TbLayerHidden = TbPrefix + "layer_hidden";
+inline const std::string TbLayerId = TbPrefix + "id";
+inline const std::string TbLayerLocked = TbPrefix + "layer_locked";
+inline const std::string TbLayerName = TbPrefix + "name";
+inline const std::string TbLayerOmitFromExport = TbPrefix + "layer_omit_from_export";
+inline const std::string TbLayerSortIndex = TbPrefix + "layer_sort_index";
+inline const std::string TbLinkId = TbPrefix + "linked_group_id";
+inline const std::string TbMessage = TbPrefix + "message";
+inline const std::string TbMods = TbPrefix + "mod";
+inline const std::string TbProtectedEntityProperties = TbPrefix + "protected_properties";
+inline const std::string TbSoftMapBounds = TbPrefix + "soft_map_bounds";
 } // namespace EntityPropertyKeys
 
 namespace EntityPropertyValues

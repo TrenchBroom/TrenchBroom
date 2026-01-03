@@ -81,6 +81,7 @@ class CompilationExportMapTaskEditor : public CompilationTaskEditorBase
   Q_OBJECT
 private:
   MultiCompletionLineEdit* m_targetEditor = nullptr;
+  QCheckBox* m_stripTbProperties = nullptr;
 
 public:
   CompilationExportMapTaskEditor(
@@ -94,6 +95,7 @@ private:
   mdl::CompilationExportMap& task();
 private slots:
   void targetSpecChanged(const QString& text);
+  void stripTbPropertiesChanged(int state);
 };
 
 class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase

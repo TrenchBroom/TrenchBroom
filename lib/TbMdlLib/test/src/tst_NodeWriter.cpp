@@ -116,6 +116,32 @@ TEST_CASE("NodeWriter")
     CHECK(actual == expected);
   }
 
+  SECTION("stripTbProperties")
+  {
+    auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
+    map.defaultLayer()->setVisibilityState(mdl::VisibilityState::Hidden);
+    map.defaultLayer()->setLockState(mdl::LockState::Locked);
+
+    auto layer = map.defaultLayer()->layer();
+    layer.setColor(RgbF{0.25f, 0.75f, 1.0f});
+    layer.setOmitFromExport(true);
+    map.defaultLayer()->setLayer(std::move(layer));
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{map, str};
+    writer.setStripTbProperties(true);
+    writer.writeMap(taskManager);
+
+    const auto actual = str.str();
+    const auto expected =
+      R"(// entity 0
+{
+"classname" "worldspawn"
+}
+)";
+    CHECK(actual == expected);
+  }
+
   SECTION("writeDaikatanaMap")
   {
     const auto worldBounds = vm::bbox3d{8192.0};

@@ -22,7 +22,6 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EnvironmentConfig.h"
-#include "mdl/GameConfigParser.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
@@ -36,11 +35,11 @@ namespace
 
 auto extractSoftMapBounds(const auto& entity, const auto& gameConfig)
 {
-  if (const auto* mapValue = entity.property(EntityPropertyKeys::SoftMapBounds))
+  if (const auto* mapValue = entity.property(EntityPropertyKeys::TbSoftMapBounds))
   {
     return *mapValue == EntityPropertyValues::NoSoftMapBounds
              ? SoftMapBounds{SoftMapBoundsType::Map, std::nullopt}
-             : SoftMapBounds{SoftMapBoundsType::Map, parseSoftMapBoundsString(*mapValue)};
+             : SoftMapBounds{SoftMapBoundsType::Map, parseSoftMapBounds(*mapValue)};
   }
 
   // Not set in map -> use Game value
@@ -70,17 +69,17 @@ void setSoftMapBounds(Map& map, const SoftMapBounds& bounds)
       // Set the worldspawn key EntityPropertyKeys::SoftMaxMapSize's value to the empty
       // string to indicate that we are overriding the Game's bounds with unlimited.
       entity.addOrUpdateProperty(
-        EntityPropertyKeys::SoftMapBounds, EntityPropertyValues::NoSoftMapBounds);
+        EntityPropertyKeys::TbSoftMapBounds, EntityPropertyValues::NoSoftMapBounds);
     }
     else
     {
       entity.addOrUpdateProperty(
-        EntityPropertyKeys::SoftMapBounds, serializeSoftMapBoundsString(*bounds.bounds));
+        EntityPropertyKeys::TbSoftMapBounds, serializeSoftMapBounds(*bounds.bounds));
     }
     break;
   case SoftMapBoundsType::Game:
     // Unset the map's setting
-    entity.removeProperty(EntityPropertyKeys::SoftMapBounds);
+    entity.removeProperty(EntityPropertyKeys::TbSoftMapBounds);
     break;
     switchDefault();
   }
@@ -108,7 +107,7 @@ std::vector<std::filesystem::path> externalSearchPaths(const Map& map)
 
 std::vector<std::string> enabledMods(const Entity& entity)
 {
-  if (const auto* modStr = entity.property(EntityPropertyKeys::Mods))
+  if (const auto* modStr = entity.property(EntityPropertyKeys::TbMods))
   {
     return kdl::str_split(*modStr, ";");
   }
@@ -128,12 +127,12 @@ void setEnabledMods(Map& map, const std::vector<std::string>& mods)
 
   if (mods.empty())
   {
-    entity.removeProperty(EntityPropertyKeys::Mods);
+    entity.removeProperty(EntityPropertyKeys::TbMods);
   }
   else
   {
     const auto newValue = kdl::str_join(mods, ";");
-    entity.addOrUpdateProperty(EntityPropertyKeys::Mods, newValue);
+    entity.addOrUpdateProperty(EntityPropertyKeys::TbMods, newValue);
   }
   updateNodeContents(
     map, "Set Enabled Mods", {{&worldNode, NodeContents(std::move(entity))}}, {});

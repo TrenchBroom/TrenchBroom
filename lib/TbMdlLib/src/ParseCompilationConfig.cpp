@@ -17,10 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/CompilationConfigParser.h"
+#include "mdl/ParseCompilationConfig.h"
 
 #include "ParserException.h"
 #include "el/EvaluationContext.h"
+#include "el/ParseExpression.h"
 #include "el/Value.h"
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
@@ -38,32 +39,24 @@ namespace tb::mdl
 namespace
 {
 
-CompilationExportMap parseExportTask(
+CompilationExportMap toExportTask(
   const el::EvaluationContext& context, const el::Value& value)
 {
-  const auto enabled = value.contains(context, "enabled")
-                         ? value.at(context, "enabled").booleanValue(context)
-                         : true;
+  const auto enabled =
+    value.atOrDefault(context, "enabled", el::Value{true}).booleanValue(context);
+
+  const auto stripTbProperties =
+    value.atOrDefault(context, "stripTbProperties", el::Value{false})
+      .booleanValue(context);
+
   return {
     enabled,
+    stripTbProperties,
     value.at(context, "target").stringValue(context),
   };
 }
 
-CompilationCopyFiles parseCopyTask(
-  const el::EvaluationContext& context, const el::Value& value)
-{
-  const auto enabled = value.contains(context, "enabled")
-                         ? value.at(context, "enabled").booleanValue(context)
-                         : true;
-  return {
-    enabled,
-    value.at(context, "source").stringValue(context),
-    value.at(context, "target").stringValue(context),
-  };
-}
-
-CompilationRenameFile parseRenameTask(
+CompilationCopyFiles toCopyTask(
   const el::EvaluationContext& context, const el::Value& value)
 {
   const auto enabled = value.contains(context, "enabled")
@@ -76,7 +69,20 @@ CompilationRenameFile parseRenameTask(
   };
 }
 
-CompilationDeleteFiles parseDeleteTask(
+CompilationRenameFile toRenameTask(
+  const el::EvaluationContext& context, const el::Value& value)
+{
+  const auto enabled = value.contains(context, "enabled")
+                         ? value.at(context, "enabled").booleanValue(context)
+                         : true;
+  return {
+    enabled,
+    value.at(context, "source").stringValue(context),
+    value.at(context, "target").stringValue(context),
+  };
+}
+
+CompilationDeleteFiles toDeleteTask(
   const el::EvaluationContext& context, const el::Value& value)
 {
   const auto enabled = value.contains(context, "enabled")
@@ -88,7 +94,7 @@ CompilationDeleteFiles parseDeleteTask(
   };
 }
 
-CompilationRunTool parseToolTask(
+CompilationRunTool toToolTask(
   const el::EvaluationContext& context, const el::Value& value)
 {
   const auto enabled = value.contains(context, "enabled")
@@ -107,63 +113,62 @@ CompilationRunTool parseToolTask(
   };
 }
 
-CompilationTask parseTask(const el::EvaluationContext& context, const el::Value& value)
+CompilationTask toTask(const el::EvaluationContext& context, const el::Value& value)
 {
   const auto typeName = value.at(context, "type").stringValue(context);
 
   if (typeName == "export")
   {
-    return parseExportTask(context, value);
+    return toExportTask(context, value);
   }
   if (typeName == "copy")
   {
-    return parseCopyTask(context, value);
+    return toCopyTask(context, value);
   }
   if (typeName == "rename")
   {
-    return parseRenameTask(context, value);
+    return toRenameTask(context, value);
   }
   if (typeName == "delete")
   {
-    return parseDeleteTask(context, value);
+    return toDeleteTask(context, value);
   }
   if (typeName == "tool")
   {
-    return parseToolTask(context, value);
+    return toToolTask(context, value);
   }
 
   throw ParserException{fmt::format("Unknown compilation task type '{}'", typeName)};
 }
 
-std::vector<CompilationTask> parseTasks(
+std::vector<CompilationTask> toTasks(
   const el::EvaluationContext& context, const el::Value& value)
 {
   return value.arrayValue(context) | std::views::transform([&](const auto& taskValue) {
-           return parseTask(context, taskValue);
+           return toTask(context, taskValue);
          })
          | kdl::ranges::to<std::vector>();
 }
 
-CompilationProfile parseProfile(
-  const el::EvaluationContext& context, const el::Value& value)
+CompilationProfile toProfile(const el::EvaluationContext& context, const el::Value& value)
 {
   return {
     value.at(context, "name").stringValue(context),
     value.at(context, "workdir").stringValue(context),
-    parseTasks(context, value.at(context, "tasks")),
+    toTasks(context, value.at(context, "tasks")),
   };
 }
 
-std::vector<CompilationProfile> parseProfiles(
+std::vector<CompilationProfile> toProfiles(
   const el::EvaluationContext& context, const el::Value& value)
 {
   return value.arrayValue(context) | std::views::transform([&](const auto& profileValue) {
-           return parseProfile(context, profileValue);
+           return toProfile(context, profileValue);
          })
          | kdl::ranges::to<std::vector>();
 }
 
-Result<CompilationConfig> parseCompilationConfig(
+Result<CompilationConfig> toCompilationConfig(
   el::EvaluationContext& context, const el::ExpressionNode& expression)
 {
   try
@@ -175,7 +180,7 @@ Result<CompilationConfig> parseCompilationConfig(
       return Error{fmt::format("Unsupported compilation config version {}", version)};
     }
 
-    return CompilationConfig{parseProfiles(context, root.at(context, "profiles"))};
+    return CompilationConfig{toProfiles(context, root.at(context, "profiles"))};
   }
   catch (const ParserException& e)
   {
@@ -185,17 +190,14 @@ Result<CompilationConfig> parseCompilationConfig(
 
 } // namespace
 
-CompilationConfigParser::CompilationConfigParser(const std::string_view str)
-  : m_elParser{el::ELParser::Mode::Strict, str}
-{
-}
 
-Result<CompilationConfig> CompilationConfigParser::parse()
+Result<CompilationConfig> parseCompilationConfig(const std::string_view str)
 {
-  return m_elParser.parse() | kdl::and_then([&](const auto& expression) {
-           return el::withEvaluationContext(
-             [&](auto& context) { return parseCompilationConfig(context, expression); });
-         });
+  return el::parseExpression(el::ParseMode::Strict, str)
+         | kdl::and_then([&](const auto& expression) {
+             return el::withEvaluationContext(
+               [&](auto& context) { return toCompilationConfig(context, expression); });
+           });
 }
 
 } // namespace tb::mdl

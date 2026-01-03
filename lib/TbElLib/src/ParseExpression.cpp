@@ -17,23 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "el/ParseExpression.h"
 
-#include "el/Value.h"
-#include "mdl/CompilationProfile.h"
+#include "el/ELParser.h"
 
-#include "kd/reflection_decl.h"
-
-namespace tb::mdl
+namespace tb::el
 {
 
-struct CompilationConfig
+Result<ExpressionNode> parseExpression(const ParseMode mode, const std::string_view str)
 {
-  std::vector<CompilationProfile> profiles;
+  return ELParser{mode, str}.parse();
+}
 
-  kdl_reflect_decl(CompilationConfig, profiles);
-};
-
-el::Value toValue(const CompilationConfig& config);
-
-} // namespace tb::mdl
+} // namespace tb::el

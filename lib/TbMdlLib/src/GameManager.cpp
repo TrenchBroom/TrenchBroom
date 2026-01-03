@@ -25,12 +25,10 @@
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
 #include "fs/VirtualFileSystem.h"
-#include "mdl/CompilationConfigParser.h"
-#include "mdl/CompilationConfigWriter.h"
-#include "mdl/GameConfigParser.h"
-#include "mdl/GameEngineConfigParser.h"
-#include "mdl/GameEngineConfigWriter.h"
 #include "mdl/GameInfo.h"
+#include "mdl/ParseCompilationConfig.h"
+#include "mdl/ParseGameConfig.h"
+#include "mdl/ParseGameEngineConfig.h"
 
 #include "kd/const_overload.h"
 #include "kd/path_utils.h"
@@ -97,8 +95,7 @@ Result<void> loadCompilationConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
   {
     return fs.openFile(path) | kdl::and_then([&](auto profilesFile) {
              auto reader = profilesFile->reader().buffer();
-             auto parser = CompilationConfigParser{reader.stringView()};
-             return parser.parse();
+             return parseCompilationConfig(reader.stringView());
            })
            | kdl::transform([&](auto compilationConfig) {
                gameInfo.compilationConfig = std::move(compilationConfig);
@@ -117,8 +114,7 @@ Result<void> loadGameEngineConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
   {
     return fs.openFile(path) | kdl::and_then([&](auto profilesFile) {
              auto reader = profilesFile->reader().buffer();
-             auto parser = GameEngineConfigParser{reader.stringView()};
-             return parser.parse();
+             return parseGameEngineConfig(reader.stringView());
            })
            | kdl::transform([&](auto gameEngineConfig) {
                gameInfo.gameEngineConfig = std::move(gameEngineConfig);
@@ -138,8 +134,7 @@ Result<GameConfig> loadGameConfig(
   return fs.openFile(path).join(fs.makeAbsolute(path))
          | kdl::and_then([&](auto configFile, auto absolutePath) {
              auto reader = configFile->reader().buffer();
-             auto parser = GameConfigParser{reader.stringView(), absolutePath};
-             return parser.parse();
+             return parseGameConfig(reader.stringView(), absolutePath);
            })
          | kdl::transform([&](auto config) {
              migrateConfigFiles(userGameDir, config) | kdl::transform_error([&](auto e) {
@@ -235,9 +230,7 @@ Result<void> writeCompilationConfig(
 
   return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
            auto stream = std::stringstream{};
-           auto writer = CompilationConfigWriter{compilationConfig, stream};
-           writer.writeConfig();
-
+           stream << toValue(compilationConfig) << "\n";
            return fs.createFileAtomic(profilesPath, stream.str());
          })
          | kdl::transform([&]() {
@@ -271,9 +264,7 @@ Result<void> writeGameEngineConfig(
 
   return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
            auto stream = std::stringstream{};
-           auto writer = GameEngineConfigWriter{gameEngineConfig, stream};
-           writer.writeConfig();
-
+           stream << toValue(gameEngineConfig) << "\n";
            return fs.createFileAtomic(profilesPath, stream.str());
          })
          | kdl::transform([&]() {

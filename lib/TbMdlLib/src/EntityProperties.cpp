@@ -114,7 +114,7 @@ bool isLayer(const std::string& classname, const std::vector<EntityProperty>& pr
   else
   {
     const std::string& groupType =
-      findEntityPropertyOrDefault(properties, EntityPropertyKeys::GroupType);
+      findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbGroupType);
     return groupType == EntityPropertyValues::GroupTypeLayer;
   }
 }
@@ -128,7 +128,7 @@ bool isGroup(const std::string& classname, const std::vector<EntityProperty>& pr
   else
   {
     const std::string& groupType =
-      findEntityPropertyOrDefault(properties, EntityPropertyKeys::GroupType);
+      findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbGroupType);
     return groupType == EntityPropertyValues::GroupTypeGroup;
   }
 }

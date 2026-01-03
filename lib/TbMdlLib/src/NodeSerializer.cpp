@@ -29,6 +29,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/overload.h"
+#include "kd/string_compare.h"
 #include "kd/string_format.h"
 #include "kd/string_utils.h"
 
@@ -63,6 +64,16 @@ void NodeSerializer::setExporting(const bool exporting)
   m_exporting = exporting;
 }
 
+bool NodeSerializer::stripTbProperties() const
+{
+  return m_stripTbProperties;
+}
+
+void NodeSerializer::setStripTbProperties(const bool stripTbProperties)
+{
+  m_stripTbProperties = stripTbProperties;
+}
+
 void NodeSerializer::beginFile(
   const std::vector<const Node*>& rootNodes, kdl::task_manager& taskManager)
 {
@@ -89,42 +100,42 @@ void NodeSerializer::defaultLayer(const WorldNode& world)
   const auto& defaultLayer = defaultLayerNode->layer();
   if (const auto color = defaultLayer.color())
   {
-    worldEntity.addOrUpdateProperty(EntityPropertyKeys::LayerColor, color->toString());
+    worldEntity.addOrUpdateProperty(EntityPropertyKeys::TbLayerColor, color->toString());
   }
   else
   {
-    worldEntity.removeProperty(EntityPropertyKeys::LayerColor);
+    worldEntity.removeProperty(EntityPropertyKeys::TbLayerColor);
   }
 
   if (defaultLayerNode->lockState() == LockState::Locked)
   {
     worldEntity.addOrUpdateProperty(
-      EntityPropertyKeys::LayerLocked, EntityPropertyValues::LayerLockedValue);
+      EntityPropertyKeys::TbLayerLocked, EntityPropertyValues::LayerLockedValue);
   }
   else
   {
-    worldEntity.removeProperty(EntityPropertyKeys::LayerLocked);
+    worldEntity.removeProperty(EntityPropertyKeys::TbLayerLocked);
   }
 
   if (defaultLayerNode->hidden())
   {
     worldEntity.addOrUpdateProperty(
-      EntityPropertyKeys::LayerHidden, EntityPropertyValues::LayerHiddenValue);
+      EntityPropertyKeys::TbLayerHidden, EntityPropertyValues::LayerHiddenValue);
   }
   else
   {
-    worldEntity.removeProperty(EntityPropertyKeys::LayerHidden);
+    worldEntity.removeProperty(EntityPropertyKeys::TbLayerHidden);
   }
 
   if (defaultLayer.omitFromExport())
   {
     worldEntity.addOrUpdateProperty(
-      EntityPropertyKeys::LayerOmitFromExport,
+      EntityPropertyKeys::TbLayerOmitFromExport,
       EntityPropertyValues::LayerOmitFromExportValue);
   }
   else
   {
-    worldEntity.removeProperty(EntityPropertyKeys::LayerOmitFromExport);
+    worldEntity.removeProperty(EntityPropertyKeys::TbLayerOmitFromExport);
   }
 
   if (m_exporting && defaultLayer.omitFromExport())
@@ -214,7 +225,12 @@ void NodeSerializer::entityProperties(const std::vector<EntityProperty>& propert
 
 void NodeSerializer::entityProperty(const EntityProperty& property)
 {
-  doEntityProperty(property);
+  if (
+    !m_stripTbProperties
+    || !kdl::cs::str_is_prefix(property.key(), EntityPropertyKeys::TbPrefix))
+  {
+    doEntityProperty(property);
+  }
 }
 
 void NodeSerializer::brushes(const std::vector<BrushNode*>& brushNodes)
@@ -262,11 +278,11 @@ std::vector<EntityProperty> NodeSerializer::parentProperties(const Node* node)
     [](const WorldNode*) {},
     [&](const LayerNode* layerNode) {
       properties.emplace_back(
-        EntityPropertyKeys::Layer, kdl::str_to_string(*layerNode->persistentId()));
+        EntityPropertyKeys::TbLayer, kdl::str_to_string(*layerNode->persistentId()));
     },
     [&](const GroupNode* groupNode) {
       properties.emplace_back(
-        EntityPropertyKeys::Group, kdl::str_to_string(*groupNode->persistentId()));
+        EntityPropertyKeys::TbGroup, kdl::str_to_string(*groupNode->persistentId()));
     },
     [](const EntityNode*) {},
     [](const BrushNode*) {},
@@ -279,31 +295,31 @@ std::vector<EntityProperty> NodeSerializer::layerProperties(const LayerNode* lay
 {
   std::vector<EntityProperty> result = {
     {EntityPropertyKeys::Classname, EntityPropertyValues::LayerClassname},
-    {EntityPropertyKeys::GroupType, EntityPropertyValues::GroupTypeLayer},
-    {EntityPropertyKeys::LayerName, layerNode->name()},
-    {EntityPropertyKeys::LayerId, kdl::str_to_string(*layerNode->persistentId())},
+    {EntityPropertyKeys::TbGroupType, EntityPropertyValues::GroupTypeLayer},
+    {EntityPropertyKeys::TbLayerName, layerNode->name()},
+    {EntityPropertyKeys::TbLayerId, kdl::str_to_string(*layerNode->persistentId())},
   };
 
   const auto& layer = layerNode->layer();
   if (layer.hasSortIndex())
   {
     result.emplace_back(
-      EntityPropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex()));
+      EntityPropertyKeys::TbLayerSortIndex, kdl::str_to_string(layer.sortIndex()));
   }
   if (layerNode->lockState() == LockState::Locked)
   {
     result.emplace_back(
-      EntityPropertyKeys::LayerLocked, EntityPropertyValues::LayerLockedValue);
+      EntityPropertyKeys::TbLayerLocked, EntityPropertyValues::LayerLockedValue);
   }
   if (layerNode->hidden())
   {
     result.emplace_back(
-      EntityPropertyKeys::LayerHidden, EntityPropertyValues::LayerHiddenValue);
+      EntityPropertyKeys::TbLayerHidden, EntityPropertyValues::LayerHiddenValue);
   }
   if (layer.omitFromExport())
   {
     result.emplace_back(
-      EntityPropertyKeys::LayerOmitFromExport,
+      EntityPropertyKeys::TbLayerOmitFromExport,
       EntityPropertyValues::LayerOmitFromExportValue);
   }
   return result;
@@ -313,13 +329,13 @@ std::vector<EntityProperty> NodeSerializer::groupProperties(const GroupNode* gro
 {
   auto result = std::vector<EntityProperty>{
     {EntityPropertyKeys::Classname, EntityPropertyValues::GroupClassname},
-    {EntityPropertyKeys::GroupType, EntityPropertyValues::GroupTypeGroup},
-    {EntityPropertyKeys::GroupName, groupNode->name()},
-    {EntityPropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())},
+    {EntityPropertyKeys::TbGroupType, EntityPropertyValues::GroupTypeGroup},
+    {EntityPropertyKeys::TbGroupName, groupNode->name()},
+    {EntityPropertyKeys::TbGroupId, kdl::str_to_string(*groupNode->persistentId())},
   };
 
   const auto& linkId = groupNode->linkId();
-  result.emplace_back(EntityPropertyKeys::LinkId, kdl::str_to_string(linkId));
+  result.emplace_back(EntityPropertyKeys::TbLinkId, kdl::str_to_string(linkId));
 
   // write transformation matrix in column major format
   const auto& transformation = groupNode->group().transformation();
@@ -343,7 +359,7 @@ std::vector<EntityProperty> NodeSerializer::groupProperties(const GroupNode* gro
       transformation[1][3],
       transformation[2][3],
       transformation[3][3]); // row 3
-    result.emplace_back(EntityPropertyKeys::GroupTransformation, transformationStr);
+    result.emplace_back(EntityPropertyKeys::TbGroupTransformation, transformationStr);
   }
 
   return result;

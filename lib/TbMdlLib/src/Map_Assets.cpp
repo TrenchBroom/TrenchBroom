@@ -63,7 +63,7 @@ std::optional<EntityDefinitionFileSpec> defaultEntityDefinitionFile(const Map& m
 
 std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Entity& entity)
 {
-  if (const auto* defValue = entity.property(EntityPropertyKeys::EntityDefinitions))
+  if (const auto* defValue = entity.property(EntityPropertyKeys::TbEntityDefinitions))
   {
     return EntityDefinitionFileSpec::parse(*defValue);
   }
@@ -83,7 +83,7 @@ void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)
   const auto formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
   auto entity = map.worldNode().entity();
-  entity.addOrUpdateProperty(EntityPropertyKeys::EntityDefinitions, formatted);
+  entity.addOrUpdateProperty(EntityPropertyKeys::TbEntityDefinitions, formatted);
   updateNodeContents(
     map,
     "Set Entity Definitions",
@@ -95,7 +95,7 @@ std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)
 {
   if (
     const auto* materialCollectionStr =
-      map.worldNode().entity().property(EntityPropertyKeys::EnabledMaterialCollections))
+      map.worldNode().entity().property(EntityPropertyKeys::TbEnabledMaterialCollections))
   {
     const auto strs = kdl::str_split(*materialCollectionStr, ";");
     return kdl::vec_sort_and_remove_duplicates(
@@ -136,11 +136,11 @@ void setEnabledMaterialCollections(
     ";");
 
   auto success = setEntityProperty(
-    map, EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
+    map, EntityPropertyKeys::TbEnabledMaterialCollections, enabledMaterialCollectionStr);
 
   if (disabledMaterialCollections(map).empty())
   {
-    success = removeEntityProperty(map, EntityPropertyKeys::EnabledMaterialCollections);
+    success = removeEntityProperty(map, EntityPropertyKeys::TbEnabledMaterialCollections);
   }
 
   transaction.finish(success);

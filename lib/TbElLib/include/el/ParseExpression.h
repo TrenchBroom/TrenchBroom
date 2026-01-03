@@ -19,28 +19,15 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "Result.h"
-#include "el/ELParser.h"
-#include "mdl/CompilationConfig.h"
+#include "el/Expression.h"
+#include "el/ParseMode.h"
 
 #include <string_view>
 
-
-namespace tb::mdl
+namespace tb::el
 {
 
-class CompilationConfigParser
-{
-private:
-  el::ELParser m_elParser;
+Result<ExpressionNode> parseExpression(ParseMode mode, std::string_view str);
 
-public:
-  explicit CompilationConfigParser(std::string_view str);
-
-  Result<CompilationConfig> parse();
-
-  deleteCopyAndMove(CompilationConfigParser);
-};
-
-} // namespace tb::mdl
+} // namespace tb::el

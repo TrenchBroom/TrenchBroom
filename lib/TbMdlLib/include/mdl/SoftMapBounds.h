@@ -25,6 +25,8 @@
 
 #include <iosfwd>
 #include <optional>
+#include <string>
+#include <string_view>
 
 namespace tb::mdl
 {
@@ -48,5 +50,8 @@ struct SoftMapBounds
 
   kdl_reflect_decl(SoftMapBounds, source, bounds);
 };
+
+std::optional<vm::bbox3d> parseSoftMapBounds(std::string_view str);
+std::string serializeSoftMapBounds(const vm::bbox3d& bounds);
 
 } // namespace tb::mdl

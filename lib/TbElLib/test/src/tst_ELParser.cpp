@@ -31,7 +31,7 @@ namespace
 
 auto parse(const std::string& str)
 {
-  return ELParser::parseStrict(str);
+  return ELParser{ParseMode::Strict, str}.parse();
 }
 
 } // namespace

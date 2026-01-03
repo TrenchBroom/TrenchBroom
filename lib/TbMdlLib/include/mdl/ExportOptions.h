@@ -31,8 +31,9 @@ namespace tb::mdl
 struct MapExportOptions
 {
   std::filesystem::path exportPath;
+  bool stripTbProperties;
 
-  kdl_reflect_decl(MapExportOptions, exportPath);
+  kdl_reflect_decl(MapExportOptions, exportPath, stripTbProperties);
 };
 
 enum class ObjMtlPathMode

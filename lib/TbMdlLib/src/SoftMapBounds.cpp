@@ -24,6 +24,7 @@
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
 #include <ostream>
+#include <sstream>
 
 namespace tb::mdl
 {
@@ -43,5 +44,21 @@ std::ostream& operator<<(std::ostream& lhs, const SoftMapBoundsType rhs)
 }
 
 kdl_reflect_impl(SoftMapBounds);
+
+std::optional<vm::bbox3d> parseSoftMapBounds(const std::string_view str)
+{
+  if (const auto v = vm::parse<double, 6u>(str))
+  {
+    return vm::bbox3d{{(*v)[0], (*v)[1], (*v)[2]}, {(*v)[3], (*v)[4], (*v)[5]}};
+  }
+  return std::nullopt;
+}
+
+std::string serializeSoftMapBounds(const vm::bbox3d& bounds)
+{
+  auto result = std::stringstream{};
+  result << bounds.min << " " << bounds.max;
+  return result.str();
+}
 
 } // namespace tb::mdl

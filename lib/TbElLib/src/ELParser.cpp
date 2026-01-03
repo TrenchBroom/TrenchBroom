@@ -321,7 +321,7 @@ ELTokenizer::Token ELTokenizer::emitToken()
 }
 
 ELParser::ELParser(
-  const ELParser::Mode mode, std::string_view str, const size_t line, const size_t column)
+  const ParseMode mode, std::string_view str, const size_t line, const size_t column)
   : m_mode{mode}
   , m_tokenizer{str, line, column}
 {
@@ -332,22 +332,12 @@ TokenizerState ELParser::tokenizerState() const
   return m_tokenizer.snapshot();
 }
 
-Result<ExpressionNode> ELParser::parseStrict(const std::string& str)
-{
-  return ELParser{Mode::Strict, str}.parse();
-}
-
-Result<ExpressionNode> ELParser::parseLenient(const std::string& str)
-{
-  return ELParser(Mode::Lenient, str).parse();
-}
-
 Result<ExpressionNode> ELParser::parse()
 {
   try
   {
     auto result = parseExpression();
-    if (m_mode == Mode::Strict)
+    if (m_mode == ParseMode::Strict)
     {
       m_tokenizer.peekToken(ELToken::Eof); // avoid trailing garbage
     }

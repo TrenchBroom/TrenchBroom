@@ -123,7 +123,8 @@ void CompilationExportMapTaskRunner::doExecute()
     {
       return fs::Disk::createDirectory(targetPath.parent_path())
              | kdl::and_then([&](auto) {
-                 const auto options = mdl::MapExportOptions{targetPath};
+                 const auto options =
+                   mdl::MapExportOptions{targetPath, m_task.stripTbProperties};
                  return m_context.map().exportAs(options);
                });
     }

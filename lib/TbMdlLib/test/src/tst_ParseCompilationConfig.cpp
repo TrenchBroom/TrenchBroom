@@ -19,8 +19,10 @@
 
 #include "mdl/CatchConfig.h"
 #include "mdl/CompilationConfig.h"
-#include "mdl/CompilationConfigParser.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/ParseCompilationConfig.h"
+
+#include "kd/k.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -32,43 +34,37 @@ TEST_CASE("CompilationConfigParser")
   SECTION("parseBlankConfig")
   {
     const auto config = "   ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseEmptyConfig")
   {
     const auto config = "  {  } ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseEmptyConfigWithTrailingGarbage")
   {
     const auto config = "  {  } asdf";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseMissingProfiles")
   {
     const auto config = "  { 'version' : 1 } ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseMissingVersion")
   {
     const auto config = "  { 'profiles': {} } ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseEmptyProfiles")
   {
     const auto config = "  { 'version': 1, 'profiles': [] } ";
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse() == mdl::CompilationConfig{{}});
+    CHECK(parseCompilationConfig(config) == mdl::CompilationConfig{{}});
   }
 
   SECTION("parseOneProfileWithMissingNameAndMissingTasks")
@@ -81,8 +77,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndMissingTasks")
@@ -97,8 +92,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithMissingNameAndEmptyTasks")
@@ -113,8 +107,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndEmptyTasks")
@@ -131,9 +124,8 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile", "", {}},
       }});
@@ -153,8 +145,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneTaskWithUnknownType")
@@ -171,8 +162,57 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
+  }
+
+  SECTION("parseOneProfileWithNameAndOneExportTask")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'export', 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationExportMap{K(enabled), !K(stripTbProperties), "the target"},
+         }},
+      }});
+  }
+
+  SECTION("parseOneProfileWithNameAndOneExportTaskWithStripProperties")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'export', 'stripTbProperties': true, 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationExportMap{K(enabled), K(stripTbProperties), "the target"},
+         }},
+      }});
   }
 
   SECTION("parseOneProfileWithNameAndOneCopyTaskWithMissingSource")
@@ -189,8 +229,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneCopyTaskWithMissingTarget")
@@ -207,8 +246,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION(
@@ -227,8 +265,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneCopyTask")
@@ -245,14 +282,13 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
          {
-           mdl::CompilationCopyFiles{true, "the source", "the target"},
+           mdl::CompilationCopyFiles{K(enabled), "the source", "the target"},
          }},
       }});
   }
@@ -271,14 +307,13 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
          {
-           mdl::CompilationRenameFile{true, "the source", "the target"},
+           mdl::CompilationRenameFile{K(enabled), "the source", "the target"},
          }},
       }});
   }
@@ -297,14 +332,13 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
          {
-           mdl::CompilationDeleteFiles{true, "the target"},
+           mdl::CompilationDeleteFiles{K(enabled), "the target"},
          }},
       }});
   }
@@ -323,8 +357,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION(
@@ -343,8 +376,7 @@ TEST_CASE("CompilationConfigParser")
   ]
 })";
 
-    auto parser = CompilationConfigParser{config};
-    CHECK(parser.parse().is_error());
+    CHECK(parseCompilationConfig(config).is_error());
   }
 
   SECTION("parseOneProfileWithNameAndOneToolTask")
@@ -366,14 +398,17 @@ TEST_CASE("CompilationConfigParser")
     }]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
          {
-           mdl::CompilationRunTool{true, "tyrbsp.exe", "this and that", false},
+           mdl::CompilationRunTool{
+             K(enabled),
+             "tyrbsp.exe",
+             "this and that",
+             !K(treatNonZeroResultCodeAsError)},
          }},
       }});
   }
@@ -412,17 +447,17 @@ TEST_CASE("CompilationConfigParser")
   }]
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"A profile",
          "",
          {
-           mdl::CompilationRunTool{true, "tyrbsp.exe", "this and that", true},
-           mdl::CompilationCopyFiles{false, "the source", "the target"},
-           mdl::CompilationRenameFile{true, "the source", "the target"},
-           mdl::CompilationDeleteFiles{false, "some other target"},
+           mdl::CompilationRunTool{
+             K(enabled), "tyrbsp.exe", "this and that", K(treatNonZeroResultCodeAsError)},
+           mdl::CompilationCopyFiles{!K(enabled), "the source", "the target"},
+           mdl::CompilationRenameFile{K(enabled), "the source", "the target"},
+           mdl::CompilationDeleteFiles{!K(enabled), "some other target"},
          }},
       }});
   }
@@ -444,15 +479,16 @@ TEST_CASE("CompilationConfigParser")
   "version": 1
 })";
 
-    auto parser = CompilationConfigParser{config};
     CHECK(
-      parser.parse()
+      parseCompilationConfig(config)
       == mdl::CompilationConfig{{
         {"Full Compile",
          "${MAP_DIR_PATH}",
          {
            mdl::CompilationCopyFiles{
-             true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", R"(C:\quake2\chaos\maps\)"},
+             K(enabled),
+             "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp",
+             R"(C:\quake2\chaos\maps\)"},
          }},
       }});
   }

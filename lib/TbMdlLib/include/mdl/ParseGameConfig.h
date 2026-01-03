@@ -19,32 +19,18 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "el/Forward.h"
+#include "Result.h"
+#include "mdl/GameConfig.h"
 
-#include <iosfwd>
+#include <filesystem>
+#include <optional>
+#include <string>
+#include <string_view>
 
 namespace tb::mdl
 {
-struct GameEngineConfig;
-struct GameEngineProfile;
 
-class GameEngineConfigWriter
-{
-private:
-  const GameEngineConfig& m_config;
-  std::ostream& m_stream;
-
-public:
-  GameEngineConfigWriter(const GameEngineConfig& config, std::ostream& stream);
-
-  void writeConfig();
-
-private:
-  el::Value writeProfiles(const GameEngineConfig& config) const;
-  el::Value writeProfile(const GameEngineProfile& profile) const;
-
-  deleteCopyAndMove(GameEngineConfigWriter);
-};
+Result<GameConfig> parseGameConfig(
+  std::string_view str, const std::filesystem::path& path = {});
 
 } // namespace tb::mdl

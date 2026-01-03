@@ -42,7 +42,6 @@
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EnvironmentConfig.h"
-#include "mdl/GameConfigParser.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
@@ -878,6 +877,7 @@ Result<void> Map::exportAs(const ExportOptions& options) const
         return fs::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
           auto writer = NodeWriter{*m_worldNode, stream};
           writer.setExporting(true);
+          writer.setStripTbProperties(mapOptions.stripTbProperties);
           writer.writeMap(m_taskManager);
         });
       }),

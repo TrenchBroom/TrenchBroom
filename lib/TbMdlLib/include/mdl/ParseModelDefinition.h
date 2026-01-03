@@ -54,8 +54,7 @@ auto parseElModelExpression(
   const auto line = location.line;
   const auto column = *location.column;
 
-  auto parser =
-    el::ELParser{el::ELParser::Mode::Lenient, tokenizer.remainder(), line, column};
+  auto parser = el::ELParser{el::ParseMode::Lenient, tokenizer.remainder(), line, column};
   return parser.parse() | kdl::and_then([&](auto expression) {
            // advance our tokenizer by the amount that the `parser` parsed
            tokenizer.adoptState(parser.tokenizerState());
