@@ -97,15 +97,15 @@ bool isPropertyKeyMutable(const mdl::Entity& entity, const std::string& key)
   if (mdl::isWorldspawn(entity.classname()))
   {
     return !(
-      key == mdl::EntityPropertyKeys::Classname || key == mdl::EntityPropertyKeys::Mods
-      || key == mdl::EntityPropertyKeys::EntityDefinitions
+      key == mdl::EntityPropertyKeys::Classname || key == mdl::EntityPropertyKeys::TbMods
+      || key == mdl::EntityPropertyKeys::TbEntityDefinitions
       || key == mdl::EntityPropertyKeys::Wad
-      || key == mdl::EntityPropertyKeys::EnabledMaterialCollections
-      || key == mdl::EntityPropertyKeys::SoftMapBounds
-      || key == mdl::EntityPropertyKeys::LayerColor
-      || key == mdl::EntityPropertyKeys::LayerLocked
-      || key == mdl::EntityPropertyKeys::LayerHidden
-      || key == mdl::EntityPropertyKeys::LayerOmitFromExport);
+      || key == mdl::EntityPropertyKeys::TbEnabledMaterialCollections
+      || key == mdl::EntityPropertyKeys::TbSoftMapBounds
+      || key == mdl::EntityPropertyKeys::TbLayerColor
+      || key == mdl::EntityPropertyKeys::TbLayerLocked
+      || key == mdl::EntityPropertyKeys::TbLayerHidden
+      || key == mdl::EntityPropertyKeys::TbLayerOmitFromExport);
   }
 
   return true;
@@ -124,14 +124,14 @@ bool isPropertyValueMutable(const mdl::Entity& entity, const std::string& key)
   if (mdl::isWorldspawn(entity.classname()))
   {
     return !(
-      key == mdl::EntityPropertyKeys::Classname || key == mdl::EntityPropertyKeys::Mods
-      || key == mdl::EntityPropertyKeys::EntityDefinitions
+      key == mdl::EntityPropertyKeys::Classname || key == mdl::EntityPropertyKeys::TbMods
+      || key == mdl::EntityPropertyKeys::TbEntityDefinitions
       || key == mdl::EntityPropertyKeys::Wad
-      || key == mdl::EntityPropertyKeys::SoftMapBounds
-      || key == mdl::EntityPropertyKeys::LayerColor
-      || key == mdl::EntityPropertyKeys::LayerLocked
-      || key == mdl::EntityPropertyKeys::LayerHidden
-      || key == mdl::EntityPropertyKeys::LayerOmitFromExport);
+      || key == mdl::EntityPropertyKeys::TbSoftMapBounds
+      || key == mdl::EntityPropertyKeys::TbLayerColor
+      || key == mdl::EntityPropertyKeys::TbLayerLocked
+      || key == mdl::EntityPropertyKeys::TbLayerHidden
+      || key == mdl::EntityPropertyKeys::TbLayerOmitFromExport);
   }
 
   return true;

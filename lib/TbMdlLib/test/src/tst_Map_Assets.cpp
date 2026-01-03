@@ -76,7 +76,7 @@ TEST_CASE("Map_Assets")
 
     if (entityProperty)
     {
-      setEntityProperty(map, EntityPropertyKeys::EntityDefinitions, *entityProperty);
+      setEntityProperty(map, EntityPropertyKeys::TbEntityDefinitions, *entityProperty);
     }
 
     CHECK(entityDefinitionFile(map) == expectedEntityDefinitionFileSpec);
@@ -119,7 +119,7 @@ TEST_CASE("Map_Assets")
 
     const auto& worldNode = map.worldNode();
     const auto& entity = worldNode.entity();
-    const auto* propertyValue = entity.property(EntityPropertyKeys::EntityDefinitions);
+    const auto* propertyValue = entity.property(EntityPropertyKeys::TbEntityDefinitions);
 
     REQUIRE(propertyValue);
     CHECK(*propertyValue == expectedPropertyValue);
@@ -136,7 +136,7 @@ TEST_CASE("Map_Assets")
     SECTION("When no material collections are explicitly enabled")
     {
       REQUIRE(
-        worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections)
+        worldNode.entity().property(EntityPropertyKeys::TbEnabledMaterialCollections)
         == nullptr);
 
       CHECK(
@@ -152,7 +152,7 @@ TEST_CASE("Map_Assets")
     {
       setEntityProperty(
         map,
-        EntityPropertyKeys::EnabledMaterialCollections,
+        EntityPropertyKeys::TbEnabledMaterialCollections,
         "textures/e1m1;textures/e1m1/f1");
 
       CHECK(
@@ -167,7 +167,7 @@ TEST_CASE("Map_Assets")
     {
       setEntityProperty(
         map,
-        EntityPropertyKeys::EnabledMaterialCollections,
+        EntityPropertyKeys::TbEnabledMaterialCollections,
         "textures/e1m1/f1;textures/e1m1;textures/e1m1");
 
       CHECK(
@@ -182,7 +182,7 @@ TEST_CASE("Map_Assets")
     {
       setEntityProperty(
         map,
-        EntityPropertyKeys::EnabledMaterialCollections,
+        EntityPropertyKeys::TbEnabledMaterialCollections,
         "textures/unknown;textures/e1m1");
 
       CHECK(
@@ -205,7 +205,7 @@ TEST_CASE("Map_Assets")
     SECTION("When no material collections are explicitly enabled")
     {
       REQUIRE(
-        worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections)
+        worldNode.entity().property(EntityPropertyKeys::TbEnabledMaterialCollections)
         == nullptr);
 
       CHECK(disabledMaterialCollections(map) == std::vector<std::filesystem::path>{});
@@ -214,7 +214,7 @@ TEST_CASE("Map_Assets")
     SECTION("When a material collection is explicitly enabled")
     {
       setEntityProperty(
-        map, EntityPropertyKeys::EnabledMaterialCollections, "textures/e1m1");
+        map, EntityPropertyKeys::TbEnabledMaterialCollections, "textures/e1m1");
 
       CHECK(
         disabledMaterialCollections(map)
@@ -236,7 +236,8 @@ TEST_CASE("Map_Assets")
     const auto& worldNode = map.worldNode();
 
     const auto getEnabledMaterialCollections = [&] {
-      return worldNode.entity().property(EntityPropertyKeys::EnabledMaterialCollections);
+      return worldNode.entity().property(
+        EntityPropertyKeys::TbEnabledMaterialCollections);
     };
 
     REQUIRE(!getEnabledMaterialCollections());

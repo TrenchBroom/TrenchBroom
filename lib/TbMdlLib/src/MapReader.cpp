@@ -282,7 +282,7 @@ std::optional<ContainerInfo> extractContainerInfo(
   const std::vector<EntityProperty>& properties, std::vector<NodeIssue>& nodeIssues)
 {
   if (const std::string& parentLayerIdStr =
-        findEntityPropertyOrDefault(properties, EntityPropertyKeys::Layer);
+        findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbLayer);
       !kdl::str_is_blank(parentLayerIdStr))
   {
     if (const auto rawParentLayerId = kdl::str_to_long(parentLayerIdStr);
@@ -295,7 +295,7 @@ std::optional<ContainerInfo> extractContainerInfo(
     nodeIssues.emplace_back(InvalidContainerId{ContainerType::Layer, parentLayerIdStr});
   }
   else if (const std::string& parentGroupIdStr =
-             findEntityPropertyOrDefault(properties, EntityPropertyKeys::Group);
+             findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbGroup);
            !kdl::str_is_blank(parentGroupIdStr))
   {
     if (const auto rawParentGroupId = kdl::str_to_long(parentGroupIdStr);
@@ -329,40 +329,40 @@ CreateNodeResult createWorldNode(
   // handle default layer attributes, which are stored in worldspawn
   auto* defaultLayerNode = worldNode->defaultLayer();
   auto defaultLayer = defaultLayerNode->layer();
-  if (const auto* colorStr = entity.property(EntityPropertyKeys::LayerColor))
+  if (const auto* colorStr = entity.property(EntityPropertyKeys::TbLayerColor))
   {
     Color::parse(*colorStr)
       | kdl::transform([&](const auto& color) { defaultLayer.setColor(color); })
       | kdl::ignore();
-    entity.removeProperty(EntityPropertyKeys::LayerColor);
+    entity.removeProperty(EntityPropertyKeys::TbLayerColor);
   }
   if (
     const auto* omitFromExportStr =
-      entity.property(EntityPropertyKeys::LayerOmitFromExport))
+      entity.property(EntityPropertyKeys::TbLayerOmitFromExport))
   {
     if (*omitFromExportStr == EntityPropertyValues::LayerOmitFromExportValue)
     {
       defaultLayer.setOmitFromExport(true);
     }
-    entity.removeProperty(EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(EntityPropertyKeys::TbLayerOmitFromExport);
   }
   defaultLayerNode->setLayer(std::move(defaultLayer));
 
-  if (const auto* lockedStr = entity.property(EntityPropertyKeys::LayerLocked))
+  if (const auto* lockedStr = entity.property(EntityPropertyKeys::TbLayerLocked))
   {
     if (*lockedStr == EntityPropertyValues::LayerLockedValue)
     {
       defaultLayerNode->setLockState(LockState::Locked);
     }
-    entity.removeProperty(EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(EntityPropertyKeys::TbLayerOmitFromExport);
   }
-  if (const auto* hiddenStr = entity.property(EntityPropertyKeys::LayerHidden))
+  if (const auto* hiddenStr = entity.property(EntityPropertyKeys::TbLayerHidden))
   {
     if (*hiddenStr == EntityPropertyValues::LayerHiddenValue)
     {
       defaultLayerNode->setVisibilityState(VisibilityState::Hidden);
     }
-    entity.removeProperty(EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(EntityPropertyKeys::TbLayerOmitFromExport);
   }
 
   worldNode->setEntity(std::move(entity));
@@ -383,14 +383,14 @@ CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
   const auto& properties = entityInfo.properties;
 
   const auto& name =
-    findEntityPropertyOrDefault(properties, EntityPropertyKeys::LayerName);
+    findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbLayerName);
   if (kdl::str_is_blank(name))
   {
     return NodeError{entityInfo.startLocation, "Skipping layer entity: missing name"};
   }
 
   const auto& idStr =
-    findEntityPropertyOrDefault(properties, EntityPropertyKeys::LayerId);
+    findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbLayerId);
   if (kdl::str_is_blank(idStr))
   {
     return NodeError{entityInfo.startLocation, "Skipping layer entity: missing id"};
@@ -408,13 +408,13 @@ CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
   // This is optional (not present on maps saved in TB 2020.1 and earlier)
   if (
     const auto layerSortIndex = kdl::str_to_int(
-      findEntityPropertyOrDefault(properties, EntityPropertyKeys::LayerSortIndex)))
+      findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbLayerSortIndex)))
   {
     layer.setSortIndex(*layerSortIndex);
   }
 
   if (
-    findEntityPropertyOrDefault(properties, EntityPropertyKeys::LayerOmitFromExport)
+    findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbLayerOmitFromExport)
     == EntityPropertyValues::LayerOmitFromExportValue)
   {
     layer.setOmitFromExport(true);
@@ -428,14 +428,14 @@ CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
   layerNode->setPersistentId(layerId);
 
   if (
-    findEntityPropertyOrDefault(properties, EntityPropertyKeys::LayerLocked)
+    findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbLayerLocked)
     == EntityPropertyValues::LayerLockedValue)
   {
     layerNode->setLockState(LockState::Locked);
   }
 
   if (
-    findEntityPropertyOrDefault(properties, EntityPropertyKeys::LayerHidden)
+    findEntityPropertyOrDefault(properties, EntityPropertyKeys::TbLayerHidden)
     == EntityPropertyValues::LayerHiddenValue)
   {
     layerNode->setVisibilityState(VisibilityState::Hidden);
@@ -455,14 +455,14 @@ CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
 CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
 {
   const auto& name =
-    findEntityPropertyOrDefault(entityInfo.properties, EntityPropertyKeys::GroupName);
+    findEntityPropertyOrDefault(entityInfo.properties, EntityPropertyKeys::TbGroupName);
   if (kdl::str_is_blank(name))
   {
     return NodeError{entityInfo.startLocation, "Skipping group entity: missing name"};
   }
 
   const auto& idStr =
-    findEntityPropertyOrDefault(entityInfo.properties, EntityPropertyKeys::GroupId);
+    findEntityPropertyOrDefault(entityInfo.properties, EntityPropertyKeys::TbGroupId);
   if (kdl::str_is_blank(idStr))
   {
     return NodeError{entityInfo.startLocation, "Skipping group entity: missing id"};
@@ -480,11 +480,11 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
   auto nodeIssues = std::vector<NodeIssue>{};
 
   const auto linkId =
-    findEntityPropertyOrDefault(entityInfo.properties, EntityPropertyKeys::LinkId);
+    findEntityPropertyOrDefault(entityInfo.properties, EntityPropertyKeys::TbLinkId);
   if (!linkId.empty())
   {
     const auto& transformationStr = findEntityPropertyOrDefault(
-      entityInfo.properties, EntityPropertyKeys::GroupTransformation);
+      entityInfo.properties, EntityPropertyKeys::TbGroupTransformation);
     if (!transformationStr.empty())
     {
       transformation = vm::parse<double, 4u, 4u>(transformationStr);
@@ -529,7 +529,7 @@ CreateNodeResult createEntityNode(MapReader::EntityInfo entityInfo)
   auto entity = Entity{std::move(entityInfo.properties)};
   if (
     const auto* protectedPropertiesStr =
-      entity.property(EntityPropertyKeys::ProtectedEntityProperties))
+      entity.property(EntityPropertyKeys::TbProtectedEntityProperties))
   {
     auto protectedProperties =
       kdl::str_split(*protectedPropertiesStr, ";")
@@ -537,15 +537,15 @@ CreateNodeResult createEntityNode(MapReader::EntityInfo entityInfo)
       | kdl::ranges::to<std::vector>();
 
     entity.setProtectedProperties(std::move(protectedProperties));
-    entity.removeProperty(EntityPropertyKeys::ProtectedEntityProperties);
+    entity.removeProperty(EntityPropertyKeys::TbProtectedEntityProperties);
   }
 
   auto nodeIssues = std::vector<NodeIssue>{};
   auto containerInfo = extractContainerInfo(entity.properties(), nodeIssues);
 
   // strip container properties
-  entity.removeProperty(EntityPropertyKeys::Layer);
-  entity.removeProperty(EntityPropertyKeys::Group);
+  entity.removeProperty(EntityPropertyKeys::TbLayer);
+  entity.removeProperty(EntityPropertyKeys::TbGroup);
 
   auto entityNode = std::make_unique<EntityNode>(std::move(entity));
   const auto [startLine, lineCount] = getFilePosition(entityInfo);

@@ -51,7 +51,7 @@ TEST_CASE("Map_World")
         auto& worldNode = map.worldNode();
         auto world = worldNode.entity();
         world.addOrUpdateProperty(
-          EntityPropertyKeys::SoftMapBounds, "-2048 -2048 -2048 2048 2048 2048");
+          EntityPropertyKeys::TbSoftMapBounds, "-2048 -2048 -2048 2048 2048 2048");
         worldNode.setEntity(std::move(world));
       }
 
@@ -81,12 +81,13 @@ TEST_CASE("Map_World")
     const auto& world = worldNode.entity();
 
     REQUIRE(
-      world.hasProperty(EntityPropertyKeys::SoftMapBounds)
+      world.hasProperty(EntityPropertyKeys::TbSoftMapBounds)
       == expectedPropertyValue.has_value());
 
     if (expectedPropertyValue)
     {
-      CHECK(*world.property(EntityPropertyKeys::SoftMapBounds) == *expectedPropertyValue);
+      CHECK(
+        *world.property(EntityPropertyKeys::TbSoftMapBounds) == *expectedPropertyValue);
     }
   }
 
@@ -153,7 +154,7 @@ TEST_CASE("Map_World")
 
       CHECK(enabledMods(entity).empty());
 
-      entity.addOrUpdateProperty(EntityPropertyKeys::Mods, "mod1;mod2;mod3");
+      entity.addOrUpdateProperty(EntityPropertyKeys::TbMods, "mod1;mod2;mod3");
       CHECK(enabledMods(entity) == std::vector<std::string>{"mod1", "mod2", "mod3"});
     }
 
@@ -168,7 +169,7 @@ TEST_CASE("Map_World")
         {
           auto& worldNode = map.worldNode();
           auto world = worldNode.entity();
-          world.addOrUpdateProperty(EntityPropertyKeys::Mods, "mod1;mod2;mod3");
+          world.addOrUpdateProperty(EntityPropertyKeys::TbMods, "mod1;mod2;mod3");
           worldNode.setEntity(std::move(world));
         }
 
@@ -184,7 +185,7 @@ TEST_CASE("Map_World")
     const auto& worldNode = map.worldNode();
     const auto& world = worldNode.entity();
 
-    REQUIRE(!world.hasProperty(EntityPropertyKeys::Mods));
+    REQUIRE(!world.hasProperty(EntityPropertyKeys::TbMods));
     REQUIRE(enabledMods(map).empty());
 
     SECTION("Setting mods on a map without mods property")
@@ -193,7 +194,7 @@ TEST_CASE("Map_World")
       {
         setEnabledMods(map, {});
 
-        CHECK(!world.hasProperty(EntityPropertyKeys::Mods));
+        CHECK(!world.hasProperty(EntityPropertyKeys::TbMods));
         CHECK(enabledMods(world).empty());
       }
 
@@ -201,8 +202,8 @@ TEST_CASE("Map_World")
       {
         setEnabledMods(map, {"mod1", "mod2", "mod3"});
 
-        REQUIRE(world.hasProperty(EntityPropertyKeys::Mods));
-        CHECK(*world.property(EntityPropertyKeys::Mods) == "mod1;mod2;mod3");
+        REQUIRE(world.hasProperty(EntityPropertyKeys::TbMods));
+        CHECK(*world.property(EntityPropertyKeys::TbMods) == "mod1;mod2;mod3");
       }
     }
 
@@ -210,14 +211,14 @@ TEST_CASE("Map_World")
     {
       setEnabledMods(map, {"mod1", "mod2", "mod3"});
 
-      REQUIRE(world.hasProperty(EntityPropertyKeys::Mods));
-      REQUIRE(*world.property(EntityPropertyKeys::Mods) == "mod1;mod2;mod3");
+      REQUIRE(world.hasProperty(EntityPropertyKeys::TbMods));
+      REQUIRE(*world.property(EntityPropertyKeys::TbMods) == "mod1;mod2;mod3");
 
       SECTION("Setting empty mods")
       {
         setEnabledMods(map, {});
 
-        CHECK(!world.hasProperty(EntityPropertyKeys::Mods));
+        CHECK(!world.hasProperty(EntityPropertyKeys::TbMods));
         CHECK(enabledMods(world).empty());
       }
 
@@ -225,8 +226,8 @@ TEST_CASE("Map_World")
       {
         setEnabledMods(map, {"mod1", "mod3", "mod4"});
 
-        REQUIRE(world.hasProperty(EntityPropertyKeys::Mods));
-        CHECK(*world.property(EntityPropertyKeys::Mods) == "mod1;mod3;mod4");
+        REQUIRE(world.hasProperty(EntityPropertyKeys::TbMods));
+        CHECK(*world.property(EntityPropertyKeys::TbMods) == "mod1;mod3;mod4");
       }
     }
   }

@@ -79,7 +79,7 @@ void doWriteNodes(
                                            })
                                          | kdl::ranges::to<std::vector>();
           extraProperties.emplace_back(
-            EntityPropertyKeys::ProtectedEntityProperties,
+            EntityPropertyKeys::TbProtectedEntityProperties,
             kdl::str_join(escapedProperties, ";"));
         }
         serializer.entity(
