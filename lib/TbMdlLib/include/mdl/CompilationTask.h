@@ -30,9 +30,10 @@ namespace tb::mdl
 struct CompilationExportMap
 {
   bool enabled;
+  bool stripTbProperties;
   std::string targetSpec;
 
-  kdl_reflect_decl(CompilationExportMap, enabled, targetSpec);
+  kdl_reflect_decl(CompilationExportMap, enabled, stripTbProperties, targetSpec);
 };
 
 struct CompilationCopyFiles

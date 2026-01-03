@@ -211,7 +211,9 @@ void CompilationProfileEditor::addTask()
     if (chosenAction == exportMapAction)
     {
       return mdl::CompilationExportMap{
-        K(enabled), "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map"};
+        K(enabled),
+        !K(stripTbProperties),
+        "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map"};
     }
     if (chosenAction == copyFilesAction)
     {
