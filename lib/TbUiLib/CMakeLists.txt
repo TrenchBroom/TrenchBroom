@@ -459,7 +459,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/WidgetState.h
   
   PRIVATE FILE_SET version_header TYPE HEADERS
-    BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
+    BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
 target_link_libraries(TbUiLib PRIVATE
@@ -489,7 +489,7 @@ add_custom_target(TbUiLib_GenerateVersion ${CMAKE_COMMAND}
   -D UTILS="${CMAKE_SOURCE_DIR}/cmake/Utils.cmake"
   -D APP_BUILD_TYPE="${APP_BUILD_TYPE}"
   -D SRC="${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Version.h.in"
-  -D DST="${CMAKE_CURRENT_BINARY_DIR}/ui/Version.h"
+  -D DST="${CMAKE_CURRENT_BINARY_DIR}/generated/ui/Version.h"
   -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
   -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVersion.cmake")
 add_dependencies(TbUiLib TbUiLib_GenerateVersion)
