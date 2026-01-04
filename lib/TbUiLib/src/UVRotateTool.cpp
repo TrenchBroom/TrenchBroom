@@ -79,7 +79,7 @@ float snapAngle(const UVViewHelper& helper, const float angle, const float distT
   auto minDelta = std::numeric_limits<float>::max();
 
   const auto toFace =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   for (const auto* edge : helper.face()->edges())
   {
     const auto startInFaceCoords = vm::vec2f{toFace * edge->firstVertex()->position()};
@@ -145,7 +145,7 @@ public:
     auto& gl = renderContext.gl();
 
     const auto fromFace =
-      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
@@ -207,9 +207,9 @@ public:
     const auto distToOrigin = vm::length(curPoint - m_helper.origin());
 
     const auto toFaceOld =
-      m_helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+      m_helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
     const auto toWorld =
-      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
     const auto curPointInFaceCoords = vm::vec2f{toFaceOld * curPoint};
     const auto curAngle = measureAngle(m_helper, curPointInFaceCoords);
@@ -229,7 +229,7 @@ public:
 
     // Correct the offsets.
     const auto toFaceNew =
-      m_helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+      m_helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
     const auto newCenterInFaceCoords = vm::vec2f{toFaceNew * oldCenterInWorldCoords};
 
     const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords)
@@ -265,7 +265,7 @@ std::optional<vm::vec2f> hitPointInFaceCoords(
   using namespace mdl::HitFilters;
 
   const auto toFace =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
   const auto& angleHandleHit =
     inputState.pickResult().first(type(UVRotateTool::AngleHandleHitType));
@@ -335,7 +335,7 @@ void UVRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResul
     const auto hitPoint = vm::point_at_distance(pickRay, *distanceToFace);
 
     const auto fromFace =
-      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
 
     const auto originOnPlane =
