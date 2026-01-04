@@ -703,17 +703,15 @@ vm::mat4x4d BrushFace::projectToBoundaryMatrix() const
 }
 
 vm::mat4x4d BrushFace::toUVCoordSystemMatrix(
-  const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const
+  const vm::vec2f& offset, const vm::vec2f& scale) const
 {
-  return project ? vm::mat4x4d::zero_out<2>() * m_uvCoordSystem->toMatrix(offset, scale)
-                 : m_uvCoordSystem->toMatrix(offset, scale);
+  return vm::mat4x4d::zero_out<2>() * m_uvCoordSystem->toMatrix(offset, scale);
 }
 
 vm::mat4x4d BrushFace::fromUVCoordSystemMatrix(
-  const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const
+  const vm::vec2f& offset, const vm::vec2f& scale) const
 {
-  return project ? projectToBoundaryMatrix() * m_uvCoordSystem->fromMatrix(offset, scale)
-                 : m_uvCoordSystem->fromMatrix(offset, scale);
+  return projectToBoundaryMatrix() * m_uvCoordSystem->fromMatrix(offset, scale);
 }
 
 float BrushFace::measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const

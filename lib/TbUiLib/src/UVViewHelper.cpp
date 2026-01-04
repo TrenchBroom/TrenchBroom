@@ -112,8 +112,7 @@ const vm::vec3d UVViewHelper::origin() const
 
 const vm::vec2f UVViewHelper::originInFaceCoords() const
 {
-  const auto toFace =
-    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  const auto toFace = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   return vm::vec2f{toFace * origin()};
 }
 
@@ -122,14 +121,13 @@ const vm::vec2f UVViewHelper::originInUVCoords() const
   contract_pre(valid());
 
   const auto toFace = face()->toUVCoordSystemMatrix(
-    face()->attributes().offset(), face()->attributes().scale(), true);
+    face()->attributes().offset(), face()->attributes().scale());
   return vm::vec2f{toFace * origin()};
 }
 
 void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
 {
-  const auto fromFace =
-    face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  const auto fromFace = face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   m_origin = fromFace * vm::vec3d{originInFaceCoords};
 }
 
@@ -158,7 +156,7 @@ void UVViewHelper::pickUVGrid(
       const auto hitPointInWorldCoords = vm::point_at_distance(ray, *distance);
       const auto hitPointInUVCoords = vm::vec2f{
         face()->toUVCoordSystemMatrix(
-          face()->attributes().offset(), face()->attributes().scale(), true)
+          face()->attributes().offset(), face()->attributes().scale())
         * hitPointInWorldCoords};
       const auto hitPointInViewCoords = uvToViewCoords(hitPointInUVCoords);
 
@@ -228,10 +226,8 @@ void UVViewHelper::computeOriginHandleVertices(
 {
   contract_pre(valid());
 
-  const auto toTex =
-    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
-  const auto toWorld =
-    face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  const auto toTex = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  const auto toWorld = face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   computeLineVertices(vm::vec2d{originInFaceCoords()}, x1, x2, y1, y2, toTex, toWorld);
 }
 
@@ -241,9 +237,9 @@ void UVViewHelper::computeScaleHandleVertices(
   contract_pre(valid());
 
   const auto toTex = face()->toUVCoordSystemMatrix(
-    face()->attributes().offset(), face()->attributes().scale(), true);
+    face()->attributes().offset(), face()->attributes().scale());
   const auto toWorld = face()->fromUVCoordSystemMatrix(
-    face()->attributes().offset(), face()->attributes().scale(), true);
+    face()->attributes().offset(), face()->attributes().scale());
   computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
 }
 
@@ -272,7 +268,7 @@ vm::vec2f UVViewHelper::uvToViewCoords(const vm::vec2f& pos) const
 {
   const auto posInWorldCoords =
     face()->fromUVCoordSystemMatrix(
-      face()->attributes().offset(), face()->attributes().scale(), true)
+      face()->attributes().offset(), face()->attributes().scale())
     * vm::vec3d{pos, 0.0};
   return m_camera.project(vm::vec3f(posInWorldCoords)).xy();
 }
@@ -281,8 +277,7 @@ void UVViewHelper::resetOrigin()
 {
   contract_pre(valid());
 
-  const auto toTex =
-    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  const auto toTex = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto texVertices = toTex * face()->vertexPositions();
 
   const auto toCam = vm::mat4x4d{m_camera.viewMatrix()};
