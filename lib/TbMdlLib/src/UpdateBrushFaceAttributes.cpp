@@ -46,6 +46,57 @@ auto setValueIfSet(const auto& maybeValue)
          | kdl::optional_transform([](const auto& value) { return SetValue{value}; });
 };
 
+void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
+{
+  if (axisOp)
+  {
+    std::visit(
+      kdl::overload(
+        [&](const ResetAxis&) { brushFace.resetUVAxes(); },
+        [&](const ToParaxial&) { brushFace.resetUVAxesToParaxial(); },
+        [](const ToParallel&) {}),
+      *axisOp);
+  }
+}
+
+auto evaluate(const std::optional<ValueOp>& valueOp, const std::optional<float>& value)
+{
+  return valueOp ? std::visit(
+                     kdl::overload(
+                       [](const SetValue& setValue) { return setValue.value; },
+                       [&](const AddValue& addValue) {
+                         return value | kdl::optional_transform([&](const auto x) {
+                                  return x + addValue.delta;
+                                });
+                       },
+                       [&](const MultiplyValue& multiplyValue) {
+                         return value | kdl::optional_transform([&](const auto x) {
+                                  return x * multiplyValue.factor;
+                                });
+                       }),
+                     *valueOp)
+                 : value;
+}
+
+auto evaluate(const std::optional<FlagOp>& flagOp, const std::optional<int>& value)
+{
+  return flagOp ? std::visit(
+                    kdl::overload(
+                      [](const SetFlags& replaceFlags) { return replaceFlags.value; },
+                      [&](const SetFlagBits& setFlagBits) {
+                        return value | kdl::optional_transform([&](const auto x) {
+                                 return x | setFlagBits.value;
+                               });
+                      },
+                      [&](const ClearFlagBits& clearFlagBits) {
+                        return value | kdl::optional_transform([&](const auto x) {
+                                 return x & ~clearFlagBits.value;
+                               });
+                      }),
+                    *flagOp)
+                : value;
+}
+
 } // namespace
 
 kdl_reflect_impl(ResetAxis);
@@ -126,62 +177,6 @@ UpdateBrushFaceAttributes resetAllToParaxial(
     .axis = ToParaxial{},
   };
 }
-
-namespace
-{
-
-void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
-{
-  if (axisOp)
-  {
-    std::visit(
-      kdl::overload(
-        [&](const ResetAxis&) { brushFace.resetUVAxes(); },
-        [&](const ToParaxial&) { brushFace.resetUVAxesToParaxial(); },
-        [](const ToParallel&) {}),
-      *axisOp);
-  }
-}
-
-auto evaluate(const std::optional<ValueOp>& valueOp, const std::optional<float>& value)
-{
-  return valueOp ? std::visit(
-                     kdl::overload(
-                       [](const SetValue& setValue) { return setValue.value; },
-                       [&](const AddValue& addValue) {
-                         return value | kdl::optional_transform([&](const auto x) {
-                                  return x + addValue.delta;
-                                });
-                       },
-                       [&](const MultiplyValue& multiplyValue) {
-                         return value | kdl::optional_transform([&](const auto x) {
-                                  return x * multiplyValue.factor;
-                                });
-                       }),
-                     *valueOp)
-                 : value;
-}
-
-auto evaluate(const std::optional<FlagOp>& flagOp, const std::optional<int>& value)
-{
-  return flagOp ? std::visit(
-                    kdl::overload(
-                      [](const SetFlags& replaceFlags) { return replaceFlags.value; },
-                      [&](const SetFlagBits& setFlagBits) {
-                        return value | kdl::optional_transform([&](const auto x) {
-                                 return x | setFlagBits.value;
-                               });
-                      },
-                      [&](const ClearFlagBits& clearFlagBits) {
-                        return value | kdl::optional_transform([&](const auto x) {
-                                 return x & ~clearFlagBits.value;
-                               });
-                      }),
-                    *flagOp)
-                : value;
-}
-
-} // namespace
 
 void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
 {
