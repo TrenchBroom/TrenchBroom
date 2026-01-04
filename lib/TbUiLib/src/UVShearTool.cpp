@@ -70,7 +70,7 @@ std::vector<vm::vec2f> getEdgeVectorsUV(const UVViewHelper& helper)
   if (const auto* face = helper.face())
   {
     const auto toUV =
-      helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{0, 0}, true);
+      helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{0, 0});
     return face->edges() | std::views::transform([&](const auto* edge) {
              const auto& segment3d = edge->segment();
              return vm::vec2f{toUV * segment3d.end()}
@@ -183,14 +183,14 @@ public:
       const auto origin = m_helper.origin();
       const auto oldOriginUV = vm::vec2f{
         m_helper.face()->toUVCoordSystemMatrix(
-          vm::vec2f{0, 0}, m_helper.face()->attributes().scale(), true)
+          vm::vec2f{0, 0}, m_helper.face()->attributes().scale())
         * origin};
 
       shearUV(m_map, snappedFactors);
 
       const auto newOriginUV = vm::vec2f{
         m_helper.face()->toUVCoordSystemMatrix(
-          vm::vec2f{0, 0}, m_helper.face()->attributes().scale(), true)
+          vm::vec2f{0, 0}, m_helper.face()->attributes().scale())
         * origin};
       const auto newOffset =
         m_helper.face()->attributes().offset() + oldOriginUV - newOriginUV;
