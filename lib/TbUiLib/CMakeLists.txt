@@ -478,12 +478,12 @@ target_link_libraries(TbUiLib PRIVATE
 set_target_properties(TbUiLib PROPERTIES AUTOMOC TRUE)
 
 # Create the cmake script for generating the version information
-target_include_directories(TbUiLib PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(TbUiLib PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated)
 add_custom_target(TbUiLib_GenerateVersion ${CMAKE_COMMAND}
   -D UTILS="${CMAKE_SOURCE_DIR}/cmake/Utils.cmake"
   -D APP_BUILD_TYPE="${APP_BUILD_TYPE}"
   -D SRC="${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Version.h.in"
-  -D DST="${CMAKE_CURRENT_BINARY_DIR}/ui/Version.h"
+  -D DST="${CMAKE_CURRENT_BINARY_DIR}/generated/ui/Version.h"
   -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
   -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVersion.cmake")
 add_dependencies(TbUiLib TbUiLib_GenerateVersion)
