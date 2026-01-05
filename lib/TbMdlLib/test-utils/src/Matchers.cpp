@@ -114,23 +114,4 @@ NodeMatcher MatchesNode(const Node& expected)
   return NodeMatcher{expected};
 }
 
-NodeVectorMatcher::NodeVectorMatcher(std::vector<Node*> expected)
-  : m_expected{std::move(expected)}
-{
-}
-
-bool NodeVectorMatcher::match(const std::vector<Node*>& in) const
-{
-  return std::ranges::equal(in, m_expected, [](const auto& lhs, const auto& rhs) {
-    return nodesMatch(*lhs, *rhs);
-  });
-}
-
-std::string NodeVectorMatcher::describe() const
-{
-  auto str = std::stringstream{};
-  str << "matches " << kdl::make_streamable(m_expected);
-  return str.str();
-}
-
 } // namespace tb::mdl
