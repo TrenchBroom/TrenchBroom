@@ -23,7 +23,6 @@
 #include "mdl/CatchConfig.h"
 
 #include <cassert>
-#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -46,19 +45,5 @@ public:
 };
 
 NodeMatcher MatchesNode(const Node& expected);
-
-class NodeVectorMatcher : public Catch::Matchers::MatcherBase<const std::vector<Node*>&>
-{
-  const std::vector<Node*> m_expected;
-
-public:
-  explicit NodeVectorMatcher(std::vector<Node*> expected);
-
-  bool match(const std::vector<Node*>& in) const override;
-
-  std::string describe() const override;
-};
-
-NodeMatcher MatchesNodeVector(std::vector<Node*> expected);
 
 } // namespace tb::mdl
