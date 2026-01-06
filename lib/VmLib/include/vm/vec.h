@@ -1865,6 +1865,22 @@ T measure_angle(const vec<T, 3>& v, const vec<T, 3>& axis, const vec<T, 3>& up)
   }
 }
 
+/**
+ * Computes the CCW angle between axis and vector. All vectors are expected to be
+ * normalized. The CCW angle is the angle by which the given axis must be rotated in CCW
+ * direction so that it becomes identical to the given vector.
+ *
+ * @tparam T the coordinate type
+ * @param v the vector
+ * @param axis the axis
+ * @return the CCW angle
+ */
+template <typename T>
+T measure_angle(const vec<T, 2>& v, const vec<T, 2>& axis)
+{
+  return measure_angle(vec<T, 3>{v, 0}, vec<T, 3>{axis, 0}, vec<T, 3>{0, 0, 1});
+}
+
 using vec1f = vec<float, 1>;
 using vec1d = vec<double, 1>;
 using vec1i = vec<int, 1>;
