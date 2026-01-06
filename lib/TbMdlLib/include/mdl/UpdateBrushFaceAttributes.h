@@ -139,6 +139,17 @@ UpdateBrushFaceAttributes resetAll(const BrushFaceAttributes& defaultFaceAttribu
 UpdateBrushFaceAttributes resetAllToParaxial(
   const BrushFaceAttributes& defaultFaceAttributes);
 
+enum class UvPolicy
+{
+  best,
+  next,
+  prev,
+};
+
+std::ostream& operator<<(std::ostream& lhs, UvPolicy rhs);
+
+UpdateBrushFaceAttributes align(const BrushFace& brushFace, UvPolicy uvPolicy);
+
 void evaluate(
   const UpdateBrushFaceAttributes& updateBrushFaceAttributes, BrushFace& brushFace);
 
