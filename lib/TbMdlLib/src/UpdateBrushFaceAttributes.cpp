@@ -24,6 +24,8 @@
 #include "mdl/BrushNode.h"
 
 #include "kd/optional_utils.h"
+#include "kd/range_utils.h"
+#include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/vec_io.h" // IWYU pragma: keep
@@ -45,6 +47,19 @@ auto setValueIfSet(const auto& maybeValue)
   return maybeValue
          | kdl::optional_transform([](const auto& value) { return SetValue{value}; });
 };
+
+auto edgesInUvCoords(const BrushFace& brushFace)
+{
+  return brushFace.geometry()->boundary()
+         | std::views::transform(
+           [toUV = brushFace.toUVCoordSystemMatrix(
+              brushFace.attributes().offset(), brushFace.attributes().scale())](
+             const auto* halfEdge) {
+             return std::tuple{
+               vm::vec2d{toUV * halfEdge->origin()->position()},
+               vm::vec2d{toUV * halfEdge->next()->origin()->position()}};
+           });
+}
 
 void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
 {
@@ -95,6 +110,11 @@ auto evaluate(const std::optional<FlagOp>& flagOp, const std::optional<int>& val
                       }),
                     *flagOp)
                 : value;
+}
+
+float normalizeAngle(const float angleInDegrees)
+{
+  return vm::correct(vm::mod(angleInDegrees, 360.0f));
 }
 
 } // namespace
@@ -175,6 +195,38 @@ UpdateBrushFaceAttributes resetAllToParaxial(
     .xScale = SetValue{defaultFaceAttributes.scale().x()},
     .yScale = SetValue{defaultFaceAttributes.scale().y()},
     .axis = ToParaxial{},
+  };
+}
+
+UpdateBrushFaceAttributes alignToFaceEdge(const BrushFace& brushFace, const bool reverse)
+{
+  constexpr auto uAxis = vm::vec2d{1, 0};
+
+  const auto dot = [&](const auto& v) { return vm::dot(v, uAxis); };
+
+  const auto edgeVecsInUvCoords = edgesInUvCoords(brushFace)
+                                  | std::views::transform([](const auto& edge) {
+                                      const auto& [start, end] = edge;
+                                      return vm::normalize(end - start);
+                                    })
+                                  | kdl::ranges::to<std::vector>();
+
+  // find the edge vec that is closest to the U axis
+  const auto iBestMatch =
+    std::ranges::max_element(edgeVecsInUvCoords, std::less<double>{}, dot);
+  contract_assert(iBestMatch != std::ranges::end(edgeVecsInUvCoords));
+
+  const auto isExactMatch = vm::is_equal(dot(*iBestMatch), 1.0, vm::Cd::almost_zero());
+  const auto iEdgeToAlignTo = isExactMatch ? reverse
+                                               ? kdl::succ(edgeVecsInUvCoords, iBestMatch)
+                                               : kdl::pred(edgeVecsInUvCoords, iBestMatch)
+                                           : iBestMatch;
+
+  const auto angleInDegrees =
+    brushFace.measureUVAngle(vm::vec2f{0, 0}, vm::vec2f{*iEdgeToAlignTo});
+
+  return {
+    .rotation = SetValue{normalizeAngle(angleInDegrees)},
   };
 }
 
