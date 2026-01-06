@@ -23,6 +23,7 @@
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 
+#include "kd/k.h"
 #include "kd/optional_utils.h"
 #include "kd/reflection_impl.h"
 
@@ -45,6 +46,34 @@ auto setValueIfSet(const auto& maybeValue)
   return maybeValue
          | kdl::optional_transform([](const auto& value) { return SetValue{value}; });
 };
+
+auto makeToEdgeVec(const BrushFace& brushFace)
+{
+  return [toUV = brushFace.toUVCoordSystemMatrix(
+            brushFace.attributes().offset(), brushFace.attributes().scale())](
+           const auto* halfEdge) {
+    return vm::normalize(
+      vm::vec2d{toUV * halfEdge->next()->origin()->position()}
+      - vm::vec2d{toUV * halfEdge->origin()->position()});
+  };
+}
+
+auto findBestMatchingEdge(const BrushFace& brushFace)
+{
+  constexpr auto uAxis = vm::vec2d{1, 0};
+
+  const auto toEdgeVec = makeToEdgeVec(brushFace);
+
+  // find the edge that is closest to the U axis of the UV coord system
+  const auto iBestMatch = std::ranges::min_element(
+    brushFace.geometry()->boundary(), std::greater<double>{}, [&](const auto* halfEdge) {
+      return vm::dot(toEdgeVec(halfEdge), uAxis);
+    });
+
+  contract_assert(iBestMatch != brushFace.geometry()->boundary().end());
+
+  return *iBestMatch;
+}
 
 void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
 {
@@ -95,6 +124,11 @@ auto evaluate(const std::optional<FlagOp>& flagOp, const std::optional<int>& val
                       }),
                     *flagOp)
                 : value;
+}
+
+float normalizeAngle(const float angleInDegrees)
+{
+  return vm::correct(vm::mod(angleInDegrees, 360.0f));
 }
 
 } // namespace
@@ -175,6 +209,29 @@ UpdateBrushFaceAttributes resetAllToParaxial(
     .xScale = SetValue{defaultFaceAttributes.scale().x()},
     .yScale = SetValue{defaultFaceAttributes.scale().y()},
     .axis = ToParaxial{},
+  };
+}
+
+UpdateBrushFaceAttributes alignToFaceEdge(const BrushFace& brushFace, const bool reverse)
+{
+  constexpr auto uAxis = vm::vec2d{1, 0};
+
+  const auto* bestMatchingEdge = findBestMatchingEdge(brushFace);
+
+  const auto toEdgeVec = makeToEdgeVec(brushFace);
+  const auto dot = vm::dot(toEdgeVec(bestMatchingEdge), uAxis);
+  const auto* edgeToAlignTo =
+    vm::is_equal(dot, 1.0, vm::Cd::almost_zero())
+      ? reverse ? bestMatchingEdge->next() : bestMatchingEdge->previous()
+      : bestMatchingEdge;
+
+  const auto angleInDegrees =
+    brushFace.measureUVAngle(vm::vec2f{0, 0}, vm::vec2f{toEdgeVec(edgeToAlignTo)});
+
+  const auto normalizedAngle = normalizeAngle(angleInDegrees);
+
+  return {
+    .rotation = SetValue{normalizedAngle},
   };
 }
 

@@ -139,6 +139,8 @@ UpdateBrushFaceAttributes resetAll(const BrushFaceAttributes& defaultFaceAttribu
 UpdateBrushFaceAttributes resetAllToParaxial(
   const BrushFaceAttributes& defaultFaceAttributes);
 
+UpdateBrushFaceAttributes alignToFaceEdge(const BrushFace& brushFace, bool reverse);
+
 void evaluate(
   const UpdateBrushFaceAttributes& updateBrushFaceAttributes, BrushFace& brushFace);
 
