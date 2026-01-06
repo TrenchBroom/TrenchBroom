@@ -49,6 +49,11 @@ auto setValueIfSet(const auto& maybeValue)
          | kdl::optional_transform([](const auto& value) { return SetValue{value}; });
 };
 
+float normalizeRotation(const float rotation)
+{
+  return vm::mod(rotation, 360.0f);
+}
+
 void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
 {
   if (axisOp)
@@ -253,7 +258,8 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
   attributes.setMaterialName(update.materialName.value_or(attributes.materialName()));
   attributes.setXOffset(*evaluate(update.xOffset, attributes.xOffset()));
   attributes.setYOffset(*evaluate(update.yOffset, attributes.yOffset()));
-  attributes.setRotation(*evaluate(update.rotation, attributes.rotation()));
+  attributes.setRotation(
+    normalizeRotation(*evaluate(update.rotation, attributes.rotation())));
   attributes.setXScale(*evaluate(update.xScale, attributes.xScale()));
   attributes.setYScale(*evaluate(update.yScale, attributes.yScale()));
 
