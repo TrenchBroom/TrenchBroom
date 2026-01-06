@@ -29,6 +29,7 @@
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 
+#include "vm/scalar.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <cassert>
@@ -253,7 +254,8 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
   attributes.setMaterialName(update.materialName.value_or(attributes.materialName()));
   attributes.setXOffset(*evaluate(update.xOffset, attributes.xOffset()));
   attributes.setYOffset(*evaluate(update.yOffset, attributes.yOffset()));
-  attributes.setRotation(*evaluate(update.rotation, attributes.rotation()));
+  attributes.setRotation(
+    vm::normalize_degrees(*evaluate(update.rotation, attributes.rotation())));
   attributes.setXScale(*evaluate(update.xScale, attributes.xScale()));
   attributes.setYScale(*evaluate(update.yScale, attributes.yScale()));
 
