@@ -442,9 +442,9 @@
     ]
 ]
 
-@PointClass base(light) = trigger_SetLightStyle : "Used for controlling surface based light sources. Set targetname to the identifier contained in groupname in the surfaces to control."
+@PointClass base(light) = trigger_SetLightStyle : "Used for controlling light sources. Set style to the identifier contained in groupname in the surfaces to control."
 [
-	targetname(string) : "groupname of the surface"
+	style(string) : "style to control, for surface lights; use the same name as direct group"
 ]
 
 @SolidClass base(Entity) = func_remove : "Removed by game"

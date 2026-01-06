@@ -137,6 +137,10 @@ auto uploadTexture(
     }
   }
 
+  // Auto-gen mipmaps for non-masked textures
+  if (mask == TextureMask::Off)
+    glAssert(glGenerateMipmap(GL_TEXTURE_2D));
+
   return textureId;
 }
 

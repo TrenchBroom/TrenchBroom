@@ -629,6 +629,7 @@ void StandardMapParser::parseSiNData(ParserStatus&, mdl::BrushFaceAttributes& at
     if (lhs.data()[0] == '-')
     {
       //throw ParserException{m_tokenizer.location(), fmt::format("SiN formatted map has subtractive flags; this is not currently supported")};
+        continue;
     }
     if (lhs.data()[0] == '+')
     {
@@ -679,7 +680,7 @@ void StandardMapParser::parseSiNData(ParserStatus&, mdl::BrushFaceAttributes& at
     } else if (lhs.data() == "trans_mag") {
         attribs.setSiNTransMag(parseFloat());
     } else if (lhs.data() == "trans_angle") {
-        attribs.setSiNTransAngle(parseInteger());
+        attribs.setSiNTransAngle((int) parseFloat());
     } else if (lhs.data() == "color") {
         const auto r = vm::clamp((int) (parseFloat() * 255.0f), 0, 255);
         const auto g = vm::clamp((int) (parseFloat() * 255.0f), 0, 255);

@@ -169,6 +169,7 @@ std::vector<MapFormat> compatibleFormats(const MapFormat format)
   case MapFormat::Daikatana:
       return {MapFormat::Daikatana};
   case MapFormat::SiN:
+  case MapFormat::SiN_Valve:
       return {MapFormat::SiN, MapFormat::SiN_Valve};
   case MapFormat::Quake3_Legacy:
     return {MapFormat::Quake3_Legacy, MapFormat::Quake3_Valve, MapFormat::Quake3};
