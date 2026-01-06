@@ -556,6 +556,11 @@ TEST_CASE("vec.dot")
     dot(vec3f(2.3f, 8.7878f, -2323.0f), vec3f(4.333f, -2.0f, 322.0f))
     == approx(-748013.6097f));
   CER_CHECK(dot(vec3f(2.3f, 8.7878f, -2323.0f), vec3f{0, 0, 0}) == approx(0.0f));
+
+  CER_CHECK(dot(vec2f{1, 0}, vec2f{1, 0}) == 1.0f);
+  CER_CHECK(dot(vec2f{0, 1}, vec2f{1, 0}) == 0.0f);
+  CER_CHECK(dot(vec2f{-1, 0}, vec2f{1, 0}) == -1.0f);
+  CER_CHECK(dot(vec2f{0, -1}, vec2f{1, 0}) == 0.0f);
 }
 
 TEST_CASE("vec.cross")
