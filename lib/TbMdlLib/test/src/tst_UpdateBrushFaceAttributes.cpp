@@ -17,10 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/MapFormat.h"
+#include "mdl/Matchers.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -31,6 +33,12 @@ namespace tb::mdl
 
 TEST_CASE("UpdateBrushFaceAttributes")
 {
+  constexpr auto Std = MapFormat::Standard;
+  constexpr auto Vlv = MapFormat::Valve;
+  constexpr auto UvBest = UvPolicy::best;
+  constexpr auto UvNext = UvPolicy::next;
+  constexpr auto UvPrev = UvPolicy::prev;
+
   SECTION("copyAll")
   {
     auto attributes = BrushFaceAttributes{"some_material"};
@@ -148,6 +156,252 @@ TEST_CASE("UpdateBrushFaceAttributes")
         .yScale = SetValue{3.0f},
         .axis = ToParaxial{},
       });
+  }
+
+  SECTION("align")
+  {
+    using T = std::tuple<MapFormat, vm::vec2f, vm::vec2f, float, UvPolicy, float>;
+
+    SECTION("Axis aligned rectangle (-Y normal)")
+    {
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         policy,
+         expectedRotation] = GENERATE_COPY(values<T>({
+          {Std, {0, 0}, {1, 1}, 0.0f, UvBest, 0.0f},
+          {Std, {0, 0}, {1, 1}, 15.0f, UvBest, 0.0f},
+          {Std, {0, 0}, {1, 1}, 60.0f, UvBest, 90.0f},
+
+          {Std, {0, 0}, {1, 1}, 0.0f, UvNext, 90.0f},
+          {Std, {0, 0}, {1, 1}, 90.0f, UvNext, 180.0f},
+          {Std, {0, 0}, {1, 1}, 180.0f, UvNext, 270.0f},
+          {Std, {0, 0}, {1, 1}, 270.0f, UvNext, 0.0f},
+
+          {Std, {0, 0}, {1, 1}, 0.0f, UvPrev, 270.0f},
+          {Std, {0, 0}, {1, 1}, 270.0f, UvPrev, 180.0f},
+          {Std, {0, 0}, {1, 1}, 180.0f, UvPrev, 90.0f},
+          {Std, {0, 0}, {1, 1}, 90.0f, UvPrev, 0.0f},
+
+          {Std, {0, 0}, {1, 1}, 15.0f, UvNext, 0.0f},
+          {Std, {0, 0}, {1, 1}, 60.0f, UvNext, 90.0f},
+          {Std, {0, 0}, {1, 1}, 15.0f, UvPrev, 0.0f},
+          {Std, {0, 0}, {1, 1}, 60.0f, UvPrev, 90.0f},
+
+          {Std, {12, -3}, {1.2f, 0.9f}, 0.0f, UvPrev, 270.0f},
+          {Std, {12, -3}, {1.2f, 0.9f}, 15.0f, UvPrev, 0.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 0.0f, UvBest, 0.0f},
+          {Vlv, {0, 0}, {1, 1}, 15.0f, UvBest, 0.0f},
+          {Vlv, {0, 0}, {1, 1}, 60.0f, UvBest, 90.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 0.0f, UvNext, 270.0f},
+          {Vlv, {0, 0}, {1, 1}, 270.0f, UvNext, 180.0f},
+          {Vlv, {0, 0}, {1, 1}, 180.0f, UvNext, 90.0f},
+          {Vlv, {0, 0}, {1, 1}, 90.0f, UvNext, 0.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 0.0f, UvPrev, 90.0f},
+          {Vlv, {0, 0}, {1, 1}, 90.0f, UvPrev, 180.0f},
+          {Vlv, {0, 0}, {1, 1}, 180.0f, UvPrev, 270.0f},
+          {Vlv, {0, 0}, {1, 1}, 270.0f, UvPrev, 0.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 15.0f, UvNext, 0.0f},
+          {Vlv, {0, 0}, {1, 1}, 60.0f, UvNext, 90.0f},
+          {Vlv, {0, 0}, {1, 1}, 15.0f, UvPrev, 0.0f},
+          {Vlv, {0, 0}, {1, 1}, 60.0f, UvPrev, 90.0f},
+
+          {Vlv, {12, -3}, {1.2f, 0.9f}, 0.0f, UvPrev, 90.0f},
+          {Vlv, {12, -3}, {1.2f, 0.9f}, 15.0f, UvPrev, 0.0f},
+        }));
+
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, policy);
+
+      auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
+      brushBuilder.createCuboid(vm::vec3d{32, 32, 32}, "material")
+        | kdl::transform([&](auto brush) {
+            const auto frontFaceIndex = brush.findFace(vm::vec3d{0, -1, 0});
+            REQUIRE(frontFaceIndex);
+
+            auto& frontFace = brush.face(*frontFaceIndex);
+            evaluate(
+              UpdateBrushFaceAttributes{
+                .xOffset = SetValue{initialOffset.x()},
+                .yOffset = SetValue{initialOffset.y()},
+                .rotation = SetValue{initialRotation},
+                .xScale = SetValue{initialScale.x()},
+                .yScale = SetValue{initialScale.y()},
+              },
+              frontFace);
+
+            CHECK_THAT(
+              align(frontFace, policy),
+              MatchesUpdateBrushFaceAttributes(
+                UpdateBrushFaceAttributes{.rotation = SetValue{expectedRotation}}));
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+
+    SECTION("Trapezoid (+Z normal)")
+    {
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         policy,
+         expectedRotation] = GENERATE_COPY(values<T>({
+          {Std, {0, 0}, {1, 1}, 0.0f, UvBest, 0.0f},
+          {Std, {0, 0}, {1, 1}, 15.0f, UvBest, 0.0f},
+          {Std, {0, 0}, {1, 1}, 35.0f, UvBest, 45.0f},
+
+          {Std, {0, 0}, {1, 1}, 0.0f, UvNext, 45.0f},
+          {Std, {0, 0}, {1, 1}, 45.0f, UvNext, 180.0f},
+          {Std, {0, 0}, {1, 1}, 180.0f, UvNext, 315.0f},
+          {Std, {0, 0}, {1, 1}, 315.0f, UvNext, 0.0f},
+
+          {Std, {0, 0}, {1, 1}, 0.0f, UvPrev, 315.0f},
+          {Std, {0, 0}, {1, 1}, 315.0f, UvPrev, 180.0f},
+          {Std, {0, 0}, {1, 1}, 180.0f, UvPrev, 45.0f},
+          {Std, {0, 0}, {1, 1}, 45.0f, UvPrev, 0.0f},
+
+          {Std, {12, -3}, {1.2f, 0.9f}, 0.0f, UvPrev, 315.0f},
+          {Std, {12, -3}, {1.2f, 0.9f}, 315.0f, UvPrev, 180.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 0.0f, UvBest, 0.0f},
+          {Vlv, {0, 0}, {1, 1}, 15.0f, UvBest, 0.0f},
+          {Vlv, {0, 0}, {1, 1}, 35.0f, UvBest, 45.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 0.0f, UvNext, 315.0f},
+          {Vlv, {0, 0}, {1, 1}, 315.0f, UvNext, 180.0f},
+          {Vlv, {0, 0}, {1, 1}, 180.0f, UvNext, 45.0f},
+          {Vlv, {0, 0}, {1, 1}, 45.0f, UvNext, 0.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 0.0f, UvPrev, 45.0f},
+          {Vlv, {0, 0}, {1, 1}, 45.0f, UvPrev, 180.0f},
+          {Vlv, {0, 0}, {1, 1}, 180.0f, UvPrev, 315.0f},
+          {Vlv, {0, 0}, {1, 1}, 315.0f, UvPrev, 0.0f},
+
+          {Vlv, {12, -3}, {1.2f, 0.9f}, 0.0f, UvPrev, 45.0f},
+          {Vlv, {12, -3}, {1.2f, 0.9f}, 45.0f, UvPrev, 180.0f},
+        }));
+
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, policy);
+
+      auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
+      brushBuilder.createBrush(
+        std::vector<vm::vec3d>{
+          // top face
+          {-48, 16, 0},
+          {+48, 16, 0},
+          {-16, -16, 0},
+          {+16, -16, 0},
+          // bottom face
+          {-48, 16, -16},
+          {+48, 16, -16},
+          {-16, -16, -16},
+          {+16, -16, -16},
+        },
+        "material")
+        | kdl::transform([&](auto brush) {
+            const auto topFaceIndex = brush.findFace(vm::vec3d{0, 0, 1});
+            REQUIRE(topFaceIndex);
+
+            auto& topFace = brush.face(*topFaceIndex);
+            evaluate(
+              UpdateBrushFaceAttributes{
+                .xOffset = SetValue{initialOffset.x()},
+                .yOffset = SetValue{initialOffset.y()},
+                .rotation = SetValue{initialRotation},
+                .xScale = SetValue{initialScale.x()},
+                .yScale = SetValue{initialScale.y()},
+              },
+              topFace);
+
+            CHECK_THAT(
+              align(topFace, policy),
+              MatchesUpdateBrushFaceAttributes(
+                UpdateBrushFaceAttributes{.rotation = SetValue{expectedRotation}}));
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+
+    SECTION("Slanted (+Z normal)")
+    {
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         policy,
+         expectedRotation] = GENERATE_COPY(values<T>({
+          {Std, {0, 0}, {1, 1}, 0.0f, UvNext, 45.0f},
+          {Std, {0, 0}, {1, 1}, 45.0f, UvNext, 180.0f},
+          {Std, {0, 0}, {1, 1}, 180.0f, UvNext, 315.0f},
+          {Std, {0, 0}, {1, 1}, 315.0f, UvNext, 0.0f},
+
+          {Std, {0, 0}, {1, 1}, 0.0f, UvPrev, 315.0f},
+          {Std, {0, 0}, {1, 1}, 315.0f, UvPrev, 180.0f},
+          {Std, {0, 0}, {1, 1}, 180.0f, UvPrev, 45.0f},
+          {Std, {0, 0}, {1, 1}, 45.0f, UvPrev, 0.0f},
+
+          {Std, {12, -3}, {1.2f, 0.9f}, 0.0f, UvPrev, 315.0f},
+          {Std, {12, -3}, {1.2f, 0.9f}, 315.0f, UvPrev, 180.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 0.0f, UvNext, 311.81f},
+          {Vlv, {0, 0}, {1, 1}, 311.81f, UvNext, 180.0f},
+          {Vlv, {0, 0}, {1, 1}, 180.0f, UvNext, 48.1897f},
+          {Vlv, {0, 0}, {1, 1}, 48.1897f, UvNext, 0.0f},
+
+          {Vlv, {0, 0}, {1, 1}, 0.0f, UvPrev, 48.1897f},
+          {Vlv, {0, 0}, {1, 1}, 48.1897f, UvPrev, 180.0f},
+          {Vlv, {0, 0}, {1, 1}, 180.0f, UvPrev, 311.81f},
+          {Vlv, {0, 0}, {1, 1}, 311.81f, UvPrev, 0.0f},
+
+          {Vlv, {12, -3}, {1.2f, 0.9f}, 0.0f, UvPrev, 48.1897f},
+          {Vlv, {12, -3}, {1.2f, 0.9f}, 48.1897f, UvPrev, 180.0f},
+        }));
+
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, policy);
+
+      auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
+      brushBuilder.createBrush(
+        std::vector<vm::vec3d>{
+          // top face
+          {-48, 16, 16},
+          {+48, 16, 16},
+          {-16, -16, 0},
+          {+16, -16, 0},
+          // bottom face
+          {-48, 16, -16},
+          {+48, 16, -16},
+          {-16, -16, -16},
+          {+16, -16, -16},
+        },
+        "material")
+        | kdl::transform([&](auto brush) {
+            const auto topFaceIndex = brush.findFace(vm::normalize(vm::vec3d{0, -1, 2}));
+            REQUIRE(topFaceIndex);
+
+            auto& topFace = brush.face(*topFaceIndex);
+            evaluate(
+              UpdateBrushFaceAttributes{
+                .xOffset = SetValue{initialOffset.x()},
+                .yOffset = SetValue{initialOffset.y()},
+                .rotation = SetValue{initialRotation},
+                .xScale = SetValue{initialScale.x()},
+                .yScale = SetValue{initialScale.y()},
+              },
+              topFace);
+
+            CHECK_THAT(
+              align(topFace, policy),
+              MatchesUpdateBrushFaceAttributes(
+                UpdateBrushFaceAttributes{.rotation = SetValue{expectedRotation}}));
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
   }
 
   SECTION("evaluate")
