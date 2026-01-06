@@ -21,6 +21,7 @@
 
 #include "StringMakers.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 
 #include <cassert>
 
@@ -45,5 +46,21 @@ public:
 };
 
 NodeMatcher MatchesNode(const Node& expected);
+
+class UpdateBrushFaceAttributesMatcher
+  : public Catch::Matchers::MatcherBase<UpdateBrushFaceAttributes>
+{
+  UpdateBrushFaceAttributes m_expected;
+
+public:
+  explicit UpdateBrushFaceAttributesMatcher(UpdateBrushFaceAttributes expected);
+
+  bool match(const UpdateBrushFaceAttributes& in) const override;
+
+  std::string describe() const override;
+};
+
+UpdateBrushFaceAttributesMatcher MatchesUpdateBrushFaceAttributes(
+  UpdateBrushFaceAttributes expected);
 
 } // namespace tb::mdl
