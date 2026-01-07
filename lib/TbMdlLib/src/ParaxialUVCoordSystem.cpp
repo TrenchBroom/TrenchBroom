@@ -37,7 +37,7 @@ namespace tb::mdl
 namespace
 {
 
-const vm::vec3d BaseAxes[] = {
+constexpr auto BaseAxes = std::array<vm::vec3d, 3 * 6>{{
   {0.0, 0.0, 1.0},
   {1.0, 0.0, 0.0},
   {0.0, -1.0, 0.0},
@@ -56,7 +56,7 @@ const vm::vec3d BaseAxes[] = {
   {0.0, -1.0, 0.0},
   {1.0, 0.0, 0.0},
   {0.0, 0.0, -1.0},
-};
+}};
 
 struct ParaxialAttribs
 {
