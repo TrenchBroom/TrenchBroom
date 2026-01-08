@@ -56,6 +56,13 @@ private:
   QAbstractButton* m_rotateUVCCWButton = nullptr;
   QAbstractButton* m_rotateUVCWButton = nullptr;
 
+  QAbstractButton* m_alignButton = nullptr;
+  QAbstractButton* m_justifyUButton = nullptr;
+  QAbstractButton* m_justifyVButton = nullptr;
+  QAbstractButton* m_fitUButton = nullptr;
+  QAbstractButton* m_fitVButton = nullptr;
+  QAbstractButton* m_autoFitButton = nullptr;
+
   NotifierConnection m_notifierConnection;
 
 public:
@@ -78,6 +85,11 @@ private:
   void flipUVVClicked();
   void rotateUVCCWClicked();
   void rotateUVCWClicked();
+  void alignClicked();
+  void justifyUClicked();
+  void justifyVClicked();
+  void fitUClicked();
+  void fitVClicked();
   void subDivisionChanged();
 };
 
