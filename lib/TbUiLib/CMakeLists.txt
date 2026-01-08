@@ -58,6 +58,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CyclingMapView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DialogButtonLayout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DialogHeader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Drawer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController2D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController3D.cpp
@@ -285,6 +286,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CyclingMapView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DialogButtonLayout.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DialogHeader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Drawer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController2D.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController3D.h

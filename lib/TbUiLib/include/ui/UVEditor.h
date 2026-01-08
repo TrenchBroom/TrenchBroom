@@ -34,8 +34,15 @@ namespace gl
 class ContextManager;
 }
 
+namespace mdl
+{
+enum class UvAxis;
+enum class UvDirection;
+} // namespace mdl
+
 namespace ui
 {
+class Drawer;
 class MapDocument;
 class UVView;
 
@@ -46,6 +53,8 @@ private:
   MapDocument& m_document;
 
   UVView* m_uvView = nullptr;
+  Drawer* m_drawer = nullptr;
+
   QSpinBox* m_xSubDivisionEditor = nullptr;
   QSpinBox* m_ySubDivisionEditor = nullptr;
 
@@ -57,9 +66,11 @@ private:
   QAbstractButton* m_rotateUVCWButton = nullptr;
 
   QAbstractButton* m_alignButton = nullptr;
-  QAbstractButton* m_justifyUButton = nullptr;
-  QAbstractButton* m_justifyVButton = nullptr;
-  QAbstractButton* m_fitUButton = nullptr;
+  QAbstractButton* m_justifyUpButton = nullptr;
+  QAbstractButton* m_justifyDownButton = nullptr;
+  QAbstractButton* m_justifyLeftButton = nullptr;
+  QAbstractButton* m_justifyRightButton = nullptr;
+  QAbstractButton* m_fitHButton = nullptr;
   QAbstractButton* m_fitVButton = nullptr;
   QAbstractButton* m_autoFitButton = nullptr;
 
@@ -76,6 +87,7 @@ private:
 
 private:
   void createGui(gl::ContextManager& contextManager);
+  QWidget* createFitter();
 
   void connectObservers();
 
@@ -86,10 +98,8 @@ private:
   void rotateUVCCWClicked();
   void rotateUVCWClicked();
   void alignClicked();
-  void justifyUClicked();
-  void justifyVClicked();
-  void fitUClicked();
-  void fitVClicked();
+  void justifyClicked(mdl::UvAxis axis, mdl::UvDirection direction);
+  void fitClicked(mdl::UvAxis axis);
   void subDivisionChanged();
 };
 
