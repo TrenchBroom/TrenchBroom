@@ -63,6 +63,12 @@ void UVEditor::updateButtons()
   m_flipVAxisButton->setEnabled(enabled);
   m_rotateUVCCWButton->setEnabled(enabled);
   m_rotateUVCWButton->setEnabled(enabled);
+  m_alignButton->setEnabled(enabled);
+  m_justifyUButton->setEnabled(enabled);
+  m_justifyVButton->setEnabled(enabled);
+  m_fitUButton->setEnabled(enabled);
+  m_fitVButton->setEnabled(enabled);
+  m_autoFitButton->setEnabled(enabled);
 }
 
 void UVEditor::createGui(gl::ContextManager& contextManager)
@@ -78,6 +84,36 @@ void UVEditor::createGui(gl::ContextManager& contextManager)
     createBitmapButton("RotateUVCCW.svg", tr("Rotate UV 90° counter-clockwise"), this);
   m_rotateUVCWButton =
     createBitmapButton("RotateUVCW.svg", tr("Rotate UV 90° clockwise"), this);
+  m_alignButton = createBitmapButton(
+    "AlignTexture.svg",
+    tr("Align texture to face edges. Click again to cycle through edges. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyUButton = createBitmapButton(
+    "JustifyTextureHorizontally.svg",
+    tr("Justify texture horizontally. Click again to cycle through options. Hold shift "
+       "to cycle backwards."),
+    this);
+  m_justifyVButton = createBitmapButton(
+    "JustifyTextureVertically.svg",
+    tr("Justify texture vertically. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_fitUButton = createBitmapButton(
+    "FitTextureHorizontally.svg",
+    tr("Fit texture horizontally. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_fitVButton = createBitmapButton(
+    "FitTextureVertically.svg",
+    tr("Fit texture vertically. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_autoFitButton = createBitmapButton(
+    "AutoFitTexture.svg",
+    tr("Auto fit texture. Click again to cycle through options. Hold shift to cycle "
+       "backwards."),
+    this);
 
   connect(m_resetUVButton, &QAbstractButton::clicked, this, &UVEditor::resetUVClicked);
   connect(
@@ -91,6 +127,11 @@ void UVEditor::createGui(gl::ContextManager& contextManager)
     m_rotateUVCCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCCWClicked);
   connect(
     m_rotateUVCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCWClicked);
+  connect(m_alignButton, &QAbstractButton::clicked, this, &UVEditor::alignClicked);
+  connect(m_justifyUButton, &QAbstractButton::clicked, this, &UVEditor::justifyUClicked);
+  connect(m_justifyVButton, &QAbstractButton::clicked, this, &UVEditor::justifyVClicked);
+  connect(m_fitUButton, &QAbstractButton::clicked, this, &UVEditor::fitUClicked);
+  connect(m_fitVButton, &QAbstractButton::clicked, this, &UVEditor::fitVClicked);
 
   auto* gridLabel = new QLabel{"Grid "};
   setEmphasizedStyle(gridLabel);
@@ -123,6 +164,13 @@ void UVEditor::createGui(gl::ContextManager& contextManager)
   bottomLayout->addWidget(m_flipVAxisButton);
   bottomLayout->addWidget(m_rotateUVCCWButton);
   bottomLayout->addWidget(m_rotateUVCWButton);
+  bottomLayout->setSpacing(LayoutConstants::WideHMargin);
+  bottomLayout->addWidget(m_alignButton);
+  bottomLayout->addWidget(m_justifyUButton);
+  bottomLayout->addWidget(m_justifyVButton);
+  bottomLayout->addWidget(m_fitUButton);
+  bottomLayout->addWidget(m_fitVButton);
+  bottomLayout->addWidget(m_autoFitButton);
   bottomLayout->addStretch();
   bottomLayout->addWidget(gridLabel);
   bottomLayout->addWidget(new QLabel{"X:"});
@@ -184,6 +232,84 @@ void UVEditor::rotateUVCCWClicked()
 void UVEditor::rotateUVCWClicked()
 {
   setBrushFaceAttributes(m_document.map(), {.rotation = mdl::AddValue{-90.0f}});
+}
+
+void UVEditor::alignClicked()
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  setBrushFaceAttributes(m_document.map(), mdl::align(brushFace, policy));
+}
+
+void UVEditor::justifyUClicked()
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto direction = qApp->keyboardModifiers().testFlag(Qt::AltModifier)
+                           ? mdl::UvDirection::backward
+                           : mdl::UvDirection::forward;
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  setBrushFaceAttributes(
+    m_document.map(), mdl::justify(brushFace, mdl::UvAxis::u, direction, policy));
+}
+
+void UVEditor::justifyVClicked()
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto direction = qApp->keyboardModifiers().testFlag(Qt::AltModifier)
+                           ? mdl::UvDirection::backward
+                           : mdl::UvDirection::forward;
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  setBrushFaceAttributes(
+    m_document.map(), mdl::justify(brushFace, mdl::UvAxis::v, direction, policy));
+}
+
+void UVEditor::fitUClicked()
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  setBrushFaceAttributes(m_document.map(), mdl::fit(brushFace, mdl::UvAxis::u, policy));
+}
+
+void UVEditor::fitVClicked()
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  setBrushFaceAttributes(m_document.map(), mdl::fit(brushFace, mdl::UvAxis::v, policy));
 }
 
 void UVEditor::subDivisionChanged()
