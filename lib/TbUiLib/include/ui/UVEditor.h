@@ -36,6 +36,7 @@ class ContextManager;
 
 namespace ui
 {
+class Drawer;
 class MapDocument;
 class UVView;
 
@@ -46,6 +47,8 @@ private:
   MapDocument& m_document;
 
   UVView* m_uvView = nullptr;
+  Drawer* m_drawer = nullptr;
+
   QSpinBox* m_xSubDivisionEditor = nullptr;
   QSpinBox* m_ySubDivisionEditor = nullptr;
 
@@ -69,6 +72,7 @@ private:
 
 private:
   void createGui(gl::ContextManager& contextManager);
+  QWidget* createFitter();
 
   void documentDidChange();
 
@@ -80,6 +84,7 @@ private:
   void flipUVVClicked();
   void rotateUVCCWClicked();
   void rotateUVCWClicked();
+  void alignClicked();
   void subDivisionChanged();
 };
 

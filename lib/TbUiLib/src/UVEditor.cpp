@@ -19,6 +19,7 @@
 
 #include "ui/UVEditor.h"
 
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSpinBox>
@@ -31,6 +32,7 @@
 #include "mdl/Map_Brushes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "ui/BitmapButton.h"
+#include "ui/Drawer.h"
 #include "ui/MapDocument.h"
 #include "ui/QStyleUtils.h"
 #include "ui/UVView.h"
@@ -68,6 +70,7 @@ void UVEditor::updateButtons()
 void UVEditor::createGui(gl::ContextManager& contextManager)
 {
   m_uvView = new UVView{m_document, contextManager};
+  m_drawer = new Drawer{createFitter(), m_uvView};
 
   m_resetUVButton = createBitmapButton("ResetUV.svg", tr("Reset UV alignment"), this);
   m_resetUVToWorldButton = createBitmapButton(
@@ -142,6 +145,52 @@ void UVEditor::createGui(gl::ContextManager& contextManager)
   updateButtons();
 }
 
+QWidget* UVEditor::createFitter()
+{
+  auto* justifyLeft =
+    createBitmapButton("JustifyTextureLeft.svg", tr("Justify Texture Left"));
+  auto* justifyUp = createBitmapButton("JustifyTextureUp.svg", tr("Justify Texture Up"));
+  auto* justifyRight =
+    createBitmapButton("JustifyTextureRight.svg", tr("Justify Texture Right"));
+  auto* justifyDown =
+    createBitmapButton("JustifyTextureDown.svg", tr("Justify Texture Down"));
+  auto* autoFit = createBitmapButton("AutoFitTexture.svg", tr("Auto Fit Texture"));
+
+  auto* innerLayout = new QGridLayout{};
+  innerLayout->addWidget(justifyUp, 0, 1);
+  innerLayout->addWidget(justifyRight, 1, 2);
+  innerLayout->addWidget(justifyDown, 2, 1);
+  innerLayout->addWidget(justifyLeft, 1, 0);
+  innerLayout->addWidget(autoFit, 1, 1);
+
+  innerLayout->setContentsMargins(QMargins{
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin,
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin});
+  innerLayout->setSpacing(LayoutConstants::MediumHMargin);
+
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->addStretch(0);
+  outerLayout->addLayout(innerLayout);
+  outerLayout->addStretch(0);
+
+  auto* container = new QWidget{};
+
+  auto col = QColor{Qt::black};
+  col.setAlpha(128);
+
+  auto pal = QPalette{};
+  pal.setColor(QPalette::Window, col);
+
+  container->setAutoFillBackground(true);
+  container->setPalette(pal);
+  container->setLayout(outerLayout);
+  container->adjustSize();
+
+  return container;
+}
+
 void UVEditor::documentDidChange()
 {
   updateButtons();
@@ -187,6 +236,18 @@ void UVEditor::rotateUVCCWClicked()
 void UVEditor::rotateUVCWClicked()
 {
   setBrushFaceAttributes(m_document.map(), {.rotation = mdl::AddValue{-90.0f}});
+}
+
+void UVEditor::alignClicked()
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto reverse = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier);
+
+  setBrushFaceAttributes(m_document.map(), mdl::alignToFaceEdge(brushFace, reverse));
 }
 
 void UVEditor::subDivisionChanged()

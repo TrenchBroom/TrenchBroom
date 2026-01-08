@@ -138,6 +138,7 @@ MapFrame* FrameManager::createFrame(std::unique_ptr<MapDocument> document)
 
   frame->show();
   frame->raise();
+  frame->activateWindow();
   return frame;
 }
 
