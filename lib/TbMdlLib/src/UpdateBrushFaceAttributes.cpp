@@ -48,22 +48,29 @@ auto setValueIfSet(const auto& maybeValue)
          | kdl::optional_transform([](const auto& value) { return SetValue{value}; });
 };
 
-auto edgesInUvCoords(const BrushFace& brushFace)
-{
-  return brushFace.geometry()->boundary()
-         | std::views::transform(
-           [toUV = brushFace.toUVCoordSystemMatrix(
-              brushFace.attributes().offset(), brushFace.attributes().scale())](
-             const auto* halfEdge) {
-             return std::tuple{
-               vm::vec2d{toUV * halfEdge->origin()->position()},
-               vm::vec2d{toUV * halfEdge->next()->origin()->position()}};
-           });
-}
-
 float normalizeRotation(const float rotation)
 {
   return vm::mod(rotation, 360.0f);
+}
+
+auto justifyOffset(const BrushFace& brushFace, const vm::vec2d& axis, const bool reverse)
+{
+  const auto distances =
+    brushFace.vertices()
+    | std::views::transform(
+      [toUV = brushFace.toUVCoordSystemMatrix(
+         vm::vec2f{0, 0}, brushFace.attributes().scale())](const auto* vertex) {
+        return vm::vec2d{toUV * vertex->position()};
+      })
+    | std::views::transform(
+      [&](const auto& v) { return vm::dot(v, reverse ? -axis : axis); })
+    | kdl::ranges::to<std::vector>();
+
+  const auto offset = std::ranges::max_element(distances);
+  contract_assert(offset != std::ranges::end(distances));
+
+  const auto negate = reverse ? 1.0f : -1.0f;
+  return negate * *offset;
 }
 
 void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
@@ -120,6 +127,11 @@ auto evaluate(const std::optional<FlagOp>& flagOp, const std::optional<int>& val
 float normalizeAngle(const float angleInDegrees)
 {
   return vm::correct(vm::mod(angleInDegrees, 360.0f));
+}
+
+float normalizeOffset(const float offset, const float length)
+{
+  return vm::correct(vm::mod(offset, length));
 }
 
 } // namespace
@@ -209,22 +221,24 @@ UpdateBrushFaceAttributes alignToFaceEdge(const BrushFace& brushFace, const bool
 
   const auto dot = [&](const auto& v) { return vm::dot(v, uAxis); };
 
-  const auto edgeVecsInUvCoords = edgesInUvCoords(brushFace)
-                                  | std::views::transform([](const auto& edge) {
-                                      const auto& [start, end] = edge;
-                                      return vm::normalize(end - start);
-                                    })
-                                  | kdl::ranges::to<std::vector>();
+  const auto edgeVecs =
+    brushFace.geometry()->boundary()
+    | std::views::transform(
+      [toUV = brushFace.toUVCoordSystemMatrix(
+         brushFace.attributes().offset(), vm::vec2f{1, 1})](const auto* halfEdge) {
+        const auto start = vm::vec2d{toUV * halfEdge->origin()->position()};
+        const auto end = vm::vec2d{toUV * halfEdge->next()->origin()->position()};
+        return vm::normalize(end - start);
+      })
+    | kdl::ranges::to<std::vector>();
 
   // find the edge vec that is closest to the U axis
-  const auto iBestMatch =
-    std::ranges::max_element(edgeVecsInUvCoords, std::less<double>{}, dot);
-  contract_assert(iBestMatch != std::ranges::end(edgeVecsInUvCoords));
+  const auto iBestMatch = std::ranges::max_element(edgeVecs, std::less<double>{}, dot);
+  contract_assert(iBestMatch != std::ranges::end(edgeVecs));
 
   const auto isExactMatch = vm::is_equal(dot(*iBestMatch), 1.0, vm::Cd::almost_zero());
-  const auto iEdgeToAlignTo = isExactMatch ? reverse
-                                               ? kdl::succ(edgeVecsInUvCoords, iBestMatch)
-                                               : kdl::pred(edgeVecsInUvCoords, iBestMatch)
+  const auto iEdgeToAlignTo = isExactMatch ? reverse ? kdl::succ(edgeVecs, iBestMatch)
+                                                     : kdl::pred(edgeVecs, iBestMatch)
                                            : iBestMatch;
 
   const auto angleInDegrees =
@@ -232,6 +246,28 @@ UpdateBrushFaceAttributes alignToFaceEdge(const BrushFace& brushFace, const bool
 
   return {
     .rotation = SetValue{normalizeAngle(angleInDegrees)},
+  };
+}
+
+UpdateBrushFaceAttributes justifyU(const BrushFace& brushFace, const bool reverse)
+{
+  const auto axis = vm::vec2d{1, 0};
+  const auto offset = float(justifyOffset(brushFace, axis, reverse));
+  const auto length = brushFace.textureSize().x();
+
+  return {
+    .xOffset = SetValue{normalizeOffset(offset, length)},
+  };
+}
+
+UpdateBrushFaceAttributes justifyV(const BrushFace& brushFace, const bool reverse)
+{
+  const auto axis = vm::vec2d{0, 1};
+  const auto offset = float(justifyOffset(brushFace, axis, reverse));
+  const auto length = brushFace.textureSize().y();
+
+  return {
+    .yOffset = SetValue{normalizeOffset(offset, length)},
   };
 }
 

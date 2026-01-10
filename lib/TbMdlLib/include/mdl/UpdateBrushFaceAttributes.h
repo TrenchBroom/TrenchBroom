@@ -141,6 +141,9 @@ UpdateBrushFaceAttributes resetAllToParaxial(
 
 UpdateBrushFaceAttributes alignToFaceEdge(const BrushFace& brushFace, bool reverse);
 
+UpdateBrushFaceAttributes justifyU(const BrushFace& brushFace, bool reverse);
+UpdateBrushFaceAttributes justifyV(const BrushFace& brushFace, bool reverse);
+
 void evaluate(
   const UpdateBrushFaceAttributes& updateBrushFaceAttributes, BrushFace& brushFace);
 

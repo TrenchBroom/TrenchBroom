@@ -17,6 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "gl/Material.h"
+#include "gl/Texture.h"
+#include "gl/TextureResource.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
@@ -24,6 +27,8 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Matchers.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+
+#include "kd/k.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -154,44 +159,55 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("alignToFaceEdge")
   {
-    using T = std::tuple<MapFormat, float, bool, float>;
+    using T = std::tuple<MapFormat, vm::vec2f, vm::vec2f, float, bool, float>;
 
     SECTION("Axis aligned rectangle (-Y normal)")
     {
-      const auto [mapFormat, initialRotation, reverse, expectedRotation] =
-        GENERATE(values<T>({
-          {MapFormat::Standard, 0.0f, false, 270.0f},
-          {MapFormat::Standard, 270.0f, false, 180.0f},
-          {MapFormat::Standard, 180.0f, false, 90.0f},
-          {MapFormat::Standard, 90.0f, false, 0.0f},
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         reverse,
+         expectedRotation] = GENERATE(values<T>({
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0.0f, false, 270.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 270.0f, false, 180.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 180.0f, false, 90.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 90.0f, false, 0.0f},
 
-          {MapFormat::Standard, 0.0f, true, 90.0f},
-          {MapFormat::Standard, 90.0f, true, 180.0f},
-          {MapFormat::Standard, 180.0f, true, 270.0f},
-          {MapFormat::Standard, 270.0f, true, 0.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0.0f, true, 90.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 90.0f, true, 180.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 180.0f, true, 270.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 270.0f, true, 0.0f},
 
-          {MapFormat::Standard, 15.0f, false, 0.0f},
-          {MapFormat::Standard, 60.0f, false, 90.0f},
-          {MapFormat::Standard, 15.0f, true, 0.0f},
-          {MapFormat::Standard, 60.0f, true, 90.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 15.0f, false, 0.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 60.0f, false, 90.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 15.0f, true, 0.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 60.0f, true, 90.0f},
 
-          {MapFormat::Valve, 0.0f, false, 90.0f},
-          {MapFormat::Valve, 90.0f, false, 180.0f},
-          {MapFormat::Valve, 180.0f, false, 270.0f},
-          {MapFormat::Valve, 270.0f, false, 0.0f},
+          {MapFormat::Standard, {12, -3}, {1.2f, 0.9f}, 0.0f, false, 270.0f},
+          {MapFormat::Standard, {12, -3}, {1.2f, 0.9f}, 15.0f, false, 0.0f},
 
-          {MapFormat::Valve, 0.0f, true, 270.0f},
-          {MapFormat::Valve, 270.0f, true, 180.0f},
-          {MapFormat::Valve, 180.0f, true, 90.0f},
-          {MapFormat::Valve, 90.0f, true, 0.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0.0f, false, 90.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 90.0f, false, 180.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 180.0f, false, 270.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 270.0f, false, 0.0f},
 
-          {MapFormat::Valve, 15.0f, false, 0.0f},
-          {MapFormat::Valve, 60.0f, false, 90.0f},
-          {MapFormat::Valve, 15.0f, true, 0.0f},
-          {MapFormat::Valve, 60.0f, true, 90.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0.0f, true, 270.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 270.0f, true, 180.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 180.0f, true, 90.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 90.0f, true, 0.0f},
+
+          {MapFormat::Valve, {0, 0}, {1, 1}, 15.0f, false, 0.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 60.0f, false, 90.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 15.0f, true, 0.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 60.0f, true, 90.0f},
+
+          {MapFormat::Valve, {12, -3}, {1.2f, 0.9f}, 0.0f, false, 90.0f},
+          {MapFormat::Valve, {12, -3}, {1.2f, 0.9f}, 15.0f, false, 0.0f},
         }));
 
-      CAPTURE(mapFormat, initialRotation, reverse);
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, reverse);
 
       auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
       brushBuilder.createCuboid(vm::vec3d{32, 32, 32}, "material")
@@ -201,7 +217,13 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
             auto& frontFace = brush.face(*frontFaceIndex);
             evaluate(
-              UpdateBrushFaceAttributes{.rotation = SetValue{initialRotation}},
+              UpdateBrushFaceAttributes{
+                .xOffset = SetValue{initialOffset.x()},
+                .yOffset = SetValue{initialOffset.y()},
+                .rotation = SetValue{initialRotation},
+                .xScale = SetValue{initialScale.x()},
+                .yScale = SetValue{initialScale.y()},
+              },
               frontFace);
 
             CHECK_THAT(
@@ -214,30 +236,41 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
     SECTION("Trapezoid (+Z normal)")
     {
-      const auto [mapFormat, initialRotation, reverse, expectedRotation] =
-        GENERATE(values<T>({
-          {MapFormat::Standard, 0.0f, false, 315.0f},
-          {MapFormat::Standard, 315.0f, false, 180.0f},
-          {MapFormat::Standard, 180.0f, false, 45.0f},
-          {MapFormat::Standard, 45.0f, false, 0.0f},
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         reverse,
+         expectedRotation] = GENERATE(values<T>({
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0.0f, false, 315.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 315.0f, false, 180.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 180.0f, false, 45.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 45.0f, false, 0.0f},
 
-          {MapFormat::Standard, 0.0f, true, 45.0f},
-          {MapFormat::Standard, 45.0f, true, 180.0f},
-          {MapFormat::Standard, 180.0f, true, 315.0f},
-          {MapFormat::Standard, 315.0f, true, 0.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0.0f, true, 45.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 45.0f, true, 180.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 180.0f, true, 315.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 315.0f, true, 0.0f},
 
-          {MapFormat::Valve, 0.0f, false, 45.0f},
-          {MapFormat::Valve, 45.0f, false, 180.0f},
-          {MapFormat::Valve, 180.0f, false, 315.0f},
-          {MapFormat::Valve, 315.0f, false, 0.0f},
+          {MapFormat::Standard, {12, -3}, {1.2f, 0.9f}, 0.0f, false, 315.0f},
+          {MapFormat::Standard, {12, -3}, {1.2f, 0.9f}, 315.0f, false, 180.0f},
 
-          {MapFormat::Valve, 0.0f, true, 315.0f},
-          {MapFormat::Valve, 315.0f, true, 180.0f},
-          {MapFormat::Valve, 180.0f, true, 45.0f},
-          {MapFormat::Valve, 45.0f, true, 0.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0.0f, false, 45.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 45.0f, false, 180.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 180.0f, false, 315.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 315.0f, false, 0.0f},
+
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0.0f, true, 315.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 315.0f, true, 180.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 180.0f, true, 45.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 45.0f, true, 0.0f},
+
+          {MapFormat::Valve, {12, -3}, {1.2f, 0.9f}, 0.0f, false, 45.0f},
+          {MapFormat::Valve, {12, -3}, {1.2f, 0.9f}, 45.0f, false, 180.0f},
         }));
 
-      CAPTURE(mapFormat, initialRotation, reverse);
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, reverse);
 
       auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
       brushBuilder.createBrush(
@@ -260,7 +293,14 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
             auto& topFace = brush.face(*topFaceIndex);
             evaluate(
-              UpdateBrushFaceAttributes{.rotation = SetValue{initialRotation}}, topFace);
+              UpdateBrushFaceAttributes{
+                .xOffset = SetValue{initialOffset.x()},
+                .yOffset = SetValue{initialOffset.y()},
+                .rotation = SetValue{initialRotation},
+                .xScale = SetValue{initialScale.x()},
+                .yScale = SetValue{initialScale.y()},
+              },
+              topFace);
 
             CHECK_THAT(
               alignToFaceEdge(topFace, reverse),
@@ -272,30 +312,41 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
     SECTION("Slanted (+Z normal)")
     {
-      const auto [mapFormat, initialRotation, reverse, expectedRotation] =
-        GENERATE(values<T>({
-          {MapFormat::Standard, 0.0f, false, 315.0f},
-          {MapFormat::Standard, 315.0f, false, 180.0f},
-          {MapFormat::Standard, 180.0f, false, 45.0f},
-          {MapFormat::Standard, 45.0f, false, 0.0f},
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         reverse,
+         expectedRotation] = GENERATE(values<T>({
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0.0f, false, 315.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 315.0f, false, 180.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 180.0f, false, 45.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 45.0f, false, 0.0f},
 
-          {MapFormat::Standard, 0.0f, true, 45.0f},
-          {MapFormat::Standard, 45.0f, true, 180.0f},
-          {MapFormat::Standard, 180.0f, true, 315.0f},
-          {MapFormat::Standard, 315.0f, true, 0.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0.0f, true, 45.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 45.0f, true, 180.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 180.0f, true, 315.0f},
+          {MapFormat::Standard, {0, 0}, {1, 1}, 315.0f, true, 0.0f},
 
-          {MapFormat::Valve, 0.0f, false, 48.1897f},
-          {MapFormat::Valve, 48.1897f, false, 180.0f},
-          {MapFormat::Valve, 180.0f, false, 311.81f},
-          {MapFormat::Valve, 311.81f, false, 0.0f},
+          {MapFormat::Standard, {12, -3}, {1.2f, 0.9f}, 0.0f, false, 315.0f},
+          {MapFormat::Standard, {12, -3}, {1.2f, 0.9f}, 315.0f, false, 180.0f},
 
-          {MapFormat::Valve, 0.0f, true, 311.81f},
-          {MapFormat::Valve, 311.81f, true, 180.0f},
-          {MapFormat::Valve, 180.0f, true, 48.1897f},
-          {MapFormat::Valve, 48.1897f, true, 0.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0.0f, false, 48.1897f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 48.1897f, false, 180.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 180.0f, false, 311.81f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 311.81f, false, 0.0f},
+
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0.0f, true, 311.81f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 311.81f, true, 180.0f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 180.0f, true, 48.1897f},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 48.1897f, true, 0.0f},
+
+          {MapFormat::Valve, {12, -3}, {1.2f, 0.9f}, 0.0f, false, 48.1897f},
+          {MapFormat::Valve, {12, -3}, {1.2f, 0.9f}, 48.1897f, false, 180.0f},
         }));
 
-      CAPTURE(mapFormat, initialRotation, reverse);
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, reverse);
 
       auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
       brushBuilder.createBrush(
@@ -318,12 +369,165 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
             auto& topFace = brush.face(*topFaceIndex);
             evaluate(
-              UpdateBrushFaceAttributes{.rotation = SetValue{initialRotation}}, topFace);
+              UpdateBrushFaceAttributes{
+                .xOffset = SetValue{initialOffset.x()},
+                .yOffset = SetValue{initialOffset.y()},
+                .rotation = SetValue{initialRotation},
+                .xScale = SetValue{initialScale.x()},
+                .yScale = SetValue{initialScale.y()},
+              },
+              topFace);
 
             CHECK_THAT(
               alignToFaceEdge(topFace, reverse),
               MatchesUpdateBrushFaceAttributes(
                 UpdateBrushFaceAttributes{.rotation = SetValue{expectedRotation}}));
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+  }
+
+  SECTION("justifyU")
+  {
+    using T = std::tuple<MapFormat, vm::vec2d, vm::vec2d, double, bool, double>;
+
+    SECTION("Rectangular off-center face (-Y normal)")
+    {
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         reverse,
+         expectedOffset] = GENERATE(values<T>({
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0, false, -48},
+          {MapFormat::Standard, {16, 0}, {1, 1}, 0, false, -48},
+          {MapFormat::Standard, {16, 8}, {1, 1}, 0, false, -48},
+
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0, true, 16},
+
+          {MapFormat::Standard, {0, 0}, {1.2, 0.9}, 0, false, -48.0 / 1.2},
+          {MapFormat::Standard, {0, 0}, {1.2, 0.9}, 0, true, 16.0 / 1.2},
+
+          {MapFormat::Standard, {0, 0}, {1, 1}, 15, false, -58.7878},
+
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0, false, -48},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0, true, 16},
+
+          {MapFormat::Valve, {0, 0}, {1.2, 0.9}, 0, false, -48.0 / 1.2},
+          {MapFormat::Valve, {0, 0}, {1.2, 0.9}, 0, true, 16.0 / 1.2},
+
+          {MapFormat::Valve, {0, 0}, {1, 1}, 15, false, -50.5055},
+        }));
+
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, reverse);
+
+      auto material =
+        gl::Material{"material", gl::createTextureResource(gl::Texture{64, 64})};
+
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto brushBuilder = BrushBuilder{mapFormat, worldBounds};
+      brushBuilder.createCuboid(vm::vec3d{64, 64, 64}, "material")
+        | kdl::and_then([&](auto brush) {
+            const auto transform = vm::translation_matrix(vm::vec3d{16, 0, 16});
+            return brush.transform(worldBounds, transform, !K(lockMaterials))
+                   | kdl::transform([&]() { return std::move(brush); });
+          })
+        | kdl::transform([&](auto brush) {
+            const auto frontFaceIndex = brush.findFace(vm::vec3d{0, -1, 0});
+            REQUIRE(frontFaceIndex);
+
+            auto& frontFace = brush.face(*frontFaceIndex);
+            frontFace.setMaterial(&material);
+
+            evaluate(
+              UpdateBrushFaceAttributes{
+                .xOffset = SetValue{initialOffset.x()},
+                .yOffset = SetValue{initialOffset.y()},
+                .rotation = SetValue{initialRotation},
+                .xScale = SetValue{initialScale.x()},
+                .yScale = SetValue{initialScale.y()},
+              },
+              frontFace);
+
+            CHECK_THAT(
+              justifyU(frontFace, reverse),
+              MatchesUpdateBrushFaceAttributes(UpdateBrushFaceAttributes{
+                .xOffset = SetValue{expectedOffset},
+              }));
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+  }
+
+  SECTION("justifyV")
+  {
+    using T = std::tuple<MapFormat, vm::vec2d, vm::vec2d, double, bool, double>;
+
+    SECTION("Rectangular off-center face (-Y normal)")
+    {
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         reverse,
+         expectedOffset] = GENERATE(values<T>({
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0, false, -16},
+          {MapFormat::Standard, {0, 8}, {1, 1}, 0, false, -16},
+          {MapFormat::Standard, {16, 8}, {1, 1}, 0, false, -16},
+
+          {MapFormat::Standard, {0, 0}, {1, 1}, 0, true, 48},
+
+          {MapFormat::Standard, {0, 0}, {1.2, 0.9}, 0, false, -16.0 / 0.9},
+          {MapFormat::Standard, {0, 0}, {1.2, 0.9}, 0, true, 48.0 / 0.9},
+
+          {MapFormat::Standard, {0, 0}, {1, 1}, 15, false, -27.8781},
+
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0, false, -16},
+          {MapFormat::Valve, {0, 0}, {1, 1}, 0, true, 48},
+
+          {MapFormat::Valve, {0, 0}, {1.2, 0.9}, 0, false, -16.0 / 0.9},
+          {MapFormat::Valve, {0, 0}, {1.2, 0.9}, 0, true, 48.0 / 0.9},
+
+          {MapFormat::Valve, {0, 0}, {1, 1}, 15, false, -19.5959},
+        }));
+
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, reverse);
+
+      auto material =
+        gl::Material{"material", gl::createTextureResource(gl::Texture{64, 64})};
+
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto brushBuilder = BrushBuilder{mapFormat, worldBounds};
+      brushBuilder.createCuboid(vm::vec3d{64, 64, 64}, "material")
+        | kdl::and_then([&](auto brush) {
+            const auto transform = vm::translation_matrix(vm::vec3d{16, 0, 16});
+            return brush.transform(worldBounds, transform, !K(lockMaterials))
+                   | kdl::transform([&]() { return std::move(brush); });
+          })
+        | kdl::transform([&](auto brush) {
+            const auto frontFaceIndex = brush.findFace(vm::vec3d{0, -1, 0});
+            REQUIRE(frontFaceIndex);
+
+            auto& frontFace = brush.face(*frontFaceIndex);
+            frontFace.setMaterial(&material);
+
+            evaluate(
+              UpdateBrushFaceAttributes{
+                .xOffset = SetValue{initialOffset.x()},
+                .yOffset = SetValue{initialOffset.y()},
+                .rotation = SetValue{initialRotation},
+                .xScale = SetValue{initialScale.x()},
+                .yScale = SetValue{initialScale.y()},
+              },
+              frontFace);
+
+            CHECK_THAT(
+              justifyV(frontFace, reverse),
+              MatchesUpdateBrushFaceAttributes(UpdateBrushFaceAttributes{
+                .yOffset = SetValue{expectedOffset},
+              }));
           })
         | kdl::transform_error([](const auto e) { FAIL(e); });
     }
