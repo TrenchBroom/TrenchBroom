@@ -97,4 +97,18 @@ auto index_of(const R& r, const X& x)
   return index_of(r, [&](const auto& e) { return e == x; });
 }
 
+template <std::ranges::range R>
+auto pred(R&& range, std::ranges::iterator_t<R> iter)
+{
+  return iter == std::ranges::begin(range) ? std::ranges::prev(std::ranges::end(range))
+                                           : std::ranges::prev(iter);
+}
+
+template <std::ranges::range R>
+auto succ(R&& range, std::ranges::iterator_t<R> iter)
+{
+  auto next = std::ranges::next(iter);
+  return next == std::ranges::end(range) ? std::ranges::begin(range) : next;
+}
+
 } // namespace kdl
