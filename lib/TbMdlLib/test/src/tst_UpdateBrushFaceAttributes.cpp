@@ -17,6 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "gl/Material.h"
+#include "gl/Texture.h"
+#include "gl/TextureResource.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
@@ -24,6 +27,8 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Matchers.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+
+#include "kd/k.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -35,9 +40,13 @@ TEST_CASE("UpdateBrushFaceAttributes")
 {
   constexpr auto Std = MapFormat::Standard;
   constexpr auto Vlv = MapFormat::Valve;
+  constexpr auto UvU = UvAxis::u;
+  constexpr auto UvV = UvAxis::v;
   constexpr auto UvBest = UvPolicy::best;
   constexpr auto UvNext = UvPolicy::next;
   constexpr auto UvPrev = UvPolicy::prev;
+  constexpr auto UvFwd = UvDirection::forward;
+  constexpr auto UvBwd = UvDirection::backward;
 
   SECTION("copyAll")
   {
@@ -401,6 +410,142 @@ TEST_CASE("UpdateBrushFaceAttributes")
                 UpdateBrushFaceAttributes{.rotation = SetValue{expectedRotation}}));
           })
         | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+  }
+
+  SECTION("justify")
+  {
+    using T = std::tuple<
+      MapFormat,
+      vm::vec2d,
+      vm::vec2d,
+      double,
+      UvAxis,
+      UvDirection,
+      UvPolicy,
+      vm::vec3d,
+      vm::vec2d>;
+
+    SECTION("Rectangular off-center face (-Y normal)")
+    {
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         axis,
+         direction,
+         policy,
+         brushSize,
+         expectedOffset] = GENERATE_COPY(values<T>({
+          // UvAxis::u
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvFwd, UvBest, {64, 64, 64}, {16, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvFwd, UvNext, {64, 64, 64}, {16, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvFwd, UvPrev, {64, 64, 64}, {16, 0}},
+          {Std, {16, 0}, {1, 1}, 0, UvU, UvFwd, UvBest, {64, 64, 64}, {16, 0}},
+          {Std, {16, 0}, {1, 1}, 0, UvU, UvFwd, UvNext, {64, 64, 64}, {16, 0}},
+          {Std, {16, 0}, {1, 1}, 0, UvU, UvFwd, UvPrev, {64, 64, 64}, {16, 0}},
+          {Std, {16, 8}, {1, 1}, 0, UvU, UvFwd, UvBest, {64, 64, 64}, {16, 0}},
+
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvBwd, UvBest, {64, 64, 64}, {16, 0}},
+
+          {Std, {0, 0}, {1.2, 0.9}, 0, UvU, UvFwd, UvBest, {64, 64, 64}, {24, 0}},
+          {Std, {0, 0}, {1.2, 0.9}, 0, UvU, UvBwd, UvBest, {64, 64, 64}, {13.3333, 0}},
+
+          {Std, {0, 0}, {1, 1}, 15, UvU, UvFwd, UvBest, {64, 64, 64}, {5.21225, 0}},
+
+          {Vlv, {0, 0}, {1, 1}, 0, UvU, UvFwd, UvBest, {64, 64, 64}, {16, 0}},
+          {Vlv, {0, 0}, {1, 1}, 0, UvU, UvBwd, UvBest, {64, 64, 64}, {16, 0}},
+
+          {Vlv, {0, 0}, {1.2, 0.9}, 0, UvU, UvFwd, UvBest, {64, 64, 64}, {24.0, 0}},
+          {Vlv, {0, 0}, {1.2, 0.9}, 0, UvU, UvBwd, UvBest, {64, 64, 64}, {16.0 / 1.2, 0}},
+
+          {Vlv, {0, 0}, {1, 1}, 15, UvU, UvFwd, UvBest, {64, 64, 64}, {13.4945, 0}},
+
+          // texture width is a multiple of brush width
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvFwd, UvBest, {16, 64, 64}, {40, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvFwd, UvNext, {16, 64, 64}, {40, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvFwd, UvPrev, {16, 64, 64}, {40, 0}},
+
+          {Std, {40, 0}, {1, 1}, 0, UvU, UvFwd, UvBest, {16, 64, 64}, {40, 0}},
+          {Std, {40, 0}, {1, 1}, 0, UvU, UvFwd, UvNext, {16, 64, 64}, {56, 0}},
+          {Std, {40, 0}, {1, 1}, 0, UvU, UvFwd, UvPrev, {16, 64, 64}, {24, 0}},
+
+          {Std, {56, 0}, {1, 1}, 0, UvU, UvBwd, UvBest, {16, 64, 64}, {56, 0}},
+          {Std, {56, 0}, {1, 1}, 0, UvU, UvBwd, UvNext, {16, 64, 64}, {8, 0}},
+          {Std, {56, 0}, {1, 1}, 0, UvU, UvBwd, UvPrev, {16, 64, 64}, {40, 0}},
+
+          // texture width is a multiple of brush width, with scaling
+          {Std, {0, 0}, {1.5, 1}, 0, UvU, UvFwd, UvBest, {24, 64, 64}, {45.333, 0}},
+          {Std, {45.333, 0}, {1.5, 1}, 0, UvU, UvFwd, UvNext, {24, 64, 64}, {61.333, 0}},
+          {Std, {45.333, 0}, {1.5, 1}, 0, UvU, UvFwd, UvPrev, {24, 64, 64}, {29.333, 0}},
+
+          // UvAxis::v
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvFwd, UvBest, {64, 64, 64}, {0, 48}},
+          {Std, {0, 8}, {1, 1}, 0, UvV, UvFwd, UvBest, {64, 64, 64}, {0, 48}},
+          {Std, {16, 8}, {1, 1}, 0, UvV, UvFwd, UvBest, {64, 64, 64}, {0, 48}},
+
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvBwd, UvBest, {64, 64, 64}, {0, 48}},
+
+          {Std, {0, 0}, {1.2, 0.9}, 0, UvV, UvFwd, UvBest, {64, 64, 64}, {0, 46.2222}},
+          {Std, {0, 0}, {1.2, 0.9}, 0, UvV, UvBwd, UvBest, {64, 64, 64}, {0, 53.3333}},
+
+          {Std, {0, 0}, {1, 1}, 15, UvV, UvFwd, UvBest, {64, 64, 64}, {0, 36.1219}},
+
+          {Vlv, {0, 0}, {1, 1}, 0, UvV, UvFwd, UvBest, {64, 64, 64}, {0, 48}},
+          {Vlv, {0, 0}, {1, 1}, 0, UvV, UvBwd, UvBest, {64, 64, 64}, {0, 48}},
+
+          {Vlv, {0, 0}, {1.2, 0.9}, 0, UvV, UvFwd, UvBest, {64, 64, 64}, {0, 46.2222}},
+          {Vlv, {0, 0}, {1.2, 0.9}, 0, UvV, UvBwd, UvBest, {64, 64, 64}, {0, 53.3333}},
+
+          {Vlv, {0, 0}, {1, 1}, 15, UvV, UvFwd, UvBest, {64, 64, 64}, {0, 44.4041}},
+        }));
+
+      CAPTURE(
+        mapFormat,
+        initialOffset,
+        initialScale,
+        initialRotation,
+        axis,
+        direction,
+        policy,
+        brushSize);
+
+      auto material =
+        gl::Material{"material", gl::createTextureResource(gl::Texture{64, 64})};
+
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto brushBuilder = BrushBuilder{mapFormat, worldBounds};
+      brushBuilder.createCuboid(brushSize, "material") | kdl::and_then([&](auto brush) {
+        const auto transform = vm::translation_matrix(vm::vec3d{16, 0, 16});
+        return brush.transform(worldBounds, transform, !K(lockMaterials))
+               | kdl::transform([&]() { return std::move(brush); });
+      }) | kdl::transform([&](auto brush) {
+        const auto frontFaceIndex = brush.findFace(vm::vec3d{0, -1, 0});
+        REQUIRE(frontFaceIndex);
+
+        auto& frontFace = brush.face(*frontFaceIndex);
+        frontFace.setMaterial(&material);
+
+        evaluate(
+          UpdateBrushFaceAttributes{
+            .xOffset = SetValue{initialOffset.x()},
+            .yOffset = SetValue{initialOffset.y()},
+            .rotation = SetValue{initialRotation},
+            .xScale = SetValue{initialScale.x()},
+            .yScale = SetValue{initialScale.y()},
+          },
+          frontFace);
+
+        CHECK_THAT(
+          justify(frontFace, axis, direction, policy),
+          MatchesUpdateBrushFaceAttributes(UpdateBrushFaceAttributes{
+            .xOffset =
+              axis == UvU ? std::optional{SetValue{expectedOffset.x()}} : std::nullopt,
+            .yOffset =
+              axis == UvV ? std::optional{SetValue{expectedOffset.y()}} : std::nullopt,
+          }));
+      }) | kdl::transform_error([](const auto e) { FAIL(e); });
     }
   }
 
