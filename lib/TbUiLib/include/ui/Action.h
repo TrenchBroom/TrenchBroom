@@ -44,7 +44,7 @@ namespace ui
 {
 class ActionExecutionContext;
 class MapDocument;
-class MapFrame;
+class MapWindow;
 class MapViewBase;
 
 using ExecuteFn = std::function<void(ActionExecutionContext&)>;

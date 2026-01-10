@@ -39,7 +39,7 @@
 #include "ui/DialogButtonLayout.h"
 #include "ui/LaunchGameEngineDialog.h"
 #include "ui/MapDocument.h" // IWYU pragma: keep
-#include "ui/MapFrame.h"
+#include "ui/MapWindow.h"
 #include "ui/QStyleUtils.h"
 #include "ui/Splitter.h"
 #include "ui/TitledPanel.h"

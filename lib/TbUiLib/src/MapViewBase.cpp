@@ -77,9 +77,9 @@
 #include "ui/EnableDisableTagCallback.h"
 #include "ui/FlashSelectionAnimation.h"
 #include "ui/MapDocument.h"
-#include "ui/MapFrame.h"
 #include "ui/MapViewActivationTracker.h"
 #include "ui/MapViewToolBox.h"
+#include "ui/MapWindow.h"
 #include "ui/SelectionTool.h"
 #include "ui/SignalDelayer.h"
 
@@ -307,8 +307,8 @@ void MapViewBase::updateActionBindings()
 
 void MapViewBase::updateActionStates()
 {
-  auto* mapFrame = dynamic_cast<MapFrame*>(window());
-  auto context = ActionExecutionContext{m_appController, mapFrame, this};
+  auto* mapWindow = dynamic_cast<MapWindow*>(window());
+  auto context = ActionExecutionContext{m_appController, mapWindow, this};
   for (auto& [shortcut, action] : m_shortcuts)
   {
     shortcut->setEnabled(hasFocus() && action->enabled(context));
@@ -322,8 +322,8 @@ void MapViewBase::updateActionStatesDelayed()
 
 void MapViewBase::triggerAction(const Action& action)
 {
-  auto* mapFrame = dynamic_cast<MapFrame*>(window());
-  auto context = ActionExecutionContext{m_appController, mapFrame, this};
+  auto* mapWindow = dynamic_cast<MapWindow*>(window());
+  auto context = ActionExecutionContext{m_appController, mapWindow, this};
   action.execute(context);
 }
 
@@ -1160,11 +1160,11 @@ void MapViewBase::showPopupMenuLater()
   auto* newGroup = findNewGroupForObjects(nodes);
   auto* mergeGroup = findGroupToMergeGroupsInto(map.selection());
 
-  auto* mapFrame = dynamic_cast<MapFrame*>(window());
+  auto* mapWindow = dynamic_cast<MapWindow*>(window());
 
   auto menu = QMenu{};
   const auto addMainMenuAction = [&](const auto& path) -> QAction* {
-    auto* groupAction = mapFrame->findAction(path);
+    auto* groupAction = mapWindow->findAction(path);
     contract_assert(groupAction);
 
     menu.addAction(groupAction);
@@ -1305,8 +1305,8 @@ void MapViewBase::showPopupMenuLater()
     menu.addAction(
       tr("Reveal %1 in Material Browser")
         .arg(QString::fromStdString(faceHandle->face().attributes().materialName())),
-      mapFrame,
-      [=] { mapFrame->revealMaterial(material); });
+      mapWindow,
+      [=] { mapWindow->revealMaterial(material); });
 
     menu.addSeparator();
   }

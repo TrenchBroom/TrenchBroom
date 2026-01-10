@@ -53,7 +53,7 @@ namespace ui
 {
 class AboutDialog;
 class ActionManager;
-class FrameManager;
+class MapWindowManager;
 class RecentDocuments;
 class WelcomeWindow;
 
@@ -71,7 +71,7 @@ private:
   upd::HttpClient* m_httpClient = nullptr;
   upd::Updater* m_updater = nullptr;
 
-  FrameManager* m_frameManager = nullptr;
+  MapWindowManager* m_mapWindowManager = nullptr;
   RecentDocuments* m_recentDocuments = nullptr;
   std::unique_ptr<ActionManager> m_actionManager;
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
@@ -102,7 +102,7 @@ public:
 
   upd::Updater& updater();
 
-  FrameManager& frameManager();
+  MapWindowManager& mapWindowManager();
 
   const RecentDocuments& recentDocuments() const;
   RecentDocuments& recentDocuments();

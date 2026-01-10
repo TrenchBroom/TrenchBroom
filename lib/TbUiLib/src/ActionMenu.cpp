@@ -22,8 +22,8 @@
 #include <QKeySequence>
 #include <QString>
 
-#include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
+#include "ui/MapWindow.h"
 
 #include <string>
 

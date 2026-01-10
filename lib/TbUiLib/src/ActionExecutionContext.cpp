@@ -20,8 +20,8 @@
 #include "ui/ActionExecutionContext.h"
 
 #include "ui/MapDocument.h"
-#include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
+#include "ui/MapWindow.h"
 
 #include "kd/const_overload.h"
 #include "kd/contracts.h"
@@ -30,18 +30,18 @@ namespace tb::ui
 {
 
 ActionExecutionContext::ActionExecutionContext(
-  AppController& appController, MapFrame* mapFrame, MapViewBase* mapView)
+  AppController& appController, MapWindow* mapWindow, MapViewBase* mapView)
   : m_actionContext(mapView != nullptr ? mapView->actionContext() : ActionContext::Any)
   , m_appController{appController}
-  , m_mapFrame{mapFrame}
+  , m_mapWindow{mapWindow}
   , m_mapView{mapView}
 {
-  contract_pre(m_mapFrame == nullptr || m_mapView != nullptr);
+  contract_pre(m_mapWindow == nullptr || m_mapView != nullptr);
 }
 
 bool ActionExecutionContext::hasDocument() const
 {
-  return m_mapFrame != nullptr;
+  return m_mapWindow != nullptr;
 }
 
 bool ActionExecutionContext::hasActionContext(
@@ -69,16 +69,16 @@ AppController& ActionExecutionContext::appController()
   return KDL_CONST_OVERLOAD(appController());
 }
 
-const MapFrame& ActionExecutionContext::mapFrame() const
+const MapWindow& ActionExecutionContext::mapWindow() const
 {
   contract_pre(hasDocument());
 
-  return *m_mapFrame;
+  return *m_mapWindow;
 }
 
-MapFrame& ActionExecutionContext::mapFrame()
+MapWindow& ActionExecutionContext::mapWindow()
 {
-  return KDL_CONST_OVERLOAD(mapFrame());
+  return KDL_CONST_OVERLOAD(mapWindow());
 }
 
 const MapViewBase& ActionExecutionContext::mapView() const
@@ -96,7 +96,7 @@ MapViewBase& ActionExecutionContext::mapView()
 
 const mdl::Map& ActionExecutionContext::map() const
 {
-  return mapFrame().document().map();
+  return mapWindow().document().map();
 }
 
 mdl::Map& ActionExecutionContext::map()

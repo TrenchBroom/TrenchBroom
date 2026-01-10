@@ -35,9 +35,9 @@
 #include "ui/ActionExecutionContext.h"
 #include "ui/AppController.h" // IWYU pragma: keep
 #include "ui/Inspector.h"
-#include "ui/MapFrame.h"
 #include "ui/MapView.h"
 #include "ui/MapViewBase.h"
+#include "ui/MapWindow.h"
 
 #include "kd/contracts.h"
 
@@ -156,7 +156,7 @@ void ActionManager::createViewActions()
     QKeySequence{Qt::Key_Return},
     [](auto& context) { context.mapView().assembleBrush(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().assembleBrushToolActive();
+      return context.hasDocument() && context.mapWindow().assembleBrushToolActive();
     },
   });
   addAction(Action{
@@ -166,7 +166,7 @@ void ActionManager::createViewActions()
     QKeySequence{Qt::CTRL | Qt::Key_Return},
     [](auto& context) { context.mapView().toggleClipSide(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().clipToolActive();
+      return context.hasDocument() && context.mapWindow().clipToolActive();
     },
   });
   addAction(Action{
@@ -176,7 +176,7 @@ void ActionManager::createViewActions()
     QKeySequence{Qt::Key_Return},
     [](auto& context) { context.mapView().performClip(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().clipToolActive();
+      return context.hasDocument() && context.mapWindow().clipToolActive();
     },
   });
 
@@ -546,7 +546,7 @@ void ActionManager::createViewActions()
     QObject::tr("Reveal in texture browser"),
     ActionContext::View3D | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().revealMaterial(); },
+    [](auto& context) { context.mapWindow().revealMaterial(); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -803,7 +803,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Save Document"),
     ActionContext::Any,
     QKeySequence::Save,
-    [](auto& context) { context.mapFrame().saveDocument(); },
+    [](auto& context) { context.mapWindow().saveDocument(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   fileMenu.addItem(addAction(Action{
@@ -811,7 +811,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Save Document as..."),
     ActionContext::Any,
     QKeySequence::SaveAs,
-    [](auto& context) { context.mapFrame().saveDocumentAs(); },
+    [](auto& context) { context.mapWindow().saveDocumentAs(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
 
@@ -821,7 +821,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Wavefront OBJ..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().exportDocumentAsObj(); },
+    [](auto& context) { context.mapWindow().exportDocumentAsObj(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   exportMenu.addItem(addAction(Action{
@@ -829,7 +829,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Map..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().exportDocumentAsMap(); },
+    [](auto& context) { context.mapWindow().exportDocumentAsMap(); },
     [](const auto& context) { return context.hasDocument(); },
     std::nullopt,
     QObject::tr("Exports the current map to a .map file. Layers marked Omit From Export "
@@ -843,7 +843,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Load Point File..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().loadPointFile(); },
+    [](auto& context) { context.mapWindow().loadPointFile(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   fileMenu.addItem(addAction(Action{
@@ -851,9 +851,9 @@ void ActionManager::createFileMenu()
     QObject::tr("Reload Point File"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().reloadPointFile(); },
+    [](auto& context) { context.mapWindow().reloadPointFile(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canReloadPointFile();
+      return context.hasDocument() && context.mapWindow().canReloadPointFile();
     },
   }));
   fileMenu.addItem(addAction(Action{
@@ -861,9 +861,9 @@ void ActionManager::createFileMenu()
     QObject::tr("Unload Point File"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().unloadPointFile(); },
+    [](auto& context) { context.mapWindow().unloadPointFile(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canUnloadPointFile();
+      return context.hasDocument() && context.mapWindow().canUnloadPointFile();
     },
   }));
   fileMenu.addSeparator();
@@ -872,7 +872,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Load Portal File..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().loadPortalFile(); },
+    [](auto& context) { context.mapWindow().loadPortalFile(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   fileMenu.addItem(addAction(Action{
@@ -880,9 +880,9 @@ void ActionManager::createFileMenu()
     QObject::tr("Reload Portal File"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().reloadPortalFile(); },
+    [](auto& context) { context.mapWindow().reloadPortalFile(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canReloadPortalFile();
+      return context.hasDocument() && context.mapWindow().canReloadPortalFile();
     },
   }));
   fileMenu.addItem(addAction(Action{
@@ -890,9 +890,9 @@ void ActionManager::createFileMenu()
     QObject::tr("Unload Portal File"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().unloadPortalFile(); },
+    [](auto& context) { context.mapWindow().unloadPortalFile(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canUnloadPortalFile();
+      return context.hasDocument() && context.mapWindow().canUnloadPortalFile();
     },
   }));
   fileMenu.addSeparator();
@@ -901,7 +901,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Reload Material Collections"),
     ActionContext::Any,
     QKeySequence{Qt::Key_F5},
-    [](auto& context) { context.mapFrame().reloadMaterialCollections(); },
+    [](auto& context) { context.mapWindow().reloadMaterialCollections(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   fileMenu.addItem(addAction(Action{
@@ -909,7 +909,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Reload Entity Definitions"),
     ActionContext::Any,
     QKeySequence{Qt::Key_F6},
-    [](auto& context) { context.mapFrame().reloadEntityDefinitions(); },
+    [](auto& context) { context.mapWindow().reloadEntityDefinitions(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   fileMenu.addSeparator();
@@ -918,7 +918,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Revert Document"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().revertDocument(); },
+    [](auto& context) { context.mapWindow().revertDocument(); },
     [](const auto& context) { return context.hasDocument(); },
     std::nullopt,
     QObject::tr("Discards any unsaved changes and reloads the map file."),
@@ -928,7 +928,7 @@ void ActionManager::createFileMenu()
     QObject::tr("Close Document"),
     ActionContext::Any,
     QKeySequence::Close,
-    [](auto& context) { context.mapFrame().closeDocument(); },
+    [](auto& context) { context.mapWindow().closeDocument(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
 }
@@ -942,9 +942,9 @@ void ActionManager::createEditMenu()
       QObject::tr("Undo"),
       ActionContext::Any,
       QKeySequence::Undo,
-      [](auto& context) { context.mapFrame().undo(); },
+      [](auto& context) { context.mapWindow().undo(); },
       [](const auto& context) {
-        return context.hasDocument() && context.mapFrame().canUndo();
+        return context.hasDocument() && context.mapWindow().canUndo();
       },
     }),
     MenuEntryType::Undo);
@@ -954,9 +954,9 @@ void ActionManager::createEditMenu()
       QObject::tr("Redo"),
       ActionContext::Any,
       QKeySequence::Redo,
-      [](auto& context) { context.mapFrame().redo(); },
+      [](auto& context) { context.mapWindow().redo(); },
       [](const auto& context) {
-        return context.hasDocument() && context.mapFrame().canRedo();
+        return context.hasDocument() && context.mapWindow().canRedo();
       },
     }),
     MenuEntryType::Redo);
@@ -966,7 +966,7 @@ void ActionManager::createEditMenu()
     QObject::tr("Repeat Last Commands"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_R},
-    [](auto& context) { context.mapFrame().repeatLastCommands(); },
+    [](auto& context) { context.mapWindow().repeatLastCommands(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   editMenu.addItem(addAction(Action{
@@ -974,9 +974,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Clear Repeatable Commands"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_R},
-    [](auto& context) { context.mapFrame().clearRepeatableCommands(); },
+    [](auto& context) { context.mapWindow().clearRepeatableCommands(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().hasRepeatableCommands();
+      return context.hasDocument() && context.mapWindow().hasRepeatableCommands();
     },
   }));
   editMenu.addSeparator();
@@ -986,9 +986,9 @@ void ActionManager::createEditMenu()
       QObject::tr("Cut"),
       ActionContext::Any,
       QKeySequence::Cut,
-      [](auto& context) { context.mapFrame().cutSelection(); },
+      [](auto& context) { context.mapWindow().cutSelection(); },
       [](const auto& context) {
-        return context.hasDocument() && context.mapFrame().canCopySelection();
+        return context.hasDocument() && context.mapWindow().canCopySelection();
       },
     }),
     MenuEntryType::Cut);
@@ -998,9 +998,9 @@ void ActionManager::createEditMenu()
       QObject::tr("Copy"),
       ActionContext::Any,
       QKeySequence::Copy,
-      [](auto& context) { context.mapFrame().copySelection(); },
+      [](auto& context) { context.mapWindow().copySelection(); },
       [](const auto& context) {
-        return context.hasDocument() && context.mapFrame().canCopySelection();
+        return context.hasDocument() && context.mapWindow().canCopySelection();
       },
     }),
     MenuEntryType::Copy);
@@ -1010,9 +1010,9 @@ void ActionManager::createEditMenu()
       QObject::tr("Paste"),
       ActionContext::Any,
       QKeySequence::Paste,
-      [](auto& context) { context.mapFrame().pasteAtCursorPosition(); },
+      [](auto& context) { context.mapWindow().pasteAtCursorPosition(); },
       [](const auto& context) {
-        return context.hasDocument() && context.mapFrame().canPaste();
+        return context.hasDocument() && context.mapWindow().canPaste();
       },
     }),
     MenuEntryType::Paste);
@@ -1022,9 +1022,9 @@ void ActionManager::createEditMenu()
       QObject::tr("Paste at Original Position"),
       ActionContext::Any,
       QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_V},
-      [](auto& context) { context.mapFrame().pasteAtOriginalPosition(); },
+      [](auto& context) { context.mapWindow().pasteAtOriginalPosition(); },
       [](const auto& context) {
-        return context.hasDocument() && context.mapFrame().canPaste();
+        return context.hasDocument() && context.mapWindow().canPaste();
       },
     }),
     MenuEntryType::PasteAtOriginalPosition);
@@ -1033,9 +1033,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Duplicate"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_D},
-    [](auto& context) { context.mapFrame().duplicateSelection(); },
+    [](auto& context) { context.mapWindow().duplicateSelection(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canDuplicateSelection();
+      return context.hasDocument() && context.mapWindow().canDuplicateSelection();
     },
     std::filesystem::path{"DuplicateObjects.svg"},
   }));
@@ -1050,9 +1050,9 @@ void ActionManager::createEditMenu()
       QKeySequence::Delete
 #endif
     },
-    [](auto& context) { context.mapFrame().deleteSelection(); },
+    [](auto& context) { context.mapWindow().deleteSelection(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canDeleteSelection();
+      return context.hasDocument() && context.mapWindow().canDeleteSelection();
     },
   }));
   editMenu.addSeparator();
@@ -1085,9 +1085,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Move..."),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_M},
-    [](auto& context) { context.mapFrame().moveSelectedObjects(); },
+    [](auto& context) { context.mapWindow().moveSelectedObjects(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canMoveSelectedObjects();
+      return context.hasDocument() && context.mapWindow().canMoveSelectedObjects();
     },
   }));
 
@@ -1097,9 +1097,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Convex Merge"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_J},
-    [](auto& context) { context.mapFrame().csgConvexMerge(); },
+    [](auto& context) { context.mapWindow().csgConvexMerge(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canDoCsgConvexMerge();
+      return context.hasDocument() && context.mapWindow().canDoCsgConvexMerge();
     },
   }));
   csgMenu.addItem(addAction(Action{
@@ -1107,9 +1107,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Subtract"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_K},
-    [](auto& context) { context.mapFrame().csgSubtract(); },
+    [](auto& context) { context.mapWindow().csgSubtract(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canDoCsgSubtract();
+      return context.hasDocument() && context.mapWindow().canDoCsgSubtract();
     },
   }));
   csgMenu.addItem(addAction(Action{
@@ -1117,9 +1117,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Hollow"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_K},
-    [](auto& context) { context.mapFrame().csgHollow(); },
+    [](auto& context) { context.mapWindow().csgHollow(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canDoCsgHollow();
+      return context.hasDocument() && context.mapWindow().canDoCsgHollow();
     },
   }));
   csgMenu.addItem(addAction(Action{
@@ -1127,9 +1127,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Intersect"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_L},
-    [](auto& context) { context.mapFrame().csgIntersect(); },
+    [](auto& context) { context.mapWindow().csgIntersect(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canDoCsgIntersect();
+      return context.hasDocument() && context.mapWindow().canDoCsgIntersect();
     },
   }));
 
@@ -1139,9 +1139,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Snap Vertices to Integer"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_V},
-    [](auto& context) { context.mapFrame().snapVerticesToInteger(); },
+    [](auto& context) { context.mapWindow().snapVerticesToInteger(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSnapVertices();
+      return context.hasDocument() && context.mapWindow().canSnapVertices();
     },
   }));
   vertexEditingMenu.addItem(addAction(Action{
@@ -1149,9 +1149,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Snap Vertices to Grid"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_V},
-    [](auto& context) { context.mapFrame().snapVerticesToGrid(); },
+    [](auto& context) { context.mapWindow().snapVerticesToGrid(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSnapVertices();
+      return context.hasDocument() && context.mapWindow().canSnapVertices();
     },
   }));
 
@@ -1161,7 +1161,7 @@ void ActionManager::createEditMenu()
     QObject::tr("Texture Lock"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().toggleAlignmentLock(); },
+    [](auto& context) { context.mapWindow().toggleAlignmentLock(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto&) { return pref(Preferences::AlignmentLock); },
     std::filesystem::path{"AlignmentLock.svg"},
@@ -1171,7 +1171,7 @@ void ActionManager::createEditMenu()
     QObject::tr("UV Lock"),
     ActionContext::Any,
     QKeySequence{Qt::Key_U},
-    [](auto& context) { context.mapFrame().toggleUVLock(); },
+    [](auto& context) { context.mapWindow().toggleUVLock(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto&) { return pref(Preferences::UVLock); },
     std::filesystem::path{"UVLock.svg"},
@@ -1182,7 +1182,7 @@ void ActionManager::createEditMenu()
     QObject::tr("Replace Texture..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().replaceMaterial(); },
+    [](auto& context) { context.mapWindow().replaceMaterial(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
 }
@@ -1195,9 +1195,9 @@ void ActionManager::createSelectionMenu()
     QObject::tr("Select All"),
     ActionContext::Any,
     QKeySequence::SelectAll,
-    [](auto& context) { context.mapFrame().selectAll(); },
+    [](auto& context) { context.mapWindow().selectAll(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSelect();
+      return context.hasDocument() && context.mapWindow().canSelect();
     },
   }));
   selectionMenu.addItem(addAction(Action{
@@ -1205,9 +1205,9 @@ void ActionManager::createSelectionMenu()
     QObject::tr("Invert Selection"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_A},
-    [](auto& context) { context.mapFrame().selectInverse(); },
+    [](auto& context) { context.mapWindow().selectInverse(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSelectInverse();
+      return context.hasDocument() && context.mapWindow().canSelectInverse();
     },
   }));
   selectionMenu.addItem(addAction(Action{
@@ -1215,9 +1215,9 @@ void ActionManager::createSelectionMenu()
     QObject::tr("Deselect All"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_A},
-    [](auto& context) { context.mapFrame().selectNone(); },
+    [](auto& context) { context.mapWindow().selectNone(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canDeselect();
+      return context.hasDocument() && context.mapWindow().canDeselect();
     },
   }));
   selectionMenu.addSeparator();
@@ -1226,9 +1226,9 @@ void ActionManager::createSelectionMenu()
     QObject::tr("Select Siblings"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_B},
-    [](auto& context) { context.mapFrame().selectSiblings(); },
+    [](auto& context) { context.mapWindow().selectSiblings(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSelectSiblings();
+      return context.hasDocument() && context.mapWindow().canSelectSiblings();
     },
   }));
   selectionMenu.addItem(addAction(Action{
@@ -1236,9 +1236,9 @@ void ActionManager::createSelectionMenu()
     QObject::tr("Select Touching"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_T},
-    [](auto& context) { context.mapFrame().selectTouching(); },
+    [](auto& context) { context.mapWindow().selectTouching(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSelectByBrush();
+      return context.hasDocument() && context.mapWindow().canSelectByBrush();
     },
   }));
   selectionMenu.addItem(addAction(Action{
@@ -1246,9 +1246,9 @@ void ActionManager::createSelectionMenu()
     QObject::tr("Select Inside"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_E},
-    [](auto& context) { context.mapFrame().selectInside(); },
+    [](auto& context) { context.mapWindow().selectInside(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSelectByBrush();
+      return context.hasDocument() && context.mapWindow().canSelectByBrush();
     },
   }));
   selectionMenu.addItem(addAction(Action{
@@ -1256,9 +1256,9 @@ void ActionManager::createSelectionMenu()
     QObject::tr("Select Tall"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_E},
-    [](auto& context) { context.mapFrame().selectTall(); },
+    [](auto& context) { context.mapWindow().selectTall(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSelectTall();
+      return context.hasDocument() && context.mapWindow().canSelectTall();
     },
   }));
   selectionMenu.addItem(addAction(Action{
@@ -1266,9 +1266,9 @@ void ActionManager::createSelectionMenu()
     QObject::tr("Select by Line Number..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().selectByLineNumber(); },
+    [](auto& context) { context.mapWindow().selectByLineNumber(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canSelect();
+      return context.hasDocument() && context.mapWindow().canSelect();
     },
   }));
 }
@@ -1281,9 +1281,9 @@ void ActionManager::createGroupsMenu()
     QObject::tr("Group Selected Objects"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_G},
-    [](auto& context) { context.mapFrame().groupSelectedObjects(); },
+    [](auto& context) { context.mapWindow().groupSelectedObjects(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canGroupSelectedObjects();
+      return context.hasDocument() && context.mapWindow().canGroupSelectedObjects();
     },
   }));
   groupsMenu.addItem(addAction(Action{
@@ -1291,9 +1291,9 @@ void ActionManager::createGroupsMenu()
     QObject::tr("Ungroup Selected Objects"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_G},
-    [](auto& context) { context.mapFrame().ungroupSelectedObjects(); },
+    [](auto& context) { context.mapWindow().ungroupSelectedObjects(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canUngroupSelectedObjects();
+      return context.hasDocument() && context.mapWindow().canUngroupSelectedObjects();
     },
   }));
   groupsMenu.addItem(addAction(Action{
@@ -1301,9 +1301,9 @@ void ActionManager::createGroupsMenu()
     QObject::tr("Rename Selected Groups"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_G},
-    [](auto& context) { context.mapFrame().renameSelectedGroups(); },
+    [](auto& context) { context.mapWindow().renameSelectedGroups(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canRenameSelectedGroups();
+      return context.hasDocument() && context.mapWindow().canRenameSelectedGroups();
     },
   }));
   groupsMenu.addSeparator();
@@ -1358,12 +1358,12 @@ void ActionManager::createToolsMenu()
     QObject::tr("Brush Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_B},
-    [](auto& context) { context.mapFrame().toggleAssembleBrushTool(); },
+    [](auto& context) { context.mapWindow().toggleAssembleBrushTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canToggleAssembleBrushTool();
+      return context.hasDocument() && context.mapWindow().canToggleAssembleBrushTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().assembleBrushToolActive();
+      return context.hasDocument() && context.mapWindow().assembleBrushToolActive();
     },
     std::filesystem::path{"BrushTool.svg"},
   }));
@@ -1372,12 +1372,12 @@ void ActionManager::createToolsMenu()
     QObject::tr("Clip Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_C},
-    [](auto& context) { context.mapFrame().toggleClipTool(); },
+    [](auto& context) { context.mapWindow().toggleClipTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canToggleClipTool();
+      return context.hasDocument() && context.mapWindow().canToggleClipTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().clipToolActive();
+      return context.hasDocument() && context.mapWindow().clipToolActive();
     },
     std::filesystem::path{"ClipTool.svg"},
   }));
@@ -1386,12 +1386,12 @@ void ActionManager::createToolsMenu()
     QObject::tr("Rotate Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_R},
-    [](auto& context) { context.mapFrame().toggleRotateTool(); },
+    [](auto& context) { context.mapWindow().toggleRotateTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canToggleRotateTool();
+      return context.hasDocument() && context.mapWindow().canToggleRotateTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().rotateToolActive();
+      return context.hasDocument() && context.mapWindow().rotateToolActive();
     },
     std::filesystem::path{"RotateTool.svg"},
   }));
@@ -1400,12 +1400,12 @@ void ActionManager::createToolsMenu()
     QObject::tr("Scale Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_T},
-    [](auto& context) { context.mapFrame().toggleScaleTool(); },
+    [](auto& context) { context.mapWindow().toggleScaleTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canToggleScaleTool();
+      return context.hasDocument() && context.mapWindow().canToggleScaleTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().scaleToolActive();
+      return context.hasDocument() && context.mapWindow().scaleToolActive();
     },
     std::filesystem::path{"ScaleTool.svg"},
   }));
@@ -1414,12 +1414,12 @@ void ActionManager::createToolsMenu()
     QObject::tr("Shear Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_G},
-    [](auto& context) { context.mapFrame().toggleShearTool(); },
+    [](auto& context) { context.mapWindow().toggleShearTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canToggleShearTool();
+      return context.hasDocument() && context.mapWindow().canToggleShearTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().shearToolActive();
+      return context.hasDocument() && context.mapWindow().shearToolActive();
     },
     std::filesystem::path{"ShearTool.svg"},
   }));
@@ -1428,12 +1428,12 @@ void ActionManager::createToolsMenu()
     QObject::tr("Vertex Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_V},
-    [](auto& context) { context.mapFrame().toggleVertexTool(); },
+    [](auto& context) { context.mapWindow().toggleVertexTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canToggleVertexTool();
+      return context.hasDocument() && context.mapWindow().canToggleVertexTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().vertexToolActive();
+      return context.hasDocument() && context.mapWindow().vertexToolActive();
     },
     std::filesystem::path{"VertexTool.svg"},
   }));
@@ -1442,12 +1442,12 @@ void ActionManager::createToolsMenu()
     QObject::tr("Edge Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_E},
-    [](auto& context) { context.mapFrame().toggleEdgeTool(); },
+    [](auto& context) { context.mapWindow().toggleEdgeTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canToggleEdgeTool();
+      return context.hasDocument() && context.mapWindow().canToggleEdgeTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().edgeToolActive();
+      return context.hasDocument() && context.mapWindow().edgeToolActive();
     },
     std::filesystem::path{"EdgeTool.svg"},
   }));
@@ -1456,12 +1456,12 @@ void ActionManager::createToolsMenu()
     QObject::tr("Face Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_F},
-    [](auto& context) { context.mapFrame().toggleFaceTool(); },
+    [](auto& context) { context.mapWindow().toggleFaceTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canToggleFaceTool();
+      return context.hasDocument() && context.mapWindow().canToggleFaceTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().faceToolActive();
+      return context.hasDocument() && context.mapWindow().faceToolActive();
     },
     std::filesystem::path{"FaceTool.svg"},
   }));
@@ -1473,7 +1473,7 @@ void ActionManager::createToolsMenu()
     [](auto& context) { context.mapView().deactivateCurrentTool(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && !context.mapFrame().anyModalToolActive();
+      return context.hasDocument() && !context.mapWindow().anyModalToolActive();
     },
     std::filesystem::path{"NoTool.svg"},
   }));
@@ -1488,7 +1488,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Show Grid"),
     ActionContext::Any,
     QKeySequence{Qt::Key_0},
-    [](auto& context) { context.mapFrame().toggleShowGrid(); },
+    [](auto& context) { context.mapWindow().toggleShowGrid(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().visible();
@@ -1499,7 +1499,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Snap to Grid"),
     ActionContext::Any,
     QKeySequence{Qt::ALT | Qt::Key_0},
-    [](auto& context) { context.mapFrame().toggleSnapToGrid(); },
+    [](auto& context) { context.mapWindow().toggleSnapToGrid(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().snap();
@@ -1510,9 +1510,9 @@ void ActionManager::createViewMenu()
     QObject::tr("Increase Grid Size"),
     ActionContext::Any,
     QKeySequence{Qt::Key_Plus},
-    [](auto& context) { context.mapFrame().incGridSize(); },
+    [](auto& context) { context.mapWindow().incGridSize(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canIncGridSize();
+      return context.hasDocument() && context.mapWindow().canIncGridSize();
     },
   }));
   gridMenu.addItem(addAction(Action{
@@ -1520,9 +1520,9 @@ void ActionManager::createViewMenu()
     QObject::tr("Decrease Grid Size"),
     ActionContext::Any,
     QKeySequence{Qt::Key_Minus},
-    [](auto& context) { context.mapFrame().decGridSize(); },
+    [](auto& context) { context.mapWindow().decGridSize(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canDecGridSize();
+      return context.hasDocument() && context.mapWindow().canDecGridSize();
     },
   }));
   gridMenu.addSeparator();
@@ -1531,7 +1531,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 0.125"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().setGridSize(-3); },
+    [](auto& context) { context.mapWindow().setGridSize(-3); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == -3;
@@ -1542,7 +1542,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 0.25"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().setGridSize(-2); },
+    [](auto& context) { context.mapWindow().setGridSize(-2); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == -2;
@@ -1553,7 +1553,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 0.5"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().setGridSize(-1); },
+    [](auto& context) { context.mapWindow().setGridSize(-1); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == -1;
@@ -1564,7 +1564,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 1"),
     ActionContext::Any,
     QKeySequence{Qt::Key_1},
-    [](auto& context) { context.mapFrame().setGridSize(0); },
+    [](auto& context) { context.mapWindow().setGridSize(0); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 0;
@@ -1575,7 +1575,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 2"),
     ActionContext::Any,
     QKeySequence{Qt::Key_2},
-    [](auto& context) { context.mapFrame().setGridSize(1); },
+    [](auto& context) { context.mapWindow().setGridSize(1); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 1;
@@ -1586,7 +1586,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 4"),
     ActionContext::Any,
     QKeySequence{Qt::Key_3},
-    [](auto& context) { context.mapFrame().setGridSize(2); },
+    [](auto& context) { context.mapWindow().setGridSize(2); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 2;
@@ -1597,7 +1597,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 8"),
     ActionContext::Any,
     QKeySequence{Qt::Key_4},
-    [](auto& context) { context.mapFrame().setGridSize(3); },
+    [](auto& context) { context.mapWindow().setGridSize(3); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 3;
@@ -1608,7 +1608,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 16"),
     ActionContext::Any,
     QKeySequence{Qt::Key_5},
-    [](auto& context) { context.mapFrame().setGridSize(4); },
+    [](auto& context) { context.mapWindow().setGridSize(4); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 4;
@@ -1619,7 +1619,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 32"),
     ActionContext::Any,
     QKeySequence{Qt::Key_6},
-    [](auto& context) { context.mapFrame().setGridSize(5); },
+    [](auto& context) { context.mapWindow().setGridSize(5); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 5;
@@ -1630,7 +1630,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 64"),
     ActionContext::Any,
     QKeySequence{Qt::Key_7},
-    [](auto& context) { context.mapFrame().setGridSize(6); },
+    [](auto& context) { context.mapWindow().setGridSize(6); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 6;
@@ -1641,7 +1641,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 128"),
     ActionContext::Any,
     QKeySequence{Qt::Key_8},
-    [](auto& context) { context.mapFrame().setGridSize(7); },
+    [](auto& context) { context.mapWindow().setGridSize(7); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 7;
@@ -1652,7 +1652,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Set Grid Size 256"),
     ActionContext::Any,
     QKeySequence{Qt::Key_9},
-    [](auto& context) { context.mapFrame().setGridSize(8); },
+    [](auto& context) { context.mapWindow().setGridSize(8); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && context.map().grid().size() == 8;
@@ -1665,9 +1665,9 @@ void ActionManager::createViewMenu()
     QObject::tr("Move Camera to Next Point"),
     ActionContext::Any,
     QKeySequence{Qt::Key_Period},
-    [](auto& context) { context.mapFrame().moveCameraToNextPoint(); },
+    [](auto& context) { context.mapWindow().moveCameraToNextPoint(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canMoveCameraToNextPoint();
+      return context.hasDocument() && context.mapWindow().canMoveCameraToNextPoint();
     },
   }));
   cameraMenu.addItem(addAction(Action{
@@ -1675,9 +1675,9 @@ void ActionManager::createViewMenu()
     QObject::tr("Move Camera to Previous Point"),
     ActionContext::Any,
     QKeySequence{Qt::Key_Comma},
-    [](auto& context) { context.mapFrame().moveCameraToPreviousPoint(); },
+    [](auto& context) { context.mapWindow().moveCameraToPreviousPoint(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canMoveCameraToPreviousPoint();
+      return context.hasDocument() && context.mapWindow().canMoveCameraToPreviousPoint();
     },
   }));
   cameraMenu.addItem(addAction(Action{
@@ -1685,7 +1685,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Reset 2D Cameras"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_U},
-    [](auto& context) { context.mapFrame().reset2dCameras(); },
+    [](auto& context) { context.mapWindow().reset2dCameras(); },
     [](const auto& context) {
       return context.hasDocument() && !pref(Preferences::Link2DCameras);
     },
@@ -1695,9 +1695,9 @@ void ActionManager::createViewMenu()
     QObject::tr("Focus Camera on Selection"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_U},
-    [](auto& context) { context.mapFrame().focusCameraOnSelection(); },
+    [](auto& context) { context.mapWindow().focusCameraOnSelection(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canFocusCamera();
+      return context.hasDocument() && context.mapWindow().canFocusCamera();
     },
   }));
   cameraMenu.addItem(addAction(Action{
@@ -1705,7 +1705,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Move Camera to..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().moveCameraToPosition(); },
+    [](auto& context) { context.mapWindow().moveCameraToPosition(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
 
@@ -1715,9 +1715,9 @@ void ActionManager::createViewMenu()
     QObject::tr("Isolate Selection"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_I},
-    [](auto& context) { context.mapFrame().isolateSelection(); },
+    [](auto& context) { context.mapWindow().isolateSelection(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canIsolateSelection();
+      return context.hasDocument() && context.mapWindow().canIsolateSelection();
     },
   }));
   viewMenu.addItem(addAction(Action{
@@ -1725,9 +1725,9 @@ void ActionManager::createViewMenu()
     QObject::tr("Hide Selection"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_I},
-    [](auto& context) { context.mapFrame().hideSelection(); },
+    [](auto& context) { context.mapWindow().hideSelection(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().canHideSelection();
+      return context.hasDocument() && context.mapWindow().canHideSelection();
     },
   }));
   viewMenu.addItem(addAction(Action{
@@ -1735,7 +1735,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Show All"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_I},
-    [](auto& context) { context.mapFrame().showAll(); },
+    [](auto& context) { context.mapWindow().showAll(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   viewMenu.addSeparator();
@@ -1744,7 +1744,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Show Map Inspector"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_1},
-    [](auto& context) { context.mapFrame().switchToInspectorPage(InspectorPage::Map); },
+    [](auto& context) { context.mapWindow().switchToInspectorPage(InspectorPage::Map); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   viewMenu.addItem(addAction(Action{
@@ -1753,7 +1753,7 @@ void ActionManager::createViewMenu()
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_2},
     [](auto& context) {
-      context.mapFrame().switchToInspectorPage(InspectorPage::Entity);
+      context.mapWindow().switchToInspectorPage(InspectorPage::Entity);
     },
     [](const auto& context) { return context.hasDocument(); },
   }));
@@ -1762,7 +1762,7 @@ void ActionManager::createViewMenu()
     QObject::tr("Show Face Inspector"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_3},
-    [](auto& context) { context.mapFrame().switchToInspectorPage(InspectorPage::Face); },
+    [](auto& context) { context.mapWindow().switchToInspectorPage(InspectorPage::Face); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   viewMenu.addSeparator();
@@ -1771,10 +1771,10 @@ void ActionManager::createViewMenu()
     QObject::tr("Toggle Toolbar"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_T},
-    [](auto& context) { context.mapFrame().toggleToolbar(); },
+    [](auto& context) { context.mapWindow().toggleToolbar(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().toolbarVisible();
+      return context.hasDocument() && context.mapWindow().toolbarVisible();
     },
   }));
   viewMenu.addItem(addAction(Action{
@@ -1782,10 +1782,10 @@ void ActionManager::createViewMenu()
     QObject::tr("Toggle Info Panel"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_4},
-    [](auto& context) { context.mapFrame().toggleInfoPanel(); },
+    [](auto& context) { context.mapWindow().toggleInfoPanel(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().infoPanelVisible();
+      return context.hasDocument() && context.mapWindow().infoPanelVisible();
     },
   }));
   viewMenu.addItem(addAction(Action{
@@ -1793,10 +1793,10 @@ void ActionManager::createViewMenu()
     QObject::tr("Toggle Inspector"),
     ActionContext::Any,
     QKeySequence{Qt::CTRL | Qt::Key_5},
-    [](auto& context) { context.mapFrame().toggleInspector(); },
+    [](auto& context) { context.mapWindow().toggleInspector(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().inspectorVisible();
+      return context.hasDocument() && context.mapWindow().inspectorVisible();
     },
   }));
   viewMenu.addItem(addAction(Action{
@@ -1809,10 +1809,10 @@ void ActionManager::createViewMenu()
 #else
     QKeySequence{Qt::CTRL | Qt::Key_Space},
 #endif
-    [](auto& context) { context.mapFrame().toggleMaximizeCurrentView(); },
+    [](auto& context) { context.mapWindow().toggleMaximizeCurrentView(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapFrame().currentViewMaximized();
+      return context.hasDocument() && context.mapWindow().currentViewMaximized();
     },
   }));
   viewMenu.addSeparator();
@@ -1834,7 +1834,7 @@ void ActionManager::createRunMenu()
     QObject::tr("Compile Map..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().showCompileDialog(); },
+    [](auto& context) { context.mapWindow().showCompileDialog(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   runMenu.addItem(addAction(Action{
@@ -1842,7 +1842,7 @@ void ActionManager::createRunMenu()
     QObject::tr("Launch Engine..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().showLaunchEngineDialog(); },
+    [](auto& context) { context.mapWindow().showLaunchEngineDialog(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
 }
@@ -1856,7 +1856,7 @@ void ActionManager::createDebugMenu()
     QObject::tr("Print Vertices to Console"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().debugPrintVertices(); },
+    [](auto& context) { context.mapWindow().debugPrintVertices(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   debugMenu.addItem(addAction(Action{
@@ -1864,7 +1864,7 @@ void ActionManager::createDebugMenu()
     QObject::tr("Create Brush..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().debugCreateBrush(); },
+    [](auto& context) { context.mapWindow().debugCreateBrush(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   debugMenu.addItem(addAction(Action{
@@ -1872,7 +1872,7 @@ void ActionManager::createDebugMenu()
     QObject::tr("Create Cube..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().debugCreateCube(); },
+    [](auto& context) { context.mapWindow().debugCreateCube(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   debugMenu.addItem(addAction(Action{
@@ -1880,7 +1880,7 @@ void ActionManager::createDebugMenu()
     QObject::tr("Crash..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().debugCrash(); },
+    [](auto& context) { context.mapWindow().debugCrash(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   debugMenu.addItem(addAction(Action{
@@ -1888,7 +1888,7 @@ void ActionManager::createDebugMenu()
     QObject::tr("Throw Exception During Command"),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().debugThrowExceptionDuringCommand(); },
+    [](auto& context) { context.mapWindow().debugThrowExceptionDuringCommand(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   debugMenu.addItem(addAction(Action{
@@ -1904,7 +1904,7 @@ void ActionManager::createDebugMenu()
     QObject::tr("Set Window Size..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().debugSetWindowSize(); },
+    [](auto& context) { context.mapWindow().debugSetWindowSize(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
   debugMenu.addItem(addAction(Action{
@@ -1912,7 +1912,7 @@ void ActionManager::createDebugMenu()
     QObject::tr("Show Palette..."),
     ActionContext::Any,
     QKeySequence{},
-    [](auto& context) { context.mapFrame().debugShowPalette(); },
+    [](auto& context) { context.mapWindow().debugShowPalette(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
 #endif

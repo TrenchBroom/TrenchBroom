@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/MapFrame.h"
+#include "ui/MapWindow.h"
 
 #include <QApplication>
 #include <QChildEvent>
@@ -84,7 +84,6 @@
 #include "ui/EdgeTool.h"
 #include "ui/FaceInspector.h"
 #include "ui/FaceTool.h"
-#include "ui/FrameManager.h"
 #include "ui/InfoPanel.h"
 #include "ui/Inspector.h"
 #include "ui/LaunchGameEngineDialog.h"
@@ -92,6 +91,7 @@
 #include "ui/MapView2D.h"
 #include "ui/MapViewBase.h"
 #include "ui/MapViewToolBox.h"
+#include "ui/MapWindowManager.h"
 #include "ui/ObjExportDialog.h"
 #include "ui/QPathUtils.h"
 #include "ui/QStringUtils.h"
@@ -156,7 +156,7 @@ bool widgetOrChildHasFocus(const QWidget* widget)
 
 using namespace std::chrono_literals;
 
-MapFrame::MapFrame(AppController& appController, std::unique_ptr<MapDocument> document)
+MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> document)
   : m_appController{appController}
   , m_document{std::move(document)}
   , m_lastInputTime{std::chrono::system_clock::now()}
@@ -171,7 +171,7 @@ MapFrame::MapFrame(AppController& appController, std::unique_ptr<MapDocument> do
   contract_pre(m_document != nullptr);
 
   setAttribute(Qt::WA_DeleteOnClose);
-  setObjectName("MapFrame");
+  setObjectName("MapWindow");
 
   installEventFilter(this);
 
@@ -200,7 +200,7 @@ MapFrame::MapFrame(AppController& appController, std::unique_ptr<MapDocument> do
   setAcceptDrops(true);
 }
 
-MapFrame::~MapFrame()
+MapWindow::~MapWindow()
 {
   // Stop the autosave timer
   m_autosaveTimer->stop();
@@ -241,7 +241,7 @@ MapFrame::~MapFrame()
   // in its destructor
 }
 
-void MapFrame::positionOnScreen(QWidget* reference)
+void MapWindow::positionOnScreen(QWidget* reference)
 {
   restoreWidgetGeometry(this);
   restoreWidgetState(this);
@@ -252,22 +252,22 @@ void MapFrame::positionOnScreen(QWidget* reference)
   }
 }
 
-const MapDocument& MapFrame::document() const
+const MapDocument& MapWindow::document() const
 {
   return *m_document;
 }
 
-MapDocument& MapFrame::document()
+MapDocument& MapWindow::document()
 {
   return KDL_CONST_OVERLOAD(document());
 }
 
-Logger& MapFrame::logger() const
+Logger& MapWindow::logger() const
 {
   return *m_console;
 }
 
-QAction* MapFrame::findAction(const std::filesystem::path& path)
+QAction* MapWindow::findAction(const std::filesystem::path& path)
 {
   const auto& actionManager = m_appController.actionManager();
   auto& actionsMap = actionManager.actionsMap();
@@ -283,7 +283,7 @@ QAction* MapFrame::findAction(const std::filesystem::path& path)
   return nullptr;
 }
 
-void MapFrame::updateTitle()
+void MapWindow::updateTitle()
 {
   const auto& map = m_document->map();
   setWindowModified(map.modified());
@@ -291,12 +291,12 @@ void MapFrame::updateTitle()
   setWindowFilePath(pathAsQPath(map.path()));
 }
 
-void MapFrame::updateTitleDelayed()
+void MapWindow::updateTitleDelayed()
 {
   m_updateTitleSignalDelayer->queueSignal();
 }
 
-void MapFrame::createMenus()
+void MapWindow::createMenus()
 {
   auto createMenuResult = populateMenuBar(
     m_appController.actionManager(), *menuBar(), m_actionMap, [&](const Action& action) {
@@ -311,7 +311,7 @@ void MapFrame::createMenus()
   addRecentDocumentsMenu();
 }
 
-void MapFrame::updateShortcuts()
+void MapWindow::updateShortcuts()
 {
   for (auto [tbAction, qtAction] : m_actionMap)
   {
@@ -319,7 +319,7 @@ void MapFrame::updateShortcuts()
   }
 }
 
-void MapFrame::updateActionState()
+void MapWindow::updateActionState()
 {
   auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
   for (auto [tAction, qAction] : m_actionMap)
@@ -337,12 +337,12 @@ void MapFrame::updateActionState()
   }
 }
 
-void MapFrame::updateActionStateDelayed()
+void MapWindow::updateActionStateDelayed()
 {
   m_updateActionStateSignalDelayer->queueSignal();
 }
 
-void MapFrame::updateUndoRedoActions()
+void MapWindow::updateUndoRedoActions()
 {
   const auto& map = m_document->map();
   if (m_undoAction)
@@ -375,17 +375,17 @@ void MapFrame::updateUndoRedoActions()
   }
 }
 
-void MapFrame::addRecentDocumentsMenu()
+void MapWindow::addRecentDocumentsMenu()
 {
   m_appController.recentDocuments().addMenu(*m_recentDocumentsMenu);
 }
 
-void MapFrame::removeRecentDocumentsMenu()
+void MapWindow::removeRecentDocumentsMenu()
 {
   m_appController.recentDocuments().removeMenu(*m_recentDocumentsMenu);
 }
 
-void MapFrame::updateRecentDocumentsMenu()
+void MapWindow::updateRecentDocumentsMenu()
 {
   const auto& map = m_document->map();
   const auto path = map.path();
@@ -395,21 +395,21 @@ void MapFrame::updateRecentDocumentsMenu()
   }
 }
 
-void MapFrame::createGui()
+void MapWindow::createGui()
 {
   setWindowIconTB(this);
   setWindowTitle("TrenchBroom");
 
   m_hSplitter = new Splitter{Qt::Horizontal, DrawKnob::No};
   m_hSplitter->setChildrenCollapsible(false);
-  m_hSplitter->setObjectName("MapFrame_HorizontalSplitter");
+  m_hSplitter->setObjectName("MapWindow_HorizontalSplitter");
 
   m_vSplitter = new Splitter{Qt::Vertical, DrawKnob::No};
   m_vSplitter->setChildrenCollapsible(false);
-  m_vSplitter->setObjectName("MapFrame_VerticalSplitterSplitter");
+  m_vSplitter->setObjectName("MapWindow_VerticalSplitterSplitter");
 
   m_infoPanel = new InfoPanel{document()};
-  m_infoPanel->setObjectName("MapFrame_InfoPanel");
+  m_infoPanel->setObjectName("MapWindow_InfoPanel");
   m_console = m_infoPanel->console();
 
   m_mapView =
@@ -448,14 +448,14 @@ void MapFrame::createGui()
   m_hSplitter->setSizes(QList<int>{1'000'000, 1});
   m_vSplitter->setSizes(QList<int>{1'000'000, 1});
 
-  auto* frameLayout = new QVBoxLayout{};
-  frameLayout->setContentsMargins(0, 0, 0, 0);
-  frameLayout->addWidget(m_hSplitter);
+  auto* windowLayout = new QVBoxLayout{};
+  windowLayout->setContentsMargins(0, 0, 0, 0);
+  windowLayout->addWidget(m_hSplitter);
 
   // NOTE: you can't set the layout of a QMainWindow, so make another widget to wrap this
   // layout in
   auto* layoutWrapper = new QWidget{};
-  layoutWrapper->setLayout(frameLayout);
+  layoutWrapper->setLayout(windowLayout);
 
   setCentralWidget(layoutWrapper);
 
@@ -465,10 +465,10 @@ void MapFrame::createGui()
   restoreWidgetState(m_infoPanel);
 }
 
-void MapFrame::createToolBar()
+void MapWindow::createToolBar()
 {
   m_toolBar = addToolBar("Toolbar");
-  m_toolBar->setObjectName("MapFrameToolBar");
+  m_toolBar->setObjectName("MapWindowToolBar");
   m_toolBar->setFloatable(false);
   m_toolBar->setMovable(false);
   // macOS Qt bug: with the 32x32 default icon size, 24x24 highdpi icons get scaled up to
@@ -494,7 +494,7 @@ void MapFrame::createToolBar()
   m_toolBar->addWidget(m_gridChoice);
 }
 
-void MapFrame::updateToolBarWidgets()
+void MapWindow::updateToolBarWidgets()
 {
   const auto& map = m_document->map();
   const auto& grid = map.grid();
@@ -502,7 +502,7 @@ void MapFrame::updateToolBarWidgets()
   m_gridChoice->setCurrentIndex(sizeIndex);
 }
 
-void MapFrame::createStatusBar()
+void MapWindow::createStatusBar()
 {
   m_statusBarLabel = new QLabel{};
   statusBar()->addWidget(m_statusBarLabel, 1);
@@ -731,69 +731,69 @@ QString describeSelection(const mdl::Map& map)
 
 } // namespace
 
-void MapFrame::updateStatusBar()
+void MapWindow::updateStatusBar()
 {
   m_statusBarLabel->setText(QString{describeSelection(m_document->map())});
 }
 
-void MapFrame::updateStatusBarDelayed()
+void MapWindow::updateStatusBarDelayed()
 {
   m_updateStatusBarSignalDelayer->queueSignal();
 }
 
-void MapFrame::connectObservers()
+void MapWindow::connectObservers()
 {
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
-    prefs.preferenceDidChangeNotifier.connect(this, &MapFrame::preferenceDidChange);
+    prefs.preferenceDidChangeNotifier.connect(this, &MapWindow::preferenceDidChange);
 
   m_notifierConnection +=
-    m_document->documentWasLoadedNotifier.connect(this, &MapFrame::documentWasLoaded);
+    m_document->documentWasLoadedNotifier.connect(this, &MapWindow::documentWasLoaded);
   m_notifierConnection +=
-    m_document->documentWasSavedNotifier.connect(this, &MapFrame::documentWasSaved);
+    m_document->documentWasSavedNotifier.connect(this, &MapWindow::documentWasSaved);
 
   m_notifierConnection +=
-    m_document->pointFileWasLoadedNotifier.connect(this, &MapFrame::pointFileDidChange);
-  m_notifierConnection +=
-    m_document->pointFileWasUnloadedNotifier.connect(this, &MapFrame::pointFileDidChange);
-  m_notifierConnection +=
-    m_document->portalFileWasLoadedNotifier.connect(this, &MapFrame::portalFileDidChange);
+    m_document->pointFileWasLoadedNotifier.connect(this, &MapWindow::pointFileDidChange);
+  m_notifierConnection += m_document->pointFileWasUnloadedNotifier.connect(
+    this, &MapWindow::pointFileDidChange);
+  m_notifierConnection += m_document->portalFileWasLoadedNotifier.connect(
+    this, &MapWindow::portalFileDidChange);
   m_notifierConnection += m_document->portalFileWasUnloadedNotifier.connect(
-    this, &MapFrame::portalFileDidChange);
+    this, &MapWindow::portalFileDidChange);
 
   m_notifierConnection += m_document->modificationStateDidChangeNotifier.connect(
-    this, &MapFrame::mapModificationStateDidChange);
+    this, &MapWindow::mapModificationStateDidChange);
   m_notifierConnection +=
-    m_document->selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
+    m_document->selectionDidChangeNotifier.connect(this, &MapWindow::selectionDidChange);
   m_notifierConnection += m_document->currentLayerDidChangeNotifier.connect(
-    this, &MapFrame::currentLayerDidChange);
+    this, &MapWindow::currentLayerDidChange);
   m_notifierConnection +=
-    m_document->groupWasOpenedNotifier.connect(this, &MapFrame::groupWasOpened);
+    m_document->groupWasOpenedNotifier.connect(this, &MapWindow::groupWasOpened);
   m_notifierConnection +=
-    m_document->groupWasClosedNotifier.connect(this, &MapFrame::groupWasClosed);
+    m_document->groupWasClosedNotifier.connect(this, &MapWindow::groupWasClosed);
   m_notifierConnection += m_document->nodeVisibilityDidChangeNotifier.connect(
-    this, &MapFrame::nodeVisibilityDidChange);
+    this, &MapWindow::nodeVisibilityDidChange);
   m_notifierConnection += m_document->editorContextDidChangeNotifier.connect(
-    this, &MapFrame::editorContextDidChange);
+    this, &MapWindow::editorContextDidChange);
 
   m_notifierConnection +=
-    m_document->transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
+    m_document->transactionDoneNotifier.connect(this, &MapWindow::transactionDone);
   m_notifierConnection +=
-    m_document->transactionUndoneNotifier.connect(this, &MapFrame::transactionUndone);
+    m_document->transactionUndoneNotifier.connect(this, &MapWindow::transactionUndone);
 
   m_notifierConnection +=
-    m_document->gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
+    m_document->gridDidChangeNotifier.connect(this, &MapWindow::gridDidChange);
 
   m_notifierConnection += m_mapView->mapViewToolBox().toolActivatedNotifier.connect(
-    this, &MapFrame::toolActivated);
+    this, &MapWindow::toolActivated);
   m_notifierConnection += m_mapView->mapViewToolBox().toolDeactivatedNotifier.connect(
-    this, &MapFrame::toolDeactivated);
+    this, &MapWindow::toolDeactivated);
   m_notifierConnection +=
     m_mapView->mapViewToolBox().toolHandleSelectionChangedNotifier.connect(
-      this, &MapFrame::toolHandleSelectionChanged);
+      this, &MapWindow::toolHandleSelectionChanged);
 }
 
-void MapFrame::documentWasLoaded()
+void MapWindow::documentWasLoaded()
 {
   updateTitle();
   updateActionState();
@@ -801,7 +801,7 @@ void MapFrame::documentWasLoaded()
   updateRecentDocumentsMenu();
 }
 
-void MapFrame::documentWasSaved()
+void MapWindow::documentWasSaved()
 {
   updateTitle();
   updateActionState();
@@ -809,12 +809,12 @@ void MapFrame::documentWasSaved()
   updateRecentDocumentsMenu();
 }
 
-void MapFrame::mapModificationStateDidChange()
+void MapWindow::mapModificationStateDidChange()
 {
   updateTitleDelayed();
 }
 
-void MapFrame::transactionDone(const std::string&, const bool)
+void MapWindow::transactionDone(const std::string&, const bool)
 {
   QTimer::singleShot(0, this, [this]() {
     // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
@@ -828,15 +828,15 @@ void MapFrame::transactionDone(const std::string&, const bool)
   });
 }
 
-void MapFrame::transactionUndone(const std::string&, const bool)
+void MapWindow::transactionUndone(const std::string&, const bool)
 {
   QTimer::singleShot(0, this, [this]() {
-    // FIXME: see MapFrame::transactionDone
+    // FIXME: see MapWindow::transactionDone
     updateUndoRedoActions();
   });
 }
 
-void MapFrame::preferenceDidChange(const std::filesystem::path& path)
+void MapWindow::preferenceDidChange(const std::filesystem::path& path)
 {
   if (path == Preferences::MapViewLayout.path)
   {
@@ -847,76 +847,76 @@ void MapFrame::preferenceDidChange(const std::filesystem::path& path)
   updateShortcuts();
 }
 
-void MapFrame::gridDidChange()
+void MapWindow::gridDidChange()
 {
   updateActionStateDelayed();
   updateToolBarWidgets();
 }
 
-void MapFrame::toolActivated(Tool&)
+void MapWindow::toolActivated(Tool&)
 {
   updateActionStateDelayed();
 }
 
-void MapFrame::toolDeactivated(Tool&)
+void MapWindow::toolDeactivated(Tool&)
 {
   updateActionStateDelayed();
 }
 
-void MapFrame::toolHandleSelectionChanged(Tool&)
+void MapWindow::toolHandleSelectionChanged(Tool&)
 {
   updateActionStateDelayed();
 }
 
-void MapFrame::selectionDidChange(const mdl::SelectionChange&)
+void MapWindow::selectionDidChange(const mdl::SelectionChange&)
 {
   updateActionStateDelayed();
   updateStatusBarDelayed();
 }
 
-void MapFrame::currentLayerDidChange()
+void MapWindow::currentLayerDidChange()
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasOpened()
+void MapWindow::groupWasOpened()
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasClosed()
+void MapWindow::groupWasClosed()
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::nodeVisibilityDidChange(const std::vector<mdl::Node*>&)
+void MapWindow::nodeVisibilityDidChange(const std::vector<mdl::Node*>&)
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::editorContextDidChange()
+void MapWindow::editorContextDidChange()
 {
   // e.g. changing the view filters may cause the number of hidden brushes/entities to
   // change
   updateStatusBarDelayed();
 }
 
-void MapFrame::pointFileDidChange()
+void MapWindow::pointFileDidChange()
 {
   updateActionStateDelayed();
 }
 
-void MapFrame::portalFileDidChange()
+void MapWindow::portalFileDidChange()
 {
   updateActionStateDelayed();
 }
 
-void MapFrame::bindEvents()
+void MapWindow::bindEvents()
 {
-  connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
+  connect(m_autosaveTimer, &QTimer::timeout, this, &MapWindow::triggerAutosave);
   connect(
-    m_processResourcesTimer, &QTimer::timeout, this, &MapFrame::triggerProcessResources);
-  connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
+    m_processResourcesTimer, &QTimer::timeout, this, &MapWindow::triggerProcessResources);
+  connect(qApp, &QApplication::focusChanged, this, &MapWindow::focusChange);
   connect(
     m_gridChoice,
     QOverload<int>::of(&QComboBox::activated),
@@ -936,20 +936,20 @@ void MapFrame::bindEvents()
     m_updateTitleSignalDelayer,
     &SignalDelayer::processSignal,
     this,
-    &MapFrame::updateTitle);
+    &MapWindow::updateTitle);
   connect(
     m_updateActionStateSignalDelayer,
     &SignalDelayer::processSignal,
     this,
-    &MapFrame::updateActionState);
+    &MapWindow::updateActionState);
   connect(
     m_updateStatusBarSignalDelayer,
     &SignalDelayer::processSignal,
     this,
-    &MapFrame::updateStatusBar);
+    &MapWindow::updateStatusBar);
 }
 
-bool MapFrame::saveDocument()
+bool MapWindow::saveDocument()
 {
   auto& map = m_document->map();
 
@@ -978,7 +978,7 @@ bool MapFrame::saveDocument()
   return saveDocumentAs();
 }
 
-bool MapFrame::saveDocumentAs()
+bool MapWindow::saveDocumentAs()
 {
   auto& map = m_document->map();
   const auto& originalPath = map.path();
@@ -1015,7 +1015,7 @@ bool MapFrame::saveDocumentAs()
          | kdl::is_success();
 }
 
-void MapFrame::revertDocument()
+void MapWindow::revertDocument()
 {
   auto& map = m_document->map();
   if (map.persistent() && confirmRevertDocument())
@@ -1026,7 +1026,7 @@ void MapFrame::revertDocument()
   }
 }
 
-bool MapFrame::exportDocumentAsObj()
+bool MapWindow::exportDocumentAsObj()
 {
   if (!m_objExportDialog)
   {
@@ -1038,7 +1038,7 @@ bool MapFrame::exportDocumentAsObj()
   return true;
 }
 
-bool MapFrame::exportDocumentAsMap()
+bool MapWindow::exportDocumentAsMap()
 {
   const auto& map = m_document->map();
   const auto& originalPath = map.path();
@@ -1055,7 +1055,7 @@ bool MapFrame::exportDocumentAsMap()
   return exportDocument(options);
 }
 
-bool MapFrame::exportDocument(const mdl::ExportOptions& options)
+bool MapWindow::exportDocument(const mdl::ExportOptions& options)
 {
   const auto& map = m_document->map();
   const auto exportPath = std::visit([](const auto& o) { return o.exportPath; }, options);
@@ -1086,7 +1086,7 @@ bool MapFrame::exportDocument(const mdl::ExportOptions& options)
 /**
  * Returns whether the window should close.
  */
-bool MapFrame::confirmOrDiscardChanges()
+bool MapWindow::confirmOrDiscardChanges()
 {
   const auto& map = m_document->map();
   if (!map.modified())
@@ -1111,7 +1111,7 @@ bool MapFrame::confirmOrDiscardChanges()
 /**
  * Returns whether the document should be reverted.
  */
-bool MapFrame::confirmRevertDocument()
+bool MapWindow::confirmRevertDocument()
 {
   const auto& map = m_document->map();
   if (!map.modified())
@@ -1137,7 +1137,7 @@ bool MapFrame::confirmRevertDocument()
   return messageBox.clickedButton() == revertButton;
 }
 
-void MapFrame::loadPointFile()
+void MapWindow::loadPointFile()
 {
   const auto& map = m_document->map();
   const auto path = map.path();
@@ -1155,7 +1155,7 @@ void MapFrame::loadPointFile()
   }
 }
 
-void MapFrame::reloadPointFile()
+void MapWindow::reloadPointFile()
 {
   if (canReloadPointFile())
   {
@@ -1163,7 +1163,7 @@ void MapFrame::reloadPointFile()
   }
 }
 
-void MapFrame::unloadPointFile()
+void MapWindow::unloadPointFile()
 {
   if (canUnloadPointFile())
   {
@@ -1171,17 +1171,17 @@ void MapFrame::unloadPointFile()
   }
 }
 
-bool MapFrame::canUnloadPointFile() const
+bool MapWindow::canUnloadPointFile() const
 {
   return m_document->isPointFileLoaded();
 }
 
-bool MapFrame::canReloadPointFile() const
+bool MapWindow::canReloadPointFile() const
 {
   return m_document->canReloadPointFile();
 }
 
-void MapFrame::loadPortalFile()
+void MapWindow::loadPortalFile()
 {
   const auto& map = m_document->map();
   const auto path = map.path();
@@ -1196,7 +1196,7 @@ void MapFrame::loadPortalFile()
   }
 }
 
-void MapFrame::reloadPortalFile()
+void MapWindow::reloadPortalFile()
 {
   if (canReloadPortalFile())
   {
@@ -1204,7 +1204,7 @@ void MapFrame::reloadPortalFile()
   }
 }
 
-void MapFrame::unloadPortalFile()
+void MapWindow::unloadPortalFile()
 {
   if (canUnloadPortalFile())
   {
@@ -1212,32 +1212,32 @@ void MapFrame::unloadPortalFile()
   }
 }
 
-bool MapFrame::canUnloadPortalFile() const
+bool MapWindow::canUnloadPortalFile() const
 {
   return m_document->isPortalFileLoaded();
 }
 
-bool MapFrame::canReloadPortalFile() const
+bool MapWindow::canReloadPortalFile() const
 {
   return m_document->canReloadPortalFile();
 }
 
-void MapFrame::reloadMaterialCollections()
+void MapWindow::reloadMaterialCollections()
 {
   mdl::reloadMaterialCollections(m_document->map());
 }
 
-void MapFrame::reloadEntityDefinitions()
+void MapWindow::reloadEntityDefinitions()
 {
   mdl::reloadEntityDefinitions(m_document->map());
 }
 
-void MapFrame::closeDocument()
+void MapWindow::closeDocument()
 {
   close();
 }
 
-void MapFrame::undo()
+void MapWindow::undo()
 {
   if (canUndo() && !m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag())
   {
@@ -1245,7 +1245,7 @@ void MapFrame::undo()
   }
 }
 
-void MapFrame::redo()
+void MapWindow::redo()
 {
   if (canRedo())
   {
@@ -1253,22 +1253,22 @@ void MapFrame::redo()
   }
 }
 
-bool MapFrame::canUndo() const
+bool MapWindow::canUndo() const
 {
   return m_document->map().canUndoCommand();
 }
 
-bool MapFrame::canRedo() const
+bool MapWindow::canRedo() const
 {
   return m_document->map().canRedoCommand();
 }
 
-void MapFrame::repeatLastCommands()
+void MapWindow::repeatLastCommands()
 {
   m_document->map().repeatCommands();
 }
 
-void MapFrame::clearRepeatableCommands()
+void MapWindow::clearRepeatableCommands()
 {
   if (hasRepeatableCommands())
   {
@@ -1276,12 +1276,12 @@ void MapFrame::clearRepeatableCommands()
   }
 }
 
-bool MapFrame::hasRepeatableCommands() const
+bool MapWindow::hasRepeatableCommands() const
 {
   return m_document->map().canRepeatCommands();
 }
 
-void MapFrame::cutSelection()
+void MapWindow::cutSelection()
 {
   if (canCutSelection())
   {
@@ -1294,7 +1294,7 @@ void MapFrame::cutSelection()
   }
 }
 
-void MapFrame::copySelection()
+void MapWindow::copySelection()
 {
   if (canCopySelection())
   {
@@ -1302,7 +1302,7 @@ void MapFrame::copySelection()
   }
 }
 
-void MapFrame::copyToClipboard()
+void MapWindow::copyToClipboard()
 {
   auto& map = m_document->map();
   const auto& selection = map.selection();
@@ -1314,7 +1314,7 @@ void MapFrame::copyToClipboard()
   clipboard->setText(mapStringToUnicode(map.encoding(), str));
 }
 
-bool MapFrame::canCutSelection() const
+bool MapWindow::canCutSelection() const
 {
   const auto& map = m_document->map();
   const auto& selection = map.selection();
@@ -1322,7 +1322,7 @@ bool MapFrame::canCutSelection() const
          && !m_mapView->anyModalToolActive();
 }
 
-bool MapFrame::canCopySelection() const
+bool MapWindow::canCopySelection() const
 {
   const auto& map = m_document->map();
   const auto& selection = map.selection();
@@ -1330,7 +1330,7 @@ bool MapFrame::canCopySelection() const
          && (selection.hasNodes() || selection.hasBrushFaces());
 }
 
-void MapFrame::pasteAtCursorPosition()
+void MapWindow::pasteAtCursorPosition()
 {
   if (canPaste())
   {
@@ -1370,7 +1370,7 @@ void MapFrame::pasteAtCursorPosition()
   }
 }
 
-void MapFrame::pasteAtOriginalPosition()
+void MapWindow::pasteAtOriginalPosition()
 {
   if (canPaste())
   {
@@ -1378,7 +1378,7 @@ void MapFrame::pasteAtOriginalPosition()
   }
 }
 
-mdl::PasteType MapFrame::paste()
+mdl::PasteType MapWindow::paste()
 {
   auto* clipboard = QApplication::clipboard();
   const auto qtext = clipboard->text();
@@ -1397,7 +1397,7 @@ mdl::PasteType MapFrame::paste()
  * This is relatively expensive so only call it when the clipboard changes or e.g. the
  * user tries to paste.
  */
-bool MapFrame::canPaste() const
+bool MapWindow::canPaste() const
 {
   if (!widgetOrChildHasFocus(m_mapView) || !m_mapView->isCurrent())
   {
@@ -1409,7 +1409,7 @@ bool MapFrame::canPaste() const
   return mimeData && mimeData->hasText();
 }
 
-void MapFrame::duplicateSelection()
+void MapWindow::duplicateSelection()
 {
   if (canDuplicateSelection())
   {
@@ -1417,13 +1417,13 @@ void MapFrame::duplicateSelection()
   }
 }
 
-bool MapFrame::canDuplicateSelection() const
+bool MapWindow::canDuplicateSelection() const
 {
   const auto& map = m_document->map();
   return map.selection().hasNodes();
 }
 
-void MapFrame::deleteSelection()
+void MapWindow::deleteSelection()
 {
   if (canDeleteSelection())
   {
@@ -1451,7 +1451,7 @@ void MapFrame::deleteSelection()
   }
 }
 
-bool MapFrame::canDeleteSelection() const
+bool MapWindow::canDeleteSelection() const
 {
   if (m_mapView->clipToolActive())
   {
@@ -1472,7 +1472,7 @@ bool MapFrame::canDeleteSelection() const
   return canCutSelection();
 }
 
-void MapFrame::selectAll()
+void MapWindow::selectAll()
 {
   if (canSelect())
   {
@@ -1480,7 +1480,7 @@ void MapFrame::selectAll()
   }
 }
 
-void MapFrame::selectSiblings()
+void MapWindow::selectSiblings()
 {
   if (canSelectSiblings())
   {
@@ -1488,7 +1488,7 @@ void MapFrame::selectSiblings()
   }
 }
 
-void MapFrame::selectTouching()
+void MapWindow::selectTouching()
 {
   if (canSelectByBrush())
   {
@@ -1496,7 +1496,7 @@ void MapFrame::selectTouching()
   }
 }
 
-void MapFrame::selectInside()
+void MapWindow::selectInside()
 {
   if (canSelectByBrush())
   {
@@ -1504,7 +1504,7 @@ void MapFrame::selectInside()
   }
 }
 
-void MapFrame::selectTall()
+void MapWindow::selectTall()
 {
   if (canSelectTall())
   {
@@ -1512,7 +1512,7 @@ void MapFrame::selectTall()
   }
 }
 
-void MapFrame::selectByLineNumber()
+void MapWindow::selectByLineNumber()
 {
   if (canSelect())
   {
@@ -1538,7 +1538,7 @@ void MapFrame::selectByLineNumber()
   }
 }
 
-void MapFrame::selectInverse()
+void MapWindow::selectInverse()
 {
   if (canSelectInverse())
   {
@@ -1546,7 +1546,7 @@ void MapFrame::selectInverse()
   }
 }
 
-void MapFrame::selectNone()
+void MapWindow::selectNone()
 {
   if (canDeselect())
   {
@@ -1555,49 +1555,49 @@ void MapFrame::selectNone()
   }
 }
 
-bool MapFrame::canSelect() const
+bool MapWindow::canSelect() const
 {
   return canChangeSelection();
 }
 
-bool MapFrame::canSelectSiblings() const
+bool MapWindow::canSelectSiblings() const
 {
   auto& map = m_document->map();
   return canChangeSelection() && map.selection().hasNodes();
 }
 
-bool MapFrame::canSelectByBrush() const
+bool MapWindow::canSelectByBrush() const
 {
   auto& map = m_document->map();
   return canChangeSelection() && map.selection().hasOnlyBrushes();
 }
 
-bool MapFrame::canSelectTall() const
+bool MapWindow::canSelectTall() const
 {
   auto& map = m_document->map();
   return canChangeSelection() && map.selection().hasOnlyBrushes()
          && m_mapView->canSelectTall();
 }
 
-bool MapFrame::canDeselect() const
+bool MapWindow::canDeselect() const
 {
   auto& map = m_document->map();
   return canChangeSelection() && map.selection().hasNodes();
 }
 
-bool MapFrame::canChangeSelection() const
+bool MapWindow::canChangeSelection() const
 {
   auto& map = m_document->map();
   return map.editorContext().canChangeSelection();
 }
 
-bool MapFrame::canSelectInverse() const
+bool MapWindow::canSelectInverse() const
 {
   auto& map = m_document->map();
   return map.editorContext().canChangeSelection();
 }
 
-void MapFrame::groupSelectedObjects()
+void MapWindow::groupSelectedObjects()
 {
   if (canGroupSelectedObjects())
   {
@@ -1609,13 +1609,13 @@ void MapFrame::groupSelectedObjects()
   }
 }
 
-bool MapFrame::canGroupSelectedObjects() const
+bool MapWindow::canGroupSelectedObjects() const
 {
   auto& map = m_document->map();
   return map.selection().hasNodes() && !m_mapView->anyModalToolActive();
 }
 
-void MapFrame::ungroupSelectedObjects()
+void MapWindow::ungroupSelectedObjects()
 {
   if (canUngroupSelectedObjects())
   {
@@ -1623,13 +1623,13 @@ void MapFrame::ungroupSelectedObjects()
   }
 }
 
-bool MapFrame::canUngroupSelectedObjects() const
+bool MapWindow::canUngroupSelectedObjects() const
 {
   auto& map = m_document->map();
   return map.selection().hasGroups() && !m_mapView->anyModalToolActive();
 }
 
-void MapFrame::renameSelectedGroups()
+void MapWindow::renameSelectedGroups()
 {
   if (canRenameSelectedGroups())
   {
@@ -1645,19 +1645,19 @@ void MapFrame::renameSelectedGroups()
   }
 }
 
-bool MapFrame::canRenameSelectedGroups() const
+bool MapWindow::canRenameSelectedGroups() const
 {
   auto& map = m_document->map();
   return map.selection().hasOnlyGroups();
 }
 
-void MapFrame::replaceMaterial()
+void MapWindow::replaceMaterial()
 {
   auto dialog = ReplaceMaterialDialog{document(), *m_contextManager, this};
   dialog.exec();
 }
 
-void MapFrame::moveSelectedObjects()
+void MapWindow::moveSelectedObjects()
 {
   auto ok = false;
   const auto str = QInputDialog::getText(
@@ -1681,18 +1681,18 @@ void MapFrame::moveSelectedObjects()
   }
 }
 
-bool MapFrame::canMoveSelectedObjects() const
+bool MapWindow::canMoveSelectedObjects() const
 {
   auto& map = m_document->map();
   return map.selection().hasNodes() && !m_mapView->anyModalToolActive();
 }
 
-bool MapFrame::anyModalToolActive() const
+bool MapWindow::anyModalToolActive() const
 {
   return m_mapView->anyModalToolActive();
 }
 
-void MapFrame::toggleAssembleBrushTool()
+void MapWindow::toggleAssembleBrushTool()
 {
   if (canToggleAssembleBrushTool())
   {
@@ -1700,17 +1700,17 @@ void MapFrame::toggleAssembleBrushTool()
   }
 }
 
-bool MapFrame::canToggleAssembleBrushTool() const
+bool MapWindow::canToggleAssembleBrushTool() const
 {
   return m_mapView->canToggleAssembleBrushTool();
 }
 
-bool MapFrame::assembleBrushToolActive() const
+bool MapWindow::assembleBrushToolActive() const
 {
   return m_mapView->assembleBrushToolActive();
 }
 
-void MapFrame::toggleClipTool()
+void MapWindow::toggleClipTool()
 {
   if (canToggleClipTool())
   {
@@ -1718,17 +1718,17 @@ void MapFrame::toggleClipTool()
   }
 }
 
-bool MapFrame::canToggleClipTool() const
+bool MapWindow::canToggleClipTool() const
 {
   return m_mapView->canToggleClipTool();
 }
 
-bool MapFrame::clipToolActive() const
+bool MapWindow::clipToolActive() const
 {
   return m_mapView->clipToolActive();
 }
 
-void MapFrame::toggleRotateTool()
+void MapWindow::toggleRotateTool()
 {
   if (canToggleRotateTool())
   {
@@ -1736,17 +1736,17 @@ void MapFrame::toggleRotateTool()
   }
 }
 
-bool MapFrame::canToggleRotateTool() const
+bool MapWindow::canToggleRotateTool() const
 {
   return m_mapView->canToggleRotateTool();
 }
 
-bool MapFrame::rotateToolActive() const
+bool MapWindow::rotateToolActive() const
 {
   return m_mapView->rotateToolActive();
 }
 
-void MapFrame::toggleScaleTool()
+void MapWindow::toggleScaleTool()
 {
   if (canToggleScaleTool())
   {
@@ -1754,17 +1754,17 @@ void MapFrame::toggleScaleTool()
   }
 }
 
-bool MapFrame::canToggleScaleTool() const
+bool MapWindow::canToggleScaleTool() const
 {
   return m_mapView->canToggleScaleTool();
 }
 
-bool MapFrame::scaleToolActive() const
+bool MapWindow::scaleToolActive() const
 {
   return m_mapView->scaleToolActive();
 }
 
-void MapFrame::toggleShearTool()
+void MapWindow::toggleShearTool()
 {
   if (canToggleShearTool())
   {
@@ -1772,22 +1772,22 @@ void MapFrame::toggleShearTool()
   }
 }
 
-bool MapFrame::canToggleShearTool() const
+bool MapWindow::canToggleShearTool() const
 {
   return m_mapView->canToggleShearTool();
 }
 
-bool MapFrame::shearToolActive() const
+bool MapWindow::shearToolActive() const
 {
   return m_mapView->shearToolActive();
 }
 
-bool MapFrame::anyVertexToolActive() const
+bool MapWindow::anyVertexToolActive() const
 {
   return m_mapView->anyVertexToolActive();
 }
 
-void MapFrame::toggleVertexTool()
+void MapWindow::toggleVertexTool()
 {
   if (canToggleVertexTool())
   {
@@ -1795,17 +1795,17 @@ void MapFrame::toggleVertexTool()
   }
 }
 
-bool MapFrame::canToggleVertexTool() const
+bool MapWindow::canToggleVertexTool() const
 {
   return m_mapView->canToggleVertexTools();
 }
 
-bool MapFrame::vertexToolActive() const
+bool MapWindow::vertexToolActive() const
 {
   return m_mapView->vertexToolActive();
 }
 
-void MapFrame::toggleEdgeTool()
+void MapWindow::toggleEdgeTool()
 {
   if (canToggleEdgeTool())
   {
@@ -1813,17 +1813,17 @@ void MapFrame::toggleEdgeTool()
   }
 }
 
-bool MapFrame::canToggleEdgeTool() const
+bool MapWindow::canToggleEdgeTool() const
 {
   return m_mapView->canToggleVertexTools();
 }
 
-bool MapFrame::edgeToolActive() const
+bool MapWindow::edgeToolActive() const
 {
   return m_mapView->edgeToolActive();
 }
 
-void MapFrame::toggleFaceTool()
+void MapWindow::toggleFaceTool()
 {
   if (canToggleFaceTool())
   {
@@ -1831,17 +1831,17 @@ void MapFrame::toggleFaceTool()
   }
 }
 
-bool MapFrame::canToggleFaceTool() const
+bool MapWindow::canToggleFaceTool() const
 {
   return m_mapView->canToggleVertexTools();
 }
 
-bool MapFrame::faceToolActive() const
+bool MapWindow::faceToolActive() const
 {
   return m_mapView->faceToolActive();
 }
 
-void MapFrame::csgConvexMerge()
+void MapWindow::csgConvexMerge()
 {
   if (canDoCsgConvexMerge())
   {
@@ -1864,7 +1864,7 @@ void MapFrame::csgConvexMerge()
   }
 }
 
-bool MapFrame::canDoCsgConvexMerge() const
+bool MapWindow::canDoCsgConvexMerge() const
 {
   const auto& map = m_document->map();
   const auto& selection = map.selection();
@@ -1875,7 +1875,7 @@ bool MapFrame::canDoCsgConvexMerge() const
          || (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge());
 }
 
-void MapFrame::csgSubtract()
+void MapWindow::csgSubtract()
 {
   if (canDoCsgSubtract())
   {
@@ -1883,14 +1883,14 @@ void MapFrame::csgSubtract()
   }
 }
 
-bool MapFrame::canDoCsgSubtract() const
+bool MapWindow::canDoCsgSubtract() const
 {
   const auto& map = m_document->map();
   const auto& selection = map.selection();
   return selection.hasOnlyBrushes() && !selection.brushes.empty();
 }
 
-void MapFrame::csgHollow()
+void MapWindow::csgHollow()
 {
   if (canDoCsgHollow())
   {
@@ -1898,14 +1898,14 @@ void MapFrame::csgHollow()
   }
 }
 
-bool MapFrame::canDoCsgHollow() const
+bool MapWindow::canDoCsgHollow() const
 {
   const auto& map = m_document->map();
   const auto& selection = map.selection();
   return selection.hasOnlyBrushes() && !selection.brushes.empty();
 }
 
-void MapFrame::csgIntersect()
+void MapWindow::csgIntersect()
 {
   if (canDoCsgIntersect())
   {
@@ -1913,14 +1913,14 @@ void MapFrame::csgIntersect()
   }
 }
 
-bool MapFrame::canDoCsgIntersect() const
+bool MapWindow::canDoCsgIntersect() const
 {
   const auto& map = m_document->map();
   const auto& selection = map.selection();
   return selection.hasOnlyBrushes() && selection.brushes.size() > 1;
 }
 
-void MapFrame::snapVerticesToInteger()
+void MapWindow::snapVerticesToInteger()
 {
   if (canSnapVertices())
   {
@@ -1929,7 +1929,7 @@ void MapFrame::snapVerticesToInteger()
   }
 }
 
-void MapFrame::snapVerticesToGrid()
+void MapWindow::snapVerticesToGrid()
 {
   if (canSnapVertices())
   {
@@ -1938,36 +1938,36 @@ void MapFrame::snapVerticesToGrid()
   }
 }
 
-bool MapFrame::canSnapVertices() const
+bool MapWindow::canSnapVertices() const
 {
   const auto& map = m_document->map();
   const auto& selection = map.selection();
   return !selection.allBrushes().empty();
 }
 
-void MapFrame::toggleAlignmentLock()
+void MapWindow::toggleAlignmentLock()
 {
   togglePref(Preferences::AlignmentLock);
 }
 
-void MapFrame::toggleUVLock()
+void MapWindow::toggleUVLock()
 {
   togglePref(Preferences::UVLock);
 }
 
-void MapFrame::toggleShowGrid()
+void MapWindow::toggleShowGrid()
 {
   auto& map = m_document->map();
   map.grid().toggleVisible();
 }
 
-void MapFrame::toggleSnapToGrid()
+void MapWindow::toggleSnapToGrid()
 {
   auto& map = m_document->map();
   map.grid().toggleSnap();
 }
 
-void MapFrame::incGridSize()
+void MapWindow::incGridSize()
 {
   if (canIncGridSize())
   {
@@ -1976,13 +1976,13 @@ void MapFrame::incGridSize()
   }
 }
 
-bool MapFrame::canIncGridSize() const
+bool MapWindow::canIncGridSize() const
 {
   const auto& map = m_document->map();
   return map.grid().size() < mdl::Grid::MaxSize;
 }
 
-void MapFrame::decGridSize()
+void MapWindow::decGridSize()
 {
   if (canDecGridSize())
   {
@@ -1991,19 +1991,19 @@ void MapFrame::decGridSize()
   }
 }
 
-bool MapFrame::canDecGridSize() const
+bool MapWindow::canDecGridSize() const
 {
   const auto& map = m_document->map();
   return map.grid().size() > mdl::Grid::MinSize;
 }
 
-void MapFrame::setGridSize(const int size)
+void MapWindow::setGridSize(const int size)
 {
   auto& map = m_document->map();
   map.grid().setSize(size);
 }
 
-void MapFrame::moveCameraToNextPoint()
+void MapWindow::moveCameraToNextPoint()
 {
   if (canMoveCameraToNextPoint())
   {
@@ -2011,12 +2011,12 @@ void MapFrame::moveCameraToNextPoint()
   }
 }
 
-bool MapFrame::canMoveCameraToNextPoint() const
+bool MapWindow::canMoveCameraToNextPoint() const
 {
   return m_mapView->canMoveCameraToNextTracePoint();
 }
 
-void MapFrame::moveCameraToPreviousPoint()
+void MapWindow::moveCameraToPreviousPoint()
 {
   if (canMoveCameraToPreviousPoint())
   {
@@ -2024,12 +2024,12 @@ void MapFrame::moveCameraToPreviousPoint()
   }
 }
 
-bool MapFrame::canMoveCameraToPreviousPoint() const
+bool MapWindow::canMoveCameraToPreviousPoint() const
 {
   return m_mapView->canMoveCameraToPreviousTracePoint();
 }
 
-void MapFrame::reset2dCameras()
+void MapWindow::reset2dCameras()
 {
   if (auto* mapView2d = dynamic_cast<ui::MapView2D*>(currentMapViewBase()))
   {
@@ -2037,7 +2037,7 @@ void MapFrame::reset2dCameras()
   }
 }
 
-void MapFrame::focusCameraOnSelection()
+void MapWindow::focusCameraOnSelection()
 {
   if (canFocusCamera())
   {
@@ -2045,13 +2045,13 @@ void MapFrame::focusCameraOnSelection()
   }
 }
 
-bool MapFrame::canFocusCamera() const
+bool MapWindow::canFocusCamera() const
 {
   auto& map = m_document->map();
   return map.selection().hasNodes();
 }
 
-void MapFrame::moveCameraToPosition()
+void MapWindow::moveCameraToPosition()
 {
   auto ok = false;
   const auto str = QInputDialog::getText(
@@ -2070,7 +2070,7 @@ void MapFrame::moveCameraToPosition()
   }
 }
 
-void MapFrame::isolateSelection()
+void MapWindow::isolateSelection()
 {
   if (canIsolateSelection())
   {
@@ -2078,13 +2078,13 @@ void MapFrame::isolateSelection()
   }
 }
 
-bool MapFrame::canIsolateSelection() const
+bool MapWindow::canIsolateSelection() const
 {
   const auto& map = m_document->map();
   return map.selection().hasNodes();
 }
 
-void MapFrame::hideSelection()
+void MapWindow::hideSelection()
 {
   if (canHideSelection())
   {
@@ -2092,64 +2092,64 @@ void MapFrame::hideSelection()
   }
 }
 
-bool MapFrame::canHideSelection() const
+bool MapWindow::canHideSelection() const
 {
   const auto& map = m_document->map();
   return map.selection().hasNodes();
 }
 
-void MapFrame::showAll()
+void MapWindow::showAll()
 {
   showAllNodes(m_document->map());
 }
 
-void MapFrame::switchToInspectorPage(const InspectorPage page)
+void MapWindow::switchToInspectorPage(const InspectorPage page)
 {
   m_inspector->show();
   m_inspector->switchToPage(page);
 }
 
-void MapFrame::toggleToolbar()
+void MapWindow::toggleToolbar()
 {
   m_toolBar->setVisible(!m_toolBar->isVisible());
 }
 
-bool MapFrame::toolbarVisible() const
+bool MapWindow::toolbarVisible() const
 {
   return m_toolBar->isVisible();
 }
 
-void MapFrame::toggleInfoPanel()
+void MapWindow::toggleInfoPanel()
 {
   m_infoPanel->setHidden(!m_infoPanel->isHidden());
 }
 
-bool MapFrame::infoPanelVisible() const
+bool MapWindow::infoPanelVisible() const
 {
   return m_infoPanel->isVisible();
 }
 
-void MapFrame::toggleInspector()
+void MapWindow::toggleInspector()
 {
   m_inspector->setHidden(!m_inspector->isHidden());
 }
 
-bool MapFrame::inspectorVisible() const
+bool MapWindow::inspectorVisible() const
 {
   return m_inspector->isVisible();
 }
 
-void MapFrame::toggleMaximizeCurrentView()
+void MapWindow::toggleMaximizeCurrentView()
 {
   m_mapView->toggleMaximizeCurrentView();
 }
 
-bool MapFrame::currentViewMaximized() const
+bool MapWindow::currentViewMaximized() const
 {
   return m_mapView->currentViewMaximized();
 }
 
-void MapFrame::showCompileDialog()
+void MapWindow::showCompileDialog()
 {
   if (!m_compilationDialog)
   {
@@ -2158,7 +2158,7 @@ void MapFrame::showCompileDialog()
   showModelessDialog(m_compilationDialog);
 }
 
-bool MapFrame::closeCompileDialog()
+bool MapWindow::closeCompileDialog()
 {
   if (!m_compilationDialog)
   {
@@ -2174,7 +2174,7 @@ bool MapFrame::closeCompileDialog()
   return false;
 }
 
-void MapFrame::showLaunchEngineDialog()
+void MapWindow::showLaunchEngineDialog()
 {
   auto dialog = LaunchGameEngineDialog{m_appController, document(), this};
   dialog.exec();
@@ -2198,12 +2198,12 @@ const gl::Material* materialToReveal(const mdl::Map& map)
 
 } // namespace
 
-bool MapFrame::canRevealMaterial() const
+bool MapWindow::canRevealMaterial() const
 {
   return materialToReveal(m_document->map()) != nullptr;
 }
 
-void MapFrame::revealMaterial()
+void MapWindow::revealMaterial()
 {
   if (const auto* material = materialToReveal(m_document->map()))
   {
@@ -2211,13 +2211,13 @@ void MapFrame::revealMaterial()
   }
 }
 
-void MapFrame::revealMaterial(const gl::Material* material)
+void MapWindow::revealMaterial(const gl::Material* material)
 {
   m_inspector->switchToPage(InspectorPage::Face);
   m_inspector->faceInspector()->revealMaterial(material);
 }
 
-void MapFrame::debugPrintVertices()
+void MapWindow::debugPrintVertices()
 {
   const auto& selection = m_document->map().selection();
   if (selection.hasBrushFaces())
@@ -2250,7 +2250,7 @@ void MapFrame::debugPrintVertices()
   }
 }
 
-void MapFrame::debugCreateBrush()
+void MapWindow::debugCreateBrush()
 {
   auto ok = false;
   const auto str = QInputDialog::getText(
@@ -2269,7 +2269,7 @@ void MapFrame::debugCreateBrush()
   }
 }
 
-void MapFrame::debugCreateCube()
+void MapWindow::debugCreateCube()
 {
   auto ok = false;
   const auto str = QInputDialog::getText(
@@ -2309,7 +2309,7 @@ static void debugSegfault()
   throw e;
 }
 
-void MapFrame::debugCrash()
+void MapWindow::debugCrash()
 {
   auto items = QStringList{};
   items << "Null pointer dereference"
@@ -2337,13 +2337,13 @@ void MapFrame::debugCrash()
   }
 }
 
-void MapFrame::debugThrowExceptionDuringCommand()
+void MapWindow::debugThrowExceptionDuringCommand()
 {
   auto& map = m_document->map();
   map.throwExceptionDuringCommand();
 }
 
-void MapFrame::debugSetWindowSize()
+void MapWindow::debugSetWindowSize()
 {
   auto ok = false;
   const auto str = QInputDialog::getText(
@@ -2357,13 +2357,13 @@ void MapFrame::debugSetWindowSize()
   }
 }
 
-void MapFrame::debugShowPalette()
+void MapWindow::debugShowPalette()
 {
   auto* window = new DebugPaletteWindow{this};
   showModelessDialog(window);
 }
 
-void MapFrame::focusChange(QWidget* /* oldFocus */, QWidget* newFocus)
+void MapWindow::focusChange(QWidget* /* oldFocus */, QWidget* newFocus)
 {
   if (auto* newMapView = dynamic_cast<MapViewBase*>(newFocus))
   {
@@ -2374,7 +2374,7 @@ void MapFrame::focusChange(QWidget* /* oldFocus */, QWidget* newFocus)
   updateUndoRedoActions();
 }
 
-MapViewBase* MapFrame::currentMapViewBase()
+MapViewBase* MapWindow::currentMapViewBase()
 {
   if (!m_currentMapView)
   {
@@ -2387,19 +2387,19 @@ MapViewBase* MapFrame::currentMapViewBase()
   return m_currentMapView;
 }
 
-bool MapFrame::canCompile() const
+bool MapWindow::canCompile() const
 {
   const auto& map = m_document->map();
   return map.persistent();
 }
 
-bool MapFrame::canLaunch() const
+bool MapWindow::canLaunch() const
 {
   const auto& map = m_document->map();
   return map.persistent();
 }
 
-void MapFrame::dragEnterEvent(QDragEnterEvent* event)
+void MapWindow::dragEnterEvent(QDragEnterEvent* event)
 {
   const auto& map = m_document->map();
   if (
@@ -2418,7 +2418,7 @@ void MapFrame::dragEnterEvent(QDragEnterEvent* event)
   }
 }
 
-void MapFrame::dropEvent(QDropEvent* event)
+void MapWindow::dropEvent(QDropEvent* event)
 {
   const auto urls = event->mimeData()->urls();
   if (urls.empty())
@@ -2469,7 +2469,7 @@ void MapFrame::dropEvent(QDropEvent* event)
   event->acceptProposedAction();
 }
 
-void MapFrame::changeEvent(QEvent*)
+void MapWindow::changeEvent(QEvent*)
 {
   if (m_mapView)
   {
@@ -2477,7 +2477,7 @@ void MapFrame::changeEvent(QEvent*)
   }
 }
 
-void MapFrame::closeEvent(QCloseEvent* event)
+void MapWindow::closeEvent(QCloseEvent* event)
 {
   if (!closeCompileDialog())
   {
@@ -2498,7 +2498,7 @@ void MapFrame::closeEvent(QCloseEvent* event)
       saveWidgetState(m_inspector);
       saveWidgetState(m_infoPanel);
 
-      m_appController.frameManager().removeFrame(this);
+      m_appController.mapWindowManager().removeMapWindow(this);
       event->accept();
     }
   }
@@ -2515,7 +2515,7 @@ static void applyRecursively(QObject* object, const F& f)
   }
 }
 
-bool MapFrame::eventFilter(QObject* target, QEvent* event)
+bool MapWindow::eventFilter(QObject* target, QEvent* event)
 {
   if (
     event->type() == QEvent::MouseButtonPress
@@ -2540,7 +2540,7 @@ bool MapFrame::eventFilter(QObject* target, QEvent* event)
   return QMainWindow::eventFilter(target, event);
 }
 
-void MapFrame::triggerAutosave()
+void MapWindow::triggerAutosave()
 {
   using namespace std::chrono_literals;
   if (
@@ -2551,7 +2551,7 @@ void MapFrame::triggerAutosave()
   }
 }
 
-void MapFrame::triggerProcessResources()
+void MapWindow::triggerProcessResources()
 {
   auto& map = m_document->map();
   map.processResourcesAsync(tb::gl::ProcessContext{
