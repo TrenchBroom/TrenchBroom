@@ -94,19 +94,10 @@ MapViewBase& ActionExecutionContext::view()
   return KDL_CONST_OVERLOAD(view());
 }
 
-const MapDocument& ActionExecutionContext::document() const
-{
-  return frame().document();
-}
-
-MapDocument& ActionExecutionContext::document()
-{
-  return KDL_CONST_OVERLOAD(document());
-}
 
 const mdl::Map& ActionExecutionContext::map() const
 {
-  return document().map();
+  return frame().document().map();
 }
 
 mdl::Map& ActionExecutionContext::map()

@@ -60,9 +60,6 @@ public:
   const MapViewBase& view() const;
   MapViewBase& view();
 
-  const MapDocument& document() const;
-  MapDocument& document();
-
   mdl::Map& map();
   const mdl::Map& map() const;
 };
