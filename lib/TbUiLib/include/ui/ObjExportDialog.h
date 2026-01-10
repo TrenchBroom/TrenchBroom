@@ -28,13 +28,13 @@ class QRadioButton;
 
 namespace tb::ui
 {
-class MapFrame;
+class MapWindow;
 
 class ObjExportDialog : public QDialog
 {
   Q_OBJECT
 private:
-  MapFrame* m_mapFrame;
+  MapWindow* m_mapWindow;
 
   QLineEdit* m_exportPathEdit = nullptr;
   QPushButton* m_browseExportPathButton = nullptr;
@@ -44,7 +44,7 @@ private:
   QPushButton* m_closeButton = nullptr;
 
 public:
-  explicit ObjExportDialog(MapFrame* mapFrame);
+  explicit ObjExportDialog(MapWindow* mapWindow);
 
   void updateExportPath();
 

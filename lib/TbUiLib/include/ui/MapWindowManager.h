@@ -48,19 +48,19 @@ namespace ui
 {
 class AppController;
 class MapDocument;
-class MapFrame;
+class MapWindow;
 
-class FrameManager : public QObject
+class MapWindowManager : public QObject
 {
   Q_OBJECT
 private:
   AppController& m_appController;
-  bool m_singleFrame;
-  std::vector<MapFrame*> m_frames;
+  bool m_singleMapWindow;
+  std::vector<MapWindow*> m_mapWindows;
 
 public:
-  FrameManager(AppController& appController, bool singleFrame);
-  ~FrameManager() override;
+  MapWindowManager(AppController& appController, bool singleMapWindow);
+  ~MapWindowManager() override;
 
   Result<void> createDocument(
     const mdl::EnvironmentConfig& environmentConfig,
@@ -77,18 +77,18 @@ public:
     std::filesystem::path path,
     kdl::task_manager& taskManager);
 
-  std::vector<MapFrame*> frames() const;
-  MapFrame* topFrame() const;
-  bool allFramesClosed() const;
+  std::vector<MapWindow*> mapWindows() const;
+  MapWindow* topMapWindow() const;
+  bool allMapWindowsClosed() const;
 
 private:
   void onFocusChange(QWidget* old, QWidget* now);
 
-  bool shouldCreateFrameForDocument() const;
-  MapFrame* createFrame(std::unique_ptr<MapDocument> document);
-  void removeFrame(MapFrame* frame);
+  bool shouldCreateWindowForDocument() const;
+  MapWindow* createMapWindow(std::unique_ptr<MapDocument> document);
+  void removeMapWindow(MapWindow* mapWindow);
 
-  friend class MapFrame;
+  friend class MapWindow;
 };
 
 } // namespace ui

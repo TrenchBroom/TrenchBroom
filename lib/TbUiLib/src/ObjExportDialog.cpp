@@ -34,7 +34,7 @@
 #include "ui/DialogHeader.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/MapDocument.h" // IWYU pragma: keep
-#include "ui/MapFrame.h"
+#include "ui/MapWindow.h"
 #include "ui/QPathUtils.h"
 #include "ui/QStyleUtils.h"
 #include "ui/ViewConstants.h"
@@ -47,11 +47,11 @@
 namespace tb::ui
 {
 
-ObjExportDialog::ObjExportDialog(MapFrame* mapFrame)
-  : QDialog{mapFrame}
-  , m_mapFrame{mapFrame}
+ObjExportDialog::ObjExportDialog(MapWindow* mapWindow)
+  : QDialog{mapWindow}
+  , m_mapWindow{mapWindow}
 {
-  contract_pre(m_mapFrame != nullptr);
+  contract_pre(m_mapWindow != nullptr);
 
   createGui();
   resize(500, 0);
@@ -148,14 +148,14 @@ void ObjExportDialog::createGui()
     options.mtlPathMode = m_relativeToGamePathRadioButton->isChecked()
                             ? mdl::ObjMtlPathMode::RelativeToGamePath
                             : mdl::ObjMtlPathMode::RelativeToExportPath;
-    m_mapFrame->exportDocument(options);
+    m_mapWindow->exportDocument(options);
     close();
   });
 }
 
 void ObjExportDialog::updateExportPath()
 {
-  const auto& map = m_mapFrame->document().map();
+  const auto& map = m_mapWindow->document().map();
   const auto& originalPath = map.path();
   const auto objPath = kdl::path_replace_extension(originalPath, ".obj");
   m_exportPathEdit->setText(pathAsQString(objPath));

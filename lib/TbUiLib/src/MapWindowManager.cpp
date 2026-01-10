@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/FrameManager.h"
+#include "ui/MapWindowManager.h"
 
 #include <QApplication>
 
 #include "mdl/GameInfo.h"
 #include "ui/AppController.h"
 #include "ui/MapDocument.h"
-#include "ui/MapFrame.h"
+#include "ui/MapWindow.h"
 
 #include "kd/contracts.h"
 
@@ -34,47 +34,47 @@
 namespace tb::ui
 {
 
-FrameManager::FrameManager(AppController& appController, const bool singleFrame)
+MapWindowManager::MapWindowManager(AppController& appController, const bool singleFrame)
   : QObject{&appController}
   , m_appController{appController}
-  , m_singleFrame{singleFrame}
+  , m_singleMapWindow{singleFrame}
 {
-  connect(qApp, &QApplication::focusChanged, this, &FrameManager::onFocusChange);
+  connect(qApp, &QApplication::focusChanged, this, &MapWindowManager::onFocusChange);
 }
 
-FrameManager::~FrameManager() = default;
+MapWindowManager::~MapWindowManager() = default;
 
-std::vector<MapFrame*> FrameManager::frames() const
+std::vector<MapWindow*> MapWindowManager::mapWindows() const
 {
-  return m_frames;
+  return m_mapWindows;
 }
 
-MapFrame* FrameManager::topFrame() const
+MapWindow* MapWindowManager::topMapWindow() const
 {
-  return m_frames.empty() ? nullptr : m_frames.front();
+  return m_mapWindows.empty() ? nullptr : m_mapWindows.front();
 }
 
-Result<void> FrameManager::createDocument(
+Result<void> MapWindowManager::createDocument(
   const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
   mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager)
 {
-  if (shouldCreateFrameForDocument())
+  if (shouldCreateWindowForDocument())
   {
     return MapDocument::createDocument(
              environmentConfig, gameInfo, mapFormat, worldBounds, taskManager)
-           | kdl::transform([&](auto document) { createFrame(std::move(document)); });
+           | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
-  auto* frame = topFrame();
+  auto* frame = topMapWindow();
   contract_assert(frame != nullptr);
 
   return frame->document().create(environmentConfig, gameInfo, mapFormat, worldBounds);
 }
 
-Result<void> FrameManager::loadDocument(
+Result<void> MapWindowManager::loadDocument(
   const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
   mdl::MapFormat mapFormat,
@@ -82,7 +82,7 @@ Result<void> FrameManager::loadDocument(
   std::filesystem::path path,
   kdl::task_manager& taskManager)
 {
-  if (shouldCreateFrameForDocument())
+  if (shouldCreateWindowForDocument())
   {
     return MapDocument::loadDocument(
              environmentConfig,
@@ -91,63 +91,64 @@ Result<void> FrameManager::loadDocument(
              worldBounds,
              std::move(path),
              taskManager)
-           | kdl::transform([&](auto document) { createFrame(std::move(document)); });
+           | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
-  auto* frame = topFrame();
+  auto* frame = topMapWindow();
   contract_assert(frame != nullptr);
 
   return frame->document().load(
     environmentConfig, gameInfo, mapFormat, worldBounds, std::move(path));
 }
 
-bool FrameManager::allFramesClosed() const
+bool MapWindowManager::allMapWindowsClosed() const
 {
-  return m_frames.empty();
+  return m_mapWindows.empty();
 }
 
-void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
+void MapWindowManager::onFocusChange(QWidget* /* old */, QWidget* now)
 {
   if (now)
   {
     // The QApplication::focusChanged signal also notifies us of focus changes between
     // child widgets, so get the top-level widget with QWidget::window()
-    if (auto* frame = dynamic_cast<MapFrame*>(now->window()))
+    if (auto* frame = dynamic_cast<MapWindow*>(now->window()))
     {
-      if (auto it = std::ranges::find(m_frames, frame);
-          it != m_frames.end() && it != m_frames.begin())
+      if (auto it = std::ranges::find(m_mapWindows, frame);
+          it != m_mapWindows.end() && it != m_mapWindows.begin())
       {
-        std::rotate(m_frames.begin(), it, std::next(it));
+        std::rotate(m_mapWindows.begin(), it, std::next(it));
       }
     }
   }
 }
 
-bool FrameManager::shouldCreateFrameForDocument() const
+bool MapWindowManager::shouldCreateWindowForDocument() const
 {
-  return !m_singleFrame || m_frames.empty();
+  return !m_singleMapWindow || m_mapWindows.empty();
 }
 
-MapFrame* FrameManager::createFrame(std::unique_ptr<MapDocument> document)
+MapWindow* MapWindowManager::createMapWindow(std::unique_ptr<MapDocument> document)
 {
   contract_pre(document != nullptr);
 
-  auto* frame = new MapFrame{m_appController, std::move(document)};
-  frame->positionOnScreen(topFrame());
-  m_frames.insert(m_frames.begin(), frame);
+  auto* frame = new MapWindow{m_appController, std::move(document)};
+  frame->positionOnScreen(topMapWindow());
+  m_mapWindows.insert(m_mapWindows.begin(), frame);
 
   frame->show();
   frame->raise();
+  frame->activateWindow();
   return frame;
 }
 
-void FrameManager::removeFrame(MapFrame* frame)
+void MapWindowManager::removeMapWindow(MapWindow* mapWindow)
 {
-  // This is called from MapFrame::closeEvent
-  if (auto it = std::ranges::find(m_frames, frame); it != m_frames.end())
+  // This is called from MapWindow::closeEvent
+  if (auto it = std::ranges::find(m_mapWindows, mapWindow); it != m_mapWindows.end())
   {
-    m_frames.erase(it);
-    // MapFrame uses Qt::WA_DeleteOnClose so we don't need to delete it here
+    m_mapWindows.erase(it);
+    // MapWindow uses Qt::WA_DeleteOnClose so we don't need to delete it here
   }
 }
 

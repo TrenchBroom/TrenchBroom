@@ -92,7 +92,6 @@ add_library(TbUiLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FlyModeHelper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FormWithSectionsLayout.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FourPaneMapView.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FrameManager.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GameDialog.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GameEngineDialog.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GameEngineProfileEditor.h
@@ -122,7 +121,6 @@ add_library(TbUiLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerListBox.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LimitedKeySequenceEdit.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapDocument.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapFrame.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapInspector.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapView.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapView2D.h
@@ -133,6 +131,8 @@ add_library(TbUiLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewContainer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewLayout.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewToolBox.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapWindow.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapWindowManager.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MaterialBrowser.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MaterialBrowserView.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MaterialCollectionEditor.h
@@ -319,7 +319,6 @@ add_library(TbUiLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/FlyModeHelper.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/FormWithSectionsLayout.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/FourPaneMapView.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/FrameManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameDialog.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineDialog.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineProfileEditor.cpp
@@ -349,7 +348,6 @@ add_library(TbUiLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerListBox.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LimitedKeySequenceEdit.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocument.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/MapFrame.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MapInspector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MapView.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MapView2D.cpp
@@ -359,6 +357,8 @@ add_library(TbUiLib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewBase.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewContainer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewToolBox.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/MapWindow.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/MapWindowManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MaterialBrowser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MaterialBrowserView.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/MaterialCollectionEditor.cpp
