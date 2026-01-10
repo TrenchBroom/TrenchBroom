@@ -41,7 +41,7 @@ private:
   ActionContext::Type m_actionContext;
 
   AppController& m_appController;
-  MapFrame* m_frame;
+  MapFrame* m_mapFrame;
   MapViewBase* m_mapView;
 
 public:
@@ -54,11 +54,11 @@ public:
   const AppController& appController() const;
   AppController& appController();
 
-  const MapFrame& frame() const;
-  MapFrame& frame();
+  const MapFrame& mapFrame() const;
+  MapFrame& mapFrame();
 
-  const MapViewBase& view() const;
-  MapViewBase& view();
+  const MapViewBase& mapView() const;
+  MapViewBase& mapView();
 
   mdl::Map& map();
   const mdl::Map& map() const;

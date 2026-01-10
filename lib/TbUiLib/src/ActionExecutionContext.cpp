@@ -33,15 +33,15 @@ ActionExecutionContext::ActionExecutionContext(
   AppController& appController, MapFrame* mapFrame, MapViewBase* mapView)
   : m_actionContext(mapView != nullptr ? mapView->actionContext() : ActionContext::Any)
   , m_appController{appController}
-  , m_frame{mapFrame}
+  , m_mapFrame{mapFrame}
   , m_mapView{mapView}
 {
-  contract_pre(m_frame == nullptr || m_mapView != nullptr);
+  contract_pre(m_mapFrame == nullptr || m_mapView != nullptr);
 }
 
 bool ActionExecutionContext::hasDocument() const
 {
-  return m_frame != nullptr;
+  return m_mapFrame != nullptr;
 }
 
 bool ActionExecutionContext::hasActionContext(
@@ -69,19 +69,19 @@ AppController& ActionExecutionContext::appController()
   return KDL_CONST_OVERLOAD(appController());
 }
 
-const MapFrame& ActionExecutionContext::frame() const
+const MapFrame& ActionExecutionContext::mapFrame() const
 {
   contract_pre(hasDocument());
 
-  return *m_frame;
+  return *m_mapFrame;
 }
 
-MapFrame& ActionExecutionContext::frame()
+MapFrame& ActionExecutionContext::mapFrame()
 {
-  return KDL_CONST_OVERLOAD(frame());
+  return KDL_CONST_OVERLOAD(mapFrame());
 }
 
-const MapViewBase& ActionExecutionContext::view() const
+const MapViewBase& ActionExecutionContext::mapView() const
 {
   contract_pre(hasDocument());
   contract_pre(m_mapView != nullptr);
@@ -89,15 +89,14 @@ const MapViewBase& ActionExecutionContext::view() const
   return *m_mapView;
 }
 
-MapViewBase& ActionExecutionContext::view()
+MapViewBase& ActionExecutionContext::mapView()
 {
-  return KDL_CONST_OVERLOAD(view());
+  return KDL_CONST_OVERLOAD(mapView());
 }
-
 
 const mdl::Map& ActionExecutionContext::map() const
 {
-  return frame().document().map();
+  return mapFrame().document().map();
 }
 
 mdl::Map& ActionExecutionContext::map()
