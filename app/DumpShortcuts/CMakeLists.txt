@@ -1,20 +1,24 @@
-set(DUMP_SHORTCUTS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+add_executable(DumpShortcuts
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyStrings.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp
 
-set(DUMP_SHORTCUTS_SOURCE
-        "${DUMP_SHORTCUTS_SOURCE_DIR}/KeyStrings.h"
-        "${DUMP_SHORTCUTS_SOURCE_DIR}/KeyStrings.cpp"
-        "${DUMP_SHORTCUTS_SOURCE_DIR}/Main.cpp")
-set(DUMP_SHORTCUTS_SOURCE ${DUMP_SHORTCUTS_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
-
-add_executable(DumpShortcuts ${DUMP_SHORTCUTS_SOURCE})
-target_include_directories(DumpShortcuts PRIVATE ${DUMP_SHORTCUTS_SOURCE_DIR})
-target_link_libraries(DumpShortcuts PRIVATE KdLib TbBaseLib TbMdlLib TbPreferencesLib TbUiLib Qt6::Widgets)
-set_target_properties(DumpShortcuts PROPERTIES AUTOMOC TRUE)
+  ${INDEX_OUTPUT_PATH}
+  ${DOC_MANUAL_TARGET_FILES_ABSOLUTE}
+  ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}
+  ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
+)
 
 target_link_libraries(DumpShortcuts PRIVATE CompilerConfig)
 
-# Organize files into IDE folders
-source_group(TREE "${COMMON_TEST_SOURCE_DIR}" FILES ${COMMON_TEST_SOURCE})
+target_link_libraries(DumpShortcuts PRIVATE 
+  KdLib
+  TbBaseLib
+  TbMdlLib
+  TbPreferencesLib
+  TbUiLib
+  Qt6::Widgets
+)
+set_target_properties(DumpShortcuts PROPERTIES AUTOMOC TRUE)
 
 if(WIN32)
     # Copy DLLs to app directory
