@@ -50,4 +50,20 @@ TEST_CASE("range_utils.index_of")
   CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 4; }) == std::nullopt);
 }
 
+TEST_CASE("pred")
+{
+  auto v = std::vector{1, 2, 3};
+  CHECK(*pred(v, v.begin()) == 3);
+  CHECK(*pred(v, v.begin() + 1) == 1);
+  CHECK(*pred(v, v.begin() + 2) == 2);
+}
+
+TEST_CASE("succ")
+{
+  auto v = std::vector{1, 2, 3};
+  CHECK(*succ(v, v.begin()) == 2);
+  CHECK(*succ(v, v.begin() + 1) == 3);
+  CHECK(*succ(v, v.begin() + 2) == 1);
+}
+
 } // namespace kdl
