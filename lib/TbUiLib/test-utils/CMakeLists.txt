@@ -1,9 +1,13 @@
-add_library(TbUiTestUtilsLib STATIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocumentFixture.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/StringMakers.cpp
-)
+add_library(TbUiTestUtilsLib STATIC)
 
-target_include_directories(TbUiTestUtilsLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_sources(TbUiTestUtilsLib
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocumentFixture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/StringMakers.cpp
+
+  PUBLIC FILE_SET headers TYPE HEADERS
+    BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 target_link_libraries(TbUiTestUtilsLib PRIVATE
   CompilerConfig

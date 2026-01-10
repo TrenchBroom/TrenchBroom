@@ -1,32 +1,36 @@
 add_executable(TbUiLibTest)
 
-target_sources(TbUiLibTest PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/RunAllTests.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActionContext.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Actions.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CameraTool3D.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipTool.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipToolController.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationRunner.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityPropertyModel.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ExtrudeTool.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_HandleDragTracker.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_InputEvent.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LaunchGameEngine.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapDocument.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MoveHandleDragTracker.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QPathUtils.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QPreferenceStore.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QPreferenceStoreUtils.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QVecUtils.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RecentDocuments.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RotateTool.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ScaleTool.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SelectionTool.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ShearTool.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SystemPaths.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextOutputAdapter.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateVersion.cpp
+target_sources(TbUiLibTest
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RunAllTests.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActionContext.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Actions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CameraTool3D.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityPropertyModel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ExtrudeTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_HandleDragTracker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_InputEvent.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LaunchGameEngine.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapDocument.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MoveHandleDragTracker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QPathUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QPreferenceStore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QPreferenceStoreUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QVecUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RecentDocuments.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RotateTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ScaleTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SelectionTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ShearTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SystemPaths.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextOutputAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateVersion.cpp
+
+  PUBLIC FILE_SET cmd_tool TYPE HEADERS
+    BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
@@ -60,7 +64,6 @@ target_link_libraries(TbUiLibTest PRIVATE
 set_target_properties(TbUiLibTest PROPERTIES AUTOMOC TRUE)
 
 add_dependencies(TbUiLibTest CmdTool)
-target_include_directories(TbUiLibTest PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 file(GENERATE
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CmdTool.h"
   CONTENT "#define CMD_TOOL_PATH \"$<TARGET_FILE:CmdTool>\"")
