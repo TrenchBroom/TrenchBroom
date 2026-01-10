@@ -24,6 +24,7 @@
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/to.h"
@@ -52,6 +53,36 @@ auto setValueIfSet(const auto& maybeValue)
 float normalizeRotation(const float rotation)
 {
   return vm::mod(rotation, 360.0f);
+}
+
+vm::vec2f toAxis(const UvAxis axis)
+{
+  switch (axis)
+  {
+  case UvAxis::u:
+    return vm::vec2f{1, 0};
+  case UvAxis::v:
+    return vm::vec2f{0, 1};
+    switchDefault();
+  }
+}
+
+auto measureFaceLength(const BrushFace& brushFace, const vm::vec2f& axis)
+{
+  const auto coords =
+    brushFace.vertices()
+    | std::views::transform(
+      [toUV = brushFace.toUVCoordSystemMatrix(
+         vm::vec2f{0, 0}, brushFace.attributes().scale())](const auto* vertex) {
+        return vm::vec2f{toUV * vertex->position()};
+      })
+    | std::views::transform([&](const auto& v) { return vm::dot(v, axis); })
+    | kdl::ranges::to<std::vector>();
+
+  const auto [iMin, iMax] = std::ranges::minmax_element(coords);
+  contract_assert(iMin != iMax);
+
+  return *iMax - *iMin;
 }
 
 void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
@@ -108,6 +139,12 @@ auto evaluate(const std::optional<FlagOp>& flagOp, const std::optional<int>& val
 float normalizeAngle(const float angleInDegrees)
 {
   return vm::correct(vm::mod(angleInDegrees, 360.0f));
+}
+
+float normalizeOffset(const float offset, const float length)
+{
+  const auto normalizedOffset = vm::correct(vm::mod(offset, length));
+  return normalizedOffset < 0.0f ? normalizedOffset + length : normalizedOffset;
 }
 
 } // namespace
@@ -208,6 +245,34 @@ std::ostream& operator<<(std::ostream& lhs, const UvPolicy rhs)
   return lhs;
 }
 
+std::ostream& operator<<(std::ostream& lhs, const UvAxis rhs)
+{
+  switch (rhs)
+  {
+  case UvAxis::u:
+    lhs << "u";
+    break;
+  case UvAxis::v:
+    lhs << "v";
+    break;
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const UvDirection direction)
+{
+  switch (direction)
+  {
+  case UvDirection::forward:
+    lhs << "forward";
+    break;
+  case UvDirection::backward:
+    lhs << "backward";
+    break;
+  }
+  return lhs;
+}
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy policy)
 {
   constexpr auto uAxis = vm::vec2d{1, 0};
@@ -248,6 +313,89 @@ UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy polic
   return {
     .rotation = SetValue{normalizeAngle(angleInDegrees)},
   };
+}
+
+UpdateBrushFaceAttributes justify(
+  const BrushFace& brushFace,
+  const UvAxis uv,
+  const UvDirection direction,
+  const UvPolicy policy)
+{
+  const auto axis = toAxis(uv);
+  const auto dirFactor = [&] {
+    switch (direction)
+    {
+    case UvDirection::forward:
+      return +1.0f;
+    case UvDirection::backward:
+      return -1.0f;
+    }
+  }();
+
+  const auto distances =
+    brushFace.vertices()
+    | std::views::transform(
+      [toUV = brushFace.toUVCoordSystemMatrix(
+         vm::vec2f{0, 0}, brushFace.attributes().scale())](const auto* vertex) {
+        return vm::vec2f{toUV * vertex->position()};
+      })
+    | std::views::transform([&](const auto& v) { return vm::dot(v, dirFactor * axis); })
+    | kdl::ranges::to<std::vector>();
+
+  const auto iMax = std::ranges::max_element(distances);
+  contract_assert(iMax != std::ranges::end(distances));
+
+  // if the texture length is a multiple of the face length, we can cycle through
+  // different offsets corresponding to the integer divisor
+  const auto textureLength = vm::dot(brushFace.textureSize(), axis);
+  const auto faceLength = measureFaceLength(brushFace, axis);
+  const auto subDiv =
+    vm::is_equal(std::fmod(textureLength, faceLength), 0.0f, vm::Cf::almost_zero())
+      ? size_t(std::round(textureLength / faceLength))
+      : 1u;
+
+  const auto offset = -dirFactor * *iMax;
+  const auto potentialValues =
+    std::views::iota(0u, subDiv) | std::views::transform([&](const auto n) {
+      const auto delta = textureLength / float(subDiv);
+      return normalizeOffset(float(n) * delta + offset, textureLength);
+    })
+    | kdl::ranges::to<std::vector>();
+
+  const auto currentValue =
+    normalizeOffset(vm::dot(brushFace.attributes().offset(), axis), textureLength);
+  const auto iBestMatch =
+    std::ranges::min_element(potentialValues, std::less<float>{}, [&](const auto& x) {
+      return std::abs(x - currentValue);
+    });
+
+  const auto isExactMatch =
+    vm::is_equal(*iBestMatch, currentValue, vm::Cf::almost_zero());
+  const auto newValue = [&] {
+    switch (policy)
+    {
+    case UvPolicy::best:
+      return potentialValues.front();
+    case UvPolicy::next:
+      return isExactMatch ? *kdl::succ(potentialValues, iBestMatch)
+                          : potentialValues.front();
+    case UvPolicy::prev:
+      return isExactMatch ? *kdl::pred(potentialValues, iBestMatch)
+                          : potentialValues.front();
+    }
+  }();
+
+  switch (uv)
+  {
+  case UvAxis::u:
+    return {
+      .xOffset = SetValue{newValue},
+    };
+  case UvAxis::v:
+    return {
+      .yOffset = SetValue{newValue},
+    };
+  }
 }
 
 void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)

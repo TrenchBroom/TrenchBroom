@@ -148,7 +148,25 @@ enum class UvPolicy
 
 std::ostream& operator<<(std::ostream& lhs, UvPolicy rhs);
 
+enum class UvAxis
+{
+  u,
+  v,
+};
+
+std::ostream& operator<<(std::ostream& lhs, UvAxis rhs);
+
+enum class UvDirection
+{
+  forward,
+  backward,
+};
+
+std::ostream& operator<<(std::ostream& lhs, UvDirection direction);
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, UvPolicy policy);
+UpdateBrushFaceAttributes justify(
+  const BrushFace& brushFace, UvAxis uv, UvDirection direction, UvPolicy policy);
 
 void evaluate(
   const UpdateBrushFaceAttributes& updateBrushFaceAttributes, BrushFace& brushFace);
