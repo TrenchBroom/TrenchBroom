@@ -79,7 +79,7 @@ class SignalDelayer;
 class SwitchableMapViewContainer;
 class Tool;
 
-class MapFrame : public QMainWindow
+class MapWindow : public QMainWindow
 {
   Q_OBJECT
 private:
@@ -129,8 +129,8 @@ private:
   SignalDelayer* m_updateStatusBarSignalDelayer = nullptr;
 
 public:
-  MapFrame(AppController& appController, std::unique_ptr<MapDocument> document);
-  ~MapFrame() override;
+  MapWindow(AppController& appController, std::unique_ptr<MapDocument> document);
+  ~MapWindow() override;
 
   void positionOnScreen(QWidget* reference);
   const MapDocument& document() const;

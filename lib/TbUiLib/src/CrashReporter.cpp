@@ -27,10 +27,10 @@
 #include "mdl/Map.h"
 #include "ui/AppController.h"
 #include "ui/CrashDialog.h"
-#include "ui/FrameManager.h"
 #include "ui/GetVersion.h"
 #include "ui/MapDocument.h"
-#include "ui/MapFrame.h"
+#include "ui/MapWindow.h"
+#include "ui/MapWindowManager.h"
 #include "ui/QPathUtils.h"
 #include "ui/SystemPaths.h"
 
@@ -63,9 +63,11 @@ const MapDocument* topDocument()
 {
   if (appControllerForCrashReporter)
   {
-    if (const auto* topFrame = appControllerForCrashReporter->frameManager().topFrame())
+    if (
+      const auto* topMapWindow =
+        appControllerForCrashReporter->mapWindowManager().topMapWindow())
     {
-      return &topFrame->document();
+      return &topMapWindow->document();
     }
   }
   return nullptr;

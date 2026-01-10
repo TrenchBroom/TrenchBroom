@@ -36,10 +36,10 @@
 #include "ui/ActionManager.h"
 #include "ui/CrashDialog.h"
 #include "ui/FileDialogDefaultDir.h"
-#include "ui/FrameManager.h"
 #include "ui/GameDialog.h"
 #include "ui/MapDocument.h"
-#include "ui/MapFrame.h"
+#include "ui/MapWindow.h"
+#include "ui/MapWindowManager.h"
 #include "ui/PreferenceDialog.h"
 #include "ui/QPathUtils.h"
 #include "ui/RecentDocuments.h"
@@ -95,9 +95,9 @@ auto createGameManager()
            });
 }
 
-auto createFrameManager(AppController& appController)
+auto createMapWindowManager(AppController& appController)
 {
-  return new FrameManager{appController, AppController::useSDI};
+  return new MapWindowManager{appController, AppController::useSDI};
 }
 
 auto createRecentDocuments(QObject* parent)
@@ -157,7 +157,7 @@ AppController::AppController(
   , m_recentDocumentsReloadTimer{new QTimer{this}}
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
-  , m_frameManager{createFrameManager(*this)}
+  , m_mapWindowManager{createMapWindowManager(*this)}
   , m_recentDocuments{createRecentDocuments(this)}
   , m_actionManager{std::make_unique<ActionManager>()}
   , m_welcomeWindow{std::make_unique<WelcomeWindow>(*this)}
@@ -206,9 +206,9 @@ upd::Updater& AppController::updater()
   return *m_updater;
 }
 
-FrameManager& AppController::frameManager()
+MapWindowManager& AppController::mapWindowManager()
 {
-  return *m_frameManager;
+  return *m_mapWindowManager;
 }
 
 const RecentDocuments& AppController::recentDocuments() const
@@ -267,7 +267,7 @@ bool AppController::newDocument()
   const auto* gameInfo = gameManager().gameInfo(gameName);
   contract_assert(gameInfo != nullptr);
 
-  return m_frameManager->createDocument(
+  return m_mapWindowManager->createDocument(
            environmentConfig(),
            *gameInfo,
            mapFormat,
@@ -328,7 +328,7 @@ bool AppController::openDocument(const std::filesystem::path& path)
              const auto* gameInfo = gameManager().gameInfo(gameName);
              contract_assert(gameInfo != nullptr);
 
-             return m_frameManager->loadDocument(
+             return m_mapWindowManager->loadDocument(
                       environmentConfig(),
                       *gameInfo,
                       mapFormat,
@@ -363,8 +363,8 @@ void AppController::showManual()
 
 void AppController::showPreferences()
 {
-  auto* topFrame = frameManager().topFrame();
-  auto* topDocument = topFrame ? &topFrame->document() : nullptr;
+  auto* topMapWindow = mapWindowManager().topMapWindow();
+  auto* topDocument = topMapWindow ? &topMapWindow->document() : nullptr;
 
   auto dialog = PreferenceDialog{*this, topDocument};
   dialog.exec();

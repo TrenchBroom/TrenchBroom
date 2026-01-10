@@ -23,7 +23,7 @@
 #include <QFileOpenEvent>
 
 #include "ui/AppController.h"
-#include "ui/FrameManager.h"
+#include "ui/MapWindowManager.h"
 
 #include <filesystem>
 
@@ -50,7 +50,7 @@ bool FileEventFilter::eventFilter(QObject* watched, QEvent* event)
   }
   else if (event->type() == QEvent::ApplicationActivate)
   {
-    if (m_appController.frameManager().allFramesClosed())
+    if (m_appController.mapWindowManager().allMapWindowsClosed())
     {
       m_appController.showWelcomeWindow();
     }

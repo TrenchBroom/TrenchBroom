@@ -32,7 +32,7 @@ namespace ui
 {
 class AppController;
 class MapDocument;
-class MapFrame;
+class MapWindow;
 class MapViewBase;
 
 class ActionExecutionContext
@@ -41,12 +41,12 @@ private:
   ActionContext::Type m_actionContext;
 
   AppController& m_appController;
-  MapFrame* m_frame;
+  MapWindow* m_mapWindow;
   MapViewBase* m_mapView;
 
 public:
   ActionExecutionContext(
-    AppController& appController, MapFrame* mapFrame, MapViewBase* mapView);
+    AppController& appController, MapWindow* mapWindow, MapViewBase* mapView);
 
   bool hasDocument() const;
   bool hasActionContext(ActionContext::Type actionContext) const;
@@ -54,14 +54,11 @@ public:
   const AppController& appController() const;
   AppController& appController();
 
-  const MapFrame& frame() const;
-  MapFrame& frame();
+  const MapWindow& mapWindow() const;
+  MapWindow& mapWindow();
 
-  const MapViewBase& view() const;
-  MapViewBase& view();
-
-  const MapDocument& document() const;
-  MapDocument& document();
+  const MapViewBase& mapView() const;
+  MapViewBase& mapView();
 
   mdl::Map& map();
   const mdl::Map& map() const;

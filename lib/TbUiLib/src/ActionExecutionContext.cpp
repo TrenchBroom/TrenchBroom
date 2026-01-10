@@ -20,8 +20,8 @@
 #include "ui/ActionExecutionContext.h"
 
 #include "ui/MapDocument.h"
-#include "ui/MapFrame.h"
 #include "ui/MapViewBase.h"
+#include "ui/MapWindow.h"
 
 #include "kd/const_overload.h"
 #include "kd/contracts.h"
@@ -30,18 +30,18 @@ namespace tb::ui
 {
 
 ActionExecutionContext::ActionExecutionContext(
-  AppController& appController, MapFrame* mapFrame, MapViewBase* mapView)
+  AppController& appController, MapWindow* mapWindow, MapViewBase* mapView)
   : m_actionContext(mapView != nullptr ? mapView->actionContext() : ActionContext::Any)
   , m_appController{appController}
-  , m_frame{mapFrame}
+  , m_mapWindow{mapWindow}
   , m_mapView{mapView}
 {
-  contract_pre(m_frame == nullptr || m_mapView != nullptr);
+  contract_pre(m_mapWindow == nullptr || m_mapView != nullptr);
 }
 
 bool ActionExecutionContext::hasDocument() const
 {
-  return m_frame != nullptr;
+  return m_mapWindow != nullptr;
 }
 
 bool ActionExecutionContext::hasActionContext(
@@ -69,19 +69,19 @@ AppController& ActionExecutionContext::appController()
   return KDL_CONST_OVERLOAD(appController());
 }
 
-const MapFrame& ActionExecutionContext::frame() const
+const MapWindow& ActionExecutionContext::mapWindow() const
 {
   contract_pre(hasDocument());
 
-  return *m_frame;
+  return *m_mapWindow;
 }
 
-MapFrame& ActionExecutionContext::frame()
+MapWindow& ActionExecutionContext::mapWindow()
 {
-  return KDL_CONST_OVERLOAD(frame());
+  return KDL_CONST_OVERLOAD(mapWindow());
 }
 
-const MapViewBase& ActionExecutionContext::view() const
+const MapViewBase& ActionExecutionContext::mapView() const
 {
   contract_pre(hasDocument());
   contract_pre(m_mapView != nullptr);
@@ -89,24 +89,14 @@ const MapViewBase& ActionExecutionContext::view() const
   return *m_mapView;
 }
 
-MapViewBase& ActionExecutionContext::view()
+MapViewBase& ActionExecutionContext::mapView()
 {
-  return KDL_CONST_OVERLOAD(view());
-}
-
-const MapDocument& ActionExecutionContext::document() const
-{
-  return frame().document();
-}
-
-MapDocument& ActionExecutionContext::document()
-{
-  return KDL_CONST_OVERLOAD(document());
+  return KDL_CONST_OVERLOAD(mapView());
 }
 
 const mdl::Map& ActionExecutionContext::map() const
 {
-  return document().map();
+  return mapWindow().document().map();
 }
 
 mdl::Map& ActionExecutionContext::map()
