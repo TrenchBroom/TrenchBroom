@@ -585,14 +585,6 @@ void ParaxialUVCoordSystem::resetToParallel(
 {
 }
 
-vm::vec2f ParaxialUVCoordSystem::uvCoords(
-  const vm::vec3d& point,
-  const BrushFaceAttributes& attribs,
-  const vm::vec2f& textureSize) const
-{
-  return (computeUVCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
-}
-
 void ParaxialUVCoordSystem::setRotation(
   const vm::vec3d& normal, const float /* oldAngle */, const float newAngle)
 {
