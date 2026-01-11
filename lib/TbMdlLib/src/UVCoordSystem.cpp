@@ -38,6 +38,14 @@ UVCoordSystem::UVCoordSystem() = default;
 
 UVCoordSystem::~UVCoordSystem() = default;
 
+vm::vec2f UVCoordSystem::uvCoords(
+  const vm::vec3d& point,
+  const BrushFaceAttributes& attribs,
+  const vm::vec2f& textureSize) const
+{
+  return (computeUVCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
+}
+
 bool operator==(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
 {
   return lhs.uAxis() == rhs.uAxis() && lhs.vAxis() == rhs.vAxis();
