@@ -144,7 +144,7 @@ protected:
   vm::vec2f computeUVCoords(const vm::vec3d& point, const vm::vec2f& scale) const;
 
   template <typename T>
-  T safeScale(const T value) const
+  static T safeScale(const T value)
   {
     return vm::is_equal(value, T(0.0), vm::constants<T>::almost_zero())
              ? static_cast<T>(1.0)
@@ -152,7 +152,7 @@ protected:
   }
 
   template <typename T1, typename T2>
-  vm::vec<T1, 3> safeScaleAxis(const vm::vec<T1, 3>& axis, const T2 factor) const
+  static vm::vec<T1, 3> safeScaleAxis(const vm::vec<T1, 3>& axis, const T2 factor)
   {
     return axis / safeScale(T1(factor));
   }
