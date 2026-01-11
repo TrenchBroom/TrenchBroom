@@ -1304,6 +1304,38 @@ To unlink a linked group, select the group and choose #menu(Menu/Edit/Separate L
 
 Note that if you remove all members of a set of linked groups, either by separation or by deleting them, the single remaining member of the set will become a regular group.
 
+### Extracting Objects Into New Linked Groups {#extracting_linked_groups}
+
+When a linked group is opened, select a few (but not all) objects in that group and choose #menu(Menu/Edit/Extract Linked Groups) to extract the selected object into a new, separate linked group. The objects are removed from the currently opened linked group and added to a new linked group. The same will happen to the linked copies of these objects in the other linked groups. Consider the following example:
+
+```
+Linked Group A
+- Entity 1
+- Brush 2
+- Brush 3
+Linked Group B
+- Entity 1
+- Brush 2
+- Brush 3
+```
+
+With group A open and Entity 1 and Brush 2 selected, extracting these objects will result in the following structure:
+
+```
+Linked Group A
+- Brush 3
+Linked Group B
+- Brush 3
+Linked Group X
+- Entity 1
+- Brush 2
+Linked Group Y
+- Entity 1
+- Brush 2
+```
+
+Thereby, groups A and B remain linked and groups X and Y are also linked.
+
 ### Visualization {#linked_group_visualization}
 
 ![Linked Groups in 3D view (macOS)](images/LinkedGroups.png)

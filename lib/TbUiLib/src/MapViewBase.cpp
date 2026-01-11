@@ -1206,6 +1206,7 @@ void MapViewBase::showPopupMenuLater()
   addMainMenuAction("Menu/Edit/Create Linked Duplicate");
   addMainMenuAction("Menu/Edit/Select Linked Groups");
   addMainMenuAction("Menu/Edit/Separate Linked Groups");
+  addMainMenuAction("Menu/Edit/Extract Linked Groups");
   menu.addSeparator();
 
   // Layer operations
