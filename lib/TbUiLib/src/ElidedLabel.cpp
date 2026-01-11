@@ -55,7 +55,7 @@ void ElidedLabel::setText(const QString& text)
 
 void ElidedLabel::updateElidedText(const int width)
 {
-  m_elidedText = fontMetrics().elidedText(m_fullText, m_elideMode, width);
+  m_elidedText = m_label->fontMetrics().elidedText(m_fullText, m_elideMode, width);
   m_label->setText(m_elidedText);
   if (m_elidedText.length() < m_fullText.length())
   {
