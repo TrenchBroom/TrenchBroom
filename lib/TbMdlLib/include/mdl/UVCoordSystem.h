@@ -82,10 +82,10 @@ public:
   virtual void resetToParaxial(const vm::vec3d& normal, float angle) = 0;
   virtual void resetToParallel(const vm::vec3d& normal, float angle) = 0;
 
-  virtual vm::vec2f uvCoords(
+  vm::vec2f uvCoords(
     const vm::vec3d& point,
     const BrushFaceAttributes& attribs,
-    const vm::vec2f& textureSize) const = 0;
+    const vm::vec2f& textureSize) const;
 
   virtual void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) = 0;
   virtual void transform(

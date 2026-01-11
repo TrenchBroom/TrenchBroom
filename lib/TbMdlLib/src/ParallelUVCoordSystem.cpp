@@ -193,14 +193,6 @@ void ParallelUVCoordSystem::resetToParallel(const vm::vec3d& normal, float angle
   std::tie(m_uAxis, m_vAxis) = applyRotation(uAxis(), vAxis(), normal, double(angle));
 }
 
-vm::vec2f ParallelUVCoordSystem::uvCoords(
-  const vm::vec3d& point,
-  const BrushFaceAttributes& attribs,
-  const vm::vec2f& textureSize) const
-{
-  return (computeUVCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
-}
-
 /**
  * Rotates from `oldAngle` to `newAngle`. Both of these are in CCW degrees about
  * the texture normal (`getZAxis()`). The provided `normal` is ignored.

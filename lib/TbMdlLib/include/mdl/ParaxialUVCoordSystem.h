@@ -73,11 +73,6 @@ public:
   void resetToParaxial(const vm::vec3d& normal, float angle) override;
   void resetToParallel(const vm::vec3d& normal, float angle) override;
 
-  vm::vec2f uvCoords(
-    const vm::vec3d& point,
-    const BrushFaceAttributes& attribs,
-    const vm::vec2f& textureSize) const override;
-
   void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) override;
   void transform(
     const vm::plane3d& oldBoundary,
