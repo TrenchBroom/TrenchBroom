@@ -65,7 +65,7 @@ private:
   std::optional<std::filesystem::path> m_iconPath;
   std::optional<QString> m_statusTip;
 
-  bool m_isMenuAction;
+  bool m_isMenuAction = false;
 
 public:
   Action(
