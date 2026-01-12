@@ -180,6 +180,7 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   createToolBar();
   createStatusBar();
 
+  updateTitle();
   updateShortcuts();
   updateActionState();
   updateUndoRedoActions();
