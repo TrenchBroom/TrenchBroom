@@ -36,13 +36,35 @@ class KeyboardShortcutModel : public QAbstractTableModel
 {
   Q_OBJECT
 private:
-  struct ActionInfo
+  enum class ActionInfoType
   {
+    Menu,
+    View,
+    Tag,
+    EntityDefinition,
+  };
+
+  class ActionInfo
+  {
+  private:
+    ActionInfoType m_type;
+
     /**
      * Path displayed to the user, unrelated to the preference path.
      */
-    const std::filesystem::path displayPath;
-    Action& action;
+    std::filesystem::path m_displayPath;
+    Action* m_action;
+
+  public:
+    ActionInfo(ActionInfoType type, std::filesystem::path displayPath, Action& action);
+
+    const std::filesystem::path& displayPath() const;
+
+    const Action& action() const;
+    Action& action();
+
+    std::strong_ordering operator<=>(const ActionInfo& other) const;
+    bool operator==(const ActionInfo& other) const;
   };
 
   ActionManager& m_actionManager;
