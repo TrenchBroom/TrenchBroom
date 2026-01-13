@@ -27,6 +27,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
@@ -410,6 +411,83 @@ bool canSeparateSelectedLinkedGroups(const Map& map)
                 return !linkedGroupNode->selected();
               });
   });
+}
+
+std::vector<GroupNode*> extractLinkedGroups(Map& map)
+{
+  contract_assert(canExtractLinkedGroups(map));
+
+  auto* oldGroupNode = map.editorContext().currentGroup();
+  contract_assert(oldGroupNode != nullptr);
+
+  const auto nodesToExtract = map.selection().nodes;
+
+  auto transaction = Transaction{map, "Split Linked Groups"};
+  deselectAll(map);
+  closeGroup(map);
+  reparentNodes(map, {{oldGroupNode->parent(), nodesToExtract}});
+  selectNodes(map, nodesToExtract);
+
+  auto* newGroupNode = groupSelectedNodes(map, oldGroupNode->name());
+  auto newGroupNodes = std::vector<GroupNode*>{newGroupNode};
+
+  auto otherOldGroupNodes =
+    collectGroupsWithLinkId({&map.worldNode()}, oldGroupNode->linkId())
+    | std::views::filter(
+      [&](const auto* groupNode) { return groupNode != oldGroupNode; });
+
+  const auto inverseTransform = vm::invert(oldGroupNode->group().transformation());
+  contract_assert(inverseTransform != std::nullopt);
+
+  for (const auto* otherOldGroupNode : otherOldGroupNodes)
+  {
+    deselectAll(map);
+    selectNodes(map, {newGroupNode});
+
+    auto* linkedGroupNode = createLinkedDuplicate(map);
+    newGroupNodes.push_back(linkedGroupNode);
+
+    deselectAll(map);
+    selectNodes(map, {linkedGroupNode});
+
+    transformSelection(
+      map,
+      "Transform linked group",
+      otherOldGroupNode->group().transformation() * *inverseTransform);
+  }
+
+  deselectAll(map);
+  selectNodes(map, {newGroupNode});
+
+  setHasPendingChanges({oldGroupNode}, true);
+  transaction.commit();
+
+  return newGroupNodes;
+}
+
+bool canExtractLinkedGroups(const Map& map)
+{
+  if (map.selection().nodes.empty())
+  {
+    return false;
+  }
+
+  const auto containingGroups = collectContainingGroups(map.selection().nodes);
+  if (containingGroups.size() != 1)
+  {
+    return false;
+  }
+
+  const auto& containingGroup = *containingGroups.front();
+  if (containingGroup.childSelectionCount() == containingGroup.childCount())
+  {
+    return false;
+  }
+
+  return collectGroupsWithLinkId(
+           {const_cast<WorldNode*>(&map.worldNode())}, containingGroup.linkId())
+           .size()
+         > 1;
 }
 
 bool canUpdateLinkedGroups(const std::vector<Node*>& nodes)

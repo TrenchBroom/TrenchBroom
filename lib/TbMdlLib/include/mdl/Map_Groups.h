@@ -53,6 +53,21 @@ GroupNode* createLinkedDuplicate(Map& map);
 void separateSelectedLinkedGroups(Map& map, bool relinkGroups = true);
 bool canSeparateSelectedLinkedGroups(const Map& map);
 
+/**
+ * Extracts the selected objects out of the containing linked group and creates new groups
+ * for the extracted objects.
+ *
+ * Suppose there are two linked groups A and B, and A is open, and some (but not all)
+ * objects in A are selected. Then this function will remove these objects from A and
+ * their linked duplicates from B. New linked groups A' and B' are then created that have
+ * the same transformations as A and B, respectively, and contain only the previously
+ * removed objects.
+ *
+ * Returns the newly created linked groups.
+ */
+std::vector<GroupNode*> extractLinkedGroups(Map& map);
+bool canExtractLinkedGroups(const Map& map);
+
 bool canUpdateLinkedGroups(const std::vector<Node*>& nodes);
 
 void setHasPendingChanges(

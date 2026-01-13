@@ -30,6 +30,7 @@
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Layers.h"
 #include "mdl/Map_Nodes.h"
@@ -836,6 +837,117 @@ TEST_CASE("Map_Groups")
 
         // the change was propagated to linkedGroupNode:
         CHECK_THAT(*linkedGroupNode, MatchesNode(*groupNode));
+      }
+    }
+  }
+
+  SECTION("extractLinkedGroups")
+  {
+    auto* ungroupedNode = new EntityNode{Entity{}};
+    auto* groupedBrushNode = createBrushNode(map);
+    auto* groupedEntityNode = new EntityNode{Entity{}};
+    addNodes(
+      map, {{parentForNodes(map), {groupedBrushNode, groupedEntityNode, ungroupedNode}}});
+    selectNodes(map, {groupedBrushNode, groupedEntityNode});
+
+    auto* groupNode = groupSelectedNodes(map, "original group");
+    REQUIRE(groupNode != nullptr);
+
+    const auto originalGroupLinkId = groupNode->linkId();
+    const auto originalBrushLinkId = groupedBrushNode->linkId();
+    const auto originalEntityLinkId = groupedEntityNode->linkId();
+
+    deselectAll(map);
+
+    SECTION("When nothing is selected")
+    {
+      CHECK_FALSE(canExtractLinkedGroups(map));
+    }
+
+    SECTION("When the selection isn't grouped")
+    {
+      selectNodes(map, {ungroupedNode});
+      CHECK_FALSE(canExtractLinkedGroups(map));
+    }
+
+    SECTION("Extracting from a group that isn't linked")
+    {
+      openGroup(map, *groupNode);
+      selectNodes(map, {groupedBrushNode});
+
+      CHECK_FALSE(canExtractLinkedGroups(map));
+    }
+
+    SECTION("When the group is linked")
+    {
+      selectNodes(map, {groupNode});
+
+      auto* linkedGroupNode = createLinkedDuplicate(map);
+      REQUIRE(linkedGroupNode != nullptr);
+      REQUIRE_THAT(*linkedGroupNode, MatchesNode(*groupNode));
+
+      auto* linkedBrushNode = dynamic_cast<BrushNode*>(linkedGroupNode->children()[0]);
+      REQUIRE(linkedBrushNode != nullptr);
+      REQUIRE(linkedBrushNode->linkId() == groupedBrushNode->linkId());
+
+      auto* linkedEntityNode = dynamic_cast<EntityNode*>(linkedGroupNode->children()[1]);
+      REQUIRE(linkedEntityNode != nullptr);
+      REQUIRE(linkedEntityNode->linkId() == groupedEntityNode->linkId());
+
+      deselectAll(map);
+
+      SECTION("Extracting all nodes in a group")
+      {
+        openGroup(map, *groupNode);
+        selectNodes(map, {groupedBrushNode, groupedEntityNode});
+
+        CHECK_FALSE(canExtractLinkedGroups(map));
+      }
+
+      SECTION("Extracting a subset of nodes in a group")
+      {
+        openGroup(map, *groupNode);
+        selectNodes(map, {groupedEntityNode});
+
+        REQUIRE(canExtractLinkedGroups(map));
+
+        const auto newGroupNodes = extractLinkedGroups(map);
+        REQUIRE(newGroupNodes.size() == 2);
+        CHECK_THAT(*newGroupNodes[0], MatchesNode(*newGroupNodes[1]));
+        CHECK_THAT(*linkedGroupNode, MatchesNode(*groupNode));
+
+        CHECK(newGroupNodes[0]->children() == std::vector<Node*>{groupedEntityNode});
+        CHECK(groupedEntityNode->parent() == newGroupNodes[0]);
+      }
+
+      SECTION("Objects are transformed correctly")
+      {
+        selectNodes(map, {groupNode});
+        translateSelection(map, {16, 0, 0});
+        deselectAll(map);
+
+        selectNodes(map, {linkedGroupNode});
+        translateSelection(map, {0, 16, 0});
+        deselectAll(map);
+
+        openGroup(map, *groupNode);
+        selectNodes(map, {groupedEntityNode});
+
+        const auto originalEntityPosition = groupedEntityNode->entity().origin();
+        const auto originalLinkedEntityPosition = linkedEntityNode->entity().origin();
+
+        REQUIRE(canExtractLinkedGroups(map));
+
+        const auto newGroupNodes = extractLinkedGroups(map);
+        REQUIRE(newGroupNodes.size() == 2);
+        REQUIRE(newGroupNodes[0]->children() == std::vector<Node*>{groupedEntityNode});
+
+        const auto* newLinkedEntityNode =
+          dynamic_cast<EntityNode*>(newGroupNodes[1]->children().front());
+        REQUIRE(newLinkedEntityNode != nullptr);
+
+        CHECK(groupedEntityNode->entity().origin() == originalEntityPosition);
+        CHECK(newLinkedEntityNode->entity().origin() == originalLinkedEntityPosition);
       }
     }
   }
