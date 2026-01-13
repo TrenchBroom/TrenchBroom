@@ -25,6 +25,7 @@
 #include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/GameConfig.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LockState.h"
@@ -33,7 +34,6 @@
 #include "mdl/TestUtils.h"
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
-#include "mdl/GameConfig.h"
 
 #include "kd/result.h"
 #include "kd/task_manager.h"

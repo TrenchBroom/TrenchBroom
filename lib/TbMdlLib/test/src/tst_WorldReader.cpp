@@ -1399,7 +1399,8 @@ common/caulk
     const auto file = fs::Disk::openFile(mapPath) | kdl::value();
     auto fileReader = file->reader().buffer();
 
-    auto worldReader = WorldReader{{}, fileReader.stringView(), mdl::MapFormat::Quake2, {}};
+    auto worldReader =
+      WorldReader{{}, fileReader.stringView(), mdl::MapFormat::Quake2, {}};
     auto worldResult = worldReader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 

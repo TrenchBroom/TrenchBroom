@@ -26,8 +26,8 @@
 #include "mdl/LoadM8Texture.h"
 #include "mdl/LoadMipTexture.h"
 #include "mdl/LoadShaders.h"
-#include "mdl/LoadWalTexture.h"
 #include "mdl/LoadSwlTexture.h"
+#include "mdl/LoadWalTexture.h"
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 

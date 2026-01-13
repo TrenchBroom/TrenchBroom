@@ -76,32 +76,32 @@ private:
   QWidget* m_surfaceSiNNonlitValueEditorLayout = nullptr;
   SpinControl* m_surfaceSiNNonlitValueEditor = nullptr;
   QAbstractButton* m_surfaceSiNNonlitValueUnsetButton = nullptr;
-  
+
   QLabel* m_surfaceSiNTransAngleLabel = nullptr;
   QWidget* m_surfaceSiNTransAngleEditorLayout = nullptr;
   SpinControl* m_surfaceSiNTransAngleEditor = nullptr;
   QAbstractButton* m_surfaceSiNTransAngleUnsetButton = nullptr;
-  
+
   QLabel* m_surfaceSiNTransMagLabel = nullptr;
   QWidget* m_surfaceSiNTransMagEditorLayout = nullptr;
   SpinControl* m_surfaceSiNTransMagEditor = nullptr;
   QAbstractButton* m_surfaceSiNTransMagUnsetButton = nullptr;
-  
+
   QLabel* m_surfaceSiNTranslucenceLabel = nullptr;
   QWidget* m_surfaceSiNTranslucenceEditorLayout = nullptr;
   SpinControl* m_surfaceSiNTranslucenceEditor = nullptr;
   QAbstractButton* m_surfaceSiNTranslucenceUnsetButton = nullptr;
-  
+
   QLabel* m_surfaceSiNRestitutionLabel = nullptr;
   QWidget* m_surfaceSiNRestitutionEditorLayout = nullptr;
   SpinControl* m_surfaceSiNRestitutionEditor = nullptr;
   QAbstractButton* m_surfaceSiNRestitutionUnsetButton = nullptr;
-  
+
   QLabel* m_surfaceSiNFrictionLabel = nullptr;
   QWidget* m_surfaceSiNFrictionEditorLayout = nullptr;
   SpinControl* m_surfaceSiNFrictionEditor = nullptr;
   QAbstractButton* m_surfaceSiNFrictionUnsetButton = nullptr;
-  
+
   QLabel* m_surfaceSiNAnimTimeLabel = nullptr;
   QWidget* m_surfaceSiNAnimTimeEditorLayout = nullptr;
   SpinControl* m_surfaceSiNAnimTimeEditor = nullptr;
@@ -111,12 +111,12 @@ private:
   QWidget* m_surfaceSiNDirectStyleEditorLayout = nullptr;
   QLineEdit* m_surfaceSiNDirectStyleEditor = nullptr;
   QAbstractButton* m_surfaceSiNDirectStyleUnsetButton = nullptr;
-  
+
   QLabel* m_surfaceSiNDirectLabel = nullptr;
   QWidget* m_surfaceSiNDirectEditorLayout = nullptr;
   SpinControl* m_surfaceSiNDirectEditor = nullptr;
   QAbstractButton* m_surfaceSiNDirectUnsetButton = nullptr;
-  
+
   QLabel* m_surfaceSiNDirectAngleLabel = nullptr;
   QWidget* m_surfaceSiNDirectAngleEditorLayout = nullptr;
   SpinControl* m_surfaceSiNDirectAngleEditor = nullptr;

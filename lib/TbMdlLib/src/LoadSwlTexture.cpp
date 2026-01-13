@@ -106,13 +106,14 @@ Result<gl::Texture> loadSwlTexture(fs::Reader& reader)
 
                  for (uint32_t i = 0; i < rgbaImage.size() / 4; i++)
                  {
-                     uint32_t &c = ((uint32_t *) (rgbaImage.data()))[i];
+                   uint32_t& c = ((uint32_t*)(rgbaImage.data()))[i];
 
-                     // transparency
-                     if (c == 0xFFFF00FF) {
-                         has_transparency = true;
-                         c = 0;
-                     }
+                   // transparency
+                   if (c == 0xFFFF00FF)
+                   {
+                     has_transparency = true;
+                     c = 0;
+                   }
                  }
                  buffers.emplace_back(std::move(rgbaImage));
 
@@ -138,4 +139,4 @@ Result<gl::Texture> loadSwlTexture(fs::Reader& reader)
   }
 }
 
-} // namespace tb::io
+} // namespace tb::mdl

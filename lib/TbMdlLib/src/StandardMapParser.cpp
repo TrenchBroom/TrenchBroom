@@ -628,89 +628,139 @@ void StandardMapParser::parseSiNData(ParserStatus&, mdl::BrushFaceAttributes& at
 
     if (lhs.data()[0] == '-')
     {
-      //throw ParserException{m_tokenizer.location(), fmt::format("SiN formatted map has subtractive flags; this is not currently supported")};
-        continue;
+      // throw ParserException{m_tokenizer.location(), fmt::format("SiN formatted map has
+      // subtractive flags; this is not currently supported")};
+      continue;
     }
     if (lhs.data()[0] == '+')
     {
       auto flag = std::string_view{lhs.data()}.substr(1);
       bool found = false;
 
-      for (auto &contentflag : m_config.faceAttribsConfig.contentFlags.flags) {
-          if (contentflag.name == flag) {
-              attribs.setSurfaceContents(attribs.surfaceContents().value_or(0) | contentflag.value);
-              found = true;
-              break;
-          }
+      for (auto& contentflag : m_config.faceAttribsConfig.contentFlags.flags)
+      {
+        if (contentflag.name == flag)
+        {
+          attribs.setSurfaceContents(
+            attribs.surfaceContents().value_or(0) | contentflag.value);
+          found = true;
+          break;
+        }
       }
 
-      if (!found) {
-          for (auto &surfaceflag : m_config.faceAttribsConfig.surfaceFlags.flags) {
-              if (surfaceflag.name == flag) {
-                  attribs.setSurfaceFlags(attribs.surfaceFlags().value_or(0) | surfaceflag.value);
-              found = true;
-                  break;
-              }
+      if (!found)
+      {
+        for (auto& surfaceflag : m_config.faceAttribsConfig.surfaceFlags.flags)
+        {
+          if (surfaceflag.name == flag)
+          {
+            attribs.setSurfaceFlags(
+              attribs.surfaceFlags().value_or(0) | surfaceflag.value);
+            found = true;
+            break;
           }
+        }
       }
 
-      if (!found) {
-          for (auto &extflag : m_config.faceAttribsConfig.extendedFlags.flags) {
-              if (extflag.name == flag) {
-                  attribs.setExtendedFlags(attribs.extendedFlags().value_or(0) | extflag.value);
-                  break;
-              }
+      if (!found)
+      {
+        for (auto& extflag : m_config.faceAttribsConfig.extendedFlags.flags)
+        {
+          if (extflag.name == flag)
+          {
+            attribs.setExtendedFlags(attribs.extendedFlags().value_or(0) | extflag.value);
+            break;
           }
+        }
       }
       continue;
     }
-    
-    if (lhs.data() == "animtime") {
-        attribs.setSiNAnimTime(parseFloat());
-    } else if (lhs.data() == "friction") {
-        attribs.setSiNFriction(parseFloat());
-    } else if (lhs.data() == "restitution") {
-        attribs.setSiNRestitution(parseFloat());
-    } else if (lhs.data() == "direct") {
-        attribs.setSiNDirect(parseFloat());
-    } else if (lhs.data() == "directangle") {
-        attribs.setSiNDirectAngle(parseFloat());
-    } else if (lhs.data() == "translucence") {
-        attribs.setSiNTranslucence(parseFloat());
-    } else if (lhs.data() == "trans_mag") {
-        attribs.setSiNTransMag(parseFloat());
-    } else if (lhs.data() == "trans_angle") {
-        attribs.setSiNTransAngle((int) parseFloat());
-    } else if (lhs.data() == "color") {
-        const auto r = vm::clamp((int) (parseFloat() * 255.0f), 0, 255);
-        const auto g = vm::clamp((int) (parseFloat() * 255.0f), 0, 255);
-        const auto b = vm::clamp((int) (parseFloat() * 255.0f), 0, 255);
-        attribs.setColor(RgbB{
-          static_cast<unsigned char>(r),
-          static_cast<unsigned char>(g),
-          static_cast<unsigned char>(b),
-        });
-    } else if (lhs.data() == "lightvalue") {
-        attribs.setSurfaceValue(parseFloat());
-    } else if (lhs.data() == "nonlitvalue") {
-        attribs.setSiNNonlitValue(parseFloat());
-    } else if (lhs.data() == "directstyle") {
-        auto rhs = m_tokenizer.nextToken(QuakeMapToken::String);
-        attribs.setSiNDirectStyle(rhs.data());
-    } else if (lhs.data() == "ext_directscale") {
-        attribs.setSiNExtDirectScale(parseFloat());
-    } else if (lhs.data() == "ext_patchscale") {
-        attribs.setSiNExtPatchScale(parseFloat());
-    } else if (lhs.data() == "ext_minlight") {
-        attribs.setSiNExtMinLight(parseFloat());
-    } else if (lhs.data() == "ext_maxlight") {
-        attribs.setSiNExtMaxLight(parseFloat());
-    } else if (lhs.data() == "ext_luxel_scale") {
-        attribs.setSiNExtLuxelScale(parseFloat());
-    } else if (lhs.data() == "ext_mottle") {
-        attribs.setSiNExtMottle(parseFloat());
-    } else {
-        throw ParserException(m_tokenizer.location(), fmt::format("unknown SiN named face attribute \"{}\"", lhs.data()));
+
+    if (lhs.data() == "animtime")
+    {
+      attribs.setSiNAnimTime(parseFloat());
+    }
+    else if (lhs.data() == "friction")
+    {
+      attribs.setSiNFriction(parseFloat());
+    }
+    else if (lhs.data() == "restitution")
+    {
+      attribs.setSiNRestitution(parseFloat());
+    }
+    else if (lhs.data() == "direct")
+    {
+      attribs.setSiNDirect(parseFloat());
+    }
+    else if (lhs.data() == "directangle")
+    {
+      attribs.setSiNDirectAngle(parseFloat());
+    }
+    else if (lhs.data() == "translucence")
+    {
+      attribs.setSiNTranslucence(parseFloat());
+    }
+    else if (lhs.data() == "trans_mag")
+    {
+      attribs.setSiNTransMag(parseFloat());
+    }
+    else if (lhs.data() == "trans_angle")
+    {
+      attribs.setSiNTransAngle((int)parseFloat());
+    }
+    else if (lhs.data() == "color")
+    {
+      const auto r = vm::clamp((int)(parseFloat() * 255.0f), 0, 255);
+      const auto g = vm::clamp((int)(parseFloat() * 255.0f), 0, 255);
+      const auto b = vm::clamp((int)(parseFloat() * 255.0f), 0, 255);
+      attribs.setColor(RgbB{
+        static_cast<unsigned char>(r),
+        static_cast<unsigned char>(g),
+        static_cast<unsigned char>(b),
+      });
+    }
+    else if (lhs.data() == "lightvalue")
+    {
+      attribs.setSurfaceValue(parseFloat());
+    }
+    else if (lhs.data() == "nonlitvalue")
+    {
+      attribs.setSiNNonlitValue(parseFloat());
+    }
+    else if (lhs.data() == "directstyle")
+    {
+      auto rhs = m_tokenizer.nextToken(QuakeMapToken::String);
+      attribs.setSiNDirectStyle(rhs.data());
+    }
+    else if (lhs.data() == "ext_directscale")
+    {
+      attribs.setSiNExtDirectScale(parseFloat());
+    }
+    else if (lhs.data() == "ext_patchscale")
+    {
+      attribs.setSiNExtPatchScale(parseFloat());
+    }
+    else if (lhs.data() == "ext_minlight")
+    {
+      attribs.setSiNExtMinLight(parseFloat());
+    }
+    else if (lhs.data() == "ext_maxlight")
+    {
+      attribs.setSiNExtMaxLight(parseFloat());
+    }
+    else if (lhs.data() == "ext_luxel_scale")
+    {
+      attribs.setSiNExtLuxelScale(parseFloat());
+    }
+    else if (lhs.data() == "ext_mottle")
+    {
+      attribs.setSiNExtMottle(parseFloat());
+    }
+    else
+    {
+      throw ParserException(
+        m_tokenizer.location(),
+        fmt::format("unknown SiN named face attribute \"{}\"", lhs.data()));
     }
   }
 
@@ -753,7 +803,7 @@ void StandardMapParser::parseSiNValveFace(ParserStatus& status)
   attribs.setYScale(parseFloat());
 
   parseSiNData(status, attribs);
-  
+
   onValveBrushFace(
     location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }

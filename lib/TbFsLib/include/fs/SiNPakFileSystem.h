@@ -35,4 +35,4 @@ private:
   Result<void> doReadDirectory() override;
 };
 
-} // namespace tb::io
+} // namespace tb::fs

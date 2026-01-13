@@ -77,4 +77,4 @@ Result<void> SiNPakFileSystem::doReadDirectory()
   }
 }
 
-} // namespace tb::io
+} // namespace tb::fs

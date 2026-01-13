@@ -52,7 +52,10 @@ private:
 
 public:
   NodeWriter(const GameConfig& game, const WorldNode& world, std::ostream& stream);
-  NodeWriter(const GameConfig& game, const WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
+  NodeWriter(
+    const GameConfig& game,
+    const WorldNode& world,
+    std::unique_ptr<NodeSerializer> serializer);
   ~NodeWriter();
 
   void setExporting(bool exporting);

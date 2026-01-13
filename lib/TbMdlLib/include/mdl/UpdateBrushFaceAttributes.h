@@ -127,7 +127,7 @@ struct UpdateBrushFaceAttributes
   std::optional<std::optional<std::string>> sinDirectStyle = std::nullopt;
   std::optional<std::optional<float>> sinDirect = std::nullopt;
   std::optional<std::optional<float>> sinDirectAngle = std::nullopt;
-  
+
   std::optional<std::optional<float>> sinExtDirectScale = std::nullopt;
   std::optional<std::optional<float>> sinExtPatchScale = std::nullopt;
   std::optional<std::optional<float>> sinExtMinLight = std::nullopt;
@@ -160,13 +160,13 @@ struct UpdateBrushFaceAttributes
     sinDirectStyle,
     sinDirect,
     sinDirectAngle,
-      sinExtDirectScale,
-      sinExtPatchScale,
-      sinExtMinLight,
-      sinExtMaxLight,
-      sinExtLuxelScale,
-      sinExtMottle,
-      extendedFlags);
+    sinExtDirectScale,
+    sinExtPatchScale,
+    sinExtMinLight,
+    sinExtMaxLight,
+    sinExtLuxelScale,
+    sinExtMottle,
+    extendedFlags);
 };
 
 UpdateBrushFaceAttributes copyAll(const BrushFaceAttributes& attributes);

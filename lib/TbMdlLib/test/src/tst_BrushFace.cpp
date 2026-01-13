@@ -26,9 +26,9 @@
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/GameInfo.h"
 #include "mdl/MapFormat.h"
 #include "mdl/NodeReader.h"
-#include "mdl/GameInfo.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/Polyhedron.h"
@@ -657,7 +657,7 @@ TEST_CASE("BrushFace")
 
     auto status = TestParserStatus{};
     auto nodes =
-        NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
@@ -721,7 +721,7 @@ TEST_CASE("BrushFace")
     auto status = TestParserStatus{};
 
     auto nodes =
-        NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
@@ -798,7 +798,7 @@ TEST_CASE("BrushFace")
     auto status = TestParserStatus{};
 
     auto nodes =
-        NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
@@ -889,7 +889,7 @@ TEST_CASE("BrushFace")
     auto status = TestParserStatus{};
 
     auto nodes =
-        NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      NodeReader::read({}, data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));

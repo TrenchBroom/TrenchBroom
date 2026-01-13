@@ -38,8 +38,7 @@ namespace mdl
 /**
  * SiN .swl format
  */
-Result<gl::Texture> loadSwlTexture(
-  fs::Reader& reader);
+Result<gl::Texture> loadSwlTexture(fs::Reader& reader);
 
 } // namespace mdl
 } // namespace tb

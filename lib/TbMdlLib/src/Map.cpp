@@ -185,8 +185,8 @@ Result<std::unique_ptr<WorldNode>> loadWorldNode(
                taskManager);
            }
 
-           auto worldReader =
-             WorldReader{config, fileReader.stringView(), mapFormat, entityPropertyConfig};
+           auto worldReader = WorldReader{
+             config, fileReader.stringView(), mapFormat, entityPropertyConfig};
            return worldReader.read(worldBounds, parserStatus, taskManager);
          });
 }

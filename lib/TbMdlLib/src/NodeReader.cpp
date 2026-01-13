@@ -36,7 +36,7 @@ namespace tb::mdl
 {
 
 NodeReader::NodeReader(
-  const mdl::GameConfig &config,
+  const mdl::GameConfig& config,
   const std::string_view str,
   const MapFormat sourceMapFormat,
   const MapFormat targetMapFormat,
@@ -94,7 +94,7 @@ Result<std::vector<Node*>> NodeReader::read(
 Result<std::vector<Node*>> NodeReader::readAsFormat(
   const MapFormat sourceMapFormat,
   const MapFormat targetMapFormat,
-  const mdl::GameConfig &config,
+  const mdl::GameConfig& config,
   const std::string& str,
   const vm::bbox3d& worldBounds,
   const EntityPropertyConfig& entityPropertyConfig,
@@ -115,8 +115,8 @@ Result<std::vector<Node*>> NodeReader::readAsFormat(
                + " entities: " + entityReaderError.msg);
              kdl::vec_clear_and_delete(entityReader.m_nodes);
 
-             auto brushReader =
-               NodeReader{config, str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
+             auto brushReader = NodeReader{
+               config, str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
              return brushReader.readBrushes(worldBounds, status, taskManager)
                     | kdl::transform([&]() {
                         status.info(

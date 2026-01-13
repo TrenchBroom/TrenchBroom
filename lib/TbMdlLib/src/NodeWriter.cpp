@@ -92,14 +92,19 @@ void doWriteNodes(
 
 } // namespace
 
-NodeWriter::NodeWriter(const GameConfig& config, const WorldNode& world, std::ostream& stream)
-  : NodeWriter{config, world, MapFileSerializer::create(config, world.mapFormat(), stream)}
+NodeWriter::NodeWriter(
+  const GameConfig& config, const WorldNode& world, std::ostream& stream)
+  : NodeWriter{
+      config, world, MapFileSerializer::create(config, world.mapFormat(), stream)}
 {
 }
 
-NodeWriter::NodeWriter(const GameConfig& config, const WorldNode& world, std::unique_ptr<NodeSerializer> serializer)
-  : m_config{config},
-    m_world{world}
+NodeWriter::NodeWriter(
+  const GameConfig& config,
+  const WorldNode& world,
+  std::unique_ptr<NodeSerializer> serializer)
+  : m_config{config}
+  , m_world{world}
   , m_serializer{std::move(serializer)}
 {
 }

@@ -57,7 +57,8 @@ private:
   std::unordered_map<const Node*, PrecomputedString> m_nodeToPrecomputedString;
 
 public:
-  static std::unique_ptr<NodeSerializer> create(const GameConfig& config, MapFormat format, std::ostream& stream);
+  static std::unique_ptr<NodeSerializer> create(
+    const GameConfig& config, MapFormat format, std::ostream& stream);
 
 protected:
   explicit MapFileSerializer(std::ostream& stream);

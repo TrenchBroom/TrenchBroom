@@ -289,7 +289,8 @@ PasteType paste(Map& map, const std::string& str)
            })
          | kdl::or_else([&](const auto& nodeError) {
              // Try parsing as brush faces
-             auto reader = BrushFaceReader{map.gameInfo().gameConfig, str, map.worldNode().mapFormat()};
+             auto reader = BrushFaceReader{
+               map.gameInfo().gameConfig, str, map.worldNode().mapFormat()};
              return reader.read(map.worldBounds(), parserStatus)
                     | kdl::transform([&](const auto& faces) {
                         return !faces.empty() && pasteBrushFaces(map, faces)

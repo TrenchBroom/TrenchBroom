@@ -42,10 +42,7 @@ class Palette;
 bool canLoadSiNModel(const std::filesystem::path& path, fs::Reader reader);
 
 Result<EntityModelData> loadSiNModel(
-  std::string name,
-  fs::Reader reader,
-  const fs::FileSystem& fs,
-  Logger& logger);
+  std::string name, fs::Reader reader, const fs::FileSystem& fs, Logger& logger);
 
 } // namespace mdl
 } // namespace tb

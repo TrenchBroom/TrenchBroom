@@ -27,7 +27,9 @@ namespace tb::mdl
 {
 
 BrushFaceReader::BrushFaceReader(
-  const GameConfig &config, const std::string_view str, const MapFormat sourceAndTargetMapFormat)
+  const GameConfig& config,
+  const std::string_view str,
+  const MapFormat sourceAndTargetMapFormat)
   : MapReader{config, str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {}}
 {
 }

@@ -65,26 +65,26 @@ private:
   std::optional<Color> m_color;
 
   // SiN stuff
-  std::optional<float> m_nonlitvalue;// = 0.5f;
+  std::optional<float> m_nonlitvalue; // = 0.5f;
   std::optional<int> m_trans_angle;
   std::optional<float> m_trans_mag;
   std::optional<float> m_translucence;
   std::optional<float> m_restitution;
-  std::optional<float> m_friction;// = 1.0f;
-  std::optional<float> m_animtime;// = 0.2f;
-  
+  std::optional<float> m_friction; // = 1.0f;
+  std::optional<float> m_animtime; // = 0.2f;
+
   std::optional<std::string> m_directstyle;
   std::optional<float> m_direct;
   std::optional<float> m_directangle;
 
   // SiN extended
-  std::optional<float> m_ext_directscale;// = 1.0f;
-  std::optional<float> m_ext_patchscale;// = 1.0f;
+  std::optional<float> m_ext_directscale; // = 1.0f;
+  std::optional<float> m_ext_patchscale;  // = 1.0f;
   std::optional<float> m_ext_minlight;
-  std::optional<float> m_ext_maxlight;// = 1.0f;
-  std::optional<float> m_ext_luxel_scale;// = 1.0f;
-  std::optional<float> m_ext_mottle;// = 1.0f;
-  std::optional<int>  m_ext_flags;
+  std::optional<float> m_ext_maxlight;    // = 1.0f;
+  std::optional<float> m_ext_luxel_scale; // = 1.0f;
+  std::optional<float> m_ext_mottle;      // = 1.0f;
+  std::optional<int> m_ext_flags;
 
 public:
   explicit BrushFaceAttributes(std::string_view materialName);
@@ -117,8 +117,7 @@ public:
     m_ext_maxlight,
     m_ext_luxel_scale,
     m_ext_mottle,
-    m_ext_flags
-  );
+    m_ext_flags);
 
   const std::string& materialName() const;
 
@@ -216,7 +215,7 @@ public:
 
   bool hasSiNExtMottle() const;
   const std::optional<float>& sinExtMottle() const;
-  
+
   bool setSiNExtDirectScale(const std::optional<float>& value);
   bool setSiNExtPatchScale(const std::optional<float>& value);
   bool setSiNExtMinLight(const std::optional<float>& value);

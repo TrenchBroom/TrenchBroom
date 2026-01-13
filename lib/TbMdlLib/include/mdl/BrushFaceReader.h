@@ -47,7 +47,8 @@ private:
   std::vector<BrushFace> m_brushFaces;
 
 public:
-  BrushFaceReader(const GameConfig &config, std::string_view str, MapFormat sourceAndTargetMapFormat);
+  BrushFaceReader(
+    const GameConfig& config, std::string_view str, MapFormat sourceAndTargetMapFormat);
 
   Result<std::vector<BrushFace>> read(
     const vm::bbox3d& worldBounds, ParserStatus& status);

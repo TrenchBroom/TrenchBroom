@@ -65,7 +65,7 @@ struct Preference : public PreferenceBase
     , defaultValue{std::move(i_defaultValue)}
   {
   }
-  virtual ~Preference() { }
+  virtual ~Preference() {}
 };
 
 } // namespace tb

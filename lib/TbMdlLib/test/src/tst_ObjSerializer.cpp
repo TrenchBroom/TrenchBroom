@@ -25,12 +25,12 @@
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/ExportOptions.h"
+#include "mdl/GameConfig.h"
 #include "mdl/LayerNode.h"
 #include "mdl/NodeWriter.h"
 #include "mdl/ObjSerializer.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
-#include "mdl/GameConfig.h"
 
 #include "kd/result.h"
 #include "kd/task_manager.h"
@@ -67,7 +67,9 @@ TEST_CASE("ObjSerializer.writeBrush")
     ObjExportOptions{"/some/export/path.obj", ObjMtlPathMode::RelativeToGamePath};
 
   auto writer = NodeWriter{
-    {}, map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
+    {},
+    map,
+    std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
   writer.writeMap(taskManager);
 
   CHECK(objStream.str() == R"(mtllib some_file_name.mtl
@@ -147,7 +149,9 @@ TEST_CASE("ObjSerializer.writePatch")
     ObjExportOptions{"/some/export/path.obj", ObjMtlPathMode::RelativeToGamePath};
 
   auto writer = NodeWriter{
-    {}, map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
+    {},
+    map,
+    std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
   writer.writeMap(taskManager);
 
   CHECK(objStream.str() == R"(mtllib some_file_name.mtl
@@ -440,7 +444,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   material.setAbsolutePath(materialAbsPath);
 
   auto writer = NodeWriter{
-      {}, map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
+    {}, map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
   writer.writeMap(taskManager);
 
   const auto expectedMtl = expectedPath ? fmt::format(

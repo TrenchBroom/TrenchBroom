@@ -30,10 +30,10 @@
 #include "mdl/LoadDkmModel.h"
 #include "mdl/LoadImageSpriteModel.h"
 #include "mdl/LoadMd2Model.h"
-#include "mdl/LoadSiNModel.h"
 #include "mdl/LoadMd3Model.h"
 #include "mdl/LoadMdlModel.h"
 #include "mdl/LoadMdxModel.h"
+#include "mdl/LoadSiNModel.h"
 #include "mdl/LoadSpriteModel.h"
 #include "mdl/Palette.h"
 
@@ -70,7 +70,7 @@ Result<EntityModelData> loadEntityModelData(
   auto file = fs.openFile(path);
 
   if (!file)
-      file = fs.openFile("models/" + path.string());
+    file = fs.openFile("models/" + path.string());
 
   return file | kdl::and_then([&](auto file) -> Result<EntityModelData> {
            auto reader = file->reader().buffer();

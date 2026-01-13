@@ -68,7 +68,9 @@ const EntityDefinition* EntityDefinitionManager::definition(
 {
   if (const auto it = std::ranges::find_if(
         m_definitions,
-        [&](const auto& definition) { return kdl::ci::str_is_equal(definition.name, classname); });
+        [&](const auto& definition) {
+          return kdl::ci::str_is_equal(definition.name, classname);
+        });
       it != m_definitions.end())
   {
     return &*it;

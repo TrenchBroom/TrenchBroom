@@ -102,7 +102,10 @@ public:
    * @param targetMapFormat the format to convert the created objects to
    */
   StandardMapParser(
-    const GameConfig& config, std::string_view str, MapFormat sourceMapFormat, MapFormat targetMapFormat);
+    const GameConfig& config,
+    std::string_view str,
+    MapFormat sourceMapFormat,
+    MapFormat targetMapFormat);
 
   ~StandardMapParser() override;
 

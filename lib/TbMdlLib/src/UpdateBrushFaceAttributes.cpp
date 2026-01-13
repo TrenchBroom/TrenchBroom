@@ -110,15 +110,14 @@ UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFaceAttributes& a
     .sinDirectStyle = attributes.sinDirectStyle(),
     .sinDirect = attributes.sinDirect(),
     .sinDirectAngle = attributes.sinDirectAngle(),
-    
+
     .sinExtDirectScale = attributes.sinExtDirectScale(),
     .sinExtPatchScale = attributes.sinExtPatchScale(),
     .sinExtMinLight = attributes.sinExtMinLight(),
     .sinExtMaxLight = attributes.sinExtMaxLight(),
     .sinExtLuxelScale = attributes.sinExtLuxelScale(),
     .sinExtMottle = attributes.sinExtMottle(),
-    .extendedFlags = replaceFlagsIfSet(attributes.extendedFlags())
-  };
+    .extendedFlags = replaceFlagsIfSet(attributes.extendedFlags())};
 }
 
 UpdateBrushFaceAttributes resetAll(const BrushFaceAttributes& defaultFaceAttributes)
@@ -243,80 +242,65 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
   }
   if (update.sinTransAngle)
   {
-    attributes.setSiNTransAngle(
-      *update.sinTransAngle);
+    attributes.setSiNTransAngle(*update.sinTransAngle);
   }
   if (update.sinTransMag)
   {
-    attributes.setSiNTransMag(
-      *update.sinTransMag);
+    attributes.setSiNTransMag(*update.sinTransMag);
   }
   if (update.sinTranslucence)
   {
-    attributes.setSiNTranslucence(
-      *update.sinTranslucence);
+    attributes.setSiNTranslucence(*update.sinTranslucence);
   }
   if (update.sinRestitution)
   {
-    attributes.setSiNRestitution(
-      *update.sinRestitution);
+    attributes.setSiNRestitution(*update.sinRestitution);
   }
   if (update.sinFriction)
   {
-    attributes.setSiNFriction(
-      *update.sinFriction);
+    attributes.setSiNFriction(*update.sinFriction);
   }
   if (update.sinAnimTime)
   {
-    attributes.setSiNAnimTime(
-      *update.sinAnimTime);
+    attributes.setSiNAnimTime(*update.sinAnimTime);
   }
   if (update.sinDirectStyle)
   {
-    attributes.setSiNDirectStyle(
-      *update.sinDirectStyle);
+    attributes.setSiNDirectStyle(*update.sinDirectStyle);
   }
   if (update.sinDirect)
   {
-    attributes.setSiNDirect(
-      *update.sinDirect);
+    attributes.setSiNDirect(*update.sinDirect);
   }
   if (update.sinDirectAngle)
   {
-    attributes.setSiNDirectAngle(
-      *update.sinDirectAngle);
+    attributes.setSiNDirectAngle(*update.sinDirectAngle);
   }
 
   // SiN extended
   if (update.sinExtDirectScale)
   {
-    attributes.setSiNExtDirectScale(
-      *update.sinExtDirectScale);
+    attributes.setSiNExtDirectScale(*update.sinExtDirectScale);
   }
   if (update.sinExtPatchScale)
   {
-    attributes.setSiNExtPatchScale(
-      *update.sinExtPatchScale);
+    attributes.setSiNExtPatchScale(*update.sinExtPatchScale);
   }
   if (update.sinExtMinLight)
   {
-    attributes.setSiNExtMinLight(
-      *update.sinExtMinLight);
+    attributes.setSiNExtMinLight(*update.sinExtMinLight);
   }
   if (update.sinExtMaxLight)
   {
-    attributes.setSiNExtMaxLight(
-      *update.sinExtMaxLight);
+    attributes.setSiNExtMaxLight(*update.sinExtMaxLight);
   }
   if (update.sinExtLuxelScale)
   {
-    attributes.setSiNExtLuxelScale(
-      *update.sinExtLuxelScale);
+    attributes.setSiNExtLuxelScale(*update.sinExtLuxelScale);
   }
   if (update.sinExtMottle)
   {
-    attributes.setSiNExtMottle(
-      *update.sinExtMottle);
+    attributes.setSiNExtMottle(*update.sinExtMottle);
   }
 
   if (update.extendedFlags)

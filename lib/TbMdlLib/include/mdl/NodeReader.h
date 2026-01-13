@@ -57,8 +57,8 @@ public:
    * @param entityPropertyConfig the entity property config to use
    */
   NodeReader(
-    const mdl::GameConfig &config,
-      std::string_view str,
+    const mdl::GameConfig& config,
+    std::string_view str,
     MapFormat sourceMapFormat,
     MapFormat targetMapFormat,
     const EntityPropertyConfig& entityPropertyConfig);
@@ -76,7 +76,7 @@ private:
   static Result<std::vector<Node*>> readAsFormat(
     MapFormat sourceMapFormat,
     MapFormat targetMapFormat,
-    const mdl::GameConfig &config,
+    const mdl::GameConfig& config,
     const std::string& str,
     const vm::bbox3d& worldBounds,
     const EntityPropertyConfig& entityPropertyConfig,
