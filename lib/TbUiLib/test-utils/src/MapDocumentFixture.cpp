@@ -29,6 +29,45 @@
 namespace tb::ui
 {
 
+Result<std::unique_ptr<MapDocument>> createFixtureDocument(
+  mdl::MapFixtureConfig& config, kdl::task_manager& taskManager)
+{
+  const auto mapFormat = config.mapFormat.value_or(mdl::MapFormat::Standard);
+
+  return MapDocument::createDocument(
+           config.environmentConfig,
+           config.gameInfo,
+           mapFormat,
+           vm::bbox3d{8192.0},
+           taskManager)
+         | kdl::transform([&](auto document) {
+             document->map().setIsCommandCollationEnabled(false);
+             return document;
+           });
+}
+
+Result<std::unique_ptr<MapDocument>> loadFixtureDocument(
+  const std::filesystem::path& path,
+  mdl::MapFixtureConfig& config,
+  kdl::task_manager& taskManager)
+{
+  const auto mapFormat = config.mapFormat.value_or(mdl::MapFormat::Standard);
+
+  return MapDocument::loadDocument(
+           config.environmentConfig,
+           config.gameInfo,
+           mapFormat,
+           vm::bbox3d{8192.0},
+           path,
+           taskManager)
+         | kdl::transform([&](auto document) {
+             document->map().setIsCommandCollationEnabled(false);
+             document->map().processResourcesSync(
+               gl::ProcessContext{false, [](auto, auto) {}});
+             return document;
+           });
+}
+
 MapDocumentFixture::MapDocumentFixture()
   : m_taskManager{createTestTaskManager()}
 {
@@ -40,19 +79,9 @@ MapDocument& MapDocumentFixture::create(mdl::MapFixtureConfig config)
 {
   m_config = std::move(config);
 
-  const auto mapFormat = m_config->mapFormat.value_or(mdl::MapFormat::Standard);
-
   contract_assert(
-    MapDocument::createDocument(
-      m_config->environmentConfig,
-      m_config->gameInfo,
-      mapFormat,
-      vm::bbox3d{8192.0},
-      *m_taskManager)
-    | kdl::transform([&](auto document) {
-        m_document = std::move(document);
-        m_document->map().setIsCommandCollationEnabled(false);
-      })
+    createFixtureDocument(*m_config, *m_taskManager)
+    | kdl::transform([&](auto document) { m_document = std::move(document); })
     | kdl::is_success());
 
   return *m_document;
@@ -65,22 +94,9 @@ MapDocument& MapDocumentFixture::load(
 
   const auto absPath = path.is_absolute() ? path : std::filesystem::current_path() / path;
 
-  const auto mapFormat = m_config->mapFormat.value_or(mdl::MapFormat::Unknown);
-
   contract_assert(
-    MapDocument::loadDocument(
-      m_config->environmentConfig,
-      m_config->gameInfo,
-      mapFormat,
-      vm::bbox3d{8192.0},
-      absPath,
-      *m_taskManager)
-    | kdl::transform([&](auto document) {
-        m_document = std::move(document);
-        m_document->map().setIsCommandCollationEnabled(false);
-        m_document->map().processResourcesSync(
-          gl::ProcessContext{false, [](auto, auto) {}});
-      })
+    loadFixtureDocument(absPath, *m_config, *m_taskManager)
+    | kdl::transform([&](auto document) { m_document = std::move(document); })
     | kdl::is_success());
 
   return *m_document;
