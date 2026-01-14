@@ -39,4 +39,10 @@ TEST_CASE("optional_transform")
   CHECK((std::optional<int>{} | optional_transform(f)) == std::nullopt);
 }
 
+TEST_CASE("optional_value_or")
+{
+  CHECK((std::optional<int>{42} | optional_value_or(43)) == 42);
+  CHECK((std::optional<int>{} | optional_value_or(43)) == 43);
+}
+
 } // namespace kdl
