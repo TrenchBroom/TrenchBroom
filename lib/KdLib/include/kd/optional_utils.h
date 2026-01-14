@@ -86,6 +86,20 @@ constexpr auto operator|(const std::optional<T>& o, const transform_helper<F>& h
   return o ? std::optional{h.f(*o)} : std::nullopt;
 }
 
+// Type acts as a tag to find the correct operator| overload
+template <typename T>
+struct value_or_helper
+{
+  T value;
+};
+
+// This actually does the work
+template <typename T>
+constexpr auto operator|(const std::optional<T>& o, value_or_helper<T> h)
+{
+  return o.value_or(std::move(h.value));
+}
+
 } // namespace detail
 
 template <typename F>
@@ -104,6 +118,12 @@ template <typename F>
 constexpr auto optional_transform(const F& f)
 {
   return detail::transform_helper<F>{f};
+}
+
+template <typename T>
+constexpr auto optional_value_or(T value)
+{
+  return detail::value_or_helper<T>{std::move(value)};
 }
 
 } // namespace kdl
