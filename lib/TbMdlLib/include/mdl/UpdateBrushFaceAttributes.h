@@ -167,6 +167,8 @@ std::ostream& operator<<(std::ostream& lhs, UvSign rhs);
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, UvPolicy uvPolicy);
 UpdateBrushFaceAttributes justify(
   const BrushFace& brushFace, UvAxis uvAxis, UvSign uvSign, UvPolicy uvPolicy);
+UpdateBrushFaceAttributes fit(
+  const BrushFace& brushFace, UvAxis uvAxis, UvPolicy uvPolicy);
 
 void evaluate(
   const UpdateBrushFaceAttributes& updateBrushFaceAttributes, BrushFace& brushFace);
