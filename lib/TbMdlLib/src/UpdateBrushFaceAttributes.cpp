@@ -66,15 +66,14 @@ vm::vec2f toAxis(const UvAxis uvAxis)
   }
 }
 
-auto measureFaceLength(const BrushFace& brushFace, const vm::vec2f& axis)
+auto measureFaceLength(
+  const BrushFace& brushFace, const vm::vec2f& scale, const vm::vec2f& axis)
 {
   const auto coords =
     brushFace.vertices()
     | std::views::transform(
-      [toUV = brushFace.toUVCoordSystemMatrix(
-         vm::vec2f{0, 0}, brushFace.attributes().scale())](const auto* vertex) {
-        return vm::vec2f{toUV * vertex->position()};
-      })
+      [toUV = brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, scale)](
+        const auto* vertex) { return vm::vec2f{toUV * vertex->position()}; })
     | std::views::transform([&](const auto& v) { return vm::dot(v, axis); })
     | kdl::ranges::to<std::vector>();
 
@@ -82,6 +81,37 @@ auto measureFaceLength(const BrushFace& brushFace, const vm::vec2f& axis)
   contract_assert(iMin != iMax);
 
   return *iMax - *iMin;
+}
+
+template <typename T>
+int findClosestPot(const T x)
+{
+  if (x <= T(0))
+  {
+    return 0;
+  }
+
+  const auto lx = std::log2(x);
+  return static_cast<int>(std::round(lx));
+}
+
+template <typename T>
+T findNextScaleFactor(const T f, const UvPolicy uvPolicy)
+{
+  const auto closestPot = findClosestPot(f);
+  const auto closestPotScale = std::pow(T(2), T(closestPot));
+
+  const auto exactMatch =
+    vm::is_equal(f, closestPotScale, vm::constants<T>::almost_zero());
+  switch (uvPolicy)
+  {
+  case UvPolicy::best:
+    return T(1);
+  case UvPolicy::next:
+    return exactMatch ? std::pow(T(2), T(closestPot + 1)) : T(1);
+  case UvPolicy::prev:
+    return exactMatch ? std::pow(T(2), T(closestPot - 1)) : T(1);
+  }
 }
 
 void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
@@ -347,7 +377,8 @@ UpdateBrushFaceAttributes justify(
   // if the texture length is a multiple of the face length, we can cycle through
   // different offsets corresponding to the integer divisor
   const auto textureLength = vm::dot(brushFace.textureSize(), axis);
-  const auto faceLength = measureFaceLength(brushFace, axis);
+  const auto faceLength =
+    measureFaceLength(brushFace, brushFace.attributes().scale(), axis);
   const auto subDiv =
     vm::is_equal(std::fmod(textureLength, faceLength), 0.0f, vm::Cf::almost_zero())
       ? size_t(std::round(textureLength / faceLength))
@@ -397,6 +428,31 @@ UpdateBrushFaceAttributes justify(
   }
 }
 
+UpdateBrushFaceAttributes fit(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto distance = measureFaceLength(brushFace, vm::vec2f{1, 1}, axis);
+  const auto length = vm::dot(brushFace.textureSize(), axis);
+
+  const auto currentScale = vm::dot(brushFace.attributes().scale(), axis);
+  const auto currentFactor = currentScale * length / distance;
+  const auto nextFactor = findNextScaleFactor(currentFactor, uvPolicy);
+  const auto value = nextFactor * distance / length;
+
+
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return {
+      .xScale = SetValue{value},
+    };
+  case UvAxis::v:
+    return {
+      .yScale = SetValue{value},
+    };
+  }
+}
 void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
 {
   auto attributes = brushFace.attributes();
