@@ -180,7 +180,6 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   createToolBar();
   createStatusBar();
 
-  updateTitle();
   updateShortcuts();
   updateActionState();
   updateUndoRedoActions();
@@ -199,6 +198,8 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   restoreWidgetState(this);
 
   setAcceptDrops(true);
+
+  documentWasLoaded();
 }
 
 MapWindow::~MapWindow()
