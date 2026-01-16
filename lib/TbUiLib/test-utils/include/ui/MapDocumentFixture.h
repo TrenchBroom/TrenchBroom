@@ -39,6 +39,14 @@ namespace ui
 {
 class MapDocument;
 
+Result<std::unique_ptr<MapDocument>> createFixtureDocument(
+  mdl::MapFixtureConfig& config, kdl::task_manager& taskManager);
+
+Result<std::unique_ptr<MapDocument>> loadFixtureDocument(
+  const std::filesystem::path& path,
+  mdl::MapFixtureConfig& config,
+  kdl::task_manager& taskManager);
+
 class MapDocumentFixture
 {
 private:
