@@ -452,17 +452,19 @@ void MapDocument::connectMapObservers()
     commandProcessor.transactionUndoneNotifier.connect(transactionUndoneNotifier);
 }
 
-void MapDocument::transactionDone(const std::string&, const bool observable)
+void MapDocument::transactionDone(
+  const std::string&, const bool observable, const bool isModification)
 {
-  if (observable)
+  if (observable && isModification)
   {
     documentDidChangeNotifier();
   }
 }
 
-void MapDocument::transactionUndone(const std::string&, const bool observable)
+void MapDocument::transactionUndone(
+  const std::string&, const bool observable, const bool isModification)
 {
-  if (observable)
+  if (observable && isModification)
   {
     documentDidChangeNotifier();
   }

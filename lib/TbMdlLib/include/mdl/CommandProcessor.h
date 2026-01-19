@@ -138,11 +138,11 @@ public:
   /**
    * Notifies observers when a transaction completed successfully.
    */
-  Notifier<const std::string&, bool> transactionDoneNotifier;
+  Notifier<const std::string&, bool, bool> transactionDoneNotifier;
   /**
    * Notifies observers when a transaction was undone successfully.
    */
-  Notifier<const std::string&, bool> transactionUndoneNotifier;
+  Notifier<const std::string&, bool, bool> transactionUndoneNotifier;
 
   /**
    * Indicates whether command collation is enabled.

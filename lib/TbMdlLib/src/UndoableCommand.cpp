@@ -36,6 +36,11 @@ UndoableCommand::UndoableCommand(std::string name, const bool updateModification
 
 UndoableCommand::~UndoableCommand() = default;
 
+bool UndoableCommand::isModification() const
+{
+  return m_modificationCount > 0;
+}
+
 bool UndoableCommand::performDo(Map& map)
 {
   const auto result = Command::performDo(map);
