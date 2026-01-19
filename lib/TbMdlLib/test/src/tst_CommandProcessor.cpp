@@ -157,8 +157,8 @@ private:
   mutable std::vector<TestCommandCall> m_expectedCalls;
 
 public:
-  explicit TestCommand(const std::string& name)
-    : UndoableCommand(name, false)
+  explicit TestCommand(std::string name)
+    : UndoableCommand{std::move(name), false}
   {
   }
 
