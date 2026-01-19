@@ -166,8 +166,8 @@ private:
   mutable std::vector<TestCommandCall> m_expectedCalls;
 
 public:
-  explicit TestCommand(std::string name)
-    : UndoableCommand{std::move(name), false}
+  explicit TestCommand(std::string name, const bool updateModificationCount)
+    : UndoableCommand{std::move(name), updateModificationCount}
   {
   }
 
@@ -297,7 +297,8 @@ TEST_CASE("CommandProcessor")
      */
 
     const auto commandName = "test command";
-    auto command = std::make_unique<TestCommand>(commandName);
+    auto command =
+      std::make_unique<TestCommand>(commandName, !K(updateModificationCount));
     auto* commandPtr = command.get();
 
     command->expectDo(true);
@@ -337,7 +338,8 @@ TEST_CASE("CommandProcessor")
      */
 
     const auto commandName = "test command";
-    auto command = std::make_unique<TestCommand>(commandName);
+    auto command =
+      std::make_unique<TestCommand>(commandName, !K(updateModificationCount));
     auto* commandPtr = command.get();
 
     command->expectDo(true);
@@ -375,7 +377,8 @@ TEST_CASE("CommandProcessor")
      */
 
     const auto commandName = "test command";
-    auto command = std::make_unique<TestCommand>(commandName);
+    auto command =
+      std::make_unique<TestCommand>(commandName, !K(updateModificationCount));
     auto* commandPtr = command.get();
     command->expectDo(false);
 
@@ -400,11 +403,13 @@ TEST_CASE("CommandProcessor")
      */
 
     const auto commandName1 = "test command 1";
-    auto command1 = std::make_unique<TestCommand>(commandName1);
+    auto command1 =
+      std::make_unique<TestCommand>(commandName1, !K(updateModificationCount));
     auto* command1Ptr = command1.get();
 
     const auto commandName2 = "test command 2";
-    auto command2 = std::make_unique<TestCommand>(commandName2);
+    auto command2 =
+      std::make_unique<TestCommand>(commandName2, !K(updateModificationCount));
     auto* command2Ptr = command2.get();
 
     command1->expectDo(true);
@@ -481,11 +486,13 @@ TEST_CASE("CommandProcessor")
      */
 
     const auto commandName1 = "test command 1";
-    auto command1 = std::make_unique<TestCommand>(commandName1);
+    auto command1 =
+      std::make_unique<TestCommand>(commandName1, !K(updateModificationCount));
     auto* command1Ptr = command1.get();
 
     const auto commandName2 = "test command 2";
-    auto command2 = std::make_unique<TestCommand>(commandName2);
+    auto command2 =
+      std::make_unique<TestCommand>(commandName2, !K(updateModificationCount));
     auto* command2Ptr = command2.get();
 
     command1->expectDo(true);
@@ -545,11 +552,13 @@ TEST_CASE("CommandProcessor")
      */
 
     const auto outerCommandName = "outer command";
-    auto outerCommand = std::make_unique<TestCommand>(outerCommandName);
+    auto outerCommand =
+      std::make_unique<TestCommand>(outerCommandName, !K(updateModificationCount));
     auto* outerCommandPtr = outerCommand.get();
 
     const auto innerCommandName = "inner command";
-    auto innerCommand = std::make_unique<TestCommand>(innerCommandName);
+    auto innerCommand =
+      std::make_unique<TestCommand>(innerCommandName, !K(updateModificationCount));
     auto* innerCommandPtr = innerCommand.get();
 
     outerCommand->expectDo(true);
@@ -701,11 +710,13 @@ TEST_CASE("CommandProcessor")
      */
 
     const auto commandName1 = "test command 1";
-    auto command1 = std::make_unique<TestCommand>(commandName1);
+    auto command1 =
+      std::make_unique<TestCommand>(commandName1, !K(updateModificationCount));
     auto* command1Ptr = command1.get();
 
     const auto commandName2 = "test command 2";
-    auto command2 = std::make_unique<TestCommand>(commandName2);
+    auto command2 =
+      std::make_unique<TestCommand>(commandName2, !K(updateModificationCount));
     auto* command2Ptr = command2.get();
 
     command1->expectDo(true);
@@ -759,11 +770,13 @@ TEST_CASE("CommandProcessor")
      */
 
     const auto commandName1 = "test command 1";
-    auto command1 = std::make_unique<TestCommand>(commandName1);
+    auto command1 =
+      std::make_unique<TestCommand>(commandName1, !K(updateModificationCount));
     auto* command1Ptr = command1.get();
 
     const auto commandName2 = "test command 2";
-    auto command2 = std::make_unique<TestCommand>(commandName2);
+    auto command2 =
+      std::make_unique<TestCommand>(commandName2, !K(updateModificationCount));
     auto* command2Ptr = command2.get();
 
     command1->expectDo(true);
@@ -814,10 +827,14 @@ TEST_CASE("CommandProcessor")
 
   SECTION("collateTransactions")
   {
-    auto transaction1_command1 = std::make_unique<TestCommand>("cmd1");
-    auto transaction1_command2 = std::make_unique<TestCommand>("cmd2");
-    auto transaction2_command1 = std::make_unique<TestCommand>("cmd1");
-    auto transaction2_command2 = std::make_unique<TestCommand>("cmd2");
+    auto transaction1_command1 =
+      std::make_unique<TestCommand>("cmd1", !K(updateModificationCount));
+    auto transaction1_command2 =
+      std::make_unique<TestCommand>("cmd2", !K(updateModificationCount));
+    auto transaction2_command1 =
+      std::make_unique<TestCommand>("cmd1", !K(updateModificationCount));
+    auto transaction2_command2 =
+      std::make_unique<TestCommand>("cmd2", !K(updateModificationCount));
 
     transaction1_command1->expectDo(true);
     transaction1_command2->expectDo(true);
