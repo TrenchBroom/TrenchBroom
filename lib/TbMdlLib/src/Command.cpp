@@ -50,4 +50,9 @@ bool Command::performDo(Map& map)
   return result;
 }
 
+bool Command::isModification() const
+{
+  return false;
+}
+
 } // namespace tb::mdl

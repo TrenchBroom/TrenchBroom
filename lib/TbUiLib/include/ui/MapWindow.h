@@ -174,8 +174,8 @@ private: // notification handlers
   void documentWasSaved();
   void mapModificationStateDidChange();
 
-  void transactionDone(const std::string& name, bool observable);
-  void transactionUndone(const std::string& name, bool observable);
+  void transactionDone(const std::string& name, bool observable, bool isModification);
+  void transactionUndone(const std::string& name, bool observable, bool isModification);
 
   void preferenceDidChange(const std::filesystem::path& path);
   void gridDidChange();

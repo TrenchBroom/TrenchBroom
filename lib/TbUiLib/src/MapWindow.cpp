@@ -817,7 +817,7 @@ void MapWindow::mapModificationStateDidChange()
   updateTitleDelayed();
 }
 
-void MapWindow::transactionDone(const std::string&, const bool)
+void MapWindow::transactionDone(const std::string&, const bool, const bool)
 {
   QTimer::singleShot(0, this, [this]() {
     // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
@@ -831,7 +831,7 @@ void MapWindow::transactionDone(const std::string&, const bool)
   });
 }
 
-void MapWindow::transactionUndone(const std::string&, const bool)
+void MapWindow::transactionUndone(const std::string&, const bool, const bool)
 {
   QTimer::singleShot(0, this, [this]() {
     // FIXME: see MapWindow::transactionDone

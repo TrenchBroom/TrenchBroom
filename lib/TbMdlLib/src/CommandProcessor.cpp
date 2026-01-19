@@ -71,6 +71,12 @@ public:
   {
   }
 
+  bool isModification() const override
+  {
+    return std::ranges::any_of(
+      m_commands, [](const auto& command) { return command->isModification(); });
+  }
+
 private:
   bool doPerformDo(Map& map) override
   {
@@ -261,8 +267,11 @@ bool CommandProcessor::undo()
   if (result)
   {
     const auto commandName = command->name();
+    const auto isModification = command->isModification();
+
     pushToRedoStack(std::move(command));
-    transactionUndoneNotifier(commandName, isCurrentDocumentStateObservable());
+    transactionUndoneNotifier(
+      commandName, isCurrentDocumentStateObservable(), isModification);
   }
   return result;
 }
@@ -313,7 +322,8 @@ bool CommandProcessor::executeCommand(Command& command)
     notifyCommandIfNotType<TransactionCommand>(commandDoneNotifier, command);
     if (m_transactionStack.empty())
     {
-      transactionDoneNotifier(command.name(), isCurrentDocumentStateObservable());
+      transactionDoneNotifier(
+        command.name(), isCurrentDocumentStateObservable(), command.isModification());
     }
   }
   else
@@ -382,6 +392,7 @@ void CommandProcessor::createAndStoreTransaction()
       transaction.name = transaction.commands.front()->name();
     }
     auto command = createTransaction(transaction.name, std::move(transaction.commands));
+    const auto isModification = command->isModification();
 
     if (m_transactionStack.empty())
     {
@@ -391,7 +402,8 @@ void CommandProcessor::createAndStoreTransaction()
     {
       pushTransactionCommand(std::move(command), true);
     }
-    transactionDoneNotifier(transaction.name, isCurrentDocumentStateObservable());
+    transactionDoneNotifier(
+      transaction.name, isCurrentDocumentStateObservable(), isModification);
   }
 }
 

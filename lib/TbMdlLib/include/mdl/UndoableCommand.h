@@ -38,6 +38,8 @@ protected:
 public:
   ~UndoableCommand() override;
 
+  bool isModification() const override;
+
   bool performDo(Map& map) override;
   virtual bool performUndo(Map& map);
 

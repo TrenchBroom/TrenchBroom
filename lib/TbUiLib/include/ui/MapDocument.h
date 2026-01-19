@@ -135,8 +135,8 @@ public:
   Notifier<mdl::UndoableCommand&> commandUndoNotifier;
   Notifier<mdl::UndoableCommand&> commandUndoneNotifier;
   Notifier<mdl::UndoableCommand&> commandUndoFailedNotifier;
-  Notifier<const std::string&, bool> transactionDoneNotifier;
-  Notifier<const std::string&, bool> transactionUndoneNotifier;
+  Notifier<const std::string&, bool, bool> transactionDoneNotifier;
+  Notifier<const std::string&, bool, bool> transactionUndoneNotifier;
 
   Notifier<> pointFileWasLoadedNotifier;
   Notifier<> pointFileWasUnloadedNotifier;
@@ -267,8 +267,8 @@ private: // observers
   void connectObservers();
   void connectMapObservers();
 
-  void transactionDone(const std::string& name, bool observable);
-  void transactionUndone(const std::string& name, bool observable);
+  void transactionDone(const std::string& name, bool observable, bool isModification);
+  void transactionUndone(const std::string& name, bool observable, bool isModification);
   void documentWasLoaded();
   void documentWasCleared();
   void entityDefinitionsDidChange();
