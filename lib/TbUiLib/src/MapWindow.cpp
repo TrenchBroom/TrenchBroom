@@ -199,7 +199,8 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
 
   setAcceptDrops(true);
 
-  documentWasLoaded();
+  // act as if the document was loaded to update the UI
+  m_document->documentWasLoadedNotifier();
 }
 
 MapWindow::~MapWindow()
