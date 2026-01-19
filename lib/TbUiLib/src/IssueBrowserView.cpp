@@ -333,7 +333,7 @@ void IssueBrowserView::invalidate()
 {
   m_valid = false;
   setEnabled(false);
-  m_tableModel->setIssues({});
+  setUpdatesEnabled(false);
 
   m_validateSignalDelayer->queueSignal();
 }
@@ -345,6 +345,7 @@ void IssueBrowserView::validate()
     updateIssues();
     m_valid = true;
     setEnabled(true);
+    setUpdatesEnabled(true);
   }
 }
 
