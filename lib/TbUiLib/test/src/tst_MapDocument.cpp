@@ -69,7 +69,7 @@ TEST_CASE("MapDocument")
                       *taskManager)
                     | kdl::value();
 
-    auto documentWasLoaded = Observer<void>{document->documentWasLoadedNotifier};
+    auto documentWasLoaded = Observer<>{document->documentWasLoadedNotifier};
 
     const auto* previousMap = &document->map();
 
@@ -87,7 +87,7 @@ TEST_CASE("MapDocument")
 
           SECTION("calls notifiers")
           {
-            CHECK(documentWasLoaded.called);
+            CHECK(documentWasLoaded.notifications == std::vector<std::tuple<>>{{}});
           }
         })
       | kdl::transform_error([](auto e) { FAIL(e.msg); });
@@ -126,7 +126,7 @@ TEST_CASE("MapDocument")
                       *taskManager)
                     | kdl::value();
 
-    auto documentWasLoaded = Observer<void>{document->documentWasLoadedNotifier};
+    auto documentWasLoaded = Observer<>{document->documentWasLoadedNotifier};
 
     const auto* previousMap = &document->map();
 
@@ -149,7 +149,7 @@ TEST_CASE("MapDocument")
 
           SECTION("calls notifiers")
           {
-            CHECK(documentWasLoaded.called);
+            CHECK(documentWasLoaded.notifications == std::vector<std::tuple<>>{{}});
           }
         })
       | kdl::transform_error([](auto e) { FAIL(e.msg); });
@@ -185,7 +185,7 @@ TEST_CASE("MapDocument")
       == std::vector<mdl::Node*>{transientEntityNode});
     REQUIRE(document->map().modified());
 
-    auto documentWasLoaded = Observer<void>{document->documentWasLoadedNotifier};
+    auto documentWasLoaded = Observer<>{document->documentWasLoadedNotifier};
 
     const auto* previousMap = &document->map();
 
@@ -200,7 +200,7 @@ TEST_CASE("MapDocument")
 
       SECTION("calls notifiers")
       {
-        CHECK(documentWasLoaded.called);
+        CHECK(documentWasLoaded.notifications == std::vector<std::tuple<>>{{}});
       }
     }) | kdl::transform_error([](auto e) { FAIL(e.msg); });
   }

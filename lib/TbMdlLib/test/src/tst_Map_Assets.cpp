@@ -108,14 +108,13 @@ TEST_CASE("Map_Assets")
     auto& map = fixture.create(fixtureConfig);
 
     auto entityDefinitionsWillChange =
-      Observer<void>{map.entityDefinitionsWillChangeNotifier};
-    auto entityDefinitionsDidChange =
-      Observer<void>{map.entityDefinitionsDidChangeNotifier};
+      Observer<>{map.entityDefinitionsWillChangeNotifier};
+    auto entityDefinitionsDidChange = Observer<>{map.entityDefinitionsDidChangeNotifier};
 
     setEntityDefinitionFile(map, entityDefinitionFileSpec);
 
-    CHECK(entityDefinitionsWillChange.called);
-    CHECK(entityDefinitionsDidChange.called);
+    CHECK(entityDefinitionsWillChange.notifications == std::vector<std::tuple<>>{{}});
+    CHECK(entityDefinitionsDidChange.notifications == std::vector<std::tuple<>>{{}});
 
     const auto& worldNode = map.worldNode();
     const auto& entity = worldNode.entity();
@@ -277,9 +276,9 @@ TEST_CASE("Map_Assets")
       "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
 
     auto materialCollectionsWillChange =
-      Observer<void>{map.materialCollectionsWillChangeNotifier};
+      Observer<>{map.materialCollectionsWillChangeNotifier};
     auto materialCollectionsDidChange =
-      Observer<void>{map.materialCollectionsDidChangeNotifier};
+      Observer<>{map.materialCollectionsDidChangeNotifier};
 
     const auto faces = map.worldNode().defaultLayer()->children()
                        | std::views::transform([&](const auto* node) {
@@ -302,8 +301,8 @@ TEST_CASE("Map_Assets")
       faces, [](const auto* face) { return face->material() == nullptr; }));
 
     reloadMaterialCollections(map);
-    CHECK(materialCollectionsWillChange.called);
-    CHECK(materialCollectionsDidChange.called);
+    CHECK(materialCollectionsWillChange.notifications == std::vector<std::tuple<>>{{}});
+    CHECK(materialCollectionsDidChange.notifications == std::vector<std::tuple<>>{{}});
 
     CHECK(std::ranges::none_of(
       faces, [](const auto* face) { return face->material() == nullptr; }));
@@ -324,12 +323,17 @@ TEST_CASE("Map_Assets")
     auto& map = fixture.create();
 
     auto entityDefinitionsWillChange =
-      Observer<void>{map.entityDefinitionsWillChangeNotifier};
-    auto entityDefinitionsDidChange =
-      Observer<void>{map.entityDefinitionsDidChangeNotifier};
+      Observer<>{map.entityDefinitionsWillChangeNotifier};
+    auto entityDefinitionsDidChange = Observer<>{map.entityDefinitionsDidChangeNotifier};
 
     setEntityDefinitionFile(
       map, EntityDefinitionFileSpec::makeExternal(env.dir() / fgdFilename));
+
+    REQUIRE(entityDefinitionsWillChange.notifications == std::vector<std::tuple<>>{{}});
+    REQUIRE(entityDefinitionsDidChange.notifications == std::vector<std::tuple<>>{{}});
+
+    entityDefinitionsWillChange.reset();
+    entityDefinitionsDidChange.reset();
 
     REQUIRE(
       entityDefinitionFile(map)
@@ -337,8 +341,8 @@ TEST_CASE("Map_Assets")
 
     reloadEntityDefinitions(map);
 
-    CHECK(entityDefinitionsWillChange.called);
-    CHECK(entityDefinitionsDidChange.called);
+    CHECK(entityDefinitionsWillChange.notifications == std::vector<std::tuple<>>{{}});
+    CHECK(entityDefinitionsDidChange.notifications == std::vector<std::tuple<>>{{}});
   }
 }
 

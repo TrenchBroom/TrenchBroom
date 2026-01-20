@@ -22,90 +22,31 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 
-#include <set>
+#include <vector>
 
 namespace tb
 {
-template <typename C>
+template <typename... T>
 struct Observer
 {
   NotifierConnection connection;
-  std::set<std::remove_cv_t<C>> collected;
+  std::vector<std::tuple<T...>> notifications;
 
-  template <typename T>
-  explicit Observer(Notifier<T>& notifier)
+  template <typename... X>
+  explicit Observer(Notifier<X...>& notifier)
   {
-    connection += notifier.connect(this, &Observer::operator());
+    static_assert(sizeof...(X) == sizeof...(T));
+    static_assert((std::is_convertible_v<X, T> && ...));
+
+    connection += notifier.connect([&]<typename... Y>(Y&&... x) {
+      static_assert(sizeof...(Y) == sizeof...(T));
+      static_assert((std::is_convertible_v<Y, T> && ...));
+
+      notifications.emplace_back(std::forward<Y>(x)...);
+    });
   }
 
-  void operator()(C c) { collected.insert(std::forward<C>(c)); }
-
-  void reset() { collected.clear(); }
-};
-
-template <>
-struct Observer<void>
-{
-  NotifierConnection connection;
-  bool called = false;
-
-  explicit Observer(Notifier<>& notifier)
-  {
-    connection += notifier.connect(this, &Observer::operator());
-  }
-
-  void operator()() { called = true; }
-
-  void reset() { called = false; }
-};
-
-template <typename C>
-struct Observer<C*>
-{
-  NotifierConnection connection;
-  std::set<C*> collected;
-
-  explicit Observer(Notifier<C*>& notifier)
-  {
-    connection += notifier.connect(this, &Observer::operator());
-  }
-
-  void operator()(C* c) { collected.insert(c); }
-
-  void reset() { collected.clear(); }
-};
-
-template <typename C>
-struct Observer<C&>
-{
-  NotifierConnection connection;
-  std::set<C*> collected;
-
-  void operator()(C& c) { collected.insert(&c); }
-
-  explicit Observer(Notifier<C&>& notifier)
-  {
-    connection += notifier.connect(this, &Observer::operator());
-  }
-};
-
-template <typename T, template <typename...> class Collection>
-struct Observer<Collection<T>>
-{
-  NotifierConnection connection;
-  std::set<T> collected;
-
-  explicit Observer(Notifier<const Collection<T>&>& notifier)
-  {
-    connection += notifier.connect(this, &Observer::operator());
-  }
-
-  void operator()(const Collection<T>& collection)
-  {
-    collected.insert(collection.begin(), collection.end());
-  }
-
-  void reset() { collected.clear(); }
+  void reset() { notifications.clear(); }
 };
 
 
