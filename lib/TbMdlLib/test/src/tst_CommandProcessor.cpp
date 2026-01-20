@@ -36,6 +36,7 @@
 #include <variant>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
@@ -701,6 +702,102 @@ TEST_CASE("CommandProcessor")
       commandProcessor.commitTransaction();
       CHECK(commandProcessor.isCurrentDocumentStateObservable());
     }
+  }
+
+  SECTION("isModification")
+  {
+    using T = std::tuple<bool, bool>;
+
+    const auto [outerIsModification, innerIsModification] = GENERATE(values<T>({
+      {false, false},
+      {false, true},
+      {true, false},
+      {true, true},
+    }));
+
+    CAPTURE(outerIsModification, innerIsModification);
+
+    const auto outerCommandName = "outer command";
+    auto outerCommand =
+      std::make_unique<TestCommand>(outerCommandName, outerIsModification);
+    auto* outerCommandPtr = outerCommand.get();
+
+    const auto innerCommandName = "inner command";
+    auto innerCommand =
+      std::make_unique<TestCommand>(innerCommandName, innerIsModification);
+    auto* innerCommandPtr = innerCommand.get();
+
+    outerCommand->expectDo(true);
+    innerCommand->expectDo(true);
+
+    outerCommand->expectCollate(nullptr, false);
+
+    const auto innerTransactionName = "inner transaction";
+    const auto outerTransactionName = "outer transaction";
+
+    // undo transaction
+    innerCommand->expectUndo(true);
+    outerCommand->expectUndo(true);
+
+    commandProcessor.startTransaction(outerTransactionName, TransactionScope::Oneshot);
+    CHECK(commandProcessor.executeAndStore(std::move(outerCommand)));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, outerCommandPtr},
+        CN{CN::Type::Done, outerCommandPtr},
+      });
+
+    commandProcessor.startTransaction(innerTransactionName, TransactionScope::Oneshot);
+    CHECK(commandProcessor.executeAndStore(std::move(innerCommand)));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, innerCommandPtr},
+        CN{CN::Type::Done, innerCommandPtr},
+      });
+
+    commandProcessor.commitTransaction();
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        TN{TN::Type::Done, innerTransactionName, K(isObservable), innerIsModification},
+      });
+
+    commandProcessor.commitTransaction();
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        TN{
+          TN::Type::Done,
+          outerTransactionName,
+          K(isObservable),
+          outerIsModification || innerIsModification},
+      });
+
+    CHECK_FALSE(commandProcessor.canRedo());
+    REQUIRE(commandProcessor.canUndo());
+    CHECK(*commandProcessor.undoCommandName() == outerTransactionName);
+
+    CHECK(commandProcessor.undo());
+
+    CHECK_FALSE(commandProcessor.canUndo());
+    REQUIRE(commandProcessor.canRedo());
+    CHECK(*commandProcessor.redoCommandName() == outerTransactionName);
+
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, innerCommandPtr},
+        CN{CN::Type::Undone, innerCommandPtr},
+        CN{CN::Type::Undo, outerCommandPtr},
+        CN{CN::Type::Undone, outerCommandPtr},
+        TN{
+          TN::Type::Undone,
+          outerTransactionName,
+          K(isObservable),
+          outerIsModification || innerIsModification},
+      });
   }
 
   SECTION("collateCommands")
