@@ -26,9 +26,12 @@
 #include "mdl/TransactionScope.h"
 #include "mdl/UndoableCommand.h"
 
+#include "kd/k.h"
+#include "kd/reflection_impl.h"
 #include "kd/vector_utils.h"
 
 #include <memory>
+#include <ostream>
 #include <thread>
 #include <variant>
 
@@ -42,98 +45,104 @@ using namespace Catch::Matchers;
 namespace
 {
 
-enum class CommandNotif
+struct CommandNotification
 {
-  CommandDo,
-  CommandDone,
-  CommandDoFailed,
-  CommandUndo,
-  CommandUndone,
-  CommandUndoFailed,
-  TransactionDone,
-  TransactionUndone
+  enum class Type
+  {
+    Do,
+    Done,
+    DoFailed,
+    Undo,
+    Undone,
+    UndoFailed,
+  };
+
+  Type type;
+  const Command* command;
+
+  [[maybe_unused]] friend std::ostream& operator<<(std::ostream& lhs, const Type rhs)
+  {
+    switch (rhs)
+    {
+    case Type::Do:
+      lhs << "Do";
+      break;
+    case Type::Done:
+      lhs << "Done";
+      break;
+    case Type::DoFailed:
+      lhs << "DoFailed";
+      break;
+    case Type::Undo:
+      lhs << "Undo";
+      break;
+    case Type::Undone:
+      lhs << "Undone";
+      break;
+    case Type::UndoFailed:
+      lhs << "UndoFailed";
+      break;
+    }
+    return lhs;
+  }
+
+  kdl_reflect_inline(CommandNotification, type, command);
 };
 
-using NotificationTuple = std::tuple<CommandNotif, std::string>;
-
-class TestObserver
+struct TransactionNotification
 {
-private:
-  std::vector<NotificationTuple> m_notifications;
-  NotifierConnection m_notifierConnection;
 
-public:
-  explicit TestObserver(CommandProcessor& commandProcessor)
+  enum class Type
   {
-    m_notifierConnection +=
-      commandProcessor.commandDoNotifier.connect(this, &TestObserver::commandDo);
-    m_notifierConnection +=
-      commandProcessor.commandDoneNotifier.connect(this, &TestObserver::commandDone);
-    m_notifierConnection += commandProcessor.commandDoFailedNotifier.connect(
-      this, &TestObserver::commandDoFailed);
-    m_notifierConnection +=
-      commandProcessor.commandUndoNotifier.connect(this, &TestObserver::commandUndo);
-    m_notifierConnection +=
-      commandProcessor.commandUndoneNotifier.connect(this, &TestObserver::commandUndone);
-    m_notifierConnection += commandProcessor.commandUndoFailedNotifier.connect(
-      this, &TestObserver::commandUndoFailed);
-    m_notifierConnection += commandProcessor.transactionDoneNotifier.connect(
-      this, &TestObserver::transactionDone);
-    m_notifierConnection += commandProcessor.transactionUndoneNotifier.connect(
-      this, &TestObserver::transactionUndone);
-  }
+    Done,
+    Undone,
+  };
 
-  // FIXME: should probably unregister from the notifications in the destructor
+  Type type;
+  std::string name;
+  bool isObservable;
+  bool isModification;
 
-  /**
-   * Returns the list of notifications that have been produced by the CommandProcessor
-   * since the last call to popNotifications().
-   */
-  std::vector<NotificationTuple> popNotifications()
+  [[maybe_unused]] friend std::ostream& operator<<(std::ostream& lhs, const Type rhs)
   {
-    auto result = std::vector<NotificationTuple>{};
-
-    using std::swap;
-    swap(m_notifications, result);
-
-    return result;
+    switch (rhs)
+    {
+    case Type::Done:
+      lhs << "Done";
+      break;
+    case Type::Undone:
+      lhs << "Undone";
+      break;
+    }
+    return lhs;
   }
 
-private:
-  // these would be tidier as lambdas in the TestObserver() constructor
-  void commandDo(Command& command)
-  {
-    m_notifications.emplace_back(CommandNotif::CommandDo, command.name());
-  }
-  void commandDone(Command& command)
-  {
-    m_notifications.emplace_back(CommandNotif::CommandDone, command.name());
-  }
-  void commandDoFailed(Command& command)
-  {
-    m_notifications.emplace_back(CommandNotif::CommandDoFailed, command.name());
-  }
-  void commandUndo(UndoableCommand& command)
-  {
-    m_notifications.emplace_back(CommandNotif::CommandUndo, command.name());
-  }
-  void commandUndone(UndoableCommand& command)
-  {
-    m_notifications.emplace_back(CommandNotif::CommandUndone, command.name());
-  }
-  void commandUndoFailed(UndoableCommand& command)
-  {
-    m_notifications.emplace_back(CommandNotif::CommandUndoFailed, command.name());
-  }
-  void transactionDone(const std::string& transactionName, const bool, const bool)
-  {
-    m_notifications.emplace_back(CommandNotif::TransactionDone, transactionName);
-  }
-  void transactionUndone(const std::string& transactionName, const bool, const bool)
-  {
-    m_notifications.emplace_back(CommandNotif::TransactionUndone, transactionName);
-  }
+  kdl_reflect_inline(TransactionNotification, type, name, isObservable, isModification);
 };
+
+using Notification = std::variant<CommandNotification, TransactionNotification>;
+
+[[maybe_unused]] std::ostream& operator<<(std::ostream& lhs, const Notification& rhs)
+{
+  std::visit([&](const auto& x) { lhs << x; }, rhs);
+  return lhs;
+}
+
+auto makeCommandObserver(const auto type, auto& notifications)
+{
+  return [type, &notifications](auto& command) {
+    notifications.emplace_back(CommandNotification{type, &command});
+  };
+}
+
+auto makeTransactionObserver(const auto type, auto& notifications)
+{
+  return [type, &notifications](
+           const auto& name, const auto isObservable, const auto isModification) {
+    notifications.emplace_back(
+      TransactionNotification{type, name, isObservable, isModification});
+  };
+}
 
 struct DoPerformDo
 {
@@ -247,12 +256,39 @@ TEST_CASE("CommandProcessor")
 {
   using namespace std::chrono_literals;
 
+  using CN = CommandNotification;
+  using TN = TransactionNotification;
+
   auto fixture = MapFixture{};
   auto& map = fixture.create();
 
   constexpr auto collationInterval = 100ms;
   auto commandProcessor = CommandProcessor{map, collationInterval};
-  auto observer = TestObserver{commandProcessor};
+
+  auto notifierConnection = NotifierConnection{};
+  auto notifications = std::vector<Notification>{};
+  const auto getNotifications = [&notifications]() {
+    return std::exchange(notifications, {});
+  };
+
+  notifierConnection += commandProcessor.commandDoNotifier.connect(
+    makeCommandObserver(CN::Type::Do, notifications));
+  notifierConnection += commandProcessor.commandDoneNotifier.connect(
+    makeCommandObserver(CN::Type::Done, notifications));
+  notifierConnection += commandProcessor.commandDoFailedNotifier.connect(
+    makeCommandObserver(CN::Type::DoFailed, notifications));
+
+  notifierConnection += commandProcessor.commandUndoNotifier.connect(
+    makeCommandObserver(CN::Type::Undo, notifications));
+  notifierConnection += commandProcessor.commandUndoneNotifier.connect(
+    makeCommandObserver(CN::Type::Undone, notifications));
+  notifierConnection += commandProcessor.commandUndoFailedNotifier.connect(
+    makeCommandObserver(CN::Type::UndoFailed, notifications));
+
+  notifierConnection += commandProcessor.transactionDoneNotifier.connect(
+    makeTransactionObserver(TN::Type::Done, notifications));
+  notifierConnection += commandProcessor.transactionUndoneNotifier.connect(
+    makeTransactionObserver(TN::Type::Undone, notifications));
 
   SECTION("doAndUndoSuccessfulCommand")
   {
@@ -262,6 +298,7 @@ TEST_CASE("CommandProcessor")
 
     const auto commandName = "test command";
     auto command = std::make_unique<TestCommand>(commandName);
+    auto* commandPtr = command.get();
 
     command->expectDo(true);
     command->expectUndo(true);
@@ -271,26 +308,26 @@ TEST_CASE("CommandProcessor")
     REQUIRE(commandProcessor.canUndo());
     CHECK(*commandProcessor.undoCommandName() == commandName);
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName},
-        {CommandNotif::CommandDone, commandName},
-        {CommandNotif::TransactionDone, commandName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, commandPtr},
+        CN{CN::Type::Done, commandPtr},
+        TN{TN::Type::Done, commandName, K(isObservable), !K(isModification)},
+      });
 
     CHECK(commandProcessor.undo());
     CHECK_FALSE(commandProcessor.canUndo());
     REQUIRE(commandProcessor.canRedo());
     CHECK(*commandProcessor.redoCommandName() == commandName);
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandUndo, commandName},
-        {CommandNotif::CommandUndone, commandName},
-        {CommandNotif::TransactionUndone, commandName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, commandPtr},
+        CN{CN::Type::Undone, commandPtr},
+        TN{TN::Type::Undone, commandName, K(isObservable), !K(isModification)},
+      });
   }
 
   SECTION("doSuccessfulCommandAndFailAtUndo")
@@ -301,6 +338,8 @@ TEST_CASE("CommandProcessor")
 
     const auto commandName = "test command";
     auto command = std::make_unique<TestCommand>(commandName);
+    auto* commandPtr = command.get();
+
     command->expectDo(true);
     command->expectUndo(false);
 
@@ -309,24 +348,24 @@ TEST_CASE("CommandProcessor")
     REQUIRE(commandProcessor.canUndo());
     CHECK(*commandProcessor.undoCommandName() == commandName);
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName},
-        {CommandNotif::CommandDone, commandName},
-        {CommandNotif::TransactionDone, commandName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, commandPtr},
+        CN{CN::Type::Done, commandPtr},
+        TN{TN::Type::Done, commandName, K(isObservable), !K(isModification)},
+      });
 
     CHECK_FALSE(commandProcessor.undo());
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandUndo, commandName},
-        {CommandNotif::CommandUndoFailed, commandName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, commandPtr},
+        CN{CN::Type::UndoFailed, commandPtr},
+      });
   }
 
   SECTION("doFailingCommand")
@@ -337,6 +376,7 @@ TEST_CASE("CommandProcessor")
 
     const auto commandName = "test command";
     auto command = std::make_unique<TestCommand>(commandName);
+    auto* commandPtr = command.get();
     command->expectDo(false);
 
     CHECK_FALSE(commandProcessor.executeAndStore(std::move(command)));
@@ -344,12 +384,12 @@ TEST_CASE("CommandProcessor")
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName},
-        {CommandNotif::CommandDoFailed, commandName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, commandPtr},
+        CN{CN::Type::DoFailed, commandPtr},
+      });
   }
 
   SECTION("commitUndoRedoTransaction")
@@ -361,9 +401,11 @@ TEST_CASE("CommandProcessor")
 
     const auto commandName1 = "test command 1";
     auto command1 = std::make_unique<TestCommand>(commandName1);
+    auto* command1Ptr = command1.get();
 
     const auto commandName2 = "test command 2";
     auto command2 = std::make_unique<TestCommand>(commandName2);
+    auto* command2Ptr = command2.get();
 
     command1->expectDo(true);
     command2->expectDo(true);
@@ -384,15 +426,15 @@ TEST_CASE("CommandProcessor")
     CHECK(commandProcessor.executeAndStore(std::move(command2)));
     commandProcessor.commitTransaction();
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName1},
-        {CommandNotif::CommandDone, commandName1},
-        {CommandNotif::CommandDo, commandName2},
-        {CommandNotif::CommandDone, commandName2},
-        {CommandNotif::TransactionDone, transactionName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, command1Ptr},
+        CN{CN::Type::Done, command1Ptr},
+        CN{CN::Type::Do, command2Ptr},
+        CN{CN::Type::Done, command2Ptr},
+        TN{TN::Type::Done, transactionName, K(isObservable), !K(isModification)},
+      });
 
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.canUndo());
@@ -404,15 +446,15 @@ TEST_CASE("CommandProcessor")
     REQUIRE(commandProcessor.canRedo());
     CHECK(*commandProcessor.redoCommandName() == transactionName);
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandUndo, commandName2},
-        {CommandNotif::CommandUndone, commandName2},
-        {CommandNotif::CommandUndo, commandName1},
-        {CommandNotif::CommandUndone, commandName1},
-        {CommandNotif::TransactionUndone, transactionName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, command2Ptr},
+        CN{CN::Type::Undone, command2Ptr},
+        CN{CN::Type::Undo, command1Ptr},
+        CN{CN::Type::Undone, command1Ptr},
+        TN{TN::Type::Undone, transactionName, K(isObservable), !K(isModification)},
+      });
 
     CHECK(commandProcessor.redo());
 
@@ -420,15 +462,15 @@ TEST_CASE("CommandProcessor")
     REQUIRE(commandProcessor.canUndo());
     CHECK(*commandProcessor.undoCommandName() == transactionName);
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName1},
-        {CommandNotif::CommandDone, commandName1},
-        {CommandNotif::CommandDo, commandName2},
-        {CommandNotif::CommandDone, commandName2},
-        {CommandNotif::TransactionDone, transactionName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, command1Ptr},
+        CN{CN::Type::Done, command1Ptr},
+        CN{CN::Type::Do, command2Ptr},
+        CN{CN::Type::Done, command2Ptr},
+        TN{TN::Type::Done, transactionName, K(isObservable), !K(isModification)},
+      });
   }
 
   SECTION("rollbackTransaction")
@@ -440,9 +482,11 @@ TEST_CASE("CommandProcessor")
 
     const auto commandName1 = "test command 1";
     auto command1 = std::make_unique<TestCommand>(commandName1);
+    auto* command1Ptr = command1.get();
 
     const auto commandName2 = "test command 2";
     auto command2 = std::make_unique<TestCommand>(commandName2);
+    auto* command2Ptr = command2.get();
 
     command1->expectDo(true);
     command2->expectDo(true);
@@ -455,30 +499,31 @@ TEST_CASE("CommandProcessor")
     const auto transactionName = "transaction";
     commandProcessor.startTransaction(transactionName, TransactionScope::Oneshot);
     CHECK(commandProcessor.executeAndStore(std::move(command1)));
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName1},
-        {CommandNotif::CommandDone, commandName1},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, command1Ptr},
+        CN{CN::Type::Done, command1Ptr},
+      });
+
 
     CHECK(commandProcessor.executeAndStore(std::move(command2)));
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName2},
-        {CommandNotif::CommandDone, commandName2},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, command2Ptr},
+        CN{CN::Type::Done, command2Ptr},
+      });
 
     commandProcessor.rollbackTransaction();
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandUndo, commandName2},
-        {CommandNotif::CommandUndone, commandName2},
-        {CommandNotif::CommandUndo, commandName1},
-        {CommandNotif::CommandUndone, commandName1},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, command2Ptr},
+        CN{CN::Type::Undone, command2Ptr},
+        CN{CN::Type::Undo, command1Ptr},
+        CN{CN::Type::Undone, command1Ptr},
+      });
 
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
@@ -489,21 +534,23 @@ TEST_CASE("CommandProcessor")
     CHECK_FALSE(commandProcessor.canUndo());
     CHECK_FALSE(commandProcessor.canRedo());
 
-    REQUIRE(observer.popNotifications().empty());
+    CHECK(notifications.empty());
   }
 
   SECTION("nestedTransactions")
   {
     /*
-     * Execute a command in a transaction, start a nested transaction, execute a command,
-     * and commit both transactions. Then undo the outer transaction.
+     * Execute a command in a transaction, start a nested transaction, execute a
+     * command, and commit both transactions. Then undo the outer transaction.
      */
 
     const auto outerCommandName = "outer command";
     auto outerCommand = std::make_unique<TestCommand>(outerCommandName);
+    auto* outerCommandPtr = outerCommand.get();
 
     const auto innerCommandName = "inner command";
     auto innerCommand = std::make_unique<TestCommand>(innerCommandName);
+    auto* innerCommandPtr = innerCommand.get();
 
     outerCommand->expectDo(true);
     innerCommand->expectDo(true);
@@ -519,35 +566,35 @@ TEST_CASE("CommandProcessor")
 
     commandProcessor.startTransaction(outerTransactionName, TransactionScope::Oneshot);
     CHECK(commandProcessor.executeAndStore(std::move(outerCommand)));
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, outerCommandName},
-        {CommandNotif::CommandDone, outerCommandName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, outerCommandPtr},
+        CN{CN::Type::Done, outerCommandPtr},
+      });
 
     commandProcessor.startTransaction(innerTransactionName, TransactionScope::Oneshot);
     CHECK(commandProcessor.executeAndStore(std::move(innerCommand)));
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, innerCommandName},
-        {CommandNotif::CommandDone, innerCommandName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, innerCommandPtr},
+        CN{CN::Type::Done, innerCommandPtr},
+      });
 
     commandProcessor.commitTransaction();
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::TransactionDone, innerTransactionName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        TN{TN::Type::Done, innerTransactionName, K(isObservable), !K(isModification)},
+      });
 
     commandProcessor.commitTransaction();
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::TransactionDone, outerTransactionName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        TN{TN::Type::Done, outerTransactionName, K(isObservable), !K(isModification)},
+      });
 
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.canUndo());
@@ -559,15 +606,15 @@ TEST_CASE("CommandProcessor")
     REQUIRE(commandProcessor.canRedo());
     CHECK(*commandProcessor.redoCommandName() == outerTransactionName);
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandUndo, innerCommandName},
-        {CommandNotif::CommandUndone, innerCommandName},
-        {CommandNotif::CommandUndo, outerCommandName},
-        {CommandNotif::CommandUndone, outerCommandName},
-        {CommandNotif::TransactionUndone, outerTransactionName},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, innerCommandPtr},
+        CN{CN::Type::Undone, innerCommandPtr},
+        CN{CN::Type::Undo, outerCommandPtr},
+        CN{CN::Type::Undone, outerCommandPtr},
+        TN{TN::Type::Undone, outerTransactionName, K(isObservable), !K(isModification)},
+      });
   }
 
   SECTION("isCurrentDocumentStateObservable")
@@ -655,9 +702,11 @@ TEST_CASE("CommandProcessor")
 
     const auto commandName1 = "test command 1";
     auto command1 = std::make_unique<TestCommand>(commandName1);
+    auto* command1Ptr = command1.get();
 
     const auto commandName2 = "test command 2";
     auto command2 = std::make_unique<TestCommand>(commandName2);
+    auto* command2Ptr = command2.get();
 
     command1->expectDo(true);
     command2->expectDo(true);
@@ -665,22 +714,22 @@ TEST_CASE("CommandProcessor")
     command1->expectUndo(true);
 
     commandProcessor.executeAndStore(std::move(command1));
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName1},
-        {CommandNotif::CommandDone, commandName1},
-        {CommandNotif::TransactionDone, commandName1},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, command1Ptr},
+        CN{CN::Type::Done, command1Ptr},
+        TN{TN::Type::Done, commandName1, K(isObservable), !K(isModification)},
+      });
 
     commandProcessor.executeAndStore(std::move(command2));
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName2},
-        {CommandNotif::CommandDone, commandName2},
-        {CommandNotif::TransactionDone, commandName2},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, command2Ptr},
+        CN{CN::Type::Done, command2Ptr},
+        TN{TN::Type::Done, commandName2, K(isObservable), !K(isModification)},
+      });
 
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.canUndo());
@@ -692,14 +741,14 @@ TEST_CASE("CommandProcessor")
     REQUIRE(commandProcessor.canRedo());
     CHECK(*commandProcessor.redoCommandName() == commandName1);
 
-    // NOTE: commandName2 is gone because it was coalesced into commandName1
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandUndo, commandName1},
-        {CommandNotif::CommandUndone, commandName1},
-        {CommandNotif::TransactionUndone, commandName1},
-      }));
+    // NOTE: command2 is gone because it was coalesced into commandName1
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, command1Ptr},
+        CN{CN::Type::Undone, command1Ptr},
+        TN{TN::Type::Undone, commandName1, K(isObservable), !K(isModification)},
+      });
   }
 
   SECTION("collationInterval")
@@ -711,9 +760,11 @@ TEST_CASE("CommandProcessor")
 
     const auto commandName1 = "test command 1";
     auto command1 = std::make_unique<TestCommand>(commandName1);
+    auto* command1Ptr = command1.get();
 
     const auto commandName2 = "test command 2";
     auto command2 = std::make_unique<TestCommand>(commandName2);
+    auto* command2Ptr = command2.get();
 
     command1->expectDo(true);
     command2->expectDo(true);
@@ -721,25 +772,25 @@ TEST_CASE("CommandProcessor")
 
     commandProcessor.executeAndStore(std::move(command1));
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName1},
-        {CommandNotif::CommandDone, commandName1},
-        {CommandNotif::TransactionDone, commandName1},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, command1Ptr},
+        CN{CN::Type::Done, command1Ptr},
+        TN{TN::Type::Done, commandName1, K(isObservable), !K(isModification)},
+      });
 
     std::this_thread::sleep_for(collationInterval);
 
     commandProcessor.executeAndStore(std::move(command2));
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandDo, commandName2},
-        {CommandNotif::CommandDone, commandName2},
-        {CommandNotif::TransactionDone, commandName2},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Do, command2Ptr},
+        CN{CN::Type::Done, command2Ptr},
+        TN{TN::Type::Done, commandName2, K(isObservable), !K(isModification)},
+      });
 
     CHECK_FALSE(commandProcessor.canRedo());
     REQUIRE(commandProcessor.canUndo());
@@ -747,13 +798,13 @@ TEST_CASE("CommandProcessor")
 
     CHECK(commandProcessor.undo());
 
-    CHECK_THAT(
-      observer.popNotifications(),
-      Equals(std::vector<NotificationTuple>{
-        {CommandNotif::CommandUndo, commandName2},
-        {CommandNotif::CommandUndone, commandName2},
-        {CommandNotif::TransactionUndone, commandName2},
-      }));
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, command2Ptr},
+        CN{CN::Type::Undone, command2Ptr},
+        TN{TN::Type::Undone, commandName2, K(isObservable), !K(isModification)},
+      });
 
     REQUIRE(commandProcessor.canUndo());
     REQUIRE(commandProcessor.canRedo());
