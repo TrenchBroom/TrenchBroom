@@ -190,7 +190,7 @@ TEST_CASE("QPreferenceStore")
 )");
 
     auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 500ms};
-    auto preferencesWereReloaded = Observer<const std::vector<std::filesystem::path>>{
+    auto preferencesWereReloaded = Observer<std::vector<std::filesystem::path>>{
       preferenceStore.preferencesWereReloadedNotifier};
 
     auto value = std::string{};
@@ -203,12 +203,12 @@ TEST_CASE("QPreferenceStore")
 )");
 
     CHECK(checkAndWaitUntil(std::chrono::steady_clock::now() + 1000ms, [&]() {
-      return !preferencesWereReloaded.collected.empty();
+      return !preferencesWereReloaded.notifications.empty();
     }));
 
     CHECK(
-      preferencesWereReloaded.collected
-      == std::set{std::vector{std::filesystem::path{"some/path"}}});
+      preferencesWereReloaded.notifications
+      == std::vector{std::tuple{std::vector{std::filesystem::path{"some/path"}}}});
 
     CHECK(preferenceStore.load("some/path", value));
     CHECK(value == "fdsa");

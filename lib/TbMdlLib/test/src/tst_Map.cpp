@@ -492,14 +492,13 @@ TEST_CASE("Map")
     auto* entityNode = new EntityNode{Entity{{{"name", "entity2"}}}};
     addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-    auto mapWasSaved = Observer<void>{map.mapWasSavedNotifier};
-    auto modificationStateDidChange =
-      Observer<void>{map.modificationStateDidChangeNotifier};
+    auto mapWasSaved = Observer<>{map.mapWasSavedNotifier};
+    auto modificationStateDidChange = Observer<>{map.modificationStateDidChangeNotifier};
 
     REQUIRE(map.save());
 
-    CHECK(mapWasSaved.called);
-    CHECK(modificationStateDidChange.called);
+    CHECK(mapWasSaved.notifications == std::vector<std::tuple<>>{{}});
+    CHECK(modificationStateDidChange.notifications == std::vector<std::tuple<>>{{}});
     CHECK(map.persistent());
     CHECK(map.path() == path);
 
@@ -530,17 +529,16 @@ TEST_CASE("Map")
     addNodes(map, {{parentForNodes(map), {entityNode}}});
     REQUIRE(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
 
-    auto mapWasSaved = Observer<void>{map.mapWasSavedNotifier};
-    auto modificationStateDidChange =
-      Observer<void>{map.modificationStateDidChangeNotifier};
+    auto mapWasSaved = Observer<>{map.mapWasSavedNotifier};
+    auto modificationStateDidChange = Observer<>{map.modificationStateDidChangeNotifier};
 
     auto env = fs::TestEnvironment{};
 
     const auto path = env.dir() / "test.map";
     REQUIRE(map.saveAs(path));
 
-    CHECK(mapWasSaved.called);
-    CHECK(modificationStateDidChange.called);
+    CHECK(mapWasSaved.notifications == std::vector<std::tuple<>>{{}});
+    CHECK(modificationStateDidChange.notifications == std::vector<std::tuple<>>{{}});
     CHECK(map.persistent());
     CHECK(map.path() == path);
 
