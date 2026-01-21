@@ -157,7 +157,7 @@ public:
 
 private:
   void connectObservers();
-  void documentDidChange();
+  void clearDragHandlesIfNotDragging();
 };
 } // namespace ui
 } // namespace tb

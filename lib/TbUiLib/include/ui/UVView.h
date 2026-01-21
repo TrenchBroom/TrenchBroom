@@ -84,10 +84,7 @@ private:
 
   void connectObservers();
 
-  void documentDidChange();
-  void gridDidChange();
-  void cameraDidChange(const gl::Camera& camera);
-  void preferenceDidChange(const std::filesystem::path& path);
+  void reload();
 
   void updateViewport(int x, int y, int width, int height) override;
   void renderContents() override;

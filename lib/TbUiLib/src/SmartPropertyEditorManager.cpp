@@ -156,15 +156,12 @@ void SmartPropertyEditorManager::registerEditor(
 
 void SmartPropertyEditorManager::connectObservers()
 {
-  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
-    this, &SmartPropertyEditorManager::documentDidChange);
-  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
-    this, &SmartPropertyEditorManager::documentDidChange);
-}
+  const auto updateEditor = [&](auto&&...) {
+    switchEditor(m_propertyKey, m_document.map().selection().allEntities());
+  };
 
-void SmartPropertyEditorManager::documentDidChange()
-{
-  switchEditor(m_propertyKey, m_document.map().selection().allEntities());
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(updateEditor);
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(updateEditor);
 }
 
 SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(

@@ -70,8 +70,6 @@ private:
 private:
   void createGui(gl::ContextManager& contextManager);
 
-  void documentDidChange();
-
   void connectObservers();
 
   void resetUVClicked();

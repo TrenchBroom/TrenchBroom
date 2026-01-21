@@ -66,8 +66,6 @@ private:
   bool canScale() const;
   std::optional<vm::vec3d> getScaleFactors() const;
 
-  void documentDidChange();
-
   void applyScale();
 };
 

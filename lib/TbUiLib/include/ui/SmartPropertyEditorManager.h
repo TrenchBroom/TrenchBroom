@@ -70,8 +70,6 @@ private:
 
   void connectObservers();
 
-  void documentDidChange();
-
   SmartPropertyEditor* selectEditor(
     const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes) const;
   SmartPropertyEditor* defaultEditor() const;

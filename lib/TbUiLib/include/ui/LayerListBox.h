@@ -100,7 +100,7 @@ private:
 private:
   void connectObservers();
 
-  void documentDidChange();
+  void reloadItems();
   void currentLayerDidChange();
 
   const LayerListBoxWidget* widgetAtRow(int row) const;

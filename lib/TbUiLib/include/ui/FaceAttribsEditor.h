@@ -108,7 +108,7 @@ private:
 
   void connectObservers();
 
-  void documentDidChange();
+  void refresh();
 
   void updateControls();
   void updateControlsDelayed();

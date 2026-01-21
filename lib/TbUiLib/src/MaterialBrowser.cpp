@@ -183,40 +183,25 @@ void MaterialBrowser::bindEvents()
 
 void MaterialBrowser::connectObservers()
 {
-  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
-    this, &MaterialBrowser::documentDidChange);
-  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
-    this, &MaterialBrowser::documentDidChange);
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect([&] { reload(); });
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect([&] { reload(); });
   m_notifierConnection += m_document.currentMaterialNameDidChangeNotifier.connect(
-    this, &MaterialBrowser::currentMaterialNameDidChange);
+    [&] { updateSelectedMaterial(); });
 
   auto& prefs = PreferenceManager::instance();
-  m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
-    this, &MaterialBrowser::preferenceDidChange);
-}
-
-void MaterialBrowser::documentDidChange()
-{
-  reload();
-}
-
-void MaterialBrowser::currentMaterialNameDidChange()
-{
-  updateSelectedMaterial();
-}
-
-void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
-{
-  if (
-    path == pref(m_document.map().gameInfo().gamePathPreference)
-    || path == Preferences::MaterialBrowserIconSize.path)
-  {
-    reload();
-  }
-  else
-  {
-    m_view->update();
-  }
+  m_notifierConnection +=
+    prefs.preferenceDidChangeNotifier.connect([&](const auto& path) {
+      if (
+        path == pref(m_document.map().gameInfo().gamePathPreference)
+        || path == Preferences::MaterialBrowserIconSize.path)
+      {
+        reload();
+      }
+      else
+      {
+        m_view->update();
+      }
+    });
 }
 
 void MaterialBrowser::reload()

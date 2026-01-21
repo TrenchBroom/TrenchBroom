@@ -80,10 +80,6 @@ private:
 
   void connectObservers();
 
-  void documentDidChange();
-  void currentMaterialNameDidChange();
-  void preferenceDidChange(const std::filesystem::path& path);
-
   void reload();
   void updateSelectedMaterial();
 };

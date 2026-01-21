@@ -172,7 +172,7 @@ private:
   bool doRemove();
 
   void connectObservers();
-  void documentDidChange();
+  void refresh();
 };
 
 } // namespace ui

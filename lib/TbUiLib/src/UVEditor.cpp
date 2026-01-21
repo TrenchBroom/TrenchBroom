@@ -142,17 +142,12 @@ void UVEditor::createGui(gl::ContextManager& contextManager)
   updateButtons();
 }
 
-void UVEditor::documentDidChange()
-{
-  updateButtons();
-}
-
 void UVEditor::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect(this, &UVEditor::documentDidChange);
+    m_document.documentWasLoadedNotifier.connect([&]() { updateButtons(); });
   m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect(this, &UVEditor::documentDidChange);
+    m_document.documentDidChangeNotifier.connect([&]() { updateButtons(); });
 }
 
 void UVEditor::resetUVClicked()
