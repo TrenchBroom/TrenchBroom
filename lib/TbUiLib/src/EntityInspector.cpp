@@ -48,7 +48,7 @@ void EntityInspector::createGui(MapDocument& document, gl::ContextManager& conte
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
 
-  m_splitter->addWidget(createAttributeEditor(document, m_splitter));
+  m_splitter->addWidget(createEntityPropertyEditor(document, m_splitter));
   m_splitter->addWidget(createEntityBrowser(document, contextManager, m_splitter));
 
   // when the window resizes, keep the attribute editor size constant
@@ -64,7 +64,8 @@ void EntityInspector::createGui(MapDocument& document, gl::ContextManager& conte
   restoreWidgetState(m_splitter);
 }
 
-QWidget* EntityInspector::createAttributeEditor(MapDocument& document, QWidget* parent)
+QWidget* EntityInspector::createEntityPropertyEditor(
+  MapDocument& document, QWidget* parent)
 {
   m_attributeEditor = new EntityPropertyEditor{document, parent};
   return m_attributeEditor;
