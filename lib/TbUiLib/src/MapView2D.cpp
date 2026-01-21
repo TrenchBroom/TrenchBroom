@@ -148,7 +148,7 @@ void MapView2D::connectObservers()
     m_camera->cameraDidChangeNotifier.connect(this, &MapView2D::cameraDidChange);
 }
 
-void MapView2D::cameraDidChange(const gl::Camera*)
+void MapView2D::cameraDidChange(const gl::Camera&)
 {
   update();
 }

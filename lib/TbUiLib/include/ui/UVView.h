@@ -86,7 +86,7 @@ private:
 
   void documentDidChange();
   void gridDidChange();
-  void cameraDidChange(const gl::Camera* camera);
+  void cameraDidChange(const gl::Camera& camera);
   void preferenceDidChange(const std::filesystem::path& path);
 
   void updateViewport(int x, int y, int width, int height) override;

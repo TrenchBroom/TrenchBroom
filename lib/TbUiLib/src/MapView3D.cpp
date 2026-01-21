@@ -133,7 +133,7 @@ void MapView3D::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &MapView3D::preferenceDidChange);
 }
 
-void MapView3D::cameraDidChange(const gl::Camera* /* camera */)
+void MapView3D::cameraDidChange(const gl::Camera& /* camera */)
 {
   if (!m_ignoreCameraChangeEvents)
   {

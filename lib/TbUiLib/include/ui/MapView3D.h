@@ -62,7 +62,7 @@ private:
 
 private: // notification
   void connectObservers();
-  void cameraDidChange(const gl::Camera* camera);
+  void cameraDidChange(const gl::Camera& camera);
   void preferenceDidChange(const std::filesystem::path& path);
 
 protected: // QWidget overrides

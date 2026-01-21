@@ -42,10 +42,10 @@ private:
 
 public:
   void addCamera(gl::Camera* camera);
-  void updateCameras(const gl::Camera* masterCamera);
+  void updateCameras(const gl::Camera& masterCamera);
 
 private:
-  void cameraDidChange(const gl::Camera* camera);
+  void cameraDidChange(const gl::Camera& camera);
 };
 
 class CameraLinkableView

@@ -93,7 +93,7 @@ protected:
   mutable bool m_valid = false;
 
 public:
-  Notifier<const Camera*> cameraDidChangeNotifier;
+  Notifier<const Camera&> cameraDidChangeNotifier;
 
   virtual ~Camera();
 

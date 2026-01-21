@@ -237,7 +237,7 @@ void UVView::preferenceDidChange(const std::filesystem::path&)
   update();
 }
 
-void UVView::cameraDidChange(const gl::Camera*)
+void UVView::cameraDidChange(const gl::Camera&)
 {
   update();
 }

@@ -83,7 +83,7 @@ void Camera::setZoom(const float zoom)
     m_zoom = zoom;
     doUpdateZoom();
     m_valid = false;
-    cameraDidChangeNotifier(this);
+    cameraDidChangeNotifier(*this);
   }
 }
 
@@ -266,7 +266,7 @@ void Camera::setNearPlane(const float nearPlane)
   {
     m_nearPlane = nearPlane;
     m_valid = false;
-    cameraDidChangeNotifier(this);
+    cameraDidChangeNotifier(*this);
   }
 }
 
@@ -278,7 +278,7 @@ void Camera::setFarPlane(const float farPlane)
   {
     m_farPlane = farPlane;
     m_valid = false;
-    cameraDidChangeNotifier(this);
+    cameraDidChangeNotifier(*this);
   }
 }
 
@@ -300,7 +300,7 @@ void Camera::moveTo(const vm::vec3f& position)
   {
     m_position = position;
     m_valid = false;
-    cameraDidChangeNotifier(this);
+    cameraDidChangeNotifier(*this);
   }
 }
 
@@ -310,7 +310,7 @@ void Camera::moveBy(const vm::vec3f& delta)
   {
     m_position = m_position + delta;
     m_valid = false;
-    cameraDidChangeNotifier(this);
+    cameraDidChangeNotifier(*this);
   }
 }
 
@@ -338,7 +338,7 @@ void Camera::setDirection(const vm::vec3f& direction, const vm::vec3f& up)
     }
     m_up = vm::cross(m_right, m_direction);
     m_valid = false;
-    cameraDidChangeNotifier(this);
+    cameraDidChangeNotifier(*this);
   }
 }
 

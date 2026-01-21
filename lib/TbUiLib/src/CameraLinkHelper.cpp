@@ -40,25 +40,25 @@ void CameraLinkHelper::addCamera(gl::Camera* camera)
     camera->cameraDidChangeNotifier.connect(this, &CameraLinkHelper::cameraDidChange);
 }
 
-void CameraLinkHelper::updateCameras(const gl::Camera* masterCamera)
+void CameraLinkHelper::updateCameras(const gl::Camera& masterCamera)
 {
   for (auto* camera : m_cameras)
   {
-    if (camera != masterCamera)
+    if (camera != &masterCamera)
     {
-      camera->setZoom(masterCamera->zoom());
+      camera->setZoom(masterCamera.zoom());
 
       const auto oldPosition = camera->position();
-      const auto factors = vm::vec3f{1, 1, 1} - vm::abs(masterCamera->direction())
+      const auto factors = vm::vec3f{1, 1, 1} - vm::abs(masterCamera.direction())
                            - vm::abs(camera->direction());
       const auto newPosition =
-        (vm::vec3f{1, 1, 1} - factors) * oldPosition + factors * masterCamera->position();
+        (vm::vec3f{1, 1, 1} - factors) * oldPosition + factors * masterCamera.position();
       camera->moveTo(newPosition);
     }
   }
 }
 
-void CameraLinkHelper::cameraDidChange(const gl::Camera* camera)
+void CameraLinkHelper::cameraDidChange(const gl::Camera& camera)
 {
   if (!m_ignoreNotifications && pref(Preferences::Link2DCameras))
   {

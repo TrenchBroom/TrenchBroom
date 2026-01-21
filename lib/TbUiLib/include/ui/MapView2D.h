@@ -78,7 +78,7 @@ private:
 
 private: // notification
   void connectObservers();
-  void cameraDidChange(const gl::Camera* camera);
+  void cameraDidChange(const gl::Camera& camera);
 
 private: // implement ToolBoxConnector interface
   PickRequest pickRequest(float x, float y) const override;
