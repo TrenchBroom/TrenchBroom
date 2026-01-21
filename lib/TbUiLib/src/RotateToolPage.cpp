@@ -62,9 +62,11 @@ RotateToolPage::RotateToolPage(MapDocument& document, RotateTool& tool, QWidget*
 void RotateToolPage::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect([this]() { updateGui(); });
+    m_document.documentWasLoadedNotifier.connect([&]() { updateGui(); });
   m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect([this]() { updateGui(); });
+    m_document.documentDidChangeNotifier.connect([&]() { updateGui(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { updateGui(); });
 
   m_notifierConnection +=
     m_tool.rotationCenterDidChangeNotifier.connect([&](const auto& center) {
