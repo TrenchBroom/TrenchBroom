@@ -532,6 +532,8 @@ void FaceAttribsEditor::connectObservers()
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect([&] { refresh(); });
   m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { refresh(); });
+  m_notifierConnection +=
     map.grid().gridDidChangeNotifier.connect(this, &FaceAttribsEditor::updateIncrements);
 }
 
