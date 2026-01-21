@@ -57,6 +57,8 @@ void ScaleToolPage::connectObservers()
     m_document.documentWasLoadedNotifier.connect([&]() { updateGui(); });
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect([&]() { updateGui(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { updateGui(); });
 }
 
 void ScaleToolPage::activate()
