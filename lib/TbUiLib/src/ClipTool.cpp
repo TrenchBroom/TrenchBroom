@@ -985,12 +985,14 @@ bool ClipTool::doRemove()
 void ClipTool::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect(this, &ClipTool::documentDidChange);
+    m_document.documentWasLoadedNotifier.connect([&]() { refresh(); });
   m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect(this, &ClipTool::documentDidChange);
+    m_document.documentDidChangeNotifier.connect([&]() { refresh(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { refresh(); });
 }
 
-void ClipTool::documentDidChange()
+void ClipTool::refresh()
 {
   if (!m_ignoreNotifications)
   {

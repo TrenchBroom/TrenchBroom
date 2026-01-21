@@ -84,7 +84,6 @@ private:
   void createGui();
 
   void connectObservers();
-  void documentDidChange();
 
 private:
   void ensureSelectionVisible();

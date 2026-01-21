@@ -315,15 +315,10 @@ void MapPropertiesEditor::createGui()
 
 void MapPropertiesEditor::connectObservers()
 {
-  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
-    this, &MapPropertiesEditor::documentDidChange);
-  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
-    this, &MapPropertiesEditor::documentDidChange);
-}
-
-void MapPropertiesEditor::documentDidChange()
-{
-  updateGui();
+  m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect([&] { updateGui(); });
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect([&] { updateGui(); });
 }
 
 /**

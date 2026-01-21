@@ -67,7 +67,6 @@ private:
   void OnCurrentRowChanged();
 
   void connectObservers();
-  void documentDidChange();
 
   void updateIfSelectedEntityDefinitionChanged();
   void updateDocumentationAndSmartEditor();

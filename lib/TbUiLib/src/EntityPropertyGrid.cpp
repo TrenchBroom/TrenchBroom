@@ -389,15 +389,12 @@ void EntityPropertyGrid::createGui()
 
 void EntityPropertyGrid::connectObservers()
 {
-  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
-    this, &EntityPropertyGrid::documentDidChange);
-  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
-    this, &EntityPropertyGrid::documentDidChange);
-}
-
-void EntityPropertyGrid::documentDidChange()
-{
-  updateControls();
+  m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect([&] { updateControls(); });
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect([&] { updateControls(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { updateControls(); });
 }
 
 void EntityPropertyGrid::updateControls()

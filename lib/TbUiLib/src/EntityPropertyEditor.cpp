@@ -60,14 +60,11 @@ void EntityPropertyEditor::OnCurrentRowChanged()
 void EntityPropertyEditor::connectObservers()
 {
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
-    this, &EntityPropertyEditor::documentDidChange);
+    [&] { updateIfSelectedEntityDefinitionChanged(); });
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
-    this, &EntityPropertyEditor::documentDidChange);
-}
-
-void EntityPropertyEditor::documentDidChange()
-{
-  updateIfSelectedEntityDefinitionChanged();
+    [&] { updateIfSelectedEntityDefinitionChanged(); });
+  m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
+    [&](const auto&) { updateIfSelectedEntityDefinitionChanged(); });
 }
 
 void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()

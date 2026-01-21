@@ -527,15 +527,17 @@ void FaceAttribsEditor::connectObservers()
 {
   auto& map = m_document.map();
 
-  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
-    this, &FaceAttribsEditor::documentDidChange);
-  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
-    this, &FaceAttribsEditor::documentDidChange);
+  m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect([&] { refresh(); });
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect([&] { refresh(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { refresh(); });
   m_notifierConnection +=
     map.grid().gridDidChangeNotifier.connect(this, &FaceAttribsEditor::updateIncrements);
 }
 
-void FaceAttribsEditor::documentDidChange()
+void FaceAttribsEditor::refresh()
 {
   updateControlsDelayed();
 }

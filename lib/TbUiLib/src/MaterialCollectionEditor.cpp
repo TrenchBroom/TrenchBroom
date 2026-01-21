@@ -225,29 +225,25 @@ void MaterialCollectionEditor::updateButtons()
 
 void MaterialCollectionEditor::connectObservers()
 {
-  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
-    this, &MaterialCollectionEditor::documentDidChange);
-  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
-    this, &MaterialCollectionEditor::documentDidChange);
+  m_notifierConnection +=
+    m_document.documentWasLoadedNotifier.connect([&] { updateUi(); });
+  m_notifierConnection +=
+    m_document.documentDidChangeNotifier.connect([&] { updateUi(); });
 
   auto& prefs = PreferenceManager::instance();
-  m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
-    this, &MaterialCollectionEditor::preferenceDidChange);
+  m_notifierConnection +=
+    prefs.preferenceDidChangeNotifier.connect([&](const auto& path) {
+      if (path == pref(m_document.map().gameInfo().gamePathPreference))
+      {
+        updateUi();
+      }
+    });
 }
 
-void MaterialCollectionEditor::documentDidChange()
+void MaterialCollectionEditor::updateUi()
 {
   updateAllMaterialCollections();
   updateButtons();
-}
-
-void MaterialCollectionEditor::preferenceDidChange(const std::filesystem::path& path)
-{
-  if (path == pref(m_document.map().gameInfo().gamePathPreference))
-  {
-    updateAllMaterialCollections();
-    updateButtons();
-  }
 }
 
 void MaterialCollectionEditor::updateAllMaterialCollections()

@@ -214,14 +214,14 @@ void LayerListBox::connectObservers()
   auto& map = m_document.map();
 
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect(this, &LayerListBox::documentDidChange);
+    m_document.documentWasLoadedNotifier.connect([&] { reloadItems(); });
   m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect(this, &LayerListBox::documentDidChange);
+    m_document.documentDidChangeNotifier.connect([&] { reloadItems(); });
   m_notifierConnection +=
-    map.currentLayerDidChangeNotifier.connect(this, &LayerListBox::currentLayerDidChange);
+    map.currentLayerDidChangeNotifier.connect([&] { updateItems(); });
 }
 
-void LayerListBox::documentDidChange()
+void LayerListBox::reloadItems()
 {
   auto& worldNode = m_document.map().worldNode();
   const auto documentLayers = worldNode.allLayersUserSorted();

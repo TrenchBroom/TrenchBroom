@@ -135,37 +135,24 @@ void EntityBrowser::createGui(gl::ContextManager& contextManager)
 void EntityBrowser::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect(this, &EntityBrowser::documentDidChange);
+    m_document.documentWasLoadedNotifier.connect([&]() { reload(); });
   m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect(this, &EntityBrowser::documentDidChange);
-  m_notifierConnection += m_document.resourcesWereProcessedNotifier.connect(
-    this, &EntityBrowser::resourcesWereProcessed);
+    m_document.documentDidChangeNotifier.connect([&]() { reload(); });
+  m_notifierConnection +=
+    m_document.resourcesWereProcessedNotifier.connect([&](const auto&) { reload(); });
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
-    prefs.preferenceDidChangeNotifier.connect(this, &EntityBrowser::preferenceDidChange);
-}
-
-void EntityBrowser::documentDidChange()
-{
-  reload();
-}
-
-void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
-{
-  if (path == pref(m_document.map().gameInfo().gamePathPreference))
-  {
-    reload();
-  }
-  else
-  {
-    m_view->update();
-  }
-}
-
-void EntityBrowser::resourcesWereProcessed(const std::vector<gl::ResourceId>&)
-{
-  reload();
+    prefs.preferenceDidChangeNotifier.connect([&](const auto& path) {
+      if (path == pref(m_document.map().gameInfo().gamePathPreference))
+      {
+        reload();
+      }
+      else
+      {
+        m_view->update();
+      }
+    });
 }
 
 } // namespace tb::ui

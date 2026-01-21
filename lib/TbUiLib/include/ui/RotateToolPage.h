@@ -64,12 +64,6 @@ private:
   void createGui();
   void updateGui();
 
-  void documentDidChange();
-
-  void rotationCenterDidChange(const vm::vec3d& center);
-  void rotationCenterWasUsed(const vm::vec3d& center);
-  void handleHitAreaDidChange(RotateHandle::HitArea area);
-
   void centerChanged();
   void resetCenterClicked();
   void angleChanged(double value);

@@ -71,10 +71,7 @@ private:
 
   void connectObservers();
 
-  void documentWasLoaded();
-  void entityDefinitionsDidChange();
-
-  void updateControls();
+  void refresh();
 
   void builtinSelectionChanged();
   void chooseExternalClicked();

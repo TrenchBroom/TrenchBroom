@@ -65,7 +65,7 @@ void PerspectiveCamera::setFov(const float fov)
   {
     m_fov = fov;
     m_valid = false;
-    cameraDidChangeNotifier(this);
+    cameraDidChangeNotifier(*this);
   }
 }
 

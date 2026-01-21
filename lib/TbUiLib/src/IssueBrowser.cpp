@@ -24,7 +24,6 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
-#include "mdl/Issue.h"
 #include "mdl/Map.h"
 #include "mdl/Validator.h"
 #include "mdl/WorldNode.h"
@@ -73,27 +72,10 @@ QWidget* IssueBrowser::createTabBarPage(QWidget* parent)
 
 void IssueBrowser::connectObservers()
 {
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect([&] { reload(); });
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect(this, &IssueBrowser::documentDidChange);
-  m_notifierConnection +=
-    m_document.documentWasSavedNotifier.connect(this, &IssueBrowser::documentWasSaved);
-  m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect(this, &IssueBrowser::documentDidChange);
-}
-
-void IssueBrowser::documentWasSaved()
-{
-  m_view->update();
-}
-
-void IssueBrowser::documentDidChange()
-{
-  reload();
-}
-
-void IssueBrowser::issueIgnoreChanged(mdl::Issue*)
-{
-  m_view->update();
+    m_document.documentWasSavedNotifier.connect([&] { m_view->update(); });
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect([&] { reload(); });
 }
 
 void IssueBrowser::reload()

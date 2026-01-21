@@ -51,7 +51,7 @@ public:
 
 private:
   void createGui(MapDocument& document, gl::ContextManager& contextManager);
-  QWidget* createAttributeEditor(MapDocument& document, QWidget* parent);
+  QWidget* createEntityPropertyEditor(MapDocument& document, QWidget* parent);
   QWidget* createEntityBrowser(
     MapDocument& document, gl::ContextManager& contextManager, QWidget* parent);
 };

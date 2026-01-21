@@ -85,7 +85,6 @@ private:
 private:
   void connectObservers();
 
-  void documentDidChange();
   void updateGui();
 };
 

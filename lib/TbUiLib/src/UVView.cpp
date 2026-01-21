@@ -188,22 +188,21 @@ void UVView::connectObservers()
 {
   auto& map = m_document.map();
 
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect([&] { reload(); });
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect([&] { reload(); });
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect(this, &UVView::documentDidChange);
-  m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect(this, &UVView::documentDidChange);
-  m_notifierConnection +=
-    map.grid().gridDidChangeNotifier.connect(this, &UVView::gridDidChange);
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { reload(); });
+  m_notifierConnection += map.grid().gridDidChangeNotifier.connect([&] { update(); });
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
-    prefs.preferenceDidChangeNotifier.connect(this, &UVView::preferenceDidChange);
+    prefs.preferenceDidChangeNotifier.connect([&](const auto&) { update(); });
 
   m_notifierConnection +=
-    m_camera.cameraDidChangeNotifier.connect(this, &UVView::cameraDidChange);
+    m_camera.cameraDidChangeNotifier.connect([&](const auto&) { update(); });
 }
 
-void UVView::documentDidChange()
+void UVView::reload()
 {
   const auto faces = m_document.map().selection().brushFaces;
   if (faces.size() != 1)
@@ -224,21 +223,6 @@ void UVView::documentDidChange()
     m_toolBox.disable();
   }
 
-  update();
-}
-
-void UVView::gridDidChange()
-{
-  update();
-}
-
-void UVView::preferenceDidChange(const std::filesystem::path&)
-{
-  update();
-}
-
-void UVView::cameraDidChange(const gl::Camera*)
-{
   update();
 }
 

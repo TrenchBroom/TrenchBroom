@@ -670,13 +670,15 @@ void ExtrudeTool::cancel()
 
 void ExtrudeTool::connectObservers()
 {
-  m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect(this, &ExtrudeTool::documentDidChange);
-  m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect(this, &ExtrudeTool::documentDidChange);
+  m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
+    [&] { clearDragHandlesIfNotDragging(); });
+  m_notifierConnection += m_document.documentDidChangeNotifier.connect(
+    [&] { clearDragHandlesIfNotDragging(); });
+  m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
+    [&](const auto&) { clearDragHandlesIfNotDragging(); });
 }
 
-void ExtrudeTool::documentDidChange()
+void ExtrudeTool::clearDragHandlesIfNotDragging()
 {
   if (!m_dragging)
   {

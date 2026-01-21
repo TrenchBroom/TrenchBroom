@@ -68,8 +68,7 @@ private:
 
   void connectObservers();
 
-  void documentDidChange();
-  void preferenceDidChange(const std::filesystem::path& path);
+  void updateUi();
 
   void updateAllMaterialCollections();
   void updateAvailableMaterialCollections();

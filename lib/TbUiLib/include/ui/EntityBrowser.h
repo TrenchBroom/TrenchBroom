@@ -73,9 +73,6 @@ private:
   void createGui(gl::ContextManager& contextManager);
 
   void connectObservers();
-  void documentDidChange();
-  void preferenceDidChange(const std::filesystem::path& path);
-  void resourcesWereProcessed(const std::vector<gl::ResourceId>& resources);
 };
 
 } // namespace ui

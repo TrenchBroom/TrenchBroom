@@ -54,9 +54,11 @@ ScaleToolPage::ScaleToolPage(MapDocument& document, QWidget* parent)
 void ScaleToolPage::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect(this, &ScaleToolPage::documentDidChange);
+    m_document.documentWasLoadedNotifier.connect([&]() { updateGui(); });
   m_notifierConnection +=
-    m_document.documentDidChangeNotifier.connect(this, &ScaleToolPage::documentDidChange);
+    m_document.documentDidChangeNotifier.connect([&]() { updateGui(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { updateGui(); });
 }
 
 void ScaleToolPage::activate()
@@ -134,11 +136,6 @@ std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
   default:
     return parse<double, 3>(m_factorsTextBox->text());
   }
-}
-
-void ScaleToolPage::documentDidChange()
-{
-  updateGui();
 }
 
 void ScaleToolPage::applyScale()

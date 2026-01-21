@@ -62,9 +62,6 @@ public:
 
 private:
   void connectObservers();
-  void documentWasSaved();
-  void documentDidChange();
-  void issueIgnoreChanged(mdl::Issue* issue);
 
   void reload();
 
