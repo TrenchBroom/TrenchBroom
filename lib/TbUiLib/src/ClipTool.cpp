@@ -988,6 +988,8 @@ void ClipTool::connectObservers()
     m_document.documentWasLoadedNotifier.connect([&]() { refresh(); });
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect([&]() { refresh(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { refresh(); });
 }
 
 void ClipTool::refresh()
