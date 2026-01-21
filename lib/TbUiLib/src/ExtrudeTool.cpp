@@ -674,6 +674,8 @@ void ExtrudeTool::connectObservers()
     [&] { clearDragHandlesIfNotDragging(); });
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     [&] { clearDragHandlesIfNotDragging(); });
+  m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
+    [&](const auto&) { clearDragHandlesIfNotDragging(); });
 }
 
 void ExtrudeTool::clearDragHandlesIfNotDragging()
