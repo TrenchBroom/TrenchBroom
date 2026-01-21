@@ -156,6 +156,8 @@ void MapViewBase::connectObservers()
     m_document.documentWasLoadedNotifier.connect(this, &MapViewBase::documentWasLoaded);
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect(this, &MapViewBase::documentDidChange);
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect(this, &MapViewBase::selectionDidChange);
 
   m_notifierConnection += m_document.materialCollectionsDidChangeNotifier.connect(
     this, &MapViewBase::materialCollectionsDidChange);
@@ -204,6 +206,13 @@ void MapViewBase::documentWasLoaded()
 }
 
 void MapViewBase::documentDidChange()
+{
+  updatePickResult();
+  updateActionStates();
+  update();
+}
+
+void MapViewBase::selectionDidChange(const mdl::SelectionChange&)
 {
   updatePickResult();
   updateActionStates();

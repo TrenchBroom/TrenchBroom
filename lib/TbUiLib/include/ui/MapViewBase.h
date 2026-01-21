@@ -44,13 +44,16 @@ class Camera;
 
 namespace mdl
 {
-struct EntityDefinition;
 class GroupNode;
 class Map;
 class Node;
 class Selection;
 class SmartTag;
+
 enum class EntityDefinitionType;
+
+struct EntityDefinition;
+struct SelectionChange;
 } // namespace mdl
 
 namespace render
@@ -145,6 +148,7 @@ private:
 
   void documentWasLoaded();
   void documentDidChange();
+  void selectionDidChange(const mdl::SelectionChange&);
 
   void toolChanged(Tool& tool);
   void materialCollectionsDidChange();
