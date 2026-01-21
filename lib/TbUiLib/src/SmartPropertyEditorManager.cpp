@@ -162,6 +162,7 @@ void SmartPropertyEditorManager::connectObservers()
 
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect(updateEditor);
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(updateEditor);
+  m_notifierConnection += m_document.selectionDidChangeNotifier.connect(updateEditor);
 }
 
 SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(
