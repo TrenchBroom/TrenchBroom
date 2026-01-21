@@ -168,13 +168,13 @@ void EntityDefinitionFileChooser::bindEvents()
 void EntityDefinitionFileChooser::connectObservers()
 {
   m_notifierConnection +=
-    m_document.documentWasLoadedNotifier.connect([&] { updateControls(); });
+    m_document.documentWasLoadedNotifier.connect([&] { refresh(); });
 
   m_notifierConnection +=
-    m_document.entityDefinitionsDidChangeNotifier.connect([&] { updateControls(); });
+    m_document.entityDefinitionsDidChangeNotifier.connect([&] { refresh(); });
 }
 
-void EntityDefinitionFileChooser::updateControls()
+void EntityDefinitionFileChooser::refresh()
 {
   m_builtin->setAllowDeselectAll(true);
   m_builtin->clear();

@@ -71,7 +71,7 @@ private:
 
   void connectObservers();
 
-  void updateControls();
+  void refresh();
 
   void builtinSelectionChanged();
   void chooseExternalClicked();
