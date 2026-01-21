@@ -393,6 +393,8 @@ void EntityPropertyGrid::connectObservers()
     m_document.documentWasLoadedNotifier.connect([&] { updateControls(); });
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect([&] { updateControls(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { updateControls(); });
 }
 
 void EntityPropertyGrid::updateControls()

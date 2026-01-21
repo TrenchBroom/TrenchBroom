@@ -63,6 +63,8 @@ void EntityPropertyEditor::connectObservers()
     [&] { updateIfSelectedEntityDefinitionChanged(); });
   m_notifierConnection += m_document.documentDidChangeNotifier.connect(
     [&] { updateIfSelectedEntityDefinitionChanged(); });
+  m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
+    [&](const auto&) { updateIfSelectedEntityDefinitionChanged(); });
 }
 
 void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()
