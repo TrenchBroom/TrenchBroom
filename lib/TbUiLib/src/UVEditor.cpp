@@ -148,6 +148,8 @@ void UVEditor::connectObservers()
     m_document.documentWasLoadedNotifier.connect([&]() { updateButtons(); });
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect([&]() { updateButtons(); });
+  m_notifierConnection +=
+    m_document.selectionDidChangeNotifier.connect([&](const auto&) { updateButtons(); });
 }
 
 void UVEditor::resetUVClicked()
