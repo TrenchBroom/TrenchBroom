@@ -20,9 +20,9 @@
 
 #include "kd/ranges/zip_view.h"
 
-#include <algorithm>
 #include <array>
 #include <map>
+#include <memory>
 #include <ranges>
 #include <sstream>
 #include <string>
@@ -180,7 +180,9 @@ TEST_CASE("zip")
     SECTION("as lvalue")
     {
       auto z = views::zip(v, w);
-      static_assert(std::ranges::input_range<decltype(z)>);
+
+      // does not work because std::convertible_to is not satisfied (fixed in C++23)
+      // static_assert(std::ranges::input_range<decltype(z)>);
 
       CHECK_THAT(
         z,
@@ -243,6 +245,21 @@ TEST_CASE("zip")
       const auto l = std::initializer_list<int>{3, 4};
       const auto z = views::zip(v, l);
       CHECK_THAT(z, RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+    }
+
+    SECTION("move-only value types")
+    {
+      auto move_only = std::vector<std::unique_ptr<int>>{};
+      move_only.push_back(std::make_unique<int>(1));
+
+      auto copyable = std::vector<float>{2.0};
+      auto z = views::zip(move_only, copyable);
+
+      CHECK_THAT(
+        z,
+        RangeEquals(std::vector<std::tuple<std::unique_ptr<int>&, float&>>{
+          {move_only[0], copyable[0]},
+        }));
     }
   }
 }

@@ -21,6 +21,7 @@
 #include "kd/ranges/zip_transform_view.h"
 
 #include <forward_list>
+#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -158,6 +159,24 @@ TEST_CASE("zip_transform")
     auto z = views::zip_transform(prod, v, w);
 
     CHECK_THAT(z, RangeEquals(std::vector<double>{4.0, 10.0, 18.0}));
+  }
+
+
+  SECTION("move-only value types")
+  {
+    const auto prod_deref = [](auto&&... x) { return (*x * ...); };
+
+    auto lhs = std::vector<std::unique_ptr<int>>{};
+    lhs.push_back(std::make_unique<int>(2));
+    lhs.push_back(std::make_unique<int>(3));
+
+    auto rhs = std::vector<std::unique_ptr<int>>{};
+    rhs.push_back(std::make_unique<int>(4));
+    rhs.push_back(std::make_unique<int>(5));
+
+    auto z = views::zip_transform(prod_deref, lhs, rhs);
+
+    CHECK_THAT(z, RangeEquals(std::vector<int>{8, 15}));
   }
 }
 

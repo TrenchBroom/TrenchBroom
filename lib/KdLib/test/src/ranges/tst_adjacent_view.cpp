@@ -20,6 +20,7 @@
 
 #include "kd/ranges/adjacent_view.h"
 
+#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -157,6 +158,21 @@ TEST_CASE("adjacent")
     auto a = v | views::pairwise;
 
     CHECK_THAT(a, RangeEquals(std::vector<std::tuple<int, int>>{{1, 2}, {2, 3}, {3, 4}}));
+  }
+
+  SECTION("move-only values")
+  {
+    auto v = std::vector<std::unique_ptr<int>>{};
+    v.push_back(std::make_unique<int>(1));
+    v.push_back(std::make_unique<int>(2));
+    v.push_back(std::make_unique<int>(3));
+
+    CHECK_THAT(
+      v | views::adjacent<2>,
+      RangeEquals(std::vector<std::tuple<std::unique_ptr<int>&, std::unique_ptr<int>&>>{
+        {v[0], v[1]},
+        {v[1], v[2]},
+      }));
   }
 }
 

@@ -22,15 +22,19 @@
 #include "kd/ranges/to.h"
 
 #include <forward_list>
+#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
 
 TEST_CASE("adjacent_transform")
 {
+  using namespace Catch::Matchers;
+
   const auto f = [](auto x, auto y, auto z) { return x * y * z; };
 
   SECTION("properties")
@@ -181,6 +185,19 @@ TEST_CASE("adjacent_transform")
     CHECK(
       (v | views::adjacent_transform<5>(var_sum) | ranges::to<std::vector>())
       == std::vector<int>{});
+  }
+
+  SECTION("move-only values")
+  {
+    auto v = std::vector<std::unique_ptr<int>>{};
+    v.push_back(std::make_unique<int>(1));
+    v.push_back(std::make_unique<int>(2));
+    v.push_back(std::make_unique<int>(3));
+
+    const auto var_sum = [](auto&&... x) { return (*x + ...); };
+
+    CHECK_THAT(
+      v | views::adjacent_transform<2>(var_sum), RangeEquals(std::vector<int>{3, 5}));
   }
 }
 

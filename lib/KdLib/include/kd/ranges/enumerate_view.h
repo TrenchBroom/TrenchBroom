@@ -21,6 +21,7 @@
 #pragma once
 
 #include "detail/range_utils.h"
+#include "detail/tuple_common_reference.h" // IWYU pragma: keep
 
 #include <ranges>
 
@@ -56,9 +57,8 @@ public:
     using value_type = std::tuple<difference_type, std::ranges::range_value_t<Base>>;
 
   private:
-    // Note: this should use std::ranges::range_reference_t, but that doesn't compile with
-    // -std=c++20 (it does with -std=c++23).
-    using reference_type = std::tuple<difference_type, std::ranges::range_value_t<Base>>;
+    using reference_type =
+      std::tuple<difference_type, std::ranges::range_reference_t<Base>>;
 
   public:
     iterator()

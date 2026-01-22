@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -182,7 +183,9 @@ TEST_CASE("enumerate")
     SECTION("as lvalue")
     {
       auto e = std::ranges::istream_view<int>(ints) | views::enumerate;
-      static_assert(std::ranges::input_range<decltype(e)>);
+
+      // does not work because std::convertible_to is not satisfied (fixed in C++23)
+      // static_assert(std::ranges::input_range<decltype(e)>);
 
       using tuple_type = typename std::ranges::iterator_t<decltype(e)>::value_type;
 
@@ -259,6 +262,22 @@ TEST_CASE("enumerate")
       using tuple_type = typename std::ranges::iterator_t<decltype(e)>::value_type;
 
       CHECK_THAT(e, RangeEquals(std::vector<tuple_type>{{0, 1}, {1, 2}, {2, 3}, {3, 4}}));
+    }
+
+    SECTION("move-only values")
+    {
+      auto v = std::vector<std::unique_ptr<int>>{};
+      v.push_back(std::make_unique<int>(1));
+      v.push_back(std::make_unique<int>(2));
+      v.push_back(std::make_unique<int>(3));
+
+      CHECK_THAT(
+        v | views::enumerate,
+        RangeEquals(std::vector<std::tuple<long, std::unique_ptr<int>&>>{
+          {0, v[0]},
+          {1, v[1]},
+          {2, v[2]},
+        }));
     }
   }
 }

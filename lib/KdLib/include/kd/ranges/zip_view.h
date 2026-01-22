@@ -21,6 +21,7 @@
 #pragma once
 
 #include "detail/range_utils.h"
+#include "detail/tuple_common_reference.h" // IWYU pragma: keep
 
 #include <algorithm>
 #include <ranges>
@@ -149,14 +150,16 @@ public:
 
     constexpr auto operator*() const
     {
-      return detail::tuple_transform([](auto&& i) { return *i; }, current_);
+      return detail::tuple_transform(
+        [](auto& i) -> decltype(auto) { return *i; }, current_);
     }
 
     constexpr auto operator[](const difference_type n) const
       requires(std::ranges::random_access_range<Views> && ...)
     {
       return detail::tuple_transform(
-        [&](auto&& i) { return i[std::iter_difference_t<decltype(i)>(n)]; }, current_);
+        [&]<class I>(I& i) -> decltype(auto) { return i[std::iter_difference_t<I>(n)]; },
+        current_);
     }
 
     constexpr iterator& operator++()

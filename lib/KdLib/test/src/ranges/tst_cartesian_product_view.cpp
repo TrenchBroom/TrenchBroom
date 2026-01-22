@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <forward_list>
+#include <memory>
 #include <sstream>
 #include <vector>
 
@@ -207,6 +208,23 @@ TEST_CASE("cartesian_product")
       (make<int, float>({1, 2}, {4.0f, 5.0f, 6.0f})),
       RangeEquals(std::vector<std::tuple<int, float>>{
         {1, 4.0f}, {1, 5.0f}, {1, 6.0f}, {2, 4.0f}, {2, 5.0f}, {2, 6.0f}}));
+  }
+
+
+  SECTION("move-only values")
+  {
+    auto v = std::vector<std::unique_ptr<int>>{};
+    v.push_back(std::make_unique<int>(1));
+    v.push_back(std::make_unique<int>(2));
+
+    auto w = std::vector<float>{1.0f};
+
+    CHECK_THAT(
+      views::cartesian_product(v, w),
+      RangeEquals(std::vector<std::tuple<std::unique_ptr<int>&, float&>>{
+        {v[0], w[0]},
+        {v[1], w[0]},
+      }));
   }
 }
 
