@@ -20,15 +20,16 @@
 
 #include "kd/ranges/zip_view.h"
 
-#include <algorithm>
 #include <array>
 #include <map>
+#include <memory>
 #include <ranges>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 
 namespace kdl
@@ -36,6 +37,8 @@ namespace kdl
 
 TEST_CASE("zip")
 {
+  using namespace Catch::Matchers;
+
   SECTION("iterator / sentinel")
   {
     SECTION("required types")
@@ -177,10 +180,13 @@ TEST_CASE("zip")
     SECTION("as lvalue")
     {
       auto z = views::zip(v, w);
-      static_assert(std::ranges::input_range<decltype(z)>);
 
-      CHECK(std::ranges::equal(
-        z, std::vector<std::tuple<int, int>>{{1, 5}, {2, 6}, {3, 7}, {4, 8}}));
+      // does not work because std::convertible_to is not satisfied (fixed in C++23)
+      // static_assert(std::ranges::input_range<decltype(z)>);
+
+      CHECK_THAT(
+        z,
+        RangeEquals(std::vector<std::tuple<int, int>>{{1, 5}, {2, 6}, {3, 7}, {4, 8}}));
     }
   }
 
@@ -188,13 +194,13 @@ TEST_CASE("zip")
   {
     SECTION("as rvalue")
     {
-      CHECK(std::ranges::equal(
+      CHECK_THAT(
         views::zip(std::vector<int>{1, 2}, std::vector<int>{3, 4}),
-        std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+        RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
 
-      CHECK(std::ranges::equal(
+      CHECK_THAT(
         views::zip(std::vector<int>{}, std::vector<int>{}),
-        std::vector<std::tuple<int, int>>{}));
+        RangeEquals(std::vector<std::tuple<int, int>>{}));
     }
 
     SECTION("as lvalue")
@@ -205,7 +211,7 @@ TEST_CASE("zip")
 
       static_assert(std::ranges::bidirectional_range<decltype(z)>);
 
-      CHECK(std::ranges::equal(z, std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+      CHECK_THAT(z, RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
     }
   }
 
@@ -216,7 +222,7 @@ TEST_CASE("zip")
       const int a[] = {1, 2};
       const auto v = std::vector<int>{3, 4};
       auto z = views::zip(a, v);
-      CHECK(std::ranges::equal(z, std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+      CHECK_THAT(z, RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
     }
 
     SECTION("map types")
@@ -225,9 +231,9 @@ TEST_CASE("zip")
       const auto m = std::map<int, std::string>{{3, "three"}, {4, "four"}};
       const auto z = views::zip(v, m);
 
-      CHECK(std::ranges::equal(
+      CHECK_THAT(
         z,
-        std::vector<std::tuple<int, std::pair<const int, std::string>>>{
+        RangeEquals(std::vector<std::tuple<int, std::pair<const int, std::string>>>{
           {1, {3, "three"}},
           {2, {4, "four"}},
         }));
@@ -238,7 +244,22 @@ TEST_CASE("zip")
       const auto v = std::vector<int>{1, 2};
       const auto l = std::initializer_list<int>{3, 4};
       const auto z = views::zip(v, l);
-      CHECK(std::ranges::equal(z, std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+      CHECK_THAT(z, RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+    }
+
+    SECTION("move-only value types")
+    {
+      auto move_only = std::vector<std::unique_ptr<int>>{};
+      move_only.push_back(std::make_unique<int>(1));
+
+      auto copyable = std::vector<float>{2.0};
+      auto z = views::zip(move_only, copyable);
+
+      CHECK_THAT(
+        z,
+        RangeEquals(std::vector<std::tuple<std::unique_ptr<int>&, float&>>{
+          {move_only[0], copyable[0]},
+        }));
     }
   }
 }

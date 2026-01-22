@@ -13,6 +13,7 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_slide_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_stride_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_to.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_tuple_common_reference.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_zip_transform_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_zip_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/test_utils.cpp"

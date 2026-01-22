@@ -20,15 +20,19 @@
 
 #include "kd/ranges/adjacent_view.h"
 
+#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
 
 TEST_CASE("adjacent")
 {
+  using namespace Catch::Matchers;
+
   SECTION("properties")
   {
     const auto v = std::vector<int>{1, 2, 3, 4};
@@ -153,9 +157,22 @@ TEST_CASE("adjacent")
     const auto v = std::vector<int>{1, 2, 3, 4};
     auto a = v | views::pairwise;
 
-    CHECK(a[0] == std::tuple{1, 2});
-    CHECK(a[1] == std::tuple{2, 3});
-    CHECK(a[2] == std::tuple{3, 4});
+    CHECK_THAT(a, RangeEquals(std::vector<std::tuple<int, int>>{{1, 2}, {2, 3}, {3, 4}}));
+  }
+
+  SECTION("move-only values")
+  {
+    auto v = std::vector<std::unique_ptr<int>>{};
+    v.push_back(std::make_unique<int>(1));
+    v.push_back(std::make_unique<int>(2));
+    v.push_back(std::make_unique<int>(3));
+
+    CHECK_THAT(
+      v | views::adjacent<2>,
+      RangeEquals(std::vector<std::tuple<std::unique_ptr<int>&, std::unique_ptr<int>&>>{
+        {v[0], v[1]},
+        {v[1], v[2]},
+      }));
   }
 }
 

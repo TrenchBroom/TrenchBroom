@@ -84,6 +84,9 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     /we4289 # nonstandard extension used: 'variable': loop control variable declared in the for-loop is used outside the for-loop scope
   )
 
+  # Enable updated __cplusplus macro
+  add_compile_options(/Zc:__cplusplus)
+
   # disable warnings on external code: https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
   target_compile_options(CompilerConfig INTERFACE /experimental:external /external:anglebrackets /external:W0)
 

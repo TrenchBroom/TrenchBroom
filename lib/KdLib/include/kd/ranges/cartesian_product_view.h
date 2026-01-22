@@ -21,6 +21,7 @@
 #pragma once
 
 #include "detail/range_utils.h"
+#include "detail/tuple_common_reference.h" // IWYU pragma: keep
 
 #include <cstdint>
 #include <ranges>
@@ -177,11 +178,9 @@ public:
       std::ranges::range_value_t<detail::maybe_const<Const, First>>,
       std::ranges::range_value_t<detail::maybe_const<Const, Vs>>...>;
 
-    // Note: this should use std::ranges::range_reference_t, but that doesn't compile with
-    // -std=c++20 (it does with -std=c++23).
     using reference = std::tuple<
-      std::ranges::range_value_t<detail::maybe_const<Const, First>>,
-      std::ranges::range_value_t<detail::maybe_const<Const, Vs>>...>;
+      std::ranges::range_reference_t<detail::maybe_const<Const, First>>,
+      std::ranges::range_reference_t<detail::maybe_const<Const, Vs>>...>;
     using difference_type = std::intmax_t;
 
     iterator() = default;
@@ -194,7 +193,7 @@ public:
     {
     }
 
-    constexpr value_type operator*() const
+    constexpr reference operator*() const
     {
       return detail::tuple_transform(
         [](auto& i) -> decltype(auto) { return *i; }, current_);

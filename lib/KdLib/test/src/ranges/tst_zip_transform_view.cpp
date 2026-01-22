@@ -18,19 +18,22 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kd/ranges/to.h"
 #include "kd/ranges/zip_transform_view.h"
 
 #include <forward_list>
+#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
 
 TEST_CASE("zip_transform")
 {
+  using namespace Catch::Matchers;
+
   const auto prod = [](auto&&... x) { return (x * ...); };
 
   SECTION("properties")
@@ -147,6 +150,33 @@ TEST_CASE("zip_transform")
       CHECK_FALSE(i > i);
       CHECK(i >= i);
     }
+  }
+
+  SECTION("examples")
+  {
+    const auto v = std::vector{1, 2, 3};
+    const auto w = std::vector{4.0, 5.0, 6.0, 7.0};
+    auto z = views::zip_transform(prod, v, w);
+
+    CHECK_THAT(z, RangeEquals(std::vector<double>{4.0, 10.0, 18.0}));
+  }
+
+
+  SECTION("move-only value types")
+  {
+    const auto prod_deref = [](auto&&... x) { return (*x * ...); };
+
+    auto lhs = std::vector<std::unique_ptr<int>>{};
+    lhs.push_back(std::make_unique<int>(2));
+    lhs.push_back(std::make_unique<int>(3));
+
+    auto rhs = std::vector<std::unique_ptr<int>>{};
+    rhs.push_back(std::make_unique<int>(4));
+    rhs.push_back(std::make_unique<int>(5));
+
+    auto z = views::zip_transform(prod_deref, lhs, rhs);
+
+    CHECK_THAT(z, RangeEquals(std::vector<int>{8, 15}));
   }
 }
 
