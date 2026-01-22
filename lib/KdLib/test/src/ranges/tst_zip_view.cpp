@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 
 namespace kdl
@@ -36,6 +37,8 @@ namespace kdl
 
 TEST_CASE("zip")
 {
+  using namespace Catch::Matchers;
+
   SECTION("iterator / sentinel")
   {
     SECTION("required types")
@@ -179,8 +182,9 @@ TEST_CASE("zip")
       auto z = views::zip(v, w);
       static_assert(std::ranges::input_range<decltype(z)>);
 
-      CHECK(std::ranges::equal(
-        z, std::vector<std::tuple<int, int>>{{1, 5}, {2, 6}, {3, 7}, {4, 8}}));
+      CHECK_THAT(
+        z,
+        RangeEquals(std::vector<std::tuple<int, int>>{{1, 5}, {2, 6}, {3, 7}, {4, 8}}));
     }
   }
 
@@ -188,13 +192,13 @@ TEST_CASE("zip")
   {
     SECTION("as rvalue")
     {
-      CHECK(std::ranges::equal(
+      CHECK_THAT(
         views::zip(std::vector<int>{1, 2}, std::vector<int>{3, 4}),
-        std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+        RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
 
-      CHECK(std::ranges::equal(
+      CHECK_THAT(
         views::zip(std::vector<int>{}, std::vector<int>{}),
-        std::vector<std::tuple<int, int>>{}));
+        RangeEquals(std::vector<std::tuple<int, int>>{}));
     }
 
     SECTION("as lvalue")
@@ -205,7 +209,7 @@ TEST_CASE("zip")
 
       static_assert(std::ranges::bidirectional_range<decltype(z)>);
 
-      CHECK(std::ranges::equal(z, std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+      CHECK_THAT(z, RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
     }
   }
 
@@ -216,7 +220,7 @@ TEST_CASE("zip")
       const int a[] = {1, 2};
       const auto v = std::vector<int>{3, 4};
       auto z = views::zip(a, v);
-      CHECK(std::ranges::equal(z, std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+      CHECK_THAT(z, RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
     }
 
     SECTION("map types")
@@ -225,9 +229,9 @@ TEST_CASE("zip")
       const auto m = std::map<int, std::string>{{3, "three"}, {4, "four"}};
       const auto z = views::zip(v, m);
 
-      CHECK(std::ranges::equal(
+      CHECK_THAT(
         z,
-        std::vector<std::tuple<int, std::pair<const int, std::string>>>{
+        RangeEquals(std::vector<std::tuple<int, std::pair<const int, std::string>>>{
           {1, {3, "three"}},
           {2, {4, "four"}},
         }));
@@ -238,7 +242,7 @@ TEST_CASE("zip")
       const auto v = std::vector<int>{1, 2};
       const auto l = std::initializer_list<int>{3, 4};
       const auto z = views::zip(v, l);
-      CHECK(std::ranges::equal(z, std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
+      CHECK_THAT(z, RangeEquals(std::vector<std::tuple<int, int>>{{1, 3}, {2, 4}}));
     }
   }
 }

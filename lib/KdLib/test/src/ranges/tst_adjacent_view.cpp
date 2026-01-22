@@ -23,12 +23,15 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
 
 TEST_CASE("adjacent")
 {
+  using namespace Catch::Matchers;
+
   SECTION("properties")
   {
     const auto v = std::vector<int>{1, 2, 3, 4};
@@ -153,9 +156,7 @@ TEST_CASE("adjacent")
     const auto v = std::vector<int>{1, 2, 3, 4};
     auto a = v | views::pairwise;
 
-    CHECK(a[0] == std::tuple{1, 2});
-    CHECK(a[1] == std::tuple{2, 3});
-    CHECK(a[2] == std::tuple{3, 4});
+    CHECK_THAT(a, RangeEquals(std::vector<std::tuple<int, int>>{{1, 2}, {2, 3}, {3, 4}}));
   }
 }
 

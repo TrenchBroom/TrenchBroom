@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
@@ -41,6 +42,8 @@ auto make_slide(std::vector<T> v, const int n)
 
 TEST_CASE("slide")
 {
+  using namespace Catch::Matchers;
+
   SECTION("iterator / sentinel")
   {
     SECTION("required types")
@@ -67,22 +70,21 @@ TEST_CASE("slide")
       auto s = v | views::slide(2);
 
       auto it = s.begin();
-      REQUIRE(std::ranges::equal(*it, std::vector{1, 2}));
+      REQUIRE_THAT(*it, RangeEquals(std::vector{1, 2}));
 
-      CHECK(std::ranges::equal(*it++, std::vector{1, 2}));
-      CHECK(std::ranges::equal(*it, std::vector{2, 3}));
+      CHECK_THAT(*it++, RangeEquals(std::vector{1, 2}));
+      CHECK_THAT(*it, RangeEquals(std::vector{2, 3}));
 
-      CHECK(std::ranges::equal(*++it, std::vector{3, 4}));
-      CHECK(std::ranges::equal(*it, std::vector{3, 4}));
+      CHECK_THAT(*++it, RangeEquals(std::vector{3, 4}));
+      CHECK_THAT(*it, RangeEquals(std::vector{3, 4}));
 
       CHECK(std::next(it) == s.end());
 
-      CHECK(std::ranges::equal(*it--, std::vector{3, 4}));
-      CHECK(std::ranges::equal(*it, std::vector{2, 3}));
+      CHECK_THAT(*it--, RangeEquals(std::vector{3, 4}));
+      CHECK_THAT(*it, RangeEquals(std::vector{2, 3}));
 
-      CHECK(std::ranges::equal(*--it, std::vector{1, 2}));
-      CHECK(std::ranges::equal(*it, std::vector{1, 2}));
-
+      CHECK_THAT(*--it, RangeEquals(std::vector{1, 2}));
+      CHECK_THAT(*it, RangeEquals(std::vector{1, 2}));
       CHECK((it + 1) == std::next(s.begin()));
       CHECK((1 + it) == std::next(s.begin()));
       CHECK((it += 1) == std::next(s.begin()));
@@ -92,7 +94,7 @@ TEST_CASE("slide")
       CHECK((it -= 1) == s.begin());
       CHECK(it == s.begin());
 
-      CHECK(std::ranges::equal(*(s.begin() + 2), std::vector{3, 4}));
+      CHECK_THAT(*(s.begin() + 2), RangeEquals(std::vector{3, 4}));
       CHECK(s.begin() + 3 == s.end());
     }
 
@@ -102,12 +104,12 @@ TEST_CASE("slide")
       auto s = v | views::slide(2);
 
       auto it = s.begin();
-      CHECK(std::ranges::equal(it[0], std::vector{1, 2}));
-      CHECK(std::ranges::equal(it[1], std::vector{2, 3}));
-      CHECK(std::ranges::equal(it[2], std::vector{3, 4}));
+      CHECK_THAT(it[0], RangeEquals(std::vector{1, 2}));
+      CHECK_THAT(it[1], RangeEquals(std::vector{2, 3}));
+      CHECK_THAT(it[2], RangeEquals(std::vector{3, 4}));
 
       // Check that the iterator is not invalidated
-      CHECK(std::ranges::equal(*it, std::vector{1, 2}));
+      CHECK_THAT(*it, RangeEquals(std::vector{1, 2}));
     }
 
     SECTION("comparison")

@@ -26,6 +26,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
@@ -42,6 +43,8 @@ auto make(std::vector<T> v, std::vector<U> w)
 
 TEST_CASE("cartesian_product")
 {
+  using namespace Catch::Matchers;
+
   SECTION("iterator / sentinel")
   {
     SECTION("required types (random access range)")
@@ -177,30 +180,32 @@ TEST_CASE("cartesian_product")
 
   SECTION("examples")
   {
-    CHECK(std::ranges::equal(
-      make<int, float>({}, {}), std::vector<std::tuple<int, float>>{}));
-    CHECK(std::ranges::equal(
-      make<int, float>({1}, {}), std::vector<std::tuple<int, float>>{}));
-    CHECK(std::ranges::equal(
-      make<int, float>({}, {4.0f}), std::vector<std::tuple<int, float>>{}));
-    CHECK(std::ranges::equal(
-      make<int, float>({1}, {4.0f}), std::vector<std::tuple<int, float>>{{1, 4.0f}}));
-    CHECK(std::ranges::equal(
-      make<int, float>({1, 2}, {4.0f}),
-      std::vector<std::tuple<int, float>>{{1, 4.0f}, {2, 4.0f}}));
-    CHECK(std::ranges::equal(
-      make<int, float>({1}, {4.0f, 5.0f}),
-      std::vector<std::tuple<int, float>>{{1, 4.0f}, {1, 5.0f}}));
-    CHECK(std::ranges::equal(
-      make<int, float>({1, 2}, {4.0f, 5.0f}),
-      std::vector<std::tuple<int, float>>{{1, 4.0f}, {1, 5.0f}, {2, 4.0f}, {2, 5.0f}}));
-    CHECK(std::ranges::equal(
-      make<int, float>({1, 2, 3}, {4.0f, 5.0f}),
-      std::vector<std::tuple<int, float>>{
+    CHECK_THAT(
+      (make<int, float>({}, {})), RangeEquals(std::vector<std::tuple<int, float>>{}));
+    CHECK_THAT(
+      (make<int, float>({1}, {})), RangeEquals(std::vector<std::tuple<int, float>>{}));
+    CHECK_THAT(
+      (make<int, float>({}, {4.0f})), RangeEquals(std::vector<std::tuple<int, float>>{}));
+    CHECK_THAT(
+      (make<int, float>({1}, {4.0f})),
+      RangeEquals(std::vector<std::tuple<int, float>>{{1, 4.0f}}));
+    CHECK_THAT(
+      (make<int, float>({1, 2}, {4.0f})),
+      RangeEquals(std::vector<std::tuple<int, float>>{{1, 4.0f}, {2, 4.0f}}));
+    CHECK_THAT(
+      (make<int, float>({1}, {4.0f, 5.0f})),
+      RangeEquals(std::vector<std::tuple<int, float>>{{1, 4.0f}, {1, 5.0f}}));
+    CHECK_THAT(
+      (make<int, float>({1, 2}, {4.0f, 5.0f})),
+      RangeEquals(
+        std::vector<std::tuple<int, float>>{{1, 4.0f}, {1, 5.0f}, {2, 4.0f}, {2, 5.0f}}));
+    CHECK_THAT(
+      (make<int, float>({1, 2, 3}, {4.0f, 5.0f})),
+      RangeEquals(std::vector<std::tuple<int, float>>{
         {1, 4.0f}, {1, 5.0f}, {2, 4.0f}, {2, 5.0f}, {3, 4.0f}, {3, 5.0f}}));
-    CHECK(std::ranges::equal(
-      make<int, float>({1, 2}, {4.0f, 5.0f, 6.0f}),
-      std::vector<std::tuple<int, float>>{
+    CHECK_THAT(
+      (make<int, float>({1, 2}, {4.0f, 5.0f, 6.0f})),
+      RangeEquals(std::vector<std::tuple<int, float>>{
         {1, 4.0f}, {1, 5.0f}, {1, 6.0f}, {2, 4.0f}, {2, 5.0f}, {2, 6.0f}}));
   }
 }

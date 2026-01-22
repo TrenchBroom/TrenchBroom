@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
@@ -41,6 +42,8 @@ auto make_stride(std::vector<T> v, const int n)
 
 TEST_CASE("stride")
 {
+  using namespace Catch::Matchers;
+
   SECTION("iterator / sentinel")
   {
     SECTION("required types (random access range)")
@@ -147,13 +150,13 @@ TEST_CASE("stride")
 
   SECTION("examples")
   {
-    CHECK(std::ranges::equal(make_stride<int>({}, 2), std::vector<int>{}));
-    CHECK(std::ranges::equal(make_stride<int>({1}, 2), std::vector<int>{1}));
-    CHECK(std::ranges::equal(make_stride<int>({1, 2}, 2), std::vector<int>{1}));
-    CHECK(std::ranges::equal(make_stride<int>({1, 2, 3}, 2), std::vector<int>{1, 3}));
-    CHECK(std::ranges::equal(make_stride<int>({1, 2, 3, 4}, 2), std::vector<int>{1, 3}));
-    CHECK(std::ranges::equal(make_stride<int>({1, 2, 3, 4}, 3), std::vector<int>{1, 4}));
-    CHECK(std::ranges::equal(make_stride<int>({1, 2, 3}, 1), std::vector<int>{1, 2, 3}));
+    CHECK_THAT(make_stride<int>({}, 2), RangeEquals(std::vector<int>{}));
+    CHECK_THAT(make_stride<int>({1}, 2), RangeEquals(std::vector<int>{1}));
+    CHECK_THAT(make_stride<int>({1, 2}, 2), RangeEquals(std::vector<int>{1}));
+    CHECK_THAT(make_stride<int>({1, 2, 3}, 2), RangeEquals(std::vector<int>{1, 3}));
+    CHECK_THAT(make_stride<int>({1, 2, 3, 4}, 2), RangeEquals(std::vector<int>{1, 3}));
+    CHECK_THAT(make_stride<int>({1, 2, 3, 4}, 3), RangeEquals(std::vector<int>{1, 4}));
+    CHECK_THAT(make_stride<int>({1, 2, 3}, 1), RangeEquals(std::vector<int>{1, 2, 3}));
   }
 }
 
