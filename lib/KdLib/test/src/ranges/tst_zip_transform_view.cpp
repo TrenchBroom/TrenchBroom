@@ -24,12 +24,15 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
 
 TEST_CASE("zip_transform")
 {
+  using namespace Catch::Matchers;
+
   const auto prod = [](auto&&... x) { return (x * ...); };
 
   SECTION("properties")
@@ -146,6 +149,15 @@ TEST_CASE("zip_transform")
       CHECK_FALSE(i > i);
       CHECK(i >= i);
     }
+  }
+
+  SECTION("examples")
+  {
+    const auto v = std::vector{1, 2, 3};
+    const auto w = std::vector{4.0, 5.0, 6.0, 7.0};
+    auto z = views::zip_transform(prod, v, w);
+
+    CHECK_THAT(z, RangeEquals(std::vector<double>{4.0, 10.0, 18.0}));
   }
 }
 
