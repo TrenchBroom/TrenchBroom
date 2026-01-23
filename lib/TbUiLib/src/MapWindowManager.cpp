@@ -34,10 +34,11 @@
 namespace tb::ui
 {
 
-MapWindowManager::MapWindowManager(AppController& appController, const bool singleFrame)
+MapWindowManager::MapWindowManager(
+  AppController& appController, const bool singleMapWindow)
   : QObject{&appController}
   , m_appController{appController}
-  , m_singleMapWindow{singleFrame}
+  , m_singleMapWindow{singleMapWindow}
 {
   connect(qApp, &QApplication::focusChanged, this, &MapWindowManager::onFocusChange);
 }
@@ -68,10 +69,11 @@ Result<void> MapWindowManager::createDocument(
            | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
-  auto* frame = topMapWindow();
-  contract_assert(frame != nullptr);
+  auto* mapWindow = topMapWindow();
+  contract_assert(mapWindow != nullptr);
 
-  return frame->document().create(environmentConfig, gameInfo, mapFormat, worldBounds);
+  return mapWindow->document().create(
+    environmentConfig, gameInfo, mapFormat, worldBounds);
 }
 
 Result<void> MapWindowManager::loadDocument(
@@ -94,10 +96,10 @@ Result<void> MapWindowManager::loadDocument(
            | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
-  auto* frame = topMapWindow();
-  contract_assert(frame != nullptr);
+  auto* mapWindow = topMapWindow();
+  contract_assert(mapWindow != nullptr);
 
-  return frame->document().load(
+  return mapWindow->document().load(
     environmentConfig, gameInfo, mapFormat, worldBounds, std::move(path));
 }
 
@@ -112,9 +114,9 @@ void MapWindowManager::onFocusChange(QWidget* /* old */, QWidget* now)
   {
     // The QApplication::focusChanged signal also notifies us of focus changes between
     // child widgets, so get the top-level widget with QWidget::window()
-    if (auto* frame = dynamic_cast<MapWindow*>(now->window()))
+    if (auto* mapWindow = dynamic_cast<MapWindow*>(now->window()))
     {
-      if (auto it = std::ranges::find(m_mapWindows, frame);
+      if (auto it = std::ranges::find(m_mapWindows, mapWindow);
           it != m_mapWindows.end() && it != m_mapWindows.begin())
       {
         std::rotate(m_mapWindows.begin(), it, std::next(it));
@@ -132,14 +134,13 @@ MapWindow* MapWindowManager::createMapWindow(std::unique_ptr<MapDocument> docume
 {
   contract_pre(document != nullptr);
 
-  auto* frame = new MapWindow{m_appController, std::move(document)};
-  frame->positionOnScreen(topMapWindow());
-  m_mapWindows.insert(m_mapWindows.begin(), frame);
+  auto* mapWindow = new MapWindow{m_appController, std::move(document)};
+  mapWindow->positionOnScreen(topMapWindow());
+  m_mapWindows.insert(m_mapWindows.begin(), mapWindow);
 
-  frame->show();
-  frame->raise();
-  frame->activateWindow();
-  return frame;
+  mapWindow->show();
+  mapWindow->activateWindow();
+  return mapWindow;
 }
 
 void MapWindowManager::removeMapWindow(MapWindow* mapWindow)
