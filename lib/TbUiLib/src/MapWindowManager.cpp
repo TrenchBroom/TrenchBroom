@@ -139,7 +139,6 @@ MapWindow* MapWindowManager::createMapWindow(std::unique_ptr<MapDocument> docume
   m_mapWindows.insert(m_mapWindows.begin(), mapWindow);
 
   mapWindow->show();
-  mapWindow->raise();
   mapWindow->activateWindow();
   return mapWindow;
 }
