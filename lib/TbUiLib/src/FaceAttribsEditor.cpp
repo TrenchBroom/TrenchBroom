@@ -57,6 +57,27 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+std::tuple<QList<int>, QStringList, QStringList> getFlags(
+  const std::vector<mdl::FlagConfig>& flags)
+{
+  auto values = QList<int>{};
+  auto names = QStringList{};
+  auto descriptions = QStringList{};
+
+  for (const auto& flag : flags)
+  {
+    values.push_back(flag.value);
+    names.push_back(QString::fromStdString(flag.name));
+    descriptions.push_back(QString::fromStdString(flag.description));
+  }
+
+  return {std::move(values), std::move(names), std::move(descriptions)};
+}
+
+} // namespace
 
 FaceAttribsEditor::FaceAttribsEditor(
   AppController& appController, MapDocument& document, QWidget* parent)
@@ -821,26 +842,6 @@ void FaceAttribsEditor::hideColorAttribEditor()
   m_colorLabel->hide();
   m_colorEditorLayout->hide();
 }
-
-namespace
-{
-std::tuple<QList<int>, QStringList, QStringList> getFlags(
-  const std::vector<mdl::FlagConfig>& flags)
-{
-  auto values = QList<int>{};
-  auto names = QStringList{};
-  auto descriptions = QStringList{};
-
-  for (const auto& flag : flags)
-  {
-    values.push_back(flag.value);
-    names.push_back(QString::fromStdString(flag.name));
-    descriptions.push_back(QString::fromStdString(flag.description));
-  }
-
-  return {std::move(values), std::move(names), std::move(descriptions)};
-}
-} // namespace
 
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFlags()
   const
