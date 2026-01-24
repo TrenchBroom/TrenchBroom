@@ -109,14 +109,11 @@ private:
 
   bool hasSurfaceFlags() const;
   bool hasContentFlags() const;
-  void showSurfaceFlagsEditor();
-  void showContentFlagsEditor();
-  void hideSurfaceFlagsEditor();
-  void hideContentFlagsEditor();
+  void setSurfaceFlagsEditorVisible(bool visible);
+  void setContentFlagsEditorVisible(bool visible);
 
   bool hasColorAttribs() const;
-  void showColorAttribEditor();
-  void hideColorAttribEditor();
+  void setColorAttribEditorVisible(bool visible);
 
   std::tuple<QList<int>, QStringList, QStringList> getSurfaceFlags() const;
   std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
