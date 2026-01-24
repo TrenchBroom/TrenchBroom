@@ -597,36 +597,21 @@ void FaceAttribsEditor::updateControls()
   const auto blockContentFlagsEditor = QSignalBlocker{m_contentFlagsEditor};
   const auto blockColorEditor = QSignalBlocker{m_colorEditor};
 
+  setSurfaceFlagsEditorVisible(hasSurfaceFlags());
   if (hasSurfaceFlags())
   {
-    showSurfaceFlagsEditor();
     const auto [values, labels, tooltips] = getSurfaceFlags();
     m_surfaceFlagsEditor->setFlags(values, labels, tooltips);
   }
-  else
-  {
-    hideSurfaceFlagsEditor();
-  }
 
+  setContentFlagsEditorVisible(hasContentFlags());
   if (hasContentFlags())
   {
-    showContentFlagsEditor();
     const auto [values, labels, tooltips] = getContentFlags();
     m_contentFlagsEditor->setFlags(values, labels, tooltips);
   }
-  else
-  {
-    hideContentFlagsEditor();
-  }
 
-  if (hasColorAttribs())
-  {
-    showColorAttribEditor();
-  }
-  else
-  {
-    hideColorAttribEditor();
-  }
+  setColorAttribEditorVisible(hasColorAttribs());
 
   const auto faceHandles = m_document.map().selection().allBrushFaces();
   if (!faceHandles.empty())
@@ -798,32 +783,18 @@ bool FaceAttribsEditor::hasContentFlags() const
   return !gameInfo.gameConfig.faceAttribsConfig.contentFlags.flags.empty();
 }
 
-void FaceAttribsEditor::showSurfaceFlagsEditor()
+void FaceAttribsEditor::setSurfaceFlagsEditorVisible(const bool visible)
 {
-  m_surfaceValueLabel->show();
-  m_surfaceValueEditorLayout->show();
-  m_surfaceFlagsLabel->show();
-  m_surfaceFlagsEditorLayout->show();
+  m_surfaceValueLabel->setVisible(visible);
+  m_surfaceValueEditorLayout->setVisible(visible);
+  m_surfaceFlagsLabel->setVisible(visible);
+  m_surfaceFlagsEditorLayout->setVisible(visible);
 }
 
-void FaceAttribsEditor::showContentFlagsEditor()
+void FaceAttribsEditor::setContentFlagsEditorVisible(const bool visible)
 {
-  m_contentFlagsLabel->show();
-  m_contentFlagsEditorLayout->show();
-}
-
-void FaceAttribsEditor::hideSurfaceFlagsEditor()
-{
-  m_surfaceValueLabel->hide();
-  m_surfaceValueEditorLayout->hide();
-  m_surfaceFlagsLabel->hide();
-  m_surfaceFlagsEditorLayout->hide();
-}
-
-void FaceAttribsEditor::hideContentFlagsEditor()
-{
-  m_contentFlagsLabel->hide();
-  m_contentFlagsEditorLayout->hide();
+  m_contentFlagsLabel->setVisible(visible);
+  m_contentFlagsEditorLayout->setVisible(visible);
 }
 
 bool FaceAttribsEditor::hasColorAttribs() const
@@ -831,16 +802,10 @@ bool FaceAttribsEditor::hasColorAttribs() const
   return m_document.map().worldNode().mapFormat() == mdl::MapFormat::Daikatana;
 }
 
-void FaceAttribsEditor::showColorAttribEditor()
+void FaceAttribsEditor::setColorAttribEditorVisible(const bool visible)
 {
-  m_colorLabel->show();
-  m_colorEditorLayout->show();
-}
-
-void FaceAttribsEditor::hideColorAttribEditor()
-{
-  m_colorLabel->hide();
-  m_colorEditorLayout->hide();
+  m_colorLabel->setVisible(visible);
+  m_colorEditorLayout->setVisible(visible);
 }
 
 std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFlags()
