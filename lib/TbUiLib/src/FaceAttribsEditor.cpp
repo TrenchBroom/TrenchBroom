@@ -91,6 +91,50 @@ FaceAttribsEditor::FaceAttribsEditor(
   updateIncrements();
 }
 
+void FaceAttribsEditor::alignClicked()
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  setBrushFaceAttributes(m_document.map(), mdl::align(brushFace, policy));
+}
+
+void FaceAttribsEditor::justifyClicked(
+  const mdl::UvAxis axis, const mdl::UvDirection direction)
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  setBrushFaceAttributes(
+    m_document.map(), mdl::justify(brushFace, axis, direction, policy));
+}
+
+void FaceAttribsEditor::fitClicked(const mdl::UvAxis axis)
+{
+  auto& map = m_document.map();
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  setBrushFaceAttributes(m_document.map(), mdl::fit(brushFace, axis, policy));
+}
+
 bool FaceAttribsEditor::cancelMouseDrag()
 {
   return m_uvEditor->cancelMouseDrag();
@@ -325,6 +369,96 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
 {
   m_uvEditor = new UVEditor{m_document, contextManager};
 
+  auto* buttonsWidget = createButtonsWidget();
+  auto* faceAttribsWidget = createAttribsWidget();
+
+  auto* innerLayout = new QHBoxLayout{};
+  innerLayout->setContentsMargins(0, 0, 0, 0);
+  innerLayout->setSpacing(LayoutConstants::NarrowVMargin);
+  innerLayout->addWidget(buttonsWidget, 0);
+  innerLayout->addWidget(new BorderLine{BorderLine::Direction::Vertical});
+  innerLayout->addWidget(faceAttribsWidget, 1);
+
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->setContentsMargins(0, 0, 0, 0);
+  outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
+  outerLayout->addWidget(m_uvEditor, 1);
+  outerLayout->addWidget(new BorderLine{});
+  outerLayout->addLayout(innerLayout);
+
+  setLayout(outerLayout);
+}
+
+QWidget* FaceAttribsEditor::createButtonsWidget()
+{
+  m_alignButton = createBitmapButton(
+    "AlignTexture.svg",
+    tr("Align texture to face edges. Click again to cycle through edges. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyUpButton = createBitmapButton(
+    "JustifyTextureUp.svg",
+    tr("Justify texture upwards. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyDownButton = createBitmapButton(
+    "JustifyTextureDown.svg",
+    tr("Justify texture downwards. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyLeftButton = createBitmapButton(
+    "JustifyTextureLeft.svg",
+    tr("Justify texture leftwards. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyRightButton = createBitmapButton(
+    "JustifyTextureRight.svg",
+    tr("Justify texture rightwards. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_fitHButton = createBitmapButton(
+    "FitTextureHorizontally.svg",
+    tr("Fit texture horizontally. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_fitVButton = createBitmapButton(
+    "FitTextureVertically.svg",
+    tr("Fit texture vertically. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_autoFitButton = createBitmapButton(
+    "AutoFitTexture.svg",
+    tr("Auto fit texture. Click again to cycle through options. Hold shift to cycle "
+       "backwards."),
+    this);
+
+  auto* innerLayout = new QGridLayout{};
+  innerLayout->addWidget(m_justifyUpButton, 0, 1);
+  innerLayout->addWidget(m_justifyLeftButton, 1, 0);
+  innerLayout->addWidget(m_autoFitButton, 1, 1);
+  innerLayout->addWidget(m_justifyRightButton, 1, 2);
+  innerLayout->addWidget(m_justifyDownButton, 2, 1);
+
+  innerLayout->addWidget(m_alignButton, 3, 0);
+  innerLayout->addWidget(m_fitHButton, 3, 1);
+  innerLayout->addWidget(m_fitVButton, 3, 2);
+
+  innerLayout->setContentsMargins(QMargins{0, 0, 0, 0});
+  innerLayout->setSpacing(LayoutConstants::NarrowHMargin);
+
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->setContentsMargins(QMargins{0, 0, 0, 0});
+  outerLayout->addStretch(0);
+  outerLayout->addLayout(innerLayout);
+  outerLayout->addStretch(0);
+
+  auto* container = new QWidget{};
+  container->setLayout(outerLayout);
+  return container;
+}
+
+QWidget* FaceAttribsEditor::createAttribsWidget()
+{
   auto* materialNameLabel = new QLabel{"Material"};
   setEmphasizedStyle(materialNameLabel);
   m_materialName = new QLabel{"none"};
@@ -463,18 +597,30 @@ void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
   faceAttribsLayout->setColumnStretch(1, 1);
   faceAttribsLayout->setColumnStretch(3, 1);
 
-  auto* outerLayout = new QVBoxLayout{};
-  outerLayout->setContentsMargins(0, 0, 0, 0);
-  outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
-  outerLayout->addWidget(m_uvEditor, 1);
-  outerLayout->addWidget(new BorderLine{});
-  outerLayout->addLayout(faceAttribsLayout);
-
-  setLayout(outerLayout);
+  auto* container = new QWidget{};
+  container->setLayout(faceAttribsLayout);
+  return container;
 }
 
 void FaceAttribsEditor::bindEvents()
 {
+  connect(
+    m_alignButton, &QAbstractButton::clicked, this, &FaceAttribsEditor::alignClicked);
+  connect(m_justifyUpButton, &QAbstractButton::clicked, [&]() {
+    justifyClicked(mdl::UvAxis::v, mdl::UvDirection::forward);
+  });
+  connect(m_justifyDownButton, &QAbstractButton::clicked, [&]() {
+    justifyClicked(mdl::UvAxis::v, mdl::UvDirection::backward);
+  });
+  connect(m_justifyLeftButton, &QAbstractButton::clicked, [&]() {
+    justifyClicked(mdl::UvAxis::u, mdl::UvDirection::backward);
+  });
+  connect(m_justifyRightButton, &QAbstractButton::clicked, [&]() {
+    justifyClicked(mdl::UvAxis::u, mdl::UvDirection::forward);
+  });
+  connect(m_fitHButton, &QAbstractButton::clicked, [&]() { fitClicked(mdl::UvAxis::u); });
+  connect(m_fitVButton, &QAbstractButton::clicked, [&]() { fitClicked(mdl::UvAxis::v); });
+
   connect(
     m_xOffsetEditor,
     QOverload<double>::of(&QDoubleSpinBox::valueChanged),
@@ -668,6 +814,15 @@ void FaceAttribsEditor::updateControls()
         mixedSurfaceContents);
     }
 
+    m_alignButton->setEnabled(true);
+    m_justifyUpButton->setEnabled(true);
+    m_justifyDownButton->setEnabled(true);
+    m_justifyLeftButton->setEnabled(true);
+    m_justifyRightButton->setEnabled(true);
+    m_fitHButton->setEnabled(true);
+    m_fitVButton->setEnabled(true);
+    m_autoFitButton->setEnabled(true);
+
     m_xOffsetEditor->setEnabled(true);
     m_yOffsetEditor->setEnabled(true);
     m_rotationEditor->setEnabled(true);
@@ -746,6 +901,15 @@ void FaceAttribsEditor::updateControls()
   }
   else
   {
+    m_alignButton->setEnabled(false);
+    m_justifyUpButton->setEnabled(false);
+    m_justifyDownButton->setEnabled(false);
+    m_justifyLeftButton->setEnabled(false);
+    m_justifyRightButton->setEnabled(false);
+    m_fitHButton->setEnabled(false);
+    m_fitVButton->setEnabled(false);
+    m_autoFitButton->setEnabled(false);
+
     disableAndSetPlaceholder(m_xOffsetEditor, "n/a");
     disableAndSetPlaceholder(m_yOffsetEditor, "n/a");
     disableAndSetPlaceholder(m_xScaleEditor, "n/a");
