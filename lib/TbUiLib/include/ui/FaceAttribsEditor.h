@@ -23,12 +23,22 @@
 
 #include "NotifierConnection.h"
 
+#include <tuple>
+
 class QAbstractButton;
 class QLabel;
 class QLineEdit;
 class QGridLayout;
 
-namespace tb::ui
+namespace tb
+{
+namespace mdl
+{
+enum class UvAxis;
+enum class UvSign;
+} // namespace mdl
+
+namespace ui
 {
 class AppController;
 class FlagsPopupEditor;
@@ -40,10 +50,34 @@ class UVEditor;
 class FaceAttribsEditor : public QWidget
 {
   Q_OBJECT
+
 private:
+  enum class JustifyDirection
+  {
+    Left,
+    Right,
+    Up,
+    Down,
+  };
+
+  enum class FitDirection
+  {
+    Horizontal,
+    Vertical,
+  };
   MapDocument& m_document;
 
   UVEditor* m_uvEditor = nullptr;
+
+  QAbstractButton* m_alignButton = nullptr;
+  QAbstractButton* m_justifyUpButton = nullptr;
+  QAbstractButton* m_justifyDownButton = nullptr;
+  QAbstractButton* m_justifyLeftButton = nullptr;
+  QAbstractButton* m_justifyRightButton = nullptr;
+  QAbstractButton* m_fitHButton = nullptr;
+  QAbstractButton* m_fitVButton = nullptr;
+  QAbstractButton* m_autoFitButton = nullptr;
+
   QLabel* m_materialName = nullptr;
   QLabel* m_textureSize = nullptr;
   SpinControl* m_xOffsetEditor = nullptr;
@@ -81,6 +115,15 @@ public:
   bool cancelMouseDrag();
 
 private:
+  std::tuple<mdl::UvAxis, mdl::UvSign> convertJustifyDirection(
+    JustifyDirection justifyDirection) const;
+  std::tuple<mdl::UvAxis, mdl::UvSign> convertFitDirection(
+    FitDirection fitDirection) const;
+
+  void alignClicked();
+  void justifyClicked(JustifyDirection justifyDirection);
+  void fitClicked(FitDirection fitDirection);
+
   void xOffsetChanged(double value);
   void yOffsetChanged(double value);
   void rotationChanged(double value);
@@ -98,6 +141,9 @@ private:
 
 private:
   void createGui(AppController& appController);
+  QWidget* createButtonsWidget();
+  QWidget* createAttribsWidget();
+
   void bindEvents();
 
   void connectObservers();
@@ -119,4 +165,5 @@ private:
   std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

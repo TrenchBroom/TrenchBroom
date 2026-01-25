@@ -19,13 +19,16 @@
 
 #include "ui/FaceAttribsEditor.h"
 
+#include <QApplication>
 #include <QLabel>
 #include <QLineEdit>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QtGlobal>
 
+#include "Macros.h"
 #include "gl/Material.h"
+#include "gl/OrthographicCamera.h"
 #include "gl/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -45,6 +48,7 @@
 #include "ui/SignalDelayer.h"
 #include "ui/SpinControl.h"
 #include "ui/UVEditor.h"
+#include "ui/UVViewHelper.h"
 #include "ui/ViewConstants.h"
 #include "ui/ViewUtils.h"
 
@@ -94,6 +98,145 @@ FaceAttribsEditor::FaceAttribsEditor(
 bool FaceAttribsEditor::cancelMouseDrag()
 {
   return m_uvEditor->cancelMouseDrag();
+}
+
+auto getHorizontalAxis(
+  const vm::vec3f& uAxis, const vm::vec3f& vAxis, const vm::vec3f& rightAxis)
+{
+  return vm::abs(vm::dot(uAxis, rightAxis)) >= vm::abs(vm::dot(vAxis, rightAxis))
+           ? mdl::UvAxis::u
+           : mdl::UvAxis::v;
+}
+
+auto invertHorizontalAxis(
+  const mdl::UvAxis horizontalUvAxis,
+  const vm::vec3f& uAxis,
+  const vm::vec3f& vAxis,
+  const vm::vec3f& rightAxis)
+{
+  switch (horizontalUvAxis)
+  {
+  case mdl::UvAxis::u:
+    return vm::dot(uAxis, rightAxis) >= 0.0f;
+  case mdl::UvAxis::v:
+    return vm::dot(vAxis, rightAxis) >= 0.0f;
+    switchDefault();
+  }
+}
+
+auto invertVerticalAxis(
+  const mdl::UvAxis horizontalUvAxis,
+  const vm::vec3f& uAxis,
+  const vm::vec3f& vAxis,
+  const vm::vec3f& upAxis)
+{
+  switch (horizontalUvAxis)
+  {
+  case mdl::UvAxis::u:
+    return vm::dot(vAxis, upAxis) >= 0.0f;
+  case mdl::UvAxis::v:
+    return vm::dot(uAxis, upAxis) >= 0.0f;
+    switchDefault();
+  }
+}
+
+auto getDirectionAxes(
+  const vm::vec3f& uAxis,
+  const vm::vec3f& vAxis,
+  const vm::vec3f& rightAxis,
+  const vm::vec3f& upAxis)
+{
+  // Which UV axis corresponds is horizontal?
+  const auto [horizontalUvAxis, verticalUvAxis] =
+    vm::abs(vm::dot(uAxis, rightAxis)) >= vm::abs(vm::dot(vAxis, rightAxis))
+      ? std::tuple{mdl::UvAxis::u, mdl::UvAxis::v}
+      : std::tuple{mdl::UvAxis::v, mdl::UvAxis::u};
+
+  const auto invertH = invertHorizontalAxis(horizontalUvAxis, uAxis, vAxis, rightAxis);
+  const auto invertV = invertVerticalAxis(horizontalUvAxis, uAxis, vAxis, upAxis);
+
+  return std::tuple{horizontalUvAxis, verticalUvAxis, invertH, invertV};
+}
+
+std::tuple<mdl::UvAxis, mdl::UvSign> FaceAttribsEditor::convertJustifyDirection(
+  const JustifyDirection justifyDirection) const
+{
+  contract_assert(m_document.map().selection().hasAnyBrushFaces());
+
+  const auto& camera = m_uvEditor->helper().camera();
+  const auto& brushFace = m_document.map().selection().brushFaces.front().face();
+
+  const auto uAxis = vm::vec3f{brushFace.uAxis()};
+  const auto vAxis = vm::vec3f{brushFace.vAxis()};
+
+  const auto [horizontalUvAxis, verticalUvAxis, invertH, invertV] =
+    getDirectionAxes(uAxis, vAxis, camera.right(), camera.up());
+
+  switch (justifyDirection)
+  {
+  case JustifyDirection::Left:
+    return std::tuple{horizontalUvAxis, invertH ? mdl::UvSign::minus : mdl::UvSign::plus};
+  case JustifyDirection::Right:
+    return std::tuple{horizontalUvAxis, invertH ? mdl::UvSign::plus : mdl::UvSign::minus};
+  case JustifyDirection::Up:
+    return std::tuple{verticalUvAxis, invertV ? mdl::UvSign::minus : mdl::UvSign::plus};
+  case JustifyDirection::Down:
+    return std::tuple{verticalUvAxis, invertV ? mdl::UvSign::plus : mdl::UvSign::minus};
+    switchDefault();
+  }
+}
+
+std::tuple<mdl::UvAxis, mdl::UvSign> FaceAttribsEditor::convertFitDirection(
+  FitDirection fitDirection) const
+{
+  contract_assert(m_document.map().selection().hasAnyBrushFaces());
+
+  const auto& camera = m_uvEditor->helper().camera();
+  const auto& brushFace = m_document.map().selection().brushFaces.front().face();
+
+  const auto uAxis = vm::vec3f{brushFace.uAxis()};
+  const auto vAxis = vm::vec3f{brushFace.vAxis()};
+
+  const auto [horizontalUvAxis, verticalUvAxis, invertH, invertV] =
+    getDirectionAxes(uAxis, vAxis, camera.right(), camera.up());
+
+  switch (fitDirection)
+  {
+  case FitDirection::Horizontal:
+    return std::tuple{horizontalUvAxis, invertH ? mdl::UvSign::minus : mdl::UvSign::plus};
+  case FitDirection::Vertical:
+    return std::tuple{verticalUvAxis, invertV ? mdl::UvSign::minus : mdl::UvSign::plus};
+    switchDefault();
+  }
+}
+
+void FaceAttribsEditor::alignClicked()
+{
+  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                        ? mdl::UvPolicy::prev
+                        : mdl::UvPolicy::next;
+
+  alignUV(m_document.map(), policy);
+}
+
+void FaceAttribsEditor::justifyClicked(const JustifyDirection justifyDirection)
+{
+  const auto uvPolicy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                          ? mdl::UvPolicy::prev
+                          : mdl::UvPolicy::next;
+
+  const auto [uvAxis, uvSign] = convertJustifyDirection(justifyDirection);
+  justifyUV(m_document.map(), uvAxis, uvSign, uvPolicy);
+}
+
+void FaceAttribsEditor::fitClicked(const FitDirection fitDirection)
+{
+  const auto uvPolicy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                          ? mdl::UvPolicy::prev
+                          : mdl::UvPolicy::next;
+
+  const auto [uvAxis, uvSign] = convertFitDirection(fitDirection);
+  fitUV(m_document.map(), uvAxis, uvSign, uvPolicy);
 }
 
 void FaceAttribsEditor::xOffsetChanged(const double value)
@@ -325,6 +468,96 @@ void FaceAttribsEditor::createGui(AppController& appController)
 {
   m_uvEditor = new UVEditor{appController, m_document};
 
+  auto* buttonsWidget = createButtonsWidget();
+  auto* faceAttribsWidget = createAttribsWidget();
+
+  auto* innerLayout = new QHBoxLayout{};
+  innerLayout->setContentsMargins(0, 0, 0, 0);
+  innerLayout->setSpacing(LayoutConstants::NarrowVMargin);
+  innerLayout->addWidget(buttonsWidget, 0);
+  innerLayout->addWidget(new BorderLine{BorderLine::Direction::Vertical});
+  innerLayout->addWidget(faceAttribsWidget, 1);
+
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->setContentsMargins(0, 0, 0, 0);
+  outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
+  outerLayout->addWidget(m_uvEditor, 1);
+  outerLayout->addWidget(new BorderLine{});
+  outerLayout->addLayout(innerLayout);
+
+  setLayout(outerLayout);
+}
+
+QWidget* FaceAttribsEditor::createButtonsWidget()
+{
+  m_alignButton = createBitmapButton(
+    "AlignTexture.svg",
+    tr("Align texture to face edges. Click again to cycle through edges. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyUpButton = createBitmapButton(
+    "JustifyTextureUp.svg",
+    tr("Justify texture upwards. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyDownButton = createBitmapButton(
+    "JustifyTextureDown.svg",
+    tr("Justify texture downwards. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyLeftButton = createBitmapButton(
+    "JustifyTextureLeft.svg",
+    tr("Justify texture leftwards. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_justifyRightButton = createBitmapButton(
+    "JustifyTextureRight.svg",
+    tr("Justify texture rightwards. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_fitHButton = createBitmapButton(
+    "FitTextureHorizontally.svg",
+    tr("Fit texture horizontally. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_fitVButton = createBitmapButton(
+    "FitTextureVertically.svg",
+    tr("Fit texture vertically. Click again to cycle through options. Hold shift to "
+       "cycle backwards."),
+    this);
+  m_autoFitButton = createBitmapButton(
+    "AutoFitTexture.svg",
+    tr("Auto fit texture. Click again to cycle through options. Hold shift to cycle "
+       "backwards."),
+    this);
+
+  auto* innerLayout = new QGridLayout{};
+  innerLayout->addWidget(m_justifyUpButton, 0, 1);
+  innerLayout->addWidget(m_justifyLeftButton, 1, 0);
+  innerLayout->addWidget(m_autoFitButton, 1, 1);
+  innerLayout->addWidget(m_justifyRightButton, 1, 2);
+  innerLayout->addWidget(m_justifyDownButton, 2, 1);
+
+  innerLayout->addWidget(m_alignButton, 3, 0);
+  innerLayout->addWidget(m_fitHButton, 3, 1);
+  innerLayout->addWidget(m_fitVButton, 3, 2);
+
+  innerLayout->setContentsMargins(QMargins{0, 0, 0, 0});
+  innerLayout->setSpacing(LayoutConstants::NarrowHMargin);
+
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->setContentsMargins(QMargins{0, 0, 0, 0});
+  outerLayout->addStretch(0);
+  outerLayout->addLayout(innerLayout);
+  outerLayout->addStretch(0);
+
+  auto* container = new QWidget{};
+  container->setLayout(outerLayout);
+  return container;
+}
+
+QWidget* FaceAttribsEditor::createAttribsWidget()
+{
   auto* materialNameLabel = new QLabel{"Material"};
   setEmphasizedStyle(materialNameLabel);
   m_materialName = new QLabel{"none"};
@@ -463,18 +696,34 @@ void FaceAttribsEditor::createGui(AppController& appController)
   faceAttribsLayout->setColumnStretch(1, 1);
   faceAttribsLayout->setColumnStretch(3, 1);
 
-  auto* outerLayout = new QVBoxLayout{};
-  outerLayout->setContentsMargins(0, 0, 0, 0);
-  outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
-  outerLayout->addWidget(m_uvEditor, 1);
-  outerLayout->addWidget(new BorderLine{});
-  outerLayout->addLayout(faceAttribsLayout);
-
-  setLayout(outerLayout);
+  auto* container = new QWidget{};
+  container->setLayout(faceAttribsLayout);
+  return container;
 }
 
 void FaceAttribsEditor::bindEvents()
 {
+  connect(
+    m_alignButton, &QAbstractButton::clicked, this, &FaceAttribsEditor::alignClicked);
+  connect(m_justifyUpButton, &QAbstractButton::clicked, [&]() {
+    justifyClicked(JustifyDirection::Up);
+  });
+  connect(m_justifyDownButton, &QAbstractButton::clicked, [&]() {
+    justifyClicked(JustifyDirection::Down);
+  });
+  connect(m_justifyLeftButton, &QAbstractButton::clicked, [&]() {
+    justifyClicked(JustifyDirection::Left);
+  });
+  connect(m_justifyRightButton, &QAbstractButton::clicked, [&]() {
+    justifyClicked(JustifyDirection::Right);
+  });
+  connect(m_fitHButton, &QAbstractButton::clicked, [&]() {
+    fitClicked(FitDirection::Horizontal);
+  });
+  connect(m_fitVButton, &QAbstractButton::clicked, [&]() {
+    fitClicked(FitDirection::Vertical);
+  });
+
   connect(
     m_xOffsetEditor,
     QOverload<double>::of(&QDoubleSpinBox::valueChanged),
@@ -668,6 +917,15 @@ void FaceAttribsEditor::updateControls()
         mixedSurfaceContents);
     }
 
+    m_alignButton->setEnabled(true);
+    m_justifyUpButton->setEnabled(true);
+    m_justifyDownButton->setEnabled(true);
+    m_justifyLeftButton->setEnabled(true);
+    m_justifyRightButton->setEnabled(true);
+    m_fitHButton->setEnabled(true);
+    m_fitVButton->setEnabled(true);
+    m_autoFitButton->setEnabled(true);
+
     m_xOffsetEditor->setEnabled(true);
     m_yOffsetEditor->setEnabled(true);
     m_rotationEditor->setEnabled(true);
@@ -746,6 +1004,15 @@ void FaceAttribsEditor::updateControls()
   }
   else
   {
+    m_alignButton->setEnabled(false);
+    m_justifyUpButton->setEnabled(false);
+    m_justifyDownButton->setEnabled(false);
+    m_justifyLeftButton->setEnabled(false);
+    m_justifyRightButton->setEnabled(false);
+    m_fitHButton->setEnabled(false);
+    m_fitVButton->setEnabled(false);
+    m_autoFitButton->setEnabled(false);
+
     disableAndSetPlaceholder(m_xOffsetEditor, "n/a");
     disableAndSetPlaceholder(m_yOffsetEditor, "n/a");
     disableAndSetPlaceholder(m_xScaleEditor, "n/a");
