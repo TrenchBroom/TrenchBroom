@@ -35,6 +35,12 @@ namespace gl
 class ContextManager;
 }
 
+namespace mdl
+{
+enum class UvAxis;
+enum class UvDirection;
+} // namespace mdl
+
 namespace ui
 {
 class FlagsPopupEditor;
@@ -50,6 +56,16 @@ private:
   MapDocument& m_document;
 
   UVEditor* m_uvEditor = nullptr;
+
+  QAbstractButton* m_alignButton = nullptr;
+  QAbstractButton* m_justifyUpButton = nullptr;
+  QAbstractButton* m_justifyDownButton = nullptr;
+  QAbstractButton* m_justifyLeftButton = nullptr;
+  QAbstractButton* m_justifyRightButton = nullptr;
+  QAbstractButton* m_fitHButton = nullptr;
+  QAbstractButton* m_fitVButton = nullptr;
+  QAbstractButton* m_autoFitButton = nullptr;
+
   QLabel* m_materialName = nullptr;
   QLabel* m_textureSize = nullptr;
   SpinControl* m_xOffsetEditor = nullptr;
@@ -87,6 +103,10 @@ public:
   bool cancelMouseDrag();
 
 private:
+  void alignClicked();
+  void justifyClicked(mdl::UvAxis axis, mdl::UvDirection direction);
+  void fitClicked(mdl::UvAxis axis);
+
   void xOffsetChanged(double value);
   void yOffsetChanged(double value);
   void rotationChanged(double value);
@@ -104,6 +124,9 @@ private:
 
 private:
   void createGui(gl::ContextManager& contextManager);
+  QWidget* createButtonsWidget();
+  QWidget* createAttribsWidget();
+
   void bindEvents();
 
   void connectObservers();
