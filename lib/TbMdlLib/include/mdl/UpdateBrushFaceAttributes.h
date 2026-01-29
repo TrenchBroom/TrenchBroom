@@ -164,6 +164,8 @@ enum class UvDirection
 
 std::ostream& operator<<(std::ostream& lhs, UvDirection direction);
 
+bool isJustified(const BrushFace& brushFace, UvAxis uv, UvDirection direction);
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, UvPolicy policy);
 UpdateBrushFaceAttributes justify(
   const BrushFace& brushFace, UvAxis uv, UvDirection direction, UvPolicy policy);

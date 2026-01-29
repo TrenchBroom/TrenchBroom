@@ -38,6 +38,37 @@ namespace tb::mdl
 {
 namespace
 {
+
+bool isEqual(const SetValue& lhs, const SetValue& rhs, const float epsilon)
+{
+  if (lhs.value && rhs.value)
+  {
+    return vm::is_equal(*lhs.value, *rhs.value, epsilon);
+  }
+  return !lhs.value && !rhs.value;
+}
+
+bool isEqual(const AddValue& lhs, const AddValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.delta, rhs.delta, epsilon);
+}
+
+bool isEqual(const MultiplyValue& lhs, const MultiplyValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.factor, rhs.factor, epsilon);
+}
+
+bool isEqual(const ValueOp& lhs, const ValueOp& rhs, const float epsilon)
+{
+  return std::visit(
+    kdl::overload(
+      [&]<typename T>(
+        const T& lhsT, const T& rhsT) { return isEqual(lhsT, rhsT, epsilon); },
+      [](const auto&, const auto&) { return false; }),
+    lhs,
+    rhs);
+}
+
 auto replaceFlagsIfSet(const auto& maybeFlags)
 {
   return maybeFlags
@@ -303,6 +334,27 @@ std::ostream& operator<<(std::ostream& lhs, const UvDirection direction)
   return lhs;
 }
 
+bool isJustified(const BrushFace& brushFace, const UvAxis uv, const UvDirection direction)
+{
+  const auto normalizedXOffset =
+    normalizeOffset(brushFace.attributes().xOffset(), brushFace.textureSize().x());
+  const auto normalizedYOffset =
+    normalizeOffset(brushFace.attributes().yOffset(), brushFace.textureSize().y());
+
+  const auto update = justify(brushFace, uv, direction, UvPolicy::best);
+  switch (uv)
+  {
+  case UvAxis::u:
+    return update.xOffset
+           && isEqual(
+             *update.xOffset, SetValue{normalizedXOffset}, vm::Cf::almost_zero());
+  case UvAxis::v:
+    return update.yOffset
+           && isEqual(
+             *update.yOffset, SetValue{normalizedYOffset}, vm::Cf::almost_zero());
+  }
+}
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy policy)
 {
   constexpr auto uAxis = vm::vec2d{1, 0};
@@ -345,11 +397,8 @@ UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy polic
   };
 }
 
-UpdateBrushFaceAttributes justify(
-  const BrushFace& brushFace,
-  const UvAxis uv,
-  const UvDirection direction,
-  const UvPolicy policy)
+auto justifyCoordinate(
+  const BrushFace& brushFace, const UvAxis uv, const UvDirection direction)
 {
   const auto axis = toAxis(uv);
   const auto dirFactor = [&] {
@@ -375,6 +424,28 @@ UpdateBrushFaceAttributes justify(
   const auto iMax = std::ranges::max_element(distances);
   contract_assert(iMax != std::ranges::end(distances));
 
+  return *iMax;
+}
+
+UpdateBrushFaceAttributes justify(
+  const BrushFace& brushFace,
+  const UvAxis uv,
+  const UvDirection direction,
+  const UvPolicy policy)
+{
+  const auto axis = toAxis(uv);
+  const auto dirFactor = [&] {
+    switch (direction)
+    {
+    case UvDirection::forward:
+      return +1.0f;
+    case UvDirection::backward:
+      return -1.0f;
+    }
+  }();
+
+  const auto max = justifyCoordinate(brushFace, uv, direction);
+
   // if the texture length is a multiple of the face length, we can cycle through
   // different offsets corresponding to the integer divisor
   const auto textureLength = vm::dot(brushFace.textureSize(), axis);
@@ -385,7 +456,7 @@ UpdateBrushFaceAttributes justify(
       ? size_t(std::round(textureLength / faceLength))
       : 1u;
 
-  const auto offset = -dirFactor * *iMax;
+  const auto offset = -dirFactor * max;
   const auto potentialValues =
     std::views::iota(0u, subDiv) | std::views::transform([&](const auto n) {
       const auto delta = textureLength / float(subDiv);
