@@ -2,6 +2,7 @@
 Thumbs.db
 *.sublime-workspace
 .vscode
+.zed
 .cache
 
 /cmake-build-*
