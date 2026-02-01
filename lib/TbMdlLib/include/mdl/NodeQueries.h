@@ -47,6 +47,39 @@ struct TrueNodePredicate
   bool operator()(PatchNode*) const { return true; }
 };
 
+template <typename N, typename T = Node*>
+N* findNode(const std::vector<T>& nodes, const std::function<bool(const N*)>& predicate)
+{
+  for (auto* node : nodes)
+  {
+    if (auto* tNode = dynamic_cast<N*>(node); tNode && predicate(tNode))
+    {
+      return tNode;
+    }
+  }
+
+  return nullptr;
+}
+
+template <typename N, typename T = Node*>
+N* findNodeOrDescendant(
+  const std::vector<T>& nodes, const std::function<bool(const N*)>& predicate)
+{
+  for (auto* node : nodes)
+  {
+    if (auto* tNode = dynamic_cast<N*>(node); tNode && predicate(tNode))
+    {
+      return tNode;
+    }
+    if (auto* result = findNodeOrDescendant(node->children(), predicate))
+    {
+      return result;
+    }
+  }
+
+  return nullptr;
+}
+
 template <typename T = Node*, typename Predicate = TrueNodePredicate>
 auto collectNodes(const std::vector<T>& nodes, const Predicate& predicate = Predicate{})
 {

@@ -78,6 +78,41 @@ TEST_CASE("NodeQueries")
       + patchNode
   */
 
+  SECTION("findNode")
+  {
+    CHECK(findNode<WorldNode>({}, [](const WorldNode*) { return false; }) == nullptr);
+    CHECK(findNode<WorldNode>({}, [](const WorldNode*) { return true; }) == nullptr);
+    CHECK(
+      findNode<WorldNode>({&worldNode}, [](const WorldNode*) { return true; })
+      == &worldNode);
+    CHECK(
+      findNode<WorldNode>({&worldNode}, [](const WorldNode*) { return false; })
+      == nullptr);
+    CHECK(
+      findNode<GroupNode>({&worldNode}, [](const GroupNode*) { return true; })
+      == nullptr);
+  }
+
+  SECTION("findNodeOrDescendant")
+  {
+    CHECK(
+      findNodeOrDescendant<WorldNode>({}, [](const WorldNode*) { return false; })
+      == nullptr);
+    CHECK(
+      findNodeOrDescendant<WorldNode>({}, [](const WorldNode*) { return true; })
+      == nullptr);
+    CHECK(
+      findNodeOrDescendant<WorldNode>({&worldNode}, [](const WorldNode*) { return true; })
+      == &worldNode);
+    CHECK(
+      findNodeOrDescendant<WorldNode>(
+        {&worldNode}, [](const WorldNode*) { return false; })
+      == nullptr);
+    CHECK(
+      findNodeOrDescendant<GroupNode>({&worldNode}, [](const GroupNode*) { return true; })
+      == outerGroupNode);
+  }
+
   SECTION("collectNodes")
   {
     CHECK(collectNodes({}).empty());
