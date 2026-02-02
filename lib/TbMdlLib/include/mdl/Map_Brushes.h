@@ -31,6 +31,10 @@ class BrushFaceAttributes;
 class Map;
 class UVCoordSystemSnapshot;
 
+enum class UvAxis;
+enum class UvDirection;
+enum class UvPolicy;
+
 struct UpdateBrushFaceAttributes;
 
 enum class WrapStyle;
@@ -61,5 +65,9 @@ bool flipUV(
   const vm::vec3f& cameraUp,
   const vm::vec3f& cameraRight,
   vm::direction cameraRelativeFlipDirection);
+
+void alignUV(Map& map, UvPolicy policy);
+void justifyUV(Map& map, UvAxis axis, UvDirection direction, UvPolicy policy);
+void fitUV(Map& map, UvAxis axis, UvPolicy policy);
 
 } // namespace tb::mdl

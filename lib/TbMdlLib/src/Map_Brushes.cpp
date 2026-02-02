@@ -139,4 +139,32 @@ bool flipUV(
     });
 }
 
+void alignUV(Map& map, const UvPolicy policy)
+{
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  setBrushFaceAttributes(map, mdl::align(brushFace, policy));
+}
+
+void justifyUV(
+  Map& map, const UvAxis axis, const UvDirection direction, const UvPolicy policy)
+{
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  setBrushFaceAttributes(map, mdl::justify(brushFace, axis, direction, policy));
+}
+
+void fitUV(Map& map, const UvAxis axis, const UvPolicy policy)
+{
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  setBrushFaceAttributes(map, mdl::fit(brushFace, axis, policy));
+}
+
 } // namespace tb::mdl
