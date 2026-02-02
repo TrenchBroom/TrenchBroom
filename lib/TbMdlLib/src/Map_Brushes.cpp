@@ -139,4 +139,71 @@ bool flipUV(
     });
 }
 
+void alignUV(Map& map, const UvPolicy uvPolicy)
+{
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  setBrushFaceAttributes(map, mdl::align(brushFace, uvPolicy));
+}
+
+void justifyUV(
+  Map& map, const UvAxis uvAxis, const UvSign uvSign, const UvPolicy uvPolicy)
+{
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto& brushFace = selection.brushFaces.front().face();
+  setBrushFaceAttributes(map, mdl::justify(brushFace, uvAxis, uvSign, uvPolicy));
+}
+
+template <typename F>
+void withInvariantUvCoords(
+  Map& map,
+  const BrushFaceHandle faceHandle,
+  const std::optional<vm::vec3d>& vertex,
+  const F& f)
+{
+  if (vertex)
+  {
+    const auto previousUvCoords = vm::vec2f{
+      faceHandle.face().toUVCoordSystemMatrix(
+        faceHandle.face().attributes().offset(), faceHandle.face().attributes().scale())
+      * *vertex};
+
+    f(faceHandle.face());
+
+    const auto newUvCoords = vm::vec2f{
+      faceHandle.face().toUVCoordSystemMatrix(
+        faceHandle.face().attributes().offset(), faceHandle.face().attributes().scale())
+      * *vertex};
+    const auto delta = previousUvCoords - newUvCoords;
+
+    setBrushFaceAttributes(
+      map,
+      {
+        .xOffset = mdl::AddValue{delta.x()},
+        .yOffset = mdl::AddValue{delta.y()},
+      });
+  }
+  else
+  {
+    f(faceHandle.face());
+  }
+}
+
+void fitUV(Map& map, const UvAxis uvAxis, const UvSign uvSign, const UvPolicy uvPolicy)
+{
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto faceHandle = selection.brushFaces.front();
+
+  const auto invariantVertex = anchorVertex(faceHandle.face(), uvAxis, uvSign);
+  withInvariantUvCoords(map, faceHandle, invariantVertex, [&](const auto& brushFace) {
+    setBrushFaceAttributes(map, mdl::fit(brushFace, uvAxis, uvPolicy));
+  });
+}
+
 } // namespace tb::mdl
