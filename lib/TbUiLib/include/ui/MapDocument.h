@@ -145,6 +145,7 @@ public:
   Notifier<> portalFileWasUnloadedNotifier;
 
 private:
+  // pointer so that MapDocument can be moveable
   kdl::task_manager* m_taskManager;
   std::unique_ptr<LoggingHub> m_loggingHub;
 
