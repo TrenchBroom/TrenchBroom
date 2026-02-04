@@ -132,6 +132,90 @@ void unlinkGroups(Map& map, const std::vector<GroupNode*>& groupNodes)
     std::make_unique<SetLinkIdsCommand>("Reset Link ID", std::move(linkIds)));
 }
 
+auto getLinkIds(const std::vector<Node*> nodes)
+{
+  auto result = std::unordered_set<std::string>{};
+  for (const auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [](const WorldNode*) {},
+      [](const LayerNode*) {},
+      [&](const GroupNode* groupNode) { result.insert(groupNode->linkId()); },
+      [&](const EntityNode* entityNode) { result.insert(entityNode->linkId()); },
+      [&](const BrushNode* brushNode) { result.insert(brushNode->linkId()); },
+      [&](const PatchNode* patchNode) { result.insert(patchNode->linkId()); }));
+  }
+  return result;
+}
+
+bool hasLinkIdOf(const Node& node, const std::unordered_set<std::string>& linkIds)
+{
+  return node.accept(kdl::overload(
+    [](const WorldNode*) { return false; },
+    [](const LayerNode*) { return false; },
+    [&](const GroupNode* groupNode) { return linkIds.contains(groupNode->linkId()); },
+    [&](const EntityNode* entityNode) { return linkIds.contains(entityNode->linkId()); },
+    [&](const BrushNode* brushNode) { return linkIds.contains(brushNode->linkId()); },
+    [&](const PatchNode* patchNode) { return linkIds.contains(patchNode->linkId()); }));
+}
+
+bool recursivelyHasLinkIdOf(
+  const std::vector<Node*>& nodes, const std::unordered_set<std::string>& linkIds)
+{
+  return std::ranges::any_of(nodes, [&](const auto* node) {
+    return hasLinkIdOf(*node, linkIds)
+           || recursivelyHasLinkIdOf(node->children(), linkIds);
+  });
+}
+
+auto getNodesToRemoveAfterExtraction(
+  const GroupNode& rootNode, const std::vector<Node*> nodesToExtract)
+{
+  const auto linkIdsToKeep = getLinkIds(nodesToExtract);
+  auto nodesToRemove = std::vector<Node*>{};
+
+  const auto addNodeToRemove = [&](auto* node) {
+    if (hasLinkIdOf(*node, linkIdsToKeep))
+    {
+      // this node should be kept, and so should its descendants
+      return false;
+    }
+
+    if (!recursivelyHasLinkIdOf(node->children(), linkIdsToKeep))
+    {
+      // neither this or any child need to be kept, so remove this
+      nodesToRemove.push_back(node);
+      return false;
+    }
+
+    // some of this nodes children should be kept, so inspect the children
+    return true;
+  };
+
+  for (auto* node : rootNode.children())
+  {
+    node->accept(kdl::overload(
+      [](const WorldNode*) {},
+      [](const LayerNode*) {},
+      [&](auto&& thisLambda, GroupNode* groupNode) {
+        if (addNodeToRemove(groupNode))
+        {
+          groupNode->visitChildren(thisLambda);
+        }
+      },
+      [&](auto&& thisLambda, EntityNode* entityNode) {
+        if (addNodeToRemove(entityNode))
+        {
+          entityNode->visitChildren(thisLambda);
+        }
+      },
+      [&](BrushNode* brushNode) { addNodeToRemove(brushNode); },
+      [&](PatchNode* patchNode) { addNodeToRemove(patchNode); }));
+  }
+
+  return nodesToRemove;
+}
+
 } // namespace
 
 Node* currentGroupOrWorld(Map& map)
@@ -162,10 +246,12 @@ void openGroup(Map& map, GroupNode& groupNode)
 
 void closeGroup(Map& map)
 {
+  auto* previousGroup = map.editorContext().currentGroup();
+  contract_assert(previousGroup);
+
   auto transaction = Transaction{map, "Close Group"};
 
   deselectAll(map);
-  auto* previousGroup = map.editorContext().currentGroup();
   resetNodeLockingState(map, {previousGroup});
   map.executeAndStore(CurrentGroupCommand::pop());
 
@@ -417,52 +503,90 @@ std::vector<GroupNode*> extractLinkedGroups(Map& map)
 {
   contract_assert(canExtractLinkedGroups(map));
 
-  auto* oldGroupNode = map.editorContext().currentGroup();
-  contract_assert(oldGroupNode != nullptr);
+  /*
+   * When extracting linked groups, we need to take care that protected properties are
+   * preserved and that brush entities are handled correctly.
+   *
+   * We preserve protected properties simply by cloning all the affected linked groups,
+   * then removing the extracted nodes from the original groups and their counterparts
+   * from the newly created duplicates.
+   *
+   * Brush entities are automatically handled correctly with this strategy. If a brush
+   * entity is fully selected, then all of its brushes will be removed from the original
+   * linked group, and the entity will be removed as well.
+   *
+   * To facilitate these requirements, the algorithms operates as follows:
+   * 1. For the group that contains the selected nodes, find all groups in its link set
+   *    and create linked duplicates. All of the original and duplicated groups are now
+   *    linked.
+   * 2. Separate the original linked groups and the newly created duplicates so that we
+   *    now have two link sets.
+   * 3. Remove the nodes to extract from the original link set (by removing them from the
+   *    original linked group).
+   * 4. Remove all nodes but those to keep from the new link set (by removing them from
+   *    one of the newly duplicated groups).
+   *
+   * One complication is that it can be difficult to identify the nodes to remove from the
+   * newly duplicated linked group. For this, we use the link IDs of the nodes we intended
+   * to extract BEFORE to find their duplicates in the newly created linked group. We have
+   * to do this before separating the groups in step 2 because separation changes the link
+   * IDs of all nodes.
+   *
+   * Then we have to take care of identifying the nodes to remove; this is a bit tricky
+   * because whether a node should be kept or removed recursively depends on the
+   * descendants.
+   */
+
+  auto* oldLinkedGroup = map.editorContext().currentGroup();
+
+  const auto oldLinkedGroupId = oldLinkedGroup->linkId();
+  const auto oldLinkedGroups =
+    collectGroupsWithLinkId({&map.worldNode()}, oldLinkedGroupId);
 
   const auto nodesToExtract = map.selection().nodes;
 
   auto transaction = Transaction{map, "Split Linked Groups"};
   deselectAll(map);
   closeGroup(map);
-  reparentNodes(map, {{oldGroupNode->parent(), nodesToExtract}});
-  selectNodes(map, nodesToExtract);
 
-  auto* newGroupNode = groupSelectedNodes(map, oldGroupNode->name());
-  auto newGroupNodes = std::vector<GroupNode*>{newGroupNode};
-
-  auto otherOldGroupNodes =
-    collectGroupsWithLinkId({&map.worldNode()}, oldGroupNode->linkId())
-    | std::views::filter(
-      [&](const auto* groupNode) { return groupNode != oldGroupNode; });
-
-  const auto inverseTransform = vm::invert(oldGroupNode->group().transformation());
-  contract_assert(inverseTransform != std::nullopt);
-
-  for (const auto* otherOldGroupNode : otherOldGroupNodes)
+  // Create linked duplicates of all containing linked groups
+  auto newLinkedGroups = std::vector<GroupNode*>{};
+  for (auto* oldGroupNode : oldLinkedGroups)
   {
+    selectNodes(map, {oldGroupNode});
+    newLinkedGroups.push_back(createLinkedDuplicate(map));
     deselectAll(map);
-    selectNodes(map, {newGroupNode});
-
-    auto* linkedGroupNode = createLinkedDuplicate(map);
-    newGroupNodes.push_back(linkedGroupNode);
-
-    deselectAll(map);
-    selectNodes(map, {linkedGroupNode});
-
-    transformSelection(
-      map,
-      "Transform linked group",
-      otherOldGroupNode->group().transformation() * *inverseTransform);
   }
 
-  deselectAll(map);
-  selectNodes(map, {newGroupNode});
+  // Find the duplicated nodes to keep using the link IDs, do this before separating them
+  // because that will reset their link IDs.
+  auto* newLinkedGroup = newLinkedGroups.front();
+  const auto nodesToRemoveFromNewLinkedGroup =
+    getNodesToRemoveAfterExtraction(*newLinkedGroup, nodesToExtract);
 
-  setHasPendingChanges({oldGroupNode}, true);
+  // Separate the newly created duplicates
+  selectNodes(map, kdl::vec_static_cast<Node*>(newLinkedGroups));
+  separateSelectedLinkedGroups(map);
+  deselectAll(map);
+
+  // Remove the nodes to extract from the original link set
+  openGroup(map, *oldLinkedGroup);
+  selectNodes(map, nodesToExtract);
+  removeSelectedNodes(map);
+  closeGroup(map);
+
+  // Remove the other nodes from the new link set
+  openGroup(map, *newLinkedGroup);
+  selectNodes(map, nodesToRemoveFromNewLinkedGroup);
+  removeSelectedNodes(map);
+  closeGroup(map);
+
+  selectNodes(map, {newLinkedGroup});
+
+  setHasPendingChanges({oldLinkedGroup}, true);
   transaction.commit();
 
-  return newGroupNodes;
+  return newLinkedGroups;
 }
 
 bool canExtractLinkedGroups(const Map& map)
@@ -478,8 +602,10 @@ bool canExtractLinkedGroups(const Map& map)
     return false;
   }
 
-  const auto& containingGroup = *containingGroups.front();
-  if (containingGroup.childSelectionCount() == containingGroup.childCount())
+  auto& containingGroup = *containingGroups.front();
+  if (
+    containingGroup.descendantSelectionCount()
+    == collectSelectableNodes({&containingGroup}, map.editorContext()).size())
   {
     return false;
   }
