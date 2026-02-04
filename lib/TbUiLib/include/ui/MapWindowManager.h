@@ -36,6 +36,11 @@ class task_manager;
 
 namespace tb
 {
+namespace gl
+{
+class ResourceManager;
+}
+
 namespace mdl
 {
 enum class MapFormat;

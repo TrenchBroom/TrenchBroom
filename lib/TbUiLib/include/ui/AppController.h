@@ -43,6 +43,11 @@ class Updater;
 
 namespace tb
 {
+namespace gl
+{
+class ResourceManager;
+}
+
 namespace mdl
 {
 class GameManager;
@@ -64,6 +69,8 @@ private:
   std::unique_ptr<kdl::task_manager> m_taskManager;
   std::unique_ptr<mdl::EnvironmentConfig> m_environmentConfig;
   std::unique_ptr<mdl::GameManager> m_gameManager;
+
+  std::unique_ptr<gl::ResourceManager> m_resourceManager;
 
   QNetworkAccessManager* m_networkManager = nullptr;
   QTimer* m_recentDocumentsReloadTimer = nullptr;
@@ -95,6 +102,8 @@ public:
   ~AppController() override;
 
   kdl::task_manager& taskManager();
+
+  gl::ResourceManager& resourceManager();
 
   const mdl::EnvironmentConfig& environmentConfig() const;
 

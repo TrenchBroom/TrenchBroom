@@ -29,6 +29,7 @@
 #include "Preferences.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
+#include "gl/ResourceManager.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameManager.h"
 #include "mdl/MapHeader.h"
@@ -153,6 +154,7 @@ AppController::AppController(
   : m_taskManager{std::move(taskManager)}
   , m_environmentConfig{std::move(environmentConfig)}
   , m_gameManager{std::move(gameManager)}
+  , m_resourceManager{std::make_unique<gl::ResourceManager>()}
   , m_networkManager{new QNetworkAccessManager{this}}
   , m_recentDocumentsReloadTimer{new QTimer{this}}
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
@@ -189,6 +191,11 @@ AppController::~AppController() = default;
 kdl::task_manager& AppController::taskManager()
 {
   return *m_taskManager;
+}
+
+gl::ResourceManager& AppController::resourceManager()
+{
+  return *m_resourceManager;
 }
 
 const mdl::EnvironmentConfig& AppController::environmentConfig() const

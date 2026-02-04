@@ -44,6 +44,11 @@ namespace tb
 class Logger;
 class LoggingHub;
 
+namespace gl
+{
+class ResourceManager;
+}
+
 namespace mdl
 {
 enum class MapFormat;
@@ -147,6 +152,7 @@ public:
 private:
   // pointer so that MapDocument can be moveable
   kdl::task_manager* m_taskManager;
+  gl::ResourceManager* m_resourceManager;
   std::unique_ptr<LoggingHub> m_loggingHub;
 
   std::unique_ptr<mdl::Map> m_map;
@@ -165,7 +171,8 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapDocument(kdl::task_manager& taskManager);
+  explicit MapDocument(
+    kdl::task_manager& taskManager, gl::ResourceManager& resourceManager);
 
   MapDocument(MapDocument&&) noexcept;
   MapDocument& operator=(MapDocument&&) noexcept;
@@ -175,7 +182,8 @@ public:
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
-    kdl::task_manager& taskManager);
+    kdl::task_manager& taskManager,
+    gl::ResourceManager& resourceManager);
 
   static Result<std::unique_ptr<MapDocument>> loadDocument(
     const mdl::EnvironmentConfig& environmentConfig,
@@ -183,7 +191,8 @@ public:
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     std::filesystem::path path,
-    kdl::task_manager& taskManager);
+    kdl::task_manager& taskManager,
+    gl::ResourceManager& resourceManager);
 
   ~MapDocument();
 

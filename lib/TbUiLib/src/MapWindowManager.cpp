@@ -65,7 +65,8 @@ Result<void> MapWindowManager::createDocument(
              gameInfo,
              mapFormat,
              worldBounds,
-             m_appController.taskManager())
+             m_appController.taskManager(),
+             m_appController.resourceManager())
            | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
@@ -90,7 +91,8 @@ Result<void> MapWindowManager::loadDocument(
              mapFormat,
              worldBounds,
              std::move(path),
-             m_appController.taskManager())
+             m_appController.taskManager(),
+             m_appController.resourceManager())
            | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
