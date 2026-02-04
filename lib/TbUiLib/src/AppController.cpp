@@ -268,11 +268,7 @@ bool AppController::newDocument()
   contract_assert(gameInfo != nullptr);
 
   return m_mapWindowManager->createDocument(
-           environmentConfig(),
-           *gameInfo,
-           mapFormat,
-           MapDocument::DefaultWorldBounds,
-           taskManager())
+           *gameInfo, mapFormat, MapDocument::DefaultWorldBounds)
          | kdl::transform([&]() {
              m_welcomeWindow->close();
              return true;
@@ -329,12 +325,10 @@ bool AppController::openDocument(const std::filesystem::path& path)
              contract_assert(gameInfo != nullptr);
 
              return m_mapWindowManager->loadDocument(
-                      environmentConfig(),
                       *gameInfo,
                       mapFormat,
                       MapDocument::DefaultWorldBounds,
-                      std::move(absPath),
-                      taskManager())
+                      std::move(absPath))
                     | kdl::transform([&]() {
                         m_welcomeWindow->close();
                         return true;
