@@ -66,8 +66,8 @@ bool flipUV(
   const vm::vec3f& cameraRight,
   vm::direction cameraRelativeFlipDirection);
 
-void alignUV(Map& map, UvPolicy policy);
-void justifyUV(Map& map, UvAxis axis, UvDirection direction, UvPolicy policy);
-void fitUV(Map& map, UvAxis axis, UvPolicy policy);
+void alignUV(Map& map, UvPolicy uvPolicy);
+void justifyUV(Map& map, UvAxis uvAxis, UvDirection uvDirection, UvPolicy uvPolicy);
+void fitUV(Map& map, UvAxis uvAxis, UvPolicy uvPolicy);
 
 } // namespace tb::mdl

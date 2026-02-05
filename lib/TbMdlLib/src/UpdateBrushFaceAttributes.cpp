@@ -38,6 +38,37 @@ namespace tb::mdl
 {
 namespace
 {
+
+bool isEqual(const SetValue& lhs, const SetValue& rhs, const float epsilon)
+{
+  if (lhs.value && rhs.value)
+  {
+    return vm::is_equal(*lhs.value, *rhs.value, epsilon);
+  }
+  return !lhs.value && !rhs.value;
+}
+
+bool isEqual(const AddValue& lhs, const AddValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.delta, rhs.delta, epsilon);
+}
+
+bool isEqual(const MultiplyValue& lhs, const MultiplyValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.factor, rhs.factor, epsilon);
+}
+
+bool isEqual(const ValueOp& lhs, const ValueOp& rhs, const float epsilon)
+{
+  return std::visit(
+    kdl::overload(
+      [&]<typename T>(
+        const T& lhsT, const T& rhsT) { return isEqual(lhsT, rhsT, epsilon); },
+      [](const auto&, const auto&) { return false; }),
+    lhs,
+    rhs);
+}
+
 auto replaceFlagsIfSet(const auto& maybeFlags)
 {
   return maybeFlags
@@ -97,14 +128,14 @@ int findClosestPot(const T x)
 }
 
 template <typename T>
-T findNextScaleFactor(const T f, const UvPolicy policy)
+T findNextScaleFactor(const T f, const UvPolicy uvPolicy)
 {
   const auto closestPot = findClosestPot(f);
   const auto closestPotScale = std::pow(T(2), T(closestPot));
 
   const auto exactMatch =
     vm::is_equal(f, closestPotScale, vm::constants<T>::almost_zero());
-  switch (policy)
+  switch (uvPolicy)
   {
   case UvPolicy::best:
     return T(1);
@@ -175,6 +206,64 @@ float normalizeOffset(const float offset, const float length)
 {
   const auto normalizedOffset = vm::correct(vm::mod(offset, length));
   return normalizedOffset < 0.0f ? normalizedOffset + length : normalizedOffset;
+}
+
+auto makeVertexToUvAxisTransform(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvDirection uvDirection)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto dirFactor = [&] {
+    switch (uvDirection)
+    {
+    case UvDirection::forward:
+      return +1.0f;
+    case UvDirection::backward:
+      return -1.0f;
+    }
+  }();
+
+  const auto toUV =
+    brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, brushFace.attributes().scale());
+
+  return [=](const auto& vertex) {
+    const auto uvCoords = vm::vec2f{toUV * vertex->position()};
+    return vm::dot(uvCoords, dirFactor * axis);
+  };
+}
+
+auto justifyCoordinate(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvDirection uvDirection)
+{
+  auto distances =
+    brushFace.vertices()
+    | std::views::transform(makeVertexToUvAxisTransform(brushFace, uvAxis, uvDirection));
+
+  const auto iMax = std::ranges::max_element(distances);
+  contract_assert(iMax != std::ranges::end(distances));
+
+  return *iMax;
+}
+
+bool isJustified(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvDirection uvDirection)
+{
+  const auto normalizedXOffset =
+    normalizeOffset(brushFace.attributes().xOffset(), brushFace.textureSize().x());
+  const auto normalizedYOffset =
+    normalizeOffset(brushFace.attributes().yOffset(), brushFace.textureSize().y());
+
+  const auto update = justify(brushFace, uvAxis, uvDirection, UvPolicy::best);
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return update.xOffset
+           && isEqual(
+             *update.xOffset, SetValue{normalizedXOffset}, vm::Cf::almost_zero());
+  case UvAxis::v:
+    return update.yOffset
+           && isEqual(
+             *update.yOffset, SetValue{normalizedYOffset}, vm::Cf::almost_zero());
+  }
 }
 
 } // namespace
@@ -289,9 +378,9 @@ std::ostream& operator<<(std::ostream& lhs, const UvAxis rhs)
   return lhs;
 }
 
-std::ostream& operator<<(std::ostream& lhs, const UvDirection direction)
+std::ostream& operator<<(std::ostream& lhs, const UvDirection rhs)
 {
-  switch (direction)
+  switch (rhs)
   {
   case UvDirection::forward:
     lhs << "forward";
@@ -303,7 +392,27 @@ std::ostream& operator<<(std::ostream& lhs, const UvDirection direction)
   return lhs;
 }
 
-UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy policy)
+std::optional<vm::vec3d> justifiedVertex(const BrushFace& brushFace, const UvAxis uvAxis)
+{
+  for (const auto uvDirection : {UvDirection::backward, UvDirection::forward})
+  {
+    if (isJustified(brushFace, uvAxis, uvDirection))
+    {
+      auto vertices = brushFace.vertices();
+      const auto iMax = std::ranges::max_element(
+        vertices,
+        std::less<float>{},
+        makeVertexToUvAxisTransform(brushFace, uvAxis, uvDirection));
+      contract_assert(iMax != std::ranges::end(vertices));
+
+      return (*iMax)->position();
+    }
+  }
+
+  return std::nullopt;
+}
+
+UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy uvPolicy)
 {
   constexpr auto uAxis = vm::vec2d{1, 0};
 
@@ -326,7 +435,7 @@ UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy polic
 
   const auto isExactMatch = vm::is_equal(dot(*iBestMatch), 1.0, vm::Cd::almost_zero());
   const auto iEdgeToAlignTo = [&] {
-    switch (policy)
+    switch (uvPolicy)
     {
     case UvPolicy::best:
       return iBestMatch;
@@ -347,13 +456,13 @@ UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy polic
 
 UpdateBrushFaceAttributes justify(
   const BrushFace& brushFace,
-  const UvAxis uv,
-  const UvDirection direction,
-  const UvPolicy policy)
+  const UvAxis uvAxis,
+  const UvDirection uvDirection,
+  const UvPolicy uvPolicy)
 {
-  const auto axis = toAxis(uv);
+  const auto axis = toAxis(uvAxis);
   const auto dirFactor = [&] {
-    switch (direction)
+    switch (uvDirection)
     {
     case UvDirection::forward:
       return +1.0f;
@@ -362,18 +471,7 @@ UpdateBrushFaceAttributes justify(
     }
   }();
 
-  const auto distances =
-    brushFace.vertices()
-    | std::views::transform(
-      [toUV = brushFace.toUVCoordSystemMatrix(
-         vm::vec2f{0, 0}, brushFace.attributes().scale())](const auto* vertex) {
-        return vm::vec2f{toUV * vertex->position()};
-      })
-    | std::views::transform([&](const auto& v) { return vm::dot(v, dirFactor * axis); })
-    | kdl::ranges::to<std::vector>();
-
-  const auto iMax = std::ranges::max_element(distances);
-  contract_assert(iMax != std::ranges::end(distances));
+  const auto max = justifyCoordinate(brushFace, uvAxis, uvDirection);
 
   // if the texture length is a multiple of the face length, we can cycle through
   // different offsets corresponding to the integer divisor
@@ -385,7 +483,7 @@ UpdateBrushFaceAttributes justify(
       ? size_t(std::round(textureLength / faceLength))
       : 1u;
 
-  const auto offset = -dirFactor * *iMax;
+  const auto offset = -dirFactor * max;
   const auto potentialValues =
     std::views::iota(0u, subDiv) | std::views::transform([&](const auto n) {
       const auto delta = textureLength / float(subDiv);
@@ -403,7 +501,7 @@ UpdateBrushFaceAttributes justify(
   const auto isExactMatch =
     vm::is_equal(*iBestMatch, currentValue, vm::Cf::almost_zero());
   const auto newValue = [&] {
-    switch (policy)
+    switch (uvPolicy)
     {
     case UvPolicy::best:
       return potentialValues.front();
@@ -416,7 +514,7 @@ UpdateBrushFaceAttributes justify(
     }
   }();
 
-  switch (uv)
+  switch (uvAxis)
   {
   case UvAxis::u:
     return {
@@ -430,19 +528,19 @@ UpdateBrushFaceAttributes justify(
 }
 
 UpdateBrushFaceAttributes fit(
-  const BrushFace& brushFace, const UvAxis uv, const UvPolicy policy)
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
 {
-  const auto axis = toAxis(uv);
+  const auto axis = toAxis(uvAxis);
   const auto distance = measureFaceLength(brushFace, vm::vec2f{1, 1}, axis);
   const auto length = vm::dot(brushFace.textureSize(), axis);
 
   const auto currentScale = vm::dot(brushFace.attributes().scale(), axis);
   const auto currentFactor = currentScale * length / distance;
-  const auto nextFactor = findNextScaleFactor(currentFactor, policy);
+  const auto nextFactor = findNextScaleFactor(currentFactor, uvPolicy);
   const auto value = nextFactor * distance / length;
 
 
-  switch (uv)
+  switch (uvAxis)
   {
   case UvAxis::u:
     return {

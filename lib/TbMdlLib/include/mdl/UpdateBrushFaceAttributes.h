@@ -162,12 +162,15 @@ enum class UvDirection
   backward,
 };
 
-std::ostream& operator<<(std::ostream& lhs, UvDirection direction);
+std::ostream& operator<<(std::ostream& lhs, UvDirection rhs);
 
-UpdateBrushFaceAttributes align(const BrushFace& brushFace, UvPolicy policy);
+std::optional<vm::vec3d> justifiedVertex(const BrushFace& brushFace, UvAxis uvAxis);
+
+UpdateBrushFaceAttributes align(const BrushFace& brushFace, UvPolicy uvPolicy);
 UpdateBrushFaceAttributes justify(
-  const BrushFace& brushFace, UvAxis uv, UvDirection direction, UvPolicy policy);
-UpdateBrushFaceAttributes fit(const BrushFace& brushFace, UvAxis uv, UvPolicy policy);
+  const BrushFace& brushFace, UvAxis uvAxis, UvDirection uvDirection, UvPolicy uvPolicy);
+UpdateBrushFaceAttributes fit(
+  const BrushFace& brushFace, UvAxis uvAxis, UvPolicy uvPolicy);
 
 void evaluate(
   const UpdateBrushFaceAttributes& updateBrushFaceAttributes, BrushFace& brushFace);
