@@ -20,6 +20,7 @@
 #include "ui/MapDocumentFixture.h"
 
 #include "gl/Resource.h"
+#include "gl/ResourceManager.h"
 #include "mdl/Map.h"
 #include "mdl/TestUtils.h"
 #include "ui/MapDocument.h"
@@ -30,7 +31,9 @@ namespace tb::ui
 {
 
 Result<std::unique_ptr<MapDocument>> createFixtureDocument(
-  mdl::MapFixtureConfig& config, kdl::task_manager& taskManager)
+  mdl::MapFixtureConfig& config,
+  kdl::task_manager& taskManager,
+  gl::ResourceManager& resourceManager)
 {
   const auto mapFormat = config.mapFormat.value_or(mdl::MapFormat::Standard);
 
@@ -39,7 +42,8 @@ Result<std::unique_ptr<MapDocument>> createFixtureDocument(
            config.gameInfo,
            mapFormat,
            vm::bbox3d{8192.0},
-           taskManager)
+           taskManager,
+           resourceManager)
          | kdl::transform([&](auto document) {
              document->map().setIsCommandCollationEnabled(false);
              return document;
@@ -49,7 +53,8 @@ Result<std::unique_ptr<MapDocument>> createFixtureDocument(
 Result<std::unique_ptr<MapDocument>> loadFixtureDocument(
   const std::filesystem::path& path,
   mdl::MapFixtureConfig& config,
-  kdl::task_manager& taskManager)
+  kdl::task_manager& taskManager,
+  gl::ResourceManager& resourceManager)
 {
   const auto mapFormat = config.mapFormat.value_or(mdl::MapFormat::Standard);
 
@@ -59,7 +64,8 @@ Result<std::unique_ptr<MapDocument>> loadFixtureDocument(
            mapFormat,
            vm::bbox3d{8192.0},
            path,
-           taskManager)
+           taskManager,
+           resourceManager)
          | kdl::transform([&](auto document) {
              document->map().setIsCommandCollationEnabled(false);
              document->map().processResourcesSync(
@@ -70,6 +76,7 @@ Result<std::unique_ptr<MapDocument>> loadFixtureDocument(
 
 MapDocumentFixture::MapDocumentFixture()
   : m_taskManager{createTestTaskManager()}
+  , m_resourceManager{std::make_unique<gl::ResourceManager>()}
 {
 }
 
@@ -80,7 +87,7 @@ MapDocument& MapDocumentFixture::create(mdl::MapFixtureConfig config)
   m_config = std::move(config);
 
   contract_assert(
-    createFixtureDocument(*m_config, *m_taskManager)
+    createFixtureDocument(*m_config, *m_taskManager, *m_resourceManager)
     | kdl::transform([&](auto document) { m_document = std::move(document); })
     | kdl::is_success());
 
@@ -95,7 +102,7 @@ MapDocument& MapDocumentFixture::load(
   const auto absPath = path.is_absolute() ? path : std::filesystem::current_path() / path;
 
   contract_assert(
-    loadFixtureDocument(absPath, *m_config, *m_taskManager)
+    loadFixtureDocument(absPath, *m_config, *m_taskManager, *m_resourceManager)
     | kdl::transform([&](auto document) { m_document = std::move(document); })
     | kdl::is_success());
 

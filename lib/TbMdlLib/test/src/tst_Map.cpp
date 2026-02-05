@@ -22,6 +22,7 @@
 #include "fs/TestEnvironment.h"
 #include "gl/Material.h"
 #include "gl/MaterialManager.h"
+#include "gl/ResourceManager.h"
 #include "gl/TextureResource.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
@@ -99,6 +100,7 @@ TEST_CASE("Map")
   SECTION("create")
   {
     auto taskManager = createTestTaskManager();
+    auto resourceManager = gl::ResourceManager{};
     auto logger = NullLogger{};
 
     SECTION("Calling create sets worldspawn and notifies observers")
@@ -110,6 +112,7 @@ TEST_CASE("Map")
         MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([](auto map) {
             CHECK(
@@ -141,6 +144,7 @@ TEST_CASE("Map")
         MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([](auto map) {
             const auto* defaultLayerNode = map->worldNode().defaultLayer();
@@ -176,6 +180,7 @@ TEST_CASE("Map")
         MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([](auto map) {
             const auto* valveVersionProperty =
@@ -202,6 +207,7 @@ TEST_CASE("Map")
         MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([](auto map) {
             const auto* materialConfigProperty =
@@ -227,6 +233,7 @@ TEST_CASE("Map")
         MapFormat::Valve,
         vm::bbox3d{8192.0},
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([](auto map) {
             const auto* defaultLayerNode = map->worldNode().defaultLayer();
@@ -259,6 +266,7 @@ TEST_CASE("Map")
         MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([](auto map) {
             REQUIRE(map->entityDefinitionManager().definitions().size() == 1);
@@ -272,6 +280,7 @@ TEST_CASE("Map")
   SECTION("loadMap")
   {
     auto taskManager = createTestTaskManager();
+    auto resourceManager = gl::ResourceManager{};
     auto logger = NullLogger{};
 
     SECTION("Sets world bounds, game and file path")
@@ -292,6 +301,7 @@ TEST_CASE("Map")
         worldBounds,
         path,
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([&](auto map) {
             CHECK(map->worldBounds() == worldBounds);
@@ -320,6 +330,7 @@ TEST_CASE("Map")
           vm::bbox3d{8192.0},
           makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
           *taskManager,
+          resourceManager,
           logger)
           | kdl::transform([&](auto map) {
               CHECK(map->worldNode().mapFormat() == mdl::MapFormat::Valve);
@@ -338,6 +349,7 @@ TEST_CASE("Map")
           vm::bbox3d{8192.0},
           makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
           *taskManager,
+          resourceManager,
           logger)
           | kdl::transform([&](auto map) {
               CHECK(map->worldNode().mapFormat() == mdl::MapFormat::Standard);
@@ -356,6 +368,7 @@ TEST_CASE("Map")
           vm::bbox3d{8192.0},
           makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
           *taskManager,
+          resourceManager,
           logger)
           | kdl::transform([&](auto map) {
               // an empty map detects as Valve because Valve is listed first in the game
@@ -377,6 +390,7 @@ TEST_CASE("Map")
           vm::bbox3d{8192.0},
           makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
           *taskManager,
+          resourceManager,
           logger));
       }
     }
@@ -402,6 +416,7 @@ TEST_CASE("Map")
         vm::bbox3d{8192.0},
         makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([&](auto map) {
             REQUIRE(map->entityDefinitionManager().definitions().size() == 1);
@@ -415,6 +430,7 @@ TEST_CASE("Map")
   SECTION("reload")
   {
     auto taskManager = createTestTaskManager();
+    auto resourceManager = gl::ResourceManager{};
     auto logger = NullLogger{};
 
     auto gameInfo = DefaultGameInfo;
@@ -433,6 +449,7 @@ TEST_CASE("Map")
       vm::bbox3d{8192.0},
       path,
       *taskManager,
+      resourceManager,
       logger)
       | kdl::and_then([&](auto map) {
           REQUIRE(map->worldBounds() == worldBounds);
@@ -2001,6 +2018,7 @@ TEST_CASE("Map")
   SECTION("Entity definition file handling")
   {
     auto taskManager = createTestTaskManager();
+    auto resourceManager = gl::ResourceManager{};
     auto logger = NullLogger{};
 
     SECTION("Add and convert properties")
@@ -2022,6 +2040,7 @@ TEST_CASE("Map")
         MapFormat::Standard,
         vm::bbox3d{8192.0},
         *taskManager,
+        resourceManager,
         logger)
         | kdl::transform([](auto map) {
             CHECK(

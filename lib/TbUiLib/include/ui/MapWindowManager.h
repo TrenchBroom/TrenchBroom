@@ -36,6 +36,11 @@ class task_manager;
 
 namespace tb
 {
+namespace gl
+{
+class ResourceManager;
+}
+
 namespace mdl
 {
 enum class MapFormat;
@@ -63,19 +68,15 @@ public:
   ~MapWindowManager() override;
 
   Result<void> createDocument(
-    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
-    kdl::task_manager& taskManager);
+    const vm::bbox3d& worldBounds);
 
   Result<void> loadDocument(
-    const mdl::EnvironmentConfig& environmentConfig,
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
-    std::filesystem::path path,
-    kdl::task_manager& taskManager);
+    std::filesystem::path path);
 
   std::vector<MapWindow*> mapWindows() const;
   MapWindow* topMapWindow() const;

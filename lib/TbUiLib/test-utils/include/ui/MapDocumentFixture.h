@@ -35,22 +35,31 @@ namespace tb
 {
 class Logger;
 
+namespace gl
+{
+class ResourceManager;
+}
+
 namespace ui
 {
 class MapDocument;
 
 Result<std::unique_ptr<MapDocument>> createFixtureDocument(
-  mdl::MapFixtureConfig& config, kdl::task_manager& taskManager);
+  mdl::MapFixtureConfig& config,
+  kdl::task_manager& taskManager,
+  gl::ResourceManager& resourceManager);
 
 Result<std::unique_ptr<MapDocument>> loadFixtureDocument(
   const std::filesystem::path& path,
   mdl::MapFixtureConfig& config,
-  kdl::task_manager& taskManager);
+  kdl::task_manager& taskManager,
+  gl::ResourceManager& resourceManager);
 
 class MapDocumentFixture
 {
 private:
   std::unique_ptr<kdl::task_manager> m_taskManager;
+  std::unique_ptr<gl::ResourceManager> m_resourceManager;
   std::unique_ptr<MapDocument> m_document;
 
   std::optional<mdl::MapFixtureConfig> m_config;

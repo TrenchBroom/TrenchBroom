@@ -56,16 +56,17 @@ MapWindow* MapWindowManager::topMapWindow() const
 }
 
 Result<void> MapWindowManager::createDocument(
-  const mdl::EnvironmentConfig& environmentConfig,
-  const mdl::GameInfo& gameInfo,
-  mdl::MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
-  kdl::task_manager& taskManager)
+  const mdl::GameInfo& gameInfo, mdl::MapFormat mapFormat, const vm::bbox3d& worldBounds)
 {
   if (shouldCreateWindowForDocument())
   {
     return MapDocument::createDocument(
-             environmentConfig, gameInfo, mapFormat, worldBounds, taskManager)
+             m_appController.environmentConfig(),
+             gameInfo,
+             mapFormat,
+             worldBounds,
+             m_appController.taskManager(),
+             m_appController.resourceManager())
            | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
@@ -73,26 +74,25 @@ Result<void> MapWindowManager::createDocument(
   contract_assert(mapWindow != nullptr);
 
   return mapWindow->document().create(
-    environmentConfig, gameInfo, mapFormat, worldBounds);
+    m_appController.environmentConfig(), gameInfo, mapFormat, worldBounds);
 }
 
 Result<void> MapWindowManager::loadDocument(
-  const mdl::EnvironmentConfig& environmentConfig,
   const mdl::GameInfo& gameInfo,
   mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
-  std::filesystem::path path,
-  kdl::task_manager& taskManager)
+  std::filesystem::path path)
 {
   if (shouldCreateWindowForDocument())
   {
     return MapDocument::loadDocument(
-             environmentConfig,
+             m_appController.environmentConfig(),
              gameInfo,
              mapFormat,
              worldBounds,
              std::move(path),
-             taskManager)
+             m_appController.taskManager(),
+             m_appController.resourceManager())
            | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
@@ -100,7 +100,11 @@ Result<void> MapWindowManager::loadDocument(
   contract_assert(mapWindow != nullptr);
 
   return mapWindow->document().load(
-    environmentConfig, gameInfo, mapFormat, worldBounds, std::move(path));
+    m_appController.environmentConfig(),
+    gameInfo,
+    mapFormat,
+    worldBounds,
+    std::move(path));
 }
 
 bool MapWindowManager::allMapWindowsClosed() const

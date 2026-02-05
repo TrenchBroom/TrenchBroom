@@ -67,8 +67,10 @@ namespace tb::ui
 
 const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
 
-MapDocument::MapDocument(kdl::task_manager& taskManager)
+MapDocument::MapDocument(
+  kdl::task_manager& taskManager, gl::ResourceManager& resourceManager)
   : m_taskManager{&taskManager}
+  , m_resourceManager{&resourceManager}
   , m_loggingHub{std::make_unique<LoggingHub>()}
 {
   connectObservers();
@@ -82,9 +84,10 @@ Result<std::unique_ptr<MapDocument>> MapDocument::createDocument(
   const mdl::GameInfo& gameInfo,
   mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
-  kdl::task_manager& taskManager)
+  kdl::task_manager& taskManager,
+  gl::ResourceManager& resourceManager)
 {
-  auto document = std::make_unique<MapDocument>(taskManager);
+  auto document = std::make_unique<MapDocument>(taskManager, resourceManager);
   return document->create(environmentConfig, gameInfo, mapFormat, worldBounds)
          | kdl::transform([&]() { return std::move(document); });
 }
@@ -95,9 +98,10 @@ Result<std::unique_ptr<MapDocument>> MapDocument::loadDocument(
   mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   std::filesystem::path path,
-  kdl::task_manager& taskManager)
+  kdl::task_manager& taskManager,
+  gl::ResourceManager& resourceManager)
 {
-  auto document = std::make_unique<MapDocument>(taskManager);
+  auto document = std::make_unique<MapDocument>(taskManager, resourceManager);
   return document->load(
            environmentConfig, gameInfo, mapFormat, worldBounds, std::move(path))
          | kdl::transform([&]() { return std::move(document); });
@@ -128,6 +132,7 @@ Result<void> MapDocument::create(
            mapFormat,
            worldBounds,
            *m_taskManager,
+           *m_resourceManager,
            logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));
@@ -150,6 +155,7 @@ Result<void> MapDocument::load(
            worldBounds,
            std::move(path),
            *m_taskManager,
+           *m_resourceManager,
            logger())
          | kdl::transform([&](auto map) {
              setMap(std::move(map));

@@ -19,6 +19,7 @@
 
 #include "Logger.h"
 #include "Observer.h"
+#include "gl/ResourceManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameConfigFixture.h"
@@ -41,6 +42,7 @@ TEST_CASE("MapDocument")
   auto logger = NullLogger{};
   const auto environmentConfig = mdl::EnvironmentConfig{};
   auto taskManager = createTestTaskManager();
+  auto resourceManager = gl::ResourceManager{};
 
   SECTION("createDocument")
   {
@@ -49,7 +51,8 @@ TEST_CASE("MapDocument")
       mdl::Quake2GameInfo,
       mdl::MapFormat::Valve,
       vm::bbox3d{8192.0},
-      *taskManager)
+      *taskManager,
+      resourceManager)
       | kdl::transform([&](auto document) {
           SECTION("creates a new map with the given game")
           {
@@ -66,7 +69,8 @@ TEST_CASE("MapDocument")
                       mdl::Quake2GameInfo,
                       mdl::MapFormat::Valve,
                       vm::bbox3d{8192.0},
-                      *taskManager)
+                      *taskManager,
+                      resourceManager)
                     | kdl::value();
 
     auto documentWasLoaded = Observer<>{document->documentWasLoadedNotifier};
@@ -105,7 +109,8 @@ TEST_CASE("MapDocument")
       mdl::MapFormat::Valve,
       vm::bbox3d{8192.0},
       path,
-      *taskManager)
+      *taskManager,
+      resourceManager)
       | kdl::transform([&](auto document) {
           SECTION("loads map at given path")
           {
@@ -123,7 +128,8 @@ TEST_CASE("MapDocument")
                       mdl::Quake2GameInfo,
                       mdl::MapFormat::Valve,
                       vm::bbox3d{8192.0},
-                      *taskManager)
+                      *taskManager,
+                      resourceManager)
                     | kdl::value();
 
     auto documentWasLoaded = Observer<>{document->documentWasLoadedNotifier};
@@ -162,7 +168,8 @@ TEST_CASE("MapDocument")
                       mdl::Quake2GameInfo,
                       mdl::MapFormat::Valve,
                       vm::bbox3d{8192.0},
-                      *taskManager)
+                      *taskManager,
+                      resourceManager)
                     | kdl::value();
 
     const auto path =
