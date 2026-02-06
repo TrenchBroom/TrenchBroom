@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/OrthographicCamera.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/VertexType.h"
@@ -208,7 +209,7 @@ private:
     const size_t segments,
     const bool fill)
   {
-    const float zoom = helper.cameraZoom();
+    const float zoom = helper.camera().zoom();
     return render::Circle{radius / zoom, segments, fill};
   }
 
@@ -338,7 +339,7 @@ void UVOriginTool::pick(const InputState& inputState, mdl::PickResult& pickResul
     const auto oDistance = vm::distance(pickRay, origin);
     if (
       oDistance.distance
-      <= static_cast<double>(OriginHandleRadius / m_helper.cameraZoom()))
+      <= static_cast<double>(OriginHandleRadius / m_helper.camera().zoom()))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
       pickResult.addHit(mdl::Hit{
@@ -355,7 +356,7 @@ void UVOriginTool::pick(const InputState& inputState, mdl::PickResult& pickResul
       contract_assert(!yDistance.parallel);
 
       const auto maxDistance =
-        MaxPickDistance / static_cast<double>(m_helper.cameraZoom());
+        MaxPickDistance / static_cast<double>(m_helper.camera().zoom());
       if (xDistance.distance <= maxDistance)
       {
         const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);

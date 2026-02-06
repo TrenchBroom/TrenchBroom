@@ -19,6 +19,7 @@
 
 #include "ui/UVScaleTool.h"
 
+#include "gl/OrthographicCamera.h"
 #include "gl/PrimType.h"
 #include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
@@ -116,7 +117,7 @@ vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 
   for (size_t i = 0; i < 2; ++i)
   {
-    if (vm::abs(distance[i]) > 8.0f / helper.cameraZoom())
+    if (vm::abs(distance[i]) > 8.0f / helper.camera().zoom())
     {
       distance[i] = 0.0f;
     }

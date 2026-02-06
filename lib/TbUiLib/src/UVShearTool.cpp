@@ -19,6 +19,7 @@
 
 #include "ui/UVShearTool.h"
 
+#include "gl/OrthographicCamera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
@@ -106,7 +107,7 @@ float snapShearFactors(
     snappedFactors,
     [&](const auto& lhs, const auto& rhs) { return absDiff(lhs) < absDiff(rhs); });
 
-  const auto threshold = 10.0f / vm::abs(orthogonalOffset) / helper.cameraZoom();
+  const auto threshold = 10.0f / vm::abs(orthogonalOffset) / helper.camera().zoom();
   return it != snappedFactors.end() && absDiff(*it) < threshold ? *it : factor;
 }
 

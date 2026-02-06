@@ -134,7 +134,7 @@ private:
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});
     shader.set("GridDivider", vm::vec2f{m_helper.subDivisions()});
-    shader.set("CameraZoom", m_helper.cameraZoom());
+    shader.set("CameraZoom", m_helper.camera().zoom());
     shader.set("Material", 0);
 
     if (m_vertexArray.setup(gl, shader.program()))
@@ -341,7 +341,7 @@ void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBat
     m_helper.face()->vAxis() - vm::dot(m_helper.face()->vAxis(), normal) * normal};
   const auto center = vm::vec3f{m_helper.face()->boundsCenter()};
 
-  const auto length = 32.0f / m_helper.cameraZoom();
+  const auto length = 32.0f / m_helper.camera().zoom();
 
   auto edgeRenderer = render::DirectEdgeRenderer{
     gl::VertexArray::move(std::vector{
