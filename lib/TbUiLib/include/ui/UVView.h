@@ -28,8 +28,6 @@
 #include "ui/ToolBoxConnector.h"
 #include "ui/UVViewHelper.h"
 
-#include <filesystem>
-
 class QWidget;
 
 namespace tb
