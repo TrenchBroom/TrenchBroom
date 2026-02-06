@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/OrthographicCamera.h"
 #include "gl/Shaders.h"
 #include "gl/VboManager.h"
 #include "mdl/BrushFace.h"
@@ -98,7 +99,7 @@ float snapAngle(const UVViewHelper& helper, const float angle, const float distT
 
   // These constants and the use of POW don't have a rational -- they were just determined
   // by trial and error.
-  const auto threshold = 150.0f / std::pow(distToOrigin, 0.8f) / helper.cameraZoom();
+  const auto threshold = 150.0f / std::pow(distToOrigin, 0.8f) / helper.camera().zoom();
   if (std::abs(minDelta) < threshold)
   {
     return angle - minDelta;
@@ -109,7 +110,7 @@ float snapAngle(const UVViewHelper& helper, const float angle, const float distT
 render::Circle makeCircle(
   const UVViewHelper& helper, const float radius, const size_t segments, const bool fill)
 {
-  const auto zoom = helper.cameraZoom();
+  const auto zoom = helper.camera().zoom();
   return render::Circle{radius / zoom, segments, fill};
 }
 
@@ -342,7 +343,7 @@ void UVRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResul
       toPlane * fromFace * vm::vec3d{m_helper.originInFaceCoords()};
     const auto hitPointOnPlane = toPlane * hitPoint;
 
-    const auto zoom = double(m_helper.cameraZoom());
+    const auto zoom = double(m_helper.camera().zoom());
     const auto error =
       vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
     if (error <= RotateHandleWidth / zoom)

@@ -136,11 +136,6 @@ const gl::OrthographicCamera& UVViewHelper::camera() const
   return m_camera;
 }
 
-float UVViewHelper::cameraZoom() const
-{
-  return m_camera.zoom();
-}
-
 void UVViewHelper::pickUVGrid(
   const vm::ray3d& ray,
   const mdl::HitType::Type hitTypes[2],
@@ -201,7 +196,7 @@ void UVViewHelper::pickUVGrid(
 
 vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const
 {
-  const auto zoom = cameraZoom();
+  const auto zoom = camera().zoom();
 
   auto result = vm::vec2f{};
   for (size_t i = 0; i < 2; ++i)
