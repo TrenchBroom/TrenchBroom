@@ -73,6 +73,8 @@ private:
 public:
   UVView(MapDocument& document, gl::ContextManager& contextManager);
 
+  const UVViewHelper& helper() const;
+
   void setSubDivisions(const vm::vec2i& subDivisions);
 
   bool event(QEvent* event) override;

@@ -27,6 +27,7 @@
 #include <QtGlobal>
 
 #include "gl/Material.h"
+#include "gl/OrthographicCamera.h"
 #include "gl/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
@@ -46,6 +47,7 @@
 #include "ui/SignalDelayer.h"
 #include "ui/SpinControl.h"
 #include "ui/UVEditor.h"
+#include "ui/UVViewHelper.h"
 #include "ui/ViewConstants.h"
 #include "ui/ViewUtils.h"
 
@@ -92,6 +94,120 @@ FaceAttribsEditor::FaceAttribsEditor(
   updateIncrements();
 }
 
+bool FaceAttribsEditor::cancelMouseDrag()
+{
+  return m_uvEditor->cancelMouseDrag();
+}
+
+auto getHorizontalAxis(
+  const vm::vec3f& uAxis, const vm::vec3f& vAxis, const vm::vec3f& rightAxis)
+{
+  return vm::abs(vm::dot(uAxis, rightAxis)) >= vm::abs(vm::dot(vAxis, rightAxis))
+           ? mdl::UvAxis::u
+           : mdl::UvAxis::v;
+}
+
+auto invertHorizontalAxis(
+  const mdl::UvAxis horizontalUvAxis,
+  const vm::vec3f& uAxis,
+  const vm::vec3f& vAxis,
+  const vm::vec3f& rightAxis)
+{
+  switch (horizontalUvAxis)
+  {
+  case mdl::UvAxis::u:
+    return vm::dot(uAxis, rightAxis) >= 0.0f;
+  case mdl::UvAxis::v:
+    return vm::dot(vAxis, rightAxis) >= 0.0f;
+  }
+}
+
+auto invertVerticalAxis(
+  const mdl::UvAxis horizontalUvAxis,
+  const vm::vec3f& uAxis,
+  const vm::vec3f& vAxis,
+  const vm::vec3f& upAxis)
+{
+  switch (horizontalUvAxis)
+  {
+  case mdl::UvAxis::u:
+    return vm::dot(vAxis, upAxis) >= 0.0f;
+  case mdl::UvAxis::v:
+    return vm::dot(uAxis, upAxis) >= 0.0f;
+  }
+}
+
+auto getDirectionAxes(
+  const vm::vec3f& uAxis,
+  const vm::vec3f& vAxis,
+  const vm::vec3f& rightAxis,
+  const vm::vec3f& upAxis)
+{
+  // Which UV axis corresponds is horizontal?
+  const auto [horizontalUvAxis, verticalUvAxis] =
+    vm::abs(vm::dot(uAxis, rightAxis)) >= vm::abs(vm::dot(vAxis, rightAxis))
+      ? std::tuple{mdl::UvAxis::u, mdl::UvAxis::v}
+      : std::tuple{mdl::UvAxis::v, mdl::UvAxis::u};
+
+  const auto invertH = invertHorizontalAxis(horizontalUvAxis, uAxis, vAxis, rightAxis);
+  const auto invertV = invertVerticalAxis(horizontalUvAxis, uAxis, vAxis, upAxis);
+
+  return std::tuple{horizontalUvAxis, verticalUvAxis, invertH, invertV};
+}
+
+std::tuple<mdl::UvAxis, mdl::UvDirection> FaceAttribsEditor::convertJustifyDirection(
+  const JustifyDirection justifyDirection) const
+{
+  contract_assert(m_document.map().selection().hasAnyBrushFaces());
+
+  const auto& camera = m_uvEditor->helper().camera();
+  const auto& brushFace = m_document.map().selection().brushFaces.front().face();
+
+  const auto uAxis = vm::vec3f{brushFace.uAxis()};
+  const auto vAxis = vm::vec3f{brushFace.vAxis()};
+
+  const auto [horizontalUvAxis, verticalUvAxis, invertH, invertV] =
+    getDirectionAxes(uAxis, vAxis, camera.right(), camera.up());
+
+  switch (justifyDirection)
+  {
+  case JustifyDirection::Left:
+    return std::tuple{
+      horizontalUvAxis, invertH ? mdl::UvDirection::backward : mdl::UvDirection::forward};
+  case JustifyDirection::Right:
+    return std::tuple{
+      horizontalUvAxis, invertH ? mdl::UvDirection::forward : mdl::UvDirection::backward};
+  case JustifyDirection::Up:
+    return std::tuple{
+      verticalUvAxis, invertV ? mdl::UvDirection::backward : mdl::UvDirection::forward};
+  case JustifyDirection::Down:
+    return std::tuple{
+      verticalUvAxis, invertV ? mdl::UvDirection::forward : mdl::UvDirection::backward};
+  }
+}
+
+mdl::UvAxis FaceAttribsEditor::convertFitDirection(FitDirection fitDirection) const
+{
+  contract_assert(m_document.map().selection().hasAnyBrushFaces());
+
+  const auto& camera = m_uvEditor->helper().camera();
+  const auto& brushFace = m_document.map().selection().brushFaces.front().face();
+
+  const auto uAxis = vm::vec3f{brushFace.uAxis()};
+  const auto vAxis = vm::vec3f{brushFace.vAxis()};
+
+  const auto [horizontalUvAxis, verticalUvAxis, invertH, invertV] =
+    getDirectionAxes(uAxis, vAxis, camera.right(), camera.up());
+
+  switch (fitDirection)
+  {
+  case FitDirection::Horizontal:
+    return horizontalUvAxis;
+  case FitDirection::Vertical:
+    return verticalUvAxis;
+  }
+}
+
 void FaceAttribsEditor::alignClicked()
 {
   const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
@@ -101,28 +217,23 @@ void FaceAttribsEditor::alignClicked()
   alignUV(m_document.map(), policy);
 }
 
-void FaceAttribsEditor::justifyClicked(
-  const mdl::UvAxis axis, const mdl::UvDirection direction)
+void FaceAttribsEditor::justifyClicked(const JustifyDirection justifyDirection)
 {
-  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
-                        ? mdl::UvPolicy::prev
-                        : mdl::UvPolicy::next;
+  const auto uvPolicy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                          ? mdl::UvPolicy::prev
+                          : mdl::UvPolicy::next;
 
-  justifyUV(m_document.map(), axis, direction, policy);
+  const auto [uvAxis, uvDirection] = convertJustifyDirection(justifyDirection);
+  justifyUV(m_document.map(), uvAxis, uvDirection, uvPolicy);
 }
 
-void FaceAttribsEditor::fitClicked(const mdl::UvAxis axis)
+void FaceAttribsEditor::fitClicked(const FitDirection fitDirection)
 {
-  const auto policy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
-                        ? mdl::UvPolicy::prev
-                        : mdl::UvPolicy::next;
+  const auto uvPolicy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                          ? mdl::UvPolicy::prev
+                          : mdl::UvPolicy::next;
 
-  fitUV(m_document.map(), axis, policy);
-}
-
-bool FaceAttribsEditor::cancelMouseDrag()
-{
-  return m_uvEditor->cancelMouseDrag();
+  fitUV(m_document.map(), axis, uvPolicy);
 }
 
 void FaceAttribsEditor::xOffsetChanged(const double value)

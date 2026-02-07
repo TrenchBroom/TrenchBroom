@@ -23,6 +23,8 @@
 
 #include "NotifierConnection.h"
 
+#include <tuple>
+
 class QAbstractButton;
 class QLabel;
 class QLineEdit;
@@ -52,7 +54,21 @@ class UVEditor;
 class FaceAttribsEditor : public QWidget
 {
   Q_OBJECT
+
 private:
+  enum class JustifyDirection
+  {
+    Left,
+    Right,
+    Up,
+    Down,
+  };
+
+  enum class FitDirection
+  {
+    Horizontal,
+    Vertical,
+  };
   MapDocument& m_document;
 
   UVEditor* m_uvEditor = nullptr;
@@ -103,9 +119,13 @@ public:
   bool cancelMouseDrag();
 
 private:
+  std::tuple<mdl::UvAxis, mdl::UvDirection> convertJustifyDirection(
+    JustifyDirection justifyDirection) const;
+  mdl::UvAxis convertFitDirection(FitDirection fitDirection) const;
+
   void alignClicked();
-  void justifyClicked(mdl::UvAxis axis, mdl::UvDirection direction);
-  void fitClicked(mdl::UvAxis axis);
+  void justifyClicked(JustifyDirection justifyDirection);
+  void fitClicked(FitDirection fitDirection);
 
   void xOffsetChanged(double value);
   void yOffsetChanged(double value);

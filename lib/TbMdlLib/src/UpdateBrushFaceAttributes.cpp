@@ -37,6 +37,37 @@ namespace tb::mdl
 {
 namespace
 {
+
+bool isEqual(const SetValue& lhs, const SetValue& rhs, const float epsilon)
+{
+  if (lhs.value && rhs.value)
+  {
+    return vm::is_equal(*lhs.value, *rhs.value, epsilon);
+  }
+  return !lhs.value && !rhs.value;
+}
+
+bool isEqual(const AddValue& lhs, const AddValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.delta, rhs.delta, epsilon);
+}
+
+bool isEqual(const MultiplyValue& lhs, const MultiplyValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.factor, rhs.factor, epsilon);
+}
+
+bool isEqual(const ValueOp& lhs, const ValueOp& rhs, const float epsilon)
+{
+  return std::visit(
+    kdl::overload(
+      [&]<typename T>(
+        const T& lhsT, const T& rhsT) { return isEqual(lhsT, rhsT, epsilon); },
+      [](const auto&, const auto&) { return false; }),
+    lhs,
+    rhs);
+}
+
 auto replaceFlagsIfSet(const auto& maybeFlags)
 {
   return maybeFlags
@@ -176,6 +207,64 @@ float normalizeOffset(const float offset, const float length)
   return normalizedOffset < 0.0f ? normalizedOffset + length : normalizedOffset;
 }
 
+auto makeVertexToUvAxisTransform(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvDirection uvDirection)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto dirFactor = [&] {
+    switch (uvDirection)
+    {
+    case UvDirection::forward:
+      return +1.0f;
+    case UvDirection::backward:
+      return -1.0f;
+    }
+  }();
+
+  const auto toUV =
+    brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, brushFace.attributes().scale());
+
+  return [=](const auto& vertex) {
+    const auto uvCoords = vm::vec2f{toUV * vertex->position()};
+    return vm::dot(uvCoords, dirFactor * axis);
+  };
+}
+
+auto justifyCoordinate(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvDirection uvDirection)
+{
+  auto distances =
+    brushFace.vertices()
+    | std::views::transform(makeVertexToUvAxisTransform(brushFace, uvAxis, uvDirection));
+
+  const auto iMax = std::ranges::max_element(distances);
+  contract_assert(iMax != std::ranges::end(distances));
+
+  return *iMax;
+}
+
+bool isJustified(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvDirection uvDirection)
+{
+  const auto normalizedXOffset =
+    normalizeOffset(brushFace.attributes().xOffset(), brushFace.textureSize().x());
+  const auto normalizedYOffset =
+    normalizeOffset(brushFace.attributes().yOffset(), brushFace.textureSize().y());
+
+  const auto update = justify(brushFace, uvAxis, uvDirection, UvPolicy::best);
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return update.xOffset
+           && isEqual(
+             *update.xOffset, SetValue{normalizedXOffset}, vm::Cf::almost_zero());
+  case UvAxis::v:
+    return update.yOffset
+           && isEqual(
+             *update.yOffset, SetValue{normalizedYOffset}, vm::Cf::almost_zero());
+  }
+}
+
 } // namespace
 
 kdl_reflect_impl(ResetAxis);
@@ -302,6 +391,26 @@ std::ostream& operator<<(std::ostream& lhs, const UvDirection rhs)
   return lhs;
 }
 
+std::optional<vm::vec3d> justifiedVertex(const BrushFace& brushFace, const UvAxis uvAxis)
+{
+  for (const auto uvDirection : {UvDirection::backward, UvDirection::forward})
+  {
+    if (isJustified(brushFace, uvAxis, uvDirection))
+    {
+      auto vertices = brushFace.vertices();
+      const auto iMax = std::ranges::max_element(
+        vertices,
+        std::less<float>{},
+        makeVertexToUvAxisTransform(brushFace, uvAxis, uvDirection));
+      contract_assert(iMax != std::ranges::end(vertices));
+
+      return (*iMax)->position();
+    }
+  }
+
+  return std::nullopt;
+}
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy uvPolicy)
 {
   constexpr auto uAxis = vm::vec2d{1, 0};
@@ -361,18 +470,7 @@ UpdateBrushFaceAttributes justify(
     }
   }();
 
-  const auto distances =
-    brushFace.vertices()
-    | std::views::transform(
-      [toUV = brushFace.toUVCoordSystemMatrix(
-         vm::vec2f{0, 0}, brushFace.attributes().scale())](const auto* vertex) {
-        return vm::vec2f{toUV * vertex->position()};
-      })
-    | std::views::transform([&](const auto& v) { return vm::dot(v, dirFactor * axis); })
-    | kdl::ranges::to<std::vector>();
-
-  const auto iMax = std::ranges::max_element(distances);
-  contract_assert(iMax != std::ranges::end(distances));
+  const auto max = justifyCoordinate(brushFace, uvAxis, uvDirection);
 
   // if the texture length is a multiple of the face length, we can cycle through
   // different offsets corresponding to the integer divisor
@@ -384,7 +482,7 @@ UpdateBrushFaceAttributes justify(
       ? size_t(std::round(textureLength / faceLength))
       : 1u;
 
-  const auto offset = -dirFactor * *iMax;
+  const auto offset = -dirFactor * max;
   const auto potentialValues =
     std::views::iota(0u, subDiv) | std::views::transform([&](const auto n) {
       const auto delta = textureLength / float(subDiv);

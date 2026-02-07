@@ -38,6 +38,7 @@ namespace ui
 {
 class MapDocument;
 class UVView;
+class UVViewHelper;
 
 class UVEditor : public QWidget
 {
@@ -63,6 +64,8 @@ public:
     MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
+
+  const UVViewHelper& helper() const;
 
 private:
   void updateButtons();

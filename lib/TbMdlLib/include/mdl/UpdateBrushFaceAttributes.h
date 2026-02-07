@@ -164,6 +164,8 @@ enum class UvDirection
 
 std::ostream& operator<<(std::ostream& lhs, UvDirection rhs);
 
+std::optional<vm::vec3d> justifiedVertex(const BrushFace& brushFace, UvAxis uvAxis);
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, UvPolicy uvPolicy);
 UpdateBrushFaceAttributes justify(
   const BrushFace& brushFace, UvAxis uvAxis, UvDirection uvDirection, UvPolicy uvPolicy);

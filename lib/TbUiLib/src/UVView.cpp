@@ -158,6 +158,11 @@ UVView::UVView(MapDocument& document, gl::ContextManager& contextManager)
   connectObservers();
 }
 
+const UVViewHelper& UVView::helper() const
+{
+  return m_helper;
+}
+
 void UVView::setSubDivisions(const vm::vec2i& subDivisions)
 {
   m_helper.setSubDivisions(subDivisions);
