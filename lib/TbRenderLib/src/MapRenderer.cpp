@@ -816,7 +816,7 @@ void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
 {
   setupRenderers();
 
-  if (path == pref(m_map.gameInfo().gamePathPreference))
+  if (path == m_map.gameInfo().gamePathPreference.path)
   {
     reloadEntityModels();
     invalidateRenderers(Renderer::All);

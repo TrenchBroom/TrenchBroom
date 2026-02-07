@@ -149,12 +149,7 @@ void GamesPreferencePane::updateControls()
 
   if (const auto* selectedGameInfo = m_gameListBox->selectedGameInfo())
   {
-    if (m_currentGamePage && &m_currentGamePage->gameInfo() == selectedGameInfo)
-    {
-      // refresh the current page
-      m_currentGamePage->updateControls();
-    }
-    else
+    if (!m_currentGamePage || &m_currentGamePage->gameInfo() != selectedGameInfo)
     {
       // build a new current page
       delete m_currentGamePage;
@@ -170,6 +165,8 @@ void GamesPreferencePane::updateControls()
         this,
         &GamesPreferencePane::updateControls);
     }
+
+    m_currentGamePage->updateControls();
   }
   else
   {
