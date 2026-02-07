@@ -217,7 +217,7 @@ void ModEditor::modsDidChange()
 
 void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 {
-  if (path == pref(m_document.map().gameInfo().gamePathPreference))
+  if (path == m_document.map().gameInfo().gamePathPreference.path)
   {
     updateAvailableMods();
     updateMods();
