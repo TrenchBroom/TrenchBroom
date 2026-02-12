@@ -1,0 +1,15 @@
+[project]
+name = "trenchbroom-python-tools"
+version = "0.1.0"
+description = "Python utilities for interacting with the TrenchBroom CMake build."
+requires-python = ">=3.10"
+dependencies = [
+    "InquirerPy>=0.3.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = false

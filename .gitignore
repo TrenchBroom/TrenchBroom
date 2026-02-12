@@ -4,6 +4,7 @@ Thumbs.db
 .vscode
 .zed
 .cache
+.venv
 
 /cmake-build-*
 /build*
@@ -20,4 +21,3 @@ Thumbs.db
 /coverity
 
 app/resources/documentation/help/index.html
-
