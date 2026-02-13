@@ -19,6 +19,8 @@
 
 #include "ui/MapViewBase.h"
 
+#include <QApplication>
+#include <QClipboard>
 #include <QDebug>
 #include <QMenu>
 #include <QMimeData>
@@ -1317,6 +1319,12 @@ void MapViewBase::showPopupMenuLater()
         .arg(QString::fromStdString(faceHandle->face().attributes().materialName())),
       mapWindow,
       [=] { mapWindow->revealMaterial(material); });
+
+    menu.addAction(tr("Copy Material Name"), mapWindow, [=] {
+      auto* clipboard = QApplication::clipboard();
+      clipboard->setText(
+        QString::fromStdString(faceHandle->face().attributes().materialName()));
+    });
 
     menu.addSeparator();
   }

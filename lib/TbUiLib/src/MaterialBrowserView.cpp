@@ -19,6 +19,8 @@
 
 #include "ui/MaterialBrowserView.h"
 
+#include <QApplication>
+#include <QClipboard>
 #include <QMenu>
 #include <QTextStream>
 
@@ -461,6 +463,13 @@ void MaterialBrowserView::doContextMenu(
 
     menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
       selectBrushesWithMaterial(m_document.map(), material->name());
+    });
+
+    menu.addSeparator();
+
+    menu.addAction(tr("Copy Name"), this, [&, material = &cellData(*cell)]() {
+      auto* clipboard = QApplication::clipboard();
+      clipboard->setText(QString::fromStdString(material->name()));
     });
 
     menu.exec(event->globalPos());
