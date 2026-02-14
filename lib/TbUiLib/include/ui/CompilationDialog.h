@@ -77,6 +77,7 @@ private slots:
 
   void selectedProfileChanged();
   void profileChanged();
+  void showContextMenu(const QPoint& pos);
 
 private:
   void saveProfile();
