@@ -51,6 +51,8 @@ private:
   void logToConsole(LogLevel level, const std::string& message);
 
   void logCachedMessages();
+
+  void showContextMenu(const QPoint& pos);
 };
 
 } // namespace tb::ui

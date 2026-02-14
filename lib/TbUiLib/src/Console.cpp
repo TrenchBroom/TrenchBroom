@@ -20,6 +20,7 @@
 #include "ui/Console.h"
 
 #include <QDebug>
+#include <QMenu>
 #include <QMutexLocker>
 #include <QScrollBar>
 #include <QTextEdit>
@@ -69,6 +70,9 @@ Console::Console(QWidget* parent)
   m_textView = new QTextEdit{};
   m_textView->setReadOnly(true);
   m_textView->setWordWrapMode(QTextOption::NoWrap);
+  m_textView->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(
+    m_textView, &QWidget::customContextMenuRequested, this, &Console::showContextMenu);
 
   auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
@@ -120,6 +124,14 @@ void Console::logCachedMessages()
     logToConsole(level, messageStr);
     FileLogger::instance().log(level, message);
   });
+}
+
+void Console::showContextMenu(const QPoint& pos)
+{
+  auto* menu = m_textView->createStandardContextMenu();
+  menu->addSeparator();
+  menu->addAction(tr("Clear"), m_textView, &QTextEdit::clear);
+  menu->popup(m_textView->mapToGlobal(pos));
 }
 
 } // namespace tb::ui
