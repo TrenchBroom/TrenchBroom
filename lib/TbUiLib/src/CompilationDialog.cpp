@@ -24,6 +24,7 @@
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 #include <QLabel>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTextEdit>
@@ -75,6 +76,12 @@ void CompilationDialog::createGui()
   m_output = new QTextEdit{};
   m_output->setReadOnly(true);
   m_output->setFont(Fonts::fixedWidthFont());
+  m_output->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(
+    m_output,
+    &QWidget::customContextMenuRequested,
+    this,
+    &CompilationDialog::showContextMenu);
 
   auto* outputLayout = new QVBoxLayout{};
   outputLayout->setContentsMargins(0, 0, 0, 0);
@@ -255,6 +262,14 @@ void CompilationDialog::selectedProfileChanged()
 void CompilationDialog::profileChanged()
 {
   updateCompileButtons();
+}
+
+void CompilationDialog::showContextMenu(const QPoint& pos)
+{
+  auto* menu = m_output->createStandardContextMenu();
+  menu->addSeparator();
+  menu->addAction(tr("Clear"), m_output, &QTextEdit::clear);
+  menu->popup(m_output->mapToGlobal(pos));
 }
 
 void CompilationDialog::saveProfile()
