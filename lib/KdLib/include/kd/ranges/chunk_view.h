@@ -96,10 +96,10 @@ public:
       requires std::
         sized_sentinel_for<std::ranges::sentinel_t<V>, std::ranges::iterator_t<V>>
     {
-      const auto dist = std::ranges::end(i->parent_->base_) - *i.parent->current_;
-      return dist < i.parent_->remainder
+      const auto dist = std::ranges::end(i.parent_->base_) - *i.parent_->current_;
+      return dist < i.parent_->remainder_
                ? dist == 0 ? 0 : 1
-               : detail::div_ceil(dist - i.parent_->remainder_, i.parent->n_) + 1;
+               : detail::div_ceil(dist - i.parent_->remainder_, i.parent_->n_) + 1;
     }
 
     friend constexpr difference_type operator-(
