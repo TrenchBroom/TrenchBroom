@@ -116,9 +116,10 @@ private:
     Render(
       const Params& params, gl::VertexArray& vertexArray, gl::IndexRangeMap& indexRanges);
 
+    void prepareVertices(gl::VboManager& vboManager) override;
+    void render(RenderContext& renderContext) override;
+
   private:
-    void doPrepareVertices(gl::VboManager& vboManager) override;
-    void doRender(RenderContext& renderContext) override;
     void doRenderVertices(RenderContext& renderContext) override;
   };
 
@@ -150,9 +151,10 @@ private:
       std::shared_ptr<BrushVertexArray> vertexArray,
       std::shared_ptr<BrushIndexArray> indexArray);
 
-  private:
     void prepareVerticesAndIndices(gl::VboManager& vboManager) override;
-    void doRender(RenderContext& renderContext) override;
+    void render(RenderContext& renderContext) override;
+
+  private:
     void doRenderVertices(RenderContext& renderContext) override;
   };
 

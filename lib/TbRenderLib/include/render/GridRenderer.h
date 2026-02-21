@@ -48,12 +48,12 @@ private:
 public:
   GridRenderer(const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds);
 
+  void prepareVertices(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
+
 private:
   static std::vector<Vertex> vertices(
     const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds);
-
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
 };
 
 } // namespace render

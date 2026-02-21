@@ -369,7 +369,7 @@ struct RenderFunc : public gl::MaterialRenderFunc
 };
 } // namespace
 
-void PatchRenderer::doRender(RenderContext& context)
+void PatchRenderer::render(RenderContext& context)
 {
   auto& shaderManager = context.shaderManager();
   auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};

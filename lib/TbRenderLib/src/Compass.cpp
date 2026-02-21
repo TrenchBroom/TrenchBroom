@@ -62,7 +62,7 @@ void Compass::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void Compass::doPrepareVertices(gl::VboManager& vboManager)
+void Compass::prepareVertices(gl::VboManager& vboManager)
 {
   if (!m_prepared)
   {
@@ -73,7 +73,7 @@ void Compass::doPrepareVertices(gl::VboManager& vboManager)
   }
 }
 
-void Compass::doRender(RenderContext& renderContext)
+void Compass::render(RenderContext& renderContext)
 {
   const auto& camera = renderContext.camera();
   const auto& viewport = camera.viewport();

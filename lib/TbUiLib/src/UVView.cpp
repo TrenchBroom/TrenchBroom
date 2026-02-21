@@ -102,13 +102,12 @@ private:
     };
   }
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override
+  void prepareVertices(gl::VboManager& vboManager) override
   {
     m_vertexArray.prepare(vboManager);
   }
 
-  void doRender(render::RenderContext& renderContext) override
+  void render(render::RenderContext& renderContext) override
   {
     const auto& offset = m_helper.face()->attributes().offset();
     const auto& scale = m_helper.face()->attributes().scale();

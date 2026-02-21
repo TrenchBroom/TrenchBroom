@@ -150,12 +150,12 @@ void EntityModelRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void EntityModelRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void EntityModelRenderer::prepareVertices(gl::VboManager& vboManager)
 {
   m_entityModelManager.prepare(vboManager);
 }
 
-void EntityModelRenderer::doRender(RenderContext& renderContext)
+void EntityModelRenderer::render(RenderContext& renderContext)
 {
   if (!m_entities.empty())
   {

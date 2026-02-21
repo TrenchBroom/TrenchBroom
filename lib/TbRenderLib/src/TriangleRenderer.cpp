@@ -64,12 +64,12 @@ void TriangleRenderer::setTintColor(const Color& tintColor)
   m_tintColor = tintColor;
 }
 
-void TriangleRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void TriangleRenderer::prepareVertices(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
 
-void TriangleRenderer::doRender(RenderContext& context)
+void TriangleRenderer::render(RenderContext& context)
 {
   if (m_vertexArray.vertexCount() != 0)
   {

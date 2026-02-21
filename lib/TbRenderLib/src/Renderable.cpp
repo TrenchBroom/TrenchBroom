@@ -25,16 +25,6 @@ namespace tb::render
 Renderable::Renderable() = default;
 Renderable::~Renderable() = default;
 
-void Renderable::render(RenderContext& renderContext)
-{
-  doRender(renderContext);
-}
-
-void DirectRenderable::prepareVertices(gl::VboManager& vboManager)
-{
-  doPrepareVertices(vboManager);
-}
-
 DirectRenderable::DirectRenderable() = default;
 DirectRenderable::~DirectRenderable() = default;
 

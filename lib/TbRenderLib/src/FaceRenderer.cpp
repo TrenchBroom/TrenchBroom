@@ -135,7 +135,7 @@ void FaceRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
   }
 }
 
-void FaceRenderer::doRender(RenderContext& context)
+void FaceRenderer::render(RenderContext& context)
 {
   if (!m_indexArrayMap->empty() && m_vertexArray->setupVertices())
   {

@@ -70,8 +70,8 @@ public:
   void invalidate();
 
 private:
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
+  void prepareVertices(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
 
   void renderLines(RenderContext& renderContext);
   void renderArrows(RenderContext& renderContext);

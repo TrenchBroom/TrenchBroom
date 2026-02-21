@@ -47,10 +47,7 @@ private:
     m_wrappee.prepareVerticesAndIndices(vboManager);
   }
 
-  void doRender(RenderContext& renderContext) override
-  {
-    m_wrappee.render(renderContext);
-  }
+  void render(RenderContext& renderContext) override { m_wrappee.render(renderContext); }
 };
 
 } // namespace

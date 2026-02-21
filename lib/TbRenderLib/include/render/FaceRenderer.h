@@ -68,7 +68,7 @@ public:
 
 private:
   void prepareVerticesAndIndices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& context) override;
+  void render(RenderContext& context) override;
 };
 
 } // namespace render

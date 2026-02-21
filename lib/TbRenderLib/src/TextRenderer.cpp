@@ -187,10 +187,30 @@ vm::vec2f TextRenderer::stringSize(
   return vm::round(font.measure(string));
 }
 
-void TextRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void TextRenderer::prepareVertices(gl::VboManager& vboManager)
 {
   prepare(m_entries, false, vboManager);
   prepare(m_entriesOnTop, true, vboManager);
+}
+
+void TextRenderer::render(RenderContext& renderContext)
+{
+  const auto& viewport = renderContext.camera().viewport();
+  const auto projection = vm::ortho_matrix(
+    0.0f,
+    1.0f,
+    static_cast<float>(viewport.x),
+    static_cast<float>(viewport.height),
+    static_cast<float>(viewport.width),
+    static_cast<float>(viewport.y));
+  const auto view = vm::view_matrix(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0});
+  auto ortho = ReplaceTransformation{renderContext.transformation(), projection, view};
+
+  render(m_entries, renderContext);
+
+  glAssert(glDisable(GL_DEPTH_TEST));
+  render(m_entriesOnTop, renderContext);
+  glAssert(glEnable(GL_DEPTH_TEST));
 }
 
 void TextRenderer::prepare(
@@ -247,26 +267,6 @@ void TextRenderer::addEntry(
       vm::vec3f{vertex + offset.xy() + stringSize / 2.0f, -offset.z()},
       rectColor.to<RgbaF>().toVec());
   }
-}
-
-void TextRenderer::doRender(RenderContext& renderContext)
-{
-  const auto& viewport = renderContext.camera().viewport();
-  const auto projection = vm::ortho_matrix(
-    0.0f,
-    1.0f,
-    static_cast<float>(viewport.x),
-    static_cast<float>(viewport.height),
-    static_cast<float>(viewport.width),
-    static_cast<float>(viewport.y));
-  const auto view = vm::view_matrix(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0});
-  auto ortho = ReplaceTransformation{renderContext.transformation(), projection, view};
-
-  render(m_entries, renderContext);
-
-  glAssert(glDisable(GL_DEPTH_TEST));
-  render(m_entriesOnTop, renderContext);
-  glAssert(glEnable(GL_DEPTH_TEST));
 }
 
 void TextRenderer::render(EntryCollection& collection, RenderContext& renderContext)

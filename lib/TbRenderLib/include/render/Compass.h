@@ -55,11 +55,10 @@ public:
 
   void render(RenderBatch& renderBatch);
 
-private: // implement Renderable interface
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
-
 private:
+  void prepareVertices(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
+
   void makeArrows();
   void makeBackground();
 

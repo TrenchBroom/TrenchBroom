@@ -38,10 +38,7 @@ public:
   Renderable();
   virtual ~Renderable();
 
-  void render(RenderContext& renderContext);
-
-private:
-  virtual void doRender(RenderContext& renderContext) = 0;
+  virtual void render(RenderContext& renderContext) = 0;
 
   defineCopyAndMove(Renderable);
 };
@@ -52,10 +49,7 @@ public:
   DirectRenderable();
   ~DirectRenderable() override;
 
-  void prepareVertices(gl::VboManager& vboManager);
-
-private:
-  virtual void doPrepareVertices(gl::VboManager& vboManager) = 0;
+  virtual void prepareVertices(gl::VboManager& vboManager) = 0;
 
   defineCopyAndMove(DirectRenderable);
 };

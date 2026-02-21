@@ -181,12 +181,12 @@ DirectEdgeRenderer::Render::Render(
 {
 }
 
-void DirectEdgeRenderer::Render::doPrepareVertices(gl::VboManager& vboManager)
+void DirectEdgeRenderer::Render::prepareVertices(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
 
-void DirectEdgeRenderer::Render::doRender(RenderContext& renderContext)
+void DirectEdgeRenderer::Render::render(RenderContext& renderContext)
 {
   if (m_vertexArray.vertexCount() > 0)
   {
@@ -239,7 +239,7 @@ void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(gl::VboManager& vboM
   m_indexArray->prepare(vboManager);
 }
 
-void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext)
+void IndexedEdgeRenderer::Render::render(RenderContext& renderContext)
 {
   if (m_indexArray->hasValidIndices())
   {

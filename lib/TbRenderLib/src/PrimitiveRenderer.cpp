@@ -322,7 +322,7 @@ void PrimitiveRenderer::renderCylinder(
     .addTriangleStrip(Vertex::toList(vertices.size(), vertices.begin()));
 }
 
-void PrimitiveRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void PrimitiveRenderer::prepareVertices(gl::VboManager& vboManager)
 {
   prepareLines(vboManager);
   prepareTriangles(vboManager);
@@ -349,7 +349,7 @@ void PrimitiveRenderer::prepareTriangles(gl::VboManager& vboManager)
   }
 }
 
-void PrimitiveRenderer::doRender(RenderContext& renderContext)
+void PrimitiveRenderer::render(RenderContext& renderContext)
 {
   renderLines(renderContext);
   renderTriangles(renderContext);

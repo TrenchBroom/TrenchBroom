@@ -50,7 +50,7 @@ void SpikeGuideRenderer::clear()
   m_valid = true;
 }
 
-void SpikeGuideRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void SpikeGuideRenderer::prepareVertices(gl::VboManager& vboManager)
 {
   if (!m_valid)
   {
@@ -59,7 +59,7 @@ void SpikeGuideRenderer::doPrepareVertices(gl::VboManager& vboManager)
   m_spikeArray.prepare(vboManager);
 }
 
-void SpikeGuideRenderer::doRender(RenderContext& renderContext)
+void SpikeGuideRenderer::render(RenderContext& renderContext)
 {
   auto shader =
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPCShader};

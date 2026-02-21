@@ -43,7 +43,7 @@ void LinkRenderer::invalidate()
   m_valid = false;
 }
 
-void LinkRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void LinkRenderer::prepareVertices(gl::VboManager& vboManager)
 {
   if (!m_valid)
   {
@@ -54,7 +54,7 @@ void LinkRenderer::doPrepareVertices(gl::VboManager& vboManager)
   }
 }
 
-void LinkRenderer::doRender(RenderContext& renderContext)
+void LinkRenderer::render(RenderContext& renderContext)
 {
   contract_pre(m_valid);
 

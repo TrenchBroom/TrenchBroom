@@ -70,13 +70,12 @@ public:
   {
   }
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override
+  void prepareVertices(gl::VboManager& vboManager) override
   {
     m_circle.prepare(vboManager);
   }
 
-  void doRender(render::RenderContext& renderContext) override
+  void render(render::RenderContext& renderContext) override
   {
     glAssert(glDisable(GL_DEPTH_TEST));
 

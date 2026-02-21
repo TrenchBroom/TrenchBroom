@@ -56,11 +56,7 @@ private:
     virtual void setup() = 0;
     virtual void cleanup() = 0;
 
-  public:
-    void render(PrimType primType, size_t offset, size_t count) const;
-
-  private:
-    virtual void doRender(PrimType primType, size_t offset, size_t count) const = 0;
+    virtual void render(PrimType primType, size_t offset, size_t count) const = 0;
   };
 
   template <typename Index>
@@ -118,8 +114,7 @@ private:
       }
     }
 
-  private:
-    void doRender(PrimType primType, size_t offset, size_t count) const override
+    void render(PrimType primType, size_t offset, size_t count) const override
     {
       glAssert(glDrawElements(
         toGL(primType),

@@ -212,13 +212,12 @@ private:
     return render::Circle{radius / zoom, segments, fill};
   }
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override
+  void prepareVertices(gl::VboManager& vboManager) override
   {
     m_originHandle.prepare(vboManager);
   }
 
-  void doRender(render::RenderContext& renderContext) override
+  void render(render::RenderContext& renderContext) override
   {
     const auto fromFace =
       m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);

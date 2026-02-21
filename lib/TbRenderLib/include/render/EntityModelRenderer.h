@@ -110,8 +110,8 @@ public:
   void render(RenderBatch& renderBatch);
 
 private:
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
+  void prepareVertices(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
 };
 
 } // namespace render
