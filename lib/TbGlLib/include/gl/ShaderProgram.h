@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "Macros.h"
 #include "Result.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 
 #include "vm/mat.h"
 #include "vm/vec.h"

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/PrimType.h"
 
 #include "kd/enum_array.h"

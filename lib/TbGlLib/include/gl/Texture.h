@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/TextureBuffer.h"
 
 #include "kd/reflection_decl.h"

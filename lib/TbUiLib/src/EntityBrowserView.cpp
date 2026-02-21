@@ -25,7 +25,7 @@
 #include "gl/ActiveShader.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/MaterialIndexRangeRenderer.h"
 #include "gl/MaterialRenderFunc.h"
 #include "gl/PrimType.h"

@@ -20,7 +20,7 @@
 #include "gl/VboManager.h"
 
 #include "Macros.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/Vbo.h"
 
 #include <algorithm>

@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "Result.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 
 #include <filesystem>
 #include <string>

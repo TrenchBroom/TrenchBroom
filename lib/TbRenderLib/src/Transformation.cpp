@@ -19,7 +19,7 @@
 
 #include "render/Transformation.h"
 
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 
 #include "kd/contracts.h"
 

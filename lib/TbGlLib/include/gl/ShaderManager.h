@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Result.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/Shader.h"
 #include "gl/ShaderProgram.h"
 

@@ -14,8 +14,8 @@ target_sources(TbGlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FontManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FontTexture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FreeTypeFontFactory.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GlUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArrayMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArrayMapBuilder.cpp

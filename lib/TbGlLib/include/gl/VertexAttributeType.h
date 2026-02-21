@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Macros.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/ShaderProgram.h"
 
 #include "vm/vec.h"

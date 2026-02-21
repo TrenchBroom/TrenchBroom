@@ -19,7 +19,7 @@
 
 #include "gl/MaterialRenderFunc.h"
 
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/Material.h"
 #include "gl/Texture.h"
 
