@@ -22,6 +22,7 @@
 #include "gl/VertexArray.h"
 
 #include "vm/util.h"
+#include "vm/vec.h"
 
 namespace tb::render
 {

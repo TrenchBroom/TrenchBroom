@@ -43,16 +43,17 @@ void MaterialIndexArrayRenderer::prepare(VboManager& vboManager)
   m_indexArray.prepare(vboManager);
 }
 
-void MaterialIndexArrayRenderer::render(MaterialRenderFunc& func)
+void MaterialIndexArrayRenderer::render(
+  ShaderProgram& currentProgram, MaterialRenderFunc& func)
 {
-  if (m_vertexArray.setup())
+  if (m_vertexArray.setup(currentProgram))
   {
     if (m_indexArray.setup())
     {
       m_indexRanges.render(m_indexArray, func);
       m_indexArray.cleanup();
     }
-    m_vertexArray.cleanup();
+    m_vertexArray.cleanup(currentProgram);
   }
 }
 

@@ -25,6 +25,7 @@
 #include "gl/Camera.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/PrimType.h"
+#include "gl/ShaderManager.h"
 #include "gl/Shaders.h"
 #include "gl/Vertex.h"
 #include "gl/VertexArray.h"
@@ -211,10 +212,10 @@ void Compass::renderBackground(RenderContext& renderContext)
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassBackgroundShader};
 
   shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
-  m_backgroundRenderer.render();
+  m_backgroundRenderer.render(shader.program());
 
   shader.set("Color", prefs.get(Preferences::CompassBackgroundOutlineColor));
-  m_backgroundOutlineRenderer.render();
+  m_backgroundOutlineRenderer.render(shader.program());
 }
 
 void Compass::renderSolidAxis(
@@ -255,8 +256,11 @@ void Compass::renderAxisOutline(
 
 void Compass::renderAxis(RenderContext& renderContext, const vm::mat4x4f& transformation)
 {
+  auto* currentProgram = renderContext.shaderManager().currentProgram();
+  contract_assert(currentProgram);
+
   const auto apply = MultiplyModelMatrix{renderContext.transformation(), transformation};
-  m_arrowRenderer.render();
+  m_arrowRenderer.render(*currentProgram);
 }
 
 } // namespace tb::render

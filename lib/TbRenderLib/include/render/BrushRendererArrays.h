@@ -21,7 +21,6 @@
 
 #include "gl/GL.h"
 #include "gl/PrimType.h"
-#include "gl/ShaderManager.h" // IWYU pragma: keep
 #include "gl/Vbo.h"
 #include "gl/VboManager.h"
 #include "gl/VertexType.h"
@@ -32,8 +31,16 @@
 #include <memory>
 #include <vector>
 
-namespace tb::render
+namespace tb
 {
+namespace gl
+{
+class ShaderProgram;
+}
+
+namespace render
+{
+
 struct DirtyRangeTracker
 {
   size_t m_dirtyPos = 0;
@@ -287,9 +294,9 @@ class VertexArrayInterface
 {
 public:
   virtual ~VertexArrayInterface() = 0;
-  virtual bool setupVertices() = 0;
+  virtual bool setupVertices(gl::ShaderProgram& currentProgram) = 0;
   virtual void prepareVertices(gl::VboManager& vboManager) = 0;
-  virtual void cleanupVertices() = 0;
+  virtual void cleanupVertices(gl::ShaderProgram& currentProgram) = 0;
 };
 
 template <typename V>
@@ -309,15 +316,12 @@ public:
   {
   }
 
-  bool setupVertices() override
+  bool setupVertices(gl::ShaderProgram& currentProgram) override
   {
     contract_pre(VboHolder<V>::m_vbo != nullptr);
 
-    auto* currentProgram = VboHolder<V>::m_vboManager->shaderManager().currentProgram();
-    contract_assert(currentProgram);
-
     VboHolder<V>::m_vbo->bind();
-    V::Type::setup(*currentProgram, VboHolder<V>::m_vbo->offset());
+    V::Type::setup(currentProgram, VboHolder<V>::m_vbo->offset());
     return true;
   }
 
@@ -326,12 +330,9 @@ public:
     VboHolder<V>::prepare(vboManager);
   }
 
-  void cleanupVertices() override
+  void cleanupVertices(gl::ShaderProgram& currentProgram) override
   {
-    auto* currentProgram = VboHolder<V>::m_vboManager->shaderManager().currentProgram();
-    contract_assert(currentProgram);
-
-    V::Type::cleanup(*currentProgram);
+    V::Type::cleanup(currentProgram);
     VboHolder<V>::m_vbo->unbind();
   }
 
@@ -372,11 +373,13 @@ public:
   void deleteVerticesWithKey(AllocationTracker::Block* key);
 
   // setting up GL attributes
-  bool setupVertices();
-  void cleanupVertices();
+  bool setupVertices(gl::ShaderProgram& currentProgram);
+  void cleanupVertices(gl::ShaderProgram& currentProgram);
 
   // uploading the VBO
   bool prepared() const;
   void prepare(gl::VboManager& vboManager);
 };
-} // namespace tb::render
+
+} // namespace render
+} // namespace tb

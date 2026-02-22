@@ -19,6 +19,7 @@
 
 #include "gl/IndexRangeMap.h"
 
+#include "Macros.h"
 #include "gl/PrimType.h"
 #include "gl/VertexArray.h"
 

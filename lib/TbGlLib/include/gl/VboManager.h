@@ -23,7 +23,6 @@
 
 namespace tb::gl
 {
-class ShaderManager;
 class Vbo;
 
 enum class VboType
@@ -44,10 +43,8 @@ private:
   size_t m_peakVboCount = 0;
   size_t m_currentVboCount = 0;
   size_t m_currentVboSize = 0;
-  ShaderManager& m_shaderManager;
 
 public:
-  explicit VboManager(ShaderManager& shaderManager);
   /**
    * Immediately creates and binds to an OpenGL buffer of the given type and capacity.
    * The contents are initially unspecified. See Vbo class.
@@ -58,8 +55,6 @@ public:
   size_t peakVboCount() const;
   size_t currentVboCount() const;
   size_t currentVboSize() const;
-
-  ShaderManager& shaderManager();
 };
 
 } // namespace tb::gl

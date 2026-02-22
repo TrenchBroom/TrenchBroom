@@ -212,7 +212,7 @@ void EntityModelRenderer::render(RenderContext& renderContext)
 
       auto renderFunc = gl::DefaultMaterialRenderFunc{
         renderContext.minFilterMode(), renderContext.magFilterMode()};
-      renderer->render(renderFunc);
+      renderer->render(shader.program(), renderFunc);
     }
   }
 }

@@ -37,12 +37,12 @@ void IndexRangeRenderer::prepare(VboManager& vboManager)
   m_vertexArray.prepare(vboManager);
 }
 
-void IndexRangeRenderer::render()
+void IndexRangeRenderer::render(ShaderProgram& currentProgram)
 {
-  if (m_vertexArray.setup())
+  if (m_vertexArray.setup(currentProgram))
   {
     m_indexArray.render(m_vertexArray);
-    m_vertexArray.cleanup();
+    m_vertexArray.cleanup(currentProgram);
   }
 }
 

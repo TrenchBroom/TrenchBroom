@@ -58,11 +58,6 @@ static GLenum usageToOpenGL(const VboUsage usage)
 
 // VboManager
 
-VboManager::VboManager(ShaderManager& shaderManager)
-  : m_shaderManager{shaderManager}
-{
-}
-
 Vbo* VboManager::allocateVbo(VboType type, const size_t capacity, const VboUsage usage)
 {
   auto result = std::make_unique<Vbo>(typeToOpenGL(type), capacity, usageToOpenGL(usage));
@@ -96,11 +91,6 @@ size_t VboManager::currentVboCount() const
 size_t VboManager::currentVboSize() const
 {
   return m_currentVboSize;
-}
-
-ShaderManager& VboManager::shaderManager()
-{
-  return m_shaderManager;
 }
 
 } // namespace tb::gl

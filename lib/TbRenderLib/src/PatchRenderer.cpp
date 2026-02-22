@@ -418,7 +418,7 @@ void PatchRenderer::render(RenderContext& context)
   }
   */
 
-  m_patchMeshRenderer.render(func);
+  m_patchMeshRenderer.render(shader.program(), func);
 
   /*
   if (m_alpha < 1.0f) {

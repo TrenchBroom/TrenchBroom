@@ -27,6 +27,7 @@ namespace tb::gl
 {
 struct ShaderConfig;
 class ShaderManager;
+class ShaderProgram;
 
 class ActiveShader
 {
@@ -43,6 +44,8 @@ public:
   {
     m_program.set(name, value);
   }
+
+  ShaderProgram& program();
 };
 
 } // namespace tb::gl

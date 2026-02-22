@@ -23,6 +23,7 @@
 #include "gl/IndexRangeRenderer.h"
 #include "render/Renderable.h"
 
+#include "vm/mat.h"
 
 namespace tb
 {

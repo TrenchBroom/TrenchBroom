@@ -98,7 +98,7 @@ GlInfo GlManager::m_glInfo = GlInfo{
 GlManager::GlManager(FindResourceFunc findResourceFunc)
   : m_resourceManager{std::make_unique<ResourceManager>()}
   , m_shaderManager{std::make_unique<ShaderManager>(findResourceFunc)}
-  , m_vboManager{std::make_unique<VboManager>(*m_shaderManager)}
+  , m_vboManager{std::make_unique<VboManager>()}
   , m_fontManager{std::make_unique<FontManager>(findResourceFunc)}
 {
 }

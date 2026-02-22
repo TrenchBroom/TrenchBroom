@@ -26,6 +26,7 @@
 #include "gl/Material.h"
 #include "gl/MaterialRenderFunc.h"
 #include "gl/PrimType.h"
+#include "gl/ShaderManager.h"
 #include "gl/Shaders.h"
 #include "gl/Texture.h"
 #include "render/BrushRendererArrays.h"
@@ -137,7 +138,10 @@ void FaceRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
 
 void FaceRenderer::render(RenderContext& context)
 {
-  if (!m_indexArrayMap->empty() && m_vertexArray->setupVertices())
+  auto* currentProgram = context.shaderManager().currentProgram();
+  contract_assert(currentProgram);
+
+  if (!m_indexArrayMap->empty() && m_vertexArray->setupVertices(*currentProgram))
   {
     auto& shaderManager = context.shaderManager();
     auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
@@ -206,7 +210,7 @@ void FaceRenderer::render(RenderContext& context)
     {
       glAssert(glDepthMask(GL_TRUE));
     }
-    m_vertexArray->cleanupVertices();
+    m_vertexArray->cleanupVertices(*currentProgram);
   }
 }
 

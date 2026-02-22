@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
 #include "gl/PrimType.h"
+#include "gl/ShaderManager.h"
 #include "gl/Shaders.h"
 #include "render/BrushRendererArrays.h"
 #include "render/RenderBatch.h"
@@ -247,12 +248,15 @@ void IndexedEdgeRenderer::Render::render(RenderContext& renderContext)
   }
 }
 
-void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext&)
+void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext)
 {
-  m_vertexArray->setupVertices();
+  auto* currentProgram = renderContext.shaderManager().currentProgram();
+  contract_assert(currentProgram);
+
+  m_vertexArray->setupVertices(*currentProgram);
   m_indexArray->setupIndices();
   m_indexArray->render(gl::PrimType::Lines);
-  m_vertexArray->cleanupVertices();
+  m_vertexArray->cleanupVertices(*currentProgram);
   m_indexArray->cleanupIndices();
 }
 

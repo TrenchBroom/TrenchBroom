@@ -220,14 +220,14 @@ void BrushVertexArray::deleteVerticesWithKey(AllocationTracker::Block* key)
   // us to re-use the space later
 }
 
-bool BrushVertexArray::setupVertices()
+bool BrushVertexArray::setupVertices(gl::ShaderProgram& currentProgram)
 {
-  return m_vertexHolder.setupVertices();
+  return m_vertexHolder.setupVertices(currentProgram);
 }
 
-void BrushVertexArray::cleanupVertices()
+void BrushVertexArray::cleanupVertices(gl::ShaderProgram& currentProgram)
 {
-  m_vertexHolder.cleanupVertices();
+  m_vertexHolder.cleanupVertices(currentProgram);
 }
 
 bool BrushVertexArray::prepared() const

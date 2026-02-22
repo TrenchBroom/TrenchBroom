@@ -400,7 +400,7 @@ void EntityBrowserView::renderModels(
 
               auto renderFunc = gl::DefaultMaterialRenderFunc{
                 pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)};
-              modelRenderer->render(renderFunc);
+              modelRenderer->render(shader.program(), renderFunc);
             }
           }
         }

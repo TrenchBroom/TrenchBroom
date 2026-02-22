@@ -36,4 +36,9 @@ ActiveShader::~ActiveShader()
   m_program.deactivate(m_shaderManager);
 }
 
+ShaderProgram& ActiveShader::program()
+{
+  return m_program;
+}
+
 } // namespace tb::gl
