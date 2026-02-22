@@ -150,7 +150,7 @@ void EntityModelRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void EntityModelRenderer::prepareVertices(gl::VboManager& vboManager)
+void EntityModelRenderer::prepare(gl::VboManager& vboManager)
 {
   m_entityModelManager.prepare(vboManager);
 }

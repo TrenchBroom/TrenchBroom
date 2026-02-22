@@ -64,7 +64,7 @@ void TriangleRenderer::setTintColor(const Color& tintColor)
   m_tintColor = tintColor;
 }
 
-void TriangleRenderer::prepareVertices(gl::VboManager& vboManager)
+void TriangleRenderer::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }

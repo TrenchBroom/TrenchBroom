@@ -41,7 +41,7 @@ public:
   void setColor(const Color& color);
   void setBounds(const vm::bbox3d& bounds);
 
-  void prepareVertices(gl::VboManager& vboManager) override;
+  void prepare(gl::VboManager& vboManager) override;
   void render(RenderContext& renderContext) override;
 };
 

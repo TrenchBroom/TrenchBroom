@@ -70,10 +70,7 @@ public:
   {
   }
 
-  void prepareVertices(gl::VboManager& vboManager) override
-  {
-    m_circle.prepare(vboManager);
-  }
+  void prepare(gl::VboManager& vboManager) override { m_circle.prepare(vboManager); }
 
   void render(render::RenderContext& renderContext) override
   {

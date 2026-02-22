@@ -54,7 +54,7 @@ public:
   void addPoint(const Color& color, const vm::vec3f& position);
   void addHighlight(const Color& color, const vm::vec3f& position);
 
-  void prepareVertices(gl::VboManager& vboManager) override;
+  void prepare(gl::VboManager& vboManager) override;
   void render(RenderContext& renderContext) override;
 
 private:

@@ -49,7 +49,7 @@ void PointHandleRenderer::addHighlight(const Color& color, const vm::vec3f& posi
   m_highlights[color].push_back(position);
 }
 
-void PointHandleRenderer::prepareVertices(gl::VboManager& vboManager)
+void PointHandleRenderer::prepare(gl::VboManager& vboManager)
 {
   m_handle.prepare(vboManager);
   m_highlight.prepare(vboManager);

@@ -38,7 +38,7 @@ GridRenderer::GridRenderer(
 {
 }
 
-void GridRenderer::prepareVertices(gl::VboManager& vboManager)
+void GridRenderer::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }

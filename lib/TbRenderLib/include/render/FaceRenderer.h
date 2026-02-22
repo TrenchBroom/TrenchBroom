@@ -67,7 +67,7 @@ public:
   void render(RenderBatch& renderBatch);
 
 private:
-  void prepareVerticesAndIndices(gl::VboManager& vboManager) override;
+  void prepare(gl::VboManager& vboManager) override;
   void render(RenderContext& context) override;
 };
 

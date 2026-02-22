@@ -282,21 +282,24 @@ public:
    */
   void zeroElementsWithKey(AllocationTracker::Block* key);
 
-  void render(gl::PrimType primType) const;
   bool prepared() const;
   void prepare(gl::VboManager& vboManager);
 
-  void setupIndices();
-  void cleanupIndices();
+  void setup();
+  void cleanup();
+
+  void render(gl::PrimType primType) const;
 };
 
 class VertexArrayInterface
 {
 public:
   virtual ~VertexArrayInterface() = 0;
-  virtual bool setupVertices(gl::ShaderProgram& currentProgram) = 0;
-  virtual void prepareVertices(gl::VboManager& vboManager) = 0;
-  virtual void cleanupVertices(gl::ShaderProgram& currentProgram) = 0;
+
+  virtual void prepare(gl::VboManager& vboManager) = 0;
+
+  virtual bool setup(gl::ShaderProgram& currentProgram) = 0;
+  virtual void cleanup(gl::ShaderProgram& currentProgram) = 0;
 };
 
 template <typename V>
@@ -316,7 +319,7 @@ public:
   {
   }
 
-  bool setupVertices(gl::ShaderProgram& currentProgram) override
+  bool setup(gl::ShaderProgram& currentProgram) override
   {
     contract_pre(VboHolder<V>::m_vbo != nullptr);
 
@@ -325,12 +328,9 @@ public:
     return true;
   }
 
-  void prepareVertices(gl::VboManager& vboManager) override
-  {
-    VboHolder<V>::prepare(vboManager);
-  }
+  void prepare(gl::VboManager& vboManager) override { VboHolder<V>::prepare(vboManager); }
 
-  void cleanupVertices(gl::ShaderProgram& currentProgram) override
+  void cleanup(gl::ShaderProgram& currentProgram) override
   {
     V::Type::cleanup(currentProgram);
     VboHolder<V>::m_vbo->unbind();
@@ -372,13 +372,13 @@ public:
 
   void deleteVerticesWithKey(AllocationTracker::Block* key);
 
-  // setting up GL attributes
-  bool setupVertices(gl::ShaderProgram& currentProgram);
-  void cleanupVertices(gl::ShaderProgram& currentProgram);
-
   // uploading the VBO
   bool prepared() const;
   void prepare(gl::VboManager& vboManager);
+
+  // setting up GL attributes
+  bool setup(gl::ShaderProgram& currentProgram);
+  void cleanup(gl::ShaderProgram& currentProgram);
 };
 
 } // namespace render

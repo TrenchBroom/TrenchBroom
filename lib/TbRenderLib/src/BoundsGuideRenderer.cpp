@@ -140,9 +140,9 @@ void BoundsGuideRenderer::setBounds(const vm::bbox3d& bounds)
   }
 }
 
-void BoundsGuideRenderer::prepareVertices(gl::VboManager& vboManager)
+void BoundsGuideRenderer::prepare(gl::VboManager& vboManager)
 {
-  m_spikeRenderer.prepareVertices(vboManager);
+  m_spikeRenderer.prepare(vboManager);
 }
 
 void BoundsGuideRenderer::render(RenderContext& renderContext)

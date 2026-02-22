@@ -187,7 +187,7 @@ vm::vec2f TextRenderer::stringSize(
   return vm::round(font.measure(string));
 }
 
-void TextRenderer::prepareVertices(gl::VboManager& vboManager)
+void TextRenderer::prepare(gl::VboManager& vboManager)
 {
   prepare(m_entries, false, vboManager);
   prepare(m_entriesOnTop, true, vboManager);

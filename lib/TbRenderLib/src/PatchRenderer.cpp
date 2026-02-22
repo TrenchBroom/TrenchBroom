@@ -314,7 +314,7 @@ void PatchRenderer::validate()
   }
 }
 
-void PatchRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
+void PatchRenderer::prepare(gl::VboManager& vboManager)
 {
   m_patchMeshRenderer.prepare(vboManager);
 }

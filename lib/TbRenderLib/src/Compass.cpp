@@ -63,7 +63,7 @@ void Compass::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void Compass::prepareVertices(gl::VboManager& vboManager)
+void Compass::prepare(gl::VboManager& vboManager)
 {
   if (!m_prepared)
   {

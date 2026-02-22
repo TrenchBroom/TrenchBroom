@@ -48,7 +48,7 @@ public:
   void add(const vm::ray3d& ray);
   void clear();
 
-  void prepareVertices(gl::VboManager& vboManager) override;
+  void prepare(gl::VboManager& vboManager) override;
   void render(RenderContext& renderContext) override;
 
 private:

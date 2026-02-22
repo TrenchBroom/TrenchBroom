@@ -50,7 +50,7 @@ void SpikeGuideRenderer::clear()
   m_valid = true;
 }
 
-void SpikeGuideRenderer::prepareVertices(gl::VboManager& vboManager)
+void SpikeGuideRenderer::prepare(gl::VboManager& vboManager)
 {
   if (!m_valid)
   {

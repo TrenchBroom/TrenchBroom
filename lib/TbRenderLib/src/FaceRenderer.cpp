@@ -126,7 +126,7 @@ void FaceRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void FaceRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
+void FaceRenderer::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray->prepare(vboManager);
 
@@ -141,7 +141,7 @@ void FaceRenderer::render(RenderContext& context)
   auto* currentProgram = context.shaderManager().currentProgram();
   contract_assert(currentProgram);
 
-  if (!m_indexArrayMap->empty() && m_vertexArray->setupVertices(*currentProgram))
+  if (!m_indexArrayMap->empty() && m_vertexArray->setup(*currentProgram))
   {
     auto& shaderManager = context.shaderManager();
     auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
@@ -200,9 +200,9 @@ void FaceRenderer::render(RenderContext& context)
         shader.set("EnableMasked", enableMasked);
 
         func.before(material);
-        brushIndexHolderPtr->setupIndices();
+        brushIndexHolderPtr->setup();
         brushIndexHolderPtr->render(gl::PrimType::Triangles);
-        brushIndexHolderPtr->cleanupIndices();
+        brushIndexHolderPtr->cleanup();
         func.after(material);
       }
     }
@@ -210,7 +210,7 @@ void FaceRenderer::render(RenderContext& context)
     {
       glAssert(glDepthMask(GL_TRUE));
     }
-    m_vertexArray->cleanupVertices(*currentProgram);
+    m_vertexArray->cleanup(*currentProgram);
   }
 }
 

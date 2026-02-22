@@ -182,7 +182,7 @@ DirectEdgeRenderer::Render::Render(
 {
 }
 
-void DirectEdgeRenderer::Render::prepareVertices(gl::VboManager& vboManager)
+void DirectEdgeRenderer::Render::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
@@ -234,7 +234,7 @@ IndexedEdgeRenderer::Render::Render(
 {
 }
 
-void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(gl::VboManager& vboManager)
+void IndexedEdgeRenderer::Render::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray->prepare(vboManager);
   m_indexArray->prepare(vboManager);
@@ -253,11 +253,11 @@ void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext)
   auto* currentProgram = renderContext.shaderManager().currentProgram();
   contract_assert(currentProgram);
 
-  m_vertexArray->setupVertices(*currentProgram);
-  m_indexArray->setupIndices();
+  m_vertexArray->setup(*currentProgram);
+  m_indexArray->setup();
   m_indexArray->render(gl::PrimType::Lines);
-  m_vertexArray->cleanupVertices(*currentProgram);
-  m_indexArray->cleanupIndices();
+  m_vertexArray->cleanup(*currentProgram);
+  m_indexArray->cleanup();
 }
 
 // IndexedEdgeRenderer

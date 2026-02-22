@@ -42,10 +42,7 @@ public:
   }
 
 private:
-  void prepareVerticesAndIndices(gl::VboManager& vboManager) override
-  {
-    m_wrappee.prepareVerticesAndIndices(vboManager);
-  }
+  void prepare(gl::VboManager& vboManager) override { m_wrappee.prepare(vboManager); }
 
   void render(RenderContext& renderContext) override { m_wrappee.render(renderContext); }
 };
@@ -119,11 +116,11 @@ void RenderBatch::prepareRenderables()
 {
   for (auto* renderable : m_directRenderables)
   {
-    renderable->prepareVertices(m_vboManager);
+    renderable->prepare(m_vboManager);
   }
   for (auto* renderable : m_indexedRenderables)
   {
-    renderable->prepareVerticesAndIndices(m_vboManager);
+    renderable->prepare(m_vboManager);
   }
 }
 

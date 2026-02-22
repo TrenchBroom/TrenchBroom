@@ -49,7 +49,7 @@ public:
   DirectRenderable();
   ~DirectRenderable() override;
 
-  virtual void prepareVertices(gl::VboManager& vboManager) = 0;
+  virtual void prepare(gl::VboManager& vboManager) = 0;
 
   defineCopyAndMove(DirectRenderable);
 };
@@ -60,7 +60,7 @@ public:
   IndexedRenderable();
   ~IndexedRenderable() override;
 
-  virtual void prepareVerticesAndIndices(gl::VboManager& vboManager) = 0;
+  virtual void prepare(gl::VboManager& vboManager) = 0;
 
   defineCopyAndMove(IndexedRenderable);
 };

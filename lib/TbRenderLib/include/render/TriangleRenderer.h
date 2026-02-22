@@ -52,7 +52,7 @@ public:
   void setApplyTinting(bool applyTinting);
   void setTintColor(const Color& tintColor);
 
-  void prepareVertices(gl::VboManager& vboManager) override;
+  void prepare(gl::VboManager& vboManager) override;
   void render(RenderContext& context) override;
 };
 

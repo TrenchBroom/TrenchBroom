@@ -212,7 +212,7 @@ private:
     return render::Circle{radius / zoom, segments, fill};
   }
 
-  void prepareVertices(gl::VboManager& vboManager) override
+  void prepare(gl::VboManager& vboManager) override
   {
     m_originHandle.prepare(vboManager);
   }

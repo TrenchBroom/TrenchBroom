@@ -134,7 +134,7 @@ public:
   {
   }
 
-  void prepareVertices(gl::VboManager& vboManager) override
+  void prepare(gl::VboManager& vboManager) override
   {
     m_center.prepare(vboManager);
     m_outer.prepare(vboManager);

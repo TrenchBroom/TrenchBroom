@@ -122,7 +122,7 @@ private:
 
   vm::vec2f stringSize(RenderContext& renderContext, const gl::AttrString& string) const;
 
-  void prepareVertices(gl::VboManager& vboManager) override;
+  void prepare(gl::VboManager& vboManager) override;
   void render(RenderContext& renderContext) override;
 
 private:

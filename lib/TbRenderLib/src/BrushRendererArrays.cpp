@@ -154,13 +154,6 @@ void BrushIndexArray::zeroElementsWithKey(AllocationTracker::Block* key)
   m_indexHolder.zeroRange(pos, size);
 }
 
-void BrushIndexArray::render(const gl::PrimType primType) const
-{
-  contract_pre(m_indexHolder.prepared());
-
-  m_indexHolder.render(primType, 0, m_indexHolder.size());
-}
-
 bool BrushIndexArray::prepared() const
 {
   return m_indexHolder.prepared();
@@ -172,14 +165,21 @@ void BrushIndexArray::prepare(gl::VboManager& vboManager)
   contract_post(m_indexHolder.prepared());
 }
 
-void BrushIndexArray::setupIndices()
+void BrushIndexArray::setup()
 {
   m_indexHolder.bindBlock();
 }
 
-void BrushIndexArray::cleanupIndices()
+void BrushIndexArray::cleanup()
 {
   m_indexHolder.unbindBlock();
+}
+
+void BrushIndexArray::render(const gl::PrimType primType) const
+{
+  contract_pre(m_indexHolder.prepared());
+
+  m_indexHolder.render(primType, 0, m_indexHolder.size());
 }
 
 // BrushVertexArray
@@ -220,16 +220,6 @@ void BrushVertexArray::deleteVerticesWithKey(AllocationTracker::Block* key)
   // us to re-use the space later
 }
 
-bool BrushVertexArray::setupVertices(gl::ShaderProgram& currentProgram)
-{
-  return m_vertexHolder.setupVertices(currentProgram);
-}
-
-void BrushVertexArray::cleanupVertices(gl::ShaderProgram& currentProgram)
-{
-  m_vertexHolder.cleanupVertices(currentProgram);
-}
-
 bool BrushVertexArray::prepared() const
 {
   return m_vertexHolder.prepared();
@@ -239,6 +229,16 @@ void BrushVertexArray::prepare(gl::VboManager& vboManager)
 {
   m_vertexHolder.prepare(vboManager);
   contract_post(m_vertexHolder.prepared());
+}
+
+bool BrushVertexArray::setup(gl::ShaderProgram& currentProgram)
+{
+  return m_vertexHolder.setup(currentProgram);
+}
+
+void BrushVertexArray::cleanup(gl::ShaderProgram& currentProgram)
+{
+  m_vertexHolder.cleanup(currentProgram);
 }
 
 } // namespace tb::render

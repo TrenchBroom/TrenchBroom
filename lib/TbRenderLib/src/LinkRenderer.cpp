@@ -43,7 +43,7 @@ void LinkRenderer::invalidate()
   m_valid = false;
 }
 
-void LinkRenderer::prepareVertices(gl::VboManager& vboManager)
+void LinkRenderer::prepare(gl::VboManager& vboManager)
 {
   if (!m_valid)
   {
