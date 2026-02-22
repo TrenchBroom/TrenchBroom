@@ -23,12 +23,11 @@
 #include "gl/GL.h"
 #include "gl/ShaderProgram.h"
 
-#include "kd/contracts.h"
-
 #include "vm/vec.h"
 
 namespace tb::gl
 {
+
 /**
  * User defined vertex attribute types.
  *
@@ -49,14 +48,12 @@ public:
   static const bool Normalize = N;
 
   static void setup(
-    ShaderProgram* program,
+    ShaderProgram& program,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
   {
-    contract_pre(program != nullptr);
-
-    const auto attributeIndex = program->findAttributeLocation(A::name);
+    const auto attributeIndex = program.findAttributeLocation(A::name);
     glAssert(glEnableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
     glAssert(glVertexAttribPointer(
       static_cast<GLuint>(attributeIndex),
@@ -67,11 +64,9 @@ public:
       reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* program, const size_t /* index */)
+  static void cleanup(ShaderProgram& program, const size_t /* index */)
   {
-    contract_pre(program != nullptr);
-
-    const auto attributeIndex = program->findAttributeLocation(A::name);
+    const auto attributeIndex = program.findAttributeLocation(A::name);
     glAssert(glDisableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
   }
 
@@ -95,7 +90,7 @@ public:
   static const size_t Size = sizeof(ElementType);
 
   static void setup(
-    ShaderProgram* /* program */,
+    ShaderProgram& /* program */,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
@@ -108,7 +103,7 @@ public:
       reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* /* program */, const size_t /* index */)
+  static void cleanup(ShaderProgram& /* program */, const size_t /* index */)
   {
     glAssert(glDisableClientState(GL_VERTEX_ARRAY));
   }
@@ -133,7 +128,7 @@ public:
   static const size_t Size = sizeof(ElementType);
 
   static void setup(
-    ShaderProgram* /* program */,
+    ShaderProgram& /* program */,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
@@ -145,7 +140,7 @@ public:
       D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* /* program */, const size_t /* index */)
+  static void cleanup(ShaderProgram& /* program */, const size_t /* index */)
   {
     glAssert(glDisableClientState(GL_NORMAL_ARRAY));
   }
@@ -170,7 +165,7 @@ public:
   static const size_t Size = sizeof(ElementType);
 
   static void setup(
-    ShaderProgram* /* program */,
+    ShaderProgram& /* program */,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
@@ -183,7 +178,7 @@ public:
       reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* /* program */, const size_t /* index */)
+  static void cleanup(ShaderProgram& /* program */, const size_t /* index */)
   {
     glAssert(glDisableClientState(GL_COLOR_ARRAY));
   }
@@ -208,7 +203,7 @@ public:
   static const size_t Size = sizeof(ElementType);
 
   static void setup(
-    ShaderProgram* /* program */,
+    ShaderProgram& /* program */,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
@@ -222,7 +217,7 @@ public:
       reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* /* program */, const size_t /* index */)
+  static void cleanup(ShaderProgram& /* program */, const size_t /* index */)
   {
     glAssert(glClientActiveTexture(GL_TEXTURE0));
     glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));

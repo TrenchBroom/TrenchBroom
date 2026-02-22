@@ -87,13 +87,19 @@ private:
     {
       contract_pre(m_vbo);
 
+      auto* currentProgram = m_vboManager->shaderManager().currentProgram();
+      contract_assert(currentProgram);
+
       m_vbo->bind();
-      VertexSpec::setup(m_vboManager->shaderManager().currentProgram(), m_vbo->offset());
+      VertexSpec::setup(*currentProgram, m_vbo->offset());
     }
 
     void cleanup() override
     {
-      VertexSpec::cleanup(m_vboManager->shaderManager().currentProgram());
+      auto* currentProgram = m_vboManager->shaderManager().currentProgram();
+      contract_assert(currentProgram);
+
+      VertexSpec::cleanup(*currentProgram);
       m_vbo->unbind();
     }
 

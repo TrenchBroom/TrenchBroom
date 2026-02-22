@@ -55,7 +55,7 @@ struct VertexType<AttrType, AttrTypeRest...>
    * @param program current shader program
    * @param baseOffset the base offset into the corresponding vertex buffer
    */
-  static void setup(ShaderProgram* program, const size_t baseOffset)
+  static void setup(ShaderProgram& program, const size_t baseOffset)
   {
     doSetup(program, 0, Size, baseOffset);
   }
@@ -65,7 +65,7 @@ struct VertexType<AttrType, AttrTypeRest...>
    *
    * @param program current shader program
    */
-  static void cleanup(ShaderProgram* program) { doCleanup(program, 0); }
+  static void cleanup(ShaderProgram& program) { doCleanup(program, 0); }
 
   /**
    * Sets up the vertex buffer pointer for the first vertex attribute type and delegates
@@ -78,7 +78,7 @@ struct VertexType<AttrType, AttrTypeRest...>
    * @param offset the offset of the vertex buffer pointer to be set up here
    */
   static void doSetup(
-    ShaderProgram* program, const size_t index, const size_t stride, const size_t offset)
+    ShaderProgram& program, const size_t index, const size_t stride, const size_t offset)
   {
     AttrType::setup(program, index, stride, offset);
     VertexType<AttrTypeRest...>::doSetup(
@@ -95,7 +95,7 @@ struct VertexType<AttrType, AttrTypeRest...>
    * @param program current shader program
    * @param index the index of the attribute to be cleaned up here
    */
-  static void doCleanup(ShaderProgram* program, const size_t index)
+  static void doCleanup(ShaderProgram& program, const size_t index)
   {
     VertexType<AttrTypeRest...>::doCleanup(program, index + 1);
     AttrType::cleanup(program, index);
@@ -125,7 +125,7 @@ struct VertexType<AttrType>
    * @param program current shader program
    * @param baseOffset the base offset into the corresponding vertex buffer
    */
-  static void setup(ShaderProgram* program, const size_t baseOffset)
+  static void setup(ShaderProgram& program, const size_t baseOffset)
   {
     doSetup(program, 0, Size, baseOffset);
   }
@@ -135,7 +135,7 @@ struct VertexType<AttrType>
    *
    * @param program current shader program
    */
-  static void cleanup(ShaderProgram* program) { doCleanup(program, 0); }
+  static void cleanup(ShaderProgram& program) { doCleanup(program, 0); }
 
   /**
    * Sets up the vertex buffer pointer for the vertex attribute type. Do not call this
@@ -147,7 +147,7 @@ struct VertexType<AttrType>
    * @param offset the offset of the vertex buffer pointer to be set up here
    */
   static void doSetup(
-    ShaderProgram* program, const size_t index, const size_t stride, const size_t offset)
+    ShaderProgram& program, const size_t index, const size_t stride, const size_t offset)
   {
     AttrType::setup(program, index, stride, offset);
   }
@@ -159,7 +159,7 @@ struct VertexType<AttrType>
    * @param program current shader program
    * @param index the index of the attribute to be cleaned up here
    */
-  static void doCleanup(ShaderProgram* program, const size_t index)
+  static void doCleanup(ShaderProgram& program, const size_t index)
   {
     AttrType::cleanup(program, index);
   }

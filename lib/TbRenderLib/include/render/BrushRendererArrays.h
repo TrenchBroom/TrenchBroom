@@ -313,10 +313,11 @@ public:
   {
     contract_pre(VboHolder<V>::m_vbo != nullptr);
 
+    auto* currentProgram = VboHolder<V>::m_vboManager->shaderManager().currentProgram();
+    contract_assert(currentProgram);
+
     VboHolder<V>::m_vbo->bind();
-    V::Type::setup(
-      VboHolder<V>::m_vboManager->shaderManager().currentProgram(),
-      VboHolder<V>::m_vbo->offset());
+    V::Type::setup(*currentProgram, VboHolder<V>::m_vbo->offset());
     return true;
   }
 
@@ -327,7 +328,10 @@ public:
 
   void cleanupVertices() override
   {
-    V::Type::cleanup(VboHolder<V>::m_vboManager->shaderManager().currentProgram());
+    auto* currentProgram = VboHolder<V>::m_vboManager->shaderManager().currentProgram();
+    contract_assert(currentProgram);
+
+    V::Type::cleanup(*currentProgram);
     VboHolder<V>::m_vbo->unbind();
   }
 
