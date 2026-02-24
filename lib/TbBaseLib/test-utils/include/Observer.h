@@ -26,11 +26,26 @@
 
 namespace tb
 {
+
 template <typename... T>
 struct Observer
 {
+  template <typename... U>
+  struct StorageTypeHelper
+  {
+    using type = std::tuple<U...>;
+  };
+
+  template <typename U>
+  struct StorageTypeHelper<U>
+  {
+    using type = U;
+  };
+
+  using StorageType = typename StorageTypeHelper<T...>::type;
+
   NotifierConnection connection;
-  std::vector<std::tuple<T...>> notifications;
+  std::vector<StorageType> notifications;
 
   template <typename... X>
   explicit Observer(Notifier<X...>& notifier)
@@ -48,6 +63,5 @@ struct Observer
 
   void reset() { notifications.clear(); }
 };
-
 
 } // namespace tb
