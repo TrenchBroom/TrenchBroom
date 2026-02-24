@@ -60,7 +60,6 @@ void EntityBrowser::reload()
       m_document.map().worldNode().entityPropertyConfig().defaultModelScaleExpression);
 
     m_view->invalidate();
-    m_view->update();
   }
 }
 

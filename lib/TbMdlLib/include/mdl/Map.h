@@ -171,8 +171,6 @@ public: // notification
   Notifier<> groupWasOpenedNotifier;
   Notifier<> groupWasClosedNotifier;
 
-  Notifier<const std::vector<gl::ResourceId>&> resourcesWereProcessedNotifier;
-
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;
 
@@ -235,6 +233,9 @@ public: // misc
   Logger& logger();
 
   kdl::task_manager& taskManager();
+
+  gl::ResourceManager& resourceManager();
+  const gl::ResourceManager& resourceManager() const;
 
   EntityDefinitionManager& entityDefinitionManager();
   const EntityDefinitionManager& entityDefinitionManager() const;

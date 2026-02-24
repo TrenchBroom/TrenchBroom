@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/MaterialManager.h"
+#include "gl/ResourceManager.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -661,8 +662,6 @@ void MapRenderer::connectObservers()
     m_map.groupWasClosedNotifier.connect(this, &MapRenderer::groupWasClosed);
   m_notifierConnection +=
     m_map.selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
-  m_notifierConnection += m_map.resourcesWereProcessedNotifier.connect(
-    this, &MapRenderer::resourcesWereProcessed);
   m_notifierConnection += m_map.materialCollectionsWillChangeNotifier.connect(
     this, &MapRenderer::materialCollectionsWillChange);
   m_notifierConnection += m_map.entityDefinitionsDidChangeNotifier.connect(
@@ -671,6 +670,9 @@ void MapRenderer::connectObservers()
     m_map.modsDidChangeNotifier.connect(this, &MapRenderer::modsDidChange);
   m_notifierConnection += m_map.editorContextDidChangeNotifier.connect(
     this, &MapRenderer::editorContextDidChange);
+
+  m_notifierConnection += m_map.resourceManager().resourcesWereProcessedNotifier.connect(
+    this, &MapRenderer::resourcesWereProcessed);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=

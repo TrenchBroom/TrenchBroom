@@ -639,6 +639,16 @@ kdl::task_manager& Map::taskManager()
   return m_taskManager;
 }
 
+gl::ResourceManager& Map::resourceManager()
+{
+  return m_resourceManager;
+}
+
+const gl::ResourceManager& Map::resourceManager() const
+{
+  return m_resourceManager;
+}
+
 EntityDefinitionManager& Map::entityDefinitionManager()
 {
   return *m_entityDefinitionManager;
@@ -1417,25 +1427,15 @@ void Map::removeEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
 
 void Map::processResourcesSync(const gl::ProcessContext& processContext)
 {
-  auto allProcessedResourceIds = std::vector<gl::ResourceId>{};
   while (m_resourceManager.needsProcessing())
   {
-    auto processedResourceIds = m_resourceManager.process(
+    m_resourceManager.process(
       [](auto task) {
         auto promise = std::promise<std::unique_ptr<gl::TaskResult>>{};
         promise.set_value(task());
         return promise.get_future();
       },
       processContext);
-
-    allProcessedResourceIds = kdl::vec_concat(
-      std::move(allProcessedResourceIds), std::move(processedResourceIds));
-  }
-
-  if (!allProcessedResourceIds.empty())
-  {
-    resourcesWereProcessedNotifier.notify(
-      kdl::vec_sort_and_remove_duplicates(std::move(allProcessedResourceIds)));
   }
 }
 
@@ -1443,15 +1443,10 @@ void Map::processResourcesAsync(const gl::ProcessContext& processContext)
 {
   using namespace std::chrono_literals;
 
-  const auto processedResourceIds = m_resourceManager.process(
+  m_resourceManager.process(
     [&](auto task) { return taskManager().run_task(std::move(task)); },
     processContext,
     20ms);
-
-  if (!processedResourceIds.empty())
-  {
-    resourcesWereProcessedNotifier.notify(processedResourceIds);
-  }
 }
 
 bool Map::needsResourceProcessing() const
@@ -1617,8 +1612,8 @@ void Map::connectObservers()
   m_notifierConnection += m_editorContext->editorContextDidChangeNotifier.connect(
     editorContextDidChangeNotifier);
 
-  m_notifierConnection +=
-    resourcesWereProcessedNotifier.connect(this, &Map::resourcesWereProcessed);
+  m_notifierConnection += m_resourceManager.resourcesWereProcessedNotifier.connect(
+    this, &Map::resourcesWereProcessed);
 }
 
 namespace

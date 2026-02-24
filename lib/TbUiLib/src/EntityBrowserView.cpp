@@ -181,7 +181,6 @@ QString EntityBrowserView::dndData(const Cell& cell)
 void EntityBrowserView::resourcesWereProcessed(const std::vector<gl::ResourceId>&)
 {
   invalidate();
-  update();
 }
 
 void EntityBrowserView::addEntitiesToLayout(

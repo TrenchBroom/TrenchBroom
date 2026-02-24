@@ -208,7 +208,7 @@ TEST_CASE("QPreferenceStore")
 
     CHECK(
       preferencesWereReloaded.notifications
-      == std::vector{std::tuple{std::vector{std::filesystem::path{"some/path"}}}});
+      == std::vector<std::vector<std::filesystem::path>>{{"some/path"}});
 
     CHECK(preferenceStore.load("some/path", value));
     CHECK(value == "fdsa");

@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "fs/DiskIO.h"
 #include "gl/MaterialManager.h"
+#include "gl/ResourceManager.h"
 #include "mdl/Autosaver.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/EditorContext.h"
@@ -378,6 +379,9 @@ void MapDocument::unloadPortalFile()
 
 void MapDocument::connectObservers()
 {
+  m_notifierConnection += m_resourceManager->resourcesWereProcessedNotifier.connect(
+    resourcesWereProcessedNotifier);
+
   m_notifierConnection +=
     documentWasLoadedNotifier.connect(this, &MapDocument::documentWasLoaded);
 
@@ -422,8 +426,6 @@ void MapDocument::connectMapObservers()
     m_map->nodeLockingDidChangeNotifier.connect(nodeLockingDidChangeNotifier);
   m_notifierConnection += m_map->groupWasOpenedNotifier.connect(groupWasOpenedNotifier);
   m_notifierConnection += m_map->groupWasClosedNotifier.connect(groupWasClosedNotifier);
-  m_notifierConnection +=
-    m_map->resourcesWereProcessedNotifier.connect(resourcesWereProcessedNotifier);
   m_notifierConnection += m_map->materialCollectionsWillChangeNotifier.connect(
     materialCollectionsWillChangeNotifier);
   m_notifierConnection += m_map->materialCollectionsDidChangeNotifier.connect(

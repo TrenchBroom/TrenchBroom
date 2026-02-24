@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Observer.h"
 #include "Result.h"
 #include "gl/MockTaskRunner.h"
 #include "gl/Resource.h"
@@ -162,6 +163,9 @@ TEST_CASE("ResourceManager")
 
   SECTION("process")
   {
+    auto resourcesWereProcessed =
+      Observer<std::vector<ResourceId>>{resourceManager.resourcesWereProcessedNotifier};
+
     SECTION("resource loading")
     {
       auto resource1 = std::make_shared<ResourceT>(mockResourceLoader);
@@ -169,35 +173,43 @@ TEST_CASE("ResourceManager")
       resourceManager.addResource(resource1);
       resourceManager.addResource(resource2);
 
+      resourceManager.process(taskRunner, processContext);
       CHECK(
-        resourceManager.process(taskRunner, processContext)
-        == std::vector{resource1->id(), resource2->id()});
+        resourcesWereProcessed.notifications
+        == std::vector<std::vector<ResourceId>>{{{resource1->id(), resource2->id()}}});
       CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource1->state()));
       CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource2->state()));
 
       SECTION("resource1 finishes loading")
       {
+        resourcesWereProcessed.reset();
         mockTaskRunner.resolveNextPromise();
+        resourceManager.process(taskRunner, processContext);
 
         CHECK(
-          resourceManager.process(taskRunner, processContext)
-          == std::vector{resource1->id()});
+          resourcesWereProcessed.notifications
+          == std::vector<std::vector<ResourceId>>{{resource1->id()}});
         CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource1->state()));
         CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource2->state()));
 
         SECTION("resource2 finishes loading")
         {
+          resourcesWereProcessed.reset();
           mockTaskRunner.resolveNextPromise();
+          resourceManager.process(taskRunner, processContext);
 
           CHECK(
-            resourceManager.process(taskRunner, processContext)
-            == std::vector{resource1->id(), resource2->id()});
+            resourcesWereProcessed.notifications
+            == std::vector<std::vector<ResourceId>>{{resource1->id(), resource2->id()}});
           CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource1->state()));
           CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource2->state()));
 
+          resourcesWereProcessed.reset();
+          resourceManager.process(taskRunner, processContext);
+
           CHECK(
-            resourceManager.process(taskRunner, processContext)
-            == std::vector{resource2->id()});
+            resourcesWereProcessed.notifications
+            == std::vector<std::vector<ResourceId>>{{resource2->id()}});
           CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource1->state()));
           CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource2->state()));
         }
@@ -205,27 +217,34 @@ TEST_CASE("ResourceManager")
 
       SECTION("resource2 finishes loading")
       {
+        resourcesWereProcessed.reset();
         mockTaskRunner.resolveLastPromise();
+        resourceManager.process(taskRunner, processContext);
 
         CHECK(
-          resourceManager.process(taskRunner, processContext)
-          == std::vector{resource2->id()});
+          resourcesWereProcessed.notifications
+          == std::vector<std::vector<ResourceId>>{{resource2->id()}});
         CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource1->state()));
         CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource2->state()));
 
         SECTION("resource1 finishes loading")
         {
+          resourcesWereProcessed.reset();
           mockTaskRunner.resolveLastPromise();
+          resourceManager.process(taskRunner, processContext);
 
           CHECK(
-            resourceManager.process(taskRunner, processContext)
-            == std::vector{resource1->id(), resource2->id()});
+            resourcesWereProcessed.notifications
+            == std::vector<std::vector<ResourceId>>{{resource1->id(), resource2->id()}});
           CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource1->state()));
           CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource2->state()));
 
+          resourcesWereProcessed.reset();
+          resourceManager.process(taskRunner, processContext);
+
           CHECK(
-            resourceManager.process(taskRunner, processContext)
-            == std::vector{resource1->id()});
+            resourcesWereProcessed.notifications
+            == std::vector<std::vector<ResourceId>>{{resource1->id()}});
           CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource1->state()));
           CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource2->state()));
         }
@@ -275,18 +294,24 @@ TEST_CASE("ResourceManager")
       sharedResources[0].reset();
       CHECK(resourceManager.resources().size() == 2);
 
+      resourcesWereProcessed.reset();
+      resourceManager.process(taskRunner, processContext);
+
       CHECK(
-        resourceManager.process(taskRunner, processContext)
-        == std::vector{resourceIds[0]});
+        resourcesWereProcessed.notifications
+        == std::vector<std::vector<ResourceId>>{{resourceIds[0]}});
       CHECK(resourceManager.resources() == std::vector{sharedResources[1]});
       CHECK(mockDropCalls[0] == glContextAvailable);
 
       sharedResources[1].reset();
       CHECK(resourceManager.resources().size() == 1);
 
+      resourcesWereProcessed.reset();
+      resourceManager.process(taskRunner, processContext);
+
       CHECK(
-        resourceManager.process(taskRunner, processContext)
-        == std::vector{resourceIds[1]});
+        resourcesWereProcessed.notifications
+        == std::vector<std::vector<ResourceId>>{{resourceIds[1]}});
       CHECK(resourceManager.resources().empty());
       CHECK(mockDropCalls[1] == glContextAvailable);
     }
