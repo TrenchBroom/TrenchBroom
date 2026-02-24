@@ -39,12 +39,11 @@
 namespace tb::ui
 {
 
-UVEditor::UVEditor(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+UVEditor::UVEditor(AppController& appController, MapDocument& document, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
 {
-  createGui(contextManager);
+  createGui(appController);
   connectObservers();
 }
 
@@ -65,9 +64,9 @@ void UVEditor::updateButtons()
   m_rotateUVCWButton->setEnabled(enabled);
 }
 
-void UVEditor::createGui(gl::ContextManager& contextManager)
+void UVEditor::createGui(AppController& appController)
 {
-  m_uvView = new UVView{m_document, contextManager};
+  m_uvView = new UVView{appController, m_document};
 
   m_resetUVButton = createBitmapButton("ResetUV.svg", tr("Reset UV alignment"), this);
   m_resetUVToWorldButton = createBitmapButton(

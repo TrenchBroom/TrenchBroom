@@ -21,12 +21,13 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "gl/ContextManager.h"
+#include "gl/GlManager.h"
 #include "gl/PrimType.h"
 #include "gl/VboManager.h"
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "render/Transformation.h"
+#include "ui/AppController.h"
 #include "ui/InputEvent.h"
 
 #include <fmt/format.h>
@@ -80,9 +81,9 @@
 namespace tb::ui
 {
 
-RenderView::RenderView(gl::ContextManager& contextManager, QWidget* parent)
+RenderView::RenderView(AppController& appController, QWidget* parent)
   : QOpenGLWidget{parent}
-  , m_glContext{&contextManager}
+  , m_appController{appController}
 {
   auto pal = QPalette{};
   const auto color = pal.color(QPalette::Highlight);
@@ -107,9 +108,9 @@ RenderView::RenderView(gl::ContextManager& contextManager, QWidget* parent)
       R"(Avg FPS: {} Max time between frames: {}ms. {} currentVBOS({} peak) totalling {} KiB)",
       avgFps,
       maxFrameTime,
-      m_glContext->vboManager().currentVboCount(),
-      m_glContext->vboManager().peakVboCount(),
-      m_glContext->vboManager().currentVboSize() / 1024u);
+      vboManager().currentVboCount(),
+      vboManager().peakVboCount(),
+      vboManager().currentVboSize() / 1024u);
   });
 
   fpsCounter->start(1000);
@@ -219,17 +220,17 @@ void RenderView::paintGL()
 
 gl::VboManager& RenderView::vboManager()
 {
-  return m_glContext->vboManager();
+  return m_appController.glManager().vboManager();
 }
 
 gl::FontManager& RenderView::fontManager()
 {
-  return m_glContext->fontManager();
+  return m_appController.glManager().fontManager();
 }
 
 gl::ShaderManager& RenderView::shaderManager()
 {
-  return m_glContext->shaderManager();
+  return m_appController.glManager().shaderManager();
 }
 
 int RenderView::depthBits() const
@@ -339,7 +340,7 @@ void RenderView::renderFocusIndicator()
 
 bool RenderView::doInitializeGL()
 {
-  return m_glContext->initialize();
+  return m_appController.glManager().initialize();
 }
 
 void RenderView::updateViewport(

@@ -58,6 +58,7 @@ class Transformation;
 
 namespace ui
 {
+class AppController;
 class MapDocument;
 
 using EntityGroupData = std::string;
@@ -100,7 +101,7 @@ private:
 
 public:
   EntityBrowserView(
-    QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document);
+    AppController& appController, QScrollBar* scrollBar, MapDocument& document);
   ~EntityBrowserView() override;
 
 public:

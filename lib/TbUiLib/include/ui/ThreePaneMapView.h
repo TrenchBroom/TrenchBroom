@@ -23,14 +23,7 @@
 
 class QSplitter;
 
-namespace tb
-{
-namespace gl
-{
-class ContextManager;
-}
-
-namespace ui
+namespace tb::ui
 {
 class AppController;
 class CyclingMapView;
@@ -57,20 +50,15 @@ public:
     AppController& appController,
     MapDocument& document,
     MapViewToolBox& toolBox,
-    gl::ContextManager& contextManager,
     QWidget* parent = nullptr);
   ~ThreePaneMapView() override;
 
 private:
-  void createGui(
-    AppController& appController,
-    MapViewToolBox& toolBox,
-    gl::ContextManager& contextManager);
+  void createGui(AppController& appController, MapViewToolBox& toolBox);
 
 private: // implement MultiPaneMapView subclassing interface
   void maximizeView(MapView* view) override;
   void restoreViews() override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

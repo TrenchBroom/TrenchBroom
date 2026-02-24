@@ -39,40 +39,36 @@ CyclingMapView::CyclingMapView(
   AppController& appController,
   MapDocument& document,
   MapViewToolBox& toolBox,
-  gl::ContextManager& contextManager,
   const int views,
   QWidget* parent)
   : MapViewContainer{parent}
   , m_document{document}
 {
   setObjectName("CyclingMapView");
-  createGui(appController, toolBox, contextManager, views);
+  createGui(appController, toolBox, views);
 }
 
 void CyclingMapView::createGui(
-  AppController& appController,
-  MapViewToolBox& toolBox,
-  gl::ContextManager& contextManager,
-  const int views)
+  AppController& appController, MapViewToolBox& toolBox, const int views)
 {
   if (views & View_3D)
   {
-    addMapView(new MapView3D{appController, m_document, toolBox, contextManager});
+    addMapView(new MapView3D{appController, m_document, toolBox});
   }
   if (views & View_XY)
   {
-    addMapView(new MapView2D{
-      appController, m_document, toolBox, contextManager, MapView2D::ViewPlane::XY});
+    addMapView(
+      new MapView2D{appController, m_document, toolBox, MapView2D::ViewPlane::XY});
   }
   if (views & View_XZ)
   {
-    addMapView(new MapView2D{
-      appController, m_document, toolBox, contextManager, MapView2D::ViewPlane::XZ});
+    addMapView(
+      new MapView2D{appController, m_document, toolBox, MapView2D::ViewPlane::XZ});
   }
   if (views & View_YZ)
   {
-    addMapView(new MapView2D{
-      appController, m_document, toolBox, contextManager, MapView2D::ViewPlane::YZ});
+    addMapView(
+      new MapView2D{appController, m_document, toolBox, MapView2D::ViewPlane::YZ});
   }
 
   m_layout = new QStackedLayout{};

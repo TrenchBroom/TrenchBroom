@@ -40,7 +40,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "gl/ContextManager.h"
 #include "gl/Resource.h"
 #include "mdl/Autosaver.h"
 #include "mdl/BrushFace.h"
@@ -103,7 +102,6 @@
 #include "ui/SignalDelayer.h"
 #include "ui/Splitter.h"
 #include "ui/SwitchableMapViewContainer.h"
-#include "ui/SystemPaths.h"
 #include "ui/VertexTool.h"
 #include "ui/ViewUtils.h"
 #include "ui/WidgetState.h"
@@ -162,8 +160,6 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   , m_lastInputTime{std::chrono::system_clock::now()}
   , m_autosaveTimer{new QTimer{this}}
   , m_processResourcesTimer{new QTimer{this}}
-  , m_contextManager{std::make_unique<gl::ContextManager>(
-      [](const auto& path) { return SystemPaths::findResourceFile(path); })}
   , m_updateTitleSignalDelayer{new SignalDelayer{500ms, this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
   , m_updateStatusBarSignalDelayer{new SignalDelayer{500ms, this}}
@@ -415,14 +411,13 @@ void MapWindow::createGui()
   m_infoPanel->setObjectName("MapWindow_InfoPanel");
   m_console = m_infoPanel->console();
 
-  m_mapView =
-    new SwitchableMapViewContainer{m_appController, document(), *m_contextManager};
+  m_mapView = new SwitchableMapViewContainer{m_appController, document()};
   m_currentMapView = m_mapView->firstMapViewBase();
 
   // SwitchableMapViewContainer should have constructed a MapViewBase
   contract_assert(m_currentMapView);
 
-  m_inspector = new Inspector{document(), *m_contextManager};
+  m_inspector = new Inspector{m_appController, document()};
   m_inspector->setObjectName("Inspector");
 
   m_mapView->connectTopWidgets(m_inspector);
@@ -1656,7 +1651,7 @@ bool MapWindow::canRenameSelectedGroups() const
 
 void MapWindow::replaceMaterial()
 {
-  auto dialog = ReplaceMaterialDialog{document(), *m_contextManager, this};
+  auto dialog = ReplaceMaterialDialog{m_appController, document(), this};
   dialog.exec();
 }
 

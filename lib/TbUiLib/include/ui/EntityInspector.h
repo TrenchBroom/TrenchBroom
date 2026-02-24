@@ -23,15 +23,9 @@
 
 class QSplitter;
 
-namespace tb
+namespace tb::ui
 {
-namespace gl
-{
-class ContextManager;
-}
-
-namespace ui
-{
+class AppController;
 class EntityBrowser;
 class EntityPropertyEditor;
 class MapDocument;
@@ -46,15 +40,14 @@ private:
 
 public:
   EntityInspector(
-    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
+    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
   ~EntityInspector() override;
 
 private:
-  void createGui(MapDocument& document, gl::ContextManager& contextManager);
+  void createGui(AppController& appController, MapDocument& document);
   QWidget* createEntityPropertyEditor(MapDocument& document, QWidget* parent);
   QWidget* createEntityBrowser(
-    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent);
+    AppController& appController, MapDocument& document, QWidget* parent);
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

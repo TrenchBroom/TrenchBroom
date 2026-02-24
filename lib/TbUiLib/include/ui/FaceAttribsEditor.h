@@ -28,15 +28,9 @@ class QLabel;
 class QLineEdit;
 class QGridLayout;
 
-namespace tb
+namespace tb::ui
 {
-namespace gl
-{
-class ContextManager;
-}
-
-namespace ui
-{
+class AppController;
 class FlagsPopupEditor;
 class MapDocument;
 class SignalDelayer;
@@ -82,7 +76,7 @@ private:
 
 public:
   FaceAttribsEditor(
-    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
+    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
 
@@ -103,7 +97,7 @@ private:
   void updateIncrements();
 
 private:
-  void createGui(gl::ContextManager& contextManager);
+  void createGui(AppController& appController);
   void bindEvents();
 
   void connectObservers();
@@ -128,5 +122,4 @@ private:
   std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

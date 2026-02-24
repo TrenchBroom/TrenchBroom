@@ -23,7 +23,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "gl/ContextManager.h"
 #include "mdl/Map.h"
 #include "mdl/PointTrace.h"
 #include "ui/FourPaneMapView.h"
@@ -43,14 +42,10 @@
 namespace tb::ui
 {
 SwitchableMapViewContainer::SwitchableMapViewContainer(
-  AppController& appController,
-  MapDocument& document,
-  gl::ContextManager& contextManager,
-  QWidget* parent)
+  AppController& appController, MapDocument& document, QWidget* parent)
   : QWidget{parent}
   , m_appController{appController}
   , m_document{document}
-  , m_contextManager{contextManager}
   , m_mapViewBar{new MapViewBar(m_document)}
   , m_toolBox{std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())}
   , m_activationTracker{std::make_unique<MapViewActivationTracker>()}
@@ -96,20 +91,16 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
   switch (viewId)
   {
   case MapViewLayout::OnePane:
-    m_mapView =
-      new OnePaneMapView{m_appController, m_document, *m_toolBox, m_contextManager};
+    m_mapView = new OnePaneMapView{m_appController, m_document, *m_toolBox};
     break;
   case MapViewLayout::TwoPanes:
-    m_mapView =
-      new TwoPaneMapView{m_appController, m_document, *m_toolBox, m_contextManager};
+    m_mapView = new TwoPaneMapView{m_appController, m_document, *m_toolBox};
     break;
   case MapViewLayout::ThreePanes:
-    m_mapView =
-      new ThreePaneMapView{m_appController, m_document, *m_toolBox, m_contextManager};
+    m_mapView = new ThreePaneMapView{m_appController, m_document, *m_toolBox};
     break;
   case MapViewLayout::FourPanes:
-    m_mapView =
-      new FourPaneMapView{m_appController, m_document, *m_toolBox, m_contextManager};
+    m_mapView = new FourPaneMapView{m_appController, m_document, *m_toolBox};
     break;
     switchDefault();
   }

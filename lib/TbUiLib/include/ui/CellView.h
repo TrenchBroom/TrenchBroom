@@ -28,15 +28,9 @@ class QScrollBar;
 class QDrag;
 class QMimeData;
 
-namespace tb
+namespace tb::ui
 {
-namespace gl
-{
-class ContextManager;
-}
-
-namespace ui
-{
+class AppController;
 
 class CellView : public RenderView
 {
@@ -64,7 +58,7 @@ private:
   void validate();
 
 public:
-  explicit CellView(gl::ContextManager& contextManager, QScrollBar* scrollBar = nullptr);
+  explicit CellView(AppController& appController, QScrollBar* scrollBar = nullptr);
   void invalidate();
   void clear();
   void resizeEvent(QResizeEvent* event) override;
@@ -144,5 +138,4 @@ public: // implement InputEventProcessor interface
   void processEvent(const CancelEvent& event) override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

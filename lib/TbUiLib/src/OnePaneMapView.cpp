@@ -30,21 +30,17 @@ OnePaneMapView::OnePaneMapView(
   AppController& appController,
   MapDocument& document,
   MapViewToolBox& toolBox,
-  gl::ContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_document{document}
 {
-  createGui(appController, toolBox, contextManager);
+  createGui(appController, toolBox);
 }
 
-void OnePaneMapView::createGui(
-  AppController& appController,
-  MapViewToolBox& toolBox,
-  gl::ContextManager& contextManager)
+void OnePaneMapView::createGui(AppController& appController, MapViewToolBox& toolBox)
 {
-  m_mapView = new CyclingMapView{
-    appController, m_document, toolBox, contextManager, CyclingMapView::View_ALL};
+  m_mapView =
+    new CyclingMapView{appController, m_document, toolBox, CyclingMapView::View_ALL};
   m_mapView->linkCamera(m_linkHelper);
   addMapView(m_mapView);
 

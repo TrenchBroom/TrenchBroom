@@ -20,7 +20,6 @@
 #include "ui/MapView2D.h"
 
 #include "Macros.h"
-#include "gl/ContextManager.h"
 #include "gl/OrthographicCamera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -70,9 +69,8 @@ MapView2D::MapView2D(
   AppController& appController,
   MapDocument& document,
   MapViewToolBox& toolBox,
-  gl::ContextManager& contextManager,
   ViewPlane viewPlane)
-  : MapViewBase{appController, document, toolBox, contextManager}
+  : MapViewBase{appController, document, toolBox}
   , m_camera{std::make_unique<gl::OrthographicCamera>()}
 {
   connectObservers();

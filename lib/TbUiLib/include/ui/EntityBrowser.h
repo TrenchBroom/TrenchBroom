@@ -22,30 +22,15 @@
 #include <QWidget>
 
 #include "NotifierConnection.h"
-#include "gl/ResourceId.h"
-
-#include <filesystem>
-#include <vector>
 
 class QPushButton;
 class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace tb
+namespace tb::ui
 {
-namespace gl
-{
-class ContextManager;
-}
-
-namespace mdl
-{
-class Node;
-} // namespace mdl
-
-namespace ui
-{
+class AppController;
 class EntityBrowserView;
 class MapDocument;
 
@@ -65,15 +50,14 @@ private:
 
 public:
   EntityBrowser(
-    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
+    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
   void reload();
 
 private:
-  void createGui(gl::ContextManager& contextManager);
+  void createGui(AppController& appController);
 
   void connectObservers();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

@@ -44,11 +44,11 @@ namespace tb::ui
 {
 
 EntityBrowser::EntityBrowser(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+  AppController& appController, MapDocument& document, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
 {
-  createGui(contextManager);
+  createGui(appController);
   connectObservers();
 }
 
@@ -64,10 +64,10 @@ void EntityBrowser::reload()
   }
 }
 
-void EntityBrowser::createGui(gl::ContextManager& contextManager)
+void EntityBrowser::createGui(AppController& appController)
 {
   m_scrollBar = new QScrollBar{Qt::Vertical};
-  m_view = new EntityBrowserView{m_scrollBar, contextManager, m_document};
+  m_view = new EntityBrowserView{appController, m_scrollBar, m_document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);

@@ -58,11 +58,11 @@ void resetMaterialBrowserInfo(mdl::Map& map, QWidget* materialBrowserInfo)
 } // namespace
 
 FaceInspector::FaceInspector(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+  AppController& appController, MapDocument& document, QWidget* parent)
   : TabBookPage{parent}
   , m_document{document}
 {
-  createGui(contextManager);
+  createGui(appController);
   connectObservers();
 }
 
@@ -82,13 +82,13 @@ void FaceInspector::revealMaterial(const gl::Material* material)
   m_materialBrowser->setSelectedMaterial(material);
 }
 
-void FaceInspector::createGui(gl::ContextManager& contextManager)
+void FaceInspector::createGui(AppController& appController)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("FaceInspector_Splitter");
 
-  m_splitter->addWidget(createFaceAttribsEditor(contextManager));
-  m_splitter->addWidget(createMaterialBrowser(contextManager));
+  m_splitter->addWidget(createFaceAttribsEditor(appController));
+  m_splitter->addWidget(createMaterialBrowser(appController));
 
   // when the window resizes, the browser should get extra space
   m_splitter->setStretchFactor(0, 0);
@@ -109,18 +109,18 @@ void FaceInspector::createGui(gl::ContextManager& contextManager)
   restoreWidgetState(m_splitter);
 }
 
-QWidget* FaceInspector::createFaceAttribsEditor(gl::ContextManager& contextManager)
+QWidget* FaceInspector::createFaceAttribsEditor(AppController& appController)
 {
-  m_faceAttribsEditor = new FaceAttribsEditor{m_document, contextManager};
+  m_faceAttribsEditor = new FaceAttribsEditor{appController, m_document};
   return m_faceAttribsEditor;
 }
 
-QWidget* FaceInspector::createMaterialBrowser(gl::ContextManager& contextManager)
+QWidget* FaceInspector::createMaterialBrowser(AppController& appController)
 {
   auto* panel =
     new SwitchableTitledPanel{tr("Material Browser"), {{tr("Browser"), tr("Settings")}}};
 
-  m_materialBrowser = new MaterialBrowser{m_document, contextManager};
+  m_materialBrowser = new MaterialBrowser{appController, m_document};
 
   auto* materialBrowserLayout = new QVBoxLayout{};
   materialBrowserLayout->setContentsMargins(0, 0, 0, 0);

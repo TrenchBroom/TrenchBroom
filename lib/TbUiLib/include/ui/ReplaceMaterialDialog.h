@@ -29,7 +29,6 @@ namespace tb
 {
 namespace gl
 {
-class ContextManager;
 class Material;
 } // namespace gl
 
@@ -40,6 +39,7 @@ class BrushFaceHandle;
 
 namespace ui
 {
+class AppController;
 class MapDocument;
 class MaterialBrowser;
 
@@ -55,12 +55,12 @@ private:
 
 public:
   ReplaceMaterialDialog(
-    MapDocument& document, gl::ContextManager& contextManager, QWidget* parent = nullptr);
+    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
 private:
   void accept() override;
   std::vector<mdl::BrushFaceHandle> getApplicableFaces() const;
-  void createGui(gl::ContextManager& contextManager);
+  void createGui(AppController& appController);
 private slots:
   void subjectSelected(const gl::Material* subject);
   void replacementSelected(const gl::Material* replacement);

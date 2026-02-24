@@ -25,14 +25,7 @@
 #include "NotifierConnection.h"
 #include "ui/MapView.h"
 
-namespace tb
-{
-namespace gl
-{
-class ContextManager;
-}
-
-namespace ui
+namespace tb::ui
 {
 class AppController;
 class ClipTool;
@@ -53,7 +46,6 @@ class SwitchableMapViewContainer : public QWidget, public MapView
 private:
   AppController& m_appController;
   MapDocument& m_document;
-  gl::ContextManager& m_contextManager;
 
   MapViewBar* m_mapViewBar = nullptr;
   std::unique_ptr<MapViewToolBox> m_toolBox;
@@ -65,10 +57,7 @@ private:
 
 public:
   SwitchableMapViewContainer(
-    AppController& appController,
-    MapDocument& document,
-    gl::ContextManager& contextManager,
-    QWidget* parent = nullptr);
+    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
   ~SwitchableMapViewContainer() override;
 
   void connectTopWidgets(Inspector* inspector);
@@ -149,5 +138,4 @@ public: // implement ViewEffectsService interface
   deleteCopyAndMove(SwitchableMapViewContainer);
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

@@ -75,11 +75,11 @@ void replaceMaterials(
 } // namespace
 
 ReplaceMaterialDialog::ReplaceMaterialDialog(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+  AppController& appController, MapDocument& document, QWidget* parent)
   : QDialog{parent}
   , m_document{document}
 {
-  createGui(contextManager);
+  createGui(appController);
 }
 
 void ReplaceMaterialDialog::accept()
@@ -129,13 +129,13 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
          | kdl::ranges::to<std::vector>();
 }
 
-void ReplaceMaterialDialog::createGui(gl::ContextManager& contextManager)
+void ReplaceMaterialDialog::createGui(AppController& appController)
 {
   setWindowIconTB(this);
   setWindowTitle(tr("Replace Material"));
 
   auto* subjectPanel = new TitledPanel{tr("Find")};
-  m_subjectBrowser = new MaterialBrowser{m_document, contextManager};
+  m_subjectBrowser = new MaterialBrowser{appController, m_document};
   m_subjectBrowser->setHideUnused(true);
   connect(
     m_subjectBrowser,
@@ -150,7 +150,7 @@ void ReplaceMaterialDialog::createGui(gl::ContextManager& contextManager)
   subjectPanel->getPanel()->setLayout(subjectPanelLayout);
 
   auto* replacementPanel = new TitledPanel{tr("Replace with")};
-  m_replacementBrowser = new MaterialBrowser{m_document, contextManager};
+  m_replacementBrowser = new MaterialBrowser{appController, m_document};
   m_replacementBrowser->setSelectedMaterial(nullptr); // Override the current material.
   connect(
     m_replacementBrowser,
