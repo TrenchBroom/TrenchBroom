@@ -45,8 +45,9 @@ namespace tb
 {
 namespace gl
 {
+class GlManager;
 class ResourceManager;
-}
+} // namespace gl
 
 namespace mdl
 {
@@ -70,6 +71,7 @@ private:
   std::unique_ptr<mdl::EnvironmentConfig> m_environmentConfig;
   std::unique_ptr<mdl::GameManager> m_gameManager;
 
+  std::unique_ptr<gl::GlManager> m_globalResourceManager;
   std::unique_ptr<gl::ResourceManager> m_resourceManager;
 
   QNetworkAccessManager* m_networkManager = nullptr;

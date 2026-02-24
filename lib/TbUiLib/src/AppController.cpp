@@ -29,6 +29,7 @@
 #include "Preferences.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
+#include "gl/GlobalResourceManager.h"
 #include "gl/ResourceManager.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameManager.h"
@@ -154,6 +155,8 @@ AppController::AppController(
   : m_taskManager{std::move(taskManager)}
   , m_environmentConfig{std::move(environmentConfig)}
   , m_gameManager{std::move(gameManager)}
+  , m_globalResourceManager{std::make_unique<gl::GlManager>(
+      [](const auto& path) { return SystemPaths::findResourceFile(path); })}
   , m_resourceManager{std::make_unique<gl::ResourceManager>()}
   , m_networkManager{new QNetworkAccessManager{this}}
   , m_recentDocumentsReloadTimer{new QTimer{this}}
