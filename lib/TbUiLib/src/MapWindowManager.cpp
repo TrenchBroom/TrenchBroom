@@ -21,6 +21,7 @@
 
 #include <QApplication>
 
+#include "gl/GlManager.h"
 #include "mdl/GameInfo.h"
 #include "ui/AppController.h"
 #include "ui/MapDocument.h"
@@ -66,7 +67,7 @@ Result<void> MapWindowManager::createDocument(
              mapFormat,
              worldBounds,
              m_appController.taskManager(),
-             m_appController.resourceManager())
+             m_appController.glManager().resourceManager())
            | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 
@@ -92,7 +93,7 @@ Result<void> MapWindowManager::loadDocument(
              worldBounds,
              std::move(path),
              m_appController.taskManager(),
-             m_appController.resourceManager())
+             m_appController.glManager().resourceManager())
            | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
   }
 

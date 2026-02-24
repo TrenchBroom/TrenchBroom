@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "gl/GlManager.h"
 #include "gl/PrimType.h"
+#include "gl/ResourceManager.h"
 #include "gl/VboManager.h"
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
@@ -117,6 +118,11 @@ RenderView::RenderView(AppController& appController, QWidget* parent)
 
   setMouseTracking(true); // request mouse move events even when no button is held down
   setFocusPolicy(Qt::StrongFocus); // accept focus by clicking or tab
+
+  // Update any render view when resources were processed to reflect any changes
+  m_notifierConnection +=
+    m_appController.glManager().resourceManager().resourcesWereProcessedNotifier.connect(
+      [this](const auto&) { update(); });
 }
 
 RenderView::~RenderView() = default;

@@ -25,6 +25,7 @@
 #include <QOpenGLWidget>
 
 #include "Color.h"
+#include "NotifierConnection.h"
 #include "ui/InputEvent.h"
 
 #include <string>
@@ -53,6 +54,8 @@ private:
   Color m_focusColor;
   AppController& m_appController;
   InputEventRecorder m_eventRecorder;
+
+  NotifierConnection m_notifierConnection;
 
 private: // FPS counter
   // stats since the last counter update

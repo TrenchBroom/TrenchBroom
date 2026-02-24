@@ -20,6 +20,7 @@
 #include "gl/GlManager.h"
 
 #include "gl/FontManager.h"
+#include "gl/ResourceManager.h"
 #include "gl/ShaderManager.h"
 #include "gl/ShaderProgram.h"
 #include "gl/Shaders.h"
@@ -95,7 +96,8 @@ GlInfo GlManager::m_glInfo = GlInfo{
 };
 
 GlManager::GlManager(FindResourceFunc findResourceFunc)
-  : m_shaderManager{std::make_unique<ShaderManager>(findResourceFunc)}
+  : m_resourceManager{std::make_unique<ResourceManager>()}
+  , m_shaderManager{std::make_unique<ShaderManager>(findResourceFunc)}
   , m_vboManager{std::make_unique<VboManager>(*m_shaderManager)}
   , m_fontManager{std::make_unique<FontManager>(findResourceFunc)}
 {
@@ -116,6 +118,11 @@ bool GlManager::initialize()
 
   m_initialized = true;
   return true;
+}
+
+ResourceManager& GlManager::resourceManager()
+{
+  return *m_resourceManager;
 }
 
 VboManager& GlManager::vboManager()

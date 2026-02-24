@@ -29,6 +29,7 @@
 namespace tb::gl
 {
 class FontManager;
+class ResourceManager;
 class ShaderManager;
 class VboManager;
 
@@ -45,6 +46,7 @@ using FindResourceFunc =
 class GlManager
 {
 private:
+  std::unique_ptr<ResourceManager> m_resourceManager;
   std::unique_ptr<ShaderManager> m_shaderManager;
   std::unique_ptr<VboManager> m_vboManager;
   std::unique_ptr<FontManager> m_fontManager;
@@ -59,6 +61,7 @@ public:
 
   bool initialize();
 
+  ResourceManager& resourceManager();
   VboManager& vboManager();
   FontManager& fontManager();
   ShaderManager& shaderManager();

@@ -30,7 +30,6 @@
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "gl/GlManager.h"
-#include "gl/ResourceManager.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameManager.h"
 #include "mdl/MapHeader.h"
@@ -157,7 +156,6 @@ AppController::AppController(
   , m_gameManager{std::move(gameManager)}
   , m_glManager{std::make_unique<gl::GlManager>(
       [](const auto& path) { return SystemPaths::findResourceFile(path); })}
-  , m_resourceManager{std::make_unique<gl::ResourceManager>()}
   , m_networkManager{new QNetworkAccessManager{this}}
   , m_reloadRecentDocumentsTimer{new QTimer{this}}
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
@@ -199,11 +197,6 @@ kdl::task_manager& AppController::taskManager()
 gl::GlManager& AppController::glManager()
 {
   return *m_glManager;
-}
-
-gl::ResourceManager& AppController::resourceManager()
-{
-  return *m_resourceManager;
 }
 
 const mdl::EnvironmentConfig& AppController::environmentConfig() const
