@@ -88,7 +88,6 @@ private:
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
   QTimer* m_autosaveTimer = nullptr;
-  QTimer* m_processResourcesTimer = nullptr;
 
   QToolBar* m_toolBar = nullptr;
 
@@ -419,7 +418,6 @@ public: // event filter (suppress autosave for user input events)
 
 private:
   void triggerAutosave();
-  void triggerProcessResources();
 };
 
 class DebugPaletteWindow : public QDialog

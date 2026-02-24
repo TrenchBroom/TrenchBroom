@@ -74,6 +74,7 @@ private:
 
   QNetworkAccessManager* m_networkManager = nullptr;
   QTimer* m_reloadRecentDocumentsTimer = nullptr;
+  QTimer* m_processResourcesTimer = nullptr;
 
   upd::HttpClient* m_httpClient = nullptr;
   upd::Updater* m_updater = nullptr;

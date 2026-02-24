@@ -22,6 +22,7 @@ target_link_libraries(TbUiTestUtilsLib PRIVATE
   Qt6::Svg
   Qt6::Widgets
   TbBaseLib
+  TbGlTestUtilsLib
   TbMdlLib
   TbMdlTestUtilsLib
   TbUiLib

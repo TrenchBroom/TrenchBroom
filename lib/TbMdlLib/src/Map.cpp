@@ -1425,35 +1425,6 @@ void Map::removeEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
   }
 }
 
-void Map::processResourcesSync(const gl::ProcessContext& processContext)
-{
-  while (m_resourceManager.needsProcessing())
-  {
-    m_resourceManager.process(
-      [](auto task) {
-        auto promise = std::promise<std::unique_ptr<gl::TaskResult>>{};
-        promise.set_value(task());
-        return promise.get_future();
-      },
-      processContext);
-  }
-}
-
-void Map::processResourcesAsync(const gl::ProcessContext& processContext)
-{
-  using namespace std::chrono_literals;
-
-  m_resourceManager.process(
-    [&](auto task) { return taskManager().run_task(std::move(task)); },
-    processContext,
-    20ms);
-}
-
-bool Map::needsResourceProcessing() const
-{
-  return m_resourceManager.needsProcessing();
-}
-
 bool Map::canUndoCommand() const
 {
   return m_commandProcessor->undoCommandName() != nullptr;

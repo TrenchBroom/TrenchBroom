@@ -1004,11 +1004,6 @@ void MapViewBase::renderContents()
   renderFPS(renderContext, renderBatch);
 
   renderBatch.render(renderContext);
-
-  if (map.needsResourceProcessing())
-  {
-    update();
-  }
 }
 
 void MapViewBase::preRender() {}

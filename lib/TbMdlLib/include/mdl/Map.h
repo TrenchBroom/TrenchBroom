@@ -396,11 +396,6 @@ private: // entity link management
   void addEntityLinks(const std::vector<Node*>& nodes, bool recurse);
   void removeEntityLinks(const std::vector<Node*>& nodes, bool recurse);
 
-public: // resource processing
-  void processResourcesSync(const gl::ProcessContext& processContext);
-  void processResourcesAsync(const gl::ProcessContext& processContext);
-  bool needsResourceProcessing() const;
-
 public: // command processing
   bool canUndoCommand() const;
   bool canRedoCommand() const;

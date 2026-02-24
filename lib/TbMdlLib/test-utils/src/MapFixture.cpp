@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
+#include "gl/TestUtils.h"
 #include "mdl/Map.h"
 #include "mdl/TestUtils.h"
 
@@ -86,7 +87,8 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
     | kdl::transform([&](auto map) {
         m_map = std::move(map);
         m_map->setIsCommandCollationEnabled(false);
-        m_map->processResourcesSync(gl::ProcessContext{false, [](auto, auto) {}});
+        gl::processResourcesSync(
+          *m_resourceManager, gl::ProcessContext{false, [](auto, auto) {}});
       })
     | kdl::is_success());
 

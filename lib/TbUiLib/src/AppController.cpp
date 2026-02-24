@@ -25,11 +25,13 @@
 #include <QNetworkAccessManager>
 #include <QTimer>
 
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "gl/GlManager.h"
+#include "gl/ResourceManager.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameManager.h"
 #include "mdl/MapHeader.h"
@@ -158,6 +160,7 @@ AppController::AppController(
       [](const auto& path) { return SystemPaths::findResourceFile(path); })}
   , m_networkManager{new QNetworkAccessManager{this}}
   , m_reloadRecentDocumentsTimer{new QTimer{this}}
+  , m_processResourcesTimer{new QTimer{this}}
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
   , m_mapWindowManager{createMapWindowManager(*this)}
@@ -171,6 +174,7 @@ AppController::AppController(
   connectObservers();
 
   m_reloadRecentDocumentsTimer->start(1s);
+  m_processResourcesTimer->start(20ms);
 }
 
 Result<std::unique_ptr<AppController>> AppController::create()
@@ -388,7 +392,6 @@ void AppController::debugShowCrashReportDialog()
   dialog.exec();
 }
 
-
 void AppController::connectObservers()
 {
   connect(
@@ -401,6 +404,21 @@ void AppController::connectObservers()
     &QTimer::timeout,
     m_recentDocuments,
     &RecentDocuments::reload);
+  connect(m_processResourcesTimer, &QTimer::timeout, this, [this] {
+    using namespace std::chrono_literals;
+
+    auto taskRunner = [&](auto task) { return taskManager().run_task(std::move(task)); };
+    auto errorHandler = [&](const auto&, const auto& error) {
+      if (auto* topWindow = mapWindowManager().topMapWindow())
+      {
+        topWindow->logger().error() << error;
+      }
+    };
+
+    auto processContext = tb::gl::ProcessContext{true, errorHandler};
+
+    m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
+  });
 }
 
 } // namespace tb::ui

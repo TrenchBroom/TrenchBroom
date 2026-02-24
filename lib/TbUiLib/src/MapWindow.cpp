@@ -40,7 +40,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "gl/Resource.h"
 #include "mdl/Autosaver.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -159,7 +158,6 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   , m_document{std::move(document)}
   , m_lastInputTime{std::chrono::system_clock::now()}
   , m_autosaveTimer{new QTimer{this}}
-  , m_processResourcesTimer{new QTimer{this}}
   , m_updateTitleSignalDelayer{new SignalDelayer{500ms, this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
   , m_updateStatusBarSignalDelayer{new SignalDelayer{500ms, this}}
@@ -185,7 +183,6 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   m_document->setViewEffectsService(m_mapView);
 
   m_autosaveTimer->start(1000);
-  m_processResourcesTimer->start(20);
 
   connectObservers();
   bindEvents();
@@ -912,8 +909,6 @@ void MapWindow::portalFileDidChange()
 void MapWindow::bindEvents()
 {
   connect(m_autosaveTimer, &QTimer::timeout, this, &MapWindow::triggerAutosave);
-  connect(
-    m_processResourcesTimer, &QTimer::timeout, this, &MapWindow::triggerProcessResources);
   connect(qApp, &QApplication::focusChanged, this, &MapWindow::focusChange);
   connect(
     m_gridChoice,
@@ -2547,13 +2542,6 @@ void MapWindow::triggerAutosave()
   {
     m_document->triggerAutosave();
   }
-}
-
-void MapWindow::triggerProcessResources()
-{
-  auto& map = m_document->map();
-  map.processResourcesAsync(tb::gl::ProcessContext{
-    true, [&](const auto&, const auto& error) { logger().error() << error; }});
 }
 
 // DebugPaletteWindow
