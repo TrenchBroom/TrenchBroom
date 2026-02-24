@@ -26,16 +26,7 @@
 
 class QStackedLayout;
 
-namespace tb
-{
-class Logger;
-
-namespace gl
-{
-class ContextManager;
-}
-
-namespace ui
+namespace tb::ui
 {
 class AppController;
 class MapDocument;
@@ -66,16 +57,11 @@ public:
     AppController& appController,
     MapDocument& document,
     MapViewToolBox& toolBox,
-    gl::ContextManager& contextManager,
     int views,
     QWidget* parent = nullptr);
 
 private:
-  void createGui(
-    AppController& appController,
-    MapViewToolBox& toolBox,
-    gl::ContextManager& contextManager,
-    int views);
+  void createGui(AppController& appController, MapViewToolBox& toolBox, int views);
   void addMapView(MapViewBase* mapView);
 
 private:
@@ -113,5 +99,4 @@ public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

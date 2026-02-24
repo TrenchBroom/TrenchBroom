@@ -30,9 +30,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/Camera.h"
-#include "gl/ContextManager.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
+#include "gl/GlManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
@@ -101,11 +101,8 @@ namespace tb::ui
 const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
 MapViewBase::MapViewBase(
-  AppController& appController,
-  MapDocument& document,
-  MapViewToolBox& toolBox,
-  gl::ContextManager& contextManager)
-  : RenderView{contextManager}
+  AppController& appController, MapDocument& document, MapViewToolBox& toolBox)
+  : RenderView{appController}
   , m_appController{appController}
   , m_document{document}
   , m_toolBox{toolBox}
@@ -938,10 +935,11 @@ void MapViewBase::initializeGL()
 {
   if (doInitializeGL())
   {
+    const auto& glInfo = m_appController.glManager().glInfo();
+
     auto& logger = m_document.logger();
-    logger.info() << "Renderer info: " << gl::ContextManager::GLRenderer << " version "
-                  << gl::ContextManager::GLVersion << " from "
-                  << gl::ContextManager::GLVendor;
+    logger.info() << "Renderer info: " << glInfo.renderer << " version " << glInfo.version
+                  << " from " << glInfo.vendor;
     logger.info() << "Depth buffer bits: " << depthBits();
     logger.info() << "Multisampling "
                   << kdl::str_select(multisample(), "enabled", "disabled");
@@ -1006,11 +1004,6 @@ void MapViewBase::renderContents()
   renderFPS(renderContext, renderBatch);
 
   renderBatch.render(renderContext);
-
-  if (map.needsResourceProcessing())
-  {
-    update();
-  }
 }
 
 void MapViewBase::preRender() {}

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -26,48 +26,49 @@
 #include <memory>
 #include <string>
 
-namespace tb
-{
-namespace gl
+namespace tb::gl
 {
 class FontManager;
+class ResourceManager;
 class ShaderManager;
 class VboManager;
+
+struct GlInfo
+{
+  std::string vendor;
+  std::string renderer;
+  std::string version;
+};
 
 using FindResourceFunc =
   std::function<std::filesystem::path(const std::filesystem::path&)>;
 
-class ContextManager
+class GlManager
 {
-public:
-  static std::string GLVendor;
-  static std::string GLRenderer;
-  static std::string GLVersion;
-
 private:
-  std::string m_glVendor;
-  std::string m_glRenderer;
-  std::string m_glVersion;
-
+  std::unique_ptr<ResourceManager> m_resourceManager;
   std::unique_ptr<ShaderManager> m_shaderManager;
   std::unique_ptr<VboManager> m_vboManager;
   std::unique_ptr<FontManager> m_fontManager;
 
+  static GlInfo m_glInfo;
+
   bool m_initialized = false;
 
 public:
-  explicit ContextManager(FindResourceFunc findResourceFunc);
-  ~ContextManager();
+  explicit GlManager(FindResourceFunc findResourceFunc);
+  ~GlManager();
 
-  bool initialized() const;
   bool initialize();
 
+  ResourceManager& resourceManager();
   VboManager& vboManager();
   FontManager& fontManager();
   ShaderManager& shaderManager();
 
-  deleteCopyAndMove(ContextManager);
-};
+  static const GlInfo& glInfo();
 
-} // namespace gl
-} // namespace tb
+  deleteCopyAndMove(GlManager);
+}; // namespace tb::gl
+
+} // namespace tb::gl

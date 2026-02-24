@@ -21,6 +21,7 @@
 
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
+#include "gl/TestUtils.h"
 #include "mdl/Map.h"
 #include "mdl/TestUtils.h"
 #include "ui/MapDocument.h"
@@ -68,8 +69,8 @@ Result<std::unique_ptr<MapDocument>> loadFixtureDocument(
            resourceManager)
          | kdl::transform([&](auto document) {
              document->map().setIsCommandCollationEnabled(false);
-             document->map().processResourcesSync(
-               gl::ProcessContext{false, [](auto, auto) {}});
+             gl::processResourcesSync(
+               resourceManager, gl::ProcessContext{false, [](auto, auto) {}});
              return document;
            });
 }

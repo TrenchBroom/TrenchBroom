@@ -60,8 +60,8 @@ namespace tb::ui
 {
 
 EntityBrowserView::EntityBrowserView(
-  QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document)
-  : CellView{contextManager, scrollBar}
+  AppController& appController, QScrollBar* scrollBar, MapDocument& document)
+  : CellView{appController, scrollBar}
   , m_document{document}
   , m_sortOrder{mdl::EntityDefinitionSortOrder::Name}
 {
@@ -181,7 +181,6 @@ QString EntityBrowserView::dndData(const Cell& cell)
 void EntityBrowserView::resourcesWereProcessed(const std::vector<gl::ResourceId>&)
 {
   invalidate();
-  update();
 }
 
 void EntityBrowserView::addEntitiesToLayout(

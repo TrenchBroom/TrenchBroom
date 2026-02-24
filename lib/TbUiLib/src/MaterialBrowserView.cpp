@@ -59,8 +59,8 @@ namespace tb::ui
 {
 
 MaterialBrowserView::MaterialBrowserView(
-  QScrollBar* scrollBar, gl::ContextManager& contextManager, MapDocument& document)
-  : CellView{contextManager, scrollBar}
+  AppController& appController, QScrollBar* scrollBar, MapDocument& document)
+  : CellView{appController, scrollBar}
   , m_document{document}
 {
   m_notifierConnection += m_document.materialUsageCountsDidChangeNotifier.connect(

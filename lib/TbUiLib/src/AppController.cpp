@@ -25,10 +25,12 @@
 #include <QNetworkAccessManager>
 #include <QTimer>
 
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
+#include "gl/GlManager.h"
 #include "gl/ResourceManager.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameManager.h"
@@ -154,9 +156,11 @@ AppController::AppController(
   : m_taskManager{std::move(taskManager)}
   , m_environmentConfig{std::move(environmentConfig)}
   , m_gameManager{std::move(gameManager)}
-  , m_resourceManager{std::make_unique<gl::ResourceManager>()}
+  , m_glManager{std::make_unique<gl::GlManager>(
+      [](const auto& path) { return SystemPaths::findResourceFile(path); })}
   , m_networkManager{new QNetworkAccessManager{this}}
-  , m_recentDocumentsReloadTimer{new QTimer{this}}
+  , m_reloadRecentDocumentsTimer{new QTimer{this}}
+  , m_processResourcesTimer{new QTimer{this}}
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
   , m_mapWindowManager{createMapWindowManager(*this)}
@@ -169,7 +173,8 @@ AppController::AppController(
 
   connectObservers();
 
-  m_recentDocumentsReloadTimer->start(1s);
+  m_reloadRecentDocumentsTimer->start(1s);
+  m_processResourcesTimer->start(20ms);
 }
 
 Result<std::unique_ptr<AppController>> AppController::create()
@@ -193,9 +198,9 @@ kdl::task_manager& AppController::taskManager()
   return *m_taskManager;
 }
 
-gl::ResourceManager& AppController::resourceManager()
+gl::GlManager& AppController::glManager()
 {
-  return *m_resourceManager;
+  return *m_glManager;
 }
 
 const mdl::EnvironmentConfig& AppController::environmentConfig() const
@@ -387,7 +392,6 @@ void AppController::debugShowCrashReportDialog()
   dialog.exec();
 }
 
-
 void AppController::connectObservers()
 {
   connect(
@@ -396,10 +400,25 @@ void AppController::connectObservers()
     this,
     [this](const std::filesystem::path& path) { openDocument(path); });
   connect(
-    m_recentDocumentsReloadTimer,
+    m_reloadRecentDocumentsTimer,
     &QTimer::timeout,
     m_recentDocuments,
     &RecentDocuments::reload);
+  connect(m_processResourcesTimer, &QTimer::timeout, this, [this] {
+    using namespace std::chrono_literals;
+
+    auto taskRunner = [&](auto task) { return taskManager().run_task(std::move(task)); };
+    auto errorHandler = [&](const auto&, const auto& error) {
+      if (auto* topWindow = mapWindowManager().topMapWindow())
+      {
+        topWindow->logger().error() << error;
+      }
+    };
+
+    auto processContext = tb::gl::ProcessContext{true, errorHandler};
+
+    m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
+  });
 }
 
 } // namespace tb::ui

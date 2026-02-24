@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Notifier.h"
 #include "gl/Resource.h"
 #include "gl/ResourceId.h"
 
@@ -85,6 +86,9 @@ public:
 
 class ResourceManager
 {
+public:
+  Notifier<const std::vector<ResourceId>&> resourcesWereProcessedNotifier;
+
 private:
   std::vector<std::unique_ptr<ResourceWrapperBase>> m_resources;
 
@@ -111,7 +115,7 @@ public:
       std::make_unique<ResourceWrapper<ResourceT>>(std::move(resource)));
   }
 
-  std::vector<ResourceId> process(
+  void process(
     TaskRunner taskRunner,
     const ProcessContext& processContext,
     std::optional<std::chrono::milliseconds> timeout = std::nullopt)
@@ -123,7 +127,7 @@ public:
       }}
               : std::function{[]() { return true; }};
 
-    auto result = std::vector<ResourceId>{};
+    auto processedResourceIds = std::vector<ResourceId>{};
 
     for (auto it = m_resources.begin(); it != m_resources.end() && checkTimeout();)
     {
@@ -137,7 +141,7 @@ public:
       {
         if (resourceWrapper->process(taskRunner, processContext))
         {
-          result.push_back(resourceWrapper->id());
+          processedResourceIds.push_back(resourceWrapper->id());
         }
       }
 
@@ -146,7 +150,10 @@ public:
              : std::next(it);
     }
 
-    return result;
+    if (!processedResourceIds.empty())
+    {
+      resourcesWereProcessedNotifier(processedResourceIds);
+    }
   }
 };
 

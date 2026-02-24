@@ -49,11 +49,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  MapView3D(
-    AppController& appController,
-    MapDocument& document,
-    MapViewToolBox& toolBox,
-    gl::ContextManager& contextManager);
+  MapView3D(AppController& appController, MapDocument& document, MapViewToolBox& toolBox);
   ~MapView3D() override;
 
 private:

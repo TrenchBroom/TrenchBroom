@@ -23,7 +23,7 @@
 
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
-#include "gl/ContextManager.h"
+#include "gl/GlManager.h"
 #include "mdl/Map.h"
 #include "ui/AppController.h"
 #include "ui/CrashDialog.h"
@@ -80,9 +80,10 @@ std::string makeCrashReport(const auto& stacktrace, const auto& reason)
   ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
   ss << "Qt:\t" << qVersion() << std::endl;
 
-  ss << "GL_VENDOR:\t" << gl::ContextManager::GLVendor << std::endl;
-  ss << "GL_RENDERER:\t" << gl::ContextManager::GLRenderer << std::endl;
-  ss << "GL_VERSION:\t" << gl::ContextManager::GLVersion << std::endl;
+  const auto& glInfo = gl::GlManager::glInfo();
+  ss << "GL_VENDOR:\t" << glInfo.vendor << std::endl;
+  ss << "GL_RENDERER:\t" << glInfo.renderer << std::endl;
+  ss << "GL_VERSION:\t" << glInfo.version << std::endl;
 
   ss << "TrenchBroom Version:\t" << getBuildVersion().toStdString() << std::endl;
   ss << "TrenchBroom Build:\t" << getBuildIdStr().toStdString() << std::endl;

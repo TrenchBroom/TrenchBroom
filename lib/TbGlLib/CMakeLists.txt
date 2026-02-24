@@ -7,7 +7,6 @@ target_sources(TbGlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActiveShader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AttrString.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Camera.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ContextManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FontDescriptor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FontFactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FontGlyph.cpp
@@ -16,6 +15,7 @@ target_sources(TbGlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FontTexture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FreeTypeFontFactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GlManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArrayMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArrayMapBuilder.cpp

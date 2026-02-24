@@ -112,10 +112,7 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    AppController& appController,
-    MapDocument& document,
-    MapViewToolBox& toolBox,
-    gl::ContextManager& contextManager);
+    AppController& appController, MapDocument& document, MapViewToolBox& toolBox);
 
   void setCompass(std::unique_ptr<render::Compass> compass);
 

@@ -21,7 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "gl/ContextManager.h"
 #include "gl/PerspectiveCamera.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
@@ -74,11 +73,8 @@ namespace tb::ui
 {
 
 MapView3D::MapView3D(
-  AppController& appController,
-  MapDocument& document,
-  MapViewToolBox& toolBox,
-  gl::ContextManager& contextManager)
-  : MapViewBase{appController, document, toolBox, contextManager}
+  AppController& appController, MapDocument& document, MapViewToolBox& toolBox)
+  : MapViewBase{appController, document, toolBox}
   , m_camera{std::make_unique<gl::PerspectiveCamera>()}
   , m_flyModeHelper{std::make_unique<FlyModeHelper>(*m_camera)}
 {

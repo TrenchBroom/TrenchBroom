@@ -44,11 +44,11 @@ namespace tb::ui
 {
 
 MaterialBrowser::MaterialBrowser(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+  AppController& appController, MapDocument& document, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
 {
-  createGui(contextManager);
+  createGui(appController);
   bindEvents();
   connectObservers();
   reload();
@@ -106,12 +106,12 @@ void MaterialBrowser::setFilterText(const std::string& filterText)
 /**
  * See EntityBrowser::createGui
  */
-void MaterialBrowser::createGui(gl::ContextManager& contextManager)
+void MaterialBrowser::createGui(AppController& appController)
 {
   auto* browserPanel = new QWidget{};
   m_scrollBar = new QScrollBar{Qt::Vertical};
 
-  m_view = new MaterialBrowserView{m_scrollBar, contextManager, m_document};
+  m_view = new MaterialBrowserView{appController, m_scrollBar, m_document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);

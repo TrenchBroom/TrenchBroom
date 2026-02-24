@@ -32,10 +32,10 @@ namespace tb::ui
 {
 
 EntityInspector::EntityInspector(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+  AppController& appController, MapDocument& document, QWidget* parent)
   : TabBookPage{parent}
 {
-  createGui(document, contextManager);
+  createGui(appController, document);
 }
 
 EntityInspector::~EntityInspector()
@@ -43,13 +43,13 @@ EntityInspector::~EntityInspector()
   saveWidgetState(m_splitter);
 }
 
-void EntityInspector::createGui(MapDocument& document, gl::ContextManager& contextManager)
+void EntityInspector::createGui(AppController& appController, MapDocument& document)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
 
   m_splitter->addWidget(createEntityPropertyEditor(document, m_splitter));
-  m_splitter->addWidget(createEntityBrowser(document, contextManager, m_splitter));
+  m_splitter->addWidget(createEntityBrowser(appController, document, m_splitter));
 
   // when the window resizes, keep the attribute editor size constant
   m_splitter->setStretchFactor(0, 0);
@@ -72,12 +72,12 @@ QWidget* EntityInspector::createEntityPropertyEditor(
 }
 
 QWidget* EntityInspector::createEntityBrowser(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+  AppController& appController, MapDocument& document, QWidget* parent)
 {
   auto* panel = new SwitchableTitledPanel{
     tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};
 
-  m_entityBrowser = new EntityBrowser{document, contextManager};
+  m_entityBrowser = new EntityBrowser{appController, document};
 
   auto* entityBrowserLayout = new QVBoxLayout{};
   entityBrowserLayout->setContentsMargins(0, 0, 0, 0);

@@ -69,7 +69,6 @@ public:
     AppController& appController,
     MapDocument& document,
     MapViewToolBox& toolBox,
-    gl::ContextManager& contextManager,
     ViewPlane viewPlane);
 
 private:

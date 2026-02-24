@@ -59,12 +59,12 @@ namespace tb::ui
 {
 
 FaceAttribsEditor::FaceAttribsEditor(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+  AppController& appController, MapDocument& document, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
   , m_updateControlsSignalDelayer{new SignalDelayer{this}}
 {
-  createGui(contextManager);
+  createGui(appController);
   bindEvents();
   connectObservers();
   updateIncrements();
@@ -300,9 +300,9 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
   return wrapper;
 }
 
-void FaceAttribsEditor::createGui(gl::ContextManager& contextManager)
+void FaceAttribsEditor::createGui(AppController& appController)
 {
-  m_uvEditor = new UVEditor{m_document, contextManager};
+  m_uvEditor = new UVEditor{appController, m_document};
 
   auto* materialNameLabel = new QLabel{"Material"};
   setEmphasizedStyle(materialNameLabel);

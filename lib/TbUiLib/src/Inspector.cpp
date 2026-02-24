@@ -35,16 +35,15 @@
 
 namespace tb::ui
 {
-Inspector::Inspector(
-  MapDocument& document, gl::ContextManager& contextManager, QWidget* parent)
+Inspector::Inspector(AppController& appController, MapDocument& document, QWidget* parent)
   : QWidget{parent}
 {
   m_tabBook = new TabBook{};
   m_tabBook->setObjectName("Inspector_TabBook");
 
   m_mapInspector = new MapInspector{document};
-  m_entityInspector = new EntityInspector{document, contextManager};
-  m_faceInspector = new FaceInspector{document, contextManager};
+  m_entityInspector = new EntityInspector{appController, document};
+  m_faceInspector = new FaceInspector{appController, document};
 
   m_tabBook->addPage(m_mapInspector, "Map");
   m_tabBook->addPage(m_entityInspector, "Entity");

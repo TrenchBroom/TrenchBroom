@@ -14,6 +14,6 @@ target_sources(TbMdlTestUtilsLib
 )
 
 target_link_libraries(TbMdlTestUtilsLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbMdlTestUtilsLib PUBLIC TbBaseTestUtilsLib TbMdlLib fmt::fmt-header-only)
+target_link_libraries(TbMdlTestUtilsLib PUBLIC TbBaseTestUtilsLib TbGlTestUtilsLib TbMdlLib fmt::fmt-header-only)
 
 add_subdirectory(test)
