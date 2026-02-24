@@ -159,7 +159,7 @@ AppController::AppController(
       [](const auto& path) { return SystemPaths::findResourceFile(path); })}
   , m_resourceManager{std::make_unique<gl::ResourceManager>()}
   , m_networkManager{new QNetworkAccessManager{this}}
-  , m_recentDocumentsReloadTimer{new QTimer{this}}
+  , m_reloadRecentDocumentsTimer{new QTimer{this}}
   , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
   , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
   , m_mapWindowManager{createMapWindowManager(*this)}
@@ -172,7 +172,7 @@ AppController::AppController(
 
   connectObservers();
 
-  m_recentDocumentsReloadTimer->start(1s);
+  m_reloadRecentDocumentsTimer->start(1s);
 }
 
 Result<std::unique_ptr<AppController>> AppController::create()
@@ -404,7 +404,7 @@ void AppController::connectObservers()
     this,
     [this](const std::filesystem::path& path) { openDocument(path); });
   connect(
-    m_recentDocumentsReloadTimer,
+    m_reloadRecentDocumentsTimer,
     &QTimer::timeout,
     m_recentDocuments,
     &RecentDocuments::reload);

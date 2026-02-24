@@ -75,7 +75,7 @@ private:
   std::unique_ptr<gl::ResourceManager> m_resourceManager;
 
   QNetworkAccessManager* m_networkManager = nullptr;
-  QTimer* m_recentDocumentsReloadTimer = nullptr;
+  QTimer* m_reloadRecentDocumentsTimer = nullptr;
 
   upd::HttpClient* m_httpClient = nullptr;
   upd::Updater* m_updater = nullptr;
