@@ -120,6 +120,11 @@ bool GlManager::initialize()
   return true;
 }
 
+bool GlManager::initialized() const
+{
+  return m_initialized;
+}
+
 ResourceManager& GlManager::resourceManager()
 {
   return *m_resourceManager;
