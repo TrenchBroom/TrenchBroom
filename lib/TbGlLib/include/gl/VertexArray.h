@@ -28,6 +28,7 @@
 #include "kd/vector_utils.h"
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace tb::gl
@@ -65,7 +66,7 @@ private:
   {
   private:
     VboManager* m_vboManager = nullptr;
-    Vbo* m_vbo = nullptr;
+    std::unique_ptr<Vbo> m_vbo;
     size_t m_vertexCount = 0;
 
   public:
@@ -75,7 +76,7 @@ private:
 
     void prepare(VboManager& vboManager) override
     {
-      if (m_vertexCount > 0 && m_vbo == nullptr)
+      if (m_vertexCount > 0 && !m_vbo)
       {
         m_vboManager = &vboManager;
         m_vbo = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());
@@ -93,6 +94,8 @@ private:
 
     void cleanup(ShaderProgram& currentProgram) override
     {
+      contract_pre(m_vbo);
+
       VertexSpec::cleanup(currentProgram);
       m_vbo->unbind();
     }
@@ -109,8 +112,7 @@ private:
       // VboManager, since it represents a safe time to delete the OpenGL buffer object.
       if (m_vbo)
       {
-        m_vboManager->destroyVbo(m_vbo);
-        m_vbo = nullptr;
+        m_vboManager->destroyVbo(std::exchange(m_vbo, nullptr));
       }
     }
 

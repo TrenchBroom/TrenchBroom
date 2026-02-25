@@ -20,6 +20,7 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 
 namespace tb::gl
 {
@@ -49,8 +50,9 @@ public:
    * Immediately creates and binds to an OpenGL buffer of the given type and capacity.
    * The contents are initially unspecified. See Vbo class.
    */
-  Vbo* allocateVbo(VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
-  void destroyVbo(Vbo* vbo);
+  std::unique_ptr<Vbo> allocateVbo(
+    VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
+  void destroyVbo(std::unique_ptr<Vbo> vbo);
 
   size_t peakVboCount() const;
   size_t currentVboCount() const;

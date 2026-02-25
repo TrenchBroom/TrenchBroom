@@ -58,7 +58,8 @@ static GLenum usageToOpenGL(const VboUsage usage)
 
 // VboManager
 
-Vbo* VboManager::allocateVbo(VboType type, const size_t capacity, const VboUsage usage)
+std::unique_ptr<Vbo> VboManager::allocateVbo(
+  VboType type, const size_t capacity, const VboUsage usage)
 {
   auto result = std::make_unique<Vbo>(typeToOpenGL(type), capacity, usageToOpenGL(usage));
 
@@ -66,16 +67,15 @@ Vbo* VboManager::allocateVbo(VboType type, const size_t capacity, const VboUsage
   m_currentVboCount++;
   m_peakVboCount = std::max(m_peakVboCount, m_currentVboCount);
 
-  return result.release();
+  return result;
 }
 
-void VboManager::destroyVbo(Vbo* vbo)
+void VboManager::destroyVbo(std::unique_ptr<Vbo> vbo)
 {
   m_currentVboSize -= vbo->capacity();
   m_currentVboCount--;
 
   vbo->free();
-  delete vbo;
 }
 
 size_t VboManager::peakVboCount() const

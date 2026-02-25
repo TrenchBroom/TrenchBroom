@@ -78,22 +78,21 @@ protected:
   gl::VboType m_type;
   std::vector<T> m_snapshot;
   DirtyRangeTracker m_dirtyRange;
-  gl::VboManager* m_vboManager;
-  gl::Vbo* m_vbo;
+  gl::VboManager* m_vboManager = nullptr;
+  std::unique_ptr<gl::Vbo> m_vbo;
 
 private:
   void freeBlock()
   {
-    if (m_vbo != nullptr)
+    if (m_vbo)
     {
-      m_vboManager->destroyVbo(m_vbo);
-      m_vbo = nullptr;
+      m_vboManager->destroyVbo(std::exchange(m_vbo, nullptr));
     }
   }
 
   void allocateBlock(gl::VboManager& vboManager)
   {
-    if (m_vboManager != nullptr)
+    if (m_vboManager)
     {
       contract_assert(m_vboManager == &vboManager);
     }
@@ -105,7 +104,7 @@ private:
     contract_assert(m_vbo == nullptr);
     m_vbo = m_vboManager->allocateVbo(
       m_type, m_snapshot.size() * sizeof(T), gl::VboUsage::DynamicDraw);
-    contract_assert(m_vbo != nullptr);
+    contract_assert(m_vbo);
 
     m_vbo->writeElements(0, m_snapshot);
 
@@ -119,8 +118,6 @@ public:
     : m_type(type)
     , m_snapshot()
     , m_dirtyRange(0)
-    , m_vboManager(nullptr)
-    , m_vbo(nullptr)
   {
   }
 
@@ -131,8 +128,6 @@ public:
     : m_type(type)
     , m_snapshot()
     , m_dirtyRange(elements.size())
-    , m_vboManager(nullptr)
-    , m_vbo(nullptr)
   {
 
     const size_t elementsCount = elements.size();
