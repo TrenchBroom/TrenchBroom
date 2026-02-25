@@ -28,11 +28,13 @@
 
 namespace tb::gl
 {
+namespace
+{
 
 /**
  * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
  */
-static GLenum typeToOpenGL(const VboType type)
+GLenum typeToOpenGL(const VboType type)
 {
   switch (type)
   {
@@ -44,7 +46,7 @@ static GLenum typeToOpenGL(const VboType type)
   }
 }
 
-static GLenum usageToOpenGL(const VboUsage usage)
+GLenum usageToOpenGL(const VboUsage usage)
 {
   switch (usage)
   {
@@ -55,6 +57,8 @@ static GLenum usageToOpenGL(const VboUsage usage)
     switchDefault();
   }
 }
+
+} // namespace
 
 // VboManager
 
