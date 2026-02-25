@@ -240,7 +240,7 @@ private:
     auto shader = gl::ActiveShader{
       renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     shader.set("Color", m_highlight ? highlightColor.to<RgbaF>() : handleColor);
-    m_originHandle.render();
+    m_originHandle.render(shader.program());
   }
 };
 

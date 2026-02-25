@@ -138,13 +138,11 @@ void FaceRenderer::prepare(gl::VboManager& vboManager)
 
 void FaceRenderer::render(RenderContext& context)
 {
-  auto* currentProgram = context.shaderManager().currentProgram();
-  contract_assert(currentProgram);
+  auto& shaderManager = context.shaderManager();
+  auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
 
-  if (!m_indexArrayMap->empty() && m_vertexArray->setup(*currentProgram))
+  if (!m_indexArrayMap->empty() && m_vertexArray->setup(shader.program()))
   {
-    auto& shaderManager = context.shaderManager();
-    auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
     auto& prefs = PreferenceManager::instance();
 
     const auto applyMaterial = context.showMaterials();
@@ -210,7 +208,7 @@ void FaceRenderer::render(RenderContext& context)
     {
       glAssert(glDepthMask(GL_TRUE));
     }
-    m_vertexArray->cleanup(*currentProgram);
+    m_vertexArray->cleanup(shader.program());
   }
 }
 

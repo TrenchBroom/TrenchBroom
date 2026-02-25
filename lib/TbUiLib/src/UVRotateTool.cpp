@@ -165,7 +165,7 @@ public:
       const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", m_highlight ? highlightColor.to<RgbaF>() : handleColor);
-      m_outer.render();
+      m_outer.render(shader.program());
     }
 
     {
@@ -173,7 +173,7 @@ public:
       const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", highlightColor);
-      m_center.render();
+      m_center.render(shader.program());
     }
   }
 };

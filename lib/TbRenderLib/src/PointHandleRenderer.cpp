@@ -117,7 +117,7 @@ void PointHandleRenderer::renderHandles(
         camera.project(position + nudgeTowardsCamera) * vm::vec3f{1, 1, -1};
       auto translate = MultiplyModelMatrix{
         renderContext.transformation(), vm::translation_matrix(offset)};
-      circle.render();
+      circle.render(shader.program());
     }
   }
 }

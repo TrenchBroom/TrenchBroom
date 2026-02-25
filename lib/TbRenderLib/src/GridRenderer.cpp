@@ -58,7 +58,11 @@ void GridRenderer::render(RenderContext& renderContext)
     shader.set("GridColor", pref(Preferences::GridColor2D));
     shader.set("CameraZoom", camera.zoom());
 
-    m_vertexArray.render(gl::PrimType::Quads);
+    if (m_vertexArray.setup(shader.program()))
+    {
+      m_vertexArray.render(gl::PrimType::Quads);
+      m_vertexArray.cleanup(shader.program());
+    }
   }
 }
 

@@ -85,7 +85,7 @@ public:
     auto shader = gl::ActiveShader{
       renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     shader.set("Color", RgbaF{1.0f, 1.0f, 1.0f, 0.2f});
-    m_circle.render();
+    m_circle.render(shader.program());
 
     glAssert(glEnable(GL_DEPTH_TEST));
     glAssert(glPopAttrib());

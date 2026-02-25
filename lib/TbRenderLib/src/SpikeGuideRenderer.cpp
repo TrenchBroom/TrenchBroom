@@ -63,7 +63,12 @@ void SpikeGuideRenderer::render(RenderContext& renderContext)
 {
   auto shader =
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPCShader};
-  m_spikeArray.render(gl::PrimType::Lines);
+
+  if (m_spikeArray.setup(shader.program()))
+  {
+    m_spikeArray.render(gl::PrimType::Lines);
+    m_spikeArray.cleanup(shader.program());
+  }
 }
 
 void SpikeGuideRenderer::addSpike(const vm::ray3d& ray)

@@ -21,9 +21,12 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/ActiveShader.h"
 #include "gl/GlManager.h"
 #include "gl/PrimType.h"
 #include "gl/ResourceManager.h"
+#include "gl/ShaderManager.h"
+#include "gl/Shaders.h"
 #include "gl/VboManager.h"
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
@@ -339,7 +342,13 @@ void RenderView::renderFocusIndicator()
     });
 
     array.prepare(vboManager());
-    array.render(gl::PrimType::Quads);
+
+    auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPCShader};
+    if (array.setup(shader.program()))
+    {
+      array.render(gl::PrimType::Quads);
+      array.cleanup(shader.program());
+    }
     glAssert(glEnable(GL_DEPTH_TEST));
   }
 }

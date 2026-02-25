@@ -79,7 +79,12 @@ void TriangleRenderer::render(RenderContext& context)
     shader.set("UseColor", m_useColor);
     shader.set("Color", m_color);
     shader.set("CameraPosition", context.camera().position());
-    m_indexArray.render(m_vertexArray);
+
+    if (m_vertexArray.setup(shader.program()))
+    {
+      m_indexArray.render(m_vertexArray);
+      m_vertexArray.cleanup(shader.program());
+    }
   }
 }
 

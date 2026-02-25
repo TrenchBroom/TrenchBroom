@@ -278,16 +278,26 @@ void TextRenderer::render(EntryCollection& collection, RenderContext& renderCont
 
   auto backgroundShader =
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::TextBackgroundShader};
-  collection.rectArray.render(gl::PrimType::Triangles);
+
+  if (collection.rectArray.setup(backgroundShader.program()))
+  {
+    collection.rectArray.render(gl::PrimType::Triangles);
+    collection.rectArray.cleanup(backgroundShader.program());
+  }
 
   glAssert(glEnable(GL_TEXTURE_2D));
 
   auto textShader =
     gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::ColoredTextShader};
   textShader.set("Texture", 0);
-  font.activate();
-  collection.textArray.render(gl::PrimType::Quads);
-  font.deactivate();
+
+  if (collection.textArray.setup(textShader.program()))
+  {
+    font.activate();
+    collection.textArray.render(gl::PrimType::Quads);
+    collection.textArray.cleanup(textShader.program());
+    font.deactivate();
+  }
 }
 
 } // namespace tb::render

@@ -99,6 +99,7 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
         0.33f}); // NOTE: heavier tint than FaceRenderer, since these are lines
     shader.set("UseUniformColor", m_params.useColor);
     shader.set("Color", m_params.color);
+
     doRenderVertices(renderContext);
   }
 
@@ -195,9 +196,16 @@ void DirectEdgeRenderer::Render::render(RenderContext& renderContext)
   }
 }
 
-void DirectEdgeRenderer::Render::doRenderVertices(RenderContext&)
+void DirectEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext)
 {
-  m_indexRanges.render(m_vertexArray);
+  auto* currentProgram = renderContext.shaderManager().currentProgram();
+  contract_assert(currentProgram);
+
+  if (m_vertexArray.setup(*currentProgram))
+  {
+    m_indexRanges.render(m_vertexArray);
+    m_vertexArray.cleanup(*currentProgram);
+  }
 }
 
 DirectEdgeRenderer::DirectEdgeRenderer() {}
@@ -253,11 +261,13 @@ void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext)
   auto* currentProgram = renderContext.shaderManager().currentProgram();
   contract_assert(currentProgram);
 
-  m_vertexArray->setup(*currentProgram);
-  m_indexArray->setup();
-  m_indexArray->render(gl::PrimType::Lines);
-  m_vertexArray->cleanup(*currentProgram);
-  m_indexArray->cleanup();
+  if (m_vertexArray->setup(*currentProgram))
+  {
+    m_indexArray->setup();
+    m_indexArray->render(gl::PrimType::Lines);
+    m_vertexArray->cleanup(*currentProgram);
+    m_indexArray->cleanup();
+  }
 }
 
 // IndexedEdgeRenderer
