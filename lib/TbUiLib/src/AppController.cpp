@@ -191,7 +191,10 @@ Result<std::unique_ptr<AppController>> AppController::create()
          });
 }
 
-AppController::~AppController() = default;
+AppController::~AppController()
+{
+  processGlResources();
+}
 
 kdl::task_manager& AppController::taskManager()
 {
