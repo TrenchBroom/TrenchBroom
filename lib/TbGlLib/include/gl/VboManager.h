@@ -21,6 +21,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <vector>
 
 namespace tb::gl
 {
@@ -45,7 +46,12 @@ private:
   size_t m_currentVboCount = 0;
   size_t m_currentVboSize = 0;
 
+  std::vector<std::unique_ptr<Vbo>> m_vbosToDestroy;
+
 public:
+  VboManager();
+  ~VboManager();
+
   /**
    * Immediately creates and binds to an OpenGL buffer of the given type and capacity.
    * The contents are initially unspecified. See Vbo class.
@@ -57,6 +63,8 @@ public:
   size_t peakVboCount() const;
   size_t currentVboCount() const;
   size_t currentVboSize() const;
+
+  void destroyPendingVbos();
 };
 
 } // namespace tb::gl

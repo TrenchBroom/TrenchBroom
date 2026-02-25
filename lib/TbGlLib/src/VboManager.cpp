@@ -62,6 +62,9 @@ GLenum usageToOpenGL(const VboUsage usage)
 
 // VboManager
 
+VboManager::VboManager() = default;
+VboManager::~VboManager() = default;
+
 std::unique_ptr<Vbo> VboManager::allocateVbo(
   VboType type, const size_t capacity, const VboUsage usage)
 {
@@ -79,7 +82,7 @@ void VboManager::destroyVbo(std::unique_ptr<Vbo> vbo)
   m_currentVboSize -= vbo->capacity();
   m_currentVboCount--;
 
-  vbo->free();
+  m_vbosToDestroy.push_back(std::move(vbo));
 }
 
 size_t VboManager::peakVboCount() const
@@ -95,6 +98,15 @@ size_t VboManager::currentVboCount() const
 size_t VboManager::currentVboSize() const
 {
   return m_currentVboSize;
+}
+
+void VboManager::destroyPendingVbos()
+{
+  for (auto& vbo : m_vbosToDestroy)
+  {
+    vbo->free();
+  }
+  m_vbosToDestroy.clear();
 }
 
 } // namespace tb::gl

@@ -32,6 +32,7 @@
 #include "fs/PathInfo.h"
 #include "gl/GlManager.h"
 #include "gl/ResourceManager.h"
+#include "gl/VboManager.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameManager.h"
 #include "mdl/MapHeader.h"
@@ -429,6 +430,7 @@ void AppController::processGlResources()
     auto processContext = tb::gl::ProcessContext{true, errorHandler};
 
     m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
+    m_glManager->vboManager().destroyPendingVbos();
   }
 }
 
