@@ -26,9 +26,62 @@ env:
 
 jobs:
   ci-linux:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:22.04
 
     steps:
+      - name: Linux - Install dependencies
+        run: |
+          apt update -y
+          apt install -y software-properties-common ca-certificates gnupg
+          add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          add-apt-repository -y "deb https://download.mono-project.com/repo/ubuntu stable-focal main"
+          apt update -y
+          # Install gcc-13 runtime libraries first
+          apt install -y --no-install-recommends \
+            libasan8 \
+            libatomic1 \
+            libcc1-0 \
+            libgcc-s1 \
+            libgomp1 \
+            libitm1 \
+            liblsan0 \
+            libquadmath0 \
+            libtsan2 \
+            libubsan1
+          # Then install gcc-13 and development libraries
+          apt install -y --no-install-recommends \
+            g++-13 \
+            gcc-13 \
+            libgcc-13-dev \
+            libstdc++-13-dev
+          # Finally install remaining build dependencies
+          apt install -y --no-install-recommends \
+            build-essential \
+            cmake \
+            freeglut3-dev \
+            git \
+            libassimp-dev \
+            libfreeimage-dev \
+            libfreetype6-dev \
+            libfuse2 \
+            libgl1-mesa-dev \
+            libglew-dev \
+            libglu1-mesa-dev \
+            libglm-dev \
+            libxi-dev \
+            libxrandr-dev \
+            libxxf86vm-dev \
+            libtinyxml2-dev \
+            mesa-common-dev \
+            mono-complete \
+            ninja-build \
+            p7zip-full \
+            pandoc \
+            xvfb
+
       # See: https://github.com/actions/checkout
       - name: Checkout code
         uses: actions/checkout@v4
@@ -46,12 +99,6 @@ jobs:
       - name: Linux - Bootstrap vcpkg
         shell: bash
         run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
-
-      - name: Linux - Install dependencies
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt update
-          sudo apt install gcc-13 g++-13 build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2
 
       - name: Linux - Add NuGet sources
         shell: bash
