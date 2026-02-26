@@ -14,33 +14,184 @@ permissions:
   # Grant the Release step the necessary permissions to upload a release
   contents: write
 
+env:
+  # Record pull request head commit SHA
+  TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+  # Set up environment variables required for caching vcpkg packages using NuGet
+  # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-packages?pivots=windows-runner
+  USERNAME: TrenchBroom
+  VCPKG_EXE: ${{ github.workspace }}/vcpkg/vcpkg
+  FEED_URL: https://nuget.pkg.github.com/TrenchBroom/index.json
+  VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/TrenchBroom/index.json,readwrite"
+
 jobs:
-  ci:
+  ci-windows:
+    runs-on: windows-2022
+
+    steps:
+      # See: https://github.com/actions/checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      # Install Qt
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.*'
+
+      # Windows
+      - name: Windows - Bootstrap vcpkg
+        shell: pwsh
+        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
+
+      - name: Windows - Install dependencies
+        run: |
+          # Chocolatey was taking 3 minutes to install pandoc; just install it directly
+          Invoke-WebRequest 'https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-windows-x86_64.zip' -OutFile 'pandoc.zip'
+          if ("668A62A8990DEB2753753DF0C8D3F1BE567026FE" -ne (Get-FileHash -Path 'pandoc.zip' -Algorithm SHA1).Hash) { exit }
+          7z x pandoc.zip -o'.'
+          $tb_pandoc_path = "$(pwd)\pandoc-2.11.3.1"
+          # Add this to the system path
+          echo "Pandoc path: $tb_pandoc_path"
+          # See: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#environment-files
+          echo "$tb_pandoc_path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Windows - Add NuGet sources
+        shell: pwsh
+        run: |
+          .$(${{ env.VCPKG_EXE }} fetch nuget) `
+            sources add `
+            -Source "${{ env.FEED_URL }}" `
+            -StorePasswordInClearText `
+            -Name GitHubPackages `
+            -UserName "${{ env.USERNAME }}" `
+            -Password "${{ secrets.GITHUB_TOKEN }}"
+          .$(${{ env.VCPKG_EXE }} fetch nuget) `
+            setapikey "${{ secrets.GITHUB_TOKEN }}" `
+            -Source "${{ env.FEED_URL }}"
+
+      - name: Windows - Build
+        run: cmd.exe /c CI-windows.bat
+
+      - name: Windows - Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-2022
+          path: |
+            cmakebuild/*.zip
+            cmakebuild/*.zip.md5
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        with:
+          draft: true
+          files: |
+            cmakebuild/*.zip
+            cmakebuild/*.zip.md5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  ci-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+      # See: https://github.com/actions/checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      # Install Qt
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.*'
+
+      # Linux
+      - name: Linux - Bootstrap vcpkg
+        shell: bash
+        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
+
+      - name: Linux - Install dependencies
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install gcc-13 g++-13 build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2
+
+      - name: Linux - Add NuGet sources
+        shell: bash
+        run: |
+          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
+            sources add \
+            -Source "${{ env.FEED_URL }}" \
+            -StorePasswordInClearText \
+            -Name GitHubPackages \
+            -UserName "${{ env.USERNAME }}" \
+            -Password "${{ secrets.GITHUB_TOKEN }}"
+          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
+            setapikey "${{ secrets.GITHUB_TOKEN }}" \
+            -Source "${{ env.FEED_URL }}"
+
+      - name: Linux - Set compiler version
+        run: |
+          echo "CC=gcc-13" >> $GITHUB_ENV
+          echo "CXX=g++-13" >> $GITHUB_ENV
+
+      - name: Linux - Build
+        run: |
+          ./CI-linux.sh
+
+      - name: Linux - Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-22.04
+          path: |
+            cmakebuild/*.zip
+            cmakebuild/*.md5
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        with:
+          draft: true
+          files: |
+            cmakebuild/*.zip
+            cmakebuild/*.zip.md5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload compiled manual
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        with:
+          # I've created a SSH key pair following https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-create-ssh-deploy-key
+          # The TrenchBroom/TrenchBroom repo has a repository secret ACTIONS_DEPLOY_KEY set to the SSH private key
+          # The TrenchBroom/manual repo has a deploy key set to the SSH public key
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: TrenchBroom/manual # Repo to deploy to
+          publish_branch: gh-pages # Branch to deploy to
+          publish_dir: ./cmakebuild/app/gen-manual # Source directory tree
+          destination_dir: latest # Deploy to this directory in target repo
+
+  ci-macos:
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-15, macos-15-intel, windows-2022]
-        tb-build-type: [release]
-        tb-arch: [default-arch]
-        exclude:
-          - os: windows-2022
-            tb-arch: default-arch
+        os: [macos-15, macos-15-intel]
         include:
+          - os: macos-15
+            tb-build-type: release
           - os: macos-15-intel
             tb-build-type: sanitize
-          - os: windows-2022
-            tb-arch: x64
+
     env:
-      # Record pull request head commit SHA
-      TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      # Set up environment variables required for caching vcpkg packages using NuGet
-      # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-packages?pivots=windows-runner
-      USERNAME: TrenchBroom
-      VCPKG_EXE: ${{ github.workspace }}/vcpkg/vcpkg
-      FEED_URL: https://nuget.pkg.github.com/TrenchBroom/index.json
-      VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/TrenchBroom/index.json,readwrite"
       # Set up environment variables required for Mono (on macOS)
       # See https://formulae.brew.sh/formula/mono
       MONO_GAC_PREFIX: "$HOMEBREW_PREFIX"
@@ -59,141 +210,42 @@ jobs:
         with:
           version: '6.9.*'
 
-      # Windows
-      - name: Windows - Bootstrap vcpkg
-        if: ${{ matrix.os == 'windows-2022' }}
-        shell: pwsh
-        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
-
-      - name: Windows - Install dependencies
-        if: ${{ matrix.os == 'windows-2022' }}
-        run: |
-          # Chocolatey was taking 3 minutes to install pandoc; just install it directly
-          Invoke-WebRequest 'https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-windows-x86_64.zip' -OutFile 'pandoc.zip'
-          if ("668A62A8990DEB2753753DF0C8D3F1BE567026FE" -ne (Get-FileHash -Path 'pandoc.zip' -Algorithm SHA1).Hash) { exit }
-          7z x pandoc.zip -o'.'
-          $tb_pandoc_path = "$(pwd)\pandoc-2.11.3.1"
-          # Add this to the system path
-          echo "Pandoc path: $tb_pandoc_path"
-          # See: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#environment-files
-          echo "$tb_pandoc_path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Windows - Add NuGet sources
-        if: ${{ matrix.os == 'windows-2022' }}
-        shell: pwsh
-        run: |
-          .$(${{ env.VCPKG_EXE }} fetch nuget) `
-            sources add `
-            -Source "${{ env.FEED_URL }}" `
-            -StorePasswordInClearText `
-            -Name GitHubPackages `
-            -UserName "${{ env.USERNAME }}" `
-            -Password "${{ secrets.GITHUB_TOKEN }}"
-          .$(${{ env.VCPKG_EXE }} fetch nuget) `
-            setapikey "${{ secrets.GITHUB_TOKEN }}" `
-            -Source "${{ env.FEED_URL }}"
-
-      - name: Windows - Build
-        if: ${{ matrix.os == 'windows-2022' }}
-        run: cmd.exe /c CI-windows.bat
-
-      - name: Windows - Upload artifacts
-        uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'windows-2022' }}
-        with:
-          name: ${{ matrix.os }}
-          path: |
-            cmakebuild/*.zip
-            cmakebuild/*.zip.md5
-
-      # Linux
-      - name: Linux - Bootstrap vcpkg
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        shell: bash
-        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
-
-      - name: Linux - Install dependencies
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt update
-          sudo apt install gcc-13 g++-13 build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2
-
-      - name: Linux - Add NuGet sources
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        shell: bash
-        run: |
-          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
-            sources add \
-            -Source "${{ env.FEED_URL }}" \
-            -StorePasswordInClearText \
-            -Name GitHubPackages \
-            -UserName "${{ env.USERNAME }}" \
-            -Password "${{ secrets.GITHUB_TOKEN }}"
-          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
-            setapikey "${{ secrets.GITHUB_TOKEN }}" \
-            -Source "${{ env.FEED_URL }}"
-
-      - name: Linux - Set compiler version
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          echo "CC=gcc-13" >> $GITHUB_ENV
-          echo "CXX=g++-13" >> $GITHUB_ENV
-
-      - name: Linux - Build
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          ./CI-linux.sh
-
-      - name: Linux - Upload artifacts
-        uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        with:
-          name: ${{ matrix.os }}
-          path: |
-            cmakebuild/*.zip
-            cmakebuild/*.md5
-
       # macOS
       - name: macOS - Switch to Xcode 26
-        if: ${{ startsWith(matrix.os, 'macos') }}
         run: sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
 
       - name: macOS - Bootstrap vcpkg
-        if: ${{ startsWith(matrix.os, 'macos') }}
         shell: bash
         run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
 
       - name: macOS - Set up signing environment
-        if: ${{ startsWith(matrix.os, 'macos') }}
         run: |
-            if [[ "${{ matrix.tb-build-type }}" == "sanitize" ]]; then
-              echo "TB_ENABLE_ASAN=1" >> $GITHUB_ENV
-              echo "TB_ENABLE_TSAN=0" >> $GITHUB_ENV
-              echo "TB_ENABLE_UBSAN=1" >> $GITHUB_ENV
-            else
-              echo "TB_ENABLE_ASAN=0" >> $GITHUB_ENV
-              echo "TB_ENABLE_TSAN=0" >> $GITHUB_ENV
-              echo "TB_ENABLE_UBSAN=0" >> $GITHUB_ENV
-            fi
-            if [[ "${{ matrix.tb-build-type }}" != "sanitize" ]] && 
-               [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}" ]] && 
-               [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}" ]] && 
-               [[ -n "${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" ]] &&
-               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}" ]] &&
-               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}" ]] &&
-               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_PASSWORD }}" ]]; then
-              echo "TB_SIGN_MAC_BUNDLE=true" >> $GITHUB_ENV
-              echo "TB_SIGN_IDENTITY=${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" >> $GITHUB_ENV
-              echo "TB_NOTARIZATION_EMAIL=${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}" >> $GITHUB_ENV
-              echo "TB_NOTARIZATION_TEAM_ID=${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}" >> $GITHUB_ENV
-              echo "TB_NOTARIZATION_PASSWORD=${{ secrets.ACTIONS_MAC_NOTARIZATION_PASSWORD }}" >> $GITHUB_ENV
-            else
-              echo "TB_SIGN_MAC_BUNDLE=false" >> $GITHUB_ENV
-            fi
+          if [[ "${{ matrix.tb-build-type }}" == "sanitize" ]]; then
+            echo "TB_ENABLE_ASAN=1" >> $GITHUB_ENV
+            echo "TB_ENABLE_TSAN=0" >> $GITHUB_ENV
+            echo "TB_ENABLE_UBSAN=1" >> $GITHUB_ENV
+          else
+            echo "TB_ENABLE_ASAN=0" >> $GITHUB_ENV
+            echo "TB_ENABLE_TSAN=0" >> $GITHUB_ENV
+            echo "TB_ENABLE_UBSAN=0" >> $GITHUB_ENV
+          fi
+          if [[ "${{ matrix.tb-build-type }}" != "sanitize" ]] && 
+             [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}" ]] && 
+             [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}" ]] && 
+             [[ -n "${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" ]] &&
+             [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}" ]] &&
+             [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}" ]] &&
+             [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_PASSWORD }}" ]]; then
+            echo "TB_SIGN_MAC_BUNDLE=true" >> $GITHUB_ENV
+            echo "TB_SIGN_IDENTITY=${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" >> $GITHUB_ENV
+            echo "TB_NOTARIZATION_EMAIL=${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}" >> $GITHUB_ENV
+            echo "TB_NOTARIZATION_TEAM_ID=${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}" >> $GITHUB_ENV
+            echo "TB_NOTARIZATION_PASSWORD=${{ secrets.ACTIONS_MAC_NOTARIZATION_PASSWORD }}" >> $GITHUB_ENV
+          else
+            echo "TB_SIGN_MAC_BUNDLE=false" >> $GITHUB_ENV
+          fi
 
       - name: macOS - Install dependencies
-        if: ${{ startsWith(matrix.os, 'macos') }}
         run: brew install p7zip pandoc ninja autoconf automake mono
 
       - name: macOS 15 - Uninstall openexr
@@ -211,7 +263,6 @@ jobs:
           p12-password: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}
 
       - name: macOS - Add NuGet sources
-        if: ${{ startsWith(matrix.os, 'macos') }}
         shell: bash
         run: |
           mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
@@ -226,22 +277,17 @@ jobs:
             -Source "${{ env.FEED_URL }}"
 
       - name: macOS - Build
-        if: ${{ startsWith(matrix.os, 'macos') }}
         run: ./CI-macos.sh
 
       - name: macOS - Upload artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ startsWith(matrix.os, 'macos') && matrix.tb-build-type != 'sanitize' }}
+        if: ${{ matrix.tb-build-type != 'sanitize' }}
         with:
           name: ${{ matrix.os }}
           path: |
             cmakebuild/*.zip
             cmakebuild/*.md5
 
-      # Create release
-
-      # Official action upload-release-asset doesn't support uploading files
-      # based on a glob, so use https://github.com/softprops/action-gh-release
       - name: Release
         uses: softprops/action-gh-release@v1
         if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.tb-build-type != 'sanitize' }}
@@ -252,16 +298,3 @@ jobs:
             cmakebuild/*.zip.md5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload compiled manual
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-22.04' }}
-        with:
-          # I've created a SSH key pair following https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-create-ssh-deploy-key
-          # The TrenchBroom/TrenchBroom repo has a repository secret ACTIONS_DEPLOY_KEY set to the SSH private key
-          # The TrenchBroom/manual repo has a deploy key set to the SSH public key
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-          external_repository: TrenchBroom/manual # Repo to deploy to
-          publish_branch: gh-pages # Branch to deploy to
-          publish_dir: ./cmakebuild/app/gen-manual # Source directory tree
-          destination_dir: latest # Deploy to this directory in target repo
