@@ -49,6 +49,8 @@ public:
   void activate();
   void deactivate();
 
+  void destroy();
+
 private:
   size_t computeTextureSize(size_t cellCount, size_t cellSize, size_t margin) const;
 };

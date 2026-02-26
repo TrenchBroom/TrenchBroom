@@ -52,6 +52,11 @@ TextureFont::TextureFont(
 
 TextureFont::~TextureFont() = default;
 
+void TextureFont::destroy()
+{
+  m_texture->destroy();
+}
+
 int TextureFont::ascend() const
 {
   return m_ascend;

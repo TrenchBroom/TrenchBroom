@@ -23,6 +23,9 @@
 #include "gl/FreeTypeFontFactory.h"
 #include "gl/TextureFont.h"
 
+#include "kd/ranges/as_rvalue_view.h"
+
+#include <ranges>
 #include <string>
 
 namespace tb::gl
@@ -34,11 +37,6 @@ FontManager::FontManager(FindFontFunc findFontFunc)
 }
 
 FontManager::~FontManager() = default;
-
-void FontManager::clearCache()
-{
-  m_cache.clear();
-}
 
 TextureFont& FontManager::font(const FontDescriptor& fontDescriptor)
 {
@@ -66,6 +64,23 @@ FontDescriptor FontManager::selectFontSize(
     actualBounds = font(actualDescriptor).measure(string);
   }
   return actualDescriptor;
+}
+
+void FontManager::clearCache()
+{
+  std::ranges::copy(
+    m_cache | std::views::values | kdl::views::as_rvalue,
+    std::back_inserter(m_fontsToDestroy));
+  m_cache.clear();
+}
+
+void FontManager::destroyPendingFonts()
+{
+  for (auto& font : m_fontsToDestroy)
+  {
+    font->destroy();
+  }
+  m_fontsToDestroy.clear();
 }
 
 } // namespace tb::gl
