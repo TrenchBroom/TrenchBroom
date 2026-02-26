@@ -54,12 +54,13 @@ void MaterialIndexRangeRenderer::prepare(VboManager& vboManager)
   m_vertexArray.prepare(vboManager);
 }
 
-void MaterialIndexRangeRenderer::render(MaterialRenderFunc& func)
+void MaterialIndexRangeRenderer::render(
+  ShaderProgram& currentProgram, MaterialRenderFunc& func)
 {
-  if (m_vertexArray.setup())
+  if (m_vertexArray.setup(currentProgram))
   {
     m_indexRange.render(m_vertexArray, func);
-    m_vertexArray.cleanup();
+    m_vertexArray.cleanup(currentProgram);
   }
 }
 
@@ -91,11 +92,12 @@ void MultiMaterialIndexRangeRenderer::prepare(VboManager& vboManager)
   }
 }
 
-void MultiMaterialIndexRangeRenderer::render(MaterialRenderFunc& func)
+void MultiMaterialIndexRangeRenderer::render(
+  ShaderProgram& currentProgram, MaterialRenderFunc& func)
 {
   for (auto& renderer : m_renderers)
   {
-    renderer->render(func);
+    renderer->render(currentProgram, func);
   }
 }
 

@@ -431,7 +431,12 @@ void CellView::renderTitleBackgrounds(float y, float height)
 
   auto vertexArray = gl::VertexArray::move(std::move(vertices));
   vertexArray.prepare(vboManager());
-  vertexArray.render(gl::PrimType::Quads);
+
+  if (vertexArray.setup(shader.program()))
+  {
+    vertexArray.render(gl::PrimType::Quads);
+    vertexArray.cleanup(shader.program());
+  }
 }
 
 namespace
@@ -528,10 +533,16 @@ void CellView::renderTitleStrings(float y, float height)
 
   for (auto& [descriptor, vertexArray] : stringRenderers)
   {
-    auto& font = fontManager().font(descriptor);
-    font.activate();
-    vertexArray.render(gl::PrimType::Quads);
-    font.deactivate();
+    if (vertexArray.setup(shader.program()))
+    {
+      auto& font = fontManager().font(descriptor);
+      font.activate();
+
+      vertexArray.render(gl::PrimType::Quads);
+      vertexArray.cleanup(shader.program());
+
+      font.deactivate();
+    }
   }
 }
 

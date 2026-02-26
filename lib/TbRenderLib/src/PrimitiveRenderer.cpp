@@ -70,21 +70,21 @@ void PrimitiveRenderer::LineRenderAttributes::render(
   {
   case PrimitiveRendererOcclusionPolicy::Hide:
     shader.set("Color", m_color);
-    renderer.render();
+    renderer.render(shader.program());
     break;
   case PrimitiveRendererOcclusionPolicy::Show:
     glAssert(glDisable(GL_DEPTH_TEST));
     shader.set("Color", m_color);
-    renderer.render();
+    renderer.render(shader.program());
     glAssert(glEnable(GL_DEPTH_TEST));
     break;
   case PrimitiveRendererOcclusionPolicy::Transparent:
     glAssert(glDisable(GL_DEPTH_TEST));
     shader.set("Color", blendColor(m_color.to<RgbaF>(), 1.0f / 3.0f));
-    renderer.render();
+    renderer.render(shader.program());
     glAssert(glEnable(GL_DEPTH_TEST));
     shader.set("Color", m_color);
-    renderer.render();
+    renderer.render(shader.program());
     break;
   }
 }
@@ -147,21 +147,21 @@ void PrimitiveRenderer::TriangleRenderAttributes::render(
   {
   case PrimitiveRendererOcclusionPolicy::Hide:
     shader.set("Color", m_color);
-    renderer.render();
+    renderer.render(shader.program());
     break;
   case PrimitiveRendererOcclusionPolicy::Show:
     glAssert(glDisable(GL_DEPTH_TEST));
     shader.set("Color", m_color);
-    renderer.render();
+    renderer.render(shader.program());
     glAssert(glEnable(GL_DEPTH_TEST));
     break;
   case PrimitiveRendererOcclusionPolicy::Transparent:
     glAssert(glDisable(GL_DEPTH_TEST));
     shader.set("Color", blendColor(m_color.to<RgbaF>(), 1.0f / 2.0f));
-    renderer.render();
+    renderer.render(shader.program());
     glAssert(glEnable(GL_DEPTH_TEST));
     shader.set("Color", m_color);
-    renderer.render();
+    renderer.render(shader.program());
     break;
   }
 
@@ -322,7 +322,7 @@ void PrimitiveRenderer::renderCylinder(
     .addTriangleStrip(Vertex::toList(vertices.size(), vertices.begin()));
 }
 
-void PrimitiveRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void PrimitiveRenderer::prepare(gl::VboManager& vboManager)
 {
   prepareLines(vboManager);
   prepareTriangles(vboManager);
@@ -349,7 +349,7 @@ void PrimitiveRenderer::prepareTriangles(gl::VboManager& vboManager)
   }
 }
 
-void PrimitiveRenderer::doRender(RenderContext& renderContext)
+void PrimitiveRenderer::render(RenderContext& renderContext)
 {
   renderLines(renderContext);
   renderTriangles(renderContext);

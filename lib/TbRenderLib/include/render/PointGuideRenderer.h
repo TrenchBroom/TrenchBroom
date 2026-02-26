@@ -47,9 +47,8 @@ public:
   void setColor(const Color& color);
   void setPosition(const vm::vec3d& position);
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
+  void prepare(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
 };
 
 } // namespace render

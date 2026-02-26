@@ -120,8 +120,8 @@ private:
   void validate();
 
 private: // implement IndexedRenderable interface
-  void prepareVerticesAndIndices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
+  void prepare(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
 };
 
 } // namespace render

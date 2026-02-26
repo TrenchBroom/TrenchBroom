@@ -60,6 +60,7 @@ public:
   ~GlManager();
 
   bool initialize();
+  bool initialized() const;
 
   ResourceManager& resourceManager();
   VboManager& vboManager();

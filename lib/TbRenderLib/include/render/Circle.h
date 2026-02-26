@@ -22,6 +22,7 @@
 #include "gl/VertexArray.h"
 
 #include "vm/util.h"
+#include "vm/vec.h"
 
 namespace tb::render
 {
@@ -52,7 +53,7 @@ public:
 
   bool prepared() const;
   void prepare(gl::VboManager& vboManager);
-  void render();
+  void render(gl::ShaderProgram& currentProgram);
 
 private:
   void init3D(

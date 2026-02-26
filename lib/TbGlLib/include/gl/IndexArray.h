@@ -28,6 +28,7 @@
 #include "kd/vector_utils.h"
 
 #include <memory>
+#include <utility>
 
 namespace tb::gl
 {
@@ -56,11 +57,7 @@ private:
     virtual void setup() = 0;
     virtual void cleanup() = 0;
 
-  public:
-    void render(PrimType primType, size_t offset, size_t count) const;
-
-  private:
-    virtual void doRender(PrimType primType, size_t offset, size_t count) const = 0;
+    virtual void render(PrimType primType, size_t offset, size_t count) const = 0;
   };
 
   template <typename Index>
@@ -70,8 +67,8 @@ private:
     using IndexList = std::vector<Index>;
 
   private:
-    VboManager* m_vboManager;
-    Vbo* m_vbo;
+    VboManager* m_vboManager = nullptr;
+    std::unique_ptr<Vbo> m_vbo;
     size_t m_indexCount;
 
   public:
@@ -81,7 +78,7 @@ private:
 
     void prepare(VboManager& vboManager) override
     {
-      if (m_indexCount > 0 && m_vbo == nullptr)
+      if (m_indexCount > 0 && !m_vbo)
       {
         m_vboManager = &vboManager;
         m_vbo = vboManager.allocateVbo(VboType::ElementArrayBuffer, sizeInBytes());
@@ -96,13 +93,16 @@ private:
       m_vbo->bind();
     }
 
-    void cleanup() override { m_vbo->unbind(); }
+    void cleanup() override
+    {
+      contract_pre(m_vbo != nullptr);
+
+      m_vbo->unbind();
+    }
 
   protected:
     explicit Holder(const size_t indexCount)
-      : m_vboManager{nullptr}
-      , m_vbo{nullptr}
-      , m_indexCount{indexCount}
+      : m_indexCount{indexCount}
     {
     }
 
@@ -111,15 +111,13 @@ private:
       // TODO: Revisit this revisiting OpenGL resource management. We should not store the
       // VboManager, since it represents a safe time to delete the OpenGL buffer
       // object.
-      if (m_vbo != nullptr)
+      if (m_vbo)
       {
-        m_vboManager->destroyVbo(m_vbo);
-        m_vbo = nullptr;
+        m_vboManager->destroyVbo(std::exchange(m_vbo, nullptr));
       }
     }
 
-  private:
-    void doRender(PrimType primType, size_t offset, size_t count) const override
+    void render(PrimType primType, size_t offset, size_t count) const override
     {
       glAssert(glDrawElements(
         toGL(primType),

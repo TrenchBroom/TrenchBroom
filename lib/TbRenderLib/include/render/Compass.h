@@ -23,6 +23,7 @@
 #include "gl/IndexRangeRenderer.h"
 #include "render/Renderable.h"
 
+#include "vm/mat.h"
 
 namespace tb
 {
@@ -55,11 +56,10 @@ public:
 
   void render(RenderBatch& renderBatch);
 
-private: // implement Renderable interface
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
-
 private:
+  void prepare(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
+
   void makeArrows();
   void makeBackground();
 

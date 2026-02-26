@@ -20,10 +20,11 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
+#include <vector>
 
 namespace tb::gl
 {
-class ShaderManager;
 class Vbo;
 
 enum class VboType
@@ -44,22 +45,26 @@ private:
   size_t m_peakVboCount = 0;
   size_t m_currentVboCount = 0;
   size_t m_currentVboSize = 0;
-  ShaderManager& m_shaderManager;
+
+  std::vector<std::unique_ptr<Vbo>> m_vbosToDestroy;
 
 public:
-  explicit VboManager(ShaderManager& shaderManager);
+  VboManager();
+  ~VboManager();
+
   /**
    * Immediately creates and binds to an OpenGL buffer of the given type and capacity.
    * The contents are initially unspecified. See Vbo class.
    */
-  Vbo* allocateVbo(VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
-  void destroyVbo(Vbo* vbo);
+  std::unique_ptr<Vbo> allocateVbo(
+    VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
+  void destroyVbo(std::unique_ptr<Vbo> vbo);
 
   size_t peakVboCount() const;
   size_t currentVboCount() const;
   size_t currentVboSize() const;
 
-  ShaderManager& shaderManager();
+  void destroyPendingVbos();
 };
 
 } // namespace tb::gl

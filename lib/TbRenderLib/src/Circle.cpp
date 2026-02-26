@@ -97,9 +97,13 @@ void Circle::prepare(gl::VboManager& vboManager)
   m_array.prepare(vboManager);
 }
 
-void Circle::render()
+void Circle::render(gl::ShaderProgram& currentProgram)
 {
-  m_array.render(m_filled ? gl::PrimType::TriangleFan : gl::PrimType::LineLoop);
+  if (m_array.setup(currentProgram))
+  {
+    m_array.render(m_filled ? gl::PrimType::TriangleFan : gl::PrimType::LineLoop);
+    m_array.cleanup(currentProgram);
+  }
 }
 
 void Circle::init2D(

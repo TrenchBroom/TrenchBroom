@@ -64,12 +64,12 @@ void TriangleRenderer::setTintColor(const Color& tintColor)
   m_tintColor = tintColor;
 }
 
-void TriangleRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void TriangleRenderer::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
 
-void TriangleRenderer::doRender(RenderContext& context)
+void TriangleRenderer::render(RenderContext& context)
 {
   if (m_vertexArray.vertexCount() != 0)
   {
@@ -79,7 +79,12 @@ void TriangleRenderer::doRender(RenderContext& context)
     shader.set("UseColor", m_useColor);
     shader.set("Color", m_color);
     shader.set("CameraPosition", context.camera().position());
-    m_indexArray.render(m_vertexArray);
+
+    if (m_vertexArray.setup(shader.program()))
+    {
+      m_indexArray.render(m_vertexArray);
+      m_vertexArray.cleanup(shader.program());
+    }
   }
 }
 

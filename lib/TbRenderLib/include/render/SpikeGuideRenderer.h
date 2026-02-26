@@ -48,9 +48,8 @@ public:
   void add(const vm::ray3d& ray);
   void clear();
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
+  void prepare(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
 
 private:
   void addSpike(const vm::ray3d& ray);

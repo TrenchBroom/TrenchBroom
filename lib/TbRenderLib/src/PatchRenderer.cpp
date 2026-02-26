@@ -314,7 +314,7 @@ void PatchRenderer::validate()
   }
 }
 
-void PatchRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
+void PatchRenderer::prepare(gl::VboManager& vboManager)
 {
   m_patchMeshRenderer.prepare(vboManager);
 }
@@ -369,7 +369,7 @@ struct RenderFunc : public gl::MaterialRenderFunc
 };
 } // namespace
 
-void PatchRenderer::doRender(RenderContext& context)
+void PatchRenderer::render(RenderContext& context)
 {
   auto& shaderManager = context.shaderManager();
   auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
@@ -418,7 +418,7 @@ void PatchRenderer::doRender(RenderContext& context)
   }
   */
 
-  m_patchMeshRenderer.render(func);
+  m_patchMeshRenderer.render(shader.program(), func);
 
   /*
   if (m_alpha < 1.0f) {

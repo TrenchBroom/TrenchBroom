@@ -173,11 +173,11 @@ public:
     const vm::vec3f& end);
 
 private:
-  void doPrepareVertices(gl::VboManager& vboManager) override;
+  void prepare(gl::VboManager& vboManager) override;
   void prepareLines(gl::VboManager& vboManager);
   void prepareTriangles(gl::VboManager& vboManager);
 
-  void doRender(RenderContext& renderContext) override;
+  void render(RenderContext& renderContext) override;
   void renderLines(RenderContext& renderContext);
   void renderTriangles(RenderContext& renderContext);
 };

@@ -352,7 +352,11 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
   auto vertexArray = gl::VertexArray::move(std::move(vertices));
 
   vertexArray.prepare(vboManager());
-  vertexArray.render(gl::PrimType::Lines);
+  if (vertexArray.setup(shader.program()))
+  {
+    vertexArray.render(gl::PrimType::Lines);
+    vertexArray.cleanup(shader.program());
+  }
 }
 
 void EntityBrowserView::renderModels(
@@ -400,7 +404,7 @@ void EntityBrowserView::renderModels(
 
               auto renderFunc = gl::DefaultMaterialRenderFunc{
                 pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)};
-              modelRenderer->render(renderFunc);
+              modelRenderer->render(shader.program(), renderFunc);
             }
           }
         }

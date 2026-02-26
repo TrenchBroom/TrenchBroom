@@ -358,7 +358,12 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
     gl::ActiveShader{shaderManager(), gl::Shaders::MaterialBrowserBorderShader};
 
   vertexArray.prepare(vboManager());
-  vertexArray.render(gl::PrimType::Quads);
+
+  if (vertexArray.setup(shader.program()))
+  {
+    vertexArray.render(gl::PrimType::Quads);
+    vertexArray.cleanup(shader.program());
+  }
 }
 
 const Color& MaterialBrowserView::materialColor(const gl::Material& material) const
@@ -408,7 +413,12 @@ void MaterialBrowserView::renderMaterials(
               pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
 
             vertexArray.prepare(vboManager());
-            vertexArray.render(gl::PrimType::Quads);
+
+            if (vertexArray.setup(shader.program()))
+            {
+              vertexArray.render(gl::PrimType::Quads);
+              vertexArray.cleanup(shader.program());
+            }
 
             material.deactivate();
           }

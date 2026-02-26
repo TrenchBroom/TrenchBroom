@@ -32,6 +32,7 @@
 #include "fs/PathInfo.h"
 #include "gl/GlManager.h"
 #include "gl/ResourceManager.h"
+#include "gl/VboManager.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameManager.h"
 #include "mdl/MapHeader.h"
@@ -191,7 +192,10 @@ Result<std::unique_ptr<AppController>> AppController::create()
          });
 }
 
-AppController::~AppController() = default;
+AppController::~AppController()
+{
+  processGlResources();
+}
 
 kdl::task_manager& AppController::taskManager()
 {
@@ -404,10 +408,18 @@ void AppController::connectObservers()
     &QTimer::timeout,
     m_recentDocuments,
     &RecentDocuments::reload);
-  connect(m_processResourcesTimer, &QTimer::timeout, this, [this] {
-    using namespace std::chrono_literals;
+  connect(
+    m_processResourcesTimer, &QTimer::timeout, this, &AppController::processGlResources);
+}
 
+void AppController::processGlResources()
+{
+  using namespace std::chrono_literals;
+
+  if (m_glManager->initialized())
+  {
     auto taskRunner = [&](auto task) { return taskManager().run_task(std::move(task)); };
+
     auto errorHandler = [&](const auto&, const auto& error) {
       if (auto* topWindow = mapWindowManager().topMapWindow())
       {
@@ -418,7 +430,8 @@ void AppController::connectObservers()
     auto processContext = tb::gl::ProcessContext{true, errorHandler};
 
     m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
-  });
+    m_glManager->vboManager().destroyPendingVbos();
+  }
 }
 
 } // namespace tb::ui

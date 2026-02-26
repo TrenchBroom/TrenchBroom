@@ -38,6 +38,34 @@ GridRenderer::GridRenderer(
 {
 }
 
+void GridRenderer::prepare(gl::VboManager& vboManager)
+{
+  m_vertexArray.prepare(vboManager);
+}
+
+void GridRenderer::render(RenderContext& renderContext)
+{
+  if (renderContext.showGrid())
+  {
+    const auto& camera = renderContext.camera();
+
+    auto shader =
+      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::Grid2DShader};
+    shader.set("Normal", -camera.direction());
+    shader.set("RenderGrid", renderContext.showGrid());
+    shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
+    shader.set("GridAlpha", pref(Preferences::GridAlpha));
+    shader.set("GridColor", pref(Preferences::GridColor2D));
+    shader.set("CameraZoom", camera.zoom());
+
+    if (m_vertexArray.setup(shader.program()))
+    {
+      m_vertexArray.render(gl::PrimType::Quads);
+      m_vertexArray.cleanup(shader.program());
+    }
+  }
+}
+
 std::vector<GridRenderer::Vertex> GridRenderer::vertices(
   const gl::OrthographicCamera& camera, const vm::bbox3d& worldBounds)
 {
@@ -69,30 +97,6 @@ std::vector<GridRenderer::Vertex> GridRenderer::vertices(
   default:
     // Should not happen.
     return {};
-  }
-}
-
-void GridRenderer::doPrepareVertices(gl::VboManager& vboManager)
-{
-  m_vertexArray.prepare(vboManager);
-}
-
-void GridRenderer::doRender(RenderContext& renderContext)
-{
-  if (renderContext.showGrid())
-  {
-    const auto& camera = renderContext.camera();
-
-    auto shader =
-      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::Grid2DShader};
-    shader.set("Normal", -camera.direction());
-    shader.set("RenderGrid", renderContext.showGrid());
-    shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
-    shader.set("GridAlpha", pref(Preferences::GridAlpha));
-    shader.set("GridColor", pref(Preferences::GridColor2D));
-    shader.set("CameraZoom", camera.zoom());
-
-    m_vertexArray.render(gl::PrimType::Quads);
   }
 }
 

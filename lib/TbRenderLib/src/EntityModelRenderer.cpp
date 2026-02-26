@@ -150,12 +150,12 @@ void EntityModelRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void EntityModelRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void EntityModelRenderer::prepare(gl::VboManager& vboManager)
 {
   m_entityModelManager.prepare(vboManager);
 }
 
-void EntityModelRenderer::doRender(RenderContext& renderContext)
+void EntityModelRenderer::render(RenderContext& renderContext)
 {
   if (!m_entities.empty())
   {
@@ -212,7 +212,7 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
 
       auto renderFunc = gl::DefaultMaterialRenderFunc{
         renderContext.minFilterMode(), renderContext.magFilterMode()};
-      renderer->render(renderFunc);
+      renderer->render(shader.program(), renderFunc);
     }
   }
 }

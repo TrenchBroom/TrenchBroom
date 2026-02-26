@@ -135,6 +135,8 @@ public:
 
 private:
   void connectObservers();
+
+  void processGlResources();
 };
 
 } // namespace ui

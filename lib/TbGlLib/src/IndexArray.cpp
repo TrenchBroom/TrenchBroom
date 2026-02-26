@@ -26,12 +26,6 @@
 namespace tb::gl
 {
 
-void IndexArray::BaseHolder::render(
-  const PrimType primType, size_t offset, const size_t count) const
-{
-  doRender(primType, offset, count);
-}
-
 IndexArray::IndexArray() = default;
 
 bool IndexArray::empty() const

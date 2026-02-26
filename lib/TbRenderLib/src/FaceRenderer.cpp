@@ -26,6 +26,7 @@
 #include "gl/Material.h"
 #include "gl/MaterialRenderFunc.h"
 #include "gl/PrimType.h"
+#include "gl/ShaderManager.h"
 #include "gl/Shaders.h"
 #include "gl/Texture.h"
 #include "render/BrushRendererArrays.h"
@@ -125,7 +126,7 @@ void FaceRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void FaceRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
+void FaceRenderer::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray->prepare(vboManager);
 
@@ -135,12 +136,13 @@ void FaceRenderer::prepareVerticesAndIndices(gl::VboManager& vboManager)
   }
 }
 
-void FaceRenderer::doRender(RenderContext& context)
+void FaceRenderer::render(RenderContext& context)
 {
-  if (!m_indexArrayMap->empty() && m_vertexArray->setupVertices())
+  auto& shaderManager = context.shaderManager();
+  auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
+
+  if (!m_indexArrayMap->empty() && m_vertexArray->setup(shader.program()))
   {
-    auto& shaderManager = context.shaderManager();
-    auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
     auto& prefs = PreferenceManager::instance();
 
     const auto applyMaterial = context.showMaterials();
@@ -196,9 +198,9 @@ void FaceRenderer::doRender(RenderContext& context)
         shader.set("EnableMasked", enableMasked);
 
         func.before(material);
-        brushIndexHolderPtr->setupIndices();
+        brushIndexHolderPtr->setup();
         brushIndexHolderPtr->render(gl::PrimType::Triangles);
-        brushIndexHolderPtr->cleanupIndices();
+        brushIndexHolderPtr->cleanup();
         func.after(material);
       }
     }
@@ -206,7 +208,7 @@ void FaceRenderer::doRender(RenderContext& context)
     {
       glAssert(glDepthMask(GL_TRUE));
     }
-    m_vertexArray->cleanupVertices();
+    m_vertexArray->cleanup(shader.program());
   }
 }
 

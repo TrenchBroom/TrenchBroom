@@ -49,13 +49,13 @@ void PointHandleRenderer::addHighlight(const Color& color, const vm::vec3f& posi
   m_highlights[color].push_back(position);
 }
 
-void PointHandleRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void PointHandleRenderer::prepare(gl::VboManager& vboManager)
 {
   m_handle.prepare(vboManager);
   m_highlight.prepare(vboManager);
 }
 
-void PointHandleRenderer::doRender(RenderContext& renderContext)
+void PointHandleRenderer::render(RenderContext& renderContext)
 {
   const auto& camera = renderContext.camera();
   const auto& viewport = camera.viewport();
@@ -117,7 +117,7 @@ void PointHandleRenderer::renderHandles(
         camera.project(position + nudgeTowardsCamera) * vm::vec3f{1, 1, -1};
       auto translate = MultiplyModelMatrix{
         renderContext.transformation(), vm::translation_matrix(offset)};
-      circle.render();
+      circle.render(shader.program());
     }
   }
 }

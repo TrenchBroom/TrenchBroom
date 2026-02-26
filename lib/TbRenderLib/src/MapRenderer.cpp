@@ -247,8 +247,7 @@ void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
 
 class SetupGL : public Renderable
 {
-private:
-  void doRender(RenderContext&) override
+  void render(RenderContext&) override
   {
     glAssert(glFrontFace(GL_CW));
     glAssert(glEnable(GL_CULL_FACE));

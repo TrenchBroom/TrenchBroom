@@ -20,7 +20,6 @@
 #pragma once
 
 #include "gl/GL.h"
-#include "gl/ShaderManager.h"
 #include "gl/Vbo.h"
 #include "gl/VboManager.h"
 #include "gl/Vertex.h"
@@ -29,10 +28,12 @@
 #include "kd/vector_utils.h"
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace tb::gl
 {
+class ShaderProgram;
 enum class PrimType;
 
 /**
@@ -56,8 +57,8 @@ private:
     virtual size_t sizeInBytes() const = 0;
 
     virtual void prepare(VboManager& vboManager) = 0;
-    virtual void setup() = 0;
-    virtual void cleanup() = 0;
+    virtual void setup(ShaderProgram& currentProgram) = 0;
+    virtual void cleanup(ShaderProgram& currentProgram) = 0;
   };
 
   template <typename VertexSpec>
@@ -65,7 +66,7 @@ private:
   {
   private:
     VboManager* m_vboManager = nullptr;
-    Vbo* m_vbo = nullptr;
+    std::unique_ptr<Vbo> m_vbo;
     size_t m_vertexCount = 0;
 
   public:
@@ -75,7 +76,7 @@ private:
 
     void prepare(VboManager& vboManager) override
     {
-      if (m_vertexCount > 0 && m_vbo == nullptr)
+      if (m_vertexCount > 0 && !m_vbo)
       {
         m_vboManager = &vboManager;
         m_vbo = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());
@@ -83,17 +84,19 @@ private:
       }
     }
 
-    void setup() override
+    void setup(ShaderProgram& currentProgram) override
     {
       contract_pre(m_vbo);
 
       m_vbo->bind();
-      VertexSpec::setup(m_vboManager->shaderManager().currentProgram(), m_vbo->offset());
+      VertexSpec::setup(currentProgram, m_vbo->offset());
     }
 
-    void cleanup() override
+    void cleanup(ShaderProgram& currentProgram) override
     {
-      VertexSpec::cleanup(m_vboManager->shaderManager().currentProgram());
+      contract_pre(m_vbo);
+
+      VertexSpec::cleanup(currentProgram);
       m_vbo->unbind();
     }
 
@@ -109,8 +112,7 @@ private:
       // VboManager, since it represents a safe time to delete the OpenGL buffer object.
       if (m_vbo)
       {
-        m_vboManager->destroyVbo(m_vbo);
-        m_vbo = nullptr;
+        m_vboManager->destroyVbo(std::exchange(m_vbo, nullptr));
       }
     }
 
@@ -282,14 +284,14 @@ public:
    * It is only useful to perform setup and cleanup for a caller if the caller intends to
    * issue multiple render calls to this vertex array.
    */
-  bool setup();
+  bool setup(ShaderProgram& currentProgram);
 
   /**
    * Renders this vertex array as a range of primitives of the given type.
    *
    * @param primType the primitive type to render
    */
-  void render(PrimType primType);
+  void render(PrimType primType) const;
 
   /**
    * Renders a sub range of this vertex array as a range of primitives of the given type.
@@ -298,7 +300,7 @@ public:
    * @param index the index of the first vertex in this vertex array to render
    * @param count the number of vertices to render
    */
-  void render(PrimType primType, GLint index, GLsizei count);
+  void render(PrimType primType, GLint index, GLsizei count) const;
 
   /**
    * Renders a number of sub ranges of this vertex array as ranges of primitives of the
@@ -312,7 +314,10 @@ public:
    * @param primCount the number of ranges to render
    */
   void render(
-    PrimType primType, const Indices& indices, const Counts& counts, GLint primCount);
+    PrimType primType,
+    const Indices& indices,
+    const Counts& counts,
+    GLint primCount) const;
 
   /**
    * Renders a number of primitives of the given type, the vertices of which are indicates
@@ -322,8 +327,8 @@ public:
    * @param indices the indices of the vertices to render
    * @param count the number of vertices to render
    */
-  void render(PrimType primType, const Indices& indices, GLsizei count);
-  void cleanup();
+  void render(PrimType primType, const Indices& indices, GLsizei count) const;
+  void cleanup(ShaderProgram& currentProgram);
 
 private:
   explicit VertexArray(std::shared_ptr<BaseHolder> holder);

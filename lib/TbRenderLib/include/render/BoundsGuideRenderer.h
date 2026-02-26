@@ -41,9 +41,8 @@ public:
   void setColor(const Color& color);
   void setBounds(const vm::bbox3d& bounds);
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override;
-  void doRender(RenderContext& renderContext) override;
+  void prepare(gl::VboManager& vboManager) override;
+  void render(RenderContext& renderContext) override;
 };
 
 } // namespace tb::render

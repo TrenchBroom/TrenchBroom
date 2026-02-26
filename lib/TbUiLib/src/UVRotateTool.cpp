@@ -134,14 +134,13 @@ public:
   {
   }
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override
+  void prepare(gl::VboManager& vboManager) override
   {
     m_center.prepare(vboManager);
     m_outer.prepare(vboManager);
   }
 
-  void doRender(render::RenderContext& renderContext) override
+  void render(render::RenderContext& renderContext) override
   {
     const auto fromFace =
       m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
@@ -166,7 +165,7 @@ private:
       const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", m_highlight ? highlightColor.to<RgbaF>() : handleColor);
-      m_outer.render();
+      m_outer.render(shader.program());
     }
 
     {
@@ -174,7 +173,7 @@ private:
       const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", highlightColor);
-      m_center.render();
+      m_center.render(shader.program());
     }
   }
 };

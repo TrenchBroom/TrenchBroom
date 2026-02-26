@@ -43,7 +43,7 @@ void LinkRenderer::invalidate()
   m_valid = false;
 }
 
-void LinkRenderer::doPrepareVertices(gl::VboManager& vboManager)
+void LinkRenderer::prepare(gl::VboManager& vboManager)
 {
   if (!m_valid)
   {
@@ -54,7 +54,7 @@ void LinkRenderer::doPrepareVertices(gl::VboManager& vboManager)
   }
 }
 
-void LinkRenderer::doRender(RenderContext& renderContext)
+void LinkRenderer::render(RenderContext& renderContext)
 {
   contract_pre(m_valid);
 
@@ -70,13 +70,19 @@ void LinkRenderer::renderLines(RenderContext& renderContext)
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);
 
-  glAssert(glDisable(GL_DEPTH_TEST));
-  shader.set("Alpha", 0.4f);
-  m_lines.render(gl::PrimType::Lines);
 
-  glAssert(glEnable(GL_DEPTH_TEST));
-  shader.set("Alpha", 1.0f);
-  m_lines.render(gl::PrimType::Lines);
+  if (m_lines.setup(shader.program()))
+  {
+    glAssert(glDisable(GL_DEPTH_TEST));
+    shader.set("Alpha", 0.4f);
+    m_lines.render(gl::PrimType::Quads);
+
+    glAssert(glEnable(GL_DEPTH_TEST));
+    shader.set("Alpha", 1.0f);
+    m_lines.render(gl::PrimType::Lines);
+
+    m_lines.cleanup(shader.program());
+  }
 }
 
 void LinkRenderer::renderArrows(RenderContext& renderContext)
@@ -88,13 +94,17 @@ void LinkRenderer::renderArrows(RenderContext& renderContext)
   shader.set("MaxDistance", 6000.0f);
   shader.set("Zoom", renderContext.camera().zoom());
 
-  glAssert(glDisable(GL_DEPTH_TEST));
-  shader.set("Alpha", 0.4f);
-  m_arrows.render(gl::PrimType::Lines);
+  if (m_arrows.setup(shader.program()))
+  {
+    glAssert(glDisable(GL_DEPTH_TEST));
+    shader.set("Alpha", 0.4f);
+    m_arrows.render(gl::PrimType::Quads);
 
-  glAssert(glEnable(GL_DEPTH_TEST));
-  shader.set("Alpha", 1.0f);
-  m_arrows.render(gl::PrimType::Lines);
+    glAssert(glEnable(GL_DEPTH_TEST));
+    shader.set("Alpha", 1.0f);
+    m_arrows.render(gl::PrimType::Lines);
+    m_arrows.cleanup(shader.program());
+  }
 }
 
 static void addArrow(

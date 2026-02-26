@@ -102,13 +102,9 @@ private:
     };
   }
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override
-  {
-    m_vertexArray.prepare(vboManager);
-  }
+  void prepare(gl::VboManager& vboManager) override { m_vertexArray.prepare(vboManager); }
 
-  void doRender(render::RenderContext& renderContext) override
+  void render(render::RenderContext& renderContext) override
   {
     const auto& offset = m_helper.face()->attributes().offset();
     const auto& scale = m_helper.face()->attributes().scale();
@@ -119,8 +115,6 @@ private:
 
     const auto* texture = material->texture();
     contract_assert(texture != nullptr);
-
-    material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 
     auto shader =
       gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::UVViewShader};
@@ -137,9 +131,15 @@ private:
     shader.set("CameraZoom", m_helper.cameraZoom());
     shader.set("Material", 0);
 
-    m_vertexArray.render(gl::PrimType::Quads);
+    if (m_vertexArray.setup(shader.program()))
+    {
+      material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 
-    material->deactivate();
+      m_vertexArray.render(gl::PrimType::Quads);
+      m_vertexArray.cleanup(shader.program());
+
+      material->deactivate();
+    }
   }
 };
 

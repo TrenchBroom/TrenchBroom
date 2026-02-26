@@ -70,13 +70,9 @@ public:
   {
   }
 
-private:
-  void doPrepareVertices(gl::VboManager& vboManager) override
-  {
-    m_circle.prepare(vboManager);
-  }
+  void prepare(gl::VboManager& vboManager) override { m_circle.prepare(vboManager); }
 
-  void doRender(render::RenderContext& renderContext) override
+  void render(render::RenderContext& renderContext) override
   {
     glAssert(glDisable(GL_DEPTH_TEST));
 
@@ -89,7 +85,7 @@ private:
     auto shader = gl::ActiveShader{
       renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     shader.set("Color", RgbaF{1.0f, 1.0f, 1.0f, 0.2f});
-    m_circle.render();
+    m_circle.render(shader.program());
 
     glAssert(glEnable(GL_DEPTH_TEST));
     glAssert(glPopAttrib());

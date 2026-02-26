@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
 #include "gl/PrimType.h"
+#include "gl/ShaderManager.h"
 #include "gl/Shaders.h"
 #include "render/BrushRendererArrays.h"
 #include "render/RenderBatch.h"
@@ -98,6 +99,7 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
         0.33f}); // NOTE: heavier tint than FaceRenderer, since these are lines
     shader.set("UseUniformColor", m_params.useColor);
     shader.set("Color", m_params.color);
+
     doRenderVertices(renderContext);
   }
 
@@ -181,12 +183,12 @@ DirectEdgeRenderer::Render::Render(
 {
 }
 
-void DirectEdgeRenderer::Render::doPrepareVertices(gl::VboManager& vboManager)
+void DirectEdgeRenderer::Render::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
 }
 
-void DirectEdgeRenderer::Render::doRender(RenderContext& renderContext)
+void DirectEdgeRenderer::Render::render(RenderContext& renderContext)
 {
   if (m_vertexArray.vertexCount() > 0)
   {
@@ -194,9 +196,16 @@ void DirectEdgeRenderer::Render::doRender(RenderContext& renderContext)
   }
 }
 
-void DirectEdgeRenderer::Render::doRenderVertices(RenderContext&)
+void DirectEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext)
 {
-  m_indexRanges.render(m_vertexArray);
+  auto* currentProgram = renderContext.shaderManager().currentProgram();
+  contract_assert(currentProgram);
+
+  if (m_vertexArray.setup(*currentProgram))
+  {
+    m_indexRanges.render(m_vertexArray);
+    m_vertexArray.cleanup(*currentProgram);
+  }
 }
 
 DirectEdgeRenderer::DirectEdgeRenderer() {}
@@ -233,13 +242,13 @@ IndexedEdgeRenderer::Render::Render(
 {
 }
 
-void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(gl::VboManager& vboManager)
+void IndexedEdgeRenderer::Render::prepare(gl::VboManager& vboManager)
 {
   m_vertexArray->prepare(vboManager);
   m_indexArray->prepare(vboManager);
 }
 
-void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext)
+void IndexedEdgeRenderer::Render::render(RenderContext& renderContext)
 {
   if (m_indexArray->hasValidIndices())
   {
@@ -247,13 +256,18 @@ void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext)
   }
 }
 
-void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext&)
+void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext)
 {
-  m_vertexArray->setupVertices();
-  m_indexArray->setupIndices();
-  m_indexArray->render(gl::PrimType::Lines);
-  m_vertexArray->cleanupVertices();
-  m_indexArray->cleanupIndices();
+  auto* currentProgram = renderContext.shaderManager().currentProgram();
+  contract_assert(currentProgram);
+
+  if (m_vertexArray->setup(*currentProgram))
+  {
+    m_indexArray->setup();
+    m_indexArray->render(gl::PrimType::Lines);
+    m_vertexArray->cleanup(*currentProgram);
+    m_indexArray->cleanup();
+  }
 }
 
 // IndexedEdgeRenderer
