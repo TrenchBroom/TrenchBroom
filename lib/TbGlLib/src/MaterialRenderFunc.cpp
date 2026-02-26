@@ -19,7 +19,6 @@
 
 #include "gl/MaterialRenderFunc.h"
 
-#include "gl/GlUtils.h"
 #include "gl/Material.h"
 #include "gl/Texture.h"
 
@@ -27,8 +26,8 @@ namespace tb::gl
 {
 
 MaterialRenderFunc::~MaterialRenderFunc() = default;
-void MaterialRenderFunc::before(const Material*) {}
-void MaterialRenderFunc::after(const Material*) {}
+void MaterialRenderFunc::before(Gl&, const Material*) {}
+void MaterialRenderFunc::after(Gl&, const Material*) {}
 
 DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
   const int minFilter, const int magFilter)
@@ -37,19 +36,19 @@ DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
 {
 }
 
-void DefaultMaterialRenderFunc::before(const Material* material)
+void DefaultMaterialRenderFunc::before(Gl& gl, const Material* material)
 {
   if (material)
   {
-    material->activate(m_minFilter, m_magFilter);
+    material->activate(gl, m_minFilter, m_magFilter);
   }
 }
 
-void DefaultMaterialRenderFunc::after(const Material* material)
+void DefaultMaterialRenderFunc::after(Gl& gl, const Material* material)
 {
   if (material)
   {
-    material->deactivate();
+    material->deactivate(gl);
   }
 }
 

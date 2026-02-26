@@ -38,19 +38,20 @@ GridRenderer::GridRenderer(
 {
 }
 
-void GridRenderer::prepare(gl::VboManager& vboManager)
+void GridRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
-  m_vertexArray.prepare(vboManager);
+  m_vertexArray.prepare(gl, vboManager);
 }
 
 void GridRenderer::render(RenderContext& renderContext)
 {
   if (renderContext.showGrid())
   {
+    auto& gl = renderContext.gl();
     const auto& camera = renderContext.camera();
 
     auto shader =
-      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::Grid2DShader};
+      gl::ActiveShader{gl, renderContext.shaderManager(), gl::Shaders::Grid2DShader};
     shader.set("Normal", -camera.direction());
     shader.set("RenderGrid", renderContext.showGrid());
     shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
@@ -58,10 +59,10 @@ void GridRenderer::render(RenderContext& renderContext)
     shader.set("GridColor", pref(Preferences::GridColor2D));
     shader.set("CameraZoom", camera.zoom());
 
-    if (m_vertexArray.setup(shader.program()))
+    if (m_vertexArray.setup(gl, shader.program()))
     {
-      m_vertexArray.render(gl::PrimType::Quads);
-      m_vertexArray.cleanup(shader.program());
+      m_vertexArray.render(gl, gl::PrimType::Quads);
+      m_vertexArray.cleanup(gl, shader.program());
     }
   }
 }

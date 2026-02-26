@@ -32,7 +32,7 @@
 
 namespace tb::gl
 {
-
+class Gl;
 class ShaderManager;
 class Shader;
 
@@ -57,40 +57,39 @@ public:
   ShaderProgram(ShaderProgram&& other) noexcept;
   ShaderProgram& operator=(ShaderProgram&& other) noexcept;
 
-  void attach(Shader& shader) const;
-  Result<void> link();
+  void attach(Gl& gl, Shader& shader) const;
+  Result<void> link(Gl& gl);
 
-  void activate(ShaderManager& shaderManager);
-  void deactivate(ShaderManager& shaderManager);
+  void activate(Gl& gl, ShaderManager& shaderManager);
+  void deactivate(Gl& gl, ShaderManager& shaderManager);
 
-  void set(const std::string& name, bool value);
-  void set(const std::string& name, int value);
-  void set(const std::string& name, size_t value);
-  void set(const std::string& name, float value);
-  void set(const std::string& name, double value);
-  void set(const std::string& name, const vm::vec2f& value);
-  void set(const std::string& name, const vm::vec3f& value);
-  void set(const std::string& name, const vm::vec4f& value);
-  void set(const std::string& name, const vm::mat2x2f& value);
-  void set(const std::string& name, const vm::mat3x3f& value);
-  void set(const std::string& name, const vm::mat4x4f& value);
+  void set(Gl& gl, const std::string& name, bool value);
+  void set(Gl& gl, const std::string& name, int value);
+  void set(Gl& gl, const std::string& name, size_t value);
+  void set(Gl& gl, const std::string& name, float value);
+  void set(Gl& gl, const std::string& name, const vm::vec2f& value);
+  void set(Gl& gl, const std::string& name, const vm::vec3f& value);
+  void set(Gl& gl, const std::string& name, const vm::vec4f& value);
+  void set(Gl& gl, const std::string& name, const vm::mat2x2f& value);
+  void set(Gl& gl, const std::string& name, const vm::mat3x3f& value);
+  void set(Gl& gl, const std::string& name, const vm::mat4x4f& value);
 
   template <typename C>
-  void set(const std::string& name, const C& value)
+  void set(Gl& gl, const std::string& name, const C& value)
     requires(AnyColor<C>)
   {
-    set(name, value.template to<RgbaF>().toVec());
+    set(gl, name, value.template to<RgbaF>().toVec());
   }
 
-  GLint findAttributeLocation(const std::string& name) const;
+  GLint findAttributeLocation(Gl& gl, const std::string& name) const;
 
-  void destroy();
+  void destroy(Gl& gl);
 
 private:
-  GLint findUniformLocation(const std::string& name) const;
-  bool checkActive() const;
+  GLint findUniformLocation(Gl& gl, const std::string& name) const;
+  bool checkActive(Gl& gl) const;
 };
 
-Result<ShaderProgram> createShaderProgram(std::string name);
+Result<ShaderProgram> createShaderProgram(Gl& gl, std::string name);
 
 } // namespace tb::gl

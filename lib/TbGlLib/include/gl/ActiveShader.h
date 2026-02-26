@@ -25,6 +25,7 @@
 
 namespace tb::gl
 {
+class Gl;
 struct ShaderConfig;
 class ShaderManager;
 class ShaderProgram;
@@ -32,17 +33,18 @@ class ShaderProgram;
 class ActiveShader
 {
 private:
+  Gl& m_gl;
   ShaderManager& m_shaderManager;
   ShaderProgram& m_program;
 
 public:
-  ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
+  ActiveShader(Gl& gl, ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
   ~ActiveShader();
 
   template <class T>
   void set(const std::string& name, const T& value)
   {
-    m_program.set(name, value);
+    m_program.set(m_gl, name, value);
   }
 
   ShaderProgram& program();

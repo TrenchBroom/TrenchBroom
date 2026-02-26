@@ -19,6 +19,7 @@
 
 #include "gl/ShaderProgram.h"
 
+#include "gl/GlInterface.h"
 #include "gl/Shader.h"
 #include "gl/ShaderManager.h"
 
@@ -51,27 +52,26 @@ ShaderProgram& ShaderProgram::operator=(ShaderProgram&& other) noexcept
   return *this;
 }
 
-void ShaderProgram::attach(Shader& shader) const
+void ShaderProgram::attach(Gl& gl, Shader& shader) const
 {
   contract_pre(m_programId != 0);
 
-  shader.attach(m_programId);
+  shader.attach(gl, m_programId);
 }
 
 namespace
 {
 
-std::string getInfoLog(const GLuint programId)
+std::string getInfoLog(Gl& gl, const GLuint programId)
 {
   auto infoLogLength = GLint{};
-  glAssert(glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &infoLogLength));
+  gl.getProgramiv(programId, GL_INFO_LOG_LENGTH, &infoLogLength);
   if (infoLogLength > 0)
   {
     auto infoLog = std::string{};
     infoLog.resize(size_t(infoLogLength));
 
-    glAssert(
-      glGetProgramInfoLog(programId, infoLogLength, &infoLogLength, infoLog.data()));
+    gl.getProgramInfoLog(programId, infoLogLength, &infoLogLength, infoLog.data());
     return infoLog;
   }
 
@@ -79,115 +79,107 @@ std::string getInfoLog(const GLuint programId)
 }
 } // namespace
 
-Result<void> ShaderProgram::link()
+Result<void> ShaderProgram::link(Gl& gl)
 {
-  glAssert(glLinkProgram(m_programId));
+  gl.linkProgram(m_programId);
 
   auto linkStatus = GLint(0);
-  glAssert(glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus));
+  gl.getProgramiv(m_programId, GL_LINK_STATUS, &linkStatus);
 
   if (linkStatus == 0)
   {
     return Error{
-      "Could not link shader program '" + m_name + "': " + getInfoLog(m_programId)};
+      "Could not link shader program '" + m_name + "': " + getInfoLog(gl, m_programId)};
   }
 
   return kdl::void_success;
 }
 
-void ShaderProgram::activate(ShaderManager& shaderManager)
+void ShaderProgram::activate(Gl& gl, ShaderManager& shaderManager)
 {
   contract_pre(m_programId != 0);
 
-  glAssert(glUseProgram(m_programId));
-  assert(checkActive());
+  gl.useProgram(m_programId);
+  assert(checkActive(gl));
 
   shaderManager.setCurrentProgram(this);
 }
 
-void ShaderProgram::deactivate(ShaderManager& shaderManager)
+void ShaderProgram::deactivate(Gl& gl, ShaderManager& shaderManager)
 {
-  glAssert(glUseProgram(0));
+  gl.useProgram(0);
 
   shaderManager.setCurrentProgram(nullptr);
 }
 
-void ShaderProgram::set(const std::string& name, const bool value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const bool value)
 {
-  return set(name, int(value));
+  return set(gl, name, int(value));
 }
 
-void ShaderProgram::set(const std::string& name, const int value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const int value)
 {
-  assert(checkActive());
-  glAssert(glUniform1i(findUniformLocation(name), value));
+  assert(checkActive(gl));
+  gl.uniform1i(findUniformLocation(gl, name), value);
 }
 
-void ShaderProgram::set(const std::string& name, const size_t value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const size_t value)
 {
-  assert(checkActive());
-  glAssert(glUniform1i(findUniformLocation(name), int(value)));
+  assert(checkActive(gl));
+  gl.uniform1i(findUniformLocation(gl, name), int(value));
 }
 
-void ShaderProgram::set(const std::string& name, const float value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const float value)
 {
-  assert(checkActive());
-  glAssert(glUniform1f(findUniformLocation(name), value));
+  assert(checkActive(gl));
+  gl.uniform1f(findUniformLocation(gl, name), value);
 }
 
-void ShaderProgram::set(const std::string& name, const double value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const vm::vec2f& value)
 {
-  assert(checkActive());
-  glAssert(glUniform1d(findUniformLocation(name), value));
+  assert(checkActive(gl));
+  gl.uniform2f(findUniformLocation(gl, name), value.x(), value.y());
 }
 
-void ShaderProgram::set(const std::string& name, const vm::vec2f& value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const vm::vec3f& value)
 {
-  assert(checkActive());
-  glAssert(glUniform2f(findUniformLocation(name), value.x(), value.y()));
+  assert(checkActive(gl));
+  gl.uniform3f(findUniformLocation(gl, name), value.x(), value.y(), value.z());
 }
 
-void ShaderProgram::set(const std::string& name, const vm::vec3f& value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const vm::vec4f& value)
 {
-  assert(checkActive());
-  glAssert(glUniform3f(findUniformLocation(name), value.x(), value.y(), value.z()));
+  assert(checkActive(gl));
+  gl.uniform4f(findUniformLocation(gl, name), value.x(), value.y(), value.z(), value.w());
 }
 
-void ShaderProgram::set(const std::string& name, const vm::vec4f& value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const vm::mat2x2f& value)
 {
-  assert(checkActive());
-  glAssert(
-    glUniform4f(findUniformLocation(name), value.x(), value.y(), value.z(), value.w()));
+  assert(checkActive(gl));
+  gl.uniformMatrix2fv(
+    findUniformLocation(gl, name), 1, false, reinterpret_cast<const float*>(value.v));
 }
 
-void ShaderProgram::set(const std::string& name, const vm::mat2x2f& value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const vm::mat3x3f& value)
 {
-  assert(checkActive());
-  glAssert(glUniformMatrix2fv(
-    findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
+  assert(checkActive(gl));
+  gl.uniformMatrix3fv(
+    findUniformLocation(gl, name), 1, false, reinterpret_cast<const float*>(value.v));
 }
 
-void ShaderProgram::set(const std::string& name, const vm::mat3x3f& value)
+void ShaderProgram::set(Gl& gl, const std::string& name, const vm::mat4x4f& value)
 {
-  assert(checkActive());
-  glAssert(glUniformMatrix3fv(
-    findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
+  assert(checkActive(gl));
+  gl.uniformMatrix4fv(
+    findUniformLocation(gl, name), 1, false, reinterpret_cast<const float*>(value.v));
 }
 
-void ShaderProgram::set(const std::string& name, const vm::mat4x4f& value)
-{
-  assert(checkActive());
-  glAssert(glUniformMatrix4fv(
-    findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
-}
-
-GLint ShaderProgram::findAttributeLocation(const std::string& name) const
+GLint ShaderProgram::findAttributeLocation(Gl& gl, const std::string& name) const
 {
   auto it = m_attributeCache.find(name);
   if (it == std::end(m_attributeCache))
   {
-    auto index = GLint(0);
-    glAssert(index = glGetAttribLocation(m_programId, name.c_str()));
+    auto index = gl.getAttribLocation(m_programId, name.c_str());
     contract_assert(index != -1);
 
     auto inserted = false;
@@ -198,22 +190,21 @@ GLint ShaderProgram::findAttributeLocation(const std::string& name) const
   return it->second;
 }
 
-void ShaderProgram::destroy()
+void ShaderProgram::destroy(Gl& gl)
 {
   if (m_programId != 0)
   {
-    glAssert(glDeleteProgram(m_programId));
+    gl.deleteProgram(m_programId);
     m_programId = 0;
   }
 }
 
-GLint ShaderProgram::findUniformLocation(const std::string& name) const
+GLint ShaderProgram::findUniformLocation(Gl& gl, const std::string& name) const
 {
   auto it = m_variableCache.find(name);
   if (it == std::end(m_variableCache))
   {
-    auto index = GLint(0);
-    glAssert(index = glGetUniformLocation(m_programId, name.c_str()));
+    auto index = gl.getUniformLocation(m_programId, name.c_str());
     contract_assert(index != -1);
 
     auto inserted = false;
@@ -224,17 +215,16 @@ GLint ShaderProgram::findUniformLocation(const std::string& name) const
   return it->second;
 }
 
-bool ShaderProgram::checkActive() const
+bool ShaderProgram::checkActive(Gl& gl) const
 {
   auto currentProgramId = GLint(-1);
-  glAssert(glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramId));
+  gl.getIntegerv(GL_CURRENT_PROGRAM, &currentProgramId);
   return GLuint(currentProgramId) == m_programId;
 }
 
-Result<ShaderProgram> createShaderProgram(std::string name)
+Result<ShaderProgram> createShaderProgram(Gl& gl, std::string name)
 {
-  auto programId = GLuint(0);
-  glAssert(programId = glCreateProgram());
+  auto programId = gl.createProgram();
 
   if (programId == 0)
   {

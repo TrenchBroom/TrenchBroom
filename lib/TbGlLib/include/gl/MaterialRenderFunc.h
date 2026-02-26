@@ -21,14 +21,15 @@
 
 namespace tb::gl
 {
+class Gl;
 class Material;
 
 class MaterialRenderFunc
 {
 public:
   virtual ~MaterialRenderFunc();
-  virtual void before(const Material* material);
-  virtual void after(const Material* material);
+  virtual void before(Gl& gl, const Material* material);
+  virtual void after(Gl& gl, const Material* material);
 };
 
 class DefaultMaterialRenderFunc : public MaterialRenderFunc
@@ -40,8 +41,8 @@ private:
 public:
   DefaultMaterialRenderFunc(int minFilter, int magFilter);
 
-  void before(const Material* material) override;
-  void after(const Material* material) override;
+  void before(Gl& gl, const Material* material) override;
+  void after(Gl& gl, const Material* material) override;
 };
 
 } // namespace tb::gl

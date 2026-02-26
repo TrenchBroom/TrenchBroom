@@ -85,7 +85,10 @@ public:
   void attachShader(GLuint program, GLuint shader) override;
 
   void shaderSource(
-    GLuint shader, GLsizei count, const GLchar** string, const GLint* length) override;
+    GLuint shader,
+    GLsizei count,
+    const GLchar* const* string,
+    const GLint* length) override;
   void compileShader(GLuint shader) override;
 
   void getShaderInfoLog(
@@ -141,6 +144,7 @@ public:
     GLint location, GLsizei count, GLboolean transpose, const GLfloat* value) override;
 
   GLint getAttribLocation(GLuint program, const GLchar* name) override;
+  GLint getUniformLocation(GLuint program, const GLchar* name) override;
 
   void genBuffers(GLsizei n, GLuint* buffers) override;
   void deleteBuffers(GLsizei n, const GLuint* buffers) override;

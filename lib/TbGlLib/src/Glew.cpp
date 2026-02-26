@@ -196,7 +196,10 @@ void Glew::attachShader(const GLuint program, const GLuint shader)
 }
 
 void Glew::shaderSource(
-  const GLuint shader, const GLsizei count, const GLchar** string, const GLint* length)
+  const GLuint shader,
+  const GLsizei count,
+  const GLchar* const* string,
+  const GLint* length)
 {
   glShaderSource(shader, count, string, length);
 }
@@ -434,6 +437,11 @@ void Glew::uniformMatrix4x3fv(
 GLint Glew::getAttribLocation(const GLuint program, const GLchar* name)
 {
   return glGetAttribLocation(program, name);
+}
+
+GLint Glew::getUniformLocation(const GLuint program, const GLchar* name)
+{
+  return glGetUniformLocation(program, name);
 }
 
 void Glew::genBuffers(const GLsizei n, GLuint* buffers)

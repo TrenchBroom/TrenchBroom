@@ -291,7 +291,8 @@ std::vector<const gl::Material*> MaterialBrowserView::sortMaterials(
 
 void MaterialBrowserView::doClear() {}
 
-void MaterialBrowserView::doRender(Layout& layout, const float y, const float height)
+void MaterialBrowserView::doRender(
+  gl::Gl& gl, Layout& layout, const float y, const float height)
 {
   const auto viewLeft = float(0);
   const auto viewTop = float(size().height());
@@ -299,12 +300,13 @@ void MaterialBrowserView::doRender(Layout& layout, const float y, const float he
   const auto viewBottom = float(0);
 
   const auto transformation = render::Transformation{
+    gl,
     vm::ortho_matrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom),
     vm::view_matrix(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0})
       * vm::translation_matrix(vm::vec3f{0.0f, 0.0f, 0.1f})};
 
-  renderBounds(layout, y, height);
-  renderMaterials(layout, y, height);
+  renderBounds(gl, layout, y, height);
+  renderMaterials(gl, layout, y, height);
 }
 
 bool MaterialBrowserView::shouldRenderFocusIndicator() const
@@ -317,7 +319,8 @@ const Color& MaterialBrowserView::getBackgroundColor()
   return pref(Preferences::BrowserBackgroundColor);
 }
 
-void MaterialBrowserView::renderBounds(Layout& layout, const float y, const float height)
+void MaterialBrowserView::renderBounds(
+  gl::Gl& gl, Layout& layout, const float y, const float height)
 {
   using BoundsVertex = gl::VertexTypes::P2C4::Vertex;
   auto vertices = std::vector<BoundsVertex>{};
@@ -355,14 +358,14 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
 
   auto vertexArray = gl::VertexArray::move(std::move(vertices));
   auto shader =
-    gl::ActiveShader{shaderManager(), gl::Shaders::MaterialBrowserBorderShader};
+    gl::ActiveShader{gl, shaderManager(), gl::Shaders::MaterialBrowserBorderShader};
 
-  vertexArray.prepare(vboManager());
+  vertexArray.prepare(gl, vboManager());
 
-  if (vertexArray.setup(shader.program()))
+  if (vertexArray.setup(gl, shader.program()))
   {
-    vertexArray.render(gl::PrimType::Quads);
-    vertexArray.cleanup(shader.program());
+    vertexArray.render(gl, gl::PrimType::Quads);
+    vertexArray.cleanup(gl, shader.program());
   }
 }
 
@@ -380,11 +383,11 @@ const Color& MaterialBrowserView::materialColor(const gl::Material& material) co
 }
 
 void MaterialBrowserView::renderMaterials(
-  Layout& layout, const float y, const float height)
+  gl::Gl& gl, Layout& layout, const float y, const float height)
 {
   using Vertex = gl::VertexTypes::P2UV2::Vertex;
 
-  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::MaterialBrowserShader};
+  auto shader = gl::ActiveShader{gl, shaderManager(), gl::Shaders::MaterialBrowserShader};
   shader.set("ApplyTinting", false);
   shader.set("Material", 0);
   shader.set("Brightness", pref(Preferences::Brightness));
@@ -410,17 +413,19 @@ void MaterialBrowserView::renderMaterials(
             });
 
             material.activate(
-              pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+              gl,
+              pref(Preferences::TextureMinFilter),
+              pref(Preferences::TextureMagFilter));
 
-            vertexArray.prepare(vboManager());
+            vertexArray.prepare(gl, vboManager());
 
-            if (vertexArray.setup(shader.program()))
+            if (vertexArray.setup(gl, shader.program()))
             {
-              vertexArray.render(gl::PrimType::Quads);
-              vertexArray.cleanup(shader.program());
+              vertexArray.render(gl, gl::PrimType::Quads);
+              vertexArray.cleanup(gl, shader.program());
             }
 
-            material.deactivate();
+            material.deactivate(gl);
           }
         }
       }

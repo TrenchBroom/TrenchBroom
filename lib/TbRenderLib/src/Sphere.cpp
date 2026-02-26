@@ -22,6 +22,7 @@
 #include "gl/PrimType.h"
 #include "gl/VertexType.h"
 #include "mdl/BasicShapes.h"
+#include "render/RenderContext.h"
 
 namespace tb::render
 {
@@ -40,14 +41,14 @@ bool Sphere::prepared() const
   return m_array.prepared();
 }
 
-void Sphere::prepare(gl::VboManager& vboManager)
+void Sphere::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
-  m_array.prepare(vboManager);
+  m_array.prepare(gl, vboManager);
 }
 
-void Sphere::render()
+void Sphere::render(RenderContext& renderContext)
 {
-  m_array.render(gl::PrimType::Triangles);
+  m_array.render(renderContext.gl(), gl::PrimType::Triangles);
 }
 
 } // namespace tb::render

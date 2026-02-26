@@ -21,6 +21,7 @@
 
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
+#include "gl/GlInterface.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "render/RenderBatch.h"
@@ -43,14 +44,14 @@ void LinkRenderer::invalidate()
   m_valid = false;
 }
 
-void LinkRenderer::prepare(gl::VboManager& vboManager)
+void LinkRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
   if (!m_valid)
   {
     validate();
 
-    m_lines.prepare(vboManager);
-    m_arrows.prepare(vboManager);
+    m_lines.prepare(gl, vboManager);
+    m_arrows.prepare(gl, vboManager);
   }
 }
 
@@ -64,46 +65,50 @@ void LinkRenderer::render(RenderContext& renderContext)
 
 void LinkRenderer::renderLines(RenderContext& renderContext)
 {
+  auto& gl = renderContext.gl();
+
   auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::LinkLineShader};
+    gl::ActiveShader{gl, renderContext.shaderManager(), gl::Shaders::LinkLineShader};
   shader.set("CameraPosition", renderContext.camera().position());
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);
 
 
-  if (m_lines.setup(shader.program()))
+  if (m_lines.setup(gl, shader.program()))
   {
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
     shader.set("Alpha", 0.4f);
-    m_lines.render(gl::PrimType::Quads);
+    m_lines.render(gl, gl::PrimType::Quads);
 
-    glAssert(glEnable(GL_DEPTH_TEST));
+    gl.enable(GL_DEPTH_TEST);
     shader.set("Alpha", 1.0f);
-    m_lines.render(gl::PrimType::Lines);
+    m_lines.render(gl, gl::PrimType::Lines);
 
-    m_lines.cleanup(shader.program());
+    m_lines.cleanup(gl, shader.program());
   }
 }
 
 void LinkRenderer::renderArrows(RenderContext& renderContext)
 {
+  auto& gl = renderContext.gl();
+
   auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::LinkArrowShader};
+    gl::ActiveShader{gl, renderContext.shaderManager(), gl::Shaders::LinkArrowShader};
   shader.set("CameraPosition", renderContext.camera().position());
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);
   shader.set("Zoom", renderContext.camera().zoom());
 
-  if (m_arrows.setup(shader.program()))
+  if (m_arrows.setup(gl, shader.program()))
   {
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
     shader.set("Alpha", 0.4f);
-    m_arrows.render(gl::PrimType::Quads);
+    m_arrows.render(gl, gl::PrimType::Quads);
 
-    glAssert(glEnable(GL_DEPTH_TEST));
+    gl.enable(GL_DEPTH_TEST);
     shader.set("Alpha", 1.0f);
-    m_arrows.render(gl::PrimType::Lines);
-    m_arrows.cleanup(shader.program());
+    m_arrows.render(gl, gl::PrimType::Lines);
+    m_arrows.cleanup(gl, shader.program());
   }
 }
 

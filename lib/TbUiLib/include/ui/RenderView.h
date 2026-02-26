@@ -39,6 +39,7 @@ namespace tb
 namespace gl
 {
 class FontManager;
+class Gl;
 class ShaderManager;
 class VboManager;
 } // namespace gl
@@ -100,8 +101,8 @@ protected: // QOpenGLWidget overrides
 private:
   void render();
   void processInput();
-  void clearBackground();
-  void renderFocusIndicator();
+  void clearBackground(gl::Gl& gl);
+  void renderFocusIndicator(gl::Gl& gl);
 
 protected:
   // called by initializeGL by default
@@ -111,7 +112,7 @@ private:
   virtual const Color& getBackgroundColor();
   virtual void updateViewport(int x, int y, int width, int height);
   virtual bool shouldRenderFocusIndicator() const = 0;
-  virtual void renderContents() = 0;
+  virtual void renderContents(gl::Gl& gl) = 0;
 };
 
 } // namespace ui

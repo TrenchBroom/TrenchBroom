@@ -247,13 +247,15 @@ void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
 
 class SetupGL : public Renderable
 {
-  void render(RenderContext&) override
+  void render(RenderContext& renderContext) override
   {
-    glAssert(glFrontFace(GL_CW));
-    glAssert(glEnable(GL_CULL_FACE));
-    glAssert(glEnable(GL_DEPTH_TEST));
-    glAssert(glDepthFunc(GL_LEQUAL));
-    gl::glResetEdgeOffset();
+    auto& gl = renderContext.gl();
+
+    gl.frontFace(GL_CW);
+    gl.enable(GL_CULL_FACE);
+    gl.enable(GL_DEPTH_TEST);
+    gl.depthFunc(GL_LEQUAL);
+    gl::glResetEdgeOffset(gl);
   }
 };
 

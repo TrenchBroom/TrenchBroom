@@ -201,16 +201,16 @@ Result<EntityModel> EntityModelManager::loadModel(
     m_logger);
 }
 
-void EntityModelManager::prepare(gl::VboManager& vboManager)
+void EntityModelManager::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
-  prepareRenderers(vboManager);
+  prepareRenderers(gl, vboManager);
 }
 
-void EntityModelManager::prepareRenderers(gl::VboManager& vboManager)
+void EntityModelManager::prepareRenderers(gl::Gl& gl, gl::VboManager& vboManager)
 {
   for (auto* renderer : m_unpreparedRenderers)
   {
-    renderer->prepare(vboManager);
+    renderer->prepare(gl, vboManager);
   }
   m_unpreparedRenderers.clear();
 }

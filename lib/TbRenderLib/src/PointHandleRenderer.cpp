@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
+#include "gl/GlInterface.h"
 #include "gl/Shaders.h"
 #include "gl/VboManager.h"
 #include "render/RenderContext.h"
@@ -49,14 +50,16 @@ void PointHandleRenderer::addHighlight(const Color& color, const vm::vec3f& posi
   m_highlights[color].push_back(position);
 }
 
-void PointHandleRenderer::prepare(gl::VboManager& vboManager)
+void PointHandleRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
-  m_handle.prepare(vboManager);
-  m_highlight.prepare(vboManager);
+  m_handle.prepare(gl, vboManager);
+  m_highlight.prepare(gl, vboManager);
 }
 
 void PointHandleRenderer::render(RenderContext& renderContext)
 {
+  auto& gl = renderContext.gl();
+
   const auto& camera = renderContext.camera();
   const auto& viewport = camera.viewport();
   const auto projection = vm::ortho_matrix(
@@ -76,18 +79,18 @@ void PointHandleRenderer::render(RenderContext& renderContext)
     renderHandles(renderContext, m_highlights, m_highlight, 1.0f);
 
     // Occluded handles: don't use depth test, but draw translucent
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
     renderHandles(renderContext, m_pointHandles, m_handle, 0.33f);
     renderHandles(renderContext, m_highlights, m_highlight, 0.33f);
-    glAssert(glEnable(GL_DEPTH_TEST));
+    gl.enable(GL_DEPTH_TEST);
   }
   else
   {
     // In 2D views, render fully opaque without depth test
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
     renderHandles(renderContext, m_pointHandles, m_handle, 1.0f);
     renderHandles(renderContext, m_highlights, m_highlight, 1.0f);
-    glAssert(glEnable(GL_DEPTH_TEST));
+    gl.enable(GL_DEPTH_TEST);
   }
 
   clear();
@@ -96,9 +99,11 @@ void PointHandleRenderer::render(RenderContext& renderContext)
 void PointHandleRenderer::renderHandles(
   RenderContext& renderContext, const HandleMap& map, Circle& circle, const float opacity)
 {
+  auto& gl = renderContext.gl();
+
   const auto& camera = renderContext.camera();
   auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::HandleShader};
+    gl::ActiveShader{gl, renderContext.shaderManager(), gl::Shaders::HandleShader};
 
   for (const auto& [color, positions] : map)
   {
@@ -117,7 +122,7 @@ void PointHandleRenderer::renderHandles(
         camera.project(position + nudgeTowardsCamera) * vm::vec3f{1, 1, -1};
       auto translate = MultiplyModelMatrix{
         renderContext.transformation(), vm::translation_matrix(offset)};
-      circle.render(shader.program());
+      circle.render(gl, shader.program());
     }
   }
 }

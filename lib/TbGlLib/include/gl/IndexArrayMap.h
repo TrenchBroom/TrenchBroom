@@ -25,6 +25,7 @@
 
 namespace tb::gl
 {
+class Gl;
 class IndexArray;
 
 /**
@@ -154,9 +155,10 @@ public:
   /**
    * Renders the recorded primitives using the indices stored in the given index array.
    *
+   * @param gl the GL interface
    * @param indexArray the index array to render
    */
-  void render(IndexArray& indexArray) const;
+  void render(Gl& gl, IndexArray& indexArray) const;
 };
 
 } // namespace tb::gl

@@ -28,6 +28,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Gl;
+}
+
 namespace mdl
 {
 class EditorContext;
@@ -120,7 +125,7 @@ private:
   void validate();
 
 private: // implement IndexedRenderable interface
-  void prepare(gl::VboManager& vboManager) override;
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
   void render(RenderContext& renderContext) override;
 };
 

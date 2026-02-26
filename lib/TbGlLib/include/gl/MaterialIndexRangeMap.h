@@ -163,10 +163,11 @@ public:
    * render function type provides two callbacks. One is called before all primitives with
    * a given material is rendered, and one is called afterwards.
    *
+   * @param gl the GL interface
    * @param vertexArray the vertex array to render with
    * @param func the material callbacks
    */
-  void render(VertexArray& vertexArray, MaterialRenderFunc& func);
+  void render(Gl& gl, VertexArray& vertexArray, MaterialRenderFunc& func);
 
   /**
    * Invokes the given function for each primitive stored in this map.

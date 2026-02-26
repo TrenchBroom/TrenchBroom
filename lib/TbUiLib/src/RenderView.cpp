@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
 #include "gl/GlManager.h"
+#include "gl/Glew.h"
 #include "gl/PrimType.h"
 #include "gl/ResourceManager.h"
 #include "gl/ShaderManager.h"
@@ -267,10 +268,12 @@ void RenderView::resizeGL(int w, int h)
 
 void RenderView::render()
 {
+  auto gl = gl::Glew{};
+
   processInput();
-  clearBackground();
-  renderContents();
-  renderFocusIndicator();
+  clearBackground(gl);
+  renderContents(gl);
+  renderFocusIndicator(gl);
 }
 
 void RenderView::processInput()
@@ -278,16 +281,16 @@ void RenderView::processInput()
   m_eventRecorder.processEvents(*this);
 }
 
-void RenderView::clearBackground()
+void RenderView::clearBackground(gl::Gl& gl)
 {
   const auto backgroundColor = getBackgroundColor().to<RgbaF>();
 
-  glAssert(glClearColor(
+  gl.clearColor(
     backgroundColor.get<ColorChannel::r>(),
     backgroundColor.get<ColorChannel::g>(),
     backgroundColor.get<ColorChannel::b>(),
-    backgroundColor.get<ColorChannel::a>()));
-  glAssert(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    backgroundColor.get<ColorChannel::a>());
+  gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 const Color& RenderView::getBackgroundColor()
@@ -295,7 +298,7 @@ const Color& RenderView::getBackgroundColor()
   return pref(Preferences::BackgroundColor);
 }
 
-void RenderView::renderFocusIndicator()
+void RenderView::renderFocusIndicator(gl::Gl& gl)
 {
   if (shouldRenderFocusIndicator() && hasFocus())
   {
@@ -305,14 +308,14 @@ void RenderView::renderFocusIndicator()
     const auto r = devicePixelRatioF();
     const auto w = float(width() * r);
     const auto h = float(height() * r);
-    glAssert(glViewport(0, 0, int(w), int(h)));
+    gl.viewport(0, 0, int(w), int(h));
 
     const auto t = 1.0f;
 
     const auto projection = vm::ortho_matrix(-1.0f, 1.0f, 0.0f, 0.0f, float(w), float(h));
-    auto transformation = render::Transformation{projection, vm::mat4x4f::identity()};
+    auto transformation = render::Transformation{gl, projection, vm::mat4x4f::identity()};
 
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
 
     using Vertex = gl::VertexTypes::P3C4::Vertex;
     auto array = gl::VertexArray::move(std::vector{
@@ -341,15 +344,15 @@ void RenderView::renderFocusIndicator()
       Vertex{{t, h - t, 0.0f}, inner.toVec()},
     });
 
-    array.prepare(vboManager());
+    array.prepare(gl, vboManager());
 
-    auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPCShader};
-    if (array.setup(shader.program()))
+    auto shader = gl::ActiveShader{gl, shaderManager(), gl::Shaders::VaryingPCShader};
+    if (array.setup(gl, shader.program()))
     {
-      array.render(gl::PrimType::Quads);
-      array.cleanup(shader.program());
+      array.render(gl, gl::PrimType::Quads);
+      array.cleanup(gl, shader.program());
     }
-    glAssert(glEnable(GL_DEPTH_TEST));
+    gl.enable(GL_DEPTH_TEST);
   }
 }
 

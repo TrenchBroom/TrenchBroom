@@ -313,7 +313,7 @@ protected: // RenderView overrides
 
 private: // implement RenderView interface
   bool shouldRenderFocusIndicator() const override;
-  void renderContents() override;
+  void renderContents(gl::Gl& gl) override;
 
   virtual void preRender();
   virtual render::RenderMode renderMode() = 0;

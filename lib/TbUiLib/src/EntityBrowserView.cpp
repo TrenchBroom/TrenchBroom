@@ -25,6 +25,7 @@
 #include "gl/ActiveShader.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
+#include "gl/GlInterface.h"
 #include "gl/GlUtils.h"
 #include "gl/MaterialIndexRangeRenderer.h"
 #include "gl/MaterialRenderFunc.h"
@@ -286,7 +287,8 @@ void EntityBrowserView::addEntityToLayout(
 
 void EntityBrowserView::doClear() {}
 
-void EntityBrowserView::doRender(Layout& layout, const float y, const float height)
+void EntityBrowserView::doRender(
+  gl::Gl& gl, Layout& layout, const float y, const float height)
 {
   const auto viewLeft = static_cast<float>(0);
   const auto viewTop = static_cast<float>(size().height());
@@ -297,10 +299,10 @@ void EntityBrowserView::doRender(Layout& layout, const float y, const float heig
     vm::ortho_matrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
   const auto view =
     vm::view_matrix(CameraDirection, CameraUp) * vm::translation_matrix(CameraPosition);
-  auto transformation = render::Transformation{projection, view};
+  auto transformation = render::Transformation{gl, projection, view};
 
-  renderBounds(layout, y, height);
-  renderModels(layout, y, height, transformation);
+  renderBounds(gl, layout, y, height);
+  renderModels(gl, layout, y, height, transformation);
 }
 
 bool EntityBrowserView::shouldRenderFocusIndicator() const
@@ -313,7 +315,8 @@ const Color& EntityBrowserView::getBackgroundColor()
   return pref(Preferences::BrowserBackgroundColor);
 }
 
-void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height)
+void EntityBrowserView::renderBounds(
+  gl::Gl& gl, Layout& layout, const float y, const float height)
 {
   using BoundsVertex = gl::VertexTypes::P3C4::Vertex;
   auto vertices = std::vector<BoundsVertex>{};
@@ -348,29 +351,30 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
     }
   }
 
-  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPCShader};
+  auto shader = gl::ActiveShader{gl, shaderManager(), gl::Shaders::VaryingPCShader};
   auto vertexArray = gl::VertexArray::move(std::move(vertices));
 
-  vertexArray.prepare(vboManager());
-  if (vertexArray.setup(shader.program()))
+  vertexArray.prepare(gl, vboManager());
+  if (vertexArray.setup(gl, shader.program()))
   {
-    vertexArray.render(gl::PrimType::Lines);
-    vertexArray.cleanup(shader.program());
+    vertexArray.render(gl, gl::PrimType::Lines);
+    vertexArray.cleanup(gl, shader.program());
   }
 }
 
 void EntityBrowserView::renderModels(
+  gl::Gl& gl,
   Layout& layout,
   const float y,
   const float height,
   render::Transformation& transformation)
 {
-  glAssert(glFrontFace(GL_CW));
+  gl.frontFace(GL_CW);
 
   auto& entityModelManager = m_document.map().entityModelManager();
-  entityModelManager.prepare(vboManager());
+  entityModelManager.prepare(gl, vboManager());
 
-  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::EntityModelShader};
+  auto shader = gl::ActiveShader{gl, shaderManager(), gl::Shaders::EntityModelShader};
   shader.set("ApplyTinting", false);
   shader.set("Brightness", pref(Preferences::Brightness));
   shader.set("GrayScale", false);
@@ -404,7 +408,7 @@ void EntityBrowserView::renderModels(
 
               auto renderFunc = gl::DefaultMaterialRenderFunc{
                 pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)};
-              modelRenderer->render(shader.program(), renderFunc);
+              modelRenderer->render(gl, shader.program(), renderFunc);
             }
           }
         }

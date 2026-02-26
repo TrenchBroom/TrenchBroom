@@ -20,6 +20,7 @@
 #include "render/RenderBatch.h"
 
 #include "gl/VboManager.h"
+#include "render/RenderContext.h"
 #include "render/Renderable.h"
 
 #include "kd/contracts.h"
@@ -42,7 +43,10 @@ public:
   }
 
 private:
-  void prepare(gl::VboManager& vboManager) override { m_wrappee.prepare(vboManager); }
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override
+  {
+    m_wrappee.prepare(gl, vboManager);
+  }
 
   void render(RenderContext& renderContext) override { m_wrappee.render(renderContext); }
 };
@@ -101,7 +105,7 @@ void RenderBatch::addOneShot(IndexedRenderable* renderable)
 
 void RenderBatch::render(RenderContext& renderContext)
 {
-  prepareRenderables();
+  prepareRenderables(renderContext.gl());
   renderRenderables(renderContext);
 }
 
@@ -112,15 +116,15 @@ void RenderBatch::doAdd(Renderable* renderable)
   m_batch.push_back(renderable);
 }
 
-void RenderBatch::prepareRenderables()
+void RenderBatch::prepareRenderables(gl::Gl& gl)
 {
   for (auto* renderable : m_directRenderables)
   {
-    renderable->prepare(m_vboManager);
+    renderable->prepare(gl, m_vboManager);
   }
   for (auto* renderable : m_indexedRenderables)
   {
-    renderable->prepare(m_vboManager);
+    renderable->prepare(gl, m_vboManager);
   }
 }
 

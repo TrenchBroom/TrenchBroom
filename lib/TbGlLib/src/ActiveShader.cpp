@@ -24,16 +24,18 @@
 namespace tb::gl
 {
 
-ActiveShader::ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig)
-  : m_shaderManager{shaderManager}
+ActiveShader::ActiveShader(
+  Gl& gl, ShaderManager& shaderManager, const ShaderConfig& shaderConfig)
+  : m_gl{gl}
+  , m_shaderManager{shaderManager}
   , m_program{shaderManager.program(shaderConfig)}
 {
-  m_program.activate(m_shaderManager);
+  m_program.activate(m_gl, m_shaderManager);
 }
 
 ActiveShader::~ActiveShader()
 {
-  m_program.deactivate(m_shaderManager);
+  m_program.deactivate(m_gl, m_shaderManager);
 }
 
 ShaderProgram& ActiveShader::program()

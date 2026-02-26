@@ -85,7 +85,7 @@ public:
   virtual void attachShader(GLuint program, GLuint shader) = 0;
 
   virtual void shaderSource(
-    GLuint shader, GLsizei count, const GLchar** string, const GLint* length) = 0;
+    GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length) = 0;
   virtual void compileShader(GLuint shader) = 0;
 
   virtual void getShaderInfoLog(
@@ -133,6 +133,7 @@ public:
     GLint location, GLsizei count, GLboolean transpose, const GLfloat* value) = 0;
 
   virtual GLint getAttribLocation(GLuint program, const GLchar* name) = 0;
+  virtual GLint getUniformLocation(GLuint program, const GLchar* name) = 0;
 
   virtual void genBuffers(GLsizei n, GLuint* buffers) = 0;
   virtual void deleteBuffers(GLsizei n, const GLuint* buffers) = 0;

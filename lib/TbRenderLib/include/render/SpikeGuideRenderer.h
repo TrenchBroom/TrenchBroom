@@ -28,9 +28,15 @@
 
 #include <vector>
 
-namespace tb::render
+namespace tb
 {
+namespace gl
+{
+class Gl;
+}
 
+namespace render
+{
 class SpikeGuideRenderer : public DirectRenderable
 {
 private:
@@ -48,7 +54,7 @@ public:
   void add(const vm::ray3d& ray);
   void clear();
 
-  void prepare(gl::VboManager& vboManager) override;
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
   void render(RenderContext& renderContext) override;
 
 private:
@@ -56,4 +62,6 @@ private:
 
   void validate();
 };
-} // namespace tb::render
+
+} // namespace render
+} // namespace tb

@@ -33,6 +33,7 @@
 
 namespace tb::gl
 {
+class Gl;
 
 enum class TextureType
 {
@@ -164,8 +165,8 @@ public:
   void incUsageCount() const;
   void decUsageCount() const;
 
-  void activate(int minFilter, int magFilter) const;
-  void deactivate() const;
+  void activate(Gl& gl, int minFilter, int magFilter) const;
+  void deactivate(Gl& gl) const;
 };
 
 const Texture* getTexture(const Material* material);

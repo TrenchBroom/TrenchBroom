@@ -20,6 +20,7 @@
 #include "gl/GlManager.h"
 
 #include "gl/FontManager.h"
+#include "gl/Glew.h"
 #include "gl/ResourceManager.h"
 #include "gl/ShaderManager.h"
 #include "gl/ShaderProgram.h"
@@ -53,7 +54,7 @@ GlInfo initializeGlInfo()
   };
 }
 
-void initializeShaders(ShaderManager& shaderManager)
+void initializeShaders(Gl& gl, ShaderManager& shaderManager)
 {
   using namespace Shaders;
 
@@ -82,7 +83,7 @@ void initializeShaders(ShaderManager& shaderManager)
   };
 
   shaders | std::views::transform([&](const auto& shaderConfig) {
-    return shaderManager.loadProgram(shaderConfig);
+    return shaderManager.loadProgram(gl, shaderConfig);
   }) | kdl::fold
     | kdl::transform_error([&](const auto& e) { throw std::runtime_error{e.msg}; });
 }
@@ -114,7 +115,9 @@ bool GlManager::initialize()
 
   initializeGlew();
   m_glInfo = initializeGlInfo();
-  initializeShaders(*m_shaderManager);
+
+  auto gl = gl::Glew{};
+  initializeShaders(gl, *m_shaderManager);
 
   m_initialized = true;
   return true;

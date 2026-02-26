@@ -22,6 +22,7 @@
 #include "gl/MockTaskRunner.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
+#include "gl/TestGl.h"
 
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
@@ -38,11 +39,11 @@ namespace
 
 struct MockResource
 {
-  void upload(const bool glContextAvailable) const { mockUpload(glContextAvailable); }
-  void drop(const bool glContextAvailable) const { mockDrop(glContextAvailable); }
+  void upload(Gl& gl) const { mockUpload(gl); }
+  void drop(Gl& gl) const { mockDrop(gl); }
 
-  std::function<void(bool)> mockUpload = [](auto) {};
-  std::function<void(bool)> mockDrop = [](auto) {};
+  std::function<void(Gl&)> mockUpload = [](auto&) {};
+  std::function<void(Gl&)> mockDrop = [](auto&) {};
 
   kdl_reflect_inline_empty(MockResource);
 };
@@ -81,8 +82,9 @@ TEST_CASE("ResourceManager")
   auto mockTaskRunner = MockTaskRunner{};
   auto taskRunner = [&](auto task) { return mockTaskRunner.run(std::move(task)); };
 
-  const auto glContextAvailable = GENERATE(true, false);
-  const auto processContext = ProcessContext{glContextAvailable, [](auto, auto) {}};
+  auto testGl = TestGl{};
+
+  const auto processContext = ProcessContext{testGl, [](auto, auto) {}};
 
   auto resourceManager = ResourceManager{};
 
@@ -253,22 +255,18 @@ TEST_CASE("ResourceManager")
 
     SECTION("dropping resources")
     {
-      auto mockDropCalls = std::array{std::optional<bool>{}, std::optional<bool>{}};
+      auto mockDropCalls = std::array{false, false};
       auto sharedResources = std::array{
         std::make_shared<ResourceT>([&]() {
           return Result<MockResource>{MockResource{
-            [](auto) {},
-            [&](const auto i_glContextAvailable) {
-              mockDropCalls[0] = i_glContextAvailable;
-            },
+            [](const auto&) {},
+            [&](const auto&) { mockDropCalls[0] = true; },
           }};
         }),
         std::make_shared<ResourceT>([&]() {
           return Result<MockResource>{MockResource{
-            [](auto) {},
-            [&](const auto i_glContextAvailable) {
-              mockDropCalls[1] = i_glContextAvailable;
-            },
+            [](const auto&) {},
+            [&](const auto&) { mockDropCalls[1] = true; },
           }};
         }),
       };
@@ -301,7 +299,7 @@ TEST_CASE("ResourceManager")
         resourcesWereProcessed.notifications
         == std::vector<std::vector<ResourceId>>{{resourceIds[0]}});
       CHECK(resourceManager.resources() == std::vector{sharedResources[1]});
-      CHECK(mockDropCalls[0] == glContextAvailable);
+      CHECK(mockDropCalls[0]);
 
       sharedResources[1].reset();
       CHECK(resourceManager.resources().size() == 1);
@@ -313,7 +311,7 @@ TEST_CASE("ResourceManager")
         resourcesWereProcessed.notifications
         == std::vector<std::vector<ResourceId>>{{resourceIds[1]}});
       CHECK(resourceManager.resources().empty());
-      CHECK(mockDropCalls[1] == glContextAvailable);
+      CHECK(mockDropCalls[1]);
     }
   }
 }

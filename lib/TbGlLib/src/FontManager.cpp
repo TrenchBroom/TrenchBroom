@@ -74,11 +74,11 @@ void FontManager::clearCache()
   m_cache.clear();
 }
 
-void FontManager::destroyPendingFonts()
+void FontManager::destroyPendingFonts(Gl& gl)
 {
   for (auto& font : m_fontsToDestroy)
   {
-    font->destroy();
+    font->destroy(gl);
   }
   m_fontsToDestroy.clear();
 }

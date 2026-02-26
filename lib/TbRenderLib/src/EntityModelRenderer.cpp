@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
+#include "gl/GlInterface.h"
 #include "gl/MaterialIndexRangeRenderer.h"
 #include "gl/MaterialRenderFunc.h"
 #include "gl/Shaders.h"
@@ -150,22 +151,23 @@ void EntityModelRenderer::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void EntityModelRenderer::prepare(gl::VboManager& vboManager)
+void EntityModelRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
-  m_entityModelManager.prepare(vboManager);
+  m_entityModelManager.prepare(gl, vboManager);
 }
 
 void EntityModelRenderer::render(RenderContext& renderContext)
 {
   if (!m_entities.empty())
   {
+    auto& gl = renderContext.gl();
+
+    gl.enable(GL_TEXTURE_2D);
+    gl.activeTexture(GL_TEXTURE0);
+
     auto& prefs = PreferenceManager::instance();
-
-    glAssert(glEnable(GL_TEXTURE_2D));
-    glAssert(glActiveTexture(GL_TEXTURE0));
-
     auto shader =
-      gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::EntityModelShader};
+      gl::ActiveShader{gl, renderContext.shaderManager(), gl::Shaders::EntityModelShader};
     shader.set("Brightness", prefs.get(Preferences::Brightness));
     shader.set("ApplyTinting", m_applyTinting);
     shader.set("TintColor", m_tintColor);
@@ -212,7 +214,7 @@ void EntityModelRenderer::render(RenderContext& renderContext)
 
       auto renderFunc = gl::DefaultMaterialRenderFunc{
         renderContext.minFilterMode(), renderContext.magFilterMode()};
-      renderer->render(shader.program(), renderFunc);
+      renderer->render(gl, shader.program(), renderFunc);
     }
   }
 }

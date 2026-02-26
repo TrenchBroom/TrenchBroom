@@ -25,8 +25,9 @@ namespace tb
 {
 namespace gl
 {
+class Gl;
 class VboManager;
-}
+} // namespace gl
 
 namespace render
 {
@@ -49,7 +50,7 @@ public:
   DirectRenderable();
   ~DirectRenderable() override;
 
-  virtual void prepare(gl::VboManager& vboManager) = 0;
+  virtual void prepare(gl::Gl& gl, gl::VboManager& vboManager) = 0;
 
   defineCopyAndMove(DirectRenderable);
 };
@@ -60,7 +61,7 @@ public:
   IndexedRenderable();
   ~IndexedRenderable() override;
 
-  virtual void prepare(gl::VboManager& vboManager) = 0;
+  virtual void prepare(gl::Gl& gl, gl::VboManager& vboManager) = 0;
 
   defineCopyAndMove(IndexedRenderable);
 };

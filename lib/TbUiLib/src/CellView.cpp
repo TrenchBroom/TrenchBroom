@@ -30,6 +30,7 @@
 #include "gl/ActiveShader.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
+#include "gl/GlInterface.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/TextureFont.h"
@@ -347,7 +348,7 @@ QRect CellView::visibleRect() const
   return QRect{QPoint{0, top}, size()};
 }
 
-void CellView::renderContents()
+void CellView::renderContents(gl::Gl& gl)
 {
   validate();
   if (!m_layoutInitialized)
@@ -358,9 +359,9 @@ void CellView::renderContents()
   const auto r = devicePixelRatioF();
   const auto viewportWidth = int(width() * r);
   const auto viewportHeight = int(height() * r);
-  glAssert(glViewport(0, 0, viewportWidth, viewportHeight));
+  gl.viewport(0, 0, viewportWidth, viewportHeight);
 
-  setupGL();
+  setupGL(gl);
 
   // NOTE: These are in points, while the glViewport call above is
   // in pixels
@@ -369,7 +370,7 @@ void CellView::renderContents()
   const auto y = float(visibleRect.y());
   const auto h = float(visibleRect.height());
 
-  doRender(m_layout, y, h);
+  doRender(gl, m_layout, y, h);
 
   const auto viewLeft = float(0);
   const auto viewTop = float(size().height());
@@ -377,35 +378,36 @@ void CellView::renderContents()
   const auto viewBottom = float(0);
 
   const auto transformation = render::Transformation{
+    gl,
     vm::ortho_matrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom),
     vm::view_matrix(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0})
       * vm::translation_matrix(vm::vec3f{0.0f, 0.0f, 0.1f})};
 
-  glAssert(glDisable(GL_DEPTH_TEST));
-  glAssert(glFrontFace(GL_CCW));
-  renderTitleBackgrounds(y, h);
-  renderTitleStrings(y, h);
+  gl.disable(GL_DEPTH_TEST);
+  gl.frontFace(GL_CCW);
+  renderTitleBackgrounds(gl, y, h);
+  renderTitleStrings(gl, y, h);
 }
 
-void CellView::setupGL()
+void CellView::setupGL(gl::Gl& gl)
 {
   if (pref(Preferences::EnableMSAA))
   {
-    glAssert(glEnable(GL_MULTISAMPLE));
+    gl.enable(GL_MULTISAMPLE);
   }
   else
   {
-    glAssert(glDisable(GL_MULTISAMPLE));
+    gl.disable(GL_MULTISAMPLE);
   }
-  glAssert(glEnable(GL_BLEND));
-  glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-  glAssert(glEnable(GL_CULL_FACE));
-  glAssert(glEnable(GL_DEPTH_TEST));
-  glAssert(glDepthFunc(GL_LEQUAL));
-  glAssert(glShadeModel(GL_SMOOTH));
+  gl.enable(GL_BLEND);
+  gl.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl.enable(GL_CULL_FACE);
+  gl.enable(GL_DEPTH_TEST);
+  gl.depthFunc(GL_LEQUAL);
+  gl.shadeModel(GL_SMOOTH);
 }
 
-void CellView::renderTitleBackgrounds(float y, float height)
+void CellView::renderTitleBackgrounds(gl::Gl& gl, float y, float height)
 {
   using Vertex = gl::VertexTypes::P2::Vertex;
   auto vertices = std::vector<Vertex>{};
@@ -426,16 +428,17 @@ void CellView::renderTitleBackgrounds(float y, float height)
     }
   }
 
-  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPUniformCShader};
+  auto shader =
+    gl::ActiveShader{gl, shaderManager(), gl::Shaders::VaryingPUniformCShader};
   shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
   auto vertexArray = gl::VertexArray::move(std::move(vertices));
-  vertexArray.prepare(vboManager());
+  vertexArray.prepare(gl, vboManager());
 
-  if (vertexArray.setup(shader.program()))
+  if (vertexArray.setup(gl, shader.program()))
   {
-    vertexArray.render(gl::PrimType::Quads);
-    vertexArray.cleanup(shader.program());
+    vertexArray.render(gl, gl::PrimType::Quads);
+    vertexArray.cleanup(gl, shader.program());
   }
 }
 
@@ -516,7 +519,7 @@ auto collectStringVertices(
 
 } // namespace
 
-void CellView::renderTitleStrings(float y, float height)
+void CellView::renderTitleStrings(gl::Gl& gl, float y, float height)
 {
   using StringRendererMap = std::map<gl::FontDescriptor, gl::VertexArray>;
   auto stringRenderers = StringRendererMap{};
@@ -525,23 +528,23 @@ void CellView::renderTitleStrings(float y, float height)
        collectStringVertices(m_layout, y, height, fontManager()))
   {
     stringRenderers[descriptor] = gl::VertexArray::ref(vertices);
-    stringRenderers[descriptor].prepare(vboManager());
+    stringRenderers[descriptor].prepare(gl, vboManager());
   }
 
-  auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::ColoredTextShader};
+  auto shader = gl::ActiveShader{gl, shaderManager(), gl::Shaders::ColoredTextShader};
   shader.set("Texture", 0);
 
   for (auto& [descriptor, vertexArray] : stringRenderers)
   {
-    if (vertexArray.setup(shader.program()))
+    if (vertexArray.setup(gl, shader.program()))
     {
       auto& font = fontManager().font(descriptor);
-      font.activate();
+      font.activate(gl);
 
-      vertexArray.render(gl::PrimType::Quads);
-      vertexArray.cleanup(shader.program());
+      vertexArray.render(gl, gl::PrimType::Quads);
+      vertexArray.cleanup(gl, shader.program());
 
-      font.deactivate();
+      font.deactivate(gl);
     }
   }
 }

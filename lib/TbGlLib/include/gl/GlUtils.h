@@ -21,11 +21,14 @@
 
 #include <GL/glew.h>
 
+#include <GL/gl.h>
+
 #include <string>
 #include <vector>
 
 namespace tb::gl
 {
+class Gl;
 
 using Indices = std::vector<GLint>;
 using Counts = std::vector<GLsizei>;
@@ -36,8 +39,8 @@ std::string glGetErrorMessage(GLenum code);
 GLenum getEnum(const std::string& name);
 std::string glGetEnumName(GLenum _enum);
 
-void glSetEdgeOffset(double f);
-void glResetEdgeOffset();
+void glSetEdgeOffset(Gl& gl, double f);
+void glResetEdgeOffset(Gl& gl);
 
 // #define GL_DEBUG 1
 // #define GL_LOG 1

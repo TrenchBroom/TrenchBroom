@@ -48,16 +48,16 @@ bool IndexArray::prepared() const
   return m_prepared;
 }
 
-void IndexArray::prepare(VboManager& vboManager)
+void IndexArray::prepare(Gl& gl, VboManager& vboManager)
 {
   if (!prepared() && !empty())
   {
-    m_holder->prepare(vboManager);
+    m_holder->prepare(gl, vboManager);
   }
   m_prepared = true;
 }
 
-bool IndexArray::setup()
+bool IndexArray::setup(Gl& gl)
 {
   if (empty())
   {
@@ -67,12 +67,13 @@ bool IndexArray::setup()
   contract_assert(prepared());
   contract_assert(!m_setup);
 
-  m_holder->setup();
+  m_holder->setup(gl);
   m_setup = true;
   return true;
 }
 
-void IndexArray::render(const PrimType primType, const size_t offset, size_t count)
+void IndexArray::render(
+  Gl& gl, const PrimType primType, const size_t offset, size_t count)
 {
   contract_pre(prepared());
 
@@ -80,25 +81,25 @@ void IndexArray::render(const PrimType primType, const size_t offset, size_t cou
   {
     if (!m_setup)
     {
-      if (setup())
+      if (setup(gl))
       {
-        m_holder->render(primType, offset, count);
-        cleanup();
+        m_holder->render(gl, primType, offset, count);
+        cleanup(gl);
       }
     }
     else
     {
-      m_holder->render(primType, offset, count);
+      m_holder->render(gl, primType, offset, count);
     }
   }
 }
 
-void IndexArray::cleanup()
+void IndexArray::cleanup(Gl& gl)
 {
   contract_pre(m_setup);
   contract_pre(!empty());
 
-  m_holder->cleanup();
+  m_holder->cleanup(gl);
   m_setup = false;
 }
 

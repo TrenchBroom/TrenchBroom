@@ -20,6 +20,7 @@
 #include "gl/Material.h"
 
 #include "Macros.h"
+#include "gl/GlInterface.h"
 #include "gl/Texture.h"
 
 #include "kd/contracts.h"
@@ -224,21 +225,21 @@ void Material::decUsageCount() const
   contract_assert(previous > 0);
 }
 
-void Material::activate(const int minFilter, const int magFilter) const
+void Material::activate(Gl& gl, const int minFilter, const int magFilter) const
 {
   if (const auto* texture = m_textureResource->get();
-      texture && texture->activate(minFilter, magFilter))
+      texture && texture->activate(gl, minFilter, magFilter))
   {
     switch (m_culling)
     {
     case MaterialCulling::None:
-      glAssert(glDisable(GL_CULL_FACE));
+      gl.disable(GL_CULL_FACE);
       break;
     case MaterialCulling::Front:
-      glAssert(glCullFace(GL_FRONT));
+      gl.cullFace(GL_FRONT);
       break;
     case MaterialCulling::Both:
-      glAssert(glCullFace(GL_FRONT_AND_BACK));
+      gl.cullFace(GL_FRONT_AND_BACK);
       break;
     case MaterialCulling::Default:
     case MaterialCulling::Back:
@@ -247,46 +248,46 @@ void Material::activate(const int minFilter, const int magFilter) const
 
     if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {
-      glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
+      gl.pushAttrib(GL_COLOR_BUFFER_BIT);
       if (m_blendFunc.enable == MaterialBlendFunc::Enable::UseFactors)
       {
-        glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
+        gl.blendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor);
       }
       else
       {
         contract_assert(m_blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
-        glAssert(glDisable(GL_BLEND));
+        gl.disable(GL_BLEND);
       }
     }
   }
 }
 
-void Material::deactivate() const
+void Material::deactivate(Gl& gl) const
 {
-  if (const auto* texture = m_textureResource->get(); texture && texture->deactivate())
+  if (const auto* texture = m_textureResource->get(); texture && texture->deactivate(gl))
   {
     if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {
-      glAssert(glPopAttrib());
+      gl.popAttrib();
     }
 
     switch (m_culling)
     {
     case MaterialCulling::None:
-      glAssert(glEnable(GL_CULL_FACE));
+      gl.enable(GL_CULL_FACE);
       break;
     case MaterialCulling::Front:
-      glAssert(glCullFace(GL_BACK));
+      gl.cullFace(GL_BACK);
       break;
     case MaterialCulling::Both:
-      glAssert(glCullFace(GL_BACK));
+      gl.cullFace(GL_BACK);
       break;
     case MaterialCulling::Default:
     case MaterialCulling::Back:
       break;
     }
 
-    glAssert(glBindTexture(GL_TEXTURE_2D, 0));
+    gl.bindTexture(GL_TEXTURE_2D, 0);
   }
 }
 

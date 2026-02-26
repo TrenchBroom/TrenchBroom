@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "gl/GlInterface.h"
 #include "gl/GlUtils.h"
 #include "gl/ShaderProgram.h"
 
@@ -27,6 +28,7 @@
 
 namespace tb::gl
 {
+class Gl;
 
 /**
  * User defined vertex attribute types.
@@ -48,26 +50,27 @@ public:
   static const bool Normalize = N;
 
   static void setup(
+    Gl& gl,
     ShaderProgram& program,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
   {
-    const auto attributeIndex = program.findAttributeLocation(A::name);
-    glAssert(glEnableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
-    glAssert(glVertexAttribPointer(
+    const auto attributeIndex = program.findAttributeLocation(gl, A::name);
+    gl.enableVertexAttribArray(static_cast<GLuint>(attributeIndex));
+    gl.vertexAttribPointer(
       static_cast<GLuint>(attributeIndex),
       static_cast<GLint>(S),
       D,
       Normalize ? GL_TRUE : GL_FALSE,
       static_cast<GLsizei>(stride),
-      reinterpret_cast<GLvoid*>(offset)));
+      reinterpret_cast<GLvoid*>(offset));
   }
 
-  static void cleanup(ShaderProgram& program, const size_t /* index */)
+  static void cleanup(Gl& gl, ShaderProgram& program, const size_t /* index */)
   {
-    const auto attributeIndex = program.findAttributeLocation(A::name);
-    glAssert(glDisableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
+    const auto attributeIndex = program.findAttributeLocation(gl, A::name);
+    gl.disableVertexAttribArray(static_cast<GLuint>(attributeIndex));
   }
 
   // Non-instantiable
@@ -90,22 +93,23 @@ public:
   static const size_t Size = sizeof(ElementType);
 
   static void setup(
+    Gl& gl,
     ShaderProgram& /* program */,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
   {
-    glAssert(glEnableClientState(GL_VERTEX_ARRAY));
-    glAssert(glVertexPointer(
+    gl.enableClientState(GL_VERTEX_ARRAY);
+    gl.vertexPointer(
       static_cast<GLint>(S),
       D,
       static_cast<GLsizei>(stride),
-      reinterpret_cast<GLvoid*>(offset)));
+      reinterpret_cast<GLvoid*>(offset));
   }
 
-  static void cleanup(ShaderProgram& /* program */, const size_t /* index */)
+  static void cleanup(Gl& gl, ShaderProgram& /* program */, const size_t /* index */)
   {
-    glAssert(glDisableClientState(GL_VERTEX_ARRAY));
+    gl.disableClientState(GL_VERTEX_ARRAY);
   }
 
   // Non-instantiable
@@ -128,6 +132,7 @@ public:
   static const size_t Size = sizeof(ElementType);
 
   static void setup(
+    Gl& gl,
     ShaderProgram& /* program */,
     const size_t /* index */,
     const size_t stride,
@@ -135,14 +140,13 @@ public:
   {
     static_assert(S == 3);
 
-    glAssert(glEnableClientState(GL_NORMAL_ARRAY));
-    glAssert(glNormalPointer(
-      D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+    gl.enableClientState(GL_NORMAL_ARRAY);
+    gl.normalPointer(D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
   }
 
-  static void cleanup(ShaderProgram& /* program */, const size_t /* index */)
+  static void cleanup(Gl& gl, ShaderProgram& /* program */, const size_t /* index */)
   {
-    glAssert(glDisableClientState(GL_NORMAL_ARRAY));
+    gl.disableClientState(GL_NORMAL_ARRAY);
   }
 
   // Non-instantiable
@@ -165,22 +169,23 @@ public:
   static const size_t Size = sizeof(ElementType);
 
   static void setup(
+    Gl& gl,
     ShaderProgram& /* program */,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
   {
-    glAssert(glEnableClientState(GL_COLOR_ARRAY));
-    glAssert(glColorPointer(
+    gl.enableClientState(GL_COLOR_ARRAY);
+    gl.colorPointer(
       static_cast<GLint>(S),
       D,
       static_cast<GLsizei>(stride),
-      reinterpret_cast<GLvoid*>(offset)));
+      reinterpret_cast<GLvoid*>(offset));
   }
 
-  static void cleanup(ShaderProgram& /* program */, const size_t /* index */)
+  static void cleanup(Gl& gl, ShaderProgram& /* program */, const size_t /* index */)
   {
-    glAssert(glDisableClientState(GL_COLOR_ARRAY));
+    gl.disableClientState(GL_COLOR_ARRAY);
   }
 
   // Non-instantiable
@@ -203,24 +208,25 @@ public:
   static const size_t Size = sizeof(ElementType);
 
   static void setup(
+    Gl& gl,
     ShaderProgram& /* program */,
     const size_t /* index */,
     const size_t stride,
     const size_t offset)
   {
-    glAssert(glClientActiveTexture(GL_TEXTURE0));
-    glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-    glAssert(glTexCoordPointer(
+    gl.clientActiveTexture(GL_TEXTURE0);
+    gl.enableClientState(GL_TEXTURE_COORD_ARRAY);
+    gl.texCoordPointer(
       static_cast<GLint>(S),
       D,
       static_cast<GLsizei>(stride),
-      reinterpret_cast<GLvoid*>(offset)));
+      reinterpret_cast<GLvoid*>(offset));
   }
 
-  static void cleanup(ShaderProgram& /* program */, const size_t /* index */)
+  static void cleanup(Gl& gl, ShaderProgram& /* program */, const size_t /* index */)
   {
-    glAssert(glClientActiveTexture(GL_TEXTURE0));
-    glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
+    gl.clientActiveTexture(GL_TEXTURE0);
+    gl.disableClientState(GL_TEXTURE_COORD_ARRAY);
   }
 
   // Non-instantiable

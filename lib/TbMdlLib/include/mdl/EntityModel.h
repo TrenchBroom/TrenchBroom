@@ -40,6 +40,7 @@ class octree;
 
 namespace gl
 {
+class Gl;
 class IndexRangeMap;
 class MaterialCollection;
 class MaterialIndexRangeMap;
@@ -207,12 +208,12 @@ public:
   /**
    * Uploads the skin materials of this surface for rendering.
    */
-  void upload(bool glContextAvailable);
+  void upload(gl::Gl& gl);
 
   /**
    * Drops the skin materials of this surface.
    */
-  void drop(bool glContextAvailable);
+  void drop(gl::Gl& gl);
 
   /**
    * Adds a new mesh to this surface.
@@ -333,12 +334,12 @@ public:
   /**
    * Prepares this model for rendering by uploading its skin materials.
    */
-  void upload(bool glContextAvailable);
+  void upload(gl::Gl& gl);
 
   /**
    * Drops the rendering resources associated with this model.
    */
-  void drop(bool glContextAvailable);
+  void drop(gl::Gl& gl);
 
   /**
    * Adds a frame with the given name and bounds.

@@ -49,18 +49,18 @@ bool MaterialIndexRangeRenderer::empty() const
   return m_vertexArray.empty();
 }
 
-void MaterialIndexRangeRenderer::prepare(VboManager& vboManager)
+void MaterialIndexRangeRenderer::prepare(Gl& gl, VboManager& vboManager)
 {
-  m_vertexArray.prepare(vboManager);
+  m_vertexArray.prepare(gl, vboManager);
 }
 
 void MaterialIndexRangeRenderer::render(
-  ShaderProgram& currentProgram, MaterialRenderFunc& func)
+  Gl& gl, ShaderProgram& currentProgram, MaterialRenderFunc& func)
 {
-  if (m_vertexArray.setup(currentProgram))
+  if (m_vertexArray.setup(gl, currentProgram))
   {
-    m_indexRange.render(m_vertexArray, func);
-    m_vertexArray.cleanup(currentProgram);
+    m_indexRange.render(gl, m_vertexArray, func);
+    m_vertexArray.cleanup(gl, currentProgram);
   }
 }
 
@@ -84,20 +84,20 @@ bool MultiMaterialIndexRangeRenderer::empty() const
   return true;
 }
 
-void MultiMaterialIndexRangeRenderer::prepare(VboManager& vboManager)
+void MultiMaterialIndexRangeRenderer::prepare(Gl& gl, VboManager& vboManager)
 {
   for (auto& renderer : m_renderers)
   {
-    renderer->prepare(vboManager);
+    renderer->prepare(gl, vboManager);
   }
 }
 
 void MultiMaterialIndexRangeRenderer::render(
-  ShaderProgram& currentProgram, MaterialRenderFunc& func)
+  Gl& gl, ShaderProgram& currentProgram, MaterialRenderFunc& func)
 {
   for (auto& renderer : m_renderers)
   {
-    renderer->render(currentProgram, func);
+    renderer->render(gl, currentProgram, func);
   }
 }
 

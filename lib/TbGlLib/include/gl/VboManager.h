@@ -25,6 +25,7 @@
 
 namespace tb::gl
 {
+class Gl;
 class Vbo;
 
 enum class VboType
@@ -57,14 +58,14 @@ public:
    * The contents are initially unspecified. See Vbo class.
    */
   std::unique_ptr<Vbo> allocateVbo(
-    VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
+    Gl& gl, VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
   void destroyVbo(std::unique_ptr<Vbo> vbo);
 
   size_t peakVboCount() const;
   size_t currentVboCount() const;
   size_t currentVboSize() const;
 
-  void destroyPendingVbos();
+  void destroyPendingVbos(Gl& gl);
 };
 
 } // namespace tb::gl

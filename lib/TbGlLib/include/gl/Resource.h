@@ -35,6 +35,7 @@
 
 namespace tb::gl
 {
+class Gl;
 
 template <typename T>
 using ResourceLoader = std::function<Result<T>()>;
@@ -43,7 +44,7 @@ using ErrorHandler = std::function<void(const ResourceId&, const std::string&)>;
 
 struct ProcessContext
 {
-  bool glContextAvailable;
+  Gl& gl;
   ErrorHandler errorHandler;
 };
 
@@ -176,9 +177,9 @@ ResourceState<T> finishLoading(ResourceLoading<T> state)
 }
 
 template <typename T>
-ResourceState<T> upload(ResourceLoaded<T> state, const bool glContextAvailable)
+ResourceState<T> upload(ResourceLoaded<T> state, Gl& gl)
 {
-  state.resource.upload(glContextAvailable);
+  state.resource.upload(gl);
   return ResourceReady<T>{std::move(state.resource)};
 }
 
@@ -189,16 +190,16 @@ ResourceState<T> triggerDropping(ResourceReady<T> state)
 }
 
 template <typename T>
-ResourceState<T> drop(ResourceReady<T> state, const bool glContextAvailable)
+ResourceState<T> drop(ResourceReady<T> state, Gl& gl)
 {
-  state.resource.drop(glContextAvailable);
+  state.resource.drop(gl);
   return ResourceDropped{};
 }
 
 template <typename T>
-ResourceState<T> drop(ResourceDropping<T> state, const bool glContextAvailable)
+ResourceState<T> drop(ResourceDropping<T> state, Gl& gl)
 {
-  state.resource.drop(glContextAvailable);
+  state.resource.drop(gl);
   return ResourceDropped{};
 }
 
@@ -285,10 +286,10 @@ public:
           return detail::finishLoading(std::move(state));
         },
         [&](ResourceLoaded<T> state) -> ResourceState<T> {
-          return detail::upload(std::move(state), context.glContextAvailable);
+          return detail::upload(std::move(state), context.gl);
         },
         [&](ResourceDropping<T> state) -> ResourceState<T> {
-          return detail::drop(std::move(state), context.glContextAvailable);
+          return detail::drop(std::move(state), context.gl);
         },
         [](auto state) -> ResourceState<T> { return state; }),
       std::move(m_state));
@@ -335,26 +336,26 @@ public:
       std::move(m_state));
   }
 
-  void uploadSync(const bool glContextAvailable)
+  void uploadSync(Gl& gl)
   {
     m_state = std::visit(
       kdl::overload(
         [&](ResourceLoaded<T> state) -> ResourceState<T> {
-          return detail::upload(std::move(state), glContextAvailable);
+          return detail::upload(std::move(state), gl);
         },
         [](auto state) -> ResourceState<T> { return state; }),
       std::move(m_state));
   }
 
-  void dropSync(const bool glContextAvailable)
+  void dropSync(Gl& gl)
   {
     m_state = std::visit(
       kdl::overload(
         [&](ResourceReady<T> state) -> ResourceState<T> {
-          return detail::drop(std::move(state), glContextAvailable);
+          return detail::drop(std::move(state), gl);
         },
         [&](ResourceDropping<T> state) -> ResourceState<T> {
-          return detail::drop(std::move(state), glContextAvailable);
+          return detail::drop(std::move(state), gl);
         },
         [](auto) -> ResourceState<T> { return ResourceDropped{}; }),
       std::move(m_state));

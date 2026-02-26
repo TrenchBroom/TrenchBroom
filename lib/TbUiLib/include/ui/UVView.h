@@ -86,7 +86,7 @@ private:
   void reload();
 
   void updateViewport(int x, int y, int width, int height) override;
-  void renderContents() override;
+  void renderContents(gl::Gl& gl) override;
   bool shouldRenderFocusIndicator() const override;
   const Color& getBackgroundColor() override;
 

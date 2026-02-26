@@ -34,6 +34,7 @@ namespace tb
 namespace gl
 {
 class ActiveShader;
+class Gl;
 template <typename VertexSpec>
 class IndexRangeMapBuilder;
 class IndexRangeRenderer;
@@ -71,7 +72,10 @@ private:
     bool operator==(const LineRenderAttributes& other) const;
 
     void render(
-      gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader, float dpiScale) const;
+      gl::Gl& gl,
+      gl::IndexRangeRenderer& renderer,
+      gl::ActiveShader& shader,
+      float dpiScale) const;
   };
 
   using LineMeshMap =
@@ -97,7 +101,8 @@ private:
     std::partial_ordering operator<=>(const TriangleRenderAttributes& other) const;
     bool operator==(const TriangleRenderAttributes& other) const;
 
-    void render(gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader) const;
+    void render(
+      gl::Gl& gl, gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader) const;
   };
 
   using TriangleMeshMap =
@@ -173,9 +178,9 @@ public:
     const vm::vec3f& end);
 
 private:
-  void prepare(gl::VboManager& vboManager) override;
-  void prepareLines(gl::VboManager& vboManager);
-  void prepareTriangles(gl::VboManager& vboManager);
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
+  void prepareLines(gl::Gl& gl, gl::VboManager& vboManager);
+  void prepareTriangles(gl::Gl& gl, gl::VboManager& vboManager);
 
   void render(RenderContext& renderContext) override;
   void renderLines(RenderContext& renderContext);

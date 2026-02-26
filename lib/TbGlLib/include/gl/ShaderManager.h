@@ -30,6 +30,8 @@
 
 namespace tb::gl
 {
+class Gl;
+
 struct ShaderConfig;
 
 using FindShaderFunc = std::function<std::filesystem::path(const std::filesystem::path&)>;
@@ -49,14 +51,15 @@ private:
 public:
   explicit ShaderManager(FindShaderFunc findShaderFunc);
 
-  Result<void> loadProgram(const ShaderConfig& config);
+  Result<void> loadProgram(Gl& gl, const ShaderConfig& config);
   ShaderProgram& program(const ShaderConfig& config);
   ShaderProgram* currentProgram();
 
 private:
   void setCurrentProgram(ShaderProgram* program);
-  Result<ShaderProgram> createProgram(const ShaderConfig& config);
-  Result<std::reference_wrapper<Shader>> loadShader(const std::string& name, GLenum type);
+  Result<ShaderProgram> createProgram(Gl& gl, const ShaderConfig& config);
+  Result<std::reference_wrapper<Shader>> loadShader(
+    Gl& gl, const std::string& name, GLenum type);
 };
 
 } // namespace tb::gl

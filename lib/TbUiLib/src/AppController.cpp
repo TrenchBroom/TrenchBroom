@@ -32,6 +32,7 @@
 #include "fs/PathInfo.h"
 #include "gl/FontManager.h"
 #include "gl/GlManager.h"
+#include "gl/Glew.h"
 #include "gl/ResourceManager.h"
 #include "gl/VboManager.h"
 #include "mdl/EnvironmentConfig.h"
@@ -428,11 +429,12 @@ void AppController::processGlResources()
       }
     };
 
-    auto processContext = tb::gl::ProcessContext{true, errorHandler};
+    auto gl = gl::Glew{};
+    auto processContext = tb::gl::ProcessContext{gl, errorHandler};
 
     m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
-    m_glManager->vboManager().destroyPendingVbos();
-    m_glManager->fontManager().destroyPendingFonts();
+    m_glManager->vboManager().destroyPendingVbos(gl);
+    m_glManager->fontManager().destroyPendingFonts(gl);
   }
 }
 

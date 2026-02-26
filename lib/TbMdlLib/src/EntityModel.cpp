@@ -393,24 +393,24 @@ const std::string& EntityModelSurface::name() const
   return m_name;
 }
 
-void EntityModelSurface::upload(const bool glContextAvailable)
+void EntityModelSurface::upload(gl::Gl& gl)
 {
   for (auto& material : m_skins->materials())
   {
     if (auto* texture = material.texture())
     {
-      texture->upload(glContextAvailable);
+      texture->upload(gl);
     }
   }
 }
 
-void EntityModelSurface::drop(const bool glContextAvailable)
+void EntityModelSurface::drop(gl::Gl& gl)
 {
   for (auto& material : m_skins->materials())
   {
     if (auto* texture = material.texture())
     {
-      texture->drop(glContextAvailable);
+      texture->drop(gl);
     }
   }
 }
@@ -523,19 +523,19 @@ vm::bbox3f EntityModelData::bounds(const size_t frameIndex) const
   return frameIndex < m_frames.size() ? m_frames[frameIndex].bounds() : vm::bbox3f{8.0f};
 }
 
-void EntityModelData::upload(const bool glContextAvailable)
+void EntityModelData::upload(gl::Gl& gl)
 {
   for (auto& surface : m_surfaces)
   {
-    surface.upload(glContextAvailable);
+    surface.upload(gl);
   }
 }
 
-void EntityModelData::drop(const bool glContextAvailable)
+void EntityModelData::drop(gl::Gl& gl)
 {
   for (auto& surface : m_surfaces)
   {
-    surface.drop(glContextAvailable);
+    surface.drop(gl);
   }
 }
 

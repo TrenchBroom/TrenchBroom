@@ -212,13 +212,15 @@ private:
     return render::Circle{radius / zoom, segments, fill};
   }
 
-  void prepare(gl::VboManager& vboManager) override
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override
   {
-    m_originHandle.prepare(vboManager);
+    m_originHandle.prepare(gl, vboManager);
   }
 
   void render(render::RenderContext& renderContext) override
   {
+    auto& gl = renderContext.gl();
+
     const auto fromFace =
       m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
 
@@ -238,9 +240,9 @@ private:
       renderContext.transformation(), vm::mat4x4f{translation}};
 
     auto shader = gl::ActiveShader{
-      renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
+      gl, renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     shader.set("Color", m_highlight ? highlightColor.to<RgbaF>() : handleColor);
-    m_originHandle.render(shader.program());
+    m_originHandle.render(gl, shader.program());
   }
 };
 

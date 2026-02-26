@@ -24,7 +24,14 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class Gl;
+}
+
+namespace render
 {
 
 class Circle
@@ -52,8 +59,8 @@ public:
     float angleLength);
 
   bool prepared() const;
-  void prepare(gl::VboManager& vboManager);
-  void render(gl::ShaderProgram& currentProgram);
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager);
+  void render(gl::Gl& gl, gl::ShaderProgram& currentProgram);
 
 private:
   void init3D(
@@ -65,4 +72,5 @@ private:
   void init2D(float radius, size_t segments, float startAngle, float angleLength);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

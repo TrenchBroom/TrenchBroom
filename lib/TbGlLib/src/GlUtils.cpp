@@ -19,6 +19,8 @@
 
 #include "gl/GlUtils.h"
 
+#include "gl/Gl.h"
+
 #include "kd/contracts.h"
 
 #include <fmt/format.h>
@@ -149,14 +151,14 @@ std::string glGetEnumName(const GLenum enum_)
   }
 }
 
-void glSetEdgeOffset(const double f)
+void glSetEdgeOffset(Gl& gl, const double f)
 {
-  glAssert(glDepthRange(0.0, 1.0 - EdgeOffset * f));
+  gl.depthRange(0.0, 1.0 - EdgeOffset * f);
 }
 
-void glResetEdgeOffset()
+void glResetEdgeOffset(Gl& gl)
 {
-  glAssert(glDepthRange(EdgeOffset, 1.0));
+  gl.depthRange(EdgeOffset, 1.0);
 }
 
 } // namespace tb::gl

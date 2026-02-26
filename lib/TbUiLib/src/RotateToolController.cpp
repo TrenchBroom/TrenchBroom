@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/GlInterface.h"
 #include "gl/Shaders.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
@@ -70,25 +71,30 @@ public:
   {
   }
 
-  void prepare(gl::VboManager& vboManager) override { m_circle.prepare(vboManager); }
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override
+  {
+    m_circle.prepare(gl, vboManager);
+  }
 
   void render(render::RenderContext& renderContext) override
   {
-    glAssert(glDisable(GL_DEPTH_TEST));
+    auto& gl = renderContext.gl();
 
-    glAssert(glPushAttrib(GL_POLYGON_BIT));
-    glAssert(glDisable(GL_CULL_FACE));
-    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+    gl.disable(GL_DEPTH_TEST);
+
+    gl.pushAttrib(GL_POLYGON_BIT);
+    gl.disable(GL_CULL_FACE);
+    gl.polygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     auto translation = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::translation_matrix(vm::vec3f{m_position})};
     auto shader = gl::ActiveShader{
-      renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
+      gl, renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     shader.set("Color", RgbaF{1.0f, 1.0f, 1.0f, 0.2f});
-    m_circle.render(shader.program());
+    m_circle.render(gl, shader.program());
 
-    glAssert(glEnable(GL_DEPTH_TEST));
-    glAssert(glPopAttrib());
+    gl.enable(GL_DEPTH_TEST);
+    gl.popAttrib();
   }
 };
 

@@ -23,12 +23,21 @@
 
 #include <vector>
 
-namespace tb::render
+namespace tb
+{
+namespace gl
+{
+class Gl;
+}
+
+namespace render
 {
 
 class Transformation
 {
 private:
+  gl::Gl& m_gl;
+
   using MatrixStack = std::vector<vm::mat4x4f>;
   MatrixStack m_projectionStack;
   MatrixStack m_viewStack;
@@ -36,6 +45,7 @@ private:
 
 public:
   Transformation(
+    gl::Gl& gl,
     const vm::mat4x4f& projection,
     const vm::mat4x4f& view,
     const vm::mat4x4f& model = vm::mat4x4f::identity());
@@ -63,7 +73,7 @@ private:
 private:
   Transformation(const Transformation& other);
   Transformation& operator=(const Transformation& other);
-};
+}; // namespace renderclass Transformation
 
 class ReplaceTransformation
 {
@@ -111,4 +121,5 @@ private:
   ReplaceModelMatrix& operator=(const ReplaceTransformation& other);
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

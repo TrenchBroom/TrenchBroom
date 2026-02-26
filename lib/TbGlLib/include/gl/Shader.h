@@ -28,6 +28,7 @@
 
 namespace tb::gl
 {
+class Gl;
 
 class Shader
 {
@@ -44,11 +45,11 @@ public:
   Shader(Shader&& other) noexcept;
   Shader& operator=(Shader&& other) noexcept;
 
-  void attach(GLuint programId) const;
+  void attach(Gl& gl, GLuint programId) const;
 
-  void destroy();
+  void destroy(Gl& gl);
 };
 
-Result<Shader> loadShader(const std::filesystem::path& path, GLenum type);
+Result<Shader> loadShader(Gl& gl, const std::filesystem::path& path, GLenum type);
 
 } // namespace tb::gl

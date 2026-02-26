@@ -29,6 +29,7 @@
 
 namespace tb::gl
 {
+class Gl;
 class VertexArray;
 
 /**
@@ -152,9 +153,10 @@ public:
    * Renders the primitives stored in this index range map using the vertices in the given
    * vertex array.
    *
+   * @param gl the GL interface
    * @param vertexArray the vertex array to render with
    */
-  void render(VertexArray& vertexArray) const;
+  void render(Gl& gl, VertexArray& vertexArray) const;
 
   /**
    * Invokes the given function for each primitive stored in this map.

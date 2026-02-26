@@ -33,7 +33,9 @@
 
 namespace tb::gl
 {
+class Gl;
 class ShaderProgram;
+
 enum class PrimType;
 
 /**
@@ -56,9 +58,9 @@ private:
     virtual size_t vertexCount() const = 0;
     virtual size_t sizeInBytes() const = 0;
 
-    virtual void prepare(VboManager& vboManager) = 0;
-    virtual void setup(ShaderProgram& currentProgram) = 0;
-    virtual void cleanup(ShaderProgram& currentProgram) = 0;
+    virtual void prepare(Gl& gl, VboManager& vboManager) = 0;
+    virtual void setup(Gl& gl, ShaderProgram& currentProgram) = 0;
+    virtual void cleanup(Gl& gl, ShaderProgram& currentProgram) = 0;
   };
 
   template <typename VertexSpec>
@@ -74,30 +76,30 @@ private:
 
     size_t sizeInBytes() const override { return VertexSpec::Size * m_vertexCount; }
 
-    void prepare(VboManager& vboManager) override
+    void prepare(Gl& gl, VboManager& vboManager) override
     {
       if (m_vertexCount > 0 && !m_vbo)
       {
         m_vboManager = &vboManager;
-        m_vbo = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());
-        m_vbo->writeBuffer(0, doGetVertices());
+        m_vbo = vboManager.allocateVbo(gl, VboType::ArrayBuffer, sizeInBytes());
+        m_vbo->writeBuffer(gl, 0, doGetVertices());
       }
     }
 
-    void setup(ShaderProgram& currentProgram) override
+    void setup(Gl& gl, ShaderProgram& currentProgram) override
     {
       contract_pre(m_vbo);
 
-      m_vbo->bind();
-      VertexSpec::setup(currentProgram, m_vbo->offset());
+      m_vbo->bind(gl);
+      VertexSpec::setup(gl, currentProgram, m_vbo->offset());
     }
 
-    void cleanup(ShaderProgram& currentProgram) override
+    void cleanup(Gl& gl, ShaderProgram& currentProgram) override
     {
       contract_pre(m_vbo);
 
-      VertexSpec::cleanup(currentProgram);
-      m_vbo->unbind();
+      VertexSpec::cleanup(gl, currentProgram);
+      m_vbo->unbind(gl);
     }
 
   protected:
@@ -143,9 +145,9 @@ private:
     {
     }
 
-    void prepare(VboManager& vboManager) override
+    void prepare(Gl& gl, VboManager& vboManager) override
     {
-      Holder<VertexSpec>::prepare(vboManager);
+      Holder<VertexSpec>::prepare(gl, vboManager);
       kdl::vec_clear_to_zero(m_vertices);
     }
 
@@ -266,10 +268,11 @@ public:
    * Prepares this vertex array by uploading its contents into the given vertex buffer
    * object.
    *
+   * @param gl the GL interface
    * @param vboManager the vertex buffer object to upload the contents of this vertex
    * array into
    */
-  void prepare(VboManager& vboManager);
+  void prepare(Gl& gl, VboManager& vboManager);
 
   /**
    * Sets this vertex array up for rendering. If this vertex array is only rendered once,
@@ -283,24 +286,28 @@ public:
    *
    * It is only useful to perform setup and cleanup for a caller if the caller intends to
    * issue multiple render calls to this vertex array.
+   *
+   * @param gl the GL interface
    */
-  bool setup(ShaderProgram& currentProgram);
+  bool setup(Gl& gl, ShaderProgram& currentProgram);
 
   /**
    * Renders this vertex array as a range of primitives of the given type.
    *
+   * @param gl the GL interface
    * @param primType the primitive type to render
    */
-  void render(PrimType primType) const;
+  void render(Gl& gl, PrimType primType) const;
 
   /**
    * Renders a sub range of this vertex array as a range of primitives of the given type.
    *
+   * @param gl the GL interface
    * @param primType the primitive type to render
    * @param index the index of the first vertex in this vertex array to render
    * @param count the number of vertices to render
    */
-  void render(PrimType primType, GLint index, GLsizei count) const;
+  void render(Gl& gl, PrimType primType, GLint index, GLsizei count) const;
 
   /**
    * Renders a number of sub ranges of this vertex array as ranges of primitives of the
@@ -308,12 +315,14 @@ public:
    * render, while the given counts array contains the length of the range. Both the
    * indices and counts must contain at least primCount elements.
    *
+   * @param gl the GL interface
    * @param primType the primitive type to render
    * @param indices the start indices of the ranges to render
    * @param counts the lengths of the ranges to render
    * @param primCount the number of ranges to render
    */
   void render(
+    Gl& gl,
     PrimType primType,
     const Indices& indices,
     const Counts& counts,
@@ -323,12 +332,13 @@ public:
    * Renders a number of primitives of the given type, the vertices of which are indicates
    * by the given index array.
    *
+   * @param gl the GL interface
    * @param primType the primitive type to render
    * @param indices the indices of the vertices to render
    * @param count the number of vertices to render
    */
-  void render(PrimType primType, const Indices& indices, GLsizei count) const;
-  void cleanup(ShaderProgram& currentProgram);
+  void render(Gl& gl, PrimType primType, const Indices& indices, GLsizei count) const;
+  void cleanup(Gl& gl, ShaderProgram& currentProgram);
 
 private:
   explicit VertexArray(std::shared_ptr<BaseHolder> holder);
