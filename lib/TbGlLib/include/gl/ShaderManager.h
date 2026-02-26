@@ -44,7 +44,7 @@ private:
   FindShaderFunc m_findShaderFunc;
   ShaderCache m_shaders;
   ShaderProgramCache m_programs;
-  ShaderProgram* m_currentProgram{nullptr};
+  ShaderProgram* m_currentProgram = nullptr;
 
 public:
   explicit ShaderManager(FindShaderFunc findShaderFunc);

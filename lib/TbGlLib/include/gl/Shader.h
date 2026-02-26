@@ -44,9 +44,9 @@ public:
   Shader(Shader&& other) noexcept;
   Shader& operator=(Shader&& other) noexcept;
 
-  ~Shader();
-
   void attach(GLuint programId) const;
+
+  void destroy();
 };
 
 Result<Shader> loadShader(const std::filesystem::path& path, GLenum type);

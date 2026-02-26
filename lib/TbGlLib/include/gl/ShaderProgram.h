@@ -57,8 +57,6 @@ public:
   ShaderProgram(ShaderProgram&& other) noexcept;
   ShaderProgram& operator=(ShaderProgram&& other) noexcept;
 
-  ~ShaderProgram();
-
   void attach(Shader& shader) const;
   Result<void> link();
 
@@ -85,6 +83,8 @@ public:
   }
 
   GLint findAttributeLocation(const std::string& name) const;
+
+  void destroy();
 
 private:
   GLint findUniformLocation(const std::string& name) const;

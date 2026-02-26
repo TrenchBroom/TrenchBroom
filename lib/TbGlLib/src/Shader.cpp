@@ -56,20 +56,20 @@ Shader& Shader::operator=(Shader&& other) noexcept
   return *this;
 }
 
-Shader::~Shader()
+void Shader::attach(const GLuint programId) const
+{
+  contract_pre(m_shaderId != 0);
+
+  glAssert(glAttachShader(programId, m_shaderId));
+}
+
+void Shader::destroy()
 {
   if (m_shaderId != 0)
   {
     glAssert(glDeleteShader(m_shaderId));
     m_shaderId = 0;
   }
-}
-
-void Shader::attach(const GLuint programId) const
-{
-  contract_pre(m_shaderId != 0);
-
-  glAssert(glAttachShader(programId, m_shaderId));
 }
 
 namespace
