@@ -17,6 +17,7 @@ target_sources(TbGlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GlDebug.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Glew.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArrayMap.cpp
