@@ -33,44 +33,11 @@ class Gl;
 using Indices = std::vector<GLint>;
 using Counts = std::vector<GLsizei>;
 
-void glCheckError(const std::string& msg);
-std::string glGetErrorMessage(GLenum code);
-
 GLenum getEnum(const std::string& name);
 std::string glGetEnumName(GLenum _enum);
 
 void glSetEdgeOffset(Gl& gl, double f);
 void glResetEdgeOffset(Gl& gl);
-
-// #define GL_DEBUG 1
-// #define GL_LOG 1
-
-#if !defined(NDEBUG) && defined(GL_DEBUG) // in debug mode
-#if defined(GL_LOG)
-#define glAssert(C)                                                                      \
-  do                                                                                     \
-  {                                                                                      \
-    std::cout << #C << std::endl;                                                        \
-    glCheckError("before " #C);                                                          \
-    (C);                                                                                 \
-    glCheckError("after " #C);                                                           \
-  } while (0)
-#else
-#define glAssert(C)                                                                      \
-  do                                                                                     \
-  {                                                                                      \
-    glCheckError("before " #C);                                                          \
-    (C);                                                                                 \
-    glCheckError("after " #C);                                                           \
-  } while (0)
-#endif
-#else
-#define glAssert(C)                                                                      \
-  do                                                                                     \
-  {                                                                                      \
-    (C);                                                                                 \
-  } while (0)
-#endif
 
 template <GLenum T>
 struct GLType
