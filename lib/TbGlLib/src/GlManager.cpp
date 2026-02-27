@@ -20,7 +20,7 @@
 #include "gl/GlManager.h"
 
 #include "gl/FontManager.h"
-#include "gl/Glew.h"
+#include "gl/GlInterface.h"
 #include "gl/ResourceManager.h"
 #include "gl/ShaderManager.h"
 #include "gl/ShaderProgram.h"
@@ -34,23 +34,12 @@ namespace tb::gl
 namespace
 {
 
-void initializeGlew()
-{
-  glewExperimental = GL_TRUE;
-  if (const auto glewState = glewInit(); glewState != GLEW_OK)
-  {
-    throw std::runtime_error{fmt::format(
-      "Error initializing glew: {}",
-      reinterpret_cast<const char*>(glewGetErrorString(glewState)))};
-  }
-}
-
-GlInfo initializeGlInfo()
+GlInfo initializeGlInfo(Gl& gl)
 {
   return {
-    reinterpret_cast<const char*>(glGetString(GL_VENDOR)),
-    reinterpret_cast<const char*>(glGetString(GL_RENDERER)),
-    reinterpret_cast<const char*>(glGetString(GL_VERSION)),
+    reinterpret_cast<const char*>(gl.getString(GL_VENDOR)),
+    reinterpret_cast<const char*>(gl.getString(GL_RENDERER)),
+    reinterpret_cast<const char*>(gl.getString(GL_VERSION)),
   };
 }
 
@@ -106,17 +95,14 @@ GlManager::GlManager(FindResourceFunc findResourceFunc)
 
 GlManager::~GlManager() = default;
 
-bool GlManager::initialize()
+bool GlManager::initialize(Gl& gl)
 {
   if (m_initialized)
   {
     return false;
   }
 
-  initializeGlew();
-  m_glInfo = initializeGlInfo();
-
-  auto gl = gl::Glew{};
+  m_glInfo = initializeGlInfo(gl);
   initializeShaders(gl, *m_shaderManager);
 
   m_initialized = true;

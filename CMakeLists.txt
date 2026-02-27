@@ -33,7 +33,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Using C and CXX because GLEW is C
 project(TrenchBroom C CXX)
 
 # Configure CCache if available and requested
@@ -145,7 +144,6 @@ find_package(freeimage CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
-find_package(GLEW REQUIRED)
 find_package(miniz CONFIG REQUIRED)
 find_package(tinyxml2 CONFIG REQUIRED)
 find_package(stduuid REQUIRED)

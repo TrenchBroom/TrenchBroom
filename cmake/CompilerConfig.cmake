@@ -51,9 +51,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   
   target_compile_options(CompilerConfig INTERFACE "$<$<CONFIG:RELEASE>:-O3>")
 
-  # FIXME: enable -Wcpp once we found a workaround for glew / QOpenGLWindow problem, see RenderView.h
-  target_compile_options(CompilerConfig INTERFACE -Wno-cpp)
-
   # gcc <= 7 warns about unused structured bindings, see https://github.com/TrenchBroom/TrenchBroom/issues/3751
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
     target_compile_options(CompilerConfig INTERFACE -Wno-unused-variable)

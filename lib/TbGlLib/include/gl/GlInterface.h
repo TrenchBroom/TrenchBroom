@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <OpenGL/gl.h>
+#include "gl/MiniGl.h"
 
 namespace tb::gl
 {

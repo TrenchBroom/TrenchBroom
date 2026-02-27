@@ -18,7 +18,6 @@ target_sources(TbGlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlDebug.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Glew.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArrayMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexArrayMapBuilder.cpp
@@ -53,7 +52,7 @@ target_sources(TbGlLib
 )
 
 target_link_libraries(TbGlLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbGlLib PRIVATE GLEW::GLEW OpenGL::GL freetype)
+target_link_libraries(TbGlLib PRIVATE freetype)
 target_link_libraries(TbGlLib PUBLIC TbBaseLib TbFsLib KdLib VmLib fmt::fmt-header-only)
 
 add_subdirectory(test)

@@ -19,7 +19,7 @@
 
 #include "gl/GlUtils.h"
 
-#include "gl/Gl.h"
+#include "gl/GlInterface.h"
 
 #include "kd/contracts.h"
 

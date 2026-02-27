@@ -29,11 +29,6 @@
       "platform": "!linux"
     },
     {
-      "name": "glew",
-      "version>=": "2.2.0#2",
-      "platform": "!linux"
-    },
-    {
       "name": "miniz",
       "version>=": "2.2.0#1"
     },

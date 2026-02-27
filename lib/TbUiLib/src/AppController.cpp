@@ -23,6 +23,10 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
+#include <QOffscreenSurface>
+#include <QOpenGLContext>
+#include <QOpenGLFunctions_2_1>
+#include <QOpenGLVersionFunctionsFactory>
 #include <QTimer>
 
 #include "Logger.h"
@@ -32,7 +36,6 @@
 #include "fs/PathInfo.h"
 #include "gl/FontManager.h"
 #include "gl/GlManager.h"
-#include "gl/Glew.h"
 #include "gl/ResourceManager.h"
 #include "gl/VboManager.h"
 #include "mdl/EnvironmentConfig.h"
@@ -43,6 +46,7 @@
 #include "ui/CrashDialog.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/GameDialog.h"
+#include "ui/GlQt.h"
 #include "ui/MapDocument.h"
 #include "ui/MapWindow.h"
 #include "ui/MapWindowManager.h"
@@ -429,12 +433,36 @@ void AppController::processGlResources()
       }
     };
 
-    auto gl = gl::Glew{};
+    if (!m_offscreenSurface)
+    {
+      m_offscreenSurface = new QOffscreenSurface{nullptr, this};
+      m_offscreenSurface->create();
+    }
+
+    if (!m_glContext)
+    {
+      m_glContext = new QOpenGLContext{this};
+      m_glContext->setShareContext(QOpenGLContext::globalShareContext());
+      m_glContext->create();
+    }
+
+    contract_assert(m_offscreenSurface != nullptr);
+    contract_assert(m_glContext != nullptr);
+
+    m_glContext->makeCurrent(m_offscreenSurface);
+
+    auto* glFunctions =
+      QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_2_1>(m_glContext);
+    contract_assert(glFunctions != nullptr);
+
+    auto gl = GlQt{*glFunctions};
     auto processContext = tb::gl::ProcessContext{gl, errorHandler};
 
     m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
     m_glManager->vboManager().destroyPendingVbos(gl);
     m_glManager->fontManager().destroyPendingFonts(gl);
+
+    m_glContext->doneCurrent();
   }
 }
 

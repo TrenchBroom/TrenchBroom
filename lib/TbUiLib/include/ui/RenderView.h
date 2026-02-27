@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <GL/glew.h> // must be included here, before QOpenGLWidget
-
 #include <QElapsedTimer>
 #include <QOpenGLWidget>
 
@@ -30,9 +28,7 @@
 
 #include <string>
 
-#undef Bool
-#undef Status
-#undef CursorShape
+class QOpenGLFunctions_2_1;
 
 namespace tb
 {
@@ -103,6 +99,8 @@ private:
   void processInput();
   void clearBackground(gl::Gl& gl);
   void renderFocusIndicator(gl::Gl& gl);
+
+  QOpenGLFunctions_2_1& glFunctions();
 
 protected:
   // called by initializeGL by default

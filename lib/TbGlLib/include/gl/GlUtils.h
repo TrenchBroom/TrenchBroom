@@ -19,9 +19,7 @@
 
 #pragma once
 
-#include <GL/glew.h>
-
-#include <GL/gl.h>
+#include "gl/MiniGl.h"
 
 #include <string>
 #include <vector>

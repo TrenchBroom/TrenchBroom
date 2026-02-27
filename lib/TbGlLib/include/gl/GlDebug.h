@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <GL/glew.h>
-
 #include "gl/GlInterface.h"
 
 namespace tb::gl
