@@ -55,16 +55,7 @@ FontTexture& FontTexture::operator=(FontTexture other)
   return *this;
 }
 
-FontTexture::~FontTexture()
-{
-  m_size = 0;
-  if (m_textureId != 0)
-  {
-    glAssert(glDeleteTextures(1, &m_textureId));
-    m_textureId = 0;
-  }
-  m_buffer.release();
-}
+FontTexture::~FontTexture() = default;
 
 size_t FontTexture::size() const
 {
@@ -103,6 +94,15 @@ void FontTexture::activate()
 void FontTexture::deactivate()
 {
   glAssert(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void FontTexture::destroy()
+{
+  if (m_textureId != 0)
+  {
+    glAssert(glDeleteTextures(1, &m_textureId));
+    m_textureId = 0;
+  }
 }
 
 size_t FontTexture::computeTextureSize(

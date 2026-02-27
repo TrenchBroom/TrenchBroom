@@ -30,6 +30,7 @@
 #include "Preferences.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
+#include "gl/FontManager.h"
 #include "gl/GlManager.h"
 #include "gl/ResourceManager.h"
 #include "gl/VboManager.h"
@@ -431,6 +432,7 @@ void AppController::processGlResources()
 
     m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
     m_glManager->vboManager().destroyPendingVbos();
+    m_glManager->fontManager().destroyPendingFonts();
   }
 }
 

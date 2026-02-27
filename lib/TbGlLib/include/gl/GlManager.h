@@ -62,6 +62,8 @@ public:
   bool initialize();
   bool initialized() const;
 
+  void destroy();
+
   ResourceManager& resourceManager();
   VboManager& vboManager();
   FontManager& fontManager();

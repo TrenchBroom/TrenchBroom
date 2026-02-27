@@ -58,6 +58,8 @@ public:
 
   deleteCopyAndMove(TextureFont);
 
+  void destroy();
+
   int ascend() const;
   int descend() const;
   int lineHeight() const;

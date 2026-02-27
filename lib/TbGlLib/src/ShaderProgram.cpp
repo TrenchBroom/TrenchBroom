@@ -51,15 +51,6 @@ ShaderProgram& ShaderProgram::operator=(ShaderProgram&& other) noexcept
   return *this;
 }
 
-ShaderProgram::~ShaderProgram()
-{
-  if (m_programId != 0)
-  {
-    glAssert(glDeleteProgram(m_programId));
-    m_programId = 0;
-  }
-}
-
 void ShaderProgram::attach(Shader& shader) const
 {
   contract_pre(m_programId != 0);
@@ -205,6 +196,15 @@ GLint ShaderProgram::findAttributeLocation(const std::string& name) const
   }
 
   return it->second;
+}
+
+void ShaderProgram::destroy()
+{
+  if (m_programId != 0)
+  {
+    glAssert(glDeleteProgram(m_programId));
+    m_programId = 0;
+  }
 }
 
 GLint ShaderProgram::findUniformLocation(const std::string& name) const
