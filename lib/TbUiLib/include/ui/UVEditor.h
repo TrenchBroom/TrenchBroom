@@ -32,6 +32,7 @@ namespace tb::ui
 class AppController;
 class MapDocument;
 class UVView;
+class UVViewHelper;
 
 class UVEditor : public QWidget
 {
@@ -57,6 +58,8 @@ public:
     AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
+
+  const UVViewHelper& helper() const;
 
 private:
   void updateButtons();
