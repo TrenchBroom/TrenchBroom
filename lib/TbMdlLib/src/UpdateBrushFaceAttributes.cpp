@@ -238,6 +238,21 @@ auto toFactor(const UvSign uvSign)
   }
 }
 
+auto makeVertexToUvAxisTransform(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvSign uvSign)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto dirFactor = toFactor(uvSign);
+
+  const auto toUV =
+    brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, brushFace.attributes().scale());
+
+  return [=](const auto& vertex) {
+    const auto uvCoords = vm::vec2f{toUV * vertex->position()};
+    return vm::dot(uvCoords, dirFactor * axis);
+  };
+}
+
 } // namespace
 
 kdl_reflect_impl(ResetAxis);
@@ -364,6 +379,33 @@ std::ostream& operator<<(std::ostream& lhs, const UvSign rhs)
   return lhs;
 }
 
+vm::vec3d anchorVertex(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvSign preferredSign)
+{
+  auto vertices = brushFace.vertices();
+  const auto findMaxVertex = [&](const auto uvSign) {
+    const auto iMax = std::ranges::max_element(
+      vertices,
+      std::less<float>{},
+      makeVertexToUvAxisTransform(brushFace, uvAxis, uvSign));
+    contract_assert(iMax != std::ranges::end(vertices));
+
+    return (*iMax)->position();
+  };
+
+  const auto otherSign = static_cast<UvSign>(1 - static_cast<int>(preferredSign));
+
+  for (const auto uvSign : {preferredSign, otherSign})
+  {
+    if (isJustified(brushFace, uvAxis, uvSign))
+    {
+      return findMaxVertex(uvSign);
+    }
+  }
+
+  return findMaxVertex(preferredSign);
+}
+
 bool isAligned(const BrushFace& brushFace)
 {
   const auto [edgeToAlignTo, isExactMatch] = findEdgeToAlignTo(brushFace, UvPolicy::best);
@@ -438,15 +480,9 @@ UpdateBrushFaceAttributes justify(
   const auto axis = toAxis(uvAxis);
   const auto dirFactor = toFactor(uvSign);
 
-  const auto distances =
+  auto distances =
     brushFace.vertices()
-    | std::views::transform(
-      [toUV = brushFace.toUVCoordSystemMatrix(
-         vm::vec2f{0, 0}, brushFace.attributes().scale())](const auto* vertex) {
-        return vm::vec2f{toUV * vertex->position()};
-      })
-    | std::views::transform([&](const auto& v) { return vm::dot(v, dirFactor * axis); })
-    | kdl::ranges::to<std::vector>();
+    | std::views::transform(makeVertexToUvAxisTransform(brushFace, uvAxis, uvSign));
 
   const auto [iMin, iMax] = std::ranges::minmax_element(distances);
   contract_assert(iMin != iMax);
