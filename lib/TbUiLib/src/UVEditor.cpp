@@ -52,6 +52,11 @@ bool UVEditor::cancelMouseDrag()
   return m_uvView->cancelDrag();
 }
 
+const UVViewHelper& UVEditor::helper() const
+{
+  return m_uvView->helper();
+}
+
 void UVEditor::updateButtons()
 {
   const bool enabled = !m_document.map().selection().allBrushFaces().empty();

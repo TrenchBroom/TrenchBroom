@@ -74,6 +74,8 @@ private:
 public:
   UVView(AppController& appController, MapDocument& document);
 
+  const UVViewHelper& helper() const;
+
   void setSubDivisions(const vm::vec2i& subDivisions);
 
   bool event(QEvent* event) override;
