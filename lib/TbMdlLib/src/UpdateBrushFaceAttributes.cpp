@@ -38,6 +38,37 @@ namespace tb::mdl
 {
 namespace
 {
+
+bool isEqual(const SetValue& lhs, const SetValue& rhs, const float epsilon)
+{
+  if (lhs.value && rhs.value)
+  {
+    return vm::is_equal(*lhs.value, *rhs.value, epsilon);
+  }
+  return !lhs.value && !rhs.value;
+}
+
+bool isEqual(const AddValue& lhs, const AddValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.delta, rhs.delta, epsilon);
+}
+
+bool isEqual(const MultiplyValue& lhs, const MultiplyValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.factor, rhs.factor, epsilon);
+}
+
+bool isEqual(const ValueOp& lhs, const ValueOp& rhs, const float epsilon)
+{
+  return std::visit(
+    kdl::overload(
+      [&]<typename T>(
+        const T& lhsT, const T& rhsT) { return isEqual(lhsT, rhsT, epsilon); },
+      [](const auto&, const auto&) { return false; }),
+    lhs,
+    rhs);
+}
+
 auto replaceFlagsIfSet(const auto& maybeFlags)
 {
   return maybeFlags
@@ -173,6 +204,43 @@ auto toFactor(const UvSign uvSign)
   }
 }
 
+auto makeVertexToUvAxisTransform(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvSign uvSign)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto dirFactor = toFactor(uvSign);
+
+  const auto toUV =
+    brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, brushFace.attributes().scale());
+
+  return [=](const auto& vertex) {
+    const auto uvCoords = vm::vec2f{toUV * vertex->position()};
+    return vm::dot(uvCoords, dirFactor * axis);
+  };
+}
+
+bool isJustified(const BrushFace& brushFace, const UvAxis uvAxis, const UvSign uvSign)
+{
+  const auto normalizedXOffset =
+    normalizeOffset(brushFace.attributes().xOffset(), brushFace.textureSize().x());
+  const auto normalizedYOffset =
+    normalizeOffset(brushFace.attributes().yOffset(), brushFace.textureSize().y());
+
+  const auto update = justify(brushFace, uvAxis, uvSign, UvPolicy::best);
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return update.xOffset
+           && isEqual(
+             *update.xOffset, SetValue{normalizedXOffset}, vm::Cf::almost_zero());
+  case UvAxis::v:
+    return update.yOffset
+           && isEqual(
+             *update.yOffset, SetValue{normalizedYOffset}, vm::Cf::almost_zero());
+    switchDefault();
+  }
+}
+
 } // namespace
 
 kdl_reflect_impl(ResetAxis);
@@ -299,6 +367,33 @@ std::ostream& operator<<(std::ostream& lhs, const UvSign rhs)
   return lhs;
 }
 
+vm::vec3d anchorVertex(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvSign preferredSign)
+{
+  auto vertices = brushFace.vertices();
+  const auto findMaxVertex = [&](const auto uvSign) {
+    const auto iMax = std::ranges::max_element(
+      vertices,
+      std::less<float>{},
+      makeVertexToUvAxisTransform(brushFace, uvAxis, uvSign));
+    contract_assert(iMax != std::ranges::end(vertices));
+
+    return (*iMax)->position();
+  };
+
+  const auto otherSign = static_cast<UvSign>(1 - static_cast<int>(preferredSign));
+
+  for (const auto uvSign : {preferredSign, otherSign})
+  {
+    if (isJustified(brushFace, uvAxis, uvSign))
+    {
+      return findMaxVertex(uvSign);
+    }
+  }
+
+  return findMaxVertex(preferredSign);
+}
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy uvPolicy)
 {
   constexpr auto uAxis = vm::vec2d{1, 0};
@@ -351,15 +446,9 @@ UpdateBrushFaceAttributes justify(
   const auto axis = toAxis(uvAxis);
   const auto dirFactor = toFactor(uvSign);
 
-  const auto distances =
+  auto distances =
     brushFace.vertices()
-    | std::views::transform(
-      [toUV = brushFace.toUVCoordSystemMatrix(
-         vm::vec2f{0, 0}, brushFace.attributes().scale())](const auto* vertex) {
-        return vm::vec2f{toUV * vertex->position()};
-      })
-    | std::views::transform([&](const auto& v) { return vm::dot(v, dirFactor * axis); })
-    | kdl::ranges::to<std::vector>();
+    | std::views::transform(makeVertexToUvAxisTransform(brushFace, uvAxis, uvSign));
 
   const auto [iMin, iMax] = std::ranges::minmax_element(distances);
   contract_assert(iMin != iMax);
