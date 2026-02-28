@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/PrimType.h"
 #include "gl/Vbo.h"
 #include "gl/VboManager.h"
@@ -35,8 +35,9 @@ namespace tb
 {
 namespace gl
 {
+class Gl;
 class ShaderProgram;
-}
+} // namespace gl
 
 namespace render
 {
@@ -90,7 +91,7 @@ private:
     }
   }
 
-  void allocateBlock(gl::VboManager& vboManager)
+  void allocateBlock(gl::Gl& gl, gl::VboManager& vboManager)
   {
     if (m_vboManager)
     {
@@ -103,10 +104,10 @@ private:
 
     contract_assert(m_vbo == nullptr);
     m_vbo = m_vboManager->allocateVbo(
-      m_type, m_snapshot.size() * sizeof(T), gl::VboUsage::DynamicDraw);
+      gl, m_type, m_snapshot.size() * sizeof(T), gl::VboUsage::DynamicDraw);
     contract_assert(m_vbo);
 
-    m_vbo->writeElements(0, m_snapshot);
+    m_vbo->writeElements(gl, 0, m_snapshot);
 
     m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
     contract_post(m_dirtyRange.clean());
@@ -171,7 +172,7 @@ public:
     return m_dirtyRange.clean();
   }
 
-  void prepare(gl::VboManager& vboManager)
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager)
   {
     if (empty())
     {
@@ -186,7 +187,7 @@ public:
     // first ever upload?
     if (m_vbo == nullptr)
     {
-      allocateBlock(vboManager);
+      allocateBlock(gl, vboManager);
       contract_post(prepared());
       return;
     }
@@ -195,7 +196,7 @@ public:
     if (m_dirtyRange.capacity() != (m_vbo->capacity() / sizeof(T)))
     {
       freeBlock();
-      allocateBlock(vboManager);
+      allocateBlock(gl, vboManager);
       contract_post(prepared());
       return;
     }
@@ -208,7 +209,7 @@ public:
       const size_t size = m_dirtyRange.m_dirtySize;
 
       const size_t bytesFromStart = pos * sizeof(T);
-      m_vbo->writeArray(bytesFromStart, m_snapshot.data() + pos, size);
+      m_vbo->writeArray(gl, bytesFromStart, m_snapshot.data() + pos, size);
     }
 
     m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
@@ -219,9 +220,9 @@ public:
 
   size_t size() const { return m_snapshot.size(); }
 
-  void bindBlock() { m_vbo->bind(); }
+  void bindBlock(gl::Gl& gl) { m_vbo->bind(gl); }
 
-  void unbindBlock() { m_vbo->unbind(); }
+  void unbindBlock(gl::Gl& gl) { m_vbo->unbind(gl); }
 };
 
 class IndexHolder : public VboHolder<GLuint>
@@ -235,7 +236,7 @@ public:
    */
   explicit IndexHolder(std::vector<Index>& elements);
   void zeroRange(size_t offsetWithinBlock, size_t count);
-  void render(gl::PrimType primType, size_t offset, size_t count) const;
+  void render(gl::Gl& gl, gl::PrimType primType, size_t offset, size_t count) const;
 
   static std::shared_ptr<IndexHolder> swap(std::vector<Index>& elements);
 };
@@ -278,12 +279,12 @@ public:
   void zeroElementsWithKey(AllocationTracker::Block* key);
 
   bool prepared() const;
-  void prepare(gl::VboManager& vboManager);
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager);
 
-  void setup();
-  void cleanup();
+  void setup(gl::Gl& gl);
+  void cleanup(gl::Gl& gl);
 
-  void render(gl::PrimType primType) const;
+  void render(gl::Gl& gl, gl::PrimType primType) const;
 };
 
 class VertexArrayInterface
@@ -291,10 +292,10 @@ class VertexArrayInterface
 public:
   virtual ~VertexArrayInterface() = 0;
 
-  virtual void prepare(gl::VboManager& vboManager) = 0;
+  virtual void prepare(gl::Gl&, gl::VboManager& vboManager) = 0;
 
-  virtual bool setup(gl::ShaderProgram& currentProgram) = 0;
-  virtual void cleanup(gl::ShaderProgram& currentProgram) = 0;
+  virtual bool setup(gl::Gl&, gl::ShaderProgram& currentProgram) = 0;
+  virtual void cleanup(gl::Gl&, gl::ShaderProgram& currentProgram) = 0;
 };
 
 template <typename V>
@@ -314,21 +315,24 @@ public:
   {
   }
 
-  bool setup(gl::ShaderProgram& currentProgram) override
+  bool setup(gl::Gl& gl, gl::ShaderProgram& currentProgram) override
   {
     contract_pre(VboHolder<V>::m_vbo != nullptr);
 
-    VboHolder<V>::m_vbo->bind();
-    V::Type::setup(currentProgram, VboHolder<V>::m_vbo->offset());
+    VboHolder<V>::m_vbo->bind(gl);
+    V::Type::setup(gl, currentProgram, VboHolder<V>::m_vbo->offset());
     return true;
   }
 
-  void prepare(gl::VboManager& vboManager) override { VboHolder<V>::prepare(vboManager); }
-
-  void cleanup(gl::ShaderProgram& currentProgram) override
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override
   {
-    V::Type::cleanup(currentProgram);
-    VboHolder<V>::m_vbo->unbind();
+    VboHolder<V>::prepare(gl, vboManager);
+  }
+
+  void cleanup(gl::Gl& gl, gl::ShaderProgram& currentProgram) override
+  {
+    V::Type::cleanup(gl, currentProgram);
+    VboHolder<V>::m_vbo->unbind(gl);
   }
 
   static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements)
@@ -369,11 +373,11 @@ public:
 
   // uploading the VBO
   bool prepared() const;
-  void prepare(gl::VboManager& vboManager);
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager);
 
   // setting up GL attributes
-  bool setup(gl::ShaderProgram& currentProgram);
-  void cleanup(gl::ShaderProgram& currentProgram);
+  bool setup(gl::Gl& gl, gl::ShaderProgram& currentProgram);
+  void cleanup(gl::Gl& gl, gl::ShaderProgram& currentProgram);
 };
 
 } // namespace render

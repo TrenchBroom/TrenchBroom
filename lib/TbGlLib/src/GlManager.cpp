@@ -20,6 +20,7 @@
 #include "gl/GlManager.h"
 
 #include "gl/FontManager.h"
+#include "gl/GlInterface.h"
 #include "gl/ResourceManager.h"
 #include "gl/ShaderManager.h"
 #include "gl/ShaderProgram.h"
@@ -33,27 +34,16 @@ namespace tb::gl
 namespace
 {
 
-void initializeGlew()
-{
-  glewExperimental = GL_TRUE;
-  if (const auto glewState = glewInit(); glewState != GLEW_OK)
-  {
-    throw std::runtime_error{fmt::format(
-      "Error initializing glew: {}",
-      reinterpret_cast<const char*>(glewGetErrorString(glewState)))};
-  }
-}
-
-GlInfo initializeGlInfo()
+GlInfo initializeGlInfo(Gl& gl)
 {
   return {
-    reinterpret_cast<const char*>(glGetString(GL_VENDOR)),
-    reinterpret_cast<const char*>(glGetString(GL_RENDERER)),
-    reinterpret_cast<const char*>(glGetString(GL_VERSION)),
+    reinterpret_cast<const char*>(gl.getString(GL_VENDOR)),
+    reinterpret_cast<const char*>(gl.getString(GL_RENDERER)),
+    reinterpret_cast<const char*>(gl.getString(GL_VERSION)),
   };
 }
 
-void initializeShaders(ShaderManager& shaderManager)
+void initializeShaders(Gl& gl, ShaderManager& shaderManager)
 {
   using namespace Shaders;
 
@@ -82,7 +72,7 @@ void initializeShaders(ShaderManager& shaderManager)
   };
 
   shaders | std::views::transform([&](const auto& shaderConfig) {
-    return shaderManager.loadProgram(shaderConfig);
+    return shaderManager.loadProgram(gl, shaderConfig);
   }) | kdl::fold
     | kdl::transform_error([&](const auto& e) { throw std::runtime_error{e.msg}; });
 }
@@ -105,16 +95,15 @@ GlManager::GlManager(FindResourceFunc findResourceFunc)
 
 GlManager::~GlManager() = default;
 
-bool GlManager::initialize()
+bool GlManager::initialize(Gl& gl)
 {
   if (m_initialized)
   {
     return false;
   }
 
-  initializeGlew();
-  m_glInfo = initializeGlInfo();
-  initializeShaders(*m_shaderManager);
+  m_glInfo = initializeGlInfo(gl);
+  initializeShaders(gl, *m_shaderManager);
 
   m_initialized = true;
   return true;

@@ -51,9 +51,9 @@ void PointGuideRenderer::setPosition(const vm::vec3d& position)
   }
 }
 
-void PointGuideRenderer::prepare(gl::VboManager& vboManager)
+void PointGuideRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
-  m_spikeRenderer.prepare(vboManager);
+  m_spikeRenderer.prepare(gl, vboManager);
 }
 
 void PointGuideRenderer::render(RenderContext& renderContext)

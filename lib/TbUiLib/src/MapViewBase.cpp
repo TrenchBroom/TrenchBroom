@@ -32,6 +32,7 @@
 #include "gl/Camera.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
+#include "gl/GlInterface.h"
 #include "gl/GlManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -951,7 +952,7 @@ bool MapViewBase::shouldRenderFocusIndicator() const
   return true;
 }
 
-void MapViewBase::renderContents()
+void MapViewBase::renderContents(gl::Gl& gl)
 {
   preRender();
 
@@ -963,7 +964,7 @@ void MapViewBase::renderContents()
   const auto& grid = map.grid();
 
   auto renderContext =
-    render::RenderContext{renderMode(), camera(), fontManager(), shaderManager()};
+    render::RenderContext{gl, renderMode(), camera(), fontManager(), shaderManager()};
   renderContext.setFilterMode(
     pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   renderContext.setShowMaterials(
@@ -1012,25 +1013,27 @@ void MapViewBase::renderGrid(render::RenderContext&, render::RenderBatch&) {}
 
 void MapViewBase::setupGL(render::RenderContext& context)
 {
+  auto& gl = context.gl();
+
   const auto& viewport = context.camera().viewport();
   const auto r = devicePixelRatioF();
   const auto x = static_cast<int>(viewport.x * r);
   const auto y = static_cast<int>(viewport.y * r);
   const auto width = static_cast<int>(viewport.width * r);
   const auto height = static_cast<int>(viewport.height * r);
-  glAssert(glViewport(x, y, width, height));
+  gl.viewport(x, y, width, height);
 
   if (pref(Preferences::EnableMSAA))
   {
-    glAssert(glEnable(GL_MULTISAMPLE));
+    gl.enable(GL_MULTISAMPLE);
   }
   else
   {
-    glAssert(glDisable(GL_MULTISAMPLE));
+    gl.disable(GL_MULTISAMPLE);
   }
-  glAssert(glEnable(GL_BLEND));
-  glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-  glAssert(glShadeModel(GL_SMOOTH));
+  gl.enable(GL_BLEND);
+  gl.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl.shadeModel(GL_SMOOTH);
 }
 
 void MapViewBase::renderCoordinateSystem(

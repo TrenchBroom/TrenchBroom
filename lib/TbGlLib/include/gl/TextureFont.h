@@ -32,6 +32,7 @@ namespace tb::gl
 class AttrString;
 class FontGlyph;
 class FontTexture;
+class Gl;
 
 class TextureFont
 {
@@ -58,7 +59,7 @@ public:
 
   deleteCopyAndMove(TextureFont);
 
-  void destroy();
+  void destroy(Gl& gl);
 
   int ascend() const;
   int descend() const;
@@ -76,8 +77,8 @@ public:
     const vm::vec2f& offset = vm::vec2f{0, 0}) const;
   vm::vec2f measure(const std::string& string) const;
 
-  void activate();
-  void deactivate();
+  void activate(Gl& gl);
+  void deactivate(Gl& gl);
 };
 
 } // namespace tb::gl

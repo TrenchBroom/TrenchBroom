@@ -20,6 +20,7 @@
 #include "gl/Texture.h"
 
 #include "Macros.h"
+#include "gl/GlInterface.h"
 
 #include "kd/contracts.h"
 #include "kd/overload.h"
@@ -59,6 +60,7 @@ auto makeTextureLoadedState(
 }
 
 auto uploadTexture(
+  Gl& gl,
   const GLenum format,
   const TextureMask mask,
   const std::vector<TextureBuffer>& buffers,
@@ -68,36 +70,35 @@ auto uploadTexture(
   const auto compressed = isCompressedFormat(format);
 
   auto textureId = GLuint(0);
-  glAssert(glGenTextures(1, &textureId));
+  gl.genTextures(1, &textureId);
 
-  glAssert(glPixelStorei(GL_UNPACK_SWAP_BYTES, false));
-  glAssert(glPixelStorei(GL_UNPACK_LSB_FIRST, false));
-  glAssert(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
-  glAssert(glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0));
-  glAssert(glPixelStorei(GL_UNPACK_SKIP_ROWS, 0));
-  glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+  gl.pixelStorei(GL_UNPACK_SWAP_BYTES, false);
+  gl.pixelStorei(GL_UNPACK_LSB_FIRST, false);
+  gl.pixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+  gl.pixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+  gl.pixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+  gl.pixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
-  glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-  glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+  gl.bindTexture(GL_TEXTURE_2D, textureId);
+  gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   if (mask == TextureMask::On)
   {
     // masked textures don't work well with automatic mipmaps, so we force
     // GL_NEAREST filtering and don't generate any
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE));
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    gl.texParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   }
   else if (buffers.size() == 1)
   {
     // generate mipmaps if we don't have any
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+    gl.texParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
   }
   else
   {
-    glAssert(
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, GLint(buffers.size() - 1)));
+    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, GLint(buffers.size() - 1));
   }
 
   // Upload only the first mipmap for masked textures.
@@ -112,7 +113,7 @@ auto uploadTexture(
     {
       const auto dataSize = GLsizei(buffers[j].size());
 
-      glAssert(glCompressedTexImage2D(
+      gl.compressedTexImage2D(
         GL_TEXTURE_2D,
         GLint(j),
         format,
@@ -120,11 +121,11 @@ auto uploadTexture(
         GLsizei(mipSize.y()),
         0,
         dataSize,
-        data));
+        data);
     }
     else
     {
-      glAssert(glTexImage2D(
+      gl.texImage2D(
         GL_TEXTURE_2D,
         GLint(j),
         GL_RGBA,
@@ -133,16 +134,16 @@ auto uploadTexture(
         0,
         format,
         GL_UNSIGNED_BYTE,
-        data));
+        data);
     }
   }
 
   return textureId;
 }
 
-void dropTexture(GLuint textureId)
+void dropTexture(Gl& gl, GLuint textureId)
 {
-  glAssert(glDeleteTextures(1, &textureId));
+  gl.deleteTextures(1, &textureId);
 }
 
 } // namespace
@@ -273,41 +274,38 @@ bool Texture::isReady() const
   return std::holds_alternative<TextureReadyState>(m_state);
 }
 
-bool Texture::activate(const int minFilter, const int magFilter) const
+bool Texture::activate(Gl& gl, const int minFilter, const int magFilter) const
 {
   return std::visit(
     kdl::overload(
       [](const TextureLoadedState&) { return false; },
       [&](const TextureReadyState& readyState) {
-        glAssert(glBindTexture(GL_TEXTURE_2D, readyState.textureId));
-        setFilterMode(minFilter, magFilter);
+        gl.bindTexture(GL_TEXTURE_2D, readyState.textureId);
+        setFilterMode(gl, minFilter, magFilter);
         return true;
       },
       [](const TextureDroppedState&) { return false; }),
     m_state);
 }
 
-bool Texture::deactivate() const
+bool Texture::deactivate(Gl& gl) const
 {
   if (isReady())
   {
-    glAssert(glBindTexture(GL_TEXTURE_2D, 0));
+    gl.bindTexture(GL_TEXTURE_2D, 0);
     return true;
   }
 
   return false;
 }
 
-void Texture::upload(const bool glContextAvailable)
+void Texture::upload(Gl& gl)
 {
   m_state = std::visit(
     kdl::overload(
       [&](const TextureLoadedState& textureLoadedState) -> TextureState {
-        const auto textureId =
-          glContextAvailable
-            ? uploadTexture(
-                m_format, m_mask, textureLoadedState.buffers, m_width, m_height)
-            : 0;
+        const auto textureId = uploadTexture(
+          gl, m_format, m_mask, textureLoadedState.buffers, m_width, m_height);
         return TextureReadyState{textureId};
       },
       [](TextureReadyState textureReadyState) -> TextureState {
@@ -319,16 +317,13 @@ void Texture::upload(const bool glContextAvailable)
     std::move(m_state));
 }
 
-void Texture::drop(const bool glContextAvailable)
+void Texture::drop(Gl& gl)
 {
   m_state = std::visit(
     kdl::overload(
       [&](const TextureLoadedState&) { return TextureDroppedState{}; },
       [&](const TextureReadyState& textureReadyState) {
-        if (glContextAvailable)
-        {
-          dropTexture(textureReadyState.textureId);
-        }
+        dropTexture(gl, textureReadyState.textureId);
         return TextureDroppedState{};
       },
       [](TextureDroppedState textureDroppedState) { return textureDroppedState; }),
@@ -351,18 +346,18 @@ const std::vector<TextureBuffer>& Texture::buffersIfLoaded() const
 }
 
 
-void Texture::setFilterMode(const int minFilter, const int magFilter) const
+void Texture::setFilterMode(Gl& gl, const int minFilter, const int magFilter) const
 {
   if (m_mask == TextureMask::On)
   {
     // Force GL_NEAREST filtering for masked textures.
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   }
   else
   {
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
   }
 }
 

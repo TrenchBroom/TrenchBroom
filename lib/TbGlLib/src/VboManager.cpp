@@ -20,7 +20,7 @@
 #include "gl/VboManager.h"
 
 #include "Macros.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/Vbo.h"
 
 #include <algorithm>
@@ -66,9 +66,10 @@ VboManager::VboManager() = default;
 VboManager::~VboManager() = default;
 
 std::unique_ptr<Vbo> VboManager::allocateVbo(
-  VboType type, const size_t capacity, const VboUsage usage)
+  Gl& gl, VboType type, const size_t capacity, const VboUsage usage)
 {
-  auto result = std::make_unique<Vbo>(typeToOpenGL(type), capacity, usageToOpenGL(usage));
+  auto result =
+    std::make_unique<Vbo>(gl, typeToOpenGL(type), capacity, usageToOpenGL(usage));
 
   m_currentVboSize += capacity;
   m_currentVboCount++;
@@ -100,11 +101,11 @@ size_t VboManager::currentVboSize() const
   return m_currentVboSize;
 }
 
-void VboManager::destroyPendingVbos()
+void VboManager::destroyPendingVbos(Gl& gl)
 {
   for (auto& vbo : m_vbosToDestroy)
   {
-    vbo->free();
+    vbo->free(gl);
   }
   m_vbosToDestroy.clear();
 }

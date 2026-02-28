@@ -28,6 +28,8 @@
 
 class QMenu;
 class QNetworkAccessManager;
+class QOffscreenSurface;
+class QOpenGLContext;
 class QTimer;
 
 namespace kdl
@@ -71,6 +73,9 @@ private:
   std::unique_ptr<mdl::GameManager> m_gameManager;
 
   std::unique_ptr<gl::GlManager> m_glManager;
+
+  QOpenGLContext* m_glContext = nullptr;
+  QOffscreenSurface* m_offscreenSurface = nullptr;
 
   QNetworkAccessManager* m_networkManager = nullptr;
   QTimer* m_reloadRecentDocumentsTimer = nullptr;

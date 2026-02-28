@@ -20,6 +20,7 @@
 #include "gl/Shader.h"
 
 #include "fs/DiskIO.h"
+#include "gl/GlInterface.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -56,18 +57,18 @@ Shader& Shader::operator=(Shader&& other) noexcept
   return *this;
 }
 
-void Shader::attach(const GLuint programId) const
+void Shader::attach(Gl& gl, const GLuint programId) const
 {
   contract_pre(m_shaderId != 0);
 
-  glAssert(glAttachShader(programId, m_shaderId));
+  gl.attachShader(programId, m_shaderId);
 }
 
-void Shader::destroy()
+void Shader::destroy(Gl& gl)
 {
   if (m_shaderId != 0)
   {
-    glAssert(glDeleteShader(m_shaderId));
+    gl.deleteShader(m_shaderId);
     m_shaderId = 0;
   }
 }
@@ -91,16 +92,16 @@ Result<std::vector<std::string>> loadSource(const std::filesystem::path& path)
   });
 }
 
-std::string getInfoLog(const GLuint shaderId)
+std::string getInfoLog(Gl& gl, const GLuint shaderId)
 {
   auto infoLogLength = GLint{};
-  glAssert(glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &infoLogLength));
+  gl.getShaderiv(shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
   if (infoLogLength > 0)
   {
     auto infoLog = std::string{};
     infoLog.resize(size_t(infoLogLength));
 
-    glAssert(glGetShaderInfoLog(shaderId, infoLogLength, &infoLogLength, infoLog.data()));
+    gl.getShaderInfoLog(shaderId, infoLogLength, &infoLogLength, infoLog.data());
     return infoLog;
   }
 
@@ -109,11 +110,10 @@ std::string getInfoLog(const GLuint shaderId)
 
 } // namespace
 
-Result<Shader> loadShader(const std::filesystem::path& path, const GLenum type)
+Result<Shader> loadShader(Gl& gl, const std::filesystem::path& path, const GLenum type)
 {
   auto name = path.filename().string();
-  auto shaderId = GLuint{0};
-  glAssert(shaderId = glCreateShader(type));
+  const auto shaderId = gl.createShader(type);
 
   if (shaderId == 0)
   {
@@ -125,17 +125,16 @@ Result<Shader> loadShader(const std::filesystem::path& path, const GLenum type)
              source | std::views::transform([](const auto& line) { return line.c_str(); })
              | kdl::ranges::to<std::vector>();
 
-           glAssert(glShaderSource(
-             shaderId, GLsizei(linePtrs.size()), linePtrs.data(), nullptr));
-           glAssert(glCompileShader(shaderId));
+           gl.shaderSource(shaderId, GLsizei(linePtrs.size()), linePtrs.data(), nullptr);
+           gl.compileShader(shaderId);
 
            auto compileStatus = GLint{};
-           glAssert(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileStatus));
+           gl.getShaderiv(shaderId, GL_COMPILE_STATUS, &compileStatus);
 
            if (compileStatus == 0)
            {
              return Error{
-               "Could not compile shader '" + name + "': " + getInfoLog(shaderId)};
+               "Could not compile shader '" + name + "': " + getInfoLog(gl, shaderId)};
            }
 
            return Shader{std::move(name), type, shaderId};

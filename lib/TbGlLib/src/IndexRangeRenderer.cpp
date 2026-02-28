@@ -32,17 +32,17 @@ IndexRangeRenderer::IndexRangeRenderer(VertexArray vertexArray, IndexRangeMap in
 {
 }
 
-void IndexRangeRenderer::prepare(VboManager& vboManager)
+void IndexRangeRenderer::prepare(Gl& gl, VboManager& vboManager)
 {
-  m_vertexArray.prepare(vboManager);
+  m_vertexArray.prepare(gl, vboManager);
 }
 
-void IndexRangeRenderer::render(ShaderProgram& currentProgram)
+void IndexRangeRenderer::render(Gl& gl, ShaderProgram& currentProgram)
 {
-  if (m_vertexArray.setup(currentProgram))
+  if (m_vertexArray.setup(gl, currentProgram))
   {
-    m_indexArray.render(m_vertexArray);
-    m_vertexArray.cleanup(currentProgram);
+    m_indexArray.render(gl, m_vertexArray);
+    m_vertexArray.cleanup(gl, currentProgram);
   }
 }
 

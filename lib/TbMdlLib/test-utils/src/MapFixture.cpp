@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
+#include "gl/TestGl.h"
 #include "gl/TestUtils.h"
 #include "mdl/Map.h"
 #include "mdl/TestUtils.h"
@@ -73,6 +74,8 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
 
   const auto mapFormat = m_config->mapFormat.value_or(MapFormat::Unknown);
 
+  auto gl = gl::TestGl{};
+
   contract_assert(
     Map::loadMap(
       m_config->environmentConfig,
@@ -88,7 +91,7 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
         m_map = std::move(map);
         m_map->setIsCommandCollationEnabled(false);
         gl::processResourcesSync(
-          *m_resourceManager, gl::ProcessContext{false, [](auto, auto) {}});
+          *m_resourceManager, gl::ProcessContext{gl, [](auto, auto) {}});
       })
     | kdl::is_success());
 

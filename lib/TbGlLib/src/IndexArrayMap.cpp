@@ -103,11 +103,11 @@ size_t IndexArrayMap::add(const PrimType primType, const size_t count)
   return it->second.add(count);
 }
 
-void IndexArrayMap::render(IndexArray& indexArray) const
+void IndexArrayMap::render(Gl& gl, IndexArray& indexArray) const
 {
   for (const auto& [primType, range] : m_ranges)
   {
-    indexArray.render(primType, range.offset, range.count);
+    indexArray.render(gl, primType, range.offset, range.count);
   }
 }
 

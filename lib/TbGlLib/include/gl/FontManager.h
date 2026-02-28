@@ -32,6 +32,7 @@ namespace tb::gl
 {
 class FontDescriptor;
 class FontFactory;
+class Gl;
 class TextureFont;
 
 using FindFontFunc = std::function<std::filesystem::path(const std::filesystem::path&)>;
@@ -57,7 +58,7 @@ public:
 
   void clearCache();
 
-  void destroyPendingFonts();
+  void destroyPendingFonts(Gl& gl);
 
   deleteCopyAndMove(FontManager);
 };

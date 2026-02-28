@@ -25,6 +25,7 @@
 
 namespace tb::gl
 {
+class Gl;
 class ShaderProgram;
 class VboManager;
 
@@ -45,8 +46,8 @@ public:
 
   IndexRangeRenderer(VertexArray vertexArray, IndexRangeMap indexArray);
 
-  void prepare(VboManager& vboManager);
-  void render(ShaderProgram& currentProgram);
+  void prepare(Gl& gl, VboManager& vboManager);
+  void render(Gl& gl, ShaderProgram& currentProgram);
 };
 
 } // namespace tb::gl

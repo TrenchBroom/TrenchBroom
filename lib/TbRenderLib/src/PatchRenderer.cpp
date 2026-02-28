@@ -314,9 +314,9 @@ void PatchRenderer::validate()
   }
 }
 
-void PatchRenderer::prepare(gl::VboManager& vboManager)
+void PatchRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
-  m_patchMeshRenderer.prepare(vboManager);
+  m_patchMeshRenderer.prepare(gl, vboManager);
 }
 
 namespace
@@ -343,12 +343,12 @@ struct RenderFunc : public gl::MaterialRenderFunc
   {
   }
 
-  void before(const gl::Material* material) override
+  void before(gl::Gl& gl, const gl::Material* material) override
   {
     shader.set("GridColor", gridColorForMaterial(material));
     if (const auto* texture = getTexture(material))
     {
-      material->activate(minFilter, magFilter);
+      material->activate(gl, minFilter, magFilter);
       shader.set("ApplyMaterial", applyMaterial);
       shader.set("Color", texture->averageColor());
     }
@@ -359,11 +359,11 @@ struct RenderFunc : public gl::MaterialRenderFunc
     }
   }
 
-  void after(const gl::Material* material) override
+  void after(gl::Gl& gl, const gl::Material* material) override
   {
     if (material)
     {
-      material->deactivate();
+      material->deactivate(gl);
     }
   }
 };
@@ -371,16 +371,18 @@ struct RenderFunc : public gl::MaterialRenderFunc
 
 void PatchRenderer::render(RenderContext& context)
 {
+  auto& gl = context.gl();
+
   auto& shaderManager = context.shaderManager();
-  auto shader = gl::ActiveShader{shaderManager, gl::Shaders::FaceShader};
+  auto shader = gl::ActiveShader{gl, shaderManager, gl::Shaders::FaceShader};
   auto& prefs = PreferenceManager::instance();
 
   const bool applyMaterial = context.showMaterials();
   const bool shadeFaces = context.shadeFaces();
   const bool showFog = context.showFog();
 
-  glAssert(glEnable(GL_TEXTURE_2D));
-  glAssert(glActiveTexture(GL_TEXTURE0));
+  gl.enable(GL_TEXTURE_2D);
+  gl.activeTexture(GL_TEXTURE0);
   shader.set("Brightness", prefs.get(Preferences::Brightness));
   shader.set("RenderGrid", context.showGrid());
   shader.set("GridSize", static_cast<float>(context.gridSize()));
@@ -396,7 +398,7 @@ void PatchRenderer::render(RenderContext& context)
   shader.set("CameraPosition", context.camera().position());
   shader.set("ShadeFaces", shadeFaces);
   shader.set("ShowFog", showFog);
-  shader.set("Alpha", 1.0);
+  shader.set("Alpha", 1.0f);
   shader.set("EnableMasked", false);
   shader.set("ShowSoftMapBounds", !context.softMapBounds().is_empty());
   shader.set("SoftMapBoundsMin", context.softMapBounds().min);
@@ -414,15 +416,15 @@ void PatchRenderer::render(RenderContext& context)
 
   /*
   if (m_alpha < 1.0f) {
-      glAssert(glDepthMask(GL_FALSE));
+      gl.depthMask(GL_FALSE);
   }
   */
 
-  m_patchMeshRenderer.render(shader.program(), func);
+  m_patchMeshRenderer.render(gl, shader.program(), func);
 
   /*
   if (m_alpha < 1.0f) {
-      glAssert(glDepthMask(GL_TRUE));
+      gl.depthMask(GL_TRUE);
   }
   */
 }

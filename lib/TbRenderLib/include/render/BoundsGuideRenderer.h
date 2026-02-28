@@ -25,9 +25,15 @@
 
 #include "vm/bbox.h"
 
-namespace tb::render
+namespace tb
 {
+namespace gl
+{
+class Gl;
+}
 
+namespace render
+{
 class BoundsGuideRenderer : public DirectRenderable
 {
 private:
@@ -41,8 +47,9 @@ public:
   void setColor(const Color& color);
   void setBounds(const vm::bbox3d& bounds);
 
-  void prepare(gl::VboManager& vboManager) override;
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
   void render(RenderContext& renderContext) override;
 };
 
-} // namespace tb::render
+} // namespace render
+} // namespace tb

@@ -25,6 +25,7 @@
 
 namespace tb::gl
 {
+class Gl;
 class Material;
 
 class IndexArray;
@@ -129,10 +130,11 @@ public:
    * type provides two callbacks. One is called before all primitives with a given
    * material is rendered, and one is called afterwards.
    *
+   * @param gl the GL interface
    * @param indexArray the index array to render
    * @param func the material callbacks
    */
-  void render(IndexArray& indexArray, MaterialRenderFunc& func);
+  void render(Gl& gl, IndexArray& indexArray, MaterialRenderFunc& func);
 };
 
 } // namespace tb::gl

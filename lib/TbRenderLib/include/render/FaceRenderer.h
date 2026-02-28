@@ -29,8 +29,9 @@ namespace tb
 {
 namespace gl
 {
+class Gl;
 class Material;
-}
+} // namespace gl
 
 namespace render
 {
@@ -67,7 +68,7 @@ public:
   void render(RenderBatch& renderBatch);
 
 private:
-  void prepare(gl::VboManager& vboManager) override;
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
   void render(RenderContext& context) override;
 };
 

@@ -22,21 +22,21 @@
 namespace tb::gl
 {
 
-Vbo::Vbo(const GLenum type, const size_t capacity, const GLenum usage)
+Vbo::Vbo(Gl& gl, const GLenum type, const size_t capacity, const GLenum usage)
   : m_type{type}
   , m_capacity{capacity}
 {
   contract_pre(m_type == GL_ELEMENT_ARRAY_BUFFER || m_type == GL_ARRAY_BUFFER);
 
-  glAssert(glGenBuffers(1, &m_bufferId));
-  glAssert(glBindBuffer(m_type, m_bufferId));
-  glAssert(glBufferData(m_type, static_cast<GLsizeiptr>(m_capacity), nullptr, usage));
+  gl.genBuffers(1, &m_bufferId);
+  gl.bindBuffer(m_type, m_bufferId);
+  gl.bufferData(m_type, static_cast<GLsizeiptr>(m_capacity), nullptr, usage);
 }
 
-void Vbo::free()
+void Vbo::free(Gl& gl)
 {
   contract_pre(m_bufferId != 0);
-  glAssert(glDeleteBuffers(1, &m_bufferId));
+  gl.deleteBuffers(1, &m_bufferId);
   m_bufferId = 0;
 }
 
@@ -55,18 +55,18 @@ size_t Vbo::capacity() const
   return m_capacity;
 }
 
-void Vbo::bind() const
+void Vbo::bind(Gl& gl) const
 {
   contract_pre(m_bufferId != 0);
 
-  glAssert(glBindBuffer(m_type, m_bufferId));
+  gl.bindBuffer(m_type, m_bufferId);
 }
 
-void Vbo::unbind() const
+void Vbo::unbind(Gl& gl) const
 {
   contract_pre(m_bufferId != 0);
 
-  glAssert(glBindBuffer(m_type, 0));
+  gl.bindBuffer(m_type, 0);
 }
 
 } // namespace tb::gl

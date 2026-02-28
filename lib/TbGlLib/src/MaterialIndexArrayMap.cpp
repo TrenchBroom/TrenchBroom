@@ -81,13 +81,14 @@ size_t MaterialIndexArrayMap::add(
   return it->second.add(primType, count);
 }
 
-void MaterialIndexArrayMap::render(IndexArray& indexArray, MaterialRenderFunc& func)
+void MaterialIndexArrayMap::render(
+  Gl& gl, IndexArray& indexArray, MaterialRenderFunc& func)
 {
   for (const auto& [material, indexRange] : m_ranges)
   {
-    func.before(material);
-    indexRange.render(indexArray);
-    func.after(material);
+    func.before(gl, material);
+    indexRange.render(gl, indexArray);
+    func.after(gl, material);
   }
 }
 

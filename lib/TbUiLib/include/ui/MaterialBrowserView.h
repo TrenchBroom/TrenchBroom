@@ -105,13 +105,13 @@ private:
     std::vector<const gl::Material*> materials) const;
 
   void doClear() override;
-  void doRender(Layout& layout, float y, float height) override;
+  void doRender(gl::Gl& gl, Layout& layout, float y, float height) override;
   bool shouldRenderFocusIndicator() const override;
   const Color& getBackgroundColor() override;
 
-  void renderBounds(Layout& layout, float y, float height);
+  void renderBounds(gl::Gl& gl, Layout& layout, float y, float height);
   const Color& materialColor(const gl::Material& material) const;
-  void renderMaterials(Layout& layout, float y, float height);
+  void renderMaterials(gl::Gl& gl, Layout& layout, float y, float height);
 
   void doLeftClick(Layout& layout, float x, float y) override;
   QString tooltip(const Cell& cell) override;

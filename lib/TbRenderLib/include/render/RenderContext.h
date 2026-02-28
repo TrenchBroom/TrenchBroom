@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Macros.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "render/Transformation.h"
 
 #include "vm/bbox.h"
@@ -31,6 +31,7 @@ namespace gl
 {
 class Camera;
 class FontManager;
+class Gl;
 class ShaderManager;
 } // namespace gl
 
@@ -55,6 +56,7 @@ private:
   };
 
   // general context for any rendering view
+  gl::Gl& m_gl;
   RenderMode m_renderMode;
   const gl::Camera& m_camera;
   Transformation m_transformation;
@@ -92,12 +94,15 @@ private:
 
 public:
   RenderContext(
+    gl::Gl& gl,
     RenderMode renderMode,
     const gl::Camera& camera,
     gl::FontManager& fontManager,
     gl::ShaderManager& shaderManager);
 
   deleteCopyAndMove(RenderContext);
+
+  gl::Gl& gl();
 
   bool render2D() const;
   bool render3D() const;

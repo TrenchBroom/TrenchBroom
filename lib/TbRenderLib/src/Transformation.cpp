@@ -19,7 +19,7 @@
 
 #include "render/Transformation.h"
 
-#include "gl/GL.h"
+#include "gl/GlInterface.h"
 
 #include "kd/contracts.h"
 
@@ -29,7 +29,11 @@ namespace tb::render
 {
 
 Transformation::Transformation(
-  const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model)
+  gl::Gl& gl,
+  const vm::mat4x4f& projection,
+  const vm::mat4x4f& view,
+  const vm::mat4x4f& model)
+  : m_gl{gl}
 {
   pushTransformation(projection, view, model);
 }
@@ -69,7 +73,7 @@ const vm::mat4x4f& Transformation::modelMatrix() const
 
 Transformation Transformation::slice() const
 {
-  return {m_projectionStack.back(), m_viewStack.back(), m_modelStack.back()};
+  return {m_gl, m_projectionStack.back(), m_viewStack.back(), m_modelStack.back()};
 }
 
 void Transformation::pushTransformation(
@@ -119,14 +123,14 @@ void Transformation::popModelMatrix()
 
 void Transformation::loadProjectionMatrix(const vm::mat4x4f& matrix)
 {
-  glAssert(glMatrixMode(GL_PROJECTION));
-  glAssert(glLoadMatrixf(reinterpret_cast<const float*>(matrix.v)));
+  m_gl.matrixMode(GL_PROJECTION);
+  m_gl.loadMatrixf(reinterpret_cast<const float*>(matrix.v));
 }
 
 void Transformation::loadModelViewMatrix(const vm::mat4x4f& matrix)
 {
-  glAssert(glMatrixMode(GL_MODELVIEW));
-  glAssert(glLoadMatrixf(reinterpret_cast<const float*>(matrix.v)));
+  m_gl.matrixMode(GL_MODELVIEW);
+  m_gl.loadMatrixf(reinterpret_cast<const float*>(matrix.v));
 }
 
 ReplaceTransformation::ReplaceTransformation(

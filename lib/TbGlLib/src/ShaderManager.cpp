@@ -37,9 +37,9 @@ ShaderManager::ShaderManager(FindShaderFunc findShaderFunc)
 {
 }
 
-Result<void> ShaderManager::loadProgram(const ShaderConfig& config)
+Result<void> ShaderManager::loadProgram(Gl& gl, const ShaderConfig& config)
 {
-  return createProgram(config) | kdl::and_then([&](auto program) -> Result<void> {
+  return createProgram(gl, config) | kdl::and_then([&](auto program) -> Result<void> {
            if (!m_programs.emplace(config.name, std::move(program)).second)
            {
              return Error{"Shader program '" + config.name + "' already loaded"};
@@ -66,31 +66,32 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
   m_currentProgram = program;
 }
 
-Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
+Result<ShaderProgram> ShaderManager::createProgram(Gl& gl, const ShaderConfig& config)
 {
-  return createShaderProgram(config.name) | kdl::and_then([&](auto program) {
+  return createShaderProgram(gl, config.name) | kdl::and_then([&](auto program) {
            return config.vertexShaders | std::views::transform([&](const auto& path) {
-                    return loadShader(path, GL_VERTEX_SHADER)
+                    return loadShader(gl, path, GL_VERTEX_SHADER)
                            | kdl::transform(
-                             [&](auto shader) { program.attach(shader.get()); });
+                             [&](auto shader) { program.attach(gl, shader.get()); });
                   })
                   | kdl::fold | kdl::transform([&]() { return std::move(program); });
          })
          | kdl::and_then([&](auto program) {
              return config.fragmentShaders | std::views::transform([&](const auto& path) {
-                      return loadShader(path, GL_FRAGMENT_SHADER)
+                      return loadShader(gl, path, GL_FRAGMENT_SHADER)
                              | kdl::transform(
-                               [&](auto shader) { program.attach(shader.get()); });
+                               [&](auto shader) { program.attach(gl, shader.get()); });
                     })
                     | kdl::fold | kdl::transform([&]() { return std::move(program); });
            })
          | kdl::and_then([&](auto program) {
-             return program.link() | kdl::transform([&]() { return std::move(program); });
+             return program.link(gl)
+                    | kdl::transform([&]() { return std::move(program); });
            });
 }
 
 Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
-  const std::string& name, const GLenum type)
+  Gl& gl, const std::string& name, const GLenum type)
 {
   auto it = m_shaders.find(name);
   if (it != std::end(m_shaders))
@@ -99,7 +100,7 @@ Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
   }
 
   const auto shaderPath = m_findShaderFunc(std::filesystem::path{"shader"} / name);
-  return gl::loadShader(shaderPath, type) | kdl::transform([&](auto shader) {
+  return gl::loadShader(gl, shaderPath, type) | kdl::transform([&](auto shader) {
            const auto [insertIt, inserted] = m_shaders.emplace(name, std::move(shader));
            contract_assert(inserted);
 

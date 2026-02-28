@@ -171,7 +171,7 @@ void IndexRangeMap::add(const IndexRangeMap& other)
   }
 }
 
-void IndexRangeMap::render(VertexArray& vertexArray) const
+void IndexRangeMap::render(Gl& gl, VertexArray& vertexArray) const
 {
   for (const auto& primType : PrimTypeValues)
   {
@@ -180,7 +180,7 @@ void IndexRangeMap::render(VertexArray& vertexArray) const
     {
       const auto primCount = static_cast<GLsizei>(indicesAndCounts.size());
       vertexArray.render(
-        primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
+        gl, primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
     }
   }
 }

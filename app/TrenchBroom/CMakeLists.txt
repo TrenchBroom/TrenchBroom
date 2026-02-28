@@ -189,7 +189,7 @@ if(WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:tinyxml2::tinyxml2>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:miniz::miniz>" "$<TARGET_FILE_DIR:TrenchBroom>"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:GLEW::GLEW>" "$<TARGET_FILE_DIR:TrenchBroom>")
+    )
 
     # Run windeployqt which copies the Qt dlls into the deployable folder, along with necessary runtime dlls by the compiler
     # Only copy translations on release builds, as deploying them takes significantly longer

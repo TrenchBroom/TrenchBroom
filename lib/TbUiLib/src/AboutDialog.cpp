@@ -74,7 +74,6 @@ Yuki Raven
 Qt (Cross platform GUI library)<br />
 FreeType (Font rendering library)<br />
 FreeImage (Image loading & manipulation library)<br />
-GLEW (OpenGL extension library)<br />
 tinyxml2 (XML parsing library)<br />
 miniz (Archive library)<br />
 Assimp (Asset importer library)<br />

@@ -25,11 +25,13 @@ namespace tb
 {
 namespace gl
 {
+class Gl;
 class VboManager;
-}
+} // namespace gl
 
 namespace render
 {
+class RenderContext;
 
 class Sphere
 {
@@ -40,8 +42,8 @@ public:
   Sphere(float radius, size_t iterations);
 
   bool prepared() const;
-  void prepare(gl::VboManager& vboManager);
-  void render();
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager);
+  void render(RenderContext& renderContext);
 };
 
 } // namespace render

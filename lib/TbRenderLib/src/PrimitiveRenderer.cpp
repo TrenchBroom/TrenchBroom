@@ -21,6 +21,7 @@
 
 #include "Color.h"
 #include "gl/ActiveShader.h"
+#include "gl/GlInterface.h"
 #include "gl/Shaders.h"
 #include "mdl/BasicShapes.h"
 #include "render/RenderContext.h"
@@ -63,28 +64,31 @@ bool PrimitiveRenderer::LineRenderAttributes::operator==(
 }
 
 void PrimitiveRenderer::LineRenderAttributes::render(
-  gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader, const float dpiScale) const
+  gl::Gl& gl,
+  gl::IndexRangeRenderer& renderer,
+  gl::ActiveShader& shader,
+  const float dpiScale) const
 {
-  glAssert(glLineWidth(m_lineWidth * dpiScale));
+  gl.lineWidth(m_lineWidth * dpiScale);
   switch (m_occlusionPolicy)
   {
   case PrimitiveRendererOcclusionPolicy::Hide:
     shader.set("Color", m_color);
-    renderer.render(shader.program());
+    renderer.render(gl, shader.program());
     break;
   case PrimitiveRendererOcclusionPolicy::Show:
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
     shader.set("Color", m_color);
-    renderer.render(shader.program());
-    glAssert(glEnable(GL_DEPTH_TEST));
+    renderer.render(gl, shader.program());
+    gl.enable(GL_DEPTH_TEST);
     break;
   case PrimitiveRendererOcclusionPolicy::Transparent:
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
     shader.set("Color", blendColor(m_color.to<RgbaF>(), 1.0f / 3.0f));
-    renderer.render(shader.program());
-    glAssert(glEnable(GL_DEPTH_TEST));
+    renderer.render(gl, shader.program());
+    gl.enable(GL_DEPTH_TEST);
     shader.set("Color", m_color);
-    renderer.render(shader.program());
+    renderer.render(gl, shader.program());
     break;
   }
 }
@@ -128,51 +132,51 @@ bool PrimitiveRenderer::TriangleRenderAttributes::operator==(
 }
 
 void PrimitiveRenderer::TriangleRenderAttributes::render(
-  gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader) const
+  gl::Gl& gl, gl::IndexRangeRenderer& renderer, gl::ActiveShader& shader) const
 {
   if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces)
   {
-    glAssert(glPushAttrib(GL_POLYGON_BIT));
-    glAssert(glDisable(GL_CULL_FACE));
-    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+    gl.pushAttrib(GL_POLYGON_BIT);
+    gl.disable(GL_CULL_FACE);
+    gl.polygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 
   // Disable depth writes if drawing something transparent
   if (m_color.to<RgbaF>().get<ColorChannel::a>() < 1.0f)
   {
-    glAssert(glDepthMask(GL_FALSE));
+    gl.depthMask(GL_FALSE);
   }
 
   switch (m_occlusionPolicy)
   {
   case PrimitiveRendererOcclusionPolicy::Hide:
     shader.set("Color", m_color);
-    renderer.render(shader.program());
+    renderer.render(gl, shader.program());
     break;
   case PrimitiveRendererOcclusionPolicy::Show:
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
     shader.set("Color", m_color);
-    renderer.render(shader.program());
-    glAssert(glEnable(GL_DEPTH_TEST));
+    renderer.render(gl, shader.program());
+    gl.enable(GL_DEPTH_TEST);
     break;
   case PrimitiveRendererOcclusionPolicy::Transparent:
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
     shader.set("Color", blendColor(m_color.to<RgbaF>(), 1.0f / 2.0f));
-    renderer.render(shader.program());
-    glAssert(glEnable(GL_DEPTH_TEST));
+    renderer.render(gl, shader.program());
+    gl.enable(GL_DEPTH_TEST);
     shader.set("Color", m_color);
-    renderer.render(shader.program());
+    renderer.render(gl, shader.program());
     break;
   }
 
   if (m_color.to<RgbaF>().get<ColorChannel::a>() < 1.0f)
   {
-    glAssert(glDepthMask(GL_TRUE));
+    gl.depthMask(GL_TRUE);
   }
 
   if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces)
   {
-    glAssert(glPopAttrib());
+    gl.popAttrib();
   }
 }
 
@@ -322,30 +326,30 @@ void PrimitiveRenderer::renderCylinder(
     .addTriangleStrip(Vertex::toList(vertices.size(), vertices.begin()));
 }
 
-void PrimitiveRenderer::prepare(gl::VboManager& vboManager)
+void PrimitiveRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
-  prepareLines(vboManager);
-  prepareTriangles(vboManager);
+  prepareLines(gl, vboManager);
+  prepareTriangles(gl, vboManager);
 }
 
-void PrimitiveRenderer::prepareLines(gl::VboManager& vboManager)
+void PrimitiveRenderer::prepareLines(gl::Gl& gl, gl::VboManager& vboManager)
 {
   for (auto& [attributes, mesh] : m_lineMeshes)
   {
     auto& renderer =
       m_lineMeshRenderers.emplace(attributes, gl::IndexRangeRenderer{mesh}).first->second;
-    renderer.prepare(vboManager);
+    renderer.prepare(gl, vboManager);
   }
 }
 
-void PrimitiveRenderer::prepareTriangles(gl::VboManager& vboManager)
+void PrimitiveRenderer::prepareTriangles(gl::Gl& gl, gl::VboManager& vboManager)
 {
   for (auto& [attributes, mesh] : m_triangleMeshes)
   {
     auto& renderer =
       m_triangleMeshRenderers.emplace(attributes, gl::IndexRangeRenderer{mesh})
         .first->second;
-    renderer.prepare(vboManager);
+    renderer.prepare(gl, vboManager);
   }
 }
 
@@ -357,24 +361,28 @@ void PrimitiveRenderer::render(RenderContext& renderContext)
 
 void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 {
-  auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
+  auto& gl = renderContext.gl();
+
+  auto shader = gl::ActiveShader{
+    gl, renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
 
   for (auto& [attributes, renderer] : m_lineMeshRenderers)
   {
-    attributes.render(renderer, shader, renderContext.dpiScale());
+    attributes.render(gl, renderer, shader, renderContext.dpiScale());
   }
-  glAssert(glLineWidth(renderContext.dpiScale()));
+  gl.lineWidth(renderContext.dpiScale());
 }
 
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)
 {
-  auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
+  auto& gl = renderContext.gl();
+
+  auto shader = gl::ActiveShader{
+    gl, renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
 
   for (auto& [attributes, renderer] : m_triangleMeshRenderers)
   {
-    attributes.render(renderer, shader);
+    attributes.render(gl, renderer, shader);
   }
 }
 

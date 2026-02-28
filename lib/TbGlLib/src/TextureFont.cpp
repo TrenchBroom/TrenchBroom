@@ -52,9 +52,9 @@ TextureFont::TextureFont(
 
 TextureFont::~TextureFont() = default;
 
-void TextureFont::destroy()
+void TextureFont::destroy(Gl& gl)
 {
-  m_texture->destroy();
+  m_texture->destroy(gl);
 }
 
 int TextureFont::ascend() const
@@ -271,14 +271,14 @@ vm::vec2f TextureFont::measure(const std::string& string) const
   return result;
 }
 
-void TextureFont::activate()
+void TextureFont::activate(Gl& gl)
 {
-  m_texture->activate();
+  m_texture->activate(gl);
 }
 
-void TextureFont::deactivate()
+void TextureFont::deactivate(Gl& gl)
 {
-  m_texture->deactivate();
+  m_texture->deactivate(gl);
 }
 
 } // namespace tb::gl

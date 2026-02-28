@@ -20,6 +20,7 @@
 #include "Result.h"
 #include "gl/MockTaskRunner.h"
 #include "gl/Resource.h"
+#include "gl/TestGl.h"
 
 #include "kd/reflection_impl.h"
 
@@ -30,11 +31,11 @@ namespace tb::gl
 {
 struct MockResource
 {
-  void upload(const bool glContextAvailable) const { mockUpload(glContextAvailable); }
-  void drop(const bool glContextAvailable) const { mockDrop(glContextAvailable); };
+  void upload(Gl& gl) const { mockUpload(gl); }
+  void drop(Gl& gl) const { mockDrop(gl); };
 
-  std::function<void(bool)> mockUpload = [](auto) {};
-  std::function<void(bool)> mockDrop = [](auto) {};
+  std::function<void(Gl&)> mockUpload = [](auto&) {};
+  std::function<void(Gl&)> mockDrop = [](auto&) {};
 
   kdl_reflect_inline_empty(MockResource);
 };
@@ -98,11 +99,11 @@ void setResourceState(
 
 TEST_CASE("Resource")
 {
+  auto testGl = TestGl{};
   auto mockTaskRunner = MockTaskRunner{};
   auto taskRunner = [&](auto task) { return mockTaskRunner.run(std::move(task)); };
 
-  const auto glContextAvailable = GENERATE(true, false);
-  const auto processContext = ProcessContext{glContextAvailable, [](auto, auto) {}};
+  const auto processContext = ProcessContext{testGl, [](auto, auto) {}};
 
   SECTION("Construction with loaded resource")
   {
@@ -142,13 +143,13 @@ TEST_CASE("Resource")
 
   SECTION("Resource loading succeeds")
   {
-    auto mockUploadCall = std::optional<bool>{};
-    auto mockDropCall = std::optional<bool>{};
+    auto mockUploadCall = false;
+    auto mockDropCall = false;
 
     auto resource = ResourceT{[&]() {
       return Result<MockResource>{MockResource{
-        [&](const auto i_glContextAvailable) { mockUploadCall = i_glContextAvailable; },
-        [&](const auto i_glContextAvailable) { mockDropCall = i_glContextAvailable; },
+        [&](auto&) { mockUploadCall = true; },
+        [&](auto&) { mockDropCall = true; },
       }};
     }};
 
@@ -156,14 +157,14 @@ TEST_CASE("Resource")
     {
       setResourceState<ResourceUnloaded<MockResource>>(
         resource, mockTaskRunner, processContext);
-      REQUIRE(mockUploadCall == std::nullopt);
-      REQUIRE(mockDropCall == std::nullopt);
+      REQUIRE(!mockUploadCall);
+      REQUIRE(!mockDropCall);
 
       CHECK(resource.get() == nullptr);
       CHECK(!resource.isDropped());
       CHECK(mockTaskRunner.tasks.empty());
-      CHECK(mockUploadCall == std::nullopt);
-      CHECK(mockDropCall == std::nullopt);
+      CHECK(!mockUploadCall);
+      CHECK(!mockDropCall);
 
       SECTION("process")
       {
@@ -172,8 +173,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.size() == 1);
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("drop")
@@ -183,8 +184,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("loadSync")
@@ -194,30 +195,30 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("uploadSync")
       {
-        resource.uploadSync(glContextAvailable);
+        resource.uploadSync(testGl);
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceUnloaded<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("dropSync")
       {
-        resource.dropSync(glContextAvailable);
+        resource.dropSync(testGl);
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
     }
 
@@ -225,8 +226,8 @@ TEST_CASE("Resource")
     {
       setResourceState<ResourceLoading<MockResource>>(
         resource, mockTaskRunner, processContext);
-      REQUIRE(mockUploadCall == std::nullopt);
-      REQUIRE(mockDropCall == std::nullopt);
+      REQUIRE(!mockUploadCall);
+      REQUIRE(!mockDropCall);
 
       SECTION("process")
       {
@@ -237,8 +238,8 @@ TEST_CASE("Resource")
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.size() == 1);
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
 
         SECTION("TaskRunner resolves promise")
@@ -248,16 +249,16 @@ TEST_CASE("Resource")
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
           CHECK(resource.process(taskRunner, processContext));
           CHECK(resource.get() != nullptr);
           CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
       }
 
@@ -270,16 +271,16 @@ TEST_CASE("Resource")
           CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
           CHECK(resource.isDropped());
           CHECK(mockTaskRunner.tasks.size() == 1);
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
           mockTaskRunner.resolveNextPromise();
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
           CHECK(resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
 
         SECTION("TaskRunner resolves promise")
@@ -289,16 +290,16 @@ TEST_CASE("Resource")
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
           resource.drop();
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
           CHECK(resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
       }
 
@@ -311,16 +312,16 @@ TEST_CASE("Resource")
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.size() == 1);
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
           mockTaskRunner.resolveNextPromise();
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
 
         SECTION("TaskRunner resolves promise")
@@ -330,16 +331,16 @@ TEST_CASE("Resource")
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
           resource.loadSync();
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
       }
 
@@ -347,21 +348,21 @@ TEST_CASE("Resource")
       {
         SECTION("TaskRunner has not resolved promise")
         {
-          resource.uploadSync(glContextAvailable);
+          resource.uploadSync(testGl);
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.size() == 1);
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
           mockTaskRunner.resolveNextPromise();
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
 
         SECTION("TaskRunner resolves promise")
@@ -371,16 +372,16 @@ TEST_CASE("Resource")
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
-          resource.uploadSync(glContextAvailable);
+          resource.uploadSync(testGl);
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
       }
 
@@ -388,21 +389,21 @@ TEST_CASE("Resource")
       {
         SECTION("TaskRunner has not resolved promise")
         {
-          resource.dropSync(glContextAvailable);
+          resource.dropSync(testGl);
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
           CHECK(resource.isDropped());
           CHECK(mockTaskRunner.tasks.size() == 1);
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
           mockTaskRunner.resolveNextPromise();
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
           CHECK(resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
 
 
@@ -413,16 +414,16 @@ TEST_CASE("Resource")
           CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
           CHECK(!resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
 
-          resource.dropSync(glContextAvailable);
+          resource.dropSync(testGl);
           CHECK(resource.get() == nullptr);
           CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
           CHECK(resource.isDropped());
           CHECK(mockTaskRunner.tasks.empty());
-          CHECK(mockUploadCall == std::nullopt);
-          CHECK(mockDropCall == std::nullopt);
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
         }
       }
     }
@@ -431,8 +432,8 @@ TEST_CASE("Resource")
     {
       setResourceState<ResourceLoaded<MockResource>>(
         resource, mockTaskRunner, processContext);
-      REQUIRE(mockUploadCall == std::nullopt);
-      REQUIRE(mockDropCall == std::nullopt);
+      REQUIRE(!mockUploadCall);
+      REQUIRE(!mockDropCall);
 
       SECTION("process")
       {
@@ -441,8 +442,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == glContextAvailable);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("drop")
@@ -452,8 +453,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("loadSync")
@@ -463,30 +464,30 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("uploadSync")
       {
-        resource.uploadSync(glContextAvailable);
+        resource.uploadSync(testGl);
         CHECK(resource.get() != nullptr);
         CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == glContextAvailable);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("dropSync")
       {
-        resource.dropSync(glContextAvailable);
+        resource.dropSync(testGl);
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
     }
 
@@ -494,9 +495,9 @@ TEST_CASE("Resource")
     {
       setResourceState<ResourceReady<MockResource>>(
         resource, mockTaskRunner, processContext);
-      REQUIRE(mockUploadCall == glContextAvailable);
-      REQUIRE(mockDropCall == std::nullopt);
-      mockUploadCall = std::nullopt;
+      REQUIRE(mockUploadCall);
+      REQUIRE(!mockDropCall);
+      mockUploadCall = false;
 
       SECTION("process")
       {
@@ -505,8 +506,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("drop")
@@ -515,8 +516,8 @@ TEST_CASE("Resource")
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropping<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("loadSync")
@@ -525,29 +526,29 @@ TEST_CASE("Resource")
         CHECK(resource.get() != nullptr);
         CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("uploadSync")
       {
-        resource.uploadSync(glContextAvailable);
+        resource.uploadSync(testGl);
         CHECK(resource.get() != nullptr);
         CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("dropSync")
       {
-        resource.dropSync(glContextAvailable);
+        resource.dropSync(testGl);
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == glContextAvailable);
+        CHECK(!mockUploadCall);
+        CHECK(mockDropCall);
       }
     }
 
@@ -555,9 +556,9 @@ TEST_CASE("Resource")
     {
       setResourceState<ResourceDropping<MockResource>>(
         resource, mockTaskRunner, processContext);
-      REQUIRE(mockUploadCall == glContextAvailable);
-      REQUIRE(mockDropCall == std::nullopt);
-      mockUploadCall = std::nullopt;
+      REQUIRE(mockUploadCall);
+      REQUIRE(!mockDropCall);
+      mockUploadCall = false;
 
       SECTION("process")
       {
@@ -566,8 +567,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == glContextAvailable);
+        CHECK(!mockUploadCall);
+        CHECK(mockDropCall);
       }
 
       SECTION("drop")
@@ -577,8 +578,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceDropping<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("loadSync")
@@ -588,40 +589,40 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceDropping<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("uploadSync")
       {
-        resource.uploadSync(glContextAvailable);
+        resource.uploadSync(testGl);
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropping<MockResource>>(resource.state()));
         CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("dropSync")
       {
-        resource.dropSync(glContextAvailable);
+        resource.dropSync(testGl);
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == glContextAvailable);
+        CHECK(!mockUploadCall);
+        CHECK(mockDropCall);
       }
     }
 
     SECTION("ResourceDropped state")
     {
       setResourceState<ResourceDropped>(resource, mockTaskRunner, processContext);
-      REQUIRE(mockUploadCall == glContextAvailable);
-      REQUIRE(mockDropCall == glContextAvailable);
-      mockUploadCall = std::nullopt;
-      mockDropCall = std::nullopt;
+      REQUIRE(mockUploadCall);
+      REQUIRE(mockDropCall);
+      mockUploadCall = false;
+      mockDropCall = false;
 
       SECTION("process")
       {
@@ -630,8 +631,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("drop")
@@ -641,8 +642,8 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("loadSync")
@@ -652,30 +653,30 @@ TEST_CASE("Resource")
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("uploadSync")
       {
-        resource.uploadSync(glContextAvailable);
+        resource.uploadSync(testGl);
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
 
       SECTION("dropSync")
       {
-        resource.dropSync(glContextAvailable);
+        resource.dropSync(testGl);
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
-        CHECK(mockUploadCall == std::nullopt);
-        CHECK(mockDropCall == std::nullopt);
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
       }
     }
   }

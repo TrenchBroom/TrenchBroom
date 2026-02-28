@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include "gl/GL.h"
+#include "gl/GlInterface.h"
+#include "gl/GlUtils.h"
 #include "gl/VboManager.h"
 
 #include "kd/contracts.h"
@@ -29,6 +30,7 @@
 
 namespace tb::gl
 {
+class Gl;
 
 /**
  * Wrapper around an OpenGL buffer
@@ -50,7 +52,7 @@ public:
    * Immediately creates and binds to a buffer of the given type and capacity.
    * The contents are initially unspecified.
    */
-  Vbo(GLenum type, size_t capacity, GLenum usage);
+  Vbo(Gl& gl, GLenum type, size_t capacity, GLenum usage);
   ~Vbo();
 
   /**
@@ -58,7 +60,7 @@ public:
    * Must be called before the destructor.
    * Calling any other methods after free() is disallowed.
    */
-  void free();
+  void free(Gl& gl);
 
   /**
    * Deprecated, always returns 0.
@@ -66,19 +68,19 @@ public:
   size_t offset() const;
   size_t capacity() const;
 
-  void bind() const;
-  void unbind() const;
+  void bind(Gl& gl) const;
+  void unbind(Gl& gl) const;
 
   template <typename T>
-  size_t writeElements(const size_t address, const std::vector<T>& elements)
+  size_t writeElements(Gl& gl, const size_t address, const std::vector<T>& elements)
   {
-    return writeArray(address, elements.data(), elements.size());
+    return writeArray(gl, address, elements.data(), elements.size());
   }
 
   template <typename T>
-  size_t writeBuffer(const size_t address, const std::vector<T>& buffer)
+  size_t writeBuffer(Gl& gl, const size_t address, const std::vector<T>& buffer)
   {
-    return writeArray(address, buffer.data(), buffer.size());
+    return writeArray(gl, address, buffer.data(), buffer.size());
   }
 
   /**
@@ -91,7 +93,7 @@ public:
    * @return          number of bytes written
    */
   template <typename T>
-  size_t writeArray(const size_t address, const T* array, const size_t count)
+  size_t writeArray(Gl& gl, const size_t address, const T* array, const size_t count)
   {
     const auto size = count * sizeof(T);
     contract_assert(address + size <= m_capacity);
@@ -102,8 +104,8 @@ public:
     const auto* ptr = static_cast<const GLvoid*>(array);
     const auto offset = static_cast<GLintptr>(address);
     const auto sizei = static_cast<GLsizeiptr>(size);
-    glAssert(glBindBuffer(m_type, m_bufferId));
-    glAssert(glBufferSubData(m_type, offset, sizei, ptr));
+    gl.bindBuffer(m_type, m_bufferId);
+    gl.bufferSubData(m_type, offset, sizei, ptr);
 
     return size;
   }

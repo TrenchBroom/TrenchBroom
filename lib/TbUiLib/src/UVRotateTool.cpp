@@ -134,14 +134,16 @@ public:
   {
   }
 
-  void prepare(gl::VboManager& vboManager) override
+  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override
   {
-    m_center.prepare(vboManager);
-    m_outer.prepare(vboManager);
+    m_center.prepare(gl, vboManager);
+    m_outer.prepare(gl, vboManager);
   }
 
   void render(render::RenderContext& renderContext) override
   {
+    auto& gl = renderContext.gl();
+
     const auto fromFace =
       m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
 
@@ -157,7 +159,7 @@ public:
     const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
     auto shader = gl::ActiveShader{
-      renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
+      gl, renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
     const auto toWorldTransform = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{*fromPlane}};
     {
@@ -165,7 +167,7 @@ public:
       const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", m_highlight ? highlightColor.to<RgbaF>() : handleColor);
-      m_outer.render(shader.program());
+      m_outer.render(gl, shader.program());
     }
 
     {
@@ -173,7 +175,7 @@ public:
       const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", highlightColor);
-      m_center.render(shader.program());
+      m_center.render(gl, shader.program());
     }
   }
 };

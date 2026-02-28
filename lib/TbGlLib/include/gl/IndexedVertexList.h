@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"

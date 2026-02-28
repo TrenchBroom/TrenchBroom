@@ -25,16 +25,23 @@ namespace tb::render
 {
 
 RenderContext::RenderContext(
+  gl::Gl& gl,
   const RenderMode renderMode,
   const gl::Camera& camera,
   gl::FontManager& fontManager,
   gl::ShaderManager& shaderManager)
-  : m_renderMode{renderMode}
+  : m_gl{gl}
+  , m_renderMode{renderMode}
   , m_camera{camera}
-  , m_transformation{m_camera.projectionMatrix(), m_camera.viewMatrix()}
+  , m_transformation{m_gl, m_camera.projectionMatrix(), m_camera.viewMatrix()}
   , m_fontManager{fontManager}
   , m_shaderManager{shaderManager}
 {
+}
+
+gl::Gl& RenderContext::gl()
+{
+  return m_gl;
 }
 
 bool RenderContext::render2D() const

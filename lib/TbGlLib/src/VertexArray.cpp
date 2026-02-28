@@ -19,6 +19,7 @@
 
 #include "gl/VertexArray.h"
 
+#include "gl/GlInterface.h"
 #include "gl/PrimType.h"
 
 #include "kd/contracts.h"
@@ -50,16 +51,16 @@ bool VertexArray::prepared() const
   return m_prepared;
 }
 
-void VertexArray::prepare(VboManager& vboManager)
+void VertexArray::prepare(Gl& gl, VboManager& vboManager)
 {
   if (!prepared() && !empty())
   {
-    m_holder->prepare(vboManager);
+    m_holder->prepare(gl, vboManager);
   }
   m_prepared = true;
 }
 
-bool VertexArray::setup(ShaderProgram& currentProgram)
+bool VertexArray::setup(Gl& gl, ShaderProgram& currentProgram)
 {
   if (empty())
   {
@@ -69,35 +70,36 @@ bool VertexArray::setup(ShaderProgram& currentProgram)
   contract_assert(prepared());
   contract_assert(!m_setup);
 
-  m_holder->setup(currentProgram);
+  m_holder->setup(gl, currentProgram);
   m_setup = true;
   return true;
 }
 
-void VertexArray::cleanup(ShaderProgram& currentProgram)
+void VertexArray::cleanup(Gl& gl, ShaderProgram& currentProgram)
 {
   contract_pre(m_setup);
   contract_pre(!empty());
 
-  m_holder->cleanup(currentProgram);
+  m_holder->cleanup(gl, currentProgram);
   m_setup = false;
 }
 
-void VertexArray::render(const PrimType primType) const
+void VertexArray::render(gl::Gl& gl, const PrimType primType) const
 {
-  render(primType, 0, static_cast<GLsizei>(vertexCount()));
+  render(gl, primType, 0, static_cast<GLsizei>(vertexCount()));
 }
 
 void VertexArray::render(
-  const PrimType primType, const GLint index, const GLsizei count) const
+  gl::Gl& gl, const PrimType primType, const GLint index, const GLsizei count) const
 {
   contract_pre(prepared());
   contract_pre(m_setup);
 
-  glAssert(glDrawArrays(toGL(primType), index, count));
+  gl.drawArrays(toGL(primType), index, count);
 }
 
 void VertexArray::render(
+  gl::Gl& gl,
   const PrimType primType,
   const Indices& indices,
   const Counts& counts,
@@ -108,17 +110,17 @@ void VertexArray::render(
 
   const auto* indexArray = indices.data();
   const auto* countArray = counts.data();
-  glAssert(glMultiDrawArrays(toGL(primType), indexArray, countArray, primCount));
+  gl.multiDrawArrays(toGL(primType), indexArray, countArray, primCount);
 }
 
 void VertexArray::render(
-  const PrimType primType, const Indices& indices, const GLsizei count) const
+  Gl& gl, const PrimType primType, const Indices& indices, const GLsizei count) const
 {
   contract_pre(prepared());
   contract_pre(m_setup);
 
   const auto* indexArray = indices.data();
-  glAssert(glDrawElements(toGL(primType), count, GL_UNSIGNED_INT, indexArray));
+  gl.drawElements(toGL(primType), count, GL_UNSIGNED_INT, indexArray);
 }
 
 VertexArray::VertexArray(std::shared_ptr<BaseHolder> holder)

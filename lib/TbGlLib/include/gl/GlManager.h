@@ -29,6 +29,7 @@
 namespace tb::gl
 {
 class FontManager;
+class Gl;
 class ResourceManager;
 class ShaderManager;
 class VboManager;
@@ -59,7 +60,7 @@ public:
   explicit GlManager(FindResourceFunc findResourceFunc);
   ~GlManager();
 
-  bool initialize();
+  bool initialize(Gl& gl);
   bool initialized() const;
 
   void destroy();

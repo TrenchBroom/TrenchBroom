@@ -19,13 +19,14 @@
 
 #pragma once
 
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 
 #include <memory>
 
 namespace tb::gl
 {
 class FontGlyphBuilder;
+class Gl;
 
 class FontTexture
 {
@@ -46,10 +47,10 @@ public:
 
   size_t size() const;
 
-  void activate();
-  void deactivate();
+  void activate(Gl& gl);
+  void deactivate(Gl& gl);
 
-  void destroy();
+  void destroy(Gl& gl);
 
 private:
   size_t computeTextureSize(size_t cellCount, size_t cellSize, size_t margin) const;

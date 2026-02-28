@@ -19,6 +19,14 @@
 
 #include "ui/RenderView.h"
 
+#include <QDateTime>
+#include <QOpenGLContext>
+#include <QOpenGLFunctions_2_1>
+#include <QOpenGLVersionFunctionsFactory>
+#include <QPalette>
+#include <QTimer>
+#include <QWidget>
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
@@ -32,55 +40,14 @@
 #include "gl/VertexType.h"
 #include "render/Transformation.h"
 #include "ui/AppController.h"
+#include "ui/GlQt.h"
 #include "ui/InputEvent.h"
-
-#include <fmt/format.h>
-
-/*
- * - glew requires it is included before <OpenGL/gl.h>
- *
- * - Qt requires that glew is included after <qopengl.h> and <QOpenGLFunctions>
- * - QOpenGLWidget includes <qopengl.h>
- * - qopengl.h includes OpenGL/gl.h
- *
- * therefore
- * - glew wants to be included first
- * - and so does QOpenGLWidget
- *
- * Since including glew before QOpenGLWidget only generates a warning and does not seem to
- * incur any ill effects, we silence the warning here.
- *
- * Note that GCC does not let us silence this warning using diagnostic pragmas, so it is
- * disabled in the CXX_FLAGS!
- */
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcpp"
-#elif defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcpp"
-#endif
-
-#include <QOpenGLContext>
-
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
-
-#include <QDateTime>
-#include <QPalette>
-#include <QTimer>
-#include <QWidget>
-
-#ifdef _WIN32
-#endif
-
 #include "ui/QColorUtils.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
+
+#include <fmt/format.h>
 
 namespace tb::ui
 {
@@ -267,10 +234,12 @@ void RenderView::resizeGL(int w, int h)
 
 void RenderView::render()
 {
+  auto gl = GlQt{glFunctions()};
+
   processInput();
-  clearBackground();
-  renderContents();
-  renderFocusIndicator();
+  clearBackground(gl);
+  renderContents(gl);
+  renderFocusIndicator(gl);
 }
 
 void RenderView::processInput()
@@ -278,16 +247,16 @@ void RenderView::processInput()
   m_eventRecorder.processEvents(*this);
 }
 
-void RenderView::clearBackground()
+void RenderView::clearBackground(gl::Gl& gl)
 {
   const auto backgroundColor = getBackgroundColor().to<RgbaF>();
 
-  glAssert(glClearColor(
+  gl.clearColor(
     backgroundColor.get<ColorChannel::r>(),
     backgroundColor.get<ColorChannel::g>(),
     backgroundColor.get<ColorChannel::b>(),
-    backgroundColor.get<ColorChannel::a>()));
-  glAssert(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    backgroundColor.get<ColorChannel::a>());
+  gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 const Color& RenderView::getBackgroundColor()
@@ -295,7 +264,7 @@ const Color& RenderView::getBackgroundColor()
   return pref(Preferences::BackgroundColor);
 }
 
-void RenderView::renderFocusIndicator()
+void RenderView::renderFocusIndicator(gl::Gl& gl)
 {
   if (shouldRenderFocusIndicator() && hasFocus())
   {
@@ -305,14 +274,14 @@ void RenderView::renderFocusIndicator()
     const auto r = devicePixelRatioF();
     const auto w = float(width() * r);
     const auto h = float(height() * r);
-    glAssert(glViewport(0, 0, int(w), int(h)));
+    gl.viewport(0, 0, int(w), int(h));
 
     const auto t = 1.0f;
 
     const auto projection = vm::ortho_matrix(-1.0f, 1.0f, 0.0f, 0.0f, float(w), float(h));
-    auto transformation = render::Transformation{projection, vm::mat4x4f::identity()};
+    auto transformation = render::Transformation{gl, projection, vm::mat4x4f::identity()};
 
-    glAssert(glDisable(GL_DEPTH_TEST));
+    gl.disable(GL_DEPTH_TEST);
 
     using Vertex = gl::VertexTypes::P3C4::Vertex;
     auto array = gl::VertexArray::move(std::vector{
@@ -341,21 +310,31 @@ void RenderView::renderFocusIndicator()
       Vertex{{t, h - t, 0.0f}, inner.toVec()},
     });
 
-    array.prepare(vboManager());
+    array.prepare(gl, vboManager());
 
-    auto shader = gl::ActiveShader{shaderManager(), gl::Shaders::VaryingPCShader};
-    if (array.setup(shader.program()))
+    auto shader = gl::ActiveShader{gl, shaderManager(), gl::Shaders::VaryingPCShader};
+    if (array.setup(gl, shader.program()))
     {
-      array.render(gl::PrimType::Quads);
-      array.cleanup(shader.program());
+      array.render(gl, gl::PrimType::Quads);
+      array.cleanup(gl, shader.program());
     }
-    glAssert(glEnable(GL_DEPTH_TEST));
+    gl.enable(GL_DEPTH_TEST);
   }
+}
+
+QOpenGLFunctions_2_1& RenderView::glFunctions()
+{
+  auto* glFunctions =
+    QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_2_1>(context());
+  contract_assert(glFunctions != nullptr);
+
+  return *glFunctions;
 }
 
 bool RenderView::doInitializeGL()
 {
-  return m_appController.glManager().initialize();
+  auto gl = GlQt{glFunctions()};
+  return m_appController.glManager().initialize(gl);
 }
 
 void RenderView::updateViewport(

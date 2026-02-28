@@ -24,6 +24,7 @@
 
 namespace tb::gl
 {
+class Gl;
 class ShaderProgram;
 
 /**
@@ -52,37 +53,44 @@ struct VertexType<AttrType, AttrTypeRest...>
   /**
    * Sets up the vertex buffer pointers for the attribute types of this vertex type.
    *
+   * @param gl the GL interface
    * @param program current shader program
    * @param baseOffset the base offset into the corresponding vertex buffer
    */
-  static void setup(ShaderProgram& program, const size_t baseOffset)
+  static void setup(Gl& gl, ShaderProgram& program, const size_t baseOffset)
   {
-    doSetup(program, 0, Size, baseOffset);
+    doSetup(gl, program, 0, Size, baseOffset);
   }
 
   /**
    * Cleans up the vertex buffer pointers for the attributes of this vertex type.
    *
+   * @param gl the GL interface
    * @param program current shader program
    */
-  static void cleanup(ShaderProgram& program) { doCleanup(program, 0); }
+  static void cleanup(Gl& gl, ShaderProgram& program) { doCleanup(gl, program, 0); }
 
   /**
    * Sets up the vertex buffer pointer for the first vertex attribute type and delegates
    * the call for the remaining attribute types. Do not call this directly, use the setup
    * method instead.
    *
+   * @param gl the GL interface
    * @param program current shader program
    * @param index the index of the attribute to be set up here
    * @param stride the stride of the vertex buffer pointer to be set up here
    * @param offset the offset of the vertex buffer pointer to be set up here
    */
   static void doSetup(
-    ShaderProgram& program, const size_t index, const size_t stride, const size_t offset)
+    Gl& gl,
+    ShaderProgram& program,
+    const size_t index,
+    const size_t stride,
+    const size_t offset)
   {
-    AttrType::setup(program, index, stride, offset);
+    AttrType::setup(gl, program, index, stride, offset);
     VertexType<AttrTypeRest...>::doSetup(
-      program, index + 1, stride, offset + AttrType::Size);
+      gl, program, index + 1, stride, offset + AttrType::Size);
   }
 
   /**
@@ -92,13 +100,14 @@ struct VertexType<AttrType, AttrTypeRest...>
    *
    * Note that the pointers are cleaned up in reverse order (last attribute first).
    *
+   * @param gl the GL interface
    * @param program current shader program
    * @param index the index of the attribute to be cleaned up here
    */
-  static void doCleanup(ShaderProgram& program, const size_t index)
+  static void doCleanup(Gl& gl, ShaderProgram& program, const size_t index)
   {
-    VertexType<AttrTypeRest...>::doCleanup(program, index + 1);
-    AttrType::cleanup(program, index);
+    VertexType<AttrTypeRest...>::doCleanup(gl, program, index + 1);
+    AttrType::cleanup(gl, program, index);
   }
 
   // Non-instantiable
@@ -122,46 +131,54 @@ struct VertexType<AttrType>
   /**
    * Sets up the vertex buffer pointer for the attribute type of this vertex type.
    *
+   * @param gl the GL interface
    * @param program current shader program
    * @param baseOffset the base offset into the corresponding vertex buffer
    */
-  static void setup(ShaderProgram& program, const size_t baseOffset)
+  static void setup(Gl& gl, ShaderProgram& program, const size_t baseOffset)
   {
-    doSetup(program, 0, Size, baseOffset);
+    doSetup(gl, program, 0, Size, baseOffset);
   }
 
   /**
    * Cleans up the vertex buffer pointer for the attribute of this vertex type.
    *
+   * @param gl the GL interface
    * @param program current shader program
    */
-  static void cleanup(ShaderProgram& program) { doCleanup(program, 0); }
+  static void cleanup(Gl& gl, ShaderProgram& program) { doCleanup(gl, program, 0); }
 
   /**
    * Sets up the vertex buffer pointer for the vertex attribute type. Do not call this
    * directly, use the setup method instead.
    *
+   * @param gl the GL interface
    * @param program current shader program
    * @param index the index of the attribute to be set up here
    * @param stride the stride of the vertex buffer pointer to be set up here
    * @param offset the offset of the vertex buffer pointer to be set up here
    */
   static void doSetup(
-    ShaderProgram& program, const size_t index, const size_t stride, const size_t offset)
+    Gl& gl,
+    ShaderProgram& program,
+    const size_t index,
+    const size_t stride,
+    const size_t offset)
   {
-    AttrType::setup(program, index, stride, offset);
+    AttrType::setup(gl, program, index, stride, offset);
   }
 
   /**
    * Cleans up the vertex buffer pointer for the vertex attribute type. Do not call this
    * directly, use the cleanup method instead.
    *
+   * @param gl the GL interface
    * @param program current shader program
    * @param index the index of the attribute to be cleaned up here
    */
-  static void doCleanup(ShaderProgram& program, const size_t index)
+  static void doCleanup(Gl& gl, ShaderProgram& program, const size_t index)
   {
-    AttrType::cleanup(program, index);
+    AttrType::cleanup(gl, program, index);
   }
 
   // Non-instantiable

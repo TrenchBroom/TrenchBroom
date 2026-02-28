@@ -130,13 +130,14 @@ void MaterialIndexRangeMap::add(const MaterialIndexRangeMap& other)
   }
 }
 
-void MaterialIndexRangeMap::render(VertexArray& vertexArray, MaterialRenderFunc& func)
+void MaterialIndexRangeMap::render(
+  Gl& gl, VertexArray& vertexArray, MaterialRenderFunc& func)
 {
   for (const auto& [material, indexArray] : *m_data)
   {
-    func.before(material);
-    indexArray.render(vertexArray);
-    func.after(material);
+    func.before(gl, material);
+    indexArray.render(gl, vertexArray);
+    func.after(gl, material);
   }
 }
 

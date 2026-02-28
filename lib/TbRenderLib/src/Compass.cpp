@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
+#include "gl/GlInterface.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/PrimType.h"
 #include "gl/ShaderManager.h"
@@ -63,19 +64,21 @@ void Compass::render(RenderBatch& renderBatch)
   renderBatch.add(this);
 }
 
-void Compass::prepare(gl::VboManager& vboManager)
+void Compass::prepare(gl::Gl& gl, gl::VboManager& vboManager)
 {
   if (!m_prepared)
   {
-    m_arrowRenderer.prepare(vboManager);
-    m_backgroundRenderer.prepare(vboManager);
-    m_backgroundOutlineRenderer.prepare(vboManager);
+    m_arrowRenderer.prepare(gl, vboManager);
+    m_backgroundRenderer.prepare(gl, vboManager);
+    m_backgroundOutlineRenderer.prepare(gl, vboManager);
     m_prepared = true;
   }
 }
 
 void Compass::render(RenderContext& renderContext)
 {
+  auto& gl = renderContext.gl();
+
   const auto& camera = renderContext.camera();
   const auto& viewport = camera.viewport();
   const auto viewWidth = static_cast<float>(viewport.width);
@@ -101,9 +104,9 @@ void Compass::render(RenderContext& renderContext)
     MultiplyModelMatrix{renderContext.transformation(), compassTransformation};
   const auto cameraTransformation = cameraRotationMatrix(camera);
 
-  glAssert(glClear(GL_DEPTH_BUFFER_BIT));
+  gl.clear(GL_DEPTH_BUFFER_BIT);
   renderBackground(renderContext);
-  glAssert(glClear(GL_DEPTH_BUFFER_BIT));
+  gl.clear(GL_DEPTH_BUFFER_BIT);
   doRenderCompass(renderContext, cameraTransformation);
 }
 
@@ -205,24 +208,25 @@ vm::mat4x4f Compass::cameraRotationMatrix(const gl::Camera& camera) const
 void Compass::renderBackground(RenderContext& renderContext)
 {
   auto& prefs = PreferenceManager::instance();
+  auto& gl = renderContext.gl();
 
   const auto rotate =
     MultiplyModelMatrix{renderContext.transformation(), vm::mat4x4f::rot_90_x_ccw()};
-  auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassBackgroundShader};
+  auto shader = gl::ActiveShader{
+    gl, renderContext.shaderManager(), gl::Shaders::CompassBackgroundShader};
 
   shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
-  m_backgroundRenderer.render(shader.program());
+  m_backgroundRenderer.render(gl, shader.program());
 
   shader.set("Color", prefs.get(Preferences::CompassBackgroundOutlineColor));
-  m_backgroundOutlineRenderer.render(shader.program());
+  m_backgroundOutlineRenderer.render(gl, shader.program());
 }
 
 void Compass::renderSolidAxis(
   RenderContext& renderContext, const vm::mat4x4f& transformation, const Color& color)
 {
-  auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassShader};
+  auto shader = gl::ActiveShader{
+    renderContext.gl(), renderContext.shaderManager(), gl::Shaders::CompassShader};
   shader.set("CameraPosition", vm::vec3f{0, 500, 0});
   shader.set("LightDirection", vm::normalize(vm::vec3f{0, 0.5, 1}));
   shader.set("LightDiffuse", RgbaF{1.0f, 1.0f, 1.0f, 1.0f});
@@ -240,18 +244,20 @@ void Compass::renderSolidAxis(
 void Compass::renderAxisOutline(
   RenderContext& renderContext, const vm::mat4x4f& transformation, const Color& color)
 {
-  glAssert(glDepthMask(GL_FALSE));
-  glAssert(glLineWidth(3.0f));
-  glAssert(glPolygonMode(GL_FRONT, GL_LINE));
+  auto& gl = renderContext.gl();
 
-  auto shader =
-    gl::ActiveShader{renderContext.shaderManager(), gl::Shaders::CompassOutlineShader};
+  gl.depthMask(GL_FALSE);
+  gl.lineWidth(3.0f);
+  gl.polygonMode(GL_FRONT, GL_LINE);
+
+  auto shader = gl::ActiveShader{
+    gl, renderContext.shaderManager(), gl::Shaders::CompassOutlineShader};
   shader.set("Color", color);
   renderAxis(renderContext, transformation);
 
-  glAssert(glDepthMask(GL_TRUE));
-  glAssert(glLineWidth(1.0f));
-  glAssert(glPolygonMode(GL_FRONT, GL_FILL));
+  gl.depthMask(GL_TRUE);
+  gl.lineWidth(1.0f);
+  gl.polygonMode(GL_FRONT, GL_FILL);
 }
 
 void Compass::renderAxis(RenderContext& renderContext, const vm::mat4x4f& transformation)
@@ -260,7 +266,7 @@ void Compass::renderAxis(RenderContext& renderContext, const vm::mat4x4f& transf
   contract_assert(currentProgram);
 
   const auto apply = MultiplyModelMatrix{renderContext.transformation(), transformation};
-  m_arrowRenderer.render(*currentProgram);
+  m_arrowRenderer.render(renderContext.gl(), *currentProgram);
 }
 
 } // namespace tb::render

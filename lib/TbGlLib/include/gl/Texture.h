@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "gl/GL.h"
+#include "gl/GlUtils.h"
 #include "gl/TextureBuffer.h"
 
 #include "kd/reflection_decl.h"
@@ -30,6 +30,7 @@
 
 namespace tb::gl
 {
+class Gl;
 
 enum class TextureMask
 {
@@ -149,16 +150,16 @@ public:
 
   bool isReady() const;
 
-  bool activate(int minFilter, int magFilter) const;
-  bool deactivate() const;
+  bool activate(Gl& gl, int minFilter, int magFilter) const;
+  bool deactivate(Gl& gl) const;
 
-  void upload(bool glContextAvailable);
-  void drop(bool glContextAvailable);
+  void upload(Gl& gl);
+  void drop(Gl& gl);
 
   const std::vector<TextureBuffer>& buffersIfLoaded() const;
 
 private:
-  void setFilterMode(int minFilter, int magFilter) const;
+  void setFilterMode(Gl& gl, int minFilter, int magFilter) const;
 };
 
 } // namespace tb::gl

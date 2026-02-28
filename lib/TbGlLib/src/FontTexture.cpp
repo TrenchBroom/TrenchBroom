@@ -19,6 +19,8 @@
 
 #include "gl/FontTexture.h"
 
+#include "gl/GlInterface.h"
+
 #include "kd/contracts.h"
 
 #include <cassert>
@@ -62,19 +64,19 @@ size_t FontTexture::size() const
   return m_size;
 }
 
-void FontTexture::activate()
+void FontTexture::activate(Gl& gl)
 {
   if (m_textureId == 0)
   {
     contract_assert(m_buffer != nullptr);
 
-    glAssert(glGenTextures(1, &m_textureId));
-    glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
-    glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-    glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    glAssert(glTexImage2D(
+    gl.genTextures(1, &m_textureId);
+    gl.bindTexture(GL_TEXTURE_2D, m_textureId);
+    gl.texParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl.texParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl.texParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl.texParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl.texImage2D(
       GL_TEXTURE_2D,
       0,
       GL_LUMINANCE,
@@ -83,24 +85,24 @@ void FontTexture::activate()
       0,
       GL_LUMINANCE,
       GL_UNSIGNED_BYTE,
-      m_buffer.get()));
+      m_buffer.get());
     m_buffer.release();
   }
 
   contract_post(m_textureId > 0);
-  glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
+  gl.bindTexture(GL_TEXTURE_2D, m_textureId);
 }
 
-void FontTexture::deactivate()
+void FontTexture::deactivate(Gl& gl)
 {
-  glAssert(glBindTexture(GL_TEXTURE_2D, 0));
+  gl.bindTexture(GL_TEXTURE_2D, 0);
 }
 
-void FontTexture::destroy()
+void FontTexture::destroy(Gl& gl)
 {
   if (m_textureId != 0)
   {
-    glAssert(glDeleteTextures(1, &m_textureId));
+    gl.deleteTextures(1, &m_textureId);
     m_textureId = 0;
   }
 }
