@@ -167,6 +167,84 @@ TEST_CASE("UpdateBrushFaceAttributes")
       });
   }
 
+  SECTION("anchorVertex")
+  {
+    const auto mapFormat = GENERATE(values<MapFormat>({Std, Vlv}));
+
+    const auto withFrontFace = [&](const auto& test) {
+      auto material =
+        gl::Material{"material", gl::createTextureResource(gl::Texture{64, 64})};
+
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto brushBuilder = BrushBuilder{mapFormat, worldBounds};
+      brushBuilder.createCuboid(vm::vec3d{64, 64, 64}, "material")
+        | kdl::transform([&](auto brush) {
+            const auto frontFaceIndex = brush.findFace(vm::vec3d{0, -1, 0});
+            REQUIRE(frontFaceIndex);
+
+            auto& frontFace = brush.face(*frontFaceIndex);
+            frontFace.setMaterial(&material);
+            test(frontFace);
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    };
+
+    SECTION("uses preferred sign when currently justified")
+    {
+      withFrontFace([&](auto& frontFace) {
+        evaluate(
+          UpdateBrushFaceAttributes{
+            .xOffset = SetValue{0.0f},
+            .yOffset = SetValue{0.0f},
+            .rotation = SetValue{0.0f},
+            .xScale = SetValue{1.2f},
+            .yScale = SetValue{0.9f},
+          },
+          frontFace);
+
+        evaluate(justify(frontFace, UvU, UvPls, UvBest), frontFace);
+
+        CHECK(anchorVertex(frontFace, UvU, UvPls) == vm::vec3d{32, -32, 32});
+      });
+    }
+
+    SECTION("falls back to opposite sign when preferred sign is not justified")
+    {
+      withFrontFace([&](auto& frontFace) {
+        evaluate(
+          UpdateBrushFaceAttributes{
+            .xOffset = SetValue{0.0f},
+            .yOffset = SetValue{0.0f},
+            .rotation = SetValue{0.0f},
+            .xScale = SetValue{1.2f},
+            .yScale = SetValue{0.9f},
+          },
+          frontFace);
+
+        evaluate(justify(frontFace, UvU, UvMns, UvBest), frontFace);
+
+        CHECK(anchorVertex(frontFace, UvU, UvPls) == vm::vec3d{-32, -32, 32});
+      });
+    }
+
+    SECTION("uses preferred sign when neither sign is justified")
+    {
+      withFrontFace([&](auto& frontFace) {
+        evaluate(
+          UpdateBrushFaceAttributes{
+            .xOffset = SetValue{7.0f},
+            .yOffset = SetValue{11.0f},
+            .rotation = SetValue{0.0f},
+            .xScale = SetValue{1.2f},
+            .yScale = SetValue{0.9f},
+          },
+          frontFace);
+
+        CHECK(anchorVertex(frontFace, UvU, UvPls) == vm::vec3d{32, -32, 32});
+      });
+    }
+  }
+
   SECTION("align")
   {
     using T = std::tuple<MapFormat, vm::vec2f, vm::vec2f, float, UvPolicy, float>;
