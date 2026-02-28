@@ -164,6 +164,20 @@ enum class UvSign
 
 std::ostream& operator<<(std::ostream& lhs, UvSign rhs);
 
+/**
+ * Return a vertex of the given brush face to use as an anchor.
+ *
+ * 1. If the texture is currently justifed along the given axis and sign, then a vertex is
+ *    selected such that its dot product with the UV axis vector with sign is maximal.
+ *
+ * 2. Otherwise, we try the opposite sign and return the corresponding vertex if the
+ *    texture is justified.
+ *
+ * 3. If the texture isn't justified according to the given axis and either sign, we
+ *    return the same vertex as in case 1.
+ */
+vm::vec3d anchorVertex(const BrushFace& brushFace, UvAxis uvAxis, UvSign preferredSign);
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, UvPolicy uvPolicy);
 UpdateBrushFaceAttributes justify(
   const BrushFace& brushFace, UvAxis uvAxis, UvSign uvSign, UvPolicy uvPolicy);
