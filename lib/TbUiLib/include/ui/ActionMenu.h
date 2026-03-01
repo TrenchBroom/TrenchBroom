@@ -41,6 +41,7 @@ enum class MenuEntryType
   Copy,
   Paste,
   PasteAtOriginalPosition,
+  Rerun,
   None
 };
 

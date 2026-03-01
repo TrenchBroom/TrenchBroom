@@ -29,6 +29,7 @@
 #include <chrono>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -68,6 +69,7 @@ namespace ui
 {
 class Action;
 class AppController;
+class CompilationDialog;
 class Console;
 class InfoPanel;
 class Inspector;
@@ -107,8 +109,10 @@ private:
   QComboBox* m_gridChoice = nullptr;
   QLabel* m_statusBarLabel = nullptr;
 
-  QPointer<QDialog> m_compilationDialog;
+  QPointer<CompilationDialog> m_compilationDialog;
   QPointer<ObjExportDialog> m_objExportDialog;
+
+  std::optional<std::string> m_lastCompilationProfileName;
 
   NotifierConnection m_notifierConnection;
 
@@ -120,6 +124,7 @@ private: // special menu entries
   QMenu* m_recentDocumentsMenu;
   QAction* m_undoAction;
   QAction* m_redoAction;
+  QAction* m_rerunAction = nullptr;
 
 private:
   SignalDelayer* m_updateTitleSignalDelayer = nullptr;
@@ -381,6 +386,8 @@ public:
 
   void showCompileDialog();
   bool closeCompileDialog();
+  void rerunLastCompilation();
+  bool hasLastCompilationProfile() const;
 
   void showLaunchEngineDialog();
 
@@ -402,6 +409,11 @@ public:
   MapViewBase* currentMapViewBase();
 
 private:
+  void setLastCompilationProfileName(const std::string& name);
+  void clearLastCompilationProfileName();
+  void loadLastCompilationProfileName();
+  void updateRerunAction() const;
+
   bool canCompile() const;
   bool canLaunch() const;
 

@@ -122,6 +122,14 @@ const mdl::CompilationConfig& CompilationProfileManager::config() const
   return m_config;
 }
 
+void CompilationProfileManager::selectProfileByIndex(const int index) const
+{
+  if (index >= 0 && index < m_profileList->count())
+  {
+    m_profileList->setCurrentRow(index);
+  }
+}
+
 void CompilationProfileManager::addProfile()
 {
   m_config.profiles.push_back(mdl::CompilationProfile{"unnamed", "${MAP_DIR_PATH}", {}});

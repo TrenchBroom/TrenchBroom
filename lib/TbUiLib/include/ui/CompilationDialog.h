@@ -61,6 +61,11 @@ public:
   explicit CompilationDialog(
     AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
+  bool selectProfileAndCompile(const std::string& profileName);
+
+signals:
+  void compilationProfileUsed(const std::string& profileName);
+
 private:
   void createGui();
 
