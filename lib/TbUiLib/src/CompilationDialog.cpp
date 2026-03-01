@@ -63,6 +63,22 @@ CompilationDialog::CompilationDialog(
   updateCompileButtons();
 }
 
+bool CompilationDialog::selectProfileAndCompile(const std::string& profileName)
+{
+  const auto& profiles = m_profileManager->config().profiles;
+  for (size_t i = 0; i < profiles.size(); ++i)
+  {
+    if (profiles[i].name == profileName)
+    {
+      m_profileManager->selectProfileByIndex(static_cast<int>(i));
+      startCompilation(false);
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void CompilationDialog::createGui()
 {
   setWindowIconTB(this);
@@ -240,6 +256,8 @@ void CompilationDialog::compilationStarted()
 {
   const auto* profile = m_profileManager->selectedProfile();
   contract_assert(profile != nullptr);
+
+  emit compilationProfileUsed(profile->name);
 
   m_currentRunLabel->setText(QString::fromStdString("Running " + profile->name));
   m_output->setText("");
