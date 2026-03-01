@@ -29,6 +29,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
+#include <QSettings>
 #include <QStatusBar>
 #include <QString>
 #include <QStringList>
@@ -178,6 +179,7 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   updateActionState();
   updateUndoRedoActions();
   updateToolBarWidgets();
+  loadLastCompilationProfileName();
 
   m_document->setTargetLogger(m_console);
   m_document->setViewEffectsService(m_mapView);
@@ -303,6 +305,7 @@ void MapWindow::createMenus()
   m_recentDocumentsMenu = createMenuResult.recentDocumentsMenu;
   m_undoAction = createMenuResult.undoAction;
   m_redoAction = createMenuResult.redoAction;
+  m_rerunAction = createMenuResult.rerunAction;
 
   addRecentDocumentsMenu();
 }
@@ -794,6 +797,7 @@ void MapWindow::documentWasLoaded()
   updateActionState();
   updateUndoRedoActions();
   updateRecentDocumentsMenu();
+  loadLastCompilationProfileName();
 }
 
 void MapWindow::documentWasSaved()
@@ -2146,9 +2150,106 @@ void MapWindow::showCompileDialog()
 {
   if (!m_compilationDialog)
   {
-    m_compilationDialog = new CompilationDialog{m_appController, *m_document, this};
+    auto* dialog = new CompilationDialog{m_appController, *m_document, this};
+    connect(
+      dialog,
+      &CompilationDialog::compilationProfileUsed,
+      this,
+      [this](const std::string& profileName) {
+        setLastCompilationProfileName(profileName);
+      });
+    m_compilationDialog = dialog;
   }
   showModelessDialog(m_compilationDialog);
+}
+
+void MapWindow::rerunLastCompilation()
+{
+  if (!m_lastCompilationProfileName)
+  {
+    return;
+  }
+  showCompileDialog();
+  if (!m_compilationDialog->selectProfileAndCompile(*m_lastCompilationProfileName))
+  {
+    clearLastCompilationProfileName();
+  }
+}
+
+bool MapWindow::hasLastCompilationProfile() const
+{
+  return m_lastCompilationProfileName.has_value();
+}
+
+namespace
+{
+
+QString lastCompilationProfileSettingsKey(const std::string& gameName)
+{
+  return QString::fromLatin1("Compilation/LastProfile/%1")
+    .arg(QString::fromStdString(gameName));
+}
+
+} // namespace
+
+void MapWindow::setLastCompilationProfileName(const std::string& name)
+{
+  m_lastCompilationProfileName = name;
+
+  const auto key =
+    lastCompilationProfileSettingsKey(m_document->map().gameInfo().gameConfig.name);
+  auto settings = QSettings{};
+  settings.setValue(key, QString::fromStdString(name));
+
+  updateRerunAction();
+}
+
+void MapWindow::clearLastCompilationProfileName()
+{
+  m_lastCompilationProfileName = std::nullopt;
+
+  const auto key =
+    lastCompilationProfileSettingsKey(m_document->map().gameInfo().gameConfig.name);
+  auto settings = QSettings{};
+  settings.remove(key);
+
+  updateRerunAction();
+}
+
+void MapWindow::loadLastCompilationProfileName()
+{
+  const auto key =
+    lastCompilationProfileSettingsKey(m_document->map().gameInfo().gameConfig.name);
+  const auto settings = QSettings{};
+  const auto value = settings.value(key);
+  if (value.isValid())
+  {
+    m_lastCompilationProfileName = value.toString().toStdString();
+  }
+  else
+  {
+    m_lastCompilationProfileName = std::nullopt;
+  }
+
+  updateRerunAction();
+}
+
+void MapWindow::updateRerunAction() const
+{
+  if (!m_rerunAction)
+  {
+    return;
+  }
+
+  if (!m_lastCompilationProfileName)
+  {
+    m_rerunAction->setText(tr("Re-run compilation..."));
+  }
+  else
+  {
+    m_rerunAction->setText(tr("Re-run \"%1\" compilation...")
+                             .arg(QString::fromStdString(*m_lastCompilationProfileName)));
+  }
 }
 
 bool MapWindow::closeCompileDialog()
