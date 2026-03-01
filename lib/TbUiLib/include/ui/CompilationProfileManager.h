@@ -60,6 +60,7 @@ public:
 
   const mdl::CompilationProfile* selectedProfile() const;
   const mdl::CompilationConfig& config() const;
+  void selectProfileByIndex(int index);
 
 private:
   void updateGui();
