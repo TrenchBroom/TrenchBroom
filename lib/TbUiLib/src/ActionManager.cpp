@@ -1855,6 +1855,18 @@ void ActionManager::createRunMenu()
     [](auto& context) { context.mapWindow().showLaunchEngineDialog(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
+  runMenu.addItem(
+    addAction(Action{
+      "Menu/Run/Rerun...",
+      QObject::tr("Re-run compilation"),
+      ActionContext::Any,
+      QKeySequence{},
+      [](auto& context) { context.mapWindow().rerunLastCompilation(); },
+      [](const auto& context) {
+        return context.hasDocument() && context.mapWindow().hasLastCompilationProfile();
+      },
+    }),
+    MenuEntryType::Rerun);
 }
 
 void ActionManager::createDebugMenu()
