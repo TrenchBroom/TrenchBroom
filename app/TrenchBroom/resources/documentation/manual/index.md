@@ -258,15 +258,15 @@ A similar operation can be found under #menu(Menu/Edit/Select Tall), but this pa
 
 If you have selected a single brush that belongs to an entity or group, and you wish to select every other object belonging to that entity or group, you can choose #menu(Menu/Edit/Select Siblings). The same effect can be achieved by left double clicking on a brush that belongs to an entity or group. The menu command #menu(Menu/Edit/Select by Line Number) is useful for diagnostic purposes. If an external program such as a map compiler presents you with an error message and a line number indicating where in the map file that error occurred, you can use this menu command to have TrenchBroom select the offending object for you.
 
-Choose #menu(Menu/Edit/Select Inverse) from the menu to invert the selection, i.e. select everything that is currently unselected (excluding hidden and locked objects).
+Choose #menu(Menu/Edit/Invert Selection) from the menu to invert the selection, i.e. select everything that is currently unselected (excluding hidden and locked objects).
 
-Finally, you can deselect everything by left clicking in the void, or by choosing #menu(Menu/Edit/Select None).
+Finally, you can deselect everything by left clicking in the void, or by choosing #menu(Menu/Edit/Deselect All).
 
 ## Selecting Brush Faces
 
 ![Selected brush face](images/BrushFaceSelection.png)
 
-To select a brush face, you need to hold #key(Shift) and left click it in the 3D viewport. You can select multiple brush faces by additionally holding #key(Ctrl). To select all faces of a brush, you can left double click that brush while holding #key(Shift). If you additionally hold #key(Ctrl), the faces are added to the current selection. To paint select brush faces, first select one brush face, then left drag while holding #key(Ctrl) and #key(Shift). To deselect all brush faces, simply click in the void or choose #menu(Menu/Edit/Select None).
+To select a brush face, you need to hold #key(Shift) and left click it in the 3D viewport. You can select multiple brush faces by additionally holding #key(Ctrl). To select all faces of a brush, you can left double click that brush while holding #key(Shift). If you additionally hold #key(Ctrl), the faces are added to the current selection. To paint select brush faces, first select one brush face, then left drag while holding #key(Ctrl) and #key(Shift). To deselect all brush faces, simply click in the void or choose #menu(Menu/Edit/Deselect All).
 
 # Editing
 
