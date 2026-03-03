@@ -20,6 +20,7 @@
 #pragma once
 
 #include "StringMakers.h"
+#include "mdl/BrushFaceAttributes.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 
@@ -46,6 +47,22 @@ public:
 };
 
 NodeMatcher MatchesNode(const Node& expected);
+
+class BrushFaceAttributesMatcher
+  : public Catch::Matchers::MatcherBase<BrushFaceAttributes>
+{
+private:
+  BrushFaceAttributes m_expected;
+
+public:
+  explicit BrushFaceAttributesMatcher(BrushFaceAttributes expected);
+
+  bool match(const BrushFaceAttributes& in) const override;
+
+  std::string describe() const override;
+};
+
+BrushFaceAttributesMatcher MatchesBrushFaceAttributes(BrushFaceAttributes expected);
 
 class UpdateBrushFaceAttributesMatcher
   : public Catch::Matchers::MatcherBase<UpdateBrushFaceAttributes>
