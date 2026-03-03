@@ -2932,6 +2932,10 @@ You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to includ
 - *Crash report and the map file*: When TrenchBroom crashes, it saves a crash report and the map file automatically. These files are placed in the folder containing the current map file, or in your documents folder if the current map hasn't been saved yet. For example, if the map file you are editing has the name "rtz_q1.map", the crash report will be named "rtz_q1-crash.txt", and the saved map file will be named "rtz_q1-crash.map". Existing files are not overwritten - TrenchBroom creates new file names by attaching a number at the end. Please choose the files with the highest numbers when reporting a bug.
 - *Exact steps to reproduce*: It is really helpful if you can provide exact info on how to reproduce the problem. Sometimes this can be difficult to describe, so you can attach screenshots or make screencasts if necessary. If you cannot reproduce the problem, please submit a bug report either way. The cause of the problem can often be deduced anyway.
 
+## Contributing
+
+Please see the [TrenchBroom CONTRIBUTING.md] file for more details.
+
 ### The Version Information
 
 Open the "About TrenchBroom" dialog from the menu. The light gray text on the left gives you some information about which version of TrenchBroom you are currently running, for example "Version 2.0.0 f335082 D". The first three numbers represent the version (2.0.0), the following seven letter string is the build id (f335082), and the final letter indicates the build type ("D" for Debug and "R" for release). You can also find this information in the Welcome window that the editor shows at startup.
@@ -2954,6 +2958,7 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 [TrenchBroom on GitHub]: https://github.com/TrenchBroom/TrenchBroom/
 [TrenchBroom issue tracker]: https://github.com/TrenchBroom/TrenchBroom/issues/
+[TrenchBroom CONTRIBUTING.md]: https://github.com/TrenchBroom/TrenchBroom/blob/master/CONTRIBUTING.md
 [TrenchBroom Discord]: https://discord.gg/WGf9uve
 [func_msgboard]: https://celephais.net/board/
 [Quake Tools]: https://joshua.itch.io/quake-tools
