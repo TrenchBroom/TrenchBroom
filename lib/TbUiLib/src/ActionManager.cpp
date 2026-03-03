@@ -1178,8 +1178,8 @@ void ActionManager::createEditMenu()
   }));
   texturesMenu.addSeparator();
   texturesMenu.addItem(addAction(Action{
-    "Menu/Edit/Replace Texture...",
-    QObject::tr("Replace Texture..."),
+    "Menu/Edit/Replace Material...",
+    QObject::tr("Replace Material..."),
     ActionContext::Any,
     QKeySequence{},
     [](auto& context) { context.mapWindow().replaceMaterial(); },
