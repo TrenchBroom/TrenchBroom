@@ -40,3 +40,5 @@ You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to includ
 - If there are changes requested in the pull request, please create individual fixup commits for the changes so that
   they get squashed into the correct commits. I'd like to keep the history nice and clean instead of putting one larger
   cleanup commit on top.
+
+[TrenchBroom issue tracker]: https://github.com/TrenchBroom/TrenchBroom/issues/
