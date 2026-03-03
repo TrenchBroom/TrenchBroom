@@ -148,6 +148,33 @@ NodeMatcher MatchesNode(const Node& expected)
   return NodeMatcher{expected};
 }
 
+BrushFaceAttributesMatcher::BrushFaceAttributesMatcher(BrushFaceAttributes expected)
+  : m_expected{std::move(expected)}
+{
+}
+
+bool BrushFaceAttributesMatcher::match(const BrushFaceAttributes& in) const
+{
+  return in.materialName() == m_expected.materialName()
+         && in.offset() == vm::approx{m_expected.offset()}
+         && in.scale() == vm::approx{m_expected.scale()}
+         && in.rotation() == vm::approx{m_expected.rotation()}
+         && in.surfaceContents() == m_expected.surfaceContents()
+         && in.surfaceFlags() == m_expected.surfaceFlags()
+         && in.surfaceValue() == m_expected.surfaceValue()
+         && in.color() == m_expected.color();
+}
+
+std::string BrushFaceAttributesMatcher::describe() const
+{
+  return fmt::format("{}", fmt::streamed(m_expected));
+}
+
+BrushFaceAttributesMatcher MatchesBrushFaceAttributes(BrushFaceAttributes expected)
+{
+  return BrushFaceAttributesMatcher{std::move(expected)};
+}
+
 UpdateBrushFaceAttributesMatcher::UpdateBrushFaceAttributesMatcher(
   UpdateBrushFaceAttributes expected)
   : m_expected{std::move(expected)}
