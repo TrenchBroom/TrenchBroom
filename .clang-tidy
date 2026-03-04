@@ -4,6 +4,7 @@ Checks: >
   bugprone-infinite-loop,
   bugprone-use-after-move,
   google-explicit-constructor,
+  misc-const-correctness,
   misc-move-constructor-init,
   misc-unused-alias-decls,
   misc-unused-using-decls,
