@@ -119,6 +119,17 @@ const mdl::CompilationProfile* CompilationProfileManager::selectedProfile() cons
   return index >= 0 ? &m_config.profiles[size_t(index)] : nullptr;
 }
 
+bool CompilationProfileManager::selectProfile(const mdl::CompilationProfile& profile)
+{
+  if (const auto index = kdl::index_of(m_config.profiles, profile))
+  {
+    m_profileList->setCurrentRow(static_cast<int>(*index));
+    return true;
+  }
+
+  return false;
+}
+
 const mdl::CompilationConfig& CompilationProfileManager::config() const
 {
   return m_config;

@@ -75,6 +75,44 @@ TEST_CASE("CompilationProfileManager")
     }
   }
 
+  SECTION("selectProfile")
+  {
+    SECTION("selects existing profile")
+    {
+      config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
+      config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
+
+      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+
+      REQUIRE(manager->selectedProfile() != nullptr);
+      CHECK(manager->selectedProfile()->name == "test 1");
+
+      const auto result = manager->selectProfile(config.profiles[1]);
+
+      CHECK(result);
+      REQUIRE(manager->selectedProfile() != nullptr);
+      CHECK(manager->selectedProfile()->name == "test 2");
+    }
+
+    SECTION("returns false for unknown profile")
+    {
+      config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
+      config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
+
+      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+
+      REQUIRE(manager->selectedProfile() != nullptr);
+      CHECK(manager->selectedProfile()->name == "test 1");
+
+      const auto unknownProfile = mdl::CompilationProfile{"unknown", "", {}};
+      const auto result = manager->selectProfile(unknownProfile);
+
+      CHECK_FALSE(result);
+      REQUIRE(manager->selectedProfile() != nullptr);
+      CHECK(manager->selectedProfile()->name == "test 1");
+    }
+  }
+
   SECTION("remove button disabled when no profile is selected")
   {
     config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
