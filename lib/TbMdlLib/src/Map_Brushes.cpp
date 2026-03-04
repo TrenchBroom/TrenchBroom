@@ -98,7 +98,7 @@ bool translateUV(
   const vm::vec2f& delta)
 {
   return applyAndSwap(map, "Translate UV", map.selection().brushFaces, [&](auto& face) {
-    face.moveUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
+    face.translateUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
     return true;
   });
 }
