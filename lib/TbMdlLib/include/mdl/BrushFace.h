@@ -222,7 +222,7 @@ public:
   void convertToParaxial();
   void convertToParallel();
 
-  void moveUV(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
+  void translateUV(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
   void rotateUV(float angle);
   void shearUV(const vm::vec2f& factors);
   void flipUV(
