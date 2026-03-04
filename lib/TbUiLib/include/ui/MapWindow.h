@@ -29,6 +29,7 @@
 #include <chrono>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -61,6 +62,7 @@ class Node;
 
 enum class PasteType;
 
+struct CompilationProfile;
 struct SelectionChange;
 } // namespace mdl
 
@@ -68,6 +70,7 @@ namespace ui
 {
 class Action;
 class AppController;
+class CompilationDialog;
 class Console;
 class InfoPanel;
 class Inspector;
@@ -107,8 +110,10 @@ private:
   QComboBox* m_gridChoice = nullptr;
   QLabel* m_statusBarLabel = nullptr;
 
-  QPointer<QDialog> m_compilationDialog;
+  QPointer<CompilationDialog> m_compilationDialog;
   QPointer<ObjExportDialog> m_objExportDialog;
+
+  std::optional<std::string> m_lastCompilationProfileName;
 
   NotifierConnection m_notifierConnection;
 
@@ -381,6 +386,7 @@ public:
 
   void showCompileDialog();
   bool closeCompileDialog();
+  bool hasLastCompilationProfile() const;
 
   void showLaunchEngineDialog();
 
@@ -402,6 +408,10 @@ public:
   MapViewBase* currentMapViewBase();
 
 private:
+  const mdl::CompilationProfile* lastCompilationProfile() const;
+  void setLastCompilationProfileName(std::string name);
+  void loadLastCompilationProfileName();
+
   bool canCompile() const;
   bool canLaunch() const;
 

@@ -29,6 +29,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
+#include <QSettings>
 #include <QStatusBar>
 #include <QString>
 #include <QStringList>
@@ -149,6 +150,12 @@ bool widgetOrChildHasFocus(const QWidget* widget)
   return widget == focusWidget || widget->isAncestorOf(focusWidget);
 }
 
+QString lastCompilationProfileSettingsKey(const std::string& gameName)
+{
+  return QString::fromLatin1("Compilation/LastProfile/%1")
+    .arg(QString::fromStdString(gameName));
+}
+
 } // namespace
 
 using namespace std::chrono_literals;
@@ -178,6 +185,7 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   updateActionState();
   updateUndoRedoActions();
   updateToolBarWidgets();
+  loadLastCompilationProfileName();
 
   m_document->setTargetLogger(m_console);
   m_document->setViewEffectsService(m_mapView);
@@ -794,6 +802,7 @@ void MapWindow::documentWasLoaded()
   updateActionState();
   updateUndoRedoActions();
   updateRecentDocumentsMenu();
+  loadLastCompilationProfileName();
 }
 
 void MapWindow::documentWasSaved()
@@ -2147,8 +2156,65 @@ void MapWindow::showCompileDialog()
   if (!m_compilationDialog)
   {
     m_compilationDialog = new CompilationDialog{m_appController, *m_document, this};
+    connect(
+      m_compilationDialog,
+      &CompilationDialog::compilationProfileStarted,
+      this,
+      [this](const std::string& profileName) {
+        setLastCompilationProfileName(profileName);
+      });
   }
+
   showModelessDialog(m_compilationDialog);
+}
+
+bool MapWindow::hasLastCompilationProfile() const
+{
+  return lastCompilationProfile() != nullptr;
+}
+
+const mdl::CompilationProfile* MapWindow::lastCompilationProfile() const
+{
+  if (m_lastCompilationProfileName)
+  {
+    const auto& compilationProfiles =
+      m_document->map().gameInfo().compilationConfig.profiles;
+
+    if (const auto iLastCompilationProfile = std::ranges::find_if(
+          compilationProfiles,
+          [&](const auto& profile) {
+            return profile.name == *m_lastCompilationProfileName;
+          });
+        iLastCompilationProfile != compilationProfiles.end())
+    {
+      return &*iLastCompilationProfile;
+    }
+  }
+
+  return nullptr;
+}
+
+void MapWindow::setLastCompilationProfileName(std::string name)
+{
+  m_lastCompilationProfileName = std::move(name);
+
+  const auto key =
+    lastCompilationProfileSettingsKey(m_document->map().gameInfo().gameConfig.name);
+
+  auto settings = QSettings{};
+  settings.setValue(key, QString::fromStdString(*m_lastCompilationProfileName));
+}
+
+void MapWindow::loadLastCompilationProfileName()
+{
+  const auto key =
+    lastCompilationProfileSettingsKey(m_document->map().gameInfo().gameConfig.name);
+
+  const auto settings = QSettings{};
+  const auto value = settings.value(key);
+
+  m_lastCompilationProfileName =
+    value.isValid() ? std::optional{value.toString().toStdString()} : std::nullopt;
 }
 
 bool MapWindow::closeCompileDialog()
