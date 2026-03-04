@@ -125,6 +125,7 @@ private: // special menu entries
   QMenu* m_recentDocumentsMenu;
   QAction* m_undoAction;
   QAction* m_redoAction;
+  QAction* m_rerunAction = nullptr;
 
 private:
   SignalDelayer* m_updateTitleSignalDelayer = nullptr;
@@ -386,6 +387,7 @@ public:
 
   void showCompileDialog();
   bool closeCompileDialog();
+  void rerunLastCompilation();
   bool hasLastCompilationProfile() const;
 
   void showLaunchEngineDialog();
@@ -411,6 +413,7 @@ private:
   const mdl::CompilationProfile* lastCompilationProfile() const;
   void setLastCompilationProfileName(std::string name);
   void loadLastCompilationProfileName();
+  void updateRerunAction();
 
   bool canCompile() const;
   bool canLaunch() const;

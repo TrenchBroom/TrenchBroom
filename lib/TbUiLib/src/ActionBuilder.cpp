@@ -122,6 +122,10 @@ PopulateMenuResult populateMenuBar(
       {
         result.pasteAtOriginalPositionAction = &qtAction;
       }
+      else if (actionItem.entryType == MenuEntryType::Rerun)
+      {
+        result.rerunAction = &qtAction;
+      }
     },
     [&](const auto& thisLambda, const Menu& menu) {
       auto* parentMenu = currentMenu;

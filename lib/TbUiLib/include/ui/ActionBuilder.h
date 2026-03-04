@@ -42,6 +42,7 @@ struct PopulateMenuResult
   QAction* redoAction = nullptr;
   QAction* pasteAction = nullptr;
   QAction* pasteAtOriginalPositionAction = nullptr;
+  QAction* rerunAction = nullptr;
 };
 
 PopulateMenuResult populateMenuBar(

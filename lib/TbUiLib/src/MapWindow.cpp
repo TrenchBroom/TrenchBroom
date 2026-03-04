@@ -311,6 +311,7 @@ void MapWindow::createMenus()
   m_recentDocumentsMenu = createMenuResult.recentDocumentsMenu;
   m_undoAction = createMenuResult.undoAction;
   m_redoAction = createMenuResult.redoAction;
+  m_rerunAction = createMenuResult.rerunAction;
 
   addRecentDocumentsMenu();
 }
@@ -2168,6 +2169,19 @@ void MapWindow::showCompileDialog()
   showModelessDialog(m_compilationDialog);
 }
 
+void MapWindow::rerunLastCompilation()
+{
+  if (m_lastCompilationProfileName)
+  {
+    showCompileDialog();
+
+    if (const auto* profile = lastCompilationProfile())
+    {
+      m_compilationDialog->selectAndRunProfile(*profile);
+    }
+  }
+}
+
 bool MapWindow::hasLastCompilationProfile() const
 {
   return lastCompilationProfile() != nullptr;
@@ -2203,6 +2217,8 @@ void MapWindow::setLastCompilationProfileName(std::string name)
 
   auto settings = QSettings{};
   settings.setValue(key, QString::fromStdString(*m_lastCompilationProfileName));
+
+  updateRerunAction();
 }
 
 void MapWindow::loadLastCompilationProfileName()
@@ -2215,6 +2231,22 @@ void MapWindow::loadLastCompilationProfileName()
 
   m_lastCompilationProfileName =
     value.isValid() ? std::optional{value.toString().toStdString()} : std::nullopt;
+
+  updateRerunAction();
+}
+
+void MapWindow::updateRerunAction()
+{
+  if (m_rerunAction)
+  {
+    m_rerunAction->setText(
+      m_lastCompilationProfileName
+        ? tr("Re-run \"%1\"...")
+            .arg(QString::fromStdString(*m_lastCompilationProfileName))
+        : tr("Re-run compilation..."));
+  }
+
+  updateActionState();
 }
 
 bool MapWindow::closeCompileDialog()
