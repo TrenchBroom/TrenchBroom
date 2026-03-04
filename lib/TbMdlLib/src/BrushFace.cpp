@@ -554,7 +554,7 @@ void BrushFace::convertToParallel()
   m_uvCoordSystem = std::move(newUVCoordSystem);
 }
 
-void BrushFace::moveUV(
+void BrushFace::translateUV(
   const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset)
 {
   m_uvCoordSystem->translate(m_boundary.normal, up, right, offset, m_attributes);
