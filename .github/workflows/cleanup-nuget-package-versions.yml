@@ -1,0 +1,121 @@
+name: Cleanup NuGet Package Versions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'
+
+permissions:
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  delete-old-nuget-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old NuGet versions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const packageType = 'nuget';
+            const versionsToKeep = 5;
+            const packageNames = new Set();
+
+            async function listPackagesForType(packageType) {
+              const repoPackages = await github.paginate('GET /repos/{owner}/{repo}/packages', {
+                owner,
+                repo,
+                package_type: packageType,
+                per_page: 100,
+              });
+
+              for (const pkg of repoPackages) {
+                packageNames.add(pkg.name);
+              }
+            }
+
+            async function listPackageVersions(packageName) {
+              try {
+                return await github.paginate('GET /orgs/{org}/packages/{package_type}/{package_name}/versions', {
+                  org: owner,
+                  package_type: packageType,
+                  package_name: packageName,
+                  per_page: 100,
+                });
+              } catch (orgError) {
+                core.info(`Organization version listing failed for ${packageName}: ${orgError.message}`);
+
+                return await github.paginate('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+                  username: owner,
+                  package_type: packageType,
+                  package_name: packageName,
+                  per_page: 100,
+                });
+              }
+            }
+
+            async function deletePackageVersion(packageName, packageVersionId) {
+              try {
+                await github.request('DELETE /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}', {
+                  org: owner,
+                  package_type: packageType,
+                  package_name: packageName,
+                  package_version_id: packageVersionId,
+                });
+              } catch (orgError) {
+                core.info(`Organization delete failed for ${packageName}@${packageVersionId}: ${orgError.message}`);
+
+                await github.request('DELETE /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}', {
+                  username: owner,
+                  package_type: packageType,
+                  package_name: packageName,
+                  package_version_id: packageVersionId,
+                });
+              }
+            }
+
+            await listPackagesForType(packageType);
+
+            const packages = [...packageNames].sort();
+
+            if (packages.length === 0) {
+              core.info('No NuGet packages found to process.');
+              return;
+            }
+
+            core.info(`Found ${packages.length} NuGet package(s) to process.`);
+
+            let deletedCount = 0;
+
+            for (const packageName of packages) {
+              let versions = [];
+              try {
+                versions = await listPackageVersions(packageName);
+              } catch (listError) {
+                core.warning(`Skipping ${packageName}: unable to list versions: ${listError.message}`);
+                continue;
+              }
+              const sortedVersions = [...versions].sort((left, right) => {
+                return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
+              });
+
+              const versionsToDelete = sortedVersions.slice(versionsToKeep);
+              core.info(`${packageName}: keeping ${Math.min(sortedVersions.length, versionsToKeep)} of ${sortedVersions.length} version(s).`);
+
+              for (const version of versionsToDelete) {
+                try {
+                  await deletePackageVersion(packageName, version.id);
+                  deletedCount += 1;
+                  core.info(`Deleted ${packageName} version id ${version.id}.`);
+                } catch (deleteError) {
+                  core.warning(`Failed to delete ${packageName} version id ${version.id}: ${deleteError.message}`);
+                }
+              }
+            }
+
+            core.info(`Finished cleanup. Deleted ${deletedCount} NuGet package version(s).`);
