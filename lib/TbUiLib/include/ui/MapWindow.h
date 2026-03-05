@@ -122,9 +122,9 @@ private: // shortcuts
   ActionMap m_actionMap;
 
 private: // special menu entries
-  QMenu* m_recentDocumentsMenu;
-  QAction* m_undoAction;
-  QAction* m_redoAction;
+  QMenu* m_recentDocumentsMenu = nullptr;
+  QAction* m_undoAction = nullptr;
+  QAction* m_redoAction = nullptr;
   QAction* m_rerunAction = nullptr;
 
 private:
