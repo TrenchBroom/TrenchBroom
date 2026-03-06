@@ -14,14 +14,6 @@ QCheckBox#entityDefinition_checkboxWidget {
   margin-left: 11px;
 }
 
-QToolButton#backgroundChecked {
-  border: none;
-}
-
-QToolButton#backgroundChecked::checked {
-  background-color: rgba(0, 0, 0, 50);
-}
-
 QToolButton#toolButton_withBorder {
   border: 1 solid rgba(0, 0, 0, 50);
   border-radius: 3;
