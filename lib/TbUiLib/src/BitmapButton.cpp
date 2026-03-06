@@ -21,7 +21,6 @@
 
 #include <QIcon>
 #include <QString>
-#include <QToolButton>
 
 #include "ui/ImageUtils.h"
 
@@ -29,6 +28,11 @@
 
 namespace tb::ui
 {
+
+BitmapButton::BitmapButton(QWidget* parent)
+  : QToolButton{parent}
+{
+}
 
 QToolButton* createBitmapButton(
   const std::filesystem::path& imagePath, const QString& tooltip, QWidget* parent)
@@ -44,13 +48,10 @@ QToolButton* createBitmapButton(
   // the order 1x then 2x, so the first pixmap has the logical size.
   contract_pre(!icon.availableSizes().empty());
 
-  auto* button = new QToolButton{parent};
+  auto* button = new BitmapButton{parent};
   button->setMinimumSize(icon.availableSizes().front());
-  // button->setAutoDefault(false);
   button->setToolTip(tooltip);
   button->setIcon(icon);
-  // button->setFlat(true);
-  button->setObjectName("toolButton_borderless");
 
   return button;
 }

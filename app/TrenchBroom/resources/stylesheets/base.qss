@@ -23,10 +23,10 @@ QToolButton#toolButton_withBorder::checked {
   background-color: rgba(0, 0, 0, 25);
 }
 
-QToolButton#toolButton_borderless {
+tb--ui--BitmapButton {
   border: none;
 }
 
-QToolButton#toolButton_borderless::menu-indicator {
+tb--ui--BitmapButton::menu-indicator {
  image: none;
 }

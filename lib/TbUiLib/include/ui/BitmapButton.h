@@ -19,15 +19,25 @@
 
 #pragma once
 
+#include <QObject>
+#include <QToolButton>
+
 #include <filesystem>
 
 class QIcon;
 class QString;
-class QToolButton;
 class QWidget;
 
 namespace tb::ui
 {
+
+class BitmapButton : public QToolButton
+{
+  Q_OBJECT
+
+public:
+  explicit BitmapButton(QWidget* parent = nullptr);
+};
 
 QToolButton* createBitmapButton(
   const std::filesystem::path& imagePath,
