@@ -39,6 +39,7 @@ namespace tb::mdl
 {
 namespace
 {
+
 auto replaceFlagsIfSet(const auto& maybeFlags)
 {
   return maybeFlags
@@ -341,6 +342,39 @@ bool isAligned(const BrushFace& brushFace)
 {
   const auto [edgeToAlignTo, isExactMatch] = findEdgeToAlignTo(brushFace, UvPolicy::best);
   return isExactMatch;
+}
+
+bool isJustified(const BrushFace& brushFace, const UvAxis uvAxis, const UvSign uvSign)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto dirFactor = toFactor(uvSign);
+
+  auto distances =
+    brushFace.vertices()
+    | std::views::transform(makeVertexToUvAxisTransform(brushFace, uvAxis, uvSign));
+
+  const auto [iMin, iMax] = std::ranges::minmax_element(distances);
+  contract_assert(iMin != iMax);
+
+  const auto textureLength = vm::dot(brushFace.textureSize(), axis);
+  const auto faceLength = *iMax - *iMin;
+  const auto numSubDivisions =
+    vm::is_equal(std::fmod(textureLength, faceLength), 0.0f, vm::Cf::almost_zero())
+      ? size_t(std::round(textureLength / faceLength))
+      : 1u;
+
+  const auto subDivisionLength = textureLength / float(numSubDivisions);
+  const auto maxOffset = -dirFactor * *iMax;
+  const auto currentOffset =
+    normalizeOffset(vm::dot(brushFace.attributes().offset(), axis), textureLength);
+
+  return std::ranges::any_of(std::views::iota(0u, numSubDivisions), [&](const auto div) {
+    const auto potentialOffset = float(div) * subDivisionLength + maxOffset;
+    return vm::is_equal(
+      normalizeOffset(potentialOffset, textureLength),
+      currentOffset,
+      vm::Cf::almost_zero());
+  });
 }
 
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy uvPolicy)
