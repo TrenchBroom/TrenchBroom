@@ -83,5 +83,6 @@ bool flipUV(
 void alignUV(Map& map, UvPolicy uvPolicy);
 void justifyUV(Map& map, UvJustifyDirection uvJustifyDirection, UvPolicy uvPolicy);
 void fitUV(Map& map, UvFitDirection uvFitDirection, UvPolicy uvPolicy);
+void autoFitUV(Map& map, UvPolicy uvPolicy);
 
 } // namespace tb::mdl

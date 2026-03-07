@@ -321,4 +321,44 @@ void fitUV(Map& map, const UvFitDirection uvFitDirection, const UvPolicy uvPolic
   transaction.commit();
 }
 
+void autoFitUV(Map& map, const UvPolicy uvPolicy)
+{
+  auto transaction = Transaction{map, "Auto fit texture"};
+
+  for (const auto& faceHandle : map.selection().brushFaces)
+  {
+    if (!isAligned(faceHandle.face()))
+    {
+      setBrushFaceAttributes(map, mdl::align(faceHandle.face(), UvPolicy::best));
+    }
+    else if (
+      isJustified(faceHandle.face(), UvAxis::u, UvSign::plus)
+      && isFitted(faceHandle.face(), UvAxis::u)
+      && isJustified(faceHandle.face(), UvAxis::v, UvSign::plus)
+      && isFitted(faceHandle.face(), UvAxis::v))
+    {
+      setBrushFaceAttributes(map, mdl::align(faceHandle.face(), uvPolicy));
+    }
+
+    setBrushFaceAttributes(
+      map, mdl::justify(faceHandle.face(), UvAxis::u, UvSign::plus, UvPolicy::best));
+    setBrushFaceAttributes(
+      map, mdl::justify(faceHandle.face(), UvAxis::v, UvSign::plus, UvPolicy::best));
+
+    const auto invariantUVertex =
+      anchorVertex(faceHandle.face(), UvAxis::u, UvSign::plus);
+    withInvariantUvCoords(map, faceHandle, invariantUVertex, [&](const auto& brushFace) {
+      setBrushFaceAttributes(map, mdl::fit(brushFace, UvAxis::u, UvPolicy::best));
+    });
+
+    const auto invariantVVertex =
+      anchorVertex(faceHandle.face(), UvAxis::v, UvSign::plus);
+    withInvariantUvCoords(map, faceHandle, invariantVVertex, [&](const auto& brushFace) {
+      setBrushFaceAttributes(map, mdl::fit(brushFace, UvAxis::v, UvPolicy::best));
+    });
+  }
+
+  transaction.commit();
+}
+
 } // namespace tb::mdl
