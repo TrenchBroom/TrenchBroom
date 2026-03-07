@@ -257,28 +257,6 @@ auto makeVertexToUvAxisTransform(
   };
 }
 
-bool isJustified(const BrushFace& brushFace, const UvAxis uvAxis, const UvSign uvSign)
-{
-  const auto normalizedXOffset =
-    normalizeOffset(brushFace.attributes().xOffset(), brushFace.textureSize().x());
-  const auto normalizedYOffset =
-    normalizeOffset(brushFace.attributes().yOffset(), brushFace.textureSize().y());
-
-  const auto update = justify(brushFace, uvAxis, uvSign, UvPolicy::best);
-  switch (uvAxis)
-  {
-  case UvAxis::u:
-    return update.xOffset
-           && isEqual(
-             *update.xOffset, SetValue{normalizedXOffset}, vm::Cf::almost_zero());
-  case UvAxis::v:
-    return update.yOffset
-           && isEqual(
-             *update.yOffset, SetValue{normalizedYOffset}, vm::Cf::almost_zero());
-    switchDefault();
-  }
-}
-
 } // namespace
 
 kdl_reflect_impl(ResetAxis);
@@ -409,6 +387,28 @@ bool isAligned(const BrushFace& brushFace)
 {
   const auto [edgeToAlignTo, isExactMatch] = findEdgeToAlignTo(brushFace, UvPolicy::best);
   return isExactMatch;
+}
+
+bool isJustified(const BrushFace& brushFace, const UvAxis uvAxis, const UvSign uvSign)
+{
+  const auto normalizedXOffset =
+    normalizeOffset(brushFace.attributes().xOffset(), brushFace.textureSize().x());
+  const auto normalizedYOffset =
+    normalizeOffset(brushFace.attributes().yOffset(), brushFace.textureSize().y());
+
+  const auto update = justify(brushFace, uvAxis, uvSign, UvPolicy::best);
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return update.xOffset
+           && isEqual(
+             *update.xOffset, SetValue{normalizedXOffset}, vm::Cf::almost_zero());
+  case UvAxis::v:
+    return update.yOffset
+           && isEqual(
+             *update.yOffset, SetValue{normalizedYOffset}, vm::Cf::almost_zero());
+    switchDefault();
+  }
 }
 
 vm::vec3d anchorVertex(
