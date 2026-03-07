@@ -98,6 +98,32 @@ T findNextScaleFactor(const T f, const UvPolicy uvPolicy)
   return sign * nextMagnitude;
 }
 
+auto scaleFactorToFit(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
+{
+  const auto axis = toAxis(uvAxis);
+
+  const auto distances =
+    brushFace.vertices()
+    | std::views::transform(
+      [toUV = brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1})](
+        const auto* vertex) { return vm::vec2f{toUV * vertex->position()}; })
+    | std::views::transform([&](const auto& v) { return vm::dot(v, axis); })
+    | kdl::ranges::to<std::vector>();
+
+  const auto [iMin, iMax] = std::ranges::minmax_element(distances);
+  contract_assert(iMin != iMax);
+
+  const auto faceLength = *iMax - *iMin;
+  const auto textureLength = vm::dot(brushFace.textureSize(), axis);
+
+  const auto currentScale = vm::dot(brushFace.attributes().scale(), axis);
+  const auto currentFactor = currentScale * textureLength / faceLength;
+
+  const auto nextFactor = findNextScaleFactor(currentFactor, uvPolicy);
+  return nextFactor * faceLength / textureLength;
+}
+
 void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
 {
   if (axisOp)
@@ -377,6 +403,20 @@ bool isJustified(const BrushFace& brushFace, const UvAxis uvAxis, const UvSign u
   });
 }
 
+bool isFitted(const BrushFace& brushFace, UvAxis uvAxis)
+{
+  const auto value = scaleFactorToFit(brushFace, uvAxis, UvPolicy::best);
+
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return vm::is_equal(brushFace.attributes().xScale(), value, vm::Cf::almost_zero());
+  case UvAxis::v:
+    return vm::is_equal(brushFace.attributes().yScale(), value, vm::Cf::almost_zero());
+    switchDefault();
+  }
+}
+
 UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy uvPolicy)
 {
   const auto [edgeToAlignTo, isExactMatch] = findEdgeToAlignTo(brushFace, uvPolicy);
@@ -470,27 +510,7 @@ UpdateBrushFaceAttributes justify(
 UpdateBrushFaceAttributes fit(
   const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
 {
-  const auto axis = toAxis(uvAxis);
-
-  const auto distances =
-    brushFace.vertices()
-    | std::views::transform(
-      [toUV = brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1})](
-        const auto* vertex) { return vm::vec2f{toUV * vertex->position()}; })
-    | std::views::transform([&](const auto& v) { return vm::dot(v, axis); })
-    | kdl::ranges::to<std::vector>();
-
-  const auto [iMin, iMax] = std::ranges::minmax_element(distances);
-  contract_assert(iMin != iMax);
-
-  const auto faceLength = *iMax - *iMin;
-  const auto textureLength = vm::dot(brushFace.textureSize(), axis);
-
-  const auto currentScale = vm::dot(brushFace.attributes().scale(), axis);
-  const auto currentFactor = currentScale * textureLength / faceLength;
-  const auto nextFactor = findNextScaleFactor(currentFactor, uvPolicy);
-  const auto value = nextFactor * faceLength / textureLength;
-
+  const auto value = scaleFactorToFit(brushFace, uvAxis, uvPolicy);
 
   switch (uvAxis)
   {

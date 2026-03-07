@@ -388,6 +388,74 @@ TEST_CASE("UpdateBrushFaceAttributes")
     }
   }
 
+  SECTION("isFitted")
+  {
+    using T =
+      std::tuple<MapFormat, vm::vec2d, vm::vec2d, double, UvAxis, vm::vec3d, bool>;
+
+    SECTION("Rectangular off-center face (-Y normal)")
+    {
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         axis,
+         brushSize,
+         expectedFitted] = GENERATE(values<T>({
+          // U axis, brush size == texture size
+          {Std, {0, 0}, {1, 1}, 0, UvU, {64, 64, 64}, true},
+          {Std, {0, 0}, {1.6, 1}, 0, UvU, {64, 64, 64}, false},
+          {Std, {0, 0}, {2, 1}, 0, UvU, {64, 64, 64}, true},
+
+          // U axis, brush size != texture size
+          {Std, {0, 0}, {0.75, 1}, 0, UvU, {48, 48, 48}, true},
+          {Std, {0, 0}, {1.0, 1}, 0, UvU, {48, 48, 48}, false},
+          {Vlv, {0, 0}, {0.75, 1}, 0, UvU, {48, 48, 48}, true},
+
+          // V axis, brush size == texture size
+          {Std, {0, 0}, {1, 1}, 0, UvV, {64, 64, 64}, true},
+          {Std, {0, 0}, {1, 1.6}, 0, UvV, {64, 64, 64}, false},
+
+          // V axis, brush size != texture size
+          {Std, {0, 0}, {1, 0.75}, 0, UvV, {48, 48, 48}, true},
+          {Std, {0, 0}, {1, 1.0}, 0, UvV, {48, 48, 48}, false},
+          {Vlv, {0, 0}, {1, 0.75}, 0, UvV, {48, 48, 48}, true},
+        }));
+
+      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, axis, brushSize);
+
+      auto material =
+        gl::Material{"material", gl::createTextureResource(gl::Texture{64, 64})};
+
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto brushBuilder = BrushBuilder{mapFormat, worldBounds};
+      brushBuilder.createCuboid(brushSize, "material") | kdl::and_then([&](auto brush) {
+        const auto transform = vm::translation_matrix(vm::vec3d{16, 0, 16});
+        return brush.transform(worldBounds, transform, !K(lockMaterials))
+               | kdl::transform([&]() { return std::move(brush); });
+      }) | kdl::transform([&](auto brush) {
+        const auto frontFaceIndex = brush.findFace(vm::vec3d{0, -1, 0});
+        REQUIRE(frontFaceIndex);
+
+        auto& frontFace = brush.face(*frontFaceIndex);
+        frontFace.setMaterial(&material);
+
+        evaluate(
+          UpdateBrushFaceAttributes{
+            .xOffset = SetValue{float(initialOffset.x())},
+            .yOffset = SetValue{float(initialOffset.y())},
+            .rotation = SetValue{float(initialRotation)},
+            .xScale = SetValue{float(initialScale.x())},
+            .yScale = SetValue{float(initialScale.y())},
+          },
+          frontFace);
+
+        CHECK(isFitted(frontFace, axis) == expectedFitted);
+      }) | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+  }
+
   SECTION("align")
   {
     using T = std::tuple<MapFormat, vm::vec2f, vm::vec2f, float, UvPolicy, float>;
