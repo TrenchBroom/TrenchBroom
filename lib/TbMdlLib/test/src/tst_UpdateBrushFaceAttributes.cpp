@@ -167,6 +167,141 @@ TEST_CASE("UpdateBrushFaceAttributes")
       });
   }
 
+  SECTION("isAligned")
+  {
+    using T = std::tuple<MapFormat, float, bool>;
+
+    SECTION("Axis aligned rectangle (-Y normal)")
+    {
+      const auto [mapFormat, initialRotation, expectedAligned] = GENERATE_COPY(values<T>({
+        {Std, 0.0f, true},
+        {Std, 15.0f, false},
+        {Std, 89.0f, false},
+        {Std, 90.0f, true},
+        {Std, 91.0f, false},
+        {Std, 180.0f, true},
+        {Std, 270.0f, true},
+
+        {Vlv, 0.0f, true},
+        {Vlv, 15.0f, false},
+        {Vlv, 90.0f, true},
+      }));
+
+      CAPTURE(mapFormat, initialRotation);
+
+      auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
+      brushBuilder.createCuboid(vm::vec3d{32, 32, 32}, "material")
+        | kdl::transform([&](auto brush) {
+            const auto frontFaceIndex = brush.findFace(vm::vec3d{0, -1, 0});
+            REQUIRE(frontFaceIndex);
+
+            auto& frontFace = brush.face(*frontFaceIndex);
+            evaluate(
+              UpdateBrushFaceAttributes{
+                .rotation = SetValue{initialRotation},
+              },
+              frontFace);
+
+            CHECK(isAligned(frontFace) == expectedAligned);
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+
+    SECTION("Trapezoid (+Z normal)")
+    {
+      const auto [mapFormat, initialRotation, expectedAligned] = GENERATE_COPY(values<T>({
+        {Std, 0.0f, true},
+        {Std, 15.0f, false},
+        {Std, 45.0f, true},
+        {Std, 180.0f, true},
+
+        {Vlv, 0.0f, true},
+        {Vlv, 15.0f, false},
+        {Vlv, 45.0f, true},
+        {Vlv, 180.0f, true},
+      }));
+
+      CAPTURE(mapFormat, initialRotation);
+
+      auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
+      brushBuilder.createBrush(
+        std::vector<vm::vec3d>{
+          // top face
+          {-48, 16, 0},
+          {+48, 16, 0},
+          {-16, -16, 0},
+          {+16, -16, 0},
+          // bottom face
+          {-48, 16, -16},
+          {+48, 16, -16},
+          {-16, -16, -16},
+          {+16, -16, -16},
+        },
+        "material")
+        | kdl::transform([&](auto brush) {
+            const auto topFaceIndex = brush.findFace(vm::vec3d{0, 0, 1});
+            REQUIRE(topFaceIndex);
+
+            auto& topFace = brush.face(*topFaceIndex);
+            evaluate(
+              UpdateBrushFaceAttributes{
+                .rotation = SetValue{initialRotation},
+              },
+              topFace);
+
+            CHECK(isAligned(topFace) == expectedAligned);
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+
+    SECTION("Slanted (+Z normal)")
+    {
+      const auto [mapFormat, initialRotation, expectedAligned] = GENERATE_COPY(values<T>({
+        {Std, 0.0f, true},
+        {Std, 15.0f, false},
+        {Std, 45.0f, true},
+        {Std, 180.0f, true},
+
+        {Vlv, 0.0f, true},
+        {Vlv, 15.0f, false},
+        {Vlv, 45.0f, false},
+        {Vlv, 180.0f, true},
+      }));
+
+      CAPTURE(mapFormat, initialRotation);
+
+      auto brushBuilder = BrushBuilder{mapFormat, vm::bbox3d{8192.0}};
+      brushBuilder.createBrush(
+        std::vector<vm::vec3d>{
+          // top face
+          {-48, 16, 16},
+          {+48, 16, 16},
+          {-16, -16, 0},
+          {+16, -16, 0},
+          // bottom face
+          {-48, 16, -16},
+          {+48, 16, -16},
+          {-16, -16, -16},
+          {+16, -16, -16},
+        },
+        "material")
+        | kdl::transform([&](auto brush) {
+            const auto topFaceIndex = brush.findFace(vm::normalize(vm::vec3d{0, -1, 2}));
+            REQUIRE(topFaceIndex);
+
+            auto& topFace = brush.face(*topFaceIndex);
+            evaluate(
+              UpdateBrushFaceAttributes{
+                .rotation = SetValue{initialRotation},
+              },
+              topFace);
+
+            CHECK(isAligned(topFace) == expectedAligned);
+          })
+        | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+  }
+
   SECTION("anchorVertex")
   {
     const auto mapFormat = GENERATE(values<MapFormat>({Std, Vlv}));
