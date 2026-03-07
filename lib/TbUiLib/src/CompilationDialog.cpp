@@ -63,6 +63,17 @@ CompilationDialog::CompilationDialog(
   updateCompileButtons();
 }
 
+bool CompilationDialog::selectAndRunProfile(const mdl::CompilationProfile& profile)
+{
+  if (m_profileManager->selectProfile(profile))
+  {
+    startCompilation(false);
+    return true;
+  }
+
+  return false;
+}
+
 void CompilationDialog::createGui()
 {
   setWindowIconTB(this);
@@ -240,6 +251,8 @@ void CompilationDialog::compilationStarted()
 {
   const auto* profile = m_profileManager->selectedProfile();
   contract_assert(profile != nullptr);
+
+  emit compilationProfileStarted(profile->name);
 
   m_currentRunLabel->setText(QString::fromStdString("Running " + profile->name));
   m_output->setText("");

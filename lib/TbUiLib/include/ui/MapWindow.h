@@ -29,6 +29,7 @@
 #include <chrono>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -61,6 +62,7 @@ class Node;
 
 enum class PasteType;
 
+struct CompilationProfile;
 struct SelectionChange;
 } // namespace mdl
 
@@ -68,6 +70,7 @@ namespace ui
 {
 class Action;
 class AppController;
+class CompilationDialog;
 class Console;
 class InfoPanel;
 class Inspector;
@@ -107,8 +110,10 @@ private:
   QComboBox* m_gridChoice = nullptr;
   QLabel* m_statusBarLabel = nullptr;
 
-  QPointer<QDialog> m_compilationDialog;
+  QPointer<CompilationDialog> m_compilationDialog;
   QPointer<ObjExportDialog> m_objExportDialog;
+
+  std::optional<std::string> m_lastCompilationProfileName;
 
   NotifierConnection m_notifierConnection;
 
@@ -117,9 +122,10 @@ private: // shortcuts
   ActionMap m_actionMap;
 
 private: // special menu entries
-  QMenu* m_recentDocumentsMenu;
-  QAction* m_undoAction;
-  QAction* m_redoAction;
+  QMenu* m_recentDocumentsMenu = nullptr;
+  QAction* m_undoAction = nullptr;
+  QAction* m_redoAction = nullptr;
+  QAction* m_rerunAction = nullptr;
 
 private:
   SignalDelayer* m_updateTitleSignalDelayer = nullptr;
@@ -381,6 +387,8 @@ public:
 
   void showCompileDialog();
   bool closeCompileDialog();
+  void rerunLastCompilation();
+  bool hasLastCompilationProfile() const;
 
   void showLaunchEngineDialog();
 
@@ -402,6 +410,11 @@ public:
   MapViewBase* currentMapViewBase();
 
 private:
+  const mdl::CompilationProfile* lastCompilationProfile() const;
+  void setLastCompilationProfileName(std::string name);
+  void loadLastCompilationProfileName();
+  void updateRerunAction();
+
   bool canCompile() const;
   bool canLaunch() const;
 
