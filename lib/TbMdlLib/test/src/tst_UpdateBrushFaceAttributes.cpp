@@ -302,6 +302,92 @@ TEST_CASE("UpdateBrushFaceAttributes")
     }
   }
 
+  SECTION("isJustified")
+  {
+    using T = std::
+      tuple<MapFormat, vm::vec2d, vm::vec2d, double, UvAxis, UvSign, vm::vec3d, bool>;
+
+    SECTION("Rectangular off-center face (-Y normal)")
+    {
+      const auto
+        [mapFormat,
+         initialOffset,
+         initialScale,
+         initialRotation,
+         axis,
+         sign,
+         brushSize,
+         expectedJustified] = GENERATE_COPY(values<T>({
+          {Std, {16, 0}, {1, 1}, 0, UvU, UvPls, {64, 64, 64}, true},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvPls, {64, 64, 64}, false},
+          {Std, {16, 0}, {1, 1}, 0, UvU, UvMns, {64, 64, 64}, true},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvMns, {64, 64, 64}, false},
+
+          {Std, {24, 0}, {1.2, 0.9}, 0, UvU, UvPls, {64, 64, 64}, true},
+          {Std, {24, 0}, {1.2, 0.9}, 0, UvU, UvMns, {64, 64, 64}, false},
+          {Std, {13.3333, 0}, {1.2, 0.9}, 0, UvU, UvMns, {64, 64, 64}, true},
+          {Vlv, {24, 0}, {1.2, 0.9}, 0, UvU, UvPls, {64, 64, 64}, true},
+          {Vlv, {24, 0}, {1.2, 0.9}, 0, UvU, UvMns, {64, 64, 64}, false},
+
+          {Std, {5.21225, 0}, {1, 1}, 15, UvU, UvPls, {64, 64, 64}, true},
+          {Std, {0, 0}, {1, 1}, 15, UvU, UvPls, {64, 64, 64}, false},
+          {Vlv, {13.4945, 0}, {1, 1}, 15, UvU, UvPls, {64, 64, 64}, true},
+
+          // texture width is a multiple of brush width
+          {Std, {40, 0}, {1, 1}, 0, UvU, UvPls, {16, 64, 64}, true},
+          {Std, {56, 0}, {1, 1}, 0, UvU, UvPls, {16, 64, 64}, false},
+          {Std, {56, 0}, {1, 1}, 0, UvU, UvMns, {16, 64, 64}, true},
+          {Std, {40, 0}, {1, 1}, 0, UvU, UvMns, {16, 64, 64}, false},
+
+          // texture width is a multiple of brush width, with scaling
+          {Std, {45.333, 0}, {1.5, 1}, 0, UvU, UvPls, {24, 64, 64}, true},
+          {Std, {61.333, 0}, {1.5, 1}, 0, UvU, UvPls, {24, 64, 64}, false},
+          {Std, {29.333, 0}, {1.5, 1}, 0, UvU, UvPls, {24, 64, 64}, false},
+
+          {Std, {0, 48}, {1, 1}, 0, UvV, UvPls, {64, 64, 64}, true},
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvPls, {64, 64, 64}, false},
+          {Std, {0, 48}, {1, 1}, 0, UvV, UvMns, {64, 64, 64}, true},
+
+          {Std, {0, 46.2222}, {1.2, 0.9}, 0, UvV, UvPls, {64, 64, 64}, true},
+          {Std, {0, 46.2222}, {1.2, 0.9}, 0, UvV, UvMns, {64, 64, 64}, false},
+          {Std, {0, 53.3333}, {1.2, 0.9}, 0, UvV, UvMns, {64, 64, 64}, true},
+          {Vlv, {0, 44.4041}, {1, 1}, 15, UvV, UvPls, {64, 64, 64}, true},
+        }));
+
+      CAPTURE(
+        mapFormat, initialOffset, initialScale, initialRotation, axis, sign, brushSize);
+
+      auto material =
+        gl::Material{"material", gl::createTextureResource(gl::Texture{64, 64})};
+
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto brushBuilder = BrushBuilder{mapFormat, worldBounds};
+      brushBuilder.createCuboid(brushSize, "material") | kdl::and_then([&](auto brush) {
+        const auto transform = vm::translation_matrix(vm::vec3d{16, 0, 16});
+        return brush.transform(worldBounds, transform, !K(lockMaterials))
+               | kdl::transform([&]() { return std::move(brush); });
+      }) | kdl::transform([&](auto brush) {
+        const auto frontFaceIndex = brush.findFace(vm::vec3d{0, -1, 0});
+        REQUIRE(frontFaceIndex);
+
+        auto& frontFace = brush.face(*frontFaceIndex);
+        frontFace.setMaterial(&material);
+
+        evaluate(
+          UpdateBrushFaceAttributes{
+            .xOffset = SetValue{float(initialOffset.x())},
+            .yOffset = SetValue{float(initialOffset.y())},
+            .rotation = SetValue{float(initialRotation)},
+            .xScale = SetValue{float(initialScale.x())},
+            .yScale = SetValue{float(initialScale.y())},
+          },
+          frontFace);
+
+        CHECK(isJustified(frontFace, axis, sign) == expectedJustified);
+      }) | kdl::transform_error([](const auto e) { FAIL(e); });
+    }
+  }
+
   SECTION("anchorVertex")
   {
     const auto mapFormat = GENERATE(values<MapFormat>({Std, Vlv}));
