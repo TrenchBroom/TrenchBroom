@@ -1016,6 +1016,190 @@ TEST_CASE("Map_Brushes")
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
     }
   }
+
+  SECTION("autoFitUV")
+  {
+    auto& map = fixture.create(QuakeFixtureConfig);
+
+    auto* brushNode = createBrushNode(map);
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
+
+    const auto iFront = *brushNode->brush().findFace(vm::vec3d{0, -1, 0});
+    REQUIRE(iFront);
+
+    const auto iRight = *brushNode->brush().findFace(vm::vec3d{1, 0, 0});
+    REQUIRE(iRight);
+
+    const auto iTop = *brushNode->brush().findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(iTop);
+
+    SECTION("Aligns when any selected face is not aligned")
+    {
+      // front face is not aligned (rotation == 15)
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iFront}});
+      REQUIRE(setBrushFaceAttributes(
+        map,
+        {
+          .xOffset = SetValue{5.0f},
+          .yOffset = SetValue{9.0f},
+          .rotation = SetValue{15.0f},
+          .xScale = SetValue{1.3f},
+          .yScale = SetValue{0.8f},
+        }));
+
+      // right face is aligned (rotation == 0)
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iRight}});
+      REQUIRE(setBrushFaceAttributes(
+        map,
+        {
+          .xOffset = SetValue{15.5f},
+          .yOffset = SetValue{15.5f},
+          .rotation = SetValue{0.0f},
+          .xScale = SetValue{32.0f},
+          .yScale = SetValue{32.0f},
+        }));
+
+      REQUIRE(!isAligned(getFace(*brushNode, iFront)));
+      REQUIRE(getFace(*brushNode, iRight).uAxis() == vm::approx{vm::vec3d{0, 1, 0}});
+      REQUIRE(getFace(*brushNode, iRight).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
+
+      const auto originalTopAttributes = getFace(*brushNode, iTop).attributes();
+
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
+      autoFitUV(map);
+
+      // front face is now aligned
+      CHECK(getFace(*brushNode, iFront).uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
+      CHECK(getFace(*brushNode, iFront).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
+
+      // right face remains aligned
+      CHECK(getFace(*brushNode, iRight).uAxis() == vm::approx{vm::vec3d{0, 1, 0}});
+      CHECK(getFace(*brushNode, iRight).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
+
+      // top face was not affected
+      CHECK_THAT(
+        getFace(*brushNode, iTop).attributes(),
+        MatchesBrushFaceAttributes(originalTopAttributes));
+    }
+
+    SECTION(
+      "Does not realign when selected faces are aligned but not all fitted and justified")
+    {
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iFront}});
+      REQUIRE(setBrushFaceAttributes(
+        map,
+        {
+          .xOffset = SetValue{7.0f},
+          .yOffset = SetValue{11.0f},
+          .rotation = SetValue{0.0f},
+          .xScale = SetValue{1.4f},
+          .yScale = SetValue{0.9f},
+        }));
+
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iRight}});
+      REQUIRE(setBrushFaceAttributes(
+        map,
+        {
+          .xOffset = SetValue{15.5f},
+          .yOffset = SetValue{15.5f},
+          .rotation = SetValue{0.0f},
+          .xScale = SetValue{32.0f},
+          .yScale = SetValue{32.0f},
+        }));
+
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
+
+      REQUIRE(isAligned(getFace(*brushNode, iFront)));
+      REQUIRE(!isJustified(getFace(*brushNode, iFront), UvAxis::u, UvSign::plus));
+      REQUIRE(!isJustified(getFace(*brushNode, iFront), UvAxis::v, UvSign::plus));
+      REQUIRE(!isFitted(getFace(*brushNode, iFront), UvAxis::u));
+      REQUIRE(!isFitted(getFace(*brushNode, iFront), UvAxis::v));
+
+      REQUIRE(isAligned(getFace(*brushNode, iRight)));
+      REQUIRE(isJustified(getFace(*brushNode, iRight), UvAxis::u, UvSign::plus));
+      REQUIRE(isJustified(getFace(*brushNode, iRight), UvAxis::v, UvSign::plus));
+      REQUIRE(isFitted(getFace(*brushNode, iRight), UvAxis::u));
+      REQUIRE(isFitted(getFace(*brushNode, iRight), UvAxis::v));
+
+      REQUIRE(getFace(*brushNode, iRight).uAxis() == vm::approx{vm::vec3d{0, 1, 0}});
+      REQUIRE(getFace(*brushNode, iRight).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
+
+      autoFitUV(map);
+
+      CHECK(getFace(*brushNode, iFront).uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
+      CHECK(getFace(*brushNode, iFront).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
+      CHECK(getFace(*brushNode, iRight).uAxis() == vm::approx{vm::vec3d{0, 1, 0}});
+      CHECK(getFace(*brushNode, iRight).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
+
+      CHECK(isAligned(getFace(*brushNode, iFront)));
+      CHECK(isJustified(getFace(*brushNode, iFront), UvAxis::u, UvSign::plus));
+      CHECK(isJustified(getFace(*brushNode, iFront), UvAxis::v, UvSign::plus));
+      CHECK(isFitted(getFace(*brushNode, iFront), UvAxis::u));
+      CHECK(isFitted(getFace(*brushNode, iFront), UvAxis::v));
+
+      CHECK(isAligned(getFace(*brushNode, iRight)));
+      CHECK(isJustified(getFace(*brushNode, iRight), UvAxis::u, UvSign::plus));
+      CHECK(isJustified(getFace(*brushNode, iRight), UvAxis::v, UvSign::plus));
+      CHECK(isFitted(getFace(*brushNode, iRight), UvAxis::u));
+      CHECK(isFitted(getFace(*brushNode, iRight), UvAxis::v));
+    }
+
+    SECTION("Undo and Redo")
+    {
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iFront}});
+      REQUIRE(setBrushFaceAttributes(
+        map,
+        {
+          .xOffset = SetValue{5.0f},
+          .yOffset = SetValue{9.0f},
+          .rotation = SetValue{15.0f},
+          .xScale = SetValue{1.3f},
+          .yScale = SetValue{0.8f},
+        }));
+
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iRight}});
+      REQUIRE(setBrushFaceAttributes(
+        map,
+        {
+          .xOffset = SetValue{15.5f},
+          .yOffset = SetValue{15.5f},
+          .rotation = SetValue{0.0f},
+          .xScale = SetValue{32.0f},
+          .yScale = SetValue{32.0f},
+        }));
+
+      const auto originalFrontAttributes = getFace(*brushNode, iFront).attributes();
+      const auto originalRightAttributes = getFace(*brushNode, iRight).attributes();
+
+      deselectAll(map);
+      selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
+      autoFitUV(map);
+
+      const auto modifiedFrontAttributes = getFace(*brushNode, iFront).attributes();
+      const auto modifiedRightAttributes = getFace(*brushNode, iRight).attributes();
+
+      REQUIRE(modifiedFrontAttributes != originalFrontAttributes);
+      REQUIRE(modifiedRightAttributes != originalRightAttributes);
+
+      map.undoCommand();
+
+      REQUIRE(getFace(*brushNode, iFront).attributes() == originalFrontAttributes);
+      REQUIRE(getFace(*brushNode, iRight).attributes() == originalRightAttributes);
+
+      map.redoCommand();
+
+      REQUIRE(getFace(*brushNode, iFront).attributes() == modifiedFrontAttributes);
+      REQUIRE(getFace(*brushNode, iRight).attributes() == modifiedRightAttributes);
+    }
+  }
 }
 
 } // namespace tb::mdl
