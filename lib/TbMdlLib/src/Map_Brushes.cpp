@@ -214,4 +214,40 @@ void fitUV(Map& map, const UvAxis uvAxis, const UvSign uvSign, const UvPolicy uv
   transaction.commit();
 }
 
+void autoFitUV(Map& map, const UvPolicy uvPolicy)
+{
+  auto transaction = Transaction{map, "Auto fit texture"};
+
+  auto& selection = map.selection();
+  contract_assert(selection.brushFaces.size() == 1);
+
+  const auto faceHandle = selection.brushFaces.front();
+  const auto& brushFace = faceHandle.face();
+
+  if (
+    !isJustified(brushFace, UvAxis::u, UvSign::plus) || !isFitted(brushFace, UvAxis::u)
+    || !isJustified(brushFace, UvAxis::v, UvSign::plus)
+    || !isFitted(brushFace, UvAxis::v))
+  {
+    if (!isAligned(brushFace))
+    {
+      alignUV(map, uvPolicy);
+    }
+    justifyUV(map, UvAxis::u, UvSign::plus, UvPolicy::best);
+    justifyUV(map, UvAxis::v, UvSign::plus, UvPolicy::best);
+    fitUV(map, UvAxis::u, UvSign::plus, UvPolicy::best);
+    fitUV(map, UvAxis::v, UvSign::plus, UvPolicy::best);
+  }
+  else
+  {
+    alignUV(map, uvPolicy);
+    justifyUV(map, UvAxis::u, UvSign::plus, UvPolicy::best);
+    justifyUV(map, UvAxis::v, UvSign::plus, UvPolicy::best);
+    fitUV(map, UvAxis::u, UvSign::plus, UvPolicy::best);
+    fitUV(map, UvAxis::v, UvSign::plus, UvPolicy::best);
+  }
+
+  transaction.commit();
+}
+
 } // namespace tb::mdl
