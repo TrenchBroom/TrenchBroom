@@ -164,6 +164,8 @@ enum class UvSign
 
 std::ostream& operator<<(std::ostream& lhs, UvSign rhs);
 
+bool isAligned(const BrushFace& brushFace);
+
 /**
  * Return a vertex of the given brush face to use as an anchor.
  *
