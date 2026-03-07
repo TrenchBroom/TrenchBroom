@@ -317,31 +317,31 @@ void UVViewHelper::resetCamera()
 
 void UVViewHelper::resetZoom()
 {
+  static constexpr auto MinMargin = 2.0f;
+  static constexpr auto MaxMargin = 40.0f;
+
   contract_pre(valid());
 
-  auto w = float(m_camera.viewport().width);
-  auto h = float(m_camera.viewport().height);
+  auto width = float(m_camera.viewport().width);
+  auto height = float(m_camera.viewport().height);
 
-  if (w <= 1.0f || h <= 1.0f)
+  if (width <= 20.0f || height <= 20.0f)
   {
     return;
   }
 
-  if (w > 80.0f)
-  {
-    w -= 80.0f;
-  }
-  if (h > 80.0f)
-  {
-    h -= 80.0f;
-  }
+  const auto horizontalMargin = std::clamp(width * 0.1f, MinMargin, MaxMargin);
+  const auto verticalMargin = std::clamp(height * 0.1f, MinMargin, MaxMargin);
+
+  width -= 2.0f * horizontalMargin;
+  height -= 2.0f * verticalMargin;
 
   const auto bounds = computeFaceBoundsInCameraCoords();
   const auto boundsSize = vm::vec3f(bounds.size());
 
   auto zoom = 3.0f;
-  zoom = vm::min(zoom, w / boundsSize.x());
-  zoom = vm::min(zoom, h / boundsSize.y());
+  zoom = vm::min(zoom, width / boundsSize.x());
+  zoom = vm::min(zoom, height / boundsSize.y());
   if (zoom > 0.0f)
   {
     m_camera.setZoom(zoom);
