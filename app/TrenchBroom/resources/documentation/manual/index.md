@@ -975,6 +975,16 @@ Select the material you wish to replace in the left material browser. This brows
 
 Face attributes control how materials are mapped onto brush faces. At the very least, every face has the attributes offset, scale, and angle. The offset allows you to shift a material on a face, the scale factors stretch the material, and by changing the angle you can rotate the material. Additionally, some engines have further attributes. Quake 2 adds surface flags and a surface value, and additional content flags. All of these values can be changed in different ways: There is a face attribute editor that allows you to enter the values directly, you can use keyboard shortcuts in the 3D viewport, or you can use the UV editor.
 
+#### Aligning, Justifying and Fitting Textures {#align_justify_fit_textures}
+
+To quickly align, justify or fit a texture to a brush face, you can select the face and use the buttons below the UV editor.
+
+![Align, justify and fit buttons](images/AlignJustifyFit.png) Click one of the four triangle buttons to justify the texture against the face's bounding box. If the texture size in the chosen direction is a multiple of the face size along the same axis, you can press the justify button multiple times to step through different options. This can be helpful to justify a texture from a texture atlas. Hold shift when clicking to step through the options in the opposite direction.
+
+The lower three buttons are used to align and fit the texture. Click on the leftmost button to align the texture the the face edges. Click repeatedly to cycle throught he face edges. Hold shift while clicking to cycle in the opposite direction. The two remaining button fit the texture horizontally and vertically. Again, you can click again to cycle through different fitting options. Repeated clicks will stretch the texture with powers of two as factors. Again, hold shift to cycle through the options in the opposite direction.
+
+The button in the center of the four justification arrows auto fits the texture, i.e. it aligns, justifies and fits the texture. Pressing it repeatedly will cycle through different options by aligning the texture with the different brush edges, and then fitting it again.
+
 #### The Face Attribute Editor {#face_attribute_editor}
 
 The face attribute editor is located in the face inspector, right between the UV editor and the material browser. It contains several controls to edit the face attributes of one or several selected brush faces.
