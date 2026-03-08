@@ -94,8 +94,17 @@ target_sources(TbMdlLibTest PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(TbMdlLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbMdlLibTest PRIVATE Catch2::Catch2WithMain TbBaseTestUtilsLib TbElTestUtilsLib TbFsTestUtilsLib TbMdlLib TbMdlTestUtilsLib)
+target_link_libraries(TbMdlLibTest
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    Catch2::Catch2WithMain
+    TbBaseTestUtilsLib
+    TbElTestUtilsLib
+    TbFsTestUtilsLib
+    TbMdlLib
+    TbMdlTestUtilsLib
+)
 
 # Copy fixtures
 set(TEST_FIXTURE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fixture)

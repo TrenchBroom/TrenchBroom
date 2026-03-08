@@ -44,8 +44,18 @@ target_sources(TbRenderLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(TbRenderLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbRenderLib PRIVATE KdLib TbBaseLib TbPreferencesLib fmt::fmt-header-only)
-target_link_libraries(TbRenderLib PUBLIC VmLib TbGlLib TbMdlLib)
+target_link_libraries(TbRenderLib
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    KdLib
+    TbBaseLib
+    TbPreferencesLib
+    fmt::fmt-header-only
+  PUBLIC
+    VmLib
+    TbGlLib
+    TbMdlLib
+)
 
 add_subdirectory(test)

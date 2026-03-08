@@ -11,8 +11,15 @@ target_sources(TbFsLibTest PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(TbFsLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbFsLibTest PRIVATE Catch2::Catch2WithMain TbBaseTestUtilsLib TbFsLib TbFsTestUtilsLib)
+target_link_libraries(TbFsLibTest
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    Catch2::Catch2WithMain
+    TbBaseTestUtilsLib
+    TbFsLib
+    TbFsTestUtilsLib
+)
 
 # Copy fixtures
 set(TEST_FIXTURE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fixture)

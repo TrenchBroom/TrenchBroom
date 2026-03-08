@@ -14,8 +14,13 @@ target_sources(UpdateLibTest PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(UpdateLibTest PRIVATE CompilerConfig)
-target_link_libraries(UpdateLibTest PRIVATE UpdateLib Catch2::Catch2WithMain Qt6::Test)
+target_link_libraries(UpdateLibTest
+  PRIVATE
+    CompilerConfig
+    UpdateLib
+    Catch2::Catch2WithMain
+    Qt6::Test
+)
 
 set_target_properties(UpdateLibTest PROPERTIES AUTOMOC TRUE)
 

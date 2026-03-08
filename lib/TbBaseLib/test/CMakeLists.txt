@@ -12,5 +12,10 @@ target_sources(TbBaseLibTest PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(TbBaseLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbBaseLibTest PRIVATE Catch2::Catch2WithMain TbBaseLib)
+target_link_libraries(TbBaseLibTest
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    Catch2::Catch2WithMain
+    TbBaseLib
+)
