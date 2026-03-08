@@ -2,6 +2,7 @@ add_library(TbUiTestUtilsLib STATIC)
 
 target_sources(TbUiTestUtilsLib
   PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AppControllerFixture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocumentFixture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/StringMakers.cpp
 
