@@ -40,9 +40,6 @@ target_link_libraries(TbUiLibTest PRIVATE
   CompilerConfig
   PrecompileQtHeaders
   PrecompileStdHeaders
-)
-
-target_link_libraries(TbUiLibTest PRIVATE 
   Catch2::Catch2WithMain
   Qt6::Network
   Qt6::OpenGL

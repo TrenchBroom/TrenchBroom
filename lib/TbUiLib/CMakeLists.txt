@@ -468,8 +468,6 @@ target_link_libraries(TbUiLib PRIVATE
   CompilerConfig
   PrecompileQtHeaders
   PrecompileStdHeaders
-)
-target_link_libraries(TbUiLib PRIVATE
   KdLib
   Qt6::Network
   Qt6::OpenGL

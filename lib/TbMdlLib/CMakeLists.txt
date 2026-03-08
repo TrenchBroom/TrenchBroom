@@ -200,9 +200,22 @@ target_sources(TbMdlLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(TbMdlLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbMdlLib PRIVATE tinyxml2::tinyxml2 miniz::miniz freeimage::FreeImage assimp::assimp fmt::fmt-header-only)
-target_link_libraries(TbMdlLib PUBLIC KdLib TbBaseLib TbElLib TbFsLib TbGlLib)
+target_link_libraries(TbMdlLib
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    tinyxml2::tinyxml2
+    miniz::miniz
+    freeimage::FreeImage
+    assimp::assimp
+    fmt::fmt-header-only
+  PUBLIC
+    KdLib
+    TbBaseLib
+    TbElLib
+    TbFsLib
+    TbGlLib
+  )
 
 add_subdirectory(test)
 add_subdirectory(test-utils)

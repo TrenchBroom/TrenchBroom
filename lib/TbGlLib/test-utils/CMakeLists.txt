@@ -9,5 +9,10 @@ target_sources(TbGlTestUtilsLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(TbGlTestUtilsLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbGlTestUtilsLib PUBLIC TbGlLib)
+target_link_libraries(TbGlTestUtilsLib
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+  PUBLIC
+    TbGlLib
+)

@@ -24,8 +24,16 @@ target_sources(TbFsLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(TbFsLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbFsLib PUBLIC KdLib TbBaseLib fmt::fmt-header-only miniz::miniz)
+target_link_libraries(TbFsLib
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+  PUBLIC
+    KdLib
+    TbBaseLib
+    fmt::fmt-header-only
+    miniz::miniz
+)
 
 add_subdirectory(test)
 add_subdirectory(test-utils)

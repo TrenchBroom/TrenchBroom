@@ -11,8 +11,13 @@ target_sources(TbBaseTestUtilsLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(TbBaseTestUtilsLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbBaseTestUtilsLib PRIVATE Catch2::Catch2)
-target_link_libraries(TbBaseTestUtilsLib PUBLIC TbBaseLib)
+target_link_libraries(TbBaseTestUtilsLib
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    Catch2::Catch2
+  PUBLIC
+    TbBaseLib
+)
 
 add_subdirectory(test)

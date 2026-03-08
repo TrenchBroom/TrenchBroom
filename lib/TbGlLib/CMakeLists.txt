@@ -51,9 +51,18 @@ target_sources(TbGlLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(TbGlLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbGlLib PRIVATE freetype)
-target_link_libraries(TbGlLib PUBLIC TbBaseLib TbFsLib KdLib VmLib fmt::fmt-header-only)
+target_link_libraries(TbGlLib
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    freetype
+  PUBLIC
+    TbBaseLib
+    TbFsLib
+    KdLib
+    VmLib
+    fmt::fmt-header-only
+)
 
 add_subdirectory(test)
 add_subdirectory(test-utils)
