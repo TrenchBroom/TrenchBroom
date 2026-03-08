@@ -23,9 +23,16 @@ target_sources(TbBaseLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(TbBaseLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbBaseLib PRIVATE stduuid)
-target_link_libraries(TbBaseLib PUBLIC KdLib VmLib fmt::fmt-header-only)
+target_link_libraries(TbBaseLib 
+  PRIVATE 
+    CompilerConfig
+    PrecompileStdHeaders
+    stduuid
+  PUBLIC
+  KdLib
+  VmLib
+  fmt::fmt-header-only
+)
 
 add_subdirectory(test)
 add_subdirectory(test-utils)

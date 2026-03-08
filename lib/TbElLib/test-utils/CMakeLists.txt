@@ -8,5 +8,9 @@ target_sources(TbElTestUtilsLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(TbElTestUtilsLib PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbElTestUtilsLib PRIVATE TbElLib)
+target_link_libraries(TbElTestUtilsLib
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    TbElLib
+)

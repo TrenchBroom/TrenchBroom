@@ -50,5 +50,10 @@ target_sources(KdLibTest PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(KdLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(KdLibTest PRIVATE Catch2::Catch2WithMain KdLib)
+target_link_libraries(KdLibTest
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    Catch2::Catch2WithMain
+    KdLib
+)
