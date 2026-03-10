@@ -332,6 +332,7 @@ TEST_CASE("Map_Brushes")
 
       selectBrushFaces(map, {{brushNode, faceIndex}});
 
+      // NOLINTNEXTLINE(misc-const-correctness)
       for (size_t i = 0; i < 5; ++i)
       {
         setBrushFaceAttributes(map, {.rotation = AddValue{2.0f}});
