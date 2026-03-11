@@ -172,9 +172,7 @@ TEST_CASE("EntityModel")
       surface.addMesh(frame, builder.vertices(), builder.indices());
 
       // even if the surface doesn't have any skins, we can still make a renderer
-      /* EXPECTED:
       CHECK(modelData.buildRenderer(0, 0));
-      ACTUAL: crashes */
     }
 
     SECTION("Out of bounds frame index")
