@@ -134,36 +134,63 @@ TEST_CASE("EntityModel")
     auto modelData = EntityModelData{PitchType::Normal, Orientation::Oriented};
     auto& frame = modelData.addFrame("test", vm::bbox3f{0, 8});
 
-    // Prepare the first surface - it will only have one skin
-    auto& surface1 = modelData.addSurface("surface 1", 1);
+    SECTION("Out of bounds skin index")
+    {
+      // Prepare the first surface - it will only have one skin
+      auto& surface1 = modelData.addSurface("surface 1", 1);
 
-    auto materials1 = std::vector<gl::Material>{};
-    materials1.push_back(makeDummyMaterial("skin1"));
-    surface1.setSkins(std::move(materials1));
+      auto materials1 = std::vector<gl::Material>{};
+      materials1.push_back(makeDummyMaterial("skin1"));
+      surface1.setSkins(std::move(materials1));
 
-    auto builder1 = makeDummyBuilder();
-    surface1.addMesh(frame, builder1.vertices(), builder1.indices());
+      auto builder1 = makeDummyBuilder();
+      surface1.addMesh(frame, builder1.vertices(), builder1.indices());
 
-    // The second surface will have two skins
-    auto& surface2 = modelData.addSurface("surface 2", 1);
+      // The second surface will have two skins
+      auto& surface2 = modelData.addSurface("surface 2", 1);
 
-    auto materials2 = std::vector<gl::Material>{};
-    materials2.push_back(makeDummyMaterial("skin2a"));
-    materials2.push_back(makeDummyMaterial("skin2b"));
-    surface2.setSkins(std::move(materials2));
+      auto materials2 = std::vector<gl::Material>{};
+      materials2.push_back(makeDummyMaterial("skin2a"));
+      materials2.push_back(makeDummyMaterial("skin2b"));
+      surface2.setSkins(std::move(materials2));
 
-    auto builder2 = makeDummyBuilder();
-    surface2.addMesh(frame, builder2.vertices(), builder2.indices());
+      auto builder2 = makeDummyBuilder();
+      surface2.addMesh(frame, builder2.vertices(), builder2.indices());
 
-    // even though the model has 2 skins, we should get a valid renderer even if we
-    // request to use skin 3
-    const auto renderer0 = modelData.buildRenderer(0, 0);
-    const auto renderer1 = modelData.buildRenderer(1, 0);
-    const auto renderer2 = modelData.buildRenderer(2, 0);
+      // even though the model has 2 skins, we should get a valid renderer even if we
+      // request to use skin 3
+      CHECK(modelData.buildRenderer(0, 0) != nullptr);
+      CHECK(modelData.buildRenderer(1, 0) != nullptr);
+      CHECK(modelData.buildRenderer(2, 0) != nullptr);
+    }
 
-    CHECK(renderer0 != nullptr);
-    CHECK(renderer1 != nullptr);
-    CHECK(renderer2 != nullptr);
+    SECTION("Surface without skins")
+    {
+      auto& surface = modelData.addSurface("surface 1", 1);
+
+      auto builder = makeDummyBuilder();
+      surface.addMesh(frame, builder.vertices(), builder.indices());
+
+      // even if the surface doesn't have any skins, we can still make a renderer
+      /* EXPECTED:
+      CHECK(modelData.buildRenderer(0, 0));
+      ACTUAL: crashes */
+    }
+
+    SECTION("Out of bounds frame index")
+    {
+      auto& surface = modelData.addSurface("surface 1", 1);
+
+      auto materials = std::vector<gl::Material>{};
+      materials.push_back(makeDummyMaterial("skin1"));
+      surface.setSkins(std::move(materials));
+
+      auto builder = makeDummyBuilder();
+      surface.addMesh(frame, builder.vertices(), builder.indices());
+
+      REQUIRE(modelData.buildRenderer(0, 0) != nullptr);
+      CHECK(modelData.buildRenderer(0, 1) == nullptr);
+    }
   }
 }
 
