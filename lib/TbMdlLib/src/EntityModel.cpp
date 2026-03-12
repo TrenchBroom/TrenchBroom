@@ -465,11 +465,8 @@ const gl::Material* EntityModelSurface::skin(const size_t index) const
 std::unique_ptr<gl::MaterialIndexRangeRenderer> EntityModelSurface::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {
-  contract_pre(frameIndex < frameCount());
-  contract_pre(skinIndex < skinCount());
-
-  return m_meshes[frameIndex] ? m_meshes[frameIndex]->buildRenderer(skin(skinIndex))
-                              : nullptr;
+  const auto* mesh = frameIndex < frameCount() ? m_meshes[frameIndex].get() : nullptr;
+  return mesh ? mesh->buildRenderer(skin(skinIndex)) : nullptr;
 }
 
 // EntityModelData
