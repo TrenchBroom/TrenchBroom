@@ -25,6 +25,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/UVUtils.h"
 
 #include "kd/contracts.h"
 
@@ -303,10 +304,7 @@ void UVViewHelper::resetCamera()
 
   const auto& normal = face()->boundary().normal;
 
-  const auto right = vm::abs(vm::dot(vm::vec3d{0, 0, 1}, normal)) < double(1)
-                       ? vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal))
-                       : vm::vec3d{1, 0, 0};
-  const auto up = vm::normalize(vm::cross(normal, right));
+  const auto [up, right] = mdl::computeCameraAxesForFaceNormal(normal);
 
   m_camera.setNearPlane(-1.0f);
   m_camera.setFarPlane(+1.0f);
