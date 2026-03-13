@@ -13,7 +13,6 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DecalDefinition.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DefParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EditorContext.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Entity.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityColorPropertyValue.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityDefinitionFileSpec.cpp
@@ -23,6 +22,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityRotation.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_FgdParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GameFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GameManager.cpp
@@ -44,8 +44,6 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadMdlModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadMipTexture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadWalTexture.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapHeader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Assets.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Brushes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_CopyPaste.cpp
@@ -56,11 +54,13 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Layers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeIndex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeLocking.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeVisibility.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Nodes.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeVisibility.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Picking.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Selection.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_World.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapHeader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MaterialUtils.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ModelDefinition.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ModelUtils.cpp
@@ -83,10 +83,10 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Selection.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Tagging.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Transaction.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UVCoordSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateBrushFaceAttributes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateLinkedGroupsCommand.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateLinkedGroupsHelper.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UVCoordSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Validation.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WorldNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WorldReader.cpp
