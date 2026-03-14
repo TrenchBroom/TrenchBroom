@@ -19,11 +19,15 @@
 
 #include "mdl/UpdateBrushFaceAttributes.h"
 
+#include "Macros.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 
+#include "kd/contracts.h"
 #include "kd/optional_utils.h"
+#include "kd/range_utils.h"
+#include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/vec_io.h" // IWYU pragma: keep
@@ -34,6 +38,37 @@ namespace tb::mdl
 {
 namespace
 {
+
+bool isEqual(const SetValue& lhs, const SetValue& rhs, const float epsilon)
+{
+  if (lhs.value && rhs.value)
+  {
+    return vm::is_equal(*lhs.value, *rhs.value, epsilon);
+  }
+  return !lhs.value && !rhs.value;
+}
+
+bool isEqual(const AddValue& lhs, const AddValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.delta, rhs.delta, epsilon);
+}
+
+bool isEqual(const MultiplyValue& lhs, const MultiplyValue& rhs, const float epsilon)
+{
+  return vm::is_equal(lhs.factor, rhs.factor, epsilon);
+}
+
+bool isEqual(const ValueOp& lhs, const ValueOp& rhs, const float epsilon)
+{
+  return std::visit(
+    kdl::overload(
+      [&]<typename T>(
+        const T& lhsT, const T& rhsT) { return isEqual(lhsT, rhsT, epsilon); },
+      [](const auto&, const auto&) { return false; }),
+    lhs,
+    rhs);
+}
+
 auto replaceFlagsIfSet(const auto& maybeFlags)
 {
   return maybeFlags
@@ -45,6 +80,210 @@ auto setValueIfSet(const auto& maybeValue)
   return maybeValue
          | kdl::optional_transform([](const auto& value) { return SetValue{value}; });
 };
+
+float normalizeRotation(const float rotation)
+{
+  return vm::mod(rotation, 360.0f);
+}
+
+vm::vec2f toAxis(const UvAxis uvAxis)
+{
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return vm::vec2f{1, 0};
+  case UvAxis::v:
+    return vm::vec2f{0, 1};
+    switchDefault();
+  }
+}
+
+template <typename T>
+int findClosestPot(const T x)
+{
+  if (x <= T(0))
+  {
+    return 0;
+  }
+
+  const auto lx = std::log2(x);
+  return static_cast<int>(std::round(lx));
+}
+
+template <typename T>
+T findNextScaleFactor(const T f, const UvPolicy uvPolicy)
+{
+  const auto closestPot = findClosestPot(f);
+  const auto closestPotScale = std::pow(T(2), T(closestPot));
+
+  const auto exactMatch =
+    vm::is_equal(f, closestPotScale, vm::constants<T>::almost_zero());
+  switch (uvPolicy)
+  {
+  case UvPolicy::best:
+    return T(1);
+  case UvPolicy::next:
+    return exactMatch ? std::pow(T(2), T(closestPot + 1)) : T(1);
+  case UvPolicy::prev:
+    return exactMatch ? std::pow(T(2), T(closestPot - 1)) : T(1);
+    switchDefault();
+  }
+}
+
+auto scaleFactorToFit(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
+{
+  const auto axis = toAxis(uvAxis);
+
+  const auto distances =
+    brushFace.vertices()
+    | std::views::transform(
+      [toUV = brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1})](
+        const auto* vertex) { return vm::vec2f{toUV * vertex->position()}; })
+    | std::views::transform([&](const auto& v) { return vm::dot(v, axis); })
+    | kdl::ranges::to<std::vector>();
+
+  const auto [iMin, iMax] = std::ranges::minmax_element(distances);
+  contract_assert(iMin != iMax);
+
+  const auto faceLength = *iMax - *iMin;
+  const auto textureLength = vm::dot(brushFace.textureSize(), axis);
+
+  const auto currentScale = vm::dot(brushFace.attributes().scale(), axis);
+  const auto currentFactor = currentScale * textureLength / faceLength;
+
+  const auto nextFactor = findNextScaleFactor(currentFactor, uvPolicy);
+  return nextFactor * faceLength / textureLength;
+}
+
+void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
+{
+  if (axisOp)
+  {
+    std::visit(
+      kdl::overload(
+        [&](const ResetAxis&) { brushFace.resetUVAxes(); },
+        [&](const ToParaxial&) { brushFace.resetUVAxesToParaxial(); },
+        [](const ToParallel&) {}),
+      *axisOp);
+  }
+}
+
+auto evaluate(const std::optional<ValueOp>& valueOp, const std::optional<float>& value)
+{
+  return valueOp ? std::visit(
+                     kdl::overload(
+                       [](const SetValue& setValue) { return setValue.value; },
+                       [&](const AddValue& addValue) {
+                         return value | kdl::optional_transform([&](const auto x) {
+                                  return x + addValue.delta;
+                                });
+                       },
+                       [&](const MultiplyValue& multiplyValue) {
+                         return value | kdl::optional_transform([&](const auto x) {
+                                  return x * multiplyValue.factor;
+                                });
+                       }),
+                     *valueOp)
+                 : value;
+}
+
+auto evaluate(const std::optional<FlagOp>& flagOp, const std::optional<int>& value)
+{
+  return flagOp ? std::visit(
+                    kdl::overload(
+                      [](const SetFlags& replaceFlags) { return replaceFlags.value; },
+                      [&](const SetFlagBits& setFlagBits) {
+                        return value | kdl::optional_transform([&](const auto x) {
+                                 return x | setFlagBits.value;
+                               });
+                      },
+                      [&](const ClearFlagBits& clearFlagBits) {
+                        return value | kdl::optional_transform([&](const auto x) {
+                                 return x & ~clearFlagBits.value;
+                               });
+                      }),
+                    *flagOp)
+                : value;
+}
+
+std::tuple<vm::vec2d, bool> findEdgeToAlignTo(
+  const BrushFace& brushFace, const UvPolicy uvPolicy)
+{
+  constexpr auto uAxis = vm::vec2d{1, 0};
+
+  const auto dot = [&](const auto& v) { return vm::dot(v, uAxis); };
+
+  const auto edgeVecs =
+    brushFace.geometry()->boundary()
+    | std::views::transform(
+      [toUV = brushFace.toUVCoordSystemMatrix(
+         brushFace.attributes().offset(), vm::vec2f{1, 1})](const auto* halfEdge) {
+        const auto start = vm::vec2d{toUV * halfEdge->origin()->position()};
+        const auto end = vm::vec2d{toUV * halfEdge->next()->origin()->position()};
+        return vm::normalize(end - start);
+      })
+    | kdl::ranges::to<std::vector>();
+
+  // find the edge vec that is closest to the U axis
+  const auto iBestMatch = std::ranges::max_element(edgeVecs, std::less<double>{}, dot);
+  contract_assert(iBestMatch != std::ranges::end(edgeVecs));
+
+  const auto isExactMatch = vm::is_equal(dot(*iBestMatch), 1.0, vm::Cd::angle_epsilon());
+
+  const auto edgeToAlignTo = [&] {
+    switch (uvPolicy)
+    {
+    case UvPolicy::best:
+      return *iBestMatch;
+    case UvPolicy::next:
+      return isExactMatch ? *kdl::succ(edgeVecs, iBestMatch) : *iBestMatch;
+    case UvPolicy::prev:
+      return isExactMatch ? *kdl::pred(edgeVecs, iBestMatch) : *iBestMatch;
+      switchDefault();
+    }
+  }();
+
+  return {edgeToAlignTo, isExactMatch};
+}
+
+float normalizeAngle(const float angleInDegrees)
+{
+  return vm::correct(vm::mod(angleInDegrees, 360.0f));
+}
+
+float normalizeOffset(const float offset, const float length)
+{
+  const auto normalizedOffset = vm::correct(vm::mod(offset, length));
+  return normalizedOffset < 0.0f ? normalizedOffset + length : normalizedOffset;
+}
+
+auto toFactor(const UvSign uvSign)
+{
+  switch (uvSign)
+  {
+  case UvSign::plus:
+    return +1.0f;
+  case UvSign::minus:
+    return -1.0f;
+    switchDefault();
+  }
+}
+
+auto makeVertexToUvAxisTransform(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvSign uvSign)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto dirFactor = toFactor(uvSign);
+
+  const auto toUV =
+    brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, brushFace.attributes().scale());
+
+  return [=](const auto& vertex) {
+    const auto uvCoords = vm::vec2f{toUV * vertex->position()};
+    return vm::dot(uvCoords, dirFactor * axis);
+  };
+}
 
 } // namespace
 
@@ -127,61 +366,222 @@ UpdateBrushFaceAttributes resetAllToParaxial(
   };
 }
 
-namespace
+std::ostream& operator<<(std::ostream& lhs, const UvPolicy rhs)
 {
-
-void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
-{
-  if (axisOp)
+  switch (rhs)
   {
-    std::visit(
-      kdl::overload(
-        [&](const ResetAxis&) { brushFace.resetUVAxes(); },
-        [&](const ToParaxial&) { brushFace.resetUVAxesToParaxial(); },
-        [](const ToParallel&) {}),
-      *axisOp);
+  case UvPolicy::best:
+    lhs << "best";
+    break;
+  case UvPolicy::next:
+    lhs << "next";
+    break;
+  case UvPolicy::prev:
+    lhs << "previous";
+    break;
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const UvAxis rhs)
+{
+  switch (rhs)
+  {
+  case UvAxis::u:
+    lhs << "u";
+    break;
+  case UvAxis::v:
+    lhs << "v";
+    break;
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const UvSign rhs)
+{
+  switch (rhs)
+  {
+  case UvSign::plus:
+    lhs << "plus";
+    break;
+  case UvSign::minus:
+    lhs << "minus";
+    break;
+  }
+  return lhs;
+}
+
+bool isAligned(const BrushFace& brushFace)
+{
+  const auto [edgeToAlignTo, isExactMatch] = findEdgeToAlignTo(brushFace, UvPolicy::best);
+  return isExactMatch;
+}
+
+bool isJustified(const BrushFace& brushFace, const UvAxis uvAxis, const UvSign uvSign)
+{
+  const auto normalizedXOffset =
+    normalizeOffset(brushFace.attributes().xOffset(), brushFace.textureSize().x());
+  const auto normalizedYOffset =
+    normalizeOffset(brushFace.attributes().yOffset(), brushFace.textureSize().y());
+
+  const auto update = justify(brushFace, uvAxis, uvSign, UvPolicy::best);
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return update.xOffset
+           && isEqual(
+             *update.xOffset, SetValue{normalizedXOffset}, vm::Cf::almost_zero());
+  case UvAxis::v:
+    return update.yOffset
+           && isEqual(
+             *update.yOffset, SetValue{normalizedYOffset}, vm::Cf::almost_zero());
+    switchDefault();
   }
 }
 
-auto evaluate(const std::optional<ValueOp>& valueOp, const std::optional<float>& value)
+bool isFitted(const BrushFace& brushFace, UvAxis uvAxis)
 {
-  return valueOp ? std::visit(
-                     kdl::overload(
-                       [](const SetValue& setValue) { return setValue.value; },
-                       [&](const AddValue& addValue) {
-                         return value | kdl::optional_transform([&](const auto x) {
-                                  return x + addValue.delta;
-                                });
-                       },
-                       [&](const MultiplyValue& multiplyValue) {
-                         return value | kdl::optional_transform([&](const auto x) {
-                                  return x * multiplyValue.factor;
-                                });
-                       }),
-                     *valueOp)
-                 : value;
+  const auto value = scaleFactorToFit(brushFace, uvAxis, UvPolicy::best);
+
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return vm::is_equal(brushFace.attributes().xScale(), value, vm::Cf::almost_zero());
+  case UvAxis::v:
+    return vm::is_equal(brushFace.attributes().yScale(), value, vm::Cf::almost_zero());
+    switchDefault();
+  }
 }
 
-auto evaluate(const std::optional<FlagOp>& flagOp, const std::optional<int>& value)
+vm::vec3d anchorVertex(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvSign preferredSign)
 {
-  return flagOp ? std::visit(
-                    kdl::overload(
-                      [](const SetFlags& replaceFlags) { return replaceFlags.value; },
-                      [&](const SetFlagBits& setFlagBits) {
-                        return value | kdl::optional_transform([&](const auto x) {
-                                 return x | setFlagBits.value;
-                               });
-                      },
-                      [&](const ClearFlagBits& clearFlagBits) {
-                        return value | kdl::optional_transform([&](const auto x) {
-                                 return x & ~clearFlagBits.value;
-                               });
-                      }),
-                    *flagOp)
-                : value;
+  auto vertices = brushFace.vertices();
+  const auto findMaxVertex = [&](const auto uvSign) {
+    const auto iMax = std::ranges::max_element(
+      vertices,
+      std::less<float>{},
+      makeVertexToUvAxisTransform(brushFace, uvAxis, uvSign));
+    contract_assert(iMax != std::ranges::end(vertices));
+
+    return (*iMax)->position();
+  };
+
+  const auto otherSign = static_cast<UvSign>(1 - static_cast<int>(preferredSign));
+
+  for (const auto uvSign : {preferredSign, otherSign})
+  {
+    if (isJustified(brushFace, uvAxis, uvSign))
+    {
+      return findMaxVertex(uvSign);
+    }
+  }
+
+  return findMaxVertex(preferredSign);
 }
 
-} // namespace
+UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy uvPolicy)
+{
+  const auto [edgeToAlignTo, isExactMatch] = findEdgeToAlignTo(brushFace, uvPolicy);
+
+  const auto angleInDegrees =
+    brushFace.measureUVAngle(vm::vec2f{0, 0}, vm::vec2f{edgeToAlignTo});
+
+  return {
+    .rotation = SetValue{normalizeAngle(angleInDegrees)},
+  };
+}
+
+UpdateBrushFaceAttributes justify(
+  const BrushFace& brushFace,
+  const UvAxis uvAxis,
+  const UvSign uvSign,
+  const UvPolicy uvPolicy)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto dirFactor = toFactor(uvSign);
+
+  auto distances =
+    brushFace.vertices()
+    | std::views::transform(makeVertexToUvAxisTransform(brushFace, uvAxis, uvSign));
+
+  const auto [iMin, iMax] = std::ranges::minmax_element(distances);
+  contract_assert(iMin != iMax);
+
+  // if the texture length is a multiple of the face length, we can cycle through
+  // different offsets corresponding to the integer divisor
+  const auto textureLength = vm::dot(brushFace.textureSize(), axis);
+  const auto faceLength = *iMax - *iMin;
+  const auto numSubDivisions =
+    vm::is_equal(std::fmod(textureLength, faceLength), 0.0f, vm::Cf::almost_zero())
+      ? size_t(std::round(textureLength / faceLength))
+      : 1u;
+
+  const auto subDivisionLength = textureLength / float(numSubDivisions);
+  const auto maxOffset = -dirFactor * *iMax;
+  const auto potentialOffsets =
+    std::views::iota(0u, numSubDivisions) | std::views::transform([&](const auto div) {
+      const auto potentialOffset = float(div) * subDivisionLength + maxOffset;
+      return normalizeOffset(potentialOffset, textureLength);
+    })
+    | kdl::ranges::to<std::vector>();
+
+  const auto currentOffset =
+    normalizeOffset(vm::dot(brushFace.attributes().offset(), axis), textureLength);
+  const auto iBestMatch = std::ranges::min_element(
+    potentialOffsets, std::less<float>{}, [&](const auto& potentialOffset) {
+      return std::abs(potentialOffset - currentOffset);
+    });
+
+  const auto isExactMatch =
+    vm::is_equal(*iBestMatch, currentOffset, vm::Cf::almost_zero());
+  const auto newValue = [&] {
+    switch (uvPolicy)
+    {
+    case UvPolicy::best:
+      return potentialOffsets.front();
+    case UvPolicy::next:
+      return isExactMatch ? *kdl::succ(potentialOffsets, iBestMatch)
+                          : potentialOffsets.front();
+    case UvPolicy::prev:
+      return isExactMatch ? *kdl::pred(potentialOffsets, iBestMatch)
+                          : potentialOffsets.front();
+      switchDefault();
+    }
+  }();
+
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return {
+      .xOffset = SetValue{newValue},
+    };
+  case UvAxis::v:
+    return {
+      .yOffset = SetValue{newValue},
+    };
+    switchDefault();
+  }
+}
+
+UpdateBrushFaceAttributes fit(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
+{
+  const auto value = scaleFactorToFit(brushFace, uvAxis, uvPolicy);
+
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return {
+      .xScale = SetValue{value},
+    };
+  case UvAxis::v:
+    return {
+      .yScale = SetValue{value},
+    };
+    switchDefault();
+  }
+}
 
 void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
 {
@@ -190,7 +590,8 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
   attributes.setMaterialName(update.materialName.value_or(attributes.materialName()));
   attributes.setXOffset(*evaluate(update.xOffset, attributes.xOffset()));
   attributes.setYOffset(*evaluate(update.yOffset, attributes.yOffset()));
-  attributes.setRotation(*evaluate(update.rotation, attributes.rotation()));
+  attributes.setRotation(
+    normalizeRotation(*evaluate(update.rotation, attributes.rotation())));
   attributes.setXScale(*evaluate(update.xScale, attributes.xScale()));
   attributes.setYScale(*evaluate(update.yScale, attributes.yScale()));
 

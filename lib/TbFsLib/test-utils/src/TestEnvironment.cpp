@@ -85,7 +85,7 @@ void TestEnvironment::createDirectory(const std::filesystem::path& path)
 }
 
 void TestEnvironment::createFile(
-  const std::filesystem::path& path, const std::string& contents)
+  const std::filesystem::path& path, const std::string_view contents)
 {
   auto stream = std::ofstream{m_dir / path, std::ios::out};
   stream << contents;

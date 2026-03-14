@@ -19,6 +19,7 @@
 
 #include "ui/UVScaleTool.h"
 
+#include "gl/OrthographicCamera.h"
 #include "gl/PrimType.h"
 #include "gl/VertexType.h"
 #include "mdl/BrushFace.h"
@@ -77,8 +78,7 @@ std::optional<vm::vec2f> getHitPoint(const UVViewHelper& helper, const vm::ray3d
   return vm::intersect_ray_plane(pickRay, boundary)
          | kdl::optional_transform([&](const auto facePointDist) {
              const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
-             const auto toTex =
-               helper.face()->toUVCoordSystemMatrix({0, 0}, {1, 1}, true);
+             const auto toTex = helper.face()->toUVCoordSystemMatrix({0, 0}, {1, 1});
 
              return vm::vec2f{toTex * facePoint};
            });
@@ -92,9 +92,9 @@ vm::vec2f getScaledTranslatedHandlePos(const UVViewHelper& helper, const vm::vec
 vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 {
   const auto toWorld = helper.face()->fromUVCoordSystemMatrix(
-    helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
+    helper.face()->attributes().offset(), helper.face()->attributes().scale());
   const auto toTex =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
   return vm::vec2f{
     toTex * toWorld * vm::vec3d{getScaledTranslatedHandlePos(helper, handle)}};
@@ -103,7 +103,7 @@ vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 {
   const auto toTex =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
   const auto vertices = helper.face()->vertices();
   auto distance = std::accumulate(
@@ -117,7 +117,7 @@ vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 
   for (size_t i = 0; i < 2; ++i)
   {
-    if (vm::abs(distance[i]) > 8.0f / helper.cameraZoom())
+    if (vm::abs(distance[i]) > 8.0f / helper.camera().zoom())
     {
       distance[i] = 0.0f;
     }
