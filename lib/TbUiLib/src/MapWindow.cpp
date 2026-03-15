@@ -1344,7 +1344,7 @@ void MapWindow::pasteAtCursorPosition()
     switch (paste())
     {
     case mdl::PasteType::Node:
-      if (const auto& bounds = map.selectionBounds())
+      if (const auto bounds = map.selectionBounds())
       {
         // The pasted objects must be hidden to prevent the picking done in
         // pasteObjectsDelta from hitting them
