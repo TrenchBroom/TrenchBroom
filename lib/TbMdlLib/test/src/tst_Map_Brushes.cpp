@@ -37,6 +37,15 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+auto& getFace(const BrushNode& brushNode, const size_t faceIndex)
+{
+  return brushNode.brush().face(faceIndex);
+}
+
+} // namespace
 
 TEST_CASE("Map_Brushes")
 {
@@ -114,7 +123,7 @@ TEST_CASE("Map_Brushes")
         });
 
       {
-        const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
+        const auto& firstAttrs = getFace(*brushNode, firstFaceIndex).attributes();
         CHECK(firstAttrs.materialName() == "first");
         CHECK(firstAttrs.xOffset() == 32.0f);
         CHECK(firstAttrs.yOffset() == 64.0f);
@@ -146,7 +155,7 @@ TEST_CASE("Map_Brushes")
         });
 
       {
-        const auto& secondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
+        const auto& secondAttrs = getFace(*brushNode, secondFaceIndex).attributes();
         CHECK(secondAttrs.materialName() == "second");
         CHECK(secondAttrs.xOffset() == 16.0f);
         CHECK(secondAttrs.yOffset() == 48.0f);
@@ -163,34 +172,33 @@ TEST_CASE("Map_Brushes")
       selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
 
       setBrushFaceAttributes(
-        map, copyAll(brushNode->brush().face(secondFaceIndex).attributes()));
+        map, copyAll(getFace(*brushNode, secondFaceIndex).attributes()));
 
       CHECK(
-        brushNode->brush().face(thirdFaceIndex).attributes()
-        == brushNode->brush().face(secondFaceIndex).attributes());
+        getFace(*brushNode, thirdFaceIndex).attributes()
+        == getFace(*brushNode, secondFaceIndex).attributes());
 
       auto thirdFaceContentsFlags =
-        brushNode->brush().face(thirdFaceIndex).attributes().surfaceContents();
+        getFace(*brushNode, thirdFaceIndex).attributes().surfaceContents();
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, secondFaceIndex}});
 
       setBrushFaceAttributes(
-        map, copyAll(brushNode->brush().face(firstFaceIndex).attributes()));
+        map, copyAll(getFace(*brushNode, firstFaceIndex).attributes()));
 
       CHECK(
-        brushNode->brush().face(secondFaceIndex).attributes()
-        == brushNode->brush().face(firstFaceIndex).attributes());
+        getFace(*brushNode, secondFaceIndex).attributes()
+        == getFace(*brushNode, firstFaceIndex).attributes());
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
       setBrushFaceAttributes(
-        map,
-        copyAllExceptContentFlags(brushNode->brush().face(firstFaceIndex).attributes()));
+        map, copyAllExceptContentFlags(getFace(*brushNode, firstFaceIndex).attributes()));
 
       {
-        const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
-        const auto& newThirdAttrs = brushNode->brush().face(thirdFaceIndex).attributes();
+        const auto& firstAttrs = getFace(*brushNode, firstFaceIndex).attributes();
+        const auto& newThirdAttrs = getFace(*brushNode, thirdFaceIndex).attributes();
         CHECK(newThirdAttrs.materialName() == firstAttrs.materialName());
         CHECK(newThirdAttrs.xOffset() == firstAttrs.xOffset());
         CHECK(newThirdAttrs.yOffset() == firstAttrs.yOffset());
@@ -250,17 +258,17 @@ TEST_CASE("Map_Brushes")
       auto* lavabrush =
         dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
       REQUIRE(lavabrush);
-      CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
+      CHECK(!getFace(*lavabrush, 0).attributes().hasSurfaceAttributes());
       CHECK(
-        lavabrush->brush().face(0).resolvedSurfaceContents()
+        getFace(*lavabrush, 0).resolvedSurfaceContents()
         == LavaFlag); // comes from the .wal texture
 
       auto* waterbrush =
         dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(1));
       REQUIRE(waterbrush);
-      CHECK(!waterbrush->brush().face(0).attributes().hasSurfaceAttributes());
+      CHECK(!getFace(*waterbrush, 0).attributes().hasSurfaceAttributes());
       CHECK(
-        waterbrush->brush().face(0).resolvedSurfaceContents()
+        getFace(*waterbrush, 0).resolvedSurfaceContents()
         == WaterFlag); // comes from the .wal texture
 
       SECTION(
@@ -269,16 +277,16 @@ TEST_CASE("Map_Brushes")
         selectNodes(map, {lavabrush});
 
         CHECK(setBrushFaceAttributes(
-          map, copyAllExceptContentFlags(waterbrush->brush().face(0).attributes())));
+          map, copyAllExceptContentFlags(getFace(*waterbrush, 0).attributes())));
 
         SECTION("Check lavabrush is now inheriting the water content flags")
         {
           // Note: the contents flag wasn't transferred, but because lavabrushes's
           // content flag was "Inherit", it stays "Inherit" and now inherits the water
           // contents
-          CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
-          CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == WaterFlag);
-          CHECK(lavabrush->brush().face(0).attributes().materialName() == "watertest");
+          CHECK(!getFace(*lavabrush, 0).attributes().hasSurfaceAttributes());
+          CHECK(getFace(*lavabrush, 0).resolvedSurfaceContents() == WaterFlag);
+          CHECK(getFace(*lavabrush, 0).attributes().materialName() == "watertest");
         }
       }
 
@@ -290,9 +298,8 @@ TEST_CASE("Map_Brushes")
 
         CHECK(setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{WaterFlag}}));
 
-        CHECK(lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
-        CHECK(
-          lavabrush->brush().face(0).resolvedSurfaceContents() == (WaterFlag | LavaFlag));
+        CHECK(getFace(*lavabrush, 0).attributes().hasSurfaceAttributes());
+        CHECK(getFace(*lavabrush, 0).resolvedSurfaceContents() == (WaterFlag | LavaFlag));
       }
     }
 
@@ -304,12 +311,12 @@ TEST_CASE("Map_Brushes")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       selectNodes(map, {brushNode});
-      CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
+      CHECK(!getFace(*brushNode, 0).attributes().hasSurfaceAttributes());
 
       setBrushFaceAttributes(map, {.materialName = "something_else"});
 
-      CHECK(brushNode->brush().face(0).attributes().materialName() == "something_else");
-      CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
+      CHECK(getFace(*brushNode, 0).attributes().materialName() == "something_else");
+      CHECK(!getFace(*brushNode, 0).attributes().hasSurfaceAttributes());
     }
 
     SECTION("Reset attributes to defaults")
@@ -327,8 +334,8 @@ TEST_CASE("Map_Brushes")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       const size_t faceIndex = 0u;
-      const auto initialX = brushNode->brush().face(faceIndex).uAxis();
-      const auto initialY = brushNode->brush().face(faceIndex).vAxis();
+      const auto initialX = getFace(*brushNode, faceIndex).uAxis();
+      const auto initialY = getFace(*brushNode, faceIndex).vAxis();
 
       selectBrushFaces(map, {{brushNode, faceIndex}});
 
@@ -338,22 +345,22 @@ TEST_CASE("Map_Brushes")
         setBrushFaceAttributes(map, {.rotation = AddValue{2.0f}});
       }
 
-      REQUIRE(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
+      REQUIRE(getFace(*brushNode, faceIndex).attributes().rotation() == 10.0f);
 
       setBrushFaceAttributes(map, resetAll(defaultFaceAttrs));
 
-      CHECK(brushNode->brush().face(faceIndex).attributes().xOffset() == 0.0f);
-      CHECK(brushNode->brush().face(faceIndex).attributes().yOffset() == 0.0f);
-      CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).attributes().xOffset() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).attributes().yOffset() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).attributes().rotation() == 0.0f);
       CHECK(
-        brushNode->brush().face(faceIndex).attributes().xScale()
+        getFace(*brushNode, faceIndex).attributes().xScale()
         == defaultFaceAttrs.xScale());
       CHECK(
-        brushNode->brush().face(faceIndex).attributes().yScale()
+        getFace(*brushNode, faceIndex).attributes().yScale()
         == defaultFaceAttrs.yScale());
 
-      CHECK(brushNode->brush().face(faceIndex).uAxis() == initialX);
-      CHECK(brushNode->brush().face(faceIndex).vAxis() == initialY);
+      CHECK(getFace(*brushNode, faceIndex).uAxis() == initialX);
+      CHECK(getFace(*brushNode, faceIndex).vAxis() == initialY);
     }
 
     SECTION("Linked groups")
@@ -386,7 +393,7 @@ TEST_CASE("Map_Brushes")
           auto* brush = dynamic_cast<BrushNode*>(g->children().at(0));
           REQUIRE(brush != nullptr);
 
-          auto attrs = brush->brush().face(0).attributes();
+          auto attrs = getFace(*brush, 0).attributes();
           CHECK(attrs.materialName() == "abc");
         }
       }
