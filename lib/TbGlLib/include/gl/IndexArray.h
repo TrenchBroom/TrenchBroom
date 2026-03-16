@@ -278,9 +278,9 @@ public:
    * since the render method will perform setup and cleanup automatically unless the index
    * array is already set up when the render method is called.
    *
-   * In the case the the index array was already setup before a render method was called,
-   * the render method will skip the setup and cleanup, and it is the callers'
-   * responsibility to perform proper cleanup.
+   * In the case the index array was already setup before a render method was called, the
+   * render method will skip the setup and cleanup, and it is the callers' responsibility
+   * to perform proper cleanup.
    *
    * It is only useful to perform setup and cleanup for a caller if the caller intends to
    * issue multiple render calls to this index array.

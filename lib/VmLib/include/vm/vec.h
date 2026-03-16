@@ -1002,7 +1002,7 @@ constexpr vec<T, S> clamp(
 
 /**
  * Returns a vector where each component is the absolute value of the corresponding
- * component of the the given vector.
+ * component of the given vector.
  *
  * @tparam T the component type
  * @tparam S the number of components

@@ -41,7 +41,7 @@ namespace vm
  * @tparam C the number of columns
  * @param lhs the list of vectors
  * @param rhs the matrix
- * @return a list of the the products of the given vectors and the given matrix
+ * @return a list of the products of the given vectors and the given matrix
  */
 template <typename T, std::size_t R, std::size_t C>
 std::vector<vec<T, C>> operator*(
@@ -65,7 +65,7 @@ std::vector<vec<T, C>> operator*(
  * @tparam C the number of columns
  * @param lhs the array of vectors
  * @param rhs the matrix
- * @return an array of the the products of the given vectors and the given matrix
+ * @return an array of the products of the given vectors and the given matrix
  */
 template <typename T, std::size_t N, std::size_t R, std::size_t C>
 constexpr std::array<vec<T, C>, N> operator*(
@@ -87,7 +87,7 @@ constexpr std::array<vec<T, C>, N> operator*(
  * @tparam C the number of columns
  * @param lhs the list of vectors
  * @param rhs the matrix
- * @return a list of the the products of the given vectors and the given matrix
+ * @return a list of the products of the given vectors and the given matrix
  */
 template <typename T, std::size_t R, std::size_t C>
 std::vector<vec<T, C - 1>> operator*(
@@ -111,7 +111,7 @@ std::vector<vec<T, C - 1>> operator*(
  * @tparam C the number of columns
  * @param lhs the array of vectors
  * @param rhs the matrix
- * @return an array of the the products of the given vectors and the given matrix
+ * @return an array of the products of the given vectors and the given matrix
  */
 template <typename T, std::size_t N, std::size_t R, std::size_t C>
 constexpr std::array<vec<T, C - 1>, N> operator*(
@@ -133,7 +133,7 @@ constexpr std::array<vec<T, C - 1>, N> operator*(
  * @tparam C the number of columns
  * @param lhs the list of vectors
  * @param rhs the matrix
- * @return a list of the the products of the given vectors and the given matrix
+ * @return a list of the products of the given vectors and the given matrix
  */
 template <typename T, std::size_t R, std::size_t C>
 std::vector<vec<T, R>> operator*(
@@ -157,7 +157,7 @@ std::vector<vec<T, R>> operator*(
  * @tparam C the number of columns
  * @param lhs the array of vectors
  * @param rhs the matrix
- * @return an array of the the products of the given vectors and the given matrix
+ * @return an array of the products of the given vectors and the given matrix
  */
 template <typename T, std::size_t N, std::size_t R, std::size_t C>
 constexpr std::array<vec<T, R>, N> operator*(
@@ -179,7 +179,7 @@ constexpr std::array<vec<T, R>, N> operator*(
  * @tparam C the number of columns
  * @param lhs the list of vectors
  * @param rhs the matrix
- * @return a list of the the products of the given vectors and the given matrix
+ * @return a list of the products of the given vectors and the given matrix
  */
 template <typename T, std::size_t R, std::size_t C>
 std::vector<vec<T, R - 1>> operator*(
@@ -203,7 +203,7 @@ std::vector<vec<T, R - 1>> operator*(
  * @tparam C the number of columns
  * @param lhs the list of vectors
  * @param rhs the matrix
- * @return a list of the the products of the given vectors and the given matrix
+ * @return a list of the products of the given vectors and the given matrix
  */
 template <typename T, std::size_t N, std::size_t R, std::size_t C>
 constexpr std::array<vec<T, R - 1>, N> operator*(
