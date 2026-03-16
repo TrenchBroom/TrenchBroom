@@ -204,7 +204,7 @@ Right        #action(Controls/Camera/Move right)
 Up           #action(Controls/Camera/Move up)
 Down         #action(Controls/Camera/Move down)
 
-To adjust the movement speed of the these keyboard shortcuts, you can either go the [preferences](#mouse_input) and adjust the corresponding slider, or you can turn the mouse wheel while holding the right mouse button in the 3D view.
+To adjust the movement speed of these keyboard shortcuts, you can either go the [preferences](#mouse_input) and adjust the corresponding slider, or you can turn the mouse wheel while holding the right mouse button in the 3D view.
 
 ### Orbiting
 
@@ -2925,7 +2925,7 @@ If you have an idea for a nice feature that you're missing in TrenchBroom, then 
 
 ## Reporting Bugs {#reporting_bugs}
 
-You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the the following information:
+You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the following information:
 
 - *TrenchBroom version*: e.g., "*"Version 2.0.0 f335082 D" see below
 - *Operation system and version*: e.g. "Windows 7 64bit"

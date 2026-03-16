@@ -52,7 +52,7 @@ public:
 
 public:
   /**
-   * Adds all handles of the the given range of brushes to this handle manager.
+   * Adds all handles of the given range of brushes to this handle manager.
    *
    * @tparam R the type of the given range
    * @param handles the handles to add

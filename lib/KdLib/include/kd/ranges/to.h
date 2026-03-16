@@ -167,7 +167,7 @@ constexpr auto to(R&& r, Args&&... args)
   if constexpr (requires { C(std::declval<R>(), std::declval<Args>()...); })
   {
     // By "calling" C(...), we can use C's deduction guides to deduce the value type,
-    // and the full type of C is passed on the the previous overload of to using decltype
+    // and the full type of C is passed on the previous overload of to using decltype
     return to<decltype(C(std::declval<R>(), std::declval<Args>()...))>(
       std::forward<R>(r), std::forward<Args>(args)...);
   }
