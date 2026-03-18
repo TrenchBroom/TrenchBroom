@@ -2166,6 +2166,15 @@ void MapWindow::showCompileDialog()
       });
   }
 
+  if (const auto* profile = lastCompilationProfile())
+  {
+    m_compilationDialog->selectProfile(*profile);
+  }
+  else
+  {
+    m_compilationDialog->selectFirstProfile();
+  }
+
   showModelessDialog(m_compilationDialog);
 }
 
