@@ -63,6 +63,16 @@ CompilationDialog::CompilationDialog(
   updateCompileButtons();
 }
 
+bool CompilationDialog::selectProfile(const mdl::CompilationProfile& profile)
+{
+  return m_profileManager->selectProfile(profile);
+}
+
+void CompilationDialog::selectFirstProfile()
+{
+  m_profileManager->selectFirstProfile();
+}
+
 bool CompilationDialog::selectAndRunProfile(const mdl::CompilationProfile& profile)
 {
   if (m_profileManager->selectProfile(profile))
