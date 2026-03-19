@@ -73,15 +73,12 @@ void CompilationDialog::selectFirstProfile()
   m_profileManager->selectFirstProfile();
 }
 
-bool CompilationDialog::selectAndRunProfile(const mdl::CompilationProfile& profile)
+void CompilationDialog::runSelectedProfile()
 {
-  if (m_profileManager->selectProfile(profile))
+  if (m_profileManager->selectedProfile())
   {
     startCompilation(false);
-    return true;
   }
-
-  return false;
 }
 
 void CompilationDialog::createGui()

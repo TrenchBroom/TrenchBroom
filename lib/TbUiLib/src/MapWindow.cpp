@@ -2186,7 +2186,8 @@ void MapWindow::rerunLastCompilation()
 
     if (const auto* profile = lastCompilationProfile())
     {
-      m_compilationDialog->selectAndRunProfile(*profile);
+      m_compilationDialog->selectProfile(*profile);
+      m_compilationDialog->runSelectedProfile();
     }
   }
 }

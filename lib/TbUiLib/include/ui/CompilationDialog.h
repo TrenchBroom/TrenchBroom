@@ -63,7 +63,8 @@ public:
 
   bool selectProfile(const mdl::CompilationProfile& profile);
   void selectFirstProfile();
-  bool selectAndRunProfile(const mdl::CompilationProfile& profile);
+
+  void runSelectedProfile();
 
 signals:
   void compilationProfileStarted(const std::string& profileName);
