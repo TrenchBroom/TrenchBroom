@@ -27,7 +27,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "gl/GlUtils.h"
+#include "gl/MiniGl.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/QStyleUtils.h"
 #include "ui/SliderWithLabel.h"
@@ -302,11 +302,13 @@ void ViewPreferencePane::updateControls()
   m_gridAlphaSlider->setRatio(prefs.getPendingValue(Preferences::GridAlpha));
   m_fovSlider->setValue(int(prefs.getPendingValue(Preferences::CameraFov)));
 
-  const auto filterModeIndex = findFilterMode(
-                                 prefs.getPendingValue(Preferences::TextureMinFilter),
-                                 prefs.getPendingValue(Preferences::TextureMagFilter))
-                                 .value_or(-1);
-  m_filterModeCombo->setCurrentIndex(int(filterModeIndex));
+  if (
+    const auto filterModeIndex = findFilterMode(
+      prefs.getPendingValue(Preferences::TextureMinFilter),
+      prefs.getPendingValue(Preferences::TextureMagFilter)))
+  {
+    m_filterModeCombo->setCurrentIndex(int(*filterModeIndex));
+  }
 
   m_showAxes->setChecked(prefs.getPendingValue(Preferences::ShowAxes));
   m_enableMsaa->setChecked(prefs.getPendingValue(Preferences::EnableMSAA));
@@ -416,8 +418,9 @@ void ViewPreferencePane::enableMsaaChanged(const int state)
 
 void ViewPreferencePane::filterModeChanged(const int value)
 {
+  contract_assert(value < static_cast<int>(FilterModes.size()));
+
   const auto index = static_cast<size_t>(value);
-  contract_assert(index < FilterModes.size());
 
   const auto minFilter = FilterModes[index].minFilter;
   const auto magFilter = FilterModes[index].magFilter;
