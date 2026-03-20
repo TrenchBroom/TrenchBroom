@@ -8,6 +8,7 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CameraTool3D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationProfileManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationRunner.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityPropertyModel.cpp

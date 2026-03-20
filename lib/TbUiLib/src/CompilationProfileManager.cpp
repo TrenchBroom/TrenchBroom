@@ -130,6 +130,14 @@ bool CompilationProfileManager::selectProfile(const mdl::CompilationProfile& pro
   return false;
 }
 
+void CompilationProfileManager::selectFirstProfile()
+{
+  if (m_profileList->count() > 0)
+  {
+    m_profileList->setCurrentRow(0);
+  }
+}
+
 const mdl::CompilationConfig& CompilationProfileManager::config() const
 {
   return m_config;

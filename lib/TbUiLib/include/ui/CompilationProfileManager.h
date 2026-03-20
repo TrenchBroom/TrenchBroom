@@ -62,6 +62,7 @@ public:
 
   const mdl::CompilationProfile* selectedProfile() const;
   bool selectProfile(const mdl::CompilationProfile& profile);
+  void selectFirstProfile();
   const mdl::CompilationConfig& config() const;
 
 private:

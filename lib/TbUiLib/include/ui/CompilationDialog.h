@@ -61,7 +61,10 @@ public:
   explicit CompilationDialog(
     AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
-  bool selectAndRunProfile(const mdl::CompilationProfile& profile);
+  bool selectProfile(const mdl::CompilationProfile& profile);
+  void selectFirstProfile();
+
+  void runSelectedProfile();
 
 signals:
   void compilationProfileStarted(const std::string& profileName);

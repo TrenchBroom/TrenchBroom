@@ -113,6 +113,36 @@ TEST_CASE("CompilationProfileManager")
     }
   }
 
+  SECTION("selectFirstProfile")
+  {
+    SECTION("selects first profile when another is selected")
+    {
+      config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
+      config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
+      config.profiles.push_back(mdl::CompilationProfile{"test 3", "", {}});
+
+      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+
+      manager->selectProfile(config.profiles[2]);
+      REQUIRE(manager->selectedProfile() != nullptr);
+      CHECK(manager->selectedProfile()->name == "test 3");
+
+      manager->selectFirstProfile();
+
+      REQUIRE(manager->selectedProfile() != nullptr);
+      CHECK(manager->selectedProfile()->name == "test 1");
+    }
+
+    SECTION("does nothing when there are no profiles")
+    {
+      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+
+      manager->selectFirstProfile();
+
+      CHECK(manager->selectedProfile() == nullptr);
+    }
+  }
+
   SECTION("remove button disabled when no profile is selected")
   {
     config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
