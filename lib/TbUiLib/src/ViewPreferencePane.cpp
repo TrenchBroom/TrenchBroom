@@ -61,6 +61,13 @@ const auto FilterModes = std::array<FilterMode, 6>{
   FilterMode{GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, "Linear (mipmapped, interpolated)"},
 };
 
+std::optional<size_t> findFilterMode(const int minFilter, const int magFilter)
+{
+  return kdl::index_of(FilterModes, [&](const FilterMode& filterMode) {
+    return filterMode.minFilter == minFilter && filterMode.magFilter == magFilter;
+  });
+}
+
 constexpr int brightnessToUI(const float value)
 {
   return int(vm::round(100.0f * (value - 1.0f)));
@@ -355,15 +362,7 @@ bool ViewPreferencePane::validate()
   return true;
 }
 
-std::optional<size_t> ViewPreferencePane::findFilterMode(
-  const int minFilter, const int magFilter) const
-{
-  return kdl::index_of(FilterModes, [&](const FilterMode& filterMode) {
-    return filterMode.minFilter == minFilter && filterMode.magFilter == magFilter;
-  });
-}
-
-int ViewPreferencePane::findThemeIndex(const QString& theme)
+int ViewPreferencePane::findThemeIndex(const QString& theme) const
 {
   return m_themeCombo->findText(theme);
 }
