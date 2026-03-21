@@ -27,7 +27,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "gl/GlUtils.h"
+#include "gl/MiniGl.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/QStyleUtils.h"
 #include "ui/SliderWithLabel.h"
@@ -60,6 +60,13 @@ const auto FilterModes = std::array<FilterMode, 6>{
   FilterMode{GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, "Linear (mipmapped)"},
   FilterMode{GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, "Linear (mipmapped, interpolated)"},
 };
+
+std::optional<size_t> findFilterMode(const int minFilter, const int magFilter)
+{
+  return kdl::index_of(FilterModes, [&](const FilterMode& filterMode) {
+    return filterMode.minFilter == minFilter && filterMode.magFilter == magFilter;
+  });
+}
 
 constexpr int brightnessToUI(const float value)
 {
@@ -302,11 +309,13 @@ void ViewPreferencePane::updateControls()
   m_gridAlphaSlider->setRatio(prefs.getPendingValue(Preferences::GridAlpha));
   m_fovSlider->setValue(int(prefs.getPendingValue(Preferences::CameraFov)));
 
-  const auto filterModeIndex = findFilterMode(
-                                 prefs.getPendingValue(Preferences::TextureMinFilter),
-                                 prefs.getPendingValue(Preferences::TextureMagFilter))
-                                 .value_or(-1);
-  m_filterModeCombo->setCurrentIndex(int(filterModeIndex));
+  if (
+    const auto filterModeIndex = findFilterMode(
+      prefs.getPendingValue(Preferences::TextureMinFilter),
+      prefs.getPendingValue(Preferences::TextureMagFilter)))
+  {
+    m_filterModeCombo->setCurrentIndex(int(*filterModeIndex));
+  }
 
   m_showAxes->setChecked(prefs.getPendingValue(Preferences::ShowAxes));
   m_enableMsaa->setChecked(prefs.getPendingValue(Preferences::EnableMSAA));
@@ -353,15 +362,7 @@ bool ViewPreferencePane::validate()
   return true;
 }
 
-std::optional<size_t> ViewPreferencePane::findFilterMode(
-  const int minFilter, const int magFilter) const
-{
-  return kdl::index_of(FilterModes, [&](const FilterMode& filterMode) {
-    return filterMode.minFilter == minFilter && filterMode.magFilter == magFilter;
-  });
-}
-
-int ViewPreferencePane::findThemeIndex(const QString& theme)
+int ViewPreferencePane::findThemeIndex(const QString& theme) const
 {
   return m_themeCombo->findText(theme);
 }
@@ -416,8 +417,9 @@ void ViewPreferencePane::enableMsaaChanged(const int state)
 
 void ViewPreferencePane::filterModeChanged(const int value)
 {
+  contract_assert(value < static_cast<int>(FilterModes.size()));
+
   const auto index = static_cast<size_t>(value);
-  contract_assert(index < FilterModes.size());
 
   const auto minFilter = FilterModes[index].minFilter;
   const auto magFilter = FilterModes[index].magFilter;

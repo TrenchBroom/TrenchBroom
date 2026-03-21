@@ -60,8 +60,7 @@ private:
   void updateControls() override;
   bool validate() override;
 
-  std::optional<size_t> findFilterMode(int minFilter, int magFilter) const;
-  int findThemeIndex(const QString& theme);
+  int findThemeIndex(const QString& theme) const;
 private slots:
   void layoutChanged(int index);
   void link2dCamerasChanged(int state);
