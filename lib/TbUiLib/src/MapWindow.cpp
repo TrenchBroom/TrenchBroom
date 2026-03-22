@@ -488,6 +488,7 @@ void MapWindow::createToolBar()
     });
 
   m_gridChoice = new QComboBox{};
+  m_gridChoice->setObjectName("MapWindow_GridChoice");
   for (int i = mdl::Grid::MinSize; i <= mdl::Grid::MaxSize; ++i)
   {
     const auto gridSize = mdl::Grid::actualSize(i);
