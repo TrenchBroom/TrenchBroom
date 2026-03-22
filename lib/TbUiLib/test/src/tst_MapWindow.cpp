@@ -77,16 +77,12 @@ TEST_CASE("MapWindow")
 
     QApplication::processEvents();
 
-    [[maybe_unused]] const auto loadedGridSize = window.document().map().grid().size();
-    [[maybe_unused]] const auto loadedGridIndex = loadedGridSize - mdl::Grid::MinSize;
+    const auto loadedGridSize = window.document().map().grid().size();
+    const auto loadedGridIndex = loadedGridSize - mdl::Grid::MinSize;
 
     CHECK(loadedGridSize != changedGridSize);
-    /* EXPECTED:
     CHECK(gridChoice->currentIndex() == loadedGridIndex);
     CHECK(gridChoice->currentData().toInt() == loadedGridSize);
-    ACTUAL: */
-    CHECK(gridChoice->currentIndex() == changedGridIndex);
-    CHECK(gridChoice->currentData().toInt() == changedGridSize);
   }
 }
 

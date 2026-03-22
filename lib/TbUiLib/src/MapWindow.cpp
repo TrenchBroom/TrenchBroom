@@ -803,6 +803,7 @@ void MapWindow::documentWasLoaded()
   updateTitle();
   updateActionState();
   updateUndoRedoActions();
+  updateToolBarWidgets();
   updateRecentDocumentsMenu();
   loadLastCompilationProfileName();
 }
