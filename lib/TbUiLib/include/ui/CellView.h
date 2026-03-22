@@ -70,6 +70,7 @@ public:
   template <class L>
   void scrollToCell(L&& visitor)
   {
+    validate();
 
     for (const auto& group : m_layout.groups())
     {
