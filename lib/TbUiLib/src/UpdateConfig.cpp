@@ -56,7 +56,7 @@ bool shouldEnableUpdating()
 #elif defined(__APPLE__)
   return SystemPaths::appFile().filename() == "TrenchBroom";
 #else
-  return std::getenv("APPIMAGE") != nullptr;
+  return SystemPaths::appImageFile() != std::nullopt;
 #endif
 }
 

@@ -30,6 +30,7 @@
 #include "ui/QPathUtils.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <vector>
 
 namespace tb::ui::SystemPaths
@@ -52,6 +53,21 @@ std::filesystem::path appFile()
 std::filesystem::path appDirectory()
 {
   return pathFromQString(QCoreApplication::applicationDirPath());
+}
+
+std::optional<std::filesystem::path> appImageFile()
+{
+#if defined __linux__ || defined __FreeBSD__
+  if (const auto* appImagePath = std::getenv("APPIMAGE"))
+  {
+    if (const auto appImagePathStr = std::string{appImagePath}; !appImagePathStr.empty())
+    {
+      return std::filesystem::path{appImagePathStr};
+    }
+  }
+#endif
+
+  return std::nullopt;
 }
 
 std::filesystem::path userDataDirectory()
