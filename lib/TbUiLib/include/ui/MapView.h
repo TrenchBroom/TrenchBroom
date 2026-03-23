@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "ui/ViewEffectsService.h"
-
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
@@ -37,13 +35,13 @@ class MapViewActivationTracker;
 class MapViewBase;
 class MapViewContainer;
 
-class MapView : public ViewEffectsService
+class MapView
 {
 private:
   MapViewContainer* m_container = nullptr;
 
 public:
-  ~MapView() override;
+  virtual ~MapView();
 
   void setContainer(MapViewContainer* container);
   virtual void installActivationTracker(MapViewActivationTracker& activationTracker) = 0;
@@ -64,6 +62,8 @@ public:
   virtual void moveCameraToCurrentTracePoint() = 0;
 
   virtual bool cancelMouseDrag() = 0;
+
+  virtual void flashSelection() = 0;
 
   /**
    * If the parent of this view is a CyclingMapView, cycle to the

@@ -42,14 +42,6 @@ void MultiPaneMapView::addMapView(MapView* mapView)
   mapView->setContainer(this);
 }
 
-void MultiPaneMapView::flashSelection()
-{
-  for (auto* mapView : m_mapViews)
-  {
-    mapView->flashSelection();
-  }
-}
-
 void MultiPaneMapView::installActivationTracker(
   MapViewActivationTracker& activationTracker)
 {
@@ -125,6 +117,14 @@ bool MultiPaneMapView::cancelMouseDrag()
     result |= mapView->cancelMouseDrag();
   }
   return result;
+}
+
+void MultiPaneMapView::flashSelection()
+{
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->flashSelection();
+  }
 }
 
 void MultiPaneMapView::refreshViews()

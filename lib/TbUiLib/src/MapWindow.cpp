@@ -188,7 +188,6 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
   loadLastCompilationProfileName();
 
   m_document->setTargetLogger(m_console);
-  m_document->setViewEffectsService(m_mapView);
 
   m_autosaveTimer->start(1000);
 
@@ -237,8 +236,6 @@ MapWindow::~MapWindow()
 
   // let's trigger a final autosave before releasing the document
   m_document->triggerAutosave();
-
-  m_document->setViewEffectsService(nullptr);
   m_document.reset();
 
   // FIXME: m_contextManager is deleted via smart pointer; it may release openGL resources

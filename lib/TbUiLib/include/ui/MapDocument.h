@@ -75,7 +75,6 @@ namespace ui
 class ActionManager;
 class AsyncTaskRunner;
 class CachingLogger;
-class ViewEffectsService;
 
 struct PointFile
 {
@@ -164,8 +163,6 @@ private:
   std::optional<std::vector<Action>> m_cachedTagActions;
   std::optional<std::vector<Action>> m_cachedEntityDefinitionActions;
 
-  ViewEffectsService* m_viewEffectsService = nullptr;
-
   std::unique_ptr<render::MapRenderer> m_mapRenderer;
 
   NotifierConnection m_notifierConnection;
@@ -227,8 +224,6 @@ public: // accessors and such
 
   Logger& logger();
   void setTargetLogger(Logger* parentLogger);
-
-  void setViewEffectsService(ViewEffectsService* viewEffectsService);
 
 public: // tag and entity definition actions
   template <typename ActionVisitor>

@@ -67,9 +67,6 @@ private:
 private:
   void switchToMapView(MapViewBase* mapView);
 
-public: // implement ViewEffectsService interface
-  void flashSelection() override;
-
 public: // implement MapView interface
   void installActivationTracker(MapViewActivationTracker& activationTracker) override;
   bool isCurrent() const override;
@@ -82,6 +79,7 @@ public: // implement MapView interface
   void moveCameraToCurrentTracePoint() override;
 
   bool cancelMouseDrag() override;
+  void flashSelection() override;
   void refreshViews() override;
 
 public: // implement MapViewContainer interface

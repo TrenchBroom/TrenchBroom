@@ -130,10 +130,8 @@ public: // implement MapView interface
   void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void moveCameraToCurrentTracePoint() override;
   bool cancelMouseDrag() override;
-  void refreshViews() override;
-
-public: // implement ViewEffectsService interface
   void flashSelection() override;
+  void refreshViews() override;
 
   deleteCopyAndMove(SwitchableMapViewContainer);
 };

@@ -222,7 +222,6 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewConstants.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewEditor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewEffectsService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewPreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WelcomeWindow.cpp
@@ -454,7 +453,6 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexToolControllerBase.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewConstants.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewEditor.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewEffectsService.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewPreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/WelcomeWindow.h
