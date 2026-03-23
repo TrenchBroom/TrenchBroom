@@ -42,6 +42,7 @@
 #include "mdl/SetLinkIdsCommand.h"
 #include "mdl/SwapNodeContentsCommand.h"
 #include "mdl/Transaction.h"
+#include "mdl/VisualEffect.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
@@ -355,6 +356,8 @@ void duplicateSelectedNodes(Map& map)
       return;
     }
   }
+
+  map.triggerVisualEffectNotifier(VisualEffect::FlashSelection);
 
   map.pushRepeatableCommand([&]() { duplicateSelectedNodes(map); });
 }

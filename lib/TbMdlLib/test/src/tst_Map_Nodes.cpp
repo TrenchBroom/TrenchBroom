@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Observer.h"
 #include "gl/MaterialManager.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
@@ -40,6 +41,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
+#include "mdl/VisualEffect.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/overload.h"
@@ -312,6 +314,18 @@ TEST_CASE("Map_Nodes")
       CHECK(entityClone->parent() == layerNode1);
       CHECK(layerNode1->childCount() == 2);
       CHECK(map.editorContext().currentLayer() == layerNode2);
+    }
+
+    SECTION("Duplicating nodes triggers a visual effect")
+    {
+      auto triggerVisualEffect = Observer<VisualEffect>{map.triggerVisualEffectNotifier};
+
+      auto* entityNode = createPointEntity(map, pointEntityDefinition, {0, 0, 0});
+      selectNodes(map, {entityNode});
+      duplicateSelectedNodes(map);
+
+      CHECK(
+        triggerVisualEffect.notifications == std::vector{VisualEffect::FlashSelection});
     }
 
     SECTION("Nodes duplicated in a hidden layer become visible")
