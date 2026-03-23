@@ -925,7 +925,7 @@ bool MapViewBase::cancelMouseDrag()
 void MapViewBase::flashSelection()
 {
   auto animation =
-    std::make_unique<FlashSelectionAnimation>(m_document.mapRenderer(), this, 180);
+    std::make_unique<FlashSelectionAnimation>(m_document.mapRenderer(), this, 300);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
