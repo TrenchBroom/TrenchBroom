@@ -432,6 +432,8 @@ void MapDocument::connectMapObservers()
     m_map->entityDefinitionsDidChangeNotifier.connect(entityDefinitionsDidChangeNotifier);
   m_notifierConnection += m_map->modsWillChangeNotifier.connect(modsWillChangeNotifier);
   m_notifierConnection += m_map->modsDidChangeNotifier.connect(modsDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->triggerVisualEffectNotifier.connect(triggerVisualEffectNotifier);
 
   auto& grid = m_map->grid();
   m_notifierConnection += grid.gridDidChangeNotifier.connect(gridDidChangeNotifier);

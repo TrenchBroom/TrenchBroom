@@ -51,14 +51,15 @@ class ResourceManager;
 
 namespace mdl
 {
-enum class MapFormat;
-
 class Autosaver;
 class Command;
 class Map;
 class Node;
 class PickResult;
 class UndoableCommand;
+
+enum class MapFormat;
+enum class VisualEffect;
 
 struct EnvironmentConfig;
 struct GameInfo;
@@ -130,6 +131,8 @@ public:
 
   Notifier<> modsWillChangeNotifier;
   Notifier<> modsDidChangeNotifier;
+
+  Notifier<mdl::VisualEffect> triggerVisualEffectNotifier;
 
   Notifier<> gridDidChangeNotifier;
 

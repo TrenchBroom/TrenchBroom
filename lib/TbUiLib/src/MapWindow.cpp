@@ -68,6 +68,7 @@
 #include "mdl/Node.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
+#include "mdl/VisualEffect.h"
 #include "mdl/WorldNode.h"
 #include "ui/Action.h"
 #include "ui/ActionBuilder.h"
@@ -777,6 +778,8 @@ void MapWindow::connectObservers()
     this, &MapWindow::nodeVisibilityDidChange);
   m_notifierConnection += m_document->editorContextDidChangeNotifier.connect(
     this, &MapWindow::editorContextDidChange);
+  m_notifierConnection += m_document->triggerVisualEffectNotifier.connect(
+    this, &MapWindow::triggerVisualEffect);
 
   m_notifierConnection +=
     m_document->transactionDoneNotifier.connect(this, &MapWindow::transactionDone);
@@ -903,6 +906,16 @@ void MapWindow::editorContextDidChange()
   // e.g. changing the view filters may cause the number of hidden brushes/entities to
   // change
   updateStatusBarDelayed();
+}
+
+void MapWindow::triggerVisualEffect(const mdl::VisualEffect visualEffect)
+{
+  switch (visualEffect)
+  {
+  case mdl::VisualEffect::FlashSelection:
+    m_mapView->flashSelection();
+    break;
+  }
 }
 
 void MapWindow::pointFileDidChange()
