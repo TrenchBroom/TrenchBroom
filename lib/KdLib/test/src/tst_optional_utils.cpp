@@ -20,6 +20,8 @@
 
 #include "kd/optional_utils.h"
 
+#include <optional>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace kdl
