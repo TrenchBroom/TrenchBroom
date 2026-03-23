@@ -17,6 +17,7 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_InputEvent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LaunchGameEngine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapDocument.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MoveHandleDragTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QPathUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QPreferenceStore.cpp
