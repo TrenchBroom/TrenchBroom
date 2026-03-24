@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,16 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "mdl/VisualEffect.h"
 
-namespace tb::ui
+#include "Macros.h"
+
+#include <ostream>
+
+namespace tb::mdl
 {
 
-class ViewEffectsService
+std::ostream& operator<<(std::ostream& lhs, const VisualEffect rhs)
 {
-public:
-  virtual ~ViewEffectsService();
-  virtual void flashSelection() = 0;
-};
+  switch (rhs)
+  {
+  case VisualEffect::FlashSelection:
+    return lhs << "FlashSelection";
+    switchDefault();
+  }
+}
 
-} // namespace tb::ui
+} // namespace tb::mdl

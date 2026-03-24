@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,11 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/ViewEffectsService.h"
+#pragma once
 
-namespace tb::ui
+#include <iosfwd>
+
+namespace tb::mdl
 {
 
-ViewEffectsService::~ViewEffectsService() {}
+enum class VisualEffect
+{
+  FlashSelection,
+};
 
-} // namespace tb::ui
+std::ostream& operator<<(std::ostream& lhs, VisualEffect rhs);
+
+} // namespace tb::mdl

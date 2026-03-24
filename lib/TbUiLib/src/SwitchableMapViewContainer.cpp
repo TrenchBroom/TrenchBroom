@@ -413,14 +413,14 @@ void SwitchableMapViewContainer::moveCameraToCurrentTracePoint()
   m_mapView->moveCameraToCurrentTracePoint();
 }
 
-void SwitchableMapViewContainer::flashSelection()
-{
-  m_mapView->flashSelection();
-}
-
 bool SwitchableMapViewContainer::cancelMouseDrag()
 {
   return m_mapView->cancelMouseDrag();
+}
+
+void SwitchableMapViewContainer::flashSelection()
+{
+  m_mapView->flashSelection();
 }
 
 void SwitchableMapViewContainer::refreshViews()

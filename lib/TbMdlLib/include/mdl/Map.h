@@ -88,6 +88,8 @@ class UVCoordSystemSnapshot;
 class VertexHandleManager;
 class WorldNode;
 
+enum class VisualEffect;
+
 struct EnvironmentConfig;
 struct GameInfo;
 struct SelectionChange;
@@ -181,6 +183,8 @@ public: // notification
 
   Notifier<> modsWillChangeNotifier;
   Notifier<> modsDidChangeNotifier;
+
+  Notifier<VisualEffect> triggerVisualEffectNotifier;
 
 private:
   NotifierConnection m_notifierConnection;

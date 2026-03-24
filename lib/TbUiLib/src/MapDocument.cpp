@@ -45,7 +45,6 @@
 #include "mdl/WorldReader.h"
 #include "render/MapRenderer.h"
 #include "ui/ActionManager.h"
-#include "ui/ViewEffectsService.h"
 
 #include "kd/contracts.h"
 #include "kd/result.h"
@@ -235,11 +234,6 @@ mdl::PointTrace* MapDocument::pointTrace()
 const std::vector<vm::polygon3f>* MapDocument::portals() const
 {
   return m_portalFile ? &m_portalFile->portals : nullptr;
-}
-
-void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService)
-{
-  m_viewEffectsService = viewEffectsService;
 }
 
 std::vector<Action>& MapDocument::cacheTagActions(const ActionManager& actionManager)
@@ -438,6 +432,8 @@ void MapDocument::connectMapObservers()
     m_map->entityDefinitionsDidChangeNotifier.connect(entityDefinitionsDidChangeNotifier);
   m_notifierConnection += m_map->modsWillChangeNotifier.connect(modsWillChangeNotifier);
   m_notifierConnection += m_map->modsDidChangeNotifier.connect(modsDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->triggerVisualEffectNotifier.connect(triggerVisualEffectNotifier);
 
   auto& grid = m_map->grid();
   m_notifierConnection += grid.gridDidChangeNotifier.connect(gridDidChangeNotifier);

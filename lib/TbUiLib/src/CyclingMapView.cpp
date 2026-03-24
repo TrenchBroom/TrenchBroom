@@ -100,11 +100,6 @@ void CyclingMapView::switchToMapView(MapViewBase* mapView)
   m_currentMapView->setFocus();
 }
 
-void CyclingMapView::flashSelection()
-{
-  m_currentMapView->flashSelection();
-}
-
 void CyclingMapView::installActivationTracker(MapViewActivationTracker& activationTracker)
 {
   for (auto* mapView : m_mapViews)
@@ -173,6 +168,11 @@ bool CyclingMapView::cancelMouseDrag()
     result = result || mapView->cancelMouseDrag();
   }
   return result;
+}
+
+void CyclingMapView::flashSelection()
+{
+  m_currentMapView->flashSelection();
 }
 
 void CyclingMapView::refreshViews()

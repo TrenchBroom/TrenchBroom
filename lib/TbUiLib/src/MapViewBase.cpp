@@ -902,13 +902,6 @@ ActionContext::Type MapViewBase::actionContext() const
   return viewContext | toolContext | selectionContext;
 }
 
-void MapViewBase::flashSelection()
-{
-  auto animation =
-    std::make_unique<FlashSelectionAnimation>(m_document.mapRenderer(), this, 180);
-  m_animationManager->runAnimation(std::move(animation), true);
-}
-
 void MapViewBase::installActivationTracker(MapViewActivationTracker& activationTracker)
 {
   activationTracker.addWindow(this);
@@ -927,6 +920,13 @@ MapViewBase* MapViewBase::firstMapViewBase()
 bool MapViewBase::cancelMouseDrag()
 {
   return ToolBoxConnector::cancelDrag();
+}
+
+void MapViewBase::flashSelection()
+{
+  auto animation =
+    std::make_unique<FlashSelectionAnimation>(m_document.mapRenderer(), this, 300);
+  m_animationManager->runAnimation(std::move(animation), true);
 }
 
 void MapViewBase::refreshViews()

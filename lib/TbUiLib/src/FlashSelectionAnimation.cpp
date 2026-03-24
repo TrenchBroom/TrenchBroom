@@ -24,6 +24,8 @@
 #include "Color.h"
 #include "render/MapRenderer.h"
 
+#include <cmath>
+
 namespace tb::ui
 {
 const Animation::Type FlashSelectionAnimation::AnimationType = Animation::freeType();
@@ -38,15 +40,17 @@ FlashSelectionAnimation::FlashSelectionAnimation(
 
 void FlashSelectionAnimation::doUpdate(const double progress)
 {
-  static const auto white = RgbaF{1.0f, 1.0f, 1.0f, 1.0f};
+  static constexpr auto flashCount = 2.0;
+  static constexpr auto white = RgbaF{1.0f, 1.0f, 1.0f, 1.0f};
 
-  const auto fltProgress = static_cast<float>(progress);
-  if (fltProgress < 1.0f)
+  if (progress < 1.0)
   {
+    const auto flashProgress = progress * flashCount - std::floor(progress * flashCount);
+
     // factor ranges from 0 to 1 and then back to 0
     const auto factor =
-      fltProgress < 0.5f ? 2.0f * fltProgress : 1.0f - 2.0f * (fltProgress - 0.5f);
-    m_renderer.overrideSelectionColors(white, factor * 0.8f);
+      flashProgress < 0.5 ? 2.0 * flashProgress : 1.0 - 2.0 * (flashProgress - 0.5);
+    m_renderer.overrideSelectionColors(white, float(factor * 0.8));
   }
   else
   {

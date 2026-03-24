@@ -298,14 +298,12 @@ public:
   ActionContext::Type actionContext() const;
   virtual ActionContext::Type viewActionContext() const = 0;
 
-public: // implement ViewEffectsService interface
-  void flashSelection() override;
-
 public: // implement MapView interface
   void installActivationTracker(MapViewActivationTracker& activationTracker) override;
   bool isCurrent() const override;
   MapViewBase* firstMapViewBase() override;
   bool cancelMouseDrag() override;
+  void flashSelection() override;
   void refreshViews() override;
 
 protected: // RenderView overrides
