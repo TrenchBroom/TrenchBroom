@@ -182,7 +182,7 @@ TEST_CASE("Map_Nodes")
         deselectAll(map);
 
         using CreateNode = std::function<Node*(const Map&)>;
-        CreateNode createNode = GENERATE_COPY(
+        const auto createNode = GENERATE_COPY(
           CreateNode{[](const auto&) -> Node* { return new EntityNode{Entity{}}; }},
           CreateNode{[](const auto& m) -> Node* { return createBrushNode(m); }},
           CreateNode{[](const auto&) -> Node* { return createPatchNode(); }});
@@ -850,7 +850,7 @@ TEST_CASE("Map_Nodes")
       auto* brushNode = createBrushNode(map);
 
       using CreateNode = std::function<Node*(const Map&)>;
-      CreateNode createNode = GENERATE_COPY(
+      const auto createNode = GENERATE_COPY(
         CreateNode{[](const auto&) -> Node* { return new EntityNode{Entity{}}; }},
         CreateNode{[](const auto& m) -> Node* { return createBrushNode(m); }},
         CreateNode{[](const auto&) -> Node* { return createPatchNode(); }});
