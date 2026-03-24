@@ -20,6 +20,7 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <vector>
 
 namespace tb::ui::SystemPaths
@@ -34,6 +35,11 @@ std::filesystem::path appFile();
  * .app bundle on macOS).
  */
 std::filesystem::path appDirectory();
+
+/**
+ * Returns the path to the AppImage file if the application is running as an AppImage.
+ */
+std::optional<std::filesystem::path> appImageFile();
 
 /**
  * Returns the directory where configs should be written

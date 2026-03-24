@@ -21,6 +21,7 @@
 #pragma once
 
 #include <optional>
+#include <type_traits>
 
 namespace kdl
 {
@@ -86,6 +87,26 @@ constexpr auto operator|(const std::optional<T>& o, const transform_helper<F>& h
   return o ? std::optional{h.f(*o)} : std::nullopt;
 }
 
+// Type acts as a tag to find the correct operator| overload
+template <typename X>
+struct value_or_helper
+{
+  X x;
+};
+
+// This actually does the work
+template <typename T, typename X>
+constexpr auto operator|(std::optional<T>&& o, value_or_helper<X>&& h)
+{
+  return std::move(o).value_or(std::move(h.x));
+}
+
+template <typename T, typename X>
+constexpr auto operator|(const std::optional<T>& o, value_or_helper<X>&& h)
+{
+  return o.value_or(std::move(h.x));
+}
+
 } // namespace detail
 
 template <typename F>
@@ -104,6 +125,12 @@ template <typename F>
 constexpr auto optional_transform(const F& f)
 {
   return detail::transform_helper<F>{f};
+}
+
+template <typename X>
+constexpr auto optional_value_or(X&& x)
+{
+  return detail::value_or_helper<X>{std::forward<X>(x)};
 }
 
 } // namespace kdl

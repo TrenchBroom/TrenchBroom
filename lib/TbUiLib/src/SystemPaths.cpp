@@ -29,7 +29,10 @@
 #include "fs/PathInfo.h"
 #include "ui/QPathUtils.h"
 
+#include "kd/optional_utils.h"
+
 #include <algorithm>
+#include <cstdlib>
 #include <vector>
 
 namespace tb::ui::SystemPaths
@@ -54,12 +57,32 @@ std::filesystem::path appDirectory()
   return pathFromQString(QCoreApplication::applicationDirPath());
 }
 
+std::optional<std::filesystem::path> appImageFile()
+{
+#if defined __linux__ || defined __FreeBSD__
+  if (const auto* appImagePath = std::getenv("APPIMAGE"))
+  {
+    if (const auto appImagePathStr = std::string{appImagePath}; !appImagePathStr.empty())
+    {
+      return std::filesystem::path{appImagePathStr};
+    }
+  }
+#endif
+
+  return std::nullopt;
+}
+
 std::filesystem::path userDataDirectory()
 {
   if (isPortable())
   {
-    return appDirectory() / "config";
+    const auto parentPath =
+      appImageFile()
+      | kdl::optional_transform([](const auto& path) { return path.parent_path(); })
+      | kdl::optional_value_or(appDirectory());
+    return parentPath / "config";
   }
+
 #if defined __linux__ || defined __FreeBSD__
   // Compatibility with wxWidgets
   return pathFromQString(QDir::homePath()) / ".TrenchBroom";
