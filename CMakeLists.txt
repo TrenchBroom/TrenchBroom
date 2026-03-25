@@ -109,6 +109,36 @@ if(TB_ENABLE_UBSAN)
   endif()
 endif()
 
+# Enable gcov-compatible coverage if requested
+if(TB_ENABLE_GCOV)
+  message(STATUS "Enabling gcov coverage")
+
+  if(COMPILER_IS_CLANG OR COMPILER_IS_GNU)
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+  else()
+    message(WARNING "TB isn't set up to enable gcov coverage for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+endif()
+
+# Enable LLVM source-based coverage if requested
+if(TB_ENABLE_LCOV)
+  message(STATUS "Enabling LLVM source-based coverage")
+  message(STATUS "To generate coverage profiles when running tests, use:")
+  message(STATUS "  LLVM_PROFILE_FILE=default.profraw <test-executable>")
+
+  if(TB_ENABLE_GCOV)
+    message(WARNING "Both TB_ENABLE_GCOV and TB_ENABLE_LCOV are enabled; this combination is not recommended")
+  endif()
+
+  if(COMPILER_IS_CLANG)
+    add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
+    add_link_options(-fprofile-instr-generate)
+  else()
+    message(WARNING "TB isn't set up to enable LLVM source-based coverage for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+endif()
+
 include(cmake/Utils.cmake)
 include(cmake/CompilerConfig.cmake)
 include(cmake/PrecompileHeaders.cmake)
