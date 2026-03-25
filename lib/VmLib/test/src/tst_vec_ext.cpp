@@ -35,32 +35,32 @@ using namespace Catch::Matchers;
 
 TEST_CASE("vec_ext.operator_plus_vector")
 {
-  const auto in = std::vector<vec3f>{vec3f(1, 2, 3), vec3f(2, 3, 4)};
-  const auto exp = std::vector<vec3f>{vec3f(0, 3, 1), vec3f(1, 4, 2)};
-  CHECK_THAT(in + vec3f(-1, +1, -2), Equals(exp));
-  CHECK_THAT(vec3f(-1, +1, -2) + in, Equals(exp));
+  const auto in = std::vector<vec3f>{vec3f{1, 2, 3}, vec3f{2, 3, 4}};
+  const auto exp = std::vector<vec3f>{vec3f{0, 3, 1}, vec3f{1, 4, 2}};
+  CHECK_THAT((in + vec3f{-1, +1, -2}), Equals(exp));
+  CHECK_THAT((vec3f{-1, +1, -2} + in), Equals(exp));
 }
 
 TEST_CASE("vec_ext.operator_plus_array")
 {
-  constexpr auto in = std::array<vec3f, 2>{vec3f(1, 2, 3), vec3f(2, 3, 4)};
-  constexpr auto exp = std::array<vec3f, 2>{vec3f(0, 3, 1), vec3f(1, 4, 2)};
-  CHECK(in + vec3f(-1, +1, -2) == exp);
-  CHECK(vec3f(-1, +1, -2) + in == exp);
+  constexpr auto in = std::array<vec3f, 2>{vec3f{1, 2, 3}, vec3f{2, 3, 4}};
+  constexpr auto exp = std::array<vec3f, 2>{vec3f{0, 3, 1}, vec3f{1, 4, 2}};
+  CHECK(in + vec3f{-1, +1, -2} == exp);
+  CHECK(vec3f{-1, +1, -2} + in == exp);
 }
 
 TEST_CASE("vec_ext.operator_multiply_vector")
 {
-  const auto in = std::vector<vec3f>{vec3f(1, 2, 3), vec3f(2, 3, 4)};
-  const auto exp = std::vector<vec3f>{vec3f(3, 6, 9), vec3f(6, 9, 12)};
+  const auto in = std::vector<vec3f>{vec3f{1, 2, 3}, vec3f{2, 3, 4}};
+  const auto exp = std::vector<vec3f>{vec3f{3, 6, 9}, vec3f{6, 9, 12}};
   CHECK_THAT(in * 3.0f, Equals(exp));
   CHECK_THAT(3.0f * in, Equals(exp));
 }
 
 TEST_CASE("vec_ext.operator_multiply_array")
 {
-  constexpr auto in = std::array<vec3f, 2>{vec3f(1, 2, 3), vec3f(2, 3, 4)};
-  constexpr auto exp = std::array<vec3f, 2>{vec3f(3, 6, 9), vec3f(6, 9, 12)};
+  constexpr auto in = std::array<vec3f, 2>{vec3f{1, 2, 3}, vec3f{2, 3, 4}};
+  constexpr auto exp = std::array<vec3f, 2>{vec3f{3, 6, 9}, vec3f{6, 9, 12}};
   CHECK(in * 3.0f == exp);
   CHECK(3.0f * in == exp);
 }
