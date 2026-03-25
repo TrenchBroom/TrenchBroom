@@ -19,6 +19,18 @@
 - Use --list-tests to discover available tests and Catch2 filters to run a focused subset.
 - Use Build.md for platform-specific setup and dependency details.
 
+### Code coverage
+- **Enable coverage instrumentation**: Pass `-DTB_ENABLE_GCOV=1` for gcov-compatible coverage (works with GCC or Clang) or `-DTB_ENABLE_LCOV=1` for LLVM source-based coverage (Clang only).
+- **Generate coverage data**: 
+  - For gcov: Build and run tests normally. `.gcno` and `.gcda` files are automatically generated in the build tree.
+  - For LLVM/lcov: Run tests with `LLVM_PROFILE_FILE=default.profraw <test-executable>` to generate `.profraw` profile data.
+- **Analyze coverage**: Use coverage tools to identify uncovered code paths, untested branches, and low-coverage functions.
+- **Guide test improvements**: When reviewing or creating tests, examine coverage reports to identify and address gaps:
+  - Suggest new tests for uncovered code paths or error conditions.
+  - Improve existing tests to cover branch conditions not yet exercised.
+  - Identify edge cases or exception handling that lack test coverage.
+- **Reference coverage in commit messages**: When submitting test improvements motivated by coverage analysis, mention that coverage-guided testing was used to identify gaps.
+
 ## Test structure
 - For each compilation unit, tests are usually in one file named tst_<CompilationUnit>.cpp.
 - Prefer one test case per class.
