@@ -22,11 +22,13 @@
 #include "test_utils.h"
 
 #include "vm/bbox.h"
-#include "vm/bbox_io.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
+#include <array>
 #include <sstream>
+#include <tuple>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -87,6 +89,14 @@ TEST_CASE("bbox.merge_all")
   constexpr auto merged = bbox3d::merge_all(std::begin(points), std::end(points));
   CER_CHECK(merged.min == min);
   CER_CHECK(merged.max == max);
+
+  constexpr auto offset = vec3d{1, -2, 3};
+  constexpr auto translated =
+    bbox3d::merge_all(std::begin(points), std::end(points), [&](const auto& point) {
+      return point + offset;
+    });
+  CER_CHECK(translated.min == merged.min + offset);
+  CER_CHECK(translated.max == merged.max + offset);
 }
 
 TEST_CASE("bbox.is_valid")
@@ -221,11 +231,22 @@ TEST_CASE("bbox.corner_position")
 TEST_CASE("bbox.relative_position")
 {
   constexpr auto bounds = bbox3f(vec3f(-12.0f, -3.0f, 4.0f), vec3f(8.0f, 9.0f, 8.0f));
-  constexpr auto point1 = vec3f(-1.0f, 0.0f, 0.0f);
-  constexpr auto pos1 = bounds.relative_position(point1);
-  CER_CHECK(pos1[0] == bbox3f::range::within);
-  CER_CHECK(pos1[1] == bbox3f::range::within);
-  CER_CHECK(pos1[2] == bbox3f::range::less);
+
+  SECTION("point within")
+  {
+    constexpr auto pos = bounds.relative_position(vec3f(0.0f, 0.0f, 6.0f));
+    CER_CHECK(pos[0] == bbox3f::range::within);
+    CER_CHECK(pos[1] == bbox3f::range::within);
+    CER_CHECK(pos[2] == bbox3f::range::within);
+  }
+
+  SECTION("point less and greater mix")
+  {
+    constexpr auto pos = bounds.relative_position(vec3f(-13.0f, 10.0f, 7.0f));
+    CER_CHECK(pos[0] == bbox3f::range::less);
+    CER_CHECK(pos[1] == bbox3f::range::greater);
+    CER_CHECK(pos[2] == bbox3f::range::within);
+  }
 }
 
 TEST_CASE("bbox.expand")
@@ -329,6 +350,12 @@ TEST_CASE("bbox.intersect")
   CER_CHECK(intersect(b1, b3) == bbox3d(vec3d(0, 0, 0), vec3d(0, 0, 0)));
   CER_CHECK(intersect(b3, b1) == bbox3d(vec3d(0, 0, 0), vec3d(0, 0, 0)));
   CER_CHECK(intersect(b2, b3) == bbox3d(vec3d(0, 0, 0), vec3d(0, 0, 0)));
+
+  constexpr auto b4 = bbox3d(vec3d(10, -5, -5), vec3d(15, 5, 5));
+  CER_CHECK(intersect(b1, b4) == bbox3d(vec3d(10, -5, -5), vec3d(10, 5, 5)));
+
+  constexpr auto b5 = bbox3d(vec3d(10, 10, 10), vec3d(15, 15, 15));
+  CER_CHECK(intersect(b1, b5) == bbox3d(vec3d(10, 10, 10), vec3d(10, 10, 10)));
 }
 
 TEST_CASE("bbox.stream_insertion")
@@ -390,5 +417,91 @@ TEST_CASE("bbox_builder.add_one_bbox")
 
   CHECK(builder.initialized());
   CHECK(builder.bounds() == bbox);
+}
+
+TEST_CASE("bbox_builder.add_two_bboxes")
+{
+  const auto first = vm::bbox3f(vec3f(2, 3, 4), vec3f(5, 6, 7));
+  const auto second = vm::bbox3f(vec3f(0, 4, 3), vec3f(6, 8, 9));
+
+  vm::bbox3f::builder builder;
+  builder.add(first);
+  builder.add(second);
+
+  CHECK(builder.initialized());
+  CHECK(builder.bounds() == vm::bbox3f(vec3f(0, 3, 3), vec3f(6, 8, 9)));
+}
+
+TEST_CASE("bbox.for_each_vertex")
+{
+  const auto b = bbox3d(vec3d(0, 0, 0), vec3d(2, 4, 6));
+  auto vertices = std::vector<vec3d>{};
+  b.for_each_vertex([&](const vec3d& v) { vertices.push_back(v); });
+
+  REQUIRE(vertices.size() == 8);
+  // top ring clockwise viewed from above
+  CHECK(vertices[0] == vec3d(2, 4, 6));
+  CHECK(vertices[1] == vec3d(2, 0, 6));
+  CHECK(vertices[2] == vec3d(0, 0, 6));
+  CHECK(vertices[3] == vec3d(0, 4, 6));
+  // bottom ring clockwise viewed from below
+  CHECK(vertices[4] == vec3d(0, 0, 0));
+  CHECK(vertices[5] == vec3d(2, 0, 0));
+  CHECK(vertices[6] == vec3d(2, 4, 0));
+  CHECK(vertices[7] == vec3d(0, 4, 0));
+}
+
+TEST_CASE("bbox.for_each_edge")
+{
+  const auto b = bbox3d(vec3d(0, 0, 0), vec3d(2, 4, 6));
+  auto edges = std::vector<std::tuple<vec3d, vec3d>>{};
+  b.for_each_edge([&](const vec3d& a, const vec3d& e) { edges.emplace_back(a, e); });
+
+  REQUIRE(edges.size() == 12);
+  // top ring
+  CHECK(edges[0] == std::tuple(vec3d(2, 4, 6), vec3d(2, 0, 6)));
+  CHECK(edges[1] == std::tuple(vec3d(2, 0, 6), vec3d(0, 0, 6)));
+  CHECK(edges[2] == std::tuple(vec3d(0, 0, 6), vec3d(0, 4, 6)));
+  CHECK(edges[3] == std::tuple(vec3d(0, 4, 6), vec3d(2, 4, 6)));
+  // bottom ring
+  CHECK(edges[4] == std::tuple(vec3d(0, 0, 0), vec3d(2, 0, 0)));
+  CHECK(edges[5] == std::tuple(vec3d(2, 0, 0), vec3d(2, 4, 0)));
+  CHECK(edges[6] == std::tuple(vec3d(2, 4, 0), vec3d(0, 4, 0)));
+  CHECK(edges[7] == std::tuple(vec3d(0, 4, 0), vec3d(0, 0, 0)));
+  // side edges
+  CHECK(edges[8] == std::tuple(vec3d(0, 0, 0), vec3d(0, 0, 6)));
+  CHECK(edges[9] == std::tuple(vec3d(0, 4, 0), vec3d(0, 4, 6)));
+  CHECK(edges[10] == std::tuple(vec3d(2, 4, 0), vec3d(2, 4, 6)));
+  CHECK(edges[11] == std::tuple(vec3d(2, 0, 0), vec3d(2, 0, 6)));
+}
+
+TEST_CASE("bbox.for_each_face")
+{
+  const auto b = bbox3d(vec3d(0, 0, 0), vec3d(2, 4, 6));
+  auto normals = std::vector<vec3d>{};
+  b.for_each_face(
+    [&](const vec3d&, const vec3d&, const vec3d&, const vec3d&, const vec3d& n) {
+      normals.push_back(n);
+    });
+
+  REQUIRE(normals.size() == 6);
+  CHECK(normals[0] == vec3d(0, 0, +1)); // top
+  CHECK(normals[1] == vec3d(0, 0, -1)); // bottom
+  CHECK(normals[2] == vec3d(0, -1, 0)); // front
+  CHECK(normals[3] == vec3d(0, +1, 0)); // back
+  CHECK(normals[4] == vec3d(-1, 0, 0)); // left
+  CHECK(normals[5] == vec3d(+1, 0, 0)); // right
+}
+
+TEST_CASE("bbox.projections")
+{
+  const auto b = bbox3d(vec3d(1, 2, 3), vec3d(4, 5, 6));
+
+  CHECK(b.x() == bbox1d(vec<double, 1>(1), vec<double, 1>(4)));
+  CHECK(b.y() == bbox1d(vec<double, 1>(2), vec<double, 1>(5)));
+  CHECK(b.z() == bbox1d(vec<double, 1>(3), vec<double, 1>(6)));
+  CHECK(b.xy() == bbox2d(vec2d(1, 2), vec2d(4, 5)));
+  CHECK(b.xz() == bbox2d(vec2d(1, 3), vec2d(4, 6)));
+  CHECK(b.yz() == bbox2d(vec2d(2, 3), vec2d(5, 6)));
 }
 } // namespace vm
