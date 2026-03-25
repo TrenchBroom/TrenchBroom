@@ -78,7 +78,7 @@ void LinkRenderer::renderLines(RenderContext& renderContext)
   {
     gl.disable(GL_DEPTH_TEST);
     shader.set("Alpha", 0.4f);
-    m_lines.render(gl, gl::PrimType::Quads);
+    m_lines.render(gl, gl::PrimType::Lines);
 
     gl.enable(GL_DEPTH_TEST);
     shader.set("Alpha", 1.0f);
