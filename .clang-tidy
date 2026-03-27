@@ -18,6 +18,7 @@ Checks: >
   modernize-return-braced-init-list,
   modernize-type-traits,
   modernize-use-auto,
+  modernize-use-braced-init-list,
   modernize-use-default,
   modernize-use-emplace,
   modernize-use-nullptr,

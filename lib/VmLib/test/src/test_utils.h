@@ -21,20 +21,20 @@
 
 #pragma once
 
-#define CE_CHECK(expr)                                                                   \
+#define CE_CHECK(...)                                                                    \
   {                                                                                      \
-    constexpr auto _r_r = (expr);                                                        \
+    constexpr auto _r_r = (__VA_ARGS__);                                                 \
     CHECK(_r_r);                                                                         \
   }
-#define CER_CHECK(expr)                                                                  \
-  CHECK(expr);                                                                           \
-  CE_CHECK(expr);
+#define CER_CHECK(...)                                                                   \
+  CHECK((__VA_ARGS__));                                                                  \
+  CE_CHECK(__VA_ARGS__);
 
-#define CE_CHECK_FALSE(expr)                                                             \
+#define CE_CHECK_FALSE(...)                                                              \
   {                                                                                      \
-    constexpr auto _r_r = (expr);                                                        \
+    constexpr auto _r_r = (__VA_ARGS__);                                                 \
     CHECK_FALSE(_r_r);                                                                   \
   }
-#define CER_CHECK_FALSE(expr)                                                            \
-  CHECK_FALSE(expr);                                                                     \
-  CE_CHECK_FALSE(expr);
+#define CER_CHECK_FALSE(...)                                                             \
+  CHECK_FALSE((__VA_ARGS__));                                                            \
+  CE_CHECK_FALSE(__VA_ARGS__);
