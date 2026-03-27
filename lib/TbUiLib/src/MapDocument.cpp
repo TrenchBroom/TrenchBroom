@@ -417,6 +417,8 @@ void MapDocument::connectMapObservers()
   m_notifierConnection += m_map->nodesWillChangeNotifier.connect(nodesWillChangeNotifier);
   m_notifierConnection += m_map->nodesDidChangeNotifier.connect(nodesDidChangeNotifier);
   m_notifierConnection +=
+    m_map->nodeVisibilityDidChangeNotifier.connect(nodeVisibilityDidChangeNotifier);
+  m_notifierConnection +=
     m_map->nodeLockingDidChangeNotifier.connect(nodeLockingDidChangeNotifier);
   m_notifierConnection += m_map->groupWasOpenedNotifier.connect(groupWasOpenedNotifier);
   m_notifierConnection += m_map->groupWasClosedNotifier.connect(groupWasClosedNotifier);
