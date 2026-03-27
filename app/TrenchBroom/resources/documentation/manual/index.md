@@ -455,6 +455,7 @@ This way of creating brushes only allows you to the simple shapes listed in the 
 Shape                  Description
 -----                  -----------
 Cuboid                 Creates a cuboid shape
+Stairs                 Creates stairs
 Cylinder               Creates a cylinder with a variable number of sides; potentially hollow
 Cone                   Creates a cone with a variable number of sides
 Spheroid (UV)          Creates a spheroid shape made up of triangles and quads with two poles

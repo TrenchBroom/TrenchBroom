@@ -154,6 +154,34 @@ void ShapeParameters::setAccuracy(const size_t accuracy)
   }
 }
 
+double ShapeParameters::stepHeight() const
+{
+  return m_stepHeight;
+}
+
+void ShapeParameters::setStepHeight(const double stepHeight)
+{
+  if (stepHeight != m_stepHeight)
+  {
+    m_stepHeight = stepHeight;
+    parametersDidChangeNotifier();
+  }
+}
+
+ShapeParameters::StairDirection ShapeParameters::stairDirection() const
+{
+  return m_stairDirection;
+}
+
+void ShapeParameters::setStairDirection(const StairDirection stairDirection)
+{
+  if (stairDirection != m_stairDirection)
+  {
+    m_stairDirection = stairDirection;
+    parametersDidChangeNotifier();
+  }
+}
+
 DrawShapeToolExtension::DrawShapeToolExtension(MapDocument& document)
   : m_document{document}
 {
