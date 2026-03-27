@@ -152,6 +152,8 @@ private:
   void entityDefinitionsDidChange();
   void modsDidChange();
   void editorContextDidChange();
+  void nodeVisibilityDidChange(const std::vector<mdl::Node*>&);
+  void nodeLockingDidChange(const std::vector<mdl::Node*>&);
   void gridDidChange();
   void pointFileDidChange();
   void portalFileDidChange();

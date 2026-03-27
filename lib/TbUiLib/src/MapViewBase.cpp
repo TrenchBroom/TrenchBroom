@@ -246,6 +246,16 @@ void MapViewBase::editorContextDidChange()
   update();
 }
 
+void MapViewBase::nodeVisibilityDidChange(const std::vector<mdl::Node*>&)
+{
+  update();
+}
+
+void MapViewBase::nodeLockingDidChange(const std::vector<mdl::Node*>&)
+{
+  update();
+}
+
 void MapViewBase::gridDidChange()
 {
   update();
