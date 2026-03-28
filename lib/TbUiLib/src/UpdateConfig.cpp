@@ -77,13 +77,7 @@ std::optional<std::filesystem::path> getAppFolderPath()
 #elif defined(__APPLE__)
   return SystemPaths::appDirectory().parent_path().parent_path();
 #else
-  auto appImage = std::string_view{std::getenv("APPIMAGE")};
-  if (!appImage.empty() && appImage.back() == '/')
-  {
-    appImage.remove_suffix(1);
-  }
-  return !appImage.empty() ? std::optional{std::filesystem::path{appImage}}
-                           : std::nullopt;
+  return SystemPaths::appImageFile();
 #endif
 }
 
