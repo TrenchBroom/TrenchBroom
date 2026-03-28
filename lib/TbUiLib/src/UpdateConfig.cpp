@@ -110,8 +110,9 @@ bool getRequiresAdminPrivileges([[maybe_unused]] const std::filesystem::path& ta
   Q_ASSERT(qAreNtfsPermissionChecksEnabled());
 
   return !checkPathWritable(targetPath);
-#endif
+#else
   return false;
+#endif
 }
 
 auto getRelativeAppPath()
