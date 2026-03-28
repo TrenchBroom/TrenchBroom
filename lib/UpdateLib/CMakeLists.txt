@@ -38,7 +38,7 @@ target_sources(UpdateLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/update/Updater.h
 )
 
-target_link_libraries(UpdateLib PRIVATE CompilerConfig)
+target_link_libraries(UpdateLib PRIVATE CompilerConfig miniz::miniz)
 target_link_libraries(UpdateLib PUBLIC Qt6::Widgets Qt6::Network)
 
 set_target_properties(UpdateLib PROPERTIES AUTOMOC TRUE)
