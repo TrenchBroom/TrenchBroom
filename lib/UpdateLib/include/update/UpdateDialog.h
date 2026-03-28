@@ -23,6 +23,8 @@
 
 #include "update/UpdateController.h"
 
+class QStackedLayout;
+
 namespace upd
 {
 
@@ -79,13 +81,21 @@ class UpdatePendingWidget : public QWidget
 private:
   const UpdatePendingState& m_updatePendingState;
 
+  QStackedLayout* m_stackedLayout = nullptr;
+
 public:
   explicit UpdatePendingWidget(
     const UpdatePendingState& updatePendingState, UpdateDialog* dialog);
 
 private:
-  QWidget* createRequiresAdminPrivilegesWidget(
-    const UpdatePendingState& updatePendingState) const;
+  QWidget* createUpdateReadyWidget(UpdateDialog* dialog);
+  QWidget* createUpdateWarningWidget(UpdateDialog* dialog);
+  QWidget* createRequiresAdminPrivilegesWidget() const;
+
+  void installUpdateOrShowUpdateWarning(UpdateDialog* dialog);
+  void installUpdate(UpdateDialog* dialog) const;
+  void showUpdateWarning();
+  void cancelUpdate(UpdateDialog* dialog);
 };
 
 class UpdateErrorWidget : public QWidget

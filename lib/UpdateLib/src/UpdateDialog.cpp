@@ -25,6 +25,7 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QStackedLayout>
 #include <QTimer>
 
 #include "update/Overload.h"
@@ -33,6 +34,20 @@
 
 namespace upd
 {
+namespace
+{
+
+void quitAppAndUpdate(UpdateController& updateController)
+{
+  QCoreApplication::quit();
+  QTimer::singleShot(0, [&]() {
+    // this timer is only executed if the quit event is ignored
+    // in that case, we reset the restart flag to false
+    updateController.setRestartApp(false);
+  });
+}
+
+} // namespace
 
 CheckingForUpdatesWidget::CheckingForUpdatesWidget(
   const CheckingForUpdatesState&, UpdateDialog* dialog)
@@ -251,59 +266,106 @@ UpdatePendingWidget::UpdatePendingWidget(
 {
   using namespace std::chrono_literals;
 
-  auto* header = new QLabel{tr("Update ready to install!")};
+  auto* header = new QLabel{QObject::tr("Update ready to install!")};
   auto font = header->font();
   font.setPointSize(static_cast<int>(1.5f * static_cast<float>(font.pointSize())));
   font.setBold(true);
   header->setFont(font);
 
-  auto* info = new QLabel{tr(
-    R"(The update is now ready to be installed. Alternatively, you can install it later when the application quits.)")};
-  info->setWordWrap(true);
-
-  auto* privilegesInfo = createRequiresAdminPrivilegesWidget(updatePendingState);
-
-  auto* buttons = new QDialogButtonBox{};
-  buttons->addButton(new QPushButton{tr("Install now")}, QDialogButtonBox::AcceptRole);
-  buttons->addButton(new QPushButton{tr("Install later")}, QDialogButtonBox::RejectRole);
-
-  connect(buttons, &QDialogButtonBox::accepted, [dialog]() {
-    dialog->updateController().setRestartApp(true);
-    dialog->accept();
-
-    QCoreApplication::quit();
-    QTimer::singleShot(0, [&updateController = dialog->updateController()]() {
-      // this timer is only executed if the quit event is ignored
-      // in that case, we reset the restart flag to false
-      updateController.setRestartApp(false);
-    });
-  });
-
-  connect(buttons, &QDialogButtonBox::rejected, [dialog]() {
-    dialog->updateController().setRestartApp(false);
-    dialog->reject();
-  });
+  m_stackedLayout = new QStackedLayout{};
+  m_stackedLayout->addWidget(createUpdateReadyWidget(dialog));
+  m_stackedLayout->addWidget(createUpdateWarningWidget(dialog));
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(header);
   layout->addSpacing(20);
-  layout->addWidget(info);
+  layout->addLayout(m_stackedLayout);
   layout->addSpacing(10);
-  if (privilegesInfo)
-  {
-    layout->addWidget(privilegesInfo);
-    layout->addSpacing(10);
-  }
-  layout->addWidget(buttons);
 
   setLayout(layout);
 }
 
-QWidget* UpdatePendingWidget::createRequiresAdminPrivilegesWidget(
-  const UpdatePendingState& updatePendingState) const
+QWidget* UpdatePendingWidget::createUpdateReadyWidget(UpdateDialog* dialog)
 {
-  if (updatePendingState.requiresAdminPrivileges)
+  auto* info = new QLabel{QObject::tr(
+    R"(The update is now ready to be installed. Alternatively, you can install it later when the application quits.)")};
+  info->setWordWrap(true);
+
+  auto* privilegesInfo = createRequiresAdminPrivilegesWidget();
+
+  auto* installNowButton = new QPushButton{tr("Install now")};
+  auto* installLaterButton = new QPushButton{tr("Install later")};
+  auto* cancelButton = new QPushButton{tr("Cancel")};
+
+  auto* buttons = new QDialogButtonBox{};
+  buttons->addButton(installNowButton, QDialogButtonBox::ActionRole);
+  buttons->addButton(installLaterButton, QDialogButtonBox::ActionRole);
+  buttons->addButton(cancelButton, QDialogButtonBox::RejectRole);
+
+  connect(
+    buttons,
+    &QDialogButtonBox::clicked,
+    [&, dialog, installNowButton, installLaterButton](const auto* button) {
+      if (button == installNowButton)
+      {
+        dialog->updateController().setRestartApp(true);
+        installUpdateOrShowUpdateWarning(dialog);
+      }
+      else if (button == installLaterButton)
+      {
+        dialog->updateController().setRestartApp(false);
+        installUpdateOrShowUpdateWarning(dialog);
+      }
+      else
+      {
+        cancelUpdate(dialog);
+      }
+    });
+
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget(info);
+  if (privilegesInfo)
+  {
+    layout->addSpacing(10);
+    layout->addWidget(privilegesInfo);
+  }
+  layout->addSpacing(10);
+  layout->addWidget(buttons);
+
+  auto* widget = new QWidget{};
+  widget->setLayout(layout);
+  return widget;
+}
+
+QWidget* UpdatePendingWidget::createUpdateWarningWidget(UpdateDialog* dialog)
+{
+  auto* info = new QLabel{QObject::tr(
+    R"(Installing the update will replace the application folder and erase any custom files in it. Back up custom files in the application folder before proceeding.)")};
+  info->setWordWrap(true);
+
+  auto* buttons = new QDialogButtonBox{};
+  buttons->addButton(new QPushButton{tr("Continue")}, QDialogButtonBox::AcceptRole);
+  buttons->addButton(new QPushButton{tr("Cancel")}, QDialogButtonBox::RejectRole);
+
+  connect(buttons, &QDialogButtonBox::accepted, [&, dialog]() { installUpdate(dialog); });
+  connect(buttons, &QDialogButtonBox::rejected, [&, dialog]() { cancelUpdate(dialog); });
+
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget(info);
+  layout->addSpacing(10);
+  layout->addWidget(buttons);
+
+  auto* widget = new QWidget{};
+  widget->setLayout(layout);
+  return widget;
+}
+
+QWidget* UpdatePendingWidget::createRequiresAdminPrivilegesWidget() const
+{
+  if (m_updatePendingState.requiresAdminPrivileges)
   {
     auto* widget = new QWidget{};
 
@@ -328,6 +390,38 @@ QWidget* UpdatePendingWidget::createRequiresAdminPrivilegesWidget(
   }
 
   return nullptr;
+}
+
+void UpdatePendingWidget::installUpdateOrShowUpdateWarning(UpdateDialog* dialog)
+{
+  if (!m_updatePendingState.showUpdateWarning)
+  {
+    installUpdate(dialog);
+  }
+  else
+  {
+    showUpdateWarning();
+  }
+}
+
+void UpdatePendingWidget::installUpdate(UpdateDialog* dialog) const
+{
+  if (m_updatePendingState.restartApp)
+  {
+    quitAppAndUpdate(dialog->updateController());
+  }
+  dialog->accept();
+}
+
+void UpdatePendingWidget::showUpdateWarning()
+{
+  m_stackedLayout->setCurrentIndex(1);
+}
+
+void UpdatePendingWidget::cancelUpdate(UpdateDialog* dialog)
+{
+  dialog->updateController().reset();
+  dialog->reject();
 }
 
 UpdateErrorWidget::UpdateErrorWidget(

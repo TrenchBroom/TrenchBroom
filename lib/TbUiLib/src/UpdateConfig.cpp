@@ -115,6 +115,15 @@ bool getRequiresAdminPrivileges([[maybe_unused]] const std::filesystem::path& ta
 #endif
 }
 
+bool getShowUpdateWarning()
+{
+#if defined _WIN32
+  return true;
+#else
+  return false;
+#endif
+}
+
 auto getRelativeAppPath()
 {
 #if defined(_WIN32)
@@ -217,6 +226,7 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
   const auto logFilePath = getLogFilePath();
 
   const auto requiresAdminPrivileges = getRequiresAdminPrivileges(*appFolderPath);
+  const auto showUpdateWarning = getShowUpdateWarning();
 
   return upd::UpdateConfig{
     std::move(checkForUpdates),
@@ -228,6 +238,7 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
     pathAsQPath(scriptPath),
     pathAsQPath(*appFolderPath),
     requiresAdminPrivileges,
+    showUpdateWarning,
     pathAsQPath(relativeAppPath),
     pathAsQPath(workDirPath),
     pathAsQPath(logFilePath),
