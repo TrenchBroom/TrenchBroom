@@ -204,7 +204,7 @@ Right        #action(Controls/Camera/Move right)
 Up           #action(Controls/Camera/Move up)
 Down         #action(Controls/Camera/Move down)
 
-To adjust the movement speed of the these keyboard shortcuts, you can either go the [preferences](#mouse_input) and adjust the corresponding slider, or you can turn the mouse wheel while holding the right mouse button in the 3D view.
+To adjust the movement speed of these keyboard shortcuts, you can either go the [preferences](#mouse_input) and adjust the corresponding slider, or you can turn the mouse wheel while holding the right mouse button in the 3D view.
 
 ### Orbiting
 
@@ -974,6 +974,23 @@ Select the material you wish to replace in the left material browser. This brows
 ### Setting Face Attributes
 
 Face attributes control how materials are mapped onto brush faces. At the very least, every face has the attributes offset, scale, and angle. The offset allows you to shift a material on a face, the scale factors stretch the material, and by changing the angle you can rotate the material. Additionally, some engines have further attributes. Quake 2 adds surface flags and a surface value, and additional content flags. All of these values can be changed in different ways: There is a face attribute editor that allows you to enter the values directly, you can use keyboard shortcuts in the 3D viewport, or you can use the UV editor.
+
+#### Aligning, Justifying and Fitting Textures {#align_justify_fit_textures}
+
+To quickly align, justify or fit a texture to a brush face, you can select the face and use the buttons below the UV editor.
+
+Operation    Behavior
+---------    --------
+Align        Rotate the texture to make it parallel to a face edge.
+Justify      Change the offset to justify the texture to the face's bounding box in the selected direction.
+Fit          Change the scale to fit the texture (or a multiple of it) onto the face while keeping it justified.
+
+
+![Align, justify and fit buttons](images/AlignJustifyFit.png) Click one of the four triangle buttons to justify the texture against the face's bounding box. If the texture size in the chosen direction is a multiple of the face size along the same axis, you can press the justify button multiple times to step through different options. This can be helpful to justify a texture from a texture atlas. Hold shift when clicking to step through the options in the opposite direction.
+
+The lower three buttons are used to align and fit the texture. Click on the leftmost button to align the texture to the face edges. Click repeatedly to cycle through the face edges. Hold shift while clicking to cycle in the opposite direction. The two remaining buttons fit the texture horizontally and vertically. Again, you can click again to cycle through different fitting options. Repeated clicks will stretch the texture with powers of two as factors. Again, hold shift to cycle through the options in the opposite direction.
+
+The button in the center of the four justification arrows auto fits the texture, i.e. it aligns, justifies and fits the texture.
 
 #### The Face Attribute Editor {#face_attribute_editor}
 
@@ -2925,7 +2942,7 @@ If you have an idea for a nice feature that you're missing in TrenchBroom, then 
 
 ## Reporting Bugs {#reporting_bugs}
 
-You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the the following information:
+You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the following information:
 
 - *TrenchBroom version*: e.g., "*"Version 2.0.0 f335082 D" see below
 - *Operation system and version*: e.g. "Windows 7 64bit"

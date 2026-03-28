@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/ActiveShader.h"
+#include "gl/OrthographicCamera.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/VertexType.h"
@@ -59,7 +60,7 @@ namespace
 std::tuple<vm::line3d, vm::line3d> computeOriginHandles(const UVViewHelper& helper)
 {
   const auto toWorld =
-    helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+    helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
   const auto origin = vm::vec3d{helper.originInFaceCoords()};
   const auto linePoint = toWorld * origin;
@@ -89,7 +90,7 @@ vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
   const auto distance = *vm::intersect_ray_plane(ray, boundary);
   const auto hitPoint = vm::point_at_distance(ray, distance);
   const auto transform =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   return vm::vec2f{transform * hitPoint};
 }
 
@@ -109,13 +110,13 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   // coordinates and snap the delta to the distance.
 
   const auto w2fTransform =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto w2tTransform = helper.face()->toUVCoordSystemMatrix(
-    helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
+    helper.face()->attributes().offset(), helper.face()->attributes().scale());
   const auto f2wTransform =
-    helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+    helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto t2wTransform = helper.face()->fromUVCoordSystemMatrix(
-    helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
+    helper.face()->attributes().offset(), helper.face()->attributes().scale());
   const auto f2tTransform = w2tTransform * f2wTransform;
   const auto t2fTransform = w2fTransform * t2wTransform;
 
@@ -208,7 +209,7 @@ private:
     const size_t segments,
     const bool fill)
   {
-    const float zoom = helper.cameraZoom();
+    const float zoom = helper.camera().zoom();
     return render::Circle{radius / zoom, segments, fill};
   }
 
@@ -222,7 +223,7 @@ private:
     auto& gl = renderContext.gl();
 
     const auto fromFace =
-      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
@@ -331,14 +332,14 @@ void UVOriginTool::pick(const InputState& inputState, mdl::PickResult& pickResul
     const auto [xHandle, yHandle] = computeOriginHandles(m_helper);
 
     const auto fromTex =
-      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
     const auto origin = fromTex * vm::vec3d{m_helper.originInFaceCoords()};
 
     const auto& pickRay = inputState.pickRay();
     const auto oDistance = vm::distance(pickRay, origin);
     if (
       oDistance.distance
-      <= static_cast<double>(OriginHandleRadius / m_helper.cameraZoom()))
+      <= static_cast<double>(OriginHandleRadius / m_helper.camera().zoom()))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
       pickResult.addHit(mdl::Hit{
@@ -355,7 +356,7 @@ void UVOriginTool::pick(const InputState& inputState, mdl::PickResult& pickResul
       contract_assert(!yDistance.parallel);
 
       const auto maxDistance =
-        MaxPickDistance / static_cast<double>(m_helper.cameraZoom());
+        MaxPickDistance / static_cast<double>(m_helper.camera().zoom());
       if (xDistance.distance <= maxDistance)
       {
         const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);

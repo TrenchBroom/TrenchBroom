@@ -8,16 +8,17 @@ add_executable(DumpShortcuts
   ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
 )
 
-target_link_libraries(DumpShortcuts PRIVATE CompilerConfig)
-
-target_link_libraries(DumpShortcuts PRIVATE 
-  KdLib
-  TbBaseLib
-  TbMdlLib
-  TbPreferencesLib
-  TbUiLib
-  Qt6::Widgets
+target_link_libraries(DumpShortcuts 
+  PRIVATE 
+    CompilerConfig
+    KdLib
+    TbBaseLib
+    TbMdlLib
+    TbPreferencesLib
+    TbUiLib
+    Qt6::Widgets
 )
+
 set_target_properties(DumpShortcuts PROPERTIES AUTOMOC TRUE)
 
 if(WIN32)

@@ -37,7 +37,7 @@ namespace tb::mdl
 namespace
 {
 
-const vm::vec3d BaseAxes[] = {
+constexpr auto BaseAxes = std::array<vm::vec3d, 3 * 6>{{
   {0.0, 0.0, 1.0},
   {1.0, 0.0, 0.0},
   {0.0, -1.0, 0.0},
@@ -56,7 +56,7 @@ const vm::vec3d BaseAxes[] = {
   {0.0, -1.0, 0.0},
   {1.0, 0.0, 0.0},
   {0.0, 0.0, -1.0},
-};
+}};
 
 struct ParaxialAttribs
 {
@@ -583,14 +583,6 @@ void ParaxialUVCoordSystem::resetToParaxial(
 void ParaxialUVCoordSystem::resetToParallel(
   const vm::vec3d& /* normal */, const float /* angle */)
 {
-}
-
-vm::vec2f ParaxialUVCoordSystem::uvCoords(
-  const vm::vec3d& point,
-  const BrushFaceAttributes& attribs,
-  const vm::vec2f& textureSize) const
-{
-  return (computeUVCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
 }
 
 void ParaxialUVCoordSystem::setRotation(

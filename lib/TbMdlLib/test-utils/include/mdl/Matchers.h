@@ -20,10 +20,11 @@
 #pragma once
 
 #include "StringMakers.h"
+#include "mdl/BrushFaceAttributes.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 
 #include <cassert>
-#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -47,18 +48,36 @@ public:
 
 NodeMatcher MatchesNode(const Node& expected);
 
-class NodeVectorMatcher : public Catch::Matchers::MatcherBase<const std::vector<Node*>&>
+class BrushFaceAttributesMatcher
+  : public Catch::Matchers::MatcherBase<BrushFaceAttributes>
 {
-  const std::vector<Node*> m_expected;
+private:
+  BrushFaceAttributes m_expected;
 
 public:
-  explicit NodeVectorMatcher(std::vector<Node*> expected);
+  explicit BrushFaceAttributesMatcher(BrushFaceAttributes expected);
 
-  bool match(const std::vector<Node*>& in) const override;
+  bool match(const BrushFaceAttributes& in) const override;
 
   std::string describe() const override;
 };
 
-NodeMatcher MatchesNodeVector(std::vector<Node*> expected);
+BrushFaceAttributesMatcher MatchesBrushFaceAttributes(BrushFaceAttributes expected);
+
+class UpdateBrushFaceAttributesMatcher
+  : public Catch::Matchers::MatcherBase<UpdateBrushFaceAttributes>
+{
+  UpdateBrushFaceAttributes m_expected;
+
+public:
+  explicit UpdateBrushFaceAttributesMatcher(UpdateBrushFaceAttributes expected);
+
+  bool match(const UpdateBrushFaceAttributes& in) const override;
+
+  std::string describe() const override;
+};
+
+UpdateBrushFaceAttributesMatcher MatchesUpdateBrushFaceAttributes(
+  UpdateBrushFaceAttributes expected);
 
 } // namespace tb::mdl

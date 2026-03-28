@@ -25,6 +25,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/UVUtils.h"
 
 #include "kd/contracts.h"
 
@@ -112,8 +113,7 @@ const vm::vec3d UVViewHelper::origin() const
 
 const vm::vec2f UVViewHelper::originInFaceCoords() const
 {
-  const auto toFace =
-    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  const auto toFace = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   return vm::vec2f{toFace * origin()};
 }
 
@@ -122,25 +122,19 @@ const vm::vec2f UVViewHelper::originInUVCoords() const
   contract_pre(valid());
 
   const auto toFace = face()->toUVCoordSystemMatrix(
-    face()->attributes().offset(), face()->attributes().scale(), true);
+    face()->attributes().offset(), face()->attributes().scale());
   return vm::vec2f{toFace * origin()};
 }
 
 void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
 {
-  const auto fromFace =
-    face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  const auto fromFace = face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   m_origin = fromFace * vm::vec3d{originInFaceCoords};
 }
 
 const gl::OrthographicCamera& UVViewHelper::camera() const
 {
   return m_camera;
-}
-
-float UVViewHelper::cameraZoom() const
-{
-  return m_camera.zoom();
 }
 
 void UVViewHelper::pickUVGrid(
@@ -158,7 +152,7 @@ void UVViewHelper::pickUVGrid(
       const auto hitPointInWorldCoords = vm::point_at_distance(ray, *distance);
       const auto hitPointInUVCoords = vm::vec2f{
         face()->toUVCoordSystemMatrix(
-          face()->attributes().offset(), face()->attributes().scale(), true)
+          face()->attributes().offset(), face()->attributes().scale())
         * hitPointInWorldCoords};
       const auto hitPointInViewCoords = uvToViewCoords(hitPointInUVCoords);
 
@@ -203,7 +197,7 @@ void UVViewHelper::pickUVGrid(
 
 vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const
 {
-  const auto zoom = cameraZoom();
+  const auto zoom = camera().zoom();
 
   auto result = vm::vec2f{};
   for (size_t i = 0; i < 2; ++i)
@@ -228,10 +222,8 @@ void UVViewHelper::computeOriginHandleVertices(
 {
   contract_pre(valid());
 
-  const auto toTex =
-    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
-  const auto toWorld =
-    face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  const auto toTex = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  const auto toWorld = face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   computeLineVertices(vm::vec2d{originInFaceCoords()}, x1, x2, y1, y2, toTex, toWorld);
 }
 
@@ -241,9 +233,9 @@ void UVViewHelper::computeScaleHandleVertices(
   contract_pre(valid());
 
   const auto toTex = face()->toUVCoordSystemMatrix(
-    face()->attributes().offset(), face()->attributes().scale(), true);
+    face()->attributes().offset(), face()->attributes().scale());
   const auto toWorld = face()->fromUVCoordSystemMatrix(
-    face()->attributes().offset(), face()->attributes().scale(), true);
+    face()->attributes().offset(), face()->attributes().scale());
   computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
 }
 
@@ -272,7 +264,7 @@ vm::vec2f UVViewHelper::uvToViewCoords(const vm::vec2f& pos) const
 {
   const auto posInWorldCoords =
     face()->fromUVCoordSystemMatrix(
-      face()->attributes().offset(), face()->attributes().scale(), true)
+      face()->attributes().offset(), face()->attributes().scale())
     * vm::vec3d{pos, 0.0};
   return m_camera.project(vm::vec3f(posInWorldCoords)).xy();
 }
@@ -281,8 +273,7 @@ void UVViewHelper::resetOrigin()
 {
   contract_pre(valid());
 
-  const auto toTex =
-    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  const auto toTex = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto texVertices = toTex * face()->vertexPositions();
 
   const auto toCam = vm::mat4x4d{m_camera.viewMatrix()};
@@ -313,10 +304,7 @@ void UVViewHelper::resetCamera()
 
   const auto& normal = face()->boundary().normal;
 
-  const auto right = vm::abs(vm::dot(vm::vec3d{0, 0, 1}, normal)) < double(1)
-                       ? vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal))
-                       : vm::vec3d{1, 0, 0};
-  const auto up = vm::normalize(vm::cross(normal, right));
+  const auto [up, right] = mdl::computeCameraAxesForFaceNormal(normal);
 
   m_camera.setNearPlane(-1.0f);
   m_camera.setFarPlane(+1.0f);
@@ -327,31 +315,31 @@ void UVViewHelper::resetCamera()
 
 void UVViewHelper::resetZoom()
 {
+  static constexpr auto MinMargin = 2.0f;
+  static constexpr auto MaxMargin = 40.0f;
+
   contract_pre(valid());
 
-  auto w = float(m_camera.viewport().width);
-  auto h = float(m_camera.viewport().height);
+  auto width = float(m_camera.viewport().width);
+  auto height = float(m_camera.viewport().height);
 
-  if (w <= 1.0f || h <= 1.0f)
+  if (width <= 20.0f || height <= 20.0f)
   {
     return;
   }
 
-  if (w > 80.0f)
-  {
-    w -= 80.0f;
-  }
-  if (h > 80.0f)
-  {
-    h -= 80.0f;
-  }
+  const auto horizontalMargin = std::clamp(width * 0.1f, MinMargin, MaxMargin);
+  const auto verticalMargin = std::clamp(height * 0.1f, MinMargin, MaxMargin);
+
+  width -= 2.0f * horizontalMargin;
+  height -= 2.0f * verticalMargin;
 
   const auto bounds = computeFaceBoundsInCameraCoords();
   const auto boundsSize = vm::vec3f(bounds.size());
 
   auto zoom = 3.0f;
-  zoom = vm::min(zoom, w / boundsSize.x());
-  zoom = vm::min(zoom, h / boundsSize.y());
+  zoom = vm::min(zoom, width / boundsSize.x());
+  zoom = vm::min(zoom, height / boundsSize.y());
   if (zoom > 0.0f)
   {
     m_camera.setZoom(zoom);

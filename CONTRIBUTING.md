@@ -15,7 +15,7 @@ we will hash out the details together.
 
 ## Reporting Bugs
 
-You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the the following information:
+You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the following information:
 
 - *TrenchBroom version*: e.g., "*"Version 2.0.0 f335082 D" see below
 - *Operation system and version*: e.g. "Windows 7 64bit"

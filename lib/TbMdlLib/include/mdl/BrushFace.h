@@ -222,7 +222,7 @@ public:
   void convertToParaxial();
   void convertToParallel();
 
-  void moveUV(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
+  void translateUV(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
   void rotateUV(float angle);
   void shearUV(const vm::vec2f& factors);
   void flipUV(
@@ -237,9 +237,9 @@ public:
 
   vm::mat4x4d projectToBoundaryMatrix() const;
   vm::mat4x4d toUVCoordSystemMatrix(
-    const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
+    const vm::vec2f& offset, const vm::vec2f& scale) const;
   vm::mat4x4d fromUVCoordSystemMatrix(
-    const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
+    const vm::vec2f& offset, const vm::vec2f& scale) const;
   float measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   size_t vertexCount() const;

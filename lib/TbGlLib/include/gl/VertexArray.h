@@ -280,9 +280,9 @@ public:
    * since the render methods will perform setup and cleanup automatically unless the
    * vertex array is already set up when the render method is called.
    *
-   * In the case the the vertex array was already setup before a render method was called,
-   * the render method will skip the setup and cleanup, and it is the callers'
-   * responsibility to perform proper cleanup.
+   * In the case the vertex array was already setup before a render method was called, the
+   * render method will skip the setup and cleanup, and it is the callers' responsibility
+   * to perform proper cleanup.
    *
    * It is only useful to perform setup and cleanup for a caller if the caller intends to
    * issue multiple render calls to this vertex array.

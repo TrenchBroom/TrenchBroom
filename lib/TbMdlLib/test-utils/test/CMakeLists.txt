@@ -6,6 +6,12 @@ target_sources(TbMdlTestUtilsLibTest PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(TbMdlTestUtilsLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbMdlTestUtilsLibTest PRIVATE Catch2::Catch2WithMain TbBaseTestUtilsLib TbMdlTestUtilsLib)
+target_link_libraries(TbMdlTestUtilsLibTest
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    Catch2::Catch2WithMain
+    TbBaseTestUtilsLib
+    TbMdlTestUtilsLib
+)
 

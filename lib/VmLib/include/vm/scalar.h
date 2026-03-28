@@ -573,6 +573,42 @@ constexpr T round_down(const T v)
 }
 
 /**
+ * Returns the nearest integer that is strictly farther from 0 than the given value.
+ * Given a positive value, this function returns the smallest integer greater than the
+ * given value, and given a negative value, this function returns the largest integer less
+ * than the given value. Returns 0 if the given value is 0.
+ *
+ * @tparam T the argument type, which must be a floating point type
+ * @param x the value
+ * @return the nearest integer strictly farther from 0 than the given value, or 0 if the
+ * given value is 0
+ */
+template <typename T>
+constexpr T next_integer(const T x)
+{
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
+  return x > T(0) ? floor(x) + T(1) : x < T(0) ? ceil(x) - T(1) : T(0);
+}
+
+/**
+ * Returns the nearest integer that is strictly closer to 0 than the given value. Given
+ * a positive value, this function returns the largest integer less than the given value,
+ * and given a negative value, this function returns the smallest integer greater than
+ * the given value. Returns 0 if the given value is 0.
+ *
+ * @tparam T the argument type, which must be a floating point type
+ * @param x the value
+ * @return the nearest integer strictly closer to 0 than the given value, or 0 if the
+ * given value is 0
+ */
+template <typename T>
+constexpr T prev_integer(const T x)
+{
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
+  return x > T(0) ? ceil(x) - T(1) : x < T(0) ? floor(x) + T(1) : T(0);
+}
+
+/**
  * Rounds the given value to the nearest multiple of the given grid size.
  *
  * @tparam T the argument type

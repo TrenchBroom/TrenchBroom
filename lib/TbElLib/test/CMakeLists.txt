@@ -9,5 +9,12 @@ target_sources(TbElLibTest PRIVATE
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
 
-target_link_libraries(TbElLibTest PRIVATE CompilerConfig PrecompileStdHeaders)
-target_link_libraries(TbElLibTest PRIVATE Catch2::Catch2WithMain TbElLib TbBaseTestUtilsLib TbElTestUtilsLib)
+target_link_libraries(TbElLibTest
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+    Catch2::Catch2WithMain
+    TbElLib
+    TbBaseTestUtilsLib
+    TbElTestUtilsLib
+)

@@ -86,7 +86,6 @@ public:
   void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
   const gl::OrthographicCamera& camera() const;
-  float cameraZoom() const;
 
   void pickUVGrid(
     const vm::ray3d& ray,
