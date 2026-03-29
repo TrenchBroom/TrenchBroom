@@ -154,6 +154,34 @@ void ShapeParameters::setAccuracy(const size_t accuracy)
   }
 }
 
+double ShapeParameters::stepHeight() const
+{
+  return m_stepHeight;
+}
+
+void ShapeParameters::setStepHeight(const double stepHeight)
+{
+  if (stepHeight != m_stepHeight)
+  {
+    m_stepHeight = stepHeight;
+    parametersDidChangeNotifier();
+  }
+}
+
+ShapeParameters::StairDirection ShapeParameters::stairDirection() const
+{
+  return m_stairDirection;
+}
+
+void ShapeParameters::setStairDirection(const StairDirection stairDirection)
+{
+  if (stairDirection != m_stairDirection)
+  {
+    m_stairDirection = stairDirection;
+    parametersDidChangeNotifier();
+  }
+}
+
 DrawShapeToolExtension::DrawShapeToolExtension(MapDocument& document)
   : m_document{document}
 {
@@ -195,13 +223,18 @@ bool DrawShapeToolExtensionManager::setCurrentExtensionIndex(size_t currentExten
 std::vector<DrawShapeToolExtensionPage*> DrawShapeToolExtensionManager::createToolPages(
   QWidget* parent)
 {
-  return m_extensions | std::views::transform([&](const auto& extension) {
-           auto* toolPage = extension->createToolPage(m_parameters, parent);
-           m_notifierConnection +=
-             toolPage->applyParametersNotifier.connect(applyParametersNotifier);
-           return toolPage;
-         })
-         | kdl::ranges::to<std::vector>();
+  auto toolPages = m_extensions | std::views::transform([&](const auto& extension) {
+                     auto* toolPage = extension->createToolPage(m_parameters, parent);
+                     m_notifierConnection +=
+                       toolPage->applyParametersNotifier.connect(applyParametersNotifier);
+                     return toolPage;
+                   })
+                   | kdl::ranges::to<std::vector>();
+
+  // update all tool pages to reflect the current parameter values
+  m_parameters.parametersDidChangeNotifier();
+
+  return toolPages;
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolExtensionManager::createBrushes(

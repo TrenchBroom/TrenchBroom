@@ -52,6 +52,15 @@ protected:
 
 class ShapeParameters
 {
+public:
+  enum class StairDirection
+  {
+    PosX,
+    NegX,
+    PosY,
+    NegY,
+  };
+
 private:
   // For axis aligned shapes
   vm::axis::type m_axis = vm::axis::z;
@@ -68,6 +77,10 @@ private:
 
   // For ICO sphere
   size_t m_accuracy = 1;
+
+  // For stair shapes
+  double m_stepHeight = 16.0;
+  StairDirection m_stairDirection = StairDirection::PosX;
 
 public:
   Notifier<> parametersDidChangeNotifier;
@@ -89,6 +102,12 @@ public:
 
   size_t accuracy() const;
   void setAccuracy(size_t accuracy);
+
+  double stepHeight() const;
+  void setStepHeight(double stepHeight);
+
+  StairDirection stairDirection() const;
+  void setStairDirection(StairDirection stairDirection);
 };
 
 class DrawShapeToolExtension

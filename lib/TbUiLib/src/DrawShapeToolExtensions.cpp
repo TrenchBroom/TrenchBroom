@@ -23,6 +23,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QLabel>
 #include <QSpinBox>
 #include <QStackedWidget>
@@ -37,8 +38,61 @@
 #include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/result_fold.h"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <ranges>
+
 namespace tb::ui
 {
+
+namespace
+{
+
+using StairDirection = ShapeParameters::StairDirection;
+
+vm::axis::type stairDirectionToAxis(const StairDirection direction)
+{
+  return direction == StairDirection::PosY || direction == StairDirection::NegY
+           ? vm::axis::y
+           : vm::axis::x;
+}
+
+bool isPositiveStairDirection(const StairDirection direction)
+{
+  return direction == StairDirection::PosX || direction == StairDirection::PosY;
+}
+
+size_t stairDirectionToIndex(const StairDirection direction)
+{
+  switch (direction)
+  {
+  case StairDirection::PosX:
+    return 0u;
+  case StairDirection::NegX:
+    return 1u;
+  case StairDirection::PosY:
+    return 2u;
+  case StairDirection::NegY:
+    return 3u;
+  }
+
+  return 0u;
+}
+
+StairDirection indexToStairDirection(const size_t index)
+{
+  static constexpr auto directions = std::array{
+    StairDirection::PosX,
+    StairDirection::NegX,
+    StairDirection::PosY,
+    StairDirection::NegY};
+  return directions[std::min(index, directions.size() - 1u)];
+}
+
+} // namespace
 
 DrawShapeToolCuboidExtension::DrawShapeToolCuboidExtension(MapDocument& document)
   : DrawShapeToolExtension{document}
@@ -95,13 +149,8 @@ DrawShapeToolAxisAlignedShapeExtensionPage::DrawShapeToolAxisAlignedShapeExtensi
   addWidget(axisLabel);
   addWidget(axisComboBox);
 
-  const auto updateWidgets = [=, this]() {
-    axisComboBox->setCurrentIndex(int(m_parameters.axis()));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect(
+    [=, this]() { axisComboBox->setCurrentIndex(int(m_parameters.axis())); });
 }
 
 DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage(
@@ -190,7 +239,7 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
   addWidget(vertexAlignedCircleButton);
   addWidget(scalableCircleButton);
 
-  const auto updateWidgets = [=, this]() {
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     std::visit(
       kdl::overload(
         [&](const mdl::EdgeAlignedCircle& circleShape) {
@@ -213,11 +262,7 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
       std::holds_alternative<mdl::VertexAlignedCircle>(m_parameters.circleShape()));
     scalableCircleButton->setChecked(
       std::holds_alternative<mdl::ScalableCircle>(m_parameters.circleShape()));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  });
 }
 
 DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage(
@@ -246,15 +291,11 @@ DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage
   addWidget(thicknessBox);
   addApplyButton(document);
 
-  const auto updateWidgets = [=, this]() {
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     hollowCheckBox->setChecked(m_parameters.hollow());
     thicknessBox->setEnabled(m_parameters.hollow());
     thicknessBox->setValue(m_parameters.thickness());
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  });
 }
 
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension(MapDocument& document)
@@ -370,13 +411,8 @@ DrawShapeToolIcoSphereShapeExtensionPage::DrawShapeToolIcoSphereShapeExtensionPa
   addWidget(accuracyBox);
   addApplyButton(document);
 
-  const auto updateWidgets = [=, this]() {
-    accuracyBox->setValue(int(m_parameters.accuracy()));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect(
+    [=, this]() { accuracyBox->setValue(int(m_parameters.accuracy())); });
 }
 
 DrawShapeToolIcoSphereExtension::DrawShapeToolIcoSphereExtension(MapDocument& document)
@@ -443,15 +479,11 @@ DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage
   addWidget(numRingsWidget);
   addApplyButton(document);
 
-  const auto updateWidgets = [=, this]() {
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     numRingsWidget->setVisible(
       !std::holds_alternative<mdl::ScalableCircle>(m_parameters.circleShape()));
     numRingsBox->setValue(int(m_parameters.numRings()));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  });
 }
 
 DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension(MapDocument& document)
@@ -496,11 +528,118 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
+DrawShapeToolStairsExtensionPage::DrawShapeToolStairsExtensionPage(
+  MapDocument& document, ShapeParameters& parameters, QWidget* parent)
+  : DrawShapeToolExtensionPage{parent}
+  , m_parameters{parameters}
+{
+  auto* stepHeightLabel = new QLabel{tr("Step Height: ")};
+  auto* stepHeightBox = new QDoubleSpinBox{};
+  stepHeightBox->setRange(1.0, 1024.0);
+  stepHeightBox->setDecimals(0);
+
+  auto* directionLabel = new QLabel{tr("Direction: ")};
+  auto* directionComboBox = new QComboBox{};
+  directionComboBox->addItems({tr("+X"), tr("-X"), tr("+Y"), tr("-Y")});
+
+  connect(
+    stepHeightBox,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    [&](const auto stepHeight) { m_parameters.setStepHeight(stepHeight); });
+
+  connect(
+    directionComboBox,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    [&](const auto index) {
+      m_parameters.setStairDirection(indexToStairDirection(size_t(index)));
+    });
+
+  addWidget(stepHeightLabel);
+  addWidget(stepHeightBox);
+  addWidget(directionLabel);
+  addWidget(directionComboBox);
+  addApplyButton(document);
+
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
+    const auto direction = m_parameters.stairDirection();
+    stepHeightBox->setValue(std::max(1.0, std::abs(m_parameters.stepHeight())));
+    directionComboBox->setCurrentIndex(int(stairDirectionToIndex(direction)));
+  });
+}
+
+DrawShapeToolStairsExtension::DrawShapeToolStairsExtension(MapDocument& document)
+  : DrawShapeToolExtension{document}
+{
+}
+
+const std::string& DrawShapeToolStairsExtension::name() const
+{
+  static const auto name = std::string{"Stairs"};
+  return name;
+}
+
+const std::filesystem::path& DrawShapeToolStairsExtension::iconPath() const
+{
+  static const auto path = std::filesystem::path{"ShapeTool_Stairs.svg"};
+  return path;
+}
+
+DrawShapeToolExtensionPage* DrawShapeToolStairsExtension::createToolPage(
+  ShapeParameters& parameters, QWidget* parent)
+{
+  return new DrawShapeToolStairsExtensionPage{m_document, parameters, parent};
+}
+
+Result<std::vector<mdl::Brush>> DrawShapeToolStairsExtension::createBrushes(
+  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
+{
+  auto& map = m_document.map();
+
+  const auto builder = mdl::BrushBuilder{
+    map.worldNode().mapFormat(),
+    map.worldBounds(),
+    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+
+  const auto materialName = map.currentMaterialName();
+  const auto stepHeight = std::max(1.0, std::abs(parameters.stepHeight()));
+  const auto stairDirection = parameters.stairDirection();
+  const auto axis = stairDirectionToAxis(stairDirection);
+  const auto positiveDirection = isPositiveStairDirection(stairDirection);
+  const auto size = bounds.size();
+
+  const auto numSteps = std::max(size_t{1}, size_t(std::ceil(size.z() / stepHeight)));
+  const auto treadDepth = size[axis] / double(numSteps);
+
+  return std::views::iota(0u, numSteps) | std::views::transform([&](const auto i) {
+           auto stepBounds = vm::bbox3d{
+             bounds.min,
+             {bounds.max.xy(),
+              std::min(bounds.min.z() + stepHeight * double(i + 1), bounds.max.z())},
+           };
+
+           const auto treadMin = positiveDirection
+                                   ? bounds.min[axis] + treadDepth * double(i)
+                                   : bounds.max[axis] - treadDepth * double(i + 1);
+           const auto treadMax = positiveDirection
+                                   ? bounds.min[axis] + treadDepth * double(i + 1)
+                                   : bounds.max[axis] - treadDepth * double(i);
+
+           stepBounds.min[axis] = treadMin;
+           stepBounds.max[axis] = treadMax;
+
+           return builder.createCuboid(stepBounds, materialName);
+         })
+         | kdl::fold;
+}
+
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(
   MapDocument& document)
 {
   auto result = std::vector<std::unique_ptr<DrawShapeToolExtension>>{};
   result.push_back(std::make_unique<DrawShapeToolCuboidExtension>(document));
+  result.push_back(std::make_unique<DrawShapeToolStairsExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolCylinderExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolConeExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolUVSphereExtension>(document));
