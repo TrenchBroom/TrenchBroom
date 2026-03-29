@@ -247,7 +247,7 @@ TEST_CASE("PreferenceManager")
     }
   }
 
-  SECTION("when saveInstantly is falsed")
+  SECTION("when saveInstantly is false")
   {
     auto preferenceManager =
       PreferenceManager{std::move(preferenceStoreOwner), !K(saveInstantly)};
@@ -358,6 +358,23 @@ TEST_CASE("PreferenceManager")
         CHECK(preferenceManager.get(stringPref) == "fdsa");
         REQUIRE(preferenceManager.getPendingValue(stringPref) == "fdsa");
       }
+    }
+
+    SECTION("hasUnsavedChanges")
+    {
+      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+
+      preferenceManager.set(stringPref, "qwer");
+      CHECK(preferenceManager.hasUnsavedChanges());
+
+      preferenceManager.saveChanges();
+      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+
+      preferenceManager.set(stringPref, "fdsa");
+      CHECK(preferenceManager.hasUnsavedChanges());
+
+      preferenceManager.discardChanges();
+      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
     }
 
     SECTION("when preference store is reloaded")

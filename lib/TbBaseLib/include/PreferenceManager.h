@@ -130,11 +130,10 @@ public:
    * Whether preferences should be saved instantly on the current platform.
    */
   static bool shouldSaveInstantly();
-
   bool saveInstantly() const;
 
+  bool hasUnsavedChanges() const;
   void saveChanges();
-
   void discardChanges();
 
 private:
