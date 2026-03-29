@@ -22,6 +22,7 @@
 #include <QBoxLayout>
 #include <QCloseEvent>
 #include <QDialogButtonBox>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QToolBar>
@@ -79,12 +80,34 @@ void PreferenceDialog::closeEvent(QCloseEvent* event)
   if (currentPane()->validate())
   {
     auto& prefs = PreferenceManager::instance();
-    if (!prefs.saveInstantly())
+    if (prefs.hasUnsavedChanges())
     {
-      prefs.discardChanges();
-    }
+      auto msgBox = QMessageBox{
+        QMessageBox::Question,
+        "Unsaved Preference Changes",
+        "You have unsaved preference changes. Would you like to save or discard them?",
+        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+        this};
 
-    event->accept();
+      switch (msgBox.exec())
+      {
+      case QMessageBox::Save:
+        prefs.saveChanges();
+        event->accept();
+        break;
+      case QMessageBox::Discard:
+        prefs.discardChanges();
+        event->accept();
+        break;
+      default:
+        event->ignore();
+        break;
+      }
+    }
+    else
+    {
+      event->accept();
+    }
   }
   else
   {
@@ -152,6 +175,8 @@ void PreferenceDialog::createGui()
       });
     connect(
       m_buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, [&]() {
+        auto& prefs = PreferenceManager::instance();
+        prefs.discardChanges();
         this->close();
       });
   }
