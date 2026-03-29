@@ -295,6 +295,21 @@ TEST_CASE("PreferenceManager")
           preferenceStore.values == std::unordered_map<std::filesystem::path, Value>{});
       }
 
+      SECTION("clears pending value when set to current value")
+      {
+        preferenceStore.values.emplace("some/path", "fdsa"s);
+
+        preferenceManager.set(stringPref, "qwer");
+        REQUIRE(preferenceManager.hasUnsavedChanges());
+        REQUIRE(preferenceManager.get(stringPref) == "fdsa");
+        REQUIRE(preferenceManager.getPendingValue(stringPref) == "qwer");
+
+        preferenceManager.set(stringPref, "fdsa");
+        CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+        CHECK(preferenceManager.get(stringPref) == "fdsa");
+        CHECK(preferenceManager.getPendingValue(stringPref) == "fdsa");
+      }
+
       SECTION("saveChanges")
       {
         SECTION("saves persistent preferences")
