@@ -71,8 +71,9 @@ struct TextureLoadedState
 struct TextureReadyState
 {
   GLuint textureId;
+  bool useMipmap;
 
-  kdl_reflect_decl(TextureReadyState, textureId);
+  kdl_reflect_decl(TextureReadyState, textureId, useMipmap);
 };
 
 struct TextureDroppedState
@@ -159,7 +160,7 @@ public:
   const std::vector<TextureBuffer>& buffersIfLoaded() const;
 
 private:
-  void setFilterMode(Gl& gl, int minFilter, int magFilter) const;
+  void setFilterMode(Gl& gl, int minFilter, int magFilter, bool useMipmap) const;
 };
 
 } // namespace tb::gl

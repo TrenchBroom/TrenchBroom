@@ -140,9 +140,6 @@ using GLsizeiptr = std::intptr_t;
 #ifndef GL_FRONT_AND_BACK
 #define GL_FRONT_AND_BACK 0x0408
 #endif
-#ifndef GL_GENERATE_MIPMAP
-#define GL_GENERATE_MIPMAP 0x8191
-#endif
 #ifndef GL_INFO_LOG_LENGTH
 #define GL_INFO_LOG_LENGTH 0x8B84
 #endif
