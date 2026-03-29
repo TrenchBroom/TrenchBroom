@@ -234,6 +234,33 @@ TEST_CASE("FgdParser")
       });
   }
 
+  SECTION("parseDuplicatePointClassKeepsLast")
+  {
+    const auto file = R"(
+    @PointClass = info_notnull : "First definition"
+    [
+    ]
+    @PointClass = info_notnull : "Second definition"
+    [
+    ]
+    )";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"info_notnull",
+         RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
+         "Second definition",
+         {},
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
+      });
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+    CHECK(status.countStatus(LogLevel::Error) == 0u);
+  }
+
   SECTION("parseBaseProperty")
   {
     const auto file = R"(
