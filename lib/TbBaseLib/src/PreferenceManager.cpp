@@ -84,6 +84,11 @@ bool PreferenceManager::saveInstantly() const
   return m_saveInstantly;
 }
 
+bool PreferenceManager::hasUnsavedChanges() const
+{
+  return !m_pendingValues.empty();
+}
+
 void PreferenceManager::saveChanges()
 {
   for (const auto& [preference, pendingState] : m_pendingValues)

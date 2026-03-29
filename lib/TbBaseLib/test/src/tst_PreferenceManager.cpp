@@ -247,7 +247,7 @@ TEST_CASE("PreferenceManager")
     }
   }
 
-  SECTION("when saveInstantly is falsed")
+  SECTION("when saveInstantly is false")
   {
     auto preferenceManager =
       PreferenceManager{std::move(preferenceStoreOwner), !K(saveInstantly)};
@@ -293,6 +293,21 @@ TEST_CASE("PreferenceManager")
 
         CHECK(
           preferenceStore.values == std::unordered_map<std::filesystem::path, Value>{});
+      }
+
+      SECTION("clears pending value when set to current value")
+      {
+        preferenceStore.values.emplace("some/path", "fdsa"s);
+
+        preferenceManager.set(stringPref, "qwer");
+        REQUIRE(preferenceManager.hasUnsavedChanges());
+        REQUIRE(preferenceManager.get(stringPref) == "fdsa");
+        REQUIRE(preferenceManager.getPendingValue(stringPref) == "qwer");
+
+        preferenceManager.set(stringPref, "fdsa");
+        CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+        CHECK(preferenceManager.get(stringPref) == "fdsa");
+        CHECK(preferenceManager.getPendingValue(stringPref) == "fdsa");
       }
 
       SECTION("saveChanges")
@@ -358,6 +373,23 @@ TEST_CASE("PreferenceManager")
         CHECK(preferenceManager.get(stringPref) == "fdsa");
         REQUIRE(preferenceManager.getPendingValue(stringPref) == "fdsa");
       }
+    }
+
+    SECTION("hasUnsavedChanges")
+    {
+      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+
+      preferenceManager.set(stringPref, "qwer");
+      CHECK(preferenceManager.hasUnsavedChanges());
+
+      preferenceManager.saveChanges();
+      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+
+      preferenceManager.set(stringPref, "fdsa");
+      CHECK(preferenceManager.hasUnsavedChanges());
+
+      preferenceManager.discardChanges();
+      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
     }
 
     SECTION("when preference store is reloaded")
