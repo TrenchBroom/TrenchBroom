@@ -130,11 +130,10 @@ public:
    * Whether preferences should be saved instantly on the current platform.
    */
   static bool shouldSaveInstantly();
-
   bool saveInstantly() const;
 
+  bool hasUnsavedChanges() const;
   void saveChanges();
-
   void discardChanges();
 
 private:
@@ -156,12 +155,19 @@ private:
   template <typename T>
   void setPendingValue(const Preference<T>& preference, T value)
   {
-    m_pendingValues[preference.path] = PendingState{
-      std::any{std::move(value)},
-      [&](const auto& anyValue) {
-        setValueInstantly(preference, std::any_cast<T>(anyValue));
-      },
-    };
+    if (value == get(preference))
+    {
+      m_pendingValues.erase(preference.path);
+    }
+    else
+    {
+      m_pendingValues[preference.path] = PendingState{
+        std::any{std::move(value)},
+        [&](const auto& anyValue) {
+          setValueInstantly(preference, std::any_cast<T>(anyValue));
+        },
+      };
+    }
   }
 
   void refreshValues(const std::vector<std::filesystem::path>& preferencePaths);
