@@ -149,13 +149,8 @@ DrawShapeToolAxisAlignedShapeExtensionPage::DrawShapeToolAxisAlignedShapeExtensi
   addWidget(axisLabel);
   addWidget(axisComboBox);
 
-  const auto updateWidgets = [=, this]() {
-    axisComboBox->setCurrentIndex(int(m_parameters.axis()));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect(
+    [=, this]() { axisComboBox->setCurrentIndex(int(m_parameters.axis())); });
 }
 
 DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage(
@@ -244,7 +239,7 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
   addWidget(vertexAlignedCircleButton);
   addWidget(scalableCircleButton);
 
-  const auto updateWidgets = [=, this]() {
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     std::visit(
       kdl::overload(
         [&](const mdl::EdgeAlignedCircle& circleShape) {
@@ -267,11 +262,7 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
       std::holds_alternative<mdl::VertexAlignedCircle>(m_parameters.circleShape()));
     scalableCircleButton->setChecked(
       std::holds_alternative<mdl::ScalableCircle>(m_parameters.circleShape()));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  });
 }
 
 DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage(
@@ -300,15 +291,11 @@ DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage
   addWidget(thicknessBox);
   addApplyButton(document);
 
-  const auto updateWidgets = [=, this]() {
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     hollowCheckBox->setChecked(m_parameters.hollow());
     thicknessBox->setEnabled(m_parameters.hollow());
     thicknessBox->setValue(m_parameters.thickness());
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  });
 }
 
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension(MapDocument& document)
@@ -424,13 +411,8 @@ DrawShapeToolIcoSphereShapeExtensionPage::DrawShapeToolIcoSphereShapeExtensionPa
   addWidget(accuracyBox);
   addApplyButton(document);
 
-  const auto updateWidgets = [=, this]() {
-    accuracyBox->setValue(int(m_parameters.accuracy()));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect(
+    [=, this]() { accuracyBox->setValue(int(m_parameters.accuracy())); });
 }
 
 DrawShapeToolIcoSphereExtension::DrawShapeToolIcoSphereExtension(MapDocument& document)
@@ -497,15 +479,11 @@ DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage
   addWidget(numRingsWidget);
   addApplyButton(document);
 
-  const auto updateWidgets = [=, this]() {
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     numRingsWidget->setVisible(
       !std::holds_alternative<mdl::ScalableCircle>(m_parameters.circleShape()));
     numRingsBox->setValue(int(m_parameters.numRings()));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  });
 }
 
 DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension(MapDocument& document)
@@ -584,15 +562,11 @@ DrawShapeToolStairsExtensionPage::DrawShapeToolStairsExtensionPage(
   addWidget(directionComboBox);
   addApplyButton(document);
 
-  const auto updateWidgets = [=, this]() {
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     const auto direction = m_parameters.stairDirection();
     stepHeightBox->setValue(std::max(1.0, std::abs(m_parameters.stepHeight())));
     directionComboBox->setCurrentIndex(int(stairDirectionToIndex(direction)));
-  };
-  updateWidgets();
-
-  m_notifierConnection +=
-    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
+  });
 }
 
 DrawShapeToolStairsExtension::DrawShapeToolStairsExtension(MapDocument& document)

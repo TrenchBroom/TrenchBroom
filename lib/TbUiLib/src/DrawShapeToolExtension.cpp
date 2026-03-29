@@ -223,13 +223,18 @@ bool DrawShapeToolExtensionManager::setCurrentExtensionIndex(size_t currentExten
 std::vector<DrawShapeToolExtensionPage*> DrawShapeToolExtensionManager::createToolPages(
   QWidget* parent)
 {
-  return m_extensions | std::views::transform([&](const auto& extension) {
-           auto* toolPage = extension->createToolPage(m_parameters, parent);
-           m_notifierConnection +=
-             toolPage->applyParametersNotifier.connect(applyParametersNotifier);
-           return toolPage;
-         })
-         | kdl::ranges::to<std::vector>();
+  auto toolPages = m_extensions | std::views::transform([&](const auto& extension) {
+                     auto* toolPage = extension->createToolPage(m_parameters, parent);
+                     m_notifierConnection +=
+                       toolPage->applyParametersNotifier.connect(applyParametersNotifier);
+                     return toolPage;
+                   })
+                   | kdl::ranges::to<std::vector>();
+
+  // update all tool pages to reflect the current parameter values
+  m_parameters.parametersDidChangeNotifier();
+
+  return toolPages;
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolExtensionManager::createBrushes(
