@@ -167,6 +167,10 @@ void MapViewBase::connectObservers()
     m_document.modsDidChangeNotifier.connect(this, &MapViewBase::modsDidChange);
   m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
     this, &MapViewBase::editorContextDidChange);
+  m_notifierConnection += m_document.nodeVisibilityDidChangeNotifier.connect(
+    this, &MapViewBase::nodeVisibilityDidChange);
+  m_notifierConnection += m_document.nodeLockingDidChangeNotifier.connect(
+    this, &MapViewBase::nodeLockingDidChange);
   m_notifierConnection +=
     m_document.pointFileWasLoadedNotifier.connect(this, &MapViewBase::pointFileDidChange);
   m_notifierConnection += m_document.pointFileWasUnloadedNotifier.connect(
@@ -242,6 +246,16 @@ void MapViewBase::modsDidChange()
 }
 
 void MapViewBase::editorContextDidChange()
+{
+  update();
+}
+
+void MapViewBase::nodeVisibilityDidChange(const std::vector<mdl::Node*>&)
+{
+  update();
+}
+
+void MapViewBase::nodeLockingDidChange(const std::vector<mdl::Node*>&)
 {
   update();
 }
