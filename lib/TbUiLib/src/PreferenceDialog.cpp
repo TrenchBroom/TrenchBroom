@@ -128,32 +128,33 @@ void PreferenceDialog::createGui()
   m_stackedWidget->addWidget(new UpdatePreferencePane{m_appController});
 
   m_buttonBox = new QDialogButtonBox{
-    QDialogButtonBox::RestoreDefaults
-#if !defined __APPLE__
-      | QDialogButtonBox::Ok | QDialogButtonBox::Apply | QDialogButtonBox::Cancel
-#endif
-    ,
+    PreferenceManager::instance().saveInstantly()
+      ? QDialogButtonBox::RestoreDefaults
+      : QDialogButtonBox::RestoreDefaults | QDialogButtonBox::Ok | QDialogButtonBox::Apply
+          | QDialogButtonBox::Cancel,
     this};
 
   auto* resetButton = m_buttonBox->button(QDialogButtonBox::RestoreDefaults);
   connect(resetButton, &QPushButton::clicked, this, &PreferenceDialog::resetToDefaults);
 
-#if !defined __APPLE__
-  connect(m_buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, [&]() {
-    auto& prefs = PreferenceManager::instance();
-    prefs.saveChanges();
-    this->close();
-  });
-  connect(
-    m_buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, this, [&]() {
-      auto& prefs = PreferenceManager::instance();
-      prefs.saveChanges();
-    });
-  connect(
-    m_buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, [&]() {
-      this->close();
-    });
-#endif
+  if (!PreferenceManager::instance().saveInstantly())
+  {
+    connect(
+      m_buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, [&]() {
+        auto& prefs = PreferenceManager::instance();
+        prefs.saveChanges();
+        this->close();
+      });
+    connect(
+      m_buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, this, [&]() {
+        auto& prefs = PreferenceManager::instance();
+        prefs.saveChanges();
+      });
+    connect(
+      m_buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, [&]() {
+        this->close();
+      });
+  }
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
