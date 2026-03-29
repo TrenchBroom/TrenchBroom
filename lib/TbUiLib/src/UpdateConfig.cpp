@@ -77,13 +77,7 @@ std::optional<std::filesystem::path> getAppFolderPath()
 #elif defined(__APPLE__)
   return SystemPaths::appDirectory().parent_path().parent_path();
 #else
-  auto appImage = std::string_view{std::getenv("APPIMAGE")};
-  if (!appImage.empty() && appImage.back() == '/')
-  {
-    appImage.remove_suffix(1);
-  }
-  return !appImage.empty() ? std::optional{std::filesystem::path{appImage}}
-                           : std::nullopt;
+  return SystemPaths::appImageFile();
 #endif
 }
 
@@ -116,8 +110,18 @@ bool getRequiresAdminPrivileges([[maybe_unused]] const std::filesystem::path& ta
   Q_ASSERT(qAreNtfsPermissionChecksEnabled());
 
   return !checkPathWritable(targetPath);
-#endif
+#else
   return false;
+#endif
+}
+
+bool getShowUpdateWarning()
+{
+#if defined _WIN32
+  return true;
+#else
+  return false;
+#endif
 }
 
 auto getRelativeAppPath()
@@ -222,6 +226,7 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
   const auto logFilePath = getLogFilePath();
 
   const auto requiresAdminPrivileges = getRequiresAdminPrivileges(*appFolderPath);
+  const auto showUpdateWarning = getShowUpdateWarning();
 
   return upd::UpdateConfig{
     std::move(checkForUpdates),
@@ -233,6 +238,7 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
     pathAsQPath(scriptPath),
     pathAsQPath(*appFolderPath),
     requiresAdminPrivileges,
+    showUpdateWarning,
     pathAsQPath(relativeAppPath),
     pathAsQPath(workDirPath),
     pathAsQPath(logFilePath),

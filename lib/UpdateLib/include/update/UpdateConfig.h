@@ -63,6 +63,9 @@ struct UpdateConfig
   QString appFolderPath;
   /** Whether installing the update requires admin privileges (Windows only). */
   bool requiresAdminPrivileges;
+  /** Whether to show a warning that updating will erase the application folder. The
+   * warning will be shown right before the update is installed. */
+  bool showUpdateWarning;
   /** The relative path to the executable in the app folder. This is used to restart the
    * app after the update was installed. */
   QString relativeAppPath;
