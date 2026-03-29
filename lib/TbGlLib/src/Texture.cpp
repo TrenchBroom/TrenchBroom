@@ -68,6 +68,7 @@ auto uploadTexture(
   const size_t height)
 {
   const auto compressed = isCompressedFormat(format);
+  auto useMipmap = false;
 
   auto textureId = GLuint(0);
   gl.genTextures(1, &textureId);
@@ -93,6 +94,7 @@ auto uploadTexture(
   else
   {
     gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, GLint(buffers.size() - 1));
+    useMipmap = buffers.size() > 1;
   }
 
   // Upload only the first mipmap for masked textures.
@@ -132,12 +134,27 @@ auto uploadTexture(
     }
   }
 
-  return textureId;
+  return std::tuple{textureId, useMipmap};
 }
 
 void dropTexture(Gl& gl, GLuint textureId)
 {
   gl.deleteTextures(1, &textureId);
+}
+
+auto textureFilterMode(const int filter, const bool useMipmap)
+{
+  switch (filter)
+  {
+  case GL_LINEAR_MIPMAP_NEAREST:
+  case GL_LINEAR_MIPMAP_LINEAR:
+    return useMipmap ? filter : GL_LINEAR;
+  case GL_NEAREST_MIPMAP_NEAREST:
+  case GL_NEAREST_MIPMAP_LINEAR:
+    return useMipmap ? filter : GL_NEAREST;
+  default:
+    return filter;
+  }
 }
 
 } // namespace
@@ -275,7 +292,7 @@ bool Texture::activate(Gl& gl, const int minFilter, const int magFilter) const
       [](const TextureLoadedState&) { return false; },
       [&](const TextureReadyState& readyState) {
         gl.bindTexture(GL_TEXTURE_2D, readyState.textureId);
-        setFilterMode(gl, minFilter, magFilter);
+        setFilterMode(gl, minFilter, magFilter, readyState.useMipmap);
         return true;
       },
       [](const TextureDroppedState&) { return false; }),
@@ -298,9 +315,9 @@ void Texture::upload(Gl& gl)
   m_state = std::visit(
     kdl::overload(
       [&](const TextureLoadedState& textureLoadedState) -> TextureState {
-        const auto textureId = uploadTexture(
+        const auto [textureId, useMipmap] = uploadTexture(
           gl, m_format, m_mask, textureLoadedState.buffers, m_width, m_height);
-        return TextureReadyState{textureId};
+        return TextureReadyState{textureId, useMipmap};
       },
       [](TextureReadyState textureReadyState) -> TextureState {
         return textureReadyState;
@@ -340,7 +357,8 @@ const std::vector<TextureBuffer>& Texture::buffersIfLoaded() const
 }
 
 
-void Texture::setFilterMode(Gl& gl, const int minFilter, const int magFilter) const
+void Texture::setFilterMode(
+  Gl& gl, const int minFilter, const int magFilter, const bool useMipmap) const
 {
   if (m_mask == TextureMask::On)
   {
@@ -350,8 +368,10 @@ void Texture::setFilterMode(Gl& gl, const int minFilter, const int magFilter) co
   }
   else
   {
-    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-    gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+    gl.texParameteri(
+      GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilterMode(minFilter, useMipmap));
+    gl.texParameteri(
+      GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilterMode(magFilter, useMipmap));
   }
 }
 
