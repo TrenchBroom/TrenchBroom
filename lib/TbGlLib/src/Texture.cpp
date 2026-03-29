@@ -86,15 +86,9 @@ auto uploadTexture(
   if (mask == TextureMask::On)
   {
     // masked textures don't work well with automatic mipmaps, so we force
-    // GL_NEAREST filtering and don't generate any
-    gl.texParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+    // GL_NEAREST filtering
     gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  }
-  else if (buffers.size() == 1)
-  {
-    // generate mipmaps if we don't have any
-    gl.texParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
   }
   else
   {
