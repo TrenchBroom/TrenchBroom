@@ -36,6 +36,7 @@
 
 #include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 
 #include <assimp/IOStream.hpp>
@@ -46,6 +47,8 @@
 #include <assimp/types.h>
 #include <fmt/format.h>
 #include <fmt/std.h>
+
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -163,6 +166,31 @@ struct AssimpMeshWithTransforms
   aiMatrix4x4 m_axisTransform;
 };
 
+std::optional<std::filesystem::path> parseAssimpTexturePath(
+  const aiString& assimpPath,
+  const size_t materialIndex,
+  const std::filesystem::path& modelPath,
+  Logger& logger)
+{
+  const auto texturePathString =
+    std::string{assimpPath.C_Str(), size_t(assimpPath.length)};
+
+  try
+  {
+    return kdl::parse_utf8_path(texturePathString);
+  }
+  catch (const std::system_error& e)
+  {
+    logger.error() << fmt::format(
+      "Could not convert diffuse texture path '{}' for material {} of model '{}': {}",
+      texturePathString,
+      materialIndex,
+      modelPath,
+      e.what());
+    return std::nullopt;
+  }
+}
+
 std::optional<gl::Texture> loadFallbackTexture(const fs::FileSystem& fs)
 {
   static const auto NoTextureName = BrushFaceAttributes::NoMaterialName;
@@ -225,31 +253,6 @@ gl::Texture loadCompressedEmbeddedTexture(
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
 
-gl::Texture loadTexture(
-  const aiTexture* texture,
-  const std::filesystem::path& texturePath,
-  const std::filesystem::path& modelPath,
-  const fs::FileSystem& fs,
-  Logger& logger)
-{
-  if (!texture)
-  {
-    // The texture is not embedded. Load it using the file system.
-    const auto filePath = modelPath.parent_path() / texturePath;
-    return loadTextureFromFileSystem(filePath, fs, logger);
-  }
-
-  if (texture->mHeight != 0)
-  {
-    // The texture is uncompressed, load it directly.
-    return loadUncompressedEmbeddedTexture(
-      *texture->pcData, texture->mWidth, texture->mHeight);
-  }
-
-  // The texture is embedded, but compressed. Let FreeImage load it from memory.
-  return loadCompressedEmbeddedTexture(*texture->pcData, texture->mWidth, fs, logger);
-}
-
 std::vector<gl::Texture> loadTexturesForMaterial(
   const aiScene& scene,
   const size_t materialIndex,
@@ -257,28 +260,47 @@ std::vector<gl::Texture> loadTexturesForMaterial(
   const fs::FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<gl::Texture>{};
-
   // Is there even a single diffuse texture? If not, fail and load fallback texture.
   const auto textureCount =
     scene.mMaterials[materialIndex]->GetTextureCount(aiTextureType_DIFFUSE);
-  if (textureCount > 0)
-  {
-    // load up every diffuse texture
-    for (unsigned int ti = 0; ti < textureCount; ++ti)
-    {
-      auto path = aiString{};
-      scene.mMaterials[materialIndex]->GetTexture(aiTextureType_DIFFUSE, ti, &path);
 
-      const auto texturePath = std::filesystem::path{path.C_Str()};
-      const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
-      textures.push_back(loadTexture(texture, texturePath, modelPath, fs, logger));
-    }
-  }
-  else
+  auto textures =
+    std::views::iota(0u, textureCount) | std::views::transform([&](const auto ti) {
+      auto assimpPath = aiString{};
+      scene.mMaterials[materialIndex]->GetTexture(aiTextureType_DIFFUSE, ti, &assimpPath);
+
+      if (const auto* texture = scene.GetEmbeddedTexture(assimpPath.C_Str()))
+      {
+        if (texture->mHeight != 0)
+        {
+          // The texture is uncompressed, load it directly.
+          return loadUncompressedEmbeddedTexture(
+            *texture->pcData, texture->mWidth, texture->mHeight);
+        }
+
+        // The texture is embedded, but compressed. Let FreeImage load it from memory.
+        return loadCompressedEmbeddedTexture(
+          *texture->pcData, texture->mWidth, fs, logger);
+      }
+
+      if (
+        const auto texturePath =
+          parseAssimpTexturePath(assimpPath, materialIndex, modelPath, logger))
+      {
+        // The texture is not embedded. Load it using the file system.
+        return loadTextureFromFileSystem(
+          modelPath.parent_path() / *texturePath, fs, logger);
+      }
+
+      return loadFallbackOrDefaultTexture(fs, logger);
+    })
+    | kdl::ranges::to<std::vector>();
+
+  if (textures.empty())
   {
     logger.error() << fmt::format(
-      "No diffuse textures found for material {} of model '{}', loading fallback texture",
+      "No usable diffuse textures found for material {} of model '{}', loading "
+      "fallback texture",
       materialIndex,
       modelPath);
 
