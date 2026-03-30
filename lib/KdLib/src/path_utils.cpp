@@ -28,6 +28,17 @@
 namespace kdl
 {
 
+std::filesystem::path parse_utf8_path(std::string str, const bool convert_separators)
+{
+  str = detail::path_convert_separators(std::move(str), convert_separators);
+
+#ifdef _WIN32
+  return std::filesystem::path{std::u8string{str.begin(), str.end()}};
+#else
+  return std::filesystem::path{std::move(str)};
+#endif
+}
+
 size_t path_length(const std::filesystem::path& path)
 {
   return size_t(std::distance(path.begin(), path.end()));
