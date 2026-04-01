@@ -19,10 +19,13 @@
 
 #include "mdl/EntityDefinitionGroup.h"
 
+#include "kd/reflection_impl.h"
 #include "kd/string_format.h"
 
 namespace tb::mdl
 {
+
+kdl_reflect_impl(EntityDefinitionGroup);
 
 std::string displayName(const EntityDefinitionGroup& group)
 {
