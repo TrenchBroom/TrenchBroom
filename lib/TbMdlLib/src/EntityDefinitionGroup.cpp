@@ -20,6 +20,7 @@
 #include "mdl/EntityDefinitionGroup.h"
 
 #include "kd/reflection_impl.h"
+#include "kd/string_compare.h"
 #include "kd/string_format.h"
 
 namespace tb::mdl
@@ -30,6 +31,18 @@ kdl_reflect_impl(EntityDefinitionGroup);
 std::string displayName(const EntityDefinitionGroup& group)
 {
   return !group.name.empty() ? kdl::str_capitalize(group.name) : "Misc";
+}
+
+bool compareEntityDefinitionGroups(
+  const EntityDefinitionGroup& lhs, const EntityDefinitionGroup& rhs)
+{
+  if (const auto compareResult = kdl::ci::str_compare(displayName(lhs), displayName(rhs));
+      compareResult != 0)
+  {
+    return compareResult < 0;
+  }
+
+  return kdl::cs::str_compare(lhs.name, rhs.name) < 0;
 }
 
 } // namespace tb::mdl

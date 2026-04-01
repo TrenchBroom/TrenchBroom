@@ -38,4 +38,7 @@ struct EntityDefinitionGroup
 
 std::string displayName(const EntityDefinitionGroup& group);
 
+bool compareEntityDefinitionGroups(
+  const EntityDefinitionGroup& lhs, const EntityDefinitionGroup& rhs);
+
 } // namespace tb::mdl
