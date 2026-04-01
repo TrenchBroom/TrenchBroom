@@ -184,7 +184,8 @@ void EntityDefinitionCheckBoxList::createGui()
 
     for (const auto* definition : group.definitions)
     {
-      auto* defCB = new QCheckBox{QString::fromStdString(definition->name)};
+      const auto shortName = std::string{mdl::getShortName(*definition)};
+      auto* defCB = new QCheckBox{QString::fromStdString(shortName)};
       defCB->setObjectName("entityDefinition_checkboxWidget");
 
       connect(defCB, &QAbstractButton::clicked, this, [this, definition](bool checked) {

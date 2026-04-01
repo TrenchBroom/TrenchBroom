@@ -123,7 +123,7 @@ TEST_CASE("EntityDefinitionCheckBoxList")
         definitionCheckBoxes | std::views::transform([](const auto* checkBox) {
           return checkBox->text().toStdString();
         }),
-        RangeEquals({"func_alpha", "func_zeta", "trigger_once"}));
+        RangeEquals({"alpha", "zeta", "once"}));
     }
   }
 
@@ -158,7 +158,7 @@ TEST_CASE("EntityDefinitionCheckBoxList")
 
   SECTION("defCheckBoxChanged")
   {
-    auto* funcZetaCheckBox = findCheckBox(getDefinitionCheckBoxes(list), "func_zeta");
+    auto* funcZetaCheckBox = findCheckBox(getDefinitionCheckBoxes(list), "zeta");
     REQUIRE(funcZetaCheckBox != nullptr);
 
     QTest::mouseClick(funcZetaCheckBox, Qt::LeftButton);
