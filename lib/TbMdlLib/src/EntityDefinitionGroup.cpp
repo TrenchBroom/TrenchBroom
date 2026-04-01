@@ -19,8 +19,6 @@
 
 #include "mdl/EntityDefinitionGroup.h"
 
-#include "mdl/EntityDefinition.h"
-
 #include "kd/string_format.h"
 
 namespace tb::mdl
