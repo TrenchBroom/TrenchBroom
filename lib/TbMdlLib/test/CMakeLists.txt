@@ -17,6 +17,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Entity.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityColorPropertyValue.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityDefinitionFileSpec.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityDefinitionManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityDefinitionParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityDefinitionUtils.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityLinkManager.cpp
