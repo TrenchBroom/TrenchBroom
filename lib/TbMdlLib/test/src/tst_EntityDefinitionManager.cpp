@@ -18,6 +18,7 @@
  */
 
 #include "mdl/CatchConfig.h"
+#include "mdl/EntityDefinitionGroup.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityDefinitionUtils.h"
 
@@ -69,7 +70,7 @@ TEST_CASE("EntityDefinitionManager")
       CHECK_THAT(
         manager.groups()
           | std::views::transform([](const auto& group) { return group.name; }),
-        UnorderedRangeEquals({"alpha", "beta", "brushdef"}));
+        RangeEquals({"alpha", "beta", "brushdef"}));
 
       const auto findGroup = [&](const auto& name) {
         const auto iGroup = std::ranges::find_if(
@@ -94,6 +95,14 @@ TEST_CASE("EntityDefinitionManager")
       CHECK_THAT(
         brushGroup.definitions | std::views::transform(definitionName),
         UnorderedRangeEquals({"brushdef"}));
+    }
+
+    SECTION("sorts groups alphabetically by display name")
+    {
+      CHECK_THAT(
+        manager.groups()
+          | std::views::transform([](const auto& group) { return displayName(group); }),
+        RangeEquals({"Alpha", "Beta", "Brushdef"}));
     }
   }
 

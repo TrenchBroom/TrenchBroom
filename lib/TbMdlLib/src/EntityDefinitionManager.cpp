@@ -119,6 +119,8 @@ void EntityDefinitionManager::updateGroups()
     m_groups.push_back(
       EntityDefinitionGroup{std::string{groupName}, std::move(definitions)});
   }
+
+  std::ranges::sort(m_groups, compareEntityDefinitionGroups);
 }
 
 void EntityDefinitionManager::clearGroups()
