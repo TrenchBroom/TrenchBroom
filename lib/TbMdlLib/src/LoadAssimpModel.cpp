@@ -125,16 +125,26 @@ class AssimpIOSystem : public Assimp::IOSystem
 {
 private:
   const fs::FileSystem& m_fs;
+  Logger& m_logger;
 
 public:
-  explicit AssimpIOSystem(const fs::FileSystem& fs)
+  explicit AssimpIOSystem(const fs::FileSystem& fs, Logger& logger)
     : m_fs{fs}
+    , m_logger{logger}
   {
   }
 
   bool Exists(const char* path) const override
   {
-    return m_fs.pathInfo(std::filesystem::path{path}) == fs::PathInfo::File;
+    return parsePath(path) | kdl::transform([&](const auto& fsPath) {
+             return m_fs.pathInfo(fsPath) == fs::PathInfo::File;
+           })
+           | kdl::transform_error([&](const auto& e) {
+               m_logger.warn() << fmt::format(
+                 "Assimp path lookup failed for '{}': {}", path, e.msg);
+               return false;
+             })
+           | kdl::value();
   }
 
   char getOsSeparator() const override
@@ -148,14 +158,32 @@ public:
   {
     if (mode[0] != 'r')
     {
-      throw ParserException{"Assimp attempted to open a file not for reading."};
+      m_logger.error() << "Assimp attempted to open a file not for reading.";
+      return nullptr;
     }
 
-    return (m_fs.openFile(path) | kdl::transform([](auto file) {
-              return std::make_unique<AssimpIOStream>(std::move(file));
-            })
-            | kdl::if_error([](auto e) { throw ParserException{e.msg}; }) | kdl::value())
-      .release();
+    return parsePath(path)
+           | kdl::and_then([&](const auto& fsPath) { return m_fs.openFile(fsPath); })
+           | kdl::transform([](auto file) { return new AssimpIOStream{std::move(file)}; })
+           | kdl::transform_error([&](const auto e) {
+               m_logger.error()
+                 << fmt::format("Assimp cannot open '{}': {}", path, e.msg);
+               return nullptr;
+             })
+           | kdl::value();
+  }
+
+private:
+  Result<std::filesystem::path> parsePath(const char* path) const
+  {
+    try
+    {
+      return kdl::parse_utf8_path(std::string{path});
+    }
+    catch (const std::system_error& e)
+    {
+      return Error{e.what()};
+    }
   }
 };
 
@@ -848,7 +876,7 @@ Result<EntityModelData> loadAssimpModel(
 
     // Import the file as an Assimp scene and populate our vectors.
     auto importer = Assimp::Importer{};
-    importer.SetIOHandler(new AssimpIOSystem{fs});
+    importer.SetIOHandler(new AssimpIOSystem{fs, logger});
 
     const auto* scene = importer.ReadFile(modelPath, assimpFlags);
     if (!scene)
