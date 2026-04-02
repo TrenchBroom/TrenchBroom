@@ -90,6 +90,8 @@ enum class EntityDefinitionType
 
 std::string_view getShortName(const EntityDefinition& entityDefinition);
 
+bool compareEntityDefinitions(const EntityDefinition& lhs, const EntityDefinition& rhs);
+
 std::string_view getGroupName(const EntityDefinition& entityDefinition);
 
 EntityDefinitionType getType(const EntityDefinition& entityDefinition);

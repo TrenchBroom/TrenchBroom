@@ -20,6 +20,7 @@
 #include "mdl/EntityDefinition.h"
 
 #include "kd/reflection_impl.h"
+#include "kd/string_compare.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
@@ -78,6 +79,18 @@ std::string_view getShortName(const EntityDefinition& entityDefinition)
   return index == std::string::npos
            ? std::string_view{entityDefinition.name}
            : std::string_view{entityDefinition.name}.substr(index + 1);
+}
+
+bool compareEntityDefinitions(const EntityDefinition& lhs, const EntityDefinition& rhs)
+{
+  if (const auto compareResult =
+        kdl::ci::str_compare(getShortName(lhs), getShortName(rhs));
+      compareResult != 0)
+  {
+    return compareResult < 0;
+  }
+
+  return kdl::cs::str_compare(lhs.name, rhs.name) < 0;
 }
 
 std::string_view getGroupName(const EntityDefinition& entityDefinition)

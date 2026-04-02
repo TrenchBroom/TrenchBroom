@@ -123,7 +123,7 @@ TEST_CASE("EntityDefinitionCheckBoxList")
         definitionCheckBoxes | std::views::transform([](const auto* checkBox) {
           return checkBox->text().toStdString();
         }),
-        RangeEquals({"func_zeta", "func_alpha", "trigger_once"}));
+        RangeEquals({"func_alpha", "func_zeta", "trigger_once"}));
     }
   }
 

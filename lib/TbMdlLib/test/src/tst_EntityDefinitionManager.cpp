@@ -31,7 +31,6 @@
 namespace tb::mdl
 {
 using Catch::Matchers::RangeEquals;
-using Catch::Matchers::UnorderedRangeEquals;
 
 namespace
 {
@@ -86,15 +85,15 @@ TEST_CASE("EntityDefinitionManager")
 
       CHECK_THAT(
         alphaGroup.definitions | std::views::transform(definitionName),
-        UnorderedRangeEquals({"alpha_one", "alpha_three"}));
+        RangeEquals({"alpha_one", "alpha_three"}));
 
       CHECK_THAT(
         betaGroup.definitions | std::views::transform(definitionName),
-        UnorderedRangeEquals({"beta_one", "beta_two"}));
+        RangeEquals({"beta_one", "beta_two"}));
 
       CHECK_THAT(
         brushGroup.definitions | std::views::transform(definitionName),
-        UnorderedRangeEquals({"brushdef"}));
+        RangeEquals({"brushdef"}));
     }
 
     SECTION("sorts groups alphabetically by display name")
