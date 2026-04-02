@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "kd/reflection_decl.h"
+
 #include <string>
 #include <vector>
 
@@ -30,8 +32,13 @@ struct EntityDefinitionGroup
 {
   std::string name;
   std::vector<const EntityDefinition*> definitions;
+
+  kdl_reflect_decl(EntityDefinitionGroup, name, definitions);
 };
 
 std::string displayName(const EntityDefinitionGroup& group);
+
+bool compareEntityDefinitionGroups(
+  const EntityDefinitionGroup& lhs, const EntityDefinitionGroup& rhs);
 
 } // namespace tb::mdl

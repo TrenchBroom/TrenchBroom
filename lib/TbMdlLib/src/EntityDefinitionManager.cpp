@@ -116,9 +116,16 @@ void EntityDefinitionManager::updateGroups()
 
   for (auto& [groupName, definitions] : groupMap)
   {
+    std::ranges::sort(
+      definitions,
+      compareEntityDefinitions,
+      [](const auto* x) -> const EntityDefinition& { return *x; });
+
     m_groups.push_back(
       EntityDefinitionGroup{std::string{groupName}, std::move(definitions)});
   }
+
+  std::ranges::sort(m_groups, compareEntityDefinitionGroups);
 }
 
 void EntityDefinitionManager::clearGroups()
