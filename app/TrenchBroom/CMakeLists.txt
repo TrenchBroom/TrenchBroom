@@ -15,18 +15,18 @@ if(APPLE)
     set_source_files_properties(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
     # Configure button bitmaps etc.
-    file(GLOB_RECURSE MACOSX_IMAGE_FILES "${TB_RESOURCE_DIR}/graphics/images/*")
+    file(GLOB_RECURSE MACOSX_IMAGE_FILES CONFIGURE_DEPENDS "${TB_RESOURCE_DIR}/graphics/images/*")
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_IMAGE_FILES})
     set_source_files_properties(${MACOSX_IMAGE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/images)
 
     # Configure fonts
-    file(GLOB_RECURSE MACOSX_FONT_FILES "${TB_RESOURCE_DIR}/fonts/*.*")
+    file(GLOB_RECURSE MACOSX_FONT_FILES CONFIGURE_DEPENDS "${TB_RESOURCE_DIR}/fonts/*.*")
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_FONT_FILES})
     set_source_files_properties(${MACOSX_FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts)
 
     # Configure default resources
     # Collect all default resources
-    file(GLOB_RECURSE MACOSX_DEFAULT_FILES RELATIVE ${TB_RESOURCE_DIR}/defaults "${TB_RESOURCE_DIR}/defaults/*")
+    file(GLOB_RECURSE MACOSX_DEFAULT_FILES CONFIGURE_DEPENDS RELATIVE ${TB_RESOURCE_DIR}/defaults "${TB_RESOURCE_DIR}/defaults/*")
 
     # Set correct locations for default resources
     foreach(DEFAULT_FILE ${MACOSX_DEFAULT_FILES})
@@ -39,7 +39,7 @@ if(APPLE)
 
     # Configure game resources
     # Collect all game resources
-    file(GLOB_RECURSE MACOSX_GAME_FILES RELATIVE ${TB_RESOURCE_DIR}/games "${TB_RESOURCE_DIR}/games/*")
+    file(GLOB_RECURSE MACOSX_GAME_FILES CONFIGURE_DEPENDS RELATIVE ${TB_RESOURCE_DIR}/games "${TB_RESOURCE_DIR}/games/*")
 
     # Set correct locations for game files
     foreach(GAME_FILE ${MACOSX_GAME_FILES})
@@ -50,30 +50,28 @@ if(APPLE)
         set_source_files_properties(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR} HEADER_FILE_ONLY ON)
     endforeach()
 
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        # Collect all untested game resources
-        file(GLOB_RECURSE MACOSX_GAME_TESTING_FILES RELATIVE ${TB_RESOURCE_DIR}/games-testing "${TB_RESOURCE_DIR}/games-testing/*")
+    # Collect all untested game resources. These are only bundled in Debug builds.
+    file(GLOB_RECURSE MACOSX_GAME_TESTING_FILES CONFIGURE_DEPENDS RELATIVE ${TB_RESOURCE_DIR}/games-testing "${TB_RESOURCE_DIR}/games-testing/*")
 
-        # Set correct locations for untested game files
-        foreach(GAME_FILE ${MACOSX_GAME_TESTING_FILES})
-            get_filename_component(GAME_FILE_DIR "${GAME_FILE}" DIRECTORY)
-            set(GAME_FILE "${TB_RESOURCE_DIR}/games-testing/${GAME_FILE}")
+    # Set correct locations for untested game files.
+    foreach(GAME_FILE ${MACOSX_GAME_TESTING_FILES})
+        get_filename_component(GAME_FILE_DIR "${GAME_FILE}" DIRECTORY)
+        set(GAME_FILE "${TB_RESOURCE_DIR}/games-testing/${GAME_FILE}")
 
-            set(APP_SOURCE ${APP_SOURCE} ${GAME_FILE})
-            set_source_files_properties(${GAME_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR} HEADER_FILE_ONLY ON)
-        endforeach()
-    endif()
+        list(APPEND MACOSX_GAME_TESTING_SOURCE_FILES "${GAME_FILE}")
+        set_source_files_properties(${GAME_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR} HEADER_FILE_ONLY ON)
+    endforeach()
 
     # Configure shaders
     # Collect all shaders
-    file(GLOB_RECURSE MACOSX_SHADER_FILES
+    file(GLOB_RECURSE MACOSX_SHADER_FILES CONFIGURE_DEPENDS
             "${TB_RESOURCE_DIR}/shader/*.fragsh"
             "${TB_RESOURCE_DIR}/shader/*.vertsh")
     set_source_files_properties(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
     # Configure Qt stylesheets
-    file (GLOB_RECURSE MACOSX_STYLESHEET_FILES
+    file (GLOB_RECURSE MACOSX_STYLESHEET_FILES CONFIGURE_DEPENDS
             "${TB_RESOURCE_DIR}/stylesheets/*.qss")
     set_source_files_properties(${MACOSX_STYLESHEET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/stylesheets)
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_STYLESHEET_FILES})
@@ -113,15 +111,28 @@ get_build_platform(APP_PLATFORM_NAME)
 add_executable(TrenchBroom WIN32 MACOSX_BUNDLE)
 target_sources(TrenchBroom PRIVATE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
 
+if(APPLE)
+    target_sources(TrenchBroom PRIVATE "$<$<CONFIG:Debug>:${MACOSX_GAME_TESTING_SOURCE_FILES}>")
+endif()
+
 target_link_libraries(TrenchBroom
   PRIVATE
     CompilerConfig
+    PrecompileQtHeaders
+    PrecompileStdHeaders
+    Qt6::Svg
+    Qt6::Widgets
     TbBaseLib
     TbPreferencesLib
     TbUiLib
-    Qt6::Widgets
-    cpptrace::cpptrace
 )
+
+if(COMPILER_IS_MSVC)
+    # Request 8MB stack on Windows. Default is 1MB and we need more for the
+    # current AABB builder on large maps.
+    set(TB_STACK_SIZE 8388608)
+    target_link_options(TrenchBroom PRIVATE "/STACK:${TB_STACK_SIZE}")
+endif()
 
 # Xcode "new build system" does't allow custom commands to be depended on by two unrelated targets
 # In this case, ${INDEX_OUTPUT_PATH} is depended on by TrenchBroom and GenerateManual
@@ -229,62 +240,84 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     set_target_properties(TrenchBroom PROPERTIES OUTPUT_NAME ${APP_TARGET_NAME_LOWER})
 endif()
 
+function(tb_add_post_build_copy_directory target source destination)
+    if(NOT target)
+        message(FATAL_ERROR "tb_add_post_build_copy_directory: target is required")
+    endif()
+    if(NOT source)
+        message(FATAL_ERROR "tb_add_post_build_copy_directory: source is required")
+    endif()
+    if(NOT destination)
+        message(FATAL_ERROR "tb_add_post_build_copy_directory: destination is required")
+    endif()
+
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${source}" "${destination}")
+endfunction()
+
+function(tb_add_post_build_copy_files target destination)
+    if(NOT target)
+        message(FATAL_ERROR "tb_add_post_build_copy_files: target is required")
+    endif()
+    if(NOT destination)
+        message(FATAL_ERROR "tb_add_post_build_copy_files: destination is required")
+    endif()
+
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${destination}")
+    foreach(source IN LISTS ARGN)
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${source}" "${destination}")
+    endforeach()
+endfunction()
+
 # Set up the resources and DLLs for the executable
 set(APP_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom>")
 
 if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Copy button images to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/graphics/images" "${APP_RESOURCE_DEST_DIR}/images")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/graphics/images" "${APP_RESOURCE_DEST_DIR}/images")
 
     # Copy fonts to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/fonts" "${APP_RESOURCE_DEST_DIR}/fonts")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/fonts" "${APP_RESOURCE_DEST_DIR}/fonts")
 
     # Copy default resources to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/defaults/" "${APP_RESOURCE_DEST_DIR}/defaults")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/defaults/" "${APP_RESOURCE_DEST_DIR}/defaults")
 
     # Copy game files to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games/" "${APP_RESOURCE_DEST_DIR}/games")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/games/" "${APP_RESOURCE_DEST_DIR}/games")
 
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        # Copy untested game files to resources directory
-        add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games-testing/" "${APP_RESOURCE_DEST_DIR}/games")
-    endif()
+    # Copy untested game files to resources directory in Debug builds.
+    add_custom_command(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+            -D TB_CONFIG=$<CONFIG>
+            -D REQUIRED_CONFIG=Debug
+            -D SRC="${TB_RESOURCE_DIR}/games-testing/"
+            -D DST="${APP_RESOURCE_DEST_DIR}/games"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyDirectoryIfConfig.cmake")
 
     # Copy shader files to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/shader" "${APP_RESOURCE_DEST_DIR}/shader")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/shader" "${APP_RESOURCE_DEST_DIR}/shader")
 
     # Copy Qt stylesheet files to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/stylesheets/"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
 
     # Copy update scripts to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/update/"
-            COMMAND ${CMAKE_COMMAND} -E copy "${LIB_UPDATE_SCRIPT}" "${APP_RESOURCE_DEST_DIR}/update")
+    tb_add_post_build_copy_files(TrenchBroom "${APP_RESOURCE_DEST_DIR}/update" "${LIB_UPDATE_SCRIPT}")
 
     # Copy manual files to resource directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/"
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/images"
-            COMMAND ${CMAKE_COMMAND} -E copy "${INDEX_OUTPUT_PATH}" "${APP_RESOURCE_DEST_DIR}/manual/"
-            COMMAND ${CMAKE_COMMAND} -E copy "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}" "${APP_RESOURCE_DEST_DIR}/manual/")
-
-    foreach(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES_ABSOLUTE})
-        add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "${APP_RESOURCE_DEST_DIR}/manual/")
-    endforeach(MANUAL_FILE)
-
-    foreach(MANUAL_IMAGE_FILE ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
-        add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_IMAGE_FILE} "${APP_RESOURCE_DEST_DIR}/manual/images/")
-    endforeach(MANUAL_IMAGE_FILE)
+    tb_add_post_build_copy_files(
+        TrenchBroom
+        "${APP_RESOURCE_DEST_DIR}/manual"
+        "${INDEX_OUTPUT_PATH}"
+        "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+        ${DOC_MANUAL_TARGET_FILES_ABSOLUTE}
+    )
+    tb_add_post_build_copy_files(
+        TrenchBroom
+        "${APP_RESOURCE_DEST_DIR}/manual/images"
+        ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
+    )
 endif()
 
 # Common CPack configuration
@@ -292,26 +325,21 @@ set(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CMAKE_SYSTEM_PROCE
 set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TrenchBroom Level Editor")
 set(CPACK_PACKAGE_VENDOR "TrenchBroom")
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    # We want stack trace symbols even in our release builds, so don't strip
-    set(CPACK_STRIP_FILES FALSE)
-else()
-    set(CPACK_STRIP_FILES FALSE)
-endif()
+# We want stack trace symbols even in our release builds, so don't strip.
+set(CPACK_STRIP_FILES FALSE)
 
 # Platform specific CPack configuration
 if(WIN32)
     # Copy PDB files (msvc debug symbols)
     if(COMPILER_IS_MSVC)
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-            install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
-                    DESTINATION . COMPONENT TrenchBroom)
-        elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-            install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
-                    DESTINATION . COMPONENT TrenchBroom)
-        endif()
+        install(FILES
+            "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
+            DESTINATION . COMPONENT TrenchBroom
+            CONFIGURATIONS Debug RelWithDebInfo)
+        install(FILES
+            "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
+            DESTINATION . COMPONENT TrenchBroom
+            CONFIGURATIONS Release)
     endif()
 
     install(TARGETS TrenchBroom RUNTIME DESTINATION . COMPONENT TrenchBroom)

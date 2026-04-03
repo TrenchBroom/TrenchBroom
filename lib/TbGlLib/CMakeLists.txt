@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 add_library(TbGlLib STATIC)
 
 target_sources(TbGlLib
@@ -57,11 +55,11 @@ target_link_libraries(TbGlLib
     PrecompileStdHeaders
     freetype
   PUBLIC
+    fmt::fmt-header-only
+    KdLib
     TbBaseLib
     TbFsLib
-    KdLib
     VmLib
-    fmt::fmt-header-only
 )
 
 add_subdirectory(test)

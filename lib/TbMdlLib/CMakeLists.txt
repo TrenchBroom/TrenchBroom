@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 add_library(TbMdlLib STATIC)
 
 target_sources(TbMdlLib
@@ -206,12 +204,12 @@ target_link_libraries(TbMdlLib
   PRIVATE
     CompilerConfig
     PrecompileStdHeaders
-    tinyxml2::tinyxml2
-    miniz::miniz
-    freeimage::FreeImage
     assimp::assimp
-    fmt::fmt-header-only
+    freeimage::FreeImage
+    miniz::miniz
+    tinyxml2::tinyxml2
   PUBLIC
+    fmt::fmt-header-only
     KdLib
     TbBaseLib
     TbElLib

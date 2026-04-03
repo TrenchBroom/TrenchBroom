@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
-project(KdLib VERSION 0.1.0 LANGUAGES CXX)
-
 add_library(KdLib STATIC)
 
 target_sources(KdLib
@@ -39,7 +35,7 @@ target_link_libraries(KdLib
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   target_link_libraries(KdLib
     PRIVATE
-    FastFloat::fast_float
+     FastFloat::fast_float
   )
 endif()
 

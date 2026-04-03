@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 add_library(TbRenderLib STATIC)
 
 target_sources(TbRenderLib
@@ -48,14 +46,14 @@ target_link_libraries(TbRenderLib
   PRIVATE
     CompilerConfig
     PrecompileStdHeaders
-    KdLib
-    TbBaseLib
-    TbPreferencesLib
     fmt::fmt-header-only
+    KdLib
+    TbPreferencesLib
   PUBLIC
-    VmLib
+    TbBaseLib
     TbGlLib
     TbMdlLib
+    VmLib
 )
 
 add_subdirectory(test)

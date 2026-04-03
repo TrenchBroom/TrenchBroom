@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 add_library(TbUiLib STATIC)
 
 target_sources(TbUiLib
@@ -462,22 +460,25 @@ target_sources(TbUiLib
     BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
-target_link_libraries(TbUiLib PRIVATE
-  CompilerConfig
-  PrecompileQtHeaders
-  PrecompileStdHeaders
-  KdLib
-  Qt6::Network
-  Qt6::OpenGL
-  Qt6::OpenGLWidgets
-  Qt6::Svg
-  Qt6::Widgets
-  TbBaseLib
-  TbMdlLib
-  TbPreferencesLib
-  TbRenderLib
-  UpdateLib
-  VmLib
+target_link_libraries(TbUiLib 
+  PRIVATE
+    CompilerConfig
+    PrecompileQtHeaders
+    PrecompileStdHeaders
+    cpptrace::cpptrace
+    Qt6::Svg
+  PUBLIC
+    KdLib
+    Qt6::Network
+    Qt6::OpenGL
+    Qt6::OpenGLWidgets
+    Qt6::Widgets
+    TbBaseLib
+    TbMdlLib
+    TbPreferencesLib
+    TbRenderLib
+    UpdateLib
+    VmLib
 )
 
 set_target_properties(TbUiLib PROPERTIES AUTOMOC TRUE)

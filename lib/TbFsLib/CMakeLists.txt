@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 add_library(TbFsLib STATIC)
 
 target_sources(TbFsLib
@@ -28,11 +26,11 @@ target_link_libraries(TbFsLib
   PRIVATE
     CompilerConfig
     PrecompileStdHeaders
+    miniz::miniz
   PUBLIC
     KdLib
     TbBaseLib
     fmt::fmt-header-only
-    miniz::miniz
 )
 
 add_subdirectory(test)

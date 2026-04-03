@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 add_library(TbBaseLib STATIC)
 
 target_sources(TbBaseLib
@@ -29,9 +27,9 @@ target_link_libraries(TbBaseLib
     PrecompileStdHeaders
     stduuid
   PUBLIC
-  KdLib
-  VmLib
-  fmt::fmt-header-only
+    fmt::fmt-header-only
+    KdLib
+    VmLib
 )
 
 add_subdirectory(test)
