@@ -305,15 +305,14 @@ endif()
 if(WIN32)
     # Copy PDB files (msvc debug symbols)
     if(COMPILER_IS_MSVC)
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-            install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
-                    DESTINATION . COMPONENT TrenchBroom)
-        elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-            install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
-                    DESTINATION . COMPONENT TrenchBroom)
-        endif()
+    install(FILES
+        "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
+        DESTINATION . COMPONENT TrenchBroom
+        CONFIGURATIONS Debug RelWithDebInfo)
+    install(FILES
+        "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
+        DESTINATION . COMPONENT TrenchBroom
+        CONFIGURATIONS Release)
     endif()
 
     install(TARGETS TrenchBroom RUNTIME DESTINATION . COMPONENT TrenchBroom)
