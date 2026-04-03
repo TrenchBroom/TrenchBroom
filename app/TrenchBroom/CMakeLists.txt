@@ -245,10 +245,13 @@ function(tb_add_post_build_copy_directory target source destination)
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${source}" "${destination}")
 endfunction()
 
-function(tb_add_post_build_copy_file target source destination)
+function(tb_add_post_build_copy_files target destination)
     add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${destination}"
-        COMMAND ${CMAKE_COMMAND} -E copy "${source}" "${destination}")
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${destination}")
+    foreach(source IN LISTS ARGN)
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${source}" "${destination}")
+    endforeach()
 endfunction()
 
 # Set up the resources and DLLs for the executable
@@ -267,40 +270,37 @@ if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Copy game files to resources directory
     tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/games/" "${APP_RESOURCE_DEST_DIR}/games")
 
-        # Copy untested game files to resources directory in Debug builds.
-        add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND}
-                -D TB_CONFIG=$<CONFIG>
-                -D REQUIRED_CONFIG=Debug
-                -D SRC="${TB_RESOURCE_DIR}/games-testing/"
-                -D DST="${APP_RESOURCE_DEST_DIR}/games"
-                -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyDirectoryIfConfig.cmake")
+    # Copy untested game files to resources directory in Debug builds.
+    add_custom_command(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+            -D TB_CONFIG=$<CONFIG>
+            -D REQUIRED_CONFIG=Debug
+            -D SRC="${TB_RESOURCE_DIR}/games-testing/"
+            -D DST="${APP_RESOURCE_DEST_DIR}/games"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyDirectoryIfConfig.cmake")
 
     # Copy shader files to resources directory
-            tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/shader" "${APP_RESOURCE_DEST_DIR}/shader")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/shader" "${APP_RESOURCE_DEST_DIR}/shader")
 
     # Copy Qt stylesheet files to resources directory
-            tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
 
     # Copy update scripts to resources directory
-            tb_add_post_build_copy_file(TrenchBroom "${LIB_UPDATE_SCRIPT}" "${APP_RESOURCE_DEST_DIR}/update")
+    tb_add_post_build_copy_files(TrenchBroom "${APP_RESOURCE_DEST_DIR}/update" "${LIB_UPDATE_SCRIPT}")
 
     # Copy manual files to resource directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/"
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/images"
-            COMMAND ${CMAKE_COMMAND} -E copy "${INDEX_OUTPUT_PATH}" "${APP_RESOURCE_DEST_DIR}/manual/"
-            COMMAND ${CMAKE_COMMAND} -E copy "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}" "${APP_RESOURCE_DEST_DIR}/manual/")
-
-    foreach(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES_ABSOLUTE})
-        add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "${APP_RESOURCE_DEST_DIR}/manual/")
-    endforeach(MANUAL_FILE)
-
-    foreach(MANUAL_IMAGE_FILE ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
-        add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_IMAGE_FILE} "${APP_RESOURCE_DEST_DIR}/manual/images/")
-    endforeach(MANUAL_IMAGE_FILE)
+    tb_add_post_build_copy_files(
+        TrenchBroom
+        "${APP_RESOURCE_DEST_DIR}/manual/"
+        "${INDEX_OUTPUT_PATH}"
+        "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+        ${DOC_MANUAL_TARGET_FILES_ABSOLUTE}
+    )
+    tb_add_post_build_copy_files(
+        TrenchBroom
+        "${APP_RESOURCE_DEST_DIR}/manual/images/"
+        ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
+    )
 endif()
 
 # Common CPack configuration
