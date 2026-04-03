@@ -241,11 +241,28 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 endif()
 
 function(tb_add_post_build_copy_directory target source destination)
+    if(NOT target)
+        message(FATAL_ERROR "tb_add_post_build_copy_directory: target is required")
+    endif()
+    if(NOT source)
+        message(FATAL_ERROR "tb_add_post_build_copy_directory: source is required")
+    endif()
+    if(NOT destination)
+        message(FATAL_ERROR "tb_add_post_build_copy_directory: destination is required")
+    endif()
+
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${source}" "${destination}")
 endfunction()
 
 function(tb_add_post_build_copy_files target destination)
+    if(NOT target)
+        message(FATAL_ERROR "tb_add_post_build_copy_files: target is required")
+    endif()
+    if(NOT destination)
+        message(FATAL_ERROR "tb_add_post_build_copy_files: destination is required")
+    endif()
+
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory "${destination}")
     foreach(source IN LISTS ARGN)
@@ -291,14 +308,14 @@ if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Copy manual files to resource directory
     tb_add_post_build_copy_files(
         TrenchBroom
-        "${APP_RESOURCE_DEST_DIR}/manual/"
+        "${APP_RESOURCE_DEST_DIR}/manual"
         "${INDEX_OUTPUT_PATH}"
         "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
         ${DOC_MANUAL_TARGET_FILES_ABSOLUTE}
     )
     tb_add_post_build_copy_files(
         TrenchBroom
-        "${APP_RESOURCE_DEST_DIR}/manual/images/"
+        "${APP_RESOURCE_DEST_DIR}/manual/images"
         ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
     )
 endif()
@@ -315,14 +332,14 @@ set(CPACK_STRIP_FILES FALSE)
 if(WIN32)
     # Copy PDB files (msvc debug symbols)
     if(COMPILER_IS_MSVC)
-    install(FILES
-        "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
-        DESTINATION . COMPONENT TrenchBroom
-        CONFIGURATIONS Debug RelWithDebInfo)
-    install(FILES
-        "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
-        DESTINATION . COMPONENT TrenchBroom
-        CONFIGURATIONS Release)
+        install(FILES
+            "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
+            DESTINATION . COMPONENT TrenchBroom
+            CONFIGURATIONS Debug RelWithDebInfo)
+        install(FILES
+            "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
+            DESTINATION . COMPONENT TrenchBroom
+            CONFIGURATIONS Release)
     endif()
 
     install(TARGETS TrenchBroom RUNTIME DESTINATION . COMPONENT TrenchBroom)
