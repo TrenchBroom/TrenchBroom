@@ -28,11 +28,11 @@ target_link_libraries(TbFsLib
   PRIVATE
     CompilerConfig
     PrecompileStdHeaders
+    miniz::miniz
   PUBLIC
     KdLib
     TbBaseLib
     fmt::fmt-header-only
-    miniz::miniz
 )
 
 add_subdirectory(test)

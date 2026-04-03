@@ -39,7 +39,7 @@ target_link_libraries(KdLib
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   target_link_libraries(KdLib
     PRIVATE
-    FastFloat::fast_float
+     FastFloat::fast_float
   )
 endif()
 

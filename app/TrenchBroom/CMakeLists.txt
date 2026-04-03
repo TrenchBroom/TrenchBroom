@@ -116,11 +116,13 @@ target_sources(TrenchBroom PRIVATE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANU
 target_link_libraries(TrenchBroom
   PRIVATE
     CompilerConfig
+    PrecompileQtHeaders
+    PrecompileStdHeaders
+    Qt6::Svg
+    Qt6::Widgets
     TbBaseLib
     TbPreferencesLib
     TbUiLib
-    Qt6::Widgets
-    cpptrace::cpptrace
 )
 
 # Xcode "new build system" does't allow custom commands to be depended on by two unrelated targets

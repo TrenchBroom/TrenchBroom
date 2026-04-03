@@ -43,8 +43,8 @@ target_link_libraries(UpdateLib
     CompilerConfig
     miniz::miniz
   PUBLIC
-    Qt6::Widgets
     Qt6::Network
+    Qt6::Widgets
 )
 
 set_target_properties(UpdateLib PROPERTIES AUTOMOC TRUE)

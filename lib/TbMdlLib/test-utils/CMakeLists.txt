@@ -18,10 +18,10 @@ target_link_libraries(TbMdlTestUtilsLib
     CompilerConfig 
     PrecompileStdHeaders
   PUBLIC
+    fmt::fmt-header-only
     TbBaseTestUtilsLib
     TbGlTestUtilsLib
     TbMdlLib
-    fmt::fmt-header-only
 )
 
 add_subdirectory(test)

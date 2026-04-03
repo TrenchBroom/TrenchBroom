@@ -57,11 +57,11 @@ target_link_libraries(TbGlLib
     PrecompileStdHeaders
     freetype
   PUBLIC
+    fmt::fmt-header-only
+    KdLib
     TbBaseLib
     TbFsLib
-    KdLib
     VmLib
-    fmt::fmt-header-only
 )
 
 add_subdirectory(test)

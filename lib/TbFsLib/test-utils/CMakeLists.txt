@@ -15,8 +15,9 @@ target_link_libraries(TbFsTestUtilsLib
     CompilerConfig
     PrecompileStdHeaders
   PUBLIC
-    TbFsLib
     fmt::fmt-header-only
+    TbFsLib
+    VmLib
 )
 
 add_subdirectory(test)
