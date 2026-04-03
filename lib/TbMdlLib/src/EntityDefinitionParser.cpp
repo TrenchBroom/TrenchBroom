@@ -165,7 +165,7 @@ void inheritPropertyDefinitions(
 
 /**
  * Filter out redundant classes. A class is redundant if a class of the same name exists
- * at an earlier position in the given vector, unless the two classes each have one of the
+ * at a later position in the given vector, unless the two classes each have one of the
  * types point and brush each. That is, any duplicate is redundant with the exception of
  * overloaded point and brush classes.
  */
@@ -179,13 +179,24 @@ std::vector<EntityDefinitionClassInfo> filterRedundantClasses(
 
   const auto baseClassMask = getMask(EntityDefinitionClassType::BaseClass);
 
-  auto seen = std::unordered_map<std::string, int>{};
-  for (const auto& classInfo : classInfos)
+  // Keep only the last occurrence per (name, type) while preserving overall ordering.
+  auto lastOccurrences =
+    std::unordered_map<std::string, std::unordered_map<int, size_t>>{};
+  for (size_t i = 0; i < classInfos.size(); ++i)
   {
+    const auto classMask = getMask(classInfos[i].type);
+    lastOccurrences[classInfos[i].name][classMask] = i;
+  }
+
+  auto seen = std::unordered_map<std::string, int>{};
+  for (size_t i = 0; i < classInfos.size(); ++i)
+  {
+    const auto& classInfo = classInfos[i];
     auto& seenMask = seen[classInfo.name];
     const auto classMask = getMask(classInfo.type);
+    const auto isLastOccurrence = lastOccurrences[classInfo.name][classMask] == i;
 
-    if (classMask & seenMask)
+    if (!isLastOccurrence)
     {
       status.warn(classInfo.location, "Duplicate class info '" + classInfo.name + "'");
     }
@@ -196,7 +207,7 @@ std::vector<EntityDefinitionClassInfo> filterRedundantClasses(
     else
     {
       result.push_back(classInfo);
-      seenMask |= classMask;
+      seenMask = seenMask | classMask;
     }
   }
 

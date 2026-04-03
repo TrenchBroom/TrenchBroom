@@ -217,6 +217,40 @@ Set sounds to the cd track to play.
       });
   }
 
+  SECTION("parseDuplicatePointClassKeepsLast")
+  {
+    const auto file = R"(
+    /*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32)
+    First definition.
+    */
+
+    /*QUAKED monster_zombie (0.0 1.0 0.0) (-8 -8 -8) (8 8 8)
+    Second definition.
+    */
+    )";
+
+    auto parser = DefParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "monster_zombie",
+          RgbF{0.0f, 1.0f, 0.0f},
+          "Second definition.",
+          {},
+          mdl::PointEntityDefinition{
+            {{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}},
+            {},
+            {},
+          },
+        },
+      });
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+    CHECK(status.countStatus(LogLevel::Error) == 0u);
+  }
+
   SECTION("parseSpawnflagWithSkip")
   {
     const auto file = R"(
