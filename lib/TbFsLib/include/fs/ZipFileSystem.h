@@ -22,9 +22,7 @@
 #include "Result.h"
 #include "fs/ImageFileSystem.h"
 
-#include <miniz/miniz.h>
-
-#include <mutex>
+#include <memory>
 
 namespace tb::fs
 {
@@ -33,14 +31,16 @@ class CFile;
 class ZipFileSystem : public ImageFileSystem<CFile>
 {
 private:
-  mz_zip_archive m_archive;
-  std::mutex m_mutex;
+  struct State;
+
+  std::unique_ptr<State> m_state;
 
 public:
-  using ImageFileSystem::ImageFileSystem;
+  explicit ZipFileSystem(std::shared_ptr<CFile> file);
   ~ZipFileSystem() override;
 
 private:
   Result<void> doReadDirectory() override;
 };
+
 } // namespace tb::fs
