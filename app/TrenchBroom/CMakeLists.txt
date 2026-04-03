@@ -294,12 +294,8 @@ set(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CMAKE_SYSTEM_PROCE
 set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TrenchBroom Level Editor")
 set(CPACK_PACKAGE_VENDOR "TrenchBroom")
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    # We want stack trace symbols even in our release builds, so don't strip
-    set(CPACK_STRIP_FILES FALSE)
-else()
-    set(CPACK_STRIP_FILES FALSE)
-endif()
+# We want stack trace symbols even in our release builds, so don't strip.
+set(CPACK_STRIP_FILES FALSE)
 
 # Platform specific CPack configuration
 if(WIN32)
