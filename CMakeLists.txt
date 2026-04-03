@@ -65,16 +65,6 @@ else()
   message(FATAL_ERROR "Unsupported compiler detected.")
 endif()
 
-# Request 8MB stack on Windows. (NOTE: /STACK should be used on .exe targets only.)
-# Default is 1MB and we need more for our current AABB builder on large maps (https://github.com/TrenchBroom/TrenchBroom/issues/2803)
-if(COMPILER_IS_MSVC)
-  set(TB_STACK_SIZE 8388608)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${TB_STACK_SIZE}")
-
-  # This might work in CMake 3.13 and avoid a global setting, but we are on 3.12 for now
-  # target_link_options(common INTERFACE "/STACK:${TB_STACK_SIZE}")
-endif()
-
 include(cmake/Utils.cmake)
 include(cmake/CompilerConfig.cmake)
 include(cmake/PrecompileHeaders.cmake)

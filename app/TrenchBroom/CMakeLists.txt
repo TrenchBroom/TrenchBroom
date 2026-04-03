@@ -127,6 +127,13 @@ target_link_libraries(TrenchBroom
     TbUiLib
 )
 
+if(COMPILER_IS_MSVC)
+    # Request 8MB stack on Windows. Default is 1MB and we need more for the
+    # current AABB builder on large maps.
+    set(TB_STACK_SIZE 8388608)
+    target_link_options(TrenchBroom PRIVATE "/STACK:${TB_STACK_SIZE}")
+endif()
+
 # Xcode "new build system" does't allow custom commands to be depended on by two unrelated targets
 # In this case, ${INDEX_OUTPUT_PATH} is depended on by TrenchBroom and GenerateManual
 # so we must make TrenchBroom depend on GenerateManual (see #3608)
