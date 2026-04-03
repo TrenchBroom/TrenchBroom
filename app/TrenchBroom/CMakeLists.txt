@@ -15,18 +15,18 @@ if(APPLE)
     set_source_files_properties(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
     # Configure button bitmaps etc.
-    file(GLOB_RECURSE MACOSX_IMAGE_FILES "${TB_RESOURCE_DIR}/graphics/images/*")
+    file(GLOB_RECURSE MACOSX_IMAGE_FILES CONFIGURE_DEPENDS "${TB_RESOURCE_DIR}/graphics/images/*")
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_IMAGE_FILES})
     set_source_files_properties(${MACOSX_IMAGE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/images)
 
     # Configure fonts
-    file(GLOB_RECURSE MACOSX_FONT_FILES "${TB_RESOURCE_DIR}/fonts/*.*")
+    file(GLOB_RECURSE MACOSX_FONT_FILES CONFIGURE_DEPENDS "${TB_RESOURCE_DIR}/fonts/*.*")
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_FONT_FILES})
     set_source_files_properties(${MACOSX_FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts)
 
     # Configure default resources
     # Collect all default resources
-    file(GLOB_RECURSE MACOSX_DEFAULT_FILES RELATIVE ${TB_RESOURCE_DIR}/defaults "${TB_RESOURCE_DIR}/defaults/*")
+    file(GLOB_RECURSE MACOSX_DEFAULT_FILES CONFIGURE_DEPENDS RELATIVE ${TB_RESOURCE_DIR}/defaults "${TB_RESOURCE_DIR}/defaults/*")
 
     # Set correct locations for default resources
     foreach(DEFAULT_FILE ${MACOSX_DEFAULT_FILES})
@@ -39,7 +39,7 @@ if(APPLE)
 
     # Configure game resources
     # Collect all game resources
-    file(GLOB_RECURSE MACOSX_GAME_FILES RELATIVE ${TB_RESOURCE_DIR}/games "${TB_RESOURCE_DIR}/games/*")
+    file(GLOB_RECURSE MACOSX_GAME_FILES CONFIGURE_DEPENDS RELATIVE ${TB_RESOURCE_DIR}/games "${TB_RESOURCE_DIR}/games/*")
 
     # Set correct locations for game files
     foreach(GAME_FILE ${MACOSX_GAME_FILES})
@@ -52,7 +52,7 @@ if(APPLE)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         # Collect all untested game resources
-        file(GLOB_RECURSE MACOSX_GAME_TESTING_FILES RELATIVE ${TB_RESOURCE_DIR}/games-testing "${TB_RESOURCE_DIR}/games-testing/*")
+        file(GLOB_RECURSE MACOSX_GAME_TESTING_FILES CONFIGURE_DEPENDS RELATIVE ${TB_RESOURCE_DIR}/games-testing "${TB_RESOURCE_DIR}/games-testing/*")
 
         # Set correct locations for untested game files
         foreach(GAME_FILE ${MACOSX_GAME_TESTING_FILES})
@@ -66,14 +66,14 @@ if(APPLE)
 
     # Configure shaders
     # Collect all shaders
-    file(GLOB_RECURSE MACOSX_SHADER_FILES
+    file(GLOB_RECURSE MACOSX_SHADER_FILES CONFIGURE_DEPENDS
             "${TB_RESOURCE_DIR}/shader/*.fragsh"
             "${TB_RESOURCE_DIR}/shader/*.vertsh")
     set_source_files_properties(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
     # Configure Qt stylesheets
-    file (GLOB_RECURSE MACOSX_STYLESHEET_FILES
+    file (GLOB_RECURSE MACOSX_STYLESHEET_FILES CONFIGURE_DEPENDS
             "${TB_RESOURCE_DIR}/stylesheets/*.qss")
     set_source_files_properties(${MACOSX_STYLESHEET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/stylesheets)
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_STYLESHEET_FILES})
