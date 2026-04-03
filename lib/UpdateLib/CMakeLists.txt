@@ -1,5 +1,3 @@
-project(UpdateLib VERSION 0.1.0 LANGUAGES CXX)
-
 add_library(UpdateLib STATIC)
 
 target_sources(UpdateLib

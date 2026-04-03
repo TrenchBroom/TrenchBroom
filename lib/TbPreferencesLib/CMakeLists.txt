@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 add_library(TbPreferencesLib STATIC)
 
 target_sources(TbPreferencesLib
