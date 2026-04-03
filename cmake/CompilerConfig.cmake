@@ -82,7 +82,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   )
 
   # Enable updated __cplusplus macro
-  add_compile_options(/Zc:__cplusplus)
+  target_compile_options(CompilerConfig INTERFACE /Zc:__cplusplus)
 
   # disable warnings on external code: https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
   target_compile_options(CompilerConfig INTERFACE /experimental:external /external:anglebrackets /external:W0)
@@ -101,4 +101,68 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_compile_options(CompilerConfig INTERFACE "$<$<CONFIG:RELEASE>:/Z7>")
 else()
   message(FATAL_ERROR "Cannot set compile options for target CompilerConfig")
+endif()
+
+# Enable sanitizers if possible and requested.
+if(TB_ENABLE_ASAN)
+  message(STATUS "Enabling ASan")
+
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(CompilerConfig INTERFACE -fsanitize=address)
+    target_link_options(CompilerConfig INTERFACE -fsanitize=address)
+  else()
+    message(WARNING "TB isn't set up to enable ASan for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+endif()
+
+if(TB_ENABLE_TSAN)
+  message(STATUS "Enabling TSan")
+
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(CompilerConfig INTERFACE -fsanitize=thread)
+    target_link_options(CompilerConfig INTERFACE -fsanitize=thread)
+  else()
+    message(WARNING "TB isn't set up to enable TSan for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+endif()
+
+if(TB_ENABLE_UBSAN)
+  message(STATUS "Enabling UBSan")
+
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(CompilerConfig INTERFACE -fsanitize=undefined)
+    target_link_options(CompilerConfig INTERFACE -fsanitize=undefined)
+  else()
+    message(WARNING "TB isn't set up to enable UBSan for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+endif()
+
+# Enable gcov-compatible coverage if requested.
+if(TB_ENABLE_GCOV)
+  message(STATUS "Enabling gcov coverage")
+
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(CompilerConfig INTERFACE --coverage)
+    target_link_options(CompilerConfig INTERFACE --coverage)
+  else()
+    message(WARNING "TB isn't set up to enable gcov coverage for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+endif()
+
+# Enable LLVM source-based coverage if requested.
+if(TB_ENABLE_LCOV)
+  message(STATUS "Enabling LLVM source-based coverage")
+  message(STATUS "To generate coverage profiles when running tests, use:")
+  message(STATUS "  LLVM_PROFILE_FILE=default.profraw <test-executable>")
+
+  if(TB_ENABLE_GCOV)
+    message(WARNING "Both TB_ENABLE_GCOV and TB_ENABLE_LCOV are enabled; this combination is not recommended")
+  endif()
+
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    target_compile_options(CompilerConfig INTERFACE -fprofile-instr-generate -fcoverage-mapping)
+    target_link_options(CompilerConfig INTERFACE -fprofile-instr-generate)
+  else()
+    message(WARNING "TB isn't set up to enable LLVM source-based coverage for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
 endif()
