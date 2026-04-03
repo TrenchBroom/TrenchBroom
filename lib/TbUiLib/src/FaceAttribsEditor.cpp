@@ -203,10 +203,10 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
     return;
   }
 
-  const std::string str = m_colorEditor->text().toStdString();
+  const auto str = m_colorEditor->text().toStdString();
   if (!kdl::str_is_blank(str))
   {
-    Color::parse(str) | kdl::transform([&](const auto& color) {
+    RgbB::parse(str) | kdl::transform([&](const auto& color) {
       if (!setBrushFaceAttributes(map, {.color = {color}}))
       {
         updateControls();
@@ -722,7 +722,7 @@ void FaceAttribsEditor::updateControls()
       else
       {
         m_colorEditor->setPlaceholderText("");
-        m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(*colorValue)));
+        m_colorEditor->setText(QString::fromStdString(colorValue->to<RgbB>().toString()));
       }
     }
     else
