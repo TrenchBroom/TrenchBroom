@@ -92,6 +92,36 @@ TEST_CASE("loadAssimpModel")
 
     CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {2, 1, 3}});
   }
+
+  SECTION("non ascii diffuse texture path")
+  {
+    const auto basePath = std::filesystem::current_path()
+                          / "fixture/test/mdl/LoadAssimpModel/nonAsciiTexturePath";
+    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
+
+    auto modelData = loadAssimpModel("non_ascii_texture_path.obj", *fs, logger);
+    REQUIRE(modelData);
+
+    CHECK(modelData.value().frameCount() == 1);
+    CHECK(modelData.value().surfaceCount() == 1);
+    CHECK(modelData.value().surface(0).skinCount() == 1);
+    CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {0, 1, 1}});
+  }
+
+  SECTION("malformed diffuse texture path")
+  {
+    const auto basePath = std::filesystem::current_path()
+                          / "fixture/test/mdl/LoadAssimpModel/malformedTexturePath";
+    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
+
+    auto modelData = loadAssimpModel("malformed_texture_path.obj", *fs, logger);
+    REQUIRE(modelData);
+
+    CHECK(modelData.value().frameCount() == 1);
+    CHECK(modelData.value().surfaceCount() == 1);
+    CHECK(modelData.value().surface(0).skinCount() == 1);
+    CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {0, 1, 1}});
+  }
 }
 
 } // namespace tb::mdl

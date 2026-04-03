@@ -39,6 +39,32 @@ TEST_CASE("parse_path")
   CHECK(parse_path(R"(a\b\c)"s, !K(replace_backslashes)) == path{R"(a\b\c)"});
 }
 
+TEST_CASE("parse_utf8_path")
+{
+  SECTION("valid bytes")
+  {
+    const auto utf8Path = std::string{"textures/\xE3\x83\x86\xE3\x82\xAF.png"};
+    const auto path = parse_utf8_path(utf8Path);
+
+#ifdef _WIN32
+    CHECK(path.wstring() == L"textures\\\u30C6\u30AF.png");
+#else
+    CHECK(path.string() == utf8Path);
+#endif
+  }
+
+  SECTION("malformed bytes")
+  {
+    const auto malformedPath = std::string{"textures/\xC3\x28.png"};
+
+#ifdef _WIN32
+    CHECK_THROWS_AS(parse_utf8_path(malformedPath), std::system_error);
+#else
+    CHECK_NOTHROW(parse_utf8_path(malformedPath));
+#endif
+  }
+}
+
 TEST_CASE("path_length"s)
 {
   CHECK(path_length(path{}) == 0);

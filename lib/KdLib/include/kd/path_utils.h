@@ -26,9 +26,10 @@
 
 namespace kdl
 {
-
+namespace detail
+{
 template <typename char_type>
-std::filesystem::path parse_path(
+std::basic_string<char_type> path_convert_separators(
   std::basic_string<char_type> str, const bool convert_separators = true)
 {
   if (convert_separators)
@@ -39,8 +40,21 @@ std::filesystem::path parse_path(
     std::ranges::replace_if(
       str, [&](const auto c) { return c == win_sep || c == x_sep; }, pref_sep);
   }
-  return std::filesystem::path{std::move(str)};
+
+  return str;
 }
+
+} // namespace detail
+
+template <typename char_type>
+std::filesystem::path parse_path(
+  std::basic_string<char_type> str, const bool convert_separators = true)
+{
+  return std::filesystem::path{
+    detail::path_convert_separators(std::move(str), convert_separators)};
+}
+
+std::filesystem::path parse_utf8_path(std::string str, bool convert_separators = true);
 
 size_t path_length(const std::filesystem::path& path);
 
