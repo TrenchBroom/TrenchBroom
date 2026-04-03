@@ -81,42 +81,20 @@ void gridLinesSoft(vec2 inCoords)
 void main()
 {
   if (ApplyMaterial)
+  {
     gl_FragColor = texture2D(Material, gl_TexCoord[0].st);
+  }
   else
+  {
     gl_FragColor = faceColor;
+  }
 
   gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
   gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
 
   if (RenderGrid)
   {
-    // vec2 gridRatios = GridDivider / GridSizes;
-    // vec2 gridThickness = abs(1.5 / GridScales / CameraZoom);
-
     vec4 texCoordinates = GridMatrix * modelCoordinates;
     gridLinesSoft(texCoordinates.xy);
-
-    /*
-            float normX = abs(modelNormal.x);
-            float normY = abs(modelNormal.y);
-            float normZ = abs(modelNormal.z);
-
-            float gridThickness = GridSize < 4 ? 0.25 : 0.5;
-            float gridRatio = 1.0 / GridSize;
-            vec2 baseCoords; // coordinates used for overlay creation
-
-            if (normX > normY) {
-                    if (normX > normZ)
-                            baseCoords = modelCoordinates.yz;
-                    else
-                            baseCoords = modelCoordinates.xy;
-            } else if (normY > normZ) {
-                    baseCoords = modelCoordinates.xz;
-            } else {
-                    baseCoords = modelCoordinates.xy;
-            }
-
-            gridLinesSoft(baseCoords, gridRatio, gridThickness);
-    */
   }
 }

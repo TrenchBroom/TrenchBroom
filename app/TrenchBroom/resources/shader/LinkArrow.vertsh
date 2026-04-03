@@ -135,7 +135,10 @@ float measureAngle(vec3 vec, vec3 axis, vec3 up)
   {
     return acos(cosAngle);
   }
-  return radians(360.0) - acos(cosAngle);
+  else
+  {
+    return radians(360.0) - acos(cosAngle);
+  }
 }
 
 void main(void)

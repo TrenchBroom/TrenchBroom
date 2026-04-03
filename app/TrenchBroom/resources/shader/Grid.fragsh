@@ -125,9 +125,13 @@ float grid(
   if (abs(normal.x) > abs(normal.y))
   {
     if (abs(normal.x) > abs(normal.z))
+    {
       baseCoords = coords.yz;
+    }
     else
+    {
       baseCoords = coords.xy;
+    }
   }
   else if (abs(normal.y) > abs(normal.z))
   {

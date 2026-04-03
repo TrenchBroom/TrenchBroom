@@ -46,9 +46,13 @@ vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 void main()
 {
   if (ApplyMaterial)
+  {
     gl_FragColor = texture2D(Material, gl_TexCoord[0].st);
+  }
   else
+  {
     gl_FragColor = faceColor;
+  }
 
   // Assume alpha masked or opaque.
   // TODO: Make this optional if we gain support for translucent textures
