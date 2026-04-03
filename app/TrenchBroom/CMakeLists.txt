@@ -50,19 +50,17 @@ if(APPLE)
         set_source_files_properties(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR} HEADER_FILE_ONLY ON)
     endforeach()
 
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        # Collect all untested game resources
-        file(GLOB_RECURSE MACOSX_GAME_TESTING_FILES CONFIGURE_DEPENDS RELATIVE ${TB_RESOURCE_DIR}/games-testing "${TB_RESOURCE_DIR}/games-testing/*")
+    # Collect all untested game resources. These are only bundled in Debug builds.
+    file(GLOB_RECURSE MACOSX_GAME_TESTING_FILES CONFIGURE_DEPENDS RELATIVE ${TB_RESOURCE_DIR}/games-testing "${TB_RESOURCE_DIR}/games-testing/*")
 
-        # Set correct locations for untested game files
-        foreach(GAME_FILE ${MACOSX_GAME_TESTING_FILES})
-            get_filename_component(GAME_FILE_DIR "${GAME_FILE}" DIRECTORY)
-            set(GAME_FILE "${TB_RESOURCE_DIR}/games-testing/${GAME_FILE}")
+    # Set correct locations for untested game files.
+    foreach(GAME_FILE ${MACOSX_GAME_TESTING_FILES})
+        get_filename_component(GAME_FILE_DIR "${GAME_FILE}" DIRECTORY)
+        set(GAME_FILE "${TB_RESOURCE_DIR}/games-testing/${GAME_FILE}")
 
-            set(APP_SOURCE ${APP_SOURCE} ${GAME_FILE})
-            set_source_files_properties(${GAME_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR} HEADER_FILE_ONLY ON)
-        endforeach()
-    endif()
+        list(APPEND MACOSX_GAME_TESTING_SOURCE_FILES "${GAME_FILE}")
+        set_source_files_properties(${GAME_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR} HEADER_FILE_ONLY ON)
+    endforeach()
 
     # Configure shaders
     # Collect all shaders
@@ -112,6 +110,10 @@ get_build_platform(APP_PLATFORM_NAME)
 # Create the executable target and link with libraries
 add_executable(TrenchBroom WIN32 MACOSX_BUNDLE)
 target_sources(TrenchBroom PRIVATE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
+
+if(APPLE)
+    target_sources(TrenchBroom PRIVATE "$<$<CONFIG:Debug>:${MACOSX_GAME_TESTING_SOURCE_FILES}>")
+endif()
 
 target_link_libraries(TrenchBroom
   PRIVATE
@@ -251,11 +253,14 @@ if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     add_custom_command(TARGET TrenchBroom POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games/" "${APP_RESOURCE_DEST_DIR}/games")
 
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        # Copy untested game files to resources directory
+        # Copy untested game files to resources directory in Debug builds.
         add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games-testing/" "${APP_RESOURCE_DEST_DIR}/games")
-    endif()
+            COMMAND ${CMAKE_COMMAND}
+                -D TB_CONFIG=$<CONFIG>
+                -D REQUIRED_CONFIG=Debug
+                -D SRC="${TB_RESOURCE_DIR}/games-testing/"
+                -D DST="${APP_RESOURCE_DEST_DIR}/games"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyDirectoryIfConfig.cmake")
 
     # Copy shader files to resources directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
