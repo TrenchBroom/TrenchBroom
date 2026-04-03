@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "kd/contracts.h"
+
 #include <iterator>
 #include <optional>
 #include <ranges>
@@ -95,6 +97,24 @@ template <std::ranges::range R, typename X>
 auto index_of(const R& r, const X& x)
 {
   return index_of(r, [&](const auto& e) { return e == x; });
+}
+
+template <std::ranges::borrowed_range R>
+auto pred(R&& range, std::ranges::iterator_t<R> iter)
+{
+  contract_assert(std::ranges::begin(range) != std::ranges::end(range));
+
+  return iter == std::ranges::begin(range) ? std::ranges::prev(std::ranges::end(range))
+                                           : std::ranges::prev(iter);
+}
+
+template <std::ranges::borrowed_range R>
+auto succ(R&& range, std::ranges::iterator_t<R> iter)
+{
+  contract_assert(std::ranges::begin(range) != std::ranges::end(range));
+
+  auto next = std::ranges::next(iter);
+  return next == std::ranges::end(range) ? std::ranges::begin(range) : next;
 }
 
 } // namespace kdl

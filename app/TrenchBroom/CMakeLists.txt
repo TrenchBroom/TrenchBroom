@@ -113,8 +113,15 @@ get_build_platform(APP_PLATFORM_NAME)
 add_executable(TrenchBroom WIN32 MACOSX_BUNDLE)
 target_sources(TrenchBroom PRIVATE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
 
-target_link_libraries(TrenchBroom PRIVATE CompilerConfig)
-target_link_libraries(TrenchBroom PRIVATE TbBaseLib TbPreferencesLib TbUiLib Qt6::Widgets cpptrace::cpptrace)
+target_link_libraries(TrenchBroom
+  PRIVATE
+    CompilerConfig
+    TbBaseLib
+    TbPreferencesLib
+    TbUiLib
+    Qt6::Widgets
+    cpptrace::cpptrace
+)
 
 # Xcode "new build system" does't allow custom commands to be depended on by two unrelated targets
 # In this case, ${INDEX_OUTPUT_PATH} is depended on by TrenchBroom and GenerateManual
