@@ -2,19 +2,19 @@
 
 /*
  Copyright (C) 2010 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,28 +29,33 @@ varying vec4 worldCoordinates;
 
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
-void main() {
-    vec4 texel = texture2D(Material, gl_TexCoord[0].st);
+void main()
+{
+  vec4 texel = texture2D(Material, gl_TexCoord[0].st);
 
-    // Assume alpha masked or opaque.
-    // TODO: Make this optional if we gain support for translucent textures
-    if (texel.a < 0.5) {
-        discard;
-    }
+  // Assume alpha masked or opaque.
+  // TODO: Make this optional if we gain support for translucent textures
+  if (texel.a < 0.5)
+  {
+    discard;
+  }
 
-    gl_FragColor = vec4(vec3(Brightness / 2.0 * texel), texel.a);
-    gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);
-    
-    if (GrayScale) {
-        float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
-        gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
-    }
-    
-    if (ApplyTinting) {
-        gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
-        float brightnessCorrection = 1.0 / max(max(abs(TintColor.r), abs(TintColor.g)), abs(TintColor.b));
-        gl_FragColor = clamp(brightnessCorrection * gl_FragColor, 0.0, 1.0);
-    }
+  gl_FragColor = vec4(vec3(Brightness / 2.0 * texel), texel.a);
+  gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);
 
-    gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);
+  if (GrayScale)
+  {
+    float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
+    gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
+  }
+
+  if (ApplyTinting)
+  {
+    gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
+    float brightnessCorrection =
+      1.0 / max(max(abs(TintColor.r), abs(TintColor.g)), abs(TintColor.b));
+    gl_FragColor = clamp(brightnessCorrection * gl_FragColor, 0.0, 1.0);
+  }
+
+  gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);
 }
