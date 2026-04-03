@@ -240,25 +240,32 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     set_target_properties(TrenchBroom PROPERTIES OUTPUT_NAME ${APP_TARGET_NAME_LOWER})
 endif()
 
+function(tb_add_post_build_copy_directory target source destination)
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${source}" "${destination}")
+endfunction()
+
+function(tb_add_post_build_copy_file target source destination)
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${destination}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${source}" "${destination}")
+endfunction()
+
 # Set up the resources and DLLs for the executable
 set(APP_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom>")
 
 if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Copy button images to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/graphics/images" "${APP_RESOURCE_DEST_DIR}/images")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/graphics/images" "${APP_RESOURCE_DEST_DIR}/images")
 
     # Copy fonts to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/fonts" "${APP_RESOURCE_DEST_DIR}/fonts")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/fonts" "${APP_RESOURCE_DEST_DIR}/fonts")
 
     # Copy default resources to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/defaults/" "${APP_RESOURCE_DEST_DIR}/defaults")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/defaults/" "${APP_RESOURCE_DEST_DIR}/defaults")
 
     # Copy game files to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games/" "${APP_RESOURCE_DEST_DIR}/games")
+    tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/games/" "${APP_RESOURCE_DEST_DIR}/games")
 
         # Copy untested game files to resources directory in Debug builds.
         add_custom_command(TARGET TrenchBroom POST_BUILD
@@ -270,18 +277,13 @@ if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
                 -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyDirectoryIfConfig.cmake")
 
     # Copy shader files to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/shader" "${APP_RESOURCE_DEST_DIR}/shader")
+            tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/shader" "${APP_RESOURCE_DEST_DIR}/shader")
 
     # Copy Qt stylesheet files to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/stylesheets/"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
+            tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
 
     # Copy update scripts to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/update/"
-            COMMAND ${CMAKE_COMMAND} -E copy "${LIB_UPDATE_SCRIPT}" "${APP_RESOURCE_DEST_DIR}/update")
+            tb_add_post_build_copy_file(TrenchBroom "${LIB_UPDATE_SCRIPT}" "${APP_RESOURCE_DEST_DIR}/update")
 
     # Copy manual files to resource directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
