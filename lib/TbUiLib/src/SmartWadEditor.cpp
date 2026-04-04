@@ -139,34 +139,38 @@ SmartWadEditor::SmartWadEditor(MapDocument& document, QWidget* parent)
 
 void SmartWadEditor::addWads()
 {
-  const auto pathQStr = QFileDialog::getOpenFileName(
+  const auto pathQStrs = QFileDialog::getOpenFileNames(
     nullptr,
-    tr("Load Wad File"),
+    tr("Load Wad Files"),
     fileDialogDefaultDirectory(FileDialogDir::MaterialCollection),
     tr("Wad files (*.wad);;All files (*.*)"));
 
-  if (!pathQStr.isEmpty())
+  if (pathQStrs.isEmpty())
   {
-    auto& map = document().map();
+    return;
+  }
 
-    updateFileDialogDefaultDirectoryWithFilename(
-      FileDialogDir::MaterialCollection, pathQStr);
+  auto& map = document().map();
 
-    const auto absWadPath = pathFromQString(pathQStr);
-    const auto gamePath = pref(map.gameInfo().gamePathPreference);
-    auto pathDialog = ChoosePathTypeDialog{window(), absWadPath, map.path(), gamePath};
+  updateFileDialogDefaultDirectoryWithFilename(
+    FileDialogDir::MaterialCollection, pathQStrs.front());
 
-    const int result = pathDialog.exec();
-    if (result == QDialog::Accepted)
-    {
-      auto wadPaths = getWadPaths(nodes(), propertyKey());
-      wadPaths.push_back(
-        convertToPathType(pathDialog.pathType(), absWadPath, map.path(), gamePath));
+  const auto gamePath = pref(map.gameInfo().gamePathPreference);
+  auto pathDialog = ChoosePathTypeDialog{
+    window(), pathFromQString(pathQStrs.front()), map.path(), gamePath};
 
-      setEntityProperty(map, propertyKey(), getWadPathStr(wadPaths));
-      m_wadPaths->setCurrentRow(
-        m_wadPaths->count() - 1, QItemSelectionModel::ClearAndSelect);
-    }
+  if (pathDialog.exec() == QDialog::Accepted)
+  {
+    auto wadPaths = getWadPaths(nodes(), propertyKey());
+    std::ranges::transform(
+      pathQStrs, std::back_inserter(wadPaths), [&](const auto& pathQStr) {
+        return convertToPathType(
+          pathDialog.pathType(), pathFromQString(pathQStr), map.path(), gamePath);
+      });
+
+    setEntityProperty(map, propertyKey(), getWadPathStr(wadPaths));
+    m_wadPaths->setCurrentRow(
+      m_wadPaths->count() - 1, QItemSelectionModel::ClearAndSelect);
   }
 }
 
