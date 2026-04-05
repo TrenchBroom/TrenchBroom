@@ -21,7 +21,8 @@
 
 uniform vec4 Color;
 
-void main(void) {
-	gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
-    gl_FrontColor = Color;
+void main(void)
+{
+  gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
+  gl_FrontColor = Color;
 }
