@@ -69,13 +69,27 @@ void gridLinesSoft(vec2 inCoords)
   vec2 stripeWidths = GridSizes / GridDivider;
   // ratio of the line widths and the stripe widths
   vec2 stripeRatios = lineWidths / stripeWidths;
-  vec2 stripeSizes = 1.0 - stripeRatios;
+  vec2 stripeSizes = clamp(1.0 - stripeRatios, 0.0, 1.0);
 
-  float alpha = max(
+  float lineAlpha = max(
     getSoftStripes(inCoords.x, GridDivider.x, GridSizes.x, stripeSizes.x),
     getSoftStripes(inCoords.y, GridDivider.y, GridSizes.y, stripeSizes.y));
+  lineAlpha = clamp(lineAlpha, 0.0, 1.0);
 
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor.rgb, alpha * GridColor.a * 0.5);
+  // Pick the grid shade using local fragment brightness.
+  // This keeps lines readable on dark details inside otherwise bright textures.
+  float localLum = dot(gl_FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+  float darkGridLum = 0.15;
+  float lightGridLum = 0.85;
+
+  float darkContrast = abs(localLum - darkGridLum);
+  float lightContrast = abs(localLum - lightGridLum);
+  float chooseLightGrid = step(darkContrast, lightContrast);
+  float gridLum = mix(darkGridLum, lightGridLum, chooseLightGrid);
+  vec3 adaptiveGridColor = vec3(gridLum);
+
+  gl_FragColor.rgb =
+    mix(gl_FragColor.rgb, adaptiveGridColor, lineAlpha * GridColor.a * 0.85);
 }
 
 void main()
