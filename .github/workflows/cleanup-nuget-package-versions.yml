@@ -24,6 +24,7 @@ jobs:
             const owner = context.repo.owner;
             const packageType = 'nuget';
             const versionsToKeep = 3;
+            const fourWeeksInMs = 4 * 7 * 24 * 60 * 60 * 1000;
             const packageNames = new Set();
 
             async function listPackagesForType(packageType) {
@@ -86,7 +87,19 @@ jobs:
                 return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
               });
 
-              const versionsToDelete = sortedVersions.slice(versionsToKeep);
+              const now = new Date().getTime();
+              const versionsToDelete = sortedVersions.filter((version, index) => {
+                const versionAge = now - new Date(version.created_at).getTime();
+                // Delete if older than 4 weeks AND has 0 downloads (regardless of position)
+                if (versionAge > fourWeeksInMs && version.download_count === 0) {
+                  return true;
+                }
+                // Also delete if beyond the keep count
+                if (index >= versionsToKeep) {
+                  return true;
+                }
+                return false;
+              });
               core.info(`${packageName}: keeping ${Math.min(sortedVersions.length, versionsToKeep)} of ${sortedVersions.length} version(s).`);
 
               for (const version of versionsToDelete) {
