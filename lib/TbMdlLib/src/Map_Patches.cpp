@@ -25,6 +25,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/PatchNode.h"
 #include "mdl/PatchUtils.h"
 #include "mdl/Selection.h"
 #include "mdl/Transaction.h"
@@ -38,6 +39,39 @@
 
 namespace tb::mdl
 {
+
+void convertSelectionToPatches(
+  Map& map, const size_t pointRowCount, const size_t pointColumnCount)
+{
+  const auto& selection = map.selection();
+  contract_assert(selection.hasAnyBrushFaces());
+
+  auto patchNodes =
+    selection.allBrushFaces() | std::views::transform([&](const auto& faceHandle) {
+      return createPatch(faceHandle.face(), pointRowCount, pointColumnCount);
+    })
+    | std::views::join | std::views::transform([](auto patch) {
+        return static_cast<Node*>(
+          std::make_unique<PatchNode>(std::move(patch)).release());
+      })
+    | kdl::ranges::to<std::vector>();
+
+  auto nodesToRemove = selection.allBrushFaces()
+                       | std::views::transform([](const auto& faceHandle) {
+                           return static_cast<Node*>(faceHandle.node());
+                         })
+                       | kdl::ranges::to<std::vector>();
+  kdl::vec_sort_and_remove_duplicates(nodesToRemove);
+
+  auto transaction = Transaction{map, "Convert Selection to Patches"};
+
+  auto addedNodes = addNodes(map, {{parentForNodes(map), patchNodes}});
+  deselectAll(map);
+  removeNodes(map, nodesToRemove);
+  selectNodes(map, addedNodes);
+
+  transaction.commit();
+}
 
 bool resamplePatches(Map& map, const size_t pointRowCount, const size_t pointColumnCount)
 {

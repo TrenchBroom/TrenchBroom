@@ -29,6 +29,8 @@ namespace tb::mdl
 {
 class Map;
 
+void convertSelectionToPatches(Map& map, size_t pointRowCount, size_t pointColumnCount);
+
 bool resamplePatches(Map& map, size_t pointRowCount, size_t pointColumnCount);
 
 bool transformControlPoints(
