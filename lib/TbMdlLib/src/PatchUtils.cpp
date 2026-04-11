@@ -20,11 +20,15 @@
 #include "mdl/PatchUtils.h"
 
 #include "mdl/BezierPatch.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceAttributes.h"
 
 #include "kd/contracts.h"
 
+#include "vm/scalar.h"
 #include "vm/vec.h"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -34,6 +38,122 @@ namespace tb::mdl
 {
 namespace
 {
+
+BezierPatch makePatch(
+  const BrushFace& face,
+  const size_t pointRowCount,
+  const size_t pointColumnCount,
+  const vm::vec3d& c0,
+  const vm::vec3d& c1,
+  const vm::vec3d& c2,
+  const vm::vec3d& c3)
+{
+  auto controlPoints = std::vector<BezierPatch::Point>{};
+  controlPoints.reserve(pointRowCount * pointColumnCount);
+
+  for (size_t i = 0; i < pointRowCount; ++i)
+  {
+    const auto s = double(i) / double(pointRowCount - 1);
+    for (size_t j = 0; j < pointColumnCount; ++j)
+    {
+      const auto t = double(j) / double(pointColumnCount - 1);
+
+      // Bilinear interpolation of the four corners:
+      // B(s,t) = (1-s)(1-t)*c0 + (1-s)*t*c1 + s*t*c2 + s*(1-t)*c3
+      //
+      // Corner layout:
+      //   c0 = (row=0,    col=0   )
+      //   c1 = (row=0,    col=last)
+      //   c2 = (row=last, col=last)
+      //   c3 = (row=last, col=0   )
+      const auto pos =
+        (1.0 - s) * (1.0 - t) * c0 + (1.0 - s) * t * c1 + s * t * c2 + s * (1.0 - t) * c3;
+
+      const auto uv = vm::vec2d{face.uvCoords(pos)};
+      controlPoints.push_back(
+        BezierPatch::Point{pos.x(), pos.y(), pos.z(), uv.x(), uv.y()});
+    }
+  }
+
+  return BezierPatch{
+    pointRowCount,
+    pointColumnCount,
+    std::move(controlPoints),
+    face.attributes().materialName()};
+}
+
+double measureAngle(
+  const vm::vec3d& v0, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& normal)
+{
+  return vm::measure_angle(v0 - v1, v2 - v1, normal);
+}
+
+// Computes the variance of the internal angles (in radians) of a quad
+double computeQuadAngleSymmetryScore(
+  const vm::vec3d& v0,
+  const vm::vec3d& v1,
+  const vm::vec3d& v2,
+  const vm::vec3d& v3,
+  const vm::vec3d& normal)
+{
+  const auto a0 = measureAngle(v3, v0, v1, normal);
+  const auto a1 = measureAngle(v0, v1, v2, normal);
+  const auto a2 = measureAngle(v1, v2, v3, normal);
+  const auto a3 = measureAngle(v2, v3, v0, normal);
+  return vm::variance(a0, a1, a2, a3);
+}
+
+// Computes the variance of the edge lengths of a quad
+double computeQuadEdgeSymmetryScore(
+  const vm::vec3d& v0, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3)
+{
+  const auto e0 = vm::length(v1 - v0);
+  const auto e1 = vm::length(v2 - v1);
+  const auto e2 = vm::length(v3 - v2);
+  const auto e3 = vm::length(v0 - v3);
+  return vm::variance(e0, e1, e2, e3);
+}
+
+// Combines angle and edge symmetry scores for a quad
+auto computeQuadSymmetryScore(
+  const vm::vec3d& v0,
+  const vm::vec3d& v1,
+  const vm::vec3d& v2,
+  const vm::vec3d& v3,
+  const vm::vec3d& normal)
+{
+  const auto angleScore = computeQuadAngleSymmetryScore(v0, v1, v2, v3, normal);
+  const auto edgeScore = computeQuadEdgeSymmetryScore(v0, v1, v2, v3);
+  return std::tuple{angleScore, edgeScore};
+}
+
+auto selectStartVertex(std::vector<vm::vec3d> vertices, const vm::vec3d& normal)
+{
+  std::ranges::reverse(vertices);
+
+  const auto n = vertices.size();
+  if (n >= 4)
+  {
+    // For quads and higher, try all possible consecutive quads and pick the most
+    // symmetric
+    const auto mapToScore = [&](const auto i) {
+      // Indices of the quad: i, i+1, i+2, i+3 (mod n)
+      const auto& v0 = vertices[i % n];
+      const auto& v1 = vertices[(i + 1) % n];
+      const auto& v2 = vertices[(i + 2) % n];
+      const auto& v3 = vertices[(i + 3) % n];
+      return computeQuadSymmetryScore(v0, v1, v2, v3, normal);
+    };
+
+    const auto bestStartIndex = *std::ranges::min_element(
+      std::views::iota(0u, n), std::less<std::tuple<double, double>>{}, mapToScore);
+
+    // Rotate so that bestStart is first
+    std::ranges::rotate(vertices, std::next(vertices.begin(), bestStartIndex));
+  }
+
+  return vertices;
+}
 
 /*
  * The functions below resample a Bezier patch onto a different number of control points
@@ -240,6 +360,93 @@ BezierPatch::Point fitCenterControlPoint(
 }
 
 } // namespace
+
+std::vector<BezierPatch> createPatch(
+  const BrushFace& face, const size_t pointRowCount, const size_t pointColumnCount)
+{
+  contract_assert(pointRowCount > 2 && pointRowCount % 2 == 1);
+  contract_assert(pointColumnCount > 2 && pointColumnCount % 2 == 1);
+
+  const auto n = face.vertexCount();
+  contract_assert(n >= 3);
+
+  const auto vertices = selectStartVertex(face.vertexPositions(), face.normal());
+
+  // Clip the polygon into quads by starting with (V[0],V[1],V[2],V[3]) and then
+  // repeatedly extending outward by one vertex on each side of the current quad's
+  // diagonal (the one side of the quad that is not a boundary edge of the face):
+  //
+  //   (V[0],V[1],V[2],V[3]), (V[N-1],V[0],V[3],V[4]), (V[N-2],V[N-1],V[4],V[5]), ...
+  //
+  // Each new quad shares the previous quad's diagonal (never a boundary edge) with it,
+  // so the patches tile the polygon exactly, without overlap or gaps. If a single vertex
+  // is left over, it becomes the apex of a degenerate (triangular) patch closing the same
+  // diagonal as the last quad.
+  //
+  // Total patch count: floor((N-1)/2)
+
+  const auto patchCount = (n - 1) / 2;
+  auto patches = std::vector<BezierPatch>{};
+  patches.reserve(patchCount);
+
+  if (n == 3)
+  {
+    patches.push_back(makePatch(
+      face,
+      pointRowCount,
+      pointColumnCount,
+      vertices[1],
+      vertices[2],
+      vertices[0],
+      vertices[0]));
+    return patches;
+  }
+
+  patches.push_back(makePatch(
+    face,
+    pointRowCount,
+    pointColumnCount,
+    vertices[0],
+    vertices[1],
+    vertices[2],
+    vertices[3]));
+
+  auto lo = size_t{0};
+  auto hi = size_t{3};
+  auto remaining = n - 4;
+
+  while (remaining >= 2)
+  {
+    const auto newLo = (lo + n - 1) % n;
+    const auto newHi = (hi + 1) % n;
+    patches.push_back(makePatch(
+      face,
+      pointRowCount,
+      pointColumnCount,
+      vertices[newLo],
+      vertices[lo],
+      vertices[hi],
+      vertices[newHi]));
+    lo = newLo;
+    hi = newHi;
+    remaining -= 2;
+  }
+
+  if (remaining == 1)
+  {
+    const auto last = (hi + 1) % n;
+    patches.push_back(makePatch(
+      face,
+      pointRowCount,
+      pointColumnCount,
+      vertices[hi],
+      vertices[last],
+      vertices[lo],
+      vertices[lo]));
+  }
+
+  return patches;
+}
 
 /*
  * The new pointRowCount x pointColumnCount control points form a grid of (pointRowCount -
