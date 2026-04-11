@@ -10,6 +10,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CommandProcessor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationConfig.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CreatePatch.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DecalDefinition.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DefParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EditorContext.cpp
