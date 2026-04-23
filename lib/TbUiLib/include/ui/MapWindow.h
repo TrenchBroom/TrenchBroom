@@ -343,6 +343,9 @@ public:
   void snapVerticesToGrid();
   bool canSnapVertices() const;
 
+  void createPatches();
+  bool canCreatePatches() const;
+
   void replaceMaterial();
 
   void toggleAlignmentLock();

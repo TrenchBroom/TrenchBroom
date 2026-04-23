@@ -1159,6 +1159,18 @@ void ActionManager::createEditMenu()
     },
   }));
 
+  auto& patchEditingMenu = editMenu.addMenu("Patches");
+  patchEditingMenu.addItem(addAction(Action{
+    "Menu/Edit/Create Patches",
+    QObject::tr("Create Patches"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::Key_P},
+    [](auto& context) { context.mapWindow().createPatches(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.mapWindow().canCreatePatches();
+    },
+  }));
+
   auto& texturesMenu = editMenu.addMenu("Textures");
   texturesMenu.addItem(addAction(Action{
     "Menu/Edit/Texture Lock",
