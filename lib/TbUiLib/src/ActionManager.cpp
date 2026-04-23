@@ -1167,6 +1167,18 @@ void ActionManager::createEditMenu()
     },
   }));
 
+  auto& patchEditingMenu = editMenu.addMenu("Patches");
+  patchEditingMenu.addItem(addAction(Action{
+    "Menu/Edit/Convert Selection to Patches",
+    QObject::tr("Convert Selection to Patches"),
+    ActionContext::Any,
+    QKeySequence{Qt::CTRL | Qt::Key_P},
+    [](auto& context) { context.mapWindow().convertSelectionToPatches(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.mapWindow().canConvertSelectionToPatches();
+    },
+  }));
+
   auto& texturesMenu = editMenu.addMenu("Textures");
   texturesMenu.addItem(addAction(Action{
     "Menu/Edit/Texture Lock",

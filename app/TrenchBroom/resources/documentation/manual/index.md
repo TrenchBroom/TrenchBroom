@@ -493,6 +493,20 @@ To use the brush tool, you first have to activate it by choosing #menu(Menu/Edit
 
 It is not possible to modify or remove points after they have been placed, except discarding all of them by hitting the #action(Controls/Map view/Cancel) key.
 
+### Creating Patches (Quake 3 only) {#creating_patches}
+
+Patches are created from brush faces. Create a brush and select one or more of its faces, then select #menu(Menu/Edit/Convert Selection to Patches). TrenchBroom will create one patch for each selected face, and the brush (or brushes) will be removed from the map. You can then use the control point tool to refine the patch.
+
+![Square face results in single patch](images/CreatePatches_Square.gif)
+
+Note that the selected faces don't have to be rectangular. TrenchBroom will create multiple patches that match the face's shape exactly. Thereby, it will subdivide the face into quads, and create a patch for each quad. TrenchBroom will prefer a subdivision that results in symmetric patches.
+
+![Octagonal face results in three patches](images/CreatePatches_Octagon.gif)
+
+If the face has an odd number of vertices, one degenerate triangular patch will be created where multiple control points coincide.
+
+![Face with 5 vertices results in a triangular patch](images/CreatePatches_Corner.gif)
+
 ### Editing Patches (Quake 3 only) {#editing_patches}
 
 Patches can be edited using the Control Point Tool.
