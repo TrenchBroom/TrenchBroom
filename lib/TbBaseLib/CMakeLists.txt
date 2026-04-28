@@ -32,5 +32,8 @@ target_link_libraries(TbBaseLib
     VmLib
 )
 
+if(TB_TESTS)
 add_subdirectory(test)
 add_subdirectory(test-utils)
+endif()
+

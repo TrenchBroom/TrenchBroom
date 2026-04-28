@@ -20,4 +20,7 @@ target_link_libraries(TbFsTestUtilsLib
     VmLib
 )
 
+if(TB_TESTS)
 add_subdirectory(test)
+endif()
+

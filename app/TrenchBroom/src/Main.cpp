@@ -338,8 +338,10 @@ int main(int argc, char* argv[])
   installFileEventFilter(*appController);
 #endif
 
+#if !defined( NO_UPDATER )
   appController->askForAutoUpdates();
   appController->triggerAutoUpdateCheck();
+#endif
 
   if (!parseCommandLineAndOpenFiles(*appController))
   {

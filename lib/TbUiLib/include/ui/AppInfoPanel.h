@@ -30,7 +30,11 @@ class AppInfoPanel : public QWidget
   Q_OBJECT
 
 public:
+#if defined(NO_UPDATER)
+  explicit AppInfoPanel(QWidget* parent = nullptr);
+#else
   explicit AppInfoPanel(AppController& appController, QWidget* parent = nullptr);
+#endif
 
 private:
   void versionInfoClicked();

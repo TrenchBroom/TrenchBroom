@@ -303,7 +303,9 @@ if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     tb_add_post_build_copy_directory(TrenchBroom "${TB_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
 
     # Copy update scripts to resources directory
+    if (!TB_NOUPDATER)
     tb_add_post_build_copy_files(TrenchBroom "${APP_RESOURCE_DEST_DIR}/update" "${LIB_UPDATE_SCRIPT}")
+    endif()
 
     # Copy manual files to resource directory
     tb_add_post_build_copy_files(

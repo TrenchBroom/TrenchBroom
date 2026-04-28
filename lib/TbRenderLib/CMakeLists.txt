@@ -56,4 +56,7 @@ target_link_libraries(TbRenderLib
     VmLib
 )
 
+if(TB_TESTS)
 add_subdirectory(test)
+endif()
+

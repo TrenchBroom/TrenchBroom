@@ -511,7 +511,9 @@ void MapWindow::createStatusBar()
 {
   m_statusBarLabel = new QLabel{};
   statusBar()->addWidget(m_statusBarLabel, 1);
+#if !defined(NO_UPDATER)
   statusBar()->addWidget(m_appController.updater().createUpdateIndicator());
+#endif
 }
 
 namespace

@@ -24,4 +24,7 @@ target_link_libraries(TbMdlTestUtilsLib
     TbMdlLib
 )
 
+if(TB_TESTS)
 add_subdirectory(test)
+endif()
+

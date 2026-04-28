@@ -37,8 +37,11 @@
 
 namespace tb::ui
 {
-
+#if defined(NO_UPDATER)
+AppInfoPanel::AppInfoPanel(QWidget* parent)
+#else
 AppInfoPanel::AppInfoPanel(AppController& appController, QWidget* parent)
+#endif
   : QWidget{parent}
 {
   auto appIconImage = loadPixmap("AppIcon.png");
@@ -70,14 +73,18 @@ AppInfoPanel::AppInfoPanel(AppController& appController, QWidget* parent)
   connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
   connect(qtVersion, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
 
+#if !defined(NO_UPDATER)
   auto* updateIndicator = appController.updater().createUpdateIndicator();
   setInfoStyle(updateIndicator);
+#endif
 
   auto* versionLayout = new QHBoxLayout{};
   versionLayout->setContentsMargins(0, 0, 0, 0);
   versionLayout->setSpacing(LayoutConstants::MediumHMargin);
   versionLayout->addWidget(version);
+#if !defined(NO_UPDATER)
   versionLayout->addWidget(updateIndicator);
+#endif
 
   auto* versionWidget = new QWidget{};
   versionWidget->setLayout(versionLayout);

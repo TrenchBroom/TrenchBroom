@@ -501,5 +501,8 @@ if(APPLE)
     target_compile_definitions(TbUiLib PRIVATE GL_SILENCE_DEPRECATION)
 endif()
 
+if(TB_TESTS)
 add_subdirectory(test)
 add_subdirectory(test-utils)
+endif()
+
