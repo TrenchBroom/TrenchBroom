@@ -42,7 +42,11 @@ set(DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE "${DOC_MANUAL_TARGET_DIR}/shortcuts.
 add_custom_command(
       OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
       COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
-      COMMAND ${CMAKE_COMMAND} -E env "QT_QPA_PLATFORM=offscreen" "$<TARGET_FILE:DumpShortcuts>" "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+      COMMAND ${CMAKE_COMMAND} -E env 
+      "QT_QPA_PLATFORM=offscreen"
+      "QT_PLUGIN_PATH=${Qt6_DIR}/../../../plugins"
+      "QT_QPA_PLATFORM_PLUGIN_PATH=${Qt6_DIR}/../../../plugins/platforms"
+      "$<TARGET_FILE:DumpShortcuts>" "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
       DEPENDS DumpShortcuts
       VERBATIM)
 
