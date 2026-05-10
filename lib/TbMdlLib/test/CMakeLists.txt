@@ -73,6 +73,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ModelUtils.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Node.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeHandleManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeHandles.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeIndex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeQueries.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeReader.cpp

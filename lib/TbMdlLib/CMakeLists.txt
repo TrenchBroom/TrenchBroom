@@ -136,6 +136,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Node.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeContents.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeHandleManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeHandles.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeIndex.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeReader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeSerializer.cpp
