@@ -29,6 +29,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/WadPropertyUtils.h"
 #include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/ChoosePathTypeDialog.h"
@@ -39,13 +40,10 @@
 #include "ui/TitleBar.h"
 #include "ui/ViewConstants.h"
 
-#include "kd/ranges/to.h"
-#include "kd/string_utils.h"
 #include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <filesystem>
-#include <ranges>
 
 namespace tb::ui
 {
@@ -53,28 +51,22 @@ namespace tb::ui
 namespace
 {
 
-std::vector<std::filesystem::path> getWadPaths(
+std::vector<std::string> getWadPaths(
   const std::vector<mdl::EntityNodeBase*>& nodes, const std::string& propertyKey)
 {
   if (nodes.size() == 1)
   {
     if (const auto* wadPathsStr = nodes.front()->entity().property(propertyKey))
     {
-      const auto wadPaths = kdl::str_split(*wadPathsStr, ";");
-      return wadPaths | std::views::transform([](const auto& s) {
-               return std::filesystem::path{s};
-             })
-             | kdl::ranges::to<std::vector>();
+      return mdl::splitWadProperty(*wadPathsStr);
     }
   }
   return {};
 }
 
-std::string getWadPathStr(const std::vector<std::filesystem::path>& wadPaths)
+std::string getWadPathStr(const std::vector<std::string>& wadPaths)
 {
-  return kdl::str_join(
-    wadPaths | std::views::transform([](const auto& path) { return path.string(); }),
-    ";");
+  return mdl::joinWadProperty(wadPaths);
 }
 
 } // namespace
@@ -291,7 +283,7 @@ void SmartWadEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nod
 
   for (const auto& path : getWadPaths(nodes, propertyKey()))
   {
-    m_wadPaths->addItem(pathAsQString(path));
+    m_wadPaths->addItem(QString::fromStdString(path));
   }
 
   for (const auto& [index, text] : cachedSelection)
