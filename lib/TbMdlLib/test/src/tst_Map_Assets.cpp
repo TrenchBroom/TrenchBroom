@@ -60,6 +60,8 @@ TEST_CASE("Map_Assets")
       {"builtin:Quake.def", EntityDefinitionFileSpec::makeBuiltin("Quake.def")},
       {"external:/Applications/Quake/Quake.fgd",
        EntityDefinitionFileSpec::makeExternal("/Applications/Quake/Quake.fgd")},
+      {"external:\\Applications\\Quake\\Quake.fgd",
+       EntityDefinitionFileSpec::makeExternal("/Applications/Quake/Quake.fgd")},
     }));
 
     CAPTURE(entityProperty);
