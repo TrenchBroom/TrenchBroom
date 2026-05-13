@@ -31,6 +31,8 @@
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/path_utils.h"
+
 #include <algorithm>
 #include <optional>
 #include <ranges>
@@ -94,6 +96,11 @@ TEST_CASE("Map_Assets")
       {
         EntityDefinitionFileSpec::makeExternal("/Applications/Quake/Quake.fgd"),
         "external:/Applications/Quake/Quake.fgd",
+      },
+      {
+        EntityDefinitionFileSpec::makeExternal(
+          kdl::parse_path(std::string{R"(Applications\Quake\Quake.fgd)"})),
+        "external:Applications/Quake/Quake.fgd",
       },
     }));
 

@@ -77,8 +77,6 @@ TEST_CASE("EntityDefinitionFileSpec")
     const auto [spec, expectedStr] = GENERATE(values<T>({
       {EntityDefinitionFileSpec::makeBuiltin("some/path/entities.txt"),
        "builtin:some/path/entities.txt"},
-      {EntityDefinitionFileSpec::makeBuiltin("C:\\some\\path\\entities.txt"),
-       "builtin:C:/some/path/entities.txt"},
       {EntityDefinitionFileSpec::makeExternal("some/path/entities.txt"),
        "external:some/path/entities.txt"},
     }));
