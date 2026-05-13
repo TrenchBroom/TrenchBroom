@@ -195,6 +195,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VisualEffect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VisibilityState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldBoundsValidator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNodePathSeparatorValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldReader.cpp
 

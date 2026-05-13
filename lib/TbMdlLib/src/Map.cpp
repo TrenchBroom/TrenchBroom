@@ -95,6 +95,7 @@
 #include "mdl/WorldBoundsValidator.h"
 #include "mdl/WorldNode.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
+#include "mdl/WorldNodePathSeparatorValidator.h"
 #include "mdl/WorldReader.h"
 
 #include "kd/contracts.h"
@@ -1138,6 +1139,7 @@ void Map::registerValidators()
     std::make_unique<PropertyKeyWithDoubleQuotationMarksValidator>());
   m_worldNode->registerValidator(
     std::make_unique<PropertyValueWithDoubleQuotationMarksValidator>());
+  m_worldNode->registerValidator(std::make_unique<WorldNodePathSeparatorValidator>());
   m_worldNode->registerValidator(std::make_unique<InvalidUVScaleValidator>());
 }
 
