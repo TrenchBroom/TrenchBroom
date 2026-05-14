@@ -33,7 +33,7 @@ class NodeIndex;
 
 struct LinkEnd
 {
-  const EntityNodeBase* node;
+  EntityNodeBase* node;
   std::string propertyKey;
 
   kdl_reflect_decl(LinkEnd, node, propertyKey);
@@ -95,8 +95,8 @@ private:
   void addLinksFrom(EntityNodeBase& sourceNode);
   void addLinksTo(EntityNodeBase& targetNode);
 
-  void removeLinksFrom(const EntityNodeBase& sourceNode);
-  void removeLinksTo(const EntityNodeBase& targetNode);
+  void removeLinksFrom(EntityNodeBase& sourceNode);
+  void removeLinksTo(EntityNodeBase& targetNode);
 };
 
 } // namespace tb::mdl

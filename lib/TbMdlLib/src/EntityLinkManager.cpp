@@ -140,7 +140,7 @@ void removeLinkEnd(
 void removeLinks(
   EntityLinkManager::LinksForEntityNode& links,
   EntityLinkManager::LinksForEntityNode& oppositeLinks,
-  const EntityNodeBase& node)
+  EntityNodeBase& node)
 {
   if (auto iLinkEndsForPropertyKey = links.find(&node);
       iLinkEndsForPropertyKey != links.end())
@@ -151,13 +151,16 @@ void removeLinks(
         const auto& [propertyKey, oppositeLinkEnds] = propertyKeyAndLinkEnds;
 
         const auto linkEnd = LinkEnd{&node, propertyKey};
-        std::ranges::for_each(oppositeLinkEnds, [&](const auto& oppositeLinkEnd) {
+        std::ranges::for_each(oppositeLinkEnds, [&](auto& oppositeLinkEnd) {
           removeLinkEnd(oppositeLinks, oppositeLinkEnd, linkEnd);
+          oppositeLinkEnd.node->invalidateIssues();
         });
       });
 
     links.erase(iLinkEndsForPropertyKey);
   }
+
+  node.invalidateIssues();
 }
 
 } // namespace
@@ -210,7 +213,7 @@ bool EntityLinkManager::hasLink(
   const std::string& targetPropertyKey) const
 {
   return linksFrom(sourceNode, sourcePropertyKey)
-    .contains(LinkEnd{&targetNode, targetPropertyKey});
+    .contains(LinkEnd{const_cast<EntityNodeBase*>(&targetNode), targetPropertyKey});
 }
 
 bool EntityLinkManager::hasMissingTarget(
@@ -267,7 +270,7 @@ void EntityLinkManager::addLinksFrom(EntityNodeBase& sourceNode)
     // sources with missing targets during validation.
     auto& linkTargetsForKey = m_linkSources[&sourceNode][sourcePropertyKey];
 
-    for (const auto* targetNode : m_nodeIndex.findNodes<EntityNodeBase>(
+    for (auto* targetNode : m_nodeIndex.findNodes<EntityNodeBase>(
            NodeIndex::escapePattern(sourcePropertyValue)))
     {
       for (const auto& targetPropertyKey : getLinkTargetPropertyKeys(*targetNode))
@@ -278,10 +281,14 @@ void EntityLinkManager::addLinksFrom(EntityNodeBase& sourceNode)
           linkTargetsForKey.emplace(LinkEnd{targetNode, targetPropertyKey});
           m_linkTargets[targetNode][targetPropertyKey].emplace(
             LinkEnd{&sourceNode, sourcePropertyKey});
+
+          targetNode->invalidateIssues();
         }
       }
     }
   }
+
+  sourceNode.invalidateIssues();
 }
 
 void EntityLinkManager::addLinksTo(EntityNodeBase& targetNode)
@@ -296,7 +303,7 @@ void EntityLinkManager::addLinksTo(EntityNodeBase& targetNode)
     // targets with missing sources during validation.
     auto& linkSourcesForKey = m_linkTargets[&targetNode][targetPropertyKey];
 
-    for (const auto* sourceNode : m_nodeIndex.findNodes<EntityNodeBase>(
+    for (auto* sourceNode : m_nodeIndex.findNodes<EntityNodeBase>(
            NodeIndex::escapePattern(targetPropertyValue)))
     {
       for (const auto& sourcePropertyKey : getLinkSourcePropertyKeys(*sourceNode))
@@ -309,16 +316,20 @@ void EntityLinkManager::addLinksTo(EntityNodeBase& targetNode)
             LinkEnd{&targetNode, targetPropertyKey});
         }
       }
+
+      sourceNode->invalidateIssues();
     }
   }
+
+  targetNode.invalidateIssues();
 }
 
-void EntityLinkManager::removeLinksFrom(const EntityNodeBase& sourceNode)
+void EntityLinkManager::removeLinksFrom(EntityNodeBase& sourceNode)
 {
   removeLinks(m_linkSources, m_linkTargets, sourceNode);
 }
 
-void EntityLinkManager::removeLinksTo(const EntityNodeBase& targetNode)
+void EntityLinkManager::removeLinksTo(EntityNodeBase& targetNode)
 {
   removeLinks(m_linkTargets, m_linkSources, targetNode);
 }

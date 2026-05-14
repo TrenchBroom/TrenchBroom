@@ -23,6 +23,7 @@
 #include "mdl/EntityLinkManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/NodeIndex.h"
+#include "mdl/Validator.h"
 
 #include <vector>
 
@@ -32,10 +33,51 @@
 
 namespace tb::mdl
 {
-using namespace Catch::Matchers;
+namespace
+{
+const auto TestIssueType = freeIssueType();
+
+class TestValidator : public Validator
+{
+private:
+  bool& m_validated;
+
+public:
+  explicit TestValidator(bool& validated)
+    : Validator(TestIssueType, "Test")
+    , m_validated{validated}
+  {
+  }
+
+private:
+  void doValidate(EntityNodeBase&, std::vector<std::unique_ptr<Issue>>&) const override
+  {
+    m_validated = true;
+  }
+};
+
+void validateIssues(EntityNodeBase& entityNode)
+{
+  entityNode.issues({});
+}
+
+bool areIssuesValid(EntityNodeBase& entityNode)
+{
+  // Validators will only run on a node if its issues are invalid
+
+  auto validated = false;
+  auto validator = TestValidator{validated};
+
+  entityNode.issues({&validator});
+  return !validated;
+}
+
+} // namespace
 
 TEST_CASE("EntityLinkManager")
 {
+  using namespace Catch::Matchers;
+
   using namespace std::string_literals;
   using namespace EntityPropertyKeys;
   using LinkEndsForKey = EntityLinkManager::LinkEndsForPropertyKey;
@@ -87,8 +129,14 @@ TEST_CASE("EntityLinkManager")
     }}};
     targetNode.setDefinition(&targetDefinition);
 
+    validateIssues(sourceNode);
+    validateIssues(targetNode);
+
     i.addNode(targetNode);
     i.addNode(sourceNode);
+
+    REQUIRE(areIssuesValid(sourceNode));
+    REQUIRE(areIssuesValid(targetNode));
 
     m.addEntityNode(sourceNode);
     CHECK(
@@ -104,6 +152,9 @@ TEST_CASE("EntityLinkManager")
         {TargetProp, {{&sourceNode, SourceProp}}},
       });
 
+    CHECK(!areIssuesValid(sourceNode));
+    CHECK(!areIssuesValid(targetNode));
+
     m.addEntityNode(targetNode);
     CHECK(
       m.linksFrom(sourceNode)
@@ -117,6 +168,9 @@ TEST_CASE("EntityLinkManager")
       == LinkEndsForKey{
         {TargetProp, {{&sourceNode, SourceProp}}},
       });
+
+    CHECK(!areIssuesValid(sourceNode));
+    CHECK(!areIssuesValid(targetNode));
 
     CHECK(!m.hasMissingSource(sourceNode, TargetProp));
     CHECK(!m.hasMissingSource(sourceNode, AltTargetProp));
@@ -146,6 +200,9 @@ TEST_CASE("EntityLinkManager")
       CHECK(m.hasMissingSource(targetNode, TargetProp));
       CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
 
+      CHECK(!areIssuesValid(sourceNode));
+      CHECK(!areIssuesValid(targetNode));
+
       m.removeEntityNode(targetNode);
       CHECK(m.linksFrom(sourceNode) == LinkEndsForKey{});
       CHECK(m.linksTo(sourceNode) == LinkEndsForKey{});
@@ -161,6 +218,9 @@ TEST_CASE("EntityLinkManager")
       CHECK(!m.hasMissingTarget(targetNode, AltSourceProp));
       CHECK(!m.hasMissingSource(targetNode, TargetProp));
       CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
+
+      CHECK(areIssuesValid(sourceNode));
+      CHECK(!areIssuesValid(targetNode));
     }
 
     SECTION("Removing the target node")
@@ -181,6 +241,9 @@ TEST_CASE("EntityLinkManager")
       CHECK(!m.hasMissingSource(targetNode, TargetProp));
       CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
 
+      CHECK(!areIssuesValid(sourceNode));
+      CHECK(!areIssuesValid(targetNode));
+
       m.removeEntityNode(sourceNode);
       CHECK(m.linksFrom(sourceNode) == LinkEndsForKey{});
       CHECK(m.linksTo(sourceNode) == LinkEndsForKey{});
@@ -196,6 +259,9 @@ TEST_CASE("EntityLinkManager")
       CHECK(!m.hasMissingTarget(targetNode, AltSourceProp));
       CHECK(!m.hasMissingSource(targetNode, TargetProp));
       CHECK(!m.hasMissingSource(targetNode, AltTargetProp));
+
+      CHECK(!areIssuesValid(sourceNode));
+      CHECK(areIssuesValid(targetNode));
     }
   }
 
