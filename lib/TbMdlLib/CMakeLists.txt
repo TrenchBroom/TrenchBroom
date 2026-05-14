@@ -193,7 +193,6 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UVUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Validator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ValidatorRegistry.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexHandleManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VisualEffect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VisibilityState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WadPropertyUtils.cpp
