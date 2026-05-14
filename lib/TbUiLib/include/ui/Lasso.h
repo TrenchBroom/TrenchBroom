@@ -22,9 +22,8 @@
 
 #include "vm/bbox.h"
 #include "vm/plane.h"
-#include "vm/polygon.h"
-#include "vm/segment.h"
 
+#include <algorithm>
 #include <ranges>
 
 namespace tb
@@ -33,6 +32,13 @@ namespace gl
 {
 class Camera;
 }
+
+namespace mdl
+{
+struct VertexHandle;
+struct EdgeHandle;
+struct FaceHandle;
+} // namespace mdl
 
 namespace render
 {
@@ -57,7 +63,7 @@ public:
   void update(const vm::vec3d& point);
 
   template <std::ranges::range R, typename O>
-  void selected(const R& handles, O out) const
+  void selected(R&& handles, O out) const
   {
     const auto plane = getPlane();
     const auto box = getBox(getTransform());
@@ -70,9 +76,13 @@ private:
   bool selects(
     const vm::vec3d& point, const vm::plane3d& plane, const vm::bbox2d& box) const;
   bool selects(
-    const vm::segment3d& edge, const vm::plane3d& plane, const vm::bbox2d& box) const;
+    const mdl::VertexHandle& handle,
+    const vm::plane3d& plane,
+    const vm::bbox2d& box) const;
   bool selects(
-    const vm::polygon3d& polygon, const vm::plane3d& plane, const vm::bbox2d& box) const;
+    const mdl::EdgeHandle& handle, const vm::plane3d& plane, const vm::bbox2d& box) const;
+  bool selects(
+    const mdl::FaceHandle& handle, const vm::plane3d& plane, const vm::bbox2d& box) const;
   std::optional<vm::vec3d> project(
     const vm::vec3d& point, const vm::plane3d& plane) const;
 

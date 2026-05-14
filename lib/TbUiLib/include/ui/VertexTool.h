@@ -49,7 +49,7 @@ namespace ui
 class Lasso;
 class MapDocument;
 
-class VertexTool : public VertexToolBase<vm::vec3d>
+class VertexTool : public VertexToolBase<mdl::VertexHandle>
 {
 private:
   enum class Mode
@@ -67,9 +67,9 @@ public:
   explicit VertexTool(MapDocument& document);
 
 public:
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::vec3d& handle) const;
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::VertexHandle& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::EdgeHandle& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::FaceHandle& handle) const;
 
 private:
   using VertexToolBase::findIncidentBrushes;
@@ -83,10 +83,6 @@ public:
 
 public: // Handle selection
   bool deselectAll() override;
-
-public:
-  mdl::VertexHandleManager& handleManager() override;
-  const mdl::VertexHandleManager& handleManager() const override;
 
 public: // Vertex moving
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
@@ -118,8 +114,8 @@ private:
   void addHandles(const std::vector<mdl::Node*>& nodes) override;
   void removeHandles(const std::vector<mdl::Node*>& nodes) override;
 
-  void addHandles(mdl::BrushVertexCommandT<vm::vec3d>& command) override;
-  void removeHandles(mdl::BrushVertexCommandT<vm::vec3d>& command) override;
+  void addHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command) override;
+  void removeHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command) override;
 
 private: // General helper methods
   void resetModeAfterDeselection();

@@ -25,6 +25,7 @@
 #include "gl/ResourceId.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/ExportOptions.h"
+#include "mdl/NodeHandleManager.h"
 #include "mdl/NodeIndex.h"
 #include "mdl/Selection.h"
 
@@ -65,12 +66,10 @@ enum class WrapStyle;
 class BrushFaceAttributes;
 class Command;
 class CommandProcessor;
-class EdgeHandleManager;
 class EditorContext;
 class EntityDefinitionManager;
 class EntityLinkManager;
 class EntityModelManager;
-class FaceHandleManager;
 class GameFileSystem;
 class Grid;
 class GroupNode;
@@ -85,7 +84,6 @@ class SmartTag;
 class TagManager;
 class UndoableCommand;
 class UVCoordSystemSnapshot;
-class VertexHandleManager;
 class WorldNode;
 
 enum class VisualEffect;
@@ -124,9 +122,7 @@ private:
   std::unique_ptr<NodeIndex> m_nodeIndex;
   std::unique_ptr<EntityLinkManager> m_entityLinkManager;
 
-  std::unique_ptr<VertexHandleManager> m_vertexHandles;
-  std::unique_ptr<EdgeHandleManager> m_edgeHandles;
-  std::unique_ptr<FaceHandleManager> m_faceHandles;
+  NodeHandleManager m_nodeHandles;
 
   std::string m_currentMaterialName;
 
@@ -270,14 +266,8 @@ public: // misc
 
   MapTextEncoding encoding() const;
 
-  VertexHandleManager& vertexHandles();
-  const VertexHandleManager& vertexHandles() const;
-
-  EdgeHandleManager& edgeHandles();
-  const EdgeHandleManager& edgeHandles() const;
-
-  FaceHandleManager& faceHandles();
-  const FaceHandleManager& faceHandles() const;
+  NodeHandleManager& nodeHandles();
+  const NodeHandleManager& nodeHandles() const;
 
   const std::string& currentMaterialName() const;
   void setCurrentMaterialName(const std::string& currentMaterialName);

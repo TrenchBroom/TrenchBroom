@@ -56,11 +56,15 @@ struct TransformVerticesResult
 };
 
 TransformVerticesResult transformVertices(
-  Map& map, std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform);
+  Map& map, const std::vector<vm::vec3d>& vertexPositions, const vm::mat4x4d& transform);
 bool transformEdges(
-  Map& map, std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform);
+  Map& map,
+  const std::vector<vm::segment3d>& edgePositions,
+  const vm::mat4x4d& transform);
 bool transformFaces(
-  Map& map, std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform);
+  Map& map,
+  const std::vector<vm::polygon3d>& facePositions,
+  const vm::mat4x4d& transform);
 
 bool addVertex(Map& map, const vm::vec3d& vertexPosition);
 bool removeVertices(

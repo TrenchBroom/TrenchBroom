@@ -20,6 +20,7 @@
 #include "ui/Lasso.h"
 
 #include "gl/Camera.h"
+#include "mdl/NodeHandles.h"
 #include "render/RenderService.h"
 
 #include "kd/optional_utils.h"
@@ -27,8 +28,8 @@
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/polygon.h"
-#include "vm/segment.h"
+#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/segment.h" // IWYU pragma: keep
 
 namespace tb::ui
 {
@@ -57,15 +58,21 @@ bool Lasso::selects(
 }
 
 bool Lasso::selects(
-  const vm::segment3d& edge, const vm::plane3d& plane, const vm::bbox2d& box) const
+  const mdl::VertexHandle& handle, const vm::plane3d& plane, const vm::bbox2d& box) const
 {
-  return selects(edge.center(), plane, box);
+  return selects(handle.position, plane, box);
 }
 
 bool Lasso::selects(
-  const vm::polygon3d& polygon, const vm::plane3d& plane, const vm::bbox2d& box) const
+  const mdl::EdgeHandle& handle, const vm::plane3d& plane, const vm::bbox2d& box) const
 {
-  return selects(polygon.center(), plane, box);
+  return selects(handle.position.center(), plane, box);
+}
+
+bool Lasso::selects(
+  const mdl::FaceHandle& handle, const vm::plane3d& plane, const vm::bbox2d& box) const
+{
+  return selects(handle.position.center(), plane, box);
 }
 
 std::optional<vm::vec3d> Lasso::project(

@@ -21,12 +21,13 @@
 
 #include "Macros.h"
 #include "mdl/NodeContents.h"
+#include "mdl/NodeHandleManager.h"
+#include "mdl/NodeHandles.h"
 #include "mdl/SwapNodeContentsCommand.h"
 
-#include "vm/polygon.h"
-#include "vm/segment.h"
-#include "vm/vec.h"
+#include "kd/ranges/to.h"
 
+#include <ranges>
 #include <vector>
 
 namespace tb::mdl
@@ -39,64 +40,73 @@ namespace detail
 std::vector<BrushNode*> collectBrushNodes(
   const std::vector<std::pair<Node*, NodeContents>>& nodes);
 
+template <typename HandleType>
+std::vector<HandleType> toHandles(
+  const std::vector<typename HandleType::Position>& positions)
+{
+  return positions | std::views::transform([](const auto& position) {
+           return HandleType{position};
+         })
+         | kdl::ranges::to<std::vector>();
+}
+
 } // namespace detail
 
-template <typename H>
-class VertexHandleManagerBaseT;
+class NodeHandleManager;
 
-template <typename H>
+template <typename HandleType>
 class BrushVertexCommandT : public SwapNodeContentsCommand
 {
 private:
-  std::vector<H> m_oldPositions;
-  std::vector<H> m_newPositions;
+  std::vector<HandleType> m_oldHandles;
+  std::vector<HandleType> m_newHandles;
 
 public:
   BrushVertexCommandT(
     std::string name,
     std::vector<std::pair<Node*, NodeContents>> nodes,
-    std::vector<H> oldPositions,
-    std::vector<H> newPositions)
+    const std::vector<typename HandleType::Position>& oldHandlePositions,
+    const std::vector<typename HandleType::Position>& newHandlePositions)
     : SwapNodeContentsCommand{std::move(name), std::move(nodes)}
-    , m_oldPositions{std::move(oldPositions)}
-    , m_newPositions{std::move(newPositions)}
+    , m_oldHandles{detail::toHandles<HandleType>(oldHandlePositions)}
+    , m_newHandles{detail::toHandles<HandleType>(newHandlePositions)}
   {
   }
 
 public:
-  bool hasRemainingHandles() const { return !m_newPositions.empty(); }
+  bool hasRemainingHandles() const { return !m_newHandles.empty(); }
 
-  template <typename HT>
-  void removeHandles(VertexHandleManagerBaseT<HT>& manager)
+  template <typename... AdditionalHandleTypes>
+  void removeHandles(NodeHandleManager& manager)
   {
     const auto nodes = detail::collectBrushNodes(m_nodes);
-    manager.removeHandles(nodes);
+    manager.removeHandles<HandleType>(nodes);
+    (manager.removeHandles<AdditionalHandleTypes>(nodes), ...);
   }
 
-  template <typename HT>
-  void addHandles(VertexHandleManagerBaseT<HT>& manager)
+  template <typename... AdditionalHandleTypes>
+  void addHandles(NodeHandleManager& manager)
   {
     const auto nodes = detail::collectBrushNodes(m_nodes);
-    manager.addHandles(nodes);
+    manager.addHandles<HandleType>(nodes);
+    (manager.addHandles<AdditionalHandleTypes>(nodes), ...);
   }
 
-  template <typename HT>
-  void selectNewHandlePositions(VertexHandleManagerBaseT<HT>& manager)
+  void selectNewHandlePositions(NodeHandleManager& manager)
   {
-    manager.select(m_newPositions);
+    manager.selectHandles<HandleType>(m_newHandles);
   }
 
-  template <typename HT>
-  void selectOldHandlePositions(VertexHandleManagerBaseT<HT>& manager)
+  void selectOldHandlePositions(NodeHandleManager& manager)
   {
-    manager.select(m_oldPositions);
+    manager.selectHandles<HandleType>(m_oldHandles);
   }
 
   deleteCopyAndMove(BrushVertexCommandT);
 };
 
-using BrushVertexCommand = BrushVertexCommandT<vm::vec3d>;
-using BrushEdgeCommand = BrushVertexCommandT<vm::segment3d>;
-using BrushFaceCommand = BrushVertexCommandT<vm::polygon3d>;
+using BrushVertexCommand = BrushVertexCommandT<VertexHandle>;
+using BrushEdgeCommand = BrushVertexCommandT<EdgeHandle>;
+using BrushFaceCommand = BrushVertexCommandT<FaceHandle>;
 
 } // namespace tb::mdl
