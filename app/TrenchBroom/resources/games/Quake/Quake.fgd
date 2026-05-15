@@ -89,8 +89,8 @@
 @baseclass base(Appearflags, Target, Targetname) = Item
 [
 	message(string) : "Message"
-	target(string) : "Target"
-	killtarget(string) : "Killtarget"
+	target(target_destination) : "Target"
+	killtarget(target_destination) : "Killtarget"
 	delay(integer) : "Delay"
 ]
 @baseclass size(0 0 0, 32 32 56) color(80 0 200) base(Item) = Ammo
