@@ -223,6 +223,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewPreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/WadUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WelcomeWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WidgetState.cpp
 
@@ -456,6 +457,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewPreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/WadUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/WelcomeWindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/WidgetState.h
   
