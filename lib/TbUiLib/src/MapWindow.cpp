@@ -107,6 +107,7 @@
 #include "ui/SwitchableMapViewContainer.h"
 #include "ui/VertexTool.h"
 #include "ui/ViewUtils.h"
+#include "ui/WadUtils.h"
 #include "ui/WidgetState.h"
 #include "update/Updater.h"
 
@@ -2560,47 +2561,17 @@ void MapWindow::dropEvent(QDropEvent* event)
     return;
   }
 
-  auto& map = m_document->map();
-  const auto& gameInfo = map.gameInfo();
-  const auto& wadPropertyKey = gameInfo.gameConfig.materialConfig.property;
-  if (!wadPropertyKey)
+  auto pathQStrs = QStringList{};
+  pathQStrs.reserve(urls.size());
+  for (const auto& url : urls)
   {
-    return;
+    pathQStrs.push_back(url.toLocalFile());
   }
 
-  const auto* wadPathsStr = map.worldNode().entity().property(*wadPropertyKey);
-  auto wadPaths = wadPathsStr ? kdl::str_split(*wadPathsStr, ";")
-                                  | kdl::ranges::to<std::vector<std::filesystem::path>>()
-                              : std::vector<std::filesystem::path>{};
-
-  auto pathDialog = ChoosePathTypeDialog{
-    window(),
-    pathFromQString(urls.front().toLocalFile()),
-    map.path(),
-    pref(gameInfo.gamePathPreference)};
-
-  const auto result = pathDialog.exec();
-  if (result != QDialog::Accepted)
+  if (addWadPaths(pathQStrs, m_document->map(), this))
   {
-    return;
+    event->acceptProposedAction();
   }
-
-  auto wadPathsToAdd = std::vector<std::filesystem::path>{};
-  std::ranges::transform(urls, std::back_inserter(wadPathsToAdd), [&](const auto& url) {
-    return convertToPathType(
-      pathDialog.pathType(),
-      pathFromQString(url.toLocalFile()),
-      map.path(),
-      pref(gameInfo.gamePathPreference));
-  });
-
-  const auto newWadPathsStr = kdl::str_join(
-    kdl::vec_concat(std::move(wadPaths), std::move(wadPathsToAdd))
-      | std::views::transform([](const auto& path) { return path.string(); }),
-    ";");
-  setEntityProperty(map, *wadPropertyKey, newWadPathsStr);
-
-  event->acceptProposedAction();
 }
 
 void MapWindow::changeEvent(QEvent*)

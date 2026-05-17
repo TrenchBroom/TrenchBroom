@@ -23,10 +23,7 @@
 #include <QListWidget>
 #include <QToolButton>
 
-#include "PreferenceManager.h"
 #include "mdl/EntityNodeBase.h"
-#include "mdl/GameInfo.h"
-#include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/WadPropertyUtils.h"
@@ -36,9 +33,9 @@
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/MapDocument.h"
 #include "ui/MiniToolBarLayout.h"
-#include "ui/QPathUtils.h"
 #include "ui/TitleBar.h"
 #include "ui/ViewConstants.h"
+#include "ui/WadUtils.h"
 
 #include "kd/vector_utils.h"
 
@@ -147,21 +144,8 @@ void SmartWadEditor::addWads()
   updateFileDialogDefaultDirectoryWithFilename(
     FileDialogDir::MaterialCollection, pathQStrs.front());
 
-  const auto gamePath = pref(map.gameInfo().gamePathPreference);
-  auto pathDialog = ChoosePathTypeDialog{
-    window(), pathFromQString(pathQStrs.front()), map.path(), gamePath};
-
-  if (pathDialog.exec() == QDialog::Accepted)
+  if (addWadPaths(pathQStrs, map, window()))
   {
-    auto wadPaths = getWadPaths(nodes(), propertyKey());
-    std::ranges::transform(
-      pathQStrs, std::back_inserter(wadPaths), [&](const auto& pathQStr) {
-        return convertToPathType(
-                 pathDialog.pathType(), pathFromQString(pathQStr), map.path(), gamePath)
-          .generic_string();
-      });
-
-    setEntityProperty(map, propertyKey(), getWadPathStr(wadPaths));
     m_wadPaths->setCurrentRow(
       m_wadPaths->count() - 1, QItemSelectionModel::ClearAndSelect);
   }
