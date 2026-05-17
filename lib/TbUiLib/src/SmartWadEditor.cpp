@@ -157,7 +157,8 @@ void SmartWadEditor::addWads()
     std::ranges::transform(
       pathQStrs, std::back_inserter(wadPaths), [&](const auto& pathQStr) {
         return convertToPathType(
-          pathDialog.pathType(), pathFromQString(pathQStr), map.path(), gamePath);
+                 pathDialog.pathType(), pathFromQString(pathQStr), map.path(), gamePath)
+          .generic_string();
       });
 
     setEntityProperty(map, propertyKey(), getWadPathStr(wadPaths));
