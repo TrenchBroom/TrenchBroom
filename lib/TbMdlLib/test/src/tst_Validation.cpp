@@ -55,6 +55,35 @@ public:
   bool operator()(const Issue*) const { return true; }
 };
 
+auto collectIssues(WorldNode& worldNode, const std::vector<const Validator*>& validators)
+{
+  auto issues = std::vector<const Issue*>{};
+  worldNode.accept(kdl::overload(
+    [&](auto&& thisLambda, WorldNode& w) {
+      issues = kdl::vec_concat(std::move(issues), w.issues(validators));
+      w.visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, LayerNode& l) {
+      issues = kdl::vec_concat(std::move(issues), l.issues(validators));
+      l.visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, GroupNode& g) {
+      issues = kdl::vec_concat(std::move(issues), g.issues(validators));
+      g.visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, EntityNode& e) {
+      issues = kdl::vec_concat(std::move(issues), e.issues(validators));
+      e.visitChildren(thisLambda);
+    },
+    [&](BrushNode& b) {
+      issues = kdl::vec_concat(std::move(issues), b.issues(validators));
+    },
+    [&](PatchNode& p) {
+      issues = kdl::vec_concat(std::move(issues), p.issues(validators));
+    }));
+  return issues;
+}
+
 } // namespace
 
 TEST_CASE("Validation")
@@ -83,31 +112,7 @@ TEST_CASE("Validation")
     auto emptyPropertyKeyValidator = std::make_unique<EmptyPropertyKeyValidator>();
     auto validators = std::vector<const Validator*>{emptyPropertyKeyValidator.get()};
 
-    auto issues = std::vector<const Issue*>{};
-    map.worldNode().accept(kdl::overload(
-      [&](auto&& thisLambda, WorldNode& worldNode) {
-        issues = kdl::vec_concat(std::move(issues), worldNode.issues(validators));
-        worldNode.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, LayerNode& layerNode) {
-        issues = kdl::vec_concat(std::move(issues), layerNode.issues(validators));
-        layerNode.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, GroupNode& groupNode) {
-        issues = kdl::vec_concat(std::move(issues), groupNode.issues(validators));
-        groupNode.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, EntityNode& entityNode_) {
-        issues = kdl::vec_concat(std::move(issues), entityNode_.issues(validators));
-        entityNode_.visitChildren(thisLambda);
-      },
-      [&](BrushNode& brushNode) {
-        issues = kdl::vec_concat(std::move(issues), brushNode.issues(validators));
-      },
-      [&](PatchNode& patchNode) {
-        issues = kdl::vec_concat(std::move(issues), patchNode.issues(validators));
-      }));
-
+    const auto issues = collectIssues(map.worldNode(), validators);
     REQUIRE(issues.size() == 1);
 
     const auto* issue = issues.at(0);
@@ -134,31 +139,7 @@ TEST_CASE("Validation")
     auto emptyPropertyValueValidator = std::make_unique<EmptyPropertyValueValidator>();
     auto validators = std::vector<const Validator*>{emptyPropertyValueValidator.get()};
 
-    auto issues = std::vector<const Issue*>{};
-    map.worldNode().accept(kdl::overload(
-      [&](auto&& thisLambda, WorldNode& worldNode) {
-        issues = kdl::vec_concat(std::move(issues), worldNode.issues(validators));
-        worldNode.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, LayerNode& layerNode) {
-        issues = kdl::vec_concat(std::move(issues), layerNode.issues(validators));
-        layerNode.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, GroupNode& groupNode) {
-        issues = kdl::vec_concat(std::move(issues), groupNode.issues(validators));
-        groupNode.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, EntityNode& entityNode_) {
-        issues = kdl::vec_concat(std::move(issues), entityNode_.issues(validators));
-        entityNode_.visitChildren(thisLambda);
-      },
-      [&](BrushNode& brushNode) {
-        issues = kdl::vec_concat(std::move(issues), brushNode.issues(validators));
-      },
-      [&](PatchNode& patchNode) {
-        issues = kdl::vec_concat(std::move(issues), patchNode.issues(validators));
-      }));
-
+    const auto issues = collectIssues(map.worldNode(), validators);
     REQUIRE(issues.size() == 1);
 
     const auto* issue = issues.at(0);
