@@ -27,14 +27,22 @@
 @PointClass base(Item) color(255 0 0) studio("") = item_armor_body : "Body armor (+200)" []
 @PointClass base(Item) color(255 255 0) studio("") = item_armor_combat : "Combat armor (+100)" []
 @PointClass base(Item) color(0 255 0) studio("") = item_armor_jacket : "Jacket armor (+50)" []
+@PointClass base(Item) color(204 51 51) studio("") = item_quake_armor_body : "Quake Red Armor (+200). Absorbs 80% of damage." []
+@PointClass base(Item) color(204 204 51) studio("") = item_quake_armor_combat : "Quake Yellow Armor (+150). Absorbs 60% of damage." []
+@PointClass base(Item) color(51 204 51) studio("") = item_quake_armor_jacket : "Quake Green Armor (+100). Absorbs 30% of damage." []
 
 @PointClass base(Item) color(40 255 40) size(-4 -4 -6, 4 4 6) studio("") = item_health_small : "Small health (+3)" []
 @PointClass base(Item) color(220 180 0) studio("") = item_health : "Health (+15)" []
 @PointClass base(Item) color(240 60 40) studio("") = item_health_large : "Large health (+25)" []
 @PointClass base(Item) color(30 100 200) studio("") = item_health_mega : "Megahealth (+75)" []
+@PointClass base(Item) color(255 0 0) studio("") = item_health_quake_large : "Quake Large Health (+25)." []
+@PointClass base(Item) color(204 204 0) studio("") = item_health_quake_medium : "Quake Health (+15)." []
+@PointClass base(Item) color(76 76 255) studio("") = item_health_quake_mega : "Quake Mega Health (+100)." []
 
 @PointClass base(Item) color(80 100 255) studio("") = item_adrenaline : "Adrenaline" []
 @PointClass base(Item) color(20 180 180) studio("") = item_quad : "Quad damage" []
+@PointClass base(Item) color(204 26 26) studio("") = item_invulnerability : "Invulnerability. Grants full invulnerability for 30 seconds." []
+@PointClass base(Item) color(51 51 102) studio("") = item_invisibility : "Invisibility. Makes the player nearly invisible for 30 seconds." []
 
 @BaseClass base(Item) size(-8 -8 -24, 8 8 32) studio("") = TeamFlag []
 @PointClass base(TeamFlag) color(255 0 0) = item_flag_team1 : "Red flag" []
@@ -54,6 +62,13 @@
 @PointClass base(Weapon) color(225 225 225) studio("") = weapon_lightning : "Lightning" []
 @PointClass base(Weapon) color(0 0 200) studio("") = weapon_railgun : "Rail gun" []
 @PointClass base(Weapon) color(80 255 40) studio("") = weapon_bfg : "BFG10K" []
+@PointClass base(Weapon) color(153 153 26) studio("") = weapon_quake_grenadelauncher : "Quake Grenade Launcher. Fires slower, more arcing grenades than the standard launcher." []
+@PointClass base(Weapon) color(230 230 230) studio("") = weapon_quake_thunderbolt : "Quake Thunderbolt (Lightning Gun). Shorter range than the standard lightning gun." []
+@PointClass base(Weapon) color(153 153 26) studio("") = weapon_quake_nailgun : "Quake Nailgun. Rapid-fire nail weapon." []
+@PointClass base(Weapon) color(204 51 51) studio("") = weapon_quake_rocketlauncher : "Quake Rocket Launcher. Fires slightly slower rockets than the standard launcher." []
+@PointClass base(Weapon) color(153 153 26) studio("") = weapon_quake_shotgun : "Quake Shotgun. The starting weapon; fires a tight spread of pellets." []
+@PointClass base(Weapon) color(153 153 26) studio("") = weapon_quake_supernailgun : "Quake Super Nailgun. Fires two nails per shot." []
+@PointClass base(Weapon) color(153 153 26) studio("") = weapon_quake_supershotgun : "Quake Super Shotgun. Fires a wider spread of shells than the standard super shotgun." []
 
 @BaseClass base(Item) size(-16 -16 -16, 16 16 16) = Ammo []
 @PointClass base(Ammo) color(220 160 0) studio("") = ammo_shells : "Shells for the Shotgun and Super Shotgun" []
@@ -64,6 +79,10 @@
 @PointClass base(Ammo) color(225 225 225) studio("") = ammo_bolts : "Bolts for the Lightning" []
 @PointClass base(Ammo) color(0 0 200) studio("") = ammo_slugs : "Slugs for the Railgun" []
 @PointClass base(Ammo) color(80 255 40) studio("") = ammo_nukes : "Nukes for the BFG10K" []
+@PointClass base(Ammo) color(230 230 230) studio("") = ammo_quake_bolts : "Bolts for the Quake Thunderbolt (Lightning Gun)." []
+@PointClass base(Ammo) color(153 153 26) studio("") = ammo_quake_nails : "Nails for the Quake Nailgun and Super Nailgun." []
+@PointClass base(Ammo) color(204 51 51) studio("") = ammo_quake_rockets : "Rockets for the Quake Grenade Launcher and Rocket Launcher." []
+@PointClass base(Ammo) color(153 153 26) studio("") = ammo_quake_shells : "Shells for the Quake Super Shotgun." []
 
 @SolidClass base(Phong, Target, Targetname) color(0 255 255) = func_button : "When a button is touched by a player, it moves in the direction set by the 'angle' key, triggers all its targets, stays pressed by the amount of time set by the 'wait' key, then returns to its original position where it can be operated again."
 [
@@ -73,6 +92,13 @@
 	wait(integer) : "Number of seconds the button stays pressed (-1 = indefinitely)" : 1
 	lip(integer) : "Lip remaining at end of move" : 4
 	sounds(integer) : "The sound set for the button (0 default, -1 silent)" : 0
+	atten(choices) : "The attenuation level for button sounds" : 2 =
+	[
+		0 : "None"
+		1 : "Linear"
+		2 : "Square"
+		3 : "Cubic"
+	]
 	health(integer) : "If set, the button must be killed instead of touched to use"
 ]
 
@@ -101,6 +127,13 @@
 	lip(integer) : "The lip remaining at end of move" : 8
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
+	atten(choices) : "The attenuation level for door sounds" : 2 =
+	[
+		0 : "None"
+		1 : "Linear"
+		2 : "Square"
+		3 : "Cubic"
+	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_door_rotating : "A door which rotates about an origin on its Z axis. By default, doors open when a player walks close to them."
@@ -120,6 +153,13 @@
 	wait(integer) : "Wait before returning (-1 = never return)" : 3
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
+	atten(choices) : "The attenuation level for door sounds" : 2 =
+	[
+		0 : "None"
+		1 : "Linear"
+		2 : "Square"
+		3 : "Cubic"
+	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_door_secret : "A secret door which opens when shot, or when targeted. The door first slides back, and then to the side."
@@ -137,6 +177,13 @@
 	wait(integer) : "Wait before returning (-1 = never return)" : 3
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
+	atten(choices) : "The attenuation level for door sounds" : 2 =
+	[
+		0 : "None"
+		1 : "Linear"
+		2 : "Square"
+		3 : "Cubic"
+	]
 ]
 
 @SolidClass base(Phong) color(0 255 180) = func_group : "Groups brushes together in TrenchBroom for convenience. When the map is compiled, these entities are merged back into worldspawn." []
@@ -152,6 +199,13 @@
 	lip(integer) : "The lip remaining at end of move" : 8
 	height(integer) : "If set, this will determine the extent of the platform's movement, rather than implicitly using the platform's height"
 	sounds(integer) : "The sound set for the platform (0 default, 1 stone, -1 silent)"
+	atten(choices) : "The attenuation level for platform sounds" : 2 =
+	[
+		0 : "None"
+		1 : "Linear"
+		2 : "Square"
+		3 : "Cubic"
+	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_rotating : "Solid entity that rotates continuously. Rotates on the Z axis by default and requires an origin brush. It will always start on in the game and is not targetable."
@@ -191,6 +245,13 @@
 	dmg(integer) : "The damage inflicted on players who block the train" : 2
 	speed(integer) : "The speed with which the train moves" : 100
 	sound(string) : "The looping sound to play while the train is in motion"
+	atten(choices) : "The attenuation level for train sounds" : 2 =
+	[
+		0 : "None"
+		1 : "Linear"
+		2 : "Square"
+		3 : "Cubic"
+	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_wall : "A solid that may spawn into existence via trigger."
@@ -274,13 +335,16 @@
 	lifetime(float) : "The sprite lifetime in seconds" : "10"
 	lighting(float) : "The sprite lighting scalar" : "1"
 	rotation(float) : "The sprite rotation in degrees" : "0"
+	rotation_spread(float) : "Per-particle random initial rotation spread from 0 to 1, where 1 is pi radians" : "0"
 	rotation_velocity(float) : "The sprite rotation velocity in degrees per second" : "0"
 	size(float) : "The sprite size" : "1"
+	size_spread(float) : "Per-particle random size spread as a +/- fraction of size" : ".1"
 	size_velocity(float) : "Rate of size change in world units per second. Negative shrinks the sprite (destroying it at 0), positive grows it" : "0"
 	size_acceleration(float) : "Rate of change of size_velocity in world units per second squared. Use negative values to slow growth or speed shrinking" : "0"
 	softness(float) : "The sprite softness scalar" : "1"
 	sprite(string) : "The sprite image name" : "particle1"
 	velocity(string) : "The sprite velocity" : "0 0 0"
+	velocity_spread(string) : "Per-particle random velocity spread, applied symmetrically on each axis" : "1 1 1"
 	width(float) : "The sprite width. Setting this will cause size to be ignored" : "0"
 	type(choices) : "Preset setting to apply" : "" =
 	[
@@ -378,6 +442,7 @@
 
 @PointClass base(Target) color(0 255 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter : "Warps players who touch this entity to the targeted misc_teleporter_dest entity."
 [
+	sound(string) : "Sound to play at the teleporter and destination on use" : "misc/teleport"
 	spawnflags(Flags) =
 	[
 		1 : "Suppress the default teleporter particle effects" : 0
@@ -547,6 +612,11 @@
 	roundlimit(integer) : "The round limit" : 20
 	capturelimit(integer) : "The capture limit" : 8
 	timelimit(integer) : "The time limit in minutes" : 20
+	items(choices) : "The item set for this map" : "quetoo" =
+	[
+		"quetoo" : "Quetoo"
+		"quake" : "Quake"
+	]
 	give(string) : "A comma-delimited item string to give each player on spawn"
 	author(string) : "Creator of this map and other misc info"
 	version(string) : "Version string in 'major.minor.build' format"
