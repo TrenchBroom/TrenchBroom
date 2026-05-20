@@ -79,11 +79,8 @@ std::optional<EntityDefinitionFileSpec> entityDefinitionFile(const Map& map)
 
 void setEntityDefinitionFile(Map& map, const EntityDefinitionFileSpec& spec)
 {
-  // to avoid backslashes being misinterpreted as escape sequences
-  const auto formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
-
   auto entity = map.worldNode().entity();
-  entity.addOrUpdateProperty(EntityPropertyKeys::TbEntityDefinitions, formatted);
+  entity.addOrUpdateProperty(EntityPropertyKeys::TbEntityDefinitions, spec.asString());
   updateNodeContents(
     map,
     "Set Entity Definitions",

@@ -92,15 +92,16 @@
 #include "mdl/UpdateLinkedGroupsCommand.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/VertexHandleManager.h"
+#include "mdl/WadPropertyUtils.h"
 #include "mdl/WorldBoundsValidator.h"
 #include "mdl/WorldNode.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
+#include "mdl/WorldNodePathSeparatorValidator.h"
 #include "mdl/WorldReader.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
-#include "kd/string_utils.h"
 #include "kd/task_manager.h"
 
 #include <fmt/format.h>
@@ -1138,6 +1139,7 @@ void Map::registerValidators()
     std::make_unique<PropertyKeyWithDoubleQuotationMarksValidator>());
   m_worldNode->registerValidator(
     std::make_unique<PropertyValueWithDoubleQuotationMarksValidator>());
+  m_worldNode->registerValidator(std::make_unique<WorldNodePathSeparatorValidator>());
   m_worldNode->registerValidator(std::make_unique<InvalidUVScaleValidator>());
 }
 
@@ -1229,11 +1231,11 @@ void Map::loadMaterials()
       environmentConfig().appFolderPath, // relative to the application
     };
 
-    const auto wadPaths =
-      kdl::str_split(*wadStr, ";")
-      | std::views::transform([](const auto& path) { return kdl::parse_path(path); })
-      | kdl::ranges::to<std::vector>();
-
+    const auto wadPaths = splitWadProperty(*wadStr)
+                          | std::views::transform([](const auto& pathStr) {
+                              return std::filesystem::path{pathStr};
+                            })
+                          | kdl::ranges::to<std::vector>();
     m_gameFileSystem->reloadWads(
       gameInfo().gameConfig.materialConfig.root, searchPaths, wadPaths, logger());
   }

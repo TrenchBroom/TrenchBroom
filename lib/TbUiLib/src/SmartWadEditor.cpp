@@ -23,29 +23,24 @@
 #include <QListWidget>
 #include <QToolButton>
 
-#include "PreferenceManager.h"
 #include "mdl/EntityNodeBase.h"
-#include "mdl/GameInfo.h"
-#include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/WadPropertyUtils.h"
 #include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/MapDocument.h"
 #include "ui/MiniToolBarLayout.h"
-#include "ui/QPathUtils.h"
 #include "ui/TitleBar.h"
 #include "ui/ViewConstants.h"
+#include "ui/WadUtils.h"
 
-#include "kd/ranges/to.h"
-#include "kd/string_utils.h"
 #include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <filesystem>
-#include <ranges>
 
 namespace tb::ui
 {
@@ -53,28 +48,22 @@ namespace tb::ui
 namespace
 {
 
-std::vector<std::filesystem::path> getWadPaths(
+std::vector<std::string> getWadPaths(
   const std::vector<mdl::EntityNodeBase*>& nodes, const std::string& propertyKey)
 {
   if (nodes.size() == 1)
   {
     if (const auto* wadPathsStr = nodes.front()->entity().property(propertyKey))
     {
-      const auto wadPaths = kdl::str_split(*wadPathsStr, ";");
-      return wadPaths | std::views::transform([](const auto& s) {
-               return std::filesystem::path{s};
-             })
-             | kdl::ranges::to<std::vector>();
+      return mdl::splitWadProperty(*wadPathsStr);
     }
   }
   return {};
 }
 
-std::string getWadPathStr(const std::vector<std::filesystem::path>& wadPaths)
+std::string getWadPathStr(const std::vector<std::string>& wadPaths)
 {
-  return kdl::str_join(
-    wadPaths | std::views::transform([](const auto& path) { return path.string(); }),
-    ";");
+  return mdl::joinWadProperty(wadPaths);
 }
 
 } // namespace
@@ -155,20 +144,8 @@ void SmartWadEditor::addWads()
   updateFileDialogDefaultDirectoryWithFilename(
     FileDialogDir::MaterialCollection, pathQStrs.front());
 
-  const auto gamePath = pref(map.gameInfo().gamePathPreference);
-  auto pathDialog = ChoosePathTypeDialog{
-    window(), pathFromQString(pathQStrs.front()), map.path(), gamePath};
-
-  if (pathDialog.exec() == QDialog::Accepted)
+  if (addWadPaths(pathQStrs, map, window()))
   {
-    auto wadPaths = getWadPaths(nodes(), propertyKey());
-    std::ranges::transform(
-      pathQStrs, std::back_inserter(wadPaths), [&](const auto& pathQStr) {
-        return convertToPathType(
-          pathDialog.pathType(), pathFromQString(pathQStr), map.path(), gamePath);
-      });
-
-    setEntityProperty(map, propertyKey(), getWadPathStr(wadPaths));
     m_wadPaths->setCurrentRow(
       m_wadPaths->count() - 1, QItemSelectionModel::ClearAndSelect);
   }
@@ -291,7 +268,7 @@ void SmartWadEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nod
 
   for (const auto& path : getWadPaths(nodes, propertyKey()))
   {
-    m_wadPaths->addItem(pathAsQString(path));
+    m_wadPaths->addItem(QString::fromStdString(path));
   }
 
   for (const auto& [index, text] : cachedSelection)

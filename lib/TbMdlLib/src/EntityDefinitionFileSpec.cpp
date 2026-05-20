@@ -82,15 +82,12 @@ EntityDefinitionFileSpec EntityDefinitionFileSpec::makeExternal(
 
 std::string EntityDefinitionFileSpec::asString() const
 {
-  // to avoid backslashes being misinterpreted as escape sequences
-  const auto forwardPath = kdl::str_replace_every(path.string(), "\\", "/");
-
   switch (type)
   {
   case Type::Builtin:
-    return fmt::format("builtin:{}", forwardPath);
+    return fmt::format("builtin:{}", path.generic_string());
   case Type::External:
-    return fmt::format("external:{}", forwardPath);
+    return fmt::format("external:{}", path.generic_string());
     switchDefault();
   }
 }
