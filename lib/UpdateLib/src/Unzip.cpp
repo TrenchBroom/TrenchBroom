@@ -20,14 +20,10 @@
 #include "update/Unzip.h"
 
 #include <QDir>
-#include <QFile>
-#include <QFileDevice>
 #include <QFileInfo>
+#include <QProcess>
 
-#include "update/FileUtils.h"
 #include "update/Logging.h"
-
-#include <miniz/miniz.h>
 
 namespace upd
 {
@@ -35,164 +31,68 @@ namespace upd
 namespace
 {
 
-QString zipErrorString(mz_zip_archive& archive)
+constexpr int UNZIP_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+constexpr int PROCESS_START_TIMEOUT_MS = 5000;  // 5 seconds
+
+void logProcessStart(
+  const std::optional<QString>& logFilePath,
+  const QString& program,
+  const QStringList& arguments)
 {
-  const auto err = mz_zip_get_last_error(&archive);
-  const auto* message = mz_zip_get_error_string(err);
-  return QString::fromUtf8(message != nullptr ? message : "Unknown miniz error");
-}
-
-QString normalizePathForComparison(const QString& path)
-{
-  return QDir::fromNativeSeparators(QDir::cleanPath(path));
-}
-
-bool isPathInsideDestination(const QString& destinationRoot, const QString& candidatePath)
-{
-  const auto normalizedRoot = normalizePathForComparison(destinationRoot);
-  const auto normalizedCandidate = normalizePathForComparison(candidatePath);
-  const auto relativePath = QDir{normalizedRoot}.relativeFilePath(normalizedCandidate);
-  return !QDir::isAbsolutePath(relativePath) && relativePath != ".."
-         && !relativePath.startsWith("../");
-}
-
-#if defined(Q_OS_UNIX)
-std::optional<QFileDevice::Permissions> zipEntryPermissions(
-  const mz_zip_archive_file_stat& fileStat)
-{
-  const auto unixMode =
-    static_cast<unsigned int>((fileStat.m_external_attr >> 16) & 0xFFFFu);
-  if ((unixMode & 0777u) == 0u)
-  {
-    return std::nullopt;
-  }
-
-  auto permissions = QFileDevice::Permissions{};
-  if ((unixMode & 0400u) != 0u)
-  {
-    permissions |= QFileDevice::ReadOwner;
-  }
-  if ((unixMode & 0200u) != 0u)
-  {
-    permissions |= QFileDevice::WriteOwner;
-  }
-  if ((unixMode & 0100u) != 0u)
-  {
-    permissions |= QFileDevice::ExeOwner;
-  }
-  if ((unixMode & 0040u) != 0u)
-  {
-    permissions |= QFileDevice::ReadGroup;
-  }
-  if ((unixMode & 0020u) != 0u)
-  {
-    permissions |= QFileDevice::WriteGroup;
-  }
-  if ((unixMode & 0010u) != 0u)
-  {
-    permissions |= QFileDevice::ExeGroup;
-  }
-  if ((unixMode & 0004u) != 0u)
-  {
-    permissions |= QFileDevice::ReadOther;
-  }
-  if ((unixMode & 0002u) != 0u)
-  {
-    permissions |= QFileDevice::WriteOther;
-  }
-  if ((unixMode & 0001u) != 0u)
-  {
-    permissions |= QFileDevice::ExeOther;
-  }
-
-  return permissions;
-}
-
-bool applyZipEntryPermissions(
-  const QString& path,
-  const mz_zip_archive_file_stat& fileStat,
-  const std::optional<QString>& logFilePath)
-{
-  const auto permissions = zipEntryPermissions(fileStat);
-  if (!permissions)
-  {
-    return true;
-  }
-
-  if (QFile::setPermissions(path, *permissions))
-  {
-    return true;
-  }
-
+  logToFile(
+    logFilePath, QString{"Extraction command: %1 %2"}.arg(program, arguments.join(" ")));
   logToFile(
     logFilePath,
-    QString{"Failed to unzip the archive: could not set permissions on '%1'"}.arg(path));
-  return false;
+    QString{"Starting extraction (timeout: %1 seconds)..."}.arg(UNZIP_TIMEOUT_MS / 1000));
 }
-#else
-bool applyZipEntryPermissions(
-  const QString&, const mz_zip_archive_file_stat&, const std::optional<QString>&)
+
+void logProcessResult(
+  const std::optional<QString>& logFilePath,
+  int exitCode,
+  const QString& standardOutput,
+  const QString& errorOutput)
 {
-  return true;
+  if (exitCode == 0)
+  {
+    logToFile(logFilePath, QString{"Extraction completed successfully"});
+  }
+  else
+  {
+    logToFile(
+      logFilePath,
+      QString{"Extraction failed: command exited with code %1"}.arg(exitCode));
+  }
+
+  if (!standardOutput.isEmpty())
+  {
+    logToFile(logFilePath, QString{"Standard output: %1"}.arg(standardOutput));
+  }
+
+  if (!errorOutput.isEmpty())
+  {
+    logToFile(logFilePath, QString{"Error output: %1"}.arg(errorOutput));
+  }
 }
-#endif
 
-struct mz_zip_archive_file : public mz_zip_archive
-{
-  const std::optional<QString>& m_logFilePath;
-  bool m_open = false;
-
-  explicit mz_zip_archive_file(const std::optional<QString>& logFilePath)
-    : m_logFilePath{logFilePath}
-  {
-    mz_zip_zero_struct(this);
-  }
-
-  bool open(const QString& zipPath)
-  {
-    close();
-
-    const auto zipPathBytes = QFile::encodeName(zipPath);
-    if (mz_zip_reader_init_file(this, zipPathBytes.constData(), 0) != MZ_TRUE)
-    {
-      m_open = false;
-    }
-    else
-    {
-      m_open = true;
-    }
-
-    return m_open;
-  }
-
-  void close()
-  {
-    if (m_open)
-    {
-      if (mz_zip_reader_end(this) != MZ_TRUE)
-      {
-        logToFile(
-          m_logFilePath,
-          QString{"Could not finalize zip reader (%1)"}.arg(zipErrorString(*this)));
-      }
-    }
-  }
-
-  ~mz_zip_archive_file() { close(); }
-};
-
-} // namespace
-
-bool unzip(
+bool unzipWithCommand(
   const QString& zipPath,
   const QString& destFolderPath,
+  const QString& program,
+  const QStringList& arguments,
   const std::optional<QString>& logFilePath)
 {
+  if (!QFileInfo{zipPath}.exists())
+  {
+    logToFile(
+      logFilePath, QString{"Failed to unzip: archive file not found: %1"}.arg(zipPath));
+    return false;
+  }
+
   if (!QFileInfo{destFolderPath}.exists() && !QDir{destFolderPath}.mkpath("."))
   {
     logToFile(
       logFilePath,
-      QString{"Failed to unzip the archive: %1 could not be created"}.arg(
+      QString{"Failed to unzip: could not create destination directory: %1"}.arg(
         destFolderPath));
     return false;
   }
@@ -201,132 +101,103 @@ bool unzip(
   {
     logToFile(
       logFilePath,
-      QString{"Failed to unzip the archive: %1 is not a folder"}.arg(destFolderPath));
+      QString{"Failed to unzip: destination is not a directory: %1"}.arg(destFolderPath));
     return false;
   }
 
-  auto archive = mz_zip_archive_file{logFilePath};
-  if (!archive.open(zipPath))
+  logProcessStart(logFilePath, program, arguments);
+
+  auto process = QProcess{};
+  process.setProgram(program);
+  process.setArguments(arguments);
+
+  process.start();
+  if (!process.waitForStarted(PROCESS_START_TIMEOUT_MS))
   {
     logToFile(
       logFilePath,
-      QString{"Failed to unzip the archive: could not open zip file '%1' (%2)"}
-        .arg(zipPath)
-        .arg(zipErrorString(archive)));
+      QString{"Failed to unzip: could not start extraction command (%1)"}.arg(
+        process.errorString()));
     return false;
   }
 
-  const auto destinationRoot = QDir::cleanPath(QDir{destFolderPath}.absolutePath());
-  const auto fileCount = mz_zip_reader_get_num_files(&archive);
-  for (mz_uint i = 0; i < fileCount; ++i)
+  if (!process.waitForFinished(UNZIP_TIMEOUT_MS))
   {
-    auto fileStat = mz_zip_archive_file_stat{};
-    if (mz_zip_reader_file_stat(&archive, i, &fileStat) != MZ_TRUE)
-    {
-      logToFile(
-        logFilePath,
-        QString{"Failed to unzip the archive: could not read zip entry metadata at index "
-                "%1 (%2)"}
-          .arg(i)
-          .arg(zipErrorString(archive)));
-      return false;
-    }
+    process.kill();
+    process.waitForFinished(3000); // Give it 3 seconds to terminate
+    logToFile(
+      logFilePath,
+      QString{"Failed to unzip: extraction command timed out after %1 seconds"}.arg(
+        UNZIP_TIMEOUT_MS / 1000));
+    return false;
+  }
 
-    const auto nameLength = mz_zip_reader_get_filename(&archive, i, nullptr, 0);
-    if (nameLength == 0)
-    {
-      logToFile(
-        logFilePath,
-        QString{
-          "Failed to unzip the archive: could not read zip entry name at index %1 (%2)"}
-          .arg(i)
-          .arg(zipErrorString(archive)));
-      return false;
-    }
+  const auto exitCode = process.exitCode();
+  const auto errorOutput = QString::fromUtf8(process.readAllStandardError());
+  const auto standardOutput = QString::fromUtf8(process.readAllStandardOutput());
 
-    auto entryNameBuffer = QByteArray{};
-    entryNameBuffer.resize(static_cast<qsizetype>(nameLength));
-    mz_zip_reader_get_filename(&archive, i, entryNameBuffer.data(), nameLength);
+  if (process.exitStatus() != QProcess::NormalExit)
+  {
+    logProcessResult(logFilePath, exitCode, standardOutput, errorOutput);
+    logToFile(
+      logFilePath,
+      QString{"Failed to unzip: extraction command terminated abnormally (%1)"}.arg(
+        process.errorString()));
+    return false;
+  }
 
-    const auto rawEntryPath = QString::fromUtf8(entryNameBuffer.constData());
-    const auto isDirectoryEntry = mz_zip_reader_is_file_a_directory(&archive, i)
-                                  || rawEntryPath.endsWith('/')
-                                  || rawEntryPath.endsWith('\\');
+  logProcessResult(logFilePath, exitCode, standardOutput, errorOutput);
 
-    auto entryPath = rawEntryPath;
-    entryPath.replace('\\', '/');
-    entryPath = QDir::cleanPath(entryPath);
-
-    const auto invalidRelativePath = QDir::isAbsolutePath(entryPath) || entryPath == ".."
-                                     || entryPath.startsWith("../")
-                                     || entryPath.isEmpty();
-    if (invalidRelativePath)
-    {
-      logToFile(
-        logFilePath,
-        QString{"Failed to unzip the archive: invalid zip entry path '%1'"}.arg(
-          entryPath));
-      return false;
-    }
-
-    const auto destinationPath =
-      QDir::cleanPath(QDir{destinationRoot}.filePath(entryPath));
-    if (!isPathInsideDestination(destinationRoot, destinationPath))
-    {
-      logToFile(
-        logFilePath,
-        QString{"Failed to unzip the archive: zip entry path escapes destination '%1'"}
-          .arg(entryPath));
-      return false;
-    }
-
-    if (isDirectoryEntry)
-    {
-      if (!QDir{}.mkpath(destinationPath))
-      {
-        logToFile(
-          logFilePath,
-          QString{"Failed to unzip the archive: could not create directory '%1'"}.arg(
-            destinationPath));
-        return false;
-      }
-      if (!applyZipEntryPermissions(destinationPath, fileStat, logFilePath))
-      {
-        return false;
-      }
-      continue;
-    }
-
-    const auto destinationInfo = QFileInfo{destinationPath};
-    if (!QDir{}.mkpath(destinationInfo.path()))
-    {
-      logToFile(
-        logFilePath,
-        QString{"Failed to unzip the archive: could not create directory '%1'"}.arg(
-          destinationInfo.path()));
-      return false;
-    }
-
-    const auto destinationPathBytes = QFile::encodeName(destinationPath);
-    if (
-      mz_zip_reader_extract_to_file(&archive, i, destinationPathBytes.constData(), 0)
-      != MZ_TRUE)
-    {
-      logToFile(
-        logFilePath,
-        QString{"Failed to unzip the archive: could not extract '%1' (%2)"}
-          .arg(entryPath)
-          .arg(zipErrorString(archive)));
-      return false;
-    }
-
-    if (!applyZipEntryPermissions(destinationPath, fileStat, logFilePath))
-    {
-      return false;
-    }
+  if (exitCode != 0)
+  {
+    logToFile(
+      logFilePath,
+      QString{"Failed to unzip: extraction command exited with code %1"}.arg(exitCode));
+    return false;
   }
 
   return true;
+}
+
+} // namespace
+
+bool unzip(
+  const QString& zipPath,
+  const QString& destFolderPath,
+  const std::optional<QString>& logFilePath)
+{
+  const auto absoluteZipPath = QFileInfo{zipPath}.absoluteFilePath();
+  const auto absoluteDestPath = QDir{destFolderPath}.absolutePath();
+
+  logToFile(
+    logFilePath,
+    QString{"Unzipping %1 to %2"}.arg(absoluteZipPath).arg(absoluteDestPath));
+
+#if defined(Q_OS_MACOS)
+  return unzipWithCommand(
+    absoluteZipPath,
+    absoluteDestPath,
+    "/usr/bin/ditto",
+    QStringList{"-xk", absoluteZipPath, absoluteDestPath},
+    logFilePath);
+#elif defined(Q_OS_LINUX)
+  return unzipWithCommand(
+    absoluteZipPath,
+    absoluteDestPath,
+    "/usr/bin/unzip",
+    QStringList{"-q", absoluteZipPath, "-d", absoluteDestPath},
+    logFilePath);
+#elif defined(Q_OS_WIN)
+  return unzipWithCommand(
+    absoluteZipPath,
+    absoluteDestPath,
+    "tar.exe",
+    QStringList{"-xf", absoluteZipPath, "-C", absoluteDestPath},
+    logFilePath);
+#else
+  logToFile(logFilePath, QString{"Failed to unzip: unsupported platform"});
+  return false;
+#endif
 }
 
 } // namespace upd
