@@ -1,22 +1,12 @@
-// Heretic 2 demo forge game definition file (.fgd)
-// for Worldcraft 1.6 and above
-// last update: 8 nov 98
-// Ver 0.00000000008
+// Heretic 2 forge game definition file (.fgd)
+// for TrenchBroom 2026.1 and above
+// last update: 20260523 by xaGe
 
-// Written by Manly Jack / jarad@ihug.co.nz
-// email me with improvements and suggestions.
-// Based on the default quake2 fdg so most comments are from that. Things I have added are with a
-// h2 comment.
-// Damn this is a mess. I wrote most of this up within a week or 2 of the demo being released.
-//
+// Originally written by Manly Jack / jarad@ihug.co.nz based on the default quake2.fdg
 // special thanks to: Tiglari for the .ent files
-//
 
-// Revised by whirledtsar on July 27 2020, based on source code
-// Revised by MaxED in 2026, based on source code.
-
-//----------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------
+// Revised by whirledtsar on July 27 2020,based on source code
+// Revised by MaxED in 2026,based on source code.
 
 //
 // worldspawn
@@ -60,7 +50,7 @@
 // base marker definitions - Appearflags=Spawnflags
 //
 
-@baseclass = Appearflags [
+@BaseClass = Appearflags [
 	spawnflags(flags) =
 	[
 		256 : "Not in Easy"
@@ -71,13 +61,13 @@
 	]
 ]
 
-@baseclass = AbsLight [ abslight(color255) : "Absolute color" ]
-@baseclass = Angle [ angle(integer) : "Angle" ]
-@baseclass = Angles [ angles(string) : "Angles (pitch yaw roll)" ]
-@baseclass = Targetname [ targetname(target_source) : "Name" ]
-@baseclass = Target [ target(target_destination) : "Target" ]
-@baseclass = BrushEntity [ _minlight(integer) : "Minimum light (0-1)" ]
-@baseclass = ObjMaterial
+@BaseClass = AbsLight [ abslight(color255) : "Absolute color" ]
+@BaseClass = Angle [ angle(integer) : "Angle" ]
+@BaseClass = Angles [ angles(string) : "Angles (pitch yaw roll)" ]
+@BaseClass = Targetname [ targetname(target_source) : "Name" ]
+@BaseClass = Target [ target(target_destination) : "Target" ]
+@BaseClass = BrushEntity [ _minlight(integer) : "Minimum light (0-1)" ]
+@BaseClass = ObjMaterial
 [
 	materialtype(choices) : "Material type" : 1 =
 	[
@@ -95,7 +85,7 @@
 	]
 ]
 
-@baseclass base(Target, Targetname) = UsableEntity
+@BaseClass base(Target,Targetname) = UsableEntity
 [
 	killtarget(target_destination) : "Kill target"
 	message(int) : "Message ID (line number in LevelMsg.txt)"
@@ -104,53 +94,58 @@
 ]	
 
 //
-// player start, deathmatch, coop, deathmatch intermission
+// player start,deathmatch,coop,deathmatch intermission
 //
 
-@baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) model({ "path": ":models/player/cinematic/tris.fm"}) = PlayerClass []
+@BaseClass base(Appearflags,Targetname) size(-16 -16 -24,16 16 32) color(0 255 0) model({"path":":models/player/cinematic/tris.fm"}) = PlayerClass []
 
-@PointClass base(PlayerClass, Angle) = info_player_start : "Player start" []
-@PointClass base(PlayerClass, Angle) = info_player_deathmatch : "Player start (deathmatch)" []
-@PointClass base(PlayerClass, Angle) = info_player_coop : "Player start (coop)" []
-@PointClass base(PlayerClass, Angles) = info_player_intermission : "Deathmatch intermission point" []
+@PointClass base(PlayerClass,Angle) = info_player_start : "Player start" []
+@PointClass base(PlayerClass,Angle) = info_player_deathmatch : "Player start (deathmatch)" []
+@PointClass base(PlayerClass,Angle) = info_player_coop : "Player start (coop)" []
+@PointClass base(PlayerClass,Angles) = info_player_intermission : "Deathmatch intermission point" []
 
-@PointClass base(Appearflags, Target, Targetname) size(-24 -24 -24, 24 24 24) color(0 255 0) = info_buoy : "
+@PointClass base(Appearflags,Target,Targetname) size(-24 -24 -24,24 24 24) color(0 255 0) = info_buoy : "
 Buoy for monster navigation
 
-- You shall have a buoy target up to two OTHER buoys, therefore:
+- You shall have a buoy target up to two OTHER buoys,therefore:
 - You shall connect each buoy to up to three other buoys (only three lines can come off a buoy).
-- Direction of connection does not matter, unless you are trying to make a one-way buoy (see ONEWAY below).
+- Direction of connection does not matter,unless you are trying to make a one-way buoy (see ONEWAY below).
 - You shall place your buoy in an area that a monster can fit into.
 - You shall place your buoys such that each buoy can 'see' each buoy it's connected to (have a clear line of sight).
-- Buoys do not need to be placed throughout wide open areas, monsters can get around fine there.
+- Buoys do not need to be placed throughout wide open areas,monsters can get around fine there.
 - You shall not place buoys in the ground or walls or any other world object.
-- You shall not give any two buoys the same targetname, and each buoy should have a targetname, even if it is not targeted (this is for debug purposes).
+- You shall not give any two buoys the same targetname,and each buoy should have a targetname,even if it is not targeted (this is for debug purposes).
 
-Keep in mind that when choosing a buoy, monsters need to be able to find a buoy withing 1024 map units of them. So make sure buoies are placed so that wherever they can get, they are within 1024 of a buoy.
+Keep in mind that when choosing a buoy,monsters need to be able to find a buoy withing 1024 map units of them. So make sure buoies are placed so that wherever they can get,they are within 1024 of a buoy.
 "
 [
 	spawnflags(flags) =
 	[
-		1 : "Jump" : 0 : "Will make monster jump using 'angle', 'height' and 'speed' properties"
-		2 : "Activate" : 0 : "Will allow monster to activate doors, triggers, plats, etc. NOTE: the activated object's 'pathtargetname' must match the buoy's 'pathtarget' field."
-		8 : "One-way" : 0 : "This buoy will not allow buoys it's targeting to send monsters backwards along the path. Basically, does not back-link, paths from it to buoys it's targeting become one-way."
+		1 : "Jump" : 0 : "Will make monster jump using 'angle','height' and 'speed' properties"
+		2 : "Activate" : 0 : "Will allow monster to activate doors,triggers,plats,etc. NOTE: the activated object's 'pathtargetname' must match the buoy's 'pathtarget' field."
+		8 : "One-way" : 0 : "This buoy will not allow buoys it's targeting to send monsters backwards along the path. Basically,does not back-link,paths from it to buoys it's targeting become one-way."
 	]
 	delay(float) : "Time monster waits after using pathtarget (in seconds)"
 	wait(float) : "Time before monster can use pathtarget again (in seconds)"
 	angle(float) : "Jump angle"
 	height(integer) : "Height of jump" : 400
-	jumptarget(target_destination) : "JumpTarget" : "used with JUMP - this buoy will only make monsters jump at the buoy whose 'targetname' is the same as 'jumpbuoy'- without this, the buoy WILL NOT MAKE MONSTERS JUMP!"
+	jumptarget(target_destination) : "JumpTarget" : "used with JUMP - this buoy will only make monsters jump at the buoy whose 'targetname' is the same as 'jumpbuoy'- without this,the buoy WILL NOT MAKE MONSTERS JUMP!"
 	pathtarget(target_destination) : "Target to use when monster reaches buoy. Requires 'Activate' spawnflag"
 	speed(float) : "Speed of jump" : "400"
 	target(target_destination) : "Next buoy"
 	target2(target_destination) : "Next buoy (alternate)"
 ]
 
-// Keep in mind when using func_areaportal that it must *completely* separate two areas.
-// Otherwise, you will get an error message and the areaportal will not work.
-@SolidClass base(Appearflags, Targetname) = func_areaportal : "Area portal (Vis blocker)" []
+@SolidClass base(Appearflags,Targetname) = func_areaportal : "<b>Area portal (Vis blocker)</b><br><br>
+Keep in mind when using <i>func_areaportal</i> that it must <b>*completely*</b> separate two areas. Otherwise,you will get an error message and the areaportal will not work.
+<br><br>
+<b><i>*This works well inside doors that split areas of your maps to block vis from looking through when the player hasn't opened it yet.</i></b>" []
 
-@SolidClass base(BrushEntity, UsableEntity, Angle, Appearflags) color(0 128 204) = func_button : "Button"
+@SolidClass = func_group : "Brush group (editor use only)
+
+* Double-click any one of the brushes from a group to select ALL brushes in that group." []
+
+@SolidClass base(BrushEntity,UsableEntity,Angle,Appearflags) color(0 128 204) = func_button : "Button"
 [
 	spawnflags(flags) =
 	[
@@ -189,7 +184,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		8 : "Large stone/wood door"
 		9 : "Average metal swinging"
 		10 : "Fast sliding"
-		11 : "Hive, metal, multipaneled sliding"
+		11 : "Hive,metal,multipaneled sliding"
 		12 : "Huge stone swinging"
 		13 : "Large elevator"
 		14 : "Crane (warehouse)"
@@ -203,7 +198,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@BaseClass base(BrushEntity, DoorSounds, Appearflags, Targetname) color(0 128 204) = Door
+@BaseClass base(BrushEntity,DoorSounds,Appearflags,Targetname) color(0 128 204) = Door
 [
 	target(target_destination) : "Areaportal to toggle"
 	dmg(integer) : "Damage when blocked" : 2
@@ -215,7 +210,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@SolidClass base(Door, UsableEntity) = func_door : "Door"
+@SolidClass base(Door,UsableEntity) = func_door : "Door"
 [
 	spawnflags(flags) =
 	[
@@ -239,7 +234,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	lip(integer) : "Lip remaining after move" : 8
 ]
 
-@SolidClass base(Door, UsableEntity) = func_door_rotating : "Rotating Door"
+@SolidClass base(Door,UsableEntity) = func_door_rotating : "Rotating Door"
 [
 	spawnflags(flags) =
 	[
@@ -282,7 +277,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@SolidClass base(BrushEntity, ObjMaterial, Appearflags, Targetname, Target) color(0 128 204) = breakable_brush : "Breakable brush"
+@SolidClass base(BrushEntity,ObjMaterial,Appearflags,Targetname,Target) color(0 128 204) = breakable_brush : "Breakable brush"
 [
 	spawnflags(flags) =
 	[
@@ -296,7 +291,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 1
 ]
 
-@SolidClass base(BrushEntity, Appearflags, Targetname) color (0 128 204) = func_object : "Solid bmodel, will fall if its support is removed"
+@SolidClass base(BrushEntity,Appearflags,Targetname) color (0 128 204) = func_object : "Solid bmodel,will fall if its support is removed"
 [
 	spawnflags(flags) =
 	[
@@ -307,7 +302,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	dmg(integer) : "Damage" : 100
 ]
 
-@SolidClass base(BrushEntity, DoorSounds, Appearflags, Targetname) color(0 128 204) = func_plat : "Platform"
+@SolidClass base(BrushEntity,DoorSounds,Appearflags,Targetname) color(0 128 204) = func_plat : "Platform"
 [
 	spawnflags(flags) =
 	[
@@ -322,7 +317,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	dmg(integer) : "Damage" : 2
 ]
 
-@SolidClass base(BrushEntity, Appearflags, Targetname) color(0 128 204) = func_rotating : "Rotating brush"
+@SolidClass base(BrushEntity,Appearflags,Targetname) color(0 128 204) = func_rotating : "Rotating brush"
 [
 	spawnflags(flags) =
 	[
@@ -347,7 +342,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	dmg(integer) : "Damage when blocked"
 ]
 
-@PointClass base(Appearflags, UsableEntity) color(76 25 153) size(-8 -8 -8, 8 8 8) = func_timer : "Timer"
+@PointClass base(Appearflags,UsableEntity) color(76 25 153) size(-8 -8 -8,8 8 8) = func_timer : "Timer"
 [
 	spawnflags(flags) =
 	[
@@ -358,7 +353,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	pausetime(float) : "Additional delay when used the first time if spawned with 'start on'"
 ]
 
-@SolidClass base(BrushEntity, ObjMaterial, Appearflags, Targetname) color(0 128 204) = func_train : "Moving platform"
+@SolidClass base(BrushEntity,ObjMaterial,Appearflags,Targetname) color(0 128 204) = func_train : "Moving platform"
 [
 	spawnflags(flags) =
 	[
@@ -384,7 +379,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	rotate(integer) : "Rotation speed"
 ]
 
-@SolidClass base(BrushEntity, Appearflags, Targetname) color(0 128 204) = func_wall : "Solid Wall"
+@SolidClass base(BrushEntity,Appearflags,Targetname) color(0 128 204) = func_wall : "Solid Wall"
 [
 	spawnflags(flags) =
 	[
@@ -396,7 +391,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@SolidClass base(Appearflags, UsableEntity) color(0 128 204) = func_water : "Moveable water"
+@SolidClass base(Appearflags,UsableEntity) color(0 128 204) = func_water : "Moveable water"
 [
 	spawnflags(flags) =
 	[
@@ -417,91 +412,200 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	team(string) : "Team"
 ]
 
-@PointClass base(Appearflags, Targetname) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_null : "Spotlight target" []
+@PointClass base(Appearflags,Targetname) color(0 128 0) size(-4 -4 -4,4 4 4) = info_null : "Spotlight target" []
 @PointClass base(info_null) = info_notnull : "Lightning target" []
 
 //
 //	Weapons/Items
 //
 
-// Notes on the 'team' key: First of all, it's really only useful in DM because it creates a random respawn pattern. 
-// Let's say that in one spot, you want to have the shotgun, Quad damage and mega health item to respawn in alternance. 
-// Place all of them in approximately the same location, team them and voila! The FIRST item that you place in the map 
-// will be the team MASTER - the others will be SLAVES. In DM play, the Master will be the first one to spawn. 
-// Once the Master is picked up, the respawn pattern becomes RANDOM: it could be the same or one of the other 2. 
-// If you try to use this in a Single Player map, it's pretty useless because only the team MASTER spawns and 
-// the others never appear obviously.
-
-@BaseClass base(Appearflags, UsableEntity) color(76 76 255) size(-16 -16 -16, 16 16 16) = Items // Actual size is (-10 -10 -10, 10 10 10) --mxd.
+@BaseClass base(Appearflags,UsableEntity) color(76 76 255) size(-16 -16 -16,16 16 16) = Items // Actual size is (-10 -10 -10,10 10 10) --mxd.
 [
 	spawnflags(flags) =
 	[
 		1 : "Coop only"
 		2 : "Don't drop"
 	]
-	team(string) : "Team"
-]
+	team(string) : "<p>Team<br><br>
+The <b>'team'</b> key is really only useful in <b>DM</b> because it chains entities together to create a random respawn pattern between them. Let's say in one spot, you want to have the shotgun, quad damage, and mega health item to alternately respawn. Place all of them in the same location or approximate, give them all the same team name, and <i>voila</i>! The 1st item that you place in the map will be the team <b>main</b> and the others in the team are <b>secondary</b>. In <b>DM</b> play, the <b>main</b> will be the 1st one to spawn. Once the <b>main</b> is picked up, the respawn pattern becomes <b>random</b>. The next to spawn could be the <b>main</b> or any of the <b>secondaries</b>. If you try to use this in a <b>single-player</b> map or even <b>CTF</b>, only the team <b>main</b> will spawn.</p>"]
 
-@PointClass base(Items) model({"path": ":models/items/Weapons/Firewall/tris.fm"})					= item_weapon_firewall : "Firewall" []
-@PointClass base(Items) model({"path": ":models/items/Weapons/Maceballs/tris.fm", "scale":0.5})		= item_weapon_maceballs : "Maceballs" []
-@PointClass base(Items) model({"path": ":models/items/Weapons/Bow/tris.fm", "skin":1, "scale":0.5})	= item_weapon_phoenixbow : "Phoenix Bow" []
-@PointClass base(Items) model({"path": ":models/items/Weapons/Sphere/tris.fm", "scale":0.5})		= item_weapon_sphereofannihilation : "Sphere of Annihilation" []
-@PointClass base(Items) model({"path": ":models/items/Weapons/Bow/tris.fm", "scale":0.5})			= item_weapon_redrain_bow : "Red Rain Bow" []
-@PointClass base(Items) model({"path": ":models/items/Weapons/array/tris.fm", "scale":0.5})			= item_weapon_magicmissile : "Magic Missile" []
-@PointClass base(Items) model({"path": ":models/items/Weapons/Hellstaff/tris.fm", "scale":0.5})		= item_weapon_hellstaff : "Hell Staff" []
 
-@PointClass base(Items) model({"path": ":models/items/Ammo/Hellstaff/tris.fm"})						= item_ammo_hellstaff : "Hellstaff ammo" []
-@PointClass base(Items) model({"path": ":models/items/Ammo/Phoenix/tris.fm"})						= item_ammo_phoenix : "Phoenix ammo" []
-@PointClass base(Items) model({"path": ":models/items/Ammo/RedRain/tris.fm"})						= item_ammo_redrain : "Red rain ammo" []
+@PointClass base(Items) model({"path":":models/items/Weapons/Firewall/tris.fm"}) = item_weapon_firewall : "Firewall" []
+@PointClass base(Items) model({"path":":models/items/Weapons/Maceballs/tris.fm","scale":0.5}) = item_weapon_maceballs : "Maceballs" []
+@PointClass base(Items) model({"path":":models/items/Weapons/Bow/tris.fm","skin":1,"scale":0.5}) = item_weapon_phoenixbow : "Phoenix Bow" []
+@PointClass base(Items) model({"path":":models/items/Weapons/Sphere/tris.fm","scale":0.5}) = item_weapon_sphereofannihilation : "Sphere of Annihilation" []
+@PointClass base(Items) model({"path":":models/items/Weapons/Bow/tris.fm","scale":0.5}) = item_weapon_redrain_bow : "Red Rain Bow" []
+@PointClass base(Items) model({"path":":models/items/Weapons/array/tris.fm","scale":0.5}) = item_weapon_magicmissile : "Magic Missile" []
+@PointClass base(Items) model({"path":":models/items/Weapons/Hellstaff/tris.fm","scale":0.5}) = item_weapon_hellstaff : "Hell Staff" []
 
-@PointClass base(Items) model({"path": ":models/items/health/healthbig/tris.fm"})					= item_health_full : "Full Health" []
-@PointClass base(Items) model({"path": ":models/items/health/healthsmall/tris.fm"})					= item_health_half : "Half Health" []
+@PointClass base(Items) model({"path":":models/items/Ammo/Hellstaff/tris.fm"}) = item_ammo_hellstaff : "Hellstaff ammo" []
+@PointClass base(Items) model({"path":":models/items/Ammo/Phoenix/tris.fm"}) = item_ammo_phoenix : "Phoenix ammo" []
+@PointClass base(Items) model({"path":":models/items/Ammo/RedRain/tris.fm"}) = item_ammo_redrain : "Red rain ammo" []
 
-@PointClass base(Items) model({"path": ":models/items/mana/combo/tris.fm", "scale":1.25})			= item_mana_combo_half : "Half Combo Mana" []
-@PointClass base(Items) model({"path": ":models/items/mana/combo/tris.fm"})							= item_mana_combo_quarter : "Quater Combo Mana" []
+@PointClass base(Items) model({"path":":models/items/health/healthbig/tris.fm"}) = item_health_full : "Full Health" []
+@PointClass base(Items) model({"path":":models/items/health/healthsmall/tris.fm"}) = item_health_half : "Half Health" []
 
-@PointClass base(Items) model({"path": ":models/items/mana/full/tris.fm", "skin":1, "scale":1.25})	= item_mana_defensive_full : "Full Defensive Mana" []
-@PointClass base(Items) model({"path": ":models/items/mana/half/tris.fm", "skin":1})				= item_mana_defensive_half : "Half Defensive Mana" []
-@PointClass base(Items) model({"path": ":models/items/mana/full/tris.fm", "scale":1.25})			= item_mana_offensive_full : "Full Offensive Mana" []
-@PointClass base(Items) model({"path": ":models/items/mana/half/tris.fm"})							= item_mana_offensive_half : "Half Offensive Mana" []
+@PointClass base(Items) model({"path":":models/items/mana/combo/tris.fm","scale":1.25}) = item_mana_combo_half : "Half Combo Mana" []
+@PointClass base(Items) model({"path":":models/items/mana/combo/tris.fm"}) = item_mana_combo_quarter : "Quater Combo Mana" []
 
-@PointClass base(Items) model({"path": ":models/items/Defense/Meteorbarrier/tris.fm"})				= item_defense_meteorbarrier : "Meteor Barrier spell" []
-@PointClass base(Items) model({"path": ":models/items/Defense/lightshield/tris.fm"})				= item_defense_shield : "Shield Spell" []
-@PointClass base(Items) model({"path": ":models/items/Defense/Polymorph/tris.fm"})					= item_defense_polymorph : "Polymorph Spell" []
-@PointClass base(Items) model({"path": ":models/items/Defense/Teleport/tris.fm", "scale":1.25})		= item_defense_teleport : "Teleport Spell" []
-@PointClass base(Items) model({"path": ":models/items/Defense/Repulsion/tris.fm"})					= item_defense_ringofrepulsion : "Ring of Repulsion" []
-@PointClass base(Items) model({"path": ":models/items/Defense/tornado/tris.fm" })					= item_defense_tornado : "Whirlwind spell (Enhancement patch)" []
+@PointClass base(Items) model({"path":":models/items/mana/full/tris.fm","skin":1,"scale":1.25}) = item_mana_defensive_full : "Full Defensive Mana" []
+@PointClass base(Items) model({"path":":models/items/mana/half/tris.fm","skin":1}) = item_mana_defensive_half : "Half Defensive Mana" []
+@PointClass base(Items) model({"path":":models/items/mana/full/tris.fm","scale":1.25}) = item_mana_offensive_full : "Full Offensive Mana" []
+@PointClass base(Items) model({"path":":models/items/mana/half/tris.fm"}) = item_mana_offensive_half : "Half Offensive Mana" []
 
-@PointClass base(Items) model({"path": ":models/items/puzzles/hivekey/tris.fm", "skin":1})			= item_puzzle_canyonkey : "Canyon key" []
-@PointClass base(Items) size(-16 -16 -24, 16 16 24)	model({"path": ":models/items/puzzles/cog/tris.fm"}) = item_puzzle_cog : "Cog" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/cloudkey/tris.fm", "scale":1.5})		= item_puzzle_cloudkey : "Cloud Fortress key" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/crystalshard/tris.fm", "scale":1.75})	= item_puzzle_crystal : "Andoria crystal" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/dungeonkey/tris.fm", "scale":0.5})	= item_puzzle_dungeonkey : "Dungeon key" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/hivekey/tris.fm"})					= item_puzzle_highpriestesskey : "High Priestess key" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/hiveidol/tris.fm"})					= item_puzzle_highpriestesssymbol : "High Priestess symbol" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/amulet/tris.fm", "scale":1.5})		= item_puzzle_hive2amulet : "Hive amulet" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/tcheckrikgem/tris.fm", "scale":1.5})	= item_puzzle_hive2gem : "Hive gem" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/spear/tris.fm"})						= item_puzzle_hive2spear : "Hive spear" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/wheel/tris.fm", "scale":1.75})		= item_puzzle_minecartwheel : "Minecart wheel" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/oreunrefined/tris.fm", "scale":0.5})	= item_puzzle_ore : "Unrefined ore" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/orerefined/tris.fm", "scale":0.5})	= item_puzzle_refinedore : "Refined ore" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/shield/tris.fm", "scale":1.5})		= item_puzzle_shield : "Ssithra shield" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/potion/tris.fm", "scale":0.5})		= item_puzzle_potion : "Healer potion" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/jugfull/tris.fm"})					= item_puzzle_slumcontainer : "Container (full)" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/plazajug/tris.fm"})					= item_puzzle_plazacontainer : "Container" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/townkey/tris.fm", "skin":1, "scale":1.5}) = item_puzzle_tavernkey : "Tavern key" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/book/tris.fm"})						= item_puzzle_tome : "Tome" []
-@PointClass base(Items) model({"path": ":models/items/puzzles/townkey/tris.fm", "scale":1.5})		= item_puzzle_townkey : "Town key" []
+@PointClass base(Items) model({"path":":models/items/Defense/Meteorbarrier/tris.fm"}) = item_defense_meteorbarrier : "Meteor Barrier spell" []
+@PointClass base(Items) model({"path":":models/items/Defense/lightshield/tris.fm"}) = item_defense_shield : "Shield Spell" []
+@PointClass base(Items) model({"path":":models/items/Defense/Polymorph/tris.fm"}) = item_defense_polymorph : "Polymorph Spell" []
+@PointClass base(Items) model({"path":":models/items/Defense/Teleport/tris.fm","scale":1.25}) = item_defense_teleport : "Teleport Spell" []
+@PointClass base(Items) model({"path":":models/items/Defense/Repulsion/tris.fm"}) = item_defense_ringofrepulsion : "Ring of Repulsion" []
+@PointClass base(Items) model({"path":":models/items/Defense/tornado/tris.fm" }) = item_defense_tornado : "Whirlwind spell (Enhancement patch)" []
 
-@PointClass base(Items, Angles) size(-4 -4 -4, 4 4 4) = item_spitter : "Triggered item spawner"
+@PointClass base(Items) model({"path":":models/items/puzzles/hivekey/tris.fm","skin":1}) = item_puzzle_canyonkey : "Canyon key" []
+@PointClass base(Items) size(-16 -16 -24,16 16 24) model({"path":":models/items/puzzles/cog/tris.fm"}) = item_puzzle_cog : "Cog" []
+@PointClass base(Items) model({"path":":models/items/puzzles/cloudkey/tris.fm","scale":1.5}) = item_puzzle_cloudkey : "Cloud Fortress key" []
+@PointClass base(Items) model({"path":":models/items/puzzles/crystalshard/tris.fm","scale":1.75}) = item_puzzle_crystal : "Andoria crystal" []
+@PointClass base(Items) model({"path":":models/items/puzzles/dungeonkey/tris.fm","scale":0.5}) = item_puzzle_dungeonkey : "Dungeon key" []
+@PointClass base(Items) model({"path":":models/items/puzzles/hivekey/tris.fm"}) = item_puzzle_highpriestesskey : "High Priestess key" []
+@PointClass base(Items) model({"path":":models/items/puzzles/hiveidol/tris.fm"}) = item_puzzle_highpriestesssymbol : "High Priestess symbol" []
+@PointClass base(Items) model({"path":":models/items/puzzles/amulet/tris.fm","scale":1.5}) = item_puzzle_hive2amulet : "Hive amulet" []
+@PointClass base(Items) model({"path":":models/items/puzzles/tcheckrikgem/tris.fm","scale":1.5}) = item_puzzle_hive2gem : "Hive gem" []
+@PointClass base(Items) model({"path":":models/items/puzzles/spear/tris.fm"}) = item_puzzle_hive2spear : "Hive spear" []
+@PointClass base(Items) model({"path":":models/items/puzzles/wheel/tris.fm","scale":1.75}) = item_puzzle_minecartwheel : "Minecart wheel" []
+@PointClass base(Items) model({"path":":models/items/puzzles/oreunrefined/tris.fm","scale":0.5}) = item_puzzle_ore : "Unrefined ore" []
+@PointClass base(Items) model({"path":":models/items/puzzles/orerefined/tris.fm","scale":0.5}) = item_puzzle_refinedore : "Refined ore" []
+@PointClass base(Items) model({"path":":models/items/puzzles/shield/tris.fm","scale":1.5}) = item_puzzle_shield : "Ssithra shield" []
+@PointClass base(Items) model({"path":":models/items/puzzles/potion/tris.fm","scale":0.5}) = item_puzzle_potion : "Healer potion" []
+@PointClass base(Items) model({"path":":models/items/puzzles/jugfull/tris.fm"}) = item_puzzle_slumcontainer : "Container (full)" []
+@PointClass base(Items) model({"path":":models/items/puzzles/plazajug/tris.fm"}) = item_puzzle_plazacontainer : "Container" []
+@PointClass base(Items) model({"path":":models/items/puzzles/townkey/tris.fm","skin":1,"scale":1.5}) = item_puzzle_tavernkey : "Tavern key" []
+@PointClass base(Items) model({"path":":models/items/puzzles/book/tris.fm"}) = item_puzzle_tome : "Tome" []
+@PointClass base(Items) model({"path":":models/items/puzzles/townkey/tris.fm","scale":1.5}) = item_puzzle_townkey : "Town key" []
+
+@PointClass base(Items,Angles) size(8 8 8) model({{
+	//Weapons
+target => "item_weapon_firewall" -> {"path":":models/items/Weapons/Firewall/tris.fm"},
+target => "item_weapon_maceballs" -> {"path":":models/items/Weapons/Maceballs/tris.fm","scale":0.5},
+target => "item_weapon_phoenixbow" -> {"path":":models/items/Weapons/Bow/tris.fm","skin":1,"scale":0.5},
+target => "item_weapon_sphereofannihilation" -> {"path":":models/items/Weapons/Sphere/tris.fm","scale":0.5},
+target => "item_weapon_redrain_bow" -> {"path":":models/items/Weapons/Bow/tris.fm","scale":0.5},
+target => "item_weapon_magicmissile" -> {"path":":models/items/Weapons/array/tris.fm","scale":0.5},
+target => "item_weapon_hellstaff" -> {"path":":models/items/Weapons/Hellstaff/tris.fm","scale":0.5},
+
+	//Ammo
+target => "item_ammo_hellstaff" -> {"path":":models/items/Ammo/Hellstaff/tris.fm"},
+target => "item_ammo_phoenix" -> {"path":":models/items/Ammo/Phoenix/tris.fm"},
+target => "item_ammo_redrain" -> {"path":":models/items/Ammo/RedRain/tris.fm"},
+
+	//Health
+target => "item_health_full" -> {"path":":models/items/health/healthbig/tris.fm"},
+target => "item_health_half" -> {"path":":models/items/health/healthsmall/tris.fm"},
+
+	//Mana
+target => "item_mana_combo_half" -> {"path":":models/items/mana/combo/tris.fm","scale":1.25},
+target => "item_mana_combo_quarter" -> {"path":":models/items/mana/combo/tris.fm"},
+target => "item_mana_defensive_full" -> {"path":":models/items/mana/full/tris.fm","skin":1,"scale":1.25},
+target => "item_mana_defensive_half" -> {"path":":models/items/mana/half/tris.fm","skin":1},
+target => "item_mana_offensive_full" -> {"path":":models/items/mana/full/tris.fm","scale":1.25},
+target => "item_mana_offensive_half" -> {"path":":models/items/mana/half/tris.fm"},
+
+	//Monsters
+target => "monster_rat" -> {"path":":models/monsters/rat/tris.fm","frame":174},
+
+	//Puzzle pieces
+target => "item_puzzle_canyonkey" -> {"path":":models/items/puzzles/hivekey/tris.fm","skin":1},
+target => "item_puzzle_cog" -> {"path":":models/items/puzzles/cog/tris.fm"},
+target => "item_puzzle_cloudkey" -> {"path":":models/items/puzzles/cloudkey/tris.fm","scale":1.5},
+target => "item_puzzle_crystal" -> {"path":":models/items/puzzles/crystalshard/tris.fm","scale":1.75},
+target => "item_puzzle_dungeonkey" -> {"path":":models/items/puzzles/dungeonkey/tris.fm","scale":0.5},
+target => "item_puzzle_highpriestesskey" -> {"path":":models/items/puzzles/hivekey/tris.fm"},
+target => "item_puzzle_highpriestesssymbol" -> {"path":":models/items/puzzles/hiveidol/tris.fm"},
+target => "item_puzzle_hive2amulet" -> {"path":":models/items/puzzles/amulet/tris.fm","scale":1.5},
+target => "item_puzzle_hive2gem" -> {"path":":models/items/puzzles/tcheckrikgem/tris.fm","scale":1.5},
+target => "item_puzzle_hive2spear" -> {"path":":models/items/puzzles/spear/tris.fm"},
+target => "item_puzzle_minecartwheel" -> {"path":":models/items/puzzles/wheel/tris.fm","scale":1.75},
+target => "item_puzzle_ore" -> {"path":":models/items/puzzles/oreunrefined/tris.fm","scale":0.5},
+target => "item_puzzle_refinedore" -> {"path":":models/items/puzzles/orerefined/tris.fm","scale":0.5},
+target => "item_puzzle_shield" -> {"path":":models/items/puzzles/shield/tris.fm","scale":1.5},
+target => "item_puzzle_potion" -> {"path":":models/items/puzzles/potion/tris.fm","scale":0.5},
+target => "item_puzzle_slumcontainer" -> {"path":":models/items/puzzles/jugfull/tris.fm"},
+target => "item_puzzle_plazacontainer" -> {"path":":models/items/puzzles/plazajug/tris.fm"},
+target => "item_puzzle_tavernkey" -> {"path":":models/items/puzzles/townkey/tris.fm","skin":1,"scale":1.5},
+target => "item_puzzle_tome" -> {"path":":models/items/puzzles/book/tris.fm"},
+target => "item_puzzle_townkey" -> {"path":":models/items/puzzles/townkey/tris.fm","scale":1.5},
+	{}	
+}})= item_spitter : "Triggered item spawner
+
+Target this item with a trigger, button, or breakable entity to have it spawn an item, object, weapon, etc of your choice. You can have it spawn anything that can be placed in the map. Just make sure you have the correct entity classname for the thing you want to spawn (you can find these in the Entity Inpector tab) and that you set the 'target' field to that classname of the item you want to spawn. Keep in mind if spawn multiple counts, give it a radius greater than 0 so that the items don't all spawn on top of each other and look weird.
+
+If you want to delay the spawning of the item after being triggered, you will need to use a trigger_relay. Target that 1st, then have the relay add a delay before targeting your item_spitter. You can also have it spawn multiple of same item at once by setting the 'count' field to the number of items you want to spawn. If you want the spawned items to land in different locations just set the 'radius' field to a value greater than 0 and they will be spawned out in directions within that radius."
 [
-	spawnflags(flags) =
-	[
-		1 : "No flash"
-	]
+	spawnflags(flags) = [ 1 : "No flash" ]
 	count(integer) : "Count" : 1
-	radius(integer) : "Radius"
-	target(string) : "Classname of item or object being spit out"
+	radius(integer) : "Radius" : : "comment"
+	target(choices) : "Thing to spawn" : "Classname of entity to spit out" =
+	[
+		"->                   Health":"Spawn a health item:"
+
+		"item_health_full":""
+		"item_health_half":""
+
+		"->                   Mana":"Spawn a mana item"
+
+		"item_mana_combo_half":""
+		"item_mana_combo_quarter":""
+		"item_mana_defensive_full":""
+		"item_mana_defensive_half":""
+		"item_mana_offensive_full":""
+		"item_mana_offensive_half":""
+
+		"->                   Defensive spells":"Spawn a defensive spell"
+
+		"item_defense_meteorbarrier":""
+		"item_defense_shield":""
+		"item_defense_polymorph":""
+		"item_defense_teleport":""
+		"item_defense_ringofrepulsion":""
+		"item_defense_tornado":""
+
+		"->                   Puzzle pieces":"Spawn a puzzle piece"
+		
+		"item_puzzle_canyonkey":""
+		"item_puzzle_cog":""
+		"item_puzzle_cloudkey":""
+		"item_puzzle_crystal":""
+		"item_puzzle_dungeonkey":""
+		"item_puzzle_highpriestesskey":""
+		"item_puzzle_highpriestesssymbol":""
+		"item_puzzle_hive2amulet":""
+		"item_puzzle_hive2gem":""
+		"item_puzzle_hive2spear":""
+		"item_puzzle_minecartwheel":""
+		"item_puzzle_ore":""
+		"item_puzzle_refinedore":""
+		"item_puzzle_shield":""
+		"item_puzzle_potion":""
+		"item_puzzle_slumcontainer":""
+		"item_puzzle_plazacontainer":""
+		"item_puzzle_tavernkey":""
+		"item_puzzle_tome":""
+		"item_puzzle_townkey":""
+		
+		"->                   Weapons":"Spawn a weapon"
+		
+		"item_weapon_firewall":""
+		"item_weapon_maceballs":""
+		"item_weapon_phoenixbow":""
+		"item_weapon_sphereofannihilation":"weapon sphereofannihilation"
+		"item_weapon_redrain_bow":"weapon_redrain bow"
+		"item_weapon_magicmissile":"weapon magicmissile"
+		"item_weapon_hellstaff":"weapon hellstaff"
+		
+		"->                   Ammo":"Spawn ammo"
+		
+		"item_ammo_hellstaff":""
+		"item_ammo_phoenix":""
+		"item_ammo_redrain":""
+		]
 	spawnflags2(flags) = // Spawnflags for items created 
 	[
 		1 : "Coop only"
@@ -518,7 +622,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 //	Lights
 //
 
-@BaseClass base(Angles, Appearflags, Target, Targetname) color(0 255 0) size(-8 -8 -8, 8 8 8) = Lights
+@BaseClass base(Angles,Appearflags,Target,Targetname) color(0 255 0) size(-8 -8 -8,8 8 8) = Lights
 [
 	light(integer) : "Brightness" : 300
 	_color(color1) : "RGB Color"
@@ -535,30 +639,21 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		5 : "Gentle Pulse #1"
 		9 : "Slow Strobe"
 		10 : "Fluorescent Flicker"
-		11 : "Slow pulse, no black"
+		11 : "Slow pulse,no black"
 	]
 	_cone(integer) : "Size of light (spotlight)" : 10
 ]
 
-@BaseClass base(Lights, AbsLight)	= TorchLights			[ spawnflags(flags) = [ 8	: "Start off"	]]
-@BaseClass base(TorchLights)		= HaloTorchLights		[ spawnflags(flags) = [ 16	: "No halo"		]]
-@BaseClass base(TorchLights)		= AnimatedTorchLights	[ spawnflags(flags) = [ 2	: "Animated"	]]
+@BaseClass base(Lights,AbsLight) = TorchLights [ spawnflags(flags) = [ 8 : "Start off" ]]
+@BaseClass base(TorchLights) = HaloTorchLights [ spawnflags(flags) = [ 16 : "No halo" ]]
+@BaseClass base(TorchLights) = AnimatedTorchLights	[ spawnflags(flags) = [ 2 : "Animated" ]]
 
-@PointClass base(Lights) = light : "Light"
-[
-	spawnflags(flags) =
-	[
-		1 : "Start off"
-	]
-]
-
-@PointClass base(HaloTorchLights) size(-7 -7 -7, 7 7 25)	model({"path": ":models/objects/lights/bug/tris.fm"}) = light_buglight : "Bug light" []
-
-@PointClass base(TorchLights) size(-36 -36 -43, 36 36 43)	model({"path": ":models/objects/chandelier/chan1/tris.fm"}) = light_chandelier1 : "Chandelier (dirty gold) A tarnished gold chandelier hung from chains." []
-@PointClass base(TorchLights) size(-18 -18 -40, 18 18 40)	model({"path": ":models/objects/chandelier/chan2/tris.fm"}) = light_chandelier2 : "Chandelier (dirty metal) A tarnished metal chandelier hung from chains." []
-@PointClass base(TorchLights) size(-34 -34 -80, 34 34 0)	model({"path": ":models/objects/chandelier/chan3/tris.fm"}) = light_chandelier3 : "Chandelier (gold & large) A golden chandelier." []
-
-@PointClass base(HaloTorchLights) size(-1 -6 -8, 4 6 8)		model({"path": ":models/objects/lights/sinkcity/light-2/tris.fm", "skin":style}) = light_gem2 : "Gem light"
+@PointClass base(Lights) = light : "Light" [ spawnflags(flags) = [ 1 : "Start off" ]]
+@PointClass base(HaloTorchLights) size(-7 -7 -7,7 7 25) model({"path":":models/objects/lights/bug/tris.fm"}) = light_buglight : "Bug light" []
+@PointClass base(TorchLights) size(-36 -36 -43,36 36 43) model({"path":":models/objects/chandelier/chan1/tris.fm"}) = light_chandelier1 : "Chandelier (dirty gold) A tarnished gold chandelier hung from chains." []
+@PointClass base(TorchLights) size(-18 -18 -40,18 18 40) model({"path":":models/objects/chandelier/chan2/tris.fm"}) = light_chandelier2 : "Chandelier (dirty metal) A tarnished metal chandelier hung from chains." []
+@PointClass base(TorchLights) size(-34 -34 -80,34 34 0) model({"path":":models/objects/chandelier/chan3/tris.fm"}) = light_chandelier3 : "Chandelier (gold & large) A golden chandelier." []
+@PointClass base(HaloTorchLights) size(-1 -6 -8,4 6 8) model({"path":":models/objects/lights/sinkcity/light-2/tris.fm","skin":style}) = light_gem2 : "Gem light"
 [
 	style(choices) =
 	[
@@ -567,17 +662,17 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(HaloTorchLights) size(-28 -8 -22, 4 8 22)	model({"path": ":models/objects/lights/lantern-1/tris.fm"})				= light_lantern1 : "Lantern with wood arm" []
-@PointClass base(HaloTorchLights) size(-6 -6 -24, 6 6 40)	model({"path": ":models/objects/lights/lantern-2/tris.fm"})				= light_lantern2 : "Lantern on chain" []
-@PointClass base(HaloTorchLights) size(-6 -6 -12, 6 6 11)	model({"path": ":models/objects/lights/lantern-3/tris.fm"})				= light_lantern3 : "Lantern (ceiling)" []
-@PointClass base(HaloTorchLights) size(-18 -7 -7, 7 7 14)	model({"path": ":models/objects/lights/lantern-4/tris.fm"})				= light_lantern4 : "Lantern (wall)" []
-@PointClass base(HaloTorchLights) size(-7 -7 -7, 7 7 14)	model({"path": ":models/objects/lights/lantern-4/tris.fm", "frame":1})	= light_lantern5 : "Lantern (table)" []
-@PointClass base(HaloTorchLights) size(-4 -6 -5, 6 6 20)	model({"path": ":models/objects/lights/sinkcity/light-3/tris.fm"})		= light_torch1 : "Wall torch with blue gem" []
+@PointClass base(HaloTorchLights) size(-28 -8 -22,4 8 22) model({"path":":models/objects/lights/lantern-1/tris.fm"}) = light_lantern1 : "Lantern with wood arm" []
+@PointClass base(HaloTorchLights) size(-6 -6 -24,6 6 40) model({"path":":models/objects/lights/lantern-2/tris.fm"}) = light_lantern2 : "Lantern on chain" []
+@PointClass base(HaloTorchLights) size(-6 -6 -12,6 6 11) model({"path":":models/objects/lights/lantern-3/tris.fm"}) = light_lantern3 : "Lantern (ceiling)" []
+@PointClass base(HaloTorchLights) size(-18 -7 -7,7 7 14) model({"path":":models/objects/lights/lantern-4/tris.fm"}) = light_lantern4 : "Lantern (wall)" []
+@PointClass base(HaloTorchLights) size(-7 -7 -7,7 7 14) model({"path":":models/objects/lights/lantern-4/tris.fm","frame":1}) = light_lantern5 : "Lantern (table)" []
+@PointClass base(HaloTorchLights) size(-4 -6 -5,6 6 20) model({"path":":models/objects/lights/sinkcity/light-3/tris.fm"}) = light_torch1 : "Wall torch with blue gem" []
 
-@PointClass base(AnimatedTorchLights) size(-14 -14 -18, 14 14 18)	model({"path": ":models/objects/lights/floortorch/tris.fm"})	= light_floortorch : "Floor torch stand" []
-@PointClass base(AnimatedTorchLights) size(-16 -10 -12, 10 10 12)	model({"path": ":models/objects/lights/walltorch/tris.fm"})		= light_walltorch : "Wall Torch" []
+@PointClass base(AnimatedTorchLights) size(-14 -14 -18,14 14 18) model({"path":":models/objects/lights/floortorch/tris.fm"}) = light_floortorch : "Floor torch stand" []
+@PointClass base(AnimatedTorchLights) size(-16 -10 -12,10 10 12) model({"path":":models/objects/lights/walltorch/tris.fm"}) = light_walltorch : "Wall Torch" []
 
-@PointClass base(Appearflags, Targetname) size(-8 -8 -8, 8 8 8) = misc_fire_sparker : "Spark generator (triggered)"
+@PointClass base(Appearflags,Targetname) size(-8 -8 -8,8 8 8) = misc_fire_sparker : "Spark generator (triggered)"
 [
 	spawnflags(flags) =
 	[
@@ -586,7 +681,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	delay(float) : "Lifetime (0 for infinite)"
 ]
 
-@SolidClass base(Appearflags, Targetname) color(255 0 0) = misc_teleporter : "Teleporter"
+@SolidClass base(Appearflags,Targetname) color(255 0 0) = misc_teleporter : "Teleporter"
 [
 	spawnflags(flags) =
 	[
@@ -599,9 +694,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	style(integer) : "Destinations count" : 0 : "All destinations must have the same targetname. Requires 'Multi-dest' spawnflag to work"
 ]
 
-@PointClass base(Angle, Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter_dest : "Teleport Destination" []
+@PointClass base(Angle,Appearflags,Targetname) color(255 0 0) size(-32 -32 -24,32 32 -16) = misc_teleporter_dest : "Teleport Destination" []
 
-@PointClass base(Angle, Appearflags, Targetname) color(255 0 0) size(-16 -16 -32, 16 16 32) = misc_magic_portal : "Magic Portal"
+@PointClass base(Angle,Appearflags,Targetname) color(255 0 0) size(-16 -16 -32,16 16 32) = misc_magic_portal : "Magic Portal"
 [
 	spawnflags(flags) =
 	[
@@ -610,7 +705,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	count(integer) : "Closes after this many seconds if greater than 0"
 ]
 
-@PointClass base(Angles, Appearflags, Targetname, Target) color(255 0 0) size(-4 -4 -4, 4 4 4) = misc_remote_camera : "Remote Camera"
+@PointClass base(Angles,Appearflags,Targetname,Target) color(255 0 0) size(-4 -4 -4,4 4 4) = misc_remote_camera : "Remote Camera"
 [
 	spawnflags(flags) =
 	[
@@ -622,7 +717,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	delay(float) : "Delay"
 ]
 
-@SolidClass base(Angle, Appearflags) = misc_update_spawner : "Updates level spawn point to trigger's position. Relevant for teleport spell." []
+@SolidClass base(Angle,Appearflags) = misc_update_spawner : "Updates level spawn point to trigger's position. Relevant for teleport spell." []
 
 
 //
@@ -632,23 +727,53 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 @BaseClass = H2MonsterProps //mxd. Props shared between monsters and func_monsterspawner.
 [
 	jump_chance(integer) : "Jump chance (0-100)"
-	melee_range(float) : "Melee range" : "0" : "How close the player has to be, maximum, for the monster to go into melee. If zero, the monster will never melee. If negative, the monster will try to keep this distance from the player. If the monster has a backup animation, he'll use it if too close, otherwise, a negative value here means the monster will just stop running at the player at this distance."
+	melee_range(float) : "Melee range" : "0" : "How close the player has to be,maximum,for the monster to go into melee. If zero,the monster will never melee. If negative,the monster will try to keep this distance from the player. If the monster has a backup animation,he'll use it if too close,otherwise,a negative value here means the monster will just stop running at the player at this distance."
 	missile_range(float) : "Max. missile range"
 	min_missile_range(float) : "Min. missile range"
-	bypass_missile_chance(integer) : "Chance to not fire missile (0 - 100)" : 0 : "Chance that a monster will NOT fire it's ranged attack, even when it has a clear shot. This, in effect, will make the monster come in more often than hang back and fire."
+	bypass_missile_chance(integer) : "Chance to not fire missile (0 - 100)" : 0 : "Chance that a monster will NOT fire it's ranged attack,even when it has a clear shot. This,in effect,will make the monster come in more often than hang back and fire."
 	wakeup_distance(float) : "Wakeup distance"
 	mintel(integer) : "Intelligence" : 0 : "How many buoys away an enemy has to be for it to give up. Different monsters have different defaults."
 	scale(float) : "Scale" : "1"
 ]
 
-@PointClass base(Angle, Appearflags, Targetname, H2MonsterProps) size(-8 -8 -8, 8 8 8) color(0 128 204) = func_monsterspawner : "Monster Spawner"
+@PointClass base(Angle,Appearflags,Targetname,H2MonsterProps) color(0 128 204) size(16 16 16) model({{
+	style ==  1 -> {"path":"models/monsters/rat/tris.fm","frame":43},
+    style ==  2 -> {"path":"models/monsters/plaguelf/tris.fm","frame":300,"skin":2},
+    style ==  3 -> {"path":"models/monsters/spreader/tris.fm","frame":87},
+    style ==  4 -> {"path":"models/monsters/gorgon/tris.fm","frame":3},
+    style ==  5 -> {"path":"models/monsters/rat/tris.fm","frame":43},
+    style ==  6 -> {"path":"models/monsters/tcheckrik/male/tris.fm","frame":34},
+    style ==  7 -> {"path":"models/monsters/tcheckrik/female/tris.fm","frame":34},
+    style ==  8 -> {"path":"models/monsters/mother/tris.fm"},
+	style ==  9 -> {"path":"models/monsters/highpriestess/tris.fm","frame":119},
+    style == 10 -> {"path":"models/monsters/ogle/tris.fm","frame":3},
+    style == 11 -> {"path":"models/monsters/overlord/tris.fm","frame":115},
+	style == 12 -> {"path":"models/monsters/guard/tris.fm","frame":96},
+    style == 13 -> {"path":"models/monsters/assassin/tris.fm","frame":269 },
+    style == 14 -> {"path":"models/monsters/morcalavin/tris.fm"},
+    style == 15 -> {"path":"models/monsters/plaguelf/dranor/tris.fm"},
+    style == 16 -> {"path":"models/monsters/plaguelf/tris.fm","frame":300,"skin":0},
+    style == 17 -> {"path":"models/monsters/siernan/standing/tris.fm","scale":1.2},
+    style == 18 -> {"path":"models/monsters/ssithra/scout_scene/tris.fm"},
+	style == 19 -> {"path":"models/monsters/Ssithra/cinematics/tris.fm"},
+    style == 20 -> {"path":"models/monsters/mutantsithra/tris.fm","frame":55},
+    style == 21 -> {"path":"models/monsters/harpy/tris.fm","frame":51},
+    style == 22 -> {"path":"models/monsters/fish/tris.fm","frame":90},
+    style == 23 -> {"path":"models/monsters/chicken2/tris.fm","frame":2},
+    style == 24 -> {"path":"models/monsters/ssithra/tris.fm","frame":208},
+    style == 25 -> {"path":"models/monsters/gkrokon/tris.fm","frame":11},
+    style == 26 -> {"path":"models/monsters/rat/superduperat/tris.fm","frame":43,"scale":1.8},
+    style == 27 -> {"path":"models/monsters/plaguelf/tris.fm","frame":2,"skin":4},
+	style == 28 -> {"path":"models/monsters/plaguelf/tris.fm","frame":300,"skin":4}
+}}) = func_monsterspawner : "<b>Monster Spawner</b><br><br>
+If <b>style</b> is left blank or set to 0,nothing will be spawned by default."
 [
 	spawnflags(flags) =
 	[
 		1 : "On death" : 0 : "The next monster will not spawn until the current one is dead"
 		2 : "Spawn at random buoy"
 	]
-	style(choices) : "Type of monster" : 3 =
+	style(choices) : "Type of monster" : "Choose 1 or greater to spawn a monster" =
 	[
 		0 : "Nothing"
 		1 : "Rat"
@@ -673,7 +798,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		20 : "Ssithra Mutant"
 		21 : "Harpy"
 		22 : "Fish"
-		23 : "Chicken"
+//		23 : "Chicken" This monster only exists in game from another monster being hit w/ a polymorph defense spell.
 		24 : "Plague Ssithra"
 		25 : "Gkrokon"
 		26 : "Giant Rat"
@@ -685,7 +810,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	wait(float) : "Time between spawns (in seconds)" : "10"
 ]
 
-@BaseClass base(Angle, AbsLight, Appearflags, UsableEntity, H2MonsterProps) color(255 128 0) size(-16 -16 -24, 16 16 32) = Monsters
+@BaseClass base(Angle,AbsLight,Appearflags,UsableEntity,H2MonsterProps) color(255 128 0) size(-16 -16 -24,16 16 32) = Monsters
 [
 	spawnflags(flags) =
 	[
@@ -693,8 +818,8 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		2 : "Trigger spawn"
 		128 : "Fixed position"
 		8192 : "Wander" : 0 : "Monster will wander around aimlessly (but follows buoys). May not work with all monsters"
-		16384 : "Melee lead" : 0 : "Monster will try to cut you off when you're running and fighting him, works well if there are a few monsters in a group, half doing this, half not"
-		32768 : "Stalk" : 0 : "Monster will only approach and attack from behind- if you're facing the monster it will just stand there.  Once the monster takes pain, however, it will stop this behaviour and attack normally"
+		16384 : "Melee lead" : 0 : "Monster will try to cut you off when you're running and fighting him,works well if there are a few monsters in a group,half doing this,half not"
+		32768 : "Stalk" : 0 : "Monster will only approach and attack from behind- if you're facing the monster it will just stand there.  Once the monster takes pain,however,it will stop this behaviour and attack normally"
 		65536 : "Coward" : 0 :"Monster starts off in flee mode - runs away from you when woken up"
 	]
 	combattarget(target_destination) : "Point combat target"
@@ -705,7 +830,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	wakeup_target(target_destination) : "Target used when first alerted"
 ]
 
-@PointClass base(Monsters) size(-16 -16 -32, 16 16 48) model({"path": ":models/monsters/assassin/tris.fm", "frame":269 }) = monster_assassin : "Assassin"
+@PointClass base(Monsters) size(-16 -16 -32,16 16 48) model({"path":":models/monsters/assassin/tris.fm","frame":269 }) = monster_assassin : "Assassin"
 [
 	spawnflags(flags) =
 	[
@@ -713,7 +838,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		16 : "Don't cloak"
 		32 : "Don't teleport"
 		64 : "Cinematic"
-		131072 : "Trigger spawn, teleports when activated"
+		131072 : "Trigger spawn,teleports when activated"
 		262144 : "Start as shadow" : 0 : "Start as a shadow and decloak when wakes up"
 		524288 : "Side jump ambush" : 0 : "Jump out to left or right (depending on which side of the assassin the player is)"
 		1048576 : "Teleport dodge" : 0 : "Can use teleporting to dodge attacks"
@@ -721,21 +846,21 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 250
 ]
 
-@PointClass base(Object) size(-2 -2 -25, 2 2 25) model({"path": ":models/monsters/bee/tris.fm"}) = monster_bee : "Bee (obsolete)" []
+//@PointClass base(Object) size(-2 -2 -25,2 2 25) model({"path":":models/monsters/bee/tris.fm"}) = monster_bee : "Bee (obsolete)" [] // This monster is model only/not used in game.
 
-@PointClass base(Monsters) size(-24 -24 -64, 24 24 16) model({"path": ":models/monsters/elflord/tris.fm", "frame":101}) = monster_elflord : "Celestial Watcher (boss)"
+@PointClass base(Monsters) size(-24 -24 -64,24 24 16) model({"path":":models/monsters/elflord/tris.fm","frame":101}) = monster_elflord : "Celestial Watcher (boss)"
 [
 	health(integer) : "Health" : 2250
 ]
 
-@PointClass base(Monsters) size(-16 -16 -8, 16 16 8) model({"path": ":models/monsters/fish/tris.fm", "frame":90}) = monster_fish : "Fish"
+@PointClass base(Monsters) size(-16 -16 -8,16 16 8) model({"path":":models/monsters/fish/tris.fm","frame":90}) = monster_fish : "Fish"
 [
 	health(integer) : "Health" : 50
 ]
 
-@PointClass base(Monsters) size(-20 -20 0, 20 20 32) model({{
-	spawnflags & 4 ->	{"path": ":models/monsters/gkrokon/tris.fm", "frame":35},
-						{"path": ":models/monsters/gkrokon/tris.fm", "frame":85}
+@PointClass base(Monsters) size(-20 -20 0,20 20 32) model({{
+	spawnflags & 4 ->	{"path":":models/monsters/gkrokon/tris.fm","frame":35},
+						{"path":":models/monsters/gkrokon/tris.fm","frame":85}
 	}}) = monster_gkrokon : "Gkrokon"
 [
 	spawnflags(flags) =
@@ -745,9 +870,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 70
 ]
 
-@PointClass base(Monsters) size(-16 -16 -16, 16 16 16) model({{
-	spawnflags & 4 ->	{"path": ":models/monsters/gorgon/tris.fm", "frame":108},
-						{"path": ":models/monsters/gorgon/tris.fm", "frame":63}
+@PointClass base(Monsters) size(-16 -16 -16,16 16 16) model({{
+	spawnflags & 4 ->	{"path":":models/monsters/gorgon/tris.fm","frame":108},
+						{"path":":models/monsters/gorgon/tris.fm","frame":63}
 	}}) = monster_gorgon : "Gorgon"
 [
 	spawnflags(flags) =
@@ -758,10 +883,10 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 100
 ]
 
-@PointClass base(Monsters) size(-16 -16 -12, 16 16 12) model({{
-	spawnflags & 8 ->	{"path": ":models/monsters/harpy/tris.fm", "scale":1.25, "frame":63},
-	spawnflags & 4 ->	{"path": ":models/monsters/harpy/tris.fm", "scale":1.25, "frame":108},
-						{"path": ":models/monsters/harpy/tris.fm", "scale":1.25, "frame":51}
+@PointClass base(Monsters) size(-16 -16 -12,16 16 12) model({{
+	spawnflags & 8 ->	{"path":":models/monsters/harpy/tris.fm","scale":1.25,"frame":63},
+	spawnflags & 4 ->	{"path":":models/monsters/harpy/tris.fm","scale":1.25,"frame":108},
+						{"path":":models/monsters/harpy/tris.fm","scale":1.25,"frame":51}
 	}}) = monster_harpy : "Harpy"
 [
 	spawnflags(flags) =
@@ -772,26 +897,26 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 60
 ]
 
-@PointClass base(Monsters) size(-24 -24 -36, 24 24 36) model({"path": ":models/monsters/highpriestess/tris.fm", "frame":119}) = monster_high_priestess : "High Priestess (boss)"
+@PointClass base(Monsters) size(-24 -24 -36,24 24 36) model({"path":":models/monsters/highpriestess/tris.fm","frame":119}) = monster_high_priestess : "High Priestess (boss)"
 [
 	health(integer) : "Health" : 2500
 ]
 
-@PointClass base(Monsters) size(-24 -24 -48, 24 24 40) model({"path": ":models/monsters/morcalavin/tris.fm"}) = monster_morcalavin : "Morcalavin (boss)"
+@PointClass base(Monsters) size(-24 -24 -48,24 24 40) model({"path":":models/monsters/morcalavin/tris.fm"}) = monster_morcalavin : "Morcalavin (boss)"
 [
 	health(integer) : "Health" : 100
 ]
 
-@SolidClass base(Appearflags, Targetname) = obj_morcalavin_barrier : "Morcalavin's barrier. Invisible & non-blocking until used." []
+@SolidClass base(Appearflags,Targetname) = obj_morcalavin_barrier : "Morcalavin's barrier. Invisible & non-blocking until used." []
 
-@PointClass base(Monsters) size(-36 -36 0, 36 36 96) model({"path": ":models/monsters/mutantsithra/tris.fm", "frame":55}) = monster_mssithra : "Mutant Ssithra (boss)"
+@PointClass base(Monsters) size(-36 -36 0,36 36 96) model({"path":":models/monsters/mutantsithra/tris.fm","frame":55}) = monster_mssithra : "Mutant Ssithra (boss)"
 [
 	health(integer) : "Health" : 2250
 ]
 
-@PointClass base(Monsters) size(-16 -16 -24, 16 16 16) model({{
-	spawnflags & 1 ->	{"path": ":models/monsters/ogle/tris.fm", "frame":174},
-						{"path": ":models/monsters/ogle/tris.fm", "frame":198}
+@PointClass base(Monsters) size(-16 -16 -24,16 16 16) model({{
+	spawnflags & 1 ->	{"path":":models/monsters/ogle/tris.fm","frame":174},
+						{"path":":models/monsters/ogle/tris.fm","frame":198}
 	}}) = monster_ogle : "Ogle"
 [
 	spawnflags(flags) =
@@ -809,17 +934,17 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 100
 ]
 
-@PointClass base(Monsters) size(-16 -16 -32, 16 16 27)	model({"path": ":models/monsters/plaguelf/tris.fm", "frame":300, "skin":4}) = monster_palace_plague_guard : "Plague Elf Guard"
+@PointClass base(Monsters) size(-16 -16 -32,16 16 27) model({"path":":models/monsters/plaguelf/tris.fm","frame":300,"skin":4}) = monster_palace_plague_guard : "Plague Elf Guard"
 [
 	health(integer) : "Health" : 100
 ]
 
-@PointClass base(Monsters) size(-16 -16 -32, 16 16 27)	model({"path": ":models/monsters/plaguelf/tris.fm", "frame":300, "skin":4}) = monster_palace_plague_guard_invisible : "Invisible Plague Elf Guard"
+@PointClass base(Monsters) size(-16 -16 -32,16 16 27) model({"path":":models/monsters/plaguelf/tris.fm","frame":300,"skin":4}) = monster_palace_plague_guard_invisible : "Invisible Plague Elf Guard"
 [
 	health(integer) : "Health" : 100
 ]
 
-@PointClass base(Monsters) size(-16 -16 -32, 16 16 27)	model({"path": ":models/monsters/plaguelf/tris.fm", "frame":300}) = monster_plagueElf : "Plague Elf"
+@PointClass base(Monsters) size(-16 -16 -32,16 16 27) model({"path":":models/monsters/plaguelf/tris.fm","frame":300}) = monster_plagueElf : "Plague Elf"
 [
 	spawnflags(flags) =
 	[
@@ -829,9 +954,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 50
 ]
 
-@PointClass base(Monsters) size(-8 -8 0, 8 8 16) model({{
-	spawnflags & 4 ->	{"path": ":models/monsters/rat/tris.fm", "frame":174},
-						{"path": ":models/monsters/rat/tris.fm", "frame":43}
+@PointClass base(Monsters) size(-8 -8 0,8 8 16) model({{
+	spawnflags & 4 ->	{"path":":models/monsters/rat/tris.fm","frame":174},
+						{"path":":models/monsters/rat/tris.fm","frame":43}
 	}}) = monster_rat : "Rat"
 [
 	spawnflags(flags) =
@@ -841,37 +966,34 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 10
 ]
 
-@PointClass base(monster_rat) model({"path": ":models/monsters/rat/superduperat/tris.fm", "frame":43}) = monster_rat_giant : "Giant Rat"
+@PointClass base(monster_rat) model({"path":":models/monsters/rat/superduperat/tris.fm","frame":43,"scale":1.8}) = monster_rat_giant : "Giant Rat"
 [
 	health(integer) : "Health" : 40
 ]
 
-@PointClass base(Monsters) size(-16 -16 -40, 16 16 24) model({"path": ":models/monsters/spreader/tris.fm", "frame":87}) = monster_spreader : "Spreader"
+@PointClass base(Monsters) size(-16 -16 -40,16 16 24) model({"path":":models/monsters/spreader/tris.fm","frame":87}) = monster_spreader : "Spreader"
 [
 	health(integer) : "Health" : 200
 ]
 
-@PointClass base(Monsters) size(-24 -24 -34, 24 24 34) model({{
-	spawnflags & 4 ->	{"path": ":models/monsters/guard/tris.fm", "frame":96, "skin":2, "scale":2.5},
-						{"path": ":models/monsters/guard/tris.fm", "frame":96}
+@PointClass base(Monsters) size(-24 -24 -34,24 24 34) model({{
+	spawnflags & 4 ->	{"path":":models/monsters/guard/tris.fm","frame":96,"skin":2,"scale":2.5},
+						{"path":":models/monsters/guard/tris.fm","frame":96}
 	}}) = monster_seraph_guard : "Seraph Guard"
 [
-	spawnflags(flags) =
-	[
-		4 : "Golem"
-	]
+	spawnflags(flags) = [ 4 : "Golem" ]
 	health(integer) : "Health" : 300
 ]
 
-@PointClass base(Monsters) size(-24 -24 -34, 24 24 34) model({"path": ":models/monsters/overlord/tris.fm", "frame":115}) = monster_seraph_overlord : "Seraph Overlord"
+@PointClass base(Monsters) size(-24 -24 -34,24 24 34) model({"path":":models/monsters/overlord/tris.fm","frame":115}) = monster_seraph_overlord : "Seraph Overlord"
 [
 	health(integer) : "Health" : 250
 ]
 
-@PointClass base(Monsters) size(-16 -16 -26, 16 16 26) model({{
-	spawnflags & 32 ->	{"path": ":models/monsters/ssithra/tris.fm", "frame":208, "scale":1.5},
-	spawnflags & 64 ->	{"path": ":models/monsters/ssithra/tris.fm", "frame":208, "skin":2},
-						{"path": ":models/monsters/ssithra/tris.fm", "frame":208}
+@PointClass base(Monsters) size(-16 -16 -26,16 16 26) model({{
+	spawnflags & 32 ->	{"path":":models/monsters/ssithra/tris.fm","frame":208,"scale":1.5},
+	spawnflags & 64 ->	{"path":":models/monsters/ssithra/tris.fm","frame":208,"skin":2},
+						{"path":":models/monsters/ssithra/tris.fm","frame":208}
 	}}) = monster_ssithra : "Plague Ssithra"
 [
 	spawnflags(flags) =
@@ -879,12 +1001,12 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		8 : "Jump out of water when woken up or used"
 		16 : "Spin around when woken up or used"
 		32 : "Tougher"
-		64 : "Clothed, shoots explosive projectiles"
+		64 : "Clothed,shoots explosive projectiles"
 	]
 	health(integer) : "Health" : 125
 ]
 
-@PointClass base(Monsters) size(-16 -16 -32, 16 16 32) model({"path": ":models/monsters/tcheckrik/female/tris.fm", "frame":34}) = monster_tcheckrik_female : "Female Tcheckrik"
+@PointClass base(Monsters) size(-16 -16 -32,16 16 32) model({"path":":models/monsters/tcheckrik/female/tris.fm","frame":34}) = monster_tcheckrik_female : "Female Tcheckrik"
 [
 	spawnflags(flags) =
 	[
@@ -894,9 +1016,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 200
 ]
 
-@PointClass base(Monsters) size(-16 -16 -32, 16 16 32) model({{
-	spawnflags & 32 ->	{"path": ":models/monsters/tcheckrik/male/tris.fm", "frame":34, "skin":2},
-						{"path": ":models/monsters/tcheckrik/male/tris.fm", "frame":34}
+@PointClass base(Monsters) size(-16 -16 -32,16 16 32) model({{
+	spawnflags & 32 ->	{"path":":models/monsters/tcheckrik/male/tris.fm","frame":34,"skin":2},
+						{"path":":models/monsters/tcheckrik/male/tris.fm","frame":34}
 	}}) = monster_tcheckrik_male : "Male Tcheckrik"
 [
 	spawnflags(flags) =
@@ -908,20 +1030,19 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	health(integer) : "Health" : 200
 ]
 
-@PointClass base(Monsters) size(-40 -40 -75, 40 40 75) model({"path": ":models/monsters/mother/tris.fm"}) = monster_tcheckrik_mothers : "Tcheckrik Mother"
+@PointClass base(Monsters) size(-40 -40 -75,40 40 75) model({"path":":models/monsters/mother/tris.fm"}) = monster_tcheckrik_mothers : "Tcheckrik Mother"
 [
 	health(integer) : "Health" : 50
 ]
 
-@PointClass base(Monsters) size(-100 -100 -36, 100 100 150) model({"path": ":models/monsters/beast/tris.fm", "frame":233}) = monster_trial_beast : "Trial Beast (boss)"
+@PointClass base(Monsters) size(-100 -100 -36,100 100 150) model({"path":":models/monsters/beast/tris.fm","frame":233}) = monster_trial_beast : "Trial Beast (boss)"
 [
 	health(integer) : "Health" : 7000
 ]
 
-// Using a "wait" value of -1 on a path corner causes a func_train to go silent between
-// itself and the next path corner when the train is restarted. The train's sound will
-// resume as soon as it reaches a path corner with a "wait" value other than -1
-@PointClass base(Angles, Appearflags, UsableEntity) color(128 76 0) size(-8 -8 -8, 8 8 8) = path_corner : "Path marker"
+@PointClass base(Angles,Appearflags,UsableEntity) color(128 76 0) size(-8 -8 -8,8 8 8) = path_corner : "Path marker
+
+* Using a 'wait' value of -1 on a path corner causes a func_train to go silent between itself and the next path corner when the train is restarted. The train's sound will resume as soon as it reaches a path corner with a 'wait' value other than -1"
 [
 	spawnflags(flags) =
 	[
@@ -937,7 +1058,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Appearflags, UsableEntity) color(128 76 9) size(-8 -8 -16, 8 8 16) = point_combat : "Combat point"
+@PointClass base(Appearflags,UsableEntity) color(128 76 9) size(-8 -8 -16,8 8 16) = point_combat : "Combat point"
 [
 	spawnflags(flags) =
 	[
@@ -946,19 +1067,18 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	pathtarget(target_destination) : "Event to trigger when monster touches"
 ]
 
-// set "map" value to "mapname$playername" where playername equals
-// the targetname of a corresponding info_player_start in the
-// next map.  To play a cinematic before starting the level, the
-// "map" value should be "cinemeatic.cin+mapname$playername". Note
-// that a playername is not required if the corresponding info_player_start
-// doesn't have a targetname.  If you want this to be designated as the last
-// level of a unit, place an asterix (*) before the map name.
-@PointClass base(Appearflags, Targetname, Target) color(0 255 0) size(-8 -8 -8, 8 8 8) = target_changelevel : "Change level"
+@PointClass base(Appearflags,Targetname,Target) color(0 255 0) size(-8 -8 -8,8 8 8) = target_changelevel : "Change level
+
+Set the 'map' value to 'mapname$playername' where playername equals the targetname of a corresponding info_player_start in the
+next map. To play a cinematic before starting the level, the 'map' value should be 'cinemeatic.cin+mapname$playername'.
+
+*Note that a playername is not required if the corresponding info_player_start doesn't have a targetname.
+If you want this to be designated as the last level of a unit,place an asterix (*) before the map name."
 [
 	map(string) : "'Next map'$'Player start targetname' - use * before map name to end unit"
 ]
 
-@PointClass base(Appearflags, Targetname, Target) color(128 128 128) size(-8 -8 -8, 8 8 8) = target_crosslevel_trigger : "Cross-level trigger"
+@PointClass base(Appearflags,Targetname,Target) color(128 128 128) size(-8 -8 -8,8 8 8) = target_crosslevel_trigger : "Cross-level trigger"
 [
 	spawnflags(flags) =
 	[
@@ -973,32 +1093,30 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(target_crosslevel_trigger, UsableEntity) = target_crosslevel_target : "Cross-level target" []
+@PointClass base(target_crosslevel_trigger,UsableEntity) = target_crosslevel_target : "Cross-level target" []
 
-@PointClass base(Appearflags, Targetname) color(0 255 0) size(-8 -8 -8, 8 8 8) = target_earthquake : "Level-wide earthquake (obsolete)"
+@PointClass base(Appearflags,Targetname) color(0 255 0) size(-8 -8 -8,8 8 8) = target_earthquake : "Level-wide earthquake (obsolete)"
 [
 	speed(float) : "Severity of quake" : "200"
 	count(integer) : "Duration" : 5
 ]
 
-@PointClass base(Appearflags, UsableEntity) color(0 255 0) size(-8 -8 -8, 8 8 8) = target_explosion : "Explosion"
+@PointClass base(Appearflags,UsableEntity) color(0 255 0) size(-8 -8 -8,8 8 8) = target_explosion : "Explosion"
 [
 	dmg(integer) : "Radius damage" : 0
 ]
 
-@PointClass base(Appearflags, Targetname, Target) color(0 128 204) size(-8 -8 -8, 8 8 8) = target_lightramp : "Light ramp"
+@PointClass base(Appearflags,Targetname,Target) color(0 128 204) size(-8 -8 -8,8 8 8) = target_lightramp : "Light ramp"
 [
-	spawnflags(flags) =
-	[
-		1 : "Toggle"
-	]
+	spawnflags(flags) = [ 1 : "Toggle" ]
 	speed(float) : "Speed"
-	message(string) : "Start/end light levels (2 chars, a-z)"
+	message(string) : "Start/end light levels (2 chars,a-z)"
 ]
 
-@PointClass base(Appearflags, Targetname) color(0 255 0) size(-8 -8 -8, 8 8 8) = target_temp_entity : "Triggered temp entity"
+@PointClass base(Appearflags,Targetname) color(0 255 0) size(-8 -8 -8,8 8 8) = target_temp_entity : "Triggered temp entity
+
+These listed style effects are the only ones which don't require owner or arguments when spawned. Using the others will likely result in undefined behaviour..."
 [
-	//mxd. Listing only the ones which don't require owner or arguments when spawned. Using the others will likely result in undefined behaviour...
 	style(choices) : "Effect ID" : 0 =
 	[
 		2: "Particle Explosion 1"
@@ -1024,7 +1142,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 //	Triggers
 //
 
-@BaseClass base(Appearflags, UsableEntity) color(128 128 128) = Trigger
+@BaseClass base(Appearflags,UsableEntity) color(128 128 128) = Trigger
 [
 	spawnflags(flags) =
 	[
@@ -1035,7 +1153,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@SolidClass base(Appearflags, Targetname, Target) = choose_CDTrack : "Sets CD track"
+@SolidClass base(Appearflags,Targetname,Target) = choose_CDTrack : "Sets CD track"
 [
 	spawnflags(flags) =
 	[
@@ -1044,9 +1162,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	style(integer) : "Track number"
 ]
 
-@PointClass base(Appearflags, UsableEntity) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_always : "Trigger automatically fired by world" []
+@PointClass base(Appearflags,UsableEntity) color(128 128 128) size(-8 -8 -8,8 8 8) = trigger_always : "Trigger automatically fired by world" []
 
-@PointClass base(Appearflags, UsableEntity) size(-8 -8 -8, 8 8 8) = trigger_counter : "Counter"
+@PointClass base(Appearflags,UsableEntity) size(-8 -8 -8,8 8 8) = trigger_counter : "Counter"
 [
 	spawnflags(flags) =
 	[
@@ -1055,20 +1173,20 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	count(integer) : "Count before trigger" : 2
 ]
 
-@SolidClass base(Appearflags, UsableEntity) color(128 128 128) = trigger_farclip : "Changes the r_farclipdist cvar"
+@SolidClass base(Appearflags,UsableEntity) color(128 128 128) = trigger_farclip : "Changes the r_farclipdist cvar"
 [
 	scale(float) : "Farclip distance" : "4096"
 ]
 
-@PointClass base(Appearflags, Targetname, Target) color(76 25 153) = trigger_elevator : "Elevator trigger" []
+@PointClass base(Appearflags,Targetname,Target) color(76 25 153) = trigger_elevator : "Elevator trigger" []
 
-@SolidClass base(Appearflags, Targetname) = trigger_fogdensity : "Sets fog density and fog color"
+@SolidClass base(Appearflags,Targetname) = trigger_fogdensity : "Sets fog density and fog color"
 [
 	target(float) : "Fog density (.01 - .0001)"
 	color(color1) : "Fog color (obsolete)"
 ]
 
-@SolidClass base(Appearflags, UsableEntity) color(128 128 128) = trigger_gravity : "Change gravity"
+@SolidClass base(Appearflags,UsableEntity) color(128 128 128) = trigger_gravity : "Change gravity"
 [
 	gravity(integer) : "Gravity scaler" : 1
 ]
@@ -1088,7 +1206,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 
 @SolidClass base(Trigger) = trigger_Deactivate : "Deactivates target" []
 @SolidClass base(Trigger) = trigger_Activate : "Activates target" []
-@SolidClass base(Appearflags, Targetname) color(128 128 128) = trigger_endgame : "Ends game" []
+@SolidClass base(Appearflags,Targetname) color(128 128 128) = trigger_endgame : "Ends game" []
 
 @SolidClass base(Trigger) = trigger_goto_buoy : "Send monster to buoy"
 [
@@ -1097,7 +1215,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		1 : "Touchable"
 		2 : "Ignore enemy" : 0 : "Monster will ignore his enemy until he gets to his target buoy (or until attacked or woken up some other way)"
 		4 : "Teleport to buoy (safe)" : 0 : "Make monster teleport to target buoy only if there is nothing there and the player cannot see the monster and/or desination buoy"
-		8 : "Teleport to buoy (unsafe)" : 0 : "Same as TeleportSafe, but ignores whether or not the player can see the monster and/or desination buoy"
+		8 : "Teleport to buoy (unsafe)" : 0 : "Same as TeleportSafe,but ignores whether or not the player can see the monster and/or desination buoy"
 		16 : "Make monster fixed"
 		32 : "Make monster forget enemy"
 		64 : "Make monster forget and wander"
@@ -1144,16 +1262,13 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 @SolidClass base(Trigger) = trigger_playerpushbutton : "Player push button" []
 @SolidClass base(Trigger) = trigger_playerpushlever : "Player Push lever" []
 
-@SolidClass base(Appearflags, UsableEntity) color(128 128 128) = trigger_playerusepuzzle : "Player can use puzzle items within this entity"
+@SolidClass base(Appearflags,UsableEntity) color(128 128 128) = trigger_playerusepuzzle : "Player can use puzzle items within this entity"
 [
-	spawnflags(flags) =
-	[
-		16 : "Don't show inventory bar"
-	]
+	spawnflags(flags) = [ 16 : "Don't show inventory bar" ]
 	target(target_destination) : "trigger_puzzle to use"
 ]
 
-@PointClass base(Appearflags, UsableEntity) color(128 128 128) = trigger_puzzle : "Relay that requires puzzle piece"
+@PointClass base(Appearflags,UsableEntity) color(128 128 128) = trigger_puzzle : "Relay that requires puzzle piece"
 [
 	spawnflags(flags) =
 	[
@@ -1177,7 +1292,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	wait(float) : "Wait" : "10"
 ]
 
-@SolidClass base(Appearflags, Targetname, Target) color(128 128 128) = trigger_quit_to_menu : "Quit to menu" []
+@SolidClass base(Appearflags,Targetname,Target) color(128 128 128) = trigger_quit_to_menu : "Quit to menu" []
 
 @SolidClass base(Appearflags) color(128 128 128) = trigger_MonsterJump : "Makes monsters jump"
 [
@@ -1208,29 +1323,23 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	wait(float) : "Seconds between triggers" : "0.2"
 ]
 
-@SolidClass base(Appearflags, UsableEntity) color(128 128 128) = trigger_push : "Push trigger"
+@SolidClass base(Appearflags,UsableEntity) color(128 128 128) = trigger_push : "Push trigger"
 [
-	spawnflags(flags) =
-	[
-		1 : "Push once"
-	]
+	spawnflags(flags) = [ 1 : "Push once" ]
 	speed(float) : "Speed of push" : "500"
-	zangle(float) : "Upwards direction (0 is straight up, 180 is straight down)"
+	zangle(float) : "Upwards direction (0 is straight up,180 is straight down)"
 ]
 
 //
 //	Characters
 //
 
-@BaseClass base(Appearflags, Targetname) color(76 76 255) size(-16 -16 -24, 16 16 32) = Character
+@BaseClass base(Appearflags,Targetname) color(76 76 255) size(-16 -16 -24,16 16 32) = Character
 [
-	spawnflags(flags) =
-	[
-		1 : "Invisible"
-	]
+	spawnflags(flags) = [ 1 : "Invisible" ]
 ]
 
-@PointClass base(Character) size(-16 -16 -34, 16 16 25) model({ "path": ":models/player/cinematic/tris.fm"}) = character_corvus1 : "Cinematic Corvus (torture victim scene)"
+@PointClass base(Character) size(-16 -16 -34,16 16 25) model({"path":":models/player/cinematic/tris.fm"}) = character_corvus1 : "Cinematic Corvus (torture victim scene)"
 [
 	health(integer) : "Health" : 30
 ]
@@ -1243,37 +1352,26 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 @PointClass base(character_corvus1) = character_corvus8 : "Cinematic Corvus (Siernan scenes)" []
 @PointClass base(character_corvus1) = character_corvus9 : "Cinematic Corvus (T'chekrik scenes)" []
 
-@PointClass base(Character) size(-16 -16 -32, 16 16 32) model({ "path": ":models/monsters/plaguelf/dranor/tris.fm"}) = character_dranor : "Cinematic Dranor" []
-@PointClass base(Character) size(-24 -24 -78, 24 24 16) model({ "path": ":models/monsters/elflord/cinematic/tris.fm", "frame":460, "scale":2.0}) = character_elflord : "Cinematic Celestial Watcher" []
-@PointClass base(Character) size(-16 -16 -32, 16 16 32) model({ "path": ":models/monsters/highpriestess/cinematic/tris.fm", "frame":327}) = character_highpriestess : "Cinematic High Priestess (intro scene)" []
-@PointClass base(Character) size(-16 -16 -38, 16 16 38) model({ "path": ":models/monsters/highpriestess/pod_scene/tris.fm", "frame":469}) = character_highpriestess2 : "Cinematic High Priestess (pod scene)" []
-@PointClass base(Character) size(-24 -24 -46, 24 24 46) model({ "path": ":models/monsters/morcalavin/cinematic/tris.fm"}) = character_morcalavin : "Cinematic Morcalavin" []
-@PointClass base(Character) size(-10 -10 -20, 10 10 20) model({ "path": ":models/monsters/siernan/standing/tris.fm", "scale":1.2}) = character_siernan1 : "Cinematic Siernan (standing)"
+@PointClass base(Character) size(-16 -16 -32,16 16 32) model({"path":":models/monsters/plaguelf/dranor/tris.fm"}) = character_dranor : "Cinematic Dranor" []
+@PointClass base(Character) size(-24 -24 -78,24 24 16) model({"path":":models/monsters/elflord/cinematic/tris.fm","frame":460,"scale":2.0}) = character_elflord : "Cinematic Celestial Watcher" []
+@PointClass base(Character) size(-16 -16 -32,16 16 32) model({"path":":models/monsters/highpriestess/cinematic/tris.fm","frame":327}) = character_highpriestess : "Cinematic High Priestess (intro scene)" []
+@PointClass base(Character) size(-16 -16 -38,16 16 38) model({"path":":models/monsters/highpriestess/pod_scene/tris.fm","frame":469}) = character_highpriestess2 : "Cinematic High Priestess (pod scene)" []
+@PointClass base(Character) size(-24 -24 -46,24 24 46) model({"path":":models/monsters/morcalavin/cinematic/tris.fm"}) = character_morcalavin : "Cinematic Morcalavin" []
+@PointClass base(Character) size(-10 -10 -20,10 10 20) model({"path":":models/monsters/siernan/standing/tris.fm","scale":1.2}) = character_siernan1 : "Cinematic Siernan (standing)"
 [
-	spawnflags(flags) =
-	[
-		4 : "Leaning"
-	]
+	spawnflags(flags) = [ 4 : "Leaning" ]
 ]
-@PointClass base(Character) size(-17 -25 0, 22 12 16)	model({ "path": ":models/monsters/siernan/laying/tris.fm"}) = character_siernan2 : "Cinematic Siernan (laying down)" []
-@PointClass base(Character) size(-26 -16 -13, 26 16 13)	model({ "path": ":models/monsters/ssithra/scout_scene/tris.fm"}) = character_ssithra_scout : "Cinematic Ssithra scout" []
-@PointClass base(Character) size(-40 -16 -2, 40 16 2)	model({ "path": ":models/monsters/Ssithra/cinematics/tris.fm"}) = character_ssithra_victim : "Cinematic Ssithra torture victim" []
-@PointClass base(Character) size(-4 -8 -12, 4 8 12)		model({ "path": ":models/spells/book/tris.fm"}) = character_tome : "Cinematic Tome of Power" []
+@PointClass base(Character) size(-17 -25 0,22 12 16) model({"path":":models/monsters/siernan/laying/tris.fm"}) = character_siernan2 : "Cinematic Siernan (laying down)" []
+@PointClass base(Character) size(-26 -16 -13,26 16 13) model({"path":":models/monsters/ssithra/scout_scene/tris.fm"}) = character_ssithra_scout : "Cinematic Ssithra scout" []
+@PointClass base(Character) size(-40 -16 -2,40 16 2) model({"path":":models/monsters/Ssithra/cinematics/tris.fm"}) = character_ssithra_victim : "Cinematic Ssithra torture victim" []
+@PointClass base(Character) size(-4 -8 -12,4 8 12) model({"path":":models/spells/book/tris.fm"}) = character_tome : "Cinematic Tome of Power" []
 
 //Env - fix
-@BaseClass base(Appearflags, Target, Targetname) color(76 76 255) size(-8 -8 -8, 8 8 8) = Env []
+@BaseClass base(Appearflags,Target,Targetname) color(76 76 255) size(-8 -8 -8,8 8 8) = Env []
 
-@PointClass base(Env) size(-5 -5 -5, 5 5 5) = env_bubbler : "Bubbler effect"
-[
-	count(integer) : "Bubbles per minute" : 120
-]
-
-@SolidClass base(Env) = env_dust : "Dust effect (triggered)"
-[
-	count(integer) : "Number of rocks (max 255)"
-]
-
-@SolidClass base(env_dust) = env_muck : "Dust effect (triggered, no sound)" []
+@PointClass base(Env) size(-5 -5 -5,5 5 5) = env_bubbler : "Bubbler effect" [ count(integer) : "Bubbles per minute" : 120 ]
+@SolidClass base(Env) = env_dust : "Dust effect (triggered)" [ count(integer) : "Number of rocks (max 255)" ]
+@SolidClass base(env_dust) = env_muck : "Dust effect (triggered,no sound)" []
 
 @PointClass base(Env) = env_fire : "Flame effect"
 [
@@ -1286,17 +1384,11 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	scale(float) : "Scale (max: 8.0)" : "1"
 ]
 
-@PointClass base(Env) size(-5 -5 -5, 5 5 5) = env_mist : "Mist"
-[
-	scale(float) : "Scale (max: 12.7)"
-]
+@PointClass base(Env) size(-5 -5 -5,5 5 5) = env_mist : "Mist" [ scale(float) : "Scale (max: 12.7)" ]
 
 @PointClass base(Env) = env_smoke : "Smoke"
 [
-	spawnflags(flags) =
-	[
-		8 : "Start off"
-	]
+	spawnflags(flags) = [ 8 : "Start off" ]
 	angle(float) : "Puff move direction"
 	scale(float) : "Puff size (1-8)" : "1"
 	speed(float) : "Puff speed (10-2500)" : "100"
@@ -1315,36 +1407,21 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 
 @PointClass base(Env) = env_water_drip : "Water drip"
 [
-	spawnflags(flags) =
-	[
-		1 : "Yellow"
-	]
+	spawnflags(flags) = [ 1 : "Yellow" ]
 	count(integer) : "Drips per minute" : 20
 ]
 
 @PointClass base(Env) = env_water_fountain : "Water fountain"
 [
-	spawnflags(flags) =
-	[
-		32 : "Start off"
-	]
+	spawnflags(flags) = [ 32 : "Start off" ]
 	angles(string) : "XYZ velocity of particles"
 	delay(float) : "Distance from emitter to ground (max 256)"
 ]
 
-@PointClass base(Env) = env_waterfall_base : "Waterfall base"
-[
-	angles(string) : "X radius, yaw, Y radius"
-]
+@PointClass base(Env) = env_waterfall_base : "Waterfall base" [ angles(string) : "X radius,yaw,Y radius" ]
 
 // Shrines
-@BaseClass base(Angles, Appearflags, Target, Targetname) color(76 76 255) size(-8 -8 -8, 8 8 8) = Shrine
-[
-	spawnflags(flags) =
-	[
-		1 : "Permanent"
-	]
-]
+@BaseClass base(Angles,Appearflags,Target,Targetname) color(76 76 255) size(-8 -8 -8,8 8 8) = Shrine [ spawnflags(flags) = [ 1 : "Permanent" ]]
 
 @SolidClass base(Shrine) = shrine_random : "Random Shrine Trigger" []
 @SolidClass base(Shrine) = shrine_armor : "Armor Shrine Trigger" []
@@ -1359,21 +1436,21 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 @SolidClass base(Shrine) = shrine_lung : "Lung Shrine Trigger" []
 @SolidClass base(Shrine) = shrine_speed : "Speed Shrine Trigger" []
 
-@BaseClass base(Angles, Appearflags, UsableEntity, ObjMaterial) color(76 76 255) size(-8 -8 -8, 8 8 8) = Object
+@BaseClass base(Angles,Appearflags,UsableEntity,ObjMaterial) color(76 76 255) size(-8 -8 -8,8 8 8) = Object
 [
 	scale(integer) : "Scale"
 	health(integer) : "Health"
 	mass(integer) : "Mass"
 ]
-@BaseClass = ObjInvulnerable	[ spawnflags(flags) = [ 1 : "Invulnerable"	]]
-@BaseClass = ObjAnimated		[ spawnflags(flags) = [ 2 : "Animated"		]]
-@BaseClass = ObjExploding		[ spawnflags(flags) = [ 4 : "Exploding"		]]
-@BaseClass = ObjNoPush			[ spawnflags(flags) = [ 8 : "Not pushable"	]]
+@BaseClass = ObjInvulnerable [ spawnflags(flags) = [ 1 : "Invulnerable"	]]
+@BaseClass = ObjAnimated [ spawnflags(flags) = [ 2 : "Animated"		]]
+@BaseClass = ObjExploding [ spawnflags(flags) = [ 4 : "Exploding"		]]
+@BaseClass = ObjNoPush [ spawnflags(flags) = [ 8 : "Not pushable"	]]
 
-@PointClass base(Object) size(-26 -38 -38, 26 38 38) model({ "path": ":models/objects/shrine/tris.fm"}) = obj_shrine : "Shrine model. Target with a matching shrine_(style) trigger brush."
+@PointClass base(Object) size(-26 -38 -38,26 38 38) model({"path":":models/objects/shrine/tris.fm"}) = obj_shrine : "Shrine model. Target with a matching shrine_(style) trigger brush."
 [
 	style(choices) : "Shrine type" : 1 =
-	[
+ [
 		0 : "Heal"
 		1 : "Mana"
 		2 : "Lungs"
@@ -1389,9 +1466,8 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object, ObjInvulnerable) size(0 -19 -24, 4 19 24) model({"path": ":models/objects/andwallhang/tris.fm"}) = obj_andwallhanging : "Circular Andorian wall hanging" []
-
-@PointClass base(Object, ObjAnimated) size(-8 -44 -296, 8 44 0) model({"path": ":models/objects/banner/wall/tris.fm", "skin":skinnum}) = obj_banner : "Banner"
+@PointClass base(Object,ObjInvulnerable) size(0 -19 -24,4 19 24) model({"path":":models/objects/andwallhang/tris.fm"}) = obj_andwallhanging : "Circular Andorian wall hanging" []
+@PointClass base(Object,ObjAnimated) size(-8 -44 -296,8 44 0) model({"path":":models/objects/banner/wall/tris.fm","skin":skinnum}) = obj_banner : "Banner"
 [
 	skinnum(choices) =
 	[
@@ -1400,24 +1476,24 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object, ObjAnimated) size(-8 -28 -30, 8 28 30) model({"path": ":models/objects/banner/onpole/tris.fm"}) = obj_banneronpole : "Banner on Pole" []
+@PointClass base(Object,ObjAnimated) size(-8 -28 -30,8 28 30) model({"path":":models/objects/banner/onpole/tris.fm"}) = obj_banneronpole : "Banner on Pole" []
 
-@PointClass base(Object, ObjInvulnerable, ObjExploding, ObjNoPush) size(-12 -12 -19, 12 12 19) model({{
-	spawnflags & 4 -> {"path": ":models/objects/barrel/normal/tris.fm", "skin":1},
+@PointClass base(Object,ObjInvulnerable,ObjExploding,ObjNoPush) size(-12 -12 -19,12 12 19) model({{
+	spawnflags & 4 -> {"path":":models/objects/barrel/normal/tris.fm","skin":1},
 							   ":models/objects/barrel/normal/tris.fm"
 	}}) = obj_barrel : "Barrel" []
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-11 -12 -18, 11 12 18) model({"path": ":models/objects/barrel/metal/tris.fm"})				= obj_barrel_metal : "Metal barrel" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-11 -12 -18, 11 12 18) model({"path": ":models/objects/barrel/normal/tris.fm", "skin":1})	= obj_barrel_explosive : "Explosive barrel (doesn't explode). Use barrel with spawnflags 4 instead" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-13 -13 -21, 13 13 21) model({"path": ":models/objects/pots/basket/tris.fm"})				= obj_basket : "Basket" []
-@PointClass base(Object, ObjInvulnerable)				size(-10 -22 -10, 10 22 10) model({"path": ":models/objects/chairs/bench/tris.fm"})				= obj_bench : "Bench" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-11 -12 -18,11 12 18) model({"path":":models/objects/barrel/metal/tris.fm"}) = obj_barrel_metal : "Metal barrel" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-11 -12 -18,11 12 18) model({"path":":models/objects/barrel/normal/tris.fm","skin":1}) = obj_barrel_explosive : "Explosive barrel (doesn't explode). Use barrel with spawnflags 4 instead" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-13 -13 -21,13 13 21) model({"path":":models/objects/pots/basket/tris.fm"}) = obj_basket : "Basket" []
+@PointClass base(Object,ObjInvulnerable) size(-10 -22 -10,10 22 10) model({"path":":models/objects/chairs/bench/tris.fm"}) = obj_bench : "Bench" []
 
-@PointClass base(Object) size(-35 -35 -50, 35 35 50) model({"path": ":models/objects/crystals/bigcrystal/tris.fm"}) = obj_bigcrystal : "Rotating crystal"
+@PointClass base(Object) size(-35 -35 -50,35 35 50) model({"path":":models/objects/crystals/bigcrystal/tris.fm"}) = obj_bigcrystal : "Rotating crystal"
 [
 	speed(float) : "Speed of rotation"
 ]
 
-@PointClass base(Object) size(-20 -33 -52, 20 33 52) model({"path": ":models/objects/labs/biotank/tris.fm"}) = obj_biotank : "Bio Tank"
+@PointClass base(Object) size(-20 -33 -52,20 33 52) model({"path":":models/objects/labs/biotank/tris.fm"}) = obj_biotank : "Bio Tank"
 [
 	style(choices) =
 	[
@@ -1429,33 +1505,33 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object) size(-8 -8 -2, 8 8 2) = obj_bloodsplat : "Blood splat" [] // The ONLY Heretic II using floor-aligned .sp2 sprite as a model --mxd.
+@PointClass base(Object) size(-8 -8 -2,8 8 2) = obj_bloodsplat : "Blood splat" [] // The ONLY Heretic II using floor-aligned .sp2 sprite as a model --mxd.
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-8 -16 -2, 8 16 2)		model({"path": ":models/objects/books/bookopen/tris.fm"})	= obj_bookopen : "Open Book" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-8 -8 -2, 8 8 2)		model({"path": ":models/objects/books/bookclosed/tris.fm"})	= obj_bookclosed : "Closed book standing up" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-3 -3 -7, 3 3 7)		model({"path": ":models/objects/jars/bottle/tris.fm"})		= obj_bottle1 : "Bottle" []
-@PointClass base(Object, ObjInvulnerable)				size(-2 -2 -25, 2 2 25)		model({"path": ":models/objects/broom/tris.fm"})			= obj_broom : "Broom" []
-@PointClass base(Object, ObjInvulnerable)				size(-8 -8 -9, 8 8 10)		model({"path": ":models/objects/bucket/tris.fm"})			= obj_bucket : "Bucket" []
-@PointClass base(Object)								size(-16 -16 -19, 16 16 19)	model({"path": ":models/objects/plants/bush1/tris.fm"})		= obj_bush1 : "Bush" []
-@PointClass base(Object)								size(-16 -16 -40, 16 16 40)	model({"path": ":models/objects/plants/bush2/tris.fm"})		= obj_bush2 : "Bush 2" []
-@PointClass base(Object, ObjInvulnerable)				size(-18 -18 -44, 18 18 44)	model({"path": ":models/objects/plants/cactus/tris.fm"})	= obj_cactus : "Cactus" []
-@PointClass base(Object, ObjInvulnerable)				size(-14 -14 -32, 14 14 32)	model({"path": ":models/objects/plants/cactus3/tris.fm"})	= obj_cactus3 : "Cactus 3" []
-@PointClass base(Object, ObjInvulnerable)				size(-11 -11 -11, 11 11 11)	model({"path": ":models/objects/plants/cactus4/tris.fm"})	= obj_cactus4 : "Cactus 4 (triggerable)" []
-@PointClass base(Object, ObjInvulnerable, ObjAnimated)	size(-22 -22 -10, 22 22 10)	model({"path": ":models/objects/pots/caldrn/tris.fm"})		= obj_cauldron : "Cauldron" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-12 -8 -26, 12 8 26)	model({"path": ":models/objects/chairs/chair1/tris.fm"})	= obj_chair1 : "Chair (wood)" []
-@PointClass base(Object, ObjInvulnerable)				size(-18 -29 -30, 18 29 30)	model({"path": ":models/objects/chairs/chair2/tris.fm"})	= obj_chair2 : "Chair (wood, slanted)" []
-@PointClass base(Object) 								size(-14 -21 -28, 14 21 28)	model({"path": ":models/objects/chairs/chair3/tris.fm"})	= obj_chair3 : "Chair (stone)" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-10 -18 -19, 10 18 19)	model({"path": ":models/objects/chests/chest1/tris.fm"})	= obj_chest1 : "Chest (opens when triggered)" []
-@PointClass base(Object, ObjInvulnerable) 				size(-14 -17 -9, 14 17 9)	model({"path": ":models/objects/chests/chest2/tris.fm"})	= obj_chest2 : "Chest (mines)" []
-@PointClass base(Object, ObjInvulnerable)				size(-10 -17 -6, 10 17 6)	model({"path": ":models/objects/chests/chest3/tris.fm"})	= obj_chest3 : "Chest (mines, closed)" []
-@PointClass base(Object, ObjInvulnerable)				size(-15 -40 -8, 15 40 8)	model({"path": ":models/objects/torture/guy2/tris.fm"})		= obj_choppeddude : "Laying chopped corpse" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-6 -6 -2, 6 6 2)		model({"path": ":models/objects/pots/claybowl/tris.fm"})	= obj_claybowl : "Clay bowl" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-15 -15 -24, 15 15 24)	model({"path": ":models/objects/pots/clayjar/tris.fm"})		= obj_clayjar : "Clay jar" []
-@PointClass base(Object, ObjInvulnerable, ObjAnimated)	size(-20 -20 -36, 20 20 36)	model({"path": ":models/objects/eggs/cocoon/tris.fm"})		= obj_cocoon : "Hanging cocoon (animated)" []
-@PointClass base(Object, ObjInvulnerable)				size(-20 -20 -34, 20 20 34)	model({"path": ":models/objects/eggs/cocoon/tris.fm", "frame":20})	= obj_cocoonopen : "Hanging cocoon (open)" []
-@PointClass base(Object) 								size(-8 -4 0, 8 4 20)		model({"path": ":models/objects/cogs/cog1/tris.fm"})		= obj_cog1 : "Cog (triggerable)" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-8 -16 -2,8 16 2) model({"path":":models/objects/books/bookopen/tris.fm"}) = obj_bookopen : "Open Book" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-8 -8 -2,8 8 2) model({"path":":models/objects/books/bookclosed/tris.fm"}) = obj_bookclosed : "Closed book standing up" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-3 -3 -7,3 3 7) model({"path":":models/objects/jars/bottle/tris.fm"}) = obj_bottle1 : "Bottle" []
+@PointClass base(Object,ObjInvulnerable) size(-2 -2 -25,2 2 25) model({"path":":models/objects/broom/tris.fm"}) = obj_broom : "Broom" []
+@PointClass base(Object,ObjInvulnerable) size(-8 -8 -9,8 8 10) model({"path":":models/objects/bucket/tris.fm"}) = obj_bucket : "Bucket" []
+@PointClass base(Object) size(-16 -16 -19,16 16 19) model({"path":":models/objects/plants/bush1/tris.fm"}) = obj_bush1 : "Bush" []
+@PointClass base(Object) size(-16 -16 -40,16 16 40) model({"path":":models/objects/plants/bush2/tris.fm"}) = obj_bush2 : "Bush 2" []
+@PointClass base(Object,ObjInvulnerable) size(-18 -18 -44,18 18 44) model({"path":":models/objects/plants/cactus/tris.fm"}) = obj_cactus : "Cactus" []
+@PointClass base(Object,ObjInvulnerable) size(-14 -14 -32,14 14 32) model({"path":":models/objects/plants/cactus3/tris.fm"}) = obj_cactus3 : "Cactus 3" []
+@PointClass base(Object,ObjInvulnerable) size(-11 -11 -11,11 11 11) model({"path":":models/objects/plants/cactus4/tris.fm"}) = obj_cactus4 : "Cactus 4 (triggerable)" []
+@PointClass base(Object,ObjInvulnerable,ObjAnimated) size(-22 -22 -10,22 22 10) model({"path":":models/objects/pots/caldrn/tris.fm"}) = obj_cauldron : "Cauldron" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-12 -8 -26,12 8 26) model({"path":":models/objects/chairs/chair1/tris.fm"}) = obj_chair1 : "Chair (wood)" []
+@PointClass base(Object,ObjInvulnerable) size(-18 -29 -30,18 29 30) model({"path":":models/objects/chairs/chair2/tris.fm"}) = obj_chair2 : "Chair (wood,slanted)" []
+@PointClass base(Object) size(-14 -21 -28,14 21 28) model({"path":":models/objects/chairs/chair3/tris.fm"}) = obj_chair3 : "Chair (stone)" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-10 -18 -19,10 18 19) model({"path":":models/objects/chests/chest1/tris.fm"}) = obj_chest1 : "Chest (opens when triggered)" []
+@PointClass base(Object,ObjInvulnerable) size(-14 -17 -9,14 17 9) model({"path":":models/objects/chests/chest2/tris.fm"}) = obj_chest2 : "Chest (mines)" []
+@PointClass base(Object,ObjInvulnerable) size(-10 -17 -6,10 17 6) model({"path":":models/objects/chests/chest3/tris.fm"}) = obj_chest3 : "Chest (mines,closed)" []
+@PointClass base(Object,ObjInvulnerable) size(-15 -40 -8,15 40 8) model({"path":":models/objects/torture/guy2/tris.fm"}) = obj_choppeddude : "Laying chopped corpse" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-6 -6 -2,6 6 2) model({"path":":models/objects/pots/claybowl/tris.fm"}) = obj_claybowl : "Clay bowl" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-15 -15 -24,15 15 24) model({"path":":models/objects/pots/clayjar/tris.fm"}) = obj_clayjar : "Clay jar" []
+@PointClass base(Object,ObjInvulnerable,ObjAnimated) size(-20 -20 -36,20 20 36) model({"path":":models/objects/eggs/cocoon/tris.fm"}) = obj_cocoon : "Hanging cocoon (animated)" []
+@PointClass base(Object,ObjInvulnerable) size(-20 -20 -34,20 20 34) model({"path":":models/objects/eggs/cocoon/tris.fm","frame":20}) = obj_cocoonopen : "Hanging cocoon (open)" []
+@PointClass base(Object) size(-8 -4 0,8 4 20) model({"path":":models/objects/cogs/cog1/tris.fm"}) = obj_cog1 : "Cog (triggerable)" []
 
-@PointClass base(Object, ObjInvulnerable) size(-30 -12 -2, 30 12 2) model({"path": ":models/monsters/plaguelf/tris.fm", "frame":337 + style}) = obj_corpse1 : "Plague Elf corpse"
+@PointClass base(Object,ObjInvulnerable) size(-30 -12 -2,30 12 2) model({"path":":models/monsters/plaguelf/tris.fm","frame":337 + style}) = obj_corpse1 : "Plague Elf corpse"
 [
 	style(choices) : "Position" =
 	[
@@ -1467,11 +1543,11 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(obj_corpse1) model({"path": ":models/monsters/plaguelf/tris.fm", "frame":337 + style, "skin":1}) = obj_corpse2 : "Plague Elf corpse (alternate skin)" []
+@PointClass base(obj_corpse1) model({"path":":models/monsters/plaguelf/tris.fm","frame":337 + style,"skin":1}) = obj_corpse2 : "Plague Elf corpse (alternate skin)" []
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush) size(-30 -30 -2, 30 30 8) model({{
-	style == "1" ->	{"path": ":models/monsters/ogle/tris.fm", "frame":271},
-					{"path": ":models/monsters/ogle/tris.fm", "frame":271, "skin":1}
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-30 -30 -2,30 30 8) model({{
+	style == "1" ->	{"path":":models/monsters/ogle/tris.fm","frame":271},
+					{"path":":models/monsters/ogle/tris.fm","frame":271,"skin":1}
 	}}) = obj_corpse_ogle : "Ogle corpse"
 [
 	style(choices) : "Skin" =
@@ -1481,9 +1557,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object, ObjInvulnerable) size(-30 -12 -2, 30 12 2) model({{
-	style == "1" ->	{"path": ":models/monsters/ssithra/tris.fm", "frame":31},
-					{"path": ":models/monsters/ssithra/tris.fm", "frame":31, "skin":1}
+@PointClass base(Object,ObjInvulnerable) size(-30 -12 -2,30 12 2) model({{
+	style == "1" ->	{"path":":models/monsters/ssithra/tris.fm","frame":31},
+					{"path":":models/monsters/ssithra/tris.fm","frame":31,"skin":1}
 	}}) = obj_corpse_ssithra : "Plague Ssithra corpse"
 [
 	style(choices) : "Skin" =
@@ -1493,7 +1569,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object, ObjInvulnerable) size(-32 -32 -2, 32 32 6) model({"path": ":models/monsters/plaguelf/tris.fm", "frame":367, "skin":style}) = obj_dying_elf : "Dying elf"
+@PointClass base(Object,ObjInvulnerable) size(-32 -32 -2,32 32 6) model({"path":":models/monsters/plaguelf/tris.fm","frame":367,"skin":style}) = obj_dying_elf : "Dying elf"
 [
 	style(choices) : "Skin" =
 	[
@@ -1507,87 +1583,81 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object, ObjInvulnerable) size(-4 -10 -1, 4 10 1)		model({"path": ":models/objects/pots/eggpan/tris.fm"})		= obj_eggpan : "Flat pan" []
-@PointClass base(Object, ObjInvulnerable) size(-13 -13 -18, 13 13 18)	model({"path": ":models/objects/labs/container2/tris.fm"})	= obj_eyeball_jar : "Jar full of eyeballs" []
+@PointClass base(Object,ObjInvulnerable) size(-4 -10 -1,4 10 1) model({"path":":models/objects/pots/eggpan/tris.fm"}) = obj_eggpan : "Flat pan" []
+@PointClass base(Object,ObjInvulnerable) size(-13 -13 -18,13 13 18) model({"path":":models/objects/labs/container2/tris.fm"}) = obj_eyeball_jar : "Jar full of eyeballs" []
 
-@PointClass base(Object) size(0 -76 -86, 136 76 86) model({"path": ":models/objects/fishheads/fishhead1/tris.fm"}) = obj_fishhead1 : "Fish head fountain"
+@PointClass base(Object) size(0 -76 -86,136 76 86) model({"path":":models/objects/fishheads/fishhead1/tris.fm"}) = obj_fishhead1 : "Fish head fountain"
 [
-	spawnflags(flags) =
-	[
-		1 : "No drip"
-	]
+	spawnflags(flags) = [ 1 : "No drip" ]
 ]
 
-@PointClass base(Object) size(0 -110 -118, 136 110 118) model({"path": ":models/objects/fishheads/fishhead2/tris.fm"}) = obj_fishhead2 : "Fish head fountain 2"
+@PointClass base(Object) size(0 -110 -118,136 110 118) model({"path":":models/objects/fishheads/fishhead2/tris.fm"}) = obj_fishhead2 : "Fish head fountain 2"
 [
-	spawnflags(flags) =
-	[
-		1 : "No drip"
-	]
+	spawnflags(flags) = [ 1 : "No drip"	]
 ]
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-14 -28 -13, 14 28 13)	model({"path": ":models/objects/fishtrap/tris.fm"})				= obj_fishtrap : "Fish trap" []
-@PointClass base(Object, ObjAnimated)					size(-18 -18 -12, 18 18 12)	model({"path": ":models/objects/pots/firepot/tris.fm"})			= obj_firepot : "Firepot" []
-@PointClass base(Object, ObjAnimated)					size(-8 -28 -30, 8 28 30)	model({"path": ":models/objects/flags/onpole/tris.fm"})			= obj_flagonpole : "Flag on pole" []
-@PointClass base(Object, ObjAnimated, ObjNoPush)		size(-8 -8 -35, 8 8 35)		model({"path": ":models/objects/lights/candelabrum/tris.fm"})	= obj_floor_candelabrum : "Floor candelbrum. Does not emit light" []
-@PointClass base(Object) 								size(-52 -34 -48, 52 34 48)	model({"path": ":models/objects/fountainfish/tris.fm"})			= obj_fountain_fish : "Two-headed fish fountain. Water FX not included" []
-@PointClass base(Object, ObjInvulnerable)				size(-1 -3 -10, 1 3 10)		model({"path": ":models/objects/pots/frypan/tris.fm"})			= obj_frypan : "Hanging pan" []
-@PointClass base(Object, ObjInvulnerable)				size(-18 -38 -9, 18 38 1)	model({"path": ":models/objects/bones/gorgon/tris.fm"})			= obj_gorgonbones : "Gorgon bones" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-8 -9 -13, 8 9 13)		model({"path": ":models/objects/barrel/gascan/tris.fm"})		= obj_gascan : "Gas can" []
-@PointClass base(Object, ObjInvulnerable)				size(-8 -8 -10, 8 8 10)		model({"path": ":models/objects/plants/grass/tris.fm"})			= obj_grass : "Grass clump" []
-@PointClass base(Object, ObjInvulnerable)				size(-8 -16 -34, 8 16 34)	model({"path": ":models/objects/torture/ogle/tris.fm"})			= obj_hanging_ogle : "Hanging Ogle" []
-@PointClass base(Object, ObjInvulnerable)				size(-3 -20 -55, 3 20 55)	model({"path": ":models/objects/torture/guy1/tris.fm"})			= obj_hangingdude : "Hanging dude" []
-@PointClass base(Object, ObjNoPush)						size(-4 -4 -13, 4 4 13)		model({"path": ":models/items/puzzles/hiveidol/tris.fm"})		= obj_hivepriestessssymbol : "Hive Priestess symbol (triggered)" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-11 -11 -12, 11 11 12)	model({"path": ":models/objects/bones/jaws/tris.fm"})			= obj_jawbone : "Fish jawbone" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-6 -6 -6, 6 6 6)		model({"path": ":models/objects/jars/jug/tris.fm"})				= obj_jug1 : "Jug" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-8 -8 0, 8 8 10)		model({"path": ":models/objects/pots/kettle/tris.fm"})			= obj_kettle : "Kettle" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-8 -8 -11, 8 8 11)		model({"path": ":models/objects/labs/container1/tris.fm"})		= obj_lab_parts_container : "Body parts container" []
-@PointClass base(Object, ObjInvulnerable)				size(-8 -8 -5, 8 8 5)		model({"path": ":models/objects/labs/tray/tris.fm"})			= obj_lab_tray : "Tray with heart and tools" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-8 -12 -2, 8 12 2)		model({"path": ":models/objects/eggs/larva/tris.fm"})			= obj_larva : "Squirming larva" []
-@PointClass base(Object, ObjInvulnerable)				size(-6 -14 -6, 6 14 6)		model({"path": ":models/objects/eggs/eggs/tris.fm"})			= obj_larvaegg : "Hive egg" []
-@PointClass base(Object, ObjInvulnerable)				size(-6 -7 -5, 6 7 5)		model({"path": ":models/objects/eggs/brokenegg/tris.fm"})		= obj_larvabrokenegg : "Hive egg (broken)" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-14 -28 -13,14 28 13) model({"path":":models/objects/fishtrap/tris.fm"}) = obj_fishtrap : "Fish trap" []
+@PointClass base(Object,ObjAnimated) size(-18 -18 -12,18 18 12) model({"path":":models/objects/pots/firepot/tris.fm"}) = obj_firepot : "Firepot" []
+@PointClass base(Object,ObjAnimated) size(-8 -28 -30,8 28 30) model({"path":":models/objects/flags/onpole/tris.fm"}) = obj_flagonpole : "Flag on pole" []
+@PointClass base(Object,ObjAnimated,ObjNoPush) size(-8 -8 -35,8 8 35) model({"path":":models/objects/lights/candelabrum/tris.fm"}) = obj_floor_candelabrum : "Floor candelbrum. Does not emit light" []
+@PointClass base(Object) size(-52 -34 -48,52 34 48) model({"path":":models/objects/fountainfish/tris.fm"}) = obj_fountain_fish : "Two-headed fish fountain. Water FX not included" []
+@PointClass base(Object,ObjInvulnerable) size(-1 -3 -10,1 3 10) model({"path":":models/objects/pots/frypan/tris.fm"}) = obj_frypan : "Hanging pan" []
+@PointClass base(Object,ObjInvulnerable) size(-18 -38 -9,18 38 1) model({"path":":models/objects/bones/gorgon/tris.fm"}) = obj_gorgonbones : "Gorgon bones" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-8 -9 -13,8 9 13) model({"path":":models/objects/barrel/gascan/tris.fm"}) = obj_gascan : "Gas can" []
+@PointClass base(Object,ObjInvulnerable) size(-8 -8 -10,8 8 10) model({"path":":models/objects/plants/grass/tris.fm"}) = obj_grass : "Grass clump" []
+@PointClass base(Object,ObjInvulnerable) size(-8 -16 -34,8 16 34) model({"path":":models/objects/torture/ogle/tris.fm"}) = obj_hanging_ogle : "Hanging Ogle" []
+@PointClass base(Object,ObjInvulnerable) size(-3 -20 -55,3 20 55) model({"path":":models/objects/torture/guy1/tris.fm"}) = obj_hangingdude : "Hanging dude" []
+@PointClass base(Object,ObjNoPush) size(-4 -4 -13,4 4 13) model({"path":":models/items/puzzles/hiveidol/tris.fm"}) = obj_hivepriestessssymbol : "Hive Priestess symbol (triggered)" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-11 -11 -12,11 11 12) model({"path":":models/objects/bones/jaws/tris.fm"}) = obj_jawbone : "Fish jawbone" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-6 -6 -6,6 6 6) model({"path":":models/objects/jars/jug/tris.fm"}) = obj_jug1 : "Jug" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-8 -8 0,8 8 10) model({"path":":models/objects/pots/kettle/tris.fm"}) = obj_kettle : "Kettle" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-8 -8 -11,8 8 11) model({"path":":models/objects/labs/container1/tris.fm"}) = obj_lab_parts_container : "Body parts container" []
+@PointClass base(Object,ObjInvulnerable) size(-8 -8 -5,8 8 5) model({"path":":models/objects/labs/tray/tris.fm"}) = obj_lab_tray : "Tray with heart and tools" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-8 -12 -2,8 12 2) model({"path":":models/objects/eggs/larva/tris.fm"}) = obj_larva : "Squirming larva" []
+@PointClass base(Object,ObjInvulnerable) size(-6 -14 -6,6 14 6) model({"path":":models/objects/eggs/eggs/tris.fm"}) = obj_larvaegg : "Hive egg" []
+@PointClass base(Object,ObjInvulnerable) size(-6 -7 -5,6 7 5) model({"path":":models/objects/eggs/brokenegg/tris.fm"}) = obj_larvabrokenegg : "Hive egg (broken)" []
 
-@PointClass base(Object) size(-6 -14 -17, 6 14 17)	model({"path": ":models/objects/levers/lever1/tris.fm"}) = obj_lever1 : "Floor lever" []
-@PointClass base(Object) size(-14 -14 -9, 14 14 9)	model({"path": ":models/objects/levers/lever2/tris.fm"}) = obj_lever2 : "Wooden wheel lever" []
-@PointClass base(Object) size(-6 -4 -16, 6 4 16)	model({"path": ":models/objects/levers/lever3/tris.fm"}) = obj_lever3 : "Wall lever" []
+@PointClass base(Object) size(-6 -14 -17,6 14 17) model({"path":":models/objects/levers/lever1/tris.fm"}) = obj_lever1 : "Floor lever" []
+@PointClass base(Object) size(-14 -14 -9,14 14 9) model({"path":":models/objects/levers/lever2/tris.fm"}) = obj_lever2 : "Wooden wheel lever" []
+@PointClass base(Object) size(-6 -4 -16,6 4 16) model({"path":":models/objects/levers/lever3/tris.fm"}) = obj_lever3 : "Wall lever" []
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-10 -26 -4, 10 26 4)	model({"path": ":models/objects/pipes/metalchunks/tris.fm"})			= obj_metalchunk1 : "Metal chunk" []
-@PointClass base(obj_metalchunk1)													model({"path": ":models/objects/pipes/metalchunks/tris.fm", "frame":1})	= obj_metalchunk2 : "Metal chunk 2" []
-@PointClass base(obj_metalchunk1)													model({"path": ":models/objects/pipes/metalchunks/tris.fm", "frame":2})	= obj_metalchunk3 : "Metal chunk 3" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-10 -26 -4,10 26 4) model({"path":":models/objects/pipes/metalchunks/tris.fm"}) = obj_metalchunk1 : "Metal chunk" []
+@PointClass base(obj_metalchunk1) model({"path":":models/objects/pipes/metalchunks/tris.fm","frame":1}) = obj_metalchunk2 : "Metal chunk 2" []
+@PointClass base(obj_metalchunk1) model({"path":":models/objects/pipes/metalchunks/tris.fm","frame":2}) = obj_metalchunk3 : "Metal chunk 3" []
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-18 -29 -20, 18 29 20)	model({"path": ":models/objects/carts/mine/tris.fm"})				= obj_minecart : "Full minecart" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-18 -29 -20, 18 29 20)	model({"path": ":models/objects/carts/mine/tris.fm", "frame":20})	= obj_minecart2 : "Empty minecart" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-18 -29 -15, 18 29 20)	model({"path": ":models/objects/carts/mine/tris.fm", "frame":40})	= obj_minecart3 : "Busted minecart" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-18 -29 -20,18 29 20) model({"path":":models/objects/carts/mine/tris.fm"}) = obj_minecart : "Full minecart" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-18 -29 -20,18 29 20) model({"path":":models/objects/carts/mine/tris.fm","frame":20}) = obj_minecart2 : "Empty minecart" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-18 -29 -15,18 29 20) model({"path":":models/objects/carts/mine/tris.fm","frame":40}) = obj_minecart3 : "Busted minecart" []
 
-@PointClass base(Object) size(-1 -10 -40, 1 10 40)		model({"path": ":models/objects/moss/tris.fm"})				= obj_moss1 : "Moss 1" []
-@PointClass base(Object) size(-1 -9 -40, 1 9 40)		model({"path": ":models/objects/moss/tris.fm", "skin":1})	= obj_moss2 : "Moss 2" []
-@PointClass base(Object) size(-1 -15 -40, 1 15 40)		model({"path": ":models/objects/moss/tris.fm", "skin":2})	= obj_moss3 : "Moss 3" []
-@PointClass base(Object) size(-1 -12 -40, 1 12 40)		model({"path": ":models/objects/moss/tris.fm", "skin":3})	= obj_moss4 : "Moss 4" []
-@PointClass base(Object) size(-1 -10 -40, 1 10 40)		model({"path": ":models/objects/moss/tris.fm", "skin":4})	= obj_moss5 : "Moss 5" []
+@PointClass base(Object) size(-1 -10 -40,1 10 40) model({"path":":models/objects/moss/tris.fm"}) = obj_moss1 : "Moss 1" []
+@PointClass base(Object) size(-1 -9 -40,1 9 40) model({"path":":models/objects/moss/tris.fm","skin":1}) = obj_moss2 : "Moss 2" []
+@PointClass base(Object) size(-1 -15 -40,1 15 40) model({"path":":models/objects/moss/tris.fm","skin":2}) = obj_moss3 : "Moss 3" []
+@PointClass base(Object) size(-1 -12 -40,1 12 40) model({"path":":models/objects/moss/tris.fm","skin":3}) = obj_moss4 : "Moss 4" []
+@PointClass base(Object) size(-1 -10 -40,1 10 40) model({"path":":models/objects/moss/tris.fm","skin":4}) = obj_moss5 : "Moss 5" []
 
-@PointClass base(Object, ObjInvulnerable)				size(-25 -25 -4, 25 25 4)	model({"path": ":models/objects/nest/tris.fm"})				= obj_nest : "Nest" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-12 -13 -2, 12 13 2)	model({"path": ":models/objects/tools/pick/tris.fm"})		= obj_pick : "Pick" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-11 -24 -7, 11 24 7)	model({"path": ":models/objects/pipes/pipe1/tris.fm"})		= obj_pipe1 : "Pipe (90* turn)" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-6 -25 -4, 6 25 4)		model({"path": ":models/objects/pipes/pipe2/tris.fm"})		= obj_pipe2 : "Pipe (straight)" []
-@PointClass base(Object, ObjInvulnerable)				size(-14 -14 -12, 14 14 12)	model({"path": ":models/objects/pipes/pipewheel/tris.fm"})	= obj_pipewheel : "Pipe shutoff valve" []
+@PointClass base(Object,ObjInvulnerable) size(-25 -25 -4,25 25 4) model({"path":":models/objects/nest/tris.fm"}) = obj_nest : "Nest" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-12 -13 -2,12 13 2) model({"path":":models/objects/tools/pick/tris.fm"}) = obj_pick : "Pick" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-11 -24 -7,11 24 7) model({"path":":models/objects/pipes/pipe1/tris.fm"}) = obj_pipe1 : "Pipe (90* turn)" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-6 -25 -4,6 25 4) model({"path":":models/objects/pipes/pipe2/tris.fm"}) = obj_pipe2 : "Pipe (straight)" []
+@PointClass base(Object,ObjInvulnerable) size(-14 -14 -12,14 14 12) model({"path":":models/objects/pipes/pipewheel/tris.fm"}) = obj_pipewheel : "Pipe shutoff valve" []
 
-@PointClass base(Object, ObjInvulnerable)	size(-8 -8 -24, 8 8 24)		model({"path": ":models/objects/plants/plant1/tris.fm"})	= obj_plant1 : "Plant" []
-@PointClass base(Object, ObjInvulnerable)	size(-20 -20 -10, 20 20 20)	model({"path": ":models/objects/plants/plant2/tris.fm"})	= obj_plant2 : "Plant 2" []
-@PointClass base(Object, ObjInvulnerable)	size(-8 -8 -12, 8 8 12)		model({"path": ":models/objects/plants/plant3/tris.fm"})	= obj_plant3 : "Plant 3" []
+@PointClass base(Object,ObjInvulnerable) size(-8 -8 -24,8 8 24) model({"path":":models/objects/plants/plant1/tris.fm"}) = obj_plant1 : "Plant" []
+@PointClass base(Object,ObjInvulnerable) size(-20 -20 -10,20 20 20) model({"path":":models/objects/plants/plant2/tris.fm"}) = obj_plant2 : "Plant 2" []
+@PointClass base(Object,ObjInvulnerable) size(-8 -8 -12,8 8 12) model({"path":":models/objects/plants/plant3/tris.fm"}) = obj_plant3 : "Plant 3" []
 
-@PointClass base(Object, ObjInvulnerable)				size(-3 -8 -8, 3 8 8)	model({"path": ":models/objects/pots/pot/tris.fm"})		= obj_pot1 : "Hanging cooking pot" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-7 -7 -3, 7 7 3)	model({"path": ":models/objects/pots/pot2/tris.fm"})	= obj_pot2 : "Flat cooking pot" []
+@PointClass base(Object,ObjInvulnerable) size(-3 -8 -8,3 8 8) model({"path":":models/objects/pots/pot/tris.fm"}) = obj_pot1 : "Hanging cooking pot" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-7 -7 -3,7 7 3) model({"path":":models/objects/pots/pot2/tris.fm"}) = obj_pot2 : "Flat cooking pot" []
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-20 -20 -30, 20 20 30)	model({"path": ":models/objects/pots/plant/tris.fm"})			= obj_pottedplant : "Potted plant" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-14 -30 -17, 14 30 17)	model({"path": ":models/objects/carts/pushcart/tris.fm"})		= obj_pushcart : "Push cart" []
-@PointClass base(Object, ObjInvulnerable)				size(-30 -28 -31, 30 28 31)	model({"path": ":models/objects/chairs/smallchair/tris.fm"})	= obj_queenchair : "Hive queen chair" []
-@PointClass base(Object) 								size(-40 -56 -49, 40 56 49)	model({"path": ":models/objects/chairs/queen/tris.fm"})			= obj_queenthrone : "Hive queen throne" []
-@PointClass base(Object)								size(-2 -24 -20, 2 24 20)	model({"path": ":models/objects/torture/plaque2/tris.fm"})		= obj_ring_plaque2 : "Rings mounted on wall plate" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-20 -20 -30,20 20 30) model({"path":":models/objects/pots/plant/tris.fm"}) = obj_pottedplant : "Potted plant" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-14 -30 -17,14 30 17) model({"path":":models/objects/carts/pushcart/tris.fm"}) = obj_pushcart : "Push cart" []
+@PointClass base(Object,ObjInvulnerable) size(-30 -28 -31,30 28 31) model({"path":":models/objects/chairs/smallchair/tris.fm"}) = obj_queenchair : "Hive queen chair" []
+@PointClass base(Object) size(-40 -56 -49,40 56 49) model({"path":":models/objects/chairs/queen/tris.fm"}) = obj_queenthrone : "Hive queen throne" []
+@PointClass base(Object) size(-2 -24 -20,2 24 20) model({"path":":models/objects/torture/plaque2/tris.fm"}) = obj_ring_plaque2 : "Rings mounted on wall plate" []
 
-@PointClass base(Object, ObjInvulnerable)	size(-12 -13 -4, 12 13 4)	model({"path": ":models/objects/rocks/rock1/tris.fm"})	= obj_rocks1 : "Rock cluster" []
-@PointClass base(Object, ObjInvulnerable)	size(-34 -40 -19, 34 40 19)	model({"path": ":models/objects/rocks/rock2/tris.fm"})	= obj_rocks2 : "Big rock" []
+@PointClass base(Object,ObjInvulnerable) size(-12 -13 -4,12 13 4) model({"path":":models/objects/rocks/rock1/tris.fm"}) = obj_rocks1 : "Rock cluster" []
+@PointClass base(Object,ObjInvulnerable) size(-34 -40 -19,34 40 19) model({"path":":models/objects/rocks/rock2/tris.fm"}) = obj_rocks2 : "Big rock" []
 
-@SolidClass base(Appearflags, Targetname) = obj_rope : "Climbable rope. Requires origin brush (brush with ORIGIN content flag)"
+@SolidClass base(Appearflags,Targetname) = obj_rope : "Climbable rope. Requires origin brush (brush with ORIGIN content flag)"
 [
 	spawnflags(flags) =
 	[
@@ -1599,7 +1669,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object) size(-20 -20 -14, 20 20 14) model({"path": ":models/objects/rope/tris.fm", "skin":skinnum}) = obj_ropechain : "Rope chain"
+@PointClass base(Object) size(-20 -20 -14,20 20 14) model({"path":":models/objects/rope/tris.fm","skin":skinnum}) = obj_ropechain : "Rope chain"
 [
 	skinnum(choices) =
 	[
@@ -1608,9 +1678,8 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object, ObjInvulnerable) size(-8 -8 -20, 8 8 20)	model({"path": ":models/objects/shovel/tris.fm"}) = obj_shovel : "Shovel" []
-
-@PointClass base(Object, ObjInvulnerable) size(-29 -4 -16, 29 4 16)	model({"path": ":models/objects/signs/sign1/tris.fm", "frame":3, "skin":style}) = obj_sign1 : "Sign 1"
+@PointClass base(Object,ObjInvulnerable) size(-8 -8 -20,8 8 20) model({"path":":models/objects/shovel/tris.fm"}) = obj_shovel : "Shovel" []
+@PointClass base(Object,ObjInvulnerable) size(-29 -4 -16,29 4 16) model({"path":":models/objects/signs/sign1/tris.fm","frame":3,"skin":style}) = obj_sign1 : "Sign 1"
 [
 	style(choices) : "Style" =
 	[
@@ -1620,7 +1689,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object, ObjInvulnerable) size(-8 -18 -29, 8 18 29) model({"path": ":models/objects/signs/sign4/tris.fm", "skin":style}) = obj_sign4 : "Sign 4"
+@PointClass base(Object,ObjInvulnerable) size(-8 -18 -29,8 18 29) model({"path":":models/objects/signs/sign4/tris.fm","skin":style}) = obj_sign4 : "Sign 4"
 [
 	style(choices) : "Style" =
 	[
@@ -1629,11 +1698,10 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object) size(-10 -10 -47, 10 10 47) model({"path": ":models/objects/flags/totempole/tris.fm"}) = obj_skullpole : "Skull pole" []
-
-@PointClass base(Angles) size(-24 -24 -99, 24 24 99) model({{
-	spawnflags & 2 ->	{"path": ":models/objects/stalactite/stalact1/tris.fm", "skin":1},
-						{"path": ":models/objects/stalactite/stalact1/tris.fm"}
+@PointClass base(Object) size(-10 -10 -47,10 10 47) model({"path":":models/objects/flags/totempole/tris.fm"}) = obj_skullpole : "Skull pole" []
+@PointClass base(Angles) size(-24 -24 -99,24 24 99) model({{
+	spawnflags & 2 ->	{"path":":models/objects/stalactite/stalact1/tris.fm","skin":1},
+						{"path":":models/objects/stalactite/stalact1/tris.fm"}
 	}}) = obj_stalactite1 : "Stalagtite"
 [
 	spawnflags(flags) =
@@ -1644,33 +1712,28 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	count(integer) : "Drips per minute" : 20
 ]
 
-@PointClass base(obj_stalactite1) size(-60 -60 -64, 60 60 64) model({{
-	spawnflags & 2 ->	{"path": ":models/objects/stalactite/stalact2/tris.fm", "skin":1},
-						{"path": ":models/objects/stalactite/stalact2/tris.fm"}
+@PointClass base(obj_stalactite1) size(-60 -60 -64,60 60 64) model({{
+	spawnflags & 2 ->	{"path":":models/objects/stalactite/stalact2/tris.fm","skin":1},
+						{"path":":models/objects/stalactite/stalact2/tris.fm"}
 	}}) = obj_stalactite2 : "Stalagtite" []
 
-@PointClass base(obj_stalactite1) size(-23 -23 -98, 23 23 98) model({{
-	spawnflags & 2 -> { "path": ":models/objects/stalactite/stalact3/tris.fm", "skin":1 },
-					  { "path": ":models/objects/stalactite/stalact3/tris.fm"}
+@PointClass base(obj_stalactite1) size(-23 -23 -98,23 23 98) model({{
+	spawnflags & 2 -> {"path":":models/objects/stalactite/stalact3/tris.fm","skin":1 },
+					  {"path":":models/objects/stalactite/stalact3/tris.fm"}
 	}}) = obj_stalactite3 : "Stalagtite" []
 
-@PointClass base(Object, ObjInvulnerable)	size(-26 -16 -27, 26 16 27)	model({"path": ":models/objects/statue/boulderfish/tris.fm"})	= obj_statue_boulderfish : "Fish statue" []
-@PointClass base(Object)					size(-16 -16 0, 16 16 128)	model({"path": ":models/objects/statue/corvus/tris.fm"})		= obj_statue_corvus : "Corvus statue" []
-
-@PointClass base(Object) size(-68 -22 -30, 68 22 30)	model({"path": ":models/objects/statue/dolphin/tris.fm"})				= obj_statue_dolphin1 : "Dolphin statue on all fours"
+@PointClass base(Object,ObjInvulnerable) size(-26 -16 -27,26 16 27) model({"path":":models/objects/statue/boulderfish/tris.fm"}) = obj_statue_boulderfish : "Fish statue" []
+@PointClass base(Object) size(-16 -16 0,16 16 128) model({"path":":models/objects/statue/corvus/tris.fm"}) = obj_statue_corvus : "Corvus statue" []
+@PointClass base(Object) size(-68 -22 -30,68 22 30) model({"path":":models/objects/statue/dolphin/tris.fm"}) = obj_statue_dolphin1 : "Dolphin statue on all fours"
 [
-	spawnflags(flags) =
-	[
-		1 : "Damageable"
-	]
+	spawnflags(flags) = [ 1 : "Damageable" ]
 ]
 
-@PointClass base(Object) size(-17 -20 -70, 17 20 70)	model({"path": ":models/objects/statue/dolphin/tris.fm", "frame":1})	= obj_statue_dolphin2 : "Dolphin statue on wall turned right" []
-@PointClass base(Object) size(-17 -20 -70, 17 20 70)	model({"path": ":models/objects/statue/dolphin/tris.fm", "frame":3})	= obj_statue_dolphin3 : "Dolphin statue on wall turned left" []
-@PointClass base(Object) size(-63 -22 -37, 63 22 37)	model({"path": ":models/objects/statue/dolphin/tris.fm", "frame":2})	= obj_statue_dolphin4 : "Dolphin statue on two legs" []
-@PointClass base(Object) size(-76 -28 -46, 76 28 46)	model({"path": ":models/objects/statue/dragonhead/tris.fm"})			= obj_statue_dragonhead : "Dragon head statue" []
-
-@PointClass base(Object) size(-53 -33 -72, 53 33 72)	model({"path": ":models/objects/statue/dragon/tris.fm", "frame":style})	= obj_statue_dragon : "Dragon statue"
+@PointClass base(Object) size(-17 -20 -70,17 20 70) model({"path":":models/objects/statue/dolphin/tris.fm","frame":1}) = obj_statue_dolphin2 : "Dolphin statue on wall turned right" []
+@PointClass base(Object) size(-17 -20 -70,17 20 70) model({"path":":models/objects/statue/dolphin/tris.fm","frame":3}) = obj_statue_dolphin3 : "Dolphin statue on wall turned left" []
+@PointClass base(Object) size(-63 -22 -37,63 22 37) model({"path":":models/objects/statue/dolphin/tris.fm","frame":2}) = obj_statue_dolphin4 : "Dolphin statue on two legs" []
+@PointClass base(Object) size(-76 -28 -46,76 28 46) model({"path":":models/objects/statue/dragonhead/tris.fm"}) = obj_statue_dragonhead : "Dragon head statue" []
+@PointClass base(Object) size(-53 -33 -72,53 33 72) model({"path":":models/objects/statue/dragon/tris.fm","frame":style}) = obj_statue_dragon : "Dragon statue"
 [
 	style(choices) =
 	[
@@ -1679,16 +1742,15 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object)					size(-67 -24 -51, 67 24 51)	model({"path": ":models/objects/statue/duckbill/tris.fm"})				= obj_statue_duckbill1 : "The duckbilled thing - tail to the left" []
-@PointClass base(Object)					size(-67 -24 -50, 67 24 50)	model({"path": ":models/objects/statue/duckbill/tris.fm", "frame":1})	= obj_statue_duckbill2 : "The duckbilled thing - tail to the right" []
-@PointClass base(Object)					size(-100 -64 0, 64 64 128)	model({"path": ":models/objects/statue/guardian/tris.fm"})				= obj_statue_guardian : "Guardian statue" []
-@PointClass base(Object, ObjInvulnerable)	size(-10 -20 -24, 10 20 24)	model({"path": ":models/objects/statue/saraphbust/tris.fm"})			= obj_statue_saraphbust : "Seraph bust" []
-@PointClass base(Object, ObjInvulnerable)	size(-13 -16 -41, 13 16 41)	model({"path": ":models/objects/statue/sariph/tris.fm"})				= obj_statue_sariph : "Seraph statue" []
-@PointClass base(Object)					size(-22 -20 -57, 22 20 57)	model({"path": ":models/objects/statue/sithraguard/tris.fm"})			= obj_statue_sithraguard : "A statue of a sithra guard with spear extended.  When used he gains a shield and pulls his arm back. Used with: item_puzzle_shield" []
-
-@PointClass base(Object) size(-8 -12 -15, 8 12 15)		model({{
-	style == "1" ->	{"path": ":models/items/puzzles/tchecktrikbust/tris.fm"},
-					{"path": ":models/items/puzzles/tchecktrikbust/tris.fm", "frame":1}
+@PointClass base(Object) size(-67 -24 -51,67 24 51) model({"path":":models/objects/statue/duckbill/tris.fm"}) = obj_statue_duckbill1 : "The duckbilled thing - tail to the left" []
+@PointClass base(Object) size(-67 -24 -50,67 24 50) model({"path":":models/objects/statue/duckbill/tris.fm","frame":1}) = obj_statue_duckbill2 : "The duckbilled thing - tail to the right" []
+@PointClass base(Object) size(-100 -64 0,64 64 128) model({"path":":models/objects/statue/guardian/tris.fm"}) = obj_statue_guardian : "Guardian statue" []
+@PointClass base(Object,ObjInvulnerable) size(-10 -20 -24,10 20 24) model({"path":":models/objects/statue/saraphbust/tris.fm"}) = obj_statue_saraphbust : "Seraph bust" []
+@PointClass base(Object,ObjInvulnerable) size(-13 -16 -41,13 16 41) model({"path":":models/objects/statue/sariph/tris.fm"}) = obj_statue_sariph : "Seraph statue" []
+@PointClass base(Object) size(-22 -20 -57,22 20 57) model({"path":":models/objects/statue/sithraguard/tris.fm"}) = obj_statue_sithraguard : "A statue of a sithra guard with spear extended.  When used he gains a shield and pulls his arm back. Used with: item_puzzle_shield" []
+@PointClass base(Object) size(-8 -12 -15,8 12 15) model({{
+	style == "1" ->	{"path":":models/items/puzzles/tchecktrikbust/tris.fm"},
+					{"path":":models/items/puzzles/tchecktrikbust/tris.fm","frame":1}
 	}}) = obj_statue_tchecktrik_bust : "A bust of a tchecktrik.  When used a necklace appears around it's neck."
 [
 	style(choices) =
@@ -1698,42 +1760,39 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object) size(-41 -11 -14, 41 11 14)	model({"path": ":models/objects/statue/tomb/tris.fm", "frame":1})	= obj_statue_techeckriktomb : "Tchekrik laying down (triggerable)" []
+@PointClass base(Object) size(-41 -11 -14,41 11 14) model({"path":":models/objects/statue/tomb/tris.fm","frame":1}) = obj_statue_techeckriktomb : "Tchekrik laying down (triggerable)" []
 
-@PointClass base(Object) size(-26 -40 -50, 26 40 50)	model({{
-	spawnflags & 16 ->	{"path": ":models/objects/statue/tcheckrik/tris.fm", "frame":1},
-						{"path": ":models/objects/statue/tcheckrik/tris.fm"}
+@PointClass base(Object) size(-26 -40 -50,26 40 50) model({{
+	spawnflags & 16 ->	{"path":":models/objects/statue/tcheckrik/tris.fm","frame":1},
+						{"path":":models/objects/statue/tcheckrik/tris.fm"}
 	}}) = obj_statue_techeckrikleft : "Tcheckrik statue left (triggerable)"
 [
-	spawnflags(flags) =
-	[
-		16 : "No gem in the chest"
-	]
+	spawnflags(flags) = [ 16 : "No gem in the chest" ]
 ]
 
-@PointClass base(obj_statue_techeckrikleft)	model({{
-	spawnflags & 16 ->	{"path": ":models/objects/statue/tcheckrik/tris.fm", "frame":3},
-						{"path": ":models/objects/statue/tcheckrik/tris.fm", "frame":2}
+@PointClass base(obj_statue_techeckrikleft) model({{
+	spawnflags & 16 ->	{"path":":models/objects/statue/tcheckrik/tris.fm","frame":3},
+						{"path":":models/objects/statue/tcheckrik/tris.fm","frame":2}
 	}}) = obj_statue_techeckrikright : "Tcheckrik statue right (triggerable)" []
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)		size(-2 -18 -3, 2 18 3)		model({"path": ":models/objects/scroll/tris.fm"})						= obj_scroll : "Scroll" []
-@PointClass base(Angle, Appearflags, Targetname, Target)	size(-80 -80 0, 80 80 320)	model({"path": ":models/objects/globe/globebottom/tris.fm", "scale":1.75})	= obj_seasonglobe : "Globe (triggerable)" []
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)		size(-2 -2 -3, 2 2 3)		model({"path": ":models/objects/stein/tris.fm"})						= obj_stein : "Stein" []
-@PointClass base(Object)									size(-14 -14 -35, 14 14 40)	model({"path": ":models/objects/spellbook/book/tris.fm", "frame":20})	= obj_spellbook : "Spell book that closes when triggered" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-2 -18 -3,2 18 3) model({"path":":models/objects/scroll/tris.fm"}) = obj_scroll : "Scroll" []
+@PointClass base(Angle,Appearflags,Targetname,Target) size(-80 -80 0,80 80 320) model({"path":":models/objects/globe/globebottom/tris.fm","scale":1.75}) = obj_seasonglobe : "Globe (triggerable)" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-2 -2 -3,2 2 3) model({"path":":models/objects/stein/tris.fm"}) = obj_stein : "Stein" []
+@PointClass base(Object) size(-14 -14 -35,14 14 40) model({"path":":models/objects/spellbook/book/tris.fm","frame":20}) = obj_spellbook : "Spell book that closes when triggered" []
 
-@PointClass base(Object) size(0 -100 -48, 2 100 48)	model({"path": ":models/objects/plants/swampflat/tris.fm"}) = obj_swampflat_top : "A flat poly to be used on the outer edge of swamp levels. Vegetation growing up." []
-@PointClass base(Object) size(0 -100 -48, 2 100 48)	model({"path": ":models/objects/plants/swampflat/tris.fm"}) = obj_swampflat_bottom : "A flat poly to be used on the outer edge of swamp levels. Vegetation growing down." []
+@PointClass base(Object) size(0 -100 -48,2 100 48) model({"path":":models/objects/plants/swampflat/tris.fm"}) = obj_swampflat_top : "A flat poly to be used on the outer edge of swamp levels. Vegetation growing up." []
+@PointClass base(Object) size(0 -100 -48,2 100 48) model({"path":":models/objects/plants/swampflat/tris.fm"}) = obj_swampflat_bottom : "A flat poly to be used on the outer edge of swamp levels. Vegetation growing down." []
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-28 -54 -18, 28 54 18)	model({"path": ":models/objects/tables/table1/tris.fm"}) = obj_table1 : "Table (wood)" []
-@PointClass base(Object, ObjInvulnerable)				size(-28 -54 -17, 28 54 17)	model({"path": ":models/objects/tables/table2/tris.fm"}) = obj_table2 : "Table (stone)" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-28 -54 -18,28 54 18) model({"path":":models/objects/tables/table1/tris.fm"}) = obj_table1 : "Table (wood)" []
+@PointClass base(Object,ObjInvulnerable) size(-28 -54 -17,28 54 17) model({"path":":models/objects/tables/table2/tris.fm"}) = obj_table2 : "Table (stone)" []
 
-@PointClass base(Object, ObjInvulnerable)				size(-20 -22 -44, 20 22 44)	model({"path": ":models/objects/chairs/throne/tris.fm"})		= obj_throne : "Throne" []
-@PointClass base(Object, ObjInvulnerable)				size(-2 -5 -2, 2 5 2)		model({"path": ":models/objects/tapper/tris.fm"})				= obj_tapper : "Keg tapper" []
-@PointClass base(Object)								size(-21 -43 -94, 21 43 94)	model({"path": ":models/objects/torture/bed/tris.fm"})			= obj_torture_bed : "Bed of spikes" []
-@PointClass base(Object) 								size(-28 -48 -49, 28 48 49)	model({"path": ":models/objects/torture/ironmaiden/tris.fm"})	= obj_torture_ironmaiden : "Iron maiden (closes when touched used)" []
-@PointClass base(Object)								size(-22 -46 -19, 22 46 19)	model({"path": ":models/objects/torture/rack/tris.fm"})			= obj_torture_rack : "Torture rack" []
+@PointClass base(Object,ObjInvulnerable) size(-20 -22 -44,20 22 44) model({"path":":models/objects/chairs/throne/tris.fm"}) = obj_throne : "Throne" []
+@PointClass base(Object,ObjInvulnerable) size(-2 -5 -2,2 5 2) model({"path":":models/objects/tapper/tris.fm"}) = obj_tapper : "Keg tapper" []
+@PointClass base(Object) size(-21 -43 -94,21 43 94) model({"path":":models/objects/torture/bed/tris.fm"}) = obj_torture_bed : "Bed of spikes" []
+@PointClass base(Object) size(-28 -48 -49,28 48 49) model({"path":":models/objects/torture/ironmaiden/tris.fm"}) = obj_torture_ironmaiden : "Iron maiden (closes when touched used)" []
+@PointClass base(Object) size(-22 -46 -19,22 46 19) model({"path":":models/objects/torture/rack/tris.fm"}) = obj_torture_rack : "Torture rack" []
 
-@PointClass base(Object) size(-46 -14 -14, 46 14 14)	model({"path": ":models/objects/torture/table/tris.fm", "frame":style}) = obj_torture_table : "Torture table"
+@PointClass base(Object) size(-46 -14 -14,46 14 14) model({"path":":models/objects/torture/table/tris.fm","frame":style}) = obj_torture_table : "Torture table"
 [
 	style(choices) =
 	[
@@ -1742,32 +1801,25 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 ]
 
-@PointClass base(Object, ObjInvulnerable) size(-2 -4 -6, 2 4 6) model({"path": ":models/objects/torture/wallring/tris.fm"}) = obj_torture_wallring : "Hanging ring" []
+@PointClass base(Object,ObjInvulnerable) size(-2 -4 -6,2 4 6) model({"path":":models/objects/torture/wallring/tris.fm"}) = obj_torture_wallring : "Hanging ring" []
 
-@PointClass base(Object) size(-100 -100 -120, 100 100 120)	model({"path": ":models/objects/plants/tree/tris.fm"})				= obj_tree : "Tree (unfinished texture)" []
-@PointClass base(Object) size(-50 -50 -286, 50 50 286)		model({"path": ":models/objects/plants/tree2/trunk2/tris.fm"})		= obj_tree2 : "Tree (swamp)" []
-@PointClass base(Object) size(-50 -50 -286, 50 50 286)		model({"path": ":models/objects/plants/tree3/trunk3/tris.fm"})		= obj_tree3 : "Tree with roots" []
-@PointClass base(Object) size(-46 -46 -340, 46 46 340)		model({"path": ":models/objects/plants/talltree/trunk1/tris.fm"})	= obj_treetall : "Tree (tall)" []
-@PointClass base(Object) size(-176 -176 -125, 176 176 125)	model({"path": ":models/objects/plants/treetop/tris.fm"})			= obj_treetop : "Tree canopy" []
-@PointClass base(Object) size(-24 -62 -35, 24 62 35)		model({"path": ":models/objects/plants/cactus/tris.fm", "frame":1})	= obj_treefallen : "Fallen tree" []
-@PointClass base(Object) size(-18 -18 -16, 18 18 16)		model({"path": ":models/objects/plants/treestump/tris.fm"})			= obj_treestump : "Short tree stump" []
+@PointClass base(Object) size(-100 -100 -120,100 100 120) model({"path":":models/objects/plants/tree/tris.fm"}) = obj_tree : "Tree (unfinished texture)" []
+@PointClass base(Object) size(-50 -50 -286,50 50 286) model({"path":":models/objects/plants/tree2/trunk2/tris.fm"}) = obj_tree2 : "Tree (swamp)" []
+@PointClass base(Object) size(-50 -50 -286,50 50 286) model({"path":":models/objects/plants/tree3/trunk3/tris.fm"}) = obj_tree3 : "Tree with roots" []
+@PointClass base(Object) size(-46 -46 -340,46 46 340) model({"path":":models/objects/plants/talltree/trunk1/tris.fm"}) = obj_treetall : "Tree (tall)" []
+@PointClass base(Object) size(-176 -176 -125,176 176 125) model({"path":":models/objects/plants/treetop/tris.fm"}) = obj_treetop : "Tree canopy" []
+@PointClass base(Object) size(-24 -62 -35,24 62 35) model({"path":":models/objects/plants/cactus/tris.fm","frame":1}) = obj_treefallen : "Fallen tree" []
+@PointClass base(Object) size(-18 -18 -16,18 18 16) model({"path":":models/objects/plants/treestump/tris.fm"}) = obj_treestump : "Short tree stump" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-8 -8 -27,8 8 30) model({"path":":models/objects/pots/urn/tris.fm"}) = obj_urn : "Urn (Andorian)" []
+@PointClass base(Object,ObjInvulnerable) size(-20 -20 -24,20 20 24) model({"path":":models/objects/plants/venus/tris.fm"}) = obj_venusflytrap : "Venus flytrap" []
+@PointClass base(Object) size(-3 -20 -55,3 20 55) model({"path":":models/objects/torture/plaque/tris.fm"}) = obj_wallringplaque : "Wall ring plaque" []
+@PointClass base(Object) size(-2 -18 -20,2 18 20) model({"path":":models/objects/web/web/tris.fm"}) = obj_web : "Cobweb" []
+@PointClass base(Object,ObjInvulnerable,ObjNoPush) size(-37 -20 -21,37 20 21) model({"path":":models/objects/wheelbarrow/tris.fm"}) = obj_wheelbarrow : "Wheebarrow" []
+@PointClass base(Object,ObjInvulnerable) size(-38 -26 -20,38 26 20) model({"path":":models/objects/wheelbarrow/tris.fm","frame":1}) = obj_wheelbarrowdamaged : "Wheebarrow on side" []
+@PointClass base(Object,ObjInvulnerable) size(-12 -20 -7,12 20 7) model({"path":":models/objects/wood/tris.fm","scale":2.0}) = obj_woodpile : "Wood Pile" []
+@PointClass base(Targetname) = script_runner : "Script Runner" [ script(string) : "Script filename (including subfolder,not including extension)" ]
 
-@PointClass base(Object, ObjInvulnerable, ObjNoPush) size(-8 -8 -27, 8 8 30) model({"path": ":models/objects/pots/urn/tris.fm"})	= obj_urn : "Urn (Andorian)" []
-
-@PointClass base(Object, ObjInvulnerable)	size(-20 -20 -24, 20 20 24)	model({"path": ":models/objects/plants/venus/tris.fm"})		= obj_venusflytrap : "Venus flytrap" []
-@PointClass base(Object)					size(-3 -20 -55, 3 20 55)	model({"path": ":models/objects/torture/plaque/tris.fm"})	= obj_wallringplaque : "Wall ring plaque" []
-@PointClass base(Object)					size(-2 -18 -20, 2 18 20)	model({"path": ":models/objects/web/web/tris.fm"})			= obj_web : "Cobweb" []
-
-@PointClass base(Object, ObjInvulnerable, ObjNoPush)	size(-37 -20 -21, 37 20 21)	model({"path": ":models/objects/wheelbarrow/tris.fm"})				= obj_wheelbarrow : "Wheebarrow" []
-@PointClass base(Object, ObjInvulnerable)				size(-38 -26 -20, 38 26 20)	model({"path": ":models/objects/wheelbarrow/tris.fm", "frame":1})	= obj_wheelbarrowdamaged : "Wheebarrow on side" []
-@PointClass base(Object, ObjInvulnerable)				size(-12 -20 -7, 12 20 7)	model({"path": ":models/objects/wood/tris.fm", "scale":2.0})		= obj_woodpile : "Wood Pile" []
-
-@PointClass base(Targetname) = script_runner : "Script Runner"
-[
-	script(string) : "Script filename (including subfolder, not including extension)"
-]
-
-@BaseClass base(Appearflags) color(76 76 255) size(-4 -4 -4, 4 4 4) = Sound
+@BaseClass base(Appearflags) color(76 76 255) size(-4 -4 -4,4 4 4) = Sound
 [
 	spawnflags(flags) =
 	[
@@ -1803,13 +1855,13 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	[
 		0 : "Nothing"
 		1 : "Cauldron bubbling (looping)"
-		2 : "Wind, low, eerie (looping)"
-		3 : "Wind, low, noisy (looping)"
-		4 : "Wind, high, soft (looping)"
-		5 : "Wind, low, soft (looping)"
-		6 : "Wind, low, strong (looping)"
-		7 : "Wind, high, strong (looping)"
-		8 : "Wind, whistling, strong (looping)"
+		2 : "Wind,low,eerie (looping)"
+		3 : "Wind,low,noisy (looping)"
+		4 : "Wind,high,soft (looping)"
+		5 : "Wind,low,soft (looping)"
+		6 : "Wind,low,strong (looping)"
+		7 : "Wind,high,strong (looping)"
+		8 : "Wind,whistling,strong (looping)"
 	]
 ]
 @PointClass base(Sound) = sound_ambient_hive : "Hive"
@@ -1818,13 +1870,13 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	[
 		0 : "Nothing"
 		1 : "Gong"
-		2 : "Wind, low, eerie (looping)"
-		3 : "Wind, low, noisy (looping)"
-		4 : "Wind, high, soft (looping)"
-		5 : "Wind, low, soft (looping)"
-		6 : "Wind, low, strong (looping)"
-		7 : "Wind, high, strong (looping)"
-		8 : "Wind, whistling, strong (looping)"
+		2 : "Wind,low,eerie (looping)"
+		3 : "Wind,low,noisy (looping)"
+		4 : "Wind,high,soft (looping)"
+		5 : "Wind,low,soft (looping)"
+		6 : "Wind,low,strong (looping)"
+		7 : "Wind,high,strong (looping)"
+		8 : "Wind,whistling,strong (looping)"
 	]
 ]
 @PointClass base(Sound) = sound_ambient_mine : "Mine"
@@ -1834,8 +1886,8 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		0 : "Nothing"
 		1 : "Mud pool bubbling (looping)"
 		2 : "Rocks falling (3 sounds)"
-		3 : "Wind, low, eerie (looping)"
-		4 : "Wind, low, soft (looping)"
+		3 : "Wind,low,eerie (looping)"
+		4 : "Wind,low,soft (looping)"
 		5 : "Conveyor belt (looping)"
 		6 : "Bucket conveyor belt (looping)"
 		7 : "Heavy creaks"
@@ -1875,17 +1927,17 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		2 : "Bird 2"
 		3 : "Huge waterfall"
 		4 : "Mud pool bubbling (looping)"
-		5 : "Wind, low, eerie (looping)"
-		6 : "Wind, low, noisy (looping)"
-		7 : "Wind, high, soft (looping)"
-		8 : "Wind, low, soft (looping)"
-		9 : "Wind, low, strong (looping)"
-		10 : "Wind, high, strong (looping)"
-		11 : "Wind, whistling, strong (looping)"
+		5 : "Wind,low,eerie (looping)"
+		6 : "Wind,low,noisy (looping)"
+		7 : "Wind,high,soft (looping)"
+		8 : "Wind,low,soft (looping)"
+		9 : "Wind,low,strong (looping)"
+		10 : "Wind,high,strong (looping)"
+		11 : "Wind,whistling,strong (looping)"
 	]
 ]
 
-@SolidClass base(Appearflags, Targetname) = flamethrower : "Flamethrower. Triggers flame from origin brush when player touches trigger brush, or when triggered if targetted. Sets player on fire if they touch trigger brush, regardless of if the visual flame FX touches them."
+@SolidClass base(Appearflags,Targetname) = flamethrower : "Flamethrower. Triggers flame from origin brush when player touches trigger brush,or when triggered if targetted. Sets player on fire if they touch trigger brush,regardless of if the visual flame FX touches them."
 [
 	spawnflags(flags) =
 	[
@@ -1896,7 +1948,5 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	dmg(integer) : "Damage per 1/10th second" : 2
 	speed(float) : "Length" : "400"
 	wait(choices) : "Wait" : 2 =
-	[
-		-1: "Toggle"
-	]
+	[ -1: "Toggle" ]
 ]
