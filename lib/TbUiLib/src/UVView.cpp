@@ -193,13 +193,11 @@ void UVView::createTools()
 
 void UVView::connectObservers()
 {
-  auto& map = m_document.map();
-
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect([&] { reload(); });
   m_notifierConnection += m_document.documentDidChangeNotifier.connect([&] { reload(); });
   m_notifierConnection +=
     m_document.selectionDidChangeNotifier.connect([&](const auto&) { reload(); });
-  m_notifierConnection += map.grid().gridDidChangeNotifier.connect([&] { update(); });
+  m_notifierConnection += m_document.gridDidChangeNotifier.connect([&] { update(); });
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
