@@ -27,10 +27,6 @@ class EdgeTool;
 
 class EdgeToolController : public VertexToolControllerBase<EdgeTool>
 {
-private:
-  class SelectEdgePart;
-  class MoveEdgePart;
-
 public:
   explicit EdgeToolController(EdgeTool& tool);
 };

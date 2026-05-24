@@ -27,10 +27,6 @@ class FaceTool;
 
 class FaceToolController : public VertexToolControllerBase<FaceTool>
 {
-private:
-  class SelectFacePart;
-  class MoveFacePart;
-
 public:
   explicit FaceToolController(FaceTool& tool);
 };

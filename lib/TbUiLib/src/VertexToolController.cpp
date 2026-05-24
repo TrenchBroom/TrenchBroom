@@ -23,19 +23,16 @@
 #include "mdl/HitFilter.h"
 #include "mdl/NodeHandles.h"
 #include "ui/VertexTool.h"
+#include "ui/VertexToolControllerParts.h"
 
 #include <memory>
 
 namespace tb::ui
 {
+namespace
+{
 
-/*
- * This is a bit awkward, but I'd rather not duplicate this logic into the two part
- * classes, and I can't move it up the inheritance hierarchy either. Nor can I introduce a
- * separate common base class for the two parts to contain this method due to the call to
- * the inherited findDraggableHandle method.
- */
-mdl::Hit VertexToolController::findHandleHit(
+mdl::Hit findHandleHit(
   const InputState& inputState, const VertexToolPartBase<VertexTool>& base)
 {
   using namespace mdl::HitFilters;
@@ -59,7 +56,7 @@ mdl::Hit VertexToolController::findHandleHit(
   return mdl::Hit::NoHit;
 }
 
-std::vector<mdl::Hit> VertexToolController::findHandleHits(
+std::vector<mdl::Hit> findHandleHits(
   const InputState& inputState, const VertexToolPartBase<VertexTool>& base)
 {
   using namespace mdl::HitFilters;
@@ -98,8 +95,7 @@ std::vector<mdl::Hit> VertexToolController::findHandleHits(
   return {};
 }
 
-class VertexToolController::SelectVertexPart
-  : public VertexToolSelectPartBase<VertexTool, mdl::VertexHandle>
+class SelectVertexPart : public VertexToolSelectPartBase<VertexTool, mdl::VertexHandle>
 {
 public:
   explicit SelectVertexPart(VertexTool& tool)
@@ -110,13 +106,13 @@ public:
 protected:
   mdl::Hit findDraggableHandle(const InputState& inputState) const override
   {
-    return VertexToolController::findHandleHit(inputState, *this);
+    return findHandleHit(inputState, *this);
   }
 
   std::vector<mdl::Hit> collectDraggableHandles(
     const InputState& inputState) const override
   {
-    return VertexToolController::findHandleHits(inputState, *this);
+    return findHandleHits(inputState, *this);
   }
 
 private:
@@ -128,7 +124,7 @@ private:
   }
 };
 
-class VertexToolController::MoveVertexPart : public VertexToolMovePartBase<VertexTool>
+class MoveVertexPart : public VertexToolMovePartBase<VertexTool>
 {
 public:
   explicit MoveVertexPart(VertexTool& tool)
@@ -144,7 +140,7 @@ private:
       && inputState.modifierKeysPressed(ModifierKeys::Alt | ModifierKeys::Shift)
       && m_tool.handleManager().selectedHandleCount<mdl::VertexHandle>() == 1)
     {
-      if (const auto hit = VertexToolController::findHandleHit(inputState, *this);
+      if (const auto hit = findDraggableHandle(inputState);
           hit.hasType(mdl::VertexHandle::HandleHitType))
       {
         const auto selectedPositions = mdl::VertexHandle::getPositions(
@@ -212,15 +208,17 @@ private:
 protected:
   mdl::Hit findDraggableHandle(const InputState& inputState) const override
   {
-    return VertexToolController::findHandleHit(inputState, *this);
+    return findHandleHit(inputState, *this);
   }
 
   std::vector<mdl::Hit> collectDraggableHandles(
     const InputState& inputState) const override
   {
-    return VertexToolController::findHandleHits(inputState, *this);
+    return findHandleHits(inputState, *this);
   }
 };
+
+} // namespace
 
 VertexToolController::VertexToolController(VertexTool& tool)
   : VertexToolControllerBase(tool)

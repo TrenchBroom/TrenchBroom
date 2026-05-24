@@ -21,8 +21,6 @@
 
 #include "ui/VertexToolControllerBase.h"
 
-#include <vector>
-
 namespace tb::ui
 {
 class Tool;
@@ -33,16 +31,6 @@ class VertexToolPartBase;
 
 class VertexToolController : public VertexToolControllerBase<VertexTool>
 {
-protected:
-  static mdl::Hit findHandleHit(
-    const InputState& inputState, const VertexToolPartBase<VertexTool>& base);
-  static std::vector<mdl::Hit> findHandleHits(
-    const InputState& inputState, const VertexToolPartBase<VertexTool>& base);
-
-private:
-  class SelectVertexPart;
-  class MoveVertexPart;
-
 public:
   explicit VertexToolController(VertexTool& tool);
 };

@@ -45,7 +45,6 @@
 #include "ui/Lasso.h"
 #include "ui/MapDocument.h"
 #include "ui/Tool.h"
-#include "ui/VertexToolControllerParts.h"
 
 #include "kd/contracts.h"
 #include "kd/overload.h"
