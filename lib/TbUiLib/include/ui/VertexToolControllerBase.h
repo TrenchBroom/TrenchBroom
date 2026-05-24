@@ -74,9 +74,9 @@ protected:
       return findDraggableHandle(inputState, m_hitType);
     }
 
-    virtual std::vector<mdl::Hit> findDraggableHandles(const InputState& inputState) const
+    virtual std::vector<mdl::Hit> collectDraggableHandles(const InputState& inputState) const
     {
-      return findDraggableHandles(inputState, m_hitType);
+      return collectDraggableHandles(inputState, m_hitType);
     }
 
   public:
@@ -100,7 +100,7 @@ protected:
       return mdl::Hit::NoHit;
     }
 
-    std::vector<mdl::Hit> findDraggableHandles(
+    std::vector<mdl::Hit> collectDraggableHandles(
       const InputState& inputState, const mdl::HitType::Type hitType) const
     {
       using namespace mdl::HitFilters;
@@ -385,7 +385,7 @@ protected:
 
   protected:
     using PartBase::findDraggableHandle;
-    using PartBase::findDraggableHandles;
+    using PartBase::collectDraggableHandles;
     using PartBase::m_tool;
 
   protected:
@@ -400,7 +400,7 @@ protected:
         return nullptr;
       }
 
-      const auto hits = findDraggableHandles(inputState);
+      const auto hits = collectDraggableHandles(inputState);
       if (hits.empty())
       {
         return nullptr;

@@ -66,7 +66,7 @@ std::vector<mdl::Hit> VertexToolController::findHandleHits(
 
 
   if (const auto vertexHits =
-        base.findDraggableHandles(inputState, mdl::VertexHandle::HandleHitType);
+        base.collectDraggableHandles(inputState, mdl::VertexHandle::HandleHitType);
       !vertexHits.empty())
   {
     return vertexHits;
@@ -112,7 +112,7 @@ protected:
     return VertexToolController::findHandleHit(inputState, *this);
   }
 
-  std::vector<mdl::Hit> findDraggableHandles(const InputState& inputState) const override
+  std::vector<mdl::Hit> collectDraggableHandles(const InputState& inputState) const override
   {
     return VertexToolController::findHandleHits(inputState, *this);
   }
@@ -213,7 +213,7 @@ protected:
     return VertexToolController::findHandleHit(inputState, *this);
   }
 
-  std::vector<mdl::Hit> findDraggableHandles(const InputState& inputState) const override
+  std::vector<mdl::Hit> collectDraggableHandles(const InputState& inputState) const override
   {
     return VertexToolController::findHandleHits(inputState, *this);
   }
