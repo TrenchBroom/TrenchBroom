@@ -700,8 +700,6 @@ void FaceAttribsEditor::bindEvents()
 
 void FaceAttribsEditor::connectObservers()
 {
-  auto& map = m_document.map();
-
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect([&] { refresh(); });
   m_notifierConnection +=
@@ -709,7 +707,7 @@ void FaceAttribsEditor::connectObservers()
   m_notifierConnection +=
     m_document.selectionDidChangeNotifier.connect([&](const auto&) { refresh(); });
   m_notifierConnection +=
-    map.grid().gridDidChangeNotifier.connect(this, &FaceAttribsEditor::updateIncrements);
+    m_document.gridDidChangeNotifier.connect(this, &FaceAttribsEditor::updateIncrements);
 }
 
 void FaceAttribsEditor::refresh()
