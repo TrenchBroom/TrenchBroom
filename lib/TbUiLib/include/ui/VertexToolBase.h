@@ -30,6 +30,7 @@
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/NodeHandleManager.h"
@@ -42,6 +43,7 @@
 #include "mdl/WorldNode.h"
 #include "render/RenderBatch.h"
 #include "render/RenderService.h"
+#include "ui/InputState.h"
 #include "ui/Lasso.h"
 #include "ui/MapDocument.h"
 #include "ui/Tool.h"
@@ -162,6 +164,33 @@ public:
     const gl::Camera& camera,
     double handleRadius,
     mdl::PickResult& pickResult) const = 0;
+
+  virtual mdl::Hit findDraggableHandle(
+    const InputState& inputState, const mdl::HitType::Type hitType) const
+  {
+    using namespace mdl::HitFilters;
+
+    const auto hits = inputState.pickResult().all(type(hitType));
+    if (!hits.empty())
+    {
+      for (const auto& hit : hits)
+      {
+        if (selected(hit))
+        {
+          return hit;
+        }
+      }
+      return inputState.pickResult().first(type(hitType));
+    }
+    return mdl::Hit::NoHit;
+  }
+
+  virtual std::vector<mdl::Hit> collectDraggableHandles(
+    const InputState& inputState, const mdl::HitType::Type hitType) const
+  {
+    using namespace mdl::HitFilters;
+    return inputState.pickResult().all(type(hitType));
+  }
 
 public: // Handle selection
   bool select(const std::vector<mdl::Hit>& hits, const bool addToSelection)

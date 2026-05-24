@@ -26,9 +26,6 @@ namespace tb::ui
 class Tool;
 class VertexTool;
 
-template <typename T>
-class VertexToolPartBase;
-
 class VertexToolController : public VertexToolControllerBase<VertexTool>
 {
 public:

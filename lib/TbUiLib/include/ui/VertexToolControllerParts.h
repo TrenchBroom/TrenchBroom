@@ -64,46 +64,6 @@ protected:
 
 public:
   virtual ~VertexToolPartBase() = default;
-
-protected:
-  virtual mdl::Hit findDraggableHandle(const InputState& inputState) const
-  {
-    return findDraggableHandle(inputState, m_hitType);
-  }
-
-  virtual std::vector<mdl::Hit> collectDraggableHandles(
-    const InputState& inputState) const
-  {
-    return collectDraggableHandles(inputState, m_hitType);
-  }
-
-public:
-  mdl::Hit findDraggableHandle(
-    const InputState& inputState, const mdl::HitType::Type hitType) const
-  {
-    using namespace mdl::HitFilters;
-
-    const auto hits = inputState.pickResult().all(type(hitType));
-    if (!hits.empty())
-    {
-      for (const auto& hit : hits)
-      {
-        if (m_tool.selected(hit))
-        {
-          return hit;
-        }
-      }
-      return inputState.pickResult().first(type(hitType));
-    }
-    return mdl::Hit::NoHit;
-  }
-
-  std::vector<mdl::Hit> collectDraggableHandles(
-    const InputState& inputState, const mdl::HitType::Type hitType) const
-  {
-    using namespace mdl::HitFilters;
-    return inputState.pickResult().all(type(hitType));
-  }
 };
 
 template <typename T>
@@ -170,7 +130,6 @@ protected:
   }
 
 protected:
-  using VertexToolPartBase<T>::findDraggableHandle;
   using VertexToolPartBase<T>::m_hitType;
   using VertexToolPartBase<T>::m_tool;
 
@@ -253,7 +212,7 @@ protected:
     m_tool.renderHandles(renderContext, renderBatch);
     if (!inputState.anyToolDragging())
     {
-      const auto hit = findDraggableHandle(inputState);
+      const auto hit = m_tool.findDraggableHandle(inputState, m_hitType);
       if (hit.hasType(m_hitType))
       {
         const auto handle = m_tool.getHandlePosition(hit);
@@ -383,9 +342,8 @@ public:
   ~VertexToolMovePartBase() override = default;
 
 protected:
-  using VertexToolPartBase<T>::collectDraggableHandles;
-  using VertexToolPartBase<T>::findDraggableHandle;
   using VertexToolPartBase<T>::m_tool;
+  using VertexToolPartBase<T>::m_hitType;
 
 protected:
   Tool& tool() override { return m_tool; }
@@ -399,7 +357,7 @@ protected:
       return nullptr;
     }
 
-    const auto hits = collectDraggableHandles(inputState);
+    const auto hits = m_tool.collectDraggableHandles(inputState, m_hitType);
     if (hits.empty())
     {
       return nullptr;

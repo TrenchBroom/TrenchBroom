@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
+#include "mdl/HitFilter.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/NodeHandleManager.h"
 #include "mdl/NodeHandles.h"
@@ -70,6 +71,109 @@ bool VertexTool::deselectAll()
     return true;
   }
   return false;
+}
+
+mdl::Hit VertexTool::findDraggableHandle(
+  const InputState& inputState, const mdl::HitType::Type hitType) const
+{
+  using namespace mdl::HitFilters;
+
+  if (hitType != mdl::VertexHandle::HandleHitType)
+  {
+    return VertexToolBase::findDraggableHandle(inputState, hitType);
+  }
+
+  if (const auto vertexHit = VertexToolBase::findDraggableHandle(inputState, hitType);
+      vertexHit.isMatch())
+  {
+    return vertexHit;
+  }
+
+  if (
+    inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
+  {
+    const auto& anyHit = inputState.pickResult().all().front();
+    if (anyHit.hasType(mdl::EdgeHandle::HandleHitType | mdl::FaceHandle::HandleHitType))
+    {
+      return anyHit;
+    }
+
+    // If the top hit is not a split-handle hit (for example, a brush-face hit),
+    // fall back to split handles and prefer faces over edges.
+    if (const auto faceHit =
+          inputState.pickResult().first(type(mdl::FaceHandle::HandleHitType));
+        faceHit.isMatch())
+    {
+      return faceHit;
+    }
+    if (const auto edgeHit =
+          inputState.pickResult().first(type(mdl::EdgeHandle::HandleHitType));
+        edgeHit.isMatch())
+    {
+      return edgeHit;
+    }
+  }
+
+  return mdl::Hit::NoHit;
+}
+
+std::vector<mdl::Hit> VertexTool::collectDraggableHandles(
+  const InputState& inputState, const mdl::HitType::Type hitType) const
+{
+  using namespace mdl::HitFilters;
+
+  if (hitType != mdl::VertexHandle::HandleHitType)
+  {
+    return VertexToolBase::collectDraggableHandles(inputState, hitType);
+  }
+
+  if (const auto vertexHits =
+        VertexToolBase::collectDraggableHandles(inputState, hitType);
+      !vertexHits.empty())
+  {
+    return vertexHits;
+  }
+
+  if (
+    inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
+  {
+    const auto& anyHit = inputState.pickResult().all().front();
+    if (anyHit.hasType(mdl::EdgeHandle::HandleHitType))
+    {
+      if (const auto edgeHits =
+            inputState.pickResult().all(type(mdl::EdgeHandle::HandleHitType));
+          !edgeHits.empty())
+      {
+        return edgeHits;
+      }
+    }
+    else if (anyHit.hasType(mdl::FaceHandle::HandleHitType))
+    {
+      if (const auto faceHits =
+            inputState.pickResult().all(type(mdl::FaceHandle::HandleHitType));
+          !faceHits.empty())
+      {
+        return faceHits;
+      }
+    }
+
+    // If the top hit is not a split-handle hit, prefer face split handles
+    // over edge split handles.
+    if (const auto faceHits =
+          inputState.pickResult().all(type(mdl::FaceHandle::HandleHitType));
+        !faceHits.empty())
+    {
+      return faceHits;
+    }
+    if (const auto edgeHits =
+          inputState.pickResult().all(type(mdl::EdgeHandle::HandleHitType));
+        !edgeHits.empty())
+    {
+      return edgeHits;
+    }
+  }
+
+  return {};
 }
 
 std::tuple<vm::vec3d, vm::vec3d> VertexTool::handlePositionAndHitPoint(

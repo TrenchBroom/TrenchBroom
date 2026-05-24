@@ -48,6 +48,7 @@ namespace ui
 {
 class Lasso;
 class MapDocument;
+class InputState;
 
 class VertexTool : public VertexToolBase<mdl::VertexHandle>
 {
@@ -76,6 +77,12 @@ public:
 
 public: // Handle selection
   bool deselectAll() override;
+
+  mdl::Hit findDraggableHandle(
+    const InputState& inputState, mdl::HitType::Type hitType) const override;
+
+  std::vector<mdl::Hit> collectDraggableHandles(
+    const InputState& inputState, mdl::HitType::Type hitType) const override;
 
 public: // Vertex moving
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
