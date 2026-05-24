@@ -27,11 +27,12 @@
 namespace tb::ui
 {
 
-class FaceToolController::SelectFacePart : public SelectPartBase<mdl::FaceHandle>
+class FaceToolController::SelectFacePart
+  : public VertexToolSelectPartBase<FaceTool, mdl::FaceHandle>
 {
 public:
   explicit SelectFacePart(FaceTool& tool)
-    : SelectPartBase{tool, mdl::FaceHandle::HandleHitType}
+    : VertexToolSelectPartBase{tool, mdl::FaceHandle::HandleHitType}
   {
   }
 
@@ -42,11 +43,11 @@ private:
   }
 };
 
-class FaceToolController::MoveFacePart : public MovePartBase
+class FaceToolController::MoveFacePart : public VertexToolMovePartBase<FaceTool>
 {
 public:
   explicit MoveFacePart(FaceTool& tool)
-    : MovePartBase{tool, mdl::FaceHandle::HandleHitType}
+    : VertexToolMovePartBase{tool, mdl::FaceHandle::HandleHitType}
   {
   }
 };

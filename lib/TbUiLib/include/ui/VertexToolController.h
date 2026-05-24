@@ -32,9 +32,9 @@ class VertexToolController : public VertexToolControllerBase<VertexTool>
 {
 protected:
   static mdl::Hit findHandleHit(
-    const InputState& inputState, const VertexToolController::PartBase& base);
+    const InputState& inputState, const VertexToolPartBase<VertexTool>& base);
   static std::vector<mdl::Hit> findHandleHits(
-    const InputState& inputState, const VertexToolController::PartBase& base);
+    const InputState& inputState, const VertexToolPartBase<VertexTool>& base);
 
 private:
   class SelectVertexPart;

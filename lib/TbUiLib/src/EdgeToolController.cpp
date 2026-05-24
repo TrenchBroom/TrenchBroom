@@ -26,11 +26,12 @@
 namespace tb::ui
 {
 
-class EdgeToolController::SelectEdgePart : public SelectPartBase<mdl::EdgeHandle>
+class EdgeToolController::SelectEdgePart
+  : public VertexToolSelectPartBase<EdgeTool, mdl::EdgeHandle>
 {
 public:
   explicit SelectEdgePart(EdgeTool& tool)
-    : SelectPartBase{tool, mdl::EdgeHandle::HandleHitType}
+    : VertexToolSelectPartBase{tool, mdl::EdgeHandle::HandleHitType}
   {
   }
 
@@ -41,11 +42,11 @@ private:
   }
 };
 
-class EdgeToolController::MoveEdgePart : public MovePartBase
+class EdgeToolController::MoveEdgePart : public VertexToolMovePartBase<EdgeTool>
 {
 public:
   explicit MoveEdgePart(EdgeTool& tool)
-    : MovePartBase{tool, mdl::EdgeHandle::HandleHitType}
+    : VertexToolMovePartBase{tool, mdl::EdgeHandle::HandleHitType}
   {
   }
 };

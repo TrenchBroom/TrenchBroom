@@ -36,7 +36,7 @@ namespace tb::ui
  * the inherited findDraggableHandle method.
  */
 mdl::Hit VertexToolController::findHandleHit(
-  const InputState& inputState, const VertexToolController::PartBase& base)
+  const InputState& inputState, const VertexToolPartBase<VertexTool>& base)
 {
   using namespace mdl::HitFilters;
 
@@ -60,7 +60,7 @@ mdl::Hit VertexToolController::findHandleHit(
 }
 
 std::vector<mdl::Hit> VertexToolController::findHandleHits(
-  const InputState& inputState, const VertexToolController::PartBase& base)
+  const InputState& inputState, const VertexToolPartBase<VertexTool>& base)
 {
   using namespace mdl::HitFilters;
 
@@ -98,11 +98,12 @@ std::vector<mdl::Hit> VertexToolController::findHandleHits(
   return {};
 }
 
-class VertexToolController::SelectVertexPart : public SelectPartBase<mdl::VertexHandle>
+class VertexToolController::SelectVertexPart
+  : public VertexToolSelectPartBase<VertexTool, mdl::VertexHandle>
 {
 public:
   explicit SelectVertexPart(VertexTool& tool)
-    : SelectPartBase{tool, mdl::VertexHandle::HandleHitType}
+    : VertexToolSelectPartBase{tool, mdl::VertexHandle::HandleHitType}
   {
   }
 
@@ -112,7 +113,8 @@ protected:
     return VertexToolController::findHandleHit(inputState, *this);
   }
 
-  std::vector<mdl::Hit> collectDraggableHandles(const InputState& inputState) const override
+  std::vector<mdl::Hit> collectDraggableHandles(
+    const InputState& inputState) const override
   {
     return VertexToolController::findHandleHits(inputState, *this);
   }
@@ -126,11 +128,11 @@ private:
   }
 };
 
-class VertexToolController::MoveVertexPart : public MovePartBase
+class VertexToolController::MoveVertexPart : public VertexToolMovePartBase<VertexTool>
 {
 public:
   explicit MoveVertexPart(VertexTool& tool)
-    : MovePartBase{tool, mdl::VertexHandle::HandleHitType}
+    : VertexToolMovePartBase{tool, mdl::VertexHandle::HandleHitType}
   {
   }
 
@@ -185,7 +187,7 @@ private:
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch) override
   {
-    MovePartBase::render(inputState, renderContext, renderBatch);
+    VertexToolMovePartBase::render(inputState, renderContext, renderBatch);
 
     if (!inputState.anyToolDragging())
     {
@@ -213,7 +215,8 @@ protected:
     return VertexToolController::findHandleHit(inputState, *this);
   }
 
-  std::vector<mdl::Hit> collectDraggableHandles(const InputState& inputState) const override
+  std::vector<mdl::Hit> collectDraggableHandles(
+    const InputState& inputState) const override
   {
     return VertexToolController::findHandleHits(inputState, *this);
   }
