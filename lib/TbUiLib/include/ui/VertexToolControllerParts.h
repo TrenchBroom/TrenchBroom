@@ -46,27 +46,6 @@ namespace ui
 class Tool;
 
 template <typename T>
-class VertexToolPartBase
-{
-protected:
-  constexpr static const double MaxHandleDistance = 0.25;
-
-protected:
-  T& m_tool;
-  mdl::HitType::Type m_hitType;
-
-protected:
-  VertexToolPartBase(T& tool, const mdl::HitType::Type hitType)
-    : m_tool{tool}
-    , m_hitType{hitType}
-  {
-  }
-
-public:
-  virtual ~VertexToolPartBase() = default;
-};
-
-template <typename T>
 class VertexToolLassoDragDelegate : public HandleDragTrackerDelegate
 {
 public:
@@ -121,17 +100,21 @@ public:
 };
 
 template <typename T, typename HandleType>
-class VertexToolSelectPartBase : public ToolController, public VertexToolPartBase<T>
+class VertexToolSelectPartBase : public ToolController
 {
 protected:
-  VertexToolSelectPartBase(T& tool, const mdl::HitType::Type hitType)
-    : VertexToolPartBase<T>{tool, hitType}
-  {
-  }
+  constexpr static const double MaxHandleDistance = 0.25;
 
 protected:
-  using VertexToolPartBase<T>::m_hitType;
-  using VertexToolPartBase<T>::m_tool;
+  T& m_tool;
+  mdl::HitType::Type m_hitType;
+
+protected:
+  VertexToolSelectPartBase(T& tool, const mdl::HitType::Type hitType)
+    : m_tool{tool}
+    , m_hitType{hitType}
+  {
+  }
 
 private:
   Tool& tool() override { return m_tool; }
@@ -330,20 +313,21 @@ public:
 };
 
 template <typename T>
-class VertexToolMovePartBase : public ToolController, public VertexToolPartBase<T>
+class VertexToolMovePartBase : public ToolController
 {
 protected:
+  T& m_tool;
+  mdl::HitType::Type m_hitType;
+
+protected:
   VertexToolMovePartBase(T& tool, const mdl::HitType::Type hitType)
-    : VertexToolPartBase<T>{tool, hitType}
+    : m_tool{tool}
+    , m_hitType{hitType}
   {
   }
 
 public:
   ~VertexToolMovePartBase() override = default;
-
-protected:
-  using VertexToolPartBase<T>::m_tool;
-  using VertexToolPartBase<T>::m_hitType;
 
 protected:
   Tool& tool() override { return m_tool; }
