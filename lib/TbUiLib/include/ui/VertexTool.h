@@ -67,7 +67,7 @@ private:
 public:
   explicit VertexTool(MapDocument& document);
 
-  using VertexToolBase::findIncidentBrushes;
+  using VertexToolBase::findIncidentNodes;
 
   void pick(
     const vm::ray3d& pickRay,

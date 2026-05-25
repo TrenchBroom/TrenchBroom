@@ -38,7 +38,7 @@ namespace tb
 {
 namespace mdl
 {
-class BrushNode;
+class Node;
 }
 
 namespace ui
@@ -215,7 +215,7 @@ protected:
     using namespace mdl::HitFilters;
 
     auto result = std::vector<mdl::Hit>{};
-    auto visitedBrushes = std::unordered_set<mdl::BrushNode*>{};
+    auto visitedNodes = std::unordered_set<mdl::Node*>{};
 
     const auto& first = pickResult.first(type(m_hitType));
     if (first.isMatch())
@@ -229,7 +229,7 @@ protected:
 
         if (equalHandles(handle, firstHandle))
         {
-          if (allIncidentBrushesVisited(handle, visitedBrushes))
+          if (allIncidentNodesVisited(handle, visitedNodes))
           {
             result.push_back(match);
           }
@@ -240,13 +240,13 @@ protected:
     return result;
   }
 
-  bool allIncidentBrushesVisited(
-    const HandleType& handle, std::unordered_set<mdl::BrushNode*>& visitedBrushes) const
+  bool allIncidentNodesVisited(
+    const HandleType& handle, std::unordered_set<mdl::Node*>& visitedNodes) const
   {
     auto result = true;
-    for (auto brush : m_tool.findIncidentBrushes(handle))
+    for (auto node : m_tool.findIncidentNodes(handle))
     {
-      const auto unvisited = visitedBrushes.insert(brush).second;
+      const auto unvisited = visitedNodes.insert(node).second;
       result = result && unvisited;
     }
     return result;

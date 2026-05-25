@@ -33,7 +33,7 @@ class EdgeTool : public VertexToolBase<mdl::EdgeHandle>
 public:
   explicit EdgeTool(MapDocument& document);
 
-  using VertexToolBase::findIncidentBrushes;
+  using VertexToolBase::findIncidentNodes;
 
 public:
   void pick(

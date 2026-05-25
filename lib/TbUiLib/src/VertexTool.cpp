@@ -22,7 +22,6 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map_Geometry.h"
@@ -253,13 +252,13 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
     return MoveResult::Deny;
   }
 
-  auto brushes = std::vector<mdl::BrushNode*>{};
+  auto incidentNodes = std::vector<mdl::Node*>{};
   if (m_mode == Mode::SplitEdge)
   {
     if (map.nodeHandles().selectedHandleCount<mdl::EdgeHandle>() == 1)
     {
-      brushes =
-        findIncidentBrushes(map.nodeHandles().selectedHandles<mdl::EdgeHandle>().front());
+      incidentNodes =
+        findIncidentNodes(map.nodeHandles().selectedHandles<mdl::EdgeHandle>().front());
     }
   }
   else
@@ -267,12 +266,12 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
     contract_assert(m_mode == Mode::SplitFace);
     if (map.nodeHandles().selectedHandleCount<mdl::FaceHandle>() == 1)
     {
-      brushes =
-        findIncidentBrushes(map.nodeHandles().selectedHandles<mdl::FaceHandle>().front());
+      incidentNodes =
+        findIncidentNodes(map.nodeHandles().selectedHandles<mdl::FaceHandle>().front());
     }
   }
 
-  if (!brushes.empty())
+  if (!incidentNodes.empty())
   {
     const auto newVertexPosition = transform * m_dragHandlePosition;
     if (addVertex(map, newVertexPosition))
@@ -373,11 +372,11 @@ bool VertexTool::doActivate()
 {
   VertexToolBase::doActivate();
 
-  const auto& brushes = selectedBrushes();
+  const auto& nodes = selectedNodes();
 
   auto& map = m_document.map();
-  map.nodeHandles().addHandles<mdl::EdgeHandle>(brushes);
-  map.nodeHandles().addHandles<mdl::FaceHandle>(brushes);
+  map.nodeHandles().addHandles<mdl::EdgeHandle>(nodes);
+  map.nodeHandles().addHandles<mdl::FaceHandle>(nodes);
 
   m_mode = Mode::Move;
   return true;

@@ -119,43 +119,43 @@ public:
 public:
   const mdl::Grid& grid() const { return m_document.map().grid(); }
 
-  const std::vector<mdl::BrushNode*>& selectedBrushes() const
+  const std::vector<mdl::Node*>& selectedNodes() const
   {
-    return m_document.map().selection().brushes;
+    return m_document.map().selection().nodes;
   }
 
 public:
   template <typename SomeHandleType>
     requires(!std::ranges::range<SomeHandleType>)
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const SomeHandleType& handle) const
+  std::vector<mdl::Node*> findIncidentNodes(const SomeHandleType& handle) const
   {
-    const auto hasHandle = [&](const auto* brushNode) {
-      const auto brushHandles = SomeHandleType::getHandles(*brushNode);
-      return std::ranges::find(brushHandles, handle) != brushHandles.end();
+    const auto hasHandle = [&](const auto* node) {
+      const auto nodeHandles = SomeHandleType::getHandles(*node);
+      return std::ranges::find(nodeHandles, handle) != nodeHandles.end();
     };
 
     auto result =
-      selectedBrushes() | std::views::filter(hasHandle) | kdl::ranges::to<std::vector>();
+      selectedNodes() | std::views::filter(hasHandle) | kdl::ranges::to<std::vector>();
     return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
   template <std::ranges::range R>
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const R& handles) const
+  std::vector<mdl::Node*> findIncidentNodes(const R& handles) const
   {
     using SomeHandleType = std::remove_cvref_t<std::ranges::range_value_t<R>>;
 
-    const auto hasHandle = [&](const auto* brushNode, const auto& handle) {
-      const auto brushHandles = SomeHandleType::getHandles(*brushNode);
-      return std::ranges::find(handles, handle) != handles.end();
+    const auto hasHandle = [&](const auto* node, const auto& handle) {
+      const auto nodeHandles = SomeHandleType::getHandles(*node);
+      return std::ranges::find(nodeHandles, handle) != nodeHandles.end();
     };
 
-    const auto hasAnyHandle = [&](const auto* brushNode) {
+    const auto hasAnyHandle = [&](const auto* node) {
       return std::ranges::any_of(
-        handles, [&](const auto& handle) { return hasHandle(brushNode, handle); });
+        handles, [&](const auto& handle) { return hasHandle(node, handle); });
     };
 
-    auto result = selectedBrushes() | std::views::filter(hasAnyHandle)
-                  | kdl::ranges::to<std::vector>();
+    auto result =
+      selectedNodes() | std::views::filter(hasAnyHandle) | kdl::ranges::to<std::vector>();
     return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
@@ -525,7 +525,7 @@ protected: // Tool interface
     connectObservers();
 
     handleManager().template clear<HandleType>();
-    handleManager().template addHandles<HandleType>(selectedBrushes());
+    handleManager().template addHandles<HandleType>(selectedNodes());
 
     return true;
   }
