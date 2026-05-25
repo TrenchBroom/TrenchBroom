@@ -39,7 +39,6 @@ target_sources(UpdateLib
 target_link_libraries(UpdateLib
   PRIVATE
     CompilerConfig
-    miniz::miniz
     Qt6::Network
     Qt6::Widgets
 )
