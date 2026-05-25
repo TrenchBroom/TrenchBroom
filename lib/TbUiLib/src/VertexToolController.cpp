@@ -20,8 +20,8 @@
 #include "ui/VertexToolController.h"
 
 #include "mdl/NodeHandles.h"
+#include "ui/NodeHandleToolControllerParts.h"
 #include "ui/VertexTool.h"
-#include "ui/VertexToolControllerParts.h"
 
 #include <memory>
 
@@ -30,11 +30,12 @@ namespace tb::ui
 namespace
 {
 
-class SelectVertexPart : public VertexToolSelectPartBase<VertexTool, mdl::VertexHandle>
+class SelectVertexPart
+  : public NodeHandleToolSelectPartBase<VertexTool, mdl::VertexHandle>
 {
 public:
   explicit SelectVertexPart(VertexTool& tool)
-    : VertexToolSelectPartBase{tool, mdl::VertexHandle::HandleHitType}
+    : NodeHandleToolSelectPartBase{tool, mdl::VertexHandle::HandleHitType}
   {
   }
 
@@ -47,11 +48,11 @@ private:
   }
 };
 
-class MoveVertexPart : public VertexToolMovePartBase<VertexTool>
+class MoveVertexPart : public NodeHandleToolMovePartBase<VertexTool>
 {
 public:
   explicit MoveVertexPart(VertexTool& tool)
-    : VertexToolMovePartBase{tool, mdl::VertexHandle::HandleHitType}
+    : NodeHandleToolMovePartBase{tool, mdl::VertexHandle::HandleHitType}
   {
   }
 
@@ -106,7 +107,7 @@ private:
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch) override
   {
-    VertexToolMovePartBase::render(inputState, renderContext, renderBatch);
+    NodeHandleToolMovePartBase::render(inputState, renderContext, renderBatch);
 
     if (!inputState.anyToolDragging())
     {
@@ -132,7 +133,7 @@ private:
 } // namespace
 
 VertexToolController::VertexToolController(VertexTool& tool)
-  : VertexToolControllerBase(tool)
+  : NodeHandleToolControllerBase(tool)
 {
   addController(std::make_unique<MoveVertexPart>(tool));
   addController(std::make_unique<SelectVertexPart>(tool));

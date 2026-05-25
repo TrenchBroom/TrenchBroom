@@ -19,13 +19,13 @@
 
 #pragma once
 
-#include "ui/VertexToolControllerBase.h"
+#include "ui/NodeHandleToolControllerBase.h"
 
 namespace tb::ui
 {
 class FaceTool;
 
-class FaceToolController : public VertexToolControllerBase<FaceTool>
+class FaceToolController : public NodeHandleToolControllerBase<FaceTool>
 {
 public:
   explicit FaceToolController(FaceTool& tool);

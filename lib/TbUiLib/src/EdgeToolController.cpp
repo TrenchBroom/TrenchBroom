@@ -20,7 +20,7 @@
 #include "ui/EdgeToolController.h"
 
 #include "ui/EdgeTool.h"
-#include "ui/VertexToolControllerParts.h"
+#include "ui/NodeHandleToolControllerParts.h"
 
 #include <memory>
 
@@ -29,11 +29,11 @@ namespace tb::ui
 namespace
 {
 
-class SelectEdgePart : public VertexToolSelectPartBase<EdgeTool, mdl::EdgeHandle>
+class SelectEdgePart : public NodeHandleToolSelectPartBase<EdgeTool, mdl::EdgeHandle>
 {
 public:
   explicit SelectEdgePart(EdgeTool& tool)
-    : VertexToolSelectPartBase{tool, mdl::EdgeHandle::HandleHitType}
+    : NodeHandleToolSelectPartBase{tool, mdl::EdgeHandle::HandleHitType}
   {
   }
 
@@ -44,11 +44,11 @@ private:
   }
 };
 
-class MoveEdgePart : public VertexToolMovePartBase<EdgeTool>
+class MoveEdgePart : public NodeHandleToolMovePartBase<EdgeTool>
 {
 public:
   explicit MoveEdgePart(EdgeTool& tool)
-    : VertexToolMovePartBase{tool, mdl::EdgeHandle::HandleHitType}
+    : NodeHandleToolMovePartBase{tool, mdl::EdgeHandle::HandleHitType}
   {
   }
 };
@@ -56,7 +56,7 @@ public:
 } // namespace
 
 EdgeToolController::EdgeToolController(EdgeTool& tool)
-  : VertexToolControllerBase{tool}
+  : NodeHandleToolControllerBase{tool}
 {
   addController(std::make_unique<MoveEdgePart>(tool));
   addController(std::make_unique<SelectEdgePart>(tool));

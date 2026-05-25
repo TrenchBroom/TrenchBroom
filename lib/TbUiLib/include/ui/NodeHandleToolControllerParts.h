@@ -46,7 +46,7 @@ namespace ui
 class Tool;
 
 template <typename T>
-class VertexToolLassoDragDelegate : public HandleDragTrackerDelegate
+class NodeHandleToolLassoDragDelegate : public HandleDragTrackerDelegate
 {
 public:
   static constexpr auto LassoDistance = 64.0;
@@ -56,7 +56,7 @@ private:
   std::unique_ptr<Lasso> m_lasso;
 
 public:
-  explicit VertexToolLassoDragDelegate(T& tool)
+  explicit NodeHandleToolLassoDragDelegate(T& tool)
     : m_tool{tool}
   {
   }
@@ -100,7 +100,7 @@ public:
 };
 
 template <typename T, typename HandleType>
-class VertexToolSelectPartBase : public ToolController
+class NodeHandleToolSelectPartBase : public ToolController
 {
 protected:
   constexpr static const double MaxHandleDistance = 0.25;
@@ -110,7 +110,7 @@ protected:
   mdl::HitType::Type m_hitType;
 
 protected:
-  VertexToolSelectPartBase(T& tool, const mdl::HitType::Type hitType)
+  NodeHandleToolSelectPartBase(T& tool, const mdl::HitType::Type hitType)
     : m_tool{tool}
     , m_hitType{hitType}
   {
@@ -165,14 +165,17 @@ private:
     const auto& camera = inputState.camera();
     const auto plane = vm::orthogonal_plane(
       vm::vec3d{camera.defaultPoint(
-        static_cast<float>(VertexToolLassoDragDelegate<T>::LassoDistance))},
+        static_cast<float>(NodeHandleToolLassoDragDelegate<T>::LassoDistance))},
       vm::vec3d{camera.direction()});
 
     if (const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane))
     {
       const auto initialPoint = vm::point_at_distance(inputState.pickRay(), *distance);
       return createHandleDragTracker(
-        VertexToolLassoDragDelegate<T>{m_tool}, inputState, initialPoint, initialPoint);
+        NodeHandleToolLassoDragDelegate<T>{m_tool},
+        inputState,
+        initialPoint,
+        initialPoint);
     }
 
     return nullptr;
@@ -257,7 +260,7 @@ private:
 };
 
 template <typename T>
-class VertexToolMoveDragDelegate : public MoveHandleDragTrackerDelegate
+class NodeHandleToolMoveDragDelegate : public MoveHandleDragTrackerDelegate
 {
 public:
   static constexpr auto LassoDistance = 64.0;
@@ -266,7 +269,7 @@ private:
   T& m_tool;
 
 public:
-  explicit VertexToolMoveDragDelegate(T& tool)
+  explicit NodeHandleToolMoveDragDelegate(T& tool)
     : m_tool{tool}
   {
   }
@@ -313,21 +316,21 @@ public:
 };
 
 template <typename T>
-class VertexToolMovePartBase : public ToolController
+class NodeHandleToolMovePartBase : public ToolController
 {
 protected:
   T& m_tool;
   mdl::HitType::Type m_hitType;
 
 protected:
-  VertexToolMovePartBase(T& tool, const mdl::HitType::Type hitType)
+  NodeHandleToolMovePartBase(T& tool, const mdl::HitType::Type hitType)
     : m_tool{tool}
     , m_hitType{hitType}
   {
   }
 
 public:
-  ~VertexToolMovePartBase() override = default;
+  ~NodeHandleToolMovePartBase() override = default;
 
 protected:
   Tool& tool() override { return m_tool; }
@@ -355,7 +358,10 @@ protected:
     const auto [initialHandlePosition, hitPoint] = m_tool.handlePositionAndHitPoint(hits);
 
     return createMoveHandleDragTracker(
-      VertexToolMoveDragDelegate<T>{m_tool}, inputState, initialHandlePosition, hitPoint);
+      NodeHandleToolMoveDragDelegate<T>{m_tool},
+      inputState,
+      initialHandlePosition,
+      hitPoint);
   }
 
   bool cancel() override { return m_tool.deselectAll(); }

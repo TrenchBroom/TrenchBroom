@@ -28,19 +28,19 @@ namespace ui
 class Tool;
 
 template <typename T>
-class VertexToolControllerBase : public ToolControllerGroup
+class NodeHandleToolControllerBase : public ToolControllerGroup
 {
 protected:
   T& m_tool;
 
 protected:
-  explicit VertexToolControllerBase(T& tool)
+  explicit NodeHandleToolControllerBase(T& tool)
     : m_tool{tool}
   {
   }
 
 public:
-  ~VertexToolControllerBase() override = default;
+  ~NodeHandleToolControllerBase() override = default;
 
 private:
   Tool& tool() override { return m_tool; }

@@ -19,14 +19,14 @@
 
 #pragma once
 
-#include "ui/VertexToolControllerBase.h"
+#include "ui/NodeHandleToolControllerBase.h"
 
 namespace tb::ui
 {
 class Tool;
 class VertexTool;
 
-class VertexToolController : public VertexToolControllerBase<VertexTool>
+class VertexToolController : public NodeHandleToolControllerBase<VertexTool>
 {
 public:
   explicit VertexToolController(VertexTool& tool);
