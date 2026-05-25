@@ -14,50 +14,51 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 
 ## Features
 * **General**
-	- Full support for editing in 3D and in up to three 2D views
-	- High performance renderer with support for huge maps
-	- Unlimited Undo and Redo
-	- Macro-like command repetition
-	- Issue browser with automatic quick fixes
-	- Point file support
-	- Automatic backups
-	- .obj file export
-	- Free and cross platform
+  - Full support for editing in 3D and in up to three 2D views
+  - High performance renderer with support for huge maps
+  - Unlimited Undo and Redo
+  - Macro-like command repetition
+  - Issue browser with automatic quick fixes
+  - Point file support
+  - Automatic backups
+  - .obj file export
+  - Free and cross platform
 * **Brush Editing**
-	- Robust vertex editing with edge and face splitting and manipulating multiple vertices together
-	- Clipping tool with two and three points
-	- Scaling and shearing tools
-	- CSG operations: merge, subtract, intersect
-	- UV view for easy texture manipulations
-	- Precise texture lock for all brush editing operations
-	- Multiple material collections
+  - Robust vertex editing with edge and face splitting and manipulating multiple vertices together
+  - Clipping tool with two and three points
+  - Scaling and shearing tools
+  - CSG operations: merge, subtract, intersect
+  - UV view for easy texture manipulations
+  - Precise texture lock for all brush editing operations
+  - Multiple material collections
 * **Entity Editing**
-	- Entity browser with drag and drop support
-	- Support for FGD and DEF files for entity definitions
-	- Mod support
-	- Entity link visualization
-	- Displays 3D models in the editor
-	- Smart entity property editors
+  - Entity browser with drag and drop support
+  - Support for FGD and DEF files for entity definitions
+  - Mod support
+  - Entity link visualization
+  - Displays 3D models in the editor
+  - Smart entity property editors
 * **Supported Games**
-	- Quake (Standard and Valve 220 file formats)
-	- Quake 2
-	- Quake 3 (partial, no patches or brush primitives yet)
-	- Hexen 2
-	- Daikatana
-	- Generic (for custom engines)
-	- More games can be supported with custom game configurations
+  - Quake (Standard and Valve 220 file formats)
+  - Quake 2
+  - Quake 3 (partial, no patches or brush primitives yet)
+  - Hexen 2
+  - Daikatana
+  - Generic (for custom engines)
+  - More games can be supported with custom game configurations
 
 
 ## Releases
-- Binary builds are available from [releases](https://github.com/kduske/TrenchBroom/releases).
+
+Binary builds are available from [releases](https://github.com/kduske/TrenchBroom/releases).
 
 ## Compiling
-- Read [Build.md](Build.md) for instructions
+
+Read [BUILD.md](BUILD.md) for instructions.
 
 # Contributing
-- Bug reports and feature suggestions are welcome. Please submit them at https://github.com/TrenchBroom/TrenchBroom/issues
-- If you wish to contribute code or improve the documentation, please get in touch with me at kristian.duske@gmail.com.
-- All help is appreciated!
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 # Credits
 - [Qt](https://www.qt.io/)
@@ -75,4 +76,5 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - [Source Sans Pro](https://fonts.google.com/specimen/Source+Sans+Pro) font
 
 ## Changes
+
 See [releases](https://github.com/TrenchBroom/TrenchBroom/releases) for latest changes.

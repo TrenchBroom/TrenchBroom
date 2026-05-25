@@ -1,17 +1,18 @@
 # Contributing to TrenchBroom
 
-As mentioned in the [README](README.md):
-
 - Bug reports and feature suggestions are welcome. Please submit them
   at https://github.com/TrenchBroom/TrenchBroom/issues
-- If you wish to contribute code or improve the documentation, please get in touch with me at kristian.duske@gmail.com.
+- If you wish to contribute code or improve the documentation, please create an issue, or
+  take an existing issue and ping me on it. It is usually better to be aligned before
+  submitting a pull request.
 - All help is appreciated!
 
 ## Suggesting a Feature
 
-If you have an idea for a nice feature that you're missing in TrenchBroom, then you can submit a request at
-the [TrenchBroom issue tracker]. Try to describe your feature, but don't go into too much detail. If it gets picked up,
-we will hash out the details together.
+If you have an idea for a nice feature that you're missing in TrenchBroom, then you can
+submit a request at the [TrenchBroom issue tracker]. Try to describe your feature, but
+don't go into too much detail. If it gets picked up, we will hash out the details
+together.
 
 ## Reporting Bugs
 
@@ -30,15 +31,36 @@ You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to includ
   cannot reproduce the problem, please submit a bug report either way. The cause of the problem can often be deduced
   anyway.
 
-## Code Changes
+## Submitting Pull Requests
 
-- Please split up changes into individual commits where you add each change step by step.
-    - This makes pull requests much easier to review, and also makes it easier to judge whether there are tests missing.
-    - Each individual commit should compile without errors, test green and the editor should be working correctly. Think
-      about it as a series of small transformations that take the code from the before state to the goal state, with
-      each step being correct and testable.
-- If there are changes requested in the pull request, please create individual fixup commits for the changes so that
-  they get squashed into the correct commits. I'd like to keep the history nice and clean instead of putting one larger
-  cleanup commit on top.
+> [!IMPORTANT]
+> TrenchBroom is a hobby project for me. Reviewing pull requests is not my favorite thing
+> to do in my free time. If a pull request is hard to review because we weren't aligned on
+> the approach beforehand, or it is badly structured, or achieving the required level of
+> quality would take too much effort, it is likely to be rejected. Please read the
+> following points carefully BEFORE starting your work.
+
+- Before you start working on a pull request, please file an issue or ping me on an
+  existing issue so that we can discuss the approach and agree on it. This will
+  significantly reduce churn and PR review effort later on.
+- Before you make a pull request, please split up changes into individual commits where
+  you add each change step by step. Don't touch code twice unnecessarily. Don't push
+  commits to fix problems of your earlier commits. The history should be clean, as if you
+  had perfectly planned it and executed the plan
+  - This makes pull requests much easier to review, and also makes it easier to judge whether there are tests missing.
+  - Each individual commit should compile without errors, test green and the editor should
+    be working correctly. Think about it as a series of small transformations that take
+    the code from the before state to the goal state, with each step being correct and
+    testable.
+  - Don't merge the master branch into your PR. Rebase your branch onto master instead.
+- AI generated code is okay if it was thoroughly reviewed by you before submitting it. AI
+  slop is unacceptable.
+- Add unit tests wherever possible, even if tests are missing. Add tests for existing code
+  for bonus points.
+- Please respond timely to review comments, even if you did not receive feedback in a
+  timely fashion.
+- If there are changes requested in the pull request, please create individual fixup
+  commits for the changes so that they get squashed into the correct commits. I'd like to
+  keep the history nice and clean instead of putting one larger cleanup commit on top.
 
 [TrenchBroom issue tracker]: https://github.com/TrenchBroom/TrenchBroom/issues/
