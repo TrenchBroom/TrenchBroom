@@ -33,13 +33,8 @@ class FaceTool : public VertexToolBase<mdl::FaceHandle>
 public:
   explicit FaceTool(MapDocument& document);
 
-public:
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::FaceHandle& handle) const;
-
-private:
   using VertexToolBase::findIncidentBrushes;
 
-public:
   void pick(
     const vm::ray3d& pickRay,
     const gl::Camera& camera,

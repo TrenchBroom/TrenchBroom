@@ -46,10 +46,6 @@ class EdgeTool : public VertexToolBase<mdl::EdgeHandle>
 public:
   explicit EdgeTool(MapDocument& document);
 
-public:
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::EdgeHandle& handle) const;
-
-private:
   using VertexToolBase::findIncidentBrushes;
 
 public:

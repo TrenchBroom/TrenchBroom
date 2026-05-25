@@ -36,12 +36,6 @@ FaceTool::FaceTool(MapDocument& document)
 {
 }
 
-std::vector<mdl::BrushNode*> FaceTool::findIncidentBrushes(
-  const mdl::FaceHandle& handle) const
-{
-  return VertexToolBase<mdl::FaceHandle>::findIncidentBrushes(handle);
-}
-
 void FaceTool::pick(
   const vm::ray3d& pickRay,
   const gl::Camera& camera,

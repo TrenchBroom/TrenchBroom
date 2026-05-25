@@ -66,15 +66,8 @@ private:
 public:
   explicit VertexTool(MapDocument& document);
 
-public:
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::VertexHandle& handle) const;
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::EdgeHandle& handle) const;
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::FaceHandle& handle) const;
-
-private:
   using VertexToolBase::findIncidentBrushes;
 
-public:
   void pick(
     const vm::ray3d& pickRay,
     const gl::Camera& camera,

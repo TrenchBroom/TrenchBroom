@@ -35,12 +35,6 @@ EdgeTool::EdgeTool(MapDocument& document)
 {
 }
 
-std::vector<mdl::BrushNode*> EdgeTool::findIncidentBrushes(
-  const mdl::EdgeHandle& handle) const
-{
-  return VertexToolBase<mdl::EdgeHandle>::findIncidentBrushes(handle);
-}
-
 void EdgeTool::pick(
   const vm::ray3d& pickRay,
   const gl::Camera& camera,

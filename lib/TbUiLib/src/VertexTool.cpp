@@ -45,24 +45,6 @@ VertexTool::VertexTool(MapDocument& document)
 {
 }
 
-std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
-  const mdl::VertexHandle& handle) const
-{
-  return VertexToolBase<mdl::VertexHandle>::findIncidentBrushes(handle);
-}
-
-std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
-  const mdl::EdgeHandle& handle) const
-{
-  return VertexToolBase<mdl::VertexHandle>::findIncidentBrushes(handle);
-}
-
-std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
-  const mdl::FaceHandle& handle) const
-{
-  return VertexToolBase<mdl::VertexHandle>::findIncidentBrushes(handle);
-}
-
 void VertexTool::pick(
   const vm::ray3d& pickRay,
   const gl::Camera& camera,
