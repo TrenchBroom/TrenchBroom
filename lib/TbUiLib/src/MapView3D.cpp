@@ -35,6 +35,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
 #include "mdl/PointTrace.h"
+#include "mdl/WorldNode.h"
 #include "render/BoundsGuideRenderer.h"
 #include "render/Compass3D.h"
 #include "render/MapRenderer.h"
