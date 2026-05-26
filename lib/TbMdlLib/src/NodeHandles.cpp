@@ -46,10 +46,12 @@ namespace tb::mdl
 const HitType::Type VertexHandle::HandleHitType = HitType::freeType();
 const HitType::Type EdgeHandle::HandleHitType = HitType::freeType();
 const HitType::Type FaceHandle::HandleHitType = HitType::freeType();
+const HitType::Type ControlPointHandle::HandleHitType = HitType::freeType();
 
 kdl_reflect_impl(VertexHandle);
 kdl_reflect_impl(EdgeHandle);
 kdl_reflect_impl(FaceHandle);
+kdl_reflect_impl(ControlPointHandle);
 
 std::vector<VertexHandle> VertexHandle::getHandles(const Node& node)
 {
@@ -229,6 +231,45 @@ std::optional<Hit> FaceHandle::pick(
                           hitPoint,
                           GridHandleHitData{*this, pointHandle}};
                       });
+           });
+}
+
+std::vector<ControlPointHandle> ControlPointHandle::getHandles(const Node& node)
+{
+  auto result = std::vector<ControlPointHandle>{};
+
+  node.accept(kdl::overload(
+    [](const WorldNode&) {},
+    [](const LayerNode&) {},
+    [](const GroupNode&) {},
+    [](const EntityNode&) {},
+    [](const BrushNode&) {},
+    [&](const PatchNode& patchNode) {
+      for (const auto& controlPoint : patchNode.patch().controlPoints())
+      {
+        result.emplace_back(controlPoint.xyz());
+      }
+    }));
+
+  return result;
+}
+
+double ControlPointHandle::distance(
+  const ControlPointHandle& lhs, const ControlPointHandle& rhs)
+{
+  return vm::distance(lhs.position, rhs.position);
+}
+
+std::optional<Hit> ControlPointHandle::pick(
+  const HitType::Type hitType,
+  const vm::ray3d& pickRay,
+  const gl::Camera& camera,
+  const double handleRadius) const
+{
+  return camera.pickPointHandle(pickRay, position, handleRadius)
+         | kdl::optional_transform([&](const auto distance) {
+             return Hit{
+               hitType, distance, vm::point_at_distance(pickRay, distance), *this};
            });
 }
 

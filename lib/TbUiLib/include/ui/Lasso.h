@@ -38,6 +38,7 @@ namespace mdl
 struct VertexHandle;
 struct EdgeHandle;
 struct FaceHandle;
+struct ControlPointHandle;
 } // namespace mdl
 
 namespace render
@@ -83,6 +84,10 @@ private:
     const mdl::EdgeHandle& handle, const vm::plane3d& plane, const vm::bbox2d& box) const;
   bool selects(
     const mdl::FaceHandle& handle, const vm::plane3d& plane, const vm::bbox2d& box) const;
+  bool selects(
+    const mdl::ControlPointHandle& handle,
+    const vm::plane3d& plane,
+    const vm::bbox2d& box) const;
   std::optional<vm::vec3d> project(
     const vm::vec3d& point, const vm::plane3d& plane) const;
 

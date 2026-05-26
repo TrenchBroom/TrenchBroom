@@ -19,6 +19,7 @@
 
 #include "gl/Camera.h"
 #include "gl/PerspectiveCamera.h"
+#include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -28,6 +29,7 @@
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/NodeHandles.h"
+#include "mdl/PatchNode.h"
 
 #include "vm/bbox.h"
 #include "vm/ray.h"
@@ -251,6 +253,52 @@ TEST_CASE("FaceHandle")
       CHECK(pointHandle == vm::vec3d{0.0, 0.0, 0.0});
       CHECK(hit->distance() > 0.0);
     }
+  }
+}
+
+TEST_CASE("ControlPointHandle")
+{
+  // clang-format off
+  auto patchNode = PatchNode{BezierPatch{3, 3, {
+    {-16, -16, -16, 0, 0}, {  0, -16, -16, 0, 0}, { 16, -16, -16, 0, 0},
+    {-16,   0, -16, 0, 0}, {  0,   0, -16, 0, 0}, { 16,   0, -16, 0, 0},
+    {-16,  16, -16, 0, 0}, {  0,  16, -16, 0, 0}, { 16,  16, -16, 0, 0},
+  }, "material"}};
+  // clang-format on
+
+  SECTION("getHandles")
+  {
+    CHECK(ControlPointHandle::getHandles(EntityNode{Entity{}}).empty());
+
+    CHECK_THAT(
+      ControlPointHandle::getHandles(patchNode),
+      UnorderedRangeEquals(
+        patchNode.patch().controlPoints() | std::views::transform([](const auto& point) {
+          return ControlPointHandle{point.xyz()};
+        })));
+  }
+
+  SECTION("distance")
+  {
+    const auto lhs = ControlPointHandle{{0, 0, 0}};
+    const auto rhs = ControlPointHandle{{3, 4, 0}};
+
+    CHECK(ControlPointHandle::distance(lhs, rhs) == 5.0);
+  }
+
+  SECTION("pick")
+  {
+    const auto hitType = HitType::freeType();
+    const auto camera = testCamera(vm::vec3f{-200, -16, -16});
+
+    const auto handle = ControlPointHandle{vm::vec3d{-16, -16, -16}};
+    const auto pickRay = vm::ray3d{{-200, -16, -16}, {1, 0, 0}};
+
+    const auto hit = handle.pick(hitType, pickRay, camera, 3.0);
+    REQUIRE(hit);
+
+    CHECK(hit->type() == hitType);
+    CHECK(hit->target<ControlPointHandle>() == handle);
   }
 }
 

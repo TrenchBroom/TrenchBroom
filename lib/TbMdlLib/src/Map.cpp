@@ -573,6 +573,7 @@ Map::Map(
   , m_selection{*this}
 {
   m_nodeHandles.registerHandleType<VertexHandle>();
+  m_nodeHandles.registerHandleType<ControlPointHandle>();
   m_nodeHandles.registerHandleType<EdgeHandle>();
   m_nodeHandles.registerHandleType<FaceHandle>();
 
