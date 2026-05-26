@@ -21,7 +21,7 @@
 
 #include "mdl/BrushVertexCommands.h"
 #include "render/PointGuideRenderer.h"
-#include "ui/NodeHandleToolBase.h"
+#include "ui/BrushHandleToolBase.h"
 
 #include <string>
 #include <vector>
@@ -51,7 +51,7 @@ class Lasso;
 class MapDocument;
 class InputState;
 
-class VertexTool : public NodeHandleToolBase<mdl::VertexHandle>
+class VertexTool : public BrushHandleToolBase<mdl::VertexHandle>
 {
 private:
   enum class Mode
@@ -68,7 +68,7 @@ private:
 public:
   explicit VertexTool(MapDocument& document);
 
-  using NodeHandleToolBase::findIncidentNodes;
+  using BrushHandleToolBase::findIncidentNodes;
 
   void pick(
     const vm::ray3d& pickRay,

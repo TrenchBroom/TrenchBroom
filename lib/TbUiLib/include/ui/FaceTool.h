@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "ui/NodeHandleToolBase.h"
+#include "ui/BrushHandleToolBase.h"
 
 #include <string>
 #include <vector>
@@ -28,12 +28,12 @@ namespace tb::ui
 {
 class MapDocument;
 
-class FaceTool : public NodeHandleToolBase<mdl::FaceHandle>
+class FaceTool : public BrushHandleToolBase<mdl::FaceHandle>
 {
 public:
   explicit FaceTool(MapDocument& document);
 
-  using NodeHandleToolBase::findIncidentNodes;
+  using BrushHandleToolBase::findIncidentNodes;
 
   void pick(
     const vm::ray3d& pickRay,

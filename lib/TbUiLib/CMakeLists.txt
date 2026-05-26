@@ -249,6 +249,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BitmapButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderLine.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderPanel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BrushHandleToolBase.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraAnimation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraLinkHelper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraTool2D.h

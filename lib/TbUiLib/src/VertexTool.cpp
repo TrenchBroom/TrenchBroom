@@ -40,7 +40,7 @@ namespace tb::ui
 {
 
 VertexTool::VertexTool(MapDocument& document)
-  : NodeHandleToolBase{document}
+  : BrushHandleToolBase{document}
   , m_mode{Mode::Move}
 {
 }

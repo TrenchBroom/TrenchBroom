@@ -32,7 +32,7 @@ namespace tb::ui
 {
 
 FaceTool::FaceTool(MapDocument& document)
-  : NodeHandleToolBase{document}
+  : BrushHandleToolBase{document}
 {
 }
 

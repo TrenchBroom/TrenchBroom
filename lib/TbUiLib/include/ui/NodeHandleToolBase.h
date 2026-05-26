@@ -19,28 +19,23 @@
 
 #pragma once
 
-#include "Logger.h"
 #include "NotifierConnection.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "mdl/BrushBuilder.h"
-#include "mdl/BrushNode.h"
+#include "mdl/Command.h"
 #include "mdl/CommandProcessor.h"
-#include "mdl/GameConfig.h"
-#include "mdl/GameInfo.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Node.h"
 #include "mdl/NodeHandleCommand.h"
 #include "mdl/NodeHandleManager.h"
 #include "mdl/NodeHandles.h"
-#include "mdl/Polyhedron.h"
-#include "mdl/Polyhedron3.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
-#include "mdl/WorldNode.h"
+#include "mdl/UndoableCommand.h"
 #include "render/RenderBatch.h"
 #include "render/RenderService.h"
 #include "ui/InputState.h"
@@ -50,7 +45,6 @@
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
-#include "kd/result.h"
 #include "kd/set_temp.h"
 #include "kd/string_utils.h"
 #include "kd/vector_utils.h"
@@ -58,7 +52,6 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <map>
 #include <ranges>
 #include <string>
 #include <type_traits>
@@ -336,51 +329,6 @@ public: // performing moves
     return false;
   }
 
-public: // csg convex merge
-  bool canDoCsgConvexMerge()
-  {
-    return handleManager().template selectedHandleCount<HandleType>() > 1;
-  }
-
-  void csgConvexMerge()
-  {
-
-    auto handles = handleManager().template selectedHandles<HandleType>();
-    const auto vertices = HandleType::getVertices(handles);
-
-    const auto polyhedron = mdl::Polyhedron3{vertices};
-    if (!polyhedron.polyhedron() || !polyhedron.closed())
-    {
-      return;
-    }
-
-    auto& map = m_document.map();
-
-    const auto builder = mdl::BrushBuilder{
-      map.worldNode().mapFormat(),
-      map.worldBounds(),
-      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
-    builder.createBrush(polyhedron, map.currentMaterialName())
-      | kdl::transform([&](auto b) {
-          for (const auto* selectedBrushNode : map.selection().brushes)
-          {
-            b.cloneFaceAttributesFrom(selectedBrushNode->brush());
-          }
-
-          auto* newParent = parentForNodes(map, map.selection().nodes);
-          auto transaction = mdl::Transaction{map, "CSG Convex Merge"};
-          deselectAll();
-          if (addNodes(map, {{newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
-          {
-            transaction.cancel();
-            return;
-          }
-          transaction.commit();
-        })
-      | kdl::transform_error(
-        [&](auto e) { map.logger().error() << "Could not create brush: " << e.msg; });
-  }
-
   virtual HandleType::Position getHandlePosition(const mdl::Hit& hit) const
   {
     contract_pre(hit.isMatch());
@@ -577,30 +525,36 @@ private: // Observers and state management
 
   void commandDoOrUndo(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
+    if (
+      auto* nodeHandleCommand =
+        dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
       deselectHandles();
-      removeHandles(*vertexCommand);
+      removeHandles(*nodeHandleCommand);
       ++m_ignoreChangeNotifications;
     }
   }
 
   void commandDoneOrUndoFailed(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
+    if (
+      auto* nodeHandleCommand =
+        dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
-      addHandles(*vertexCommand);
-      selectNewHandlePositions(*vertexCommand);
+      addHandles(*nodeHandleCommand);
+      selectNewHandlePositions(*nodeHandleCommand);
       --m_ignoreChangeNotifications;
     }
   }
 
   void commandDoFailedOrUndone(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
+    if (
+      auto* nodeHandleCommand =
+        dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
-      addHandles(*vertexCommand);
-      selectOldHandlePositions(*vertexCommand);
+      addHandles(*nodeHandleCommand);
+      selectOldHandlePositions(*nodeHandleCommand);
       --m_ignoreChangeNotifications;
     }
   }

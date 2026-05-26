@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "ui/NodeHandleToolBase.h"
+#include "ui/BrushHandleToolBase.h"
 
 #include <string>
 #include <vector>
@@ -28,12 +28,12 @@ namespace tb::ui
 {
 class MapDocument;
 
-class EdgeTool : public NodeHandleToolBase<mdl::EdgeHandle>
+class EdgeTool : public BrushHandleToolBase<mdl::EdgeHandle>
 {
 public:
   explicit EdgeTool(MapDocument& document);
 
-  using NodeHandleToolBase::findIncidentNodes;
+  using BrushHandleToolBase::findIncidentNodes;
 
 public:
   void pick(
