@@ -31,7 +31,7 @@ namespace tb::ui
 {
 
 EdgeTool::EdgeTool(MapDocument& document)
-  : VertexToolBase{document}
+  : NodeHandleToolBase{document}
 {
 }
 

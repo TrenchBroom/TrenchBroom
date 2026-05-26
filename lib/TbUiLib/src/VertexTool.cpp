@@ -40,7 +40,7 @@ namespace tb::ui
 {
 
 VertexTool::VertexTool(MapDocument& document)
-  : VertexToolBase{document}
+  : NodeHandleToolBase{document}
   , m_mode{Mode::Move}
 {
 }
@@ -64,7 +64,7 @@ void VertexTool::pick(
 
 bool VertexTool::deselectAll()
 {
-  if (VertexToolBase::deselectAll())
+  if (NodeHandleToolBase::deselectAll())
   {
     resetModeAfterDeselection();
     return true;
@@ -79,10 +79,10 @@ mdl::Hit VertexTool::findDraggableHandle(
 
   if (hitType != mdl::VertexHandle::HandleHitType)
   {
-    return VertexToolBase::findDraggableHandle(inputState, hitType);
+    return NodeHandleToolBase::findDraggableHandle(inputState, hitType);
   }
 
-  if (const auto vertexHit = VertexToolBase::findDraggableHandle(inputState, hitType);
+  if (const auto vertexHit = NodeHandleToolBase::findDraggableHandle(inputState, hitType);
       vertexHit.isMatch())
   {
     return vertexHit;
@@ -123,11 +123,11 @@ std::vector<mdl::Hit> VertexTool::collectDraggableHandles(
 
   if (hitType != mdl::VertexHandle::HandleHitType)
   {
-    return VertexToolBase::collectDraggableHandles(inputState, hitType);
+    return NodeHandleToolBase::collectDraggableHandles(inputState, hitType);
   }
 
   if (const auto vertexHits =
-        VertexToolBase::collectDraggableHandles(inputState, hitType);
+        NodeHandleToolBase::collectDraggableHandles(inputState, hitType);
       !vertexHits.empty())
   {
     return vertexHits;
@@ -221,7 +221,7 @@ bool VertexTool::startMove(const std::vector<mdl::Hit>& hits)
     m_mode = Mode::Move;
   }
 
-  if (!VertexToolBase::startMove(hits))
+  if (!NodeHandleToolBase::startMove(hits))
   {
     m_mode = Mode::Move;
     return false;
@@ -294,7 +294,7 @@ void VertexTool::endMove()
 {
   auto& map = m_document.map();
 
-  VertexToolBase::endMove();
+  NodeHandleToolBase::endMove();
   map.nodeHandles().deselectAllHandles<mdl::EdgeHandle>();
   map.nodeHandles().deselectAllHandles<mdl::FaceHandle>();
   m_mode = Mode::Move;
@@ -303,7 +303,7 @@ void VertexTool::cancelMove()
 {
   auto& map = m_document.map();
 
-  VertexToolBase::cancelMove();
+  NodeHandleToolBase::cancelMove();
   map.nodeHandles().deselectAllHandles<mdl::EdgeHandle>();
   map.nodeHandles().deselectAllHandles<mdl::FaceHandle>();
   m_mode = Mode::Move;
@@ -370,7 +370,7 @@ void VertexTool::renderGuide(
 
 bool VertexTool::doActivate()
 {
-  VertexToolBase::doActivate();
+  NodeHandleToolBase::doActivate();
 
   const auto& nodes = selectedNodes();
 
@@ -384,7 +384,7 @@ bool VertexTool::doActivate()
 
 bool VertexTool::doDeactivate()
 {
-  VertexToolBase::doDeactivate();
+  NodeHandleToolBase::doDeactivate();
 
   auto& map = m_document.map();
   map.nodeHandles().clear<mdl::EdgeHandle>();

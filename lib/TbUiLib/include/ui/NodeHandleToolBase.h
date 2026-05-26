@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -84,7 +84,7 @@ class Lasso;
 class MapDocument;
 
 template <typename HandleType>
-class VertexToolBase : public Tool
+class NodeHandleToolBase : public Tool
 {
 public:
   enum class MoveResult
@@ -107,14 +107,14 @@ protected:
   bool m_dragging = false;
 
 protected:
-  explicit VertexToolBase(MapDocument& document)
+  explicit NodeHandleToolBase(MapDocument& document)
     : Tool{false}
     , m_document{document}
   {
   }
 
 public:
-  ~VertexToolBase() override = default;
+  ~NodeHandleToolBase() override = default;
 
 public:
   const mdl::Grid& grid() const { return m_document.map().grid(); }
@@ -541,24 +541,24 @@ private: // Observers and state management
   void connectObservers()
   {
     m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
-      this, &VertexToolBase::selectionDidChange);
+      this, &NodeHandleToolBase::selectionDidChange);
     m_notifierConnection +=
-      m_document.nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
+      m_document.nodesWillChangeNotifier.connect(this, &NodeHandleToolBase::nodesWillChange);
     m_notifierConnection +=
-      m_document.nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
+      m_document.nodesDidChangeNotifier.connect(this, &NodeHandleToolBase::nodesDidChange);
 
     m_notifierConnection +=
-      m_document.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
+      m_document.commandDoNotifier.connect(this, &NodeHandleToolBase::commandDo);
     m_notifierConnection +=
-      m_document.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
+      m_document.commandDoneNotifier.connect(this, &NodeHandleToolBase::commandDone);
     m_notifierConnection +=
-      m_document.commandDoFailedNotifier.connect(this, &VertexToolBase::commandDoFailed);
+      m_document.commandDoFailedNotifier.connect(this, &NodeHandleToolBase::commandDoFailed);
     m_notifierConnection +=
-      m_document.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
+      m_document.commandUndoNotifier.connect(this, &NodeHandleToolBase::commandUndo);
     m_notifierConnection +=
-      m_document.commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
+      m_document.commandUndoneNotifier.connect(this, &NodeHandleToolBase::commandUndone);
     m_notifierConnection += m_document.commandUndoFailedNotifier.connect(
-      this, &VertexToolBase::commandUndoFailed);
+      this, &NodeHandleToolBase::commandUndoFailed);
   }
 
   void commandDo(mdl::Command& command) { commandDoOrUndo(command); }
