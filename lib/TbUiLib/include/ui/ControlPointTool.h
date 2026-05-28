@@ -1,0 +1,57 @@
+/*
+ Copyright (C) 2026 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+#include "ui/NodeHandleToolBase.h"
+
+#include <string>
+#include <vector>
+
+namespace tb::ui
+{
+class MapDocument;
+
+class ControlPointTool : public NodeHandleToolBase<mdl::ControlPointHandle>
+{
+public:
+  explicit ControlPointTool(MapDocument& document);
+
+  using NodeHandleToolBase::findIncidentNodes;
+
+  void pick(
+    const vm::ray3d& pickRay,
+    const gl::Camera& camera,
+    double handleRadius,
+    mdl::PickResult& pickResult) const override;
+
+public:
+  std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
+    const std::vector<mdl::Hit>& hits) const override;
+
+  MoveResult move(const vm::vec3d& delta) override;
+
+  std::string actionName() const override;
+
+private:
+  void addHandles(const std::vector<mdl::Node*>& nodes) override;
+  void removeHandles(const std::vector<mdl::Node*>& nodes) override;
+};
+
+} // namespace tb::ui
