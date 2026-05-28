@@ -171,7 +171,7 @@ public:
 
 public: // move, rotate, flip actions
   void move(vm::direction direction);
-  void moveVertices(vm::direction direction);
+  void moveNodeHandles(vm::direction direction);
   void moveRotationCenter(vm::direction direction);
   void moveObjects(vm::direction direction);
   virtual vm::vec3d moveDirection(vm::direction direction) const = 0;

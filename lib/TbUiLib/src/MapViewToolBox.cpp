@@ -24,6 +24,7 @@
 #include "mdl/Selection.h"
 #include "ui/AssembleBrushTool.h"
 #include "ui/ClipTool.h"
+#include "ui/ControlPointTool.h"
 #include "ui/CreateEntityTool.h"
 #include "ui/DrawShapeTool.h"
 #include "ui/EdgeTool.h"
@@ -163,6 +164,16 @@ const FaceTool& MapViewToolBox::faceTool() const
 FaceTool& MapViewToolBox::faceTool()
 {
   return KDL_CONST_OVERLOAD(faceTool());
+}
+
+const ControlPointTool& MapViewToolBox::controlPointTool() const
+{
+  return *m_controlPointTool;
+}
+
+ControlPointTool& MapViewToolBox::controlPointTool()
+{
+  return KDL_CONST_OVERLOAD(controlPointTool());
 }
 
 bool MapViewToolBox::canToggleAssembleBrushTool() const
@@ -321,6 +332,11 @@ bool MapViewToolBox::anyVertexToolActive() const
   return vertexToolActive() || edgeToolActive() || faceToolActive();
 }
 
+bool MapViewToolBox::anyNodeHandleToolActive() const
+{
+  return anyVertexToolActive() || controlPointToolActive();
+}
+
 void MapViewToolBox::toggleVertexTool()
 {
   if (canToggleAnyVertexTool())
@@ -360,15 +376,34 @@ bool MapViewToolBox::faceToolActive() const
   return m_faceTool->active();
 }
 
+bool MapViewToolBox::canToggleControlPointTool() const
+{
+  const auto& map = m_document.map();
+  return controlPointToolActive() || map.selection().hasOnlyPatches();
+}
+
+void MapViewToolBox::toggleControlPointTool()
+{
+  if (canToggleControlPointTool())
+  {
+    toggleTool(controlPointTool());
+  }
+}
+
+bool MapViewToolBox::controlPointToolActive() const
+{
+  return m_controlPointTool->active();
+}
+
 bool MapViewToolBox::anyModalToolActive() const
 {
   return rotateToolActive() || scaleToolActive() || shearToolActive()
-         || anyVertexToolActive();
+         || anyNodeHandleToolActive();
 }
 
-void MapViewToolBox::moveVertices(const vm::vec3d& delta)
+void MapViewToolBox::moveNodeHandles(const vm::vec3d& delta)
 {
-  contract_pre(anyVertexToolActive());
+  contract_pre(anyNodeHandleToolActive());
 
   if (vertexToolActive())
   {
@@ -381,6 +416,10 @@ void MapViewToolBox::moveVertices(const vm::vec3d& delta)
   else if (faceToolActive())
   {
     faceTool().moveSelection(delta);
+  }
+  else if (controlPointToolActive())
+  {
+    controlPointTool().moveSelection(delta);
   }
 }
 
@@ -398,18 +437,25 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   m_vertexTool = std::make_unique<VertexTool>(m_document);
   m_edgeTool = std::make_unique<EdgeTool>(m_document);
   m_faceTool = std::make_unique<FaceTool>(m_document);
+  m_controlPointTool = std::make_unique<ControlPointTool>(m_document);
 
   addExclusiveToolGroup(
     assembleBrushTool(),
     rotateTool(),
     scaleTool(),
     shearTool(),
+    controlPointTool(),
     edgeTool(),
     faceTool(),
     clipTool());
 
   addExclusiveToolGroup(
-    assembleBrushTool(), vertexTool(), edgeTool(), faceTool(), clipTool());
+    assembleBrushTool(),
+    vertexTool(),
+    edgeTool(),
+    faceTool(),
+    controlPointTool(),
+    clipTool());
 
   suppressWhileActive(
     assembleBrushTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
@@ -419,6 +465,8 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   suppressWhileActive(vertexTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(edgeTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(faceTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(
+    controlPointTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(clipTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
 
   registerTool(moveObjectsTool(), bookCtrl);
@@ -431,6 +479,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   registerTool(vertexTool(), bookCtrl);
   registerTool(edgeTool(), bookCtrl);
   registerTool(faceTool(), bookCtrl);
+  registerTool(controlPointTool(), bookCtrl);
   registerTool(createEntityTool(), bookCtrl);
   registerTool(drawShapeTool(), bookCtrl);
 
@@ -510,6 +559,10 @@ void MapViewToolBox::updateToolPage()
   else if (faceToolActive())
   {
     faceTool().showPage();
+  }
+  else if (controlPointToolActive())
+  {
+    controlPointTool().showPage();
   }
   else if (clipToolActive())
   {

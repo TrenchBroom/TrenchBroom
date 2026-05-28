@@ -119,6 +119,10 @@ std::string actionContextName(const ActionContext::Type actionContext)
     {
       actionContexts.emplace_back("any vertex tool");
     }
+    if (actionContext & ActionContext::ControlPointTool)
+    {
+      actionContexts.emplace_back("control point tool");
+    }
   }
 
   return kdl::str_join(actionContexts, ", ");

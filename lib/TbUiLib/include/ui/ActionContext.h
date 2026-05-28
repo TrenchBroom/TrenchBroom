@@ -37,12 +37,14 @@ constexpr Type RotateTool = 1u << 5u;
 constexpr Type ScaleTool = 1u << 6u;
 constexpr Type ShearTool = 1u << 7u;
 constexpr Type AnyVertexTool = 1u << 8u;
+constexpr Type ControlPointTool = 1u << 9u;
+constexpr Type AnyNodeHandleTool = AnyVertexTool | ControlPointTool;
 constexpr Type AnyTool =
-  AnyVertexTool | AssembleBrushTool | ClipTool | RotateTool | ScaleTool | ShearTool;
+  AnyNodeHandleTool | AssembleBrushTool | ClipTool | RotateTool | ScaleTool | ShearTool;
 constexpr Type AnyOrNoTool = AnyTool | NoTool;
-constexpr Type NoSelection = 1u << 9u;
-constexpr Type NodeSelection = 1u << 10u;
-constexpr Type FaceSelection = 1u << 11u;
+constexpr Type NoSelection = 1u << 10u;
+constexpr Type NodeSelection = 1u << 11u;
+constexpr Type FaceSelection = 1u << 12u;
 constexpr Type AnySelection = NodeSelection | FaceSelection;
 constexpr Type AnyOrNoSelection = AnySelection | NoSelection;
 constexpr Type Any = AnyView | AnyOrNoSelection | AnyOrNoTool;

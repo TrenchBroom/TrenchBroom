@@ -29,6 +29,7 @@ namespace tb::ui
 {
 class AppController;
 class ClipTool;
+class ControlPointTool;
 class EdgeTool;
 class FaceTool;
 class Inspector;
