@@ -7,6 +7,7 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_cartesian_product_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_chunk_by_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_chunk_view.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_concat_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_enumerate_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_join_with_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_movable_box.cpp"
