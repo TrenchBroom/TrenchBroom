@@ -49,18 +49,22 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadWalTexture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Assets.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Brushes.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Commands.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_CopyPaste.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Entities.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_EntityLinks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Geometry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Groups.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Initialization.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Layers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeIndex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeLocking.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Nodes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeVisibility.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Picking.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Persistence.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Selection.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_TagManagement.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_World.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapHeader.cpp

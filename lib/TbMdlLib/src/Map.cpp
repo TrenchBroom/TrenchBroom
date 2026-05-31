@@ -1363,6 +1363,8 @@ void Map::updateGameFileSystem()
     gamePath(),
     searchPaths,
     logger());
+
+  entityModelManager().reloadShaders(m_taskManager);
 }
 
 void Map::initializeNodeIndex()

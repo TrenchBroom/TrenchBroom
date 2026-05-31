@@ -52,7 +52,12 @@ Result<std::filesystem::path> findMaterialFile(
   const std::filesystem::path& materialPath,
   const std::vector<std::filesystem::path>& extensions)
 {
-  if (fs.pathInfo(materialPath) == fs::PathInfo::File)
+  const auto extensionMatcher =
+    !extensions.empty() ? fs::makeExtensionPathMatcher(extensions) : fs::matchAnyPath;
+
+  if (
+    fs.pathInfo(materialPath) == fs::PathInfo::File
+    && extensionMatcher(materialPath, [](const auto&) { return fs::PathInfo::Unknown; }))
   {
     return materialPath;
   }
@@ -65,7 +70,7 @@ Result<std::filesystem::path> findMaterialFile(
   const auto matcher = kdl::logical_and(
     fs::makeFilenamePathMatcher(
       kdl::path_remove_extension(materialPath.filename()).string() + ".*"),
-    fs::makeExtensionPathMatcher(extensions));
+    extensionMatcher);
 
   return fs.find(materialPath.parent_path(), fs::TraversalMode::Flat, matcher)
          | kdl::transform([&](const auto& candidates) {

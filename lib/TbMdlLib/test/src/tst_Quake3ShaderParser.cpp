@@ -281,6 +281,35 @@ textures/eerie/ironcrosslt2_10000
       }}));
   }
 
+  SECTION("Normalize backslash paths")
+  {
+    const auto data = R"(
+textures\eerie\ironcrosslt2_10000
+{
+    q3map_lightimage textures\gothic_light\ironcrosslt2.blend.tga
+    qer_editorimage textures\gothic_light\ironcrosslt2.tga
+    {
+    map textures\gothic_light\ironcrosslt2.blend.tga
+    }
+}
+)";
+    auto parser = Quake3ShaderParser{data};
+
+    CHECK_THAT(
+      parser.parse(status).value(),
+      UnorderedEquals(std::vector<mdl::Quake3Shader>{{{
+        "textures/eerie/ironcrosslt2_10000",            // shaderPath
+        "textures/gothic_light/ironcrosslt2.tga",       // editorImage
+        "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
+        mdl::Quake3Shader::Culling::Front,              // culling
+        {},                                             // surfaceParms
+        {{
+          "textures/gothic_light/ironcrosslt2.blend.tga", // map
+          {"", ""}                                        // blendFunc
+        }} // stages
+      }}}));
+  }
+
   SECTION("Parse shader with a comment terminating a block entry")
   {
     const auto data = R"(

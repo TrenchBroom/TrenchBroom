@@ -65,7 +65,7 @@ auto parseShaders(fs::Reader reader, const size_t shaderCount)
   {
     const auto shaderName = reader.readString(Md3Layout::ShaderNameLength);
     /* const auto shaderIndex = */ reader.readSize<int32_t>();
-    shaders.emplace_back(shaderName);
+    shaders.emplace_back(kdl::parse_path(shaderName));
   }
 
   return shaders;
