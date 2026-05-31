@@ -54,7 +54,7 @@ std::vector<Node*> collectOldChildren(
   auto result = std::vector<Node*>{};
   for (auto& [parent, newChildren] : nodes)
   {
-    result = kdl::vec_concat(std::move(result), parent->children());
+    kdl::vec_append(result, parent->children());
   }
   return result;
 }
@@ -77,10 +77,9 @@ auto doReplaceChildren(
 
   for (auto& [parent, newChildren] : nodes)
   {
-    allNewChildren = kdl::vec_concat(
-      std::move(allNewChildren), newChildren | std::views::transform([](auto& child) {
-                                   return child.get();
-                                 }) | kdl::ranges::to<std::vector>());
+    kdl::vec_append(allNewChildren, newChildren | std::views::transform([](auto& child) {
+                                      return child.get();
+                                    }) | kdl::ranges::to<std::vector>());
 
     auto oldChildren = parent->replaceChildren(std::move(newChildren));
 

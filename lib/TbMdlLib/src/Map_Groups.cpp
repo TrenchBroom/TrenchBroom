@@ -40,9 +40,11 @@
 
 #include "kd/contracts.h"
 #include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/stable_remove_duplicates.h"
 #include "kd/string_format.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>
@@ -327,7 +329,7 @@ void ungroupSelectedNodes(Map& map)
         auto* parent = groupNode.parent();
         const auto children = groupNode.children();
         success = success && reparentNodes(map, {{parent, children}});
-        nodesToReselect = kdl::vec_concat(std::move(nodesToReselect), children);
+        kdl::vec_append(nodesToReselect, children);
       },
       [&](EntityNode& entityNode) { nodesToReselect.push_back(&entityNode); },
       [&](BrushNode& brushNode) { nodesToReselect.push_back(&brushNode); },
@@ -455,22 +457,22 @@ void separateSelectedLinkedGroups(Map& map, const bool relinkGroups)
       {
         groupsToRelink.push_back(selectedLinkedGroups);
       }
-      groupsToUnlink =
-        kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
+      kdl::vec_append(groupsToUnlink, std::move(selectedLinkedGroups));
     }
     else if (selectedLinkedGroups.size() > 1 && !relinkGroups)
     {
       // all members of a link group are being separated, and we don't want to relink
       // them, so we need to reset their linked group IDs
-      groupsToUnlink =
-        kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
+      kdl::vec_append(groupsToUnlink, std::move(selectedLinkedGroups));
     }
   }
 
-  const auto changedLinkedGroups = kdl::vec_sort_and_remove_duplicates(kdl::vec_concat(
-    collectContainingGroups(groupsToUnlink | kdl::ranges::to<std::vector<Node*>>()),
-    collectContainingGroups(
-      groupsToRelink | std::views::join | kdl::ranges::to<std::vector<Node*>>())));
+  const auto changedLinkedGroups = kdl::vec_sort_and_remove_duplicates(
+    kdl::views::concat(
+      collectContainingGroups(groupsToUnlink | kdl::ranges::to<std::vector<Node*>>()),
+      collectContainingGroups(
+        groupsToRelink | std::views::join | kdl::ranges::to<std::vector<Node*>>()))
+    | kdl::ranges::to<std::vector>());
 
   if (checkLinkedGroupsToUpdate(changedLinkedGroups))
   {

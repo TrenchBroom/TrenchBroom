@@ -30,6 +30,7 @@
 #include "mdl/NodeReader.h"
 #include "mdl/TestUtils.h"
 
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
@@ -1518,7 +1519,7 @@ TEST_CASE("Brush")
         {+64, +64, -64},
         {+64, -64, -64}};
       const auto vertexPositions =
-        kdl::vec_concat(std::vector<vm::vec3d>{peakPosition}, baseQuadVertexPositions);
+        kdl::vec_push_back(baseQuadVertexPositions, peakPosition);
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
@@ -2059,7 +2060,8 @@ TEST_CASE("Brush")
       };
 
       const auto vertexPositions =
-        kdl::vec_concat(smallerTopPolygon, cubeTopFace, cubeBottomFace);
+        kdl::views::concat(smallerTopPolygon, cubeTopFace, cubeBottomFace)
+        | kdl::ranges::to<std::vector>();
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
@@ -2122,7 +2124,8 @@ TEST_CASE("Brush")
       };
 
       const auto vertexPositions =
-        kdl::vec_concat(leftPolygon, bottomPolygon, bottomRightPolygon);
+        kdl::views::concat(leftPolygon, bottomPolygon, bottomRightPolygon)
+        | kdl::ranges::to<std::vector>();
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =

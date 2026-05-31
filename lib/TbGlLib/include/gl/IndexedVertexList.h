@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "gl/GlUtils.h"
+#include "gl/MiniGl.h"
 
 #include "kd/contracts.h"
 #include "kd/vector_utils.h"
@@ -74,7 +74,7 @@ public:
       m_allowDynamicGrowth
       || vertices.size() <= m_vertices.capacity() - m_vertices.size());
 
-    m_vertices = kdl::vec_concat(std::move(m_vertices), vertices);
+    kdl::vec_append(m_vertices, vertices);
   }
 
   void addPrimitive(const typename T::Vertex::List& vertices)
@@ -95,9 +95,9 @@ public:
       m_allowDynamicGrowth
       || primitives.counts().size() <= m_counts.capacity() - m_counts.size());
 
-    m_vertices = kdl::vec_concat(std::move(m_vertices), primitives.vertices());
-    m_indices = kdl::vec_concat(std::move(m_indices), primitives.indices());
-    m_counts = kdl::vec_concat(std::move(m_counts), primitives.counts());
+    kdl::vec_append(m_vertices, primitives.vertices());
+    kdl::vec_append(m_indices, primitives.indices());
+    kdl::vec_append(m_counts, primitives.counts());
     m_primStart = m_vertices.size();
   }
 

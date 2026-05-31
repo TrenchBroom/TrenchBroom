@@ -28,11 +28,13 @@
 #include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/ranges/chunk_by_view.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/ranges/zip_transform_view.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
 #include "kd/task_manager.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <string_view>
@@ -411,8 +413,10 @@ void preserveEntityProperties(
   auto clonedEntity = clonedEntityNode.entity();
   const auto& correspondingEntity = correspondingEntityNode.entity();
 
-  const auto allProtectedProperties = kdl::vec_sort_and_remove_duplicates(kdl::vec_concat(
-    clonedEntity.protectedProperties(), correspondingEntity.protectedProperties()));
+  const auto allProtectedProperties = kdl::vec_sort_and_remove_duplicates(
+    kdl::views::concat(
+      clonedEntity.protectedProperties(), correspondingEntity.protectedProperties())
+    | kdl::ranges::to<std::vector>());
 
   clonedEntity.setProtectedProperties(correspondingEntity.protectedProperties());
 
@@ -783,8 +787,8 @@ std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
       if (
         auto* existingLinkedGroup = dynamic_cast<GroupNode*>(existingLinkedNodes.front()))
       {
-        errors = kdl::vec_concat(
-          std::move(errors),
+        kdl::vec_append(
+          errors,
           copyAndSetLinkIds(
             *existingLinkedGroup,
             std::vector(linkedGroupsToAdd.begin(), linkedGroupsToAdd.end())));

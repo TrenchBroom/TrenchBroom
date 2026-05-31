@@ -41,6 +41,7 @@
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 #include "kd/string_compare.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>
@@ -76,9 +77,8 @@ void selectSiblingNodes(Map& map)
     auto* parent = node->parent();
     if (visited.insert(parent).second)
     {
-      nodesToSelect = kdl::vec_concat(
-        std::move(nodesToSelect),
-        collectSelectableNodes(parent->children(), map.editorContext()));
+      kdl::vec_append(
+        nodesToSelect, collectSelectableNodes(parent->children(), map.editorContext()));
     }
   }
 
@@ -229,8 +229,8 @@ void selectNodesWithFilePosition(Map& map, const std::vector<size_t>& positions)
           if (previousCount == nodesToSelect.size())
           {
             // no child was selected, select all children
-            nodesToSelect = kdl::vec_concat(
-              std::move(nodesToSelect),
+            kdl::vec_append(
+              nodesToSelect,
               collectSelectableNodes(entityNode.children(), map.editorContext()));
           }
         }

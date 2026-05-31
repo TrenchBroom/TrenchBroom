@@ -229,8 +229,8 @@ std::vector<std::string> getSupportedFreeImageExtensions()
     {
       const auto extensionListStr =
         kdl::str_to_lower(std::string{FreeImage_GetFIFExtensionList(format)});
-      result = kdl::vec_concat(
-        std::move(result),
+      kdl::vec_append(
+        result,
         kdl::str_split(extensionListStr, ",")
           | std::views::transform([](const auto& extension) { return "." + extension; })
           | kdl::ranges::to<std::vector>());

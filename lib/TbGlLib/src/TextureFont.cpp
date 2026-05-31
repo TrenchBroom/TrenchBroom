@@ -179,8 +179,7 @@ private:
   void makeQuads(const std::string& str, const float x)
   {
     const auto offset = m_offset + vm::vec2f(x, m_y);
-    m_vertices =
-      kdl::vec_concat(std::move(m_vertices), m_font.quads(str, m_clockwise, offset));
+    kdl::vec_append(m_vertices, m_font.quads(str, m_clockwise, offset));
 
     m_y -= m_sizes[m_index].y();
     m_index++;

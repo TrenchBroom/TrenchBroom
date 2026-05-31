@@ -55,6 +55,7 @@
 #include "kd/result_fold.h"
 #include "kd/string_format.h"
 #include "kd/task_manager.h"
+#include "kd/vector_utils.h"
 
 #include <ranges>
 
@@ -260,8 +261,7 @@ TransformVerticesResult transformVertices(
                | kdl::transform([&]() {
                    auto newPositions =
                      brush.findClosestVertexPositions(transform * verticesToMove);
-                   newVertexPositions = kdl::vec_concat(
-                     std::move(newVertexPositions), std::move(newPositions));
+                   kdl::vec_append(newVertexPositions, std::move(newPositions));
                  })
                | kdl::if_error([&](auto e) {
                    map.logger().error() << "Could not move brush vertices: " << e.msg;
@@ -340,8 +340,7 @@ bool transformEdges(
                        return edge.transform(transform);
                      })
                      | kdl::ranges::to<std::vector>());
-                   newEdgePositions = kdl::vec_concat(
-                     std::move(newEdgePositions), std::move(newPositions));
+                   kdl::vec_append(newEdgePositions, std::move(newPositions));
                  })
                | kdl::if_error([&](auto e) {
                    map.logger().error() << "Could not move brush edges: " << e.msg;
@@ -413,8 +412,7 @@ bool transformFaces(
                        return face.transform(transform);
                      })
                      | kdl::ranges::to<std::vector>());
-                   newFacePositions = kdl::vec_concat(
-                     std::move(newFacePositions), std::move(newPositions));
+                   kdl::vec_append(newFacePositions, std::move(newPositions));
                  })
                | kdl::if_error([&](auto e) {
                    map.logger().error() << "Could not move brush faces: " << e.msg;
@@ -745,8 +743,7 @@ bool csgSubtract(Map& map)
                                              })
                                            | kdl::ranges::to<std::vector>();
                         auto& toAddForParent = toAdd[minuendNode->parent()];
-                        toAddForParent = kdl::vec_concat(
-                          std::move(toAddForParent), std::move(resultNodes));
+                        kdl::vec_append(toAddForParent, std::move(resultNodes));
                       }
 
                       toRemove.push_back(minuendNode);
@@ -850,8 +847,7 @@ bool csgHollow(Map& map)
                        | kdl::ranges::to<std::vector>();
 
                      auto& toAddForParent = toAdd[brushNode->parent()];
-                     toAddForParent =
-                       kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
+                     kdl::vec_append(toAddForParent, fragmentNodes);
                      toRemove.push_back(brushNode);
                    });
         })

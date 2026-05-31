@@ -28,6 +28,7 @@
 
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 #include "kd/result.h"
@@ -587,14 +588,16 @@ bool Brush::canAddVertex(const vm::bbox3d& worldBounds, const vm::vec3d& positio
   }
 
   BrushGeometry newGeometry(
-    kdl::vec_concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>({position})));
+    kdl::views::concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>({position}))
+    | kdl::ranges::to<std::vector>());
   return newGeometry.hasVertex(position);
 }
 
 Result<void> Brush::addVertex(const vm::bbox3d& worldBounds, const vm::vec3d& position)
 {
   BrushGeometry newGeometry(
-    kdl::vec_concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>({position})));
+    kdl::views::concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>({position}))
+    | kdl::ranges::to<std::vector>());
   const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
   return updateFacesFromGeometry(worldBounds, matcher, newGeometry);
 }
@@ -1052,7 +1055,7 @@ std::optional<vm::mat4x4d> Brush::findTransformForUVLock(
   // movedVerts.size() > 3) we should sort them somehow. This can be seen if you select
   // and move 3/5 verts of a pentagon; which of the 3 moving verts currently gets UV
   // lock is arbitrary.
-  referenceVerts = kdl::vec_concat(std::move(referenceVerts), movedVerts);
+  kdl::vec_append(referenceVerts, movedVerts);
 
   if (referenceVerts.size() < 3)
   {
@@ -1167,7 +1170,7 @@ std::vector<Result<Brush>> Brush::subtract(
     for (const BrushGeometry& fragment : result)
     {
       auto subFragments = fragment.subtract(*subtrahend->m_geometry);
-      nextResults = kdl::vec_concat(std::move(nextResults), std::move(subFragments));
+      kdl::vec_append(nextResults, std::move(subFragments));
     }
 
     result = std::move(nextResults);
@@ -1192,7 +1195,7 @@ std::vector<Result<Brush>> Brush::subtract(
 
 Result<void> Brush::intersect(const vm::bbox3d& worldBounds, const Brush& brush)
 {
-  m_faces = kdl::vec_concat(std::move(m_faces), brush.faces());
+  kdl::vec_append(m_faces, brush.faces());
   return updateGeometryFromFaces(worldBounds);
 }
 

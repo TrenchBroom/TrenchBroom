@@ -51,7 +51,7 @@ IssueQuickFix makeMoveBrushesToWorldQuickFix()
               nodesToReparent[node.parent()] = node.children();
 
               affectedNodes.push_back(&node);
-              affectedNodes = kdl::vec_concat(std::move(affectedNodes), node.children());
+              kdl::vec_append(affectedNodes, node.children());
             }
 
             deselectAll(map);

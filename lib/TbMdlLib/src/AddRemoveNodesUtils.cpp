@@ -35,7 +35,7 @@ void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& ma
   for (const auto& [parent, children] : nodes)
   {
     parent->addChildren(children);
-    addedNodes = kdl::vec_concat(std::move(addedNodes), children);
+    kdl::vec_append(addedNodes, children);
   }
 
   map.nodesWereAddedNotifier(addedNodes);

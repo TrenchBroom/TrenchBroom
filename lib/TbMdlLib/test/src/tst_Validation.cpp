@@ -63,27 +63,23 @@ auto collectIssues(WorldNode& worldNode, const std::vector<const Validator*>& va
   auto issues = std::vector<const Issue*>{};
   worldNode.accept(kdl::overload(
     [&](auto&& thisLambda, WorldNode& w) {
-      issues = kdl::vec_concat(std::move(issues), w.issues(validators));
+      kdl::vec_append(issues, w.issues(validators));
       w.visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, LayerNode& l) {
-      issues = kdl::vec_concat(std::move(issues), l.issues(validators));
+      kdl::vec_append(issues, l.issues(validators));
       l.visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, GroupNode& g) {
-      issues = kdl::vec_concat(std::move(issues), g.issues(validators));
+      kdl::vec_append(issues, g.issues(validators));
       g.visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, EntityNode& e) {
-      issues = kdl::vec_concat(std::move(issues), e.issues(validators));
+      kdl::vec_append(issues, e.issues(validators));
       e.visitChildren(thisLambda);
     },
-    [&](BrushNode& b) {
-      issues = kdl::vec_concat(std::move(issues), b.issues(validators));
-    },
-    [&](PatchNode& p) {
-      issues = kdl::vec_concat(std::move(issues), p.issues(validators));
-    }));
+    [&](BrushNode& b) { kdl::vec_append(issues, b.issues(validators)); },
+    [&](PatchNode& p) { kdl::vec_append(issues, p.issues(validators)); }));
   return issues;
 }
 
