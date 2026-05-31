@@ -55,6 +55,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_EntityLinks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Geometry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Groups.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Initialization.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Layers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeIndex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeLocking.cpp
