@@ -49,6 +49,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadWalTexture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Assets.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Brushes.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Commands.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_CopyPaste.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Entities.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_EntityLinks.cpp
