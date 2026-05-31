@@ -23,6 +23,7 @@
 #include "ParserStatus.h"
 #include "mdl/Quake3Shader.h"
 
+#include "kd/path_utils.h"
 #include "kd/string_compare.h"
 #include "kd/string_format.h"
 
@@ -210,11 +211,11 @@ void Quake3ShaderParser::parseTexture(Quake3Shader& shader, ParserStatus& /* sta
   if (!pathStr.empty() && pathStr[0] == '/')
   {
     // 2633: Q3 accepts absolute shader paths, so we just strip the leading slash
-    shader.shaderPath = std::filesystem::path{pathStr.substr(1)};
+    shader.shaderPath = kdl::parse_path(pathStr.substr(1));
   }
   else
   {
-    shader.shaderPath = std::filesystem::path{token.data()};
+    shader.shaderPath = kdl::parse_path(token.data());
   }
 }
 
@@ -227,12 +228,12 @@ void Quake3ShaderParser::parseBodyEntry(Quake3Shader& shader, ParserStatus& /* s
   if (kdl::ci::str_is_equal(key, "qer_editorimage"))
   {
     token = m_tokenizer.nextToken(Quake3ShaderToken::String);
-    shader.editorImage = std::filesystem::path{token.data()};
+    shader.editorImage = kdl::parse_path(token.data());
   }
   else if (kdl::ci::str_is_equal(key, "q3map_lightimage"))
   {
     token = m_tokenizer.nextToken(Quake3ShaderToken::String);
-    shader.lightImage = std::filesystem::path{token.data()};
+    shader.lightImage = kdl::parse_path(token.data());
   }
   else if (kdl::ci::str_is_equal(key, "surfaceparm"))
   {
@@ -273,7 +274,7 @@ void Quake3ShaderParser::parseStageEntry(Quake3ShaderStage& stage, ParserStatus&
   {
     token =
       m_tokenizer.nextToken(Quake3ShaderToken::String | Quake3ShaderToken::Variable);
-    stage.map = std::filesystem::path{token.data()};
+    stage.map = kdl::parse_path(token.data());
   }
   else if (kdl::ci::str_is_equal(key, "blendFunc"))
   {
