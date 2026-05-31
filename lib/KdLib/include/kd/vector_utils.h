@@ -344,6 +344,39 @@ auto vec_push_back(std::vector<T, A> v, Args... args)
 }
 
 /**
+ * Appends the elements of the given range. If R&& is an rvalue reference, the elements
+ * are moved, otherwise they are copied.
+ *
+ * @tparam T the element type
+ * @tparam A the allocator type
+ * @tparam R the type of the range
+ * @param v the vector to append to
+ * @param r the range of elements to append
+ */
+template <typename T, typename A, std::ranges::range R>
+void vec_append(std::vector<T, A>& v, R&& r)
+{
+  if constexpr (std::ranges::sized_range<R>)
+  {
+    v.reserve(v.size() + std::ranges::size(r));
+  }
+  if constexpr (std::is_rvalue_reference_v<R&&>)
+  {
+    for (auto it = std::ranges::begin(r); it != std::ranges::end(r); ++it)
+    {
+      v.push_back(std::ranges::iter_move(it));
+    }
+  }
+  else
+  {
+    for (auto it = std::ranges::begin(r); it != std::ranges::end(r); ++it)
+    {
+      v.push_back(*it);
+    }
+  }
+}
+
+/**
  * Returns a slice of the given vector starting at offset and with count elements.
  *
  * The elements are copied into the returned vector.
