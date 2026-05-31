@@ -60,6 +60,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Nodes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeVisibility.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Picking.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Persistence.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Selection.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_World.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map.cpp
