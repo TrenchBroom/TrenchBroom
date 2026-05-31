@@ -160,25 +160,6 @@ static auto makeVec(T&& t, R... r)
   return result;
 }
 
-TEST_CASE("vector_utils_test.vec_concat")
-{
-  using vec = std::vector<int>;
-
-  CHECK_THAT(vec_concat(vec{}), Equals(vec{}));
-  CHECK_THAT(vec_concat(vec{}, vec{}), Equals(vec{}));
-  CHECK_THAT(vec_concat(vec{1}), Equals(vec{1}));
-  CHECK_THAT(vec_concat(vec{1}, vec{2}), Equals(vec{1, 2}));
-}
-
-TEST_CASE("vector_utils_test.vec_concat_move")
-{
-  auto v = makeVec(std::make_unique<int>(1));
-  v = vec_concat(std::move(v), makeVec(std::make_unique<int>(2)));
-
-  CHECK(*v[0] == 1);
-  CHECK(*v[1] == 2);
-}
-
 TEST_CASE("vector_utils_test.vec_push_back")
 {
   using ivec = std::vector<int>;

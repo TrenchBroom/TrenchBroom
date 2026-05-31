@@ -269,62 +269,6 @@ bool vec_contains(const std::vector<T, A>& v, const X& x)
   return std::find(v.begin(), v.end(), x) != v.end();
 }
 
-namespace detail
-{
-template <typename T, typename A>
-void vec_concat(std::vector<T, A>&)
-{
-}
-
-template <typename T, typename A, typename Arg>
-void vec_concat(std::vector<T, A>& v1, const Arg& arg)
-{
-  v1.insert(std::end(v1), std::begin(arg), std::end(arg));
-}
-
-template <typename T, typename A, typename Arg, typename... Rest>
-void vec_concat(std::vector<T, A>& v1, const Arg& arg, Rest&&... rest)
-{
-  vec_concat(v1, arg);
-  vec_concat(v1, std::forward<Rest>(rest)...);
-}
-
-template <typename T, typename A, typename Arg>
-void vec_concat(std::vector<T, A>& v1, Arg&& arg)
-{
-  for (auto& x : arg)
-  {
-    v1.push_back(std::move(x));
-  }
-}
-
-template <typename T, typename A, typename Arg, typename... Rest>
-void vec_concat(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
-{
-  vec_concat(v1, std::forward<Arg>(arg));
-  vec_concat(v1, std::forward<Rest>(rest)...);
-}
-} // namespace detail
-
-/**
- * Concatenates the given vectors. Each element of function argument pack args must be a
- * vector with value_type T and allocator A. If a vector is passed by rvalue reference,
- * its elements will be moved into the result, otherwise they will be copied.
- *
- * @tparam T the element type
- * @tparam A the allocator type
- * @tparam Args parameter pack containing the vectors to append to v
- * @param v the first vector to concatenate
- * @param args the remaining vectors to concatenate
- */
-template <typename T, typename A, typename... Args>
-std::vector<T, A> vec_concat(std::vector<T, A> v, Args... args)
-{
-  v.reserve(kdl::col_total_size(v, args...));
-  detail::vec_concat(v, std::move(args)...);
-  return v;
-}
-
 /**
  * Appends the given elements. Each element must be a type convertible to T and it is
  * perfectly forwarded to std::vector<T, A>::push_back.
