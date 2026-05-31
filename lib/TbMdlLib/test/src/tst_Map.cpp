@@ -19,6 +19,7 @@
 
 #include "Logger.h"
 #include "Observer.h"
+#include "TestLogger.h"
 #include "fs/TestEnvironment.h"
 #include "gl/Material.h"
 #include "gl/MaterialManager.h"
@@ -32,6 +33,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
@@ -2013,6 +2015,38 @@ TEST_CASE("Map")
     auto& map = fixture.create();
 
     CHECK_THROWS_AS(map.throwExceptionDuringCommand(), std::exception);
+  }
+
+  SECTION("setGamePath reloads model shaders")
+  {
+    auto taskManager = createTestTaskManager();
+    auto resourceManager = gl::ResourceManager{};
+    auto logger = TestLogger{};
+
+    auto gameInfo = DefaultGameInfo;
+    gameInfo.gameConfig.materialConfig.shaderSearchPath = "scripts";
+    gameInfo.gamePathPreference.defaultValue =
+      std::filesystem::current_path() / "fixture/test/mdl/LoadMd3Model/armor";
+
+    Map::createMap(
+      environmentConfig,
+      gameInfo,
+      gameInfo.gamePathPreference.defaultValue,
+      MapFormat::Standard,
+      vm::bbox3d{8192.0},
+      *taskManager,
+      resourceManager,
+      logger)
+      | kdl::transform([&](auto map) {
+          const auto warnCountBefore = logger.countMessages(LogLevel::Warn);
+
+          map->setGamePath(
+            std::filesystem::current_path()
+            / "fixture/test/mdl/LoadMaterialCollections/shaders/malformed_shader");
+
+          CHECK(logger.countMessages(LogLevel::Warn) > warnCountBefore);
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e.msg); });
   }
 
   SECTION("Entity definition file handling")
