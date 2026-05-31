@@ -61,6 +61,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeLocking.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Nodes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_NodeVisibility.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Patches.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Picking.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Persistence.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Selection.cpp
