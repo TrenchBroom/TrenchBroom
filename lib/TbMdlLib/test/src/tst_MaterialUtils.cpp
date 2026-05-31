@@ -63,6 +63,9 @@ TEST_CASE("findMaterialFile")
   env.createFile("textures/test.png", "");
   env.createFile("textures/test.jpg", "");
   env.createFile("textures/other.txt", "");
+  env.createFile("textures/other.png", "");
+  env.createFile("textures/mixed.skin", "");
+  env.createFile("textures/mixed.jpg", "");
 
   const auto extensions = std::vector<std::filesystem::path>{".png", ".jpg"};
 
@@ -82,6 +85,9 @@ TEST_CASE("findMaterialFile")
   CHECK(
     findMaterialFile(diskFS, "textures/other.png", extensions)
     == Result<std::filesystem::path>{std::filesystem::path{"textures/other.png"}});
+  CHECK(
+    findMaterialFile(diskFS, "textures/mixed.skin", extensions)
+    == Result<std::filesystem::path>{std::filesystem::path{"textures/mixed.jpg"}});
 }
 
 TEST_CASE("loadDefaultMaterial")
