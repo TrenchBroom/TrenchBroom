@@ -46,8 +46,6 @@ enum class MapFormat;
 class Brush
 {
 private:
-  class CopyCallback;
-
   /**
    * Epsilon value to use when finding a vertex after applying a vertex operation
    */

@@ -52,9 +52,10 @@
 namespace tb::mdl
 {
 
-kdl_reflect_impl(Brush);
+namespace
+{
 
-class Brush::CopyCallback : public BrushGeometry::CopyCallback
+class CopyCallback : public BrushGeometry::CopyCallback
 {
 public:
   void faceWasCopied(
@@ -63,6 +64,75 @@ public:
     copy->setPayload(original->payload());
   }
 };
+
+const BrushFace* findBestMatchingFace(
+  const BrushFace& face, const std::vector<const BrushFace*>& candidates)
+{
+  if (candidates.empty())
+  {
+    return nullptr;
+  }
+
+  // First, look for coplanar candidates
+  const auto coplanarCandidates = candidates
+                                  | std::views::filter([&](const auto* candidate) {
+                                      return candidate->coplanarWith(face.boundary());
+                                    })
+                                  | kdl::ranges::to<std::vector>();
+
+  if (!coplanarCandidates.empty())
+  {
+    // Return the largest coplanar face
+    return *std::ranges::max_element(
+      coplanarCandidates,
+      [](const auto* lhs, const auto* rhs) { return lhs->area() < rhs->area(); });
+  }
+
+  // No coplanar faces. Return the one with the smallest "face center off reference
+  // plane" distance.
+  const auto faceCenterOffPlaneDist = [&](const auto* candidate) -> double {
+    return vm::abs(face.boundary().point_distance(candidate->center()));
+  };
+
+  return *std::ranges::min_element(candidates, [&](const auto* lhs, const auto* rhs) {
+    return faceCenterOffPlaneDist(lhs) < faceCenterOffPlaneDist(rhs);
+  });
+}
+
+BrushGeometry removeVerticesFromGeometry(
+  const BrushGeometry& geometry, const std::vector<vm::vec3d>& vertexPositions)
+{
+  auto points = std::vector<vm::vec3d>{};
+  points.reserve(geometry.vertexCount());
+
+  for (const auto* vertex : geometry.vertices())
+  {
+    const auto& position = vertex->position();
+    if (!kdl::vec_contains(vertexPositions, position))
+    {
+      points.push_back(position);
+    }
+  }
+
+  return BrushGeometry{points};
+}
+
+BrushGeometry snappedGeometry(const BrushGeometry& geometry, const double snapToF)
+{
+  auto points = std::vector<vm::vec3d>{};
+  points.reserve(geometry.vertexCount());
+
+  for (const auto* vertex : geometry.vertices())
+  {
+    points.push_back(snapToF * vm::round(vertex->position() / snapToF));
+  }
+
+  return BrushGeometry{std::move(points)};
+}
+
+} // namespace
+
+kdl_reflect_impl(Brush);
 
 Brush::Brush() {}
 
@@ -75,11 +145,11 @@ Brush::Brush(const Brush& other)
 {
   if (m_geometry)
   {
-    for (BrushFaceGeometry* faceGeometry : m_geometry->faces())
+    for (auto* faceGeometry : m_geometry->faces())
     {
       if (const auto faceIndex = faceGeometry->payload())
       {
-        BrushFace& face = m_faces[*faceIndex];
+        auto& face = m_faces[*faceIndex];
         face.setGeometry(faceGeometry);
       }
     }
@@ -119,11 +189,11 @@ Result<void> Brush::updateGeometryFromFaces(const vm::bbox3d& worldBounds)
 
   for (size_t i = 0u; i < m_faces.size(); ++i)
   {
-    BrushFace& face = m_faces[i];
+    auto& face = m_faces[i];
     const auto result = geometry->clip(face.boundary());
     if (result.success())
     {
-      BrushFaceGeometry* faceGeometry = result.face();
+      auto* faceGeometry = result.face();
       face.setGeometry(faceGeometry);
       faceGeometry->setPayload(i);
     }
@@ -141,10 +211,10 @@ Result<void> Brush::updateGeometryFromFaces(const vm::bbox3d& worldBounds)
   }
 
   // Now collect all faces which still remain
-  std::vector<BrushFace> remainingFaces;
+  auto remainingFaces = std::vector<BrushFace>{};
   remainingFaces.reserve(m_faces.size());
 
-  for (BrushFaceGeometry* faceGeometry : geometry->faces())
+  for (auto* faceGeometry : geometry->faces())
   {
     if (const auto faceIndex = faceGeometry->payload())
     {
@@ -175,21 +245,21 @@ const vm::bbox3d& Brush::bounds() const
 
 std::optional<size_t> Brush::findFace(const std::string& materialName) const
 {
-  return kdl::index_of(m_faces, [&](const BrushFace& face) {
+  return kdl::index_of(m_faces, [&](const auto& face) {
     return face.attributes().materialName() == materialName;
   });
 }
 
 std::optional<size_t> Brush::findFace(const vm::vec3d& normal) const
 {
-  return kdl::index_of(m_faces, [&](const BrushFace& face) {
+  return kdl::index_of(m_faces, [&](const auto& face) {
     return vm::is_equal(face.boundary().normal, normal, vm::Cd::almost_zero());
   });
 }
 
 std::optional<size_t> Brush::findFace(const vm::plane3d& boundary) const
 {
-  return kdl::index_of(m_faces, [&](const BrushFace& face) {
+  return kdl::index_of(m_faces, [&](const auto& face) {
     return vm::is_equal(face.boundary(), boundary, vm::Cd::almost_zero());
   });
 }
@@ -198,7 +268,7 @@ std::optional<size_t> Brush::findFace(
   const vm::polygon3d& vertices, const double epsilon) const
 {
   return kdl::index_of(
-    m_faces, [&](const BrushFace& face) { return face.hasVertices(vertices, epsilon); });
+    m_faces, [&](const auto& face) { return face.hasVertices(vertices, epsilon); });
 }
 
 std::optional<size_t> Brush::findFace(
@@ -254,14 +324,9 @@ bool Brush::fullySpecified() const
 {
   contract_pre(m_geometry != nullptr);
 
-  for (auto* current : m_geometry->faces())
-  {
-    if (!current->payload().has_value())
-    {
-      return false;
-    }
-  }
-  return true;
+  return std::ranges::all_of(m_geometry->faces(), [](const auto* face) {
+    return face->payload() != std::nullopt;
+  });
 }
 
 void Brush::cloneFaceAttributesFrom(const Brush& brush)
@@ -273,48 +338,13 @@ void Brush::cloneFaceAttributesFrom(const Brush& brush)
       const auto& source = brush.face(*sourceIndex);
       destination.setAttributes(source.attributes());
 
-      auto snapshot = source.takeUVCoordSystemSnapshot();
-      if (snapshot != nullptr)
+      if (auto snapshot = source.takeUVCoordSystemSnapshot())
       {
         destination.copyUVCoordSystemFromFace(
           *snapshot, source.attributes(), source.boundary(), WrapStyle::Projection);
       }
     }
   }
-}
-
-static const BrushFace* findBestMatchingFace(
-  const BrushFace& face, const std::vector<const BrushFace*>& candidates)
-{
-  if (candidates.empty())
-  {
-    return nullptr;
-  }
-
-  // First, look for coplanar candidates
-  const auto coplanarCandidates = candidates
-                                  | std::views::filter([&](const auto* candidate) {
-                                      return candidate->coplanarWith(face.boundary());
-                                    })
-                                  | kdl::ranges::to<std::vector>();
-
-  if (!coplanarCandidates.empty())
-  {
-    // Return the largest coplanar face
-    return *std::ranges::max_element(
-      coplanarCandidates,
-      [](const auto* lhs, const auto* rhs) { return lhs->area() < rhs->area(); });
-  }
-
-  // No coplanar faces. Return the one with the smallest "face center off reference
-  // plane" distance.
-  const auto faceCenterOffPlaneDist = [&](const auto* candidate) -> double {
-    return vm::abs(face.boundary().point_distance(candidate->center()));
-  };
-
-  return *std::ranges::min_element(candidates, [&](const auto* lhs, const auto* rhs) {
-    return faceCenterOffPlaneDist(lhs) < faceCenterOffPlaneDist(rhs);
-  });
 }
 
 void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)
@@ -334,8 +364,7 @@ void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)
     {
       face.setAttributes(bestMatch->attributes());
 
-      auto snapshot = bestMatch->takeUVCoordSystemSnapshot();
-      if (snapshot != nullptr)
+      if (auto snapshot = bestMatch->takeUVCoordSystemSnapshot())
       {
         face.copyUVCoordSystemFromFace(
           *snapshot, bestMatch->attributes(), face.boundary(), WrapStyle::Projection);
@@ -354,8 +383,7 @@ void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush)
       // Todo: invert the face attributes?
       destination.setAttributes(source.attributes());
 
-      auto snapshot = source.takeUVCoordSystemSnapshot();
-      if (snapshot != nullptr)
+      if (auto snapshot = source.takeUVCoordSystemSnapshot())
       {
         destination.copyUVCoordSystemFromFace(
           *snapshot, source.attributes(), destination.boundary(), WrapStyle::Projection);
@@ -387,7 +415,7 @@ Result<void> Brush::expand(
 {
   for (auto& face : m_faces)
   {
-    const vm::vec3d moveAmount = face.boundary().normal * delta;
+    const auto moveAmount = face.boundary().normal * delta;
     if (!face.transform(vm::translation_matrix(moveAmount), lockMaterial))
     {
       return Error{"Brush has invalid face"};
@@ -437,13 +465,13 @@ std::vector<vm::vec3d> Brush::findClosestVertexPositions(
 {
   contract_pre(m_geometry != nullptr);
 
-  std::vector<vm::vec3d> result;
+  auto result = std::vector<vm::vec3d>{};
   result.reserve(positions.size());
 
   for (const auto& position : positions)
   {
-    const auto* newVertex = m_geometry->findClosestVertex(position, CloseVertexEpsilon);
-    if (newVertex != nullptr)
+    if (
+      const auto* newVertex = m_geometry->findClosestVertex(position, CloseVertexEpsilon))
     {
       result.push_back(newVertex->position());
     }
@@ -529,22 +557,15 @@ bool Brush::containsPoint(const vm::vec3d& point) const
   {
     return false;
   }
-  else
-  {
-    for (const auto& face : m_faces)
-    {
-      if (face.boundary().point_status(point) == vm::plane_status::above)
-      {
-        return false;
-      }
-    }
-    return true;
-  }
+
+  return std::ranges::none_of(m_faces, [&](const auto& face) {
+    return face.boundary().point_status(point) == vm::plane_status::above;
+  });
 }
 
 std::vector<const BrushFace*> Brush::incidentFaces(const BrushVertex* vertex) const
 {
-  std::vector<const BrushFace*> result;
+  auto result = std::vector<const BrushFace*>{};
   result.reserve(m_faces.size());
 
   auto* first = vertex->leaving();
@@ -587,37 +608,21 @@ bool Brush::canAddVertex(const vm::bbox3d& worldBounds, const vm::vec3d& positio
     return false;
   }
 
-  BrushGeometry newGeometry(
-    kdl::views::concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>({position}))
-    | kdl::ranges::to<std::vector>());
+  auto newGeometry = BrushGeometry{
+    kdl::views::concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>{position})
+    | kdl::ranges::to<std::vector>()};
+
   return newGeometry.hasVertex(position);
 }
 
 Result<void> Brush::addVertex(const vm::bbox3d& worldBounds, const vm::vec3d& position)
 {
-  BrushGeometry newGeometry(
-    kdl::views::concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>({position}))
-    | kdl::ranges::to<std::vector>());
-  const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
+  auto newGeometry = BrushGeometry{
+    kdl::views::concat(m_geometry->vertexPositions(), std::vector<vm::vec3d>{position})
+    | kdl::ranges::to<std::vector>()};
+
+  const auto matcher = PolyhedronMatcher<BrushGeometry>{*m_geometry, newGeometry};
   return updateFacesFromGeometry(worldBounds, matcher, newGeometry);
-}
-
-static BrushGeometry removeVerticesFromGeometry(
-  const BrushGeometry& geometry, const std::vector<vm::vec3d>& vertexPositions)
-{
-  std::vector<vm::vec3d> points;
-  points.reserve(geometry.vertexCount());
-
-  for (const auto* vertex : geometry.vertices())
-  {
-    const auto& position = vertex->position();
-    if (!kdl::vec_contains(vertexPositions, position))
-    {
-      points.push_back(position);
-    }
-  }
-
-  return BrushGeometry(points);
 }
 
 bool Brush::canRemoveVertices(
@@ -637,23 +642,10 @@ Result<void> Brush::removeVertices(
   contract_pre(!vertexPositions.empty());
   contract_pre(canRemoveVertices(worldBounds, vertexPositions));
 
-  const BrushGeometry newGeometry =
-    removeVerticesFromGeometry(*m_geometry, vertexPositions);
-  const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
+  const auto newGeometry = removeVerticesFromGeometry(*m_geometry, vertexPositions);
+  const auto matcher = PolyhedronMatcher<BrushGeometry>{*m_geometry, newGeometry};
+
   return updateFacesFromGeometry(worldBounds, matcher, newGeometry);
-}
-
-static BrushGeometry snappedGeometry(const BrushGeometry& geometry, const double snapToF)
-{
-  std::vector<vm::vec3d> points;
-  points.reserve(geometry.vertexCount());
-
-  for (const auto* vertex : geometry.vertices())
-  {
-    points.push_back(snapToF * vm::round(vertex->position() / snapToF));
-  }
-
-  return BrushGeometry(std::move(points));
 }
 
 bool Brush::canSnapVertices(
@@ -669,20 +661,22 @@ Result<void> Brush::snapVertices(
 {
   contract_pre(m_geometry != nullptr);
 
-  const BrushGeometry newGeometry = snappedGeometry(*m_geometry, snapToF);
+  const auto newGeometry = snappedGeometry(*m_geometry, snapToF);
 
-  std::map<vm::vec3d, vm::vec3d> vertexMapping;
+  auto vertexMapping = std::map<vm::vec3d, vm::vec3d>{};
   for (const auto* vertex : m_geometry->vertices())
   {
     const auto& origin = vertex->position();
-    const auto destination = snapToF * round(origin / snapToF);
-    if (newGeometry.hasVertex(destination))
+    if (const auto destination = snapToF * round(origin / snapToF);
+        newGeometry.hasVertex(destination))
     {
-      vertexMapping.insert(std::make_pair(origin, destination));
+      vertexMapping.emplace(origin, destination);
     }
   }
 
-  const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
+  const auto matcher =
+    PolyhedronMatcher<BrushGeometry>{*m_geometry, newGeometry, vertexMapping};
+
   return updateFacesFromGeometry(worldBounds, matcher, newGeometry, uvLock);
 }
 
@@ -694,7 +688,7 @@ bool Brush::canTransformEdges(
   contract_pre(m_geometry != nullptr);
   contract_pre(!edgePositions.empty());
 
-  std::vector<vm::vec3d> vertexPositions;
+  auto vertexPositions = std::vector<vm::vec3d>{};
   vm::segment3d::get_vertices(
     std::begin(edgePositions),
     std::end(edgePositions),
@@ -707,15 +701,9 @@ bool Brush::canTransformEdges(
     return false;
   }
 
-  for (const auto& edge : edgePositions)
-  {
-    if (!result.geometry->hasEdge(transform * edge.start(), transform * edge.end()))
-    {
-      return false;
-    }
-  }
-
-  return true;
+  return std::ranges::all_of(edgePositions, [&](const auto& edge) {
+    return result.geometry->hasEdge(transform * edge.start(), transform * edge.end());
+  });
 }
 
 Result<void> Brush::transformEdges(
@@ -727,7 +715,7 @@ Result<void> Brush::transformEdges(
   // too expensive for contract_pre
   assert(canTransformEdges(worldBounds, edgePositions, transform));
 
-  std::vector<vm::vec3d> vertexPositions;
+  auto vertexPositions = std::vector<vm::vec3d>{};
   vm::segment3d::get_vertices(
     std::begin(edgePositions),
     std::end(edgePositions),
@@ -743,7 +731,7 @@ bool Brush::canTransformFaces(
   contract_pre(m_geometry != nullptr);
   contract_pre(!facePositions.empty());
 
-  std::vector<vm::vec3d> vertexPositions;
+  auto vertexPositions = std::vector<vm::vec3d>{};
   vm::polygon3d::get_vertices(
     std::begin(facePositions),
     std::end(facePositions),
@@ -756,15 +744,9 @@ bool Brush::canTransformFaces(
     return false;
   }
 
-  for (const auto& face : facePositions)
-  {
-    if (!result.geometry->hasFace(transform * face.vertices()))
-    {
-      return false;
-    }
-  }
-
-  return true;
+  return std::ranges::all_of(facePositions, [&](const auto& face) {
+    return result.geometry->hasFace(transform * face.vertices());
+  });
 }
 
 Result<void> Brush::transformFaces(
@@ -776,7 +758,7 @@ Result<void> Brush::transformFaces(
   // too expensive for contract_pre
   assert(canTransformFaces(worldBounds, facePositions, transform));
 
-  std::vector<vm::vec3d> vertexPositions;
+  auto vertexPositions = std::vector<vm::vec3d>{};
   vm::polygon3d::get_vertices(
     std::begin(facePositions),
     std::end(facePositions),
@@ -850,15 +832,15 @@ Brush::CanTransformVerticesResult Brush::doCanTransformVertices(
   }
 
   const auto vertexSet =
-    std::set<vm::vec3d>(std::begin(vertexPositions), std::end(vertexPositions));
+    std::set<vm::vec3d>{std::begin(vertexPositions), std::end(vertexPositions)};
 
-  std::vector<vm::vec3d> remainingPoints;
+  auto remainingPoints = std::vector<vm::vec3d>{};
   remainingPoints.reserve(vertexCount());
 
-  std::vector<vm::vec3d> transformedPoints;
+  auto transformedPoints = std::vector<vm::vec3d>{};
   transformedPoints.reserve(vertexCount());
 
-  std::vector<vm::vec3d> resultPoints;
+  auto resultPoints = std::vector<vm::vec3d>{};
   resultPoints.reserve(vertexCount());
 
   for (const auto* vertex : m_geometry->vertices())
@@ -878,9 +860,9 @@ Brush::CanTransformVerticesResult Brush::doCanTransformVertices(
     }
   }
 
-  BrushGeometry remaining(remainingPoints);
-  BrushGeometry transformed(transformedPoints);
-  BrushGeometry result(resultPoints);
+  auto remaining = BrushGeometry{remainingPoints};
+  auto transformed = BrushGeometry{transformedPoints};
+  auto result = BrushGeometry{resultPoints};
 
   // Will the result go out of world bounds?
   if (!worldBounds.contains(result.bounds()))
@@ -898,12 +880,11 @@ Brush::CanTransformVerticesResult Brush::doCanTransformVertices(
   if (!allowVertexRemoval)
   {
     // All moving vertices must still be present in the result
-    for (const auto& movingVertex : transformed.vertexPositions())
+    if (!std::ranges::all_of(transformed.vertexPositions(), [&](const auto& vertex) {
+          return result.hasVertex(transform * vertex);
+        }))
     {
-      if (!result.hasVertex(transform * movingVertex))
-      {
-        return CanTransformVerticesResult::reject();
-      }
+      return CanTransformVerticesResult::reject();
     }
   }
 
@@ -952,7 +933,7 @@ Brush::CanTransformVerticesResult Brush::doCanTransformVertices(
         && face->pointStatus(newPos, vm::constants<double>::point_status_epsilon())
              == vm::plane_status::above)
       {
-        const auto ray = vm::ray3d(oldPos, normalize(newPos - oldPos));
+        const auto ray = vm::ray3d{oldPos, normalize(newPos - oldPos)};
         if (face->intersectWithRay(ray, vm::side::back))
         {
           return CanTransformVerticesResult::reject();
@@ -976,7 +957,7 @@ Result<void> Brush::doTransformVertices(
   // too expensive for contract_pre
   assert(canTransformVertices(worldBounds, vertexPositions, transform));
 
-  std::vector<vm::vec3d> newVertices;
+  auto newVertices = std::vector<vm::vec3d>{};
   newVertices.reserve(vertexCount());
 
   for (const auto* vertex : m_geometry->vertices())
@@ -992,10 +973,9 @@ Result<void> Brush::doTransformVertices(
     }
   }
 
-  BrushGeometry newGeometry(newVertices);
+  auto newGeometry = BrushGeometry{newVertices};
 
-  using VecMap = std::map<vm::vec3d, vm::vec3d>;
-  VecMap vertexMapping;
+  auto vertexMapping = std::map<vm::vec3d, vm::vec3d>{};
   for (auto* oldVertex : m_geometry->vertices())
   {
     const auto& oldPosition = oldVertex->position();
@@ -1009,7 +989,8 @@ Result<void> Brush::doTransformVertices(
     }
   }
 
-  const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
+  const auto matcher =
+    PolyhedronMatcher<BrushGeometry>{*m_geometry, newGeometry, vertexMapping};
   return updateFacesFromGeometry(worldBounds, matcher, newGeometry, uvLock);
 }
 
@@ -1018,8 +999,8 @@ std::optional<vm::mat4x4d> Brush::findTransformForUVLock(
   BrushFaceGeometry* left,
   BrushFaceGeometry* right)
 {
-  std::vector<vm::vec3d> unmovedVerts;
-  std::vector<std::pair<vm::vec3d, vm::vec3d>> movedVerts;
+  auto unmovedVerts = std::vector<vm::vec3d>{};
+  auto movedVerts = std::vector<std::pair<vm::vec3d, vm::vec3d>>{};
 
   matcher.visitMatchingVertexPairs(
     left, right, [&](BrushVertex* leftVertex, BrushVertex* rightVertex) {
@@ -1044,7 +1025,7 @@ std::optional<vm::mat4x4d> Brush::findTransformForUVLock(
     return std::nullopt;
   }
 
-  std::vector<std::pair<vm::vec3d, vm::vec3d>> referenceVerts;
+  auto referenceVerts = std::vector<std::pair<vm::vec3d, vm::vec3d>>{};
 
   // Use unmoving, then moving
   for (const auto& unmovedVert : unmovedVerts)
@@ -1096,10 +1077,10 @@ void Brush::applyUVLock(
     // material alignment locked, then copy the UV attributes from the transformed clone
     // (which should have an identical plane to `rightFace` within FP error) to
     // `rightFace`.
-    BrushFace leftClone = leftFace;
+    auto leftClone = BrushFace{leftFace};
     leftClone.transform(*M, true) | kdl::transform([&]() {
       auto snapshot =
-        std::unique_ptr<UVCoordSystemSnapshot>(leftClone.takeUVCoordSystemSnapshot());
+        std::unique_ptr<UVCoordSystemSnapshot>{leftClone.takeUVCoordSystemSnapshot()};
       rightFace.setAttributes(leftClone.attributes());
       if (snapshot)
       {
@@ -1121,7 +1102,7 @@ Result<void> Brush::updateFacesFromGeometry(
   const BrushGeometry& newGeometry,
   const bool uvLock)
 {
-  std::vector<BrushFace> newFaces;
+  auto newFaces = std::vector<BrushFace>{};
   newFaces.reserve(newGeometry.faces().size());
 
   auto error = std::optional<Error>{};
@@ -1283,7 +1264,7 @@ Result<Brush> Brush::createBrush(
 
 Brush Brush::convertToParaxial() const
 {
-  Brush result(*this);
+  auto result = Brush{*this};
   for (auto& face : result.m_faces)
   {
     face.convertToParaxial();
@@ -1293,7 +1274,7 @@ Brush Brush::convertToParaxial() const
 
 Brush Brush::convertToParallel() const
 {
-  Brush result(*this);
+  auto result = Brush{*this};
   for (auto& face : result.m_faces)
   {
     face.convertToParallel();
@@ -1309,14 +1290,8 @@ bool Brush::checkFaceLinks() const
   }
 
   const auto findFaceGeometry = [&](const BrushFaceGeometry* g) {
-    for (const auto* fg : m_geometry->faces())
-    {
-      if (fg == g)
-      {
-        return true;
-      }
-    }
-    return false;
+    return std::ranges::any_of(
+      m_geometry->faces(), [&](const auto* fg) { return fg == g; });
   };
 
   for (const auto* faceGeometry : m_geometry->faces())
@@ -1334,7 +1309,7 @@ bool Brush::checkFaceLinks() const
     }
   }
 
-  std::set<const BrushFaceGeometry*> faceGeometries;
+  auto faceGeometries = std::set<const BrushFaceGeometry*>{};
   for (const auto& face : m_faces)
   {
     const auto* faceGeometry = face.geometry();
