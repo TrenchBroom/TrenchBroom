@@ -21,6 +21,7 @@
 #include "kd/ranges/concat_view.h"
 
 #include <array>
+#include <compare>
 #include <forward_list>
 #include <iterator>
 #include <list>
@@ -34,6 +35,23 @@
 
 namespace kdl::ranges
 {
+
+// operator<=> is only available when all underlying iterators are
+// three_way_comparable, which is not the case for every standard library
+// implementation (e.g. libc++'s __wrap_iter on some toolchains). This must be a
+// template so the if constexpr discards the (non-)comparison branch instead of
+// the compiler checking the always-non-dependent expression in a plain function.
+template <typename Iterator>
+void checkThreeWayLessIfAvailable(const Iterator& x, const Iterator& y)
+{
+  if constexpr (std::three_way_comparable<Iterator>)
+  {
+    CHECK((x <=> y) == std::strong_ordering::less);
+  }
+}
+
+template <typename T>
+concept has_iterator_category = requires { typename T::iterator_category; };
 
 TEST_CASE("concat")
 {
@@ -87,6 +105,27 @@ TEST_CASE("concat")
     using iter_type = decltype(c.begin());
 
     static_assert(std::is_same_v<iter_type::iterator_concept, std::input_iterator_tag>);
+    // iterator_category is present only for forward-or-better concats.
+    static_assert(!has_iterator_category<iter_type>);
+  }
+
+  SECTION("iterator_category is capped when a non-last range is not common")
+  {
+    // take_while_view of a vector is random-access but not a common_range.
+    // As a non-last input it makes concat neither random-access nor
+    // bidirectional, so iterator_category must not exceed the concept.
+    auto a = std::vector<int>{1, 2, 3};
+    const auto b = std::vector<int>{4, 5};
+    auto tw = a | std::views::take_while([](int) { return true; });
+    static_assert(std::ranges::random_access_range<decltype(tw)>);
+    static_assert(!std::ranges::common_range<decltype(tw)>);
+
+    auto c = ranges::concat_view{tw, b};
+    using iter_type = decltype(c.begin());
+
+    static_assert(std::is_same_v<iter_type::iterator_concept, std::forward_iterator_tag>);
+    static_assert(
+      std::is_same_v<iter_type::iterator_category, std::forward_iterator_tag>);
   }
 
   SECTION("basic concatenation of two vectors")
@@ -329,7 +368,8 @@ TEST_CASE("concat")
     CHECK(second > first);
     CHECK(first <= first);
     CHECK(second >= second);
-    CHECK((first <=> second) == std::strong_ordering::less);
+
+    checkThreeWayLessIfAvailable(first, second);
   }
 
   SECTION("iterator equality across the boundary")

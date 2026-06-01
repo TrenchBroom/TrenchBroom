@@ -195,7 +195,7 @@ public:
   constexpr auto size() const
     requires(!std::same_as<Bound, std::unreachable_sentinel_t>)
   {
-    return static_cast<std::make_unsigned_t<Bound>>(bound_);
+    return to_unsigned_like(bound_);
   }
 
 private:

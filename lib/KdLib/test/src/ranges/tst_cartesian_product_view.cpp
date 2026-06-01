@@ -23,10 +23,6 @@
 #include <algorithm>
 #include <forward_list>
 #include <memory>
-#include <ranges>
-#include <sstream>
-#include <tuple>
-#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -49,7 +45,7 @@ TEST_CASE("cartesian_product")
 {
   using Catch::Matchers::RangeEquals;
 
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types (random access range)")
     {
@@ -80,6 +76,20 @@ TEST_CASE("cartesian_product")
       using iterator_type = decltype(c.begin());
       static_assert(
         std::is_same_v<iterator_type::iterator_concept, std::input_iterator_tag>);
+    }
+
+    SECTION("post increment (first range is input range)")
+    {
+      auto i = std::istringstream{"5 4 3 2 1"};
+      auto iv = std::ranges::istream_view<int>(i);
+      auto w = std::vector<float>{4.0f, 5.0f};
+      auto c = views::cartesian_product(iv, w);
+
+      auto it = c.begin();
+      CHECK(*it == std::tuple{5, 4.0f});
+
+      it++;
+      CHECK(*it == std::tuple{5, 5.0f});
     }
 
     SECTION("required types (first range is forward range)")

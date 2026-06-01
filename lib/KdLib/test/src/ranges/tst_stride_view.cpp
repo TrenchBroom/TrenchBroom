@@ -46,7 +46,7 @@ TEST_CASE("stride")
 {
   using Catch::Matchers::RangeEquals;
 
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types (random access range)")
     {
@@ -76,6 +76,19 @@ TEST_CASE("stride")
       using iterator_type = decltype(s.begin());
       static_assert(
         std::is_same_v<iterator_type::iterator_concept, std::input_iterator_tag>);
+    }
+
+    SECTION("post increment (input range)")
+    {
+      auto i = std::istringstream{"5 4 3 2 1"};
+      auto iv = std::ranges::istream_view<int>(i);
+      auto s = iv | views::stride(3);
+
+      auto it = s.begin();
+      CHECK(*it == 5);
+
+      it++;
+      CHECK(*it == 2);
     }
 
     SECTION("arithmetic")

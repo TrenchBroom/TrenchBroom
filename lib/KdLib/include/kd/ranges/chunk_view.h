@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "detail/integer_like.h"
 #include "detail/non_propagating_cache.h"
 #include "detail/range_utils.h"
 
@@ -58,7 +59,7 @@ public:
       {
         const auto s = std::ranges::min(
           parent_->remainder_, std::ranges::end(parent_->base_) - *parent_->current_);
-        return std::make_unsigned_t<decltype(s)>(s);
+        return to_unsigned_like(s);
       }
 
       constexpr explicit value_type(chunk_view& parent)
@@ -228,14 +229,14 @@ public:
     requires std::ranges::sized_range<V>
   {
     const auto s = detail::div_ceil(std::ranges::distance(base_), n_);
-    return std::make_unsigned_t<decltype(s)>(s);
+    return to_unsigned_like(s);
   }
 
   constexpr auto size() const
     requires std::ranges::sized_range<const V>
   {
     const auto s = detail::div_ceil(std::ranges::distance(base_), n_);
-    return std::make_unsigned_t<decltype(s)>(s);
+    return to_unsigned_like(s);
   }
 
   V base_{};
@@ -516,14 +517,14 @@ public:
     requires std::ranges::sized_range<V>
   {
     const auto s = detail::div_ceil(std::ranges::distance(base_), n_);
-    return std::make_unsigned_t<decltype(s)>(s);
+    return to_unsigned_like(s);
   }
 
   constexpr auto size() const
     requires std::ranges::sized_range<const V>
   {
     const auto s = detail::div_ceil(std::ranges::distance(base_), n_);
-    return std::make_unsigned_t<decltype(s)>(s);
+    return to_unsigned_like(s);
   }
 
 private:

@@ -23,9 +23,7 @@
 #include "kd/ranges/chunk_by_view.h"
 
 #include <forward_list>
-#include <memory>
 #include <ranges>
-#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -45,7 +43,7 @@ auto make_chunked_by(std::vector<T> v, Pred&& pred)
 
 TEST_CASE("chunk_by")
 {
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types (forward range)")
     {
@@ -144,6 +142,15 @@ TEST_CASE("chunk_by")
     const auto v = std::vector{1, 1, 2, 3, 3};
     auto c = views::chunk_by(v, std::ranges::equal_to{});
 
+    CHECK(recursive_ranges_equal(c, std::vector<std::vector<int>>{{1, 1}, {2}, {3, 3}}));
+  }
+
+  SECTION("const view")
+  {
+    const auto v = std::vector{1, 1, 2, 3, 3};
+    const auto c = views::chunk_by(v, std::ranges::equal_to{});
+
+    static_assert(std::ranges::range<const decltype(c)>);
     CHECK(recursive_ranges_equal(c, std::vector<std::vector<int>>{{1, 1}, {2}, {3, 3}}));
   }
 

@@ -23,7 +23,6 @@
 #include "kd/ranges/slide_view.h"
 
 #include <forward_list>
-#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -44,7 +43,7 @@ auto make_slide(std::vector<T> v, const int n)
 
 TEST_CASE("slide")
 {
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types")
     {

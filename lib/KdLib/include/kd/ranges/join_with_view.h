@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "detail/concatable.h"
 #include "detail/non_propagating_cache.h"
 #include "detail/range_utils.h"
 
@@ -37,15 +38,12 @@ namespace ranges
 namespace detail
 {
 
+// Per LWG 4074, this is defined in terms of concatable rather than only
+// requiring the common value/reference/rvalue-reference types to exist: the
+// latter is underconstrained and admits a join_with_view whose iterator does
+// not model input_range.
 template <typename R, typename P>
-concept compatible_joinable_ranges =
-  std::common_with<std::ranges::range_value_t<R>, std::ranges::range_value_t<P>>
-  && std::common_reference_with<
-    std::ranges::range_reference_t<R>,
-    std::ranges::range_reference_t<P>>
-  && std::common_reference_with<
-    std::ranges::range_rvalue_reference_t<R>,
-    std::ranges::range_rvalue_reference_t<P>>;
+concept compatible_joinable_ranges = concatable<R, P>;
 
 template <bool Const, typename V, typename Pattern>
 consteval auto get_join_with_iter_concept()
@@ -125,16 +123,17 @@ private:
   using InnerVal = std::remove_reference_t<InnerBase>;
   using PatternBase = maybe_const<Const, Pattern>;
 
-  using OUTERC =
-    typename std::iterator_traits<std::ranges::iterator_t<Base>>::iterator_category;
-  using INNERC =
-    typename std::iterator_traits<std::ranges::iterator_t<InnerVal>>::iterator_category;
-  using PATTERNC = typename std::iterator_traits<
-    std::ranges::iterator_t<PatternBase>>::iterator_category;
+  using OuterIter = std::ranges::iterator_t<Base>;
+  using InnerIter = std::ranges::iterator_t<InnerVal>;
+  using PatternIter = std::ranges::iterator_t<PatternBase>;
+
+  using OuterC = typename std::iterator_traits<OuterIter>::iterator_category;
+  using InnerC = typename std::iterator_traits<InnerIter>::iterator_category;
+  using PatternC = typename std::iterator_traits<PatternIter>::iterator_category;
 
   using CommonRef = std::common_reference_t<
-    std::iter_reference_t<std::ranges::iterator_t<InnerVal>>,
-    std::iter_reference_t<std::ranges::iterator_t<PatternBase>>>;
+    std::iter_reference_t<InnerIter>,
+    std::iter_reference_t<PatternIter>>;
 
   static consteval auto compute()
   {
@@ -143,17 +142,17 @@ private:
       return std::input_iterator_tag{};
     }
     else if constexpr (
-      std::derived_from<OUTERC, std::bidirectional_iterator_tag>
-      && std::derived_from<INNERC, std::bidirectional_iterator_tag>
-      && std::derived_from<PATTERNC, std::bidirectional_iterator_tag>
+      std::derived_from<OuterC, std::bidirectional_iterator_tag>
+      && std::derived_from<InnerC, std::bidirectional_iterator_tag>
+      && std::derived_from<PatternC, std::bidirectional_iterator_tag>
       && std::ranges::common_range<InnerVal> && std::ranges::common_range<PatternBase>)
     {
       return std::bidirectional_iterator_tag{};
     }
     else if constexpr (
-      std::derived_from<OUTERC, std::forward_iterator_tag>
-      && std::derived_from<INNERC, std::forward_iterator_tag>
-      && std::derived_from<PATTERNC, std::forward_iterator_tag>)
+      std::derived_from<OuterC, std::forward_iterator_tag>
+      && std::derived_from<InnerC, std::forward_iterator_tag>
+      && std::derived_from<PatternC, std::forward_iterator_tag>)
     {
       return std::forward_iterator_tag{};
     }
@@ -184,10 +183,333 @@ class join_with_view : public std::ranges::view_interface<join_with_view<V, Patt
 
 public:
   template <bool Const>
-  class iterator;
+  class iterator
+    : public detail::join_with_iter_category<
+        std::is_reference_v<std::ranges::range_reference_t<detail::maybe_const<Const, V>>>
+          && std::ranges::forward_range<detail::maybe_const<Const, V>>
+          && std::ranges::forward_range<std::remove_reference_t<
+            std::ranges::range_reference_t<detail::maybe_const<Const, V>>>>,
+        Const,
+        V,
+        Pattern>
+  {
+    using Parent = detail::maybe_const<Const, join_with_view>;
+    using Base = detail::maybe_const<Const, V>;
+    using InnerBase = std::ranges::range_reference_t<Base>;
+    using PatternBase = detail::maybe_const<Const, Pattern>;
+
+    using OuterIter = std::ranges::iterator_t<Base>;
+    using InnerIter = std::ranges::iterator_t<std::remove_reference_t<InnerBase>>;
+    using PatternIter = std::ranges::iterator_t<PatternBase>;
+
+    // The C++23 spec stores OuterIter as a member only when forward_range<Base>.
+    // When Base is non-forward, the outer iterator lives in the parent's cache
+    // and we keep a default-constructible placeholder here so that OuterIter
+    // need not be default-constructible (e.g. libc++'s istream_view::iterator).
+    using OuterMember =
+      std::conditional_t<std::ranges::forward_range<Base>, OuterIter, std::monostate>;
+
+    static constexpr bool ref_is_glvalue = std::is_reference_v<InnerBase>;
+
+  public:
+    using iterator_concept =
+      decltype(detail::get_join_with_iter_concept<Const, V, Pattern>());
+
+    using value_type = std::common_type_t<
+      std::ranges::range_value_t<InnerBase>,
+      std::ranges::range_value_t<PatternBase>>;
+
+    using difference_type = std::common_type_t<
+      std::ranges::range_difference_t<Base>,
+      std::ranges::range_difference_t<InnerBase>,
+      std::ranges::range_difference_t<PatternBase>>;
+
+    iterator() = default;
+
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    constexpr iterator(iterator<!Const> i)
+      requires Const && std::convertible_to<std::ranges::iterator_t<V>, OuterIter>
+                 && std::convertible_to<std::ranges::iterator_t<InnerRng>, InnerIter>
+                 && std::convertible_to<std::ranges::iterator_t<Pattern>, PatternIter>
+      : parent_{i.parent_}
+      , outer_it_{std::move(i.outer_it_)}
+    {
+      if (i.inner_it_.index() == 0)
+      {
+        inner_it_.template emplace<0>(std::get<0>(std::move(i.inner_it_)));
+      }
+      else
+      {
+        inner_it_.template emplace<1>(std::get<1>(std::move(i.inner_it_)));
+      }
+    }
+
+    constexpr decltype(auto) operator*() const
+    {
+      using reference = std::common_reference_t<
+        std::iter_reference_t<InnerIter>,
+        std::iter_reference_t<PatternIter>>;
+      return std::visit([](auto& it) -> reference { return *it; }, inner_it_);
+    }
+
+    constexpr iterator& operator++()
+    {
+      std::visit([](auto& it) { ++it; }, inner_it_);
+      satisfy();
+      return *this;
+    }
+
+    constexpr void operator++(int) { ++*this; }
+
+    constexpr iterator operator++(int)
+      requires ref_is_glvalue
+               && std::forward_iterator<OuterIter> && std::forward_iterator<InnerIter>
+    {
+      auto tmp = iterator{*this};
+      ++*this;
+      return tmp;
+    }
+
+    constexpr iterator& operator--()
+      requires ref_is_glvalue && std::ranges::bidirectional_range<Base>
+               && std::ranges::bidirectional_range<std::remove_reference_t<InnerBase>>
+               && std::ranges::bidirectional_range<PatternBase>
+               && std::ranges::common_range<std::remove_reference_t<InnerBase>>
+               && std::ranges::common_range<PatternBase>
+    {
+      if (outer_it_ == std::ranges::end(parent_->base_))
+      {
+        auto&& inner = *--outer_it_;
+        inner_it_.template emplace<1>(std::ranges::end(inner));
+      }
+      while (true)
+      {
+        if (inner_it_.index() == 0)
+        {
+          auto& it = std::get<0>(inner_it_);
+          if (it == std::ranges::begin(parent_->pattern_))
+          {
+            auto&& inner = *--outer_it_;
+            inner_it_.template emplace<1>(std::ranges::end(inner));
+          }
+          else
+          {
+            break;
+          }
+        }
+        else
+        {
+          auto& it = std::get<1>(inner_it_);
+          auto&& inner = *outer_it_;
+          if (it == std::ranges::begin(inner))
+          {
+            inner_it_.template emplace<0>(std::ranges::end(parent_->pattern_));
+          }
+          else
+          {
+            break;
+          }
+        }
+      }
+      std::visit([](auto& it) { --it; }, inner_it_);
+      return *this;
+    }
+
+    constexpr iterator operator--(int)
+      requires ref_is_glvalue && std::ranges::bidirectional_range<Base>
+               && std::ranges::bidirectional_range<std::remove_reference_t<InnerBase>>
+               && std::ranges::bidirectional_range<PatternBase>
+               && std::ranges::common_range<std::remove_reference_t<InnerBase>>
+               && std::ranges::common_range<PatternBase>
+    {
+      auto tmp = iterator{*this};
+      --*this;
+      return tmp;
+    }
+
+    friend constexpr bool operator==(const iterator& x, const iterator& y)
+      requires ref_is_glvalue
+               && std::ranges::forward_range<Base> && std::equality_comparable<InnerIter>
+    {
+      return x.outer_it_ == y.outer_it_ && x.inner_it_ == y.inner_it_;
+    }
+
+    friend constexpr decltype(auto) iter_move(const iterator& x)
+    {
+      using rvalue_reference = std::common_reference_t<
+        std::iter_rvalue_reference_t<InnerIter>,
+        std::iter_rvalue_reference_t<PatternIter>>;
+      return std::visit<rvalue_reference>(
+        [](const auto& it) -> rvalue_reference { return std::ranges::iter_move(it); },
+        x.inner_it_);
+    }
+
+    friend constexpr void iter_swap(const iterator& x, const iterator& y)
+      requires std::indirectly_swappable<InnerIter, PatternIter>
+    {
+      std::visit(
+        [](const auto& it1, const auto& it2) { std::ranges::iter_swap(it1, it2); },
+        x.inner_it_,
+        y.inner_it_);
+    }
+
+  private:
+    friend class join_with_view;
+    template <bool>
+    friend class sentinel;
+    friend class iterator<!Const>;
+
+    constexpr iterator(Parent& parent, OuterIter outer)
+      requires std::ranges::forward_range<Base>
+      : parent_{std::addressof(parent)}
+      , outer_it_{std::move(outer)}
+    {
+      if (outer_it_ != std::ranges::end(parent_->base_))
+      {
+        update_inner();
+        satisfy();
+      }
+    }
+
+    constexpr explicit iterator(Parent& parent)
+      requires(!std::ranges::forward_range<Base>)
+      : parent_{std::addressof(parent)}
+    {
+      if (get_outer() != std::ranges::end(parent_->base_))
+      {
+        update_inner();
+        satisfy();
+      }
+    }
+
+  public:
+    // Public so sentinel's non-member comparison operator can call it on MSVC, which
+    // rejects private access in that context.
+    constexpr OuterIter& get_outer()
+    {
+      if constexpr (std::ranges::forward_range<Base>)
+      {
+        return outer_it_;
+      }
+      else
+      {
+        return *parent_->outer_it_;
+      }
+    }
+
+    constexpr const OuterIter& get_outer() const
+    {
+      if constexpr (std::ranges::forward_range<Base>)
+      {
+        return outer_it_;
+      }
+      else
+      {
+        return *parent_->outer_it_;
+      }
+    }
+
+  private:
+    constexpr void update_inner()
+    {
+      if constexpr (ref_is_glvalue)
+      {
+        inner_it_.template emplace<1>(std::ranges::begin(*get_outer()));
+      }
+      else
+      {
+        inner_it_.template emplace<1>(
+          std::ranges::begin(parent_->inner_.emplace_deref(get_outer())));
+      }
+    }
+
+    constexpr auto& get_inner()
+    {
+      if constexpr (ref_is_glvalue)
+      {
+        return *get_outer();
+      }
+      else
+      {
+        return *parent_->inner_;
+      }
+    }
+
+    constexpr void satisfy()
+    {
+      while (true)
+      {
+        if (inner_it_.index() == 0)
+        {
+          if (std::get<0>(inner_it_) != std::ranges::end(parent_->pattern_))
+          {
+            break;
+          }
+          update_inner();
+        }
+        else
+        {
+          auto& inner = get_inner();
+          if (std::get<1>(inner_it_) != std::ranges::end(inner))
+          {
+            break;
+          }
+          ++get_outer();
+          if (get_outer() == std::ranges::end(parent_->base_))
+          {
+            if constexpr (ref_is_glvalue)
+            {
+              inner_it_.template emplace<0>();
+            }
+            break;
+          }
+          inner_it_.template emplace<0>(std::ranges::begin(parent_->pattern_));
+        }
+      }
+    }
+
+    Parent* parent_{nullptr};
+    [[no_unique_address]] OuterMember outer_it_{};
+    std::variant<PatternIter, InnerIter> inner_it_{};
+  };
 
   template <bool Const>
-  class sentinel;
+  class sentinel
+  {
+    using Parent = detail::maybe_const<Const, join_with_view>;
+    using Base = detail::maybe_const<Const, V>;
+
+  public:
+    sentinel() = default;
+
+    constexpr explicit sentinel(Parent& parent)
+      : end_{std::ranges::end(parent.base_)}
+    {
+    }
+
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    constexpr sentinel(sentinel<!Const> s)
+      requires Const
+               && std::
+                 convertible_to<std::ranges::sentinel_t<V>, std::ranges::sentinel_t<Base>>
+      : end_{std::move(s.end_)}
+    {
+    }
+
+    template <bool OtherConst>
+      requires std::sentinel_for<
+        std::ranges::sentinel_t<Base>,
+        std::ranges::iterator_t<detail::maybe_const<OtherConst, V>>>
+    friend constexpr bool operator==(const iterator<OtherConst>& x, const sentinel& y)
+    {
+      return x.get_outer() == y.end_;
+    }
+
+  private:
+    friend class sentinel<!Const>;
+
+    std::ranges::sentinel_t<Base> end_{};
+  };
 
   join_with_view()
     requires std::default_initializable<V> && std::default_initializable<Pattern>
@@ -285,11 +607,6 @@ public:
   }
 
 private:
-  template <bool>
-  friend class iterator;
-  template <bool>
-  friend class sentinel;
-
   V base_{};
   Pattern pattern_{};
 };
@@ -303,348 +620,6 @@ join_with_view(R&&, std::ranges::range_value_t<std::ranges::range_reference_t<R>
     std::views::all_t<R>,
     std::ranges::single_view<
       std::ranges::range_value_t<std::ranges::range_reference_t<R>>>>;
-
-
-template <std::ranges::input_range V, std::ranges::forward_range Pattern>
-  requires std::ranges::view<V>
-           && std::ranges::input_range<std::ranges::range_reference_t<V>>
-           && std::ranges::view<Pattern>
-           && detail::
-             compatible_joinable_ranges<std::ranges::range_reference_t<V>, Pattern>
-template <bool Const>
-class join_with_view<V, Pattern>::iterator
-  : public detail::join_with_iter_category<
-      std::is_reference_v<std::ranges::range_reference_t<detail::maybe_const<Const, V>>>
-        && std::ranges::forward_range<detail::maybe_const<Const, V>>
-        && std::ranges::forward_range<std::remove_reference_t<
-          std::ranges::range_reference_t<detail::maybe_const<Const, V>>>>,
-      Const,
-      V,
-      Pattern>
-{
-  using Parent = detail::maybe_const<Const, join_with_view>;
-  using Base = detail::maybe_const<Const, V>;
-  using InnerBase = std::ranges::range_reference_t<Base>;
-  using PatternBase = detail::maybe_const<Const, Pattern>;
-
-  using OuterIter = std::ranges::iterator_t<Base>;
-  using InnerIter = std::ranges::iterator_t<std::remove_reference_t<InnerBase>>;
-  using PatternIter = std::ranges::iterator_t<PatternBase>;
-
-  // The C++23 spec stores OuterIter as a member only when forward_range<Base>.
-  // When Base is non-forward, the outer iterator lives in the parent's cache
-  // and we keep a default-constructible placeholder here so that OuterIter
-  // need not be default-constructible (e.g. libc++'s istream_view::iterator).
-  using OuterMember =
-    std::conditional_t<std::ranges::forward_range<Base>, OuterIter, std::monostate>;
-
-  static constexpr bool ref_is_glvalue = std::is_reference_v<InnerBase>;
-
-public:
-  using iterator_concept =
-    decltype(detail::get_join_with_iter_concept<Const, V, Pattern>());
-
-  using value_type =
-    std::common_type_t<std::iter_value_t<InnerIter>, std::iter_value_t<PatternIter>>;
-
-  using difference_type = std::common_type_t<
-    std::iter_difference_t<OuterIter>,
-    std::iter_difference_t<InnerIter>,
-    std::iter_difference_t<PatternIter>>;
-
-  iterator()
-    requires std::default_initializable<OuterIter>
-  = default;
-
-  explicit constexpr iterator(iterator<!Const> i)
-    requires Const && std::convertible_to<std::ranges::iterator_t<V>, OuterIter>
-               && std::convertible_to<std::ranges::iterator_t<InnerRng>, InnerIter>
-               && std::convertible_to<std::ranges::iterator_t<Pattern>, PatternIter>
-    : parent_{i.parent_}
-    , outer_it_{std::move(i.outer_it_)}
-  {
-    if (i.inner_it_.index() == 0)
-    {
-      inner_it_.template emplace<0>(std::get<0>(std::move(i.inner_it_)));
-    }
-    else
-    {
-      inner_it_.template emplace<1>(std::get<1>(std::move(i.inner_it_)));
-    }
-  }
-
-  constexpr decltype(auto) operator*() const
-  {
-    using reference = std::common_reference_t<
-      std::iter_reference_t<InnerIter>,
-      std::iter_reference_t<PatternIter>>;
-    return std::visit([](auto& it) -> reference { return *it; }, inner_it_);
-  }
-
-  constexpr iterator& operator++()
-  {
-    std::visit([](auto& it) { ++it; }, inner_it_);
-    satisfy();
-    return *this;
-  }
-
-  constexpr void operator++(int) { ++*this; }
-
-  constexpr iterator operator++(int)
-    requires ref_is_glvalue
-             && std::forward_iterator<OuterIter> && std::forward_iterator<InnerIter>
-  {
-    auto tmp = iterator{*this};
-    ++*this;
-    return tmp;
-  }
-
-  constexpr iterator& operator--()
-    requires ref_is_glvalue && std::ranges::bidirectional_range<Base>
-             && std::ranges::bidirectional_range<std::remove_reference_t<InnerBase>>
-             && std::ranges::bidirectional_range<PatternBase>
-             && std::ranges::common_range<std::remove_reference_t<InnerBase>>
-             && std::ranges::common_range<PatternBase>
-  {
-    if (outer_it_ == std::ranges::end(parent_->base_))
-    {
-      auto&& inner = *--outer_it_;
-      inner_it_.template emplace<1>(std::ranges::end(inner));
-    }
-    while (true)
-    {
-      if (inner_it_.index() == 0)
-      {
-        auto& it = std::get<0>(inner_it_);
-        if (it == std::ranges::begin(parent_->pattern_))
-        {
-          auto&& inner = *--outer_it_;
-          inner_it_.template emplace<1>(std::ranges::end(inner));
-        }
-        else
-        {
-          break;
-        }
-      }
-      else
-      {
-        auto& it = std::get<1>(inner_it_);
-        auto&& inner = *outer_it_;
-        if (it == std::ranges::begin(inner))
-        {
-          inner_it_.template emplace<0>(std::ranges::end(parent_->pattern_));
-        }
-        else
-        {
-          break;
-        }
-      }
-    }
-    std::visit([](auto& it) { --it; }, inner_it_);
-    return *this;
-  }
-
-  constexpr iterator operator--(int)
-    requires ref_is_glvalue && std::ranges::bidirectional_range<Base>
-             && std::ranges::bidirectional_range<std::remove_reference_t<InnerBase>>
-             && std::ranges::bidirectional_range<PatternBase>
-             && std::ranges::common_range<std::remove_reference_t<InnerBase>>
-             && std::ranges::common_range<PatternBase>
-  {
-    auto tmp = iterator{*this};
-    --*this;
-    return tmp;
-  }
-
-  friend constexpr bool operator==(const iterator& x, const iterator& y)
-    requires ref_is_glvalue
-             && std::ranges::forward_range<Base> && std::equality_comparable<InnerIter>
-  {
-    return x.outer_it_ == y.outer_it_ && x.inner_it_ == y.inner_it_;
-  }
-
-  friend constexpr decltype(auto) iter_move(const iterator& x)
-  {
-    using rvalue_reference = std::common_reference_t<
-      std::iter_rvalue_reference_t<InnerIter>,
-      std::iter_rvalue_reference_t<PatternIter>>;
-    return std::visit<rvalue_reference>(
-      [](const auto& it) -> rvalue_reference { return std::ranges::iter_move(it); },
-      x.inner_it_);
-  }
-
-  friend constexpr void iter_swap(const iterator& x, const iterator& y)
-    requires std::indirectly_swappable<InnerIter, PatternIter>
-  {
-    std::visit(
-      [](const auto& it1, const auto& it2) { std::ranges::iter_swap(it1, it2); },
-      x.inner_it_,
-      y.inner_it_);
-  }
-
-private:
-  friend class join_with_view;
-  template <bool>
-  friend class sentinel;
-  friend class iterator<!Const>;
-
-  constexpr iterator(Parent& parent, OuterIter outer)
-    requires std::ranges::forward_range<Base>
-    : parent_{std::addressof(parent)}
-    , outer_it_{std::move(outer)}
-  {
-    if (outer_it_ != std::ranges::end(parent_->base_))
-    {
-      update_inner();
-      satisfy();
-    }
-  }
-
-  constexpr explicit iterator(Parent& parent)
-    requires(!std::ranges::forward_range<Base>)
-    : parent_{std::addressof(parent)}
-  {
-    if (get_outer() != std::ranges::end(parent_->base_))
-    {
-      update_inner();
-      satisfy();
-    }
-  }
-
-public:
-  // Public so sentinel's non-member comparison operator can call it on MSVC, which
-  // rejects private access in that context.
-  constexpr OuterIter& get_outer()
-  {
-    if constexpr (std::ranges::forward_range<Base>)
-    {
-      return outer_it_;
-    }
-    else
-    {
-      return *parent_->outer_it_;
-    }
-  }
-
-  constexpr const OuterIter& get_outer() const
-  {
-    if constexpr (std::ranges::forward_range<Base>)
-    {
-      return outer_it_;
-    }
-    else
-    {
-      return *parent_->outer_it_;
-    }
-  }
-
-private:
-  constexpr void update_inner()
-  {
-    if constexpr (ref_is_glvalue)
-    {
-      inner_it_.template emplace<1>(std::ranges::begin(*get_outer()));
-    }
-    else
-    {
-      inner_it_.template emplace<1>(
-        std::ranges::begin(parent_->inner_.emplace_deref(get_outer())));
-    }
-  }
-
-  constexpr auto& get_inner()
-  {
-    if constexpr (ref_is_glvalue)
-    {
-      return *get_outer();
-    }
-    else
-    {
-      return *parent_->inner_;
-    }
-  }
-
-  constexpr void satisfy()
-  {
-    while (true)
-    {
-      if (inner_it_.index() == 0)
-      {
-        if (std::get<0>(inner_it_) != std::ranges::end(parent_->pattern_))
-        {
-          break;
-        }
-        update_inner();
-      }
-      else
-      {
-        auto& inner = get_inner();
-        if (std::get<1>(inner_it_) != std::ranges::end(inner))
-        {
-          break;
-        }
-        ++get_outer();
-        if (get_outer() == std::ranges::end(parent_->base_))
-        {
-          if constexpr (ref_is_glvalue)
-          {
-            inner_it_.template emplace<0>();
-          }
-          break;
-        }
-        inner_it_.template emplace<0>(std::ranges::begin(parent_->pattern_));
-      }
-    }
-  }
-
-  Parent* parent_{nullptr};
-  [[no_unique_address]] OuterMember outer_it_{};
-  std::variant<PatternIter, InnerIter> inner_it_{};
-};
-
-
-template <std::ranges::input_range V, std::ranges::forward_range Pattern>
-  requires std::ranges::view<V>
-           && std::ranges::input_range<std::ranges::range_reference_t<V>>
-           && std::ranges::view<Pattern>
-           && detail::
-             compatible_joinable_ranges<std::ranges::range_reference_t<V>, Pattern>
-template <bool Const>
-class join_with_view<V, Pattern>::sentinel
-{
-  using Parent = detail::maybe_const<Const, join_with_view>;
-  using Base = detail::maybe_const<Const, V>;
-
-public:
-  sentinel() = default;
-
-  constexpr explicit sentinel(Parent& parent)
-    : end_{std::ranges::end(parent.base_)}
-  {
-  }
-
-  explicit constexpr sentinel(sentinel<!Const> s)
-    requires Const
-             && std::
-               convertible_to<std::ranges::sentinel_t<V>, std::ranges::sentinel_t<Base>>
-    : end_{std::move(s.end_)}
-  {
-  }
-
-  template <bool OtherConst>
-    requires std::sentinel_for<
-      std::ranges::sentinel_t<Base>,
-      std::ranges::iterator_t<detail::maybe_const<OtherConst, V>>>
-  friend constexpr bool operator==(const iterator<OtherConst>& x, const sentinel& y)
-  {
-    return x.get_outer() == y.end_;
-  }
-
-private:
-  friend class sentinel<!Const>;
-
-  std::ranges::sentinel_t<Base> end_{};
-};
 
 namespace views
 {

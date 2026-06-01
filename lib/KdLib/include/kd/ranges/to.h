@@ -174,13 +174,12 @@ constexpr C to(R&& r, Args&&... args)
 template <template <typename...> typename C, std::ranges::input_range R, typename... Args>
 constexpr auto to(R&& r, Args&&... args)
 {
-  // This overload deduces the collection's type arguments from the value type
-  // of R's elements
+  // This overload deduces the collection's type arguments from the value type of R's
+  // elements
   if constexpr (requires { C(std::declval<R>(), std::declval<Args>()...); })
   {
-    // By "calling" C(...), we can use C's deduction guides to deduce the value
-    // type, and the full type of C is passed on to the previous overload of to
-    // using decltype
+    // By "calling" C(...), we can use C's deduction guides to deduce the value type,
+    // and the full type of C is passed on to the previous overload of to using decltype
     return to<decltype(C(std::declval<R>(), std::declval<Args>()...))>(
       std::forward<R>(r), std::forward<Args>(args)...);
   }
@@ -203,8 +202,8 @@ constexpr auto to(R&& r, Args&&... args)
 namespace detail
 {
 
-// Helper struct for the case when the collection type isn't complete and we
-// need to deduce its type parameters
+// Helper struct for the case when the collection type isn't complete and we need to
+// deduce its type parameters
 template <template <typename...> typename T>
 struct wrap_c
 {
@@ -229,15 +228,14 @@ struct unwrap_c<wrap_c<C>, R, Args...>
     std::declval<Args>()...))>>;
 };
 
-// A helper struct that, when called, constructs an instance of C (with its
-// type parameters deduced if necessary) and fills it with the values taken
-// from the given range.
+// A helper struct that, when called, constructs an instance of C (with its type
+// parameters deduced if necessary) and fills it with the values taken from the given
+// range.
 template <typename C, typename... Args>
 struct to_fn
 {
-  // Deduce the full type of the collection to instantiate; this also restores
-  // any missing type parameters when these were omitted (e.g.
-  // ranges::to<std::vector>())
+  // Deduce the full type of the collection to instantiate; this also restores any
+  // missing type parameters when these were omitted (e.g. ranges::to<std::vector>())
   template <typename R>
   using Actual_C = typename unwrap_c<C, R, Args...>::type;
 

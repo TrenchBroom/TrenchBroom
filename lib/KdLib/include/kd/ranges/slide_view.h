@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "detail/integer_like.h"
 #include "detail/non_propagating_cache.h"
 #include "detail/range_utils.h"
 
@@ -392,7 +393,7 @@ public:
     {
       s = 0;
     }
-    return std::make_unsigned_t<decltype(s)>(s);
+    return to_unsigned_like(s);
   }
 
   constexpr auto size() const
@@ -403,7 +404,7 @@ public:
     {
       s = 0;
     }
-    return std::make_unsigned_t<decltype(s)>(s);
+    return to_unsigned_like(s);
   }
 
 private:

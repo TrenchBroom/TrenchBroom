@@ -84,6 +84,20 @@ TEST_CASE("join_with")
     static_assert(!has_iterator_category<iter_type>);
   }
 
+  SECTION("iterator is default-initializable for non-forward outer ranges")
+  {
+    auto in = std::istringstream{"1 2"};
+    auto numbers = std::ranges::istream_view<int>(in);
+    auto v = numbers | std::views::transform([](int n) { return std::vector<int>{n}; });
+    auto j = ranges::join_with_view{std::move(v), 0};
+
+    using iter_type = decltype(j.begin());
+    static_assert(std::default_initializable<iter_type>);
+
+    const auto it = iter_type{};
+    (void)it;
+  }
+
   SECTION("basic joining with separator (vector of vectors)")
   {
     const auto v = std::vector<std::vector<int>>{{1, 2, 3}, {4, 5}, {6}};

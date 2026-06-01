@@ -26,8 +26,6 @@
 #include <ranges>
 #include <sstream>
 #include <string>
-#include <tuple>
-#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -41,7 +39,7 @@ TEST_CASE("zip")
 {
   using Catch::Matchers::RangeEquals;
 
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types")
     {

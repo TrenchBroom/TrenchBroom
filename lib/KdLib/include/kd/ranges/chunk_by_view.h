@@ -22,6 +22,7 @@
 
 #include "detail/movable_box.h"
 #include "detail/non_propagating_cache.h"
+#include "detail/range_utils.h"
 
 #include <algorithm>
 #include <functional>
@@ -116,7 +117,7 @@ public:
     friend class chunk_by_view;
 
     constexpr iterator(
-      chunk_by_view& parent,
+      const chunk_by_view& parent,
       std::ranges::iterator_t<V> current,
       std::ranges::iterator_t<V> next)
       : parent_{std::addressof(parent)}
@@ -125,7 +126,7 @@ public:
     {
     }
 
-    chunk_by_view* parent_{nullptr};
+    const chunk_by_view* parent_{nullptr};
     std::ranges::iterator_t<V> current_{};
     std::ranges::iterator_t<V> next_{};
   };
@@ -160,6 +161,17 @@ public:
     return iterator{*this, std::ranges::begin(base_), begin_.value()};
   }
 
+  constexpr auto begin() const
+    requires detail::simple_view<V>
+             && std::indirect_binary_predicate<
+               const Pred&,
+               std::ranges::iterator_t<V>,
+               std::ranges::iterator_t<V>>
+  {
+    const auto first = std::ranges::begin(base_);
+    return iterator{*this, first, find_next(first)};
+  }
+
   constexpr auto end()
   {
     if constexpr (std::ranges::common_range<V>)
@@ -172,8 +184,25 @@ public:
     }
   }
 
+  constexpr auto end() const
+    requires detail::simple_view<V>
+             && std::indirect_binary_predicate<
+               const Pred&,
+               std::ranges::iterator_t<V>,
+               std::ranges::iterator_t<V>>
+  {
+    if constexpr (std::ranges::common_range<V>)
+    {
+      return iterator{*this, std::ranges::end(base_), std::ranges::end(base_)};
+    }
+    else
+    {
+      return std::default_sentinel;
+    }
+  }
+
 private:
-  constexpr std::ranges::iterator_t<V> find_next(std::ranges::iterator_t<V> current)
+  constexpr std::ranges::iterator_t<V> find_next(std::ranges::iterator_t<V> current) const
   {
     return std::ranges::next(
       std::ranges::adjacent_find(
@@ -182,7 +211,7 @@ private:
       std::ranges::end(base_));
   }
 
-  constexpr std::ranges::iterator_t<V> find_prev(std::ranges::iterator_t<V> current)
+  constexpr std::ranges::iterator_t<V> find_prev(std::ranges::iterator_t<V> current) const
     requires std::ranges::bidirectional_range<V>
   {
     auto i = std::ranges::prev(current);

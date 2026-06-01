@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "detail/integer_like.h"
 #include "detail/range_utils.h"
 
 #include <ranges>
@@ -111,7 +112,7 @@ public:
       return *this;
     }
 
-    constexpr void operator++(int) { return ++*this; }
+    constexpr void operator++(int) { ++*this; }
 
     constexpr iterator operator++(int)
       requires std::ranges::forward_range<Base>
@@ -333,14 +334,14 @@ public:
     requires std::ranges::sized_range<V>
   {
     const auto s = detail::div_ceil(std::ranges::distance(base_), stride_);
-    return std::make_unsigned_t<decltype(s)>(s);
+    return to_unsigned_like(s);
   }
 
   constexpr auto size() const
     requires std::ranges::sized_range<const V>
   {
     const auto s = detail::div_ceil(std::ranges::distance(base_), stride_);
-    return std::make_unsigned_t<decltype(s)>(s);
+    return to_unsigned_like(s);
   }
 
 private:

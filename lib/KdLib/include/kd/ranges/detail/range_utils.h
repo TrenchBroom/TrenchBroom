@@ -95,7 +95,7 @@ struct tuple_repeat<T, 1>
 template <typename T, std::size_t N>
 using tuple_repeat_t = typename tuple_repeat<T, N>::type;
 
-//! Computes the smallest integer that is not less than num/denom.
+// Computes the smallest integer that is not less than num / denom.
 template <typename I>
 constexpr auto div_ceil(I num, I denom)
 {
