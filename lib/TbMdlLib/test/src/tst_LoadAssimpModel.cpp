@@ -24,6 +24,8 @@
 #include "mdl/EntityModel.h"
 #include "mdl/LoadAssimpModel.h"
 
+#include "kd/ranges/stride_view.h"
+
 #include "vm/approx.h"
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
@@ -91,6 +93,35 @@ TEST_CASE("loadAssimpModel")
     REQUIRE(modelData.value().surface(0).skinCount() == 1);
 
     CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {2, 1, 3}});
+  }
+
+  SECTION("model with mask texture")
+  {
+    const auto basePath =
+      std::filesystem::current_path()
+      / "fixture/test/mdl/LoadAssimpModel/uncompressedEmbeddedMaskedTexture";
+    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
+
+    auto modelData = loadAssimpModel("masked.mdl", *fs, logger);
+    REQUIRE(modelData);
+
+    const auto* texture = modelData.value().surface(0).skin(0)->texture();
+    REQUIRE(texture != nullptr);
+
+    const auto& buffers = texture->buffersIfLoaded();
+    REQUIRE(!buffers.empty());
+
+    const auto& image = buffers.front();
+    REQUIRE(image.size() == 262144);
+
+    const auto pixels = std::ranges::subrange{image.data(), image.data() + image.size()};
+    const auto alphas = pixels | std::views::drop(3) | kdl::views::stride(4);
+
+    const auto hasTransparentPixel = std::ranges::find(alphas, 0) != alphas.end();
+    const auto hasOpaquePixel = std::ranges::find(alphas, 255) != alphas.end();
+
+    CHECK(hasTransparentPixel);
+    CHECK(hasOpaquePixel);
   }
 
   SECTION("non ascii diffuse texture path")
