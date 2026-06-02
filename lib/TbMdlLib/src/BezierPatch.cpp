@@ -30,6 +30,8 @@
 #include "vm/mat_ext.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <ranges>
+
 namespace tb::mdl
 {
 
@@ -186,6 +188,28 @@ void BezierPatch::transform(const vm::mat4x4d& transformation)
   }
 
   m_bounds = computeBounds(m_controlPoints);
+}
+
+void BezierPatch::transformControlPoints(
+  const std::set<vm::vec3d>& positions, const vm::mat4x4d& transformation)
+{
+  contract_pre(vm::is_orientation_preserving_transform(transformation));
+
+  auto matchingControlPoints =
+    m_controlPoints | std::views::filter([&](const auto& controlPoint) {
+      return positions.contains(controlPoint.xyz());
+    });
+
+  if (!std::ranges::empty(matchingControlPoints))
+  {
+    for (auto& controlPoint : matchingControlPoints)
+    {
+      controlPoint =
+        Point{transformation * controlPoint.xyz(), controlPoint[3], controlPoint[4]};
+    }
+
+    m_bounds = computeBounds(m_controlPoints);
+  }
 }
 
 using SurfaceControlPoints = std::array<std::array<BezierPatch::Point, 3u>, 3u>;

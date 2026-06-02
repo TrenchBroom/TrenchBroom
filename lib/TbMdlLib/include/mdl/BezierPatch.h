@@ -26,6 +26,7 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -99,6 +100,8 @@ public: // control points:
   bool setMaterial(gl::Material* material);
 
   void transform(const vm::mat4x4d& transformation);
+  void transformControlPoints(
+    const std::set<vm::vec3d>& positions, const vm::mat4x4d& transformation);
 
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
 };
