@@ -21,7 +21,6 @@
 #include "kd/ranges/zip_transform_view.h"
 
 #include <forward_list>
-#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -42,7 +41,7 @@ TEST_CASE("zip_transform")
     static_assert(std::ranges::view<decltype(z)>);
   }
 
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types")
     {
@@ -147,6 +146,29 @@ TEST_CASE("zip_transform")
       CHECK(i <= i);
       CHECK_FALSE(i > i);
       CHECK(i >= i);
+    }
+  }
+
+  SECTION("empty range")
+  {
+    SECTION("all empty")
+    {
+      const auto v = std::vector<int>{};
+      const auto w = std::vector<double>{};
+      auto z = views::zip_transform(prod, v, w);
+
+      CHECK(z.size() == 0);
+      CHECK(z.begin() == z.end());
+    }
+
+    SECTION("one empty")
+    {
+      const auto v = std::vector<int>{};
+      const auto w = std::vector<double>{4.0, 5.0};
+      auto z = views::zip_transform(prod, v, w);
+
+      CHECK(z.size() == 0);
+      CHECK(z.begin() == z.end());
     }
   }
 }

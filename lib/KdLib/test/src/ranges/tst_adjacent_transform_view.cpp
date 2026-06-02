@@ -33,7 +33,7 @@ namespace kdl
 
 TEST_CASE("adjacent_transform")
 {
-  using namespace Catch::Matchers;
+  using Catch::Matchers::RangeEquals;
 
   const auto f = [](auto x, auto y, auto z) { return x * y * z; };
 
@@ -44,7 +44,7 @@ TEST_CASE("adjacent_transform")
     static_assert(std::ranges::view<decltype(a)>);
   }
 
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types")
     {
@@ -202,6 +202,16 @@ TEST_CASE("adjacent_transform")
     CHECK_THAT(v | views::adjacent_transform<3>(sum), RangeEquals(std::vector{6, 9}));
     CHECK_THAT(v | views::adjacent_transform<4>(sum), RangeEquals(std::vector{10}));
     CHECK_THAT(v | views::adjacent_transform<5>(sum), RangeEquals(std::vector<int>{}));
+  }
+
+  SECTION("empty base")
+  {
+    const auto sum = [](auto&&... x) { return (x + ...); };
+    const auto v = std::vector<int>{};
+    auto a = v | views::adjacent_transform<3>(sum);
+
+    CHECK(a.size() == 0);
+    CHECK(a.begin() == a.end());
   }
 }
 

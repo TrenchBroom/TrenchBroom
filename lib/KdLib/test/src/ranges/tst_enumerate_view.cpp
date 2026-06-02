@@ -24,8 +24,6 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <tuple>
-#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -38,7 +36,7 @@ TEST_CASE("enumerate")
 {
   using Catch::Matchers::RangeEquals;
 
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types")
     {

@@ -33,7 +33,7 @@ namespace kdl
 
 TEST_CASE("adjacent")
 {
-  using namespace Catch::Matchers;
+  using Catch::Matchers::RangeEquals;
 
   SECTION("properties")
   {
@@ -42,7 +42,7 @@ TEST_CASE("adjacent")
     static_assert(std::ranges::view<decltype(a)>);
   }
 
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types")
     {

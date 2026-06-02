@@ -210,7 +210,7 @@ public:
       return *this;
     }
 
-    constexpr void operator++(int) { return ++*this; }
+    constexpr void operator++(int) { ++*this; }
 
     constexpr iterator operator++(int)
       requires std::ranges::forward_range<detail::maybe_const<Const, First>>
@@ -353,8 +353,8 @@ public:
     {
     }
 
-    //! If called with default template parameter, recursively generates the
-    //! next element (the tuple of iterators) in cartesian_product_view.
+    // If called with default template parameter, recursively generates the next element
+    // (the tuple of iterators) in cartesian_product_view.
     template <std::size_t N = sizeof...(Vs)>
     constexpr void next()
     {
@@ -371,8 +371,8 @@ public:
       }
     }
 
-    //! If called with default template parameter, recursively generates the
-    //! previous element (the tuple of iterators) in cartesian_product_view.
+    // If called with default template parameter, recursively generates the previous
+    // element (the tuple of iterators) in cartesian_product_view.
     template <std::size_t N = sizeof...(Vs)>
     constexpr void prev()
     {
@@ -388,7 +388,7 @@ public:
       --it;
     }
 
-    //! Returns the "distance" (i.e., number of "hops") between two iterators.
+    // Returns the "distance" (i.e., number of "hops") between two iterators.
     template <typename Tuple>
     constexpr difference_type distance_from(const Tuple& t) const
     {

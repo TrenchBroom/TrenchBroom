@@ -23,10 +23,10 @@
 #include "kd/ranges/chunk_view.h"
 
 #include <algorithm>
-#include <memory>
+#include <cstddef>
+#include <iterator>
 #include <ranges>
 #include <sstream>
-#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -128,7 +128,7 @@ private:
 
 TEST_CASE("chunk")
 {
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types (input range)")
     {

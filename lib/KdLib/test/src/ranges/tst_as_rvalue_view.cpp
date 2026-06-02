@@ -20,6 +20,7 @@
 
 #include "kd/ranges/as_rvalue_view.h"
 
+#include <memory>
 #include <ranges>
 #include <sstream>
 #include <type_traits>
@@ -32,7 +33,7 @@ namespace kdl
 
 TEST_CASE("as_rvalue")
 {
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types")
     {
@@ -128,6 +129,38 @@ TEST_CASE("as_rvalue")
       CHECK(i <= i);
       CHECK_FALSE(i > i);
       CHECK(i >= i);
+    }
+  }
+
+  SECTION("empty base")
+  {
+    const auto v = std::vector<int>{};
+    auto e = v | views::as_rvalue;
+
+    CHECK(e.size() == 0);
+    CHECK(e.begin() == e.end());
+  }
+
+  SECTION("materializes elements as rvalues")
+  {
+    // unique_ptr is move-only and its moved-from state is specified as nullptr,
+    // so we can portably observe that a move actually happened.
+    auto v = std::vector<std::unique_ptr<int>>{};
+    v.push_back(std::make_unique<int>(1));
+    v.push_back(std::make_unique<int>(2));
+    v.push_back(std::make_unique<int>(3));
+
+    auto rv = v | views::as_rvalue;
+    auto moved = std::vector<std::unique_ptr<int>>(rv.begin(), rv.end());
+
+    REQUIRE(moved.size() == 3);
+    CHECK(*moved[0] == 1);
+    CHECK(*moved[1] == 2);
+    CHECK(*moved[2] == 3);
+
+    for (const auto& p : v)
+    {
+      CHECK(p == nullptr);
     }
   }
 }

@@ -21,7 +21,6 @@
 #include "kd/ranges/repeat_view.h"
 
 #include <algorithm>
-#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -32,7 +31,7 @@ namespace kdl
 
 TEST_CASE("repeat")
 {
-  SECTION("iterator/sentinel")
+  SECTION("iterator / sentinel")
   {
     SECTION("required types (bounded range)")
     {
@@ -187,6 +186,13 @@ TEST_CASE("repeat")
     CHECK(std::ranges::equal(views::repeat(2, 0), std::vector<int>{}));
     CHECK(std::ranges::equal(views::repeat(2, 1), std::vector<int>{2}));
     CHECK(std::ranges::equal(views::repeat(2, 3), std::vector<int>{2, 2, 2}));
+  }
+
+  SECTION("unbounded repeat composes with views::take")
+  {
+    CHECK(std::ranges::equal(views::repeat(2) | std::views::take(0), std::vector<int>{}));
+    CHECK(std::ranges::equal(
+      views::repeat(2) | std::views::take(3), std::vector<int>{2, 2, 2}));
   }
 }
 
