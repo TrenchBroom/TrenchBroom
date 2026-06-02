@@ -56,7 +56,7 @@ BezierPatch::BezierPatch(
   : m_pointRowCount{pointRowCount}
   , m_pointColumnCount{pointColumnCount}
   , m_controlPoints{std::move(controlPoints)}
-  , m_bounds(computeBounds(m_controlPoints))
+  , m_bounds{computeBounds(m_controlPoints)}
   , m_materialName{std::move(materialName)}
 {
   contract_pre(m_pointRowCount > 2 && m_pointColumnCount > 2);
