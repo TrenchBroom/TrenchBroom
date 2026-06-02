@@ -45,59 +45,6 @@ TEST_CASE("join_with")
 {
   using Catch::Matchers::RangeEquals;
 
-  SECTION("required iterator types (forward range of forward ranges)")
-  {
-    auto v = std::vector<std::vector<int>>{{1, 2}, {3, 4}};
-    auto pattern = std::vector<int>{0};
-    auto j = ranges::join_with_view{v, pattern};
-
-    using iter_type = decltype(j.begin());
-    static_assert(
-      std::is_same_v<iter_type::iterator_concept, std::bidirectional_iterator_tag>);
-    static_assert(
-      std::is_same_v<iter_type::iterator_category, std::bidirectional_iterator_tag>);
-    static_assert(std::is_same_v<iter_type::value_type, int>);
-  }
-
-  SECTION("required iterator types (forward range of forward-only ranges)")
-  {
-    auto v = std::vector<std::forward_list<int>>{{1, 2}, {3, 4}};
-    auto pattern = std::forward_list<int>{0};
-    auto j = ranges::join_with_view{v, pattern};
-
-    using iter_type = decltype(j.begin());
-    static_assert(std::is_same_v<iter_type::iterator_concept, std::forward_iterator_tag>);
-    static_assert(
-      std::is_same_v<iter_type::iterator_category, std::forward_iterator_tag>);
-  }
-
-  SECTION("iterator_category absent when inner reference is a prvalue")
-  {
-    // transform's reference type is a prvalue, so iterator_category should not
-    // be defined per the C++23 spec.
-    auto in = std::istringstream{"1 2"};
-    auto numbers = std::ranges::istream_view<int>(in);
-    auto v = numbers | std::views::transform([](int n) { return std::vector<int>{n}; });
-    auto j = ranges::join_with_view{std::move(v), 0};
-
-    using iter_type = decltype(j.begin());
-    static_assert(!has_iterator_category<iter_type>);
-  }
-
-  SECTION("iterator is default-initializable for non-forward outer ranges")
-  {
-    auto in = std::istringstream{"1 2"};
-    auto numbers = std::ranges::istream_view<int>(in);
-    auto v = numbers | std::views::transform([](int n) { return std::vector<int>{n}; });
-    auto j = ranges::join_with_view{std::move(v), 0};
-
-    using iter_type = decltype(j.begin());
-    static_assert(std::default_initializable<iter_type>);
-
-    const auto it = iter_type{};
-    (void)it;
-  }
-
   SECTION("basic joining with separator (vector of vectors)")
   {
     const auto v = std::vector<std::vector<int>>{{1, 2, 3}, {4, 5}, {6}};
@@ -200,6 +147,59 @@ TEST_CASE("join_with")
     CHECK_THAT(j, RangeEquals(std::vector<int>{1, 2, 0, 3, 4}));
   }
 
+  SECTION("required iterator types (forward range of forward ranges)")
+  {
+    auto v = std::vector<std::vector<int>>{{1, 2}, {3, 4}};
+    auto pattern = std::vector<int>{0};
+    auto j = ranges::join_with_view{v, pattern};
+
+    using iter_type = decltype(j.begin());
+    static_assert(
+      std::is_same_v<iter_type::iterator_concept, std::bidirectional_iterator_tag>);
+    static_assert(
+      std::is_same_v<iter_type::iterator_category, std::bidirectional_iterator_tag>);
+    static_assert(std::is_same_v<iter_type::value_type, int>);
+  }
+
+  SECTION("required iterator types (forward range of forward-only ranges)")
+  {
+    auto v = std::vector<std::forward_list<int>>{{1, 2}, {3, 4}};
+    auto pattern = std::forward_list<int>{0};
+    auto j = ranges::join_with_view{v, pattern};
+
+    using iter_type = decltype(j.begin());
+    static_assert(std::is_same_v<iter_type::iterator_concept, std::forward_iterator_tag>);
+    static_assert(
+      std::is_same_v<iter_type::iterator_category, std::forward_iterator_tag>);
+  }
+
+  SECTION("iterator_category absent when inner reference is a prvalue")
+  {
+    // transform's reference type is a prvalue, so iterator_category should not
+    // be defined per the C++23 spec.
+    auto in = std::istringstream{"1 2"};
+    auto numbers = std::ranges::istream_view<int>(in);
+    auto v = numbers | std::views::transform([](int n) { return std::vector<int>{n}; });
+    auto j = ranges::join_with_view{std::move(v), 0};
+
+    using iter_type = decltype(j.begin());
+    static_assert(!has_iterator_category<iter_type>);
+  }
+
+  SECTION("iterator is default-initializable for non-forward outer ranges")
+  {
+    auto in = std::istringstream{"1 2"};
+    auto numbers = std::ranges::istream_view<int>(in);
+    auto v = numbers | std::views::transform([](int n) { return std::vector<int>{n}; });
+    auto j = ranges::join_with_view{std::move(v), 0};
+
+    using iter_type = decltype(j.begin());
+    static_assert(std::default_initializable<iter_type>);
+
+    const auto it = iter_type{};
+    (void)it;
+  }
+
   SECTION("bidirectional iteration")
   {
     auto v = std::vector<std::vector<int>>{{1, 2}, {3, 4}, {5}};
@@ -300,6 +300,40 @@ TEST_CASE("join_with")
         CHECK(p == nullptr);
       }
     }
+  }
+
+  SECTION("move-only element types: interleaves a non-empty move-only separator")
+  {
+    // Complements the iter_move section: here the separator is non-empty and
+    // move-only, so reading through operator* must dereference both the inner-range
+    // alternative and the pattern alternative of the variant without requiring the
+    // elements to be copyable, and the shared separator must survive every gap.
+    const auto makeInner = [](std::initializer_list<int> values) {
+      auto inner = std::vector<std::unique_ptr<int>>{};
+      for (const int value : values)
+      {
+        inner.push_back(std::make_unique<int>(value));
+      }
+      return inner;
+    };
+
+    auto v = std::vector<std::vector<std::unique_ptr<int>>>{};
+    v.push_back(makeInner({1, 2}));
+    v.push_back(makeInner({3}));
+    v.push_back(makeInner({4}));
+
+    auto pattern = std::vector<std::unique_ptr<int>>{};
+    pattern.push_back(std::make_unique<int>(0));
+
+    auto j = ranges::join_with_view{v, std::move(pattern)};
+
+    auto out = std::vector<int>{};
+    for (const auto& p : j)
+    {
+      out.push_back(*p);
+    }
+
+    CHECK_THAT(out, RangeEquals(std::vector<int>{1, 2, 0, 3, 0, 4}));
   }
 
   SECTION("input-only outer range with prvalue inner ranges")
