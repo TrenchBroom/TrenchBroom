@@ -313,13 +313,14 @@ void LayoutRow::addItem(
     m_maxCellHeight};
   width += cell.cellBounds().width;
 
-  const auto newItemRowHeight =
-    cell.cellBounds().height - cell.titleBounds().height - m_titleMargin;
+  const auto newItemRowHeight = std::clamp(
+    cell.cellBounds().height - cell.titleBounds().height - m_titleMargin,
+    m_minCellHeight,
+    m_maxCellHeight);
+
   if (newItemRowHeight > m_minCellHeight)
   {
     m_minCellHeight = newItemRowHeight;
-    contract_assert(m_minCellHeight <= m_maxCellHeight);
-
     readjustItems();
   }
 
