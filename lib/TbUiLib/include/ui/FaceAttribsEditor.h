@@ -115,7 +115,7 @@ private:
   void surfaceFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
   void contentFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
   void surfaceValueChanged(double value);
-  void colorValueChanged(const QString& text);
+  void colorValueChanged();
   void surfaceFlagsUnset();
   void contentFlagsUnset();
   void surfaceValueUnset();
