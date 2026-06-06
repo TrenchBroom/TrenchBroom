@@ -174,7 +174,7 @@
 
 @BaseClass base(Target, Targetname, RenderFields, Angles) color(0 200 200) = Monster 
 [
-	TriggerTarget(String) : "TriggerTarget"
+	Triggertarget(target_destination) : "TriggerTarget"
       TriggerCondition(Choices) : "Trigger Condition" : 0 =
 	[
 		0 : "No Trigger"
@@ -1550,7 +1550,7 @@
 		2 : "Kill Player" : 0
 		4 : "Gib Player" : 0
 	]
-	target(string) : "game_team_master to use" 
+	target(target_destination) : "game_team_master to use" 
 	master(string) : "Master"
 ]
 
@@ -2261,7 +2261,7 @@
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) model({ "path": "models/zombie.mdl", "frame": sequence, "skin": skin }) = monster_zombie : "Scientist Zombie" []
 @PointClass base(Targetname, Angles) size(-16 -16 -16, 16 16 16) = monstermaker : "Monster Maker"
 [
-	target(string) : "Target On Release" 
+	target(target_destination) : "Target On Release" 
 	monstertype(string) : "Monster Type"
 	netname(string) : "Childrens' Name"
 	spawnflags(Flags) = 
@@ -2539,7 +2539,7 @@
 
 @SolidClass = trigger_changelevel : "Trigger: Change level"
 [
-	targetname(string) : "Name"
+	targetname(target_source) : "Name"
 	map(string) : "New map name"
 	landmark(string) : "Landmark name"
 	changetarget(target_destination) : "Change Target"
@@ -2553,7 +2553,7 @@
 
 @PointClass base(Targetx, Targetname) = trigger_changetarget : "Trigger Change Target"
 [
-	m_iszNewTarget(string) : "New Target"
+	m_iszNewtarget(target_destination) : "New Target"
 ]
 
 @SolidClass base(Trigger, Targetname) = trigger_counter : "Trigger counter" 

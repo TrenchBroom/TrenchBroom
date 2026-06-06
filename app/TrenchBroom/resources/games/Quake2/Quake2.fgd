@@ -84,7 +84,7 @@
 // 0221 - changed "sounds" information
 @SolidClass base(Appearflags, Target, Targetname) color(0 128 204) = func_button : "Button"
 [
-	pathtarget(string) : "Elevator level target"
+	pathtarget(target_destination) : "Elevator level target"
 	speed(integer) : "Speed" : 40
 	wait(choices) : "Wait before reset" : 1 =
 	[
@@ -120,7 +120,7 @@
 		8 : "Multi Use" : 0
 	]
 	count(integer) : "Clock Count"
-	pathtarget(string) : "Target"
+	pathtarget(target_destination) : "Target"
 	style(choices) : "Style" : 0 =
 	[
 		0 : "xx"
@@ -157,7 +157,7 @@
 		32 : "Toggle" : 0
 		64 : "Animated Fast" : 0
 	]
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	team(string) : "Team"
 	message(string) : "Trigger message"
 	health(integer) : "Health (shootable)"
@@ -199,7 +199,7 @@
 		64 : "X Axis" : 0
 		128 : "Y Axis" : 0
 	]
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	team(string) : "Team"
 	distance(integer) : "Degrees of rotation" : 90
 	message(string) : "Trigger message"
@@ -331,7 +331,7 @@
 		2 : "Toggle" : 0
 		4 : "Block Stops" : 0
 	]
-	target(string) : "First stop target"
+	target(target_destination) : "First stop target"
 	team(string) : "Team"
 	speed(integer) : "Speed" : 100
 	dmg(integer) : "Damage when blocked" : 2
@@ -474,8 +474,8 @@
 		16 : "Hold" : 0
 		32 : "Brutal" : 0
 	]
-	target(string) : "Next path target"
-	pathtarget(string) : "Action target"
+	target(target_destination) : "Next path target"
+	pathtarget(target_destination) : "Action target"
 	wait(integer) : "Pause time"
 	message(string) : "Message"
 	speed(integer) : "Forward (jump)" : 200
@@ -547,25 +547,25 @@
    16 : "Stand Ground" : 0
    32 : "Always Stand" : 0
 	]
-  deathtarget(string) : "Entity to trigger at death"
-  killtarget(string) : "Entity to remove at death"
+  deathtarget(target_destination) : "Entity to trigger at death"
+  killtarget(target_destination) : "Entity to remove at death"
   item(string) : "Item to spawn at death"
 ]
 
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-64 -64 0, 64 64 128) model({ "path": ":models/objects/satellite/tris.md2" }) = misc_satellite_dish : "Satellite Dish" []
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path": ":models/ships/strogg1/tris.md2" }) = misc_strogg_ship : "Strogg ship for flybys"
 [
-	target(string) : "First path target"
+	target(target_destination) : "First path target"
 	speed(integer) : "Speed"
 
 ]
 
-@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 1 }) = misc_teleporter : "Teleporter: To hide the teleport pads, place them units 10 units into a brush."	[	target(string) : "Teleport Destination"	]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 1 }) = misc_teleporter : "Teleporter: To hide the teleport pads, place them units 10 units into a brush."	[	target(target_destination) : "Teleport Destination"	]
 @PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 0 }) = misc_teleporter_dest : "Teleport Destination: To hide the teleport pads, place them units 10 units into a brush." []
 @PointClass base(Appearflags) color(255 128 0) size(-176 -120 -24, 176 120 72) model({ "path": ":models/ships/bigviper/tris.md2" }) = misc_bigviper : "Large stationary Viper" []
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path": ":models/ships/viper/tris.md2" }) = misc_viper : "Viper for flybys"
 [
-	target(string) : "First path target"
+	target(target_destination) : "First path target"
 	speed(integer) : "Speed"
 
 ]
@@ -586,9 +586,9 @@
 		2 : "Trigger Spawn" : 0
 		4 : "Sight" : 0
 	]
-	combattarget(string) : "Point combat target"
-	deathtarget(string) : "Entity to trigger at death"
-	killtarget(string) : "Entity to remove at death"
+	combattarget(target_destination) : "Point combat target"
+	deathtarget(target_destination) : "Entity to trigger at death"
+	killtarget(target_destination) : "Entity to remove at death"
 	item(string) : "Spawn Item"
 ]
 
@@ -632,8 +632,8 @@
 	[
 		1 : "Teleport" : 0
 	]
-	target(string) : "Next path target"
-	pathtarget(string) : "Event to trigger"
+	target(target_destination) : "Next path target"
+	pathtarget(target_destination) : "Event to trigger"
 	wait(choices) : "Wait" : 0 =
 	[
 		-1 : "Wait for retrigger"
@@ -693,7 +693,7 @@
 		64 : "Trigger 7" : 0
 		128 : "Trigger 8" : 0
 	]
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	message(string) : "Message"
 	delay(integer) : "Trigger delay"
 ]
@@ -711,7 +711,7 @@
 		64 : "Trigger 7" : 0
 		128 : "Trigger 8" : 0
 	]
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	delay(integer) : "Trigger delay (if activated)" : 1
 ]
 
@@ -777,7 +777,7 @@
 // 0221 - changed "target" key description for clarity
 @PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_spawner : "Monster/Item spawner"
 [
-	target(string) : "Monster/Item to spawn"
+	target(target_destination) : "Monster/Item to spawn"
 	speed(integer) : "Speed"
 ]
 
@@ -840,7 +840,7 @@
 // 0221 - added "delay" and "killtarget" keys
 @PointClass base(Appearflags, Target) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_always : "Always triggers"
 [
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	delay(integer) : "Time before triggering"
 ]
 
@@ -875,7 +875,7 @@
 
 @PointClass base(Appearflags, Targetname, Target) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_key : "Triggers with key"
 [
-	killtarget(string) : "Kill target"
+	killtarget(target_destination) : "Kill target"
 	item(string) : "Item classname" : "key_blue_key"
 ]
 
@@ -888,7 +888,7 @@
 // 0221 - switched around _relay, _once, and _multiple
 @PointClass base(Appearflags, Targetname, Target) color(128 128 128) = trigger_relay : "Relay trigger"
 [
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	delay(integer) : "Time before triggering"
 	message(string) : "Trigger message"
 ]
@@ -938,7 +938,7 @@
 	team(string) : "Team"
 	_minlight(string) : "Minimum light (optional)"
 ]
-@PointClass base(Appearflags) color(128 255 128) size(-16 -16 -24, 16 16 32) model({ "path": ":models/monsters/infantry/tris.md2"}) = turret_driver : "Turret driver"	[	target(string) : "Target (turret_breach)"	]
+@PointClass base(Appearflags) color(128 255 128) size(-16 -16 -24, 16 16 32) model({ "path": ":models/monsters/infantry/tris.md2"}) = turret_driver : "Turret driver"	[	target(target_destination) : "Target (turret_breach)"	]
 @PointClass base(Appearflags) color(0 128 204) size(-8 -8 -8, 8 8 8) = viewthing : "Just for debugging level - dont use" []
 @BaseClass base(Appearflags, Target) color(76 76 255) size(-16 -16 -16, 16 16 16) = Weapons
 [
