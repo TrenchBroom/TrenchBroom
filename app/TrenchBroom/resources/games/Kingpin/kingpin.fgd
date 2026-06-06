@@ -39,7 +39,7 @@
     fogval(string) : "RGB values of fog for opengl cards"
     fogval2(string) : "RGB values of fog for 3dfx cards"
     _sun_light(string) : "Set sun brightness"
-    _sun_target(string) : "Defines sun yaw and pitch pointing to a spotlight target"
+    _sun_target(target_destination) : "Defines sun yaw and pitch pointing to a spotlight target"
     _sun_angle(string) : "Defines sun yaw and pitch manually (0 to 360) (-90 to 90)"
     _sun_vector(string) : "Defines sun yaw and pitch using a X Y Z direction vector"
     _sun_color(string) : "Defines sun color in scalar R G B"
@@ -96,7 +96,7 @@
 ]
 @SolidClass base(Appearflags, Target) = ai_locked_door : "A character touching this brush will check the targeted door to see if it is closed. If so, the character will head towards the specified path_corner_cast. Example use: guiding AI characters away from a locked door"
 [
-    pathtarget(string) : "path_corner_cast's ID to head for"
+    pathtarget(target_destination) : "path_corner_cast's ID to head for"
 ]
 @PointClass size(-16 -16 -24, 16 16 48) color(128 128 255) = ai_safespot : "A good place to go to get a vantage point during fighting. Same code as ai_combat_spot." []
 @SolidClass = ai_territory : "This entity marks the boundary of a gang's territory. A character touching this will be deemed inside the gang's territory. This means war if sighted. Point the angle in the direction of the territory. This lets the AI know if the character is walking into or out of the territory."
@@ -176,15 +176,15 @@
         7 : "Psychotic"
     ]
     item(string) : "Item name to drop on death"
-    guard_target(string) : "Link to ai_guard entity"
-    combattarget(string) : "Link to path_corner_cast"
-    deathtarget(string) : "Target to trigger on death"
-    leader_target(string) : "Link to another gang member"
-    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    guard_target(target_destination) : "Link to ai_guard entity"
+    combattarget(target_destination) : "Link to path_corner_cast"
+    deathtarget(target_destination) : "Target to trigger on death"
+    leader_target(target_destination) : "Link to another gang member"
+    health_target(target_destination) : "Target to health threshold events 1 (trigger or run to)"
     health_threshold(string) : "Must be set if health_target is used"
-    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_target2(target_destination) : "Target to health threshold events 2 (trigger or run to)"
     health_threshold2(string) : "Must be set if health_target2 is used"
-    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_target3(target_destination) : "Target to health threshold events 3 (trigger or run to)"
     health_threshold3(string) : "Must be set if health_target3 is used"
     gun_noise_delay(integer) : "React delay befor hear gun and thake action"
     aiflags(string) : "AI flags"
@@ -238,15 +238,15 @@
         2 : "Enemy"
     ]
     health(integer) : "Health points" : 100
-    guard_target(string) : "Link to ai_guard entity"
-    combattarget(string) : "Link to path_corner_cast"
-    deathtarget(string) : "Target to trigger on death"
-    leader_target(string) : "Link to another gang member"
-    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    guard_target(target_destination) : "Link to ai_guard entity"
+    combattarget(target_destination) : "Link to path_corner_cast"
+    deathtarget(target_destination) : "Target to trigger on death"
+    leader_target(target_destination) : "Link to another gang member"
+    health_target(target_destination) : "Target to health threshold events 1 (trigger or run to)"
     health_threshold(string) : "Must be set if health_target is used"
-    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_target2(target_destination) : "Target to health threshold events 2 (trigger or run to)"
     health_threshold2(string) : "Must be set if health_target2 is used"
-    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_target3(target_destination) : "Target to health threshold events 3 (trigger or run to)"
     health_threshold3(string) : "Must be set if health_target3 is used"
     gun_noise_delay(integer) : "React delay befor hear gun and thake action"
     aiflags(string) : "AI flags"
@@ -297,15 +297,15 @@
         7 : "Psychotic"
     ]
     item(string) : "Item name to drop on death"
-    guard_target(string) : "Link to ai_guard entity"
-    combattarget(string) : "Link to path_corner_cast"
-    deathtarget(string) : "Target to trigger on death"
-    leader_target(string) : "Link to another gang member"
-    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    guard_target(target_destination) : "Link to ai_guard entity"
+    combattarget(target_destination) : "Link to path_corner_cast"
+    deathtarget(target_destination) : "Target to trigger on death"
+    leader_target(target_destination) : "Link to another gang member"
+    health_target(target_destination) : "Target to health threshold events 1 (trigger or run to)"
     health_threshold(string) : "Must be set if health_target is used"
-    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_target2(target_destination) : "Target to health threshold events 2 (trigger or run to)"
     health_threshold2(string) : "Must be set if health_target2 is used"
-    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_target3(target_destination) : "Target to health threshold events 3 (trigger or run to)"
     health_threshold3(string) : "Must be set if health_target3 is used"
     gun_noise_delay(integer) : "React delay befor hear gun and thake action"
     aiflags(string) : "AI flags"
@@ -358,15 +358,15 @@
         7 : "Psychotic"
     ]
     item(string) : "Item name to drop on death"
-    guard_target(string) : "Link to ai_guard entity"
-    combattarget(string) : "Link to path_corner_cast"
-    deathtarget(string) : "Target to trigger on death"
-    leader_target(string) : "Link to another gang member"
-    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    guard_target(target_destination) : "Link to ai_guard entity"
+    combattarget(target_destination) : "Link to path_corner_cast"
+    deathtarget(target_destination) : "Target to trigger on death"
+    leader_target(target_destination) : "Link to another gang member"
+    health_target(target_destination) : "Target to health threshold events 1 (trigger or run to)"
     health_threshold(string) : "Must be set if health_target is used"
-    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_target2(target_destination) : "Target to health threshold events 2 (trigger or run to)"
     health_threshold2(string) : "Must be set if health_target2 is used"
-    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_target3(target_destination) : "Target to health threshold events 3 (trigger or run to)"
     health_threshold3(string) : "Must be set if health_target3 is used"
     gun_noise_delay(integer) : "React delay befor hear gun and thake action"
     aiflags(string) : "AI flags"
@@ -406,15 +406,15 @@
         7 : "Psychotic"
     ]
     item(string) : "Item name to drop on death"
-    guard_target(string) : "Link to ai_guard entity"
-    combattarget(string) : "Link to path_corner_cast"
-    deathtarget(string) : "Target to trigger on death"
-    leader_target(string) : "Link to another gang member"
-    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    guard_target(target_destination) : "Link to ai_guard entity"
+    combattarget(target_destination) : "Link to path_corner_cast"
+    deathtarget(target_destination) : "Target to trigger on death"
+    leader_target(target_destination) : "Link to another gang member"
+    health_target(target_destination) : "Target to health threshold events 1 (trigger or run to)"
     health_threshold(string) : "Must be set if health_target is used"
-    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_target2(target_destination) : "Target to health threshold events 2 (trigger or run to)"
     health_threshold2(string) : "Must be set if health_target2 is used"
-    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_target3(target_destination) : "Target to health threshold events 3 (trigger or run to)"
     health_threshold3(string) : "Must be set if health_target3 is used"
     gun_noise_delay(integer) : "React delay befor hear gun and thake action"
     aiflags(string) : "AI flags"
@@ -473,15 +473,15 @@
         7 : "Psychotic"
     ]
     item(string) : "Item name to drop on death"
-    guard_target(string) : "Link to ai_guard entity"
-    combattarget(string) : "Link to path_corner_cast"
-    deathtarget(string) : "Target to trigger on death"
-    leader_target(string) : "Link to another gang member"
-    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    guard_target(target_destination) : "Link to ai_guard entity"
+    combattarget(target_destination) : "Link to path_corner_cast"
+    deathtarget(target_destination) : "Target to trigger on death"
+    leader_target(target_destination) : "Link to another gang member"
+    health_target(target_destination) : "Target to health threshold events 1 (trigger or run to)"
     health_threshold(string) : "Must be set if health_target is used"
-    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_target2(target_destination) : "Target to health threshold events 2 (trigger or run to)"
     health_threshold2(string) : "Must be set if health_target2 is used"
-    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_target3(target_destination) : "Target to health threshold events 3 (trigger or run to)"
     health_threshold3(string) : "Must be set if health_target3 is used"
     gun_noise_delay(integer) : "React delay befor hear gun and thake action"
     aiflags(string) : "AI flags"
@@ -563,15 +563,15 @@
         7 : "Psychotic"
     ]
     item(string) : "Item name to drop on death"
-    guard_target(string) : "Link to ai_guard entity"
-    combattarget(string) : "Link to path_corner_cast"
-    deathtarget(string) : "Target to trigger on death"
-    leader_target(string) : "Link to another gang member"
-    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    guard_target(target_destination) : "Link to ai_guard entity"
+    combattarget(target_destination) : "Link to path_corner_cast"
+    deathtarget(target_destination) : "Target to trigger on death"
+    leader_target(target_destination) : "Link to another gang member"
+    health_target(target_destination) : "Target to health threshold events 1 (trigger or run to)"
     health_threshold(string) : "Must be set if health_target is used"
-    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_target2(target_destination) : "Target to health threshold events 2 (trigger or run to)"
     health_threshold2(string) : "Must be set if health_target2 is used"
-    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_target3(target_destination) : "Target to health threshold events 3 (trigger or run to)"
     health_threshold3(string) : "Must be set if health_target3 is used"
     gun_noise_delay(integer) : "React delay befor hear gun and thake action"
     aiflags(string) : "AI flags"
@@ -644,7 +644,7 @@
     decel(integer) : "Deceleration (default=speed)"
     wait(integer) : "Wait before return (default=1) (set to -1=never return)"
     lip(integer) : "Lip" : 4
-    pathtarget(string) : "Entity to trigger when an entity that has this path_corner targeted touches it"
+    pathtarget(target_destination) : "Entity to trigger when an entity that has this path_corner targeted touches it"
     health(string) : "If set, the button is shootable"
     sounds(choices) : "Sounds" : 0 =
     [
@@ -676,7 +676,7 @@
         8 : "Multi Use" : 0
     ]
     count(integer) : "Clock Count"
-    pathtarget(string) : "Target"
+    pathtarget(target_destination) : "Target"
     style(choices) : "Style" : 0 =
     [
         0 : "xx"
@@ -705,7 +705,7 @@
         64 : "Animated Fast" : 0
         128 : "Surf2 Alpha" : 0
     ]
-    target2(string) : "Point to an ai_safespot's ID (for lockpicking purpose), can also be used as an alternate targetname field."
+    target2(target_destination) : "Point to an ai_safespot's ID (for lockpicking purpose), can also be used as an alternate targetname field."
     team(string) : "Trigger every door with the same team name"
     message(string) : "Message printed once when the door is touched if it is a trigger door"
     health(integer) : "If set, door must be shot open"
@@ -759,7 +759,7 @@
         64 : "X Axis" : 0
         128 : "Y Axis" : 0
     ]
-    target2(string) : "Point to an ai_safespot's ID (for lockpicking purpose), can also be used as an alternate targetname field."
+    target2(target_destination) : "Point to an ai_safespot's ID (for lockpicking purpose), can also be used as an alternate targetname field."
     team(string) : "Trigger every door with the same team name"
     distance(integer) : "How many degrees the door will be rotated."
     message(string) : "Message printed once when the door is touched if it is a trigger door"
@@ -842,7 +842,7 @@
     speed(integer) : "Movement speed" : 100
     dmg(integer) : "Damage to inflict when blocked (BLOCK_STOPS default=0)" : 100
     noise(sound) : "looping sound to play when the train is in motion"
-    target2(string) : "ID string for attached button"
+    target2(target_destination) : "ID string for attached button"
     spawnflags(flags) =
     [
         1 : "Start On" : 0
@@ -1762,7 +1762,7 @@
     cameraorigin(string) : "X Y Z camera start position (overrides entity's origin)"
     cameraangle(string) : "X Y Z start angles"
     rotate(string) : "X Y Z rotational velocity during cut scene"
-    target2(string) : "Always look at that entity (overrides angles when moving)"
+    target2(target_destination) : "Always look at that entity (overrides angles when moving)"
     cameravel(string) : "[forward] [right] [up] speed to move from initial angle"
     cameravelrel(string) : "[forward] [right] [up] speed to move relative to current frame angle"
     wait(integer) : "Time before switching to next camera in seconds" : 5
@@ -1772,7 +1772,7 @@
     reactdelay(integer) : "Moving time ('accel' must be set, if there's no 'decel', will never stop moving)"
     duration(integer) : "Fade out time"
     name(sound) : "Sound to play once triggered"
-    sight_target(string) : "Talking actor (if there's a sound to play)"
+    sight_target(target_destination) : "Talking actor (if there's a sound to play)"
     deadticks(integer) : "Fov for this camera" : 90
     scriptname(string) : "Script name to trigger when starting the camera"
 ]
@@ -1799,7 +1799,7 @@
     [
         1 : "teleport" : 0
     ]
-    pathtarget(string) : "Entity to trigger when an entity that has this path_corner targeted touches it"
+    pathtarget(target_destination) : "Entity to trigger when an entity that has this path_corner targeted touches it"
     wait(integer) : "Wait (in seconds)"
     speed(integer) : "Func_train_rotating only: departure speed from that corner"
     rotate(string) : "Func_train_rotating only: angle change for X Y Z to next corner"
@@ -1812,9 +1812,9 @@
     [
         1 : "teleport" : 0
     ]
-    pathtarget(string) : "Entity to trigger when an entity that has this path_corner targeted touches it"
+    pathtarget(target_destination) : "Entity to trigger when an entity that has this path_corner targeted touches it"
     wait(integer) : "Wait (in seconds)"
-    combattarget(string) : "When the cast reaches this marker, they'll attack this target"
+    combattarget(target_destination) : "When the cast reaches this marker, they'll attack this target"
     name(sound) : "Sound to play when reached."
     scriptname(string) : "Hard-coded script to call when reaching this marker"
 ]

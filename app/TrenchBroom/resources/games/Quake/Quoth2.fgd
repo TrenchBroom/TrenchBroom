@@ -77,9 +77,9 @@
 ]
 
 @BaseClass base(Targetname, Target) = AllTargets [
-	targetname2(target_destination) : "2nd Name"
-	targetname3(target_destination) : "3rd Name"
-	targetname4(target_destination) : "4th Name"
+	targetname2(target_source) : "2nd Name"
+	targetname3(target_source) : "3rd Name"
+	targetname4(target_source) : "4th Name"
 	target2(target_destination) : "2nd Target" 
 	target3(target_destination) : "3rd Target" 
 	target4(target_destination) : "4th Target" 
@@ -933,7 +933,7 @@ monster_vermis: "Vermis"
 		4 : "Player Nails"
 		5 : "Player Super Nails"
 	]
-	target(string) : "Target to fire towards"
+	target(target_destination) : "Target to fire towards"
 	modelpath(string) : "Projectile model"
 	wait(integer) : "Wait between shots"
 	delay(integer) : "Delay for first shot" : 0
@@ -967,7 +967,7 @@ monster_vermis: "Vermis"
 
 @PointClass base (Appearflags, Targetname, Deathtype) = trap_lightning_triggered : "Triggered Lightning Trap"
 [
-	target(string) : "Target to fire towards"
+	target(target_destination) : "Target to fire towards"
 	duration(string) : "Beam duration" : "0.1" //daft thing doesn't have a sensible number class, so fractions are strings...
 	dmg(integer) : "Damage" : 30
 	noise(string) : "Firing sound"

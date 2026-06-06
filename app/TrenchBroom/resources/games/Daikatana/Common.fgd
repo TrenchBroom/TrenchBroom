@@ -447,7 +447,7 @@
 
 @PointClass base(Appearflags, Target) color(1 0.5 0) size(-8 -8 -8, 8 8 8) = misc_lavaball_toss : "Lavaball toss"
 [
-	// target(string) : "can be triggered"
+	// target(target_destination) : "can be triggered"
 	mintime(float) : "minimum time between tosses (default = 4.0 seconds)" : 4.0
 	maxtime(float) : "maximum time between tosses (default = 12.0 seconds)" : 12.0
 	damage(integer) : "damage to do when an hitting something"
@@ -606,7 +606,7 @@
 		64: "CTF_WALL_ONLY" : 0
 	]
 
-	killtarget(string): "the targetname of the entity to remove when triggered"
+	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 	cinescript(string): "name of the cinematic script to run when toggled"
 	aiscript(string): "name of the AI script to run when toggled"
 ]
@@ -619,7 +619,7 @@
 		2: "STRUGGLE" : 0
 	]
 
-	killtarget(string): "the targetname of the entity to remove when triggered"
+	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 	keyname(string): "if set, the player must have the specified item in their inventory i.e. 'item_crypt_key'"
 	sound_use(string): "the sound to play when the button is used (defaults to none)"
 	sound_return(string): "the sound to play when the button returns (defaults to none)"
@@ -640,7 +640,7 @@
 		2: "CYCLE" : 0
 	]
 
-	killtarget(string): "the targetname of the entity to remove when triggered"
+	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 	sound_use(string): "the sound to play when the button is used (defaults to none)"
 	sound_return(string): "the sound to play when the button returns (defaults to none)"
 	speed(integer): "rate of travel when button moves"
@@ -665,7 +665,7 @@
 		128: "x" : 0
 	]
 
-	killtarget(string): "the targetname of the entity to remove when this path_corner is reached"
+	killtarget(target_destination): "the targetname of the entity to remove when this path_corner is reached"
 	speed(integer): "rate of travel from this path_corner to the next"
 	wait(integer): "seconds to wait after the actions on this path_corner are complete"
 	sound(string): "sound to play at this path corner"
@@ -676,7 +676,7 @@
 	y_speed(integer): "speed to rotate along y axis in degrees per second"
 	z_speed(integer): "speed to rotate along z axis in degrees per second"
 	health(integer): "if health is set, the train will wait at this path corner until it is killed."
-	pathtarget(string): "target to trigger when this path_corner is reached"
+	pathtarget(target_destination): "target to trigger when this path_corner is reached"
 	cinescript(string): "name of the cinematic script to run"
 	aiscript(string): "name of the AI script to run"
 ]
@@ -719,7 +719,7 @@
 		128: "NO_EXPLOSIONS" : 0
 	]
 
-	killtarget(string): "the targetname of the entity to remove when triggered"
+	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 	health(integer): "ummm... this would be the health of the wall, if it is 0 then the wall can only be exploded by targetting it"
 	message(string): "this prints out when wall go boom"
 	model_1(string): "the specific pathname of the first model to throw when killed if model_1 is set then spawnflags ROCK_CHUNKS and WOOD_CHUNKS are overridden"
@@ -899,7 +899,7 @@
 		128: "START_ON" : 0
 	]
 
-	killtarget(string): "the targetname of the entity to remove when triggered"
+	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 ]
 
 
@@ -1083,7 +1083,7 @@
 
 	sound(string): "name of sound to play upon firing, if not specified, then no sound will be played"
 	fog_value(integer): "sets fog_value to this when a teleporter is used"
-	killtarget(string): "the targetname of the entity to remove when triggered"
+	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 	message(string): "text message to display when triggered"
 ]
 
@@ -1100,7 +1100,7 @@
 	delay(integer): "time to wait after activation before firing target"
 	wait(float): "time to wait between retriggering (default = 0.2 seconds)" : 0.2
 	sound(string): "name of sound to play upon firing"
-	killtarget(string): "the targetname of the entity to remove when triggered"
+	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 	message(string): "text message to display when triggered"
 ]
 
@@ -1119,7 +1119,7 @@
 [
 	sound(string): "name of sound to play upon firing"
 	delay(integer): "delay"
-	killtarget(string): "the targetname of the entity to remove when triggered"
+	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 	message(string): "text message to display when triggered"
 ]
 
@@ -1130,7 +1130,7 @@
 		1: "USE_ONCE" : 0
 	]
 
-	newtarget(string): "new target for the targetted entity"
+	newtarget(target_destination): "new target for the targetted entity"
 ]
 
 @SolidClass base(Appearflags, Target, Targetname) color(0.5 0.5 0.5) = trigger_hurt : "Hurt trigger"
@@ -1448,11 +1448,11 @@
 //
 @PointClass base(Appearflags, Target, Targetname) color(0.5 0.3 0) size(-8 -8 -8, 8 8 8) = monster_path_corner : "A path corner for a monster to travel along"
 [
-	target1(string): "Target 1"
-	target2(string): "Target 2"
-	target3(string): "Target 3"
-	target4(string): "Target 4"
-	pathtarget(string): "target of entity that will get called upon hitting this pathcorner.  This is a one shot deal."
+	target1(target_destination): "Target 1"
+	target2(target_destination): "Target 2"
+	target3(target_destination): "Target 3"
+	target4(target_destination): "Target 4"
+	pathtarget(target_destination): "target of entity that will get called upon hitting this pathcorner.  This is a one shot deal."
 	aiscript(string): "name of the script to play when a monster hits this pathcorner node."
 ]
 
@@ -1531,8 +1531,8 @@
 @SolidClass base(Appearflags, NPCAnyDirection) color(0.5 0.5 0.5) = NPCtrigger_teleport : "Only clients can trigger this.  It will teleport all NPCs owned"
 [
 	angle(integer): "the angle the CLIENT must be moving to activate the trigger, +/- 45 degrees."
-	sfly_target(string): "targetname of entity Superfly will teleport to"
-	miko_target(string): "targetname of entity Mikiko will teleport to"
+	sfly_target(target_destination): "targetname of entity Superfly will teleport to"
+	miko_target(target_destination): "targetname of entity Mikiko will teleport to"
 ]
 
 @PointClass color(0.8 0 0) size(-8 -8 -8, 8 8 8) = item_flag_team1 : "Team 1 Flag"

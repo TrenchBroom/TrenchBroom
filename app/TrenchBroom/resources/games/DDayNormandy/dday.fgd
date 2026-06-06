@@ -126,7 +126,7 @@
 
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path": ":models/ships/viper/tris.md2" }) = misc_viper : "The default viper ship entity from Quake2, but replaced with a P51 Mustang."
 [
-	target(string) : "Direction the P51 model will face"
+	target(target_destination) : "Direction the P51 model will face"
 	speed(integer) : "How fast the P51 should fly"
 
 ]
@@ -242,7 +242,7 @@
 // 0221 - changed "sounds" information
 @SolidClass base(Appearflags, Target, Targetname) color(0 128 204) = func_button : "Button"
 [
-	pathtarget(string) : "Elevator level target"
+	pathtarget(target_destination) : "Elevator level target"
 	speed(integer) : "Speed" : 40
 	wait(choices) : "Wait before reset" : 1 =
 	[
@@ -283,7 +283,7 @@
 		32 : "Toggle" : 0
 		64 : "Animated Fast" : 0
 	]
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	team(string) : "Team"
 	message(string) : "Trigger message"
 	health(integer) : "Health (shootable)"
@@ -325,7 +325,7 @@
 		64 : "X Axis" : 0
 		128 : "Y Axis" : 0
 	]
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	team(string) : "Team"
 	distance(integer) : "Degrees of rotation" : 90
 	message(string) : "Trigger message"
@@ -438,7 +438,7 @@
 		2 : "Toggle" : 0
 		4 : "Block Stops" : 0
 	]
-	target(string) : "First stop target"
+	target(target_destination) : "First stop target"
 	team(string) : "Team"
 	speed(integer) : "Speed" : 100
 	dmg(integer) : "Damage when blocked" : 2
@@ -496,7 +496,7 @@
 	health(integer) : "Health" : 100
 ]
 
-@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 1 }) = misc_teleporter : "Teleporter: To hide the teleport pads, place them units 10 units into a brush."	[	target(string) : "Teleport Destination"	]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 1 }) = misc_teleporter : "Teleporter: To hide the teleport pads, place them units 10 units into a brush."	[	target(target_destination) : "Teleport Destination"	]
 @PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 0 }) = misc_teleporter_dest : "Teleport Destination: To hide the teleport pads, place them units 10 units into a brush." []
 
 
@@ -509,8 +509,8 @@
 	[
 		1 : "Teleport" : 0
 	]
-	target(string) : "Next path target"
-	pathtarget(string) : "Event to trigger"
+	target(target_destination) : "Next path target"
+	pathtarget(target_destination) : "Event to trigger"
 	wait(choices) : "Wait" : 0 =
 	[
 		-1 : "Wait for retrigger"
@@ -566,7 +566,7 @@
 // 0221 - added "delay" and "killtarget" keys
 @PointClass base(Appearflags, Target) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_always : "Always triggers"
 [
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	delay(integer) : "Time before triggering"
 ]
 
@@ -602,7 +602,7 @@
 // 0221 - switched around _relay, _once, and _multiple
 @PointClass base(Appearflags, Targetname, Target) color(128 128 128) = trigger_relay : "Relay trigger"
 [
-	killtarget(string) : "Kill Target"
+	killtarget(target_destination) : "Kill Target"
 	delay(integer) : "Time before triggering"
 	message(string) : "Trigger message"
 ]

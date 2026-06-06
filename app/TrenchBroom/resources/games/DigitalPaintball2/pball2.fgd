@@ -15,11 +15,11 @@
 
 @BaseClass = Target
 [
-    target(string) : "sets the target to a func_areaportal or target_speaker with the same targetname"
+    target(target_destination) : "sets the target to a func_areaportal or target_speaker with the same targetname"
 ]
 @BaseClass = TargetName
 [
-    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target"
+    targetname(target_source) : "sets the target from a func_button, func_timer, etc. with the same target"
 ]
 @BaseClass = TeamNumber
 [
@@ -91,7 +91,7 @@
 // Worldspawn Sun Aiming
 // Like spotlights, there are several different methods available for setting the direction of suns in the Worldspawn. Choose any one of the methods that you prefer. Remember these point in the direction the sunlight is cast, not towards the sun. All suns points straight down by default.
     _sun_angle(string) : "arghrad - Sets the sunlight direction by yaw and pitch angles. Yaw goes from 0-360 degrees around the z-axis, like the angle key. Pitch goes from -90 straight down, through 0 horizontal, to 90 straight up. def=0 -90"
-		_sun_target(string)	: "arghrad - targetname: targetname of spotlight`s info_null. Sets the sunlight direction with separate light & info_null entities. Create and aim a spotlight using the traditional qrad3 info_null method. Then set the _sun_target value to the same targetname as the info_null. The sun will now point in the same direction as that spotlight."
+		_sun_target(target_destination)	: "arghrad - targetname: targetname of spotlight`s info_null. Sets the sunlight direction with separate light & info_null entities. Create and aim a spotlight using the traditional qrad3 info_null method. Then set the _sun_target value to the same targetname as the info_null. The sun will now point in the same direction as that spotlight."
 		_sun_vector(string)	:	"arghrad - Sets the sunlight direction by direction vector. This is the direction defined by a ray pointing from the origin (0 0 0) to the specified x y z value."
 
 		requiredfiles(string) : "sets paths for additional files required by the map (such as scripts) that do not download by default - <path> is the path to your file. Always use the forward slash. Keep filenames lowercase. Separate different pathes with a space.Example: 'requiredfiles' 'scripts/maps/mymap1.txt scripts/maps/mymap2.txt' for two of your own files"
@@ -377,18 +377,18 @@ type == "steel" -> 	{"path":"models/items/barrel/tris.md2", "skin": 0},
 
 @PointClass base(AppearFlags) color(128 80 0) size(-8 -8 -8, 8 8 8) = path_corner : "Set the direction of func_trains etc. Target it to the next path corner."
 [
-    targetname(string) : "sets the target from the previous path_corner entity with the same target"
-    target(string) : "sets the target to the next path_corner entity with the same targetname"
+    targetname(target_source) : "sets the target from the previous path_corner entity with the same target"
+    target(target_destination) : "sets the target to the next path_corner entity with the same targetname"
 ]
 
 @PointClass base(AppearFlags) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_null : "Used as a positional target for spotlights, etc."
 [
-    targetname(string) : "sets the target from the light source with the same target"
+    targetname(target_source) : "sets the target from the light source with the same target"
 ]
 
 @PointClass base(AppearFlags) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_notnull : "Used as a positional target jump pads, etc."
 [
-    targetname(string) : "sets the target from the trigger_push with the same target"
+    targetname(target_source) : "sets the target from the trigger_push with the same target"
 ]
 
 @PointClass base(AppearFlags) color(0 255 0) size(-8 -8 -8, 8 8 8) = light : "Point light with no visible source.  Only applies lighting to the world."
@@ -396,7 +396,7 @@ type == "steel" -> 	{"path":"models/items/barrel/tris.md2", "skin": 0},
     light(integer) : "sets the light power (300 default)."
     style(integer) : "sets the light style (0 default)."
     _color(color255) : "sets the light color (0 default). Example 255 255 255"
-    target(string) : "sets the target for spotlights to the info_null entity with the same targetname."
+    target(target_destination) : "sets the target for spotlights to the info_null entity with the same targetname."
     _cone(integer) : "sets the size of light for spotlights (10 default)"
 //Light Attenuation
 		_angfade(integer)	: "arghrad - Scales how quickly the light fades as the angle-of-incidence decreases (from perpendicular to parallel). Values less than 1 fade slower, so the angle has less affect. Values greater than 1 fade faster, so the angle has more pronounced affect. def = 1 - This AKA _angwait"
@@ -459,28 +459,28 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
         1 : "for a style like xx:xx"
         2 : "for a style like xx:xx:xx"
     ]
-    pathtarget(string) : "see timer_up and timer_down spawnflags."
+    pathtarget(target_destination) : "see timer_up and timer_down spawnflags."
 ]
 
 @PointClass base(AppearFlags) color(255 0 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter : "Touching this will teleport players to the targeted misc_teleporter_dest object."
 [
-    target(string) : "sets the target to the misc_teleporter_dest entity with the same targetname"
+    target(target_destination) : "sets the target to the misc_teleporter_dest entity with the same targetname"
 ]
 
 @PointClass base(AppearFlags, Angle) color(255 0 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter_dest : "Players who touched the 'misc_teleporter' will appear here."
 [
-    targetname(string) : "sets the target from the misc_teleporter entity with the same target"
+    targetname(target_source) : "sets the target from the misc_teleporter entity with the same target"
 ]
 
 @PointClass base(AppearFlags) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_temp_entity : "Fire an origin based temp entity event to the clients."
 [
-    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+    targetname(target_source) : "sets the target from a func_button, func_timer, etc. with the same target."
     style(integer) : "5 - for a yellow explosion\r21 - for a blue explosion\r45 - for a smoke puff\r48 - for a cyllindrical explosion\r51 - for a large and fast spherical explosion\r52 - for a slow and smaller spherical explosion\rOther values may also work, but can also crash the game, so be careful what you use."
 ]
 
 @PointClass base(AppearFlags) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_speaker : "Normal sounds play each time the target is used."
 [
-    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target"
+    targetname(target_source) : "sets the target from a func_button, func_timer, etc. with the same target"
     noise(string) : "sets the .wav file to play - <soundpath> is the path to your file. Example: 'noise' 'world/cricket.wav'"
     volume(float) : "sets the volume power - # options can be 0.0 to 1.0."
     attenuation(choices) : "volume falloffLooped sounds are allways atten 3 / vol 1, and the use function toggles it on/off.The reliable flag can be set for very important sounds like crucial voiceovers." =
@@ -534,8 +534,8 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
 	[
 		1 : "toggle" : 0
     ]
-    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
-    target(string) : "sets the target to the light source with the same targetname."
+    targetname(target_source) : "sets the target from a func_button, func_timer, etc. with the same target."
+    target(target_destination) : "sets the target to the light source with the same targetname."
     speed(integer) : "sets how many seconds the ramping will take."
     message(choices) : "sets the starting lightlevel and the ending lightlevel in two letters" =
     [
@@ -550,7 +550,7 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
 	[
 		1 : "triggered" : 0 : "sets that this trigger must be triggered before it is live."
     ]
-    target(string) : "sets the target to any other entities with the same targetname."
+    target(target_destination) : "sets the target to any other entities with the same targetname."
     message(string) : "sets a string to be displayed when triggered."
     delay(integer) : "sets a delay before first firing when turned on (0 default)."
     sounds(choices) : "sets a sound to be played when triggered" =
@@ -573,7 +573,7 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
 
 @PointClass base(AppearFlags) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_always : "This trigger will always fire.  It is activated by the world."
 [
-    target(string) : "sets the target to any other entities with the same targetname"
+    target(target_destination) : "sets the target to any other entities with the same targetname"
 ]
 
 @SolidClass base(AppearFlags) = trigger_push : "Pushes players and grenades so they will hit the targeted info_notnull."
@@ -583,7 +583,7 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
 		1 : "push_once" : 0 : "affects all entities (paint, guns, etc)."
 		2 : "push_all" : 0 : "causes the trigger_push to be removed after the first touch."
     ]
-    target(string) : "sets the target to the info_notnull entity with the same targetname"
+    target(target_destination) : "sets the target to the info_notnull entity with the same targetname"
 ]
 
 @SolidClass base(AppearFlags) = trigger_hurt : "Any entity that touches this will be hurt."
@@ -630,8 +630,8 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
         32 : "toggle" : 0 : "wait in both the start and end states for a trigger event."
         64 : "animated_fast" : 0 : ""
 	]
-    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
-    target(string) : "sets the target to a func_areaportal or target_speaker with the same targetname."
+    targetname(target_source) : "sets the target from a func_button, func_timer, etc. with the same target."
+    target(target_destination) : "sets the target to a func_areaportal or target_speaker with the same targetname."
     message(string) : "sets a string to be displayed when triggered"
     team(string) : "<teamtext> sets that all doors with the same team value will open if any door of them gets activated."
     health(integer) : "1 sets that the door must be shoot open instead of touching it."
@@ -728,8 +728,8 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
         2 : "toggle" : 0 : "will move the standing people with the train."
         4 : "block_stops" : 0 : "will stop the train while blocking (only if no dmg is set)."
     ]
-    target(string) : "sets the target to a path corner with the same targetname."
-    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+    target(target_destination) : "sets the target to a path corner with the same targetname."
+    targetname(target_source) : "sets the target from a func_button, func_timer, etc. with the same target."
     speed(integer) : "sets movement speed (100 default)."
     dmg(integer) : "sets a damage to inflict when blocked (2 default)."
     _minlight(float) : "sets that the platform glows - # options can be 0.0 to 1.0."
@@ -737,8 +737,8 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
 
 @PointClass base(AppearFlags) color(80 25 160) size(-8 -8 -8, 8 8 8) = trigger_elevator : "Entity to make a func_train behave like an elevator. Place path_corner's at each floor and set the func_button at that floor to target the trigger_elevator and pathtarget the path_corner."
 [
-    target(string) : "sets the target to the func_train elevator with the same targetname."
-    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+    target(target_destination) : "sets the target to the func_train elevator with the same targetname."
+    targetname(target_source) : "sets the target from a func_button, func_timer, etc. with the same target."
 ]
 
 @PointClass base(AppearFlags) color(80 25 160) size(-8 -8 -8, 8 8 8) = func_timer : "Timer for trigger lots of stuff. Target it with any entity."
@@ -747,7 +747,7 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
 	[
         1 : "start_on" : 0 : "will activate the timer by the world."
     ]
-    target(string) : "sets the target to any other entities with the same targetname."
+    target(target_destination) : "sets the target to any other entities with the same targetname."
     wait(integer) : "sets the base time between triggering all targets (1 default)."
     random(integer) : "sets the wait variance, so the basic time between firing is a random time (0 default)."
     delay(integer) : "sets a delay before first firing when turned on (0 default)."
@@ -773,8 +773,8 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
         2 : "1st_left" : 0 : "the 1st move is left of arrow."
         4 : "1st_down" : 0 : "the 1st move is down from arrow."
     ]
-    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
-    target(string) : "sets the target to a func_areaportal or target_speaker with the same targetname."
+    targetname(target_source) : "sets the target from a func_button, func_timer, etc. with the same target."
+    target(target_destination) : "sets the target to a func_areaportal or target_speaker with the same targetname."
     message(string) : "sets a string to be displayed when triggered - <messagetext> can be your own value."
     health(integer) : "1 sets that the door must be shoot open instead of touching it."
     angle(string) : "sets the opening direction of the door (0 default; -1 = upwards; -2 = downwards)."
@@ -786,7 +786,7 @@ Note: Inverse and inverse-square falloff require much higher brightness values t
 
 @SolidClass base(AppearFlags) = func_button : "When a button is touched, it moves some distance in the direction of it's angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again."
 [
-    target(string) : "sets the target to any other entities with the same targetname."
+    target(target_destination) : "sets the target to any other entities with the same targetname."
     health(integer) : "sets that the button must be killed instead of touched."
     angle(string) : "sets the moving direction."
     speed(integer) : "sets the movement speed (40 default)."

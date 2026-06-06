@@ -352,7 +352,7 @@
 	puzzle_piece_3(integer) : "Puzzle Piece 3"
 	puzzle_piece_4(integer) : "Puzzle Piece 4"
 	no_puzzle_msg(string) : "Puzzle message"
-	close_target(string) : "Close Target (PoP)"
+	close_target(target_destination) : "Close Target (PoP)"
 	abslight(integer) : "Absolute light value"
 ]
 
@@ -373,7 +373,7 @@
 	puzzle_piece_3(integer) : "Puzzle Piece 3"
 	puzzle_piece_4(integer) : "Puzzle Piece 4"
 	no_puzzle_msg(string) : "Puzzle message"
-	close_target(string) : "Close Target (PoP)"
+	close_target(target_destination) : "Close Target (PoP)"
 	abslight(integer) : "Absolute light value"
 ]
 
@@ -1355,7 +1355,7 @@
 	[
 		1 : "Trigger wait" : 0
 	]
-	target(string) : "Start spot on next map"
+	target(target_destination) : "Start spot on next map"
 	map(string) : "Next map after killing"	
 ]
 @PointClass base(rider_death) = rider_famine : "Famine!" []
