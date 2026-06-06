@@ -258,10 +258,35 @@ gl::Texture loadTextureFromFileSystem(
 }
 
 gl::Texture loadUncompressedEmbeddedTexture(
-  const aiTexel& data, const size_t width, const size_t height)
+  const aiTexel& data,
+  const size_t width,
+  const size_t height,
+  const std::optional<aiTexel>& transparentTexel)
 {
+  using TexelPredicate = std::function<bool(const aiTexel&)>;
+
+  // Check if a texel is transparent according to the given transparentTexel.
+  const auto isTransparentTexel =
+    transparentTexel ? TexelPredicate{[&](const auto& texel) {
+      return texel.r == transparentTexel->r && texel.g == transparentTexel->g
+             && texel.b == transparentTexel->b;
+    }}
+                     : TexelPredicate{[](const auto&) { return false; }};
+
+  // Set the alpha component of any transparent texel to 0.
+  const auto transformTexel = [&](const auto& texel) {
+    return isTransparentTexel(texel) ? aiTexel{texel.b, texel.g, texel.r, 0} : texel;
+  };
+
+  // The source range transforms texels according to the given transparentTexel. We
+  // perform this transformation on the source range to so that we can work on aiTexels.
+  auto sourceRange = std::ranges::subrange(&data, &data + (width * height))
+                     | std::views::transform(transformTexel);
+
+  // Copy the pixels from the source range into the texture buffer. Since aiTexel's layout
+  // is just 4 bytes, we can get away with reinterpret_cast here.
   auto buffer = gl::TextureBuffer{width * height * sizeof(aiTexel)};
-  std::memcpy(buffer.data(), &data, width * height * sizeof(aiTexel));
+  std::ranges::copy(sourceRange, reinterpret_cast<aiTexel*>(buffer.data()));
 
   const auto averageColor = getAverageColor(buffer, GL_BGRA);
   return {
@@ -279,6 +304,20 @@ gl::Texture loadCompressedEmbeddedTexture(
 {
   return loadFreeImageTextureFromMemory(reinterpret_cast<const uint8_t*>(&data), size)
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
+}
+
+std::optional<aiTexel> getTransparentTexel(const aiMaterial& material)
+{
+  if (aiColor3D transparentColor;
+      material.Get(AI_MATKEY_COLOR_TRANSPARENT, transparentColor) == aiReturn_SUCCESS)
+  {
+    return aiTexel{
+      static_cast<unsigned char>(transparentColor.b),
+      static_cast<unsigned char>(transparentColor.g),
+      static_cast<unsigned char>(transparentColor.r),
+      0};
+  }
+  return std::nullopt;
 }
 
 std::vector<gl::Texture> loadTexturesForMaterial(
@@ -301,9 +340,12 @@ std::vector<gl::Texture> loadTexturesForMaterial(
       {
         if (texture->mHeight != 0)
         {
+          const auto transparentTexel =
+            getTransparentTexel(*scene.mMaterials[materialIndex]);
+
           // The texture is uncompressed, load it directly.
           return loadUncompressedEmbeddedTexture(
-            *texture->pcData, texture->mWidth, texture->mHeight);
+            *texture->pcData, texture->mWidth, texture->mHeight, transparentTexel);
         }
 
         // The texture is embedded, but compressed. Let FreeImage load it from memory.

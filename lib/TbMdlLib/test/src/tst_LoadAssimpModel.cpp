@@ -24,6 +24,8 @@
 #include "mdl/EntityModel.h"
 #include "mdl/LoadAssimpModel.h"
 
+#include "kd/ranges/stride_view.h"
+
 #include "vm/approx.h"
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
@@ -41,11 +43,11 @@ TEST_CASE("loadAssimpModel")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/mdl/LoadAssimpModel/cube";
-    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
+    auto fs = fs::DiskFileSystem{basePath};
 
     SECTION("dae")
     {
-      auto modelData = loadAssimpModel("cube.dae", *fs, logger);
+      auto modelData = loadAssimpModel("cube.dae", fs, logger);
       REQUIRE(modelData);
 
       CHECK(modelData.value().frameCount() == 1);
@@ -55,7 +57,7 @@ TEST_CASE("loadAssimpModel")
 
     SECTION("mdl")
     {
-      auto modelData = loadAssimpModel("cube.mdl", *fs, logger);
+      auto modelData = loadAssimpModel("cube.mdl", fs, logger);
       REQUIRE(modelData);
 
       CHECK(modelData.value().surfaceCount() == 4);
@@ -81,9 +83,9 @@ TEST_CASE("loadAssimpModel")
 
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/mdl/LoadAssimpModel/alignment";
-    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
+    auto fs = fs::DiskFileSystem{basePath};
 
-    auto modelData = loadAssimpModel(modelPath, *fs, logger);
+    auto modelData = loadAssimpModel(modelPath, fs, logger);
     REQUIRE(modelData);
 
     REQUIRE(modelData.value().frameCount() == 1);
@@ -93,13 +95,42 @@ TEST_CASE("loadAssimpModel")
     CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {2, 1, 3}});
   }
 
+  SECTION("model with mask texture")
+  {
+    const auto basePath =
+      std::filesystem::current_path()
+      / "fixture/test/mdl/LoadAssimpModel/uncompressedEmbeddedMaskedTexture";
+    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
+
+    auto modelData = loadAssimpModel("masked.mdl", *fs, logger);
+    REQUIRE(modelData);
+
+    const auto* texture = modelData.value().surface(0).skin(0)->texture();
+    REQUIRE(texture != nullptr);
+
+    const auto& buffers = texture->buffersIfLoaded();
+    REQUIRE(!buffers.empty());
+
+    const auto& image = buffers.front();
+    REQUIRE(image.size() == 262144);
+
+    const auto pixels = std::ranges::subrange{image.data(), image.data() + image.size()};
+    const auto alphas = pixels | std::views::drop(3) | kdl::views::stride(4);
+
+    const auto hasTransparentPixel = std::ranges::find(alphas, 0) != alphas.end();
+    const auto hasOpaquePixel = std::ranges::find(alphas, 255) != alphas.end();
+
+    CHECK(hasTransparentPixel);
+    CHECK(hasOpaquePixel);
+  }
+
   SECTION("non ascii diffuse texture path")
   {
     const auto basePath = std::filesystem::current_path()
                           / "fixture/test/mdl/LoadAssimpModel/nonAsciiTexturePath";
-    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
+    auto fs = fs::DiskFileSystem{basePath};
 
-    auto modelData = loadAssimpModel("non_ascii_texture_path.obj", *fs, logger);
+    auto modelData = loadAssimpModel("non_ascii_texture_path.obj", fs, logger);
     REQUIRE(modelData);
 
     CHECK(modelData.value().frameCount() == 1);
@@ -112,9 +143,9 @@ TEST_CASE("loadAssimpModel")
   {
     const auto basePath = std::filesystem::current_path()
                           / "fixture/test/mdl/LoadAssimpModel/malformedTexturePath";
-    auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
+    auto fs = fs::DiskFileSystem{basePath};
 
-    auto modelData = loadAssimpModel("malformed_texture_path.obj", *fs, logger);
+    auto modelData = loadAssimpModel("malformed_texture_path.obj", fs, logger);
     REQUIRE(modelData);
 
     CHECK(modelData.value().frameCount() == 1);

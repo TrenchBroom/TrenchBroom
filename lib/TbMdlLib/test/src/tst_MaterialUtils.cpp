@@ -92,12 +92,12 @@ TEST_CASE("findMaterialFile")
 
 TEST_CASE("loadDefaultMaterial")
 {
-  auto fs = std::make_shared<fs::DiskFileSystem>(
+  auto fs = fs::DiskFileSystem{
     std::filesystem::current_path()
-    / "fixture/test/mdl/MaterialUtils/loadDefaultMaterial");
+    / "fixture/test/mdl/MaterialUtils/loadDefaultMaterial"};
   NullLogger logger;
 
-  auto material = loadDefaultMaterial(*fs, "some_name", logger);
+  auto material = loadDefaultMaterial(fs, "some_name", logger);
   CHECK(material.name() == "some_name");
 }
 
