@@ -25,8 +25,8 @@
 
 #include "kd/map_utils.h"
 #include "kd/overload.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
-#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 
@@ -332,7 +332,9 @@ Value evaluateAddition(
 
   if (lhs.hasType(ValueType::Array) && rhs.hasType(ValueType::Array))
   {
-    return Value{kdl::vec_concat(lhs.arrayValue(context), rhs.arrayValue(context))};
+    return Value{
+      kdl::views::concat(lhs.arrayValue(context), rhs.arrayValue(context))
+      | kdl::ranges::to<std::vector>()};
   }
 
   if (lhs.hasType(ValueType::Map) && rhs.hasType(ValueType::Map))

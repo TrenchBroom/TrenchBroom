@@ -290,7 +290,7 @@ void FgdParser::parseClassInfoOrInclude(
   if (kdl::ci::str_is_equal(token.data(), "@include"))
   {
     auto includedClassInfos = parseInclude(status);
-    classInfos = kdl::vec_concat(classInfos, std::move(includedClassInfos));
+    kdl::vec_append(classInfos, std::move(includedClassInfos));
   }
   else
   {

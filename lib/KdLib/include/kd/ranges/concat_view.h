@@ -133,26 +133,20 @@ template <bool Const, typename... Views>
 struct concat_iterator_category<Const, Views...>
 {
 private:
-  static constexpr bool derive_random_access =
+  template <typename Tag>
+  static constexpr bool derive_tag =
     (std::derived_from<
        typename std::iterator_traits<
          std::ranges::iterator_t<maybe_const<Const, Views>>>::iterator_category,
-       std::random_access_iterator_tag>
-     && ...)
+       Tag>
+     && ...);
+  static constexpr bool derive_random_access =
+    derive_tag<std::random_access_iterator_tag>
     && concat_is_random_access<Const, Views...>;
   static constexpr bool derive_bidirectional =
-    (std::derived_from<
-       typename std::iterator_traits<
-         std::ranges::iterator_t<maybe_const<Const, Views>>>::iterator_category,
-       std::bidirectional_iterator_tag>
-     && ...)
+    derive_tag<std::bidirectional_iterator_tag>
     && concat_is_bidirectional<Const, Views...>;
-  static constexpr bool derive_forward =
-    (std::derived_from<
-       typename std::iterator_traits<
-         std::ranges::iterator_t<maybe_const<Const, Views>>>::iterator_category,
-       std::forward_iterator_tag>
-     && ...);
+  static constexpr bool derive_forward = derive_tag<std::forward_iterator_tag>;
 
 public:
   using iterator_category = std::conditional_t<
@@ -436,6 +430,10 @@ public:
         it.it_);
     }
 
+    // The spec writes the first noexcept term as noexcept(ranges::swap(*x, *y)), but
+    // naming the parameters here trips up MSVC, so we use declval of the reference type
+    // instead. This is harmless: it only drops operator*'s (never-throwing) potential
+    // exception from the computation, so iter_swap is at most reported more noexcept.
     friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(
       noexcept(std::ranges::swap(
         std::declval<detail::concat_reference_t<detail::maybe_const<Const, Views>...>>(),
@@ -589,7 +587,7 @@ public:
     }
 
     Parent* parent_{nullptr};
-    base_iter it_{};
+    base_iter it_;
   };
 
   constexpr concat_view() = default;
@@ -674,7 +672,7 @@ public:
   }
 
 private:
-  std::tuple<Views...> base_{};
+  std::tuple<Views...> base_;
 };
 
 template <typename... R>

@@ -23,6 +23,7 @@
 #include "kd/vector_utils.h"
 
 #include <memory>
+#include <ranges>
 #include <set>
 #include <vector>
 
@@ -31,6 +32,42 @@
 
 namespace kdl
 {
+namespace
+{
+
+struct AppendProbe
+{
+  int value = 0;
+  bool movedFrom = false;
+
+  explicit AppendProbe(const int i)
+    : value{i}
+  {
+  }
+
+  AppendProbe(const AppendProbe&) = default;
+  AppendProbe& operator=(const AppendProbe&) = default;
+
+  AppendProbe(AppendProbe&& other) noexcept
+    : value{other.value}
+  {
+    other.movedFrom = true;
+  }
+
+  AppendProbe& operator=(AppendProbe&& other) noexcept
+  {
+    if (this != &other)
+    {
+      value = other.value;
+      movedFrom = false;
+      other.movedFrom = true;
+    }
+    return *this;
+  }
+};
+
+} // namespace
+
 using namespace Catch::Matchers;
 
 TEST_CASE("vector_utils_test.vec_at")
@@ -123,25 +160,6 @@ static auto makeVec(T&& t, R... r)
   return result;
 }
 
-TEST_CASE("vector_utils_test.vec_concat")
-{
-  using vec = std::vector<int>;
-
-  CHECK_THAT(vec_concat(vec{}), Equals(vec{}));
-  CHECK_THAT(vec_concat(vec{}, vec{}), Equals(vec{}));
-  CHECK_THAT(vec_concat(vec{1}), Equals(vec{1}));
-  CHECK_THAT(vec_concat(vec{1}, vec{2}), Equals(vec{1, 2}));
-}
-
-TEST_CASE("vector_utils_test.vec_concat_move")
-{
-  auto v = makeVec(std::make_unique<int>(1));
-  v = vec_concat(std::move(v), makeVec(std::make_unique<int>(2)));
-
-  CHECK(*v[0] == 1);
-  CHECK(*v[1] == 2);
-}
-
 TEST_CASE("vector_utils_test.vec_push_back")
 {
   using ivec = std::vector<int>;
@@ -153,6 +171,83 @@ TEST_CASE("vector_utils_test.vec_push_back")
 
   CHECK_THAT(
     vec_push_back(svec{}, "hey", std::string{"there"}), Equals(svec{"hey", "there"}));
+}
+
+TEST_CASE("vector_utils_test.vec_append_lvalue_range_copies")
+{
+  auto v = std::vector<AppendProbe>{AppendProbe{1}};
+  auto r = std::vector<AppendProbe>{AppendProbe{2}, AppendProbe{3}};
+
+  vec_append(v, r);
+
+  REQUIRE(v.size() == 3u);
+  CHECK(v[0].value == 1);
+  CHECK(v[1].value == 2);
+  CHECK(v[2].value == 3);
+
+  // NOLINTNEXTLINE(bugprone-use-after-move)
+  CHECK_FALSE(r[0].movedFrom);
+
+  // NOLINTNEXTLINE(bugprone-use-after-move)
+  CHECK_FALSE(r[1].movedFrom);
+}
+
+TEST_CASE("vector_utils_test.vec_append_rvalue_range_moves")
+{
+  auto v = std::vector<AppendProbe>{AppendProbe{1}};
+  auto r = std::vector<AppendProbe>{AppendProbe{2}, AppendProbe{3}};
+
+  vec_append(v, std::move(r));
+
+  REQUIRE(v.size() == 3u);
+  CHECK(v[0].value == 1);
+  CHECK(v[1].value == 2);
+  CHECK(v[2].value == 3);
+
+  // NOLINTNEXTLINE(bugprone-use-after-move)
+  CHECK(r[0].movedFrom);
+
+  // NOLINTNEXTLINE(bugprone-use-after-move)
+  CHECK(r[1].movedFrom);
+}
+
+TEST_CASE("vector_utils_test.vec_append_non_common_range_copies")
+{
+  // views::iota(2) is an unbounded range (sentinel = unreachable_sentinel_t); take_view
+  // over a non-sized range uses counted_iterator/default_sentinel, so the result is NOT
+  // a common_range — the old insert(begin, end) call would fail to compile.
+  const auto r = std::views::iota(2) | std::views::take(3); // yields {2, 3, 4}
+  static_assert(!std::ranges::common_range<decltype(r)>);
+
+  auto v = std::vector<int>{1};
+  vec_append(v, r);
+
+  CHECK_THAT(v, Equals(std::vector<int>{1, 2, 3, 4}));
+}
+
+TEST_CASE("vector_utils_test.vec_append_non_common_range_moves")
+{
+  // subrange<counted_iterator, default_sentinel_t> is a non-common range.
+  // iter_move on counted_iterator delegates to iter_move on its base, so elements
+  // are moved — the old make_move_iterator(end) would fail to compile here.
+  auto src = std::vector<AppendProbe>{AppendProbe{2}, AppendProbe{3}};
+  const auto n = static_cast<std::ptrdiff_t>(src.size());
+  auto r =
+    std::ranges::subrange(std::counted_iterator(src.begin(), n), std::default_sentinel);
+  static_assert(!std::ranges::common_range<decltype(r)>);
+
+  auto v = std::vector<AppendProbe>{AppendProbe{1}};
+  vec_append(v, std::move(r));
+
+  REQUIRE(v.size() == 3u);
+  CHECK(v[1].value == 2);
+  CHECK(v[2].value == 3);
+
+  // NOLINTNEXTLINE(bugprone-use-after-move)
+  CHECK(src[0].movedFrom);
+
+  // NOLINTNEXTLINE(bugprone-use-after-move)
+  CHECK(src[1].movedFrom);
 }
 
 TEST_CASE("vector_utils_test.vec_slice")

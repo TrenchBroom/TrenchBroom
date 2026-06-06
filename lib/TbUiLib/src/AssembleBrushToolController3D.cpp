@@ -21,7 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "gl/Camera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
@@ -38,6 +37,7 @@
 #include "ui/InputState.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -137,8 +137,9 @@ private:
       vm::unswizzle(vm::vec3d{bottomLeft2, swizzledPlane.zAt(bottomLeft2)}, axis),
       vm::unswizzle(vm::vec3d{bottomRight2, swizzledPlane.zAt(bottomRight2)}, axis)};
 
-    m_tool.update(
-      mdl::Polyhedron3{kdl::vec_concat(newVertices, m_oldPolyhedron.vertexPositions())});
+    m_tool.update(mdl::Polyhedron3{
+      kdl::views::concat(newVertices, m_oldPolyhedron.vertexPositions())
+      | kdl::ranges::to<std::vector>()});
   }
 };
 
@@ -225,8 +226,9 @@ public:
     const auto* face = m_oldPolyhedron.faces().front();
     const auto points = face->vertexPositions() + delta;
 
-    m_tool.update(
-      mdl::Polyhedron3{kdl::vec_concat(points, m_oldPolyhedron.vertexPositions())});
+    m_tool.update(mdl::Polyhedron3{
+      kdl::views::concat(points, m_oldPolyhedron.vertexPositions())
+      | kdl::ranges::to<std::vector>()});
 
     return DragStatus::Continue;
   }
@@ -321,8 +323,8 @@ bool AssembleBrushToolController3D::mouseClick(const InputState& inputState)
     const auto& face = faceHandle->face();
     const auto snapped = grid.snap(hit.hitPoint(), face.boundary());
 
-    m_tool.update(mdl::Polyhedron3{kdl::vec_concat(
-      std::vector<vm::vec3d>{snapped}, m_tool.polyhedron().vertexPositions())});
+    m_tool.update(mdl::Polyhedron3{
+      kdl::vec_push_back(m_tool.polyhedron().vertexPositions(), snapped)});
 
     return true;
   }
@@ -347,7 +349,8 @@ bool AssembleBrushToolController3D::mouseDoubleClick(const InputState& inputStat
     const auto& face = faceHandle->face();
 
     m_tool.update(mdl::Polyhedron3{
-      kdl::vec_concat(face.vertexPositions(), m_tool.polyhedron().vertexPositions())});
+      kdl::views::concat(face.vertexPositions(), m_tool.polyhedron().vertexPositions())
+      | kdl::ranges::to<std::vector>()});
 
     return true;
   }

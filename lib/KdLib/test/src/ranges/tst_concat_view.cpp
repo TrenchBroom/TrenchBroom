@@ -22,6 +22,7 @@
 
 #include <array>
 #include <compare>
+#include <deque>
 #include <forward_list>
 #include <iterator>
 #include <list>
@@ -34,6 +35,8 @@
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl::ranges
+{
+namespace
 {
 
 // operator<=> is only available when all underlying iterators are
@@ -53,80 +56,11 @@ void checkThreeWayLessIfAvailable(const Iterator& x, const Iterator& y)
 template <typename T>
 concept has_iterator_category = requires { typename T::iterator_category; };
 
+} // namespace
+
 TEST_CASE("concat")
 {
   using Catch::Matchers::RangeEquals;
-
-  SECTION("iterator concept - random access (vector + vector)")
-  {
-    const auto a = std::vector<int>{1, 2, 3};
-    const auto b = std::vector<int>{4, 5};
-
-    auto c = ranges::concat_view{a, b};
-    using iter_type = decltype(c.begin());
-
-    static_assert(
-      std::is_same_v<iter_type::iterator_concept, std::random_access_iterator_tag>);
-    static_assert(std::is_same_v<iter_type::value_type, int>);
-    static_assert(std::random_access_iterator<iter_type>);
-  }
-
-  SECTION("iterator concept - bidirectional (list + list)")
-  {
-    auto a = std::list<int>{1, 2, 3};
-    auto b = std::list<int>{4, 5};
-
-    auto c = ranges::concat_view{a, b};
-    using iter_type = decltype(c.begin());
-
-    static_assert(
-      std::is_same_v<iter_type::iterator_concept, std::bidirectional_iterator_tag>);
-    static_assert(std::bidirectional_iterator<iter_type>);
-  }
-
-  SECTION("iterator concept - forward (forward_list + forward_list)")
-  {
-    auto a = std::forward_list<int>{1, 2, 3};
-    auto b = std::forward_list<int>{4, 5};
-
-    auto c = ranges::concat_view{a, b};
-    using iter_type = decltype(c.begin());
-
-    static_assert(std::is_same_v<iter_type::iterator_concept, std::forward_iterator_tag>);
-  }
-
-  SECTION("iterator concept - input (istream + vector)")
-  {
-    auto i = std::istringstream{"1 2 3"};
-    auto iv = std::ranges::istream_view<int>(i);
-    const auto v = std::vector<int>{4, 5};
-
-    auto c = ranges::concat_view{std::move(iv), v};
-    using iter_type = decltype(c.begin());
-
-    static_assert(std::is_same_v<iter_type::iterator_concept, std::input_iterator_tag>);
-    // iterator_category is present only for forward-or-better concats.
-    static_assert(!has_iterator_category<iter_type>);
-  }
-
-  SECTION("iterator_category is capped when a non-last range is not common")
-  {
-    // take_while_view of a vector is random-access but not a common_range.
-    // As a non-last input it makes concat neither random-access nor
-    // bidirectional, so iterator_category must not exceed the concept.
-    auto a = std::vector<int>{1, 2, 3};
-    const auto b = std::vector<int>{4, 5};
-    auto tw = a | std::views::take_while([](int) { return true; });
-    static_assert(std::ranges::random_access_range<decltype(tw)>);
-    static_assert(!std::ranges::common_range<decltype(tw)>);
-
-    auto c = ranges::concat_view{tw, b};
-    using iter_type = decltype(c.begin());
-
-    static_assert(std::is_same_v<iter_type::iterator_concept, std::forward_iterator_tag>);
-    static_assert(
-      std::is_same_v<iter_type::iterator_category, std::forward_iterator_tag>);
-  }
 
   SECTION("basic concatenation of two vectors")
   {
@@ -213,6 +147,84 @@ TEST_CASE("concat")
       ++it;
     }
     CHECK(it == end);
+  }
+
+  SECTION("iterator concept - random access (vector + vector)")
+  {
+    const auto a = std::vector<int>{1, 2, 3};
+    const auto b = std::vector<int>{4, 5};
+
+    auto c = ranges::concat_view{a, b};
+    using iter_type = decltype(c.begin());
+
+    static_assert(
+      std::is_same_v<iter_type::iterator_concept, std::random_access_iterator_tag>);
+    static_assert(std::is_same_v<iter_type::value_type, int>);
+    static_assert(std::random_access_iterator<iter_type>);
+  }
+
+  SECTION("iterator concept - bidirectional (list + list)")
+  {
+    auto a = std::list<int>{1, 2, 3};
+    auto b = std::list<int>{4, 5};
+
+    auto c = ranges::concat_view{a, b};
+    using iter_type = decltype(c.begin());
+
+    static_assert(
+      std::is_same_v<iter_type::iterator_concept, std::bidirectional_iterator_tag>);
+    static_assert(std::bidirectional_iterator<iter_type>);
+  }
+
+  SECTION("iterator concept - forward (forward_list + forward_list)")
+  {
+    auto a = std::forward_list<int>{1, 2, 3};
+    auto b = std::forward_list<int>{4, 5};
+
+    auto c = ranges::concat_view{a, b};
+    using iter_type = decltype(c.begin());
+
+    static_assert(std::is_same_v<iter_type::iterator_concept, std::forward_iterator_tag>);
+  }
+
+  SECTION("iterator concept - input (istream + vector)")
+  {
+    auto i = std::istringstream{"1 2 3"};
+    auto iv = std::ranges::istream_view<int>(i);
+    const auto v = std::vector<int>{4, 5};
+
+    auto c = ranges::concat_view{std::move(iv), v};
+    using iter_type = decltype(c.begin());
+
+    static_assert(std::is_same_v<iter_type::iterator_concept, std::input_iterator_tag>);
+    // iterator_category is present only for forward-or-better concats.
+    static_assert(!has_iterator_category<iter_type>);
+
+    // istream_view's iterator is not default-constructible. Modeling the
+    // iterator concepts must stay SFINAE-friendly rather than hard-erroring when
+    // the variant's first alternative cannot be value-initialized.
+    static_assert(std::input_iterator<iter_type>);
+    static_assert(!std::forward_iterator<iter_type>);
+    static_assert(!std::default_initializable<iter_type>);
+  }
+
+  SECTION("iterator_category is capped when a non-last range is not common")
+  {
+    // take_while_view of a vector is random-access but not a common_range.
+    // As a non-last input it makes concat neither random-access nor
+    // bidirectional, so iterator_category must not exceed the concept.
+    auto a = std::vector<int>{1, 2, 3};
+    const auto b = std::vector<int>{4, 5};
+    auto tw = a | std::views::take_while([](int) { return true; });
+    static_assert(std::ranges::random_access_range<decltype(tw)>);
+    static_assert(!std::ranges::common_range<decltype(tw)>);
+
+    auto c = ranges::concat_view{tw, b};
+    using iter_type = decltype(c.begin());
+
+    static_assert(std::is_same_v<iter_type::iterator_concept, std::forward_iterator_tag>);
+    static_assert(
+      std::is_same_v<iter_type::iterator_category, std::forward_iterator_tag>);
   }
 
   SECTION("forward iteration with mixed range categories")
@@ -503,6 +515,24 @@ TEST_CASE("concat")
     CHECK(b[0] == 1);
   }
 
+  SECTION("iter_swap across ranges with different underlying iterator types")
+  {
+    // vector and deque share an element type but have distinct iterator types, so
+    // swapping across the boundary exercises iter_swap's fallback branch
+    // (ranges::swap(*x, *y)) rather than the same-type ranges::iter_swap branch.
+    auto a = std::vector<int>{1, 2};
+    auto b = std::deque<int>{3, 4};
+
+    auto c = ranges::concat_view{a, b};
+    auto it1 = c.begin();
+    auto it2 = it1 + 2;
+
+    std::ranges::iter_swap(it1, it2);
+
+    CHECK(a[0] == 3);
+    CHECK(b[0] == 1);
+  }
+
   SECTION("single input range")
   {
     auto a = std::vector<int>{1, 2, 3};
@@ -650,6 +680,23 @@ TEST_CASE("concat")
     CHECK(*ci == 2);
     ++ci;
     CHECK(*ci == 3);
+  }
+
+  SECTION("view models view and chains into downstream adaptors")
+  {
+    // ref_view is movable but not default-constructible. Probing the view for
+    // default_initializable (as range adaptors do internally) must yield false
+    // rather than hard-erroring on the tuple member, so concat composes in a
+    // pipeline like any other view.
+    auto a = std::vector<int>{1, 2};
+    auto b = std::vector<int>{3, 4};
+    auto c = ranges::concat_view{a, b};
+
+    static_assert(std::ranges::view<decltype(c)>);
+    static_assert(!std::default_initializable<decltype(c)>);
+
+    auto doubled = c | std::views::transform([](int x) { return x * 2; });
+    CHECK_THAT(doubled, RangeEquals(std::vector<int>{2, 4, 6, 8}));
   }
 
   SECTION("default-constructed iterator")

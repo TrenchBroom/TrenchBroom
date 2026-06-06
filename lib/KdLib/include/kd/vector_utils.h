@@ -269,62 +269,6 @@ bool vec_contains(const std::vector<T, A>& v, const X& x)
   return std::find(v.begin(), v.end(), x) != v.end();
 }
 
-namespace detail
-{
-template <typename T, typename A>
-void vec_concat(std::vector<T, A>&)
-{
-}
-
-template <typename T, typename A, typename Arg>
-void vec_concat(std::vector<T, A>& v1, const Arg& arg)
-{
-  v1.insert(std::end(v1), std::begin(arg), std::end(arg));
-}
-
-template <typename T, typename A, typename Arg, typename... Rest>
-void vec_concat(std::vector<T, A>& v1, const Arg& arg, Rest&&... rest)
-{
-  vec_concat(v1, arg);
-  vec_concat(v1, std::forward<Rest>(rest)...);
-}
-
-template <typename T, typename A, typename Arg>
-void vec_concat(std::vector<T, A>& v1, Arg&& arg)
-{
-  for (auto& x : arg)
-  {
-    v1.push_back(std::move(x));
-  }
-}
-
-template <typename T, typename A, typename Arg, typename... Rest>
-void vec_concat(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
-{
-  vec_concat(v1, std::forward<Arg>(arg));
-  vec_concat(v1, std::forward<Rest>(rest)...);
-}
-} // namespace detail
-
-/**
- * Concatenates the given vectors. Each element of function argument pack args must be a
- * vector with value_type T and allocator A. If a vector is passed by rvalue reference,
- * its elements will be moved into the result, otherwise they will be copied.
- *
- * @tparam T the element type
- * @tparam A the allocator type
- * @tparam Args parameter pack containing the vectors to append to v
- * @param v the first vector to concatenate
- * @param args the remaining vectors to concatenate
- */
-template <typename T, typename A, typename... Args>
-std::vector<T, A> vec_concat(std::vector<T, A> v, Args... args)
-{
-  v.reserve(kdl::col_total_size(v, args...));
-  detail::vec_concat(v, std::move(args)...);
-  return v;
-}
-
 /**
  * Appends the given elements. Each element must be a type convertible to T and it is
  * perfectly forwarded to std::vector<T, A>::push_back.
@@ -341,6 +285,39 @@ auto vec_push_back(std::vector<T, A> v, Args... args)
   v.reserve(v.size() + sizeof...(args));
   (..., v.push_back(std::forward<Args>(args)));
   return v;
+}
+
+/**
+ * Appends the elements of the given range. If R&& is an rvalue reference, the elements
+ * are moved, otherwise they are copied.
+ *
+ * @tparam T the element type
+ * @tparam A the allocator type
+ * @tparam R the type of the range
+ * @param v the vector to append to
+ * @param r the range of elements to append
+ */
+template <typename T, typename A, std::ranges::range R>
+void vec_append(std::vector<T, A>& v, R&& r)
+{
+  if constexpr (std::ranges::sized_range<R>)
+  {
+    v.reserve(v.size() + std::ranges::size(r));
+  }
+  if constexpr (std::is_rvalue_reference_v<R&&>)
+  {
+    for (auto it = std::ranges::begin(r); it != std::ranges::end(r); ++it)
+    {
+      v.push_back(std::ranges::iter_move(it));
+    }
+  }
+  else
+  {
+    for (auto it = std::ranges::begin(r); it != std::ranges::end(r); ++it)
+    {
+      v.push_back(*it);
+    }
+  }
 }
 
 /**

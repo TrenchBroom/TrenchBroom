@@ -43,6 +43,7 @@
 #include "kd/ranges/repeat_view.h"
 #include "kd/ranges/stride_view.h"
 #include "kd/ranges/zip_view.h"
+#include "kd/vector_utils.h"
 
 #include "vm/mat_ext.h"
 
@@ -506,8 +507,7 @@ auto collectStringVertices(
               quads | std::views::drop(1) | kdl::views::stride(2),
               kdl::views::repeat(textColor.to<RgbaF>().toVec())));
 
-            stringVertices[fontDescriptor] =
-              kdl::vec_concat(std::move(stringVertices[fontDescriptor]), vertices);
+            kdl::vec_append(stringVertices[fontDescriptor], vertices);
           }
         }
       }

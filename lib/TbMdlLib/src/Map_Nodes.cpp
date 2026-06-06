@@ -47,6 +47,7 @@
 
 #include "kd/contracts.h"
 #include "kd/overload.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 
 namespace tb::mdl
@@ -372,9 +373,9 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
   const auto nodesToRemove = parentChildrenMap(
     nodesToAdd | std::views::values | std::views::join | kdl::ranges::to<std::vector>());
 
-  const auto changedLinkedGroups = collectGroupsOrContainers(kdl::vec_concat(
-    nodesToAdd | std::views::keys | kdl::ranges::to<std::vector>(),
-    nodesToRemove | std::views::keys | kdl::ranges::to<std::vector>()));
+  const auto changedLinkedGroups = collectGroupsOrContainers(
+    kdl::views::concat(nodesToAdd | std::views::keys, nodesToRemove | std::views::keys)
+    | kdl::ranges::to<std::vector>());
 
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
   {

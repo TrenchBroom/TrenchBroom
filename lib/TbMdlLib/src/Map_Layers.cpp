@@ -33,6 +33,7 @@
 
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 
@@ -194,8 +195,7 @@ void moveSelectedNodesToLayer(Map& map, LayerNode* layerNode)
         if (!kdl::vec_contains(nodesToMove, entityNode))
         {
           nodesToMove.push_back(entityNode);
-          nodesToSelect =
-            kdl::vec_concat(std::move(nodesToSelect), entityNode->children());
+          kdl::vec_append(nodesToSelect, entityNode->children());
         }
       }
     }

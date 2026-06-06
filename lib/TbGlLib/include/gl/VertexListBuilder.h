@@ -179,7 +179,7 @@ private:
 
     const auto index = currentIndex();
     const auto count = vertices.size();
-    m_vertices = kdl::vec_concat(std::move(m_vertices), vertices);
+    kdl::vec_append(m_vertices, vertices);
 
     return {index, count};
   }

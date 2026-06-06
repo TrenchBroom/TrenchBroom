@@ -24,6 +24,7 @@
 #include "mdl/BrushFace.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
@@ -517,16 +518,17 @@ auto makeCone(const CircleShape& circleShape, const vm::bbox3d& boundsXY)
   return std::visit(
     kdl::overload(
       [&](const ScalableCircle& scalableCircle) {
-        return kdl::vec_concat(
-          setZ(
-            makeScalableCircle(scalableCircle.precision, boundsXY.xy()),
-            boundsXY.min.z()),
-          setZ(makeScalableConeTip(boundsXY), boundsXY.max.z()));
+        return kdl::views::concat(
+                 setZ(
+                   makeScalableCircle(scalableCircle.precision, boundsXY.xy()),
+                   boundsXY.min.z()),
+                 setZ(makeScalableConeTip(boundsXY), boundsXY.max.z()))
+               | kdl::ranges::to<std::vector>();
       },
       [&](const auto&) {
-        return kdl::vec_concat(
+        return kdl::vec_push_back(
           setZ(makeCircle(circleShape, boundsXY.xy()), boundsXY.min.z()),
-          std::vector{vm::vec3d{boundsXY.xy().center(), boundsXY.max.z()}});
+          vm::vec3d{boundsXY.xy().center(), boundsXY.max.z()});
       }),
     circleShape);
 }
@@ -615,15 +617,12 @@ auto makeScalableUVSphere(const vm::bbox3d& boundsXY, const size_t precision)
   const auto numRings = size_t(std::pow(2, precision)) * 12 / 2 - 1;
 
   auto vertices = std::vector<vm::vec3d>{};
-  vertices =
-    kdl::vec_concat(std::move(vertices), setZ(makeScalableConeTip(boundsXY), getZ(0)));
+  kdl::vec_append(vertices, setZ(makeScalableConeTip(boundsXY), getZ(0)));
   for (size_t i = 1; i <= numRings; ++i)
   {
-    vertices = kdl::vec_concat(
-      std::move(vertices), setZ(makeScalableCircle(precision, getBounds(i)), getZ(i)));
+    kdl::vec_append(vertices, setZ(makeScalableCircle(precision, getBounds(i)), getZ(i)));
   }
-  vertices = kdl::vec_concat(
-    std::move(vertices), setZ(makeScalableConeTip(boundsXY), getZ(numRings + 1)));
+  kdl::vec_append(vertices, setZ(makeScalableConeTip(boundsXY), getZ(numRings + 1)));
 
   return vertices;
 }
@@ -651,8 +650,7 @@ auto makeAlignedUVSphere(
 
   for (size_t i = 0; i < numRings; ++i)
   {
-    vertices = kdl::vec_concat(
-      std::move(vertices), makeRing(double(i) * angleDelta, circleShape, boundsXY));
+    kdl::vec_append(vertices, makeRing(double(i) * angleDelta, circleShape, boundsXY));
   }
 
   vertices.emplace_back(boundsXY.xy().center(), boundsXY.min.z());

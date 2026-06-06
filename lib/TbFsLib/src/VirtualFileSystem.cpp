@@ -26,10 +26,10 @@
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
-#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -235,9 +235,10 @@ Result<std::vector<std::filesystem::path>> findMatchesForMountedFileSystem(
       // traverse into the mounted file system
       return findInMountedFileSystem(mountPoint, "", *nestedTraversalMode)
              | kdl::transform([&](auto matchesForMountedFileSystem) {
-                 return kdl::vec_concat(
-                   std::move(matchesForMountPointSuffix),
-                   std::move(matchesForMountedFileSystem));
+                 return kdl::views::concat(
+                          std::move(matchesForMountPointSuffix),
+                          std::move(matchesForMountedFileSystem))
+                        | kdl::ranges::to<std::vector>();
                });
     }
     return matchesForMountPointSuffix;

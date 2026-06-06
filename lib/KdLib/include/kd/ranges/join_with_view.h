@@ -211,6 +211,14 @@ public:
 
     static constexpr bool ref_is_glvalue = std::is_reference_v<InnerBase>;
 
+    // inner_it_ tracks whether we are currently iterating the separator pattern
+    // (pattern_index) or an inner range (inner_index). The alternatives are
+    // distinguished by index rather than type because PatternIter and InnerIter are
+    // frequently the same type (e.g. joining vector<vector<int>> with a vector<int>
+    // separator), which would make type-based variant access ambiguous.
+    static constexpr std::size_t pattern_index = 0;
+    static constexpr std::size_t inner_index = 1;
+
   public:
     using iterator_concept =
       decltype(detail::get_join_with_iter_concept<Const, V, Pattern>());
@@ -234,13 +242,15 @@ public:
       : parent_{i.parent_}
       , outer_it_{std::move(i.outer_it_)}
     {
-      if (i.inner_it_.index() == 0)
+      if (i.inner_it_.index() == pattern_index)
       {
-        inner_it_.template emplace<0>(std::get<0>(std::move(i.inner_it_)));
+        inner_it_.template emplace<pattern_index>(
+          std::get<pattern_index>(std::move(i.inner_it_)));
       }
       else
       {
-        inner_it_.template emplace<1>(std::get<1>(std::move(i.inner_it_)));
+        inner_it_.template emplace<inner_index>(
+          std::get<inner_index>(std::move(i.inner_it_)));
       }
     }
 
@@ -277,20 +287,20 @@ public:
                && std::ranges::common_range<std::remove_reference_t<InnerBase>>
                && std::ranges::common_range<PatternBase>
     {
-      if (outer_it_ == std::ranges::end(parent_->base_))
+      if (get_outer() == std::ranges::end(parent_->base_))
       {
-        auto&& inner = *--outer_it_;
-        inner_it_.template emplace<1>(std::ranges::end(inner));
+        auto&& inner = *--get_outer();
+        inner_it_.template emplace<inner_index>(std::ranges::end(inner));
       }
       while (true)
       {
-        if (inner_it_.index() == 0)
+        if (inner_it_.index() == pattern_index)
         {
-          auto& it = std::get<0>(inner_it_);
+          auto& it = std::get<pattern_index>(inner_it_);
           if (it == std::ranges::begin(parent_->pattern_))
           {
-            auto&& inner = *--outer_it_;
-            inner_it_.template emplace<1>(std::ranges::end(inner));
+            auto&& inner = *--get_outer();
+            inner_it_.template emplace<inner_index>(std::ranges::end(inner));
           }
           else
           {
@@ -299,11 +309,12 @@ public:
         }
         else
         {
-          auto& it = std::get<1>(inner_it_);
-          auto&& inner = *outer_it_;
+          auto& it = std::get<inner_index>(inner_it_);
+          auto& inner = get_inner();
           if (it == std::ranges::begin(inner))
           {
-            inner_it_.template emplace<0>(std::ranges::end(parent_->pattern_));
+            inner_it_.template emplace<pattern_index>(
+              std::ranges::end(parent_->pattern_));
           }
           else
           {
@@ -331,7 +342,7 @@ public:
       requires ref_is_glvalue
                && std::ranges::forward_range<Base> && std::equality_comparable<InnerIter>
     {
-      return x.outer_it_ == y.outer_it_ && x.inner_it_ == y.inner_it_;
+      return x.get_outer() == y.get_outer() && x.inner_it_ == y.inner_it_;
     }
 
     friend constexpr decltype(auto) iter_move(const iterator& x)
@@ -364,7 +375,7 @@ public:
       : parent_{std::addressof(parent)}
       , outer_it_{std::move(outer)}
     {
-      if (outer_it_ != std::ranges::end(parent_->base_))
+      if (get_outer() != std::ranges::end(parent_->base_))
       {
         update_inner();
         satisfy();
@@ -414,11 +425,11 @@ public:
     {
       if constexpr (ref_is_glvalue)
       {
-        inner_it_.template emplace<1>(std::ranges::begin(*get_outer()));
+        inner_it_.template emplace<inner_index>(std::ranges::begin(*get_outer()));
       }
       else
       {
-        inner_it_.template emplace<1>(
+        inner_it_.template emplace<inner_index>(
           std::ranges::begin(parent_->inner_.emplace_deref(get_outer())));
       }
     }
@@ -439,9 +450,9 @@ public:
     {
       while (true)
       {
-        if (inner_it_.index() == 0)
+        if (inner_it_.index() == pattern_index)
         {
-          if (std::get<0>(inner_it_) != std::ranges::end(parent_->pattern_))
+          if (std::get<pattern_index>(inner_it_) != std::ranges::end(parent_->pattern_))
           {
             break;
           }
@@ -450,7 +461,7 @@ public:
         else
         {
           auto& inner = get_inner();
-          if (std::get<1>(inner_it_) != std::ranges::end(inner))
+          if (std::get<inner_index>(inner_it_) != std::ranges::end(inner))
           {
             break;
           }
@@ -459,11 +470,12 @@ public:
           {
             if constexpr (ref_is_glvalue)
             {
-              inner_it_.template emplace<0>();
+              inner_it_.template emplace<pattern_index>();
             }
             break;
           }
-          inner_it_.template emplace<0>(std::ranges::begin(parent_->pattern_));
+          inner_it_.template emplace<pattern_index>(
+            std::ranges::begin(parent_->pattern_));
         }
       }
     }
@@ -620,6 +632,7 @@ join_with_view(R&&, std::ranges::range_value_t<std::ranges::range_reference_t<R>
     std::views::all_t<R>,
     std::ranges::single_view<
       std::ranges::range_value_t<std::ranges::range_reference_t<R>>>>;
+
 
 namespace views
 {

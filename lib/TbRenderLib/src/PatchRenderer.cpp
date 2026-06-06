@@ -193,7 +193,7 @@ static gl::MaterialIndexArrayRenderer buildMeshRenderer(
             vm::vec3f{p.position}, vm::vec3f{p.normal}, vm::vec2f{p.uvCoords}};
         })
         | kdl::ranges::to<std::vector>();
-      vertices = kdl::vec_concat(std::move(vertices), std::move(gridVertices));
+      kdl::vec_append(vertices, std::move(gridVertices));
 
       const auto* material = patchNode->patch().material();
 

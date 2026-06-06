@@ -49,7 +49,7 @@ std::vector<const IssueQuickFix*> ValidatorRegistry::quickFixes(
   {
     if ((validator->type() & issueTypes) != 0)
     {
-      result = kdl::vec_concat(std::move(result), validator->quickFixes());
+      kdl::vec_append(result, validator->quickFixes());
     }
   }
   return result;
