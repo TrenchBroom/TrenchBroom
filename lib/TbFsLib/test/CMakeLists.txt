@@ -29,3 +29,6 @@ add_custom_command(TARGET TbFsLibTest POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E rm -rf "${TEST_FIXTURE_DEST_DIR}"
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${TEST_FIXTURE_SOURCE_DIR}" "${TEST_FIXTURE_DEST_DIR}/test"
 )
+
+include(Catch)
+catch_discover_tests(TbFsLibTest)

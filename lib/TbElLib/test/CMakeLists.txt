@@ -18,3 +18,6 @@ target_link_libraries(TbElLibTest
     TbBaseTestUtilsLib
     TbElTestUtilsLib
 )
+
+include(Catch)
+catch_discover_tests(TbElLibTest)

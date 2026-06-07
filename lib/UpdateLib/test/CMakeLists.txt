@@ -31,3 +31,6 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_FILE_DIR:UpdateLibTest>/fixture"
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/fixture" "$<TARGET_FILE_DIR:UpdateLibTest>/fixture"
 )
+
+include(Catch)
+catch_discover_tests(UpdateLibTest)

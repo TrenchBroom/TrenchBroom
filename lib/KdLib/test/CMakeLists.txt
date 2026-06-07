@@ -59,3 +59,6 @@ target_link_libraries(KdLibTest
     Catch2::Catch2WithMain
     KdLib
 )
+
+include(Catch)
+catch_discover_tests(KdLibTest)

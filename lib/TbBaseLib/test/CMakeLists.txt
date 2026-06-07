@@ -19,3 +19,6 @@ target_link_libraries(TbBaseLibTest
     Catch2::Catch2WithMain
     TbBaseLib
 )
+
+include(Catch)
+catch_discover_tests(TbBaseLibTest)

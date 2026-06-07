@@ -18,3 +18,6 @@ target_link_libraries(TbGlLibTest
     TbGlLib
     TbGlTestUtilsLib
 )
+
+include(Catch)
+catch_discover_tests(TbGlLibTest)

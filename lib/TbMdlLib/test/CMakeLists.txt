@@ -125,3 +125,6 @@ add_custom_command(TARGET TbMdlLibTest POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games" "${TEST_FIXTURE_DEST_DIR}/games"
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games-testing" "${TEST_FIXTURE_DEST_DIR}/games"
 )
+
+include(Catch)
+catch_discover_tests(TbMdlLibTest)

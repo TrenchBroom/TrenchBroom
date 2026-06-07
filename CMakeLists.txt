@@ -35,6 +35,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(TrenchBroom C CXX)
 
+include(CTest)
+
 # Configure CCache if available and requested
 if(TB_ENABLE_CCACHE)
   find_program(CCACHE_PATH ccache)
