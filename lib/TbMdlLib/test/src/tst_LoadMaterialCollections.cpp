@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/TestUtils.h"
 #include "fs/VirtualFileSystem.h"
@@ -133,11 +134,11 @@ TEST_CASE("loadMaterial")
   auto fs = fs::VirtualFileSystem{};
   auto logger = NullLogger{};
 
-  const auto workDir = std::filesystem::current_path();
+  const auto fixtureRoot = getFixtureRoot();
 
   auto taskManager = kdl::task_manager{};
 
-  const auto testDir = workDir / "fixture/test/io/LoadMaterial/files";
+  const auto testDir = fixtureRoot / "test/io/LoadMaterial/files";
   fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
   const auto materialConfig = mdl::MaterialConfig{
@@ -164,21 +165,22 @@ TEST_CASE("loadMaterialCollections")
   auto fs = fs::VirtualFileSystem{};
   auto logger = NullLogger{};
 
-  const auto workDir = std::filesystem::current_path();
+  const auto fixtureRoot = getFixtureRoot();
 
   auto taskManager = kdl::task_manager{};
 
   SECTION("WAD file")
   {
     const auto wadPath =
-      workDir / "fixture/test/mdl/LoadMaterialCollections/wads/cr8_czg.wad";
-    fs.mount("", std::make_unique<fs::DiskFileSystem>(workDir)); // to find the palette
+      fixtureRoot / "test/mdl/LoadMaterialCollections/wads/cr8_czg.wad";
+    fs.mount(
+      "", std::make_unique<fs::DiskFileSystem>(fixtureRoot)); // to find the palette
     fs.mount("textures", fs::openFS<fs::WadFileSystem>(wadPath));
 
     const auto materialConfig = mdl::MaterialConfig{
       "textures",
       {".D"},
-      "fixture/test/mdl/LoadMaterialCollections/palette.lmp",
+      "test/mdl/LoadMaterialCollections/palette.lmp",
       "wad",
       "",
       {},
@@ -218,7 +220,7 @@ TEST_CASE("loadMaterialCollections")
     SECTION("Multiple WAD files with name conflicts")
     {
       const auto additionalWadPath =
-        workDir / "fixture/test/mdl/LoadMaterialCollections/wads/cr8_a_excerpt.wad";
+        fixtureRoot / "test/mdl/LoadMaterialCollections/wads/cr8_a_excerpt.wad";
       fs.mount("textures", fs::openFS<fs::WadFileSystem>(additionalWadPath));
 
       // Overriding is determined by load order: Wads that are loaded later override
@@ -273,7 +275,7 @@ TEST_CASE("loadMaterialCollections")
       SECTION("Shader with image")
       {
         const auto testDir =
-          workDir / "fixture/test/mdl/LoadMaterialCollections/shaders/shader_with_image";
+          fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/shader_with_image";
         fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
         const auto materialConfig = mdl::MaterialConfig{
@@ -302,8 +304,8 @@ TEST_CASE("loadMaterialCollections")
       SECTION("Shader overrides image of same name")
       {
         const auto testDir =
-          workDir
-          / "fixture/test/mdl/LoadMaterialCollections/shaders/"
+          fixtureRoot
+          / "test/mdl/LoadMaterialCollections/shaders/"
             "shader_with_image_same_name";
         fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
@@ -334,8 +336,8 @@ TEST_CASE("loadMaterialCollections")
       SECTION("Shader with missing image file")
       {
         const auto testDir =
-          workDir
-          / "fixture/test/mdl/LoadMaterialCollections/shaders/shader_with_missing_image";
+          fixtureRoot
+          / "test/mdl/LoadMaterialCollections/shaders/shader_with_missing_image";
         const auto fallbackDir = testDir / "fallback";
 
         // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
@@ -375,7 +377,7 @@ TEST_CASE("loadMaterialCollections")
     SECTION("Skip malformed shader files")
     {
       const auto testDir =
-        workDir / "fixture/test/mdl/LoadMaterialCollections/shaders/malformed_shader";
+        fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/malformed_shader";
       fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
       const auto materialConfig = mdl::MaterialConfig{
@@ -403,7 +405,7 @@ TEST_CASE("loadMaterialCollections")
     SECTION("Find shader image")
     {
       const auto testDir =
-        workDir / "fixture/test/mdl/LoadMaterialCollections/shaders/find_shader_image";
+        fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/find_shader_image";
       const auto fallbackDir = testDir / "fallback";
 
       // We need to mount the fallback dir so that we can find "__TB_empty.png" which is

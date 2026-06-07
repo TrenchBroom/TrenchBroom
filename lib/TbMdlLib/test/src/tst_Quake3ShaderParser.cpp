@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "TestParserStatus.h"
 #include "fs/DiskFileSystem.h"
 #include "mdl/CatchConfig.h"
@@ -597,8 +598,7 @@ TEST_CASE("Quake3ShaderParser (Regression)", "[regression]")
     // The file contains a carriage return without a consecutive line feed, which tripped
     // the parser.
 
-    const auto workDir = std::filesystem::current_path();
-    auto fs = fs::DiskFileSystem{workDir / "fixture/test/mdl/Quake3ShaderParser"};
+    auto fs = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/Quake3ShaderParser"};
     auto testFile = fs.openFile("am_cf_models.shader") | kdl::value();
     auto reader = testFile->reader().buffer();
 

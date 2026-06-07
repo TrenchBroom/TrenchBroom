@@ -21,6 +21,7 @@
 #include <QComboBox>
 
 #include "Result.h"
+#include "TestEnvironment.h"
 #include "gl/GlManager.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
@@ -71,8 +72,7 @@ TEST_CASE("MapWindow")
 
     const auto changedGridSize = 5;
     const auto changedGridIndex = changedGridSize - mdl::Grid::MinSize;
-    const auto path =
-      std::filesystem::current_path() / "fixture/test/ui/MapDocument/emptyValveMap.map";
+    const auto path = getFixtureRoot() / "test/ui/MapDocument/emptyValveMap.map";
 
     window.setGridSize(changedGridSize);
     QApplication::processEvents();

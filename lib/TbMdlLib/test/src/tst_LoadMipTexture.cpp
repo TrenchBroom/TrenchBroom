@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "TestLogger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
@@ -68,10 +69,8 @@ TEST_CASE("loadIdMipTexture")
   }));
   // clang-format on
 
-  const auto palettePath =
-    std::filesystem::current_path() / "fixture/test/mdl/LoadMipTexture/palette.lmp";
-  const auto wadPath =
-    std::filesystem::current_path() / "fixture/test/mdl/LoadMipTexture/cr8_czg.wad";
+  const auto palettePath = getFixtureRoot() / "test/mdl/LoadMipTexture/palette.lmp";
+  const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/cr8_czg.wad";
 
   fs::Disk::openFile(wadPath) | kdl::transform([&](auto wadFile) {
     return fs::WadFileSystem{wadFile};
@@ -104,12 +103,11 @@ TEST_CASE("loadHlMipTexture")
   }));
   // clang-format on
 
-  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
+  auto fs = fs::DiskFileSystem{getFixtureRoot()};
 
   auto logger = TestLogger{};
 
-  const auto wadPath =
-    std::filesystem::current_path() / "fixture/test/mdl/LoadMipTexture/hl.wad";
+  const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/hl.wad";
   auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
   REQUIRE(wadFS.reload());
 

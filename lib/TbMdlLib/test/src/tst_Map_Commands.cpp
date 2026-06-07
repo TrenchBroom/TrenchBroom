@@ -57,7 +57,7 @@ TEST_CASE("Map_Commands")
     SECTION("Update materials")
     {
       deselectAll(map);
-      setEntityProperty(map, EntityPropertyKeys::Wad, "fixture/test/mdl/Map/cr8_czg.wad");
+      setEntityProperty(map, EntityPropertyKeys::Wad, "test/mdl/Map/cr8_czg.wad");
 
       auto* brushNode = createBrushNode(map, "coffin1");
       addNodes(map, {{parentForNodes(map), {brushNode}}});

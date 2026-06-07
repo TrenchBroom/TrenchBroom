@@ -1332,7 +1332,7 @@ TEST_CASE("Map_Geometry")
     SECTION("Regression tests")
     {
       auto& map = fixture.load(
-        "fixture/test/mdl/Map/csgSubtractFailure.map", {.mapFormat = MapFormat::Valve});
+        "test/mdl/Map/csgSubtractFailure.map", {.mapFormat = MapFormat::Valve});
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
       auto* subtrahendNode =
@@ -1367,7 +1367,7 @@ TEST_CASE("Map_Geometry")
   SECTION("csgHollow")
   {
     auto& map =
-      fixture.load("fixture/test/mdl/Map/csgHollow.map", {.mapFormat = MapFormat::Valve});
+      fixture.load("test/mdl/Map/csgHollow.map", {.mapFormat = MapFormat::Valve});
 
     REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
     REQUIRE(!map.modified());

@@ -18,6 +18,7 @@
  */
 
 #include "Matchers.h"
+#include "TestEnvironment.h"
 #include "fs/DiskIO.h"
 #include "fs/DkPakFileSystem.h"
 #include "fs/IdPakFileSystem.h"
@@ -819,7 +820,7 @@ const auto cr8_czg_03_contents = std::vector<unsigned char>{
 
 TEST_CASE("Hierarchical ImageFileSystems")
 {
-  const auto fsTestPath = std::filesystem::current_path() / "fixture/test/fs/";
+  const auto fsTestPath = getFixtureRoot() / "test/fs/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"IdPakFileSystem", openFS<IdPakFileSystem>(fsTestPath / "Pak/idpak.pak")},
@@ -940,7 +941,7 @@ alias v90 "fov 90; sensitivity 13; bind mouse1 v30"
 
 TEST_CASE("Flat ImageFileSystems")
 {
-  const auto fsTestPath = std::filesystem::current_path() / "fixture/test/fs/";
+  const auto fsTestPath = getFixtureRoot() / "test/fs/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"WadFileSystem", openFS<WadFileSystem>(fsTestPath / "Wad/cr8_czg.wad")},
@@ -989,10 +990,8 @@ TEST_CASE("WadFileSystem")
 {
   SECTION("Wad files can be replaced while wad file system exists")
   {
-    const auto wadPath =
-      std::filesystem::current_path() / "fixture/test/fs/Wad/cr8_czg.wad";
-    const auto copyPath =
-      std::filesystem::current_path() / "fixture/test/fs/Wad/cr8_czg_2.wad";
+    const auto wadPath = getFixtureRoot() / "test/fs/Wad/cr8_czg.wad";
+    const auto copyPath = getFixtureRoot() / "test/fs/Wad/cr8_czg_2.wad";
 
     REQUIRE_FALSE(std::filesystem::is_regular_file(copyPath));
     REQUIRE_NOTHROW(std::filesystem::copy(wadPath, copyPath));

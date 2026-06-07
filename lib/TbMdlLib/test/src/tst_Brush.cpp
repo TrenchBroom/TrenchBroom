@@ -18,6 +18,7 @@
  */
 
 #include "Matchers.h"
+#include "TestEnvironment.h"
 #include "TestParserStatus.h"
 #include "fs/TestUtils.h"
 #include "gl/Material.h"
@@ -3293,8 +3294,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
   SECTION("convexMergeCrash_2789")
   {
     // see https://github.com/TrenchBroom/TrenchBroom/issues/2789
-    const auto path =
-      std::filesystem::current_path() / "fixture/test/mdl/Brush/curvetut-crash.map";
+    const auto path = getFixtureRoot() / "test/mdl/Brush/curvetut-crash.map";
     const auto data = fs::readTextFile(path);
     REQUIRE(!data.empty());
 
@@ -3361,8 +3361,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
   {
     // weirdcurvemerge.map from https://github.com/TrenchBroom/TrenchBroom/issues/2789
 
-    const auto path =
-      std::filesystem::current_path() / "fixture/test/mdl/Brush/weirdcurvemerge.map";
+    const auto path = getFixtureRoot() / "test/mdl/Brush/weirdcurvemerge.map";
     const auto data = fs::readTextFile(path);
     REQUIRE(!data.empty());
 
@@ -3509,8 +3508,7 @@ TEST_CASE("Brush (Regression)", "[regression]")
         ( -1178 54.02274375211438695 -20 ) ( -1178 -277.57717407067275417 -20 ) ( -1178 54.02274375211438695 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
     })";
 
-    const auto subtrahendPath =
-      std::filesystem::current_path() / "fixture/test/mdl/Brush/subtrahend.map";
+    const auto subtrahendPath = getFixtureRoot() / "test/mdl/Brush/subtrahend.map";
     const auto subtrahendStr = fs::readTextFile(subtrahendPath);
 
     auto status = TestParserStatus{};

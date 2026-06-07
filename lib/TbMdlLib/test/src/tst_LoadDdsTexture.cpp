@@ -18,6 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
@@ -39,8 +40,7 @@ namespace
 
 auto loadTexture(const std::string& name)
 {
-  const auto ddsPath =
-    std::filesystem::current_path() / "fixture/test/mdl/LoadDdsTexture/";
+  const auto ddsPath = getFixtureRoot() / "test/mdl/LoadDdsTexture/";
   auto diskFS = fs::DiskFileSystem{ddsPath};
 
   const auto file = diskFS.openFile(name) | kdl::value();

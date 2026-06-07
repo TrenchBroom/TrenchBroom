@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/Reader.h"
 #include "fs/VirtualFileSystem.h"
@@ -61,7 +62,7 @@ TEST_CASE("loadMd3Model")
     fs.mount(
       "",
       std::make_unique<fs::DiskFileSystem>(
-        std::filesystem::current_path() / "fixture/test/mdl/LoadMd3Model/bfg"));
+        getFixtureRoot() / "test/mdl/LoadMd3Model/bfg"));
 
     const auto shaders =
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
@@ -134,7 +135,7 @@ TEST_CASE("loadMd3Model (Regression)", "[regression]")
     fs.mount(
       "",
       std::make_unique<fs::DiskFileSystem>(
-        std::filesystem::current_path() / "fixture/test/mdl/LoadMd3Model/armor"));
+        getFixtureRoot() / "test/mdl/LoadMd3Model/armor"));
 
     const auto shaders =
       loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();

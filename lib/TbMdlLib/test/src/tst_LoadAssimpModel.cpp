@@ -19,6 +19,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EntityModel.h"
@@ -41,8 +42,7 @@ TEST_CASE("loadAssimpModel")
 
   SECTION("cube")
   {
-    const auto basePath =
-      std::filesystem::current_path() / "fixture/test/mdl/LoadAssimpModel/cube";
+    const auto basePath = getFixtureRoot() / "test/mdl/LoadAssimpModel/cube";
     auto fs = fs::DiskFileSystem{basePath};
 
     SECTION("dae")
@@ -81,8 +81,7 @@ TEST_CASE("loadAssimpModel")
 
     CAPTURE(modelPath);
 
-    const auto basePath =
-      std::filesystem::current_path() / "fixture/test/mdl/LoadAssimpModel/alignment";
+    const auto basePath = getFixtureRoot() / "test/mdl/LoadAssimpModel/alignment";
     auto fs = fs::DiskFileSystem{basePath};
 
     auto modelData = loadAssimpModel(modelPath, fs, logger);
@@ -98,8 +97,7 @@ TEST_CASE("loadAssimpModel")
   SECTION("model with mask texture")
   {
     const auto basePath =
-      std::filesystem::current_path()
-      / "fixture/test/mdl/LoadAssimpModel/uncompressedEmbeddedMaskedTexture";
+      getFixtureRoot() / "test/mdl/LoadAssimpModel/uncompressedEmbeddedMaskedTexture";
     auto fs = std::make_shared<fs::DiskFileSystem>(basePath);
 
     auto modelData = loadAssimpModel("masked.mdl", *fs, logger);
@@ -126,8 +124,8 @@ TEST_CASE("loadAssimpModel")
 
   SECTION("non ascii diffuse texture path")
   {
-    const auto basePath = std::filesystem::current_path()
-                          / "fixture/test/mdl/LoadAssimpModel/nonAsciiTexturePath";
+    const auto basePath =
+      getFixtureRoot() / "test/mdl/LoadAssimpModel/nonAsciiTexturePath";
     auto fs = fs::DiskFileSystem{basePath};
 
     auto modelData = loadAssimpModel("non_ascii_texture_path.obj", fs, logger);
@@ -141,8 +139,8 @@ TEST_CASE("loadAssimpModel")
 
   SECTION("malformed diffuse texture path")
   {
-    const auto basePath = std::filesystem::current_path()
-                          / "fixture/test/mdl/LoadAssimpModel/malformedTexturePath";
+    const auto basePath =
+      getFixtureRoot() / "test/mdl/LoadAssimpModel/malformedTexturePath";
     auto fs = fs::DiskFileSystem{basePath};
 
     auto modelData = loadAssimpModel("malformed_texture_path.obj", fs, logger);

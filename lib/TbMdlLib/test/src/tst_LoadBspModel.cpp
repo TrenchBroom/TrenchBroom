@@ -20,6 +20,7 @@
 
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
@@ -39,15 +40,14 @@ TEST_CASE("loadBspModel")
 {
   auto logger = NullLogger{};
 
-  const auto palettePath = "fixture/test/mdl/LoadBspModel/palette.lmp";
-  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
+  const auto palettePath = "test/mdl/LoadBspModel/palette.lmp";
+  auto fs = fs::DiskFileSystem{getFixtureRoot()};
   auto paletteFile = fs.openFile(palettePath) | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   SECTION("valid Half-Life BSP")
   {
-    const auto bspPath =
-      std::filesystem::current_path() / "fixture/test/mdl/LoadBspModel/hl.bsp";
+    const auto bspPath = getFixtureRoot() / "test/mdl/LoadBspModel/hl.bsp";
     const auto bspFile = fs::Disk::openFile(bspPath) | kdl::value();
 
     auto reader = bspFile->reader().buffer();
@@ -66,8 +66,7 @@ TEST_CASE("loadBspModel")
 
   SECTION("invalid BSP")
   {
-    const auto bspPath = std::filesystem::current_path()
-                         / "fixture/test/mdl/LoadBspModel/invalid_version.bsp";
+    const auto bspPath = getFixtureRoot() / "test/mdl/LoadBspModel/invalid_version.bsp";
     const auto bspFile = fs::Disk::openFile(bspPath) | kdl::value();
 
     auto reader = bspFile->reader().buffer();

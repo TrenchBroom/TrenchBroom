@@ -18,6 +18,7 @@
  */
 
 #include "Result.h"
+#include "TestEnvironment.h"
 #include "fs/DiskIO.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/Palette.h"
@@ -207,7 +208,7 @@ TEST_CASE("loadPalette")
 
   CAPTURE(filename);
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/mdl/Palette/";
+  const auto basePath = getFixtureRoot() / "test/mdl/Palette/";
   const auto filePath = basePath / filename;
   const auto file = fs::Disk::openFile(filePath) | kdl::value();
 

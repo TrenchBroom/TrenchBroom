@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "fs/DiskIO.h"
 #include "fs/File.h"
 #include "fs/Reader.h"
@@ -42,8 +43,7 @@ const char* buff()
 std::shared_ptr<File> file()
 {
   static auto result =
-    Disk::openFile(std::filesystem::current_path() / "fixture/test/fs/Reader/10byte")
-    | kdl::value();
+    Disk::openFile(getFixtureRoot() / "test/fs/Reader/10byte") | kdl::value();
   return result;
 }
 
@@ -70,8 +70,7 @@ TEST_CASE("BufferReaderTest.createEmpty")
 TEST_CASE("FileReaderTest.createEmpty")
 {
   const auto emptyFile =
-    Disk::openFile(std::filesystem::current_path() / "fixture/test/fs/Reader/empty")
-    | kdl::value();
+    Disk::openFile(getFixtureRoot() / "test/fs/Reader/empty") | kdl::value();
   createEmpty(emptyFile->reader());
 }
 

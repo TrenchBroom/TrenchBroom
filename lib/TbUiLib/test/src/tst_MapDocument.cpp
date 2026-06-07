@@ -19,6 +19,7 @@
 
 #include "Logger.h"
 #include "Observer.h"
+#include "TestEnvironment.h"
 #include "gl/ResourceManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EnvironmentConfig.h"
@@ -100,8 +101,7 @@ TEST_CASE("MapDocument")
 
   SECTION("loadDocument")
   {
-    const auto path =
-      std::filesystem::current_path() / "fixture/test/ui/MapDocument/emptyValveMap.map";
+    const auto path = getFixtureRoot() / "test/ui/MapDocument/emptyValveMap.map";
 
     MapDocument::loadDocument(
       environmentConfig,
@@ -136,8 +136,7 @@ TEST_CASE("MapDocument")
 
     const auto* previousMap = &document->map();
 
-    const auto path =
-      std::filesystem::current_path() / "fixture/test/ui/MapDocument/emptyValveMap.map";
+    const auto path = getFixtureRoot() / "test/ui/MapDocument/emptyValveMap.map";
 
     document->load(
       environmentConfig,
@@ -172,8 +171,7 @@ TEST_CASE("MapDocument")
                       resourceManager)
                     | kdl::value();
 
-    const auto path =
-      std::filesystem::current_path() / "fixture/test/ui/MapDocument/emptyValveMap.map";
+    const auto path = getFixtureRoot() / "test/ui/MapDocument/emptyValveMap.map";
 
     REQUIRE(document->load(
       environmentConfig,

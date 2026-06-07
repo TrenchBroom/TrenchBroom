@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "TestLogger.h"
 #include "fs/TestEnvironment.h"
 #include "gl/ResourceManager.h"
@@ -445,7 +446,7 @@ TEST_CASE("Map")
     auto gameInfo = DefaultGameInfo;
     gameInfo.gameConfig.materialConfig.shaderSearchPath = "scripts";
     gameInfo.gamePathPreference.defaultValue =
-      std::filesystem::current_path() / "fixture/test/mdl/LoadMd3Model/armor";
+      getFixtureRoot() / "test/mdl/LoadMd3Model/armor";
 
     Map::createMap(
       environmentConfig,
@@ -460,8 +461,8 @@ TEST_CASE("Map")
           const auto warnCountBefore = logger.countMessages(LogLevel::Warn);
 
           map->setGamePath(
-            std::filesystem::current_path()
-            / "fixture/test/mdl/LoadMaterialCollections/shaders/malformed_shader");
+            getFixtureRoot()
+            / "test/mdl/LoadMaterialCollections/shaders/malformed_shader");
 
           CHECK(logger.countMessages(LogLevel::Warn) > warnCountBefore);
         })

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "TestParserStatus.h"
 #include "el/TestUtils.h"
 #include "fs/DiskIO.h"
@@ -38,7 +39,7 @@ TEST_CASE("EntParser")
 {
   SECTION("parseIncludedEntFiles")
   {
-    const auto basePath = std::filesystem::current_path() / "fixture/games/";
+    const auto basePath = getFixtureRoot() / "games/";
     const auto cfgFiles =
       fs::Disk::find(
         basePath, fs::TraversalMode::Recursive, fs::makeExtensionPathMatcher({".ent"}))

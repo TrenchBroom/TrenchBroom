@@ -20,6 +20,7 @@
 #include "mdl/MapFixture.h"
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
 #include "gl/TestGl.h"
@@ -70,7 +71,7 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
 {
   m_config = std::move(config);
 
-  const auto absPath = path.is_absolute() ? path : std::filesystem::current_path() / path;
+  const auto absPath = path.is_absolute() ? path : getFixtureRoot() / path;
 
   const auto mapFormat = m_config->mapFormat.value_or(MapFormat::Unknown);
 

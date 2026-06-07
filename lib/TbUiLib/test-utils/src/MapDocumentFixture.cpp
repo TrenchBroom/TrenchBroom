@@ -19,6 +19,7 @@
 
 #include "ui/MapDocumentFixture.h"
 
+#include "TestEnvironment.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
 #include "gl/TestGl.h"
@@ -104,7 +105,7 @@ MapDocument& MapDocumentFixture::load(
 {
   m_config = std::move(config);
 
-  const auto absPath = path.is_absolute() ? path : std::filesystem::current_path() / path;
+  const auto absPath = path.is_absolute() ? path : getFixtureRoot() / path;
 
   contract_assert(
     loadFixtureDocument(absPath, *m_config, *m_taskManager, *m_resourceManager)

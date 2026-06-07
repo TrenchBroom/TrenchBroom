@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "ui/CatchConfig.h"
 #include "ui/QPathUtils.h"
 #include "ui/QPreferenceStoreUtils.h"
@@ -29,8 +30,7 @@ namespace
 {
 
 const auto preferenceFile = pathAsQString(
-  std::filesystem::current_path() / "fixture" / "test" / "ui" / "QPreferenceStoreUtils"
-  / "preferences.json");
+  getFixtureRoot() / "test" / "ui" / "QPreferenceStoreUtils" / "preferences.json");
 
 }
 

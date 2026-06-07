@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "TestEnvironment.h"
 #include "mdl/GameInfo.h"
 
 namespace tb::mdl
@@ -47,7 +48,7 @@ inline const GameInfo DefaultGameInfo = detail::makeGameInfoFixture(
     .fileFormats = {},
     .fileSystemConfig = {},
     .materialConfig =
-      {"textures", {".D"}, "fixture/test/mdl/DefaultGameInfo/palette.lmp", {}, "", {}},
+      {"textures", {".D"}, "test/mdl/DefaultGameInfo/palette.lmp", {}, "", {}},
     .entityConfig = {},
     .faceAttribsConfig = {},
     .smartTags = {},
@@ -55,7 +56,7 @@ inline const GameInfo DefaultGameInfo = detail::makeGameInfoFixture(
     .compilationTools = {},
     .forceEmptyNewMap = true,
   },
-  std::filesystem::current_path());
+  getFixtureRoot());
 
 inline const GameInfo QuakeGameInfo = detail::makeGameInfoFixture(
   {
@@ -94,7 +95,7 @@ inline const GameInfo QuakeGameInfo = detail::makeGameInfoFixture(
     .compilationTools = {},
     .forceEmptyNewMap = true,
   },
-  std::filesystem::current_path() / "fixture" / "test" / "mdl" / "Game" / "Quake");
+  getFixtureRoot() / "test" / "mdl" / "Game" / "Quake");
 
 inline const GameInfo Quake2GameInfo = detail::makeGameInfoFixture(
   {
@@ -133,6 +134,6 @@ inline const GameInfo Quake2GameInfo = detail::makeGameInfoFixture(
     .compilationTools = {},
     .forceEmptyNewMap = true,
   },
-  std::filesystem::current_path() / "fixture" / "test" / "mdl" / "Game" / "Quake2");
+  getFixtureRoot() / "test" / "mdl" / "Game" / "Quake2");
 
 } // namespace tb::mdl

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "fs/DiskIO.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/PortalFile.h"
@@ -32,7 +33,7 @@ namespace tb::mdl
 
 TEST_CASE("PortalFileTest.parseInvalidPRT1")
 {
-  const auto path = "fixture/test/mdl/PortalFile/portaltest_prt1_invalid.prt";
+  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1_invalid.prt";
   CHECK(fs::Disk::withInputStream(path, [](auto& stream) {
           return loadPortalFile(stream);
         }).is_error());
@@ -61,7 +62,7 @@ static const std::vector<vm::polygon3f> ExpectedPortals{
 
 TEST_CASE("PortalFileTest.parsePRT1")
 {
-  const auto path = "fixture/test/mdl/PortalFile/portaltest_prt1.prt";
+  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1.prt";
   CHECK(
     (fs::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
@@ -70,7 +71,7 @@ TEST_CASE("PortalFileTest.parsePRT1")
 
 TEST_CASE("PortalFileTest.parsePRT1Q3")
 {
-  const auto path = "fixture/test/mdl/PortalFile/portaltest_prt1q3.prt";
+  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1q3.prt";
   CHECK(
     (fs::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
@@ -79,7 +80,7 @@ TEST_CASE("PortalFileTest.parsePRT1Q3")
 
 TEST_CASE("PortalFileTest.parsePRT1AM")
 {
-  const auto path = "fixture/test/mdl/PortalFile/portaltest_prt1am.prt";
+  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1am.prt";
   CHECK(
     (fs::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
@@ -88,7 +89,7 @@ TEST_CASE("PortalFileTest.parsePRT1AM")
 
 TEST_CASE("PortalFileTest.parsePRT2")
 {
-  const auto path = "fixture/test/mdl/PortalFile/portaltest_prt2.prt";
+  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt2.prt";
   CHECK(
     (fs::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())

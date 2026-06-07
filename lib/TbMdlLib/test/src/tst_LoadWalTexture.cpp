@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
@@ -34,13 +35,13 @@ namespace tb::mdl
 {
 namespace
 {
-const auto fixturePath = std::filesystem::path{"fixture/test/mdl/LoadWalTexture"};
+const auto basePath = std::filesystem::path{"test/mdl/LoadWalTexture"};
 }
 
 TEST_CASE("loadWalTexture")
 {
-  const auto palettePath = fixturePath / "colormap.pcx";
-  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
+  const auto palettePath = basePath / "colormap.pcx";
+  auto fs = fs::DiskFileSystem{getFixtureRoot()};
   auto paletteFile = fs.openFile(palettePath) | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
@@ -65,7 +66,7 @@ TEST_CASE("loadWalTexture")
   INFO(width);
   INFO(height);
 
-  const auto file = fs.openFile(fixturePath / path) | kdl::value();
+  const auto file = fs.openFile(basePath / path) | kdl::value();
   auto reader = file->reader().buffer();
 
   const auto name = path.stem().generic_string();

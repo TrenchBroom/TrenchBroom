@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "TestParserStatus.h"
 #include "el/TestUtils.h"
 #include "fs/DiskIO.h"
@@ -42,7 +43,7 @@ TEST_CASE("FgdParser")
 {
   SECTION("parseIncludedFgdFiles")
   {
-    const auto basePath = std::filesystem::current_path() / "fixture/games/";
+    const auto basePath = getFixtureRoot() / "games/";
     const auto cfgFiles =
       fs::Disk::find(
         basePath, fs::TraversalMode::Recursive, fs::makeExtensionPathMatcher({".fgd"}))
@@ -1197,8 +1198,7 @@ model({"path"
 
   SECTION("parseInclude")
   {
-    const auto path = std::filesystem::current_path()
-                      / "fixture/test/mdl/FgdParser/parseInclude/host.fgd";
+    const auto path = getFixtureRoot() / "test/mdl/FgdParser/parseInclude/host.fgd";
     auto file = fs::Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
@@ -1216,8 +1216,7 @@ model({"path"
 
   SECTION("parseNestedInclude")
   {
-    const auto path = std::filesystem::current_path()
-                      / "fixture/test/mdl/FgdParser/parseNestedInclude/host.fgd";
+    const auto path = getFixtureRoot() / "test/mdl/FgdParser/parseNestedInclude/host.fgd";
     auto file = fs::Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
@@ -1237,8 +1236,8 @@ model({"path"
 
   SECTION("parseRecursiveInclude")
   {
-    const auto path = std::filesystem::current_path()
-                      / "fixture/test/mdl/FgdParser/parseRecursiveInclude/host.fgd";
+    const auto path =
+      getFixtureRoot() / "test/mdl/FgdParser/parseRecursiveInclude/host.fgd";
     auto file = fs::Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 

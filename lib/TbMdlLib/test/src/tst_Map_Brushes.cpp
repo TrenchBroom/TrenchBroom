@@ -254,8 +254,7 @@ TEST_CASE("Map_Brushes")
       const int WaterFlag = 32;
       const int LavaFlag = 8;
 
-      auto& map =
-        fixture.load("fixture/test/mdl/Map/lavaAndWater.map", Quake2FixtureConfig);
+      auto& map = fixture.load("test/mdl/Map/lavaAndWater.map", Quake2FixtureConfig);
 
       REQUIRE(map.editorContext().currentLayer() != nullptr);
 

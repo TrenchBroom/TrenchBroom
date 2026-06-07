@@ -293,8 +293,7 @@ TEST_CASE("Map_Assets")
 
     CAPTURE(wadPropertyValue);
 
-    auto& map =
-      fixture.load("fixture/test/mdl/Map/emptyValveMap.map", QuakeFixtureConfig);
+    auto& map = fixture.load("test/mdl/Map/emptyValveMap.map", QuakeFixtureConfig);
 
     CHECK(setEntityProperty(map, EntityPropertyKeys::Wad, wadPropertyValue));
 
@@ -306,8 +305,8 @@ TEST_CASE("Map_Assets")
 
   SECTION("reloadMaterialCollections")
   {
-    auto& map = fixture.load(
-      "fixture/test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
+    auto& map =
+      fixture.load("test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
 
     auto materialCollectionsWillChange =
       Observer<>{map.materialCollectionsWillChangeNotifier};

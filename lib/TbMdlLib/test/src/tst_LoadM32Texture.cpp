@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "gl/Texture.h"
 #include "mdl/LoadM32Texture.h"
@@ -29,9 +30,8 @@ namespace tb::mdl
 
 TEST_CASE("loadM32Texture")
 {
-  const auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
-  const auto file =
-    fs.openFile("fixture/test/mdl/LoadM32Texture/test.m32") | kdl::value();
+  const auto fs = fs::DiskFileSystem{getFixtureRoot()};
+  const auto file = fs.openFile("test/mdl/LoadM32Texture/test.m32") | kdl::value();
 
   auto reader = file->reader().buffer();
   const auto texture = loadM32Texture(reader) | kdl::value();

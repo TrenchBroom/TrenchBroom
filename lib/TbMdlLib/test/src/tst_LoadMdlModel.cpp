@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
@@ -37,15 +38,14 @@ TEST_CASE("loadMdlModel")
 {
   auto logger = NullLogger{};
 
-  const auto palettePath = "fixture/test/mdl/LoadMdlModel/palette.lmp";
-  auto fs = fs::DiskFileSystem{std::filesystem::current_path()};
+  const auto palettePath = "test/mdl/LoadMdlModel/palette.lmp";
+  auto fs = fs::DiskFileSystem{getFixtureRoot()};
   auto paletteFile = fs.openFile(palettePath) | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   SECTION("valid MDL model")
   {
-    const auto mdlPath =
-      std::filesystem::current_path() / "fixture/test/mdl/LoadMdlModel/armor.mdl";
+    const auto mdlPath = getFixtureRoot() / "test/mdl/LoadMdlModel/armor.mdl";
     const auto mdlFile = fs::Disk::openFile(mdlPath) | kdl::value();
 
     auto reader = mdlFile->reader().buffer();
@@ -64,8 +64,7 @@ TEST_CASE("loadMdlModel")
 
   SECTION("invalid MDL file")
   {
-    const auto mdlPath =
-      std::filesystem::current_path() / "fixture/test/mdl/LoadMdlModel/invalid.mdl";
+    const auto mdlPath = getFixtureRoot() / "test/mdl/LoadMdlModel/invalid.mdl";
     const auto mdlFile = fs::Disk::openFile(mdlPath) | kdl::value();
 
     auto reader = mdlFile->reader().buffer();

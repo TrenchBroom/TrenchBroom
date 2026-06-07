@@ -503,8 +503,7 @@ TEST_CASE("CompilationRunner")
 
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.load(
-    "fixture/test/ui/CompilationRunner/valveFormatMapWithoutFormatTag.map",
-    fixtureConfig);
+    "test/ui/CompilationRunner/valveFormatMapWithoutFormatTag.map", fixtureConfig);
 
   const auto testWorkDir = std::string{"/some/path"};
   auto variables = CompilationVariables{map, testWorkDir};

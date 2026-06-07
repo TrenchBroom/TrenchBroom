@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "fs/PathInfo.h"
 #include "fs/TestUtils.h"
 #include "mdl/CatchConfig.h"
@@ -51,8 +52,7 @@ TEST_CASE("GameFileSystem")
     pak1.PAK
       mod1_pak0_2.txt - contents: "mod1_pak1_2", overrides mod1/pak0.pak
   */
-  const auto fixturePath =
-    std::filesystem::current_path() / "fixture/test/mdl/GameFileSystem";
+  const auto fixturePath = getFixtureRoot() / "test/mdl/GameFileSystem";
 
   auto logger = NullLogger{};
 
