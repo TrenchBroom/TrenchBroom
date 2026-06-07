@@ -43,6 +43,9 @@ jobs:
           docker run --rm \
             --user runner \
             -e CCACHE_DIR="${{ github.workspace }}/.ccache" \
+            -e CCACHE_BASEDIR="${{ github.workspace }}" \
+            -e CCACHE_NOHASHDIR=1 \
+            -e CCACHE_COMPILERCHECK=content \
             -v "${{ github.workspace }}:${{ github.workspace }}" \
             -w "${{ github.workspace }}" \
             "${{ env.TB_LINUX_CONTAINER_IMAGE }}" \
@@ -60,6 +63,9 @@ jobs:
             -e VCPKG_BINARY_SOURCES="${VCPKG_BINARY_SOURCES}" \
             -e GITHUB_TOKEN="${GH_TOKEN}" \
             -e CCACHE_DIR="${{ github.workspace }}/.ccache" \
+            -e CCACHE_BASEDIR="${{ github.workspace }}" \
+            -e CCACHE_NOHASHDIR=1 \
+            -e CCACHE_COMPILERCHECK=content \
             -e CC=gcc-13 \
             -e CXX=g++-13 \
             -v "${{ github.workspace }}:${{ github.workspace }}" \

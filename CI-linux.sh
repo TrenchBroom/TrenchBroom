@@ -2,6 +2,8 @@
 
 # set -o verbose
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # Check versions
 cmake --version
 ninja --version
@@ -23,6 +25,11 @@ export APPIMAGE_EXTRACT_AND_RUN=1
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 export QT_QPA_PLATFORM=offscreen
+
+# Normalize ccache keys across ephemeral CI containers and checkout roots.
+export CCACHE_BASEDIR="${CCACHE_BASEDIR:-$SCRIPT_DIR}"
+export CCACHE_NOHASHDIR=1
+export CCACHE_COMPILERCHECK=content
 
 # install linuxdeploy into the build dir so it gets cleared with it
 wget -nc https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
