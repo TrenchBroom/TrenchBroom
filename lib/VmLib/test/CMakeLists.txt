@@ -29,3 +29,6 @@ target_link_libraries(VmLibTest
     Catch2::Catch2WithMain
     VmLib
 )
+
+include(Catch)
+catch_discover_tests(VmLibTest)

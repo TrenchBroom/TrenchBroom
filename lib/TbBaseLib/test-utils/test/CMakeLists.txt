@@ -13,3 +13,6 @@ target_link_libraries(TbBaseTestUtilsLibTest
     Catch2::Catch2WithMain
     TbBaseTestUtilsLib
 )
+
+include(Catch)
+catch_discover_tests(TbBaseTestUtilsLibTest)

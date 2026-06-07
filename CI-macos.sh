@@ -66,45 +66,7 @@ cmake .. \
 cmake --build . --config "$TB_BUILD_TYPE" || exit 1
 
 BUILD_DIR=$(pwd)
-
-cd "$BUILD_DIR/lib/KdLib/test"
-./KdLibTest || exit 1
-
-cd "$BUILD_DIR/lib/UpdateLib/test"
-./UpdateLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbBaseLib/test"
-./TbBaseLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbBaseLib/test-utils/test"
-./TbBaseTestUtilsLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbElLib/test"
-./TbElLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbFsLib/test"
-./TbFsLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbFsLib/test-utils/test"
-./TbFsTestUtilsLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbGlLib/test"
-./TbGlLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbMdlLib/test"
-./TbMdlLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbMdlLib/test-utils/test"
-./TbMdlTestUtilsLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbRenderLib/test"
-./TbRenderLibTest || exit 1
-
-cd "$BUILD_DIR/lib/TbUiLib/test"
-./TbUiLibTest || exit 1
-
-cd "$BUILD_DIR/lib/VmLib/test"
-./VmLibTest || exit 1
+ctest --test-dir "$BUILD_DIR" --output-on-failure -j
 
 if [[ $TB_ENABLE_ASAN == "0" && $TB_ENABLE_UBSAN == "0" ]] ; then
   cd "$BUILD_DIR"

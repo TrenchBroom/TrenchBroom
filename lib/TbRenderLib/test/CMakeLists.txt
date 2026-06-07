@@ -13,3 +13,6 @@ target_link_libraries(TbRenderLibTest
     Catch2::Catch2WithMain
     TbRenderLib
   )
+
+include(Catch)
+catch_discover_tests(TbRenderLibTest)
