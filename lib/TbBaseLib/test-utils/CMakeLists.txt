@@ -3,6 +3,7 @@ add_library(TbBaseTestUtilsLib STATIC)
 target_sources(TbBaseTestUtilsLib
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Matchers.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/TestEnvironment.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TestLogger.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TestParserStatus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TestPreferenceStore.cpp
