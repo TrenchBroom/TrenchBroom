@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/Reader.h"
 #include "fs/VirtualFileSystem.h"
@@ -56,7 +57,7 @@ TEST_CASE("loadAseModel")
   };
 
   const auto defaultAssetsPath =
-    std::filesystem::current_path() / "fixture/test/mdl/LoadAseModel/default_assets";
+    getFixtureRoot() / "test/mdl/LoadAseModel/default_assets";
   auto fs = fs::VirtualFileSystem{};
   fs.mount("", std::make_unique<fs::DiskFileSystem>(defaultAssetsPath));
 
@@ -64,8 +65,7 @@ TEST_CASE("loadAseModel")
 
   SECTION("Models load without exception")
   {
-    const auto basePath =
-      std::filesystem::current_path() / "fixture/test/mdl/LoadAseModel/wedge_with_shader";
+    const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/wedge_with_shader";
     fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
@@ -105,8 +105,8 @@ TEST_CASE("loadAseModel")
 
   SECTION("Fall back to material name if bitmap directive is missing")
   {
-    const auto basePath = std::filesystem::current_path()
-                          / "fixture/test/mdl/LoadAseModel/fallback_to_materialname";
+    const auto basePath =
+      getFixtureRoot() / "test/mdl/LoadAseModel/fallback_to_materialname";
     fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
@@ -135,8 +135,8 @@ TEST_CASE("loadAseModel")
 
   SECTION("Fall back to default material if texture cannot be loaded")
   {
-    const auto basePath = std::filesystem::current_path()
-                          / "fixture/test/mdl/LoadAseModel/load_default_material";
+    const auto basePath =
+      getFixtureRoot() / "test/mdl/LoadAseModel/load_default_material";
     fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
@@ -182,8 +182,7 @@ TEST_CASE("loadAseModel (Regression)", "[regression]")
     {},
   };
 
-  const auto defaultAssetsPath =
-    std::filesystem::current_path() / "fixture/test/io/ResourceUtils/assets";
+  const auto defaultAssetsPath = getFixtureRoot() / "test/io/ResourceUtils/assets";
   auto fs = fs::VirtualFileSystem{};
   fs.mount("", std::make_unique<fs::DiskFileSystem>(defaultAssetsPath));
 
@@ -191,8 +190,7 @@ TEST_CASE("loadAseModel (Regression)", "[regression]")
 
   SECTION("2657")
   {
-    const auto basePath =
-      std::filesystem::current_path() / "fixture/test/mdl/LoadAseModel/steelstorm_player";
+    const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/steelstorm_player";
     fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
@@ -216,8 +214,7 @@ TEST_CASE("loadAseModel (Regression)", "[regression]")
 
   SECTION("2679")
   {
-    const auto basePath = std::filesystem::current_path()
-                          / "fixture/test/mdl/LoadAseModel/no_scene_directive";
+    const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/no_scene_directive";
     fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =
@@ -241,8 +238,7 @@ TEST_CASE("loadAseModel (Regression)", "[regression]")
 
   SECTION("2898")
   {
-    const auto basePath = std::filesystem::current_path()
-                          / "fixture/test/mdl/LoadAseModel/index_out_of_bounds";
+    const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/index_out_of_bounds";
     fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
     const auto shaders =

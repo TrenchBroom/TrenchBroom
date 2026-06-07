@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
@@ -39,9 +40,8 @@ namespace
 
 auto loadTexture(const std::string& name)
 {
-  auto diskFS = fs::DiskFileSystem{
-    std::filesystem::current_path() / "fixture" / "test" / "mdl"
-    / "LoadFreeImageTexture"};
+  auto diskFS =
+    fs::DiskFileSystem{getFixtureRoot() / "test" / "mdl" / "LoadFreeImageTexture"};
 
   return diskFS.openFile(name) | kdl::and_then([](const auto& file) {
            auto reader = file->reader().buffer();

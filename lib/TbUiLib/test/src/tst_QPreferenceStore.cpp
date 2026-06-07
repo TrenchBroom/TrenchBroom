@@ -22,6 +22,7 @@
 #include <QLockFile>
 
 #include "Observer.h"
+#include "TestEnvironment.h"
 #include "fs/TestEnvironment.h"
 #include "ui/CatchConfig.h"
 #include "ui/QPathUtils.h"
@@ -221,10 +222,10 @@ TEST_CASE("Preference lock file")
 // ensure that a lock file can be created in a directory with non-ASCII characters
 #ifdef _WIN32
   const auto lockFilePath =
-    std::filesystem::path{LR"(fixture\test\Кристиян\ぁ\preferences-v2.json.lck)"};
+    getFixtureRoot() / LR"(test\Кристиян\ぁ\preferences-v2.json.lck)";
 #else
   const auto lockFilePath =
-    std::filesystem::path{R"(fixture/test/Кристиян/ぁ/preferences-v2.json.lck)"};
+    getFixtureRoot() / R"(test/Кристиян/ぁ/preferences-v2.json.lck)";
 #endif
   std::filesystem::create_directories(lockFilePath.parent_path());
 

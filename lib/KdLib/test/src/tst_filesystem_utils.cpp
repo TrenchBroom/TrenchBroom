@@ -20,6 +20,7 @@
 
 #include "kd/filesystem_utils.h"
 
+#include <filesystem>
 #include <iterator>
 #include <string>
 
@@ -40,7 +41,8 @@ const auto read_all = [](auto& stream) {
 
 TEST_CASE("filesystem_utils")
 {
-  const auto fixture_dir = std::filesystem::current_path() / "fixture" / "with_stream";
+  const auto fixture_dir =
+    std::filesystem::temp_directory_path() / "trenchbroom-kdlib-with_stream";
   std::filesystem::create_directories(fixture_dir);
 
   {

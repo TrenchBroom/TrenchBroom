@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "el/Expression.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
@@ -39,7 +40,7 @@ TEST_CASE("GameConfigParser")
 {
   SECTION("parseIncludedGameConfigs")
   {
-    const auto basePath = std::filesystem::current_path() / "fixture/games/";
+    const auto basePath = getFixtureRoot() / "games/";
     const auto cfgFiles =
       fs::Disk::find(
         basePath, fs::TraversalMode::Recursive, fs::makeExtensionPathMatcher({".cfg"}))

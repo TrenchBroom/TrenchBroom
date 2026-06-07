@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "mdl/LoadFmModel.h"
 
@@ -33,9 +34,7 @@ TEST_CASE("loadFmModel")
   auto logger = NullLogger{};
   auto fs = fs::VirtualFileSystem{};
   fs.mount(
-    "",
-    std::make_unique<fs::DiskFileSystem>(
-      std::filesystem::current_path() / "fixture/test/mdl/LoadFmModel"));
+    "", std::make_unique<fs::DiskFileSystem>(getFixtureRoot() / "test/mdl/LoadFmModel"));
 
   SECTION("valid FM model")
   {

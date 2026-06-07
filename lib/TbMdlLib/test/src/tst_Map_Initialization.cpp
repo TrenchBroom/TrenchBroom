@@ -42,7 +42,7 @@ namespace
 
 auto makeAbsolute(const auto& path)
 {
-  return std::filesystem::current_path() / path;
+  return getFixtureRoot() / path;
 }
 
 } // namespace
@@ -86,7 +86,7 @@ TEST_CASE("Map_Initialization")
     {
       auto gameInfo = DefaultGameInfo;
       gameInfo.gameConfig.forceEmptyNewMap = false;
-      gameInfo.gameConfig.path = "fixture/test/mdl/Map/GameConfig.cfg";
+      gameInfo.gameConfig.path = getFixtureRoot() / "test/mdl/Map/GameConfig.cfg";
       gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {"initialMap.map"}},
       };
@@ -289,7 +289,7 @@ TEST_CASE("Map_Initialization")
     SECTION("Sets world bounds, game and file path")
     {
       const auto worldBounds = vm::bbox3d{8192.0};
-      const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
+      const auto path = makeAbsolute("test/mdl/Map/emptyValveMap.map");
 
       auto gameInfo = DefaultGameInfo;
       gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
@@ -331,7 +331,7 @@ TEST_CASE("Map_Initialization")
           gameInfo.gamePathPreference.defaultValue,
           MapFormat::Unknown,
           vm::bbox3d{8192.0},
-          makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
+          makeAbsolute("test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
           *taskManager,
           resourceManager,
           logger)
@@ -350,7 +350,7 @@ TEST_CASE("Map_Initialization")
           gameInfo.gamePathPreference.defaultValue,
           MapFormat::Unknown,
           vm::bbox3d{8192.0},
-          makeAbsolute("fixture/test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
+          makeAbsolute("test/mdl/Map/standardFormatMapWithoutFormatTag.map"),
           *taskManager,
           resourceManager,
           logger)
@@ -369,7 +369,7 @@ TEST_CASE("Map_Initialization")
           gameInfo.gamePathPreference.defaultValue,
           MapFormat::Unknown,
           vm::bbox3d{8192.0},
-          makeAbsolute("fixture/test/mdl/Map/emptyMapWithoutFormatTag.map"),
+          makeAbsolute("test/mdl/Map/emptyMapWithoutFormatTag.map"),
           *taskManager,
           resourceManager,
           logger)
@@ -391,7 +391,7 @@ TEST_CASE("Map_Initialization")
           gameInfo.gamePathPreference.defaultValue,
           MapFormat::Unknown,
           vm::bbox3d{8192.0},
-          makeAbsolute("fixture/test/mdl/Map/mixedFormats.map"),
+          makeAbsolute("test/mdl/Map/mixedFormats.map"),
           *taskManager,
           resourceManager,
           logger));
@@ -417,7 +417,7 @@ TEST_CASE("Map_Initialization")
         gameInfo.gamePathPreference.defaultValue,
         MapFormat::Unknown,
         vm::bbox3d{8192.0},
-        makeAbsolute("fixture/test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
+        makeAbsolute("test/mdl/Map/valveFormatMapWithoutFormatTag.map"),
         *taskManager,
         resourceManager,
         logger)
@@ -438,7 +438,7 @@ TEST_CASE("Map_Initialization")
     };
 
     const auto worldBounds = vm::bbox3d{8192.0};
-    const auto path = makeAbsolute("fixture/test/mdl/Map/emptyValveMap.map");
+    const auto path = makeAbsolute("test/mdl/Map/emptyValveMap.map");
 
     Map::loadMap(
       environmentConfig,

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "TestParserStatus.h"
 #include "fs/DiskIO.h"
 #include "fs/PathMatcher.h"
@@ -36,7 +37,7 @@ TEST_CASE("DefParser")
 {
   SECTION("parseIncludedDefFiles")
   {
-    const auto basePath = std::filesystem::current_path() / "fixture/games/";
+    const auto basePath = getFixtureRoot() / "games/";
     const auto cfgFiles =
       fs::Disk::find(
         basePath, fs::TraversalMode::Flat, fs::makeExtensionPathMatcher({".def"}))
@@ -75,7 +76,7 @@ TEST_CASE("DefParser")
 
   SECTION("parseExtraDefFiles")
   {
-    const auto basePath = std::filesystem::current_path() / "fixture/test/mdl/DefParser";
+    const auto basePath = getFixtureRoot() / "test/mdl/DefParser";
     const auto cfgFiles =
       fs::Disk::find(
         basePath, fs::TraversalMode::Recursive, fs::makeExtensionPathMatcher({".def"}))

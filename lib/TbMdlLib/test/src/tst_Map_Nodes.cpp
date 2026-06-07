@@ -987,7 +987,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Update material usage counts")
     {
       deselectAll(map);
-      setEntityProperty(map, EntityPropertyKeys::Wad, "fixture/test/mdl/Map/cr8_czg.wad");
+      setEntityProperty(map, EntityPropertyKeys::Wad, "test/mdl/Map/cr8_czg.wad");
 
       constexpr auto MaterialName = "bongs2";
       const auto* material = map.materialManager().material(MaterialName);

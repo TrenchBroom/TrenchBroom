@@ -19,6 +19,7 @@
 
 #include "Logger.h"
 #include "Matchers.h"
+#include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/TestEnvironment.h"
 #include "mdl/CatchConfig.h"
@@ -92,9 +93,8 @@ TEST_CASE("findMaterialFile")
 
 TEST_CASE("loadDefaultMaterial")
 {
-  auto fs = fs::DiskFileSystem{
-    std::filesystem::current_path()
-    / "fixture/test/mdl/MaterialUtils/loadDefaultMaterial"};
+  auto fs =
+    fs::DiskFileSystem{getFixtureRoot() / "test/mdl/MaterialUtils/loadDefaultMaterial"};
   NullLogger logger;
 
   auto material = loadDefaultMaterial(fs, "some_name", logger);
@@ -105,8 +105,7 @@ TEST_CASE("makeReadTextureErrorHandler")
 {
   auto logger = NullLogger{};
   auto diskFS = fs::DiskFileSystem{
-    std::filesystem::current_path()
-    / "fixture/test/mdl/MaterialUtils/makeReadTextureErrorHandler"};
+    getFixtureRoot() / "test/mdl/MaterialUtils/makeReadTextureErrorHandler"};
 
   const auto file = diskFS.openFile("textures/corruptPngTest.png") | kdl::value();
   auto reader = file->reader().buffer();

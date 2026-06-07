@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
 #include "TestParserStatus.h"
 #include "fs/DiskIO.h"
 #include "mdl/BezierPatch.h"
@@ -1413,8 +1414,7 @@ common/caulk
 
   SECTION("Heretic 2 map made in Quark")
   {
-    const auto mapPath =
-      std::filesystem::current_path() / "fixture/test/mdl/WorldReader/Heretic2Quark.map";
+    const auto mapPath = getFixtureRoot() / "test/mdl/WorldReader/Heretic2Quark.map";
     const auto file = fs::Disk::openFile(mapPath) | kdl::value();
     auto fileReader = file->reader().buffer();
 
