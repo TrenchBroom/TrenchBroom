@@ -24,71 +24,8 @@ cmake --build . --config Release
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 set BUILD_DIR="%cd%"
-
-cd lib\KdLib\test
-KdLibTest.exe
+ctest --test-dir "%BUILD_DIR%" --output-on-failure -j
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\UpdateLib\test
-UpdateLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbBaseLib\test
-TbBaseLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbBaseLib\test-utils\test
-TbBaseTestUtilsLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbElLib\test
-TbElLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbFsLib\test
-TbFsLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbFsLib\test-utils\test
-TbFsTestUtilsLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbGlLib\test
-TbGlLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbMdlLib\test
-TbMdlLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbMdlLib\test-utils\test
-TbMdlTestUtilsLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbRenderLib\test
-TbRenderLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\TbUiLib\test
-TbUiLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
-
-cd lib\VmLib\test
-VmLibTest.exe
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-cd "%BUILD_DIR%"
 
 "C:\Program Files\CMake\bin\cpack.exe"
 
