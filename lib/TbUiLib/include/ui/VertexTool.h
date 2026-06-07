@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "mdl/BrushVertexCommands.h"
 #include "render/PointGuideRenderer.h"
 #include "ui/NodeHandleToolBase.h"
 
@@ -114,8 +115,8 @@ private:
   void addHandles(const std::vector<mdl::Node*>& nodes) override;
   void removeHandles(const std::vector<mdl::Node*>& nodes) override;
 
-  void addHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command) override;
-  void removeHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command) override;
+  void addHandles(mdl::BrushVertexCommand& command) override;
+  void removeHandles(mdl::BrushVertexCommand& command) override;
 
 private: // General helper methods
   void resetModeAfterDeselection();

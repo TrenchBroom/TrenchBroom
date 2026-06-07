@@ -410,14 +410,14 @@ void VertexTool::removeHandles(const std::vector<mdl::Node*>& nodes)
   map.nodeHandles().removeHandles<mdl::FaceHandle>(nodes);
 }
 
-void VertexTool::addHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command)
+void VertexTool::addHandles(mdl::BrushVertexCommand& command)
 {
   auto& map = m_document.map();
 
   command.addHandles<mdl::EdgeHandle, mdl::FaceHandle>(map.nodeHandles());
 }
 
-void VertexTool::removeHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command)
+void VertexTool::removeHandles(mdl::BrushVertexCommand& command)
 {
   auto& map = m_document.map();
 

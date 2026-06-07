@@ -25,7 +25,6 @@
 #include "Preferences.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
-#include "mdl/BrushVertexCommands.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -33,6 +32,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/NodeHandleCommand.h"
 #include "mdl/NodeHandleManager.h"
 #include "mdl/NodeHandles.h"
 #include "mdl/Polyhedron.h"
@@ -49,7 +49,6 @@
 #include "ui/Tool.h"
 
 #include "kd/contracts.h"
-#include "kd/overload.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/set_temp.h"
@@ -542,17 +541,17 @@ private: // Observers and state management
   {
     m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
       this, &NodeHandleToolBase::selectionDidChange);
-    m_notifierConnection +=
-      m_document.nodesWillChangeNotifier.connect(this, &NodeHandleToolBase::nodesWillChange);
-    m_notifierConnection +=
-      m_document.nodesDidChangeNotifier.connect(this, &NodeHandleToolBase::nodesDidChange);
+    m_notifierConnection += m_document.nodesWillChangeNotifier.connect(
+      this, &NodeHandleToolBase::nodesWillChange);
+    m_notifierConnection += m_document.nodesDidChangeNotifier.connect(
+      this, &NodeHandleToolBase::nodesDidChange);
 
     m_notifierConnection +=
       m_document.commandDoNotifier.connect(this, &NodeHandleToolBase::commandDo);
     m_notifierConnection +=
       m_document.commandDoneNotifier.connect(this, &NodeHandleToolBase::commandDone);
-    m_notifierConnection +=
-      m_document.commandDoFailedNotifier.connect(this, &NodeHandleToolBase::commandDoFailed);
+    m_notifierConnection += m_document.commandDoFailedNotifier.connect(
+      this, &NodeHandleToolBase::commandDoFailed);
     m_notifierConnection +=
       m_document.commandUndoNotifier.connect(this, &NodeHandleToolBase::commandUndo);
     m_notifierConnection +=
@@ -578,8 +577,7 @@ private: // Observers and state management
 
   void commandDoOrUndo(mdl::Command& command)
   {
-    if (
-      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
+    if (auto* vertexCommand = dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
       deselectHandles();
       removeHandles(*vertexCommand);
@@ -589,8 +587,7 @@ private: // Observers and state management
 
   void commandDoneOrUndoFailed(mdl::Command& command)
   {
-    if (
-      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
+    if (auto* vertexCommand = dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
       addHandles(*vertexCommand);
       selectNewHandlePositions(*vertexCommand);
@@ -600,8 +597,7 @@ private: // Observers and state management
 
   void commandDoFailedOrUndone(mdl::Command& command)
   {
-    if (
-      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
+    if (auto* vertexCommand = dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
       addHandles(*vertexCommand);
       selectOldHandlePositions(*vertexCommand);
@@ -643,22 +639,22 @@ protected:
     handleManager().template deselectAllHandles<HandleType>();
   }
 
-  virtual void addHandles(mdl::BrushVertexCommandT<HandleType>& command)
+  virtual void addHandles(mdl::NodeHandleCommand<HandleType>& command)
   {
     command.addHandles(handleManager());
   }
 
-  virtual void removeHandles(mdl::BrushVertexCommandT<HandleType>& command)
+  virtual void removeHandles(mdl::NodeHandleCommand<HandleType>& command)
   {
     command.removeHandles(handleManager());
   }
 
-  virtual void selectNewHandlePositions(mdl::BrushVertexCommandT<HandleType>& command)
+  virtual void selectNewHandlePositions(mdl::NodeHandleCommand<HandleType>& command)
   {
     command.selectNewHandlePositions(handleManager());
   }
 
-  virtual void selectOldHandlePositions(mdl::BrushVertexCommandT<HandleType>& command)
+  virtual void selectOldHandlePositions(mdl::NodeHandleCommand<HandleType>& command)
   {
     command.selectOldHandlePositions(handleManager());
   }
