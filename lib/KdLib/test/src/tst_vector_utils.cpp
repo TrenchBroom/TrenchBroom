@@ -362,6 +362,22 @@ TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates")
     Equals(std::vector<int>{1, 2, 3}));
 }
 
+TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates_in_place")
+{
+  auto v = std::vector<int>{2, 3, 2, 1};
+  vec_sort_and_remove_duplicates(v);
+  CHECK_THAT(v, Equals(std::vector<int>{1, 2, 3}));
+}
+
+TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates_const_lvalue")
+{
+  const auto v = std::vector<int>{2, 3, 2, 1};
+  CHECK_THAT(vec_sort_and_remove_duplicates(v), Equals(std::vector<int>{1, 2, 3}));
+
+  // the original vector must be left unchanged
+  CHECK_THAT(v, Equals(std::vector<int>{2, 3, 2, 1}));
+}
+
 struct MoveOnly
 {
   MoveOnly() = default;
