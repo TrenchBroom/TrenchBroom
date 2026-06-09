@@ -54,7 +54,7 @@ cmake --build . --config Release -- -j $(nproc) || exit 1
 # Run tests
 
 BUILD_DIR=$(pwd)
-ctest --test-dir "$BUILD_DIR" --output-on-failure -j
+ctest --test-dir "$BUILD_DIR" --output-on-failure -j || exit 1
 
 cd "$BUILD_DIR"
 ldd --verbose ./app/TrenchBroom/trenchbroom
