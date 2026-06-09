@@ -66,7 +66,7 @@ cmake .. \
 cmake --build . --config "$TB_BUILD_TYPE" || exit 1
 
 BUILD_DIR=$(pwd)
-ctest --test-dir "$BUILD_DIR" --output-on-failure -j
+ctest --test-dir "$BUILD_DIR" --output-on-failure -j || exit 1
 
 if [[ $TB_ENABLE_ASAN == "0" && $TB_ENABLE_UBSAN == "0" ]] ; then
   cd "$BUILD_DIR"
