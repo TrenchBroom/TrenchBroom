@@ -50,17 +50,29 @@
 #include "ui/ViewConstants.h"
 #include "ui/ViewUtils.h"
 
-#include "kd/string_format.h"
-#include "kd/string_utils.h"
-
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <regex>
 #include <string>
 
 namespace tb::ui
 {
 namespace
 {
+
+class ColorValidator : public QValidator
+{
+public:
+  State validate(QString& input, int&) const override
+  {
+    static const auto Pattern = std::regex{R"(^\s*(?:\d+\s*){0,3}$)"};
+
+    const auto str = input.toStdString();
+    return str.empty() || RgbB::parse(str).is_success() ? State::Acceptable
+           : std::regex_match(str, Pattern)             ? State::Intermediate
+                                                        : State::Invalid;
+  };
+};
 
 std::tuple<QList<int>, QStringList, QStringList> getFlags(
   const std::vector<mdl::FlagConfig>& flags)
@@ -250,7 +262,7 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
   }
 }
 
-void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
+void FaceAttribsEditor::colorValueChanged()
 {
   auto& map = m_document.map();
   if (!map.selection().hasAnyBrushFaces())
@@ -259,22 +271,11 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   }
 
   const auto str = m_colorEditor->text().toStdString();
-  if (!kdl::str_is_blank(str))
-  {
-    RgbB::parse(str) | kdl::transform([&](const auto& color) {
-      if (!setBrushFaceAttributes(map, {.color = {color}}))
-      {
-        updateControls();
-      }
-    }) | kdl::ignore();
-  }
-  else
-  {
-    if (!setBrushFaceAttributes(map, {.color = {std::nullopt}}))
-    {
-      updateControls();
-    }
-  }
+  const auto color = RgbB::parse(str)
+                     | kdl::transform([&](const auto& c) { return std::optional{c}; })
+                     | kdl::value_or(std::nullopt);
+
+  setBrushFaceAttributes(map, {.color = std::optional<std::optional<Color>>{color}});
 }
 
 void FaceAttribsEditor::surfaceFlagsUnset()
@@ -327,10 +328,8 @@ void FaceAttribsEditor::colorValueUnset()
     return;
   }
 
-  if (!setBrushFaceAttributes(map, {.color = std::nullopt}))
-  {
-    updateControls();
-  }
+  const auto color = std::optional<Color>{std::nullopt};
+  setBrushFaceAttributes(map, {.color = std::optional<std::optional<Color>>{color}});
 }
 
 void FaceAttribsEditor::updateIncrements()
@@ -536,8 +535,11 @@ QWidget* FaceAttribsEditor::createAttribsWidget()
   m_colorLabel = new QLabel{"Color"};
   setEmphasizedStyle(m_colorLabel);
   m_colorEditor = new QLineEdit{};
+  m_colorEditor->setProperty("error", false);
   m_colorUnsetButton = createBitmapButton("ResetUV.svg", tr("Unset color"));
   m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);
+
+  m_colorEditor->setValidator(new ColorValidator{});
 
   const Qt::Alignment LabelFlags = Qt::AlignVCenter | Qt::AlignRight;
   const Qt::Alignment ValueFlags = Qt::AlignVCenter;
@@ -670,7 +672,10 @@ void FaceAttribsEditor::bindEvents()
     this,
     &FaceAttribsEditor::contentFlagChanged);
   connect(
-    m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::colorValueChanged);
+    m_colorEditor,
+    &QLineEdit::editingFinished,
+    this,
+    &FaceAttribsEditor::colorValueChanged);
   connect(
     m_surfaceValueUnsetButton,
     &QAbstractButton::clicked,

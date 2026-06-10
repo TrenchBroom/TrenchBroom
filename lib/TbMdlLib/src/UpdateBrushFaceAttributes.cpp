@@ -594,8 +594,7 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
 
   if (update.color)
   {
-    attributes.setColor(
-      *update.color | kdl::optional_or_else([&]() { return brushFace.resolvedColor(); }));
+    attributes.setColor(*update.color);
   }
 
   brushFace.setAttributes(attributes);

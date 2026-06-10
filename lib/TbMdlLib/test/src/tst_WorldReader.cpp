@@ -612,6 +612,42 @@ TEST_CASE("WorldReader")
     CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
   }
 
+  SECTION("Invalid Daikatana surface color")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) rtz/c_mf_v3cw 56 -32 0 1 1 0 0 0 5 6 300
+( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) rtz/b_rc_v16w 32 32 0 1 1 1 2 3
+( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) rtz/c_mf_v3cww 16 96 0 1 1
+( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
+( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
+( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
+}
+})";
+
+    auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
+
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult);
+
+    const auto& world = worldResult.value();
+    CHECK(world->childCount() == 1u);
+    auto* defaultLayer = world->children().front();
+    CHECK(defaultLayer->childCount() == 1u);
+
+    const auto* brushNode =
+      static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    checkBrushUVCoordSystem(brushNode, false);
+    const auto& brush = brushNode->brush();
+
+    const auto c_mf_v3cw_index = brush.findFace("rtz/c_mf_v3cw");
+    REQUIRE(c_mf_v3cw_index);
+
+    CHECK(!brush.face(*c_mf_v3cw_index).attributes().hasColor());
+  }
+
   SECTION("Daikatana map header")
   {
     const auto data = R"(

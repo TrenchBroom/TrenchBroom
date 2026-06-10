@@ -589,17 +589,20 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
 
     // Daikatana color triple is optional
-    if (m_tokenizer.peekToken().hasType(QuakeMapToken::Integer))
+    if (const auto firstColorToken = m_tokenizer.peekToken();
+        firstColorToken.hasType(QuakeMapToken::Integer))
     {
       // red, green, blue
-      const auto r = vm::clamp(parseInteger(), 0, 255);
-      const auto g = vm::clamp(parseInteger(), 0, 255);
-      const auto b = vm::clamp(parseInteger(), 0, 255);
-      attribs.setColor(RgbB{
-        static_cast<unsigned char>(r),
-        static_cast<unsigned char>(g),
-        static_cast<unsigned char>(b),
-      });
+      const auto r = parseInteger();
+      const auto g = parseInteger();
+      const auto b = parseInteger();
+      RgbB::fromValues(std::tuple{r, g, b})
+        | kdl::transform([&](const auto& color) { attribs.setColor(color); })
+        | kdl::transform_error([&](const auto& e) {
+            status.warn(
+              firstColorToken.location(),
+              fmt::format("Skipping invalid surface color: {}", e.msg));
+          });
     }
   }
 
