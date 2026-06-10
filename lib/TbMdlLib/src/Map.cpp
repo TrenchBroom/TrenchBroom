@@ -120,6 +120,14 @@ namespace tb::mdl
 namespace
 {
 
+auto searchPaths(const WorldNode& worldNode)
+{
+  return enabledMods(worldNode.entity()) | std::views::transform([](const auto& mod) {
+           return std::filesystem::path{mod};
+         })
+         | kdl::ranges::to<std::vector>();
+}
+
 void updateGameFileSystem(
   GameFileSystem& fs,
   const EnvironmentConfig& environmentConfig,
@@ -135,10 +143,11 @@ auto createGameFileSystem(
   const EnvironmentConfig& environmentConfig,
   const GameInfo& gameInfo,
   const std::filesystem::path& gamePath,
+  const std::vector<std::filesystem::path>& searchPaths,
   Logger& logger)
 {
   auto fs = std::make_unique<GameFileSystem>();
-  updateGameFileSystem(*fs, environmentConfig, gameInfo, gamePath, {}, logger);
+  updateGameFileSystem(*fs, environmentConfig, gameInfo, gamePath, searchPaths, logger);
   return fs;
 }
 
@@ -538,7 +547,7 @@ Map::Map(
   , m_gameInfo{gameInfo}
   , m_gamePath{gamePath}
   , m_gameFileSystem{createGameFileSystem(
-      m_environmentConfig, m_gameInfo, m_gamePath, logger)}
+      m_environmentConfig, m_gameInfo, m_gamePath, searchPaths(*worldNode), logger)}
   , m_taskManager{taskManager}
   , m_resourceManager{resourceManager}
   , m_logger{logger}
@@ -569,7 +578,7 @@ Map::Map(
 
   editorContext().setCurrentLayer(m_worldNode->defaultLayer());
 
-  updateGameSearchPaths();
+  entityModelManager().reloadShaders(m_taskManager);
 
   loadAssets();
   registerValidators();
@@ -1351,17 +1360,12 @@ void Map::updateGameSearchPaths()
 
 void Map::updateGameFileSystem()
 {
-  const auto searchPaths =
-    enabledMods(*this)
-    | std::views::transform([](const auto& mod) { return std::filesystem::path{mod}; })
-    | kdl::ranges::to<std::vector>();
-
   mdl::updateGameFileSystem(
     *m_gameFileSystem,
     environmentConfig(),
     gameInfo(),
     gamePath(),
-    searchPaths,
+    searchPaths(*m_worldNode),
     logger());
 
   entityModelManager().reloadShaders(m_taskManager);
