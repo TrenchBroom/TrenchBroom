@@ -110,6 +110,11 @@ find_package(stduuid REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Qt6 COMPONENTS Core Widgets OpenGL OpenGLWidgets Network Svg Test REQUIRED)
 
+if(DEFINED Qt6_DIR)
+  get_filename_component(TB_QT_LIBRARY_DIR "${Qt6_DIR}/../.." ABSOLUTE)
+  message(STATUS "Found Qt6: ${TB_QT_LIBRARY_DIR}")
+endif()
+
 # Find threads lib, needed to work around a gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
 # The googletest target links to this
 find_package(Threads)
