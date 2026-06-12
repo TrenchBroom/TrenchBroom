@@ -273,7 +273,7 @@ TEST_CASE("GithubApi")
     SECTION("passes file if download succeeds")
     {
       auto expectedFile = QTemporaryFile{};
-      expectedFile.open();
+      REQUIRE(expectedFile.open());
       expectedFile.write("some content");
       expectedFile.close();
 
