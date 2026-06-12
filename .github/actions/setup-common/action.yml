@@ -6,4 +6,4 @@ runs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: 6.9.*
+        version: 6.10.*
