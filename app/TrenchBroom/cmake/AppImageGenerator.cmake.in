@@ -29,7 +29,7 @@ execute_process(
       QMAKE=@TB_QMAKE_PATH@
       OUTPUT=TrenchBroom.AppImage
       LD_LIBRARY_PATH=${QT_LIBS_DIR}:$ENV{LD_LIBRARY_PATH}
-      EXTRA_PLATFORM_PLUGINS=libqwayland-egl.so\;libqwayland-generic.so
+      EXTRA_PLATFORM_PLUGINS=libqwayland.so
       EXTRA_QT_MODULES=waylandcompositor
     @TB_LINUXDEPLOY_PATH@
     --appdir=${CPACK_TEMPORARY_DIRECTORY}

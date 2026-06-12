@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      TB_LINUX_CONTAINER_IMAGE: tb-linux-ci:ubuntu20-gcc13
+      TB_LINUX_CONTAINER_IMAGE: tb-linux-ci:ubuntu22-gcc13
       TB_BUILD_TYPE: release
       TB_ARCH: default-arch
 
