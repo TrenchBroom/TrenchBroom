@@ -209,6 +209,8 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
 
 MapWindow::~MapWindow()
 {
+  disconnect(qApp, &QApplication::focusChanged, this, &MapWindow::focusChange);
+
   // Stop the autosave timer
   m_autosaveTimer->stop();
 
@@ -2584,29 +2586,23 @@ void MapWindow::changeEvent(QEvent*)
 
 void MapWindow::closeEvent(QCloseEvent* event)
 {
-  if (!closeCompileDialog())
+  if (!closeCompileDialog() || !confirmOrDiscardChanges())
   {
     event->ignore();
+    return;
   }
-  else
-  {
-    if (!confirmOrDiscardChanges())
-    {
-      event->ignore();
-    }
-    else
-    {
-      saveWidgetGeometry(this);
-      saveWidgetState(this);
-      saveWidgetState(m_hSplitter);
-      saveWidgetState(m_vSplitter);
-      saveWidgetState(m_inspector);
-      saveWidgetState(m_infoPanel);
 
-      m_appController.mapWindowManager().removeMapWindow(this);
-      event->accept();
-    }
-  }
+  disconnect(qApp, &QApplication::focusChanged, this, &MapWindow::focusChange);
+
+  saveWidgetGeometry(this);
+  saveWidgetState(this);
+  saveWidgetState(m_hSplitter);
+  saveWidgetState(m_vSplitter);
+  saveWidgetState(m_inspector);
+  saveWidgetState(m_infoPanel);
+
+  m_appController.mapWindowManager().removeMapWindow(this);
+  event->accept();
   // Don't call superclass implementation
 }
 
