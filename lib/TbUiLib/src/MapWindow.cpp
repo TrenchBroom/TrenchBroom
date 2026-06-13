@@ -209,6 +209,8 @@ MapWindow::MapWindow(AppController& appController, std::unique_ptr<MapDocument> 
 
 MapWindow::~MapWindow()
 {
+  m_isClosing = true;
+
   // Stop the autosave timer
   m_autosaveTimer->stop();
 
@@ -327,7 +329,20 @@ void MapWindow::updateShortcuts()
 
 void MapWindow::updateActionState()
 {
-  auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
+  if (m_isClosing || QCoreApplication::closingDown() || m_mapView == nullptr)
+  {
+    return;
+  }
+
+  auto* mapViewBase =
+    m_currentMapView ? m_currentMapView.data() : m_mapView->firstMapViewBase();
+  if (mapViewBase == nullptr)
+  {
+    return;
+  }
+
+  m_currentMapView = mapViewBase;
+  auto context = ActionExecutionContext{m_appController, this, mapViewBase};
   for (auto [tAction, qAction] : m_actionMap)
   {
     if (qAction == m_undoAction || qAction == m_redoAction)
@@ -2500,6 +2515,11 @@ void MapWindow::debugShowPalette()
 
 void MapWindow::focusChange(QWidget* /* oldFocus */, QWidget* newFocus)
 {
+  if (m_isClosing || QCoreApplication::closingDown())
+  {
+    return;
+  }
+
   if (auto* newMapView = dynamic_cast<MapViewBase*>(newFocus))
   {
     m_currentMapView = newMapView;
@@ -2596,6 +2616,8 @@ void MapWindow::closeEvent(QCloseEvent* event)
     }
     else
     {
+      m_isClosing = true;
+
       saveWidgetGeometry(this);
       saveWidgetState(this);
       saveWidgetState(m_hSplitter);
