@@ -50,6 +50,8 @@ struct ProcessContext
 
 class TaskResult
 {
+public:
+  virtual ~TaskResult() = default;
 };
 
 template <typename T>
