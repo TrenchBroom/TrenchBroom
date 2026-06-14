@@ -63,7 +63,7 @@ bool loadStyleSheets()
   if (auto file = QFile{pathAsQPath(path)}; file.exists())
   {
     // closed automatically by destructor
-    file.open(QFile::ReadOnly | QFile::Text);
+    contract_assert(file.open(QFile::ReadOnly | QFile::Text));
     qApp->setStyleSheet(QTextStream{&file}.readAll());
 
     return true;

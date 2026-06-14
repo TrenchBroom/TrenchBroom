@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -57,7 +57,7 @@ RUN apt-get update && apt-get install -y software-properties-common && \
       && mkdir -p /etc/apt/keyrings \
       && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc \
         | gpg --dearmor -o /etc/apt/keyrings/kitware.gpg \
-      && echo "deb [signed-by=/etc/apt/keyrings/kitware.gpg] https://apt.kitware.com/ubuntu/ focal main" \
+      && echo "deb [signed-by=/etc/apt/keyrings/kitware.gpg] https://apt.kitware.com/ubuntu/ jammy main" \
         > /etc/apt/sources.list.d/kitware.list \
       && apt-get update \
       && apt-get install -y cmake \

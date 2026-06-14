@@ -133,6 +133,8 @@ private:
   SignalDelayer* m_updateActionStateSignalDelayer = nullptr;
   SignalDelayer* m_updateStatusBarSignalDelayer = nullptr;
 
+  bool m_isClosing = false;
+
 public:
   MapWindow(AppController& appController, std::unique_ptr<MapDocument> document);
   ~MapWindow() override;
