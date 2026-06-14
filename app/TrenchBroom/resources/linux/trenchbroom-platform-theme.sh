@@ -1,4 +1,12 @@
 #!/bin/sh
 
-# Unlike Flatpak and Snap, AppImage does not make Qt select this plugin automatically.
-export QT_QPA_PLATFORMTHEME="${QT_QPA_PLATFORMTHEME:-xdgdesktopportal}"
+if [ -z "${QT_QPA_PLATFORMTHEME:-}" ]; then
+  case "${XDG_CURRENT_DESKTOP:-}" in
+    *GNOME* | *gnome* | *Unity* | *unity* | *XFCE* | *xfce*)
+      export QT_QPA_PLATFORMTHEME=gtk3
+      ;;
+    *)
+      export QT_QPA_PLATFORMTHEME=xdgdesktopportal
+      ;;
+  esac
+fi

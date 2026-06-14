@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y software-properties-common && \
       libtinyxml2-dev \
       libassimp-dev \
       libfuse2 \
+      libgtk-3-0 \
       libx11-xcb1 \
       libxcb-cursor0 \
       libxcb-icccm4 \

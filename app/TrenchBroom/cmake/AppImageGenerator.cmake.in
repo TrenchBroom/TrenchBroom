@@ -5,6 +5,54 @@ execute_process(
   COMMAND_ERROR_IS_FATAL ANY
 )
 
+execute_process(
+  COMMAND @TB_QMAKE_PATH@ -query QT_INSTALL_PLUGINS
+  OUTPUT_VARIABLE QT_PLUGINS_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  COMMAND_ERROR_IS_FATAL ANY
+)
+
+# The GTK platform theme must use the host's GTK stack to match its desktop
+# theme. Bundling these libraries would make the AppImage use the versions from
+# the build container instead.
+execute_process(
+  COMMAND
+    @CMAKE_COMMAND@ -E env
+      LD_LIBRARY_PATH=${QT_LIBS_DIR}:$ENV{LD_LIBRARY_PATH}
+      ldd "${QT_PLUGINS_DIR}/platformthemes/libqgtk3.so"
+  OUTPUT_VARIABLE QGTK3_DEPENDENCIES
+  COMMAND_ERROR_IS_FATAL ANY
+)
+string(
+  REGEX MATCH
+  "libgtk-3\\.so\\.0 => ([^ \n]+)"
+  QGTK3_GTK_LIBRARY_MATCH
+  "${QGTK3_DEPENDENCIES}"
+)
+set(GTK3_LIBRARY "${CMAKE_MATCH_1}")
+if(NOT GTK3_LIBRARY)
+  message(FATAL_ERROR "Could not resolve libgtk-3.so.0 used by Qt's GTK platform theme")
+endif()
+
+file(
+  GET_RUNTIME_DEPENDENCIES
+  LIBRARIES "${GTK3_LIBRARY}"
+  RESOLVED_DEPENDENCIES_VAR GTK3_DEPENDENCIES
+  UNRESOLVED_DEPENDENCIES_VAR GTK3_UNRESOLVED_DEPENDENCIES
+)
+if(GTK3_UNRESOLVED_DEPENDENCIES)
+  message(FATAL_ERROR "Could not resolve GTK 3 dependencies: ${GTK3_UNRESOLVED_DEPENDENCIES}")
+endif()
+
+set(GTK3_LIBRARY_NAMES "libgtk-3.so.0" "libgthread-2.0.so.0")
+foreach(GTK3_DEPENDENCY IN LISTS GTK3_DEPENDENCIES)
+  get_filename_component(GTK3_DEPENDENCY_NAME "${GTK3_DEPENDENCY}" NAME)
+  list(APPEND GTK3_LIBRARY_NAMES "${GTK3_DEPENDENCY_NAME}")
+endforeach()
+list(REMOVE_DUPLICATES GTK3_LIBRARY_NAMES)
+list(FILTER GTK3_LIBRARY_NAMES EXCLUDE REGEX "^(libatomic|libgcc_s|libstdc\\+\\+)\\.so")
+list(JOIN GTK3_LIBRARY_NAMES ";" TB_LINUXDEPLOY_EXCLUDED_LIBRARIES)
+
 # Build the AppImage: deploy the executable, Qt plugins, and shared libraries,
 # then package everything into an AppImage in one step.
 # LD_LIBRARY_PATH is set so linuxdeploy can resolve Qt shared libraries.
@@ -14,15 +62,9 @@ execute_process(
 # WaylandcompositorPluginsDeployer, which copies the wayland-shell-integration,
 # wayland-decoration-client and wayland-graphics-integration-client plugin
 # directories needed for Wayland client support.
-# DEPLOY_PLATFORM_THEMES is intentionally not set: linuxdeploy-plugin-qt will
-# still deploy libqxdgdesktopportal.so by default, allowing Qt to follow the
-# system theme via xdg-desktop-portal on modern desktops. Enabling
-# DEPLOY_PLATFORM_THEMES would bundle libqgtk3.so, which crashes on newer
-# distros because the bundled GTK3 (built against Ubuntu 20.04 GSettings
-# schemas) is incompatible with the host's schemas (e.g. the 'antialiasing'
-# key was removed from org.gnome.settings-daemon.plugins.xsettings in
-# GNOME 42+). The AppRun hook selects the bundled xdgdesktopportal theme by
-# default so Qt reads the system color scheme and accent color from the portal.
+# DEPLOY_PLATFORM_THEMES bundles the GTK 3 and xdg-desktop-portal themes. The
+# AppRun hook selects GTK 3 on GTK-based desktops and xdg-desktop-portal
+# elsewhere, while allowing users to override QT_QPA_PLATFORMTHEME.
 file(
   COPY "@TB_RESOURCE_DIR@/linux/trenchbroom-platform-theme.sh"
   DESTINATION "${CPACK_TEMPORARY_DIRECTORY}/apprun-hooks"
@@ -40,6 +82,8 @@ execute_process(
       LD_LIBRARY_PATH=${QT_LIBS_DIR}:$ENV{LD_LIBRARY_PATH}
       EXTRA_PLATFORM_PLUGINS=libqwayland.so
       EXTRA_QT_MODULES=waylandcompositor
+      DEPLOY_PLATFORM_THEMES=1
+      "LINUXDEPLOY_EXCLUDED_LIBRARIES=${TB_LINUXDEPLOY_EXCLUDED_LIBRARIES}"
     @TB_LINUXDEPLOY_PATH@
     --appdir=${CPACK_TEMPORARY_DIRECTORY}
     --desktop-file=@TB_RESOURCE_DIR@/linux/trenchbroom.desktop
