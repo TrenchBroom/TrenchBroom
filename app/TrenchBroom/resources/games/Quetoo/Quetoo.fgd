@@ -92,13 +92,6 @@
 	wait(integer) : "Number of seconds the button stays pressed (-1 = indefinitely)" : 1
 	lip(integer) : "Lip remaining at end of move" : 4
 	sounds(integer) : "The sound set for the button (0 default, -1 silent)" : 0
-	atten(choices) : "The attenuation level for button sounds" : 2 =
-	[
-		0 : "None"
-		1 : "Linear"
-		2 : "Square"
-		3 : "Cubic"
-	]
 	health(integer) : "If set, the button must be killed instead of touched to use"
 ]
 
@@ -127,13 +120,6 @@
 	lip(integer) : "The lip remaining at end of move" : 8
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
-	atten(choices) : "The attenuation level for door sounds" : 2 =
-	[
-		0 : "None"
-		1 : "Linear"
-		2 : "Square"
-		3 : "Cubic"
-	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_door_rotating : "A door which rotates about an origin on its Z axis. By default, doors open when a player walks close to them."
@@ -153,13 +139,6 @@
 	wait(integer) : "Wait before returning (-1 = never return)" : 3
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
-	atten(choices) : "The attenuation level for door sounds" : 2 =
-	[
-		0 : "None"
-		1 : "Linear"
-		2 : "Square"
-		3 : "Cubic"
-	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_door_secret : "A secret door which opens when shot, or when targeted. The door first slides back, and then to the side."
@@ -177,13 +156,6 @@
 	wait(integer) : "Wait before returning (-1 = never return)" : 3
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
-	atten(choices) : "The attenuation level for door sounds" : 2 =
-	[
-		0 : "None"
-		1 : "Linear"
-		2 : "Square"
-		3 : "Cubic"
-	]
 ]
 
 @SolidClass base(Phong) color(0 255 180) = func_group : "Groups brushes together in TrenchBroom for convenience. When the map is compiled, these entities are merged back into worldspawn." []
@@ -199,13 +171,6 @@
 	lip(integer) : "The lip remaining at end of move" : 8
 	height(integer) : "If set, this will determine the extent of the platform's movement, rather than implicitly using the platform's height"
 	sounds(integer) : "The sound set for the platform (0 default, 1 stone, -1 silent)"
-	atten(choices) : "The attenuation level for platform sounds" : 2 =
-	[
-		0 : "None"
-		1 : "Linear"
-		2 : "Square"
-		3 : "Cubic"
-	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_rotating : "Solid entity that rotates continuously. Rotates on the Z axis by default and requires an origin brush. It will always start on in the game and is not targetable."
@@ -245,13 +210,6 @@
 	dmg(integer) : "The damage inflicted on players who block the train" : 2
 	speed(integer) : "The speed with which the train moves" : 100
 	sound(string) : "The looping sound to play while the train is in motion"
-	atten(choices) : "The attenuation level for train sounds" : 2 =
-	[
-		0 : "None"
-		1 : "Linear"
-		2 : "Square"
-		3 : "Cubic"
-	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_wall : "A solid that may spawn into existence via trigger."
@@ -383,13 +341,6 @@
 
 @PointClass color(40 120 40) size(-8 -8 -8, 8 8 8) = misc_sound : "Client-side emission of ambient sounds."
 [
-	atten(choices) : "The attenuation" : 2 =
-	[
-		0 : "None"
-		1 : "Linear"
-		2 : "Exponential"
-		3 : "Cubic"
-	]
 	drift(float) : "The factor of randomized drift applied to the emission rate"
 	hz(float) : "The emission rate, in events-per-second" : "0"
 	sound(string) : "The sound name, e.g. edge/wind"
@@ -492,13 +443,6 @@
 	[
 		1 : "The sound can be toggled, and will play in loop until used" : 0
 		2 : "The sound can be toggled, and will begin playing when used" : 0
-	]
-	atten(choices) : "The attenuation" : 1 =
-	[
-		0 : "None"
-		1 : "Linear"
-		2 : "Exponential"
-		3 : "Cubic"
 	]
 	sound(string) : "The sound name, e.g. voices/haunting"
 ]
