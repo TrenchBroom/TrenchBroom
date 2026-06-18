@@ -25,6 +25,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "gl/Camera.h"
+#include "ui/KeyboardShortcutUtils.h"
 
 #include "vm/vec.h"
 
@@ -49,9 +50,7 @@ bool eventMatchesShortcut(const QKeySequence& shortcut, QKeyEvent* event)
 
   // NOTE: For triggering fly mode we only support single keys.
   // e.g. you can't bind Shift+W to fly forward, only Shift or W.
-  const auto ourKey = shortcut[0].key();
-  const auto theirKey = event->key();
-  return ourKey == theirKey;
+  return eventMatchesPhysicalKey(*event, shortcut);
 }
 
 } // namespace

@@ -19,24 +19,30 @@
 
 #include "ui/MapWindow.h"
 
+#include <QAbstractSpinBox>
 #include <QApplication>
 #include <QChildEvent>
 #include <QClipboard>
 #include <QComboBox>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QKeyEvent>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSettings>
 #include <QStatusBar>
 #include <QString>
 #include <QStringList>
 #include <QTableWidget>
+#include <QTextEdit>
 #include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QWidget>
 #include <QtGlobal>
 
 #include "PreferenceManager.h"
@@ -88,6 +94,7 @@
 #include "ui/FaceTool.h"
 #include "ui/InfoPanel.h"
 #include "ui/Inspector.h"
+#include "ui/KeyboardShortcutUtils.h"
 #include "ui/LaunchGameEngineDialog.h"
 #include "ui/MapDocument.h"
 #include "ui/MapView2D.h"
@@ -152,6 +159,34 @@ bool widgetOrChildHasFocus(const QWidget* widget)
 
   const auto* focusWidget = QApplication::focusWidget();
   return widget == focusWidget || widget->isAncestorOf(focusWidget);
+}
+
+bool hasCommandLikeShortcutModifier(const QKeyEvent& event)
+{
+  return (event.modifiers() & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier))
+         != 0;
+}
+
+bool isTextInputWidget(const QWidget* widget)
+{
+  for (auto* current = widget; current != nullptr; current = current->parentWidget())
+  {
+    if (
+      dynamic_cast<const QLineEdit*>(current) || dynamic_cast<const QTextEdit*>(current)
+      || dynamic_cast<const QPlainTextEdit*>(current)
+      || dynamic_cast<const QAbstractSpinBox*>(current)
+      || dynamic_cast<const QComboBox*>(current))
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool textInputWidgetHasFocus()
+{
+  return isTextInputWidget(QApplication::focusWidget());
 }
 
 QString lastCompilationProfileSettingsKey(const std::string& gameName)
@@ -379,6 +414,62 @@ void MapWindow::updateUndoRedoActions()
       m_redoAction->setEnabled(false);
     }
   }
+}
+
+bool MapWindow::tryTriggerShortcut(QKeyEvent* event)
+{
+  if (!shouldUsePhysicalShortcutFallback(*event))
+  {
+    return false;
+  }
+
+  // Qt's native shortcut system only triggers on the initial key press, not on
+  // auto-repeat. Skip auto-repeats so the fallback behaves the same way.
+  if (event->isAutoRepeat())
+  {
+    return false;
+  }
+
+  // The fallback runs from the window event filter before focused child widgets
+  // process the key event, so keep plain text input from triggering single-key actions.
+  if (!hasCommandLikeShortcutModifier(*event) && textInputWidgetHasFocus())
+  {
+    return false;
+  }
+
+  auto context = ActionExecutionContext{m_appController, this, currentMapViewBase()};
+
+  const auto match = findFallbackAction(*event, context, m_actionMap | std::views::keys);
+
+  return std::visit(
+    kdl::overload(
+      [&](const NoFallbackActionMatch&) { return false; },
+      [&](const UniqueFallbackActionMatch& m) {
+        // Find the corresponding QAction and trigger it so the toolbar updates.
+        if (const auto it = m_actionMap.find(&m.action); it != m_actionMap.end())
+        {
+          it->second->trigger();
+        }
+        else
+        {
+          m.action.execute(context);
+        }
+        event->accept();
+        return true;
+      },
+      [&](const AmbiguousFallbackActionMatch& m) {
+        if (const auto it = m_actionMap.find(&m.action); it != m_actionMap.end())
+        {
+          it->second->trigger();
+        }
+        else
+        {
+          m.action.execute(context);
+        }
+        event->accept();
+        return true;
+      }),
+    match);
 }
 
 void MapWindow::addRecentDocumentsMenu()
@@ -2447,9 +2538,7 @@ static void debugSegfault()
 void MapWindow::debugCrash()
 {
   auto items = QStringList{};
-  items << "Null pointer dereference"
-        << "Unhandled exception"
-        << "Contract failed";
+  items << "Null pointer dereference" << "Unhandled exception" << "Contract failed";
 
   bool ok;
   const auto item =
@@ -2629,6 +2718,12 @@ bool MapWindow::eventFilter(QObject* target, QEvent* event)
     || event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
   {
     m_lastInputTime = std::chrono::system_clock::now();
+    if (
+      event->type() == QEvent::KeyPress
+      && tryTriggerShortcut(static_cast<QKeyEvent*>(event)))
+    {
+      return true;
+    }
   }
   else if (event->type() == QEvent::ChildAdded)
   {

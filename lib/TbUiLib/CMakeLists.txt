@@ -117,6 +117,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardPreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutItemDelegate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutModel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Lasso.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LaunchGameEngine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LaunchGameEngineDialog.cpp
@@ -346,6 +347,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardPreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutItemDelegate.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutModel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Lasso.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LaunchGameEngine.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LaunchGameEngineDialog.h

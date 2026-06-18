@@ -31,6 +31,7 @@
 #include <vector>
 
 class QMenu;
+class QKeyEvent;
 class QShortcut;
 class QString;
 class QAction;
@@ -164,6 +165,7 @@ private: // shortcut setup
   void updateActionBindings();
   void updateActionStates();
   void updateActionStatesDelayed();
+  bool tryTriggerShortcut(QKeyEvent* event);
 
 public:
   void triggerAction(const Action& action);

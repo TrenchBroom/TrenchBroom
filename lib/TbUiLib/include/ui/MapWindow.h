@@ -36,6 +36,7 @@
 class QAction;
 class QComboBox;
 class QDropEvent;
+class QKeyEvent;
 class QMenuBar;
 class QLabel;
 class QSplitter;
@@ -155,6 +156,7 @@ private: // menu bar
   void updateActionState();
   void updateActionStateDelayed();
   void updateUndoRedoActions();
+  bool tryTriggerShortcut(QKeyEvent* event);
 
   void addRecentDocumentsMenu();
   void removeRecentDocumentsMenu();
