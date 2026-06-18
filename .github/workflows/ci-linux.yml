@@ -28,17 +28,17 @@ jobs:
       - name: Setup shared CI environment
         uses: ./.github/actions/setup-shared-env
 
-      - name: Linux - Restore ccache
+      - name: Restore ccache
         uses: ./.github/actions/ccache-restore
         with:
           os: ubuntu-24.04
           build-type: ${{ env.TB_BUILD_TYPE }}
           arch: ${{ env.TB_ARCH }}
 
-      - name: Linux - Build container image
+      - name: Build container image
         run: docker build -f docker/Dockerfile.build-linux -t "${{ env.TB_LINUX_CONTAINER_IMAGE }}" .
 
-      - name: Linux - Initialize ccache
+      - name: Initialize ccache
         run: |
           docker run --rm \
             --user runner \
@@ -51,7 +51,7 @@ jobs:
             "${{ env.TB_LINUX_CONTAINER_IMAGE }}" \
             bash -lc 'mkdir -p "${CCACHE_DIR}" && ccache --set-config=max_size=1G && ccache --zero-stats'
 
-      - name: Linux - Build in container
+      - name: Build in container
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -81,7 +81,7 @@ jobs:
               ./CI-linux.sh
             '
 
-      - name: Linux - ccache stats
+      - name: ccache stats
         run: |
           docker run --rm \
             --user runner \
@@ -91,7 +91,7 @@ jobs:
             "${{ env.TB_LINUX_CONTAINER_IMAGE }}" \
             ccache --show-stats
 
-      - name: Linux - Save ccache
+      - name: Save ccache
         if: ${{ success() && github.ref == 'refs/heads/master' }}
         uses: ./.github/actions/ccache-save
         with:
@@ -99,7 +99,7 @@ jobs:
           build-type: ${{ env.TB_BUILD_TYPE }}
           arch: ${{ env.TB_ARCH }}
 
-      - name: Linux - Upload artifacts
+      - name: Upload artifacts
         uses: ./.github/actions/upload-artifacts
         with:
           name: ubuntu-24.04

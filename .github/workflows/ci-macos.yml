@@ -37,14 +37,14 @@ jobs:
       - name: Setup shared CI environment
         uses: ./.github/actions/setup-shared-env
 
-      - name: macOS - Switch to Xcode 26
+      - name: Switch to Xcode 26
         run: sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
 
-      - name: macOS - Bootstrap vcpkg
+      - name: Bootstrap vcpkg
         shell: bash
         run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
 
-      - name: macOS - Set up signing environment
+      - name: Set up signing environment
         run: |
           if [[ "${{ matrix.tb-build-type }}" == "sanitize" ]]; then
             echo "TB_ENABLE_ASAN=1" >> $GITHUB_ENV
@@ -71,30 +71,30 @@ jobs:
             echo "TB_SIGN_MAC_BUNDLE=false" >> $GITHUB_ENV
           fi
 
-      - name: macOS - Install dependencies
+      - name: Install dependencies
         run: brew install p7zip pandoc ninja autoconf automake mono ccache
 
-      - name: macOS - Import signing certificates
+      - name: Import signing certificates
         if: ${{ env.TB_SIGN_MAC_BUNDLE == 'true' }}
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}
           p12-password: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}
 
-      - name: macOS - Restore ccache
+      - name: Restore ccache
         uses: ./.github/actions/ccache-restore
         with:
           os: ${{ matrix.os }}
           build-type: ${{ matrix.tb-build-type }}
           arch: ${{ matrix.tb-arch }}
 
-      - name: macOS - Initialize ccache
+      - name: Initialize ccache
         run: |
           mkdir -p "$CCACHE_DIR"
           ccache --set-config=max_size=1G
           ccache --zero-stats
 
-      - name: macOS - Add NuGet sources
+      - name: Add NuGet sources
         shell: bash
         run: |
           mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
@@ -108,13 +108,13 @@ jobs:
             setapikey "${{ secrets.GITHUB_TOKEN }}" \
             -Source "${{ env.FEED_URL }}"
 
-      - name: macOS - Build
+      - name: Build
         run: ./CI-macos.sh
 
-      - name: macOS - ccache stats
+      - name: ccache stats
         run: ccache --show-stats
 
-      - name: macOS - Save ccache
+      - name: Save ccache
         if: ${{ success() && github.ref == 'refs/heads/master' }}
         uses: ./.github/actions/ccache-save
         with:
@@ -122,7 +122,7 @@ jobs:
           build-type: ${{ matrix.tb-build-type }}
           arch: ${{ matrix.tb-arch }}
 
-      - name: macOS - Upload artifacts
+      - name: Upload artifacts
         uses: ./.github/actions/upload-artifacts
         if: ${{ matrix.tb-build-type != 'sanitize' }}
         with:

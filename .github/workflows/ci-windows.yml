@@ -27,11 +27,11 @@ jobs:
       - name: Setup shared CI environment
         uses: ./.github/actions/setup-shared-env
 
-      - name: Windows - Bootstrap vcpkg
+      - name: Bootstrap vcpkg
         shell: pwsh
         run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
 
-      - name: Windows - Install dependencies
+      - name: Install dependencies
         shell: pwsh
         run: |
           choco install ccache pandoc --yes --no-progress
@@ -44,21 +44,21 @@ jobs:
           Get-Command ccache -ErrorAction Stop | Out-Null
           Get-Command pandoc -ErrorAction Stop | Out-Null
 
-      - name: Windows - Restore ccache
+      - name: Restore ccache
         uses: ./.github/actions/ccache-restore
         with:
           os: windows-2022
           build-type: ${{ env.TB_BUILD_TYPE }}
           arch: ${{ env.TB_ARCH }}
 
-      - name: Windows - Initialize ccache
+      - name: Initialize ccache
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path "$env:CCACHE_DIR" -Force | Out-Null
           ccache --set-config=max_size=1G
           ccache --zero-stats
 
-      - name: Windows - Add NuGet sources
+      - name: Add NuGet sources
         shell: pwsh
         run: |
           .$(${{ env.VCPKG_EXE }} fetch nuget) `
@@ -72,15 +72,15 @@ jobs:
             setapikey "${{ secrets.GITHUB_TOKEN }}" `
             -Source "${{ env.FEED_URL }}"
 
-      - name: Windows - Build
+      - name: Build
         run: cmd.exe /c CI-windows.bat
 
-      - name: Windows - ccache stats
+      - name: ccache stats
         if: ${{ always() }}
         shell: pwsh
         run: ccache --show-stats
 
-      - name: Windows - Save ccache
+      - name: Save ccache
         if: ${{ success() && github.ref == 'refs/heads/master' }}
         uses: ./.github/actions/ccache-save
         with:
@@ -88,7 +88,7 @@ jobs:
           build-type: ${{ env.TB_BUILD_TYPE }}
           arch: ${{ env.TB_ARCH }}
 
-      - name: Windows - Upload artifacts
+      - name: Upload artifacts
         uses: ./.github/actions/upload-artifacts
         with:
           name: windows-2022
