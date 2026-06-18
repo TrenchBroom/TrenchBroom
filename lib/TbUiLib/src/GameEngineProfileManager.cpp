@@ -113,7 +113,7 @@ void GameEngineProfileManager::addProfile()
 
 void GameEngineProfileManager::removeProfile()
 {
-  const auto index = m_profileList->currentRow();
+  const auto index = m_profileList->selectedRow();
   if (index < 0)
   {
     return;

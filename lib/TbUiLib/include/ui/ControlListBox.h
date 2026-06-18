@@ -94,6 +94,7 @@ public:
 
   int count() const;
   int currentRow() const;
+  int selectedRow() const;
   void setCurrentRow(int currentRow);
 
 protected:

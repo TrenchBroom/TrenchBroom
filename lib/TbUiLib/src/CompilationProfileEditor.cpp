@@ -240,7 +240,7 @@ void CompilationProfileEditor::addTask()
 
   if (task)
   {
-    const auto index = m_taskList->currentRow();
+    const auto index = m_taskList->selectedRow();
     if (index < 0)
     {
       m_profile->tasks.push_back(std::move(*task));
@@ -260,7 +260,7 @@ void CompilationProfileEditor::addTask()
 
 void CompilationProfileEditor::removeTask()
 {
-  removeTask(m_taskList->currentRow());
+  removeTask(m_taskList->selectedRow());
 }
 
 void CompilationProfileEditor::removeTask(const int index)
@@ -289,7 +289,7 @@ void CompilationProfileEditor::duplicateTask(const int index)
 
 void CompilationProfileEditor::moveTaskUp()
 {
-  moveTaskUp(m_taskList->currentRow());
+  moveTaskUp(m_taskList->selectedRow());
 }
 
 void CompilationProfileEditor::moveTaskUp(const int index)
@@ -305,7 +305,7 @@ void CompilationProfileEditor::moveTaskUp(const int index)
 
 void CompilationProfileEditor::moveTaskDown()
 {
-  moveTaskDown(m_taskList->currentRow());
+  moveTaskDown(m_taskList->selectedRow());
 }
 
 void CompilationProfileEditor::moveTaskDown(const int index)
@@ -346,11 +346,12 @@ void CompilationProfileEditor::refresh()
     }
   }
   m_addTaskButton->setEnabled(m_profile);
-  m_removeTaskButton->setEnabled(m_profile && m_taskList->currentRow() >= 0);
-  m_moveTaskUpButton->setEnabled(m_profile && m_taskList->currentRow() > 0);
+  const auto selectedTask = m_taskList->selectedRow();
+  m_removeTaskButton->setEnabled(m_profile && selectedTask >= 0);
+  m_moveTaskUpButton->setEnabled(m_profile && selectedTask > 0);
   m_moveTaskDownButton->setEnabled(
-    m_profile && m_taskList->currentRow() >= 0
-    && m_taskList->currentRow() < static_cast<int>(m_profile->tasks.size()) - 1);
+    m_profile && selectedTask >= 0
+    && selectedTask < static_cast<int>(m_profile->tasks.size()) - 1);
 }
 
 } // namespace tb::ui

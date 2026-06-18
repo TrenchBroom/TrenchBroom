@@ -75,7 +75,7 @@ const mdl::GameInfo* GameListBox::selectedGameInfo() const
   const auto& gameManager = m_appController.gameManager();
   const auto& gameInfos = gameManager.gameInfos();
 
-  const auto index = currentRow();
+  const auto index = selectedRow();
   return index >= 0 && index < static_cast<int>(gameInfos.size())
            ? &gameInfos[static_cast<size_t>(index)]
            : nullptr;

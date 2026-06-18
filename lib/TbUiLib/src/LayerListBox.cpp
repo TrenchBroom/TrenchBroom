@@ -176,7 +176,7 @@ LayerListBox::LayerListBox(MapDocument& document, QWidget* parent)
 
 mdl::LayerNode* LayerListBox::selectedLayer() const
 {
-  return layerForRow(currentRow());
+  return layerForRow(selectedRow());
 }
 
 void LayerListBox::setSelectedLayer(mdl::LayerNode* layer)
@@ -194,14 +194,14 @@ void LayerListBox::setSelectedLayer(mdl::LayerNode* layer)
 
 void LayerListBox::updateSelectionForRemoval()
 {
-  const auto currentRow = this->currentRow();
-  if (currentRow < count() - 1)
+  const auto selectedRow = this->selectedRow();
+  if (selectedRow < count() - 1)
   {
-    setCurrentRow(currentRow + 1);
+    setCurrentRow(selectedRow + 1);
   }
-  else if (currentRow > 0)
+  else if (selectedRow > 0)
   {
-    setCurrentRow(currentRow - 1);
+    setCurrentRow(selectedRow - 1);
   }
   else
   {

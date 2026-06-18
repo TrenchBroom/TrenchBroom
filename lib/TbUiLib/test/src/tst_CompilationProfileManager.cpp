@@ -165,9 +165,10 @@ TEST_CASE("CompilationProfileManager")
     REQUIRE(removeButton != nullptr);
     REQUIRE(removeButton->isEnabled());
 
-    listWidget->setCurrentRow(-1);
+    listWidget->clearSelection();
     QApplication::processEvents();
 
+    CHECK(listWidget->selectedItems().empty());
     CHECK(manager->selectedProfile() == nullptr);
     CHECK_FALSE(removeButton->isEnabled());
   }
