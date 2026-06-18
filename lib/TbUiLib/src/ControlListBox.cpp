@@ -29,6 +29,9 @@
 #include "ui/QStyleUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/optional_utils.h"
+#include "kd/range_utils.h"
+
 namespace tb::ui
 {
 // ControlListBoxItemRenderer
@@ -249,6 +252,17 @@ int ControlListBox::count() const
 int ControlListBox::currentRow() const
 {
   return m_listWidget->currentRow();
+}
+
+int ControlListBox::selectedRow() const
+{
+  auto items = std::views::iota(0, count()) | std::views::transform([&](const auto i) {
+                 return m_listWidget->item(i);
+               });
+
+  return kdl::index_of(items, [](const auto& item) { return item->isSelected(); })
+         | kdl::optional_transform([](const auto i) { return int(i); })
+         | kdl::optional_value_or(-1);
 }
 
 void ControlListBox::setCurrentRow(const int currentRow)

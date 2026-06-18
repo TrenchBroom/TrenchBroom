@@ -90,8 +90,9 @@ GameEngineProfileListBox::GameEngineProfileListBox(
 
 mdl::GameEngineProfile* GameEngineProfileListBox::selectedProfile()
 {
-  return (currentRow() >= 0 && size_t(currentRow()) < m_config->profiles.size())
-           ? &m_config->profiles[size_t(currentRow())]
+  const auto index = selectedRow();
+  return (index >= 0 && size_t(index) < m_config->profiles.size())
+           ? &m_config->profiles[size_t(index)]
            : nullptr;
 }
 

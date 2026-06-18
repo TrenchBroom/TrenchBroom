@@ -115,7 +115,7 @@ CompilationProfileManager::CompilationProfileManager(
 
 const mdl::CompilationProfile* CompilationProfileManager::selectedProfile() const
 {
-  const auto index = m_profileList->currentRow();
+  const auto index = m_profileList->selectedRow();
   return index >= 0 ? &m_config.profiles[size_t(index)] : nullptr;
 }
 
@@ -152,7 +152,7 @@ void CompilationProfileManager::addProfile()
 
 void CompilationProfileManager::removeProfile()
 {
-  const auto index = m_profileList->currentRow();
+  const auto index = m_profileList->selectedRow();
   contract_assert(index >= 0);
 
   removeProfile(static_cast<size_t>(index));
@@ -193,7 +193,7 @@ void CompilationProfileManager::profileContextMenuRequested(
 
 void CompilationProfileManager::profileSelectionChanged()
 {
-  const auto selection = m_profileList->currentRow();
+  const auto selection = m_profileList->selectedRow();
   if (selection >= 0)
   {
     auto& profile = m_config.profiles[size_t(selection)];
