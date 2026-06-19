@@ -40,7 +40,7 @@
 namespace tb::ui
 {
 
-KeyboardShortcutModel::ActionInfo::ActionInfo(
+ActionInfo::ActionInfo(
   const ActionInfoType type, std::filesystem::path displayPath, Action& action)
   : m_type{type}
   , m_displayPath{std::move(displayPath)}
@@ -48,23 +48,22 @@ KeyboardShortcutModel::ActionInfo::ActionInfo(
 {
 }
 
-const std::filesystem::path& KeyboardShortcutModel::ActionInfo::displayPath() const
+const std::filesystem::path& ActionInfo::displayPath() const
 {
   return m_displayPath;
 }
 
-const Action& KeyboardShortcutModel::ActionInfo::action() const
+const Action& ActionInfo::action() const
 {
   return *m_action;
 }
 
-Action& KeyboardShortcutModel::ActionInfo::action()
+Action& ActionInfo::action()
 {
   return KDL_CONST_OVERLOAD(action());
 }
 
-std::strong_ordering KeyboardShortcutModel::ActionInfo::operator<=>(
-  const ActionInfo& other) const
+std::strong_ordering ActionInfo::operator<=>(const ActionInfo& other) const
 {
   const auto typeResult = m_type <=> other.m_type;
   if (typeResult != std::strong_ordering::equal || m_type == ActionInfoType::Menu)
@@ -75,7 +74,7 @@ std::strong_ordering KeyboardShortcutModel::ActionInfo::operator<=>(
   return m_displayPath <=> other.m_displayPath;
 }
 
-bool KeyboardShortcutModel::ActionInfo::operator==(const ActionInfo& other) const
+bool ActionInfo::operator==(const ActionInfo& other) const
 {
   return m_type == other.m_type && m_displayPath == other.m_displayPath;
 }
@@ -275,8 +274,7 @@ void KeyboardShortcutModel::updateConflicts()
   }
 }
 
-const KeyboardShortcutModel::ActionInfo& KeyboardShortcutModel::actionInfo(
-  const int index) const
+const ActionInfo& KeyboardShortcutModel::actionInfo(const int index) const
 {
   contract_pre(index < totalActionCount());
 
