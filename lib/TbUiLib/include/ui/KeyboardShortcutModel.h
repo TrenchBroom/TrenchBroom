@@ -21,47 +21,16 @@
 
 #include <QAbstractTableModel>
 
-#include <filesystem>
+#include "ui/ActionInfo.h"
+
 #include <vector>
 
 class QObject;
 
 namespace tb::ui
 {
-class Action;
 class ActionManager;
 class MapDocument;
-
-enum class ActionInfoType
-{
-  Menu,
-  View,
-  Tag,
-  EntityDefinition,
-};
-
-class ActionInfo
-{
-private:
-  ActionInfoType m_type;
-
-  /**
-   * Path displayed to the user, unrelated to the preference path.
-   */
-  std::filesystem::path m_displayPath;
-  Action* m_action;
-
-public:
-  ActionInfo(ActionInfoType type, std::filesystem::path displayPath, Action& action);
-
-  const std::filesystem::path& displayPath() const;
-
-  const Action& action() const;
-  Action& action();
-
-  std::strong_ordering operator<=>(const ActionInfo& other) const;
-  bool operator==(const ActionInfo& other) const;
-};
 
 class KeyboardShortcutModel : public QAbstractTableModel
 {

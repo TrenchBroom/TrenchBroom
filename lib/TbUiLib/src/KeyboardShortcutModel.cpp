@@ -29,55 +29,12 @@
 #include "ui/MapDocument.h"
 #include "ui/QPathUtils.h"
 
-#include "kd/const_overload.h"
 #include "kd/contracts.h"
-#include "kd/ranges/to.h"
 #include "kd/set_adapter.h"
 #include "kd/vector_utils.h"
 
-#include <ranges>
-
 namespace tb::ui
 {
-
-ActionInfo::ActionInfo(
-  const ActionInfoType type, std::filesystem::path displayPath, Action& action)
-  : m_type{type}
-  , m_displayPath{std::move(displayPath)}
-  , m_action{&action}
-{
-}
-
-const std::filesystem::path& ActionInfo::displayPath() const
-{
-  return m_displayPath;
-}
-
-const Action& ActionInfo::action() const
-{
-  return *m_action;
-}
-
-Action& ActionInfo::action()
-{
-  return KDL_CONST_OVERLOAD(action());
-}
-
-std::strong_ordering ActionInfo::operator<=>(const ActionInfo& other) const
-{
-  const auto typeResult = m_type <=> other.m_type;
-  if (typeResult != std::strong_ordering::equal || m_type == ActionInfoType::Menu)
-  {
-    return typeResult;
-  }
-
-  return m_displayPath <=> other.m_displayPath;
-}
-
-bool ActionInfo::operator==(const ActionInfo& other) const
-{
-  return m_type == other.m_type && m_displayPath == other.m_displayPath;
-}
 
 KeyboardShortcutModel::KeyboardShortcutModel(
   ActionManager& actionManager, MapDocument* document, QObject* parent)
@@ -135,12 +92,11 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     if (index.column() == 0)
     {
       auto& prefs = PreferenceManager::instance();
-      return prefs.getPendingValue(actionInfo.action().preference());
+      return prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
     }
     if (index.column() == 1)
     {
-      return QString::fromStdString(
-        actionContextName(actionInfo.action().actionContext()));
+      return QString::fromStdString(actionContextName(actionInfo.actionContext()));
     }
     return QString::fromStdString(actionInfo.displayPath().generic_string());
   }
@@ -163,7 +119,7 @@ bool KeyboardShortcutModel::setData(
 
   // We take a copy here on purpose in order to set the key further below.
   auto& actionInfo = this->actionInfo(index.row());
-  prefs.set(actionInfo.action().preference(), value.value<QKeySequence>());
+  prefs.set(actionInfo.keyboardShortcutPreference(), value.value<QKeySequence>());
 
   updateConflicts();
 
@@ -220,7 +176,8 @@ void KeyboardShortcutModel::initializeMenuActions()
       m_actions.emplace_back(
         ActionInfoType::Menu,
         currentPath / pathFromQString(actionItem.action.label()),
-        actionItem.action);
+        actionItem.action.actionContext(),
+        actionItem.action.preference());
     },
     [&](const auto& thisLambda, const Menu& menu) {
       currentPath = currentPath / menu.name;
@@ -233,7 +190,10 @@ void KeyboardShortcutModel::initializeViewActions()
 {
   m_actionManager.visitMapViewActions([&](Action& action) {
     m_actions.emplace_back(
-      ActionInfoType::View, "Map View" / pathFromQString(action.label()), action);
+      ActionInfoType::View,
+      "Map View" / pathFromQString(action.label()),
+      action.actionContext(),
+      action.preference());
   });
 }
 
@@ -243,7 +203,10 @@ void KeyboardShortcutModel::initializeTagActions()
 
   m_document->visitTagActions(m_actionManager, [&](Action& action) {
     m_actions.emplace_back(
-      ActionInfoType::Tag, "Tags" / pathFromQString(action.label()), action);
+      ActionInfoType::Tag,
+      "Tags" / pathFromQString(action.label()),
+      action.actionContext(),
+      action.preference());
   });
 }
 
@@ -255,18 +218,14 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
     m_actions.emplace_back(
       ActionInfoType::EntityDefinition,
       "Entity Definitions" / pathFromQString(action.label()),
-      action);
+      action.actionContext(),
+      action.preference());
   });
 }
 
 void KeyboardShortcutModel::updateConflicts()
 {
-  const auto allActions = m_actions | std::views::transform([](const auto& actionInfo) {
-                            return const_cast<const Action*>(&actionInfo.action());
-                          })
-                          | kdl::ranges::to<std::vector>();
-
-  m_conflicts = kdl::vec_static_cast<int>(findConflicts(allActions));
+  m_conflicts = kdl::vec_static_cast<int>(findConflicts(m_actions));
   for (const auto& row : m_conflicts)
   {
     const auto index = createIndex(row, 0);
