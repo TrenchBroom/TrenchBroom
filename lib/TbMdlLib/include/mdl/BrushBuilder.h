@@ -101,6 +101,21 @@ public:
     vm::axis::type axis,
     const std::string& textureName) const;
 
+  /**
+   * Creates a semicircular arch as a band of voussoir (wedge) brushes. The arch is the
+   * upper half of a hollow cylinder: its flat springing line sits on the bottom of the
+   * bounds and it rises to fill them. `axis` is the tunnel (extrusion) direction; the
+   * arch rises along the more vertical of the two remaining axes. `thickness` is the wall
+   * thickness of the band. The circle shape selects the same modes as the cylinder
+   * shapes.
+   */
+  Result<std::vector<Brush>> createArch(
+    const vm::bbox3d& bounds,
+    double thickness,
+    const CircleShape& circleShape,
+    vm::axis::type axis,
+    const std::string& textureName) const;
+
   Result<Brush> createCone(
     const vm::bbox3d& bounds,
     const CircleShape& circleShape,

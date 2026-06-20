@@ -282,6 +282,208 @@ TEST_CASE("BrushBuilder")
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
+
+  SECTION("createArch")
+  {
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+    SECTION("Arch with different circle modes")
+    {
+      const auto bounds = vm::bbox3d{{-128, -64, 0}, {128, 64, 64}};
+
+      SECTION("Edge aligned")
+      {
+        builder.createArch(bounds, 16.0, EdgeAlignedCircle{16}, vm::axis::y, "someName")
+          | kdl::transform([&](const auto& brushes) {
+              REQUIRE(brushes.size() == 9u);
+              CHECK(getMergedBounds(brushes) == bounds);
+
+              // Check only one brush to avoid clutter.
+              const auto expectedBrush = makeBrush({
+                {{112, -64, 6.9638421181958083},
+                 {112, 64, 0},
+                 {112, 64, 6.9638421181958083}},
+                {{128, 64, 12.730391512298111},
+                 {112, -64, 6.9638421181958083},
+                 {112, 64, 6.9638421181958083}},
+                {{128, -64, 12.730391512298111},
+                 {112, -64, 0},
+                 {112, -64, 6.9638421181958083}},
+                {{128, 64, 0}, {112, -64, 0}, {128, -64, 0}},
+                {{128, 64, 12.730391512298111}, {112, 64, 0}, {128, 64, 0}},
+                {{128, 64, 12.730391512298111},
+                 {128, -64, 0},
+                 {128, -64, 12.730391512298111}},
+              });
+
+              CHECK_THAT(
+                brushes, Contains(MatchesBrushVertices(expectedBrush, vertexEpsilon)));
+            })
+          | kdl::transform_error([](const auto& e) { FAIL(e); });
+      }
+
+      SECTION("Vertex aligned")
+      {
+        builder.createArch(bounds, 16.0, VertexAlignedCircle{16}, vm::axis::y, "someName")
+          | kdl::transform([&](const auto& brushes) {
+              REQUIRE(brushes.size() == 8u);
+              CHECK(getMergedBounds(brushes) == bounds);
+
+              // Check only one brush to avoid clutter.
+              const auto expectedBrush = makeBrush({
+                {{105.05776674599576, 64, 14.384730312563047},
+                 {110.78036826717545, -64, 0},
+                 {110.78036826717545, 64, 0}},
+                {{118.2565801614447, 64, 24.491739671365746},
+                 {105.05776674599576, -64, 14.384730312563047},
+                 {105.05776674599576, 64, 14.384730312563047}},
+                {{128, -64, 0},
+                 {105.05776674599576, -64, 14.384730312563047},
+                 {118.2565801614447, -64, 24.491739671365746}},
+                {{128, 64, 0}, {110.78036826717545, -64, 0}, {128, -64, 0}},
+                {{128, 64, 0},
+                 {105.05776674599576, 64, 14.384730312563047},
+                 {110.78036826717545, 64, 0}},
+                {{128, 64, 0},
+                 {118.2565801614447, -64, 24.491739671365746},
+                 {118.2565801614447, 64, 24.491739671365746}},
+              });
+
+              CHECK_THAT(
+                brushes, Contains(MatchesBrushVertices(expectedBrush, vertexEpsilon)));
+            })
+          | kdl::transform_error([](const auto& e) { FAIL(e); });
+      }
+
+      SECTION("Scalable")
+      {
+        builder.createArch(bounds, 16.0, ScalableCircle{0}, vm::axis::y, "someName")
+          | kdl::transform([&](const auto& brushes) {
+              REQUIRE(brushes.size() == 7u);
+              CHECK(getMergedBounds(brushes) == bounds);
+
+              // Check only one brush to avoid clutter.
+              const auto expectedBrush = makeBrush({
+                {{112, -64, 12}, {112, 64, 0}, {112, 64, 12}},
+                {{128, 64, 16}, {112, -64, 12}, {112, 64, 12}},
+                {{128, -64, 16}, {112, -64, 0}, {112, -64, 12}},
+                {{128, 64, 0}, {112, -64, 0}, {128, -64, 0}},
+                {{128, 64, 16}, {112, 64, 0}, {128, 64, 0}},
+                {{128, 64, 16}, {128, -64, 0}, {128, -64, 16}},
+              });
+
+              CHECK(std::ranges::find(brushes, expectedBrush) != brushes.end());
+            })
+          | kdl::transform_error([](const auto& e) { FAIL(e); });
+      }
+    }
+
+    SECTION("Arch with different tunnel axes")
+    {
+      SECTION("X axis")
+      {
+        const auto bounds = vm::bbox3d{{-64, -128, 0}, {64, 128, 64}};
+        builder.createArch(bounds, 16.0, EdgeAlignedCircle{8}, vm::axis::x, "someName")
+          | kdl::transform([&](const auto& brushes) {
+              REQUIRE(brushes.size() == 5u);
+              CHECK(getMergedBounds(brushes) == bounds);
+
+              // Check only one brush to avoid clutter.
+              const auto expectedBrush = makeBrush({
+                {{-64, 112, 16.621124171879767},
+                 {-64, 128, 0},
+                 {-64, 128, 26.509667991878086}},
+                {{64, 112, 16.621124171879767},
+                 {-64, 112, 0},
+                 {-64, 112, 16.621124171879767}},
+                {{64, 128, 26.509667991878086},
+                 {-64, 112, 16.621124171879767},
+                 {-64, 128, 26.509667991878086}},
+                {{64, 128, 0}, {-64, 112, 0}, {64, 112, 0}},
+                {{64, 128, 26.509667991878086}, {-64, 128, 0}, {64, 128, 0}},
+                {{64, 128, 26.509667991878086},
+                 {64, 112, 0},
+                 {64, 112, 16.621124171879767}},
+              });
+
+              CHECK_THAT(
+                brushes, Contains(MatchesBrushVertices(expectedBrush, vertexEpsilon)));
+            })
+          | kdl::transform_error([](const auto& e) { FAIL(e); });
+      }
+
+      SECTION("Y axis")
+      {
+        const auto bounds = vm::bbox3d{{-128, -64, 0}, {128, 64, 64}};
+        builder.createArch(bounds, 16.0, EdgeAlignedCircle{8}, vm::axis::y, "someName")
+          | kdl::transform([&](const auto& brushes) {
+              REQUIRE(brushes.size() == 5u);
+              CHECK(getMergedBounds(brushes) == bounds);
+
+              // Check only one brush to avoid clutter.
+              const auto expectedBrush = makeBrush({
+                {{112, -64, 16.621124171879767},
+                 {112, 64, 0},
+                 {112, 64, 16.621124171879767}},
+                {{128, 64, 26.509667991878086},
+                 {112, -64, 16.621124171879767},
+                 {112, 64, 16.621124171879767}},
+                {{128, -64, 26.509667991878086},
+                 {112, -64, 0},
+                 {112, -64, 16.621124171879767}},
+                {{128, 64, 0}, {112, -64, 0}, {128, -64, 0}},
+                {{128, 64, 26.509667991878086}, {112, 64, 0}, {128, 64, 0}},
+                {{128, 64, 26.509667991878086},
+                 {128, -64, 0},
+                 {128, -64, 26.509667991878086}},
+              });
+
+              CHECK_THAT(
+                brushes, Contains(MatchesBrushVertices(expectedBrush, vertexEpsilon)));
+            })
+          | kdl::transform_error([](const auto& e) { FAIL(e); });
+      }
+    }
+
+    SECTION("Degenerate bounds do not error")
+    {
+      SECTION("Zero height")
+      {
+        CHECK(
+          builder.createArch(
+            vm::bbox3d{{-128, -64, 0}, {128, 64, 0}},
+            16.0,
+            EdgeAlignedCircle{12},
+            vm::axis::x,
+            "someName")
+          == Result<std::vector<Brush>>{std::vector<Brush>{}});
+      }
+
+      SECTION("Zero span")
+      {
+        CHECK(
+          builder.createArch(
+            vm::bbox3d{{-128, 0, 0}, {128, 0, 64}},
+            16.0,
+            EdgeAlignedCircle{12},
+            vm::axis::x,
+            "someName")
+          == Result<std::vector<Brush>>{std::vector<Brush>{}});
+      }
+
+      SECTION("Zero extrusion depth")
+      {
+        CHECK(
+          builder.createArch(
+            vm::bbox3d{{0, -64, 0}, {0, 64, 64}},
+            16.0,
+            EdgeAlignedCircle{12},
+            vm::axis::x,
+            "someName")
+          == Result<std::vector<Brush>>{std::vector<Brush>{}});
+      }
+    }
+  }
 }
 
 } // namespace tb::mdl
