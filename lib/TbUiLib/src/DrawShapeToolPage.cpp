@@ -30,6 +30,8 @@
 #include "ui/ImageUtils.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/ranges/enumerate_view.h"
+
 namespace tb::ui
 {
 
@@ -50,6 +52,21 @@ void DrawShapeToolPage::createGui()
     m_extensionManager.currentExtension().iconPath(), tr("Click to select a shape"));
   m_extensionButton->setObjectName("toolButton_withBorder");
 
+  auto* extensionMenu = new QMenu{m_extensionButton};
+  const auto extensions = m_extensionManager.extensions();
+  for (const auto [i, extension] : kdl::views::enumerate(extensions))
+  {
+    auto icon = loadSVGIcon(extension->iconPath());
+
+    auto* action = extensionMenu->addAction(
+      icon, QString::fromStdString(extension->name()), this, [this, i]() {
+        m_extensionManager.setCurrentExtensionIndex(size_t(i));
+      });
+    action->setIconVisibleInMenu(true);
+  }
+  m_extensionButton->setMenu(extensionMenu);
+  m_extensionButton->setPopupMode(QToolButton::InstantPopup);
+
   m_extensionPages = new QStackedLayout{};
   for (auto* extensionPage : m_extensionManager.createToolPages())
   {
@@ -66,25 +83,6 @@ void DrawShapeToolPage::createGui()
   layout->addStretch(2);
 
   setLayout(layout);
-
-  connect(m_extensionButton, &QAbstractButton::clicked, [&]() {
-    auto menu = QMenu{};
-
-    const auto extensions = m_extensionManager.extensions();
-    for (size_t i = 0; i < extensions.size(); ++i)
-    {
-      auto* extension = extensions[i];
-      auto icon = loadSVGIcon(extension->iconPath());
-
-      auto* action =
-        menu.addAction(icon, QString::fromStdString(extension->name()), [&, i]() {
-          m_extensionManager.setCurrentExtensionIndex(i);
-        });
-      action->setIconVisibleInMenu(true);
-    }
-
-    menu.exec(QCursor::pos());
-  });
 }
 
 void DrawShapeToolPage::currentExtensionDidChange(const size_t index)

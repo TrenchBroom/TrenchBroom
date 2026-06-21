@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE_TAG=${IMAGE_TAG:-tb-linux-ci:ubuntu20-gcc13}
+IMAGE_TAG=${IMAGE_TAG:-tb-linux-ci:ubuntu22-gcc13}
 WORKDIR=${WORKDIR:-$PWD}
 
 if [[ ! -f "$WORKDIR/CI-linux.sh" ]]; then
