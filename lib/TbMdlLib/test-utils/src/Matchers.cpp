@@ -34,6 +34,7 @@
 #include "mdl/WorldNode.h"
 
 #include "vm/approx.h"
+#include "vm/vec.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -125,6 +126,46 @@ bool valueOpsMatch(const std::optional<ValueOp>& lhs, const std::optional<ValueO
 }
 
 } // namespace
+
+BrushVertexMatcher::BrushVertexMatcher(const Brush& expected, const double epsilon)
+  : m_expected{expected}
+  , m_epsilon{epsilon}
+{
+}
+
+bool BrushVertexMatcher::match(const Brush& in) const
+{
+  if (in.vertexCount() != m_expected.vertexCount())
+  {
+    return false;
+  }
+
+  auto unmatchedPositions = in.vertexPositions();
+  for (const auto& expectedPosition : m_expected.vertexPositions())
+  {
+    const auto it = std::ranges::find_if(unmatchedPositions, [&](const auto& position) {
+      return vm::is_equal(position, expectedPosition, m_epsilon);
+    });
+    if (it == unmatchedPositions.end())
+    {
+      return false;
+    }
+    unmatchedPositions.erase(it);
+  }
+
+  return true;
+}
+
+std::string BrushVertexMatcher::describe() const
+{
+  return fmt::format(
+    "has the same vertex positions as the expected brush with epsilon {}", m_epsilon);
+}
+
+BrushVertexMatcher MatchesBrushVertices(const Brush& expected, const double epsilon)
+{
+  return BrushVertexMatcher{expected, epsilon};
+}
 
 NodeMatcher::NodeMatcher(const Node& expected)
   : m_expected{expected}

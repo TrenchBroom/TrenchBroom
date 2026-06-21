@@ -32,7 +32,23 @@
 
 namespace tb::mdl
 {
+class Brush;
 class Node;
+
+class BrushVertexMatcher : public Catch::Matchers::MatcherBase<Brush>
+{
+  const Brush& m_expected;
+  double m_epsilon;
+
+public:
+  BrushVertexMatcher(const Brush& expected, double epsilon);
+
+  bool match(const Brush& in) const override;
+
+  std::string describe() const override;
+};
+
+BrushVertexMatcher MatchesBrushVertices(const Brush& expected, double epsilon);
 
 class NodeMatcher : public Catch::Matchers::MatcherBase<Node>
 {
