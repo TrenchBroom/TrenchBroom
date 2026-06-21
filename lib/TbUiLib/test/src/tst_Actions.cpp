@@ -53,7 +53,8 @@ auto collectMenuActionInfos(const ActionManager& actionManager)
              action->actionContext(),
              action->preference(),
            };
-         });
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 auto collectViewActionInfos(const ActionManager& actionManager)
@@ -69,7 +70,8 @@ auto collectViewActionInfos(const ActionManager& actionManager)
              action->actionContext(),
              action->preference(),
            };
-         });
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 auto collectAllActionInfos(const ActionManager& actionManager)
