@@ -31,10 +31,8 @@ jobs:
           submodules: 'recursive'
 
       # Dependencies
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.*'
+      - name: Setup common prerequisites
+        uses: ./.github/actions/setup-common
 
       - name: Bootstrap vcpkg
         shell: bash
