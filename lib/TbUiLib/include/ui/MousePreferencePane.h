@@ -22,12 +22,10 @@
 #include "ui/PreferencePane.h"
 
 class QCheckBox;
-class QKeySequence;
 class QLabel;
 
 namespace tb::ui
 {
-class KeySequenceEdit;
 class SliderWithLabel;
 
 class MousePreferencePane : public PreferencePane
@@ -44,19 +42,6 @@ private:
   QCheckBox* m_enableAltMoveCheckBox = nullptr;
   QCheckBox* m_invertAltMoveAxisCheckBox = nullptr;
   QCheckBox* m_moveInCursorDirCheckBox = nullptr;
-
-  KeySequenceEdit* m_forwardKeyEditor = nullptr;
-  KeySequenceEdit* m_backwardKeyEditor = nullptr;
-  KeySequenceEdit* m_leftKeyEditor = nullptr;
-  KeySequenceEdit* m_rightKeyEditor = nullptr;
-  KeySequenceEdit* m_upKeyEditor = nullptr;
-  KeySequenceEdit* m_downKeyEditor = nullptr;
-  QLabel* m_forwardKeyConflictIcon = nullptr;
-  QLabel* m_backwardKeyConflictIcon = nullptr;
-  QLabel* m_leftKeyConflictIcon = nullptr;
-  QLabel* m_rightKeyConflictIcon = nullptr;
-  QLabel* m_upKeyConflictIcon = nullptr;
-  QLabel* m_downKeyConflictIcon = nullptr;
 
   SliderWithLabel* m_flyMoveSpeedSlider = nullptr;
 
@@ -87,17 +72,7 @@ private slots:
   void invertAltMoveAxisChanged(int state);
   void moveInCursorDirChanged(int state);
 
-  void forwardKeyChanged();
-  void backwardKeyChanged();
-  void leftKeyChanged();
-  void rightKeyChanged();
-  void upKeyChanged();
-  void downKeyChanged();
-
   void flyMoveSpeedChanged(int value);
-
-private:
-  void updateConflicts();
 };
 
 } // namespace tb::ui
