@@ -456,12 +456,13 @@ Shape                  Description
 -----                  -----------
 Cuboid                 Creates a cuboid shape
 Stairs                 Creates stairs
+Arch                   Creates a semicircular arch
 Cylinder               Creates a cylinder with a variable number of sides; potentially hollow
 Cone                   Creates a cone with a variable number of sides
 Spheroid (UV)          Creates a spheroid shape made up of triangles and quads with two poles
 Spheroid (Icosahedron) Creates a spheroid shape made up of triangles, based on an icosahedron
 
-Note that the cylinder, cone and UV sphere shapes all have similar options, namely the number of sides and a circle mode.
+Note that the cylinder, cone, UV sphere and arch shapes all have similar options, namely the number of sides and a circle mode.
 By using the same values for these options across different shapes, TrenchBroom will create shapes that fit onto each other perfectly.
 
 There are three circle modes that can be selected via the corresponding buttons:
@@ -481,6 +482,8 @@ This hollow cylinder is scalable because its vertices are all aligned on the gri
 ![Asymmetric scalable cylinder](images/ScalableCylinderStretch.gif)
 
 If you create an asymmetric scalable shape, it will not be scaled to fit the bounding box drawn with the mouse like the other shapes. Rather, only the middle portion of it will be elongated so that the vertices remain on the grid. This even applies to cones and UV spheres so that the different shapes still fit together.
+
+The arch is created as the top half of a hollow cylinder. The axis is the direction the arch runs through, like a tunnel. Sides, thickness and circle mode work just like the cylinder, so an arch and a cylinder built with the same values will line up. When using scalable circle mode, drawing the bounds taller than a semicircle will extend the sides straight down, acting as "supports" for the arch. 
 
 ### Creating Complex Shapes
 

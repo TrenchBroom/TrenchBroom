@@ -193,6 +193,31 @@ public:
     const vm::bbox3d& bounds, const ShapeParameters& parameters) const override;
 };
 
+class DrawShapeToolArchShapeExtensionPage : public DrawShapeToolCircularShapeExtensionPage
+{
+public:
+  explicit DrawShapeToolArchShapeExtensionPage(
+    MapDocument& document, ShapeParameters& parameters, QWidget* parent = nullptr);
+
+private:
+  ShapeParameters& m_parameters;
+
+  Q_OBJECT
+};
+
+class DrawShapeToolArchExtension : public DrawShapeToolExtension
+{
+public:
+  explicit DrawShapeToolArchExtension(MapDocument& document);
+
+  const std::string& name() const override;
+  const std::filesystem::path& iconPath() const override;
+  DrawShapeToolExtensionPage* createToolPage(
+    ShapeParameters& parameters, QWidget* parent) override;
+  Result<std::vector<mdl::Brush>> createBrushes(
+    const vm::bbox3d& bounds, const ShapeParameters& parameters) const override;
+};
+
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(
   MapDocument& document);
 

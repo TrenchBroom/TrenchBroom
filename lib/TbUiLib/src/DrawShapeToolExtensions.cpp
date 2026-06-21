@@ -634,12 +634,77 @@ Result<std::vector<mdl::Brush>> DrawShapeToolStairsExtension::createBrushes(
          | kdl::fold;
 }
 
+DrawShapeToolArchShapeExtensionPage::DrawShapeToolArchShapeExtensionPage(
+  MapDocument& document, ShapeParameters& parameters, QWidget* parent)
+  : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
+  , m_parameters{parameters}
+{
+  auto* thicknessLabel = new QLabel{tr("Thickness: ")};
+  auto* thicknessBox = new QDoubleSpinBox{};
+  thicknessBox->setRange(1, 1024);
+
+  connect(
+    thicknessBox,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    [&](const auto thickness) { m_parameters.setThickness(thickness); });
+
+  addWidget(thicknessLabel);
+  addWidget(thicknessBox);
+  addApplyButton(document);
+
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect(
+    [=, this]() { thicknessBox->setValue(m_parameters.thickness()); });
+}
+
+DrawShapeToolArchExtension::DrawShapeToolArchExtension(MapDocument& document)
+  : DrawShapeToolExtension{document}
+{
+}
+
+const std::string& DrawShapeToolArchExtension::name() const
+{
+  static const auto name = std::string{"Arch"};
+  return name;
+}
+
+const std::filesystem::path& DrawShapeToolArchExtension::iconPath() const
+{
+  static const auto path = std::filesystem::path{"ShapeTool_Arch.svg"};
+  return path;
+}
+
+DrawShapeToolExtensionPage* DrawShapeToolArchExtension::createToolPage(
+  ShapeParameters& parameters, QWidget* parent)
+{
+  return new DrawShapeToolArchShapeExtensionPage{m_document, parameters, parent};
+}
+
+Result<std::vector<mdl::Brush>> DrawShapeToolArchExtension::createBrushes(
+  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
+{
+  auto& map = m_document.map();
+
+  const auto builder = mdl::BrushBuilder{
+    map.worldNode().mapFormat(),
+    map.worldBounds(),
+    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+
+  return builder.createArch(
+    bounds,
+    parameters.thickness(),
+    parameters.circleShape(),
+    parameters.axis(),
+    map.currentMaterialName());
+}
+
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(
   MapDocument& document)
 {
   auto result = std::vector<std::unique_ptr<DrawShapeToolExtension>>{};
   result.push_back(std::make_unique<DrawShapeToolCuboidExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolStairsExtension>(document));
+  result.push_back(std::make_unique<DrawShapeToolArchExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolCylinderExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolConeExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolUVSphereExtension>(document));

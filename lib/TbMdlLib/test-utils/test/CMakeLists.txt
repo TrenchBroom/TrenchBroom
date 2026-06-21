@@ -1,6 +1,7 @@
 add_executable(TbMdlTestUtilsLibTest)
 
 target_sources(TbMdlTestUtilsLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Matchers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_StringMakers.cpp
 )
 
@@ -17,4 +18,3 @@ target_link_libraries(TbMdlTestUtilsLibTest
 
 include(Catch)
 catch_discover_tests(TbMdlTestUtilsLibTest)
-

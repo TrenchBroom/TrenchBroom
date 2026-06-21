@@ -22,11 +22,12 @@
 
 #include <iterator>
 #include <numeric>
+#include <utility>
 
 namespace kdl
 {
 
-auto fold_left = [](auto&& range, auto&& init, auto&& op) {
+inline constexpr auto fold_left = [](auto&& range, auto&& init, auto&& op) {
   return std::accumulate(
     std::begin(range),
     std::end(range),
@@ -34,7 +35,7 @@ auto fold_left = [](auto&& range, auto&& init, auto&& op) {
     std::forward<decltype(op)>(op));
 };
 
-auto fold_right = [](auto&& range, auto&& init, auto&& op) {
+inline constexpr auto fold_right = [](auto&& range, auto&& init, auto&& op) {
   return std::accumulate(
     std::make_reverse_iterator(std::end(range)),
     std::make_reverse_iterator(std::begin(range)),
@@ -42,11 +43,11 @@ auto fold_right = [](auto&& range, auto&& init, auto&& op) {
     std::forward<decltype(op)>(op));
 };
 
-auto fold_left_first = [](auto&& range, auto&& op) {
+inline constexpr auto fold_left_first = [](auto&& range, auto&& op) {
   return fold_left(range, *std::begin(range), std::forward<decltype(op)>(op));
 };
 
-auto fold_right_first = [](auto&& range, auto&& op) {
+inline constexpr auto fold_right_first = [](auto&& range, auto&& op) {
   return fold_right(range, *std::prev(std::end(range)), std::forward<decltype(op)>(op));
 };
 

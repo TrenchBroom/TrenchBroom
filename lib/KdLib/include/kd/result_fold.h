@@ -168,6 +168,37 @@ auto collect_results(C&& c)
   return collect_results(std::ranges::begin(c), std::ranges::end(c));
 }
 
+/**
+ * Folds the given range of results into a vector of success values.
+ */
+template <typename I, typename S>
+auto collect_values(I cur, S end)
+{
+  using in_result_type = typename std::iterator_traits<I>::value_type;
+  using in_value_type = typename in_result_type::value_type;
+
+  static_assert(!std::is_same_v<in_value_type, void>);
+
+  using out_value_vector_type = std::vector<in_value_type>;
+
+  auto values = out_value_vector_type{};
+
+  while (cur != end)
+  {
+    std::move(*cur).visit(kdl::overload(
+      [&](in_value_type&& v) { values.push_back(std::move(v)); }, [&](auto&&) {}));
+    ++cur;
+  }
+
+  return values;
+}
+
+template <typename C>
+auto collect_values(C&& c)
+{
+  return collect_values(std::ranges::begin(c), std::ranges::end(c));
+}
+
 template <typename I, typename S, typename F>
 auto select_first(I cur, S end, const F& f)
   -> std::optional<typename decltype(f(*cur))::value_type>
@@ -231,6 +262,21 @@ template <typename C>
 auto operator|(C&& c, const result_collect&)
 {
   return collect_results(std::forward<C>(c));
+}
+
+struct result_values
+{
+};
+
+inline auto values()
+{
+  return result_values{};
+}
+
+template <typename C>
+auto operator|(C&& c, const result_values&)
+{
+  return collect_values(std::forward<C>(c));
 }
 
 } // namespace kdl
