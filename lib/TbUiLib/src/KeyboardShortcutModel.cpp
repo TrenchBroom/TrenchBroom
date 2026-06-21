@@ -23,6 +23,7 @@
 
 #include "Macros.h"
 #include "PreferenceManager.h"
+#include "Preferences.h"
 #include "ui/Action.h"
 #include "ui/ActionContext.h"
 #include "ui/ActionManager.h"
@@ -179,6 +180,7 @@ void KeyboardShortcutModel::initializeActions()
 {
   initializeMenuActions();
   initializeViewActions();
+  initializeKeys();
   if (m_document)
   {
     initializeTagActions();
@@ -216,6 +218,40 @@ void KeyboardShortcutModel::initializeViewActions()
       action.actionContext(),
       action.preference());
   });
+}
+
+void KeyboardShortcutModel::initializeKeys()
+{
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Forward",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyForward);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Left",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyLeft);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Backward",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyBackward);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Right",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyRight);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Up",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyUp);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Down",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyDown);
 }
 
 void KeyboardShortcutModel::initializeTagActions()

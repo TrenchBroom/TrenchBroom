@@ -66,6 +66,7 @@ private:
 
   void initializeMenuActions();
   void initializeViewActions();
+  void initializeKeys();
   void initializeTagActions();
   void initializeEntityDefinitionActions();
 

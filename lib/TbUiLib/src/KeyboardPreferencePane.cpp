@@ -28,6 +28,8 @@
 #include <QTableView>
 #include <QTimer>
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "ui/ActionManager.h"
 #include "ui/AppController.h"
 #include "ui/KeyboardShortcutItemDelegate.h"
@@ -110,6 +112,12 @@ bool KeyboardPreferencePane::canResetToDefaults()
 
 void KeyboardPreferencePane::doResetToDefaults()
 {
+  auto& prefs = PreferenceManager::instance();
+  for (auto* preference : Preferences::keyPreferences())
+  {
+    prefs.resetToDefault(*preference);
+  }
+
   m_appController.actionManager().resetAllKeySequences();
   m_model->reset();
 }
