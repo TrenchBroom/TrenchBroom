@@ -39,7 +39,8 @@ private:
 
 public:
   explicit KeySequenceEdit(QWidget* parent = nullptr);
-  explicit KeySequenceEdit(size_t maxCount, QWidget* parent = nullptr);
+
+  void setMaxCount(size_t maxCount);
 
   const QKeySequence keySequence() const;
 public slots:

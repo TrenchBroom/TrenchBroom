@@ -21,21 +21,21 @@
 
 #include <QKeyEvent>
 
+#include <algorithm>
+
 namespace tb::ui
 {
 
 LimitedKeySequenceEdit::LimitedKeySequenceEdit(QWidget* parent)
-  : LimitedKeySequenceEdit{MaxCount, parent}
-{
-}
-
-LimitedKeySequenceEdit::LimitedKeySequenceEdit(const size_t maxCount, QWidget* parent)
   : QKeySequenceEdit{parent}
-  , m_maxCount{maxCount}
 {
-  Q_ASSERT(m_maxCount <= MaxCount);
   connect(
     this, &QKeySequenceEdit::editingFinished, this, &LimitedKeySequenceEdit::resetCount);
+}
+
+void LimitedKeySequenceEdit::setMaxCount(size_t maxCount)
+{
+  m_maxCount = std::min(maxCount, MaxCount);
 }
 
 void LimitedKeySequenceEdit::keyPressEvent(QKeyEvent* event)

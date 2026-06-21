@@ -56,6 +56,8 @@ public:
 
   Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+  size_t maxKeySequenceCount(const QModelIndex& index) const;
+
   bool hasConflicts() const;
   bool hasConflicts(const QModelIndex& index) const;
 

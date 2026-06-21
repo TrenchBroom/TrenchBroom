@@ -71,6 +71,11 @@ const std::filesystem::path& ActionInfo::displayPath() const
   return m_displayPath;
 }
 
+ActionInfoType ActionInfo::type() const
+{
+  return m_type;
+}
+
 ActionContext::Type ActionInfo::actionContext() const
 {
   return m_actionContext;

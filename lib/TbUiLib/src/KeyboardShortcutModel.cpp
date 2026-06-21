@@ -21,6 +21,7 @@
 
 #include <QBrush>
 
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "ui/Action.h"
 #include "ui/ActionContext.h"
@@ -137,6 +138,26 @@ Qt::ItemFlags KeyboardShortcutModel::flags(const QModelIndex& index) const
   return index.column() == 0
            ? Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable
            : Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+size_t KeyboardShortcutModel::maxKeySequenceCount(const QModelIndex& index) const
+{
+  if (checkIndex(index))
+  {
+    switch (actionInfo(index.row()).type())
+    {
+    case ActionInfoType::Menu:
+    case ActionInfoType::View:
+    case ActionInfoType::Tag:
+    case ActionInfoType::EntityDefinition:
+      return 4;
+    case ActionInfoType::Key:
+      return 1;
+      switchDefault();
+    }
+  }
+
+  return 0;
 }
 
 bool KeyboardShortcutModel::hasConflicts() const

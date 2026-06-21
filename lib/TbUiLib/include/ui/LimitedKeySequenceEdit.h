@@ -28,15 +28,16 @@ class LimitedKeySequenceEdit : public QKeySequenceEdit
 {
   Q_OBJECT
 public:
-  static const size_t MaxCount = 4;
+  static constexpr size_t MaxCount = 4;
 
 private:
-  size_t m_maxCount;
+  size_t m_maxCount = MaxCount;
   size_t m_count = 0;
 
 public:
   explicit LimitedKeySequenceEdit(QWidget* parent = nullptr);
-  explicit LimitedKeySequenceEdit(size_t maxCount, QWidget* parent = nullptr);
+
+  void setMaxCount(size_t maxCount);
 
 protected:
   void keyPressEvent(QKeyEvent* event) override;

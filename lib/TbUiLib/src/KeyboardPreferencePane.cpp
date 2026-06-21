@@ -72,7 +72,7 @@ KeyboardPreferencePane::KeyboardPreferencePane(
     QAbstractItemView::EditTrigger::SelectedClicked
     | QAbstractItemView::EditTrigger::DoubleClicked
     | QAbstractItemView::EditTrigger::EditKeyPressed);
-  m_table->setItemDelegate(new KeyboardShortcutItemDelegate());
+  m_table->setItemDelegate(new KeyboardShortcutItemDelegate{*m_model});
 
   auto* searchBox = createSearchBox();
   setSmallStyle(searchBox);

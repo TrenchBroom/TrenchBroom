@@ -66,6 +66,8 @@ public:
 
   const std::filesystem::path& displayPath() const;
 
+  ActionInfoType type() const;
+
   ActionContext::Type actionContext() const;
   const Preference<QKeySequence>& keyboardShortcutPreference() const;
 
