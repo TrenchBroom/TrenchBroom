@@ -22,14 +22,21 @@
 #include "mdl/BrushFace.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/MapFormat.h"
+#include "mdl/Matchers.h"
 #include "mdl/Polyhedron3.h"
 
+#include "kd/range_fold.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 
+#include "vm/constants.h"
+
+#include <algorithm>
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_contains.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
@@ -55,27 +62,37 @@ auto makeBrush(const std::vector<std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>>& f
          | kdl::value();
 };
 
+auto getMergedBounds(const std::vector<Brush>& brushes)
+{
+  return kdl::fold_left_first(
+    brushes | std::views::transform([](const auto& brush) { return brush.bounds(); }),
+    [](const auto& lhs, const auto& rhs) { return vm::merge(lhs, rhs); });
+}
+
 } // namespace
 
 TEST_CASE("BrushBuilder")
 {
+  using Catch::Matchers::Contains;
+  using Catch::Matchers::RangeEquals;
+
   const auto worldBounds = vm::bbox3d{8192.0};
+  const auto vertexEpsilon = vm::Cd::almost_zero();
 
   SECTION("createCube")
   {
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
-    const auto cube = builder.createCube(128.0, "someName") | kdl::value();
-    CHECK(cube.fullySpecified());
-    CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
+    builder.createCube(128.0, "someName") | kdl::transform([](const auto& cube) {
+      CHECK(cube.fullySpecified());
+      CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
 
-    const auto faces = cube.faces();
-    CHECK(faces.size() == 6u);
-
-    for (size_t i = 0; i < faces.size(); ++i)
-    {
-      CHECK(faces[i].attributes().materialName() == "someName");
-    }
+      CHECK_THAT(
+        cube.faces() | std::views::transform([](const auto& face) {
+          return face.attributes().materialName();
+        }),
+        RangeEquals(std::vector<std::string>{6u, "someName"}));
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
   SECTION("createCubeDefaults")
@@ -91,24 +108,15 @@ TEST_CASE("BrushBuilder")
 
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
 
-    const auto cube = builder.createCube(128.0, "someName") | kdl::value();
-    CHECK(cube.fullySpecified());
-    CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
+    builder.createCube(128.0, "someName") | kdl::transform([&](const auto& cube) {
+      CHECK(cube.fullySpecified());
+      CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
 
-    const auto faces = cube.faces();
-    CHECK(faces.size() == 6u);
-
-    for (size_t i = 0; i < faces.size(); ++i)
-    {
-      CHECK(faces[i].attributes().materialName() == "someName");
-      CHECK(faces[i].attributes().offset() == vm::vec2f{0.5f, 0.5f});
-      CHECK(faces[i].attributes().scale() == vm::vec2f{0.5f, 0.5f});
-      CHECK(faces[i].attributes().rotation() == 45.0f);
-      CHECK(faces[i].attributes().surfaceContents() == 1);
-      CHECK(faces[i].attributes().surfaceFlags() == 2);
-      CHECK(faces[i].attributes().surfaceValue() == 0.1f);
-      CHECK(faces[i].attributes().color() == Color{RgbB{255, 255, 255}});
-    }
+      CHECK_THAT(
+        cube.faces()
+          | std::views::transform([](const auto& face) { return face.attributes(); }),
+        RangeEquals(std::vector{6u, BrushFaceAttributes{"someName", defaultAttribs}}));
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
   SECTION("createBrushDefaults")
@@ -124,36 +132,29 @@ TEST_CASE("BrushBuilder")
 
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
 
-    const auto brush = builder.createBrush(
-                         Polyhedron3{
-                           vm::vec3d{-64, -64, -64},
-                           vm::vec3d{-64, -64, +64},
-                           vm::vec3d{-64, +64, -64},
-                           vm::vec3d{-64, +64, +64},
-                           vm::vec3d{+64, -64, -64},
-                           vm::vec3d{+64, -64, +64},
-                           vm::vec3d{+64, +64, -64},
-                           vm::vec3d{+64, +64, +64},
-                         },
-                         "someName")
-                       | kdl::value();
-    CHECK(brush.fullySpecified());
-    CHECK(brush.bounds() == vm::bbox3d{-64.0, +64.0});
+    builder.createBrush(
+      Polyhedron3{
+        vm::vec3d{-64, -64, -64},
+        vm::vec3d{-64, -64, +64},
+        vm::vec3d{-64, +64, -64},
+        vm::vec3d{-64, +64, +64},
+        vm::vec3d{+64, -64, -64},
+        vm::vec3d{+64, -64, +64},
+        vm::vec3d{+64, +64, -64},
+        vm::vec3d{+64, +64, +64},
+      },
+      "someName")
+      | kdl::transform([&](const auto& brush) {
+          CHECK(brush.fullySpecified());
+          CHECK(brush.bounds() == vm::bbox3d{-64.0, +64.0});
 
-    const auto faces = brush.faces();
-    CHECK(faces.size() == 6u);
-
-    for (size_t i = 0; i < faces.size(); ++i)
-    {
-      CHECK(faces[i].attributes().materialName() == "someName");
-      CHECK(faces[i].attributes().offset() == vm::vec2f{0.5f, 0.5f});
-      CHECK(faces[i].attributes().scale() == vm::vec2f{0.5f, 0.5f});
-      CHECK(faces[i].attributes().rotation() == 45.0f);
-      CHECK(faces[i].attributes().surfaceContents() == 1);
-      CHECK(faces[i].attributes().surfaceFlags() == 2);
-      CHECK(faces[i].attributes().surfaceValue() == 0.1f);
-      CHECK(faces[i].attributes().color() == Color{RgbB{255, 255, 255}});
-    }
+          CHECK_THAT(
+            brush.faces()
+              | std::views::transform([](const auto& face) { return face.attributes(); }),
+            RangeEquals(
+              std::vector{6u, BrushFaceAttributes{"someName", defaultAttribs}}));
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
   SECTION("createCylinder")
@@ -162,97 +163,124 @@ TEST_CASE("BrushBuilder")
 
     SECTION("Edge aligned cylinder")
     {
-      const auto cylinder = builder.createCylinder(
+      builder.createCylinder(
         vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
         EdgeAlignedCircle{4},
         vm::axis::z,
-        "someName");
+        "someName")
+        | kdl::transform([](const auto& cylinder) {
+            CHECK(cylinder.bounds() == vm::bbox3d{{-32, -32, -32}, {32, 32, 32}});
 
-      CHECK(
-        cylinder
-        == Result<Brush>{makeBrush({
-          {{-32, -32, 32}, {-32, 32, -32}, {-32, 32, 32}},
-          {{32, -32, 32}, {-32, -32, -32}, {-32, -32, 32}},
-          {{32, 32, -32}, {-32, -32, -32}, {32, -32, -32}},
-          {{32, 32, 32}, {-32, -32, 32}, {-32, 32, 32}},
-          {{32, 32, 32}, {-32, 32, -32}, {32, 32, -32}},
-          {{32, 32, 32}, {32, -32, -32}, {32, -32, 32}},
-        })});
+            CHECK(
+              cylinder
+              == makeBrush({
+                {{-32, -32, 32}, {-32, 32, -32}, {-32, 32, 32}},
+                {{32, -32, 32}, {-32, -32, -32}, {-32, -32, 32}},
+                {{32, 32, -32}, {-32, -32, -32}, {32, -32, -32}},
+                {{32, 32, 32}, {-32, -32, 32}, {-32, 32, 32}},
+                {{32, 32, 32}, {-32, 32, -32}, {32, 32, -32}},
+                {{32, 32, 32}, {32, -32, -32}, {32, -32, 32}},
+              }));
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
     }
 
     SECTION("Scalable Cylinder")
     {
       SECTION("In square bounds")
       {
-        const auto cylinder = builder.createCylinder(
+        builder.createCylinder(
           vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
           ScalableCircle{0},
           vm::axis::z,
-          "someName");
+          "someName")
+          | kdl::transform([](const auto& cylinder) {
+              CHECK(cylinder.bounds() == vm::bbox3d{{-32, -32, -32}, {32, 32, 32}});
 
-        CHECK(
-          cylinder
-          == Result<Brush>{makeBrush({
-            {{-32, -8, 32}, {-32, 8, -32}, {-32, 8, 32}},
-            {{-24, -24, 32}, {-32, -8, -32}, {-32, -8, 32}},
-            {{-24, 24, 32}, {-32, 8, -32}, {-24, 24, -32}},
-            {{-8, -32, 32}, {-24, -24, -32}, {-24, -24, 32}},
-            {{-8, 32, 32}, {-24, 24, -32}, {-8, 32, -32}},
-            {{8, -32, 32}, {-8, -32, -32}, {-8, -32, 32}},
-            {{32, 8, -32}, {24, -24, -32}, {32, -8, -32}},
-            {{32, 8, 32}, {8, 32, 32}, {24, 24, 32}},
-            {{8, 32, 32}, {-8, 32, -32}, {8, 32, -32}},
-            {{24, -24, 32}, {8, -32, -32}, {8, -32, 32}},
-            {{24, 24, 32}, {8, 32, -32}, {24, 24, -32}},
-            {{32, -8, 32}, {24, -24, -32}, {24, -24, 32}},
-            {{32, 8, 32}, {24, 24, -32}, {32, 8, -32}},
-            {{32, 8, 32}, {32, -8, -32}, {32, -8, 32}},
-          })});
+              CHECK(
+                cylinder
+                == makeBrush({
+                  {{-32, -8, 32}, {-32, 8, -32}, {-32, 8, 32}},
+                  {{-24, -24, 32}, {-32, -8, -32}, {-32, -8, 32}},
+                  {{-24, 24, 32}, {-32, 8, -32}, {-24, 24, -32}},
+                  {{-8, -32, 32}, {-24, -24, -32}, {-24, -24, 32}},
+                  {{-8, 32, 32}, {-24, 24, -32}, {-8, 32, -32}},
+                  {{8, -32, 32}, {-8, -32, -32}, {-8, -32, 32}},
+                  {{32, 8, -32}, {24, -24, -32}, {32, -8, -32}},
+                  {{32, 8, 32}, {8, 32, 32}, {24, 24, 32}},
+                  {{8, 32, 32}, {-8, 32, -32}, {8, 32, -32}},
+                  {{24, -24, 32}, {8, -32, -32}, {8, -32, 32}},
+                  {{24, 24, 32}, {8, 32, -32}, {24, 24, -32}},
+                  {{32, -8, 32}, {24, -24, -32}, {24, -24, 32}},
+                  {{32, 8, 32}, {24, 24, -32}, {32, 8, -32}},
+                  {{32, 8, 32}, {32, -8, -32}, {32, -8, 32}},
+                }));
+            })
+          | kdl::transform_error([](const auto& e) { FAIL(e); });
       }
 
       SECTION("In rectangular bounds")
       {
-        const auto cylinder = builder.createCylinder(
+        builder.createCylinder(
           vm::bbox3d{{-64, -32, -32}, {64, 32, 32}},
           ScalableCircle{0},
           vm::axis::z,
-          "someName");
+          "someName")
+          | kdl::transform([](const auto& cylinder) {
+              CHECK(cylinder.bounds() == vm::bbox3d{{-64, -32, -32}, {64, 32, 32}});
 
-        CHECK(
-          cylinder
-          == Result<Brush>{makeBrush({
-            {{-64, -8, 32}, {-64, 8, -32}, {-64, 8, 32}},
-            {{-56, -24, 32}, {-64, -8, -32}, {-64, -8, 32}},
-            {{-56, 24, 32}, {-64, 8, -32}, {-56, 24, -32}},
-            {{-40, -32, 32}, {-56, -24, -32}, {-56, -24, 32}},
-            {{-40, 32, 32}, {-56, 24, -32}, {-40, 32, -32}},
-            {{40, -32, 32}, {-40, -32, -32}, {-40, -32, 32}},
-            {{64, 8, -32}, {56, -24, -32}, {64, -8, -32}},
-            {{64, 8, 32}, {40, 32, 32}, {56, 24, 32}},
-            {{40, 32, 32}, {-40, 32, -32}, {40, 32, -32}},
-            {{56, -24, 32}, {40, -32, -32}, {40, -32, 32}},
-            {{56, 24, 32}, {40, 32, -32}, {56, 24, -32}},
-            {{64, -8, 32}, {56, -24, -32}, {56, -24, 32}},
-            {{64, 8, 32}, {56, 24, -32}, {64, 8, -32}},
-            {{64, 8, 32}, {64, -8, -32}, {64, -8, 32}},
-          })});
+              CHECK(
+                cylinder
+                == makeBrush({
+                  {{-64, -8, 32}, {-64, 8, -32}, {-64, 8, 32}},
+                  {{-56, -24, 32}, {-64, -8, -32}, {-64, -8, 32}},
+                  {{-56, 24, 32}, {-64, 8, -32}, {-56, 24, -32}},
+                  {{-40, -32, 32}, {-56, -24, -32}, {-56, -24, 32}},
+                  {{-40, 32, 32}, {-56, 24, -32}, {-40, 32, -32}},
+                  {{40, -32, 32}, {-40, -32, -32}, {-40, -32, 32}},
+                  {{64, 8, -32}, {56, -24, -32}, {64, -8, -32}},
+                  {{64, 8, 32}, {40, 32, 32}, {56, 24, 32}},
+                  {{40, 32, 32}, {-40, 32, -32}, {40, 32, -32}},
+                  {{56, -24, 32}, {40, -32, -32}, {40, -32, 32}},
+                  {{56, 24, 32}, {40, 32, -32}, {56, 24, -32}},
+                  {{64, -8, 32}, {56, -24, -32}, {56, -24, 32}},
+                  {{64, 8, 32}, {56, 24, -32}, {64, 8, -32}},
+                  {{64, 8, 32}, {64, -8, -32}, {64, -8, 32}},
+                }));
+            })
+          | kdl::transform_error([](const auto& e) { FAIL(e); });
       }
     }
   }
 
-
   SECTION("createHollowCylinder")
   {
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-    const auto cylinder = builder.createHollowCylinder(
-      vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
-      8.0,
-      EdgeAlignedCircle{8},
-      vm::axis::z,
-      "someName");
 
-    REQUIRE(cylinder);
-    CHECK(cylinder.value().size() == 8);
+    const auto bounds = vm::bbox3d{{-32, -32, -32}, {32, 32, 32}};
+    builder.createHollowCylinder(
+      bounds, 8.0, EdgeAlignedCircle{8}, vm::axis::z, "someName")
+      | kdl::transform([&](const auto& brushes) {
+          REQUIRE(brushes.size() == 8u);
+          CHECK(getMergedBounds(brushes) == bounds);
+
+          // Check only one brush to avoid clutter.
+          const auto outerOffset = 13.254833995939043;
+          const auto innerMin = -9.9411254969542853;
+          const auto innerMax = 9.9411254969542835;
+          const auto expectedBrush = makeBrush({
+            {{24, innerMin, 32}, {24, innerMax, -32}, {24, innerMax, 32}},
+            {{24, innerMax, -32}, {32, outerOffset, 32}, {24, innerMax, 32}},
+            {{32, -outerOffset, 32}, {24, innerMin, -32}, {24, innerMin, 32}},
+            {{32, outerOffset, -32}, {24, innerMin, -32}, {32, -outerOffset, -32}},
+            {{32, outerOffset, 32}, {24, innerMin, 32}, {24, innerMax, 32}},
+            {{32, outerOffset, 32}, {32, -outerOffset, -32}, {32, -outerOffset, 32}},
+          });
+
+          CHECK_THAT(
+            brushes, Contains(MatchesBrushVertices(expectedBrush, vertexEpsilon)));
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 }
 
