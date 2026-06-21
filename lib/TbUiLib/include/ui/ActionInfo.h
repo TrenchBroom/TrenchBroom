@@ -40,6 +40,7 @@ enum class ActionInfoType
 {
   Menu,
   View,
+  Key,
   Tag,
   EntityDefinition,
 };

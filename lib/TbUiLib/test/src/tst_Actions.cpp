@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Preferences.h"
 #include "ui/Action.h"
 #include "ui/ActionInfo.h"
 #include "ui/ActionManager.h"
@@ -74,10 +75,26 @@ auto collectViewActionInfos(const ActionManager& actionManager)
          | kdl::ranges::to<std::vector>();
 }
 
+auto collectKeyActionInfos()
+{
+  return Preferences::keyPreferences()
+         | std::views::transform([=](const auto* preference) {
+             return ActionInfo{
+               ActionInfoType::Key,
+               preference->path,
+               ActionContext::FlyMode,
+               *preference,
+             };
+           })
+         | kdl::ranges::to<std::vector>();
+}
+
 auto collectAllActionInfos(const ActionManager& actionManager)
 {
   return kdl::views::concat(
-           collectMenuActionInfos(actionManager), collectViewActionInfos(actionManager))
+           collectMenuActionInfos(actionManager),
+           collectViewActionInfos(actionManager),
+           collectKeyActionInfos())
          | kdl::ranges::to<std::vector>();
 }
 
