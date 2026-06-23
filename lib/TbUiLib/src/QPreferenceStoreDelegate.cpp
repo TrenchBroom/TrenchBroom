@@ -216,22 +216,6 @@ bool QPreferenceStoreDelegate::load(const std::filesystem::path& path, Color& va
 }
 
 bool QPreferenceStoreDelegate::load(
-  const std::filesystem::path& path, QKeySequence& value)
-{
-  if (const auto iValue = m_cache.find(path); iValue != m_cache.end())
-  {
-    const auto& jsonValue = iValue->second;
-    if (jsonValue.isString())
-    {
-      value = QKeySequence::fromString(jsonValue.toString(), QKeySequence::PortableText);
-      return true;
-    }
-  }
-
-  return false;
-}
-
-bool QPreferenceStoreDelegate::load(
   const std::filesystem::path& path, std::vector<QKeySequence>& value)
 {
   if (const auto iValue = m_cache.find(path); iValue != m_cache.end())
@@ -297,13 +281,6 @@ void QPreferenceStoreDelegate::save(
 void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const Color& value)
 {
   save(path, value.toString());
-}
-
-void QPreferenceStoreDelegate::save(
-  const std::filesystem::path& path, const QKeySequence& value)
-{
-  m_cache[path] = QJsonValue{value.toString(QKeySequence::PortableText)};
-  triggerSaveChanges();
 }
 
 void QPreferenceStoreDelegate::save(

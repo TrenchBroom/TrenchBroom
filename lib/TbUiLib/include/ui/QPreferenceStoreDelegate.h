@@ -78,7 +78,6 @@ public:
   bool load(const std::filesystem::path& path, std::string& value);
   bool load(const std::filesystem::path& path, std::filesystem::path& value);
   bool load(const std::filesystem::path& path, Color& value);
-  bool load(const std::filesystem::path& path, QKeySequence& value);
   bool load(const std::filesystem::path& path, std::vector<QKeySequence>& value);
 
   void save(const std::filesystem::path& path, bool value);
@@ -87,7 +86,6 @@ public:
   void save(const std::filesystem::path& path, const std::string& value);
   void save(const std::filesystem::path& path, const std::filesystem::path& value);
   void save(const std::filesystem::path& path, const Color& value);
-  void save(const std::filesystem::path& path, const QKeySequence& value);
   void save(const std::filesystem::path& path, const std::vector<QKeySequence>& value);
 
 private:

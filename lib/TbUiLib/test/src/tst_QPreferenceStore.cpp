@@ -19,6 +19,7 @@
 
 #include <QCoreApplication>
 #include <QJsonObject>
+#include <QKeySequence>
 #include <QLockFile>
 
 #include "Observer.h"
@@ -33,6 +34,7 @@
 #include <filesystem>
 #include <mutex>
 #include <string>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -130,6 +132,23 @@ TEST_CASE("QPreferenceStore")
     auto value = std::string{};
     CHECK(preferenceStore.load("some/path", value));
     CHECK(value == "asdf");
+  }
+
+  SECTION("loads legacy shortcut string as key sequence vector")
+  {
+    env.createFile(preferenceFilename, R"({
+  "some/path": "Ctrl+Alt+W"
+}
+)");
+
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
+
+    auto value = std::vector<QKeySequence>{};
+    CHECK(preferenceStore.load("some/path", value));
+    CHECK(
+      value
+      == std::vector<QKeySequence>{
+        QKeySequence::fromString("Ctrl+Alt+W", QKeySequence::PortableText)});
   }
 
   SECTION("preferences aren't saved immediately")

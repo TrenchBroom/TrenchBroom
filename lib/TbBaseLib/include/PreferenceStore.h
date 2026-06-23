@@ -44,7 +44,6 @@ public:
   virtual bool load(const std::filesystem::path& path, std::string& value) = 0;
   virtual bool load(const std::filesystem::path& path, std::filesystem::path& value) = 0;
   virtual bool load(const std::filesystem::path& path, Color& value) = 0;
-  virtual bool load(const std::filesystem::path& path, QKeySequence& value) = 0;
   virtual bool load(
     const std::filesystem::path& path, std::vector<QKeySequence>& value) = 0;
 
@@ -55,7 +54,6 @@ public:
   virtual void save(
     const std::filesystem::path& path, const std::filesystem::path& value) = 0;
   virtual void save(const std::filesystem::path& path, const Color& value) = 0;
-  virtual void save(const std::filesystem::path& path, const QKeySequence& value) = 0;
   virtual void save(
     const std::filesystem::path& path, const std::vector<QKeySequence>& value) = 0;
 };
