@@ -27,7 +27,7 @@
 #include <fstream>
 #include <string>
 
-#include <catch2/catch_test_macros.hpp>
+#include <catch2/interfaces/catch_interfaces_capture.hpp>
 
 
 namespace tb::fs
