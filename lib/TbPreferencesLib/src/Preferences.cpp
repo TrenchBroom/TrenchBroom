@@ -102,7 +102,7 @@ std::vector<Preference<Color>*> colorPreferences()
   };
 }
 
-std::vector<Preference<QKeySequence>*> keyPreferences()
+std::vector<Preference<std::vector<QKeySequence>>*> keyPreferences()
 {
   return {
     &CameraFlyForward,

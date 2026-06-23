@@ -55,21 +55,21 @@ private:
    */
   std::filesystem::path m_displayPath;
   ActionContext::Type m_actionContext;
-  const Preference<QKeySequence>* m_keyboardShortcutPreference;
+  const Preference<std::vector<QKeySequence>>* m_keyboardShortcutPreference;
 
 public:
   ActionInfo(
     ActionInfoType type,
     std::filesystem::path displayPath,
     ActionContext::Type actionContext,
-    const Preference<QKeySequence>& keyboardShortcutPreference);
+    const Preference<std::vector<QKeySequence>>& keyboardShortcutPreference);
 
   const std::filesystem::path& displayPath() const;
 
   ActionInfoType type() const;
 
   ActionContext::Type actionContext() const;
-  const Preference<QKeySequence>& keyboardShortcutPreference() const;
+  const Preference<std::vector<QKeySequence>>& keyboardShortcutPreference() const;
 
   std::strong_ordering operator<=>(const ActionInfo& other) const;
   bool operator==(const ActionInfo& other) const;

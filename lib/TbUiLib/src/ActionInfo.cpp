@@ -35,22 +35,24 @@ namespace tb::ui
 namespace
 {
 
-struct ActionConflictCmp
+struct ActionConflictKey
 {
-  bool operator()(const ActionInfo& lhs, const ActionInfo& rhs) const
+  ActionContext::Type actionContext;
+  QKeySequence keySequence;
+
+  bool operator<(const ActionConflictKey& other) const
   {
-    if (actionContextMatches(lhs.actionContext(), rhs.actionContext()))
+    if (actionContextMatches(actionContext, other.actionContext))
     {
       // if the two have the same sequence, they would be in conflict, so we compare the
       // sequences
-      const auto& lhsKeySequence = pref(lhs.keyboardShortcutPreference());
-      const auto& rhsKeySequence = pref(rhs.keyboardShortcutPreference());
-      return lhsKeySequence < rhsKeySequence;
+      return keySequence < other.keySequence;
     }
     // otherwise, we just compare by the action context
-    return lhs.actionContext() < rhs.actionContext();
+    return actionContext < other.actionContext;
   }
 };
+
 
 } // namespace
 
@@ -58,7 +60,7 @@ ActionInfo::ActionInfo(
   const ActionInfoType type,
   std::filesystem::path displayPath,
   const ActionContext::Type actionContext,
-  const Preference<QKeySequence>& keyboardShortcutPreference)
+  const Preference<std::vector<QKeySequence>>& keyboardShortcutPreference)
   : m_type{type}
   , m_displayPath{std::move(displayPath)}
   , m_actionContext{actionContext}
@@ -81,7 +83,8 @@ ActionContext::Type ActionInfo::actionContext() const
   return m_actionContext;
 }
 
-const Preference<QKeySequence>& ActionInfo::keyboardShortcutPreference() const
+const Preference<std::vector<QKeySequence>>& ActionInfo::keyboardShortcutPreference()
+  const
 {
   return *m_keyboardShortcutPreference;
 }
@@ -104,21 +107,25 @@ bool ActionInfo::operator==(const ActionInfo& other) const
 
 std::vector<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
 {
-  auto entries = std::map<ActionInfo, size_t, ActionConflictCmp>{};
+  auto entries = std::map<ActionConflictKey, size_t>{};
   auto conflicts = std::vector<size_t>{};
 
   for (const auto& [index, actionInfo] : actionInfos | kdl::views::enumerate)
   {
-    const auto& keySequence = pref(actionInfo.keyboardShortcutPreference());
-    if (keySequence.count() > 0)
+    const auto actionIndex = static_cast<size_t>(index);
+    for (const auto& keySequence : pref(actionInfo.keyboardShortcutPreference()))
     {
-      const auto [it, noConflict] = entries.emplace(actionInfo, index);
-      if (!noConflict)
+      if (keySequence.count() > 0)
       {
-        // found a duplicate, so there are conflicts
-        const auto otherIndex = it->second;
-        conflicts.emplace_back(otherIndex);
-        conflicts.emplace_back(index);
+        const auto [it, noConflict] = entries.emplace(
+          ActionConflictKey{actionInfo.actionContext(), keySequence}, actionIndex);
+        if (!noConflict && it->second != actionIndex)
+        {
+          // found a duplicate, so there are conflicts
+          const auto otherIndex = it->second;
+          conflicts.emplace_back(otherIndex);
+          conflicts.emplace_back(actionIndex);
+        }
       }
     }
   }

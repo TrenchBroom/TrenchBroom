@@ -38,7 +38,7 @@ Action::Action(
   std::optional<QString> statusTip)
   : m_label{std::move(label)}
   , m_actionContext{actionContext}
-  , m_shortcutPreference{std::move(preferencePath), defaultShortcut}
+  , m_shortcutPreference{std::move(preferencePath), {defaultShortcut}}
   , m_execute{std::move(execute)}
   , m_enabled{std::move(enabled)}
   , m_checked{std::move(checked)}
@@ -98,12 +98,12 @@ ActionContext::Type Action::actionContext() const
   return m_actionContext;
 }
 
-const Preference<QKeySequence>& Action::preference() const
+const Preference<std::vector<QKeySequence>>& Action::preference() const
 {
   return m_shortcutPreference;
 }
 
-Preference<QKeySequence>& Action::preference()
+Preference<std::vector<QKeySequence>>& Action::preference()
 {
   return KDL_CONST_OVERLOAD(preference());
 }

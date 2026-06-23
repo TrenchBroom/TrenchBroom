@@ -259,18 +259,18 @@ inline auto CameraFlyMoveSpeed =
 
 inline auto Link2DCameras = Preference<bool>{"Controls/Camera/Link 2D cameras", true};
 
-inline auto CameraFlyForward =
-  Preference<QKeySequence>{"Controls/Camera/Move forward", QKeySequence{'W'}};
-inline auto CameraFlyBackward =
-  Preference<QKeySequence>{"Controls/Camera/Move backward", QKeySequence{'S'}};
-inline auto CameraFlyLeft =
-  Preference<QKeySequence>{"Controls/Camera/Move left", QKeySequence{'A'}};
-inline auto CameraFlyRight =
-  Preference<QKeySequence>{"Controls/Camera/Move right", QKeySequence{'D'}};
-inline auto CameraFlyUp =
-  Preference<QKeySequence>{"Controls/Camera/Move up", QKeySequence{'Q'}};
-inline auto CameraFlyDown =
-  Preference<QKeySequence>{"Controls/Camera/Move down", QKeySequence{'X'}};
+inline auto CameraFlyForward = Preference<std::vector<QKeySequence>>{
+  "Controls/Camera/Move forward", std::vector<QKeySequence>{'W'}};
+inline auto CameraFlyBackward = Preference<std::vector<QKeySequence>>{
+  "Controls/Camera/Move backward", std::vector<QKeySequence>{'S'}};
+inline auto CameraFlyLeft = Preference<std::vector<QKeySequence>>{
+  "Controls/Camera/Move left", std::vector<QKeySequence>{'A'}};
+inline auto CameraFlyRight = Preference<std::vector<QKeySequence>>{
+  "Controls/Camera/Move right", std::vector<QKeySequence>{'D'}};
+inline auto CameraFlyUp = Preference<std::vector<QKeySequence>>{
+  "Controls/Camera/Move up", std::vector<QKeySequence>{'Q'}};
+inline auto CameraFlyDown = Preference<std::vector<QKeySequence>>{
+  "Controls/Camera/Move down", std::vector<QKeySequence>{'X'}};
 
 // Map view config
 inline auto ShowEntityClassnames =
@@ -308,6 +308,6 @@ inline auto EntityLinkMode =
 
 std::vector<Preference<Color>*> colorPreferences();
 
-std::vector<Preference<QKeySequence>*> keyPreferences();
+std::vector<Preference<std::vector<QKeySequence>>*> keyPreferences();
 
 } // namespace tb::Preferences

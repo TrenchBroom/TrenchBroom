@@ -100,13 +100,17 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
   if (role == Qt::DisplayRole || role == Qt::EditRole)
   {
     const auto& actionInfo = this->actionInfo(index.row());
+
     auto& prefs = PreferenceManager::instance();
+    const auto& keyboardShortcuts =
+      prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
+
     switch (index.column())
     {
     case 0:
-      return prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
+      return !keyboardShortcuts.empty() ? keyboardShortcuts[0] : QKeySequence{};
     case 1:
-      return prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
+      return keyboardShortcuts.size() > 1 ? keyboardShortcuts[1] : QKeySequence{};
     case 2:
       return QString::fromStdString(actionContextName(actionInfo.actionContext()));
     case 3:
@@ -134,7 +138,33 @@ bool KeyboardShortcutModel::setData(
 
   // We take a copy here on purpose in order to set the key further below.
   auto& actionInfo = this->actionInfo(index.row());
-  prefs.set(actionInfo.keyboardShortcutPreference(), value.value<QKeySequence>());
+  auto keyboardShortcuts = prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
+
+  switch (index.column())
+  {
+  case 0:
+    if (keyboardShortcuts.empty())
+    {
+      keyboardShortcuts.emplace_back();
+    }
+    keyboardShortcuts[0] = value.value<QKeySequence>();
+    break;
+  case 1:
+    if (keyboardShortcuts.empty())
+    {
+      keyboardShortcuts.emplace_back();
+    }
+    if (keyboardShortcuts.size() == 1)
+    {
+      keyboardShortcuts.emplace_back();
+    }
+    keyboardShortcuts[1] = value.value<QKeySequence>();
+    break;
+  default:
+    break;
+  }
+
+  prefs.set(actionInfo.keyboardShortcutPreference(), std::move(keyboardShortcuts));
 
   updateConflicts();
 

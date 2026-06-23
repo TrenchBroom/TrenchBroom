@@ -72,7 +72,7 @@ QString toString(const QStringList& path, const QString& suffix)
   return result;
 }
 
-QString toString(const QKeySequence& keySequence)
+QString toString(const std::vector<QKeySequence>& keySequences)
 {
   static const std::array<std::tuple<int, QString>, 4> Modifiers = {
     std::make_tuple(static_cast<int>(Qt::CTRL), QString::fromLatin1("Ctrl")),
@@ -82,31 +82,46 @@ QString toString(const QKeySequence& keySequence)
   };
 
   auto result = QString{};
-  result += "{ ";
+  result += "[ ";
 
-  if (keySequence.count() > 0)
+  for (auto i = 0u; i < keySequences.size(); ++i)
   {
-    const auto keyWithModifier = keySequence[0].toCombined();
-    const auto key = keyWithModifier & ~(static_cast<int>(Qt::KeyboardModifierMask));
+    const auto& keySequence = keySequences[i];
 
-    const auto keyPortableText = QKeySequence{key}.toString(QKeySequence::PortableText);
-
-    result += "key: '" + escapeString(keyPortableText) + "', ";
-    result += "modifiers: [";
-    for (const auto& [modifier, portableText] : Modifiers)
+    if (i > 0)
     {
-      if ((keyWithModifier & modifier) != 0)
-      {
-        result += "'" + escapeString(portableText) + "', ";
-      }
+      result += ", ";
     }
-    result += "]";
+
+    result += "{ ";
+
+    if (keySequence.count() > 0)
+    {
+      const auto keyWithModifier = keySequence[0].toCombined();
+      const auto key = keyWithModifier & ~(static_cast<int>(Qt::KeyboardModifierMask));
+
+      const auto keyPortableText = QKeySequence{key}.toString(QKeySequence::PortableText);
+
+      result += "key: '" + escapeString(keyPortableText) + "', ";
+      result += "modifiers: [";
+      for (const auto& [modifier, portableText] : Modifiers)
+      {
+        if ((keyWithModifier & modifier) != 0)
+        {
+          result += "'" + escapeString(portableText) + "', ";
+        }
+      }
+      result += "]";
+    }
+    else
+    {
+      result += "key: '', modifiers: []";
+    }
+
+    result += " }";
   }
-  else
-  {
-    result += "key: '', modifiers: []";
-  }
-  result += " }";
+
+  result += " ]";
   return result;
 }
 

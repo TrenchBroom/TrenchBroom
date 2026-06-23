@@ -12,21 +12,24 @@ const key_str = (key) => {
 // our menu item lookups.
 const fix_ellipsis = (path) => path.replace("…", "...");
 
-const shortcut_str = (shortcut) => {
+const shortcut_str = (shortcuts) => {
     let result = "";
 
-    if (shortcut) {
-        if (shortcut.key == "") {
-            result = undefined;
-        } else {
-            for (i = 0; i < shortcut.modifiers.length; ++i) {
-                result += key_str(shortcut.modifiers[i]);
-            }
-            result += key_str(shortcut.key);
-        }
-    } else {
-        console.error("unknown shortcut ", shortcut);
-        result += "&laquo;unknown shortcut&raquo;";
+    if (shortcuts.length > 0) {
+      let shortcut = shortcuts[0];
+      if (shortcut) {
+          if (shortcut.key == "") {
+              result = undefined;
+          } else {
+              for (i = 0; i < shortcut.modifiers.length; ++i) {
+                  result += key_str(shortcut.modifiers[i]);
+              }
+              result += key_str(shortcut.key);
+          }
+      } else {
+          console.error("unknown shortcut ", shortcut);
+          result += "&laquo;unknown shortcut&raquo;";
+      }
     }
 
     return result;
