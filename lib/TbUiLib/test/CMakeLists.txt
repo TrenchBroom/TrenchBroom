@@ -4,6 +4,7 @@ target_sources(TbUiLibTest
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RunAllTests.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActionContext.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActionInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Actions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CameraTool3D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipTool.cpp
