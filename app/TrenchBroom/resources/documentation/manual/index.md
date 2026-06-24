@@ -1535,7 +1535,7 @@ Renderer Font Size          Text size in the map viewports (e.g. entity classnam
 
 ## Mouse Input {#mouse_input}
 
-![Mouse Configuration Dialog (Ubuntu Linux)](images/MousePreferences.png)
+![Mouse Configuration Dialog (macOS)](images/MousePreferences.png)
 
 The mouse input preference pane allows you to change how TrenchBroom interprets mouse movements.
 
@@ -1544,7 +1544,7 @@ Setting     Description
 Mouse Look  Sensitivity and axis inversion for mouse look and orbiting (right click and drag)
 Mouse Pan   Sensitivity and axis inversion for mouse panning (middle click and drag)
 Mouse Move  Sensitivity and settings for moving the camera with the mouse. If you use a tablet, the setting "Alt+MMB drag to move camera" might make navigation easier for you.
-Move Keys   Keyboard shortcuts for moving around in the map, with a separate slider to control the speed.
+Fly Mode    A slider to control the speed in fly mode. The keyboard shortcuts can be adjusted in the Keyboard Preferences.
 
 ## Keyboard Shortcuts {#keyboard_shortcuts}
 

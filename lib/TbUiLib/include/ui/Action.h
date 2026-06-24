@@ -29,7 +29,6 @@
 #include <filesystem>
 #include <functional>
 #include <optional>
-#include <vector>
 
 namespace tb
 {
@@ -120,8 +119,6 @@ public:
   Action(Action&& other) = default;
   Action& operator=(Action&& other) = default;
 };
-
-std::vector<size_t> findConflicts(const std::vector<const Action*>& actions);
 
 } // namespace ui
 } // namespace tb

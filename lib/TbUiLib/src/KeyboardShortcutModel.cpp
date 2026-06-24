@@ -21,7 +21,9 @@
 
 #include <QBrush>
 
+#include "Macros.h"
 #include "PreferenceManager.h"
+#include "Preferences.h"
 #include "ui/Action.h"
 #include "ui/ActionContext.h"
 #include "ui/ActionManager.h"
@@ -29,56 +31,12 @@
 #include "ui/MapDocument.h"
 #include "ui/QPathUtils.h"
 
-#include "kd/const_overload.h"
 #include "kd/contracts.h"
-#include "kd/ranges/to.h"
 #include "kd/set_adapter.h"
 #include "kd/vector_utils.h"
 
-#include <ranges>
-
 namespace tb::ui
 {
-
-KeyboardShortcutModel::ActionInfo::ActionInfo(
-  const ActionInfoType type, std::filesystem::path displayPath, Action& action)
-  : m_type{type}
-  , m_displayPath{std::move(displayPath)}
-  , m_action{&action}
-{
-}
-
-const std::filesystem::path& KeyboardShortcutModel::ActionInfo::displayPath() const
-{
-  return m_displayPath;
-}
-
-const Action& KeyboardShortcutModel::ActionInfo::action() const
-{
-  return *m_action;
-}
-
-Action& KeyboardShortcutModel::ActionInfo::action()
-{
-  return KDL_CONST_OVERLOAD(action());
-}
-
-std::strong_ordering KeyboardShortcutModel::ActionInfo::operator<=>(
-  const ActionInfo& other) const
-{
-  const auto typeResult = m_type <=> other.m_type;
-  if (typeResult != std::strong_ordering::equal || m_type == ActionInfoType::Menu)
-  {
-    return typeResult;
-  }
-
-  return m_displayPath <=> other.m_displayPath;
-}
-
-bool KeyboardShortcutModel::ActionInfo::operator==(const ActionInfo& other) const
-{
-  return m_type == other.m_type && m_displayPath == other.m_displayPath;
-}
 
 KeyboardShortcutModel::KeyboardShortcutModel(
   ActionManager& actionManager, MapDocument* document, QObject* parent)
@@ -136,12 +94,11 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     if (index.column() == 0)
     {
       auto& prefs = PreferenceManager::instance();
-      return prefs.getPendingValue(actionInfo.action().preference());
+      return prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
     }
     if (index.column() == 1)
     {
-      return QString::fromStdString(
-        actionContextName(actionInfo.action().actionContext()));
+      return QString::fromStdString(actionContextName(actionInfo.actionContext()));
     }
     return QString::fromStdString(actionInfo.displayPath().generic_string());
   }
@@ -164,7 +121,7 @@ bool KeyboardShortcutModel::setData(
 
   // We take a copy here on purpose in order to set the key further below.
   auto& actionInfo = this->actionInfo(index.row());
-  prefs.set(actionInfo.action().preference(), value.value<QKeySequence>());
+  prefs.set(actionInfo.keyboardShortcutPreference(), value.value<QKeySequence>());
 
   updateConflicts();
 
@@ -182,6 +139,26 @@ Qt::ItemFlags KeyboardShortcutModel::flags(const QModelIndex& index) const
   return index.column() == 0
            ? Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable
            : Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+size_t KeyboardShortcutModel::maxKeySequenceCount(const QModelIndex& index) const
+{
+  if (checkIndex(index))
+  {
+    switch (actionInfo(index.row()).type())
+    {
+    case ActionInfoType::Menu:
+    case ActionInfoType::View:
+    case ActionInfoType::Tag:
+    case ActionInfoType::EntityDefinition:
+      return 4;
+    case ActionInfoType::Key:
+      return 1;
+      switchDefault();
+    }
+  }
+
+  return 0;
 }
 
 bool KeyboardShortcutModel::hasConflicts() const
@@ -203,6 +180,7 @@ void KeyboardShortcutModel::initializeActions()
 {
   initializeMenuActions();
   initializeViewActions();
+  initializeKeys();
   if (m_document)
   {
     initializeTagActions();
@@ -221,7 +199,8 @@ void KeyboardShortcutModel::initializeMenuActions()
       m_actions.emplace_back(
         ActionInfoType::Menu,
         currentPath / pathFromQString(actionItem.action.label()),
-        actionItem.action);
+        actionItem.action.actionContext(),
+        actionItem.action.preference());
     },
     [&](const auto& thisLambda, const Menu& menu) {
       currentPath = currentPath / menu.name;
@@ -234,8 +213,45 @@ void KeyboardShortcutModel::initializeViewActions()
 {
   m_actionManager.visitMapViewActions([&](Action& action) {
     m_actions.emplace_back(
-      ActionInfoType::View, "Map View" / pathFromQString(action.label()), action);
+      ActionInfoType::View,
+      "Map View" / pathFromQString(action.label()),
+      action.actionContext(),
+      action.preference());
   });
+}
+
+void KeyboardShortcutModel::initializeKeys()
+{
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Forward",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyForward);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Left",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyLeft);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Backward",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyBackward);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Right",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyRight);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Up",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyUp);
+  m_actions.emplace_back(
+    ActionInfoType::Key,
+    std::filesystem::path{"Map View"} / "Fly Down",
+    ActionContext::FlyMode,
+    Preferences::CameraFlyDown);
 }
 
 void KeyboardShortcutModel::initializeTagActions()
@@ -244,7 +260,10 @@ void KeyboardShortcutModel::initializeTagActions()
 
   m_document->visitTagActions(m_actionManager, [&](Action& action) {
     m_actions.emplace_back(
-      ActionInfoType::Tag, "Tags" / pathFromQString(action.label()), action);
+      ActionInfoType::Tag,
+      "Tags" / pathFromQString(action.label()),
+      action.actionContext(),
+      action.preference());
   });
 }
 
@@ -256,18 +275,14 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
     m_actions.emplace_back(
       ActionInfoType::EntityDefinition,
       "Entity Definitions" / pathFromQString(action.label()),
-      action);
+      action.actionContext(),
+      action.preference());
   });
 }
 
 void KeyboardShortcutModel::updateConflicts()
 {
-  const auto allActions = m_actions | std::views::transform([](const auto& actionInfo) {
-                            return const_cast<const Action*>(&actionInfo.action());
-                          })
-                          | kdl::ranges::to<std::vector>();
-
-  m_conflicts = kdl::vec_static_cast<int>(findConflicts(allActions));
+  m_conflicts = kdl::vec_static_cast<int>(findConflicts(m_actions));
   for (const auto& row : m_conflicts)
   {
     const auto index = createIndex(row, 0);
@@ -275,8 +290,7 @@ void KeyboardShortcutModel::updateConflicts()
   }
 }
 
-const KeyboardShortcutModel::ActionInfo& KeyboardShortcutModel::actionInfo(
-  const int index) const
+const ActionInfo& KeyboardShortcutModel::actionInfo(const int index) const
 {
   contract_pre(index < totalActionCount());
 

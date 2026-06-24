@@ -22,11 +22,14 @@
 #include <QItemEditorFactory>
 
 #include "ui/KeySequenceEdit.h"
+#include "ui/KeyboardShortcutModel.h"
 
 namespace tb::ui
 {
 
-KeyboardShortcutItemDelegate::KeyboardShortcutItemDelegate()
+KeyboardShortcutItemDelegate::KeyboardShortcutItemDelegate(
+  const KeyboardShortcutModel& model)
+  : m_model{model}
 {
   auto* itemEditorFactory = new QItemEditorFactory{};
   itemEditorFactory->registerEditor(
@@ -40,6 +43,8 @@ QWidget* KeyboardShortcutItemDelegate::createEditor(
   auto* widget = QStyledItemDelegate::createEditor(parent, option, index);
   if (auto* editor = dynamic_cast<KeySequenceEdit*>(widget))
   {
+    editor->setMaxCount(m_model.maxKeySequenceCount(index));
+
     connect(
       editor,
       &KeySequenceEdit::editingFinished,
