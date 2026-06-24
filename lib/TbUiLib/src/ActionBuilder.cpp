@@ -29,26 +29,27 @@
 #include "ui/ImageUtils.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/to.h"
 
 namespace tb::ui
 {
 
 void updateActionKeySequence(QAction& qAction, const Action& tAction)
 {
-  const auto& shortcutPreference = pref(tAction.preference());
-  if (!shortcutPreference.isEmpty())
+  const auto& keySequences = pref(tAction.preference());
+
+  auto tooltip = tAction.label();
+  for (const auto& keySequence : keySequences)
   {
-    const auto tooltip = QObject::tr("%1 (%2)")
-                           .arg(tAction.label())
-                           .arg(shortcutPreference.toString(QKeySequence::NativeText));
-    qAction.setToolTip(tooltip);
-  }
-  else
-  {
-    qAction.setToolTip(tAction.label());
+    if (!keySequence.isEmpty())
+    {
+      tooltip.append(
+        QObject::tr(" (%1)").arg(keySequence.toString(QKeySequence::NativeText)));
+    }
   }
 
-  qAction.setShortcut(shortcutPreference);
+  qAction.setToolTip(tooltip);
+  qAction.setShortcuts(keySequences | kdl::ranges::to<QList>());
 }
 
 namespace

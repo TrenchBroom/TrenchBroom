@@ -22,7 +22,9 @@
 #pragma once
 
 class QJsonValue;
+class QKeySequence;
 class QString;
 
 std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs);
+std::ostream& operator<<(std::ostream& lhs, const QKeySequence& rhs);
 std::ostream& operator<<(std::ostream& lhs, const QString& rhs);

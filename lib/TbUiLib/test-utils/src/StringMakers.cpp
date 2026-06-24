@@ -20,6 +20,7 @@
 #include "ui/StringMakers.h"
 
 #include <QJsonValue>
+#include <QKeySequence>
 #include <QString>
 #include <QVariant>
 
@@ -34,6 +35,11 @@ std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs)
            "QJsonValue<{}>({})",
            asVariant.typeName(),
            qUtf8Printable(asVariant.toString()));
+}
+
+std::ostream& operator<<(std::ostream& lhs, const QKeySequence& rhs)
+{
+  return lhs << qUtf8Printable(rhs.toString(QKeySequence::NativeText));
 }
 
 std::ostream& operator<<(std::ostream& lhs, const QString& rhs)

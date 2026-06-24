@@ -113,9 +113,9 @@ struct MockPreferenceStore : public PreferenceStore
     return false;
   }
 
-  bool load(const std::filesystem::path&, QKeySequence&) override
+  bool load(const std::filesystem::path&, std::vector<QKeySequence>&) override
   {
-    // cannot test QKeySequence here
+    // cannot test std::vector<QKeySequence> here
     return false;
   }
 
@@ -150,9 +150,9 @@ struct MockPreferenceStore : public PreferenceStore
     values[path] = value;
   }
 
-  void save(const std::filesystem::path&, const QKeySequence&) override
+  void save(const std::filesystem::path&, const std::vector<QKeySequence>&) override
   {
-    // can't test QKeySequence here
+    // can't test std::vector<QKeySequence> here
   }
 
   std::unordered_map<std::filesystem::path, Value> values;

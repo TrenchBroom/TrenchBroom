@@ -55,7 +55,7 @@ class Action
 private:
   QString m_label;
   ActionContext::Type m_actionContext;
-  Preference<QKeySequence> m_shortcutPreference;
+  Preference<std::vector<QKeySequence>> m_shortcutPreference;
 
   ExecuteFn m_execute;
   EnabledFn m_enabled;
@@ -98,8 +98,8 @@ public:
   const QString& label() const;
   ActionContext::Type actionContext() const;
 
-  const Preference<QKeySequence>& preference() const;
-  Preference<QKeySequence>& preference();
+  const Preference<std::vector<QKeySequence>>& preference() const;
+  Preference<std::vector<QKeySequence>>& preference();
 
   void execute(ActionExecutionContext& context) const;
   bool enabled(const ActionExecutionContext& context) const;

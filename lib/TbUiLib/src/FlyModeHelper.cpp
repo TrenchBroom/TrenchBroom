@@ -40,19 +40,22 @@ qint64 msecsSinceReference()
   return timer.msecsSinceReference();
 }
 
-bool eventMatchesShortcut(const QKeySequence& shortcut, const QKeyEvent& event)
+bool eventMatchesShortcut(
+  const std::vector<QKeySequence>& shortcuts, const QKeyEvent& event)
 {
-  if (shortcut.isEmpty())
-  {
-    return false;
-  }
+  return std::ranges::any_of(shortcuts, [&](const auto& shortcut) {
+    if (shortcut.isEmpty())
+    {
+      return false;
+    }
 
-  // NOTE: For triggering fly mode we only support single keys.
-  // e.g. you can't bind Shift+W to fly forward, only Shift or W.
-  const auto modifiers = Qt::KeyboardModifiers{};
-  const auto key = event.keyCombination().key();
-  const auto eventSequence = QKeySequence{QKeyCombination{modifiers, key}};
-  return eventSequence.matches(shortcut) == QKeySequence::ExactMatch;
+    // NOTE: For triggering fly mode we only support single keys.
+    // e.g. you can't bind Shift+W to fly forward, only Shift or W.
+    const auto modifiers = Qt::KeyboardModifiers{};
+    const auto key = event.keyCombination().key();
+    const auto eventSequence = QKeySequence{QKeyCombination{modifiers, key}};
+    return eventSequence.matches(shortcut) == QKeySequence::ExactMatch;
+  });
 }
 
 } // namespace

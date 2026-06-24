@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QKeySequence>
@@ -34,6 +35,9 @@
 #include "Macros.h"
 #include "ui/QPathUtils.h"
 
+#include "kd/ranges/to.h"
+
+#include <ranges>
 #include <unordered_map>
 
 namespace tb::ui
@@ -212,14 +216,29 @@ bool QPreferenceStoreDelegate::load(const std::filesystem::path& path, Color& va
 }
 
 bool QPreferenceStoreDelegate::load(
-  const std::filesystem::path& path, QKeySequence& value)
+  const std::filesystem::path& path, std::vector<QKeySequence>& value)
 {
   if (const auto iValue = m_cache.find(path); iValue != m_cache.end())
   {
     const auto& jsonValue = iValue->second;
-    if (jsonValue.isString())
+    if (jsonValue.isArray())
     {
-      value = QKeySequence::fromString(jsonValue.toString(), QKeySequence::PortableText);
+      const auto jsonArray = jsonValue.toArray();
+      if (std::ranges::all_of(jsonArray, [](const auto& x) { return x.isString(); }))
+      {
+        value =
+          jsonArray | std::views::transform([](const auto& x) {
+            return QKeySequence::fromString(x.toString(), QKeySequence::PortableText);
+          })
+          | kdl::ranges::to<std::vector>();
+        return true;
+      }
+    }
+    else if (jsonValue.isString())
+    {
+      // fallback for legacy preference files
+      value.push_back(
+        QKeySequence::fromString(jsonValue.toString(), QKeySequence::PortableText));
       return true;
     }
   }
@@ -265,9 +284,15 @@ void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const Col
 }
 
 void QPreferenceStoreDelegate::save(
-  const std::filesystem::path& path, const QKeySequence& value)
+  const std::filesystem::path& path, const std::vector<QKeySequence>& value)
 {
-  m_cache[path] = QJsonValue{value.toString(QKeySequence::PortableText)};
+  auto jsonArray = QJsonArray{};
+  for (const auto& keySequence : value)
+  {
+    jsonArray.push_back(QJsonValue{keySequence.toString(QKeySequence::PortableText)});
+  }
+
+  m_cache[path] = std::move(jsonArray);
   triggerSaveChanges();
 }
 

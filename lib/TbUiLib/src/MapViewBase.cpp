@@ -298,11 +298,11 @@ void MapViewBase::createActions()
   m_shortcuts.clear();
 
   auto visitor = [this](const Action& action) {
-    const auto& keySequence = pref(action.preference());
+    const auto& keySequences = pref(action.preference());
 
     auto* shortcut = new QShortcut{this};
     shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    shortcut->setKey(keySequence);
+    shortcut->setKeys(keySequences | kdl::ranges::to<QList>());
     connect(
       shortcut, &QShortcut::activated, this, [this, &action] { triggerAction(action); });
     connect(shortcut, &QShortcut::activatedAmbiguously, this, [this, &action] {
@@ -324,7 +324,7 @@ void MapViewBase::updateActionBindings()
 {
   for (auto& [shortcut, action] : m_shortcuts)
   {
-    shortcut->setKey(pref(action->preference()));
+    shortcut->setKeys(pref(action->preference()) | kdl::ranges::to<QList>());
   }
 }
 

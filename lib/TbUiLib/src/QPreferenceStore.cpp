@@ -68,7 +68,8 @@ bool QPreferenceStore::load(const std::filesystem::path& path, Color& value)
   return m_delegate->load(path, value);
 }
 
-bool QPreferenceStore::load(const std::filesystem::path& path, QKeySequence& value)
+bool QPreferenceStore::load(
+  const std::filesystem::path& path, std::vector<QKeySequence>& value)
 {
   return m_delegate->load(path, value);
 }
@@ -103,7 +104,8 @@ void QPreferenceStore::save(const std::filesystem::path& path, const Color& valu
   m_delegate->save(path, value);
 }
 
-void QPreferenceStore::save(const std::filesystem::path& path, const QKeySequence& value)
+void QPreferenceStore::save(
+  const std::filesystem::path& path, const std::vector<QKeySequence>& value)
 {
   m_delegate->save(path, value);
 }

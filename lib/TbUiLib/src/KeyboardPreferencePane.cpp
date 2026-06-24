@@ -52,16 +52,18 @@ KeyboardPreferencePane::KeyboardPreferencePane(
 {
   m_proxy->setSourceModel(m_model);
   m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-  m_proxy->setFilterKeyColumn(2); // Filter based on the text in the Description column
+  m_proxy->setFilterKeyColumn(3); // Filter based on the text in the Description column
 
   m_table->setModel(m_proxy);
 
   m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));
   m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
-  m_table->horizontalHeader()->resizeSection(0, 150);
+  m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Fixed);
+  m_table->horizontalHeader()->resizeSection(0, 100);
+  m_table->horizontalHeader()->resizeSection(1, 100);
   m_table->horizontalHeader()->setSectionResizeMode(
-    1, QHeaderView::ResizeMode::ResizeToContents);
-  m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Stretch);
+    2, QHeaderView::ResizeMode::ResizeToContents);
+  m_table->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeMode::Stretch);
 
   // Tighter than default vertical row height, without the overhead of autoresizing
   m_table->verticalHeader()->setDefaultSectionSize(

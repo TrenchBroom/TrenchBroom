@@ -55,7 +55,7 @@ void KeyboardShortcutModel::reset()
   updateConflicts();
   if (totalActionCount() > 0)
   {
-    emit dataChanged(createIndex(0, 0), createIndex(totalActionCount() - 1, 2));
+    emit dataChanged(createIndex(0, 0), createIndex(totalActionCount() - 1, 3));
   }
 }
 
@@ -66,8 +66,8 @@ int KeyboardShortcutModel::rowCount(const QModelIndex& /* parent */) const
 
 int KeyboardShortcutModel::columnCount(const QModelIndex& /* parent */) const
 {
-  // Shortcut, Context, Description
-  return 3;
+  // Shortcut, Alternative, Context, Description
+  return 4;
 }
 
 QVariant KeyboardShortcutModel::headerData(
@@ -75,9 +75,17 @@ QVariant KeyboardShortcutModel::headerData(
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
   {
-    return section == 0   ? QString{"Shortcut"}
-           : section == 1 ? QString{"Context"}
-                          : QString{"Description"};
+    switch (section)
+    {
+    case 0:
+      return QString{"Shortcut"};
+    case 1:
+      return QString{"Alternative"};
+    case 2:
+      return QString{"Context"};
+    case 3:
+      return QString{"Description"};
+    }
   }
   return QVariant{};
 }
@@ -88,24 +96,33 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
   {
     return QVariant{};
   }
+
   if (role == Qt::DisplayRole || role == Qt::EditRole)
   {
     const auto& actionInfo = this->actionInfo(index.row());
-    if (index.column() == 0)
+
+    auto& prefs = PreferenceManager::instance();
+    const auto& keyboardShortcuts =
+      prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
+
+    switch (index.column())
     {
-      auto& prefs = PreferenceManager::instance();
-      return prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
-    }
-    if (index.column() == 1)
-    {
+    case 0:
+      return !keyboardShortcuts.empty() ? keyboardShortcuts[0] : QKeySequence{};
+    case 1:
+      return keyboardShortcuts.size() > 1 ? keyboardShortcuts[1] : QKeySequence{};
+    case 2:
       return QString::fromStdString(actionContextName(actionInfo.actionContext()));
+    case 3:
+      return QString::fromStdString(actionInfo.displayPath().generic_string());
     }
-    return QString::fromStdString(actionInfo.displayPath().generic_string());
   }
+
   if (role == Qt::ForegroundRole && hasConflicts(index))
   {
     return QBrush{Qt::red};
   }
+
   return QVariant{};
 }
 
@@ -121,7 +138,33 @@ bool KeyboardShortcutModel::setData(
 
   // We take a copy here on purpose in order to set the key further below.
   auto& actionInfo = this->actionInfo(index.row());
-  prefs.set(actionInfo.keyboardShortcutPreference(), value.value<QKeySequence>());
+  auto keyboardShortcuts = prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
+
+  switch (index.column())
+  {
+  case 0:
+    if (keyboardShortcuts.empty())
+    {
+      keyboardShortcuts.emplace_back();
+    }
+    keyboardShortcuts[0] = value.value<QKeySequence>();
+    break;
+  case 1:
+    if (keyboardShortcuts.empty())
+    {
+      keyboardShortcuts.emplace_back();
+    }
+    if (keyboardShortcuts.size() == 1)
+    {
+      keyboardShortcuts.emplace_back();
+    }
+    keyboardShortcuts[1] = value.value<QKeySequence>();
+    break;
+  default:
+    break;
+  }
+
+  prefs.set(actionInfo.keyboardShortcutPreference(), std::move(keyboardShortcuts));
 
   updateConflicts();
 
@@ -136,9 +179,14 @@ Qt::ItemFlags KeyboardShortcutModel::flags(const QModelIndex& index) const
     return Qt::ItemIsEnabled;
   }
 
-  return index.column() == 0
-           ? Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable
-           : Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  switch (index.column())
+  {
+  case 0:
+  case 1:
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+  default:
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  }
 }
 
 size_t KeyboardShortcutModel::maxKeySequenceCount(const QModelIndex& index) const
@@ -304,7 +352,7 @@ int KeyboardShortcutModel::totalActionCount() const
 
 bool KeyboardShortcutModel::checkIndex(const QModelIndex& index) const
 {
-  return index.isValid() && index.column() < 3 && index.row() < totalActionCount();
+  return index.isValid() && index.column() < 4 && index.row() < totalActionCount();
 }
 
 } // namespace tb::ui

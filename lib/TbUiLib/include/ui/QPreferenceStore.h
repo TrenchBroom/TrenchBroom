@@ -60,7 +60,7 @@ public:
   bool load(const std::filesystem::path& path, std::string& value) override;
   bool load(const std::filesystem::path& path, std::filesystem::path& value) override;
   bool load(const std::filesystem::path& path, Color& value) override;
-  bool load(const std::filesystem::path& path, QKeySequence& value) override;
+  bool load(const std::filesystem::path& path, std::vector<QKeySequence>& value) override;
 
   void save(const std::filesystem::path& path, bool value) override;
   void save(const std::filesystem::path& path, float value) override;
@@ -69,7 +69,8 @@ public:
   void save(
     const std::filesystem::path& path, const std::filesystem::path& value) override;
   void save(const std::filesystem::path& path, const Color& value) override;
-  void save(const std::filesystem::path& path, const QKeySequence& value) override;
+  void save(
+    const std::filesystem::path& path, const std::vector<QKeySequence>& value) override;
 };
 
 } // namespace ui

@@ -52,7 +52,7 @@ bool TestPreferenceStore::load(const std::filesystem::path&, Color&)
   return false;
 }
 
-bool TestPreferenceStore::load(const std::filesystem::path&, QKeySequence&)
+bool TestPreferenceStore::load(const std::filesystem::path&, std::vector<QKeySequence>&)
 {
   return false;
 }
@@ -71,7 +71,10 @@ void TestPreferenceStore::save(const std::filesystem::path&, const std::filesyst
 
 void TestPreferenceStore::save(const std::filesystem::path&, const Color&) {}
 
-void TestPreferenceStore::save(const std::filesystem::path&, const QKeySequence&) {}
+void TestPreferenceStore::save(
+  const std::filesystem::path&, const std::vector<QKeySequence>&)
+{
+}
 
 
 } // namespace tb
