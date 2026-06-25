@@ -77,23 +77,29 @@ TEST_CASE("RecentDocuments")
     });
 
     auto recentDocuments = RecentDocuments{5, filterPredicate};
-    CHECK(recentDocuments.recentDocuments().empty());
+    CHECK(
+      recentDocuments.recentDocuments()
+      == std::vector<std::filesystem::path>{
+        "1.map",
+        "2.map",
+      });
   }
 
   SECTION("reload")
   {
-    saveRecentDocuments({
-      "1.map",
-      "2.map",
-      "filter.map",
-    });
+    saveRecentDocuments({});
 
     auto recentDocuments = RecentDocuments{5, filterPredicate};
     REQUIRE(recentDocuments.recentDocuments().empty());
 
     auto spy = QSignalSpy{&recentDocuments, SIGNAL(didChange())};
-
     REQUIRE(spy.count() == 0);
+
+    saveRecentDocuments({
+      "1.map",
+      "2.map",
+      "filter.map",
+    });
 
     recentDocuments.reload();
     CHECK(

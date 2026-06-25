@@ -79,6 +79,7 @@ RecentDocuments::RecentDocuments(
   , m_filterPredicate{std::move(filterPredicate)}
 {
   contract_pre(m_maxSize > 0);
+  reload();
 }
 
 std::vector<std::filesystem::path> RecentDocuments::recentDocuments() const
