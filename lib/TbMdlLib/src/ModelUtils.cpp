@@ -26,10 +26,19 @@
 #include "mdl/NodeQueries.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/cartesian_product_view.h"
 #include "kd/ranges/to.h"
 #include "kd/stable_remove_duplicates.h"
 #include "kd/vector_utils.h"
 
+#include "vm/bbox.h"
+#include "vm/intersection.h"
+#include "vm/segment.h"
+
+#include <algorithm>
+#include <ranges>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace tb::mdl
@@ -383,6 +392,104 @@ std::vector<BrushFaceHandle> collectSelectableBrushFaces(
     nodes, [&](const BrushNode& brushNode, const BrushFace& brushFace) {
       return editorContext.selectable(brushNode, brushFace);
     });
+}
+
+std::vector<BrushFaceHandle> collectConnectedCoplanarFaces(
+  const BrushFaceHandle& startFace,
+  const EditorContext& editorContext,
+  const NodeTree& nodeTree)
+{
+  constexpr auto epsilon = vm::constants<double>::almost_zero();
+  const auto& startPlane = startFace.face().boundary();
+
+  struct Candidate
+  {
+    BrushFaceHandle handle;
+    std::vector<vm::segment3d> edges;
+    vm::bbox3d bounds;
+  };
+
+  const auto makeCandidate = [&](const BrushFaceHandle& handle) {
+    const auto vertices = handle.face().vertexPositions();
+    const auto edges =
+      handle.face().edges()
+      | std::views::transform([](const auto* edge) { return edge->segment(); });
+
+    auto builder = vm::bbox3d::builder{};
+    builder.add(std::begin(vertices), std::end(vertices));
+
+    return Candidate{
+      handle,
+      edges | kdl::ranges::to<std::vector>(),
+      builder.bounds().expand(epsilon),
+    };
+  };
+
+  const auto facesShareEdgeSegment = [](const auto& lhs, const auto& rhs) {
+    const auto allEdgePairs = kdl::views::cartesian_product(lhs, rhs);
+    return std::ranges::any_of(allEdgePairs, [](const auto& edgePair) {
+      const auto& [lhsEdge, rhsEdge] = edgePair;
+      return vm::segments_overlap(lhsEdge, rhsEdge, vm::Cd::almost_zero());
+    });
+  };
+
+  // Cache coplanar+selectable faces per brush node so a node hit from multiple flood
+  // directions has its face list computed only once. Querying the node tree keeps the
+  // flood local instead of scanning the whole map, and dropping unselectable faces stops
+  // hidden or locked brushes from bridging the region.
+  auto nodeCache = std::unordered_map<Node*, std::vector<BrushFaceHandle>>{};
+
+  const auto coplanarFacesOf = [&](Node* node) -> const std::vector<BrushFaceHandle>& {
+    auto [it, inserted] = nodeCache.emplace(node, std::vector<BrushFaceHandle>{});
+    if (inserted)
+    {
+      it->second = collectSelectableBrushFaces(std::vector<Node*>{node}, editorContext)
+                   | std::views::filter([&](const auto& handle) {
+                       return handle.face().coplanarWith(startPlane);
+                     })
+                   | kdl::ranges::to<std::vector>();
+    }
+    return it->second;
+  };
+
+  const auto coplanarFacesNear = [&](const vm::bbox3d& bounds) {
+    auto result = std::vector<BrushFaceHandle>{};
+    for (auto* node : nodeTree.find_intersectors(bounds))
+    {
+      kdl::vec_append(result, coplanarFacesOf(node));
+    }
+    return result;
+  };
+
+  // Flood out from the start face, re-querying the tree around each face we reach so a
+  // long row of brushes is followed without ever visiting the rest of the map.
+  auto region = std::vector<BrushFaceHandle>{};
+  auto visited = kdl::vector_set<BrushFaceHandle>{startFace};
+  auto pending = std::vector<Candidate>{};
+  pending.push_back(makeCandidate(startFace));
+
+  while (!pending.empty())
+  {
+    const auto current = kdl::vec_pop_back(pending);
+    region.push_back(current.handle);
+
+    for (const auto& handle : coplanarFacesNear(current.bounds))
+    {
+      if (visited.count(handle) == 0)
+      {
+        auto candidate = makeCandidate(handle);
+        if (
+          current.bounds.intersects(candidate.bounds)
+          && facesShareEdgeSegment(current.edges, candidate.edges))
+        {
+          visited.insert(handle);
+          pending.push_back(std::move(candidate));
+        }
+      }
+    }
+  }
+
+  return region;
 }
 
 vm::bbox3d computeLogicalBounds(
