@@ -36,6 +36,7 @@
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/WorldNode.h"
 #include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
@@ -80,6 +81,12 @@ bool isFaceClick(const InputState& inputState)
 bool isMultiClick(const InputState& inputState)
 {
   return inputState.modifierKeysDown(ModifierKeys::CtrlCmd);
+}
+
+bool isCoplanarFaceClick(const InputState& inputState)
+{
+  return inputState.checkModifierKeys(
+    ModifierKeyPressed::DontCare, ModifierKeyPressed::Yes, ModifierKeyPressed::Yes);
 }
 
 const mdl::Hit& firstHit(const InputState& inputState, const mdl::HitFilter& hitFilter)
@@ -385,6 +392,29 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
 
   auto& map = m_document.map();
   const auto& editorContext = map.editorContext();
+
+  // Shift+Alt double click flood fills the clicked face's coplanar surface. Alt is
+  // held here, which handleClick() rejects, so we have to catch it before that.
+  if (isCoplanarFaceClick(inputState))
+  {
+    if (!canHandleLeftClick(inputState, editorContext))
+    {
+      return false;
+    }
+
+    const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
+    {
+      if (editorContext.selectable(*faceHandle->node(), faceHandle->face()))
+      {
+        const auto region = mdl::collectConnectedCoplanarFaces(
+          *faceHandle, editorContext, map.worldNode().nodeTree());
+        replaceOrExtendFaceSelection(
+          map, inputState, region, "Select Connected Coplanar Faces");
+      }
+    }
+    return true;
+  }
 
   if (!handleClick(inputState, editorContext))
   {

@@ -314,6 +314,72 @@ TEST_CASE("SelectionTool")
             }
           }
 
+          WHEN("A brush node with a coplanar face exists and its front face is selected")
+          {
+            auto coplanarBrush =
+              builder.createCube(
+                32.0,
+                "left_face",
+                "right_face",
+                "front_face",
+                "back_face",
+                "top_face",
+                "bottom_face")
+              | kdl::and_then([&](auto b) {
+                  return b.transform(
+                           map.worldBounds(),
+                           vm::translation_matrix(vm::vec3d{32, 0, 0}),
+                           false)
+                         | kdl::transform([&]() { return std::move(b); });
+                })
+              | kdl::value();
+
+            auto* coplanarBrushNode = new mdl::BrushNode{std::move(coplanarBrush)};
+            addNodes(map, {{parentForNodes(map), {coplanarBrushNode}}});
+
+            const auto coplanarTopFaceIndex =
+              *coplanarBrushNode->brush().findFace("top_face");
+            mdl::selectBrushFaces(map, {{brushNode, frontFaceIndex}});
+
+            AND_WHEN("I select all adjacent coplanar faces")
+            {
+              inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::Alt);
+              inputState.mouseDown(MouseButtons::Left);
+              tool.mouseDoubleClick(inputState);
+              inputState.mouseUp(MouseButtons::Left);
+
+              THEN("The clicked face's coplanar region is selected")
+              {
+                CHECK_THAT(
+                  map.selection().brushFaces,
+                  UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
+                    {brushNode, topFaceIndex},
+                    {coplanarBrushNode, coplanarTopFaceIndex}}));
+                CHECK_FALSE(map.selection().hasNodes());
+              }
+            }
+
+            AND_WHEN("I add all adjacent coplanar faces")
+            {
+              inputState.setModifierKeys(
+                ModifierKeys::CtrlCmd | ModifierKeys::Shift | ModifierKeys::Alt);
+              inputState.mouseDown(MouseButtons::Left);
+              tool.mouseDoubleClick(inputState);
+              inputState.mouseUp(MouseButtons::Left);
+
+              THEN("The clicked face's coplanar region is added to the selection")
+              {
+                CHECK_THAT(
+                  map.selection().brushFaces,
+                  UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
+                    {brushNode, frontFaceIndex},
+                    {brushNode, topFaceIndex},
+                    {coplanarBrushNode, coplanarTopFaceIndex}}));
+                CHECK_FALSE(map.selection().hasNodes());
+              }
+            }
+          }
+
           WHEN("I click once")
           {
             inputState.mouseDown(MouseButtons::Left);
