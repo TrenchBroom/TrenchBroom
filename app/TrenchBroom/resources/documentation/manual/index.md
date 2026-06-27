@@ -501,6 +501,12 @@ Patches can be edited using the Control Point Tool.
 
 Adjusting the control points works in the same way as [editing vertices](#vertex_editing), so we won't repeat all the details here. Just select and drag the control points to adjust the shape of the patch. Like in the vertex tool, control points at the same positions are clumped together so that you can edit the control points of adjacent patches together.
 
+When the tool is active and a patch is selected, you can change the number of rows or columns of the control point grid with the two spin boxes at the top of the map view:
+
+![Editing the Control Point Grid](images/ControlPointToolSpinBoxes.png)
+
+These spin boxes are only enabled if all of the selected patches have the same number of rows and columns of control points. When you adjust one of the two boxes, the patches new shape will approximate the previous shape as closely as possible: When the number of control points increases, the new shape will be exactly the same as the previous shape, but when the number of control points decreases, the new shape cannot represent the previous shape perfectly due to a loss of information.
+
 ### Creating Entities {#creating_entities}
 
 There are two types of entities: point entities and brush entities, and it depends on the type how an entity is created. In the following sections, we present three ways of creating point entities and two ways to create brush entities.

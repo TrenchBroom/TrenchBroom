@@ -19,41 +19,34 @@
 
 #pragma once
 
-#include "ui/NodeHandleToolBase.h"
+#include <QWidget>
 
-#include <string>
-#include <vector>
+#include "NotifierConnection.h"
+
+class QSpinBox;
 
 namespace tb::ui
 {
 class MapDocument;
 
-class ControlPointTool : public NodeHandleToolBase<mdl::ControlPointHandle>
+class ControlPointToolPage : public QWidget
 {
-public:
-  explicit ControlPointTool(MapDocument& document);
+  Q_OBJECT
+private:
+  MapDocument& m_document;
 
-  using NodeHandleToolBase::findIncidentNodes;
+  QSpinBox* m_rows = nullptr;
+  QSpinBox* m_cols = nullptr;
 
-  void pick(
-    const vm::ray3d& pickRay,
-    const gl::Camera& camera,
-    double handleRadius,
-    mdl::PickResult& pickResult) const override;
+  NotifierConnection m_notifierConnection;
 
 public:
-  std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
-    const std::vector<mdl::Hit>& hits) const override;
-
-  MoveResult move(const vm::vec3d& delta) override;
-
-  std::string actionName() const override;
+  explicit ControlPointToolPage(MapDocument& document, QWidget* parent = nullptr);
 
 private:
-  QWidget* doCreatePage(QWidget* parent) override;
-
-  void addHandles(const std::vector<mdl::Node*>& nodes) override;
-  void removeHandles(const std::vector<mdl::Node*>& nodes) override;
+  void connectObservers();
+  void updateControls();
+  void updateControlPoints();
 };
 
 } // namespace tb::ui
