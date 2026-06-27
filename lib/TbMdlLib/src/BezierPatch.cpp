@@ -354,4 +354,23 @@ std::vector<BezierPatch::Point> BezierPatch::evaluate(
   return grid;
 }
 
+BezierPatch::Point BezierPatch::evaluateAt(const double u, const double v) const
+{
+  contract_pre(u >= 0.0 && u <= 1.0);
+  contract_pre(v >= 0.0 && v <= 1.0);
+
+  const auto scaledU = u * double(surfaceColumnCount());
+  const auto scaledV = v * double(surfaceRowCount());
+
+  const auto surfaceCol = std::min(size_t(scaledU), surfaceColumnCount() - 1u);
+  const auto surfaceRow = std::min(size_t(scaledV), surfaceRowCount() - 1u);
+
+  const auto localU = scaledU - double(surfaceCol);
+  const auto localV = scaledV - double(surfaceRow);
+
+  const auto surfaceControlPoints = collectSurfaceControlPoints(
+    m_controlPoints, m_pointColumnCount, surfaceRow, surfaceCol);
+  return vm::evaluate_quadratic_bezier_surface(surfaceControlPoints, localU, localV);
+}
+
 } // namespace tb::mdl
