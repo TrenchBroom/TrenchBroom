@@ -261,29 +261,6 @@ static std::vector<SurfaceControlPoints> collectAllSurfaceControlPoints(
   return result;
 }
 
-template <typename O>
-void evaluateSurface(
-  const SurfaceControlPoints& surfaceControlPoints,
-  const size_t subdivisionsPerSurface,
-  const bool isLastCol,
-  const bool isLastRow,
-  O out)
-{
-  const auto maxRow = isLastRow ? subdivisionsPerSurface + 1u : subdivisionsPerSurface;
-  const auto maxCol = isLastCol ? subdivisionsPerSurface + 1u : subdivisionsPerSurface;
-
-  for (size_t row = 0u; row < maxRow; ++row)
-  {
-    const auto v = static_cast<double>(row) / static_cast<double>(subdivisionsPerSurface);
-    for (size_t col = 0u; col < maxCol; ++col)
-    {
-      const auto u =
-        static_cast<double>(col) / static_cast<double>(subdivisionsPerSurface);
-      out = vm::evaluate_quadratic_bezier_surface(surfaceControlPoints, u, v);
-    }
-  }
-}
-
 std::vector<BezierPatch::Point> BezierPatch::evaluate(
   const size_t subdivisionsPerSurface) const
 {
