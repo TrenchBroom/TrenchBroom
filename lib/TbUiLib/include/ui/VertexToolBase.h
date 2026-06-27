@@ -32,12 +32,13 @@
 #include "mdl/Hit.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/NodeHandleManager.h"
+#include "mdl/NodeHandles.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron3.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
-#include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
 #include "render/RenderBatch.h"
 #include "render/RenderService.h"
@@ -59,6 +60,7 @@
 #include <map>
 #include <ranges>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace tb
@@ -79,7 +81,7 @@ namespace ui
 class Lasso;
 class MapDocument;
 
-template <typename H>
+template <typename HandleType>
 class VertexToolBase : public Tool
 {
 public:
@@ -99,7 +101,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 protected:
-  H m_dragHandlePosition;
+  typename HandleType::Position m_dragHandlePosition;
   bool m_dragging = false;
 
 protected:
@@ -121,27 +123,37 @@ public:
   }
 
 public:
-  template <typename M, typename H2>
-    requires(!std::ranges::range<H2>)
-  std::vector<mdl::BrushNode*> findIncidentBrushes(
-    const M& manager, const H2& handle) const
+  template <typename SomeHandleType>
+    requires(!std::ranges::range<SomeHandleType>)
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const SomeHandleType& handle) const
   {
-    return manager.findIncidentBrushes(handle, selectedBrushes());
+    const auto hasHandle = [&](const auto* brushNode) {
+      const auto brushHandles = SomeHandleType::getHandles(*brushNode);
+      return std::ranges::find(brushHandles, handle) != brushHandles.end();
+    };
+
+    auto result =
+      selectedBrushes() | std::views::filter(hasHandle) | kdl::ranges::to<std::vector>();
+    return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
-  template <typename M, std::ranges::range R>
-  std::vector<mdl::BrushNode*> findIncidentBrushes(
-    const M& manager, const R& handles) const
+  template <std::ranges::range R>
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const R& handles) const
   {
-    const auto& brushes = selectedBrushes();
-    auto result = std::vector<mdl::BrushNode*>{};
-    auto out = std::back_inserter(result);
+    using SomeHandleType = std::remove_cvref_t<std::ranges::range_value_t<R>>;
 
-    for (const auto& handle : handles)
-    {
-      manager.findIncidentBrushes(handle, brushes, out);
-    }
+    const auto hasHandle = [&](const auto* brushNode, const auto& handle) {
+      const auto brushHandles = SomeHandleType::getHandles(*brushNode);
+      return std::ranges::find(handles, handle) != handles.end();
+    };
 
+    const auto hasAnyHandle = [&](const auto* brushNode) {
+      return std::ranges::any_of(
+        handles, [&](const auto& handle) { return hasHandle(brushNode, handle); });
+    };
+
+    auto result = selectedBrushes() | std::views::filter(hasAnyHandle)
+                  | kdl::ranges::to<std::vector>();
     return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
@@ -156,18 +168,19 @@ public: // Handle selection
   {
     contract_pre(!hits.empty());
 
-    if (const auto& firstHit = hits.front(); firstHit.type() == handleManager().hitType())
+    if (const auto& firstHit = hits.front(); firstHit.hasType(HandleType::HandleHitType))
     {
       if (!addToSelection)
       {
-        handleManager().deselectAll();
+        handleManager().template deselectAllHandles<HandleType>();
       }
 
       // Count the number of hit handles which are selected already.
       size_t selected = 0u;
       for (const auto& hit : hits)
       {
-        if (handleManager().selected(hit.target<H>()))
+        if (handleManager().template isHandleSelected<HandleType>(
+              hit.target<HandleType>()))
         {
           ++selected;
         }
@@ -177,7 +190,7 @@ public: // Handle selection
       {
         for (const auto& hit : hits)
         {
-          handleManager().select(hit.target<H>());
+          handleManager().template selectHandle<HandleType>(hit.target<HandleType>());
         }
       }
       else if (addToSelection)
@@ -185,7 +198,7 @@ public: // Handle selection
         // The user meant to deselect a selected handle.
         for (const auto& hit : hits)
         {
-          handleManager().deselect(hit.target<H>());
+          handleManager().template deselectHandle<HandleType>(hit.target<HandleType>());
         }
       }
     }
@@ -196,14 +209,15 @@ public: // Handle selection
 
   void select(const Lasso& lasso, const bool modifySelection)
   {
-    auto selectedHandles = std::vector<H>{};
-    lasso.selected(handleManager().allHandles(), std::back_inserter(selectedHandles));
+    auto selectedHandles = std::vector<HandleType>{};
+    auto allHandles = handleManager().template allHandles<HandleType>();
+    lasso.selected(allHandles, std::back_inserter(selectedHandles));
 
     if (!modifySelection)
     {
-      handleManager().deselectAll();
+      handleManager().template deselectAllHandles<HandleType>();
     }
-    handleManager().toggle(selectedHandles);
+    handleManager().template toggleHandles<HandleType>(selectedHandles);
 
     refreshViews();
     notifyToolHandleSelectionChanged();
@@ -211,14 +225,15 @@ public: // Handle selection
 
   bool selected(const mdl::Hit& hit) const
   {
-    return handleManager().selected(hit.target<H>());
+    return handleManager().template isHandleSelected<HandleType>(
+      hit.target<HandleType>());
   }
 
   virtual bool deselectAll()
   {
-    if (handleManager().anySelected())
+    if (handleManager().template anyHandleSelected<HandleType>())
     {
-      handleManager().deselectAll();
+      handleManager().template deselectAllHandles<HandleType>();
       refreshViews();
       notifyToolHandleSelectionChanged();
       return true;
@@ -227,9 +242,12 @@ public: // Handle selection
   }
 
 public:
-  using HandleManager = mdl::VertexHandleManagerBaseT<H>;
-  virtual HandleManager& handleManager() = 0;
-  virtual const HandleManager& handleManager() const = 0;
+  mdl::NodeHandleManager& handleManager() { return m_document.map().nodeHandles(); }
+
+  const mdl::NodeHandleManager& handleManager() const
+  {
+    return m_document.map().nodeHandles();
+  }
 
 public: // performing moves
   virtual std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
@@ -239,25 +257,24 @@ public: // performing moves
   {
     contract_pre(!hits.empty());
 
+    auto matchingHits = hits | std::views::filter([](const auto& hit) {
+                          return hit.hasType(HandleType::HandleHitType);
+                        });
+
     // Delesect all handles if any of the hit handles is not already selected.
-    for (const auto& hit : hits)
+    if (std::ranges::any_of(matchingHits, [&](const auto& hit) {
+          return !handleManager().template isHandleSelected<HandleType>(
+            hit.template target<HandleType>());
+        }))
     {
-      const H handle = getHandlePosition(hit);
-      if (!handleManager().selected(handle))
-      {
-        handleManager().deselectAll();
-        break;
-      }
+      handleManager().template deselectAllHandles<HandleType>();
     }
 
     // Now select all of the hit handles.
-    for (const auto& hit : hits)
+    for (const auto& hit : matchingHits)
     {
-      const H handle = getHandlePosition(hit);
-      if (hit.hasType(handleManager().hitType()))
-      {
-        handleManager().select(handle);
-      }
+      handleManager().template selectHandle<HandleType>(
+        hit.template target<HandleType>());
     }
     refreshViews();
 
@@ -292,13 +309,16 @@ public: // performing moves
   }
 
 public: // csg convex merge
-  bool canDoCsgConvexMerge() { return handleManager().selectedHandleCount() > 1; }
+  bool canDoCsgConvexMerge()
+  {
+    return handleManager().template selectedHandleCount<HandleType>() > 1;
+  }
 
   void csgConvexMerge()
   {
-    auto vertices = std::vector<vm::vec3d>{};
-    const auto handles = handleManager().selectedHandles();
-    H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
+
+    auto handles = handleManager().template selectedHandles<HandleType>();
+    const auto vertices = HandleType::getVertices(handles);
 
     const auto polyhedron = mdl::Polyhedron3{vertices};
     if (!polyhedron.polyhedron() || !polyhedron.closed())
@@ -333,12 +353,12 @@ public: // csg convex merge
         [&](auto e) { map.logger().error() << "Could not create brush: " << e.msg; });
   }
 
-  virtual H getHandlePosition(const mdl::Hit& hit) const
+  virtual HandleType::Position getHandlePosition(const mdl::Hit& hit) const
   {
     contract_pre(hit.isMatch());
-    contract_pre(hit.hasType(handleManager().hitType()));
+    contract_pre(hit.hasType(HandleType::HandleHitType));
 
-    return hit.target<H>();
+    return hit.target<HandleType>().position;
   }
 
   virtual std::string actionName() const = 0;
@@ -353,26 +373,28 @@ public:
     transaction.commit();
   }
 
-  bool canRemoveSelection() const { return handleManager().selectedHandleCount() > 0; }
+  bool canRemoveSelection() const
+  {
+    return handleManager().template selectedHandleCount<HandleType>() > 0;
+  }
 
 public: // rendering
   void renderHandles(
     render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
   {
     auto renderService = render::RenderService{renderContext, renderBatch};
-    if (!handleManager().allSelected())
+    if (!handleManager().template allHandlesSelected<HandleType>())
     {
-      renderHandles(
-        handleManager().unselectedHandles(),
-        renderService,
-        pref(Preferences::HandleColor));
+      const auto handlePositions = HandleType::getPositions(
+        handleManager().template unselectedHandles<HandleType>());
+      renderHandles(handlePositions, renderService, pref(Preferences::HandleColor));
     }
-    if (handleManager().anySelected())
+    if (handleManager().template anyHandleSelected<HandleType>())
     {
+      const auto handlePositions =
+        HandleType::getPositions(handleManager().template selectedHandles<HandleType>());
       renderHandles(
-        handleManager().selectedHandles(),
-        renderService,
-        pref(Preferences::SelectedHandleColor));
+        handlePositions, renderService, pref(Preferences::SelectedHandleColor));
     }
   }
 
@@ -407,14 +429,15 @@ public: // rendering
     renderGuide(renderContext, renderBatch, m_dragHandlePosition);
   }
 
-  template <typename HH>
+  template <typename HandlePosition>
   void renderHandles(
-    const std::vector<HH>& handles,
+    const std::vector<HandlePosition>& handles,
     render::RenderService& renderService,
     const Color& color) const
   {
     renderService.setForegroundColor(color);
-    renderService.renderHandles(kdl::vec_static_cast<typename HH::float_type>(handles));
+    renderService.renderHandles(
+      kdl::vec_static_cast<typename HandlePosition::float_type>(handles));
   }
 
   template <typename HH>
@@ -472,8 +495,8 @@ protected: // Tool interface
     m_changeCount = 0;
     connectObservers();
 
-    handleManager().clear();
-    handleManager().addHandles(selectedBrushes());
+    handleManager().template clear<HandleType>();
+    handleManager().template addHandles<HandleType>(selectedBrushes());
 
     return true;
   }
@@ -481,7 +504,7 @@ protected: // Tool interface
   bool doDeactivate() override
   {
     m_notifierConnection.disconnect();
-    handleManager().clear();
+    handleManager().template clear<HandleType>();
     return true;
   }
 
@@ -526,7 +549,8 @@ private: // Observers and state management
 
   void commandDoOrUndo(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<H>*>(&command))
+    if (
+      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
     {
       deselectHandles();
       removeHandles(*vertexCommand);
@@ -536,7 +560,8 @@ private: // Observers and state management
 
   void commandDoneOrUndoFailed(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<H>*>(&command))
+    if (
+      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
     {
       addHandles(*vertexCommand);
       selectNewHandlePositions(*vertexCommand);
@@ -546,7 +571,8 @@ private: // Observers and state management
 
   void commandDoFailedOrUndone(mdl::Command& command)
   {
-    if (auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<H>*>(&command))
+    if (
+      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
     {
       addHandles(*vertexCommand);
       selectOldHandlePositions(*vertexCommand);
@@ -583,70 +609,39 @@ private: // Observers and state management
   }
 
 protected:
-  virtual void deselectHandles() { handleManager().deselectAll(); }
+  virtual void deselectHandles()
+  {
+    handleManager().template deselectAllHandles<HandleType>();
+  }
 
-  virtual void addHandles(mdl::BrushVertexCommandT<H>& command)
+  virtual void addHandles(mdl::BrushVertexCommandT<HandleType>& command)
   {
     command.addHandles(handleManager());
   }
 
-  virtual void removeHandles(mdl::BrushVertexCommandT<H>& command)
+  virtual void removeHandles(mdl::BrushVertexCommandT<HandleType>& command)
   {
     command.removeHandles(handleManager());
   }
 
-  virtual void selectNewHandlePositions(mdl::BrushVertexCommandT<H>& command)
+  virtual void selectNewHandlePositions(mdl::BrushVertexCommandT<HandleType>& command)
   {
     command.selectNewHandlePositions(handleManager());
   }
 
-  virtual void selectOldHandlePositions(mdl::BrushVertexCommandT<H>& command)
+  virtual void selectOldHandlePositions(mdl::BrushVertexCommandT<HandleType>& command)
   {
     command.selectOldHandlePositions(handleManager());
   }
 
-  template <typename HT>
-  void addHandles(
-    const std::vector<mdl::Node*>& nodes,
-    mdl::VertexHandleManagerBaseT<HT>& handleManager)
-  {
-    for (const auto* node : nodes)
-    {
-      node->accept(kdl::overload(
-        [](const mdl::WorldNode&) {},
-        [](const mdl::LayerNode&) {},
-        [](const mdl::GroupNode&) {},
-        [](const mdl::EntityNode&) {},
-        [&](const mdl::BrushNode& brushNode) { handleManager.addHandles(brushNode); },
-        [](const mdl::PatchNode&) {}));
-    }
-  }
-
-  template <typename HT>
-  void removeHandles(
-    const std::vector<mdl::Node*>& nodes,
-    mdl::VertexHandleManagerBaseT<HT>& handleManager)
-  {
-    for (const auto* node : nodes)
-    {
-      node->accept(kdl::overload(
-        [](const mdl::WorldNode&) {},
-        [](const mdl::LayerNode&) {},
-        [](const mdl::GroupNode&) {},
-        [](const mdl::EntityNode&) {},
-        [&](const mdl::BrushNode& brushNode) { handleManager.removeHandles(brushNode); },
-        [](const mdl::PatchNode&) {}));
-    }
-  }
-
   virtual void addHandles(const std::vector<mdl::Node*>& nodes)
   {
-    addHandles(nodes, handleManager());
+    handleManager().template addHandles<HandleType>(nodes);
   }
 
   virtual void removeHandles(const std::vector<mdl::Node*>& nodes)
   {
-    removeHandles(nodes, handleManager());
+    handleManager().template removeHandles<HandleType>(nodes);
   }
 };
 

@@ -21,9 +21,11 @@
 
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
+#include "mdl/NodeHandles.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/to.h"
 #include "kd/string_format.h"
 
 namespace tb::ui
@@ -35,9 +37,9 @@ FaceTool::FaceTool(MapDocument& document)
 }
 
 std::vector<mdl::BrushNode*> FaceTool::findIncidentBrushes(
-  const vm::polygon3d& handle) const
+  const mdl::FaceHandle& handle) const
 {
-  return findIncidentBrushes(m_document.map().faceHandles(), handle);
+  return VertexToolBase<mdl::FaceHandle>::findIncidentBrushes(handle);
 }
 
 void FaceTool::pick(
@@ -46,18 +48,8 @@ void FaceTool::pick(
   const double handleRadius,
   mdl::PickResult& pickResult) const
 {
-  m_document.map().faceHandles().pickCenterHandle(
-    pickRay, camera, handleRadius, pickResult);
-}
-
-mdl::FaceHandleManager& FaceTool::handleManager()
-{
-  return m_document.map().faceHandles();
-}
-
-const mdl::FaceHandleManager& FaceTool::handleManager() const
-{
-  return m_document.map().faceHandles();
+  m_document.map().nodeHandles().pick<mdl::FaceHandle>(
+    pickResult, mdl::FaceHandle::HandleHitType, pickRay, camera, handleRadius);
 }
 
 std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
@@ -66,18 +58,19 @@ std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
   contract_pre(!hits.empty());
 
   const auto& hit = hits.front();
-  contract_assert(hit.hasType(mdl::FaceHandleManager::HandleHitType));
+  contract_assert(hit.hasType(mdl::FaceHandle::HandleHitType));
 
-  return {hit.target<vm::polygon3d>().center(), hit.hitPoint()};
+  return {hit.target<mdl::FaceHandle>().position.center(), hit.hitPoint()};
 }
 
 FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
 {
   auto& map = m_document.map();
 
-  auto handles = map.faceHandles().selectedHandles();
+  const auto facePositions =
+    mdl::FaceHandle::getPositions(map.nodeHandles().selectedHandles<mdl::FaceHandle>());
   const auto transform = vm::translation_matrix(delta);
-  if (transformFaces(map, std::move(handles), transform))
+  if (transformFaces(map, facePositions, transform))
   {
     m_dragHandlePosition = m_dragHandlePosition.transform(transform);
     return MoveResult::Continue;
@@ -88,21 +81,22 @@ FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
 std::string FaceTool::actionName() const
 {
   return kdl::str_plural(
-    m_document.map().faceHandles().selectedHandleCount(), "Move Face", "Move Faces");
+    m_document.map().nodeHandles().selectedHandleCount<mdl::FaceHandle>(),
+    "Move Face",
+    "Move Faces");
 }
 
 void FaceTool::removeSelection()
 {
   auto& map = m_document.map();
 
-  const auto handles = map.faceHandles().selectedHandles();
-  auto vertexPositions = std::vector<vm::vec3d>{};
-  vm::polygon3d::get_vertices(
-    std::begin(handles), std::end(handles), std::back_inserter(vertexPositions));
+  const auto handles =
+    map.nodeHandles().selectedHandles<mdl::FaceHandle>() | kdl::ranges::to<std::vector>();
+  const auto vertexPositions = mdl::FaceHandle::getVertices(handles);
 
   const auto commandName =
     kdl::str_plural(handles.size(), "Remove Brush Face", "Remove Brush Faces");
-  removeVertices(map, commandName, std::move(vertexPositions));
+  removeVertices(map, commandName, vertexPositions);
 }
 
 } // namespace tb::ui

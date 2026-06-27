@@ -72,6 +72,8 @@
 #include "mdl/MixedBrushContentsValidator.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
+#include "mdl/NodeHandleManager.h"
+#include "mdl/NodeHandles.h"
 #include "mdl/NodeIndex.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/NodeReader.h"
@@ -91,7 +93,6 @@
 #include "mdl/UndoableCommand.h"
 #include "mdl/UpdateLinkedGroupsCommand.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
-#include "mdl/VertexHandleManager.h"
 #include "mdl/WadPropertyUtils.h"
 #include "mdl/WorldBoundsValidator.h"
 #include "mdl/WorldNode.h"
@@ -565,15 +566,16 @@ Map::Map(
   , m_worldBounds{worldBounds}
   , m_nodeIndex{std::make_unique<NodeIndex>()}
   , m_entityLinkManager{std::make_unique<EntityLinkManager>(*m_nodeIndex)}
-  , m_vertexHandles{std::make_unique<VertexHandleManager>()}
-  , m_edgeHandles{std::make_unique<EdgeHandleManager>()}
-  , m_faceHandles{std::make_unique<FaceHandleManager>()}
   , m_currentMaterialName{BrushFaceAttributes::NoMaterialName}
   , m_repeatStack{std::make_unique<RepeatStack>()}
   , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
   , m_path{std::move(path)}
   , m_selection{*this}
 {
+  m_nodeHandles.registerHandleType<VertexHandle>();
+  m_nodeHandles.registerHandleType<EdgeHandle>();
+  m_nodeHandles.registerHandleType<FaceHandle>();
+
   connectObservers();
 
   editorContext().setCurrentLayer(m_worldNode->defaultLayer());
@@ -761,34 +763,14 @@ MapTextEncoding Map::encoding() const
   return MapTextEncoding::Quake;
 }
 
-VertexHandleManager& Map::vertexHandles()
+NodeHandleManager& Map::nodeHandles()
 {
-  return *m_vertexHandles;
+  return m_nodeHandles;
 }
 
-const VertexHandleManager& Map::vertexHandles() const
+const NodeHandleManager& Map::nodeHandles() const
 {
-  return *m_vertexHandles;
-}
-
-EdgeHandleManager& Map::edgeHandles()
-{
-  return *m_edgeHandles;
-}
-
-const EdgeHandleManager& Map::edgeHandles() const
-{
-  return *m_edgeHandles;
-}
-
-FaceHandleManager& Map::faceHandles()
-{
-  return *m_faceHandles;
-}
-
-const FaceHandleManager& Map::faceHandles() const
-{
-  return *m_faceHandles;
+  return m_nodeHandles;
 }
 
 const std::string& Map::currentMaterialName() const

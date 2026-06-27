@@ -135,6 +135,8 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ModelUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Node.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeContents.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeHandleManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeHandles.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeIndex.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeReader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeSerializer.cpp
@@ -191,7 +193,6 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UVUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Validator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ValidatorRegistry.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexHandleManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VisualEffect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VisibilityState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WadPropertyUtils.cpp

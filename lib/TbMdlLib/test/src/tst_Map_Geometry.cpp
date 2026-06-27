@@ -36,10 +36,10 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Matchers.h"
+#include "mdl/NodeHandles.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
-#include "mdl/VertexHandleManager.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/ranges/to.h"
@@ -398,13 +398,13 @@ TEST_CASE("Map_Geometry")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
       selectNodes(map, {brushNode});
 
-      auto& vertexHandles = map.vertexHandles();
-      vertexHandles.addHandles(*brushNode);
-      vertexHandles.select(std::vector<vm::vec3d>{
-        {-32, -32, 32},
-        {-32, 32, 32},
-        {32, -32, 32},
-        {32, 32, 32},
+      auto& vertexHandles = map.nodeHandles();
+      vertexHandles.addHandles<VertexHandle>(*brushNode);
+      vertexHandles.selectHandles<VertexHandle>(std::vector<VertexHandle>{
+        {{-32, -32, 32}},
+        {{-32, 32, 32}},
+        {{32, -32, 32}},
+        {{32, 32, 32}},
       });
 
       rotateSelection(map, {0, 0, 0}, {0, 0, 1}, vm::to_radians(45.0));

@@ -19,7 +19,7 @@
 
 #include "ui/FaceToolController.h"
 
-#include "mdl/VertexHandleManager.h"
+#include "mdl/NodeHandles.h"
 #include "ui/FaceTool.h"
 
 #include <memory>
@@ -27,18 +27,18 @@
 namespace tb::ui
 {
 
-class FaceToolController::SelectFacePart : public SelectPartBase<vm::polygon3d>
+class FaceToolController::SelectFacePart : public SelectPartBase<mdl::FaceHandle>
 {
 public:
   explicit SelectFacePart(FaceTool& tool)
-    : SelectPartBase{tool, mdl::FaceHandleManager::HandleHitType}
+    : SelectPartBase{tool, mdl::FaceHandle::HandleHitType}
   {
   }
 
 private:
-  bool equalHandles(const vm::polygon3d& lhs, const vm::polygon3d& rhs) const override
+  bool equalHandles(const mdl::FaceHandle& lhs, const mdl::FaceHandle& rhs) const override
   {
-    return compareUnoriented(lhs, rhs, MaxHandleDistance) == 0;
+    return compareUnoriented(lhs.position, rhs.position, MaxHandleDistance) == 0;
   }
 };
 
@@ -46,7 +46,7 @@ class FaceToolController::MoveFacePart : public MovePartBase
 {
 public:
   explicit MoveFacePart(FaceTool& tool)
-    : MovePartBase{tool, mdl::FaceHandleManager::HandleHitType}
+    : MovePartBase{tool, mdl::FaceHandle::HandleHitType}
   {
   }
 };

@@ -163,7 +163,7 @@ protected:
     }
   };
 
-  template <typename H>
+  template <typename HandleType>
   class SelectPartBase : public ToolController, public PartBase
   {
   protected:
@@ -281,12 +281,12 @@ protected:
       const auto& first = pickResult.first(type(m_hitType));
       if (first.isMatch())
       {
-        const H& firstHandle = first.template target<const H&>();
+        const auto& firstHandle = first.template target<const HandleType&>();
 
         const auto matches = pickResult.all(type(m_hitType));
         for (const auto& match : matches)
         {
-          const H& handle = match.template target<const H&>();
+          const auto& handle = match.template target<const HandleType&>();
 
           if (equalHandles(handle, firstHandle))
           {
@@ -302,7 +302,7 @@ protected:
     }
 
     bool allIncidentBrushesVisited(
-      const H& handle, std::unordered_set<mdl::BrushNode*>& visitedBrushes) const
+      const HandleType& handle, std::unordered_set<mdl::BrushNode*>& visitedBrushes) const
     {
       auto result = true;
       for (auto brush : m_tool.findIncidentBrushes(handle))
@@ -314,7 +314,7 @@ protected:
     }
 
   private:
-    virtual bool equalHandles(const H& lhs, const H& rhs) const = 0;
+    virtual bool equalHandles(const HandleType& lhs, const HandleType& rhs) const = 0;
   };
 
   class MoveDragDelegate : public MoveHandleDragTrackerDelegate

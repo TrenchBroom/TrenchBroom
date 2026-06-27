@@ -26,18 +26,18 @@
 namespace tb::ui
 {
 
-class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3d>
+class EdgeToolController::SelectEdgePart : public SelectPartBase<mdl::EdgeHandle>
 {
 public:
   explicit SelectEdgePart(EdgeTool& tool)
-    : SelectPartBase{tool, mdl::EdgeHandleManager::HandleHitType}
+    : SelectPartBase{tool, mdl::EdgeHandle::HandleHitType}
   {
   }
 
 private:
-  bool equalHandles(const vm::segment3d& lhs, const vm::segment3d& rhs) const override
+  bool equalHandles(const mdl::EdgeHandle& lhs, const mdl::EdgeHandle& rhs) const override
   {
-    return compare(lhs, rhs, MaxHandleDistance) == 0;
+    return compare(lhs.position, rhs.position, MaxHandleDistance) == 0;
   }
 };
 
@@ -45,7 +45,7 @@ class EdgeToolController::MoveEdgePart : public MovePartBase
 {
 public:
   explicit MoveEdgePart(EdgeTool& tool)
-    : MovePartBase{tool, mdl::EdgeHandleManager::HandleHitType}
+    : MovePartBase{tool, mdl::EdgeHandle::HandleHitType}
   {
   }
 };

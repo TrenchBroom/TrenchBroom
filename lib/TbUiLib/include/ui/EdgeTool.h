@@ -41,13 +41,13 @@ namespace ui
 {
 class MapDocument;
 
-class EdgeTool : public VertexToolBase<vm::segment3d>
+class EdgeTool : public VertexToolBase<mdl::EdgeHandle>
 {
 public:
   explicit EdgeTool(MapDocument& document);
 
 public:
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::EdgeHandle& handle) const;
 
 private:
   using VertexToolBase::findIncidentBrushes;
@@ -58,10 +58,6 @@ public:
     const gl::Camera& camera,
     double handleRadius,
     mdl::PickResult& pickResult) const override;
-
-public:
-  mdl::EdgeHandleManager& handleManager() override;
-  const mdl::EdgeHandleManager& handleManager() const override;
 
 public:
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
