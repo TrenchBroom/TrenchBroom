@@ -154,6 +154,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseGameEngineConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseModelDefinition.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PatchNode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/PatchUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PickResult.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PointEntityWithBrushesValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PointTrace.cpp
