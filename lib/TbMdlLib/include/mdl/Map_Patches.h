@@ -29,6 +29,8 @@ namespace tb::mdl
 {
 class Map;
 
+bool resamplePatches(Map& map, size_t pointRowCount, size_t pointColumnCount);
+
 bool transformControlPoints(
   Map& map,
   const std::vector<vm::vec3d>& controlPointPositions,

@@ -41,6 +41,99 @@ TEST_CASE("Map_Patches")
 
   auto fixture = MapFixture{};
 
+  SECTION("resamplePatches")
+  {
+    auto& map = fixture.create();
+
+    GIVEN("No patches are selected")
+    {
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{parentForNodes(map), {patchNode}}});
+
+      const auto originalControlPoints = patchNode->patch().controlPoints();
+
+      WHEN("The patches are resampled")
+      {
+        CHECK(resamplePatches(map, 3, 5));
+
+        THEN("The patch is not changed")
+        {
+          CHECK(patchNode->patch().controlPoints() == originalControlPoints);
+        }
+      }
+    }
+
+    GIVEN("One selected and one unselected patch")
+    {
+      auto* patchNode1 = createPatchNode();
+      auto* patchNode2 = createPatchNode();
+      addNodes(map, {{parentForNodes(map), {patchNode1, patchNode2}}});
+      selectNodes(map, {patchNode1});
+
+      const auto patch2OriginalControlPoints = patchNode2->patch().controlPoints();
+
+      WHEN("The patches are resampled")
+      {
+        CHECK(resamplePatches(map, 3, 5));
+
+        THEN("Only the selected patch is resampled")
+        {
+          CHECK(patchNode1->patch().pointRowCount() == 3);
+          CHECK(patchNode1->patch().pointColumnCount() == 5);
+
+          CHECK(patchNode2->patch().controlPoints() == patch2OriginalControlPoints);
+        }
+      }
+    }
+
+    GIVEN("Two selected patches")
+    {
+      auto* patchNode1 = createPatchNode();
+      auto* patchNode2 = createPatchNode();
+      addNodes(map, {{parentForNodes(map), {patchNode1, patchNode2}}});
+      selectNodes(map, {patchNode1, patchNode2});
+
+      WHEN("The patches are resampled")
+      {
+        CHECK(resamplePatches(map, 3, 5));
+
+        THEN("Both patches are resampled to the new point counts")
+        {
+          CHECK(patchNode1->patch().pointRowCount() == 3);
+          CHECK(patchNode1->patch().pointColumnCount() == 5);
+          CHECK(patchNode2->patch().pointRowCount() == 3);
+          CHECK(patchNode2->patch().pointColumnCount() == 5);
+        }
+
+        AND_WHEN("The resampling is undone")
+        {
+          map.undoCommand();
+
+          THEN("Both patches are restored to their original point counts")
+          {
+            CHECK(patchNode1->patch().pointRowCount() == 3);
+            CHECK(patchNode1->patch().pointColumnCount() == 3);
+            CHECK(patchNode2->patch().pointRowCount() == 3);
+            CHECK(patchNode2->patch().pointColumnCount() == 3);
+          }
+
+          AND_WHEN("The resampling is redone")
+          {
+            map.redoCommand();
+
+            THEN("Both patches are resampled again")
+            {
+              CHECK(patchNode1->patch().pointRowCount() == 3);
+              CHECK(patchNode1->patch().pointColumnCount() == 5);
+              CHECK(patchNode2->patch().pointRowCount() == 3);
+              CHECK(patchNode2->patch().pointColumnCount() == 5);
+            }
+          }
+        }
+      }
+    }
+  }
+
   SECTION("transformControlPoints")
   {
     auto& map = fixture.create();
