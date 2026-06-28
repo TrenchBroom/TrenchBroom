@@ -53,59 +53,114 @@ ClipTool& MapViewToolBox::clipTool()
   return *m_clipTool;
 }
 
-AssembleBrushTool& MapViewToolBox::assembleBrushTool()
+const AssembleBrushTool& MapViewToolBox::assembleBrushTool() const
 {
   return *m_assembleBrushTool;
 }
 
-CreateEntityTool& MapViewToolBox::createEntityTool()
+AssembleBrushTool& MapViewToolBox::assembleBrushTool()
+{
+  return KDL_CONST_OVERLOAD(assembleBrushTool());
+}
+
+const CreateEntityTool& MapViewToolBox::createEntityTool() const
 {
   return *m_createEntityTool;
 }
 
-DrawShapeTool& MapViewToolBox::drawShapeTool()
+CreateEntityTool& MapViewToolBox::createEntityTool()
+{
+  return KDL_CONST_OVERLOAD(createEntityTool());
+}
+
+const DrawShapeTool& MapViewToolBox::drawShapeTool() const
 {
   return *m_drawShapeTool;
 }
 
-MoveObjectsTool& MapViewToolBox::moveObjectsTool()
+DrawShapeTool& MapViewToolBox::drawShapeTool()
+{
+  return KDL_CONST_OVERLOAD(drawShapeTool());
+}
+
+const MoveObjectsTool& MapViewToolBox::moveObjectsTool() const
 {
   return *m_moveObjectsTool;
 }
 
-ExtrudeTool& MapViewToolBox::extrudeTool()
+MoveObjectsTool& MapViewToolBox::moveObjectsTool()
+{
+  return KDL_CONST_OVERLOAD(moveObjectsTool());
+}
+
+const ExtrudeTool& MapViewToolBox::extrudeTool() const
 {
   return *m_extrudeTool;
 }
 
-RotateTool& MapViewToolBox::rotateTool()
+ExtrudeTool& MapViewToolBox::extrudeTool()
+{
+  return KDL_CONST_OVERLOAD(extrudeTool());
+}
+
+const RotateTool& MapViewToolBox::rotateTool() const
 {
   return *m_rotateTool;
 }
 
-ScaleTool& MapViewToolBox::scaleTool()
+RotateTool& MapViewToolBox::rotateTool()
+{
+  return KDL_CONST_OVERLOAD(rotateTool());
+}
+
+const ScaleTool& MapViewToolBox::scaleTool() const
 {
   return *m_scaleTool;
 }
 
-ShearTool& MapViewToolBox::shearTool()
+ScaleTool& MapViewToolBox::scaleTool()
+{
+  return KDL_CONST_OVERLOAD(scaleTool());
+}
+
+const ShearTool& MapViewToolBox::shearTool() const
 {
   return *m_shearTool;
 }
 
-VertexTool& MapViewToolBox::vertexTool()
+ShearTool& MapViewToolBox::shearTool()
+{
+  return KDL_CONST_OVERLOAD(shearTool());
+}
+
+const VertexTool& MapViewToolBox::vertexTool() const
 {
   return *m_vertexTool;
 }
 
-EdgeTool& MapViewToolBox::edgeTool()
+VertexTool& MapViewToolBox::vertexTool()
+{
+  return KDL_CONST_OVERLOAD(vertexTool());
+}
+
+const EdgeTool& MapViewToolBox::edgeTool() const
 {
   return *m_edgeTool;
 }
 
-FaceTool& MapViewToolBox::faceTool()
+EdgeTool& MapViewToolBox::edgeTool()
+{
+  return KDL_CONST_OVERLOAD(edgeTool());
+}
+
+const FaceTool& MapViewToolBox::faceTool() const
 {
   return *m_faceTool;
+}
+
+FaceTool& MapViewToolBox::faceTool()
+{
+  return KDL_CONST_OVERLOAD(faceTool());
 }
 
 void MapViewToolBox::toggleAssembleBrushTool()

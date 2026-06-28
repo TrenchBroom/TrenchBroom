@@ -76,17 +76,40 @@ public:
   ~MapViewToolBox() override;
 
 public: // tools
+  const ClipTool& clipTool() const;
   ClipTool& clipTool();
+
+  const AssembleBrushTool& assembleBrushTool() const;
   AssembleBrushTool& assembleBrushTool();
+
+  const CreateEntityTool& createEntityTool() const;
   CreateEntityTool& createEntityTool();
+
+  const DrawShapeTool& drawShapeTool() const;
   DrawShapeTool& drawShapeTool();
+
+  const MoveObjectsTool& moveObjectsTool() const;
   MoveObjectsTool& moveObjectsTool();
+
+  const ExtrudeTool& extrudeTool() const;
   ExtrudeTool& extrudeTool();
+
+  const RotateTool& rotateTool() const;
   RotateTool& rotateTool();
+
+  const ScaleTool& scaleTool() const;
   ScaleTool& scaleTool();
+
+  const ShearTool& shearTool() const;
   ShearTool& shearTool();
+
+  const VertexTool& vertexTool() const;
   VertexTool& vertexTool();
+
+  const EdgeTool& edgeTool() const;
   EdgeTool& edgeTool();
+
+  const FaceTool& faceTool() const;
   FaceTool& faceTool();
 
   void toggleAssembleBrushTool();
