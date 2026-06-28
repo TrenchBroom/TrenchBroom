@@ -20,6 +20,8 @@
 #include "ui/MapViewToolBox.h"
 
 #include "mdl/EditorContext.h"
+#include "mdl/Map.h"
+#include "mdl/Selection.h"
 #include "ui/AssembleBrushTool.h"
 #include "ui/ClipTool.h"
 #include "ui/CreateEntityTool.h"
@@ -163,6 +165,11 @@ FaceTool& MapViewToolBox::faceTool()
   return KDL_CONST_OVERLOAD(faceTool());
 }
 
+bool MapViewToolBox::canToggleAssembleBrushTool() const
+{
+  return true;
+}
+
 void MapViewToolBox::toggleAssembleBrushTool()
 {
   toggleTool(assembleBrushTool());
@@ -176,6 +183,12 @@ bool MapViewToolBox::assembleBrushToolActive() const
 void MapViewToolBox::performAssembleBrush()
 {
   m_assembleBrushTool->createBrushes();
+}
+
+bool MapViewToolBox::canToggleClipTool() const
+{
+  const auto& map = m_document.map();
+  return clipToolActive() || map.selection().hasOnlyBrushes();
 }
 
 void MapViewToolBox::toggleClipTool()
@@ -207,6 +220,12 @@ void MapViewToolBox::removeLastClipPoint()
   contract_pre(clipToolActive());
 
   m_clipTool->removeLastPoint();
+}
+
+bool MapViewToolBox::canToggleRotateTool() const
+{
+  const auto& map = m_document.map();
+  return rotateToolActive() || map.selection().hasNodes();
 }
 
 void MapViewToolBox::toggleRotateTool()
@@ -241,6 +260,12 @@ void MapViewToolBox::moveRotationCenter(const vm::vec3d& delta)
   m_rotateTool->setRotationCenter(center + delta);
 }
 
+bool MapViewToolBox::canToggleScaleTool() const
+{
+  const auto& map = m_document.map();
+  return scaleToolActive() || map.selection().hasNodes();
+}
+
 void MapViewToolBox::toggleScaleTool()
 {
   toggleTool(scaleTool());
@@ -251,6 +276,12 @@ bool MapViewToolBox::scaleToolActive() const
   return m_scaleTool->active();
 }
 
+bool MapViewToolBox::canToggleShearTool() const
+{
+  const auto& map = m_document.map();
+  return shearToolActive() || map.selection().hasNodes();
+}
+
 void MapViewToolBox::toggleShearTool()
 {
   toggleTool(shearTool());
@@ -259,6 +290,13 @@ void MapViewToolBox::toggleShearTool()
 bool MapViewToolBox::shearToolActive() const
 {
   return m_shearTool->active();
+}
+
+bool MapViewToolBox::canToggleAnyVertexTool() const
+{
+  const auto& map = m_document.map();
+  return vertexToolActive() || edgeToolActive() || faceToolActive()
+         || map.selection().hasOnlyBrushes();
 }
 
 bool MapViewToolBox::anyVertexToolActive() const

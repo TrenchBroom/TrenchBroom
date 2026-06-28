@@ -112,28 +112,34 @@ public: // tools
   const FaceTool& faceTool() const;
   FaceTool& faceTool();
 
+  bool canToggleAssembleBrushTool() const;
   void toggleAssembleBrushTool();
   bool assembleBrushToolActive() const;
   void performAssembleBrush();
 
+  bool canToggleClipTool() const;
   void toggleClipTool();
   bool clipToolActive() const;
   void toggleClipSide();
   void performClip();
   void removeLastClipPoint();
 
+  bool canToggleRotateTool() const;
   void toggleRotateTool();
   bool rotateToolActive() const;
   double rotateToolAngle() const;
   vm::vec3d rotateToolCenter() const;
   void moveRotationCenter(const vm::vec3d& delta);
 
+  bool canToggleScaleTool() const;
   void toggleScaleTool();
   bool scaleToolActive() const;
 
+  bool canToggleShearTool() const;
   void toggleShearTool();
   bool shearToolActive() const;
 
+  bool canToggleAnyVertexTool() const;
   bool anyVertexToolActive() const;
 
   void toggleVertexTool();

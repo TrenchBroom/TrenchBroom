@@ -135,7 +135,7 @@ bool SwitchableMapViewContainer::assembleBrushToolActive() const
 
 bool SwitchableMapViewContainer::canToggleAssembleBrushTool() const
 {
-  return true;
+  return m_toolBox->canToggleAssembleBrushTool();
 }
 
 void SwitchableMapViewContainer::toggleAssembleBrushTool()
@@ -152,8 +152,7 @@ bool SwitchableMapViewContainer::clipToolActive() const
 
 bool SwitchableMapViewContainer::canToggleClipTool() const
 {
-  const auto& map = m_document.map();
-  return clipToolActive() || map.selection().hasOnlyBrushes();
+  return m_toolBox->canToggleClipTool();
 }
 
 void SwitchableMapViewContainer::toggleClipTool()
@@ -175,8 +174,7 @@ bool SwitchableMapViewContainer::rotateToolActive() const
 
 bool SwitchableMapViewContainer::canToggleRotateTool() const
 {
-  const auto& map = m_document.map();
-  return rotateToolActive() || map.selection().hasNodes();
+  return m_toolBox->canToggleRotateTool();
 }
 
 void SwitchableMapViewContainer::toggleRotateTool()
@@ -198,8 +196,7 @@ bool SwitchableMapViewContainer::shearToolActive() const
 
 bool SwitchableMapViewContainer::canToggleScaleTool() const
 {
-  const auto& map = m_document.map();
-  return scaleToolActive() || map.selection().hasNodes();
+  return m_toolBox->canToggleScaleTool();
 }
 
 void SwitchableMapViewContainer::toggleScaleTool()
@@ -211,8 +208,7 @@ void SwitchableMapViewContainer::toggleScaleTool()
 
 bool SwitchableMapViewContainer::canToggleShearTool() const
 {
-  const auto& map = m_document.map();
-  return shearToolActive() || map.selection().hasNodes();
+  return m_toolBox->canToggleShearTool();
 }
 
 void SwitchableMapViewContainer::toggleShearTool()
@@ -224,14 +220,12 @@ void SwitchableMapViewContainer::toggleShearTool()
 
 bool SwitchableMapViewContainer::canToggleVertexTools() const
 {
-  const auto& map = m_document.map();
-  return vertexToolActive() || edgeToolActive() || faceToolActive()
-         || map.selection().hasOnlyBrushes();
+  return m_toolBox->canToggleAnyVertexTool();
 }
 
 bool SwitchableMapViewContainer::anyVertexToolActive() const
 {
-  return vertexToolActive() || edgeToolActive() || faceToolActive();
+  return m_toolBox->anyVertexToolActive();
 }
 
 bool SwitchableMapViewContainer::vertexToolActive() const
