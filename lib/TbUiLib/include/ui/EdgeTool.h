@@ -24,20 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace tb
-{
-namespace gl
-{
-class Camera;
-}
-
-namespace mdl
-{
-class BrushNode;
-class PickResult;
-} // namespace mdl
-
-namespace ui
+namespace tb::ui
 {
 class MapDocument;
 
@@ -66,5 +53,4 @@ public:
   void removeSelection();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui
