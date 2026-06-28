@@ -172,7 +172,10 @@ bool MapViewToolBox::canToggleAssembleBrushTool() const
 
 void MapViewToolBox::toggleAssembleBrushTool()
 {
-  toggleTool(assembleBrushTool());
+  if (canToggleAssembleBrushTool())
+  {
+    toggleTool(assembleBrushTool());
+  }
 }
 
 bool MapViewToolBox::assembleBrushToolActive() const
@@ -182,6 +185,8 @@ bool MapViewToolBox::assembleBrushToolActive() const
 
 void MapViewToolBox::performAssembleBrush()
 {
+  contract_pre(assembleBrushToolActive());
+
   m_assembleBrushTool->createBrushes();
 }
 
@@ -193,7 +198,10 @@ bool MapViewToolBox::canToggleClipTool() const
 
 void MapViewToolBox::toggleClipTool()
 {
-  toggleTool(clipTool());
+  if (canToggleClipTool())
+  {
+    toggleTool(clipTool());
+  }
 }
 
 bool MapViewToolBox::clipToolActive() const
@@ -230,7 +238,10 @@ bool MapViewToolBox::canToggleRotateTool() const
 
 void MapViewToolBox::toggleRotateTool()
 {
-  toggleTool(rotateTool());
+  if (canToggleRotateTool())
+  {
+    toggleTool(rotateTool());
+  }
 }
 
 bool MapViewToolBox::rotateToolActive() const
@@ -268,7 +279,10 @@ bool MapViewToolBox::canToggleScaleTool() const
 
 void MapViewToolBox::toggleScaleTool()
 {
-  toggleTool(scaleTool());
+  if (canToggleScaleTool())
+  {
+    toggleTool(scaleTool());
+  }
 }
 
 bool MapViewToolBox::scaleToolActive() const
@@ -284,7 +298,10 @@ bool MapViewToolBox::canToggleShearTool() const
 
 void MapViewToolBox::toggleShearTool()
 {
-  toggleTool(shearTool());
+  if (canToggleShearTool())
+  {
+    toggleTool(shearTool());
+  }
 }
 
 bool MapViewToolBox::shearToolActive() const
@@ -306,7 +323,10 @@ bool MapViewToolBox::anyVertexToolActive() const
 
 void MapViewToolBox::toggleVertexTool()
 {
-  toggleTool(vertexTool());
+  if (canToggleAnyVertexTool())
+  {
+    toggleTool(vertexTool());
+  }
 }
 
 bool MapViewToolBox::vertexToolActive() const
@@ -316,7 +336,10 @@ bool MapViewToolBox::vertexToolActive() const
 
 void MapViewToolBox::toggleEdgeTool()
 {
-  toggleTool(edgeTool());
+  if (canToggleAnyVertexTool())
+  {
+    toggleTool(edgeTool());
+  }
 }
 
 bool MapViewToolBox::edgeToolActive() const
@@ -326,7 +349,10 @@ bool MapViewToolBox::edgeToolActive() const
 
 void MapViewToolBox::toggleFaceTool()
 {
-  toggleTool(faceTool());
+  if (canToggleAnyVertexTool())
+  {
+    toggleTool(faceTool());
+  }
 }
 
 bool MapViewToolBox::faceToolActive() const
