@@ -115,6 +115,57 @@ TEST_CASE("BezierPatch")
       CHECK(patch.controlPoints() == expectedPoints);
     }
   }
+
+  SECTION("transformControlPoints")
+  {
+    // clang-format off
+    auto patch = BezierPatch{3, 3, {
+      {-1,  1,  0}, {0,  1,  1}, {1,  1,  2},
+      {-1,  0, -1}, {0,  0,  0}, {1,  0,  1},
+      {-1, -1, -2}, {0, -1, -1}, {1, -1,  0},
+    }, ""};
+    // clang-format on
+
+    SECTION("updates matching control points and recomputes bounds")
+    {
+      patch.transformControlPoints(
+        std::set<vm::vec3d>{{1, 1, 2}}, vm::translation_matrix(vm::vec3d{2, 0, 0}));
+
+      // clang-format off
+      CHECK(patch.controlPoints() == std::vector<BezierPatch::Point>{
+        {-1,  1,  0}, {0,  1,  1}, {3,  1,  2},
+        {-1,  0, -1}, {0,  0,  0}, {1,  0,  1},
+        {-1, -1, -2}, {0, -1, -1}, {1, -1,  0},
+      });
+      // clang-format on
+
+      CHECK(patch.bounds() == vm::bbox3d{{-1, -1, -2}, {3, 1, 2}});
+    }
+
+    SECTION("does nothing when no control point has the given position")
+    {
+      const auto originalControlPoints = patch.controlPoints();
+      const auto originalBounds = patch.bounds();
+
+      patch.transformControlPoints(
+        std::set<vm::vec3d>{{100, 100, 100}}, vm::translation_matrix(vm::vec3d{2, 0, 0}));
+
+      CHECK(patch.controlPoints() == originalControlPoints);
+      CHECK(patch.bounds() == originalBounds);
+    }
+
+    SECTION("does nothing when the given position set is empty")
+    {
+      const auto originalControlPoints = patch.controlPoints();
+      const auto originalBounds = patch.bounds();
+
+      patch.transformControlPoints(
+        std::set<vm::vec3d>{}, vm::translation_matrix(vm::vec3d{2, 0, 0}));
+
+      CHECK(patch.controlPoints() == originalControlPoints);
+      CHECK(patch.bounds() == originalBounds);
+    }
+  }
 }
 
 } // namespace tb::mdl

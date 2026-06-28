@@ -20,8 +20,11 @@
 #include "ui/MapViewToolBox.h"
 
 #include "mdl/EditorContext.h"
+#include "mdl/Map.h"
+#include "mdl/Selection.h"
 #include "ui/AssembleBrushTool.h"
 #include "ui/ClipTool.h"
+#include "ui/ControlPointTool.h"
 #include "ui/CreateEntityTool.h"
 #include "ui/DrawShapeTool.h"
 #include "ui/EdgeTool.h"
@@ -53,64 +56,137 @@ ClipTool& MapViewToolBox::clipTool()
   return *m_clipTool;
 }
 
-AssembleBrushTool& MapViewToolBox::assembleBrushTool()
+const AssembleBrushTool& MapViewToolBox::assembleBrushTool() const
 {
   return *m_assembleBrushTool;
 }
 
-CreateEntityTool& MapViewToolBox::createEntityTool()
+AssembleBrushTool& MapViewToolBox::assembleBrushTool()
+{
+  return KDL_CONST_OVERLOAD(assembleBrushTool());
+}
+
+const CreateEntityTool& MapViewToolBox::createEntityTool() const
 {
   return *m_createEntityTool;
 }
 
-DrawShapeTool& MapViewToolBox::drawShapeTool()
+CreateEntityTool& MapViewToolBox::createEntityTool()
+{
+  return KDL_CONST_OVERLOAD(createEntityTool());
+}
+
+const DrawShapeTool& MapViewToolBox::drawShapeTool() const
 {
   return *m_drawShapeTool;
 }
 
-MoveObjectsTool& MapViewToolBox::moveObjectsTool()
+DrawShapeTool& MapViewToolBox::drawShapeTool()
+{
+  return KDL_CONST_OVERLOAD(drawShapeTool());
+}
+
+const MoveObjectsTool& MapViewToolBox::moveObjectsTool() const
 {
   return *m_moveObjectsTool;
 }
 
-ExtrudeTool& MapViewToolBox::extrudeTool()
+MoveObjectsTool& MapViewToolBox::moveObjectsTool()
+{
+  return KDL_CONST_OVERLOAD(moveObjectsTool());
+}
+
+const ExtrudeTool& MapViewToolBox::extrudeTool() const
 {
   return *m_extrudeTool;
 }
 
-RotateTool& MapViewToolBox::rotateTool()
+ExtrudeTool& MapViewToolBox::extrudeTool()
+{
+  return KDL_CONST_OVERLOAD(extrudeTool());
+}
+
+const RotateTool& MapViewToolBox::rotateTool() const
 {
   return *m_rotateTool;
 }
 
-ScaleTool& MapViewToolBox::scaleTool()
+RotateTool& MapViewToolBox::rotateTool()
+{
+  return KDL_CONST_OVERLOAD(rotateTool());
+}
+
+const ScaleTool& MapViewToolBox::scaleTool() const
 {
   return *m_scaleTool;
 }
 
-ShearTool& MapViewToolBox::shearTool()
+ScaleTool& MapViewToolBox::scaleTool()
+{
+  return KDL_CONST_OVERLOAD(scaleTool());
+}
+
+const ShearTool& MapViewToolBox::shearTool() const
 {
   return *m_shearTool;
 }
 
-VertexTool& MapViewToolBox::vertexTool()
+ShearTool& MapViewToolBox::shearTool()
+{
+  return KDL_CONST_OVERLOAD(shearTool());
+}
+
+const VertexTool& MapViewToolBox::vertexTool() const
 {
   return *m_vertexTool;
 }
 
-EdgeTool& MapViewToolBox::edgeTool()
+VertexTool& MapViewToolBox::vertexTool()
+{
+  return KDL_CONST_OVERLOAD(vertexTool());
+}
+
+const EdgeTool& MapViewToolBox::edgeTool() const
 {
   return *m_edgeTool;
 }
 
-FaceTool& MapViewToolBox::faceTool()
+EdgeTool& MapViewToolBox::edgeTool()
+{
+  return KDL_CONST_OVERLOAD(edgeTool());
+}
+
+const FaceTool& MapViewToolBox::faceTool() const
 {
   return *m_faceTool;
 }
 
+FaceTool& MapViewToolBox::faceTool()
+{
+  return KDL_CONST_OVERLOAD(faceTool());
+}
+
+const ControlPointTool& MapViewToolBox::controlPointTool() const
+{
+  return *m_controlPointTool;
+}
+
+ControlPointTool& MapViewToolBox::controlPointTool()
+{
+  return KDL_CONST_OVERLOAD(controlPointTool());
+}
+
+bool MapViewToolBox::canToggleAssembleBrushTool() const
+{
+  return true;
+}
+
 void MapViewToolBox::toggleAssembleBrushTool()
 {
-  toggleTool(assembleBrushTool());
+  if (canToggleAssembleBrushTool())
+  {
+    toggleTool(assembleBrushTool());
+  }
 }
 
 bool MapViewToolBox::assembleBrushToolActive() const
@@ -120,12 +196,23 @@ bool MapViewToolBox::assembleBrushToolActive() const
 
 void MapViewToolBox::performAssembleBrush()
 {
+  contract_pre(assembleBrushToolActive());
+
   m_assembleBrushTool->createBrushes();
+}
+
+bool MapViewToolBox::canToggleClipTool() const
+{
+  const auto& map = m_document.map();
+  return clipToolActive() || map.selection().hasOnlyBrushes();
 }
 
 void MapViewToolBox::toggleClipTool()
 {
-  toggleTool(clipTool());
+  if (canToggleClipTool())
+  {
+    toggleTool(clipTool());
+  }
 }
 
 bool MapViewToolBox::clipToolActive() const
@@ -154,9 +241,18 @@ void MapViewToolBox::removeLastClipPoint()
   m_clipTool->removeLastPoint();
 }
 
+bool MapViewToolBox::canToggleRotateTool() const
+{
+  const auto& map = m_document.map();
+  return rotateToolActive() || map.selection().hasNodes();
+}
+
 void MapViewToolBox::toggleRotateTool()
 {
-  toggleTool(rotateTool());
+  if (canToggleRotateTool())
+  {
+    toggleTool(rotateTool());
+  }
 }
 
 bool MapViewToolBox::rotateToolActive() const
@@ -186,9 +282,18 @@ void MapViewToolBox::moveRotationCenter(const vm::vec3d& delta)
   m_rotateTool->setRotationCenter(center + delta);
 }
 
+bool MapViewToolBox::canToggleScaleTool() const
+{
+  const auto& map = m_document.map();
+  return scaleToolActive() || map.selection().hasNodes();
+}
+
 void MapViewToolBox::toggleScaleTool()
 {
-  toggleTool(scaleTool());
+  if (canToggleScaleTool())
+  {
+    toggleTool(scaleTool());
+  }
 }
 
 bool MapViewToolBox::scaleToolActive() const
@@ -196,9 +301,18 @@ bool MapViewToolBox::scaleToolActive() const
   return m_scaleTool->active();
 }
 
+bool MapViewToolBox::canToggleShearTool() const
+{
+  const auto& map = m_document.map();
+  return shearToolActive() || map.selection().hasNodes();
+}
+
 void MapViewToolBox::toggleShearTool()
 {
-  toggleTool(shearTool());
+  if (canToggleShearTool())
+  {
+    toggleTool(shearTool());
+  }
 }
 
 bool MapViewToolBox::shearToolActive() const
@@ -206,14 +320,29 @@ bool MapViewToolBox::shearToolActive() const
   return m_shearTool->active();
 }
 
+bool MapViewToolBox::canToggleAnyVertexTool() const
+{
+  const auto& map = m_document.map();
+  return vertexToolActive() || edgeToolActive() || faceToolActive()
+         || map.selection().hasOnlyBrushes();
+}
+
 bool MapViewToolBox::anyVertexToolActive() const
 {
   return vertexToolActive() || edgeToolActive() || faceToolActive();
 }
 
+bool MapViewToolBox::anyNodeHandleToolActive() const
+{
+  return anyVertexToolActive() || controlPointToolActive();
+}
+
 void MapViewToolBox::toggleVertexTool()
 {
-  toggleTool(vertexTool());
+  if (canToggleAnyVertexTool())
+  {
+    toggleTool(vertexTool());
+  }
 }
 
 bool MapViewToolBox::vertexToolActive() const
@@ -223,7 +352,10 @@ bool MapViewToolBox::vertexToolActive() const
 
 void MapViewToolBox::toggleEdgeTool()
 {
-  toggleTool(edgeTool());
+  if (canToggleAnyVertexTool())
+  {
+    toggleTool(edgeTool());
+  }
 }
 
 bool MapViewToolBox::edgeToolActive() const
@@ -233,7 +365,10 @@ bool MapViewToolBox::edgeToolActive() const
 
 void MapViewToolBox::toggleFaceTool()
 {
-  toggleTool(faceTool());
+  if (canToggleAnyVertexTool())
+  {
+    toggleTool(faceTool());
+  }
 }
 
 bool MapViewToolBox::faceToolActive() const
@@ -241,15 +376,34 @@ bool MapViewToolBox::faceToolActive() const
   return m_faceTool->active();
 }
 
+bool MapViewToolBox::canToggleControlPointTool() const
+{
+  const auto& map = m_document.map();
+  return controlPointToolActive() || map.selection().hasOnlyPatches();
+}
+
+void MapViewToolBox::toggleControlPointTool()
+{
+  if (canToggleControlPointTool())
+  {
+    toggleTool(controlPointTool());
+  }
+}
+
+bool MapViewToolBox::controlPointToolActive() const
+{
+  return m_controlPointTool->active();
+}
+
 bool MapViewToolBox::anyModalToolActive() const
 {
   return rotateToolActive() || scaleToolActive() || shearToolActive()
-         || anyVertexToolActive();
+         || anyNodeHandleToolActive();
 }
 
-void MapViewToolBox::moveVertices(const vm::vec3d& delta)
+void MapViewToolBox::moveNodeHandles(const vm::vec3d& delta)
 {
-  contract_pre(anyVertexToolActive());
+  contract_pre(anyNodeHandleToolActive());
 
   if (vertexToolActive())
   {
@@ -262,6 +416,10 @@ void MapViewToolBox::moveVertices(const vm::vec3d& delta)
   else if (faceToolActive())
   {
     faceTool().moveSelection(delta);
+  }
+  else if (controlPointToolActive())
+  {
+    controlPointTool().moveSelection(delta);
   }
 }
 
@@ -279,18 +437,25 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   m_vertexTool = std::make_unique<VertexTool>(m_document);
   m_edgeTool = std::make_unique<EdgeTool>(m_document);
   m_faceTool = std::make_unique<FaceTool>(m_document);
+  m_controlPointTool = std::make_unique<ControlPointTool>(m_document);
 
   addExclusiveToolGroup(
     assembleBrushTool(),
     rotateTool(),
     scaleTool(),
     shearTool(),
+    controlPointTool(),
     edgeTool(),
     faceTool(),
     clipTool());
 
   addExclusiveToolGroup(
-    assembleBrushTool(), vertexTool(), edgeTool(), faceTool(), clipTool());
+    assembleBrushTool(),
+    vertexTool(),
+    edgeTool(),
+    faceTool(),
+    controlPointTool(),
+    clipTool());
 
   suppressWhileActive(
     assembleBrushTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
@@ -300,6 +465,8 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   suppressWhileActive(vertexTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(edgeTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(faceTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(
+    controlPointTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(clipTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
 
   registerTool(moveObjectsTool(), bookCtrl);
@@ -312,6 +479,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   registerTool(vertexTool(), bookCtrl);
   registerTool(edgeTool(), bookCtrl);
   registerTool(faceTool(), bookCtrl);
+  registerTool(controlPointTool(), bookCtrl);
   registerTool(createEntityTool(), bookCtrl);
   registerTool(drawShapeTool(), bookCtrl);
 
@@ -391,6 +559,10 @@ void MapViewToolBox::updateToolPage()
   else if (faceToolActive())
   {
     faceTool().showPage();
+  }
+  else if (controlPointToolActive())
+  {
+    controlPointTool().showPage();
   }
   else if (clipToolActive())
   {

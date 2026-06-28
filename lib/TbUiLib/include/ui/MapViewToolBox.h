@@ -50,6 +50,7 @@ class ShearTool;
 class VertexTool;
 class EdgeTool;
 class FaceTool;
+class ControlPointTool;
 
 class MapViewToolBox : public ToolBox
 {
@@ -68,6 +69,7 @@ private:
   std::unique_ptr<VertexTool> m_vertexTool;
   std::unique_ptr<EdgeTool> m_edgeTool;
   std::unique_ptr<FaceTool> m_faceTool;
+  std::unique_ptr<ControlPointTool> m_controlPointTool;
 
   NotifierConnection m_notifierConnection;
 
@@ -76,42 +78,75 @@ public:
   ~MapViewToolBox() override;
 
 public: // tools
+  const ClipTool& clipTool() const;
   ClipTool& clipTool();
+
+  const AssembleBrushTool& assembleBrushTool() const;
   AssembleBrushTool& assembleBrushTool();
+
+  const CreateEntityTool& createEntityTool() const;
   CreateEntityTool& createEntityTool();
+
+  const DrawShapeTool& drawShapeTool() const;
   DrawShapeTool& drawShapeTool();
+
+  const MoveObjectsTool& moveObjectsTool() const;
   MoveObjectsTool& moveObjectsTool();
+
+  const ExtrudeTool& extrudeTool() const;
   ExtrudeTool& extrudeTool();
+
+  const RotateTool& rotateTool() const;
   RotateTool& rotateTool();
+
+  const ScaleTool& scaleTool() const;
   ScaleTool& scaleTool();
+
+  const ShearTool& shearTool() const;
   ShearTool& shearTool();
+
+  const VertexTool& vertexTool() const;
   VertexTool& vertexTool();
+
+  const EdgeTool& edgeTool() const;
   EdgeTool& edgeTool();
+
+  const FaceTool& faceTool() const;
   FaceTool& faceTool();
 
+  const ControlPointTool& controlPointTool() const;
+  ControlPointTool& controlPointTool();
+
+  bool canToggleAssembleBrushTool() const;
   void toggleAssembleBrushTool();
   bool assembleBrushToolActive() const;
   void performAssembleBrush();
 
+  bool canToggleClipTool() const;
   void toggleClipTool();
   bool clipToolActive() const;
   void toggleClipSide();
   void performClip();
   void removeLastClipPoint();
 
+  bool canToggleRotateTool() const;
   void toggleRotateTool();
   bool rotateToolActive() const;
   double rotateToolAngle() const;
   vm::vec3d rotateToolCenter() const;
   void moveRotationCenter(const vm::vec3d& delta);
 
+  bool canToggleScaleTool() const;
   void toggleScaleTool();
   bool scaleToolActive() const;
 
+  bool canToggleShearTool() const;
   void toggleShearTool();
   bool shearToolActive() const;
 
+  bool canToggleAnyVertexTool() const;
   bool anyVertexToolActive() const;
+  bool anyNodeHandleToolActive() const;
 
   void toggleVertexTool();
   bool vertexToolActive() const;
@@ -122,9 +157,13 @@ public: // tools
   void toggleFaceTool();
   bool faceToolActive() const;
 
+  bool canToggleControlPointTool() const;
+  void toggleControlPointTool();
+  bool controlPointToolActive() const;
+
   bool anyModalToolActive() const;
 
-  void moveVertices(const vm::vec3d& delta);
+  void moveNodeHandles(const vm::vec3d& delta);
 
 private: // Tool related methods
   void createTools(QStackedLayout* bookCtrl);

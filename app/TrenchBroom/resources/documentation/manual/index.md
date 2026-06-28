@@ -493,6 +493,14 @@ To use the brush tool, you first have to activate it by choosing #menu(Menu/Edit
 
 It is not possible to modify or remove points after they have been placed, except discarding all of them by hitting the #action(Controls/Map view/Cancel) key.
 
+### Editing Patches (Quake 3 only) {#editing_patches}
+
+Patches can be edited using the Control Point Tool.
+
+![Editing the Control Points](images/ControlPointTool.png)
+
+Adjusting the control points works in the same way as [editing vertices](#vertex_editing), so we won't repeat all the details here. Just select and drag the control points to adjust the shape of the patch. Like in the vertex tool, control points at the same positions are clumped together so that you can edit the control points of adjacent patches together.
+
 ### Creating Entities {#creating_entities}
 
 There are two types of entities: point entities and brush entities, and it depends on the type how an entity is created. In the following sections, we present three ways of creating point entities and two ways to create brush entities.

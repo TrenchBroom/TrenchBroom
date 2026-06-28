@@ -75,6 +75,14 @@ bool Lasso::selects(
   return selects(handle.position.center(), plane, box);
 }
 
+bool Lasso::selects(
+  const mdl::ControlPointHandle& handle,
+  const vm::plane3d& plane,
+  const vm::bbox2d& box) const
+{
+  return selects(handle.position, plane, box);
+}
+
 std::optional<vm::vec3d> Lasso::project(
   const vm::vec3d& point, const vm::plane3d& plane) const
 {

@@ -30,6 +30,8 @@
 #include "vm/mat_ext.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <ranges>
+
 namespace tb::mdl
 {
 
@@ -56,7 +58,7 @@ BezierPatch::BezierPatch(
   : m_pointRowCount{pointRowCount}
   , m_pointColumnCount{pointColumnCount}
   , m_controlPoints{std::move(controlPoints)}
-  , m_bounds(computeBounds(m_controlPoints))
+  , m_bounds{computeBounds(m_controlPoints)}
   , m_materialName{std::move(materialName)}
 {
   contract_pre(m_pointRowCount > 2 && m_pointColumnCount > 2);
@@ -163,14 +165,11 @@ bool BezierPatch::setMaterial(gl::Material* material)
 
 void BezierPatch::transform(const vm::mat4x4d& transformation)
 {
-  auto builder = vm::bbox3d::builder{};
   for (auto& controlPoint : m_controlPoints)
   {
     controlPoint =
       Point{transformation * controlPoint.xyz(), controlPoint[3], controlPoint[4]};
-    builder.add(controlPoint.xyz());
   }
-  m_bounds = builder.bounds();
 
   using std::swap;
 
@@ -186,6 +185,30 @@ void BezierPatch::transform(const vm::mat4x4d& transformation)
         swap(controlPoint(r, c), controlPoint(r, d));
       }
     }
+  }
+
+  m_bounds = computeBounds(m_controlPoints);
+}
+
+void BezierPatch::transformControlPoints(
+  const std::set<vm::vec3d>& positions, const vm::mat4x4d& transformation)
+{
+  contract_pre(vm::is_orientation_preserving_transform(transformation));
+
+  auto matchingControlPoints =
+    m_controlPoints | std::views::filter([&](const auto& controlPoint) {
+      return positions.contains(controlPoint.xyz());
+    });
+
+  if (!std::ranges::empty(matchingControlPoints))
+  {
+    for (auto& controlPoint : matchingControlPoints)
+    {
+      controlPoint =
+        Point{transformation * controlPoint.xyz(), controlPoint[3], controlPoint[4]};
+    }
+
+    m_bounds = computeBounds(m_controlPoints);
   }
 }
 

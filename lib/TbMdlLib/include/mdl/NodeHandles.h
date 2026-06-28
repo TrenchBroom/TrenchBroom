@@ -197,5 +197,43 @@ struct FaceHandle
   kdl_reflect_decl(FaceHandle, position);
 };
 
+struct ControlPointHandle
+{
+  using Position = vm::vec3d;
+
+  static const HitType::Type HandleHitType;
+
+  Position position;
+
+  static std::vector<ControlPointHandle> getHandles(const Node& node);
+
+  template <std::ranges::range R>
+  static std::vector<Position> getPositions(R&& range)
+  {
+    return range | std::views::transform(&ControlPointHandle::position)
+           | kdl::ranges::to<std::vector>();
+  }
+
+  template <std::ranges::range R>
+  static std::vector<vm::vec3d> getVertices(R&& range)
+  {
+    return range | std::views::transform(&ControlPointHandle::position)
+           | kdl::ranges::to<std::vector>();
+  }
+
+  static double distance(const ControlPointHandle& lhs, const ControlPointHandle& rhs);
+
+  /**
+   * Pick this handle.
+   */
+  std::optional<Hit> pick(
+    HitType::Type hitType,
+    const vm::ray3d& pickRay,
+    const gl::Camera& camera,
+    double handleRadius) const;
+
+  kdl_reflect_decl(ControlPointHandle, position);
+};
+
 } // namespace mdl
 } // namespace tb

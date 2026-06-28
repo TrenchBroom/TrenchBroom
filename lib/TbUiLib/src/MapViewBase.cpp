@@ -361,9 +361,9 @@ void MapViewBase::move(const vm::direction direction)
   {
     moveRotationCenter(direction);
   }
-  else if ((actionContext() & ActionContext::AnyVertexTool) != 0)
+  else if ((actionContext() & ActionContext::AnyNodeHandleTool) != 0)
   {
-    moveVertices(direction);
+    moveNodeHandles(direction);
   }
   else if ((actionContext() & ActionContext::NodeSelection) != 0)
   {
@@ -380,12 +380,12 @@ void MapViewBase::moveRotationCenter(const vm::direction direction)
   update();
 }
 
-void MapViewBase::moveVertices(const vm::direction direction)
+void MapViewBase::moveNodeHandles(const vm::direction direction)
 {
   const auto& map = m_document.map();
   const auto& grid = map.grid();
   const auto delta = moveDirection(direction) * double(grid.actualSize());
-  m_toolBox.moveVertices(delta);
+  m_toolBox.moveNodeHandles(delta);
 }
 
 void MapViewBase::moveObjects(const vm::direction direction)
@@ -902,13 +902,14 @@ ActionContext::Type MapViewBase::actionContext() const
 
   const auto viewContext = viewActionContext();
   const auto toolContext =
-    m_toolBox.assembleBrushToolActive() ? ActionContext::AssembleBrushTool
-    : m_toolBox.clipToolActive()        ? ActionContext::ClipTool
-    : m_toolBox.anyVertexToolActive()   ? ActionContext::AnyVertexTool
-    : m_toolBox.rotateToolActive()      ? ActionContext::RotateTool
-    : m_toolBox.scaleToolActive()       ? ActionContext::ScaleTool
-    : m_toolBox.shearToolActive()       ? ActionContext::ShearTool
-                                        : ActionContext::NoTool;
+    m_toolBox.assembleBrushToolActive()  ? ActionContext::AssembleBrushTool
+    : m_toolBox.clipToolActive()         ? ActionContext::ClipTool
+    : m_toolBox.anyVertexToolActive()    ? ActionContext::AnyVertexTool
+    : m_toolBox.controlPointToolActive() ? ActionContext::ControlPointTool
+    : m_toolBox.rotateToolActive()       ? ActionContext::RotateTool
+    : m_toolBox.scaleToolActive()        ? ActionContext::ScaleTool
+    : m_toolBox.shearToolActive()        ? ActionContext::ShearTool
+                                         : ActionContext::NoTool;
   const auto selectionContext = map.selection().hasNodes() ? ActionContext::NodeSelection
                                 : map.selection().hasBrushFaces()
                                   ? ActionContext::FaceSelection
