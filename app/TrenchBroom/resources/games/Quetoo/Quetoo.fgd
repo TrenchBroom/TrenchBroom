@@ -420,8 +420,8 @@
 		1 : "The path corner teleports the train as soon as it is selected" : 0
 		2 : "Suppress the default teleport effects" : 0
 	]
-	target(string) : "The next corner in the path"
-	pathtarget(string) : "An entity to be used by this path corner when targeted"
+	target(target_destination) : "The next corner in the path"
+	pathtarget(target_destination) : "An entity to be used by this path corner when targeted"
 ]
 
 @PointClass base(Targetname) color(255 255 80) size(-8 -8 -8, 8 8 8) = target_light : "Emits a user-defined light when used. Lights can be chained with teams. Use this entity to add switched lights. Use the wait key to synchronize color cycles with other entities."
@@ -466,19 +466,19 @@
 	]
 	delay(integer) : "Delay in seconds between activation and firing of targets" : 0
 	message(string) : "An optional string to display when activated"
-	killtarget(string) : "The name of the entity or team to kill on activation"
+	killtarget(target_destination) : "The name of the entity or team to kill on activation"
 ]
 
 @PointClass base(Target, Targetname) color(128 128 128) = trigger_relay : "A trigger that can not be touched, but must be triggered by another entity."
 [
 	delay(integer) : "Delay in seconds between activation and firing of targets" : 0
 	message(string) : "An optional string to display when activated"
-	killtarget(string) : "The name of the entity or team to kill on activation"
+	killtarget(target_destination) : "The name of the entity or team to kill on activation"
 ]
 
 @PointClass base(Target) color(128 128 128) = trigger_always : "Triggers targets once at level spawn."
 [
-	killtarget(string) : "The name of the entity or team to kill on activation"
+	killtarget(target_destination) : "The name of the entity or team to kill on activation"
 	delay(integer) : "The delay in seconds between activation and firing of targets"
 	message(string) : "An optional message to display when this trigger fires"
 ]
