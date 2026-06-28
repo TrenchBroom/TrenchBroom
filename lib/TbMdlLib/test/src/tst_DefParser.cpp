@@ -74,6 +74,38 @@ TEST_CASE("DefParser")
     }
   }
 
+  SECTION("parseQuakeLiveEntityDefinitions")
+  {
+    // The Quake Live game profile ships its entity definitions in GtkRadiant DEF format.
+    const auto path = getFixtureRoot() / "games/QuakeLive/entities.def";
+
+    auto file = fs::Disk::openFile(path) | kdl::value();
+    auto reader = file->reader().buffer();
+    auto parser = DefParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+
+    auto status = TestParserStatus{};
+    const auto definitions = parser.parseDefinitions(status) | kdl::value();
+    CHECK(!definitions.empty());
+    CHECK(status.countStatus(LogLevel::Error) == 0u);
+
+    // The point entities declare their .md3 model via TrenchBroom `{ model("..."); }`
+    // brace blocks (converted from GtkRadiant's `model="..."` comment convention), so
+    // the model must resolve in order to be displayed in the editor.
+    const mdl::PointEntityDefinition* ammoRockets = nullptr;
+    for (const auto& def : definitions)
+    {
+      if (def.name == "ammo_rockets" && def.pointEntityDefinition)
+      {
+        ammoRockets = &*def.pointEntityDefinition;
+        break;
+      }
+    }
+    REQUIRE(ammoRockets != nullptr);
+    CHECK(
+      (ammoRockets->modelDefinition.defaultModelSpecification() | kdl::value())
+      == mdl::ModelSpecification{"models/powerups/ammo/rocketam.md3", 0, 0});
+  }
+
   SECTION("parseExtraDefFiles")
   {
     const auto basePath = getFixtureRoot() / "test/mdl/DefParser";
