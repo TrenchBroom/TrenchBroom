@@ -227,7 +227,7 @@ MapWindow::~MapWindow()
   // so we don't try to log to a dangling pointer (#1885).
   m_document->setTargetLogger(nullptr);
 
-  m_mapView->deactivateCurrentTool();
+  m_mapView->toolBox().deactivateCurrentTool();
 
   m_notifierConnection.disconnect();
   removeRecentDocumentsMenu();
@@ -1357,7 +1357,7 @@ bool MapWindow::canCutSelection() const
   const auto& map = m_document->map();
   const auto& selection = map.selection();
   return widgetOrChildHasFocus(m_mapView) && selection.hasNodes()
-         && !m_mapView->anyModalToolActive();
+         && !m_mapView->toolBox().anyModalToolActive();
 }
 
 bool MapWindow::canCopySelection() const
@@ -1465,23 +1465,25 @@ void MapWindow::deleteSelection()
 {
   if (canDeleteSelection())
   {
-    if (m_mapView->clipToolActive())
+    auto& toolBox = m_mapView->toolBox();
+
+    if (toolBox.clipToolActive())
     {
-      m_mapView->clipTool().removeLastPoint();
+      toolBox.clipTool().removeLastPoint();
     }
-    else if (m_mapView->vertexToolActive())
+    else if (toolBox.vertexToolActive())
     {
-      m_mapView->vertexTool().removeSelection();
+      toolBox.vertexTool().removeSelection();
     }
-    else if (m_mapView->edgeToolActive())
+    else if (toolBox.edgeToolActive())
     {
-      m_mapView->edgeTool().removeSelection();
+      toolBox.edgeTool().removeSelection();
     }
-    else if (m_mapView->faceToolActive())
+    else if (toolBox.faceToolActive())
     {
-      m_mapView->faceTool().removeSelection();
+      toolBox.faceTool().removeSelection();
     }
-    else if (!m_mapView->anyModalToolActive())
+    else if (!toolBox.anyModalToolActive())
     {
       auto& map = m_document->map();
       removeSelectedNodes(map);
@@ -1491,21 +1493,23 @@ void MapWindow::deleteSelection()
 
 bool MapWindow::canDeleteSelection() const
 {
-  if (m_mapView->clipToolActive())
+  auto& toolBox = m_mapView->toolBox();
+
+  if (toolBox.clipToolActive())
   {
-    return m_mapView->clipTool().canRemoveLastPoint();
+    return toolBox.clipTool().canRemoveLastPoint();
   }
-  if (m_mapView->vertexToolActive())
+  if (toolBox.vertexToolActive())
   {
-    return m_mapView->vertexTool().canRemoveSelection();
+    return toolBox.vertexTool().canRemoveSelection();
   }
-  if (m_mapView->edgeToolActive())
+  if (toolBox.edgeToolActive())
   {
-    return m_mapView->edgeTool().canRemoveSelection();
+    return toolBox.edgeTool().canRemoveSelection();
   }
-  if (m_mapView->faceToolActive())
+  if (toolBox.faceToolActive())
   {
-    return m_mapView->faceTool().canRemoveSelection();
+    return toolBox.faceTool().canRemoveSelection();
   }
   return canCutSelection();
 }
@@ -1650,7 +1654,7 @@ void MapWindow::groupSelectedObjects()
 bool MapWindow::canGroupSelectedObjects() const
 {
   auto& map = m_document->map();
-  return map.selection().hasNodes() && !m_mapView->anyModalToolActive();
+  return map.selection().hasNodes() && !m_mapView->toolBox().anyModalToolActive();
 }
 
 void MapWindow::ungroupSelectedObjects()
@@ -1664,7 +1668,7 @@ void MapWindow::ungroupSelectedObjects()
 bool MapWindow::canUngroupSelectedObjects() const
 {
   auto& map = m_document->map();
-  return map.selection().hasGroups() && !m_mapView->anyModalToolActive();
+  return map.selection().hasGroups() && !m_mapView->toolBox().anyModalToolActive();
 }
 
 void MapWindow::renameSelectedGroups()
@@ -1722,178 +1726,180 @@ void MapWindow::moveSelectedObjects()
 bool MapWindow::canMoveSelectedObjects() const
 {
   auto& map = m_document->map();
-  return map.selection().hasNodes() && !m_mapView->anyModalToolActive();
+  return map.selection().hasNodes() && !m_mapView->toolBox().anyModalToolActive();
 }
 
 bool MapWindow::anyModalToolActive() const
 {
-  return m_mapView->anyModalToolActive();
+  return m_mapView->toolBox().anyModalToolActive();
 }
 
 void MapWindow::toggleAssembleBrushTool()
 {
   if (canToggleAssembleBrushTool())
   {
-    m_mapView->toggleAssembleBrushTool();
+    m_mapView->toolBox().toggleAssembleBrushTool();
   }
 }
 
 bool MapWindow::canToggleAssembleBrushTool() const
 {
-  return m_mapView->canToggleAssembleBrushTool();
+  return m_mapView->toolBox().canToggleAssembleBrushTool();
 }
 
 bool MapWindow::assembleBrushToolActive() const
 {
-  return m_mapView->assembleBrushToolActive();
+  return m_mapView->toolBox().assembleBrushToolActive();
 }
 
 void MapWindow::toggleClipTool()
 {
   if (canToggleClipTool())
   {
-    m_mapView->toggleClipTool();
+    m_mapView->toolBox().toggleClipTool();
   }
 }
 
 bool MapWindow::canToggleClipTool() const
 {
-  return m_mapView->canToggleClipTool();
+  return m_mapView->toolBox().canToggleClipTool();
 }
 
 bool MapWindow::clipToolActive() const
 {
-  return m_mapView->clipToolActive();
+  return m_mapView->toolBox().clipToolActive();
 }
 
 void MapWindow::toggleRotateTool()
 {
   if (canToggleRotateTool())
   {
-    m_mapView->toggleRotateTool();
+    m_mapView->toolBox().toggleRotateTool();
   }
 }
 
 bool MapWindow::canToggleRotateTool() const
 {
-  return m_mapView->canToggleRotateTool();
+  return m_mapView->toolBox().canToggleRotateTool();
 }
 
 bool MapWindow::rotateToolActive() const
 {
-  return m_mapView->rotateToolActive();
+  return m_mapView->toolBox().rotateToolActive();
 }
 
 void MapWindow::toggleScaleTool()
 {
   if (canToggleScaleTool())
   {
-    m_mapView->toggleScaleTool();
+    m_mapView->toolBox().toggleScaleTool();
   }
 }
 
 bool MapWindow::canToggleScaleTool() const
 {
-  return m_mapView->canToggleScaleTool();
+  return m_mapView->toolBox().canToggleScaleTool();
 }
 
 bool MapWindow::scaleToolActive() const
 {
-  return m_mapView->scaleToolActive();
+  return m_mapView->toolBox().scaleToolActive();
 }
 
 void MapWindow::toggleShearTool()
 {
   if (canToggleShearTool())
   {
-    m_mapView->toggleShearTool();
+    m_mapView->toolBox().toggleShearTool();
   }
 }
 
 bool MapWindow::canToggleShearTool() const
 {
-  return m_mapView->canToggleShearTool();
+  return m_mapView->toolBox().canToggleShearTool();
 }
 
 bool MapWindow::shearToolActive() const
 {
-  return m_mapView->shearToolActive();
+  return m_mapView->toolBox().shearToolActive();
 }
 
 bool MapWindow::anyVertexToolActive() const
 {
-  return m_mapView->anyVertexToolActive();
+  return m_mapView->toolBox().anyVertexToolActive();
 }
 
 void MapWindow::toggleVertexTool()
 {
   if (canToggleVertexTool())
   {
-    m_mapView->toggleVertexTool();
+    m_mapView->toolBox().toggleVertexTool();
   }
 }
 
 bool MapWindow::canToggleVertexTool() const
 {
-  return m_mapView->canToggleVertexTools();
+  return m_mapView->toolBox().canToggleAnyVertexTool();
 }
 
 bool MapWindow::vertexToolActive() const
 {
-  return m_mapView->vertexToolActive();
+  return m_mapView->toolBox().vertexToolActive();
 }
 
 void MapWindow::toggleEdgeTool()
 {
   if (canToggleEdgeTool())
   {
-    m_mapView->toggleEdgeTool();
+    m_mapView->toolBox().toggleEdgeTool();
   }
 }
 
 bool MapWindow::canToggleEdgeTool() const
 {
-  return m_mapView->canToggleVertexTools();
+  return m_mapView->toolBox().canToggleAnyVertexTool();
 }
 
 bool MapWindow::edgeToolActive() const
 {
-  return m_mapView->edgeToolActive();
+  return m_mapView->toolBox().edgeToolActive();
 }
 
 void MapWindow::toggleFaceTool()
 {
   if (canToggleFaceTool())
   {
-    m_mapView->toggleFaceTool();
+    m_mapView->toolBox().toggleFaceTool();
   }
 }
 
 bool MapWindow::canToggleFaceTool() const
 {
-  return m_mapView->canToggleVertexTools();
+  return m_mapView->toolBox().canToggleAnyVertexTool();
 }
 
 bool MapWindow::faceToolActive() const
 {
-  return m_mapView->faceToolActive();
+  return m_mapView->toolBox().faceToolActive();
 }
 
 void MapWindow::csgConvexMerge()
 {
   if (canDoCsgConvexMerge())
   {
-    if (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge())
+    auto& toolBox = m_mapView->toolBox();
+
+    if (toolBox.vertexToolActive() && toolBox.vertexTool().canDoCsgConvexMerge())
     {
-      m_mapView->vertexTool().csgConvexMerge();
+      toolBox.vertexTool().csgConvexMerge();
     }
-    else if (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge())
+    else if (toolBox.edgeToolActive() && toolBox.edgeTool().canDoCsgConvexMerge())
     {
-      m_mapView->edgeTool().csgConvexMerge();
+      toolBox.edgeTool().csgConvexMerge();
     }
-    else if (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge())
+    else if (toolBox.faceToolActive() && toolBox.faceTool().canDoCsgConvexMerge())
     {
-      m_mapView->faceTool().csgConvexMerge();
+      toolBox.faceTool().csgConvexMerge();
     }
     else
     {
@@ -1904,13 +1910,15 @@ void MapWindow::csgConvexMerge()
 
 bool MapWindow::canDoCsgConvexMerge() const
 {
+  const auto& toolBox = m_mapView->toolBox();
   const auto& map = m_document->map();
   const auto& selection = map.selection();
+
   return (selection.hasBrushFaces() && selection.brushFaces.size() > 1)
          || (selection.hasOnlyBrushes() && selection.brushes.size() > 1)
-         || (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge())
-         || (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge())
-         || (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge());
+         || (toolBox.vertexToolActive() && toolBox.vertexTool().canDoCsgConvexMerge())
+         || (toolBox.edgeToolActive() && toolBox.edgeTool().canDoCsgConvexMerge())
+         || (toolBox.faceToolActive() && toolBox.faceTool().canDoCsgConvexMerge());
 }
 
 void MapWindow::csgSubtract()

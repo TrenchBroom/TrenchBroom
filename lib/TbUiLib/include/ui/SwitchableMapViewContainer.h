@@ -67,41 +67,7 @@ public:
   bool active() const;
   void switchToMapView(MapViewLayout viewId);
 
-  bool anyModalToolActive() const;
-  void deactivateCurrentTool();
-
-  bool assembleBrushToolActive() const;
-  bool canToggleAssembleBrushTool() const;
-  void toggleAssembleBrushTool();
-
-  bool clipToolActive() const;
-  bool canToggleClipTool() const;
-  void toggleClipTool();
-  ClipTool& clipTool();
-
-  bool rotateToolActive() const;
-  bool canToggleRotateTool() const;
-  void toggleRotateTool();
-
-  bool scaleToolActive() const;
-  bool canToggleScaleTool() const;
-  void toggleScaleTool();
-
-  bool shearToolActive() const;
-  bool canToggleShearTool() const;
-  void toggleShearTool();
-
-  bool canToggleVertexTools() const;
-  bool anyVertexToolActive() const;
-  bool vertexToolActive() const;
-  bool edgeToolActive() const;
-  bool faceToolActive() const;
-  void toggleVertexTool();
-  void toggleEdgeTool();
-  void toggleFaceTool();
-  VertexTool& vertexTool();
-  EdgeTool& edgeTool();
-  FaceTool& faceTool();
+  const MapViewToolBox& toolBox() const;
   MapViewToolBox& toolBox();
 
   bool canMoveCameraToNextTracePoint() const;
