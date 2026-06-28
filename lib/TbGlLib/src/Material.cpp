@@ -110,6 +110,8 @@ Material::Material(Material&& other)
   , m_surfaceParms{std::move(other.m_surfaceParms)}
   , m_culling{std::move(other.m_culling)}
   , m_blendFunc{std::move(other.m_blendFunc)}
+  , m_transparency{other.m_transparency}
+  , m_noCarve{other.m_noCarve}
 {
 }
 
@@ -124,6 +126,8 @@ Material& Material::operator=(Material&& other)
   m_surfaceParms = std::move(other.m_surfaceParms);
   m_culling = std::move(other.m_culling);
   m_blendFunc = std::move(other.m_blendFunc);
+  m_transparency = other.m_transparency;
+  m_noCarve = other.m_noCarve;
   return *this;
 }
 
@@ -207,6 +211,26 @@ void Material::setBlendFunc(const GLenum srcFactor, const GLenum destFactor)
 void Material::disableBlend()
 {
   m_blendFunc.enable = MaterialBlendFunc::Enable::DisableBlend;
+}
+
+float Material::transparency() const
+{
+  return m_transparency;
+}
+
+void Material::setTransparency(const float transparency)
+{
+  m_transparency = transparency;
+}
+
+bool Material::noCarve() const
+{
+  return m_noCarve;
+}
+
+void Material::setNoCarve(const bool noCarve)
+{
+  m_noCarve = noCarve;
 }
 
 size_t Material::usageCount() const

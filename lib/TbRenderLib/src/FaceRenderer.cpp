@@ -198,6 +198,12 @@ void FaceRenderer::render(RenderContext& context)
         // set any per-material uniforms
         shader.set("GridColor", gridColorForMaterial(material));
         shader.set("EnableMasked", enableMasked);
+        // A Quake 3 shader with a qer_trans directive renders at its own transparency; all
+        // other faces use the renderer's alpha (1.0 in the opaque pass, the preference alpha
+        // in the transparent pass). Such faces are routed to the transparent pass by
+        // BrushRenderer::shouldDrawFaceInTransparentPass.
+        const auto materialAlpha = material ? material->transparency() : 1.0f;
+        shader.set("Alpha", materialAlpha < 1.0f ? materialAlpha : m_alpha);
 
         func.before(gl, material);
         brushIndexHolderPtr->setup(gl);

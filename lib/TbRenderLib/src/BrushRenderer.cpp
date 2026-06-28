@@ -499,6 +499,12 @@ bool BrushRenderer::shouldDrawFaceInTransparentPass(
   {
     return true;
   }
+  // Quake 3 shaders with a qer_trans directive are translucent regardless of tags.
+  if (const auto* material = face.material();
+      material && material->transparency() < 1.0f)
+  {
+    return true;
+  }
   if (brushNode.hasAttribute(mdl::TagAttributes::Transparency))
   {
     return true;

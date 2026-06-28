@@ -18,6 +18,10 @@
  */
 
 
+#include "gl/Material.h"
+#include "gl/MaterialManager.h"
+#include "gl/TextureResource.h"
+
 #include "Matchers.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -44,6 +48,7 @@
 
 #include "kd/ranges/to.h"
 #include "kd/ranges/zip_view.h"
+#include "kd/vector_utils.h"
 
 #include "vm/approx.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
@@ -1254,6 +1259,63 @@ TEST_CASE("Map_Geometry")
 
       CHECK(remainderNode1->logicalBounds() == expectedBBox1);
       CHECK(remainderNode2->logicalBounds() == expectedBBox2);
+    }
+
+    SECTION("Does not carve brushes with a qer_nocarve material")
+    {
+      auto& map = fixture.create();
+
+      // Register a material flagged as nocarve (as if loaded from a Quake 3 shader with
+      // the qer_nocarve directive) plus an ordinary one.
+      auto& materialManager = map.materialManager();
+      {
+        auto nocarveMaterial =
+          gl::Material{"nocarve", gl::createTextureResource(gl::Texture{16, 16})};
+        nocarveMaterial.setNoCarve(true);
+        auto plainMaterial =
+          gl::Material{"material", gl::createTextureResource(gl::Texture{16, 16})};
+
+        auto materials =
+          kdl::vec_from(std::move(nocarveMaterial), std::move(plainMaterial));
+        auto collections = kdl::vec_from(gl::MaterialCollection{std::move(materials)});
+        materialManager.setMaterialCollections(std::move(collections));
+      }
+
+      auto* nocarveMaterial = materialManager.material("nocarve");
+      REQUIRE(nocarveMaterial != nullptr);
+      REQUIRE(nocarveMaterial->noCarve());
+
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+      auto* entityNode = new EntityNode{Entity{}};
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+      const auto minuendBounds = vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}};
+      auto minuendBrush = builder.createCuboid(minuendBounds, "nocarve") | kdl::value();
+      for (auto& face : minuendBrush.faces())
+      {
+        face.setMaterial(nocarveMaterial);
+      }
+      auto* minuendNode = new BrushNode{std::move(minuendBrush)};
+
+      auto* subtrahendNode = new BrushNode{
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 32, 64}}, "material")
+        | kdl::value()};
+
+      addNodes(map, {{entityNode, {minuendNode, subtrahendNode}}});
+      REQUIRE(entityNode->children().size() == 2u);
+      REQUIRE(minuendNode->brush().faces().front().material() == nocarveMaterial);
+
+      // we want to compute minuend - subtrahend, but minuend is nocarve
+      selectNodes(map, {subtrahendNode});
+      CHECK(csgSubtract(map));
+
+      // The subtrahend is removed, but the nocarve minuend is left intact (not carved).
+      REQUIRE(entityNode->children().size() == 1u);
+      auto* remainder = dynamic_cast<BrushNode*>(entityNode->children().front());
+      REQUIRE(remainder != nullptr);
+      CHECK(remainder->logicalBounds() == minuendBounds);
     }
 
     SECTION("Undo restores selection")

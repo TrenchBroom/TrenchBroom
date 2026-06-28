@@ -215,6 +215,8 @@ Result<gl::Material> loadShaderMaterial(
              auto material =
                gl::Material{std::move(shaderName), std::move(textureResource)};
              material.setSurfaceParms(shader.surfaceParms);
+             material.setTransparency(shader.transparency);
+             material.setNoCarve(shader.noCarve);
 
              // Note that Quake 3 has a different understanding of front and back, so we
              // need to invert them.

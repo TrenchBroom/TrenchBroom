@@ -82,11 +82,31 @@ public:
   std::set<std::string> surfaceParms;
   std::vector<Quake3ShaderStage> stages;
 
+  /**
+   * Editor transparency from the `qer_trans` directive. 1.0 means fully opaque. Used to
+   * render translucent surfaces (fog, fences, areaportals, ...) in the editor.
+   */
+  float transparency = 1.0f;
+
+  /**
+   * Set by the `qer_nocarve` directive. Brushes using this material are excluded from CSG
+   * subtraction in the editor.
+   */
+  bool noCarve = false;
+
 public:
   Quake3ShaderStage& addStage();
 
   kdl_reflect_decl(
-    Quake3Shader, shaderPath, editorImage, lightImage, culling, surfaceParms, stages);
+    Quake3Shader,
+    shaderPath,
+    editorImage,
+    lightImage,
+    culling,
+    surfaceParms,
+    stages,
+    transparency,
+    noCarve);
 };
 
 std::ostream& operator<<(std::ostream& lhs, Quake3Shader::Culling rhs);

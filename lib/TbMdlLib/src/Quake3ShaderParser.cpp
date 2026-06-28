@@ -281,6 +281,15 @@ void Quake3ShaderParser::parseBodyEntry(Quake3Shader& shader, ParserStatus& /* s
       shader.culling = Quake3Shader::Culling::None;
     }
   }
+  else if (kdl::ci::str_is_equal(key, "qer_trans"))
+  {
+    token = m_tokenizer.nextToken(Quake3ShaderToken::Number);
+    shader.transparency = token.toFloat<float>();
+  }
+  else if (kdl::ci::str_is_equal(key, "qer_nocarve"))
+  {
+    shader.noCarve = true;
+  }
   else
   {
     skipRemainderOfEntry();

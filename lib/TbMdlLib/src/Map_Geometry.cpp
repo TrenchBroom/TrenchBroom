@@ -19,6 +19,8 @@
 
 #include "mdl/Map_Geometry.h"
 
+#include "gl/Material.h"
+
 #include "Logger.h"
 #include "mdl/AddRemoveNodesCommand.h"
 #include "mdl/ApplyAndSwap.h"
@@ -57,6 +59,7 @@
 #include "kd/task_manager.h"
 #include "kd/vector_utils.h"
 
+#include <algorithm>
 #include <ranges>
 
 namespace tb::mdl
@@ -701,7 +704,17 @@ bool csgSubtract(Map& map)
   // Select touching, but don't delete the subtrahends yet
   selectTouchingNodes(map, false);
 
-  const auto minuendNodes = std::vector<BrushNode*>{map.selection().brushes};
+  // A brush whose material was loaded from a Quake 3 shader with the `qer_nocarve`
+  // directive is excluded from being carved (it may still be used as a subtrahend).
+  const auto minuendNodes =
+    std::vector<BrushNode*>{map.selection().brushes}
+    | std::views::filter([](const BrushNode* node) {
+        return !std::ranges::any_of(node->brush().faces(), [](const auto& face) {
+          const auto* material = face.material();
+          return material && material->noCarve();
+        });
+      })
+    | kdl::ranges::to<std::vector>();
   const auto subtrahends = subtrahendNodes
                            | std::views::transform([](const auto* subtrahendNode) {
                                return &subtrahendNode->brush();

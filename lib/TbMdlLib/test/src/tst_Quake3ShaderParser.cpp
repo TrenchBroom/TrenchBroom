@@ -109,7 +109,9 @@ textures/liquids/lavahell2 //path and name of new texture
         {{
           "textures/eerie/lavahell.tga", // map
           {"", ""}                       // blendFunc
-        }} // stages
+        }},   // stages
+        1.0f, // transparency
+        true  // noCarve
       }}));
   }
 
@@ -160,7 +162,40 @@ textures/liquids/lavahell2 //path and name of new texture
         {{
           "textures/eerie/lavahell.tga", // map
           {"", ""}                       // blendFunc
-        }} // stages
+        }},   // stages
+        1.0f, // transparency
+        true  // noCarve
+      }}));
+  }
+
+  SECTION("Parse qer_trans and qer_nocarve")
+  {
+    const auto data = R"(
+textures/ct_infinity/blackfog
+{
+    qer_editorimage textures/ct_infinity/black.tga
+    surfaceparm fog
+    surfaceparm nonsolid
+    surfaceparm trans
+    surfaceparm nolightmap
+    qer_trans 0.5
+    qer_nocarve
+    fogparms ( 0 0 0 ) 1024
+}
+)";
+    auto parser = Quake3ShaderParser{data};
+
+    CHECK_THAT(
+      parser.parse(status).value(),
+      UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "textures/ct_infinity/blackfog",            // shaderPath
+        "textures/ct_infinity/black.tga",           // editorImage
+        "",                                         // lightImage
+        mdl::Quake3Shader::Culling::Front,          // culling
+        {"fog", "nonsolid", "trans", "nolightmap"}, // surfaceParms
+        {},                                         // stages
+        0.5f,                                       // transparency
+        true                                        // noCarve
       }}));
   }
 
@@ -434,7 +469,9 @@ textures/liquids/lavahell2 //path and name of new texture
           {{
             "textures/eerie/lavahell.tga", // map
             {"", ""}                       // blendFunc
-          }} // stages
+          }},   // stages
+          0.4f, // transparency
+          true  // noCarve
         }}));
   }
 

@@ -23,6 +23,7 @@
 #include "fs/TestUtils.h"
 #include "fs/VirtualFileSystem.h"
 #include "fs/WadFileSystem.h"
+#include "gl/Material.h"
 #include "gl/MaterialCollection.h"
 #include "gl/Resource.h"
 #include "gl/Texture.h"
@@ -447,6 +448,42 @@ TEST_CASE("loadMaterialCollections")
             },
           },
         }));
+    }
+
+    SECTION("Shader directives qer_trans and qer_nocarve become material properties")
+    {
+      const auto testDir =
+        fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/shader_with_nocarve";
+      fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
+
+      const auto materialConfig = mdl::MaterialConfig{
+        "textures",
+        {".tga", ".png", ".jpg", ".jpeg"},
+        "",
+        std::nullopt,
+        "scripts",
+        {},
+      };
+
+      const auto collections =
+        loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger)
+        | kdl::value();
+
+      const gl::Material* nocarveMaterial = nullptr;
+      for (const auto& collection : collections)
+      {
+        for (const auto& material : collection.materials())
+        {
+          if (material.name() == "test/nocarve_shader")
+          {
+            nocarveMaterial = &material;
+          }
+        }
+      }
+
+      REQUIRE(nocarveMaterial != nullptr);
+      CHECK(nocarveMaterial->noCarve());
+      CHECK(nocarveMaterial->transparency() == 0.5f);
     }
   }
 }
