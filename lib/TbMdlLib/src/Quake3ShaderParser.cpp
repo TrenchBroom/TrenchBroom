@@ -91,6 +91,13 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
     case '\t':
       advance();
       break;
+    case '"':
+    {
+      advance(); // skip opening quote
+      const auto* s = curPos();
+      const auto* e = readQuotedString(); // reads to closing quote, advances past it
+      return Token{Quake3ShaderToken::String, s, e, offset(s), startLine, startColumn};
+    }
     case '$':
       if (const auto* e = readUntil(Whitespace()))
       {
@@ -128,7 +135,7 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
         return Token{Quake3ShaderToken::Number, c, e, offset(c), startLine, startColumn};
       }
 
-      if (const auto* e = readUntil(Whitespace()))
+      if (const auto* e = readStringToken())
       {
         return Token{Quake3ShaderToken::String, c, e, offset(c), startLine, startColumn};
       }
@@ -137,6 +144,22 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
     }
   }
   return Token{Quake3ShaderToken::Eof, nullptr, nullptr, length(), line(), column()};
+}
+
+const char* Quake3ShaderTokenizer::readStringToken()
+{
+  // Like the base readUntil(Whitespace()), but also stops at an embedded // or /*
+  // comment start so that comments glued directly to a token (e.g. "blend//foo") are
+  // recognized rather than swallowed into the string.
+  if (!eof())
+  {
+    do
+    {
+      advance();
+    } while (!eof() && !isAnyOf(curChar(), Whitespace())
+             && !(curChar() == '/' && (lookAhead() == '/' || lookAhead() == '*')));
+  }
+  return curPos();
 }
 
 Quake3ShaderParser::Quake3ShaderParser(std::string_view str)
