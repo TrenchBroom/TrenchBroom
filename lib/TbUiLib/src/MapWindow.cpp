@@ -798,13 +798,12 @@ void MapWindow::connectObservers()
   m_notifierConnection +=
     m_document->gridDidChangeNotifier.connect(this, &MapWindow::gridDidChange);
 
-  m_notifierConnection += m_mapView->mapViewToolBox().toolActivatedNotifier.connect(
-    this, &MapWindow::toolActivated);
-  m_notifierConnection += m_mapView->mapViewToolBox().toolDeactivatedNotifier.connect(
-    this, &MapWindow::toolDeactivated);
   m_notifierConnection +=
-    m_mapView->mapViewToolBox().toolHandleSelectionChangedNotifier.connect(
-      this, &MapWindow::toolHandleSelectionChanged);
+    m_mapView->toolBox().toolActivatedNotifier.connect(this, &MapWindow::toolActivated);
+  m_notifierConnection += m_mapView->toolBox().toolDeactivatedNotifier.connect(
+    this, &MapWindow::toolDeactivated);
+  m_notifierConnection += m_mapView->toolBox().toolHandleSelectionChangedNotifier.connect(
+    this, &MapWindow::toolHandleSelectionChanged);
 }
 
 void MapWindow::documentWasLoaded()

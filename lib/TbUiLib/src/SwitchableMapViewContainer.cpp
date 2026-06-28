@@ -285,7 +285,7 @@ FaceTool& SwitchableMapViewContainer::faceTool()
   return m_toolBox->faceTool();
 }
 
-MapViewToolBox& SwitchableMapViewContainer::mapViewToolBox()
+MapViewToolBox& SwitchableMapViewContainer::toolBox()
 {
   return *m_toolBox;
 }

@@ -102,7 +102,7 @@ public:
   VertexTool& vertexTool();
   EdgeTool& edgeTool();
   FaceTool& faceTool();
-  MapViewToolBox& mapViewToolBox();
+  MapViewToolBox& toolBox();
 
   bool canMoveCameraToNextTracePoint() const;
   bool canMoveCameraToPreviousTracePoint() const;
