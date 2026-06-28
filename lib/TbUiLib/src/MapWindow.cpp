@@ -269,6 +269,16 @@ MapDocument& MapWindow::document()
   return KDL_CONST_OVERLOAD(document());
 }
 
+const MapViewToolBox& MapWindow::toolBox() const
+{
+  return m_mapView->toolBox();
+}
+
+MapViewToolBox& MapWindow::toolBox()
+{
+  return KDL_CONST_OVERLOAD(toolBox());
+}
+
 Logger& MapWindow::logger() const
 {
   return *m_console;
@@ -1727,160 +1737,6 @@ bool MapWindow::canMoveSelectedObjects() const
 {
   auto& map = m_document->map();
   return map.selection().hasNodes() && !m_mapView->toolBox().anyModalToolActive();
-}
-
-bool MapWindow::anyModalToolActive() const
-{
-  return m_mapView->toolBox().anyModalToolActive();
-}
-
-void MapWindow::toggleAssembleBrushTool()
-{
-  if (canToggleAssembleBrushTool())
-  {
-    m_mapView->toolBox().toggleAssembleBrushTool();
-  }
-}
-
-bool MapWindow::canToggleAssembleBrushTool() const
-{
-  return m_mapView->toolBox().canToggleAssembleBrushTool();
-}
-
-bool MapWindow::assembleBrushToolActive() const
-{
-  return m_mapView->toolBox().assembleBrushToolActive();
-}
-
-void MapWindow::toggleClipTool()
-{
-  if (canToggleClipTool())
-  {
-    m_mapView->toolBox().toggleClipTool();
-  }
-}
-
-bool MapWindow::canToggleClipTool() const
-{
-  return m_mapView->toolBox().canToggleClipTool();
-}
-
-bool MapWindow::clipToolActive() const
-{
-  return m_mapView->toolBox().clipToolActive();
-}
-
-void MapWindow::toggleRotateTool()
-{
-  if (canToggleRotateTool())
-  {
-    m_mapView->toolBox().toggleRotateTool();
-  }
-}
-
-bool MapWindow::canToggleRotateTool() const
-{
-  return m_mapView->toolBox().canToggleRotateTool();
-}
-
-bool MapWindow::rotateToolActive() const
-{
-  return m_mapView->toolBox().rotateToolActive();
-}
-
-void MapWindow::toggleScaleTool()
-{
-  if (canToggleScaleTool())
-  {
-    m_mapView->toolBox().toggleScaleTool();
-  }
-}
-
-bool MapWindow::canToggleScaleTool() const
-{
-  return m_mapView->toolBox().canToggleScaleTool();
-}
-
-bool MapWindow::scaleToolActive() const
-{
-  return m_mapView->toolBox().scaleToolActive();
-}
-
-void MapWindow::toggleShearTool()
-{
-  if (canToggleShearTool())
-  {
-    m_mapView->toolBox().toggleShearTool();
-  }
-}
-
-bool MapWindow::canToggleShearTool() const
-{
-  return m_mapView->toolBox().canToggleShearTool();
-}
-
-bool MapWindow::shearToolActive() const
-{
-  return m_mapView->toolBox().shearToolActive();
-}
-
-bool MapWindow::anyVertexToolActive() const
-{
-  return m_mapView->toolBox().anyVertexToolActive();
-}
-
-void MapWindow::toggleVertexTool()
-{
-  if (canToggleVertexTool())
-  {
-    m_mapView->toolBox().toggleVertexTool();
-  }
-}
-
-bool MapWindow::canToggleVertexTool() const
-{
-  return m_mapView->toolBox().canToggleAnyVertexTool();
-}
-
-bool MapWindow::vertexToolActive() const
-{
-  return m_mapView->toolBox().vertexToolActive();
-}
-
-void MapWindow::toggleEdgeTool()
-{
-  if (canToggleEdgeTool())
-  {
-    m_mapView->toolBox().toggleEdgeTool();
-  }
-}
-
-bool MapWindow::canToggleEdgeTool() const
-{
-  return m_mapView->toolBox().canToggleAnyVertexTool();
-}
-
-bool MapWindow::edgeToolActive() const
-{
-  return m_mapView->toolBox().edgeToolActive();
-}
-
-void MapWindow::toggleFaceTool()
-{
-  if (canToggleFaceTool())
-  {
-    m_mapView->toolBox().toggleFaceTool();
-  }
-}
-
-bool MapWindow::canToggleFaceTool() const
-{
-  return m_mapView->toolBox().canToggleAnyVertexTool();
-}
-
-bool MapWindow::faceToolActive() const
-{
-  return m_mapView->toolBox().faceToolActive();
 }
 
 void MapWindow::csgConvexMerge()

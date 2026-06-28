@@ -78,6 +78,7 @@ class Inspector;
 enum class InspectorPage;
 class MapDocument;
 class MapViewBase;
+class MapViewToolBox;
 class ObjExportDialog;
 class SignalDelayer;
 class SwitchableMapViewContainer;
@@ -138,8 +139,12 @@ public:
   ~MapWindow() override;
 
   void positionOnScreen(QWidget* reference);
+
   const MapDocument& document() const;
   MapDocument& document();
+
+  const MapViewToolBox& toolBox() const;
+  MapViewToolBox& toolBox();
 
 public: // getters and such
   Logger& logger() const;
@@ -289,42 +294,6 @@ public:
 
   void moveSelectedObjects();
   bool canMoveSelectedObjects() const;
-
-  bool anyModalToolActive() const;
-
-  void toggleAssembleBrushTool();
-  bool canToggleAssembleBrushTool() const;
-  bool assembleBrushToolActive() const;
-
-  void toggleClipTool();
-  bool canToggleClipTool() const;
-  bool clipToolActive() const;
-
-  void toggleRotateTool();
-  bool canToggleRotateTool() const;
-  bool rotateToolActive() const;
-
-  void toggleScaleTool();
-  bool canToggleScaleTool() const;
-  bool scaleToolActive() const;
-
-  void toggleShearTool();
-  bool canToggleShearTool() const;
-  bool shearToolActive() const;
-
-  bool anyVertexToolActive() const;
-
-  void toggleVertexTool();
-  bool canToggleVertexTool() const;
-  bool vertexToolActive() const;
-
-  void toggleEdgeTool();
-  bool canToggleEdgeTool() const;
-  bool edgeToolActive() const;
-
-  void toggleFaceTool();
-  bool canToggleFaceTool() const;
-  bool faceToolActive() const;
 
   void csgConvexMerge();
   bool canDoCsgConvexMerge() const;
