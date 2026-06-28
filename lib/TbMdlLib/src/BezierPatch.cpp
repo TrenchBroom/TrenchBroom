@@ -163,14 +163,11 @@ bool BezierPatch::setMaterial(gl::Material* material)
 
 void BezierPatch::transform(const vm::mat4x4d& transformation)
 {
-  auto builder = vm::bbox3d::builder{};
   for (auto& controlPoint : m_controlPoints)
   {
     controlPoint =
       Point{transformation * controlPoint.xyz(), controlPoint[3], controlPoint[4]};
-    builder.add(controlPoint.xyz());
   }
-  m_bounds = builder.bounds();
 
   using std::swap;
 
@@ -187,6 +184,8 @@ void BezierPatch::transform(const vm::mat4x4d& transformation)
       }
     }
   }
+
+  m_bounds = computeBounds(m_controlPoints);
 }
 
 using SurfaceControlPoints = std::array<std::array<BezierPatch::Point, 3u>, 3u>;
