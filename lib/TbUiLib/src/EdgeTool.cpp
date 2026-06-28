@@ -31,14 +31,8 @@ namespace tb::ui
 {
 
 EdgeTool::EdgeTool(MapDocument& document)
-  : VertexToolBase{document}
+  : BrushHandleToolBase{document}
 {
-}
-
-std::vector<mdl::BrushNode*> EdgeTool::findIncidentBrushes(
-  const mdl::EdgeHandle& handle) const
-{
-  return VertexToolBase<mdl::EdgeHandle>::findIncidentBrushes(handle);
 }
 
 void EdgeTool::pick(

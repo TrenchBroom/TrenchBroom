@@ -19,8 +19,9 @@
 
 #pragma once
 
+#include "mdl/BrushVertexCommands.h"
 #include "render/PointGuideRenderer.h"
-#include "ui/VertexToolBase.h"
+#include "ui/BrushHandleToolBase.h"
 
 #include <string>
 #include <vector>
@@ -48,8 +49,9 @@ namespace ui
 {
 class Lasso;
 class MapDocument;
+class InputState;
 
-class VertexTool : public VertexToolBase<mdl::VertexHandle>
+class VertexTool : public BrushHandleToolBase<mdl::VertexHandle>
 {
 private:
   enum class Mode
@@ -66,15 +68,8 @@ private:
 public:
   explicit VertexTool(MapDocument& document);
 
-public:
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::VertexHandle& handle) const;
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::EdgeHandle& handle) const;
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::FaceHandle& handle) const;
+  using BrushHandleToolBase::findIncidentNodes;
 
-private:
-  using VertexToolBase::findIncidentBrushes;
-
-public:
   void pick(
     const vm::ray3d& pickRay,
     const gl::Camera& camera,
@@ -83,6 +78,12 @@ public:
 
 public: // Handle selection
   bool deselectAll() override;
+
+  mdl::Hit findDraggableHandle(
+    const InputState& inputState, mdl::HitType::Type hitType) const override;
+
+  std::vector<mdl::Hit> collectDraggableHandles(
+    const InputState& inputState, mdl::HitType::Type hitType) const override;
 
 public: // Vertex moving
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
@@ -114,8 +115,8 @@ private:
   void addHandles(const std::vector<mdl::Node*>& nodes) override;
   void removeHandles(const std::vector<mdl::Node*>& nodes) override;
 
-  void addHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command) override;
-  void removeHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command) override;
+  void addHandles(mdl::BrushVertexCommand& command) override;
+  void removeHandles(mdl::BrushVertexCommand& command) override;
 
 private: // General helper methods
   void resetModeAfterDeselection();

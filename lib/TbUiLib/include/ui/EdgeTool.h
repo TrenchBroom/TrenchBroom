@@ -19,38 +19,21 @@
 
 #pragma once
 
-#include "ui/VertexToolBase.h"
+#include "ui/BrushHandleToolBase.h"
 
 #include <string>
 #include <vector>
 
-namespace tb
-{
-namespace gl
-{
-class Camera;
-}
-
-namespace mdl
-{
-class BrushNode;
-class PickResult;
-} // namespace mdl
-
-namespace ui
+namespace tb::ui
 {
 class MapDocument;
 
-class EdgeTool : public VertexToolBase<mdl::EdgeHandle>
+class EdgeTool : public BrushHandleToolBase<mdl::EdgeHandle>
 {
 public:
   explicit EdgeTool(MapDocument& document);
 
-public:
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::EdgeHandle& handle) const;
-
-private:
-  using VertexToolBase::findIncidentBrushes;
+  using BrushHandleToolBase::findIncidentNodes;
 
 public:
   void pick(
@@ -70,5 +53,4 @@ public:
   void removeSelection();
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

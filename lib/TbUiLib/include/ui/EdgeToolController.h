@@ -19,18 +19,14 @@
 
 #pragma once
 
-#include "ui/VertexToolControllerBase.h"
+#include "ui/NodeHandleToolControllerBase.h"
 
 namespace tb::ui
 {
 class EdgeTool;
 
-class EdgeToolController : public VertexToolControllerBase<EdgeTool>
+class EdgeToolController : public NodeHandleToolControllerBase<EdgeTool>
 {
-private:
-  class SelectEdgePart;
-  class MoveEdgePart;
-
 public:
   explicit EdgeToolController(EdgeTool& tool);
 };

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2020 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,27 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/BrushVertexCommands.h"
+#pragma once
 
-#include "mdl/BrushNode.h"
+#include "ui/ToolController.h"
 
-#include "kd/ranges/to.h"
-
-#include <ranges>
-
-
-namespace tb::mdl::detail
+namespace tb
 {
-
-std::vector<BrushNode*> collectBrushNodes(
-  const std::vector<std::pair<Node*, NodeContents>>& nodes)
+namespace ui
 {
-  return nodes | std::views::filter([](const auto& pair) {
-           return dynamic_cast<BrushNode*>(pair.first) != nullptr;
-         })
-         | std::views::transform(
-           [](const auto& pair) { return static_cast<BrushNode*>(pair.first); })
-         | kdl::ranges::to<std::vector>();
-}
+class Tool;
 
-} // namespace tb::mdl::detail
+template <typename T>
+class NodeHandleToolControllerBase : public ToolControllerGroup
+{
+protected:
+  T& m_tool;
+
+protected:
+  explicit NodeHandleToolControllerBase(T& tool)
+    : m_tool{tool}
+  {
+  }
+
+public:
+  ~NodeHandleToolControllerBase() override = default;
+
+private:
+  Tool& tool() override { return m_tool; }
+
+  const Tool& tool() const override { return m_tool; }
+};
+
+} // namespace ui
+} // namespace tb

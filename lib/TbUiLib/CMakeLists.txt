@@ -249,6 +249,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BitmapButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderLine.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderPanel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BrushHandleToolBase.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraAnimation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraLinkHelper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraTool2D.h
@@ -378,6 +379,9 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MoveObjectsToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MultiCompletionLineEdit.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MultiPaneMapView.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolBase.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolControllerBase.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolControllerParts.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ObjExportDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/OnePaneMapView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PickRequest.h
@@ -452,9 +456,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UpdateVersion.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VariableStoreModel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexToolBase.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexToolController.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexToolControllerBase.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewConstants.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewPreferencePane.h

@@ -19,27 +19,15 @@
 
 #pragma once
 
-#include "ui/VertexToolControllerBase.h"
-
-#include <vector>
+#include "ui/NodeHandleToolControllerBase.h"
 
 namespace tb::ui
 {
 class Tool;
 class VertexTool;
 
-class VertexToolController : public VertexToolControllerBase<VertexTool>
+class VertexToolController : public NodeHandleToolControllerBase<VertexTool>
 {
-protected:
-  static mdl::Hit findHandleHit(
-    const InputState& inputState, const VertexToolController::PartBase& base);
-  static std::vector<mdl::Hit> findHandleHits(
-    const InputState& inputState, const VertexToolController::PartBase& base);
-
-private:
-  class SelectVertexPart;
-  class MoveVertexPart;
-
 public:
   explicit VertexToolController(VertexTool& tool);
 };

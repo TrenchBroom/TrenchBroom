@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,37 +19,32 @@
 
 #pragma once
 
-#include "Logger.h"
 #include "NotifierConnection.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "mdl/BrushBuilder.h"
-#include "mdl/BrushNode.h"
-#include "mdl/BrushVertexCommands.h"
+#include "mdl/Command.h"
 #include "mdl/CommandProcessor.h"
-#include "mdl/GameConfig.h"
-#include "mdl/GameInfo.h"
 #include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Node.h"
+#include "mdl/NodeHandleCommand.h"
 #include "mdl/NodeHandleManager.h"
 #include "mdl/NodeHandles.h"
-#include "mdl/Polyhedron.h"
-#include "mdl/Polyhedron3.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
-#include "mdl/WorldNode.h"
+#include "mdl/UndoableCommand.h"
 #include "render/RenderBatch.h"
 #include "render/RenderService.h"
+#include "ui/InputState.h"
 #include "ui/Lasso.h"
 #include "ui/MapDocument.h"
 #include "ui/Tool.h"
 
 #include "kd/contracts.h"
-#include "kd/overload.h"
 #include "kd/ranges/to.h"
-#include "kd/result.h"
 #include "kd/set_temp.h"
 #include "kd/string_utils.h"
 #include "kd/vector_utils.h"
@@ -57,7 +52,6 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <map>
 #include <ranges>
 #include <string>
 #include <type_traits>
@@ -82,7 +76,7 @@ class Lasso;
 class MapDocument;
 
 template <typename HandleType>
-class VertexToolBase : public Tool
+class NodeHandleToolBase : public Tool
 {
 public:
   enum class MoveResult
@@ -105,55 +99,55 @@ protected:
   bool m_dragging = false;
 
 protected:
-  explicit VertexToolBase(MapDocument& document)
+  explicit NodeHandleToolBase(MapDocument& document)
     : Tool{false}
     , m_document{document}
   {
   }
 
 public:
-  ~VertexToolBase() override = default;
+  ~NodeHandleToolBase() override = default;
 
 public:
   const mdl::Grid& grid() const { return m_document.map().grid(); }
 
-  const std::vector<mdl::BrushNode*>& selectedBrushes() const
+  const std::vector<mdl::Node*>& selectedNodes() const
   {
-    return m_document.map().selection().brushes;
+    return m_document.map().selection().nodes;
   }
 
 public:
   template <typename SomeHandleType>
     requires(!std::ranges::range<SomeHandleType>)
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const SomeHandleType& handle) const
+  std::vector<mdl::Node*> findIncidentNodes(const SomeHandleType& handle) const
   {
-    const auto hasHandle = [&](const auto* brushNode) {
-      const auto brushHandles = SomeHandleType::getHandles(*brushNode);
-      return std::ranges::find(brushHandles, handle) != brushHandles.end();
+    const auto hasHandle = [&](const auto* node) {
+      const auto nodeHandles = SomeHandleType::getHandles(*node);
+      return std::ranges::find(nodeHandles, handle) != nodeHandles.end();
     };
 
     auto result =
-      selectedBrushes() | std::views::filter(hasHandle) | kdl::ranges::to<std::vector>();
+      selectedNodes() | std::views::filter(hasHandle) | kdl::ranges::to<std::vector>();
     return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
   template <std::ranges::range R>
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const R& handles) const
+  std::vector<mdl::Node*> findIncidentNodes(const R& handles) const
   {
     using SomeHandleType = std::remove_cvref_t<std::ranges::range_value_t<R>>;
 
-    const auto hasHandle = [&](const auto* brushNode, const auto& handle) {
-      const auto brushHandles = SomeHandleType::getHandles(*brushNode);
-      return std::ranges::find(handles, handle) != handles.end();
+    const auto hasHandle = [&](const auto* node, const auto& handle) {
+      const auto nodeHandles = SomeHandleType::getHandles(*node);
+      return std::ranges::find(nodeHandles, handle) != nodeHandles.end();
     };
 
-    const auto hasAnyHandle = [&](const auto* brushNode) {
+    const auto hasAnyHandle = [&](const auto* node) {
       return std::ranges::any_of(
-        handles, [&](const auto& handle) { return hasHandle(brushNode, handle); });
+        handles, [&](const auto& handle) { return hasHandle(node, handle); });
     };
 
-    auto result = selectedBrushes() | std::views::filter(hasAnyHandle)
-                  | kdl::ranges::to<std::vector>();
+    auto result =
+      selectedNodes() | std::views::filter(hasAnyHandle) | kdl::ranges::to<std::vector>();
     return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
@@ -162,6 +156,33 @@ public:
     const gl::Camera& camera,
     double handleRadius,
     mdl::PickResult& pickResult) const = 0;
+
+  virtual mdl::Hit findDraggableHandle(
+    const InputState& inputState, const mdl::HitType::Type hitType) const
+  {
+    using namespace mdl::HitFilters;
+
+    const auto hits = inputState.pickResult().all(type(hitType));
+    if (!hits.empty())
+    {
+      for (const auto& hit : hits)
+      {
+        if (selected(hit))
+        {
+          return hit;
+        }
+      }
+      return inputState.pickResult().first(type(hitType));
+    }
+    return mdl::Hit::NoHit;
+  }
+
+  virtual std::vector<mdl::Hit> collectDraggableHandles(
+    const InputState& inputState, const mdl::HitType::Type hitType) const
+  {
+    using namespace mdl::HitFilters;
+    return inputState.pickResult().all(type(hitType));
+  }
 
 public: // Handle selection
   bool select(const std::vector<mdl::Hit>& hits, const bool addToSelection)
@@ -308,51 +329,6 @@ public: // performing moves
     return false;
   }
 
-public: // csg convex merge
-  bool canDoCsgConvexMerge()
-  {
-    return handleManager().template selectedHandleCount<HandleType>() > 1;
-  }
-
-  void csgConvexMerge()
-  {
-
-    auto handles = handleManager().template selectedHandles<HandleType>();
-    const auto vertices = HandleType::getVertices(handles);
-
-    const auto polyhedron = mdl::Polyhedron3{vertices};
-    if (!polyhedron.polyhedron() || !polyhedron.closed())
-    {
-      return;
-    }
-
-    auto& map = m_document.map();
-
-    const auto builder = mdl::BrushBuilder{
-      map.worldNode().mapFormat(),
-      map.worldBounds(),
-      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
-    builder.createBrush(polyhedron, map.currentMaterialName())
-      | kdl::transform([&](auto b) {
-          for (const auto* selectedBrushNode : map.selection().brushes)
-          {
-            b.cloneFaceAttributesFrom(selectedBrushNode->brush());
-          }
-
-          auto* newParent = parentForNodes(map, map.selection().nodes);
-          auto transaction = mdl::Transaction{map, "CSG Convex Merge"};
-          deselectAll();
-          if (addNodes(map, {{newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
-          {
-            transaction.cancel();
-            return;
-          }
-          transaction.commit();
-        })
-      | kdl::transform_error(
-        [&](auto e) { map.logger().error() << "Could not create brush: " << e.msg; });
-  }
-
   virtual HandleType::Position getHandlePosition(const mdl::Hit& hit) const
   {
     contract_pre(hit.isMatch());
@@ -496,7 +472,7 @@ protected: // Tool interface
     connectObservers();
 
     handleManager().template clear<HandleType>();
-    handleManager().template addHandles<HandleType>(selectedBrushes());
+    handleManager().template addHandles<HandleType>(selectedNodes());
 
     return true;
   }
@@ -512,24 +488,24 @@ private: // Observers and state management
   void connectObservers()
   {
     m_notifierConnection += m_document.selectionDidChangeNotifier.connect(
-      this, &VertexToolBase::selectionDidChange);
-    m_notifierConnection +=
-      m_document.nodesWillChangeNotifier.connect(this, &VertexToolBase::nodesWillChange);
-    m_notifierConnection +=
-      m_document.nodesDidChangeNotifier.connect(this, &VertexToolBase::nodesDidChange);
+      this, &NodeHandleToolBase::selectionDidChange);
+    m_notifierConnection += m_document.nodesWillChangeNotifier.connect(
+      this, &NodeHandleToolBase::nodesWillChange);
+    m_notifierConnection += m_document.nodesDidChangeNotifier.connect(
+      this, &NodeHandleToolBase::nodesDidChange);
 
     m_notifierConnection +=
-      m_document.commandDoNotifier.connect(this, &VertexToolBase::commandDo);
+      m_document.commandDoNotifier.connect(this, &NodeHandleToolBase::commandDo);
     m_notifierConnection +=
-      m_document.commandDoneNotifier.connect(this, &VertexToolBase::commandDone);
+      m_document.commandDoneNotifier.connect(this, &NodeHandleToolBase::commandDone);
+    m_notifierConnection += m_document.commandDoFailedNotifier.connect(
+      this, &NodeHandleToolBase::commandDoFailed);
     m_notifierConnection +=
-      m_document.commandDoFailedNotifier.connect(this, &VertexToolBase::commandDoFailed);
+      m_document.commandUndoNotifier.connect(this, &NodeHandleToolBase::commandUndo);
     m_notifierConnection +=
-      m_document.commandUndoNotifier.connect(this, &VertexToolBase::commandUndo);
-    m_notifierConnection +=
-      m_document.commandUndoneNotifier.connect(this, &VertexToolBase::commandUndone);
+      m_document.commandUndoneNotifier.connect(this, &NodeHandleToolBase::commandUndone);
     m_notifierConnection += m_document.commandUndoFailedNotifier.connect(
-      this, &VertexToolBase::commandUndoFailed);
+      this, &NodeHandleToolBase::commandUndoFailed);
   }
 
   void commandDo(mdl::Command& command) { commandDoOrUndo(command); }
@@ -550,10 +526,11 @@ private: // Observers and state management
   void commandDoOrUndo(mdl::Command& command)
   {
     if (
-      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
+      auto* nodeHandleCommand =
+        dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
       deselectHandles();
-      removeHandles(*vertexCommand);
+      removeHandles(*nodeHandleCommand);
       ++m_ignoreChangeNotifications;
     }
   }
@@ -561,10 +538,11 @@ private: // Observers and state management
   void commandDoneOrUndoFailed(mdl::Command& command)
   {
     if (
-      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
+      auto* nodeHandleCommand =
+        dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
-      addHandles(*vertexCommand);
-      selectNewHandlePositions(*vertexCommand);
+      addHandles(*nodeHandleCommand);
+      selectNewHandlePositions(*nodeHandleCommand);
       --m_ignoreChangeNotifications;
     }
   }
@@ -572,10 +550,11 @@ private: // Observers and state management
   void commandDoFailedOrUndone(mdl::Command& command)
   {
     if (
-      auto* vertexCommand = dynamic_cast<mdl::BrushVertexCommandT<HandleType>*>(&command))
+      auto* nodeHandleCommand =
+        dynamic_cast<mdl::NodeHandleCommand<HandleType>*>(&command))
     {
-      addHandles(*vertexCommand);
-      selectOldHandlePositions(*vertexCommand);
+      addHandles(*nodeHandleCommand);
+      selectOldHandlePositions(*nodeHandleCommand);
       --m_ignoreChangeNotifications;
     }
   }
@@ -614,22 +593,22 @@ protected:
     handleManager().template deselectAllHandles<HandleType>();
   }
 
-  virtual void addHandles(mdl::BrushVertexCommandT<HandleType>& command)
+  virtual void addHandles(mdl::NodeHandleCommand<HandleType>& command)
   {
     command.addHandles(handleManager());
   }
 
-  virtual void removeHandles(mdl::BrushVertexCommandT<HandleType>& command)
+  virtual void removeHandles(mdl::NodeHandleCommand<HandleType>& command)
   {
     command.removeHandles(handleManager());
   }
 
-  virtual void selectNewHandlePositions(mdl::BrushVertexCommandT<HandleType>& command)
+  virtual void selectNewHandlePositions(mdl::NodeHandleCommand<HandleType>& command)
   {
     command.selectNewHandlePositions(handleManager());
   }
 
-  virtual void selectOldHandlePositions(mdl::BrushVertexCommandT<HandleType>& command)
+  virtual void selectOldHandlePositions(mdl::NodeHandleCommand<HandleType>& command)
   {
     command.selectOldHandlePositions(handleManager());
   }

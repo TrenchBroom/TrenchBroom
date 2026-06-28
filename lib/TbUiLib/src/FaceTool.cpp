@@ -32,14 +32,8 @@ namespace tb::ui
 {
 
 FaceTool::FaceTool(MapDocument& document)
-  : VertexToolBase{document}
+  : BrushHandleToolBase{document}
 {
-}
-
-std::vector<mdl::BrushNode*> FaceTool::findIncidentBrushes(
-  const mdl::FaceHandle& handle) const
-{
-  return VertexToolBase<mdl::FaceHandle>::findIncidentBrushes(handle);
 }
 
 void FaceTool::pick(

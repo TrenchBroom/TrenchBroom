@@ -21,17 +21,20 @@
 
 #include "mdl/NodeHandles.h"
 #include "ui/FaceTool.h"
+#include "ui/NodeHandleToolControllerParts.h"
 
 #include <memory>
 
 namespace tb::ui
 {
+namespace
+{
 
-class FaceToolController::SelectFacePart : public SelectPartBase<mdl::FaceHandle>
+class SelectFacePart : public NodeHandleToolSelectPartBase<FaceTool, mdl::FaceHandle>
 {
 public:
   explicit SelectFacePart(FaceTool& tool)
-    : SelectPartBase{tool, mdl::FaceHandle::HandleHitType}
+    : NodeHandleToolSelectPartBase{tool, mdl::FaceHandle::HandleHitType}
   {
   }
 
@@ -42,17 +45,19 @@ private:
   }
 };
 
-class FaceToolController::MoveFacePart : public MovePartBase
+class MoveFacePart : public NodeHandleToolMovePartBase<FaceTool>
 {
 public:
   explicit MoveFacePart(FaceTool& tool)
-    : MovePartBase{tool, mdl::FaceHandle::HandleHitType}
+    : NodeHandleToolMovePartBase{tool, mdl::FaceHandle::HandleHitType}
   {
   }
 };
 
+} // namespace
+
 FaceToolController::FaceToolController(FaceTool& tool)
-  : VertexToolControllerBase(tool)
+  : NodeHandleToolControllerBase(tool)
 {
   addController(std::make_unique<MoveFacePart>(tool));
   addController(std::make_unique<SelectFacePart>(tool));

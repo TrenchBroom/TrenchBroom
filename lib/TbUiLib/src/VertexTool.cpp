@@ -22,8 +22,8 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "mdl/BrushNode.h"
 #include "mdl/BrushVertexCommands.h"
+#include "mdl/HitFilter.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/NodeHandleManager.h"
 #include "mdl/NodeHandles.h"
@@ -40,27 +40,9 @@ namespace tb::ui
 {
 
 VertexTool::VertexTool(MapDocument& document)
-  : VertexToolBase{document}
+  : BrushHandleToolBase{document}
   , m_mode{Mode::Move}
 {
-}
-
-std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
-  const mdl::VertexHandle& handle) const
-{
-  return VertexToolBase<mdl::VertexHandle>::findIncidentBrushes(handle);
-}
-
-std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
-  const mdl::EdgeHandle& handle) const
-{
-  return VertexToolBase<mdl::VertexHandle>::findIncidentBrushes(handle);
-}
-
-std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
-  const mdl::FaceHandle& handle) const
-{
-  return VertexToolBase<mdl::VertexHandle>::findIncidentBrushes(handle);
 }
 
 void VertexTool::pick(
@@ -82,12 +64,115 @@ void VertexTool::pick(
 
 bool VertexTool::deselectAll()
 {
-  if (VertexToolBase::deselectAll())
+  if (NodeHandleToolBase::deselectAll())
   {
     resetModeAfterDeselection();
     return true;
   }
   return false;
+}
+
+mdl::Hit VertexTool::findDraggableHandle(
+  const InputState& inputState, const mdl::HitType::Type hitType) const
+{
+  using namespace mdl::HitFilters;
+
+  if (hitType != mdl::VertexHandle::HandleHitType)
+  {
+    return NodeHandleToolBase::findDraggableHandle(inputState, hitType);
+  }
+
+  if (const auto vertexHit = NodeHandleToolBase::findDraggableHandle(inputState, hitType);
+      vertexHit.isMatch())
+  {
+    return vertexHit;
+  }
+
+  if (
+    inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
+  {
+    const auto& anyHit = inputState.pickResult().all().front();
+    if (anyHit.hasType(mdl::EdgeHandle::HandleHitType | mdl::FaceHandle::HandleHitType))
+    {
+      return anyHit;
+    }
+
+    // If the top hit is not a split-handle hit (for example, a brush-face hit),
+    // fall back to split handles and prefer faces over edges.
+    if (const auto faceHit =
+          inputState.pickResult().first(type(mdl::FaceHandle::HandleHitType));
+        faceHit.isMatch())
+    {
+      return faceHit;
+    }
+    if (const auto edgeHit =
+          inputState.pickResult().first(type(mdl::EdgeHandle::HandleHitType));
+        edgeHit.isMatch())
+    {
+      return edgeHit;
+    }
+  }
+
+  return mdl::Hit::NoHit;
+}
+
+std::vector<mdl::Hit> VertexTool::collectDraggableHandles(
+  const InputState& inputState, const mdl::HitType::Type hitType) const
+{
+  using namespace mdl::HitFilters;
+
+  if (hitType != mdl::VertexHandle::HandleHitType)
+  {
+    return NodeHandleToolBase::collectDraggableHandles(inputState, hitType);
+  }
+
+  if (const auto vertexHits =
+        NodeHandleToolBase::collectDraggableHandles(inputState, hitType);
+      !vertexHits.empty())
+  {
+    return vertexHits;
+  }
+
+  if (
+    inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
+  {
+    const auto& anyHit = inputState.pickResult().all().front();
+    if (anyHit.hasType(mdl::EdgeHandle::HandleHitType))
+    {
+      if (const auto edgeHits =
+            inputState.pickResult().all(type(mdl::EdgeHandle::HandleHitType));
+          !edgeHits.empty())
+      {
+        return edgeHits;
+      }
+    }
+    else if (anyHit.hasType(mdl::FaceHandle::HandleHitType))
+    {
+      if (const auto faceHits =
+            inputState.pickResult().all(type(mdl::FaceHandle::HandleHitType));
+          !faceHits.empty())
+      {
+        return faceHits;
+      }
+    }
+
+    // If the top hit is not a split-handle hit, prefer face split handles
+    // over edge split handles.
+    if (const auto faceHits =
+          inputState.pickResult().all(type(mdl::FaceHandle::HandleHitType));
+        !faceHits.empty())
+    {
+      return faceHits;
+    }
+    if (const auto edgeHits =
+          inputState.pickResult().all(type(mdl::EdgeHandle::HandleHitType));
+        !edgeHits.empty())
+    {
+      return edgeHits;
+    }
+  }
+
+  return {};
 }
 
 std::tuple<vm::vec3d, vm::vec3d> VertexTool::handlePositionAndHitPoint(
@@ -136,7 +221,7 @@ bool VertexTool::startMove(const std::vector<mdl::Hit>& hits)
     m_mode = Mode::Move;
   }
 
-  if (!VertexToolBase::startMove(hits))
+  if (!NodeHandleToolBase::startMove(hits))
   {
     m_mode = Mode::Move;
     return false;
@@ -167,13 +252,13 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
     return MoveResult::Deny;
   }
 
-  auto brushes = std::vector<mdl::BrushNode*>{};
+  auto incidentNodes = std::vector<mdl::Node*>{};
   if (m_mode == Mode::SplitEdge)
   {
     if (map.nodeHandles().selectedHandleCount<mdl::EdgeHandle>() == 1)
     {
-      brushes =
-        findIncidentBrushes(map.nodeHandles().selectedHandles<mdl::EdgeHandle>().front());
+      incidentNodes =
+        findIncidentNodes(map.nodeHandles().selectedHandles<mdl::EdgeHandle>().front());
     }
   }
   else
@@ -181,12 +266,12 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
     contract_assert(m_mode == Mode::SplitFace);
     if (map.nodeHandles().selectedHandleCount<mdl::FaceHandle>() == 1)
     {
-      brushes =
-        findIncidentBrushes(map.nodeHandles().selectedHandles<mdl::FaceHandle>().front());
+      incidentNodes =
+        findIncidentNodes(map.nodeHandles().selectedHandles<mdl::FaceHandle>().front());
     }
   }
 
-  if (!brushes.empty())
+  if (!incidentNodes.empty())
   {
     const auto newVertexPosition = transform * m_dragHandlePosition;
     if (addVertex(map, newVertexPosition))
@@ -209,7 +294,7 @@ void VertexTool::endMove()
 {
   auto& map = m_document.map();
 
-  VertexToolBase::endMove();
+  NodeHandleToolBase::endMove();
   map.nodeHandles().deselectAllHandles<mdl::EdgeHandle>();
   map.nodeHandles().deselectAllHandles<mdl::FaceHandle>();
   m_mode = Mode::Move;
@@ -218,7 +303,7 @@ void VertexTool::cancelMove()
 {
   auto& map = m_document.map();
 
-  VertexToolBase::cancelMove();
+  NodeHandleToolBase::cancelMove();
   map.nodeHandles().deselectAllHandles<mdl::EdgeHandle>();
   map.nodeHandles().deselectAllHandles<mdl::FaceHandle>();
   m_mode = Mode::Move;
@@ -285,13 +370,13 @@ void VertexTool::renderGuide(
 
 bool VertexTool::doActivate()
 {
-  VertexToolBase::doActivate();
+  NodeHandleToolBase::doActivate();
 
-  const auto& brushes = selectedBrushes();
+  const auto& nodes = selectedNodes();
 
   auto& map = m_document.map();
-  map.nodeHandles().addHandles<mdl::EdgeHandle>(brushes);
-  map.nodeHandles().addHandles<mdl::FaceHandle>(brushes);
+  map.nodeHandles().addHandles<mdl::EdgeHandle>(nodes);
+  map.nodeHandles().addHandles<mdl::FaceHandle>(nodes);
 
   m_mode = Mode::Move;
   return true;
@@ -299,7 +384,7 @@ bool VertexTool::doActivate()
 
 bool VertexTool::doDeactivate()
 {
-  VertexToolBase::doDeactivate();
+  NodeHandleToolBase::doDeactivate();
 
   auto& map = m_document.map();
   map.nodeHandles().clear<mdl::EdgeHandle>();
@@ -325,14 +410,14 @@ void VertexTool::removeHandles(const std::vector<mdl::Node*>& nodes)
   map.nodeHandles().removeHandles<mdl::FaceHandle>(nodes);
 }
 
-void VertexTool::addHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command)
+void VertexTool::addHandles(mdl::BrushVertexCommand& command)
 {
   auto& map = m_document.map();
 
   command.addHandles<mdl::EdgeHandle, mdl::FaceHandle>(map.nodeHandles());
 }
 
-void VertexTool::removeHandles(mdl::BrushVertexCommandT<mdl::VertexHandle>& command)
+void VertexTool::removeHandles(mdl::BrushVertexCommand& command)
 {
   auto& map = m_document.map();
 

@@ -23,7 +23,6 @@
 #include "mdl/NodeContents.h"
 #include "mdl/UpdateLinkedGroupsCommandBase.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 

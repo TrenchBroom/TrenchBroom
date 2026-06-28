@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "ui/VertexToolBase.h"
+#include "ui/BrushHandleToolBase.h"
 
 #include <string>
 #include <vector>
@@ -28,18 +28,13 @@ namespace tb::ui
 {
 class MapDocument;
 
-class FaceTool : public VertexToolBase<mdl::FaceHandle>
+class FaceTool : public BrushHandleToolBase<mdl::FaceHandle>
 {
 public:
   explicit FaceTool(MapDocument& document);
 
-public:
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const mdl::FaceHandle& handle) const;
+  using BrushHandleToolBase::findIncidentNodes;
 
-private:
-  using VertexToolBase::findIncidentBrushes;
-
-public:
   void pick(
     const vm::ray3d& pickRay,
     const gl::Camera& camera,
