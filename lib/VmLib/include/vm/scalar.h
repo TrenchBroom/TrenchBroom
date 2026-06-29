@@ -756,6 +756,28 @@ constexpr bool contains(const T v, const T s, const T e)
 }
 
 /**
+ * Computes the mean of the given arguments.
+ */
+template <typename T1, typename... T>
+  requires(std::is_same_v<T, T1> && ...)
+constexpr T1 mean(const T1 t1, const T... t)
+{
+  return (t1 + ... + t) / T1(sizeof...(t) + 1);
+}
+
+/**
+ * Computes the variance of the given arguments.
+ */
+template <typename T1, typename... T>
+  requires(std::is_same_v<T, T1> && ...)
+constexpr T1 variance(const T1 t1, const T... t)
+{
+  const auto m = mean(t1, t...);
+  return (((t1 - m) * (t1 - m)) + ... + ((t - m) * (t - m)));
+}
+
+
+/**
  * Converts the given angle to radians.
  *
  * @tparam T the argument type, which must be a floating point type
