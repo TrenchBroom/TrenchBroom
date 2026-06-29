@@ -24,9 +24,11 @@
 #include "ParserStatus.h"
 #include "mdl/BrushFace.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/Quake3BrushPrimitive.h"
 
 #include "kd/contracts.h"
 
+#include "vm/plane.h"
 #include "vm/vec.h"
 
 #include <string>
@@ -228,11 +230,26 @@ Result<void> StandardMapParser::parseBrushFaces(ParserStatus& status)
 {
   try
   {
-    while (m_tokenizer.peekToken(QuakeMapToken::OParenthesis | QuakeMapToken::Eof)
-             .hasType(QuakeMapToken::OParenthesis))
+    static constexpr auto ExpectedToken =
+      QuakeMapToken::OParenthesis | QuakeMapToken::Eof;
+
+    if (m_sourceMapFormat == MapFormat::Quake3_BrushPrimitives)
     {
-      // TODO 2427: detect the face type when parsing Quake3 map faces!
-      parseFace(status, false);
+      // Quake 3 brush faces are serialized as brush primitive faces (with a texture
+      // matrix), so when reading individual faces (e.g. when pasting UV alignment) we
+      // parse them as primitives.
+
+      while (m_tokenizer.peekToken(ExpectedToken).hasType(QuakeMapToken::OParenthesis))
+      {
+        parseBrushPrimitiveFace(status);
+      }
+    }
+    else
+    {
+      while (m_tokenizer.peekToken(ExpectedToken).hasType(QuakeMapToken::OParenthesis))
+      {
+        parseFace(status);
+      }
     }
 
     return kdl::void_success;
@@ -328,29 +345,22 @@ void StandardMapParser::parseObject(ParserStatus& status)
 
   const auto startLocation = token.location();
 
-  if (m_sourceMapFormat == MapFormat::Quake3)
+  if (m_sourceMapFormat == MapFormat::Quake3_BrushPrimitives)
   {
-    // We expect either a brush primitive, a patch or a regular brush.
-    token = m_tokenizer.peekToken(QuakeMapToken::String | QuakeMapToken::OParenthesis);
-    if (token.hasType(QuakeMapToken::String))
+    // We expect either a patch or a brush primitive.
+    token = m_tokenizer.peekToken(QuakeMapToken::String);
+    expect({BrushPrimitiveId, PatchId}, token);
+    if (token.data() == BrushPrimitiveId)
     {
-      expect({BrushPrimitiveId, PatchId}, token);
-      if (token.data() == BrushPrimitiveId)
-      {
-        parseBrushPrimitive(status, startLocation);
-      }
-      else
-      {
-        parsePatch(status, startLocation);
-      }
+      parseBrushPrimitive(status, startLocation);
     }
     else
     {
-      parseBrush(status, startLocation, false);
+      parsePatch(status, startLocation);
     }
   }
   else if (
-    m_sourceMapFormat == MapFormat::Quake3_Valve
+    m_sourceMapFormat == MapFormat::Quake3 || m_sourceMapFormat == MapFormat::Quake3_Valve
     || m_sourceMapFormat == MapFormat::Quake3_Legacy)
   {
     // We expect either a patch or a regular brush.
@@ -362,13 +372,13 @@ void StandardMapParser::parseObject(ParserStatus& status)
     }
     else
     {
-      parseBrush(status, startLocation, false);
+      parseBrush(status, startLocation);
     }
   }
   else
   {
     token = m_tokenizer.peekToken(QuakeMapToken::OParenthesis);
-    parseBrush(status, startLocation, false);
+    parseBrush(status, startLocation);
   }
 
   // consume final closing brace
@@ -376,7 +386,7 @@ void StandardMapParser::parseObject(ParserStatus& status)
 }
 
 void StandardMapParser::parseBrush(
-  ParserStatus& status, const FileLocation& startLocation, const bool primitive)
+  ParserStatus& status, const FileLocation& startLocation)
 {
   auto beginBrushCalled = false;
 
@@ -388,28 +398,19 @@ void StandardMapParser::parseBrush(
     switch (token.type())
     {
     case QuakeMapToken::OParenthesis:
-      // TODO 2427: handle brush primitives
-      if (!beginBrushCalled && !primitive)
+      if (!beginBrushCalled)
       {
         onBeginBrush(startLocation, status);
         beginBrushCalled = true;
       }
-      parseFace(status, primitive);
+      parseFace(status);
       break;
     case QuakeMapToken::CBrace:
-      // TODO 2427: handle brush primitives
-      if (!primitive)
+      if (!beginBrushCalled)
       {
-        if (!beginBrushCalled)
-        {
-          onBeginBrush(startLocation, status);
-        }
-        onEndBrush(token.location(), status);
+        onBeginBrush(startLocation, status);
       }
-      else
-      {
-        status.warn(startLocation, "Skipping brush primitive: currently not supported");
-      }
+      onEndBrush(token.location(), status);
       return;
       switchDefault();
     }
@@ -423,14 +424,13 @@ void StandardMapParser::parseBrush(
 void StandardMapParser::parseBrushPrimitive(
   ParserStatus& status, const FileLocation& startLocation)
 {
-  auto token = m_tokenizer.nextToken(QuakeMapToken::String);
-  expect(BrushPrimitiveId, token);
+  expect({BrushPrimitiveId}, m_tokenizer.nextToken(QuakeMapToken::String));
   m_tokenizer.nextToken(QuakeMapToken::OBrace);
-  parseBrush(status, startLocation, true);
+  parseBrush(status, startLocation);
   m_tokenizer.nextToken(QuakeMapToken::CBrace);
 }
 
-void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
+void StandardMapParser::parseFace(ParserStatus& status)
 {
   switch (m_sourceMapFormat)
   {
@@ -439,6 +439,7 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
     break;
   case MapFormat::Quake2:
   case MapFormat::Quake3_Legacy:
+  case MapFormat::Quake3:
     parseQuake2Face(status);
     break;
   case MapFormat::Quake2_Valve:
@@ -454,15 +455,8 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
   case MapFormat::Valve:
     parseValveFace(status);
     break;
-  case MapFormat::Quake3:
-    if (primitive)
-    {
-      parseBrushPrimitiveFace(status);
-    }
-    else
-    {
-      parseQuake2Face(status);
-    }
+  case MapFormat::Quake3_BrushPrimitives:
+    parseBrushPrimitiveFace(status);
     break;
   case MapFormat::Unknown:
     // cannot happen
@@ -631,18 +625,16 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
 
 void StandardMapParser::parseBrushPrimitiveFace(ParserStatus& status)
 {
-  /* const auto line = */ m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
-  /* const auto [p1, p2, p3] = */ parseFacePoints(status);
+  const auto [p1, p2, p3] = parseFacePoints(status);
 
   m_tokenizer.nextToken(QuakeMapToken::OParenthesis);
-
-  /* const auto [uAxis, vAxis] = */ parsePrimitiveUVAxes(status);
+  const auto [row0, row1] = parsePrimitiveUVAxes(status);
   m_tokenizer.nextToken(QuakeMapToken::CParenthesis);
 
   const auto materialName = parseMaterialName(status);
 
-  // TODO 2427: what to set for offset, rotation, scale?!
   auto attribs = BrushFaceAttributes{materialName};
 
   // Quake 2 extra info is optional
@@ -654,8 +646,29 @@ void StandardMapParser::parseBrushPrimitiveFace(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
   }
 
-  // TODO 2427: create a brush face
-  // brushFace(line, p1, p2, p3, attribs, uAxis, vAxis, status);
+  // The brush primitive texture matrix is expressed relative to the face plane's axis
+  // base and yields normalized texture coordinates, so converting it into TrenchBroom's
+  // (texel based) parallel UV coordinate system requires the face normal and the texture
+  // size. The texture size is not yet known while parsing (materials are assigned to
+  // faces afterwards), so we assume the Quake 3 default of 64x64. This is exact for 64x64
+  // textures and for any face that is subsequently saved (the real texture size is used
+  // when serializing). See TODO 2427.
+  const auto textureSize = vm::vec2f{64, 64};
+
+  auto normal = vm::vec3d{0, 0, 1};
+  if (const auto plane = vm::from_points(p1, p2, p3))
+  {
+    normal = plane->normal;
+  }
+
+  const auto uvAxes = brushPrimitiveMatrixToUVAxes(normal, {row0, row1}, textureSize);
+
+  attribs.setOffset(uvAxes.offset);
+  attribs.setScale(vm::vec2f{1, 1});
+  attribs.setRotation(0.0f);
+
+  onValveBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, attribs, uvAxes.uAxis, uvAxes.vAxis, status);
 }
 
 void StandardMapParser::parsePatch(

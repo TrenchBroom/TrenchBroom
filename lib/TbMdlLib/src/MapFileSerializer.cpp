@@ -28,12 +28,15 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Quake3BrushPrimitive.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/string_format.h"
 #include "kd/task_manager.h"
+
+#include "vm/plane.h"
 
 #include <fmt/format.h>
 
@@ -198,6 +201,75 @@ private:
   }
 };
 
+class Quake3FileSerializer : public Quake2FileSerializer
+{
+public:
+  explicit Quake3FileSerializer(std::ostream& stream)
+    : Quake2FileSerializer{stream}
+  {
+  }
+
+private:
+  // Quake 3 brushes are written as brush primitives: the faces are wrapped in a
+  // `brushDef { ... }` block and each face stores a texture projection matrix instead of
+  // the legacy offset/rotation/scale values.
+  PrecomputedString writeBrush(const Brush& brush) const override
+  {
+    auto stream = std::stringstream{};
+    fmt::format_to(std::ostreambuf_iterator<char>{stream}, "brushDef\n{{\n");
+    for (const auto& face : brush.faces())
+    {
+      writeBrushFace(stream, face);
+    }
+    fmt::format_to(std::ostreambuf_iterator<char>{stream}, "}}\n");
+    // brushDef + opening brace + faces + closing brace
+    return {stream.str(), brush.faces().size() + 3};
+  }
+
+  void writeBrushFace(std::ostream& stream, const BrushFace& face) const override
+  {
+    writeFacePoints(stream, face);
+    writePrimitiveMaterialInfo(stream, face);
+    writeSurfaceAttributes(stream, face);
+
+    fmt::format_to(std::ostreambuf_iterator<char>{stream}, "\n");
+  }
+
+  void writePrimitiveMaterialInfo(std::ostream& stream, const BrushFace& face) const
+  {
+    const auto& materialName = face.attributes().materialName().empty()
+                                 ? BrushFaceAttributes::NoMaterialName
+                                 : face.attributes().materialName();
+
+    // Reconstruct the brush primitive texture matrix from the face's parallel UV axes.
+    // The stored axes are divided by their scale to obtain the effective projection, and
+    // the texture size that the reader folds into the axes is removed again.
+    const auto xScale = face.attributes().xScale();
+    const auto yScale = face.attributes().yScale();
+    const auto uAxis = xScale != 0.0f ? face.uAxis() / double(xScale) : face.uAxis();
+    const auto vAxis = yScale != 0.0f ? face.vAxis() / double(yScale) : face.vAxis();
+
+    const auto matrix = uvAxesToBrushPrimitiveMatrix(
+      face.boundary().normal,
+      uAxis,
+      vAxis,
+      face.attributes().offset(),
+      face.textureSize());
+
+    fmt::format_to(
+      std::ostreambuf_iterator<char>{stream},
+      " ( ( {} {} {} ) ( {} {} {} ) ) {}",
+      matrix.row0.x(),
+      matrix.row0.y(),
+      matrix.row0.z(),
+      matrix.row1.x(),
+      matrix.row1.y(),
+      matrix.row1.z(),
+      shouldQuoteMaterialName(materialName) ? quoteMaterialName(materialName)
+                                            : materialName);
+  }
+};
+
 class DaikatanaFileSerializer : public Quake2FileSerializer
 {
 private:
@@ -281,10 +353,11 @@ std::unique_ptr<NodeSerializer> MapFileSerializer::create(
   case MapFormat::Standard:
     return std::make_unique<QuakeFileSerializer>(stream);
   case MapFormat::Quake2:
-    // TODO 2427: Implement Quake3 serializers and use them
-  case MapFormat::Quake3:
   case MapFormat::Quake3_Legacy:
+  case MapFormat::Quake3:
     return std::make_unique<Quake2FileSerializer>(stream);
+  case MapFormat::Quake3_BrushPrimitives:
+    return std::make_unique<Quake3FileSerializer>(stream);
   case MapFormat::Quake2_Valve:
   case MapFormat::Quake3_Valve:
     return std::make_unique<Quake2ValveFileSerializer>(stream);

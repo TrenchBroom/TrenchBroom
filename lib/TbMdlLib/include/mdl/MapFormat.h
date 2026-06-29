@@ -70,6 +70,11 @@ enum class MapFormat
    * Quake 3 with brush primitives, also allows Quake 2 brushes
    */
   Quake3,
+  /**
+   * Quake 3 with brush primitives (brushDef). Uses a parallel, face-aligned UV coordinate
+   * system.
+   */
+  Quake3_BrushPrimitives,
 };
 
 std::ostream& operator<<(std::ostream& lhs, MapFormat rhs);

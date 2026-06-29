@@ -292,6 +292,69 @@ TEST_CASE("NodeWriter")
     CHECK(actual == expected);
   }
 
+  SECTION("writeQuake3BrushPrimitivesMap")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+
+    // NOLINTNEXTLINE(misc-const-correctness)
+    auto map = WorldNode{{}, {}, MapFormat::Quake3_BrushPrimitives};
+
+    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto* brushNode1 =
+      new BrushNode{builder.createCube(64.0, "e1u1/test") | kdl::value()};
+    map.defaultLayer()->addChild(brushNode1);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{map, str};
+    writer.writeMap(taskManager);
+
+    const auto actual = str.str();
+
+    // Brush primitives are serialised as brushes wrapped in a brushDef block, and each
+    // face stores a 2x3 texture projection matrix.
+    CHECK(actual == R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+brushDef
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) ( ( 0 1 0 ) ( -1 0 0 ) ) e1u1/test
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) ( ( 0 1 0 ) ( -1 0 0 ) ) e1u1/test
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test
+}
+}
+}
+)");
+  }
+
+  SECTION("writeQuake3Map keeps legacy faces, not brush primitives")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+
+    // NOLINTNEXTLINE(misc-const-correctness)
+    auto map = WorldNode{{}, {}, MapFormat::Quake3};
+
+    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto* brushNode1 =
+      new BrushNode{builder.createCube(64.0, "e1u1/test") | kdl::value()};
+    map.defaultLayer()->addChild(brushNode1);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{map, str};
+    writer.writeMap(taskManager);
+
+    const auto actual = str.str();
+
+    // The plain Quake 3 format must keep legacy face output so existing maps and other
+    // games (Neverball, Quetoo) are unaffected.
+    CHECK(actual.find("brushDef") == std::string::npos);
+    CHECK(actual.find("e1u1/test") != std::string::npos);
+  }
+
   SECTION("writeWorldspawnWithBrushInDefaultLayer")
   {
     const auto worldBounds = vm::bbox3d{8192.0};

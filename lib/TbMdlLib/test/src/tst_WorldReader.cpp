@@ -1206,51 +1206,25 @@ TEST_CASE("WorldReader")
             })";
 
 
-    auto reader = WorldReader{data, MapFormat::Quake3, {}};
+    auto reader = WorldReader{data, MapFormat::Quake3_BrushPrimitives, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
     const auto& world = worldResult.value();
-    // TODO 2427: Assert one brush!
-    CHECK(world->defaultLayer()->childCount() == 0u);
-  }
-
-  SECTION("Brush primitive and legacy brush")
-  {
-    const auto data = R"(
-{
-"classname" "worldspawn"
-{
-brushDef
-{
-( -64 64 64 ) ( 64 -64 64 ) ( -64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-( -64 64 64 ) ( 64 64 -64 ) ( 64 64 64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) common/caulk 0 0 0
-( 64 64 64 ) ( 64 -64 -64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-( 64 64 -64 ) ( -64 -64 -64 ) ( 64 -64 -64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-( 64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-( -64 -64 64 ) ( -64 64 -64 ) ( -64 64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-}
-}
-{
-( 64 64 64 ) ( 64 -64 64 ) ( -64 64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( 64 64 64 ) ( -64 64 64 ) ( 64 64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( 64 64 64 ) ( 64 64 -64 ) ( 64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( -64 -64 -64 ) ( 64 -64 -64 ) ( -64 64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( -64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( -64 -64 -64 ) ( -64 64 -64 ) ( -64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
-}
-})";
-
-
-    auto reader = WorldReader{data, MapFormat::Quake3, {}};
-
-    auto worldResult = reader.read(worldBounds, status, taskManager);
-    REQUIRE(worldResult);
-
-    const auto& world = worldResult.value();
-    // TODO 2427: Assert two brushes!
     CHECK(world->defaultLayer()->childCount() == 1u);
+
+    auto* brushNode = static_cast<BrushNode*>(world->defaultLayer()->children().front());
+
+    // brush primitives are stored in a parallel UV coordinate system (issue 2427)
+    checkBrushUVCoordSystem(brushNode, true);
+
+    const auto& faces = brushNode->brush().faces();
+    CHECK(faces.size() == 6u);
+    for (const auto& face : faces)
+    {
+      CHECK(face.attributes().materialName() == "common/caulk");
+    }
   }
 
   SECTION("Quake 3 patch")
@@ -2099,6 +2073,68 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
     CHECK(defaultLayer->childCount() == 1u);
     auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, false);
+  }
+}
+
+TEST_CASE("WorldReader format autodetection")
+{
+  // The brush primitives (brushDef) parser also accepts bare legacy brushes, so for
+  // auto-detection to be correct the candidate list must try the legacy format before the
+  // brush primitives format. This guards against the regression that caused legacy maps
+  // to be saved as brushDef.
+  auto taskManager = kdl::task_manager{};
+  const auto worldBounds = vm::bbox3d{8192.0};
+  auto status = TestParserStatus{};
+
+  const auto candidates = std::vector{
+    MapFormat::Quake3_Legacy,
+    MapFormat::Quake3_Valve,
+    MapFormat::Quake3_BrushPrimitives,
+  };
+
+  SECTION("a legacy map is detected as Quake3 (legacy), not brushDef")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) common/caulk 0 0 0 1 1
+( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) common/caulk 0 0 0 1 1
+( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) common/caulk 0 0 0 1 1
+( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) common/caulk 0 0 0 1 1
+( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) common/caulk 0 0 0 1 1
+( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) common/caulk 0 0 0 1 1
+}
+})";
+
+    auto world =
+      WorldReader::tryRead(data, candidates, worldBounds, {}, status, taskManager);
+    REQUIRE(world);
+    CHECK(world.value()->mapFormat() == MapFormat::Quake3_Legacy);
+  }
+
+  SECTION("a brush primitive map is detected as Quake3 (brush primitives)")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+brushDef
+{
+( -64 64 64 ) ( 64 -64 64 ) ( -64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( -64 64 64 ) ( 64 64 -64 ) ( 64 64 64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 64 64 ) ( 64 -64 -64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 64 -64 ) ( -64 -64 -64 ) ( 64 -64 -64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( -64 -64 64 ) ( -64 64 -64 ) ( -64 64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+}
+}
+})";
+
+    auto world =
+      WorldReader::tryRead(data, candidates, worldBounds, {}, status, taskManager);
+    REQUIRE(world);
+    CHECK(world.value()->mapFormat() == MapFormat::Quake3_BrushPrimitives);
   }
 }
 
