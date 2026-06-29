@@ -25,7 +25,7 @@
 #include "mdl/IdType.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Node.h"
-#include "mdl/Octree.h"
+#include "mdl/NodeTree.h"
 
 #include <memory>
 #include <vector>
@@ -46,7 +46,6 @@ private:
   LayerNode* m_defaultLayer;
   std::unique_ptr<ValidatorRegistry> m_validatorRegistry;
 
-  using NodeTree = octree<double, Node*>;
   std::unique_ptr<NodeTree> m_nodeTree;
   bool m_updateNodeTree;
 
