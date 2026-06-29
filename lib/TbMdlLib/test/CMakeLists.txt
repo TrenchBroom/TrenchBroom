@@ -90,6 +90,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PointTrace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Polyhedron.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PortalFile.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Quake3BrushPrimitive.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Quake3ShaderParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Selection.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Tagging.cpp
