@@ -325,19 +325,24 @@ std::vector<BezierPatch::Point> BezierPatch::evaluate(
   value of v
   */
 
+  const auto getSurfaceIndex = [&](const auto gridIndex) {
+    return (gridIndex > 0u ? gridIndex - 1u : gridIndex) / quadsPerSurfaceSide;
+  };
+
+  const auto getSampleValue = [&](const auto gridIndex, const auto surfaceIndex) {
+    return double(gridIndex - surfaceIndex * quadsPerSurfaceSide)
+           / double(quadsPerSurfaceSide);
+  };
+
   for (size_t gridRow = 0u; gridRow < gridPointRowCount; ++gridRow)
   {
-    const size_t surfaceRow =
-      (gridRow > 0u ? gridRow - 1u : gridRow) / quadsPerSurfaceSide;
-    const double v = static_cast<double>(gridRow - surfaceRow * quadsPerSurfaceSide)
-                     / static_cast<double>(quadsPerSurfaceSide);
+    const auto surfaceRow = getSurfaceIndex(gridRow);
+    const auto v = getSampleValue(gridRow, surfaceRow);
 
     for (size_t gridCol = 0u; gridCol < gridPointColumnCount; ++gridCol)
     {
-      const size_t surfaceCol =
-        (gridCol > 0u ? gridCol - 1u : gridCol) / quadsPerSurfaceSide;
-      const double u = static_cast<double>(gridCol - surfaceCol * quadsPerSurfaceSide)
-                       / static_cast<double>(quadsPerSurfaceSide);
+      const auto surfaceCol = getSurfaceIndex(gridCol);
+      const auto u = getSampleValue(gridCol, surfaceCol);
 
       const auto& surfaceControlPoints =
         allSurfaceControlPoints[surfaceRow * surfaceColumnCount() + surfaceCol];
