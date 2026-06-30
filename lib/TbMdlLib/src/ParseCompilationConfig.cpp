@@ -53,6 +53,10 @@ CompilationExportMap toExportTask(
     enabled,
     stripTbProperties,
     value.at(context, "target").stringValue(context),
+    value.atOrDefault(context, "dropEntityAtCamera", el::Value{false})
+      .booleanValue(context),
+    value.atOrDefault(context, "dropEntityClassname", el::Value{"info_player_start"})
+      .stringValue(context),
   };
 }
 

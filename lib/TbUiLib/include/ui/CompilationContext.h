@@ -23,7 +23,10 @@
 #include "el/VariableStore.h"
 #include "ui/TextOutputAdapter.h"
 
+#include "vm/vec.h"
+
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace tb
@@ -36,6 +39,12 @@ class Map;
 namespace ui
 {
 
+struct CompilationCameraSnapshot
+{
+  vm::vec3d position;
+  vm::vec3d direction;
+};
+
 class CompilationContext
 {
 private:
@@ -44,16 +53,19 @@ private:
 
   TextOutputAdapter m_output;
   bool m_test;
+  std::optional<CompilationCameraSnapshot> m_cameraSnapshot;
 
 public:
   CompilationContext(
     const mdl::Map& map,
     const el::VariableStore& variables,
     TextOutputAdapter output,
-    bool test);
+    bool test,
+    std::optional<CompilationCameraSnapshot> cameraSnapshot = std::nullopt);
 
   const mdl::Map& map() const;
   bool test() const;
+  const std::optional<CompilationCameraSnapshot>& cameraSnapshot() const;
 
   Result<std::string> interpolate(const std::string& input) const;
   Result<std::string> variableValue(const std::string& variableName) const;

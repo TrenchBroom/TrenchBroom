@@ -23,6 +23,8 @@
 #include "el/Interpolate.h"
 #include "el/Types.h"
 
+#include <utility>
+
 namespace tb::ui
 {
 
@@ -30,11 +32,13 @@ CompilationContext::CompilationContext(
   const mdl::Map& map,
   const el::VariableStore& variables,
   TextOutputAdapter output,
-  bool test)
+  const bool test,
+  std::optional<CompilationCameraSnapshot> cameraSnapshot)
   : m_map{map}
   , m_variables{variables.clone()}
   , m_output{std::move(output)}
   , m_test{test}
+  , m_cameraSnapshot{std::move(cameraSnapshot)}
 {
 }
 
@@ -46,6 +50,11 @@ const mdl::Map& CompilationContext::map() const
 bool CompilationContext::test() const
 {
   return m_test;
+}
+
+const std::optional<CompilationCameraSnapshot>& CompilationContext::cameraSnapshot() const
+{
+  return m_cameraSnapshot;
 }
 
 Result<std::string> CompilationContext::interpolate(const std::string& input) const

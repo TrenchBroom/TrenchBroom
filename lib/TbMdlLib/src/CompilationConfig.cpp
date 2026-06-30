@@ -38,6 +38,8 @@ el::Value toValue(const CompilationTask& task)
         map["enabled"] = el::Value{exportMap.enabled};
         map["stripTbProperties"] = el::Value{exportMap.stripTbProperties};
         map["target"] = el::Value{exportMap.targetSpec};
+        map["dropEntityAtCamera"] = el::Value{exportMap.dropEntityAtCamera};
+        map["dropEntityClassname"] = el::Value{exportMap.dropEntityClassname};
         return map;
       },
       [](const CompilationCopyFiles& copyFiles) {

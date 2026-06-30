@@ -1658,6 +1658,9 @@ Target
 Strip TB specific entity properties
 :    Strip any entity properties starting with _tb_ from the exported map file. Some compilers cannot handle these properties.
 
+Drop entity at camera
+:    Remove exported point entities with the given classname and add one replacement point entity at the active camera position. The open document is not modified.
+
 ### Run Tool
 
 Runs an external tool and captures its output. Note that for the Tool parameter's value, you can use a compilation tool variable defined in the [game configuration](#game_configuration), as discussed below.

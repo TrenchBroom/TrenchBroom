@@ -99,7 +99,9 @@ TEST_CASE("toValue")
                 "type": "export",
                 "enabled": {},
                 "stripTbProperties": {},
-                "target": "targetSpec"
+                "target": "targetSpec",
+                "dropEntityAtCamera": false,
+                "dropEntityClassname": "info_player_start"
               }}
             ]
           }}

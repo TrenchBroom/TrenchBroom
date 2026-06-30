@@ -30,6 +30,7 @@
 #include <QTextEdit>
 
 #include "Logger.h"
+#include "gl/Camera.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"
@@ -41,6 +42,8 @@
 #include "ui/FixedWidthFont.h"
 #include "ui/LaunchGameEngineDialog.h"
 #include "ui/MapDocument.h" // IWYU pragma: keep
+#include "ui/MapView3D.h"
+#include "ui/MapViewBase.h"
 #include "ui/MapWindow.h"
 #include "ui/QStyleUtils.h"
 #include "ui/Splitter.h"
@@ -221,7 +224,32 @@ Result<void> CompilationDialog::runProfile(
   const mdl::CompilationProfile& profile, const bool test)
 {
   const auto& map = m_document.map();
-  return test ? m_run.test(profile, map, m_output) : m_run.run(profile, map, m_output);
+  const auto cameraSnapshot = currentCameraSnapshot();
+  return test ? m_run.test(profile, map, m_output, cameraSnapshot)
+              : m_run.run(profile, map, m_output, cameraSnapshot);
+}
+
+std::optional<CompilationCameraSnapshot> CompilationDialog::currentCameraSnapshot() const
+{
+  auto* mapWindow = dynamic_cast<MapWindow*>(parentWidget());
+  if (!mapWindow)
+  {
+    return std::nullopt;
+  }
+
+  auto* mapView = mapWindow->currentMapViewBase();
+  if (!dynamic_cast<MapView3D*>(mapView))
+  {
+    mapView = mapWindow->findChild<MapView3D*>();
+  }
+  if (!mapView)
+  {
+    return std::nullopt;
+  }
+
+  const auto& camera = mapView->camera();
+  return CompilationCameraSnapshot{
+    vm::vec3d{camera.position()}, vm::vec3d{camera.direction()}};
 }
 
 void CompilationDialog::stopCompilation()

@@ -44,13 +44,19 @@
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
+#include "kd/string_format.h"
 #include "kd/string_utils.h"
+
+#include "vm/scalar.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <cmath>
+#include <optional>
 #include <ranges>
 #include <string>
+#include <utility>
 
 namespace tb::ui
 {
@@ -68,6 +74,17 @@ Result<std::string> workDir(const CompilationContext& context)
   {
     return Error{e.what()};
   }
+}
+
+int cameraYawAngle(const vm::vec3d& direction)
+{
+  if (direction.x() == 0.0 && direction.y() == 0.0)
+  {
+    return 0;
+  }
+
+  return static_cast<int>(vm::normalize_degrees(
+    std::round(vm::to_degrees(std::atan2(direction.y(), direction.x())))));
 }
 
 } // namespace
@@ -119,12 +136,33 @@ void CompilationExportMapTaskRunner::doExecute()
     const auto targetPath = kdl::parse_path(interpolated);
     m_context << "#### Exporting map file '" << pathAsQString(targetPath) << "'\n";
 
+    auto replacementPointEntityAtCamera =
+      std::optional<mdl::ReplacementPointEntityAtCamera>{};
+    if (m_task.dropEntityAtCamera)
+    {
+      auto classname = kdl::str_trim(m_task.dropEntityClassname);
+      if (classname.empty())
+      {
+        return Result<void>{Error{"Drop entity classname must not be empty"}};
+      }
+      if (!m_context.cameraSnapshot())
+      {
+        return Result<void>{Error{"Could not get 3D camera position"}};
+      }
+
+      replacementPointEntityAtCamera = mdl::ReplacementPointEntityAtCamera{
+        std::move(classname),
+        m_context.cameraSnapshot()->position,
+        cameraYawAngle(m_context.cameraSnapshot()->direction),
+      };
+    }
+
     if (!m_context.test())
     {
       return fs::Disk::createDirectory(targetPath.parent_path())
              | kdl::and_then([&](auto) {
-                 const auto options =
-                   mdl::MapExportOptions{targetPath, m_task.stripTbProperties};
+                 const auto options = mdl::MapExportOptions{
+                   targetPath, m_task.stripTbProperties, replacementPointEntityAtCamera};
                  return m_context.map().exportAs(options);
                });
     }

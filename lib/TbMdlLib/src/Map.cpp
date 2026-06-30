@@ -901,6 +901,8 @@ Result<void> Map::exportAs(const ExportOptions& options) const
           auto writer = NodeWriter{*m_worldNode, stream};
           writer.setExporting(true);
           writer.setStripTbProperties(mapOptions.stripTbProperties);
+          writer.setReplacementPointEntityAtCamera(
+            mapOptions.replacementPointEntityAtCamera);
           writer.writeMap(m_taskManager);
         });
       }),

@@ -337,6 +337,65 @@ TEST_CASE("CompilationExportMapTaskRunner")
 
     CHECK(!testEnvironment.fileExists("exported.map"));
   }
+
+  SECTION("dropEntityAtCamera")
+  {
+    auto node = new mdl::EntityNode{mdl::Entity{{
+      {"classname", "info_player_start"},
+      {"origin", "1 2 3"},
+    }}};
+    addNodes(map, {{parentForNodes(map), {node}}});
+
+    auto contextWithCamera = CompilationContext{
+      map,
+      variables,
+      outputAdapter,
+      false,
+      CompilationCameraSnapshot{
+        vm::vec3d{16.0, 32.0, 48.0},
+        vm::vec3d{0.0, 1.0, 0.0},
+      }};
+    auto task = mdl::CompilationExportMap{
+      K(enabled),
+      !K(stripTbProperties),
+      "${WORK_DIR_PATH}/exported.map",
+      K(dropEntityAtCamera),
+      " info_player_start "};
+
+    auto runner = CompilationExportMapTaskRunner{contextWithCamera, task};
+    REQUIRE_NOTHROW(runner.execute());
+
+    const auto exportedMap = testEnvironment.loadFile("exported.map");
+    CHECK(exportedMap.find(R"("origin" "1 2 3")") == std::string::npos);
+    CHECK(exportedMap.find(R"("classname" "info_player_start")") != std::string::npos);
+    CHECK(exportedMap.find(R"("origin" "16 32 48")") != std::string::npos);
+    CHECK(exportedMap.find(R"("angle" "90")") != std::string::npos);
+  }
+
+  SECTION("dropEntityAtCameraWithEmptyClassname")
+  {
+    auto contextWithCamera = CompilationContext{
+      map,
+      variables,
+      outputAdapter,
+      false,
+      CompilationCameraSnapshot{
+        vm::vec3d{16.0, 32.0, 48.0},
+        vm::vec3d{0.0, 1.0, 0.0},
+      }};
+    auto task = mdl::CompilationExportMap{
+      K(enabled),
+      !K(stripTbProperties),
+      "${WORK_DIR_PATH}/nested/exported.map",
+      K(dropEntityAtCamera),
+      "  "};
+
+    auto runner = CompilationExportMapTaskRunner{contextWithCamera, task};
+    REQUIRE_NOTHROW(runner.execute());
+
+    CHECK_FALSE(testEnvironment.directoryExists("nested"));
+    CHECK_FALSE(testEnvironment.fileExists("nested/exported.map"));
+  }
 }
 
 TEST_CASE("CompilationCopyFilesTaskRunner")

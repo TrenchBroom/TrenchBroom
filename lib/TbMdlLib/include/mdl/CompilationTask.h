@@ -32,8 +32,16 @@ struct CompilationExportMap
   bool enabled;
   bool stripTbProperties;
   std::string targetSpec;
+  bool dropEntityAtCamera = false;
+  std::string dropEntityClassname = "info_player_start";
 
-  kdl_reflect_decl(CompilationExportMap, enabled, stripTbProperties, targetSpec);
+  kdl_reflect_decl(
+    CompilationExportMap,
+    enabled,
+    stripTbProperties,
+    targetSpec,
+    dropEntityAtCamera,
+    dropEntityClassname);
 };
 
 struct CompilationCopyFiles

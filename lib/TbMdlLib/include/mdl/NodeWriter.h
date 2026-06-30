@@ -19,8 +19,11 @@
 
 #pragma once
 
+#include "mdl/ExportOptions.h"
+
 #include <map>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace kdl
@@ -47,6 +50,7 @@ private:
 
   const WorldNode& m_world;
   std::unique_ptr<NodeSerializer> m_serializer;
+  std::optional<ReplacementPointEntityAtCamera> m_replacementPointEntityAtCamera;
 
 public:
   NodeWriter(const WorldNode& world, std::ostream& stream);
@@ -55,12 +59,15 @@ public:
 
   void setExporting(bool exporting);
   void setStripTbProperties(bool stripTbProperties);
+  void setReplacementPointEntityAtCamera(
+    std::optional<ReplacementPointEntityAtCamera> replacementPointEntityAtCamera);
   void writeMap(kdl::task_manager& taskManager);
 
 private:
   void writeDefaultLayer();
   void writeCustomLayers();
   void writeCustomLayer(const LayerNode& layer);
+  void writeReplacementPointEntityAtCamera();
 
 public:
   void writeNodes(const std::vector<Node*>& nodes, kdl::task_manager& taskManager);

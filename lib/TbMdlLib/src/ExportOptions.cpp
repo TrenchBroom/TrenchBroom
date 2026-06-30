@@ -24,12 +24,15 @@
 
 #include "kd/reflection_impl.h"
 
+#include "vm/vec_io.h" // IWYU pragma: keep
+
 #include <ostream>
 
 
 namespace tb::mdl
 {
 
+kdl_reflect_impl(ReplacementPointEntityAtCamera);
 kdl_reflect_impl(MapExportOptions);
 
 std::ostream& operator<<(std::ostream& lhs, const ObjMtlPathMode rhs)

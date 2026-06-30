@@ -22,6 +22,8 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/EntityProperties.h"
+#include "mdl/ExportOptions.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/MapFileSerializer.h"
@@ -37,6 +39,10 @@
 #include "kd/string_utils.h"
 #include "kd/vector_utils.h"
 
+#include "vm/vec_io.h" // IWYU pragma: keep
+
+#include <fmt/format.h>
+
 #include <vector>
 
 namespace tb::mdl
@@ -47,6 +53,7 @@ namespace
 void doWriteNodes(
   NodeSerializer& serializer,
   const std::vector<Node*>& nodes,
+  const std::optional<ReplacementPointEntityAtCamera>& replacementPointEntityAtCamera,
   const Node* parent = nullptr)
 {
   auto parentStack = std::vector<const Node*>{parent};
@@ -69,6 +76,12 @@ void doWriteNodes(
         parentStack.pop_back();
       },
       [&](const EntityNode& entityNode) {
+        if (
+          replacementPointEntityAtCamera && !entityNode.hasChildren()
+          && entityNode.entity().classname() == replacementPointEntityAtCamera->classname)
+        {
+          return;
+        }
         auto extraProperties = parentProperties();
         const auto& protectedProperties = entityNode.entity().protectedProperties();
         if (!protectedProperties.empty())
@@ -115,11 +128,18 @@ void NodeWriter::setStripTbProperties(const bool stripTbProperties)
   m_serializer->setStripTbProperties(stripTbProperties);
 }
 
+void NodeWriter::setReplacementPointEntityAtCamera(
+  std::optional<ReplacementPointEntityAtCamera> replacementPointEntityAtCamera)
+{
+  m_replacementPointEntityAtCamera = std::move(replacementPointEntityAtCamera);
+}
+
 void NodeWriter::writeMap(kdl::task_manager& taskManager)
 {
   m_serializer->beginFile({&m_world}, taskManager);
   writeDefaultLayer();
   writeCustomLayers();
+  writeReplacementPointEntityAtCamera();
   m_serializer->endFile();
 }
 
@@ -129,7 +149,10 @@ void NodeWriter::writeDefaultLayer()
 
   if (!(m_serializer->exporting() && m_world.defaultLayer()->layer().omitFromExport()))
   {
-    doWriteNodes(*m_serializer, m_world.defaultLayer()->children());
+    doWriteNodes(
+      *m_serializer,
+      m_world.defaultLayer()->children(),
+      m_replacementPointEntityAtCamera);
   }
 }
 
@@ -146,8 +169,26 @@ void NodeWriter::writeCustomLayer(const LayerNode& layerNode)
   if (!(m_serializer->exporting() && layerNode.layer().omitFromExport()))
   {
     m_serializer->customLayer(layerNode);
-    doWriteNodes(*m_serializer, layerNode.children(), &layerNode);
+    doWriteNodes(
+      *m_serializer, layerNode.children(), m_replacementPointEntityAtCamera, &layerNode);
   }
+}
+
+void NodeWriter::writeReplacementPointEntityAtCamera()
+{
+  if (!m_replacementPointEntityAtCamera)
+  {
+    return;
+  }
+
+  auto entityNode = EntityNode{Entity{{
+    {EntityPropertyKeys::Classname, m_replacementPointEntityAtCamera->classname},
+    {EntityPropertyKeys::Origin,
+     kdl::str_to_string(vm::correct(m_replacementPointEntityAtCamera->origin))},
+    {EntityPropertyKeys::Angle,
+     fmt::format("{}", m_replacementPointEntityAtCamera->angle)},
+  }}};
+  m_serializer->entity(entityNode, entityNode.entity().properties(), {}, entityNode);
 }
 
 void NodeWriter::writeNodes(
@@ -185,8 +226,8 @@ void NodeWriter::writeNodes(
   writeWorldBrushes(worldBrushes);
   writeEntityBrushes(entityBrushes);
 
-  doWriteNodes(*m_serializer, groups);
-  doWriteNodes(*m_serializer, entities);
+  doWriteNodes(*m_serializer, groups, std::nullopt);
+  doWriteNodes(*m_serializer, entities, std::nullopt);
 
   m_serializer->endFile();
 }

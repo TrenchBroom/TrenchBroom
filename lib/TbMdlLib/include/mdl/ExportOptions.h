@@ -22,18 +22,34 @@
 
 #include "kd/reflection_decl.h"
 
+#include "vm/vec.h"
+
 #include <filesystem>
+#include <optional>
+#include <string>
 #include <variant>
 
 namespace tb::mdl
 {
 
+struct ReplacementPointEntityAtCamera
+{
+  std::string classname;
+  vm::vec3d origin;
+  int angle;
+
+  kdl_reflect_decl(ReplacementPointEntityAtCamera, classname, origin, angle);
+};
+
 struct MapExportOptions
 {
   std::filesystem::path exportPath;
   bool stripTbProperties;
+  std::optional<ReplacementPointEntityAtCamera> replacementPointEntityAtCamera =
+    std::nullopt;
 
-  kdl_reflect_decl(MapExportOptions, exportPath, stripTbProperties);
+  kdl_reflect_decl(
+    MapExportOptions, exportPath, stripTbProperties, replacementPointEntityAtCamera);
 };
 
 enum class ObjMtlPathMode

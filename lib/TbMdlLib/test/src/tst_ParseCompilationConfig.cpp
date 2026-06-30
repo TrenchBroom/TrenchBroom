@@ -185,7 +185,12 @@ TEST_CASE("CompilationConfigParser")
         {"A profile",
          "",
          {
-           mdl::CompilationExportMap{K(enabled), !K(stripTbProperties), "the target"},
+           mdl::CompilationExportMap{
+             K(enabled),
+             !K(stripTbProperties),
+             "the target",
+             !K(dropEntityAtCamera),
+             "info_player_start"},
          }},
       }});
   }
@@ -211,6 +216,43 @@ TEST_CASE("CompilationConfigParser")
          "",
          {
            mdl::CompilationExportMap{K(enabled), K(stripTbProperties), "the target"},
+         }},
+      }});
+  }
+
+  SECTION("parseOneProfileWithNameAndOneExportTaskWithDropEntityAtCamera")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [
+        {
+          'type' : 'export',
+          'target' : 'the target',
+          'dropEntityAtCamera' : true,
+          'dropEntityClassname' : 'deathmatch_start'
+        }
+      ]
+    }
+  ]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationExportMap{
+             K(enabled),
+             !K(stripTbProperties),
+             "the target",
+             K(dropEntityAtCamera),
+             "deathmatch_start"},
          }},
       }});
   }

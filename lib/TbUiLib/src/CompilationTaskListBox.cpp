@@ -155,6 +155,22 @@ Variables are allowed.)");
        "exported map file. Some compilers cannot handle these properties."));
   formLayout->addRow("", m_stripTbProperties);
 
+  m_dropEntityAtCamera = new QCheckBox{"Drop entity at camera"};
+  m_dropEntityAtCamera->setToolTip(
+    tr("On export, remove matching point entities and add one replacement at the "
+       "active camera position. The document is not modified."));
+
+  m_dropEntityClassname = new QLineEdit{};
+  m_dropEntityClassname->setFont(Fonts::fixedWidthFont());
+  m_dropEntityClassname->setToolTip(m_dropEntityAtCamera->toolTip());
+
+  auto* dropEntityLayout = new QHBoxLayout{};
+  dropEntityLayout->setContentsMargins(0, 0, 0, 0);
+  dropEntityLayout->setSpacing(LayoutConstants::NarrowHMargin);
+  dropEntityLayout->addWidget(m_dropEntityAtCamera);
+  dropEntityLayout->addWidget(m_dropEntityClassname, 1);
+  formLayout->addRow("", dropEntityLayout);
+
   connect(
     m_targetEditor,
     &QLineEdit::textChanged,
@@ -165,6 +181,16 @@ Variables are allowed.)");
     &QCheckBox::checkStateChanged,
     this,
     &CompilationExportMapTaskEditor::stripTbPropertiesChanged);
+  connect(
+    m_dropEntityAtCamera,
+    &QCheckBox::checkStateChanged,
+    this,
+    &CompilationExportMapTaskEditor::dropEntityAtCameraChanged);
+  connect(
+    m_dropEntityClassname,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationExportMapTaskEditor::dropEntityClassnameChanged);
 }
 
 void CompilationExportMapTaskEditor::updateItem()
@@ -181,6 +207,19 @@ void CompilationExportMapTaskEditor::updateItem()
   {
     m_stripTbProperties->setCheckState(
       task().stripTbProperties ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+  }
+
+  if (m_dropEntityAtCamera->isChecked() != task().dropEntityAtCamera)
+  {
+    m_dropEntityAtCamera->setCheckState(
+      task().dropEntityAtCamera ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+  }
+  m_dropEntityClassname->setEnabled(task().dropEntityAtCamera);
+
+  const auto classname = QString::fromStdString(task().dropEntityClassname);
+  if (m_dropEntityClassname->text() != classname)
+  {
+    m_dropEntityClassname->setText(classname);
   }
 }
 
@@ -200,6 +239,18 @@ void CompilationExportMapTaskEditor::stripTbPropertiesChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
   task().stripTbProperties = value;
+}
+
+void CompilationExportMapTaskEditor::dropEntityAtCameraChanged(const int state)
+{
+  const auto value = (state == Qt::Checked);
+  task().dropEntityAtCamera = value;
+  m_dropEntityClassname->setEnabled(value);
+}
+
+void CompilationExportMapTaskEditor::dropEntityClassnameChanged(const QString& text)
+{
+  task().dropEntityClassname = text.toStdString();
 }
 
 CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(

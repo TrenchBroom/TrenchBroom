@@ -29,6 +29,7 @@
 #include "kd/contracts.h"
 
 #include <string>
+#include <utility>
 
 namespace tb::ui
 {
@@ -47,15 +48,21 @@ bool CompilationRun::running() const
 }
 
 Result<void> CompilationRun::run(
-  const mdl::CompilationProfile& profile, const mdl::Map& map, QTextEdit* currentOutput)
+  const mdl::CompilationProfile& profile,
+  const mdl::Map& map,
+  QTextEdit* currentOutput,
+  std::optional<CompilationCameraSnapshot> cameraSnapshot)
 {
-  return run(profile, map, currentOutput, false);
+  return run(profile, map, currentOutput, std::move(cameraSnapshot), false);
 }
 
 Result<void> CompilationRun::test(
-  const mdl::CompilationProfile& profile, const mdl::Map& map, QTextEdit* currentOutput)
+  const mdl::CompilationProfile& profile,
+  const mdl::Map& map,
+  QTextEdit* currentOutput,
+  std::optional<CompilationCameraSnapshot> cameraSnapshot)
 {
-  return run(profile, map, currentOutput, true);
+  return run(profile, map, currentOutput, std::move(cameraSnapshot), true);
 }
 
 void CompilationRun::terminate()
@@ -75,6 +82,7 @@ Result<void> CompilationRun::run(
   const mdl::CompilationProfile& profile,
   const mdl::Map& map,
   QTextEdit* currentOutput,
+  std::optional<CompilationCameraSnapshot> cameraSnapshot,
   const bool test)
 {
   contract_pre(!profile.tasks.empty());
@@ -85,8 +93,12 @@ Result<void> CompilationRun::run(
 
   return buildWorkDir(profile, map) | kdl::transform([&](const auto& workDir) {
            auto variables = CompilationVariables{map, workDir};
-           auto compilationContext =
-             CompilationContext{map, variables, TextOutputAdapter{currentOutput}, test};
+           auto compilationContext = CompilationContext{
+             map,
+             variables,
+             TextOutputAdapter{currentOutput},
+             test,
+             std::move(cameraSnapshot)};
            m_currentRun =
              new CompilationRunner{std::move(compilationContext), profile, this};
            connect(

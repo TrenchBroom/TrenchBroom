@@ -23,6 +23,8 @@
 
 #include "ui/CompilationRun.h"
 
+#include <optional>
+
 class QLabel;
 class QPushButton;
 class QTextEdit;
@@ -77,6 +79,7 @@ private:
   void updateCompileButtons();
   void startCompilation(bool test);
   Result<void> runProfile(const mdl::CompilationProfile& profile, bool test);
+  std::optional<CompilationCameraSnapshot> currentCameraSnapshot() const;
   void stopCompilation();
   void closeEvent(QCloseEvent* event) override;
 private slots:

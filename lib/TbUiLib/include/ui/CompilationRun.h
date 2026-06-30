@@ -22,7 +22,9 @@
 #include <QObject>
 
 #include "Result.h"
+#include "ui/CompilationContext.h"
 
+#include <optional>
 #include <string>
 
 class QTextEdit;
@@ -55,11 +57,13 @@ public:
   Result<void> run(
     const mdl::CompilationProfile& profile,
     const mdl::Map& map,
-    QTextEdit* currentOutput);
+    QTextEdit* currentOutput,
+    std::optional<CompilationCameraSnapshot> cameraSnapshot = std::nullopt);
   Result<void> test(
     const mdl::CompilationProfile& profile,
     const mdl::Map& map,
-    QTextEdit* currentOutput);
+    QTextEdit* currentOutput,
+    std::optional<CompilationCameraSnapshot> cameraSnapshot = std::nullopt);
   void terminate();
 
 private:
@@ -68,6 +72,7 @@ private:
     const mdl::CompilationProfile& profile,
     const mdl::Map& map,
     QTextEdit* currentOutput,
+    std::optional<CompilationCameraSnapshot> cameraSnapshot,
     bool test);
 
 private:

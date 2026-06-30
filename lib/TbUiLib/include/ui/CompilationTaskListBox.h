@@ -82,6 +82,8 @@ class CompilationExportMapTaskEditor : public CompilationTaskEditorBase
 private:
   MultiCompletionLineEdit* m_targetEditor = nullptr;
   QCheckBox* m_stripTbProperties = nullptr;
+  QCheckBox* m_dropEntityAtCamera = nullptr;
+  QLineEdit* m_dropEntityClassname = nullptr;
 
 public:
   CompilationExportMapTaskEditor(
@@ -96,6 +98,8 @@ private:
 private slots:
   void targetSpecChanged(const QString& text);
   void stripTbPropertiesChanged(int state);
+  void dropEntityAtCameraChanged(int state);
+  void dropEntityClassnameChanged(const QString& text);
 };
 
 class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase

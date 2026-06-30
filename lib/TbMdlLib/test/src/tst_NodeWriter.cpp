@@ -25,6 +25,7 @@
 #include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/ExportOptions.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LockState.h"
@@ -40,6 +41,7 @@
 #include <fmt/format.h>
 
 #include <sstream>
+#include <string_view>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -757,6 +759,65 @@ TEST_CASE("NodeWriter")
 }
 )";
     CHECK_THAT(actual, MatchesGlob(expected));
+  }
+
+  SECTION("dropPointEntityAtCamera")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+
+    auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
+    auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+
+    auto* matchingPointEntityNode = new mdl::EntityNode{mdl::Entity{{
+      {"classname", "info_player_start"},
+      {"origin", "1 2 3"},
+    }}};
+    map.defaultLayer()->addChild(matchingPointEntityNode);
+
+    auto* otherPointEntityNode = new mdl::EntityNode{mdl::Entity{{
+      {"classname", "info_player_deathmatch"},
+      {"origin", "4 5 6"},
+    }}};
+    map.defaultLayer()->addChild(otherPointEntityNode);
+
+    auto* matchingBrushEntityNode =
+      new mdl::EntityNode{mdl::Entity{{{"classname", "info_player_start"}}}};
+    matchingBrushEntityNode->addChild(
+      new mdl::BrushNode{builder.createCube(64.0, "brushMaterial") | kdl::value()});
+    map.defaultLayer()->addChild(matchingBrushEntityNode);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{map, str};
+    writer.setExporting(true);
+    writer.setReplacementPointEntityAtCamera(mdl::ReplacementPointEntityAtCamera{
+      "info_player_start", vm::vec3d{16.0, 32.0, 48.0}, 90});
+    writer.writeMap(taskManager);
+
+    const auto actual = str.str();
+    const auto count = [&](const std::string_view str) {
+      auto result = size_t{0};
+      auto pos = size_t{0};
+      while ((pos = actual.find(str, pos)) != std::string::npos)
+      {
+        ++result;
+        pos += str.size();
+      }
+      return result;
+    };
+
+    CHECK(count(R"("classname" "info_player_start")") == 2u);
+    CHECK(actual.find(R"("origin" "1 2 3")") == std::string::npos);
+    CHECK(actual.find(R"("classname" "info_player_deathmatch")") != std::string::npos);
+    CHECK(actual.find("brushMaterial") != std::string::npos);
+
+    const auto classnamePos = actual.rfind(R"("classname" "info_player_start")");
+    const auto originPos = actual.rfind(R"("origin" "16 32 48")");
+    const auto anglePos = actual.rfind(R"("angle" "90")");
+    REQUIRE(classnamePos != std::string::npos);
+    REQUIRE(originPos != std::string::npos);
+    REQUIRE(anglePos != std::string::npos);
+    CHECK(classnamePos < originPos);
+    CHECK(originPos < anglePos);
   }
 
   SECTION("writeMapWithInheritedLock")
