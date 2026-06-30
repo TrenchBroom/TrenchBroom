@@ -44,6 +44,8 @@
 #include "kd/contracts.h"
 
 #include <algorithm>
+#include <string>
+#include <string_view>
 #include <unordered_set>
 #include <vector>
 
@@ -91,21 +93,39 @@ std::vector<mdl::Node*> collectSelectableChildren(
   return mdl::collectSelectableNodes(node->children(), editorContext);
 }
 
+bool canHandleLeftClick(
+  const InputState& inputState, const mdl::EditorContext& editorContext)
+{
+  return inputState.mouseButtonsPressed(MouseButtons::Left)
+         && editorContext.canChangeSelection();
+}
+
 bool handleClick(const InputState& inputState, const mdl::EditorContext& editorContext)
 {
-  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
-  {
-    return false;
-  }
-  if (!inputState.checkModifierKeys(
-        ModifierKeyPressed::DontCare,
-        ModifierKeyPressed::No,
-        ModifierKeyPressed::DontCare))
-  {
-    return false;
-  }
+  return canHandleLeftClick(inputState, editorContext)
+         && inputState.checkModifierKeys(
+           ModifierKeyPressed::DontCare,
+           ModifierKeyPressed::No,
+           ModifierKeyPressed::DontCare);
+}
 
-  return editorContext.canChangeSelection();
+void replaceOrExtendFaceSelection(
+  mdl::Map& map,
+  const InputState& inputState,
+  const std::vector<mdl::BrushFaceHandle>& faces,
+  std::string_view transactionName)
+{
+  auto transaction = mdl::Transaction{map, std::string{transactionName}};
+  if (!isMultiClick(inputState))
+  {
+    deselectAll(map);
+  }
+  else if (map.selection().hasNodes())
+  {
+    convertToFaceSelection(map);
+  }
+  selectBrushFaces(map, faces);
+  transaction.commit();
 }
 
 void adjustGrid(const InputState& inputState, mdl::Grid& grid)
@@ -380,21 +400,8 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       const auto& face = faceHandle->face();
       if (editorContext.selectable(*brushNode, face))
       {
-        if (isMultiClick(inputState))
-        {
-          if (map.selection().hasNodes())
-          {
-            convertToFaceSelection(map);
-          }
-          selectBrushFaces(map, mdl::toHandles(brushNode));
-        }
-        else
-        {
-          auto transaction = mdl::Transaction{map, "Select Brush Faces"};
-          deselectAll(map);
-          selectBrushFaces(map, mdl::toHandles(brushNode));
-          transaction.commit();
-        }
+        replaceOrExtendFaceSelection(
+          map, inputState, mdl::toHandles(brushNode), "Select Brush Faces");
       }
     }
   }
