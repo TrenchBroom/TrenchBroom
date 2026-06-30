@@ -65,6 +65,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Patches.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
@@ -1845,6 +1846,27 @@ bool MapWindow::canSnapVertices() const
   const auto& map = m_document->map();
   const auto& selection = map.selection();
   return !selection.allBrushes().empty();
+}
+
+void MapWindow::convertSelectionToPatches()
+{
+  if (canConvertSelectionToPatches())
+  {
+    auto& map = m_document->map();
+    mdl::convertSelectionToPatches(map, 3, 3);
+
+    if (!toolBox().controlPointToolActive())
+    {
+      toolBox().toggleControlPointTool();
+    }
+  }
+}
+
+bool MapWindow::canConvertSelectionToPatches() const
+{
+  const auto& map = m_document->map();
+  const auto& selection = map.selection();
+  return selection.hasAnyBrushFaces();
 }
 
 void MapWindow::toggleAlignmentLock()

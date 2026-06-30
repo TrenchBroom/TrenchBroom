@@ -530,6 +530,22 @@ TEST_CASE("scalar.contains")
   CER_CHECK_FALSE(contains(-0.1, 1.0, 0.0));
 }
 
+TEST_CASE("scalar.mean")
+{
+  CER_CHECK(mean(2.0) == 2.0);
+  CER_CHECK(mean(2.0, 4.0) == 3.0);
+  CER_CHECK(mean(1.0, 2.0, 3.0) == 2.0);
+  CER_CHECK(mean(2.0, 4.0, 6.0, 8.0) == 5.0);
+}
+
+TEST_CASE("scalar.variance")
+{
+  CER_CHECK(variance(2.0) == 0.0);
+  CER_CHECK(variance(2.0, 4.0) == 2.0);
+  CER_CHECK(variance(2.0, 2.0, 2.0) == 0.0);
+  CER_CHECK(variance(2.0, 4.0, 6.0, 8.0) == 20.0);
+}
+
 TEST_CASE("scalar.to_radians")
 {
   using c = constants<double>;

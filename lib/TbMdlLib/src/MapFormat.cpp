@@ -182,4 +182,24 @@ bool isParallelUVCoordSystem(const MapFormat format)
   }
 }
 
+bool hasPatchSupport(const MapFormat format)
+{
+  switch (format)
+  {
+  case MapFormat::Quake3_Valve:
+  case MapFormat::Quake3_Legacy:
+  case MapFormat::Quake3:
+    return true;
+  case MapFormat::Valve:
+  case MapFormat::Quake2_Valve:
+  case MapFormat::Standard:
+  case MapFormat::Quake2:
+  case MapFormat::Hexen2:
+  case MapFormat::Daikatana:
+  case MapFormat::Unknown:
+    return false;
+    switchDefault();
+  }
+}
+
 } // namespace tb::mdl

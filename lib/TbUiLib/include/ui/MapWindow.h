@@ -311,6 +311,9 @@ public:
   void snapVerticesToGrid();
   bool canSnapVertices() const;
 
+  void convertSelectionToPatches();
+  bool canConvertSelectionToPatches() const;
+
   void replaceMaterial();
 
   void toggleAlignmentLock();

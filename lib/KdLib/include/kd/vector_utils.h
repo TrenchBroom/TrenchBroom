@@ -550,6 +550,26 @@ std::vector<T, A> vec_sort(std::vector<T, A> v, const Compare& cmp = Compare())
 }
 
 /**
+ * Sorts the elements of the given vector in place and removes all duplicate values. A
+ * value is a duplicate if it is equivalent to its predecessor in the vector. Returns a
+ * vector with the remaining sorted elements.
+ *
+ * @tparam T the type of the vector elements
+ * @tparam A the vector's allocator type
+ * @tparam Compare the type of the comparator to use
+ * @param v the vector to sort and remove duplicates from
+ * @param cmp the comparator to use for sorting and for determining equivalence
+ */
+template <typename T, typename A, typename Compare = std::less<T>>
+void vec_sort_and_remove_duplicates(std::vector<T, A>& v, const Compare& cmp = Compare())
+{
+  std::sort(std::begin(v), std::end(v), cmp);
+  v.erase(
+    std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)),
+    std::end(v));
+}
+
+/**
  * Sorts the elements of the given vector and removes all duplicate values. A value is a
  * duplicate if it is equivalent to its predecessor in the vector. Returns a vector with
  * the remaining sorted elements.
@@ -563,13 +583,31 @@ std::vector<T, A> vec_sort(std::vector<T, A> v, const Compare& cmp = Compare())
  */
 template <typename T, typename A, typename Compare = std::less<T>>
 std::vector<T, A> vec_sort_and_remove_duplicates(
-  std::vector<T, A> v, const Compare& cmp = Compare())
+  std::vector<T, A>&& v, const Compare& cmp = Compare())
 {
-  std::sort(std::begin(v), std::end(v), cmp);
-  v.erase(
-    std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)),
-    std::end(v));
+  vec_sort_and_remove_duplicates(v, cmp);
   return v;
+}
+
+/**
+ * Sorts the elements of a copy of the given vector and removes all duplicate values. A
+ * value is a duplicate if it is equivalent to its predecessor in the vector. Returns a
+ * vector with the remaining sorted elements.
+ *
+ * @tparam T the type of the vector elements
+ * @tparam A the vector's allocator type
+ * @tparam Compare the type of the comparator to use
+ * @param v the vector to sort and remove duplicates from
+ * @param cmp the comparator to use for sorting and for determining equivalence
+ * @return a vector with the remaining sorted elements
+ */
+template <typename T, typename A, typename Compare = std::less<T>>
+std::vector<T, A> vec_sort_and_remove_duplicates(
+  const std::vector<T, A>& v, const Compare& cmp = Compare())
+{
+  auto x = v;
+  vec_sort_and_remove_duplicates(x, cmp);
+  return x;
 }
 
 /**

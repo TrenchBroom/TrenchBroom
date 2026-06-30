@@ -22,9 +22,41 @@
 #include "mdl/BezierPatch.h"
 
 #include <cstddef>
+#include <vector>
 
 namespace tb::mdl
 {
+class BrushFace;
+
+/**
+ * Creates one or more Bezier patches from the given brush face, each with the given
+ * number of control points per row and column.
+ *
+ * All control points of every returned patch lie on the boundary plane of the given face.
+ * The boundary vertices are reordered before clipping so that the first patch is as
+ * visually balanced (symmetric) as possible. The remaining vertices keep their relative
+ * boundary order.
+ *
+ * - If the face has 3 vertices, one degenerate (triangular) patch is returned.
+ * - If the face has 4 vertices, one patch is returned whose boundary exactly matches the
+ *   face boundary.
+ * - If the face has more than 4 vertices, the polygon is clipped into quads using only
+ *   boundary vertices, starting with (V[0],V[1],V[2],V[3]) and then repeatedly extending
+ *   outward by one vertex on each side of the previous quad's diagonal (the one side of
+ *   the quad that is not a boundary edge of the face):
+ *   (V[0],V[1],V[2],V[3]), (V[N-1],V[0],V[3],V[4]), (V[N-2],V[N-1],V[4],V[5]), ...
+ *   Each patch shares a diagonal (not a boundary edge) with its neighbor, so the patches
+ *   tile the polygon exactly, without overlap or gaps.
+ *   If the vertex count is odd, the leftover vertex becomes the apex of a degenerate
+ *   (triangular) patch closing the same diagonal as the last quad.
+ *
+ * @param face the brush face to convert
+ * @param pointRowCount the number of control point rows (must be odd and > 2)
+ * @param pointColumnCount the number of control point columns (must be odd and > 2)
+ * @return the created patches
+ */
+std::vector<BezierPatch> createPatch(
+  const BrushFace& face, size_t pointRowCount, size_t pointColumnCount);
 
 /**
  * Creates a new Bezier patch with the given number of control point rows and columns,

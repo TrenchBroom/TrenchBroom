@@ -18,10 +18,16 @@
  */
 
 #include "mdl/BezierPatch.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/MapFormat.h"
 #include "mdl/PatchUtils.h"
 
+#include "kd/result.h"
+
 #include "vm/approx.h"
+#include "vm/bbox.h"
 #include "vm/vec.h"
 
 #include <vector>
@@ -30,6 +36,262 @@
 
 namespace tb::mdl
 {
+
+TEST_CASE("createPatch")
+{
+  const auto worldBounds = vm::bbox3d{8192.0};
+  const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+  SECTION("n=4")
+  {
+    const auto brush = builder.createCube(64.0, "material") | kdl::value();
+
+    const auto faceIndex = brush.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+
+    const auto& face = brush.face(*faceIndex);
+
+    CHECK(
+      createPatch(face, 3, 3)
+      == std::vector<BezierPatch>{BezierPatch{
+        3,
+        3,
+        {
+          {32, -32, 32, 32, 32},
+          {0, -32, 32, 0, 32},
+          {-32, -32, 32, -32, 32},
+          {32, 0, 32, 32, 0},
+          {0, 0, 32, 0, 0},
+          {-32, 0, 32, -32, 0},
+          {32, 32, 32, 32, -32},
+          {0, 32, 32, 0, -32},
+          {-32, 32, 32, -32, -32},
+        },
+        "material"}});
+  }
+
+  SECTION("n=3")
+  {
+    const auto brush = builder.createBrush(
+                         std::vector<vm::vec3d>{
+                           {-4, 4, -8},
+                           {-4, -4, -8},
+                           {4, -4, -8},
+                           {-4, 4, 8},
+                           {-4, -4, 8},
+                           {4, -4, 8},
+                         },
+                         "material")
+                       | kdl::value();
+
+    const auto faceIndex = brush.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+
+    const auto& face = brush.face(*faceIndex);
+
+    CHECK(
+      createPatch(face, 3, 3)
+      == std::vector<BezierPatch>{BezierPatch{
+        3,
+        3,
+        {
+          {-4, -4, 8, -4, 4},
+          {-4, 0, 8, -4, 0},
+          {-4, 4, 8, -4, -4},
+          {0, -4, 8, 0, 4},
+          {0, -2, 8, 0, 2},
+          {0, 0, 8, 0, 0},
+          {4, -4, 8, 4, 4},
+          {4, -4, 8, 4, 4},
+          {4, -4, 8, 4, 4},
+        },
+        "material"}});
+  }
+
+  SECTION("n=5")
+  {
+    const auto brush = builder.createBrush(
+                         std::vector<vm::vec3d>{
+                           {-6, 2, -8},
+                           {-4, -4, -8},
+                           {2, -5, -8},
+                           {6, -1, -8},
+                           {1, 5, -8},
+                           {-6, 2, 8},
+                           {-4, -4, 8},
+                           {2, -5, 8},
+                           {6, -1, 8},
+                           {1, 5, 8},
+                         },
+                         "material")
+                       | kdl::value();
+
+    const auto faceIndex = brush.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+
+    const auto& face = brush.face(*faceIndex);
+
+    CHECK(
+      createPatch(face, 3, 3)
+      == std::vector<BezierPatch>{
+        BezierPatch{
+          3,
+          3,
+          {
+            {-4, -4, 8, -4, 4},
+            {-5, -1, 8, -5, 1},
+            {-6, 2, 8, -6, -2},
+            {1, -2.5, 8, 1, 2.5},
+            {-0.75, 0.5, 8, -0.75, -0.5},
+            {-2.5, 3.5, 8, -2.5, -3.5},
+            {6, -1, 8, 6, 1},
+            {3.5, 2, 8, 3.5, -2},
+            {1, 5, 8, 1, -5},
+          },
+          "material"},
+        BezierPatch{
+          3,
+          3,
+          {
+            {6, -1, 8, 6, 1},
+            {4, -3, 8, 4, 3},
+            {2, -5, 8, 2, 5},
+            {1, -2.5, 8, 1, 2.5},
+            {0, -3.5, 8, 0, 3.5},
+            {-1, -4.5, 8, -1, 4.5},
+            {-4, -4, 8, -4, 4},
+            {-4, -4, 8, -4, 4},
+            {-4, -4, 8, -4, 4},
+          },
+          "material"},
+      });
+  }
+
+  SECTION("n=6")
+  {
+    const auto brush = builder.createBrush(
+                         std::vector<vm::vec3d>{
+                           {-6, 0, -8},
+                           {-3, -5, -8},
+                           {3, -5, -8},
+                           {6, 0, -8},
+                           {3, 5, -8},
+                           {-3, 5, -8},
+                           {-6, 0, 8},
+                           {-3, -5, 8},
+                           {3, -5, 8},
+                           {6, 0, 8},
+                           {3, 5, 8},
+                           {-3, 5, 8},
+                         },
+                         "material")
+                       | kdl::value();
+
+    const auto faceIndex = brush.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+
+    const auto& face = brush.face(*faceIndex);
+
+    CHECK(
+      createPatch(face, 3, 3)
+      == std::vector<BezierPatch>{
+        BezierPatch{
+          3,
+          3,
+          {
+            {3, -5, 8, 3, 5},
+            {0, -5, 8, 0, 5},
+            {-3, -5, 8, -3, 5},
+            {0, 0, 8, 0, 0},
+            {-2.25, -1.25, 8, -2.25, 1.25},
+            {-4.5, -2.5, 8, -4.5, 2.5},
+            {-3, 5, 8, -3, -5},
+            {-4.5, 2.5, 8, -4.5, -2.5},
+            {-6, 0, 8, -6, 0},
+          },
+          "material"},
+        BezierPatch{
+          3,
+          3,
+          {
+            {6, 0, 8, 6, 0},
+            {4.5, -2.5, 8, 4.5, 2.5},
+            {3, -5, 8, 3, 5},
+            {4.5, 2.5, 8, 4.5, -2.5},
+            {2.25, 1.25, 8, 2.25, -1.25},
+            {0, 0, 8, 0, 0},
+            {3, 5, 8, 3, -5},
+            {0, 5, 8, 0, -5},
+            {-3, 5, 8, -3, -5},
+          },
+          "material"},
+      });
+  }
+
+  SECTION("n=6, irregular hexagon")
+  {
+    const auto brush = builder.createBrush(
+                         std::vector<vm::vec3d>{
+                           {-208, -448, 16},
+                           {-256, -400, 16},
+                           {-208, -448, 32},
+                           {-256, -400, 32},
+                           {-128, -448, 16},
+                           {-128, -368, 16},
+                           {-128, -368, 32},
+                           {-128, -448, 32},
+                           {-256, -320, 16},
+                           {-256, -320, 32},
+                           {-176, -320, 16},
+                           {-176, -320, 32},
+                         },
+                         "material")
+                       | kdl::value();
+
+    const auto topFaceIndex = brush.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(topFaceIndex);
+
+    const auto& topFace = brush.face(*topFaceIndex);
+
+    // The two patches must share the diagonal between (-208,-448,32) and (-176,-320,32),
+    // not a boundary edge, so that together they exactly tile the hexagonal face without
+    // overlapping or leaving a gap.
+    CHECK(
+      createPatch(topFace, 3, 3)
+      == std::vector<BezierPatch>{
+        BezierPatch{
+          3,
+          3,
+          {
+            {-208, -448, 32, -208, 448},
+            {-232, -424, 32, -232, 424},
+            {-256, -400, 32, -256, 400},
+            {-192, -384, 32, -192, 384},
+            {-224, -372, 32, -224, 372},
+            {-256, -360, 32, -256, 360},
+            {-176, -320, 32, -176, 320},
+            {-216, -320, 32, -216, 320},
+            {-256, -320, 32, -256, 320},
+          },
+          "material"},
+        BezierPatch{
+          3,
+          3,
+          {
+            {-128, -448, 32, -128, 448},
+            {-168, -448, 32, -168, 448},
+            {-208, -448, 32, -208, 448},
+            {-128, -408, 32, -128, 408},
+            {-160, -396, 32, -160, 396},
+            {-192, -384, 32, -192, 384},
+            {-128, -368, 32, -128, 368},
+            {-152, -344, 32, -152, 344},
+            {-176, -320, 32, -176, 320},
+          },
+          "material"},
+      });
+  }
+}
 
 TEST_CASE("resamplePatch")
 {
