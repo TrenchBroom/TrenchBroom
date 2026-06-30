@@ -30,21 +30,15 @@ template <typename T, size_t C>
 vec<T, C> evaluate_quadratic_bezier_surface(
   const std::array<std::array<vec<T, C>, 3>, 3>& controlPoints, const T u, const T v)
 {
-  const auto bernsteinPolynomial_0 = [](const auto x) {
-    return static_cast<T>(1) - static_cast<T>(2) * x + (x * x);
-  };
-
-  const auto bernsteinPolynomial_1 = [](const auto x) {
-    return static_cast<T>(2) * (x - (x * x));
-  };
-
-  const auto bernsteinPolynomial_2 = [](const auto x) { return x * x; };
+  const auto bernstein_0 = [](const auto x) { return T(1) - T(2) * x + (x * x); };
+  const auto bernstein_1 = [](const auto x) { return T(2) * (x - (x * x)); };
+  const auto bernstein_2 = [](const auto x) { return x * x; };
 
   const auto interpolate = [&](const auto x, const std::array<vec<T, C>, 3>& p) {
     auto result = vec<T, C>{};
-    result = result + bernsteinPolynomial_0(x) * p[0];
-    result = result + bernsteinPolynomial_1(x) * p[1];
-    result = result + bernsteinPolynomial_2(x) * p[2];
+    result = result + bernstein_0(x) * p[0];
+    result = result + bernstein_1(x) * p[1];
+    result = result + bernstein_2(x) * p[2];
     return result;
   };
 

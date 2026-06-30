@@ -261,29 +261,6 @@ static std::vector<SurfaceControlPoints> collectAllSurfaceControlPoints(
   return result;
 }
 
-template <typename O>
-void evaluateSurface(
-  const SurfaceControlPoints& surfaceControlPoints,
-  const size_t subdivisionsPerSurface,
-  const bool isLastCol,
-  const bool isLastRow,
-  O out)
-{
-  const auto maxRow = isLastRow ? subdivisionsPerSurface + 1u : subdivisionsPerSurface;
-  const auto maxCol = isLastCol ? subdivisionsPerSurface + 1u : subdivisionsPerSurface;
-
-  for (size_t row = 0u; row < maxRow; ++row)
-  {
-    const auto v = static_cast<double>(row) / static_cast<double>(subdivisionsPerSurface);
-    for (size_t col = 0u; col < maxCol; ++col)
-    {
-      const auto u =
-        static_cast<double>(col) / static_cast<double>(subdivisionsPerSurface);
-      out = vm::evaluate_quadratic_bezier_surface(surfaceControlPoints, u, v);
-    }
-  }
-}
-
 std::vector<BezierPatch::Point> BezierPatch::evaluate(
   const size_t subdivisionsPerSurface) const
 {
@@ -348,19 +325,24 @@ std::vector<BezierPatch::Point> BezierPatch::evaluate(
   value of v
   */
 
+  const auto getSurfaceIndex = [&](const auto gridIndex) {
+    return (gridIndex > 0u ? gridIndex - 1u : gridIndex) / quadsPerSurfaceSide;
+  };
+
+  const auto getSampleValue = [&](const auto gridIndex, const auto surfaceIndex) {
+    return double(gridIndex - surfaceIndex * quadsPerSurfaceSide)
+           / double(quadsPerSurfaceSide);
+  };
+
   for (size_t gridRow = 0u; gridRow < gridPointRowCount; ++gridRow)
   {
-    const size_t surfaceRow =
-      (gridRow > 0u ? gridRow - 1u : gridRow) / quadsPerSurfaceSide;
-    const double v = static_cast<double>(gridRow - surfaceRow * quadsPerSurfaceSide)
-                     / static_cast<double>(quadsPerSurfaceSide);
+    const auto surfaceRow = getSurfaceIndex(gridRow);
+    const auto v = getSampleValue(gridRow, surfaceRow);
 
     for (size_t gridCol = 0u; gridCol < gridPointColumnCount; ++gridCol)
     {
-      const size_t surfaceCol =
-        (gridCol > 0u ? gridCol - 1u : gridCol) / quadsPerSurfaceSide;
-      const double u = static_cast<double>(gridCol - surfaceCol * quadsPerSurfaceSide)
-                       / static_cast<double>(quadsPerSurfaceSide);
+      const auto surfaceCol = getSurfaceIndex(gridCol);
+      const auto u = getSampleValue(gridCol, surfaceCol);
 
       const auto& surfaceControlPoints =
         allSurfaceControlPoints[surfaceRow * surfaceColumnCount() + surfaceCol];
@@ -370,6 +352,25 @@ std::vector<BezierPatch::Point> BezierPatch::evaluate(
   }
 
   return grid;
+}
+
+BezierPatch::Point BezierPatch::evaluateAt(const double u, const double v) const
+{
+  contract_pre(u >= 0.0 && u <= 1.0);
+  contract_pre(v >= 0.0 && v <= 1.0);
+
+  const auto scaledU = u * double(surfaceColumnCount());
+  const auto scaledV = v * double(surfaceRowCount());
+
+  const auto surfaceCol = std::min(size_t(scaledU), surfaceColumnCount() - 1u);
+  const auto surfaceRow = std::min(size_t(scaledV), surfaceRowCount() - 1u);
+
+  const auto localU = scaledU - double(surfaceCol);
+  const auto localV = scaledV - double(surfaceRow);
+
+  const auto surfaceControlPoints = collectSurfaceControlPoints(
+    m_controlPoints, m_pointColumnCount, surfaceRow, surfaceCol);
+  return vm::evaluate_quadratic_bezier_surface(surfaceControlPoints, localU, localV);
 }
 
 } // namespace tb::mdl

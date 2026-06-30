@@ -19,21 +19,34 @@
 
 #pragma once
 
-#include "vm/mat.h"
-#include "vm/vec.h"
+#include <QWidget>
 
-#include <cstddef>
-#include <vector>
+#include "NotifierConnection.h"
 
-namespace tb::mdl
+class QSpinBox;
+
+namespace tb::ui
 {
-class Map;
+class MapDocument;
 
-bool resamplePatches(Map& map, size_t pointRowCount, size_t pointColumnCount);
+class ControlPointToolPage : public QWidget
+{
+  Q_OBJECT
+private:
+  MapDocument& m_document;
 
-bool transformControlPoints(
-  Map& map,
-  const std::vector<vm::vec3d>& controlPointPositions,
-  const vm::mat4x4d& transform);
+  QSpinBox* m_rows = nullptr;
+  QSpinBox* m_cols = nullptr;
 
-} // namespace tb::mdl
+  NotifierConnection m_notifierConnection;
+
+public:
+  explicit ControlPointToolPage(MapDocument& document, QWidget* parent = nullptr);
+
+private:
+  void connectObservers();
+  void updateControls();
+  void updateControlPoints();
+};
+
+} // namespace tb::ui

@@ -50,6 +50,8 @@ public:
   std::string actionName() const override;
 
 private:
+  QWidget* doCreatePage(QWidget* parent) override;
+
   void addHandles(const std::vector<mdl::Node*>& nodes) override;
   void removeHandles(const std::vector<mdl::Node*>& nodes) override;
 };

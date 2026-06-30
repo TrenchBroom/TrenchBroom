@@ -47,6 +47,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Console.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ContainerBar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Contracts.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlListBox.cpp
@@ -280,6 +281,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Console.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointToolController.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointToolPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ContainerBar.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Contracts.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlListBox.h

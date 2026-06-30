@@ -104,6 +104,16 @@ public: // control points:
     const std::set<vm::vec3d>& positions, const vm::mat4x4d& transformation);
 
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
+
+  /**
+   * Evaluates the surface at the given normalized parameters, which range over the
+   * whole patch (as opposed to a single 3x3 surface).
+   *
+   * @param u the column parameter, must be in [0, 1]
+   * @param v the row parameter, must be in [0, 1]
+   * @return the point on the surface at (u, v)
+   */
+  Point evaluateAt(double u, double v) const;
 };
 
 } // namespace mdl
