@@ -59,16 +59,19 @@ for /f "tokens=1" %%A in ('tasklist /FI "PID eq %PID%" ^| findstr /R "^[0-9]"') 
 
 echo Process with PID %PID% has terminated.
 
-:: Delete all files and subfolders in the target folder
-echo Deleting files and subfolders in "%TARGET%"...
-rd /s /q "%TARGET%"
+:: Delete files installed by the previous version from the target folder
+echo Deleting files installed by the previous version from "%TARGET%"...
+rem TB_DELETE_INSTALLED_FILES
+echo.
 
 :: Copy the contents of the replacement folder to the target
-echo Replacing the contents of "%TARGET%" with "%REPLACEMENT%"...
+echo Installing updated files from "%REPLACEMENT%" to "%TARGET%"...
 xcopy "%REPLACEMENT%\*" "%TARGET%\" /e /h /y
+echo.
 
-echo Deleting files and subfolders in "%REPLACEMENT%"...
+echo Deleting "%REPLACEMENT%"...
 rd /s /q "%REPLACEMENT%"
+echo.
 
 echo Operation completed successfully.
 

@@ -105,20 +105,20 @@ void configureProcess(
     // we need to run cmd.exe from powershell with the RunAs verb to ask for admin rights
     process.setProgram("powershell");
 
-    // pass /c and the script path to cmd.exe in order to run the installer script
-    arguments.insert(0, "/c");
-    arguments.insert(1, scriptPath);
-
-    // surround each argument with quotation marks
-    for (auto& argument : arguments)
+    auto commandLine = QString{R"("%1")"}.arg(scriptPath);
+    for (const auto& argument : arguments)
     {
-      argument = QString{R"("%1")"}.arg(argument);
+      commandLine += QString{R"( "%1")"}.arg(argument);
     }
+    commandLine += QString{R"( >> "%1" 2>&1)"}.arg(logFilePath);
+
+    const auto cmdArguments =
+      QStringList{"/d", "/s", "/c", QString{R"("%1")"}.arg(commandLine)};
 
     const auto command =
       QString{
         R"(Start-Process -FilePath "cmd.exe" -ArgumentList '%1' -WindowStyle Hidden -Verb RunAs)"}
-        .arg(arguments.join(" "));
+        .arg(cmdArguments.join(" ").replace("'", "''"));
     process.setArguments(QStringList{"-Command", command});
   }
   else
