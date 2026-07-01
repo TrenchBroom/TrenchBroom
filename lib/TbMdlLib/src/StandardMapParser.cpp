@@ -457,7 +457,7 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
   case MapFormat::Quake3:
     if (primitive)
     {
-      parsePrimitiveFace(status);
+      parseBrushPrimitiveFace(status);
     }
     else
     {
@@ -629,7 +629,7 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
     location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
-void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
+void StandardMapParser::parseBrushPrimitiveFace(ParserStatus& status)
 {
   /* const auto line = */ m_tokenizer.line();
 

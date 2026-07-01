@@ -135,7 +135,7 @@ private:
   void parseHexen2Face(ParserStatus& status);
   void parseDaikatanaFace(ParserStatus& status);
   void parseValveFace(ParserStatus& status);
-  void parsePrimitiveFace(ParserStatus& status);
+  void parseBrushPrimitiveFace(ParserStatus& status);
 
   void parsePatch(ParserStatus& status, const FileLocation& startLocation);
 
