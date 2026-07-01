@@ -340,7 +340,7 @@ void MapFileSerializer::doBeginFile(
                    return std::visit(
                      kdl::overload(
                        [&](const BrushNode* brushNode) {
-                         return Entry{brushNode, writeBrushFaces(brushNode->brush())};
+                         return Entry{brushNode, writeBrush(brushNode->brush())};
                        },
                        [&](const PatchNode* patchNode) {
                          return Entry{patchNode, writePatch(patchNode->patch())};
@@ -448,7 +448,7 @@ size_t MapFileSerializer::startLine()
 /**
  * Threadsafe
  */
-MapFileSerializer::PrecomputedString MapFileSerializer::writeBrushFaces(
+MapFileSerializer::PrecomputedString MapFileSerializer::writeBrush(
   const Brush& brush) const
 {
   auto stream = std::stringstream{};

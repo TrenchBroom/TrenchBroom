@@ -79,7 +79,7 @@ private:
   size_t startLine();
 
 private: // threadsafe
-  PrecomputedString writeBrushFaces(const Brush& brush) const;
+  PrecomputedString writeBrush(const Brush& brush) const;
   virtual void writeBrushFace(std::ostream& stream, const BrushFace& face) const = 0;
 
   PrecomputedString writePatch(const BezierPatch& patch) const;
