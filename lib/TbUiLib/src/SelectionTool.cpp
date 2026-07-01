@@ -36,6 +36,7 @@
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/WorldNode.h"
 #include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
@@ -44,6 +45,8 @@
 #include "kd/contracts.h"
 
 #include <algorithm>
+#include <string>
+#include <string_view>
 #include <unordered_set>
 #include <vector>
 
@@ -80,6 +83,12 @@ bool isMultiClick(const InputState& inputState)
   return inputState.modifierKeysDown(ModifierKeys::CtrlCmd);
 }
 
+bool isCoplanarFaceClick(const InputState& inputState)
+{
+  return inputState.checkModifierKeys(
+    ModifierKeyPressed::DontCare, ModifierKeyPressed::Yes, ModifierKeyPressed::Yes);
+}
+
 const mdl::Hit& firstHit(const InputState& inputState, const mdl::HitFilter& hitFilter)
 {
   return inputState.pickResult().first(hitFilter);
@@ -91,21 +100,39 @@ std::vector<mdl::Node*> collectSelectableChildren(
   return mdl::collectSelectableNodes(node->children(), editorContext);
 }
 
+bool canHandleLeftClick(
+  const InputState& inputState, const mdl::EditorContext& editorContext)
+{
+  return inputState.mouseButtonsPressed(MouseButtons::Left)
+         && editorContext.canChangeSelection();
+}
+
 bool handleClick(const InputState& inputState, const mdl::EditorContext& editorContext)
 {
-  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
-  {
-    return false;
-  }
-  if (!inputState.checkModifierKeys(
-        ModifierKeyPressed::DontCare,
-        ModifierKeyPressed::No,
-        ModifierKeyPressed::DontCare))
-  {
-    return false;
-  }
+  return canHandleLeftClick(inputState, editorContext)
+         && inputState.checkModifierKeys(
+           ModifierKeyPressed::DontCare,
+           ModifierKeyPressed::No,
+           ModifierKeyPressed::DontCare);
+}
 
-  return editorContext.canChangeSelection();
+void replaceOrExtendFaceSelection(
+  mdl::Map& map,
+  const InputState& inputState,
+  const std::vector<mdl::BrushFaceHandle>& faces,
+  std::string_view transactionName)
+{
+  auto transaction = mdl::Transaction{map, std::string{transactionName}};
+  if (!isMultiClick(inputState))
+  {
+    deselectAll(map);
+  }
+  else if (map.selection().hasNodes())
+  {
+    convertToFaceSelection(map);
+  }
+  selectBrushFaces(map, faces);
+  transaction.commit();
 }
 
 void adjustGrid(const InputState& inputState, mdl::Grid& grid)
@@ -366,6 +393,29 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
   auto& map = m_document.map();
   const auto& editorContext = map.editorContext();
 
+  // Shift+Alt double click flood fills the clicked face's coplanar surface. Alt is
+  // held here, which handleClick() rejects, so we have to catch it before that.
+  if (isCoplanarFaceClick(inputState))
+  {
+    if (!canHandleLeftClick(inputState, editorContext))
+    {
+      return false;
+    }
+
+    const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
+    {
+      if (editorContext.selectable(*faceHandle->node(), faceHandle->face()))
+      {
+        const auto region = mdl::collectConnectedCoplanarFaces(
+          *faceHandle, editorContext, map.worldNode().nodeTree());
+        replaceOrExtendFaceSelection(
+          map, inputState, region, "Select Connected Coplanar Faces");
+      }
+    }
+    return true;
+  }
+
   if (!handleClick(inputState, editorContext))
   {
     return false;
@@ -380,21 +430,8 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       const auto& face = faceHandle->face();
       if (editorContext.selectable(*brushNode, face))
       {
-        if (isMultiClick(inputState))
-        {
-          if (map.selection().hasNodes())
-          {
-            convertToFaceSelection(map);
-          }
-          selectBrushFaces(map, mdl::toHandles(brushNode));
-        }
-        else
-        {
-          auto transaction = mdl::Transaction{map, "Select Brush Faces"};
-          deselectAll(map);
-          selectBrushFaces(map, mdl::toHandles(brushNode));
-          transaction.commit();
-        }
+        replaceOrExtendFaceSelection(
+          map, inputState, mdl::toHandles(brushNode), "Select Brush Faces");
       }
     }
   }

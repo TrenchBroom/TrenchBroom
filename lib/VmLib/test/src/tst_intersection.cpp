@@ -24,6 +24,8 @@
 #include "vm/approx.h"
 #include "vm/intersection.h"
 #include "vm/quat.h"
+#include "vm/segment.h"
+#include "vm/segment_io.h" // IWYU pragma: keep
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
@@ -31,6 +33,7 @@
 #include <array>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace vm
 {
@@ -509,5 +512,49 @@ TEST_CASE("intersection.intersect_bbox_polygon")
     // polygon edge intersects bbox
     CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
   }
+}
+
+TEST_CASE("intersection.segments_overlap")
+{
+  static constexpr auto epsilon = constants<double>::almost_zero();
+
+  const auto [s1, s2, expectedOverlap] = GENERATE(table<segment3d, segment3d, bool>({
+    // [==] [==] // disjoint
+    {{{0, 0, 0}, {3, 0, 0}}, {{4, 0, 0}, {7, 0, 0}}, false},
+    // [==][==] // abutting
+    {{{0, 0, 0}, {3, 0, 0}}, {{3, 0, 0}, {6, 0, 0}}, false},
+    // [==][==] // abutting, swapped
+    {{{0, 0, 0}, {3, 0, 0}}, {{-2, 0, 0}, {0, 0, 0}}, false},
+    // [==[]==] // overlap
+    {{{0, 0, 0}, {3, 0, 0}}, {{2, 0, 0}, {5, 0, 0}}, true},
+    // [==[]==] // overlap, swapped
+    {{{0, 0, 0}, {3, 0, 0}}, {{-1, 0, 0}, {2, 0, 0}}, true},
+    // [=[==]=] // s1 contains s2, no coincident ends
+    {{{0, 0, 0}, {3, 0, 0}}, {{1, 0, 0}, {2, 0, 0}}, true},
+    // [=[==]=] // s2 contains s1, no coincident ends
+    {{{0, 0, 0}, {3, 0, 0}}, {{-1, 0, 0}, {4, 0, 0}}, true},
+    // [=[===] // s1 contains s2, right ends coincide
+    {{{0, 0, 0}, {3, 0, 0}}, {{1, 0, 0}, {3, 0, 0}}, true},
+    // [===]=] // s1 contains s2, left ends coincide
+    {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 0}, {2, 0, 0}}, true},
+    // [===] // s1 and s2 coincide
+    {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 0}, {3, 0, 0}}, true},
+
+    // [==[]==] // overlap, but offset
+    {{{0, 0, 0}, {3, 0, 0}}, {{2, 0, 1}, {5, 0, 1}}, false},
+    // [===] // overlap, but crossing
+    {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 1}, {3, 0, -1}}, false},
+
+    // [==[]==] // overlap by 2* epsilon, just above threshold
+    {{{0, 0, 0}, {3, 0, 0}}, {{3 - 2 * epsilon, 0, 0}, {6 - 2 * epsilon, 0, 0}}, true},
+    // [==[]==] // overlap by epsilon, exactly at threshold
+    {{{0, 0, 0}, {3, 0, 0}}, {{3 - epsilon, 0, 0}, {6 - epsilon, 0, 0}}, false},
+    // [==[]==] // overlap by epsilon/2, just below threshold
+    {{{0, 0, 0}, {3, 0, 0}}, {{3 - epsilon / 2, 0, 0}, {6 - epsilon / 2, 0, 0}}, false},
+  }));
+
+  CAPTURE(s1, s2);
+
+  CHECK(segments_overlap(s1, s2, epsilon) == expectedOverlap);
 }
 } // namespace vm

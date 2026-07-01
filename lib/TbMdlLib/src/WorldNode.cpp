@@ -79,7 +79,7 @@ MapFormat WorldNode::mapFormat() const
   return m_mapFormat;
 }
 
-const WorldNode::NodeTree& WorldNode::nodeTree() const
+const NodeTree& WorldNode::nodeTree() const
 {
   return *m_nodeTree;
 }

@@ -635,4 +635,150 @@ TEST_CASE("ModelUtils.filterNodes")
   }
 }
 
+TEST_CASE("ModelUtils.collectConnectedCoplanarFaces")
+{
+  constexpr auto worldBounds = vm::bbox3d{8192.0};
+  constexpr auto mapFormat = MapFormat::Standard;
+  const auto builder = BrushBuilder{mapFormat, worldBounds};
+
+  auto worldNode = WorldNode{{}, {}, mapFormat};
+  auto editorContext = EditorContext{};
+
+  // The flood finds adjacent brushes by querying the world's node tree by bounds rather
+  // than scanning the whole map.
+  const auto& nodeTree = worldNode.nodeTree();
+
+  // Boxes are 64 tall sitting on z=0, so every top face lands on the same plane (z=64).
+  // Laying them out in xy makes the coplanar regions easy to reason about.
+  const auto boxBounds = [&](const vm::bbox3d& bounds) {
+    auto* node = new BrushNode{builder.createCuboid(bounds, "material") | kdl::value()};
+    worldNode.defaultLayer()->addChild(node);
+    return node;
+  };
+
+  const auto box = [&](
+                     const double x0, const double y0, const double x1, const double y1) {
+    return boxBounds(vm::bbox3d{{x0, y0, 0}, {x1, y1, 64}});
+  };
+
+  const auto topFace = [](auto* node) {
+    return BrushFaceHandle{node, *node->brush().findFace(vm::vec3d{0, 0, 1})};
+  };
+
+  SECTION("Single cube selects only the clicked face")
+  {
+    auto* a = box(0, 0, 64, 64);
+    const auto region =
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+  }
+
+  SECTION("Two boxes sharing a wall select both coplanar top faces")
+  {
+    auto* a = box(0, 0, 64, 64);
+    auto* b = box(64, 0, 128, 64);
+    const auto region =
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+    CHECK_THAT(
+      region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
+  }
+
+  SECTION("Three boxes in a row select all three top faces")
+  {
+    auto* a = box(0, 0, 64, 64);
+    auto* b = box(64, 0, 128, 64);
+    auto* c = box(128, 0, 192, 64);
+
+    const auto region =
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+    CHECK_THAT(
+      region,
+      UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b), topFace(c)}));
+  }
+
+  SECTION("Traversal stops at a perpendicular face")
+  {
+    auto* a = box(0, 0, 64, 64);
+    // A wall standing on a's +Y edge: it shares that edge but its faces are perpendicular
+    // to a's top face, so none of them are coplanar.
+    boxBounds(vm::bbox3d{{0, 64, 64}, {64, 128, 128}});
+
+    const auto region =
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+
+    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+  }
+
+  SECTION("T-junction with partial edge overlap is connected")
+  {
+    auto* a = box(0, 0, 64, 64);
+    // b touches only part of a's +X edge (y in [16, 48]).
+    auto* b = box(64, 16, 128, 48);
+    const auto region =
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+    CHECK_THAT(
+      region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
+  }
+
+  SECTION("Vertex-only contact is not connected")
+  {
+    auto* a = box(0, 0, 64, 64);
+    // b touches a only at the single corner (64, 64).
+    box(64, 64, 128, 128);
+    const auto region =
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+  }
+
+  SECTION("A gap between coplanar faces is not connected")
+  {
+    auto* a = box(0, 0, 64, 64);
+    // b is coplanar but separated from a by a 16 unit gap.
+    box(80, 0, 144, 64);
+    const auto region =
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+  }
+
+  SECTION("A hidden or locked brush does not bridge the region")
+  {
+    auto* a = box(0, 0, 64, 64);
+    auto* b = box(64, 0, 128, 64);
+    auto* c = box(128, 0, 192, 64);
+
+    // With b selectable the whole row is connected.
+    CHECK_THAT(
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree),
+      UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b), topFace(c)}));
+
+    // Locking b makes it unselectable, so it neither gets selected nor bridges a to c.
+    b->setLockState(LockState::Locked);
+    const auto region =
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+  }
+
+  SECTION("A far-away coplanar cluster is not selected")
+  {
+    auto* a = box(0, 0, 64, 64);
+    auto* b = box(64, 0, 128, 64);
+
+    // c and far form their own connected, coplanar cluster far across the map; the chain
+    // back to the a-b row is broken by a wide gap.
+    auto* c = box(4096, 0, 4160, 64);
+    auto* far = box(4160, 0, 4224, 64);
+
+    // Flooding from that cluster selects far, so it is a face that would be selected if
+    // the flood ever reached it.
+    CHECK_THAT(
+      collectConnectedCoplanarFaces(topFace(c), editorContext, nodeTree),
+      UnorderedEquals(std::vector<BrushFaceHandle>{topFace(c), topFace(far)}));
+
+    // Flooding from the a-b row never crosses the gap, so far stays out of the region.
+    CHECK_THAT(
+      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree),
+      UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
+  }
+}
+
 } // namespace tb::mdl

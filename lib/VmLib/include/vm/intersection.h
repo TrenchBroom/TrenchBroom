@@ -27,6 +27,7 @@
 #include "vm/plane.h"
 #include "vm/ray.h"
 #include "vm/scalar.h"
+#include "vm/segment.h"
 #include "vm/util.h"
 #include "vm/vec.h"
 
@@ -592,6 +593,48 @@ constexpr std::optional<T> intersect_line_line(const line<T, 2>& l1, const line<
   }
 
   return std::nullopt;
+}
+
+/**
+ * Checks whether the given segments are collinear and overlap in more than a single
+ * point, i.e. they share a stretch of their common line rather than just touching at an
+ * end.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first segment
+ * @param rhs the second segment
+ * @param epsilon an epsilon value
+ * @return true if the segments are collinear and overlap by more than the given epsilon,
+ * and false otherwise
+ */
+template <typename T, size_t S>
+bool segments_overlap(const segment<T, S>& lhs, const segment<T, S>& rhs, const T epsilon)
+{
+  const auto axis = lhs.end() - lhs.start();
+  const auto length = vm::length(axis);
+  if (length < epsilon)
+  {
+    return false;
+  }
+
+  const auto direction = axis / length;
+  const auto project = [&](const vec<T, S>& p) {
+    return dot(p - lhs.start(), direction);
+  };
+  const auto on_line = [&](const vec<T, S>& p, const T t) {
+    return is_equal(p, lhs.start() + direction * t, epsilon);
+  };
+
+  const auto t0 = project(rhs.start());
+  const auto t1 = project(rhs.end());
+  if (!on_line(rhs.start(), t0) || !on_line(rhs.end(), t1))
+  {
+    return false;
+  }
+
+  const auto overlap = min(length, max(t0, t1)) - max(T(0), min(t0, t1));
+  return overlap > epsilon;
 }
 
 /**
