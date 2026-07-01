@@ -375,16 +375,6 @@ void StandardMapParser::parseObject(ParserStatus& status)
   m_tokenizer.nextToken(QuakeMapToken::CBrace);
 }
 
-void StandardMapParser::parseBrushPrimitive(
-  ParserStatus& status, const FileLocation& startLocation)
-{
-  auto token = m_tokenizer.nextToken(QuakeMapToken::String);
-  expect(BrushPrimitiveId, token);
-  m_tokenizer.nextToken(QuakeMapToken::OBrace);
-  parseBrush(status, startLocation, true);
-  m_tokenizer.nextToken(QuakeMapToken::CBrace);
-}
-
 void StandardMapParser::parseBrush(
   ParserStatus& status, const FileLocation& startLocation, const bool primitive)
 {
@@ -428,6 +418,16 @@ void StandardMapParser::parseBrush(
       QuakeMapToken::Comment,
       QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof);
   }
+}
+
+void StandardMapParser::parseBrushPrimitive(
+  ParserStatus& status, const FileLocation& startLocation)
+{
+  auto token = m_tokenizer.nextToken(QuakeMapToken::String);
+  expect(BrushPrimitiveId, token);
+  m_tokenizer.nextToken(QuakeMapToken::OBrace);
+  parseBrush(status, startLocation, true);
+  m_tokenizer.nextToken(QuakeMapToken::CBrace);
 }
 
 void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
