@@ -56,7 +56,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const override
+  void writeBrushFace(std::ostream& stream, const BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
@@ -150,7 +150,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const override
+  void writeBrushFace(std::ostream& stream, const BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
@@ -184,7 +184,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const override
+  void writeBrushFace(std::ostream& stream, const BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeValveMaterialInfo(stream, face);
@@ -211,7 +211,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const override
+  void writeBrushFace(std::ostream& stream, const BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
@@ -247,7 +247,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const override
+  void writeBrushFace(std::ostream& stream, const BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
@@ -265,7 +265,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const override
+  void writeBrushFace(std::ostream& stream, const BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeValveMaterialInfo(stream, face);
@@ -408,7 +408,7 @@ void MapFileSerializer::doBrush(const BrushNode& brushNode)
 void MapFileSerializer::doBrushFace(const BrushFace& face)
 {
   const size_t lines = 1u;
-  doWriteBrushFace(m_stream, face);
+  writeBrushFace(m_stream, face);
   face.setFilePosition(m_line, lines);
   m_line += lines;
 }
@@ -454,7 +454,7 @@ MapFileSerializer::PrecomputedString MapFileSerializer::writeBrushFaces(
   auto stream = std::stringstream{};
   for (const auto& face : brush.faces())
   {
-    doWriteBrushFace(stream, face);
+    writeBrushFace(stream, face);
   }
   return {stream.str(), brush.faces().size()};
 }
