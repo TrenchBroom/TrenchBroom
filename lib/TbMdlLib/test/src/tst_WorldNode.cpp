@@ -46,7 +46,7 @@ using namespace Catch::Matchers;
 TEST_CASE("WorldNodeTest.canAddChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   const auto worldNode = WorldNode{{}, {}, mapFormat};
   auto layerNode = LayerNode{Layer{"layer"}};
@@ -73,7 +73,7 @@ TEST_CASE("WorldNodeTest.canAddChild")
 TEST_CASE("WorldNodeTest.canRemoveChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   const auto worldNode = WorldNode{{}, {}, mapFormat};
   auto layerNode = LayerNode{Layer{"layer"}};
@@ -101,7 +101,7 @@ TEST_CASE("WorldNodeTest.canRemoveChild")
 TEST_CASE("WorldNodeTest.nodeTreeUpdates")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto* layerNode = new LayerNode{Layer{"layer"}};
@@ -250,7 +250,7 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates")
 TEST_CASE("WorldNodeTest.rebuildNodeTree")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto* layerNode = new LayerNode{Layer{"layer"}};
@@ -291,7 +291,7 @@ TEST_CASE("WorldNodeTest.rebuildNodeTree")
 TEST_CASE("WorldNodeTest.disableNodeTreeUpdates")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto* layerNode = new LayerNode{Layer{"layer"}};

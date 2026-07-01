@@ -354,7 +354,6 @@ std::unique_ptr<NodeSerializer> MapFileSerializer::create(
     return std::make_unique<QuakeFileSerializer>(stream);
   case MapFormat::Quake2:
   case MapFormat::Quake3_Legacy:
-  case MapFormat::Quake3:
     return std::make_unique<Quake2FileSerializer>(stream);
   case MapFormat::Quake3_BrushPrimitives:
     return std::make_unique<Quake3FileSerializer>(stream);

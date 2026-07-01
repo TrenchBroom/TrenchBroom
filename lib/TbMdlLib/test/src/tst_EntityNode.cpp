@@ -51,7 +51,7 @@ namespace tb::mdl
 TEST_CASE("EntityNodeTest.canAddChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto layerNode = LayerNode{Layer{"layer"}};
@@ -78,7 +78,7 @@ TEST_CASE("EntityNodeTest.canAddChild")
 TEST_CASE("EntityNodeTest.canRemoveChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   const auto worldNode = WorldNode{{}, {}, mapFormat};
   auto layerNode = LayerNode{Layer{"layer"}};
@@ -105,7 +105,7 @@ TEST_CASE("EntityNodeTest.canRemoveChild")
 TEST_CASE("EntityNodeTest.setPointEntity")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto entityNode = EntityNode{Entity{}};
   auto brushNode1 = BrushNode{

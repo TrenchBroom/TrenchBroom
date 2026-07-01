@@ -67,10 +67,6 @@ enum class MapFormat
    */
   Quake3_Valve,
   /**
-   * Quake 3 with brush primitives, also allows Quake 2 brushes
-   */
-  Quake3,
-  /**
    * Quake 3 with brush primitives (brushDef). Uses a parallel, face-aligned UV coordinate
    * system.
    */

@@ -53,17 +53,13 @@ MapFormat formatFromName(const std::string& formatName)
   {
     return MapFormat::Daikatana;
   }
-  if (formatName == "Quake3 (legacy)")
+  if (formatName == "Quake3" || formatName == "Quake3 (legacy)")
   {
     return MapFormat::Quake3_Legacy;
   }
   if (formatName == "Quake3 (Valve)")
   {
     return MapFormat::Quake3_Valve;
-  }
-  if (formatName == "Quake3")
-  {
-    return MapFormat::Quake3;
   }
   if (formatName == "Quake3 (brush primitives)")
   {
@@ -103,9 +99,6 @@ std::ostream& operator<<(std::ostream& lhs, const MapFormat rhs)
   case MapFormat::Quake3_Valve:
     lhs << "Quake3_Valve";
     break;
-  case MapFormat::Quake3:
-    lhs << "Quake3";
-    break;
   case MapFormat::Quake3_BrushPrimitives:
     lhs << "Quake3_BrushPrimitives";
     break;
@@ -133,8 +126,6 @@ std::string formatName(const MapFormat format)
     return "Quake3 (legacy)";
   case MapFormat::Quake3_Valve:
     return "Quake3 (Valve)";
-  case MapFormat::Quake3:
-    return "Quake3";
   case MapFormat::Quake3_BrushPrimitives:
     return "Quake3 (brush primitives)";
   case MapFormat::Unknown:
@@ -163,17 +154,9 @@ std::vector<MapFormat> compatibleFormats(const MapFormat format)
     return {
       MapFormat::Quake3_Legacy,
       MapFormat::Quake3_Valve,
-      MapFormat::Quake3,
       MapFormat::Quake3_BrushPrimitives};
   case MapFormat::Quake3_Valve:
     return {
-      MapFormat::Quake3_Valve,
-      MapFormat::Quake3,
-      MapFormat::Quake3_Legacy,
-      MapFormat::Quake3_BrushPrimitives};
-  case MapFormat::Quake3:
-    return {
-      MapFormat::Quake3,
       MapFormat::Quake3_Valve,
       MapFormat::Quake3_Legacy,
       MapFormat::Quake3_BrushPrimitives};
@@ -181,7 +164,6 @@ std::vector<MapFormat> compatibleFormats(const MapFormat format)
     return {
       MapFormat::Quake3_BrushPrimitives,
       MapFormat::Quake3_Valve,
-      MapFormat::Quake3,
       MapFormat::Quake3_Legacy};
   case MapFormat::Unknown:
     return {MapFormat::Unknown};
@@ -205,7 +187,6 @@ bool isParallelUVCoordSystem(const MapFormat format)
   case MapFormat::Hexen2:
   case MapFormat::Daikatana:
   case MapFormat::Quake3_Legacy:
-  case MapFormat::Quake3:
   case MapFormat::Unknown:
     return false;
     switchDefault();
@@ -218,7 +199,7 @@ bool hasPatchSupport(const MapFormat format)
   {
   case MapFormat::Quake3_Valve:
   case MapFormat::Quake3_Legacy:
-  case MapFormat::Quake3:
+  case MapFormat::Quake3_BrushPrimitives:
     return true;
   case MapFormat::Valve:
   case MapFormat::Quake2_Valve:

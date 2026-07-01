@@ -169,7 +169,7 @@ TEST_CASE("NodeHandleManager")
   manager.registerHandleType<TestEdgeHandle>();
 
   const auto worldBounds = vm::bbox3d{8192.0};
-  auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3_Legacy, worldBounds};
   auto brushNode = BrushNode{brushBuilder.createCube(32.0, "material").value()};
 
   auto sharedBrushNode = BrushNode{translateBrush(

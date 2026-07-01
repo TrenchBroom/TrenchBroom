@@ -44,7 +44,7 @@ TEST_CASE("LayerNode")
   SECTION("canAddChild")
   {
     constexpr auto worldBounds = vm::bbox3d{8192.0};
-    constexpr auto mapFormat = MapFormat::Quake3;
+    constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
     auto layerNode = LayerNode{Layer{"layer"}};
@@ -71,7 +71,7 @@ TEST_CASE("LayerNode")
   SECTION("canRemoveChild")
   {
     constexpr auto worldBounds = vm::bbox3d{8192.0};
-    constexpr auto mapFormat = MapFormat::Quake3;
+    constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
     auto layerNode = LayerNode{Layer{"layer"}};

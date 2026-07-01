@@ -336,7 +336,7 @@ brushDef
     const auto worldBounds = vm::bbox3d{8192.0};
 
     // NOLINTNEXTLINE(misc-const-correctness)
-    auto map = WorldNode{{}, {}, MapFormat::Quake3};
+    auto map = WorldNode{{}, {}, MapFormat::Quake3_Legacy};
 
     auto builder = BrushBuilder{map.mapFormat(), worldBounds};
     auto* brushNode1 =

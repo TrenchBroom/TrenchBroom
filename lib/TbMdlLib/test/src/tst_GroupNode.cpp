@@ -101,7 +101,7 @@ TEST_CASE("GroupNode.openAndClose")
 TEST_CASE("GroupNode.canAddChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto layerNode = LayerNode{Layer{"layer"}};
@@ -140,7 +140,7 @@ TEST_CASE("GroupNode.canAddChild")
 TEST_CASE("GroupNode.canRemoveChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   const auto worldNode = WorldNode{{}, {}, mapFormat};
   auto layerNode = LayerNode{Layer{"layer"}};

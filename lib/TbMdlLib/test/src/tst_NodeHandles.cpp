@@ -66,7 +66,7 @@ auto testCamera(const vm::vec3f& position)
 TEST_CASE("VertexHandle")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
-  auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3_Legacy, worldBounds};
   auto brushNode = BrushNode{brushBuilder.createCube(32.0, "material").value()};
 
   SECTION("getHandles")
@@ -108,7 +108,7 @@ TEST_CASE("VertexHandle")
 TEST_CASE("EdgeHandle")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
-  auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3_Legacy, worldBounds};
   auto brushNode = BrushNode{brushBuilder.createCube(32.0, "material").value()};
 
   SECTION("getHandles")
@@ -169,7 +169,7 @@ TEST_CASE("EdgeHandle")
 TEST_CASE("FaceHandle")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
-  auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3_Legacy, worldBounds};
   auto brushNode = BrushNode{brushBuilder.createCube(32.0, "material").value()};
 
   SECTION("getHandles")

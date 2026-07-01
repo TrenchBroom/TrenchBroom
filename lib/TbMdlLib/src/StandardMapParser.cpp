@@ -360,7 +360,7 @@ void StandardMapParser::parseObject(ParserStatus& status)
     }
   }
   else if (
-    m_sourceMapFormat == MapFormat::Quake3 || m_sourceMapFormat == MapFormat::Quake3_Valve
+    m_sourceMapFormat == MapFormat::Quake3_Valve
     || m_sourceMapFormat == MapFormat::Quake3_Legacy)
   {
     // We expect either a patch or a regular brush.
@@ -439,7 +439,6 @@ void StandardMapParser::parseFace(ParserStatus& status)
     break;
   case MapFormat::Quake2:
   case MapFormat::Quake3_Legacy:
-  case MapFormat::Quake3:
     parseQuake2Face(status);
     break;
   case MapFormat::Quake2_Valve:

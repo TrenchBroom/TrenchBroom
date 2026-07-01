@@ -166,7 +166,7 @@ auto MatchesLinkIds(std::vector<std::vector<const Node*>> expected)
 TEST_CASE("collectLinkedGroups")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -662,7 +662,7 @@ TEST_CASE("updateLinkedGroups")
     // see https://github.com/TrenchBroom/TrenchBroom/issues/4257
 
     const auto worldBounds = vm::bbox3d{8192.0};
-    const auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+    const auto brushBuilder = BrushBuilder{MapFormat::Quake3_Legacy, worldBounds};
 
     auto sourceGroupNode = GroupNode{Group{"name"}};
     auto* sourceBrushNode =
@@ -720,7 +720,7 @@ TEST_CASE("updateLinkedGroups")
 
 TEST_CASE("initializeLinkIds")
 {
-  auto brushBuilder = BrushBuilder{MapFormat::Quake3, vm::bbox3d{8192.0}};
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3_Legacy, vm::bbox3d{8192.0}};
 
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto& layerNode = *worldNode.defaultLayer();
@@ -1046,7 +1046,7 @@ TEST_CASE("initializeLinkIds")
 TEST_CASE("resetLinkIds")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
-  auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3_Legacy, worldBounds};
 
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* outerEntityNode = new EntityNode{Entity{}};

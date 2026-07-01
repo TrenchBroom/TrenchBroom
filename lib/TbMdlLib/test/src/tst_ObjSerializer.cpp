@@ -52,7 +52,7 @@ TEST_CASE("ObjSerializer.writeBrush")
 
   auto taskManager = kdl::task_manager{};
 
-  auto map = WorldNode{{}, {}, MapFormat::Quake3};
+  auto map = WorldNode{{}, {}, MapFormat::Quake3_Legacy};
 
   auto builder = BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
@@ -121,7 +121,7 @@ TEST_CASE("ObjSerializer.writePatch")
 
   auto taskManager = kdl::task_manager{};
 
-  auto map = WorldNode{{}, {}, MapFormat::Quake3};
+  auto map = WorldNode{{}, {}, MapFormat::Quake3_Legacy};
 
   auto builder = BrushBuilder{map.mapFormat(), worldBounds};
   auto* patchNode = new PatchNode{BezierPatch{
@@ -404,7 +404,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   auto material = gl::Material{"some_material", std::move(textureResource)};
   material.setRelativePath("textures/some_material.png");
 
-  auto map = WorldNode{{}, {}, MapFormat::Quake3};
+  auto map = WorldNode{{}, {}, MapFormat::Quake3_Legacy};
 
   auto builder = BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =

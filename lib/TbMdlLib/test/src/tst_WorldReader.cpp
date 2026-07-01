@@ -1248,7 +1248,7 @@ common/caulk
 }
 })";
 
-    auto reader = WorldReader{data, MapFormat::Quake3, {}};
+    auto reader = WorldReader{data, MapFormat::Quake3_Legacy, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);

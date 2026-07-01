@@ -501,7 +501,7 @@ TEST_CASE("GameConfigParser")
 {
     "version": 9,
     "name": "Extras",
-    "fileformats": [ { "format": "Quake3" } ],
+    "fileformats": [ { "format": "Quake3 (legacy)" } ],
     "filesystem": {
         "searchpath": "baseq3",
         "packageformat": { "extension": "pk3", "format": "zip" }
@@ -730,7 +730,7 @@ TEST_CASE("GameConfigParser")
         {},
         {},
         false,
-        {mdl::MapFormatConfig{"Quake3", {}}},
+        {mdl::MapFormatConfig{"Quake3 (legacy)", {}}},
         mdl::FileSystemConfig{{"baseq3"}, mdl::PackageFormatConfig{{".pk3"}, "zip"}},
         mdl::MaterialConfig{
           {"textures"},

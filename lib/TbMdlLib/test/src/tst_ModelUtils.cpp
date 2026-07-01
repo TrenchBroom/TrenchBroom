@@ -53,7 +53,7 @@ using namespace Catch::Matchers;
 TEST_CASE("ModelUtils.findContainingLayer")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -85,7 +85,7 @@ TEST_CASE("ModelUtils.findContainingLayer")
 TEST_CASE("ModelUtils.findContainingGroup")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -119,7 +119,7 @@ TEST_CASE("ModelUtils.findContainingGroup")
 TEST_CASE("ModelUtils.findOutermostClosedGroup")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -183,7 +183,7 @@ TEST_CASE("ModelUtils.findOutermostClosedGroup")
 TEST_CASE("ModelUtils.collectTouchingNodes")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -258,7 +258,7 @@ TEST_CASE("ModelUtils.collectTouchingNodes")
 TEST_CASE("ModelUtils.collectContainedNodes")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -333,7 +333,7 @@ TEST_CASE("ModelUtils.collectContainedNodes")
 TEST_CASE("ModelUtils.collectSelectedNodes")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -400,7 +400,7 @@ TEST_CASE("ModelUtils.collectSelectedNodes")
 TEST_CASE("ModelUtils.collectSelectableNodes")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -449,7 +449,7 @@ TEST_CASE("ModelUtils.collectSelectableNodes")
 TEST_CASE("ModelUtils.collectSelectedBrushFaces")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -485,7 +485,7 @@ TEST_CASE("ModelUtils.collectSelectedBrushFaces")
 TEST_CASE("ModelUtils.collectSelectableBrushFaces")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto* selectableBrushNode = new BrushNode{
@@ -507,7 +507,7 @@ TEST_CASE("ModelUtils.collectSelectableBrushFaces")
 TEST_CASE("ModelUtils.computeLogicalBounds")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -551,7 +551,7 @@ TEST_CASE("ModelUtils.computeLogicalBounds")
 TEST_CASE("ModelUtils.computePhysicalBounds")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -595,7 +595,7 @@ TEST_CASE("ModelUtils.computePhysicalBounds")
 TEST_CASE("ModelUtils.filterNodes")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 

@@ -44,7 +44,7 @@ using namespace Catch::Matchers;
 TEST_CASE("NodeQueries")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
@@ -226,7 +226,7 @@ TEST_CASE("NodeQueries")
 TEST_CASE("collectBrushFaces")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  constexpr auto mapFormat = MapFormat::Quake3_Legacy;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto* brushNode = new BrushNode{
