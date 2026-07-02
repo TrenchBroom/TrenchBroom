@@ -481,6 +481,7 @@ target_link_libraries(TbUiLib
     PrecompileQtHeaders
     PrecompileStdHeaders
     cpptrace::cpptrace
+    ctre::ctre
     Qt6::Svg
   PUBLIC
     KdLib

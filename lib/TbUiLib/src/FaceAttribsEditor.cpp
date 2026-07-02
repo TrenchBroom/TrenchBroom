@@ -52,7 +52,8 @@
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <regex>
+#include <ctre.hpp>
+
 #include <string>
 
 namespace tb::ui
@@ -65,11 +66,11 @@ class ColorValidator : public QValidator
 public:
   State validate(QString& input, int&) const override
   {
-    static const auto Pattern = std::regex{R"(^\s*(?:\d+\s*){0,3}$)"};
+    static constexpr auto matcher = ctre::match<R"(^\s*(?:\d+\s*){0,3}$)">;
 
     const auto str = input.toStdString();
     return str.empty() || RgbB::parse(str).is_success() ? State::Acceptable
-           : std::regex_match(str, Pattern)             ? State::Intermediate
+           : matcher(str)                               ? State::Intermediate
                                                         : State::Invalid;
   };
 };
