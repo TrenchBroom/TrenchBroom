@@ -8,7 +8,6 @@ target_sources(KdLib
     "${CMAKE_CURRENT_SOURCE_DIR}/src/filesystem_utils.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/path_hash.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/path_utils.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/regex_utils.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/result_error.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/string_compare.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/string_format.cpp"
