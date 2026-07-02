@@ -63,8 +63,6 @@ public:
 private:
   void connectObservers();
 
-  void reload();
-
   void updateFilterFlags();
 
   void showHiddenIssuesChanged();
