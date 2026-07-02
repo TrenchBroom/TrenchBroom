@@ -74,7 +74,11 @@ void FlagsEditor::setFlags(
 
   auto* layout = new QGridLayout{};
   layout->setHorizontalSpacing(LayoutConstants::WideHMargin);
-  layout->setVerticalSpacing(0);
+#if defined(Q_OS_MACOS)
+  layout->setVerticalSpacing(LayoutConstants::WideVMargin);
+#else
+  layout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+#endif
   layout->setSizeConstraint(QLayout::SetMinimumSize);
 
   for (size_t row = 0; row < numRows; ++row)
