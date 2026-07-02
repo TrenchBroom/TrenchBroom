@@ -19,6 +19,7 @@
 
 #include "ui/FlagsEditor.h"
 
+#include <QBoxLayout>
 #include <QCheckBox>
 #include <QGridLayout>
 
@@ -32,9 +33,16 @@ namespace tb::ui
 
 FlagsEditor::FlagsEditor(const size_t numCols, QWidget* parent)
   : QWidget{parent}
+  , m_checkBoxContainer{new QWidget{this}}
   , m_numCols{numCols}
 {
   contract_pre(m_numCols > 0);
+
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(0);
+  layout->addWidget(m_checkBoxContainer);
+  setLayout(layout);
 }
 
 void FlagsEditor::setFlags(const QStringList& labels, const QStringList& tooltips)
@@ -62,7 +70,7 @@ void FlagsEditor::setFlags(
   m_checkBoxes.resize(count, nullptr);
   m_values.resize(count, 0);
 
-  deleteChildWidgetsLaterAndDeleteLayout(this);
+  deleteChildWidgetsLaterAndDeleteLayout(m_checkBoxContainer);
 
   auto* layout = new QGridLayout{};
   layout->setHorizontalSpacing(LayoutConstants::WideHMargin);
@@ -101,7 +109,7 @@ void FlagsEditor::setFlags(
   contract_post(std::ranges::all_of(
     m_checkBoxes, [](const auto* checkBox) { return checkBox != nullptr; }));
 
-  setLayout(layout);
+  m_checkBoxContainer->setLayout(layout);
 }
 
 void FlagsEditor::setFlagValue(const int on, const int mixed)

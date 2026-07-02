@@ -36,6 +36,8 @@ private:
   using CheckBoxList = std::vector<QCheckBox*>;
   using ValueList = std::vector<int>;
 
+  QWidget* m_checkBoxContainer = nullptr;
+
   size_t m_numCols;
   CheckBoxList m_checkBoxes;
   ValueList m_values;
