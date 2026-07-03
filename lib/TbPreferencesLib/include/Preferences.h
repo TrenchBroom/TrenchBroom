@@ -298,6 +298,7 @@ inline auto ShowSoftMapBounds = Preference<bool>{"Map view/Show soft map bounds"
 
 inline auto ShowPointEntities = Preference<bool>{"Map view/Show point entities", true};
 inline auto ShowBrushes = Preference<bool>{"Map view/Show brushes", true};
+inline auto ShowPatches = Preference<bool>{"Map view/Show patches", true};
 
 inline constexpr auto EntityLinkModeAll = "all";
 inline constexpr auto EntityLinkModeTransitive = "transitive";
