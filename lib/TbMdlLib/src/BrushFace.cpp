@@ -25,6 +25,7 @@
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/Quake3BrushPrimitive.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TagVisitor.h"
 #include "mdl/UVCoordSystem.h"
@@ -66,6 +67,10 @@ BrushFace::BrushFace(const BrushFace& other)
   , m_attributes{other.m_attributes}
   , m_materialReference{other.m_materialReference}
   , m_uvCoordSystem{other.m_uvCoordSystem ? other.m_uvCoordSystem->clone() : nullptr}
+  , m_brushPrimitiveMatrix{
+      other.m_brushPrimitiveMatrix
+        ? std::make_unique<Quake3BrushPrimitiveMatrix>(*other.m_brushPrimitiveMatrix)
+        : nullptr}
   , m_lineNumber{other.m_lineNumber}
   , m_lineCount{other.m_lineCount}
   , m_selected{other.m_selected}
@@ -81,6 +86,7 @@ BrushFace::BrushFace(BrushFace&& other) noexcept
   , m_attributes{std::move(other.m_attributes)}
   , m_materialReference{std::move(other.m_materialReference)}
   , m_uvCoordSystem{std::move(other.m_uvCoordSystem)}
+  , m_brushPrimitiveMatrix{std::move(other.m_brushPrimitiveMatrix)}
   , m_geometry{other.m_geometry}
   , m_lineNumber{other.m_lineNumber}
   , m_lineCount{other.m_lineCount}
@@ -105,6 +111,7 @@ void swap(BrushFace& lhs, BrushFace& rhs) noexcept
   swap(lhs.m_attributes, rhs.m_attributes);
   swap(lhs.m_materialReference, rhs.m_materialReference);
   swap(lhs.m_uvCoordSystem, rhs.m_uvCoordSystem);
+  swap(lhs.m_brushPrimitiveMatrix, rhs.m_brushPrimitiveMatrix);
   swap(lhs.m_geometry, rhs.m_geometry);
   swap(lhs.m_lineNumber, rhs.m_lineNumber);
   swap(lhs.m_lineCount, rhs.m_lineCount);
@@ -196,6 +203,46 @@ Result<BrushFace> BrushFace::createFromValve(
   }
 
   return BrushFace::create(point1, point2, point3, attribs, std::move(uvCoordSystem));
+}
+
+Result<BrushFace> BrushFace::createFromBrushPrimitive(
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const vm::vec3d& point3,
+  const BrushFaceAttributes& inputAttribs,
+  const Quake3BrushPrimitiveMatrix& matrix,
+  const MapFormat mapFormat)
+{
+  contract_pre(mapFormat != MapFormat::Unknown);
+
+  // The real texture size is not known yet, so build a provisional projection assuming
+  // the Quake 3 default of 64x64. This is exact for 64x64 textures; for other sizes
+  // finalizeBrushPrimitiveProjection() recomputes it once the material has been assigned.
+  auto normal = vm::vec3d{0, 0, 1};
+  if (const auto plane = vm::from_points(point1, point2, point3))
+  {
+    normal = plane->normal;
+  }
+
+  const auto uv = brushPrimitiveMatrixToParallelUV(normal, matrix, vm::vec2f{64, 64});
+
+  auto attribs = inputAttribs;
+  attribs.setOffset(uv.offset);
+  attribs.setScale(uv.scale);
+  attribs.setRotation(uv.rotation);
+
+  return createFromValve(point1, point2, point3, attribs, uv.uAxis, uv.vAxis, mapFormat)
+         | kdl::transform([&](BrushFace&& face) {
+             // Only parallel formats can reproduce the projection exactly, so only they
+             // need the deferred, texture-size aware conversion. A paraxial target (e.g.
+             // Quake 3 legacy) keeps the provisional projection.
+             if (isParallelUVCoordSystem(mapFormat))
+             {
+               face.m_brushPrimitiveMatrix =
+                 std::make_unique<Quake3BrushPrimitiveMatrix>(matrix);
+             }
+             return std::move(face);
+           });
 }
 
 Result<BrushFace> BrushFace::create(
@@ -513,6 +560,33 @@ bool BrushFace::setMaterial(gl::Material* material)
   }
 
   m_materialReference = AssetReference(material);
+  return true;
+}
+
+bool BrushFace::finalizeBrushPrimitiveProjection()
+{
+  if (!m_brushPrimitiveMatrix)
+  {
+    return false;
+  }
+
+  // Resources are processed asynchronously, so wait until the material's texture has been
+  // loaded and textureSize() reports the real dimensions. Until then keep the provisional
+  // 64x64 projection; this is retried whenever the texture resource has been processed.
+  if (!gl::getTexture(material()))
+  {
+    return false;
+  }
+
+  const auto uv = brushPrimitiveMatrixToParallelUV(
+    m_boundary.normal, *m_brushPrimitiveMatrix, textureSize());
+
+  m_uvCoordSystem = std::make_unique<ParallelUVCoordSystem>(uv.uAxis, uv.vAxis);
+  m_attributes.setOffset(uv.offset);
+  m_attributes.setScale(uv.scale);
+  m_attributes.setRotation(uv.rotation);
+
+  m_brushPrimitiveMatrix.reset();
   return true;
 }
 

@@ -28,7 +28,6 @@
 
 #include "kd/contracts.h"
 
-#include "vm/plane.h"
 #include "vm/vec.h"
 
 #include <string>
@@ -645,29 +644,14 @@ void StandardMapParser::parseBrushPrimitiveFace(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
   }
 
-  // The brush primitive texture matrix is expressed relative to the face plane's axis
-  // base and yields normalized texture coordinates, so converting it into TrenchBroom's
-  // (texel based) parallel UV coordinate system requires the face normal and the texture
-  // size. The texture size is not yet known while parsing (materials are assigned to
-  // faces afterwards), so we assume the Quake 3 default of 64x64. This is exact for 64x64
-  // textures and for any face that is subsequently saved (the real texture size is used
-  // when serializing). See TODO 2427.
-  const auto textureSize = vm::vec2f{64, 64};
-
-  auto normal = vm::vec3d{0, 0, 1};
-  if (const auto plane = vm::from_points(p1, p2, p3))
-  {
-    normal = plane->normal;
-  }
-
-  const auto uvAxes = brushPrimitiveMatrixToUVAxes(normal, {row0, row1}, textureSize);
-
-  attribs.setOffset(uvAxes.offset);
-  attribs.setScale(vm::vec2f{1, 1});
-  attribs.setRotation(0.0f);
-
-  onValveBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, attribs, uvAxes.uAxis, uvAxes.vAxis, status);
+  // The brush primitive texture matrix yields normalized texture coordinates, so
+  // converting it into TrenchBroom's (texel based) parallel UV coordinate system requires
+  // the texture size, which is not yet known while parsing (materials are assigned
+  // afterwards). We therefore pass the raw matrix on and defer the conversion until the
+  // material (and hence the real texture size) is available (see
+  // BrushFace::finalizeBrushPrimitiveProjection).
+  onBrushPrimitiveFace(
+    location, m_targetMapFormat, p1, p2, p3, attribs, {row0, row1}, status);
 }
 
 void StandardMapParser::parsePatch(

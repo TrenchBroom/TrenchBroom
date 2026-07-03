@@ -82,6 +82,12 @@ public:
 
   void setFaceMaterial(size_t faceIndex, gl::Material* material);
 
+  /**
+   * Finalizes a face loaded from a Quake 3 brush primitive now that its texture is
+   * available. See BrushFace::finalizeBrushPrimitiveProjection().
+   */
+  void finalizeBrushPrimitiveFace(size_t faceIndex);
+
   bool contains(const Node& node) const;
   bool intersects(const Node& node) const;
 

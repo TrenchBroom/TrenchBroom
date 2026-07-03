@@ -37,6 +37,7 @@ namespace mdl
 {
 class EntityProperty;
 class BrushFaceAttributes;
+struct Quake3BrushPrimitiveMatrix;
 
 class MapParser
 {
@@ -68,6 +69,15 @@ protected: // subclassing interface for users of the parser
     const BrushFaceAttributes& attribs,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
+    ParserStatus& status) = 0;
+  virtual void onBrushPrimitiveFace(
+    const FileLocation& location,
+    MapFormat targetMapFormat,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
+    const BrushFaceAttributes& attribs,
+    const Quake3BrushPrimitiveMatrix& matrix,
     ParserStatus& status) = 0;
   virtual void onPatch(
     const FileLocation& startLocation,
