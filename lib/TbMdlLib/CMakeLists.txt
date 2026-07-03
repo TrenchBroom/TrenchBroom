@@ -101,6 +101,8 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadSkin.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadSpriteModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadTexture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadUnrealPackage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadUnrealTexture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadWalTexture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LockState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LongPropertyKeyValidator.cpp
