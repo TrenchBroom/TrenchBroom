@@ -177,6 +177,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolController.cpp
