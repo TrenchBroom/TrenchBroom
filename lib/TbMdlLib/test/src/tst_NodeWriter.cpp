@@ -18,6 +18,9 @@
  */
 
 #include "Matchers.h"
+#include "TestParserStatus.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
@@ -33,9 +36,14 @@
 #include "mdl/TestUtils.h"
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
+#include "mdl/WorldReader.h"
 
 #include "kd/result.h"
 #include "kd/task_manager.h"
+
+#include "vm/approx.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <fmt/format.h>
 
@@ -310,8 +318,10 @@ TEST_CASE("NodeWriter")
 
     const auto actual = str.str();
 
-    // Brush primitives are serialised as brushes wrapped in a brushDef block, and each
-    // face stores a 2x3 texture projection matrix.
+    // Brush primitives are serialized as brushes wrapped in a brushDef block, and each
+    // face stores a 2x3 texture projection matrix. The surface contents/flags/value are
+    // always written because NetRadiant fails to load a brush primitive face without
+    // them.
     CHECK(actual == R"(// entity 0
 {
 "classname" "worldspawn"
@@ -319,16 +329,94 @@ TEST_CASE("NodeWriter")
 {
 brushDef
 {
-( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test
-( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test
-( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) ( ( 0 1 0 ) ( -1 0 0 ) ) e1u1/test
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) ( ( 0 1 0 ) ( -1 0 0 ) ) e1u1/test
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test 0 0 0
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test 0 0 0
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) ( ( 0 1 0 ) ( -1 0 0 ) ) e1u1/test 0 0 0
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) ( ( 0 1 0 ) ( -1 0 0 ) ) e1u1/test 0 0 0
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test 0 0 0
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) ( ( 1 0 0 ) ( 0 1 0 ) ) e1u1/test 0 0 0
 }
 }
 }
 )");
+  }
+
+  SECTION("quake3BrushPrimitivesRoundTrip")
+  {
+    // A brush primitive face whose offset, scale and rotation are all modified must
+    // survive a write and read back through the real serializer and parser. A mirror is
+    // folded onto the V axis, so mirrored faces use a negative Y scale.
+    const auto worldBounds = vm::bbox3d{8192.0};
+    auto status = TestParserStatus{};
+
+    struct TestCase
+    {
+      vm::vec2f textureSize;
+      vm::vec2f offset;
+      vm::vec2f scale;
+      float rotation;
+    };
+
+    // clang-format off
+    const auto testCases = std::vector<TestCase>{
+      {{128, 256}, {16, -8},   {0.5f, 0.5f},  30.0f},
+      {{128, 128}, {-10, -20}, {0.5f, -0.5f}, 45.0f},
+      {{64, 128},  {12, 7},    {0.75f, 1.5f}, 180.0f},
+      {{256, 256}, {5, 5},     {2.0f, 0.5f},  270.0f},
+    };
+    // clang-format on
+
+    for (const auto& testCase : testCases)
+    {
+      const auto w = size_t(testCase.textureSize.x());
+      const auto h = size_t(testCase.textureSize.y());
+      auto material = gl::Material{"test", gl::createTextureResource(gl::Texture{w, h})};
+
+      // Build a cube whose every face carries the modified projection, so all six normals
+      // are exercised. The material is assigned so the writer uses the real texture size.
+      auto map = WorldNode{{}, {}, MapFormat::Quake3_BrushPrimitives};
+      auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+      auto brush = builder.createCube(64.0, "test") | kdl::value();
+      for (size_t i = 0; i < brush.faces().size(); ++i)
+      {
+        auto& face = brush.face(i);
+        face.setMaterial(&material);
+        auto attribs = face.attributes();
+        attribs.setOffset(testCase.offset);
+        attribs.setScale(testCase.scale);
+        attribs.setRotation(testCase.rotation);
+        face.setAttributes(attribs);
+      }
+      map.defaultLayer()->addChild(new BrushNode{std::move(brush)});
+
+      auto str = std::stringstream{};
+      auto writer = NodeWriter{map, str};
+      writer.writeMap(taskManager);
+
+      const auto serialized = str.str();
+      auto reader = WorldReader{serialized, MapFormat::Quake3_BrushPrimitives, {}};
+      auto worldResult = reader.read(worldBounds, status, taskManager);
+      REQUIRE(worldResult);
+
+      const auto& world = worldResult.value();
+      auto* readBrushNode =
+        static_cast<BrushNode*>(world->defaultLayer()->children().front());
+
+      // The parser leaves a provisional 64x64 projection; finalize each face with its
+      // real texture the way the resource pipeline does, then check the attributes.
+      for (size_t i = 0; i < readBrushNode->brush().faces().size(); ++i)
+      {
+        readBrushNode->setFaceMaterial(i, &material);
+        readBrushNode->finalizeBrushPrimitiveFace(i);
+      }
+
+      for (const auto& face : readBrushNode->brush().faces())
+      {
+        CHECK(face.attributes().offset() == vm::approx{testCase.offset, 0.0001f});
+        CHECK(face.attributes().scale() == vm::approx{testCase.scale, 0.0001f});
+        CHECK(face.attributes().rotation() == vm::approx{testCase.rotation, 0.01f});
+      }
+    }
   }
 
   SECTION("writeQuake3Map keeps legacy faces, not brush primitives")
